@@ -1,46 +1,7 @@
-// DocumentCodec -- the MSPDI half.
-//
+// DocumentCodec, MSPDI half: reads and writes the exchange partner's XML, keeping the round trip.
 // @unit      UF-36   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure
-//
-// Converts between the exchange partner's XML and the document; the round trip
-// of FR-021 is what everything below is arranged around.
-//
-// ---- what this file does NOT do -------------------------------------------
-//
-// It does not judge the content: that is ValidateImportedDocument (CP-13),
-// which takes a `Document` and so runs after this. Only the FR-023 MUSTs about
-// the TEXT land here (external entities, `innerHTML`, the leading BOM), because
-// nothing after the parser could still honour them.
-//
-// It does not advance `Project.importSeq` or write a `TaskOrigin`: MG-13 of
-// table T-032 ties both to one import, which a `pure` function cannot mint.
-// ImportDocument (CP-10) does both.
-//
-// ---- the two axes (Chapter 5.4) -------------------------------------------
-//
-// Only the WBS crosses the wire (AT-25 / AT-26 in, DV-5 / DV-6 out); the row
-// tree (ET-4 / ET-5) never appears in the XML.
-//
-// ---- weekday numbers (a trap) ---------------------------------------------
-//
-// The exchange partner numbers weekdays four ways (mspdi_pj12.xsd):
-//
-//   Project/WeekStartDay          xsd:595   0=Sunday .. 6=Saturday
-//   .../WeekDay/DayType           xsd:1249  0=Exception, 1=Sunday .. 7=Saturday
-//   .../Exception/DaysOfWeek      xsd:1401  a bitmask: 1=Sunday .. 64=Saturday
-//   .../Exception/MonthItem       xsd:1406  0=Day, 1=Weekday, 2=WeekendDay,
-//                                           3=Sunday .. 9=Saturday
-//
-// ⛔ This file converts none of them: AT-17 and AT-73 keep the first two as they
-// arrive (one apart), and the other two ride in `Exception.carry`.
-//
-// ---- the round trip -------------------------------------------------------
-//
-// It rests on declared child order (`CHILD_ORDER`), unread scalars in `carry`,
-// unread elements in `carryElements` (table T-053), and the values table T-059
-// makes at write time. Known deviations are marked `STOP --` in the body.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type {
@@ -67,23 +28,11 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import customFields from './mspdi-custom-fields.json'
 
-// ---------------------------------------------------------------- surface ---
-
-/** Why a text could not be read as an MSPDI document. */
 export interface MspdiFault {
-  /**
-   * Where, as a path of element names with 1-based positions, e.g.
-   * `/Project/Tasks/Task[3]/UID`; `''` is the text as a whole (NT-1 of table
-   * T-037 wants the item named).
-   */
   readonly at: string
   readonly what: string
 }
 
-/**
- * Something the caller must be told although the work went through (NT-5 of
- * table T-037).
- */
 export interface MspdiNotice {
   readonly at: string
   readonly what: string
@@ -97,35 +46,16 @@ export type MspdiDecoding =
     }
   | { readonly ok: false; readonly faults: readonly MspdiFault[] }
 
-/**
- * Notices travel beside the text, unlike `jsonFromDocument`'s bare string,
- * because EX-6 of table T-033 has the person told at the moment of writing.
- * A failure is a value here, never a throw (FR-028, R7.10).
- */
 export interface MspdiEncoding {
   readonly text: string
   readonly notices: readonly MspdiNotice[]
 }
 
-/**
- * The namespace written on the root: the XSD's (mspdi_pj12.xsd:21), not the
- * `.../project` of the examples in Microsoft's element reference (grep under
- * docs/reference/mspdi/learn-docs), since Chapter 6.2 names the XSD the
- * authority. Reading matches local names in any namespace, so both come in.
- */
+// WHY: the XSD's namespace, not the one in the element reference examples; reading matches local names in any namespace.
 export const MSPDI_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 
-// ------------------------------------------------ the exchange partner's ----
-// ------------------------------------------------ declared child order   ----
-
-/**
- * The children of each element this file writes, in the order the official
- * XSD declares them: each is an `xsd:sequence`, so it is the only order EX-1 of
- * table T-033 accepts, and it also restores `carry`, whose maps keep no order.
- * Read off the schema, not typed from memory.
- */
+// see EX-1
 const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
-  // mspdi_pj12.xsd, element Project
   Project: [
     'SaveVersion', 'UID', 'Name', 'Title', 'Subject', 'Category', 'Company', 'Manager',
     'Author', 'CreationDate', 'Revision', 'LastSaved', 'ScheduleFromStart', 'StartDate',
@@ -145,7 +75,6 @@ const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
     'ActualsInSync', 'RemoveFileProperties', 'AdminProject', 'OutlineCodes', 'WBSMasks',
     'ExtendedAttributes', 'Calendars', 'Tasks', 'Resources', 'Assignments',
   ],
-  // mspdi_pj12.xsd, element Task
   Task: [
     'UID', 'ID', 'Name', 'Type', 'IsNull', 'CreateDate', 'Contact', 'WBS', 'WBSLevel',
     'OutlineNumber', 'OutlineLevel', 'Priority', 'Start', 'Finish', 'Duration',
@@ -168,7 +97,6 @@ const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
     'IsPublished', 'StatusManager', 'CommitmentStart', 'CommitmentFinish',
     'CommitmentType', 'TimephasedData',
   ],
-  // mspdi_pj12.xsd, element Resource
   Resource: [
     'UID', 'ID', 'Name', 'Type', 'IsNull', 'Initials', 'Phonetics', 'NTAccount',
     'MaterialLabel', 'Code', 'Group', 'WorkGroup', 'EmailAddress', 'Hyperlink',
@@ -185,7 +113,6 @@ const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
     'OutlineCode', 'IsCostResource', 'AssnOwner', 'AssnOwnerGuid', 'IsBudget',
     'AvailabilityPeriods', 'Rates', 'TimephasedData',
   ],
-  // mspdi_pj12.xsd, element Assignment
   Assignment: [
     'UID', 'TaskUID', 'ResourceUID', 'PercentWorkComplete', 'ActualCost',
     'ActualFinish', 'ActualOvertimeCost', 'ActualOvertimeWork', 'ActualStart',
@@ -203,7 +130,6 @@ const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
     ...assignmentFieldCodes(),
     'TimephasedData',
   ],
-  // mspdi_pj12.xsd, elements Calendar .. PredecessorLink
   Calendar: ['UID', 'Name', 'IsBaseCalendar', 'BaseCalendarUID', 'WeekDays',
     'Exceptions', 'WorkWeeks'],
   WeekDay: ['DayType', 'DayWorking', 'TimePeriod', 'WorkingTimes'],
@@ -215,13 +141,8 @@ const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
     'LinkLag', 'LagFormat'],
 }
 
-/**
- * `f404000` .. `f4040c8`, the contiguous run the XSD declares under `Assignment`
- * between `Baseline` and `TimephasedData`: generated, because a typo among
- * hand-typed literals would silently move a carried scalar.
- *
- * @purity pure
- */
+// WHY: generated rather than typed, since a typo among the literals would silently misplace a carried scalar.
+/** @purity pure */
 function assignmentFieldCodes(): readonly string[] {
   const codes: string[] = []
   for (let code = 0x000; code <= 0x0c8; code += 1) {
@@ -230,22 +151,13 @@ function assignmentFieldCodes(): readonly string[] {
   return codes
 }
 
-// -------------------------------------------------------------- XML tree ----
-
-/**
- * One element of the exchange partner's tree. No attribute field: see
- * `readStartTag`.
- *
- * ⚠️ `text` is meaningful only when `children` is empty; whitespace between
- * child elements is layout (NR-2 of table T-228).
- */
 interface XmlElement {
   readonly name: string
+  // TRAP: meaningful only when children is empty; whitespace between child elements is layout.
   readonly text: string
   readonly children: readonly XmlElement[]
 }
 
-/** A frame of the reader's explicit stack. */
 interface OpenElement {
   readonly name: string
   readonly texts: string[]
@@ -269,20 +181,11 @@ function notice(at: string, what: string): MspdiNotice {
   return { at, what }
 }
 
-/**
- * The five named references XML predefines, and nothing else: any other
- * `&name;` needs a DOCTYPE, which `readXml` refuses.
- */
 const NAMED_REFERENCES: Readonly<Record<string, string>> = {
   lt: '<', gt: '>', amp: '&', quot: '"', apos: "'",
 }
 
-/**
- * Character data with its references resolved, or null when a reference is one
- * this reader does not have.
- *
- * @purity pure
- */
+/** @purity pure */
 function decodedText(raw: string): string | null {
   if (!raw.includes('&')) return raw
   let out = ''
@@ -315,19 +218,9 @@ function decodedText(raw: string): string | null {
   return out
 }
 
-/**
- * Read one MSPDI text into a tree. Takes the text, not a parsed value, so a
- * malformed input is refused here, as `documentFromJson` does.
- *
- * The stack is explicit, not recursive: nothing bounds how deep an untrusted
- * file nests until CP-13 applies table T-211, and a recursive reader would
- * overflow instead of refusing.
- *
- * ⛔ A DOCTYPE is refused, not skipped, so no code path here could expand an
- * external entity (FR-023).
- *
- * @purity pure
- */
+// WHY: an explicit stack, since nothing bounds nesting before validation and recursion would overflow.
+// see FR-023
+/** @purity pure */
 function readXml(text: string): XmlReading {
   const stack: OpenElement[] = []
   let root: XmlElement | null = null
@@ -364,7 +257,6 @@ function readXml(text: string): XmlReading {
     if (text.startsWith('<!--', foundAt)) {
       const end = text.indexOf('-->', foundAt + 4)
       if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated comment') }
-      // Comments are dropped: nothing in the document can hold one.
       foundAt = end + 3
       continue
     }
@@ -439,13 +331,7 @@ type StartTagReading =
   | { readonly ok: true; readonly name: string; readonly isEmpty: boolean; readonly after: number }
   | { readonly ok: false; readonly fault: MspdiFault }
 
-/**
- * One start tag. ⛔ An attribute other than a namespace declaration is refused:
- * the XSD declares no `xsd:attribute` (grep mspdi_pj12.xsd), so `carry` and
- * `carryElements` have no room for one and it would vanish on the way back.
- *
- * @purity pure
- */
+/** @purity pure */
 function readStartTag(text: string, from: number, path: string): StartTagReading {
   let foundAt = from + 1
   const first = text[foundAt]
@@ -486,6 +372,7 @@ function readStartTag(text: string, from: number, path: string): StartTagReading
       return { ok: false, fault: fault(path, `an unterminated attribute ${attributeName}`) }
     }
     foundAt = close + 1
+    // WHY: refused, since the XSD declares no attribute and carry has no room for one; it would vanish on write.
     if (attributeName !== 'xmlns' && !attributeName.startsWith('xmlns:')) {
       return {
         ok: false,
@@ -495,33 +382,21 @@ function readStartTag(text: string, from: number, path: string): StartTagReading
   }
 }
 
-/**
- * A qualified name without its prefix, so a prefixed and a default namespace
- * read the same (FR-021).
- *
- * @purity pure
- */
+/** @purity pure */
 function localName(qualified: string): string {
   const colon = qualified.lastIndexOf(':')
   return colon < 0 ? qualified : qualified.slice(colon + 1)
 }
-
-// ------------------------------------------------------------ XML writing ---
 
 /** @purity pure */
 function escapedText(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-/**
- * One element and everything under it, indented; iterative for the same reason
- * as `readXml`.
- *
- * @purity pure
- */
+// see CN-5
+/** @purity pure */
 function writtenXml(root: XmlElement, namespace: string): string {
   const parts: string[] = ['<?xml version="1.0" encoding="UTF-8"?>\n']
-  // No BOM (CN-5 of table T-003).
   type Step = { readonly element: XmlElement; readonly depth: number; readonly isClose: boolean }
   const steps: Step[] = [{ element: root, depth: 0, isClose: false }]
   while (steps.length > 0) {
@@ -549,8 +424,6 @@ function writtenXml(root: XmlElement, namespace: string): string {
   return parts.join('')
 }
 
-// ----------------------------------------------------------- small values ---
-
 /** @purity pure */
 function leafText(element: XmlElement): string {
   return element.children.length === 0 ? element.text : ''
@@ -561,12 +434,8 @@ function childOf(element: XmlElement, name: string): XmlElement | null {
   return element.children.find((child) => child.name === name) ?? null
 }
 
-/**
- * A column that keeps the exchange partner's text as it arrived. ⛔ Never
- * trimmed or reformatted (FR-054, EX-4 of table T-033).
- *
- * @purity pure
- */
+// TRAP: never trim or reformat here; the arriving text is the column's value.
+/** @purity pure */
 function textColumn(element: XmlElement, name: string): string | null {
   const child = childOf(element, name)
   return child === null ? null : leafText(child)
@@ -577,13 +446,7 @@ function integerColumn(element: XmlElement, name: string): number | null {
   return wholeNumberOf(textColumn(element, name))
 }
 
-/**
- * One `xsd:integer` the document can hold, or `null` when the text is not one.
- * Separate from `integerColumn` so a value inside a `CarryElement` (AT-125) is
- * read by the same rule.
- *
- * @purity pure
- */
+/** @purity pure */
 function wholeNumberOf(raw: string | null | undefined): number | null {
   if (raw === null || raw === undefined) return null
   const trimmed = raw.trim()
@@ -592,12 +455,7 @@ function wholeNumberOf(raw: string | null | undefined): number | null {
   return Number.isSafeInteger(value) ? value : null
 }
 
-/**
- * An `xsd:boolean` in any of its four spellings. ⚠️ Anything else is `null`,
- * not `false`, so it is not mistaken for a value that said false (FR-024).
- *
- * @purity pure
- */
+/** @purity pure */
 function booleanColumn(element: XmlElement, name: string): boolean | null {
   const raw = textColumn(element, name)
   if (raw === null) return null
@@ -612,12 +470,7 @@ function isTrue(element: XmlElement, name: string): boolean {
   return booleanColumn(element, name) === true
 }
 
-/**
- * The minutes an `xsd:duration` names, or null for years or months (FR-054).
- * `xsd:duration` has no weeks.
- *
- * @purity pure
- */
+/** @purity pure */
 function minutesOfDuration(raw: string): number | null {
   const hit = /^(-)?P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/
     .exec(raw.trim())
@@ -631,54 +484,34 @@ function minutesOfDuration(raw: string): number | null {
   return hit[1] === '-' ? -total : total
 }
 
-/**
- * The spelling EX-9 of table T-033 fixes for a length of working time.
- *
- * @purity pure
- */
+// see EX-9
+/** @purity pure */
 function durationOfMinutes(minutes: number): string {
   const whole = Math.max(0, Math.round(minutes))
   return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`
 }
 
-/**
- * The minutes one working day stands for (FR-054, S-128 of table T-209).
- * Takes the number, not a `Project`: reading draws it from the file and
- * writing from the document (see `tasksFromRoot`).
- *
- * @purity pure
- */
+// see FR-054, S-128
+/** @purity pure */
 function minutesPerWorkingDay(minutesPerDay: number | null): number {
   return minutesPerDay !== null && minutesPerDay > 0
     ? minutesPerDay
     : DEFAULT_CALENDAR_VALUES['S-128']
 }
 
-// ----------------------------------------------------- carry (table T-053) --
-
-/**
- * One element's children that did not become columns (DF-2 of table T-053).
- */
 interface CarrySplit {
   readonly carry: Readonly<Record<string, string>>
   readonly carryElements: readonly CarryElement[]
 }
 
-/**
- * Split one element's children into what was understood and what was not.
- * `ordinal` counts every child of the owner (AT-123), not only the carried
- * ones, so `splicedCarriedRows` can put a carried row back where it stood.
- *
- * @purity pure
- */
+/** @purity pure */
 function carrySplit(element: XmlElement, consumed: readonly string[]): CarrySplit {
   const carry: Record<string, string> = {}
   const carryElements: CarryElement[] = []
+  // TRAP: ordinal counts every child, carried or not; splicedCarriedRows puts carried rows back by it.
   element.children.forEach((child, ordinal) => {
     if (consumed.includes(child.name)) return
     if (child.children.length === 0) {
-      // ⚠️ The last spelling wins when a scalar arrives twice. The schema
-      // declares each once; refusing a repeat is CP-13's call, not this file's.
       carry[child.name] = child.text
       return
     }
@@ -687,12 +520,7 @@ function carrySplit(element: XmlElement, consumed: readonly string[]): CarrySpli
   return { carry, carryElements }
 }
 
-/**
- * One element GRS does not interpret, kept in its original form (DF-2 of table
- * T-053).
- *
- * @purity pure
- */
+/** @purity pure */
 function carriedElement(element: XmlElement, ordinal: number): CarryElement {
   const fields: Record<string, string> = {}
   const children: CarryElement[] = []
@@ -703,17 +531,9 @@ function carriedElement(element: XmlElement, ordinal: number): CarryElement {
   return { ordinal, name: element.name, fields, children }
 }
 
-/**
- * A carried element on its way back out.
- *
- * ⚠️ STOP -- leaves go out before element children, which is the schema's
- * order for `ExtendedAttribute` and `TimephasedData` but not for `Baseline`,
- * `OutlineCodes/OutlineCode` or `WorkWeeks/WorkWeek` (every `xsd:sequence` in
- * mspdi_pj12.xsd checked). `CarryElement` has no column ordering `fields`
- * (AT-125) against `children` (AT-126).
- *
- * @purity pure
- */
+// STOP: spec does not decide the order of fields against children in a CarryElement; leaves go
+// first, wrong for Baseline, OutlineCode and WorkWeek. Looked in AT-125, AT-126
+/** @purity pure */
 function writtenCarriedElement(carried: CarryElement): XmlElement {
   const children: XmlElement[] = []
   for (const [name, value] of Object.entries(carried.fields)) {
@@ -725,18 +545,12 @@ function writtenCarriedElement(carried: CarryElement): XmlElement {
   return { name: carried.name, text: '', children }
 }
 
-/** One child on its way out, with the position that decides where it goes. */
 interface PlacedChild {
   readonly element: XmlElement
   readonly ordinal: number
 }
 
-/**
- * The children of one element in the order the official XSD declares them,
- * ties broken by `ordinal` (AT-123).
- *
- * @purity pure
- */
+/** @purity pure */
 function writtenChildren(
   parentName: string,
   named: readonly PlacedChild[],
@@ -763,12 +577,8 @@ function writtenChildren(
     .map((one) => one.child.element)
 }
 
-/**
- * Where the schema declares this name among its parent's children. An
- * undeclared name ranks last: misplacing it loses less than dropping it.
- *
- * @purity pure
- */
+// WHY: an undeclared name ranks last, since misplacing it loses less than dropping it.
+/** @purity pure */
 function declaredRank(order: readonly string[], name: string): number {
   const found = order.indexOf(name)
   return found < 0 ? order.length : found
@@ -779,129 +589,60 @@ function leaf(name: string, text: string): PlacedChild {
   return { element: { name, text, children: [] }, ordinal: 0 }
 }
 
-/**
- * A column written only when it holds something -- unlike FR-024's `GRS JSON`,
- * because an empty element would tell the partner's tool the value IS empty.
- *
- * @purity pure
- */
+// WHY: an empty element would tell the partner's tool the value is empty, so nothing is written.
+/** @purity pure */
 function optionalLeaf(name: string, value: string | number | boolean | null): PlacedChild[] {
   if (value === null) return []
   if (typeof value === 'boolean') return [leaf(name, value ? '1' : '0')]
   return [leaf(name, String(value))]
 }
 
-// -------------------------------------------- the two borrowed frames -------
-
-/**
- * AT-40 and AT-41.
- */
 type FadeColumn = 'fadeInDays' | 'fadeOutDays'
 
-/** One row of the roster EX-6 of table T-033 searches. */
 interface CustomFieldFrame {
-  /** The exchange partner's own name for the frame, for a notice to quote. */
   readonly name: string
-  /**
-   * `FieldID`, the only thing a value carries (EX-6).
-   */
   readonly fieldId: number
-  /** Which column asks for this frame first. */
   readonly prefers: string
-  /**
-   * The word written into the definition's `Alias` (EX-6). ⛔ May be empty; see
-   * `isAliasUsable`.
-   */
   readonly alias: string
 }
 
-/**
- * The roster, and the two numbers with it. ⛔ No frame number is written in
- * this file: `docs/spec/_source/mspdi-custom-fields.json` owns them and
- * `npm run gen` prints the copy imported above (rule 03 section 1).
- *
- * Reading `customFields` does not make a function `semi-pure-a`: it is a
- * module constant compiled into the program.
- */
 const CUSTOM_FIELD_FRAMES: readonly CustomFieldFrame[] = customFields.frames
 
-/**
- * Where a notice about the frames points: the definition collection EX-6 and
- * EX-8 are about (NT-1 of table T-037).
- */
 const EXTENDED_ATTRIBUTES_AT = '/Project/ExtendedAttributes'
 
-/**
- * The column a roster `prefers` names, or `null`. The generated roster is
- * still read as data, so a third name must not become one of these two.
- *
- * @purity pure
- */
+/** @purity pure */
 function fadeColumnOf(prefers: string): FadeColumn | null {
   if (prefers === 'fadeInDays') return 'fadeInDays'
   if (prefers === 'fadeOutDays') return 'fadeOutDays'
   return null
 }
 
-/**
- * The word this column is known by, or `''` when the roster has none. It
- * belongs to the column, not the frame, so a column EX-6 moved to another
- * frame is still found by the reader.
- *
- * @purity pure
- */
+/** @purity pure */
 function aliasOfColumn(column: FadeColumn): string {
   return CUSTOM_FIELD_FRAMES.find((frame) => frame.prefers === column)?.alias ?? ''
 }
 
-/**
- * Whether a frame may be claimed at all. ⛔ Not with an empty alias: without a
- * word, GRS's definition and the partner's look the same, and EX-6 turns on
- * telling them apart. Nor past mspdi_pj12.xsd:1055's length (EX-1).
- *
- * @purity pure
- */
+// see EX-6
+/** @purity pure */
 function isAliasUsable(alias: string): boolean {
-  // Code points, which is what `xsd:maxLength` counts.
+  // TRAP: count code points, as xsd:maxLength does; alias.length counts UTF-16 units.
   return alias !== '' && [...alias].length <= customFields.aliasMaxLength
 }
 
-/**
- * The custom-field definitions that arrived, where DF-2 of table T-053 put
- * them; only their `Alias` is read (EX-6).
- *
- * @purity pure
- */
+/** @purity pure */
 function carriedDefinitions(carried: readonly CarryElement[]): readonly CarryElement[] {
   const collection = carried.find((one) => one.name === 'ExtendedAttributes')
   if (collection === undefined) return []
   return collection.children.filter((one) => one.name === 'ExtendedAttribute')
 }
 
-// -------------------------------------------------------------- importing ---
-
-/**
- * Everything one pass of the reader accumulates besides the document. Made
- * inside the one entry and never escaping it, so writing into it stays `pure`.
- */
 interface ImportRun {
   readonly notices: MspdiNotice[]
-  /**
-   * How many `Task`s had an `ActualDuration` rounded; see
-   * `tellRoundedActualDurations`.
-   */
   roundedActualDurationCount: number
 }
 
-/**
- * Read one MSPDI text into a document.
- *
- * `current` supplies what no MSPDI holds: DR-3's group, DR-4's stamp and
- * change log (ET-16 / ET-17 of table T-056), and DR-5's `themeHue`. ⚠️ Its
- * schedule is not merged in; merging is FR-056's, in ImportDocument (CP-10).
- *
- * @purity pure
- */
+// see FR-021, FR-023
+/** @purity pure */
 export function documentFromMspdi(text: string, current: Document): MspdiDecoding {
   const reading = readXml(withoutLeadingByteOrderMark(text))
   if (!reading.ok) return { ok: false, faults: [reading.fault] }
@@ -928,21 +669,9 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
   }
 }
 
-/**
- * A leading byte order mark (FR-023). Written as an escape, not the character
- * itself (rule 03 section 5).
- */
 export const BYTE_ORDER_MARK = '\uFEFF'
 
-/**
- * FR-023. ⛔ Only the leading mark goes; a `U+FEFF` anywhere else is content.
- *
- * Shared with `json-codec.ts` and `document-codec.ts` (OP-12) rather than
- * copied, so two intake paths cannot part over FR-023's MUST NOT; it lives here
- * because table T-075 gives the component no unit of its own for it.
- *
- * @purity pure
- */
+/** @purity pure */
 export function withoutLeadingByteOrderMark(text: string): string {
   return text.startsWith(BYTE_ORDER_MARK) ? text.slice(BYTE_ORDER_MARK.length) : text
 }
@@ -955,7 +684,6 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
   const assignmentsRead = assignmentsFromRoot(root, run)
   const rows = rowsFromTasks(tasksRead.tasks, current.documentSettings.maxGroupDepth)
 
-  // DF-3 of table T-053: rows that did not become rows go on `Project`.
   const project = projectFromRoot(root, current, [
     ...calendarsRead.carriedRows,
     ...tasksRead.carriedRows,
@@ -978,8 +706,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     assignments: assignmentsRead.assignments,
     taskGroups: rows.taskGroups,
     taskGroupMembers: rows.taskGroupMembers,
-    // Empty on purpose: ET-11, ET-13, ET-14 and ET-18 have no MSPDI element, and
-    // `taskOrigins` is CP-10's (see the header).
+    // WHY: empty; these entities have no MSPDI element, and task origins are the import use case's.
     taskVisuals: [],
     commentBoxes: [],
     highlightBoxes: [],
@@ -988,12 +715,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
   }
 }
 
-/**
- * `Project`'s own columns. `carriedRows` are the collections' rows that did not
- * become rows (DF-3 of table T-053).
- *
- * @purity pure
- */
+/** @purity pure */
 function projectFromRoot(
   root: XmlElement,
   current: Document,
@@ -1002,41 +724,34 @@ function projectFromRoot(
 ): Project {
   const split = carrySplit(root, PROJECT_CONSUMED)
   return {
-    id: textColumn(root, 'UID'),                          // AT-1
-    name: textColumn(root, 'Name'),                       // AT-2
-    title: textColumn(root, 'Title'),                     // AT-3
-    subject: textColumn(root, 'Subject'),                 // AT-4
-    category: textColumn(root, 'Category'),               // AT-5
-    company: textColumn(root, 'Company'),                 // AT-6
-    manager: textColumn(root, 'Manager'),                 // AT-7
-    author: textColumn(root, 'Author'),                   // AT-8
-    created: textColumn(root, 'CreationDate'),            // AT-9
-    revision: integerColumn(root, 'Revision'),            // AT-10
-    lastSaved: textColumn(root, 'LastSaved'),             // AT-11
-    startDate: textColumn(root, 'StartDate'),             // AT-12
-    statusDate: textColumn(root, 'StatusDate'),           // AT-13
-    minutesPerDay: integerColumn(root, 'MinutesPerDay'),  // AT-14
-    minutesPerWeek: integerColumn(root, 'MinutesPerWeek'), // AT-15
-    daysPerMonth: integerColumn(root, 'DaysPerMonth'),    // AT-16
-    // AT-17. ⛔ Not converted; see the header.
+    id: textColumn(root, 'UID'),
+    name: textColumn(root, 'Name'),
+    title: textColumn(root, 'Title'),
+    subject: textColumn(root, 'Subject'),
+    category: textColumn(root, 'Category'),
+    company: textColumn(root, 'Company'),
+    manager: textColumn(root, 'Manager'),
+    author: textColumn(root, 'Author'),
+    created: textColumn(root, 'CreationDate'),
+    revision: integerColumn(root, 'Revision'),
+    lastSaved: textColumn(root, 'LastSaved'),
+    startDate: textColumn(root, 'StartDate'),
+    statusDate: textColumn(root, 'StatusDate'),
+    minutesPerDay: integerColumn(root, 'MinutesPerDay'),
+    minutesPerWeek: integerColumn(root, 'MinutesPerWeek'),
+    daysPerMonth: integerColumn(root, 'DaysPerMonth'),
+    // TRAP: kept as it arrives (0 = Sunday), one apart from DayType (1 = Sunday); never convert either.
     weekStartDay: integerColumn(root, 'WeekStartDay'),
-    calendarUid: integerColumn(root, 'CalendarUID'),      // AT-18
-    // AT-19 to AT-21 have no MSPDI element, so they come from `current`; see the
-    // header for `importSeq`.
+    calendarUid: integerColumn(root, 'CalendarUID'),
     themeHue: current.schedule.project.themeHue,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSeq: current.schedule.project.importSeq,
-    carry: split.carry,                                   // AT-22
-    carryElements: [...split.carryElements, ...carriedRows], // AT-23
-    // AT-139 has no MSPDI element; `outlineBaseOf` measures it off `<Tasks>`.
-    outlineBase,                                          // AT-139
+    carry: split.carry,
+    carryElements: [...split.carryElements, ...carriedRows],
+    outlineBase,
   }
 }
 
-/**
- * What `projectFromRoot` has accounted for; the four collections are listed so
- * their rows are not carried a second time.
- */
 const PROJECT_CONSUMED: readonly string[] = [
   'UID', 'Name', 'Title', 'Subject', 'Category', 'Company', 'Manager', 'Author',
   'CreationDate', 'Revision', 'LastSaved', 'StartDate', 'StatusDate', 'MinutesPerDay',
@@ -1044,11 +759,7 @@ const PROJECT_CONSUMED: readonly string[] = [
   'Calendars', 'Tasks', 'Resources', 'Assignments',
 ]
 
-/**
- * `ID`, `OutlineLevel`, `OutlineNumber` and `Summary` are consumed, not carried:
- * DV-4 to DV-7 of table T-059 rebuild them, and a carried copy too would give
- * two answers with no rule for which wins.
- */
+// WHY: ID, OutlineLevel, OutlineNumber and Summary are consumed, not carried: they are rebuilt on write.
 const TASK_CONSUMED: readonly string[] = [
   'UID', 'Name', 'Start', 'Finish', 'Milestone', 'Deadline', 'Notes', 'CalendarUID',
   'ActualStart', 'ActualDuration', 'ActualFinish', 'Resume', 'ResumeValid',
@@ -1076,17 +787,11 @@ const DEPENDENCY_CONSUMED: readonly string[] = [
 
 interface TasksReading {
   readonly tasks: readonly Task[]
-  /** What did not become a row, on its way to `project.carryElements`. */
   readonly carriedRows: readonly CarryElement[]
-  /** AT-139. */
   readonly outlineBase: number
 }
 
-/**
- * AT-139 (FR-021), read over the whole collection.
- *
- * @purity pure
- */
+/** @purity pure */
 function outlineBaseOf(collection: XmlElement): number {
   for (const element of collection.children) {
     if (element.name !== 'Task') continue
@@ -1096,25 +801,14 @@ function outlineBaseOf(collection: XmlElement): number {
   return 1
 }
 
-/**
- * Every `Task`, and the elements under `<Tasks>` that are not tasks.
- *
- * An EX-5 empty row (`Task/IsNull`) and a `Task` with no `UID` are carried whole
- * (DF-3 of table T-053). ⛔ Not dropped (FR-021), and not a refusal of the file:
- * FR-023 does not list a missing UID, and FR-012's note on EX-5 forbids losing
- * a file over one row.
- *
- * @purity pure
- */
+// see DF-3, FR-021
+/** @purity pure */
 function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const collection = childOf(root, 'Tasks')
   if (collection === null) return { tasks: [], carriedRows: [], outlineBase: 1 }
-  // The file's own `Project/MinutesPerDay`, ⛔ not the standing document's:
-  // dividing by one number and multiplying back by another loses the column.
+  // TRAP: the file's own MinutesPerDay, not the document's: dividing by one and multiplying by another loses the value.
   const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
-  // EX-6, once: the definitions are the project's, not each task's.
   const fadeColumns = fadeColumnsByFieldId(root)
-  // Once for the whole collection, so every task of one file shares one base.
   const outlineBase = outlineBaseOf(collection)
   const tasks: Task[] = []
   const carriedRows: CarryElement[] = []
@@ -1128,7 +822,6 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     }
     const uid = integerColumn(element, 'UID')
     if (uid === null) {
-      // No primary key (AT-24): carried whole, with a notice (NT-5 of table T-037).
       carriedRows.push(carriedElement(element, ordinal))
       run.notices.push(notice(
         `/Project/Tasks/Task[${ordinal + 1}]`,
@@ -1137,9 +830,6 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
       return
     }
     const level = integerColumn(element, 'OutlineLevel')
-    // Depth counts from the file's own base (AT-139). ⚠️ A missing
-    // `OutlineLevel`, or one shallower than the base, reads as a root: the only
-    // reading that keeps every task in the tree (FR-058).
     const shifted = level === null ? 1 : level - outlineBase + 1
     const depth = shifted < 1 ? 1 : shifted
     const parentIndex = lastIndexShallowerThan(levels, depth)
@@ -1155,13 +845,7 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   return { tasks, carriedRows, outlineBase }
 }
 
-/**
- * FR-054's count of rounded `Task`s, told as ONE notice once every task is
- * read: a notice per task would bury a large file and never say how many.
- * Silent when nothing was rounded.
- *
- * @purity pure
- */
+/** @purity pure */
 function tellRoundedActualDurations(run: ImportRun): void {
   const rounded = run.roundedActualDurationCount
   if (rounded === 0) return
@@ -1173,14 +857,8 @@ function tellRoundedActualDurations(run: ImportRun): void {
   ))
 }
 
-/**
- * Which frame carries which fade column in this file, by the definitions'
- * `Alias` (EX-6): by number alone, the partner's own value in the same frame
- * would be read as a count of days. `isAliasUsable` keeps an empty word from
- * matching every definition that has no alias.
- *
- * @purity pure
- */
+// WHY: matched by Alias, not FieldID alone, or the partner's own value in the frame would read as days.
+/** @purity pure */
 function fadeColumnsByFieldId(root: XmlElement): ReadonlyMap<number, FadeColumn> {
   const claimed = new Map<number, FadeColumn>()
   const collection = childOf(root, 'ExtendedAttributes')
@@ -1204,12 +882,7 @@ function fadeColumnsByFieldId(root: XmlElement): ReadonlyMap<number, FadeColumn>
   return claimed
 }
 
-/**
- * The nearest earlier task shallower than `depth`: this task's WBS parent
- * (AT-25).
- *
- * @purity pure
- */
+/** @purity pure */
 function lastIndexShallowerThan(levels: readonly number[], depth: number): number | null {
   for (let index = levels.length - 1; index >= 0; index -= 1) {
     const level = levels[index]
@@ -1218,11 +891,7 @@ function lastIndexShallowerThan(levels: readonly number[], depth: number): numbe
   return null
 }
 
-/**
- * How many siblings this task already has under the same parent (AT-26).
- *
- * @purity pure
- */
+/** @purity pure */
 function countOfChildrenSoFar(
   levels: readonly number[],
   uids: readonly number[],
@@ -1255,47 +924,37 @@ function taskFromElement(
   const fade = fadeOfCarried(split.carryElements, fadeColumns)
   const foundAt = `/Project/Tasks/Task[${ordinal + 1}]`
   return {
-    uid,                                                    // AT-24
-    wbsParentUid,                                           // AT-25
-    wbsOrder,                                               // AT-26
-    name: textColumn(element, 'Name'),                      // AT-27
-    // AT-28, AT-29, AT-34, AT-36 and AT-37 keep their arriving text (FR-054).
+    uid,
+    wbsParentUid,
+    wbsOrder,
+    name: textColumn(element, 'Name'),
     start: textColumn(element, 'Start'),
     finish: textColumn(element, 'Finish'),
-    milestone: booleanColumn(element, 'Milestone'),         // AT-30
-    deadline: textColumn(element, 'Deadline'),              // AT-31
-    notes: textColumn(element, 'Notes'),                    // AT-32
-    calendarUid: integerColumn(element, 'CalendarUID'),     // AT-33
+    milestone: booleanColumn(element, 'Milestone'),
+    deadline: textColumn(element, 'Deadline'),
+    notes: textColumn(element, 'Notes'),
+    calendarUid: integerColumn(element, 'CalendarUID'),
     actualStart: textColumn(element, 'ActualStart'),
-    actualDuration: workingDaysOfActualDuration(element, minutesPerDay, foundAt, run), // AT-35
+    actualDuration: workingDaysOfActualDuration(element, minutesPerDay, foundAt, run),
     actualFinish: textColumn(element, 'ActualFinish'),
     resume: textColumn(element, 'Resume'),
-    resumeValid: booleanColumn(element, 'ResumeValid'),     // AT-38
-    percentComplete: integerColumn(element, 'PercentComplete'), // AT-39
-    // AT-40 and AT-41, from the frames EX-6 recognised (none while the roster's
-    // aliases are empty).
+    resumeValid: booleanColumn(element, 'ResumeValid'),
+    percentComplete: integerColumn(element, 'PercentComplete'),
     fadeInDays: fade.fadeInDays,
     fadeOutDays: fade.fadeOutDays,
-    dependencies: dependenciesFromTask(element),            // AT-42
-    carry: split.carry,                                     // AT-43
-    carryElements: fade.carryElements,                      // AT-44
+    dependencies: dependenciesFromTask(element),
+    carry: split.carry,
+    carryElements: fade.carryElements,
   }
 }
 
-/** AT-40 and AT-41, and what is left to carry once they are taken out. */
 interface FadeReading {
   readonly fadeInDays: number | null
   readonly fadeOutDays: number | null
   readonly carryElements: readonly CarryElement[]
 }
 
-/**
- * Take the fade days out of one task's extended attributes. A claimed value
- * leaves `carryElements`, or the writer would write it twice. A `Value` that
- * is not a whole number stays carried; judging it is CP-13's, not this file's.
- *
- * @purity pure
- */
+/** @purity pure */
 function fadeOfCarried(
   carried: readonly CarryElement[],
   fadeColumns: ReadonlyMap<number, FadeColumn>,
@@ -1309,6 +968,7 @@ function fadeOfCarried(
       : null
     const column = fieldId === null ? undefined : fadeColumns.get(fieldId)
     const days = column === undefined ? null : wholeNumberOf(one.fields['Value'])
+    // TRAP: a claimed value must leave the carried list, or the writer writes it twice.
     if (days === null) {
       rest.push(one)
       continue
@@ -1319,15 +979,8 @@ function fadeOfCarried(
   return { fadeInDays, fadeOutDays, carryElements: rest }
 }
 
-/**
- * AT-35's conversion (FR-054). Rounded by magnitude and sign because
- * `Math.round` sends a negative half toward zero.
- *
- * ⛔ `ActualDuration` is consumed, not carried, so returning `null` deletes what
- * the partner wrote. This only counts; `tellRoundedActualDurations` tells.
- *
- * @purity pure
- */
+// see AT-35, FR-054
+/** @purity pure */
 function workingDaysOfActualDuration(
   element: XmlElement,
   minutesPerDay: number,
@@ -1337,6 +990,7 @@ function workingDaysOfActualDuration(
   const raw = textColumn(element, 'ActualDuration')
   if (raw === null || raw.trim() === '') return null
   const minutes = minutesOfDuration(raw)
+  // TRAP: ActualDuration is consumed, not carried, so a null here deletes what the file held.
   if (minutes === null) {
     run.notices.push(notice(`${at}/ActualDuration`, `is not a length this reader measures: ${raw}`))
     return null
@@ -1344,14 +998,11 @@ function workingDaysOfActualDuration(
   const days = minutes / minutesPerDay
   if (Number.isInteger(days)) return days
   run.roundedActualDurationCount += 1
+  // TRAP: Math.round sends a negative half toward zero, so the magnitude is rounded.
   return Math.sign(days) * Math.round(Math.abs(days))
 }
 
-/**
- * The links held under this task, their successor (DF-4 of table T-053).
- *
- * @purity pure
- */
+/** @purity pure */
 function dependenciesFromTask(element: XmlElement): readonly Dependency[] {
   const links: Dependency[] = []
   element.children.forEach((child) => {
@@ -1361,12 +1012,12 @@ function dependenciesFromTask(element: XmlElement): readonly Dependency[] {
     const linkType = integerColumn(child, 'Type')
     if (predecessorUid === null || linkType === null) return
     links.push({
-      predecessorUid,                                  // AT-45
-      linkType,                                        // AT-46
-      lag: integerColumn(child, 'LinkLag'),             // AT-47
-      lagFormat: integerColumn(child, 'LagFormat'),     // AT-48
-      carry: split.carry,                              // AT-49
-      carryElements: split.carryElements,              // AT-50
+      predecessorUid,
+      linkType,
+      lag: integerColumn(child, 'LinkLag'),
+      lagFormat: integerColumn(child, 'LagFormat'),
+      carry: split.carry,
+      carryElements: split.carryElements,
     })
   })
   return links
@@ -1385,14 +1036,12 @@ function resourcesFromRoot(root: XmlElement, run: ImportRun): ResourcesReading {
   const carriedRows: CarryElement[] = []
   collection.children.forEach((element, ordinal) => {
     if (element.name !== 'Resource') return
-    // EX-5's empty row, marked the same way (mspdi_pj12.xsd, Resource/IsNull).
     if (isTrue(element, 'IsNull')) {
       carriedRows.push(carriedElement(element, ordinal))
       return
     }
     const uid = integerColumn(element, 'UID')
     if (uid === null) {
-      // DF-3 again: no primary key (AT-85). See `tasksFromRoot`.
       carriedRows.push(carriedElement(element, ordinal))
       run.notices.push(notice(
         `/Project/Resources/Resource[${ordinal + 1}]`,
@@ -1402,13 +1051,13 @@ function resourcesFromRoot(root: XmlElement, run: ImportRun): ResourcesReading {
     }
     const split = carrySplit(element, RESOURCE_CONSUMED)
     resources.push({
-      uid,                                                 // AT-85
-      name: textColumn(element, 'Name'),                   // AT-86
-      resourceKind: integerColumn(element, 'Type'),        // AT-87
-      isCostResource: booleanColumn(element, 'IsCostResource'), // AT-88
-      calendarUid: integerColumn(element, 'CalendarUID'),  // AT-89
-      carry: split.carry,                                  // AT-90
-      carryElements: split.carryElements,                  // AT-91
+      uid,
+      name: textColumn(element, 'Name'),
+      resourceKind: integerColumn(element, 'Type'),
+      isCostResource: booleanColumn(element, 'IsCostResource'),
+      calendarUid: integerColumn(element, 'CalendarUID'),
+      carry: split.carry,
+      carryElements: split.carryElements,
     })
   })
   return { resources, carriedRows }
@@ -1429,7 +1078,6 @@ function assignmentsFromRoot(root: XmlElement, run: ImportRun): AssignmentsReadi
     if (element.name !== 'Assignment') return
     const uid = integerColumn(element, 'UID')
     if (uid === null) {
-      // DF-3 again: no primary key (AT-92). See `tasksFromRoot`.
       carriedRows.push(carriedElement(element, ordinal))
       run.notices.push(notice(
         `/Project/Assignments/Assignment[${ordinal + 1}]`,
@@ -1439,11 +1087,11 @@ function assignmentsFromRoot(root: XmlElement, run: ImportRun): AssignmentsReadi
     }
     const split = carrySplit(element, ASSIGNMENT_CONSUMED)
     assignments.push({
-      uid,                                                 // AT-92
-      taskUid: integerColumn(element, 'TaskUID'),          // AT-93
-      resourceUid: integerColumn(element, 'ResourceUID'),  // AT-94
-      carry: split.carry,                                  // AT-95
-      carryElements: split.carryElements,                  // AT-96
+      uid,
+      taskUid: integerColumn(element, 'TaskUID'),
+      resourceUid: integerColumn(element, 'ResourceUID'),
+      carry: split.carry,
+      carryElements: split.carryElements,
     })
   })
   return { assignments, carriedRows }
@@ -1464,7 +1112,6 @@ function calendarsFromRoot(root: XmlElement, run: ImportRun): CalendarsReading {
     if (element.name !== 'Calendar') return
     const uid = integerColumn(element, 'UID')
     if (uid === null) {
-      // DF-3 again: no primary key (AT-63). See `tasksFromRoot`.
       carriedRows.push(carriedElement(element, ordinal))
       run.notices.push(notice(
         `/Project/Calendars/Calendar[${ordinal + 1}]`,
@@ -1474,15 +1121,15 @@ function calendarsFromRoot(root: XmlElement, run: ImportRun): CalendarsReading {
     }
     const split = carrySplit(element, CALENDAR_CONSUMED)
     calendars.push({
-      uid,                                                     // AT-63
-      name: textColumn(element, 'Name'),                       // AT-64
-      isBaseCalendar: booleanColumn(element, 'IsBaseCalendar'), // AT-65
-      baseCalendarUid: integerColumn(element, 'BaseCalendarUID'), // AT-66
-      ordinal,                                                 // AT-67
-      carry: split.carry,                                      // AT-68
-      carryElements: split.carryElements,                      // AT-69
-      weekDays: weekDaysOfCalendar(element),                   // AT-70
-      exceptions: exceptionsOfCalendar(element, uid, run),     // AT-71
+      uid,
+      name: textColumn(element, 'Name'),
+      isBaseCalendar: booleanColumn(element, 'IsBaseCalendar'),
+      baseCalendarUid: integerColumn(element, 'BaseCalendarUID'),
+      ordinal,
+      carry: split.carry,
+      carryElements: split.carryElements,
+      weekDays: weekDaysOfCalendar(element),
+      exceptions: exceptionsOfCalendar(element, uid, run),
     })
   })
   return { calendars, carriedRows }
@@ -1497,12 +1144,12 @@ function weekDaysOfCalendar(calendar: XmlElement): readonly WeekDay[] {
     if (element.name !== 'WeekDay') return
     const split = carrySplit(element, WEEKDAY_CONSUMED)
     weekDays.push({
-      ordinal,                                            // AT-72
-      // AT-73. ⛔ Not converted; see the header.
+      ordinal,
+      // TRAP: kept as it arrives (1 = Sunday), one apart from WeekStartDay (0 = Sunday); never convert either.
       dayType: integerColumn(element, 'DayType'),
-      dayWorking: booleanColumn(element, 'DayWorking'),   // AT-74
-      carry: split.carry,                                 // AT-75
-      carryElements: split.carryElements,                 // AT-76
+      dayWorking: booleanColumn(element, 'DayWorking'),
+      carry: split.carry,
+      carryElements: split.carryElements,
     })
   })
   return weekDays
@@ -1523,48 +1170,34 @@ function exceptionsOfCalendar(
     const period = childOf(element, 'TimePeriod')
     const recurrenceKind = integerColumn(element, 'Type')
     if (recurrenceKind !== null && recurrenceKind !== NO_RECURRENCE) {
-      // FR-054's notice for a repeating exception: told, not refused (NT-5 of
-      // table T-037).
       run.notices.push(notice(
         `/Project/Calendars/Calendar[uid=${calendarUid}]/Exceptions/Exception[${ordinal + 1}]`,
         'repeats, and repeating exception days are not spread over real dates',
       ))
     }
     exceptions.push({
-      ordinal,                                             // AT-77
-      name: textColumn(element, 'Name'),                   // AT-78
-      // AT-79 / AT-80. The two ends keep their arriving text (FR-054).
+      ordinal,
+      name: textColumn(element, 'Name'),
       fromDate: period === null ? null : textColumn(period, 'FromDate'),
       toDate: period === null ? null : textColumn(period, 'ToDate'),
-      dayWorking: booleanColumn(element, 'DayWorking'),    // AT-81
-      recurrenceKind,                                      // AT-82
-      carry: split.carry,                                  // AT-83
-      carryElements: split.carryElements,                  // AT-84
+      dayWorking: booleanColumn(element, 'DayWorking'),
+      recurrenceKind,
+      carry: split.carry,
+      carryElements: split.carryElements,
     })
   })
   return exceptions
 }
 
-/**
- * `Exception/Type` 9, no repetition (mspdi_pj12.xsd:1378; AT-82).
- */
 const NO_RECURRENCE = 9
-
-// ------------------------------------------------- rows for the tasks -------
 
 interface ImportedRows {
   readonly taskGroups: readonly TaskGroup[]
   readonly taskGroupMembers: readonly TaskGroupMember[]
 }
 
-/**
- * FR-058's rows. The row tree mirrors the WBS down to `S-125` of table T-211;
- * a deeper task joins its deepest ancestor's row, making that row a stack.
- * Rows are named from their task (IV-8 of table T-220), every task gets one
- * member (IV-6), and `stackOrder` stays null (AT-62).
- *
- * @purity pure
- */
+// see FR-058
+/** @purity pure */
 function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedRows {
   const depths = new Map<number, number>()
   const taskGroups: TaskGroup[] = []
@@ -1580,15 +1213,15 @@ function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedR
     const id = rowIdOfTask(task.uid)
     rowOfTask.set(task.uid, id)
     taskGroups.push({
-      id,                                       // AT-51
-      parentId: parentRow,                      // AT-52
-      label: null,                              // AT-53 -- shown from AT-54
-      derivedFromTaskUid: task.uid,             // AT-54
-      order: task.wbsOrder ?? 0,                // AT-55
-      isCollapsed: null,                        // AT-56
-      isHidden: null,                           // AT-57
-      color: null,                              // AT-58 -- null = from the theme
-      height: null,                             // AT-59 -- null = automatic
+      id,
+      parentId: parentRow,
+      label: null,
+      derivedFromTaskUid: task.uid,
+      order: task.wbsOrder ?? 0,
+      isCollapsed: null,
+      isHidden: null,
+      color: null,
+      height: null,
     })
   }
 
@@ -1601,18 +1234,14 @@ function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedR
   return { taskGroups, taskGroupMembers }
 }
 
-/**
- * The row of the nearest ancestor that has one. ⚠️ Bounded by the task count:
- * CP-13, which refuses a `wbsParentUid` ring, has not run yet.
- *
- * @purity pure
- */
+/** @purity pure */
 function deepestAncestorRow(
   task: Task,
   tasks: readonly Task[],
   rowOfTask: ReadonlyMap<number, string>,
 ): string | null {
   let at: number | null = task.wbsParentUid
+  // TRAP: bounded by the task count, since a wbsParentUid ring is refused only after this runs.
   for (let steps = 0; steps < tasks.length && at !== null; steps += 1) {
     const row = rowOfTask.get(at)
     if (row !== undefined) return row
@@ -1622,14 +1251,9 @@ function deepestAncestorRow(
   return null
 }
 
-/**
- * The row identifier a task's row gets. AT-51 fixes only the form, and a
- * `pure` function may not mint a random UUID (R7.1), so it is derived from the
- * task's UID (unique by IV-1 of table T-220) in the version-4 layout.
- * Deterministic so that importing one file twice gives the same row ids.
- *
- * @purity pure
- */
+// WHY: derived from the task UID, since a pure function may not mint a random UUID; importing twice gives the same ids.
+// see AT-51
+/** @purity pure */
 function rowIdOfTask(uid: number): string {
   const scalar = Math.trunc(uid)
   const sign = scalar < 0 ? 'f' : '0'
@@ -1637,19 +1261,12 @@ function rowIdOfTask(uid: number): string {
   return `00000000-0000-4000-8000-${sign}${digits}`
 }
 
-// -------------------------------------------------------------- exporting ---
-
-/** Everything one pass of the writer accumulates besides the tree. */
 interface ExportRun {
   readonly notices: MspdiNotice[]
 }
 
-/**
- * Write one document as MSPDI. ⚠️ See the STOP note on `Task/ID` in
- * `writtenTask`.
- *
- * @purity pure
- */
+// see FR-021
+/** @purity pure */
 export function mspdiFromDocument(document: Document): MspdiEncoding {
   const run: ExportRun = { notices: [] }
   const schedule = document.schedule
@@ -1664,14 +1281,9 @@ export function mspdiFromDocument(document: Document): MspdiEncoding {
 /** @purity pure */
 function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly XmlElement[] {
   const project = schedule.project
-  // EX-6 first: the frames decide both the tasks' values and the definitions
-  // (EX-8).
   const frames = claimedFrames(schedule, run)
   const definitions = writtenFadeDefinitions(frames, project.carryElements, project.carry)
   const named: PlacedChild[] = [
-    // The two `Project` children mspdi_pj12.xsd requires (no `minOccurs`, :232,
-    // :390; EX-1). An imported file has them in `carry` (DV-3, EX-2), so only a
-    // document GRS made itself reaches these constants.
     ...(project.carry['SaveVersion'] === undefined
       ? [leaf('SaveVersion', GRS_SAVE_VERSION)]
       : []),
@@ -1696,16 +1308,12 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     ...optionalLeaf('DaysPerMonth', project.daysPerMonth),
     ...optionalLeaf('WeekStartDay', project.weekStartDay),
     ...optionalLeaf('CalendarUID', project.calendarUid),
-    // DV-1 of table T-059, ⚠️ only when the file brought none: a carried
-    // `FinishDate` is the partner's own (EX-2).
     ...(project.carry['FinishDate'] === undefined
       ? optionalLeaf('FinishDate', latestTaskFinish(schedule))
       : []),
-    // EX-8, only when the file did not bring them.
     ...definitions.named,
   ]
-  // ⚠️ Spliced before the length test: a file whose only `Calendar` had no UID
-  // would otherwise lose its `<Calendars>`.
+  // TRAP: splice before the length test, or a file whose only Calendar had no UID loses its Calendars.
   const calendars = splicedCarriedRows(
     schedule.calendars.map(writtenCalendar), project.carryElements, 'Calendar',
   )
@@ -1723,41 +1331,26 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
     'Project',
     named,
     definitions.carry,
-    // ⛔ Collection rows are written inside their collection above; the schema
-    // declares no `Project/Task`, so the name tells them apart.
+    // TRAP: collection rows are written inside their collection; writing them here too duplicates them.
     definitions.carried.filter((one) => !isCarriedRow(one)),
   )
 }
 
-/**
- * Whether this carried element is a collection's row, which DF-3 of table T-053
- * also puts on `Project`.
- *
- * @purity pure
- */
+/** @purity pure */
 function isCarriedRow(carried: CarryElement): boolean {
   return CARRIED_ROW_NAMES.includes(carried.name)
 }
 
 const CARRIED_ROW_NAMES: readonly string[] = ['Calendar', 'Task', 'Resource', 'Assignment']
 
-/** One fade column and the frame EX-6's search gave it. */
 interface ClaimedFrame {
   readonly column: FadeColumn
-  /** The frame actually used, which is not always the preferred one. */
   readonly fieldId: number
-  /**
-   * The column's word, not the frame's; see `aliasOfColumn`.
-   */
   readonly alias: string
 }
 
-/**
- * EX-6's search: which frame each fade column is written to. Notices are
- * raised only for a column that has a value to write; anything else is noise.
- *
- * @purity pure
- */
+// see EX-6
+/** @purity pure */
 function claimedFrames(schedule: Schedule, run: ExportRun): readonly ClaimedFrame[] {
   const inUse = new Set<FadeColumn>()
   for (const task of schedule.tasks) {
@@ -1798,14 +1391,8 @@ function claimedFrames(schedule: Schedule, run: ExportRun): readonly ClaimedFram
   return claimed
 }
 
-/**
- * The `Alias` standing against each roster frame in the file that arrived. A
- * frame is free for a column only with no definition or one carrying that
- * column's alias; "any roster word" would let one fade column evict the other.
- * A person renaming the alias makes GRS skip its own frame, which is safe.
- *
- * @purity pure
- */
+// WHY: free only with no definition or this column's alias; any roster word would let one fade column evict the other.
+/** @purity pure */
 function aliasesOfDefinitions(carried: readonly CarryElement[]): ReadonlyMap<number, string> {
   const knownFieldIds = new Set(CUSTOM_FIELD_FRAMES.map((frame) => frame.fieldId))
   const aliases = new Map<number, string>()
@@ -1817,24 +1404,14 @@ function aliasesOfDefinitions(carried: readonly CarryElement[]): ReadonlyMap<num
   return aliases
 }
 
-/** What EX-8 adds to `Project`, and the carried values it had to take over. */
 interface FadeDefinitions {
   readonly carry: Readonly<Record<string, string>>
   readonly carried: readonly CarryElement[]
   readonly named: readonly PlacedChild[]
 }
 
-/**
- * EX-8: the definition of every frame this write uses, once. A definition the
- * file brought stays where it arrived (EX-2); a missing one is appended to the
- * arrived collection, since `Project` holds a single `<ExtendedAttributes>`.
- *
- * ⚠️ An empty `<ExtendedAttributes>` that arrived was filed as a scalar by
- * `carrySplit`; it is written back while no frame is claimed and dropped when
- * one is.
- *
- * @purity pure
- */
+// see EX-8
+/** @purity pure */
 function writtenFadeDefinitions(
   frames: readonly ClaimedFrame[],
   carried: readonly CarryElement[],
@@ -1855,6 +1432,8 @@ function writtenFadeDefinitions(
     const children = missing.map((claimed, index) => writtenCarriedElement(
       definitionOfFrame(claimed, index),
     ))
+    // TRAP: an empty ExtendedAttributes that arrived sits in carry as a scalar; it is dropped here
+    // once a frame is claimed, and written back otherwise.
     const { ExtendedAttributes: _takenOver, ...rest } = carry
     return {
       carry: rest,
@@ -1877,19 +1456,12 @@ function writtenFadeDefinitions(
   }
 }
 
-/**
- * One custom-field definition. ⚠️ The keys below are in the order
- * mspdi_pj12.xsd:991 declares (EX-8): `writtenCarriedElement` writes `fields`
- * in insertion order. `UserDef` is written from here because it states that
- * GRS made the definition; `CFType` and `ElemType` are the roster's. Built as
- * a `CarryElement` so arrived and built definitions share one writer.
- *
- * @purity pure
- */
+/** @purity pure */
 function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement {
   return {
     ordinal,
     name: 'ExtendedAttribute',
+    // TRAP: keys in the order the XSD declares; writtenCarriedElement writes fields in insertion order.
     fields: {
       FieldID: String(claimed.fieldId),
       CFType: String(customFields.cfType),
@@ -1901,16 +1473,9 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
   }
 }
 
-/**
- * AT-40 and AT-41 as `Task/ExtendedAttribute` values, in the frames EX-6 chose.
- *
- * ⚠️ STOP -- they go after everything the task carried, so a file that put a
- * claimed value ahead of an uninterpreted one comes back reordered, and NR-1
- * of table T-228 keeps sibling order. Closing it needs a column on `Task`
- * (table T-058), not a choice this file may make.
- *
- * @purity pure
- */
+// STOP: spec does not decide where claimed fade values go among carried ones; they go last,
+// which reorders siblings. Looked in T-058, NR-1
+/** @purity pure */
 function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
   const afterCarried = task.carryElements.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
   const placed: PlacedChild[] = []
@@ -1932,19 +1497,10 @@ function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedC
   return placed
 }
 
-/**
- * `Project/SaveVersion` for a document GRS made itself: this software's major
- * version (package.json `version`), since DV-2 of table T-059 wants the
- * writer's version and no row states it. ⛔ Not 12, which mspdi_pj12.xsd:234
- * documents as Project 2007.
- */
+// STOP: spec does not decide which writer version SaveVersion carries; the major version is used. Looked in DV-2
 const GRS_SAVE_VERSION = '0'
 
-/**
- * `Project/CurrencyCode` for a document GRS made itself (DV-3 has no `carry`
- * to take it from): ISO 4217's "no currency", the code set mspdi_pj12.xsd:392
- * names. ⛔ Not a real currency: no column of table T-058 holds money.
- */
+// WHY: ISO 4217's no-currency code, since no column of the document holds money.
 const UNSTATED_CURRENCY_CODE = 'XXX'
 
 /** @purity pure */
@@ -1952,12 +1508,8 @@ function collection(name: string, rows: readonly XmlElement[]): PlacedChild {
   return { element: { name, text: '', children: rows }, ordinal: 0 }
 }
 
-/**
- * DV-1: the latest `Task.finish`. The text is the one the task holds, never a
- * re-formatting of it (EX-4).
- *
- * @purity pure
- */
+// see DV-1
+/** @purity pure */
 function latestTaskFinish(schedule: Schedule): string | null {
   let latest: string | null = null
   let latestDay: number | null = null
@@ -1973,22 +1525,14 @@ function latestTaskFinish(schedule: Schedule): string | null {
   return latest
 }
 
-/**
- * The `<Tasks>` rows, with the EX-5 empty rows and the UID-less rows DF-3 of
- * table T-053 carried spliced back in by `ordinal`.
- *
- * @purity pure
- */
+/** @purity pure */
 function writtenTasks(
   schedule: Schedule,
   frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): readonly XmlElement[] {
-  // HM-9 of table T-015a leaves here. ⛔ Not `schedule.tasks` as held:
-  // `tasksRankedByTheRowTree` rewrites `wbsOrder` without moving the collection.
+  // TRAP: not schedule.tasks as held: the row-tree ranking rewrites wbsOrder without moving the collection.
   const ordered = tasksInWbsOrder(schedule.tasks)
-  // `ID`, `OutlineLevel` and `OutlineNumber` are all written on the file's own
-  // base (AT-139).
   const base = schedule.project.outlineBase
   const outlineLevels = new Map<number, number>()
   for (const [uid, depth] of taskDepths(ordered)) outlineLevels.set(uid, depth - 1 + base)
@@ -2004,24 +1548,11 @@ function writtenTasks(
   return splicedCarriedRows(written, schedule.project.carryElements, 'Task')
 }
 
-/**
- * The tasks in the order they leave: a walk of the WBS tree, siblings by
- * `wbsOrder` (AT-26), which `tasksRankedByTheRowTree` already ranked for HM-9
- * of table T-015a; ranking again here would give one rule two homes.
- *
- * A walk, not a flat sort, so a child follows its parent and DV-5 / DV-6 do
- * not jump. Iterative, for the reason `readXml` gives (S-115 of table T-211).
- * A task the walk never reaches (a ring) is appended, not dropped (FR-021). A
- * null `wbsOrder` sorts last, where `tasksRankedByTheRowTree` puts a task no
- * row draws.
- *
- * @purity pure
- */
+// WHY: a walk, not a flat sort, so a child follows its parent; a task on a ring is appended, not dropped.
+/** @purity pure */
 function tasksInWbsOrder(tasks: readonly Task[]): readonly Task[] {
   if (tasks.length < 2) return tasks
   const known = new Set(tasks.map((task) => task.uid))
-  // A parent no task in this document has is not a parent: the task is walked
-  // as a root.
   const family = new Map<number | null, Task[]>()
   for (const task of tasks) {
     const parent =
@@ -2072,12 +1603,7 @@ function splicedCarriedRows(
   return out
 }
 
-/**
- * How deep each task sits in the WBS, the root at 1 (S-115 of table T-211);
- * DV-5 writes it. ⚠️ Bounded: a document in hand may hold a ring.
- *
- * @purity pure
- */
+/** @purity pure */
 function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   const parents = new Map<number, number | null>()
   for (const task of tasks) parents.set(task.uid, task.wbsParentUid)
@@ -2085,6 +1611,7 @@ function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   for (const task of tasks) {
     let depth = 1
     let foundAt = task.wbsParentUid
+    // TRAP: bounded by the task count, since a document in hand may hold a ring.
     for (let steps = 0; steps < tasks.length && foundAt !== null; steps += 1) {
       depth += 1
       foundAt = parents.get(foundAt) ?? null
@@ -2094,11 +1621,8 @@ function taskDepths(tasks: readonly Task[]): ReadonlyMap<number, number> {
   return depths
 }
 
-/**
- * DV-6 of table T-059: the path through the tree, `1.2.3`.
- *
- * @purity pure
- */
+// see DV-6
+/** @purity pure */
 function outlineNumbers(
   tasks: readonly Task[],
   base: number,
@@ -2113,8 +1637,6 @@ function outlineNumbers(
     const parentPath = task.wbsParentUid === null ? [] : paths.get(task.wbsParentUid) ?? []
     const path = [...parentPath, next]
     paths.set(task.uid, path)
-    // A base of 0 means the partner leaves the level-0 row out of the numbering
-    // (written `0`, children from `1`); dropping the path's first step says so.
     const shown = path.slice(1 - base)
     numbers.set(task.uid, shown.length === 0 ? '0' : shown.join('.'))
   }
@@ -2136,9 +1658,8 @@ function writtenTask(
 ): XmlElement {
   const named: PlacedChild[] = [
     leaf('UID', String(task.uid)),
-    // ⚠️ STOP -- `ID` and DV-5 to DV-7 are rebuilt for every task: exact for an
-    // unedited file (FR-021), but EX-2's untouched tasks in an edited file are
-    // not covered, since no column says which tasks a person touched.
+    // STOP: spec does not decide which tasks a person touched, so ID and the outline columns are
+    // rebuilt for every task. Looked in FR-021, EX-2
     leaf('ID', String(index + base)),
     ...optionalLeaf('Name', task.name),
     ...optionalLeaf('OutlineNumber', numbers.get(task.uid) ?? null),
@@ -2167,25 +1688,14 @@ function writtenTask(
   }
 }
 
-/**
- * AT-35 written back (FR-054).
- *
- * @purity pure
- */
+/** @purity pure */
 function writtenActualDuration(task: Task, minutesPerDay: number): PlacedChild[] {
   if (task.actualDuration === null) return []
   return [leaf('ActualDuration', durationOfMinutes(task.actualDuration * minutesPerDay))]
 }
 
-/**
- * DV-9: `Stop`, written only for a suspended task. A carried `Stop` wins (G-13
- * of table T-005) and `writtenChildren` writes it back from `carry`.
- *
- * ⚠️ `dateFromWorkingDays` throws for a calendar that works no day; the throw
- * becomes a notice (FR-028, R7.10).
- *
- * @purity pure
- */
+// see DV-9
+/** @purity pure */
 function writtenStop(task: Task, schedule: Schedule, run: ExportRun): PlacedChild[] {
   if (task.carry['Stop'] !== undefined) return []
   const state = planActualState(task)
@@ -2194,7 +1704,6 @@ function writtenStop(task: Task, schedule: Schedule, run: ExportRun): PlacedChil
   if (from === null || task.actualDuration === null) return []
   try {
     const stop = dateFromWorkingDays(workingCalendarOf(schedule), from, task.actualDuration)
-    // EX-7 of table T-033; `textOfDay` owns the spelling.
     return [leaf('Stop', textOfDay(stop))]
   } catch (why) {
     run.notices.push(notice(
@@ -2230,7 +1739,6 @@ function writtenResources(schedule: Schedule): readonly XmlElement[] {
   const written = schedule.resources.map((resource, index) => {
     const named: PlacedChild[] = [
       leaf('UID', String(resource.uid)),
-      // DV-10.
       leaf('ID', String(index + 1)),
       ...optionalLeaf('Name', resource.name),
       ...optionalLeaf('Type', resource.resourceKind),
@@ -2284,7 +1792,6 @@ function writtenCalendar(calendar: Calendar): XmlElement {
 /** @purity pure */
 function writtenWeekDay(weekDay: WeekDay): XmlElement {
   const named: PlacedChild[] = [
-    // AT-73's numbering; see the header.
     ...optionalLeaf('DayType', weekDay.dayType),
     ...optionalLeaf('DayWorking', weekDay.dayWorking),
   ]
@@ -2302,8 +1809,6 @@ function writtenException(exception: Exception): XmlElement {
     ...optionalLeaf('Type', exception.recurrenceKind),
     ...optionalLeaf('DayWorking', exception.dayWorking),
   ]
-  // Rebuilt around AT-79 / AT-80 rather than carried, in the partner's position
-  // (DF-1 of table T-053).
   const period: PlacedChild[] = [
     ...optionalLeaf('FromDate', exception.fromDate),
     ...optionalLeaf('ToDate', exception.toDate),

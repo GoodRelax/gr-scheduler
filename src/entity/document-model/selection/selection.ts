@@ -1,15 +1,10 @@
-// Selection -- public entry of this folder.
-//
+// Selection: the selected items and whether their pick order can be relied on.
 // @unit      UF-55   (docs/spec/05-07-design.md, table T-075)
 // @component Selection, layer documentModel (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-32
-//
-// `ordered` is part of the value rather than left to a caller to remember,
-// because FR-034 may only line tasks up against an order that exists (SL-7b of
-// table T-023c). Not saved in the document (LY-1 of table T-060).
 
-/** SL-1 of table T-023c. */
+// see SL-1
 export type SelectableKind =
   | 'task'
   | 'dependency'
@@ -17,7 +12,6 @@ export type SelectableKind =
   | 'commentBox'
   | 'statusLine'
 
-/** One selected thing. `statusLine` is the single line, so it carries no id. */
 export type ItemRef =
   | { readonly kind: 'task'; readonly uid: number }
   | { readonly kind: 'dependency'; readonly successorUid: number; readonly ordinal: number }
@@ -26,9 +20,7 @@ export type ItemRef =
   | { readonly kind: 'statusLine' }
 
 export interface Selection {
-  /** In the order they were picked, oldest first. */
   readonly items: readonly ItemRef[]
-  /** Whether `items` carries an order a caller may rely on (SL-7b). */
   readonly ordered: boolean
 }
 
@@ -62,22 +54,13 @@ export function isSelected(selection: Selection, item: ItemRef): boolean {
   return selection.items.some((held) => isSameItem(held, item))
 }
 
-/**
- * Adding something already held leaves the selection alone, so the first pick
- * is the one the order remembers (SL-7b).
- *
- * @purity pure
- */
+/** @purity pure */
 export function selectionWith(selection: Selection, item: ItemRef): Selection {
   if (isSelected(selection, item)) return selection
   return { items: [...selection.items, item], ordered: selection.ordered }
 }
 
-/**
- * A marquee (SL-3) or select-all (SL-5): no order, so FR-034 must refuse it.
- *
- * @purity pure
- */
+/** @purity pure */
 export function selectionOfAll(items: readonly ItemRef[]): Selection {
   return { items: [...items], ordered: false }
 }
@@ -89,12 +72,8 @@ export function selectionWithout(selection: Selection, item: ItemRef): Selection
   return { items, ordered: selection.ordered }
 }
 
-/**
- * The one FR-034 lines the others up against; null without an order, so a
- * caller cannot reach past SL-7b.
- *
- * @purity pure
- */
+// see FR-034, SL-7b
+/** @purity pure */
 export function lastPicked(selection: Selection): ItemRef | null {
   if (!selection.ordered || selection.items.length === 0) return null
   return selection.items[selection.items.length - 1] ?? null

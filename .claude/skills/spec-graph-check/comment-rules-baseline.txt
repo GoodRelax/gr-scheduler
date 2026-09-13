@@ -1,0 +1,18 @@
+0
+#
+# Check 55 -- the comments of src/ against ruling 17
+# (docs/review/comment-rules-src.md). Held by check-comment-rules.py; line 1 is
+# the number, `--list` prints it file by file and `--file <path>` line by line.
+#
+# The number is A + B + C + D:
+#   A  comment lines holding a character outside printable ASCII
+#   B  comment lines in no form section 3 of the ruling allows, or past the
+#      line budget of the form they open
+#   C  over each file with 100 or more code lines, the comment lines past its
+#      10% allowance, floor(code lines / 9)
+#   D  the same allowance taken over the whole tree
+# A line that breaks several rules is counted once under each.
+#
+# This is a ratchet. The count rising above line 1 FAILS the run. A commit that
+# lowers the count lowers line 1 in that same commit, so the ground cannot be
+# given back. Raise it only on purpose, and say why in the commit.

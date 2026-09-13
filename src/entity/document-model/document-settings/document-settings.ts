@@ -1,12 +1,8 @@
-// DocumentSettings -- public entry of this folder.
-//
+// DocumentSettings: the presentation group, with its defaults and bounds.
 // @unit      UF-2   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentSettings, layer documentModel (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-2
-//
-// The type, defaults and bounds are generated from the settings sources, so
-// nothing below the fence is typed a second time.
 
 export {}
 
@@ -16,7 +12,7 @@ export {}
 //   docs/spec/_source/erd.json
 //   docs/spec/_source/grs-document.schema.json (itself generated from the two above)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-/** The presentation group. DR-3 of table T-052; FR-063 says what is in it. */
+// see DR-3, FR-063
 export interface DocumentSettings {
   readonly actualGap: number
   readonly actualInitialDuration: number
@@ -144,14 +140,6 @@ export interface DocumentSettings {
   readonly zoomY: number
 }
 
-/**
- * The default settings.json states for each key.
- *
- * ⭐ Before CR-175 nothing generated these. SETTINGS_BOUNDS carried a
- * key's range but never its value, so every caller that wanted a default
- * typed the number again -- and when CR-174 moved `minShapeWidth` from 2
- * to 6 not one check, type or test noticed.
- */
 export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'actualGap': 2,
   'actualInitialDuration': 1,
@@ -268,41 +256,22 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'zoomY': 1,
 }
 
-/** One piece of a bound stated as an expression, in postfix order. */
+// TRAP: the tokens are in postfix order.
 export type SettingsBoundToken =
   | { readonly key: string }
   | { readonly num: number }
   | { readonly op: '+' | '-' | '*' | '/' }
 
-/** What the lower- and upper-bound columns of one settings row state. */
 export interface SettingsBound {
-  /** A floor the value may sit on. */
   readonly min?: number
-  /** A ceiling the value may sit on. */
   readonly max?: number
-  /** A floor the value must stay ABOVE. Never equal to it. */
   readonly exclusiveMin?: number
-  /** A ceiling the value must stay BELOW. Never equal to it. */
   readonly exclusiveMax?: number
-  /** A floor stated over other keys, which IV-16 judges. */
   readonly minExpression?: readonly SettingsBoundToken[]
-  /** A ceiling stated over other keys, which IV-16 judges. */
   readonly maxExpression?: readonly SettingsBoundToken[]
 }
 
-/**
- * The bounds the settings manuscript states for each key.
- *
- * ⚠️ An open bound is kept APART from a closed one rather than written
- * into the same field. A reader that clamps has no value to clamp an open
- * bound to -- the nearest allowed number does not exist -- so folding the
- * two together would quietly turn a bound the manuscript marks open into
- * one a value is allowed to sit on.
- *
- * ⭐ A bound that names ANOTHER key is here as its expression, in postfix
- * order. It holds BETWEEN keys, so no per-key clamp can decide it; IV-16
- * of table T-220 is what judges it, and it needs the whole document.
- */
+// see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'actualGap': { min: 0, max: 20 },
   'actualInitialDuration': { min: 0, max: 1 },
@@ -422,46 +391,25 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'thinStrokeMin': { min: 0.5, maxExpression: [{ key: 'thinStrokeMax' }] },
   'thinStrokeOfPlan': { min: 0.05, max: 0.6 },
   'truncateUnits': { min: 4, max: 120 },
-  // ⛔ A bound that names a key the presentation group does
-  // not hold, so IV-16 cannot judge it on a document alone:
+  // TRAP: IV-16 cannot judge these bounds on a document alone; each
+  // names a key this group does not hold:
   //   zoomX (S-75) min names zoomMin
   //   zoomX (S-75) max names zoomMax
   //   zoomY (S-76) min names zoomMin
   //   zoomY (S-76) max names zoomMax
 }
 
-/**
- * The defaults settings.json states as a rule over OTHER keys, printed as
- * the rule rather than as its answer.
- *
- * ⭐ SETTINGS_DEFAULTS holds what such a key works out to while the keys it
- * reads are still at THEIR defaults. That answer goes stale the moment one
- * of them is edited, and S-2 follows S-3 by FR-039, so the band height has
- * to be worked out again every time the ruler type changes.
- *
- * ⛔ Before CR-200 there was nowhere to read the rule from, so
- * edit-document-settings.ts wrote S-2's arithmetic out a second time --
- * with the padding as a bare 6, which no longer even names a value.
- *
- * ⚠️ Only the `from` family is here. S-3's `index` rule is not: the one
- * caller that needs it already reads fontScaleSizes directly, and a second
- * path to the same answer is what this constant exists to prevent.
- *
- * ⭐ `as const` is deliberate: it makes every key name a literal type, so
- * `settings[rule.from]` type checks and a key renamed in the manuscript
- * fails the build instead of reading undefined at run time.
- *
- * The value is `from x times + plus + plusFrom x plusTimes`, and a rule
- * that names no second key states plusFrom as null.
- */
+// see FR-039
+// TRAP: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;
+// once a key they read is edited, work them out again from this rule.
+// TRAP: the value is from * times + plus + plusFrom * plusTimes, and
+// plusFrom is null when the rule names no second key.
 export const SETTINGS_DERIVED = {
   'rulerHeight': { from: 'rulerFont', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 // </generated>
 
-/** One value that had to be moved to get inside the bounds. */
 export interface ClampedValue {
-  /** The dotted key, as tbl-settings.md writes it. */
   readonly key: string
   readonly was: number
   readonly now: number
@@ -469,7 +417,6 @@ export interface ClampedValue {
 
 export interface ClampResult {
   readonly settings: DocumentSettings
-  /** Empty when nothing had to move. */
   readonly clamped: readonly ClampedValue[]
 }
 
@@ -489,13 +436,7 @@ function replace(value: unknown, path: readonly string[], put: number): unknown 
   return { ...held, [head]: rest.length === 0 ? put : replace(held[head], rest, put) }
 }
 
-/**
- * Bring every value inside the closed bounds its own row states, and say which
- * ones had to move. A bound over other keys is not decided here: no per-key
- * clamp can see it (IV-16 of table T-220).
- *
- * @purity pure
- */
+/** @purity pure */
 export function clampedSettings(settings: DocumentSettings): ClampResult {
   let held: unknown = settings
   const clamped: ClampedValue[] = []

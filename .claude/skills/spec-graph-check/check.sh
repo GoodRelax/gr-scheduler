@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 51 mechanical checks for the gr-scheduler specification.
+# All 52 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,9 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 34.
+# The ranges today are 1 + 4 + 8 + 4 + 35.
 #
-# The index below is for the checks a session reads first. Checks 46 to 54 are
+# The index below is for the checks a session reads first. Checks 46 to 55 are
 # read from their own docstrings and from docs/development-rules/09-tools.md.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
@@ -498,6 +498,14 @@ section "54  docs/spec holds its reasons, not its history"
 # 利用者の裁定 with a date, and a date followed by まで -- with no baseline and
 # no exclusions.
 PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || failed
+
+section "55  src/ comments hold to ruling 17: ASCII, 10%, the allowed forms"
+# Held against comment-rules-baseline.txt, a ratchet: line 1 is the sum of the
+# non-ASCII comment lines, the lines in no form the ruling allows, and the
+# lines past the 10% allowance per file and for the tree. Red when the sum
+# rises; lower line 1 in the commit that lowers it. `--list` names the files,
+# `--file <path>` the lines.
+PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" || failed
 
 
 echo ""

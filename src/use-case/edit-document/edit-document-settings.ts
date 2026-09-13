@@ -1,13 +1,7 @@
-// EditDocument -- the presentation-group aggregate: CM-56 to CM-71 of table T-108.
-//
+// Runs the presentation-group commands against the document.
 // @unit      UF-18  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
-//
-// Every command here writes the presentation group alone (FR-063). Fit's
-// row-opening half is CM-72 (`expandAllTaskGroups`, in edit-task-group.ts); the
-// plan reads what changed rather than the group column, so nothing here relies
-// on the two agreeing.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -18,40 +12,17 @@ import { dayOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
-/**
- * What the document does not hold, and so must arrive from outside (table T-206
- * keeps S-97 / S-98 out of it; FR-016, FR-052).
- *
- * The clamp lives here rather than in the wheel translator so the Agent API
- * entrance is bounded too (FR-028).
- */
+// see FR-016, FR-052, T-206
 export interface SettingsLimits {
   readonly zoomMin: number
   readonly zoomMax: number
-  /**
-   * What the Row Area's width would be with both panel widths at zero:
-   * `regions.rowArea.width + rowTitlePanelWidth + propertyPanelWidth`, so this
-   * file subtracts only the pair it is judging.
-   *
-   * ⛔ Do not rebuild it from a window width here: the arithmetic belongs to
-   * `regionsFromScreen` (PI-35), and a copy that dropped the scrollbar term was
-   * wrong. Reading ScreenRegions directly would add an edge figures F-013 to
-   * F-017 do not draw (EditDocument's only edge there is to ScheduleLayout).
-   */
+  // TRAP: never rebuild this from a window width here; regionsFromScreen owns that arithmetic.
   readonly rowAreaWidthWithoutPanels: number
 }
 
-/**
- * The boolean rows of table T-202 that FR-049 calls toggles.
- *
- * ⛔ Written by hand: `tools/generate_entity_types.py` does not target this file.
- *
- * ⛔ `watermarkVisible` (S-144) may not be added: CM-58 writes every member into
- * `DocumentSettings`, and that row is table T-206's (FR-020, MUST NOT). The
- * screen's copy is `ScreenState.watermarkVisible`.
- */
+// see FR-049, T-202
+// TRAP: never add watermarkVisible; CM-58 would write a T-206 row into DocumentSettings (FR-020).
 export type VisibleElement =
-  // S-227 / S-228: independent (FR-049); nothing here reads one to decide the other.
   | 'planVisible'
   | 'actualVisible'
   | 'assigneeVisible'
@@ -63,7 +34,7 @@ export type VisibleElement =
   | 'groupGridLinesVisible'
   | 'baselineVisible'
 
-/** CM-56 to CM-71 of table T-108. */
+// see T-108
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly direction: 'up' | 'down' }
   | { readonly kind: 'setElementVisible'; readonly element: VisibleElement; readonly visible: boolean }
@@ -81,10 +52,6 @@ export type DocumentSettingsCommand =
       readonly kind: 'setScrollPosition'
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
-      /**
-       * S-176 / S-177: fractions of the anchor's own extent, not px (FR-080).
-       * They travel with the anchors because a position is the pair.
-       */
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
@@ -97,10 +64,6 @@ export type DocumentSettingsCommand =
       readonly zoomY: number
       readonly scrollDate: string | null
       readonly scrollGroupId: string | null
-      /**
-       * The same pair CM-66 carries. ⛔ Without them a fraction left over from
-       * the previous pan would slide FR-055's anchor by up to one row and one day.
-       */
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
@@ -115,54 +78,37 @@ function withSettings(document: Document, settings: DocumentSettings): Document 
   return { ...document, documentSettings: settings }
 }
 
-/**
- * Runs one presentation command against the document.
- *
- * @purity pure
- */
+// see T-108, FR-063
+/** @purity pure */
 export function editDocumentSettings(
   document: Document,
   command: DocumentSettingsCommand,
   limits: SettingsLimits,
 ): EditResult {
   const settings = document.documentSettings
-  // Compares only the keys the arm writes, by value: rebuilding the group for a
-  // value already held would give frame-loop.ts a new document reference and
-  // re-stamp the trail for nothing (FR-020).
-  // ⛔ Object-valued keys compare by reference, so CM-60 (a fresh `dualCursor`)
-  // makes its own test before reaching this.
+  // TRAP: put compares by reference, so an object-valued key (dualCursor) needs its own test first.
   const put = (part: Partial<DocumentSettings>): EditResult => {
     const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
     if (keys.every((key) => settings[key] === part[key])) return edited(document)
     return edited(withSettings(document, { ...settings, ...part }))
   }
-  // FR-016: a clamp, not a refusal -- a wheel notch past the end is ordinary.
-  // Shared by CM-65 and CM-71 so a change to the bound cannot move only one arm.
   const clamp = (value: number): number =>
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
 
   switch (command.kind) {
-    case 'setStackDirection': // CM-56
+    case 'setStackDirection':
       return put({ stackDirection: command.direction })
 
-    case 'setElementVisible': // CM-58
+    case 'setElementVisible':
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
 
-    case 'setGuideCursorMode': // CM-59
-      // ⛔ Does not touch `dualCursor` (DC-4, MUST NOT; FR-048). Leaving the Dual
-      // Cursor mode emits CM-61 from `input-command-translator.ts` instead.
-      //
-      // A re-press meaning `'none'` (FR-048) is decided by the translator
-      // (`commandFromGuideCursorEntry`), which reads what stands; this case puts
-      // whatever it is given (R2.7).
+    case 'setGuideCursorMode':
       return put({ guideCursorMode: command.mode })
 
-    case 'setDualCursor': { // CM-60
-      // IV-13
+    case 'setDualCursor': {
       if (dayOf(command.date1) === null || dayOf(command.date2) === null) {
         return refused([reject('CM-60', 'IV-13', 'both cursor dates must be dates')])
       }
-      // `put` compares by reference, and the value written here is a fresh object.
       const held = settings.dualCursor
       if (held !== null && held.date1 === command.date1 && held.date2 === command.date2) {
         return edited(document)
@@ -170,14 +116,10 @@ export function editDocumentSettings(
       return put({ dualCursor: { date1: command.date1, date2: command.date2 } })
     }
 
-    case 'clearDualCursor': // CM-61
-      // DC-7: reached by leaving the Dual Cursor mode.
+    case 'clearDualCursor':
       return put({ dualCursor: null })
 
-    case 'setFontScale': { // CM-62
-      // FR-039: S-2 and S-3 follow `fontScale` yet stay separate keys, so they are
-      // recomputed here. The band height comes from SETTINGS_DERIVED (the rule
-      // S-2 states), not from arithmetic written in this file.
+    case 'setFontScale': {
       const rulerFont = settings.fontScaleSizes[command.scale]
       const band = SETTINGS_DERIVED.rulerHeight
       const padded = { ...settings, rulerFont }
@@ -191,22 +133,21 @@ export function editDocumentSettings(
       })
     }
 
-    case 'setThemePreference': // CM-63
+    case 'setThemePreference':
       return put({ themePreference: command.preference })
 
-    case 'setThemeMonochrome': // CM-64
+    case 'setThemeMonochrome':
       return put({ themeMonochrome: command.monochrome })
 
-    case 'setZoom': { // CM-65
-      // FR-016. ⚠️ Refused, not clamped: NaN fails both comparisons, so the clamp
-      // alone would store it.
+    case 'setZoom': {
+      // TRAP: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
       if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
         return refused([reject('CM-65', 'FR-016', 'zoom must be a finite number')])
       }
       return put({ zoomX: clamp(command.zoomX), zoomY: clamp(command.zoomY) })
     }
 
-    case 'setScrollPosition': { // CM-66
+    case 'setScrollPosition': {
       if (command.scrollDate !== null && dayOf(command.scrollDate) === null) {
         return refused([reject('CM-66', 'S-77', `not a date: ${command.scrollDate}`)])
       }
@@ -218,23 +159,13 @@ export function editDocumentSettings(
       })
     }
 
-    case 'setPanelWidths': { // CM-67
-      // FR-052's test is on the pair, which is why clampedSettings leaves both
-      // widths alone. The Row Area arithmetic stays in regionsFromScreen; see
-      // `rowAreaWidthWithoutPanels`.
-      //
-      // ⚠️ Each test is written `!(w > 0)`, not `w <= 0`: AG-8 hands commands over
-      // as data, and a NaN width fails both comparisons.
+    case 'setPanelWidths': {
+      // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
       if (!(command.rowTitlePanelWidth > 0)) {
-        // FR-052 (MUST NOT); S-80 puts no such floor under the other panel.
-        //
-        // ⚠️ S-79's formula floor (`rowTitleIndent` * `maxGroupDepth`) is not
-        // applied: SETTINGS_BOUNDS leaves out bounds written over other keys, and
-        // applying it here would own a second copy of the row.
+        // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
         return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
       }
       if (!(command.propertyPanelWidth >= 0)) {
-        // S-80 is the row with the floor of 0 under this one, not FR-052.
         return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
       }
       const rowArea =
@@ -250,11 +181,9 @@ export function editDocumentSettings(
       })
     }
 
-    case 'pinTaskGroup': { // CM-68
+    case 'pinTaskGroup': {
       const held = settings.pinnedGroupIds
       if (held.includes(command.groupId)) return edited(document)
-      // FR-098: refuse at the cap, never drop the oldest pin. A refusal, not a
-      // stop: unlike ST-7, this limit is reached in ordinary use.
       if (held.length >= settings.pinnedRowMax) {
         return refused([
           reject('CM-68', 'FR-098', `already holding ${settings.pinnedRowMax} pinned rows`),
@@ -263,20 +192,14 @@ export function editDocumentSettings(
       return put({ pinnedGroupIds: [...held, command.groupId] })
     }
 
-    case 'unpinTaskGroup': { // CM-69
+    case 'unpinTaskGroup': {
       const held = settings.pinnedGroupIds
       if (!held.includes(command.groupId)) return edited(document)
       return put({ pinnedGroupIds: held.filter((one) => one !== command.groupId) })
     }
 
-    case 'fitScheduleToScreen': { // CM-71
-      // The first of FR-031's two writes; CM-72 opens the collapsed rows second.
-      // ⛔ Do not fold the two into one write or one bundle (AG-3): WS-4 pushes the
-      // document from before a write, so only this order lets an undo restore the
-      // collapses without rewinding the zoom (UN-8, UN-17).
-      //
-      // The zoom arrives measured, because FR-055's extent is layoutEngine's
-      // (table T-068); the range is FR-016's, so it is clamped like CM-65's.
+    case 'fitScheduleToScreen': {
+      // TRAP: keep CM-71 and CM-72 two writes in this order, or an undo rewinds the zoom (UN-8, UN-17).
       if (!Number.isFinite(command.zoomX) || !Number.isFinite(command.zoomY)) {
         return refused([reject('CM-71', 'FR-016', 'zoom must be a finite number')])
       }

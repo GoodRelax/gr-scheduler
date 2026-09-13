@@ -298,17 +298,6 @@ def kinds_used(node, found):
 # ⭐ The order a reader wants, not the order a set gives.
 KIND_ORDER = ('null', 'boolean', 'integer', 'number', 'string', 'array', 'object')
 
-HEAD = [
-    '/**',
-    ' * The schema of `GRS JSON`, as the walker below reads it.',
-    ' *',
-    ' * ⭐ ONE NODE PER SCHEMA NODE. `ref` names a member of SCHEMA_DEFS and',
-    ' * stands alone; `closed` is `additionalProperties: false`; `values` is',
-    ' * `additionalProperties` given a shape (the `carry` maps).',
-    ' */',
-]
-
-
 def build(schema):
     formats = []
     defs = collections.OrderedDict()
@@ -336,19 +325,16 @@ def build(schema):
                          'type(s) %s, which KIND_ORDER does not list' % unordered)
     kinds = [k for k in KIND_ORDER if k in found]
 
+    # Ruling 17 (docs/review/comment-rules-src.md): the region points at the
+    # table and does not restate it. What `ref`, `closed` and `values` stand
+    # for is recorded at reduce_node, and why `documentSettings` is relaxed at
+    # the head of this file.
     lines = []
-    lines.append('/**')
-    lines.append(' * Every `type` the manuscript actually writes.')
-    lines.append(' *')
-    lines.append(' * ⭐ Measured, not enumerated: `jsonTypeHolds` below switches over this')
-    lines.append(' * union with a `never` floor, so a type the manuscript grows is a compile')
-    lines.append(' * error in the walker rather than a rule that is quietly skipped.')
-    lines.append(' */')
+    lines.append('// see T-220')
     lines.append('type JsonSchemaKind =')
     for kind in kinds:
         lines.append('  | %s' % ts_string(kind))
     lines.append('')
-    lines.extend(HEAD)
     lines.append('interface SchemaNode {')
     lines.append('  readonly ref?: string')
     lines.append('  readonly type?: readonly JsonSchemaKind[]')
@@ -363,34 +349,14 @@ def build(schema):
     lines.append('  readonly items?: SchemaNode')
     lines.append('}')
     lines.append('')
-    lines.append('/** The `$defs` of the manuscript, by the name a `ref` gives. */')
     lines.append('const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {')
     for name, node in defs.items():
         lines.append('  %s: %s,' % (ts_key(name), ts_node(node, 1)))
     lines.append('}')
     lines.append('')
-    lines.append('/**')
-    lines.append(' * The document root.')
-    lines.append(' *')
-    lines.append(' * ⛔ `documentSettings` carries neither `required` nor `closed`, here or')
-    lines.append(' * anywhere below it: the preamble of table T-220 forbids both on that')
-    lines.append(' * group (MUST NOT) because `OP-6` of table T-024a has the reader fill a')
-    lines.append(' * missing setting with its default and KEEP a key it does not know.')
-    lines.append(' *')
-    lines.append(' * ⛔ It carries no bound either -- no `minimum`, `maximum` or `maxLength`.')
-    lines.append(' * The same preamble allows that group the type and the enumeration only')
-    lines.append(' * (MUST) and forbids refusing a value for being out of bounds (MUST NOT),')
-    lines.append(' * because the range is the work of `clampedSettings` (`PI-2` of table')
-    lines.append(' * T-064), which moves such a value into range rather than rejecting it.')
-    lines.append(' * ⚠️ Refusing here would shut a whole document out over one display key.')
-    lines.append(' *')
-    lines.append(' * ⛔ AND NOBODY CALLS `clampedSettings` YET. It is exported from')
-    lines.append(' * entity/document-model/document-settings, and outside its own unit tests')
-    lines.append(' * the call sites in src/ number ZERO -- so an out-of-bounds setting is')
-    lines.append(' * now neither refused here nor clamped anywhere. ⚠️ The manuscript does')
-    lines.append(' * not say on which road the call belongs, so the wiring is deliberately')
-    lines.append(' * NOT guessed at here; it needs a ruling before it can be written.')
-    lines.append(' */')
+    # The note that nothing calls `clampedSettings` is a fact about hand-written
+    # code, not about the schema, so it is not emitted here; DFC-312 holds it.
+    lines.append('// see T-220, OP-6, PI-2')
     lines.append('const GRS_DOCUMENT_SCHEMA: SchemaNode = %s' % ts_node(root, 0))
     return '\n'.join(lines) + '\n', formats
 
@@ -400,6 +366,25 @@ def provenance(sources):
     out.extend('//   %s' % s for s in sources)
     out.append('// Rebuild: npm run gen   ||   npm run gen:check fails on drift.')
     return '\n'.join(out) + '\n'
+
+
+def refuse_non_ascii_comments(rel, body):
+    """Stop when a comment line of the region carries a character outside ASCII.
+
+    The same guard as tools/generate_entity_types.py holds, for the same rule:
+    src/ comments are ASCII only (docs/review/comment-rules-src.md, section 1).
+    """
+    for number, line in enumerate(body.split('\n'), 1):
+        if not line.lstrip().startswith(('//', '/*', '*')):
+            continue
+        bad = sorted(set(ch for ch in line if ord(ch) > 0x7E))
+        if bad:
+            raise SystemExit(
+                'generate_json_schema_validator: line %d of the region for %s '
+                'is a comment carrying %s, and src/ comments are ASCII only:\n'
+                '  %s' % (number, rel,
+                          ', '.join('U+%04X' % ord(ch) for ch in bad),
+                          ascii(line)))
 
 
 def region(text, body):
@@ -435,8 +420,9 @@ def main():
             say('     %s' % at)
 
     current = io.open(TARGET, encoding='utf-8', newline='').read()
-    wanted = region(current, provenance(SOURCES) + body)
     rel = os.path.relpath(TARGET, ROOT).replace('\\', '/')
+    refuse_non_ascii_comments(rel, provenance(SOURCES) + body)
+    wanted = region(current, provenance(SOURCES) + body)
     if checking:
         if current != wanted:
             say('DRIFTED  %s no longer matches grs-document.schema.json -- '

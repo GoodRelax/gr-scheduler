@@ -70,18 +70,18 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
-| 門 | **34** | `.claude/skills/spec-graph-check/` に 30、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
+| 門 | **35** | `.claude/skills/spec-graph-check/` に 31、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
 | 生成器 | **18** | `tools/` に 12、`docs/spec/_source/` に 6 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **18** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 7、`tools/` に 1、`tools/probe/` に 1、`tools/parity/` に 1 |
 | 部品・走者 | **5** | `.claude/skills/spec-graph-check/` に 4、`tools/` に 1 |
-| **合計** | **79** | `.mjs` 10 ＋ `.py` 68 ＋ `.sh` 1 |
+| **合計** | **80** | `.mjs` 10 ＋ `.py` 69 ＋ `.sh` 1 |
 
 ⛔ **目録は拡張子で数えるな。** 名指しではなく `import` で呼ばれる部品も、`.mjs` の走者も、道具である。
 
 ---
 
-## 4. 門 —— 赤にする道具（34 本）
+## 4. 門 —— 赤にする道具（35 本）
 
 | 検査 | 道具 | 何を赤にするか | ⛔ 何が見えないか | 呼ぶ人 | 基準 |
 |---|---|---|---|---|---|
@@ -118,6 +118,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 52 | `check-device-route-row-ids.py` | 表 T-007（機器）・表 T-008（経路）の行 ID と、`tests/` が**値として**持つ ID（`T_008_R9` の写し取りと、実行時に原稿を読む `specTable(...).id === ...`）が食い違うか。⭐ CR（`D-` `R-` の廃止）の**前に、緑のまま入れた** —— 検査 50 と同じ理由。⚠️ 初回の走行で**書いた者の誤りを先に捕まえた**（経路の `from` は自表でなく表 T-007 の機器である） | 値だけで、コメントは見ない（検査 42/44 の持ち分）。写し取った他の欄が行の言うことと合うかも見ない（検査 37 の軸） | `check.sh` | — |
 | 53 | `check-dr-prefix-gone.py` | git が追う全ファイルで、`D-` または `R-` のあとに数字が続く綴り（大文字小文字を問わない）が 1 つでも在ると赤。⭐⭐ **除外を毎回刷る** —— 木 2・ファイル 5・**文書が自分の行を番号付けている名簿 24**・行 11 を理由と共に名指す。⛔ 名簿を**規則ではなく一つずつ書く** —— 「3 件以上なら免除」にすると**次に `D-1` から振り始める文書を黙って覆う**。⚠️ 初回の走行で**試験のファイル名 25 本**を見つけた（目録の走査が大文字だけだった） | 素の `D` `R`（数字が続かない綴り）は見ない。`DEV-` `CHN-` `DFC-` `JDG-` のどれが正しいかも見ない（検査 52 と 44 の持ち分） | `check.sh` | — |
 | 54 | `check-spec-holds-no-history.py` | docs/spec（output/ と __pycache__/ を除く）の `.md` `.json` `.py` で、「利用者の裁定／指示／指摘／申し立て」の直後 4 字以内に `YYYY-MM-DD` が来る綴りか、`YYYY-MM-DD` の後に「まで」が来る綴りが 1 つでも在ると赤。⭐ 0 に届いてから入れたので、基準線も除外も持たない | 日付の無い「利用者の裁定」（誰が決めるかを言う生きた規則）は見ない。日付の無い引用も、「まで」を使わない履歴（「以前は…と定めていた」）も素通りする —— それは spec-writing-rules.md の規則が持つ | `check.sh` | — |
+| 55 | `check-comment-rules.py` | src/ の .ts を字句解析器（文字列・`${}` を入れ子にするテンプレート・正規表現リテラル・行コメントとブロックコメント）で割り、裁定 17（docs/review/comment-rules-src.md）に照らした 4 つの数の和が comment-rules-baseline.txt を超えると赤。4 つは、①印字可能 ASCII 以外を含むコメント行、②第 3 節の形（`// see` 1 行・`// TRAP:` 2 行・`// WHY:` 2 行・`// STOP:` 3 行・`// DEVIATION:` 2 行・`/** @purity */` 1 行・`@provisional` と `@seam` のタグ・ファイル頭 5 行〔生成領域を持ち、出どころの段落が在れば 9 行〕）に入らない行と、形の行数を超えた行、③コード 100 行以上の各ファイルで floor(コード行/9) を超えたコメント行、④木全体で同じく超えた行。 | 置き場所を見ない（`see` が定義の直上か、TRAP が壊れる行の直上か）。中身も見ない（`see` がその定義の実装する行か、TRAP が型や試験で本当に止まらないか、DEVIATION に台帳の行が在るか）。第 4 節の「書かないもの」も読まない。見出しは語だけを見るので、STOP と DEVIATION の文の型は問わない。1 行が複数の規則を破れば規則ごとに数える。tests/ と tools/ は読まない。 | `check.sh` | `comment-rules-baseline.txt` |
 | — | `check.mjs` | サンプル(previous-project-result/11-row-controls/row-controls-sample.html)と dist/index.html の両方に同じ 75 手を打ち、1 手ごとに rows / counts / arming / pinned の 4 読みを比べて、KNOWN_DIVERGENCES(仕様が勝つ差)にも KNOWN_DEFECTS(開いている不具合)にも載っていない食い違い、押せなかった手、盤が組み上がらないこと、名前が省略されたまま比べられないこと、そして『もう落ちなくなった KNOWN_DEFECTS の行』を赤にする。 | 問えるのは行操作の 4 読みだけで、サンプルが持たないもの —— タスクバー、スケジュール画布、透かし —— は原理的に比べられず、S-127(pinnedRowMax=5)のピン上限も『読み単位でしか効かない除外では表せない』として意図的に問わない(最大 4 本まで)。さらに比べる相手は `file://` で開いた dist/index.html なので、ビルドし直していなければ古い成果物を測る。 | `npm run parity` | — |
 
 ---
@@ -200,7 +201,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 | 道具 | 何を提供するか | ⛔ 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
-| `check.sh` | 番号付き検査 51 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 終端に赤くなった検査の番号を刷り、`scratch/spec-check/last-run.txt` に終了符号とその番号を残すが、各検査の出力そのものは残さない（stdout だけ。ほかに残るのは scratch/spec-check/dup-report.txt と sd-out の export 木）。番号付き 51 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
+| `check.sh` | 番号付き検査 52 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 / 55 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 終端に赤くなった検査の番号を刷り、`scratch/spec-check/last-run.txt` に終了符号とその番号を残すが、各検査の出力そのものは残さない（stdout だけ。ほかに残るのは scratch/spec-check/dup-report.txt と sd-out の export 木）。番号付き 52 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
 | `ledger_quotes.py` | 台帳の 1 セルから引用（「」『』とコードスパン）と「⚠️ 実測（日付）…」で始まる記録の文を取り除き、そのセルが今日について自分の声で言っていることだけを返す（outside_quotation / outside_record / spoken_now / asserts_any）。 | 引用かどうかの判断は区切り記号だけなので、括弧を閉じ忘れたセルは丸ごと素通りし、括弧を使わない引用は引用と見なされない。記録の印は「⚠️ 実測（YYYY-MM-DD」という 1 つの綴りに固定で、全角括弧の無い「実測 2026-09-07」も、⭐ や ⛔ で始まる記録も記録として扱わない。文の切れ目は 。と ⭐ ⛔ ⇒ ⚠️ の 4 つだけなので、1 文の中に記録と現在の主張が混ざっているとどちらか一方しか正しく扱えない。 | 2 本が import |
 | `retired.py` | 意図して退役させた仕様 ID の集合 RETIRED（1 つの set リテラル）と、各エントリの「何が・いつ・誰の裁定で抜け、どの文書がまだ名指しているか」の理由を提供する。 | ただの set リテラルなので、中の ID が本当に退役済みかを検証するものは何も無い —— 席を 1 つ足せば、その ID への参照は検査 7 でも list-asserted-claims でも永久に黙る。表を booking しても表の中の行は booking しない（T-006 は在るが E-1..E-6 は意図的に不在）ので、退役した表の行への参照は「未定義」として出続ける。「まだ何かが名指している ID」だけを持つ設計なので、退役の全数ではない。 | 4 本が import |
 | `spec_tables.py` | docs/spec下のMarkdown表を、キャプション（**表 T-nnn —**）から次のキャプション・章見出し・ファイル末尾までの範囲として解析し、行を見出し名でセルアクセスできるRow/Tableオブジェクトとして返す共有リーダーを提供する。generate_display_words.py・generate_exchange_formats.py・generate_help_roster.py・generate_icon_glyphs.py・generate_icon_roster.py・generate_unit_tree.pyの6本がimportしている。 | 見出し形状が最初のpipeブロックと異なる2番目以降のブロックは『aside』として数えるだけで、本来ロスターに含まれるべき行がasideに誤分類されても、このリーダー自身は『本当はロスターの一部だったのに漏れている』ことまでは判定しない（コード自身が『counted, not dropped in silence』とだけ述べ、正誤の判定はしないと認めている）。 | 6 本が import |

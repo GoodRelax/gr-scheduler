@@ -1,12 +1,8 @@
-// DocumentStamp -- public entry of this folder.
-//
+// DocumentStamp: the stamp a write advances and a writer is matched against.
 // @unit      UF-3   (docs/spec/05-07-design.md, table T-075)
 // @component DocumentStamp, layer documentModel (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-3
-//
-// FR-063. Never compare two instants with `<` or `>`: an undo restores an
-// earlier stamp (FR-031) and a wall clock can run backwards.
 
 export {}
 
@@ -39,18 +35,7 @@ export interface ChangeLogEntry {
 }
 // </generated>
 
-/**
- * Step WS-5 of table T-067 (FR-063).
- *
- * `hasMovedSchedule` is told, never derived: what moved is known where the new
- * document was built (WS-3), and a second derivation could disagree with it.
- *
- * Two writes in the same second leave the schedule instant unchanged, and need
- * no discriminator: AG-2 settles that as last-writer-wins, and watchers wake
- * from `hasMovedSchedule`, not the instant (AG-6).
- *
- * @purity pure
- */
+/** @purity pure */
 export function advancedStamp(
   stamp: DocumentStamp,
   editedBy: string,
@@ -61,19 +46,11 @@ export function advancedStamp(
     scheduleUpdatedUtc: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedUtc,
     lastEditedBy: editedBy,
     settingsUpdatedUtc: updatedUtc,
-    // AT-140 moves only on a file write (FR-101).
     fileSavedUtc: stamp.fileSavedUtc,
   }
 }
 
-/**
- * Whether a writer read the document it is now writing over (AG-2, FR-063).
- *
- * Table T-034 asks the same question of a losing autosave, so the startup
- * comparison is this function, not a second one.
- *
- * @purity pure
- */
+/** @purity pure */
 export function isStampMatched(read: DocumentStamp, current: DocumentStamp): boolean {
   return (
     read.scheduleUpdatedUtc === current.scheduleUpdatedUtc &&

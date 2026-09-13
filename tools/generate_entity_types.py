@@ -134,14 +134,7 @@ def entity_block(entity, row_id):
 
 
 DATE_COLUMNS_NOTE = [
-    '/**',
-    ' * Every column table T-058 gives a date or a datetime type, by entity.',
-    ' *',
-    ' * ⭐ IV-14 reaches these as "表 T-058 の型の欄が日付または日時とする列"',
-    ' * rather than naming them, so a hand-written roster goes stale the moment',
-    ' * a column is added and nothing says so (F-3). erd.json marks them, so',
-    ' * this is the roster, not a copy of it.',
-    ' */',
+    '// see T-058, IV-14',
     'export const DATE_COLUMNS: {',
 ]
 
@@ -194,23 +187,7 @@ def date_columns_block(erd):
 SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency', 'CommentBox']
 
 COLUMN_SHAPES_NOTE = [
-    '/**',
-    ' * What each column of the edited entities accepts, as the 型 column',
-    ' * of table T-058 states it.',
-    ' *',
-    ' * ⭐ THE PARAGRAPH UNDER TABLE T-016 (MUST NOT) forbids the choices,',
-    ' * the numeric bounds and the date columns to be copied into that',
-    ' * table, on the ground that the schema and DATE_COLUMNS already hold',
-    ' * them. This is how they reach src/: a surface that offers a choice',
-    ' * reads the roster instead of re-typing it, and a value the',
-    ' * manuscript adds appears without anyone editing a list.',
-    ' *',
-    " * ⛔ `kind` IS THE MANUSCRIPT'S OWN WORD (`integer`, `string`, `enum`,",
-    ' * `boolean`, `map`, `array`, `object`, `number`), not a name minted',
-    ' * here. ⚠️ Which columns are DATES is NOT among them -- DATE_COLUMNS',
-    ' * above is where that is answered, and asking twice would be two',
-    ' * rosters to keep in step.',
-    ' */',
+    '// see T-058, T-016',
     'export const COLUMN_SHAPES: {',
 ]
 
@@ -250,15 +227,12 @@ def column_shapes_block(erd):
 
 
 COLUMN_SHAPE_TYPE = [
-    '/** What one column accepts. `null` in a bound means the manuscript states none. */',
+    '// see T-058',
     'export interface ColumnShape {',
-    "  /** The 型 column's own word: `integer`, `string`, `enum`, `boolean`, and so on. */",
     '  readonly kind: string',
-    '  /** The values a column of kind `enum` admits. */',
     '  readonly choices: readonly string[] | null',
     '  readonly min: number | null',
     '  readonly max: number | null',
-    '  /** Whether the 空を許すか column admits an empty value. */',
     '  readonly isNullable: boolean',
     '}',
 ]
@@ -386,22 +360,7 @@ def nested_rows(entity):
 
 
 ENTITY_ROWS_NOTE = [
-    '/**',
-    ' * Where the schedule group puts the rows of each entity, and what the key',
-    ' * column of table T-058 and the relations of table T-057 say about them.',
-    ' *',
-    ' * ⭐ IV-1 and IV-2 reach their columns by pointing at those two columns of',
-    ' * the manuscript rather than by naming them, and the closing remark of',
-    ' * table T-220 refuses to list the columns for exactly that reason. So this',
-    ' * is the roster, generated the way DATE_COLUMNS is, and not a second copy',
-    ' * of it that would go stale the moment a column is added (F-3).',
-    ' *',
-    ' * ⚠️ The entity and column names are strings and not `keyof`, because the',
-    ' * walk that reads them is driven by the roster itself. What keeps them',
-    ' * honest is the manuscript: every name below is spelled by erd.json, and',
-    ' * the generator refuses to write a foreign key whose target is not a',
-    ' * column of the entity it lands on.',
-    ' */',
+    '// see IV-1, IV-2',
 ]
 
 
@@ -437,34 +396,25 @@ def entity_rows_block(erd):
         seat_of[entity] = (key, holds_many(shape))
 
     out = [
-        '/** One foreign key of an entity, and the row of table T-057 it lands on. */',
+        '// see T-057',
         'export interface ForeignKeyColumn {',
-        '  /** The column of this entity that holds the reference. */',
         '  readonly fromColumn: string',
-        '  /** The entity whose rows it names. */',
         '  readonly child: string',
-        '  /** The column of that entity it lands on. */',
         '  readonly toColumn: string',
         '}',
         '',
-        '/** One column of a row that holds rows of another entity. */',
         'export interface NestedRows {',
         '  readonly column: string',
         '  readonly entity: string',
         '}',
         '',
-        '/** One entity of table T-056, as IV-1 and IV-2 need it. */',
+        '// see T-056, T-058',
         'export interface EntityRows {',
         '  readonly entity: string',
-        '  /** The key of `Schedule` its rows sit in, or `null` when they sit in a row. */',
         '  readonly scheduleKey: string | null',
-        '  /** Whether that key holds many rows or one. */',
         '  readonly many: boolean',
-        '  /** The columns the key column of table T-058 marks a primary key. */',
         '  readonly primaryKey: readonly string[]',
-        '  /** The columns it marks a foreign key, each with where it lands. */',
         '  readonly foreignKeys: readonly ForeignKeyColumn[]',
-        '  /** The columns of one row that hold rows of another entity. */',
         '  readonly nested: readonly NestedRows[]',
         '}',
         '',
@@ -495,17 +445,7 @@ def entity_rows_block(erd):
 
 
 COLUMN_DEFAULTS_NOTE = [
-    '/**',
-    ' * Every column the specification gives a default, by entity.',
-    ' *',
-    ' * ⭐ A default is only here when the specification HAS decided one: the',
-    ' * value comes from erd.json, is printed beside the column in table T-058,',
-    ' * and reaches the GRS JSON schema as its "default" annotation. So the',
-    ' * number of places holding it is one.',
-    ' *',
-    ' * ⚠️ The value type is read off the generated interface, so a default that',
-    ' * is not a member of its own column fails to compile rather than shipping.',
-    ' */',
+    '// see T-058',
     'export const COLUMN_DEFAULTS: {',
 ]
 
@@ -564,7 +504,7 @@ def schedule_block(erd):
     for shape, key, entity in box['entity_rows']:
         keys.append('  readonly %s: %s' % (key, ('readonly %s[]' % entity)
                                            if holds_many(shape) else entity))
-    out.append('/** The schedule group. Its keys are DR-2 of table T-052. */\n'
+    out.append('// see DR-2\n'
                'export interface Schedule {\n%s\n}' % '\n'.join(keys))
     out.append(date_columns_block(erd))
     out.append(column_shapes_block(erd))
@@ -660,6 +600,22 @@ def bounds_of(node, prefix, found):
 # ASCII ones. ⛔ Named by code point rather than typed, so this file stays ASCII
 # (rule 03 section 5): multiply, divide, minus.
 MANUSCRIPT_SIGNS = ((chr(0x00D7), '*'), (chr(0x00F7), '/'), (chr(0x2212), '-'))
+
+def unit_phrase(unit):
+    """'in px' for a unit, '' for none.
+
+    Only table T-209's members still carry a unit in their comment. A unit that
+    is not ASCII stops the run instead of reaching a comment in src/, which is
+    ASCII only (docs/review/comment-rules-src.md, section 1): the sign the
+    manuscript writes for a multiplier is what reached src/ before.
+    """
+    if not unit:
+        return ''
+    if any(ord(ch) > 0x7E for ch in unit):
+        raise SystemExit(
+            'generate_entity_types: settings.json writes the unit %s, which is '
+            'not ASCII, so it cannot go into a comment in src/' % ascii(unit))
+    return 'in %s' % unit
 
 BOUND_PIECE = re.compile(r'`([^`]+)`|(\d+(?:\.\d+)?)|([-+*/()])|(\s+)')
 
@@ -900,26 +856,13 @@ def default_calendar_block():
         elif 'num' in cell:
             unit = (cell.get('suffix') or '').strip()
             got.append((row_id, cell['num'], 'number',
-                        ('in %s' % unit) if unit
-                        else 'the number the row states'))
+                        unit_phrase(unit) or 'the number the row states'))
         else:
             raise SystemExit(
                 'table T-209 row %s holds no machine value this generator '
                 'reads' % row_id)
 
-    out = ['/**',
-           ' * Table T-209 -- the values a document starts its calendar from,',
-           ' * by row ID. `DEFAULT_CALENDAR` below is built out of them.',
-           ' *',
-           ' * ⭐ FR-054 resolves the document\'s calendar to these when nothing',
-           ' * was imported, or when what was imported left the value empty.',
-           ' *',
-           ' * ⛔ The two weekday rows do NOT share a numbering. S-106 is in the',
-           ' * dayType encoding and S-108 in the weekStartDay one, which differ',
-           ' * by one -- so Monday is 2 in the first and 1 in the second. Each',
-           ' * row says which below; converting between them is the reader\'s',
-           ' * job and the specification states both (AT-73, AT-17).',
-           ' */',
+    out = ['// see T-209, FR-054',
            'export const DEFAULT_CALENDAR_VALUES: {']
     for row_id, _literal, ts, note in got:
         out.append('  /** %s, %s */' % (row_id, note))
@@ -951,27 +894,16 @@ def default_calendar_block():
 # Adapter would have to import an Entity unit to read a number the layer rules
 # (table T-061) never meant it to cross for.
 #
-# ⭐ Each entry is (the rows, the paragraph that says HOW the unit gets them).
-# The paragraph differs because the seam does: the first two are handed their
-# values, and the third reads its own.
-ARRIVES_AS_ARGUMENT = [
-    ' * ⚠️ Reading this is NOT the same as taking it: the value still',
-    ' * arrives as an argument, because table T-206 keeps these out of the',
-    ' * document on purpose (the environment may hold a larger one). This',
-    ' * is what a caller passes when it has nothing better.',
-]
+# Each entry is (the rows, the comment lines emitted after `// see T-206`).
+# Ruling 17 (docs/review/comment-rules-src.md) keeps the reasons below out of
+# src/: a seam emits a TRAP where one is needed and nothing otherwise, and the
+# paragraphs that explain each seam stay here, in the generator.
+ARRIVES_AS_ARGUMENT = []
 # ⛔ A THIRD SEAM: no door AND no caller. S-138 and S-140 are read by the unit
 # that draws with them, and neither crosses a contract -- S-140 is the room the
 # row control keeps, which only the side that lays the panel out can subtract,
 # and S-138 is a constant of the drawing itself rather than of any one item.
-DRAWN_WITH_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ Neither row is a',
-    ' * document setting and neither may become one: table T-206 is where',
-    ' * the specification records that the document does not keep them,',
-    ' * and the export draws no entrance at all (EP-1 and EP-4 of table',
-    ' * T-076), so a reader handed this document sees the same picture',
-    ' * whatever this value is.',
-]
+DRAWN_WITH_WHERE_IT_STANDS = []
 # ⛔ A SEAM OF ITS OWN, AND THE ONE GROUND ABOVE DOES NOT FIT. S-138 and S-218
 # are the room GR-20's grab strip keeps beside the row's name, and FR-085 (MUST)
 # subtracts both of them before cutting that name -- so what they settle is
@@ -979,18 +911,7 @@ DRAWN_WITH_WHERE_IT_STANDS = [
 # exported picture. ⇒ The closing sentence of DRAWN_WITH_WHERE_IT_STANDS ("the
 # reader sees the same picture whatever this value is") would be false here, and
 # FR-085 says so itself: 「書き出し専用の幅を設けてはならない」.
-SUBTRACTED_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the arithmetic',
-    ' * is its own: FR-085 (MUST) cuts the row name at what is left of the',
-    ' * panel once the indent, the room the row controls keep and the room',
-    ' * GR-20 of table T-023d keeps are taken off, and nothing on IF-9',
-    ' * carries a length for a caller to hand in. ⛔ Neither row is a',
-    ' * document setting and neither may become one: table T-206 is where',
-    ' * the specification records that the document does not keep them.',
-    ' * ⭐ The cut they settle IS in the exported picture (EP-3 of table',
-    " * T-076), which is why FR-085 (MUST NOT) refuses an export width of",
-    ' * its own -- so these are not values a screen may hold alone.',
-]
+SUBTRACTED_WHERE_IT_STANDS = []
 
 # ⛔ THE SAME THIRD SEAM, WITH A DIFFERENT GROUND. S-180 belongs to the mark
 # FR-043 draws, the way S-138 and S-140 belong to what draws with them -- but
@@ -1007,14 +928,7 @@ SUBTRACTED_WHERE_IT_STANDS = [
 # 「1 日ぶんと `S-180` の小さい方」 once onto `DummyGeometry.ink` and both
 # sides read that. ⭐ The paragraph below claims only why the document does
 # not keep the row.
-DRAWN_FOR_THE_SCREEN_ALONE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: table T-206 is where the',
-    ' * specification records that the document does not keep it, and EP-14',
-    ' * of table T-076 keeps the dummy out of the exported picture without',
-    ' * reserving its place -- so a reader handed this document sees the',
-    ' * same picture whatever this value is.',
-]
+DRAWN_FOR_THE_SCREEN_ALONE = []
 
 # ⛔ THE SAME THIRD SEAM, AND A FOURTH GROUND. S-143 is read by the unit that
 # draws with it, as S-138 is -- ⚠️ but the closing sentence of the
@@ -1032,17 +946,7 @@ DRAWN_FOR_THE_SCREEN_ALONE = [
 # tools/check_layer_rules.py). ⚠️ Routed here for the round S-143 spent in
 # NOT_STORED_COMMAND_PALETTE_SIZES, where it was read by nobody and the
 # boundary FR-053 (MUST) asks for was drawn by nothing.
-DRAWN_INSIDE_THE_COMMAND_PALETTE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: table T-206 is where the',
-    ' * specification records that the document does not keep it. ⚠️ The',
-    ' * closing sentence of the entrance rows does NOT fit -- EP-1 and EP-4',
-    ' * of table T-076 keep an ENTRANCE out of an exported picture, and this',
-    ' * row is no entrance: table T-206 says of it that the boundary is a',
-    ' * line rather than a word and not a shape either, so it has no row of',
-    ' * table T-109 and no shape of figure F-019. ⭐ What keeps it out of an',
-    ' * export is EP-11, which draws no `Command Palette` at all.',
-]
+DRAWN_INSIDE_THE_COMMAND_PALETTE = []
 
 # ⛔ A FIFTH GROUND, AND THE ONLY ONE WHOSE PICTURE LEAVES THE TOOL. S-194 is
 # read by the unit that draws with it, as S-138 is (and as S-180 was until the
@@ -1051,15 +955,7 @@ DRAWN_INSIDE_THE_COMMAND_PALETTE = [
 # this", and EP-6 of table T-076 puts the Dual Cursor's two lines INTO the
 # exported picture. What table T-206 records here is narrower: the document
 # keeps the two DATES (S-65) and never the width they are drawn at.
-DRAWN_INTO_THE_EXPORTED_PICTURE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: table T-206 is where the',
-    ' * specification records that the document does not keep it. ⭐ AND',
-    ' * ITS PICTURE DOES LEAVE THE TOOL -- EP-6 of table T-076 draws the',
-    ' * two lines into an exported picture -- so what makes this the',
-    " * reader's own is not that the mark is hidden but that the document",
-    ' * keeps the two DATES (S-65) and never the width they take.',
-]
+DRAWN_INTO_THE_EXPORTED_PICTURE = []
 
 # ⛔ A SIXTH GROUND, AND THE SECOND WHOSE PICTURE LEAVES THE TOOL. S-196 is the
 # gap the name label of a line-only shape is lifted by (the label column of table
@@ -1071,16 +967,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = [
 # and a label has no such pair. What table T-206 records here is that the
 # document keeps the label's ANCHOR (PR-13, nameAnchor / nameAlign) and never
 # the gap the shape's own kind implies.
-DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: table T-206 is where the',
-    ' * specification records that the document does not keep it. ⭐ AND',
-    ' * ITS PICTURE DOES LEAVE THE TOOL -- EP-5 of table T-076 draws the',
-    " * `Row Area`'s contents, the name label among them, into an exported",
-    " * picture -- so what makes this the reader's own is not that the gap",
-    " * is hidden but that the document keeps the label's ANCHOR (PR-13)",
-    " * and never the gap the shape's own kind implies.",
-]
+DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = []
 
 # ⛔ AN EIGHTH GROUND, AND THE THIRD WHOSE PICTURE LEAVES THE TOOL -- but the
 # first where the SCREEN AND THE EXPORT READ THE SAME ROW. S-225 is the size
@@ -1095,19 +982,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
 # anchors a title. ⭐ What table T-206 records here is that the document keeps
 # the title's TEXT (`Project.title`, U-27) and neither of the two numbers it
 # is written with.
-DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = [
-    ' * ⚠️ This unit reads the row where it stands: `AppHeaderItems`',
-    ' * carries the title as a string and no rectangle -- unlike',
-    ' * `RowTitle`, which carries its `box` -- so there is no door to pass',
-    ' * it through. ⛔ It is not a document setting and may not become one:',
-    ' * table T-206 is where the specification records that the document',
-    ' * does not keep it. ⭐ AND THE SCREEN READS THE SAME ROW -- EP-1 of',
-    ' * table T-076 (MUST) has the size and the inset come from one row on',
-    ' * both sides and (MUST NOT) lets an export hold a value of its own,',
-    " * so what makes this the reader's own is not that the title is",
-    ' * hidden but that the document keeps its TEXT (`Project.title`,',
-    ' * U-27) and neither of the two numbers it is written with.',
-]
+DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = []
 
 # ⛔⛔ RETIRED (CR-369). The seventh ground held exactly one
 # row and that row went out with the mode it measured, so
@@ -1126,24 +1001,9 @@ DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = [
 # row of table T-206 stands on it: 「書き出した時点のポインタの位置に意味が
 # 無い」 -- a line that follows a hand has nowhere to stand in a picture no
 # hand is over.
-DRAWN_UNDER_THE_HAND_ALONE = [
-    ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
-    ' * setting and may not become one: table T-206 is where the',
-    ' * specification records that the document does not keep it. ⭐ What',
-    ' * keeps it out of an exported picture is EP-6 of table T-076, which',
-    ' * draws the `Status Line` and the `Dual Cursor` and NOT the',
-    ' * `Guide Cursor` -- 「書き出した時点のポインタの位置に意味が無い」 --',
-    ' * so a reader handed this document sees the same picture whatever',
-    ' * this value is.',
-]
+DRAWN_UNDER_THE_HAND_ALONE = []
 
-READ_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands instead of being handed',
-    ' * it: the contract in screen-renderer.ts fixes UF-61 at three',
-    ' * arguments, and FR-051 (MUST NOT) forbids a setting to hold the',
-    ' * value either -- so there is no door to pass it through. ⛔ It is',
-    ' * still not a document setting and must not become one.',
-]
+READ_WHERE_IT_STANDS = []
 # ⛔ A SEAM OF ITS OWN, BECAUSE THE ONE ABOVE NAMES A COUNT THAT MOVED. UF-61
 # takes FOUR arguments since DFC-298 -- `ScreenSession` joined them so GR-21 of
 # table T-023d could reach the extents the grip's length is a fraction of -- so
@@ -1155,16 +1015,7 @@ READ_WHERE_IT_STANDS = [
 # `frame-loop.ts` as well, and Chapter 5.3 keeps an Adapter from importing a
 # Framework file -- so one manuscript row is generated into both units rather
 # than passed between them.
-READ_WHERE_THE_FRAME_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands instead of being handed',
-    ' * it: FR-051 (MUST NOT) forbids a setting to hold what these rows',
-    ' * bound, so there is no door to pass one through however many',
-    ' * arguments the contract in screen-renderer.ts fixes. ⭐ Where a row',
-    ' * stands in two units, Chapter 5.3 is the reason -- an Adapter may',
-    ' * not import the Framework file it also stands in, so the one',
-    ' * manuscript row is generated into both. ⛔ It is still not a',
-    ' * document setting and must not become one.',
-]
+READ_WHERE_THE_FRAME_STANDS = []
 # ⛔ A FOURTH SEAM: no door AND no caller, because the clock is the shell's
 # own. FT-4 of table T-078 puts time arriving among the triggers a frame runs
 # on and gives it to SingleHtmlShell (CP-25) to count for itself, and the note
@@ -1172,30 +1023,13 @@ READ_WHERE_THE_FRAME_STANDS = [
 # ground that a time is the host's value rather than an input device's event.
 # So no argument may be added to hand these in through, and the unit that
 # measures the wait is the unit that reads the rows.
-TIMED_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the clock is its',
-    ' * own to read: FT-4 of table T-078 counts time arriving as a trigger',
-    ' * the shell measures for itself, and the note under that table refuses',
-    ' * to widen what IF-2 supplies (table T-065) -- so there is no argument',
-    ' * to be handed these through and none may be added. ⛔ Neither row is a',
-    ' * document setting and neither may become one: the note on S-173 puts',
-    ' * the speed of a repeat with the reader rather than with the document,',
-    ' * which is the same ground the grab rows stand on.',
-]
+TIMED_WHERE_IT_STANDS = []
 # ⛔ A FIFTH SEAM: no door AND no caller, because the record is made of what
 # this loop itself receives. FR-102 (MUST) has a person start and stop a record
 # of the happenings and the frames, and both of those are the shell's own --
 # IF-2 delivers the happenings here and table T-078 runs the frames here -- so
 # there is no argument any caller could hand the cap in through.
-KEPT_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the record is',
-    ' * its own to keep: FR-102 (MUST) records the happenings IF-2 delivers',
-    ' * to this loop and the frames table T-078 runs in it, so no caller is',
-    ' * in a position to be handed the cap on its behalf and no argument may',
-    ' * be added to pass it through. ⛔ The row is not a document setting',
-    ' * and must not become one -- FR-102 (MUST NOT) keeps the record out of',
-    ' * the document, and table T-206 is where the specification says so.',
-]
+KEPT_WHERE_IT_STANDS = []
 # ⛔ A SIXTH SEAM: no door AND no caller, because the DECISION is the reading
 # unit's own. S-208 is the distance HF-15 of table T-051 settles a grab's axis
 # at -- 「掴んでから最初に閾値を超えた向きで軸が決まり、離すまで変わらない
@@ -1205,15 +1039,7 @@ KEPT_WHERE_IT_STANDS = [
 # it stepped by, and nothing outside this unit applies an axis. ⛔ Nor does any
 # drawing ground fit -- those close on what an exported picture does not show,
 # and a threshold appears in no picture at all.
-SETTLED_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the decision is',
-    ' * its own to make: HF-15 of table T-051 (MUST) settles the axis of a',
-    ' * grab at the first travel past this distance and holds it until the',
-    ' * release, and no member of `InputContext` carries a distance for a',
-    ' * caller to hand in. ⛔ It is not a document setting and must not',
-    ' * become one: table T-206 is where the specification records that the',
-    " * document does not keep it, and it stands on S-138's ground.",
-]
+SETTLED_WHERE_IT_STANDS = []
 # ⛔ AN EIGHTH SEAM: no door AND no caller, because the value is one END of a
 # DERIVATION this unit alone can carry out. FR-016 (MUST) states the ceiling of
 # the day axis as 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
@@ -1222,14 +1048,7 @@ SETTLED_WHERE_IT_STANDS = [
 # off the frame's own layout. ⛔ The row's own note forbids the number itself
 # reaching `src/` by hand -- 「`src/` に 10 を打ち込んではならない」 -- which is
 # exactly what a generated block is for.
-DERIVED_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the derivation is',
-    ' * its own to carry out: FR-016 (MUST) puts the ceiling of the day axis',
-    " * at 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and the",
-    ' * other two terms of that quotient are values only this side holds. ⛔',
-    ' * It is not a document setting and must not become one: table T-206 is',
-    ' * where the specification records that the document does not keep it.',
-]
+DERIVED_WHERE_IT_STANDS = []
 # ⭐ Three rows of table T-206 hold no value of their own: their 値 column NAMES
 # a row of table T-201 instead (S-96 -> S-53, S-97 -> S-54, S-98 -> S-55). The
 # zoom trio is stated once, among the drawing settings, and table T-206 records
@@ -1239,13 +1058,7 @@ DERIVED_WHERE_IT_STANDS = [
 # stopped the whole of FT-1: `InputContext.zoomStep` is S-53 and
 # `SettingsLimits.zoomMin` / `zoomMax` are S-54 / S-55, so no member of PI-18
 # could be called and no pointer or key ever reached the application.
-ARRIVES_AS_ARGUMENT_ZOOM = ARRIVES_AS_ARGUMENT + [
-    ' *',
-    ' * ⚠️ Table T-206 states these by POINTING at table T-201 (S-96 names',
-    ' * S-53, and so on), so both row IDs appear below: the first is where',
-    ' * the specification says the document does not keep the value, and',
-    ' * the second is where the value itself stands.',
-]
+ARRIVES_AS_ARGUMENT_ZOOM = list(ARRIVES_AS_ARGUMENT)
 # ⛔ A SEVENTH SEAM: no door AND no caller, because the STORE is the shell's
 # own. S-99a is one of the rows table T-206 keeps in `localStorage`, LM-14
 # admits an environment that refuses that store outright, and LY-5 of table
@@ -1257,18 +1070,7 @@ ARRIVES_AS_ARGUMENT_ZOOM = ARRIVES_AS_ARGUMENT + [
 # this very value; nothing in this build asks yet, so the start is all there is
 # -- and FR-020 (MUST) still lays a name over the Row Area meanwhile. ⛔ The
 # alternative was the shell typing the word in, which rule 03 forbids.
-STORED_WHERE_IT_STANDS = [
-    ' * ⚠️ This unit reads the row where it stands because the store is its',
-    " * own to read: table T-206 keeps this row in `localStorage`, LM-14",
-    ' * admits a host that refuses that store, and no caller holds a name to',
-    ' * be handed in on its behalf. ⛔ It is not a document setting and must',
-    ' * not become one -- FR-020 (MUST NOT) keeps the watermark out of the',
-    ' * document, and table T-206 is where that is recorded.',
-    ' *',
-    ' * ⭐ IT IS THE FALLBACK AND NOT THE NAME. FR-086 (MUST) has a person',
-    ' * enter one and starts them from this default; while nothing asks, the',
-    ' * start is the whole of what is held.',
-]
+STORED_WHERE_IT_STANDS = []
 NOT_STORED_TARGETS = {
     # ⛔ S-93 IS NOT IN THIS LIST: table T-023d's closing rule reads
     # 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
@@ -1573,18 +1375,7 @@ COLOUR_TARGETS = {
 }
 
 COLOUR_NOTE = [
-    ' * The colours of table T-236, by row ID, in both renderings.',
-    ' *',
-    ' * ⭐ Table T-236 holds constants baked into the artifact. FR-041 (MUST',
-    ' * NOT) forbids saving a derived colour, so none of these is a document',
-    ' * setting and none may become one.',
-    ' *',
-    " * ⛔ `H` IN A HUE IS NOT A TYPO. Where `followsHue` is true the row",
-    ' * follows themeHue (S-73), and the manuscript writes the letter so that',
-    " * S-73's value is stated once rather than copied into every row. Solve it",
-    ' * by putting the hue in before use. A row with `followsHue` false states',
-    ' * its own hue and is used exactly as written -- the dependency and',
-    ' * progress lines are the two of those (FR-041).',
+    '// see T-236, S-73',
 ]
 
 
@@ -1595,7 +1386,7 @@ def colour_block(name):
     if not block:
         raise SystemExit('settings.json holds no table T-236')
     by_id = {r['id']: r for r in block[0]['rows']}
-    out = ['/**'] + COLOUR_NOTE + [' */',
+    out = list(COLOUR_NOTE) + [
            'export const %s: {' % name,
            '  readonly [rowId: string]: {',
            '    readonly light: string',
@@ -1631,7 +1422,6 @@ def colour_block(name):
                     % (row_id, side, name))
             cells[side] = cell['colour']
         follows = 'H' in cells['light'] or 'H' in cells['dark']
-        out.append("  /* %s */" % row_id)
         out.append("  '%s': { light: '%s', dark: '%s', followsHue: %s },"
                    % (row_id, cells['light'], cells['dark'],
                       'true' if follows else 'false'))
@@ -1678,31 +1468,16 @@ def not_stored_block(name):
                 'generated. Give the row a num / pair / lit cell, name a row '
                 'that has one, or take the row out of NOT_STORED_TARGETS.'
                 % (row_id, name))
-        # ⛔ The unit rides along. Without it S-95 generates a bare 64 and the
-        # reader cannot tell megabytes from bytes -- the exact defect CR-173
-        # closed for S-113, which was a boundary that moved in silence.
-        unit = (raw.get('suffix') or '').strip()
-        note = row_id
-        if unit:
-            note += ', in %s' % unit
-        if named is not None:
-            note += ', stated at %s' % named
-        got.append((note, cell[0], cell[1], row_id))
-    out = ['/**',
-           ' * The values table T-206 states that this unit needs, by row ID.',
-           ' *',
-           ' * ⭐ Table T-206 holds what the document does NOT store, so these',
-           ' * are not document settings and are not in SETTINGS_DEFAULTS. They',
-           ' * are reached by row ID because most rows of that table have no key',
-           ' * column -- the row ID is the specification\'s own name for them.',
-           ' *'] + list(seam) + [
-           ' */',
-           'export const %s: {' % name]
-    for note, _literal, ts, row_id in got:
-        out.append('  /** %s */' % note)
+        # The per-member note that carried the unit and the pointed row
+        # ("S-95, in MB", "S-96, stated at S-53") is no longer emitted: the key
+        # is the row ID, and the row states its unit and what it points at.
+        # Ruling 17 (docs/review/comment-rules-src.md) leaves one `// see` line.
+        got.append((cell[0], cell[1], row_id))
+    out = ['// see T-206'] + list(seam) + ['export const %s: {' % name]
+    for _literal, ts, row_id in got:
         out.append("  readonly '%s': %s" % (row_id, ts))
     out.append('} = {')
-    for _note, literal, _ts, row_id in got:
+    for literal, _ts, row_id in got:
         out.append("  '%s': %s," % (row_id, literal))
     out.append('}')
     return '\n'.join(out)
@@ -1735,15 +1510,7 @@ def annotation_defaults_block():
     if cell is None:
         raise SystemExit('table T-217 row S-132 holds no machine value, so '
                          'NOT_STORED_ANNOTATION_SIZES cannot be generated')
-    out = ['/**',
-           " * Table T-217's one row (S-132): the corner radius a newly",
-           ' * created `HighlightBox` is given.',
-           ' *',
-           ' * ⭐ NOT A DOCUMENT SETTING. FR-019 (MUST) draws every',
-           ' * `HighlightBox` at a fixed radius whatever the zoom -- this is',
-           ' * that fixed number, read once here rather than typed at the',
-           ' * one call site table T-217\'s own note sends it to.',
-           ' */',
+    out = ['// see T-217, FR-019',
            "export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': %s } = {"
            % cell[1],
            "  'S-132': %s," % cell[0],
@@ -1781,18 +1548,7 @@ DERIVED_TARGETS = {
     'NOT_STORED_ROW_CONTROL_OUTER_SIZES': (
         'rowControlOuterHeightPx',
         [('S-138', 1), ('S-141', 2)],
-        [' * ⚠️ This unit holds the sum rather than being handed it because the',
-         ' * rule is its own to keep: LF-3 of table T-221 (MUST) makes the',
-         " * lattice's height a floor under the band this unit decides, and",
-         ' * HF-19 of table T-051 (MUST NOT) lets no band fall below it. A rule',
-         ' * that only holds when a caller remembers to pass something is not a',
-         ' * rule. ⭐ A measured lattice is still taken where one arrives -- it',
-         ' * is what shows the drawn lattice leaving the two rows below -- and',
-         ' * it can only ever RAISE the band, never lower it past this floor.',
-         ' * ⛔ Neither term is a document setting and neither may become one:',
-         ' * table T-206 is where the specification records that the document',
-         ' * does not keep them, and the note on S-138 keeps the size off the',
-         " * reader's own text size (FR-039) as well."],
+        ['// see T-206, S-138, S-141'],
     ),
 }
 
@@ -1811,7 +1567,6 @@ def derived_block(name):
     by_id = {r['id']: r for r in block[0]['rows']}
     member, terms, seam = DERIVED_TARGETS[name]
     total = 0.0
-    spelled = []
     unit = None
     for row_id, times in terms:
         if row_id not in by_id:
@@ -1834,22 +1589,9 @@ def derived_block(name):
                 'two units cannot be added.' % (row_id, suffix or '(none)',
                                                 name, unit or '(none)'))
         total += float(stated) * times
-        spelled.append(row_id if times == 1 else '%s x %d' % (row_id, times))
     literal = '%d' % int(total) if float(total).is_integer() else repr(total)
-    note = ' + '.join(spelled)
-    if unit:
-        note += ', in %s' % unit
-    out = ['/**',
-           ' * A value table T-206 states across more than one row, summed once',
-           ' * here so that no unit adds it up for itself.',
-           ' *',
-           ' * ⭐ The member is NAMED rather than keyed by a row ID, which every',
-           ' * other generated block of table T-206 is: no single row holds this',
-           " * number, so no row ID would be an honest name for it.",
-           ' *'] + list(seam) + [
-           ' */',
+    out = list(seam) + [
            'export const %s: {' % name,
-           '  /** %s */' % note,
            '  readonly %s: number' % member,
            '} = {',
            '  %s: %s,' % (member, literal),
@@ -1885,29 +1627,12 @@ def derived_block(name):
 # rides with the other colours in SCHEDULE_COLOURS; only a value with no
 # light and dark rendering belongs in this constant.
 WATERMARK_TARGETS = {
-    'WATERMARK_UNLOCK_DIGEST': (['S-101'], [
-        ' * ⛔ THE RAW PASSWORD IS NOT HERE AND MAY NOT BE. FR-020 (MUST NOT)',
-        ' * forbids it in code, in the model and in what goes out, and S-100 --',
-        ' * the row that states it -- says the artifact takes only the digest.',
-        ' * ⚠️ Which is also why this constant cannot be checked by hashing the',
-        ' * password here: there would have to be a password here to hash.',
-        ' *',
-        ' * ⭐ WHAT IT IS COMPARED AGAINST IS NOT ALWAYS THIS. S-99c of table',
-        ' * T-206 holds a digest the author set, in `localStorage`; this one is',
-        ' * what FR-020 falls back to while no such row is kept.',
-    ]),
-    'WATERMARK_MARKS': (['S-220', 'S-221', 'S-222', 'S-102'], [
-        ' * ⭐ THE FOUR VALUES FR-020 DRAWS WITH, less the colour. The angle is',
-        ' * in degrees, the size is a fraction OF THE PICTURE\'s WIDTH (S-81)',
-        ' * and the spacing is a multiple OF THE MARK\'s OWN HEIGHT, so two of',
-        ' * the three mean nothing without the thing they multiply -- which is',
-        ' * why they are ratios here and not lengths.',
-        ' *',
-        ' * ⛔ THE INK IS NOT HERE. S-223 is a row of table T-236, which states',
-        ' * a light and a dark rendering of one decision; it arrives with the',
-        ' * other colours. ⚠️ S-102 is the OPACITY and is not a colour: it is',
-        ' * one number in both renderings, and table T-207 is where it stands.',
-    ]),
+    # The raw password (S-100) stays out, and FR-020 (MUST NOT) is why; the
+    # digest S-99c keeps in `localStorage` replaces this one when it is set.
+    'WATERMARK_UNLOCK_DIGEST': (['S-101'], []),
+    # The angle, the size, the spacing and the opacity; the ink is S-223 and
+    # rides in SCHEDULE_COLOURS.
+    'WATERMARK_MARKS': (['S-220', 'S-221', 'S-222', 'S-102'], []),
 }
 
 
@@ -1937,19 +1662,8 @@ def watermark_block(name):
                 'table T-207 row %s holds no plain value, so %s cannot be '
                 'generated.' % (row_id, name))
         got.append((row_id, raw.strip().strip('`')))
-    out = ['/**',
-           ' * The values table T-207 states that this unit needs, by row ID.',
-           ' *',
-           ' * ⭐ Table T-207 holds what is BAKED INTO THE ARTIFACT and not kept',
-           ' * in the document, so these are not document settings and are not',
-           ' * in SETTINGS_DEFAULTS. They are reached by row ID because the',
-           ' * table has no key column -- the row ID is the specification\'s own',
-           ' * name for them.',
-           ' *'] + list(seam) + [
-           ' */',
-           'export const %s: {' % name]
+    out = ['// see T-207, FR-020'] + list(seam) + ['export const %s: {' % name]
     for row_id, _value in got:
-        out.append('  /** %s */' % row_id)
         out.append("  readonly '%s': string" % row_id)
     out.append('} = {')
     for row_id, value in got:
@@ -1959,83 +1673,37 @@ def watermark_block(name):
 
 
 DEFAULTS_NOTE = [
-    '/**',
-    ' * The default settings.json states for each key.',
-    ' *',
-    ' * ⭐ Before CR-175 nothing generated these. SETTINGS_BOUNDS carried a',
-    ' * key\'s range but never its value, so every caller that wanted a default',
-    ' * typed the number again -- and when CR-174 moved `minShapeWidth` from 2',
-    ' * to 6 not one check, type or test noticed.',
-    ' */',
     'export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {',
 ]
 
 
 BOUNDS_NOTE = [
-    '/** One piece of a bound stated as an expression, in postfix order. */',
+    '// TRAP: the tokens are in postfix order.',
     'export type SettingsBoundToken =',
     '  | { readonly key: string }',
     '  | { readonly num: number }',
     "  | { readonly op: '+' | '-' | '*' | '/' }",
     '',
-    '/** What the lower- and upper-bound columns of one settings row state. */',
     'export interface SettingsBound {',
-    '  /** A floor the value may sit on. */',
     '  readonly min?: number',
-    '  /** A ceiling the value may sit on. */',
     '  readonly max?: number',
-    '  /** A floor the value must stay ABOVE. Never equal to it. */',
     '  readonly exclusiveMin?: number',
-    '  /** A ceiling the value must stay BELOW. Never equal to it. */',
     '  readonly exclusiveMax?: number',
-    '  /** A floor stated over other keys, which IV-16 judges. */',
     '  readonly minExpression?: readonly SettingsBoundToken[]',
-    '  /** A ceiling stated over other keys, which IV-16 judges. */',
     '  readonly maxExpression?: readonly SettingsBoundToken[]',
     '}',
     '',
-    '/**',
-    ' * The bounds the settings manuscript states for each key.',
-    ' *',
-    ' * ⚠️ An open bound is kept APART from a closed one rather than written',
-    ' * into the same field. A reader that clamps has no value to clamp an open',
-    ' * bound to -- the nearest allowed number does not exist -- so folding the',
-    ' * two together would quietly turn a bound the manuscript marks open into',
-    ' * one a value is allowed to sit on.',
-    ' *',
-    ' * ⭐ A bound that names ANOTHER key is here as its expression, in postfix',
-    ' * order. It holds BETWEEN keys, so no per-key clamp can decide it; IV-16',
-    ' * of table T-220 is what judges it, and it needs the whole document.',
-    ' */',
+    '// see IV-16',
     'export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {',
 ]
 
 
 DERIVED_NOTE = [
-    '/**',
-    ' * The defaults settings.json states as a rule over OTHER keys, printed as',
-    ' * the rule rather than as its answer.',
-    ' *',
-    ' * ⭐ SETTINGS_DEFAULTS holds what such a key works out to while the keys it',
-    ' * reads are still at THEIR defaults. That answer goes stale the moment one',
-    ' * of them is edited, and S-2 follows S-3 by FR-039, so the band height has',
-    ' * to be worked out again every time the ruler type changes.',
-    ' *',
-    ' * ⛔ Before CR-200 there was nowhere to read the rule from, so',
-    ' * edit-document-settings.ts wrote S-2\'s arithmetic out a second time --',
-    ' * with the padding as a bare 6, which no longer even names a value.',
-    ' *',
-    ' * ⚠️ Only the `from` family is here. S-3\'s `index` rule is not: the one',
-    ' * caller that needs it already reads fontScaleSizes directly, and a second',
-    ' * path to the same answer is what this constant exists to prevent.',
-    ' *',
-    ' * ⭐ `as const` is deliberate: it makes every key name a literal type, so',
-    ' * `settings[rule.from]` type checks and a key renamed in the manuscript',
-    ' * fails the build instead of reading undefined at run time.',
-    ' *',
-    ' * The value is `from x times + plus + plusFrom x plusTimes`, and a rule',
-    ' * that names no second key states plusFrom as null.',
-    ' */',
+    '// see FR-039',
+    '// TRAP: SETTINGS_DEFAULTS holds these keys worked out at the defaults only;',
+    '// once a key they read is edited, work them out again from this rule.',
+    '// TRAP: the value is from * times + plus + plusFrom * plusTimes, and',
+    '// plusFrom is null when the rule names no second key.',
     'export const SETTINGS_DERIVED = {',
 ]
 
@@ -2065,7 +1733,7 @@ def settings_block(_erd):
                        object_pairs_hook=collections.OrderedDict)
     node = schema['properties']['documentSettings']
 
-    head = '/** The presentation group. DR-3 of table T-052; FR-063 says what is in it. */'
+    head = '// see DR-3, FR-063'
     body = [head + '\nexport interface DocumentSettings '
             + '\n'.join(settings_object(node, 0))]
 
@@ -2148,8 +1816,8 @@ def settings_block(_erd):
             rows.extend('    %s,' % part for part in parts)
             rows.append('  },')
     if unreachable:
-        rows.append('  // ⛔ A bound that names a key the presentation group does')
-        rows.append('  // not hold, so IV-16 cannot judge it on a document alone:')
+        rows.append('  // TRAP: IV-16 cannot judge these bounds on a document alone; each')
+        rows.append('  // names a key this group does not hold:')
         for path, row_id, edge, outside in unreachable:
             rows.append('  //   %s (%s) %s names %s'
                         % (path, row_id, edge, ', '.join(outside)))
@@ -2201,8 +1869,8 @@ def settings_block(_erd):
             defaults.append("  '%s': null," % parent)
     defaults.sort()
     if unstated:
-        defaults.append('  // ⛔ Not stated as a machine value by settings.json,')
-        defaults.append('  // so not generated rather than guessed:')
+        defaults.append('  // TRAP: no default is generated for these keys, since settings.json')
+        defaults.append('  // states none as a machine value; reading one gives undefined:')
         for path in unstated:
             defaults.append('  //   %s' % path)
     body.append('\n'.join(DEFAULTS_NOTE + defaults + ['}']))
@@ -2463,6 +2131,26 @@ def provenance(sources):
     return '\n'.join(out) + '\n'
 
 
+def refuse_non_ascii_comments(rel, body):
+    """Stop when a comment line of a region carries a character outside ASCII.
+
+    src/ comments are ASCII only (docs/review/comment-rules-src.md, section 1).
+    A generated region is where a manuscript's own words would otherwise reach
+    src/ unseen, so this is checked on every run, --check included.
+    tools/generate_json_schema_validator.py holds the same guard.
+    """
+    for number, line in enumerate(body.split('\n'), 1):
+        if not line.lstrip().startswith(('//', '/*', '*')):
+            continue
+        bad = sorted(set(ch for ch in line if ord(ch) > 0x7E))
+        if bad:
+            raise SystemExit(
+                'generate_entity_types: line %d of the region for %s is a '
+                'comment carrying %s, and src/ comments are ASCII only:\n  %s'
+                % (number, rel, ', '.join('U+%04X' % ord(ch) for ch in bad),
+                   ascii(line)))
+
+
 def region(text, body):
     """Replace the marked region, leaving everything around it untouched.
 
@@ -2505,8 +2193,10 @@ def main():
         # The manuscript's path rides in the body, not in the marker: the body
         # is rewritten every run, so moving the manuscript can never make the
         # region undiscoverable (see the note on OPEN).
-        wanted = region(current, provenance(sources) + build(erd))
         rel = os.path.relpath(path, ROOT).replace('\\', '/')
+        body = provenance(sources) + build(erd)
+        refuse_non_ascii_comments(rel, body)
+        wanted = region(current, body)
         if checking:
             if current != wanted:
                 say('DRIFTED  %s no longer matches erd.json -- rerun '

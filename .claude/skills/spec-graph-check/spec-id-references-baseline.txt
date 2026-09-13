@@ -1,4 +1,4 @@
-112
+108
 #
 # Spec ids named in src/ and tests/ that docs/spec does not define: retired ids
 # plus undefined ones. Held by check-spec-id-references.py; line 1 is the

@@ -1,53 +1,8 @@
-// ImportDocument -- public entry of this folder.
-//
+// Opens a file into the document or merges one in; a person's answers arrive as arguments.
 // @unit      UF-19   (docs/spec/05-07-design.md, table T-075)
 // @component ImportDocument, layer UseCase (table T-062)
 // @purity    pure
 // @publishes table T-064 row PI-10
-//
-// Opening a file, and merging one into the document (CP-10): table T-024a of
-// FR-087 is the entrance and table T-032 of FR-056 is the merge.
-//
-// The file arrives already decoded (CP-20) and validated (CP-13, which OP-5
-// requires before OP-3 is asked); this unit is told whether validation passed
-// and refuses rather than assume.
-//
-// GRS may not choose what becomes of the current document (OP-3) or whether two
-// tasks are the same one (FR-022), so every such answer arrives as an argument.
-// A missing one comes back as a refusal carrying what the person must be asked
-// with (MG-10's warning needs the candidate list), and the caller asks and calls
-// again.
-//
-// What the document does not hold, and where each argument comes from:
-//
-//     validationPassed             `validateImportedDocument` (PI-13), OP-5
-//     anotherOpenInProgress        the shell (OP-8); a pure function cannot see it
-//     unsavedEditsDiscardConfirmed the person answered OP-4's confirmation, or
-//                                  there was nothing unsaved
-//     format                       which of OP-1's two formats was read; MG-8
-//                                  and MG-8a differ only by this
-//     defaultSettings              OP-6's defaults, handed in so this file never
-//                                  re-types a settings value
-//     importSessionId              AT-109; minting one is not a pure act (LY-5)
-//     merge                        the person's answers to FR-022, MG-4, MG-12
-//
-// The caller (RD-3 / RD-4 of table T-230) acts on `report.undo`:
-//     replace  -- not undoable, the history is not carried over (OP-4, UN-6)
-//     merge    -- one undoable step (UN-6, UN-1, UN-6a)
-//     baseline -- `'notDecided'`, which pushes no step
-//
-// MISSING, reported rather than chosen:
-//   * Whether 重ね (OP-9 / FR-015) is undoable: table T-027 has no row for it,
-//     and RD-3 defers to that table.
-//   * Whether a REPLACE advances `importSeq` and writes `TaskOrigin`: MG-13 sits
-//     in table T-032, which FR-056 scopes to 合流, so only a merge advances it.
-//   * Whose presentation group a REPLACED-IN MSPDI takes: OP-6 covers only
-//     `GRS JSON`, and both formats are shaped the same way here.
-//   * A `TaskGroup` id held by both sides of a merge with different fields: MG-4
-//     and MG-12 decide no row, so the current document's row is kept (MG-1's
-//     安全側).
-//   * Two incoming tasks landing on ONE current task -- see the note beside the
-//     mapping below.
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
@@ -66,18 +21,12 @@ import type {
   TaskOrigin,
 } from '../../entity/document-model/schedule/schedule'
 
-// ------------------------------------------------------------ what is asked ----
-
-/** OP-1: the two formats table T-024's `IO-1` / `IO-2` admit. */
 export type ImportFormat = 'grsJson' | 'mspdi'
 
-/** OP-3's three. `baseline` is 重ね (`Schedule.baselineTasks`). */
 export type OpenChoice = 'replace' | 'merge' | 'baseline'
 
-/** MG-4's three. MG-12 asks the same three about `documentSettings`. */
 export type ConflictChoice = 'overwrite' | 'keepExisting' | 'cancelImport'
 
-/** What MM-3 asks about one candidate: 同じ or 別. */
 export type TaskMapping = 'same' | 'different'
 
 export interface TaskMappingDecision {
@@ -85,66 +34,39 @@ export interface TaskMappingDecision {
   readonly mapping: TaskMapping
 }
 
-/**
- * The choices of table T-032a. MM-3's 以降すべて同じ / 別 is `rest`, the answer
- * for every candidate `decisions` does not name, so this unit needs no
- * presentation order to give 以降 a meaning. `kind` carries the answer because
- * MG-9 makes 一括 the default.
- */
+// see T-032a, MM-3, MG-9
 export type MergeMapping =
-  /** MM-1 */
   | { readonly kind: 'allSame' }
-  /** MM-2 -- MG-10's warning is owed before this is chosen. */
   | { readonly kind: 'allDifferent' }
-  /** MM-3 */
   | {
       readonly kind: 'eachCandidate'
       readonly decisions: readonly TaskMappingDecision[]
       readonly rest: TaskMapping | null
     }
-  /** MM-4 -- MG-6 puts the document back as it was. */
   | { readonly kind: 'cancelImport' }
 
-/**
- * Everything the person answers about one merge, one answer per subject (MG-9).
- * `null` is unanswered, which is not an error: a question with nothing to ask
- * about is never asked.
- */
+// see FR-022, MG-4, MG-12
 export interface MergeChoices {
-  /** FR-022 / table T-032a. */
   readonly mapping: MergeMapping | null
-  /** MG-4: the project profile, asked apart from the tasks. */
   readonly profileConflict: ConflictChoice | null
-  /** MG-12: `documentSettings` as a whole. */
   readonly settingsConflict: ConflictChoice | null
 }
 
+// see T-024a, OP-4, OP-5, OP-8
 export interface ImportRequest {
   readonly current: Document
-  /** Already decoded by CP-20 and already validated by CP-13 (OP-5). */
   readonly incoming: Document
   readonly format: ImportFormat
   readonly choice: OpenChoice
-  /** OP-5: FR-023 passed. False refuses; this unit does not validate. */
   readonly validationPassed: boolean
-  /** OP-8: an import or another open is already running. */
   readonly anotherOpenInProgress: boolean
-  /** OP-4. Read on the `replace` path only -- a merge discards nothing. */
   readonly unsavedEditsDiscardConfirmed: boolean
-  /** The answers to FR-022 / MG-4 / MG-12. `null` = none given yet. */
   readonly merge: MergeChoices | null
-  /** OP-6's 既定値, from `_assets/tbl-settings.md`. Never re-typed here. */
   readonly defaultSettings: DocumentSettings
-  /** AT-109, one per import. Minted outside; a pure function cannot. */
   readonly importSessionId: string
 }
 
-// --------------------------------------------------------- what is answered ----
-
-/**
- * One pair the person has to rule on (FR-022). The names travel with the uids
- * because MG-10 has to show what stops being writable back to its master.
- */
+// see FR-022, MG-10
 export interface MergeCandidate {
   readonly incomingTaskUid: number
   readonly incomingTaskName: string | null
@@ -152,67 +74,47 @@ export interface MergeCandidate {
   readonly currentTaskName: string | null
 }
 
-/** MG-1's judgement, reported so the UI can preselect MM-2 when it is 安全側. */
 export type SourceJudgement = 'sameMaster' | 'differentMaster' | 'undecidable' | 'notJudged'
 
-/**
- * A refusal is a value (R7.10). Several of these are the questions OP-3 and
- * FR-022 forbid GRS from answering, carrying what must be shown to ask them.
- */
+// see T-024a, T-032
 export type ImportRefusal =
-  /** OP-8 */
   | { readonly reason: 'openInProgress'; readonly rule: 'OP-8'; readonly what: string }
-  /** OP-5 */
   | { readonly reason: 'notValidated'; readonly rule: 'OP-5'; readonly what: string }
-  /** OP-4 */
   | { readonly reason: 'unsavedEditsNotConfirmed'; readonly rule: 'OP-4'; readonly what: string }
-  /** MM-4, or MG-4's third answer: the person withdrew. Nothing was changed. */
   | { readonly reason: 'importCancelled'; readonly rule: 'MG-6'; readonly what: string }
-  /** FR-022: there are candidates and no mapping was chosen. */
   | {
       readonly reason: 'mappingNotChosen'
       readonly rule: 'FR-022'
       readonly what: string
       readonly candidates: readonly MergeCandidate[]
     }
-  /** MM-3 was chosen and these candidates got neither an answer nor `rest`. */
   | {
       readonly reason: 'candidateNotDecided'
       readonly rule: 'MM-3'
       readonly what: string
       readonly candidates: readonly MergeCandidate[]
     }
-  /** MG-4: the profile conflicts and the choice is missing. */
   | {
       readonly reason: 'profileConflictNotChosen'
       readonly rule: 'MG-4'
       readonly what: string
-      /** The rows of table T-224 that hold two different values. */
       readonly rows: readonly string[]
     }
-  /** MG-12: `documentSettings` conflicts and the choice is missing. */
   | {
       readonly reason: 'settingsConflictNotChosen'
       readonly rule: 'MG-12'
       readonly what: string
-      /** The keys that differ. Shown together -- per key is forbidden. */
       readonly keys: readonly string[]
     }
 
-/** What the caller must do with the undo history. See the header. */
 export type UndoDisposition = 'oneStep' | 'notUndoable' | 'notDecided'
 
-/** A row the merge added, under a uid that is not the one its master knows. */
 export interface AddedAsDifferent {
   readonly incomingTaskUid: number
   readonly taskUid: number
 }
 
-/**
- * A reference that resolved to nothing and was therefore not carried in:
- * carrying one half of a pair table T-050 keeps together (`CD-1`, `CD-2`) would
- * leave the dangling reference `IV-2` forbids.
- */
+// see T-050, IV-2
 export interface DroppedReference {
   readonly what:
     | 'dependency'
@@ -221,46 +123,25 @@ export interface DroppedReference {
     | 'highlightBox'
     | 'wbsParent'
     | 'calendar'
-  /** The row it belonged to: a task uid or an annotation id, as text. */
   readonly owner: string
-  /** What it pointed at and could not find. */
   readonly missing: string
 }
 
-/** What the caller has to tell the person, and what it has to do next. */
+// see OP-10, MG-7, MG-11, FR-015
 export interface ImportReport {
   readonly choice: OpenChoice
   readonly undo: UndoDisposition
-  /** OP-4. True on `replace` only. */
   readonly discardsHistory: boolean
-  /**
-   * OP-10: the display position is `null` or points at a missing row, so FR-055's
-   * fit chooses zoom and position; `HF-8` must not run, so nothing here touches
-   * `isCollapsed`. The fit needs the layout and is computed later (BO-3, BO-4).
-   */
   readonly fitToScreenRequired: boolean
-  /** MG-1. `notJudged` on the `replace` and `baseline` paths. */
   readonly source: SourceJudgement
-  /** MG-13's counter as it stands in the answer. */
   readonly importSeq: number
-  /** What was asked about. Empty when nothing had to be asked. */
   readonly candidates: readonly MergeCandidate[]
-  /** Tasks the merge replaced in place (MG-8 / MG-8a). */
   readonly overwrittenTaskUids: readonly number[]
-  /** Tasks the merge added, by the uid they now carry. */
   readonly addedTaskUids: readonly number[]
-  /** MG-10's subjects: added under a new uid, so no longer their master's. */
   readonly addedAsDifferent: readonly AddedAsDifferent[]
-  /** MG-7 / FR-022: not deleted (MUST NOT), only told. */
   readonly taskUidsOnlyInCurrent: readonly number[]
-  /** MG-11: arrived last time, did not arrive now. 前回 is MG-13's counter. */
   readonly taskUidsMissingSinceLastImport: readonly number[]
-  /**
-   * Tasks with no `TaskGroupMember` (`IV-6`). FR-058 makes the container part of
-   * the import, so this should be empty; reported rather than inventing a row.
-   */
   readonly taskUidsWithoutRow: readonly number[]
-  /** FR-015: on the overlay side with no counterpart. Not drawn, but told. */
   readonly baselineTaskUidsNotDrawn: readonly number[]
   readonly droppedReferences: readonly DroppedReference[]
 }
@@ -269,9 +150,7 @@ export type ImportOutcome =
   | { readonly ok: false; readonly refusal: ImportRefusal }
   | { readonly ok: true; readonly document: Document; readonly report: ImportReport }
 
-// ------------------------------------------------------------------ shared ----
-
-/** The rows of table T-224, which MG-4 calls プロジェクトの基本情報. */
+// see T-224, MG-4
 const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Project }[] = [
   { row: 'PF-1', key: 'name' },
   { row: 'PF-2', key: 'subject' },
@@ -281,19 +160,12 @@ const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Proj
   { row: 'PF-6', key: 'author' },
   { row: 'PF-7', key: 'revision' },
   { row: 'PF-8', key: 'startDate' },
-  // PF-9 and PF-10 are not editable but belong to table T-224 all the same
-  // (FR-074), so MG-4 is asked on almost every merge; narrowing it to the
-  // editable rows would be this file deciding.
+  // WHY: PF-9 and PF-10 are asked about too; narrowing to editable rows would be this file deciding.
   { row: 'PF-9', key: 'created' },
   { row: 'PF-10', key: 'lastSaved' },
 ]
 
-/**
- * A value's text with object keys in a fixed order, so that two values built by
- * two codecs compare by content rather than by the order they were written in.
- *
- * @purity pure
- */
+/** @purity pure */
 function canonicalText(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'undefined'
   if (Array.isArray(value)) return `[${value.map(canonicalText).join(',')}]`
@@ -304,13 +176,7 @@ function canonicalText(value: unknown): string {
     .join(',')}}`
 }
 
-/**
- * Index a list once, by a key, so a merge over both documents is not quadratic
- * (`R5`). The first row for a key wins, as a `find` would; `IV-1` forbids a
- * second.
- *
- * @purity pure
- */
+/** @purity pure */
 function indexBy<T, K>(rows: readonly T[], keyOf: (row: T) => K): Map<K, T> {
   const map = new Map<K, T>()
   for (const row of rows) {
@@ -320,53 +186,38 @@ function indexBy<T, K>(rows: readonly T[], keyOf: (row: T) => K): Map<K, T> {
   return map
 }
 
-/**
- * A list held by its primary key, in order: replace-in-place, remove and append
- * each cost one step, where rebuilding an array would be quadratic (`R5`).
- *
- * @purity pure
- */
+/** @purity pure */
 function keyedRows<T>(rows: readonly T[], keyOf: (row: T) => number): Map<number, T> {
   return indexBy(rows, keyOf)
 }
 
-/** The key MG-3 matches on: 取込元での出自. @purity pure */
+/** @purity pure */
 function originKey(sourceProjectUid: string | null, sourceUid: number): string {
   return `${sourceProjectUid ?? ''} ${sourceUid}`
 }
 
-/** One assignment's 組 (MG-5). @purity pure */
+/** @purity pure */
 function assignmentKey(taskUid: number | null, resourceUid: number | null): string {
   return `${taskUid ?? ''} ${resourceUid ?? ''}`
 }
 
-/**
- * A calendar's content, for MG-5. `uid` and `ordinal` are identity and position;
- * `carry` is compared too, because FR-021's round trip makes it content.
- *
- * @purity pure
- */
+// see MG-5
+// WHY: carry is compared too, because FR-021's round trip makes it content.
+/** @purity pure */
 function calendarContentKey(calendar: Calendar): string {
   const { uid: _uid, ordinal: _ordinal, ...content } = calendar
   return canonicalText(content)
 }
 
-/**
- * OP-6's shaping of a presentation group that came out of a file: the spread
- * keeps the default for a missing key and keeps a key nobody knows.
- *
- * @purity pure
- */
+// see OP-6
+/** @purity pure */
 function restoredSettings(fromFile: DocumentSettings, defaults: DocumentSettings): DocumentSettings {
   return { ...defaults, ...fromFile }
 }
 
-/**
- * OP-10. `null` means no place chosen yet, not a missing value, so OP-6's
- * defaulting must not fill it; hence a question asked of the finished document.
- *
- * @purity pure
- */
+// see OP-10
+// TRAP: null means no place chosen yet; OP-6's defaulting must not fill it.
+/** @purity pure */
 function fitToScreenRequired(document: Document): boolean {
   const { scrollDate, scrollGroupId } = document.documentSettings
   if (scrollDate === null || scrollGroupId === null) return true
@@ -378,11 +229,7 @@ function refuse(refusal: ImportRefusal): ImportOutcome {
   return { ok: false, refusal }
 }
 
-/**
- * The report with every list empty. Each path fills in what it did.
- *
- * @purity pure
- */
+/** @purity pure */
 function emptyReport(choice: OpenChoice, importSeq: number): ImportReport {
   return {
     choice,
@@ -403,21 +250,14 @@ function emptyReport(choice: OpenChoice, importSeq: number): ImportReport {
   }
 }
 
-/** The answers, with the unanswered case spelled once. @purity pure */
+/** @purity pure */
 function answersOf(request: ImportRequest): MergeChoices {
   return request.merge ?? { mapping: null, profileConflict: null, settingsConflict: null }
 }
 
-// --------------------------------------------------------------- the entry ----
-
-/**
- * Read a file into the document the way table T-024a says, and answer with the
- * document that results or with the refusal that stopped it.
- *
- * @purity pure
- */
+// see T-024a, OP-3, OP-5, OP-8
+/** @purity pure */
 export function importDocument(request: ImportRequest): ImportOutcome {
-  // ---- OP-8 --------------------------------------------------------------
   if (request.anotherOpenInProgress) {
     return refuse({
       reason: 'openInProgress',
@@ -426,7 +266,6 @@ export function importDocument(request: ImportRequest): ImportOutcome {
     })
   }
 
-  // ---- OP-5 --------------------------------------------------------------
   if (!request.validationPassed) {
     return refuse({
       reason: 'notValidated',
@@ -445,19 +284,9 @@ export function importDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// ------------------------------------------------------------ OP-3 置き換え ----
-
-/**
- * 置き換える -- the current document is dropped for the file's.
- *
- * The stamp, change log and format version stay as the file wrote them, because
- * the document now IS that file (FR-021); WS-5 advances the stamp later.
- *
- * @purity pure
- */
+// see OP-3, OP-4, OP-6, FR-021
+/** @purity pure */
 function replacedDocument(request: ImportRequest): ImportOutcome {
-  // ---- OP-4 --------------------------------------------------------------
-  // A merge discards nothing, so only this branch reads the flag.
   if (!request.unsavedEditsDiscardConfirmed) {
     return refuse({
       reason: 'unsavedEditsNotConfirmed',
@@ -466,18 +295,18 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
     })
   }
 
-  // ---- OP-6 --------------------------------------------------------------
+  // STOP: spec does not decide whose presentation group a replaced-in MSPDI takes. Looked in OP-6
   const document: Document = {
     ...request.incoming,
     documentSettings: restoredSettings(request.incoming.documentSettings, request.defaultSettings),
   }
 
+  // STOP: spec does not decide whether a replace advances importSeq. Looked in MG-13, T-032, FR-056
   return {
     ok: true,
     document,
     report: {
       ...emptyReport('replace', document.schedule.project.importSeq),
-      // OP-4, UN-6
       undo: 'notUndoable',
       discardsHistory: true,
       fitToScreenRequired: fitToScreenRequired(document),
@@ -485,19 +314,8 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// ------------------------------------------------------------------ OP-9 重ね ----
-
-/**
- * 重ねる -- FR-015's 変更前の予定, into `Schedule.baselineTasks` (`ET-18`).
- *
- * Only tasks whose `UID` matches the current document's go in (OP-9); every
- * unmatched one is told in `report.baselineTaskUidsNotDrawn` (FR-015), so none
- * is silently gone. An empty frame is an overlay that found nothing, answered
- * with the document rather than a refusal. The frame is replaced, not added
- * to: FR-015 overlays one file at a time.
- *
- * @purity pure
- */
+// see OP-9, FR-015
+/** @purity pure */
 function baselinedDocument(request: ImportRequest): ImportOutcome {
   const currentTaskUids = new Set(request.current.schedule.tasks.map((task) => task.uid))
   const baselineTasks: BaselineTask[] = []
@@ -527,7 +345,7 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
     document,
     report: {
       ...emptyReport('baseline', document.schedule.project.importSeq),
-      // Table T-027 has no row for 重ね (UN-6 covers the merge overwrite only).
+      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6
       undo: 'notDecided',
       fitToScreenRequired: fitToScreenRequired(document),
       baselineTaskUidsNotDrawn: notDrawn,
@@ -535,15 +353,10 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
   }
 }
 
-// ------------------------------------------------------------------ OP-3 合流 ----
-
-/** Everything of the current document a merge reads, indexed once. */
 interface CurrentIndex {
   readonly taskByUid: ReadonlyMap<number, Task>
-  /** MG-3: 取込元での出自 -> the task it became here. */
   readonly taskUidByOrigin: ReadonlyMap<string, number>
   readonly originByTaskUid: ReadonlyMap<number, TaskOrigin>
-  /** Which masters this document already holds tasks from (MG-1). */
   readonly sourceProjectUids: ReadonlySet<string>
   readonly calendarUidByContent: ReadonlyMap<string, number>
   readonly resourceUidByName: ReadonlyMap<string, number>
@@ -569,7 +382,6 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
 
   const resourceUidByName = new Map<string, number>()
   for (const resource of schedule.resources) {
-    // MG-5 unifies 同名の担当者. One with no name has no name to be matched on.
     if (resource.name === null) continue
     if (!resourceUidByName.has(resource.name)) resourceUidByName.set(resource.name, resource.uid)
   }
@@ -586,38 +398,21 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
   }
 }
 
-/**
- * MG-1, from the origins the document records (`ET-12`). A file with no
- * `Project.id` cannot be recognised, because its stand-in `importSessionId` is
- * minted per import (`AT-1`), so MG-1 sends it to the person; the caller reads
- * the preselection off `source`.
- *
- * @purity pure
- */
+// see MG-1, AT-1
+/** @purity pure */
 function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgement {
   if (incoming.id === null) return 'undecidable'
   return index.sourceProjectUids.has(incoming.id) ? 'sameMaster' : 'differentMaster'
 }
 
-/** What one incoming task is, before the person has answered. */
 type IncomingPlan =
-  /** MG-3: the person decided this last time; deciding again would duplicate. */
   | { readonly kind: 'carried'; readonly currentTaskUid: number }
-  /** FR-022 / MG-2: it might be the same task. Only the person may say. */
   | { readonly kind: 'candidate'; readonly currentTaskUid: number }
-  /** Nothing here answers to it. */
   | { readonly kind: 'fresh' }
 
-/**
- * Sort the incoming tasks into the three.
- *
- * The origin match comes first and takes a task out of the question: under MG-3
- * GRS carries the answer the person gave last time, so FR-022 is untouched. It
- * runs only for the same master (MG-1), or 別のマスタ could become a silent
- * identity.
- *
- * @purity pure
- */
+// see MG-3, FR-022
+// TRAP: match origins only for the same master, or a different master becomes a silent identity.
+/** @purity pure */
 function plannedIncomingTasks(
   incoming: Schedule,
   index: CurrentIndex,
@@ -632,7 +427,6 @@ function plannedIncomingTasks(
         continue
       }
     }
-    // FR-022
     if (index.taskByUid.has(task.uid)) {
       plans.set(task.uid, { kind: 'candidate', currentTaskUid: task.uid })
       continue
@@ -642,14 +436,10 @@ function plannedIncomingTasks(
   return plans
 }
 
-/** MM-4 is answered before this point, so it cannot reach the resolution. */
 type ChosenMapping = Exclude<MergeMapping, { readonly kind: 'cancelImport' }>
 
-/**
- * The mapping the person chose, spread over the candidates.
- *
- * @purity pure
- */
+// see T-032a
+/** @purity pure */
 function resolvedMapping(
   mapping: ChosenMapping,
   candidates: readonly MergeCandidate[],
@@ -661,7 +451,6 @@ function resolvedMapping(
   const undecided: MergeCandidate[] = []
 
   if (mapping.kind !== 'eachCandidate') {
-    // MM-1 / MM-2: 候補すべて.
     const one: TaskMapping = mapping.kind === 'allSame' ? 'same' : 'different'
     for (const candidate of candidates) decided.set(candidate.incomingTaskUid, one)
     return { decided, undecided }
@@ -671,7 +460,6 @@ function resolvedMapping(
   for (const candidate of candidates) {
     const answer = answers.get(candidate.incomingTaskUid)?.mapping ?? mapping.rest
     if (answer === null) {
-      // FR-022: an unanswered candidate is a question, not a default.
       undecided.push(candidate)
       continue
     }
@@ -680,12 +468,8 @@ function resolvedMapping(
   return { decided, undecided }
 }
 
-/**
- * The rows of table T-224 that hold two different values (MG-4). A column only
- * one side fills is not a conflict: 合流 adds, and filling an empty field adds.
- *
- * @purity pure
- */
+// see MG-4, T-224
+/** @purity pure */
 function conflictingProfileRows(current: Project, incoming: Project): readonly string[] {
   const rows: string[] = []
   for (const column of PROFILE_COLUMNS) {
@@ -697,13 +481,8 @@ function conflictingProfileRows(current: Project, incoming: Project): readonly s
   return rows
 }
 
-/**
- * The keys of the presentation group that differ (MG-12), over the union of both
- * key sets because OP-6 keeps unknown keys. A key only one side carries is not a
- * conflict.
- *
- * @purity pure
- */
+// see MG-12, OP-6
+/** @purity pure */
 function conflictingSettingsKeys(
   current: DocumentSettings,
   incoming: DocumentSettings,
@@ -718,14 +497,9 @@ function conflictingSettingsKeys(
   return differing.sort()
 }
 
-/**
- * The highest uid any row of either document carries, so a newly issued one
- * cannot collide (`IV-1`). Every row is looked at because an imported document
- * may carry a `uidHighWaterMark` (`AT-20`) its rows have outgrown; one counter
- * for all row kinds only skips numbers.
- *
- * @purity pure
- */
+// see IV-1, AT-20
+// WHY: every row is scanned; an imported uidHighWaterMark may be lower than its rows.
+/** @purity pure */
 function highWaterOf(current: Schedule, incoming: Schedule): number {
   let top = Math.max(current.project.uidHighWaterMark, incoming.project.uidHighWaterMark)
   for (const schedule of [current, incoming]) {
@@ -737,18 +511,14 @@ function highWaterOf(current: Schedule, incoming: Schedule): number {
   return top
 }
 
-/**
- * 合流させる -- the questions of table T-032 first, then the merge itself.
- *
- * @purity pure
- */
+// see T-032, MG-6
+/** @purity pure */
 function mergedDocument(request: ImportRequest): ImportOutcome {
   const current = request.current.schedule
   const incoming = request.incoming.schedule
   const answers = answersOf(request)
   const mapping = answers.mapping
 
-  // MM-4 / MG-6: nothing to restore, because this unit only builds the answer.
   if (mapping !== null && mapping.kind === 'cancelImport') {
     return refuse({
       reason: 'importCancelled',
@@ -768,7 +538,6 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
   const source = judgedSource(incoming.project, index)
   const plans = plannedIncomingTasks(incoming, index, source)
 
-  // ---- MG-2 / FR-022: what has to be asked -------------------------------
   const candidates: MergeCandidate[] = []
   for (const task of incoming.tasks) {
     const plan = plans.get(task.uid)
@@ -803,7 +572,6 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
     })
   }
 
-  // ---- MG-4: the profile, asked apart from the tasks ---------------------
   const profileRows = conflictingProfileRows(current.project, incoming.project)
   if (profileRows.length > 0 && answers.profileConflict === null) {
     return refuse({
@@ -814,8 +582,6 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
     })
   }
 
-  // ---- MG-12: the presentation group, as a whole -------------------------
-  // Only `GRS JSON` reaches this: an MSPDI file states no presentation group.
   const settingsKeys =
     request.format === 'grsJson'
       ? conflictingSettingsKeys(request.current.documentSettings, request.incoming.documentSettings)
@@ -842,7 +608,6 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
   })
 }
 
-/** Everything `mergedDocument` worked out, handed on in one value. */
 interface MergeInput {
   readonly request: ImportRequest
   readonly index: CurrentIndex
@@ -855,41 +620,26 @@ interface MergeInput {
   readonly settingsConflicted: boolean
 }
 
-/**
- * The merge itself, once every question of table T-032 has an answer.
- *
- * @purity pure
- */
+// see T-032, MG-5, MG-8, MG-13
+/** @purity pure */
 function builtMerge(input: MergeInput): ImportOutcome {
   const { request, index, answers, source, plans, decided } = input
   const current = request.current.schedule
   const incoming = request.incoming.schedule
   const dropped: DroppedReference[] = []
 
-  // MG-13 (`S-71`): MG-3 and MG-11 have no other way to tell which round was 前回.
   const previousSeq = current.project.importSeq
   const importSeq = previousSeq + 1
 
   let highWater = highWaterOf(current, incoming)
-  /**
-   * The next uid nobody holds. It closes over a counter local to this call, so
-   * `builtMerge` stays pure.
-   *
-   * @purity non-pure
-   */
+  /** @purity non-pure */
   const nextUid = (): number => {
     highWater += 1
     return highWater
   }
 
-  // ---- MG-5: 内容が同じ暦 ------------------------------------------------
-  // A calendar not held yet is appended with an ordinal after every current one,
-  // so FR-054's lowest-ordinal resolution answers as before. Re-issuing the
-  // ordinal is this file's decision; MG-5 says nothing about where a new one sits.
-  //
-  // A uid the current document does not hold is kept: `AT-63`, `AT-85` and
-  // `AT-92` are `Own`, and re-issuing them loses FR-021's round trip. A new
-  // number is drawn only when the old one is taken (`IV-1`).
+  // STOP: spec does not decide where a new calendar's ordinal sits. Looked in MG-5, FR-054
+  // WHY: keep an incoming uid unless taken; re-issuing it would lose FR-021's round trip.
   const calendars: Calendar[] = [...current.calendars]
   const heldCalendarUids = new Set(current.calendars.map((one) => one.uid))
   let topOrdinal = current.calendars.reduce((top, one) => Math.max(top, one.ordinal), -1)
@@ -907,7 +657,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
     calendarUidOf.set(calendar.uid, uid)
   }
 
-  // ---- MG-5: 同名の担当者 ------------------------------------------------
   const resources: Resource[] = [...current.resources]
   const heldResourceUids = new Set(current.resources.map((one) => one.uid))
   const resourceUidOf = new Map<number, number>()
@@ -925,10 +674,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     resourceUidOf.set(resource.uid, uid)
   }
 
-  // ---- MG-12 / FR-058: the rows the tasks sit on -------------------------
-  // A row both documents hold keeps the current fields (see the header). A row
-  // only the file holds is added, which gives an added task a row (`IV-6`);
-  // FR-058 makes the container part of the import, MSPDI included.
+  // STOP: spec does not decide a TaskGroup id both sides hold with different fields. Looked in MG-4, MG-12
   const taskGroups: TaskGroup[] = [...current.taskGroups]
   const groupIds = new Set(current.taskGroups.map((group) => group.id))
   for (const group of incoming.taskGroups) {
@@ -937,13 +683,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
     taskGroups.push(group)
   }
 
-  // ---- Which uid each incoming task ends up as ---------------------------
-  // Worked out before anything is written, because a dependency or a WBS parent
-  // may point at a task that comes later in the file.
-  //
-  // MISSING: two incoming tasks can land on one current task (one by MG-3's
-  // origin, one by its uid). Table T-032 does not rule on it, so the later one
-  // wins and the uid appears twice among the overwritten in the report.
+  // WHY: resolved before writing, since a dependency or WBS parent may point at a later task.
+  // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-3
   const mergedUidOf = new Map<number, number>()
   const overwritten: number[] = []
   const added: number[] = []
@@ -956,7 +697,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       continue
     }
     if (plan.kind === 'candidate') {
-      // Every candidate is in `decided`: an unanswered one was refused above.
+      // TRAP: every candidate is in decided only because mergedDocument refused unanswered ones.
       if (decided.get(task.uid) === 'same') {
         mergedUidOf.set(task.uid, plan.currentTaskUid)
         overwritten.push(plan.currentTaskUid)
@@ -964,18 +705,14 @@ function builtMerge(input: MergeInput): ImportOutcome {
         const uid = nextUid()
         mergedUidOf.set(task.uid, uid)
         added.push(uid)
-        // MG-10's subject: this task no longer answers to its master.
         addedAsDifferent.push({ incomingTaskUid: task.uid, taskUid: uid })
       }
       continue
     }
-    // Nothing here answers to that uid, so it keeps the exchange partner's
-    // identifier (Chapter 5.4).
     mergedUidOf.set(task.uid, task.uid)
     added.push(task.uid)
   }
 
-  // ---- The tasks and what table T-050 keeps with them --------------------
   const tasks = keyedRows(current.tasks, (task) => task.uid)
   const visuals = keyedRows(current.taskVisuals, (visual) => visual.taskUid)
   const members = keyedRows(current.taskGroupMembers, (member) => member.taskUid)
@@ -988,14 +725,11 @@ function builtMerge(input: MergeInput): ImportOutcome {
     if (uid === undefined) continue
     const wasHeld = index.taskByUid.has(uid)
 
-    // The `Task` row comes from the file in both formats: every column is the
-    // exchange partner's (table T-058), so MG-8 leaves none behind.
     const dependencies: Dependency[] = []
     for (const dependency of task.dependencies) {
       const predecessor = mergedUidOf.get(dependency.predecessorUid)
       if (predecessor === undefined) {
-        // Pointing it at whatever holds that uid here would decide 同じか別か
-        // (FR-022); keeping it would dangle (`IV-2`).
+        // WHY: dropped, not redirected; pointing it at whatever holds that uid here would decide FR-022.
         dropped.push({
           what: 'dependency',
           owner: String(uid),
@@ -1036,9 +770,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
     tasks.set(uid, { ...task, uid, wbsParentUid, calendarUid, dependencies })
 
-    // MG-8 / MG-8a: MSPDI keeps the current look and row, `GRS JSON` replaces
-    // them. A task the merge adds takes the file's in either format, or it would
-    // have no row (`IV-6`).
     if (request.format === 'grsJson' || !wasHeld) {
       const visual = incomingVisualByTaskUid.get(task.uid)
       if (visual === undefined) visuals.delete(uid)
@@ -1048,8 +779,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
       if (member !== undefined) members.set(uid, { ...member, taskUid: uid })
     }
 
-    // MG-13: the file's own origins record ITS history and are not carried in.
-    // `IV-15` holds because `Project.importSeq` is written the same value.
     origins.set(uid, {
       taskUid: uid,
       sourceProjectUid: incoming.project.id,
@@ -1059,7 +788,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
     })
   }
 
-  // ---- MG-5: 同じ組の割当 ------------------------------------------------
   const assignments: Assignment[] = [...current.assignments]
   const heldAssignmentUids = new Set(current.assignments.map((one) => one.uid))
   const assignmentPairs = new Set(
@@ -1074,7 +802,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
       (assignment.taskUid !== null && taskUid === null) ||
       (assignment.resourceUid !== null && resourceUid === null)
     ) {
-      // `CD-1` / `CD-5` read forward: its task or resource is not here.
       dropped.push({
         what: 'assignment',
         owner: String(assignment.uid),
@@ -1090,10 +817,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     assignments.push({ ...assignment, uid, taskUid, resourceUid })
   }
 
-  // ---- MG-12: the notes --------------------------------------------------
-  // Added when the id is new, left alone when both hold one: no row lets a file
-  // overwrite a note. One anchored to a missing row would dangle (`IV-2`), so it
-  // is left out and named.
+  // STOP: spec does not decide whether a file may overwrite a note. Looked in MG-12
   const commentBoxes: CommentBox[] = [...current.commentBoxes]
   for (const box of incoming.commentBoxes) {
     if (index.commentBoxIds.has(box.id)) continue
@@ -1122,9 +846,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
   const project = mergedProject(input, importSeq, highWater)
 
-  // ---- MG-12: the presentation group -------------------------------------
-  // 上書き takes only what the file states (MG-8's principle); OP-6's defaulting
-  // is not run, because OP-6 excludes 合流.
   const documentSettings =
     input.settingsConflicted && answers.settingsConflict === 'overwrite'
       ? { ...request.current.documentSettings, ...request.incoming.documentSettings }
@@ -1142,21 +863,17 @@ function builtMerge(input: MergeInput): ImportOutcome {
     commentBoxes,
     highlightBoxes,
     taskOrigins: [...origins.values()],
-    // FR-015's frame is filled by OP-9 alone.
     baselineTasks: current.baselineTasks,
   }
 
   const document: Document = { ...request.current, schedule, documentSettings }
 
-  // ---- MG-7 and MG-11: what has to be said -------------------------------
   const touched = new Set([...overwritten, ...added])
   const onlyInCurrent: number[] = []
   const missingSinceLastImport: number[] = []
   for (const task of current.tasks) {
     if (touched.has(task.uid)) continue
-    // MG-7 / FR-022
     onlyInCurrent.push(task.uid)
-    // MG-11; 前回 is the round MG-13's counter names.
     const origin = index.originByTaskUid.get(task.uid)
     if (previousSeq > 0 && origin !== undefined && origin.lastSeenImportSeq === previousSeq) {
       missingSinceLastImport.push(task.uid)
@@ -1173,7 +890,6 @@ function builtMerge(input: MergeInput): ImportOutcome {
     document,
     report: {
       ...emptyReport('merge', importSeq),
-      // UN-6, UN-1, UN-6a; one import is one step (FR-031).
       undo: 'oneStep',
       fitToScreenRequired: fitToScreenRequired(document),
       source,
@@ -1189,26 +905,14 @@ function builtMerge(input: MergeInput): ImportOutcome {
   }
 }
 
-/**
- * MG-4 applied to the rows of table T-224, and MG-13 to the counter. The choice
- * answers every conflicting row at once (MG-9); a row empty here and filled
- * there is not a conflict and is taken.
- *
- * Every other column of `Project` stays the current document's: `themeHue`
- * (FR-041), `statusDate` (FR-046), `title` (FR-035, excluded by FR-074), the
- * calendar columns (FR-054), and `carry` (table T-053).
- *
- * @purity pure
- */
+// see MG-4, MG-9, MG-13, T-224
+/** @purity pure */
 function mergedProject(input: MergeInput, importSeq: number, uidHighWaterMark: number): Project {
   const current = input.request.current.schedule.project
   const incoming = input.request.incoming.schedule.project
   const conflicting = new Set(input.profileRows)
   const overwrite = input.answers.profileConflict === 'overwrite'
 
-  // Cast so table T-224 is not written out twice. Sound because every key is
-  // `keyof Project` and every value is that column read off one of the two
-  // documents.
   const held: Record<string, unknown> = { ...current }
   for (const column of PROFILE_COLUMNS) {
     const mine = current[column.key]
