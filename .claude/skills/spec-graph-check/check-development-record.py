@@ -97,9 +97,12 @@ def main():
         # appears once and above the next.
         # magic-numbers.md is the eighth: a work list of numeric literals in
         # src/, keyed by file path rather than by a folder of units.
+        # src-comment-cleanup-report-2026-09-13.md is the ninth: a dated status
+        # report of the src/ comment cleanup, keyed by its date.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
-            'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md'
+            'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
+            'src-comment-cleanup-report-2026-09-13.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

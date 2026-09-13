@@ -33,6 +33,7 @@ docs/development-records/
   fixed-defects.md   同・決着した行（`実測済` と `取下げ`）
   handoff.md         次の巡への引継ぎ。⛔ 番号を増やさず、毎巡この 1 ファイルを書き換える
   magic-numbers.md   src/ のマジックナンバーの作業表（ファイル単位。不具合台帳とは別）
+  src-comment-cleanup-report-2026-09-13.md  src/ のコメント整理（裁定 17・18）の状況報告（2026-09-13 時点の写し）
 ```
 
 ⛔⛔ **`defects.md` と `fixed-defects.md` は 1 つの台帳の 2 つの半分である。**
