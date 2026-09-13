@@ -2554,9 +2554,8 @@ function commandFromGrab(
     return CONSUMED_ELSEWHERE
   }
 
+  // see GR-14, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    // STOP: spec does not decide which command carries GR-14's move. Looked in T-023d, T-108, FR-019
-    // @provisional PND-316
     const box = context.document.schedule.commentBoxes.find((one) => one.id === item.id)
     if (box === undefined) return CONSUMED_ELSEWHERE
     const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
@@ -2686,8 +2685,6 @@ function commandFromGrab(
       ])
     }
     default:
-      // STOP: spec does not decide the hit size of GR-14's anchor and corners. Looked in GR-14, T-206, T-217, S-137
-      // @provisional PND-481
       // DEVIATION: spec says GR-14 resizes a box by its corners; here no press resizes (DFC-568)
       return CONSUMED_ELSEWHERE
   }

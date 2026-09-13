@@ -1,4 +1,11 @@
-1
+3
+#
+# RAISED 2 -> 3 on 2026-09-14, deliberately, for JDG-70 (DFC-568's highlight
+# box body drag: the top and bottom shift by the same count of on-screen
+# rows). The ruling was answered but the DFC-568 row it lands under (table
+# T-023d's closing GR-14 paragraph) is being written by another body, in
+# .claude/worktrees/, at the same time as this commit. Lower this back to 2
+# in the commit that lands JDG-70 in docs/spec.
 #
 # RAISED 0 -> 1 on 2026-09-14, deliberately, for JDG-67 (a task's actual end
 # released on a non-working day becomes that non-working day). The ruling
@@ -8,6 +15,14 @@
 # to 0 in the commit that lands JDG-67.
 # The other way out -- a 状態 word check 43 does not count -- was refused: it
 # would hide exactly the ruling this file exists to count.
+#
+# RAISED 1 -> 2 on 2026-09-14, deliberately, for JDG-69 (how JDG-67 is held:
+# the actual's start is ActualStart, its in-progress edge is Stop, and its
+# finish is ActualFinish -- dates are authoritative, ActualDuration is counted
+# from them, and a non-working day is a legal value for all three). This is a
+# storage-shape decision, not yet a specification change: it needs its own
+# change request and a rewrite of the actual-reading clauses, rendering, and
+# tests before it lands. Lower this back to 1 in the commit that lands JDG-69.
 #
 # Check 43 -- rulings in docs/development-records/rulings.md whose 状態 still
 # holds 未着地: answered by the user and written nowhere the product is built
