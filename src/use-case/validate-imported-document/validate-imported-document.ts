@@ -253,6 +253,19 @@ export function validateImportedDocument(
         refusal('FR-012', foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
       )
     }
+
+    // see IV-21
+    if (task.actualStart !== null && task.actualDuration !== null && task.actualDuration < 0) {
+      found.push(
+        refusal(
+          'IV-21',
+          foundAt,
+          `Task uid ${task.uid} has an actual of ${task.actualDuration} worked days, `
+          + 'ending before it starts',
+          'NT-1',
+        ),
+      )
+    }
   }
 
   if (accepted !== null) {
