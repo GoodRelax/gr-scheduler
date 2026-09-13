@@ -5,12 +5,18 @@ import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import type {
-  HumanInput,
-  InputModifiers,
-  PointerInput,
-  PointerPhase,
+import {
+  commandFromInput,
+  pressRowOf,
+  type HumanInput,
+  type InputContext,
+  type InputModifiers,
+  type PointerInput,
+  type PointerPhase,
+  type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { emptyScreenState, screenStateWithArmed } from '../../src/entity/document-model/screen-state/screen-state'
+import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import type {
   Notice,
@@ -64,7 +70,24 @@ const GRAB_MARGIN = '⭐ 四隅とアンカーの掴み代は `_assets/tbl-setti
 const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの本体と四隅を離したときに置く値は 表 T-246 が持つ。**'
 const T_246_NO_NEW_REFUSAL =
   '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、告げる作法は `FR-029` に従う。'
-const IV_19 = 'ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。'
+const ANCHOR_READ =
+  '⭐ アンカーは離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれた行を `anchorGroupId` に置く。'
+const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付と行の識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
+const ANCHOR_NO_ROW =
+  '離した点の下に描かれた行が無いときは動かさず、表 T-233 の `RS-44` を告げる —— 置くときに行が無ければ作らずに告げる `FR-019` と同じである。'
+const ANCHOR_NOT_NEAREST =
+  '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、アンカーは日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
+const ANCHOR_HORIZONTAL =
+  '⭐ 横にだけ引いて離したときに行が変わらないのは、アンカーを行の帯の中央に描き、掴み代 `S-230` が既定で帯の高さの半分より狭いからである —— 表 T-246 の `HB-5` の根拠と同じである。'
+const FR_019_BODY_OFFSET =
+  '⛔ コメントボックスの本文の箱は、留めた点からのずれで置き、その基準隅を左下とすること（MUST） —— **ずれ（`bodyOffsetPx`）は、留めた点から本文の**左下隅**へのものである。**'
+const FR_019_POINT_IS_LF_15 = '⭐ 留めた点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
+const FR_019_LEADER = '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の左下隅とを、1 本の線で結ぶこと。'
+const LF_15 =
+  '横は `anchorDate` の日の列の中央、縦は `anchorGroupId` の行が描かれた帯（`LF-2` / `LF-3`、ピン止めした行は `LF-14`）の中央とする。'
+const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、アンカーと共に動く'
+
+const IV_19 ='ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。'
 
 const HB_1_ROW =
   '| HB-1 | 四隅を向かいの隅へ寄せて縮める | 開始日 ＝ 終了日、上端の行 ＝ 下端の行まで縮められる。<br>別の下限は置かない |'
@@ -277,6 +300,7 @@ interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
   noticeTexts(): readonly string[]
+  lastSvg(): string
 }
 
 function stage(fixture: Fixture = {}): Stage {
@@ -299,7 +323,13 @@ function stage(fixture: Fixture = {}): Stage {
     readScreenPartAt: (): ScreenPart | null => null,
   }
   const wiring: ScreenWiring = { surface, language: 'en' }
-  const loop = frameLoop({ showSvg: () => undefined } as never, fixtureDocument(fixture), SCREEN, wiring)
+  let svg = ''
+  const svgSurface = {
+    showSvg: (drawn: string) => {
+      svg = drawn
+    },
+  }
+  const loop = frameLoop(svgSurface as never, fixtureDocument(fixture), SCREEN, wiring)
   drain()
   return {
     loop,
@@ -308,6 +338,7 @@ function stage(fixture: Fixture = {}): Stage {
       drain()
     },
     noticeTexts: () => (views[views.length - 1]?.notices ?? []).map((one: Notice) => one.text),
+    lastSvg: () => svg,
   }
 }
 
@@ -925,18 +956,247 @@ describe('DFC-568 comment box: no corners, body CM-51, anchor CM-50', () => {
   })
 
   for (const [label, shift] of [['on the anchor', 0], ['within S-230 of the anchor', -S_230 / 2]] as const) {
-    it(`本体を掴めば \`CM-51\` で、アンカーを掴めば \`CM-50\` で書くこと（MUST）。 -- a press ${label} writes the anchor`, () => {
+    it(`本体を掴めば \`CM-51\` で、アンカーを掴めば \`CM-50\` で書くこと（MUST）。 -- a press ${label} writes the anchor with CM-50 alone`, () => {
       const built = stage()
       const drawn = commentDrawn(built.loop)
       const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
       dragBy(built, { x: drawn.anchor.x + shift, y: drawn.anchor.y }, TRAVEL_DAYS * pxPerDay(built.loop))
       const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
-      const changed = changedColumns(before, after)
-      expect(changed.filter((column) => (CM_50_COLUMNS as readonly string[]).includes(column)), 'no CM-50 column was written').not.toEqual([])
-      expect(serialDay(after['anchorDate']), 'anchorDate did not follow the pointer').toBeGreaterThan(serialDay(before['anchorDate']))
-      for (const column of changed) {
-        expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} was written`).toContain(column)
-      }
+      expect(changedColumns(before, after), 'the anchor press wrote something other than CM-50').toEqual(['anchorDate'])
+      expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: ROW_F }, `press ${label}`)
+    })
+  }
+})
+
+const ANCHOR_DAY = 22
+
+const dayColumnLeft = (built: Stage, d: number): number => dayLeftX(built, START_OF(DEFAULT_RANGE), d)
+
+const bandCentre = (loop: FrameLoop, groupId: string): number => {
+  const row = drawnRow(loop, groupId)
+  return row.y + row.height / 2
+}
+
+const expectAnchor = (loop: FrameLoop, expected: { day: number; row: string }, what: string): void => {
+  const stored = storedOf(loop, 'commentBoxes', COMMENT_ID)
+  const dayZero = serialDay(day(1)) - 1
+  expect(`${serialDay(stored['anchorDate']) - dayZero} ${rowLetter(stored['anchorGroupId'])}`, what).toBe(
+    `${expected.day} ${rowLetter(expected.row)}`,
+  )
+}
+
+function moveAnchor(built: Stage, pressFromAnchor: Point, release: Point): { before: Record<string, unknown>; after: Record<string, unknown> } {
+  const anchor = commentDrawn(built.loop).anchor
+  const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
+  releaseAt(built, { x: anchor.x + pressFromAnchor.x, y: anchor.y + pressFromAnchor.y }, release)
+  return { before, after: storedOf(built.loop, 'commentBoxes', COMMENT_ID) }
+}
+
+function expectOnlyCm50(moved: { before: Record<string, unknown>; after: Record<string, unknown> }, what: string): void {
+  for (const column of changedColumns(moved.before, moved.after)) {
+    expect(CM_50_COLUMNS as readonly string[], `${what}: ${column} is not a column CM-50 writes`).toContain(column)
+  }
+}
+
+const NEAR_RIGHT: Point = { x: 0.9 * S_230, y: 0 }
+const NEAR_LEFT: Point = { x: -0.9 * S_230, y: 0 }
+const DEAD_ON: Point = { x: 0, y: 0 }
+
+function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
+  const values = frameOf(built.loop)
+  const base: InputContext = {
+    document: built.loop.document(),
+    layout: values.layout,
+    geometry: values.geometry,
+    regions: values.regions,
+    screenState: screenStateWithArmed(emptyScreenState(), { kind: 'commentBox' }),
+    selection: emptySelection(),
+    zoomStep: 3,
+    zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
+    zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
+    pressed: null,
+    isTextEntryUnsettled: false,
+    isSurfaceStanding: false,
+    dualCursorFollowing: null,
+    today: day(1),
+    newGroupId: 'row-minted-outside',
+    newCommentBoxId: 'comment-box-minted-outside',
+    newHighlightBoxId: 'highlight-box-minted-outside',
+  }
+  const down = pointer('down', at)
+  const pressed = { at: down, hit: null, on: null, pressRow: pressRowOf({ at: down, hit: null }, base) }
+  const answer: TranslatedInput = commandFromInput(pointer('up', at), { ...base, pressed })
+  const action = answer.action
+  const writes = action !== null && action.kind === 'changeDocument' ? action.writes.flat() : []
+  const created = writes.filter((one) => one.kind === 'createCommentBox')
+  expect(created, `AR-5 at (${at.x}, ${at.y}) created ${created.length} comment boxes`).toHaveLength(1)
+  return (created[0] as unknown as Record<string, unknown>)['anchor'] as Record<string, unknown>
+}
+
+describe('DFC-568 JDG-72 premises: the anchor clauses read verbatim', () => {
+  it('GR-14, FR-019 and T-221 LF-15 still hold the anchor clauses', () => {
+    for (const clause of [ANCHOR_READ, ANCHOR_SAME_AS_PLACING, ANCHOR_NO_ROW, ANCHOR_NOT_NEAREST, ANCHOR_HORIZONTAL, FR_019_BODY_OFFSET, FR_019_POINT_IS_LF_15, FR_019_LEADER]) {
+      expect(REQUIREMENTS, 'the requirements lost a clause').toContain(clause)
+    }
+    const lf15 = DESIGN.split('\n').filter((line) => line.startsWith('| LF-15 |'))
+    expect(lf15).toHaveLength(1)
+    expect(lf15[0]).toContain(LF_15)
+    expect(lf15[0]).toContain(LF_15_BODY_FOLLOWS)
+  })
+
+  it('in the fixture S-230 is narrower than half a day column and half a row band, and the anchor sits on day 22 of row F', () => {
+    const built = stage()
+    expect(S_230).toBeLessThan(pxPerDay(built.loop) / 2)
+    for (const id of [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]) {
+      expect(S_230, `row ${rowLetter(id)}`).toBeLessThan(drawnRow(built.loop, id).height / 2)
+    }
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_F }, 'fixture')
+    expect(Math.abs(dayColumnLeft(built, 7) - dayColumnLeft(built, 6) - pxPerDay(built.loop))).toBeLessThanOrEqual(WIDTH_SLACK)
+  })
+})
+
+describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column centre and the band centre', () => {
+  it(`${LF_15} -- day 22 of row F`, () => {
+    const built = stage()
+    const anchor = commentDrawn(built.loop).anchor
+    expect(anchor.x, 'the anchor is not at the centre of the day 22 column').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
+    expect(anchor.y, 'the anchor is not at the centre of the row F band').toBeCloseTo(bandCentre(built.loop, ROW_F), 1)
+  })
+
+  it(`${LF_15} -- a pinned row F is drawn in the LF-14 band, and the anchor follows it`, () => {
+    const built = stage({ pinned: [ROW_F] })
+    const anchor = commentDrawn(built.loop).anchor
+    expect(anchor.y).toBeCloseTo(bandCentre(built.loop, ROW_F), 1)
+    expect(anchor.x).toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
+  })
+})
+
+describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', () => {
+  it(`${FR_019_BODY_OFFSET} -- the body's bottom-left is the anchor plus bodyOffsetPx`, () => {
+    const built = stage()
+    const drawn = commentDrawn(built.loop)
+    expect(drawn.body.x).toBeCloseTo(drawn.anchor.x + 60, 1)
+    expect(drawn.body.y + drawn.body.height).toBeCloseTo(drawn.anchor.y - 60, 1)
+  })
+
+  it(`${LF_15_BODY_FOLLOWS} -- after the anchor moves, the body keeps the same offset from the new anchor`, () => {
+    const built = stage()
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCentre(built.loop, ROW_C) })
+    expect(moved.after['bodyOffsetPx']).toEqual(moved.before['bodyOffsetPx'])
+    const drawn = commentDrawn(built.loop)
+    expect(drawn.anchor.x).toBeCloseTo(dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, 1)
+    expect(drawn.body.x).toBeCloseTo(drawn.anchor.x + 60, 1)
+    expect(drawn.body.y + drawn.body.height).toBeCloseTo(drawn.anchor.y - 60, 1)
+  })
+
+  it(`${FR_019_LEADER} -- one line from the pinned point to the body's bottom-left, in the drawn picture`, () => {
+    const built = stage()
+    const svg = built.lastSvg()
+    const key = `data-figure="comment-${COMMENT_ID}-leader"`
+    const lines = [...svg.matchAll(/<([a-z]+)\s([^>]*?)\/>/g)].filter((hit) => (hit[2] ?? '').includes(key))
+    expect(lines.map((hit) => hit[1]), 'the picture draws no single leader line').toEqual(['line'])
+    const attrs = lines[0]![2]!
+    const num = (name: string): number => Number.parseFloat(new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(attrs)?.[1] ?? 'NaN')
+    const body = new RegExp(`<rect x="([\\d.-]+)" y="([\\d.-]+)" width="([\\d.-]+)" height="([\\d.-]+)"[^>]*data-figure="comment-${COMMENT_ID}"`).exec(svg)
+    expect(body, 'the picture draws no comment body').not.toBeNull()
+    const left = Number(body![1])
+    const bottom = Number(body![2]) + Number(body![4])
+    const ends = [
+      [num('x1'), num('y1')],
+      [num('x2'), num('y2')],
+    ].sort((a, b) => a[0]! - b[0]!)
+    // STEP: the pinned point is the body's bottom-left minus bodyOffsetPx, in the picture's own space
+    expect(ends[0]![0]).toBeCloseTo(left - 60, 1)
+    expect(ends[0]![1]).toBeCloseTo(bottom + 60, 1)
+    expect(ends[1]![0]).toBeCloseTo(left, 1)
+    expect(ends[1]![1]).toBeCloseTo(bottom, 1)
+  })
+})
+
+describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by the travel', () => {
+  it(`${ANCHOR_SAME_AS_PLACING} -- pressed right of the anchor, released in the left third of day 25, pins day 25`, () => {
+    const built = stage()
+    const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
+    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'left third of day 25')
+    expectOnlyCm50(moved, 'left third of day 25')
+    expectNoRs44(built, 'left third of day 25')
+  })
+
+  it(`${ANCHOR_NOT_NEAREST} -- pressed left of the anchor, released on the right side of day 25, pins day 25, not the nearer boundary's day 26`, () => {
+    const built = stage()
+    const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
+    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'right side of day 25')
+    expectOnlyCm50(moved, 'right side of day 25')
+  })
+
+  it(`${ANCHOR_NOT_NEAREST} -- pressed left of the drawn anchor within S-230 and released without moving keeps day 22`, () => {
+    const built = stage()
+    const anchor = commentDrawn(built.loop).anchor
+    const press = { x: anchor.x + NEAR_LEFT.x, y: anchor.y }
+    const moved = moveAnchor(built, NEAR_LEFT, press)
+    expect(moved.after, 'a release in place changed the comment box').toEqual(moved.before)
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_F }, 'release in place')
+    expectNoRs44(built, 'release in place')
+  })
+
+  it(`${ANCHOR_READ} -- released straight up in row C pins row C and keeps day 22`, () => {
+    const built = stage()
+    const anchor = commentDrawn(built.loop).anchor
+    const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, ROW_C) })
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_C }, 'row C')
+    expectOnlyCm50(moved, 'row C')
+    expectNoRs44(built, 'row C')
+  })
+
+  it(`${ANCHOR_HORIZONTAL} -- pressed below the anchor within S-230 and moved only sideways keeps row F`, () => {
+    const built = stage()
+    const press: Point = { x: 0, y: 0.9 * S_230 }
+    const anchor = commentDrawn(built.loop).anchor
+    releaseAt(built, { x: anchor.x, y: anchor.y + press.y }, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: anchor.y + press.y })
+    expectAnchor(built.loop, { day: 25, row: ROW_F }, 'sideways only')
+    expectNoRs44(built, 'sideways only')
+  })
+
+  it(`${ANCHOR_READ} -- released in a pinned row A drawn at the top pins row A`, () => {
+    const built = stage({ pinned: [ROW_A] })
+    const anchor = commentDrawn(built.loop).anchor
+    moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, ROW_A) })
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_A }, 'pinned row A')
+    expectNoRs44(built, 'pinned row A')
+  })
+})
+
+describe('DFC-568 JDG-72: no drawn row under the release writes nothing and tells RS-44', () => {
+  it(`${ANCHOR_NO_ROW} -- released in the gap between the E and F bands`, () => {
+    const built = stage()
+    const gapY = (bandBottom(built.loop, ROW_E) + bandTop(built.loop, ROW_F)) / 2
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: gapY })
+    expect(moved.after, 'the gap release moved the anchor').toEqual(moved.before)
+    expect(built.noticeTexts(), 'RS-44 was not told').toContain(RS_44_WORDS)
+  })
+
+  it(`${ANCHOR_NO_ROW} -- released below every drawn band`, () => {
+    const built = stage()
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
+    expect(moved.after, 'the release below the rows moved the anchor').toEqual(moved.before)
+    expect(built.noticeTexts(), 'RS-44 was not told').toContain(RS_44_WORDS)
+  })
+})
+
+describe('DFC-568 JDG-72: placing and moving read the same place for the same point', () => {
+  for (const [label, fraction] of [['left third', 0.1], ['right side', 0.9]] as const) {
+    it(`${ANCHOR_SAME_AS_PLACING} -- the ${label} of day 25 in row A`, () => {
+      const placed = stage()
+      const at: Point = { x: dayColumnLeft(placed, 25) + fraction * pxPerDay(placed.loop), y: bandCentre(placed.loop, ROW_A) }
+      const created = createdAnchorAt(placed, at)
+      const moving = stage()
+      moveAnchor(moving, DEAD_ON, at)
+      const stored = storedOf(moving.loop, 'commentBoxes', COMMENT_ID)
+      // STEP: the created anchor and the moved anchor name the same day and row
+      expect(`${String(created['date']).slice(0, 10)} ${rowLetter(created['groupId'])}`).toBe(
+        `${String(stored['anchorDate']).slice(0, 10)} ${rowLetter(stored['anchorGroupId'])}`,
+      )
+      expect(String(stored['anchorDate']).slice(0, 10)).toBe(day(25).slice(0, 10))
     })
   }
 })

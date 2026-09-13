@@ -2164,6 +2164,54 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
   )
 })
 
+describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
+  it(
+    swsCase({
+      sws: 'SWS-4',
+      level: 'Integration',
+      covers: ['LF-15'],
+      given: 'two rows, and a comment box anchored to day 5 of the second, once plain and once with that row pinned',
+      when: 'geometryFromLayout places the anchor',
+      then: 'the anchor stands at the centre of the day 5 column and the centre of the band the row is drawn in',
+    }),
+    () => {
+      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` の行が描かれた帯', '`LF-14`')
+      for (const pinned of [[], ['g2']]) {
+        const bare = draw(
+          [task({ uid: 1, name: 'a', start: day(2), finish: day(8) })],
+          ['g1'],
+          [taskVisual(1)],
+          { pinnedGroupIds: pinned },
+          null,
+          ['g1', 'g2'],
+        )
+        const schedule = {
+          ...bare.schedule,
+          commentBoxes: [
+            {
+              id: 'c1',
+              leaderShapeKind: 'polyline',
+              text: 'note',
+              anchorDate: day(5),
+              anchorGroupId: 'g2',
+              bodyOffsetPx: { dx: 40, dy: -40 },
+            },
+          ],
+        } as unknown as Schedule
+        const layout = layoutFromSchedule(schedule, bare.settings, bare.regions)
+        const geometry = geometryFromLayout(schedule, bare.settings, layout, bare.regions, emptySelection())
+        const drawn = { ...bare, schedule, layout, geometry }
+        const anchor = geometry.commentBoxes.find((one) => one.id === 'c1')?.anchor
+        if (anchor === undefined) throw new Error(`pinned ${pinned.length}: the geometry placed no comment box`)
+        const row = rowByIdOf(drawn, 'g2')
+        const columnCentre = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
+        expect(anchor.x, `pinned ${pinned.length}: not the centre of the day 5 column`).toBeCloseTo(columnCentre, 6)
+        expect(anchor.y, `pinned ${pinned.length}: not the centre of the row band`).toBeCloseTo(row.y + row.height / 2, 6)
+      }
+    },
+  )
+})
+
 // ===========================================================================
 // The file checking itself: every row of the two tables has a case, and every
 // declaration is well formed. Table T-219 TW-2 makes Chapter 9's case list a

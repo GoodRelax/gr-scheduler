@@ -1022,9 +1022,7 @@ function commentGeometry(
     // STOP: spec does not decide where a never-dragged body sits; a zero offset stands in. Looked in FR-019, CM-46
     // @provisional PND-232
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    // STOP: spec does not decide the anchor's y within its row; the band's centre stands in. Looked in FR-019
-    // @provisional PND-233
-    const anchor = point(xFromDay(layout, day), row.y + row.height / 2)
+    const anchor = point(xFromDay(layout, day) + layout.pxPerDay / 2, row.y + row.height / 2)
     const fontSize = settings.fontScaleSizes[settings.fontScale]
     const pad = settings.commentBoxPad
     const width = widest * fontSize * settings.labelCoef + 2 * pad

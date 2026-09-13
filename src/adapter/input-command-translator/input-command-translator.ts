@@ -423,6 +423,21 @@ function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
   return null
 }
 
+// see GR-14, FR-019, RS-44
+// WHY: not the drag amount for a move: a moved anchor would land where creating it at that point would not.
+/** @purity pure */
+function commentAnchorAt(
+  layout: ScheduleLayout,
+  x: number,
+  y: number,
+): { readonly date: string; readonly groupId: string } | TranslatedInput {
+  const day = dayAtX(layout, x)
+  if (day === null) return CONSUMED_ELSEWHERE
+  const row = rowAtY(layout, y)
+  if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
+  return { date: textOfDay(day), groupId: row.groupId }
+}
+
 /** @purity pure */
 function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | null {
   for (let at = 0; at < rows.length; at++) {
@@ -2564,7 +2579,7 @@ function commandFromGrab(
 
   // see GR-14, CM-50
   if (item.kind === 'commentBox' && hit.grab === 'GR-14' && hit.boxPart?.kind === 'anchor') {
-    return commentBoxAnchorWrite(context, press, release, item.id)
+    return commentBoxAnchorWrite(context, release, item.id)
   }
 
   // see GR-14, CM-54
@@ -2832,28 +2847,13 @@ function highlightBoxRangeWrite(
 /** @purity pure */
 function commentBoxAnchorWrite(
   context: InputContext,
-  press: PointerPress,
   release: PointerInput,
   id: string,
 ): TranslatedInput {
-  const box = boxById(context.document.schedule.commentBoxes, id)
-  const day = dayOf(box === undefined ? null : box.anchorDate)
-  if (box === undefined || day === null) return CONSUMED_ELSEWHERE
-  const rows = drawnRowsOf(context.layout)
-  const at = rows.findIndex((row) => row.groupId === box.anchorGroupId)
-  if (at === -1) return CONSUMED_ELSEWHERE
-  const row = rows[at + drawnRowsCrossed(rows, press.at.y, release.y)]
-  if (row === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
-  return changed([
-    {
-      kind: 'setCommentBoxAnchor',
-      id,
-      anchor: {
-        date: textOfDay(dayShifted(day, dayShift(context, press.at.x, release.x))),
-        groupId: row.groupId,
-      },
-    },
-  ])
+  if (boxById(context.document.schedule.commentBoxes, id) === undefined) return CONSUMED_ELSEWHERE
+  const anchor = commentAnchorAt(context.layout, release.x, release.y)
+  if (!('groupId' in anchor)) return anchor
+  return changed([{ kind: 'setCommentBoxAnchor', id, anchor }])
 }
 
 // see FR-029, FR-034
@@ -3007,14 +3007,9 @@ function commandFromArmed(
   }
 
   if (armed.kind === 'commentBox') {
-    if (row === null) return nothingToDo('noRowToPutTheAnnotationOn')
-    return changed([
-      {
-        kind: 'createCommentBox',
-        id: context.newCommentBoxId,
-        anchor: { date: textOfDay(from), groupId: row.groupId },
-      },
-    ])
+    const anchor = commentAnchorAt(context.layout, press.at.x, press.at.y)
+    if (!('groupId' in anchor)) return anchor
+    return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor }])
   }
 
   if (armed.kind === 'highlightBox') {
