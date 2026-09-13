@@ -2765,7 +2765,8 @@ function actualEndPlacement(
   const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
   const actualDuration =
     grab === 'GR-6'
-      ? workingDaysBetween(calendar, held, dropped)
+      // WHY: the released day is the finish day itself, so count through it; its right end is the next day.
+      ? workingDaysBetween(calendar, held, dayShifted(dropped, 1))
       : grab === 'GR-5'
         ? heldFinish === null
           ? null

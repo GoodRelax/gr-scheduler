@@ -249,6 +249,20 @@ function actualFinishDayOf(within: WorkingCalendar, from: CalendarDay, duration:
   return textOfDay(dateFromWorkingDays(within, rightEnd, -1))
 }
 
+// see FR-011, GO-3, GR-17
+// WHY: count up to the day after, so the released day is the finish day and not the right end's column.
+/** @purity pure */
+function actualDurationEndingOn(within: WorkingCalendar, from: CalendarDay,
+                                finishDay: CalendarDay): number {
+  const after = new Date(Date.UTC(finishDay.year, finishDay.month - 1, finishDay.day + 1))
+  const dayAfter: CalendarDay = {
+    year: after.getUTCFullYear(),
+    month: after.getUTCMonth() + 1,
+    day: after.getUTCDate(),
+  }
+  return workingDaysBetween(within, from, dayAfter)
+}
+
 const CARRIED_STOP = 'Stop'
 
 // see T-019
@@ -612,7 +626,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           ])
         }
         const pinned = nextWorkingDay(within, planStart)
-        const laid = workingDaysBetween(within, pinned, dropped.day)
+        const laid = actualDurationEndingOn(within, pinned, dropped.day)
         // STOP: spec does not decide refusing or flooring an actual whose ends cross. Looked in T-220, GR-17, FR-011, FR-043 (PND-493)
         if (laid < 0) {
           return refused([
