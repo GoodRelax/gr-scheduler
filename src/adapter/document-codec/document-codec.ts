@@ -67,6 +67,7 @@ function firstNonBlankCharacter(text: string): string | null {
   return null
 }
 
+// STOP: spec does not decide whether the extension comparison ignores case. Looked in OP-12, T-024, FR-096 (PND-458)
 /** @purity pure */
 function extensionOf(fileName: string): string {
   const dot = fileName.lastIndexOf('.')

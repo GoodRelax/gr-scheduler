@@ -949,6 +949,8 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
 }
 
 // see FR-093
+// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35
+// @provisional PND-467
 // TRAP: repeats labelUnits in schedule-layout.ts; change them together.
 /** @purity pure */
 function charUnits(ch: string): number {

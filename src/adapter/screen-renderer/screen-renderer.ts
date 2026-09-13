@@ -186,6 +186,8 @@ export type PropertyFieldKey =
     }
 
 export interface CommandPalette {
+  // STOP: spec does not decide whether a moved palette's corner outlives the page. Looked in FR-053, T-206
+  // @provisional PND-466
   readonly at: { readonly x: number; readonly y: number }
   // TRAP: the surface must draw the band inside the palette part, or the palette fades while grabbed.
   readonly grabBandHeight: number
@@ -465,7 +467,7 @@ export function screenViewFromRegions(
 export function dialogueMessageFromInput(input: DialogueInput): SettledUtterance | null {
   if (!input.isSettled) return null
 
-  // STOP: spec does not decide whether an empty utterance is refused or its length bounded. Looked in AG-11, FR-066, AM-18
+  // STOP: spec does not decide whether an empty, blank or long utterance is refused. Looked in AG-11, FR-066, AM-18 (PND-455)
   return { author: input.author, text: input.text, settledAt: input.settledAt }
 }
 

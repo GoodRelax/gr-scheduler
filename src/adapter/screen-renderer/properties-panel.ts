@@ -183,6 +183,7 @@ const READ_ONLY_ROWS: readonly string[] = propertyItems.items
   .map((item) => item.rowId)
 
 // STOP: spec does not decide how a number, truth value or list is spelled on this panel. Looked in T-016, FR-006, FR-072
+// @provisional PND-459
 /** @purity pure */
 function textOfValue(value: unknown): string {
   if (value === null || value === undefined) return ''
@@ -191,6 +192,7 @@ function textOfValue(value: unknown): string {
   if (Array.isArray(value)) return value.map(textOfValue).join(PART_SEPARATOR)
 
   // STOP: spec does not decide how a group-valued setting is written. Looked in T-104
+  // @provisional PND-459
   return ''
 }
 
@@ -198,6 +200,7 @@ function textOfValue(value: unknown): string {
 const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
 // STOP: spec does not decide what stands in a hidden identifier's place. Looked in T-104, FR-072, FR-006, T-016
+// @provisional PND-459
 /** @purity pure */
 function textOfSettingsValue(value: unknown): string {
   if (typeof value === 'string') return IDENTIFIER.test(value) ? '' : value
@@ -256,6 +259,7 @@ function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
 }
 
 // STOP: spec does not decide how several assignees are written here. Looked in T-225, FR-059, FR-008, T-016
+// @provisional PND-460
 /** @purity pure */
 function assigneeText(schedule: Schedule, taskUid: number): string {
   return assigneesOf(schedule, taskUid)
@@ -379,7 +383,7 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
 }
 
 // see PR-16, AS-9
-// STOP: spec does not decide which of several assignees the chooser stands on. Looked in T-225, FR-059, FR-008, T-016
+// STOP: spec does not decide which of several assignees the chooser stands on. Looked in T-225, AS-5, AS-7, T-016 (PND-461)
 // WHY: the key's column is uid because no command of table T-108 sets it, so a commit without its row writes nothing.
 /** @purity pure */
 function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number): PropertyControl {
@@ -473,12 +477,14 @@ const DEPENDENCY_ITEMS: readonly { readonly row: string; readonly column: keyof 
   { row: 'AT-45', column: 'predecessorUid' },
 ]
 
-// STOP: spec does not decide the row of a dependency's far end. Looked in T-058, T-016, FR-009, T-023c
+// STOP: spec does not decide the names of FR-009's dependency items. Looked in FR-009, T-058, T-018, FR-006
+// @provisional PND-462
 const SUCCESSOR_ROW = 'FR-009'
 
 const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successorUid'
 
 // see FR-009
+// DEVIATION: spec says only the lag is editable (FR-009); here kind, predecessor and far end are marked editable (DFC-565)
 /** @purity pure */
 function dependencyFields(
   schedule: Schedule,
@@ -512,13 +518,13 @@ function dependencyFields(
       name: SUCCESSOR_NAME,
       text: textOfValue(successorUid),
       isEditable: true,
-      // STOP: spec does not decide a command that moves a dependency between tasks. Looked in T-108, T-058, FR-009, T-016
       controls: [],
     },
   ]
 }
 
 // STOP: spec does not decide what the panel shows for several selected items. Looked in FR-072, FR-006, FR-009, T-023c
+// @provisional PND-463
 /** @purity pure */
 function subjectOf(selection: Selection): ItemRef | null {
   const [only] = selection.items
@@ -526,7 +532,6 @@ function subjectOf(selection: Selection): ItemRef | null {
   return lastPicked(selection)
 }
 
-// STOP: spec does not decide fields for a highlight box or the status line. Looked in FR-072, FR-006, FR-009, T-016, T-023c
 /** @purity pure */
 function fieldsOfItem(
   schedule: Schedule,
@@ -645,6 +650,7 @@ function groupFields(
 }
 
 // STOP: spec does not decide which of several picked rows is described. Looked in FR-042, FR-085, T-023c, T-015
+// @provisional PND-463
 /** @purity pure */
 function onlyGroupId(groupIds: readonly string[]): string | null {
   const [only] = groupIds
@@ -686,7 +692,8 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
 }
 
 // see IC-17, T-104
-// STOP: spec does not decide which settings show, in what order, or whether any is read-only. Looked in IC-17, T-104, FR-072
+// STOP: spec does not decide which settings show or in what order. Looked in IC-17, T-104, FR-072
+// @provisional PND-464
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
@@ -697,6 +704,7 @@ function settingsFields(
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
     isEditable: true,
+    // STOP: spec does not decide whether a setting is edited here or read only. Looked in IC-17, T-108, FR-006, FR-029 (PND-465)
     controls: [],
   }))
 }

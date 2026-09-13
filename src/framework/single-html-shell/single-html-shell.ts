@@ -51,7 +51,7 @@ const AT_WINDOW_ORIGIN = 'position:fixed;left:0;top:0;right:0;bottom:0;'
 
 const SCROLLBAR_PROBE_PX = 100
 
-// STOP: spec does not decide the reader's own name. Looked in S-99a, AG-6, T-229
+// DEVIATION: spec says the person writes as user (ED-1); here the name is empty (DFC-560)
 // TRAP: AG-6 tells writers apart by name alone, so a subscriber under an empty name is woken by the person's own lines.
 const AUTHOR_NOT_HELD = ''
 
@@ -91,7 +91,7 @@ function appShellSource(): AppShellSource {
 
 const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
 
-// STOP: spec does not decide how an Agent API caller declares its writer name. Looked in ED-2, T-107, LM-16
+// DEVIATION: spec says the caller declares its writer name (ED-2); here every caller is agent (DFC-560)
 const AGENT_API_WRITER = 'agent'
 
 // see BT-4, FR-027, FR-023
@@ -124,7 +124,7 @@ const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeRea
 }
 
 // see BT-1, FR-088, FR-067
-// STOP: spec does not decide running FR-023's validation over BT-1. Looked in PI-13, T-220
+// STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity semi-pure-b */
 function embeddedStartupDocument(): {
   readonly candidate: EmbeddedCandidate
@@ -150,7 +150,6 @@ function embeddedStartupDocument(): {
     return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
   }
   // TRAP: do not un-escape first: embeddedJson wrote JSON escapes, which the reader gives back.
-  // STOP: spec does not decide asking FR-073's U-61 question at startup. Looked in FR-073, FR-022, T-109, T-034, T-077
   const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
   if (!read.ok) {
     return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0, unreadColumns: [] }
@@ -338,7 +337,6 @@ function boot(): void {
   // TRAP: build before BO-2: until its drop listeners exist, a dropped file navigates away (OP-4).
   const fileStore = fileSystemAccessFileStore(fileSystemAccessEnvironment())
 
-  // STOP: spec does not decide how a file handed over at startup reaches BT-2. Looked in CHN-1, T-008, IF-3
   const embedded = embeddedStartupDocument()
   const chosen = chooseStartupDocument({
     embedded: embedded.candidate,
@@ -401,6 +399,7 @@ function boot(): void {
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
   }
+  // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
   if (chosen.row === 'BT-1' && embedded.unreadColumns.length > 0) {
     running.raiseStartupNotice('RS-48')
   }

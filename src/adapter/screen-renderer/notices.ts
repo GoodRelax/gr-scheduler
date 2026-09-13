@@ -157,7 +157,6 @@ function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
   }
 }
 
-// WHY: the gathered count is null; a sum of unlike subjects is a number no row defines.
 /** @purity pure */
 function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLanguage): Notice {
   return {
@@ -172,6 +171,8 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
 }
 
 // see FR-076, NT-4
+// STOP: spec does not decide the order several shown notices stand in. Looked in T-037, FR-076
+// @provisional PND-453
 /** @purity pure */
 export function noticesFromSession(session: ScreenSession): readonly Notice[] {
   const told = session.notices.map((raised) => toldNotice(raised, session.language))

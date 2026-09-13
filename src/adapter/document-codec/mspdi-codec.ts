@@ -531,8 +531,7 @@ function carriedElement(element: XmlElement, ordinal: number): CarryElement {
   return { ordinal, name: element.name, fields, children }
 }
 
-// STOP: spec does not decide the order of fields against children in a CarryElement; leaves go
-// first, wrong for Baseline, OutlineCode and WorkWeek. Looked in AT-125, AT-126
+// DEVIATION: spec says an unedited file writes back equal (FR-021); here leaves go before children (DFC-563)
 /** @purity pure */
 function writtenCarriedElement(carried: CarryElement): XmlElement {
   const children: XmlElement[] = []
@@ -1473,8 +1472,7 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
   }
 }
 
-// STOP: spec does not decide where claimed fade values go among carried ones; they go last,
-// which reorders siblings. Looked in T-058, NR-1
+// DEVIATION: spec says an unedited file writes back equal (FR-021); here fade values go after carried ones (DFC-563)
 /** @purity pure */
 function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
   const afterCarried = task.carryElements.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
@@ -1497,7 +1495,6 @@ function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedC
   return placed
 }
 
-// STOP: spec does not decide which writer version SaveVersion carries; the major version is used. Looked in DV-2
 const GRS_SAVE_VERSION = '0'
 
 // WHY: ISO 4217's no-currency code, since no column of the document holds money.
@@ -1658,8 +1655,7 @@ function writtenTask(
 ): XmlElement {
   const named: PlacedChild[] = [
     leaf('UID', String(task.uid)),
-    // STOP: spec does not decide which tasks a person touched, so ID and the outline columns are
-    // rebuilt for every task. Looked in FR-021, EX-2
+    // DEVIATION: spec says unedited tasks keep their values (EX-2); here ID and outline columns are rebuilt (DFC-564)
     leaf('ID', String(index + base)),
     ...optionalLeaf('Name', task.name),
     ...optionalLeaf('OutlineNumber', numbers.get(task.uid) ?? null),

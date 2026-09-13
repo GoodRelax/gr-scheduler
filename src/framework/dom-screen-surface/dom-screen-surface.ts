@@ -77,8 +77,6 @@ const OPEN_LEVEL_ZERO_ENTRY = 'IC-92'
 
 const ADD_TOP_ROW_ENTRY = 'IC-93'
 
-// STOP: spec does not decide whether HF-6 hides the deletion control at rest.
-// Looked in HF-6, T-103, S-140. @provisional PND-353
 const DELETE_ROW_ENTRY = 'IC-82'
 
 const ADD_CHILD_ROW_ENTRY = 'IC-91'
@@ -89,6 +87,8 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
 
 const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
+// STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
+// @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
 
 const IMPORT_REPORT_DISMISS_ATTRIBUTE = 'data-import-report-dismiss'
@@ -392,10 +392,16 @@ const STYLE = {
   heading: 'font-weight:600;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
+  // STOP: spec does not decide the floating layers' shadow offset, blur or spread. Looked in S-170, T-236, T-206
+  // @provisional PND-469
+  // STOP: spec does not decide what a palette larger than the window does. Looked in FR-053, SC-6, S-135a
+  // @provisional PND-470
   commandPalette:
     `box-sizing:border-box;background:${PAINT.panel};color:${PAINT.ink};` +
     `border:1px solid ${PAINT.rule};border-radius:0.25em;` +
     `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`,
+  // STOP: spec does not decide the grab band's paint or the room around its marks. Looked in GR-19, FR-053, S-141, T-236
+  // @provisional PND-471
   paletteGrabBand:
     'display:flex;align-items:center;justify-content:flex-end;' +
     'cursor:grab;pointer-events:auto;position:relative;',
@@ -528,6 +534,8 @@ const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}'
 
+// STOP: spec does not decide how faint the palette stands while the pointer is off it. Looked in FR-053, S-131, S-102
+// @provisional PND-472
 const PALETTE_FAINTNESS = '0.6'
 
 const PALETTE_FAINT_CSS =
@@ -1222,6 +1230,7 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   number: 'number',
   boolean: 'checkbox',
   choice: null,
+  // DEVIATION: spec says colours are chosen from the T-017 palette (FR-007); here the host picker takes any colour (DFC-566)
   color: 'color',
 }
 
@@ -1503,6 +1512,8 @@ function paletteElement(
 }
 
 // see FR-099
+// STOP: spec does not decide where the selection entry stands on a roster line. Looked in FR-099, IC-67, IC-68, HF-4
+// @provisional PND-473
 /** @purity non-pure */
 function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement {
   const icon = isSelected ? ROSTER_CHOSEN_ENTRY : ROSTER_UNCHOSEN_ENTRY
@@ -1594,6 +1605,8 @@ function modalElement(
     for (const format of modal.formats) {
       const choice = made(host, 'button', entryStyle())
       choice.setAttribute('type', 'button')
+      // STOP: spec does not decide how a format choice is marked for read-back. Looked in W-4, IF-9, T-024
+      // @provisional PND-474
       choice.setAttribute('data-format', format.row)
       const shown = `${format.name} ${format.extension}`
       choice.setAttribute('aria-label', shown)
@@ -1926,6 +1939,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
   wiring.mount.append(root)
 
+  // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
   let langShown = ''
   let headerHeightPx = 0
@@ -2241,8 +2255,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     const typed = dialogueEntry.value
     if (typed === '') return null
-    // STOP: spec does not decide what an unsettled line carries as settledAt. Looked in AG-11
-    // @provisional PND-156
+    // DEVIATION: spec says only settled utterances return (IF-9); here a half-typed line does too (DFC-571)
     return { text: typed, isSettled: false, author: readAuthor(), settledAt: '' }
   }
 
@@ -2593,6 +2606,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   // see IN-5a, WS-2
+  // STOP: spec does not decide whether the Dialogue Field's unsettled text counts. Looked in IN-5a, WS-2, AG-9 (PND-350)
   /** @purity semi-pure-b */
   function hasUnsettledTextEntry(): boolean {
     return heldTextControl !== null || isWatermarkUnlockHeld || documentTitleEntry !== null

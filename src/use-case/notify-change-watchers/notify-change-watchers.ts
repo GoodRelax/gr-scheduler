@@ -36,6 +36,7 @@ interface Registration {
 
 const REGISTRATIONS = new Map<string, Registration>()
 
+// STOP: spec does not decide two subscriptions under one watcher name. Looked in AG-6, AM-17, ED-2, LM-16 (PND-457)
 /** @purity non-pure */
 export function watchChanges(subscription: ChangeWatcher): boolean {
   const replaced = REGISTRATIONS.has(subscription.watcher)

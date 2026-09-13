@@ -159,7 +159,7 @@ const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use =
 const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 
-// STOP: spec does not decide the id of the invariant's row. Looked in T-050, CM-26, AT-51
+// STOP: spec does not decide the id of T-050's invariant row. Looked in T-050, IV-20, AT-51, CM-26 (PND-488)
 const EMPTY_DOCUMENT_TASK_GROUP_ID = '00000000-0000-4000-8000-000000000001'
 
 // see T-050, FR-004
@@ -367,7 +367,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
     case 'RD-3': {
       const outcome = importDocument({ ...call.importing, current: held.document })
       if (!outcome.ok) return importRefused(outcome.refusal)
-      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6
+      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6, OP-9, FR-015 (PND-482)
       const history =
         outcome.report.undo === 'oneStep'
           ? historyWithStep(

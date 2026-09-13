@@ -41,7 +41,8 @@ THE THREE MEASURES
        `// see <ID>[, <ID>...]`   1 line
        `// TRAP: ...`             2 lines
        `// WHY: ...`              2 lines
-       `// STOP: ...`             3 lines, an `@provisional PND-n` line included
+       `// STOP: ...`             3 lines, a mark line included, and linked to
+                                  its pending-decision row (below)
        `// DEVIATION: ...`        2 lines
        `/** @purity <value> */`   1 line (and not counted at all, as above)
        `@provisional PND-n` and `@seam ...` tag lines, in any comment
@@ -67,6 +68,24 @@ THE THREE MEASURES
          after the last allowed line, and allowed lines past the budget.
      So `/**\\n * @purity pure\\n */` is 2 violating lines (the delimiters), and
      `/** @purity pure */` is none. A line holding two comments counts once.
+
+     A STOP form is also held to its row in
+     docs/development-records/pending-decisions.md (ruling 18). It passes
+     only in one of two shapes:
+       (a) an `@provisional PND-n` mark sits in the form, or in the 3 lines
+           after it before another form opens, and every row it names is
+           class A-C;
+       (b) no mark, the form's text ends with `(PND-n)`, and that row is
+           class D-H.
+     A mark naming a missing or D-H row, a closing `(PND-n)` naming a missing
+     or A-C row, or neither shape, is one violating line: the STOP head.
+
+     The ledger is read by splitting each table line on unescaped `|`. A row
+     is one whose first cell is `PND-n`; its class is the fourth cell when that
+     cell is one letter A-H, or else the first one-letter A-H cell followed by
+     a wave cell (`W<n>`), so a stray `|` in a free-text cell does not lose it.
+     A row whose class is found neither way counts as missing here; check 25
+     reports it as malformed.
 
 THE NUMBER HELD (line 1 of comment-rules-baseline.txt)
 
@@ -94,7 +113,11 @@ WHAT THIS DOES NOT SEE
     none of it is read, and neither is section 4 of the ruling (what not to
     write).
   - The rest of a head's sentence. `STOP:` and `DEVIATION:` are matched on the
-    keyword alone, not on the ruling's template.
+    keyword alone, not on the ruling's template; of a STOP only the PND link
+    is read, and of a DEVIATION not even its `(DFC-n)`. A `(PND-n)` that does
+    not close the form's text is not a link.
+  - Whether a ledger row's class is the right one. The class cell is taken as
+    written, as check 25 takes it.
   - Every tree but src/. tests/ and tools/ are not read.
 
 Usage:
@@ -118,6 +141,9 @@ SRC = os.path.join(ROOT, 'src')
 BASELINE = os.path.join(HERE, 'comment-rules-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/comment-rules-baseline.txt'
 RULING = 'docs/review/comment-rules-src.md'
+LEDGER = os.path.join(ROOT, 'docs', 'development-records',
+                      'pending-decisions.md')
+REL_LEDGER = 'docs/development-records/pending-decisions.md'
 
 GEN_OPEN = '<generated -- do not edit by hand>'
 GEN_CLOSE = '</generated>'
@@ -163,6 +189,18 @@ TAG_HEADER = re.compile(u'@(?:unit|component|publishes|seam)' + WS +
                         u'+\\S.*|@provisional' + WS + u'+PND-[0-9]+|@purity' +
                         WS + u'+[a-z/-]+')
 
+# Ruling 18: how a STOP names its pending-decision row.
+PROVISIONAL = re.compile(u'@provisional' + WS + u'+(PND-[0-9]+)')
+CLOSING_PND = re.compile(u'\\((PND-[0-9]+)\\)$')
+# A mark this many lines past a STOP form is still that STOP's mark.
+MARK_REACH = 3
+MARKED_CLASSES = frozenset(u'ABC')
+CLOSED_CLASSES = frozenset(u'DEFGH')
+LEDGER_CELL = re.compile(u'(?<!\\\\)\\|')
+LEDGER_ID = re.compile(u'PND-[0-9]+')
+LEDGER_CLASS = re.compile(u'[A-H]')
+LEDGER_WAVE = re.compile(u'W[0-9]+')
+
 WORD = frozenset(u'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$'
                  u'0123456789.')
 LETTER = frozenset(u'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
@@ -175,6 +213,38 @@ def say(message):
     """Print ASCII whatever the console's code page."""
     sys.stdout.write(message.encode('ascii', 'backslashreplace')
                      .decode('ascii') + '\n')
+
+
+def read_ledger():
+    """PND id -> class letter, from the table rows of the pending-decision list.
+
+    None when the list is missing. See the docstring above for how a row and
+    its class are found.
+    """
+    if not os.path.exists(LEDGER):
+        return None
+    classes = {}
+    with io.open(LEDGER, encoding='utf-8', errors='replace') as handle:
+        for line in handle:
+            text = line.strip()
+            if not text.startswith(u'|'):
+                continue
+            cells = [cell.strip().strip(u'*`').strip()
+                     for cell in LEDGER_CELL.split(text)[1:-1]]
+            if not cells or not LEDGER_ID.fullmatch(cells[0]):
+                continue
+            letter = None
+            if len(cells) > 4 and LEDGER_CLASS.fullmatch(cells[3]):
+                letter = cells[3]
+            else:
+                for k in range(1, len(cells) - 1):
+                    if (LEDGER_CLASS.fullmatch(cells[k])
+                            and LEDGER_WAVE.fullmatch(cells[k + 1])):
+                        letter = cells[k]
+                        break
+            if letter is not None:
+                classes[cells[0]] = letter
+    return classes
 
 
 def lex(src):
@@ -368,22 +438,33 @@ def classify(body, line_comment):
     return None
 
 
-def judge_block(rows, line_comment, found):
-    """Violating lines of one block that is not the file header."""
+def judge_block(rows, line_comment, found, stops):
+    """Violating lines of one block that is not the file header.
+
+    Each STOP form met is appended to `stops` as its (number, body) rows.
+    """
     head = None
     used = 0
+    form = None
     for number, body in rows:
         kind = classify(body, line_comment)
         if kind == 'blank':
             found.append((number, 'empty or delimiter-only comment line'))
             head = None
+            form = None
             continue
         if kind in BUDGET:
             head = kind
             used = 1
+            form = None
+            if kind == 'STOP':
+                form = [(number, body)]
+                stops.append(form)
             continue
         if head in BUDGET:
             used += 1
+            if form is not None:
+                form.append((number, body))
             if used > BUDGET[head]:
                 found.append((number, '%s form longer than %d line(s)'
                                % (head, BUDGET[head])))
@@ -393,6 +474,52 @@ def judge_block(rows, line_comment, found):
             continue
         found.append((number, 'in no allowed form'))
         head = None
+
+
+def judge_stop(form, by_line, ledger, found):
+    """One STOP form against its pending-decision row (ruling 18)."""
+    number = form[0][0]
+    marks = []
+    for _number, body in form:
+        marks.extend(PROVISIONAL.findall(body))
+    if not marks:
+        last = form[-1][0]
+        for after in range(last + 1, last + 1 + MARK_REACH):
+            text = by_line.get(after)
+            if text is None:
+                continue
+            if classify(body_of(text), True) in BUDGET:
+                break
+            marks.extend(PROVISIONAL.findall(text))
+
+    if marks:
+        for pnd in marks:
+            letter = ledger.get(pnd)
+            if letter is None:
+                found.append((number, 'STOP marked @provisional %s, which has '
+                                      'no row in the ledger' % pnd))
+                return
+            if letter not in MARKED_CLASSES:
+                found.append((number, 'STOP marked @provisional %s of class '
+                                      '%s; D-H closes with (%s), unmarked'
+                              % (pnd, letter, pnd)))
+                return
+        return
+
+    text = u' '.join(body for _number, body in form).strip(JS_SPACE)
+    closing = CLOSING_PND.search(text)
+    if closing is None:
+        found.append((number, 'STOP with neither @provisional PND-n nor a '
+                              'closing (PND-n)'))
+        return
+    pnd = closing.group(1)
+    letter = ledger.get(pnd)
+    if letter is None:
+        found.append((number, 'STOP closes with (%s), which has no row in the '
+                              'ledger' % pnd))
+    elif letter not in CLOSED_CLASSES:
+        found.append((number, 'STOP closes with (%s) of class %s; A-C is '
+                              'marked @provisional %s' % (pnd, letter, pnd)))
 
 
 def judge_header(rows, has_generated, found):
@@ -446,8 +573,8 @@ def judge_header(rows, has_generated, found):
         found.append((number, 'header longer than %d lines' % budget))
 
 
-def measure(path):
-    """Every measure of one file."""
+def measure(path, ledger):
+    """Every measure of one file; `ledger` is read_ledger()'s map."""
     with io.open(path, encoding='utf-8', errors='replace', newline='') as handle:
         src = handle.read().replace(u'\r\n', u'\n')
     lines = src.split(u'\n')
@@ -515,6 +642,7 @@ def measure(path):
                        'rows': rows, 'inline': inline})
 
     findings = []
+    stops = []
     for index, block in enumerate(blocks):
         rows = block['rows']
         if not rows:
@@ -528,8 +656,12 @@ def measure(path):
             if kind not in BUDGET and kind != 'tag':
                 findings.append((number, 'trailing comment without an '
                                          'allowed head'))
+            if kind == 'STOP':
+                stops.append([(number, body)])
         else:
-            judge_block(rows, block['kind'] == 'run', findings)
+            judge_block(rows, block['kind'] == 'run', findings, stops)
+    for form in stops:
+        judge_stop(form, by_line, ledger, findings)
 
     form = {}
     for number, why in findings:
@@ -656,7 +788,12 @@ def read_baseline():
 
 
 def main(argv):
-    results = [measure(path) for path in source_files()]
+    ledger = read_ledger()
+    if ledger is None:
+        say('PROBLEM  %s is missing -- every STOP names a row in it, so none '
+            'could be judged' % REL_LEDGER)
+        return 1
+    results = [measure(path, ledger) for path in source_files()]
     if not results:
         say('PROBLEM  no .ts file under src/ -- nothing was measured, and a '
             'count of 0 would read as a clean tree')

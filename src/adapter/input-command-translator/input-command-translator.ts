@@ -1119,7 +1119,7 @@ function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly Doc
     if (assignment.taskUid !== taskUid || assignment.resourceUid === null) continue
     held.add(assignment.resourceUid)
   }
-  // WHY: the spec does not say which of several assignees AS-3 takes off, so none is.
+  // STOP: spec does not decide which of several assignees AS-3 takes off. Looked in AS-3, AS-5, AS-7, AS-9 (PND-461)
   if (held.size !== 1) return []
   const [resourceUid] = [...held]
   if (resourceUid === undefined) return []
@@ -1764,7 +1764,8 @@ function commandFromScrollbar(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  // WHY: GR-21 leaves a press on the lane outside the grip open; it is taken as a grip drag.
+  // STOP: spec does not decide a press on the scrollbar lane outside the grip. Looked in GR-21, FR-051, S-205
+  // @provisional PND-468
   const by = scrollbarTravel(context, axis, followingTravel(release, press))
   return panTo(context, by.dx, by.dy)
 }
@@ -2685,8 +2686,9 @@ function commandFromGrab(
       ])
     }
     default:
-      // WHY: GR-10 / GR-11 arrive only as double clicks, GR-13 only selects, and no table sizes
-      // GR-14's anchor or corners, so a highlight box press cannot tell which part it took.
+      // STOP: spec does not decide the hit size of GR-14's anchor and corners. Looked in GR-14, T-206, T-217, S-137
+      // @provisional PND-481
+      // DEVIATION: spec says GR-14 resizes a box by its corners; here no press resizes (DFC-568)
       return CONSUMED_ELSEWHERE
   }
 }

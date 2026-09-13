@@ -16,7 +16,6 @@ import { refused, edited } from './edit-document'
 import { repriced } from './edit-task'
 
 // see CM-39, FR-088
-// STOP: spec does not decide the exception-day field (recurrence kind; replace or add). Looked in FR-088, AT-82, AT-83
 export type CalendarCommand =
   | {
       readonly kind: 'setCalendar'
@@ -28,7 +27,8 @@ export type CalendarCommand =
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 
 // see CM-39, FR-088, FR-012
-// STOP: spec does not decide which tasks FR-088's affected-task count covers. Looked in FR-088, FR-012
+// STOP: spec does not decide which tasks FR-088's affected-task count covers. Looked in FR-088, FR-012, NT-3
+// @provisional PND-489
 /** @purity pure */
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {
@@ -63,7 +63,7 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       const within = workingCalendarOf(schedule)
       const foundAt = schedule.calendars.indexOf(within.calendar)
       if (workingDayTypes !== undefined && foundAt < 0) {
-        // STOP: spec does not decide creating a Calendar row. Looked in T-108, FR-001, FR-008, T-209
+        // STOP: spec does not decide creating a Calendar row for CM-39. Looked in T-108, FR-054, FR-088, T-209 (PND-490)
         refusals.push(
           reject('CM-39', 'FR-054', 'the document has no calendar of its own to write the weekdays into'),
         )
@@ -132,7 +132,7 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
     return { ...one, dayWorking }
   })
 
-  // STOP: spec does not decide how a created weekday row is numbered. Looked in AT-72, IV-1
+  // STOP: spec does not decide the ordinal of a row GRS creates. Looked in AT-67, AT-72, MG-5, FR-054 (PND-485)
   let nextOrdinal = held.reduce((high, one) => Math.max(high, one.ordinal), -1) + 1
   for (const dayType of DAY_TYPES) {
     if (!worked.has(dayType)) continue

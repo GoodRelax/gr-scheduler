@@ -134,7 +134,7 @@ function surfaceHeading(surface: string, language: DisplayLanguage): string {
   return word === '' ? NO_WORDS : word
 }
 
-// WHY: always enabled; what the roster entries' faint state reads is not in these arguments.
+// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here roster entries never are (DFC-567)
 /** @purity pure */
 function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
   return {
@@ -291,7 +291,8 @@ export function openModalFromScreenState(
     }
   }
 
-  // WHY: two surfaces fall to the catch-all; the rows and calendar they need do not reach src/.
+  // STOP: spec does not decide what the two unnamed surfaces carry. Looked in T-103, FR-074, FR-088
+  // @provisional PND-140
 
   return { surface, heading, commands }
 }

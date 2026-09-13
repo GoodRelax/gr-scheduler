@@ -46,7 +46,6 @@ export function editResource(document: Document, command: ResourceCommand): Edit
         name: command.name,
         resourceKind: WORK_RESOURCE,
         isCostResource: false,
-        // WHY: null: no row decides a new resource's calendar, and FR-054 keeps it out of day counts.
         calendarUid: null,
         carry: {},
         carryElements: [],

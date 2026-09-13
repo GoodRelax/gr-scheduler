@@ -338,7 +338,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const held = schedule.taskGroups.find((one) => one.id === command.groupId)
       let taskGroups = schedule.taskGroups
       if (held === undefined) {
-        // STOP: spec does not decide where FR-001's new row goes. Looked in AT-55, FR-001, FR-085, FR-058
+        // STOP: spec does not decide where FR-001's new row goes. Looked in TC-3, HF-14, HF-17, AT-55 (PND-491)
         const order = schedule.taskGroups
           .filter((one) => one.parentId === null)
           .reduce((best, one) => Math.max(best, one.order), -1) + 1
@@ -409,7 +409,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
     }
 
     case 'pasteTaskSubtree': {
-      // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038
+      // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038, T-067 (PND-179)
       const subtree = wbsSubtreeOf(schedule, command.sourceUid)
 
       let mark = schedule.project.uidHighWaterMark
@@ -421,7 +421,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         .map((one) => ({
           ...one,
           uid: remap.get(one.uid) as number,
-          // STOP: spec does not decide a copied root's WBS parent. Looked in FR-033, DU-2
+          // STOP: spec does not decide a copied root Task's WBS parent. Looked in FR-033, DU-1, DU-2, TC-11 (PND-492)
           wbsParentUid:
             one.uid === command.sourceUid
               ? one.wbsParentUid
@@ -505,7 +505,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         const checked = checkDay(settings, text)
         if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
       }
-      // STOP: spec does not decide an actual whose ends cross. Looked in T-220, T-023d
+      // STOP: spec does not decide refusing or flooring an actual whose ends cross. Looked in T-220, GR-5, FR-011 (PND-493)
       const laid = place.row === 'PA-1' ? null : place.actualDuration
       if (laid !== null && laid < 0) {
         faults.push(
@@ -740,7 +740,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       if (command.fillColor === TRANSPARENT && command.strokeColor === TRANSPARENT) {
         return refused([reject('CM-22', 'IV-9', 'the fill and the stroke may not both be transparent')])
       }
-      // STOP: spec does not decide how to test FR-007's palette membership. Looked in CL-1, T-017, AT-102
+      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, AT-102, FR-007 (PND-494)
       const visual = visualOf(schedule, command.uid)
       return edited(
         withVisual(document, {

@@ -295,13 +295,13 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
     })
   }
 
-  // STOP: spec does not decide whose presentation group a replaced-in MSPDI takes. Looked in OP-6
+  // STOP: spec does not decide whose documentSettings an MSPDI replace takes. Looked in OP-3, OP-6, MG-8 (PND-484)
   const document: Document = {
     ...request.incoming,
     documentSettings: restoredSettings(request.incoming.documentSettings, request.defaultSettings),
   }
 
-  // STOP: spec does not decide whether a replace advances importSeq. Looked in MG-13, T-032, FR-056
+  // STOP: spec does not decide whether a replace advances importSeq. Looked in MG-13, FR-056, OP-3, OP-6 (PND-483)
   return {
     ok: true,
     document,
@@ -345,7 +345,7 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
     document,
     report: {
       ...emptyReport('baseline', document.schedule.project.importSeq),
-      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6
+      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6, OP-9, FR-015 (PND-482)
       undo: 'notDecided',
       fitToScreenRequired: fitToScreenRequired(document),
       baselineTaskUidsNotDrawn: notDrawn,
@@ -638,7 +638,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     return highWater
   }
 
-  // STOP: spec does not decide where a new calendar's ordinal sits. Looked in MG-5, FR-054
+  // STOP: spec does not decide the ordinal of a row GRS creates. Looked in AT-67, AT-72, MG-5, FR-054 (PND-485)
   // WHY: keep an incoming uid unless taken; re-issuing it would lose FR-021's round trip.
   const calendars: Calendar[] = [...current.calendars]
   const heldCalendarUids = new Set(current.calendars.map((one) => one.uid))
@@ -674,7 +674,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     resourceUidOf.set(resource.uid, uid)
   }
 
-  // STOP: spec does not decide a TaskGroup id both sides hold with different fields. Looked in MG-4, MG-12
+  // STOP: spec does not decide a TaskGroup id both sides hold with different fields. Looked in MG-4, MG-8a, MG-12 (PND-486)
   const taskGroups: TaskGroup[] = [...current.taskGroups]
   const groupIds = new Set(current.taskGroups.map((group) => group.id))
   for (const group of incoming.taskGroups) {
@@ -684,7 +684,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   }
 
   // WHY: resolved before writing, since a dependency or WBS parent may point at a later task.
-  // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-3
+  // STOP: spec does not decide two incoming tasks landing on one current task. Looked in T-032, MG-2, MG-3 (PND-487)
   const mergedUidOf = new Map<number, number>()
   const overwritten: number[] = []
   const added: number[] = []
@@ -817,7 +817,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     assignments.push({ ...assignment, uid, taskUid, resourceUid })
   }
 
-  // STOP: spec does not decide whether a file may overwrite a note. Looked in MG-12
+  // STOP: spec does not decide a note id both sides hold with different fields. Looked in MG-4, MG-8a, MG-12 (PND-486)
   const commentBoxes: CommentBox[] = [...current.commentBoxes]
   for (const box of incoming.commentBoxes) {
     if (index.commentBoxIds.has(box.id)) continue

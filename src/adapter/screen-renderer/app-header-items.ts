@@ -49,6 +49,7 @@ interface CommandState {
   readonly isPressed: boolean
 }
 
+// DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here IC-1, IC-2, IC-12..IC-15 never are (DFC-567)
 const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
 
 // see FR-029, T-109

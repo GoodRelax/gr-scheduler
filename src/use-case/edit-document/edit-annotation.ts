@@ -255,6 +255,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-55', 'AT-116', `no highlight box with id ${command.id}`)])
       }
+      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, FR-007, FR-019 (PND-494)
       if (command.strokeColor === TRANSPARENT) {
         return refused([reject('CM-55', 'FR-019', 'a highlight box outline may not be transparent')])
       }

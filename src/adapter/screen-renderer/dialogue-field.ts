@@ -7,6 +7,8 @@ import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialo
 import type { DialogueField, ScreenSession } from './screen-renderer'
 
 // see FR-066, AG-11
+// STOP: spec does not decide how many utterances the Dialogue Field shows. Looked in FR-066, AG-11, AM-6, T-206
+// @provisional PND-454
 /** @purity pure */
 export function dialogueFieldFromLog(
   log: DialogueLog,

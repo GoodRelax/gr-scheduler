@@ -384,6 +384,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         const row = rowOf.get(uid)
         return row === undefined || !copiedRows.has(row)
       })
+      // STOP: spec does not decide the row a WBS descendant outside the copied rows lands on. Looked in DU-1, DU-2, FR-033 (PND-495)
       if (homeless.length > 0) {
         refusals.push(
           reject(
@@ -486,7 +487,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
       if (row === undefined) {
         return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
       }
-      // WHY: not checked against the colour list, where only transparent has a settled spelling.
+      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, FR-007, FR-042 (PND-494)
       if (row.color === command.color) return edited(document)
       return edited(withRow(document, { ...row, color: command.color }))
     }

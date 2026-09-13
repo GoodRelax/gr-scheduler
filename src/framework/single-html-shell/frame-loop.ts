@@ -231,9 +231,6 @@ export interface ScreenWiring {
   readonly readWatermarkUnlockAnswer?: () => string
 }
 
-// STOP: spec does not decide the host keywords for PTD-5 and PTD-4, which the
-// host has no drawing keyword for. Looked in IN-2, T-023a
-// @provisional PND-337
 export type PointerShape =
   | 'default'
   | 'copy'
@@ -698,6 +695,8 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-97': { kind: 'cancelImport' },
 }
 
+// STOP: spec does not decide which T-078 trigger wakes a frame for a dropped file. Looked in T-078, OP-2, PI-28 (PND-446)
+// DEVIATION: spec says a dropped file opens (OP-2); here no route opens one (DFC-569)
 const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
@@ -786,6 +785,7 @@ function exportedText(form: SaveFileForm, document: Document): string | null {
     case 'grsJson':
       return jsonFromDocument(document)
     case 'mspdi':
+      // DEVIATION: spec says export notices are told (EX-3, EX-6); here they are dropped (DFC-557)
       return mspdiFromDocument(document).text
     case 'svg':
     case 'png':
@@ -818,6 +818,7 @@ function decodedDocument(
         }
       : null
   }
+  // DEVIATION: spec says a reading's notices and faults are told (T-233); here they are dropped (DFC-557)
   const read = documentFromMspdi(text, current)
   return read.ok ? { document: read.document, clampedCount: 0, unreadColumns: [] } : null
 }
@@ -1294,8 +1295,8 @@ function confirmationOwedBy(
       isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
     })
   }
-  // WHY: QN-1 when a row and a leading Task both go; CD-2 seeds CD-1 with the row's
-  // tasks, the wider scene, and QN-2 would suggest the row survives.
+  // STOP: spec does not decide QN-1 or QN-2 for one write deleting a row and a Task. Looked in FR-032, T-234, T-050, NT-7
+  // @provisional PND-450
   const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
   return { manner: CONFIRMATION_MANNER, question, items }
 }
@@ -1430,6 +1431,8 @@ async function sha256HexOf(text: string): Promise<string | null> {
 }
 
 // see FR-020, S-99c, S-101
+// STOP: spec does not decide where the author sets the unlock password S-99c holds.
+// Looked in FR-086, T-109, T-103, WM-6 (PND-181)
 /** @purity semi-pure-b */
 function watermarkUnlockDigest(): string {
   const set = readBrowserStored('S-99c')
@@ -1564,6 +1567,7 @@ export function frameLoop(
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
   let dualCursorFollowing: DualCursorSide | null = null
+  // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
 
   const holder: DocumentHolder = {
@@ -2030,6 +2034,7 @@ export function frameLoop(
   /** @purity non-pure */
   async function matchWatermarkUnlock(answer: string): Promise<void> {
     const given = await sha256HexOf(answer)
+    // DEVIATION: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559)
     if (given === null || given !== watermarkUnlockDigest()) {
       raiseNotice(WATERMARK_UNLOCK_MISMATCH_REASON, null)
       return
@@ -2242,6 +2247,7 @@ export function frameLoop(
     dialogueAudience: {
       /** @purity non-pure */
       deliver(): void {
+        // DEVIATION: spec says writes are refused while notices go out (Chapter 5.5); here not for utterances (DFC-562)
         audience.deliver(held.document, false)
         if (settled(environment)) ask()
       },
@@ -2275,6 +2281,8 @@ export function frameLoop(
   }
 
   // see IN-2
+  // STOP: spec does not decide the shape over entries, ruler, panels or in Dual Cursor mode. Looked in IN-2, T-023a, T-029a
+  // @provisional PND-445
   /** @purity semi-pure-b */
   function pointerShapeAt(
     frame: FrameValues,
@@ -2290,6 +2298,7 @@ export function frameLoop(
     if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
     if (armed.kind === 'none') return 'default'
+    // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
     if (armed.kind === 'dependency') return null
     return 'copy'
   }
@@ -2616,6 +2625,7 @@ export function frameLoop(
       if (replaced) tellWhatTheImportDropped(droppedNames)
       return replaced
     }
+    // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
     let mergeAnswers: MergeChoices | null = null
     const asked =
       choice === 'merge' ? importDocument({ ...importing, choice, current: held.document }) : null
@@ -2855,7 +2865,6 @@ export function frameLoop(
       if (seam !== undefined) {
         const text = jsonFromDocument(held.document)
         void writeClipboard(seam, { kind: 'document', text }).then((writing) => {
-          // WHY: RS-15 because table T-233 has no row for a failed clipboard write.
           if (!writing.ok) raiseNotice('RS-15', null)
         })
       }
@@ -2949,7 +2958,8 @@ export function frameLoop(
   // see FR-096, SK-12
   /** @purity non-pure */
   function answerSettledFormat(format: ExportFormatId): boolean {
-    // WHY: spec does not say whether U-54 stays up once a format is taken; this press is its answer.
+    // STOP: spec does not decide whether U-54 closes once a format is taken. Looked in FR-096, U-54, IN-4, IC-52
+    // @provisional PND-448
     // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
     // closes the chooser with nothing written and nothing said (FR-029).
     screenState = screenStateWithSurface(screenState, null)
@@ -2970,7 +2980,7 @@ export function frameLoop(
   // see SK-4, FR-033
   /** @purity non-pure */
   function copyForPaste(): void {
-    // WHY: spec does not decide a row and a Task both chosen; the row wins, as DU-2 makes it the superset.
+    // STOP: spec does not decide copy when a row and a Task, or several, are chosen. Looked in FR-033, T-223, SL-1 (PND-449)
     if (selectedGroupIds.length === 1) {
       copiedForPaste = { kind: 'row', groupId: selectedGroupIds[0] as string }
       return
@@ -3033,7 +3043,7 @@ export function frameLoop(
       byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
     }
     if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
-    // WHY: spec does not decide a paste with several rows chosen; refused rather than guessing a parent.
+    // STOP: spec does not decide a paste with several rows chosen. Looked in FR-033, T-223, CM-28 (PND-449)
     if (selectedGroupIds.length > 1) return null
     const newGroupIds: Record<string, string> = {}
     const walking = [copied.groupId]
@@ -3121,7 +3131,6 @@ export function frameLoop(
         }
         void writeClipboard(seam, { kind: 'picture', svg: picture.svg }).then(
           (writing) => {
-            // WHY: RS-15 because table T-233 has no row for a failed clipboard write.
             if (!writing.ok) {
               raiseNotice('RS-15', null)
               return
@@ -3262,6 +3271,9 @@ export function frameLoop(
         return
       }
       case 'toggleDocumentSettingsProperties':
+        // STOP: spec does not decide what IC-17 shows on a panel closed while it showed the settings.
+        // Looked in FR-072, IC-17, EN-4, S-99h
+        // @provisional PND-496
         isPropertiesPanelPutAway = false
         // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
         // @provisional PND-144
@@ -3405,6 +3417,8 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
+        // STOP: spec does not decide what a press on a put-away panel's boundary does. Looked in FR-052, FR-072, S-99h
+        // @provisional PND-451
         if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
           isPropertiesPanelPutAway = false
         }
@@ -3447,7 +3461,6 @@ export function frameLoop(
     const translated = commandFromInput(input, context)
 
     if (escapeLevel === 'notice') dismissNewestNotice()
-    // WHY: spec does not equate Esc with cancelling; an abandoned question writes nothing.
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     if (escapeLevel === 'propertiesPanel') isPropertiesPanelPutAway = true
     if (escapeLevel === 'dualCursorMode') {

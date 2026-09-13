@@ -148,6 +148,8 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
 }
 
 // see FR-093
+// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35
+// @provisional PND-467
 /** @purity pure */
 export function labelUnits(text: string): number {
   let units = 0
@@ -453,8 +455,6 @@ function milestoneGlyphOf(
   return visualByUid.get(task.uid)?.milestoneGlyph ?? COLUMN_DEFAULTS.TaskVisual.milestoneGlyph
 }
 
-// STOP: spec does not decide whether the plan bar spans its finish day; here it does not.
-// Looked in T-221
 /** @purity pure */
 function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
   const from = reader.day(task.start)
@@ -718,6 +718,7 @@ export function layoutFromSchedule(
 
     // STOP: spec does not decide which end lane 0 sits at, nor where FR-042's extra slack goes.
     // Looked in ST-5, S-58, FR-042
+    // @provisional PND-480
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)
     let laneTop = y
@@ -1029,6 +1030,7 @@ export function fitZoom(
   for (let cap = 1; cap <= deepest; cap++) atFloor.push(runAt(zoomX, floorZoomY, cap))
   const fits = (run: ScheduleLayout): boolean => {
     // STOP: spec does not decide whether a run stopped by ST-7 fits; here it never does. Looked in ST-7, FR-055
+    // @provisional PND-479
     if (run.stackSafetyCapReached !== null) return false
     const remainderTop = run.scrollAreaY ?? regions.rowArea.y
     return run.contentHeight <= regions.rowArea.y + regions.rowArea.height - remainderTop

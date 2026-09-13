@@ -61,8 +61,7 @@ function noticesOfCandidates(candidates: StartupCandidates): readonly StartupNot
 }
 
 // see BO-2, T-034
-// WHY: ValidateImportedDocument is not called here despite the component edge: candidates
-// arrive decoded, so any FR-023 check belongs to the caller that decodes them.
+// STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity pure */
 export function chooseStartupDocument(candidates: StartupCandidates): StartupChoice {
   const order: readonly (readonly [StartupRow, Document | null])[] = [

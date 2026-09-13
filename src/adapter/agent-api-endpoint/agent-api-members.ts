@@ -411,8 +411,6 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const landed = await road(incoming)
       const after = source.readSnapshot()
       if (!landed) {
-        // STOP: spec does not decide the category of an import that did not land (MM-4, OP-5, OP-8).
-        // Looked in AG-9a
         return {
           accepted: false,
           refusal: agentRefusal(

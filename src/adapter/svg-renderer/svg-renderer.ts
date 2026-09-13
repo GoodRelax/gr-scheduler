@@ -64,6 +64,8 @@ const ANNOTATION_COLOUR = '#b45309'
 const FADE_HANDLE_FILL_COLOUR = '#ffffff'
 const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
+// STOP: spec does not decide how far past the Row Area a Task is still drawn. Looked in T-202, T-203, T-206, PG-6
+// @provisional PND-475
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
 /** @purity pure */
@@ -301,6 +303,8 @@ function markerSvg(
 }
 
 // see FR-044, LF-13
+// STOP: spec does not decide how faint an undated resume icon is, nor its ink. Looked in FR-044, S-25, S-161, T-236
+// @provisional PND-476
 /** @purity pure */
 function resumeSvg(
   arm: Path,
@@ -541,6 +545,7 @@ function rulerSvg(
           ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
           : settings.rulerFont
       // STOP: spec does not decide a tick-to-label inset; the label starts on its rule. Looked in S-135, S-136
+      // @provisional PND-477
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
           ` font-size="${rounded(fontSize)}" fill="${ink}"` +
@@ -815,7 +820,6 @@ export function svgFromSchedule(
     // TRAP: drop dummies from an export only here: emptying the geometry's dummies loses EP-5's marker (EP-14).
     // STOP: spec does not decide the dummies' paint order; here the actual bar's layer. Looked in T-020
     // @provisional PND-209
-    // WHY: FR-043's actual while grabbing is not drawn: it needs the press in flight, which a hover is not.
     if (picture === 'screen' && task.dummies.length > 0) {
       // TRAP: draw from DummyGeometry.ink, never recompute it: the drawn mark is the grab target (T-023d).
       const ink = task.dummies[0]!.ink
@@ -1011,6 +1015,8 @@ export function svgFromSchedule(
 
   const status = geometry.statusLine
   if (status !== null) {
+    // STOP: spec does not decide the status line's width. Looked in CU-1, SL-8, S-178, S-194
+    // @provisional PND-478
     const statusWidth = selectedLineWidth(1, selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
@@ -1091,6 +1097,8 @@ export function svgFromSchedule(
   }
 
   for (const box of geometry.commentBoxes) {
+    // STOP: spec does not decide the comment leader's width. Looked in FR-019, T-206, T-236
+    // @provisional PND-478
     annotationParts.push(
       `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
         ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
@@ -1160,6 +1168,7 @@ export function svgFromSchedule(
     ...annotationParts,
     ...selectionParts,
     ...handleParts,
+    // STOP: spec does not decide how the range-selection rectangle is drawn. Looked in PTD-5, T-020, T-023a (PND-363)
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
     ...(watermark === null
       ? []

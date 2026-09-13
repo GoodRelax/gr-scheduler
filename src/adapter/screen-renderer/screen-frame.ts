@@ -75,8 +75,6 @@ export function screenFrameFromRegions(
 ): ScreenFrame {
   const rowArea = regions.rowArea
 
-  // WHY: the lane, not canvasPadding, sits against the Row Area: FR-052 fixes no order
-  // and FR-051 has the bar take its place from the Row Area.
   const gapRightOfRowArea = regions.propertiesPanel.x - (rowArea.x + rowArea.width)
   const scrollbarThickness = Math.max(0, gapRightOfRowArea - settings.canvasPadding)
 

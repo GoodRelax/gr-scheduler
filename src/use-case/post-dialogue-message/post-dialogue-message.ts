@@ -25,6 +25,7 @@ export interface DialogueAudience {
 }
 
 // see CP-16, AG-11
+// STOP: spec does not decide whether an empty, blank or long utterance is refused. Looked in AG-11, AM-18, FR-066 (PND-455)
 /** @purity non-pure */
 export function postDialogueMessage(
   utterance: SettledUtterance,
@@ -35,7 +36,7 @@ export function postDialogueMessage(
 
   holder.replace(posted)
 
-  // TRAP: a subscriber that posts from inside deliver appends and delivers again, unbounded.
+  // STOP: spec does not decide an utterance posted from inside deliver; it delivers again. Looked in AG-6, AG-11, WS-2, FT-5 (PND-456)
   audience.deliver(posted)
 
   return posted

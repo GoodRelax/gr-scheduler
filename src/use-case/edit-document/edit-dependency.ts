@@ -102,7 +102,6 @@ export function editDependency(document: Document, command: DependencyCommand): 
         predecessorUid: command.predecessorUid,
         linkType,
         lag: document.documentSettings.dependencyLagDefault,
-        // WHY: null, not a LagFormat code: S-118 fixes the unit but AT-48 has no code for it.
         lagFormat: null,
         carry: {},
         carryElements: [],
@@ -143,8 +142,6 @@ export function editDependency(document: Document, command: DependencyCommand): 
         return edited(document)
       }
 
-      // WHY: linkType and lagFormat stay as they stand: neither FR-009 nor T-108 says
-      // whether a lag change is the person's edit that folds an imported type to FS.
       const dependencies = successor.dependencies.map((one) =>
         one.predecessorUid === command.predecessorUid ? { ...one, lag: command.lag } : one,
       )

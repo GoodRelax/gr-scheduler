@@ -96,8 +96,8 @@ export function escapeTarget(state: ScreenState, context: EscapeContext): Escape
   if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (state.surface !== null) return 'surface'
+  // DEVIATION: spec says the panel rung is above the drag (IN-4); here the drag goes first (DFC-570)
   if (context.gestureInFlight) return 'gesture'
-  // WHY: no row orders the panel; below the gesture so a fade-grab drag stays cancellable by Esc.
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (state.armed.kind !== 'none') return 'armed'
   if (context.isSelectionStanding === true) return 'selection'

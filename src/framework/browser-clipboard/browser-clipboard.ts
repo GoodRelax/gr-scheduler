@@ -10,7 +10,7 @@ import type {
   ClipboardFault,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
 
-// WHY: a picture goes as SVG text, not PNG: there is no edge to CanvasRasterizer (FR-025).
+// STOP: spec does not decide whether a copied picture goes as an image or as SVG text. Looked in IO-6, IF-5, FR-025 (PND-120)
 /** @purity pure */
 function textFromContent(content: ClipboardContent): string {
   return content.kind === 'picture' ? content.svg : content.text

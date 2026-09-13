@@ -25,6 +25,8 @@ interface PanelIndex {
 
 const TRUNCATION_MARK = '\u2026'
 
+// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35, S-182
+// @provisional PND-467
 // TRAP: U+0100 is the boundary ScheduleLayout's LC-5 uses; change both together.
 /** @purity pure */
 function charUnits(ch: string): number {

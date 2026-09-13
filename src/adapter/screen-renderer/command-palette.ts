@@ -24,7 +24,6 @@ const COMMAND_PALETTE = 'Command Palette'
 
 const ALIGN_REQUIREMENT = 'FR-034'
 
-// STOP: spec does not decide which T-109 rows are not buttons. Looked in T-109, FR-029, F-019
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 
 const MINIMISE_ROW: IconId = 'IC-75'
@@ -33,7 +32,6 @@ const INTERACTION_RECORD_ROW: IconId = 'IC-76'
 
 const MILESTONE_GLYPH_REQUIREMENT = 'FR-078'
 
-// STOP: spec does not decide which T-109 row works the milestone list. Looked in T-109, FR-053, FR-078
 const MILESTONE_LIST_CONTROL_ROWS: readonly string[] = ['IC-50']
 
 const NO_WORDS = ''
