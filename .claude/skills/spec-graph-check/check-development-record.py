@@ -101,11 +101,14 @@ def main():
         # report of the src/ comment cleanup, keyed by its date.
         # refactor-plan-report-2026-09-13.md is the tenth: the refactor plan,
         # keyed by stage rather than by a folder of units.
+        # refactor-stage1-state-inventory-2026-09-13.md is the eleventh: stage 1
+        # of that plan, one row per unsaved state, keyed by variable name.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
             'src-comment-cleanup-report-2026-09-13.md',
-            'refactor-plan-report-2026-09-13.md'
+            'refactor-plan-report-2026-09-13.md',
+            'refactor-stage1-state-inventory-2026-09-13.md'
         ):
             continue
         path = os.path.join(RECORDS, name)
