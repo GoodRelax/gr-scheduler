@@ -3337,7 +3337,7 @@ MK-9a の優先順位は、Chapter 4 が入口を要求している対象を全�
 | --- | --- | --- | --- |
 | GO-1 | 予定の開始点（表 T-023d の `GR-3`） | `start` ＝ 離した日 | `finish` |
 | GO-2 | 予定の終了点（同表の `GR-4`） | `finish` ＝ 離した日そのもの | `start` |
-| GO-3 | 実績の終了点（同表の `GR-6`） | `actualDuration` ＝ `actualStart` から離した日までの稼働日（数え方と床 `S-129` は `FR-011`）。<br>`actualFinish` を持つとき（表 T-019 の `PA-5`）は、`actualFinish` ＝ 置き直した実績の終了日とする —— 読み方は 表 T-021a の `PV-2` と同じであり、本行は独自の読み方を持たない。<br>`actualFinish` を持たないときは空のままとする —— `_assets/fig-erd-detail.md` の `AT-36` により、`actualFinish` は完了したときだけ入る | `actualStart` |
+| GO-3 | 実績の終了点（同表の `GR-6`） | `actualDuration` ＝ `actualStart` から離した日までの稼働日（数え方と床 `S-129` は `FR-011`）。<br>離した日は実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST） —— `GO-2` と同じ所作であり、長さはその日を終了日とする `FR-011` の読みで決まる。<br>本行は独自の数え方を持たない。<br>`actualFinish` を持つとき（表 T-019 の `PA-5`）は、`actualFinish` ＝ 置き直した実績の終了日とする —— 読み方は 表 T-021a の `PV-2` と同じであり、本行は独自の読み方を持たない。<br>`actualFinish` を持たないときは空のままとする —— `_assets/fig-erd-detail.md` の `AT-36` により、`actualFinish` は完了したときだけ入る | `actualStart` |
 | GO-4 | 実績のマイルストーン（同表の `GR-15`） | `actualStart` ＝ 離した日。<br>`actualFinish` を持つときは、`actualFinish` ＝ 置き直した `actualStart` とする —— マイルストーンは長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、開始日と終了日が同じ日である（読み方は `FR-011`） | `actualDuration`（`S-130`） |
 
 拒むときの規則は既存の条項が持つ —— `finish` が `start` より前になる置き方は `FR-012` の MUST NOT と `05-07-design.md` の 表 T-220 の `IV-10` が、フェードの日数の和が期間を超える置き方は同表の `IV-12` が、受け入れる日付の範囲を外れる置き方は同表の `IV-14` が拒む。  
