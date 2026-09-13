@@ -95,9 +95,11 @@ def main():
         # keyed by version and date, not by a folder of units. ⛔ Check 38 is
         # the one that reads it, and it asks whether each version number
         # appears once and above the next.
+        # magic-numbers.md is the eighth: a work list of numeric literals in
+        # src/, keyed by file path rather than by a folder of units.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
-            'fixed-defects.md', 'rulings.md', 'changelog.md'
+            'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md'
         ):
             continue
         path = os.path.join(RECORDS, name)
