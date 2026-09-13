@@ -21,8 +21,8 @@ Usage:
                stands out. Regenerate it from the report's last section.
 
 LIMIT: this finds copies with similar WORDING only. A rule that was
-paraphrased is invisible here. In the 2026-08-13 sweep, 5 of the 20 real
-duplications were below the threshold and were found by review instead.
+paraphrased is invisible here. In one sweep, 5 of the 20 real duplications
+were below the threshold and were found by review instead.
 This check reduces reading; it does not replace it.
 
 NOTE ON NON-ASCII: the strip table below holds Japanese punctuation. The

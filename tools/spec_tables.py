@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """The one reader of a specification table, for every generator in tools/.
 
-WHY THIS EXISTS, MEASURED ON 2026-08-29. Six generators read the specification's
-Markdown tables and carried ELEVEN table-parsing functions between them, none of
-them shared and none of them the same. `.claude/skills/spec-graph-check/
-specindex.py` had solved the same problem once already for the twenty-eight
-checks, and no generator used it.
+WHY THIS EXISTS. Generators that read the specification's Markdown tables
+each carried their own table-parsing functions, none of them shared and none
+of them the same. `.claude/skills/spec-graph-check/specindex.py` had solved
+the same problem once already for the checks, and no generator used it.
 
 ⛔ THE FRAGILITY IS NOT HYPOTHETICAL. A quick parser written the obvious way, in
 the survey that led to this file, lost three of the specification's 135 tables:

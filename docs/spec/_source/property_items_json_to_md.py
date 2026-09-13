@@ -11,9 +11,9 @@ overwritten, and --check catches one before it can be committed.
 
 ⛔ NO DISPLAY NAME IS PRINTED HERE, AND THAT IS THE WHOLE POINT OF THE SPLIT.
 FR-038 (MUST NOT) keeps every word the screen prints in one dictionary per
-language; until 2026-08-28 table T-016 carried an 項目名 column that the panel
-drew verbatim, which is why `strokeColor` and `fadeInDays` reached the screen
-as themselves (the user's reports DFC-81 and DFC-84). The shown name is now
+language. ⛔ Do not give table T-016 an 項目名 column: a panel that draws one
+verbatim puts `strokeColor` and `fadeInDays` on the screen as themselves
+(DFC-81, DFC-84). The shown name is now
 display-words.json's `properties` section, keyed by the same PR row id, and
 what this table carries is the COLUMN -- the name in the file, which FR-006
 (MUST) keeps out of the reader's way.
@@ -157,12 +157,12 @@ def broken_prose(text):
 def broken(cell):
     """A cell with every sentence on its own line.
 
-    ⛔ THE RULE (check 46, the user's ruling 2026-09-12): inside a table row a
+    ⛔ THE RULE (check 46): inside a table row a
     sentence break is written `<br>`. A row is one line, so this is the only
     break a cell can carry.
 
     ⚠️ A quotation is never split: a `<br>` inside 「…」 would put a line break
-    in the middle of a verbatim, which is what ruling JDG-05's check caught.
+    in the middle of a verbatim quotation.
     """
     out = []
     quoted = 0
@@ -205,8 +205,7 @@ def applies_to_cell(item):
     ⭐ IT IS A COLUMN AND NOT A NOTE. The array's order IS the print order
     FR-006 (MUST) requires, so every row of the manuscript reaches the panel;
     without a machine-readable answer to 「whose panel」 a TaskGroup's height
-    would be drawn on a Task's. ⚠️ Absent means `Task`, which is what every row
-    of this table was until 2026-09-02 (CR-325).
+    would be drawn on a Task's. ⚠️ Absent means `Task`.
     """
     return item.get('appliesTo', 'Task')
 

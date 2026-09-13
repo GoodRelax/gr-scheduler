@@ -20,7 +20,7 @@ WHAT THIS SCRIPT DOES NOT CARRY, AND WHY:
     dictionary per language, so a row's name travels through
     `display-words.json` under the same PR row id. Carrying it here would put
     printed words in two places, which is the very rule this split was made to
-    obey (the user's instruction of 2026-08-27).
+    obey.
   - THE CANDIDATES, THE BOUNDS AND WHICH COLUMNS ARE DATES. The note under
     table T-016 (MUST NOT) sends those to grs-document.schema.json and to
     DATE_COLUMNS, which src/ already reads.
@@ -34,8 +34,8 @@ WHAT `appliesTo` IS, AND WHY IT IS WRITTEN OUT FOR EVERY ROW:
 
   FR-006 (MUST) prints only the rows whose 対象 matches what is selected and
   (MUST NOT) forbids printing the others. The manuscript leaves the field ABSENT
-  where the answer is `Task`, that having been every row until 2026-09-02 -- so
-  the default is resolved HERE, once, rather than by each reader in src/.
+  where the answer is `Task` -- so the default is resolved HERE, once, rather
+  than by each reader in src/.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -52,9 +52,8 @@ REL_OUT = 'src/adapter/screen-renderer/property-items.json'
 REL_SELF = 'tools/generate_property_items.py'
 REL_SRC = 'docs/spec/_source/property-items.json'
 
-# The 対象 a row that names none belongs to. FR-006's own default: every row of
-# table T-016 was a `Task` row until the 対象 column was added on 2026-09-02,
-# and the manuscript's schema says so in as many words.
+# The 対象 a row that names none belongs to. FR-006's own default, which the
+# manuscript's schema states in as many words.
 DEFAULT_APPLIES_TO = 'Task'
 
 BANNER = (

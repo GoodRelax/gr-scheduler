@@ -2,22 +2,15 @@
 """Check 38 -- the revision history in docs/development-records/changelog.md
 names each version number once.
 
-WHY THIS EXISTS. DFC-246 measured the A.3 Changelog table on 2026-09-04 and
-found two rows both claiming version 1.33: the row for 2026-08-29 and a row
-added the same day, which should have been 1.79. Nothing had ever counted the
-version column, so the collision sat unnoticed until someone needed the next
-free number and had to scan the table by hand to find it. CR-348 renamed the
-stray row (1.33 -> 1.79, with the following row becoming 1.80), so the count
-this check enforces is not a baseline of known debt -- it is the true state,
-held at zero going forward.
+WHY THIS EXISTS. Nothing else counts the version column of the Changelog
+table, so a version claimed by two rows sits unnoticed until someone needs the
+next free number and has to scan the table by hand (DFC-246 found two rows both
+claiming 1.33). The count this check enforces is not a baseline of known debt
+-- it is the true state, held at zero going forward.
 
-AND THE OTHER HALF. DFC-246 also found a stretch of rows running in descending
-order after a long ascending run. Measured 2026-09-05: 21 steps went
-backwards, from 1.78 down to 1.32, before climbing again. The rows were
-sorted by version that day -- moved, never edited, with the multiset of lines
-asserted identical before and after -- so this check holds both properties at
-zero: every version appears once, and each one is greater than the one above
-it.
+AND THE OTHER HALF. Rows can also run in descending order after an ascending
+run (DFC-246), so this check holds both properties at zero: every version
+appears once, and each one is greater than the one above it.
 
 WHAT THIS DOES NOT CHECK: the DATE column. After the sort one pair remains
 out of order by date -- 1.53 is dated 2026-08-30 and 1.54 is dated
@@ -38,11 +31,9 @@ from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-# ⭐ THE TABLE MOVED ON 2026-09-11 (cleanup P2-1, ruling 5). It was the A.3
-# Changelog section of docs/spec/A-appendix.md -- 183,208 of that file's
-# 183,705 characters -- and it is a RECORD, not a requirement, so it now lives
-# with the other records. Nothing about the table changed; only its address.
-# A-appendix.md keeps the A.3 heading and one line pointing here.
+# ⭐ THE TABLE LIVES WITH THE OTHER RECORDS, not in docs/spec/A-appendix.md:
+# it is a RECORD, not a requirement. A-appendix.md keeps the A.3 heading and
+# one line pointing here.
 APPENDIX = os.path.join(ROOT, 'docs', 'development-records', 'changelog.md')
 REL = 'docs/development-records/changelog.md'
 

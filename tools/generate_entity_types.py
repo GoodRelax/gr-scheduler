@@ -174,9 +174,8 @@ def date_columns_block(erd):
 # bounds into src/ at all. ⛔ Five entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
 # adds a row's colour and height (`TaskGroup`), FR-009 adds the dependency
-# line, and PR-21 of table T-016 (対象 `CommentBox`, 2026-09-06) adds the
-# comment box. A roster of every entity would state a shape for columns no
-# surface offers.
+# line, and PR-21 of table T-016 (対象 `CommentBox`) adds the comment box. A
+# roster of every entity would state a shape for columns no surface offers.
 #
 # ⛔ `HighlightBox` IS NOT HERE, AND IT WAS ASKED FOR. No row of table T-016
 # carries 対象 `HighlightBox`, so FR-006 (MUST NOT -- 「対象の違う行を出しては
@@ -1002,14 +1001,12 @@ SUBTRACTED_WHERE_IT_STANDS = [
 # ⛔ Sharing one paragraph would print the wrong row ID in the one place a
 # reader looks for it, which is the copied-value defect rule 03 section 3 names.
 #
-# ⛔⛔ AND THE DRAWING UNIT IS NO LONGER THE ONLY READER (2026-09-09). This
-# paragraph used to say 「read by the unit that draws with it」 and the block
-# went to `svg-renderer.ts` alone. Table T-023d's closing rule (MUST) then sent
-# 「描かれたダミーの印の画素」 to GR-17, which makes the drawn rectangle a fact
-# the HIT TEST needs -- so `schedule-geometry.ts` solves 「1 日ぶんと `S-180` の
-# 小さい方」 once onto `DummyGeometry.ink` and both sides read that. ⭐ What did
-# NOT change is why the document does not keep the row, which is all the
-# paragraph below claims.
+# ⛔⛔ AND THE DRAWING UNIT IS NOT THE ONLY READER. Table T-023d's closing
+# rule (MUST) sends 「描かれたダミーの印の画素」 to GR-17, which makes the drawn
+# rectangle a fact the HIT TEST needs -- so `schedule-geometry.ts` solves
+# 「1 日ぶんと `S-180` の小さい方」 once onto `DummyGeometry.ink` and both
+# sides read that. ⭐ The paragraph below claims only why the document does
+# not keep the row.
 DRAWN_FOR_THE_SCREEN_ALONE = [
     ' * ⚠️ This unit reads the row where it stands. ⛔ It is not a document',
     ' * setting and may not become one: table T-206 is where the',
@@ -1089,9 +1086,9 @@ DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = [
 # first where the SCREEN AND THE EXPORT READ THE SAME ROW. S-225 is the size
 # the `Document Title` is written at and S-226 is its inset from the band's
 # left edge, and EP-1 of table T-076 (MUST) has both sides read one row while
-# forbidding (MUST NOT) an export a constant of its own: the reader's ruling of
-# 2026-09-07, taken after the export was measured drawing the title 7.5%
-# smaller and 6.5px to the right of the screen's.
+# forbidding (MUST NOT) an export a constant of its own, because an export
+# with its own constants draws the title at a different size and inset from
+# the screen's.
 # ⛔ S-194's ground does NOT fit: that one turns on the document keeping the
 # two DATES a cursor is drawn from, and a title has no such pair. ⚠️ Nor does
 # S-196's: that one turns on the label's ANCHOR being kept, and nothing
@@ -1112,7 +1109,7 @@ DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT = [
     ' * U-27) and neither of the two numbers it is written with.',
 ]
 
-# ⛔⛔ RETIRED 2026-09-06 (CR-369). The seventh ground held exactly one
+# ⛔⛔ RETIRED (CR-369). The seventh ground held exactly one
 # row and that row went out with the mode it measured, so
 # NOT_STORED_GUIDE_CURSOR_SIZES is no longer written. ⭐ The paragraph is kept
 # because DRAWN_UNDER_THE_HAND_ALONE is the sentence a future row of this
@@ -1273,10 +1270,10 @@ STORED_WHERE_IT_STANDS = [
     ' * start is the whole of what is held.',
 ]
 NOT_STORED_TARGETS = {
-    # ⛔ S-93 LEFT THIS LIST ON 2026-09-10, with the row itself: table T-023d's
-    # closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
-    # が描いた印そのものとすること（MUST）」, so the dummies' hit width IS the ink's
-    # and S-180 is the only row that states it.
+    # ⛔ S-93 IS NOT IN THIS LIST: table T-023d's closing rule reads
+    # 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
+    # とすること（MUST）」, so the dummies' hit width IS the ink's and S-180 is
+    # the only row that states it.
     'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-137'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
@@ -1409,8 +1406,8 @@ NOT_STORED_TARGETS = {
     # and these two are read where the CHROME around it is drawn.
     # ⚠️ The screen draws the same title from the same two rows, so this
     # constant is generated a second time into the unit that paints it -- the
-    # bargain S-218 already stands on in two units, and the whole of what the
-    # reader ruled on 2026-09-07.
+    # bargain S-218 already stands on in two units, and what EP-1 of table
+    # T-076 asks for.
     'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226'],
                                         DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
@@ -1533,17 +1530,16 @@ NEWLINE = chr(10)
 COLOUR_TARGETS = {
     # The chrome: the ground, the ink, the panels, the shadow. Only this unit
     # can paint them, and only this unit can set `color-scheme` (FR-041).
-    # ⛔ S-168 AND S-169 (the ink and halo of a label ON A BAR) were here and
-    # are not the chrome's: this unit draws no bar, so they went to a unit that
-    # could never use them. Measured by the agent that owns the drawing side.
+    # ⛔ S-168 AND S-169 (the ink and halo of a label ON A BAR) do not belong
+    # here: this unit draws no bar, so it could never use them.
     # ⭐ S-183 STANDS WHERE TABLE T-236 PRINTS IT -- right after S-152, whose
     # pair it takes. The row's own note says the green is the one the table
     # already holds for 「いま効いている」, and FR-029's table T-237 has this unit
     # FILL the armed entrance with it (EN-1), so it is the chrome's after all.
-    # ⭐ S-151 CAME BACK ON 2026-08-30 AND IS THE CHROME'S TOO, by the same
+    # ⭐ S-151 IS THE CHROME'S TOO, by the same
     # reading: EN-3 of table T-237 fills a PINNED row's `Row Pin` with it and
     # HF-6 of table T-051 (MUST) points at that row. The pin is a row control
-    # this unit draws, not a bar, so the row now has a reader on this side as
+    # this unit draws, not a bar, so the row has a reader on this side as
     # well as on the drawing side (where SL-8's selection frame keeps it).
     # ⛔ Not a second copy -- ONE row of table T-236 read by two units, which is
     # what S-146 / S-147 / S-149 already do below.
@@ -1774,11 +1770,10 @@ DERIVED_TARGETS = {
     # 「並びは 2 x 2 の格子とすること」 -- and HF-19 forbids meeting that by
     # shrinking the lattice instead. ⇒ The floor is two of these, stacked, and
     # the layer that decides a band is the layer that has to hold it.
-    # ⛔ IT REACHED THE LAYOUT ONLY AS AN ARGUMENT UNTIL 2026-09-03, measured
-    # off a drawn lattice by the side that drew it, so a caller that passed
-    # nothing dropped a MUST NOT in silence. The ruling of that day (CR-342)
-    # gives the layout engine the floor of its own and keeps the measurement as
-    # what may raise it.
+    # ⛔ DO NOT PASS THE FLOOR ONLY AS AN ARGUMENT measured off a drawn lattice
+    # by the side that drew it: a caller that passes nothing drops a MUST NOT
+    # in silence. The layout engine holds the floor of its own (CR-342), and
+    # the measurement is what may raise it.
     # ⚠️ THE SUM IS THE SPECIFICATION'S OWN, not an arithmetic invented here:
     # the note on S-138 states the answer in as many words -- 「`S-141` を 6 から
     # 4 へ同時に下げるので、入口の外形は 26 x 24px のまま動かない」 -- and 16 + 4
@@ -1877,18 +1872,15 @@ def derived_block(name):
 # what goes out -- that row's own note says 「成果物へ入るのは下の SHA-256 だけ
 # である」.
 #
-# ⭐ S-102 AND THE THREE OF CR-348 REACH THE DRAWING SIDE. Until 2026-09-04
-# `watermarkOpacity` was left out on the ground that nothing drew the
-# watermark, which was true and was the defect: FR-020 (MUST) has GRS lay
-# the mark over the Row Area, and measuring the shipped build found zero
-# elements doing it. FR-020 now (MUST) names S-220 / S-221 / S-222 and
-# S-223 as the values it is drawn with and (MUST NOT) forbids them in
-# `src/`, so the values were carried here first and the drawing arrived
-# after -- the alternative is the drawing side typing -30.
-# ⭐ THE READER EXISTS SINCE DFC-195 WAS CLOSED: `watermarkSvg` in
-# svg-renderer.ts spends all four, and until it did the whole block was
-# dropped from the build as dead code -- a value that reaches no reader
-# is a value the artifact does not carry.
+# ⭐ S-102 AND THE THREE OF CR-348 REACH THE DRAWING SIDE. ⛔ Do not leave a
+# value out on the ground that nothing draws it yet: FR-020 (MUST) has GRS lay
+# the mark over the Row Area, and FR-020 (MUST) names S-220 / S-221 / S-222
+# and S-223 as the values it is drawn with and (MUST NOT) forbids them in
+# `src/`, so the values are carried here -- the alternative is the drawing
+# side typing -30.
+# ⭐ `watermarkSvg` in svg-renderer.ts spends all four. A value that reaches no
+# reader is dropped from the build as dead code, and a value that reaches no
+# reader is a value the artifact does not carry.
 # ⛔ S-223 IS NOT HERE. It is a colour, so it is a row of table T-236 and
 # rides with the other colours in SCHEDULE_COLOURS; only a value with no
 # light and dark rendering belongs in this constant.
@@ -2232,10 +2224,10 @@ def flat_keys(node, prefix):
             yield path
 
 
-# Each target names EVERY manuscript it is built from. ⚠️ document-settings.ts
-# used to say only erd.json while its defaults came from settings.json -- a
-# back-pointer that is incomplete sends the next reader to the wrong file, which
-# is the same failure as having none.
+# Each target names EVERY manuscript it is built from. ⚠️ A back-pointer that
+# is incomplete -- naming only erd.json for a unit whose defaults come from
+# settings.json -- sends the next reader to the wrong file, which is the same
+# failure as having none.
 TARGETS = [
     (os.path.join(MODEL, 'schedule', 'schedule.ts'), schedule_block,
      ['docs/spec/_source/erd.json',
@@ -2254,8 +2246,8 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The name label's lift, in the unit that decides where the label goes.
     # The label column of table T-012 is what chooses whether the gap applies.
-    # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS NOW READ TWICE. Table
-    # T-023d's closing rule (MUST, 利用者の裁定 2026-09-09) sends 「描かれたダミー
+    # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS READ TWICE. Table
+    # T-023d's closing rule (MUST) sends 「描かれたダミー
     # の印の画素」 to GR-17, so the hit test has to know the rectangle the mark
     # was drawn in -- and FR-043 states that rectangle as 「1 日ぶんと `S-180` の
     # 小さい方」, which only a unit holding `layout.pxPerDay` can solve. ⇒ This
@@ -2276,13 +2268,13 @@ TARGETS = [
     # crosses is the number, generated twice from the one manuscript, which is
     # the same bargain S-218 already stands on in two units.
     # ⭐⭐ S-93 STANDS HERE AS WELL AS IN `item-hit-area.ts`, on the bargain the
-    # note above states: table T-038's closing rule (MUST, 利用者の裁定
-    # 2026-09-09) counts 「掴みシロを持つものについてはその掴みシロの幅」, and
+    # note above states: table T-038's closing rule (MUST) counts
+    # 「掴みシロを持つものについてはその掴みシロの幅」, and
     # this is the unit that measures that order -- but `item-hit-area.ts`
     # imports ScheduleGeometry, which imports this file, so reading the constant
     # from there would be the cycle LR-3 forbids. ⇒ The number is generated
     # twice from the one manuscript, which is what `NOT_STORED_SCROLLBAR_SIZES`
-    # already does. ⛔ Until 2026-09-09 this file typed the 30 in by hand.
+    # already does.
     # ⭐ S-180 STANDS HERE AS WELL AS IN `schedule-geometry.ts` AND THE RENDERER,
     # on the same bargain the entry above states: it is one manuscript row
     # printed into each unit that consumes it, not a duplicated value. This unit
@@ -2354,10 +2346,10 @@ TARGETS = [
     # constant per consuming SUBJECT. S-138 and S-141 are the box every
     # entrance keeps, and S-143 is the line between two GROUPS of them -- a
     # decoration nothing can point at, arm or be reported for.
-    # ⚠️ S-185 STOOD HERE UNTIL CR-311 AND ITS ROW IS GONE. FR-053 drew the
-    # armed entrance with a RIM until 2026-08-30; the ruling of that day made it
-    # a FILL, whose two colours are rows of table T-236 and reach this unit
-    # through `SCREEN_COLOURS`. A thickness has no reader left.
+    # ⛔ NO RIM THICKNESS HERE (S-185 is retired): FR-029 and table T-237 draw
+    # the armed entrance as a FILL, not a RIM, whose two colours are rows of
+    # table T-236 and reach this unit through `SCREEN_COLOURS`. A thickness
+    # has no reader.
     # ⭐ S-214 AND S-215 COME BESIDE THE COLOURS AND NOT AMONG THEM. Table T-236
     # states WHICH colour a state's ground takes and table T-206 states HOW
     # FAINT it is laid, so the two halves arrive on the two roads their own
@@ -2386,7 +2378,7 @@ TARGETS = [
     # grab handles are drawn by this unit and by no other, and S-180 is the only
     # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
     # S-131 is the faintness, and S-93 is the reader's hit area).
-    # ⚠️ S-180 NOW LANDS IN `schedule-geometry.ts` AS WELL, for the reason that
+    # ⚠️ S-180 LANDS IN `schedule-geometry.ts` AS WELL, for the reason that
     # entry states: table T-023d's closing rule made the drawn rectangle a fact
     # the hit test needs, so the geometry solves it once and this unit reads the
     # answer off `DummyGeometry.ink` instead of the row.
@@ -2395,14 +2387,6 @@ TARGETS = [
     # are drawn by this unit and by no other, and S-194 is the only row that
     # gives them a width -- S-178 is the multiplier DC-8 borrows from SL-8 and
     # stands with the selection's rows, where SL-8 put it.
-    # ⛔ THE GUIDE CURSOR'S OWN GAP WAS A FOURTH CONSTANT UNTIL 2026-09-06
-    # (CR-369): CU-3's 縦 2 本 retired, and S-209 with it.
-    # ⚠️ What follows records the ground it stood on, not a block still
-    # written. ⭐ CU-3's 縦 2 本 was
-    # drawn by this unit and by no other, and S-209 is the only row that states
-    # how far apart its two lines stand. ⛔ Not folded into the Dual Cursor's --
-    # FR-048 (MUST) keeps the two pairs apart, and EP-6 of table T-076 draws
-    # one into an exported picture and not the other.
     (os.path.join(ADAPTER, 'svg-renderer', 'svg-renderer.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES') + NEWLINE * 2
@@ -2419,12 +2403,10 @@ TARGETS = [
      + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
      ['docs/spec/_source/settings.json (tables T-206, T-207 and T-236)']),
     # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
-    # one unit that assembles a picture that goes out. ⛔ Until 2026-09-07 this
-    # file held `TITLE_FONT_OF_BAND` and `TITLE_INSET_OF_BAND`, two fractions
-    # of the band's own height invented here (PND-52) -- and EP-1 (MUST NOT)
-    # forbids an export a constant of its own, because a second value is how
-    # the title on the screen and the title in the picture came to stand 6.5px
-    # apart.
+    # one unit that assembles a picture that goes out. ⛔ Do not derive them
+    # here as fractions of the band's own height (PND-52): EP-1 (MUST NOT)
+    # forbids an export a constant of its own, because a second value lets
+    # the title on the screen and the title in the picture stand apart.
     (os.path.join(ADAPTER, 'image-exporter', 'image-exporter.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),

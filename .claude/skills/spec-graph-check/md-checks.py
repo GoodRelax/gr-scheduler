@@ -218,7 +218,7 @@ for rel, lines in lines_by_file.items():
 # ---------------------------------------------------------------- check 48
 
 # ⛔ A LINE DIRECTLY UNDER A TABLE ROW IS ABSORBED INTO THE TABLE. It renders
-# as a row whose 行 ID cell is empty -- found 2026-09-12 in 表 T-037, whose
+# as a row whose 行 ID cell is empty -- found in 表 T-037, whose
 # closing prose came out as eight phantom rows. Nothing else in this suite can
 # see it: the line does not start with `|`, so every row parser walks past it.
 # The fix is a blank line, which is what markdown wants there anyway.

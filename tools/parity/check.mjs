@@ -34,11 +34,11 @@ const app = await openApp(browser)
  * ⭐ Deleting any row takes its subtree with it (CD-2), so first-drawn is
  * enough: the document empties whatever order they are reached in.
  *
- * ⛔⛔ IT CANNOT REACH ZERO, AND MUST NOT TRY. From 2026-09-02 the paragraph
+ * ⛔⛔ IT CANNOT REACH ZERO, AND MUST NOT TRY. The paragraph
  * under table T-050 (MUST) has the document always hold at least one
  * `TaskGroup`: 「ある操作の結果として行が 0 になるときは、その操作の一部として、
  * 深さ `L1` の行を 1 つ作ること（MUST）」, named from the dictionary's
- * `defaultNames`/`row`. A loop that waited for no row at all threw
+ * `defaultNames`/`row`. A loop that waits for no row at all throws
  * 「the document would not empty」 after 200 presses -- which is the product
  * obeying its specification, not a fault.
  *
@@ -74,12 +74,12 @@ async function emptyTheApp() {
     await app.hover(top)
     await app.pressEntry(top, 'IC-82')
     // FR-046 asks before a deletion that cannot be undone.
-    // ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON, from 2026-09-02 (NT-7 of
-    // table T-037, the user's instruction of 2026-09-01). It carries
-    // `data-confirmation-answer` and deliberately no `data-icon`: table T-109
-    // and figure F-019 hold GLYPH entrances, and a word button has no glyph, so
-    // `IC-69` and `IC-70` were retired. Selecting on `data-icon` here found
-    // nothing and waved every confirmation through in silence.
+    // ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON (NT-7 of table T-037). It
+    // carries `data-confirmation-answer` and deliberately no `data-icon`: table
+    // T-109 and figure F-019 hold GLYPH entrances, and a word button has no
+    // glyph, so `IC-69` and `IC-70` are retired. ⛔ Do not select on
+    // `data-icon` here: it finds nothing and waves every confirmation through
+    // in silence.
     const asked = await app.tab.$('[data-confirmation-answer="proceed"]')
     if (asked !== null) {
       const box = await asked.boundingBox()
@@ -107,10 +107,10 @@ async function nameIt(name) {
  * ⛔⛔ "THE PARENT VANISHES" WAS A MISREADING, AND IT IS WRITTEN DOWN HERE SO
  * NOBODY MEASURES IT AGAIN. With a row left standing, naming a newly added row
  * leaves `app.rows()` answering with the CHILD ALONE -- but `app.rows()` reads
- * `[data-depth]`, which is the DRAWN WINDOW and not the document. Measured
- * 2026-09-02: a wheel-up over the panel brought every row straight back
+ * `[data-depth]`, which is the DRAWN WINDOW and not the document. Measured: a
+ * wheel-up over the panel brings every row straight back
  * (「Quality And Release」@85, 「Whole Product」@241, 「Phase Bars」@277) and the
- * next press then landed. NOTHING IS EVER LOST.
+ * next press then lands. NOTHING IS EVER LOST.
  * ⚠️ What IS real is that the view parks below the content after that write, so
  * the panel builds DOM for a row whose ancestors are above its top edge. ⭐ It
  * reproduces with the T-050 invariant REVERTED (rebuilt from HEAD and measured),
@@ -205,9 +205,9 @@ const SCRIPT = [
   ['row', 'Back Office', 'pin'],
 
   // ------------------------------------------------------------------------
-  // ⭐ FIFTEEN MOVES ADDED 2026-09-03, AND WHAT THEY REACH THAT THE TWENTY-FIVE
-  // ABOVE NEVER DID. 25/25 agreeing was not "there is nothing left to find" --
-  // it was "there is nothing left being asked". Measured over the board this
+  // ⭐ FIFTEEN MORE MOVES, AND WHAT THEY REACH THAT THE TWENTY-FIVE
+  // ABOVE NEVER DO. 25/25 agreeing is not "there is nothing left to find" --
+  // it is "there is nothing left being asked". Measured over the board this
   // file builds, the twenty-five never once:
   //   - pressed anything on a row at the DEEPEST tier the sample seeds (`L3`:
   //     `Phone Sign In`, `Phone Home Screen`),
@@ -279,7 +279,7 @@ const SCRIPT = [
   // ⛔ `openAll` AND NOT `openOne`, AND THE DIFFERENCE WAS MEASURED. A row's
   // open-one entrance brings back its DIRECT children only; `Phone Sign In` is a
   // grandchild of `Mobile Client`, so after `openOne` it is still away -- BOTH
-  // SIDES AGREED ON THAT (measured 2026-09-03: 「could not be pressed (sample:
+  // SIDES AGREED ON THAT (measured: 「could not be pressed (sample:
   // false, GRS: false)」), which is the two behaving alike and this file asking a
   // move that cannot land. ⭐ An unpressable move is a failure here on purpose,
   // so the mistake showed rather than passing quietly.
@@ -298,7 +298,7 @@ const SCRIPT = [
   ['row', 'Mobile Client', 'openAll'],
 
   // ------------------------------------------------------------------------
-  // ⭐ TWENTY-FIVE MOVES ADDED 2026-09-05, AND WHAT THE FIFTY ABOVE NEVER ASKED.
+  // ⭐ TWENTY-FIVE MORE MOVES, AND WHAT THE FIFTY ABOVE NEVER ASKED.
   // 50/50 agreeing is again not "there is nothing left to find" -- it is
   // "there is nothing left being asked". ⭐ MEASURED OVER THIS BOARD, not
   // guessed: the eleven rows the sample seeds and the five acts a row carries
@@ -421,7 +421,7 @@ const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${ste
  * wins. ⚠️ Without this list a justified difference prints as ⛔ for ever, and
  * the obvious way to make the number go up is to break the requirement.
  *
- * ⭐ Measured 2026-09-01: pinning `Back Office` then `Mobile Client` gives
+ * ⭐ Measured: pinning `Back Office` then `Mobile Client` gives
  *    the sample ["Mobile Client","Back Office"] -- its document order
  *    GRS        ["Back Office","Mobile Client"] -- the order they were fixed
  * FR-098 (MUST NOT) 「ピン止めした行どうしに優劣を設けてはならない —— 固定した
@@ -477,8 +477,8 @@ const whyKnown = (what) =>
  * path stays exactly as it was: an entrance that is not there is a failure.
  * Nothing here is allowed to soften it.
  *
- * ⚠️ EMPTY TODAY, AND MEASURED SO. All four of the defects the user pressed out
- * of the shipped build on 2026-09-01 have since been closed:
+ * ⚠️ EMPTY, AND MEASURED SO. The four defects once pressed out of the shipped
+ * build and pinned here have all been closed:
  *
  *   DFC-06   a comment box could not be placed. One seam was missing: the armed
  *          comment-box entrance planned no command at all. Fixed and measured.
@@ -625,10 +625,9 @@ function sayTheDefects(when) {
     console.log('    that no OPEN row of docs/development-records/defects.md is a')
     console.log('    question a ROW CONTROLS sample can be asked -- it has rows and')
     console.log('    nothing else: no task bars, no canvas, no watermark.')
-    // ⛔ NO SENTENCE ABOUT ANOTHER FILE'S STATE BELONGS HERE. One used to:
-    // it said PINNED in tests/system/open-defect-pins.test.ts was the empty
-    // list, and by 2026-09-04 that list read [D230, D232]. ⭐ A corrected
-    // copy would rot the same way at the next pin, so what is printed is
+    // ⛔ NO SENTENCE ABOUT ANOTHER FILE'S STATE BELONGS HERE. A copy of, say,
+    // the PINNED list of tests/system/open-defect-pins.test.ts rots at the
+    // next pin, and so would a corrected copy, so what is printed is
     // only what THIS file can vouch for -- its own list, above.
     console.log('    ⭐ Which pins stand is the pin file\'s own to report, and it')
     console.log('    prints them on its own run. This board does not repeat them.')
@@ -657,7 +656,7 @@ async function run() {
   // grab strip and its gap as well, so at this window 「Phone Home Screen」 at
   // depth 2 is drawn 「Phone Home Sc…」. ⭐ FR-085's own last clause says what
   // to do about it -- 「全文を見たい者はパネルを広げる（`FR-052`）」 -- and
-  // HF-15 of table T-051 repeats it (利用者の裁定 2026-09-02). So the harness
+  // HF-15 of table T-051 repeats it. So the harness
   // widens the panel by dragging U-24 `Panel Divider`, which is a reader's
   // move and not a change to the product.
   // ⛔ THE COMPARISON ITSELF IS NOT LOOSENED BY ONE CHARACTER. Both sides are

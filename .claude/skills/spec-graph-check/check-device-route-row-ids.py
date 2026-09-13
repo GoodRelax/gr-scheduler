@@ -14,19 +14,18 @@ alone and the fixture stops describing any row that exists. ⚠️ Neither strin
 ever leaves the product -- no exchange format carries a device or a route id --
 so pressing the shipped build cannot show the drift either.
 
-⭐⭐ AND IT IS ABOUT TO MATTER. The CR that abolishes `D-` and `R-` renames
-表 T-007 to `DEV-` and 表 T-008 to `CHN-`, because one spelling numbers three
-unrelated things: the specification's devices and routes, the ledger's 494
-defects and 44 rulings, and the local tables of 23 review documents. Measured
-2026-09-13: 131 spellings are defined in more than one document, `D-3` in
-thirteen of them.
+⭐⭐ WHY 表 T-007 IS `DEV-` AND 表 T-008 IS `CHN-`. `D-` and `R-` are not used
+for them, because one spelling numbered three unrelated things: the
+specification's devices and routes, the ledger's defects and rulings, and the
+local tables of review documents -- the same
+spellings are defined in more than one document, `D-3` among them.
 
 ⛔ IT IS DELIBERATELY INSTALLED BEFORE THE RENAME, AND GREEN. A check added
 afterwards would let one rename through unmeasured -- it would be born guarding
 something already broken. That is the same reason check 50 went in before
 表 T-023a moved, and check 50 then caught exactly the drift it was built for.
 
-⭐ MEASURED 2026-09-13, before the rename: putting the uf-53 fixture's id to
+⭐ MEASURED before the rename: putting the uf-53 fixture's id to
 `CHN-9` while the manuscript still says `R-9` turns this check red and prints
 both halves (「tests/unit/uf-53.test.ts:118 holds 'CHN-9', and 表 T-008 has
 R-1 ... R-9」). ⚠️ AND IT CAUGHT THE AUTHOR FIRST: its first run faulted

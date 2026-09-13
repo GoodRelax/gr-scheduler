@@ -6,10 +6,10 @@ measured its precision on a sample. `list-asserted-claims.py` is the precedent
 for a detector deliberately kept out of the suite (63% precision, measured over
 a 30-line sample), and check 45 is the precedent for one let in (9/10).
 
-⭐ WHY THIS EXISTS. The cleanup round of 2026-09-11 found 32 false statements
-in the specification (`DFC-445`..`DFC-476`). Eighteen of them are an edge that
-lies, and NINE are one shape: a seat cites another seat for a sentence that
-seat does not carry. `FR-013` cited its own RATIONALE for a sentence living in
+⭐ WHY THIS EXISTS. Of 32 false statements found in the specification in one
+cleanup round (`DFC-445`..`DFC-476`), eighteen are an edge that lies, and
+NINE are one shape: a seat cites another seat for a sentence that seat does
+not carry. `FR-013` cited its own RATIONALE for a sentence living in
 `FR-011`; `FR-017` cited `FR-039` for typography `FR-039` never mentions;
 `FR-051` attributed its own MUST to table T-031.
 
@@ -29,9 +29,8 @@ backticks and full-width spaces in exactly the same ways.
 
 ⛔ PRESENT TENSE ONLY. A retraction record quotes the rule it withdrew --
 "...まで「X」と定めていた" -- and that quotation is SUPPOSED to be absent from
-the seat, because the seat withdrew it. Ruling E of 2026-09-11 protects those
-records. So the verbs here are present tense, and the past-tense forms are
-excluded rather than filtered afterwards.
+the seat, because the seat withdrew it. So the verbs here are present tense,
+and the past-tense forms are excluded rather than filtered afterwards.
 
 ⚠️ WHAT IT DOES NOT CATCH, of the eighteen:
   - a retracted rule quoted as live (4) -- needs the retraction records read

@@ -3,7 +3,7 @@
 specification retired, or that it never defined at all.
 
 ⛔⛔ WHY THIS EXISTS, AND WHY IT IS THE FIRST OF ITS KIND. Every one of the
-forty checks this script joins reads `docs/` and nothing else. They ask whether
+other checks this script joins reads `docs/` and nothing else. They ask whether
 the specification agrees with ITSELF -- undefined table references, duplicate
 row ids, prose counts drifted from the rows they count, generated artifacts out
 of step with their source. ⛔ NOT ONE OF THEM OPENS A FILE UNDER `src/` OR
@@ -11,20 +11,13 @@ of step with their source. ⛔ NOT ONE OF THEM OPENS A FILE UNDER `src/` OR
 the manuscript and the code that names the row is never looked at again: the
 comment above the function goes on explaining behaviour by a row number that
 means nothing, and the test beside it goes on printing green while quoting a
-seat that was burnt months ago. Measured 2026-09-11, the day this file was
-written: 328 places under `src/` and `tests/` named one of the IDs the
-specification has retired on purpose, over 24 distinct retired IDs, and 117
-more name an ID that resolves nowhere at all.
+seat that was burnt months ago. Places under `src/` and `tests/` do name IDs
+the specification has retired on purpose, and IDs that resolve nowhere at all;
+this check counts them.
 
-⚠️ THE NUMBERS IN THE PARAGRAPH ABOVE ARE OF 2026-09-11 BEFORE THE ROUND, AND
-THE ROUND MOVED THEM. They are kept as the measurement that motivated this
-check, not as a description of today. Re-measured after the cleanup's own
-repairs and after seven deliberate retirements were booked into the set:
-the set holds 61 IDs, and the live references are 145 over 23 distinct
-retired IDs plus 18 over 8 IDs the manuscript never defined. ⭐ Run the check
-for today's numbers rather than reading them here -- a count written into
-prose is a claim, and this is the file that exists because such claims
-rot.
+⭐ Run the check for today's numbers rather than reading them here -- a count
+written into prose is a claim, and this is the file that exists because such
+claims rot.
 
 ⭐⭐ WHY BACKTICKS ARE NOT REQUIRED, WHICH IS THE WHOLE POINT. `specindex.py`'s
 `REF_TOKEN` is `` `([A-Z]{1,3}-[0-9]+[a-z]?)` `` -- a reference only counts when
@@ -60,21 +53,13 @@ as `**表 T-019 —` defines a table, and without them `F-019` alone accounted f
 figure headings with the same pattern.
 
 ⭐ WHERE THE RETIRED LIST IS READ FROM: `retired.py`, imported like any other
-module. It was not always so, and the history is why this paragraph is long.
-Until 2026-09-11 there were TWO `RETIRED` sets in this directory and they
-disagreed -- `md-checks.py` held the current one, `specindex.py` an eight-entry
-subset frozen since 2026-08-25 -- so this check could neither import the short
-one nor copy the long one without making a THIRD, which is the thing the
-disagreement was made of. It lifted the literal out of `md-checks.py` with
-`ast.literal_eval` instead, because `md-checks.py` runs checks 5 through 15 at
-module level and importing it to reach one set would have executed and printed
-every one of them. ⭐ THE SET NOW LIVES ALONE IN `retired.py`, which holds data
-and runs nothing, so the parsing workaround has no reason left and a plain
-import replaced it. ⛔ DO NOT RESTATE THE SET HERE, in any form -- a copy is
-what the 29-day divergence was made of, and `retired.py`'s own docstring
-records what that cost. A missing or unparseable `retired.py` now raises at
-import instead of being diagnosed at run time; a traceback naming the file
-says more than the sentence that used to be printed.
+module. ⛔ DO NOT RESTATE THE SET HERE, in any form -- two `RETIRED` sets in
+this directory drift apart, and `retired.py`'s own docstring records what
+that costs. ⛔ Nor reach it through `md-checks.py`: it runs checks 5 through 15
+at module level, so importing it to reach one set would execute and print
+every one of them. `retired.py` holds data and runs nothing, so a plain import
+is enough. A missing or unparseable `retired.py` raises at import, and a
+traceback naming the file says more than a printed sentence would.
 
 HOW "RESOLVES NOWHERE" IS DECIDED, AND THE TWO NARROWINGS THAT WERE TAKEN. A
 token is faulted as undefined only when BOTH of these hold, and each one exists
@@ -92,23 +77,23 @@ because without it the count drowns:
      markdown table row, the same way `check-stale-blocked.py` reads a row),
      and a `CR-nnn` from a filename under `change-request/`. ⛔ THE ACCEPTANCE
      IS DELIBERATELY NARROW -- first table cell and filename only, never bold
-     prose. An earlier draft accepted any ID appearing in a heading or in
-     `**bold**` anywhere under `docs/` or `change-request/`, and it swallowed
-     `IC-69` whole: CR-327 withdrew that icon row on 2026-09-02 and the change
-     request naturally names it in bold, so the 13 live references to a row
-     that no longer exists read as resolved. ⇒ A registry may only vouch for an
-     ID it DEFINES, never for one it merely discusses.
+     prose. ⛔ Do not accept any ID appearing in a heading or in `**bold**`
+     anywhere under `docs/` or `change-request/`: a change request names the
+     rows it withdraws in bold (CR-327 names `IC-69` that way), so live
+     references to a row that no longer exists would read as resolved. ⇒ A
+     registry may only vouch for an ID it DEFINES, never for one it merely
+     discusses.
 
 ⛔ WHAT THIS CHECK DOES NOT CLAIM.
   - NOT that the reference is wrong to exist. A comment saying 「IC-69 stood
-    here until 2026-09-02」 is a true historical record and a good one to keep;
+    here until 2026-09-02」 is a dated record, not a live claim;
     it is still counted, because a mechanical rule cannot tell a dated record
-    from a live claim, and the honest ones sit inside the baseline rather than
+    from a live claim, and such records sit inside the baseline rather than
     being specially exempted -- the same bargain check 31 strikes.
   - NOT that the code is wrong where the ID is right. Nothing here reads what
     the row SAYS or whether the code obeys it.
   - NOT that every hit is a spec reference at all. Three false-positive classes
-    were found by eye on 2026-09-11 and kept on purpose, because narrowing to
+    were found by eye and kept on purpose, because narrowing to
     remove them would have hidden real hits:
       * an English possessive written without its apostrophe -- `FR-085s`,
         `HF-17s`, `NT-1s`, `IV-10s` and five more, 17 occurrences. Dropping the
@@ -267,11 +252,10 @@ def scan(defined, retired, elsewhere):
                 # ⛔ AN APOSTROPHE-LESS POSSESSIVE IS NOT A DEAD ID. This
                 # project writes 「HM-4s own row」 for 「HM-4's own row」, and the
                 # trailing [a-z] that lets T-005a and SK-11a match swallows that
-                # `s`. Measured 2026-09-11 by a body reading its own findings:
-                # HM-4s, IV-10s and PI-17s were faulted while HM-4, IV-10 and
-                # PI-17 are all live rows -- and two of the three sit in a TEST
-                # NAME, which a cleanup may not edit, so they could never have
-                # been repaired at all.
+                # `s`: HM-4s, IV-10s and PI-17s would be faulted while HM-4,
+                # IV-10 and PI-17 are all live rows -- and such a token can sit
+                # in a TEST NAME, which a cleanup may not edit, so it could
+                # never be repaired at all.
                 # ⭐ THE TRAILING LETTER IS DROPPED ONLY WHEN KEEPING IT
                 # RESOLVES TO NOTHING AND DROPPING IT RESOLVES TO SOMETHING.
                 # Widening ID_BODY to forbid the suffix outright would stop

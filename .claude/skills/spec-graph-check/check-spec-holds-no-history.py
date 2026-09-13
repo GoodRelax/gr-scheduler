@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Check 54 -- the specification holds its reasons, not its history.
 
-⛔ WHY THIS EXISTS. CR-375 (2026-09-13) removed from docs/spec every
+⛔ WHY THIS EXISTS. CR-375 removed from docs/spec every
 attribution ("the user's ruling of <date>"), every dated quote and every
-"until <date> this said ..." paragraph -- 1,261 occurrences, 667 sentences.
+"until <date> this said ..." paragraph.
 An overturned sentence left in the specification was read as a live rule more
 than once, and an attribution adds nothing to whether a rule is right. The
 reason a rule was chosen stays, as a sentence in its RATIONALE or its table's

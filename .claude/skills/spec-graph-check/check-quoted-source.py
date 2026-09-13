@@ -61,7 +61,7 @@ REL_BASELINE = '.claude/skills/spec-graph-check/quoted-source-baseline.txt'
 TREES = ('src', 'tests')
 
 # ⭐ A quotation shorter than this is a NAME, not a sentence -- 「未定」,
-# 「行 ID」, 「置く」. Measured 2026-09-06: the count is flat either side of
+# 「行 ID」, 「置く」. Measured: the count is flat either side of
 # 10, and every hit under it was a single word.
 SENTENCE = 10
 
@@ -91,11 +91,10 @@ OTHER_BOOKS = re.compile(
     u'development-rules|development-records|pending-decisions')
 
 
-# ⛔ `<br>` is a LINE BREAK in a table cell, not a word of the rule (the
-# user's ruling, 2026-09-12: a row is one line, so a wrapped cell carries <br>
-# where a paragraph would have a newline). tests/contract/spec-table.ts drops
-# it for the same reason. Without this, wrapping a cell would fault every
-# comment that quotes it.
+# ⛔ `<br>` is a LINE BREAK in a table cell, not a word of the rule (a row is
+# one line, so a wrapped cell carries <br> where a paragraph would have a
+# newline). tests/contract/spec-table.ts drops it for the same reason.
+# Without this, wrapping a cell would fault every comment that quotes it.
 BREAK = re.compile(u'<br\s*/?>', re.I)
 
 
@@ -139,14 +138,12 @@ def comment_blocks(source):
 def manuscripts():
     """Every manuscript under docs/spec, flattened, one string each.
 
-    ⭐⭐ AND THE CHANGELOG, WHICH IS NO LONGER UNDER docs/spec. Cleanup P2-1
-    (2026-09-11, ruling 5) moved the A.3 Changelog section of A-appendix.md to
-    docs/development-records/changelog.md unchanged -- 183,208 characters, a
-    record rather than a requirement. Measured the same day: 50 quotations in
-    `src/` and `tests/` have their source in those rows and nowhere else, so
-    dropping the file from this haystack would have taken the count from 469 to
-    519 and called fifty honest citations fabricated. The sentence a comment
-    quotes is the same sentence it was; only its address changed.
+    ⭐⭐ AND THE CHANGELOG, WHICH IS NOT UNDER docs/spec. The A.3 Changelog
+    lives in docs/development-records/changelog.md, a record rather than a
+    requirement. Quotations in `src/` and `tests/` have their source in those
+    rows and nowhere else, so dropping the file from this haystack would call
+    honest citations fabricated. The sentence a comment quotes is the same
+    sentence wherever the table is kept.
     """
     found = []
     for base, _dirs, names in os.walk(SPEC):
@@ -216,7 +213,7 @@ def find_unsourced():
                 if CJK.search(quote) is None:
                     continue
                 # ⛔ THE OTHER BOOKS ARE LOOKED FOR IN A WINDOW, NOT IN THE
-                # WHOLE BLOCK. Rehearsed 2026-09-06: a fabricated citation
+                # WHOLE BLOCK. Rehearsed: a fabricated citation
                 # planted at the top of a test file went UNCAUGHT, because
                 # that file's header names a `D-` row somewhere far above and
                 # a block-wide test then exempted every quotation under it.

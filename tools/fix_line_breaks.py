@@ -5,7 +5,7 @@ check 46 (`.claude/skills/spec-graph-check/check-line-breaks.py`) faults a
 sentence that does not end its line. This is the tool that fixes what it
 faults, so a red check has a hand to answer it with.
 
-THE RULE IT APPLIES (the user's ruling, 2026-09-12)
+THE RULE IT APPLIES
 
     Inside a table row a sentence break is written `<br>`; a row is one line,
     so that is the only break a cell can carry.
@@ -20,7 +20,7 @@ WHAT IT WILL NOT BREAK, EACH LEARNED BY BREAKING IT
       reads as BLANK: the paragraph splits and every bold run open across it
       dies.
     - A line directly under a table row. Markdown absorbs it into the table,
-      and splitting turns one phantom row into eight (表 T-037, 2026-09-12).
+      and splitting turns one phantom row into eight (表 T-037).
     - A point in front of a CLOSING `**`. The renderer will not accept a
       closer at the start of a line, so the break moves PAST it instead.
     - A run some file under src/ or tests/ quotes verbatim, when `--protect`

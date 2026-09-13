@@ -9,10 +9,9 @@ WHY IT NEEDS A GATE
     is green everywhere and wrong on the page. This is the only check that
     reads the render.
 
-    It could not go red until 2026-09-12. It printed `RESULT: FAIL` and
-    returned 0, so check.sh and npm would both have read it as a pass -- and
-    neither called it at all. That is the defect this file's own report in
-    docs/development-rules/09-tools.md row 1 named.
+    It must exit nonzero when it prints `RESULT: FAIL`. A check that only
+    prints the failure and returns 0 is read as a pass by check.sh and npm
+    alike.
 
 WHAT IT FAULTS
 

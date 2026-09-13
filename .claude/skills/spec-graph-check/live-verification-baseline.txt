@@ -1,31 +1,12 @@
-# How many rows stood at `テスト完了` with nobody having opened the app to look
-# at them, when this gate was raised (2026-08-29).
-#
-# ⛔ THIS NUMBER IS A DEBT, NOT A TARGET. It may fall freely -- lower it in the
-# same commit that verifies a row. It may only RISE deliberately, and the commit
-# that raises it has to say which row took the debt on and why.
-#
-# ⚠️ It was 23 of 28 on the day it was measured. The user had just found one of
-# them (DFC-69) unfixed in a screenshot after it was reported to them as done.
-#
-# 2026-08-29, CR-280: 23 -> 20. DFC-41, DFC-80 and DFC-85 were opened in the shipped
-# build and measured. ⚠️ DFC-80 and DFC-85 first read as NOT fixed because the
-# probe searched the panel's whole text for 「マイルストーン」 and 「形状」, which
-# PR-17 (the milestone SHAPE, deliberately kept) also contains. Counting the
-# panel's controls one at a time overturned it. Count controls, not substrings.
-#
-# 2026-08-30, CR-287..CR-290: 20 -> 0. 実物を見る体が 20 行を 1 行ずつ開いて測った。
-# 15 行は実物で効いており、実物確認の欄に日付が入った。
-# ⛔ 5 行（DFC-04 / DFC-16 / DFC-30 / DFC-48 / DFC-76）は効いておらず、
-# `未検討` へ戻した —— ⭐ だからこの借りは 5 ではなく 0 である。
-# ⚠️ `テスト完了` のまま誰も見ていない行は、今は 1 つも無い。
-# ⭐ 2026-09-01 の状態の付け替え —— 数は動いていない。名前だけが動いた。
-# 利用者の裁定で台帳の 10 状態が 8 状態になり、`テスト完了` は 2 つに割れた ——
-# `実測待ち`（自動試験は緑、出荷ビルドをまだ押していない）と `実測済`（押して
-# 測った）である。このチェックは `テスト完了` を読んでいた所で `実測済` を読む。
-# ⛔ 意味は 1 文字も弱めていない —— **測っていない行が「測った」と名乗ることを
-# 禁じる**。付け替えの時点で `テスト完了` 121 行はすべて `実物確認` に日付を
-# 持っていたので 121 行すべてが `実測済` へ入り、`実測待ち` は 0 行だった。
-# ⚠️ だからこの借りは 0 のまま据え置く —— **仕事が進んだからではなく、
-# 状態の名前が変わっただけだからである。**
 0
+#
+# Rows of defects.md standing at `実測済` with nothing in 実物確認 -- a row
+# claiming it was measured in the shipped build without a measurement. Held by
+# check-live-verification.py; the first line that is not a comment is the
+# number.
+#
+# ⛔ A debt, not a target. It may fall freely: lower it in the commit that
+# measures a row. It may rise only deliberately, and that commit says which row
+# took the debt on and why.
+# ⚠️ Count a panel's controls one at a time, not substrings of its whole text:
+# a word the panel keeps on purpose elsewhere makes a fixed row read as broken.

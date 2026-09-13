@@ -30,7 +30,7 @@ is the cell speaking in its own voice.
 
 ⚠️ WHAT THIS DELIBERATELY DOES NOT DO. It does not exempt a row, and it does
 not weaken a marker. A row that is genuinely blocked says so in its own words
--- ⛔ **未検討。** -- and that text is untouched here. ⭐ MEASURED 2026-09-06
+-- ⛔ **未検討。** -- and that text is untouched here. ⭐ MEASURED
 across both ledger files: of the rows check 31 matched, exactly two stop
 matching, and both are the misfires named above (`DFC-286`, `DFC-135`). Nothing
 else moves.
@@ -47,7 +47,7 @@ turns that record into a claim about today. ⛔ MEASURED FOUR TIMES before this
 line existed (`DFC-344`, `DFC-347`, check 40, check 31), and the handoff had said
 to change how these checks are written when a third appeared.
 
-⭐ THE USER RULED ON 2026-09-07 (`PND-441`, proposal ①): a sentence that begins
+⭐ THE RULE (`PND-441`, proposal ①): a sentence that begins
 「⚠️ 実測（<date>）」 is to be read as a RECORD, not as a present claim. ⛔ No
 new mark was invented -- rule 03 already defines ⚠️ as 「注意・過去に実際に踏
 んだ罠」, so a dated 実測 under that mark is a record BY DEFINITION. The
@@ -96,7 +96,7 @@ def outside_quotation(cell):
 # the first of a run starts a sentence.
 _SENTENCE_START = re.compile(u'(?<=。)|(?<![⭐⛔⚠️])(?=[⭐⛔⇒⚠])')
 
-# ⭐ THE RECORD OPENER, verbatim as ruled: ⚠️ 実測（YYYY-MM-DD…
+# ⭐ THE RECORD OPENER, verbatim: ⚠️ 実測（YYYY-MM-DD…
 #
 # ⛔ THE MARK IS ⚠️ AND NOTHING ELSE. ⭐ and ⛔ open sentences that claim, not
 # sentences that record; rule 03 gives ⚠️ alone the meaning 「過去に実際に踏ん

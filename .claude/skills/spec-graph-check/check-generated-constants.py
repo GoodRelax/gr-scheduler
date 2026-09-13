@@ -2,10 +2,9 @@
 
 `docs/development-rules/03-implementation.md` names every constant that is
 generated from a manuscript, and asks whoever adds one to add it there too.
-That list drifted three times (2026-08-26 twice, 2026-08-31 once), the last
-time by nine names, and each time it was a person who noticed rather than a
-machine. A rule no machine reads is a rule that is not followed, so this reads
-it.
+A hand-kept list drifts, and without a check it is a person who notices rather
+than a machine. A rule no machine reads is a rule that is not followed, so this
+reads it.
 
 The counting rule is the one the note itself states: every `export const` that
 sits inside a generated block of `src/`. The blocks are fenced by the marker

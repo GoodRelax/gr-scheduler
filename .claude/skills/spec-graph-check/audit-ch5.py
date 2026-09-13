@@ -11,10 +11,10 @@ import sys
 DESIGN = "docs/spec/05-07-design.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
 MODEL = "docs/spec/_source/components.json"
-# ⭐ THE RECORD THIS FILE READS TWICE. Until 2026-09-11 the A.3 Changelog was a
-# section of docs/spec/A-appendix.md; cleanup P2-1 (ruling 5) moved it here
-# unchanged, because a dated 「…を置いた」 sentence is a record, not a
-# requirement. Both reads below want the record, never the appendix.
+# ⭐ THE RECORD THIS FILE READS TWICE. The A.3 Changelog is kept in
+# docs/development-records/changelog.md, not in docs/spec/A-appendix.md,
+# because a dated 「…を置いた」 sentence is a record, not a requirement. Both
+# reads below want the record, never the appendix.
 CHANGELOG = "docs/development-records/changelog.md"
 
 # ⛔ EVERY SENTENCE ENDS A LINE in docs/spec (check 46): `<br>` inside a table
@@ -50,11 +50,9 @@ def rows_of(table_id):
 def stated(pattern):
     """Every number the design's PROSE states in this shape, as a sorted list.
 
-    Nothing here may expect a number of its own.  Every absolute this file used
-    to hold went stale the day a row moved -- 12 of the 14 mismatches of
-    2026-09-03 were this file expecting 38 components, 9 interfaces and 71
-    units of a chapter that had come to hold 36, 8 and 68 (the ledger's DFC-227).
-    A relation between two things READ cannot go stale that way.
+    Nothing here may expect a number of its own: an absolute number goes stale
+    the day a row moves (the ledger's DFC-227). A relation between two things
+    READ cannot go stale that way.
     """
     return sorted({int(n) for n in re.findall(pattern, design)})
 
@@ -125,12 +123,11 @@ print()
 print("== landing: every edge target declares a member ==")
 # member cell of table T-064, per component
 #
-# ⛔ THE CLOSING BAR MAY HAVE NO SPACE BEFORE IT. Measured 2026-09-03: this
-# pattern demanded 「 |」 at the end of the line, and PI-5 (`ScheduleLayout`)
-# ends 「**）|」 -- so one row of a 36-row table silently failed to parse and
-# the component was reported as declaring no member at all, with its row
-# sitting in table T-064 the whole time (the ledger's DFC-227). ⭐ The
-# manuscript is right; a reader that depends on trailing whitespace is not.
+# ⛔ THE CLOSING BAR MAY HAVE NO SPACE BEFORE IT. Do not demand 「 |」 at the
+# end of the line: PI-5 (`ScheduleLayout`) ends 「**）|」, and a row that
+# fails to parse is reported as a component declaring no member at all while
+# its row sits in table T-064 (the ledger's DFC-227). ⭐ The manuscript is
+# right; a reader that depends on trailing whitespace is not.
 member_cells = re.findall(
     r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+?)\s*\|$", design, re.M)
 members = {name: re.findall(r"`([A-Za-z][A-Za-z0-9]*)`", cell)

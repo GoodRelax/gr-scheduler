@@ -238,7 +238,7 @@ def broken_prose(text):
 def broken(cell):
     """A cell with every sentence on its own line.
 
-    ⛔ THE RULE (check 46, the user's ruling 2026-09-12): inside a table row a
+    ⛔ THE RULE (check 46): inside a table row a
     sentence break is written `<br>`. A row is one line, so this is the only
     break a cell can carry.
 
@@ -376,9 +376,9 @@ def same_type(settings_type, erd_type):
 def type_stated_twice(doc):
     """⛔ DFC-335: a value whose type is written in BOTH manuscripts.
 
-    Measured 2026-09-06: three of the settings keys are also ERD columns, and
-    one of the three -- themeHue -- already disagreed in wording while nothing
-    compared them. This is the latch that would have caught it.
+    Some settings keys are also ERD columns, and nothing else compares the
+    two: themeHue disagreed in wording between them unnoticed. This is the
+    latch that catches that.
 
     ⚠️ IT DOES NOT REMOVE THE DUAL MANAGEMENT, and is not meant to look as if
     it does. The type still stands in two places; what changes is that the two

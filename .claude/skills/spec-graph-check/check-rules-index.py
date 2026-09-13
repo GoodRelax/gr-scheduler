@@ -16,9 +16,8 @@ split check 22 makes for change requests.
 ⛔ Deliberately NOT checked: what the rules say. A check that read the clauses
 would need a second copy of the very thing that must not be copied.
 
-⚠️ 07 and 08 moved into this folder on 2026-08-19 (CR-190), so all eight are
-originals now. 08 is a folder rather than a file: the index only has to name
-it, and it answers for its own contents.
+⚠️ All eight rules are originals in this folder. 08 is a folder rather than
+a file: the index only has to name it, and it answers for its own contents.
 """
 import io
 import os

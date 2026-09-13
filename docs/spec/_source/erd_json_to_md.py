@@ -260,9 +260,9 @@ def column_table(doc, prefix):
 def header_rows(section):
     """The heading row of a table, and the markdown rule under it.
 
-    ⭐ The rule is DERIVED from the number of headings. It used to be written
-    beside each heading and checked for the same pipe count -- a check that
-    exists only because the two were written twice.
+    ⭐ The rule is DERIVED from the number of headings. Do not write it again
+    beside each heading: that needs a check for the same pipe count, a check
+    that exists only because the two were written twice.
     """
     cells = text(section['header'])
     return ('| %s |' % ' | '.join(cells),
@@ -463,9 +463,9 @@ def problems(doc):
 def say(message):
     """The Windows console is cp932; an em dash must not kill the run.
 
-    ⚠️ The parameter used to be named `text`, which now shadows the prose
-    reader above. Nothing here calls it, but a later line inside this function
-    would have reached the string instead of the function.
+    ⚠️ Do not name the parameter `text`: that would shadow the prose reader
+    above, and a later line inside this function would reach the string
+    instead of the function.
     """
     enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
     sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')

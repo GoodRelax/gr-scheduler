@@ -35,10 +35,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 REL = 'docs/development-records/defects.md'
 
-# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
-# 2026-09-01). A row that reaches 実測済 or 取下げ is moved out of `defects.md`
-# into `fixed-defects.md` word for word, so the open ledger stays short enough
-# to read through.
+# The ledger is TWO FILES. A row that reaches 実測済 or 取下げ is moved out of
+# `defects.md` into `fixed-defects.md` word for word, so the open ledger stays
+# short enough to read through.
 #
 # EVERY COUNT HERE READS BOTH. A tool that read only the first would measure an
 # emptier and emptier table and print the harvest as progress: the totals would
@@ -54,12 +53,11 @@ END = '<!-- ledger-metrics: end -->'
 # prints them. A status the table gains and this list does not is reported
 # rather than dropped.
 #
-# ⭐ THE EIGHT STATES OF 2026-09-01 (利用者の裁定). Every non-terminal state is
-# named for WHAT IT IS WAITING ON, so the name says who acts next. The ten they
-# replaced mixed two axes -- how far the work had got, and who was holding it --
-# and the second axis rotted: measured, テスト中 (20 rows) and テスト待ち
-# (20 rows) meant the same thing in practice, and テスト待ち was not even in the
-# definitions table until 2026-09-01. ⛔ テスト完了 also carried two claims at
+# ⭐ THE EIGHT STATES. Every non-terminal state is named for WHAT IT IS
+# WAITING ON, so the name says who acts next. ⛔ Do not mix in a second axis:
+# the ten names they replaced mixed how far the work had got with who was
+# holding it, and the second axis rotted -- テスト中 and テスト待ち came to
+# mean the same thing in practice. ⛔ テスト完了 also carried two claims at
 # once -- "the automated tests are green" and "somebody opened the shipped build
 # and measured it" -- which are not the same claim. 実測待ち and 実測済 are those
 # two claims, held apart.
@@ -67,15 +65,15 @@ LADDER = ['未検討', '裁定待ち', '仕様待ち', '実装待ち',
           '試験待ち', '実測待ち', '実測済', '取下げ']
 
 # ⛔ THE TWO THAT COUNT AS FINISHED. Everything else is 残件, and 残件 going down
-# is what progress means from 2026-08-30 (利用者の裁定). ⚠️ 実測済 takes the seat
+# is what progress means. ⚠️ 実測済 takes the seat
 # テスト完了 held: a row is finished when it has been MEASURED in the shipped
 # build, not when its automated tests went green.
 DONE = ['実測済', '取下げ']
 
-# ⭐ THE FIVE BUNDLES OF 2026-09-03 (利用者の裁定). 残件 reads as one number, and
+# ⭐ THE FIVE BUNDLES. 残件 reads as one number, and
 # one number cannot tell "still needs a decision" apart from "still needs code."
-# On this round that blur made 26 rows waiting on 裁定待ち / 仕様待ち -- spec
-# holes, not defects -- read as 26 defects that never go down no matter how
+# That blur makes rows waiting on 裁定待ち / 仕様待ち -- spec
+# holes, not defects -- read as defects that never go down no matter how
 # much code gets fixed. ⛔ EACH LADDER STATUS LANDS IN EXACTLY ONE BUNDLE below
 # (checked at import time), so the five bundles partition the same 8 states the
 # table above already counts -- this is a second view of that count, not a
@@ -114,7 +112,7 @@ def bundle_counts(status_counts):
 # ⚠️ A ROW OF ITS OWN PATH-LIKE WORDS, not a claim about what the code actually
 # imports -- this reads the ledger's prose, which can lag or overstate reality
 # same as any other free-text cell. It exists as a rough OVERLAPPING gauge
-# (`道具・試験の借り`, 利用者の裁定 2026-09-03), not a sixth bundle: a row in it
+# (`道具・試験の借り`), not a sixth bundle: a row in it
 # may also stand inside 製品の仕事 or 仕様の穴 above.
 PATH_TOKEN = re.compile(r'\b(tools|tests|src)/[\w./-]+')
 
@@ -151,8 +149,7 @@ def tool_test_debt(*named_texts):
 # baseline row taken under the old names has twelve cells while the new header
 # has ten, and without folding one onto the other the length guard in
 # `block_of` would take every cell to — and the round would silently lose the
-# progress it had already measured. That exact failure happened once before,
-# on 2026-08-30, when 残件 was added in front of 総件数.
+# progress it had already measured.
 #
 # ⛔ テスト完了 FOLDS ENTIRELY INTO 実測済, and that is a measured fact rather than
 # a guess: check 28 (check-live-verification.py) has held the count of finished
@@ -257,7 +254,7 @@ def block_of(when, start_cells, rows, seen, today, debt):
         else list(LADDER)
     head = '| | 残件 | 総件数 | ' + ' | '.join(order) + ' |'
     rule = '| --- | --: | --: | ' + ' | '.join(['--:'] * len(order)) + ' |'
-    # ⭐ 残件 IS THE PROGRESS MEASURE (利用者の裁定 2026-08-30): everything that
+    # ⭐ 残件 IS THE PROGRESS MEASURE: everything that
     # has not reached 実測済 or 取下げ. ⚠️ It is derived, never counted by
     # hand -- the whole reason this file exists.
     now = [rows - sum(seen.get(s, 0) for s in DONE), rows]         + [seen.get(s, 0) for s in order]
@@ -279,7 +276,7 @@ def block_of(when, start_cells, rows, seen, today, debt):
             start = list(start_cells)
             diff = ['—'] * len(now)
 
-    # ⭐ 束ねた数 (利用者の裁定 2026-09-03): the SAME eight-state counts above,
+    # ⭐ 束ねた数: the SAME eight-state counts above,
     # read through BUNDLES instead of LADDER. ⛔ IT DOES NOT RECOUNT ANYTHING --
     # `bundle_counts` only sums cells of `seen` / `start_by_status`, so a
     # bundle number can never disagree with the ladder table it is folded
@@ -367,11 +364,11 @@ def main():
     if '--start' in sys.argv:
         # ⭐ The baseline IS this measurement. Both rows carry it, so the delta
         # opens at zero and every later run is measured against a real reading.
-        # ⛔ THE FIRST CELL IS 残件 AND WAS MISSING UNTIL 2026-08-30. The ruling of
-        # that day put 残件 in front of 総件数; this line still built one cell fewer
-        # than `block_of` counts, so the length guard there took every cell to
-        # — and the round opened with NO baseline at all -- silently, because a
-        # row of dashes is what a first-ever run looks like too.
+        # ⛔ THE FIRST CELL IS 残件, in front of 総件数. This line must build as
+        # many cells as `block_of` counts: one fewer and the length guard there
+        # takes every cell to — and the round opens with NO baseline at all --
+        # silently, because a row of dashes is what a first-ever run looks like
+        # too.
         now = stamp()
         left = rows - sum(seen.get(s, 0) for s in DONE)
         fresh = block_of(now,

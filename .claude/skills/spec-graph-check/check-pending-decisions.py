@@ -126,12 +126,11 @@ def main():
                             'yet it is implemented provisionally in %s'
                             % (pd, row['class'], ', '.join(sorted(marks[pd]))))
         # ⛔ Rule 06 section 3 orders the steps: fix the value, run the tests,
-        # STRIKE THE MARK, then set the state to 裁定済. Until 2026-09-07 nothing
-        # held the third step, so a settled row could keep its mark for ever --
-        # and thirteen of them did, across four files, while this check stayed
-        # green. ⭐ With that branch the mark's whole life is covered: an open
-        # A-to-C row must carry one, a D-to-H row may not, and a settled row may
-        # not either.
+        # STRIKE THE MARK, then set the state to 裁定済. Without this branch
+        # nothing holds the third step, so a settled row can keep its mark for
+        # ever while this check stays green. ⭐ With it the mark's whole life is
+        # covered: an open A-to-C row must carry one, a D-to-H row may not, and
+        # a settled row may not either.
         if row['state'] == '裁定済' and pd in marks:
             problems.append('%s has been ruled on, but %s still carries its '
                             'provisional mark -- rule 06 section 3 strikes the '

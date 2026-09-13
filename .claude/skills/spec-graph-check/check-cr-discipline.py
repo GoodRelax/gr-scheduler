@@ -49,11 +49,11 @@ CR_FROM = 175
 # would read a change request that names GL-008 as naming nothing at all.
 CHALLENGE = re.compile(r'`?(CH-[1-6]|GL-00[1-8])`?')
 # Rule ②: which clauses of the review standard were held against it?
-# ⛔ R1 WAS OUT OF THIS RANGE UNTIL 2026-09-06 and nothing said why. It is a
+# ⛔ DO NOT DROP R1 FROM THIS RANGE. It is a
 # real group -- docs/development-rules/07-review-standards.md opens with
 # "R1: 要求品質レビュー観点（仕様書 Ch1-4 対象）" and carries R1.1 .. R1.6 --
-# so a change request that held only R1 clauses against itself was told it had
-# held none. Ledger row DFC-323.
+# so without it a change request that held only R1 clauses against itself is
+# told it held none. Ledger row DFC-323.
 STANDARD = re.compile(r'review-standards|`?R[1-7](\.\d+)?`?')
 # Rule ⑧: what did the author settle without asking?
 # A fixed phrase, so the section can be found rather than guessed at.

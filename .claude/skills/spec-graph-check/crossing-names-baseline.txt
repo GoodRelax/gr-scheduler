@@ -2,7 +2,7 @@
 # in src/ while table T-064, which calls itself the full count of the names
 # callable from outside a component, does not name them.
 #
-# Measured 2026-08-23 by the audit in
+# Measured by the audit in
 # docs/review/audit-cadence-and-architecture-2026-08-23.md: 226 names cross a
 # folder boundary, and 142 of them are in no row of the table. The forward walk
 # of check 26b could never see this -- it starts from the table, so it can only

@@ -15,8 +15,8 @@ await page().mouse.move(1000, 700)
 await key('Control+a')
 await page().waitForTimeout(200)
 await key('Delete')
-// ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON, from 2026-09-02 (NT-7 of table
-// T-037). It carries `data-confirmation-answer` and no `data-icon`, so `IC-69`
+// ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON (NT-7 of table T-037). It
+// carries `data-confirmation-answer` and no `data-icon`, so `IC-69`
 // and `IC-70` were retired from table T-109 and figure F-019. `press()` only
 // knows `data-icon`, so the button is reached with a real pointer at its centre.
 const PROCEED = '[data-confirmation-answer="proceed"]'

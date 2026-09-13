@@ -11,13 +11,10 @@ cell -- or, worse, recorded in a different column (ステータス moving to a
 testing state, or 実物確認 gaining a date). The opening clause is never
 deleted, so it outlives the ruling that overturns it.
 
-Measured on 2026-09-01: five rows read as blocked when they were not, and
-three of those five were finished work. A read-only agent surveying the ledger
-reported six rows as needing the user's ruling; every one of them had already
-been ruled. That is a whole review cycle spent on nothing. DFC-131 is one of the
-five, and it now says so in its own cell: 「2026-09-01 の棚卸しで、本欄が
-『塞がっている』と読める 5 行のうちの 1 つとして見つかった」 -- while the same
-cell still carries the two phrases that made it read that way, 「仕様に行が
+WHAT IT COSTS. A row that reads as blocked when it is not sends a reviewer to
+ask for a ruling that has already been given -- a whole review cycle spent on
+nothing. DFC-131 is such a row: the same cell still carries the two phrases
+that make it read as blocked, 「仕様に行が
 無い」 and 「利用者の裁定が要る」, sitting after 「決着済み」 and 「書いた先は」.
 Deleting the stale opening was not part of the fix, so the row remains a
 correct hit for this check even after being resolved. That is by design: the
@@ -35,35 +32,30 @@ WHAT COUNTS AS A HIT. Both of these true in the SAME row:
          実測済 -- a row cannot be waiting on its automated tests, waiting to
          be pressed in the shipped build, or already measured, while a ruling
          is genuinely outstanding, since there would be nothing decided to
-         build. ⭐ These are the 2026-09-01 names of what were テスト中 /
-         テスト待ち / テスト完了, and they pick out the same rows;
+         build;
        - or cell 9 (実物確認) begins with ✅ -- somebody already looked at the
          working thing, which cannot happen before it was decided what to
          build.
 
 ⭐⭐ NEITHER SIDE OF THAT PAIRING IS LOOKED FOR INSIDE A DATED RECORD
-(`DFC-367`, the user's ruling of 2026-09-07 on `PND-441`). A sentence opening
+(`DFC-367`). A sentence opening
 「⚠️ 実測（YYYY-MM-DD）」 states what was true ON THAT DAY. Its words are struck
 from cell 5 -- blocked phrases and settled phrases alike -- before either list
 is looked for. The notation is written down in `docs/development-rules/
 04-verification.md` section 6.6 and implemented in `ledger_quotes.py`.
 
-⛔⛔ WHAT THAT RULING DOES NOT REACH, MEASURED 2026-09-07 BEFORE IT WAS
-IMPLEMENTED. The shape `DFC-367` was opened for is a row whose cell 5 says 「裁定
-が要る」 (true, in its own voice, today) beside a cell 9 that opens ✅ (also
-true -- somebody pressed the shipped build). `DFC-268` stood exactly there on
-2026-09-07. ⛔ The notation cannot date that cell 9, because the 実物確認
-column's own convention is to open with ✅ and not with ⚠️ -- so the third arm
-above still reads that record as evidence, and this check still faults the
-row. ⚠️ The row was reworded instead, and the shape is unfixed rather than
-absent: measured across both ledger files on 2026-09-07, ZERO rows now stand
-in it, and the ✅ arm's whole reachable population is rows whose ステータス has
+⛔⛔ WHAT THE DATED-RECORD STRIKE DOES NOT REACH. A row whose cell 5 says
+「裁定が要る」 (true, in its own voice, today) beside a cell 9 that opens ✅
+(also true -- somebody pressed the shipped build) is still faulted. ⛔ The
+notation cannot date that cell 9, because the 実物確認 column's own
+convention is to open with ✅ and not with ⚠️ -- so the third arm above
+still reads that record as evidence. ⚠️ The shape is unfixed rather than
+absent: the ✅ arm's whole reachable population is rows whose ステータス has
 NOT reached a testing state (it is an `elif` after the status arm). ⭐ The
-baseline file already carries the falsified premise this rests on -- under the
-user's 押してから問え order (`DFC-262`), pressing is what RAISES a ruling, so a
-✅ is not evidence that one has come down. ⛔ Retiring or gating that arm is a
-second change, not this ruling, and it was NOT taken here on one body's own
-judgement.
+baseline file already carries the falsified premise this rests on -- under
+the 押してから問え order (`DFC-262`), pressing is what RAISES a ruling, so a
+✅ is not evidence that one has come down. ⛔ Retiring or gating that arm is
+a separate change; do not take it on one body's own judgement.
 
 ⚠️ THE EXCEPTION THIS CANNOT TELL APART. A row may legitimately say "the
 first question was ruled, a second one is now open" -- an early decision
@@ -100,9 +92,8 @@ LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'stale-blocked-baseline.txt')
 REL = 'docs/development-records/defects.md'
 
-# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
-# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
-# `fixed-defects.md`.
+# The ledger is TWO FILES: a row that reaches 実測済 or 取下げ is moved word
+# for word into `fixed-defects.md`.
 #
 # THIS CHECK READS BOTH, AND THE HARVESTED FILE HOLDS MOST OF WHAT IT FAULTS.
 # A cell that opens 「未定」 and closes with the ruling is the failure this check
@@ -125,10 +116,9 @@ SETTLED_IN_CELL = (u'裁定を受けた', u'裁定が下りた', u'裁定は下�
                     u'裁定された', u'裁定')
 
 # ⭐ A status this far along could not have been reached without a decision.
-# ⚠ Renamed 2026-09-01 with the eight-state ledger: テスト中 and テスト待ち
-# both became 試験待ち, and テスト完了 split into 実測待ち (green tests, the
-# shipped build not pressed yet) and 実測済 (pressed and measured). All three
-# say the code exists, so all three still say a ruling cannot be outstanding.
+# 試験待ち, 実測待ち (green tests, the shipped build not pressed yet) and
+# 実測済 (pressed and measured) all say the code exists, so all three say a
+# ruling cannot be outstanding.
 TESTING_STATUSES = (u'試験待ち', u'実測待ち', u'実測済')
 
 SEEN_MARK = u'✅'  # the ✅ that opens 実物確認 once someone has looked
@@ -160,7 +150,7 @@ def find_stale(ledger_path):
         # else's words -- a verbatim requirement, the name of a state, or the
         # row dating its own older text as history -- and a marker inside a
         # sentence opening 「⚠️ 実測（日付）」 is what was true ON THAT DAY, not
-        # a claim about today (the user's ruling of 2026-09-07, `PND-441`; the
+        # a claim about today (the
         # notation is written down in rule 04 section 6.6). Neither is this
         # row's claim to be blocked. Three misfires were absorbed into the
         # baseline before the first of these lines existed; rule 04 section
@@ -172,8 +162,7 @@ def find_stale(ledger_path):
         # LOOKED FOR, and the reason is that one contains the other:
         # 「利用者の裁定が要る」 holds 「裁定」, which SETTLED_IN_CELL lists.
         # Without this, a row could not state its block in the words this check
-        # itself indexes without also reading as settled -- measured 2026-09-06
-        # on DFC-278, the first row to reach 裁定待ち since the check was written.
+        # itself indexes without also reading as settled.
         # ⭐ IT DOES NOT WEAKEN THE CHECK: a row that really was ruled writes the
         # settlement SOMEWHERE ELSE in the cell (裁定が下りた, 決着, 書いた先は),
         # and those survive the strike-out whole.

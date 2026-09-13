@@ -10,10 +10,9 @@ THE MARKS
         ⚠️  注意・過去に踏んだ罠
         ⭐  要点
 
-    ⛔ A DOUBLED MARK IS NOT IN THAT RULE. `⛔⛔` was written 135 times and
-    `⭐⭐` 151 times before 2026-09-12, and neither ever meant anything the
-    single mark does not -- there is no rule that says what the second one
-    adds, so a reader cannot tell. One mark, once.
+    ⛔ A DOUBLED MARK IS NOT IN THAT RULE. `⛔⛔` and `⭐⭐` never meant
+    anything the single mark does not -- there is no rule that says what the
+    second one adds, so a reader cannot tell. One mark, once.
 
     Two more marks are used and are NOT in the rule above. Both are left
     alone here because each is defined where it is used, which is the test

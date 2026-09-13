@@ -1,8 +1,8 @@
 // Does GRS behave the way the sample behaves?
 //
-// ⭐ THE BOARD IS BUILT, NOT ASSUMED. The user's instruction: 「GRS のタスクグループ
-// 名を変更したり、追加、削除すればよい」. The document GRS starts with is bigger than
-// the sample's, so this empties it and stands the sample's tree up through the
+// ⭐ THE BOARD IS BUILT, NOT ASSUMED: it is built by renaming, adding and
+// deleting GRS task groups. The document GRS starts with is bigger than the
+// sample's, so this empties it and stands the sample's tree up through the
 // UI -- IC-82 to delete, IC-93 / IC-91 to add, and the entry HF-14 opens to name.
 //
 // ⛔ THE WINDOW IS TALL ON PURPOSE. A row is as tall as its tiers make it
@@ -155,7 +155,7 @@ async function openApp(browser) {
   //
   // ⭐ SO THE READER DOES WHAT THE SPECIFICATION SAYS A READER DOES. FR-085
   // ends 「全文を見たい者はパネルを広げる（`FR-052`）」 and HF-15 of table T-051
-  // repeats it for the grab strip (利用者の裁定 2026-09-02): 「幅が足りないとき
+  // repeats it for the grab strip: 「幅が足りないとき
   // は、読む人がパネルを広げる（`FR-052`）」. FR-052 widens the panel by a drag
   // on U-24 `Panel Divider`, and that is the whole of what happens below --
   // a real pointer on the real band, no member added to the product, no

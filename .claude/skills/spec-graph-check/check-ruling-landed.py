@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Check 43 -- a ruling the book calls applied whose landing nothing shows.
 
-⭐⭐ THE RULE CHANGED WITH CR-375 (2026-09-13, the user's ruling). The
-specification now holds the RULE and its reason, never the user's words:
-attributions, verbatim quotes and overturned history were removed from
-docs/spec, so a 適用済 row can no longer be proven by finding its 逐語 there.
+⭐⭐ WHAT PROVES A LANDING. The specification holds the RULE and its
+reason, never the user's words: it carries no attributions, verbatim quotes
+or overturned history, so a 適用済 row cannot be proven by finding its 逐語
+there.
 ⇒ A 適用済 row is proven by what its 着地先 NAMES: at least one ID that is
 defined in docs/spec (a requirement UID, a table row, a table or figure
 caption, or a JSON "id"), or at least one file that exists. The 逐語 stays in
@@ -13,13 +13,11 @@ file (`JDG-02`「本書 ＋ 検査 43」) still falls back to the verbatim searc
 described below. ⛔ A cell whose only IDs are retired (e.g. `S-93` alone)
 proves nothing and stays red.
 
-⛔ WHY THIS EXISTS. The user's instruction of 2026-09-08, verbatim:
-「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」 -- the
-same question was put to them twice, and more than twice. The cause is not
-forgetfulness: it is that a ruling had no single place to live. It was
+⛔ WHY THIS EXISTS. A ruling with no single place to live is asked for again
+and again. The cause of a repeated question is not forgetfulness: a ruling
 recorded in `pending-decisions.md`, or in a `defects.md` cell, or in a change
-request, or nowhere at all, and nothing could say out loud "this is already
-decided".
+request, or nowhere at all, leaves nothing that can say out loud "this is
+already decided".
 
 ⭐ `docs/development-records/rulings.md` is that single place, written the same
 day. ⚠️⚠️ A book that is merely ASKED FOR is a book that decays -- this
@@ -72,7 +70,7 @@ measured reasons, not taste:
   1. THE BOOK EMPHASISES AND THE MANUSCRIPT DOES NOT, or the other way. This
      tree writes `**bold**` around most of its prose and the same sentence
      appears both ways.
-  2. THE MANUSCRIPT WRAPS. ⚠️ MEASURED in the round of 2026-09-08: of eleven
+  2. THE MANUSCRIPT WRAPS. ⚠️ MEASURED: of eleven
      fabricated citations hunted in `src/`, FOUR were invisible to `grep`
      because the sentence was broken across two lines. Striking newlines is
      what makes those four findable.
@@ -85,7 +83,7 @@ clause that dropped the half saying where the number lives).
 
 ⭐ THE HELD LINES, and why ② is not simply zero-or-red. A ruling can land
 CORRECTLY and still leave no verbatim anywhere, because the user did not speak
-a sentence a document could carry. ⚠️ MEASURED 2026-09-09, both cases in the
+a sentence a document could carry. ⚠️ Both cases are in the
 book already:
 
   - `JDG-08` 「A：場所を常に空ける（体が書いたもの）」 -- the user chose an

@@ -93,7 +93,7 @@ is a person's judgement and belongs in a change request.
 
 ⛔ IT IS NOT A SEMANTIC DUPLICATE DETECTOR. A rule paraphrased into different
 code is invisible here, exactly as check 11 is blind to a paraphrased
-sentence. Ten groups read by hand on 2026-09-11 (chosen at random from the
+sentence. Ten groups read by hand (chosen at random from the
 460, not from the head) found 6 that name one expression genuinely written
 twice -- among them an inline `{ readonly x: number; readonly y: number }`
 standing in 19 places while a `Point` type exists. The other 4 were a shared
@@ -143,7 +143,7 @@ REL_BASELINE = '.claude/skills/spec-graph-check/repeated-expressions-baseline.tx
 # one against the other's number would fail or pass for no reason. The gate
 # therefore runs at THIS floor and `--floor` turns the gating off (see
 # main()). 20 is the gated floor because a body read ten random groups at
-# each and found 9 of 10 real at 20 against 6 of 10 at 10 (2026-09-11).
+# each and found 9 of 10 real at 20 against 6 of 10 at 10.
 FLOOR = 20
 CURVE_FLOORS = (6, 8, 10, 12, 14, 16, 20, 24, 30, 40)
 SHOWN = 12

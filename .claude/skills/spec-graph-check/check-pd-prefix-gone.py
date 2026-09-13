@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 """Check 51 -- the `PD-` prefix, followed by a number, is gone.
 
-⛔ WHY THIS EXISTS. Until CR-371 one spelling numbered two things: `PD-1` was a
-row of 表 T-023a (the press decision order) AND a row of the pending-decision
-ledger, and the two meant nothing like each other. On 2026-09-12 a classifier
-read the specification's rows as closed ledger rows and a body stripped three
-live pointers out of item-hit-area.ts before the collision was found. CR-371
-split the spelling: 表 T-023a -> `PTD-`, the ledger -> `PND-`. This check is
-what stops the third one from being written.
+⛔ WHY THIS EXISTS. One spelling must not number two things. `PD-1` was both
+a row of 表 T-023a (the press decision order) and a row of the
+pending-decision ledger, and a reader who takes one for the other strips live
+pointers out of the code. 表 T-023a now writes `PTD-` and the ledger `PND-`;
+this check stops the old spelling from being written again.
 
 ⭐⭐ IT CANNOT SAY "`PD-` APPEARS 0 TIMES", and that was measured before it was
 written. Three kinds of `PD-` survive the rename on purpose:
@@ -15,8 +13,7 @@ written. Three kinds of `PD-` survive the rename on purpose:
   * the papers of the rename itself -- the inventory of all 1,922 sites, its
     summary, the split plan, the handover prompt and CR-371. Every one of them
     QUOTES the old spelling, because the old spelling is their subject;
-  * previous-project-result/ -- a finished project's record, put out of scope
-    by the user's ruling of 2026-09-12;
+  * previous-project-result/ -- a finished project's record, out of scope;
   * a handful of sentences that name the defect rather than a row.
 
 ⇒ So the exclusions are NAMED, one at a time, each with the reason it is

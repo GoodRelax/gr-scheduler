@@ -16,8 +16,7 @@ can see what changed:
 ⇒ ⛔⛔ THE WITHDRAWN SENTENCE IS THEREFORE IN docs/spec, FOREVER, BY DESIGN.
 Check 42's haystack is the whole manuscript, so every citation of a withdrawn
 rule passes check 42 BY CONSTRUCTION. The hole is not an oversight in check
-42; it is the price of keeping retraction records, which ruling E of
-2026-09-11 deliberately decided to pay.
+42; it is the price of keeping retraction records, a price paid on purpose.
 
 ⭐ WHAT THIS ASKS INSTEAD: "is the seat that quotes this sentence the record
 that WITHDREW it, or someone else speaking in the present tense?"
@@ -30,8 +29,8 @@ docs/spec: 「を撤回」 0 times, 「撤回した」 0 times. This specificati
 a withdrawal ONLY by putting the old rule in brackets and a past-tense verb
 after it. So the harvest anchors there.
 
-⚠️ WHAT IT WILL NOT CATCH, honestly. Of the four instances the 2026-09-11
-round found, `DFC-452` and `DFC-460` are NOT verbatim re-quotations -- the later
+⚠️ WHAT IT WILL NOT CATCH, honestly. Of the four instances that motivated
+this tool, `DFC-452` and `DFC-460` are NOT verbatim re-quotations -- the later
 seat paraphrased the withdrawn rule. No string comparison reaches those. This
 tool addresses the verbatim half of the shape and says so.
 
@@ -59,16 +58,16 @@ WITHDRAWN = re.compile(
     u'[「『]([^「」『』]{%d,})[」』][ 　]*(?:と|を)?[ 　]*'
     u'(?:定めて|書いて|述べて|求めて|言って|呼んで)いた' % SENTENCE)
 
-# ⛔⛔ THE PREDICATE IS NOT "PRESENT TENSE". Measured 2026-09-12: requiring a
+# ⛔⛔ THE PREDICATE IS NOT "PRESENT TENSE". Measured: requiring a
 # Japanese present-tense verb of saying after the echo returns ZERO, because
-# all twelve echoes live in `src/` and `tests/`, and A CODE COMMENT HAS NO
+# all the echoes live in `src/` and `tests/`, and A CODE COMMENT HAS NO
 # PRESENT TENSE. It does not write "the specification says X"; it writes X.
 # ⇒ Quoting the sentence at all is asserting it.
 #
 # ⭐ So the question flips: not "is this asserted?" but "is this MARKED AS
 # HISTORY?" And the marker may be in EITHER LANGUAGE. Both echoes hand-checked
-# on 2026-09-12 were honest records of the very same withdrawal, written in
-# English inside a comment:
+# were honest records of the very same withdrawal, written in English inside
+# a comment:
 #
 #     "...which was true of the row as it stood until 2026-09-08 -- 「X」"
 #     "Until that day AS-1 read 「X」 and the case below asserted..."
@@ -80,7 +79,7 @@ HISTORICAL = re.compile(
     u'まで|かつて|旧|以前は|撤回|'
     u'まで|かつて|旧|以前は|撤回')
 
-# ⛔⛔ SEPARATE, AND CASE-INSENSITIVE. Measured 2026-09-12: this codebase
+# ⛔⛔ SEPARATE, AND CASE-INSENSITIVE. This codebase
 # SHOUTS ITS EMPHASIS IN CAPITALS, and a first-letter character class misses
 # every one of them -- `uf-32-ruler-band.test.ts` says in as many words "THE
 # PER-段 ENUMERATION THIS FILE USED TO QUOTE ... WAS WITHDRAWN ON 2026-09-04"

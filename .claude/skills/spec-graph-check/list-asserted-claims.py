@@ -10,12 +10,11 @@ unless it genuinely cannot run -- a missing `docs/spec`, an unreadable
 retirement set. It prints candidates for a human to work down, and the human
 is the check.
 
-WHY IT EXISTS. Comments in this tree rot where nothing looks. Measured
-2026-09-11: `src/` is 68 files and 76,506 lines, of which 48,736 -- 63.7%, two
-lines in every three -- are comment lines; `tests/` is 227 files and 191,702
-lines, 59,912 of them comment (31.3%). Nothing in the 39-check suite reads a
-single one of them for truth. Meanwhile the specification retires rows: the
-withdrawal set this file reads holds 54 IDs whose seats are burnt on purpose.
+WHY IT EXISTS. Comments in this tree rot where nothing looks. Most lines under
+`src/` and a large share of those under `tests/` are comment lines, and nothing
+in the check suite reads a single one of them for truth. Meanwhile the
+specification retires rows: the withdrawal set this file reads holds IDs whose
+seats are burnt on purpose.
 A comment that says, today, that a withdrawn row governs something is a lie
 sitting in the tree, and it is worse in a test than in `src/` -- a wrong
 comment in `src/` can be caught by pressing the shipped build, a wrong comment
@@ -74,10 +73,10 @@ that would otherwise be flagged, so `is gone` / `retired` / `廃止` push to
 record even though the copula is present.
 
 WHICH IDS ARE LOOKED AT. Tokens of the shape `FR-011` / `S-93` / `IC-46` /
-`T-023d` ANYWHERE in the sentence, ⭐ INCLUDING OUTSIDE BACKTICKS. Measured
-2026-09-11, 177 of 328 live references to withdrawn IDs in this tree sit
-outside backticks, and every existing check -- check 7 among them -- matches
-only `` `X-9` ``, so all 177 are invisible to the suite.
+`T-023d` ANYWHERE in the sentence, ⭐ INCLUDING OUTSIDE BACKTICKS. More than
+half of the live references to withdrawn IDs in this tree sit outside
+backticks, and every existing check -- check 7 among them -- matches only
+`` `X-9` ``, so all of those are invisible to the suite.
 
 ⚠️ A TOKEN WHOSE PREFIX THE SPECIFICATION NEVER USES IS NOT A SPEC ID. The
 prefix universe is computed from the defined-plus-retired ID set itself, so
@@ -105,27 +104,22 @@ two (`DEV-` / `CHN-` for the specification, `DFC-` / `JDG-` for the ledgers),
 so FOREIGN_PREFIXES is empty and none of the three is dropped whole any more.
 A dangling `DEV-9` IS visible now.
 
-⚠️ WHAT DROPPING THEM WHOLE USED TO COST, kept because it is why the split was
-worth doing. Keeping them was measured on 2026-09-11 and cost 8 of the first
-155 hits as pure noise, every one a ruling or ledger row correctly cited --
-so dropping was right while one spelling meant two things. ⛔ The price was
-that a genuinely dangling spec row id went unseen. ⭐ Neither cost is paid now:
-the ledgers' ids are dropped by the ordinary path (a prefix docs/spec never
-defines), and the specification's own are resolved.
+⚠️ WHY THE SPLIT WAS WORTH DOING. While one spelling means two things,
+keeping its tokens fills the listing with rulings and ledger rows correctly
+cited, and dropping them whole leaves a genuinely dangling spec row id unseen.
+⭐ With no prefix standing in two books, neither cost is paid: the ledgers' ids
+are dropped by the ordinary path (a prefix docs/spec never defines), and the
+specification's own are resolved.
 ⛔ Do not "fix" anything here by comparing the NUMBER against the highest
 defined one, which would hide a real typo like `S-999`.
 
 WHERE THE RETIREMENT SET COMES FROM: `retired.py`, imported, with the
 defined-ID set still from `specindex.build(root)`.
-⛔ IT WAS LIFTED WITH `ast` UNTIL 2026-09-11, and the reason is worth keeping
-because it is the reason the module exists. This file first preferred
-`check-spec-id-references.py` and fell back to `md-checks.py`, parsing whichever
-it found and evaluating the literal, because every `check-*.py` and `md-checks.py`
-in this directory runs its checks at import time and would have printed its own
-report and exited on the way to one set. That workaround also had to choose
-between two `RETIRED` sets that disagreed -- 61 entries against a subset of 8
-frozen since 2026-08-25. ⭐ Both problems went away together: the set moved into
-`retired.py`, which holds data and runs nothing, so there is one list and it can
+⛔ Do not reach the set through `check-spec-id-references.py` or
+`md-checks.py`: every `check-*.py` and `md-checks.py` in this directory runs
+its checks at import time and would print its own report and exit on the way
+to one set. ⛔ Nor keep a copy of it: two `RETIRED` sets drift apart.
+`retired.py` holds data and runs nothing, so there is one list and it can
 simply be imported. The summary line still names where the set came from, so a
 later reader never has to guess.
 
@@ -156,11 +150,11 @@ does not read verbs.
 `FR-061 (MUST) asks for the time to be shown beside the saved state` in
 `dom-screen-surface.ts`, a requirement CR-280 retired with the autosave; `their
 hit box is S-93` in `t-023d-double-click-only-rows.test.ts`, contradicting the
-2026-09-10 ruling that the hit area IS the mark; and ``RS-47`, `RS-49` and
-`RS-50` are rows of table T-233`` in `frame-loop.ts` -- three row IDs that
-appear nowhere in `docs/spec`. ⛔ Every one of them sits OUTSIDE the reach of
-check 7, which matches only backticked tokens in the manuscript and reads no
-source file at all.
+closing rule of table T-023d that the hit area IS the mark; and ``RS-47`,
+`RS-49` and `RS-50` are rows of table T-233`` in `frame-loop.ts` -- three row
+IDs that appear nowhere in `docs/spec`. ⛔ Every one of them sits OUTSIDE the
+reach of check 7, which matches only backticked tokens in the manuscript and
+reads no source file at all.
 
 ⛔ THE FOUR FALSE-POSITIVE CLASSES, named rather than tuned away. They were
 found BY the sample, so silently patching the regexes against them would be
@@ -232,16 +226,13 @@ ROW_ID_RE = re.compile(r'^[A-Z]{1,3}-[0-9]+[a-z]?$')
 # exactly the ones a backticked pattern cannot see.
 TOKEN_RE = re.compile(r'(?<![0-9A-Za-z_-])([A-Z]{1,3}-[0-9]{1,4}[a-z]?)(?![0-9A-Za-z_])')
 
-# ⭐ EMPTY SINCE 2026-09-13, AND THAT IS THE RESULT, NOT A TIDY-UP. This set
-# subtracted prefixes from the SPECIFICATION's own prefix set, so that a token
-# carrying one was dropped rather than resolved. It held D, R and PD because
-# docs/spec really did define the low-numbered ids of all three while another
-# book numbered its rows the same way. CR-371 and the CR that abolished D- and
-# R- split all three: the specification now defines DEV, CHN and PTD, the
-# ledgers define DFC, JDG and PND, and no prefix stands in both. Every ledger
-# token is dropped by the ordinary path instead -- measured the day this was
-# emptied: 857 dropped, DFC-* x360 and PND-* x136 among them, all through
-# "a prefix docs/spec never defines".
+# ⭐ EMPTY, AND THAT IS THE RESULT, NOT A TIDY-UP. This set subtracts
+# prefixes from the SPECIFICATION's own prefix set, so that a token carrying
+# one is dropped rather than resolved. It is needed only while docs/spec and
+# another book number their rows under the same prefix. The specification
+# defines DEV, CHN and PTD, the ledgers define DFC, JDG and PND, and no prefix
+# stands in both, so every ledger token is dropped by the ordinary path
+# instead: "a prefix docs/spec never defines".
 # ⛔ Do not refill it to silence a prefix. A prefix that needs silencing is a
 # collision, and a collision belongs in row-id-prefixes.json where the
 # generator can fail on it.
@@ -249,10 +240,10 @@ FOREIGN_PREFIXES = set()
 
 # ⭐ specindex indexes `**表 T-nnn —` and row IDs and UIDs, and NOTHING ELSE --
 # the eleven figures are defined by their own heading and are invisible to it.
-# Measured 2026-09-11: leaving them out made `F-019`, a live figure named by
-# FR-029 as the authority for every icon's shape, the single commonest
-# "undefined" token in this listing at 73 of 155 hits. ⛔ Adding them is a
-# repair of the defined set, not a narrowing of what the tool looks at.
+# Leaving them out makes `F-019`, a live figure named by FR-029 as the
+# authority for every icon's shape, the single commonest "undefined" token in
+# this listing. ⛔ Adding them is a repair of the defined set, not a narrowing
+# of what the tool looks at.
 FIGURE_HEAD_RE = re.compile(r'^\*\*図 (F-[0-9]+[a-z]?)\s*—')
 
 # ⛔ A dot that follows a dot or a space is NOT a sentence end. This manuscript

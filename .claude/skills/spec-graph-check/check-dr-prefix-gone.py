@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 u"""Check 53 -- `D-` and `R-`, followed by a number, name no row any more.
 
-⛔ WHY THIS EXISTS. One spelling numbered THREE unrelated things until
-2026-09-13: 表 T-007's five devices and 表 T-008's nine routes in the
-specification, the 494 defects and 44 rulings of the ledgers, and the local
-tables of twenty-odd review documents. Measured that day, 131 spellings were
-defined in more than one document and `D-3` in thirteen of them. The CR split
-them -- `DEV-` / `CHN-` for the specification, `DFC-` / `JDG-` for the ledgers
--- and this check is what stops the fourth meaning from being written.
+⛔ WHY THIS EXISTS. One spelling must not number unrelated things: 表 T-007's
+devices and 表 T-008's routes in the specification, the defects and rulings of
+the ledgers, and the local tables of review documents. Under one spelling
+`D-3` can mean a different row in each document that defines it. `DEV-` /
+`CHN-` number the specification's rows and `DFC-` / `JDG-` the ledgers', and
+this check is what stops a fourth meaning from being written.
 
 ⭐⭐ THE EXCLUSIONS ARE THE POINT, NOT THE COUNT. Three kinds of `D-n` survive
 on purpose, and every one of them is NAMED below with its reason, printed on
@@ -17,8 +16,8 @@ every green run:
   * `previous-project-result/` and `dist/`, out of scope and generated;
   * ⭐ the documents that number THEIR OWN rows from 1 under a column headed
     `#` or `ID`, or as `### D-n.` headings, or as 「**規則表 R-n**」 captions.
-    The user's ruling of 2026-09-13 left those 309 rows alone -- they are read
-    inside one document and collide with nothing a machine resolves.
+    Those rows are left alone: they are read inside one document and collide
+    with nothing a machine resolves.
 
 ⛔ AND THAT LAST LIST IS WRITTEN OUT ROW BY ROW RATHER THAN COMPUTED. A rule
 like "any document with three or more of them is exempt" would quietly cover
@@ -63,9 +62,6 @@ FILES = [
      u'example of the defect, not a pointer at a row'),
     ('docs/review/handover-2026-09-13.md',
      u"the day's handover, which records what the collision cost"),
-    ('.claude/skills/spec-graph-check/quoted-source-baseline.txt',
-     u'the baseline note explaining that `D-186` sat at exactly the '
-     u'120-character attribution boundary and `DFC-186` needs 122'),
     ('docs/review/pd-sites.jsonl',
      u"CR-371 inventory, which records the test file paths as they stood "
      u"before this rename moved them"),

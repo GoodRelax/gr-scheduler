@@ -77,21 +77,21 @@ def main():
         # and the fourth is the handing over itself.
         # ⭐ handoff.md is the fourth: it is what one round hands the next, and
         # it answers to the whole tree rather than to a folder of units.
-        # ⭐ fixed-defects.md is the fifth, added 2026-09-02: it is the defect
+        # ⭐ fixed-defects.md is the fifth: it is the defect
         # ledger's own second half, holding the rows that reached 実測済 or
         # 取下げ, and it is keyed the same way the ledger is.
-        # ⭐ rulings.md is the sixth, added 2026-09-08 on the user's instruction
-        # 「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」.
+        # ⭐ rulings.md is the sixth. It gives each ruling one place to live, so
+        # the same question is not put to the user again.
         # It is keyed by the user's own words and their date, not by a folder
         # of units -- a ruling can land in a requirement, a table row, a
         # settings value or a rule of the development rules, and often in
         # several at once. ⛔ Check 43 is the one that reads it, and it asks
         # whether each ruling reached docs/spec rather than whether a folder
         # of units is accounted for.
-        # ⭐ changelog.md is the seventh, added 2026-09-11 by cleanup P2-1
-        # (ruling 5). It is the specification's own A.3 Changelog table, moved
-        # here whole out of docs/spec/A-appendix.md because its version
-        # numbering is the specification's and exists nowhere in git. It is
+        # ⭐ changelog.md is the seventh. It is the specification's own A.3
+        # Changelog table, kept here rather than in docs/spec/A-appendix.md, and
+        # kept at all because its version numbering is the specification's and
+        # exists nowhere in git. It is
         # keyed by version and date, not by a folder of units. ⛔ Check 38 is
         # the one that reads it, and it asks whether each version number
         # appears once and above the next.

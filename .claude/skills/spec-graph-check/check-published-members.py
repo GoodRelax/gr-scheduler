@@ -52,14 +52,14 @@ that was paid must leave the file, or the baseline rots into permission.
 ⛔ A baselined gap is still a defect. The line is a debt, not a licence, and
 closing it means deleting the line in the change that writes the member.
 
-⭐ THE REVERSE DIRECTION, added 2026-08-23. Everything above walks the table
+⭐ THE REVERSE DIRECTION. Everything above walks the table
 into `src/`, which means it can only ever confirm names the table already
 holds -- it is blind by construction to the failure the table's own claim
 forbids: a name that leaves a component folder without a row. So a second walk
 collects every name that actually crosses a folder boundary in `src/` and asks
-the table about it. The audit of 2026-08-23 measured that first: 226 names
-cross, and 142 of them are in no row of a table that calls itself the full
-count. Those 142 are held in `crossing-names-baseline.txt` -- one line each,
+the table about it. The names that cross and stand in no row of a table that
+calls itself the full count are held in `crossing-names-baseline.txt`
+-- one line each,
 the shape check 11 uses, with the single shared reason written once in that
 file's header -- so the run starts at "new 0" and a NEW unlisted crossing is
 red the day it appears.
@@ -396,8 +396,7 @@ def main():
     # names callable from outside a component, and the walk above can only ever
     # confirm the names it already holds. This walk asks the other question:
     # which names actually leave a component folder in src/, and is each one in
-    # the table? On 2026-08-23 an audit measured 226 crossing pairs against 100
-    # rows -- 142 of them were nowhere in the table that claims to count them.
+    # the table?
     crossings, opaque = crossings_of_src(units)
     for here, clause, theirs in opaque:
         skips.append('%s takes %s whole as `%s`, so the names it uses cannot '

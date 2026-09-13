@@ -42,7 +42,7 @@ SKILL = os.path.expanduser(r"~\.claude\skills\drawio-uml\scripts")
 # ⛔ The one thing here that cannot be a path relative to anything: an installed
 # executable. ⭐ So it is asked of the environment first and only falls back to
 # where the Windows installer puts it -- a hard-coded absolute path names one
-# machine, and this file is published (user's ruling, 2026-08-24).
+# machine, and this file is published.
 DRAWIO = os.environ.get("DRAWIO_EXE") or shutil.which("draw.io") \
     or os.path.join(os.environ.get("ProgramFiles", ""), "draw.io", "draw.io.exe")
 
@@ -75,8 +75,8 @@ DRAWIO_MARK = (
     " docs/spec/_source/components.json, the single source of truth."
     " Rebuild: python docs/spec/_source/build.py")
 
-# The mark used to be an XML comment just after <root>. Recognised here only so
-# a file written by the older build can be migrated on the next run.
+# An older build wrote the mark as an XML comment just after <root>. Recognised
+# here only so such a file is migrated on the next run.
 LEGACY_DRAWIO_COMMENT = re.compile(r'<!--\s*GENERATED --.*?-->', re.S)
 
 # draw.io reports "nothing to draw" as a 37px-wide stub, and it exits 0 while
@@ -101,13 +101,12 @@ JSON_MARK = [
 def stamp_drawio(path):
     """Put the back-pointer inside a generated .drawio, as an attribute.
 
-    ⛔ It must NOT be an XML comment. Measured 2026-08-18 against draw.io
-    26.x: a comment anywhere in the file -- the prolog OR just inside <root>,
-    which an earlier measurement had found safe -- makes the export produce a
-    37px stub while still exiting 0. Five figures were silently emptied that
-    way, and no check caught it, because nothing held the .svg against
-    anything. An unknown attribute on <mxGraphModel> is ignored by draw.io,
-    survives a round trip, and exports byte for byte like the unmarked file.
+    ⛔ It must NOT be an XML comment. Measured against draw.io 26.x: a comment
+    anywhere in the file -- the prolog OR just inside <root> -- makes the
+    export produce a 37px stub while still exiting 0, and nothing holds the
+    .svg against anything to catch it. An unknown attribute on <mxGraphModel>
+    is ignored by draw.io, survives a round trip, and exports byte for byte
+    like the unmarked file.
 
     A generated file that does not say so gets edited by hand, so the mark has
     to be somewhere -- this is the only place left that costs nothing.

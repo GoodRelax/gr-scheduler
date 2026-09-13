@@ -24,29 +24,18 @@ numbers, and joining them IS the check:
 ⛔ All of them exit 1. Nothing else checks this; `npm run gen:check` is where
 it lands.
 
-⛔⚠️ THE WALK COVERS THREE TREES BECAUSE THE DEFECT SPANS THEM. `PD-` named a
-row of table T-023a AND an un-ruled decision of the ledger, and a register that
-walked docs/spec alone could not see the second one: it would have reported
-green on the very collision that cost the round of 2026-09-12, when a
-classifier built on that spelling stripped three live pointers out of src/.
+⛔⚠️ THE WALK COVERS THREE TREES BECAUSE A COLLISION SPANS THEM. A prefix can
+name a row of the specification AND a row of a ledger, and a register that
+walked docs/spec alone could not see the second one: it would report green on
+the very collision, and a classifier built on that spelling can strip live
+pointers out of src/.
 
 ⭐ A MIRROR IS A TESTED CLAIM. The ledger records work about rows the
 specification defines -- its UF-32 IS the specification's UF-32 -- so
 `mirrored_in` is held against the ids: every id in the mirroring tree must be
-one the owner defines. Measured 2026-09-12, that test separates the eight real
-mirrors (AM IC IV MC MK OP PG UF, not one foreign id between them) from the
-prefixes that mean two different things -- three that day (D, PD and R, with
-494, 208 and 44 ids the specification never defined).
+one the owner defines. That test separates a real mirror, with not one foreign
+id, from a prefix that means two different things.
 
-⭐ TWO SINCE 2026-09-13. CR-371 pulled PD's two meanings apart -- table
-T-023a became `PTD-` (6 rows, owned by the spec) and the pending decisions
-became `PND-` (212 rows, owned by records) -- so the spelling no longer
-stands in two trees and neither half is foreign to the other. ⚠️ The 208
-above was those 212 minus the 4 that stood in both trees, the ledger's four
-lowest-numbered rows, which the press table numbered too; it reproduces from
-the renamed rosters, which is what says the old measurement was read right.
-D and R are held for a later CR (the user's ruling of 2026-09-13) and both
-are still suppressed below.
 
 ⚠️ docs/spec/output/ is NOT walked. It is an untracked StrictDoc export: its
 copies of the manuscripts would double every count and it goes stale between

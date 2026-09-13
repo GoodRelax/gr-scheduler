@@ -40,7 +40,7 @@ GENERATED_MARKERS = ('本書は生成物である', 'GENERATED -- do not edit')
 GENERATED_MARKER_WITHIN_LINES = 15
 
 # ⛔ THE ONE FILE THIS TRAP MUST NOT READ. `dist/index.html` is the shipped
-# deliverable, and it left .gitignore on 2026-09-07 (the user's instruction) so
+# deliverable, and it is tracked, not gitignored, so
 # that a reader can open the product without building it. It INLINES the
 # generated rosters, so their `GENERATED -- do not edit` lands inside its first
 # fifteen lines as data -- the very confusion the note above describes, one
@@ -147,10 +147,8 @@ BACKTICKED_ID = re.compile(r'`(CR-\d+|PND-\d{3,})`')
 
 # ⛔ A path that starts at a drive letter or at a home folder is a path that
 # only exists on one machine, and when it holds a user name it publishes whose
-# machine it was. Measured 2026-08-24, before a merge to a PUBLIC repository:
-# 22 sites across two tracked files carried this machine's user name, and one
-# of them was a file this session had itself recommended committing a round
-# earlier. ⭐ The user's ruling that day: every path is relative from now on.
+# machine it was -- and this repository is PUBLIC. ⭐ So every path is
+# relative.
 #
 # ⚠️ Deliberately narrow, because a noisy gate gets legitimate text "fixed":
 #   - a URL scheme is not a path (http://, file://, and the rest)
@@ -186,8 +184,8 @@ def trap_absolute_path(relative, lines):
 
 
 # ⛔ Personal information, held against a PUBLIC repository. Trap 5 above
-# catches the shape a leak took on 2026-08-24 -- an absolute path -- but a bare
-# user name, an address or a credential would have walked straight past it.
+# catches one shape a leak takes -- an absolute path -- but a bare
+# user name, an address or a credential would walk straight past it.
 #
 # ⭐ THE USER NAME IS NEVER SPELLED OUT HERE. Writing it down to forbid it
 # would put it in the very file that is published. It is asked of the operating
@@ -271,10 +269,9 @@ def trap_generated_edit(relative, lines, dirty=()):
 
     ⛔ THE TRAP IS "EDITED BY HAND", NOT "IN THE DIFF". A round that edits a
     manuscript and reruns `npm run gen` puts every artifact of that manuscript
-    in the diff, and that is the correct state, not a mistake. Measured
-    2026-09-06, the first round to touch four manuscripts after this trap was
-    made a gate: five artifacts were reported and all five were correct
-    regenerations. ⭐ So it fires only when NOTHING the artifact names as its
+    in the diff, and that is the correct state, not a mistake: firing on it
+    reports correct regenerations as hand edits. ⭐ So it
+    fires only when NOTHING the artifact names as its
     manuscript is dirty in the same diff -- which is the shape of the mistake
     it was written for, someone typing into the artifact itself.
     ⚠️ Whether the artifact MATCHES its manuscript is not a question a
@@ -293,8 +290,8 @@ def trap_generated_edit(relative, lines, dirty=()):
             return []
         # ⚠️ A TREE CAN BE THE MANUSCRIPT. tbl-row-id-prefixes.md declares that
         # it walks `docs/development-records` and counts its rows, so a new
-        # ledger row regenerates it with no named file dirty. Measured
-        # 2026-09-13: adding one pending decision fired this trap on a correct
+        # ledger row regenerates it with no named file dirty: without this,
+        # adding one pending decision fires this trap on a correct
         # `npm run gen`. A directory counts only when written in backticks.
         parts = other.split('/')
         for depth in range(1, len(parts)):

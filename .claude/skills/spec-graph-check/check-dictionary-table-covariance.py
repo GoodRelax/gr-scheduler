@@ -58,7 +58,7 @@ catches everything a single hand-picked column would and generally more.
 
 ⚠️ NOT A CLAIM THAT THE WORDS ARE TRUE -- exactly as the precedent's own
 header says of itself (see its lines under "WHAT docs/spec DOES AND DOES NOT
-SAY"). While this check was being written (2026-09-05) every one of the 12
+SAY"). While this check was being written, every one of the 12
 groups was printed row by row beside its table's cells and read; none showed
 a DFC-166-shaped contradiction (a full sample is in the commit that added this
 file). Recording that reading as a fingerprint does not certify the 323 pairs

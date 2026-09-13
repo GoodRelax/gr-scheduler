@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """check 46 -- every sentence ends a line.
 
-THE RULE (the user's ruling, 2026-09-12)
+THE RULE
 
     Inside a table row, a sentence break is written `<br>`.
     Everywhere else it is written as a hard break: the line ends there.

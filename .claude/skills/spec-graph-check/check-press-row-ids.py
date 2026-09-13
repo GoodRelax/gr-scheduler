@@ -3,7 +3,7 @@
 
 ⛔ WHY THIS EXISTS. The press table's rows ARE the values of a TypeScript
 type: `export type PressRow = 'PTD-1' | ... | 'PTD-5'` is a hand-written copy of
-`表 T-023a` of docs/spec/01-04-requirements.md. Measured 2026-09-13:
+`表 T-023a` of docs/spec/01-04-requirements.md. Measured:
 
     grep -rn PressRow tools/ .claude/  ->  0 hits
 
@@ -14,19 +14,17 @@ shipped build cannot reveal a drift either. That is the same condition 6-3 of
 the cleanup names for a comment: it rots and nobody notices. Here it is a
 TYPE that rots.
 
-⭐⭐ AND IT MATTERED. CR-371 abolished the `PD-` prefix, because the
-specification's press rows and the ledger's pending decisions both spelled
-themselves `PD-n` and meant unrelated things. On 2026-09-12 a classifier read
-the specification's rows as closed ledger rows and a body stripped three live
-pointers out of item-hit-area.ts before the collision was found. The rename
-(表 T-023a -> `PTD-`) had to move the manuscript, the type, the tests and the
-generated rosters together, and this check is what made "together" mechanical
-rather than remembered.
+⭐⭐ AND IT MATTERS. One spelling for two unrelated things -- the
+specification's press rows and the ledger's pending decisions, before CR-371
+split them -- lets a classifier read live rows as closed ledger rows and strip
+live pointers out of src/. The rename (表 T-023a -> `PTD-`) had to move the
+manuscript, the type, the tests and the generated rosters together, and this
+check is what makes "together" mechanical rather than remembered.
 
 ⛔ IT WAS DELIBERATELY INSTALLED BEFORE THE RENAME, AND GREEN. A check added
 afterwards would have let one rename through unmeasured -- the check would
-have been born guarding something already broken. ⭐ MEASURED 2026-09-13,
-after wave 1 had landed and both sides read `PTD-`: putting ONE member of the
+have been born guarding something already broken. ⭐ MEASURED with both sides
+reading `PTD-`: putting ONE member of the
 union back to `PD-2` turns this check red and names both halves of the drift
 (「in 表 T-023a and NOT in `PressRow`: PTD-2」 / 「in `PressRow` and NOT in
 表 T-023a: PD-2」). That is the whole of what it is for, and it is the one

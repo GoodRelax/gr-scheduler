@@ -3634,11 +3634,10 @@ NO_RECURRENCE = 9
 def day_of(value):
     """The day a stored date spells, or `None` when it does not spell one.
 
-    ⛔ PARSED, NEVER PATTERN MATCHED. The reader here used to be an unanchored
-    regex over the first ten characters, so "2027-13-45T00:00:00",
-    "2027-02-30T00:00:00" and "2027-05-04 NOT A DAY AT ALL" all read as days
-    and shipped. A month of 13 and a February of 30 are only caught by the
-    calendar arithmetic a real parse does.
+    ⛔ PARSED, NEVER PATTERN MATCHED. An unanchored regex over the first ten
+    characters reads "2027-13-45T00:00:00", "2027-02-30T00:00:00" and
+    "2027-05-04 NOT A DAY AT ALL" as days. A month of 13 and a February of 30
+    are only caught by the calendar arithmetic a real parse does.
 
     ⚠️ Not `date.fromisoformat` alone either: from Python 3.11 that also
     accepts "20270504" and a whole timestamp, so the shape is settled first

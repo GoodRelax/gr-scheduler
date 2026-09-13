@@ -3,11 +3,10 @@
 
 ⛔⛔ NOT A GATE. Measure its precision before anyone adds it to check.sh.
 
-⭐ WHY THIS EXISTS. The cleanup round of 2026-09-11 found five false
-completeness claims and four false prose tallies (`DFC-457`, `DFC-461`, `DFC-463`,
-`DFC-471`, `DFC-475` among them). Every one of them is the same accident: a
-sentence states how many of something there are, the table underneath it
-gains or loses a row, and NOTHING CONNECTS THE TWO.
+⭐ WHY THIS EXISTS. A false completeness claim or a false prose tally
+(`DFC-457`, `DFC-461`, `DFC-463`, `DFC-471`, `DFC-475` among them) is always
+the same accident: a sentence states how many of something there are, the
+table underneath it gains or loses a row, and NOTHING CONNECTS THE TWO.
 
 ⚠️ THE OBVIOUS PREDICATE IS THE WRONG ONE, and measuring said so. Searching
 docs/spec for 「全数」「すべて」「だけである」 returns 316 places; narrowing to
@@ -90,7 +89,7 @@ POINTER = re.compile(
     DEST + u'[^。｜]{0,24}?(?:が持つ|に従う|に示す|が挙げる|'
            u'が定める|の別枠|が全数|にある|が並べる)'
     # ⚠️ 「全数は `FR-009`」 and 「対象の全数は `MG-12`」 hand the count over
-    # with no verb at all. Measured 2026-09-12: the verbless form is common
+    # with no verb at all. Measured: the verbless form is common
     # enough that requiring a verb leaves pointer-form claims in the list.
     u'|全数は[^。｜]{0,12}?' + DEST)
 
@@ -133,8 +132,8 @@ def scan(index, books):
                     pointers.append((path, n, piece, numbers, tables))
                     continue
                 # ⭐ Both a number and a table: the row count is recoverable.
-                # ⛔ UNLESS THE SUBJECT IS 「本表」 OR 「同表」. Measured
-                # 2026-09-12: 「本表の 3 行が、表 T-021 の `PM-4` が成立する
+                # ⛔ UNLESS THE SUBJECT IS 「本表」 OR 「同表」. Measured:
+                # 「本表の 3 行が、表 T-021 の `PM-4` が成立する
                 # 条件の全数である」 counts the CONTAINING table and merely
                 # mentions T-021, so comparing 3 against T-021's five rows
                 # invents a mismatch. The sentence still belongs in the list --

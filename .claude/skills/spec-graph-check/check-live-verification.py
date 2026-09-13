@@ -3,12 +3,10 @@
 
     python .claude/skills/spec-graph-check/check-live-verification.py
 
-WHY THIS EXISTS, MEASURED ON 2026-08-29. The user asked why defects need more
-than one session. The ledger answered: of 70 rows they had reported, 31 closed
-in one day and 39 did not -- and of 28 rows standing at `テスト完了`, only 6
-carried any evidence that the application had been opened and looked at. One of
-them (DFC-69) had been reported to the user as finished on green tests alone and
-was not fixed at all; the user found it in a screenshot.
+WHY THIS EXISTS. A defect reported as finished on green tests alone can be
+not fixed at all. ⚠️ MEASURED on the ledger on 2026-08-29: of 28 rows then
+standing at the finished state, only 6 carried any evidence that the
+application had been opened and looked at.
 
 ⛔ THE LEDGER ALREADY SAID SO AND COULD NOT KEEP ITS WORD. Its own preamble
 reads 「実装済」は試験が緑という意味であって、実物で動いた証拠ではない ... だから
@@ -17,14 +15,12 @@ second half in, so the distinction lived in prose and nowhere a tool could read.
 This check exists because rule 04's lesson only holds when a machine holds it:
 a principle carried in prose was skipped in every round it applied to.
 
-⭐ THE NAMES CHANGED ON 2026-09-01 AND THE MEANING DID NOT. The user replaced
-the ten ledger states with eight, because `テスト完了` was carrying two claims at
-once -- "the automated tests are green" and "somebody opened the shipped build
-and measured it". Those are now two states: `実測待ち` is green tests with the
-look still owed, and `実測済` is the look taken. So this check reads `実測済`
-where it read `テスト完了`, and the debt it counts is a row standing at `実測済`
-with nothing in 実物確認. ⛔ THE RULE IS UNCHANGED AND UNWEAKENED: no row may
-claim it was measured without a measurement.
+⭐ TWO STATES, BECAUSE ONE STATE CANNOT CARRY TWO CLAIMS. "The automated
+tests are green" and "somebody opened the shipped build and measured it" are
+separate: `実測待ち` is green tests with the look still owed, and `実測済` is
+the look taken. So the debt this check counts is a row standing at `実測済`
+with nothing in 実物確認. ⛔ No row may claim it was measured without a
+measurement.
 
 WHAT IT DOES:
 
@@ -34,7 +30,7 @@ WHAT IT DOES:
   - FAILS on a row that claims a verification date while standing at a status
     that cannot have one (未検討 / 裁定待ち / 仕様待ち / 実装待ち), which is a
     contradiction rather than a debt. ⭐ `実装待ち` is on that list because the
-    2026-09-01 states define it as 「仕様書に在る。まだコードに無い」 -- there is
+    ledger states define it as 「仕様書に在る。まだコードに無い」 -- there is
     nothing built for anyone to have looked at.
   - prints how many rows stand at `実測待ち`, which is the queue of rows that
     owe a look. ⚠️ That number is advisory and is not held against a baseline:
@@ -56,9 +52,8 @@ LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'live-verification-baseline.txt')
 REL_LEDGER = 'docs/development-records/defects.md'
 
-# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
-# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
-# `fixed-defects.md`.
+# The ledger is TWO FILES: a row that reaches 実測済 or 取下げ is moved word
+# for word into `fixed-defects.md`.
 #
 # THIS CHECK READS BOTH, AND THE HARVESTED FILE IS THE ONE IT IS ABOUT. Every
 # row it counts -- a finished row that nobody opened the app to look at -- goes

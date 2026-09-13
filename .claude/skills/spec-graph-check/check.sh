@@ -2,44 +2,18 @@
 # All 51 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
-# index, which prints before any check runs). It said 28 until 2026-09-05,
-# when checks 37 and 38 were added and the number was recounted, and 35 later
-# the same day when check 39 was added -- it had been wrong for several
-# additions before that. To recount:
+# index, which prints before any check runs). ⛔ Recount it in the same change
+# that adds a check, and BEFORE the heading goes in: a check added without a
+# recount leaves this line wrong for every later reader. To recount:
 #
 #   grep -o '^echo "=====[^"]*' check.sh
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# ⭐ Recounted 2026-09-06 when checks 40 and 41 were added: 36 -> 38.
-# ⭐ Recounted 2026-09-09 when check 43 was added: the heading still said 38
-# and the ranges added to 39 -- check 42 went in without recounting, which is
-# the failure this note keeps happening to. 39 -> 40.
-# ⭐ Recounted 2026-09-11 when check 44 was added: 40 -> 41. The ranges are
-# 1 + 4 + 7 + 4 + 25, and 40 was right before this one went in.
-# ⭐ Recounted 2026-09-11 again when check 45 was added: 41 -> 42.
-# ⭐ Recounted 2026-09-12 while the tool inventory was being written: 42 -> 45.
-# Checks 46 and 47 went in without recounting -- the same failure this note
-# keeps happening to -- and check 48 had no heading at all: md-checks.py
-# reported it while the heading still read "5-10, 15". The heading now names
-# it, which is what makes it countable. The ranges are 1 + 4 + 8 + 4 + 28.
-# ⭐ Recounted 2026-09-12 when check 49 was added: 45 -> 46. The ranges are
-# 1 + 4 + 8 + 4 + 29. ⚠️ Counted BEFORE the heading went in this time, which
-# is the order the failures above kept getting wrong. 46, 47 and 48 are still
-# the last three with no entry in the index below; 49 is not one either.
-# ⭐ Recounted 2026-09-13 when check 51 was added: 46 -> 48. ⚠️ TWO, not one:
-# check 50 went in the day before without recounting -- the same failure this
-# note keeps happening to, now six times over. The ranges are
-# 1 + 4 + 8 + 4 + 31. 46, 47, 48, 49, 50 and 51 have no entry in the index
-# below; the index is for the checks a session reads first, and these six are
-# read from their own docstrings.
-# ⭐ Recounted 2026-09-13 again when check 52 was added: 48 -> 49. The ranges
-# are 1 + 4 + 8 + 4 + 32. ⚠️ Counted BEFORE the heading went in, which is the
-# order the failures above kept getting wrong.
-# ⭐ Recounted 2026-09-13 a third time when check 53 was added: 49 -> 50.
-# The ranges are 1 + 4 + 8 + 4 + 33. ⚠️ Counted before the heading went in.
-# ⭐ Recounted 2026-09-13 a fourth time when check 54 was added: 50 -> 51.
-# The ranges are 1 + 4 + 8 + 4 + 34. ⚠️ Counted before the heading went in.
+# The ranges today are 1 + 4 + 8 + 4 + 34.
+#
+# The index below is for the checks a session reads first. Checks 46 to 54 are
+# read from their own docstrings and from docs/development-rules/09-tools.md.
 #
 #   0      The rules themselves. check-rules-index.py keeps the index of
 #          docs/development-rules/ honest -- every rule linked, every number
@@ -60,15 +34,11 @@
 #          the one row that forbids a word outright, compounds included, and
 #          states its own exemption -- a line may hold the word where it names
 #          the ban. The exemption is READ from that rule rather than held in a
-#          baseline, so it cannot go stale. ⛔ Added 2026-09-03: the word had
-#          been counted only by audit-ch5.py, which this script did not run,
-#          so two real uses sat unread for a round -- see check 33
-#   33     audit-ch5.py, the Chapter 5 self-audit. ⛔⛔ IT USED TO LIVE OUTSIDE
-#          THIS SCRIPT and was red from CR-280 to 2026-09-03 without anyone
-#          seeing it: fourteen mismatches, twelve of them absolute numbers
-#          typed beside tables the same file already reads. Rule 04 named it
-#          as something to run separately, and a rule that must be remembered
-#          is a rule that does not run. It is inside now.
+#          baseline, so it cannot go stale
+#   33     audit-ch5.py, the Chapter 5 self-audit : the counts Chapter 5
+#          asserts, read against the tables the same file holds. ⛔ It runs
+#          inside this script because a check that a rule asks people to run
+#          separately is a check that does not run
 #   11     dup-check.py against the known-duplication baseline
 #   30     the generated `export const` of src/ against the list that
 #          names them in docs/development-rules/03-implementation.md
@@ -100,8 +70,8 @@
 #          it came from and how to rebuild it, and every file of _source/ says
 #          which of the three it is. A stale signpost is worse than none
 #   22     check-cr-discipline.py : every change request from CR-175 on
-#          answers standing rules 1, 2 and 8, which is where those rules moved
-#          when the principle alone kept being skipped (68 of 75 skipped 1)
+#          answers standing rules 1, 2 and 8 -- a rule carried only as a
+#          principle is skipped, so the answers are checked
 #   23     check-language-dictionary.py : a manuscript holds its PRINTED prose
 #          as a language dictionary (Chapter 6.2), so adding an edition is a
 #          fill-in. Japanese that is a classification rather than prose is
@@ -111,146 +81,106 @@
 #          session reads it after a stop and starts from a state that is not
 #          true. "Not started" is decided exactly: the file is byte for byte
 #          the stub tools/generate_unit_tree.py writes
-##   25     check-pending-decisions.py : a value implemented before the user
+#   25     check-pending-decisions.py : a value implemented before the user
 #          decided it carries a mark, and the mark and the list agree in both
 #          directions. A class the rule says to wait for may not carry a mark
 #          at all, and a class that cannot be reversed may not be left open
 #          behind a finished wave
-#   27     the generated artifacts this file used to leave to `npm run
-#          gen:check` alone -- the GRS JSON validator, the startup template, the
-#          icon roster, the icon glyphs, the display words, the MSPDI custom
-#          fields, the exchange formats. ⛔ Added 2026-08-23: `gen:check` holds eleven generators
-#          and this file called five, so for every round "ALL GREEN" proved
-#          nothing whatever about six artifacts inside src/. A suite that is
-#          quoted as the word on the tree has to run everything that holds the
-#          tree to its manuscript
+#   27     the generated artifacts `npm run gen:check` holds -- the GRS JSON
+#          validator, the startup template, the icon roster, the icon glyphs,
+#          the display words, the MSPDI custom fields, the exchange formats,
+#          the property items and the row-ID prefix table.
+#          ⛔ A suite quoted as the word on the tree has to run everything that
+#          holds the tree to its manuscript, so none of these is left to
+#          `gen:check` alone
 #   26b    check-published-members.py : every member table T-064 publishes is
 #          exported by its component's public entry, the one way out of the
 #          folder Chapter 5.3 allows. The "b" is deliberate -- audit-ch5.py
-#          already holds table T-064's ROWS against table T-075, and nobody
-#          held a row's MEMBERS against an export, so
-#          ApplyDocumentChange.replaceDocument sat declared and unwritten with
-#          every check green. It reads a name only where the cell IS one and
-#          prints how many pieces it skipped, so it cannot be read as covering
-#          the whole table. Its two known gaps are held in
-#          published-members-baseline.txt (the shape of 11): green when the
-#          gaps found are exactly those, red on a new one and red on a held
-#          line that is no longer a gap. A held gap is a debt, not a permission.
-#          ⭐ It also walks the OTHER way, added 2026-08-23: every name that
-#          actually leaves a component folder in src/ is held against the
-#          table, because a walk that starts at the table can only confirm
-#          names the table already has. 226 names cross and 142 are in no row,
-#          which is the failure the table's own claim says cannot happen; those
-#          142 are held in crossing-names-baseline.txt so the run starts at
-#          new 0 and a NEW unlisted crossing is red the day it appears
-#   38     check-changelog-versions.py : the A.3 Changelog table in
+#          already holds table T-064's ROWS against table T-075, and nothing
+#          else holds a row's MEMBERS against an export. It reads a name only
+#          where the cell IS one and prints how many pieces it skipped, so it
+#          cannot be read as covering the whole table. Known gaps are held in
+#          published-members-baseline.txt: green when the gaps found are
+#          exactly those, red on a new one and red on a held line that is no
+#          longer a gap. A held gap is a debt, not a permission.
+#          ⭐ It also walks the OTHER way: every name that leaves a component
+#          folder in src/ is held against the table, because a walk that
+#          starts at the table can only confirm names the table already has.
+#          Unlisted crossings are held in crossing-names-baseline.txt, so a NEW
+#          unlisted crossing is red the day it appears
+#   38     check-changelog-versions.py : the changelog table in
 #          docs/development-records/changelog.md names each version number
-#          once. ⭐ It sat in docs/spec/A-appendix.md until 2026-09-11,
-#          when cleanup P2-1 moved the whole table out of the manuscript. DFC-246 found
-#          two rows both claiming 1.33 -- CR-348 renamed the stray one, so
-#          this holds the count at zero rather than a baseline of known debt.
-#          Ordering (DFC-246 also found a descending stretch after an ascending
-#          one) is a separate claim and not checked here
+#          once. Ordering is a separate claim and not checked here
 #   37     check-dictionary-table-covariance.py : the 12 groups of
 #          display-words.json keyed by a table row id (every one but
 #          `reasons`, table T-233, which tests/contract/
 #          t-233-reason-words-tell-the-row.contract.test.ts already guards)
-#          are fingerprinted against that row's cells, the same latch as that
-#          precedent widened to a whole row instead of one named column.
-#          DFC-145: nothing but T-233 had this, so a table cell could be
-#          rewritten out from under its display word -- the exact shape of
-#          DFC-166 -- on any of the other 323 pairings and every check here
-#          would stay green. Held against dictionary-table-pairing.txt, a
-#          fingerprint snapshot and not a debt count: FAIL means either side
-#          moved and nobody re-read the pair, not that a number rose
-#   39     check-must-clause-coverage.py : DFC-254 measured that moving seven
-#          MUST/MUST NOT clauses in docs/spec/ rang zero tests, the same day
-#          DFC-257 and DFC-260 showed the opposite for five other clauses -- the
-#          cover is mottled, not absent, and nothing before this counted
-#          which was which. Counts every `（MUST）` / `（MUST NOT）` marker in
-#          the nine manuscript files (the same set check 37 reads), and holds
-#          a clause verbatim-tied only if a trailing slice of its own text
-#          (>=28 characters, ending at the marker) is quoted somewhere under
-#          tests/, WITH THAT FILE'S COMMENT LINES STRUCK OUT -- measured
-#          2026-09-11, 367 of the 718 clauses this check used to call held
-#          (51.1%) were held by nothing but a comment, and a comment cannot
-#          go red when the clause it quotes is rewritten. Held against
-#          must-clause-coverage-baseline.txt: the UNHELD count (1,350 of
-#          1,701 on 2026-09-11). ⛔ IT IS A BOLT, NOT A DEBT (the user's
-#          ruling, 2026-09-11): it fails the round that writes a NEW bare
-#          MUST, and ⛔ no round may write a test whose purpose is to lower
-#          the standing count
-#   44     ⛔⛔ THE FIRST CHECK IN THIS SUITE THAT READS src/ AND tests/ AT
-#          ALL. Every check above it reads only docs/, which is how a
-#          requirement id could be withdrawn from the manuscript and go on
-#          being cited by the code for months with every gate green.
-#          check-spec-id-references.py faults a reference from src/ or tests/
-#          to an id the specification RETIRED (a burnt seat) or never
-#          defined. ⚠️ It matches ids OUTSIDE backticks too: measured
-#          2026-09-11, 263 of the 445 references it finds carry no code span,
-#          and every reader in this suite before it required one --
-#          specindex.py's REF_TOKEN does -- so those references were
-#          invisible rather than absent
+#          are fingerprinted against that row's cells, so a table cell cannot
+#          be rewritten out from under its display word. Held against
+#          dictionary-table-pairing.txt, a fingerprint snapshot and not a debt
+#          count: FAIL means either side moved and nobody re-read the pair,
+#          not that a number rose
+#   39     check-must-clause-coverage.py : counts every `（MUST）` /
+#          `（MUST NOT）` marker in the nine manuscript files (the same set
+#          check 37 reads), and holds a clause verbatim-tied only if a trailing
+#          slice of its own text (>=28 characters, ending at the marker) is
+#          quoted somewhere under tests/, WITH THAT FILE'S COMMENT LINES STRUCK
+#          OUT -- a comment cannot go red when the clause it quotes is
+#          rewritten. Held against must-clause-coverage-baseline.txt, the
+#          unheld count. ⛔ IT IS A BOLT, NOT A DEBT: it fails the round that
+#          writes a NEW bare MUST, and no round may write a test whose purpose
+#          is to lower the standing count
+#   44     check-spec-id-references.py : the first check that reads src/ and
+#          tests/ at all. It faults a reference from them to an id the
+#          specification RETIRED (a burnt seat) or never defined -- every
+#          check above it reads only docs/, so a withdrawn id could go on being
+#          cited by the code with every gate green. ⚠️ It matches ids OUTSIDE
+#          backticks too, because most references in code carry no code span
 #   45     check-repeated-expressions.py : one expression, normalised, written
-#          in two or more places in src/. ⛔ GATED AT A TOKEN FLOOR OF 20 AND
-#          NOT AT THE FLOOR IT WAS BUILT FOR, because a body read ten random
-#          groups at each on 2026-09-11 and found 9 of 10 real at 20 against
-#          6 of 10 at 10 -- a gate wrong four times in ten teaches people to
-#          ignore a red gate. ⚠️ So it does NOT see the case it was built for:
-#          the FR-093 width estimate is 10 tokens standing in four places.
-#          `--floor 10` prints that band and deliberately does not gate, since
-#          a count at one floor says nothing about another. tests/ is measured
-#          on every run and never counted -- 1,519 groups at floor 20 -- because
-#          a case that states its own arrangement is right to repeat itself
+#          in two or more places in src/. ⛔ Gated at a token floor of 20, not
+#          10: read by hand, far more of the groups are real at 20, and a gate
+#          that is often wrong teaches people to ignore red. ⚠️ So it does not
+#          see a short expression repeated in a few places; `--floor 10` prints
+#          that band and does not gate. tests/ is measured on every run and
+#          never counted, because a case that states its own arrangement is
+#          right to repeat itself
 #   40     check-ruled-elsewhere.py : a defects.md row still reading as
 #          un-ruled -- ステータス at 未検討 / 裁定待ち / 仕様待ち, or its
 #          対応方針・決定仕様 cell holding 未検討 / 裁定待ち / 利用者の裁定が
-#          要る / 裁定を待つ / 未定 / 仕様に行が無い -- while a `PD-nnn` the
-#          same row NAMES stands at 裁定済 in pending-decisions.md. ⛔ Check 31
-#          is intra-row and check 25 reads the marks in src/; NOTHING read the
-#          two books together, and the same question lands in both. ⚠️
-#          Measured 2026-09-06: four items were handed out as unexamined and
-#          re-worked when they had already been ruled -- DFC-270 for thirteen
-#          days, against a PND-178 that named the very test that had to fall.
-#          Held against ruled-elsewhere-baseline.txt (7) the way check 31 is.
+#          要る / 裁定を待つ / 未定 / 仕様に行が無い -- while a `PND-nnn` the
+#          same row NAMES stands at 裁定済 in pending-decisions.md. Check 31
+#          is intra-row and check 25 reads the marks in src/; this one reads
+#          the two books together. Held against ruled-elsewhere-baseline.txt.
 #          ⚠️ It prints, without gating, the rows whose only link to a ruling
 #          is a change request: a CR routinely cites the row that RAISED it,
-#          so gating there is a 38-row noise floor on a 7-row signal
+#          so gating there would be mostly noise
 #   42     check-quoted-source.py : a 「…」 quotation inside a comment of
 #          src/ or tests/ that NO manuscript under docs/spec contains -- a
-#          paraphrase hardened into a citation. ⛔ `DFC-339`: one such sentence
-#          was quoted as a row of 表 T-051 and kept `DFC-318` open for a round.
-#          Held against quoted-source-baseline.txt (283); `--list` prints them
+#          paraphrase hardened into a citation, which reads as a rule the
+#          specification does not have. Held against
+#          quoted-source-baseline.txt; `--list` prints them
 #   43     check-ruling-landed.py : a row of
-#          docs/development-records/rulings.md that says 適用済 while NEITHER
-#          docs/spec NOR the place its own 着地先 names holds its 逐語, a row
-#          closing with an empty 着地先, and the count of rulings still
-#          未着地. ⛔ The user's instruction of 2026-09-08, verbatim:
-#          「これまでも同じ裁定を繰り返している。 何とかしてくれ。非効率すぎ」
-#          -- the same question was put to them more than twice, because a
-#          ruling had no single place to live and nothing could say out loud
-#          "this is already decided". rulings.md is that place; this is what
-#          stops it decaying into a book nobody updates. ⭐ Since CR-375 the
-#          specification holds rules, not the user's words, so a 適用済 row is
-#          proven by its 着地先 naming an ID defined in docs/spec or a file
-#          that exists; only a cell naming neither is searched for its 逐語.
+#          docs/development-records/rulings.md that says 適用済 while its
+#          着地先 names no ID defined in docs/spec and no file that exists (a
+#          cell naming neither is searched for its 逐語), a row closing with an
+#          empty 着地先, and the count of rulings still 未着地. rulings.md is
+#          the one place a ruling lives, so a question already decided is not
+#          asked again; this stops it decaying into a book nobody updates.
 #          Held against ruling-landed-baseline.txt: line 1 is the 未着地
 #          count, and each `HELD JDG-nn` line exempts one 適用済 row.
 #          ⭐ Held in BOTH directions like check 26b: a HELD row that stops
 #          being a miss is red too
 #   41     tools/precheck.py : the six traps that otherwise cost a round trip
 #          -- a bare change-request number, personal information or an
-#          absolute path, a hand edit to a generated file, and the rest. ⛔ It
-#          existed as `npm run precheck` and SAT IN NO GATE: nothing called
-#          it, and there is no git hook, so it ran only when somebody
-#          remembered -- which rule 04's own measurement says means it did not
+#          absolute path, a hand edit to a generated file, and the rest. It
+#          goes first because a guard people must remember to run does not
 #          run. It reads what git reports as changed, so on a clean tree it
-#          passes having looked at nothing; that is the point, it is the
-#          cheapest guard and it goes first
+#          passes having looked at nothing; that is correct, it is the
+#          cheapest guard
 #
-# Green does NOT prove the specification is sound: every Critical defect of
-# the last eight rounds appeared while all of these were green. They stop
-# broken references, not broken meaning.
+# Green does NOT prove the specification is sound: defects of meaning have
+# appeared while all of these were green. They stop broken references, not
+# broken meaning.
 #
 # Usage:  bash .claude/skills/spec-graph-check/check.sh
 set -u
@@ -284,20 +214,18 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-rules-index.py" || fail=1
 
 echo ""
 echo "===== 41  the traps that are cheaper to catch before the edit ====="
-# ⛔ Wired in 2026-09-06. `npm run precheck` had existed for rounds and was in
-# NO gate whatever -- this script never called it and there is no git hook, so
-# it ran only when somebody remembered. Measured green (exit 0) on the tree of
-# that day BEFORE being wired: a gate that is born red teaches people to ignore
-# gates. ⚠️ With no arguments it reads what git reports as changed, so on a
-# clean tree it passes having examined nothing. That is correct: it is the
-# early guard, not the authority. check.sh below stays the authority.
+# ⛔ `npm run precheck` is called here because there is no git hook: a guard
+# that no gate calls runs only when somebody remembers. It was green (exit 0)
+# before it was wired, because a gate that is born red teaches people to
+# ignore gates. ⚠️ With no arguments it reads what git reports as changed, so
+# on a clean tree it passes having examined nothing. That is correct: it is
+# the early guard, not the authority. check.sh below stays the authority.
 PYTHONIOENCODING=utf-8 python tools/precheck.py || fail=1
 
 echo ""
 echo "===== 1-4  StrictDoc export ====="
 # The export writes INTO $SD and never clears it, so a run leaves its own
-# 9MB beside every earlier run's. Measured 2026-08-30: scratch/ had reached
-# 509MB, 435MB of it this one directory. Clearing it first costs nothing --
+# 9MB beside every earlier run's. Clearing it first costs nothing --
 # every check below reads only what this run writes.
 rm -rf "$SD"
 strictdoc export docs/spec --formats=json --output-dir "$SD" \
@@ -398,15 +326,12 @@ echo "===== 20  the generated entity types still match erd.json ====="
 PYTHONIOENCODING=utf-8 python tools/generate_entity_types.py --check || fail=1
 
 echo ""
-# ⛔⛔ SEVEN OF ELEVEN UNTIL 2026-08-30, AND THE FOUR THAT WERE MISSING COST A
-# ROUND. `help-roster.json` had drifted from table T-023d, six contract cases
-# were red because of it, and the handoff read them as a missing feature --
-# `npm run gen:check` had been saying so all along and this suite had not.
-# ⭐ THE RULE THIS RESTORES: every target of `npm run gen:check` is a gate here.
-# ⚠️ Four are still checked in their own sections above -- 16 (settings and the
-# two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types) --
-# so the eleven below plus those five are the sixteen `gen:check` runs.
-echo "===== 27  the eleven other generated artifacts still match their manuscripts ====="
+# ⭐ Every target of `npm run gen:check` is a gate here: a generator whose
+# --check runs only under `gen:check` can drift while this suite stays green.
+# ⚠️ Five are checked in their own sections above -- 16 (settings and the
+# two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
+# -- so the twelve below plus those five are the seventeen `gen:check` runs.
+echo "===== 27  the twelve other generated artifacts still match their manuscripts ====="
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || fail=1
@@ -418,6 +343,7 @@ PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || fail=1
 PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || fail=1
 PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || fail=1
+PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || fail=1
 
 echo ""
 echo "===== 28  the ledger against what has been SEEN in the app ====="
@@ -493,17 +419,15 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-marks.py" || fail=1
 
 echo ""
 echo "===== 49  the published HTML: bold and captions actually arrived ====="
-# ⛔ Wired in 2026-09-12. check-render.py is the ONLY check that opens the page
-# a reader sees; every other one reads the manuscript or the JSON export. It
-# had no caller and could not go red -- it printed `RESULT: FAIL` and returned
-# 0. Measured green on the tree of that day BEFORE being wired: 0 literal `**`
-# across all four documents, 0 missing captions (79/79 + 29/29 tables, 1/1 +
-# 7/7 figures). A gate that is born red teaches people to ignore gates.
+# ⛔ check-render.py is the ONLY check that opens the page a reader sees;
+# every other one reads the manuscript or the JSON export. It was green BEFORE
+# being wired -- 0 literal `**` across all four documents, 0 missing captions
+# -- because a gate that is born red teaches people to ignore gates.
 #
 # ⚠️ This needs an HTML export, which is NOT the JSON export of checks 1-4.
-# ⛔ Folding html into that one was tried and is SLOWER: check 1-4 does
+# ⛔ Do not fold html into that one: it is SLOWER. Check 1-4 does
 # `rm -rf "$SD"` every run, which throws away StrictDoc's cache, so a combined
-# json,html export there is always cold. Measured 2026-09-12, two runs each:
+# json,html export there is always cold. Measured, two runs each:
 # one combined export 9s / 6s, against 6s / 5s for the JSON export plus a
 # separate HTML export into a directory that is NOT wiped and stays warm.
 # $HTMLOUT is therefore kept between runs. It does not grow -- the export
@@ -519,34 +443,32 @@ strictdoc export docs/spec --formats=html --output-dir "$HTMLOUT" \
 PYTHONIOENCODING=utf-8 python "$HERE/check-render.py" scratch/spec-html-probe || fail=1
 
 echo "===== 50  表 T-023a and the PressRow type name the same rows ====="
-# ⛔ Wired in 2026-09-13, BEFORE the rename CR-371 orders, and green on
-# arrival. The press table's rows ARE the values of a TypeScript type, and
-# measured the same day, `grep -rn PressRow tools/ .claude/` returned NOTHING
-# -- the manuscript could be renamed and the code would stay green. These
-# strings never leave the product, so pressing the build cannot show a drift
-# either. ⭐ A check added AFTER the rename would be born guarding
-# something already broken, which is why this one goes in first.
+# ⛔ Green before the rename it guards, not after. The press table's rows ARE
+# the values of a TypeScript type, and before this check `grep -rn PressRow
+# tools/ .claude/` returned NOTHING -- the manuscript could be renamed and the
+# code would stay green. These strings never leave the product, so pressing
+# the build cannot show a drift either. ⭐ A check added AFTER a rename would
+# be born guarding something already broken, which is why this one goes in
+# first.
 PYTHONIOENCODING=utf-8 python "$HERE/check-press-row-ids.py" || fail=1
 
 echo "===== 51  the PD- prefix, followed by a number, is gone ====="
-# ⛔ Wired in 2026-09-13, after CR-371's waves 1 and 2 had moved all 1,768
-# live sites. ⭐ It prints its exclusions ON EVERY RUN, each with the reason
+# ⛔ It prints its exclusions ON EVERY RUN, each with the reason
 # it is excluded, because the thing that would quietly rot here is not the
-# count -- it is an exclusion nobody reads. ⚠️ It caught check 50's own
-# docstring on its first run; that line is now on the list, by name.
+# count -- it is an exclusion nobody reads. ⚠️ Check 50's own docstring is on
+# the list, by name.
 PYTHONIOENCODING=utf-8 python "$HERE/check-pd-prefix-gone.py" || fail=1
 
 echo "===== 52  表 T-007 / T-008 and the row ids the tests hold as values ====="
-# ⛔ Wired in 2026-09-13, BEFORE the CR that abolishes `D-` and `R-`, and
-# green on arrival -- the same reason check 50 went in before 表 T-023a moved.
+# ⛔ Green before the rename it guards, for the same reason as check 50.
 # Two tests transcribe 表 T-008 into a fixture and a third reads the manuscript
 # at run time and matches on the id, so a one-sided rename either reddens them
-# or, worse, leaves `find` returning undefined. ⭐ Measured the day it went in:
-# putting one fixture's id to `CHN-9` turns it red and names both halves.
+# or, worse, leaves `find` returning undefined. ⭐ Measured: putting one
+# fixture's id to `CHN-9` turns it red and names both halves.
 PYTHONIOENCODING=utf-8 python "$HERE/check-device-route-row-ids.py" || fail=1
 
 echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
-# ⛔ Wired in 2026-09-13, after the CR that abolished both. ⭐ It prints its
+# ⛔ In place since the CR that abolished both. ⭐ It prints its
 # exclusions ON EVERY RUN, each with the reason: two trees, six files, the
 # twenty-four LOCAL series a document numbers for itself, and eleven lines.
 # ⛔ The local series are written out one by one rather than computed --
@@ -557,18 +479,17 @@ echo "===== 53  the D- and R- prefixes, followed by a number, are gone ====="
 PYTHONIOENCODING=utf-8 python "$HERE/check-dr-prefix-gone.py" || fail=1
 
 echo "===== 54  docs/spec holds its reasons, not its history ====="
-# ⛔ Wired in 2026-09-13, after CR-375 removed 1,261 attributions, dated
-# quotes and overturned paragraphs from the manuscripts, and green on arrival.
-# It gates the two shapes that measured as unambiguous -- 利用者の裁定 with a
-# date, and a date followed by まで -- with no baseline and no exclusions.
+# ⛔ Green on arrival. It gates the two shapes that measured as unambiguous --
+# 利用者の裁定 with a date, and a date followed by まで -- with no baseline and
+# no exclusions.
 PYTHONIOENCODING=utf-8 python "$HERE/check-spec-holds-no-history.py" || fail=1
 
 
 echo ""
 echo "===== NOT COVERED  what this run did not look at ====="
 # ⛔ Printed on every run, green or red. A suite that names only what it
-# checked gets read as having checked everything, which is how a gate that saw
-# 71.3% of the import edges said "OK" for six rounds (2026-08-23 audit).
+# checked gets read as having checked everything, so a gate that sees only
+# part of the import edges still reads as "OK".
 echo "   docs/spec/_source/build.py writes 11 artifacts -- fig-components and"
 echo "   the four views, each a .drawio and an .svg, plus"
 echo "   docs/review/components/components.md -- and has no --check. It drives"

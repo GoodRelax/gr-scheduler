@@ -47,7 +47,7 @@ construction. Counting lines would either undercount (one line, several
 distinct MUST clauses, counted once) or misreport coverage (one line held
 because SOME clause on it is tested, when the other nine on the same line are
 not -- exactly the "mottled" fact DFC-254/DFC-257 are about). So the unit counted
-here is the MARKER ITSELF: 1,634 occurrences, measured 2026-09-05. This is a
+here is the MARKER ITSELF. This is a
 literal count of the marker text, including any case where the specification
 cites its own earlier requirement's MUST wording a second time elsewhere (the
 non-marker "上の MUST NOT のとおり" style of reference is NOT counted, since it
@@ -67,8 +67,8 @@ present in the manuscript is ALSO found verbatim, in full, inside that corpus
 -- e.g. an 83-character clause is tried at 60 first, and held if that 60-
 character tail is quoted somewhere under tests/, however that test frames the
 rest of its assertion. Below 28 characters a clause counts as NOT held: eyeballing
-every match this check makes at exactly 28 characters (2026-09-05, see the
-commit that added this file) turned up specific wording every time --
+every match this check makes at exactly 28 characters turned up specific
+wording every time --
 `⛔ **その行自身を隠してはならない（MUST NOT）`, `` T-206 の `S-213` とすること
 （MUST） `` and the like -- never a bare generic ending, so 28 was kept as the
 floor rather than raised. ⚠️ This can UNDER-count: a clause whose own
@@ -83,7 +83,7 @@ CORRECT OR EVEN ABOUT THE RIGHT THING -- as `spec-table.ts`'s own convention
 says of itself, only that some file under tests/ carries the clause's own
 words, which is the one fact DFC-254 measured as absent for its seven clauses.
 
-⛔⛔ A BOLT, NOT A DEBT -- the user's ruling, 2026-09-11. The number in
+⛔⛔ A BOLT, NOT A DEBT. The number in
 `must-clause-coverage-baseline.txt` is the UNHELD count, and it has exactly one
 job: to fail the round that writes a NEW MUST / MUST NOT clause with nothing
 under tests/ quoting it, exactly as DFC-254 found for its seven. ⛔ THE STANDING
@@ -93,7 +93,7 @@ behaviour -- this check says so about itself two paragraphs above, where it
 disclaims any knowledge that the test's assertion is correct or even about the
 right thing.
 
-WHY THE RULING WENT THAT WAY, measured 2026-09-10. The 431 settled rows of
+WHY IT IS A BOLT, measured 2026-09-10. The 431 settled rows of
 `fixed-defects.md` each name how the defect was found: `vitest` found 4.9% of
 them, against 74.9% for pressing the shipped build.
 
@@ -104,16 +104,13 @@ subject line -- 408ec98 `Repay the NFR-004 debt, and close undo, redo and
 align` and 73c1986 `Read the four new reasons against their words, and repay
 the debt`.
 
-⚠️ THAT PERCENTAGE NEEDS ITS WINDOW, AND THE HANDOVER GAVE IT WITHOUT ONE.
+⚠️ THAT PERCENTAGE NEEDS ITS WINDOW.
 Measured 2026-09-11 with `git log --numstat --no-merges`, counting a commit as
 idle when it touched no path under `docs/spec` and none under `src/`: 26.8%
 over the last forty commits, but only 8.6% over the whole history (19,457 of
-225,001). The handover said a bare 28.2%; the recent window is what it meant,
-and the lifetime figure is a third of it. ⇒ The habit is RECENT and growing,
-which is the reading that supports the ruling -- but anyone quoting 28.2% as
-this project's lifetime behaviour is quoting a number that is three times too
-large.
-⇒ Repayment was buying the least productive of the six ways this product is
+225,001). ⇒ The habit is RECENT and growing. ⛔ Do not quote the recent
+window as this project's lifetime behaviour.
+⇒ Repayment buys the least productive of the six ways this product is
 observed to find a defect.
 
 ⭐ THE RATCHET STAYS, AND IT IS NOT REPAYMENT. When a round moves the
@@ -145,10 +142,8 @@ REL_BASELINE = '.claude/skills/spec-graph-check/must-clause-coverage-baseline.tx
 # ⭐ The same nine files check-dictionary-table-covariance.py (check 37) reads
 # as "the specification" -- copied rather than imported so this check has no
 # import-time dependency on that module.
-# ⛔⛔ A-appendix.md IS NOT READ, AND THE REASON IS THE ONE HF-14 WAS
-# CORRECTED FOR ON THE SAME DAY (DFC-259): a dated quotation is a RECORD, not
-# a rule. Measured 2026-09-05: every one of its 165 marked clauses sits
-# under A.3 Changelog, where they read 「FR-020 に「〜すること（MUST）」を
+# ⛔⛔ A-appendix.md IS NOT READ, because a dated quotation is a RECORD, not
+# a rule. Its marked clauses read like 「FR-020 に「〜すること（MUST）」を
 # 置いた」 -- a past tense sentence describing a change that was made. A
 # test cannot hold one, and asking for one would ask a test to pin history.
 FILES = (
@@ -168,15 +163,15 @@ FILES = (
 MARKER_RE = re.compile(r'[（(]MUST(?:\s*NOT)?[）)]')
 
 # Suffix lengths tried, longest first; see the module docstring for how these
-# were chosen and what they measured against the real corpus on 2026-09-05.
+# were chosen and what they measured against the real corpus.
 TRY_LENS = (120, 90, 60, 40, 28)
 
 
 # A comment line: `//`, or `*` / `/*` inside a block comment. ⛔ THE LINE'S OWN
 # FIRST NON-SPACE CHARACTERS, not a parse -- a test file that opened a block
 # comment and continued without a leading `*` would keep those lines in the
-# corpus. Measured 2026-09-11: no such run was found while the 367 comment-only
-# holds were being separated, and this is the same rule the cleanup counts
+# corpus. No such run was found while the comment-only holds were being
+# separated, and this is the same rule the cleanup counts
 # comment lines by, so the two numbers can be compared.
 COMMENT_RE = re.compile(r'^\s*(?://|\*|/\*)')
 
@@ -213,11 +208,11 @@ def load_test_corpus():
     with a NUL separator so a match can never straddle two files (source text
     never contains a raw NUL).
 
-    ⛔⛔ COMMENTS DO NOT HOLD A CLAUSE -- the user's ruling, 2026-09-11.
-    Measured the same day, against the corpus as it stood: of the 718 clauses
+    ⛔⛔ COMMENTS DO NOT HOLD A CLAUSE.
+    Measured 2026-09-11, against the corpus as it stood: of the 718 clauses
     this check called held, 367 (51.1%) were held by NOTHING BUT A COMMENT. The
-    test beside them asserts something else, or nothing, and the count read as
-    though the clause were pressed.
+    test beside such a clause asserts something else, or nothing, and a count
+    that includes it reads as though the clause were pressed.
 
     ⭐ WHY THIS IS WORSE THAN AN UNHELD CLAUSE, AND WORSE THAN THE SAME LIE IN
     src/. A wrong comment in src/ can be caught by pressing the shipped build.
@@ -246,19 +241,18 @@ def load_test_corpus():
 
 # ⛔⛔ CHAPTER 1 IS NOT READ EITHER, and for the second half of the same
 # distinction: its clauses rule how the SPECIFICATION is written, not what
-# the product does. Measured 2026-09-05: 43 unheld clauses sat under
-# 「Chapter 1. Foundation」, and they read like 「要求は必ず「〜すること。」
+# the product does. Its clauses under 「Chapter 1. Foundation」 read
+# like 「要求は必ず「〜すること。」
 # で終える（MUST）」 and 「条件は主語より先に書く（MUST）」.
 #
-# ⛔⛔ THE SECOND HALF OF THIS REASON WAS FALSE AND IS WITHDRAWN (2026-09-11).
-# It used to say 「⭐ Checks 5 to 15 already read the manuscript for exactly
-# those, so a test quoting them would be a second place holding one rule」.
-# They do not. Checks 5-10 and 15 read undefined table references, duplicate
+# ⛔⛔ DO NOT ARGUE THAT CHECKS 5 TO 15 ALREADY HOLD THESE CLAUSES, so that a
+# test quoting them would be a second place holding one rule. They do not.
+# Checks 5-10 and 15 read undefined table references, duplicate
 # row ids, nonexistent row/UID references, row-belongs-to-table, prose count
 # against row count, column count and figure seat numbers -- not one of them
 # reads a requirement's wording. Measured 2026-09-11 by grepping every script
-# under .claude/skills/ and tools/ for 「すること。」: the only file that
-# contains it is THIS one, in the sentence above.
+# under .claude/skills/ and tools/ for 「すること。」: no file but this one
+# contains it.
 #
 # ⭐ THE EXCLUSION IS STILL RIGHT, on the first half of the reason alone: these
 # clauses are satisfied or broken by the AUTHOR of the document, never by the
@@ -276,11 +270,11 @@ def skipped_spans(rel, text):
     for where, heading in SKIP_SECTIONS:
         if where != rel:
             continue
-        # ⛔ THE HEADING'S OWN DEPTH, NOT ANY '# '. Measured 2026-09-05:
-        # searching for '# ' matched inside '## ' and the span then ran to the
-        # end of the file, because this manuscript carries exactly one
-        # top-level heading -- which silently skipped 1465 of the 1635
-        # clauses and read as though the debt had collapsed to 146.
+        # ⛔ THE HEADING'S OWN DEPTH, NOT ANY '# '. Searching for '# ' matches
+        # inside '## ', and the span then runs to the end of the file, because
+        # this manuscript carries exactly one top-level heading -- which
+        # silently skips most of the clauses and reads as though the debt had
+        # collapsed.
         opener = chr(10) + '## ' + heading
         at = text.find(opener)
         if at < 0:
@@ -385,8 +379,8 @@ def main():
 
 
 # ⛔ The success path prints a star, and a Windows console defaults to cp932,
-# which cannot encode one. Measured 2026-09-06: the check CRASHED on the very
-# path that says the ground improved, so a body that improved it saw a
+# which cannot encode one. Left alone, the check crashes on the very path
+# that says the ground improved, so a body that improved it sees a
 # traceback instead. Reconfigure the stream rather than asking every caller
 # to remember PYTHONIOENCODING.
 for _stream in (sys.stdout, sys.stderr):

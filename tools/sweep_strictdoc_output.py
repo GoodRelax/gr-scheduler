@@ -3,24 +3,22 @@
 StrictDoc server is running.
 
 WHY THIS EXISTS. `docs/spec/output/` is not ours. It is what the StrictDoc
-launcher writes when it exports the specification, and on 2026-09-11 it
-measured 790 MB across 2,050 files, of which `strictdoc/_cache` alone was
-740 MB. ⛔ NOTHING IN THIS REPOSITORY READS IT. `.gitignore` line 24 excludes
+launcher writes when it exports the specification, and it grows to hundreds of
+megabytes, most of it `strictdoc/_cache`. ⛔ NOTHING IN THIS REPOSITORY READS
+IT. `.gitignore` line 24 excludes
 it, and `check.sh` does its own export into `scratch/spec-check/sd-out`, which
 it clears itself. So the tree is pure residue: every byte of it is a copy of
 something the manuscript already holds, kept at whatever date the launcher was
 last opened.
 
-⛔⛔ IT ACTIVELY CAUSES DEFECTS, AND HAS CAUSED ONE. The residue sits INSIDE
-`docs/spec`, so every `grep -rn ... docs/spec` reads it as though it were the
-manuscript. Measured 2026-09-11: `CM-70` appears ZERO times in the source
-`_assets/tbl-glossary.md` and ONCE in the stale copy under `output/`, whose
-four `.md` files are dated 2026-08-17. A subagent grepped `docs/spec`, found
-the one hit, concluded the glossary row was live, and wrote that false claim
-into `tests/unit/t-027-outside-the-history.test.ts`. ⇒ The tree is not merely
-large. It answers questions about the specification with three-week-old text,
-and it answers them silently, because a grep hit looks the same wherever it
-came from.
+⛔⛔ IT ACTIVELY CAUSES DEFECTS. The residue sits INSIDE `docs/spec`, so every
+`grep -rn ... docs/spec` reads it as though it were the manuscript: a row
+removed from the source `_assets/tbl-glossary.md` still turns up in the stale
+copy under `output/`, and a reader who greps `docs/spec` concludes the row is
+live and can write that false claim into a test. ⇒ The tree is not merely
+large. It answers questions about the specification with old text, and it
+answers them silently, because a grep hit looks the same wherever it came
+from.
 
 ⚠️ ITS SOURCE IS OUTSIDE THIS REPOSITORY, so no change here can stop it being
 written again -- only stop it accumulating. The launcher that writes it is a
@@ -53,10 +51,10 @@ one is enough to refuse:
     its own ancestors are excluded by walking the parent chain from this PID:
     without that, the tool's OWN name -- `sweep_strictdoc_output.py` -- and the
     shell line that launched it both match, and it would refuse every single
-    run. Measured 2026-09-11: three such self-matches, all of them ancestors.
+    run.
 
 ⛔ STANDARD LIBRARY ONLY. `psutil` is not a dependency of this project
-(checked 2026-09-11: `import psutil` raises) and this tool does not add one for
+(`import psutil` raises) and this tool does not add one for
 a janitor that runs at session start. The port test is a `connect_ex`; the
 process list is asked of the operating system's own tool and every failure of
 that call is treated as "cannot tell", never as "no server".
@@ -82,13 +80,12 @@ TARGET_PARTS = ('docs', 'spec', 'output')
 TARGET = os.path.join(ROOT, *TARGET_PARTS)
 
 # ⛔⛔ SPELLED OUT A SECOND TIME, ON PURPOSE, AND NOT DERIVED FROM THE TUPLE
-# ABOVE. Measured 2026-09-11 while proving the guard: the assertion originally
-# compared the resolved path against `os.path.join(*TARGET_PARTS)`, which is
-# the very tuple that BUILT the path -- so pointing TARGET_PARTS at
-# `('docs', 'spec')` sailed straight through and the tool offered to delete the
-# whole manuscript. A guard that reads its own input is not a guard. This
-# literal is the independent witness; ⛔ if the target ever legitimately moves,
-# BOTH must be edited, and that friction is the point.
+# ABOVE. ⛔ Do not compare the resolved path against
+# `os.path.join(*TARGET_PARTS)`: that is the very tuple that BUILT the path, so
+# pointing TARGET_PARTS at `('docs', 'spec')` sails straight through and the
+# tool offers to delete the whole manuscript. A guard that reads its own input
+# is not a guard. This literal is the independent witness; ⛔ if the target
+# ever legitimately moves, BOTH must be edited, and that friction is the point.
 REQUIRED_TAIL = ('docs', 'spec', 'output')
 
 # The launcher's start port and the twenty it may auto-assign upward into.
@@ -128,8 +125,8 @@ def _windows_processes():
 
     ⭐ `ConvertTo-Json` rather than a formatted table: the command lines hold
     quotes, backslashes and spaces, and any column layout would have to be
-    unparsed again. ⛔ `wmic` is NOT used -- measured 2026-09-11, it is gone
-    from this machine."""
+    unparsed again. ⛔ `wmic` is NOT used -- it is not present on every
+    machine."""
     out = subprocess.run(
         ['powershell', '-NoProfile', '-NonInteractive', '-Command',
          'Get-CimInstance Win32_Process | '

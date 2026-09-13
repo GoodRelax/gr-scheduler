@@ -36,10 +36,10 @@ is that the sentence hands its authority to that identifier: 「…の注が自�
 ⚠️ Point 3 is what keeps it quiet. An identifier the ERD or a settings table
 defines occurs many times, so deferring to it is deferring to the manuscripts.
 
-⛔⛔ AND POINT 3, WRITTEN AS "OCCURS ONCE IN TOTAL", EXCLUDED ITS OWN TARGET.
-Measured 2026-09-12 against the pre-fix manuscript: the anchor was found, the
-identifier behind it was found, and the hit was then thrown away because
-`groupDepthThresholdOf` occurs TWICE on that page.
+⛔⛔ AND POINT 3 IS NOT "OCCURS ONCE IN TOTAL": that reading excludes its own
+target. Measured against a manuscript still holding the defect: the anchor was
+found, the identifier behind it was found, and the hit was then thrown away
+because `groupDepthThresholdOf` occurs TWICE on that page.
 
 ⭐ The two occurrences are not an accident -- THE SHAPE GUARANTEES THEM. A
 sentence that defers to a name must first INTRODUCE it and then DEFER to it:

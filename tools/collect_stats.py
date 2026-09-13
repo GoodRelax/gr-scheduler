@@ -2,9 +2,9 @@
 """Append one line of project statistics to
 `docs/development-records/measurements/stats.jsonl`.
 
-WHY THIS EXISTS -- the user's ruling, 2026-09-11: ACCUMULATE FIRST, INTERPRET
-LATER. No outcome metric is being fixed by this file, and the reason is that
-every candidate so far has failed when it was measured.
+WHY THIS EXISTS -- ACCUMULATE FIRST, INTERPRET LATER. No outcome metric is
+being fixed by this file, and the reason is that every candidate so far has
+failed when it was measured.
 
   - The handover's cost metric, "33.9 lines per fixed line", does not reproduce
     under any definition tried. It is quoted here only as the claim that sent
@@ -38,8 +38,8 @@ silently break the series.
   - `lines + 0 == blank + comment + executable`, always, which is how a reader
     checks by hand that the three were counted off the same text
 
-⚠️ WHICH FILES. `src/` and `tests/` each hold files that are not code -- ten
-`.json` under `src/`, one `.md` under `tests/`, measured 2026-09-11. Counting
+⚠️ WHICH FILES. `src/` and `tests/` each hold files that are not code --
+`.json` under `src/`, `.md` under `tests/`. Counting
 comment lines in those would be meaningless, so the line counts are taken over
 the code extensions in CODE_EXTENSIONS only, and the row records both that
 tuple and `files_all` (everything in the tree) so no file is hidden by the

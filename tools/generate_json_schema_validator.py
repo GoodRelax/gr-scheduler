@@ -14,7 +14,7 @@ turned into TypeScript and planted inside that unit:
 
   src/adapter/document-codec/json-codec.ts    the node table the walker reads
 
-⛔ ajv is NOT bundled, by the user's ruling of 2026-08-24. `PO-4` of table
+⛔ ajv is NOT bundled. `PO-4` of table
 T-232 allows script-src exactly one sha256, and ajv's ordinary compile builds
 its validator with `new Function`, which that one hash cannot cover in the
 single file://-openable page; ajv's standalone output grows the artifact by
@@ -33,16 +33,14 @@ refused those would have one half of the build reject what the other half
 accepts.
 
 ⛔ The same group also loses every bound -- `minimum`, `maximum`, `maxLength`.
-The preamble of table T-220 was corrected on 2026-08-24: it now names `type`
+The preamble of table T-220 names `type`
 and `enum` as the ONLY conditions that group may carry (MUST), and forbids
 refusing a value for being out of bounds (MUST NOT), because that job belongs
 to `clampedSettings` of `PI-2` (table T-064), which moves an out-of-bounds
-value into range instead of rejecting it. ⚠️ The earlier wording said "type,
-range and enumeration", and this generator was faithful to it; the wording was
-the error, so the reduction moved rather than the manuscript. ⭐ What survives
-there is now exactly the type and the enumeration of each key.
+value into range instead of rejecting it. ⭐ What survives
+there is exactly the type and the enumeration of each key.
 
-⛔ `format` is dropped, by the user's ruling. Its 15 uses are 2 dates, 3
+⛔ `format` is dropped. Its 15 uses are 2 dates, 3
 datetimes and 10 uuids. The dates and datetimes are already held as a condition
 by `IV-14` of table T-220, so honouring `format` here would be the second key
 for one thing. ⛔ THE 10 uuid COLUMNS ARE THEREFORE CHECKED BY NOBODY -- see

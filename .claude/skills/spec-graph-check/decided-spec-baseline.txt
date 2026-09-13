@@ -1,48 +1,12 @@
 79
-# ⛔ Rows at or past `実装待ち` that name no place in the specification.
-# (Until the 2026-09-01 renaming this read 「rows past 仕様書反映済み」;
-# see the note at the foot of this file.)
 #
-# ⚠️ THE CONVENTION STARTED ON 2026-08-30, AND THE LEDGER WAS ALREADY 154 ROWS
-# OLD. These 94 are the rows that were written before 対応方針・決定仕様 was
-# asked to carry the chapter, the requirement UID or table row id, and the
-# wording. ⭐ The number coming down is the work; it going up is a row that
-# passed 仕様書反映済み without saying where the specification says it.
+# Check 29 -- rows of defects.md at or past `実装待ち` whose 対応方針・決定仕様
+# cell names no place in the specification (a chapter, a requirement UID or a
+# table row id, or a file). Held by check-decided-spec.py; line 1 is the
+# number and every other line is ignored.
 #
-# ⛔ RAISE THIS ONLY TO TAKE THE DEBT ON DELIBERATELY, and say why in the commit.
-#
-# 2026-09-01: 94 -> 93. DFC-131 named its place (表 T-028 の IN-6). Its cell
-# had said only 「仕様に行が無い。利用者の裁定が要る」 while the ruling and the
-# row both existed -- the cell is written append-only, so an opening 「未定」
-# outlives the ruling that overturns it. Five rows read as blocked that way.
-#
-# ⭐ 2026-09-01 の状態の付け替え —— 数は動いていない。名前だけが動いた。
-# 利用者の裁定で 10 状態が 8 状態になり、`仕様書反映済み`（変更要求が仕様書へ
-# 入った）は `実装待ち`（仕様書に在る。まだコードに無い）へ畳まれた。同じ主張で
-# あるから、この検査が見る状態は `実装待ち` / `試験待ち` / `実測待ち` / `実測済`
-# の 4 つになり、見る行は 164 行から 165 行へ 1 行だけ増えた —— 増えたのは
-# `仕様書反映済み` にいた DFC-156 の 1 行である。⭐ **DFC-156 は書いた先を名乗って
-# いるので、場所を名乗らない行の数は 93 のまま動かない。**
-# ⚠️ だからこの 93 は、仕事が進んだ結果ではなく、**状態の名前が変わっても同じ
-# 借りがそこに在ることを測り直した数**である。
-#
-# 2026-09-02: 93 -> 92. DFC-43 named its place (表 T-023 の MK-13,
-# docs/spec/01-04-requirements.md:2324). The row had carried a 期待値 that the
-# specification overturned on 2026-08-30 and again on 2026-09-01, and four
-# rounds read it as an open question because the cell never said where the
-# answer already stood.
-#
-# 2026-09-02: 92 -> 90. Two more rows named their place as the round wrote the
-# specification for the rulings that were already down: DFC-174 (table T-037,
-# NT-7) and DFC-175 (the invariant under table T-050). Both had stood at
-# 仕様待ち for a day with the ruling recorded verbatim and nothing written.
-#
-# 2026-09-02: 90 -> 89. DFC-193 named its place as the round wrote the five
-# rulings of that afternoon (FR-019, plus table T-233 RS-44).
-#
-# 2026-09-03: 82 -> 79. Three rows reached a place to name in one round --
-# DFC-202 and DFC-217 gained a ruling and now say where it goes (table T-233 and
-# the S-210 remark), and DFC-225 was written with its place already in it.
-# ⭐ The fall came from ASKING, not from writing prose: seven rows that read
-# as blocked turned out not to be blocked at all, and the two that really were
-# took one question each.
+# These rows were written before the cell was asked to carry the place, so the
+# number is old debt. It comes down when a row names where the specification
+# says it; lower it in that commit.
+# ⛔ Raise it only to take the debt on deliberately, and say which row and why
+# in the commit.

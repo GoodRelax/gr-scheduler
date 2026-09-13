@@ -15,12 +15,11 @@ import os
 import re
 import collections
 
-# ⛔ Imported, never restated. This file held its own eight-entry copy of the
-# retired set from 2026-08-13 until 2026-09-11; md-checks.py's copy reached 61
-# in the same span, and `known` below -- which graph.py and induced.py classify
-# every seed with -- read the short one the whole time. A plain import works
-# from every caller: a caller that reached `specindex` as a top-level module
-# already has this directory on sys.path.
+# ⛔ Imported, never restated: do not keep a local copy of the retired set
+# here. A copy drifts from md-checks.py's, and `known` below -- which graph.py
+# and induced.py classify every seed with -- would read the stale one. A
+# plain import works from every caller: a caller that reached `specindex` as
+# a top-level module already has this directory on sys.path.
 from retired import RETIRED
 
 

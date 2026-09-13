@@ -20,8 +20,8 @@ stops the run with exit code 1 and nothing is written. A roster typed twice
 would go stale in silence, which is the drift rule 03 section 1 forbids.
 
 ⛔ NO WORD IS INVENTED HERE, and none is invented in the manuscript either.
-Every entry is `{"ja": "", "en": ""}` until the user fills it (ruling
-2026-08-21, PND-160). Table T-109 refuses an English column in as many words --
+Every entry is `{"ja": "", "en": ""}` until the user fills it
+(PND-160). Table T-109 refuses an English column in as many words --
 one would settle dozens of names the glossary has not settled -- and a word
 written by a machine settles exactly the same names.
 
@@ -85,13 +85,13 @@ ASSIGNMENT_TABLE = 'T-023'
 # row id itself (DFC-10).
 ARM_TABLE = 'T-023b'
 # ⛔ The name a property item shows. Table T-016 carries the COLUMN of the
-# file and no longer a shown name: FR-038 (MUST NOT) keeps every printed
-# word in this dictionary, and until 2026-08-28 the panel drew the column
-# name itself -- which is how `strokeColor` and `fadeInDays` reached the
-# screen (the user's reports DFC-81 and DFC-84).
-# ⚠️ ONE WORD PER ROW, NOT PER COLUMN. PR-14 carries two columns and the
-# user asked for one word over both (「1 行で入るように」), so the word is
-# the row's and is never built by joining the columns'.
+# file and not a shown name: FR-038 (MUST NOT) keeps every printed word in
+# this dictionary. ⛔ Do not let the panel draw the column name itself --
+# that is how `strokeColor` and `fadeInDays` reach the screen (DFC-81,
+# DFC-84).
+# ⚠️ ONE WORD PER ROW, NOT PER COLUMN. PR-14 carries two columns and its
+# word has to fit on one line over both, so the word is the row's and is
+# never built by joining the columns'.
 PROPERTY_TABLE = 'T-016'
 # The name a settings item shows. Table T-104 of the glossary is the whole
 # count of the keys `documentSettings` carries and is the AUTHORITY ON THE
@@ -155,7 +155,7 @@ CONFIRMATION_ANSWERS = ('proceed', 'cancel')
 # The one entrance NT-8 (MUST) puts on a told notification. ⛔ Fixed here for the
 # same reason as the two above: table T-037 states it in prose and no table holds
 # it as a row. ⚠️ A KEY, not a word -- NT-8 settles the word itself as `OK` in
-# both languages (利用者の裁定, 2026-08-25), and the manuscript is where it is
+# both languages, and the manuscript is where it is
 # written. ⛔ It is deliberately NOT a row of table T-109: that table is the roster
 # of ENTRANCES DRAWN AS SHAPES (FR-029), and this one is a word, the way NT-7's
 # two answers are.
@@ -207,13 +207,11 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 
 LANGUAGES = ('ja', 'en')
 
-# ⭐ THE WORDS ARE THE USER'S, AND THEY ARE NOW WRITTEN. The ruling of
-# 2026-08-21 built the place and left the filling to the user, because table
+# ⭐ THE WORDS ARE THE USER'S. The filling is left to the user, because table
 # T-109 refuses an English column in as many words and a word written by an
-# agent settles the very names that refusal protects. ⛔ THIS NOTE USED TO SAY
-# "every entry of the manuscript is empty" and went on saying it after the
-# filling; the count below is printed on every run so the claim cannot rot
-# again.
+# agent settles the very names that refusal protects. ⛔ Do not state here
+# how many entries are filled or empty: the count below is printed on every
+# run instead, so the claim cannot rot.
 #
 # ⚠️ The fallbacks each printing side keeps -- an empty label, a row id, the
 # group word table T-109 itself uses -- are NOT dead. They are what an entry

@@ -10,14 +10,12 @@ it names has already been ruled.
 たら … 行の状態を 裁定済 にする（⛔ 行は消さない。記録である）」 -- but nothing
 carries that back to the ledger cell, and nothing reads the two books together.
 
-⚠️ MEASURED 2026-09-06: four items were handed out to bodies as un-ruled and
-re-worked from scratch when they had already been ruled. `DFC-270` is one of
-them. Its 対応方針・決定仕様 cell opened 「⛔ 未検討。」 while `PND-178` had
-stood at 裁定済 since 2026-08-23 -- thirteen days -- carrying the answer
-(「値で返す。表 T-233 に行を新設する」) AND the name of the test that had to
-fall (`tests/unit/layout-engine.test.ts` の 512 行). A whole round of work was
-spent rediscovering a ruling that was written down, in this repository, with
-its own consequences spelled out.
+⚠️ WHAT IT COSTS. An item that reads as un-ruled is handed out and re-worked
+from scratch even when its ruling is already written down, in this
+repository, with its own consequences spelled out -- a whole round of work
+spent rediscovering it. `DFC-270` was such a row: its 対応方針・決定仕様
+cell opened 「⛔ 未検討。」 while `PND-178` stood at 裁定済 carrying the
+answer AND the name of the test that had to fall.
 
 ⭐⭐ THE RULE THIS ENFORCES. It is not invented here. Two rules already
 written say it between them:
@@ -45,10 +43,8 @@ WHAT COUNTS AS A HIT. Both of these true for the SAME `D-` row:
 ⭐ CONDITION 1 IS READ OUTSIDE QUOTATION AND OUTSIDE A DATED RECORD, through
 the same `asserts_any()` check 31 uses. A sentence opening 「⚠️ 実測（YYYY-MM-
 DD）」 records what was true on that day and is struck before the phrases are
-looked for (`DFC-367`, the user's ruling of 2026-09-07 on `PND-441`; the notation
-is written down in `docs/development-rules/04-verification.md` section 6.6).
-⚠️ MEASURED 2026-09-07: this check's count did not move (3), because the three
-rows it still holds date their history in prose that does not carry the mark.
+looked for (`DFC-367`; the notation is written down in
+`docs/development-rules/04-verification.md` section 6.6).
 ⛔ The ステータス test is untouched -- cell 6 holds one state name and nothing
 else, so it is a present claim by construction and can never be a record.
 
@@ -64,7 +60,7 @@ NOT only `PND- -> D-`:
 
   - A ruling may be recorded ONLY in the ledger cell (no PND row at all). That
     is check 31's axis, and check 31's STILL_BLOCKED list does not hold 未検討
-    nor its SETTLED list 裁定された -- so `DFC-301`, one of this session's four,
+    nor its SETTLED list 裁定された -- so `DFC-301`
     is caught by NEITHER check. Widening check 31's vocabulary is the fix
     there; it is not this check's job.
   - A ruling may be recorded ONLY in a `change-request/CR-*.md`. `DFC-301` was
@@ -97,7 +93,7 @@ sys.path.insert(0, HERE)
 from ledger_quotes import asserts_any                  # noqa: E402
 
 LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
-# The ledger is TWO FILES since 2026-09-02: a row reaching 実測済 or 取下げ is
+# The ledger is TWO FILES: a row reaching 実測済 or 取下げ is
 # moved word for word into fixed-defects.md. Both are read, for the same
 # reason check 31 reads both -- a row only reaches those states by having been
 # ruled on, so the stale openings travel with the harvest.
@@ -117,14 +113,13 @@ UNRULED_IN_CELL = (u'未検討', u'裁定待ち', u'利用者の裁定が要る'
 
 # ⛔ States that say "nobody has ruled on this yet".
 #
-# ⚠⚠ MEASURED 2026-09-07: 仕様待ち USED TO BE IN THIS TUPLE, and it does not
-# belong. Rule 05:376 puts 裁定待ち and 仕様待ち in one band whose label is an
+# ⛔ 仕様待ち DOES NOT BELONG IN THIS TUPLE. Rule 05:376 puts 裁定待ち and
+# 仕様待ち in one band whose label is an
 # OR -- 「利用者の裁定か、仕様の行が要る」 -- and the ledger's own status table
 # (docs/development-records/defects.md:61) spells out which half 仕様待ち is:
 # 「裁定は下りた。⚠ まだ仕様書に書かれていない」. ⇒ 仕様待ち is what a row
 # MOVES TO when its ruling comes down, so flagging it as un-ruled fires on
-# exactly the rows that did the right thing. Eight rows went red the moment
-# PND-431..PND-441 were ruled and their ledger rows were advanced.
+# exactly the rows that did the right thing.
 UNRULED_STATUS = (u'未検討', u'裁定待ち')
 
 # ⭐ The one state rule 06 step 3 writes when the ruling has come down.
@@ -210,21 +205,15 @@ def scan(ledger_path, settled):
         if not reads_unruled:
             continue
 
-        # ⭐ ONE SPELLING ONCE NUMBERED TWO THINGS, and this strip is what is
-        # left of it. Until CR-371, docs/spec's table T-023a and
-        # pending-decisions.md both wrote their rows `PD-n`, so a ledger row
+        # ⭐ THE STRIP IS A SECOND LOCK against one spelling numbering two
+        # things. When docs/spec's table T-023a and pending-decisions.md both
+        # wrote their rows `PD-n`, a ledger row
         # saying 「表 T-023a の `PD-5`」 read here as naming pending decision
         # PD-5, and the row was judged against a ruling with nothing to do
-        # with it. That is DFC-468, and the session that wrote the row recording
-        # the trap fell into it half an hour later.
-        # ⚠️ MEASURED 2026-09-12: 0 rows of the open ledger and 5 of the closed
-        # one carried that spelling, and all five named a real pending
-        # decision as well -- so it changed no verdict that day.
-        # ⭐ CR-371 then renamed both sides (表 T-023a -> `PTD-`, the ledger ->
-        # `PND-`), so the two can no longer be read for each other and the
-        # strip can no longer take anything the findall would have kept. It
-        # stays as the second lock: it costs one regex per row, and the defect
-        # it stops cost a session.
+        # with it (DFC-468). CR-371 renamed both sides (表 T-023a -> `PTD-`,
+        # the ledger -> `PND-`), so the strip can no longer take anything the
+        # findall would have kept. ⛔ Do not remove it: it costs one regex per
+        # row, and the defect it stops cost a session.
         named = set(re.findall(r'PND-\d+', TABLE_ROW_PTD.sub('', '|'.join(cells))))
         ruled = sorted(named & settled)
         if ruled:

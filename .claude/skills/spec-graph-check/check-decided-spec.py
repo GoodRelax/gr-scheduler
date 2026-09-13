@@ -1,29 +1,24 @@
 # -*- coding: utf-8 -*-
 """Check 29 -- a row at or past 実装待ち names where the specification says it.
 
-⛔ WHY THIS EXISTS. Until 2026-08-30 the ledger could not tell 「裁定が下りた」
-from 「仕様書に書いた」: one status carried both, so a change request that was
-never written left no trace. The user split the status and asked that writing
-the specification means writing back WHERE it landed -- chapter, requirement
-UID or table row id, and the wording.
+⛔ WHY THIS EXISTS. A ledger whose one status meant both 「裁定が下りた」
+and 「仕様書に書いた」 lets a change request that was never written leave no
+trace. So the two are separate statuses, and writing the specification means
+writing back WHERE it landed -- chapter, requirement UID or table row id, and
+the wording.
 
 ⭐ THIS CHECK IS THE RUNG BELOW THE RULE. A rule is only followed once a
 machine looks at it; the same shape already works as check 28, which counts
 rows that claim a measurement without carrying one.
 
-⚠️ THE NAMES CHANGED ON 2026-09-01; THE DEMAND DID NOT. The ten states became
-eight, and 仕様書反映済み -- 「変更要求が仕様書へ入った」 -- was folded into
-`実装待ち`, which the new table defines as 「仕様書に在る。まだコードに無い」.
-That is the same claim, so `実装待ち` is now the FIRST state that has to name a
-place rather than the one just after it. The rest of the fold is mechanical:
-実装中 also became `実装待ち`, テスト中 and テスト待ち became `試験待ち`, and
-テスト完了 became `実測済` or `実測待ち` depending on whether the shipped build
-had been pressed.
+⚠️ `実装待ち` IS THE FIRST STATE THAT HAS TO NAME A PLACE. The status table
+defines it as 「仕様書に在る。まだコードに無い」 -- the specification has been
+written -- so every state from it onward owes a place in the specification.
 
-⚠️ IT HOLDS A DEBT, IT DOES NOT DEMAND ZERO. The convention started on
-2026-08-30 and the ledger was already 154 rows old, so the count is held
-against a baseline and fails only when it RISES. Bringing it down is the work;
-letting it grow is not.
+⚠️ IT HOLDS A DEBT, IT DOES NOT DEMAND ZERO. Rows written before the
+convention never named a place, so the count is held against a baseline and
+fails only when it RISES. Bringing it down is the work; letting it grow is
+not.
 
     python .claude/skills/spec-graph-check/check-decided-spec.py
 
@@ -40,9 +35,8 @@ LEDGER = os.path.join(ROOT, 'docs', 'development-records', 'defects.md')
 BASELINE = os.path.join(HERE, 'decided-spec-baseline.txt')
 REL = 'docs/development-records/defects.md'
 
-# The ledger is TWO FILES from 2026-09-02 (the harvest the user ruled for on
-# 2026-09-01): a row that reaches 実測済 or 取下げ is moved word for word into
-# `fixed-defects.md`.
+# The ledger is TWO FILES: a row that reaches 実測済 or 取下げ is moved word
+# for word into `fixed-defects.md`.
 #
 # THIS CHECK READS BOTH. The debt it holds -- a row past 実装待ち that never said
 # WHERE the specification says it -- belongs mostly to old rows, and old rows
@@ -52,8 +46,8 @@ HARVEST = os.path.join(ROOT, 'docs', 'development-records', 'fixed-defects.md')
 REL_HARVEST = 'docs/development-records/fixed-defects.md'
 
 # ⭐ The statuses that say the specification is settled AND WRITTEN, so the row
-# must be able to say where. `実装待ち` opens the list because it is where
-# 仕様書反映済み landed in the 2026-09-01 fold: 「仕様書に在る。まだコードに無い」.
+# must be able to say where. `実装待ち` opens the list because the status table
+# defines it as 「仕様書に在る。まだコードに無い」.
 # ⚠️ 取下げ is not among them: a withdrawn row owes the specification nothing.
 # ⚠️ 未検討 / 裁定待ち / 仕様待ち are not among them either: none of the three
 # claims the specification has been written yet.
@@ -67,13 +61,12 @@ NUMBERED = re.compile(r'`([A-Z]{1,3})-(\d+[a-z]?)`')
 TABLE = re.compile(r'表 T-\d+|図 F-\d+|Chapter \d')
 
 # ⭐ A ROW WHOSE FIX IS NOT IN docs/spec CAN STILL SAY WHERE IT LANDED.
-# ⚠️ Added 2026-08-31 for the first row that met this honestly: DFC-168's fix is
-# a list in docs/development-rules and a check beside it, and the specification
-# is not touched by one character. Without this the row had three bad choices --
-# keep a status it had outgrown, claim a place it does not occupy, or push the
-# debt count up by one. ⛔ THE DEMAND IS NOT WEAKENED: the cell must still name
-# a FILE, so a row that says nothing still fails. What changes is only that the
-# place may lie outside docs/spec.
+# ⚠️ A fix can be a list in docs/development-rules and a check beside it, with
+# the specification untouched by one character (DFC-168 is one). Without this
+# such a row has three bad choices -- keep a status it has outgrown, claim a
+# place it does not occupy, or push the debt count up by one. ⛔ THE DEMAND IS
+# NOT WEAKENED: the cell must still name a FILE, so a row that says nothing
+# still fails. What changes is only that the place may lie outside docs/spec.
 ELSEWHERE = re.compile(r'`?docs/[A-Za-z0-9_./-]+\.md`?')
 
 

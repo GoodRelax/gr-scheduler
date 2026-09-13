@@ -21,9 +21,9 @@ requirement with a test. Nothing said who runs that look. This does.
 
 ⛔ The first line of every run is the coverage: how many of the import
 specifiers present in src/ this script actually read. A shortfall is a
-violation, not a note. ⚠️ This is not decoration -- the regex here could not
-cross a newline until 2026-08-23, so 79 of 275 edges were never read and every
-"OK" printed for six rounds was an OK about 71.3% of the tree.
+violation, not a note. ⚠️ This is not decoration -- a regex that cannot cross
+a newline skips every import written over several lines, and the run still
+prints "OK" about only the part of the tree it did read.
 
   python tools/check_layer_rules.py            report violations, non-zero if any
   python tools/check_layer_rules.py --report   print the component graph it read

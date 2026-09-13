@@ -69,7 +69,7 @@ EM_DASH = '—'
 # A cross-reference the assignment cell carries beside the key itself: SK-8
 # reads Esc（規則は表 T-028 の IN-4）. That parenthetical is prose about where the
 # rule lives, in one language, and the key is what a reader needs -- so it is
-# dropped rather than shown. Only SK-8 has one (measured 2026-08-29).
+# dropped rather than shown. SK-8 has one.
 ASIDE = re.compile(r'（[^）]*）')
 CODE_FENCE = '`'
 

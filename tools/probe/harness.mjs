@@ -1,12 +1,11 @@
 // The shared setup every live probe was rewriting.
 //
-// ⛔ WHY THIS FILE EXISTS. The 2026-08-30 round wrote 123 probes under
-// scratch/probe/, and nearly every one of them re-derived the same thirty
+// ⛔ WHY THIS FILE EXISTS. Without it, every probe re-derives the same thirty
 // lines: launch Chromium, open dist/index.html, wait for the first frame,
 // press an entry with a REAL pointer because a synthetic .click() reaches
-// nothing, and read data-role WITHOUT a filter because filtering is what made
-// two separate sessions report a working feature as broken. Rebuilding that by
-// hand each time is where the wall-clock went -- not in the measuring.
+// nothing, and read data-role WITHOUT a filter because filtering makes a
+// working feature read as broken. Rebuilding that by hand each time is where
+// the wall-clock goes -- not in the measuring.
 //
 // ⛔ AND WHY IT IS HERE RATHER THAN IN scratch/. scratch/ is gitignored, so a
 // helper left there is gone by the next session and the next body writes the
@@ -121,9 +120,9 @@ export async function pressAt(x, y) {
 /**
  * Press twice at a point, which is the gesture MK-13 of table T-028 names.
  *
- * ⛔ IT IS THE ONE WAY INTO THE PROPERTIES PANEL FROM THE PICTURE. Measured
- * 2026-09-03: no key opens it (the ledger's DFC-222), so a probe that wants an
- * editable field has to come through here.
+ * ⛔ IT IS THE ONE WAY INTO THE PROPERTIES PANEL FROM THE PICTURE. No key
+ * opens it (the ledger's DFC-222), so a probe that wants an editable field has
+ * to come through here.
  */
 export async function doublePressAt(x, y) {
   await page().mouse.move(x, y)
@@ -227,21 +226,20 @@ export async function census() {
 export const PANEL = '[data-role="Properties Panel"]'
 
 /**
- * ⛔⛔ `P` IS THE COMMAND PALETTE, NOT THIS PANEL. Measured 2026-08-30: table
- * T-036's SK-14 reads 「コマンドパレットの表示を切り替える」 and points at IC-7.
- * The note that stood here called it "open the panel on whatever is selected",
- * and a probe built on that spent a whole run concluding a choice had been lost.
+ * ⛔⛔ `P` IS THE COMMAND PALETTE, NOT THIS PANEL. Table T-036's SK-14 reads
+ * 「コマンドパレットの表示を切り替える」 and points at IC-7. ⛔ Do not describe
+ * it as "open the panel on whatever is selected": a probe built on that
+ * reading concludes a choice has been lost.
  *
  * ⭐ SINCE CR-304 THERE ARE EXACTLY TWO ENTRANCES (FR-072), and neither is a key:
  * MK-13 (double-click a task) and IC-17 (the App Header -- and that one shows
  * the DOCUMENT's drawing settings, not the chosen task).
  * ⚠️ The panel is always in the DOM. `display` is the predicate, not presence.
  *
- * ⛔⛔ THIS FUNCTION USED TO PRESS `p`, WHICH THE NOTE ABOVE ALREADY SAID WAS
- * THE COMMAND PALETTE. Measured 2026-09-03 on the shipped build (the ledger's
- * DFC-222): `p` leaves 0 field rows and 0 inputs, a double press on a row name
- * gives 6 field rows and 1 input, and one on a task gives 37 and 3. The ledger
- * also claimed the task gesture did not work, and that was false.
+ * ⛔⛔ DO NOT PRESS `p` HERE -- THE NOTE ABOVE SAYS IT IS THE COMMAND
+ * PALETTE. Measured on the shipped build (the ledger's DFC-222): `p` leaves
+ * 0 field rows and 0 inputs, a double press on a row name gives 6 field rows
+ * and 1 input, and one on a task gives 37 and 3 -- the task gesture works.
  *
  * ⭐ THE PREDICATE COUNTS INPUTS, NOT FIELD ROWS. A probe wants this function
  * because it is about to type; a panel that has filled with rows carrying no
@@ -262,8 +260,8 @@ export async function openPanel({ at = null } = {}) {
 /**
  * Where to press a row's name, which is what MK-13 wants under the pointer.
  *
- * ⛔ THE NAME IS WIDER THAN THE PART OF IT THAT CAN BE PRESSED. Measured
- * 2026-09-03: the name span starts at x=36 and runs 134px, but the row's own
+ * ⛔ THE NAME IS WIDER THAN THE PART OF IT THAT CAN BE PRESSED. Measured:
+ * the name span starts at x=36 and runs 134px, but the row's own
  * controls sit on their own ground from x=66 -- so anything further right than
  * about 60 presses a control instead of the name. The 8px inset is a point
  * inside the name and clear of the grab strip on its left.
@@ -333,9 +331,9 @@ export const CANVAS = '[data-role="Schedule Canvas"]'
 /**
  * The shape the app is showing at this point (IN-2 of table T-028).
  *
- * ⭐ WHY IT IS WORTH A MEMBER. Five probes of the 2026-08-29 round wrote this
- * by hand. It is also the cheapest way to ask the APP what it thinks is under
- * a point, which is a different question from what `elementFromPoint` answers.
+ * ⭐ WHY IT IS WORTH A MEMBER. Probes otherwise write this by hand. It is
+ * also the cheapest way to ask the APP what it thinks is under a point, which
+ * is a different question from what `elementFromPoint` answers.
  *
  * ⛔ IT IS THE CANVAS'S OWN `style.cursor` AND NOT THE PAGE'S. A `Panel
  * Divider` or a floating surface carries its own, and reading only this one is
@@ -453,10 +451,10 @@ export async function notices() {
 /**
  * The row bands: where each stands, how tall it is, and how far to the next.
  *
- * ⚠️ THE PITCH IS NOT THE HEIGHT. Measured 2026-08-29: every pitch is the band
- * plus 8px, and that gap is where a vertical pan used to lose its travel
- * (the ledger's DFC-138). A probe that reads `height` where it means `pitch`
- * measures the defect rather than the picture.
+ * ⚠️ THE PITCH IS NOT THE HEIGHT. Every pitch is the band plus 8px, and that
+ * gap is where a vertical pan lost its travel in the ledger's DFC-138. A probe
+ * that reads `height` where it means `pitch` measures the defect rather than
+ * the picture.
  */
 export async function rowBands() {
   const rows = await page().evaluate(() =>
@@ -502,10 +500,10 @@ export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = 
 /**
  * The width the Row Title Panel occupies, and the x below which its entries sit.
  *
- * ⛔ USE THE REGION, NOT THE DOM PARENTAGE. Measured 2026-08-30: the row
- * controls are NOT descendants of `[data-role="Row Title Panel"]` -- querying
- * inside that element answers only the two entries at the panel's head, which
- * is how one probe reported that IC-82 was not drawn at all.
+ * ⛔ USE THE REGION, NOT THE DOM PARENTAGE. The row controls are NOT
+ * descendants of `[data-role="Row Title Panel"]` -- querying inside that
+ * element answers only the two entries at the panel's head, so a probe that
+ * does so reports IC-82 as not drawn at all.
  */
 export async function rowPanel() {
   return page().evaluate(() => {
@@ -568,9 +566,9 @@ export async function panelEntries(rowTopPx = null, { panelRightPx = null } = {}
         return {
           icon: entry.getAttribute('data-icon'),
           role: entry.getAttribute('data-role'),
-          // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. Measured
-          // 2026-08-30: a disarmed entry and an armed one match on opacity,
-          // colour, cursor and `disabled` -- the ledger's DFC-142.
+          // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. A disarmed
+          // entry and an armed one match on opacity, colour, cursor and
+          // `disabled` -- the ledger's DFC-142.
           arming: entry.getAttributeNames()
             .filter((name) => name.startsWith('data-can') || name === 'data-pinned')
             .map((name) => name + '=' + entry.getAttribute(name)).join(' '),
@@ -624,13 +622,13 @@ export function diff(before, after) {
 /**
  * A fingerprint of every inline `style` on the page.
  *
- * ⛔⛔ WITHOUT THIS, A REPAINT LOOKS LIKE A DEAD ENTRY. Measured 2026-08-30:
- * IC-16 (the theme) recolours the whole page through inline styles and changes
- * no element count, no `data-role`, and not even `document.body`'s own
- * background -- so a board built from `census()` and `roles()` alone reported a
- * working entry as dead. ⚠️ The same round reported ten dead entries that were
- * not dead, for the neighbouring reason: the board it hand-wrote left out the
- * `svg line` and arrow counts that `census()` had been carrying all along.
+ * ⛔⛔ WITHOUT THIS, A REPAINT LOOKS LIKE A DEAD ENTRY. IC-16 (the theme)
+ * recolours the whole page through inline styles and changes no element count,
+ * no `data-role`, and not even `document.body`'s own background -- so a board
+ * built from `census()` and `roles()` alone reports a working entry as dead.
+ * ⚠️ A hand-written board that leaves out the `svg line` and arrow counts
+ * `census()` carries reports dead entries that are not dead, for the
+ * neighbouring reason.
  * ⭐ Board an entry press with `census()` AND this, not with a narrower reading.
  */
 export async function styleSignature() {
@@ -654,7 +652,7 @@ export async function styleSignature() {
  * The order the DOM holds children in, which is NOT the order the screen shows.
  *
  * ⛔⛔ `rows()` SORTS BY `y`, SO IT CAN NEVER SEE THIS KIND OF FAULT. Measured
- * 2026-08-30: three rows pinned in reverse order came out in pin order in the
+ * by pinning three rows in reverse order: they came out in pin order in the
  * DOM and in natural order on the screen -- FR-098's 「固定した順に上から並べる」
  * broken in a way every y-sorted reading calls correct.
  */
