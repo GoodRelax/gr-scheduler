@@ -67,7 +67,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 552 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 571 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 12 |
