@@ -43,7 +43,7 @@ export type { SvgSurface } from './svg-surface'
 /**
  * Which of table T-076's two pictures this frame is.
  *
- * ⭐ WHY IT HAD TO BE ADDED. Table T-076 leaves several UI parts out of the
+ * ⭐ WHY IT EXISTS. Table T-076 leaves several UI parts out of the
  * exported picture, and EP-14 is the row that no other argument can reach:
  * FR-043's dummies hang on the Task being unstarted -- a property of the
  * DOCUMENT -- so no value the export is free to choose can suppress them.
@@ -55,13 +55,13 @@ export type { SvgSurface } from './svg-surface'
  * breaks EP-5 (the Progress Marker IS drawn in the export) and is measured by
  * WY-3 of table T-041.
  *
- * ⭐ EP-12 is the second row it answers, and `drawsOperationState` in
+ * ⭐ EP-12 is answered through it too, and `drawsOperationState` in
  * `svgFromSchedule` spends it -- a row of table T-076 is a rule about the
  * PICTURE, so the picture is where it is spent.
  *
- * ⚠️ STILL DELIBERATELY NARROW. Two rows of table T-076 reach this argument,
- * each once and for a stated reason; it is not a general "export mode" that a
- * third row may be folded into without one.
+ * ⚠️ DELIBERATELY NARROW. Each row of table T-076 that reaches this argument
+ * does so for a stated reason; it is not a general "export mode" that another
+ * row may be folded into without one.
  *
  * @provisional PND-210
  */
@@ -84,7 +84,7 @@ export type SchedulePicture = 'screen' | 'export'
  * manuscript does not draw, which is a change request and not an implementation
  * choice. ⚠️ What keeps the two in step is the compiler: `frame-loop.ts` hands
  * ONE value along both seams, so a drift is a type error at that call site and
- * not something review has to catch. Reported.
+ * not something review has to catch.
  */
 export interface DualCursorFollow {
   /** DC-2: the side that is following now. The other one stands where it was. */
@@ -159,15 +159,14 @@ interface Paint {
  *
  * ⛔ NOT IN TABLE T-236. That table settles S-146 .. S-170, and the annotation
  * is not among them although FR-041 names it in the same breath as the two
- * lines it does settle. ⚠️ It is not the only colour still typed here -- the
- * fade grab point's pair below is the other, and for the same reason. Every
- * colour a row DOES hold arrives generated.
+ * lines it does settle. ⚠️ The fade grab point's pair below is typed here for
+ * the same reason. Every colour a row DOES hold arrives generated.
  *
  * ⛔ AND THIS VALUE IS MEASURABLY WRONG. FR-019 wants it kept away from the
  * theme hue, the dependency line AND the progress line. It is hue 26, which is
  * the hue S-159 gives the dependency line in the light theme. Correcting it
- * means choosing a colour, which this unit may not do -- so it stands, and the
- * gap is reported instead of papered over.
+ * means choosing a colour, which this unit may not do -- so it stands rather
+ * than being papered over.
  *
  * @provisional PND-1
  */
@@ -198,21 +197,20 @@ const FADE_HANDLE_STROKE_COLOUR = '#374151'
  * HEIGHT and needs no number at all, because a row's figures stand in that
  * row's band.
  *
- * ⭐⭐ 0.25 IS THE AUTHOR'S OWN NUMBER, and the ruling was given twice.
- * 利用者の裁定 2026-09-07（逐語「それでも両側1.5倍あれば十分」）was built as 1.5 on
- * EACH side. 利用者の裁定 2026-09-08, shown what each reading costs
- * （逐語「両側あわせて1.5倍でいけ」）: the DRAWN RANGE is one and a half windows
- * in total -- the window itself plus a quarter of it on either hand.
- * ⚠️ THE COST OF THE OTHER READING WAS MEASURED BEFORE THE RULING, on the
- * shipped build at 1000 `Task`, 1920x1080: 21.52 ms per frame at 1.5 a side
- * against 18.38 ms at 0.25 a side, median of three alternated runs.
+ * ⭐⭐ 0.25 IS THE AUTHOR'S OWN NUMBER: the DRAWN RANGE is one and a half
+ * windows in total -- the window itself plus a quarter of it on either hand,
+ * not 1.5 on EACH side.
+ * ⚠️ THE OTHER READING COSTS MORE: on the shipped build at 1000 `Task`,
+ * 1920x1080, 1.5 a side takes 21.52 ms per frame against 18.38 ms at 0.25 a
+ * side (median of three alternated runs).
  * ⭐ A quarter of a window still clears the assignee and the name by far more
  * than either can overhang.
  * ⛔ IT IS NOT A QUOTATION FROM docs/spec, and no row of it states a
  * margin -- sideways the band is NOT the whole of a Task's ink, because NL-3 of
  * table T-013 puts the name label outside the bar, GR-11 hangs the assignee off
  * it and the percent label sits beside it, so the bar's own rectangle is too
- * tight a test and how much to add was a ruling rather than a measurement.
+ * tight a test and how much to add is the author's choice rather than a
+ * measurement.
  *
  * ⛔ NO SETTINGS ROW IS INVENTED FOR IT, and none may be. The value decides
  * nothing a reader can see: everything inside the window is drawn either way,
@@ -247,12 +245,12 @@ function rounded(value: number): string {
 
 /**
  * WHAT ONE DRAWN FIGURE IS, written on the figure itself so that the same
- * figure can be recognised in the next frame's picture (DFC-316).
+ * figure can be recognised in the next frame's picture.
  *
  * ⭐ WHAT THE KEY IS BUILT FROM: the identifier the DOCUMENT gives the thing
  * (a `Task`'s UID, a `TaskGroup`'s id, a box's id, a day's serial) and the
  * name of the part being drawn -- never an index into an array. An index is
- * exactly the thing a delete moves, which is the defect this closes.
+ * exactly the thing a delete moves.
  *
  * ⛔ NOT `data-role`. That attribute carries a UI PART's settled name from
  * table T-103 (W-4 of table T-006a), and none of these figures is one; a key
@@ -280,7 +278,7 @@ function rounded(value: number): string {
  * T-076 says which PARTS an export draws and nothing about which attributes a
  * figure carries, and FR-080 with WY-2 of table T-041 asks for one drawing
  * rather than two. Leaving it out of the export would be a rule this file
- * invented. ⚠️ Reported rather than decided: the keys put `Task` UIDs and
+ * invented. ⚠️ Not decided here: the keys put `Task` UIDs and
  * `TaskGroup` ids into a picture handed to a reader, which is a judgement
  * about what may leave the tool and belongs to whoever owns table T-076.
  *
@@ -353,7 +351,7 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
   return (
     `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
     ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"` +
-    // DFC-316: the mask's rectangles are rebuilt with everything else, so they
+    // The mask's rectangles are rebuilt with everything else, so they
     // are named after the bar each one covers.
     `${figureKey(key)}/>`
   )
@@ -475,8 +473,8 @@ function dummyFigure(
  * own use column reads 「選択と現在位置」.
  *
  * ⛔ The frame does NOT trace the target's own outline (SL-8, MUST NOT).
- * Drawing per shape is how the earlier code came to show the sign on the three
- * shapes with a face and on nothing else.
+ * Drawing per shape shows the sign on the shapes with a face and on nothing
+ * else.
  *
  * ⛔ Neither the width nor the dash follows the zoom (SL-8, MUST NOT), which is
  * why S-174 and S-175 are read as they stand and no value off `layout` touches
@@ -522,7 +520,7 @@ function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string
  * FR-030 asks. ⚠️ Recolouring the dependency line would also need a SECOND
  * arrowhead marker in the selection colour, and no table holds it.
  *
- * ⭐ DC-8 OF TABLE T-029a IS THE THIRD CALLER, and it reaches this same
+ * ⭐ DC-8 OF TABLE T-029a CALLS IT TOO, and it reaches this same
  * multiplier by naming SL-8 rather than restating it. The `Dual Cursor` block
  * further down is where that call is made: the following line is S-194 times
  * S-178 and the other is S-194, and the colour (S-195) is the same on both --
@@ -537,7 +535,7 @@ function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string
  * ⛔ NO PICTURE TEST HERE, AND NONE IS MISSING. EP-12 keeps every one of these
  * marks out of an export, and `drawsOperationState` spends that row ONCE, at
  * the head of `svgFromSchedule`: a picture that says it is the export reaches
- * all three call sites below with `selected` already false. A second test here
+ * every call site below with `selected` already false. A second test here
  * would be the same rule in two places, and the one that was forgotten would
  * be the one that leaked.
  *
@@ -586,7 +584,7 @@ function achromatic(colour: string): string {
  * the two lines are held off the theme, so letting the theme's own monochrome
  * switch move them would be following it after all.
  *
- * ⭐ EXPORTED FOR DFC-277: `ImageExporter` draws the `Panel Divider` boundary
+ * ⭐ EXPORTED BECAUSE `ImageExporter` draws the `Panel Divider` boundary
  * line (EP-9) in the same colour the screen's own divider is painted in --
  * S-149, `PAINT.rule` in `dom-screen-surface.ts` (FR-029) -- and reading this
  * one function is how the two stay one decision instead of a second guess of
@@ -609,15 +607,13 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
 /**
  * How thick the `Group Grid Lines` (U-18) rule is drawn, in CSS px.
  *
- * ⭐ EXPORTED FOR DFC-363, AND THIS IS THE ONE PLACE. EP-9 of table T-076 says of
- * the `Panel Divider` boundary line 「描く側は、罫の太さを 1 か所から読むこと
- * （MUST）。番号を 2 か所に置いてはならない（MUST NOT）」 and 「画面と書き出しも
- * 同じ 1 か所を読むこと（MUST）」, because 「`Group Grid Lines`（`U-18`）と同じ線
- * を 1 本引くこと（MUST）」 and 「同じ線とは太さも同じであるということである
- * （MUST）」 —— ⛔ 「太さを 0 で描いてはならない（MUST NOT）」.
+ * ⭐ EXPORTED, AND THIS IS THE ONE PLACE. EP-9 of table T-076 makes the
+ * `Panel Divider` boundary line the same line as `Group Grid Lines` (U-18),
+ * thickness included, and has the drawer -- the screen and the export alike --
+ * read that thickness from one place.
  *
  * ⭐ WHY IT LIVES HERE AND NOT IN A TABLE. The same EP-9 forbids a settings key
- * for the divider (「新しい確定名も新しい設定値のキーも作らない」), and no row of
+ * for the divider, and no row of
  * tables T-202 / T-203 / T-236 gives the group grid line a width either -- S-68
  * is whether it is drawn and S-165 is its colour. So the number is the drawer's
  * own, and the drawer of U-18 is this file: `bandsAndRulesSvg` below takes it,
@@ -669,8 +665,8 @@ function paintOf(
   const fill = chosenFill === null ? themedFill : chosenFill
   // ⭐ One call for both halves. A themed colour arrives achromatic already
   // and `achromatic` is idempotent, so the chosen colour needs no branch of
-  // its own -- which is what the earlier two-branch form got wrong: it threw
-  // the author's colour away instead of draining it.
+  // its own -- a second branch is where the author's colour gets thrown away
+  // instead of drained.
   return {
     stroke: monochrome ? achromatic(stroke) : stroke,
     fill: monochrome ? achromatic(fill) : fill,
@@ -724,7 +720,7 @@ function markerSvg(
   key: string,
 ): string {
   const { centre, radius } = marker
-  // DFC-316: the disc and the symbol are ONE figure and carry one key. The
+  // The disc and the symbol are ONE figure and carry one key. The
   // wrapping group carries it too, because in the PM-1a case that group is
   // what a differ finds first.
   const named = figureKey(key)
@@ -810,7 +806,7 @@ function resumeSvg(
   settings: DocumentSettings,
   key: string,
 ): string {
-  // DFC-316: the arm and the head are ONE figure and carry one key.
+  // The arm and the head are ONE figure and carry one key.
   const named = figureKey(key)
   return (
     `<polyline points="${pointsOf(arm)}" fill="none" stroke="${ink}"` +
@@ -864,7 +860,7 @@ function labelSvg(
    * them clear of the bar.
    */
   padLeft: number,
-  /** DFC-316: which label this is, kept from frame to frame. */
+  /** Which label this is, kept from frame to frame. */
   key: string,
   /**
    * Which edge of the box the glyphs are pinned to.
@@ -882,9 +878,9 @@ function labelSvg(
   // calls it 「字形の中でのずれ」 -- a shift inside the glyph, down from the
   // middle of the type to the baseline SVG measures `y` from -- and says in
   // the same breath that it is a different thing from the shape-to-label gap
-  // S-196 holds. Taken against the box instead, the drop grew with whatever
-  // band the box happened to be, so the wider the bar the further the glyphs
-  // sat from where table T-012 puts them.
+  // S-196 holds. Taken against the box instead, the drop grows with whatever
+  // band the box is, so the wider the bar the further the glyphs sit from
+  // where table T-012 puts them.
   // ⭐ The box's own middle is where the label goes; the geometry has already
   // answered table T-012's column there, so this side only turns the middle
   // into a baseline and never asks which shape it is drawing.
@@ -900,7 +896,7 @@ function labelSvg(
 
 /** @purity pure */
 function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
-  // DFC-316: one bar is one figure, however many elements its form takes.
+  // One bar is one figure, however many elements its form takes.
   const named = figureKey(key)
   if (bar.form === 'outline') {
     const marks = bar.marks ?? []
@@ -955,13 +951,10 @@ function barSvg(bar: BarGeometry, paint: Paint, key: string): string {
  * zoom: the default would size the head by `dependencyWidth` instead of by
  * S-19, and the two are different keys.
  *
- * ⛔ STOP -- ⛔ THE HEAD'S BASE WIDTH IS IN NO ROW. The 依存線 group of
- * `_assets/tbl-settings.md` gives the head one figure, S-19, and the remark
- * column calls it a length; LF-7 of table T-221 sizes the arrow SHAPE's head
- * from `arrowHeadOfStroke` and `arrowHeadOfSpan` and does not reach this line.
- * The base is drawn at S-19 as well, so the head is isosceles and no second
- * number is invented -- table T-201 is the table that would have to hold that
- * row before the base can be anything else.
+ * ⭐ THE HEAD'S BASE IS S-19 AS WELL, so the head is isosceles: S-19's own
+ * note makes the one value the head's length and its base. LF-7 of table T-221
+ * sizes the arrow SHAPE's head from `arrowHeadOfStroke` and `arrowHeadOfSpan`
+ * and does not reach this line.
  *
  * @purity pure
  */
@@ -1070,14 +1063,10 @@ function twoDigits(value: number): string {
  * whichever day the left edge happens to fall on, or every label would jump
  * one place to the side each time the view is panned by a day.
  *
- * ⛔ LF-1 NAMES NO INTERVAL FOR THE WEEKDAY ROW. It gives one to the year row,
- * the year-and-month row, the week row and the day row, and closes with a MUST
- * NOT against any other interval; the weekday row is newer than that list and
- * is not yet spelled out in it. ⭐ It ticks with the day row here because the
- * two are one axis split across two 段 -- FR-017 (MUST) has the day's number
- * and the weekday name the SAME day, so any other interval would print a
- * weekday under a day it does not belong to. ⚠️ Nothing is invented: no
- * interval of the weekday row's own is chosen, it is handed the day row's.
+ * ⭐ THE WEEKDAY ROW TICKS WITH THE DAY ROW (LF-1): the two are one axis split
+ * across two 段 -- FR-017 (MUST) has the day's number and the weekday name the
+ * SAME day, so any other interval would print a weekday under a day it does
+ * not belong to.
  *
  * @purity pure
  */
@@ -1124,8 +1113,8 @@ function ticksOfRow(
  * second time here: FR-017 fixes one test and one arithmetic, and a copy of
  * either would part company with the layout the bars were placed by.
  *
- * ⭐ WHAT EACH ROW PRINTS IS A TABLE, AND THE TABLE IS T-238. FR-017 (MUST,
- * 利用者の裁定 2026-09-03) has every step print that table's lines and ⛔ (MUST
+ * ⭐ WHAT EACH ROW PRINTS IS A TABLE, AND THE TABLE IS T-238. FR-017 (MUST)
+ * has every step print that table's lines and ⛔ (MUST
  * NOT) print any line the table does not hold. `ROWS_OF_TIER` above is that
  * table's shape and the label below is its contents. ⛔ The month is DIGITS
  * and never a word, so that S-83 can be one value in both languages.
@@ -1140,7 +1129,7 @@ function ticksOfRow(
  *
  * ⭐ THE BAND PAINTS ITS OWN GROUND, and FR-041's MUST -- paint the ground
  * yourself, do not leave it to the viewing environment's system colours -- is
- * the authority the ruling names, no row of its own being added for it. The
+ * the authority, and no row of its own is added for it. The
  * colour is S-146 of table T-236, reaching this file through the generated
  * SCHEDULE_COLOURS block, which is the same one row the chrome reads on its
  * own side. The rectangle is the `band` argument as handed in: the Row Area
@@ -1171,15 +1160,10 @@ function rulerSvg(
   // ⛔ The band's height does NOT move with the tier (FR-017, MUST): the rows
   // share whatever S-2 gave the band, so a coarse tier gets taller rows rather
   // than a shorter band. S-2's own remark sizes the band for three of them.
-  // ⭐ HOW A TIER WITH FEWER THAN THREE ROWS SPENDS THAT HEIGHT IS STATED.
-  // FR-017 (MUST) says 「段が 3 つに満たない段階では、帯の高さを段の数で等分
-  // すること」 and ⛔ (MUST NOT) forbids pushing the remainder anywhere, so the
-  // division below is the requirement itself rather than a reading of it.
-  // ⚠️ THE NOTE THAT STOOD HERE SAID IT WAS 「NOWHERE STATED」 and reasoned an
-  // equal share out as the choice that invents no number. The conclusion was
-  // right and the premise is now wrong. ⚠️ Three tiers stand in fewer than
-  // three rows after T-238: `year` in one, `yearMonth` in two (`yyyy` over
-  // `m`) and `yearMonthWeek` in two.
+  // ⭐ HOW A TIER WITH FEWER THAN THREE ROWS SPENDS THAT HEIGHT IS STATED:
+  // FR-017 (MUST) divides the band equally by the number of rows and ⛔ (MUST
+  // NOT) forbids pushing the remainder anywhere, so the division below is the
+  // requirement itself rather than a reading of it.
   const rowHeight = band.height / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
@@ -1195,7 +1179,7 @@ function rulerSvg(
   out.push(
     `<rect x="${rounded(band.x)}" y="${rounded(band.y)}"` +
       ` width="${rounded(band.width)}" height="${rounded(band.height)}"` +
-      // ⭐ DFC-316: the ruler's own figures are named by the ROW of the tier and
+      // ⭐ The ruler's own figures are named by the ROW of the tier and
       // by the DAY a tick stands on, never by their number in the walk -- a
       // sideways scroll drops ticks off one end and adds them at the other,
       // which is exactly the move that renumbers every one of them.
@@ -1211,7 +1195,7 @@ function rulerSvg(
     // keeps the height it already had, so the baseline's offset inside the
     // glyph box is the only term left to move.
     // ⚠️ WITHOUT IT THE CLEARANCE IS NIL at the tier ROWS_OF_TIER gives
-    // three rows: the baseline sat on the rule that opens the next row, and on
+    // three rows: the baseline sits on the rule that opens the next row, and on
     // the band's foot rule for the last one, at every fontScale of S-3.
     // ⛔ It is not closed by growing the band -- FR-017 (MUST) forbids the
     // band's height moving, and S-179 is written so that nothing grows.
@@ -1314,7 +1298,7 @@ function rulerSvg(
  * stops at DomScreenSurface's own root and answers `null` for any point this
  * layer's markup is under, so a mark here cannot be mistaken for a part a
  * person can press. The attribute is what makes the layer nameable from
- * outside -- which is how DFC-195 was measured in the first place.
+ * outside.
  */
 const WATERMARK_ROLE = 'Watermark'
 
@@ -1322,7 +1306,7 @@ const WATERMARK_ROLE = 'Watermark'
  * FR-020's layer: the opener's name and the run's UTC stamp, laid diagonally,
  * repeatedly and faintly over the `Row Area` (U-50) and nowhere else.
  *
- * ⭐ WHAT EACH OF THE FIVE VALUES MULTIPLIES, WHICH IS THE WHOLE OF THE
+ * ⭐ WHAT EACH VALUE MULTIPLIES, WHICH IS THE WHOLE OF THE
  * ARITHMETIC HERE. S-220 is a number of degrees and goes into the rotation as
  * written. S-221 is a fraction 「掛ける相手は書き出す絵の幅（`S-81`）」 and S-222
  * is a multiple 「掛ける相手は透かしの文字の高さ」 whose spacing is 「縦横とも
@@ -1400,11 +1384,11 @@ function watermarkSvg(
  * table T-068 once per frame and hand the result to everyone who needs it, so
  * this unit measures nothing of its own.
  *
- * ⭐ `picture` IS REQUIRED AND HAS NO DEFAULT. Two call sites in `src/` is a
- * small enough cost that a new caller should have to decide which picture it
+ * ⭐ `picture` IS REQUIRED AND HAS NO DEFAULT. The call sites in `src/` are few
+ * enough that a new caller should have to decide which picture it
  * is asking for, and a default would let a forgotten export draw FR-043's
  * dummies into a reader's file in silence -- which is the very thing EP-14
- * exists to prevent. ⭐ It now answers EP-12 as well: an export is drawn with
+ * exists to prevent. ⭐ It answers EP-12 as well: an export is drawn with
  * no mark of the operation state, whatever `selection` and `follow` say.
  *
  * ⭐ `follow` DOES HAVE ONE, AND THE GROUND IS THE OPPOSITE. Saying nothing
@@ -1501,12 +1485,12 @@ export function svgFromSchedule(
    * out by the same row -- which side follows is operation state too.
    *
    * ⭐ WHY THE REFUSAL IS ONE LINE AND NOT ONE PER KIND. EP-12 is one rule.
-   * The marks it bars are spelled six different ways below -- the dashed frame
+   * The marks it bars are spelled several different ways below -- the dashed frame
    * on a Task, on a highlight box and on a comment box, `S-178` on the
    * dependency line and on the status line, `FR-075`'s grab points, and DC-8's
    * width on a cursor line -- and every one of them is read from these two
    * arguments and from nowhere else. Emptied here, the rule cannot be obeyed
-   * in five places and forgotten in the sixth.
+   * in some places and forgotten in another.
    *
    * ⛔ IT MAY NOT BE LEFT TO THE CALLER. `frame-loop.ts` does hand the
    * export an empty `Selection` and no following side, but a picture that
@@ -1524,7 +1508,7 @@ export function svgFromSchedule(
    * FR-013's other half (MUST) -- the Task whose faint marks the hand is on,
    * and which of the two kinds it is on.
    *
-   * ⭐ SPENT THROUGH `drawsOperationState` LIKE THE OTHER THREE. Where the hand
+   * ⭐ SPENT THROUGH `drawsOperationState` LIKE `marks` AND `following`. Where the hand
    * is IS operation state, and EP-12 of table T-076 keeps that out of an export
    * (「操作の状態 … 描かない」) -- PM-1a is exported (EP-5), so a hovered marker
    * darkened in a saved picture would carry the reader's pointer into the file.
@@ -1558,9 +1542,8 @@ export function svgFromSchedule(
    * control 「その行の名前にポインタが乗っているあいだだけ」 -- the condition is
    * the pointer being over the thing, and no order of precedence enters it.
    *
-   * ⛔ WHY THE DUMMIES ARE NOT ASKED THROUGH `handOn`. The reading is the
-   * requirement's own: 「乗っている」 is a question about a DRAWN FIGURE, and
-   * HF-6 is the 作法 FR-013 points at. ⚠️ THE ORDER IS NOT DISTURBED HERE and
+   * ⛔ WHY THE DUMMIES ARE NOT ASKED THROUGH `handOn`. ⚠️ THE ORDER IS NOT
+   * DISTURBED HERE and
    * must not be: which row a PRESS goes to is table T-023d's, and MK-9a scopes
    * its 優先順位 to 「掴む対象が重なった」. This decides only what is drawn.
    * ⛔ THE CODE IS NOT MADE TO FOLLOW THE PRIORITY ORDER: no clause asks the
@@ -1606,9 +1589,9 @@ export function svgFromSchedule(
 
   // ⛔ Table T-020 is the paint order, back to front, and in an SVG the
   // document order IS that order. ZO-1 予定バー, ZO-1a 補助線, ZO-2 実績バー,
-  // ZO-3 進捗マーカー, ZO-4 依存線, ZO-5 名称ラベル. ⚠️ The first version of
-  // this file wrote the dependencies FIRST, which put them at the back -- the
-  // one arrangement the table's prose forbids in as many words.
+  // ZO-3 進捗マーカー, ZO-4 依存線, ZO-5 名称ラベル. ⚠️ Writing the
+  // dependencies FIRST puts them at the back -- the arrangement the table's
+  // prose forbids in as many words.
   // ⭐ The bands are not a row of that table. They are the ground the table's
   // six elements are painted on, so they go behind all of it (FR-042).
   const bandParts: string[] = []
@@ -1620,7 +1603,7 @@ export function svgFromSchedule(
   const labelParts: string[] = []
   // FR-098 (MUST NOT) reaches every figure a Task draws, not only its row's
   // ground --
-  // so each of the five arrays above (which the loop below fills, in document
+  // so each of the arrays above (which the loop below fills, in document
   // order, for EVERY Task regardless of which row it stands on) gets a twin
   // that catches a PINNED Task's fragments instead. ⛔ The twins are drawn
   // UNCLIPPED, because a pinned Task's own row already stands inside the band
@@ -1636,7 +1619,7 @@ export function svgFromSchedule(
   // capable of crossing into the band as a bar is, so it gets the same split.
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
-  // FR-009 (MUST NOT, ruling 2026-09-06): the crossing halo must not paint
+  // FR-009 (MUST NOT): the crossing halo must not paint
   // over a bar. Collected here, alongside every plan/actual bar the task loop
   // below already draws, and turned into a <mask> once the loop is done --
   // no separate pass over the Tasks and no per-crossing search, only the same
@@ -1662,8 +1645,8 @@ export function svgFromSchedule(
   // be framed; both are thickened where they are drawn, by `selectedLineWidth`,
   // and so stay in `linkParts` with their own paint order.
   //
-  // ⭐ SL-1's comment box is framed here too, now that `ScheduleGeometry` gives
-  // it a rectangle: its body IS its bounding rectangle, the same way the
+  // ⭐ SL-1's comment box is framed here too, from the rectangle
+  // `ScheduleGeometry` gives it: its body IS its bounding rectangle, the same way the
   // highlight box's is.
   const selectionParts: string[] = []
 
@@ -1696,9 +1679,9 @@ export function svgFromSchedule(
   // one `rowGap` below the pinned band, while a banded row is cut at the `Row
   // Area`'s own top edge -- the band stands there and is the one thing allowed
   // to. ⚠️ `scrollAreaY` is optional and reads as the area's top where no row is
-  // pinned, which is the one ceiling every row had before a band existed.
+  // pinned.
   const scrollTop = layout.scrollAreaY ?? area.y
-  // DFC-170: which rows are pinned, so a Task's figures (not only its row's
+  // Which rows are pinned, so a Task's figures (not only its row's
   // ground, cut per-row just below) can be asked the same question. Keyed by
   // `groupId` because that is what `TaskPlacement` (`placedOf` above) carries
   // and `RowPlacement.groupId` is the same identifier.
@@ -1759,7 +1742,7 @@ export function svgFromSchedule(
     if (bottom <= top) continue
     const chosen = colourOfGroup.get(row.groupId) ?? null
     const band = chosen === null ? themed(bandRowOf(row.depth, position)) : chosen
-    // DFC-316: the row's own identifier, never its position -- a delete above
+    // The row's own identifier, never its position -- a delete above
     // this row moves the position and leaves the row the same row.
     const rowKey = `row-${row.groupId}`
     bandParts.push(
@@ -1775,7 +1758,7 @@ export function svgFromSchedule(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
         ` stroke="${themed('S-165')}"` +
-        // ⛔ THE NUMBER IS NOT WRITTEN HERE (DFC-363). EP-9 of table T-076 asks
+        // ⛔ THE NUMBER IS NOT WRITTEN HERE. EP-9 of table T-076 asks
         // for one place and forbids two, and the divider's line takes the very
         // same constant through `screen-frame.ts`.
         ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
@@ -1825,7 +1808,7 @@ export function svgFromSchedule(
           `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
             ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
             ` stroke="${themed('S-149')}" stroke-width="1"` +
-            // DFC-316: the DAY, not the tick's number in the run -- scrolling
+            // The DAY, not the tick's number in the run -- scrolling
             // sideways drops ticks off one end and adds them at the other.
             `${figureKey(`date-grid-${serialOf(day)}`)}/>`,
         )
@@ -1835,7 +1818,7 @@ export function svgFromSchedule(
 
   for (const task of geometry.tasks) {
     const visual = visualOf.get(task.taskUid)
-    // DFC-170: which bucket this Task's figures go into. `placedOf` maps a
+    // Which bucket this Task's figures go into. `placedOf` maps a
     // `taskUid` to its `TaskPlacement`, which carries the `groupId` of the
     // row it stands on -- the same identifier `pinnedGroupIds` above was
     // built from. ⚠️ Read once here and reused below (at the label and the
@@ -1849,7 +1832,7 @@ export function svgFromSchedule(
     // answer to where it stands, and without one there is nothing to ask.
     // ⭐ AND THE SIDEWAYS HALF, asked of the WIDER of this Task's two shapes --
     // a Task is worth writing when EITHER the plan or the actual reaches the
-    // range (author's ruling, 2026-09-07). `TaskPlacement` already carries
+    // range. `TaskPlacement` already carries
     // both spans in drawn px -- `x`/`width` is the plan shape as it is painted
     // (a milestone centred on its day, a short bar floored to `minShapeWidth`)
     // and `actualX`/`actualWidth` the actual -- so nothing is re-derived here
@@ -1876,7 +1859,7 @@ export function svgFromSchedule(
         continue
       }
     }
-    // DFC-316: the stem every figure of this Task is named from. `taskUid` is
+    // The stem every figure of this Task is named from. `taskUid` is
     // the document's own identifier for it (MSPDI's UID, table T-058), so it
     // survives a delete anywhere else in the schedule.
     const taskKey = `task-${task.taskUid}`
@@ -1916,7 +1899,7 @@ export function svgFromSchedule(
         `<polyline points="${pointsOf(guide)}" fill="none" stroke="${actual.stroke}"` +
           ` stroke-width="${rounded(settings.planActualGuideWeight)}"` +
           ` stroke-dasharray="${rounded(settings.planActualGuidePattern.on)}` +
-          // ⚠️ DFC-316: BOTH guides of one Task carry the one key. A guide is
+          // ⚠️ BOTH guides of one Task carry the one key. A guide is
           // the line that leaves the actual bar (S-105) and there are at most
           // two of them, so which is which is the run's own order -- an index
           // would say more than the geometry does.
@@ -1940,7 +1923,7 @@ export function svgFromSchedule(
     // instead, because GR-7 hangs the not-started progress marker off GR-17
     // and dropping that dummy would take EP-5's marker with it (WY-3 of table
     // T-041 measures it), and table T-023d still keeps GR-17 as a grab
-    // target (only the drawn ink was ever two).
+    // target.
     // ⭐ WHAT THE ONE MARK IS SHAPED LIKE IS SETTLED:
     // FR-043's milestone exception covers the figure, the colour and the box,
     // so a milestone's dummy is its own actual figure in a square and never a
@@ -1965,7 +1948,7 @@ export function svgFromSchedule(
       // EXCEPTION MOVED. `dummyFigure` answers the rectangle for every shape
       // but a milestone, and the milestone's own glyph for one -- carried on
       // `TaskGeometry.milestoneFigure`, which the geometry builds whether or
-      // not either bar is drawn (DFC-407), never minted here.
+      // not either bar is drawn, never minted here.
       const marks = barSvg(
         dummyFigure(
           task.milestoneFigure,
@@ -2033,9 +2016,8 @@ export function svgFromSchedule(
       }
 
       // FR-075 (MUST): the grab points show on the SELECTED Task and on no
-      // other. S-92's hit area is already live in ItemHitArea, so until this
-      // round a person could catch a point that was never drawn. S-109 is the
-      // half-side of the square and S-110 its stroke; FD-5 already decided
+      // other. S-109 is the half-side of the square and S-110 its stroke;
+      // FD-5 already decided
       // which shapes get handles at all, so an empty list draws nothing.
       const half = settings.fadeHandleHalfPx
       for (const foundAt of task.fadeHandles) {
@@ -2043,7 +2025,7 @@ export function svgFromSchedule(
           `<rect x="${rounded(foundAt.x - half)}" y="${rounded(foundAt.y - half)}"` +
             ` width="${rounded(half * 2)}" height="${rounded(half * 2)}"` +
             ` fill="${FADE_HANDLE_FILL_COLOUR}" stroke="${FADE_HANDLE_STROKE_COLOUR}"` +
-            // ⚠️ DFC-316: the three grab points of one Task share its key, for
+            // ⚠️ The grab points of one Task share its key, for
             // the reason the guides do -- FD-5 decides how many there are, so
             // a number here would move when the shape does.
             ` stroke-width="${rounded(settings.fadeHandleStrokePx)}"` +
@@ -2114,17 +2096,15 @@ export function svgFromSchedule(
     // table T-225 for the Task nobody is on) and the percent (FR-090), jutting
     // out past the left of the bar where `outsideLabelBoxOf` placed it.
     //
-    // ⭐⭐ ONE `<text>`, NOT TWO (FR-090, MUST, 利用者の裁定 2026-09-08): 「2 枚
-    // の札ではなく 1 枚の札として描くこと（MUST）。2 枚を別々に置いてはならない
-    // （MUST NOT）」. ⛔ THIS LOOP DREW TWO UNTIL THAT RULING LANDED, each at the
-    // left edge of its own FR-093 estimate -- and an estimate that under-reads
-    // its glyphs spills into its neighbour: measured 2026-09-08 on the shipped
-    // build, all 40 drawn Tasks overlapped by 3.089 to 13.971px and read as
-    // 「70%佐藤」. One string cannot collide with itself.
+    // ⭐⭐ ONE `<text>`, NOT TWO (FR-090, MUST / MUST NOT). ⛔ Two texts, each at
+    // the left edge of its own FR-093 estimate, collide: an estimate that
+    // under-reads its glyphs spills into its neighbour (on the shipped build,
+    // all 40 drawn Tasks of one document overlapped by 3.089 to 13.971px). One
+    // string cannot collide with itself.
     //
-    // ⭐ ANCHORED AT ITS RIGHT EDGE, which is FR-090's own sentence: 「予定バー
-    // の左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した位置に、札の
-    // 右端を揃えて置くこと（MUST）…… 左端は揃えない」.
+    // ⭐ ANCHORED AT ITS RIGHT EDGE, which is FR-090's own rule: the card's
+    // right edge stands `S-32` left of the plan bar's left edge, and its left
+    // edge is not aligned.
     // ⛔ THAT IS ALSO WHAT MAKES THE ESTIMATE SAFE: FR-093
     // forbids measuring the glyphs, so the box is only ever an estimate, and
     // anchoring the END sends the error LEFTWARD -- away from the bar, into the
@@ -2149,9 +2129,9 @@ export function svgFromSchedule(
           themed('S-168'),
           themed('S-169'),
           0,
-          // DFC-316: one figure, one key -- and the key names the ROW of table
+          // One figure, one key -- and the key names the ROW of table
           // T-038 rather than one of the two readings inside the card, because
-          // there is no longer a figure per reading to tell apart.
+          // there is no figure per reading to tell apart.
           `${taskKey}-oc2-label`,
           'end',
         ),
@@ -2247,7 +2227,7 @@ export function svgFromSchedule(
     // in it, and RT-4a already refuses to drop a line for a row that is not
     // drawn.
     // ⚠️ AFTER the head is minted, so the `<marker>` GD-6 asks for is written
-    // exactly when it was before this change.
+    // whether or not the first line is culled.
     // ⭐ BOTH AXES, and the sideways one for the same reason the up-and-down
     // one is not asked of the two ends' rows: a line between two Tasks a screen
     // apart CROSSES the window with neither end in it, so the test is the
@@ -2272,7 +2252,7 @@ export function svgFromSchedule(
       settings.dependencyWidth,
       selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
     )
-    // DFC-170: a dependency line is pinned only when BOTH ends are -- one drawn
+    // A dependency line is pinned only when BOTH ends are -- one drawn
     // between a pinned Task and a scrolling one still has a scrolling end,
     // which can carry it above `scrollTop` exactly the way a bar can, so it
     // needs the clip. `points` already carries each end's CURRENT position
@@ -2302,7 +2282,7 @@ export function svgFromSchedule(
     // region computed here.
     const points = pointsOf(link.points)
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
-    // DFC-316: a dependency IS its two ends, so the two UIDs are its name --
+    // A dependency IS its two ends, so the two UIDs are its name --
     // and the halo and the line under it are one figure and share it.
     const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
     ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
@@ -2318,7 +2298,7 @@ export function svgFromSchedule(
     linkParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
         ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +
-        // ⚠️ DFC-316: one per picture, so the name of the thing is the key.
+        // ⚠️ One per picture, so the name of the thing is the key.
         `${figureKey('progress-line')}/>`,
     )
   }
@@ -2371,7 +2351,7 @@ export function svgFromSchedule(
         `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
           ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
           ` stroke="${colour}" stroke-width="${rounded(width)}"` +
-          // ⭐ DFC-316: `date1` and `date2` are S-65's own two members, so the
+          // ⭐ `date1` and `date2` are S-65's own two members, so the
           // two lines are told apart by the value each stands on and never by
           // which of them is following (DC-8, which an export never sees).
           `${figureKey(`dual-cursor-${side}`)}/>`,
@@ -2484,9 +2464,9 @@ export function svgFromSchedule(
     // colour; FR-019 (MUST NOT) forbids a new settings value for it.
     // ⚠️ NO ROW GIVES THE LINE A WEIGHT, and none is invented for it: it
     // takes the same literal 1 the highlight box and the comment body beside
-    // it are already stroked at, so the three move together if a row ever
-    // arrives. ⛔ Reported rather than guessed -- a weight of its own would
-    // be a settings value this unit minted.
+    // it are already stroked at, so they move together if a row ever
+    // arrives. ⛔ Not guessed -- a weight of its own would be a settings value
+    // this unit minted.
     // ⭐ PUSHED BEFORE THE BODY so the filled body covers the end of the line
     // rather than the line crossing the text -- the body's own fill is what
     // NFR-007 put there, and a leader drawn over it would undo that ground.
@@ -2526,7 +2506,7 @@ export function svgFromSchedule(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
           ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
-          // ⭐ DFC-316: the line's number IS its identity here, and it is not an
+          // ⭐ The line's number IS its identity here, and it is not an
           // array position standing in for one -- FR-097 wraps the box's own
           // text, so line 3 stays line 3 of this box whatever happens to any
           // other box.
@@ -2544,12 +2524,11 @@ export function svgFromSchedule(
     }
   }
 
-  // DFC-170: the band-crossing figures, clipped to the scrolling remainder
+  // The band-crossing figures, clipped to the scrolling remainder
   // (`S-78`'s own rectangle, minted above as `scrollClipId`) -- and left
-  // unwrapped whenever nothing is pinned, so an unpinned document's markup is
-  // untouched by this whole change (`hasPinnedRows` is false, the pinned
-  // arrays are empty, and every one of these four groups reduces to exactly
-  // the array it always was).
+  // unwrapped whenever nothing is pinned, so an unpinned document's markup
+  // carries no clip (`hasPinnedRows` is false, the pinned arrays are empty,
+  // and each of these groups reduces to its plain array).
   const scrollingBars = [...planParts, ...guideParts, ...actualParts, ...markerParts].join('')
   const clippedBars = hasPinnedRows
     ? [`<g clip-path="url(#${scrollClipId})">${scrollingBars}</g>`]
@@ -2564,12 +2543,6 @@ export function svgFromSchedule(
   // FR-020's MUST NOT and EP-7's MUST, as the rectangle both name. ⭐ No new
   // value is minted: this IS
   // `regions.rowArea`, which PI-35 already cut for U-50.
-  //
-  // ⛔ PUSHED HERE AND NOT BESIDE `scrollClipId` ABOVE, which is not tidiness:
-  // the dependency loop mints its arrowhead only `if (defsParts.length === 0)`,
-  // so a clip added before it would take every arrowhead out of every picture
-  // that carries a watermark. ⚠️ Nothing else reads `defsParts` between here
-  // and the assembly below.
   const watermarkClipId = `grs-watermark-clip-${pictureId(
     `${rounded(area.x)}x${rounded(area.y)}|${rounded(area.width)}x${rounded(area.height)}`,
   )}`
@@ -2611,12 +2584,12 @@ export function svgFromSchedule(
     // have needed a width, a dash and a colour that no row states.
     // ⚠️ BEFORE THE RULER AND NOT AFTER IT. ZO-6 is the front of table T-020,
     // and the band is not a row of that table at all -- it is drawn over
-    // everything for the reason the next comment gives, and a marquee dragged
+    // everything for the reason given at the `rulerSvg` call below, and a marquee dragged
     // up across it must not take the dates away from the reader.
     // ⛔ NOTHING IS DRAWN FOR AN EXPORT, and no guard here says so: EP-12 of
     // table T-076 keeps operation state out of a picture, and the export road
     // simply does not pass a rectangle -- the default is what answers it.
-    // ⚠️ DFC-316: there is at most ONE marquee, so its key is simply what it
+    // ⚠️ There is at most ONE marquee, so its key is simply what it
     // is -- there is nothing to tell it apart from.
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
     // ⭐ FR-020's layer, over everything the `Row Area` holds -- 「重ねる」 is
@@ -2644,7 +2617,7 @@ export function svgFromSchedule(
       // S-108 is the day the week starts on when the document names none.
       schedule.project.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108'],
       // ⭐ S-146, S-147 and S-149 -- the ground, the ink and the rule, back to
-      // front -- now that the generator sends all three to SCHEDULE_COLOURS as
+      // front -- which the generator sends to SCHEDULE_COLOURS as
       // well as to the chrome's roster. ⛔ They are handed IN rather than read
       // here: `themed` is `svgFromSchedule`'s own closure over the hue and the
       // two flags, and reading table T-236 a second time in this file is the
