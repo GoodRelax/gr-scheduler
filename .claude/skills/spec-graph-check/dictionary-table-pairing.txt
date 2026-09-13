@@ -6,6 +6,10 @@
 # Regenerate the WHOLE file only after reading every row it touches; to
 # update a single row by hand, replace only its line -- do not paste in a
 # fingerprint you have not read the pair for.
+#
+# CR-374 (2026-09-13) replaced T-023d GR-3 / GR-4 / GR-6 / GR-15 by hand: each
+# row's 操作 cell gained only a pointer to FR-103. The four display words were
+# read beside their rows and still say what the rows say, so no word changed.
 
 T-016 PR-1 14916f95e30853c7
 T-016 PR-10 1b4a49604bd2f92d
@@ -69,7 +73,7 @@ T-023d GR-11 62e9d79fb88ceb75
 T-023d GR-12 94664273edf18874
 T-023d GR-13 29448c04b66dbc0c
 T-023d GR-14 86b31e4e3f07fdc1
-T-023d GR-15 1e7c6f1f2c6e0508
+T-023d GR-15 bb7d8859ea8ba0cf
 T-023d GR-16 39f4a112669384f9
 T-023d GR-17 98b4e56c461faf4f
 T-023d GR-18 324858b9bee56aa1
@@ -77,10 +81,10 @@ T-023d GR-19 deae728438eaaa39
 T-023d GR-2 190c96f8e02de6e8
 T-023d GR-20 6c6fd150530aeced
 T-023d GR-21 0870c8d9e5f143e6
-T-023d GR-3 e55dd8dc0eb61d8d
-T-023d GR-4 e896c46477576497
+T-023d GR-3 a7c606b8438e13f5
+T-023d GR-4 1c7a95a9a4fe2790
 T-023d GR-5 448c16a4b0398d24
-T-023d GR-6 0f435205abfd6b5c
+T-023d GR-6 0a1ade5ecd651386
 T-023d GR-7 784b32277547f43d
 T-023d GR-8 7c9792e0709494bb
 T-023d GR-9 f72d9a022ef524d7

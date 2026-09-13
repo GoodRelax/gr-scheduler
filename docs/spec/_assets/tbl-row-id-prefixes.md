@@ -67,7 +67,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 592 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 593 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 12 |
@@ -87,6 +87,7 @@
 | `FU` | Future | いま作らないが、後から足せるようにしておくもの | 仕様書 | `T-039` | 5 |
 | `G` | Glossary | 本書を読むための語 | 仕様書 | `T-005` | 14 |
 | `GD` | Guide | 予実の補助線の条 | 仕様書 | `T-020a` | 7 |
+| `GO` | Grab outcome | 掴んだ端を離したときに置く値と据え置く値の行 | 仕様書 | `T-245` | 4 |
 | `GR` | Grab region | 掴み領域 1 つと、その優先順位の段 | 仕様書 | `T-023d` | 21 |
 | `HF` | — | 行ごとの折り畳みと隠しの操作面の条 | 仕様書 | `T-051` | 19 |
 | `HM` | Hierarchy Move | 階層の移動の規則の条 | 仕様書 | `T-015a` | 11 |

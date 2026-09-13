@@ -371,6 +371,14 @@
    }
   },
   {
+   "prefix": "GO",
+   "words": "Grab outcome",
+   "owner": "spec",
+   "means": {
+    "ja": "掴んだ端を離したときに置く値と据え置く値の行"
+   }
+  },
+  {
    "prefix": "GR",
    "words": "Grab region",
    "owner": "spec",
