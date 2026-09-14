@@ -274,7 +274,10 @@ function appendAssignment(host: Document, target: HTMLElement, written: string):
   const pieces = written.split(GLYPH_TOKEN)
   pieces.forEach((piece, at) => {
     if (at % 2 === 0) {
-      if (piece !== '') target.append(piece)
+      if (piece === '') return
+      const words = made(host, 'span', '')
+      words.textContent = piece
+      target.append(words)
       return
     }
     const glyph = made(host, 'span', STYLE.helpGlyph)
@@ -1688,6 +1691,8 @@ function modalElement(
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
+  // STOP: spec does not decide the order of the help title row. Looked in FR-036, FR-038, IC-52
+  // @provisional PND-500
   let legend: HTMLElement | null = null
   for (const item of modal.commands) {
     if ('entries' in modal && item.icon === HELP_LEGEND_ENTRY) {
@@ -2169,7 +2174,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const drawn = made(host, 'div', tooltipStyle())
     drawn.setAttribute('role', 'tooltip')
     drawn.setAttribute('data-anchor', key)
-    drawn.textContent = tip.assignment ? `${tip.text} ` : tip.text
+    const words = made(host, 'span', '')
+    words.textContent = tip.assignment ? `${tip.text} ` : tip.text
+    drawn.append(words)
     if (tip.assignment) appendAssignment(host, drawn, tip.assignment)
 
     // STOP: spec does not decide where EZ-6's tooltip stands. Looked in IN-3, EZ-6
