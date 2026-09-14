@@ -33,7 +33,7 @@ refactor ブランチで作業を続けよ。辞書の語と JDG-81 は refactor
    - 裁定が下りたら、wave-cr378-379 を refactor へ早送りで入れる（refactor の先端が wave の祖先であることを確かめてから）。
 3. 次の一手は docs/development-records/refactor-plan-report-2026-09-13.md の「現在地」の「2026-09-15 早朝の到達」にある。
    - DFC-588 は出荷ビルドで押して閉じた（fixed-defects.md）。⚠️ 字下げを見張る自動試験は無い。
-   - 段 3（門）: 検査 19 に EG-5・EG-8・JF-1 を載せる。提案の下書きは前の巡の scratchpad にしか無いので、作り直すなら読むだけの体に出せ。
+   - 段 3（門）: 提案は docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md にある（利用者に問うこと 0 件と導いた）。⛔ 新しい基準線 3 つ（辺・関数の大きさ・UseCase のモジュール状態）の初期値は、入れる前に利用者へ見せよ。⚠️ 図に無いコードの辺は CR-378 の予測 49 ではなく実測 50 —— 4d00e69a が AgentApiEndpoint -> EditDocument を足していた。
    - ⚠️ 入口を持たない割当の塊の中の並びは未裁定（PND-500）。
    - ⛔ IV-1〜IV-21 の語は書くな（JDG-78 により DFC-586 と一緒に、リファクタ一式の後）。
 4. DFC-582 の実行時の直し（開く道が取り込みの拒否を告げない）は段 7 で frame-loop.ts を移したあとに行う（JDG-57 の d）。ただし中身の異常系の作り直しは DFC-586（リファクタ一式の後）。CR-379 の 2b-B も段 7 のコードと同じ波で当てる（CR-379 の決定 3）。
