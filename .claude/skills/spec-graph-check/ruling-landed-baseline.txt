@@ -1,4 +1,8 @@
-19
+6
+#
+# LOWERED 19 -> 6 on 2026-09-15, with the user's approval (JDG-111): the spec wave CR-380 ..
+# CR-385 landed JDG-83 .. JDG-101 and the day's answers; JDG-114 (the pointer-over-target form
+# of the provisional dependency line), JDG-78 and JDG-107 stay open.
 #
 # RAISED 17 -> 19 on 2026-09-15, under the same day's approval: JDG-107 (the user parks E,
 # DFC-594, until it can be reproduced) and JDG-108 (the gap is the inter-row rowGap S-12, not a

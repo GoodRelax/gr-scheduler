@@ -67,10 +67,10 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 623 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 625 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
-| `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 12 |
+| `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 13 |
 | `DN` | — | 作ってはならない依存の形 | 仕様書 | `T-018b` | 3 |
 | `DP` | Dependency | 依存の種別と、線を着ける位置 | 仕様書 | `T-018` | 4 |
 | `DR` | Document Root | 文書ルートに置く群と、その中身の条 | 仕様書 | `T-052` | 5 |
@@ -101,7 +101,7 @@
 | `IO` | Input / Output | 読み書きする入出力の形式 | 仕様書 | `T-024` | 7 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 108 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 115 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 116 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 3 |
@@ -122,7 +122,7 @@
 | `NR` | — | 交換形式を比べる前に当てる正規化の条 | 仕様書 | `T-228` | 5 |
 | `NS` | — | 書き出した絵を比べる前に当てる正規化と、一致の判定の条 | 仕様書 | `T-231` | 6 |
 | `NT` | Notification | 通知するときの作法の条 | 仕様書 | `T-037` | 10 |
-| `OC` | Occupancy | 形状の占有幅に算入するもの | 仕様書 | `T-038` | 9 |
+| `OC` | Occupancy | 形状の占有幅に算入するもの | 仕様書 | `T-038` | 10 |
 | `OP` | Open | 文書を開くときの規則の条 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-024a` | 15 |
 | `OR` | Order | 形状の外へ出すものの左右の並びの条 | 仕様書 | `T-243` | 6 |
 | `P` | Property | 画面に出すプロパティの語 | 仕様書 | `T-102` | 23 |
@@ -147,7 +147,7 @@
 | `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 54 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 5 |
-| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 228 |
+| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 229 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 4 |
 | `SF` | State-machine Form | 状態機械の形の条 | 仕様書 | `T-249` | 10 |

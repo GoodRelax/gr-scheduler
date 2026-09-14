@@ -1,4 +1,8 @@
-395
+425
+# RAISED 395 -> 425 on 2026-09-15, with the user's approval (asked in chat: raise 42 for now):
+# CR-380 .. CR-385 rewrote 30 sentences that test comments still quote verbatim (the day after
+# a start date, the row gap, the reserved marker room). The implementation wave rewrites those
+# tests; lower it there.
 # LOWERED 479 -> 395 on 2026-09-14: the tests/ comment wave (JDG-77) brought 64 test
 # files to JDG-62 and removed quotations with no source in docs/spec.
 #

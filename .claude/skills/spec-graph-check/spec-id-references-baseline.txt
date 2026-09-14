@@ -1,4 +1,6 @@
-96
+93
+# LOWERED 96 -> 93 on 2026-09-15, with the user's approval (JDG-111): measured after CR-380 ..
+# CR-385 landed; hold the ground.
 # RAISED 93 -> 96 on 2026-09-14: CR-376 retired AT-35 (the stored working-day
 # actualDuration). Three references stay on purpose: cr-376-exchange-carries-the-last-day.test.ts
 # pins that table T-058 no longer holds AT-35, and two WHY comments (properties-panel.ts,

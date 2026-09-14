@@ -598,7 +598,7 @@
     "rowGap": {
      "type": "integer",
      "minimum": 0,
-     "maximum": 60
+     "maximum": 0
     },
     "rowTitleFont": {
      "type": "integer",

@@ -1,4 +1,7 @@
-1374
+1401
+# RAISED 1374 -> 1401 on 2026-09-15, with the user's approval (asked in chat: raise 39 for now):
+# CR-380 .. CR-385 (the spec wave for DFC-590 .. DFC-603) wrote 27 new MUST / MUST NOT clauses
+# that no test holds verbatim yet. The implementation wave writes their tests; lower it there.
 # RAISED 1369 -> 1374 on 2026-09-15, with the user's approval: CR-378 (tables T-247 / T-248)
 # and CR-379 2b-A (5.5) wrote 7 MUST clauses no test can hold truthfully yet -- the T-247
 # lead sentence, EG-5 and EG-6 (the code keeps edges missing from the figure until stage 8),

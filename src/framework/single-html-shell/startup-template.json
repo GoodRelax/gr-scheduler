@@ -40990,7 +40990,7 @@
   "resumeDashOn": 3,
   "resumeHeadOfMarker": 0.22,
   "resumeScaleInvalid": 0.7,
-  "rowGap": 8,
+  "rowGap": 0,
   "rowTitleFont": 13,
   "rowTitleIndent": 16,
   "rowTitlePanelWidth": 200,
@@ -41011,7 +41011,7 @@
    "arrow": 0.5,
    "chevron": 1.0,
    "endpointSpan": 0.5,
-   "milestone": 1.5,
+   "milestone": 1.25,
    "rectangle": 1.0
   },
   "spanDotOfStroke": 1.15,
