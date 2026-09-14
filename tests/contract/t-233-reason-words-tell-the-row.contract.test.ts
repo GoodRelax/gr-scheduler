@@ -301,12 +301,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⚠️ It stays clear of RS-48, which is a NEWER FORMAT and keeps what it could
   // not read. This one is a value this build understands and refuses to leave.
   //
-  // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
-  // above): the scene's rule text is unchanged from HEAD, only its origin
-  // record was folded out. Read against the dictionary again -- both
-  // languages and the next step still tell the same scene -- so only the
-  // fingerprint is re-keyed.
-  'RS-51': '5cd87eb9617b8e10',
   // ⭐ ADDED 2026-09-07, on the ruling that editing the working-day calendar
   // recounts the STORED percent complete (FR-012). The row, both languages and
   // the next step were read against each other BEFORE this fingerprint was
