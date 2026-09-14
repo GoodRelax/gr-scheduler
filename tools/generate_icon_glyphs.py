@@ -58,11 +58,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 FIGURE = os.path.join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg')
 GLOSSARY = os.path.join(ROOT, 'docs', 'spec', '_assets', 'tbl-glossary.md')
-OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json')
+OUT = os.path.join(ROOT, 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json')
 
 REL_FIGURE = 'docs/spec/_assets/fig-icons.svg'
 REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
-REL_OUT = 'src/adapter/screen-renderer/icon-glyphs.json'
+REL_OUT = 'src/framework/dom-screen-surface/icon-glyphs.json'
 REL_SELF = 'tools/generate_icon_glyphs.py'
 
 ICON_TABLE = 'T-109'

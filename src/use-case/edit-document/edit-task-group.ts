@@ -15,12 +15,6 @@ import type {
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
-import displayWords from '../../adapter/screen-renderer/display-words.json'
-
-// WHY: English, because the display language is not in the document and the label is exported.
-const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
-export const DEFAULT_ROW_NAME: string =
-  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 
 export type TaskGroupCommand =
   | {
@@ -209,7 +203,11 @@ function withWbsOrderFollowingTheRows(document: Document, rows: readonly TaskGro
 // TRAP: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
 /** @purity pure */
-export function editTaskGroup(document: Document, command: TaskGroupCommand): EditResult {
+export function editTaskGroup(
+  document: Document,
+  command: TaskGroupCommand,
+  defaultRowName: string,
+): EditResult {
   const schedule = document.schedule
   const settings = document.documentSettings
   const groups = schedule.taskGroups
@@ -287,7 +285,7 @@ export function editTaskGroup(document: Document, command: TaskGroupCommand): Ed
         }
         // WHY: settles a name rather than refusing, which would block deleting a nameless Task.
         const settled =
-          row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? DEFAULT_ROW_NAME
+          row.label ?? taskByUid(schedule, row.derivedFromTaskUid)?.name ?? defaultRowName
         kept.push({ ...row, label: settled, derivedFromTaskUid: null })
       }
 

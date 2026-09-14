@@ -29,7 +29,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
-import { DEFAULT_ROW_NAME, tasksRankedByTheRowTree } from './edit-task-group'
+import { tasksRankedByTheRowTree } from './edit-task-group'
 
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
@@ -305,7 +305,7 @@ function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> {
 
 // see T-108, IV-2
 /** @purity pure */
-export function editTask(document: Document, command: TaskCommand): EditResult {
+export function editTask(document: Document, command: TaskCommand, defaultRowName: string): EditResult {
   const schedule = document.schedule
   const settings = document.documentSettings
   const within = workingCalendarOf(schedule)
@@ -414,7 +414,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         }
         // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
         const source = taskByUid(schedule, group.derivedFromTaskUid)
-        const settled = group.label ?? source?.name ?? DEFAULT_ROW_NAME
+        const settled = group.label ?? source?.name ?? defaultRowName
         taskGroups.push({ ...group, label: settled, derivedFromTaskUid: null })
       }
 

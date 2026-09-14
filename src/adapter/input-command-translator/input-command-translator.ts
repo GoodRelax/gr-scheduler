@@ -65,8 +65,11 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
-import { DEFAULT_ROW_NAME } from '../../use-case/edit-document/edit-document'
+import {
+  DEFAULT_ROW_NAME,
+  type FieldCommit,
+  type ScreenPart,
+} from '../screen-renderer/screen-renderer'
 import type {
   DocumentCommand,
   TaskMilestoneGlyph,

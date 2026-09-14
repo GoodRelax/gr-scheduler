@@ -327,6 +327,7 @@ function planAndApply(
       },
       historyLimits: snapshot.historyLimits,
       settingsLimits: snapshot.settingsLimits,
+      defaultRowName: snapshot.defaultRowName,
       editedBy: wiring.writerName,
       updatedUtc: snapshot.readAt,
     },

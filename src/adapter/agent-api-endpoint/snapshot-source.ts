@@ -32,6 +32,7 @@ export interface AgentSnapshot {
   readonly isEditingInPlace: boolean
   readonly historyLimits: PlanInput['historyLimits']
   readonly settingsLimits: SettingsLimits
+  readonly defaultRowName: PlanInput['defaultRowName']
   readonly readAt: string
 }
 

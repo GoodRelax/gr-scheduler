@@ -25,6 +25,12 @@ import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './not
 
 // TRAP: the shell must use this key, not rebuild it, or the two spellings drift apart.
 export { dismissKeyOf }
+
+// see HF-14
+// WHY: the en cell, not the display language; the row label is document data (FR-038).
+const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
+export const DEFAULT_ROW_NAME: string =
+  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 import { openModalFromScreenState } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule } from './row-title-panel'
