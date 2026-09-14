@@ -217,7 +217,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -294,7 +294,7 @@ const scheduleOf = (
         // An actual bar and a percentage, so the row really carries a progress
         // marker -- one of the five figures the amendment names.
         actualStart: dayAfter('2026-01-05', index * 7),
-        actualDuration: 5,
+        stop: dayAfter('2026-01-05', index * 7 + 4),
         percentComplete: 40,
         dependencies: dependencyOf[id] ?? [],
       }),

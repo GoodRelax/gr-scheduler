@@ -46,10 +46,10 @@ const PRESS_BY_ROW = new Map(
 function entryAssignment(icon: IconId, language: DisplayLanguage): string | null {
   const found = HELP_ITEM_BY_ICON.get(icon)
   if (found === undefined) return null
-  if (found.keys !== null) return found.keys
-  if (found.press === null) return null
-  const press = PRESS_BY_ROW.get(found.press)?.press[language]
-  return press === undefined || press === '' ? null : press
+  const word = found.press === null ? undefined : PRESS_BY_ROW.get(found.press)?.press[language]
+  const press = word === undefined || word === '' ? null : word
+  const written = [found.keys, press].filter((one): one is string => one !== null).join(' ')
+  return written === '' ? null : written
 }
 
 /** @purity pure */

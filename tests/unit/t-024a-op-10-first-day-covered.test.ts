@@ -235,7 +235,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -284,8 +284,8 @@ function documentOf(edit: (draft: any) => void = () => {}): Document {
           start: stored(LATER_START),
           finish: stored('2026-04-30'),
           actualStart: stored(EARLIEST_ACTUAL_START),
-          // In WORKING days -- `actualDuration` is counted in them (FR-011).
-          actualDuration: 5,
+          // The last day of the actual: 5 working days counted from 2026-04-03 (FR-011).
+          stop: stored('2026-04-09'),
           percentComplete: 20,
         }),
       ],
@@ -486,7 +486,7 @@ describe('OP-10 -- which days 「その文書が覆う最初の日」 counts', (
     const noActuals = documentOf((draft) => {
       for (const one of draft.schedule.tasks) {
         one.actualStart = null
-        one.actualDuration = null
+        one.stop = null
         one.percentComplete = 0
       }
     })

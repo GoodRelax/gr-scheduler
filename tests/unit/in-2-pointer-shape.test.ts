@@ -258,7 +258,7 @@ const BAR_START = '2026-04-06'
 const BAR_FINISH = '2026-04-24'
 const BAR_ACTUAL_START = '2026-04-08'
 /** A fixture choice, not a settings value: any short actual leaves a long body. */
-const BAR_ACTUAL_DURATION = 3
+const BAR_ACTUAL_STOP = '2026-04-10'
 
 /** A milestone that IS started, so 実績の図形 (GR-15) stands on it. */
 const STONE_UID = 2
@@ -297,7 +297,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -352,7 +352,7 @@ function fixtureDocument(): Document {
           start: BAR_START,
           finish: BAR_FINISH,
           actualStart: BAR_ACTUAL_START,
-          actualDuration: BAR_ACTUAL_DURATION,
+          stop: BAR_ACTUAL_STOP,
           percentComplete: 40,
         }),
         task({
@@ -361,7 +361,7 @@ function fixtureDocument(): Document {
           finish: STONE_DAY,
           milestone: true,
           actualStart: STONE_DAY,
-          actualDuration: 0,
+          stop: STONE_DAY,
         }),
         task({
           uid: NEW_STONE_UID,

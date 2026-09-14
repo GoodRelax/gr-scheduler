@@ -130,7 +130,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     finish: null,
     milestone: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -369,7 +369,7 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
       start: '2026-01-05',
       finish: '2026-01-20',
       actualStart: '2026-03-02',
-      actualDuration: 40,
+      stop: '2026-04-24',
     })
     const geometry = geometryOf(
       schedule,

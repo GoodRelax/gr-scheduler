@@ -243,7 +243,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -341,7 +341,7 @@ const holding = (...items: readonly ItemRef[]): Selection =>
 // ---------------------------------------------------------------------------
 
 /** ⚠️ The actual columns every suspended and running row shares. */
-const STARTED = { actualStart: '2026-04-06', actualDuration: 5 }
+const STARTED = { actualStart: '2026-04-06', stop: '2026-04-10' }
 
 /** `PA-3` 中断・再開予定あり -- 「`resume` **日付**」, 「`resumeValid` `true`」. */
 const THE_RESUME_DAY = '2026-05-11'

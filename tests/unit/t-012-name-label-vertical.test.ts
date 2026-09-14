@@ -96,7 +96,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     finish: null,
     milestone: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -228,7 +228,7 @@ describe('table T-012 -- the name label sits on the centre of the combined heigh
         spanning(1, '2026-01-01', 20, {
           name: SHORT_NAME,
           actualStart: '2026-01-01',
-          actualDuration: 5,
+          stop: '2026-01-07',
         }),
       ],
       [{ taskUid: 1, shapeKind: 'rectangle' }],
@@ -249,7 +249,7 @@ describe('table T-012 -- the name label sits on the centre of the combined heigh
         spanning(1, '2026-01-01', 20, {
           name: SHORT_NAME,
           actualStart: '2026-01-03',
-          actualDuration: 5,
+          stop: '2026-01-08',
         }),
       ],
       [{ taskUid: 1, shapeKind: 'chevron' }],
@@ -277,6 +277,7 @@ describe('table T-012 -- the name label sits on the centre of the combined heigh
           milestone: true,
           name: SHORT_NAME,
           actualStart: '2026-01-14',
+          stop: '2026-01-14',
         }),
       ],
       taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
@@ -303,7 +304,7 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
         spanning(1, '2026-01-01', 20, {
           name: SHORT_NAME,
           actualStart: '2026-01-04',
-          actualDuration: 6,
+          stop: '2026-01-09',
         }),
       ],
       [{ taskUid: 1, shapeKind }],
@@ -393,7 +394,7 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
 describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
   const named = (shapeKind: string, days: number, name: string): Schedule =>
     withVisuals(
-      [spanning(1, '2026-01-01', days, { name, actualStart: '2026-01-04', actualDuration: 3 })],
+      [spanning(1, '2026-01-01', days, { name, actualStart: '2026-01-04', stop: '2026-01-06' })],
       [{ taskUid: 1, shapeKind }],
     )
 

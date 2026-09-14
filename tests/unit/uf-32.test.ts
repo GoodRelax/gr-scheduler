@@ -131,7 +131,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     milestone: null,
     percentComplete: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -372,7 +372,7 @@ const LATE = spanning(1, '2026-01-01', 10, {
   name: 'alpha',
   percentComplete: 40,
   actualStart: '2026-01-01',
-  actualDuration: 5,
+  stop: '2026-01-07',
 })
 const AFTER = spanning(2, '2026-01-20', 10, {
   name: 'beta',
@@ -724,7 +724,7 @@ describe('UF-32 -- 表 T-020a の GD-6: 依存線と補助線の見分け', () =
     name: 'alpha',
     percentComplete: 40,
     actualStart: '2026-01-01',
-    actualDuration: 5,
+    stop: '2026-01-07',
   })
   const FOLLOWER = spanning(2, '2026-03-01', 10, {
     name: 'beta',
@@ -1368,7 +1368,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   it('does not thin a Task that is under way', () => {
     // FR-013 names 未着手 and no other state; 表 T-021 の `PM-1` is 進行中.
     const running = oneRow([
-      spanning(1, '2026-01-05', 5, { name: 'running', actualStart: '2026-01-05', actualDuration: 2 }),
+      spanning(1, '2026-01-05', 5, { name: 'running', actualStart: '2026-01-05', stop: '2026-01-06' }),
     ])
     expect(faintnessOf(drawn(running))).toEqual([])
   })

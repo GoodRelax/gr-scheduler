@@ -28,7 +28,8 @@ THE LAYOUT IS FR-036'S OWN:
     indented;
   - the rows armed with AR-3 and `IC-50` as ONE item, drawn with the first
     and the last glyph `S-216` always shows and the glyph of `IC-50`;
-  - `IC-54` carries a note; `IC-102` is the legend and not an item.
+  - the item of `IC-54` carries its note (the row id whose note words it
+    reads), never a second item; `IC-102` is the legend and not an item.
 
 A row of table T-109 that no item carries stops the run: dropping an entrance
 from the help in silence is exactly what FR-036's "every row" forbids.
@@ -55,7 +56,7 @@ ICON_TABLE = 'T-109'
 SHORTCUT_TABLE = 'T-036'
 ASSIGNMENT_TABLE = 'T-023'
 # The requirement itself, as the table of an entry whose word FR-036 asks for
-# but no table row holds: the heading of `basics` and the note on IC-54.
+# but no table row holds: the heading of `basics`.
 REQUIREMENT = 'FR-036'
 
 KEY_HEADING = '割当'
@@ -176,7 +177,7 @@ def always_shown_glyph_count():
 
 
 def item(block, segment, table, row, keys=None, press=None, glyphs=None,
-         indent=False, kind='item'):
+         indent=False, kind='item', note=None):
     """@purity pure"""
     return {
         'kind': kind,
@@ -188,6 +189,7 @@ def item(block, segment, table, row, keys=None, press=None, glyphs=None,
         'keys': keys,
         'press': press,
         'glyphs': list(glyphs) if glyphs is not None else [],
+        'note': note,
     }
 
 
@@ -236,11 +238,14 @@ def build():
                  'FR-036; the requirement has to decide it'
                  % (row.id, ASSIGNMENT_TABLE))
 
+    # FR-036: the note on IC-54 belongs to the IC-54 item, so an entrance
+    # never stands on a second item for it.
     def icon_item(block, segment, rid, glyphs=None, indent=False):
         return item(block, segment, ICON_TABLE, rid, keys=keys_on.get(rid),
                     press=press_on.get(rid),
                     glyphs=glyphs if glyphs is not None else [rid],
-                    indent=indent)
+                    indent=indent,
+                    note=rid if rid == ARMED_NOTE_ROW else None)
 
     # A row stands in ONE place on the help: the first surface of its cell that
     # has a block or stands under IC-1. IC-52 closes six surfaces and is listed
@@ -304,9 +309,6 @@ def build():
                                              glyphs=milestone_glyphs))
                 continue
             palette.append(icon_item(COMMAND_PALETTE, first, rid))
-            if rid == ARMED_NOTE_ROW:
-                palette.append(item(COMMAND_PALETTE, first, REQUIREMENT, rid,
-                                    kind='note'))
 
     entries = basics + panel + roster + header + palette
 

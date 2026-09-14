@@ -47,7 +47,7 @@
    "rowId": "IC-2",
    "label": {
     "ja": "書き出して保存",
-    "en": ""
+    "en": "Save"
    },
    "hint": {
     "ja": "書き出す形式を選んで保存する",
@@ -476,7 +476,7 @@
    "rowId": "IC-61",
    "label": {
     "ja": "依存線を引く",
-    "en": ""
+    "en": "Dependency Line"
    },
    "hint": {
     "ja": "依存線を構える。タスクからタスクへ引く",
@@ -553,7 +553,7 @@
    "rowId": "IC-41",
    "label": {
     "ja": "透かしを消す（パスワードが要る）",
-    "en": ""
+    "en": "Watermark"
    },
    "hint": {
     "ja": "透かしを非表示にする。透かし解除パスワードを求める",
@@ -608,7 +608,7 @@
    "rowId": "IC-81",
    "label": {
     "ja": "依存線の表示",
-    "en": ""
+    "en": "Dependency Lines"
    },
    "hint": {
     "ja": "依存線を表示する。もう一度押すと非表示にする",
@@ -696,7 +696,7 @@
    "rowId": "IC-50",
    "label": {
     "ja": "マイルストーン",
-    "en": ""
+    "en": "Milestone glyphs"
    },
    "hint": {
     "ja": "マイルストーン形状の一覧を開く。もう一度押すと畳む",
@@ -3161,7 +3161,7 @@
    "rowId": "SK-19",
    "text": {
     "ja": "その場の編集を確定する",
-    "en": ""
+    "en": "Commit the edit in place; with nothing left to commit, close the Properties Panel; with that closed too, clear the selection"
    }
   },
   {
@@ -3247,8 +3247,8 @@
     "en": "Scroll vertically"
    },
    "press": {
-    "ja": "ホイール",
-    "en": "Wheel"
+    "ja": "{IC-102}",
+    "en": "{IC-102}"
    }
   },
   {
@@ -3258,8 +3258,8 @@
     "en": "Zoom both axes, centred on the pointer"
    },
    "press": {
-    "ja": "Ctrl ＋ ホイール",
-    "en": "Ctrl + Wheel"
+    "ja": "Ctrl ＋ {IC-102}",
+    "en": "Ctrl + {IC-102}"
    }
   },
   {
@@ -3269,8 +3269,8 @@
     "en": "Zoom the time axis only"
    },
    "press": {
-    "ja": "Shift ＋ ホイール",
-    "en": "Shift + Wheel"
+    "ja": "Shift ＋ {IC-102}",
+    "en": "Shift + {IC-102}"
    }
   },
   {
@@ -3280,8 +3280,8 @@
     "en": "Zoom the row axis only"
    },
    "press": {
-    "ja": "Alt ＋ ホイール",
-    "en": "Alt + Wheel"
+    "ja": "Alt ＋ {IC-102}",
+    "en": "Alt + {IC-102}"
    }
   },
   {
@@ -3291,8 +3291,8 @@
     "en": "Scroll horizontally"
    },
    "press": {
-    "ja": "Ctrl ＋ Shift ＋ ホイール",
-    "en": "Ctrl + Shift + Wheel"
+    "ja": "Ctrl ＋ Shift ＋ {IC-102}",
+    "en": "Ctrl + Shift + {IC-102}"
    }
   },
   {
@@ -3335,8 +3335,8 @@
     "en": "Zoom with the on-screen buttons"
    },
    "press": {
-    "ja": "ホイールが無いとき",
-    "en": "Where there is no wheel"
+    "ja": "{IC-102}が無いとき",
+    "en": "Where there is no {IC-102}"
    }
   },
   {

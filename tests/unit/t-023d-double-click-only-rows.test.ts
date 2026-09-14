@@ -252,7 +252,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     milestone: null,
     percentComplete: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -345,8 +345,7 @@ const TASK_ASSIGNED = taskOf({
   start: '2026-01-05',
   finish: '2026-02-05',
   actualStart: '2026-01-05',
-  // AT-35, counted in worked days.
-  actualDuration: 10,
+  stop: '2026-01-16',
   percentComplete: 50,
 })
 

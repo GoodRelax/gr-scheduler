@@ -172,7 +172,7 @@ const taskOf = (part: Record<string, unknown>): unknown => ({
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
@@ -462,6 +462,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 const PLAN_START = '2026-09-07T00:00:00' // Monday
 const PLAN_FINISH = '2026-09-14T00:00:00' // the Monday after; a bound, not a worked day
 const WORKED_DAYS = 3
+const WORKED_LAST_DAY = '2026-09-09T00:00:00'
 
 /** What FR-012 stores while the calendar is 表 T-209's S-106 (月〜金). */
 const PERCENT_UNDER_MON_TO_FRI = 60
@@ -478,7 +479,8 @@ const documentWithAPricedTask = (): Document =>
         name: 'the task whose figure moves',
         start: PLAN_START,
         finish: PLAN_FINISH,
-        actualDuration: WORKED_DAYS,
+        actualStart: PLAN_START,
+        stop: WORKED_LAST_DAY,
         percentComplete: PERCENT_UNDER_MON_TO_FRI,
       }),
       // ⛔ NOT DECORATION. FR-012's count is 「値が変わった `Task` の件数」 and not
@@ -519,7 +521,8 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     const moved = result.document.schedule.tasks.find((one) => one.uid === 10)
     expect(moved?.start).toBe(PLAN_START)
     expect(moved?.finish).toBe(PLAN_FINISH)
-    expect(moved?.actualDuration).toBe(WORKED_DAYS)
+    expect(moved?.actualStart).toBe(PLAN_START)
+    expect(moved?.stop).toBe(WORKED_LAST_DAY)
   })
 
   it('GIVEN the same edit WHEN it is accepted THEN the report names the `Task`s whose value CHANGED, and only those', () => {
@@ -552,7 +555,8 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
           uid: 10,
           start: '2026-09-07T00:00:00',
           finish: '2026-09-11T00:00:00',
-          actualDuration: 3,
+          actualStart: '2026-09-07T00:00:00',
+          stop: WORKED_LAST_DAY,
           percentComplete: 75,
         }),
       ],
@@ -635,7 +639,8 @@ const documentWithADisagreeingFigure = (): Document =>
         name: 'a figure an exchange partner stored',
         start: PLAN_START,
         finish: PLAN_FINISH,
-        actualDuration: WORKED_DAYS,
+        actualStart: PLAN_START,
+        stop: WORKED_LAST_DAY,
         percentComplete: 99,
       }),
     ],
@@ -754,14 +759,16 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
           uid: 10,
           start: PLAN_START,
           finish: PLAN_FINISH,
-          actualDuration: WORKED_DAYS,
+          actualStart: PLAN_START,
+        stop: WORKED_LAST_DAY,
           percentComplete: PERCENT_UNDER_MON_TO_FRI,
         }),
         taskOf({
           uid: 12,
           start: PLAN_START,
           finish: PLAN_FINISH,
-          actualDuration: WORKED_DAYS,
+          actualStart: PLAN_START,
+        stop: WORKED_LAST_DAY,
           percentComplete: PERCENT_UNDER_MON_TO_FRI,
         }),
         // 2026-09-07 (Mon) to 2026-09-11 (Fri) spans [Mon..Thu] = 4 worked days
@@ -770,7 +777,8 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
           uid: 11,
           start: '2026-09-07T00:00:00',
           finish: '2026-09-11T00:00:00',
-          actualDuration: 3,
+          actualStart: '2026-09-07T00:00:00',
+          stop: WORKED_LAST_DAY,
           percentComplete: 75,
         }),
       ],

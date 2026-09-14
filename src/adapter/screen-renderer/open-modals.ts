@@ -106,6 +106,14 @@ const ASSIGNMENT_TABLE = 'T-023'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
+// see FR-036
+/** @purity pure */
+function withNote(label: string, note: string | null, language: DisplayLanguage): string {
+  if (note === null) return label
+  const word = HELP_NOTES_BY_ROW.get(note)?.text[language]
+  return word === undefined || word === '' ? label : `${label} ${word}`
+}
+
 // see FR-036, FR-038
 // TRAP: an item's word is its own row's; an entrance item takes the icon label, never a shortcut word.
 /** @purity pure */
@@ -113,8 +121,7 @@ function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
   if (entry.kind === 'heading') {
     return HELP_HEADINGS_BY_BLOCK.get(entry.row)?.text[language] ?? NO_WORDS
   }
-  if (entry.kind === 'note') return HELP_NOTES_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
-  if (entry.table === ICON_TABLE) return entryLabel(entry.row, language)
+  if (entry.table === ICON_TABLE) return withNote(entryLabel(entry.row, language), entry.note, language)
   if (entry.table === ASSIGNMENT_TABLE) {
     return MOUSE_PRESS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
   }

@@ -294,7 +294,7 @@ function documentWith(part: Fixture = {}): Document {
       notes: null,
       calendarUid: null,
       actualStart: null,
-      actualDuration: null,
+      stop: null,
       actualFinish: null,
       resume: null,
       resumeValid: null,

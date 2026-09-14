@@ -274,7 +274,7 @@ function appendAssignment(host: Document, target: HTMLElement, written: string):
   const pieces = written.split(GLYPH_TOKEN)
   pieces.forEach((piece, at) => {
     if (at % 2 === 0) {
-      if (piece !== '') target.append(host.createTextNode(piece))
+      if (piece !== '') target.append(piece)
       return
     }
     const glyph = made(host, 'span', STYLE.helpGlyph)
@@ -464,7 +464,6 @@ const STYLE = {
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
   helpBlock: 'break-inside:avoid-column;',
   helpHeading: 'font-weight:600;',
-  helpNote: 'margin-left:0.5em;',
   helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
   helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
   helpLegalSummary: 'cursor:pointer;',
@@ -1617,8 +1616,8 @@ function helpItemElement(
   row.append(text)
 
   const assignment = made(host, 'span', STYLE.helpKeys)
-  const written = line.keys ?? line.press
-  if (written !== null) appendAssignment(host, assignment, written)
+  const written = [line.keys, line.press].filter((one): one is string => one !== null).join(' ')
+  if (written !== '') appendAssignment(host, assignment, written)
   row.append(assignment)
   return { row, text }
 }
@@ -1633,7 +1632,6 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
   let block: HTMLElement | null = null
   let blockName: string | null = null
   let segment: string | null = null
-  let lastText: HTMLElement | null = null
   for (const line of entries) {
     const laid = HELP_LAYOUT_BY_ENTRY.get(helpLayoutKey(line.table, line.row))
     const name = laid?.block ?? null
@@ -1657,18 +1655,8 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
       block.append(heading)
       continue
     }
-    if (laid?.kind === 'note') {
-      if (lastText !== null) {
-        const note = made(host, 'span', STYLE.helpNote)
-        note.setAttribute('data-help-note', line.row)
-        note.textContent = line.text
-        lastText.append(note)
-      }
-      continue
-    }
     const glyphs = laid?.glyphs ?? (line.icon === null ? [] : [line.icon])
     const drawnItem = helpItemElement(host, line, glyphs, laid?.indent === true)
-    lastText = drawnItem.text
     block.append(drawnItem.row)
   }
   return columns

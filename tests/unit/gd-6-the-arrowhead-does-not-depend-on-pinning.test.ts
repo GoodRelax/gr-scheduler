@@ -184,7 +184,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -276,7 +276,7 @@ const sceneWithGuideLine = (from: RowId, to: RowId): Schedule => {
     return taskOf({
       ...(task as unknown as Record<string, unknown>),
       actualStart: dayAfter('2026-01-05', index * 7 - 30),
-      actualDuration: 3,
+      stop: dayAfter('2026-01-05', index * 7 - 27),
       percentComplete: 40,
     })
   })

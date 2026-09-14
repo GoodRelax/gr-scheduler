@@ -127,7 +127,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     finish: null,
     milestone: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -208,7 +208,7 @@ const ONE = spanning(1, '2026-02-02', 20, {
   name: 'a',
   percentComplete: 40,
   actualStart: '2026-02-02',
-  actualDuration: 5,
+  stop: '2026-02-06',
   resumeValid: true,
 })
 
@@ -378,14 +378,14 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
       name: 'a',
       percentComplete: 40,
       actualStart: '2026-02-02',
-      actualDuration: 3,
+      stop: '2026-02-04',
       resumeValid: true,
     }),
     spanning(2, '2026-02-12', 10, {
       name: 'b',
       percentComplete: 60,
       actualStart: '2026-02-12',
-      actualDuration: 3,
+      stop: '2026-02-16',
       resumeValid: true,
     }),
   ] as const
@@ -473,7 +473,7 @@ const SUSPENDED = spanning(1, '2026-02-02', 20, {
   name: OUTSIDE_NAME,
   percentComplete: 40,
   actualStart: '2026-02-02',
-  actualDuration: 20,
+  stop: '2026-02-27',
   resume: null,
   resumeValid: false,
 })
@@ -700,7 +700,7 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
       milestone: true,
       percentComplete: 40,
       actualStart,
-      actualDuration: 0,
+      stop: actualStart,
       resumeValid: true,
     })
 
@@ -935,7 +935,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * plan's right edge and the marker measured from the actual's -- and the run
    * between them would carry that difference rather than the constant room.
    */
-  const startedScene = () => sceneOf({ actualStart: '2026-02-02', actualDuration: 15 })
+  const startedScene = () => sceneOf({ actualStart: '2026-02-02', stop: '2026-02-20' })
 
   /**
    * How far OC-1 begins past the marker's right edge.

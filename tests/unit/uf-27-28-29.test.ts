@@ -212,7 +212,7 @@ const taskOf = (uid: number, start: string, finish: string): Loose => ({
   start,
   finish,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
