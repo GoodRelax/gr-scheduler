@@ -423,13 +423,13 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 //      表 T-221 の `LF-11` が定める日付位置（`resume` の日）とすること
 //      （MUST）**」
 //
-//   the reservation (01-04-requirements.md, under T-038)
-//     「**名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
-//      同じ位置とすること（MUST）。`OC-3` / `OC-4` のぶんの場所は、描かない
-//      ときも空けること（MUST）。描いたときだけ空けてはならない（MUST NOT）**
-//      …… **空ける量は既にある値から求めること（MUST）。新しい設定値を立てて
-//      はならない（MUST NOT）** …… **算入するのは、形状の右端から名称ラベルの
-//      右端までとすること（MUST）**」
+//   the count (01-04-requirements.md, the closing rule of T-243, CR-380)
+//     「⛔ 名称ラベルの左端は、`OC-3` と `OC-4` を実際に描いたかどうかによらず、
+//      同じ位置とすること（MUST）。`OC-3` / `OC-4` を描かないときも、描いたときに
+//      立つ位置で数えること（MUST）。描いたときだけ数えてはならない（MUST NOT）」
+//     …… 「算入するのは、形状の右端から名称ラベルの右端までとすること（MUST）」
+//     -- no room is kept for a marker inside the shape, nor for a resume icon
+//      standing on its own day; the exact edge is pressed in cr-380-381-384-*.
 //
 //   S-63 (_assets/tbl-settings.md, table T-202)
 //     「| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー
@@ -444,7 +444,7 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 //     out from under the room reserved for it and land on the name label. ⭐ The
 //     clash this note used to describe is settled: the closing text under table
 //     T-038 takes OC-4 out of the order and sends it to LF-11's date position,
-//     while keeping the room reserved. ⛔ WHAT IS STILL NOT ASSERTED is a Task
+//     and keeps no room for it there (CR-380). WHAT IS STILL NOT ASSERTED is a Task
 //     whose `resume` day is far from the marks -- no row says what the name
 //     label does then. The case below uses PS-3 (`resumeValid` false, no
 //     `resume` day), which is the one case LF-11 itself puts beside the marker.
@@ -594,10 +594,10 @@ describe('table T-038, DFC-394 -- the order stands side by side, and the label d
     expect(shown.occupiedX1).toBeGreaterThan(shown.labelX)
   })
 
-  it('⭐ holds the room open -- the label no longer starts one gap past the bar', () => {
-    // ⛔ THE DEFECT ITSELF. Before DFC-394 the label began at 「形状の右端 +
-    // labelGap」, which is inside the marker; the room the row (MUST) asks to be
-    // held clear is what pushes it past.
+  it('⭐ starts the label past the marker standing outside the shape -- not one gap past the bar', () => {
+    // THE DEFECT ITSELF. Before DFC-394 the label began one labelGap past the
+    // shape, inside the marker; T-243 now counts the outside marker's right
+    // edge before S-32 (CR-380), which is what pushes it past.
     const { placed } = drawnWithMarks(true)
     expect(placed.labelX).toBeGreaterThan(placed.x + placed.width + BASE.labelGap)
   })
@@ -941,8 +941,8 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * How far OC-1 begins past the marker's right edge.
    *
    * ⭐ THE ONE NUMBER THAT SAYS THE TWO UNITS READ THE SAME REACH, and stated as
-   * a difference rather than as pixels -- the closing paragraph of table T-038
-   * holds the room for OC-3 and OC-4 clear whether or not either is drawn, so
+   * a difference rather than as pixels -- the closing rule of table T-243
+   * counts OC-3 where it stands whether or not it is drawn, so
    * the run is a constant and no case here may name it.
    */
   const runOf = (scene: { placed: TaskPlacement; drawn: TaskGeometry }): number => {

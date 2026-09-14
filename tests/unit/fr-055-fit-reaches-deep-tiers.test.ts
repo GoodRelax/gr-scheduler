@@ -102,7 +102,13 @@ const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
   fontScaleSizes: { L: 16, M: 14, S: 12 },
   planActualGuidePattern: { off: 2, on: 2 },
-  shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
+  shapeHeightOf: {
+    arrow: SETTINGS_DEFAULTS['shapeHeightOf.arrow'],
+    chevron: SETTINGS_DEFAULTS['shapeHeightOf.chevron'],
+    endpointSpan: SETTINGS_DEFAULTS['shapeHeightOf.endpointSpan'],
+    milestone: SETTINGS_DEFAULTS['shapeHeightOf.milestone'],
+    rectangle: SETTINGS_DEFAULTS['shapeHeightOf.rectangle'],
+  },
 }
 
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
@@ -497,8 +503,8 @@ function depthTheFitOwes(
 const FIVE_DEEP_CHAIN: TreeShape = { roots: 1, depths: 5, fanOut: 1 }
 /** Two chains: ten rows at tier 5 overflow, eight rows at tier 4 fit. */
 const FOUR_IS_DEEPEST: TreeShape = { roots: 2, depths: 5, fanOut: 1 }
-/** Three chains: twelve rows at tier 4 overflow, nine rows at tier 3 fit. */
-const THREE_IS_DEEPEST: TreeShape = { roots: 3, depths: 5, fanOut: 1 }
+/** Four chains: sixteen rows at tier 4 overflow, twelve at tier 3 fit (S-12 is 0). */
+const THREE_IS_DEEPEST: TreeShape = { roots: 4, depths: 5, fanOut: 1 }
 /** Forty chains -- forty root rows alone overrun the Row Area. */
 const NOTHING_FITS: TreeShape = { roots: 40, depths: 5, fanOut: 1 }
 

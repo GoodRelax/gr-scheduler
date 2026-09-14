@@ -267,7 +267,7 @@ describe('table T-012 -- the name label sits on the centre of the combined heigh
     // the actual date", and LF-10 of table T-221 gives the two figures ONE
     // vertical centre -- so moving the actual along the time axis must not move
     // the label. ⚠️ A milestone's date span is zero; CR-163 measures the SHAPE,
-    // which LF-10 makes 28 x 1.5 across, clearing S-86's 24px.
+    // which LF-10 makes 28 x S-17 (1.25 since CR-381) across, clearing S-86.
     const schedule = scheduleOf({
       tasks: [
         taskOf({

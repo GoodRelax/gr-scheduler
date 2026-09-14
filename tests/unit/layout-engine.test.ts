@@ -289,8 +289,16 @@ const LAYOUT_SETTINGS = settingsOf({
   // ⚠️ S-58 defaults to 'up'; these cases pin 'down' so every y below reads
   // from the top of the band. The 'up' half of ST-5 has its own cases.
   stackDirection: 'down', // S-58
-  shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+  shapeHeightOf: {
+    rectangle: 1,
+    chevron: 1,
+    arrow: 0.5,
+    endpointSpan: 0.5,
+    milestone: settingNumber('shapeHeightOf.milestone'),
+  },
 })
+
+const MILESTONE_SIDE = 28 * settingNumber('shapeHeightOf.milestone')
 
 const REGIONS = regionsFromScreen(ENV, LAYOUT_SETTINGS)
 
@@ -486,14 +494,14 @@ describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
   }
 
   /**
-   * 「その行が占める送り」 -- the length `S-176` measures its fraction against:
-   * 「その行の帯の高さと、その下の隙間を合わせた長さ。次の行の上端までの距離で
-   * あり、最後の行は自身の帯」.
+   * The pitch -- the length `S-176` measures its fraction against: the band
+   * plus the gap under it, the distance to the next row's top, and for the
+   * last row its own band.
    *
-   * ⛔ NOT THE BAND. `S-176` forbids that in as many words -- 帯の高さに対する比
-   * にしてはならない（MUST NOT）—— because 帯と帯は接していない: a fraction of
-   * the band cannot name a top edge standing in the gap, which is the very
-   * 「錠の上にしか着地できない形」 表 T-023d refuses.
+   * NOT THE BAND by rule: T-023d's closing paragraph takes the pitch so that a
+   * gap, if S-12 ever put one in, would still be named by one reading. CR-384
+   * fixed S-12 at 0, so today the pitch and the band are one number and this
+   * file can no longer tell the two readings apart.
    *
    * ⭐ READ OFF THE PICTURE: the 送り is the distance between two rows the
    * layout has already placed, so no case here has to know what the gap is.
@@ -514,20 +522,16 @@ describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
     const row = drawn({}).rows[0]
     if (row === undefined) throw new Error('the stack drew no row')
     const pitch = pitchOf({})
-    // ⛔ THE PREMISE THE MUST NOT RESTS ON: 「帯と帯は接していない」. If the two
-    // touched, the band and the 送り would be one number and this case could
-    // not tell the old reading from the new one.
-    expect(pitch, 'S-176: 帯と帯は接していない —— 送りは帯より長い').toBeGreaterThan(row.height)
+    // The premise is now LF-3's: the pitch is the band plus S-12, which CR-384
+    // fixed at 0, so the band-versus-pitch contrast this case used to draw is
+    // gone and only the fraction of the pitch is asserted.
+    expect(pitch, 'LF-3: pitch = band + S-12').toBe(row.height + settingNumber('rowGap'))
 
     const moved = topOf({}) - topOf({ scrollGroupOffset: 0.5 })
 
     expect(moved, '端数は動かす').toBeGreaterThan(0)
     expect(moved, '1 行の送りより短い移動').toBeLessThan(pitch)
     expect(moved, 'その行が占める送りに対する比').toBeCloseTo(pitch / 2, 6)
-    expect(moved, '⛔ 帯の高さに対する比にしてはならない（MUST NOT）').not.toBeCloseTo(
-      row.height / 2,
-      6,
-    )
   })
 
   it('S-176 is a RATIO of the 送り, so the same fraction moves further once that 送り is longer', () => {
@@ -724,8 +728,8 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
   })
 
   it('ST-5 stacks down from the top of the band, and S-58 up reverses only the y', () => {
-    // Lane 0 takes a 28-tall rectangle and lane 1 a 42-tall milestone that
-    // overlaps it, so the band is 28 + 12 + 42 = 82 whichever way it stacks --
+    // Lane 0 takes a 28-tall rectangle and lane 1 a 28 x S-17 milestone that
+    // overlaps it, so the band is 28 + 12 + 28 x S-17 whichever way it stacks --
     // and the reversal has to use each lane's OWN height, not one of them.
     const overlapping = oneRow([
       spanning(1, '2026-01-01', 20),
@@ -734,7 +738,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     const top = REGIONS.rowArea.y
 
     const down = layoutFromSchedule(overlapping, LAYOUT_SETTINGS, REGIONS)
-    expect(down.rows[0]!.height).toBe(82)
+    expect(down.rows[0]!.height).toBe(28 + 12 + MILESTONE_SIDE)
     expect(down.rows[0]!.stackTops).toEqual([top, top + 28 + 12])
     expect(down.placements.map((onePoint) => onePoint.y)).toEqual([top, top + 40])
 
@@ -745,10 +749,10 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     )
     // ST-2 and ST-3 do not read the direction: every Task keeps its lane.
     expect(up.placements.map((onePoint) => onePoint.stack)).toEqual(down.placements.map((onePoint) => onePoint.stack))
-    expect(up.rows[0]!.height).toBe(82)
+    expect(up.rows[0]!.height).toBe(28 + 12 + MILESTONE_SIDE)
     // Lane 0 is now the lowest, and lane 1 -- the taller -- takes the top.
-    expect(up.rows[0]!.stackTops).toEqual([top + 42 + 12, top])
-    expect(up.placements.map((onePoint) => onePoint.y)).toEqual([top + 54, top])
+    expect(up.rows[0]!.stackTops).toEqual([top + MILESTONE_SIDE + 12, top])
+    expect(up.placements.map((onePoint) => onePoint.y)).toEqual([top + MILESTONE_SIDE + 12, top])
   })
 
   it('LF-3 advances the next row by the band height and rowGap', () => {
@@ -764,7 +768,9 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // LF-3 is two rules in one row: the pitch is the band above plus `rowGap`,
     // and that band is 「矩形が縦に取る高さ」 raised to `HF-1`'s lattice. The
     // first row here holds one rectangle lane, which the lattice outruns.
-    expect(layout.rows[1]!.y - layout.rows[0]!.y).toBe(Math.max(28, CONTROL_LATTICE_FLOOR) + 8)
+    expect(layout.rows[1]!.y - layout.rows[0]!.y).toBe(
+      Math.max(28, CONTROL_LATTICE_FLOOR) + settingNumber('rowGap'),
+    )
   })
 
   it('LF-2 gives an empty row one rectangle lane, and LF-3 raises it to the lattice', () => {
@@ -876,8 +882,8 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    // shapeHeightOf.milestone is 1.5 against the rectangle's 1.
-    expect(asMilestone.placements[0]!.height).toBe(42)
+    // shapeHeightOf.milestone is S-17 against the rectangle's 1.
+    expect(asMilestone.placements[0]!.height).toBe(MILESTONE_SIDE)
     expect(asBar.placements[0]!.height).toBe(28)
   })
 
@@ -1034,7 +1040,7 @@ const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, un
 describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
   it('LF-10 centres a milestone on its day and gives it its own plan height', () => {
     // A real milestone has start === finish, so its date span is zero. CR-163
-    // measures the SHAPE, which LF-10 makes 28 x 1.5 = 42 wide, clearing S-86.
+    // measures the SHAPE, which LF-10 makes 28 x S-17 wide, clearing S-86.
     const schedule = oneRow([
       taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true }),
     ])
@@ -1044,7 +1050,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     expect(points).toHaveLength(4)
     const xs = points.map((onePoint) => onePoint.x)
     expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(xOf(10), 6)
-    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(42, 6)
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(MILESTONE_SIDE, 6)
   })
 
   it('T-012a draws a rectangle as its own four points when no fade is set', () => {

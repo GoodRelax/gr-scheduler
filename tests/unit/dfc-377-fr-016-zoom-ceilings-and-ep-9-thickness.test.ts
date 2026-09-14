@@ -23,8 +23,8 @@
 //
 // The rows these cases answer to (rule 03: name the row, never copy its prose
 // -- except where a clause is quoted, which is section 1's whole purpose):
-//   FR-016   the row axis's ceiling may not be chosen by comparing two font
-//            sizes; reaching the ceiling may not be shown by a dead entrance;
+//   FR-016   the row axis's ceiling (the font-comparison ban was retired by
+//            CR-381); reaching the ceiling may not be shown by a dead entrance;
 //            a row's place at a candidate zoom may not be arithmetic from the
 //            zoom in force; that place is answered by table T-064's PI-5
 //            (`rowPlacesAtZoomY`)
@@ -62,16 +62,16 @@
 // arithmetic would have predicted) that needs no closed-form derivation of the
 // layout engine's internals.
 //
-// ⛔⛔ TWO OF THE NINE ARE HELD VERBATIM ONLY, AND THIS FILE SAYS SO RATHER
+// ONE OF THE EIGHT LEFT IS HELD VERBATIM ONLY, AND THIS FILE SAYS SO RATHER
 // THAN INVENTING A CASE THAT PASSES FOR NOTHING (see section 4):
-//   FR-016 「字の大きさを 2 つ比べて決めてはならない（MUST NOT）」 -- the row
-//     axis's ceiling is computed by `zoomYCeiling`, a function
-//     `input-command-translator.ts` does not export and no published entry
-//     (`commandFromInput`) surfaces the ceiling or a font metric through. A
-//     unit test cannot observe a private function's inputs without reading
-//     and re-asserting its body, which is the second-store rule this project
-//     forbids (rule 03) -- and even then a MUST NOT about what a formula does
-//     NOT read is not a fact a black-box call can refute.
+//   FR-016, the ban on choosing the row ceiling by comparing two font sizes,
+//     is GONE: CR-381 (JDG-88, JDG-99, JDG-115) overturned it and wrote the
+//     opposite -- the ceiling is the smaller of the band ceiling and the zoom
+//     at which a rectangle name reaches the depth-1 row name. That clause is
+//     held and pressed through `commandFromInput` by
+//     tests/unit/cr-380-381-384-name-beside-the-shape-and-row-zoom.test.ts, so
+//     this file no longer carries a copy of the retired one.
+//
 //   FR-016 「上限に達したことを、押しても何も起きない入口で示してはならない
 //     （MUST NOT）」 -- the requirement's own text names where the affordance
 //     is drawn ("作法は FR-029 に従う"): the screen-renderer / DOM surface,
@@ -106,7 +106,7 @@ import type {
 import { GROUP_GRID_LINE_WIDTH_PX } from '../../src/adapter/svg-renderer/svg-renderer'
 import { exportSvg, type ExportScene, type SvgExport } from '../../src/adapter/image-exporter/image-exporter'
 
-import { unbroken } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -118,9 +118,6 @@ const REQUIREMENTS = unbroken(readFileSync(
 // ===========================================================================
 
 // -- FR-016, the row axis's ceiling (four of the eighteen) ------------------
-
-const FR_016_ROW_CEILING_NOT_BY_FONT_COMPARISON =
-  '**このために新しい設定値の行を立ててはならない（MUST NOT）** —— **画面の高さから導く。**⚠️ **字の大きさを 2 つ比べて決めてはならない（MUST NOT）'
 
 /**
  * ⚠️ HELD AT 40 CHARACTERS TO AVOID A PARAGRAPH BREAK. The 60/90/120-character
@@ -169,7 +166,6 @@ const EP_9_SCREEN_AND_EXPORT_SAME_PLACE =
 
 /** Every clause this file holds, with the name it is known by in the ledger. */
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['FR-016 (MUST NOT) -- the row ceiling is not chosen by comparing two font sizes', FR_016_ROW_CEILING_NOT_BY_FONT_COMPARISON],
   ['FR-016 (MUST NOT) -- reaching the ceiling is not shown by a dead entrance', FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE],
   ['FR-016 (MUST NOT) -- a row position at a zoom is not arithmetic', FR_016_ROW_POSITION_NOT_BY_ARITHMETIC],
   ['FR-016 (MUST) -- the member that answers it is T-064 PI-5', FR_016_ROW_POSITION_MEMBER_IS_PI_5],
@@ -214,7 +210,13 @@ const NESTED = {
   exportCanvas: { width: 1200, height: 900 },
   fontScaleSizes: { L: 16, M: 14, S: 12 },
   planActualGuidePattern: { off: 2, on: 2 },
-  shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
+  shapeHeightOf: {
+    arrow: SETTINGS_DEFAULTS['shapeHeightOf.arrow'],
+    chevron: SETTINGS_DEFAULTS['shapeHeightOf.chevron'],
+    endpointSpan: SETTINGS_DEFAULTS['shapeHeightOf.endpointSpan'],
+    milestone: SETTINGS_DEFAULTS['shapeHeightOf.milestone'],
+    rectangle: SETTINGS_DEFAULTS['shapeHeightOf.rectangle'],
+  },
 }
 
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
@@ -511,20 +513,27 @@ const settingNumber = (key: string): number => {
 const FLOOR_BINDS_BELOW =
   settingNumber('actualMin') / settingNumber('actualOfPlan') / settingNumber('basePlanHeight')
 
-const ZOOM_LOW = FLOOR_BINDS_BELOW * 4
-const ZOOM_HIGH = FLOOR_BINDS_BELOW * 12 // 3x ZOOM_LOW
+const ZOOM_LOW = FLOOR_BINDS_BELOW * 1.2
+const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6 // 3x ZOOM_LOW
+
+const LATTICE_FLOOR = (() => {
+  const px = (id: string): number =>
+    Number(/-?\d+(?:\.\d+)?/.exec(specTable('T-206').rows.find((row) => row.id === id)?.by['既定'] ?? '')?.[0])
+  return (px('S-138') + px('S-141') * 2) * 2
+})()
 
 const placesAt = (zoomY: number) =>
   rowPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
 
 describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
-  it('the premise: both zooms sit above FR-094’s floor, and rowGap is not zero', () => {
-    // ⛔ Without this the case below could be measuring the floor-pinned band,
+  it('the premise: both zooms sit above FR-094’s floor, and LF-3’s second floor binds at the low zoom alone', () => {
+    // Without this the case below could be measuring the floor-pinned band,
     // where every zoom answers the same drawing for a reason FR-016 does not
     // govern.
     expect(ZOOM_LOW).toBeGreaterThan(FLOOR_BINDS_BELOW)
     expect(ZOOM_HIGH).toBeGreaterThan(FLOOR_BINDS_BELOW)
-    expect(settingNumber('rowGap')).toBeGreaterThan(0)
+    expect(settingNumber('basePlanHeight') * ZOOM_LOW).toBeLessThan(LATTICE_FLOOR)
+    expect(settingNumber('basePlanHeight') * ZOOM_HIGH).toBeGreaterThan(LATTICE_FLOOR)
   })
 
   it('PI-5’s member answers a position for every row, at a zoom nothing has drawn yet', () => {
@@ -541,14 +550,14 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
     // ⭐⭐ THE CONTRAST THE CLAUSE IS ABOUT. A caller who did "算" (arithmetic)
     // instead of asking PI-5 would take the last row's position at ZOOM_LOW
     // and multiply it by the zoom ratio (ZOOM_HIGH / ZOOM_LOW = 3). The real
-    // member does not answer that: `rowGap` (table T-221's row pitch, S-12)
-    // is a fixed addition between bands and does not scale with `zoomY`, so
-    // the true position at three rows down is an AFFINE function of the zoom,
-    // never a purely proportional one -- which is the concrete fact behind
-    // FR-016's prose ("行の軸は zoomY に対して線形ではない").
+    // member does not answer that: LF-3's second floor (the HF-1 lattice)
+    // holds each band at a fixed height at ZOOM_LOW and lets it go at
+    // ZOOM_HIGH, so the offset of the third row from the first is not
+    // proportional to the zoom. S-12 used to supply this contrast; CR-384
+    // fixed it at 0.
     const lastIndex = THREE_FLAT_ROWS - 1
-    const low = placesAt(ZOOM_LOW)[lastIndex]!.y
-    const high = placesAt(ZOOM_HIGH)[lastIndex]!.y
+    const low = placesAt(ZOOM_LOW)[lastIndex]!.y - placesAt(ZOOM_LOW)[0]!.y
+    const high = placesAt(ZOOM_HIGH)[lastIndex]!.y - placesAt(ZOOM_HIGH)[0]!.y
     const zoomRatio = ZOOM_HIGH / ZOOM_LOW
 
     const naiveArithmeticPrediction = low * zoomRatio
@@ -563,10 +572,10 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
     )
   })
 
-  // ⭐ CONTROL -- what would pass if this MUST NOT were violated the other
-  // way. Had `rowGap` been zero in this fixture, an implementation that DID
+  // CONTROL -- what would pass if this MUST NOT were violated the other
+  // way. Had both zooms stood above the lattice, an implementation that DID
   // scale arithmetically would satisfy the assertion above by accident (an
-  // all-proportional band has no additive term to expose it), and the case
-  // would be vacuous. The premise above checks `rowGap` is not zero for
-  // exactly this reason before this case is trusted.
+  // all-proportional band has no fixed term to expose it), and the case
+  // would be vacuous. The premise above checks the lattice binds at ZOOM_LOW
+  // alone for exactly this reason before this case is trusted.
 })
