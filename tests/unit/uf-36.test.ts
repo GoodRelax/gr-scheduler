@@ -148,7 +148,7 @@ const T_059_ROWS = [
   { row: 'DV-6', entity: 'Task', element: 'OutlineNumber' },
   { row: 'DV-7', entity: 'Task', element: 'Summary' },
   { row: 'DV-8', entity: 'Task', element: 'Duration' },
-  { row: 'DV-9', entity: 'Task', element: 'Stop' },
+  { row: 'DV-11', entity: 'Task', element: 'ActualDuration' },
   { row: 'DV-10', entity: 'Resource', element: 'ID' },
 ] as const
 
@@ -159,7 +159,7 @@ const T_059_ROWS = [
  */
 const T_019_STOP = [
   { row: 'PA-1', state: 'not started', uid: 101, writesStop: false },
-  { row: 'PA-2', state: 'in progress', uid: 102, writesStop: false },
+  { row: 'PA-2', state: 'in progress', uid: 102, writesStop: true },
   { row: 'PA-3', state: 'suspended, resume planned', uid: 103, writesStop: true },
   { row: 'PA-4', state: 'suspended, resume unknown', uid: 104, writesStop: true },
   { row: 'PA-5', state: 'finished', uid: 105, writesStop: false },
@@ -1155,6 +1155,12 @@ describe('table T-053 -- the shape of the document', () => {
 // FR-054 -- dates, and the working-day conversion
 // ---------------------------------------------------------------------------
 
+const unfinished = (text: string): string =>
+  text.replace(`<ActualFinish>${SAMPLE.taskActualFinish}</ActualFinish>`, '')
+
+const lastDayOfTheTask = (document: Document): string =>
+  String(instanceOf(document, 'Task')['stop']).slice(0, 10)
+
 describe('FR-054 -- a date column takes the literal text', () => {
   it('keeps the time part and converts no time zone', () => {
     const document = accepted(BASE_TEXT)
@@ -1174,8 +1180,8 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('reads the working days of an actual duration through minutesPerDay', () => {
-    const document = accepted(BASE_TEXT)
-    expect(instanceOf(document, 'Task')['actualDuration']).toBe(SAMPLE.taskActualDurationDays)
+    const document = accepted(unfinished(BASE_TEXT))
+    expect(lastDayOfTheTask(document)).toBe('2026-04-08')
   })
 
   it('follows the FILE`s own minutesPerDay before S-128 -- DELIBERATELY LEFT FAILING', () => {
@@ -1190,9 +1196,9 @@ describe('FR-054 -- a date column takes the literal text', () => {
       `<MinutesPerDay>${SAMPLE.minutesPerDay}</MinutesPerDay>`,
       `<MinutesPerDay>${perDay}</MinutesPerDay>`,
     ).replace(ACTUAL_DURATION_TEXT, durationText(perDay * days))
-    const document = accepted(text)
+    const document = accepted(unfinished(text))
     expect(document.schedule.project.minutesPerDay).toBe(perDay)
-    expect(instanceOf(document, 'Task')['actualDuration']).toBe(days)
+    expect(lastDayOfTheTask(document)).toBe('2026-04-07')
   })
 
   it('writes an actual duration back through the file`s own minutesPerDay -- DELIBERATELY LEFT FAILING', () => {
@@ -1216,9 +1222,9 @@ describe('FR-054 -- a date column takes the literal text', () => {
       `  <MinutesPerDay>${SAMPLE.minutesPerDay}</MinutesPerDay>\n`,
       '',
     ).replace(ACTUAL_DURATION_TEXT, durationText(perDay * days))
-    const document = accepted(text)
+    const document = accepted(unfinished(text))
     expect(document.schedule.project.minutesPerDay).toBeNull()
-    expect(instanceOf(document, 'Task')['actualDuration']).toBe(days)
+    expect(lastDayOfTheTask(document)).toBe('2026-04-03')
   })
 
   it('rebuilds the actual duration on the way out with the same conversion', () => {
@@ -1251,12 +1257,12 @@ describe('FR-054 -- a date column takes the literal text', () => {
       ACTUAL_DURATION_TEXT,
       durationText(SAMPLE.minutesPerDay * 2 + 1),
     )
-    const read = documentFromMspdi(text, CURRENT)
+    const read = documentFromMspdi(unfinished(text), CURRENT)
     expect(read.ok).toBe(true)
     if (!read.ok) return
     const stored = read.document.schedule.tasks.find((each) => each.uid === SAMPLE.taskUid)
-      ?.actualDuration
-    expect(stored === null || Number.isInteger(stored)).toBe(true)
+      ?.stop
+    expect(String(stored).slice(0, 10)).toBe('2026-04-03')
   })
 })
 
@@ -1484,7 +1490,7 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-2: a carried original beats the computed value (the note of table T-019)', () => {
-    // G-13 of table T-005 puts Stop in Carry for exactly this reason, and DV-1
+    // G-13 of table T-005 puts ActualDuration in Carry for this reason, and DV-1
     // is the same case for Project/FinishDate: the fixture's FinishDate is not
     // the latest Task/Finish, so a recomputed one would differ.
     const stop = '2026-04-05T17:00:00'
@@ -1494,6 +1500,7 @@ describe('table T-033 -- writing', () => {
     )
     const root = written(accepted(text))
     expect(textAt(writtenInstance(root, 'Task'), 'Stop')).toBe(stop)
+    expect(textAt(writtenInstance(root, 'Task'), 'ActualDuration')).toBe(ACTUAL_DURATION_TEXT)
     expect(textAt(root, 'FinishDate')).toBe(SAMPLE.projectFinish)
   })
 
@@ -1550,7 +1557,7 @@ describe('table T-033 -- writing', () => {
   })
 
   it('EX-7: the one date GRS decides itself is written at 00:00:00', () => {
-    // DV-9 of table T-059: Stop is actualStart + actualDuration. The fixture
+    // See FR-011 and AT-141. The fixture
     // brings no Stop, so this is the value GRS made, and EX-7 fixes its time.
     const suspended = mspdi(
       [
@@ -1570,8 +1577,9 @@ describe('table T-033 -- writing', () => {
     )
     const written9 = writtenInstance(written(accepted(suspended)), 'Task')
     const stop = textAt(written9, 'Stop')
-    expect(stop, 'DV-9 writes a Stop for a suspended task').not.toBeNull()
+    expect(stop, 'AT-141 writes a Stop for a suspended task').not.toBeNull()
     expect(stop).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00$/)
+    expect(stop).toBe('2026-04-08T00:00:00')
     // MUST NOT apply to a value that only arrived: the plan dates keep theirs.
     expect(textAt(written9, 'Start')).toBe('2026-04-01T09:30:00')
     expect(textAt(written9, 'ActualStart')).toBe('2026-04-06T08:45:00')
@@ -1614,7 +1622,7 @@ function planActualTasksText(): string {
 }
 
 describe('table T-019 -- the last column, which state writes a Stop', () => {
-  it('writes a Stop for exactly the two suspended states (one case, every row)', () => {
+  it('writes a Stop for exactly the three started, unfinished states (one case, every row)', () => {
     const document = accepted(planActualTasksText())
     const root = written(document)
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
@@ -2922,10 +2930,17 @@ function durationFileText(
   return mspdi([head, calendarXml(9), body, RESOURCES_XML].join('\n'))
 }
 
-function actualDurationOf(document: Document, uid: number): number | null {
+function lastDayOf(document: Document, uid: number): string | null {
   const task = document.schedule.tasks.find((each) => each.uid === uid)
   if (task === undefined) throw new Error(`no Task ${uid} was read`)
-  return task.actualDuration
+  return task.stop === null ? null : task.stop.slice(0, 10)
+}
+
+const LAST_DAY_FOR: Readonly<Record<number, string>> = {
+  5: '2026-04-07',
+  6: '2026-04-08',
+  [-5]: '2026-03-25',
+  [-6]: '2026-03-24',
 }
 
 /**
@@ -2960,23 +2975,23 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
 
   it('GIVEN an amount of exactly five working days WHEN read THEN it is five and nothing is reported (FR-054)', () => {
     const text = durationFileText([WHOLE_FIVE_DAYS])
-    expect(actualDurationOf(accepted(text), 1)).toBe(5)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[5])
     expect(noticesBeyond(text, text)).toHaveLength(0)
   })
 
   it('GIVEN five and a quarter working days WHEN read THEN it is rounded down to five (FR-054 MUST)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
-    expect(actualDurationOf(accepted(text), 1)).toBe(5)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[5])
   })
 
   it('GIVEN five and three quarters working days WHEN read THEN it is rounded up to six (FR-054 MUST)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + (PER_DAY * 3) / 4)])
-    expect(actualDurationOf(accepted(text), 1)).toBe(6)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[6])
   })
 
   it('GIVEN exactly five and a half working days WHEN read THEN it goes to six -- the larger magnitude (FR-054 MUST)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 2)])
-    expect(actualDurationOf(accepted(text), 1)).toBe(6)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[6])
   })
 
   it('GIVEN exactly minus five and a half working days WHEN read THEN it goes to minus six -- the same larger magnitude (FR-054 MUST)', () => {
@@ -2984,17 +2999,17 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     // answer does not depend on the sign, and `xsd:duration` admits a leading
     // minus, so this side of zero is driven too.
     const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 2))])
-    expect(actualDurationOf(accepted(text), 1)).toBe(-6)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-6])
   })
 
   it('GIVEN minus five and a quarter working days WHEN read THEN it is minus five, not minus six (FR-054 MUST)', () => {
     const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 4))])
-    expect(actualDurationOf(accepted(text), 1)).toBe(-5)
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-5])
   })
 
   it('GIVEN an amount that does not divide WHEN read THEN the value is NOT discarded (FR-054 MUST NOT)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
-    expect(actualDurationOf(accepted(text), 1)).not.toBeNull()
+    expect(lastDayOf(accepted(text), 1)).not.toBeNull()
   })
 
   it('GIVEN an amount that does not divide WHEN written back THEN the length is still there (FR-054 MUST NOT, FR-021)', () => {
@@ -3007,14 +3022,14 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
   it('GIVEN a rounded amount WHEN written back THEN it is spelled PTnHnMnS with all three parts (EX-9 MUST)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const spelled = textAt(writtenFirstTask(accepted(text)), 'ActualDuration')
-    expect(spelled).toBe(WHOLE_FIVE_DAYS)
+    expect(spelled).toBe(amountOfMinutes(PER_DAY * 5 + PER_DAY / 4))
     expect(spelled ?? '').toMatch(/^-?PT\d+H\d+M\d+S$/)
   })
 
   it('GIVEN a rounded amount WHEN the written file is read again THEN nothing is rounded a second time (FR-054)', () => {
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const again = mspdiFromDocument(accepted(text)).text
-    expect(actualDurationOf(accepted(again), 1)).toBe(5)
+    expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[5])
     expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), again)).toHaveLength(0)
   })
 })
@@ -3028,7 +3043,7 @@ describe('FR-054 -- which minutes-per-day the rounding divides by', () => {
     const text = durationFileText([amountOfMinutes(ownPerDay * 5 + ownPerDay / 2)], ownPerDay)
     const document = accepted(text)
     expect(minutesPerDayOf(document)).toBe(ownPerDay)
-    expect(actualDurationOf(document, 1)).toBe(6)
+    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[6])
   })
 
   it('GIVEN a file that states no minutes per day WHEN a half day is read THEN S-128 of table T-209 is the divisor (FR-054 MUST)', () => {
@@ -3037,14 +3052,14 @@ describe('FR-054 -- which minutes-per-day the rounding divides by', () => {
     const document = accepted(text)
     expect(document.schedule.project.minutesPerDay).toBeNull()
     expect(minutesPerDayOf(document)).toBe(S_128_MINUTES_PER_DAY)
-    expect(actualDurationOf(document, 1)).toBe(6)
+    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[6])
   })
 })
 
 describe('FR-054 -- an amount of time carrying years or months', () => {
   it('GIVEN an amount of one month WHEN read THEN it is not converted (FR-054 MUST)', () => {
     const text = durationFileText(['P1M'])
-    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(lastDayOf(accepted(text), 1)).toBeNull()
   })
 
   it('GIVEN an amount of one month WHEN read THEN the person is told, naming the item in words (FR-054 MUST, NT-1)', () => {
@@ -3056,13 +3071,13 @@ describe('FR-054 -- an amount of time carrying years or months', () => {
 
   it('GIVEN an amount of one year WHEN read THEN it is not converted and the person is told (FR-054 MUST)', () => {
     const text = durationFileText(['P1Y'])
-    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(lastDayOf(accepted(text), 1)).toBeNull()
     expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text).length).toBeGreaterThan(0)
   })
 
   it('GIVEN an amount that mixes a month with hours WHEN read THEN the hours alone are not taken (FR-054 MUST)', () => {
     const text = durationFileText([`P1MT${PER_DAY / 60}H0M0S`])
-    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(lastDayOf(accepted(text), 1)).toBeNull()
     expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text).length).toBeGreaterThan(0)
   })
 
@@ -3106,9 +3121,9 @@ describe('FR-054 -- the count of rounded Tasks is told', () => {
 
   it('GIVEN two Tasks rounded WHEN read THEN both values are kept, not only the counting (FR-054 MUST NOT)', () => {
     const document = accepted(durationFileText([NOT_WHOLE, NOT_WHOLE, WHOLE_FIVE_DAYS]))
-    expect(actualDurationOf(document, 1)).toBe(5)
-    expect(actualDurationOf(document, 2)).toBe(5)
-    expect(actualDurationOf(document, 3)).toBe(5)
+    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[5])
+    expect(lastDayOf(document, 2)).toBe(LAST_DAY_FOR[5])
+    expect(lastDayOf(document, 3)).toBe(LAST_DAY_FOR[5])
   })
 
   it('GIVEN every Task already whole WHEN read THEN nothing is reported as rounded (the empty case, R6.2)', () => {
@@ -3117,7 +3132,7 @@ describe('FR-054 -- the count of rounded Tasks is told', () => {
 
   it('GIVEN no Task carrying an actual duration WHEN read THEN the column is null and nothing is reported (the empty case)', () => {
     const text = durationFileText([null, null])
-    expect(actualDurationOf(accepted(text), 1)).toBeNull()
+    expect(lastDayOf(accepted(text), 1)).toBeNull()
     expect(noticesBeyond(durationFileText([WHOLE_FIVE_DAYS]), text)).toHaveLength(0)
   })
 
@@ -3133,7 +3148,7 @@ describe('FR-054 -- an actual duration this unit cannot read as an amount of tim
     const read = answered(durationFileText(['five days or so']))
     if (read.ok) {
       // Nothing invented: the column takes no number it could not read.
-      expect(actualDurationOf(read.document, 1)).toBeNull()
+      expect(lastDayOf(read.document, 1)).toBeNull()
     } else {
       expect(read.faults.length).toBeGreaterThan(0)
       const named = read.faults.every(
@@ -3146,7 +3161,7 @@ describe('FR-054 -- an actual duration this unit cannot read as an amount of tim
   it('GIVEN an empty actual duration element WHEN read THEN no number is invented and nothing throws (FR-028)', () => {
     const read = answered(durationFileText(['']))
     if (read.ok) {
-      expect(actualDurationOf(read.document, 1)).toBeNull()
+      expect(lastDayOf(read.document, 1)).toBeNull()
     } else {
       expect(read.faults.every((each) => each.what.trim().length > 0)).toBe(true)
     }

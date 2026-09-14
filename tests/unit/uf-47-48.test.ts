@@ -122,7 +122,7 @@ const FIRST_START = '2026-04-01'
  * in the document, short enough that no Task drops under the LOD floor (S-86).
  */
 const LATE_ACTUAL_START = '2026-04-20'
-const LATE_ACTUAL_WORKED_DAYS = 20
+const LATE_ACTUAL_LAST_DAY = '2026-05-15'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -181,7 +181,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -464,7 +464,7 @@ describe('the document these cases drive', () => {
     for (const task of (twoRowDocument() as any).schedule.tasks) {
       expect(planActualState(task)).toBe('notStarted')
       expect(task.actualStart).toBeNull()
-      expect(task.actualDuration).toBeNull()
+      expect(task.stop).toBeNull()
       expect(task.actualFinish).toBeNull()
     }
   })
@@ -570,7 +570,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // behind the row title panel, where no scroll position reaches it.
     const late = twoRowDocument((draft) => {
       draft.schedule.tasks[0].actualStart = LATE_ACTUAL_START
-      draft.schedule.tasks[0].actualDuration = LATE_ACTUAL_WORKED_DAYS
+      draft.schedule.tasks[0].stop = LATE_ACTUAL_LAST_DAY
     })
     expect(validateDocument(late).valid).toBe(true)
 
@@ -585,7 +585,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // actual is drawn on the plan (table T-012, SH-1 / SH-2)...
     expect(placement.actualPlacement).toBe('inside')
     // ...and only while that actual really does run past its plan (RV-1 puts
-    // its right end at `actualStart` plus `actualDuration` in worked days).
+    // its right end at the column after the actual's last day).
     expect(placement.actualX).not.toBeNull()
     expect(actualEnd).toBeGreaterThan(placement.x + placement.width)
 

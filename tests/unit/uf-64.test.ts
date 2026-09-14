@@ -493,7 +493,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -929,7 +929,11 @@ describe('table T-016 -- every item actually reaches the screen', () => {
       a: [{ actualStart: '2026-03-05T00:00:00' }, {}, {}],
       b: [{ actualStart: '2026-03-06T00:00:00' }, {}, {}],
     },
-    { row: 'PR-5', a: [{ actualDuration: 3 }, {}, {}], b: [{ actualDuration: 4 }, {}, {}] },
+    {
+      row: 'PR-5',
+      a: [{ actualStart: '2026-03-05T00:00:00', stop: '2026-03-05T00:00:00' }, {}, {}],
+      b: [{ actualStart: '2026-03-05T00:00:00', stop: '2026-03-06T00:00:00' }, {}, {}],
+    },
     {
       row: 'PR-6',
       a: [{ actualFinish: '2026-03-05T00:00:00' }, {}, {}],

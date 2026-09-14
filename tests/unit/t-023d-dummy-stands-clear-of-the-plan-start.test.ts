@@ -387,11 +387,6 @@ const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DUR
 
 /**
  * How far the finish handle is pulled out, in worked days from GR-9's own day.
- *
- * ⭐ FOUR RATHER THAN ONE, so that the length written cannot be mistaken for
- * `S-129` -- 「掴めば `actualDuration` を置く」 (table T-023d GR-17) is a count
- * the drag decides, and a pull of exactly `S-129` would be the same number the
- * other handle writes without counting anything.
  */
 const PULLED_WORKED_DAYS = 4
 
@@ -481,7 +476,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -860,7 +855,7 @@ describe('table T-023d GR-9 / GR-17 (DFC-56): the dummy stands one working day a
     // ⛔ RED WITH THE ROW ABOVE. FR-043 :2015 still bases the end handle on the
     // PLAN's start day rather than on GR-9's day, so the pair does not travel
     // together. ⭐ The length is what must NOT change: FR-043 places
-    // `actualDuration` = `S-129`, and the picture has to be that long.
+    // the floor day, and the picture has to be that long.
     const drawn = draw(notStarted())
     const task = taskDrawn(drawn)
     const start = dummyNamed(task, 'GR-9')
@@ -1018,11 +1013,6 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 
 describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 and resumeValid', () => {
   it('places the actual start on the day the hold was let go on, unmoved', () => {
-    // ⭐ THE ASSERTION DFC-182 TURNS ON. 「掴んで置く値は、実績開始日 ＝ 掴みシロ
-    // を離した日、実績期間（`actualDuration`）＝ `S-129`、`resumeValid` ＝
-    // `true` とすること（MUST）」（利用者の裁定 2026-09-02）, with ⛔ 「離した日
-    // を稼働日へ寄せてはならない（MUST NOT）」 under table T-023d and ⛔ 「この
-    // 2 つを同じ規則として読んではならない（MUST NOT）」 beside it.
     // ⚠️ `DROPPED_DAY` IS A SATURDAY, so the two readings the rule forbids are
     // each a different day from the answer: moving it to a working day gives
     // `WORKED_DAY_AFTER_START`, and reading the drawing rule as the value gives
@@ -1043,16 +1033,11 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       .not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
     expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): 予定の開始日そのものに置いてはならない')
       .not.toEqual(dayNamed(PLAN_START))
-    expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    expect(dayOf(task.stop)).toEqual(dayNamed(workedDaysAfter(DROPPED_DAY, ACTUAL_INITIAL_DURATION - 1)))
     expect(task.resumeValid).toBe(true)
   })
 
   it('pins the start at GR-9 の日 from GR-17, and counts the length out to the release', () => {
-    // ⭐⭐ LEDGER DFC-415, AND THIS IS THE CASE THAT CLOSES IT. Table T-023d's
-    // GR-17 row: 「掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で
-    // 確定。`FR-043`）」, and FR-043 asks the same from the other side (MUST):
-    // 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだときは開始点
-    // を予定の開始日の翌稼働日で確定させること（MUST）」.
     // ⛔⛔ WHAT THIS CASE ASSERTED UNTIL 2026-09-10, AND WHY IT WAS WRONG TO. It
     // said the GR-17 row 「IS NOT IMPLEMENTED」 and asked for the GR-9 answer
     // instead, because `beginTaskActual` carried no field saying which handle
@@ -1097,13 +1082,12 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       .not.toEqual(dayNamed(PULLED_TO_DAY))
     expect(dayOf(after.actualStart), 'nor the plan start itself')
       .not.toEqual(dayNamed(PLAN_START))
-    const releasedDayCountedAsFinishDay = PULLED_WORKED_DAYS + 1
-    expect(after.actualDuration, '⭐ 終了点（表 T-023d の `GR-17`）を離した日は、表 T-245 の `GO-3` と同じく実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）')
-      .toBe(releasedDayCountedAsFinishDay)
-    expect(after.actualDuration, 'the right-end reading counts one worked day fewer')
-      .not.toBe(PULLED_WORKED_DAYS)
-    expect(after.actualDuration, 'and it is NOT S-129, which is GR-9\'s answer')
-      .not.toBe(ACTUAL_INITIAL_DURATION)
+    expect(dayOf(after.stop), 'GR-17: the released day is the last day itself')
+      .toEqual(dayNamed(PULLED_TO_DAY))
+    expect(dayOf(after.stop), 'the right-end reading lands one worked day earlier')
+      .not.toEqual(dayNamed(workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS - 1)))
+    expect(dayOf(after.stop), 'and it is NOT the floor day, which is GR-9\'s answer')
+      .not.toEqual(dayNamed(workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION - 1)))
     expect(after.resumeValid).toBe(true)
   })
 
@@ -1125,7 +1109,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     expect(dayOf(after.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日')
       .toEqual(dayNamed(PULLED_TO_DAY))
     expect(dayOf(after.actualStart)).not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
-    expect(after.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    expect(dayOf(after.stop)).toEqual(dayNamed(workedDaysAfter(PULLED_TO_DAY, ACTUAL_INITIAL_DURATION - 1)))
     expect(after.resumeValid).toBe(true)
   })
 
@@ -1153,7 +1137,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
   it('draws no dummy at all once an actual is recorded (FR-043 shows them while not started)', () => {
     const started = notStarted({
       actualStart: stored(PLAN_START),
-      actualDuration: ACTUAL_INITIAL_DURATION,
+      stop: stored(PLAN_START),
       resumeValid: true,
     })
     expect(taskDrawn(draw(started)).dummies).toHaveLength(0)
@@ -1243,7 +1227,8 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       }),
       UNDER_TEST,
     )
-    expect(task.actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
+    expect(dayOf(task.stop)).toEqual(dayNamed(MILESTONE_DROPPED_DAY))
+    expect(MILESTONE_ACTUAL_DURATION).toBe(0)
     expect(task.resumeValid).toBe(true)
   })
 

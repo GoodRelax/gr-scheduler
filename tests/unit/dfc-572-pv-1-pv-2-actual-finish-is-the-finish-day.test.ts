@@ -1,4 +1,4 @@
-// DFC-572: PV-1 and PV-2 write actualFinish as the finish day, not the right end (FR-011).
+// DFC-572: PV-1 and PV-2 write actualFinish as the last actual day, not the right end (FR-011).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -28,7 +28,7 @@ const FR_011_SAME_DAY_IS_ONE_DAY =
   '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '0 日としてはならない（MUST NOT） —— ⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— `actualStart` に `actualDuration` を稼働日で加えた日の、その列の左端であり、実績の終了日はその 1 稼働日前の日である。'
+  '0 日としてはならない（MUST NOT） —— ⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
 
 const FR_011_DO_NOT_READ_RIGHT_END_AS_FINISH =
   '⚠️ **「右端」を終了日と読んではならない（MUST NOT）** —— そう読むと「開始日 ＝ 終了日 ⟺ 長さ 0 日」になり、開始日と終了日が同じ実績を 1 日とする上の規則に反する。'
@@ -37,10 +37,12 @@ const FR_011_MILESTONE =
   '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
 
 const PV_1_ACTUAL_FINISH =
-  '`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の実績の終了日。実績バーの右端そのものではない）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**'
+  '⭐ `actualFinish` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）（MUST）'
+
+const PV_1_OWN_READING = '`stop` は空のまま、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**'
 
 const PV_2_CELL =
-  '`actualFinish` ＝ **実績の終了日**（`FR-011`。実績バーの右端の 1 稼働日前であって、右端そのものではない）、**`resumeValid` ＝ `false`**。**左端も右端も動かさない**'
+  '`actualFinish` ＝ `stop`、`stop` ＝ 空（`FR-011`。2 つを 1 回の置き換えで行うこと（MUST） —— 間に「最後の日を持たない実績」を見せない。`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない）、**`resumeValid` ＝ `false`**。**左端も右端も動かさない**'
 
 const T_021A = specTable('T-021a')
 
@@ -66,30 +68,27 @@ const dayAfter = (iso: string): string => {
   return next.toISOString().slice(0, 10)
 }
 
-// see T-209
-const workedDaysAfter = (iso: string, count: number): string => {
-  let at = iso
-  for (let left = count; left > 0; left -= 1) {
-    do {
-      at = dayAfter(at)
-    } while (!isWorkedDay(at))
+// see FR-011, RV-1
+const rightEndOf = (lastDay: string): string => dayAfter(lastDay)
+
+// see FR-011
+const lengthOf = (start: string, last: string): number => {
+  let count = 0
+  for (let at = start; at <= last; at = dayAfter(at)) {
+    if (at === start || at === last || isWorkedDay(at)) count += 1
   }
-  return at
-}
-
-// see FR-011
-const rightEndOf = (start: string, duration: number): string => workedDaysAfter(start, duration)
-
-// see FR-011
-const finishDayOf = (start: string, duration: number): string => {
-  if (duration < 1) throw new Error('finishDayOf is the bar reading; a milestone uses actualStart')
-  return workedDaysAfter(start, duration - 1)
+  return count
 }
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
 
 // see EX-7
 const stored = (iso: string): string => `${iso}T00:00:00`
+
+const dayPart = (value: string | null): string => {
+  if (value === null) throw new Error('the column this case reads holds nothing')
+  return value.slice(0, 10)
+}
 
 const settingsOf = (): DocumentSettings => {
   const out: Record<string, unknown> = {}
@@ -120,7 +119,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -218,15 +217,16 @@ const ACTUAL_INITIAL_DURATION = numberSetting('actualInitialDuration')
 const MILESTONE_ACTUAL_DURATION = numberSetting('milestoneActualDuration')
 
 describe('DFC-572 premises: the clauses and the calendar still read this way', () => {
-  it('FR-011 still holds the finish-day reading and the milestone exception verbatim', () => {
+  it('FR-011 still holds the last-day reading and the milestone exception verbatim', () => {
     expect(REQUIREMENTS).toContain(FR_011_SAME_DAY_IS_ONE_DAY)
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_DO_NOT_READ_RIGHT_END_AS_FINISH)
     expect(REQUIREMENTS).toContain(FR_011_MILESTONE)
   })
 
-  it('table T-021a PV-1 and PV-2 still name the finish day, not the right end', () => {
+  it('table T-021a PV-1 and PV-2 still name the last day, not the right end', () => {
     expect(cellOfRow('PV-1')).toContain(PV_1_ACTUAL_FINISH)
+    expect(cellOfRow('PV-1')).toContain(PV_1_OWN_READING)
     expect(cellOfRow('PV-2')).toBe(PV_2_CELL)
   })
 
@@ -242,69 +242,78 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
   })
 })
 
-describe('DFC-572 table T-021a PV-1: not started -> finished writes the finish day', () => {
+describe('DFC-572 table T-021a PV-1: not started -> finished writes the floor day', () => {
   it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes actualFinish = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(5)))
-    expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
-    expect(task.actualFinish, 'FR-011 finish day').toBe(stored(finishDayOf(ymd(5), ACTUAL_INITIAL_DURATION)))
-    expect(task.actualFinish, 'FR-011 finish day of a 1-day actual is its start').toBe(task.actualStart)
-    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5), ACTUAL_INITIAL_DURATION)))
+    expect(task.stop, 'PV-1: stop stays empty').toBeNull()
+    expect(task.actualFinish, 'PV-1 floor day').toBe(stored(ymd(5)))
+    expect(task.actualFinish, 'FR-011 last day of a 1-day actual is its start').toBe(task.actualStart)
+    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5))))
     expect(planActualState(task)).toBe('finished')
   })
 
-  it('PV-1 on a Friday still finishes that Friday, not on the Monday the right end crosses the weekend to', () => {
+  it('PV-1 on a Friday still finishes that Friday, not on the Saturday right end nor the next worked day', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(9)), finish: stored(ymd(23)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(9)))
-    expect(task.actualFinish, 'FR-011 finish day').toBe(stored(ymd(9)))
-    expect(rightEndOf(ymd(9), ACTUAL_INITIAL_DURATION)).toBe(ymd(12))
-    expect(task.actualFinish, 'MUST NOT: the right end (Monday)').not.toBe(stored(ymd(12)))
-    expect(task.actualFinish, 'nor the calendar day after (Saturday)').not.toBe(stored(ymd(10)))
+    expect(task.actualFinish, 'PV-1 floor day').toBe(stored(ymd(9)))
+    expect(rightEndOf(ymd(9))).toBe(ymd(10))
+    expect(task.actualFinish, 'MUST NOT: the next worked day (Monday)').not.toBe(stored(ymd(12)))
+    expect(task.actualFinish, 'MUST NOT: the right end (Saturday)').not.toBe(stored(ymd(10)))
   })
 
   it('⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。 -- PV-1 on a milestone', () => {
     const task = pressed(
       documentWith(taskOf({ name: 'Ship', start: stored(ymd(9)), finish: stored(ymd(9)), milestone: true }), 'milestone'),
     )
-    expect(task.actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
+    expect(task.stop, 'PV-1: stop stays empty').toBeNull()
     expect(task.actualStart).toBe(stored(ymd(9)))
     expect(task.actualFinish, 'FR-011: a milestone finishes on its actualStart').toBe(task.actualStart)
     expect(planActualState(task)).toBe('finished')
   })
 })
 
-describe('DFC-572 table T-021a PV-2: in progress -> finished writes the finish day', () => {
-  const inProgress = (start: string, duration: number): Document =>
+describe('DFC-572 table T-021a PV-2: in progress -> finished moves stop to actualFinish', () => {
+  const inProgress = (start: string, last: string): Document =>
     documentWith(
-      taskOf({ start: stored(ymd(5)), finish: stored(ymd(23)), actualStart: stored(start), actualDuration: duration, resumeValid: true }),
+      taskOf({ start: stored(ymd(5)), finish: stored(ymd(23)), actualStart: stored(start), stop: stored(last), resumeValid: true }),
       'rectangle',
     )
 
   it('PV-2 within one week: three worked days from Monday finish on Wednesday, not on the Thursday right end', () => {
-    const task = pressed(inProgress(ymd(5), 3))
-    expect(task.actualFinish, 'FR-011 finish day').toBe(stored(finishDayOf(ymd(5), 3)))
-    expect(finishDayOf(ymd(5), 3)).toBe(ymd(7))
-    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(ymd(8)))
+    const task = pressed(inProgress(ymd(5), ymd(7)))
+    expect(task.actualFinish, 'PV-2: actualFinish = stop').toBe(stored(ymd(7)))
+    expect(lengthOf(ymd(5), dayPart(task.actualFinish))).toBe(3)
+    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(7))))
     expect(task.actualStart).toBe(stored(ymd(5)))
-    expect(task.actualDuration).toBe(3)
+    expect(task.stop, 'PV-2: stop = empty').toBeNull()
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('finished')
   })
 
   it('PV-2 across a weekend: three worked days from Thursday finish on Monday, not on the Tuesday right end', () => {
-    const task = pressed(inProgress(ymd(8), 3))
-    expect(finishDayOf(ymd(8), 3)).toBe(ymd(12))
-    expect(rightEndOf(ymd(8), 3)).toBe(ymd(13))
-    expect(task.actualFinish, 'FR-011 finish day').toBe(stored(ymd(12)))
+    const task = pressed(inProgress(ymd(8), ymd(12)))
+    expect(lengthOf(ymd(8), ymd(12))).toBe(3)
+    expect(rightEndOf(ymd(12))).toBe(ymd(13))
+    expect(task.actualFinish, 'PV-2: actualFinish = stop').toBe(stored(ymd(12)))
     expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(ymd(13)))
     expect(task.actualStart).toBe(stored(ymd(8)))
-    expect(task.actualDuration).toBe(3)
+    expect(task.stop, 'PV-2: stop = empty').toBeNull()
   })
 
-  it('PV-2 on a one-day actual standing on a Friday finishes that Friday, not on the Monday right end', () => {
-    const task = pressed(inProgress(ymd(9), 1))
+  it('PV-2 on a one-day actual standing on a Friday finishes that Friday, not on the Saturday right end', () => {
+    const task = pressed(inProgress(ymd(9), ymd(9)))
     expect(task.actualFinish, 'FR-011 same-day actual is one day').toBe(stored(ymd(9)))
-    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(ymd(12)))
+    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(ymd(10)))
+  })
+
+  it('PV-2 on an actual whose last day is a Saturday finishes on that Saturday, not on a worked day', () => {
+    const task = pressed(inProgress(ymd(9), ymd(10)))
+    expect(isWorkedDay(ymd(10)), 'premise: a rest day').toBe(false)
+    expect(task.actualFinish, 'PV-2: actualFinish = stop, even on a rest day').toBe(stored(ymd(10)))
+    expect(task.actualFinish, 'not the worked day before').not.toBe(stored(ymd(9)))
+    expect(task.actualFinish, 'not the worked day after').not.toBe(stored(ymd(12)))
+    expect(task.stop).toBeNull()
   })
 
   it('PV-2 on a milestone in progress finishes on its actualStart', () => {
@@ -316,7 +325,7 @@ describe('DFC-572 table T-021a PV-2: in progress -> finished writes the finish d
           finish: stored(ymd(7)),
           milestone: true,
           actualStart: stored(ymd(9)),
-          actualDuration: MILESTONE_ACTUAL_DURATION,
+          stop: stored(ymd(9)),
           resumeValid: true,
         }),
         'milestone',

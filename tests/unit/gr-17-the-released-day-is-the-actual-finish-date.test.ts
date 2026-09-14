@@ -1,4 +1,4 @@
-// GR-17 of table T-023d (FR-043): the day the finish handle is released on is the actual finish date.
+// GR-17 of table T-023d (FR-043): the day the finish handle is released on is the last actual day.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,26 +25,29 @@ const REQUIREMENTS = unbroken(
 
 const SETTINGS_TABLES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8')
 
-const FR_043_RELEASED_DAY_IS_THE_FINISH_DATE =
-  '⭐ 終了点（表 T-023d の `GR-17`）を離した日は、表 T-245 の `GO-3` と同じく実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）'
+const FR_043_RELEASED_DAY_IS_THE_LAST_DAY =
+  '⭐ 終了点（表 T-023d の `GR-17`）を離した日は、表 T-245 の `GO-3` と同じく実績の最後の日（`stop`）として置き、実績バーの右端の位置として数えないこと（MUST）'
 
 const FR_043_SAME_DAY_AND_THE_FLOOR =
-  '`GR-9` の日に離せば開始日と終了日が同じ日の実績になり、それより左に離したときは `FR-011` の床が受け持つ。'
+  '`GR-9` の日に離せば開始日と終了日が同じ日の実績になり、それより左に離したときは `FR-011` の床と `05-07-design.md` の 表 T-220 の `IV-21` が受け持つ。'
 
 const FR_011_SAME_DAY_IS_ONE =
   '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— `actualStart` に `actualDuration` を稼働日で加えた日の、その列の左端であり、実績の終了日はその 1 稼働日前の日である。'
+  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。'
+  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
+
+const FR_011_ENDS_COUNT_ON_REST_DAYS =
+  '⭐ ただし両端の日（`actualStart` と最後の日）は、非稼働日であっても 1 日として数えること（MUST）'
 
 const GR_17_PINS_THE_START =
-  '掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。'
+  '掴めば実績の最後の日（`stop`）を置く（`actualStart` は `GR-9` の日で確定。'
 
 const IV_21_NOT_BELOW_ZERO =
-  '`actualStart` と `actualDuration` がともに非 `null` の `Task` で、`actualDuration` が 0 を下回らないこと。'
+  '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
 
 const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）。**'
 
@@ -85,13 +88,17 @@ const workedDaysFrom = (iso: string, count: number): string => {
   return at
 }
 
-const finishDateOf = (actualStartIso: string, actualDuration: number): string =>
-  workedDaysFrom(workedDaysFrom(actualStartIso, actualDuration), -1)
-
-const workedDaysInclusive = (fromIso: string, toIso: string): number => {
+// see FR-011
+const actualLength = (startIso: string, lastIso: string): number => {
   let count = 0
-  for (let at = fromIso; at <= toIso; at = calendarDayAfter(at, 1)) {
-    if (isWorkedDay(at)) count += 1
+  if (lastIso < startIso) {
+    for (let at = lastIso; at < startIso; at = calendarDayAfter(at, 1)) {
+      if (isWorkedDay(at)) count -= 1
+    }
+    return count
+  }
+  for (let at = startIso; at <= lastIso; at = calendarDayAfter(at, 1)) {
+    if (at === startIso || at === lastIso || isWorkedDay(at)) count += 1
   }
   return count
 }
@@ -154,7 +161,7 @@ const notStarted = (planStart: string): Document =>
           notes: null,
           calendarUid: null,
           actualStart: null,
-          actualDuration: null,
+          stop: null,
           actualFinish: null,
           resume: null,
           resumeValid: null,
@@ -221,11 +228,12 @@ const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
 
 describe('GR-17 premises: the clauses and the calendar still read this way', () => {
   it('FR-043, FR-011, T-023d GR-17, IV-21, DM-1, S-106 and S-107 still hold the clauses verbatim', () => {
-    expect(REQUIREMENTS).toContain(FR_043_RELEASED_DAY_IS_THE_FINISH_DATE)
+    expect(REQUIREMENTS).toContain(FR_043_RELEASED_DAY_IS_THE_LAST_DAY)
     expect(REQUIREMENTS).toContain(FR_043_SAME_DAY_AND_THE_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_SAME_DAY_IS_ONE)
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
+    expect(REQUIREMENTS).toContain(FR_011_ENDS_COUNT_ON_REST_DAYS)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
     expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
     expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_NEXT_WORKED_DAY)
@@ -242,37 +250,38 @@ describe('GR-17 premises: the clauses and the calendar still read this way', () 
   })
 })
 
-describe('FR-043 (MUST): GR-17 released on or right of GR-9 day counts that day as the actual finish date', () => {
+describe('FR-043 (MUST): GR-17 released on or right of GR-9 day puts that day as stop', () => {
   const cases = [
-    { title: 'released on GR-9 day: one worked day', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
-    { title: 'released on the worked day after GR-9 day: two worked days', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
-    { title: 'released across a weekend, Friday dummy to Monday: two worked days', planStart: THURSDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(19), length: 2 },
+    { title: 'released on GR-9 day: one day', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
+    { title: 'released on the worked day after GR-9 day: two days', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
+    { title: 'released across a weekend, Friday dummy to Monday: two days', planStart: THURSDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(19), length: 2 },
+    { title: 'released on the Saturday after a Friday dummy: two days', planStart: THURSDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(17), length: 2 },
   ]
   for (const one of cases) {
-    it(`${one.title}, finishing on the released day`, () => {
-      expect(workedDaysInclusive(one.dummy, one.dropped), 'the fixture counts start and finish days inclusively').toBe(one.length)
+    it(`${one.title}, the last day is the released day`, () => {
+      expect(actualLength(one.dummy, one.dropped), 'the oracle counts both end days').toBe(one.length)
       const result = releasedFromGr17(one.planStart, one.dropped)
-      expect(result.ok, FR_043_RELEASED_DAY_IS_THE_FINISH_DATE).toBe(true)
+      expect(result.ok, FR_043_RELEASED_DAY_IS_THE_LAST_DAY).toBe(true)
       if (!result.ok) return
       const task = taskOf(result.document)
       expect(dayPart(task.actualStart), GR_17_PINS_THE_START).toBe(one.dummy)
-      expect(task.actualDuration, FR_043_RELEASED_DAY_IS_THE_FINISH_DATE).toBe(one.length)
-      expect(finishDateOf(one.dummy, task.actualDuration!), FR_011_RIGHT_END_IS_A_POSITION).toBe(one.dropped)
+      expect(dayPart(task.stop), FR_043_RELEASED_DAY_IS_THE_LAST_DAY).toBe(one.dropped)
+      expect(actualLength(one.dummy, dayPart(task.stop)!), FR_011_RIGHT_END_IS_A_POSITION).toBe(one.length)
       expect(task.resumeValid).toBe(true)
     })
   }
 })
 
-describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor', () => {
-  it('released one worked day left: zero by the finish-date reading, so S-129 is written', () => {
-    const dropped = workedDaysFrom(MONDAY_DUMMY_DAY, -1)
-    expect(workedDaysInclusive(MONDAY_DUMMY_DAY, dropped), 'the finish-date reading gives zero').toBe(0)
+describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor and IV-21', () => {
+  it('released on the Sunday before a Monday dummy: zero by the FR-011 count, so stop is the floor day', () => {
+    const dropped = ymd(11)
+    expect(actualLength(MONDAY_DUMMY_DAY, dropped), 'the FR-011 count gives zero').toBe(0)
     const result = releasedFromGr17(FRIDAY_PLAN_START, dropped)
     expect(result.ok, FR_043_SAME_DAY_AND_THE_FLOOR).toBe(true)
     if (!result.ok) return
     const task = taskOf(result.document)
     expect(dayPart(task.actualStart), GR_17_PINS_THE_START).toBe(MONDAY_DUMMY_DAY)
-    expect(task.actualDuration, FR_011_FLOOR).toBe(S_129)
+    expect(dayPart(task.stop), FR_011_FLOOR).toBe(workedDaysFrom(MONDAY_DUMMY_DAY, S_129 - 1))
   })
 
   it('released two worked days left: negative, so IV-21 refuses it and writes nothing', () => {

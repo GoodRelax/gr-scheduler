@@ -1,24 +1,4 @@
-// FR-011 -- a started actual never falls below `S-129`, so the mark that is
-// also its hold never reaches zero width.
-//
-// ⭐ THE LEDGER ROW THIS CLOSES (利用者の申し立て 2026-09-10, 逐語):
-// 「実績を 0 日にしたら実績の変更ができなくなる。 実績が 0 でもつかみシロは仕様
-// 通りに確保しろ」 -- the actual could be shrunk to zero worked days, and once
-// it was, nothing could grab it again.
-//
-// ⛔ THE REASON IT BECAME UNGRABBABLE IS THE OTHER RULING OF THE SAME DAY. The
-// closing rule of table T-023d now reads 「`GR-9` / `GR-17` / `GR-18` の当たり
-// 判定は、`FR-043` が描いた印そのものとすること（MUST）」, so the hold IS the
-// ink -- and ink of zero width is a hold of zero width. ⚠️ A floor in PIXELS
-// would not do: the same floor has to hold at every zoom, and a count of worked
-// days is the only figure that does.
-//
-// ⚠️ These cases are read off docs/spec and not off the unit (1.9): the figure
-// is taken from 表 T-201 at read time, and the sentence that asks for it is
-// asserted against the manuscript itself before anything is driven.
-//
-// ⚠️ The command is reached through `edit-document.ts`, the public entry of the
-// component (Chapter 5.3).
+// FR-011: a started actual's last day is never placed before the floor day, so its mark never reaches zero width.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -36,23 +16,21 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
-// ---------------------------------------------------------------------------
-// The manuscript, and the sentence these cases exist for
-// ---------------------------------------------------------------------------
-
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** `FR-011`'s floor, held verbatim (利用者の裁定 2026-09-10). */
 const THE_FLOOR =
-  '着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）'
+  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST） —— 床の日とは、`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日であり、`S-129` が 1 なら `actualStart` そのものである（マイルストーンは常に `actualStart`）。'
 
-/** ⛔ And the floor the same sentence forbids borrowing from the plan side. */
+const ZERO_IS_LIFTED =
+  '⭐ 下の段が数える長さが 0 になる置き方（最後の日が `actualStart` より前で、その間に稼働日が無い）は床の日へ持ち上げ、0 を下回る置き方は `05-07-design.md` の 表 T-220 の `IV-21` が拒む。'
+
+const NOT_TO_ZERO = '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）'
+
 const NOT_S_49 = '`S-49` を実績に当ててはならない（MUST NOT）'
 
-/** One numbered setting's 既定値, taken from 表 T-201 at read time (1.9). */
 const settingDefault = (rowId: string): number => {
   const row = specTable('T-201').rows.find((one) => one.id === rowId)
   if (row === undefined) throw new Error(`table T-201 has no row ${rowId}`)
@@ -63,15 +41,9 @@ const settingDefault = (rowId: string): number => {
   return value
 }
 
-/** `S-129` — the length one grab places, and now the floor as well. */
 const ACTUAL_INITIAL_DURATION = settingDefault('S-129')
 
-/** `S-130` — a milestone is a point, so its actual carries this length. */
 const MILESTONE_ACTUAL_DURATION = settingDefault('S-130')
-
-// ---------------------------------------------------------------------------
-// Fixtures -- 2026-01-05 is a Monday, so 05 .. 09 is one working week
-// ---------------------------------------------------------------------------
 
 const jan = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
 
@@ -88,7 +60,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -157,12 +129,12 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
   }) as unknown as Schedule
 
 const SETTINGS = {
-  importMinDate: '1970-01-01', // S-119
-  importMaxDate: '2200-12-31', // S-120
-  actualInitialDuration: ACTUAL_INITIAL_DURATION, // S-129
-  milestoneActualDuration: MILESTONE_ACTUAL_DURATION, // S-130
-  maxGroupDepth: 5, // S-125
-  stackSafetyCap: 255, // S-89
+  importMinDate: '1970-01-01',
+  importMaxDate: '2200-12-31',
+  actualInitialDuration: ACTUAL_INITIAL_DURATION,
+  milestoneActualDuration: MILESTONE_ACTUAL_DURATION,
+  maxGroupDepth: 5,
+  stackSafetyCap: 255,
 } as unknown as DocumentSettings
 
 const documentOf = (schedule: Record<string, unknown> = {}): Document =>
@@ -178,7 +150,6 @@ const documentOf = (schedule: Record<string, unknown> = {}): Document =>
     changeLog: [],
   }) as unknown as Document
 
-/** A bar-shaped task already in progress, which is what a grab shrinks. */
 const started = (task: Record<string, unknown> = {}, visual: Record<string, unknown> = {}): Document =>
   documentOf({
     tasks: [
@@ -188,7 +159,7 @@ const started = (task: Record<string, unknown> = {}, visual: Record<string, unkn
         start: jan(5),
         finish: jan(9),
         actualStart: jan(5),
-        actualDuration: 4,
+        stop: jan(8),
         resumeValid: true,
         ...task,
       }),
@@ -207,75 +178,78 @@ const accepted = (result: EditResult): Document => {
 const taskIn = (document: Document, uid: number): Task =>
   document.schedule.tasks.find((task) => task.uid === uid)!
 
-const place = (document: Document, put: PlanActualPlacement): Document =>
-  accepted(
-    editTask(document, { kind: 'setTaskPlanActualState', uid: 1, place: put } as TaskCommand),
-  )
+const lastDayIn = (document: Document): string | null => {
+  const task = taskIn(document, 1)
+  return task.actualFinish ?? task.stop
+}
 
-// ---------------------------------------------------------------------------
+const placing = (document: Document, put: PlanActualPlacement): EditResult =>
+  editTask(document, { kind: 'setTaskPlanActualState', uid: 1, place: put } as TaskCommand)
 
-describe('FR-011 -- a started actual never falls below S-129', () => {
+const place = (document: Document, put: PlanActualPlacement): Document => accepted(placing(document, put))
+
+const SUNDAY_BEFORE = jan(4)
+const FRIDAY_BEFORE = jan(2)
+
+describe('FR-011 -- a started actual never falls below the floor day', () => {
   it('the manuscript still asks for the floor, and still bars the plan-side one', () => {
-    // ⚠️ The guard runs first so that a case going green after the clause was
-    // deleted is impossible: without this, the rest would keep passing against
-    // a requirement nobody asks for any more.
     expect(REQUIREMENTS).toContain(THE_FLOOR)
+    expect(REQUIREMENTS).toContain(ZERO_IS_LIFTED)
+    expect(REQUIREMENTS).toContain(NOT_TO_ZERO)
     expect(REQUIREMENTS).toContain(NOT_S_49)
     expect(ACTUAL_INITIAL_DURATION).toBe(1)
   })
 
-  it('a bar shrunk to zero worked days comes back at S-129', () => {
-    // ⭐ THE DEFECT ITSELF: 「実績を 0 日にしたら実績の変更ができなくなる」.
-    const next = place(started(), { row: 'PA-2', actualStart: jan(5), actualDuration: 0 })
-    expect(taskIn(next, 1).actualDuration).toBe(ACTUAL_INITIAL_DURATION)
-    expect(taskIn(next, 1).actualDuration).not.toBe(0)
+  it('a last day placed zero days from actualStart comes back on the floor day', () => {
+    const next = place(started(), { row: 'PA-2', actualStart: jan(5), stop: SUNDAY_BEFORE })
+    expect(taskIn(next, 1).stop).toBe(jan(5))
+    expect(taskIn(next, 1).stop).not.toBe(SUNDAY_BEFORE)
   })
 
   it('every started row of table T-019 carries the same floor', () => {
-    // ⚠️ PA-2 .. PA-5 are the rows FR-011 calls 着手しているタスク; PA-1 is the
-    // one that is not, and it is the case below.
     const rows: readonly PlanActualPlacement[] = [
-      { row: 'PA-2', actualStart: jan(5), actualDuration: 0 },
-      { row: 'PA-3', actualStart: jan(5), actualDuration: 0, resume: jan(20) },
-      { row: 'PA-4', actualStart: jan(5), actualDuration: 0 },
-      { row: 'PA-5', actualStart: jan(5), actualDuration: 0, actualFinish: jan(9) },
-    ] as unknown as readonly PlanActualPlacement[]
+      { row: 'PA-2', actualStart: jan(5), stop: SUNDAY_BEFORE },
+      { row: 'PA-3', actualStart: jan(5), stop: SUNDAY_BEFORE, resume: jan(20) },
+      { row: 'PA-4', actualStart: jan(5), stop: SUNDAY_BEFORE },
+      { row: 'PA-5', actualStart: jan(5), actualFinish: SUNDAY_BEFORE },
+    ]
     for (const put of rows) {
-      expect(taskIn(place(started(), put), 1).actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+      expect(lastDayIn(place(started(), put)), put.row).toBe(jan(5))
     }
   })
 
-  it('a length already above the floor is left exactly as it was placed', () => {
-    // ⛔ A FLOOR AND NOT A REWRITE: FR-011's own 「人が置いていない限り両端を動か
-    // さないこと（MUST NOT）」 is what bars touching a length the hand did place.
-    const next = place(started(), { row: 'PA-2', actualStart: jan(5), actualDuration: 3 })
-    expect(taskIn(next, 1).actualDuration).toBe(3)
+  it('a last day already on or after the floor day is left exactly as it was placed, a rest day included', () => {
+    const next = place(started(), { row: 'PA-2', actualStart: jan(5), stop: jan(7) })
+    expect(taskIn(next, 1).stop).toBe(jan(7))
+    const onSaturday = place(started(), { row: 'PA-2', actualStart: jan(5), stop: jan(10) })
+    expect(taskIn(onSaturday, 1).stop).toBe(jan(10))
   })
 
-  it('a milestone keeps S-130, because it has no actual bar to lose', () => {
-    // ⭐ THE EXCEPTION IS THE MANUSCRIPT'S OWN. 表 T-023d の `GR-15` gives a
-    // milestone no actual bar, and `S-130` is 0 worked days -- so the floor
-    // FR-011 places over 実績バー has nothing to stand on here. ⛔ Flooring it
-    // at `S-129` would give a point a length, which 表 T-012 の `SH-5` forbids.
+  it('a last day placed below zero days is refused by IV-21 and not lifted', () => {
+    const result = placing(started(), { row: 'PA-2', actualStart: jan(5), stop: FRIDAY_BEFORE })
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.refusals[0]?.rule).toBe('IV-21')
+  })
+
+  it('a milestone is floored on its actualStart, because it has no actual bar to lose', () => {
     const next = place(started({ milestone: true }, { shapeKind: 'milestone' }), {
       row: 'PA-2',
       actualStart: jan(5),
-      actualDuration: 0,
-    } as unknown as PlanActualPlacement)
-    expect(taskIn(next, 1).actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
+      stop: SUNDAY_BEFORE,
+    })
+    expect(taskIn(next, 1).stop).toBe(taskIn(next, 1).actualStart)
     expect(MILESTONE_ACTUAL_DURATION).toBe(0)
   })
 
-  it('PA-1 still empties the column, because 未着手 is not a started task', () => {
-    // ⚠️ 「実績を丸ごと消す道は本行が閉ざすものではない」 -- FR-011 says so in as
-    // many words, and this is that road.
-    const next = place(started(), { row: 'PA-1' } as unknown as PlanActualPlacement)
-    expect(taskIn(next, 1).actualDuration).toBeNull()
+  it('PA-1 still empties the columns, because 未着手 is not a started task', () => {
+    const next = place(started(), { row: 'PA-1' })
+    expect(taskIn(next, 1).stop).toBeNull()
     expect(taskIn(next, 1).actualStart).toBeNull()
   })
 
   it('the plan is not touched, so no S-49 reaches the actual', () => {
-    const next = place(started(), { row: 'PA-2', actualStart: jan(5), actualDuration: 0 })
+    const next = place(started(), { row: 'PA-2', actualStart: jan(5), stop: SUNDAY_BEFORE })
     expect(taskIn(next, 1).start).toBe(jan(5))
     expect(taskIn(next, 1).finish).toBe(jan(9))
   })

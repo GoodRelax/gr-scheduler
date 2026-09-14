@@ -2,22 +2,6 @@
 // nobody has edited its actuals, and what it exports once somebody has.
 //
 // ---------------------------------------------------------------------------
-// THE CLAUSE, QUOTED VERBATIM (docs/spec/01-04-requirements.md:1937)
-// ---------------------------------------------------------------------------
-//
-//   ⚠️ **最終列は算出して書くときの値である。取り込んだ原値があり、そのタスクの
-//   実績を人が編集していないあいだは、最終列によらず原値をそのまま書き戻すこと
-//   （MUST）** —— Carry である（表 T-005 の `G-13`）。算出値が原値と 1 日でも違うと、
-//   **編集していないタスクの値を書き換える**ことになり（表 T-033 の `EX-2`）、
-//   未編集の往復も壊れる（`FR-021`）。**人がそのタスクの実績を編集したときに限り、
-//   最終列の値へ置き換える** —— `FR-012` の完了率と同じ規則である。
-//
-// ⚠️ THE LEDGER ROW THAT ASKED FOR THIS FILE NAMED THE WRONG PLACE, and the body
-// that repaired it said so in as many words: DFC-294's 仕様の場所 column read 「表
-// T-016 と `FR-072`」, and neither of those settles this. The clause above is the
-// note UNDER 表 T-019, and it is the one quoted here.
-//
-// ---------------------------------------------------------------------------
 // WHERE 表 T-218 PUTS THIS FILE
 // ---------------------------------------------------------------------------
 // `TS-6`, tests/unit/ -- 「単体テスト | 持たない | —— | Unit | `tests/unit/` |
@@ -47,17 +31,6 @@
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   表 T-019      its last column, 「`Stop`（書き出し）」: `PA-3` 中断・再開予定
-//                 あり and `PA-4` 中断・再開日未定 both 「**書く**」; `PA-1`
-//                 `PA-2` `PA-5` 「書かない」.
-//   表 T-019 の注  the clause quoted above -- the whole of this file.
-//   表 T-059 DV-9 「`Task` | `stop` | `Task/Stop` | `actualStart` ＋
-//                 `actualDuration`。**中断のときだけ書く**」 -- WHAT the computed
-//                 value is, which is what a dropped original falls back to.
-//   表 T-005 G-13 「Carry | 取り込んだ MSPDI の項目を、そのまま持ち回って書き戻す
-//                 仕組み。対象は……**算出で置き換えうるが原値を保つ項目**（`Stop`）
-//                 である。後者の規則は表 T-019 の注記が持つ」 -- the mechanism the
-//                 clause names, and the reason `Stop` is the column driven here.
 //   表 T-108      the three commands that EDIT THE ACTUALS, read at run time
 //                 rather than typed: `CM-13` `setTaskPlanActualState`（予実の 5
 //                 列を置く）, `CM-14` `beginTaskActual`（実績を置き始める）,
@@ -80,13 +53,6 @@
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//   1. WHICH DAY THE COMPUTED `Stop` LANDS ON. `DV-9` states the arithmetic and
-//      tests/unit/uf-36.test.ts owns the MSPDI shapes; what the clause rules on
-//      is WHICH of the two values is written, so these cases ask only that the
-//      written one is (or is not) the carried original.
-//   2. THE OTHER CARRIED ITEMS. `G-13` names two kinds and the clause governs
-//      only 「算出で置き換えうるが原値を保つ項目」, whose one member it names:
-//      `Stop`.
 //   3. WHAT `FR-012`'s 完了率 does. The clause says it follows the same rule;
 //      that requirement has its own cases.
 
@@ -131,10 +97,10 @@ const REQUIREMENTS = unbroken(readFileSync(
  * unbroken run of manuscript is the one written here.
  */
 const T_019_CARRY_NOTE =
-  '取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、最終列によらず原値をそのまま書き戻すこと（MUST）'
+  '取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、作った値によらず原値をそのまま書き戻すこと（MUST）'
 
 /** The other half of the same note -- when the computed value DOES take over. */
-const T_019_ONLY_WHEN_EDITED = '人がそのタスクの実績を編集したときに限り、最終列の値へ置き換える'
+const T_019_ONLY_WHEN_EDITED = '人がそのタスクの実績を編集したときに限り、作った値へ置き換える'
 
 // ===========================================================================
 // 2. Which commands edit the actuals, read out of 表 T-108
@@ -189,29 +155,8 @@ const CALENDAR_XML = `  <Calendars>
 
 const TASK_UID = 1
 
-/**
- * ⭐⭐ THE CARRIED VALUE IS A DAY THE ARITHMETIC CANNOT REACH, and that is the
- * whole of the fixture's design. `DV-9` computes 「`actualStart` ＋
- * `actualDuration`」 -- one week from 2026-04-06 -- so a file that carries
- * 2026-09-30 states a `Stop` no computation of these columns produces. ⇒ the two
- * candidate answers can never be confused, and a case that reads back the
- * carried day is reading a value that was PRESERVED and not one that happened to
- * agree.
- *
- * ⚠️ 30 September is a Wednesday in 2026 and 6 April a Monday, so neither day is
- * one a working-day rule would shift; the fixture states no exception days.
- */
-const CARRIED_STOP_DAY = '2026-09-30'
-const CARRIED_STOP = `${CARRIED_STOP_DAY}T17:00:00`
+const CARRIED_ACTUAL_DURATION = 'PT37H0M0S'
 
-/**
- * A task 表 T-019 puts in `PA-3` 中断・再開予定あり: an actual has begun
- * (`actualStart` あり / `actualDuration` あり), it has not finished
- * (`actualFinish` 空) and a resume day stands (`resume` 日付 / `resumeValid`
- * `true`). ⭐ That is one of the two rows whose last column says 「**書く**」, so
- * the export has a `Stop` to write either way and the cases below compare two
- * values rather than a value against an absence.
- */
 const SUSPENDED_TASK_XML = `    <Task>
       <UID>${TASK_UID}</UID>
       <ID>1</ID>
@@ -223,21 +168,13 @@ const SUSPENDED_TASK_XML = `    <Task>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
       <ActualStart>2026-04-06T08:00:00</ActualStart>
-      <ActualDuration>PT40H0M0S</ActualDuration>
-      <Stop>${CARRIED_STOP}</Stop>
+      <ActualDuration>${CARRIED_ACTUAL_DURATION}</ActualDuration>
+      <Stop>2026-04-10T17:00:00</Stop>
       <Resume>2026-05-11T08:00:00</Resume>
       <ResumeValid>1</ResumeValid>
     </Task>`
 
 /**
- * ⭐⭐ THE SAME CARRIED `Stop` ON A TASK 表 T-019 SAYS NOT TO WRITE ONE FOR.
- * `PA-1` 未着手 -- no `ActualStart`, no `ActualDuration` -- and its last column
- * reads 「書かない」, yet the file carries a `Stop`. ⇒ this fixture is what makes
- * 「**最終列によらず**原値をそのまま書き戻すこと」 measurable: a build that
- * consulted the last column first would write nothing here, and one that honours
- * the clause writes the carried day back even though the computed answer is
- * "none at all".
- *
  * ⛔ IT IS ALSO THE ONLY FIXTURE `CM-14` CAN REACH. `FR-043` puts the grab-holds
  * on a task 「`Task` が未着手であるあいだ」, so `beginTaskActual` is refused on a
  * task whose actual has already begun -- measured here, not assumed: the
@@ -254,7 +191,7 @@ const UNSTARTED_TASK_XML = `    <Task>
       <Finish>2026-04-24T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <Stop>${CARRIED_STOP}</Stop>
+      <ActualDuration>${CARRIED_ACTUAL_DURATION}</ActualDuration>
     </Task>`
 
 const fileOf = (taskXml: string): string => `<?xml version="1.0" encoding="UTF-8"?>
@@ -302,10 +239,10 @@ function imported(file: string = SUSPENDED_FILE): Document {
   return reading.document
 }
 
-/** The `<Stop>` the writer put on the one task, or `null` where it wrote none. */
-function exportedStop(document: Document): string | null {
+/** The `<ActualDuration>` the writer put on the one task, or `null` where it wrote none. */
+function exportedActualDuration(document: Document): string | null {
   const { text } = mspdiFromDocument(document)
-  const found = /<Stop>([^<]*)<\/Stop>/.exec(text)
+  const found = /<ActualDuration>([^<]*)<\/ActualDuration>/.exec(text)
   return found === null ? null : (found[1] ?? null)
 }
 
@@ -332,14 +269,11 @@ function edited(document: Document, command: TaskCommand): Document {
 function commandFor(rowId: string): TaskCommand {
   const kind = commandNameOf(rowId)
   switch (rowId) {
-    // CM-13 -- 「予実の 5 列を置く」. `PA-4` 中断・再開日未定 keeps the task on a
-    // row whose last column still says 「**書く**」, so the export writes a
-    // `Stop` either way and the comparison stays between two values.
     case 'CM-13':
       return {
         kind,
         uid: TASK_UID,
-        place: { row: 'PA-4', actualStart: '2026-04-06', actualDuration: 5 },
+        place: { row: 'PA-4', actualStart: '2026-04-06', stop: '2026-04-08' },
       } as unknown as TaskCommand
     // CM-14 -- 「実績を置き始める」, FR-043's 掴みシロを離した日.
     case 'CM-14':
@@ -373,11 +307,11 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
     expect(REQUIREMENTS).toContain(T_019_ONLY_WHEN_EDITED)
   })
 
-  it('表 T-059 DV-9 still makes `Task/Stop` the computed column this file drives', () => {
-    const row = T_059.rows.find((one) => one.id === 'DV-9')
-    expect(row, 'table T-059 no longer holds DV-9').not.toBeUndefined()
-    expect(row?.cells.join(' ')).toContain('Task/Stop')
-    expect(row?.cells.join(' ')).toContain('中断のときだけ書く')
+  it('表 T-059 DV-11 still makes `Task/ActualDuration` the computed column this file drives', () => {
+    const row = T_059.rows.find((one) => one.id === 'DV-11')
+    expect(row, 'table T-059 no longer holds DV-11').not.toBeUndefined()
+    expect(row?.cells.join(' ')).toContain('Task/ActualDuration')
+    expect(row?.cells.join(' ')).toContain('取り込んだ原値をそのまま返す')
   })
 
   it('表 T-108 still names the three commands that edit the actuals', () => {
@@ -390,13 +324,10 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
     expect(meaningOf('CM-11')).toContain('予定の開始・終了を置く')
   })
 
-  it('the fixture really does carry a `Stop` no arithmetic on its own columns reaches', () => {
-    // ⛔ THE GUARD THAT MAKES EVERY CASE BELOW MEAN SOMETHING. If the imported
-    // day and the computed day ever agreed, "kept" and "dropped" would read
-    // alike and this whole file would pass on a broken build.
-    const untouched = exportedStop(imported())
-    expect(untouched, 'the untouched export wrote no Stop at all').not.toBeNull()
-    expect(untouched).toContain(CARRIED_STOP_DAY)
+  it('the fixture really does carry an `ActualDuration` no arithmetic on its own dates reaches', () => {
+    const untouched = exportedActualDuration(imported())
+    expect(untouched, 'the untouched export wrote no ActualDuration at all').not.toBeNull()
+    expect(untouched).toContain(CARRIED_ACTUAL_DURATION)
   })
 
   it('⛔ FR-043 really does refuse CM-14 on a task whose actual has begun', () => {
@@ -417,19 +348,16 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
 // ===========================================================================
 
 describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the original is written back', () => {
-  it('an untouched import writes the day the file carried, not the day DV-9 computes', () => {
-    expect(exportedStop(imported())).toContain(CARRIED_STOP_DAY)
+  it('an untouched import writes the length the file carried, not the length DV-11 computes', () => {
+    expect(exportedActualDuration(imported())).toContain(CARRIED_ACTUAL_DURATION)
   })
 
-  it('⭐⭐ 「最終列によらず」: a PA-1 task, whose last column says 書かない, still writes the original back', () => {
-    // 表 T-019 gives `PA-1` 未着手 「書かない」 in its last column, and `DV-9`
-    // computes nothing for a task that is not suspended. ⇒ the computed answer
-    // here is "no Stop at all", and the clause still asks for the carried day.
+  it('⭐⭐ 「作った値によらず」: a PA-1 task, which has no computed length, still writes the original back', () => {
     expect(
-      exportedStop(imported(UNSTARTED_FILE)),
-      'the last column decided instead of the carried original -- 表 T-019 の注 says 「最終列に' +
+      exportedActualDuration(imported(UNSTARTED_FILE)),
+      'the computed value decided instead of the carried original -- 表 T-019 の注 says 「作った値に' +
         'よらず原値をそのまま書き戻すこと」',
-    ).toContain(CARRIED_STOP_DAY)
+    ).toContain(CARRIED_ACTUAL_DURATION)
   })
 
   for (const rowId of PLAN_EDITS) {
@@ -437,10 +365,10 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
       const after = edited(imported(), commandFor(rowId))
 
       expect(
-        exportedStop(after),
+        exportedActualDuration(after),
         `${rowId} released the carried original -- 表 T-019 の注 releases it 「人がその` +
           `タスクの実績を編集したときに限り」, and this command edits no actual`,
-      ).toContain(CARRIED_STOP_DAY)
+      ).toContain(CARRIED_ACTUAL_DURATION)
     })
   }
 
@@ -448,13 +376,13 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
     // ⛔ THIS CASE EXISTS SO THE FIVE ABOVE CANNOT PASS ON A BUILD THAT NEVER
     // RELEASES ANYTHING. It is the same fixture and the same reading; only the
     // command differs.
-    const kept = exportedStop(edited(imported(), commandFor('CM-9')))
-    const released = exportedStop(edited(imported(), commandFor('CM-13')))
+    const kept = exportedActualDuration(edited(imported(), commandFor('CM-9')))
+    const released = exportedActualDuration(edited(imported(), commandFor('CM-13')))
 
-    expect(kept).toContain(CARRIED_STOP_DAY)
+    expect(kept).toContain(CARRIED_ACTUAL_DURATION)
     expect(
       released,
-      'the plan-side edit and the actual-side edit wrote the same Stop, so nothing here is measured',
+      'the plan-side edit and the actual-side edit wrote the same ActualDuration, so nothing here is measured',
     ).not.toBe(kept)
   })
 })
@@ -469,23 +397,19 @@ describe('表 T-019 の注 -- an edit of the actuals replaces it with the comput
       const after = edited(imported(fileFor(rowId)), commandFor(rowId))
 
       expect(
-        exportedStop(after) ?? '',
-        `${rowId} kept writing the carried original -- 表 T-019 の注 replaces it with 「最終列の` +
+        exportedActualDuration(after) ?? '',
+        `${rowId} kept writing the carried original -- 表 T-019 の注 replaces it with 「作った` +
           `値」 once a person has edited that task's actuals`,
-      ).not.toContain(CARRIED_STOP_DAY)
+      ).not.toContain(CARRIED_ACTUAL_DURATION)
     })
   }
 
-  it('⭐ the control: the reading itself still finds a Stop when one is written', () => {
-    // ⛔ WITHOUT THIS, EVERY CASE ABOVE WOULD PASS ON A WRITER THAT STOPPED
-    // WRITING `Stop` FOR ANY REASON AT ALL -- `null` does not contain the day
-    // either. `CM-13` puts the task on `PA-4`, whose last column says 「**書く**」,
-    // so a Stop is owed.
+  it('⭐ the control: the reading itself still finds an ActualDuration when one is written', () => {
     const after = edited(imported(), commandFor('CM-13'))
 
     expect(
-      exportedStop(after),
-      '表 T-019 gives PA-4 「**書く**」 in its last column, so a Stop is owed after CM-13',
+      exportedActualDuration(after),
+      'DV-11 owes an ActualDuration for a started task after CM-13',
     ).not.toBeNull()
   })
 })

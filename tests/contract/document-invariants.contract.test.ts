@@ -343,7 +343,7 @@ const TASK_A: Task = {
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
@@ -726,19 +726,19 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   'IV-21': () =>
     withSchedule({
-      tasks: [{ ...TASK_A, actualStart: TASK_A.start, actualDuration: -1 }, TASK_B],
+      tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-02' }, TASK_B],
     }),
 }
 
 const IV_21_OUTSIDE: Readonly<Record<string, () => DocumentUnderTest>> = {
-  'actualDuration of 0': () =>
+  'a last day whose counted length is 0': () =>
     withSchedule({
-      tasks: [{ ...TASK_A, actualStart: TASK_A.start, actualDuration: 0 }, TASK_B],
+      tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-04' }, TASK_B],
     }),
 
   'actualStart of null': () =>
     withSchedule({
-      tasks: [{ ...TASK_A, actualStart: null, actualDuration: -1 }, TASK_B],
+      tasks: [{ ...TASK_A, actualStart: null, stop: '2026-01-02' }, TASK_B],
     }),
 }
 

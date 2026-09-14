@@ -210,19 +210,27 @@ describe('FR-011 import: Stop is read as stop; without Stop, ActualDuration plac
 })
 
 describe('FR-011 / FR-073: an older GRS JSON with actualDuration and no stop still opens', () => {
+  // WHY: the schema before CR-376 required actualDuration on every Task, a not-started one included.
+  const OLDER_SCHEMA_VERSION = '2026-08-20'
+
   const older = (): string =>
-    JSON.stringify(
-      documentObject(
+    JSON.stringify({
+      ...documentObject(
         [
           taskRow(1, { actualStart: stored(ymd(8)), actualDuration: 4, resumeValid: true }),
           taskRow(2, { actualStart: stored(ymd(10)), actualDuration: 1, resumeValid: true }),
           taskRow(3, { actualStart: stored(ymd(12)), actualDuration: 0, resumeValid: true }),
           taskRow(4, { actualStart: stored(ymd(8)), actualDuration: 2, actualFinish: stored(ymd(9)), resumeValid: false }),
-          taskRow(5, {}),
+          taskRow(5, { actualDuration: null }),
         ],
         null,
       ),
-    )
+      schemaVersion: OLDER_SCHEMA_VERSION,
+    })
+
+  it('the fixture is older than the version this build writes', () => {
+    expect(OLDER_SCHEMA_VERSION < String(TEMPLATE['schemaVersion'])).toBe(true)
+  })
 
   const opened = (): Document => {
     const read = documentFromJson(older())

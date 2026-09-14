@@ -361,8 +361,8 @@ const dayOf = (stored: string | null): string => {
 const PLAIN_START = day(6)
 const PLAIN_FINISH = day(24)
 const PLAIN_ACTUAL_START = day(9)
-/** In WORKING days -- `actualDuration` is counted in them (`FR-011`). */
-const PLAIN_ACTUAL_DURATION = 4
+/** The last day of the actual: four worked days from a Thursday. */
+const PLAIN_ACTUAL_LAST_DAY = day(14)
 
 const MILESTONE_DAY = day(13)
 const MILESTONE_ACTUAL_START = day(17)
@@ -390,7 +390,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -442,7 +442,7 @@ function fixtureDocument(): Document {
           start: PLAIN_START,
           finish: PLAIN_FINISH,
           actualStart: PLAIN_ACTUAL_START,
-          actualDuration: PLAIN_ACTUAL_DURATION,
+          stop: PLAIN_ACTUAL_LAST_DAY,
           percentComplete: 25,
         }),
         // Row C -- GR-15. 「マイルストーンは実績バーを持たないので `GR-5` /
@@ -455,7 +455,7 @@ function fixtureDocument(): Document {
           finish: MILESTONE_DAY,
           milestone: true,
           actualStart: MILESTONE_ACTUAL_START,
-          actualDuration: 0,
+          stop: MILESTONE_ACTUAL_START,
         }),
         // Row D -- 中断中・再開日あり, which is the only state that draws the
         // resume icon GR-8 stands on (`FR-044`, MUST).
@@ -465,7 +465,7 @@ function fixtureDocument(): Document {
           start: SUSPENDED_START,
           finish: SUSPENDED_FINISH,
           actualStart: SUSPENDED_ACTUAL_START,
-          actualDuration: 3,
+          stop: day(8),
           actualFinish: null,
           resume: SUSPENDED_RESUME,
           resumeValid: true,
@@ -1239,17 +1239,17 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     ).toBe(true)
   })
 
-  it('GR-6 settles `actualDuration` on the release', () => {
+  it('GR-6 settles `stop` on the release', () => {
     const built = stage()
-    const before = taskOf(built.loop, PLAIN_UID).actualDuration as number
+    const before = dayOf(taskOf(built.loop, PLAIN_UID).stop)
     dragRight(built, {
       x: actualBox(built.loop, PLAIN_UID).x1,
       y: midY(actualBox(built.loop, PLAIN_UID)),
     })
     expect(
-      taskOf(built.loop, PLAIN_UID).actualDuration as number,
-      'table T-023d GR-6: 実績の終了点 …… `actualDuration` を変える（置いた日付から稼働日数を算出する）',
-    ).toBeGreaterThan(before)
+      dayOf(taskOf(built.loop, PLAIN_UID).stop) > before,
+      'table T-023d GR-6: the last day of an unfinished actual is held in stop',
+    ).toBe(true)
   })
 
   it("GR-15 settles the milestone's `actualStart` on the release", () => {

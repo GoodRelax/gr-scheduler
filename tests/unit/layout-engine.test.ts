@@ -313,7 +313,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     finish: null,
     milestone: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -1067,7 +1067,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
 
   it('FD-6a keeps the fade off the actual bar', () => {
     const schedule = oneRow([
-      spanning(1, '2026-01-01', 20, { fadeInDays: 5, actualStart: '2026-01-01', actualDuration: 5 }),
+      spanning(1, '2026-01-01', 20, { fadeInDays: 5, actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
     const points = outlinePoints(geometryOf(schedule).tasks[0]!.actual)
     // With no fade the trapezoid is a rectangle: two distinct x, not three.
@@ -1076,7 +1076,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
 
   it('LF-6 derives the actual chevron notch from the plan and does not clamp it twice', () => {
     const schedule = withVisuals(
-      [spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 3 })],
+      [spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-05' })],
       [{ taskUid: 1, shapeKind: 'chevron' }],
     )
     const geometry = geometryOf(schedule)
@@ -1093,7 +1093,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
   it('LF-9 centres an actual laid inside and pushes one laid below by actualGap', () => {
     const build = (kind: string): Schedule =>
       withVisuals(
-        [spanning(1, '2026-01-01', 40, { actualStart: '2026-01-01', actualDuration: 5 })],
+        [spanning(1, '2026-01-01', 40, { actualStart: '2026-01-01', stop: '2026-01-07' })],
         [{ taskUid: 1, shapeKind: kind }],
       )
     const inside = geometryOf(build('rectangle')).tasks[0]!
@@ -1127,15 +1127,21 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
 })
 
 describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
-  it('RV-1 counts actualDuration in WORKED days, so a weekend does not shorten the bar', () => {
+  it('RV-1 ends the actual bar at the column after its last day, a weekend inside or a rest day last', () => {
     // 2026-01-01 is a Thursday. Five worked days from it reaches the 8th, not
     // the 6th -- table T-209 works Monday to Friday.
     const schedule = oneRow([
-      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
     const placed = layoutFromSchedule(schedule, GEOM_SETTINGS, REGIONS).placements[0]!
     expect(placed.actualX).toBeCloseTo(xOf(0), 6)
     expect(placed.actualX! + placed.actualWidth).toBeCloseTo(xOf(7), 6)
+    const onSaturday = layoutFromSchedule(
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-03' })]),
+      GEOM_SETTINGS,
+      REGIONS,
+    ).placements[0]!
+    expect(onSaturday.actualX! + onSaturday.actualWidth).toBeCloseTo(xOf(3), 6)
   })
 
   it('holds no actual bar at all while the Task has not started', () => {
@@ -1169,7 +1175,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
 
   it('LF-11 puts the marker markerGap past the ACTUAL bar, on the plan bar centre', () => {
     const schedule = oneRow([
-      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
     const marker = geometryOf(schedule).tasks[0]!.marker!
     // FR-013: 実績バーの右端の外側に進捗マーカーを出し -- the marker hangs off
@@ -1195,7 +1201,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
       actualVisible: false, // S-228
     })
     const schedule = oneRow([
-      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 5 }),
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
     expect(geometryOf(schedule, planOnly).tasks[0]!.marker!.centre.x).toBeCloseTo(
       xOf(20) + MARKER_OFFSET,
@@ -1300,13 +1306,13 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     const suspended = oneRow([
       spanning(1, '2026-01-01', 20, {
         actualStart: '2026-01-01',
-        actualDuration: 2,
+        stop: '2026-01-02',
         resumeValid: false,
       }),
     ])
     expect(geometryOf(suspended).tasks[0]!.resume).not.toBeNull()
     const running = oneRow([
-      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 2 }),
+      spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-02' }),
     ])
     expect(geometryOf(running).tasks[0]!.resume).toBeNull()
   })
@@ -1321,7 +1327,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(fresh.dummies[0]!.at.x).toBeCloseTo(xOf(1), 6)
     expect(fresh.dummies[1]!.at.x).toBeCloseTo(xOf(2), 6)
     const started = geometryOf(
-      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', actualDuration: 1 })]),
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-01' })]),
     ).tasks[0]!
     expect(started.dummies).toHaveLength(0)
   })
@@ -1472,11 +1478,11 @@ describe('ScheduleGeometry (PI-6) -- table T-020a, GR-10 and FR-019', () => {
 
   it('GD-2 draws two lines once the two bars have come apart, and none while they meet', () => {
     const apart = geometryOf(
-      oneRow([spanning(1, '2026-01-01', 5, { actualStart: '2026-02-02', actualDuration: 3 })]),
+      oneRow([spanning(1, '2026-01-01', 5, { actualStart: '2026-02-02', stop: '2026-02-04' })]),
     ).tasks[0]!
     expect(apart.guides).toHaveLength(2)
     const overlapping = geometryOf(
-      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-05', actualDuration: 3 })]),
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-05', stop: '2026-01-07' })]),
     ).tasks[0]!
     expect(overlapping.guides).toHaveLength(0)
   })
@@ -1657,7 +1663,7 @@ describe('ItemHitArea (PI-7)', () => {
 
   it('GR-5 takes the actual start, and the actual BODY is not a grab area at all', () => {
     // 2026-01-05 is a Monday, so five worked days reach the 10th: x 194 to 230.
-    const geometry = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
+    const geometry = oneTask({ actualStart: '2026-01-05', stop: '2026-01-09' })
     expect(itemAtPointer(geometry, xOf(4), middleY, SLOP)?.grab).toBe('GR-5')
     // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
     // two, so where they overlap the plan is what is picked up. ⛔ The middle
@@ -1674,7 +1680,7 @@ describe('ItemHitArea (PI-7)', () => {
     // which is not "outside every bar": the actual ends at day 7 while the plan
     // runs to day 20, so the marker lands ON the plan bar. GR-7 stands above
     // GR-12 in table T-023d, so the marker wins there anyway.
-    const running = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
+    const running = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     expect(itemAtPointer(running, xOf(7) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
     // A whole markerSize further along the same plan body -- clear of the
     // square -- GR-12 answers, which is what makes the line above a real win.
@@ -1771,7 +1777,7 @@ describe('ItemHitArea (PI-7)', () => {
     // end-point dummy at Task 1's own head, and the two Tasks would not meet.
     const geometry = geometryOf(
       oneRow([
-        spanning(1, '2026-01-01', 15, { actualStart: '2026-01-01', actualDuration: 14 }),
+        spanning(1, '2026-01-01', 15, { actualStart: '2026-01-01', stop: '2026-01-20' }),
         spanning(2, '2026-01-21', 20),
       ]),
     )
@@ -1836,7 +1842,7 @@ describe('ItemHitArea (PI-7)', () => {
   it('JDG-35 ⭐ MUST: outside the left end is the PLAN\'s, inside it is the ACTUAL\'s', () => {
     // ⚠️ STARTED ON PURPOSE, so no dummy stands on these pixels and the only
     // rows in the contest are the four the ruling names.
-    const geometry = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
+    const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     const planXs = outlinePoints(geometry.tasks[0]!.plan).map((one) => one.x)
     const left = Math.min(...planXs)
     // ⭐ THE ACTUAL BEGINS ON THE SAME DAY, so the two ends stand on one pixel
@@ -1854,7 +1860,7 @@ describe('ItemHitArea (PI-7)', () => {
     // ⛔ THE CONTRAST, at the far reach of each row rather than one pixel in.
     // A build still spreading `S-90` both ways answers GR-3 well inside the
     // bar; one still spreading `S-91` both ways answers GR-5 well outside it.
-    const geometry = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
+    const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     const planXs = outlinePoints(geometry.tasks[0]!.plan).map((one) => one.x)
     const left = Math.min(...planXs)
     const inside = left + NOT_STORED_SIZES['S-90'] - 1
@@ -1872,7 +1878,7 @@ describe('ItemHitArea (PI-7)', () => {
     // start must STILL not answer outside it.
     // ⛔ A build that spread either row to both sides passes the defaults and
     // fails here, because the reach it would spread is now unmistakable.
-    const geometry = oneTask({ actualStart: '2026-01-01', actualDuration: 5 })
+    const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     const planXs = outlinePoints(geometry.tasks[0]!.plan).map((one) => one.x)
     const left = Math.min(...planXs)
     const huge = NOT_STORED_SIZES['S-90'] * 10
@@ -1887,7 +1893,7 @@ describe('ItemHitArea (PI-7)', () => {
     // 「実績の端点の掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の
     // 2 端が同じ画素を争う」. ⚠️ ONE worked day long, so the bar is narrower than
     // twice `S-91` and the clamp is the only thing that can part the two ends.
-    const geometry = oneTask({ actualStart: '2026-01-01', actualDuration: 1 })
+    const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-01' })
     const actualXs = outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x)
     const from = Math.min(...actualXs)
     const to = Math.max(...actualXs)
@@ -1916,7 +1922,7 @@ describe('ItemHitArea (PI-7)', () => {
   // 高かった」.
 
   it('JDG-36 ⭐ MUST: the dummy\'s hold is no taller than the started actual\'s band', () => {
-    const started = oneTask({ actualStart: '2026-01-05', actualDuration: 5 })
+    const started = oneTask({ actualStart: '2026-01-05', stop: '2026-01-09' })
     const actualYs = outlinePoints(started.tasks[0]!.actual).map((one) => one.y)
     const band = Math.max(...actualYs) - Math.min(...actualYs)
     const middle = (Math.max(...actualYs) + Math.min(...actualYs)) / 2

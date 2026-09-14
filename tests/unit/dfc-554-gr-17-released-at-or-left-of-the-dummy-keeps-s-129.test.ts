@@ -1,4 +1,4 @@
-// DFC-554: GR-17 released at or left of the dummy day keeps S-129 (FR-011).
+// DFC-554: GR-17 released at or left of the dummy day keeps the FR-011 floor day, or is refused by IV-21.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -26,7 +26,10 @@ const REQUIREMENTS = unbroken(
 const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。'
+  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
+
+const FR_011_ZERO_LIFTED =
+  '⭐ 下の段が数える長さが 0 になる置き方（最後の日が `actualStart` より前で、その間に稼働日が無い）は床の日へ持ち上げ、0 を下回る置き方は `05-07-design.md` の 表 T-220 の `IV-21` が拒む。'
 
 const FR_011_NOT_TO_ZERO =
   '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） —— ⛔ 掴み代は描かれた印そのものなので（表 T-023d の結び）、長さが 0 になるとインクも掴み代も 0 になり、二度と掴めなくなる。'
@@ -38,14 +41,14 @@ const FR_043_ZERO_IS_A_POSITION =
   '⚠️ **ここでいう 0 は位置の話である** —— **開始日と終了日が同じ日の実績は 1 日であり、0 日ではない**（`FR-011`）。'
 
 const GR_17_PINS_THE_START =
-  '掴めば `actualDuration` を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）。'
+  '掴めば実績の最後の日（`stop`）を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）。'
 
 const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）。**'
 
 const AT_39_NOT_NEGATIVE = '| `Task` | `percentComplete` | 整数（0 以上） |'
 
 const IV_21_NOT_BELOW_ZERO =
-  '`actualStart` と `actualDuration` がともに非 `null` の `Task` で、`actualDuration` が 0 を下回らないこと。'
+  '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
 
 const cellOf = (tableId: string, rowId: string, heading: string): string => {
   const row = specTable(tableId).rows.find((one) => one.id === rowId)
@@ -58,6 +61,25 @@ const cellOf = (tableId: string, rowId: string, heading: string): string => {
 const isWorkedDay = (iso: string): boolean => {
   const weekday = new Date(`${iso}T00:00:00Z`).getUTCDay()
   return weekday !== 0 && weekday !== 6
+}
+
+const dayAfter = (iso: string): string => {
+  const at = new Date(`${iso}T00:00:00Z`)
+  at.setUTCDate(at.getUTCDate() + 1)
+  return at.toISOString().slice(0, 10)
+}
+
+// see FR-011
+const signedLength = (startIso: string, lastIso: string): number => {
+  let count = 0
+  if (lastIso < startIso) {
+    for (let at = lastIso; at < startIso; at = dayAfter(at)) if (isWorkedDay(at)) count -= 1
+    return count
+  }
+  for (let at = startIso; at <= lastIso; at = dayAfter(at)) {
+    if (at === startIso || at === lastIso || isWorkedDay(at)) count += 1
+  }
+  return count
 }
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
@@ -114,7 +136,7 @@ const notStarted = (): Document =>
           notes: null,
           calendarUid: null,
           actualStart: null,
-          actualDuration: null,
+          stop: null,
           actualFinish: null,
           resume: null,
           resumeValid: null,
@@ -188,6 +210,7 @@ const ACTUAL_INITIAL_DURATION = numberSetting('actualInitialDuration')
 describe('DFC-554 premises: the clauses and the fixture still read this way', () => {
   it('FR-011, FR-043, T-023d GR-17, IV-21, DM-1 and AT-39 still hold the clauses verbatim', () => {
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
+    expect(REQUIREMENTS).toContain(FR_011_ZERO_LIFTED)
     expect(REQUIREMENTS).toContain(FR_011_NOT_TO_ZERO)
     expect(REQUIREMENTS).toContain(FR_043_ZERO_ACCEPTED)
     expect(REQUIREMENTS).toContain(FR_043_ZERO_IS_A_POSITION)
@@ -197,25 +220,25 @@ describe('DFC-554 premises: the clauses and the fixture still read this way', ()
     expect(ERD_DETAIL).toContain(AT_39_NOT_NEGATIVE)
   })
 
-  it('the plan starts on a Friday, so GR-9 day is the Monday after it, and S-129 is at least 1', () => {
+  it('the plan starts on a Friday, so GR-9 day is the Monday after it, and S-129 is 1', () => {
     expect(isWorkedDay(PLAN_START)).toBe(true)
     expect(isWorkedDay(ymd(10))).toBe(false)
     expect(isWorkedDay(ymd(11))).toBe(false)
     expect(isWorkedDay(DUMMY_DAY)).toBe(true)
     expect(Number.isInteger(ACTUAL_INITIAL_DURATION)).toBe(true)
-    expect(ACTUAL_INITIAL_DURATION).toBeGreaterThanOrEqual(1)
+    expect(ACTUAL_INITIAL_DURATION).toBe(1)
   })
 })
 
 describe('DFC-554 table T-023d GR-17: released on the dummy day', () => {
-  it('⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。 -- GR-17 released on GR-9 day is accepted as a one-day actual', () => {
+  it('⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST） -- GR-17 released on GR-9 day is accepted as a one-day actual', () => {
     const result = releasedFromGr17(DUMMY_DAY)
     expect(result.ok, 'FR-043: moving the end point to the start point position is accepted').toBe(true)
     if (!result.ok) return
     const task = taskOf(result.document)
     expect(task.actualStart, 'T-023d GR-17: actualStart is GR-9 day').toBe(stored(DUMMY_DAY))
-    expect(task.actualDuration, 'FR-011 (MUST): not below S-129').toBeGreaterThanOrEqual(ACTUAL_INITIAL_DURATION)
-    expect(task.actualDuration, 'FR-043 / FR-011: same start and finish day is one day, not zero').toBe(1)
+    expect(task.stop, 'FR-011 (MUST): stop is not before the floor day').toBe(stored(DUMMY_DAY))
+    expect(signedLength(DUMMY_DAY, DUMMY_DAY), 'FR-043 / FR-011: same start and last day is one day, not zero').toBe(1)
     expect(task.resumeValid).toBe(true)
     if (task.percentComplete !== null) {
       expect(task.percentComplete, 'AT-39: integer, 0 or more').toBeGreaterThanOrEqual(0)
@@ -223,14 +246,15 @@ describe('DFC-554 table T-023d GR-17: released on the dummy day', () => {
   })
 })
 
-describe('DFC-554 table T-023d GR-17: released left of the dummy day, zero by the FR-011 count', () => {
-  for (const dropped of [ymd(11), ymd(10), PLAN_START]) {
-    it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GR-17 released on ${dropped} keeps S-129`, () => {
+describe('DFC-554 table T-023d GR-17: released on a rest day left of the dummy day, zero by the FR-011 count', () => {
+  for (const dropped of [ymd(11), ymd(10)]) {
+    it(`掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT） -- GR-17 released on ${dropped} is lifted to the floor day`, () => {
+      expect(signedLength(DUMMY_DAY, dropped), 'premise: zero by the FR-011 count').toBe(0)
       const result = releasedFromGr17(dropped)
-      expect(result.ok, 'FR-011 (MUST): not below S-129').toBe(true)
+      expect(result.ok, 'FR-011 (MUST): a zero length is lifted, not refused').toBe(true)
       if (!result.ok) return
       const task = taskOf(result.document)
-      expect(task.actualDuration, 'FR-011 (MUST): not below S-129').toBe(ACTUAL_INITIAL_DURATION)
+      expect(task.stop, 'FR-011 (MUST): the floor day').toBe(stored(DUMMY_DAY))
       if (task.percentComplete !== null) {
         expect(task.percentComplete, 'AT-39: integer, 0 or more').toBeGreaterThanOrEqual(0)
       }
@@ -238,11 +262,14 @@ describe('DFC-554 table T-023d GR-17: released left of the dummy day, zero by th
   }
 })
 
-describe('DFC-554 table T-023d GR-17: released left of the dummy day, negative by the FR-011 count', () => {
-  it(`IV-21 -- GR-17 released on ${ymd(7)} is refused and writes nothing`, () => {
-    const result = releasedFromGr17(ymd(7))
-    expect(result.ok, IV_21_NOT_BELOW_ZERO).toBe(false)
-    if (result.ok) return
-    expect(result.refusals[0]?.rule, IV_21_NOT_BELOW_ZERO).toBe('IV-21')
-  })
+describe('DFC-554 table T-023d GR-17: released on a worked day left of the dummy day, negative by the FR-011 count', () => {
+  for (const dropped of [PLAN_START, ymd(7)]) {
+    it(`IV-21 -- GR-17 released on ${dropped} is refused and writes nothing`, () => {
+      expect(signedLength(DUMMY_DAY, dropped), 'premise: below zero').toBeLessThan(0)
+      const result = releasedFromGr17(dropped)
+      expect(result.ok, IV_21_NOT_BELOW_ZERO).toBe(false)
+      if (result.ok) return
+      expect(result.refusals[0]?.rule, IV_21_NOT_BELOW_ZERO).toBe('IV-21')
+    })
+  }
 })

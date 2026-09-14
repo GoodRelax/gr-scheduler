@@ -284,7 +284,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task => ({
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
@@ -1549,7 +1549,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
               start: day(from),
               finish: day(to),
               actualStart: day(2),
-              actualDuration: 3,
+              stop: day(4),
             }),
           ],
           ['g1'],
@@ -1659,7 +1659,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // that pushes the actual below drops it by the plan height plus
       // actualGap."
       mentions(T221, 'LF-9', 'actualGap')
-      const started = { actualStart: day(2), actualDuration: 3 } as const
+      const started = { actualStart: day(2), stop: day(4) } as const
 
       const inside = draw(
         [task({ uid: 1, name: 'r', start: day(2), finish: day(10), ...started })],
@@ -1722,7 +1722,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
             finish: day(5),
             milestone: true,
             actualStart: day(8),
-            actualDuration: 0,
+            stop: day(8),
           }),
         ],
         ['g1'],
@@ -1793,7 +1793,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
             start: day(2),
             finish: day(10),
             actualStart: day(2),
-            actualDuration: 3,
+            stop: day(4),
           }),
         ],
         ['g1'],
@@ -1910,7 +1910,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
               start: day(2),
               finish: day(10),
               actualStart: day(2),
-              actualDuration: 3,
+              stop: day(4),
               resume: day(8),
               resumeValid,
             }),
@@ -1939,7 +1939,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         }
         // ⛔ ON THE `resume` DAY, NOT PAST THE MARKER (LF-11, since CR-276).
         // The icon was pinned to the marker until 2026-08-28, and the marker's
-        // x is a function of actualStart + actualDuration -- it never reads
+        // x is a function of the actual's last day -- it never reads
         // `resume` -- so GR-8 of table T-023d could not move it whatever the
         // drag did. ⚠️ The marker remains the fallback LF-11 names, but only
         // where no `resume` is held; this fixture holds one in both passes.
@@ -2025,7 +2025,6 @@ const progressDocument = (over: Readonly<Record<string, unknown>> = {}): Drawn =
         start: day(2),
         finish: day(20),
         actualStart: day(2),
-        actualDuration: 5,
         actualFinish: day(6),
       }),
     ],

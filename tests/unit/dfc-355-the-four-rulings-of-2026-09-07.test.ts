@@ -146,7 +146,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 // -- FR-012, the percent complete a calendar edit moves --------------------
 
 const FR_012_RECOUNT_ON_CALENDAR_EDIT =
-  ' − start) × 100)`（いずれも稼働日）で算出して格納し、**人に直接入力させないこと（MUST NOT）。** 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
+  '`FR-011` が日付から数えた実績の長さである —— 文書の列ではない。 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
 
 const FR_012_TELL_WITH_A_COUNT =
   'T）**—— 分子も分母も稼働日で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'

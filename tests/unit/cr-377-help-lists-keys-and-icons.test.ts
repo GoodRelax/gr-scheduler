@@ -172,7 +172,7 @@ function helpModal(language: DisplayLanguage): OpenModal {
 
 type Item = Readonly<Record<string, unknown>>
 
-function itemsOf(modal: OpenModal): readonly Item[] {
+function entriesOf(modal: OpenModal): readonly Item[] {
   const out: Item[] = []
   const visit = (value: unknown, key: string | null): void => {
     if (key === 'commands') return
@@ -205,6 +205,12 @@ const keysOf = (item: Item): string => stringsIn(item['keys']).join(' ')
 const pressOf = (item: Item): string => stringsIn(item['press']).join(' ')
 const rowIdOf = (item: Item): string => (typeof item['row'] === 'string' ? item['row'] : '')
 const describeItem = (item: Item): string => JSON.stringify(item)
+
+const LISTED_ROWS = new Set([...T_109.rows, ...T_036.rows, ...T_023.rows].map((row) => row.id))
+
+const isListedRow = (entry: Item): boolean => LISTED_ROWS.has(rowIdOf(entry)) || entrancesOf(entry).length > 0
+
+const itemsOf = (modal: OpenModal): readonly Item[] => entriesOf(modal).filter(isListedRow)
 
 function theItemOf(items: readonly Item[], icon: string): Item {
   const holding = items.filter((one) => entrancesOf(one).includes(icon))
@@ -349,6 +355,17 @@ describe('CR-377 roster: what the help lists', () => {
     }
   })
 
+  it('the one entry that is no table row is the heading ahead of the leading block', () => {
+    const entries = entriesOf(helpModal('ja'))
+    const others = entries.filter((one) => !isListedRow(one))
+    expect(others.length, others.map(describeItem).join('\n')).toBe(1)
+    const heading = others[0] as Item
+    expect(entrancesOf(heading), describeItem(heading)).toEqual([])
+    expect(keysOf(heading), describeItem(heading)).toBe('')
+    expect(pressOf(heading), describeItem(heading)).toBe('')
+    expect(entries.indexOf(heading)).toBe(0)
+  })
+
   it('carries exactly the item count the named tables add up to', () => {
     const expected = T_109.rows.length - 1 - ARMED_MILESTONES.length + BASIC_KEY_ROWS.length + BASIC_MOUSE_ROWS.length
     expect(items.length).toBe(expected)
@@ -456,11 +473,15 @@ describe('CR-377 page: how the help is drawn', () => {
     const wanted = [ARMED_MILESTONES[0] as string, ARMED_MILESTONES[ALWAYS_SHOWN - 1] as string, MILESTONE_LIST_ROW]
     const toggle = svgsIn(help).find((svg) => isGlyphOf(svg, MILESTONE_LIST_ROW))
     expect(toggle, whatWasDrawn(help)).toBeDefined()
-    const item = nearestHolding(toggle as FakeElement, (node) => svgsIn(node).length >= wanted.length)
+    const words = iconWords(MILESTONE_LIST_ROW, 'ja')
+    const item = nearestHolding(
+      toggle as FakeElement,
+      (node) => wanted.every((row) => svgsIn(node).some((svg) => isGlyphOf(svg, row))) && words.some((word) => node.textContent.includes(word)),
+    )
     const glyphs = svgsIn(item)
     expect(glyphs.length, whatWasDrawn(item)).toBe(wanted.length)
     for (const row of wanted) expect(glyphs.some((svg) => isGlyphOf(svg, row)), row).toBe(true)
-    const explanation = theNodeShowing(item, iconWords(MILESTONE_LIST_ROW, 'ja'))
+    const explanation = theNodeShowing(item, words)
     const order = selfAndDescendants(item)
     for (const svg of glyphs) expect(order.indexOf(explanation)).toBeGreaterThan(order.indexOf(svg))
   })

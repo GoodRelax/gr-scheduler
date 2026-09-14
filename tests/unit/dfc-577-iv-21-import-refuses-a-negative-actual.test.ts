@@ -1,4 +1,4 @@
-// DFC-577: import refuses a Task whose actualStart and actualDuration are both set and actualDuration is negative (IV-21, OP-5, FR-023).
+// DFC-577: import refuses a Task whose actual length, counted from actualStart to its last day, is negative (IV-21, OP-5, FR-023).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -31,7 +31,12 @@ const cellOf = (tableId: string, rowId: string, heading: string): string => {
 }
 
 const IV_21_NOT_BELOW_ZERO =
-  '`actualStart` と `actualDuration` がともに非 `null` の `Task` で、`actualDuration` が 0 を下回らないこと。'
+  '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
+
+const IV_21_FLOOR_IS_NOT_ITS_CONCERN = '⚠️ **0 以上で床を下回る値は本行の対象ではない**'
+
+const FR_011_NEGATIVE_LENGTH =
+  '最後の日が `actualStart` より前のときの長さは、最後の日から `actualStart` の前日までの稼働日の数に負の符号を付けたものとする。'
 
 const OP_5_REGARDLESS_OF_PATH = '経路によらず `FR-023` の検証を通すこと（MUST）。'
 
@@ -39,8 +44,10 @@ const FR_023_STATEMENT =
   '外部からファイルを読み込むとき、`GRS` は、それを信頼できない入力として厳格に検証すること。'
 
 describe('DFC-577 premise -- the clauses this test is built from', () => {
-  it('T-220 IV-21, T-024a OP-5 and FR-023 still read as quoted here', () => {
+  it('T-220 IV-21, FR-011, T-024a OP-5 and FR-023 still read as quoted here', () => {
     expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
+    expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_FLOOR_IS_NOT_ITS_CONCERN)
+    expect(REQUIREMENTS).toContain(FR_011_NEGATIVE_LENGTH)
     expect(cellOf('T-024a', 'OP-5', '規則')).toContain(OP_5_REGARDLESS_OF_PATH)
     expect(REQUIREMENTS).toContain(FR_023_STATEMENT)
   })
@@ -65,7 +72,7 @@ const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
@@ -153,12 +160,15 @@ const refusalsOf = (verdict: ImportVerdict) => (verdict.ok ? [] : verdict.refusa
 
 const IN_RANGE = { start: '2026-01-05', finish: '2026-01-09' } as const
 
-const taskWithActual = (actualDuration: number): Task =>
-  taskOf({ uid: 1, name: 't1', ...IN_RANGE, actualStart: '2026-01-05', actualDuration })
+const runningUntil = (stop: string): Task =>
+  taskOf({ uid: 1, name: 't1', ...IN_RANGE, actualStart: '2026-01-05', stop, resumeValid: true })
+
+const finishedOn = (actualFinish: string): Task =>
+  taskOf({ uid: 1, name: 't1', ...IN_RANGE, actualStart: '2026-01-05', actualFinish, resumeValid: false })
 
 describe('ValidateImportedDocument (UF-22) -- DFC-577, IV-21 on the import path', () => {
-  it('IV-21 refuses a Task whose actualStart and actualDuration are both set and actualDuration is negative', () => {
-    const verdict = verdictOf(documentOf([taskWithActual(-1)]))
+  it('IV-21 refuses a running Task whose stop falls on the worked Friday before its Monday actualStart', () => {
+    const verdict = verdictOf(documentOf([runningUntil('2026-01-02')]))
     expect(verdict.ok).toBe(false)
     const breach = refusalsOf(verdict).find((one) => one.rule === 'IV-21')
     expect(breach, JSON.stringify(refusalsOf(verdict))).toBeDefined()
@@ -167,8 +177,19 @@ describe('ValidateImportedDocument (UF-22) -- DFC-577, IV-21 on the import path'
     expect(breach?.what.length).toBeGreaterThan(0)
   })
 
-  it('a control document, identical except actualDuration is not negative, is accepted', () => {
-    const verdict = verdictOf(documentOf([taskWithActual(3)]))
+  it('IV-21 refuses a finished Task whose actualFinish falls before its actualStart with a worked day between', () => {
+    const verdict = verdictOf(documentOf([finishedOn('2026-01-02')]))
+    expect(verdict.ok).toBe(false)
+    expect(refusalsOf(verdict).some((one) => one.rule === 'IV-21'), JSON.stringify(refusalsOf(verdict))).toBe(true)
+  })
+
+  it('a control document, identical except stop is after actualStart, is accepted', () => {
+    const verdict = verdictOf(documentOf([runningUntil('2026-01-07')]))
     expect(verdict).toEqual({ ok: true })
+  })
+
+  it('a stop on the Sunday before actualStart counts zero, which IV-21 leaves to the FR-011 floor', () => {
+    const verdict = verdictOf(documentOf([runningUntil('2026-01-04')]))
+    expect(refusalsOf(verdict).some((one) => one.rule === 'IV-21'), JSON.stringify(refusalsOf(verdict))).toBe(false)
   })
 })

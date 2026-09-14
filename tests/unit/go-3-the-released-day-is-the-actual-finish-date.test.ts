@@ -1,4 +1,4 @@
-// GO-3 of table T-245 (FR-103): the day an actual end is released on is the actual finish date.
+// GO-3 of table T-245 (FR-103): the day an actual end is released on is the last actual day, rest days included.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -42,25 +42,24 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const GO_3_FINISH_DATE_NOT_RIGHT_EDGE =
-  '離した日は実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）'
+const GO_3_LAST_DAY_NOT_RIGHT_EDGE =
+  '離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）'
 
-const GO_3_SAME_GESTURE_AS_GO_2 =
-  '`GO-2` と同じ所作であり、長さはその日を終了日とする `FR-011` の読みで決まる。'
+const GO_3_SAME_GESTURE_AS_GO_2 = '`GO-2` と同じ所作である。'
 
-const GO_3_FINISHED =
-  '`actualFinish` を持つとき（表 T-019 の `PA-5`）は、`actualFinish` ＝ 置き直した実績の終了日とする'
+const GO_3_WHICH_COLUMN =
+  '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く'
 
-const GO_3_RUNNING = '`actualFinish` を持たないときは空のままとする'
+const GO_3_REST_DAY = '離した日が非稼働日であっても、その日を最後の日とすること（MUST）'
 
 const FR_011_SAME_DAY_IS_ONE =
   '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— `actualStart` に `actualDuration` を稼働日で加えた日の、その列の左端であり、実績の終了日はその 1 稼働日前の日である。'
+  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
 
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）。'
+  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
 
 const T_245 = specTable('T-245')
 
@@ -109,7 +108,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -149,7 +148,7 @@ function fixtureDocument(): Document {
           start: day(6),
           finish: day(24),
           actualStart: day(9),
-          actualDuration: 4,
+          stop: day(14),
           resumeValid: true,
           percentComplete: 29,
         }),
@@ -159,7 +158,6 @@ function fixtureDocument(): Document {
           start: day(6),
           finish: day(24),
           actualStart: day(9),
-          actualDuration: 4,
           actualFinish: day(14),
           resumeValid: false,
           percentComplete: 29,
@@ -205,23 +203,17 @@ const nextCalendarDay = (text: string): string => {
 }
 
 // see FR-011
-function workingDaysFromTo(start: string, finish: string): number {
+function lengthFromTo(start: string, last: string): number {
   let count = 0
-  for (let at = start; at <= finish; at = nextCalendarDay(at)) {
-    if (isWorkingDay(CALENDAR, dayValue(at))) count += 1
+  for (let at = start; at <= last; at = nextCalendarDay(at)) {
+    if (at === start || at === last || isWorkingDay(CALENDAR, dayValue(at))) count += 1
   }
   return count
 }
 
-// see FR-011
-function finishDayOf(one: Task): string {
-  let at = dayPart(one.actualStart)
-  let count = 0
-  for (;;) {
-    if (isWorkingDay(CALENDAR, dayValue(at))) count += 1
-    if (count >= (one.actualDuration as number)) return at
-    at = nextCalendarDay(at)
-  }
+// see FR-011, T-019
+function lastDayOf(one: Task): string {
+  return dayPart(one.actualFinish ?? one.stop)
 }
 
 const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
@@ -361,15 +353,15 @@ function actualEndReleasedOn(uid: number, target: string): Released {
 }
 
 describe('GO-3 -- the manuscript this file is driven by', () => {
-  it('GO-3 still says: 離した日は実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）', () => {
+  it('GO-3 still says: 離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）', () => {
     const go3 = cellOf('GO-3', PUTS)
-    expect(go3).toContain(GO_3_FINISH_DATE_NOT_RIGHT_EDGE)
+    expect(go3).toContain(GO_3_LAST_DAY_NOT_RIGHT_EDGE)
     expect(go3).toContain(GO_3_SAME_GESTURE_AS_GO_2)
-    expect(go3).toContain(GO_3_FINISHED)
-    expect(go3).toContain(GO_3_RUNNING)
+    expect(go3).toContain(GO_3_WHICH_COLUMN)
+    expect(go3).toContain(GO_3_REST_DAY)
   })
 
-  it('FR-011 still says a same-day actual is one day, the right end is a position, and S-129 is the floor', () => {
+  it('FR-011 still says a same-day actual is one day, the right end is a position, and the floor is a day', () => {
     expect(REQUIREMENTS).toContain(FR_011_SAME_DAY_IS_ONE)
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
@@ -388,45 +380,53 @@ describe('the fixture these cases stand on', () => {
     expect(isWorkingDay(CALENDAR, dayValue('2026-04-20'))).toBe(true)
   })
 
-  it('holds actuals from Thu 9 whose finish date FR-011 reads as Tue 14', () => {
+  it('holds actuals from Thu 9 whose last day is Tue 14', () => {
     const built = stage()
-    expect(finishDayOf(taskOf(built.loop, RUNNING_UID))).toBe('2026-04-14')
+    expect(lastDayOf(taskOf(built.loop, RUNNING_UID))).toBe('2026-04-14')
     expect(dayPart(taskOf(built.loop, FINISHED_UID).actualFinish)).toBe('2026-04-14')
   })
 })
 
-describe('GO-3: 離した日は実績の終了日として数え、実績バーの右端の位置として数えないこと（MUST）', () => {
-  const cases: readonly { readonly uid: number; readonly what: string; readonly target: string }[] = [
-    { uid: RUNNING_UID, what: 'running, lengthened to Wed 15 in the same week', target: '2026-04-15' },
-    { uid: RUNNING_UID, what: 'running, shortened to Fri 10 in the same week', target: '2026-04-10' },
-    { uid: RUNNING_UID, what: 'running, lengthened across a weekend to Mon 20', target: '2026-04-20' },
-    { uid: FINISHED_UID, what: 'finished, lengthened across a weekend to Mon 20', target: '2026-04-20' },
-    { uid: FINISHED_UID, what: 'finished, shortened by one day to Mon 13', target: '2026-04-13' },
+describe('GO-3: 離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）', () => {
+  const cases: readonly {
+    readonly uid: number
+    readonly what: string
+    readonly target: string
+    readonly worked: boolean
+  }[] = [
+    { uid: RUNNING_UID, what: 'running, lengthened to Wed 15 in the same week', target: '2026-04-15', worked: true },
+    { uid: RUNNING_UID, what: 'running, shortened to Fri 10 in the same week', target: '2026-04-10', worked: true },
+    { uid: RUNNING_UID, what: 'running, lengthened across a weekend to Mon 20', target: '2026-04-20', worked: true },
+    { uid: RUNNING_UID, what: 'running, shortened to Sat 11, a rest day', target: '2026-04-11', worked: false },
+    { uid: FINISHED_UID, what: 'finished, lengthened across a weekend to Mon 20', target: '2026-04-20', worked: true },
+    { uid: FINISHED_UID, what: 'finished, shortened by one day to Mon 13', target: '2026-04-13', worked: true },
+    { uid: FINISHED_UID, what: 'finished, lengthened to Sun 19, a rest day', target: '2026-04-19', worked: false },
   ]
 
   for (const one of cases) {
-    it(`${one.what}: the actual finish date is the released working day`, () => {
+    it(`${one.what}: the last actual day is the released day`, () => {
       const { released, before, after } = actualEndReleasedOn(one.uid, one.target)
       expect(released, 'premise: released on the intended day').toBe(one.target)
-      expect(isWorkingDay(CALENDAR, dayValue(released)), 'premise: a working day').toBe(true)
+      expect(isWorkingDay(CALENDAR, dayValue(released)), 'premise: a worked day or a rest day').toBe(one.worked)
       expect(after.actualStart, 'GO-3 keeps `actualStart`').toBe(before.actualStart)
-      expect(after.actualDuration, 'GO-3 / FR-011: working days from `actualStart` to the released day').toBe(
-        workingDaysFromTo(dayPart(before.actualStart), released),
-      )
-      expect(finishDayOf(after), GO_3_FINISH_DATE_NOT_RIGHT_EDGE).toBe(released)
+      const held = one.uid === FINISHED_UID ? after.actualFinish : after.stop
+      const other = one.uid === FINISHED_UID ? after.stop : after.actualFinish
+      expect(dayPart(held), GO_3_WHICH_COLUMN).toBe(released)
+      expect(other, GO_3_WHICH_COLUMN).toBeNull()
+      expect(lastDayOf(after), GO_3_REST_DAY).toBe(released)
     })
   }
 
-  it('finished, lengthened to Mon 20: `actualFinish` ＝ 置き直した実績の終了日, which is the released day', () => {
+  it('finished, lengthened to Mon 20: `actualFinish` holds the released day and the task stays finished', () => {
     const { released, after } = actualEndReleasedOn(FINISHED_UID, '2026-04-20')
     expect(released, 'premise').toBe('2026-04-20')
-    expect(dayPart(after.actualFinish), GO_3_FINISHED).toBe(released)
+    expect(dayPart(after.actualFinish), GO_3_WHICH_COLUMN).toBe(released)
     expect(after.resumeValid).toBe(false)
   })
 
-  it('running, lengthened to Mon 20: `actualFinish` を持たないときは空のままとする', () => {
+  it('running, lengthened to Mon 20: `stop` holds the released day and `actualFinish` stays empty', () => {
     const { after, before } = actualEndReleasedOn(RUNNING_UID, '2026-04-20')
-    expect(after.actualDuration as number, 'premise: the grab did land').toBeGreaterThan(before.actualDuration as number)
+    expect(dayPart(after.stop) > dayPart(before.stop), 'premise: the grab did land').toBe(true)
     expect(after.actualFinish).toBeNull()
   })
 
@@ -434,8 +434,8 @@ describe('GO-3: 離した日は実績の終了日として数え、実績バー�
     it(`released on the actual start day (Task ${uid}): 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）`, () => {
       const { released, before, after } = actualEndReleasedOn(uid, '2026-04-09')
       expect(released, 'premise: the actual start day').toBe(dayPart(before.actualStart))
-      expect(after.actualDuration, FR_011_SAME_DAY_IS_ONE).toBe(S_129)
-      expect(finishDayOf(after)).toBe(released)
+      expect(lengthFromTo(dayPart(after.actualStart), lastDayOf(after)), FR_011_SAME_DAY_IS_ONE).toBe(S_129)
+      expect(lastDayOf(after)).toBe(released)
       if (uid === FINISHED_UID) expect(dayPart(after.actualFinish)).toBe(released)
     })
   }

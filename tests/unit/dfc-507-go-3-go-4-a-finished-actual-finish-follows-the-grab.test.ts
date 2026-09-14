@@ -1,4 +1,4 @@
-// DFC-507: GO-3 and GO-4 of table T-245 (FR-103) re-derive actualFinish on a finished Task or milestone.
+// DFC-507: GO-3 and GO-4 of table T-245 (FR-103) move actualFinish on a finished Task or milestone.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -18,17 +18,8 @@ import type {
   ScreenPart,
   ScreenSurface,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
-import {
-  dateFromWorkingDays,
-  dayOf,
-  isWorkingDay,
-  textOfDay,
-  workingCalendarOf,
-  type CalendarDay,
-  type Task,
-} from '../../src/entity/document-model/schedule/schedule'
+import { textOfDay, type Task } from '../../src/entity/document-model/schedule/schedule'
 import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
@@ -58,7 +49,7 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_011_RIGHT_END_IS_A_POSITION =
-  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— `actualStart` に `actualDuration` を稼働日で加えた日の、その列の左端であり、実績の終了日はその 1 稼働日前の日である。'
+  '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
 
 const FR_011_MILESTONE_READING =
   '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
@@ -70,6 +61,11 @@ const FR_011_PANEL_IS_ANOTHER_FACE =
 
 const FR_006_STATEMENT =
   'プロパティパネルが選択を出しているとき、`GRS` は、**表 T-016 の項目**をプロパティパネルに出し、**同表が読み取り専用と記した項目を除いて**編集できるようにすること。'
+
+const GO_3_WHICH_COLUMN =
+  '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く。'
+
+const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
 
 const T_245 = specTable('T-245')
 const T_021A = specTable('T-021a')
@@ -103,7 +99,6 @@ const dayPart = (value: string | null | undefined): string => {
   return value.slice(0, 10)
 }
 
-const S_130 = SETTINGS_DEFAULTS['milestoneActualDuration'] as number
 const S_91 = NOT_STORED_SIZES['S-91']
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
@@ -118,7 +113,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -158,7 +153,6 @@ function fixtureDocument(): Document {
           start: day(6),
           finish: day(24),
           actualStart: day(9),
-          actualDuration: 4,
           actualFinish: day(14),
           resumeValid: false,
           percentComplete: 29,
@@ -170,7 +164,6 @@ function fixtureDocument(): Document {
           finish: day(13),
           milestone: true,
           actualStart: day(17),
-          actualDuration: S_130,
           actualFinish: day(17),
           resumeValid: false,
           percentComplete: 100,
@@ -181,7 +174,7 @@ function fixtureDocument(): Document {
           start: day(6),
           finish: day(24),
           actualStart: day(9),
-          actualDuration: 4,
+          stop: day(14),
           resumeValid: true,
           percentComplete: 29,
         }),
@@ -213,30 +206,9 @@ function fixtureDocument(): Document {
   } as unknown as Document
 }
 
-const CALENDAR = workingCalendarOf(fixtureDocument().schedule)
-
-const dayValue = (text: string): CalendarDay => {
-  const value = dayOf(text)
-  if (value === null) throw new Error(`${text} is not a day`)
-  return value
-}
-
-const calendarDayBefore = (text: string): string => {
-  const [y, m, d] = text.slice(0, 10).split('-').map(Number) as [number, number, number]
-  return new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10)
-}
-
-// see FR-011
-function finishDayOf(one: Task): string {
-  const start = dayPart(one.actualStart)
-  if (one.milestone) return start
-  let at = dayPart(
-    textOfDay(dateFromWorkingDays(CALENDAR, dayValue(start), one.actualDuration as number)),
-  )
-  do {
-    at = calendarDayBefore(at)
-  } while (!isWorkingDay(CALENDAR, dayValue(at)))
-  return at
+// see FR-011, T-019
+function lastDayOf(one: Task): string {
+  return dayPart(one.actualFinish ?? one.stop)
 }
 
 const SCREEN: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 0, scrollbarThickness: 0 }
@@ -392,19 +364,19 @@ function milestoneReleasedAt(k: number): { readonly released: string; readonly b
 }
 
 describe('DFC-507 -- the manuscript this file is driven by', () => {
-  it('GO-3 still says: `actualFinish` を持つとき（表 T-019 の `PA-5`）は、`actualFinish` ＝ 置き直した実績の終了日とする', () => {
+  it('GO-3 still says: `actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く', () => {
     const go3 = rowCells(T_245, 'GO-3')
-    expect(go3).toContain('`actualFinish` を持つとき（表 T-019 の `PA-5`）は、`actualFinish` ＝ 置き直した実績の終了日とする —— 読み方は 表 T-021a の `PV-2` と同じであり、本行は独自の読み方を持たない。')
-    expect(go3).toContain('`actualFinish` を持たないときは空のままとする')
+    expect(go3).toContain(GO_3_WHICH_COLUMN)
+    expect(go3).toContain('長さの数え方と床（`S-129`）は `FR-011` が持ち、本行は独自の数え方を持たない')
   })
 
-  it('GO-4 still says: `actualFinish` を持つときは、`actualFinish` ＝ 置き直した `actualStart` とする', () => {
-    expect(rowCells(T_245, 'GO-4')).toContain('`actualFinish` を持つときは、`actualFinish` ＝ 置き直した `actualStart` とする')
+  it('GO-4 still says: 持っているほうの最後の日も、置き直した `actualStart` と同じ日とする', () => {
+    expect(rowCells(T_245, 'GO-4')).toContain(GO_4_LAST_DAY)
   })
 
-  it('PV-2 and FR-011 still read the actual finish as the working day before the right end, and a milestone finish as its start', () => {
-    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` ＝ **実績の終了日**（`FR-011`。')
-    expect(rowCells(T_021A, 'PV-2')).toContain('実績バーの右端の 1 稼働日前であって、右端そのものではない）')
+  it('PV-2 and FR-011 still read actualFinish as the last day, not the right end, and a milestone finish as its start', () => {
+    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` ＝ `stop`、`stop` ＝ 空（`FR-011`。')
+    expect(rowCells(T_021A, 'PV-2')).toContain('`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない）')
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_MILESTONE_READING)
     expect(REQUIREMENTS).toContain(FR_011_NOT_THE_FINISH_DAY)
@@ -424,33 +396,31 @@ describe('the fixture these cases stand on', () => {
     expect(validateDocument(fixtureDocument()).errors).toEqual([])
   })
 
-  it('already holds the actual finish FR-011 and PV-2 would put (Tue 14; the milestone Fri 17)', () => {
+  it('holds the finished last days in actualFinish (Tue 14; the milestone Fri 17) and the running one in stop', () => {
     const built = stage()
     const finished = taskOf(built.loop, FINISHED_UID)
     const milestone = taskOf(built.loop, FINISHED_MILESTONE_UID)
-    expect(finishDayOf(finished)).toBe('2026-04-14')
-    expect(dayPart(finished.actualFinish)).toBe(finishDayOf(finished))
-    expect(dayPart(milestone.actualFinish)).toBe(finishDayOf(milestone))
+    expect(lastDayOf(finished)).toBe('2026-04-14')
+    expect(finished.stop).toBeNull()
+    expect(dayPart(milestone.actualFinish)).toBe(dayPart(milestone.actualStart))
     expect(taskOf(built.loop, RUNNING_UID).actualFinish).toBeNull()
   })
 })
 
 describe('table T-245 GO-3 -- a finished Task, its actual end grabbed', () => {
-  it('RED before the fix: lengthened, `actualFinish` ＝ 置き直した実績の終了日', () => {
+  it('lengthened: `actualFinish` is the released day', () => {
     const { released, before, after } = actualEndReleasedAt(FINISHED_UID, 5)
     expect(released, 'premise').toBe('2026-04-20')
-    expect(after.actualDuration as number, 'premise: the grab did land').toBeGreaterThan(before.actualDuration as number)
-    expect(dayPart(after.actualFinish), 'GO-3 / PV-2: the finish day FR-011 reads off the new length').toBe(
-      finishDayOf(after),
-    )
+    expect(after.stop, 'GO-3: a finished Task holds its last day in actualFinish, not stop').toBeNull()
+    expect(dayPart(after.actualFinish), GO_3_WHICH_COLUMN).toBe(released)
     expect(dayPart(after.actualFinish)).not.toBe(dayPart(before.actualFinish))
   })
 
-  it('RED before the fix: shortened, `actualFinish` ＝ 置き直した実績の終了日', () => {
+  it('shortened: `actualFinish` is the released day', () => {
     const { released, before, after } = actualEndReleasedAt(FINISHED_UID, -2)
     expect(released, 'premise').toBe('2026-04-13')
-    expect(after.actualDuration as number, 'premise: the grab did land').toBeLessThan(before.actualDuration as number)
-    expect(dayPart(after.actualFinish), 'GO-3 / PV-2').toBe(finishDayOf(after))
+    expect(dayPart(after.actualFinish) < dayPart(before.actualFinish), 'premise: the grab did land').toBe(true)
+    expect(dayPart(after.actualFinish), GO_3_WHICH_COLUMN).toBe(released)
   })
 
   it('stays finished: `actualStart` stands, `actualFinish` is not emptied, `resumeValid` stays false', () => {
@@ -460,35 +430,35 @@ describe('table T-245 GO-3 -- a finished Task, its actual end grabbed', () => {
     expect(after.resumeValid).toBe(false)
   })
 
-  it('control, GO-3: `actualFinish` を持たないときは空のままとする', () => {
-    const { after, before } = actualEndReleasedAt(RUNNING_UID, 5)
-    expect(after.actualDuration as number, 'premise: the grab did land').toBeGreaterThan(before.actualDuration as number)
+  it('control, GO-3 on a running Task: the released day goes to `stop` and `actualFinish` stays empty', () => {
+    const { released, after } = actualEndReleasedAt(RUNNING_UID, 5)
+    expect(dayPart(after.stop), GO_3_WHICH_COLUMN).toBe(released)
     expect(after.actualFinish).toBeNull()
   })
 
-  it('control, GR-5 on the finished Task: the finish day stands, so `actualFinish` keeps agreeing with FR-011', () => {
+  it('control, GR-5 on the finished Task: the last day stands in `actualFinish`', () => {
     const { before, after } = actualStartReleasedAt(FINISHED_UID, -1)
     expect(after.actualStart, 'premise: the grab did land').not.toBe(before.actualStart)
     expect(dayPart(after.actualFinish)).toBe(dayPart(before.actualFinish))
-    expect(dayPart(after.actualFinish)).toBe(finishDayOf(after))
+    expect(after.stop).toBeNull()
   })
 })
 
 describe('table T-245 GO-4 -- a finished milestone, its actual figure grabbed', () => {
-  it('RED before the fix: moved later, `actualFinish` ＝ 置き直した `actualStart`', () => {
+  it('moved later: `actualFinish` is the placed `actualStart`', () => {
     const { released, after } = milestoneReleasedAt(3)
     expect(released, 'premise').toBe('2026-04-20')
     expect(dayPart(after.actualStart), 'GO-4: `actualStart` ＝ 離した日').toBe(released)
-    expect(dayPart(after.actualFinish), 'GO-4: `actualFinish` ＝ 置き直した `actualStart`').toBe(
+    expect(dayPart(after.actualFinish), GO_4_LAST_DAY).toBe(
       dayPart(after.actualStart),
     )
-    expect(after.actualDuration).toBe(S_130)
+    expect(after.stop, 'GO-4: the held last day is actualFinish, so stop stays empty').toBeNull()
   })
 
-  it('RED before the fix: moved earlier, `actualFinish` ＝ 置き直した `actualStart`', () => {
+  it('moved earlier: `actualFinish` is the placed `actualStart`', () => {
     const { released, after } = milestoneReleasedAt(-2)
     expect(released, 'premise').toBe('2026-04-15')
-    expect(dayPart(after.actualFinish), 'GO-4').toBe(dayPart(after.actualStart))
+    expect(dayPart(after.actualFinish), GO_4_LAST_DAY).toBe(dayPart(after.actualStart))
     expect(after.resumeValid).toBe(false)
   })
 })
@@ -518,8 +488,8 @@ describe('FR-006 / PR-6 -- a finished Task whose actual finish is typed in the p
       newHighlightBoxId: 'highlight-box-minted-outside',
     } as unknown as InputContext
     const typed = '2026-04-16'
-    expect(typed, 'premise: differs from the finish day FR-011 derives').not.toBe(
-      finishDayOf(taskOf(built.loop, FINISHED_UID)),
+    expect(typed, 'premise: differs from the last day the fixture holds').not.toBe(
+      lastDayOf(taskOf(built.loop, FINISHED_UID)),
     )
     const commit = {
       row: 'PR-6',

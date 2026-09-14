@@ -106,7 +106,7 @@ const taskOf = (part: Record<string, unknown>): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -638,7 +638,7 @@ describe('EditDocument (PI-9) -- CM-11 setTaskPlanDates', () => {
           start: jan(5),
           finish: jan(9),
           actualStart: jan(5),
-          actualDuration: 2,
+          stop: jan(6),
           resumeValid: true,
           ...part,
         }),
@@ -669,7 +669,7 @@ describe('EditDocument (PI-9) -- CM-11 setTaskPlanDates', () => {
     // MUST NOT round into 0 .. 100: a task planned for four days and worked for
     // six reads 150, which is how the difference in effort is read off the rate.
     const next = accepted(
-      run(started({ actualDuration: 6 }), {
+      run(started({ stop: jan(12) }), {
         kind: 'setTaskPlanDates',
         uid: 1,
         start: jan(5),
@@ -683,7 +683,7 @@ describe('EditDocument (PI-9) -- CM-11 setTaskPlanDates', () => {
     // MUST NOT divide, and the answer is decided by whether `actualFinish` is
     // there -- which is what "finished" means (table T-019), not a rate of 100.
     const open = accepted(
-      run(started({ actualDuration: 1 }), {
+      run(started({ stop: jan(5) }), {
         kind: 'setTaskPlanDates',
         uid: 1,
         start: jan(5),
@@ -693,7 +693,7 @@ describe('EditDocument (PI-9) -- CM-11 setTaskPlanDates', () => {
     expect(taskIn(open, 1).percentComplete).toBe(0)
 
     const done = accepted(
-      run(started({ actualDuration: 1, actualFinish: jan(6) }), {
+      run(started({ stop: null, actualFinish: jan(6) }), {
         kind: 'setTaskPlanDates',
         uid: 1,
         start: jan(5),
@@ -722,10 +722,10 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
   const T019 = [
     {
       row: 'PA-2',
-      place: { row: 'PA-2', actualStart: jan(5), actualDuration: 3 },
+      place: { row: 'PA-2', actualStart: jan(5), stop: jan(7) },
       columns: {
         actualStart: jan(5),
-        actualDuration: 3,
+        stop: jan(7),
         actualFinish: null,
         resume: null,
         resumeValid: true,
@@ -734,10 +734,10 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     },
     {
       row: 'PA-3',
-      place: { row: 'PA-3', actualStart: jan(5), actualDuration: 3, resume: jan(20) },
+      place: { row: 'PA-3', actualStart: jan(5), stop: jan(7), resume: jan(20) },
       columns: {
         actualStart: jan(5),
-        actualDuration: 3,
+        stop: jan(7),
         actualFinish: null,
         resume: jan(20),
         resumeValid: true,
@@ -746,10 +746,10 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     },
     {
       row: 'PA-4',
-      place: { row: 'PA-4', actualStart: jan(5), actualDuration: 3 },
+      place: { row: 'PA-4', actualStart: jan(5), stop: jan(7) },
       columns: {
         actualStart: jan(5),
-        actualDuration: 3,
+        stop: jan(7),
         actualFinish: null,
         resume: null,
         resumeValid: false,
@@ -758,10 +758,10 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     },
     {
       row: 'PA-5',
-      place: { row: 'PA-5', actualStart: jan(5), actualDuration: 3, actualFinish: jan(8) },
+      place: { row: 'PA-5', actualStart: jan(5), actualFinish: jan(8) },
       columns: {
         actualStart: jan(5),
-        actualDuration: 3,
+        stop: null,
         actualFinish: jan(8),
         resume: null,
         resumeValid: false,
@@ -772,7 +772,7 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
 
   it.each(T019)('$row places the values table T-019 gives that state', ({ place, columns, state }) => {
     const next = accepted(
-      run(before({ actualStart: jan(5), actualDuration: 9, resume: jan(30), resumeValid: true }), {
+      run(before({ actualStart: jan(5), stop: jan(15), resume: jan(30), resumeValid: true }), {
         kind: 'setTaskPlanActualState',
         uid: 1,
         place: place as PlanActualPlacement,
@@ -781,7 +781,7 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     const task = taskIn(next, 1)
     expect({
       actualStart: task.actualStart,
-      actualDuration: task.actualDuration,
+      stop: task.stop,
       actualFinish: task.actualFinish,
       resume: task.resume,
       resumeValid: task.resumeValid,
@@ -793,14 +793,14 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     // ⭐ PA-1's `resumeValid` cell is `—`, which is NOT 空: the table puts no
     // value there, so the column keeps what it had.
     const next = accepted(
-      run(before({ actualStart: jan(5), actualDuration: 3, actualFinish: jan(8), resume: jan(20), resumeValid: true }), {
+      run(before({ actualStart: jan(5), stop: jan(7), actualFinish: jan(8), resume: jan(20), resumeValid: true }), {
         kind: 'setTaskPlanActualState',
         uid: 1,
         place: { row: 'PA-1' },
       }),
     )
     const task = taskIn(next, 1)
-    expect([task.actualStart, task.actualDuration, task.actualFinish, task.resume]).toEqual([
+    expect([task.actualStart, task.stop, task.actualFinish, task.resume]).toEqual([
       null,
       null,
       null,
@@ -831,12 +831,12 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
     // NOT）」 bars pulling the dropped day back. CM-11's neighbouring pair does
     // the same on FR-012's 「丸めて `finish` = `start` にしてはならない（MUST
     // NOT）—— データを黙って変えることになる」.
-    const started = { actualStart: jan(5), actualDuration: 4, resumeValid: true }
+    const started = { actualStart: jan(5), stop: jan(8), resumeValid: true }
     for (const place of [
-      { row: 'PA-2', actualStart: jan(20), actualDuration: -3 },
-      { row: 'PA-3', actualStart: jan(20), actualDuration: -1, resume: jan(30) },
-      { row: 'PA-4', actualStart: jan(20), actualDuration: -1 },
-      { row: 'PA-5', actualStart: jan(20), actualDuration: -1, actualFinish: jan(8) },
+      { row: 'PA-2', actualStart: jan(20), stop: jan(15) },
+      { row: 'PA-3', actualStart: jan(20), stop: jan(19), resume: jan(30) },
+      { row: 'PA-4', actualStart: jan(20), stop: jan(19) },
+      { row: 'PA-5', actualStart: jan(20), actualFinish: jan(19) },
     ] as const) {
       const result = run(before(started), {
         kind: 'setTaskPlanActualState',
@@ -846,28 +846,17 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
       expectRefusal(result, 'IV-21')
     }
 
-    // ⭐ ZERO IS NOT REFUSED. S-130 is 0 and FR-043 (MUST) gives it to every
-    // milestone's actual, so a gate that turned zero away would refuse the one
-    // length the manuscript hands out.
-    //
-    // ⚠️⚠️ WHO KEEPS THE ZERO NARROWED ON 2026-09-10. FR-011 now floors a
-    // started actual -- 「掴んで 0 稼働日まで縮められるようにしてはならない
-    // （MUST NOT）」 -- so a BAR written at zero comes back at `S-129`, and the
-    // point that carries `S-130` is what still keeps its zero. ⭐ The floor
-    // itself is held by
-    // tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts; what
-    // this case still says is that the AT-39 gate above does not turn zero away.
     const flat = accepted(
-      run(before({ ...started, milestone: true }), {
+      run(before(started), {
         kind: 'setTaskPlanActualState',
         uid: 1,
-        place: { row: 'PA-2', actualStart: jan(5), actualDuration: 0 },
+        place: { row: 'PA-2', actualStart: jan(5), stop: jan(4) },
       }),
     )
     expect(flat).toBeDefined()
-    expect(taskIn(flat, 1).actualDuration).toBe(MILESTONE_ACTUAL_DURATION)
-    expect(MILESTONE_ACTUAL_DURATION).toBe(0)
-    expect(taskIn(flat, 1).percentComplete).toBe(0)
+    expect(taskIn(flat, 1).stop).toBe(jan(5))
+    expect(ACTUAL_INITIAL_DURATION).toBe(1)
+    expect(taskIn(flat, 1).percentComplete).toBe(25)
   })
 })
 
@@ -906,7 +895,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     expect(task.actualStart).toBe(jan(8))
     expect(task.actualStart).not.toBe(jan(5))
     expect(task.actualStart).not.toBe(jan(6))
-    expect(task.actualDuration).toBe(ACTUAL_INITIAL_DURATION)
+    expect(task.stop).toBe(jan(8))
     expect(task.resumeValid).toBe(true)
     // PA-2's other columns stay empty, so the task reads as in progress.
     expect(planActualState(task)).toBe('inProgress')
@@ -960,9 +949,8 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     expect(task.actualStart, 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
       .not.toBe(jan(19))
     // ⭐ Exception ②, which the ruling left standing: a point has no length.
-    expect(task.actualDuration, 'FR-043 (MUST): 実績期間は S-130 とすること').toBe(
-      MILESTONE_ACTUAL_DURATION,
-    )
+    expect(task.stop, 'FR-043: a milestone ends on its actualStart').toBe(jan(17))
+    expect(MILESTONE_ACTUAL_DURATION).toBe(0)
     expect(task.resumeValid).toBe(true)
   })
 })
@@ -995,24 +983,17 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     // the ban on choosing that length a second way, and actualFinish being
     // read the way PV-2 reads it (the actual finish day, not the right end).
     const PV_1 =
-      '`actualStart` ＝ `start`、⭐ `actualDuration` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-129`（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））、`actualFinish` ＝ `PV-2` と同じ読み（`FR-011` の実績の終了日。実績バーの右端そのものではない）、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
+      '`actualStart` ＝ `start`、⭐ `actualFinish` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130` により常に `actualStart`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））、`stop` は空のまま、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
     expect(REQUIREMENTS).toContain(PV_1)
   })
 
   it('PV-1 takes a task that has not started straight to finished', () => {
     // One press, because a job that takes a day is common enough that two would
     // make the tool heavy (FR-013's own reason).
-    // ⭐⭐ AND THE PRESS PLACES ONE WORKED DAY, NOT THE PLAN'S SPAN (MUST, 利用者
-    // の裁定 2026-09-10): 「`actualDuration` ＝ ... `S-129`（MUST）。予定の期間を
-    // 置いてはならない（MUST NOT）」.
-    // ⛔⛔ IT READ `actualFinish` jan(9) AND `actualDuration` 4 UNTIL THAT DAY --
-    // the plan is Monday to Friday, so one press stretched the actual over the
-    // whole of it, and 「意図せず実績が延びる」 is the申し立て that closed.
     const task = cycled(at({}))
     expect(task.actualStart).toBe(jan(5))
-    expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.actualInitialDuration)
-    expect(task.actualDuration).toBe(1)
-    // PV-2's reading: the finish day, one worked day before the right end.
+    expect(task.stop).toBeNull()
+    expect(SETTINGS_DEFAULTS.actualInitialDuration).toBe(1)
     expect(task.actualFinish).toBe(jan(5))
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('finished')
@@ -1027,18 +1008,18 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
       taskVisuals: [visualOf({ taskUid: 1, shapeKind: 'milestone' })],
     })
     const task = taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1 })), 1)
-    expect(task.actualDuration).toBe(SETTINGS_DEFAULTS.milestoneActualDuration)
-    expect(task.actualDuration).toBe(0)
+    expect(task.actualFinish).toBe(task.actualStart)
+    expect(task.actualFinish).toBe(jan(5))
     expect(planActualState(task)).toBe('finished')
   })
 
   it('PV-2 finishes a task in progress without moving either end of the actual bar', () => {
     // The actual bar's right end (FR-011) is not what PV-2 writes; it writes
     // the finish day, one worked day before that end. MUST NOT move either end.
-    const task = cycled(at({ actualStart: jan(5), actualDuration: 3, resumeValid: true }))
+    const task = cycled(at({ actualStart: jan(5), stop: jan(7), resumeValid: true }))
     expect(task.actualFinish).toBe(jan(7))
     expect(task.actualStart).toBe(jan(5))
-    expect(task.actualDuration).toBe(3)
+    expect(task.stop).toBeNull()
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('finished')
   })
@@ -1048,9 +1029,10 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     // date in the past; leaving it would read as "suspended, resuming then" the
     // moment the finish is undone.
     const task = cycled(
-      at({ actualStart: jan(5), actualDuration: 3, actualFinish: jan(8), resume: jan(2), resumeValid: false }),
+      at({ actualStart: jan(5), actualFinish: jan(8), resume: jan(2), resumeValid: false }),
     )
     expect(task.actualFinish).toBeNull()
+    expect(task.stop).toBe(jan(8))
     expect(task.resume).toBeNull()
     expect(task.resumeValid).toBe(false)
     expect(planActualState(task)).toBe('suspendedResumeUnknown')
@@ -1061,14 +1043,14 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     // (PA-1), so returning there would erase what a person entered. Undo and the
     // property panel are what remove an actual.
     for (const suspended of [
-      { actualStart: jan(5), actualDuration: 3, resume: jan(20), resumeValid: true }, // PA-3
-      { actualStart: jan(5), actualDuration: 3, resume: null, resumeValid: false }, // PA-4
+      { actualStart: jan(5), stop: jan(7), resume: jan(20), resumeValid: true }, // PA-3
+      { actualStart: jan(5), stop: jan(7), resume: null, resumeValid: false }, // PA-4
     ]) {
       const task = cycled(at(suspended))
       expect(task.resume).toBeNull()
       expect(task.resumeValid).toBe(true)
       expect(task.actualStart).toBe(jan(5))
-      expect(task.actualDuration).toBe(3)
+      expect(task.stop).toBe(jan(7))
       expect(planActualState(task)).toBe('inProgress')
     }
   })
@@ -1133,7 +1115,7 @@ describe('EditDocument (PI-9) -- CM-18 and CM-19, the two axes of table T-015a',
         start: jan(5),
         finish: jan(9),
         actualStart: jan(5),
-        actualDuration: 2,
+        stop: jan(6),
         resumeValid: true,
       }),
       taskOf({ uid: 3, wbsParentUid: 2, name: 'Detail', start: jan(5), finish: jan(9) }),
@@ -1183,7 +1165,7 @@ describe('EditDocument (PI-9) -- CM-18 and CM-19, the two axes of table T-015a',
     const next = accepted(run(before, { kind: 'moveTaskToTaskGroup', uid: 2, groupId: 'g2' }))
     const task = taskIn(next, 2)
     expect([task.start, task.finish]).toEqual([jan(5), jan(9)])
-    expect([task.actualStart, task.actualDuration]).toEqual([jan(5), 2])
+    expect([task.actualStart, task.stop]).toEqual([jan(5), jan(6)])
   })
 })
 

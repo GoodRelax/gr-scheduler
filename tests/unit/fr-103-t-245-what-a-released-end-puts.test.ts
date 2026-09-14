@@ -53,10 +53,16 @@ const FR_012_NOT_BEFORE = '⚠️ `finish` が `start` より前の入力を受�
 
 const FR_012_NO_ROUNDING = '丸めて `finish` = `start` にしてはならない（MUST NOT）'
 
+const FR_103_IV_21 = '実績の長さ（`FR-011` が日付から数える）が 0 を下回る置き方は、同表の `IV-21` が拒む。'
+
 const FR_011_FLOOR =
-  '⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）'
+  '⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST）'
 
 const FR_011_NOT_ZERO = '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）'
+
+const GO_3_REST_DAY = '離した日が非稼働日であっても、その日を最後の日とすること（MUST）'
+
+const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
 
 const T_245 = specTable('T-245')
 
@@ -112,7 +118,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -190,7 +196,7 @@ const aprilDocument = (): Document =>
         start: day(6),
         finish: day(24),
         actualStart: day(9),
-        actualDuration: 4,
+        stop: day(14),
         resumeValid: true,
         percentComplete: 29,
       }),
@@ -201,7 +207,7 @@ const aprilDocument = (): Document =>
         finish: day(13),
         milestone: true,
         actualStart: day(17),
-        actualDuration: S_130,
+        stop: day(17),
         resumeValid: true,
       }),
       task({
@@ -238,6 +244,22 @@ const dayValue = (text: string): CalendarDay => {
   const value = dayOf(text)
   if (value === null) throw new Error(`${text} is not a day`)
   return value
+}
+
+const nextCalendarDay = (text: string): string => {
+  const [y, m, d] = text.slice(0, 10).split('-').map(Number) as [number, number, number]
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
+}
+
+// see FR-011
+const actualLengthOf = (one: Task): number => {
+  const start = dayPart(one.actualStart)
+  const last = dayPart(one.actualFinish ?? one.stop)
+  let count = 0
+  for (let at = start; at <= last; at = nextCalendarDay(at)) {
+    if (at === start || at === last || isWorkingDay(CALENDAR, dayValue(at))) count += 1
+  }
+  return count
 }
 
 const SCREEN: FrameEnvironment = {
@@ -397,6 +419,7 @@ describe('FR-103 -- the manuscript this file is driven by', () => {
     expect(REQUIREMENTS).toContain(FR_103_REFUSALS)
     expect(REQUIREMENTS).toContain(FR_012_NOT_BEFORE)
     expect(REQUIREMENTS).toContain(FR_012_NO_ROUNDING)
+    expect(REQUIREMENTS).toContain(FR_103_IV_21)
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_NOT_ZERO)
   })
@@ -406,10 +429,12 @@ describe('FR-103 -- the manuscript this file is driven by', () => {
     expect(cellOf('GO-1', KEEPS)).toContain('`finish`')
     expect(cellOf('GO-2', PUTS)).toContain('`finish` ＝ 離した日そのもの')
     expect(cellOf('GO-2', KEEPS)).toContain('`start`')
-    expect(cellOf('GO-3', PUTS)).toContain('`actualDuration` ＝ `actualStart` から離した日までの稼働日（数え方と床 `S-129` は `FR-011`）')
+    expect(cellOf('GO-3', PUTS)).toContain('実績の最後の日 ＝ 離した日そのもの')
+    expect(cellOf('GO-3', PUTS)).toContain(GO_3_REST_DAY)
     expect(cellOf('GO-3', KEEPS)).toContain('`actualStart`')
     expect(cellOf('GO-4', PUTS)).toContain('`actualStart` ＝ 離した日')
-    expect(cellOf('GO-4', KEEPS)).toContain('`actualDuration`（`S-130`）')
+    expect(cellOf('GO-4', PUTS)).toContain(GO_4_LAST_DAY)
+    expect(cellOf('GO-4', KEEPS)).toBe('—')
   })
 
   it('table T-220 still holds IV-10, IV-12 and IV-14 as the refusals FR-103 points at', () => {
@@ -456,7 +481,7 @@ describe('table T-245 GO-1 -- the plan start', () => {
     expect(dayPart(after.start), 'GO-1: `start` ＝ 離した日').toBe(released)
     expect(after.finish, 'GO-1 据え置く値: `finish`').toBe(before.finish)
     expect(after.actualStart).toBe(before.actualStart)
-    expect(after.actualDuration).toBe(before.actualDuration)
+    expect(after.stop).toBe(before.stop)
   })
 
   it('FR-012 / IV-10: ⚠️ `finish` が `start` より前の入力を受け付けてはならない（MUST NOT） -- a start released past the finish lands nothing', () => {
@@ -488,7 +513,7 @@ describe('table T-245 GO-2 -- the plan end', () => {
     expect(dayPart(after.finish), 'GO-2: `finish` ＝ 離した日そのもの').toBe(released)
     expect(after.start, 'GO-2 据え置く値: `start`').toBe(before.start)
     expect(after.actualStart).toBe(before.actualStart)
-    expect(after.actualDuration).toBe(before.actualDuration)
+    expect(after.stop).toBe(before.stop)
   })
 
   it('GO-2 on a Task with fades, while the fades still fit: `finish` ＝ 離した日そのもの', () => {
@@ -557,47 +582,65 @@ function actualEndReleasedAt(k: number): { readonly released: string; readonly a
 }
 
 describe('table T-245 GO-3 -- the actual end', () => {
-  it('GO-3: `actualDuration` is laid down again from the released day, and `actualStart` stands', () => {
+  it('GO-3: 実績の最後の日 ＝ 離した日そのもの, and `actualStart` stands', () => {
     const { released, after, before } = actualEndReleasedAt(5)
     expect(released, 'premise').toBe('2026-04-20')
     expect(after.actualStart, 'GO-3 据え置く値: `actualStart`').toBe(before.actualStart)
-    expect(after.actualDuration as number).toBeGreaterThan(before.actualDuration as number)
+    expect(dayPart(after.stop), 'GO-3: the running Task holds the released day in `stop`').toBe(released)
     expect(after.start).toBe(before.start)
     expect(after.finish).toBe(before.finish)
   })
 
-  it('GO-3: 稼働日 -- releases one working day apart (Mon 20, Tue 21) differ by exactly one', () => {
+  it('FR-011: 稼働日 -- releases one working day apart (Mon 20, Tue 21) differ by exactly one', () => {
     const monday = actualEndReleasedAt(5)
     const tuesday = actualEndReleasedAt(6)
     expect([monday.released, tuesday.released], 'premise').toEqual(['2026-04-20', '2026-04-21'])
-    expect((tuesday.after.actualDuration as number) - (monday.after.actualDuration as number)).toBe(1)
+    expect(actualLengthOf(tuesday.after) - actualLengthOf(monday.after)).toBe(1)
   })
 
-  it('GO-3: 稼働日 -- a weekend between two releases (Fri 17, Mon 20) still differs by exactly one', () => {
+  it('FR-011: 稼働日 -- a weekend between two releases (Fri 17, Mon 20) still differs by exactly one', () => {
     const friday = actualEndReleasedAt(2)
     const monday = actualEndReleasedAt(5)
     expect([friday.released, monday.released], 'premise').toEqual(['2026-04-17', '2026-04-20'])
-    expect((monday.after.actualDuration as number) - (friday.after.actualDuration as number)).toBe(1)
+    expect(actualLengthOf(monday.after) - actualLengthOf(friday.after)).toBe(1)
   })
 
-  it('FR-011: ⭐ 着手しているタスクの `actualDuration` は、`_assets/tbl-settings.md` の 表 T-201 の `S-129` を下回らせないこと（MUST）', () => {
+  it('GO-3: 離した日が非稼働日であっても、その日を最後の日とすること（MUST） -- released on Sat 18', () => {
+    const friday = actualEndReleasedAt(2)
+    const saturday = actualEndReleasedAt(3)
+    expect([friday.released, saturday.released], 'premise').toEqual(['2026-04-17', '2026-04-18'])
+    expect(isWorkingDay(CALENDAR, dayValue(saturday.released)), 'premise: a rest day').toBe(false)
+    expect(dayPart(saturday.after.stop), GO_3_REST_DAY).toBe(saturday.released)
+    expect(actualLengthOf(saturday.after) - actualLengthOf(friday.after), 'FR-011: the end day counts').toBe(1)
+  })
+
+  it('FR-011: ⭐ 着手しているタスクの実績の最後の日を、床の日より前に置かないこと（MUST） -- released on the actual start day', () => {
+    const { released, after, before } = actualEndReleasedAt(-6)
+    expect(released, 'premise: the actual start day').toBe(dayPart(before.actualStart))
+    expect(after.actualStart, 'still started').toBe(before.actualStart)
+    expect(dayPart(after.stop), 'FR-011: the floor day').toBe(released)
+    expect(
+      actualLengthOf(after),
+      'FR-011: 掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）',
+    ).toBe(S_129)
+  })
+
+  it('IV-21: released on a worked day before the actual start lands nothing', () => {
     const { released, after, before } = actualEndReleasedAt(-7)
     expect(released < dayPart(before.actualStart), 'premise: released before the actual start').toBe(true)
-    expect(after.actualStart, 'still started').toBe(before.actualStart)
-    expect(
-      after.actualDuration as number,
-      'FR-011: 掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）',
-    ).toBeGreaterThanOrEqual(S_129)
+    expect(isWorkingDay(CALENDAR, dayValue(released)), 'premise: a worked day, so the length is below zero').toBe(true)
+    expect(after.actualStart, FR_103_IV_21).toBe(before.actualStart)
+    expect(after.stop, FR_103_IV_21).toBe(before.stop)
   })
 
-  it('GO-3: `actualFinish` を持たないときは空のままとする', () => {
+  it('GO-3: `actualFinish` を持たないときは `stop` に置き, `actualFinish` stays empty', () => {
     const { after } = actualEndReleasedAt(5)
     expect(after.actualFinish).toBeNull()
   })
 })
 
 describe('table T-245 GO-4 -- the actual milestone', () => {
-  it('GO-4: `actualStart` ＝ 離した日, and `actualDuration`（`S-130`）stands', () => {
+  it('GO-4: `actualStart` ＝ 離した日, and the held last day `stop` follows it', () => {
     const built = stage(aprilDocument())
     const before = structuredClone(taskOf(built.loop, MILESTONE_UID))
     const figure = actualBox(built.loop, MILESTONE_UID)
@@ -609,7 +652,8 @@ describe('table T-245 GO-4 -- the actual milestone', () => {
 
     const after = taskOf(built.loop, MILESTONE_UID)
     expect(dayPart(after.actualStart), 'GO-4: `actualStart` ＝ 離した日').toBe(released)
-    expect(after.actualDuration, 'GO-4 据え置く値: `actualDuration`（`S-130`）').toBe(S_130)
+    expect(dayPart(after.stop), GO_4_LAST_DAY).toBe(dayPart(after.actualStart))
+    expect(S_130, 'S-130: a milestone has no length').toBe(0)
     expect(after.start).toBe(before.start)
     expect(after.finish).toBe(before.finish)
   })
