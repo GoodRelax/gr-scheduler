@@ -18,6 +18,7 @@ import type {
   Path,
   Point,
   ScheduleGeometry,
+  TaskGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
@@ -155,19 +156,60 @@ function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
   }))
 }
 
-// see FR-043
+// see FR-043, DM-4, DM-10, LF-6, LF-7, LF-8
 /** @purity pure */
 function dummyFigure(
+  shapeKind: TaskGeometry['shapeKind'],
   milestone: BarGeometry | null,
-  centre: Point,
-  width: number,
-  height: number,
+  box: ScreenRect,
+  plan: { readonly width: number; readonly height: number },
+  settings: DocumentSettings,
 ): BarGeometry {
-  const box: ScreenRect = {
-    x: centre.x - width / 2,
-    y: centre.y - height / 2,
-    width,
-    height,
+  const { width, height } = box
+  const centre: Point = { x: box.x + width / 2, y: box.y + height / 2 }
+  const right = box.x + width
+  // TRAP: repeats schedule-geometry.ts's chevronNotch, thinStroke and lineBar for an actual;
+  // change both together, or the dummy stops matching the actual it stands for.
+  if (shapeKind === 'chevron') {
+    const notch = settings.actualOfPlan * Math.min(
+      plan.width * settings.chevronNotchOfWidth,
+      plan.height * settings.chevronNotchOfHeight,
+    )
+    return {
+      form: 'outline',
+      points: [
+        { x: box.x, y: box.y },
+        { x: right - notch, y: box.y },
+        { x: right, y: centre.y },
+        { x: right - notch, y: box.y + height },
+        { x: box.x, y: box.y + height },
+        { x: box.x + notch, y: centre.y },
+      ],
+    }
+  }
+  if (shapeKind === 'arrow' || shapeKind === 'endpointSpan') {
+    const stroke = Math.max(
+      settings.thinStrokeMin,
+      Math.min(settings.thinStrokeMax, plan.height * settings.thinStrokeOfPlan),
+    )
+    const start: Point = { x: box.x, y: centre.y }
+    const end: Point = { x: right, y: centre.y }
+    if (shapeKind === 'endpointSpan') {
+      const radius = stroke * settings.spanDotOfStroke
+      return {
+        form: 'line', from: start, to: end, strokeWidth: stroke, head: null,
+        dots: [{ at: start, radius }, { at: end, radius }],
+      }
+    }
+    const head = Math.min(stroke * settings.arrowHeadOfStroke, width * settings.arrowHeadOfSpan)
+    return {
+      form: 'line',
+      from: start,
+      to: { x: right - head, y: centre.y },
+      strokeWidth: stroke,
+      head: [end, { x: right - head, y: centre.y - head / 2 }, { x: right - head, y: centre.y + head / 2 }],
+      dots: [],
+    }
   }
   const rectangle: BarGeometry = { form: 'outline', points: cornersAround(centre, width, height) }
   if (milestone === null || milestone.form !== 'outline') return rectangle
@@ -825,11 +867,15 @@ export function svgFromSchedule(
       const ink = task.dummies[0]!.ink
       const marks = barSvg(
         dummyFigure(
-          // TRAP: milestoneFigure, not task.plan: plan is absent while planVisible is false.
+          task.shapeKind,
+          // TRAP: milestoneFigure and placed, not task.plan: plan is absent while planVisible is false.
           task.milestoneFigure,
-          { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
-          ink.width,
-          ink.height,
+          ink,
+          {
+            width: placed?.width ?? Number.POSITIVE_INFINITY,
+            height: placed?.planHeight ?? ink.height / settings.actualOfPlan,
+          },
+          settings,
         ),
         actual,
         `${taskKey}-dummies`,
