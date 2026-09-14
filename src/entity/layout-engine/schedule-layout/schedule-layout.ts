@@ -10,7 +10,6 @@ import {
   actualLastDay,
   dateFromWorkingDays,
   dayOf,
-  nextWorkingDay,
   planActualState,
   textOfDay,
   workingCalendarOf,
@@ -56,7 +55,7 @@ export interface TaskPlacement {
   readonly fadeInPx: number
   readonly fadeOutPx: number
   readonly labelPlacement: LabelPlacement
-  // TRAP: already clears the OC-3 / OC-4 room; do not add the marker width again.
+  // TRAP: already clears the counted marker (and a PA-4 resume icon); do not add the marker width again.
   readonly labelX: number
   readonly label: string
   readonly labelFontSize: number
@@ -111,15 +110,12 @@ function serialOf(day: CalendarDay): number {
 interface DayReader {
   day(text: string | null): CalendarDay | null
   walk(from: CalendarDay, workingDays: number): CalendarDay
-  // TRAP: not walk(from, 1), which answers a half-open end bound.
-  after(from: CalendarDay): CalendarDay
 }
 
 /** @purity pure */
 function dayReaderFor(within: WorkingCalendar): DayReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
-  const afters = new Map<string, CalendarDay>()
   return {
     day(text: string | null): CalendarDay | null {
       const key = text ?? ''
@@ -135,14 +131,6 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
       if (held !== undefined) return held
       const made = dateFromWorkingDays(within, from, workingDays)
       walks.set(key, made)
-      return made
-    },
-    after(from: CalendarDay): CalendarDay {
-      const key = textOfDay(from)
-      const held = afters.get(key)
-      if (held !== undefined) return held
-      const made = nextWorkingDay(within, from)
-      afters.set(key, made)
       return made
     },
   }
@@ -538,19 +526,26 @@ function dummyReachOf(
 ): number {
   const start = reader.day(task.start)
   if (start === null) return Number.NEGATIVE_INFINITY
-  const inkX = xOnTimeAxis(originSerial, pxPerDay, originX, reader.after(start))
+  const inkX = xOnTimeAxis(originSerial, pxPerDay, originX, start)
   if (actualPlacementOf(shapeKind) === 'sideways') {
     return inkX + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
   }
   return inkX + dummyGrabWidthPx(pxPerDay)
 }
 
-// TRAP: never read progressMarkerVisible here: the room is held whether the marker is drawn or not.
+// see T-243, LF-11, PA-4
+// TRAP: never read progressMarkerVisible, planVisible or actualVisible here: the marker is
+// counted where it stands in any of those combinations, so no toggle moves the name.
 /** @purity pure */
-function markRoomOf(settings: DocumentSettings): number {
+function markRoomOf(task: Task, shapeKind: ShapeKind, settings: DocumentSettings): number {
+  const marker = settings.markerGap + settings.markerSize
+  const resumeBesideMarker =
+    shapeKind !== 'milestone' &&
+    task.resume === null &&
+    planActualState(task) === 'suspendedResumeUnknown'
+  if (!resumeBesideMarker) return marker
   const side = settings.markerSize
-  const resumeReach = side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
-  return settings.markerGap + side + settings.markerGap + resumeReach
+  return marker + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
 }
 
 const ROW_CONTROL_LATTICE_RANKS = 2
@@ -650,7 +645,7 @@ export function layoutFromSchedule(
               dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
             )
       const outwardX = Math.max(x + width, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
-      const labelX = outwardX + markRoomOf(settings) + settings.labelGap
+      const labelX = outwardX + markRoomOf(task, kind, settings) + settings.labelGap
       const labelledX1 = placement === 'right' ? labelX + text : x + width
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null

@@ -100,6 +100,7 @@ const PAINT_ROW = {
   quiet: 'S-148',
   rule: 'S-149',
   panel: 'S-150',
+  grabStrip: 'S-231',
   shadow: 'S-170',
   armed: 'S-183',
   pressed: 'S-183',
@@ -123,6 +124,7 @@ const PAINT = {
   quiet: painted('quiet'),
   rule: painted('rule'),
   panel: painted('panel'),
+  grabStrip: painted('grabStrip'),
   shadow: painted('shadow'),
   armed: painted('armed'),
   pressed: painted('pressed'),
@@ -988,7 +990,7 @@ function rowGrabStripStyle(isHeld: boolean): string {
   return (
     `flex:none;width:${width}px;cursor:${isHeld ? 'grabbing' : 'grab'};pointer-events:auto;` +
     'text-align:center;' +
-    `color:${isHeld ? PAINT.heldRow : PAINT.rule};font-size:0.75em;user-select:none;`
+    `color:${isHeld ? PAINT.heldRow : PAINT.grabStrip};font-size:0.75em;user-select:none;`
   )
 }
 
@@ -2921,6 +2923,7 @@ export const SCREEN_COLOURS: {
   'S-148': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-149': { light: 'hsl(H 14% 87%)', dark: 'hsl(H 12% 23%)', followsHue: true },
   'S-150': { light: 'hsl(H 20% 97%)', dark: 'hsl(H 14% 13%)', followsHue: true },
+  'S-231': { light: 'hsl(H 14% 82%)', dark: 'hsl(H 12% 28%)', followsHue: true },
   'S-151': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   'S-152': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-183': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },

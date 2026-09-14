@@ -11,7 +11,6 @@ import {
   dayOf,
   isDelayed,
   planActualState,
-  nextWorkingDay,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
@@ -78,6 +77,9 @@ export interface DummyGeometry {
   readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
   readonly at: Point
   readonly ink: ScreenRect
+  // see DM-4, DM-8, DM-9, PI-5
+  // WHY: optional, not required: a hand-built geometry that only asks what a press hits need not draw one.
+  readonly figure?: BarGeometry
 }
 
 export interface TaskGeometry {
@@ -675,8 +677,8 @@ function dummyFromOf(inputs: GeometryInputs, startText: string | null): Calendar
   const key = startText ?? ''
   const held = inputs.dummyFromByStart.get(key)
   if (held !== undefined) return held
-  const start = dayOf(startText)
-  const made = start === null ? null : nextWorkingDay(inputs.within, start)
+  // WHY: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
+  const made = dayOf(startText)
   inputs.dummyFromByStart.set(key, made)
   return made
 }
@@ -696,13 +698,15 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
 /** @purity pure */
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
-  if (placed.actualX !== null) return []
+  // TRAP: empties only what is drawn and grabbed; the room stays in the layout's dummyReach (DM-14, FR-049).
+  if (!inputs.showActual || placed.actualX !== null) return []
   const from = dummyFromOf(inputs, task.start)
   if (from === null) return []
   const fromX = xFromDay(inputs.layout, from)
   const planMiddle = placed.y + placed.planHeight / 2
 
   if (placed.actualPlacement === 'sideways') {
+    // WHY: the same box and barOf call as a same-day actual milestone in taskGeometryOf (DM-12, FR-043).
     const side = actualHeight
     const ink: ScreenRect = {
       x: fromX - side / 2,
@@ -710,7 +714,8 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
       width: side,
       height: side,
     }
-    return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink }]
+    const figure = barOf(inputs, placed, ink.x, ink.x + side, ink.y, side, true)
+    return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink, figure }]
   }
 
   const width = Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
@@ -721,10 +726,12 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const middle = top + actualHeight / 2
   // TRAP: every dummy of one Task shares this ink; item-hit-area.ts reads the first one only.
   const ink: ScreenRect = { x: fromX, y: top, width, height: actualHeight }
+  // WHY: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
+  const figure = barOf(inputs, placed, fromX, fromX + width, top, actualHeight, true)
   const end = dummyEndOf(inputs, from)
   return [
-    { grab: 'GR-9', at: point(fromX, middle), ink },
-    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), ink },
+    { grab: 'GR-9', at: point(fromX, middle), ink, figure },
+    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), ink, figure },
   ]
 }
 

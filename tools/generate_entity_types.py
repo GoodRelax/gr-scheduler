@@ -1345,8 +1345,12 @@ COLOUR_TARGETS = {
     # well as on the drawing side (where SL-8's selection frame keeps it).
     # ⛔ Not a second copy -- ONE row of table T-236 read by two units, which is
     # what S-146 / S-147 / S-149 already do below.
-    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151',
-                       'S-152', 'S-183', 'S-153', 'S-154', 'S-170'],
+    # ⭐ S-231 IS THE ROW HEADER PANEL'S ALONE (DFC-601 / CR-385): the row's
+    # grab strip mark (HF-15, GR-20) is drawn by this unit only, and S-149
+    # (the rule) no longer stands in for it -- that is the whole point of the
+    # change request (`the grip no longer borrows the rule's colour`).
+    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
+                       'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no

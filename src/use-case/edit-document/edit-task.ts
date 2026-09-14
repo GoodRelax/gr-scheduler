@@ -13,7 +13,6 @@ import {
   compareDays,
   dayOf,
   lastDayForLength,
-  nextWorkingDay,
   planActualState,
   taskByUid,
   textOfDay,
@@ -614,15 +613,15 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
         return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
       }
       if (command.grabbed === 'GR-17') {
-        // TRAP: nextWorkingDay, not dateFromWorkingDays(start, 1), which moves a Friday start to Saturday;
-        // schedule-layout.ts uses the same member, so change both together.
+        // TRAP: the plan start day itself, where schedule-layout.ts and schedule-geometry.ts stand the dummy (DM-1);
+        // change all three together.
         const planStart = dayOf(task.start)
         if (planStart === null) {
           return refused([
             reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
           ])
         }
-        const pinned = nextWorkingDay(within, planStart)
+        const pinned = planStart
         // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
         const settled = settledLastDay(
           within, pinned, dropped.day, floorDayOf(within, settings, pinned, isDrawnAsMilestone),

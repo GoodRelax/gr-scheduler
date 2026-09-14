@@ -1425,10 +1425,13 @@ export function documentFromJson(
   if (clamp.clamped.length === 0) {
     return { ok: true, document: read, clampedCount: 0, formatVersion, unreadColumns }
   }
+  // WHY: rowGap clamps stay silent (CR-384, JDG-113) -- clamp.settings still zeroes
+  // it, but it is left out of the count RS-51 tells.
+  const toldClamped = clamp.clamped.filter((one) => one.key !== 'rowGap')
   return {
     ok: true,
     document: { ...read, documentSettings: clamp.settings },
-    clampedCount: clamp.clamped.length,
+    clampedCount: toldClamped.length,
     formatVersion,
     unreadColumns,
   }

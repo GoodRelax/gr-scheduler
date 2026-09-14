@@ -197,10 +197,10 @@ const TABLE_T_023D: readonly HitRow[] = [
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left')),
   taskRow('GR-6', 'anyPress',
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right')),
-  taskRow('GR-17', 'anyPress', ({ task }, x, y) =>
-    isOnTheDrawnMarkHalf(task, x, y, 'right')),
-  taskRow('GR-9', 'anyPress', ({ task }, x, y) =>
-    isOnTheDrawnMarkHalf(task, x, y, 'left')),
+  taskRow('GR-17', 'anyPress', (boxed, x, y) =>
+    isInsideThePlanStart(boxed, x) && isOnTheDrawnMarkHalf(boxed.task, x, y, 'right')),
+  taskRow('GR-9', 'anyPress', (boxed, x, y) =>
+    isInsideThePlanStart(boxed, x) && isOnTheDrawnMarkHalf(boxed.task, x, y, 'left')),
   taskRow('GR-10', 'doubleClickOnly',
     ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label)),
   taskRow('GR-11', 'doubleClickOnly', ({ task }, x, y) =>
@@ -217,7 +217,7 @@ const TABLE_T_023D: readonly HitRow[] = [
   taskRow('GR-15', 'anyPress', ({ task, actual }, x, y) =>
     task.shapeKind === 'milestone' && actual !== null && isInsideBoxInclusive(x, y, actual)),
   taskRow('GR-18', 'anyPress',
-    ({ task }, x, y) => isOnTheDrawnMark(task, x, y)),
+    ({ task }, x, y) => task.dummies[0]?.grab === 'GR-18' && isOnTheDrawnMark(task, x, y)),
   {
     grab: 'GR-13',
     reach: 'anyPress',
@@ -329,6 +329,13 @@ function isOnPlanEnd(boxed: BoxedTask, x: number, y: number, slop: PointerSlop,
   // TRAP: test the day, not the drawn width: S-49 floors a same-day plan's width.
   if (boxed.task.planEndsStandOnOneDay) return false
   return x <= box.x && box.x - x <= slop.planEndpoint
+}
+
+// see GR-3, GR-9, DM-1
+// TRAP: strictly right of the plan's left edge, which is GR-3's; never for GR-18, whose mark is centred on its figure.
+/** @purity pure */
+function isInsideThePlanStart(boxed: BoxedTask, x: number): boolean {
+  return boxed.plan === null || x > boxed.plan.x
 }
 
 /** @purity pure */

@@ -18,7 +18,6 @@ import type {
   Path,
   Point,
   ScheduleGeometry,
-  TaskGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
@@ -131,95 +130,6 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
     ` width="${rounded(box.width)}" height="${rounded(box.height)}" fill="black"` +
     `${figureKey(key)}/>`
   )
-}
-
-/** @purity pure */
-function cornersAround(centre: Point, width: number, height: number): Path {
-  const halfWidth = width / 2
-  const halfHeight = height / 2
-  return [
-    { x: centre.x - halfWidth, y: centre.y - halfHeight },
-    { x: centre.x + halfWidth, y: centre.y - halfHeight },
-    { x: centre.x + halfWidth, y: centre.y + halfHeight },
-    { x: centre.x - halfWidth, y: centre.y + halfHeight },
-  ]
-}
-
-// TRAP: x and y scale separately, safe only for square boxes; otherwise a circle turns into an ellipse.
-/** @purity pure */
-function pathFitted(path: Path, from: ScreenRect, to: ScreenRect): Path {
-  const scaleX = to.width / from.width
-  const scaleY = to.height / from.height
-  return path.map((one) => ({
-    x: to.x + (one.x - from.x) * scaleX,
-    y: to.y + (one.y - from.y) * scaleY,
-  }))
-}
-
-// see FR-043, DM-4, DM-10, LF-6, LF-7, LF-8
-/** @purity pure */
-function dummyFigure(
-  shapeKind: TaskGeometry['shapeKind'],
-  milestone: BarGeometry | null,
-  box: ScreenRect,
-  plan: { readonly width: number; readonly height: number },
-  settings: DocumentSettings,
-): BarGeometry {
-  const { width, height } = box
-  const centre: Point = { x: box.x + width / 2, y: box.y + height / 2 }
-  const right = box.x + width
-  // TRAP: repeats schedule-geometry.ts's chevronNotch, thinStroke and lineBar for an actual;
-  // change both together, or the dummy stops matching the actual it stands for.
-  if (shapeKind === 'chevron') {
-    const notch = settings.actualOfPlan * Math.min(
-      plan.width * settings.chevronNotchOfWidth,
-      plan.height * settings.chevronNotchOfHeight,
-    )
-    return {
-      form: 'outline',
-      points: [
-        { x: box.x, y: box.y },
-        { x: right - notch, y: box.y },
-        { x: right, y: centre.y },
-        { x: right - notch, y: box.y + height },
-        { x: box.x, y: box.y + height },
-        { x: box.x + notch, y: centre.y },
-      ],
-    }
-  }
-  if (shapeKind === 'arrow' || shapeKind === 'endpointSpan') {
-    const stroke = Math.max(
-      settings.thinStrokeMin,
-      Math.min(settings.thinStrokeMax, plan.height * settings.thinStrokeOfPlan),
-    )
-    const start: Point = { x: box.x, y: centre.y }
-    const end: Point = { x: right, y: centre.y }
-    if (shapeKind === 'endpointSpan') {
-      const radius = stroke * settings.spanDotOfStroke
-      return {
-        form: 'line', from: start, to: end, strokeWidth: stroke, head: null,
-        dots: [{ at: start, radius }, { at: end, radius }],
-      }
-    }
-    const head = Math.min(stroke * settings.arrowHeadOfStroke, width * settings.arrowHeadOfSpan)
-    return {
-      form: 'line',
-      from: start,
-      to: { x: right - head, y: centre.y },
-      strokeWidth: stroke,
-      head: [end, { x: right - head, y: centre.y - head / 2 }, { x: right - head, y: centre.y + head / 2 }],
-      dots: [],
-    }
-  }
-  const rectangle: BarGeometry = { form: 'outline', points: cornersAround(centre, width, height) }
-  if (milestone === null || milestone.form !== 'outline') return rectangle
-  const from = boxOfPoints(milestone.points)
-  if (from === null || from.width <= 0 || from.height <= 0) return rectangle
-  return {
-    form: 'outline',
-    points: pathFitted(milestone.points, from, box),
-    marks: (milestone.marks ?? []).map((one) => pathFitted(one, from, box)),
-  }
 }
 
 // see SL-8
@@ -859,27 +769,14 @@ export function svgFromSchedule(
         barMaskParts.push(barMaskRectSvg(actualBarBox, `${taskKey}-actual-mask`))
       }
     }
-    // TRAP: drop dummies from an export only here: emptying the geometry's dummies loses EP-5's marker (EP-14).
+    // WHY: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
     // STOP: spec does not decide the dummies' paint order; here the actual bar's layer. Looked in T-020
     // @provisional PND-209
-    if (picture === 'screen' && task.dummies.length > 0) {
-      // TRAP: draw from DummyGeometry.ink, never recompute it: the drawn mark is the grab target (T-023d).
-      const ink = task.dummies[0]!.ink
-      const marks = barSvg(
-        dummyFigure(
-          task.shapeKind,
-          // TRAP: milestoneFigure and placed, not task.plan: plan is absent while planVisible is false.
-          task.milestoneFigure,
-          ink,
-          {
-            width: placed?.width ?? Number.POSITIVE_INFINITY,
-            height: placed?.planHeight ?? ink.height / settings.actualOfPlan,
-          },
-          settings,
-        ),
-        actual,
-        `${taskKey}-dummies`,
-      )
+    const dummy = task.dummies[0]
+    if (picture === 'screen' && dummy !== undefined && dummy.figure !== undefined) {
+      // TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
+      const ink = dummy.ink
+      const marks = barSvg(dummy.figure, actual, `${taskKey}-dummies`)
       // STOP: spec does not decide how far FR-013 darkens, nor whether per dummy or per Task.
       // Looked in FR-013, S-131
       // @provisional PND-351
