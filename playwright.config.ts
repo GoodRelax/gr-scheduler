@@ -63,4 +63,13 @@ export default defineConfig({
     url: origin,
     reuseExistingServer: true,
   },
+  // DFC-604: a cold `npm run dev` (Vite's dev server) can take longer than the
+  // 30s per-test timeout for the first navigation, so e2e cases that hit an
+  // unwarmed server fail on `page.goto` rather than on their own assertion.
+  // Serving a build instead (the first shape this fix took) broke DFC-282's
+  // dynamic `import('/src/...')`, which only the dev server can answer -- so
+  // the dev server stays, and is warmed before any test's own clock starts.
+  // Playwright runs globalSetup AFTER webServer is accepting connections
+  // (measured here, not just taken from the docs -- see the DFC-604 report).
+  globalSetup: './tests/system/global-warm-dev-server.ts',
 })
