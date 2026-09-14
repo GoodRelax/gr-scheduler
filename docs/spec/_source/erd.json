@@ -1041,19 +1041,20 @@
      }
     },
     {
-     "seat": 35,
-     "name": "actualDuration",
-     "type": "整数（稼働日）",
+     "seat": 141,
+     "name": "stop",
+     "type": "日時",
      "nullable": "可",
      "json": {
-      "kind": "integer",
+      "kind": "string",
+      "isDate": true,
       "null": true
      },
      "key": "",
-     "origin": "Consume",
-     "exchange": "Task/ActualDuration",
+     "origin": "Own",
+     "exchange": "Task/Stop",
      "meaning": {
-      "ja": "実績バーの長さ。交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す（`FR-054`）"
+      "ja": "進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは空** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る"
      }
     },
     {
@@ -3419,12 +3420,12 @@
    }
   },
   {
-   "seat": 9,
+   "seat": 11,
    "entity": "Task",
-   "name": "stop",
-   "exchange": "Task/Stop",
+   "name": "actualDuration",
+   "exchange": "Task/ActualDuration",
    "source": {
-    "ja": "`actualStart` ＋ `actualDuration`。**中断のときだけ書く**"
+    "ja": "`FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記）"
    }
   },
   {

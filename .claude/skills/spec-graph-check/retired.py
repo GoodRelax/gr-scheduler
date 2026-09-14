@@ -61,6 +61,12 @@ RETIRED = {'FR-050', 'T-030',
            # from, and that record is true of the day it was written, so the
            # seats stay burnt.
            'IC-46', 'IC-49',
+           # AT-35 (Task.actualDuration) and DV-9 (the written Task/Stop) left
+           # tables T-058 and T-059 with CR-376: the actual is held as dates
+           # (JDG-69), the length is counted from them by FR-011, and Stop is
+           # the stored column AT-141. Change requests and the ledgers name
+           # both, so the seats stay burnt.
+           'AT-35', 'DV-9',
            'UF-43', 'UF-44', 'UF-52', 'PI-23', 'PI-29',
            'T-044', 'T-045', 'T-046', 'T-047',
            'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',

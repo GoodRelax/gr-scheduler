@@ -32,7 +32,7 @@
 | PR-3 | `start` / `finish` | 日付 / 日付 | `Task` | **予定**の日付 | `Task/Start` `Task/Finish` |
 | PR-16 | `assignee` | 選択 | `Task` | 編集できる。<br>入口と選び方は `FR-008` の表 T-225 が持つ。<br> ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する | `Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。<br>名は `Resource/Name` |
 | PR-4 | `actualStart` | 日付 | `Task` |  | `Task/ActualStart` |
-| PR-5 | `actualDuration` | 数値 | `Task` | 実績バーの長さそのもの（稼働日数） | `Task/ActualDuration` |
+| PR-5 | `actualDuration` | 数値 | `Task` | 文書の列ではない —— `FR-011` が日付から数えた実績の長さ（両端の日は非稼働日でも数える）。<br>入れると、`actualStart` の後に来る稼働日を入れた数 − 1 個数えた日を実績の最後の日（完了していれば `actualFinish`、それ以外は `stop`）に置く | `Task/ActualDuration` |
 | PR-6 | `actualFinish` | 日付 | `Task` | 完了したときだけ入る | `Task/ActualFinish` |
 | PR-9 | `percentComplete` | 数値（読み取り専用） | `Task` | **読み取り専用。<br>** 型と算出は `FR-012` | `Task/PercentComplete` |
 | PR-10 | `deadline` | 日付 | `Task` | 終了日とは別の独立マーカー | `Task/Deadline` |

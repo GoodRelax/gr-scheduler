@@ -153,7 +153,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   Task: {
     type: ['object'],
-    required: ['uid', 'wbsParentUid', 'wbsOrder', 'name', 'start', 'finish', 'milestone', 'deadline', 'notes', 'calendarUid', 'actualStart', 'actualDuration', 'actualFinish', 'resume', 'resumeValid', 'percentComplete', 'fadeInDays', 'fadeOutDays', 'dependencies', 'carry', 'carryElements'],
+    required: ['uid', 'wbsParentUid', 'wbsOrder', 'name', 'start', 'finish', 'milestone', 'deadline', 'notes', 'calendarUid', 'actualStart', 'stop', 'actualFinish', 'resume', 'resumeValid', 'percentComplete', 'fadeInDays', 'fadeOutDays', 'dependencies', 'carry', 'carryElements'],
     closed: true,
     properties: {
       uid: {
@@ -189,8 +189,8 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       actualStart: {
         type: ['string', 'null'],
       },
-      actualDuration: {
-        type: ['integer', 'null'],
+      stop: {
+        type: ['string', 'null'],
       },
       actualFinish: {
         type: ['string', 'null'],

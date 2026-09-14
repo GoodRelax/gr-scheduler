@@ -91,8 +91,8 @@ export interface Task {
   readonly calendarUid: number | null
   /** AT-34 */
   readonly actualStart: string | null
-  /** AT-35 */
-  readonly actualDuration: number | null
+  /** AT-141 */
+  readonly stop: string | null
   /** AT-36 */
   readonly actualFinish: string | null
   /** AT-37 */
@@ -369,7 +369,7 @@ export const DATE_COLUMNS: {
   readonly BaselineTask: readonly (keyof BaselineTask & string)[]
 } = {
   Project: ['created', 'lastSaved', 'startDate', 'statusDate'],
-  Task: ['start', 'finish', 'deadline', 'actualStart', 'actualFinish', 'resume'],
+  Task: ['start', 'finish', 'deadline', 'actualStart', 'stop', 'actualFinish', 'resume'],
   Exception: ['fromDate', 'toDate'],
   CommentBox: ['anchorDate'],
   HighlightBox: ['startDate', 'endDate'],
@@ -415,7 +415,7 @@ export const COLUMN_SHAPES: {
     notes: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     calendarUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     actualStart: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    actualDuration: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    stop: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     actualFinish: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     resume: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     resumeValid: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },

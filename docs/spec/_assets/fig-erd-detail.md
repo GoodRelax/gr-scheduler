@@ -58,7 +58,7 @@ erDiagram
         文字列 notes "Own"
         整数 **calendarUid** FK "Consume"
         日時 actualStart "Own"
-        整数 actualDuration "Consume・稼働日"
+        日時 stop "Own"
         日時 actualFinish "Own"
         日時 resume "Own"
         真偽 resumeValid "Own"
@@ -337,7 +337,7 @@ erDiagram
 | AT-32 | `Task` | `notes` | 文字列 | 可 | — | Own | `Task/Notes` | 備考 |
 | AT-33 | `Task` | `calendarUid` | 整数 | 可 | FK | Consume | `Task/CalendarUID` | 交換相手のタスクごとの暦。稼働日の数え上げには使わない（`FR-054`） |
 | AT-34 | `Task` | `actualStart` | 日時 | 可 | — | Own | `Task/ActualStart` | 実績の開始。空 = 未着手 |
-| AT-35 | `Task` | `actualDuration` | 整数（稼働日） | 可 | — | Consume | `Task/ActualDuration` | 実績バーの長さ。交換相手は時間の量なので、取り込むときに稼働日へ解釈し、書き出すときに `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）で作り直す（`FR-054`） |
+| AT-141 | `Task` | `stop` | 日時 | 可 | — | Own | `Task/Stop` | 進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは空** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る |
 | AT-36 | `Task` | `actualFinish` | 日時 | 可 | — | Own | `Task/ActualFinish` | **完了したときだけ入る** |
 | AT-37 | `Task` | `resume` | 日時 | 可 | — | Own | `Task/Resume` | 中断中に、残りが始まる予定の日 |
 | AT-38 | `Task` | `resumeValid` | 真偽 | 可 | — | Own | `Task/ResumeValid` | 偽 = 再開日が未定の中断 |
@@ -459,5 +459,5 @@ erDiagram
 | DV-6 | `Task` | `outlineNumber` | `Task/OutlineNumber` | 木の道すじ。**照合の鍵にしない** |
 | DV-7 | `Task` | `summary` | `Task/Summary` | 子を持つかどうか |
 | DV-8 | `Task` | `duration` | `Task/Duration` | `finish` − `start` と暦。**人が編集していないタスクは受け取った値をそのまま返す** |
-| DV-9 | `Task` | `stop` | `Task/Stop` | `actualStart` ＋ `actualDuration`。**中断のときだけ書く** |
+| DV-11 | `Task` | `actualDuration` | `Task/ActualDuration` | `FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記） |
 | DV-10 | `Resource` | `id` | `Resource/ID` | 書き出す順に振り直す。**`uid` とは別物** |

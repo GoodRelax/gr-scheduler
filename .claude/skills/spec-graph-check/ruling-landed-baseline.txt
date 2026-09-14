@@ -1,4 +1,12 @@
-6
+0
+#
+# LOWERED 6 -> 0 on 2026-09-14, for JDG-67, JDG-69 and JDG-73 .. JDG-76: the
+# spec session applied CR-376 (the actual held as dates -- FR-011, table
+# T-245's GO-3 / GO-4, table T-021a's PV-1 .. PV-3, AT-141 and DV-11 in
+# erd.json) and CR-377 (the help as a list of keys and icons -- FR-036, table
+# T-036's SK-16 / SK-16b / SK-16a / SK-16c, table T-109's IC-102 and figure
+# F-019) to docs/spec, and rulings.md's six rows now read 適用済 with their
+# landings named. Code and generated files follow in the implementation wave.
 #
 # RAISED 2 -> 6 on 2026-09-14, deliberately, for JDG-73 .. JDG-76: the user's
 # 2026-09-11 adoption of the help rebuild (previous-project-result/

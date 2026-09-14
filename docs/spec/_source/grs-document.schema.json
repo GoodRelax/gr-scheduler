@@ -967,7 +967,7 @@
     "notes",
     "calendarUid",
     "actualStart",
-    "actualDuration",
+    "stop",
     "actualFinish",
     "resume",
     "resumeValid",
@@ -1043,9 +1043,9 @@
       "null"
      ]
     },
-    "actualDuration": {
+    "stop": {
      "type": [
-      "integer",
+      "string",
       "null"
      ]
     },
