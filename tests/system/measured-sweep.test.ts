@@ -205,6 +205,7 @@ const T212_VALUE = 1
 /** Columns of table T-036 after the row ID: what it does, the assignment, the shape. */
 const T036_COLUMNS = 3
 const T036_ASSIGNMENT = 1
+const T036_ENTRANCE = 2
 
 /** Columns of table T-016 after the row ID: column, input kind, subject, note, MSPDI. */
 const T016_COLUMNS = 5
@@ -212,8 +213,10 @@ const T016_INPUT_KIND = 1
 
 /** Columns of table T-109 after the row ID: surface, group, what it opens, source, arming. */
 const T109_COLUMNS = 5
+const T109_PLACE = 0
 const T109_PURPOSE = 2
 const T109_SOURCE = 3
+const T109_STANCE = 4
 
 /** Columns of table T-233 after the row ID: the situation, the manner, the source. */
 const T233_COLUMNS = 3
@@ -432,12 +435,13 @@ function pressable(cell: string): string {
  * 「`Esc`（規則は表 T-028 の `IN-4`）」 -- the key plus a pointer to the rule --
  * and the screen prints the key alone, quite correctly. Asserting the whole
  * cell there would be asserting the manuscript's punctuation. The filter is
- * "no Japanese script in the cell", which leaves 20 of the 23 rows.
+ * "no Japanese script in the cell". The second member is the help item the key
+ * sits on: the entrance the row names (FR-036), or the row itself.
  *
  * @purity pure
  */
-function keyedShortcutRows(): ReadonlyArray<readonly [string, string]> {
-  const out: Array<readonly [string, string]> = []
+function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
+  const out: Array<readonly [string, string, string]> = []
   for (const row of T036.rows) {
     if (!/^SK-/.test(row.id)) continue
     if (row.cells.length !== T036_COLUMNS) continue
@@ -445,7 +449,8 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string]> {
     if (key === '' || isJapanese(key)) continue
     // U+2014, the dash the manuscript writes where a row has no assignment.
     if (key === String.fromCharCode(0x2014)) continue
-    out.push([row.id, key])
+    const entrance = /IC-\d+/.exec(row.cells[T036_ENTRANCE] ?? '')
+    out.push([row.id, entrance === null ? row.id : entrance[0], key])
   }
   if (out.length < 10) {
     throw new Error(`table T-036 gave only ${out.length} rows with a bare key; this file needs more`)
@@ -1379,18 +1384,32 @@ test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text
 // （MUST）」 and 「一覧の字の大きさは ... 表 T-206 の `S-203` が定める係数で決め
 // ること（MUST）。px で持ってはならない（MUST NOT）」.
 //
-// ⭐ THE THIRD PLACE IS CHECKED AGAINST THE MANUSCRIPT'S OWN KEYS, not against
-// anything read off the screen: every row of table T-036 whose assignment cell
-// is a bare key must have that key, character for character, in the item's
-// third place. Twenty of the twenty-three rows qualify; `SK-8` and the two that
-// carry no key do not, and are named in `keyedShortcutRows` above.
+// THE THIRD PLACE IS CHECKED AGAINST THE MANUSCRIPT'S OWN KEYS: every row of
+// table T-036 whose assignment cell is a bare key must have that key in the third
+// place of the item FR-036 puts it on -- the entrance its row names, or the row
+// itself (`keyedShortcutRows` above).
 test('DFC-105: a help item reads shape, description, assignment, drawn at S-203', async () => {
   test.setTimeout(180_000)
   const page = shared()
 
   const ground = await groundTextPx(page)
-  const helpEntrance = entranceBy(T109_SOURCE, 'FR-036')
-  expect(await pressEntrance(page, helpEntrance), `${helpEntrance} is not on the screen`).toBe(true)
+  // WHY: FR-036 also owns the legend mark, which stands inside the help itself;
+  // WHY: only a row placed outside the Help Modal can be what opens it.
+  const helpSurface = /"([^"]+)"/.exec(HELP)?.[1] ?? HELP
+  const helpEntrances = T109.rows
+    .filter((row) => row.cells.length === T109_COLUMNS)
+    .filter((row) => (row.cells[T109_SOURCE] ?? '').includes('FR-036'))
+    .filter((row) => !(row.cells[T109_PLACE] ?? '').includes(helpSurface))
+    .map((row) => row.id)
+  expect(helpEntrances, 'table T-109 gives FR-036 no entrance outside the help').not.toEqual([])
+  let helpEntrance = ''
+  for (const candidate of helpEntrances) {
+    if (await pressEntrance(page, candidate)) {
+      helpEntrance = candidate
+      break
+    }
+  }
+  expect(helpEntrance, `none of ${helpEntrances.join(', ')} is on the screen`).not.toBe('')
   await page.waitForTimeout(1200)
 
   const read = await page.evaluate((wanted: string) => {
@@ -1415,16 +1434,29 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
   expect(read, 'pressing the help entrance put no Help Modal on the screen').not.toBeNull()
   if (read === null) return
 
-  // ⭐ A GUARD, NOT THE ASSERTION. `FR-036` (MUST) has the list cover tables
-  // T-023a / T-023b / T-023c / T-023d / T-023 / T-036 and the palette's items,
-  // so a run that opened an empty modal would otherwise pass every check below
-  // vacuously.
-  for (const table of ['T-023a', 'T-023b', 'T-023c', 'T-023d', 'T-023', 'T-036']) {
+  // A GUARD, NOT THE ASSERTION. FR-036 names tables T-109 / T-036 / T-023 for
+  // the list and bars T-023a .. T-023d, so an empty modal cannot pass vacuously.
+  for (const table of ['T-109', 'T-036', 'T-023']) {
     expect(read.tables, `the help lists nothing from ${table}, which FR-036 (MUST) has it cover`).toContain(
       table,
     )
   }
-  expect(read.count, 'the help put up fewer items than FR-036 asks it to cover').toBeGreaterThan(100)
+  for (const table of ['T-023a', 'T-023b', 'T-023c', 'T-023d']) {
+    expect(read.tables, `the help lists ${table}, which FR-036 (MUST NOT) bars`).not.toContain(table)
+  }
+  // see FR-036
+  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7']
+  const t109Items = T109.rows.filter((row) => row.cells.length === T109_COLUMNS)
+  const foldedIntoOne = t109Items.filter((row) => (row.cells[T109_STANCE] ?? '').includes('AR-3')).length
+  const legendOnly = t109Items.filter((row) => (row.cells[T109_PLACE] ?? '').replace(/`/g, '').trim() === helpSurface).length
+  const keysWithoutEntrance = T036.rows
+    .filter((row) => /^SK-/.test(row.id) && row.cells.length === T036_COLUMNS)
+    .filter((row) => {
+      const dash = String.fromCharCode(0x2014)
+      return assignmentText(row.cells[T036_ENTRANCE] ?? '') === dash && assignmentText(row.cells[T036_ASSIGNMENT] ?? '') !== dash
+    }).length
+  const owedItems = t109Items.length - legendOnly - foldedIntoOne + keysWithoutEntrance + helpMouseRows.length
+  expect(read.count, 'the help does not put up the item count FR-036 adds up to').toBe(owedItems)
 
   const wrongPlaces = read.shaped.filter((one) => one.places !== 3)
   expect(
@@ -1446,14 +1478,16 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
 
   const printedByRow = new Map(read.shaped.map((one) => [one.row, one.texts]))
   const wrongKeys: string[] = []
-  for (const [rowId, key] of keyedShortcutRows()) {
-    const places = printedByRow.get(rowId)
+  for (const [rowId, itemId, key] of keyedShortcutRows()) {
+    const places = printedByRow.get(itemId)
     if (places === undefined) {
-      wrongKeys.push(`${rowId} is not in the help at all`)
+      wrongKeys.push(`${rowId} is carried by ${itemId}, which is not in the help at all`)
       continue
     }
-    if ((places[2] ?? '') !== key) {
-      wrongKeys.push(`${rowId} prints ${JSON.stringify(places[2] ?? '')} where T-036 writes ${JSON.stringify(key)}`)
+    // WHY: an entrance item may carry a key and a mouse operation in one place
+    // WHY: (FR-036), so the key is looked for inside the place, not as all of it.
+    if (!(places[2] ?? '').includes(key)) {
+      wrongKeys.push(`${itemId} prints ${JSON.stringify(places[2] ?? '')} where T-036 ${rowId} writes ${JSON.stringify(key)}`)
     }
   }
   expect(wrongKeys, 'the help does not stand the keys of table T-036 in the third place').toEqual([])

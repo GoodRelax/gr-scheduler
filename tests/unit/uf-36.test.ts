@@ -1188,7 +1188,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
     // FR-054 (docs/spec/01-04-requirements.md:2510) makes it a MUST that a
     // working day is converted to the exchange partner's amount of time through
     // `Project.minutesPerDay`, and through S-128 of table T-209 only when that
-    // is empty. AT-35 of table T-058 says the same for this column. The file
+    // is empty. DV-11 of fig-erd-detail converts the same way. The file
     // below states a minutesPerDay of its own, so S-128 is not the divisor.
     const perDay = DEFAULT_CALENDAR_VALUES['S-128'] + 120
     const days = 4
@@ -1202,7 +1202,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('writes an actual duration back through the file`s own minutesPerDay -- DELIBERATELY LEFT FAILING', () => {
-    // The same MUST on the way out: AT-35 says the column is rebuilt with
+    // The same MUST on the way out: DV-11 rebuilds the element with
     // `Project.minutesPerDay`, and FR-021 says an unedited file comes back as
     // it arrived. A conversion that used S-128 instead drops the element.
     const perDay = DEFAULT_CALENDAR_VALUES['S-128'] + 120
@@ -1250,8 +1250,8 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('accepts an actual duration that is not a whole number of working days', () => {
-    // No row states a rounding, and AT-35 types the column as whole working
-    // days, so the only thing FR-023 settles is that the file is not refused:
+    // FR-054 rounds the amount to whole working days (FR-011 counts them),
+    // so the only thing FR-023 settles is that the file is not refused:
     // the ceilings and the value checks are ValidateImportedDocument's.
     const text = BASE_TEXT.replace(
       ACTUAL_DURATION_TEXT,
@@ -2843,7 +2843,7 @@ describe('DF-2 -- an extension element the tool does not recognise', () => {
 //
 //   * the same minutes-per-day serves BOTH directions -- the file's
 //     `Project.minutesPerDay`, and S-128 of table T-209 only when the file
-//     states none (AT-35 of table T-058 says the same for this column);
+//     states none (DV-11 of fig-erd-detail writes the element the same way);
 //   * an amount that is not a whole number of working days is rounded to whole
 //     days (MUST);
 //   * exactly half a day goes to the larger MAGNITUDE (MUST) -- the rule is
@@ -2871,7 +2871,7 @@ const S_128_MINUTES_PER_DAY: number = DEFAULT_CALENDAR_VALUES['S-128']
 
 /**
  * The minutes of one working day for a document: what the document itself
- * states, and S-128 only when it states nothing (FR-054 MUST, AT-35).
+ * states, and S-128 only when it states nothing (FR-054 MUST, DV-11).
  */
 function minutesPerDayOf(document: Document): number {
   return document.schedule.project.minutesPerDay ?? S_128_MINUTES_PER_DAY
@@ -2964,7 +2964,7 @@ function writtenFirstTask(document: Document): XmlNode {
 }
 
 describe('FR-054 -- reading an amount of time that does not divide into working days', () => {
-  it('GIVEN the fixture WHEN its head is read THEN the divisor is the one the document states (FR-054, AT-35)', () => {
+  it('GIVEN the fixture WHEN its head is read THEN the divisor is the one the document states (FR-054, DV-11)', () => {
     const document = accepted(durationFileText([WHOLE_FIVE_DAYS]))
     expect(document.schedule.project.minutesPerDay).toBe(PER_DAY)
     expect(minutesPerDayOf(document)).toBe(PER_DAY)

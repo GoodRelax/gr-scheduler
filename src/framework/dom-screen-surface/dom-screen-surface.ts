@@ -270,11 +270,20 @@ function helpIndentStyle(): string {
 // see FR-036, EZ-2
 // TRAP: the dictionary embeds a glyph as {IC-nn}; printing the token as text shows the row id.
 /** @purity non-pure */
-function appendAssignment(host: Document, target: HTMLElement, written: string): void {
+function appendAssignment(
+  host: Document,
+  target: HTMLElement,
+  written: string,
+  wrapsWords: boolean,
+): void {
   const pieces = written.split(GLYPH_TOKEN)
   pieces.forEach((piece, at) => {
     if (at % 2 === 0) {
       if (piece === '') return
+      if (!wrapsWords) {
+        target.append(piece)
+        return
+      }
       const words = made(host, 'span', '')
       words.textContent = piece
       target.append(words)
@@ -1625,7 +1634,7 @@ function helpItemElement(
 
   const assignment = made(host, 'span', STYLE.helpKeys)
   const written = [line.keys, line.press].filter((one): one is string => one !== null).join(' ')
-  if (written !== '') appendAssignment(host, assignment, written)
+  if (written !== '') appendAssignment(host, assignment, written, false)
   row.append(assignment)
   return { row, text }
 }
@@ -2180,7 +2189,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const words = made(host, 'span', '')
     words.textContent = tip.assignment ? `${tip.text} ` : tip.text
     drawn.append(words)
-    if (tip.assignment) appendAssignment(host, drawn, tip.assignment)
+    if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
     // STOP: spec does not decide where EZ-6's tooltip stands. Looked in IN-3, EZ-6
     // @provisional PND-391

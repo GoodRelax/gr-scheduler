@@ -1,4 +1,8 @@
-1340
+1369
+# RAISED 1340 -> 1369 on 2026-09-14: applying CR-376 (actuals held as dates) and CR-377
+# (the help as a list of keys and icons) wrote 29 new MUST / MUST NOT clauses that no test
+# holds verbatim yet. The spec-only tests of that wave assert the behaviour; tying the
+# clauses verbatim is left for the next repair wave (write the anchor sentence into a test).
 # LOWERED 1348 -> 1340 on 2026-09-14: DFC-568's anchor and corner tests now
 # hold 8 more MUST clauses verbatim (check 39 reported 1340 at f9db11c).
 #

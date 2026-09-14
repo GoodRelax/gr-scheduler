@@ -129,9 +129,7 @@
 //      MK-5 (横スクロール) of table T-023. The other twelve rows are help
 //      content (FR-036), whose surface is not assembled yet.
 //   6. WHERE THE SEVEN `weekdays` ARE PRINTED. FR-017 (MUST) fixes what each
-//      ruler tier prints -- 「年と月は 1 段に `YYYY-MM` で並べ、週の段はその週
-//      の始まりの日の数字、日の段は日の数字、曜日の段は曜日をそれぞれ 1 段に
-//      持つ」(利用者の裁定 2026-08-27) -- and sends the words themselves here:
+//      ruler tier prints (see FR-017) -- and sends the words themselves here:
 //      「⭐ 曜日の語がどこに住むかは `FR-038` が持つ。」 ⛔ THE PLACE IS THE TIME RULER'S BAND, which is
 //      UF-32's (`svg-renderer.ts`) and NOT one of UF-60 .. UF-69: `ScreenView`,
 //      the answer PI-37 of table T-064 hands out, carries no `Time Ruler` at
@@ -724,12 +722,9 @@ const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSI
  * milestone figures is open.
  *
  * ⛔ THE SECOND HALF IS WHY EIGHT ENTRIES OF TABLE T-109 CAN BE ASKED FOR AT
- * ALL. FR-053 (MUST, docs/spec/01-04-requirements.md:2426):
- * 「マイルストーンの図形の入口は、一覧を開くまで出さないこと（MUST）。開閉の
- * 状態は 表 T-206 の `S-142` が持ち、既定は閉じている」-- so on a frame that
- * leaves S-142 at its default those entrances are not on the palette, their
- * words are printed nowhere, and the acceptance case below is right to say the
- * words reach nothing.
+ * ALL. Which milestone figure entrances stand on the palette with the list shut
+ * and which only once it is open is FR-053's rule (with S-216 of table T-206);
+ * this frame opens the list so every one of them has a place to be printed.
  * ⭐ OPENING IT HIDES NOTHING. FR-053 states one condition on one set of
  * entrances and no requirement makes any other entry depend on S-142, so what
  * the open list shows is what the closed one shows and eight rows besides --
@@ -1045,7 +1040,7 @@ const ON_A_COMMENT_BOX = 'CommentBox'
  * what says so. Table T-016's own note for PR-18 reads 「実体は
  * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
  * であり、本行はその値をパネルに出す項目のほうである」, and FR-085 (MUST) calls
- * the field 「名前の欄（`AT-53`）」 when it says where the double click puts the
+ * the field by AT-53 of fig-erd-detail when it says where the double click puts the
  * focus. ⭐ So the field names the ATTRIBUTE row while the dictionary, the print
  * order and the 対象 are all keyed by the `PR-n` -- and this reads the join out
  * of table T-058 rather than typing the three row ids out here.
@@ -1364,9 +1359,8 @@ for (const entry of GENERATED['arms'] ?? []) {
     drop('arms', rowId, 'table T-023b has no such row, so nothing can be armed with it')
     continue
   }
-  // FR-053 (MUST, docs/spec/01-04-requirements.md:2423):
-  // 「**いま構えているものが画面上で読めること（MUST）。** 構えの全数は表 T-023b
-  //   が持ち、**依存線は図形ではない。**」 -- and the closing rule of table T-023b
+  // FR-053 (MUST): 「**いま構えているものが画面上で読めること（MUST）。**」
+  // -- and the closing rule of table T-023b
   // (MUST NOT) bars the row id itself from the screen, so what is read here is
   // the WORD the dictionary holds for the armed row.
   // ⭐ ON THE PALETTE, because FR-053 is the requirement that says it and the
@@ -1922,12 +1916,10 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
 
   it('⛔ FR-072 names no state of the panel for a word -> both files are read -> neither holds a section for a panel heading', () => {
     // ⭐ THE ROSTER IS THE SPECIFICATION'S AND NOT THE MANUSCRIPT'S. Chapter 6.2
-    // (MUST NOT) says so in as many words -- 「⛔ **同原稿は語だけを持ち、どの語が
-    // 要るかの名簿を持ってはならない（MUST NOT）** —— 名簿は 表 T-109・表 T-037・
-    // 表 T-233・表 T-234・表 T-023・表 T-023b と `FR-072` が既に持っており、**生成
-    // 器が毎回そこから起こして原稿と突き合わせる。**」 -- and FR-072 is one of the
-    // seven named. ⛔ It now names no heading at all: 「⛔ **パネルの先頭に見出しの
-    // 行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」. So the words
+    // (MUST NOT) says so: the manuscript holds words only, and the roster sits
+    // with the requirement that puts a word on the screen -- for the panel, that
+    // is FR-072. It now names no heading at all: 「⛔ **パネルの先頭に見出しの
+    // 行を置いてはならない（MUST NOT）**」. So the words
     // for `selection`, `documentSettings` and `noSelection` have no roster to be
     // raised from, and a dictionary that still holds them holds words for a part
     // of the screen the requirement forbids.

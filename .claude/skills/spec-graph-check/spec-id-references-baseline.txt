@@ -1,4 +1,8 @@
-93
+96
+# RAISED 93 -> 96 on 2026-09-14: CR-376 retired AT-35 (the stored working-day
+# actualDuration). Three references stay on purpose: cr-376-exchange-carries-the-last-day.test.ts
+# pins that table T-058 no longer holds AT-35, and two WHY comments (properties-panel.ts,
+# fr-006-panel-typography.test.ts) record that PR-5 has no column since AT-35 retired.
 # LOWERED 108 -> 93 on 2026-09-14: the tests/ comment wave (JDG-77) removed comments
 # naming retired specification ids.
 #
