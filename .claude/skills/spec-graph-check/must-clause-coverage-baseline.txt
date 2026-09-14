@@ -1,4 +1,6 @@
-1348
+1340
+# LOWERED 1348 -> 1340 on 2026-09-14: DFC-568's anchor and corner tests now
+# hold 8 more MUST clauses verbatim (check 39 reported 1340 at f9db11c).
 #
 # Check 39 -- MUST / MUST NOT clauses in docs/spec that no file under tests/
 # holds verbatim. Held by check-must-clause-coverage.py; line 1 is the number.
