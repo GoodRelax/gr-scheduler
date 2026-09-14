@@ -291,6 +291,14 @@
    }
   },
   {
+   "prefix": "EG",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "コンポーネントの辺"
+   }
+  },
+  {
    "prefix": "EN",
    "words": "",
    "owner": "spec",
@@ -478,6 +486,14 @@
    "owner": "records",
    "means": {
     "ja": "利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
+   }
+  },
+  {
+   "prefix": "JF",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "`src/` の `.json` の置き場"
    }
   },
   {
