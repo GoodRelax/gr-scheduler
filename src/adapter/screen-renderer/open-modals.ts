@@ -145,6 +145,11 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
     press: helpPress(entry, language),
     keys: entry.keys,
     icon: entry.kind === 'item' && entry.table === ICON_TABLE ? entry.row : null,
+    kind: entry.kind,
+    block: entry.block,
+    segment: entry.segment,
+    glyphs: entry.glyphs,
+    indent: entry.indent,
   }))
 }
 
@@ -254,6 +259,7 @@ export function openModalFromScreenState(
       commands,
       language: session.language,
       entries: helpEntries(session.language),
+      legend: helpRoster.legend,
       licenceText: licence.licenceText,
       copyrightNotice: licence.copyrightNotice,
       attributions: licence.attributions,

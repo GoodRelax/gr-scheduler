@@ -216,6 +216,7 @@ interface OpenSurface {
 export interface HelpModal extends OpenSurface {
   readonly surface: 'Help Modal'
   readonly entries: readonly HelpEntry[]
+  readonly legend: IconId
   readonly language: DisplayLanguage
   readonly licenceText: string
   readonly copyrightNotice: string
@@ -229,6 +230,11 @@ export interface HelpEntry {
   readonly press: string | null
   readonly keys: string | null
   readonly icon: IconId | null
+  readonly kind: string
+  readonly block: string
+  readonly segment: string | null
+  readonly glyphs: readonly IconId[]
+  readonly indent: boolean
 }
 
 export interface AiExportModal extends OpenSurface {

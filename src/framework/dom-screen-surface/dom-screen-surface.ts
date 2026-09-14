@@ -31,7 +31,6 @@ import type {
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
-import helpRoster from '../../adapter/screen-renderer/help-roster.json'
 
 const UNIT_ROW = 'UF-71'
 
@@ -246,18 +245,7 @@ function helpStyle(): string {
   )
 }
 
-const HELP_LAYOUT_BY_ENTRY = new Map(
-  helpRoster.entries.map((entry) => [helpLayoutKey(entry.table, entry.row), entry] as const),
-)
-
-const HELP_LEGEND_ENTRY = helpRoster.legend
-
 const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/
-
-/** @purity pure */
-function helpLayoutKey(table: string, row: string): string {
-  return `${table} ${row}`
-}
 
 // see FR-036
 /** @purity pure */
@@ -1650,12 +1638,11 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
   let blockName: string | null = null
   let segment: string | null = null
   for (const line of entries) {
-    const laid = HELP_LAYOUT_BY_ENTRY.get(helpLayoutKey(line.table, line.row))
-    const name = laid?.block ?? null
-    const lineSegment = laid?.segment ?? null
+    const name = line.block
+    const lineSegment = line.segment
     if (block === null || name !== blockName) {
       const opened = made(host, 'div', STYLE.helpBlock)
-      opened.setAttribute('data-help-block', name ?? '')
+      opened.setAttribute('data-help-block', name)
       if (block !== null) opened.append(made(host, 'div', paletteGroupRuleStyle()))
       columns.append(opened)
       block = opened
@@ -1665,15 +1652,14 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
       block.append(made(host, 'div', paletteGroupRuleStyle()))
       segment = lineSegment
     }
-    if (laid?.kind === 'heading') {
+    if (line.kind === 'heading') {
       const heading = made(host, 'div', STYLE.helpHeading)
       heading.setAttribute('data-help-heading', line.row)
       heading.textContent = line.text
       block.append(heading)
       continue
     }
-    const glyphs = laid?.glyphs ?? (line.icon === null ? [] : [line.icon])
-    const drawnItem = helpItemElement(host, line, glyphs, laid?.indent === true)
+    const drawnItem = helpItemElement(host, line, line.glyphs, line.indent)
     block.append(drawnItem.row)
   }
   return columns
@@ -1706,10 +1692,10 @@ function modalElement(
   heading.textContent = modal.heading
   header.append(heading)
   const legendItem =
-    'entries' in modal ? modal.commands.find((item) => item.icon === HELP_LEGEND_ENTRY) : undefined
+    'entries' in modal ? modal.commands.find((item) => item.icon === modal.legend) : undefined
   if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
   for (const item of modal.commands) {
-    if ('entries' in modal && item.icon === HELP_LEGEND_ENTRY) continue
+    if ('entries' in modal && item.icon === modal.legend) continue
     header.append(anchoredEntry(host, item, anchors))
   }
   const body: HTMLElement[] = []

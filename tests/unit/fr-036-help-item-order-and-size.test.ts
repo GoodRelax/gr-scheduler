@@ -257,6 +257,11 @@ interface HelpItem {
   readonly press: string | null
   readonly keys: string | null
   readonly icon: string | null
+  readonly kind: string
+  readonly block: string
+  readonly segment: string | null
+  readonly glyphs: readonly string[]
+  readonly indent: boolean
 }
 
 const entry = (patch: Partial<HelpItem> = {}): HelpItem => ({
@@ -266,6 +271,11 @@ const entry = (patch: Partial<HelpItem> = {}): HelpItem => ({
   press: null,
   keys: null,
   icon: ITEM_ICON,
+  kind: 'item',
+  block: '',
+  segment: null,
+  glyphs: [ITEM_ICON],
+  indent: false,
   ...patch,
 })
 
@@ -275,6 +285,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     heading: 'HelpHeadingHere',
     commands: [command({ icon: CLOSE_ICON, label: 'CloseHelp' })],
     entries,
+    legend: 'IC-102',
     language: 'ja',
     licenceText: 'LicenceTextHere',
     copyrightNotice: 'CopyrightNoticeHere',

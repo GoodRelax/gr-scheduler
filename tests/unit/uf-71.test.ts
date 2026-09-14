@@ -1191,7 +1191,11 @@ const HELP_MODAL: OpenModal = {
   surface: 'Help Modal',
   heading: 'HelpHeading',
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
-  entries: [{ table: 'T-036', row: 'MK-1', text: 'HelpEntryOne', press: null, keys: null, icon: null }],
+  entries: [{
+    table: 'T-036', row: 'MK-1', text: 'HelpEntryOne', press: null, keys: null, icon: null,
+    kind: 'item', block: '', segment: null, glyphs: [], indent: false,
+  }],
+  legend: 'IC-102',
   language: 'en',
   licenceText: 'LicenceTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
