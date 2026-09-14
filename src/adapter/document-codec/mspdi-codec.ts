@@ -20,9 +20,10 @@ import type {
 } from '../../entity/document-model/schedule/schedule'
 import {
   DEFAULT_CALENDAR_VALUES,
-  dateFromWorkingDays,
+  actualLastDay,
+  actualLengthOf,
   dayOf,
-  planActualState,
+  lastDayForLength,
   textOfDay,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
@@ -697,7 +698,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     ...calendarsRead.calendars.map((calendar) => calendar.uid),
   )
 
-  return {
+  return withStopsFromActualDurations({
     project: { ...project, uidHighWaterMark: highWaterMark },
     calendars: calendarsRead.calendars,
     tasks: tasksRead.tasks,
@@ -711,7 +712,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     highlightBoxes: [],
     taskOrigins: [],
     baselineTasks: [],
-  }
+  }, root, run)
 }
 
 /** @purity pure */
@@ -761,7 +762,7 @@ const PROJECT_CONSUMED: readonly string[] = [
 // WHY: ID, OutlineLevel, OutlineNumber and Summary are consumed, not carried: they are rebuilt on write.
 const TASK_CONSUMED: readonly string[] = [
   'UID', 'Name', 'Start', 'Finish', 'Milestone', 'Deadline', 'Notes', 'CalendarUID',
-  'ActualStart', 'ActualDuration', 'ActualFinish', 'Resume', 'ResumeValid',
+  'ActualStart', 'Stop', 'ActualFinish', 'Resume', 'ResumeValid',
   'PercentComplete', 'PredecessorLink',
   'ID', 'OutlineLevel', 'OutlineNumber', 'Summary',
 ]
@@ -805,8 +806,6 @@ function outlineBaseOf(collection: XmlElement): number {
 function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const collection = childOf(root, 'Tasks')
   if (collection === null) return { tasks: [], carriedRows: [], outlineBase: 1 }
-  // TRAP: the file's own MinutesPerDay, not the document's: dividing by one and multiplying by another loses the value.
-  const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
   const fadeColumns = fadeColumnsByFieldId(root)
   const outlineBase = outlineBaseOf(collection)
   const tasks: Task[] = []
@@ -836,11 +835,8 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     const wbsOrder = countOfChildrenSoFar(levels, uids, parentIndex, depth)
     levels.push(depth)
     uids.push(uid)
-    tasks.push(taskFromElement(
-      element, uid, parentUid, wbsOrder, minutesPerDay, fadeColumns, ordinal, run,
-    ))
+    tasks.push(taskFromElement(element, uid, parentUid, wbsOrder, fadeColumns))
   })
-  tellRoundedActualDurations(run)
   return { tasks, carriedRows, outlineBase }
 }
 
@@ -914,14 +910,10 @@ function taskFromElement(
   uid: number,
   wbsParentUid: number | null,
   wbsOrder: number,
-  minutesPerDay: number,
   fadeColumns: ReadonlyMap<number, FadeColumn>,
-  ordinal: number,
-  run: ImportRun,
 ): Task {
   const split = carrySplit(element, TASK_CONSUMED)
   const fade = fadeOfCarried(split.carryElements, fadeColumns)
-  const foundAt = `/Project/Tasks/Task[${ordinal + 1}]`
   return {
     uid,
     wbsParentUid,
@@ -934,7 +926,7 @@ function taskFromElement(
     notes: textColumn(element, 'Notes'),
     calendarUid: integerColumn(element, 'CalendarUID'),
     actualStart: textColumn(element, 'ActualStart'),
-    actualDuration: workingDaysOfActualDuration(element, minutesPerDay, foundAt, run),
+    stop: textColumn(element, 'Stop'),
     actualFinish: textColumn(element, 'ActualFinish'),
     resume: textColumn(element, 'Resume'),
     resumeValid: booleanColumn(element, 'ResumeValid'),
@@ -978,18 +970,40 @@ function fadeOfCarried(
   return { fadeInDays, fadeOutDays, carryElements: rest }
 }
 
-// see AT-35, FR-054
+// see FR-011, AT-141
+/** @purity pure */
+function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run: ImportRun): Schedule {
+  // TRAP: the file's own MinutesPerDay, not the document's: dividing by one and multiplying by another loses the value.
+  const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
+  const within = workingCalendarOf(schedule)
+  const tasks = schedule.tasks.map((task) => {
+    const start = dayOf(task.actualStart)
+    if (task.stop !== null || task.actualFinish !== null || start === null) return task
+    const at = `/Project/Tasks/Task[uid=${task.uid}]`
+    const days = workingDaysOfActualDuration(task.carry['ActualDuration'] ?? null, minutesPerDay, at, run)
+    if (days === null) return task
+    try {
+      return { ...task, stop: textOfDay(lastDayForLength(within, start, days)) }
+    } catch (why) {
+      run.notices.push(notice(`${at}/Stop`,
+        `could not be counted: ${why instanceof Error ? why.message : String(why)}`))
+      return task
+    }
+  })
+  tellRoundedActualDurations(run)
+  return { ...schedule, tasks }
+}
+
+// see FR-011, FR-054
 /** @purity pure */
 function workingDaysOfActualDuration(
-  element: XmlElement,
+  raw: string | null,
   minutesPerDay: number,
   at: string,
   run: ImportRun,
 ): number | null {
-  const raw = textColumn(element, 'ActualDuration')
   if (raw === null || raw.trim() === '') return null
   const minutes = minutesOfDuration(raw)
-  // TRAP: ActualDuration is consumed, not carried, so a null here deletes what the file held.
   if (minutes === null) {
     run.notices.push(notice(`${at}/ActualDuration`, `is not a length this reader measures: ${raw}`))
     return null
@@ -1672,8 +1686,9 @@ function writtenTask(
     ...optionalLeaf('CalendarUID', task.calendarUid),
     ...optionalLeaf('Deadline', task.deadline),
     ...optionalLeaf('Notes', task.notes),
-    ...writtenActualDuration(task, minutesPerDay),
-    ...writtenStop(task, schedule, run),
+    ...writtenActualDuration(task, schedule, minutesPerDay, run),
+    // TRAP: a document read before AT-141 may still carry Stop; writing both puts two Stop elements in one Task.
+    ...(task.carry['Stop'] === undefined ? optionalLeaf('Stop', task.stop) : []),
     ...task.dependencies.map(writtenDependency),
     ...writtenFadeValues(task, frames),
   ]
@@ -1684,26 +1699,24 @@ function writtenTask(
   }
 }
 
+// see DV-11, T-019
 /** @purity pure */
-function writtenActualDuration(task: Task, minutesPerDay: number): PlacedChild[] {
-  if (task.actualDuration === null) return []
-  return [leaf('ActualDuration', durationOfMinutes(task.actualDuration * minutesPerDay))]
-}
-
-// see DV-9
-/** @purity pure */
-function writtenStop(task: Task, schedule: Schedule, run: ExportRun): PlacedChild[] {
-  if (task.carry['Stop'] !== undefined) return []
-  const state = planActualState(task)
-  if (state !== 'suspendedResumeUnknown' && state !== 'suspendedResumePlanned') return []
+function writtenActualDuration(
+  task: Task,
+  schedule: Schedule,
+  minutesPerDay: number,
+  run: ExportRun,
+): PlacedChild[] {
+  if (task.carry['ActualDuration'] !== undefined) return []
   const from = dayOf(task.actualStart)
-  if (from === null || task.actualDuration === null) return []
+  const lastDay = actualLastDay(task)
+  if (from === null || lastDay === null) return []
   try {
-    const stop = dateFromWorkingDays(workingCalendarOf(schedule), from, task.actualDuration)
-    return [leaf('Stop', textOfDay(stop))]
+    const length = actualLengthOf(workingCalendarOf(schedule), from, lastDay)
+    return [leaf('ActualDuration', durationOfMinutes(length * minutesPerDay))]
   } catch (why) {
     run.notices.push(notice(
-      `/Project/Tasks/Task[uid=${task.uid}]/Stop`,
+      `/Project/Tasks/Task[uid=${task.uid}]/ActualDuration`,
       `could not be counted: ${why instanceof Error ? why.message : String(why)}`,
     ))
     return []

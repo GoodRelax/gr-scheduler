@@ -54,10 +54,25 @@ export {
 }
 
 // see AG-9a
-export interface Refusal {
+export type Refusal = CommandRefusal | InvariantRefusal
+
+// see AG-9a
+export interface CommandRefusal {
   readonly command: string
   readonly rule: string
   readonly reasonCategory?: 'bothEndsAreOneTask'
+  readonly what: string
+}
+
+// see T-220
+export type InvariantRow = `IV-${number}`
+
+// see AG-9a, FR-023, FR-076
+export interface InvariantRefusal {
+  readonly command?: never
+  readonly rule: InvariantRow
+  readonly reasonCategory?: never
+  readonly at: string
   readonly what: string
 }
 

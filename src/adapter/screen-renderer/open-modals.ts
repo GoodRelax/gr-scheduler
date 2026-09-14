@@ -92,17 +92,41 @@ const MOUSE_PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )
 
-// TRAP: palette entries stay out; their word is the icons label, and a row has one word.
-const HELP_WORDS_BY_ROW = new Map(
-  [
-    ...displayWords.pressOrder,
-    ...displayWords.arms,
-    ...displayWords.selecting,
-    ...displayWords.grabAreas,
-    ...displayWords.assignments,
-    ...displayWords.shortcuts,
-  ].map((entry) => [entry.rowId, entry]),
+const SHORTCUT_WORDS_BY_ROW = new Map(
+  displayWords.shortcuts.map((entry) => [entry.rowId, entry]),
 )
+
+const HELP_HEADINGS_BY_BLOCK = new Map(
+  displayWords.helpHeadings.map((entry) => [entry.block, entry]),
+)
+
+const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.rowId, entry]))
+
+const ASSIGNMENT_TABLE = 'T-023'
+
+type HelpRosterEntry = (typeof helpRoster.entries)[number]
+
+// see FR-036, FR-038
+// TRAP: an item's word is its own row's; an entrance item takes the icon label, never a shortcut word.
+/** @purity pure */
+function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
+  if (entry.kind === 'heading') {
+    return HELP_HEADINGS_BY_BLOCK.get(entry.row)?.text[language] ?? NO_WORDS
+  }
+  if (entry.kind === 'note') return HELP_NOTES_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
+  if (entry.table === ICON_TABLE) return entryLabel(entry.row, language)
+  if (entry.table === ASSIGNMENT_TABLE) {
+    return MOUSE_PRESS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
+  }
+  return SHORTCUT_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
+}
+
+/** @purity pure */
+function helpPress(entry: HelpRosterEntry, language: DisplayLanguage): string | null {
+  if (entry.press === null) return null
+  const word = MOUSE_PRESS_BY_ROW.get(entry.press)?.press[language]
+  return word === undefined || word === '' ? null : word
+}
 
 // see FR-036
 /** @purity pure */
@@ -110,13 +134,10 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
   return helpRoster.entries.map((entry) => ({
     table: entry.table,
     row: entry.row,
-    text:
-      entry.table === ICON_TABLE
-        ? entryLabel(entry.row as IconId, language)
-        : (HELP_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS),
-    press: MOUSE_PRESS_BY_ROW.get(entry.row)?.press[language] ?? null,
+    text: helpText(entry, language),
+    press: helpPress(entry, language),
     keys: entry.keys,
-    icon: entry.icon as IconId | null,
+    icon: entry.kind === 'item' && entry.table === ICON_TABLE ? entry.row : null,
   }))
 }
 

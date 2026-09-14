@@ -25,6 +25,8 @@ const REASONS_BY_ROW = new Map(displayWords.reasons.map((entry) => [entry.rowId,
 
 const QUESTIONS_BY_ROW = new Map(displayWords.questions.map((entry) => [entry.rowId, entry]))
 
+const INVARIANTS_BY_ROW = new Map(displayWords.invariants.map((entry) => [entry.rowId, entry]))
+
 type ReasonCell = 'text' | 'nextStep'
 
 const UNLISTED_REASON_ROW = 'RS-15'
@@ -66,8 +68,12 @@ function reasonCell(row: string, cell: ReasonCell, language: DisplayLanguage): s
   return word === '' ? undefined : word
 }
 
+// see FR-076, NT-1
 /** @purity pure */
 function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
+  const invariant = INVARIANTS_BY_ROW.get(reason)
+  // TRAP: never fall back to RS-15 for a row of table T-220, even while its word is empty.
+  if (invariant !== undefined) return invariant[cell][language]
   const word = reasonCell(reason, cell, language)
   if (word !== undefined) return word
   const unlisted = reasonCell(UNLISTED_REASON_ROW, cell, language)

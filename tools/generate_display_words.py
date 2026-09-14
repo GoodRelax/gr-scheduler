@@ -46,6 +46,7 @@ REL_GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
 # disagree about which rows exist. ⚠️ `npm run gen` runs them in that order.
 REL_PROPERTY_ITEMS = 'docs/spec/_assets/tbl-property-items.md'
 REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
+REL_DESIGN = 'docs/spec/05-07-design.md'
 REL_OUT = 'src/adapter/screen-renderer/display-words.json'
 REL_SELF = 'tools/generate_display_words.py'
 
@@ -66,14 +67,9 @@ QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
 SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
-# ⭐ The four tables FR-036 (MUST) puts on the help that no section already
-# carried. Table T-023 is `assignments` and table T-023b is `arms`, both of
-# which were raised for other reasons and serve here too.
-PRESS_ORDER_ROW = re.compile(r'^\| (PTD-\d+[a-z]?) \|')
-SELECTING_ROW = re.compile(r'^\| (SL-\d+[a-z]?) \|')
-GRAB_AREA_ROW = re.compile(r'^\| (GR-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
 EXPORT_FORMAT_ROW = re.compile(r'^\| (IO-\d+[a-z]?) \|')
+INVARIANT_ROW = re.compile(r'^\| (IV-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
 ICON_TABLE = 'T-109'
@@ -107,15 +103,26 @@ PROPERTY_TABLE = 'T-016'
 # something has to join them; read from the table every run it cannot go
 # stale, and written out by hand it would be wrong the day it was written.
 SETTINGS_TABLE = 'T-104'
-# ⛔ FR-036 (MUST) names these by number: 「表 T-023a（判定順序）・表 T-023b
-# （構え）・表 T-023c（選択）・表 T-023d（掴み領域）・表 T-023（割当）・表 T-036
-# （ショートカット）・コマンドパレットの全項目を示すこと」. A row of one of them
-# with no word here cannot be shown, and FR-038 (MUST NOT) forbids the help
-# to write one of its own.
-PRESS_ORDER_TABLE = 'T-023a'
-SELECTING_TABLE = 'T-023c'
-GRAB_AREA_TABLE = 'T-023d'
+# ⛔ FR-036 (MUST) lists on the help only the rows of table T-036 whose
+# entrance is an em dash and whose assignment is not. A row that drives an
+# entrance is shown on that entrance's item under the icon's own word, and a
+# row with no assignment is not shown, so neither needs a word here (CR-377).
+# Tables T-023a, T-023c and T-023d left the help with that change and their
+# sections went with it.
 SHORTCUT_TABLE = 'T-036'
+SHORTCUT_KEY_HEADING = u'割当'
+SHORTCUT_ENTRANCE_HEADING = u'入口'
+# ⭐ The words FR-036 asks for that no table holds as a row: the heading of
+# the one block of assignments with no entrance, and the note on IC-54 that it
+# is on the screen only while something is armed. FR-036 says the dictionary
+# holds the note on IC-54's row, so that section is keyed by the row id.
+# ⚠️ These are KEYS, not words.
+HELP_HEADINGS = ('basics',)
+HELP_NOTES = ('IC-54',)
+# ⭐ The words and the next step for a document refused on import. FR-076 has
+# the refusal carry the row of table T-220 it broke, and the words are looked
+# up by that row id exactly as a reason is by its row of table T-233.
+INVARIANT_TABLE = 'T-220'
 # ⛔ The name of a format the export chooser offers. FR-096 (MUST) has the
 # chooser show the format by the word this dictionary holds and forbids the
 # row id on the screen (MUST NOT) -- which is what it was printing (DFC-118).
@@ -283,6 +290,25 @@ def settings_keys():
                                       SETTINGS_TABLE))
 
 
+def listed_shortcuts():
+    """The rows of table T-036 FR-036 lists as their own item, in print order.
+
+    @purity semi-pure-b
+    """
+    found = []
+    for row in spec_tables.read(REL_REQUIREMENTS, SHORTCUT_TABLE):
+        if not SHORTCUT_ROW.match('| %s |' % row.id):
+            continue
+        keys = row.cell(SHORTCUT_KEY_HEADING).strip()
+        entrance = row.cell(SHORTCUT_ENTRANCE_HEADING).strip()
+        if entrance == EM_DASH and keys not in ('', EM_DASH):
+            found.append(row.id)
+    if not found:
+        raise SystemExit('%s: table %s lists no assignment without an entrance'
+                         % (REL_REQUIREMENTS, SHORTCUT_TABLE))
+    return found
+
+
 def roster():
     """Which words the screen needs, read from the specification every run.
 
@@ -315,18 +341,11 @@ def roster():
                        table_rows(REL_PROPERTY_ITEMS, PROPERTY_ROW,
                                   PROPERTY_TABLE)],
         'settings': list(settings_keys()),
-        'pressOrder': [row[0] for row in
-                       table_rows(REL_REQUIREMENTS, PRESS_ORDER_ROW,
-                                  PRESS_ORDER_TABLE)],
-        'selecting': [row[0] for row in
-                      table_rows(REL_REQUIREMENTS, SELECTING_ROW,
-                                 SELECTING_TABLE)],
-        'grabAreas': [row[0] for row in
-                      table_rows(REL_REQUIREMENTS, GRAB_AREA_ROW,
-                                 GRAB_AREA_TABLE)],
-        'shortcuts': [row[0] for row in
-                      table_rows(REL_REQUIREMENTS, SHORTCUT_ROW,
-                                 SHORTCUT_TABLE)],
+        'shortcuts': listed_shortcuts(),
+        'helpHeadings': list(HELP_HEADINGS),
+        'helpNotes': list(HELP_NOTES),
+        'invariants': [row[0] for row in
+                       table_rows(REL_DESIGN, INVARIANT_ROW, INVARIANT_TABLE)],
         'exportFormats': [row[0] for row in
                           table_rows(REL_REQUIREMENTS, EXPORT_FORMAT_ROW,
                                      EXPORT_FORMAT_TABLE)
@@ -376,10 +395,10 @@ SHAPE = {
     'icons': ('rowId', ('label', 'hint')),
     'properties': ('rowId', ('label',)),
     'settings': ('rowId', ('label',)),
-    'pressOrder': ('rowId', ('text',)),
-    'selecting': ('rowId', ('text',)),
-    'grabAreas': ('rowId', ('text',)),
     'shortcuts': ('rowId', ('text',)),
+    'helpHeadings': ('block', ('text',)),
+    'helpNotes': ('rowId', ('text',)),
+    'invariants': ('rowId', ('text', 'nextStep')),
     'exportFormats': ('rowId', ('name',)),
     'paletteGroups': ('firstRow', ('name',)),
     'surfaces': ('name', ('heading',)),
@@ -475,8 +494,9 @@ def build(doc, keys_by_row):
     out = {'$comment': BANNER}
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
-                    'pressOrder', 'selecting', 'grabAreas', 'shortcuts',
-                    'reasons', 'questions', 'confirmation', 'noticeDismiss',
+                    'shortcuts', 'helpHeadings', 'helpNotes',
+                    'reasons', 'invariants', 'questions', 'confirmation',
+                    'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays'):
         if section == 'settings':

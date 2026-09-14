@@ -21,13 +21,13 @@ import {
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   COLUMN_SHAPES,
-  dateFromWorkingDays,
+  actualLastDay,
   dayOf,
+  lastDayForLength,
   planActualState,
   taskByUid,
   textOfDay,
   workingCalendarOf,
-  workingDaysBetween,
   type CalendarDay,
   type Schedule,
   type Task,
@@ -909,18 +909,29 @@ function isVisualChoice(column: VisualColumn, value: string): boolean {
   return COLUMN_SHAPES.TaskVisual[column]?.choices?.includes(value) ?? false
 }
 
-// see CM-13, T-019, T-019a, FR-044
+// see PR-5, P-5
+// WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
+const ACTUAL_LENGTH_ITEM = 'actualDuration'
+
+// see CM-13, T-019, T-019a, FR-044, PR-5
 /** @purity pure */
-function planActualWithColumn(task: Task, column: keyof Task, text: string): PlacedPlanActual | null {
+function planActualWithColumn(
+  schedule: Schedule,
+  task: Task,
+  column: string,
+  text: string,
+): PlacedPlanActual | null {
   const next: Task = { ...task }
   // WHY: written by name; five typed arms would repeat the classification below five times.
   const written = next as unknown as { [key: string]: unknown }
   if (column === 'resumeValid') {
     written[column] = settledTruth(text)
-  } else if (column === 'actualDuration') {
+  } else if (column === ACTUAL_LENGTH_ITEM) {
     const days = settledNumber(text)
-    if (days === undefined) return null
-    written[column] = days
+    const from = dayOf(task.actualStart)
+    if (days === undefined || days === null || from === null) return null
+    const lastDay = textOfDay(lastDayForLength(workingCalendarOf(schedule), from, days))
+    written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = lastDay
   } else {
     const day = settledDay(text)
     if (day === undefined) return null
@@ -933,34 +944,43 @@ function planActualWithColumn(task: Task, column: keyof Task, text: string): Pla
     if (column === 'resume' && day === null && task.resume !== null) {
       written['resumeValid'] = false
     }
+    // WHY: a cleared actualFinish hands its day to stop as PV-3 does, or the actual loses its right end.
+    if (column === 'actualFinish' && day === null && task.actualFinish !== null && next.stop === null) {
+      written['stop'] = task.actualFinish
+    }
   }
 
-  const state = planActualState(next)
-  if (state === 'notStarted') return { row: 'PA-1' }
+  if (planActualState(next) === 'notStarted') return { row: 'PA-1' }
+  return placementAt(next)
+}
 
-  const actualStart = next.actualStart
-  const actualDuration = next.actualDuration
-  if (actualStart === null || actualDuration === null) return null
-
-  switch (state) {
+// see T-019, T-019a
+// TRAP: write back the row the Task already stands at; choosing one lets an end drag finish it.
+/** @purity pure */
+function placementAt(task: Task): PlacedPlanActual | null {
+  const actualStart = task.actualStart
+  if (actualStart === null) return null
+  switch (planActualState(task)) {
+    case 'notStarted':
+      return null
     case 'inProgress':
-      return { row: 'PA-2', actualStart, actualDuration }
+      return task.stop === null ? null : { row: 'PA-2', actualStart, stop: task.stop }
     case 'suspendedResumePlanned':
-      return next.resume === null
+      return task.stop === null || task.resume === null
         ? null
-        : { row: 'PA-3', actualStart, actualDuration, resume: next.resume }
+        : { row: 'PA-3', actualStart, stop: task.stop, resume: task.resume }
     case 'suspendedResumeUnknown':
-      return { row: 'PA-4', actualStart, actualDuration }
+      return task.stop === null ? null : { row: 'PA-4', actualStart, stop: task.stop }
     case 'finished':
-      return next.actualFinish === null
+      return task.actualFinish === null
         ? null
-        : { row: 'PA-5', actualStart, actualDuration, actualFinish: next.actualFinish }
+        : { row: 'PA-5', actualStart, actualFinish: task.actualFinish }
   }
 }
 
-const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
+const PLAN_ACTUAL_COLUMNS: readonly string[] = [
   'actualStart',
-  'actualDuration',
+  ACTUAL_LENGTH_ITEM,
   'actualFinish',
   'resume',
   'resumeValid',
@@ -969,6 +989,7 @@ const PLAN_ACTUAL_COLUMNS: readonly (keyof Task)[] = [
 // see T-016, PR-3, CM-11, FR-006
 /** @purity pure */
 function commandFromTaskColumn(
+  schedule: Schedule,
   task: Task,
   column: keyof Task,
   text: string,
@@ -976,7 +997,7 @@ function commandFromTaskColumn(
   const uid = task.uid
 
   if (PLAN_ACTUAL_COLUMNS.includes(column)) {
-    const place = planActualWithColumn(task, column, text)
+    const place = planActualWithColumn(schedule, task, column, text)
     return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
   }
 
@@ -1202,7 +1223,7 @@ export function commandFromFieldCommit(
   switch (key.holder) {
     case 'task': {
       const task = taskByUid(schedule, key.uid)
-      return task === null ? [] : commandFromTaskColumn(task, key.column, commit.text)
+      return task === null ? [] : commandFromTaskColumn(schedule, task, key.column, commit.text)
     }
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
@@ -2655,7 +2676,7 @@ function commandFromGrab(
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      const place = actualEndPlacement(context.document.schedule, task, hit.grab, dropped)
+      const place = actualEndPlacement(task, hit.grab, dropped)
       if (place === null) return CONSUMED_ELSEWHERE
       return changed([{ kind: 'setTaskPlanActualState', uid, place }])
     }
@@ -2700,7 +2721,8 @@ function commandFromGrab(
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
       // STOP: spec does not decide GR-8 on a suspended Task with no actual. Looked in T-023d, PA-3, FR-044
       // @provisional PND-318
-      if (task.actualStart === null || task.actualDuration === null) return CONSUMED_ELSEWHERE
+      const lastDay = actualLastDay(task)
+      if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
       return changed([
         {
           kind: 'setTaskPlanActualState',
@@ -2708,7 +2730,7 @@ function commandFromGrab(
           place: {
             row: 'PA-3',
             actualStart: task.actualStart,
-            actualDuration: task.actualDuration,
+            stop: textOfDay(lastDay),
             resume: textOfDay(dropped),
           },
         },
@@ -2912,48 +2934,23 @@ function clampedFadeDays(task: Task, grab: 'GR-1' | 'GR-2', pulled: number, span
 
 type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
 
-// see GR-5, GR-6, GR-15
+// see GR-5, GR-6, GR-15, GO-3, GO-4
 /** @purity pure */
 function actualEndPlacement(
-  schedule: Schedule,
   task: Task,
   grab: 'GR-5' | 'GR-6' | 'GR-15',
   dropped: CalendarDay,
 ): PlacedPlanActual | null {
   const held = dayOf(task.actualStart)
   if (held === null) return null
-  const calendar = workingCalendarOf(schedule)
-  const heldFinish =
-    task.actualDuration === null ? null : dateFromWorkingDays(calendar, held, task.actualDuration)
   const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
-  const actualDuration =
-    grab === 'GR-6'
-      // WHY: the released day is the finish day itself, so count through it; its right end is the next day.
-      ? workingDaysBetween(calendar, held, dayShifted(dropped, 1))
-      : grab === 'GR-5'
-        ? heldFinish === null
-          ? null
-          : workingDaysBetween(calendar, dropped, heldFinish)
-        : task.actualDuration
-  if (actualDuration === null) return null
-
-  // TRAP: write back the row the Task already stands at; choosing one lets an end drag finish it.
-  switch (planActualState(task)) {
-    case 'notStarted':
-      return null
-    case 'inProgress':
-      return { row: 'PA-2', actualStart, actualDuration }
-    case 'suspendedResumePlanned':
-      return task.resume === null
-        ? null
-        : { row: 'PA-3', actualStart, actualDuration, resume: task.resume }
-    case 'suspendedResumeUnknown':
-      return { row: 'PA-4', actualStart, actualDuration }
-    case 'finished':
-      return task.actualFinish === null
-        ? null
-        : { row: 'PA-5', actualStart, actualDuration, actualFinish: task.actualFinish }
-  }
+  // WHY: GR-5 keeps the last day; GR-6 puts the released day itself, not moved to a working day (GO-3).
+  const lastDay = grab === 'GR-5' ? null : textOfDay(dropped)
+  const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
+  const moved: Task = lastDay === null
+    ? { ...task, actualStart }
+    : { ...task, actualStart, [lastDayColumn]: lastDay }
+  return placementAt(moved)
 }
 
 // see PTD-4, FR-001, FR-019
@@ -3103,7 +3100,7 @@ function compareDay(a: CalendarDay, b: CalendarDay): number {
   return serialOfDay(a) - serialOfDay(b)
 }
 
-// STOP: spec does not decide the zoom step of one SK-16 / SK-16a press.
+// STOP: spec does not decide the zoom step of one SK-16 / SK-16a / SK-16b / SK-16c press.
 // Looked in S-53, S-75, S-76, FR-016. @provisional PND-11
 /** @purity pure */
 function keyZoomFactor(context: InputContext, isIn: boolean): number {

@@ -28,22 +28,27 @@ const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', 
   vertical: 'MK-1',
 }
 
-const ASSIGNMENT_BY_ICON = new Map(
+const ICON_TABLE = 'T-109'
+
+// WHY: EZ-2 takes the assignment from the same help item FR-036 lists, so the pair is built once.
+const HELP_ITEM_BY_ICON = new Map(
   helpRoster.entries
-      .flatMap((entry) => entry.drives.map((icon) => [icon, entry] as const))
-      .reverse(),
+    .filter((entry) => entry.kind === 'item' && entry.table === ICON_TABLE)
+    .map((entry) => [entry.row, entry] as const),
 )
 
 const PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )
 
+// see EZ-2, FR-036
 /** @purity pure */
 function entryAssignment(icon: IconId, language: DisplayLanguage): string | null {
-  const found = ASSIGNMENT_BY_ICON.get(icon)
+  const found = HELP_ITEM_BY_ICON.get(icon)
   if (found === undefined) return null
   if (found.keys !== null) return found.keys
-  const press = PRESS_BY_ROW.get(found.row)?.press[language]
+  if (found.press === null) return null
+  const press = PRESS_BY_ROW.get(found.press)?.press[language]
   return press === undefined || press === '' ? null : press
 }
 

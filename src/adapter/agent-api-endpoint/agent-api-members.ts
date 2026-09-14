@@ -18,6 +18,10 @@ import {
   type PlanRefusal,
   type Refusal,
 } from '../../use-case/apply-document-change/apply-document-change'
+import type {
+  InvariantRefusal,
+  InvariantRow,
+} from '../../use-case/edit-document/edit-document'
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
 import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
 import * as DocumentCodec from '../document-codec/document-codec'
@@ -41,6 +45,7 @@ export type AgentRefusalReason =
   | 'embeddedHtmlFailed'
   | 'notAvailable'
   | 'malformedRequest'
+  | InvariantRow
 
 // see AG-9a, AG-2
 export interface AgentRefusal {
@@ -72,6 +77,11 @@ export type AgentWriteOutcome =
 
 // see AM-8, FR-022
 export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
+
+// see AM-8, AG-9a
+export type ImportLanding =
+  | boolean
+  | { readonly landed: false; readonly refusals: readonly InvariantRefusal[] }
 
 export type AgentChangeReceiver = (notice: NotifyChangeWatchers.ChangeNotice) => void
 
@@ -137,7 +147,7 @@ export interface AgentApiWiring {
   // an optional member lets a wiring forget it silently.
   readonly rasterizer: ImageExporter.Rasterizer | undefined
   readonly appShell: DocumentCodec.AppShellSource | undefined
-  readonly takeInDocument: ((incoming: Document) => Promise<boolean>) | undefined
+  readonly takeInDocument: ((incoming: Document) => Promise<ImportLanding>) | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -408,18 +418,29 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
       // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
-      const landed = await road(incoming)
+      const landing = await road(incoming)
       const after = source.readSnapshot()
-      if (!landed) {
+      // TRAP: `!landing` compiles but takes a refusal object for a landed import.
+      if (landing !== true) {
+        const refusals = landing === false ? [] : landing.refusals
+        const first = refusals[0]
         return {
           accepted: false,
-          refusal: agentRefusal(
-            'AM-8',
-            'commandRefused',
-            after,
-            'the import did not land: answered MM-4, refused by OP-5, or OP-8 held',
-            [],
-          ),
+          refusal: first === undefined
+            ? agentRefusal(
+              'AM-8',
+              'commandRefused',
+              after,
+              'the import did not land: answered MM-4, refused by OP-5, or OP-8 held',
+              [],
+            )
+            : agentRefusal(
+              'AM-8',
+              first.rule,
+              after,
+              `FR-023 refused it; the row is ${first.rule}: ${first.what}`,
+              refusals,
+            ),
         }
       }
       return {

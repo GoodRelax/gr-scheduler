@@ -1,912 +1,1163 @@
 {
  "$comment": "GENERATED from docs/spec/01-04-requirements.md and the icon roster by tools/generate_help_roster.py -- do not edit by hand. Rebuild: npm run gen  |  npm run gen:check fails on drift. No printed word is here: FR-038 keeps those in display-words.json, under the same row ids.",
+ "legend": "IC-102",
  "entries": [
   {
-   "table": "T-023a",
-   "row": "PTD-1",
+   "kind": "heading",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "FR-036",
+   "row": "basics",
    "keys": null,
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
-   "table": "T-023a",
-   "row": "PTD-2",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023a",
-   "row": "PTD-3",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023a",
-   "row": "PTD-4",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023a",
-   "row": "PTD-4a",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023a",
-   "row": "PTD-5",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-1",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-2",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-3",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-4",
-   "keys": null,
-   "icon": "IC-61",
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-5",
-   "keys": null,
-   "icon": "IC-35",
-   "drives": []
-  },
-  {
-   "table": "T-023b",
-   "row": "AR-6",
-   "keys": null,
-   "icon": "IC-36",
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-1",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-2",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-3",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-4",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-5",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-6",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-7",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-7a",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-7b",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023c",
-   "row": "SL-8",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-19",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-1",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-2",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-5",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-6",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-17",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-9",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-10",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-11",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-8",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-15",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-18",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-13",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-14",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-3",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-4",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-7",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-12",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-20",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-16",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023d",
-   "row": "GR-21",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-1",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-2",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-3",
-   "keys": null,
-   "icon": null,
-   "drives": [
-    "IC-12",
-    "IC-13"
-   ]
-  },
-  {
-   "table": "T-023",
-   "row": "MK-4",
-   "keys": null,
-   "icon": null,
-   "drives": [
-    "IC-14",
-    "IC-15"
-   ]
-  },
-  {
-   "table": "T-023",
-   "row": "MK-5",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-6",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-7",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-8",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-9",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-9a",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-10",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-11",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-12",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-023",
-   "row": "MK-13",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-036",
-   "row": "SK-1",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-036",
-   "row": "SK-1a",
-   "keys": null,
-   "icon": null,
-   "drives": []
-  },
-  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
    "row": "SK-19",
    "keys": "Enter",
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
    "row": "SK-2",
    "keys": "Ctrl+A",
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
    "row": "SK-3",
    "keys": "Delete / Backspace",
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
    "row": "SK-4",
    "keys": "Ctrl+C",
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
    "row": "SK-5",
    "keys": "Ctrl+V",
-   "icon": null,
-   "drives": []
+   "press": null,
+   "glyphs": []
   },
   {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
    "table": "T-036",
-   "row": "SK-6",
-   "keys": "Ctrl+Z",
-   "icon": null,
-   "drives": [
-    "IC-5"
+   "row": "SK-9",
+   "keys": "F2",
+   "press": null,
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-036",
+   "row": "SK-11",
+   "keys": "Ctrl+S",
+   "press": null,
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-036",
+   "row": "SK-17",
+   "keys": "Ctrl ＋ 0",
+   "press": null,
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-036",
+   "row": "SK-21",
+   "keys": "Ctrl ＋ R",
+   "press": null,
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-023",
+   "row": "MK-2",
+   "keys": null,
+   "press": "MK-2",
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-023",
+   "row": "MK-5",
+   "keys": null,
+   "press": "MK-5",
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-023",
+   "row": "MK-7",
+   "keys": null,
+   "press": "MK-7",
+   "glyphs": []
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-92",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-92"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-7",
-   "keys": "Ctrl+Y / Ctrl+Shift+Z",
-   "icon": null,
-   "drives": [
-    "IC-6"
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-78",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-78"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-8",
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-74",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-74"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-93",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-93"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-59",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-59"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-90",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-90"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-77",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-77"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-58",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-58"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-82",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-82"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-91",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-91"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-60",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-60"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-52",
    "keys": "Esc",
-   "icon": null,
-   "drives": [
+   "press": null,
+   "glyphs": [
     "IC-52"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-9",
-   "keys": "F2",
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-036",
-   "row": "SK-10",
-   "keys": "Ctrl+O",
-   "icon": null,
-   "drives": [
-    "IC-1"
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-63",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-63"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-11",
-   "keys": "Ctrl+S",
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-036",
-   "row": "SK-12",
-   "keys": "Ctrl+Shift+E",
-   "icon": null,
-   "drives": [
-    "IC-2"
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-64",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-64"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-13",
-   "keys": "F1",
-   "icon": null,
-   "drives": [
-    "IC-22"
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-65",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-65"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-14",
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-66",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-66"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-67",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-67"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Resource Roster",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-68",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-68"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-7",
    "keys": "P",
-   "icon": null,
-   "drives": [
+   "press": null,
+   "glyphs": [
     "IC-7"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-15",
-   "keys": "F11",
-   "icon": null,
-   "drives": [
-    "IC-11"
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-98",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-98"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-16",
-   "keys": "Shift ＋ + / Shift ＋ -",
-   "icon": null,
-   "drives": [
-    "IC-13",
-    "IC-12"
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-1",
+   "keys": "Ctrl+O",
+   "press": null,
+   "glyphs": [
+    "IC-1"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-16a",
-   "keys": "Alt ＋ + / Alt ＋ -",
-   "icon": null,
-   "drives": [
-    "IC-15",
-    "IC-14"
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-71",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-71"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-17",
-   "keys": "Ctrl ＋ 0",
-   "icon": null,
-   "drives": []
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-72",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-72"
+   ]
   },
   {
-   "table": "T-036",
-   "row": "SK-18",
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-73",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-73"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-95",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-95"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-96",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-96"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": true,
+   "table": "T-109",
+   "row": "IC-97",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-97"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-2",
+   "keys": "Ctrl+Shift+E",
+   "press": null,
+   "glyphs": [
+    "IC-2"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-3",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-3"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-4",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-4"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-5",
+   "keys": "Ctrl+Z",
+   "press": null,
+   "glyphs": [
+    "IC-5"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-6",
+   "keys": "Ctrl+Y / Ctrl+Shift+Z",
+   "press": null,
+   "glyphs": [
+    "IC-6"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-8",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-8"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-9",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-9"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-10",
    "keys": "F",
-   "icon": null,
-   "drives": [
+   "press": null,
+   "glyphs": [
     "IC-10"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-20",
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-11",
+   "keys": "F11",
+   "press": null,
+   "glyphs": [
+    "IC-11"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-12",
+   "keys": "Shift ＋ -",
+   "press": "MK-3",
+   "glyphs": [
+    "IC-12"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-13",
+   "keys": "Shift ＋ +",
+   "press": "MK-3",
+   "glyphs": [
+    "IC-13"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-14",
+   "keys": "Alt ＋ -",
+   "press": "MK-4",
+   "glyphs": [
+    "IC-14"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-15",
+   "keys": "Alt ＋ +",
+   "press": "MK-4",
+   "glyphs": [
+    "IC-15"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-16",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-16"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-17",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-17"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-18",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-18"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-19",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-19"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-20",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-20"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-21",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-21"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-22",
+   "keys": "F1",
+   "press": null,
+   "glyphs": [
+    "IC-22"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-53",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-53",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-53"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-53",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-75",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-75"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-23",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-23",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-23"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-23",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-24",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-24"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-23",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-25",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-25"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-23",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-26",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-26"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-23",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-50",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-27",
+    "IC-32",
+    "IC-50"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-61",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-61",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-61"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-61",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-35",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-35"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-61",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-36",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-36"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-61",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-37",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-37"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-61",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-38",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-38"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-39",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-39"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-40",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-40"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-41",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-41"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-42",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-42"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-43",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-43"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-79",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-79"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-80",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-80"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-81",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-81"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-99",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-99"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-100",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-100"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-101",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-101"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-62",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-62"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-39",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-76",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-76"
+   ]
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-44",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-44",
    "keys": "Ctrl ＋ Shift ＋ D",
-   "icon": null,
-   "drives": [
+   "press": null,
+   "glyphs": [
     "IC-44"
    ]
   },
   {
-   "table": "T-036",
-   "row": "SK-21",
-   "keys": "Ctrl ＋ R",
-   "icon": null,
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-23",
-   "keys": null,
-   "icon": "IC-23",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-24",
-   "keys": null,
-   "icon": "IC-24",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-25",
-   "keys": null,
-   "icon": "IC-25",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-26",
-   "keys": null,
-   "icon": "IC-26",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-27",
-   "keys": null,
-   "icon": "IC-27",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-28",
-   "keys": null,
-   "icon": "IC-28",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-29",
-   "keys": null,
-   "icon": "IC-29",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-30",
-   "keys": null,
-   "icon": "IC-30",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-31",
-   "keys": null,
-   "icon": "IC-31",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-32",
-   "keys": null,
-   "icon": "IC-32",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-33",
-   "keys": null,
-   "icon": "IC-33",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-34",
-   "keys": null,
-   "icon": "IC-34",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-83",
-   "keys": null,
-   "icon": "IC-83",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-84",
-   "keys": null,
-   "icon": "IC-84",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-85",
-   "keys": null,
-   "icon": "IC-85",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-86",
-   "keys": null,
-   "icon": "IC-86",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-87",
-   "keys": null,
-   "icon": "IC-87",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-88",
-   "keys": null,
-   "icon": "IC-88",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-89",
-   "keys": null,
-   "icon": "IC-89",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-61",
-   "keys": null,
-   "icon": "IC-61",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-35",
-   "keys": null,
-   "icon": "IC-35",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-36",
-   "keys": null,
-   "icon": "IC-36",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-37",
-   "keys": null,
-   "icon": "IC-37",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-38",
-   "keys": null,
-   "icon": "IC-38",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-39",
-   "keys": null,
-   "icon": "IC-39",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-40",
-   "keys": null,
-   "icon": "IC-40",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-41",
-   "keys": null,
-   "icon": "IC-41",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-42",
-   "keys": null,
-   "icon": "IC-42",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-43",
-   "keys": null,
-   "icon": "IC-43",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-79",
-   "keys": null,
-   "icon": "IC-79",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-80",
-   "keys": null,
-   "icon": "IC-80",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-81",
-   "keys": null,
-   "icon": "IC-81",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-99",
-   "keys": null,
-   "icon": "IC-99",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-100",
-   "keys": null,
-   "icon": "IC-100",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-101",
-   "keys": null,
-   "icon": "IC-101",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-44",
-   "keys": null,
-   "icon": "IC-44",
-   "drives": []
-  },
-  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-44",
+   "indent": false,
    "table": "T-109",
    "row": "IC-47",
    "keys": null,
-   "icon": "IC-47",
-   "drives": []
+   "press": null,
+   "glyphs": [
+    "IC-47"
+   ]
   },
   {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-44",
+   "indent": false,
    "table": "T-109",
    "row": "IC-48",
    "keys": null,
-   "icon": "IC-48",
-   "drives": []
+   "press": null,
+   "glyphs": [
+    "IC-48"
+   ]
   },
   {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-44",
+   "indent": false,
    "table": "T-109",
    "row": "IC-45",
    "keys": null,
-   "icon": "IC-45",
-   "drives": []
+   "press": null,
+   "glyphs": [
+    "IC-45"
+   ]
   },
   {
-   "table": "T-109",
-   "row": "IC-50",
-   "keys": null,
-   "icon": "IC-50",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-53",
-   "keys": null,
-   "icon": "IC-53",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-75",
-   "keys": null,
-   "icon": "IC-75",
-   "drives": []
-  },
-  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-54",
+   "indent": false,
    "table": "T-109",
    "row": "IC-54",
    "keys": null,
-   "icon": "IC-54",
-   "drives": []
+   "press": null,
+   "glyphs": [
+    "IC-54"
+   ]
   },
   {
-   "table": "T-109",
-   "row": "IC-62",
+   "kind": "note",
+   "block": "Command Palette",
+   "segment": "IC-54",
+   "indent": false,
+   "table": "FR-036",
+   "row": "IC-54",
    "keys": null,
-   "icon": "IC-62",
-   "drives": []
-  },
-  {
-   "table": "T-109",
-   "row": "IC-76",
-   "keys": null,
-   "icon": "IC-76",
-   "drives": []
+   "press": null,
+   "glyphs": []
   }
  ]
 }

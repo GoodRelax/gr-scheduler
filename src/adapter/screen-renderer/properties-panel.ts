@@ -10,9 +10,12 @@ import {
 import {
   COLUMN_SHAPES,
   DATE_COLUMNS,
+  actualLastDay,
+  actualLengthOf,
   dayOf,
   taskByUid,
   textOfDay,
+  workingCalendarOf,
   type Dependency,
   type Schedule,
   type Task,
@@ -223,9 +226,23 @@ function textOfDateColumn(stored: unknown): string {
 
 // TRAP: assumes TaskVisual has no date column; textOfItem would write a new one raw.
 /** @purity pure */
-function textOfTaskColumn(task: Task, column: keyof Task): string {
+function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task): string {
+  if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task)
   if (DATE_COLUMNS.Task.includes(column)) return textOfDateColumn(task[column])
   return textOfValue(task[column])
+}
+
+// see PR-5, P-5
+// WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
+const ACTUAL_LENGTH_ITEM = 'actualDuration'
+
+// see PR-5, FR-011
+/** @purity pure */
+function textOfActualLength(schedule: Schedule, task: Task): string {
+  const start = dayOf(task.actualStart)
+  const lastDay = actualLastDay(task)
+  if (start === null || lastDay === null) return textOfValue(null)
+  return textOfValue(actualLengthOf(workingCalendarOf(schedule), start, lastDay))
 }
 
 interface Assignee {
@@ -295,6 +312,8 @@ function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKin
   if (COLOUR_COLUMNS.includes(column)) return 'color'
   if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
   if (CHOICE_OVER_DOCUMENT_COLUMNS.includes(column)) return 'choice'
+  // WHY: PR-5 has no column shape to read since AT-35 retired, and table T-016 still takes a number.
+  if (entity === 'Task' && column === ACTUAL_LENGTH_ITEM) return 'number'
   const dateRoster: Partial<Record<ShapedEntity, readonly string[]>> = DATE_COLUMNS
   if ((dateRoster[entity] ?? []).includes(column)) return 'date'
 
@@ -426,7 +445,7 @@ function controlsOfItem(
         : { holder: 'taskVisual', uid: task.uid, column: column as keyof TaskVisual & string }
     const text =
       item.heldBy === 'task'
-        ? textOfTaskColumn(task, column as keyof Task)
+        ? textOfTaskColumn(schedule, task, column as keyof Task)
         : visual === null
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
@@ -443,7 +462,7 @@ function textOfItem(
 ): string {
   switch (item.heldBy) {
     case 'task':
-      return item.columns.map((column) => textOfTaskColumn(task, column)).join(PART_SEPARATOR)
+      return item.columns.map((column) => textOfTaskColumn(schedule, task, column)).join(PART_SEPARATOR)
     case 'taskVisual':
       if (visual === null) return ''
       return item.columns.map((column) => textOfValue(visual[column])).join(PART_SEPARATOR)

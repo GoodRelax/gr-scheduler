@@ -109,7 +109,7 @@ OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
 # documents from several versions tells them apart by nothing else.
-SCHEMA_VERSION = '2026-08-20'
+SCHEMA_VERSION = '2026-09-14'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -1459,7 +1459,7 @@ class Builder(object):
             'notes': None,
             'calendarUid': None,
             'actualStart': None,
-            'actualDuration': None,
+            'stop': None,
             'actualFinish': None,
             'resume': None,
             'resumeValid': None,
@@ -1883,6 +1883,24 @@ class Builder(object):
         self.honour_links(status_at)
         self.suspend_some(status_at)
         self.derive_actuals(status_at)
+        for task in self.tasks:
+            self.place_stop(task)
+
+    def place_stop(self, task):
+        """`stop` (AT-141): the last day of work begun and not finished.
+
+        FR-011 (CR-376) holds the actual as dates. Finished work keeps its
+        last day in `actualFinish`, so `stop` is empty; a milestone's last day
+        is its `actualStart`.
+
+        @purity non-pure
+        """
+        if task['actualStart'] is None or task['actualFinish'] is not None:
+            task['stop'] = None
+            return
+        reach = 0 if task['milestone'] else max(0, task['actualLength'] - 1)
+        task['stop'] = text_of(WORKDAYS[min(len(WORKDAYS) - 1,
+                                            task['actualStartAt'] + reach)])
 
     def is_band(self, task):
         """Whether this task is a band of the first tree rather than work.
@@ -1917,26 +1935,20 @@ class Builder(object):
             return                                        # PS-1, all null
         task['actualStart'] = text_of(WORKDAYS[began_at])
         if span == 0:
-            # ⛔ FR-011 puts the right end of the actual bar at `actualStart`
-            # plus `actualDuration` in working days, and says the recorded
-            # finish IS that right end. So a piece of work that began and
-            # ended on one day records ZERO, not one: FR-012 spells the same
-            # convention out for the planned span ("the difference between the
-            # start and the finish", and MUST NOT be mistaken for a count that
-            # includes both ends), and the two ends of one bar cannot be
-            # counted two different ways.
-            # ⚠️ S-129 and S-130 are NOT this value. Those are what FR-043
-            # places when somebody grabs the handle of work that has not
-            # started -- work with no recorded finish for the duration to
-            # disagree with -- and `uncomplete` is where they belong.
-            # ⛔ No division at span zero (FR-012): a recorded finish reads 100.
-            task['actualDuration'] = 0
+            # FR-011 (CR-376): an actual whose start and last day are one day
+            # is ONE day long, never zero. The length is not stored; it is
+            # counted from the dates, so `actualLength` is only this builder's
+            # own note of it and never reaches the template.
+            # No division at span zero (FR-012): a recorded finish reads 100.
+            task['actualLength'] = 1
             task['actualFinish'] = task['actualStart']
             task['resumeValid'] = False
             task['percentComplete'] = 100
             return
         worked = max(1, int(round(span * weighed(PACE, task['uid'], 'pace'))))
-        ended_at = began_at + worked
+        # FR-011: the length counts both end days, so the last day is the
+        # (worked - 1)-th working day after the start.
+        ended_at = began_at + worked - 1
         # ⭐ Some work is simply not finished, and its planned finish has gone
         # by. That is `DL-1` of table T-021b -- the first and commonest of the
         # three delay readings -- and it is also where FR-012's un-clamped
@@ -1946,22 +1958,20 @@ class Builder(object):
         stuck = (task['finishAt'] < status_at - 4 and not task['milestone']
                  and fraction(task['uid'], 'stuck') < STUCK_SHARE)
         if ended_at <= status_at and not stuck:           # PS-2, finished
-            # FR-011: the right end of the actual bar IS `actualFinish`, so
-            # the recorded duration and the recorded finish are one fact told
-            # twice and may not disagree.
-            task['actualDuration'] = worked
+            # FR-011: the last day of finished work IS `actualFinish`.
+            task['actualLength'] = worked
             task['actualFinish'] = text_of(WORKDAYS[ended_at])
             task['resumeValid'] = False
         else:                                             # PS-5, running
-            # ⛔ NOT the elapsed days. `actualDuration` is the length of the
-            # ACTUAL BAR (PR-5 of table T-016) -- how far the work has got --
+            # NOT the elapsed days. The length is how far the work has got,
             # and reading it as elapsed time makes a two-day job that stalled
-            # in the spring read 4350%. What is stored is how far it has got,
-            # bounded by the days that have actually passed.
-            task['actualDuration'] = min(status_at - began_at,
-                                         self.reached_of(task, span, status_at))
+            # in the spring read 4350%. It is bounded by the days that have
+            # actually passed, and is at least the one day of its start.
+            task['actualLength'] = max(1, min(status_at - began_at,
+                                              self.reached_of(task, span,
+                                                              status_at)))
             task['resumeValid'] = True
-        task['percentComplete'] = percent_of(task['actualDuration'], span)
+        task['percentComplete'] = percent_of(task['actualLength'], span)
 
     def reached_of(self, task, span, status_at):
         """How far a running piece of work has got, in working days.
@@ -2023,15 +2033,13 @@ class Builder(object):
         task['actualFinish'] = None
         task['resumeValid'] = True
         if span == 0:
-            task['actualDuration'] = (self.settings['milestoneActualDuration']
-                                      if task['milestone']
-                                      else self.settings['actualInitialDuration'])
+            task['actualLength'] = max(1, self.settings['actualInitialDuration'])
             # FR-012: no division at span 0, and no finish means 0.
             task['percentComplete'] = 0
             return
-        task['actualDuration'] = min(max(1, status_at - task['actualStartAt']),
-                                     self.reached_of(task, span, status_at))
-        task['percentComplete'] = percent_of(task['actualDuration'], span)
+        task['actualLength'] = min(max(1, status_at - task['actualStartAt']),
+                                   self.reached_of(task, span, status_at))
+        task['percentComplete'] = percent_of(task['actualLength'], span)
 
     def unbegin(self, task):
         """Take a task back to PS-1, which is every column empty.
@@ -2039,7 +2047,8 @@ class Builder(object):
         @purity non-pure
         """
         task['actualStart'] = None
-        task['actualDuration'] = None
+        task['actualLength'] = None
+        task['stop'] = None
         task['actualFinish'] = None
         task['resume'] = None
         task['resumeValid'] = None
@@ -2070,8 +2079,8 @@ class Builder(object):
         stalled.sort(key=lambda one: fraction(one['uid'], 'stall'))
         for turn, task in enumerate(stalled[:SUSPENSIONS]):
             span = task['finishAt'] - task['startAt']
-            task['actualDuration'] = max(1, int(task['actualDuration'] * 0.6))
-            task['percentComplete'] = percent_of(task['actualDuration'], span)
+            task['actualLength'] = max(1, int(task['actualLength'] * 0.6))
+            task['percentComplete'] = percent_of(task['actualLength'], span)
             if turn % 3 == 2:
                 # PS-3: the work stopped and nobody knows when it resumes.
                 task['resumeValid'] = False
@@ -2089,9 +2098,9 @@ class Builder(object):
         """The roll-ups and the bands, which own no work of their own.
 
         ⛔ A roll-up's figure is not a number somebody typed: FR-012 derives
-        `percentComplete` from `actualDuration` and the planned span, so the
+        `percentComplete` from the FR-011 length and the planned span, so the
         way to make a roll-up read as the sum of what hangs under it is to
-        store the `actualDuration` that FR-012 turns into that sum. The weight
+        place the last day whose length FR-012 turns into that sum. The weight
         is each descendant's planned duration, because a two-day task and a
         ninety-day workstream are not each half of their parent.
 
@@ -2133,10 +2142,10 @@ class Builder(object):
             ended = max(index_of(date.fromisoformat(one['actualFinish'][:10]))
                         for one in held)
             task['actualFinish'] = text_of(WORKDAYS[ended])
-            task['actualDuration'] = max(0, ended - task['actualStartAt'])
+            task['actualLength'] = max(1, ended - task['actualStartAt'] + 1)
             task['resumeValid'] = False
             task['percentComplete'] = (100 if span == 0
-                                       else percent_of(task['actualDuration'],
+                                       else percent_of(task['actualLength'],
                                                        span))
             return
         weighed_sum, weights = 0.0, 0.0
@@ -2145,10 +2154,10 @@ class Builder(object):
             weighed_sum += one['percentComplete'] * weight
             weights += weight
         share = weighed_sum / weights
-        task['actualDuration'] = max(0, int(round(share * span / 100.0)))
+        task['actualLength'] = max(1, int(round(share * span / 100.0)))
         task['resumeValid'] = True
         task['percentComplete'] = (0 if span == 0
-                                   else percent_of(task['actualDuration'],
+                                   else percent_of(task['actualLength'],
                                                    span))
 
 
@@ -2585,7 +2594,8 @@ class Builder(object):
         out = []
         for task in self.tasks:
             row = dict(task)
-            for key in ('startAt', 'finishAt', 'phase', 'actualStartAt'):
+            for key in ('startAt', 'finishAt', 'phase', 'actualStartAt',
+                        'actualLength'):
                 row.pop(key, None)
             out.append(row)
         return out
@@ -3126,15 +3136,21 @@ def check_progress(built, status_at):
         if state == 'PS-1':
             insist(task['actualStart'] is None
                    and task['actualFinish'] is None
-                   and task['actualDuration'] is None
+                   and task['stop'] is None
                    and task['percentComplete'] == 0,
                    'A16: %s reads PS-1 and carries actuals' % task['name'])
             if task['startAt'] < status_at:
                 unstarted_late += 1               # DL-2 of table T-021b
             continue
-        insist(task['actualDuration'] is not None,
-               'A16: %s has started and records no duration' % task['name'])
+        # FR-011 (CR-376): the last day is `actualFinish` when finished and
+        # `stop` otherwise, never both; the length is counted from the dates.
+        last = (task['actualFinish'] if state == 'PS-2' else task['stop'])
+        insist(last is not None,
+               'A16: %s has started and records no last day' % task['name'])
+        insist(state != 'PS-2' or task['stop'] is None,
+               'A16: %s is finished and still holds a stop' % task['name'])
         began_at = index_of(date.fromisoformat(task['actualStart'][:10]))
+        length = index_of(date.fromisoformat(last[:10])) - began_at + 1
         insist(began_at <= status_at,
                'A16: %s records a start after the status date' % task['name'])
         if began_at > task['startAt']:
@@ -3143,7 +3159,7 @@ def check_progress(built, status_at):
             early += 1
         # FR-012: the stored figure is the derived figure, always.
         wanted = (task['percentComplete'] if span == 0
-                  else percent_of(task['actualDuration'], span))
+                  else percent_of(length, span))
         if span == 0:
             wanted = 100 if task['actualFinish'] is not None else 0
         insist(task['percentComplete'] == wanted,
@@ -3161,19 +3177,9 @@ def check_progress(built, status_at):
                    % task['name'])
             if ended_at < task['finishAt']:
                 quick += 1
-            # FR-011: the right end of the actual bar is `actualStart` plus
-            # `actualDuration` in working days, and a recorded finish IS that
-            # right end, so the two may not tell different stories.
-            # ⛔ NO "if span > 0" GUARD. It used to sit here and it skipped
-            # exactly the twenty rows that disagreed -- work whose actual
-            # start and actual finish were one day, storing a duration of one
-            # against a bar zero days wide. A check that steps over the cases
-            # it would fail on is not a check.
-            insist(task['actualDuration'] == ended_at - began_at,
-                   'A16: %s runs %s..%s and records %d working day(s), which '
-                   'is not where FR-011 puts the right end of its actual bar'
-                   % (task['name'], task['actualStart'], task['actualFinish'],
-                      task['actualDuration']))
+            insist(length >= 1,
+                   'A16: %s runs %s..%s, a last day before its start'
+                   % (task['name'], task['actualStart'], task['actualFinish']))
             continue
         if task['finishAt'] < status_at:
             running_late += 1                     # DL-1 of table T-021b
@@ -3319,7 +3325,7 @@ def check_rollup_reading(built):
     """A18 -- a roll-up reads as the sum of what hangs under it.
 
     ⚠️ FR-012 and PR-9 make `percentComplete` derived, so this does not check
-    a second rule: it checks that the `actualDuration` stored on a roll-up is
+    a second rule: it checks that the actual length placed on a roll-up is
     the one whose FR-012 figure is the duration-weighted reading of what it
     stands over. 33 of 40 summaries were more than three points away from it.
 

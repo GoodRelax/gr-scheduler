@@ -31,6 +31,7 @@ import type {
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from '../../adapter/screen-renderer/icon-glyphs.json'
+import helpRoster from '../../adapter/screen-renderer/help-roster.json'
 
 const UNIT_ROW = 'UF-71'
 
@@ -225,8 +226,13 @@ function tooltipStyle(): string {
 }
 
 // see FR-036
+// WHY: column-fill auto over a bounded height fills a column before the next, and a block that
+// does not fit moves whole, which is the placement FR-036 asks for instead of balanced flow.
 function helpColumnsStyle(): string {
-  return `column-count:${NOT_STORED_HELP_SIZES['S-202']};column-gap:1.5em;`
+  return (
+    `column-count:${NOT_STORED_HELP_SIZES['S-202']};column-gap:1.5em;column-fill:auto;` +
+    'flex:1 1 auto;min-height:0;'
+  )
 }
 
 // see FR-036
@@ -235,8 +241,46 @@ function helpStyle(): string {
   return (
     `width:${share}vw;max-width:${share}vw;` +
     `height:${share}vh;max-height:${share}vh;overflow:auto;` +
+    'display:flex;flex-direction:column;' +
     `font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
   )
+}
+
+const HELP_LAYOUT_BY_ENTRY = new Map(
+  helpRoster.entries.map((entry) => [helpLayoutKey(entry.table, entry.row), entry] as const),
+)
+
+const HELP_LEGEND_ENTRY = helpRoster.legend
+
+const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/
+
+/** @purity pure */
+function helpLayoutKey(table: string, row: string): string {
+  return `${table} ${row}`
+}
+
+// see FR-036
+/** @purity pure */
+function helpIndentStyle(): string {
+  const side = NOT_STORED_ICON_SIZES['S-138']
+  const gap = NOT_STORED_ICON_SIZES['S-141']
+  return `padding-left:calc(${side}px + ${gap}px * 2);`
+}
+
+// see FR-036, EZ-2
+// TRAP: the dictionary embeds a glyph as {IC-nn}; printing the token as text shows the row id.
+/** @purity non-pure */
+function appendAssignment(host: Document, target: HTMLElement, written: string): void {
+  const pieces = written.split(GLYPH_TOKEN)
+  pieces.forEach((piece, at) => {
+    if (at % 2 === 0) {
+      if (piece !== '') target.append(host.createTextNode(piece))
+      return
+    }
+    const glyph = made(host, 'span', STYLE.helpGlyph)
+    fillEntry(host, glyph, piece)
+    target.append(glyph)
+  })
 }
 
 function propertyControlsStyle(): string {
@@ -418,6 +462,10 @@ const STYLE = {
   helpText: 'flex:1;min-width:0;',
   helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
+  helpBlock: 'break-inside:avoid-column;',
+  helpHeading: 'font-weight:600;',
+  helpNote: 'margin-left:0.5em;',
+  helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
   helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
   helpLegalSummary: 'cursor:pointer;',
   helpLegalText: 'white-space:pre-wrap;margin:0.5em 0 0;',
@@ -1525,6 +1573,107 @@ function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement 
   return entry
 }
 
+// see FR-036, IC-102
+// WHY: no data-icon, so the pointer never reads the legend as an entrance to press.
+/** @purity non-pure */
+function helpLegendElement(host: Document, item: CommandItem): HTMLElement {
+  const legend = made(host, 'span', STYLE.helpLegend)
+  legend.setAttribute('data-legend', item.icon)
+  const glyph = made(host, 'span', STYLE.helpGlyph)
+  fillEntry(host, glyph, item.icon)
+  const word = made(host, 'span', '')
+  word.textContent = item.label
+  legend.append(glyph, word)
+  return legend
+}
+
+// see FR-036
+/** @purity non-pure */
+function helpItemElement(
+  host: Document,
+  line: OpenHelpEntry,
+  glyphs: readonly string[],
+  isIndented: boolean,
+): { readonly row: HTMLElement; readonly text: HTMLElement } {
+  const row = made(host, 'div', STYLE.helpEntry + (isIndented ? helpIndentStyle() : ''))
+  row.setAttribute('data-table', line.table)
+  row.setAttribute('data-row', line.row)
+  if (isIndented) row.setAttribute('data-indent', 'true')
+
+  const glyph = made(host, 'span', STYLE.helpGlyph)
+  if (glyphs.length === 1) {
+    fillEntry(host, glyph, glyphs[0] as string)
+  } else {
+    for (const one of glyphs) {
+      const shape = made(host, 'span', STYLE.helpGlyph)
+      fillEntry(host, shape, one)
+      glyph.append(shape)
+    }
+  }
+  row.append(glyph)
+
+  const text = made(host, 'span', STYLE.helpText)
+  text.textContent = line.text
+  row.append(text)
+
+  const assignment = made(host, 'span', STYLE.helpKeys)
+  const written = line.keys ?? line.press
+  if (written !== null) appendAssignment(host, assignment, written)
+  row.append(assignment)
+  return { row, text }
+}
+
+type OpenHelpEntry = Extract<OpenModal, { readonly entries: unknown }>['entries'][number]
+
+// see FR-036, FR-053
+// TRAP: a line or a heading lives inside its block, so a block moving to the next column takes them.
+/** @purity non-pure */
+function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): HTMLElement {
+  const columns = made(host, 'div', helpColumnsStyle())
+  let block: HTMLElement | null = null
+  let blockName: string | null = null
+  let segment: string | null = null
+  let lastText: HTMLElement | null = null
+  for (const line of entries) {
+    const laid = HELP_LAYOUT_BY_ENTRY.get(helpLayoutKey(line.table, line.row))
+    const name = laid?.block ?? null
+    const lineSegment = laid?.segment ?? null
+    if (block === null || name !== blockName) {
+      const opened = made(host, 'div', STYLE.helpBlock)
+      opened.setAttribute('data-help-block', name ?? '')
+      if (block !== null) opened.append(made(host, 'div', paletteGroupRuleStyle()))
+      columns.append(opened)
+      block = opened
+      blockName = name
+      segment = lineSegment
+    } else if (lineSegment !== segment) {
+      block.append(made(host, 'div', paletteGroupRuleStyle()))
+      segment = lineSegment
+    }
+    if (laid?.kind === 'heading') {
+      const heading = made(host, 'div', STYLE.helpHeading)
+      heading.setAttribute('data-help-heading', line.row)
+      heading.textContent = line.text
+      block.append(heading)
+      continue
+    }
+    if (laid?.kind === 'note') {
+      if (lastText !== null) {
+        const note = made(host, 'span', STYLE.helpNote)
+        note.setAttribute('data-help-note', line.row)
+        note.textContent = line.text
+        lastText.append(note)
+      }
+      continue
+    }
+    const glyphs = laid?.glyphs ?? (line.icon === null ? [] : [line.icon])
+    const drawnItem = helpItemElement(host, line, glyphs, laid?.indent === true)
+    lastText = drawnItem.text
+    block.append(drawnItem.row)
+  }
+  return columns
+}
+
 interface DrawnModal {
   readonly element: HTMLElement
   readonly watermarkUnlockEntry: TextEntryControl | null
@@ -1551,37 +1700,23 @@ function modalElement(
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
+  let legend: HTMLElement | null = null
   for (const item of modal.commands) {
+    if ('entries' in modal && item.icon === HELP_LEGEND_ENTRY) {
+      legend = helpLegendElement(host, item)
+      continue
+    }
     const entry = commandEntry(host, item)
     anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
     header.append(entry)
   }
+  if (legend !== null) header.append(legend)
   const body: HTMLElement[] = []
   let watermarkUnlockEntry: TextEntryControl | null = null
 
   if ('entries' in modal) {
     drawn.setAttribute('data-language', modal.language)
-    const columns = made(host, 'div', helpColumnsStyle())
-    for (const line of modal.entries) {
-      const row = made(host, 'div', STYLE.helpEntry)
-      row.setAttribute('data-table', line.table)
-      row.setAttribute('data-row', line.row)
-
-      const glyph = made(host, 'span', STYLE.helpGlyph)
-      if (line.icon !== null) fillEntry(host, glyph, line.icon)
-      row.append(glyph)
-
-      const text = made(host, 'span', STYLE.helpText)
-      text.textContent = line.text
-      row.append(text)
-
-      const assignment = made(host, 'span', STYLE.helpKeys)
-      assignment.textContent = line.keys ?? line.press ?? null
-      row.append(assignment)
-
-      columns.append(row)
-    }
-    body.push(columns)
+    body.push(helpColumnsElement(host, modal.entries))
     const legal = made(host, 'details', STYLE.helpLegal)
     const summary = made(host, 'summary', STYLE.helpLegalSummary)
     summary.textContent = modal.copyrightNotice
@@ -2046,9 +2181,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const drawn = made(host, 'div', tooltipStyle())
     drawn.setAttribute('role', 'tooltip')
     drawn.setAttribute('data-anchor', key)
-    drawn.textContent = tip.assignment
-      ? `${tip.text} ${tip.assignment}`
-      : tip.text
+    drawn.textContent = tip.assignment ? `${tip.text} ` : tip.text
+    if (tip.assignment) appendAssignment(host, drawn, tip.assignment)
 
     // STOP: spec does not decide where EZ-6's tooltip stands. Looked in IN-3, EZ-6
     // @provisional PND-391

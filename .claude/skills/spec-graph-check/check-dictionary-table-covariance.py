@@ -10,6 +10,12 @@ was told the row was already folded when the row it named was NOT folded.
 ⛔ EVERY MACHINE CHECK STAYED GREEN, because every one of them asks whether a
 word REACHED the screen and never whether it still says what its row says.
 
+⚠️ CR-377 (2026-09-14) took `pressOrder`, `selecting` and `grabAreas` out of
+the dictionary with the help that read them, and added `helpNotes` (one row of
+table T-109) and `invariants` (table T-220, DFC-582) to GROUPS. The counts
+below are the ones taken when this check was written and are not kept current;
+the OK line prints the live number of pairings.
+
 `docs/spec/_source/display-words.json` holds 21 top-level sections. Counted at
 the keyboard while this check was written (2026-09-05, not copied from any
 ledger row):
@@ -204,12 +210,19 @@ GROUPS = (
     ('questions', 'T-234'),
     ('exportFormats', 'T-024'),
     ('arms', 'T-023b'),
-    ('pressOrder', 'T-023a'),
-    ('selecting', 'T-023c'),
-    ('grabAreas', 'T-023d'),
     ('shortcuts', 'T-036'),
     ('assignments', 'T-023'),
+    # CR-377: FR-036's note on IC-54 is held on IC-54's row, beside that
+    # row's label in `icons`. Its pairing key names the section as well, or
+    # the two would share one line of the baseline.
+    ('helpNotes', 'T-109'),
+    # DFC-582: the words an import refusal carries, one per row of table T-220.
+    ('invariants', 'T-220'),
 )
+
+# The sections that share a table with an earlier group, whose pairing key
+# therefore carries the section name.
+SECTION_IN_KEY = ('helpNotes',)
 
 # `reasons` / T-233 is deliberately absent -- see the module docstring.
 ALREADY_GUARDED = ('reasons',)
@@ -305,7 +318,10 @@ def main():
 
         for entry in entries:
             row_id = entry['rowId']
-            key = '%s %s' % (table_id, row_id)
+            if group in SECTION_IN_KEY:
+                key = '%s %s %s' % (table_id, group, row_id)
+            else:
+                key = '%s %s' % (table_id, row_id)
             table_row = rows.get(row_id)
             if table_row is None:
                 problems.append(

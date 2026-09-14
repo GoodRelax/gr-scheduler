@@ -7,6 +7,7 @@
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
   COLUMN_DEFAULTS,
+  actualLastDay,
   dateFromWorkingDays,
   dayOf,
   nextWorkingDay,
@@ -505,10 +506,11 @@ function actualSpanOf(
 ): { readonly x: number; readonly width: number } | null {
   const from = reader.day(task.actualStart)
   if (from === null) return null
-  const toDay = reader.walk(from, task.actualDuration ?? 0)
+  const lastDay = actualLastDay(task)
+  const columnsCovered = lastDay === null ? 0 : serialOf(lastDay) + 1 - serialOf(from)
   return {
     x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
-    width: Math.max(0, serialOf(toDay) - serialOf(from)) * pxPerDay,
+    width: Math.max(0, columnsCovered) * pxPerDay,
   }
 }
 

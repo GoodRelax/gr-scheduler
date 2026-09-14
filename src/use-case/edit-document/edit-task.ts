@@ -7,10 +7,12 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   COLUMN_SHAPES,
+  actualLastDay,
+  actualLengthOf,
   calendarDaysBetween,
   compareDays,
-  dateFromWorkingDays,
   dayOf,
+  lastDayForLength,
   nextWorkingDay,
   planActualState,
   taskByUid,
@@ -40,18 +42,17 @@ export type TaskNameAlign = NonNullable<TaskVisual['nameAlign']>
 // see T-019
 export type PlanActualPlacement =
   | { readonly row: 'PA-1' }
-  | { readonly row: 'PA-2'; readonly actualStart: string; readonly actualDuration: number }
+  | { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string }
   | {
       readonly row: 'PA-3'
       readonly actualStart: string
-      readonly actualDuration: number
+      readonly stop: string
       readonly resume: string
     }
-  | { readonly row: 'PA-4'; readonly actualStart: string; readonly actualDuration: number }
+  | { readonly row: 'PA-4'; readonly actualStart: string; readonly stop: string }
   | {
       readonly row: 'PA-5'
       readonly actualStart: string
-      readonly actualDuration: number
       readonly actualFinish: string
     }
 
@@ -230,7 +231,16 @@ function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
   const span = planSpanOf(within, task)
   if (span === null) return task.percentComplete
   if (span === 0) return task.actualFinish !== null ? 100 : 0
-  return Math.round(((task.actualDuration ?? 0) / span) * 100)
+  return Math.round((heldActualLength(within, task) / span) * 100)
+}
+
+// see FR-011, FR-012
+/** @purity pure */
+function heldActualLength(within: WorkingCalendar, task: Task): number {
+  const start = dayOf(task.actualStart)
+  const lastDay = actualLastDay(task)
+  if (start === null || lastDay === null) return 0
+  return actualLengthOf(within, start, lastDay)
 }
 
 // see FR-012
@@ -239,41 +249,39 @@ export function repriced(within: WorkingCalendar, task: Task): Task {
   return { ...task, percentComplete: percentCompleteOf(within, task) }
 }
 
-// see FR-011, PV-2
+// see FR-011, S-129, S-130, PV-1
+// WHY: a milestone's floor day is its actualStart itself, so no length is counted for it.
 /** @purity pure */
-function actualFinishDayOf(within: WorkingCalendar, from: CalendarDay, duration: number,
-                           milestone: boolean): string {
-  if (milestone) return textOfDay(from)
-  const rightEnd = dateFromWorkingDays(within, from, duration)
-  // WHY: step back from the right end, not dateFromWorkingDays(from, duration - 1), which lands past a Friday.
-  return textOfDay(dateFromWorkingDays(within, rightEnd, -1))
+function floorDayOf(within: WorkingCalendar, settings: DocumentSettings, start: CalendarDay,
+                    milestone: boolean): CalendarDay {
+  return milestone ? start : lastDayForLength(within, start, settings.actualInitialDuration)
 }
 
-// see FR-011, GO-3, GR-17
-// WHY: count up to the day after, so the released day is the finish day and not the right end's column.
+type LastDayCheck =
+  | { readonly ok: true; readonly lastDay: CalendarDay }
+  | { readonly ok: false; readonly length: number }
+
+// see FR-011, IV-21
+// WHY: a length below 0 is refused, a length of 0 or under the floor is lifted to the floor day.
 /** @purity pure */
-function actualDurationEndingOn(within: WorkingCalendar, from: CalendarDay,
-                                finishDay: CalendarDay): number {
-  const after = new Date(Date.UTC(finishDay.year, finishDay.month - 1, finishDay.day + 1))
-  const dayAfter: CalendarDay = {
-    year: after.getUTCFullYear(),
-    month: after.getUTCMonth() + 1,
-    day: after.getUTCDate(),
-  }
-  return workingDaysBetween(within, from, dayAfter)
+function settledLastDay(within: WorkingCalendar, start: CalendarDay, lastDay: CalendarDay,
+                        floor: CalendarDay): LastDayCheck {
+  const length = actualLengthOf(within, start, lastDay)
+  if (length < 0) return { ok: false, length }
+  return { ok: true, lastDay: compareDays(lastDay, floor) < 0 ? floor : lastDay }
 }
 
-const CARRIED_STOP = 'Stop'
+const CARRIED_ACTUAL_DURATION = 'ActualDuration'
 
 // see T-019
-// TRAP: call only where actuals are edited; dropping Stop on other edits breaks T-033's round trip.
+// TRAP: call only where actuals are edited; dropping ActualDuration on other edits breaks T-033's round trip.
 /** @purity pure */
 function actualsEdited(task: Task): Task {
-  if (task.carry[CARRIED_STOP] === undefined) return task
+  if (task.carry[CARRIED_ACTUAL_DURATION] === undefined) return task
   return {
     ...task,
     carry: Object.fromEntries(
-      Object.entries(task.carry).filter(([name]) => name !== CARRIED_STOP),
+      Object.entries(task.carry).filter(([name]) => name !== CARRIED_ACTUAL_DURATION),
     ),
   }
 }
@@ -343,7 +351,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         notes: null,
         calendarUid: null,
         actualStart: null,
-        actualDuration: null,
+        stop: null,
         actualFinish: null,
         resume: null,
         resumeValid: null,
@@ -521,39 +529,42 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
         place.row === 'PA-1'
           ? []
           : place.row === 'PA-3'
-            ? [['actualStart', place.actualStart], ['resume', place.resume]]
+            ? [['actualStart', place.actualStart], ['stop', place.stop], ['resume', place.resume]]
             : place.row === 'PA-5'
               ? [['actualStart', place.actualStart], ['actualFinish', place.actualFinish]]
-              : [['actualStart', place.actualStart]]
+              : [['actualStart', place.actualStart], ['stop', place.stop]]
       for (const [label, text] of dates) {
         const checked = checkDay(settings, text)
         if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
       }
-      const laid = place.row === 'PA-1' ? null : place.actualDuration
-      if (laid !== null && laid < 0) {
-        faults.push(
-          reject('CM-13', 'IV-21', `an actual of ${laid} worked days ends before it starts`),
-        )
-      }
       if (faults.length > 0) return refused(faults)
 
+      if (place.row === 'PA-1') {
+        // TRAP: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
+        const cleared: Task = { ...task, actualStart: null, stop: null, actualFinish: null, resume: null }
+        return edited(withTask(document, repriced(within, actualsEdited(cleared))))
+      }
+
+      const askedText = place.row === 'PA-5' ? place.actualFinish : place.stop
+      // WHY: checkDay above has read both texts as days, so neither is null here.
+      const from = dayOf(place.actualStart) as CalendarDay
+      const asked = dayOf(askedText) as CalendarDay
       const milestone = isMilestone(task, visualOf(schedule, task.uid))
-      const floorOfActual = milestone
-        ? settings.milestoneActualDuration
-        : settings.actualInitialDuration
-      const heldDuration = laid === null ? null : Math.max(laid, floorOfActual)
+      const settled = settledLastDay(within, from, asked, floorDayOf(within, settings, from, milestone))
+      if (!settled.ok) {
+        return refused([
+          reject('CM-13', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
+        ])
+      }
+      const lastDay = compareDays(settled.lastDay, asked) === 0 ? askedText : textOfDay(settled.lastDay)
 
       let placed: Task
       switch (place.row) {
-        case 'PA-1':
-          // TRAP: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
-          placed = { ...task, actualStart: null, actualDuration: null, actualFinish: null, resume: null }
-          break
         case 'PA-2':
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: heldDuration,
+            stop: lastDay,
             actualFinish: null,
             resume: null,
             resumeValid: true,
@@ -563,7 +574,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: heldDuration,
+            stop: lastDay,
             actualFinish: null,
             resume: place.resume,
             resumeValid: true,
@@ -573,31 +584,22 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: heldDuration,
+            stop: lastDay,
             actualFinish: null,
             resume: null,
             resumeValid: false,
           }
           break
-        case 'PA-5': {
-          const from = dayOf(place.actualStart)
-          const carried = place.actualFinish === task.actualFinish
-          const moved = place.actualStart !== task.actualStart || heldDuration !== task.actualDuration
-          // WHY: a finish equal to the stored one was only carried along, so it follows the moved ends;
-          // a different one was typed, and overwriting it would discard what the author entered.
-          const actualFinish = carried && moved && from !== null && heldDuration !== null
-            ? actualFinishDayOf(within, from, heldDuration, milestone)
-            : place.actualFinish
+        case 'PA-5':
           placed = {
             ...task,
             actualStart: place.actualStart,
-            actualDuration: heldDuration,
-            actualFinish,
+            stop: null,
+            actualFinish: lastDay,
             resume: null,
             resumeValid: false,
           }
           break
-        }
       }
       return edited(withTask(document, repriced(within, actualsEdited(placed))))
     }
@@ -606,11 +608,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       if (planActualState(task) !== 'notStarted') {
         return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
       }
-      const visual = visualOf(schedule, task.uid)
-      const isDrawnAsMilestone = isMilestone(task, visual)
-      const duration = isDrawnAsMilestone
-        ? settings.milestoneActualDuration
-        : settings.actualInitialDuration
+      const isDrawnAsMilestone = isMilestone(task, visualOf(schedule, task.uid))
       const dropped = checkDay(settings, command.droppedDay)
       if (!dropped.ok) {
         return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
@@ -625,16 +623,19 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
           ])
         }
         const pinned = nextWorkingDay(within, planStart)
-        const laid = actualDurationEndingOn(within, pinned, dropped.day)
-        if (laid < 0) {
+        // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
+        const settled = settledLastDay(
+          within, pinned, dropped.day, floorDayOf(within, settings, pinned, isDrawnAsMilestone),
+        )
+        if (!settled.ok) {
           return refused([
-            reject('CM-14', 'IV-21', `an actual of ${laid} worked days ends before it starts`),
+            reject('CM-14', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
           ])
         }
         const pulled: Task = {
           ...task,
           actualStart: textOfDay(pinned),
-          actualDuration: Math.max(laid, duration),
+          stop: textOfDay(settled.lastDay),
           resumeValid: true,
         }
         return edited(withTask(document, repriced(within, actualsEdited(pulled))))
@@ -642,7 +643,7 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
       const begun: Task = {
         ...task,
         actualStart: textOfDay(dropped.day),
-        actualDuration: duration,
+        stop: textOfDay(floorDayOf(within, settings, dropped.day, isDrawnAsMilestone)),
         resumeValid: true,
       }
       return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -658,34 +659,27 @@ export function editTask(document: Document, command: TaskCommand): EditResult {
             return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
           }
           const milestone = isMilestone(task, visualOf(schedule, task.uid))
-          const duration = milestone
-            ? settings.milestoneActualDuration
-            : settings.actualInitialDuration
           turned = {
             ...task,
             actualStart: task.start,
-            actualFinish: actualFinishDayOf(within, from, duration, milestone),
-            actualDuration: duration,
+            stop: null,
+            actualFinish: textOfDay(floorDayOf(within, settings, from, milestone)),
             resumeValid: false,
           }
           break
         }
         case 'inProgress': {
-          const from = dayOf(task.actualStart)
-          if (from === null || task.actualDuration === null) {
-            return refused([reject('CM-15', 'FR-011', 'the actual bar has no right end to read')])
+          if (task.stop === null) {
+            return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
           }
-          const milestone = isMilestone(task, visualOf(schedule, task.uid))
-          turned = {
-            ...task,
-            actualFinish: actualFinishDayOf(within, from, task.actualDuration, milestone),
-            resumeValid: false,
-          }
+          // WHY: one replacement moves the last day, so no actual without a last day is seen (PV-2).
+          turned = { ...task, actualFinish: task.stop, stop: null, resumeValid: false }
           break
         }
         case 'finished':
+          // WHY: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
           // WHY: clear resume, or an imported finished task keeps a past resume date and lands on PS-4.
-          turned = { ...task, actualFinish: null, resume: null, resumeValid: false }
+          turned = { ...task, stop: task.actualFinish, actualFinish: null, resume: null, resumeValid: false }
           break
         case 'suspendedResumeUnknown':
         case 'suspendedResumePlanned':

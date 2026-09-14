@@ -914,6 +914,42 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
   return dayFromSerial(at)
 }
 
+// see FR-011, T-019
+/** @purity pure */
+export function actualLastDay(task: Task): CalendarDay | null {
+  if (planActualState(task) === 'notStarted') return null
+  return dayOf(task.actualFinish !== null ? task.actualFinish : task.stop)
+}
+
+// see FR-011, IV-21
+/** @purity pure */
+export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
+                               lastDay: CalendarDay): number {
+  const order = compareDays(lastDay, start)
+  if (order < 0) return -workingDaysBetween(within, lastDay, start)
+  if (order === 0) return 1
+  const between = workingDaysBetween(within, dayFromSerial(serial(start) + 1), lastDay)
+  return between + 2
+}
+
+// see FR-011
+/** @purity pure */
+export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,
+                                 length: number): CalendarDay {
+  if (length === 0) return start
+  if (length < 0) return dateFromWorkingDays(within, start, length)
+  const index = indexOfCalendar(within)
+  let at = serial(start)
+  let remaining = length - 1
+  let walked = 0
+  while (remaining > 0) {
+    if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(within.calendar.uid)
+    at += 1
+    if (isWorkingDayAt(index, at)) remaining -= 1
+  }
+  return dayFromSerial(at)
+}
+
 // see T-021b
 /** @purity pure */
 export function delayStart(task: Task): { readonly row: string; readonly from: string | null } | null {
@@ -1666,12 +1702,16 @@ const INVARIANTS: readonly Invariant[] = [
     /** @purity pure */
     find: ({ schedule }) => {
       const found: Breach[] = []
+      const within = workingCalendarOf(schedule)
       for (const [index, task] of schedule.tasks.entries()) {
-        if (task.actualStart === null || task.actualDuration === null) continue
-        if (task.actualDuration < 0) {
+        const start = dayOf(task.actualStart)
+        const last = actualLastDay(task)
+        if (start === null || last === null || compareDays(last, start) >= 0) continue
+        const length = actualLengthOf(within, start, last)
+        if (length < 0) {
           found.push({
             at: `/schedule/tasks/${index}`,
-            what: `Task uid ${task.uid} has an actual of ${task.actualDuration} worked days, ending before it starts`,
+            what: `Task uid ${task.uid} has an actual of ${length} worked days, ending before it starts`,
           })
         }
       }

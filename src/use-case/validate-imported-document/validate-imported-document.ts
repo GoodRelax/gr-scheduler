@@ -8,8 +8,11 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DATE_COLUMNS,
+  actualLastDay,
+  actualLengthOf,
   compareDays,
   dayOf,
+  workingCalendarOf,
   type CalendarDay,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
@@ -255,12 +258,17 @@ export function validateImportedDocument(
     }
 
     // see IV-21
-    if (task.actualStart !== null && task.actualDuration !== null && task.actualDuration < 0) {
+    const actualStart = dayOf(task.actualStart)
+    const lastDay = actualLastDay(task)
+    const length = actualStart === null || lastDay === null || compareDays(lastDay, actualStart) >= 0
+      ? 0
+      : actualLengthOf(workingCalendarOf(schedule), actualStart, lastDay)
+    if (length < 0) {
       found.push(
         refusal(
           'IV-21',
           foundAt,
-          `Task uid ${task.uid} has an actual of ${task.actualDuration} worked days, `
+          `Task uid ${task.uid} has an actual of ${length} worked days, `
           + 'ending before it starts',
           'NT-1',
         ),

@@ -5,6 +5,12 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import { clampedSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  dayOf,
+  lastDayForLength,
+  textOfDay,
+  workingCalendarOf,
+} from '../../entity/document-model/schedule/schedule'
 import { withoutLeadingByteOrderMark } from './mspdi-codec'
 
 export interface JsonFault {
@@ -1312,6 +1318,64 @@ function formatVersionReading(
   return schemaVersion > greatestKnownSchemaVersion ? 'newerThanKnown' : 'known'
 }
 
+interface OlderActualShape {
+  readonly shaped: unknown
+  readonly lengthByTaskIndex: ReadonlyMap<number, unknown>
+}
+
+// see FR-011, FR-073
+/** @purity pure */
+function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
+  const lengthByTaskIndex = new Map<number, unknown>()
+  const schedule = isObject(parsed) ? parsed['schedule'] : undefined
+  const tasks = isObject(schedule) ? schedule['tasks'] : undefined
+  if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(tasks)) {
+    return { shaped: parsed, lengthByTaskIndex }
+  }
+  const shapedTasks = tasks.map((task: unknown, index: number): unknown => {
+    if (!isObject(task) || !('actualDuration' in task) || 'stop' in task) return task
+    lengthByTaskIndex.set(index, task['actualDuration'])
+    return Object.fromEntries(Object.entries(task).map(([key, value]): [string, unknown] =>
+      key === 'actualDuration' ? ['stop', null] : [key, value]))
+  })
+  if (lengthByTaskIndex.size === 0) return { shaped: parsed, lengthByTaskIndex }
+  return { shaped: { ...parsed, schedule: { ...schedule, tasks: shapedTasks } }, lengthByTaskIndex }
+}
+
+/** @purity pure */
+function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): JsonFault[] {
+  const out: JsonFault[] = []
+  for (const [index, length] of lengthByTaskIndex) {
+    if (length === null || (typeof length === 'number' && Number.isInteger(length))) continue
+    out.push(fault(`/schedule/tasks/${index}/actualDuration`, 'is not a whole number of working days'))
+  }
+  return out
+}
+
+// see FR-011, AT-141
+/** @purity pure */
+function withStopsFromOlderLengths(
+  document: Document,
+  lengthByTaskIndex: ReadonlyMap<number, unknown>,
+): Document {
+  if (lengthByTaskIndex.size === 0) return document
+  const within = workingCalendarOf(document.schedule)
+  const tasks = document.schedule.tasks.map((task, index) => {
+    if (!lengthByTaskIndex.has(index)) return task
+    // WHY: an older document carried the file's own Stop; it is the day the partner wrote, so it wins over the length.
+    const carriedStop = task.carry['Stop']
+    if (carriedStop !== undefined) {
+      const carry = Object.fromEntries(Object.entries(task.carry).filter(([name]) => name !== 'Stop'))
+      return { ...task, stop: carriedStop, carry }
+    }
+    const start = dayOf(task.actualStart)
+    const length = lengthByTaskIndex.get(index)
+    if (task.actualFinish !== null || start === null || typeof length !== 'number') return task
+    return { ...task, stop: textOfDay(lastDayForLength(within, start, length)) }
+  })
+  return { ...document, schedule: { ...document.schedule, tasks } }
+}
+
 // see FR-023, FR-073, OP-7
 /** @purity pure */
 export function documentFromJson(
@@ -1333,8 +1397,9 @@ export function documentFromJson(
     greatestKnownSchemaVersion,
   )
 
-  const faults: JsonFault[] = []
-  collectFaults(parsed, GRS_DOCUMENT_SCHEMA, '', faults)
+  const older = withStopInPlaceOfActualDuration(parsed)
+  const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
+  collectFaults(older.shaped, GRS_DOCUMENT_SCHEMA, '', faults)
   const isNewer = formatVersion === 'newerThanKnown'
   const refusing = isNewer ? faults.filter((one) => !isUnknownKeyFault(one)) : faults
   if (refusing.length > 0) return refusal(refusing)
@@ -1342,8 +1407,16 @@ export function documentFromJson(
     ? [...new Set(faults.filter(isUnknownKeyFault).map((one) => columnOf(one.at)))]
     : []
 
-  // TRAP: a reader before OP-6 may find documentSettings keys missing despite this cast.
-  const read = parsed as unknown as Document
+  let read: Document
+  try {
+    // TRAP: a reader before OP-6 may find documentSettings keys missing despite this cast.
+    read = withStopsFromOlderLengths(older.shaped as unknown as Document, older.lengthByTaskIndex)
+  } catch (why) {
+    return refusal([
+      fault('/schedule/tasks', `an actual length could not be placed as a day: ${
+        why instanceof Error ? why.message : String(why)}`),
+    ])
+  }
 
   const clamp = clampedSettings(read.documentSettings)
   if (clamp.clamped.length === 0) {

@@ -3507,6 +3507,53 @@
    ]
   },
   {
+   "rowId": "IC-102",
+   "elements": [
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "6"
+      },
+      {
+       "name": "y",
+       "value": "3"
+      },
+      {
+       "name": "width",
+       "value": "12"
+      },
+      {
+       "name": "height",
+       "value": "18"
+      },
+      {
+       "name": "rx",
+       "value": "6"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M12 6.5 V10.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "rowId": "IC-58",
    "elements": [
     {
