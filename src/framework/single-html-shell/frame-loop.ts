@@ -2301,11 +2301,16 @@ export function frameLoop(
     if (on !== null) return null
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
     if (dualCursorFollowing !== null) return null
-    if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     const armed = screenState.armed
+    if (armed.kind === 'dependency') {
+      // WHY: an armed dependency applies no T-023d row (PTD-3), so an end, a dummy,
+      // a body or a figure must not promise a move; IN-2 asks for the plain arrow.
+      if (hit !== null) return 'default'
+      // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
+      return null
+    }
+    if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
     if (armed.kind === 'none') return 'default'
-    // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
-    if (armed.kind === 'dependency') return null
     return 'copy'
   }
 
