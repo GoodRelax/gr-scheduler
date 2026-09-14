@@ -755,6 +755,17 @@ function commandEntry(host: Document, item: CommandItem): HTMLElement {
   return entry
 }
 
+/** @purity non-pure */
+function anchoredEntry(
+  host: Document,
+  item: CommandItem,
+  anchors: Map<string, HTMLElement>,
+): HTMLElement {
+  const entry = commandEntry(host, item)
+  anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
+  return entry
+}
+
 // see FR-038, IC-21
 /** @purity non-pure */
 function drawLanguageReading(host: Document, entry: HTMLElement, language: DisplayLanguage): void {
@@ -1473,11 +1484,7 @@ function fillPropertiesPanel(
   // TRAP: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
   typedByRow.clear()
   const drawn = description.fields.map((field) => fieldElement(host, field, typedByRow))
-  const entries = description.commands.map((item) => {
-    const entry = commandEntry(host, item)
-    anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
-    return entry
-  })
+  const entries = description.commands.map((item) => anchoredEntry(host, item, anchors))
   if (entries.length > 0) {
     const wayOut = made(host, 'div', propertyWayOutStyle())
     wayOut.append(...entries)
@@ -1528,9 +1535,7 @@ function paletteElement(
     const box = part(host, 'div', ROLE.paletteGroups, STYLE.paletteGroup)
     const commands = part(host, 'div', ROLE.paletteCommands, STYLE.paletteCommands)
     for (const item of group.commands) {
-      const entry = commandEntry(host, item)
-      anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
-      commands.append(entry)
+      commands.append(anchoredEntry(host, item, anchors))
     }
     box.append(commands)
     laid.push(box)
@@ -1699,9 +1704,7 @@ function modalElement(
       legend = helpLegendElement(host, item)
       continue
     }
-    const entry = commandEntry(host, item)
-    anchors.set(anchorKey({ kind: 'icon', icon: item.icon }), entry)
-    header.append(entry)
+    header.append(anchoredEntry(host, item, anchors))
   }
   if (legend !== null) header.append(legend)
   const body: HTMLElement[] = []
