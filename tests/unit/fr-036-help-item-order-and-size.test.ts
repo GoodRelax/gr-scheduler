@@ -38,8 +38,6 @@
 //            T-023 の `操作`）の両方を指すこと（MUST）」 —— ⛔ 「キーだけでは
 //            `Shift ＋ ホイール` を言えない」。「どちらも持たない行は、その場所を
 //            空ける。」
-//            ⛔ 「図形を持つのは、表 T-109 がその行にちょうど 1 つの入口を置いて
-//            いる行だけである。」
 //            ⭐ 「一覧の字の大きさは ... 表 T-206 の `S-203` が定める係数で決める
 //            こと（MUST）」（利用者の指示 2026-08-29「アイコンと合わせろ」）。
 //            ⛔ 「px で持ってはならない（MUST NOT）」 —— 「理由は `S-197` と同じ
@@ -79,15 +77,6 @@
 //   3. THE NUMBER OF COLUMNS AND THE SHARE OF THE SCREEN THE HELP TAKES.
 //      `S-201` and `S-202` hold those, and they are a different question from
 //      the one DFC-105 names.
-//   4. WHAT AN ITEM CARRYING BOTH A KEY AND A MOUSE OPERATION SHOWS. ⛔ No row
-//      settles it. FR-036 says the assignment 「キー ... とマウス操作 ... の両方を
-//      指す」, which says what COUNTS as an assignment, not that a row holding
-//      both prints both; tests/unit/fr-036-assignment-of-an-entrance.test.ts
-//      records the same silence for the tooltip 「WHICH of the two an entrance
-//      shows when BOTH tables name it ... no line anywhere says which wins」. A
-//      case was written asking that both stand after the explanation and was
-//      WITHDRAWN when it failed: the page shows one of the two, and nothing in
-//      docs/spec says it may not. Reported, not asserted.
 //   5. THAT THE GLYPH ITSELF IS `S-138` ACROSS. FR-029 (MUST) states the box's
 //      side and (MUST NOT) forbids it varying by surface, and
 //      tests/unit/uf-71.test.ts is the bench that holds every entrance to it --
@@ -105,14 +94,16 @@ import type {
   ScreenFrame,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
+import { domScreenSurface, type ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
+  FakeText,
   oneByRole,
   selfAndDescendants,
+  stage,
   styleMap,
   surfaceOf,
   whatWasDrawn,
-  wire,
+  wiringOf,
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
@@ -245,6 +236,9 @@ const ITEM_ICON = 'IC-20'
 /** The one entrance the help surface itself carries (表 T-109's IC-52). */
 const CLOSE_ICON = 'IC-52'
 
+/** The row of table T-109 that marks the mouse wheel inside an assignment word. */
+const WHEEL_ICON = 'IC-102'
+
 /**
  * One item of the help list.
  *
@@ -292,8 +286,16 @@ const HEADER_HEIGHT = { 'App Header': 37 }
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
+// WHY: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
+function wireWithTextNodes(theme: ScreenTheme, heightsByRole: Record<string, number>): Stage {
+  const built = stage(heightsByRole)
+  Object.assign(built.host, { createTextNode: (data: string): FakeText => new FakeText(data) })
+  built.surface = domScreenSurface(wiringOf(built, theme))
+  return built
+}
+
 function drawn(entries: readonly HelpItem[]): { built: Stage; help: FakeElement } {
-  const built = wire(THEME, HEADER_HEIGHT)
+  const built = wireWithTextNodes(THEME, HEADER_HEIGHT)
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, openModal: helpWith(entries) })
   return { built, help: oneByRole(built.root(), U_30_HELP) }
 }
@@ -593,6 +595,38 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
 
     expect(explanation, `the item reads ${whatWasDrawn(item)}`).toBeGreaterThan(glyph)
     expect(assignment).toBeGreaterThan(explanation)
+  })
+
+  it('MUST: an entrance named by a key row and a mouse row carries both assignments after the explanation', () => {
+    const { help } = drawn([entry({ keys: KEYS, press: PRESS })])
+
+    const explanationCell = theCellShowing(help, EXPLANATION)
+    const keysCell = theCellShowing(help, KEYS)
+    const pressCell = theCellShowing(help, PRESS)
+    const item = commonAncestor(explanationCell, keysCell)
+    const order = selfAndDescendants(item)
+
+    expect(order.indexOf(keysCell), `the item reads ${whatWasDrawn(item)}`).toBeGreaterThan(
+      order.indexOf(explanationCell),
+    )
+    expect(order.indexOf(pressCell), `the item reads ${whatWasDrawn(item)}`).toBeGreaterThan(
+      order.indexOf(explanationCell),
+    )
+  })
+
+  it('MUST: the wheel inside a mouse word is drawn as the IC-102 glyph, never as its row id', () => {
+    const { help } = drawn([entry({ press: `${PRESS} {${WHEEL_ICON}}` })])
+
+    const explanationCell = theCellShowing(help, EXPLANATION)
+    const assignmentCell = theCellShowing(help, PRESS)
+    const item = commonAncestor(explanationCell, assignmentCell)
+    const order = selfAndDescendants(item)
+    const wheel = theGlyphIn(assignmentCell, WHEEL_ICON)
+
+    expect(help.textContent, 'the row id of the wheel reached the screen as text').not.toContain(WHEEL_ICON)
+    expect(order.indexOf(wheel), `the item reads ${whatWasDrawn(item)}`).toBeGreaterThan(
+      order.indexOf(explanationCell),
+    )
   })
 })
 

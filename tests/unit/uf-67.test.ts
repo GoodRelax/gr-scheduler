@@ -646,7 +646,7 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     }
   })
 
-  it('owes those words no longer: one section is keyed on the rows of table T-233 and holds both of their words', () => {
+  it('owes those words no longer: one section is keyed on the rows of table T-233, one on the rows of table T-220, each holding both words', () => {
     // ⭐ THE SAME TRIPWIRE, TURNED THE OTHER WAY UP. It was written to go red the
     // day the manuscript grew a section a reason could be looked up under, so
     // that the reds above could not be forgotten. ⛔ IT DID NOT FIRE: it looked
@@ -687,15 +687,26 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     }
 
     const answering = sections.filter(([, value]) => answersForAReason(value))
+    const rowsOf = (value: unknown): readonly unknown[] => entriesOf(value).map((entry) => entry['rowId'])
+    const T_220_ROWS = specTable('T-220').rows.map((row) => row.id)
+    const sameRows = (value: unknown, rows: readonly string[]): boolean =>
+      JSON.stringify(rowsOf(value)) === JSON.stringify(rows)
 
+    expect(T_220_ROWS.length, 'table T-220 is read and holds rows').toBeGreaterThan(0)
     expect(
-      answering.map(([name]) => name),
-      'FR-076 / FR-038: exactly one section holds NT-1 s words and NT-3a s next step per reason',
+      answering.filter(([, value]) => sameRows(value, T_233.map((entry) => entry.row))).map(([name]) => name),
+      'FR-076 (MUST): exactly one section holds the words and the next step of every row of table T-233, and nothing else',
     ).toHaveLength(1)
     expect(
-      entriesOf((answering[0] as readonly [string, unknown])[1]).map((entry) => entry['rowId']),
-      'FR-076 (MUST): every row of 表 T-233, and (MUST NOT) nothing that is not one',
-    ).toEqual(T_233.map((entry) => entry.row))
+      answering.filter(([, value]) => sameRows(value, T_220_ROWS)).map(([name]) => name),
+      'FR-076 (MUST): exactly one section holds the words and the next step of every row of table T-220 an import refusal carries',
+    ).toHaveLength(1)
+    expect(
+      answering.filter(
+        ([, value]) => !sameRows(value, T_233.map((entry) => entry.row)) && !sameRows(value, T_220_ROWS),
+      ).map(([name]) => name),
+      'FR-076 (MUST NOT): no section answers for reasons outside those two tables',
+    ).toEqual([])
     expect(
       T_233.map((entry) => entry.row),
       'FR-076: the row a reason with no row of its own falls to has to be one of them',

@@ -63,8 +63,8 @@
 //   FR-055  what the row falls back to -- 「1 つの操作で、縦横の倍率と表示位置を
 //           全体が収まる側へ合わせること」 -- and `HF-8` of table T-051, whose
 //           MUST NOT the ruling explicitly does not move.
-//   T-036   SK-16 (`Shift` ＋ `+` / `Shift` ＋ `-`, entrances IC-13 / IC-12),
-//           SK-16a (`Alt` ＋ `+` / `Alt` ＋ `-`, entrances IC-15 / IC-14) and
+//   T-036   SK-16 (Shift + '+', IC-13), SK-16b (Shift + '-', IC-12),
+//           SK-16a (Alt + '+', IC-15), SK-16c (Alt + '-', IC-14) and
 //           SK-18 (`F`, entrance IC-10) -- the keys that reach the four
 //           entrances the measurement names.
 //   T-109   IC-10 全体を 1 画面に収める / IC-12 時間軸を縮小する /
@@ -267,7 +267,7 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -482,7 +482,8 @@ describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
     // ⭐ Not a copy of the assignment column: what is asserted is the tie
     // between the row this file presses and the entrance OP-10 names.
     expect(entrancesOf('SK-16')).toContain('IC-13')
-    expect(entrancesOf('SK-16')).toContain('IC-12')
+    expect(entrancesOf('SK-16')).not.toContain('IC-12')
+    expect(entrancesOf('SK-16b')).toContain('IC-12')
     expect(entrancesOf('SK-16a')).toContain('IC-15')
     expect(entrancesOf('SK-18')).toContain('IC-10')
   })

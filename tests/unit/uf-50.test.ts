@@ -105,10 +105,8 @@ import { specTable } from '../contract/spec-table'
  * and the note under the table says such a row 「その経路を持たないと定めた記録
  * であって、割当ではない」.
  *
- * ⚠️ `hostKey` / `hostCode` are what a common layout actually reports, which is
- * the whole difficulty of `SK-16` and `SK-16a`: `Shift`＋`-` arrives as `_` and
- * `Alt`＋`+` arrives as `=`, so only the physical key is the same in both
- * (PND-93).
+ * `hostKey` / `hostCode` are what a common layout reports: Shift+- arrives as
+ * `_` and Alt++ as `=`, so only the physical key is shared (PND-93).
  */
 const T_036_KEYS = [
   { row: 'SK-19', hostKey: 'Enter', hostCode: 'Enter', mods: {}, key: 'Enter' },
@@ -129,9 +127,9 @@ const T_036_KEYS = [
   { row: 'SK-14', hostKey: 'p', hostCode: 'KeyP', mods: {}, key: 'P' },
   { row: 'SK-15', hostKey: 'F11', hostCode: 'F11', mods: {}, key: 'F11' },
   { row: 'SK-16', hostKey: '+', hostCode: 'Equal', mods: { shift: true }, key: '+' },
-  { row: 'SK-16', hostKey: '_', hostCode: 'Minus', mods: { shift: true }, key: '-' },
+  { row: 'SK-16b', hostKey: '_', hostCode: 'Minus', mods: { shift: true }, key: '-' },
   { row: 'SK-16a', hostKey: '=', hostCode: 'Equal', mods: { alt: true }, key: '+' },
-  { row: 'SK-16a', hostKey: '-', hostCode: 'Minus', mods: { alt: true }, key: '-' },
+  { row: 'SK-16c', hostKey: '-', hostCode: 'Minus', mods: { alt: true }, key: '-' },
   { row: 'SK-17', hostKey: '0', hostCode: 'Digit0', mods: { ctrl: true }, key: '0' },
   { row: 'SK-18', hostKey: 'f', hostCode: 'KeyF', mods: {}, key: 'F' },
   { row: 'SK-20', hostKey: 'd', hostCode: 'KeyD', mods: { ctrl: true, shift: true }, key: 'D' },
@@ -147,7 +145,7 @@ const T_036_KEYS = [
  */
 const T_036_NUMPAD = [
   { row: 'SK-16', hostKey: '+', hostCode: 'NumpadAdd', mods: { shift: true }, key: '+' },
-  { row: 'SK-16', hostKey: '-', hostCode: 'NumpadSubtract', mods: { shift: true }, key: '-' },
+  { row: 'SK-16b', hostKey: '-', hostCode: 'NumpadSubtract', mods: { shift: true }, key: '-' },
   { row: 'SK-17', hostKey: '0', hostCode: 'Numpad0', mods: { ctrl: true }, key: '0' },
 ] as const
 

@@ -297,18 +297,11 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   paletteGroups: 'firstRow',
   surfaces: 'name',
   notices: 'rowId',
-  // ⭐ THE FOUR TABLES FR-036 (MUST) PUTS ON THE HELP THAT NO SECTION ALREADY
-  // CARRIED (CR-279). Table T-023 is `assignments` and table T-023b is `arms`,
-  // both raised for other surfaces and serving the help too; these four --
-  // T-023a, T-023c, T-023d and T-036 -- had no word anywhere, which is why the
-  // help could not be built without inventing one (FR-038, MUST NOT).
-  // ⚠️ THEY STAND HERE BECAUSE THAT IS WHERE THE GENERATOR PRINTS THEM, which
-  // is what this roster records -- see the note on `arms` below.
-  pressOrder: 'rowId',
-  selecting: 'rowId',
-  grabAreas: 'rowId',
   shortcuts: 'rowId',
+  helpHeadings: 'block',
+  helpNotes: 'rowId',
   reasons: 'rowId',
+  invariants: 'rowId',
   questions: 'rowId',
   confirmation: 'answer',
   noticeDismiss: 'answer',
@@ -453,6 +446,16 @@ const T234 = specTable('T-234').rows.map((row) => ({
   row: row.id,
   namesWhatGoes: (row.by['名前を挙げるか'] ?? '').trim().startsWith('挙げる'),
 }))
+
+const T220 = specTable('T-220').rows.map((row) => row.id)
+
+// see FR-076
+const IMPORT_REFUSAL_MANNER = ((): string => {
+  const requirements = readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  const found = /取り込みの検証が拒んだとき、`(NT-\d+[a-z]?)` の通知が運ぶ理由は/.exec(requirements)
+  if (found === null) throw new Error('FR-076 no longer names the manner an import refusal is told in')
+  return found[1] as string
+})()
 
 const t109Row = (rowId: string) => T109.rows.find((row) => row.id === rowId)
 
@@ -1268,19 +1271,35 @@ const helpEntryText = (view: ScreenView, rowId: string): string | undefined => {
   return entries?.find((entry) => entry.row === rowId)?.text
 }
 
-for (const section of ['pressOrder', 'selecting', 'grabAreas', 'shortcuts'] as const) {
+for (const entry of GENERATED['shortcuts'] ?? []) {
+  const rowId = keyOf('shortcuts', entry)
+  place({
+    section: 'shortcuts',
+    key: rowId,
+    field: 'text',
+    unit: 'UF-66',
+    what: `what the help says about ${rowId}`,
+    frame: surfaceOpen('Help Modal'),
+    read: (view) => helpEntryText(view, rowId),
+  })
+}
+
+for (const section of ['helpHeadings', 'helpNotes'] as const) {
   for (const entry of GENERATED[section] ?? []) {
-    const rowId = keyOf(section, entry)
-    place({
+    drop(
       section,
-      key: rowId,
-      field: 'text',
-      unit: 'UF-66',
-      what: `what the help says about ${rowId}`,
-      frame: surfaceOpen('Help Modal'),
-      read: (view) => helpEntryText(view, rowId),
-    })
+      keyOf(section, entry),
+      'FR-036 names no member of the help that carries this word, so the whole-view reading asks for it instead',
+    )
   }
+}
+
+for (const entry of GENERATED['invariants'] ?? []) {
+  drop(
+    'invariants',
+    keyOf('invariants', entry),
+    'its place is a member of UF-67 (notices.ts); a telling per row of table T-220 is raised for the whole-view reading instead',
+  )
 }
 
 // ⛔ NO PLACE IS BUILT FOR A PANEL HEADING, and none may be: there is no heading
@@ -1614,6 +1633,10 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
       what: `the telling ${entry.row} of table T-233 raises, in the manner of ${entry.manner}`,
       frame: TELLING(entry.manner, entry.row),
     })),
+    ...T220.map((row) => ({
+      what: `the import refusal ${row} of table T-220 raises, in the manner of ${IMPORT_REFUSAL_MANNER}`,
+      frame: TELLING(IMPORT_REFUSAL_MANNER, row),
+    })),
   ]) {
     if (seen.has(one.frame)) continue
     seen.add(one.frame)
@@ -1901,6 +1924,25 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
     ).not.toContain('panelHeadings')
   })
 
+  it('FR-036 lists only keys and icons -> both files are read -> no section for tables T-023a, T-023c or T-023d is left, shortcuts is the key rows with no entrance, and invariants is table T-220', () => {
+    for (const retired of ['pressOrder', 'selecting', 'grabAreas']) {
+      expect(Object.keys(GENERATED), `the generated dictionary still holds ${retired}`).not.toContain(retired)
+      expect(Object.keys(MANUSCRIPT), `the manuscript still holds ${retired}`).not.toContain(retired)
+    }
+    const keyRowsWithoutEntrance = specTable('T-036')
+      .rows.filter((row) => (row.by['入口'] ?? '').replace(/`/g, '').trim() === '—')
+      .filter((row) => !/^[—-]$/.test((row.by['割当'] ?? '').trim()))
+      .map((row) => row.id)
+    expect(keyRowsWithoutEntrance.length).toBeGreaterThan(0)
+    expect((MANUSCRIPT['shortcuts'] ?? []).map((entry) => keyOf('shortcuts', entry)).sort()).toEqual(
+      [...keyRowsWithoutEntrance].sort(),
+    )
+    expect(T220.length).toBeGreaterThan(0)
+    expect((MANUSCRIPT['invariants'] ?? []).map((entry) => keyOf('invariants', entry)).sort()).toEqual(
+      [...T220].sort(),
+    )
+  })
+
   it('holds a word for every row of table T-109 -> the two rosters are compared -> the icons section is that table', () => {
     // FR-029 (MUST) makes table T-109 the whole of the icons, so a word missing
     // from this section is a place the road cannot reach whatever is written.
@@ -2066,6 +2108,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'confirmation' ||
       cell.section === 'confirmationMarks' ||
       cell.section === 'reasons' ||
+      cell.section === 'invariants' ||
+      cell.section === 'helpHeadings' ||
+      cell.section === 'helpNotes' ||
       cell.section === 'questions' ||
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||

@@ -16,9 +16,6 @@
 //   T-036 の結び  ⭐ 「`入口` の欄は、その割当が動かす 表 T-109 の行を名指すこと
 //                 （MUST）。行 ID で書き、割当の綴りも入口の説明も写してはなら
 //                 ない（MUST NOT）」 -- 「綴りの家は 1 つである（`R3.4`）」。
-//                 ⚠️ 「1 つの割当が入口を 2 つ動かすことがある（`SK-16` は拡大と
-//                 縮小）ので、`/` で並べてよい。動かす入口が無い行は `—` とする
-//                 こと（MUST）」。
 //   T-023 の結び  ⭐ 「`入口` の欄の規則は 表 T-036 の結びが持つ」 -- so one rule
 //                 governs two tables, and both are walked here.
 //   EZ-2 (T-040)  ⭐ 「説明の後ろに、その行の割当も出すこと（MUST）」、「割当が
@@ -56,11 +53,6 @@
 // and by `npm run gen:check`.
 //
 // ⭐ WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED:
-//   * WHICH of the two an entrance shows when BOTH tables name it. IC-12 ..
-//     IC-15 are named by 表 T-036 (`SK-16` / `SK-16a`) and by 表 T-023 (`MK-3` /
-//     `MK-4`) at once, and no line anywhere says which wins. So the cases for
-//     those four ask only that the place is not left empty, and that whatever
-//     stands there is one of the two the specification allows.
 //   * WHAT SEPARATES the explanation from the assignment on the screen. EZ-2
 //     says 「説明の後ろに」 and stops; the `Tooltip` carries them as two members,
 //     and no case here asks for a joining string.
@@ -132,8 +124,10 @@ const KEY_DRIVERS = [
   { row: 'SK-13', icons: ['IC-22'] },
   { row: 'SK-14', icons: ['IC-7'] },
   { row: 'SK-15', icons: ['IC-11'] },
-  { row: 'SK-16', icons: ['IC-13', 'IC-12'] },
-  { row: 'SK-16a', icons: ['IC-15', 'IC-14'] },
+  { row: 'SK-16', icons: ['IC-13'] },
+  { row: 'SK-16b', icons: ['IC-12'] },
+  { row: 'SK-16a', icons: ['IC-15'] },
+  { row: 'SK-16c', icons: ['IC-14'] },
   { row: 'SK-18', icons: ['IC-10'] },
   { row: 'SK-20', icons: ['IC-44'] },
 ] as const
@@ -341,6 +335,12 @@ describe('表 T-036 の結び (MUST) — the 入口 column names rows of 表 T-1
     expect(driversOf(T_023)).toEqual(MOUSE_DRIVERS.map((one) => ({ ...one, icons: [...one.icons] })))
   })
 
+  it('gives each key row of 表 T-036 at most one entrance, since a key carries no direction in its input', () => {
+    for (const one of driversOf(T_036)) {
+      expect(one.icons, `${one.row} names ${one.icons.join(' / ')}`).toHaveLength(1)
+    }
+  })
+
   it('names four entrances from both tables at once, and no other', () => {
     // ⭐ The reading the cases below rest on, taken from the tables rather than
     // asserted from the head comment.
@@ -402,13 +402,11 @@ describe('EZ-2 (MUST) — a key row puts its spelling behind the explanation', (
 describe('EZ-2 (MUST) — a mouse row puts the dictionary word behind the explanation', () => {
   for (const { row, icons } of MOUSE_DRIVERS) {
     for (const icon of icons) {
-      it(`${icon} shows exactly what the dictionary holds for 表 T-023 の ${row}`, () => {
-        // FR-036: 「マウス操作は語である（MUST）…辞書が 表 T-023 の行 ID で持つ
-        // こと（MUST）」.
+      it(`${icon} carries exactly the word the dictionary holds for 表 T-023 の ${row}`, () => {
         for (const language of LANGUAGES) {
-          expect(assignmentShownFor(icon, language), `${icon} in ${language}`).toBe(
-            pressWordOf(row, language),
-          )
+          const word = pressWordOf(row, language)
+          expect(word, `the dictionary holds an empty mouse word for ${row} in ${language}`).not.toBe('')
+          expect(assignmentShownFor(icon, language) ?? '', `${icon} in ${language}`).toContain(word)
         }
       })
     }
@@ -433,8 +431,7 @@ describe('EZ-2 (MUST) — a mouse row puts the dictionary word behind the explan
 
 describe('FR-036 — an entrance the tables name from both sides, and one they name at all', () => {
   for (const icon of NAMED_BY_BOTH) {
-    it(`${icon} leaves no empty place, and shows one of the two the tables allow`, () => {
-      // ⛔ NOTHING DECIDES WHICH of the two wins, so nothing here asks for one.
+    it(`${icon} carries the assignment of both rows that name it, the key and the mouse operation`, () => {
       const keyRow = KEY_DRIVERS.find((one) => (one.icons as readonly string[]).includes(icon))
       const mouseRow = MOUSE_DRIVERS.find((one) => (one.icons as readonly string[]).includes(icon))
       expect(keyRow, `表 T-036 no longer names ${icon}`).toBeDefined()
@@ -444,9 +441,11 @@ describe('FR-036 — an entrance the tables name from both sides, and one they n
         expect(shown, `EZ-2 (MUST): ${icon} shows no assignment in ${language}`).not.toBeNull()
         const asMouse = pressWordOf((mouseRow as { row: string }).row, language)
         const asKey = spellingsIn(cellOf(T_036, (keyRow as { row: string }).row, '割当'))
-        const isMouse = shown === asMouse
-        const isKey = asKey.every((spelling) => (shown ?? '').includes(spelling))
-        expect(isMouse || isKey, `${icon} (${language}) shows 「${shown ?? ''}」`).toBe(true)
+        expect(asKey.length, `表 T-036 writes no spelling for ${icon}`).toBeGreaterThan(0)
+        for (const spelling of asKey) {
+          expect(shown ?? '', `${icon} (${language}) drops the key 「${spelling}」`).toContain(spelling)
+        }
+        expect(shown ?? '', `${icon} (${language}) drops the mouse operation`).toContain(asMouse)
       }
     })
   }

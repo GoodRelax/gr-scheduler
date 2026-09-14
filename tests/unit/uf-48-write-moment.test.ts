@@ -211,7 +211,7 @@ function twoRowDocument(): Document {
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -1329,18 +1329,15 @@ describe('the tables these ten entrances are driven by', () => {
     // appendix states both halves: 「表 T-109 から `IC-46`（`'none'` にする）と
     // `IC-49`（`'double-vertical'`）が退役し、`IC-45`（測る 2 本）が `IC-48`
     // （縦 1 本）の右へ移った。89 行」 and 「⛔ **席は空けたまま詰めていない。**」
-    // ⚠️ THE HEIGHT IS NOT THAT APPENDIX ROW'S ANY MORE, and the retirement is.
-    // A changelog row records the day it was written and is never rewritten, so
-    // the count in it is the count of THAT day; the height of the table today is
-    // stated by the glossary's own sentence above table T-109 (「92 行ある」), and
-    // three rows were added under it on 2026-09-09 (IC-99 / IC-100 / IC-101, the
-    // ruling 「一旦提案通りでやれ。」). ⭐ What this case is for is the two empty
-    // seats, which are unaffected by anything added at the foot of the table.
     const ids = specTable('T-109').rows.map((one) => one.id)
     expect(ids, 'IC-46 was the entrance to `none`, which FR-048 now reaches by a re-press').not.toContain('IC-46')
     expect(ids, 'IC-49 was the entrance to the retired `double-vertical`').not.toContain('IC-49')
     expect(ids, 'the seats are left empty, so the rows around them stayed').toContain('IC-45')
-    expect(ids.length, 'table T-109 stands at 92 rows').toBe(92)
+    // STEP: read the height the glossary states above table T-109
+    const glossary = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8')
+    const stated = /\*\*(\d+) 行ある。\*\*/.exec(glossary.slice(glossary.indexOf('T-109')))
+    expect(stated, 'the glossary no longer states the height of table T-109').not.toBeNull()
+    expect(ids.length, 'table T-109 stands at the height its preamble states').toBe(Number((stated as RegExpExecArray)[1]))
   })
 
   it('⛔ FR-048 places no second entrance for putting a cursor away', () => {

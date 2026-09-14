@@ -84,13 +84,15 @@ import type {
   ScreenView,
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
+import { domScreenSurface, type ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
+  FakeText,
   oneByRole,
   selfAndDescendants,
+  stage,
   styleMap,
   surfaceOf,
-  wire,
+  wiringOf,
   type FakeElement,
   type Stage,
 } from '../fixtures/fake-browser'
@@ -211,8 +213,16 @@ const HEADER_HEIGHT = { 'App Header': 37 }
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
+// WHY: a DOM host offers createTextNode and the shared fake document does not, so it is added here.
+function wireWithTextNodes(theme: ScreenTheme, heightsByRole: Record<string, number>): Stage {
+  const built = stage(heightsByRole)
+  Object.assign(built.host, { createTextNode: (data: string): FakeText => new FakeText(data) })
+  built.surface = domScreenSurface(wiringOf(built, theme))
+  return built
+}
+
 function drawn(tooltips: readonly Tooltip[]): { built: Stage; tooltip: FakeElement } {
-  const built = wire(THEME, HEADER_HEIGHT)
+  const built = wireWithTextNodes(THEME, HEADER_HEIGHT)
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, tooltips })
   return { built, tooltip: oneByRole(built.root(), U_53) }
 }

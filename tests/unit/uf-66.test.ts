@@ -142,6 +142,7 @@ const T_109_MODAL_PLACEMENTS = [
   { row: 'IC-71', surfaces: [U_56_OPEN_CHOOSER] },
   { row: 'IC-72', surfaces: [U_56_OPEN_CHOOSER] },
   { row: 'IC-73', surfaces: [U_56_OPEN_CHOOSER] },
+  { row: 'IC-102', surfaces: [U_30_HELP] },
 ] as const
 
 /**
@@ -406,13 +407,27 @@ describe('UF-66 -- FR-029 (MUST): the placement follows table T-109', () => {
     }
   })
 
-  it('gives the help both entries: IC-52 and FR-038 second language entry', () => {
-    // IC-52 closes the open surface (table T-109), and FR-038 (MUST) puts the
-    // second language entry inside the help.
+  it('gives the help its three entries: IC-52, FR-038 second language entry and the IC-102 legend', () => {
     const icons = iconsOf(describedOn(U_30_HELP))
     expect(icons).toContain('IC-52')
     expect(icons).toContain(FR_038_SECOND_ENTRY.row)
-    expect(icons.length).toBe(2)
+    expect(icons).toContain('IC-102')
+    expect(icons.length).toBe(3)
+  })
+
+  it('holds the copy of table T-109 to the table: every row placed on a surface asked about is in it', () => {
+    const asked = new Set<string>(SURFACES_ASKED)
+    const fromTable = specTable('T-109')
+      .rows.map((row) => ({
+        row: row.id,
+        surfaces: (row.by['面'] ?? '').split('/').map((one) => bare(one.trim())).filter((one) => asked.has(one)),
+      }))
+      .filter((one) => one.surfaces.length > 0)
+    expect(
+      fromTable.map((one) => `${one.row}:${[...one.surfaces].sort().join(',')}`).sort(),
+    ).toEqual(
+      T_109_MODAL_PLACEMENTS.map((one) => `${one.row}:${[...one.surfaces].sort().join(',')}`).sort(),
+    )
   })
 
   it('keeps the language entry off the AI export, which FR-038 does not name', () => {
