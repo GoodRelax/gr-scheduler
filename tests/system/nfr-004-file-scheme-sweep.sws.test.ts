@@ -608,6 +608,89 @@ async function drawingOf(page: Page): Promise<string> {
   })()`)) as string
 }
 
+interface AxisSpans {
+  readonly timeSpans: Readonly<Record<string, number>>
+  readonly rowSpans: Readonly<Record<string, number>>
+}
+
+// WHY: a plan run's width is days times the day width, and a row band's height
+// WHY: is the row axis; both are keyed so one reading is compared id by id.
+/** @purity non-pure */
+async function axisSpansOf(page: Page): Promise<AxisSpans> {
+  return (await page.evaluate(`(() => {
+    const timeSpans = {}
+    const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
+    if (svg !== null) {
+      const boxes = {}
+      for (const e of svg.querySelectorAll('[data-figure]')) {
+        const key = e.getAttribute('data-figure') || ''
+        if (!key.endsWith('-plan')) continue
+        const r = e.getBoundingClientRect()
+        const had = boxes[key]
+        boxes[key] = had === undefined
+          ? { left: r.left, right: r.right }
+          : { left: Math.min(had.left, r.left), right: Math.max(had.right, r.right) }
+      }
+      for (const key of Object.keys(boxes)) {
+        const width = boxes[key].right - boxes[key].left
+        if (width >= 2) timeSpans[key] = width
+      }
+    }
+    const rowSpans = {}
+    for (const row of document.querySelectorAll('[data-group-id][data-depth]')) {
+      const height = row.getBoundingClientRect().height
+      if (height >= 1) rowSpans[row.getAttribute('data-group-id') || ''] = height
+    }
+    return { timeSpans, rowSpans }
+  })()`)) as AxisSpans
+}
+
+/** @purity pure */
+function medianRatio(
+  before: Readonly<Record<string, number>>,
+  after: Readonly<Record<string, number>>,
+): number | null {
+  const ratios = Object.keys(before)
+    .filter((key) => after[key] !== undefined)
+    .map((key) => (after[key] ?? 0) / (before[key] ?? 1))
+    .sort((a, b) => a - b)
+  if (ratios.length === 0) return null
+  return ratios[Math.floor(ratios.length / 2)] ?? null
+}
+
+// WHY: moved alone is vacuous for a zoom key (any redraw moves the hashes), so
+// WHY: the act throws unless the named axis stepped the named way and only it.
+// see FR-016, T-036
+/** @purity non-pure */
+async function zoomStroke(
+  page: Page,
+  keys: string,
+  axis: 'time' | 'row',
+  direction: 'in' | 'out',
+): Promise<null> {
+  const before = await axisSpansOf(page)
+  await page.keyboard.press(keys)
+  await settled(page)
+  const after = await axisSpansOf(page)
+  const time = medianRatio(before.timeSpans, after.timeSpans)
+  const row = medianRatio(before.rowSpans, after.rowSpans)
+  const moving = axis === 'time' ? time : row
+  const still = axis === 'time' ? row : time
+  const told = `${keys}: time axis x${String(time)}, row axis x${String(row)}`
+  if (moving === null || still === null) {
+    throw new Error(`${told} -- no id was drawn both before and after the key to compare`)
+  }
+  const tolerance = 0.005
+  const stepped = direction === 'in' ? moving > 1 + tolerance : moving < 1 - tolerance
+  if (!stepped) {
+    throw new Error(`${told} -- the ${axis} axis was to zoom ${direction} and did not`)
+  }
+  if (Math.abs(still - 1) > tolerance) {
+    throw new Error(`${told} -- the key names the ${axis} axis only, and the other axis moved`)
+  }
+  return null
+}
+
 interface Probe {
   readonly rows: readonly string[]
   // WHY: answersWhileHeld is SL-3/PTD-1/GR-19's while-held answer; placesNothing
@@ -1069,8 +1152,10 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-13'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'F1') },
   { rows: ['SK-14'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'p') },
   { rows: ['SK-15'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'F11') },
-  { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Shift+=') },
-  { rows: ['SK-16a'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Alt+=') },
+  { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+=', 'time', 'in') },
+  { rows: ['SK-16b'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+-', 'time', 'out') },
+  { rows: ['SK-16a'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Alt+=', 'row', 'in') },
+  { rows: ['SK-16c'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Alt+-', 'row', 'out') },
   { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
