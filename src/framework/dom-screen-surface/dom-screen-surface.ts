@@ -2601,8 +2601,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     isWatermarkUnlockTakenBack = false
   }
 
-  // see IN-5a, WS-2
-  // STOP: spec does not decide whether the Dialogue Field's unsettled text counts. Looked in IN-5a, WS-2, AG-9 (PND-350)
+  // see IN-5a, IF-9, WS-2
+  // TRAP: counting the Dialogue Field here refuses WS-2 writes while it has focus;
+  // dom-input-source.ts leaves its typed keys to the browser instead.
   /** @purity semi-pure-b */
   function hasUnsettledTextEntry(): boolean {
     return heldTextControl !== null || isWatermarkUnlockHeld || documentTitleEntry !== null

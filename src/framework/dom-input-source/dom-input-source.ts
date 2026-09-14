@@ -120,6 +120,36 @@ function keyOf(event: { readonly key: string; readonly code: string }): string {
   return event.key
 }
 
+// TRAP: dom-screen-surface.ts ROLE.dialogueField must spell it the same; a misspelling
+// hands the typed letters to table T-036 again.
+const DIALOGUE_ENTRY = '[data-role="Dialogue Field"] input'
+const HOST_DELETE = 'Delete'
+const HOST_BACKSPACE = 'Backspace'
+const HOST_COPY = 'C'
+const HOST_PASTE = 'V'
+
+// see IN-5a, SK-4, SK-5
+/** @purity semi-pure-b */
+function isTypedIntoDialogueEntry(event: {
+  readonly key: string
+  readonly target: EventTarget | null
+  readonly ctrlKey: boolean
+  readonly altKey: boolean
+  readonly metaKey: boolean
+}): boolean {
+  const target = event.target as { closest?: unknown } | null | undefined
+  if (target === null || target === undefined || typeof target.closest !== 'function') {
+    return false
+  }
+  if ((target as Element).closest(DIALOGUE_ENTRY) === null) return false
+  if (event.altKey || event.metaKey) return false
+  if (event.ctrlKey) {
+    const letter = event.key.toUpperCase()
+    return letter === HOST_COPY || letter === HOST_PASTE
+  }
+  return event.key.length === 1 || event.key === HOST_DELETE || event.key === HOST_BACKSPACE
+}
+
 /** @purity pure */
 function pixelsPerUnit(deltaMode: number, pageSize: number): number {
   if (deltaMode === DELTA_IN_LINES) return PIXELS_PER_LINE
@@ -331,6 +361,7 @@ export function domInputSource(
   function onKeyDown(event: Event): void {
     if (watcher === null) return
     const key = event as KeyboardEvent
+    if (isTypedIntoDialogueEntry(key)) return
     deliver({ kind: 'key', key: keyOf(key), modifiers: modifiersOf(key) }, key)
   }
 
