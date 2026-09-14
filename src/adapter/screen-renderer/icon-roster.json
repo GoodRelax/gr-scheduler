@@ -648,6 +648,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-103",
+   "surfaces": [
+    "Command Palette"
+   ],
+   "group": "カーソル",
+   "entryTo": "名称ラベルに予定日を添える・外す（`S-232`。<br>書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並びを決めるのは本表の `群` の欄だけであり（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない",
+   "authority": "`FR-049`（`FR-002`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-44",
    "surfaces": [
     "Command Palette"

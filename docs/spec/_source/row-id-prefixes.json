@@ -624,6 +624,14 @@
    }
   },
   {
+   "prefix": "ND",
+   "words": "Name-label Dates",
+   "owner": "spec",
+   "means": {
+    "ja": "名称ラベルに添える予定日の文字の書き方"
+   }
+  },
+  {
    "prefix": "NF",
    "words": "No Figure",
    "owner": "spec",

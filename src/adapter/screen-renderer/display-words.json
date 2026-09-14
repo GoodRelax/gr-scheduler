@@ -640,6 +640,17 @@
    }
   },
   {
+   "rowId": "IC-103",
+   "label": {
+    "ja": "予定日",
+    "en": "Planned Dates"
+   },
+   "hint": {
+    "ja": "タスクとマイルストーンの名前の右に予定日を表示する。もう一度押すと非表示にする",
+    "en": "Show the planned dates to the right of task and milestone names; press again to hide them"
+   }
+  },
+  {
    "rowId": "IC-44",
    "label": {
     "ja": "基準日",
@@ -1969,6 +1980,16 @@
    }
   },
   {
+   "rowId": "K-124",
+   "keys": [
+    "planDatesVisible"
+   ],
+   "label": {
+    "ja": "名称ラベルに添える予定日",
+    "en": "planDatesVisible"
+   }
+  },
+  {
    "rowId": "K-77",
    "keys": [
     "dependencyVisible"
@@ -2355,7 +2376,7 @@
    }
   },
   {
-   "firstRow": "IC-44",
+   "firstRow": "IC-103",
    "name": {
     "ja": "カーソル",
     "en": "Cursors"

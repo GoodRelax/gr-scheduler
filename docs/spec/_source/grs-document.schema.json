@@ -169,6 +169,7 @@
     "pinnedRowMax",
     "planActualGuidePattern",
     "planActualGuideWeight",
+    "planDatesVisible",
     "planStroke",
     "planVisible",
     "progressLineOverhang",
@@ -538,6 +539,9 @@
      "type": "number",
      "minimum": 0.5,
      "maximum": 2
+    },
+    "planDatesVisible": {
+     "type": "boolean"
     },
     "planStroke": {
      "type": "integer",

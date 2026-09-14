@@ -1535,6 +1535,20 @@
      }
     },
     {
+     "id": "S-232",
+     "key": "`planDatesVisible`",
+     "type": {
+      "ja": "真偽"
+     },
+     "default": {
+      "lit": "false",
+      "code": true
+     },
+     "note": {
+      "ja": "名称ラベルの右に添える予定日。規則と書き方は `FR-002` の 表 T-251。既定は隠す —— 担当ラベル（`S-60`）と同じく、外へ出したラベルが長くなって段数が増えるため（`FR-049`）"
+     }
+    },
+    {
      "id": "S-62",
      "key": "`dependencyVisible`",
      "type": {

@@ -1171,7 +1171,21 @@
   {
    "kind": "item",
    "block": "Command Palette",
-   "segment": "IC-44",
+   "segment": "IC-103",
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-103",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-103"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "block": "Command Palette",
+   "segment": "IC-103",
    "indent": false,
    "table": "T-109",
    "row": "IC-44",
@@ -1185,7 +1199,7 @@
   {
    "kind": "item",
    "block": "Command Palette",
-   "segment": "IC-44",
+   "segment": "IC-103",
    "indent": false,
    "table": "T-109",
    "row": "IC-47",
@@ -1199,7 +1213,7 @@
   {
    "kind": "item",
    "block": "Command Palette",
-   "segment": "IC-44",
+   "segment": "IC-103",
    "indent": false,
    "table": "T-109",
    "row": "IC-48",
@@ -1213,7 +1227,7 @@
   {
    "kind": "item",
    "block": "Command Palette",
-   "segment": "IC-44",
+   "segment": "IC-103",
    "indent": false,
    "table": "T-109",
    "row": "IC-45",

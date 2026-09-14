@@ -1007,6 +1007,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         planActualGuideWeight: {
           type: ['number'],
         },
+        planDatesVisible: {
+          type: ['boolean'],
+        },
         planStroke: {
           type: ['integer'],
         },

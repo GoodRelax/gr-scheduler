@@ -40977,6 +40977,7 @@
    "on": 2
   },
   "planActualGuideWeight": 1,
+  "planDatesVisible": false,
   "planStroke": 1,
   "planVisible": true,
   "progressLineOverhang": 6,

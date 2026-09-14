@@ -157,6 +157,7 @@
 | S-228 | `actualVisible` | 真偽 | `true` | 実績の表示。<br>予定（`S-227`）とは独立に切り替える。<br>規則と理由は `FR-049` |
 | S-60 | `assigneeVisible` | 真偽 | `false` | 担当ラベル。<br>既定は隠す（下記） |
 | S-61 | `percentCompleteVisible` | 真偽 | `false` | 完了率ラベル。<br>既定は隠す（下記） |
+| S-232 | `planDatesVisible` | 真偽 | `false` | 名称ラベルの右に添える予定日。<br>規則と書き方は `FR-002` の 表 T-251。<br>既定は隠す —— 担当ラベル（`S-60`）と同じく、外へ出したラベルが長くなって段数が増えるため（`FR-049`） |
 | S-62 | `dependencyVisible` | 真偽 | `true` | 依存線。<br>核機能であり、段数に影響しない。<br>寸法をズームに追随させない規則は `FR-094` が持つ |
 | S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー（`FR-013`）と再開アイコン（`FR-044`）。<br>寸法をズームに追随させない規則は `FR-094` が持つ |
 | S-64 | `progressLineVisible` | 真偽 | `false` | イナズマ線。<br>基準日と実績から引くので、**新規文書には出しても意味のある形にならない** |

@@ -86,6 +86,7 @@ export interface DocumentSettings {
     readonly on: number
   }
   readonly planActualGuideWeight: number
+  readonly planDatesVisible: boolean
   readonly planStroke: number
   readonly planVisible: boolean
   readonly progressLineOverhang: number
@@ -204,6 +205,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'planActualGuidePattern.off': 2,
   'planActualGuidePattern.on': 2,
   'planActualGuideWeight': 1,
+  'planDatesVisible': false,
   'planStroke': 1,
   'planVisible': true,
   'progressLineOverhang': 6,
