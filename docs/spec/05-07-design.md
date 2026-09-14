@@ -426,7 +426,7 @@ src/
 | PI-6 | `layoutEngine` | `ScheduleGeometry` | `ScheduleGeometry`（型）／ `geometryFromLayout` |
 | PI-7 | `layoutEngine` | `ItemHitArea` | `itemAtPointer`（対象は 表 T-023c の `SL-1`）／ `itemsInMarquee`（`SL-3`。<br>完全に囲まれたものだけ） ／ `dependencyEndAtPointer`（`FR-009` の「左半分 / 右半分」を答える。<br>⛔ **構えが依存線のときだけ呼ぶ** —— 同要求が `itemAtPointer` に構えを渡すことを禁じている） |
 | PI-8 | `UseCase` | `ApplyDocumentChange` | `DocumentCommand`（型。<br>**全数は 表 T-108 が持つ**）／ `applyDocumentChange`（`non-pure`。<br>命令の列で書き込む）／ `replaceDocument`（`non-pure`。<br>`ApplyDocumentChange` の外で組み立てた文書を現在値にする。<br>手順は 表 T-067、呼び手ごとの扱いは 表 T-230） |
-| PI-9 | `UseCase` | `EditDocument` | `editDocument`（表 T-108 の命令を集約へ振り分ける。<br>表 T-067 の `WS-3` が呼ぶ。<br>集約ごとの割りは 表 T-063 の `UT-2`）／ `Refusal`（型。<br>拒んだ理由。<br>表 T-035 の `AG-9a`）／ `InvariantRefusal`（型。<br>取り込みの検証（`FR-023`）が拒んだときの `Refusal`。<br>理由の区分を拒んだ行の行 ID とするのは `AG-9a` と、`FR-076` の 表 T-233 の結びである）／ `InvariantRow`（型。<br>その理由の区分であり、Chapter 6.1 の 表 T-220 の行 ID）／ `SettingsLimits`（型。<br>`editDocument` に渡す下限・上限）／`EditReport`（型。<br>受け入れた編集が人に告げるべきこと。<br>`FR-012` が数え直した `Task` の uid を運ぶ）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br> |
+| PI-9 | `UseCase` | `EditDocument` | `editDocument`（表 T-108 の命令を集約へ振り分ける。<br>表 T-067 の `WS-3` が呼ぶ。<br>集約ごとの割りは 表 T-063 の `UT-2`）／ `Refusal`（型。<br>拒んだ理由。<br>表 T-035 の `AG-9a`）／ `InvariantRefusal`（型。<br>取り込みの検証（`FR-023`）が拒んだときの `Refusal`。<br>理由の区分を拒んだ行の行 ID とするのは `AG-9a` と、`FR-076` の 表 T-233 の結びである）／ `InvariantRow`（型。<br>その理由の区分であり、Chapter 6.1 の 表 T-220 の行 ID）／ `SettingsLimits`（型。<br>`editDocument` に渡す下限・上限）／`EditReport`（型。<br>受け入れた編集が人に告げるべきこと。<br>`FR-012` が数え直した `Task` の uid を運ぶ） |
 | PI-10 | `UseCase` | `ImportDocument` | `importDocument`（合流の選択肢は 表 T-032a） |
 | PI-11 | `UseCase` | `UndoEdit` | `undoEdit` |
 | PI-12 | `UseCase` | `RedoEdit` | `redoEdit` |
@@ -437,7 +437,7 @@ src/
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。<br>既定で公開しない。<br>`FR-065`）／ `SnapshotSource`（表 T-065）。<br>⚠️ 外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。<br>本表に書き写さない（MUST NOT） |
 | PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。<br>表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。<br>呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。<br>割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。<br>取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。<br>置き場は `CP-36`）／ `SpentEntranceSituation`（型。<br>押された入口が何を持たないのかを名乗る。<br>⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`）／ `colourOf`（表 T-236 の行 ID と、いまの色の好みから 1 色を返す。<br>`EP-9` が書き出しに画面と同じ線を引けと定めるので、`ImageExporter` が同じ色を問えなければならない。<br>）／ `GROUP_GRID_LINE_WIDTH_PX`（`Group Grid Lines` の罫の太さ。<br>`EP-9` が、仕切りの線の太さを 1 か所から読むことと、画面と書き出しがその同じ 1 か所を読むことを定めているので、**色と同じ理由でこの数も問えなければならない**。<br>⭐ **描く当の本人が持つ** —— `U-18` を引くのはこのユニットである） |
-| PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。<br>表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。<br>規則は 表 T-024a の `OP-12`） |
+| PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。<br>表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。<br>規則は 表 T-024a の `OP-12`）／ `extensionOfFormat`（表 T-024 の行 ID から、その形式の拡張子を答える。<br>⭐ 殻が形式の名簿を直に読まないために公開した —— 表 T-248 の `JF-3`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。<br>⛔ 高さの天井に収まらないときは絵を返さず、拒みを返す —— 規則は `FR-025`）／ `exportPng`（`semi-pure-b`。<br>失敗も値で返す。<br>表 T-035 の `AG-8`） |
 | PI-22 | `Adapter` | `FileGateway` | `FileStore`（表 T-065）／ `openDocumentFile`（`semi-pure-b`）／ `saveDocumentFile`（`non-pure`） |
 | PI-24 | `Adapter` | `ClipboardGateway` | `Clipboard`（表 T-065）／ `writeClipboard`（`non-pure`。<br>表 T-024 の `IO-6` と `FR-033`） |
@@ -452,7 +452,7 @@ src/
 | PI-34 | `documentModel` | `Document` | `Document`（型。<br>5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
 | PI-35 | `layoutEngine` | `ScreenRegions` | `ScreenRect`（型。<br>矩形。<br>左上の座標と幅と高さの数値 4 つを自前で宣言し、**ブラウザの供給する型に触れない**（`LR-6`））／ `ScreenRegions`（型。<br>各部の矩形。<br>各部の名は 表 T-103 が持つ）／ `regionsFromScreen`（画面の寸法と `DocumentSettings` から各部の矩形を出す）／ `regionAtPointer`（ポインタがどの領域にあるか） |
 | PI-36 | `documentModel` | `ScreenState` | `ScreenState`（型。<br>構えは 表 T-023b、ほかは 表 T-206 の `S-99e` / `S-99f` / `S-99g`）／ `DualCursorSide`（型。<br>`date1` と `date2` のどちらが追従しているか。<br>表 T-029a の `DC-2`。<br>⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない）／ `emptyScreenState` ／ `screenStateWithArmed` ／ `screenStateWithSurface`（開いている面）／ `screenStateWithPalette`（`S-99e`）／ `screenStateWithFullScreen`（`S-99f`）／ `screenStateWithWatermark`（`S-144`。<br>⭐ **同行は 表 T-206 の画面の値であって文書の値ではないので、書き手をここが公開しないと `IC-41` の両方向がどこからも書けない**）／ `escapeTarget`（`Esc` が次に消費するもの。<br>階層は 表 T-028 の `IN-4`） |
-| PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。<br>日程表の外側の UI パーツの記述）／ `screenViewFromRegions` ／ `dialogueMessageFromInput`（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）／ `dismissKeyOf`（表 T-037 の `NT-8` で人が消した告げを名指す鍵）／ `rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`） |
+| PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。<br>日程表の外側の UI パーツの記述）／ `screenViewFromRegions` ／ `dialogueMessageFromInput`（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）／ `dismissKeyOf`（表 T-037 の `NT-8` で人が消した告げを名指す鍵）／ `rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br>⭐ 内側の層は読まず、値で受け取る（表 T-248 の `JF-4`） |
 | PI-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 1 つ ／ `pageGroundStyle`（地の色の宣言）／ `ScreenTheme`（型） —— ⭐ **地を塗るのはシェルである** —— 本コンポーネントの根は日程の上に重なって敷かれており、そこに地を塗ると日程が隠れる。<br>⛔ `FR-041` は地を塗ることを MUST で求めるので、塗る側が宣言を受け取れなければ満たせない |
 
 層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）（例 —— `adapter/svg-renderer/svg-surface.ts`）。  
@@ -633,6 +633,23 @@ src/
 
 `WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる文書の `scheduleUpdatedUtc` の等値で導くこと（MUST） —— **`WS-5` が判定を下さない行があるためである。**  
 等値で判定するのは `FR-063` の定めに従う。
+
+保存しない状態の状態機械（5.6 の ADR-002）の原稿は `_source/state-machines.json` である。
+原稿から、領域ごとの状態遷移図・状態の表・出来事の表・遷移表・優先順の表と、TypeScript の判別共用体・遷移表の定数を生成する。
+手で書くのは各領域の遷移の関数だけである。
+原稿に載せるのは、要求が名指す状態・出来事・遷移だけとする（MUST）。
+実装の都合の細部は状態の種類を増やさず、状態が運ぶ値としてコードが持つ。
+⚠️ 図 F-018 は文書のデータの状態なので、原稿に入れない。
+原稿が持つもの・持たないものを 表 T-250 に示す。
+
+**表 T-250 — 状態機械の原稿が持つもの**
+
+| 行 ID | 項目 | 持つもの | 持たないもの |
+| --- | --- | --- | --- |
+| SD-1 | 状態（`SM`） | 行 ID、キー、親（入れ子）、初期状態か、運ぶ値の名前、根拠の行 | 既定値と上下限（表 T-206 が持ち、`S-` 行を指すだけ） |
+| SD-2 | 出来事（`EV`） | 行 ID、キー、どこから来るか（入力の行・副作用の結果・時間）、運ぶ値の名前 | 画面の語（辞書が持つ） |
+| SD-3 | 遷移（`TN`） | 元の状態、出来事、ガードの名前、先の状態、副作用の名前、根拠の行 | ガードの条件式と副作用の中身（コードが持つ）。<br>⭐ 表と関数のずれは、領域ごとの契約試験（すべての状態と出来事の組で先の状態の種類が表と一致し、表に無い組では同じ参照を返す）が止める |
+| SD-4 | 領域をまたぐ優先順 | 奪い合う出来事、順を決めた要求の行、段ごとの状態のキー | **順そのものの正**（`IN-4` などの要求の行が持つ） |
 
 予実の状態遷移を 図 F-018 に示す。  
 箱は 表 T-019 の 5 行、辺は 表 T-021a の 4 行と `FR-043` / `FR-044` である。
@@ -821,7 +838,7 @@ stateDiagram-v2
 **Context** —— 要求をすべて満たす最小の構成は、1 つのコンポーネントが `GRS JSON` を読み、レイアウトを計算し、SVG を組み立ててブラウザへ載せる形である。  
 層も、コンポーネントの境界も、宣言されたインターフェースも要らない。
 
-**Decision** —— **表 T-070 の 8 つを増やした。**
+**Decision** —— **表 T-070 の 9 つを増やした。**
 
 **Status** —— `Accepted`。
 
@@ -840,6 +857,7 @@ stateDiagram-v2
 | MN-6 | ⭐ **画面の矩形とレイアウトと幾何をフレーム先頭で 1 回だけ計算して配る**（ADR-001） | 必要になったコンポーネントが各々計算する | 4 本の経路が `ScheduleLayout` を必要とし、**ポインタが動くたびに 表 T-068 の 11 段が 4 回走る**。<br>`NFR-002` / `NFR-003` の予算に収まらない | `Framework` から `layoutEngine` への辺が 3 本増え、図 F-013 にクラスタ対が 1 つ増えた |
 | MN-7 | ⭐ **画面のモデルを `Entity` に置いた**（`CP-35` / `CP-36`） | 描く直前にその場で割り付ける | **`LR-6` により、矩形も画面の値もブラウザ無しで決まる。<br>** 書き出しが文書だけの純粋関数になり、書き出しが通る値（`CP-35`）と画面にしか要らない値（`CP-36`）が 2 小層の境目で分かれる | 現在値は `Framework` が持つので（`LY-5`）、毎フレーム引数で内側へ渡す |
 | MN-8 | ⭐ **日程表の外側の UI パーツを組み立てるコンポーネントを立てた**（`CP-37` / `CP-38`） | 描画が 1 つで日程表も外側も描く | 表 T-075 の `UF-61` 〜 `UF-69` が受ける要求を、組み立てる側で受けるコンポーネントが 1 つも無かった。<br> `FR-080` の `WY-2` が除外を持つのは透かしの層だけなので、外側を日程表と同じ出口に混ぜられない | コンポーネントが 2 つ、層をまたぐインターフェースが 1 本増えた |
+| MN-9 | 保存しない状態を状態機械で持つ（ADR-002） | シェルのクロージャが値を直に持つ | 同じガードが写しで並び、`await` をまたいで現在値を読み書きする形が残る（`R4`）。<br>遷移を図と試験で確かめられない | 出来事と副作用の型を書く手間。<br>原稿と遷移の関数を契約試験で結ぶ手間 |
 
 `R2.20`（MUST）が、キャッシュを用いる場合に 4 点を本節の ADR に置くことを求めている。
 
@@ -867,6 +885,38 @@ ADR-001 — 画面の矩形とレイアウトと幾何をフレーム先頭で 1
 | CA-2 | 無効化の契機 | **フレームの先頭。<br>** そのフレームのあいだは作り直さない。<br>⚠️ `NFR-010` により、表 T-078 の契機が 1 つも無いフレームはそもそも走らない |
 | CA-3 | 許容する陳腐化 | **1 フレームぶん。<br>** ⚠️ **フレームの途中で文書が変わることは無い** —— 身振りの最中の書き込みは 表 T-035 の `AG-9` が、通知の配布中の書き込みは 表 T-067 の `WS-2` が拒否する。<br>⚠️ 人の応答を待つファイル操作（表 T-066 の `CS-4`）はフレームをまたぐが、着地は `WS-6` なので、やはりフレームの途中では変わらない |
 | CA-4 | 同時失効時の挙動 | **同時に失効する複数のキャッシュを持たない。<br>** 持ち主は `SingleHtmlShell` ただ 1 つで、`CA-1` の 3 つは同じ契機で同時に作り直される。<br>**1 つだけが古いという状態を作ってはならない（MUST NOT）** |
+
+ADR-002 — 保存しない状態を、自前の状態機械 1 つで持つ
+
+**Context** —— 保存しない状態が、`frameLoop` の `let` 60 と、`UseCase` のモジュールスコープの可変状態 2 に散っている。
+同じガードが写しで並ぶ —— `asking` ・ `openChoosing` ・ `isFileOperationWaiting` の 3 項が 5 か所、`escapeLevelOf` の組み立てが 2 か所にある。
+数えた箇所は `docs/development-records/refactor-stage1-state-inventory-2026-09-13.md` が持つ。
+表 T-060 の `LY-5` は現在値を `Framework` に限るが、持つ形を定めていないので、クロージャの `let` しか置き場が無かった。
+
+**Decision** —— 表 T-249 の形で持つ。
+ライブラリは使わない。
+
+**Status** —— `Accepted`。
+
+**Consequences** —— `UseCase` にコンポーネントが 1 つ増える。
+遷移は原稿（表 T-250）から図・表・型を生成し、契約試験で関数と結ぶ。
+性能は、領域を移すたびに `LM-19` の手順で測る。
+最小構成に対して増やした理由と代償は 表 T-070 の `MN-9` が持つ。
+
+**表 T-249 — 状態機械の形**
+
+| 行 ID | 条 | 正 |
+| --- | --- | --- |
+| SF-1 | 状態は領域ごとの判別共用体（`kind` で分かれる型）で持つ。<br>出来事も共用体とし、名は過去形とする | `R2` 命名の品詞の規約（イベントは過去形） |
+| SF-2 | 遷移は領域ごとの `step(state, event)` とし、次の状態と副作用の列を 1 つの値で返す純粋関数とする | `R7.2`、`R4` グリッジ（次の状態は丸ごと返す） |
+| SF-3 | 何も変わらない出来事では、受け取った状態と同じ参照を返す。<br>空の副作用の列は共有の定数とする | `NFR-010` |
+| SF-4 | 扱わない出来事の組は `never` による網羅でコンパイルエラーにする | `R4` グリッジ（無効な遷移が存在しないか） |
+| SF-5 | 連続して変わる値（ポインタの座標・寸法・時刻）は状態機械に入れず、フレームの値として持つ。<br>出来事は、押す・掴む・問いに答える、および指しているパーツや当たりが変わったときだけ作る | `docs/development-records/refactor-plan-report-2026-09-13.md` の記録 4 ・ 13（性能の見立て） |
+| SF-6 | 副作用（書き込み・ファイル・クリップボード・問い）は値として返し、`SingleHtmlShell` が実行する。<br>結果は出来事として `step` へ戻す | `LY-5`、`R7.9`、`R4` レースコンディション |
+| SF-7 | 現在値はシェルが 1 つだけ持ち、参照を差し替えて進める。<br>内側の 3 層のモジュールスコープに可変状態を置かない | `LY-5`、5.3 の「内側の 3 層には漏らせる可変状態がそもそも無い」 |
+| SF-8 | 根の状態は領域の合成とし、`step` は領域ごとのユニットに分ける。<br>1 つの `switch` に全領域を集めない | `R2.2`、表 T-063 の `UT-2` と同じ理由の形 |
+| SF-9 | クラスを作らない。<br>公開するのは型と関数だけ | 5.3 |
+| SF-10 | 文書は集約に入れない。<br>文書を変えるのは書き込みの唯一の経路で、セッションは読むだけ | 表 T-042 の `MS-1` |
 
 **描かなかった図とその理由を 表 T-072 に示す。**
 
