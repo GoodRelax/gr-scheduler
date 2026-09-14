@@ -35,6 +35,7 @@
 | `d134-confirmation-names.png` | DFC-134 | 消える `Task` の名前が 9,341 文字あり、下端で切れている確認の面 |
 | `d137-divider-grab-band.png` | DFC-137 | 境目の 8px の掴み帯（赤く塗ってある）。⛔ **「ポインタが何も答えない」が誤測だった**ことがこれで分かった |
 | `d170-pinned-row-over-the-scrolled-rows.png` | DFC-170 | ⛔⛔ **ピン止めした行の帯に、別の行のバーが載っている** —— **`Whole Product` を留めてホイールで 4 ノッチ送ったところ。**⭐ **パネルは `Whole Product` / `Phone Sign In` を並べているのに、帯は `Deliver the whole product` / `Phone App workstream` / `Phone Sign In` を並べる** —— **1 段ずれている** |
+| `ruling-2026-09-14-abnormal-paths-and-words.md` | JDG-78 / JDG-79（DFC-586 / DFC-585） | ⚠️ 絵ではなく、利用者の答えの逐語の全文 —— 異常系・準正常系の方針（4 項）と、表示語の見直しの頁の語ごとの注（`//`） |
 
 ---
 

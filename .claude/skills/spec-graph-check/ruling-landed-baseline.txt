@@ -1,4 +1,18 @@
-0
+4
+#
+# RAISED 2 -> 4 on 2026-09-14, deliberately and with the user's approval of
+# the baselines, for JDG-80 (IC-41's label, written into display-words.json
+# next session with JDG-79's words, DFC-585) and JDG-81 (the help title row
+# reads legend, language toggle, close at the far right -- lands in FR-036,
+# dom-screen-surface.ts and the order tests next round). Lower in each landing.
+#
+# RAISED 0 -> 2 on 2026-09-14, deliberately, for JDG-78 and JDG-79. JDG-78 is
+# the user's policy on abnormal and semi-normal paths (prevent them, name the
+# object by ID and line, auto-fix and say where): the user ruled its care comes
+# after the whole refactor, so it lands with DFC-586, not now. JDG-79 is the
+# user's choice of the dictionary words outside table T-220: they are written
+# into display-words.json next session (DFC-585), except IC-41, which got two
+# different choices and goes back to the user. Lower this in each landing commit.
 #
 # LOWERED 6 -> 0 on 2026-09-14, for JDG-67, JDG-69 and JDG-73 .. JDG-76: the
 # spec session applied CR-376 (the actual held as dates -- FR-011, table

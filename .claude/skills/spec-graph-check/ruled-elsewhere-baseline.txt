@@ -1,4 +1,4 @@
-4
+3
 #
 # Check 40 -- rows of defects.md that still read as un-ruled while a pending
 # decision (PND-) they name is 裁定済. Held by check-ruled-elsewhere.py; line 1
@@ -7,7 +7,5 @@
 # The rows left are 実測済 records that name a PND ruled after they were
 # written (DFC-61, DFC-48, DFC-156): a record is true of the day it was
 # written, and the check reads it as a claim (DFC-367).
-# DFC-585 (裁定待ち, 2026-09-14) names PND-4 and PND-160 only as the rule an
-# empty dictionary field falls back by; the row waits on the user's words.
 # ⛔ Lower this when a row is corrected; raise it only deliberately, with the
 # row and the reason in the commit.
