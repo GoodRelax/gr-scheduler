@@ -535,9 +535,10 @@ describe('the manuscript still says what these cases read', () => {
     )
   })
 
-  it('⭐ PI-9 of table T-064 is the one place the spelling lives, so this file reads the dictionary instead', () => {
-    expect(says('T-064', 'PI-9')).toContain('DEFAULT_ROW_NAME')
-    expect(says('T-064', 'PI-9')).toContain('仕様書が規則として綴りを刷ってはならない（MUST NOT）')
+  it('⭐ PI-37 of table T-064 is the one place the spelling is published, so this file reads the dictionary instead', () => {
+    expect(says('T-064', 'PI-37')).toContain('DEFAULT_ROW_NAME')
+    expect(says('T-064', 'PI-37')).toContain('仕様書が規則として綴りを刷ってはならない（MUST NOT）')
+    expect(says('T-064', 'PI-9')).not.toContain('DEFAULT_ROW_NAME')
   })
 
   it('⭐ the dictionary holds exactly one word for a row, spelled alike in both languages', () => {

@@ -121,7 +121,7 @@ interface GlyphPart {
 }
 
 const GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json'), 'utf8'),
+  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { readonly glyphs: readonly { readonly rowId: string; readonly elements: readonly GlyphPart[] }[] }
 
 const THEME_HUE = Number(bare(rowOf(specTable('T-216'), 'S-73').by[H_DEFAULT] ?? ''))

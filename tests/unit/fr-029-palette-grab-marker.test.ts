@@ -174,7 +174,7 @@ interface GlyphElement {
 }
 
 const ICON_GLYPHS = JSON.parse(
-  readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json'), 'utf8'),
+  readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as {
   readonly viewBox: string
   readonly glyphs: readonly { readonly rowId: string; readonly elements: readonly GlyphElement[] }[]

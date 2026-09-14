@@ -291,7 +291,7 @@ interface GlyphElement {
 
 const ICON_GLYPHS = JSON.parse(
   readFileSync(
-    join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json'),
+    join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'),
     'utf8',
   ),
 ) as {
