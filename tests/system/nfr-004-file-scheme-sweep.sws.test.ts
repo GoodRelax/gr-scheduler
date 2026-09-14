@@ -703,10 +703,14 @@ interface Probe {
 }
 
 async function calm(page: Page): Promise<void> {
-  // TRAP: the data-icon="IC-69" selector below never matches -- NT-7's yes is
-  // TRAP: the word button Yes or the y key, not that icon; left dead on purpose.
-  // see NT-7, FR-038, SK-3
-  for (const selector of ['[data-notice]', '[data-icon="IC-69"]', '[data-icon="IC-52"]']) {
+  // WHY: NT-7's answers are word buttons spelled Yes / No in every language,
+  // WHY: with no row of T-109; No puts a question down without changing the document.
+  // see NT-7, U-55, W-4, FR-038
+  for (const selector of [
+    '[data-notice]',
+    `[data-role="Confirmation"] button:text-is("No")`,
+    '[data-icon="IC-52"]',
+  ]) {
     for (let guard = 0; guard < 4; guard += 1) {
       const control = await page.$(selector)
       if (control === null) break
@@ -1112,10 +1116,18 @@ const PROBES: readonly Probe[] = [
     act: async (p) => {
       await p.keyboard.press('Delete')
       await p.waitForTimeout(500)
-      // TRAP: this selector is dead -- NT-7's yes is the Yes button or y key
-      // TRAP: (see calm), so this row only proves Delete moves the screen.
-      const yes = await p.$('[data-icon="IC-69"]')
-      if (yes !== null) await yes.click()
+      // WHY: a question is owed only where T-234 has a row, so its absence is
+      // WHY: not a failure; an answered question that still stands is.
+      // see NT-7, U-55, T-234
+      const asked = '[data-role="Confirmation"]'
+      const yes = await p.$(`${asked} button:text-is("Yes")`)
+      if (yes !== null) {
+        await yes.click({ timeout: 3_000 })
+        await p.waitForTimeout(500)
+        if ((await p.$(asked)) !== null) {
+          throw new Error('SK-3: Yes was pressed on the NT-7 question and the question still stands')
+        }
+      }
       return null
     },
   },
