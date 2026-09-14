@@ -84,7 +84,7 @@
 | dependency | ImportDocument | Schedule | taken-in content | puts the taken-in content in |  |
 | dependency | ScheduleLayout | Schedule | schedule data | reads the schedule data |  |
 | dependency | ScheduleLayout | DocumentSettings | sizes + thresholds | reads sizes and thresholds |  |
-| dependency | ScheduleGeometry | ScheduleLayout | coordinates | takes the coordinates |  |
+| dependency | ScheduleGeometry | ScheduleLayout | coordinates | takes the coordinates and the gap a lifted name label keeps (S-196) |  |
 | dependency | ScheduleGeometry | Schedule | tasks + annotations | reads tasks and annotations |  |
 | dependency | ItemHitArea | ScheduleGeometry | vertices | reads the vertices |  |
 | dependency | AgentApiEndpoint | Selection | what is selected | reads the selection for readSelection |  |
@@ -121,7 +121,7 @@
 | dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
 | dependency | InputCommandTranslator | ScreenState | next screen state | reads what is armed and which surface is open, and returns the next screen state |  |
-| dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9) |  |
+| dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016) |  |
 | dependency | SingleHtmlShell | ScreenRenderer | screen frame | rebuilds the UI parts outside the schedule once per frame |  |
 | realization | DomScreenSurface | ScreenRenderer | implements ScreenSurface |  |  |
 | dependency | ScreenRenderer | ScreenRegions | where each part sits | reads the rectangle of each screen part |  |

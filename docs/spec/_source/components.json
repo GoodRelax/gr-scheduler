@@ -498,7 +498,7 @@
    "target": "ScheduleLayout",
    "arrow": "dependency",
    "label": "coordinates",
-   "description": "takes the coordinates"
+   "description": "takes the coordinates and the gap a lifted name label keeps (S-196)"
   },
   {
    "source": "ScheduleGeometry",
@@ -757,7 +757,7 @@
    "target": "ScreenRenderer",
    "arrow": "dependency",
    "label": "entry under pointer",
-   "description": "asks which UI part and which entry a point on the screen is on (IF-9)"
+   "description": "asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016)"
   },
   {
    "source": "SingleHtmlShell",
