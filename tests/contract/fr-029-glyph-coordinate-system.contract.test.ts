@@ -21,7 +21,7 @@
 //
 //   図 F-019            `docs/spec/_assets/fig-icons.svg` draws the shapes
 //   the generator       `tools/generate_icon_glyphs.py` carries them into
-//                       `src/adapter/screen-renderer/icon-glyphs.json`, with
+//                       `src/framework/dom-screen-surface/icon-glyphs.json`, with
 //                       the one `viewBox` they all share
 //   UF-71               `dom-screen-surface.ts` sets that `viewBox` on every
 //                       entry it draws (tests/unit/uf-71.test.ts asserts it)
@@ -102,7 +102,7 @@ import { specTable } from './spec-table'
 const REQUIREMENTS = join(process.cwd(), 'docs', 'spec', '01-04-requirements.md')
 const GLOSSARY = join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md')
 const FIGURE = join(process.cwd(), 'docs', 'spec', '_assets', 'fig-icons.svg')
-const CARRIED = join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'icon-glyphs.json')
+const CARRIED = join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json')
 
 interface GlyphElement {
   readonly tag: string
