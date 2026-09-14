@@ -1,4 +1,13 @@
-2
+6
+#
+# RAISED 2 -> 6 on 2026-09-14, deliberately, for JDG-73 .. JDG-76: the user's
+# 2026-09-11 adoption of the help rebuild (previous-project-result/
+# 15-help-reference-card/README.md) and the three directives given with it
+# were recorded in no ruling row, so they were copied into rulings.md this
+# day. None has landed: the change request that carries them into FR-036,
+# table T-036, table T-109 / figure F-019 and display-words.json is not
+# drafted yet. Lower this number in the commit where that CR is applied.
+# Remaining besides them: JDG-67 and JDG-69 (see the note below).
 #
 # LOWERED 3 -> 2 on 2026-09-14, for JDG-71: the ruling landed in 01fc9b0 at
 # table T-246's HB-4 (horizontal, the nearest day boundary), with HB-5 and

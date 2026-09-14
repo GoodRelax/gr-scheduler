@@ -27,7 +27,7 @@
 # shape of every other ratchet here. Raise a line only on purpose, and say why
 # in the commit. `--write-tests-baseline` rewrites this file; the front
 # session re-counts with it at a merge.
-tree-density-basis-points 3444
+tree-density-basis-points 3369
 tests/contract/display-words.contract.test.ts 1282
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 184
@@ -90,6 +90,14 @@ tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts 126
 tests/unit/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts 184
 tests/unit/dfc-407-417-418-the-three-fixes-of-2026-09-09.test.ts 82
 tests/unit/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts 185
+tests/unit/dfc-507-go-3-go-4-a-finished-actual-finish-follows-the-grab.test.ts 0
+tests/unit/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts 0
+tests/unit/dfc-568-gr-14-corners-anchor-and-body.test.ts 0
+tests/unit/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts 0
+tests/unit/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts 0
+tests/unit/dfc-577-iv-21-import-refuses-a-negative-actual.test.ts 0
+tests/unit/dfc-578-a-press-on-the-dialogue-field-keeps-the-browser-default.test.ts 0
+tests/unit/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts 0
 tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts 248
 tests/unit/dfc-97-sk-11-overwrites-the-open-file.test.ts 183
 tests/unit/document-model.test.ts 100
@@ -98,7 +106,7 @@ tests/unit/edit-calendar.test.ts 302
 tests/unit/edit-dependency.test.ts 133
 tests/unit/edit-resource.test.ts 113
 tests/unit/edit-task-group.test.ts 216
-tests/unit/edit-task.test.ts 422
+tests/unit/edit-task.test.ts 410
 tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
 tests/unit/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
 tests/unit/fr-006-panel-close-entrance.test.ts 321
@@ -160,7 +168,10 @@ tests/unit/fr-098-the-pinned-band.test.ts 260
 tests/unit/fr-100-op-13-the-unsaved-edit-gate.test.ts 210
 tests/unit/fr-101-the-name-stands-above-the-time.test.ts 208
 tests/unit/fr-101-the-time-is-local-and-its-own-size.test.ts 189
+tests/unit/fr-103-t-245-what-a-released-end-puts.test.ts 0
 tests/unit/gd-6-the-arrowhead-does-not-depend-on-pinning.test.ts 156
+tests/unit/go-3-the-released-day-is-the-actual-finish-date.test.ts 0
+tests/unit/gr-17-the-released-day-is-the-actual-finish-date.test.ts 0
 tests/unit/in-2-a-the-dummies-say-slide.test.ts 104
 tests/unit/in-2-pointer-shape.test.ts 504
 tests/unit/in-4-escape-closes-the-panel.test.ts 474
