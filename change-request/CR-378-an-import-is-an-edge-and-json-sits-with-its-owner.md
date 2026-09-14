@@ -25,10 +25,10 @@
 
 - **`R2.19`（コンポーネント境界。参照してよいのは 5.3 が宣言した公開面のみ）** —— 他のコンポーネントのフォルダの `.json` を読む import が **4 本**ある（第 1 節の M-6）。`.json` は公開エントリではないので（表 T-074 の `SU-1`）、4 本とも 5.3 の「フォルダの外から、公開エントリ以外のファイルを読んではならない（MUST NOT）」に当たる。検査 19 は `.json` を読み飛ばすので（`tools/check_layer_rules.py:150-158`）、どれも赤にならなかった。⇒ 表 T-248 の `JF-1`
 - **`R2.16`（レイヤー軸。`R2.19` とは別の軸）** —— 4 本のうち 2 本は `UseCase` から `Adapter` のフォルダへ向く（M-5）。表 T-061 の `LR-1`（外向きの依存を作ってはならない）に当たる。⇒ 表 T-247 の `EG-8`（表 T-061 を `.json` の辺にも掛ける）と 表 T-248 の `JF-4`
-- **`R2.2`（SRP）** —— 表示語の辞書（`display-words.json`）を `UseCase` の側へ移せば `LR-1` は消えるが、辞書は `ScreenRenderer`（`CP-37`。`UF-60` が表示言語を運ぶ）の責務である。移すと `EditDocument` が画面の語の変更の理由を負う。⇒ 移さず、値を引数で渡す（D-3）
-- **`R2.9`（YAGNI）** —— 辞書を持つための新しいコンポーネントは立てない（D-3 の退けた案）。読み手が 1 つの `.json` のために公開名を増やさない（D-4）
-- **`R1.3`（唯一の正）** —— 既定の行の名前の綴りを `src/` の 2 か所に置かない、という 表 T-064 の `PI-9` の理由は、公開する側を移しても残す（D-3）
-- **`R2.1`（命名。純粋なクエリは名詞句）** —— 新しい公開名 `extensionOfFormat` を、同じ表の `colourOf` ・ `pressRowOf` ・ `dismissKeyOf` の形に揃えた（D-5）
+- **`R2.2`（SRP）** —— 表示語の辞書（`display-words.json`）を `UseCase` の側へ移せば `LR-1` は消えるが、辞書は `ScreenRenderer`（`CP-37`。`UF-60` が表示言語を運ぶ）の責務である。移すと `EditDocument` が画面の語の変更の理由を負う。⇒ 移さず、値を引数で渡す（決定 3）
+- **`R2.9`（YAGNI）** —— 辞書を持つための新しいコンポーネントは立てない（決定 3 の退けた案）。読み手が 1 つの `.json` のために公開名を増やさない（決定 4）
+- **`R1.3`（唯一の正）** —— 既定の行の名前の綴りを `src/` の 2 か所に置かない、という 表 T-064 の `PI-9` の理由は、公開する側を移しても残す（決定 3）
+- **`R2.1`（命名。純粋なクエリは名詞句）** —— 新しい公開名 `extensionOfFormat` を、同じ表の `colourOf` ・ `pressRowOf` ・ `dismissKeyOf` の形に揃えた（決定 5）
 
 ### ③ 利用者に問うたこと・**問わずに決めた**こと
 
@@ -40,13 +40,13 @@
 
 | # | 決めたこと | 導き |
 |---|---|---|
-| D-1 | 辺の定義を **表 T-247（8 行、接頭辞 `EG`）** として 5.2 に置く。散文で並べず表にする | `JDG-47` の本文を行に割っただけで、足した規則は `EG-1`（フォルダをコンポーネントへ畳む読み）・`EG-4`（数えないもの）・`EG-7`（呼び返しの持ち主）・`EG-8`（表 T-061 を辺に掛ける）の 4 つである。`EG-1` は 5.3 の「コンポーネントごとにフォルダを作り」と 表 T-006a の `W-11`（`01-04-requirements.md:322`）の逆読み、`EG-4` は検査 19 がパッケージを扱わない理由（`tools/check_layer_rules.py:144-147`）、`EG-7` は計画の記録 5 節、`EG-8` は「辺は依存である」ことの帰結。⭐ 表にするのは、段 3 の門が行ごとに 1 つの判定を持てるようにするためである |
-| D-2 | `.json` の置き場を **表 T-248（4 行、接頭辞 `JF`）** として 5.3 の MUST NOT の直後に置く。置き場は「中身を責務に持つコンポーネントのフォルダ」とし、読み手の数では決めない | `JF-1` は 表 T-074 の `SU-1` と 5.3 の MUST NOT の帰結。`JF-3` は 表 T-061 の `LR-2`、`JF-4` は `LR-1` と 表 T-060 の `LY-5`（「内側の 3 層はすべて値を引数で受け取る」）の帰結。⚠️ **「読み手のうち最も内側の層に置く」案は退けた** —— 辞書（読み手は `ScreenRenderer` と `EditDocument` と `ApplyDocumentChange`）が `UseCase` へ移り、`R2.2` を割る。⚠️ **「読み手が 1 つなら読み手のフォルダ」案は `JF-2` に含めない** —— 本書の後は 10 個とも読むコンポーネントが 1 つになる（D-3〜D-5）ので、その時点では同じ置き場を指すが、読み手の数で決めると読み手が増えた日に置き場を変えさせる（いまの `display-words.json` は読み手が 3 つで、この読みでは置き場が決まらない）。**3 手**: (1) `rulings.md` を `JSON の置き場` ・ `display-words.json` ・ `icon-glyphs.json` ・ `exchange-formats.json` で引いた ⇒ 置き場を裁いた行は 0 件（`JDG-30` と `JDG-73` はファイルが動くことに触れるだけ）。(2) `impact.py SU-1 LR-1 LR-2 LY-5` の近傍 ⇒ `_assets/tbl-glossary.md:495` が「対応表は別のコンポーネントに在り、そちらを import することを 表 T-061 が禁じているので、名簿として運ぶほかに届ける道が無い」と、同じ判断を既に下している。(3) 別の道 ⇒ 公開エントリを介す道と、値を引数で渡す道の 2 つが既に使われている（`PI-9` の `DEFAULT_ROW_NAME`、`SettingsLimits`）⇒ 問いは残らない |
-| D-3 | **`UseCase` は辞書を読まない。** 既定の行の名前は、`ScreenRenderer` の公開エントリが `DEFAULT_ROW_NAME` として公開し、`UseCase` はその値を引数で受け取る（`JF-4`）。表 T-064 の `PI-9` から `DEFAULT_ROW_NAME` を外し、`PI-37` へ移す。移す理由の文（綴りを `src/` の 2 か所に置かない）は `PI-37` へ持って行く | **3 手**: (1) `rulings.md` を `既定の名前` ・ `DEFAULT_ROW_NAME` ・ `HF-14` ・ `FR-038` ・ `辞書` で引いた ⇒ 0 件。`fixed-defects.md` の `DFC-243` は既定の名前で行を立てる振る舞いの裁定であり、綴りの置き場は裁いていない。(2) `impact.py HF-14 PI-9` の近傍 ⇒ `HF-14`（`01-04-requirements.md:1622`）は「既定の名前は表示語として持つこと（MUST）…置き場は `FR-038` の辞書である」、05-07:1264 は「語が届く先は `src/` の生成物 1 本とし（MUST）」⇒ 辞書を 2 つに割って `UseCase` に写す道は閉じている。`PI-18` の「訳出の側は通知の語彙を知らない」が、語を外側で解く同じ判断を既に下している。(3) 別の道 ⇒ **在る**。`SettingsLimits` は殻（`frame-loop.ts:2203` ・ `:3017`）からも `Agent API`（`agent-api-members.ts:319` の `snapshot.settingsLimits`）からも値として `editDocument` と `applyDocumentChange` へ入っている。行を足す命令は既に `label: DEFAULT_ROW_NAME` を `Adapter` で載せている（`input-command-translator.ts:2309`）。⇒ 問いは残らない。⚠️ **退けた案**: 辞書を持つ新しいコンポーネントを立てる（`R2.9`。表 T-062 を段 2b と同じ巡で動かすことにもなる）／ 生成器が `UseCase` 用に 2 つ目の `.json` を書く（05-07:1264 の MUST を割る） |
-| D-4 | `icon-glyphs.json` を `src/framework/dom-screen-surface/` へ移す。`ScreenRenderer` の公開名は増やさない | 図形を画面へ描くのは `DomScreenSurface`（`CP-38`）であり、記述の側は行 ID だけを運ぶ（`pending-decisions.md` の `PND-154` の裁定「行 ID を `data-icon` に置き…描く側だけを差し替えられる」）⇒ 中身を責務に持つのは `CP-38`（`JF-2`）。**3 手**: (1) `rulings.md` を `icon-glyphs.json` で引いた ⇒ `JDG-30` の 1 行だけで、名簿の行を足すとファイルが動くと述べるのみ。(2) 近傍 ⇒ 上の `PND-154`。(3) 別の道 ⇒ `ScreenRenderer` の公開エントリが再び公開する道も在るが、読み手が `CP-38` 1 つだけなので公開名を 1 つ増やすだけになる（`R2.9`） |
-| D-5 | `exchange-formats.json` は `DocumentCodec`（`CP-20`）のフォルダに残し、殻は `DocumentCodec` の公開エントリの新しい名前 `extensionOfFormat`（表 T-024 の行 ID から拡張子を答える。`pure`）を介して読む。表 T-064 の `PI-20` に足す | 形式を持つのは `CP-20` の責務（`GRS JSON`・`MSPDI`・単一 `.html` の相互変換）であり、殻（`CP-25`）は外側の層なので `JF-3`。殻から `DocumentCodec` への辺は図に既に在る（`components.json` の `SingleHtmlShell -> DocumentCodec`）ので、辺は増えない。名前だけが判断である（`R2.1`）。**3 手**: (1) `rulings.md` を `exchange-formats.json` で引いた ⇒ 0 件。(2) 近傍 ⇒ `PI-20` の `formatFromFile`（逆向きの問い）が同じコンポーネントに在る。(3) 別の道 ⇒ 殻が拡張子を自前で持つ道は 05-07:1253-1254 と同じ理由（同じ数を 2 か所に書けば片方が腐る）で閉じている |
-| D-6 | 表 T-247 と 表 T-248 の席番号・接頭辞は、適用時に次の空きを取る。起草時の空きは `T-247` ・ `T-248` と `EG` ・ `JF` | `grep` で `T-24[7-9]` と `\b(EG|JF)-[0-9]` を `docs/**/*.md` ・ `change-request/*.md` ・ `docs/spec/_source/*.json` から引いて 0 件。⚠️ 段 2b の `CR-379` も表を足しうるので、先に当てた側が番号を取る |
-| D-7 | `components.json` の `edges` のうちコードが使わない 11 本（第 1 節の M-4）は、本書では規則にしない | `JDG-47` が裁いたのは「コード ⊆ 図」だけである。逆向き（図 ⊆ コード）を MUST にすれば、裁定に無い規則を作ることになる。計画の記録 3 節の目標（「0。残すなら行ごとに理由」）は段 8 で扱う（第 9 節） |
+| 決定 1 | 辺の定義を **表 T-247（8 行、接頭辞 `EG`）** として 5.2 に置く。散文で並べず表にする | `JDG-47` の本文を行に割っただけで、足した規則は `EG-1`（フォルダをコンポーネントへ畳む読み）・`EG-4`（数えないもの）・`EG-7`（呼び返しの持ち主）・`EG-8`（表 T-061 を辺に掛ける）の 4 つである。`EG-1` は 5.3 の「コンポーネントごとにフォルダを作り」と 表 T-006a の `W-11`（`01-04-requirements.md:322`）の逆読み、`EG-4` は検査 19 がパッケージを扱わない理由（`tools/check_layer_rules.py:144-147`）、`EG-7` は計画の記録 5 節、`EG-8` は「辺は依存である」ことの帰結。⭐ 表にするのは、段 3 の門が行ごとに 1 つの判定を持てるようにするためである |
+| 決定 2 | `.json` の置き場を **表 T-248（4 行、接頭辞 `JF`）** として 5.3 の MUST NOT の直後に置く。置き場は「中身を責務に持つコンポーネントのフォルダ」とし、読み手の数では決めない | `JF-1` は 表 T-074 の `SU-1` と 5.3 の MUST NOT の帰結。`JF-3` は 表 T-061 の `LR-2`、`JF-4` は `LR-1` と 表 T-060 の `LY-5`（「内側の 3 層はすべて値を引数で受け取る」）の帰結。⚠️ **「読み手のうち最も内側の層に置く」案は退けた** —— 辞書（読み手は `ScreenRenderer` と `EditDocument` と `ApplyDocumentChange`）が `UseCase` へ移り、`R2.2` を割る。⚠️ **「読み手が 1 つなら読み手のフォルダ」案は `JF-2` に含めない** —— 本書の後は 10 個とも読むコンポーネントが 1 つになる（決定 3〜決定 5）ので、その時点では同じ置き場を指すが、読み手の数で決めると読み手が増えた日に置き場を変えさせる（いまの `display-words.json` は読み手が 3 つで、この読みでは置き場が決まらない）。**3 手**: (1) `rulings.md` を `JSON の置き場` ・ `display-words.json` ・ `icon-glyphs.json` ・ `exchange-formats.json` で引いた ⇒ 置き場を裁いた行は 0 件（`JDG-30` と `JDG-73` はファイルが動くことに触れるだけ）。(2) `impact.py SU-1 LR-1 LR-2 LY-5` の近傍 ⇒ `_assets/tbl-glossary.md:495` が「対応表は別のコンポーネントに在り、そちらを import することを 表 T-061 が禁じているので、名簿として運ぶほかに届ける道が無い」と、同じ判断を既に下している。(3) 別の道 ⇒ 公開エントリを介す道と、値を引数で渡す道の 2 つが既に使われている（`PI-9` の `DEFAULT_ROW_NAME`、`SettingsLimits`）⇒ 問いは残らない |
+| 決定 3 | **`UseCase` は辞書を読まない。** 既定の行の名前は、`ScreenRenderer` の公開エントリが `DEFAULT_ROW_NAME` として公開し、`UseCase` はその値を引数で受け取る（`JF-4`）。表 T-064 の `PI-9` から `DEFAULT_ROW_NAME` を外し、`PI-37` へ移す。移す理由の文（綴りを `src/` の 2 か所に置かない）は `PI-37` へ持って行く | **3 手**: (1) `rulings.md` を `既定の名前` ・ `DEFAULT_ROW_NAME` ・ `HF-14` ・ `FR-038` ・ `辞書` で引いた ⇒ 0 件。`fixed-defects.md` の `DFC-243` は既定の名前で行を立てる振る舞いの裁定であり、綴りの置き場は裁いていない。(2) `impact.py HF-14 PI-9` の近傍 ⇒ `HF-14`（`01-04-requirements.md:1622`）は「既定の名前は表示語として持つこと（MUST）…置き場は `FR-038` の辞書である」、05-07:1264 は「語が届く先は `src/` の生成物 1 本とし（MUST）」⇒ 辞書を 2 つに割って `UseCase` に写す道は閉じている。`PI-18` の「訳出の側は通知の語彙を知らない」が、語を外側で解く同じ判断を既に下している。(3) 別の道 ⇒ **在る**。`SettingsLimits` は殻（`frame-loop.ts:2203` ・ `:3017`）からも `Agent API`（`agent-api-members.ts:319` の `snapshot.settingsLimits`）からも値として `editDocument` と `applyDocumentChange` へ入っている。行を足す命令は既に `label: DEFAULT_ROW_NAME` を `Adapter` で載せている（`input-command-translator.ts:2309`）。⇒ 問いは残らない。⚠️ **退けた案**: 辞書を持つ新しいコンポーネントを立てる（`R2.9`。表 T-062 を段 2b と同じ巡で動かすことにもなる）／ 生成器が `UseCase` 用に 2 つ目の `.json` を書く（05-07:1264 の MUST を割る） |
+| 決定 4 | `icon-glyphs.json` を `src/framework/dom-screen-surface/` へ移す。`ScreenRenderer` の公開名は増やさない | 図形を画面へ描くのは `DomScreenSurface`（`CP-38`）であり、記述の側は行 ID だけを運ぶ（`pending-decisions.md` の `PND-154` の裁定「行 ID を `data-icon` に置き…描く側だけを差し替えられる」）⇒ 中身を責務に持つのは `CP-38`（`JF-2`）。**3 手**: (1) `rulings.md` を `icon-glyphs.json` で引いた ⇒ `JDG-30` の 1 行だけで、名簿の行を足すとファイルが動くと述べるのみ。(2) 近傍 ⇒ 上の `PND-154`。(3) 別の道 ⇒ `ScreenRenderer` の公開エントリが再び公開する道も在るが、読み手が `CP-38` 1 つだけなので公開名を 1 つ増やすだけになる（`R2.9`） |
+| 決定 5 | `exchange-formats.json` は `DocumentCodec`（`CP-20`）のフォルダに残し、殻は `DocumentCodec` の公開エントリの新しい名前 `extensionOfFormat`（表 T-024 の行 ID から拡張子を答える。`pure`）を介して読む。表 T-064 の `PI-20` に足す | 形式を持つのは `CP-20` の責務（`GRS JSON`・`MSPDI`・単一 `.html` の相互変換）であり、殻（`CP-25`）は外側の層なので `JF-3`。殻から `DocumentCodec` への辺は図に既に在る（`components.json` の `SingleHtmlShell -> DocumentCodec`）ので、辺は増えない。名前だけが判断である（`R2.1`）。**3 手**: (1) `rulings.md` を `exchange-formats.json` で引いた ⇒ 0 件。(2) 近傍 ⇒ `PI-20` の `formatFromFile`（逆向きの問い）が同じコンポーネントに在る。(3) 別の道 ⇒ 殻が拡張子を自前で持つ道は 05-07:1253-1254 と同じ理由（同じ数を 2 か所に書けば片方が腐る）で閉じている |
+| 決定 6 | 表 T-247 と 表 T-248 の席番号・接頭辞は、適用時に次の空きを取る。起草時の空きは `T-247` ・ `T-248` と `EG` ・ `JF` | `grep` で `T-24[7-9]` と `\b(EG|JF)-[0-9]` を `docs/**/*.md` ・ `change-request/*.md` ・ `docs/spec/_source/*.json` から引いて 0 件。⚠️ 段 2b の `CR-379` も表を足しうるので、先に当てた側が番号を取る |
+| 決定 7 | `components.json` の `edges` のうちコードが使わない 11 本（第 1 節の M-4）は、本書では規則にしない | `JDG-47` が裁いたのは「コード ⊆ 図」だけである。逆向き（図 ⊆ コード）を MUST にすれば、裁定に無い規則を作ることになる。計画の記録 3 節の目標（「0。残すなら行ごとに理由」）は段 8 で扱う（第 9 節） |
 
 ---
 
@@ -100,11 +100,11 @@
 | `LR-1` ／ `LR-2` ／ `LR-5` | 0 / 2 ／ 0 / 2 ／ 0 / 2（5.1 ・ 5.3 ・ 5.6 の `MN-2` `MN-3`） | 文は変えない |
 | 表 T-062 ／ `CP-25` ／ `CP-37` ／ `CP-38` | 0 件（節 4）／ 0 / 7 ／ 0 / 2 ／ 0 / 3 | 文は変えない |
 | 表 T-074 ／ `SU-1` | 0 件（1.9 と 5.3）／ 0 / 0 | 文は変えない。`JF-1` が `SU-1` を指す |
-| 表 T-064 ／ `PI-9` ／ `PI-20` ／ `PI-37` | 2 件（`FR-009` `FR-016`）、2 次 4 件 ／ 0 / 0 ／ 0 / 0 ／ 0 / 0 | 3 行のセルを変える（D-3・D-5） |
+| 表 T-064 ／ `PI-9` ／ `PI-20` ／ `PI-37` | 2 件（`FR-009` `FR-016`）、2 次 4 件 ／ 0 / 0 ／ 0 / 0 ／ 0 / 0 | 3 行のセルを変える（決定 3・決定 5） |
 | `HF-14` | 3 件 / 8（`FR-083` `FR-004` `FR-008`、05-07:398 と :402） | 文は変えない。05-07:402 は `PI-9` のセルそのもの |
 | 表 T-065 ／ 表 T-067 ／ 表 T-077 ／ 表 T-078 | 1 件（`FR-040`）／ 6 件（`FR-031` `FR-032` `FR-088` `FR-064` `FR-076` `FR-040`）／ 1 件（`FR-051`）／ 1 件（`NFR-010`。2 次は `FR-048`） | `EG-7` が名指すだけで、文は変えない |
 | `MN-2` ／ `MN-6` | 0 / 0 ／ 1 件 / 3（`FR-016`、05-07:398 ・ :457） | 文は変えない。⚠️ `MN-6` の「辺が 3 本増えた」は第 7 節 |
-| `LY-5` ／ `W-11` ／ 表 T-024 ／ `FR-032` | 1 件 / 9 ／ 0 / 1 ／ 9 件（2 次 29）／ 7 件 / 18 | 文は変えない。`JF-4` が `LY-5` を、`EG-1` が `W-11` を、`extensionOfFormat` が表 T-024 を、D-3 が `FR-032`（導出元が名前を持たないときは既定の名前に確定させる）を指す |
+| `LY-5` ／ `W-11` ／ 表 T-024 ／ `FR-032` | 1 件 / 9 ／ 0 / 1 ／ 9 件（2 次 29）／ 7 件 / 18 | 文は変えない。`JF-4` が `LY-5` を、`EG-1` が `W-11` を、`extensionOfFormat` が表 T-024 を、決定 3 が `FR-032`（導出元が名前を持たないときは既定の名前に確定させる）を指す |
 
 **`rulings.md` で引いた**（行 ID を語の境界つきで数えた。ヘッダの行と本文の両方）: `T-075` → `JDG-48`、`T-065` → `JDG-68`、`FR-008` → `JDG-07`、`FR-031` → `JDG-21`、`FR-029` → `JDG-76`。ほかの対象（`T-061` `LR-1` `LR-2` `LR-3` `LR-5` `T-060` `LY-5` `T-062` `CP-20` `CP-25` `CP-37` `CP-38` `T-074` `SU-1` `T-064` `PI-9` `PI-18` `PI-20` `PI-37` `PI-38` `HF-14` `T-067` `WS-7` `T-077` `T-078` `FT-1` `FT-5` `F-013` `MN-2` `MN-5` `MN-6` `T-070` `T-108` `W-11` `T-024` `FR-004` `FR-006` `FR-009` `FR-016` `FR-032` `FR-038` `FR-040` `FR-051` `FR-064` `FR-076` `FR-083` `FR-088` `NFR-010`）は 0 件。
 読んだ本文と、本書との関係:
@@ -116,7 +116,7 @@
 | `JDG-68` | 表 T-065 の `IF-9`（変更なし） | しない。`EG-7` は表 T-065 を指すだけ |
 | `JDG-07` | `FR-008` の 表 T-225 の `AS-7` | しない（担当者の差し替え。辺にも置き場にも触れない） |
 | `JDG-21` | `FR-031`（何も変えなかった書き込みは段を残さない） | しない |
-| `JDG-76` | 表 T-109 と 図 F-019、`FR-036`（未着地） | しない。凡例の印が 図 F-019 に図形を足すと `icon-glyphs.json` が育つが、D-4 の置き場は変わらない |
+| `JDG-76` | 表 T-109 と 図 F-019、`FR-036`（未着地） | しない。凡例の印が 図 F-019 に図形を足すと `icon-glyphs.json` が育つが、決定 4 の置き場は変わらない |
 
 ⭐ **裁かれた行と導いた条項が食い違った所は 0 件である。**
 
@@ -131,8 +131,8 @@
 | `src/use-case/edit-document/edit-task.ts:30, 409` ／ `edit-document.ts:31, 43` | `DEFAULT_ROW_NAME` を読む ／ 再び公開する | 引数で受け取る ／ 再公開をやめる |
 | `src/adapter/input-command-translator/input-command-translator.ts:69, 2309` | `EditDocument` から `DEFAULT_ROW_NAME` を読み、行を足す命令に載せる | `ScreenRenderer` の公開エントリから読む（辺 `InputCommandTranslator -> ScreenRenderer` は図に在る） |
 | `src/framework/single-html-shell/frame-loop.ts:2203, 2385, 2583, 3017` ／ `src/adapter/agent-api-endpoint/agent-api-members.ts:309-320` | `editDocument` ／ `applyDocumentChange` を呼ぶ | 既定の行の名前を値として渡す。`Agent API` の側は `SettingsLimits` と同じく殻の渡す値から取る（辺は増えない） |
-| `src/framework/dom-screen-surface/dom-screen-surface.ts:33` | `../../adapter/screen-renderer/icon-glyphs.json` | `./icon-glyphs.json`（D-4） |
-| `src/framework/single-html-shell/frame-loop.ts:104, 727` | `exchange-formats.json` を直に読む | `DocumentCodec` の `extensionOfFormat` を呼ぶ（D-5） |
+| `src/framework/dom-screen-surface/dom-screen-surface.ts:33` | `../../adapter/screen-renderer/icon-glyphs.json` | `./icon-glyphs.json`（決定 4） |
+| `src/framework/single-html-shell/frame-loop.ts:104, 727` | `exchange-formats.json` を直に読む | `DocumentCodec` の `extensionOfFormat` を呼ぶ（決定 5） |
 | `tools/generate_icon_glyphs.py:65` | `REL_OUT = 'src/adapter/screen-renderer/icon-glyphs.json'` | `src/framework/dom-screen-surface/icon-glyphs.json` |
 | `tools/check_layer_rules.py:150-158` | `.json` を読み飛ばす | 段 3 で、`EG-8` と `JF-1` を当てる（第 7 節） |
 
@@ -230,11 +230,11 @@
 
 | # | 前 | 後 | 理由 |
 |---|--:|--:|---|
-| M-2 コードの辺 | 125 | 123 | `ApplyDocumentChange -> ScreenRenderer` と `EditDocument -> ScreenRenderer` が消える（D-3） |
+| M-2 コードの辺 | 125 | 123 | `ApplyDocumentChange -> ScreenRenderer` と `EditDocument -> ScreenRenderer` が消える（決定 3） |
 | M-3 図に無いコードの辺 | 51 | 49 | 同上。残る 49 は段 8 で `components.json` へ書く（`EG-6` によりシェルの 19 を含む）か、コードから消す |
 | M-4a 両方にある辺 | 74 | 74 | `DomScreenSurface -> ScreenRenderer` は公開エントリの import（`dom-screen-surface.ts:31`）で、`SingleHtmlShell -> DocumentCodec` は公開エントリの import（`frame-loop.ts:103` ・ `single-html-shell.ts:16`）で使われ続ける |
-| M-5 | 2 | 0 | D-3 |
-| M-6 | 4 | 0 | D-3 ・ D-4 ・ D-5 |
+| M-5 | 2 | 0 | 決定 3 |
+| M-6 | 4 | 0 | 決定 3 ・ 決定 4 ・ 決定 5 |
 
 ---
 
@@ -260,9 +260,9 @@
 
 | 相手 | 相手が触るもの | 本書が触るもの | 境目 |
 |---|---|---|---|
-| **`CR-379`（段 2b 状態のモデル。別の体が起草中）** | ADR-002、状態の SSOT、`UseCase` のモジュール状態の置き場。計画の記録 12 節によれば 表 T-060 の `LY-3`、表 T-062 に 1 行と `CP-18` ・ `CP-25` ・ `CP-36` の責務、表 T-063 ・ T-075 ・ T-064、`components.json` | 表 T-247 ・ T-248 の新設、表 T-064 の `PI-9` ・ `PI-20` ・ `PI-37` のセル | ⛔ 本書は状態・遷移・モジュール状態に 1 語も触れない。⚠️ **重なりうるのは 表 T-064 だけ**で、行が違う（段 2b が足すのは新しいコンポーネントの行）。新しいコンポーネントが `.json` を読むなら 表 T-248 に従う。表の席番号は先に当てた側が取る（D-6） |
+| **`CR-379`（段 2b 状態のモデル。別の体が起草中）** | ADR-002、状態の SSOT、`UseCase` のモジュール状態の置き場。計画の記録 12 節によれば 表 T-060 の `LY-3`、表 T-062 に 1 行と `CP-18` ・ `CP-25` ・ `CP-36` の責務、表 T-063 ・ T-075 ・ T-064、`components.json` | 表 T-247 ・ T-248 の新設、表 T-064 の `PI-9` ・ `PI-20` ・ `PI-37` のセル | ⛔ 本書は状態・遷移・モジュール状態に 1 語も触れない。⚠️ **重なりうるのは 表 T-064 だけ**で、行が違う（段 2b が足すのは新しいコンポーネントの行）。新しいコンポーネントが `.json` を読むなら 表 T-248 に従う。表の席番号は先に当てた側が取る（決定 6） |
 | `CR-376`（実績を日付で持つ） | 文書の列、`erd.json` | —— | 重ならない |
-| `CR-377`（ヘルプの建て替え） | `display-words.json` ・ `help-roster.json`（どちらも `ScreenRenderer` のフォルダ）、図 F-019 | `icon-glyphs.json` の置き場 | ⚠️ 凡例の印が 図 F-019 に図形を足すと `icon-glyphs.json` が変わるが、置き場（D-4）とは独立。新しい名簿を `ScreenRenderer` の外が読むなら 表 T-248 の `JF-3` に従う |
+| `CR-377`（ヘルプの建て替え） | `display-words.json` ・ `help-roster.json`（どちらも `ScreenRenderer` のフォルダ）、図 F-019 | `icon-glyphs.json` の置き場 | ⚠️ 凡例の印が 図 F-019 に図形を足すと `icon-glyphs.json` が変わるが、置き場（決定 4）とは独立。新しい名簿を `ScreenRenderer` の外が読むなら 表 T-248 の `JF-3` に従う |
 | 仕様を並行して編集している体 | `docs/spec` | —— | 本書は `3cf64a4` の木を読み、`docs/spec` を編集していない。行番号は `3cf64a4` のものなので、適用時に引き直す |
 
 ---
@@ -270,10 +270,10 @@
 ## 9. ⛔ この変更でやらないこと
 
 - ⛔ **`components.json` の辺を足しも消しもしない** —— 図の 49 本の書き足し（シェルの 19 を含む）と、コードが使わない 11 本の扱いは段 8
-- ⛔ **「図 ⊆ コード」を規則にしない** —— `JDG-47` は片向きしか裁いていない（D-7）
+- ⛔ **「図 ⊆ コード」を規則にしない** —— `JDG-47` は片向きしか裁いていない（決定 7）
 - ⛔ **検査を足さない** —— 門は段 3。本書は門が読む文だけを置く
 - ⛔ **表 T-075 を動かさない** —— `.json` はユニットではない（`JF-1`、`JDG-48`）
-- ⛔ **表 T-062 を動かさず、コンポーネントを足さない** —— 辞書のためのコンポーネントは退けた（D-3）。段 2b の表 T-062 の編集とも重ねない
+- ⛔ **表 T-062 を動かさず、コンポーネントを足さない** —— 辞書のためのコンポーネントは退けた（決定 3）。段 2b の表 T-062 の編集とも重ねない
 - ⛔ **最も内側の層に読み手が 2 つ以上あるときの持ち主は決めない** —— `JF-2` は責務で決めるので、いまの `src/` に決まらない例は 0 件である
 - ⛔ **状態のモデル・ADR-002・`UseCase` のモジュール状態には触れない**（`CR-379`）
 - ⛔ **`src/` と `tests/` には触らない**（起草の段）
