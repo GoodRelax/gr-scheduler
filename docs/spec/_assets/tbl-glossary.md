@@ -52,7 +52,7 @@
 | P-1 | `name` | 名称 |
 | P-2 | `notes` | 備考 |
 | P-3 | `start` / `finish` | 開始日 / 終了日 |
-| P-4 | `actualStart` / `stop` / `actualFinish` | 実績開始日 / 中断日 / 実績終了日 |
+| P-4 | `actualStart` / `stop` / `actualFinish` | 実績開始日 / 実績最終日 / 実績終了日 |
 | P-5 | `actualDuration` | 実績期間 |
 | P-6 | `resume` | 再開予定日 |
 | P-7 | `resumeValid` | 再開可否 |

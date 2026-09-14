@@ -1705,17 +1705,13 @@ function modalElement(
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
-  // STOP: spec does not decide the order of the help title row. Looked in FR-036, FR-038, IC-52
-  // @provisional PND-500
-  let legend: HTMLElement | null = null
+  const legendItem =
+    'entries' in modal ? modal.commands.find((item) => item.icon === HELP_LEGEND_ENTRY) : undefined
+  if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
   for (const item of modal.commands) {
-    if ('entries' in modal && item.icon === HELP_LEGEND_ENTRY) {
-      legend = helpLegendElement(host, item)
-      continue
-    }
+    if ('entries' in modal && item.icon === HELP_LEGEND_ENTRY) continue
     header.append(anchoredEntry(host, item, anchors))
   }
-  if (legend !== null) header.append(legend)
   const body: HTMLElement[] = []
   let watermarkUnlockEntry: TextEntryControl | null = null
 

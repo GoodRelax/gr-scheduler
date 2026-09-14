@@ -1669,6 +1669,17 @@ const framesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) => shows(word, stringsIn(viewOf(screenViewFromRegions, one.frame, language))))
 
+// see FR-036, FR-038
+const helpNoteFramesShowing = (
+  rowId: string,
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) => {
+    const text = helpEntryText(viewOf(screenViewFromRegions, one.frame, language), rowId)
+    return text !== undefined && text.includes(word)
+  })
+
 // ---------------------------------------------------------------------------
 // 1. THE CARRIAGE -- what a written word has to satisfy.
 // ---------------------------------------------------------------------------
@@ -2151,7 +2162,11 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       const at = `${cell.section}.${cell.key}.${cell.field}`
 
       // ⭐ The arrival itself: one of the frames prints exactly this word.
-      const on = framesShowing(cell.word, cell.language)
+      // STEP: a helpNotes word rides on its own row's entry text (FR-036).
+      const on =
+        cell.section === 'helpNotes'
+          ? helpNoteFramesShowing(cell.key, cell.word, cell.language)
+          : framesShowing(cell.word, cell.language)
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +

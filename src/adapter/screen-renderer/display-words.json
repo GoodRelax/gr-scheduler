@@ -38,7 +38,7 @@
    "rowId": "IC-2",
    "label": {
     "ja": "書き出して保存",
-    "en": "Save"
+    "en": "Save to File"
    },
    "hint": {
     "ja": "書き出す形式を選んで保存する",
@@ -250,8 +250,8 @@
     "en": "Help"
    },
    "hint": {
-    "ja": "打鍵とポインタの操作の一覧を開く",
-    "en": "Open the list of keyboard and pointer operations"
+    "ja": "ショートカットキーとアイコンの一覧を開く",
+    "en": "Open the list of shortcut keys and icons"
    }
   },
   {
@@ -467,7 +467,7 @@
    "rowId": "IC-61",
    "label": {
     "ja": "依存線を引く",
-    "en": "Dependency Line"
+    "en": "Draw a Dependency Line"
    },
    "hint": {
     "ja": "依存線を構える。タスクからタスクへ引く",
@@ -543,8 +543,8 @@
   {
    "rowId": "IC-41",
    "label": {
-    "ja": "透かしを消す（パスワードが要る）",
-    "en": "Watermark"
+    "ja": "透かしを消す（パスワードが必要）",
+    "en": "Hide the watermark (password required)"
    },
    "hint": {
     "ja": "透かしを非表示にする。透かし解除パスワードを求める",
@@ -599,7 +599,7 @@
    "rowId": "IC-81",
    "label": {
     "ja": "依存線の表示",
-    "en": "Dependency Lines"
+    "en": "Show Dependency Lines"
    },
    "hint": {
     "ja": "依存線を表示する。もう一度押すと非表示にする",
@@ -687,7 +687,7 @@
    "rowId": "IC-50",
    "label": {
     "ja": "マイルストーン",
-    "en": "Milestone glyphs"
+    "en": "Milestone"
    },
    "hint": {
     "ja": "マイルストーン形状の一覧を開く。もう一度押すと畳む",
@@ -745,8 +745,8 @@
     "en": "Wheel"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "ホイールを回す操作を示す印",
+    "en": "Marks turning the mouse wheel"
    }
   },
   {
@@ -2490,7 +2490,7 @@
    "rowId": "SK-19",
    "text": {
     "ja": "その場の編集を確定する",
-    "en": "Commit the edit in place; with nothing left to commit, close the Properties Panel; with that closed too, clear the selection"
+    "en": "Commit the edit in place"
    }
   },
   {
@@ -2554,8 +2554,8 @@
   {
    "block": "basics",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "基本操作",
+    "en": "Basic operations"
    }
   }
  ],
@@ -2563,8 +2563,8 @@
   {
    "rowId": "IC-54",
    "text": {
-    "ja": "",
-    "en": ""
+    "ja": "構えている間だけ出る",
+    "en": "Shown only while armed"
    }
   }
  ],

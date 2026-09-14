@@ -19,6 +19,7 @@ import type {
 import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
+  iconEntry,
   oneByRole,
   selfAndDescendants,
   surfaceOf,
@@ -539,6 +540,40 @@ describe('CR-377 page: how the help is drawn', () => {
         const printed = selfAndDescendants(help).filter((one) => one.textContent.trim() === name)
         expect(printed.length, `${language} ${group.firstRow} "${name}"`).toBe(0)
       }
+    }
+  })
+})
+
+const DISPLAY_LANGUAGE_ICON = 'IC-21'
+
+describe('JDG-81 -- help title row: legend, then language toggle, then close', () => {
+  it('FR-036 (MUST): 閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）', () => {
+    for (const language of LANGUAGES) {
+      const help = drawnHelp(language)
+      const legendWordText = WORDS.icons.find((one) => one.rowId === LEGEND_ROW)?.label[language] ?? ''
+      expect(legendWordText, language).not.toBe('')
+
+      const title = theNodeShowing(help, [HEADING_TOKEN])
+      const legendWord = selfAndDescendants(help).find(
+        (one) =>
+          one.textContent.trim() === legendWordText &&
+          !one.children.some((child) => child.textContent.trim() === legendWordText),
+      )
+      expect(legendWord, `${language}: ${whatWasDrawn(help)}`).toBeDefined()
+
+      const toggle = iconEntry(help, DISPLAY_LANGUAGE_ICON)
+      const close = iconEntry(help, 'IC-52')
+
+      const row = commonAncestor(commonAncestor(title, legendWord as FakeElement), commonAncestor(toggle, close))
+      expect(row, `${language}: title row`).not.toBe(help)
+
+      const order = selfAndDescendants(row)
+      const legendAt = order.indexOf(legendWord as FakeElement)
+      const toggleAt = order.indexOf(toggle)
+      const closeAt = order.indexOf(close)
+
+      expect(legendAt, `${language}: ${whatWasDrawn(row)}`).toBeLessThan(toggleAt)
+      expect(toggleAt, `${language}: ${whatWasDrawn(row)}`).toBeLessThan(closeAt)
     }
   })
 })
