@@ -332,6 +332,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
   //
+  'RS-51': 'b4304cf3e39eaeee',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
   // above): the scene's rule text is unchanged from HEAD, only its origin
   // record was folded out. Read against the dictionary again -- both

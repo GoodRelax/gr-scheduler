@@ -446,6 +446,16 @@ describe('the manuscripts still say what these cases read', () => {
     expect(HF_15).toContain('図 F-019 の図形にしてはならない（MUST NOT）')
   })
 
+  it('⛔⛔ HF-15 still names the mark two colours, S-231 while not held and S-151 while held (CR-385)', () => {
+    expect(HF_15).toContain(
+      '掴んでいないあいだ、掴み代の印を 表 T-236 の `S-231` で描くこと（MUST）',
+    )
+    expect(HF_15).toContain(
+      '握っているあいだ、掴み代の印を 表 T-236 の `S-151` で描くこと（MUST）',
+    )
+    expect(specTable('T-236').rows.map((one) => one.id)).toContain('S-231')
+  })
+
   it('⛔ HF-18 still marks the row itself with a band on its left edge, in S-153', () => {
     expect(HF_18).toContain('その行自身にも印を付けること（MUST）')
     expect(HF_18).toContain('印は行の左の辺に帯を 1 本引くこと（MUST）')
@@ -722,6 +732,37 @@ describe('HF-15 -- the grab strip is a mark, and its band is not painted', () =>
       const strip = grabStripOf(row as FakeElement)
 
       expect(styleMap(strip).get('width'), `GR-20: the strip is S-138 wide`).toBe(`${S_138}px`)
+    })
+
+    it(`draws the mark in S-231 while the row is not held (${preference})`, () => {
+      const built = drawn(ONE_ROW(), preference)
+      const [row] = rowsOf(built, 1)
+      const strip = grabStripOf(row as FakeElement)
+
+      expect(
+        coloursIn(built, styleMap(strip).get('color') ?? ''),
+        `HF-15 (MUST): the strip's mark is not drawn in S-231: ${whatWasDrawn(strip)}`,
+      ).toContain(t236('S-231', preference))
+    })
+
+    it(`draws the mark in S-151 while the row is held, on either axis (${preference})`, () => {
+      for (const axis of ['position', 'depth'] as const) {
+        const built = drawn(viewOf([rowTitle({ groupId: 'RowAlpha', heldOnAxis: axis })]), preference)
+        const [row] = rowsOf(built, 1)
+        const strip = grabStripOf(row as FakeElement)
+
+        expect(
+          coloursIn(built, styleMap(strip).get('color') ?? ''),
+          `HF-15 (MUST): held on ${axis}, the strip's mark is not drawn in S-151: ${whatWasDrawn(strip)}`,
+        ).toContain(t236('S-151', preference))
+      }
+    })
+
+    it(`draws the mark in a colour that actually changes between held and not held (${preference})`, () => {
+      expect(
+        t236('S-231', preference),
+        'S-231 and S-151 must differ, or held vs not-held would paint alike',
+      ).not.toBe(t236('S-151', preference))
     })
   }
 })

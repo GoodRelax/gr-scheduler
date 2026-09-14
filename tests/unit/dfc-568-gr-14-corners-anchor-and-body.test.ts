@@ -562,19 +562,16 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     }
   })
 
-  it('the bands do not touch, half a gap is narrower than S-230, and the pinned fixture leaves a gap under F', () => {
+  it('the bands touch (CR-384, S-12 fixed at 0), and there is room below the last row to press outside every band', () => {
     const built = stage()
     const ids = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F]
     for (let index = 1; index < ids.length; index += 1) {
       const gap = bandTop(built.loop, ids[index]!) - bandBottom(built.loop, ids[index - 1]!)
-      expect(gap, `no gap above row ${index}`).toBeGreaterThan(0)
-      expect(gap / 2, `half the gap above row ${index} is not narrower than S-230`).toBeLessThan(S_230)
+      expect(gap, `S-12 is fixed at 0; row ${index} is not flush against the row above it`).toBe(0)
     }
     expect(bandBottom(built.loop, ROW_F) + 4 * S_230).toBeLessThan(SCREEN.height)
     expect(highlightRect(built.loop).y).toBe(bandTop(built.loop, ROW_B))
     expect(highlightRect(built.loop).y + highlightRect(built.loop).height).toBe(bandBottom(built.loop, ROW_D))
-    const pinned = stage({ pinned: [ROW_F] })
-    expect(bandTop(pinned.loop, ROW_A) - bandBottom(pinned.loop, ROW_F)).toBeGreaterThan(0)
   })
 
   it('S-230 resolves to one positive number through S-137', () => {
@@ -1167,14 +1164,6 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
 })
 
 describe('DFC-568 JDG-72: no drawn row under the release writes nothing and tells RS-44', () => {
-  it(`${ANCHOR_NO_ROW} -- released in the gap between the E and F bands`, () => {
-    const built = stage()
-    const gapY = (bandBottom(built.loop, ROW_E) + bandTop(built.loop, ROW_F)) / 2
-    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: gapY })
-    expect(moved.after, 'the gap release moved the anchor').toEqual(moved.before)
-    expect(built.noticeTexts(), 'RS-44 was not told').toContain(RS_44_WORDS)
-  })
-
   it(`${ANCHOR_NO_ROW} -- released below every drawn band`, () => {
     const built = stage()
     const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandBottom(built.loop, ROW_F) + 4 * S_230 })
