@@ -1,8 +1,4 @@
 // Unit tests for the UseCase units of wave W3.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/, written by whoever implemented the unit.
 
 import { describe, expect, it } from 'vitest'
 
@@ -21,23 +17,13 @@ import {
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { planDocumentChange } from '../../src/use-case/apply-document-change/document-change-plan'
 import { editDocumentSettings, editProject } from '../../src/use-case/edit-document/edit-document'
-// ⭐ RD-1 of table T-230 puts UndoEdit in WS-3's position, so one press of undo
-// is `undoEdit` over the held pair. The pair-of-writes case below needs it.
+// WHY: RD-1 puts UndoEdit in WS-3's position, so one press of undo is
+// undoEdit over the held pair. The pair-of-writes case below needs it.
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// Every key DocumentSettings declares, at the value the manuscript states.
-//
-// ⚠️ This used to be a hand-written list of the twenty keys these cases read,
-// each with its default re-typed here. A key added to table T-201 then never
-// reached the fixture: CR-200 added `rulerLabelPad` (S-136), S-2's default
-// started to read it, and the band height came out NaN because the fixture had
-// no such key -- the case below could not have caught the change it exists to
-// catch. tests/unit/layout-engine.test.ts has taken its settings from
-// SETTINGS_DEFAULTS since CR-175 for the same reason; this is that shape.
-//
-// SETTINGS_DEFAULTS writes a nested key with a dot (`fontScaleSizes.M`), so
-// the dotted names are expanded into the nested objects the type declares.
+// WHY: read from SETTINGS_DEFAULTS, not a hand-typed list -- a hand-typed
+// list once missed a new key (CR-200) and could not catch the break it caused.
 const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
@@ -54,20 +40,15 @@ const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
   return out
 })()
 
-// A whole Document is far more than these cases read, so they carry the keys
-// the aggregates actually touch. Same idiom as the other unit files.
+// WHY: a whole Document is far more than these cases read, so they carry
+// only the keys the aggregates touch.
 const documentOf = (part: Record<string, unknown> = {}): Document =>
   ({
     schemaVersion: '1',
     schedule: {
       project: { title: 'A', statusDate: null, themeHue: 214, startDate: null },
-      // ⛔ NOT AN EMPTY ARRAY, and the change is the manuscript's: table T-050
-      // (MUST) since 2026-09-01 reads 「文書は、`TaskGroup` を必ず 1 つ以上持つ
-      // こと」. A fixture with none is a document the specification does not
-      // admit, and a write against one is not the write the case is about --
-      // the WS-5 case below asked whether a PRESENTATION-ONLY write moves the
-      // schedule instant, and against an empty document the write also has to
-      // make the missing row, which is a schedule-group change.
+      // WHY: not an empty array -- table T-050 requires at least one
+      // TaskGroup, and an empty fixture is not a document the spec admits.
       taskGroups: [{ id: 'g0', parentId: null, label: 'row 1', derivedFromTaskUid: null,
                      order: 0, isCollapsed: null, isHidden: null, color: null, height: null }],
       tasks: [],
@@ -85,10 +66,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     changeLog: [],
   }) as unknown as Document
 
-// `rowAreaWidthWithoutPanels` is what the caller reads off the frame's
-// ScreenRegions (CS-1) and hands over: with a 1000px canvas, `canvasPadding`
-// 10 and an 8px vertical scrollbar, regionsFromScreen leaves 982 once the two
-// panels are added back. The arithmetic is layoutEngine's, not this file's.
+// WHY: rowAreaWidthWithoutPanels is what the caller reads off the frame's
+// ScreenRegions (CS-1) and hands over; the arithmetic is layoutEngine's.
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
@@ -113,17 +92,11 @@ const planOf = (
   })
 
 describe('ApplyDocumentChange -- how big one undo step is (FR-031)', () => {
-  // ⛔ FR-031 (MUST): 「1 段の大きさは、その段の保存形を UTF-8 で符号化した長さ
-  // （バイト）で測ること」、and (MUST NOT) 「文字数で測ってはならない」. S-95 is
-  // written in megabytes, so counting characters ran the bound about three
-  // times loose on Japanese text -- which is what this file used to do, saying
-  // in as many words that the measure was its own decision (CR-182).
+  // WHY: FR-031 measures a step's size in UTF-8 bytes, not characters, and
+  // S-95 is in megabytes, so counting characters would run the bound loose.
   it('measures the stored form in bytes, not characters', () => {
-    // ⚠️ The step measures the document BEFORE the edit -- that is what undo
-    // restores -- so the two documents differ in their starting title.
-    // Both titles are FIVE characters: counting characters makes the two steps
-    // cost the same, counting UTF-8 bytes makes the Japanese one cost 2 more
-    // per character. The difference IS the measure.
+    // WHY: the step measures the document BEFORE the edit, so the two
+    // documents differ in their starting title -- both five characters.
     const ascii = 'abcde'
     const japanese = '日程表の名'
     expect([...ascii]).toHaveLength([...japanese].length)
@@ -140,7 +113,7 @@ describe('ApplyDocumentChange -- how big one undo step is (FR-031)', () => {
       return plan.history.done[0]!.sizeBytes
     }
 
-    // Each of the five characters is three bytes where a letter is one.
+    // WHY: each of the five characters is three bytes where a letter is one.
     expect(sizeOf(japanese) - sizeOf(ascii)).toBe([...japanese].length * 2)
   })
 })
@@ -151,7 +124,7 @@ describe('EditDocument (PI-9) -- the Project aggregate', () => {
     const empty = editProject(document, { kind: 'setProjectTitle', title: '' })
     expect(empty.ok).toBe(false)
     if (!empty.ok) expect(empty.refusals[0]!.rule).toBe('FR-035')
-    // `null` is a legitimate state -- FR-035 gives it the tab heading Untitled.
+    // WHY: null is a legitimate state -- FR-035 gives it the tab heading Untitled.
     const cleared = editProject(document, { kind: 'setProjectTitle', title: null })
     expect(cleared.ok).toBe(true)
   })
@@ -165,8 +138,8 @@ describe('EditDocument (PI-9) -- the Project aggregate', () => {
     if (!result.ok) return
     const project = result.document.schedule.project
     expect([project.author, project.company, project.revision]).toEqual(['yamada', 'acme', 7])
-    // PF-9 / PF-10 and `title` are absent from the field type, so CM-2 leaves
-    // the document name where FR-035 put it.
+    // WHY: PF-9 / PF-10 and title are absent from the field type, so CM-2
+    // leaves the document name where FR-035 put it.
     expect(project.title).toBe('A')
   })
 
@@ -213,9 +186,8 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
       LIMITS,
     )
     expect(ok.ok).toBe(true)
-    // 982 - 600 - 400 leaves the Row Area at or below zero. The pair passes
-    // one at a time (600 and 400 each fit on their own) and fails together,
-    // which is the MUST NOT.
+    // WHY: 982 - 600 - 400 leaves the Row Area at or below zero; the pair
+    // passes one at a time but fails together, which is the MUST NOT.
     const tooWide = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 600, propertyPanelWidth: 400 },
@@ -226,17 +198,16 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   })
 
   it('FR-052 refuses a row title panel of zero, which SC-3 forbids', () => {
-    // The scrollbar term is in `rowAreaWidthWithoutPanels`, so a pair that
-    // only fits when the scrollbar is forgotten is refused: 982 - 972 - 10
-    // is at zero, while the old screen-width copy left 1000 - 10 - 972 - 10.
+    // WHY: the scrollbar term is already in rowAreaWidthWithoutPanels, so a
+    // pair that only fits when the scrollbar is forgotten is refused.
     const grazing = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 972, propertyPanelWidth: 10 },
       LIMITS,
     )
     expect(grazing.ok).toBe(false)
-    // MUST NOT: width 0 breaks SC-3's "showing at every zoom", so it is
-    // refused even though the Row Area would be at its widest.
+    // WHY: width 0 breaks SC-3's "showing at every zoom" (MUST NOT), so it
+    // is refused even though the Row Area would be at its widest.
     const flat = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 0, propertyPanelWidth: 280 },
@@ -244,7 +215,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     )
     expect(flat.ok).toBe(false)
     if (!flat.ok) expect(flat.refusals[0]!.rule).toBe('FR-052')
-    // S-80 puts no such floor under the properties panel: zero is legitimate.
+    // WHY: S-80 puts no such floor under the properties panel; zero is legitimate.
     const collapsed = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 0 },
@@ -260,7 +231,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     const result = editDocumentSettings(full, { kind: 'pinTaskGroup', groupId: 'f' }, LIMITS)
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.refusals[0]!.rule).toBe('FR-098')
-    // MUST NOT: the oldest pin is NOT pushed out to make room.
+    // WHY: the oldest pin is NOT pushed out to make room (MUST NOT).
     expect(settingsOf(full).pinnedGroupIds).toEqual(['a', 'b', 'c', 'd', 'e'])
   })
 
@@ -272,7 +243,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     )
     expect(placed.ok).toBe(true)
     if (!placed.ok) return
-    // DC-4 (MUST NOT): choosing the guide cursor's "none" must not take the
+    // WHY: DC-4 says choosing the guide cursor's "none" must not take the
     // Dual Cursor down with it -- FR-048 keeps the three kinds independent.
     const guide = editDocumentSettings(
       placed.document,
@@ -294,20 +265,8 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   })
 
   it('FR-039 drags the ruler type and band along with the font scale', () => {
-    // ⛔ FR-039 (MUST): 「文字サイズの変更は目盛にも及ぶこと」 -- the ruler type
-    // and the band height follow it and their saved values are rewritten, and
-    // the requirement names the two rows that hold them: S-3 and S-2.
-    //
-    //   S-3  `fontScaleSizes[fontScale]`                    (S = 12 / M = 14 / L = 16)
-    //   S-2  `rulerFont` x 3 + `rulerLabelPad` x 3          (S = 42 / M = 48 / L = 54)
-    //
-    // Three tiers of type plus three tiers of padding: the band carries "文字と
-    // 余白" for each of its three tiers, and the padding is S-136's own key.
-    // Only the two 3s are transcribed from the cell -- every number they
-    // multiply is read from SETTINGS_DEFAULTS, which `npm run gen` prints from
-    // the manuscript. ⚠️ This case used to spell the whole thing `16 * 3 + 6`,
-    // and that 6 named nothing: when CR-200 replaced it with a key the copy
-    // could only go stale.
+    // WHY: FR-039 (S-2, S-3) has the font scale carry ruler type and band
+    // height with it; only the two 3s are literal, every size is read.
     const sizeL = SETTINGS_DEFAULTS['fontScaleSizes.L'] as number
     const pad = SETTINGS_DEFAULTS['rulerLabelPad'] as number
     const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
@@ -316,10 +275,8 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     expect(settingsOf(result.document).rulerFont).toBe(sizeL)
     expect(settingsOf(result.document).rulerHeight).toBe(sizeL * 3 + pad * 3)
 
-    // 04-verification section 2: a value that comes from the manuscript is
-    // only shown to ARRIVE when moving it moves the answer. A document that
-    // saved a wider `rulerLabelPad` has to get a band three pixels taller per
-    // pixel of padding; a bare 6 in the arithmetic leaves this flat.
+    // WHY: a value read from the manuscript is only shown to arrive when
+    // moving it moves the answer -- a wider rulerLabelPad here does.
     const padded = editDocumentSettings(
       documentOf({ documentSettings: { rulerLabelPad: pad + 2 } }),
       { kind: 'setFontScale', scale: 'L' },
@@ -333,7 +290,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
 
 describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   it('WS-1 turns away a writer that read a stamp that is not this one', () => {
-    // AG-2: 「食い違えば書き込みを拒否して現在の文書を返すこと（MUST）」.
+    // WHY: AG-2 requires a mismatch to refuse the write and return the current document.
     const document = documentOf()
     const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
       readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2026-08-17T00:00:02Z' },
@@ -343,12 +300,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   })
 
   it('WS-1 refuses on any ONE of the three differing, EARLIER stamps included', () => {
-    // AG-2: 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否
-    // すること（MUST）」. FR-063 leaves the schedule instant alone for a
-    // presentation write, so only lastEditedBy and settingsUpdatedUtc can tell
-    // that one happened -- and FR-063 forbids reading any of the three as an
-    // order (MUST NOT), so a stamp that reads EARLIER is a mismatch just the
-    // same, not a stale-but-harmless one.
+    // WHY: AG-2 checks all three stamp fields for equality, and FR-063 (MUST
+    // NOT) forbids reading them as an order, so an earlier stamp is a mismatch too.
     const document = documentOf()
     for (const differing of [
       { scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
@@ -378,10 +331,10 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const document = documentOf()
     const plan = planOf(document, [
       { kind: 'setProjectTitle', title: 'B' },
-      { kind: 'setThemeHue', hue: 999 }, // refused
+      { kind: 'setThemeHue', hue: 999 },
     ])
     expect(plan.ok).toBe(false)
-    // AG-3: nothing was replaced, so the accepted first command is gone too.
+    // WHY: AG-3 has nothing replaced, so the accepted first command is gone too.
     expect(document.schedule.project.title).toBe('A')
   })
 
@@ -391,9 +344,9 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(undoable.ok && undoable.history.done).toHaveLength(1)
 
     for (const command of [
-      { kind: 'setElementVisible', element: 'dependencyVisible', visible: false }, // UN-7
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 210, propertyPanelWidth: 310 }, // UN-16
-      { kind: 'setZoom', zoomX: 2, zoomY: 2 }, // UN-8
+      { kind: 'setElementVisible', element: 'dependencyVisible', visible: false },
+      { kind: 'setPanelWidths', rowTitlePanelWidth: 210, propertyPanelWidth: 310 },
+      { kind: 'setZoom', zoomX: 2, zoomY: 2 },
     ] as const) {
       const plan = planOf(document, [command as DocumentCommand])
       expect(plan.ok && plan.history.done).toHaveLength(0)
@@ -410,38 +363,24 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     const presentation = planOf(document, [{ kind: 'setStackDirection', direction: 'down' }])
     expect(presentation.ok && presentation.hasMovedSchedule).toBe(false)
-    // FR-063 (MUST NOT): 「見せ方の群だけを変える更新で、日程データの群の刻を
-    // 動かしてはならない」 -- so it still reads as it did before the write.
+    // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
+    // the schedule-data group's instant.
     expect(presentation.ok && presentation.document.documentStamp.scheduleUpdatedUtc).toBe(
       document.documentStamp.scheduleUpdatedUtc,
     )
-    // FR-063 (MUST): who wrote last and the instant EITHER group moved at are
-    // replaced either way.
+    // WHY: FR-063 (MUST) replaces who wrote last and whichever group's
+    // instant moved, either way.
     expect(presentation.ok && presentation.document.documentStamp.settingsUpdatedUtc).toBe(
       '2026-08-17T01:00:00Z',
     )
   })
 
-  // ---- one fit press, two writes (FR-031) ---------------------------------
-  //
-  // ⛔ FR-031 (MUST / MUST NOT): 「全体表示の 1 回の押下は、2 つの書き込みに
-  // 分けて行うこと（MUST）。順序を入れ替えてはならない（MUST NOT）」 ——
-  // 「① 倍率と表示位置を置く（表 T-108 の `CM-71`。表 T-027 の `UN-8` により段を
-  // 積まない） ② 畳んだ行をすべて開く（同 `CM-72`。`UN-17` により段を 1 つ積む）」.
-  //
-  // The three cases below are that sentence, one half at a time and then the
-  // pair. ⚠️ The two cases they replace read the OLD shape, in which CM-71
-  // did both halves in one write: one of them asserted that a lone fit moved
-  // the schedule instant and pushed a step, which the sentence above now makes
-  // wrong, and the other ("no collapse to discard") had a premise that CM-71
-  // can no longer have at all -- it is folded into the CM-71 case, which now
-  // asserts the stronger thing: the schedule instant stays put even when there
-  // IS a collapsed row sitting in the document.
+  // WHY: FR-031 splits one fit press into two ordered writes -- place
+  // zoom/scroll (CM-71, no step), then expand all (CM-72, one step).
 
   it('CM-71 over a document with a collapsed row places zoom and scroll only, pushing no step (UN-8) and leaving the schedule instant (FR-063)', () => {
-    // ⛔ T-108 CM-71 reads 「全体が収まる倍率と表示位置を置く」 -- the collapse
-    // half of the press is CM-72's, so a row that is collapsed stays collapsed
-    // through this write.
+    // WHY: CM-71 places the whole-view zoom and scroll only -- the collapse
+    // half of the press is CM-72's, so a collapsed row stays collapsed here.
     const document = documentOf({
       schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
     })
@@ -452,9 +391,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         zoomY: 2,
         scrollDate: '2026-03-01',
         scrollGroupId: 'g1',
-        // FR-080 (MUST): the anchors carry a fraction of their own extent as
-        // well, so 表示位置 is four values and not two. A whole-view fit lands
-        // on the top-left of the anchors it chose, so both fractions are 0.
+        // WHY: FR-080 has the anchors carry a fraction of their own extent
+        // too, and a whole-view fit lands top-left, so both fractions are 0.
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
@@ -462,29 +400,24 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
 
-    // 「倍率と表示位置を置く」: S-75 / S-76 and S-77 / S-78.
     expect(plan.document.documentSettings.zoomX).toBe(2)
     expect(plan.document.documentSettings.zoomY).toBe(2)
     expect(plan.document.documentSettings.scrollDate).toBe('2026-03-01')
     expect(plan.document.documentSettings.scrollGroupId).toBe('g1')
-    // ...and nothing else. The collapse is CM-72's half.
     expect(plan.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
 
-    // ⛔ UN-8 of table T-027 lists ズーム・スクロール・パン as 対象外, and WS-4
-    // (MUST NOT) 「本表の欄が『積まない』の行で取り消しの 1 段を積んではならない」.
+    // WHY: UN-8 files zoom/scroll/pan as out of scope, so WS-4 (MUST NOT)
+    // must not push an undo step for it.
     expect(plan.history.done).toHaveLength(0)
 
-    // ⛔ FR-063 (MUST NOT): 「見せ方の群だけを変える更新で、日程データの群の刻を
-    // 動かしてはならない」. CM-71 is filed under 見せ方の群 in T-108's group
-    // column, and this write touches nothing else -- so the answer is no even
-    // with a collapsed row in the document, which is what the case this
-    // replaces was reaching for with its "no collapse to discard" premise.
+    // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
+    // the schedule-data instant, and CM-71 touches nothing else.
     expect(plan.hasMovedSchedule).toBe(false)
     expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe(
       document.documentStamp.scheduleUpdatedUtc,
     )
-    // FR-063 (MUST): 「どちらの群であれ動いた刻と、最後に書いた者は、見せ方の群
-    // だけを変えたときも更新すること」.
+    // WHY: FR-063 (MUST) still replaces who wrote last and whichever
+    // group's instant moved.
     expect(plan.document.documentStamp.settingsUpdatedUtc).toBe('2026-08-17T01:00:00Z')
   })
 
@@ -502,42 +435,32 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
 
-    // ⛔ T-108 CM-72 reads 「畳んだ行をすべて開く」 and HF-8 (MUST) 「人が全体表示
-    // （`FR-055`）を求めたとき、人が畳んだ状態をすべて捨てること」 -- every row,
-    // not the first one. ⚠️ Whether "discarded" lands on `false` or on `null`
-    // is not settled anywhere: AT-56 makes the column nullable and no rule
-    // picks between the two, so the case asserts what the rule does say (the
-    // row is not collapsed) and refuses a missing key, which FR-024 forbids.
+    // WHY: whether "discarded" lands on false or null is unsettled, so this
+    // checks only that it is not collapsed, never a missing key (FR-024).
     for (const group of plan.document.schedule.taskGroups) {
       expect([false, null]).toContain(group.isCollapsed)
     }
-    // ⛔ HF-8: 「捨てるのは畳みだけであり、隠した状態は残す」.
+    // WHY: HF-8 discards the collapse only -- the hidden state stays.
     expect(plan.document.schedule.taskGroups[1]!.isHidden).toBe(true)
 
-    // ⛔ FR-031 (MUST): 「1 回の全体表示（`FR-055`）も 1 段にまとめること」 ——
-    // 「捨てた畳みを 1 行ずつ戻すことになると、積む段数がその文書の行数で決まって
-    // しまう」. Two rows were opened; ONE step is the whole press.
+    // WHY: FR-031 folds one whole-view-display press into one step, so
+    // opening two rows must not cost two steps.
     expect(plan.history.done).toHaveLength(1)
 
-    // ⛔ UN-17 of table T-027 files 「全体表示が人の畳んだ状態を捨てること」 under
-    // 対象, and `isCollapsed` is a `TaskGroup` column -- the schedule-data
-    // group -- so FR-063 (MUST) 「日程データの群の刻を動かすのは、日程データの群
-    // を変える更新とすること」 applies.
+    // WHY: UN-17 files this as in scope, and isCollapsed is a schedule-data
+    // column, so FR-063 (MUST) moves the schedule-data instant.
     expect(plan.hasMovedSchedule).toBe(true)
     expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
   })
 
   it('one press written CM-71 then CM-72 and undone once brings the collapse back while the new zoom stays (FR-031, UN-8 + UN-17)', () => {
-    // ⭐ THE ORDER IS THE POINT. FR-031: 「表 T-067 の `WS-4` が積むのは、その
-    // 書き込みの前の文書である。したがって ② が積む段は既に新しい倍率を持って
-    // おり、取り消すと倍率は新しいまま畳みだけが戻る」. ⚠️ And the reason the
-    // reverse is a MUST NOT: 「1 つにまとめて書くと、段が古い倍率ごと持つので、
-    // 取り消しが `UN-8` を破る」.
+    // WHY: WS-4 pushes the document as it stood BEFORE the second write, so
+    // undoing after both restores only the collapse, never the older zoom.
     const start = documentOf({
       schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
     })
 
-    // ① CM-71 -- 倍率と表示位置を置く. UN-8: no step.
+    // STEP: CM-71 -- place zoom and scroll (UN-8: no step)
     const first = planOf(start, [
       {
         kind: 'fitScheduleToScreen',
@@ -553,9 +476,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     if (!first.ok) return
     expect(first.history.done).toHaveLength(0)
 
-    // ② CM-72 -- 畳んだ行をすべて開く, written against what ① left. A second
-    // WRITE, not a second command in ①'s bundle: FR-031 says 「2 つの書き込みに
-    // 分けて行うこと（MUST）」.
+    // STEP: CM-72 -- expand all, as a second write against what step 1 left
     const second = planOf(first.document, [{ kind: 'expandAllTaskGroups' }], {
       history: first.history,
       updatedUtc: '2026-08-17T02:00:00Z',
@@ -563,24 +484,19 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(second.ok).toBe(true)
     if (!second.ok) return
 
-    // The whole press left exactly one step (FR-031: 1 段にまとめること).
     expect(second.history.done).toHaveLength(1)
-    // ⭐ WS-4 pushes the document as it stood BEFORE ②, and ① had already
-    // written the zoom -- so the step carries the NEW zoom, not the old one.
-    // This is the assertion the MUST NOT on the order lives or dies by.
+    // WHY: the pushed step carries the NEW zoom, not the old one -- the
+    // assertion the MUST NOT on the write order lives or dies by.
     expect(second.history.done[0]!.step.document.documentSettings.zoomX).toBe(4)
 
-    // One press of undo (FR-031 / RD-1 of table T-230, whose WS-3 is UndoEdit).
+    // STEP: undo once
     const undone = undoEdit({ document: second.document, history: second.history })
     expect(undone.undone).toBe(true)
-    // ⛔ UN-17: 「全体表示が人の畳んだ状態を捨てること」 is 対象, so the collapse
-    // comes back.
     expect(undone.next.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
-    // ⛔ UN-17's own ⚠️ note: 「戻るのは畳みだけであり、倍率と表示位置は `UN-8` の
-    // まま対象外である」. The zoom stays where ① put it.
+    // WHY: UN-17 files the collapse as in scope but zoom/scroll stay out of
+    // scope (UN-8), so the zoom stays where step 1 put it.
     expect(undone.next.document.documentSettings.zoomX).toBe(4)
     expect(undone.next.document.documentSettings.zoomY).toBe(4)
-    // Nothing is left to undo: the press was one step, not two.
     expect(undone.next.history.done).toHaveLength(0)
   })
 
@@ -598,14 +514,12 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const audience: ChangeAudience = {
       deliver: (given: Document, hasMovedSchedule: boolean) => {
         seen.push('deliver')
-        // The subscriber must be able to read the NEW document, which is the
-        // whole reason table T-067 fixes this order.
+        // WHY: the subscriber must read the NEW document -- the whole
+        // reason table T-067 fixes this order.
         expect(given.schedule.project.title).toBe('B')
         expect(held.document).toBe(given)
-        // ⭐ AG-6 selects a live watcher by WS-5's judgement (MUST), and R2.7
-        // keeps that judgement in ONE place: it is carried out to the audience
-        // rather than derived a second time from the stamp. The title is
-        // schedule data, so it is true here.
+        // WHY: AG-6 selects a live watcher by WS-5's judgement, and R2.7
+        // carries that judgement to the audience rather than re-derive it.
         expect(hasMovedSchedule).toBe(true)
       },
     }
@@ -651,10 +565,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   })
 
   it('WS-2 refuses a write made from inside the delivery, and swaps only once', () => {
-    // Chapter 5.5 (MUST): 通知を配っているあいだの書き込みは拒否すること。
-    // The subscriber cannot know -- it builds its own WriteMoment and says
-    // deliveringNotices: false in perfect good faith -- so the refusal has to
-    // come from the site that is running WS-7.
+    // WHY: Chapter 5.5 refuses a write made during delivery; the subscriber
+    // cannot know that, so the refusal must come from WS-7's own site.
     const document = documentOf()
     let held: HeldDocument = { document, history: EMPTY_HISTORY }
     let replaced = 0
@@ -701,12 +613,11 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     )
 
     expect(outcome.accepted).toBe(true)
-    // AG-9a's shape, refused at WS-2 exactly as the chapter says.
     expect(nested).toEqual([
       { accepted: false, refusal: { step: 'WS-2', reason: 'deliveringNotices' } },
     ])
-    // The nested write reached neither WS-6 nor WS-7: one swap, and the
-    // document the others are still being told about is the current one.
+    // WHY: the nested write reached neither WS-6 nor WS-7, so there is one
+    // swap, and the document still being told about is the current one.
     expect(replaced).toBe(1)
     expect(held.document.schedule.project.title).toBe('B')
   })
@@ -741,8 +652,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         },
       }),
     ).toThrow('subscriber')
-    // That delivery ended, badly but it ended. Chapter 5.5 refuses writes
-    // DURING the delivery, not for the rest of the run.
+    // WHY: that delivery ended, badly but it ended -- Chapter 5.5 refuses
+    // writes during a delivery, not for the rest of the run.
     expect(writeOf('C', { deliver: () => undefined }).accepted).toBe(true)
   })
 })

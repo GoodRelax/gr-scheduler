@@ -1,67 +1,4 @@
-// Unit tests for UF-51 `file-system-access-file-store.ts` -- table T-075 of
-// docs/spec/05-07-design.md, component `FileSystemAccessFileStore` (CP-28 of
-// table T-062), published as PI-28 of table T-064. It is the one
-// implementation of `FileStore`, the seam IF-3 of table T-065 declares.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, §1). What was read: docs/spec/ for every rule below; the
-// seam declaration `src/adapter/file-gateway/file-store.ts`, which is the
-// specification's own shape for these five members; and of the unit itself
-// only its head comment, its exported types and the one exported signature
-// `fileSystemAccessFileStore(environment: FileSystemAccessEnvironment):
-// FileStore`. Every expected value here comes from a requirement, a table or
-// the seam declaration -- never from the implementation.
-//
-// The rules these cases answer to:
-//   FR-060     (:3205) overwrite the file that was opened, so a round trip
-//              closes on one file; and, when the permission to it is gone,
-//              OFFER to win it back at startup (MUST). Its RATIONALE bars a
-//              download fallback: downloads cannot control where a file lands
-//              and breed numbered copies of one name
-//   FR-087     (:3161) one entry for opening, ruled by table T-024a
-//   表 T-024a  OP-1 the two accepted formats -- and no extension, no media
-//              type anywhere in the specification (PND-104); OP-2 the two
-//              routes, chooser and drop, and NO second entry (MUST NOT);
-//              OP-3 the person is asked one question about one read content;
-//              OP-4 unsaved edits are confirmed before being discarded (MUST),
-//              never dropped silently (MUST NOT); OP-11 several files handed
-//              over in one act -- the first is kept and the rest are reported
-//              as left behind (MUST), and the act may not be made to read as
-//              refused (MUST NOT), because one file IS open
-//   表 T-024   (:2828) IO-1 MSPDI XML and IO-2 `GRS JSON` go both ways, and
-//              (:2836) an implementation that adds a BOM is forbidden
-//              (MUST NOT)
-//   表 T-003   CN-2 (:152) Chromium is the baseline, Firefox is checked only,
-//              Safari is out of scope; CN-5 (:157) UTF-8, no BOM
-//   表 T-004   LM-14 (:187) overwrite-save may simply not work in the `file://`
-//              form; FR-060 offers the permission back instead
-//   FR-028     nothing throws across this boundary (AG-8 of table T-035): a
-//              failure comes back as a VALUE
-//   表 T-037   NT-1 (:3674) a notice says WHICH item and why, in words (MUST);
-//              NT-3a (:3677) a failure notice carries a next step (MUST) and
-//              may not report the failure alone (MUST NOT); NT-4 (:3678) the
-//              startup business is gathered onto one panel
-//   表 T-060   LY-5 (05-07-design.md:78) the Framework is the layer that holds
-//              a current value and the layer that uses the File System Access
-//              API -- which is why the browser ARRIVES in a parameter here
-//   表 T-065   IF-3 (05-07-design.md:380) "the handle is held by the
-//              implementation (FR-060)". No member takes or returns one
-//   表 T-211   S-113 `importMaxBytes` -- the ceiling belongs to FR-023 on the
-//              far side, NOT to this unit
-//
-// ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
-// be driven by a fixed copy of that table, one test walking every row.
-// T_024_FORMS, T_024A_OP2_ROUTES, IF_3_PERMISSION and IF_3_REASONS below are
-// those copies.
-//
-// ⛔ R6.3 warns that over-mocking leaves the real behaviour unverified. Every
-// fake below RECORDS what it was asked to do, and the cases assert on that
-// record -- which calls, in which order, with which arguments -- rather than
-// merely on what came back.
+// Unit test: UF-51 `file-system-access-file-store.ts` -- the one FileStore implementation (FR-060, FR-087, IF-3).
 
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -91,114 +28,57 @@ import {
   type WritableFileStream,
 } from '../../src/framework/file-system-access-file-store/file-system-access-file-store'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
 const encoder = new TextEncoder()
 
-/** ⚠️ Not a document -- only bytes, which is all this unit ever sees. */
 const GRS_JSON_BYTES = encoder.encode('{"schemaVersion":"2026-08-19"}')
 const MSPDI_BYTES = encoder.encode('<Project><Name>a</Name></Project>')
 
-/** The three bytes 表 T-024's note forbids an implementation from adding. */
 const BYTE_ORDER_MARK = Uint8Array.from([0xef, 0xbb, 0xbf])
 
-/**
- * 表 T-024 の IO-1 / IO-2 -- the two forms that come in as well as go out.
- * ⛔ The remark column of both sends the character set to CN-5 of 表 T-003
- * (UTF-8, BOM なし), and the note under the table forbids adding a BOM
- * (MUST NOT). This unit obeys both by never touching the bytes.
- */
+// WHY: CN-5 sends the character set for both rows, and the table's note
+// forbids adding a BOM (MUST NOT); this unit obeys both by never touching the bytes.
 const T_024_FORMS = [
   { row: 'IO-1', fileName: 'plan.xml', bytes: MSPDI_BYTES },
   { row: 'IO-2', fileName: 'plan.json', bytes: GRS_JSON_BYTES },
 ] as const
 
-/**
- * 表 T-024 の拡張子の欄 -- the five rows that come out as a FILE.
- *
- * ⭐ CR-230 (2026-08-23) filled this column for all five; before it only IO-1
- * and IO-2 carried one, which is why FR-096 could not propose a name for four
- * of the six ways out. FR-096 now leans on it twice: the name it proposes ends
- * in it, and 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した
- * 先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）**」.
- *
- * ⚠️ THE ORDER HERE IS THE MANUSCRIPT'S, and since 2026-09-01 that order is
- * itself a requirement -- FR-096 (MUST) has the save list offer the formats in
- * table T-024's row order, which reads `.json .xml .html .svg .png`. ⛔ Nothing
- * in THIS file turns on the order; the surface that does is driven in
- * tests/unit/uf-47-48-choosers.test.ts, which reads the table at run time.
- */
+// WHY: nothing in this file turns on the order FR-096 (MUST) gives these
+// five; the surface that does is driven in tests/unit/uf-47-48-choosers.test.ts.
 const T_024_EXTENSIONS = ['.json', '.xml', '.html', '.svg', '.png'] as const
 
-/**
- * An extension no row of 表 T-024 carries.
- *
- * ⭐ WHAT IT IS FOR. FR-096 asks the host to be told 「その拡張子の形式である」
- * where there is a way to tell it, and 「⛔ **その伝え方が要する媒体型を、本書の
- * どの表にも持たせてはならない（MUST NOT）** …… ⇒ **持ち場は
- * `05-07-design.md` の Framework 層とすること（MUST）**」. A media type is
- * therefore known for some extensions and not for others, and the two paths
- * out of that are different options objects. This is the value that takes the
- * second path, and it is checked against the roster above so that it cannot
- * quietly become a real one.
- */
+// WHY: a media type is known for some extensions, not others, giving two
+// different options objects; checked against the roster so it stays a fake one.
 const AN_EXTENSION_NO_ROW_CARRIES = '.zzz'
 
-/** The `accept` maps of every type an options object offered the host. */
 const acceptMapsOf = (options: Record<string, unknown>): readonly Record<string, unknown>[] =>
   (Array.isArray(options['types']) ? (options['types'] as unknown[]) : [])
     .filter((one): one is Record<string, unknown> => typeof one === 'object' && one !== null)
     .map((one) => (one['accept'] ?? {}) as Record<string, unknown>)
 
-/**
- * Every extension the options object named to the host, flattened.
- *
- * @purity pure
- */
+/** @purity pure */
 const extensionsNamedTo = (options: Record<string, unknown>): readonly string[] =>
   acceptMapsOf(options).flatMap((accept) =>
     Object.values(accept).flatMap((value) => (Array.isArray(value) ? (value as string[]) : [])),
   )
 
-/**
- * Every media type the options object named to the host.
- *
- * @purity pure
- */
+/** @purity pure */
 const mediaTypesNamedTo = (options: Record<string, unknown>): readonly string[] =>
   acceptMapsOf(options).flatMap((accept) => Object.keys(accept))
 
-/**
- * Whether docs/spec writes this string down anywhere.
- *
- * ⭐ FR-096's MUST NOT, measured: 「⛔ **その伝え方が要する媒体型を、本書のどの表
- * にも持たせてはならない（MUST NOT）** …… ⇒ **持ち場は `05-07-design.md` の
- * Framework 層とすること（MUST）**」. The whole of docs/spec is read rather than
- * one table, because the prohibition is about the book and not about a table.
- *
- * @purity non-pure
- */
+// WHY: the whole of docs/spec is read rather than one table, because
+// FR-096's MUST NOT is about the book and not about a table.
+/** @purity non-pure */
 const specificationHolds = (value: string): boolean =>
   readdirSync(join(process.cwd(), 'docs', 'spec'), { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
     .some((entry) => readFileSync(join(entry.parentPath, entry.name), 'utf8').includes(value))
 
-/**
- * 表 T-024a の OP-2 -- 「ファイル選択、およびドラッグ＆ドロップ」, and 「入口は
- * 本要求の『開く』1 つとし、取込（合流）に別の入口を設けてはならない
- * （MUST NOT）」. Both routes are one member taking a value, so the walk below
- * is the whole of that rule.
- */
+// WHY: both routes are one member taking a value, so the walk below is
+// the whole of OP-2's rule (one entry, two routes).
 const T_024A_OP2_ROUTES: readonly OpenRoute[] = ['chooser', 'drop']
 
-/**
- * IF-3 of 表 T-065 publishes three states and no fourth, and FR-060 is why the
- * middle one exists: the startup offer is made exactly when the file is
- * remembered but may not be written. A browser answers a permission query with
- * one of three values, and only one of them means "can be written right now".
- */
+// WHY: IF-3 publishes three states; the middle one is when a file is
+// remembered but may not be written -- the startup offer FR-060 exists for.
 const IF_3_PERMISSION = [
   { permission: 'granted', state: 'writable' },
   { permission: 'denied', state: 'permissionLost' },
@@ -208,13 +88,8 @@ const IF_3_PERMISSION = [
   state: 'writable' | 'permissionLost'
 }[]
 
-/**
- * The four reasons of `FileStoreFaultReason` (file-store.ts, the seam IF-3
- * declares), each with the situation the seam's own words attach to it.
- *
- * ⛔ NT-3a of 表 T-037 is why they may not be flattened into one: a failure
- * notice must carry a next step, and only the reason can decide which step.
- */
+// WHY: NT-3a is why these four are not flattened into one -- a failure
+// notice must carry a next step, and only the reason can decide which step.
 const IF_3_REASONS: readonly FileStoreFaultReason[] = [
   'cancelled',
   'permissionLost',
@@ -222,25 +97,12 @@ const IF_3_REASONS: readonly FileStoreFaultReason[] = [
   'unavailable',
 ]
 
-/**
- * S-113 of 表 T-211 counts megabytes; this is above the ceiling however it is
- * counted. ⛔ The ceiling is not this unit's -- FR-023 rules on the size the
- * gateway reports. The case that uses this asserts the store does NOT refuse.
- */
+// WHY: the ceiling is not this unit's -- FR-023 rules on the size the
+// gateway reports; the case using this asserts the store does NOT refuse.
 const ABOVE_ANY_CEILING = Number.MAX_SAFE_INTEGER
 
-// ---------------------------------------------------------------------------
-// The browser, faked. LY-5 of 表 T-060 makes this layer the one that holds a
-// current value and the one that touches the File System Access API, and the
-// unit takes that API as a parameter -- so a Node process with no DOM can
-// drive it with plain objects and then read back what it did.
-// ---------------------------------------------------------------------------
-
-/** Everything the unit did to the browser, in order. */
 let log: string[] = []
-/** The options object handed to `showOpenFilePicker`, once per call. */
 let openCalls: unknown[] = []
-/** The options object handed to `showSaveFilePicker`, once per call. */
 let saveCalls: unknown[] = []
 
 beforeEach(() => {
@@ -256,7 +118,6 @@ function isFailure(value: unknown): value is Failure {
   return 'rejectsWith' in value || 'throwsWith' in value
 }
 
-/** Fails the way the failure says: synchronously, or by rejecting. */
 function failing<T>(failure: Failure, what: string): Promise<T> {
   if ('throwsWith' in failure) {
     log.push(`${what} threw`)
@@ -266,17 +127,14 @@ function failing<T>(failure: Failure, what: string): Promise<T> {
   return Promise.reject(failure.rejectsWith)
 }
 
-/** What a File System Access chooser rejects with when the person dismisses it. */
 function dismissal(): DOMException {
   return new DOMException('The user aborted a request.', 'AbortError')
 }
 
-/** What the browser raises when the gesture behind a write is refused. */
 function denial(): DOMException {
   return new DOMException('The request is not allowed by the user agent.', 'NotAllowedError')
 }
 
-/** LM-4's case as the browser raises it: the disk would not take the bytes. */
 function quotaExceeded(): DOMException {
   return new DOMException('The quota has been exceeded.', 'QuotaExceededError')
 }
@@ -284,7 +142,7 @@ function quotaExceeded(): DOMException {
 interface FileSpec {
   readonly name: string
   readonly bytes?: Uint8Array
-  /** ⚠️ Kept apart from `bytes` so a file above S-113's ceiling costs nothing. */
+  // WHY: kept apart from bytes so a file above S-113's ceiling costs nothing.
   readonly size?: number
   readonly arrayBufferFails?: Failure
 }
@@ -310,11 +168,9 @@ interface HandleSpec {
   readonly name: string
   readonly bytes?: Uint8Array
   readonly size?: number
-  /** What `queryPermission` answers. */
   readonly queried?: FilePermissionState
-  /** What `requestPermission` answers. */
   readonly requested?: FilePermissionState
-  /** ⚠️ PND-105: a browser that has handles but neither permission member. */
+  // WHY: PND-105 -- a browser that has handles but neither permission member.
   readonly withoutPermissionApi?: boolean
   readonly getFileFails?: Failure
   readonly queryFails?: Failure
@@ -326,7 +182,6 @@ interface HandleSpec {
 
 interface HandleFake {
   readonly handle: FileHandle
-  /** Every chunk handed to `write`, in the order it arrived. */
   readonly written: Uint8Array[]
 }
 
@@ -397,11 +252,10 @@ function fileHandle(spec: HandleSpec): HandleFake {
 }
 
 interface ItemSpec {
-  /** The `kind` a `DataTransferItem` reports. A file drop reports `'file'`. */
   readonly kind?: string
   readonly file: ReadableFile | null
   readonly handle?: DroppedHandle | null
-  /** ⚠️ A browser with no handles at all -- the drop cannot be remembered. */
+  // WHY: a browser with no handles at all -- the drop cannot be remembered.
   readonly withoutHandleApi?: boolean
   readonly handleFails?: Failure
 }
@@ -438,9 +292,7 @@ type SaveAnswer = { readonly handle: FileHandle } | Failure | 'noApi'
 interface BrowserFake {
   readonly environment: FileSystemAccessEnvironment
   readonly registered: readonly { readonly type: string; readonly capture: boolean }[]
-  /** Fires the `dragover` the store registered; answers whether it refused the default. */
   dragOver(data: DropData | null): boolean
-  /** Fires the `drop` the store registered; answers whether it refused the default. */
   drop(data: DropData | null): boolean
 }
 
@@ -508,20 +360,13 @@ function browser(spec: { readonly opens: OpenAnswer; readonly saves: SaveAnswer 
   }
 }
 
-/**
- * Lets every microtask the browser handed out finish. ⚠️ A drop is taken
- * DURING the event, but what it took (`getAsFileSystemHandle`, `arrayBuffer`)
- * only settles afterwards, so a case that drops and then asks must wait here.
- */
+// WHY: a drop is taken DURING the event, but what it took
+// (getAsFileSystemHandle, arrayBuffer) only settles afterwards.
 function settled(): Promise<void> {
   return new Promise<void>((resolve) => {
     setImmediate(resolve)
   })
 }
-
-// ---------------------------------------------------------------------------
-// Convenience: a store with one file already opened through the chooser.
-// ---------------------------------------------------------------------------
 
 async function opened(spec: HandleSpec): Promise<{ store: FileStore; fake: HandleFake }> {
   const fake = fileHandle(spec)
@@ -532,10 +377,6 @@ async function opened(spec: HandleSpec): Promise<{ store: FileStore; fake: Handl
   expect(reading.ok, 'the ordinary open must succeed before a case builds on it').toBe(true)
   return { store, fake }
 }
-
-// ---------------------------------------------------------------------------
-// LY-5 of 表 T-060 / R7.3 -- the browser arrives, it is never reached for.
-// ---------------------------------------------------------------------------
 
 describe('LY-5 -- the browser arrives in a parameter', () => {
   it('runs in a process that has no window at all', async () => {
@@ -565,10 +406,6 @@ describe('LY-5 -- the browser arrives in a parameter', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// 表 T-024a OP-2 / OP-4 -- construction, and the drop surface.
-// ---------------------------------------------------------------------------
-
 describe('construction -- the drop surface (OP-2, OP-4)', () => {
   it('registers for dragover and for drop, before anything is asked of it', () => {
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
@@ -577,9 +414,8 @@ describe('construction -- the drop surface (OP-2, OP-4)', () => {
   })
 
   it('refuses the browser default for a drag carrying files (OP-4)', () => {
-    // ⛔ Without this the drop event never arrives and the browser leaves the
-    // page to open the file -- the current document is discarded without the
-    // confirmation OP-4 makes mandatory (:3164).
+    // TRAP: without this the drop event never arrives and the browser leaves
+    // the page to open the file, discarding the document without OP-4's confirmation.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     fileSystemAccessFileStore(fake.environment)
     expect(fake.dragOver(dropData([droppedItem({ file: readableFile({ name: 'plan.json' }) })]))).toBe(
@@ -618,15 +454,8 @@ describe('construction -- the drop surface (OP-2, OP-4)', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// readFileToOpen('chooser') -- 表 T-024a OP-1 / OP-2 / OP-3.
-// ---------------------------------------------------------------------------
-
 describe("readFileToOpen('chooser') -- the ordinary path", () => {
   it('asks for one file and applies no filter (OP-3; PND-104)', async () => {
-    // OP-1 names `GRS JSON` and MSPDI XML but no extension and no media type
-    // exists anywhere in docs/spec, so there is nothing to filter by. OP-3
-    // asks the person ONE question about ONE read content -> multiple: false.
     const fake = fileHandle({ name: 'plan.json' })
     const store = fileSystemAccessFileStore(
       browser({ opens: { handles: [fake.handle] }, saves: 'noApi' }).environment,
@@ -668,9 +497,8 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
   })
 
   it('keeps the remembered file when a later open fails (FR-060)', async () => {
-    // ⛔ Losing the overwrite target because a second open went wrong would
-    // break the round trip FR-060 exists to close, for a reason that has
-    // nothing to do with the file that is already open.
+    // TRAP: losing the overwrite target because a second open went wrong
+    // would break the round trip FR-060 exists to close for an unrelated reason.
     const first = fileHandle({ name: 'plan.json' })
     let answers: readonly FileHandle[] | 'fail' = [first.handle]
     const picker: OpenFilePicker = (options) => {
@@ -703,10 +531,6 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// 表 T-024 IO-1 / IO-2 and the BOM note -- one test over every row.
-// ---------------------------------------------------------------------------
-
 describe('表 T-024 -- the bytes cross unchanged, in both directions', () => {
   for (const form of T_024_FORMS) {
     it(`${form.row}: reads ${form.fileName} byte for byte, adding no BOM`, async () => {
@@ -722,9 +546,6 @@ describe('表 T-024 -- the bytes cross unchanged, in both directions', () => {
     })
 
     it(`${form.row}: neither adds nor strips a BOM the file already carried`, async () => {
-      // ⛔ The note under 表 T-024 (:2836) forbids adding one (MUST NOT); CN-5
-      // (:157) owns the encoding rule and lives on the near side of the seam.
-      // This unit moves bytes, so what came in is what goes out.
       const carried = Uint8Array.from([...BYTE_ORDER_MARK, ...form.bytes])
       const fake = fileHandle({ name: form.fileName, bytes: carried })
       const store = fileSystemAccessFileStore(
@@ -745,10 +566,6 @@ describe('表 T-024 -- the bytes cross unchanged, in both directions', () => {
     })
   }
 })
-
-// ---------------------------------------------------------------------------
-// readOpenedFileState -- IF-3's three states.
-// ---------------------------------------------------------------------------
 
 describe('readOpenedFileState -- what may be overwritten right now', () => {
   it('says none before anything has been opened', async () => {
@@ -782,12 +599,8 @@ describe('readOpenedFileState -- what may be overwritten right now', () => {
   })
 
   it('answers writable where the browser has handles but no queryPermission (PND-105)', async () => {
-    // ⚠️ This is PND-105's failing test -- the case that flips if the ruling
-    // goes the other way. The mark itself belongs at the implementation site
-    // (rule 06, §3), not here. The specification does not say what such a
-    // browser should be told: the pessimistic answer would put FR-060's
-    // restore offer onto NT-4's startup panel every time nothing was wrong,
-    // and a refused write still comes back as permissionLost.
+    // WHY: PND-105 is undecided; the pessimistic answer would put FR-060's
+    // restore offer on NT-4's startup panel every time nothing was wrong.
     const { store } = await opened({ name: 'plan.json', withoutPermissionApi: true })
     await expect(store.readOpenedFileState()).resolves.toEqual({
       kind: 'writable',
@@ -801,10 +614,6 @@ describe('readOpenedFileState -- what may be overwritten right now', () => {
     expect(state.kind, 'a file is remembered, so it is not none').toBe('permissionLost')
   })
 })
-
-// ---------------------------------------------------------------------------
-// restoreOpenedFilePermission -- FR-060's second MUST.
-// ---------------------------------------------------------------------------
 
 describe('restoreOpenedFilePermission -- FR-060 offers the way back', () => {
   it('answers none, and asks the browser nothing, when no file is remembered', async () => {
@@ -859,9 +668,8 @@ describe('restoreOpenedFilePermission -- FR-060 offers the way back', () => {
   })
 
   it('answers writable where the browser has no requestPermission either (PND-105)', async () => {
-    // ⚠️ PND-105 again, from the other member: with no way to ask, the store
-    // can only find out by trying to write, and a refused write still comes
-    // back as `permissionLost`.
+    // WHY: PND-105 again -- with no way to ask, the store can only find out
+    // by trying to write, and a refused write still comes back as permissionLost.
     const { store } = await opened({ name: 'plan.json', withoutPermissionApi: true })
     await expect(store.restoreOpenedFilePermission()).resolves.toEqual({
       kind: 'writable',
@@ -869,10 +677,6 @@ describe('restoreOpenedFilePermission -- FR-060 offers the way back', () => {
     })
   })
 })
-
-// ---------------------------------------------------------------------------
-// overwriteOpenedFile -- FR-060's whole point.
-// ---------------------------------------------------------------------------
 
 describe('overwriteOpenedFile -- the round trip closes on one file (FR-060)', () => {
   it('refuses with noOpenedFile when nothing has been opened', async () => {
@@ -972,50 +776,24 @@ describe('overwriteOpenedFile -- the round trip closes on one file (FR-060)', ()
   })
 })
 
-// ---------------------------------------------------------------------------
-// writeChosenFile -- the file the person points at.
-// ---------------------------------------------------------------------------
-
 describe('writeChosenFile -- a file the person points at', () => {
-  // `askToWriteOver` is DI-4 of table T-227: the store puts the question once the
-  // destination is known and the bytes are still unwritten, and writes only on a
-  // `true`. ⛔ The answer is the NEAR side's -- the store does not judge -- so
-  // the stand-in here simply says yes, and the cases below assert what the store
-  // did rather than what it was told.
+  // WHY: the answer to askToWriteOver is the near side's -- the store does
+  // not judge -- so the stand-in here simply says yes.
   const request = (
     over: Partial<{ suggestedFileName: string; extension: string; shouldBecomeOpenedFile: boolean }>,
   ): ChosenFileWrite => ({
     bytes: GRS_JSON_BYTES,
     suggestedFileName: over.suggestedFileName ?? 'plan.json',
-    // ⚠️ THE DEFAULT IS THE ONE NO ROW CARRIES, deliberately. Most cases in
-    // this describe are about the write and not about the chooser, and an
-    // extension the Framework knows a media type for would put a `types` entry
-    // into every options object they never look at. The two cases that ARE
-    // about the options say which path they are on.
+    // WHY: the default is deliberately one no row carries, so cases not
+    // about the chooser get no types entry they never look at.
     extension: over.extension ?? AN_EXTENSION_NO_ROW_CARRIES,
     shouldBecomeOpenedFile: over.shouldBecomeOpenedFile ?? true,
     askToWriteOver: () => Promise.resolve(true),
   })
 
   it('hands the chooser the suggested name alone, where no media type is known for the extension', async () => {
-    // ⛔ THIS IS NOT THE WHOLE OF WHAT THE CHOOSER IS HANDED, and until
-    // 2026-09-01 this case said it was. It read 「hands the chooser the
-    // suggested name, and nothing else」 and was green only because the request
-    // it built carried no extension at all, so the store could find no media
-    // type to name. DFC-172 is what that hid: a save chooser told nothing but a
-    // name lets the person save `plan` where `plan.json` was proposed, and
-    // FR-096 (MUST) now forbids that outcome outright -- 「書き出した先の名前が、
-    // 選んだ行の拡張子で終わることを保証すること（MUST）」.
-    //
-    // ⭐ WHAT IS LEFT TRUE, AND SAID AS SUCH: an extension the Framework knows
-    // no media type for has nothing to tell the host, and FR-096's MUST is
-    // conditional in as many words -- 「⭐ **宿主に「その拡張子の形式である」こと
-    // を伝える手立てがあるなら、それを使うこと（MUST）**」. Where there is no
-    // means, the name is all there is to hand over.
-    //
-    // ⛔ WHAT WOULD MAKE THIS GO RED: a store that invents a media type for an
-    // extension it does not know -- `application/octet-stream`, say -- which
-    // would name the wrong format to the host and hold the name to it.
+    // WHY: an extension with no known media type has nothing else to tell
+    // the host, so the name alone is what FR-096 leaves to hand over here.
     expect(
       T_024_EXTENSIONS as readonly string[],
       'the extension this case leans on being unknown is now a row of table T-024',
@@ -1037,37 +815,10 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('FR-096 (MUST): the chooser is told the extension as a type, for every row of table T-024', async () => {
-    // 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した先の名前
-    //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
-    //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
-    //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
-    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
-    //   使うこと（MUST）。**」（`FR-096`）
-    //
-    // ⭐ THIS IS THE FIX FOR DFC-172, AND NOTHING ELSE ASSERTED IT. The proposed
-    // name was already right; what was missing was the second thing the host is
-    // handed, which is what makes the host hold the saved name to the extension.
-    // A case that only reads `suggestedName` cannot tell the two builds apart.
-    //
-    // ⛔ WHAT IS NOT ASSERTED, AND WHY: WHICH media type each extension is given.
-    // 「⛔ **その伝え方が要する媒体型を、本書のどの表にも持たせてはならない（MUST
-    //   NOT）** —— **媒体型は外の規格が決めている値であり、宿主の作法であって製品
-    //   の値ではない。**」 There is no manuscript row to drive that from, so
-    // asserting a spelling here would be minting the value this file is
-    // forbidden to hold. What IS asserted is the join the MUST turns on: the
-    // extension of the chosen row is named to the host, on a type of its own.
-    //
-    // ⛔ WHAT WOULD MAKE THIS GO RED: a store that hands over `suggestedName`
-    // alone -- which is the build DFC-172 was raised against. Demonstrated by
-    // making this file's own stand-in chooser record `{ suggestedName }` and
-    // drop everything else, which is that build seen from the host's side: the
-    // case failed with 「expected [ 'suggestedName' ] to include 'types' 」 and
-    // the other 86 cases in this file stayed green, so it is this case and not
-    // the file that holds the fix.
-    // ⚠️ ONE BREAK THAT DOES *NOT* SHOW IT UP, recorded so that nobody mistakes
-    // it for a second guard: reading the extension off the SUGGESTED NAME's tail
-    // instead of the accept lists leaves every case here green, because the two
-    // agree in this build. That is why the case reads the accept lists.
+    // WHY: this is the fix for DFC-172 -- suggestedName alone was already
+    // right, so only a case reading the accept lists too can tell the fix apart.
+    // TRAP: reading the extension off suggestedName's tail instead of the
+    // accept lists would leave this green even without the fix, since the two agree here.
     for (const extension of T_024_EXTENSIONS) {
       saveCalls.length = 0
       const chosen = fileHandle({ name: `plan${extension}` })
@@ -1088,13 +839,9 @@ describe('writeChosenFile -- a file the person points at', () => {
         extensionsNamedTo(options),
         `FR-096 (MUST): the host was not told that ${extension} is what this file is`,
       ).toContain(extension)
-      // ⚠️ ONE TYPE, NOT A LIST. The person chose one row of table T-024, so
-      // offering the host several is offering to write a form nobody chose.
+      // WHY: one type, not a list -- the person chose one row of table
+      // T-024, so offering the host several offers a form nobody chose.
       expect(extensionsNamedTo(options), extension).toEqual([extension])
-      // ⛔ AND THE MEDIA TYPE IS NOT A VALUE THE MANUSCRIPT HOLDS. That is
-      // FR-096's MUST NOT said as a measurement rather than as a comment: a
-      // build that answered this by adding a column to table T-024 would put
-      // the media type into docs/spec and fail here.
       for (const mediaType of mediaTypesNamedTo(options)) {
         expect(mediaType, extension).toMatch(/^[a-z]+\/[-+.a-z0-9]+$/)
         expect(
@@ -1107,8 +854,8 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('writes then closes, and reports the file the person actually chose', async () => {
-    // ⚠️ `suggestedFileName` is a suggestion the person may overrule, so the
-    // name reported back is the handle's, not the one that was suggested.
+    // WHY: suggestedFileName is a suggestion the person may overrule, so
+    // the name reported back is the handle's, not the one that was suggested.
     const chosen = fileHandle({ name: 'their-name.json' })
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
@@ -1137,8 +884,6 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('leaves the opened file alone when told not to take it', async () => {
-    // ⛔ Which of 表 T-024's forms may stand in that position is the near
-    // side's ruling (`file-gateway.ts` decides it); the store obeys the flag.
     const alreadyOpen = fileHandle({ name: 'plan.json' })
     const picture = fileHandle({ name: 'picture.svg' })
     const store = fileSystemAccessFileStore(
@@ -1208,9 +953,8 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('calls a refused gesture unavailable while no file is remembered', async () => {
-    // IF-3 defines `permissionLost` as "a file is remembered, but it may not be
-    // written now". With nothing remembered that reason cannot be true, so the
-    // remaining one is `unavailable` -- the store tried and could not.
+    // WHY: permissionLost means a file is remembered but may not be
+    // written; with nothing remembered that cannot be true, leaving unavailable.
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { rejectsWith: denial() } }).environment,
     )
@@ -1221,27 +965,8 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(writing.fault.what.length).toBeGreaterThan(0)
   })
 
-  // -------------------------------------------------------------------------
-  // DI-4 of 表 T-227 -- the question, and the order it has to be put in.
-  //
-  // ⭐ The cases above hand the store a stand-in that always says yes, so none
-  // of them can tell a store that ASKS from a store that never asks at all.
-  // These three close that gap on this side of IF-3. What each holds the unit
-  // to comes from DI-4 (the question is put before the write, MUST), from NT-7
-  // of 表 T-037 (going on or calling off is CHOSEN, so a "call off" that still
-  // wrote would make the choice mean nothing), and from the seam declaration
-  // `src/adapter/file-gateway/file-store.ts`, which fixes the order of the four
-  // steps and names a `false` answer `cancelled` rather than a failure.
-  //
-  // ⛔ NOT DECIDED BY THE SPECIFICATION, and therefore not held here: which of
-  // the two `ChosenWriteDestination` states a store must report when it cannot
-  // tell a file the chooser has just created from one that was standing empty.
-  // Both hold zero bytes. The seam declaration records the same silence in a
-  // STOP note of its own and makes a choice there; no case below turns on it,
-  // so the cases stay true whichever way the silence is later settled.
-  // -------------------------------------------------------------------------
-
-  /** One request that records the question, and answers it the given way. */
+  // WHY: the cases above hand the store a stand-in that always says yes, so
+  // none of them can tell a store that ASKS from one that never asks at all.
   const asking = (
     answer: boolean,
   ): { readonly write: ChosenFileWrite; readonly asked: unknown[] } => {
@@ -1251,8 +976,6 @@ describe('writeChosenFile -- a file the person points at', () => {
       write: {
         bytes: GRS_JSON_BYTES,
         suggestedFileName: 'plan.json',
-        // Table T-024 row IO-2 -- the extension the name above ends in, which
-        // FR-096 (MUST) has the host told so that it cannot be lost.
         extension: '.json',
         shouldBecomeOpenedFile: true,
         askToWriteOver: (destination) => {
@@ -1265,9 +988,8 @@ describe('writeChosenFile -- a file the person points at', () => {
   }
 
   it('reads the destination once and asks before a byte is written (DI-4)', async () => {
-    // ⭐ The destination is given bytes that are not the ones being written, so
-    // that "what was standing there" and "what is going down" cannot be
-    // confused for one another in the record below.
+    // WHY: the destination is given bytes that are not the ones being
+    // written, so the two cannot be confused for one another in the record below.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
@@ -1280,22 +1002,18 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(writing.ok, `the write failed (${log.join(', ')})`).toBe(true)
     const askedAt = log.indexOf('asked')
     expect(askedAt, `DI-4: the question was never put (${log.join(', ')})`).toBeGreaterThan(-1)
-    // ⛔ Nothing that could destroy the destination may come first: a stream
-    // opened on the handle truncates the file in a real browser, so the ask has
-    // to precede `createWritable`, not merely `write`.
+    // TRAP: a stream opened on the handle truncates the file in a real
+    // browser, so the ask must precede createWritable, not merely write.
     const touched = log.findIndex((one) => /\.createWritable|\.write|\.close/.test(one))
     expect(touched, `DI-4: the destination was touched first (${log.join(', ')})`)
       .toBeGreaterThan(askedAt)
-    // R7.4 / CS-4 of 表 T-066: one reading, and the answer is about that one.
     expect(log.filter((one) => one === 'their-name.json.getFile')).toHaveLength(1)
     expect(log.indexOf('their-name.json.getFile')).toBeLessThan(askedAt)
   })
 
   it('hands the question what is standing at the destination (DI-1 / DI-3)', async () => {
-    // DI-1 compares the file NAME and DI-3 turns on whether the characters
-    // standing there read as this document's format, so the near side cannot
-    // answer either without both. ⚠️ The name is the handle's -- the person may
-    // have overruled the suggestion -- and the bytes are the ones on the disk.
+    // WHY: the name is the handle's -- the person may have overruled the
+    // suggestion -- and the bytes are the ones actually on the disk.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
@@ -1310,11 +1028,8 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('writes nothing and calls a refusal cancelled (DI-4 / NT-7)', async () => {
-    // NT-7 of 表 T-037 makes calling off a CHOICE, so a store that wrote anyway
-    // would leave the person a question that decided nothing. IF-3 keeps
-    // `cancelled` apart from the three failures for exactly this: the person
-    // who called the write off has not been failed and is owed no next step
-    // (NT-3a of the same table applies to the other three).
+    // WHY: NT-7 makes calling off a CHOICE; a store that wrote anyway would
+    // leave the person a question that decided nothing, so this is not a failure.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { handle: chosen.handle } }).environment,
@@ -1333,9 +1048,8 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 
   it('leaves the opened file untouched when the write was called off', async () => {
-    // ⭐ `shouldBecomeOpenedFile` is about a write that HAPPENED. A refusal that
-    // still moved FR-060's target would point the next overwrite at a file this
-    // document was never written to.
+    // WHY: shouldBecomeOpenedFile is about a write that HAPPENED; a refusal
+    // that still moved FR-060's target would misdirect the next overwrite.
     const alreadyOpen = fileHandle({ name: 'plan.json' })
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
     const store = fileSystemAccessFileStore(
@@ -1353,10 +1067,6 @@ describe('writeChosenFile -- a file the person points at', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// The File System Access API is absent -- CN-2 of 表 T-003, LM-14 of 表 T-004.
-// ---------------------------------------------------------------------------
-
 describe('where the API is absent -- CN-2 / LM-14', () => {
   it('answers unavailable rather than inventing a way to open a file', async () => {
     const store = fileSystemAccessFileStore(browser({ opens: 'noApi', saves: 'noApi' }).environment)
@@ -1368,16 +1078,13 @@ describe('where the API is absent -- CN-2 / LM-14', () => {
   })
 
   it('answers unavailable rather than falling back to a download (FR-060 RATIONALE)', async () => {
-    // ⛔ FR-060's own RATIONALE is the argument against a fallback: downloads
-    // cannot control where a file lands and breed numbered copies of one name,
-    // which is the problem FR-060 exists to solve.
+    // WHY: downloads cannot control where a file lands and breed numbered
+    // copies of one name, which is the problem FR-060 exists to solve.
     const store = fileSystemAccessFileStore(browser({ opens: 'noApi', saves: 'noApi' }).environment)
     log.length = 0
     const writing = await store.writeChosenFile({
       bytes: GRS_JSON_BYTES,
       suggestedFileName: 'plan.json',
-      // Table T-024 row IO-2 -- the extension the name above ends in, which
-      // FR-096 (MUST) has the host told so that it cannot be lost.
       extension: '.json',
       shouldBecomeOpenedFile: true,
       askToWriteOver: () => Promise.resolve(true),
@@ -1408,10 +1115,6 @@ describe('where the API is absent -- CN-2 / LM-14', () => {
     })
   })
 })
-
-// ---------------------------------------------------------------------------
-// readFileToOpen('drop') -- OP-2's second route.
-// ---------------------------------------------------------------------------
 
 describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
   it('takes the file DURING the event, because that is when it exists', async () => {
@@ -1445,17 +1148,8 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
   })
 
   it('takes only the first of a multi-file drop, and says how many were left (OP-11)', async () => {
-    // ⭐ OP-11 of 表 T-024a is the row that rules this case, not OP-3: OP-3 is
-    // about the question put to the person over ONE read content, while OP-11
-    // is the case of several files arriving in the same act. It keeps the first
-    // and puts a MUST on saying that the rest were left behind, and a MUST NOT
-    // on letting the act read as refused -- so the number rides beside the file
-    // on the SUCCESS. `FileReading.ignoredFileCount` of the seam declaration
-    // (`src/adapter/file-gateway/file-store.ts`) is where it rides, and an
-    // absent one there asserts that none were left. A reading that dropped a
-    // file and stated nothing would therefore be exactly the silence OP-11's
-    // MUST NOT forbids, which is why this is asserted with the whole reading
-    // rather than on the member alone.
+    // WHY: OP-11 rules this case, not OP-3 -- several files in one act, kept
+    // first and the rest reported left behind, never read as a refusal.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     const first = fileHandle({ name: 'first.json' })
@@ -1476,15 +1170,13 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     await expect(store.readFileToOpen('drop')).resolves.toEqual({
       ok: true,
       file: { bytes: GRS_JSON_BYTES, fileName: 'first.json' },
-      // ⭐ Two were handed over and one was kept, so one was left. The number
-      // comes from this case's own hand-over, not from the specification.
       ignoredFileCount: 1,
     })
   })
 
   it('hands back the bytes but remembers nothing where the browser has no handles', async () => {
-    // ⚠️ There is nothing to overwrite, so saying `writable` would name a file
-    // that cannot be written -- one of the three states IF-3 exists to avoid.
+    // WHY: there is nothing to overwrite, so saying writable would name a
+    // file that cannot be written -- one of the three states IF-3 avoids.
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     fake.drop(
@@ -1639,10 +1331,6 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// 表 T-024a OP-2 -- one entry, two routes. One test over every row.
-// ---------------------------------------------------------------------------
-
 describe('表 T-024a OP-2 -- one entry, and both routes end in the same place', () => {
   for (const route of T_024A_OP2_ROUTES) {
     it(`${route}: hands back the bytes and leaves the same file overwritable`, async () => {
@@ -1672,14 +1360,8 @@ describe('表 T-024a OP-2 -- one entry, and both routes end in the same place', 
   }
 })
 
-// ---------------------------------------------------------------------------
-// FR-028 and NT-3a -- every failure is a value, and the four are told apart.
-// One test over every row of IF-3's reason list.
-// ---------------------------------------------------------------------------
-
 describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', () => {
   const situations: Record<FileStoreFaultReason, () => Promise<{ reason: string; what: string }>> = {
-    /** IF-3: "The person dismissed the chooser, or dropped nothing." */
     cancelled: async () => {
       const store = fileSystemAccessFileStore(
         browser({ opens: { rejectsWith: dismissal() }, saves: 'noApi' }).environment,
@@ -1687,7 +1369,6 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
       const reading = await store.readFileToOpen('chooser')
       return reading.ok ? { reason: 'ok', what: '' } : reading.fault
     },
-    /** IF-3: "a file is remembered, but it may not be written now." */
     permissionLost: async () => {
       const { store } = await opened({
         name: 'plan.json',
@@ -1696,7 +1377,6 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
       const writing = await store.overwriteOpenedFile(GRS_JSON_BYTES)
       return writing.ok ? { reason: 'ok', what: '' } : writing.fault
     },
-    /** IF-3: "Nothing has been opened, so there is no file to overwrite." */
     noOpenedFile: async () => {
       const store = fileSystemAccessFileStore(
         browser({ opens: 'noApi', saves: 'noApi' }).environment,
@@ -1704,7 +1384,6 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
       const writing = await store.overwriteOpenedFile(GRS_JSON_BYTES)
       return writing.ok ? { reason: 'ok', what: '' } : writing.fault
     },
-    /** IF-3: "The store tried and could not" -- LM-14 lands here. */
     unavailable: async () => {
       const store = fileSystemAccessFileStore(
         browser({ opens: 'noApi', saves: 'noApi' }).environment,
@@ -1745,8 +1424,6 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
       store.writeChosenFile({
         bytes: GRS_JSON_BYTES,
         suggestedFileName: 'plan.json',
-        // Table T-024 row IO-2 -- the extension the name above ends in, which
-        // FR-096 (MUST) has the host told so that it cannot be lost.
         extension: '.json',
         shouldBecomeOpenedFile: true,
         askToWriteOver: () => Promise.resolve(true),
@@ -1792,10 +1469,6 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
   })
 })
 
-// ---------------------------------------------------------------------------
-// Boundaries: nothing chosen, one element, two reads at once.
-// ---------------------------------------------------------------------------
-
 describe('boundaries', () => {
   it('treats a chooser that came back with no file as cancelled', async () => {
     const store = fileSystemAccessFileStore(
@@ -1817,10 +1490,8 @@ describe('boundaries', () => {
   })
 
   it('refuses a second read while one is still running', async () => {
-    // ⚠️ This is the store's OWN guard, not OP-8 of 表 T-024a: OP-8 forbids a
-    // second open while an import runs and belongs to `ImportDocument`. Two
-    // reads at once here would both set the handle, and which one won would
-    // depend on which chooser the person closed first.
+    // WHY: this is the store's OWN guard, not OP-8 (which belongs to
+    // ImportDocument) -- two reads at once would both set the handle, racing.
     let release: (handles: readonly FileHandle[]) => void = () => undefined
     const pending = new Promise<readonly FileHandle[]>((resolve) => {
       release = resolve

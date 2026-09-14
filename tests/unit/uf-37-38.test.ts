@@ -1,58 +1,4 @@
-// Unit tests for UF-37 `embedded-html-codec.ts` (writing the single .html) and
-// UF-38 `app-shell-source.ts` (the declaration of IF-8) -- table T-075 of
-// docs/spec/05-07-design.md, component `DocumentCodec` (CP-20 of table T-062),
-// published as PI-20 of table T-064.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in
-// the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, and of the two units only their head comments, their published types
-// (`AppShell`, `AppShellReading`, `AppShellSource`, `EmbeddedHtmlFaultReason`,
-// `EmbeddedHtmlFault`, `EmbeddedHtmlExport`) and the one signature
-// `exportEmbeddedHtml(source, document): Promise<EmbeddedHtmlExport>`. Every
-// expected value below comes from a requirement, a table or a pending decision
-// -- never from the implementation.
-//
-// The rules these cases answer to:
-//   FR-067     one .html carrying the application and one document; the
-//              embedded content must not leak into the body; when the entry is
-//              not exactly one the reader is told rather than left guessing,
-//              which is what makes "exactly one entry, always" this writer's
-//              debt
-//   IO-7 of table T-024   the single .html, direction column: export only; the
-//              reader is BT-1 of table T-034
-//   BT-1 of table T-034   the embedded document is rank 1 at startup, so the
-//              payload has to be something the application's own intake reads
-//   FR-024     what a written document contains: table T-052's root, every
-//              presentation value even at its default, every null column with
-//              its key, and the format version
-//   FR-073     the format version is a date string inside the document
-//              (DR-4 `schemaVersion`), so nothing else may carry a second copy
-//   CN-5 / CN-8 of table T-003   UTF-8 without a BOM, and a content security
-//              policy over the artifact
-//   AG-7 / AG-8 of table T-035, AM-15 of table T-107   the export comes back as a
-//              value and so does the failure
-//   FR-028     ⛔ MUST NOT throw across this boundary
-//   NT-1 / NT-3a of table T-037   a refusal says which item is wrong in words; a
-//              failure notice carries a next step, which is why three reasons
-//              are told apart here and none is told apart in `AppShellReading`
-//   PND-70 / PND-71   the container's markup, its placement, what happens when
-//              there is more than one, and the shape of element id accepted
-//              across IF-8. ⛔ Not decided by docs/spec, but both are now
-//              SETTLED (CR-353): PND-70 kept its recommendation as the ruling,
-//              PND-71 did not -- the ruling rejects only characters that would
-//              break the start tag, rather than requiring a leading ASCII
-//              letter. The cases below are pinned to the ruling now, the way
-//              docs/development-rules/06-pending-decisions.md section 3 asks:
-//              a later ruling that changes either one is what should make
-//              these fall next.
-//
-// ⭐ Chapter 1.9 (:275) asks a test of a requirement that points at a table to
-// be driven by a fixed copy of that table, one test walking every row. T_024,
-// T_034, T_052_ROOT, T_052_DR2 and FAULT_ROSTER below are those copies.
+// Unit tests for UF-37 (embedded-html-codec.ts) and UF-38 (app-shell-source.ts): table T-075, component CP-20/PI-20.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -74,14 +20,7 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { bare, specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * table T-024 -- the formats and their direction column. `isWritten` / `isRead`
- * carry that column; the row IDs and the order are the table's own.
- */
+// see T-024
 const T_024 = [
   { row: 'IO-1', format: 'MSPDI XML', isRead: true, isWritten: true },
   { row: 'IO-2', format: 'GRS JSON', isRead: true, isWritten: true },
@@ -92,23 +31,15 @@ const T_024 = [
   { row: 'IO-6', format: 'clipboard', isRead: false, isWritten: true },
 ] as const
 
-/**
- * table T-034 -- the order startup decides the first document in. BT-1 is the
- * embedded document, and it is the only rank this writer feeds.
- *
- * ⚠️ THREE ROWS, NOT FOUR. The table's own closing note keeps a retired row's ID
- * as a burnt seat rather than closing the numbering up, so BT-4 keeps its name
- * -- while the 順 column DID close up, which is the half a copy keyed by row ID
- * loses: BT-4 stands at rank 3. ⛔ A hand copy falls behind in silence, so the
- * case below holds this one against the table at read time.
- */
+// WHY: a retired row keeps its burnt-seat id (BT-4 stays rank 3), so this
+// copy is held against the table at read time rather than trusted.
 const T_034 = [
   { row: 'BT-1', rank: 1, isFedByThisUnit: true },
   { row: 'BT-2', rank: 2, isFedByThisUnit: false },
   { row: 'BT-4', rank: 3, isFedByThisUnit: false },
 ] as const
 
-/** table T-052, DR-1 to DR-4 -- the five keys of the document root, and no sixth. */
+// see T-052
 const T_052_ROOT = [
   'schemaVersion',
   'schedule',
@@ -117,7 +48,7 @@ const T_052_ROOT = [
   'changeLog',
 ] as const
 
-/** table T-052 DR-2 -- the twelve keys under `schedule`. */
+// see T-052
 const T_052_DR2 = [
   'project',
   'calendars',
@@ -133,20 +64,11 @@ const T_052_DR2 = [
   'baselineTasks',
 ] as const
 
-/**
- * FR-073 -- the format version is `YYYY-MM-DD`, or `YYYY-MM-DDTHH:MM` for a
- * second revision on one day, and never carries seconds.
- */
+// see FR-073
 const FR_073_FORMAT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/
 
-/**
- * The type values a browser executes, from the HTML standard's "JavaScript MIME
- * type" list plus `module` and the absent attribute.
- *
- * ⛔ FR-067 wants the embedded content kept out of the body and CN-8 gives the
- * artifact a content security policy; an executable container would be script
- * the policy has to cover. This roster is what the container's type may NOT be.
- */
+// WHY: FR-067 keeps the embedded content out of the body and CN-8 gives
+// the artifact a policy, so the container's type must never be one of these.
 const EXECUTABLE_SCRIPT_TYPES = [
   '',
   'module',
@@ -162,16 +84,8 @@ const EXECUTABLE_SCRIPT_TYPES = [
   'application/x-javascript',
 ] as const
 
-/**
- * PND-71's RULING (CR-353, 2026-09-05, "ruling 1: b"): reject only the
- * characters that would break the start tag this file writes -- everything
- * else is a usable id, a leading digit, dash or underscore included. This
- * replaced the earlier recommendation of an ASCII letter followed by
- * letters, digits, `-` and `_`, which is why a leading digit or dash now
- * belongs on this side of the line instead of the other one. ⚠️ Refused
- * rather than repaired -- a repaired id names an element BT-1 would then
- * fail to find.
- */
+// WHY: PND-71's ruling refuses only characters that would break the start
+// tag, not a leading-letter shape, so these deliberately awkward ids pass.
 const USABLE_IDS = [
   'embedded-document',
   '2024-plan',
@@ -184,16 +98,8 @@ const USABLE_IDS = [
   '\u65e5\u672c\u8a9e',
 ] as const
 
-/**
- * The characters PND-71's ruling still refuses, because each would break the
- * start tag `<script type="..." id="${elementId}">` or the scan that finds
- * it again: an empty id names no element; every kind of whitespace would
- * begin a second attribute; `"` and `'` would close the attribute value;
- * `<` and `>` would end or reopen the tag; `&` would be decoded as a
- * character reference. The NUL case is the one job 1 of this round closed --
- * `BREAKING_ELEMENT_ID_CHARACTER` in embedded-html-codec.ts now refuses every
- * C0 control character, not only the ones that are also whitespace.
- */
+// WHY: each of these would break the start tag or the scan that finds it
+// again -- empty, whitespace, quotes, angle brackets, or a control character.
 const UNUSABLE_IDS = [
   '',
   'has space',
@@ -208,14 +114,8 @@ const UNUSABLE_IDS = [
   'has\u0000nul',
 ] as const
 
-// ---------------------------------------------------------------------------
-// The document these cases are driven by.
-// ---------------------------------------------------------------------------
-
-// BT-4 of table T-034 -- the bundled template is the only document whose values
-// the specification has actually decided, so these cases build on it rather
-// than inventing a second idea of a document (the reason
-// tests/fixtures/grs-document.ts gives for holding no sample).
+// WHY: the bundled template is the only document the specification has
+// actually decided, so these cases build on it rather than inventing one.
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -231,7 +131,6 @@ type Group = Record<string, unknown>
 
 const templateSchedule = TEMPLATE['schedule'] as Group
 
-/** The same root with every array of the schedule cut to `rows` entries. */
 function rootOfSize(rows: number): Root {
   return {
     ...TEMPLATE,
@@ -244,7 +143,6 @@ function rootOfSize(rows: number): Root {
   }
 }
 
-/** The root with one project column replaced -- the one string every case bends. */
 function rootWithProjectName(base: Root, name: string): Root {
   const schedule = base['schedule'] as Group
   const project = schedule['project'] as Group
@@ -264,11 +162,8 @@ const SMALL = documentOf(rootOfSize(2))
 const SINGLE = documentOf(rootOfSize(1))
 const EMPTY = documentOf(rootOfSize(0))
 
-// ---------------------------------------------------------------------------
-// The shells. ⚠️ IF-8 supplies the application's own HTML as delivered, so
-// these are files, not DOM trees.
-// ---------------------------------------------------------------------------
-
+// WHY: IF-8 supplies the application's own HTML as delivered, so these
+// shells are files, not DOM trees.
 const ID = 'grsDocument'
 
 const PLAIN_SHELL =
@@ -283,10 +178,6 @@ const NO_BODY_SHELL = '<!doctype html><html><head><title>GRS</title></head></htm
 const NO_BODY_NO_HTML_SHELL = '<div id="app"></div>'
 
 const EMPTY_SHELL = ''
-
-// ---------------------------------------------------------------------------
-// A seam that answers with what the case wants it to answer.
-// ---------------------------------------------------------------------------
 
 interface CountedSource {
   readonly source: AppShellSource
@@ -315,10 +206,6 @@ function unavailableSource(what: string): CountedSource {
   return { source, reads: () => reads }
 }
 
-// ---------------------------------------------------------------------------
-// Reading the published shape without asserting it into place.
-// ---------------------------------------------------------------------------
-
 async function exported(html: string, elementId: string, document: Document): Promise<string> {
   const made = await exportEmbeddedHtml(shellSource(html, elementId).source, document)
   if (!made.ok) throw new Error(`expected a file, was refused: ${JSON.stringify(made.fault)}`)
@@ -335,12 +222,8 @@ async function refused(
   return made.fault
 }
 
-// ---------------------------------------------------------------------------
-// The test's own scanner. ⚠️ Deliberately naive: it does not step over script
-// content the way an HTML parser does, which is exactly why the "a lookalike is
-// not an entry" cases below count start tags instead of parsing them.
-// ---------------------------------------------------------------------------
-
+// WHY: deliberately naive -- it does not step over script content the
+// way an HTML parser does, which is why the lookalike cases count tags.
 function containerStarts(html: string, elementId: string): readonly number[] {
   const pattern = new RegExp(`<script\\b[^<>]*\\sid="${elementId}"[^<>]*>`, 'gi')
   const at: number[] = []
@@ -357,7 +240,6 @@ interface Container {
   readonly end: number
 }
 
-/** The one container of a file that is supposed to carry exactly one. */
 function onlyContainer(html: string, elementId: string): Container {
   const starts = containerStarts(html, elementId)
   expect(starts, 'exactly one entry (FR-067)').toHaveLength(1)
@@ -380,12 +262,8 @@ function parsedPayload(html: string, elementId: string): Root {
   return JSON.parse(onlyContainer(html, elementId).payload) as Root
 }
 
-// ---------------------------------------------------------------------------
-// The rosters themselves, before anything walks them
-// ---------------------------------------------------------------------------
-
 describe('the rosters these cases walk are the ones the tables state', () => {
-  // ⛔ A walk over an empty roster passes without asserting anything.
+  // WHY: a walk over an empty roster would pass without asserting anything.
   it('carries the row counts of table T-024, table T-034 and table T-052', () => {
     expect(T_024).toHaveLength(7)
     expect(T_034).toHaveLength(3)
@@ -395,11 +273,8 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(new Set(T_052_DR2).size).toBe(12)
   })
 
-  // ⛔ WHY THIS ONE READS THE MANUSCRIPT INSTEAD OF TRUSTING THE COPY. A hand
-  // copy of a table is what Chapter 1.9 (:275) asks for, and a hand copy is also
-  // what falls behind -- a stale row ID and a stale 順 let every case that walks
-  // it stay green while doing so. So the copy is held against 表 T-034 itself,
-  // row for row and rank for rank.
+  // WHY: a hand copy of a table is what falls behind; held against the
+  // manuscript here so a stale row id or rank cannot stay green.
   it('⭐ holds that copy of table T-034 against the table, ID and 順 both', () => {
     const table = specTable('T-034')
     expect(table.rows.map((row) => row.id)).toEqual(T_034.map((rank) => rank.row))
@@ -421,15 +296,9 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// UF-38 -- the seam IF-8 declares (table T-065)
-// ---------------------------------------------------------------------------
-
 describe('UF-38 app-shell-source.ts -- the seam of IF-8', () => {
   it('leaves the folder through the public entry (Chapter 5.3, PI-20 of table T-064)', () => {
-    // Type-only: table T-065 names the interface and Chapter 5.3 makes
-    // document-codec.ts the only door out of the folder. That this compiles is
-    // the assertion.
+    // WHY: type-only check -- that this compiles is the assertion itself.
     const seam: AppShellSource | null = null
     expect(seam).toBeNull()
   })
@@ -443,9 +312,8 @@ describe('UF-38 app-shell-source.ts -- the seam of IF-8', () => {
   })
 
   it('tells one failure apart from none -- NT-3a needs no reason enum here', async () => {
-    // NT-3a of table T-037 makes a reason worth telling apart only where the next
-    // step differs, and whatever went wrong there is one next step: export IO-2
-    // on its own. So `AppShellReading` carries `what` and no reason.
+    // WHY: NT-3a only tells reasons apart where the next step differs,
+    // and there is exactly one next step here: export IO-2 on its own.
     const reading = await unavailableSource('the artifact could not be read back').source.readAppShell()
     expect(reading.ok).toBe(false)
     if (reading.ok) return
@@ -453,10 +321,6 @@ describe('UF-38 app-shell-source.ts -- the seam of IF-8', () => {
     expect(reading).not.toHaveProperty('reason')
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-067 -- the ordinary case
-// ---------------------------------------------------------------------------
 
 describe('FR-067 -- the application and one document, as one file', () => {
   it('gives back a file that carries the whole shell and exactly one entry', async () => {
@@ -499,10 +363,6 @@ describe('FR-067 -- the application and one document, as one file', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// BT-1 of table T-034 and IO-2 -- the payload is a whole GRS JSON document
-// ---------------------------------------------------------------------------
-
 describe('BT-1 of table T-034 -- the payload is what the application itself reads', () => {
   it('walks table T-034 and feeds rank 1 and no other', () => {
     for (const rank of T_034) {
@@ -521,8 +381,7 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
       if (io.format !== 'single .html') continue
       expect(io.row).toBe('IO-7')
       expect(io.isWritten).toBe(true)
-      // The direction column is export only: this component publishes no
-      // there is nothing here to hand a file back to.
+      // WHY: export only -- there is nothing here to hand a file back to.
       expect(io.isRead).toBe(false)
     }
     const entry = (await import('../../src/adapter/document-codec/document-codec')) as unknown as Root
@@ -550,7 +409,7 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
   })
 
   it('embeds exactly what jsonFromDocument writes -- FR-024 keeps one writer', async () => {
-    // ⛔ A second serializer here would be a second authority over FR-024's
+    // WHY: a second serializer would be a second authority over FR-024's
     // three MUSTs, and the two would drift.
     const payload = parsedPayload(await exported(PLAIN_SHELL, ID, SMALL), ID)
     expect(payload).toEqual(JSON.parse(jsonFromDocument(SMALL)))
@@ -578,15 +437,11 @@ describe('BT-1 of table T-034 -- the payload is what the application itself read
     const payload = JSON.parse(container.payload) as Root
     expect(payload['schemaVersion']).toBe(TEMPLATE['schemaVersion'])
     expect(String(payload['schemaVersion'])).toMatch(FR_073_FORMAT)
-    // ⛔ Two copies of one fact is the failure FR-073's rationale is about: a
+    // WHY: two copies of one fact is the failure FR-073 is about -- a
     // build that cannot tell a broken document from an old one.
     expect(container.startTag.toLowerCase()).not.toContain('version')
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-067 -- the embedded content must not leak into the body; CN-8
-// ---------------------------------------------------------------------------
 
 describe('FR-067 -- the embedded content does not leak into the body (CN-8)', () => {
   it('puts the document in a script element, so nothing of it is rendered', async () => {
@@ -611,8 +466,8 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
   })
 
   it('writes a payload with no `<` in it at all, so nothing can end the element', async () => {
-    // `</script` ends script data and `<!--` opens the state where a later
-    // `</script>` no longer does. Neither can occur if no `<` reaches the file.
+    // WHY: `</script` ends script data and `<!--` opens a state where a
+    // later `</script>` no longer closes it; blocking `<` blocks both.
     const hostile = documentOf(
       rootWithProjectName(rootOfSize(2), 'a </script> b <!-- c <script> d <'),
     )
@@ -628,22 +483,20 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
   it('escapes every `<`, and only `<`, so the text still parses to the same value', async () => {
     const hostile = documentOf(rootWithProjectName(rootOfSize(2), '< << <a & > "q"'))
     const container = onlyContainer(await exported(PLAIN_SHELL, ID, hostile), ID)
-    // The six characters backslash-u-0-0-3-c, everywhere a `<` stood.
+    // WHY: `<` replaces every `<`, the six characters shown literally.
     expect(container.payload).toBe(jsonFromDocument(hostile).replaceAll('<', '\\u003c'))
     expect(JSON.parse(container.payload)).toEqual(JSON.parse(jsonFromDocument(hostile)))
-    // `&` needs no escape: script data has no character references to decode.
+    // WHY: `&` needs no escape -- script data has no character references to decode.
     expect(container.payload).toContain('&')
   })
 
   it('lets no raw control character reach the artifact through the document', async () => {
-    // docs/development-rules/04-verification.md section 3: one control
-    // character in a string key, the browser rewrites it, the artifact's hash
-    // stops matching and the whole application stops loading.
+    // WHY: a raw control character can make a browser rewrite the file so
+    // its hash stops matching, and the whole application fails to load.
     const hostile = documentOf(rootWithProjectName(rootOfSize(2), 'a\u0000b\u0007c\u001fd\u007fe'))
     const container = onlyContainer(await exported(PLAIN_SHELL, ID, hostile), ID)
-    // ⚠️ The document's own control characters, not the JSON's layout: a
-    // line break between two keys is the serializer writing, not a byte of the
-    // document escaping, and 04-verification.md section 3 is about the latter.
+    // WHY: only the document's own control characters are checked here --
+    // a serializer's own line break is not one of the document's bytes.
     for (const raw of ['\u0000', '\u0007', '\u001f']) {
       expect(container.payload, JSON.stringify(raw)).not.toContain(raw)
     }
@@ -656,7 +509,7 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
   })
 
   it('carries text outside ASCII through unharmed (CN-5: UTF-8)', async () => {
-    // ⚠️ Written as escapes so this file stays ASCII; the value is not.
+    // WHY: written as escapes so this file stays ASCII; the value is not.
     const name = '\u65e5\u7a0b \u2014 \u00dcnicode \u2713'
     const document = documentOf(rootWithProjectName(rootOfSize(2), name))
     const payload = parsedPayload(await exported(PLAIN_SHELL, ID, document), ID)
@@ -670,10 +523,6 @@ describe('FR-067 -- the embedded content does not leak into the body (CN-8)', ()
     expect(html.startsWith(PLAIN_SHELL.slice(0, 40))).toBe(true)
   })
 })
-
-// ---------------------------------------------------------------------------
-// Where the container goes (PND-70; the reason is CN-5)
-// ---------------------------------------------------------------------------
 
 describe('the container goes at the end of the body (PND-70, grounds CN-5)', () => {
   it('puts it immediately before the last `</body>`, changing nothing before it', async () => {
@@ -717,8 +566,8 @@ describe('the container goes at the end of the body (PND-70, grounds CN-5)', () 
   })
 
   it('keeps `<meta charset>` inside the first 1024 bytes (the reason: CN-5)', async () => {
-    // A payload put at the top of `<head>` pushes the charset declaration past
-    // what a browser reads first, and CN-5's UTF-8 stops taking effect.
+    // WHY: a payload at the top of <head> would push the charset
+    // declaration past what a browser reads first, defeating CN-5.
     const filler = '<p>x</p>'.repeat(200)
     const shell = `<!doctype html><html><head><meta charset="utf-8"></head><body>${filler}</body></html>`
     const html = await exported(shell, ID, WHOLE)
@@ -726,10 +575,6 @@ describe('the container goes at the end of the body (PND-70, grounds CN-5)', () 
     expect(html.slice(0, 1024)).toContain('<meta charset="utf-8">')
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-067 -- exactly one entry, always
-// ---------------------------------------------------------------------------
 
 describe('FR-067 -- a file this writer wrote carries exactly one entry', () => {
   it('replaces the one that is there rather than adding a second', async () => {
@@ -759,9 +604,8 @@ describe('FR-067 -- a file this writer wrote carries exactly one entry', () => {
   })
 
   it('refuses when the shell already carries two entries, and says which id', async () => {
-    // ⛔ Refused rather than tidied: FR-067 has the reader complain when the
-    // entry is not exactly one, and this side cannot know which of two the
-    // reader would take. (PND-70)
+    // WHY: refused rather than tidied -- this side cannot know which of
+    // the two entries the reader would take (PND-70).
     const one = await exported(PLAIN_SHELL, ID, SMALL)
     const container = onlyContainer(one, ID)
     const twoEntries =
@@ -783,10 +627,6 @@ describe('FR-067 -- a file this writer wrote carries exactly one entry', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// A lookalike inside another script's body is not an entry
-// ---------------------------------------------------------------------------
-
 describe('markup that only looks like an entry is not one', () => {
   const lookalike = `<script type="application/json" id="${ID}">`
 
@@ -799,8 +639,8 @@ describe('markup that only looks like an entry is not one', () => {
     expect(containerStarts(shell, ID), 'the fixture holds two lookalikes').toHaveLength(2)
 
     const html = await exported(shell, ID, SMALL)
-    // Not a refusal, and not a replacement of a lookalike: one real entry was
-    // added and the two quoted ones were left where they were.
+    // WHY: not a refusal and not a replacement of a lookalike -- one real
+    // entry is added and the two quoted ones are left where they were.
     expect(containerStarts(html, ID)).toHaveLength(3)
     expect(html).toContain(`var a = '${lookalike}';`)
     expect(html).toContain(`var b = '${lookalike}';`)
@@ -831,11 +671,6 @@ describe('markup that only looks like an entry is not one', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-028 / AG-8 / NT-1 / NT-3a -- every failure is a value
-// ---------------------------------------------------------------------------
-
-/** The three reasons of `EmbeddedHtmlFaultReason`, with what produces each. */
 const FAULT_ROSTER: readonly {
   readonly reason: EmbeddedHtmlFaultReason
   readonly why: string
@@ -881,7 +716,7 @@ describe('FR-028 -- a failure is a value, never a throw (AG-8 of table T-035)', 
       } catch (error: unknown) {
         thrown = error
       }
-      // ⛔ MUST NOT throw across this boundary
+      // WHY: FR-028 forbids a throw across this boundary.
       expect(thrown, entry.why).toBeNull()
       expect(made?.ok, entry.why).toBe(false)
       if (made === null || made.ok) continue
@@ -895,8 +730,7 @@ describe('FR-028 -- a failure is a value, never a throw (AG-8 of table T-035)', 
       const made = await entry.run()
       expect(made.ok, entry.why).toBe(false)
       if (made.ok) continue
-      // ⛔ NT-1 forbids a marker alone, so there has to be a sentence
-      // there has to be a sentence beside it.
+      // WHY: NT-1 forbids a marker alone; a sentence has to sit beside it.
       expect(typeof made.fault.what, entry.why).toBe('string')
       expect(made.fault.what.trim().length, entry.why).toBeGreaterThan(0)
       expect(made.fault.what, entry.why).not.toBe(made.fault.reason)
@@ -913,9 +747,8 @@ describe('FR-028 -- a failure is a value, never a throw (AG-8 of table T-035)', 
   })
 
   it('names the item it refused, and says why beside the marker (NT-1)', async () => {
-    // NT-1 asks which ITEM is wrong, in words. `reason` is the marker and
-    // `what` is the sentence beside it. ⚠️ Whether the item's VALUE has to
-    // be quoted back is not settled by docs/spec, so nothing here asks for it.
+    // WHY: `reason` is the marker, `what` is the sentence beside it;
+    // whether the item's value must be echoed back is not settled here.
     const fault: EmbeddedHtmlFault = await refused(PLAIN_SHELL, 'has space', SMALL)
     expect(fault.reason).toBe('unusableElementId')
     expect(fault.what).not.toBe(fault.reason)
@@ -931,10 +764,6 @@ describe('FR-028 -- a failure is a value, never a throw (AG-8 of table T-035)', 
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-71 -- the shape of element id accepted across IF-8
-// ---------------------------------------------------------------------------
-
 describe('PND-71 -- the element id this component accepts from the shell', () => {
   it('accepts every plain ASCII id of the roster and writes it into the start tag', async () => {
     for (const elementId of USABLE_IDS) {
@@ -945,7 +774,7 @@ describe('PND-71 -- the element id this component accepts from the shell', () =>
   })
 
   it('refuses every id outside the shape rather than repairing it', async () => {
-    // ⛔ A repaired id names an element BT-1 would then fail to find.
+    // WHY: a repaired id names an element BT-1 would then fail to find.
     for (const elementId of UNUSABLE_IDS) {
       const made = await exportEmbeddedHtml(shellSource(PLAIN_SHELL, elementId).source, SMALL)
       expect(made.ok, JSON.stringify(elementId)).toBe(false)
@@ -963,10 +792,6 @@ describe('PND-71 -- the element id this component accepts from the shell', () =>
     }
   })
 })
-
-// ---------------------------------------------------------------------------
-// The round trip -- FR-021's reason, over BT-1's path
-// ---------------------------------------------------------------------------
 
 describe('the round trip -- write the file, read the document back out of it', () => {
   it('gives back an equal document through the entry BT-1 reads', async () => {
@@ -1005,11 +830,7 @@ describe('the round trip -- write the file, read the document back out of it', (
   })
 })
 
-// ---------------------------------------------------------------------------
-// @purity semi-pure-b -- UF-37 of table T-075, R7.3 / R7.4
-// ---------------------------------------------------------------------------
-
-/** Deep-freezes so that a write into the argument throws rather than passing. */
+// WHY: deep-freezes so a write into the argument throws rather than passing silently.
 function deepFreeze<T>(value: T): T {
   if (value === null || typeof value !== 'object') return value
   for (const inner of Object.values(value as Record<string, unknown>)) deepFreeze(inner)
@@ -1052,16 +873,10 @@ describe('@purity semi-pure-b -- one external read, then pure assembly', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-70 -- SETTLED (CR-353): the ruling kept the markup, still pinned exactly
-// ---------------------------------------------------------------------------
-
 describe('PND-70 -- the container markup, now SETTLED (CR-353; docs/development-rules/06 section 3)', () => {
   it('writes `<script type="application/json" id="...">` and closes it', async () => {
-    // ⛔ Nothing in docs/spec names the container. This was the recommendation
-    // of PND-70; the ruling kept it as-is, so this case did not fall. ⭐ Still
-    // pinned to the exact string -- only a later ruling that changes the
-    // markup should make it fall next.
+    // WHY: the container's exact markup is not named by docs/spec; pinned
+    // here so only a ruling that changes it should make this case fall.
     const html = await exported(PLAIN_SHELL, ID, SMALL)
     const container = onlyContainer(html, ID)
     expect(container.startTag).toBe(`<script type="application/json" id="${ID}">`)
@@ -1069,23 +884,9 @@ describe('PND-70 -- the container markup, now SETTLED (CR-353; docs/development-
   })
 })
 
-// ---------------------------------------------------------------------------
-// PI-20 of table T-064 -- what the component publishes
-// ---------------------------------------------------------------------------
-
 describe('PI-20 of table T-064 -- the names this component publishes', () => {
-  // ⛔ DELIBERATELY LEFT FAILING -- the code is wrong, not this case.
-  //
-  // docs/spec/05-07-design.md:350 -- PI-20 of table T-064 lists what this
-  // component publishes, and `exportEmbeddedHtml` is the sixth name on it.
-  // docs/spec/05-07-design.md:193 (Chapter 5.3) gives a component one public
-  // entry (MUST) and forbids reading any other file of the folder from
-  // outside it (MUST NOT).
-  //
-  // document-codec.ts re-exports only the GRS JSON pair and the seam, so
-  // `exportEmbeddedHtml` has no way out of the folder and every caller of
-  // IO-7 would have to break that MUST NOT to reach it. ⚠️ That is also why
-  // the cases above import embedded-html-codec.ts directly.
+  // WHY: exportEmbeddedHtml has no way out through the public entry, so
+  // every caller of IO-7 would break Chapter 5.3's one-entry MUST NOT.
   it('LEFT FAILING ON PURPOSE: exportEmbeddedHtml does not leave through the public entry (Chapter 5.3 / PI-20, MUST)', async () => {
     const entry = (await import('../../src/adapter/document-codec/document-codec')) as unknown as Root
     expect(typeof entry['exportEmbeddedHtml']).toBe('function')

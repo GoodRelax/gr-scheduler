@@ -1,86 +1,4 @@
 // Unit tests for UF-54 `canvas-rasterizer.ts` -- table T-075 of
-// docs/spec/05-07-design.md (:303), component `CanvasRasterizer` (CP-31 of
-// table T-062, :120), published as PI-31 of table T-064 (:361). It is the one
-// implementation of the seam `Rasterizer` (IF-6 of table T-065, :383), which
-// `ImageExporter` declares.
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below; the seam this unit realises in full, because `rasterizer.ts` (UF-40)
-// is the declaration that fixes `RasterSizePx`, `RasterFaultReason`,
-// `RasterFault`, `Rastering` and `Rasterizer`; and of the unit itself only its
-// head comment and the one signature
-// `canvasRasterizer(host: Document): Rasterizer`. No function body was read,
-// and every expectation below comes from a requirement, a table, or the seam's
-// own declaration -- never from what the code happens to do.
-//
-// THE BROWSER IS A FAKE HERE, AND THE FAKE IS NOT THE TEST (R6.3). Vitest runs
-// under Node with no DOM, and LY-5 of table T-060 (:51) puts the browser in
-// this layer while R7.3 asks for it to be injected. So every case drives the
-// unit with a hand-made host and then asserts WHAT THE UNIT DID TO IT -- which
-// elements it made, what it assigned, the arguments of every call, their order,
-// and the members it never touched -- not merely that a value came back.
-//
-// The rules these cases answer to:
-//   table T-024 IO-3   (:2830) SVG, write out only. The picture that arrives IS
-//                      that output; it belongs to the near side, so this unit
-//                      copies it and never changes what a person receives
-//   table T-024 IO-4   (:2831) PNG, write out only. The whole of what this unit
-//                      produces, as bytes. No member reads an image back, so no
-//                      intake is opened for FR-023
-//   FR-025             (:3132) the output size is fixed at S-81 (MUST NOT let it
-//                      be chosen per export) and the export MUST NOT hold a
-//                      scale at all.
-//                      Every one of its rules -- the fixed width, the height
-//                      grown to S-217, the blank remainder, the refusal to draw
-//                      a part of a picture -- is settled BEFORE the call
-//                      arrives, so this unit decides none of them
-//   FR-080             (:3073) the export is the screen shrunk by one ratio, and
-//                      table T-076 (:3101-:3114) settles which UI parts are
-//                      drawn. Both are settled on the near side as well
-//   table T-035 AG-8   (:3493) a failed rastering comes back to the caller AS A
-//                      VALUE
-//   FR-028             (:3438) what came of a call is returned as a value;
-//                      throwing is forbidden (MUST NOT). The RATIONALE gives the
-//                      reason: making a caller read an exception's text puts the
-//                      KIND of a failure at the mercy of the implementation
-//   table T-037        (:3676) NT-3a (MUST): a failure notice carries what can be
-//                      done next, and a notice that only says it failed is
-//                      forbidden (MUST NOT). NT-5 (:3679) is FR-025's manner for
-//                      telling a person what was dropped -- the near side's
-//   table T-041 WY-2   (:3088) one JSON, one environment, the same PNG. So no
-//                      clock, no random source, nothing kept between calls
-//   table T-041 WY-3   (:3089) the screen's rectangles and the export's agree
-//                      after ONE rounding rule (:3081, MUST) -- which is why a
-//                      pixel size that is not a whole number of pixels cannot
-//                      quietly be truncated here
-//   table T-060 LY-5   (:51) the Framework is the layer that holds current
-//                      values and touches the browser
-//   table T-061 LR-5   (:61, MUST) the implementation of an inner layer's
-//                      interface lives in the outer layer
-//   Chapter 5.3        (:370) the implementing layer may not reach past the
-//                      declaring folder's public entry, so the seam's types are
-//                      imported from `image-exporter.ts` here as well (LR-2)
-//   table T-204        (docs/spec/_assets/tbl-settings.md) S-81 `exportCanvas`
-//                      = 1600 x 900, and S-217 the ceiling the height may grow
-//                      to. That size is what `RasterSizePx` carries. This unit
-//                      must read NEITHER -- a second reading would be a second
-//                      place deciding an export's size
-//
-// FIVE DECISIONS ARE PINNED, EACH MARKED WITH ITS OWN STATUS. Each has its own
-// block at the foot of this file, per docs/development-rules/
-// 06-pending-decisions.md section 3, which asks for the test that falls when a
-// provisional value is overturned to be written in advance:
-//   PND-130  which `RasterFaultReason` each way of refusing maps onto (provisional)
-//   PND-131  a picture that would make the decoder fetch is refused (SETTLED, CR-353)
-//   PND-132  what the root <svg> tag's own width and height become (provisional)
-//   PND-133  a pixel size that is not a whole number of pixels is refused (SETTLED, CR-353)
-//   PND-134  nothing is painted under the picture (provisional)
-// Every block outside those five holds whatever those decisions turn out to be.
 
 import { describe, expect, it } from 'vitest'
 
@@ -94,18 +12,7 @@ import type {
   Rasterizer,
 } from '../../src/adapter/image-exporter/image-exporter'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by (Chapter 1.9, :275 --
-// one test walks every row, rather than one test per row). Transcribed in
-// ASCII and cited by row ID: the rule of a row stays with the row, and copying
-// its prose here would put the same claim in two places (Chapter 1.9).
-// ---------------------------------------------------------------------------
 
-/**
- * Table T-064 row PI-31 -- what leaves this component: one implementation of
- * `Rasterizer`. `Rasterizer` itself is a type and is gone by run time, so the
- * factory is the only runtime name.
- */
 const T_064_PI_31 = {
   id: 'PI-31',
   layer: 'Framework',
@@ -113,10 +20,6 @@ const T_064_PI_31 = {
   runtimeNames: ['canvasRasterizer'],
 } as const
 
-/**
- * Table T-065 row IF-6. The member's name is not the table's -- T-065 names the
- * interface and what it supplies, and UF-40 decides the member.
- */
 const T_065_IF_6 = {
   id: 'IF-6',
   seam: 'Rasterizer',
@@ -126,7 +29,6 @@ const T_065_IF_6 = {
   member: 'rasterizePng',
 } as const
 
-/** Table T-075 row UF-54 -- the unit's file and its purity. */
 const T_075_UF_54 = {
   id: 'UF-54',
   component: 'CanvasRasterizer',
@@ -134,37 +36,16 @@ const T_075_UF_54 = {
   purity: 'semi-pure-b',
 } as const
 
-/**
- * Table T-024, the two rows that reach this unit. Both are write-out only, so
- * neither admits a member that reads an image back.
- */
 const T_024_ROWS = [
   { id: 'IO-3', format: 'SVG', canWrite: true, canRead: false, note: 'size is S-81' },
   { id: 'IO-4', format: 'PNG', canWrite: true, canRead: false, note: 'size is S-81, no scale' },
 ] as const
 
-/**
- * Table T-204 row S-81 (docs/spec/_assets/tbl-settings.md). Held here ONLY to
- * build the sizes a real caller would pass and to prove this unit does not read
- * it: the seam already carries the finished size.
- *
- * ⛔ THE EXPORT HOLDS NO SCALE. FR-025 (MUST NOT) forbids one, so the only
- * sizes a caller builds are S-81's width and a height grown within S-217.
- * `heights` are the two this file passes in a scale's stead -- the unchanged
- * one and a grown one -- so the cases still walk more than a single size.
- */
 const T_204 = {
   s81: { id: 'S-81', key: 'exportCanvas', width: 1600, height: 900 },
   grownHeights: [900, 1800],
 } as const
 
-/**
- * Table T-076 (:3101-:3114) -- which UI parts an export draws. EVERY row is
- * settled before this seam is reached (FR-080 MUST, and the seam's own note),
- * so what these cases assert is that the unit re-decides NONE of them: a
- * marker for each row goes in and each one comes out again, drawn rows and
- * not-drawn rows alike.
- */
 const T_076_ROWS = [
   { id: 'EP-1', part: 'App Header', drawn: 'the band and Document Title only' },
   { id: 'EP-2', part: 'Time Ruler', drawn: 'yes' },
@@ -182,23 +63,12 @@ const T_076_ROWS = [
   { id: 'EP-14', part: 'Actual Operation Dummy', drawn: 'no' },
 ] as const
 
-/**
- * The whole of `RasterFaultReason`, as `rasterizer.ts` declares it. Three
- * because NT-3a (MUST) makes a failure notice carry what can be done next, and
- * these three do not share a next step: IO-3's SVG, an exchange format instead
- * of a picture (FR-025 has no smaller scale left to offer), and trying again.
- */
 const RASTER_FAULT_REASONS: readonly RasterFaultReason[] = [
   'unsupported',
   'tooLarge',
   'rasterFailed',
 ]
 
-/**
- * The two rows of table T-037 that reach this unit. `owes` is what the unit has
- * to hand over so the notice side can obey the row; the wording itself is the
- * notice's, because FR-038 makes it depend on the display language.
- */
 const T_037_ROWS: readonly {
   readonly id: string
   readonly owes: string
@@ -216,22 +86,14 @@ const T_037_ROWS: readonly {
   },
 ]
 
-// ---------------------------------------------------------------------------
-// The pictures. IO-3's output is what arrives, so these are shaped the way
-// ImageExporter builds one: S-81 wide and tall, one `viewBox`, and the single
-// internal reference `url(#grs-export-fit)` its clip is named by.
-// ---------------------------------------------------------------------------
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 const XLINK_NS = 'http://www.w3.org/1999/xlink'
 
-/** The one clip id an exported picture carries; internal, so `#...`. */
 const FIT_CLIP_ID = 'grs-export-fit'
 
-/** One element per row of table T-076, so a walk over the picture is a walk over the table. */
 const T_076_MARKERS = T_076_ROWS.map((row) => `<g data-export-row="${row.id}"/>`).join('')
 
-/** A picture as ImageExporter would hand one over: S-81 sized, with a viewBox. */
 const EXPORT_PICTURE = [
   `<svg xmlns="${SVG_NS}" xmlns:xlink="${XLINK_NS}"`,
   ` width="${T_204.s81.width}" height="${T_204.s81.height}"`,
@@ -245,35 +107,23 @@ const EXPORT_PICTURE = [
   '</svg>',
 ].join('')
 
-/** The size a caller computes when the picture needs no growing: S-81 itself. */
 const SIZE_AT_SCALE_1: RasterSizePx = { widthPx: 1600, heightPx: 900 }
 
-// ---------------------------------------------------------------------------
-// The browser, as a fake. LY-5 puts the real one in this layer, and the
-// signature makes it ARRIVE (R7.3) -- so `createElement` is the whole of it.
-// ---------------------------------------------------------------------------
 
 type Outcome = 'ok' | { readonly throws: unknown } | { readonly rejects: unknown }
 
 interface HostScript {
-  /** The bytes `blob.arrayBuffer()` answers with. */
   readonly pngBytes?: readonly number[]
-  /** What `getContext('2d')` answers, decided by the size the canvas is at. */
   readonly contextFor?: (widthPx: number, heightPx: number) => 'context' | null
-  /** A machine that will not keep the width it is given. */
   readonly keepWidth?: (askedPx: number) => number
-  /** A machine that will not keep the height it is given. */
   readonly keepHeight?: (askedPx: number) => number
   readonly decode?: Outcome
   readonly drawImage?: Outcome
   readonly toBlob?: 'bytes' | 'null' | { readonly throws: unknown }
-  /** A host that hands the bytes over on a later turn rather than at once. */
   readonly toBlobDeferred?: boolean
   readonly arrayBuffer?: 'bytes' | { readonly rejects: unknown }
   readonly createElement?: (tag: string) => 'make' | { readonly throws: unknown }
-  /** An <img> from a browser that has no `decode` -- the API simply absent. */
   readonly imageWithoutDecode?: boolean
-  /** A <canvas> from a browser that has no `toBlob`. */
   readonly canvasWithoutToBlob?: boolean
 }
 
@@ -283,36 +133,22 @@ interface MadeElement {
 }
 
 interface FakeHost {
-  /** What is handed to `canvasRasterizer`. */
   readonly host: Document
-  /** Every member of the host object the unit read, in order. */
   readonly hostTouched: string[]
-  /** Every tag `createElement` was asked for, in order. */
   readonly tags: string[]
-  /** Every element handed back, with its tag. */
   readonly made: MadeElement[]
-  /** Every string assigned to an <img>'s `src`, in order. */
   readonly srcs: string[]
-  /** Every member of an <img> the unit read or wrote. */
   readonly imageTouched: string[]
-  /** The size each canvas was at when a context was asked of it. */
   readonly canvasSizes: { widthPx: number; heightPx: number }[]
-  /** Every argument `getContext` was called with. */
   readonly contextKinds: string[]
-  /** Every member of a 2D context the unit read. */
   readonly contextTouched: string[]
-  /** The arguments of every `drawImage`, in order. */
   readonly drawCalls: unknown[][]
-  /** The second argument of every `toBlob`, in order. */
   readonly toBlobTypes: (string | undefined)[]
-  /** An ordered log of everything the unit did to this host. */
   readonly log: string[]
 }
 
-/** IO-4: PNG. The eight-byte signature, and three bytes behind it. */
 const PNG_BYTES: readonly number[] = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x01, 0x02, 0x03]
 
-/** An error carrying a platform name, the way a browser refuses. */
 function namedError(name: string, message: string): Error {
   const error = new Error(message)
   error.name = name
@@ -379,9 +215,6 @@ function fakeHost(script: HostScript = {}): FakeHost {
           const how = script.drawImage ?? 'ok'
           if (how !== 'ok' && 'throws' in how) throw how.throws
         },
-        // PND-134: nothing may be painted under the picture. These exist so that
-        // a call to one of them is recorded rather than being a TypeError that
-        // FR-028 would turn into an indistinguishable value.
         fillRect(): void {
           log.push('context.fillRect')
         },
@@ -480,19 +313,11 @@ function fakeHost(script: HostScript = {}): FakeHost {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers the cases share.
-// ---------------------------------------------------------------------------
 
 type Settled =
   | { readonly kind: 'resolved'; readonly value: Rastering }
   | { readonly kind: 'rejected'; readonly reason: unknown }
 
-/**
- * FR-028 (MUST NOT) forbids the throw, so nothing here may `await` a call
- * directly: a rejection has to be observable as a case rather than as a test
- * error.
- */
 async function settle(promise: Promise<Rastering>): Promise<Settled> {
   try {
     return { kind: 'resolved', value: await promise }
@@ -501,7 +326,6 @@ async function settle(promise: Promise<Rastering>): Promise<Settled> {
   }
 }
 
-/** Runs one rastering against a fresh fake and returns both. */
 async function raster(
   script: HostScript,
   svg: string,
@@ -512,7 +336,6 @@ async function raster(
   return { fake, settled }
 }
 
-/** The value a resolved call carries, or a failure that names what came instead. */
 function rasteringOf(settled: Settled, why: string): Rastering {
   expect(settled.kind, `${why}: FR-028 forbids the throw, so this must resolve`).toBe('resolved')
   if (settled.kind !== 'resolved') throw new Error(why)
@@ -533,11 +356,6 @@ function bytesOf(settled: Settled, why: string): Uint8Array {
   return rastering.pngBytes
 }
 
-/**
- * The SVG the decoder was handed. There is no `URL.createObjectURL` in this
- * process and R7.3 forbids reaching for one, so the only way an <img> can be
- * given a picture is a url that carries the text itself.
- */
 function svgGivenToDecoder(src: string): string {
   const body = src.startsWith('data:') ? src.slice(src.indexOf(',') + 1) : src
   try {
@@ -553,7 +371,6 @@ function rootTagOf(svg: string): string {
   return start < 0 || end < 0 ? '' : svg.slice(start, end + 1)
 }
 
-/** Every attribute of a tag, in the order written, so a repeat can be counted. */
 function attributesOf(tag: string): { readonly name: string; readonly value: string }[] {
   const found: { name: string; value: string }[] = []
   const pattern = /([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g
@@ -569,16 +386,10 @@ function attributeValue(tag: string, name: string): string | undefined {
   return attributesOf(tag).find((one) => one.name === name)?.value
 }
 
-/** Every printable ASCII character and nothing else. */
 const ASCII_ONLY = /^[ -~]*$/
 
-// ---------------------------------------------------------------------------
-// The rosters themselves, before anything walks them
-// ---------------------------------------------------------------------------
 
 describe('the rosters these cases walk are the ones the tables state', () => {
-  // A walk over an empty roster passes without asserting anything. These pin
-  // the counts so a vacuous case cannot go green.
   it('carries T-076 in full, the three reasons, both T-037 rows and both T-024 rows', () => {
     expect(T_076_ROWS).toHaveLength(14)
     expect(new Set(T_076_ROWS.map((row) => row.id)).size).toBe(14)
@@ -596,9 +407,6 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PI-31 of table T-064, IF-6 of table T-065, Chapter 5.3 -- what leaves
-// ---------------------------------------------------------------------------
 
 describe('PI-31 of table T-064 -- one implementation of Rasterizer, and nothing else', () => {
   it('publishes the factory, and no second runtime name', () => {
@@ -618,9 +426,6 @@ describe('PI-31 of table T-064 -- one implementation of Rasterizer, and nothing 
   })
 
   it("resolves the seam through the declaring folder's public entry (Chapter 5.3, LR-2)", () => {
-    // Type-only: the five names below are imported from `image-exporter.ts` at
-    // the head of this file, which Chapter 5.3 makes the only way in. That they
-    // resolve there is the assertion.
     const seam: Rasterizer | null = null
     const size: RasterSizePx | null = null
     const reason: RasterFaultReason | null = null
@@ -644,9 +449,6 @@ describe('PI-31 of table T-064 -- one implementation of Rasterizer, and nothing 
   })
 })
 
-// ---------------------------------------------------------------------------
-// LY-5 of table T-060 and R7.3 -- the browser ARRIVES; it is never reached for
-// ---------------------------------------------------------------------------
 
 describe('LY-5 of table T-060 -- the browser is a parameter, so this runs without one', () => {
   it('has no DOM in this process, and rasters anyway', async () => {
@@ -673,8 +475,6 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
   })
 
   it('reaches for no global the browser owns -- btoa, fetch and object urls stay untouched', async () => {
-    // Node keeps all three of these, so their mere absence proves nothing.
-    // Each is wrapped so that a call would be recorded, then put back.
     const globals = globalThis as unknown as Record<string, unknown>
     const urls = URL as unknown as Record<string, unknown>
     const originals = {
@@ -694,7 +494,6 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
     try {
       const { fake, settled } = await raster({}, EXPORT_PICTURE, SIZE_AT_SCALE_1)
       rasteringOf(settled, 'the ordinary path')
-      // The picture reached the decoder anyway, so the url carries it.
       expect(svgGivenToDecoder(fake.srcs[0] ?? '')).toContain('<svg')
     } finally {
       globals['btoa'] = originals.btoa
@@ -724,9 +523,6 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
   })
 })
 
-// ---------------------------------------------------------------------------
-// The ordinary path -- IO-4, and what the unit DID to the machine
-// ---------------------------------------------------------------------------
 
 describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => {
   it('answers the bytes the canvas gave, as a Uint8Array', async () => {
@@ -788,8 +584,6 @@ describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => 
   })
 
   it('does not read S-81 -- a size that is not it is painted just the same', async () => {
-    // A second reading of table T-204 here would be a second place deciding an
-    // export's size, which FR-025 (MUST NOT) fixes on the near side.
     const odd: RasterSizePx = { widthPx: 7, heightPx: 11 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, odd)
     bytesOf(settled, 'a size that is not S-81')
@@ -798,8 +592,6 @@ describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => 
   })
 
   it('invents no ceiling of its own -- a huge size a machine accepts is painted', async () => {
-    // PND-130's grounds: a maximum would be a number no table holds, and it
-    // differs per browser and per machine. The probe replaces it.
     const huge: RasterSizePx = { widthPx: 1_000_000, heightPx: 1_000_000 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, huge)
     bytesOf(settled, 'a machine that accepts a million pixels')
@@ -807,9 +599,6 @@ describe('IO-4 of table T-024 -- one finished picture becomes PNG bytes', () => 
   })
 })
 
-// ---------------------------------------------------------------------------
-// IO-3 of table T-024 -- the picture is the near side's, and comes back whole
-// ---------------------------------------------------------------------------
 
 describe('IO-3 of table T-024 -- the SVG that arrives is copied, never changed', () => {
   it('hands the decoder a url that carries the picture itself', async () => {
@@ -850,7 +639,6 @@ describe('IO-3 of table T-024 -- the SVG that arrives is copied, never changed',
   })
 
   it('reads the namespace declarations as declarations, not as things to fetch', async () => {
-    // `xmlns` and `xmlns:xlink` carry http urls and are not references at all.
     const { settled } = await raster({}, EXPORT_PICTURE, SIZE_AT_SCALE_1)
     const rastering = rasteringOf(settled, 'a picture with both namespaces')
     expect(rastering.ok).toBe(true)
@@ -870,9 +658,6 @@ describe('IO-3 of table T-024 -- the SVG that arrives is copied, never changed',
   })
 })
 
-// ---------------------------------------------------------------------------
-// WY-2 of table T-041 -- one environment, one answer
-// ---------------------------------------------------------------------------
 
 describe('WY-2 of table T-041 -- two calls with the same arguments agree', () => {
   it('gives the decoder the same url twice, and the same bytes', async () => {
@@ -897,8 +682,6 @@ describe('WY-2 of table T-041 -- two calls with the same arguments agree', () =>
   })
 
   it('does not let one call change what a later one answers', async () => {
-    // A failing call first, then a good one on a fresh host: the second must be
-    // exactly the answer a first call would have given.
     const broken = fakeHost({ toBlob: 'null' })
     const rasterizer = canvasRasterizer(broken.host)
     const failed = await settle(rasterizer.rasterizePng(EXPORT_PICTURE, SIZE_AT_SCALE_1))
@@ -920,15 +703,7 @@ describe('WY-2 of table T-041 -- two calls with the same arguments agree', () =>
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-028 and AG-8 of table T-035 -- every ending is a value
-// ---------------------------------------------------------------------------
 
-/**
- * Every way a host can refuse, from the API simply being absent to a promise
- * rejecting. What each MEANS is PND-130 and is pinned in its own block; these
- * cases assert only that each ends as a VALUE and names something.
- */
 const EVERY_REFUSAL: readonly { readonly why: string; readonly script: HostScript }[] = [
   {
     why: 'the host cannot make an element at all -- the API absent',
@@ -1071,9 +846,6 @@ describe('table T-037 -- what the notice is given to say', () => {
   })
 
   it('keeps `what` to printable ASCII, whatever the machine said', async () => {
-    // FR-028's RATIONALE keeps the KIND of a failure off the exception's text,
-    // and this project writes log output in ASCII. A message the machine wrote
-    // is neither this project's words nor necessarily ASCII.
     const shouted = String.fromCodePoint(0x753b, 0x50cf, 0x5316, 0x306b, 0x5931, 0x6557)
     for (const script of [
       { toBlob: { throws: namedError('SecurityError', shouted) } },
@@ -1087,9 +859,6 @@ describe('table T-037 -- what the notice is given to say', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Boundaries -- the empty picture, the one-pixel canvas, what is not an SVG
-// ---------------------------------------------------------------------------
 
 const NOT_A_PICTURE: readonly { readonly why: string; readonly svg: string }[] = [
   { why: 'empty', svg: '' },
@@ -1122,10 +891,6 @@ describe('the boundaries of what may arrive', () => {
   })
 
   it('answers a value even when a caller lies about the types', async () => {
-    // The seam admits neither `null` nor a half-built size, so nothing here is
-    // a shape a compiled caller can pass. FR-028's MUST NOT has no exception
-    // clause, though, and the near side does not take the promise on trust --
-    // so a lie has to come back as a value too, not as a rejection.
     const lies: readonly { readonly why: string; readonly svg: unknown; readonly sizePx: unknown }[] = [
       { why: 'a picture that is null', svg: null, sizePx: SIZE_AT_SCALE_1 },
       { why: 'a picture that is undefined', svg: undefined, sizePx: SIZE_AT_SCALE_1 },
@@ -1147,8 +912,6 @@ describe('the boundaries of what may arrive', () => {
   })
 
   it('answers empty bytes when the machine gives empty bytes', async () => {
-    // A canvas that hands back a zero-length blob has not failed; it has
-    // answered. AG-8 separates the two, and only a fault may be `ok: false`.
     const { settled } = await raster({ pngBytes: [] }, EXPORT_PICTURE, SIZE_AT_SCALE_1)
     const bytes = bytesOf(settled, 'a zero-length blob')
     expect(bytes).toBeInstanceOf(Uint8Array)
@@ -1156,16 +919,6 @@ describe('the boundaries of what may arrive', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-130 (provisional) -- which reason each way of refusing maps onto
-//
-// docs/spec names the three reasons (the seam's own declaration, from NT-3a of
-// table T-037) but nowhere says which browser signal is which. Searched: the
-// whole of docs/spec for `SecurityError`, `getContext`, `toBlob`, `canvas` and
-// `tainted` -- no hit. The mapping below is the recommendation recorded as
-// PND-130, chosen against the three next steps the seam gives each reason.
-// Overturning it fails exactly these assertions and nothing else.
-// ---------------------------------------------------------------------------
 
 const PD_130_MAPPING: readonly {
   readonly why: string
@@ -1244,8 +997,6 @@ describe('PND-130 (provisional) -- the three reasons and what each is read from'
   })
 
   it('tells `unsupported` from `tooLarge` by probing a one-pixel canvas', async () => {
-    // The grounds for the split: a ceiling would be a number no table holds and
-    // it differs per browser and per machine, so the machine is asked instead.
     const { fake, settled } = await raster(
       { contextFor: (widthPx, heightPx) => (widthPx === 1 && heightPx === 1 ? 'context' : null) },
       EXPORT_PICTURE,
@@ -1259,8 +1010,6 @@ describe('PND-130 (provisional) -- the three reasons and what each is read from'
   })
 
   it('does not call a machine that refuses everything `tooLarge`', async () => {
-    // NT-3a: `tooLarge` would send the person to an exchange format instead of
-    // a picture, which cannot help a browser that paints nothing at all.
     const fault = faultOf(
       await raster({ contextFor: () => null }, EXPORT_PICTURE, SIZE_AT_SCALE_1).then((oneRect) => oneRect.settled),
       'no context at any size',
@@ -1280,17 +1029,6 @@ describe('PND-130 (provisional) -- the three reasons and what each is read from'
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-131 -- SETTLED (CR-353) -- a picture that would make the decoder fetch is
-// refused
-//
-// docs/spec does not say whether an external reference is refused or painted
-// anyway. The ruling kept the recommendation: refuse it, with the offending
-// reference named in `what`, because an SVG rendered through an <img> fetches
-// nothing, so what is behind such a reference is silently absent from the
-// raster while it still shows on the screen -- and neither WY-2 nor WY-3 can
-// be judged on a picture that lost a part without saying so.
-// ---------------------------------------------------------------------------
 
 function pictureCarrying(inner: string): string {
   return [
@@ -1370,17 +1108,6 @@ describe('PND-131 -- SETTLED (CR-353) -- a picture that would have to fetch is r
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-132 (provisional) -- the root tag's own width and height
-//
-// Table T-024 has IO-3 and IO-4 as two rows and no row says what the second
-// does with the first's root tag. The recommendation: rewrite the pair to the
-// pixel size when the picture carries a `viewBox` (which is what makes the
-// rewrite lossless), leave it exactly as it is when it carries a size and no
-// `viewBox` (the units are the pixels, so rewriting would move the content),
-// and refuse when it carries neither (a decoder would invent a size and the
-// export would be silently wrong).
-// ---------------------------------------------------------------------------
 
 const PD_132_ROOTS: readonly {
   readonly why: string
@@ -1436,7 +1163,6 @@ describe('PND-132 (provisional) -- what becomes of the root <svg> tag', () => {
       expect(attributeValue(root, 'height'), why).toMatch(/^1800(px)?$/)
       expect(attributeValue(root, 'viewBox'), `${why}: the viewBox is what keeps it lossless`)
         .toBe('0 0 1600 900')
-      // A data url is read as XML, where a repeated attribute is fatal.
       const names = attributesOf(root).map((one) => one.name)
       expect(names.filter((name) => name === 'width'), why).toHaveLength(1)
       expect(names.filter((name) => name === 'height'), why).toHaveLength(1)
@@ -1452,9 +1178,6 @@ describe('PND-132 (provisional) -- what becomes of the root <svg> tag', () => {
   })
 
   it('writes the size the caller asked for, not S-81', async () => {
-    // A grown picture must come out bigger, not blurred: a decoder handed the
-    // old intrinsic size may raster at THAT size and scale the bitmap
-    // afterwards.
     const sizePx: RasterSizePx = { widthPx: 3200, heightPx: 1800 }
     const { fake, settled } = await raster({}, EXPORT_PICTURE, sizePx)
     bytesOf(settled, 'a size larger than S-81')
@@ -1464,17 +1187,6 @@ describe('PND-132 (provisional) -- what becomes of the root <svg> tag', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-133 -- SETTLED (CR-353) -- a pixel size that is not whole pixels is
-// refused
-//
-// A canvas truncates what it is given, so a fractional size comes back as a
-// picture at a size nobody asked for, and WY-3 (which compares the screen's
-// rectangles against the export's after ONE rounding rule, :3081 MUST) cannot
-// be judged on it. Rounding it here would make this unit decide an export's
-// size, which FR-025 fixes at S-81, grown in height only, on the near side. The ruling
-// kept the refusal.
-// ---------------------------------------------------------------------------
 
 const PD_133_SIZES: readonly { readonly why: string; readonly sizePx: RasterSizePx }[] = [
   { why: 'a fractional width', sizePx: { widthPx: 1600.5, heightPx: 900 } },
@@ -1514,13 +1226,6 @@ describe('PND-133 -- SETTLED (CR-353) -- a size a canvas cannot be is refused, n
   })
 })
 
-// ---------------------------------------------------------------------------
-// PND-134 (provisional) -- nothing is painted under the picture
-//
-// What an export shows is FR-080's and table T-076's, and no key of table T-204
-// holds a ground colour for the export. Choosing one here would be this unit
-// deciding what the export looks like.
-// ---------------------------------------------------------------------------
 
 describe('PND-134 (provisional) -- the picture is the only thing drawn', () => {
   it('touches `drawImage` on the context and no other way of painting', async () => {

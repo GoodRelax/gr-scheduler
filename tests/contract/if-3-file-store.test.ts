@@ -1,60 +1,4 @@
-// Contract test: IF-3 `FileStore` -- the seam between FileGateway (Adapter,
-// CP-22) and FileSystemAccessFileStore (Framework, CP-28).
-//
-// Table T-218 row TS-5: a contract test belongs to neither side of a seam.
-// Both sides of this one are green on their own today. FileGateway's cases
-// stand a hand-made store in front of it, so they measure what the gateway
-// asks for; the store's cases hand it a hand-made request, so they measure what
-// the store is willing to be given. Neither can see whether the question one
-// side hands DOWN is a question the other side ever puts -- and that is exactly
-// the obligation table T-227 row DI-4 states as a MUST. So the two halves are
-// bolted together here, once, with only a stand-in BROWSER underneath, and the
-// tables are read at run time rather than transcribed (Chapter 1.9, :275).
-//
-// The specification this file is held to:
-//   T-065 IF-3   `FileStore`, declared by FileGateway, implemented by
-//                FileSystemAccessFileStore, supplying the reading and writing
-//                of files; the handle is held by the implementation (FR-060)
-//   T-227        DI-1 .. DI-6 -- what makes two documents one and the same,
-//                when the overwrite question has to be put, and the row that
-//                takes a destination of no bytes out of the table's reach
-//                before any other row of it is read
-//   T-037 NT-7   the manner of that question: what happens is shown, and going
-//                on or calling off is chosen
-//   T-066 CS-4   the consistency unit of one file operation that waits for a
-//                person, and the MUST NOT on reading the current value again
-//                while the answer is awaited
-//   T-024        the direction column -- which forms come IN as well as go out
-//   T-024a       OP-1 (the two forms admitted), OP-2 (one entry, two routes),
-//                OP-11 (several handed over at once)
-//   T-003 CN-5   what is written out is UTF-8 without a BOM (MUST), and
-//                T-024's note forbidding a BOM "for spreadsheet compatibility"
-//   FR-060       the round trip closes on the file that was opened
-//   FR-023       the ceiling on an intake is stated in bytes (S-113)
-//
-// The Japanese headings and cells below are read out of the manuscript, not
-// written here: rule 03 section 5 admits Japanese where the Japanese itself is
-// what is being handled, and a table's column heading is that case.
-//
-// ⚠️ The environment is `node` (vitest.config.ts). Everything the browser would
-// supply arrives through `FileSystemAccessEnvironment`, which the Framework
-// unit declares for exactly this reason, so no DOM is needed.
-//
-// ---- the two findings this file once carried are both closed ---------------
-//
-// It reported two, and both were on the far side of IF-3, in
-// `src/framework/file-system-access-file-store/file-system-access-file-store.ts`:
-// `writeChosenFile` went from the chooser straight to the write, so DI-4's MUST
-// was unreachable and six cases stood red; and a drop of several files answered
-// without `ignoredFileCount`, which `FileReading` defines as "none were left",
-// so OP-11's MUST was never said. The store obeys the order IF-3 states now,
-// and reports the count, and every case here is green on the product as it is.
-//
-// ⭐ That history is kept because it is the argument for this file existing:
-// neither side's own tests could see either gap. The gateway's cases stand a
-// hand-made store in front of it and the store's cases take a hand-made
-// request, so a question one side hands down and the other never puts is
-// invisible to both, and stays invisible until the two are bolted together.
+// Contract test: IF-3 FileStore -- the seam between FileGateway (Adapter, CP-22) and FileSystemAccessFileStore (Framework, CP-28).
 
 import { describe, expect, it } from 'vitest'
 import { specTable } from './spec-table'
@@ -79,12 +23,6 @@ import {
 const T024 = specTable('T-024')
 const T227 = specTable('T-227')
 
-// --------------------------------------------------------- the case roster --
-//
-// Chapter 1.9 (:275): one test walks every row of the table rather than one
-// test per row. Registering at declaration time -- not from inside the case --
-// keeps the roster complete even when a case fails or is skipped.
-
 interface SeamCase {
   readonly rows: readonly string[]
   readonly title: string
@@ -92,24 +30,19 @@ interface SeamCase {
 
 const CASES: SeamCase[] = []
 
-/** Declares one case, and gives back the name a failure prints. */
 const seamCase = (rows: readonly string[], title: string): string => {
   CASES.push({ rows, title })
   return `${rows.join(' ')} -- ${title}`
 }
 
-// ------------------------------------------------------- the stand-in disk --
-
 const UTF8 = new TextEncoder()
 
-/** A fresh `ArrayBuffer` holding a copy of these bytes. */
 const bufferOf = (bytes: Uint8Array): ArrayBuffer => {
   const copy = new ArrayBuffer(bytes.byteLength)
   new Uint8Array(copy).set(bytes)
   return copy
 }
 
-/** A copy of whatever a writable stream was handed, as plain bytes. */
 const bytesOf = (data: BufferSource): Uint8Array =>
   Uint8Array.from(
     data instanceof ArrayBuffer
@@ -127,19 +60,11 @@ const joined = (chunks: readonly Uint8Array[]): Uint8Array => {
   return all
 }
 
-/**
- * One place on the stand-in disk, and a record of everything done to it.
- *
- * ⭐ `null` content is a place nothing ever occupied, and it is kept apart from
- * a file standing empty so that both can be handed to the seam. ⚠️ DI-6 of
- * table T-227 gives the two the SAME answer, and says in its own note that they
- * cannot be told apart anyway -- so the point of keeping them apart here is to
- * prove that neither is asked about, not to make the seam distinguish them.
- */
+// WHY: null and empty content are kept apart although DI-6 (T-227) gives them
+// WHY: the same answer, to prove neither is asked about, not to distinguish them.
 interface StandInFile {
   readonly handle: FileHandle
   content(): Uint8Array | null
-  /** How many writes were closed. */
   writes(): number
 }
 
@@ -156,8 +81,7 @@ const standInFile = (
     const at = content ?? new Uint8Array(0)
     return {
       name,
-      // ⭐ Bytes. S-113 states the intake ceiling in bytes (FR-023), so this is
-      // the number the far side has to be able to report.
+      // see FR-023, S-113
       size: at.byteLength,
       arrayBuffer: () => Promise.resolve(bufferOf(at)),
     }
@@ -195,15 +119,11 @@ const standInFile = (
   }
 }
 
-// ------------------------------------------------------ the stand-in browser --
-
 interface StandInBrowser {
   readonly environment: FileSystemAccessEnvironment
-  /** Let go of these files over the window, the way a person does. */
   drop(files: readonly StandInFile[]): Promise<void>
 }
 
-/** Lets every pending promise of the seam settle before the case looks. */
 const settled = async (): Promise<void> => {
   for (let turn = 0; turn < 4; turn += 1) {
     await new Promise<void>((resolve) => {
@@ -246,8 +166,8 @@ const standInBrowser = (
     drop: async (files) => {
       const items: DroppedItem[] = files.map((file) => ({
         kind: 'file',
-        // ⚠️ A drop's items are alive only while the event is being handled,
-        // so this hands the file over synchronously, as a browser does.
+        // WHY: a drop's items live only while the event is handled, so the file
+        // WHY: is handed over synchronously here, as a real browser does.
         getAsFile: () => {
           const opened = file.handle
           return {
@@ -268,15 +188,9 @@ const standInBrowser = (
   }
 }
 
-// ------------------------------------------------------------ the documents --
-//
-// ⛔ NOT `GRS JSON`. Nothing on this seam parses: the gateway hands bytes to
-// whichever codec the caller chose, and the two project values DI-1 compares
-// arrive as arguments. So the characters below only have to be told apart.
-
 const MINE = 'the document this test is saving'
 const SOMEBODY_ELSE = 'a file that belongs to another document'
-/** ⭐ Multi-byte on purpose: S-113 counts bytes, not characters. */
+// see S-113
 const WITH_A_WIDE_CHARACTER = 'sigma Σ and a kanji 日'
 
 const MY_IDENTITY: DocumentIdentity = {
@@ -285,13 +199,11 @@ const MY_IDENTITY: DocumentIdentity = {
   projectId: 'P-1',
 }
 
-/** What the destination's characters say about the document standing there. */
 type IdentityReader = (text: string) => ProjectIdentity | null
 
 interface AskRecord {
-  /** The characters the destination was read as, in order. */
   readonly identityReads: string[]
-  /** How many times NT-7's question was actually put. */
+  // see NT-7
   questions: number
 }
 
@@ -310,10 +222,7 @@ const chosenSave = (
   content: { text: fields.text },
   form: fields.form,
   suggestedFileName: fields.identity.fileName ?? 'untitled',
-  // FR-096 (MUST): 「書き出した先の名前が、選んだ行の拡張子で終わることを保証す
-  // ること」, and 「⛔ 拡張子を本要求に書き写してはならない（MUST NOT）—— 正は
-  // 表 T-024 ただ 1 か所である」. So the extension the request carries is read
-  // out of the row this form stands on, never typed here.
+  // see FR-096
   extension: extensionOfForm(fields.form),
   identity: fields.identity,
   projectIdentityFromText: (text) => {
@@ -330,12 +239,7 @@ const chosenSave = (
 
 const emptyRecord = (): AskRecord => ({ identityReads: [], questions: 0 })
 
-/** The same project values on both sides, so DI-1 can match all three. */
 const SAME_PROJECT: IdentityReader = () => ({ projectName: 'Alpha', projectId: 'P-1' })
-
-// ==========================================================================
-// Table T-227 -- walked through the whole seam
-// ==========================================================================
 
 describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', () => {
   it(
@@ -344,9 +248,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       'writes without asking when the file name and both project values match',
     ),
     async () => {
-      // DI-1 (MUST): the three values are what make two documents the same, and
-      // "only when all three match" is a judgement that cannot be reached
-      // without looking at what is standing at the destination.
       const log: string[] = []
       const destination = standInFile(
         MY_IDENTITY.fileName ?? '',
@@ -386,9 +287,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       'asks when either side leaves a project value out',
     ),
     async () => {
-      // DI-2 (MUST NOT): a `null` on either side may not be called the same
-      // document -- both columns are ones the exchange partner may omit. DI-4
-      // (MUST) then requires the question.
       const log: string[] = []
       const destination = standInFile('plan.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser(null, destination, log)
@@ -420,9 +318,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       'asks when the destination cannot be read as this format',
     ),
     async () => {
-      // DI-3 (MUST NOT): a destination whose characters do not read as
-      // `GRS JSON` is a destination whose owner is unknown, and an unknown
-      // owner is not the same document. DI-4 then requires the question.
       const log: string[] = []
       const destination = standInFile('plan.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser(null, destination, log)
@@ -451,10 +346,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
   it(
     seamCase(['DI-4'], 'puts the question exactly once, and calling off writes nothing'),
     async () => {
-      // DI-4 (MUST): a destination that cannot be called the same document is
-      // asked about. NT-7 of table T-037 (MUST) is the manner -- going on or
-      // calling off is CHOSEN -- so an answer of "call off" that still wrote
-      // would make the choice mean nothing.
       const log: string[] = []
       const standing = UTF8.encode(SOMEBODY_ELSE)
       const destination = standInFile('someone-elses.json', standing, log)
@@ -486,12 +377,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
   it(
     seamCase(['DI-4'], 'has nothing to ask about where nothing was standing'),
     async () => {
-      // DI-4 asks about a destination that cannot be called the same document.
-      // FR-096 sends only an EXISTING file to this table, so a place nothing
-      // occupied is past the whole table before any row is read. ⭐ DI-6 puts a
-      // destination that IS there but holds nothing on the same side of that
-      // line -- the case for it is below, and the two together are why nothing
-      // downstream has to tell the two apart.
       const log: string[] = []
       const destination = standInFile('brand-new.json', null, log)
       const browser = standInBrowser(null, destination, log)
@@ -522,10 +407,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
   it(
     seamCase(['DI-5'], 'never asks on the route that overwrites the opened file'),
     async () => {
-      // DI-5 (MUST): the file that was opened is, by definition, this
-      // document's own file. The type carries the rule -- the `openedFile` arm
-      // has nowhere to put a question -- and this holds the behaviour to it:
-      // no chooser is opened and the bytes land.
       const log: string[] = []
       const opened = standInFile('plan.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser([opened], null, log)
@@ -550,40 +431,11 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       'writes over a destination of no bytes in silence, and still asks where one byte stands',
     ),
     async () => {
-      // DI-6 (MUST) and the precedence it states over DI-3. The two sides below
-      // differ by ONE byte and by nothing else: the same reader refuses both
-      // (DI-3's answer), the same identity is carried, the same name is chosen.
-      // So the only thing that can move the question count is the byte count,
-      // which is what DI-6 turns on.
-      //
-      // ⭐ Why it has to be measured through the whole seam and not on the near
-      // side alone: no byte count crosses IF-3 as a number. What crosses is the
-      // destination the store reports, and a store may report a file it just
-      // created either way -- IF-3 asks nobody to tell that file from one that
-      // was standing empty. This case is where "the answer is the same on both
-      // arms" stops being a claim in a comment.
-      //
-      // ⛔ The order is load-bearing: DI-3 refuses everything a zero-byte file
-      // could ever be, so a side that lets DI-3 decide reaches DI-4 and puts
-      // the question DI-6 forbids. Measuring the destination before decoding it
-      // is how the precedence DI-6 states becomes a thing code can obey.
-      //
-      // ⚠️ WHERE THIS CASE'S TEETH ACTUALLY ARE, measured rather than assumed:
-      // the store answers DI-6 for a real zero-byte file by reporting the arm
-      // that has nothing to judge, so the near side's own measurement is never
-      // the thing that saves it here. Taking that measurement away leaves this
-      // case green and turns the DI-6 cases in tests/unit/uf-41-42.test.ts red;
-      // those hold the near side, and this holds the pair. Both are needed,
-      // because IF-3 lets a store report EITHER arm for a file with no bytes.
       const sides = [
         {
           why: 'DI-6: the destination holds nothing',
           standing: new Uint8Array(0),
           asked: 0,
-          // ⭐ Its own number, not a second use of `asked`: DI-6 taking the
-          // destination out of the table's reach and DI-4's question going
-          // unasked are two different claims, and only one of them is about
-          // the order the rows are read in.
           decoded: 0,
         },
         {
@@ -617,10 +469,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         )
 
         expect(record.questions, `${side.why} (${log.join(', ')})`).toBe(side.asked)
-        // ⛔ Stricter than DI-6's MUST, and the specification is silent on it:
-        // the row fixes that nothing is asked, not that nothing is read. The
-        // same note in tests/unit/uf-41-42.test.ts carries the reason it is
-        // asserted anyway, and says this is the line to drop if it is ruled on.
         expect(record.identityReads, side.why).toHaveLength(side.decoded)
         expect(saving.ok, side.why).toBe(true)
         expect(destination.content(), side.why).toEqual(UTF8.encode(MINE))
@@ -635,10 +483,6 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
   })
 })
 
-// ==========================================================================
-// Table T-066 CS-4 -- the consistency unit of one operation that waits
-// ==========================================================================
-
 describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', () => {
   it(
     seamCase(
@@ -646,12 +490,6 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
       'reads the destination before the question and not again after the answer',
     ),
     async () => {
-      // CS-4 (MUST NOT): while the person is answering, the current value is
-      // not read again -- what would land otherwise is a mixture of the value
-      // the operation started from and one that moved while it waited. At this
-      // seam that means the destination is read ONCE, the question is put on
-      // that reading, and the bytes that go down are the ones the caller handed
-      // over before the wait began.
       const log: string[] = []
       const destination = standInFile('someone-elses.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser(null, destination, log)
@@ -677,8 +515,6 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
       const wroteAt = log.indexOf('write someone-elses.json')
       expect(askedAt, `CS-4: the question was never put (${log.join(', ')})`).toBeGreaterThan(-1)
       expect(wroteAt).toBeGreaterThan(askedAt)
-      // ⭐ The reading the question was asked ABOUT is the last one: a second
-      // read after the answer would be the re-read CS-4 forbids.
       expect(log.lastIndexOf('read someone-elses.json')).toBeLessThan(askedAt)
       expect(destination.content()).toEqual(UTF8.encode(MINE))
     },
@@ -687,11 +523,6 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
   it(
     seamCase(['CS-4'], 'lands the bytes the operation began with, not a later reading'),
     async () => {
-      // CS-4 collects "everything the operation needs from the current value"
-      // AT THE MOMENT IT STARTS. The seam therefore carries the content as a
-      // value: there is no member the store may call to fetch it again once the
-      // question is open. This case moves the destination underneath the wait
-      // and requires the answer to be about what was collected.
       const log: string[] = []
       const destination = standInFile('someone-elses.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser(null, destination, log)
@@ -723,19 +554,7 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
     },
   )
 
-  // ⛔ CS-4's LANDING CLAUSE IS NOT REACHABLE FROM THIS SEAM. The row also says
-  // the landing is done through `replaceDocument` (MUST), and the caller-by-
-  // caller treatment is table T-230's -- RD-6 for the startup document, the
-  // rest for the other callers. None is observable here: IF-3 carries bytes, and no
-  // member of it names a row of table T-230. Holding it would mean driving the
-  // shell, and the shell's file-open path does not land at all today -- OP-3 of
-  // table T-024a has no surface to ask its three-way question on. See the
-  // report that accompanies this file.
 })
-
-// ==========================================================================
-// Table T-003 CN-5 -- what crosses the seam is bytes
-// ==========================================================================
 
 describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once', () => {
   it(seamCase(['CN-5'], 'writes UTF-8'), async () => {
@@ -763,9 +582,6 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
   })
 
   it(seamCase(['CN-5'], 'adds no BOM'), async () => {
-    // CN-5 (MUST): what is written out carries no BOM. Table T-024's own note
-    // forbids adding one "for spreadsheet compatibility" (MUST NOT) because it
-    // breaks MSPDI.
     const log: string[] = []
     const destination = standInFile('plan.json', null, log)
     const browser = standInBrowser(null, destination, log)
@@ -793,10 +609,6 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
   it(
     seamCase(['S-113'], 'reports the byte count of what was read, not the character count'),
     async () => {
-      // FR-023 holds the intake ceiling, and `_assets/tbl-settings.md` states
-      // S-113 in bytes. A count of decoded characters would let a file through
-      // that the ceiling exists to stop, so the number that leaves this seam
-      // has to be the one the file occupied.
       const log: string[] = []
       const bytes = UTF8.encode(WITH_A_WIDE_CHARACTER)
       const opened = standInFile('plan.json', bytes, log)
@@ -815,19 +627,7 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
   )
 })
 
-// ==========================================================================
-// FR-060 -- which file the next overwrite goes to
-// ==========================================================================
-
-/**
- * The forms of table T-024 that come IN as well as go out.
- *
- * ⭐ Read out of the direction column rather than listed here: OP-1 of table
- * T-024a admits exactly the rows that can be opened, and FR-060's round trip
- * closes on a file that was opened. A form that only ever goes out therefore
- * cannot be the file the next overwrite goes to -- and moving a row's direction
- * in the manuscript has to break this, not be silently ignored.
- */
+// see T-024, OP-1, FR-060
 const FORM_OF_ROW: Readonly<Record<string, SaveFileForm>> = {
   'IO-1': 'mspdi',
   'IO-2': 'grsJson',
@@ -836,18 +636,8 @@ const FORM_OF_ROW: Readonly<Record<string, SaveFileForm>> = {
   'IO-7': 'singleHtml',
 }
 
-/**
- * The extension table T-024 gives the row this form stands on.
- *
- * ⭐ READ, NEVER TYPED. FR-096 (MUST NOT) keeps every extension in table T-024
- * and nowhere else, so a stand-in request that spelt one here would be the
- * second place the value lived. A form whose row carries no extension -- table
- * T-024 writes an em dash for a destination that is not a file -- has nothing
- * to end a name with, and answering the empty string says exactly that.
- *
- * ⚠️ Declared as a function, not a const, so that `chosenSave` above may reach
- * it: it is called from inside a case, long after `FORM_OF_ROW` is built.
- */
+// WHY: extension is read from table T-024, never typed, so FR-096 keeps one
+// WHY: source of truth; declared as a function so chosenSave can call it later.
 function extensionOfForm(form: SaveFileForm): string {
   const row = T024.rows.find((one) => FORM_OF_ROW[one.id] === form)
   if (row === undefined) throw new Error(`table T-024 has no row for the form ${form}`)
@@ -859,23 +649,11 @@ const saveForms = T024.rows
   .map((row) => ({
     id: row.id,
     form: FORM_OF_ROW[row.id] as SaveFileForm,
-    /** The direction cell of table T-024. 「取込」 is the way in. */
     comesIn: (row.by['方向'] ?? '').includes('取込'),
   }))
 
 describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
   it('table T-024 still names all five forms this seam can write', () => {
-    // ⭐ A SET, NOT A SEQUENCE. What this case is for is that the five forms
-    // this seam can be handed are still five rows of table T-024 -- FR-060 asks
-    // which of them the direction column lets back IN, and that question has no
-    // order in it. ⛔ The order of the rows was pinned here until 2026-09-01 and
-    // it broke the moment the manuscript's own order changed for a reason that
-    // has nothing to do with this seam: FR-096 (MUST) now makes the table's row
-    // order the order the save list offers the formats in. That order is a
-    // requirement and it IS pinned -- in tests/unit/uf-47-48-choosers.test.ts,
-    // where the surface FR-096 speaks of is driven. Pinning it a second time
-    // here would only make a reorder fail twice, once where it matters and once
-    // where it does not.
     expect([...saveForms.map((one) => one.id)].sort()).toEqual([
       'IO-1',
       'IO-2',
@@ -887,11 +665,6 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
       'grsJson',
       'mspdi',
     ])
-    // ⭐ AND EVERY ONE OF THEM CARRIES AN EXTENSION. 「⭐ **拡張子の欄は、ファイル
-    // として出る行がすべて持つ** —— `FR-096` が提案する名の正が本表だからである」.
-    // `extensionOfForm` answers the empty string where the row carries none, so
-    // this fails if the column is emptied on a row a file is written to -- and
-    // with it the stand-in requests every case in this file builds.
     for (const one of saveForms) {
       expect(
         extensionOfForm(one.form),
@@ -938,10 +711,6 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
   it.each(saveForms.filter((one) => !one.comesIn))(
     seamCase(['IO-n'], 'refuses to overwrite the opened file with an out-only form ($id)'),
     async ({ form }) => {
-      // FR-060's overwrite replaces the file that was OPENED, and OP-1 admits
-      // only the two forms of table T-024 whose direction lets them in. Writing
-      // one of the others over it would leave a file GRS cannot read back, and
-      // the next overwrite would have nowhere to go.
       const log: string[] = []
       const opened = standInFile('plan.json', UTF8.encode(SOMEBODY_ELSE), log)
       const browser = standInBrowser([opened], null, log)
@@ -970,9 +739,6 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
       content: { text: MINE },
       form: 'grsJson',
     })
-    // ⛔ THE REASON IS NOT THE SPECIFICATION'S. FR-060 fixes only that the
-    // overwrite goes to the file that was opened; the vocabulary of faults is
-    // IF-3's own. Only the refusal is held here.
     expect(saving.ok).toBe(false)
   })
 
@@ -990,14 +756,8 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
   })
 })
 
-// ==========================================================================
-// Table T-024a -- the way in
-// ==========================================================================
-
 describe('IF-3 FileStore -- table T-024a: the one entry and its two routes', () => {
   it(seamCase(['OP-2'], 'reads a chosen file and a dropped file through the same entry'), async () => {
-    // OP-2 (MUST NOT): no second way in. The two routes differ only in how the
-    // person points at the file, so both arrive through `openDocumentFile`.
     const chooserLog: string[] = []
     const chosen = standInFile('chosen.json', UTF8.encode(MINE), chooserLog)
     const chooserStore = fileSystemAccessFileStore(
@@ -1022,9 +782,6 @@ describe('IF-3 FileStore -- table T-024a: the one entry and its two routes', () 
   it(
     seamCase(['OP-11'], 'keeps the first of several and states how many were left'),
     async () => {
-      // OP-11 (MUST): the first is accepted and the rest are reported as left
-      // behind. (MUST NOT) the act may not read as refused -- one file IS open
-      // -- so the count rides beside the file that was opened, on the success.
       const log: string[] = []
       const first = standInFile('first.json', UTF8.encode(MINE), log)
       const second = standInFile('second.json', UTF8.encode(SOMEBODY_ELSE), log)
