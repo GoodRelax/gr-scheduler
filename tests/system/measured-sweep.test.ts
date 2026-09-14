@@ -152,6 +152,7 @@ import { rowOf } from './sws-case'
 // ---------------------------------------------------------------------------
 
 const T016: SpecTable = specTable('T-016')
+const T023: SpecTable = specTable('T-023')
 const T024: SpecTable = specTable('T-024')
 const T025: SpecTable = specTable('T-025')
 const T036: SpecTable = specTable('T-036')
@@ -206,6 +207,10 @@ const T212_VALUE = 1
 const T036_COLUMNS = 3
 const T036_ASSIGNMENT = 1
 const T036_ENTRANCE = 2
+
+/** Columns of table T-023 after the row ID: the operation, what it does, the entrance. */
+const T023_COLUMNS = 3
+const T023_ENTRANCE = 2
 
 /** Columns of table T-016 after the row ID: column, input kind, subject, note, MSPDI. */
 const T016_COLUMNS = 5
@@ -364,6 +369,51 @@ function weekdayWords(): readonly string[] {
   const said = words.filter((one) => one !== '')
   if (said.length === 0) throw new Error(`${DICTIONARY} holds no weekday words`)
   return said
+}
+
+// see FR-036, JDG-76
+// WHY: GLYPH_TOKEN of dom-screen-surface.ts turns exactly this token into
+// WHY: the wheel glyph, wherever in a dictionary word it stands.
+/** @purity pure */
+const WHEEL_GLYPH_TOKEN = '{IC-102}'
+
+// see FR-036, JDG-76
+/** @purity semi-pure-b */
+function assignmentPressWordsByRow(): Map<string, string> {
+  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+    assignments?: Array<{ rowId?: string; press?: { ja?: string; en?: string } }>
+  }
+  const rows = held.assignments ?? []
+  if (rows.length === 0) throw new Error(`${DICTIONARY} holds no assignments at all`)
+  return new Map(rows.map((one) => [one.rowId ?? '', `${one.press?.ja ?? ''} ${one.press?.en ?? ''}`]))
+}
+
+// see FR-036
+// WHY: table T-023's own entrance column is the one place carrying an icon
+// WHY: row's wheel operation (`MK-3` -> IC-12/IC-13; `MK-4` -> IC-14/IC-15).
+/** @purity semi-pure-b */
+function wheelOperationByIcon(): Map<string, string> {
+  const out = new Map<string, string>()
+  for (const row of T023.rows) {
+    if (row.cells.length !== T023_COLUMNS) continue
+    const entrance = row.cells[T023_ENTRANCE] ?? ''
+    for (const icon of entrance.match(/IC-\d+[a-z]?/g) ?? []) {
+      out.set(icon, row.id)
+    }
+  }
+  return out
+}
+
+// see FR-036, JDG-76
+/** @purity pure */
+function drawsTheWheelMark(
+  row: string,
+  pressWords: ReadonlyMap<string, string>,
+  wheelIcon: ReadonlyMap<string, string>,
+): boolean {
+  const operation = row.startsWith('MK-') ? row : wheelIcon.get(row)
+  if (operation === undefined) return false
+  return (pressWords.get(operation) ?? '').includes(WHEEL_GLYPH_TOKEN)
 }
 
 /**
@@ -1378,16 +1428,19 @@ test('DFC-106: the words a tooltip puts up are drawn at S-204 of the ground text
 
 // GOES RED IF: a help item stops holding exactly three places, or its shape
 // leaves the first of them, or its description leaves the second, or a key of
-// table T-036 stops standing in the third, or the list is drawn at anything
-// other than `S-203` of the host's ground text. `FR-036` (MUST) says 「一覧の各
-// 項目は、入口の図形・その行の説明・その行の割当の 3 つを、この順に並べること
+// table T-036 stops standing in the third, or the third place draws a shape
+// that is not the wheel mark IC-102, or the list is drawn at anything other
+// than `S-203` of the host's ground text. `FR-036` (MUST) says 「一覧の各項目
+// は、入口の図形・その行の説明・その行の割当の 3 つを、この順に並べること
 // （MUST）」 and 「一覧の字の大きさは ... 表 T-206 の `S-203` が定める係数で決め
 // ること（MUST）。px で持ってはならない（MUST NOT）」.
 //
 // THE THIRD PLACE IS CHECKED AGAINST THE MANUSCRIPT'S OWN KEYS: every row of
 // table T-036 whose assignment cell is a bare key must have that key in the third
 // place of the item FR-036 puts it on -- the entrance its row names, or the row
-// itself (`keyedShortcutRows` above).
+// itself (`keyedShortcutRows` above). It may also draw IC-102 (JDG-76 /
+// CR-377): FR-036 prints a wheel row's press words, marked in the dictionary;
+// see `drawsTheWheelMark`.
 test('DFC-105: a help item reads shape, description, assignment, drawn at S-203', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1464,10 +1517,21 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
     'a help item does not hold the three places FR-036 (MUST) asks for',
   ).toEqual([])
 
-  const shapeOutOfPlace = read.shaped.filter((one) => (one.svgAt[1] ?? 0) + (one.svgAt[2] ?? 0) > 0)
+  const shapeInDescription = read.shaped.filter((one) => (one.svgAt[1] ?? 0) > 0)
+  expect(
+    shapeInDescription.map((one) => one.row),
+    'a help item draws a shape in its second place, which FR-036 (MUST) gives to the description alone',
+  ).toEqual([])
+
+  const pressWords = assignmentPressWordsByRow()
+  const wheelIcon = wheelOperationByIcon()
+  const shapeOutOfPlace = read.shaped.filter(
+    (one) => (one.svgAt[2] ?? 0) > 0 && !drawsTheWheelMark(one.row, pressWords, wheelIcon),
+  )
   expect(
     shapeOutOfPlace.map((one) => one.row),
-    'a help item draws its shape somewhere other than first',
+    'a help item draws a shape in its third place that is not the wheel mark IC-102 -- FR-036 (MUST) ' +
+      'gives the third place to the assignment, and JDG-76 (CR-377) is the only reason an assignment ever draws one',
   ).toEqual([])
 
   const silent = read.shaped.filter((one) => (one.texts[1] ?? '') === '')
