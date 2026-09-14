@@ -6,8 +6,8 @@ run against the Markdown source, because they are about tables and prose,
 which the export flattens away.
 
     5  undefined table reference   "表 T-999" with no "**表 T-999 —" heading
-    6  duplicate definition        the same row ID in two tables, or one
-                                  table number defined twice
+    6  duplicate definition        the same row ID in two tables or twice in
+                                  one table, or one table number defined twice
     7  row ID reference existence  `X-4` pointing at a row that exists nowhere
     8  pointed-to row exists       "表 T-009 の `X-5`" where T-009 has no X-5
     9  prose count vs table rows   "表 T-0xx の N 件" gone stale
@@ -141,11 +141,23 @@ for rel, lines in lines_by_file.items():
 
 # ---------------------------------------------------------------- check 6
 
+# A test failure must point at exactly one spec row, so the rule counts
+# definitions, not tables: a row ID written twice inside ONE table is as
+# ambiguous as one written in two tables (DFC-589). Comparing the set of
+# owning tables alone let the same-table case pass.
 for rid, owners in sorted(row_owner.items()):
     where = {o[0] for o in owners}
     if len(where) > 1:
         report('6', owners[0][1], owners[0][2],
                'row ID %s defined in %s' % (rid, ', '.join(sorted(where))))
+    per_table = collections.Counter(o[0] for o in owners)
+    for table, count in sorted(per_table.items()):
+        if count > 1:
+            spots = [o for o in owners if o[0] == table]
+            report('6', spots[1][1], spots[1][2],
+                   'row ID %s defined %d times in %s (%s)'
+                   % (rid, count, table,
+                      ', '.join('%s:%s' % (o[1], o[2]) for o in spots)))
 
 # ---------------------------------------------------------------- check 7
 
