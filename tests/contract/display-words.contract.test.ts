@@ -1645,12 +1645,35 @@ const FRAMES: readonly { readonly what: string; readonly frame: Frame }[] = (() 
   return each
 })()
 
-/** The frames that print exactly this word when the view is asked for in this language. */
-const framesPrinting = (
+const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/g
+
+const glyphRowsIn = (text: string): readonly string[] =>
+  [...text.matchAll(GLYPH_TOKEN)].map((found) => found[1] as string)
+
+// see FR-036, T-109
+const FIGURED_ROWS: ReadonlySet<string> = new Set(
+  [
+    ...readFileSync(join(ROOT, 'docs', 'spec', '_assets', 'fig-icons.svg'), 'utf8').matchAll(
+      /<text class="lbl"[^>]*>(IC-\d+[a-z]?)<\/text>/g,
+    ),
+  ].map((found) => found[1] as string),
+)
+
+// see FR-036, FR-038
+const shows = (word: string, strings: readonly string[]): boolean => {
+  const glyphs = glyphRowsIn(word)
+  if (glyphs.length === 0) return strings.includes(word)
+  if (glyphs.some((row) => t109Row(row) === undefined || !FIGURED_ROWS.has(row))) return false
+  if (word.replace(GLYPH_TOKEN, '').trim() !== '') return strings.includes(word)
+  return glyphs.every((row) => strings.some((one) => glyphRowsIn(one).includes(row)))
+}
+
+// see FR-036, FR-038
+const framesShowing = (
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
-  FRAMES.filter((one) => stringsIn(viewOf(screenViewFromRegions, one.frame, language)).includes(word))
+  FRAMES.filter((one) => shows(word, stringsIn(viewOf(screenViewFromRegions, one.frame, language))))
 
 // ---------------------------------------------------------------------------
 // 1. THE CARRIAGE -- what a written word has to satisfy.
@@ -2136,11 +2159,12 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       const at = `${cell.section}.${cell.key}.${cell.field}`
 
       // ⭐ The arrival itself: one of the frames prints exactly this word.
-      const on = framesPrinting(cell.word, cell.language)
+      const on = framesShowing(cell.word, cell.language)
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +
-          'file can build prints it -- that word is reaching nowhere (PND-160, CR-194 section 5 item 2). ' +
+          'file can build prints its text and carries each of its glyph tokens as a row figure F-019 draws ' +
+          '(FR-036) -- that word is reaching nowhere (PND-160, CR-194 section 5 item 2). ' +
           'Run `npm run gen` first; if it still fails, the road from the dictionary to the screen is cut, ' +
           'or the word is printed by a frame this file does not know how to raise.',
       ).toBeGreaterThan(0)

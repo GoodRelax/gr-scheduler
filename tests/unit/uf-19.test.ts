@@ -94,7 +94,7 @@ const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,

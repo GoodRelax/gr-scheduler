@@ -72,7 +72,7 @@ const taskOf = (uid: number, name: string): Task => ({
   notes: null,
   calendarUid: null,
   actualStart: null,
-  actualDuration: null,
+  stop: null,
   actualFinish: null,
   resume: null,
   resumeValid: null,
