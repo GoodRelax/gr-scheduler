@@ -39,6 +39,8 @@ import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layo
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---- fixtures --------------------------------------------------------------
 //
 // A whole Document is far more than these cases read, so they carry the keys
@@ -135,6 +137,7 @@ const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
+    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,

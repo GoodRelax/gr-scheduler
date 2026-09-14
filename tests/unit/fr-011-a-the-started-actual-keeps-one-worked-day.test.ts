@@ -16,6 +16,8 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
@@ -184,7 +186,7 @@ const lastDayIn = (document: Document): string | null => {
 }
 
 const placing = (document: Document, put: PlanActualPlacement): EditResult =>
-  editTask(document, { kind: 'setTaskPlanActualState', uid: 1, place: put } as TaskCommand)
+  editTask(document, { kind: 'setTaskPlanActualState', uid: 1, place: put } as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
 
 const place = (document: Document, put: PlanActualPlacement): Document => accepted(placing(document, put))
 

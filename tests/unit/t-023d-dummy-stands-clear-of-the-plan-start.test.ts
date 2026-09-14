@@ -231,6 +231,8 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ===========================================================================
 // The rows, read out of the manuscript rather than copied (Chapter 1.9, :275)
 // ===========================================================================
@@ -711,7 +713,7 @@ const accepted = (result: EditResult): Document => {
 }
 
 const run = (schedule: Schedule, command: TaskCommand): Document =>
-  accepted(editTask(documentOf(schedule), command))
+  accepted(editTask(documentOf(schedule), command, DEFAULT_ROW_NAME_FIXTURE))
 
 const taskIn = (document: Document, uid: number): Task => {
   const found = document.schedule.tasks.find((one) => one.uid === uid)

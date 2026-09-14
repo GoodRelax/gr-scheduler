@@ -34,6 +34,8 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import { editCalendar } from '../../src/use-case/edit-document/edit-calendar'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------------------
 // Fixed data copied from the tables (Chapter 1.9)
 // ---------------------------------------------------------------------------
@@ -419,6 +421,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
       weekStartDay: 0,
     }
     const plan = planDocumentChange({
+      defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
       document,
       readStamp: document.documentStamp,
       commands: [command],
@@ -579,6 +582,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     // is where the old figure is, and there is no second write for a second step.
     const document = documentWithAPricedTask()
     const plan = planDocumentChange({
+      defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
       document,
       readStamp: document.documentStamp,
       commands: [
@@ -648,6 +652,7 @@ const documentWithADisagreeingFigure = (): Document =>
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
+    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,

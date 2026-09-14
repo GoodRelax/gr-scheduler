@@ -44,6 +44,8 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
@@ -501,7 +503,7 @@ describe('FR-006 / PR-6 -- a finished Task whose actual finish is typed in the p
     expect(commands.length, 'premise: the settled value became a command').toBeGreaterThan(0)
     let after = document
     for (const command of commands) {
-      const result = editTask(after, command as TaskCommand)
+      const result = editTask(after, command as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
       if (!result.ok) throw new Error(`the typed value was refused: ${JSON.stringify(result.refusals)}`)
       after = result.document
     }

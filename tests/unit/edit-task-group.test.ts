@@ -26,6 +26,8 @@ import type {
 } from '../../src/entity/document-model/schedule/schedule'
 import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-document/edit-document'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------- fixtures --
 //
 // ⚠️ Every nullable column of table T-058 is spelled `null` here. Leaving one
@@ -226,7 +228,7 @@ const childrenOf = (schedule: Schedule, parentId: string | null): string[] =>
       .sort((a, b) => a.order - b.order),
   )
 
-const run = (document: Document, command: TaskGroupCommand) => editTaskGroup(document, command)
+const run = (document: Document, command: TaskGroupCommand) => editTaskGroup(document, command, DEFAULT_ROW_NAME_FIXTURE)
 
 const CREATE: Omit<Extract<TaskGroupCommand, { kind: 'createTaskGroup' }>, 'kind' | 'id'> = {
   parentId: null,

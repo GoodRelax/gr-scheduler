@@ -20,6 +20,8 @@ import {
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
@@ -201,7 +203,7 @@ const accepted = (result: EditResult): Document => {
 }
 
 const pressed = (document: Document): Task => {
-  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1 }))
+  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1 }, DEFAULT_ROW_NAME_FIXTURE))
   const found = next.schedule.tasks.find((one) => one.uid === 1)
   if (found === undefined) throw new Error('Task 1 left the document')
   return found

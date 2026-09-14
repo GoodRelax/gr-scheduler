@@ -31,6 +31,8 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
@@ -146,6 +148,7 @@ function bench(): Bench {
       writes += 1
       return applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
@@ -161,6 +164,7 @@ function bench(): Bench {
     undo: () =>
       replaceDocument(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           // WHY: table T-230 forbids a replacement naming no row; RD-1 is the undo row.

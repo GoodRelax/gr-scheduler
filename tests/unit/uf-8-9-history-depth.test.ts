@@ -27,6 +27,8 @@ import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
@@ -157,6 +159,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       writes += 1
       return applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },

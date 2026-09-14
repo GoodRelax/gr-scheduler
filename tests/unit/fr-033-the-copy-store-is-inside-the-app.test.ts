@@ -50,6 +50,8 @@ import {
 import * as clipboardGateway from '../../src/adapter/clipboard-gateway/clipboard-gateway'
 import { bare, specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
@@ -194,7 +196,7 @@ describe('FR-033 -- 複製に使う置き場はアプリの中に持つこと（
     // command that could be filled from anything, including a string that came
     // from outside -- which is exactly the reading the requirement forbids
     // (「外から来た文字列をタスクとして解釈すると、データの正確性を保証できない」).
-    const pasted = accepted(editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const pasted = accepted(editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 1 }, DEFAULT_ROW_NAME_FIXTURE))
     // The copy carries the source's own name, which only the document knew.
     const copies = pasted.schedule.tasks.filter((task) => ![1, 2].includes(task.uid))
     expect(copies.map((one) => one.name).sort()).toEqual(['Design', 'Draft'])
@@ -259,7 +261,7 @@ describe('FR-033 -- both a Task subtree and a row subtree can be duplicated', ()
   })
 
   it('the STATEMENT duplicates a Task with its WBS descendants, 部分木ごと', () => {
-    const after = accepted(editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 1 })).schedule
+    const after = accepted(editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 1 }, DEFAULT_ROW_NAME_FIXTURE)).schedule
     const copies = after.tasks.filter((task) => ![1, 2].includes(task.uid))
     expect(copies).toHaveLength(2)
     const child = copies.find((copy) => copies.some((other) => other.uid === copy.wbsParentUid))!
@@ -274,7 +276,7 @@ describe('FR-033 -- both a Task subtree and a row subtree can be duplicated', ()
         sourceGroupId: 'src',
         targetGroupId: 'target',
         newGroupIds: { src: 'c1', kid: 'c2' },
-      } as unknown as TaskGroupCommand),
+      } as unknown as TaskGroupCommand, DEFAULT_ROW_NAME_FIXTURE),
     ).schedule
     const ids = after.taskGroups.map((group) => group.id)
     expect(ids).toContain('c1')
@@ -310,7 +312,7 @@ describe('FR-033 -- an empty store, and a source that is gone', () => {
     // empty" and "what it named has been deleted" are the same state seen from
     // the document's side: nothing answers to the identifier. `FR-028` (MUST
     // NOT) forbids the exception, so the answer is a refusal VALUE.
-    const result = editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand)
+    const result = editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.refusals.length).toBeGreaterThan(0)
@@ -323,7 +325,7 @@ describe('FR-033 -- an empty store, and a source that is gone', () => {
       sourceGroupId: 'gone',
       targetGroupId: 'target',
       newGroupIds: { gone: 'c1' },
-    } as unknown as TaskGroupCommand)
+    } as unknown as TaskGroupCommand, DEFAULT_ROW_NAME_FIXTURE)
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.refusals[0]!.command).toBe(rowFor('pasteTaskGroupSubtree'))
@@ -331,7 +333,7 @@ describe('FR-033 -- an empty store, and a source that is gone', () => {
 
   it('must not throw for either empty case (FR-028, MUST NOT)', () => {
     expect(() =>
-      editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand),
+      editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand, DEFAULT_ROW_NAME_FIXTURE),
     ).not.toThrow()
     expect(() =>
       editTaskGroup(DOCUMENT, {
@@ -339,13 +341,13 @@ describe('FR-033 -- an empty store, and a source that is gone', () => {
         sourceGroupId: 'gone',
         targetGroupId: 'target',
         newGroupIds: {},
-      } as unknown as TaskGroupCommand),
+      } as unknown as TaskGroupCommand, DEFAULT_ROW_NAME_FIXTURE),
     ).not.toThrow()
   })
 
   it('leaves the document untouched when it refuses', () => {
     const before = JSON.stringify(DOCUMENT)
-    editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand)
+    editTask(DOCUMENT, { kind: 'pasteTaskSubtree', sourceUid: 99 } as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
     expect(JSON.stringify(DOCUMENT)).toBe(before)
   })
 })

@@ -31,6 +31,8 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 // `edit-resource.ts` itself. `edit-document.ts` is the public entry.
 import { editResource, type ResourceCommand } from '../../src/use-case/edit-document/edit-document'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // AT-85 to AT-91. ⚠️ Every nullable column is spelled out, `null` included --
 // leaving one `undefined` reads as "set" and would hide a column the aggregate
 // wrote that FR-008 forbids it to write.
@@ -374,6 +376,7 @@ describe('EditDocument (UF-15) -- 表 T-027 の UN-15', () => {
     ]
     for (const command of commands) {
       const plan = planDocumentChange({
+        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
         document,
         readStamp: document.documentStamp,
         commands: [command as DocumentCommand],

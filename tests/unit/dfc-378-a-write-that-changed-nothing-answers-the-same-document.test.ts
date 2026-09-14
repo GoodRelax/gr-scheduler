@@ -18,6 +18,8 @@ import {
   type ProjectCommand,
 } from '../../src/use-case/edit-document/edit-document'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const documentOf = (part: Record<string, unknown> = {}): Document =>
   ({
     schemaVersion: '1',
@@ -91,6 +93,7 @@ const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
+    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,

@@ -19,6 +19,8 @@ import { planDocumentChange } from '../../src/use-case/apply-document-change/doc
 import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // WHY: a whole Document is far more than these cases read, so the fixture
 // carries only the keys the write path touches.
 const documentOf = (part: Record<string, unknown> = {}): Document =>
@@ -331,6 +333,7 @@ const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliv
 
 const planOf = (document: Document, command: DocumentCommand) =>
   planDocumentChange({
+    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands: [command],
@@ -418,6 +421,7 @@ describe('FR-031 -- 取り消しの対象は表 T-027 に従うこと', () => {
     expect(edit.ok).toBe(true)
     if (!edit.ok) return
     const toggle = planDocumentChange({
+      defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
       document: edit.document,
       readStamp: edit.document.documentStamp,
       commands: [{ kind: 'setElementVisible', element: 'dependencyVisible', visible: false }],

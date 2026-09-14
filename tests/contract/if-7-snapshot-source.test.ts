@@ -64,6 +64,7 @@ import {
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
+import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 // ---------------------------------------------------------------------------
 // The rows this file is driven by, read out of the specification.
@@ -188,6 +189,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
     const document = over.loop.document()
     const frame = over.loop.current()
     const snapshot: AgentSnapshot = {
+      defaultRowName: DEFAULT_ROW_NAME,
       document,
       selection: emptySelection(),
       dialogue,

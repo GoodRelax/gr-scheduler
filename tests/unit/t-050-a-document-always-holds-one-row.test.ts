@@ -226,6 +226,7 @@ const LIMITS = { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 }
 
 const planOf = (document: Document, commands: readonly DocumentCommand[]): ChangePlan =>
   planDocumentChange({
+    defaultRowName: DICTIONARY_ROW_WORD.text.en,
     document,
     readStamp: document.documentStamp,
     commands,
@@ -339,6 +340,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
   it('RD-6: a document brought at startup with no row gets one', () => {
     const plan = settled(
       planDocumentReplacement({
+        defaultRowName: DICTIONARY_ROW_WORD.text.en,
         held: { document: ONE_ROW, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -354,6 +356,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     // document on the way past would take that away from both.
     const plan = settled(
       planDocumentReplacement({
+        defaultRowName: DICTIONARY_ROW_WORD.text.en,
         held: { document: EMPTY_OF_ROWS, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -373,6 +376,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     }
     const plan = settled(
       planDocumentReplacement({
+        defaultRowName: DICTIONARY_ROW_WORD.text.en,
         held: { document: ONE_ROW, history },
         readStamp: null,
         moment: CALM,
@@ -389,6 +393,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     }
     const plan = settled(
       planDocumentReplacement({
+        defaultRowName: DICTIONARY_ROW_WORD.text.en,
         held: { document: ONE_ROW, history },
         readStamp: null,
         moment: CALM,

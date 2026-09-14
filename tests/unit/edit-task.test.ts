@@ -37,6 +37,8 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------------------
 // The settings this file spends, read out of the manuscript rather than copied
 // ---------------------------------------------------------------------------
@@ -251,7 +253,7 @@ const groupIn = (document: Document, id: string): TaskGroup =>
 const rowOf = (document: Document, uid: number): string | undefined =>
   document.schedule.taskGroupMembers.find((member) => member.taskUid === uid)?.groupId
 
-const run = (document: Document, command: TaskCommand): EditResult => editTask(document, command)
+const run = (document: Document, command: TaskCommand): EditResult => editTask(document, command, DEFAULT_ROW_NAME_FIXTURE)
 
 // ---------------------------------------------------------------------------
 // CM-6 createTask -- FR-001

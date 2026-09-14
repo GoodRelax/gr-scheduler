@@ -254,10 +254,10 @@ const groupIn = (document: Document, id: string): TaskGroup | undefined =>
   document.schedule.taskGroups.find((group) => group.id === id)
 
 const deleteTask = (document: Document, uid: number): EditResult =>
-  editTask(document, { kind: 'deleteTask', uid } as TaskCommand)
+  editTask(document, { kind: 'deleteTask', uid } as TaskCommand, DEFAULT_ROW_NAMES[0]!)
 
 const deleteTaskGroup = (document: Document, groupId: string): EditResult =>
-  editTaskGroup(document, { kind: 'deleteTaskGroup', groupId } as TaskGroupCommand)
+  editTaskGroup(document, { kind: 'deleteTaskGroup', groupId } as TaskGroupCommand, DEFAULT_ROW_NAMES[0]!)
 
 // ---------------------------------------------------------------------------
 // The manuscript itself, before anything is asked of a unit.
@@ -307,7 +307,7 @@ describe('FR-032 (DFC-171) -- a Task drawn onto empty space can be deleted', () 
         // 載せること」 -- so naming a row the document does not hold is how the
         // drag onto empty space is spelled.
         groupId: 'drawn',
-      } as TaskCommand),
+      } as TaskCommand, DEFAULT_ROW_NAMES[0]!),
       'FR-001 s drag onto empty space',
     )
     const task = made.schedule.tasks[0]

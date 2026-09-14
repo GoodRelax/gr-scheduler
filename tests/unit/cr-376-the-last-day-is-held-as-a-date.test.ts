@@ -17,6 +17,8 @@ import { regionsFromScreen, type ScreenEnvironment } from '../../src/entity/layo
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const cellOf = (tableId: string, rowId: string, heading: string): string => {
   const row = specTable(tableId).rows.find((one) => one.id === rowId)
   if (row === undefined) throw new Error(`table ${tableId} has no row ${rowId}`)
@@ -139,7 +141,7 @@ const accepted = (result: EditResult): Task => {
   return found
 }
 
-const pressed = (task: Task): EditResult => editTask(documentWith(task), { kind: 'cycleTaskPlanActualState', uid: 1 })
+const pressed = (task: Task): EditResult => editTask(documentWith(task), { kind: 'cycleTaskPlanActualState', uid: 1 }, DEFAULT_ROW_NAME_FIXTURE)
 
 describe('CR-376 premises read from the manuscript', () => {
   it('the default calendar works Monday to Friday, S-129 is 1, and the chosen days fall as named', () => {
@@ -229,7 +231,7 @@ describe('T-021a PV-2 / PV-3: the last day moves between stop and actualFinish i
 describe('T-023d GR-17 via FR-043: the released day is stored as stop', () => {
   const notStarted = (): Document => documentWith(taskOf({ start: stored(ymd(9)) }))
   const released = (iso: string): EditResult =>
-    editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(iso) })
+    editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(iso) }, DEFAULT_ROW_NAME_FIXTURE)
 
   it('released on Saturday the 17th: stop is that Saturday, not Friday 16 nor Monday 19', () => {
     const task = accepted(released(ymd(17)))

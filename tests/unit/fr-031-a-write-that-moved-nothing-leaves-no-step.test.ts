@@ -26,6 +26,8 @@ import {
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
@@ -147,6 +149,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       writes += 1
       const outcome = applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands: [command],
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },

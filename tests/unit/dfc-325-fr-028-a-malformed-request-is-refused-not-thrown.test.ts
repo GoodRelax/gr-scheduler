@@ -24,6 +24,7 @@ import type {
   SettingsLimits,
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 
 const FR_028_NEVER_THROWS =
@@ -101,6 +102,7 @@ function bench(): Bench {
   }
 
   const readSnapshot = (): AgentSnapshot => ({
+    defaultRowName: DEFAULT_ROW_NAME,
     document: state.document,
     selection: emptySelection(),
     dialogue: state.dialogue,

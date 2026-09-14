@@ -22,6 +22,8 @@ import { editDocumentSettings, editProject } from '../../src/use-case/edit-docum
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // WHY: read from SETTINGS_DEFAULTS, not a hand-typed list -- a hand-typed
 // list once missed a new key (CR-200) and could not catch the break it caused.
 const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
@@ -79,6 +81,7 @@ const planOf = (
   part: Record<string, unknown> = {},
 ) =>
   planDocumentChange({
+    defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
     document,
     readStamp: document.documentStamp,
     commands,
@@ -525,6 +528,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
     const outcome = applyDocumentChange(
       {
+        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
         readStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
@@ -549,6 +553,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     }
     const outcome = applyDocumentChange(
       {
+        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
         readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
@@ -583,6 +588,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         nested.push(
           applyDocumentChange(
             {
+              defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
               readStamp: given.documentStamp,
               commands: [{ kind: 'setProjectTitle', title: 'C' }],
               moment: CALM,
@@ -600,6 +606,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     const outcome = applyDocumentChange(
       {
+        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
         readStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
@@ -633,6 +640,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const writeOf = (title: string, audience: ChangeAudience) =>
       applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands: [{ kind: 'setProjectTitle', title }],
           moment: CALM,

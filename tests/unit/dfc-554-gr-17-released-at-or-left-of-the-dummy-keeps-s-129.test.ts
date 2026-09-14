@@ -19,6 +19,8 @@ import type {
 import { editTask, type EditResult } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
@@ -191,7 +193,7 @@ const notStarted = (): Document =>
   }) as unknown as Document
 
 const releasedFromGr17 = (droppedIso: string): EditResult =>
-  editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(droppedIso) })
+  editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(droppedIso) }, DEFAULT_ROW_NAME_FIXTURE)
 
 const taskOf = (document: Document): Task => {
   const found = document.schedule.tasks.find((one) => one.uid === 1)

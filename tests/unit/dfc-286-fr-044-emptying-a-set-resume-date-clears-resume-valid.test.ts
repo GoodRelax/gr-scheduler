@@ -133,6 +133,8 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ===========================================================================
@@ -433,7 +435,7 @@ function afterSettling(task: Task, text: string): Document {
   )
   let document = documentOf(schedule)
   for (const command of commands) {
-    const result = editTask(document, command as TaskCommand)
+    const result = editTask(document, command as TaskCommand, DEFAULT_ROW_NAME_FIXTURE)
     if (!result.ok) {
       throw new Error(
         `the settled value was refused: ${result.refusals

@@ -107,6 +107,8 @@ import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { validateImportedDocument } from '../../src/use-case/validate-imported-document/validate-imported-document'
 import { specTable, unbroken } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------------------
 // 1. The manuscript, read at load time rather than copied.
 // ---------------------------------------------------------------------------
@@ -504,6 +506,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
     run: (call, part = {}) =>
       replaceDocument(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,

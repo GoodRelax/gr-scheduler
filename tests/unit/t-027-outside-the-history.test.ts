@@ -30,6 +30,8 @@ import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-do
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((row) => row.id === id)
@@ -139,6 +141,7 @@ function bench(): Bench {
       writes += 1
       return applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
@@ -154,6 +157,7 @@ function bench(): Bench {
     undo: () =>
       replaceDocument(
         {
+          defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           call: { row: 'RD-1' },

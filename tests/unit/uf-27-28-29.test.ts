@@ -97,6 +97,7 @@ import { postDialogueMessage } from '../../src/use-case/post-dialogue-message/po
 // (LY-5 of table T-060, MN-6 of table T-070), so the bench asks the shell for
 // one instead of deciding "closed" a second time. See `exportSceneOf`.
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -385,6 +386,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
   const snapshotOf = (): AgentSnapshot => {
     state.snapshotReads += 1
     return {
+      defaultRowName: DEFAULT_ROW_NAME,
       document: state.document,
       selection: state.selection,
       dialogue: state.dialogue,
@@ -505,6 +507,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     writeAsPerson: (commands, editedBy) => {
       applyDocumentChange(
         {
+          defaultRowName: DEFAULT_ROW_NAME,
           readStamp: state.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },

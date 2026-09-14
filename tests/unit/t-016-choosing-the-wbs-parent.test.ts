@@ -151,6 +151,8 @@ import {
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { bare, specTable } from '../contract/spec-table'
 
+const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
 // ---------------------------------------------------------------------------
 // 表 T-016's own row, READ OUT OF THE MANUSCRIPT rather than copied here.
 //
@@ -513,7 +515,7 @@ const commandsForParent = (
 }
 
 const run = (schedule: Schedule, command: TaskCommand): EditResult =>
-  editTask(documentOf(schedule), command)
+  editTask(documentOf(schedule), command, DEFAULT_ROW_NAME_FIXTURE)
 
 // ---------------------------------------------------------------------------
 
