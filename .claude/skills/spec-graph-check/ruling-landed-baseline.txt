@@ -1,4 +1,8 @@
-17
+19
+#
+# RAISED 17 -> 19 on 2026-09-15, under the same day's approval: JDG-107 (the user parks E,
+# DFC-594, until it can be reproduced) and JDG-108 (the gap is the inter-row rowGap S-12, not a
+# Lv gap, DFC-600) were recorded before the spec wave lands them. Lower it in each landing.
 #
 # RAISED 4 -> 17 on 2026-09-15, with the user's approval (asked in chat: raise and commit).
 # The user gave 12 new directives (JDG-83 .. JDG-94: dummies, the dependency line following the
