@@ -1,4 +1,11 @@
-4
+17
+#
+# RAISED 4 -> 17 on 2026-09-15, with the user's approval (asked in chat: raise and commit).
+# The user gave 12 new directives (JDG-83 .. JDG-94: dummies, the dependency line following the
+# pointer, vertical zoom, the top row, the status mark, the row grab contrast) and answered five
+# questions (JDG-99 .. JDG-102); they are recorded before any change request applies them, per
+# JDG-98 (measure, one spec wave, implement -- before stages 4 to 6). JDG-78 stays for DFC-586.
+# Lower this in each commit that lands one of them.
 #
 # RAISED 2 -> 4 on 2026-09-14, deliberately and with the user's approval of
 # the baselines, for JDG-80 (IC-41's label, written into display-words.json

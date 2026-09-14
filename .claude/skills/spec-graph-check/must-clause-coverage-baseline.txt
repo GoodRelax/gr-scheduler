@@ -1,4 +1,10 @@
-1369
+1374
+# RAISED 1369 -> 1374 on 2026-09-15, with the user's approval: CR-378 (tables T-247 / T-248)
+# and CR-379 2b-A (5.5) wrote 7 MUST clauses no test can hold truthfully yet -- the T-247
+# lead sentence, EG-5 and EG-6 (the code keeps edges missing from the figure until stage 8),
+# JF-2 (decided by reading a responsibility column) and 5.5's manuscript clause (the
+# manuscript file arrives with stage 7). DFC-587's tests paid back 2 old clauses. Lower it
+# when stage 3 / 7 / 8 lets those clauses be anchored.
 # RAISED 1340 -> 1369 on 2026-09-14: applying CR-376 (actuals held as dates) and CR-377
 # (the help as a list of keys and icons) wrote 29 new MUST / MUST NOT clauses that no test
 # holds verbatim yet. The spec-only tests of that wave assert the behaviour; tying the
