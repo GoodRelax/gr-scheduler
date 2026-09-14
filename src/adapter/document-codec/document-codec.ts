@@ -59,6 +59,12 @@ const READABLE_FORMATS: readonly ReadableFormat[] = (
   return [{ format, extension, firstCharacter }]
 })
 
+// see T-024
+/** @purity pure */
+export function extensionOfFormat(rowId: string): string {
+  return exchangeFormats.formats.find((one) => one.rowId === rowId)?.extension ?? ''
+}
+
 /** @purity pure */
 function firstNonBlankCharacter(text: string): string | null {
   for (const character of withoutLeadingByteOrderMark(text)) {

@@ -94,6 +94,7 @@ import {
   documentFromJson,
   documentFromMspdi,
   exportEmbeddedHtml,
+  extensionOfFormat,
   formatFromFile,
   jsonFromDocument,
   mspdiFromDocument,
@@ -101,7 +102,6 @@ import {
   type ExchangeFormat,
   type FormatMismatch,
 } from '../../adapter/document-codec/document-codec'
-import exchangeFormats from '../../adapter/document-codec/exchange-formats.json'
 import {
   openDocumentFile,
   saveDocumentFile,
@@ -137,6 +137,7 @@ import {
   type SpentEntranceSituation,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
+  DEFAULT_ROW_NAME,
   dismissKeyOf,
   rulerWeekdayWords,
   screenViewFromRegions,
@@ -723,8 +724,7 @@ const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
 // see FR-096, T-024
 /** @purity pure */
 function extensionOfForm(form: SaveFileForm): string {
-  const row = TABLE_ROW_OF_SAVE_FORM[form]
-  return exchangeFormats.formats.find((one) => one.rowId === row)?.extension ?? ''
+  return extensionOfFormat(TABLE_ROW_OF_SAVE_FORM[form])
 }
 
 // see T-024
@@ -2200,7 +2200,7 @@ export function frameLoop(
     let drawn = held.document
     for (const commands of action.writes) {
       for (const command of commands) {
-        const result = editDocument(drawn, command, limits)
+        const result = editDocument(drawn, command, limits, DEFAULT_ROW_NAME)
         // STOP: spec does not decide what a refused drag draws.
         // Looked in FR-052, WS-3, FD-6, IV-12
         // @provisional PND-253
@@ -2235,6 +2235,7 @@ export function frameLoop(
         isEditingInPlace: hasUnsettledTextEntry(),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
+        defaultRowName: DEFAULT_ROW_NAME,
         readAt: readInstantOfWrite(),
       }
     },
@@ -2389,6 +2390,7 @@ export function frameLoop(
         moment: collectWriteMoment(),
         historyLimits: HISTORY_LIMITS,
         settingsLimits,
+        defaultRowName: DEFAULT_ROW_NAME,
         editedBy: EDITED_BY_SCREEN,
         updatedUtc: readInstantOfWrite(),
       },
@@ -2413,6 +2415,7 @@ export function frameLoop(
         readStamp: held.document.documentStamp,
         moment: collectWriteMoment(),
         call,
+        defaultRowName: DEFAULT_ROW_NAME,
       },
       holder,
       audience,
@@ -2580,7 +2583,12 @@ export function frameLoop(
     }
     for (const uid of droppedSeeds) {
       if (!incoming.schedule.tasks.some((one) => one.uid === uid)) continue
-      const result = editDocument(incoming, { kind: 'deleteTask', uid }, settingsLimitsOf(null))
+      const result = editDocument(
+        incoming,
+        { kind: 'deleteTask', uid },
+        settingsLimitsOf(null),
+        DEFAULT_ROW_NAME,
+      )
       if (!result.ok) continue
       incoming = result.document
     }
@@ -3014,7 +3022,7 @@ export function frameLoop(
       raiseNotice(NOTHING_TO_DO_REASON, null)
       return
     }
-    const folded = editDocument(held.document, command, settingsLimitsOf(frame))
+    const folded = editDocument(held.document, command, settingsLimitsOf(frame), DEFAULT_ROW_NAME)
     if (folded.ok) {
       const wouldDraw = layoutFromSchedule(
         folded.document.schedule,

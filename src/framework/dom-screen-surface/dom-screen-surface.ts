@@ -30,7 +30,7 @@ import type {
   TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import iconGlyphs from '../../adapter/screen-renderer/icon-glyphs.json'
+import iconGlyphs from './icon-glyphs.json'
 import helpRoster from '../../adapter/screen-renderer/help-roster.json'
 
 const UNIT_ROW = 'UF-71'

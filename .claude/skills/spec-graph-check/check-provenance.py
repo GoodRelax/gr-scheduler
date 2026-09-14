@@ -72,7 +72,7 @@ ARTIFACTS = [
     # _source/ file: FR-029 (MUST) makes that figure the authority for every
     # icon's shape, so the banner names the .svg and the generator cross-checks
     # it against table T-109 so neither can move alone.
-    ('src/adapter/screen-renderer/icon-glyphs.json', 'fig-icons.svg'),
+    ('src/framework/dom-screen-surface/icon-glyphs.json', 'fig-icons.svg'),
     # The words the screen prints (FR-038). ⚠️ Its manuscript is a manuscript of
     # WORDS ONLY: which words exist is read from the specification on every run,
     # so this artifact drifts if a table moves and the manuscript does not.

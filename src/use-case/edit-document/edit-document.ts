@@ -28,7 +28,7 @@ export type {
 } from './edit-document-settings'
 
 import { editTask, type TaskCommand } from './edit-task'
-import { DEFAULT_ROW_NAME, editTaskGroup, type TaskGroupCommand } from './edit-task-group'
+import { editTaskGroup, type TaskGroupCommand } from './edit-task-group'
 import { editDependency, type DependencyCommand } from './edit-dependency'
 import { editAnnotation, type AnnotationCommand } from './edit-annotation'
 import { editResource, type ResourceCommand } from './edit-resource'
@@ -39,8 +39,6 @@ import {
   type DocumentSettingsCommand,
   type SettingsLimits,
 } from './edit-document-settings'
-
-export { DEFAULT_ROW_NAME }
 
 export {
   editTask,
@@ -116,6 +114,7 @@ type AggregateEdit = (
   document: Document,
   command: DocumentCommand,
   limits: SettingsLimits,
+  defaultRowName: string,
 ) => EditResult
 
 /** @purity pure */
@@ -224,9 +223,11 @@ const SETTINGS_KINDS = [
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
-  ...routes(TASK_KINDS, (document, command) => editTask(document, command as TaskCommand)),
-  ...routes(TASK_GROUP_KINDS, (document, command) =>
-    editTaskGroup(document, command as TaskGroupCommand),
+  ...routes(TASK_KINDS, (document, command, _limits, defaultRowName) =>
+    editTask(document, command as TaskCommand, defaultRowName),
+  ),
+  ...routes(TASK_GROUP_KINDS, (document, command, _limits, defaultRowName) =>
+    editTaskGroup(document, command as TaskGroupCommand, defaultRowName),
   ),
   ...routes(DEPENDENCY_KINDS, (document, command) =>
     editDependency(document, command as DependencyCommand),
@@ -254,6 +255,7 @@ export function editDocument(
   document: Document,
   command: DocumentCommand,
   limits: SettingsLimits,
+  defaultRowName: string,
 ): EditResult {
   const run = ROUTES.get(command.kind)
   if (run === undefined) {
@@ -265,7 +267,7 @@ export function editDocument(
       },
     ])
   }
-  return run(document, command, limits)
+  return run(document, command, limits, defaultRowName)
 }
 
 // <generated -- do not edit by hand>

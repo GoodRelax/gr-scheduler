@@ -27,7 +27,6 @@ import {
 import { importDocument, type ImportRefusal, type ImportRequest } from '../import-document/import-document'
 import { redoEdit } from '../redo-edit/redo-edit'
 import { undoEdit, type ChangeStep, type HeldDocument } from '../undo-edit/undo-edit'
-import displayWords from '../../adapter/screen-renderer/display-words.json'
 
 // see AG-9
 export interface WriteMoment {
@@ -44,6 +43,7 @@ export interface PlanInput {
   readonly history: EditHistory<ChangeStep>
   readonly historyLimits: HistoryLimits
   readonly settingsLimits: SettingsLimits
+  readonly defaultRowName: string
   readonly editedBy: string
   readonly updatedUtc: string
 }
@@ -154,23 +154,18 @@ function stepSizeBytes(document: Document): number {
   return utf8Length(JSON.stringify(document))
 }
 
-// WHY: the en cell, not the display language; the row label is document data (FR-038).
-const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
-const DEFAULT_ROW_NAME: string =
-  DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
-
 // STOP: spec does not decide the id of T-050's invariant row. Looked in T-050, IV-20, AT-51, CM-26 (PND-488)
 const EMPTY_DOCUMENT_TASK_GROUP_ID = '00000000-0000-4000-8000-000000000001'
 
 // see T-050, FR-004
 // TRAP: a non-empty document must come back as the same reference; WS-6 replaces one reference.
 /** @purity pure */
-function documentHoldingOneRow(document: Document): Document {
+function documentHoldingOneRow(document: Document, defaultRowName: string): Document {
   if (document.schedule.taskGroups.length > 0) return document
   const row: TaskGroup = {
     id: EMPTY_DOCUMENT_TASK_GROUP_ID,
     parentId: null,
-    label: DEFAULT_ROW_NAME,
+    label: defaultRowName,
     derivedFromTaskUid: null,
     order: 0,
     isCollapsed: null,
@@ -217,7 +212,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   const refusals: Refusal[] = []
   const recountedTaskUids = new Set<number>()
   for (const command of input.commands) {
-    const result = editDocument(held, command, input.settingsLimits)
+    const result = editDocument(held, command, input.settingsLimits, input.defaultRowName)
     if (!result.ok) {
       refusals.push(...result.refusals)
       continue
@@ -229,7 +224,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }
 
-  const settled = documentHoldingOneRow(held)
+  const settled = documentHoldingOneRow(held, input.defaultRowName)
 
   // TRAP: identity means nothing moved only while every edit-document arm returns the document it got.
   const recorded = input.commands.filter(isUndoable)
@@ -294,6 +289,7 @@ export interface ReplacementInput {
   readonly readStamp: DocumentStamp | null
   readonly moment: WriteMoment
   readonly call: ReplacementCall
+  readonly defaultRowName: string
 }
 
 export type ReplacementRefusal =
@@ -321,8 +317,12 @@ function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolea
 }
 
 /** @purity pure */
-function replacementSettled(held: HeldDocument, next: HeldDocument): ReplacementPlan {
-  const settled = documentHoldingOneRow(next.document)
+function replacementSettled(
+  held: HeldDocument,
+  next: HeldDocument,
+  defaultRowName: string,
+): ReplacementPlan {
+  const settled = documentHoldingOneRow(next.document, defaultRowName)
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
   return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }
@@ -348,19 +348,21 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
     case 'RD-1': {
       const outcome = undoEdit(held)
       // TRAP: nothing moved, so return the very pair; a fresh object breaks WS-6's one-reference swap.
-      if (!outcome.undone) return replacementSettled(held, outcome.next)
+      if (!outcome.undone) return replacementSettled(held, outcome.next, input.defaultRowName)
       return replacementSettled(
         held,
         keepingColumnsOutsideHistory(outcome.next, held.document),
+        input.defaultRowName,
       )
     }
 
     case 'RD-2': {
       const outcome = redoEdit(held)
-      if (!outcome.redone) return replacementSettled(held, outcome.next)
+      if (!outcome.redone) return replacementSettled(held, outcome.next, input.defaultRowName)
       return replacementSettled(
         held,
         keepingColumnsOutsideHistory(outcome.next, held.document),
+        input.defaultRowName,
       )
     }
 
@@ -386,19 +388,31 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
           { hasMovedSchedule: hasMovedScheduleGroup(held.document, outcome.document) },
         ),
       }
-      return replacementSettled(held, { document, history })
+      return replacementSettled(held, { document, history }, input.defaultRowName)
     }
 
     case 'RD-4': {
       const outcome = importDocument({ ...call.importing, current: held.document })
       if (!outcome.ok) return importRefused(outcome.refusal)
-      return replacementSettled(held, { document: outcome.document, history: emptyHistory() })
+      return replacementSettled(
+        held,
+        { document: outcome.document, history: emptyHistory() },
+        input.defaultRowName,
+      )
     }
 
     case 'RD-6':
-      return replacementSettled(held, { document: call.document, history: emptyHistory() })
+      return replacementSettled(
+        held,
+        { document: call.document, history: emptyHistory() },
+        input.defaultRowName,
+      )
 
     case 'RD-7':
-      return replacementSettled(held, { document: call.document, history: emptyHistory() })
+      return replacementSettled(
+        held,
+        { document: call.document, history: emptyHistory() },
+        input.defaultRowName,
+      )
   }
 }
