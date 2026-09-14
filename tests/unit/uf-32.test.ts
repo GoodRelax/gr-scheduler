@@ -420,7 +420,7 @@ const spanOf = (bar: Element): { readonly from: number; readonly to: number } =>
  * ⛔ NESTING ALONE STOPPED BEING ENOUGH ON 2026-08-26, and what replaces it is
  * a row, not a looser reading. `AFTER` is 未着手, so FR-043 (MUST) owes it a
  * ダミーの印 drawn 「**薄く**タスクの上に」, and FR-043's drawing-position MUST puts
- * it 「予定の開始日の翌稼働日」 -- which is inside `AFTER`'s own 予定バー. A second
+ * it on its plan start day (T-240 DM-1) -- which is inside `AFTER`'s own 予定バー. A second
  * figure therefore nests, and FR-013 (MUST) has already said that neither its
  * colour nor its band can be told from the 実績バー's: 「色は実績バーの色を継ぎ、
  * 独立した色を保存しない」（`FR-041`）.
@@ -1271,11 +1271,6 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // demand a single 濃さ in the whole picture; that MUST NOT is about the
       // MARKER's five symbols -- 「形が意味を担う」（`FR-030`）, 表 T-021 -- and
       // says nothing about how many figures may be drawn 薄く.
-      //
-      // ⭐ 2026-01-05 IS A MONDAY, so 「予定の開始日の翌稼働日」 and the day
-      // `S-129` further on are the Tuesday and the Wednesday: the default
-      // calendar's weekend (表 T-209) never falls between them, and one worked
-      // day is one column of the axis.
       const svg = drawn(
         oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]),
         settingsOf({ ...SETTINGS, zoomX }),
@@ -1318,11 +1313,6 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // 2026-09-02): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
       // こと（MUST）。日の列の左端に揃えること（MUST）」.
       //
-      // ⭐ WHICH day column the one mark stands on is FR-043's own drawing-
-      // position MUST: 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること
-      // （MUST）**」, which is 表 T-023d の GR-9's place. GR-17 is 「`GR-9` の日
-      // から `S-129` ぶん進んだ稼働日」 and holds no ink of its own any more.
-      //
       // ⭐ The day column is counted in DAYS from the 予定バー's own left edge:
       // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, and FR-017 makes
       // one day `S-1` × `zoomX` wide. ⛔ Nothing here is a number read off a run.
@@ -1336,12 +1326,12 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       expect(
         mark.from,
         `the ダミー begins at its day column's left edge at ${days}`,
-      ).toBeCloseTo(planLeft + dayWidth, 6)
+      ).toBeCloseTo(planLeft, 6)
       // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
       // ⚠️ STATED AS A PLACE AND NOT ONLY AS A COUNT: without this, one mark
       // drawn at GR-17's column instead of GR-9's would pass the count above,
       // and at 6px a day the two columns are adjacent.
-      const gr17Left = planLeft + (1 + S_129) * dayWidth
+      const gr17Left = planLeft + S_129 * dayWidth
       for (const one of dummies) {
         const span = spanOf(one)
         expect(

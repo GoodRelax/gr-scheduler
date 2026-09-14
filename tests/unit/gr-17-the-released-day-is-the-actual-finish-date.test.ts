@@ -51,7 +51,7 @@ const GR_17_PINS_THE_START =
 const IV_21_NOT_BELOW_ZERO =
   '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
 
-const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）。**'
+const DM_1_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
 
 const S_106_WORKED_WEEKDAYS = '| S-106 | 稼働する曜日 | 月・火・水・木・金 🔎 |'
 
@@ -111,10 +111,10 @@ const stored = (iso: string): string => `${iso}T00:00:00`
 
 const dayPart = (value: string | null): string | null => (value === null ? null : value.slice(0, 10))
 
-const FRIDAY_PLAN_START = ymd(9)
-const MONDAY_DUMMY_DAY = ymd(12)
-const THURSDAY_PLAN_START = ymd(15)
-const FRIDAY_DUMMY_DAY = ymd(16)
+const MONDAY_PLAN_START = ymd(12)
+const MONDAY_DUMMY_DAY = MONDAY_PLAN_START
+const FRIDAY_PLAN_START = ymd(16)
+const FRIDAY_DUMMY_DAY = FRIDAY_PLAN_START
 const PLAN_FINISH = ymd(30)
 
 const settingsOf = (): DocumentSettings => {
@@ -238,14 +238,16 @@ describe('GR-17 premises: the clauses and the calendar still read this way', () 
     expect(REQUIREMENTS).toContain(FR_011_ENDS_COUNT_ON_REST_DAYS)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
     expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
-    expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_NEXT_WORKED_DAY)
+    expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_THE_PLAN_START_DAY)
     expect(SETTINGS_TABLES).toContain(S_106_WORKED_WEEKDAYS)
     expect(SETTINGS_TABLES).toContain(S_107_NO_EXCEPTIONS)
   })
 
-  it('the dummy days are the worked day after each plan start, and S-129 is 1', () => {
-    expect(workedDaysFrom(FRIDAY_PLAN_START, 1)).toBe(MONDAY_DUMMY_DAY)
-    expect(workedDaysFrom(THURSDAY_PLAN_START, 1)).toBe(FRIDAY_DUMMY_DAY)
+  it('the dummy days are each plan start day itself (DM-1), and S-129 is 1', () => {
+    expect(MONDAY_DUMMY_DAY).toBe(MONDAY_PLAN_START)
+    expect(FRIDAY_DUMMY_DAY).toBe(FRIDAY_PLAN_START)
+    expect(isWorkedDay(MONDAY_PLAN_START)).toBe(true)
+    expect(isWorkedDay(FRIDAY_PLAN_START)).toBe(true)
     expect(isWorkedDay(ymd(17))).toBe(false)
     expect(isWorkedDay(ymd(18))).toBe(false)
     expect(S_129).toBe(1)
@@ -254,10 +256,10 @@ describe('GR-17 premises: the clauses and the calendar still read this way', () 
 
 describe('FR-043 (MUST): GR-17 released on or right of GR-9 day puts that day as stop', () => {
   const cases = [
-    { title: 'released on GR-9 day: one day', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
-    { title: 'released on the worked day after GR-9 day: two days', planStart: FRIDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
-    { title: 'released across a weekend, Friday dummy to Monday: two days', planStart: THURSDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(19), length: 2 },
-    { title: 'released on the Saturday after a Friday dummy: two days', planStart: THURSDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(17), length: 2 },
+    { title: 'released on GR-9 day: one day', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
+    { title: 'released on the worked day after GR-9 day: two days', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
+    { title: 'released across a weekend, Friday dummy to Monday: two days', planStart: FRIDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(19), length: 2 },
+    { title: 'released on the Saturday after a Friday dummy: two days', planStart: FRIDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(17), length: 2 },
   ]
   for (const one of cases) {
     it(`${one.title}, the last day is the released day`, () => {
@@ -278,7 +280,7 @@ describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor an
   it('released on the Sunday before a Monday dummy: zero by the FR-011 count, so stop is the floor day', () => {
     const dropped = ymd(11)
     expect(actualLength(MONDAY_DUMMY_DAY, dropped), 'the FR-011 count gives zero').toBe(0)
-    const result = releasedFromGr17(FRIDAY_PLAN_START, dropped)
+    const result = releasedFromGr17(MONDAY_PLAN_START, dropped)
     expect(result.ok, FR_043_SAME_DAY_AND_THE_FLOOR).toBe(true)
     if (!result.ok) return
     const task = taskOf(result.document)
@@ -288,7 +290,7 @@ describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor an
 
   it('released two worked days left: negative, so IV-21 refuses it and writes nothing', () => {
     const dropped = workedDaysFrom(MONDAY_DUMMY_DAY, -2)
-    const result = releasedFromGr17(FRIDAY_PLAN_START, dropped)
+    const result = releasedFromGr17(MONDAY_PLAN_START, dropped)
     expect(result.ok, IV_21_NOT_BELOW_ZERO).toBe(false)
     if (result.ok) return
     expect(result.refusals[0]?.rule, IV_21_NOT_BELOW_ZERO).toBe('IV-21')

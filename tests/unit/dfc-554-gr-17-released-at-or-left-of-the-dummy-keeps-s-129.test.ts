@@ -45,7 +45,7 @@ const FR_043_ZERO_IS_A_POSITION =
 const GR_17_PINS_THE_START =
   '掴めば実績の最後の日（`stop`）を置く（`actualStart` は `GR-9` の日で確定。`FR-043`）。'
 
-const DM_1_NEXT_WORKED_DAY = '**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）。**'
+const DM_1_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
 
 const AT_39_NOT_NEGATIVE = '| `Task` | `percentComplete` | 整数（0 以上） |'
 
@@ -88,9 +88,9 @@ const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padSta
 
 const stored = (iso: string): string => `${iso}T00:00:00`
 
-const PLAN_START = ymd(9)
+const PLAN_START = ymd(12)
 const PLAN_FINISH = ymd(23)
-const DUMMY_DAY = ymd(12)
+const DUMMY_DAY = PLAN_START
 
 const settingsOf = (): DocumentSettings => {
   const out: Record<string, unknown> = {}
@@ -218,12 +218,13 @@ describe('DFC-554 premises: the clauses and the fixture still read this way', ()
     expect(REQUIREMENTS).toContain(FR_043_ZERO_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
     expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
-    expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_NEXT_WORKED_DAY)
+    expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_THE_PLAN_START_DAY)
     expect(ERD_DETAIL).toContain(AT_39_NOT_NEGATIVE)
   })
 
-  it('the plan starts on a Friday, so GR-9 day is the Monday after it, and S-129 is 1', () => {
+  it('the plan starts on a Monday, so GR-9 day is that same Monday (DM-1), and S-129 is 1', () => {
     expect(isWorkedDay(PLAN_START)).toBe(true)
+    expect(DUMMY_DAY).toBe(PLAN_START)
     expect(isWorkedDay(ymd(10))).toBe(false)
     expect(isWorkedDay(ymd(11))).toBe(false)
     expect(isWorkedDay(DUMMY_DAY)).toBe(true)
@@ -265,7 +266,7 @@ describe('DFC-554 table T-023d GR-17: released on a rest day left of the dummy d
 })
 
 describe('DFC-554 table T-023d GR-17: released on a worked day left of the dummy day, negative by the FR-011 count', () => {
-  for (const dropped of [PLAN_START, ymd(7)]) {
+  for (const dropped of [ymd(9), ymd(7)]) {
     it(`IV-21 -- GR-17 released on ${dropped} is refused and writes nothing`, () => {
       expect(signedLength(DUMMY_DAY, dropped), 'premise: below zero').toBeLessThan(0)
       const result = releasedFromGr17(dropped)

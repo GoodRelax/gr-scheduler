@@ -39,9 +39,6 @@
 //             揃えること（MUST）」（利用者の裁定 2026-09-02）
 //             ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」
 //             ⛔ 「当たり判定は本段の対象ではない（MUST NOT）」
-//   FR-043    「ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）」
-//             and 「終了点の掴みシロは、実績開始日から `S-129` ぶん進んだ稼働日
-//             に置くこと（MUST）」
 //   FR-017    「**1 日あたりの表示幅は、表 T-201（`_assets/tbl-settings.md`）の
 //             `S-1` に `zoomX` を掛けた値とすること（MUST）。**」 -- the OTHER half
 //             of 「1 日ぶん」, and the reason the two zooms below give two
@@ -57,8 +54,6 @@
 //             2026-09-10 IS the mark `FR-043` draws -- so no reader's hit box
 //             stands beside the drawn width any more, and the two are one.
 //             ⛔ NOTHING BELOW ASSERTS A HIT BOX.
-//   T-023d GR-3 「予定の開始点 | 予定バーの左端」 -- and GR-9's own row,
-//             「⭐ 予定の開始日そのものには置かない —— そこは `GR-3` が持つ」.
 //   T-023d GR-9 / GR-17 / GR-18   where the three dummies sit
 //   T-076 EP-14  「`Actual Operation Dummy`（`U-52`）| 描かない | 文書に無い
 //             値を描く操作子である。⚠️ 場所は空けない」
@@ -71,34 +66,8 @@
 //             の掴みシロの外側** …」 -- the reason a dummy may not simply be
 //             deleted for the export.
 //
-// ⭐ THE ONE INFERENCE THIS FILE MAKES, STATED SO IT CAN BE REFUTED
-//
-//   FR-043 aligns the ink to 「日の列の左端」 and no row of docs/spec writes the
-//   pixel of a day column down. What the specification does write down is that
-//   the plan bar's LEFT EDGE is the plan start day (T-023d GR-3: 「予定の開始点 |
-//   予定バーの左端」), that GR-9 stands one working day to the right of it
-//   (FR-043, and GR-9's 「予定の開始日そのものには置かない —— そこは `GR-3` が
-//   持つ」), and that one day is `S-1` × `zoomX` wide (FR-017). Composing those
-//   three gives the day column's left edge for GR-9 and GR-17 WITHOUT reading a
-//   coordinate out of `src/`, and that composition is what the alignment cases
-//   below measure against.
-//
 // ⛔ WHAT IS NOT ASSERTED, AND WHY -- reported rather than guessed:
 //
-//   * ⭐⭐ GR-18'S LEFT EDGE IS NOW ASSERTED. THE GAP THIS NOTE RECORDED IS
-//     CLOSED (CR-332, 利用者の裁定 2026-09-02). Until that day the milestone
-//     paragraph of FR-043 handed 「位置と当たり判定」 to table T-023d's GR-18,
-//     whose place was 「未着手のマイルストーンの図形の上」, while FR-043's own
-//     alignment MUST said 「日の列の左端」 and LF-10 of table T-221 centres the
-//     shape on 「`start` の位置」 -- two readings half a shape apart, with no row
-//     between them. So this file asserted GR-18's WIDTH and refused its LEFT
-//     EDGE. ⛔ FR-043 now reads 「位置は例外ではない（MUST NOT）…… ダミーは形状
-//     を問わず予定の開始日の翌稼働日に立ち」 and table T-023d's GR-18 reads
-//     「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ場所である」, so one day
-//     along from the plan start is the answer for every shape and the alignment
-//     MUST reaches GR-18 with nothing left to decide.
-//     ⚠️ LF-10 DID NOT MOVE: 「図形そのものは `start` の位置に中央で置かれた
-//     ままである …… 動いたのはダミーであって図形ではない」（FR-043）.
 //   * ⛔⛔ GR-18'S VERTICAL WAS UNCLAIMED UNTIL 2026-09-10. A milestone has no
 //     actual bar (table T-023d, GR-15), so S-180's 「縦の広がりは実績バーの帯に
 //     従う」 reaches GR-9 and GR-17 and stops, and until 2026-09-10 nothing
@@ -119,9 +88,12 @@
 //     になる実績を描いて示すこと（MUST）」. The picture is handed no gesture
 //     either, so the drag preview has no surface to be asked about.
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -162,6 +134,13 @@ const GR_9 = rowOf('T-023d', 'GR-9')
 const GR_17 = rowOf('T-023d', 'GR-17')
 const GR_18 = rowOf('T-023d', 'GR-18')
 const NS_3 = rowOf('T-231', 'NS-3')
+
+const REQUIREMENTS = unbroken(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+)
+
+const FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =
+  '⭐ その姿は、予定と実績のマイルストーンが同じ日にあるときの絵で、実績をダミーに置き換えたものとすること（MUST）'
 
 /** Every number a cell writes, in the order it writes them. */
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
@@ -263,10 +242,6 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
 /**
  * A calendar on which every weekday is worked (FR-054 resolves the document's
  * one calendar through `Project.calendarUid`).
- *
- * ⭐ Every day worked is what makes 「翌稼働日」 the next CALENDAR day, so the
- * arithmetic the alignment cases do -- one day's width to the right of the plan
- * bar's left edge -- is the calendar's answer as well as the axis's.
  */
 const EVERY_DAY_WORKED = {
   uid: 1,
@@ -823,7 +798,7 @@ const planBoxOf = (drawn: Drawn, uid: number): Box => {
 /**
  * The two day columns table T-023d gives a not-started `Task`'s GRAB TARGETS.
  *
- * GR-9 stands one working day right of the plan start (FR-043 / T-023d GR-9)
+ * GR-9 stands on the plan start day itself (T-240 DM-1)
  * and GR-17 `S-129` working days right of GR-9 (FR-043 / T-023d GR-17); the day
  * is `S-1` × `zoomX` wide (FR-017).
  *
@@ -836,7 +811,7 @@ const grabColumnsOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: s
   const left = planBoxOf(fresh, UNDER_TEST).x0
   const dayWidth = dayWidthAt(zoomX)
   const width = drawnWidthAt(zoomX)
-  const gr9 = left + dayWidth
+  const gr9 = left
   const gr17 = gr9 + ACTUAL_INITIAL_DURATION * dayWidth
   return [
     { grab: 'GR-9', x0: gr9, x1: gr9 + width },
@@ -847,30 +822,26 @@ const grabColumnsOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: s
 /**
  * Where FR-043 puts the ONE mark of `notStartedSchedule` -- ⭐ one entry, and
  * that is the claim.
- *
- * FR-043 (MUST, 利用者の裁定 2026-09-08): 「**ダミーの印は 1 つだけ描くこと**」,
- * ⛔ (MUST NOT): 「**開始の側と終了の側に別々の印を描いてはならない**」. WHICH of
- * the two grab columns the mark stands on is FR-043's own drawing-position MUST,
- * 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること（MUST）**」 -- GR-9's
- * place (T-023d), never GR-17's, which stands a further `S-129` worked days on.
- * The ink begins at that day column's left edge and runs 「1 日ぶんと … `S-180` の
- * 小さい方」 (FR-043).
  */
 const inkExpectedOf = (fresh: Drawn, zoomX: number): readonly { readonly grab: string; readonly x0: number; readonly x1: number }[] =>
   grabColumnsOf(fresh, zoomX).slice(0, 1)
 
-/**
- * Where GR-18's ink must begin: the left edge of the day column one working day
- * past the milestone's own day.
- *
- * ⭐ THE SPECIFICATION'S ARITHMETIC, composed the same way `inkExpectedOf` does
- * it for GR-9. The ruler Task of `milestoneSchedule` starts on the milestone's
- * own day, so its plan bar's left edge is where that day's column begins
- * (T-023d GR-3); the document's calendar works every day, so 「翌稼働日」 is the
- * next day; and one day is `S-1` × `zoomX` (FR-017).
- */
-const gr18ColumnLeftOf = (fresh: Drawn, zoomX: number): number =>
-  planBoxOf(fresh, 2).x0 + dayWidthAt(zoomX)
+const actualFigureBoxOf = (started: Drawn): Box => {
+  const actual = geometryOf(started, UNDER_TEST).actual
+  if (actual === null || actual.form !== 'outline') {
+    throw new Error('the twin drew no actual milestone figure')
+  }
+  const box = boxOfPoints(actual.points.map((one) => [one.x, one.y] as const))
+  if (box === null) throw new Error('the twin actual milestone figure has no points')
+  return box
+}
+
+const gr18InkBoxOf = (fresh: Drawn): Box => {
+  const dummy = geometryOf(fresh, UNDER_TEST).dummies.find((one) => one.grab === 'GR-18')
+  if (dummy === undefined) throw new Error('FR-043 drew no GR-18 for a milestone nobody has started')
+  const { x, y, width, height } = dummy.ink
+  return { x0: x, y0: y, x1: x + width, y1: y + height }
+}
 
 /**
  * The side of GR-18's square dummy box (利用者の裁定 2026-09-10): the
@@ -1047,16 +1018,11 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     expect(S_180['値']).toContain('描く幅')
     // T-023d, the two rows the alignment cases count days between.
     expect(GR_3['場所']).toContain('予定バーの左端')
-    expect(GR_9['場所']).toContain('予定の開始日の翌稼働日')
+    expect(GR_9['場所']).toContain('予定の開始日')
+    expect(GR_9['場所']).not.toContain('翌稼働日')
     expect(GR_17['場所']).toContain('S-129')
-    // ⭐ CR-332: GR-18 stands where GR-9 stands, so the alignment MUST reaches
-    // it. If this row went back to 「図形の上」 the milestone cases below would
-    // be the wrong ones to be writing.
-    // ⚠️ The cell still SPEAKS of 「未着手のマイルストーンの図形の上」, in the
-    // ⛔⛔ note that records what the row said until 2026-09-02, so this guard
-    // asks for the standing rule and not for the absence of the history.
-    expect(GR_18['場所']).toContain('予定の開始日の翌稼働日')
-    expect(GR_18['場所']).toContain('`GR-9` と同じ場所である')
+    expect(GR_18['場所']).toContain('`GR-9` と同じ日であり')
+    expect(REQUIREMENTS).toContain(FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL)
     expect(DUMMY_WIDTH_UPPER_BOUND).toBeGreaterThan(0)
   })
 
@@ -1109,12 +1075,6 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     })
 
     it(`⛔ FR-043 (MUST NOT) draws no second mark at GR-17's day at ${days}`, () => {
-      // 「**開始の側と終了の側に別々の印を描いてはならない（MUST NOT）**」. ⭐ SAID
-      // AS A PLACE AND NOT ONLY AS A COUNT: the case above would be equally
-      // green over a picture that drew its ONE mark at the finish side, and
-      // FR-043's drawing-position MUST -- 「ダミーを描く位置は、予定の開始日の翌
-      // 稼働日とすること」 -- names GR-9's day for it (table T-023d GR-9), which
-      // GR-17 is `S-129` worked days past.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const columns = grabColumnsOf(fresh, zoomX)
@@ -1172,17 +1132,18 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       }
     })
 
-    it(`⛔ FR-043 (MUST): no dummy ink reaches into the plan start day's column at ${days}`, () => {
-      // The consequence GR-9's own row is written for: 「⭐ 予定の開始日そのもの
-      // には置かない —— そこは `GR-3` が持つ」. Ink that began half its width to
-      // the left of the day would cross back over the plan start column at the
-      // magnifications a whole document is read at, and the mark would cover a
-      // day it does not mean.
+    it(`⛔ T-240 DM-1: the dummy ink stays inside the plan start day's column, clear of GR-3 and of the day after, at ${days}`, () => {
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
-      const planStartColumnEnds = planBoxOf(fresh, UNDER_TEST).x0 + dayWidthAt(zoomX)
-      for (const ink of dummyInkOf(fresh, started)) {
-        expect(onGrid(ink.x0) + GRID, `ink starting at ${ink.x0} at ${days}`).toBeGreaterThanOrEqual(
+      const planStartColumnBegins = planBoxOf(fresh, UNDER_TEST).x0
+      const planStartColumnEnds = planStartColumnBegins + dayWidthAt(zoomX)
+      const found = dummyInkOf(fresh, started)
+      expect(found.length, `no dummy ink was drawn at ${days}`).toBeGreaterThan(0)
+      for (const ink of found) {
+        expect(onGrid(ink.x0) + GRID, '**ダミーを描く位置は、予定の開始日とすること（MUST）').toBeGreaterThanOrEqual(
+          onGrid(planStartColumnBegins),
+        )
+        expect(onGrid(ink.x1) - GRID, 'ること（MUST）。**⛔ **翌稼働日へずらしてはならない（MUST NOT）').toBeLessThanOrEqual(
           onGrid(planStartColumnEnds),
         )
       }
@@ -1281,31 +1242,13 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(onGrid(box.y1 - box.y0), 'GR-18 height').toBeCloseTo(onGrid(side), 2)
     })
 
-    it(`⭐ GR-18 (MUST) is centred on the day column AFTER the milestone's own day at ${days}`, () => {
-      // ⛔ RED WHILE THE DUMMY STANDS ON THE FIGURE. CR-332 (利用者の裁定
-      // 2026-09-02) settled the reading this file used to refuse:
-      //   表 T-023d GR-18  「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ
-      //                    場所である」
-      //   FR-043           「日の列の左端に揃えること（MUST）」 and ⛔⛔ 「位置は
-      //                    例外ではない（MUST NOT）…… ダミーは形状を問わず予定の
-      //                    開始日の翌稼働日に立ち」
-      // ⭐ The arithmetic is the specification's: the ruler Task's plan bar begins
-      // at the milestone's own day column (T-023d GR-3), this document's calendar
-      // works every day so 「翌稼働日」 is the next day, and one day is `S-1` ×
-      // `zoomX` (FR-017).
-      // ⛔⛔ "BEGINS AT" WAS THE READING UNTIL 2026-09-10, good only while
-      // GR-18's box was the same left-aligned day column GR-9 and GR-17 draw.
-      // The same day's ruling (quoted in the case above this pair, in the
-      // description of `gr18SquareSideOf`) made GR-18's box a SQUARE instead,
-      // and `schedule-geometry.ts`'s `dummiesOf` centres that square on this
-      // same x rather than starting there -- its own comment on the
-      // `sideways` arm says the day's x stays the square's centre, not its
-      // edge. So this case now asks for the CENTRE.
+    it(`GR-18 (MUST) is centred where the same-day actual milestone figure is centred at ${days}`, () => {
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
-      const box = unionOf(gr18InkOf(fresh, started))
-      expect(onGrid((box.x0 + box.x1) / 2), `GR-18 centre at ${days}`).toBeCloseTo(
-        onGrid(gr18ColumnLeftOf(fresh, zoomX)),
+      const box = gr18InkBoxOf(fresh)
+      const twin = actualFigureBoxOf(started)
+      expect(onGrid((box.x0 + box.x1) / 2), FR_043_A_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL).toBeCloseTo(
+        onGrid((twin.x0 + twin.x1) / 2),
         2,
       )
     })
@@ -1341,32 +1284,15 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(shapeOf(verticesOf(ink[0]!))).toBe(actualMilestoneShapeOf(started))
     })
 
-    it(`⚠️ FR-043 centres GR-18's own box on the plan's own middle at ${days}`, () => {
-      // ⛔⛔ UNTIL 2026-09-10 THIS CASE ASKED FOR: 「⚠️ **大きさは例外ではない**
-      // —— **描く幅は 1 日ぶんと `S-180` の小さい方のままである**（本要求の上の
-      // 段）。**変わったのは形と色だけである。**」 -- the rectangle's own extent,
-      // unmoved: the day column's left edge, `min(1 day, S-180)` across, with
-      // no claim on the vertical.
-      // ⭐⭐ THE SAME RULING THAT SQUARED THE BOX (quoted in the first case of
-      // this trio) also gives it a vertical: 「マイルストーンのダミーを描く箱は、
-      // そのマイルストーンの実績の図形と同じ正方形とすること（MUST）」
-      // （利用者の裁定 2026-09-10）, and `schedule-geometry.ts`'s `dummiesOf`
-      // centres that square on `planMiddle` -- the plan figure's own vertical
-      // centre (LF-10 of table T-221 leaves the plan figure at `start`,
-      // unmoved). So this case now asks for the WHOLE box, all four edges at
-      // once, rather than the width or the horizontal centre alone -- the two
-      // things the pair of cases above this one already check separately.
+    it(`FR-043 (MUST) draws GR-18's box where the same-day actual milestone figure stands at ${days}`, () => {
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
-      const box = unionOf(gr18InkOf(fresh, started))
-      const plan = planBoxOf(fresh, UNDER_TEST)
-      const side = gr18SquareSideOf(fresh)
-      const cx = gr18ColumnLeftOf(fresh, zoomX)
-      const cy = (plan.y0 + plan.y1) / 2
-      expect(onGrid(box.x0), 'GR-18 left').toBeCloseTo(onGrid(cx - side / 2), 2)
-      expect(onGrid(box.x1), 'GR-18 right').toBeCloseTo(onGrid(cx + side / 2), 2)
-      expect(onGrid(box.y0), 'GR-18 top').toBeCloseTo(onGrid(cy - side / 2), 2)
-      expect(onGrid(box.y1), 'GR-18 bottom').toBeCloseTo(onGrid(cy + side / 2), 2)
+      const box = gr18InkBoxOf(fresh)
+      const twin = actualFigureBoxOf(started)
+      expect(onGrid(box.x0), 'GR-18 left').toBeCloseTo(onGrid(twin.x0), 2)
+      expect(onGrid(box.x1), 'GR-18 right').toBeCloseTo(onGrid(twin.x1), 2)
+      expect(onGrid(box.y0), 'GR-18 top').toBeCloseTo(onGrid(twin.y0), 2)
+      expect(onGrid(box.y1), 'GR-18 bottom').toBeCloseTo(onGrid(twin.y1), 2)
     })
 
   }
@@ -1475,11 +1401,6 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     // not be confused with: a picture that draws no dummy because the dummy is
     // drawn nowhere obeys no requirement.
     //
-    // ⛔⛔ ASKED OF THE ONE MARK, NOT OF BOTH ROWS. Until 2026-09-08 this loop
-    // walked every `dummies` row and demanded dropped ink at each; FR-043 (MUST
-    // NOT) 「開始の側と終了の側に別々の印を描いてはならない」 leaves ink at one of
-    // them. ⭐ WHICH ONE IS NOT GUESSED: FR-043's drawing-position MUST 「ダミー
-    // を描く位置は、予定の開始日の翌稼働日とすること」 is GR-9's place (T-023d).
     const anchor = dummies.find((one) => one.grab === 'GR-9')
     if (anchor === undefined) throw new Error('the shell drew no GR-9 to look for')
     const dropped = drawnAt(pictures.screen, pictures.exportInner, anchor.at.x + width / 2)
@@ -1497,11 +1418,6 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     const everyDummyX = pictures.geometry.tasks.flatMap((one) =>
       one.dummies.map((dummy) => dummy.at.x),
     )
-    // ⭐ AT A DUMMY'S DAY **AND NO WIDER THAN min(1 day, S-180)**. The x alone
-    // would let a dropped plan bar through -- a bar spans its own start day,
-    // which is a day away from where GR-9 stands (table T-023d) -- and EP-5
-    // keeps `Task Bars`（`U-2`）in the export, so a bar that went missing must
-    // not read as a dummy.
     const isADummy = (figure: Figure): boolean =>
       figure.box !== null &&
       everyDummyX.some((x) => spansX(figure.box, x + width / 2)) &&

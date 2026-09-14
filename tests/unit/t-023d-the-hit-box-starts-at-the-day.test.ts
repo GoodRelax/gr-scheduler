@@ -31,16 +31,13 @@
 //           bar's left edge the plan start day's column edge, which is how the
 //           day columns below are counted without reading a coordinate out of
 //           `src/`
-//   T-023d  GR-9 「未着手のタスクの上、**予定の開始日の翌稼働日** …」
-//   T-023d  GR-17 「`GR-9` の日から `S-129` ぶん進んだ稼働日 …」
-//   T-023d  GR-18 「**予定の開始日の翌稼働日** …… ⭐⭐ `GR-9` と同じ場所である」
 //   T-206   S-180 「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` /
 //           `GR-18`）」 -- 「本行が描く幅であり、掴みシロでもある」 since the
 //           ruling of 2026-09-10
 //   T-206   S-90 「予定の端点の掴み代」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
 //           product of the two
-//   T-209   S-106 / S-107, the default calendar 「翌稼働日」 is counted through
+//   T-209   S-106 / S-107, the default calendar the worked days are counted through
 //   FR-017  「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値とすること」
 //
 // ---------------------------------------------------------------------------
@@ -122,6 +119,8 @@ const S_180 = rowOf('T-206', 'S-180')
 const S_106 = rowOf('T-209', 'S-106')
 const GR_9 = rowOf('T-023d', 'GR-9')
 const GR_18 = rowOf('T-023d', 'GR-18')
+
+const GR_18_IS_NOT_FENCED = 'マイルストーンのダミー（`GR-18`）には本規則を当ててはならない（MUST NOT）'
 
 /** Every number a cell writes, in the order it writes them. */
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
@@ -246,8 +245,7 @@ const workedDaysAfter = (iso: string, count: number): string => {
 const PLAN_START = '2026-01-02'
 const PLAN_FINISH = '2026-01-30'
 
-/** Where GR-9 and GR-18 stand: 「予定の開始日の翌稼働日」. */
-const DUMMY_START_DAY = workedDaysAfter(PLAN_START, 1)
+const DUMMY_START_DAY = PLAN_START
 
 /** Where GR-17 stands: 「`GR-9` の日から `S-129` ぶん進んだ稼働日」. */
 const DUMMY_END_DAY = workedDaysAfter(DUMMY_START_DAY, ACTUAL_INITIAL_DURATION)
@@ -512,10 +510,11 @@ describe('the rules and the fixture these cases stand on', () => {
     expect(HIT_HEIGHT).toBeGreaterThan(0)
   })
 
-  it('table T-023d still stands GR-9 and GR-18 on the working day after the plan start', () => {
-    expect(GR_9['場所']).toContain('予定の開始日の翌稼働日')
-    // ⭐ CR-332: 「⭐⭐ `GR-9` と同じ場所である」.
-    expect(GR_18['場所']).toContain('予定の開始日の翌稼働日')
+  it('table T-023d stands GR-9 and GR-18 on the plan start day itself', () => {
+    expect(GR_9['場所']).toContain('予定の開始日')
+    expect(GR_9['場所']).not.toContain('翌稼働日')
+    expect(GR_18['場所']).toContain('`GR-9` と同じ日であり')
+    expect(REQUIREMENTS).toContain(GR_18_IS_NOT_FENCED)
     expect(cellValueOf(S_106)).toContain('月')
   })
 
@@ -615,7 +614,7 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
     const drawn = draw(milestone())
     const ink = dummyNamed(drawn, 'GR-18').ink
     const middleY = ink.y + ink.height / 2
-    expect(grabAt(drawn, ink.x + A_HAIR, middleY)).toBe('GR-18')
+    expect(grabAt(drawn, ink.x + A_HAIR, middleY), GR_18_IS_NOT_FENCED).toBe('GR-18')
     expect(grabAt(drawn, ink.x + ink.width / 2, middleY)).toBe('GR-18')
     expect(grabAt(drawn, ink.x + ink.width - A_HAIR, middleY)).toBe('GR-18')
   })

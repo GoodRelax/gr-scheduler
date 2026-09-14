@@ -65,7 +65,7 @@
 //   is -- computed from FR-043's own arithmetic:
 //       T-023d GR-3  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
 //                    start day's column begins;
-//       FR-043 / T-023d GR-9   the mark stands one working day right of it;
+//       T-240 DM-1   the mark stands on that same day column;
 //       FR-017 (MUST) 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」;
 //       FR-043's width, halved for the two rows.
 //   ⭐ That is not the drawing measuring itself: every number comes from the
@@ -252,11 +252,6 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
  * so a task with an actual bar would leave this file with nothing faint to
  * point at.
  *
- * ⭐ 2026-01-05 IS A MONDAY, so GR-9 (「予定の開始日の翌稼働日」) and GR-17 (a
- * further `S-129` worked days on) fall on the Tuesday and the Wednesday: the
- * default calendar's weekend (表 T-209) never comes between them, and one
- * worked day is one column of the axis.
- *
  * ⛔⛔ IT WAS 2026-02-02, FIVE WEEKS PAST `scrollDate`, UNTIL 2026-09-09. That
  * standoff cost 32 day columns before the bar began, and the wide describe
  * below had to move to 48px a day when `S-180` rose to 30 -- at which point
@@ -341,7 +336,7 @@ interface Probe {
  * FR-043's drawn width, cut where the closing rule cuts it.
  */
 const halvesAt = (zoomX: number): readonly Probe[] => {
-  const dayLeft = planStartOf(settingsAt(zoomX)) + dayWidthAt(zoomX)
+  const dayLeft = planStartOf(settingsAt(zoomX))
   const width = drawnWidthAt(zoomX)
   return [
     { grab: 'GR-9', dayLeft, x: dayLeft + width / 4 },
@@ -351,14 +346,6 @@ const halvesAt = (zoomX: number): readonly Probe[] => {
 
 /**
  * The ONE column FR-043 draws the mark on, and a point on that ink.
- *
- * ⭐ FR-043 (MUST): 「**ダミーを描く位置は、予定の開始日の翌稼働日とすること**」 and
- * 「**ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の印を描いては
- * ならない（MUST NOT）**」（利用者の裁定 2026-09-08）. 「予定の開始日の翌稼働日」 is
- * GR-9's own place (T-023d), so the mark stands one worked day right of the
- * plan bar's left edge, and the point taken here is the middle of its left half.
- * ⛔ This is not a choice made here: FR-043's alignment MUST 「日の列の左端に
- * 揃えること」 names one column, and the drawing-position MUST names which.
  */
 const inkProbeAt = (zoomX: number): Probe => halvesAt(zoomX)[0] as Probe
 
@@ -587,9 +574,6 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
         probe.dayLeft + width,
       )
     }
-    // ⭐ AND THE DRAWING SIDE, WHICH IS ONE. FR-043 (MUST): 「ダミーの印は 1 つ
-    // だけ描くこと」, at 「予定の開始日の翌稼働日」, 「日の列の左端に揃え」て
-    // 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方」 wide.
     const onTheInk = inkProbeAt(ZOOM)
     const ink = dummyUnder(resting, onTheInk)
     expect(ink.x0, `${onTheInk.grab}'s ink begins at its day column's left edge`).toBeCloseTo(

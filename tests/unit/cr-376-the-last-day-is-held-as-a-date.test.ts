@@ -229,7 +229,7 @@ describe('T-021a PV-2 / PV-3: the last day moves between stop and actualFinish i
 })
 
 describe('T-023d GR-17 via FR-043: the released day is stored as stop', () => {
-  const notStarted = (): Document => documentWith(taskOf({ start: stored(ymd(9)) }))
+  const notStarted = (): Document => documentWith(taskOf({ start: stored(ymd(12)) }))
   const released = (iso: string): EditResult =>
     editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(iso) }, DEFAULT_ROW_NAME_FIXTURE)
 

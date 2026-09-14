@@ -1,11 +1,7 @@
 // DFC-56: telling the plan's start point apart from the actual's dummy.
 //
-// The user's report of 2026-08-27, in the ledger at
-// docs/development-records/defects.md row DFC-56: with 9/1..9/10 planned and no
-// actual recorded, the dummy must stand at 9/2, one day along, so that the
-// LEFT of that pair is the plan's start (GR-3, 「予定を左に広げる」) and the
-// RIGHT is the actual's start (GR-9, 「実績の開始を入力する」). Standing both
-// on the same day is what makes them impossible to tell apart.
+// CR-382 put the dummy back on the plan start day (T-240 DM-1); GR-3 and GR-9
+// are told apart by the plan bar's end, outside and inside (T-023d).
 //
 // The units driven are UF-6 `schedule-geometry.ts` (`ScheduleGeometry`, PI-6 of
 // table T-064), UF-7 `item-hit-area.ts` (`ItemHitArea`, PI-7) and UF-11
@@ -14,60 +10,6 @@
 // ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
 // node in the specification. Table T-218 of Chapter 7 gives them their place:
 // TS-6, tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⭐ THE ROWS THIS FILE ASKED FOR HAVE SINCE MOVED. WHAT IS LEFT IS RECORDED
-// ---------------------------------------------------------------------------
-//
-// When this file was written, table T-023d still stood GR-9 on 「予定の開始日」
-// -- exactly where GR-3 stands -- and this header reported that as a defect of
-// the SPECIFICATION as much as of the tree. The rows have since moved:
-//
-//   T-023d GR-9    「未着手のタスクの上、**予定の開始日の翌稼働日**に 1 日ぶん
-//                  （暦に従う。`FR-054`）。⭐ 予定の開始日そのものには置かない
-//                  —— そこは `GR-3` が持つ」
-//   T-023d GR-17   「`GR-9` の日から `S-129` ぶん進んだ稼働日」
-//   FR-043         「ダミーを描く位置は、予定の開始日の翌稼働日とすること
-//                  （MUST）」 and ⛔ 「予定の開始日そのものに置いてはならない
-//                  （MUST NOT）」（利用者の指示 2026-08-27）
-//   FR-043         「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日 …
-//                  （MUST）」（利用者の裁定 2026-09-02）and ⛔ 「この 2 つを
-//                  同じ規則として読んではならない（MUST NOT）」
-//
-// ---------------------------------------------------------------------------
-// ⭐ 2026-09-02: THE DUMMY LEFT THE MILESTONE'S FIGURE (CR-332)
-// ---------------------------------------------------------------------------
-//
-// Table T-023d's GR-18 read 「未着手のマイルストーンの図形の上」 until that day.
-// It now reads 「**予定の開始日の翌稼働日**（暦に従う。`FR-054`）。⭐⭐ `GR-9` と
-// 同じ場所である」（利用者の裁定「マイルストーンは中心が配置する場所。ただし、
-// 実績のダミーは翌日」）, and FR-043 adds ⛔⛔ 「位置は例外ではない（MUST NOT）
-// …… ダミーは形状を問わず予定の開始日の翌稼働日に立ち、離した日が実績開始に
-// なる」.
-//
-// ⭐ THE FIGURE DID NOT MOVE. 表 T-221 の `LF-10` still centres the shape on
-// 「`start` の位置」, and FR-043 says so in as many words: 「動いたのはダミーで
-// あって図形ではない」. So the two are now at DIFFERENT x, and the milestone
-// cases below assert exactly that -- a milestone whose dummy still stands on its
-// figure is the state the ruling took away.
-//
-// ⛔ AND THE DROPPED DAY IS NO LONGER A MILESTONE EXCEPTION. A case added to
-// this file on the morning of 2026-09-02 asserted 「マイルストーンは落とした日を
-// 無視する」 -- the branch `DFC-182` put in on the reasoning that the dummy stood on
-// the figure and had no `GR-3` to collide with. CR-332 withdrew that reasoning
-// with the place it rested on. What is left is the two claims FR-043 now names.
-//
-// ⭐ THE OFFSET IS A WORKING DAY AND THE MANUSCRIPT NOW SAYS SO (「暦に従う。
-// `FR-054`」), which is what the fixture was built on a Friday to tell apart --
-// `WORKED_DAY_AFTER_START` and `CALENDAR_DAY_AFTER_START` are three days apart
-// there, and the cases below name both readings in their failure messages.
-//
-// ⛔⛔ THE PICTURE AND THE VALUE ARE TWO RULES, AND FR-043 FORBIDS READING THEM
-// AS ONE (MUST NOT, 利用者の裁定 2026-09-02). 予定の開始日の翌稼働日 places the
-// dummy BEFORE it is grabbed; what is written when it is let go is 掴みシロを
-// 離した日. ⚠️ Reading them as one is ledger DFC-182: measured on the shipped
-// build 2026-09-02, a hold carried 3 days along and one carried 8 days along
-// wrote the same day, so pulling the hold meant nothing.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
@@ -95,16 +37,6 @@
 //   T-023d  GR-12 「予定バー本体 | 端点を除いた中間」 and the warning under the
 //           table, which limits `GR-9` to the left half of the mark `FR-043`
 //           draws so that `GR-12` stays reachable on a not-started task
-//   FR-043  「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日、実績期間
-//           （`actualDuration`）＝ `S-129`、`resumeValid` ＝ `true` とすること
-//           （MUST）」（利用者の裁定 2026-09-02）, its ⛔ 「予定の開始日そのもの
-//           に置いてはならない（MUST NOT）」 -- which is written of the DRAWING --
-//           and its milestone exception, which since 2026-09-02 is TWO claims
-//           and no more: 「ダミーは点として 1 つだけ出すこと（MUST）。実績期間は
-//           `S-130` とすること（MUST）」, with ⛔⛔ 「位置は例外ではない
-//           （MUST NOT）」 beside them
-//   T-221   LF-10, which centres a milestone's FIGURE on 「`start` の位置」 --
-//           the row that did NOT move on 2026-09-02
 //   FR-054  the one document calendar every day count goes through
 //   T-209   S-106 「稼働する曜日 | 月・火・水・木・金」, S-107 「例外日 | 無し」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
@@ -139,25 +71,6 @@
 //     The cases below press a dummy at its own point and ask WHICH row
 //     answers; they say nothing about how far the ink itself reaches, and the
 //     zoom here is chosen for DFC-56 rather than for that rule.
-//   * ⛔ THE ONE-DAY PLAN, where the fix trades one swallowing for another.
-//     A plan whose `start` and `finish` are the same day is drawn at `S-49`'s
-//     floor (`minShapeWidth`, 6px) whatever the zoom, so its RIGHT end -- GR-4,
-//     which stands above GR-9 in table T-023d -- sits `S-49` px from its left.
-//     Move GR-9 one day along and at any zoom where one day is no wider than
-//     `S-49` + `S-90` the dummy lands inside GR-4's allowance, and GR-4 takes
-//     the press exactly as GR-3 does today. ⚠️ At the DEFAULT zoom one day is
-//     `S-1` = 6px, so this is the ordinary case, not a corner. ⭐ REPORTED, NOT
-//     ASSERTED: the closing warning DFC-56 asks for must name GR-4 as well as
-//     GR-3, or no row settles which of the two wins there, and a case written
-//     here would be inventing the ruling. The fixture below is deliberately
-//     zoomed clear of it, so that the cases measure what DFC-56 is about.
-//   * The picture drawn while a dummy is HELD -- table T-023d's 「`GR-9` /
-//     `GR-17` / `GR-18` を掴んでいるあいだ、置くことになる実績を描いて示すこと
-//     （MUST）」. It lives in the shell's frame loop, not in these three units,
-//     and asking it needs the whole `frameLoop` stage. ⭐ It matters to DFC-56 and
-//     is reported as unwritten: the held picture must be the actual FR-043
-//     PLACES, which since the 2026-08-27 ruling starts on 予定の開始日の翌稼働日
-//     -- the day GR-9 itself is drawn on.
 //
 // ⚠️ WHAT WAS READ OF `src/`, STATED HONESTLY RATHER THAN CLAIMED AWAY. Head
 // comments and exported declarations: `DummyGeometry` / `TaskGeometry` /
@@ -229,7 +142,9 @@ import {
   type EditResult,
   type TaskCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -257,6 +172,18 @@ const T_023D_ORDER = specTable('T-023d').rows.map((row) => row.id)
 
 const S_106 = rowOf('T-209', 'S-106')
 const S_107 = rowOf('T-209', 'S-107')
+
+const REQUIREMENTS = unbroken(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+)
+
+const DM_1_ON_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
+const DM_1_NOT_THE_WORKED_DAY_AFTER = 'ること（MUST）。**⛔ **翌稼働日へずらしてはならない（MUST NOT）'
+const DM_12_POSITION_IS_NO_EXCEPTION = '位置は例外ではない | **⛔ 位置は例外ではない（MUST NOT）'
+const FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION = '⛔ マイルストーンのダミーの位置を例外にしてはならない（MUST NOT）'
+const FR_043_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =
+  '⭐ その姿は、予定と実績のマイルストーンが同じ日にあるときの絵で、実績をダミーに置き換えたものとすること（MUST）'
+const GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY = '終了点を掴んだときは開始点を予定の開始日で確定させること（MUST）'
 
 /**
  * One generated default read as the number it is. `SETTINGS_DEFAULTS` is
@@ -367,7 +294,6 @@ const workedDaysAfter = (iso: string, count: number): string => {
 const PLAN_START = '2026-01-02'
 const PLAN_FINISH = '2026-01-23'
 
-/** What DFC-56 asks for: the dummy stands here, not on `PLAN_START`. */
 const WORKED_DAY_AFTER_START = workedDaysAfter(PLAN_START, 1)
 
 /** The reading FR-043 rejects for the other handle: 「暦日で進めると非稼働日に置く」. */
@@ -385,7 +311,7 @@ const CALENDAR_DAY_AFTER_START = dayAfter(PLAN_START)
 const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 
 /** GR-17: `S-129` worked days past GR-9's day, so the dummy is still that long. */
-const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION)
+const DUMMY_END_DAY = workedDaysAfter(PLAN_START, ACTUAL_INITIAL_DURATION)
 
 /**
  * How far the finish handle is pulled out, in worked days from GR-9's own day.
@@ -393,30 +319,13 @@ const DUMMY_END_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DUR
 const PULLED_WORKED_DAYS = 4
 
 /** Where the finish handle is let go: `PULLED_WORKED_DAYS` past GR-9's day. */
-const PULLED_TO_DAY = workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS)
+const PULLED_TO_DAY = workedDaysAfter(PLAN_START, PULLED_WORKED_DAYS)
 
-/**
- * A milestone that has not been started -- table T-023d's GR-18.
- *
- * ⭐ A FRIDAY, for the same reason `PLAN_START` is one: since 2026-09-02 GR-18
- * stands 「予定の開始日の翌稼働日」 as well, so the working-day answer (Monday)
- * and the calendar-day answer (Saturday) have to be different days here too.
- */
+/** A milestone that has not been started -- table T-023d's GR-18. */
 const MILESTONE_DAY = '2026-01-09'
 
-/** Where GR-18 stands: 「予定の開始日の翌稼働日」, the same rule GR-9 follows. */
 const WORKED_DAY_AFTER_MILESTONE = workedDaysAfter(MILESTONE_DAY, 1)
 
-/**
- * Where the hand let a milestone's dummy go -- ⛔ A SATURDAY ON PURPOSE.
- *
- * FR-043 (MUST NOT): 「位置は例外ではない …… ダミーは形状を問わず予定の開始日の
- * 翌稼働日に立ち、離した日が実績開始になる」. This day is none of the three
- * answers the rule refuses: it is not the figure's own day (`MILESTONE_DAY`),
- * not the day GR-18 is drawn on (`WORKED_DAY_AFTER_MILESTONE`), and it is not a
- * working day, so a write that moved it to one would land on the second of
- * those. ⛔ 「離した日を稼働日へ寄せてはならない（MUST NOT）」（表 T-023d）.
- */
 const MILESTONE_DROPPED_DAY = dayAfter(MILESTONE_DAY)
 
 const dayNamed = (iso: string): CalendarDay => {
@@ -803,11 +712,6 @@ describe('the fixture stands where these cases think it does', () => {
       if (found < 0) throw new Error(`table T-023d no longer prints ${row}`)
       return found
     }
-    // ⛔⛔ AND THE PLAN'S TWO ENDS DROPPED BELOW THE DUMMIES ON 2026-09-09.
-    // The closing rule states the fence in the plainest terms -- 「境目より右で
-    // は、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
-    // 成立させること（MUST）」 -- and the printed order was moved to match, so
-    // GR-3 and GR-4 now stand BELOW GR-17 and GR-9 rather than above.
     expect(at('GR-17')).toBeLessThan(at('GR-9'))
     expect(at('GR-9')).toBeLessThan(at('GR-3'))
     expect(at('GR-3')).toBeLessThan(at('GR-12'))
@@ -830,34 +734,33 @@ describe('the fixture stands where these cases think it does', () => {
     // 「実績の入力を始める掴みシロを **2 つ**（マイルストーンは例外とする）」.
     expect(taskDrawn(draw(notStarted())).dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
   })
+
+  it('reads the clauses CR-382 rewrote in the manuscript, word for word', () => {
+    expect(REQUIREMENTS).toContain(DM_1_ON_THE_PLAN_START_DAY)
+    expect(REQUIREMENTS).toContain(DM_1_NOT_THE_WORKED_DAY_AFTER)
+    expect(REQUIREMENTS).toContain(DM_12_POSITION_IS_NO_EXCEPTION)
+    expect(REQUIREMENTS).toContain(FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION)
+    expect(REQUIREMENTS).toContain(FR_043_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL)
+    expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY)
+  })
 })
 
 // ===========================================================================
-// ⛔ DFC-56 -- where the dummy stands
+// CR-382 -- where the dummy stands
 // ===========================================================================
 
-describe('table T-023d GR-9 / GR-17 (DFC-56): the dummy stands one working day along', () => {
-  it('puts GR-9 on the working day AFTER the plan start, not on the plan start itself', () => {
-    // ⛔ RED, AND FOR TWO REASONS. Table T-023d GR-9 still reads 「未着手の
-    // タスクの上、予定の開始日」, so the tree draws it on the plan's own start
-    // day -- where GR-3 already stands. DFC-56 (2026-08-27): 「9/2〜9/2 で実績の
-    // ダミーが表示され、これをつかめるはず。1 日ずらしてあるのは予定を左に
-    // 広げるのと実績の開始を入力するので掴み点を組み分けるためだ」.
+describe('table T-240 DM-1 / T-023d GR-9 / GR-17 (CR-382): the dummy stands on the plan start day', () => {
+  it('puts GR-9 on the plan start day itself, not on the working day after it', () => {
     const drawn = draw(notStarted())
     const start = dummyNamed(taskDrawn(drawn), 'GR-9')
-    expect(
-      start.at.x,
-      `GR-9 must stand on ${WORKED_DAY_AFTER_START} (the working day after ${PLAN_START}), ` +
-        `not on ${PLAN_START} and not on ${CALENDAR_DAY_AFTER_START} -- ` +
-        'the calendar reading is FR-054\'s, and FR-043 already refuses a handle on a day nobody works',
-    ).toBeCloseTo(xOfDay(drawn, WORKED_DAY_AFTER_START), 6)
+    expect(start.at.x, DM_1_ON_THE_PLAN_START_DAY).toBeCloseTo(xOfDay(drawn, PLAN_START), 6)
+    expect(start.at.x, DM_1_NOT_THE_WORKED_DAY_AFTER).not.toBeCloseTo(
+      xOfDay(drawn, WORKED_DAY_AFTER_START),
+      6,
+    )
   })
 
   it('puts GR-17 S-129 working days past GR-9, so the dummy is still S-129 long', () => {
-    // ⛔ RED WITH THE ROW ABOVE. FR-043 :2015 still bases the end handle on the
-    // PLAN's start day rather than on GR-9's day, so the pair does not travel
-    // together. ⭐ The length is what must NOT change: FR-043 places
-    // the floor day, and the picture has to be that long.
     const drawn = draw(notStarted())
     const task = taskDrawn(drawn)
     const start = dummyNamed(task, 'GR-9')
@@ -869,22 +772,20 @@ describe('table T-023d GR-9 / GR-17 (DFC-56): the dummy stands one working day a
     // Stated a second way, so a change of S-129 is visible here as a length and
     // not only as a day: the span of the two handles IS the placed duration.
     expect(end.at.x - start.at.x).toBeCloseTo(
-      xOfDay(drawn, DUMMY_END_DAY) - xOfDay(drawn, WORKED_DAY_AFTER_START),
+      xOfDay(drawn, DUMMY_END_DAY) - xOfDay(drawn, PLAN_START),
       6,
     )
     expect(end.at.x).toBeGreaterThan(start.at.x)
   })
 
-  it('leaves GR-9 far enough from GR-3 that S-90 cannot reach it', () => {
-    // ⭐ THIS IS THE USER'S COMPLAINT AS A NUMBER. S-90 is 「バーの上下と、端点
-    // の外側に 12px」 an allowance; while GR-9 shares GR-3's day the allowance
-    // covers it entirely, and GR-3 stands above GR-9 in table T-023d.
-    // ⚠️ RE-CUT 2026-09-10: the row said 「端点の左右に」 until 2026-09-09 gave
-    // the outside of the end to the plan and the inside to the actual.
+  it('stands the mark inside the plan bar\'s left end, where GR-3 answers only outside it', () => {
     const drawn = draw(notStarted())
     const planLeft = boxOfBar(taskDrawn(drawn).plan).x0
     const start = dummyNamed(taskDrawn(drawn), 'GR-9')
-    expect(start.at.x - planLeft).toBeGreaterThan(SLOP.planEndpoint)
+    const middleY = start.ink.y + start.ink.height / 2
+    expect(start.ink.x, DM_1_ON_THE_PLAN_START_DAY).toBeGreaterThanOrEqual(planLeft - 1e-6)
+    expect(grabAt(drawn, planLeft - SLOP.planEndpoint / 2, middleY)).toBe('GR-3')
+    expect(grabOnTheStartHalfOfTheMark(drawn, start)).toBe('GR-9')
   })
 })
 
@@ -931,7 +832,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
     expect(mark.width, 'FR-043 draws one mark').toBeGreaterThan(1)
     // ⭐ EVERY pixel of the left half, so a build that gave GR-9 one edge pixel
     // and the finish the rest still fails.
-    for (let x = mark.x; x < mark.x + mark.width / 2; x += 1) {
+    for (let x = mark.x + 1; x < mark.x + mark.width / 2; x += 1) {
       expect(grabAt(built, x, mark.y + mark.height / 2), `x = ${x - mark.x} into the mark`)
         .toBe('GR-9')
     }
@@ -1015,10 +916,6 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 
 describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 and resumeValid', () => {
   it('places the actual start on the day the hold was let go on, unmoved', () => {
-    // ⚠️ `DROPPED_DAY` IS A SATURDAY, so the two readings the rule forbids are
-    // each a different day from the answer: moving it to a working day gives
-    // `WORKED_DAY_AFTER_START`, and reading the drawing rule as the value gives
-    // the same. Neither can pass here.
     const task = taskIn(
       run(notStarted(), {
         kind: 'beginTaskActual',
@@ -1033,30 +930,13 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     )
     expect(dayOf(task.actualStart), 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
       .not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
-    expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): 予定の開始日そのものに置いてはならない')
+    expect(dayOf(task.actualStart), 'FR-043 (MUST NOT): この 2 つを同じ規則として読んではならない')
       .not.toEqual(dayNamed(PLAN_START))
     expect(dayOf(task.stop)).toEqual(dayNamed(workedDaysAfter(DROPPED_DAY, ACTUAL_INITIAL_DURATION - 1)))
     expect(task.resumeValid).toBe(true)
   })
 
   it('pins the start at GR-9 の日 from GR-17, and counts the length out to the release', () => {
-    // ⛔⛔ WHAT THIS CASE ASSERTED UNTIL 2026-09-10, AND WHY IT WAS WRONG TO. It
-    // said the GR-17 row 「IS NOT IMPLEMENTED」 and asked for the GR-9 answer
-    // instead, because `beginTaskActual` carried no field saying which handle
-    // the hand took and `edit-task.ts` carried a STOP where `actualStart` is
-    // written. ⭐ BOTH ARE GONE: the ruling of 2026-09-09 cut the one drawn mark
-    // down its middle -- 「1 つのダミーの印は、その横幅の中央で左右に割ること
-    // （MUST）」 -- so the two MUSTs stopped colliding, and `TaskCommand` now
-    // carries `grabbed`. ⚠️ MEASURED 2026-09-10 BEFORE THIS CASE EXISTED:
-    // deleting the whole GR-17 arm of `edit-task.ts` left `npx vitest run` at
-    // 51 red of 51 -- not one case anywhere held it.
-    //
-    // ⚠️ THE THREE READINGS ARE THREE DIFFERENT DAYS. `PLAN_START` is a Friday,
-    // so GR-9's day is the Monday after it; the release below is four worked
-    // days past that Monday; and `PLAN_START` itself is neither. ⛔ A build that
-    // sent GR-17 down GR-9's arm writes the RELEASE day and `S-129`, and both
-    // halves of that answer are refused here.
-    //
     // ⛔ WHY THE PRESS IS NOT `grabOn(built, dummyNamed(..., 'GR-17'))`.
     // `grabOn` presses `dummy.at.x` / `.at.y`, and GR-17's OWN `.at.x` is
     // `S-129` worked days PAST GR-9's day (`schedule-geometry.ts`'s
@@ -1078,18 +958,18 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
       }),
       UNDER_TEST,
     )
-    expect(dayOf(after.actualStart), 'T-023d GR-17: `actualStart` は `GR-9` の日で確定')
-      .toEqual(dayNamed(WORKED_DAY_AFTER_START))
+    expect(dayOf(after.actualStart), GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY)
+      .toEqual(dayNamed(PLAN_START))
+    expect(dayOf(after.actualStart), DM_1_NOT_THE_WORKED_DAY_AFTER)
+      .not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
     expect(dayOf(after.actualStart), 'GR-17 does not write the day the hand let go on')
       .not.toEqual(dayNamed(PULLED_TO_DAY))
-    expect(dayOf(after.actualStart), 'nor the plan start itself')
-      .not.toEqual(dayNamed(PLAN_START))
     expect(dayOf(after.stop), 'GR-17: the released day is the last day itself')
       .toEqual(dayNamed(PULLED_TO_DAY))
     expect(dayOf(after.stop), 'the right-end reading lands one worked day earlier')
-      .not.toEqual(dayNamed(workedDaysAfter(WORKED_DAY_AFTER_START, PULLED_WORKED_DAYS - 1)))
+      .not.toEqual(dayNamed(workedDaysAfter(PLAN_START, PULLED_WORKED_DAYS - 1)))
     expect(dayOf(after.stop), 'and it is NOT the floor day, which is GR-9\'s answer')
-      .not.toEqual(dayNamed(workedDaysAfter(WORKED_DAY_AFTER_START, ACTUAL_INITIAL_DURATION - 1)))
+      .not.toEqual(dayNamed(workedDaysAfter(PLAN_START, ACTUAL_INITIAL_DURATION - 1)))
     expect(after.resumeValid).toBe(true)
   })
 
@@ -1110,7 +990,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
     )
     expect(dayOf(after.actualStart), 'FR-043: 実績開始日 ＝ 掴みシロを離した日')
       .toEqual(dayNamed(PULLED_TO_DAY))
-    expect(dayOf(after.actualStart)).not.toEqual(dayNamed(WORKED_DAY_AFTER_START))
+    expect(dayOf(after.actualStart)).not.toEqual(dayNamed(PLAN_START))
     expect(dayOf(after.stop)).toEqual(dayNamed(workedDaysAfter(PULLED_TO_DAY, ACTUAL_INITIAL_DURATION - 1)))
     expect(after.resumeValid).toBe(true)
   })
@@ -1150,7 +1030,7 @@ describe('FR-043 (MUST): grabbing GR-9 places the day it was let go on, S-129 an
 // ⛔ FR-043's milestone exception -- TWO claims since 2026-09-02, and no more
 // ===========================================================================
 
-describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on GR-9\'s day', () => {
+describe('table T-023d GR-18 (CR-382): the milestone\'s dummy stands on the figure\'s own day, where GR-9 would', () => {
   it('draws exactly one dummy, and it is GR-18 (exception ①)', () => {
     // FR-043's first surviving exception: 「実績バーを持たないので（表 T-023d の
     // `GR-15`）、ダミーは点として 1 つだけ出すこと（MUST）」. ⭐ THIS ONE IS A
@@ -1159,27 +1039,18 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
     expect(taskDrawn(draw(milestone())).dummies.map((one) => one.grab)).toEqual(['GR-18'])
   })
 
-  it('stands GR-18 on the working day AFTER the plan start, exactly where GR-9 stands', () => {
-    // ⛔ RED WHILE THE DUMMY IS STILL ON THE FIGURE. Table T-023d GR-18 since
-    // 2026-09-02: 「**予定の開始日の翌稼働日**（暦に従う。`FR-054`）。⭐⭐ `GR-9`
-    // と同じ場所である」（利用者の裁定「マイルストーンは中心が配置する場所。
-    // ただし、実績のダミーは翌日」）. The day is named both ways in the message
-    // so a calendar-day reading is told apart from a working-day one.
+  it('stands GR-18 on the plan start day, exactly where GR-9 stands', () => {
     const built = draw(milestone())
     const dummy = dummyNamed(taskDrawn(built), 'GR-18')
-    expect(
-      dummy.at.x,
-      `GR-18 must stand on ${WORKED_DAY_AFTER_MILESTONE} (the working day after ` +
-        `${MILESTONE_DAY}), not on ${MILESTONE_DAY} and not on ${dayAfter(MILESTONE_DAY)}`,
-    ).toBeCloseTo(xOfDay(built, WORKED_DAY_AFTER_MILESTONE), 6)
+    expect(dummy.at.x, DM_12_POSITION_IS_NO_EXCEPTION).toBeCloseTo(xOfDay(built, MILESTONE_DAY), 6)
+    expect(dummy.at.x, FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION).not.toBeCloseTo(
+      xOfDay(built, WORKED_DAY_AFTER_MILESTONE),
+      6,
+    )
     expect(grabOn(built, dummy)).toBe('GR-18')
   })
 
   it('follows the same rule GR-9 does, day for day, on the same plan start', () => {
-    // ⭐ 「`GR-9` と同じ場所である」 stated as the equality it is, rather than as
-    // two separate day computations that could drift apart. A rectangle Task
-    // and a milestone that start on the SAME day must put their dummies at the
-    // same x -- which is what 「形状を問わず」 means (FR-043).
     const shapeAt = (schedule: Schedule, grab: 'GR-9' | 'GR-18'): number =>
       dummyNamed(taskDrawn(draw(schedule)), grab).at.x
     const asARectangle = notStarted({
@@ -1189,16 +1060,7 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
     expect(shapeAt(milestone(), 'GR-18')).toBeCloseTo(shapeAt(asARectangle, 'GR-9'), 6)
   })
 
-  it('leaves the FIGURE on the plan day while the dummy stands a day along', () => {
-    // ⭐ 「図形そのものは `start` の位置に中央で置かれたままである（表 T-221 の
-    // `LF-10`）—— 動いたのはダミーであって図形ではない」（FR-043）. ⛔ Asked as
-    // the separation the ruling is FOR: 「ダミーが図形に重なると、掴む所が図形の
-    // 一部に見える」（表 T-023d GR-18）.
-    // ⚠️ STATED IN DAY COLUMNS, NOT IN PIXELS. LF-10 says 「`start` の位置を中心
-    // に置く」 and no row says whether that pixel is the column's left edge or
-    // its middle, so a case that fixed the figure's centre to one of the two
-    // would be inventing the ruling. What both readings agree on is the COLUMN,
-    // and the column is what has to differ from the dummy's.
+  it('leaves the FIGURE on the plan day, and the dummy stands in that same day column', () => {
     const built = draw(milestone())
     const task = taskDrawn(built)
     const figure = boxOfBar(task.plan)
@@ -1209,12 +1071,9 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
       figureDayLeft,
     )
     expect(centre).toBeLessThanOrEqual(figureDayLeft + dayWidth)
-    // ⛔ And the dummy is NOT in that column -- it is a working day along.
     const dummy = dummyNamed(task, 'GR-18')
-    expect(
-      dummy.at.x,
-      'GR-18 must have left the figure\'s day column (表 T-023d, 利用者の裁定 2026-09-02)',
-    ).toBeGreaterThanOrEqual(figureDayLeft + dayWidth)
+    expect(dummy.at.x, FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION).toBeGreaterThanOrEqual(figureDayLeft)
+    expect(dummy.at.x, FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION).toBeLessThan(figureDayLeft + dayWidth)
   })
 
   it('places S-130 instead of S-129, because a point has no length (exception ②)', () => {
@@ -1235,14 +1094,6 @@ describe('table T-023d GR-18: the milestone\'s dummy stands off the figure, on G
   })
 
   it('⛔ writes the day the hand let go on -- the POSITION is not an exception (MUST NOT)', () => {
-    // ⛔⛔ THIS IS THE CASE THAT REPLACES THIS MORNING'S. FR-043 (MUST NOT):
-    // 「位置は例外ではない …… ダミーは形状を問わず予定の開始日の翌稼働日に立ち、
-    // 離した日が実績開始になる」（利用者の裁定 2026-09-02）. Until CR-332 the
-    // milestone kept the figure's own day whatever day the hand released on;
-    // ⛔ 「その根拠は『図形の上に在り、ぶつかる `GR-3` が無いから』であり、
-    // ダミーが図形を離れた以上、成り立たない」.
-    // ⚠️ `MILESTONE_DROPPED_DAY` IS A SATURDAY, so all three readings the rule
-    // refuses answer a different day from this one.
     const task = taskIn(
       run(milestone(), {
         kind: 'beginTaskActual',

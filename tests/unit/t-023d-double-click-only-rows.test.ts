@@ -128,12 +128,6 @@ import { specTable } from '../contract/spec-table'
  * the panel, were quietly saying it about 19 of the 21. ⭐ Nothing caught that,
  * because no case compared the copy with the manuscript; one below now does,
  * the way tests/unit/uf-30-31.test.ts does for its own copy.
- * ⭐⭐ AND IT MOVED AGAIN ON 2026-09-09. The plan's own points fell BELOW the
- * dummies: table T-023d's closing rule states the fence plainly -- 「境目より右
- * では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
- * 成立させること（MUST）」 -- and the printed order was moved to match, so
- * `GR-3` / `GR-4` / `GR-7` / `GR-12` now stand after `GR-13` / `GR-14`, and
- * `GR-8` dropped to just under `GR-11`.
  */
 const T_023D = [
   'GR-19',

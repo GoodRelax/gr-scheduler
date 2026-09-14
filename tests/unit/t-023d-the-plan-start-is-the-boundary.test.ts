@@ -30,8 +30,8 @@
 //            printed order and keeps its ground where the two now overlap.
 //   GR-8     the resume icon, taking `S-22` (the progress marker's own size)
 //            about its own centre. See section 7.
-//   GR-9     the actual start's dummy, standing on the working day AFTER the
-//            plan start, with FR-043's own drawn ink for its hit box -- its
+//   GR-9     the actual start's dummy, standing on the plan start day itself
+//            (T-240 DM-1), with FR-043's own drawn ink for its hit box -- its
 //            LEFT half (see section 1's clauses).
 //   GR-17    the actual finish's dummy, `S-129` further on again, with the
 //            SAME ink as GR-9 -- its RIGHT half -- and now ABOVE `GR-9` in the
@@ -49,19 +49,6 @@
 //   S-129    the working days between `GR-9`'s day and `GR-17`'s.
 //   FR-043   what each dummy writes when it is grabbed -- which is why both
 //            answers are usable and the tie may be broken either way.
-//
-// ---------------------------------------------------------------------------
-// ⛔ WHY NO `GR-18` CASE STANDS HERE
-// ---------------------------------------------------------------------------
-// `GR-18` is the milestone's single dummy, and the clause of section 1 names it
-// beside `GR-9` and `GR-17`. The boundary question does not arise for it: a
-// milestone is one glyph, not a bar (`SH-5` of table T-012 carries no 上下の幅
-// and its actual is shifted sideways rather than laid inside), so it has no
-// plan bar for `GR-3` and `GR-4` to sit on either end of -- and `GR-15`'s row
-// records the same absence on the actual side, naming `GR-5` / `GR-6` / `GR-17`
-// as rows a milestone cannot reach. With no `GR-3` on the figure there is
-// nothing for `GR-18` to be fenced away from, so a case here would press a
-// contest the table does not create.
 //
 // ---------------------------------------------------------------------------
 // ⭐ THE CONTRADICTION THIS FILE REPORTED IS CLOSED
@@ -129,11 +116,17 @@ const BOUNDARY_IS_THE_PLAN_START = '始日の位置が、予定側と実績側�
 
 /** Held at 120 characters. */
 const LEFT_IS_THE_PLAN_RIGHT_IS_A_DUMMY =
-  'の開始日の位置が、予定側と実績側の境目であること（MUST）**—— その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）'
+  'あること（MUST）**—— その位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9`）を掴むこと（MUST）'
 
 /** Held at 120 characters. */
 const ZOOM_DOES_NOT_MOVE_THE_BOUNDARY =
-  '位置より左を押したときは予定の開始点（`GR-3`）を掴み、右を押したときは実績のダミー（`GR-17` / `GR-9` / `GR-18`）を掴むこと（MUST）。⛔ **倍率によってこの境目を動かしてはならない（MUST NOT）'
+  '（`GR-18`）には本規則を当ててはならない（MUST NOT） —— ダミーは予定の図形と同じ日に中央で立つ（`FR-043`）ので、境目で割ると印の左半分が掴めない。⛔ **倍率によってこの境目を動かしてはならない（MUST NOT）'
+
+const GR_18_IS_NOT_FENCED =
+  'を押したときは実績のダミー（`GR-17` / `GR-9`）を掴むこと（MUST）。⚠️ マイルストーンのダミー（`GR-18`）には本規則を当ててはならない（MUST NOT）'
+
+const GR_18_GRABS_WHAT_GR_15_GRABS =
+  '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GR-15` と同じものを掴むこと（MUST）'
 
 /** Held at 120 characters. */
 const THE_DUMMYS_HIT_AREA_ONLY_RIGHT_OF_THE_BOUNDARY =
@@ -153,7 +146,7 @@ const THE_FINISH_WINS_WHEN_UNDECIDABLE =
 
 /** Held at 90 characters. */
 const THE_DUMMY_BEATS_EVERY_PLAN_ROW =
-  '食い込まないことを本規則が定める。**⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に成立させること（MUST）'
+  'そのものが、予定側へ食い込まないことを本規則が定める。**⭐ 境目より右では、実績のダミー（`GR-17` / `GR-9`）を、予定側のどの行よりも先に成立させること（MUST）'
 
 /** Held at 90 characters. */
 const NO_PLAN_SLOP_INSIDE_THE_DUMMY_BOX =
@@ -222,6 +215,8 @@ const CLAUSES: ReadonlyArray<readonly [string, string]> = [
   ['not because the start stands higher in the table', NOT_BECAUSE_THE_START_STANDS_HIGHER],
   ['the holds are not cut into an upper and a lower lane', NO_UPPER_AND_LOWER_LANES],
   ['the overlapping bands are nested instead', THE_OVERLAPPING_BANDS_ARE_NESTED],
+  ['a milestone dummy is not split at the fence', GR_18_IS_NOT_FENCED],
+  ['a milestone dummy grabs what a same-day actual milestone grabs', GR_18_GRABS_WHAT_GR_15_GRABS],
 ]
 
 describe('the clauses this file holds are still the manuscript\'s own words', () => {
@@ -327,13 +322,13 @@ const DRAWN_WIDTH_CAP = 30
  * find GR-9 at all -- ⚠️ which it can no longer do, because `S-180` rose from
  * 12 to 30 the same day and the mark now covers the whole of a 24px day.
  */
-const ONLY_GR_9_X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
+const ONLY_GR_9_X = PLAN_START_X + 3
 
 /**
  * One rectangle-shaped Task, not started: a plan bar, no actual bar, and the
  * two dummies of `FR-043`.
  *
- * `GR-9` stands on the working day after the plan start (its own row), and
+ * `GR-9` stands on the plan start day itself (T-240 DM-1), and
  * `GR-17` `S-129` working days further on -- `S-129` is 1, so one more day.
  *
  * ⚠️ `marker` is null although a not-started Task draws `PM-1`: `GR-7` sits
@@ -341,7 +336,7 @@ const ONLY_GR_9_X = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
  * out keeps a row that has no stake in this ruling from answering by accident.
  */
 function notStartedTask(pxPerDay: number): ScheduleGeometry {
-  const gr9X = PLAN_START_X + pxPerDay
+  const gr9X = PLAN_START_X
   const gr17X = gr9X + pxPerDay
   // ⭐ THE ONE MARK FR-043 DRAWS, on GR-9's day and 「1 日ぶんと `S-180` の
   // 小さい方」 across. ⚠️ The same record on both dummies, which is what
@@ -493,7 +488,7 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
     // dummies' OWN days are exactly one pixel apart (`GR-9`'s at
     // `PLAN_START_X + 1`, `GR-17`'s one further), which is what the title
     // names; the finish takes the one pixel of ink there is.
-    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY + 1)).toBe('GR-17')
+    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY)).toBe('GR-17')
   })
 
   // ⛔ WHAT THIS CASE ASKS. Table T-023d's closing rule keeps both dummies
@@ -504,7 +499,7 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // not from the ground beyond it.
   it('past the shared ink, right of the fence, neither dummy answers any more', () => {
     const pastTheInk =
-      PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP) + 2
+      PLAN_START_X + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP) + 2
     const answer = grabAt(HIGH_ZOOM_PX_PER_DAY, pastTheInk)
     expect(ACTUAL_DUMMY_ROWS).not.toContain(answer)
     // ⭐ AND SPECIFICALLY GR-12, not nothing: the fence bars the plan-side rows
@@ -545,10 +540,10 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // check 42, because the words are still somewhere in `docs/spec` -- so the
   // check cannot catch this class of staleness and a reader has to.
   it('the ONE drawn mark answers the start on its left half and the finish on its right', () => {
-    const inkFrom = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY
+    const inkFrom = PLAN_START_X
     const inkTo = inkFrom + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP)
     const middle = (inkFrom + inkTo) / 2
-    for (let x = inkFrom; x < middle; x += 1) {
+    for (let x = inkFrom + 1; x < middle; x += 1) {
       expect(grabAt(HIGH_ZOOM_PX_PER_DAY, x), `x = ${x - inkFrom} into the mark`).toBe('GR-9')
     }
     for (let x = middle + 1; x <= inkTo; x += 1) {
@@ -692,22 +687,13 @@ describe('right of the fence a dummy beats every plan-side row', () => {
     // 掴み代は端の外側だけに取ること（MUST）」, ⛔ 「予定の端点を端の内側へ伸ばし
     // てはならない（MUST NOT）」 -- so the bar's whole inside now answers `GR-12`
     // and the finish's own ground is OUTSIDE its own edge.
-    // ⚠️ AND A ONE-DAY PLAN HAS NONE OF IT AT THIS ZOOM: `GR-9` stands on the
-    // working day after the plan start, which for a one-day plan is the very
-    // column the finish's edge falls on, and its drawn ink covers everything
-    // the finish would otherwise reach there. ⇒ The plan is drawn out to the
-    // longest the manuscript measured, where the finish stands past both
-    // dummies' ink.
     const finishX = PLAN_START_X + 6 * LONGEST_MEASURED_PLAN_DAYS
     expect(grabOnShortPlan(6, finishX + 3, MID_Y, LONGEST_MEASURED_PLAN_DAYS)).toBe('GR-4')
   })
 
   // ⭐ CONTROL. The purpose in the ruling's own words -- 「Zoom Out して 1 日の
   // 表示が潰れても、ダミーの実績を入力できることである」 -- asked of the zooms
-  // where a day is one or two pixels across, and asked at the ONE pixel the
-  // manuscript anchors the box to: 「その日の列の左端を起点に」. `GR-9` stands
-  // on the working day after the plan start, so that left edge is exactly one
-  // day's width right of the fence.
+  // where a day is one or two pixels across, on the ink's own right edge.
   //
   // ⛔ NOT 'SOMEWHERE IN THE NEXT 30 PIXELS'. A sweep would pass on a build
   // that had lost the first several pixels of the box, because the plan rows'
@@ -756,7 +742,7 @@ describe('JDG-34: the overlapping holds are nested, so the plan keeps both margi
   })
 
   it('⛔ MUST NOT: neither margin answers a dummy row', () => {
-    const onTheDummysDay = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
+    const onTheDummysDay = PLAN_START_X + 3
     for (const y of [TOP_MARGIN_Y, BOTTOM_MARGIN_Y]) {
       const answer = itemAtPointer(
         notStartedTask(HIGH_ZOOM_PX_PER_DAY),
@@ -771,7 +757,7 @@ describe('JDG-34: the overlapping holds are nested, so the plan keeps both margi
   it('⭐ and the same column between the two margins does answer a dummy', () => {
     // ⚠️ THE CONTRAST. Without it the case above would pass on a build that had
     // lost the dummies altogether, which is the opposite defect.
-    const onTheDummysDay = PLAN_START_X + HIGH_ZOOM_PX_PER_DAY + 3
+    const onTheDummysDay = PLAN_START_X + 3
     expect(ACTUAL_DUMMY_ROWS).toContain(grabAt(HIGH_ZOOM_PX_PER_DAY, onTheDummysDay))
   })
 })
@@ -985,12 +971,12 @@ function milestoneWithAResumeFigure(): ScheduleGeometry {
         dummies: [
           {
             grab: 'GR-18',
-            at: { x: PLAN_START_X + HIGH_ZOOM_PX_PER_DAY, y: MID_Y },
+            at: { x: PLAN_START_X, y: MID_Y },
             ink: {
-              x: PLAN_START_X + HIGH_ZOOM_PX_PER_DAY,
-              y: MID_Y - ACTUAL_BAND_HEIGHT / 2,
-              width: Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP),
-              height: ACTUAL_BAND_HEIGHT,
+              x: PLAN_START_X - ACTUAL_BAND_HEIGHT,
+              y: MID_Y - ACTUAL_BAND_HEIGHT,
+              width: 2 * ACTUAL_BAND_HEIGHT,
+              height: 2 * ACTUAL_BAND_HEIGHT,
             },
           },
         ],
@@ -1030,6 +1016,60 @@ describe('JDG-39: a milestone has no GR-8, and one GR-18 rather than two ends', 
   it('⭐ MUST: the milestone carries exactly one dummy, not a start and a finish', () => {
     const dummies = milestoneWithAResumeFigure().tasks[0]!.dummies
     expect(dummies.map((one) => one.grab)).toEqual(['GR-18'])
+  })
+})
+
+describe('CR-382: a milestone dummy on its figure\'s day is not split at the plan start', () => {
+  const half = ACTUAL_BAND_HEIGHT
+  const diamond = {
+    form: 'outline' as const,
+    points: [
+      { x: PLAN_START_X, y: MID_Y - half },
+      { x: PLAN_START_X + half, y: MID_Y },
+      { x: PLAN_START_X, y: MID_Y + half },
+      { x: PLAN_START_X - half, y: MID_Y },
+    ],
+  }
+  const milestoneOnTheFence = (withDummy: boolean): ScheduleGeometry => {
+    const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
+    const task = base.tasks[0]!
+    return {
+      ...base,
+      tasks: [
+        {
+          ...task,
+          shapeKind: 'milestone',
+          plan: null,
+          planEndsStandOnOneDay: true,
+          milestoneFigure: diamond,
+          actual: withDummy ? null : diamond,
+          dummies: withDummy
+            ? [
+                {
+                  grab: 'GR-18',
+                  at: { x: PLAN_START_X, y: MID_Y },
+                  ink: { x: PLAN_START_X - half, y: MID_Y - half, width: 2 * half, height: 2 * half },
+                },
+              ]
+            : [],
+        },
+      ],
+    }
+  }
+  const leftOfTheFence = PLAN_START_X - half / 2
+  const rightOfTheFence = PLAN_START_X + half / 2
+
+  it('answers GR-18 on the half of the mark left of the plan start as well as the right half', () => {
+    const geometry = milestoneOnTheFence(true)
+    expect(itemAtPointer(geometry, leftOfTheFence, MID_Y, SLOP)?.grab, GR_18_IS_NOT_FENCED).toBe('GR-18')
+    expect(itemAtPointer(geometry, rightOfTheFence, MID_Y, SLOP)?.grab).toBe('GR-18')
+  })
+
+  it('names the same Task that a same-day actual milestone answers for on the same pixel', () => {
+    const withDummy = itemAtPointer(milestoneOnTheFence(true), leftOfTheFence, MID_Y, SLOP)
+    const withActual = itemAtPointer(milestoneOnTheFence(false), leftOfTheFence, MID_Y, SLOP)
+    expect(withActual?.grab).toBe('GR-15')
+    expect(withDummy?.item, GR_18_GRABS_WHAT_GR_15_GRABS).toEqual(withActual?.item)
   })
 })
 
@@ -1299,11 +1339,8 @@ const FLOORED_PLAN_PX = 6
  * One rectangle-shaped Task drawn `widthPx` across, saying whether its plan's
  * two ends stand on one day.
  *
- * ⚠️ THE DUMMIES COME FROM THE BASE AT THE HIGH ZOOM, so `GR-9` stands a whole
- * day's width right of the plan start and its drawn ink begins well past every
- * press below. Section 3 is where
- * the fence between them is measured; a dummy under one of these presses would
- * measure that rule instead of this one.
+ * The dummies are left out: a dummy under one of these presses would measure
+ * the fence of section 3 instead of this rule.
  */
 function planEndingWhereItBegan(widthPx: number, oneDay: boolean): ScheduleGeometry {
   const base = notStartedTask(HIGH_ZOOM_PX_PER_DAY)
@@ -1314,6 +1351,7 @@ function planEndingWhereItBegan(widthPx: number, oneDay: boolean): ScheduleGeome
     tasks: [
       {
         ...task,
+        dummies: [],
         planEndsStandOnOneDay: oneDay,
         plan: {
           form: 'outline',
@@ -1428,7 +1466,6 @@ describe('where the plan\'s two ends stand on one day, the finish is what answer
 // a unit case for exactly that.
 
 describe('the plan\'s ends reach outside the bar and never inside it', () => {
-  /** Well clear of both dummies of the section-2 fixture, which stand at +24. */
   const A_FEW_PX = 3
 
   // ⛔ THE MUST NOT ITSELF, at the FINISH: 「予定の端点を端の内側へ伸ばしては
@@ -1449,11 +1486,10 @@ describe('the plan\'s ends reach outside the bar and never inside it', () => {
     expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_FINISH_X + A_FEW_PX)).toBe('GR-4')
   })
 
-  // ⛔ AND THE SAME MUST NOT AT THE START. ⚠️ Asked at the HIGH zoom, where
-  // `GR-9` stands a whole day (24px) right of the plan start, so three pixels
-  // in is clear of the dummies' own boxes and the body is what is left.
-  it('leaves the pixels inside the start to GR-12, not to GR-3', () => {
-    expect(grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_START_X + A_FEW_PX)).toBe('GR-12')
+  it('leaves the pixels inside the start to the actual side, not to GR-3', () => {
+    const inside = grabAt(HIGH_ZOOM_PX_PER_DAY, PLAN_START_X + A_FEW_PX)
+    expect(inside).not.toBe('GR-3')
+    expect(ACTUAL_DUMMY_ROWS).toContain(inside)
   })
 
   // ⭐ CONTROL, the start's own half of the pair.

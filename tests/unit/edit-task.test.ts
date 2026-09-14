@@ -879,12 +879,6 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     // MUST, and all three at once: "one end decided on its own" is the state
     // FR-043 exists to prevent. S-129 is 1 because a job that takes one day is
     // still entered as one day.
-    // ⛔ 「実績開始日 ＝ 掴みシロを離した日」 (利用者の裁定 2026-09-02), and the
-    // same requirement forbids that being read as one rule with 「ダミーを描く
-    // 位置は、予定の開始日の翌稼働日」 (MUST NOT). jan(5) 2026 is a Monday, so
-    // the day the dummy STANDS on is jan(6) -- and the day let go of here is
-    // neither that nor the plan start itself. Where the dummy stands is the
-    // subject of tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts.
     const next = accepted(
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
@@ -895,8 +889,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     )
     const task = taskIn(next, 1)
     expect(task.actualStart).toBe(jan(8))
-    expect(task.actualStart).not.toBe(jan(5))
-    expect(task.actualStart).not.toBe(jan(6))
+    expect(task.actualStart, 'FR-043 (MUST NOT): この 2 つを同じ規則として読んではならない').not.toBe(jan(5))
     expect(task.stop).toBe(jan(8))
     expect(task.resumeValid).toBe(true)
     // PA-2's other columns stay empty, so the task reads as in progress.
@@ -904,37 +897,6 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
   })
 
   it('FR-043 gives a milestone S-130 for its length and still writes the day let go of', () => {
-    // ⭐ THE LENGTH IS AN EXCEPTION AND THE DAY IS NOT. FR-043 (MUST):
-    // 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たないので（表
-    // T-023d の `GR-15`）、**ダミーは点として 1 つだけ出すこと（MUST）。実績期間
-    // は `S-130` とすること（MUST）**」, and then ⛔⛔ 「**位置は例外ではない
-    // （MUST NOT）**」（利用者の裁定 2026-09-02「**マイルストーンは中心が配置する
-    // 場所。ただし、実績のダミーは翌日**」）—— 「**ダミーは形状を問わず予定の開始
-    // 日の翌稼働日に立ち、離した日が実績開始になる。**」
-    // ⚠️ THE COUNT WENT 2 -> 3 ON 2026-09-08 and this citation said two. ⭐ The
-    // third is a DRAWING exception and reaches nothing here: 「⭐⭐ **3 つ目は
-    // 図形と色である** —— **ダミーの図形は、そのマイルストーンの実績の図形と同じ
-    // とすること（MUST）。矩形で描いてはならない（MUST NOT）**」 -- the values
-    // this case measures (`actualDuration` = S-130, `actualStart` = the day let
-    // go of) are the first two, unchanged.
-    //
-    // ⛔ WHAT THIS CASE USED TO ASSERT AND WHY IT NO LONGER DOES. Until CR-332
-    // FR-043 sent the milestone's 「位置と当たり判定」 to T-023d's GR-18, whose
-    // place was 「未着手のマイルストーンの図形の上」, and this case read the
-    // plan day back. ⛔ The dummy has since left the figure, so the reasoning
-    // that branch rested on -- the dummy standing ON the figure, where no GR-3
-    // is in its way -- is gone with it. ⚠️ The figure itself did NOT move:
-    // 表 T-221 の `LF-10` still centres it on `start` (FR-043: 「**動いたのは
-    // ダミーであって図形ではない**」).
-    //
-    // ⚠️ THE FIXTURE SEPARATES ALL THREE READINGS. jan(9) is a Friday and
-    // jan(17) a Saturday, so the plan day (9th), the working day the dummy is
-    // DRAWN on (12th, the Monday -- 「予定の開始日の翌稼働日」, 暦に従う
-    // `FR-054`) and the day the hand let go on (17th) are three different days,
-    // and none of them is the working day a forbidden snap would reach (the
-    // 16th behind it or the 19th ahead of it). ⛔ 「掴んだ端点を置いた日を、稼働
-    // 日へ寄せてはならない（MUST NOT）」（表 T-023d の結び）—— 休日に働くことが
-    // ある.
     const next = accepted(
       run(
         notStarted({ start: jan(9), finish: jan(9), milestone: true }, { shapeKind: 'milestone' }),
@@ -944,8 +906,6 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const task = taskIn(next, 1)
     expect(task.actualStart, 'FR-043: 実績開始日 ＝ 掴みシロを離した日').toBe(jan(17))
     expect(task.actualStart, 'FR-043 (MUST NOT): 位置は例外ではない').not.toBe(jan(9))
-    expect(task.actualStart, 'FR-043: 翌稼働日 is where the dummy is DRAWN, not what is written')
-      .not.toBe(jan(12))
     expect(task.actualStart, 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
       .not.toBe(jan(16))
     expect(task.actualStart, 'T-023d (MUST NOT): 離した日を稼働日へ寄せてはならない')
@@ -953,6 +913,24 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     // ⭐ Exception ②, which the ruling left standing: a point has no length.
     expect(task.stop, 'FR-043: a milestone ends on its actualStart').toBe(jan(17))
     expect(MILESTONE_ACTUAL_DURATION).toBe(0)
+    expect(task.resumeValid).toBe(true)
+  })
+
+  const GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY = '終了点を掴んだときは開始点を予定の開始日で確定させること（MUST）'
+
+  it('FR-043 pins the start on the plan start day itself when the finish handle GR-17 is grabbed', () => {
+    const next = accepted(
+      run(notStarted({ start: jan(9), finish: jan(23) }, { shapeKind: 'rectangle' }), {
+        kind: 'beginTaskActual',
+        grabbed: 'GR-17',
+        uid: 1,
+        droppedDay: jan(14),
+      }),
+    )
+    const task = taskIn(next, 1)
+    expect(task.actualStart, GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY).toBe(jan(9))
+    expect(task.actualStart, 'T-240 DM-1 (MUST NOT): not the worked day after the plan start').not.toBe(jan(12))
+    expect(task.stop).toBe(jan(14))
     expect(task.resumeValid).toBe(true)
   })
 })

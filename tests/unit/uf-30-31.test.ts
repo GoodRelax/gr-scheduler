@@ -155,12 +155,6 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * つまみ）joined on 2026-09-07, at the table's TAIL rather than its head --
  * 「⚠️ 帯は `Row Area` の外にあるので、他の行と同じ画素を争わない —— だから
  * 本行は優先順の上ではなく末尾に置いてある」.
- * ⭐⭐ AND IT MOVED AGAIN ON 2026-09-09. The plan's own points fell BELOW the
- * dummies: table T-023d's closing rule states the fence plainly -- 「境目より右
- * では、実績のダミー（`GR-17` / `GR-9` / `GR-18`）を、予定側のどの行よりも先に
- * 成立させること（MUST）」 -- and the printed order was moved to match, so
- * `GR-3` / `GR-4` / `GR-7` / `GR-12` now stand after `GR-13` / `GR-14`, and
- * `GR-8` dropped to just under `GR-11`.
  */
 const T_023D = [
   'GR-19',
@@ -407,12 +401,6 @@ const RICH_SCHEDULE = scheduleOf({
 
 /**
  * The same schedule with the Task under test drawn as a MILESTONE.
- *
- * ⭐ FR-043 (MUST NOT, 利用者の裁定 2026-09-02): 「位置は例外ではない …… ダミーは
- * **形状を問わず**予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. Until
- * that day a milestone kept its figure's own day whatever day the hand let go
- * on, so 「形状を問わず」 has to be asked of a real milestone -- a release on
- * GR-18 over a rectangle would pass under either reading.
  */
 const MILESTONE_SCHEDULE = scheduleOf({
   ...(SCHEDULE as unknown as Record<string, unknown>),
@@ -2380,17 +2368,6 @@ describe('表 T-023d -- what a grab does', () => {
   })
 
   it('GR-9 / GR-17 / GR-18 (FR-043): a release on any dummy asks for one CM-14 carrying the day let go on', () => {
-    // FR-043 (MUST): 「実績の入力を始める掴みシロを 2 つ…実績の開始点と終了点と
-    // して薄くタスクの上に示し、どちらが掴まれたときも実績開始日と実績期間
-    // （`actualDuration`）と `resumeValid`（`true`）を置くこと」。The same three
-    // columns whichever handle was taken, so ONE command -- ⛔ AND NOT THE SAME
-    // VALUES: 「開始点を掴んだときは終了点をその既定の位置で、終了点を掴んだ
-    // ときは開始点を予定の開始日の翌稼働日で確定させること（MUST）」, which is
-    // why the row taken travels on the command below. ⭐ And -- and 「掴んで置く値は、実績
-    // 開始日 ＝ 掴みシロを離した日」（MUST、利用者の裁定 2026-09-02）, so that
-    // one command carries the day the pointer was let go on. ⛔ 「離した日を
-    // 稼働日へ寄せてはならない（MUST NOT）」 under table T-023d, so the day is
-    // passed on as read.
     // ⚠️ Table T-028's IN-1 settles a pointer operation on the release, so the
     // gesture below is press then up.
     const releasedOn = '2026-01-13'
@@ -2427,15 +2404,6 @@ describe('表 T-023d -- what a grab does', () => {
   })
 
   it('⛔ GR-18 (FR-043, MUST NOT): a MILESTONE is no exception -- the released day travels too', () => {
-    // ⛔⛔ FR-043 (利用者の裁定 2026-09-02): 「⚠️ マイルストーンの例外は 3 つ
-    // である …… ⛔⛔ **位置は例外ではない（MUST NOT）** …… ダミーは形状を問わず
-    // 予定の開始日の翌稼働日に立ち、離した日が実績開始になる」. ⚠️ THE COUNT
-    // WENT FROM TWO TO THREE ON 2026-09-08 -- the third exception is the
-    // milestone dummy's FIGURE AND COLOUR, which changes nothing this case
-    // asks: the position is still not an exception. Until CR-332 a
-    // milestone wrote its figure's own day whatever day the hand let go on, so
-    // this case asks the release of a Task that really is one -- the row above
-    // presses GR-18 over a rectangle, where both readings agree.
     // ⛔ WHAT IS NOT CLAIMED HERE: `S-130`. This unit answers WHICH command a
     // release asks for; the actual period the command places is the use case's,
     // and t-023d-dummy-stands-clear-of-the-plan-start.test.ts holds it.
