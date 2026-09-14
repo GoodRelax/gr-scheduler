@@ -1,40 +1,4 @@
-// System cases for `SWS-8` of Chapter 6.1 -- table T-218, row TS-3.
-//
-//   TS-3 | software specification test | Chapter 9's SW_SPEC_TEST | parent
-//        | SWS-xxx | System | tests/system/ | Playwright
-//
-// WHAT IS HERE. `SWS-8` is the one `SW_SPEC` node of Chapter 6.1 whose subject
-// is the deliverable itself, and table T-232 of the same chapter holds the
-// whole of the policy it asks for, row by row, with a MUST NOT against adding a
-// directive the table does not name.
-//
-// WHY AT THIS LEVEL AND NOT UNDER `tests/integration/`. Two reasons, and both
-// are reasons a Vitest case could not answer:
-//
-//   * the policy exists only in what the project's own build assembles. There
-//     is no unit to call: nothing in `src/` writes the tag.
-//   * the row that pins the script has a failure mode that no reading of the
-//     text can see. It pins by a hash taken from the script's own body, so a
-//     policy whose text is exactly right still stops the only script in the
-//     file when the hash and the body have drifted apart -- and the page then
-//     comes up blank. That has happened in this project already; rule 04
-//     section 3 of `docs/development-rules/` records it. It shows up one second
-//     after a browser opens the file, and nowhere else.
-//
-// HOW IT IS DRIVEN. Chapter 1.9 of `docs/spec/01-04-requirements.md`, `:275`: a
-// test that verifies a requirement pointing at a table is driven by fixed data
-// copied from that table, and ONE test walks every row.
-// `tests/contract/spec-table.ts` takes that copy at read time out of the
-// manuscript, so not one directive name and not one value is typed in this
-// file. Adding a row to table T-232 fails the case below; changing a value in
-// one fails it too.
-//
-// ⚠️ THE ONE ROW THAT SPELLS NO VALUE. Five rows of the table open with the
-// value the directive takes. One states a rule instead, because the value is
-// computed at build time and cannot be written down in advance. The split is
-// read off the cell -- a cell that OPENS with a code span is spelling a value
-// -- rather than by naming the row, and a second rule-stating row fails the
-// case until someone gives it a check of its own.
+// System test: SWS-8 -- the deliverable's content security policy matches table T-232, row by row.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { execSync } from 'node:child_process'
@@ -48,28 +12,15 @@ import { expectDeclarationsUsable, lastCellOf, rowOf, swsRegistry } from './sws-
 const registry = swsRegistry()
 const { swsCase } = registry
 
-// ---------------------------------------------------------------------------
-// The table, read out of the specification at read time (Chapter 1.9, :275)
-// ---------------------------------------------------------------------------
-
 const T232: SpecTable = specTable('T-232')
 
-/** How many cells a row of table T-232 has after its row ID. */
 const T232_CELLS = 2
 
-/**
- * The row of table T-232 whose value is computed at build time.
- *
- * ⭐ A row ID, not a value: rule 03 section 3 has a note name the row and never
- * copy what the row says.
- */
+// WHY: a row ID, not a value -- rule 03.3 has a note name the row and
+// never copy what the row says.
 const HASH_ROW = 'PO-4'
 
-/**
- * The directive one row settles.
- *
- * @purity pure
- */
+/** @purity pure */
 function directiveOf(row: SpecRow): string {
   if (row.cells.length !== T232_CELLS) {
     throw new Error(
@@ -80,26 +31,18 @@ function directiveOf(row: SpecRow): string {
   return bare(row.cells[0] ?? '').toLowerCase()
 }
 
-/** The text inside the first `code span` of a cell, or `''` when it has none. @purity pure */
+/** @purity pure */
 function firstCodeSpanOf(cell: string): string {
   return /`([^`]+)`/.exec(cell)?.[1] ?? ''
 }
 
-/**
- * The value a row spells outright, or `null` when it states a rule instead.
- *
- * ⭐ A cell that OPENS with a code span is spelling the value the directive
- * takes; one that opens with prose is saying what the value has to satisfy, and
- * a rule cannot be compared with `toBe`. Read from the cell rather than decided
- * by row ID, so the split follows the manuscript.
- *
- * @purity pure
- */
+// WHY: a cell opening with a code span spells the value; one opening with
+// prose states a rule instead, which cannot be compared with toBe.
+/** @purity pure */
 function spelledValueOf(cell: string): string | null {
   return /^`([^`]+)`/.exec(cell.trim())?.[1] ?? null
 }
 
-/** One directive of a policy, as the browser was handed it. */
 interface Directive {
   readonly name: string
   readonly sources: readonly string[]
@@ -117,42 +60,20 @@ function directivesOf(policy: string): readonly Directive[] {
     })
 }
 
-/**
- * What a refusal by the policy reads like in the browser's own words.
- *
- * ⚠️ Matched against the console rather than asserted about the text of the
- * policy: whether a policy REFUSES something is a fact about the page being
- * loaded, not about the string.
- */
+// WHY: matched against the console rather than the policy text -- whether
+// a policy REFUSES something is a fact about the page loading, not the string.
 const REFUSAL = /content security policy|refused to (?:load|execute|apply|connect|frame)/i
-
-// ---------------------------------------------------------------------------
-// The deliverable under test
-// ---------------------------------------------------------------------------
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 
-/**
- * Where this file has the build put the deliverable.
- *
- * ⛔ NOT `dist/`. `tests/nfr/` judges `dist/` and assembles it when it is
- * stale; Playwright runs two spec files in two workers at once, and two builds
- * writing one directory can leave a file half-written -- which is exactly the
- * artifact this file would then read. Under `node_modules/` it is already
- * ignored by Git and belongs to nobody else.
- */
+// WHY: not dist/ -- two Playwright workers building into one shared
+// directory at once could leave a file half-written for this test to read.
 const OUT_DIR_RELATIVE = 'node_modules/.grs-system-test/sws-8'
 const OUT_DIR = join(REPO_ROOT, ...OUT_DIR_RELATIVE.split('/'))
 
-/**
- * Assemble the deliverable with the project's own build.
- *
- * ⭐ Every run, never reused. Rule 04 section 2: a test that passed because it
- * read a stale artifact has proved nothing, and the artifact IS the subject of
- * `SWS-8`.
- *
- * @purity non-pure
- */
+// WHY: built every run, never reused (rule 04.2) -- a test that read a
+// stale artifact would prove nothing, and the artifact IS SWS-8's subject.
+/** @purity non-pure */
 function buildDeliverable(): void {
   try {
     execSync(`npm run build -- --outDir "${OUT_DIR_RELATIVE}" --emptyOutDir`, {
@@ -160,9 +81,8 @@ function buildDeliverable(): void {
       stdio: 'pipe',
     })
   } catch (cause) {
-    // ⚠️ The default failure carries the exit code and nothing else, and the
-    // one thing worth reading -- what the build said -- is on the captured
-    // streams. Put it in the message or the run reports a number.
+    // WHY: the default failure carries only the exit code; what the build
+    // said is on the captured streams, so it must go into the message here.
     const said = cause as { stdout?: { toString(): string }; stderr?: { toString(): string } }
     throw new Error(
       'the build produced no deliverable to judge:\n' +
@@ -186,14 +106,9 @@ function filesUnder(dir: string): string[] {
 let deliverableUrl = ''
 let browser: Browser | null = null
 
-/**
- * Open the deliverable straight from disk and start listening.
- *
- * ⚠️ The returned array keeps filling while the page lives. A caller reads it
- * after the load it cares about has finished, never before.
- *
- * @purity non-pure
- */
+// WHY: the returned array keeps filling while the page lives; a caller
+// reads it after the load it cares about has finished, never before.
+/** @purity non-pure */
 async function openDeliverable(from: Browser): Promise<{ page: Page; complaints: string[] }> {
   const context = await from.newContext()
   const page = await context.newPage()
@@ -219,22 +134,17 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference
-  // browser passes a hook's 30s default on this machine; `CLEARING_UP_MS` of
-  // `./live-app` carries the measurements and the reason.
+  // WHY: this is the hook's own allowance, not an assertion's -- closing
+  // the reference browser passes the default hook timeout on this machine.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 
-/** The browser opened for this file, or a failure that says it was not. @purity semi-pure-b */
+/** @purity semi-pure-b */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
 }
-
-// ---------------------------------------------------------------------------
-// The cases
-// ---------------------------------------------------------------------------
 
 test(
   swsCase({
@@ -257,9 +167,8 @@ test(
         )
         .map((one) => one.getAttribute('content') ?? ''),
     )
-    // ⚠️ One, not "at least one". Two policies are both enforced and their
-    // intersection is what governs the page, so the roster table T-232 settles
-    // would no longer be readable from any single one of them.
+    // WHY: one, not "at least one" -- two policies would both be enforced
+    // and their intersection would no longer read as table T-232's roster.
     expect(
       policies.length,
       `SWS-8 puts one policy into the deliverable; the page carries ${policies.length}`,
@@ -295,16 +204,12 @@ test(
       ).toBe(spelled)
     }
 
-    // The rule-stating row, and the only one this file knows a rule for. A
-    // second one appearing here is a row nobody has written a check for yet.
     expect(
       rowsStatingARule,
       'a row of table T-232 states a rule this file has no check for',
     ).toEqual([HASH_ROW])
 
     const hashRow = rowOf(T232, HASH_ROW)
-    // The algorithm comes out of the cell, so the shape asserted below cannot
-    // outlive the row that chose it.
     const algorithm = firstCodeSpanOf(lastCellOf(hashRow))
     expect(algorithm, `table T-232 row ${HASH_ROW} names no algorithm`).toMatch(/^[a-z0-9]+$/)
     const pinned = directives.find((one) => one.name === directiveOf(hashRow))
@@ -312,7 +217,7 @@ test(
       pinned?.sources ?? [],
       `table T-232 row ${HASH_ROW} admits one source and no second`,
     ).toHaveLength(1)
-    // ⭐ This is also what keeps the row's MUST NOT: a keyword source of any
+    // WHY: this also keeps the row's MUST NOT -- a keyword source of any
     // kind fails the shape, so the directive cannot quietly gain one.
     expect(
       pinned?.sources[0] ?? '',
@@ -336,28 +241,18 @@ test(
     test.setTimeout(120_000)
     const { page, complaints } = await openDeliverable(openedBrowser())
 
-    // ⚠️ The refusal is read BEFORE the drawing is waited for. A refused script
-    // is already on the console by the time the load has finished, and asking
-    // for the drawing first would spend the timeout and then report "nothing was
-    // drawn" -- which is the symptom, not the cause.
+    // WHY: read before the drawing is waited for -- a refused script is
+    // already on the console by then, and waiting first reports the symptom.
     expect(
       complaints.filter((one) => REFUSAL.test(one)),
       `table T-232 row ${HASH_ROW}: the policy refused something when the file was opened directly`,
     ).toEqual([])
 
-    // Coming up at all is the evidence. The row pins the one script in the file
-    // by a hash of that script's own body, and a hash that no longer matches
-    // refuses it -- leaving a page that parses, carries a policy that reads
-    // correctly, and runs nothing.
     await expect(page.locator(DRAWN_SVG)).toBeAttached({ timeout: 30_000 })
 
     await page.context().close()
   },
 )
-
-// ---------------------------------------------------------------------------
-// The declarations themselves (table T-219, row TW-2)
-// ---------------------------------------------------------------------------
 
 test('every row of table T-232 is verified by at least one case', () => {
   const covered = new Set(registry.declared().flatMap((one) => one.covers))

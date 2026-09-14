@@ -1,86 +1,4 @@
-// Unit tests for `commandPaletteFromScreenState` (unit UF-65 of table T-075,
-// component CP-37 of table T-062, which table T-064 publishes as PI-37).
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN AGAINST THE SPECIFICATION ALONE (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, `screen-renderer.ts` in full because it is the contract that fixes the
-// signature and the shape of `CommandPalette`, the entity types the inputs are
-// built from, and the head comment plus the declarations of
-// `command-palette.ts`. No function body of the unit was read, and no expected
-// value below comes from what the unit happens to produce.
-//
-// WHERE THE SPECIFICATION DECIDES NOTHING, NOTHING IS ASSERTED. Three questions
-// were searched for; one still has no answer in docs/spec, so no case invents
-// one, and the other two are kept below with the answers they have since been
-// given:
-//   * HOW BIG THE PALETTE IS -- ⚠️ ANSWERED SINCE, AND THE ANSWER IS "NOBODY
-//     HOLDS IT". This file once recorded the extent as a gap and asserted the
-//     relation FR-053 stated against the rectangle that arrived. FR-053 (MUST)
-//     now has the size follow the contents and (MUST NOT) bars the settings
-//     table from holding one, so the rectangle is gone and only the corner
-//     remains. ⛔ The faintness went with it: the same paragraph (MUST) has that
-//     judged by WHICH PART the pointer is on, which IF-9 of table T-065 answers
-//     from the side that drew the parts. See the note where those cases stood.
-//   * THE WORDS -- ⚠️ ANSWERED SINCE, AND THE CASES BELOW MOVED WITH IT. When
-//     this file was written FR-038 named no store of translated strings, so a
-//     case asserted that none had been minted. Its fifth paragraph (MUST) now
-//     puts every printed word in one per-language dictionary and (MUST NOT)
-//     bars requirements and tables from holding the words; Chapter 6.2 (MUST)
-//     fixes the manuscript and the one generated file it reaches `src/` by. So
-//     the cases below READ the word out of that dictionary. ⛔ No word is written
-//     here -- the same MUST NOT that keeps them out of a table keeps a bench
-//     from minting one, and section 8 of `_assets/tbl-glossary.md` still
-//     refuses table T-109 an English column of its own.
-//   * WHETHER AN ENTRY IS A TOGGLE THAT IS ON. `CommandItem.isPressed` is shown
-//     by FR-065 of IC-20 and by FR-072 of IC-17, both `App Header` rows. What
-//     the palette's toggling entries reflect lives in `DocumentSettings`, which
-//     this signature does not carry, and table T-109 joins no icon row to an
-//     arm of table T-023b. So no case asks for a pressed entry.
-//
-// The rules these cases answer to:
-//   S-99e        the palette is showing or hidden, defaulting to showing
-//                (table T-206); EP-11 of table T-076 exports it closed
-//   FR-053       it floats and is dragged; (MUST) the size follows the contents
-//                and (MUST NOT) the settings table holds none; (MUST) what is
-//                armed is readable; (MUST) the show/hide entrance is OUTSIDE
-//                the palette. ⛔ The faintness is judged elsewhere -- see above
-//   T-023d GR-19 the band FR-053's drag is grabbed by -- 「パレットの上端に敷く
-//                帯」 -- and the row that stands FIRST under the table's
-//                preamble 「上の行ほど優先すること（MUST）」
-//   T-206 S-135a the band's height, and the only number that row fixes: its own
-//                note says 「パレットの大きさは中身が決める（`FR-053`）ので、
-//                本値が定めるのは帯の高さだけである」
-//   T-109 IC-53  「掴んで動かせることを示す。**ボタンではない**」
-//   T-065 IF-9   where the faintness IS judged: the side that drew the parts
-//   T-023b       AR-1 .. AR-6, the whole of what can be armed
-//   T-023c       SL-1 does not admit the palette; SL-7b (MUST NOT) refuses
-//                FR-034 an unordered selection
-//   FR-034       alignment goes to the LAST-picked task's date
-//   FR-029       (MUST) the roster of icons and where each is placed follow
-//                table T-109; (MUST) what cannot be used is faint and gives its
-//                reason; (MUST NOT) one entrance per function
-//   FR-083       SP-1 .. SP-4: pressing a shape entry has a defined meaning
-//                with a selection and without one
-//   T-103        U-26 `Command Palette`, U-34 `Palette Groups` / `Palette
-//                Commands`
-//   T-075        UF-65 is `pure`, which R7.1 makes testable
-//   R3.4         intervals are half-open, so an edge belongs to one side only
-//
-// Chapter 1.9 asks a test of a requirement that points at a table to be driven
-// by a fixed copy of that table. T_109_PALETTE and T_023b below are that copy.
-// ⭐ T_109_PALETTE IS TAKEN FROM THE MANUSCRIPT AT READ TIME SINCE 2026-08-30,
-// not typed out: the hand-written array it replaced went stale the day 表 T-109
-// gained IC-83 .. IC-89, and seven cases then failed about rows that had been
-// on the palette for a day. ⛔ Nothing here re-reads `icon-roster.json` all the
-// same, because a copy read from the same GENERATED file as the unit could not
-// tell drift from agreement -- the manuscript is the other end of that join.
-// ⚠️ THE DICTIONARY IS THE ONE THING READ RATHER THAN COPIED, and FR-038's own
-// MUST NOT is why: a word copied into this file would be the second store of
-// the words that sentence forbids.
+// Unit tests for commandPaletteFromScreenState (UF-65 of table T-075): the palette described from screen state.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -112,48 +30,15 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-// ⭐ The reader every table-driven case in tests/ shares: it takes its copy of a
-// numbered table from the .md at read time, so a row added to the manuscript
-// reaches this file instead of leaving a hand-written list behind.
+// WHY: the shared table reader takes its copy from the .md at read time,
+// so a row added to the manuscript reaches this file automatically.
 import { bare, specTable } from '../contract/spec-table'
 
-// UF-65 reads the drawing settings of table T-202 to answer table T-237's
-// EN-2, so a case has to hand it a whole `DocumentSettings`. The defaults are
-// generated from the manuscript, so this is not a hand-written copy.
+// WHY: UF-65 reads table T-202's drawing settings for T-237's EN-2, so a
+// full DocumentSettings is needed; these come generated, not hand-copied.
 const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
-
-/**
- * 表 T-109 -- every row whose 面 column reads `Command Palette`, in the table's
- * own print order, with its 群 and its 正.
- *
- * ⛔ READ FROM THE MANUSCRIPT AT RUN TIME, AND NOT TYPED OUT. This was a
- * hand-written array of thirty-four rows until 2026-08-30, and it went stale the
- * day 表 T-109 gained IC-83 .. IC-89: the palette described forty-one entries,
- * the array still said thirty-four, and one case announced 「IC-83 is not a row
- * of the palette」 about a row that had been one for a day.
- * ⚠️ THAT IS THE VERY FAULT THE ROUND ITSELF WAS ABOUT -- a list of entrances
- * written by hand beside a roster that already had them (the entrance-to-arm map
- * of `input-command-translator.ts` stopped at IC-34 in the same way) -- so the
- * copy is now made the way `tests/contract/spec-table.ts` makes one: at read
- * time, out of the .md.
- *
- * ⭐ CHAPTER 1.9 (:275) IS STILL OBEYED, AND MORE CLOSELY THAN BEFORE. It asks a
- * test of a requirement that points at a table to be driven by fixed data copied
- * FROM THAT TABLE; this is that copy, taken from the table rather than from a
- * transcription of it. ⛔ It is still NOT `icon-roster.json`: the unit reads that
- * generated file, and a copy taken from the same file could not tell drift from
- * agreement. Reading the MANUSCRIPT keeps the two ends apart -- a generator that
- * stopped carrying a row now fails here rather than agreeing with itself.
- *
- * The 群 is carried in the manuscript's own language on purpose: the preamble of
- * section 8 of `_assets/tbl-glossary.md` states that the table has no English
- * column and why adding one is refused. Writing an English group name here would
- * mint the very names that refusal is about.
- */
+// see T-109
 const T_109 = specTable('T-109')
 
 const T_109_SURFACE = '面'
@@ -167,50 +52,31 @@ for (const column of [T_109_SURFACE, T_109_GROUP, T_109_ENTRANCE, T_109_AUTHORIT
   }
 }
 
-/**
- * U-26 of 表 T-103 -- the settled name 表 T-109's 面 column spells the palette
- * with. ⛔ Read rather than typed, for the reason the rows themselves now are.
- */
+// see T-103
 const COMMAND_PALETTE_SURFACE = ((): string => {
   const row = specTable('T-103').rows.find((one) => one.id === 'U-26')
   if (row === undefined) throw new Error('表 T-103 no longer has row U-26')
   return bare(row.cells[0] ?? '')
 })()
 
-/**
- * ⚠️ THE ONE NEEDLE THIS FILE STILL TYPES, AND IT IS JAPANESE BECAUSE THE THING
- * BEING READ IS. Whether a row is a button is not a column of 表 T-109: it is
- * stated as prose INSIDE the 何の入口か cell of the two rows it is true of --
- * 「掴んで動かせることを示す。**ボタンではない**」 (IC-53) and 「いま構えている図形
- * を示す。**ボタンではない**」 (IC-54). ⛔ There is nowhere else to read it from,
- * and naming the two rows by id instead is the hand-written copy this file has
- * just stopped keeping. A case below measures that the needle still matches
- * something, so a re-worded cell reports rather than quietly making every row a
- * button.
- */
+// WHY: whether a row is a button is prose inside T-109's own cell, not a
+// column; a re-worded cell should report here rather than pass silently.
 const NOT_A_BUTTON = 'ボタンではない'
 
-/** The mark 表 T-109 writes in the 群 column for a row that belongs to no group. */
 const NO_GROUP_MARK = '—'
 
-/** The names a cell writes as `code`. */
 const codeSpans = (cell: string): readonly string[] =>
   [...cell.matchAll(/`([^`]+)`/gu)].map((found) => found[1] as string)
 
+// see T-109
 interface IconRow {
-  /** The row id -- the only join 表 T-109 admits. */
   readonly row: string
-  /** The surfaces its 面 column names, in 表 T-103's settled spellings. */
   readonly surfaces: readonly string[]
-  /** Its 群, in the manuscript's own language; `''` for a row that has none. */
   readonly group: string
-  /** Its 正, as `bare` reads the cell. */
   readonly authority: string
-  /** False for the rows whose 何の入口か cell says 「ボタンではない」. */
   readonly isButton: boolean
 }
 
-/** The whole of 表 T-109, in its print order. */
 const T_109_ROWS: readonly IconRow[] = T_109.rows.map((row) => {
   const group = row.by[T_109_GROUP] ?? ''
   return {
@@ -226,24 +92,14 @@ const T_109_PALETTE: readonly IconRow[] = T_109_ROWS.filter((entry) =>
   entry.surfaces.includes(COMMAND_PALETTE_SURFACE),
 )
 
-/**
- * Rows of 表 T-109 placed on a surface OTHER than the palette.
- *
- * ⭐ EVERY SUCH ROW NOW, AND NOT A CHOSEN SEVEN. The list used to name one row
- * per surface plus the two the palette is most easily confused with -- IC-7, the
- * show/hide entrance FR-053 (MUST) keeps outside it, and IC-21, FR-029's single
- * two-place exception. Both are still in it, and so is every other row, because
- * the whole of the table is to hand.
- */
+// WHY: every row on another surface, not a chosen few -- the whole
+// table is to hand, so nothing here picks and chooses which rows matter.
 const T_109_ELSEWHERE: readonly string[] = T_109_ROWS.filter(
   (entry) => !entry.surfaces.includes(COMMAND_PALETTE_SURFACE),
 ).map((entry) => entry.row)
 
-/**
- * 表 T-023b -- the whole of what can be armed, in the table's own order. The
- * spellings a shape and a glyph carry are not settled (`Armed` says so of
- * AR-3), so each row is built with a spelling the case never reads back.
- */
+// WHY: the spellings a shape/glyph carry are not settled (Armed says so
+// of AR-3), so each row uses a spelling no case reads back.
 const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
   { row: 'AR-1', armed: { kind: 'none' } },
   { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
@@ -253,84 +109,43 @@ const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
   { row: 'AR-6', armed: { kind: 'highlightBox' } },
 ]
 
-/** FR-034, as the 正 column of table T-109 writes it for IC-37 and IC-38. */
+// see T-109
 const ALIGN_REQUIREMENT = 'FR-034'
 
-// ---------------------------------------------------------------------------
-// What the table copy says the answer is.
-// ---------------------------------------------------------------------------
-
-/**
- * The rows that become entries: 面 is the palette, the row is a button, and it
- * has a 群 to sit in.
- *
- * ⭐ THE 群 IS THE THIRD CONDITION AND THE TABLE IS WHAT ADDED IT. Until CR-273
- * every palette button had a group and the first two conditions were the whole
- * of it; IC-75 is a button with no 群 -- FR-053 puts the minimise toggle on the
- * grab band, beside IC-53 -- so a row with nothing in that column has no group
- * to be printed in. ⛔ NOTHING HERE ASSERTS WHERE IC-75 GOES INSTEAD, which is
- * a hole this file has and DFC-103 records: `grabBandHeight` is all the band
- * carries across IF-9 today.
- */
+// WHY: a third condition beyond surface+button -- IC-75 is a button with
+// no group (FR-053 puts it on the grab band), so it needs a group to print in.
 const PALETTE_ENTRY_ROWS = T_109_PALETTE.filter((entry) => entry.isButton && entry.group !== '')
 
-/**
- * The 群 names in the order the table first meets them. FR-029's RATIONALE
- * groups the palette because the number of choices sets the time to decide, and
- * the table's own order is the only order it states -- which matters here
- * because the table returns to an earlier group three times near its end.
- */
+// WHY: FR-029's rationale groups the palette by decision time, and the
+// table's own order is the only order it states.
 const PALETTE_GROUP_NAMES: readonly string[] = PALETTE_ENTRY_ROWS.reduce<string[]>(
   (names, entry) => (names.includes(entry.group) ? names : [...names, entry.group]),
   [],
 )
 
-/** The rows of one group, in the table's print order. */
 const rowsOfGroup = (group: string): readonly string[] =>
   PALETTE_ENTRY_ROWS.filter((entry) => entry.group === group).map((entry) => entry.row)
 
-/**
- * Every entry, read the way the palette lays them out: group by group in the
- * order the table first meets each, and inside a group the table's print order.
- *
- * That is NOT the table's print order end to end, and the difference is the
- * point of the grouping FR-029 asks for: the table returns to the group it
- * opened first three times near its end, so those three rows stand with the
- * group rather than where the table happens to print them.
- */
+// WHY: grouped by first-met order, not the table's print order end to
+// end -- the table returns to an earlier group three times near its end.
 const PALETTE_ENTRY_ROWS_GROUPED: readonly string[] = PALETTE_GROUP_NAMES.flatMap((group) =>
   rowsOfGroup(group),
 )
 
-/** The rows FR-034 owns, read off the 正 column rather than named by row id. */
+// WHY: read off the authority column, not named by row id, so a row
+// reassigned to FR-034 is picked up automatically.
 const ALIGN_ROWS: readonly string[] = PALETTE_ENTRY_ROWS.filter(
   (entry) => entry.authority === ALIGN_REQUIREMENT,
 ).map((entry) => entry.row)
 
-/**
- * The row of table T-109 each group is first met at. CR-194 section 0 item ⑧ 4
- * makes that row the key a group's word is held under, so it -- and not the 群
- * cell -- is what survives a change of display language.
- */
+// WHY: CR-194 keys a group's word by the row it is first met at, not by
+// the group cell, so that key is what survives a change of display language.
 const FIRST_ROW_OF_GROUP: readonly string[] = PALETTE_GROUP_NAMES.map(
   (group) => rowsOfGroup(group)[0] as string,
 )
 
-// ---------------------------------------------------------------------------
-// The one dictionary FR-038 (MUST) holds the printed words in.
-// ---------------------------------------------------------------------------
-
-/**
- * Chapter 6.2 (MUST) puts the manuscript at `_source/display-words.json` and
- * (MUST) lets it reach `src/` as one generated file; this is that file.
- *
- * ⛔ Read, never re-typed: FR-038 (MUST NOT) bars the words from a requirement
- * or a table, and a bench that spelled one would be the second store the same
- * sentence forbids. ⚠️ It is also the file the unit reads, so agreement here
- * is not agreement with the manuscript -- `tests/contract/
- * display-words.contract.test.ts` is what holds the two together cell for
- * cell, and `npm run gen:check` falls on drift.
- */
+// WHY: read, never re-typed -- FR-038 (MUST NOT) bars the words from a
+// requirement or table, and a copy here would be a second store.
 const DICTIONARY = JSON.parse(
   readFileSync(
     join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'),
@@ -347,41 +162,23 @@ const DICTIONARY = JSON.parse(
   }[]
 }
 
-/** The word held for one entry of table T-109, in one display language. */
 const labelWordOf = (row: string, language: DisplayLanguage): string => {
   const held = DICTIONARY.icons.find((one) => one.rowId === row)
   expect(held, `FR-038: the dictionary holds no entry for ${row}`).toBeDefined()
   return (held as { readonly label: Readonly<Record<DisplayLanguage, string>> }).label[language]
 }
 
-/** The word held for the group opened at one row, in one display language. */
 const groupWordOf = (firstRow: string, language: DisplayLanguage): string => {
   const held = DICTIONARY.paletteGroups.find((one) => one.firstRow === firstRow)
   expect(held, `FR-038: the dictionary holds no group opened at ${firstRow}`).toBeDefined()
   return (held as { readonly name: Readonly<Record<DisplayLanguage, string>> }).name[language]
 }
 
-/** The group words in the order the table first meets each group. */
 const groupWordsIn = (language: DisplayLanguage): readonly string[] =>
   FIRST_ROW_OF_GROUP.map((row) => groupWordOf(row, language))
 
-// ---------------------------------------------------------------------------
-// The manuscript table T-206 is printed from.
-// ---------------------------------------------------------------------------
-
-/**
- * `docs/spec/_source/settings.json` -- the manuscript Chapter 6.2 makes the one
- * place a setting is decided, and the file `npm run gen` prints both
- * `_assets/tbl-settings.md` and the generated constants of `src/` out of.
- *
- * ⭐ THE MANUSCRIPT AND NOT THE GENERATED CONSTANT, which is the whole of why
- * this reader exists. 04-verification.md §2 asks an acceptance case for a value
- * that travels from a manuscript to be 「原稿の値を 1 つ変えると試験が落ちるか」;
- * a case that read the same generated file the unit reads would agree with it
- * whatever either of them said, and could not tell drift from agreement.
- * ⛔ No number is written in this file -- rule 03 section 1 forbids re-typing a
- * value the specification holds, and a copy here would be the second store.
- */
+// WHY: the manuscript, not the generated constant -- reading the
+// generated file the unit also reads could not tell drift from agreement.
 const SETTINGS_MANUSCRIPT = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'settings.json'), 'utf8'),
 ) as {
@@ -394,7 +191,6 @@ const SETTINGS_MANUSCRIPT = JSON.parse(
   }[]
 }
 
-/** The 既定 column of one row of one settings table, as the number it prints. */
 function settingDefaultNumber(table: string, row: string): number {
   const block = SETTINGS_MANUSCRIPT.blocks.find((one) => one.id === table)
   if (block === undefined) throw new Error(`the settings manuscript has no table ${table}`)
@@ -407,29 +203,13 @@ function settingDefaultNumber(table: string, row: string): number {
   return value
 }
 
-/**
- * S-135a of table T-206 -- how far down the band GR-19 lays along the palette's
- * top edge reaches.
- *
- * ⚠️ THE HEIGHT AND NOT A SIZE. The row's own note says so: 「パレットの大きさは
- * 中身が決める（`FR-053`）ので、本値が定めるのは帯の高さだけである」, which is
- * why reading it here does not put the palette's extent on this side of IF-9.
- */
+// WHY: the height, not a size -- the row's own note says the palette's
+// extent is decided by its contents (FR-053), not by this value.
 const GRAB_BAND_HEIGHT = settingDefaultNumber('T-206', 'S-135a')
 
-/**
- * S-73 of table T-216 -- the theme hue the session carries.
- *
- * ⚠️ READ, NOT WRITTEN, for the same reason the band height above is: DR-5 of
- * table T-052 keeps the hue on `Project` rather than in the settings, so no
- * generated constant holds it and a number typed here would be the only copy.
- */
+// WHY: read, not written -- DR-5 of table T-052 keeps the hue on
+// Project rather than settings, so no generated constant holds it.
 const THEME_HUE = settingDefaultNumber('T-216', 'S-73')
-
-// ---------------------------------------------------------------------------
-// Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
-// so every member below that a case does not mean is inert.
-// ---------------------------------------------------------------------------
 
 const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
 const HIDDEN: ScreenState = screenStateWithPalette(emptyScreenState(), false)
@@ -443,26 +223,13 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The seven members `ScreenSession` requires that no case here varies:
-  // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `themePreference` is S-72 and `themeHue` S-73 (the roster is
-  // table T-109's, which no theme moves), `selectedGroupIds` is FR-085's set of
-  // rows and `selectedResourceUids` FR-099's set of resources (both empty --
-  // none chosen), and `propertiesSubject` is FR-072's remembered subject
-  // (`null` -- no operation has chosen one yet).
+  // WHY: these seven members stay fixed here because no case below varies
+  // them (theme, selection sets, and the remembered properties subject).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  // ⛔ OPEN, NOT S-142'S DEFAULT, and the roster above is why. FR-053 (MUST)
-  // keeps the milestone entrances of the 置く group out of the palette until
-  // the list is opened; `PALETTE_ENTRY_ROWS` holds every one of them, so a
-  // session saying the list is shut would state a condition under which this
-  // file's own expectation is wrong. ⚠️ NO COUNT IS WRITTEN HERE -- this note
-  // said 「eight, IC-27 .. IC-34」 until 2026-08-30 and was wrong the moment the
-  // table grew; how many there are is 表 T-109's to say, and `T_109_PALETTE`
-  // now asks it. ⚠️ NOTHING READS THIS MEMBER YET -- no case here varies it,
-  // and the closed palette is untested. Whoever wires FR-053's condition owns
-  // that second case.
+  // WHY: open, not S-142's default -- PALETTE_ENTRY_ROWS holds the
+  // milestone entrances FR-053 keeps hidden until the list opens.
   isMilestoneListOpen: true,
   isPaletteMinimised: false,
   dualCursorFollowing: null,
@@ -473,10 +240,8 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   notices: [],
   confirmation: null,
   rowBoxes: [],
-  // GR-21 of table T-023d divides these to get the scrollbar grip's
-  // length, and this file asks nothing of it. ⭐ A whole of zero is
-  // "everything fits", which is the lane-long grip SC-4 of table T-031
-  // draws when nothing overflows.
+  // WHY: GR-21 (table T-023d) divides these for the scrollbar grip's
+  // length; zero means everything fits, so this file leaves it inert.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   ...part,
 })
@@ -485,14 +250,13 @@ const TASK_A: ItemRef = { kind: 'task', uid: 11 }
 const TASK_B: ItemRef = { kind: 'task', uid: 12 }
 const COMMENT_BOX: ItemRef = { kind: 'commentBox', id: 'cb-1' }
 
-/** Picked one at a time, so SL-7b's order exists. */
+// WHY: picked one at a time, so SL-7b's order exists.
 const pickedInTurn = (...items: readonly ItemRef[]): Selection =>
   items.reduce((selection, item) => selectionWith(selection, item), emptySelection())
 
-/** A marquee (SL-3) or a select-all (SL-5): everything at once, so no order. */
+// WHY: a marquee (SL-3) or select-all (SL-5) takes everything at once, so no order exists.
 const pickedAtOnce = (...items: readonly ItemRef[]): Selection => selectionOfAll(items)
 
-/** Selections a case may hand the unit without changing what it means. */
 const SELECTIONS: readonly { readonly what: string; readonly selection: Selection }[] = [
   { what: 'nothing selected', selection: emptySelection() },
   { what: 'one task, picked', selection: pickedInTurn(TASK_A) },
@@ -501,11 +265,6 @@ const SELECTIONS: readonly { readonly what: string; readonly selection: Selectio
   { what: 'one comment box, picked', selection: pickedInTurn(COMMENT_BOX) },
 ]
 
-// ---------------------------------------------------------------------------
-// Reading the answer.
-// ---------------------------------------------------------------------------
-
-/** Fails the case when no palette is described, so a case can go on reading. */
 const describedWith = (
   selection: Selection = emptySelection(),
   session: ScreenSession = sessionOf(),
@@ -525,7 +284,7 @@ const iconsOf = (palette: CommandPalette): readonly string[] =>
 const entryFor = (palette: CommandPalette, icon: string): CommandItem | undefined =>
   entriesOf(palette).find((entry) => entry.icon === icon)
 
-/** A word carries a letter or a digit; a separator or an empty string does not. */
+// WHY: a word carries a letter or digit; a separator or empty string does not.
 const hasWord = (text: string): boolean => /[\p{L}\p{N}]/u.test(text)
 
 const deepFreeze = <T>(value: T): T => {
@@ -534,22 +293,19 @@ const deepFreeze = <T>(value: T): T => {
   return Object.freeze(value)
 }
 
-// ---------------------------------------------------------------------------
-
 describe('UF-65 -- S-99e: described only while the palette is showing', () => {
   it('describes nothing while S-99e says it is hidden', () => {
     expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, emptySelection(), sessionOf())).toBeNull()
   })
 
   it('describes one by default, because S-99e defaults to showing', () => {
-    // `emptyScreenState` is where that default lives; nothing here repeats it.
+    // WHY: emptyScreenState is where that default lives; this does not repeat it.
     expect(commandPaletteFromScreenState(emptyScreenState(), SETTINGS, emptySelection(), sessionOf())).not.toBeNull()
   })
 
   it('spells hidden one way only, which EP-11 of table T-076 also exports', () => {
-    // EP-11 treats the palette as closed on the export path, so a description
-    // carrying no entry would be a second spelling of hidden, and nothing says
-    // which of the two wins. A shown palette always carries entries.
+    // WHY: EP-11 treats the palette as closed on export; a description
+    // with no entries would be a second spelling of hidden.
     for (const { what, selection } of SELECTIONS) {
       expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, selection, sessionOf()), what).toBeNull()
       expect(entriesOf(describedWith(selection)).length, what).toBeGreaterThan(0)
@@ -557,8 +313,7 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
   })
 
   it('answers hidden whatever else is going on', () => {
-    // S-99e is the whole condition: no arm, no pointer and no selection turns
-    // it back on.
+    // WHY: S-99e is the whole condition -- no arm, pointer, or selection turns it back on.
     for (const { row, armed } of T_023b) {
       const state = screenStateWithArmed(HIDDEN, armed)
       const session = sessionOf({ pointer: { x: 5, y: 5 }, commandPaletteAt: { x: 0, y: 0 } })
@@ -569,12 +324,8 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
 
 describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
   it('puts the corner it floats at where `ScreenSession.commandPaletteAt` says', () => {
-    // FR-053 has the person drag the palette, so its place is not one of
-    // ScreenRegions' rectangles -- and no rectangle of the layout is an
-    // argument here at all.
-    // ⭐ A CORNER AND NOTHING MORE. FR-053 (MUST) makes the size follow the
-    // contents and (MUST NOT) bars the settings table from holding one, so the
-    // place is the whole of the geometry this unit can answer for.
+    // WHY: FR-053 has the person drag the palette, so its place is not
+    // one of ScreenRegions' rectangles; the corner is the whole geometry here.
     for (const at of [
       { x: 0, y: 0 },
       { x: 12, y: 340 },
@@ -587,30 +338,12 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
   })
 
   it('carries a place and no extent, because FR-053 forbids one being held', () => {
-    // ⛔ FR-053 (MUST NOT): 「大きさを設定値の表に持ってはならない」. No unit on
-    // this side of IF-9 measures anything (LR-6), so a width or a height OF THE
-    // PALETTE appearing here would be a number nobody had measured -- which is
-    // what this case exists to catch, and the exact key set is how it catches
-    // it: a `width`, a `size`, a `box` or a rectangle would fail here.
-    //
-    // ⚠️ `grabBandHeight` DOES NOT WEAKEN THAT MUST NOT, and the reason is that
-    // a height is not an extent. GR-19 of table T-023d states WHERE the band
-    // goes -- 「パレットの上端に敷く帯」 -- and `at` is already that edge's
-    // corner, so the band's width is the palette's own and stays on the side
-    // that laid the contents out. S-135a fixes the one number GR-19 leaves
-    // open, and its note in table T-206 says in as many words that this is all
-    // it fixes: 「パレットの大きさは中身が決める（`FR-053`）ので、本値が定める
-    // のは帯の高さだけである」. ⛔ The two numbers a rectangle would need are
-    // still absent, and the case below pins that this member is one number and
-    // not a pair.
+    // WHY: FR-053 (MUST NOT) bars a width, height, box or rectangle here
+    // -- no unit on this side of IF-9 measures anything (LR-6).
     const palette = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 12, y: 34 } }))
     expect(Object.keys(palette.at).sort()).toEqual(['x', 'y'])
-    // ⭐ `minimise` AND `isMinimised` JOINED THE CENSUS WITH CR-273 AND ARE NOT
-    // AN EXTENT EITHER. FR-053 (MUST) puts the minimise toggle on the grab band
-    // (IC-75 of table T-109); the first is the entrance itself, carrying the
-    // word and the row id every drawn entry carries, and the second is which of
-    // its two states stands (S-200 of table T-206). ⛔ Neither is a width, a
-    // height or a pair, so the MUST NOT this case guards is untouched.
+    // WHY: grabBandHeight is a height, not an extent; minimise and
+    // isMinimised are the toggle and its state, not a size either.
     expect(Object.keys(palette).sort()).toEqual([
       'armedText',
       'at',
@@ -623,9 +356,8 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
   })
 
   it('moves only the place when the person drags it', () => {
-    // SC-6 of table T-031 keeps the palette still against the screen, so a drag
-    // is the only thing that moves it -- and moving it changes nothing else
-    // that is described.
+    // WHY: SC-6 (table T-031) keeps the palette still against the
+    // screen, so a drag is the only thing that can move it.
     const here = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 0, y: 0 } }))
     const there = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 300, y: 90 } }))
     expect({ ...there, at: here.at }).toEqual(here)
@@ -634,11 +366,8 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
 
 describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => {
   it('lays a band whenever it describes a palette, however the palette is asked for', () => {
-    // ⛔ GR-19 is a MUST -- it stands under 「上の行ほど優先すること（MUST）」 --
-    // and a palette drawn without a band is a palette that row cannot be
-    // obeyed for. So there is no state of the arm, the selection, the corner or
-    // the display language in which this member has nothing to say, and the
-    // walk below is over every input this unit takes.
+    // WHY: GR-19 is a MUST with top priority, so no state of arm,
+    // selection, corner or language may leave this member unanswered.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const { what, selection } of SELECTIONS) {
         for (const { row, armed } of T_023b) {
@@ -654,32 +383,20 @@ describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => 
   })
 
   it('takes the height from the manuscript S-135a rather than from a number of its own', () => {
-    // ⭐ 04-verification.md §2: 「原稿の値を 1 つ変えると試験が落ちるか」,
-    // 「落ちなければ、その値はどこにも届いていない」. The expected value is read out
-    // of `docs/spec/_source/settings.json` at read time, so re-deciding that row
+    // WHY: read from the manuscript at read time, so re-deciding S-135a
     // fails this case instead of leaving a stale literal behind.
-    // ⚠️ GR-19 delegates the number and states nothing else about it: 「高さは
-    // `_assets/tbl-settings.md` の `S-135a`」.
     expect(describedWith().grabBandHeight).toBe(GRAB_BAND_HEIGHT)
   })
 
   it('never answers a band nobody could grab', () => {
-    // ⛔ GR-19's own warning is what a zero band would cost: 「パレットは日程の
-    // 上へ浮くので、掴めない位置へ置けてしまうと二度と動かせなくなる」. A band
-    // of no height is the same accident reached by another road -- the palette
-    // is on the screen and there is nothing on it to take hold of.
-    // ⚠️ Not a bound of this file's invention: the claim is only that whatever
-    // S-135a says is a band a hand can land on.
+    // WHY: a zero-height band is ungrabbable, the same accident as a
+    // corner nobody can reach; this only claims S-135a is not that.
     expect(describedWith().grabBandHeight).toBeGreaterThan(0)
   })
 
   it('reaches the screen as the band and never as an entry (IC-53 of table T-109)', () => {
-    // ⛔ Table T-109 of IC-53: 「掴んで動かせることを示す。**ボタンではない**」.
-    // A `CommandItem` for it would say the opposite -- an entry is a thing to
-    // press, and pressing this one does not run a command, it begins FR-053's
-    // drag. So the row reaches the description as the band's height and in no
-    // other way, and both halves are pinned together here: finding it among the
-    // entries is the failure, and so is losing the band that stands in its place.
+    // WHY: pressing IC-53 begins a drag, not a command, so it must reach
+    // the screen as the band's height and never as an entry.
     const palette = describedWith()
     const notAButton = T_109_PALETTE.find((entry) => entry.authority === 'FR-053')
     expect(notAButton, 'table T-109 no longer places a row of FR-053 on the palette').toBeDefined()
@@ -689,39 +406,22 @@ describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => 
   })
 })
 
-// ⛔ THREE CASES ABOUT THE FAINTNESS STOOD HERE AND HAVE BEEN DELETED, NOT
-// WEAKENED. FR-053 (MUST) now reads 「上の「薄く透明に描く」の判定は、ポインタが
-// どの部品の上にあるかで行うこと（MUST）—— 大きさを持たない以上、矩形の内外では
-// 判じられない。」 The judgement is therefore no longer this unit's: a `pure`
-// unit (UF-65 of table T-075) handed a point and no rectangle cannot say which
-// part the pointer is on. IF-9 of table T-065 supplies that answer from the
-// side that DREW the parts, so the case is owed by the bench of the unit that
-// implements it -- UF-71, `tests/unit/uf-72-screen-part.test.ts`.
-// ⚠️ The third of them ('never reads the faintness off a selection') was still
-// GREEN when the other two went red, because every answer it compared had
-// become `undefined`. A case that passes by comparing absences is the "green
-// proves nothing" of docs/development-rules/04-verification.md section 2, so it
-// goes with them rather than staying as cover.
-
 describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () => {
   it('says something for every arm of table T-023b', () => {
-    // An empty `armedText` would answer nothing, and FR-053 makes reading what
-    // is armed a MUST -- IC-61's arm (AR-4) is the one it names, because
-    // otherwise AR-4's "whatever is hit becomes an endpoint" happens unannounced.
+    // WHY: an empty armedText answers nothing, and FR-053 makes reading
+    // what is armed a MUST.
     for (const { row, armed } of T_023b) {
       const palette = describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed))
-      // ⛔ NULL IS THE MINIMISED READING AND NOTHING ELSE (FR-053, ruling
-      // 2026-09-01). `sessionOf()` is not minimised, so a null here is the MUST
-      // broken in the state it still governs -- asked before the length so the
-      // failure names which of the two went wrong.
+      // WHY: null is the minimised reading and nothing else; sessionOf()
+      // is not minimised, so null here is the MUST broken.
       expect(palette.armedText, `FR-053 (MUST): ${row} reads null while shown`).not.toBeNull()
       expect(palette.armedText?.length ?? 0, `FR-053 (MUST): ${row}`).toBeGreaterThan(0)
     }
   })
 
   it('tells the six arms of table T-023b apart', () => {
-    // Table T-023b holds the whole of what can be armed. Two arms wearing one
-    // text cannot be read apart, which is what the MUST asks for.
+    // WHY: table T-023b holds the whole of what can be armed; two arms
+    // sharing one text could not be told apart.
     const texts = T_023b.map(
       ({ armed }) =>
         describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed)).armedText,
@@ -730,8 +430,8 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
   })
 
   it('reads the arm off `ScreenState` and nothing else', () => {
-    // U-38 of table T-103 forbids calling an arm a selection, and they are
-    // different states: neither the selection nor the pointer may move it.
+    // WHY: U-38 forbids calling an arm a selection; neither the
+    // selection nor the pointer may move it.
     for (const { row, armed } of T_023b) {
       const state = screenStateWithArmed(SHOWN, armed)
       const texts = SELECTIONS.map(
@@ -745,12 +445,8 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
 
 describe('the copy of 表 T-109 this file is driven by', () => {
   it('⭐ really came from the manuscript, and not from a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT MATCHED NOTHING WOULD MAKE EVERY CASE BELOW
-    // AGREE WITH ANYTHING (docs/development-rules/04-verification.md section 2).
-    // ⚠️ Relations, not counts: how many rows the palette holds is 表 T-109's to
-    // say and changes whenever a row is added -- which is the whole reason the
-    // copy is no longer typed. What is asserted is that each read found
-    // SOMETHING, so a renamed column or a re-worded cell reports here.
+    // WHY: without this, a parse matching nothing would make every case
+    // below agree with anything.
     expect(COMMAND_PALETTE_SURFACE.length, 'U-26 of 表 T-103').toBeGreaterThan(0)
     expect(T_109_ROWS.length, '表 T-109 has rows').toBeGreaterThan(1)
     expect(T_109_PALETTE.length, 'rows on the palette').toBeGreaterThan(1)
@@ -760,12 +456,8 @@ describe('the copy of 表 T-109 this file is driven by', () => {
   })
 
   it('⚠️ the one Japanese needle still matches the rows it is about', () => {
-    // 「ボタンではない」 is prose inside the 何の入口か column and not a column of
-    // its own, so it is the one thing this file reads by searching text. ⛔ A
-    // re-worded cell would silently make EVERY palette row a button, and the
-    // two cases that turn on `isButton` would then assert nothing -- so the
-    // match is measured here, and a row with a 群 that is still not an entry is
-    // measured too, because a third case turns on that pair.
+    // WHY: this prose lives inside a cell, not a column; a re-worded
+    // cell would silently make every row a button, so the match is measured here.
     expect(T_109_PALETTE.filter((entry) => !entry.isButton).length).toBeGreaterThan(0)
     expect(
       T_109_PALETTE.filter((entry) => !entry.isButton && entry.group !== '').length,
@@ -777,14 +469,12 @@ describe('the copy of 表 T-109 this file is driven by', () => {
 
 describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-109', () => {
   it('carries every palette row of the table that is a button, and no other', () => {
-    // The 面 column IS the placement (FR-029, MUST). One pass over the table
-    // copy, as Chapter 1.9 asks.
+    // WHY: the surface column IS the placement (FR-029, MUST).
     expect(iconsOf(describedWith())).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
   })
 
   it('leaves out the two rows the table marks as not being buttons', () => {
-    // Both reach the screen as something other than an entry: one as the place
-    // a drag moves, the other alongside what is armed.
+    // WHY: both reach the screen some other way -- the drag corner and the armed text.
     const icons = iconsOf(describedWith())
     for (const entry of T_109_PALETTE.filter((row) => !row.isButton)) {
       expect(icons, `table T-109: ${entry.row} is not a button`).not.toContain(entry.row)
@@ -792,9 +482,8 @@ describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-10
   })
 
   it('lets no row placed on another surface reach the palette', () => {
-    // FR-029 (MUST) binds the placement to the 面 column, so a row placed on
-    // the `App Header`, a modal, the autosave status or the row title panel has
-    // no business here.
+    // WHY: FR-029 binds placement to the surface column; a row placed
+    // elsewhere has no business here.
     const icons = iconsOf(describedWith())
     for (const row of T_109_ELSEWHERE) {
       expect(icons, `FR-029 (MUST): ${row} is placed elsewhere`).not.toContain(row)
@@ -802,15 +491,13 @@ describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-10
   })
 
   it('keeps the show/hide entrance outside the palette (FR-053, MUST)', () => {
-    // FR-053: the entrance that hides the palette must sit outside it, or the
-    // surface to press disappears the moment it is used. Table T-109 places
-    // IC-7 on the `App Header` for that reason.
+    // WHY: the entrance that hides the palette must sit outside it, or
+    // it disappears the moment it is used.
     expect(iconsOf(describedWith())).not.toContain('IC-7')
   })
 
   it('never carries the same entry twice (MUST NOT)', () => {
-    // FR-029 forbids two entrances onto one function; its single exception is
-    // the display language, which is placed on two OTHER surfaces.
+    // WHY: FR-029's one exception (the display language) is placed on two OTHER surfaces.
     for (const { what, selection } of SELECTIONS) {
       const icons = iconsOf(describedWith(selection))
       expect(new Set(icons).size, `FR-029 (MUST NOT): a repeat with ${what}`).toBe(icons.length)
@@ -827,19 +514,13 @@ describe('UF-65 -- FR-029 (MUST): the roster and the placement follow table T-10
 
 describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
   it('opens the groups in the order the table first meets them', () => {
-    // FR-029's RATIONALE is why the palette is grouped at all. Re-sorting by
-    // anything else would move entries out of the group it puts them in: the
-    // table returns to an earlier group three times near its end.
-    // ⚠️ The ORDER is the claim, so the groups are named by the word the
-    // dictionary holds for the row each is opened at -- the 群 cell is the
-    // key's origin, not the printed word (FR-038).
+    // WHY: re-sorting by anything else would move entries out of their
+    // group -- the table returns to an earlier group three times near its end.
     expect(describedWith().groups.map((group) => group.name)).toEqual(groupWordsIn('ja'))
   })
 
   it('keeps the table print order inside each group', () => {
-    // ⚠️ Walked by position rather than by name: the case above pins the order,
-    // so the nth group described is the nth group of the table, whichever word
-    // FR-038 has that group printed under.
+    // WHY: walked by position, not name -- the case above already pins the order.
     const groups = describedWith().groups
     groups.forEach((group, at) => {
       expect(group.commands.map((entry) => entry.icon), group.name).toEqual(
@@ -850,9 +531,8 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
   })
 
   it('opens no group for a row that is not an entry', () => {
-    // One of the two rows that are not buttons carries a 群 of its own. A group
-    // standing empty would be a heading with nothing under it -- and the
-    // dictionary does hold a word for it, so its absence is a real answer.
+    // WHY: a group standing empty would be a heading with nothing under
+    // it, and the dictionary does hold a word for it.
     const notAnEntry = T_109_PALETTE.find((entry) => !entry.isButton && entry.group !== '')
     expect(notAnEntry, 'table T-109 no longer puts a 群 on a row that is not an entry').toBeDefined()
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
@@ -865,12 +545,8 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
   })
 
   it('takes each group name from the dictionary, in the display language', () => {
-    // ⚠️ WAS "mints no group name of its own", from the days when no store of
-    // translated strings existed. FR-038's fifth paragraph (MUST) settled one,
-    // so the claim is now the one that MUST states: the word printed over a
-    // group is the word the dictionary holds for it in the language the reader
-    // chose. ⛔ Not "whatever the unit answers" -- the expected value is read
-    // out of the dictionary, keyed by the row the group opens at.
+    // WHY: FR-038's fifth paragraph now settles one store; the word
+    // printed is the dictionary's word for the row the group opens at.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       const palette = describedWith(emptySelection(), sessionOf({ language }))
       expect(palette.groups.map((group) => group.name), language).toEqual(groupWordsIn(language))
@@ -878,9 +554,8 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
   })
 
   it('answers a different name per language, because the words are per language', () => {
-    // FR-038 (MUST) shows the menus in the language the reader chose. ⚠️ Only
-    // asked of the groups the dictionary really holds two different words for:
-    // a group whose two words agree is the dictionary's answer, not a fault.
+    // WHY: only asked of groups the dictionary really holds two
+    // different words for; agreement there is the dictionary's answer, not a fault.
     const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' })).groups
     const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' })).groups
 
@@ -895,8 +570,7 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
 
 describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is faint', () => {
   it('offers the alignment entries while an ordered selection holds tasks', () => {
-    // FR-034 lines the selected tasks up on the LAST-picked task's date, which
-    // an order makes reachable.
+    // WHY: FR-034 lines tasks up by the LAST-picked task's date, which an order makes reachable.
     const palette = describedWith(pickedInTurn(TASK_A, TASK_B))
     for (const row of ALIGN_ROWS) {
       expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row}`).toBe(true)
@@ -904,9 +578,8 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
   })
 
   it('refuses them on a selection that carries no order (SL-7b, MUST NOT)', () => {
-    // SL-7b: a marquee (SL-3) and a select-all (SL-5) make no order, and
-    // alignment MUST NOT be executed on that alone. FR-029 (MUST) is how a
-    // person is told: faint, rather than a press that does nothing.
+    // WHY: a marquee or select-all makes no order, and FR-029 shows
+    // that as faint rather than a press that does nothing.
     const palette = describedWith(pickedAtOnce(TASK_A, TASK_B))
     for (const row of ALIGN_ROWS) {
       expect(entryFor(palette, row)?.isEnabled, `SL-7b (MUST NOT): ${row}`).toBe(false)
@@ -914,7 +587,7 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
   })
 
   it('refuses them while nothing is selected', () => {
-    // FR-034 has no task to move and no last-picked task to move it to.
+    // WHY: FR-034 has no task to move and no last-picked task to move it to.
     const palette = describedWith(emptySelection())
     for (const row of ALIGN_ROWS) {
       expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row} with nothing selected`).toBe(false)
@@ -922,8 +595,7 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
   })
 
   it('refuses them when the ordered selection holds no task', () => {
-    // FR-034 speaks of the selected TASKS and of the last-picked TASK. SL-1
-    // admits four other kinds, none of which carries a date to line up.
+    // WHY: FR-034 speaks of selected tasks; SL-1 admits four other kinds with no date.
     const palette = describedWith(pickedInTurn(COMMENT_BOX))
     for (const row of ALIGN_ROWS) {
       expect(entryFor(palette, row)?.isEnabled, `FR-034: ${row} with no task selected`).toBe(false)
@@ -931,10 +603,8 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
   })
 
   it('leaves every other entry usable, whatever is selected', () => {
-    // FR-083's SP-1 .. SP-4 give a shape entry a defined meaning both with a
-    // selection and without one, and no requirement takes any other palette
-    // entry away. FR-029 draws faint only what cannot be used -- an entry that
-    // does nothing reads as a fault.
+    // WHY: FR-083 gives a shape entry a defined meaning with or without
+    // a selection, and FR-029 draws faint only what cannot be used.
     for (const { what, selection } of SELECTIONS) {
       for (const entry of entriesOf(describedWith(selection))) {
         if (ALIGN_ROWS.includes(entry.icon)) continue
@@ -946,12 +616,8 @@ describe('UF-65 -- FR-029 (MUST) with SL-7b (MUST NOT): what cannot be used is f
 
 describe('UF-65 -- FR-038: the display language', () => {
   it('takes each entry word from the dictionary, in the display language', () => {
-    // ⚠️ WAS "mints no word, because no table settles one". That case was the
-    // stand-in for the store FR-038 did not yet have; its fifth paragraph
-    // (MUST) now has one, so the claim is the one that MUST states -- the word
-    // on an entry is the dictionary's word for that row of table T-109 in the
-    // language the reader chose. ⛔ The expected value is read out of the
-    // dictionary, not off what the unit answers.
+    // WHY: FR-038's fifth paragraph settled the one store; the expected
+    // value is read out of the dictionary, not off what the unit answers.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
         expect(entry.label, `${language}: ${entry.icon}`).toBe(labelWordOf(entry.icon, language))
@@ -960,10 +626,8 @@ describe('UF-65 -- FR-038: the display language', () => {
   })
 
   it('leaves no entry without a word to read (FR-029 MUST)', () => {
-    // FR-029 (MUST) has an entry that cannot be used give its reason, which
-    // presumes an entry can be read at all; an entry printed with nothing on
-    // it is an entry a person cannot name. ⚠️ This is the half the case above
-    // cannot make: a dictionary gone empty would satisfy it in both languages.
+    // WHY: an entry printed with nothing on it cannot be named; an
+    // empty dictionary would still pass the previous case.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
         expect(hasWord(entry.label), `${language}: ${entry.icon} carries no word`).toBe(true)
@@ -972,9 +636,8 @@ describe('UF-65 -- FR-038: the display language', () => {
   })
 
   it('describes the same entries in either language', () => {
-    // FR-038 keeps one language state for the whole screen and translates no
-    // roster: which entries stand there is table T-109's answer, not a
-    // language's.
+    // WHY: FR-038 keeps one language state for the whole screen and
+    // translates no roster; which entries appear is table T-109's answer.
     const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' }))
     const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' }))
     expect(iconsOf(inEnglish)).toEqual(iconsOf(inJapanese))
@@ -983,9 +646,8 @@ describe('UF-65 -- FR-038: the display language', () => {
 
 describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
   it('rewrites none of its three arguments', () => {
-    // A `pure` unit that rewrites an argument is the defect
-    // docs/development-rules/04-verification.md records having been caught by
-    // a specification-driven run.
+    // WHY: a pure unit that rewrites an argument is a defect a
+    // specification-driven run has caught before.
     const state = deepFreeze(screenStateWithArmed(SHOWN, { kind: 'dependency' }))
     const selection = deepFreeze(pickedInTurn(TASK_A, TASK_B))
     const session = deepFreeze(sessionOf({ pointer: { x: 4, y: 4 } }))
@@ -1008,30 +670,25 @@ describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
 
 describe('UF-65 -- boundaries the specification admits', () => {
   it('describes the palette with nothing selected at all', () => {
-    // `emptySelection` is SL-6's state: FR-083's SP-1 is defined there, so the
-    // palette is no less usable for it.
+    // WHY: emptySelection is SL-6's state; FR-083's SP-1 is defined there.
     const palette = describedWith(emptySelection())
     expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
   })
 
   it('describes the palette with a single selected item', () => {
-    // SP-2 of FR-083 is the one-selected case; SL-7b's order exists from the
-    // first pick.
+    // WHY: SP-2 of FR-083 is the one-selected case; SL-7b's order exists from the first pick.
     expect(iconsOf(describedWith(pickedInTurn(TASK_A)))).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
   })
 
   it('describes the palette while the pointer is outside the window', () => {
-    // `ScreenSession.pointer` is `null` for exactly that. ⚠️ What the absent
-    // pointer USED to be asked here -- whether the palette is drawn faint --
-    // left with the three cases FR-053 moved across IF-9; what is left is that
-    // a pointer nowhere at all takes nothing off the description.
+    // WHY: a pointer nowhere at all takes nothing off the description
+    // now that the faintness question moved across IF-9.
     const palette = describedWith(emptySelection(), sessionOf({ pointer: null }))
     expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
   })
 
   it('takes a corner outside the screen without changing what it holds', () => {
-    // Nothing clamps `commandPaletteAt`: table T-206 holds no row for the
-    // palette's place, so there is no bound to apply here.
+    // WHY: table T-206 holds no row for the palette's place, so there is no bound to apply.
     const at = { x: -500, y: -500 }
     const offScreen = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at }))
     expect(iconsOf(offScreen)).toEqual(PALETTE_ENTRY_ROWS_GROUPED)

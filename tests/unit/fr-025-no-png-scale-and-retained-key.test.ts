@@ -1,55 +1,4 @@
-// `FR-025` (利用者の裁定 2026-09-06, CR-336/337 aftermath, ledger row from the
-// same date): the PNG export was given a selectable scale (`S-82`,
-// `exportPngScale`) and the ruling retired the idea outright -- 「PNGはいつも
-// 原則 1600x900のままとする。例外は行が多い場合に900を増やすときのみ」. The
-// picture's width is fixed at `exportCanvas` (S-81) and its height only grows to
-// fit; there is no multiplier anywhere any more.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// ⭐ THE TWO CLAUSES, VERBATIM (docs/spec/01-04-requirements.md, FR-025) -- each
-// window below ends at its own marker's closing parenthesis, which is the unit
-// check 39 (`check-must-clause-coverage.py`) measures a clause by.
-// ---------------------------------------------------------------------------
-//
-//   ⛔⛔ 「倍率を持ってはならない（MUST NOT）」
-//   ⛔ 「保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）」
-//
-// ---------------------------------------------------------------------------
-// Units under test:
-//   `image-exporter.ts` (UF-40, component CP-25's neighbour, table T-075) --
-//     `exportPng`'s published signature, `(rasterizer, scene)`, carries no
-//     third "scale" argument, and its body reads no such field off
-//     `scene.settings`.
-//   `json-codec.ts` (`documentFromJson` / `jsonFromDocument`) -- the read and
-//     write side of `GRS JSON`, where OP-6 of table T-024a ("a key the reader
-//     does not know is kept, not dropped") is what makes a retired key survive.
-//
-// ⛔ WRITTEN FROM docs/spec, PLUS ONLY THE PUBLISHED SIGNATURES AND TYPES
-// (docs/development-rules/04-verification.md §1): `ExportScene`, `ImageExport`,
-// `Rasterizer`, `RasterSizePx`, `Rastering` from `image-exporter.ts`;
-// `documentFromJson` / `jsonFromDocument` from `json-codec.ts`. NO FUNCTION BODY
-// of either unit was read to decide what a case below expects -- every expected
-// value is FR-025's or OP-6's own wording. The fixture-building helpers
-// (`regionsOf`, `viewOf`, `settingsOf`) are copied in shape from
-// tests/unit/uf-39-40.test.ts, which drives the same two published entries the
-// same way.
-//
-// ---------------------------------------------------------------------------
-// ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
-// ---------------------------------------------------------------------------
-//  1. THE HEIGHT-GROWTH ARITHMETIC ITSELF (S-81's floor, S-217's ceiling, the
-//     "too tall" refusal). tests/unit/uf-39-40.test.ts already drives that;
-//     this file's only question is whether a SCALE reaches the picture.
-//  2. WHETHER `documentFromJson` OR THE SCHEMA REFUSES AN OUT-OF-BOUNDS KNOWN
-//     VALUE. That is `clampedSettings`' own ground and it is not this file's.
-//  3. THE COMMAND ROW AND THE KEY-TABLE ROW THAT USED TO WRITE THIS VALUE,
-//     both of which the specification retired alongside the scale itself.
-//     This file is about the VALUE reaching the picture, not about the roster
-//     rows that used to carry it there.
+// Unit test: FR-025 forbids a PNG export scale and keeps a retired settings key.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -84,20 +33,14 @@ import { specTable, unbroken } from '../contract/spec-table'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// ===========================================================================
-// 1. The manuscript, read at run time rather than copied
-// ===========================================================================
-
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
   'utf8',
 ))
 
-/** ⛔⛔ FR-025 (MUST NOT), verbatim, ending at its own marker. */
 const FR_025_NO_SCALE =
   '出力サイズは表 T-204 の `S-81` に固定し、書き出しのたびに選ばせてはならない（MUST NOT）。 ⛔ **倍率を持ってはならない（MUST NOT）'
 
-/** ⛔ FR-025 (MUST), the retired key kept rather than dropped, verbatim. */
 const FR_025_KEEP_RETIRED_KEY =
   '⛔ 保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）'
 
@@ -108,22 +51,12 @@ describe('FR-025 -- the manuscript this file is driven by', () => {
   })
 })
 
-/**
- * The heading the settings tables give their default column.
- *
- * ⚠️ Built from its code points: rule 03 section 5 keeps this tree ASCII, so a
- * literal would be invisible in a diff.
- */
+// WHY: built from code points, not a literal, so the file stays ASCII per
+// rule 03 section 5 -- the two-character heading would vanish from a diff.
 const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
 
-/**
- * `S-73` of table T-216 -- the document's theme hue (`Project.themeHue`,
- * AT-19), which a scene has to state because DR-5 of table T-052 keeps it at
- * `Project` and therefore out of `DocumentSettings` and `ScreenView` alike.
- *
- * ⛔ Read from the manuscript rather than typed: rule 03 section 1 forbids
- * copying a value the specification already holds.
- */
+// WHY: read from the manuscript rather than typed, so this value cannot go
+// stale against the specification (rule 03.1).
 const THEME_HUE = ((): number => {
   const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
   if (row === undefined) throw new Error('table T-216 has no row S-73')
@@ -132,10 +65,6 @@ const THEME_HUE = ((): number => {
   if (!Number.isFinite(value)) throw new Error('table T-216 row S-73 states no number')
   return value
 })()
-
-// ===========================================================================
-// 2. FR-025 (MUST NOT): the picture carries no scale
-// ===========================================================================
 
 const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const built: Record<string, unknown> = {}
@@ -178,7 +107,6 @@ const SCREEN: MeasuredScreen = {
   scrollbarThickness: 8,
 }
 
-/** Copied in shape from tests/unit/uf-39-40.test.ts's own `regionsOf`. */
 const regionsOf = (
   screen: MeasuredScreen = SCREEN,
   settings: DocumentSettings = SETTINGS,
@@ -228,7 +156,6 @@ const REGIONS = regionsOf()
 const PICTURE =
   '<svg xmlns="http://www.w3.org/2000/svg" data-from="svg-renderer"><circle cx="7" cy="11" r="3"/></svg>'
 
-/** A minimal, valid `ScreenView` -- nothing table T-076 keeps out of an export. */
 const VIEW: ScreenView = {
   language: 'ja',
   frame: { isFullScreen: false, dividers: [], scrollbars: [] } as ScreenFrame,
@@ -289,16 +216,14 @@ const fitOrThrow = (answer: ImageExport): PictureAndPng => {
 
 describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
   it('⛔ the published signature takes no third "scale" argument', () => {
-    // ⛔⛔ THE WHOLE OF THE CLAUSE, AT THE TYPE LEVEL: a function that "may not
-    // carry a scale" has no parameter for one to travel on.
+    // WHY: a function forbidden a scale has no parameter for one to travel on,
+    // so a length check at the type level proves the whole clause.
     expect(exportPng).toHaveLength(2)
   })
 
   it('⭐⭐ a settings group carrying the RETIRED key (exportPngScale) paints the same size as one without it', async () => {
-    // ⚠️ THE FIXTURE FOR A DOCUMENT THAT STILL CARRIES `S-82`: OP-6 of table
-    // T-024a (MUST) keeps a key this build no longer declares, so a real
-    // `DocumentSettings` value here legitimately still has the field at
-    // runtime even though `DocumentSettings` publishes no member for it.
+    // WHY: OP-6 keeps a key this build no longer declares, so a real
+    // DocumentSettings value can legitimately still carry the field at runtime.
     const withRetiredKey = { ...SETTINGS, exportPngScale: 1 } as unknown as DocumentSettings
     const withADifferentValue = { ...SETTINGS, exportPngScale: 8 } as unknown as DocumentSettings
 
@@ -329,8 +254,8 @@ describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
   })
 
   it('control: exportCanvas is what DOES change the painted width', async () => {
-    // ⛔ WITHOUT THIS, a rasterizer stub that ignores its size argument would
-    // make the case above pass for nothing.
+    // TRAP: a rasterizer stub that ignores its size argument would make the
+    // case above pass for nothing without this control.
     const narrower = settingsOf({ exportCanvas: { width: 800, height: 900 } })
     const watched = watchedRasterizer()
 
@@ -340,10 +265,6 @@ describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
   })
 })
 
-// ===========================================================================
-// 3. FR-025 (MUST) -- a retired key is kept, not dropped, on the JSON road
-// ===========================================================================
-
 const TEMPLATE = JSON.parse(
   readFileSync(
     join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'),
@@ -351,7 +272,6 @@ const TEMPLATE = JSON.parse(
   ),
 ) as Record<string, unknown>
 
-/** A document whose settings still carry the retired `S-82` key, as an old file would. */
 function documentWithRetiredKey(value: number): Document {
   const template = structuredClone(TEMPLATE) as any
   return {

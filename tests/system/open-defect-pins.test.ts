@@ -1,114 +1,12 @@
-// Pins for four OPEN rows of `docs/development-records/defects.md` -- the four
-// the user pressed out of the shipped build on 2026-09-01, every one of which
-// passed all 5570 automated tests on its way through.
-//
-//   ⛔ DFC-147 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
-//     held it is an ordinary assertion now: `ENTRY` in the input command
-//     translator had no key for `IC-41`, so the press reached every member and
-//     every member answered with the screen untouched -- 0 bytes of DOM and 0
-//     tellings. FR-020 (MUST, 利用者の裁定 2026-08-31 / CR-329) now has that
-//     press raise U-60 `Watermark Unlock` of table T-103, whose question is QN-9
-//     of table T-234 and whose two answers are NT-7's word buttons.
-//     ⚠️ WHAT THE CASE ASSERTS IS STILL FR-029's MUST and not the watermark
-//     itself: 「押されたときに限り、行えない理由を通知すること」, which is what
-//     「nothing changed AND nothing was said」 breaks. ⛔ THE WATERMARK'S OWN INK
-//     IS NOT DRAWN AT ALL in this build -- measured 2026-09-02, zero elements
-//     before and after -- so no case here can watch it disappear, and that gap
-//     belongs to FR-020's drawing half rather than to this row.
-//   ⛔ DFC-06 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
-//     held it is an ordinary assertion now: AR-5 of table T-023b reached no
-//     branch of `commandFromArmed`, so an armed comment box entrance planned no
-//     command at all. `InputContext` now carries `newCommentBoxId` beside
-//     `newGroupId` -- AT-110 is a UUID, so the identifier is minted by the shell
-//     -- and the press plans CM-46 against the day and the row it stands on.
-//     ⚠️ THE CASE PRESSES SOMEWHERE ELSE THAN IT DID, and the reason is the
-//     specification and not the fix. FR-019 (MUST) holds a comment box's
-//     position 「日付と行の識別子で」; ground BELOW the last row, which is where
-//     this file used to press, points at no row, and no requirement says what a
-//     box placed there anchors to. FR-001's answer for a Task (make a row) may
-//     not be borrowed: it makes that Task the new row's 導出元, and a row made
-//     for an annotation would have neither a name nor one, which AT-54 and
-//     FR-058 forbid. ⇒ The pair presses on empty ground a drawn row COVERS,
-//     which is the ground the specification decides. Off-the-rows placement is
-//     reported as a missing row, not tested here.
-//   ⛔ DFC-181 WAS PINNED HERE AND IS NOT ANY MORE. Measured 2026-09-02: it was
-//     never a defect. The row bands do not move -- read before, during and
-//     after the grab, all eight stand at the same y and the same height. What
-//     exchanges is two LANES INSIDE one band, which is table T-014's ST-2
-//     ordering 「start 昇順 -> finish 降順」 and ST-3's greedy pass doing exactly
-//     what they say once the grabbed bar's start crosses a day. One Ctrl+Z puts
-//     it back and one Ctrl+Y swaps it again -- a road with no pointer on it, so
-//     the exchange belongs to the document and not to the holding of the grab.
-//     ⚠️ A case asserting the bands DO hold still is worth writing from the
-//     specification; it is not this file's job, because nothing here is open.
-//   ⛔ DFC-182 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case that
-//     held it is an ordinary assertion now: the user's ruling of 2026-09-02
-//     settled the two rows that disagreed (CR-328), FR-043 now writes 掴みシロ
-//     を離した日 rather than a day derived from the plan, and `edit-task.ts`
-//     and `input-command-translator.ts` carry the dropped day between them.
-//     ⭐ Its control stays where it was: the pinned case is gone, the thing
-//     that proves the pointer reaches the hold at all is still worth running.
-//   ⛔ DFC-232 WAS PINNED HERE AND IS NOT ANY MORE. It is fixed, so the case
-//     that held it is an ordinary assertion now. What was missing was the
-//     branch ledger row DFC-228 named: nothing made a just-drawn task the
-//     selection, so `showPropertiesOfChoice()` never advanced and the keyboard
-//     stayed on `BODY`. FR-001 (MUST, 利用者の裁定 2026-09-03) now has the
-//     drawn task become the selection, and the placement carries the new
-//     identity out with it rather than the shell guessing at it from the
-//     pointer -- so the same road `FR-085`/`MK-13` uses for a rename now runs
-//     for a task that has just been drawn.
-//     ⚠️ THE PIN RANG BY ITSELF. It reported 「Expected to fail, but passed」
-//     on 2026-09-04, which is the whole reason to leave an anchor rather than
-//     a note: nobody had to remember to come back and look.
-//
-// WHY THEY ARE HERE AND NOT IN `npm run parity`. That harness holds the
-// application against
-// `previous-project-result/11-row-controls/row-controls-sample.html`, move for
-// move. ⛔ THAT SAMPLE IS A ROW CONTROLS SAMPLE: it has rows and nothing else
-// -- no task bars, no schedule canvas to place a box on, no watermark. Not one
-// of the four is a question it can be asked, so parity's own known-defect list
-// is empty and says so on every run. These four need the running application.
-//
-// ⛔⛔ WHAT THIS FILE IS NOT. It declares no `swsCase`, and that is deliberate.
-// Table T-219 (row TW-2) has Chapter 9's cases GENERATED from the declarations
-// a case carries, so every `swsCase` becomes a node of the specification's own
-// test chapter. A case that is EXPECTED TO FAIL must never become one: the
-// specification would then carry a node asserting that the product is broken,
-// which is a statement about today's build and not about the software. The
-// rows these cases lean on are named in prose instead, at each case.
-//
-// ⭐ HOW A PIN IS BUILT HERE, AND WHY IT COMES IN PAIRS.
-//
-//   * the pinned case asserts the CORRECT behaviour and is marked `test.fail()`
-//     -- Playwright's expected-to-fail. While the defect is open the suite is
-//     green. ⭐ THE DAY THE DEFECT IS FIXED THE CASE PASSES, AND PLAYWRIGHT
-//     THEN REPORTS IT AS A FAILURE: "expected to fail, but passed". So the pin
-//     cannot rot into a case that quietly succeeds for ever.
-//   * ⛔ AN EXPECTED-TO-FAIL CASE CANNOT GUARD ITSELF. Every failure inside it
-//     counts as the expected one, including a probe that reached nothing --
-//     which is exactly how a pin turns into a case that tests nothing. So each
-//     pinned case is preceded by a CONTROL case, not marked `test.fail()`,
-//     which drives the same pointer over the same part of the same screen and
-//     asserts that the product answered. The control is green today and stays
-//     green after the fix; if it goes red, the probe is broken, not the
-//     product.
-//
-// ⭐ EACH CASE SAYS WHAT WOULD MAKE IT GO RED, in the sentence above its body.
-//
-// ⭐ NOTHING HERE COPIES A VALUE OUT OF THE SPECIFICATION, and there is nothing
-// to copy: every assertion is a comparison of the product against ITSELF a
-// moment earlier -- what the drawing held before a press and after it, where a
-// label stood before a grab and during it. Chapter 1.9 (`:275`) asks a test
-// that verifies a requirement pointing at a table to be driven by data copied
-// from that table; these cases verify no table, they hold a ledger row.
-//
-// ⭐ WHAT IS READ OUT OF THE TREE. Two things, and both are there to stop a pin
-// outliving what it pins: the screen of the base environment (table T-025, row
-// `MC-6`, through `screenOf`), and the ledger itself -- the last case fails if
-// a row pinned here has left the ledger. ⛔ THE LEDGER IS TWO FILES:
-// `docs/development-records/defects.md` and `fixed-defects.md`, and a row that
-// has been measured moves across from the first to the second. Reading only the
-// first calls that move a deletion -- see `LEDGERS` at the foot of this file.
+// System test: pins for open ledger rows, driven against the live app (DFC-06, DFC-147, DFC-182, DFC-232).
+
+// WHY: not driven through `npm run parity` -- that harness compares against a
+// rows-only sample with no task bars, canvas or watermark to press.
+
+// WHY: each pinned case is `test.fail()` so the run stays green while the row
+// is open, and turns "expected to fail, but passed" the day it is fixed.
+// WHY: an expected-to-fail case cannot guard itself, so each is preceded by a
+// plain CONTROL case proving the same gesture still reaches the product.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -117,11 +15,6 @@ import { specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
-// ---------------------------------------------------------------------------
-// What each case pins
-// ---------------------------------------------------------------------------
-
-/** One row of the ledger, and the one line this file holds it to. */
 interface Pin {
   readonly ledger: string
   readonly wrong: string
@@ -135,58 +28,15 @@ const D230: Pin = {
     'BO-1 (MUST NOT) draws nothing until the screen size is settled',
 }
 
-/**
- * ⚠️ DFC-230's CASE IS NOT IN THIS FILE. It is
- * `tests/system/first-frame-is-the-settled-frame.test.ts`, and it has to be a
- * file of its own: the fault it watches shows only on the first page of a
- * browser process, so the case must own the launch. It is a plain assertion and
- * not `test.fail()` -- it was red while the row was open, which is the correct
- * report -- so DFC-230 sits in this list only for the gate at the bottom of this
- * file: a row named here must still be a row of the ledger, so a System case
- * written for it cannot outlive the row it was written for.
- * ⭐⭐ THE ROW SETTLED ON 2026-09-03 AND MOVED TO `fixed-defects.md` on
- * 2026-09-08, and its case turned green with the fix. ⛔ The pin stays: the case
- * is now the CONTROL for that fix, and the gate below reads both files so that
- * the move is not mistaken for a deletion.
- *
- * ⭐ DFC-232's CASE IS IN THIS FILE, moved here from
- * `tests/system/measured-sweep.test.ts` where it was found and could not be
- * closed: `FR-091` (MUST) has the field, but the one line that would put a
- * just-drawn task into the selection so `showPropertiesOfChoice()` can reach
- * it is missing everywhere, and that gap is `DFC-228`, an open row of its own
- * awaiting a ruling. Nothing here can turn green before that ruling lands, so
- * it is pinned by `test.fail()` -- the shape "HOW A PIN IS BUILT HERE" above
- * describes -- rather than left red with nothing watching for the day it goes
- * green on its own.
- */
+// WHY: DFC-230's case lives in first-frame-is-the-settled-frame.test.ts (needs
+// its own launch); it stays here only so the ledger gate below still sees it.
 const PINNED: readonly Pin[] = [D230]
-
-// ⛔ THERE WAS AN `announce` HELPER HERE AND THERE IS NOT ANY MORE. It printed
-// `[OPEN DEFECT D-nnn]` on the run's own output, and DFC-232's case was its last
-// caller; unpinning that case on 2026-09-04 left it with none. DFC-230 is still
-// pinned, but its case stands in another file.
-//
-// ⭐ WHATEVER PINS THE NEXT CASE HERE SHOULD BRING IT BACK, and this is the
-// reason it existed: a pinned case is GREEN today, so it scrolls past in the
-// summary with every other green line. The one thing that must not be
-// missable is that the suite is green BECAUSE a defect is open -- so the case
-// says so on stdout and pushes a `test.info()` annotation, rather than only
-// carrying a comment no runner prints.
-
-// ---------------------------------------------------------------------------
-// The screen, read out of the specification at read time
-// ---------------------------------------------------------------------------
 
 const T025: SpecTable = specTable('T-025')
 
-/** The row of table T-025 that fixes the screen of the base environment. */
 const SCREEN_ROW = 'MC-6'
 
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
-
-// ---------------------------------------------------------------------------
-// Driving the running application
-// ---------------------------------------------------------------------------
 
 let browser: Browser | null = null
 
@@ -195,20 +45,19 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ THE HOOK'S OWN ALLOWANCE, NOT AN ASSERTION'S. Closing the reference
-  // browser passes a hook's 30s default on this machine; `CLEARING_UP_MS` of
-  // `./live-app` carries the measurements and the reason.
+  // WHY: this is the hook's own allowance, not an assertion's -- see
+  // CLEARING_UP_MS in ./live-app for the measurement behind it.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
 
-/** The browser opened for this file, or a failure that says it was not. @purity semi-pure-b */
+/** @purity semi-pure-b */
 function openedBrowser(): Browser {
   if (browser === null) throw new Error('the reference browser was not opened')
   return browser
 }
 
-/** Where the dev server the configuration declares is listening. @purity pure */
+/** @purity pure */
 function serverUrlOf(baseURL: string | undefined): string {
   if (baseURL === undefined) {
     throw new Error('playwright.config.ts declares no baseURL for the running application')
@@ -221,11 +70,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-/**
- * The application, up and settled, on the screen of the base environment.
- *
- * @purity non-pure
- */
+/** @purity non-pure */
 async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   const context = await openedBrowser().newContext({
     baseURL: serverUrlOf(baseURL),
@@ -243,19 +88,13 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-/**
- * ⛔ THE SAME HANDLE `tests/system/live-app.ts` LEANS ON, and no other. Nothing
- * in the specification says how a part is marked in the page; the shell writes
- * the part's settled name, and a change to that marking breaks these cases,
- * as it should.
- */
+// WHY: the same selector tests/system/live-app.ts leans on -- no spec row
+// fixes how a part is marked, so a change to it should break these cases.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
-/** The same part, without its drawing -- the element IN-2's shape is set on. */
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 const NOTICES = '[data-role="Notification Area"]'
 const PANEL = '[data-role="Row Title Panel"]'
 
-/** A box the page reported, in the page's own pixels. */
 interface Box {
   readonly x: number
   readonly y: number
@@ -263,16 +102,7 @@ interface Box {
   readonly height: number
 }
 
-/**
- * What the screen is holding right now: how many of each shape the drawing has,
- * and whatever the notification area is saying.
- *
- * ⭐ Counts and not the markup. What every one of these four is accused of is
- * doing NOTHING, and "nothing happened" is exactly what a census answers
- * without needing to know what the right something would have looked like.
- *
- * @purity semi-pure-b
- */
+/** @purity semi-pure-b */
 async function censusOf(page: Page): Promise<{ shapes: string; notice: string }> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -297,25 +127,9 @@ async function censusOf(page: Page): Promise<{ shapes: string; notice: string }>
   )
 }
 
-/**
- * The same question asked of the WHOLE screen: which parts the surface is
- * drawing, and whatever the notification area is saying.
- *
- * ⛔⛔ WIDER THAN `censusOf` ON PURPOSE, AND THE WIDTH IS THE LEDGER'S OWN
- * WORDING. DFC-147 read 「pressing it changes nothing on the screen」, and the
- * drawing inside the `Schedule Canvas` is not the whole screen: a surface opened
- * OVER it (S-99g) leaves every shape in the canvas exactly where it was. ⚠️ The
- * case that pinned that row asked `censusOf` and would have gone on failing
- * after the fix, for measuring the wrong half of the screen.
- *
- * ⭐ THE PARTS AND NOT THE MARKUP, which is the same bargain `censusOf` keeps:
- * what the row accused the product of is doing NOTHING, and a list of the parts
- * on screen answers that without knowing what the right something looks like.
- * ⚠️ Sorted, so that the order the surface happens to build them in is not what
- * the comparison turns on.
- *
- * @purity semi-pure-b
- */
+// WHY: wider than censusOf on purpose -- a surface opened over the canvas
+// (S-99g) leaves every shape there untouched, so only the whole screen answers.
+/** @purity semi-pure-b */
 async function screenCensusOf(page: Page): Promise<{ parts: string; notice: string }> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -332,14 +146,9 @@ async function screenCensusOf(page: Page): Promise<{ parts: string; notice: stri
   )
 }
 
-/**
- * Press an entrance of table T-109 with a real pointer.
- *
- * ⛔ A REAL POINTER, not `element.click()`. The shell reads the pointer, and a
- * synthetic click has reached nothing in this project before.
- *
- * @purity non-pure
- */
+// WHY: a real pointer, not element.click() -- the shell reads the pointer,
+// and a synthetic click has reached nothing in this project before.
+/** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate(
     /** @purity semi-pure-b */
@@ -364,7 +173,7 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/** Whether the entrance stands armed (FR-029 writes it beside the entry). @purity semi-pure-b */
+/** @purity semi-pure-b */
 async function armingOf(page: Page, icon: string): Promise<string | null> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -374,31 +183,18 @@ async function armingOf(page: Page, icon: string): Promise<string | null> {
   )
 }
 
-/**
- * Take the view to the end of the document, so that the ground below the last
- * row is on screen.
- *
- * ⭐ Wheeled rather than jumped. There is no settled handle for the scroll
- * position, and the wheel is what a person turns.
- *
- * @purity non-pure
- */
+// WHY: wheeled rather than jumped -- there is no settled handle for the
+// scroll position, and the wheel is what a person turns.
+/** @purity non-pure */
 async function scrollToTheGround(page: Page): Promise<void> {
   await page.mouse.move(BASE_SCREEN.width / 2, BASE_SCREEN.height / 2)
   for (let turn = 0; turn < 30; turn += 1) await page.mouse.wheel(0, 900)
   await page.waitForTimeout(900)
 }
 
-/**
- * A point on the canvas with nothing drawn under it.
- *
- * ⛔ FOUND BY ASKING THE PAGE, not by a coordinate written here. `elementFromPoint`
- * returning the drawing itself is the page's own answer that nothing is in the
- * way -- a coordinate would have to be re-measured every time the screen or the
- * starting document moved.
- *
- * @purity semi-pure-b
- */
+// WHY: found by asking the page, not a coordinate written here --
+// elementFromPoint re-measures itself when the screen or document moves.
+/** @purity semi-pure-b */
 async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | null> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -411,7 +207,7 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
       for (let y = window.innerHeight - 40; y > 120; y -= 8) {
         for (let x = left; x < right; x += 24) {
           if (document.elementFromPoint(x, y) !== svg) continue
-          // ⚠️ Room to the right as well: the drag below runs that way, and a
+          // WHY: room to the right too -- the drag below runs that way, and a
           // point with something drawn 20px along is not an empty spot.
           if (document.elementFromPoint(x + 160, y) !== svg) continue
           return { x, y }
@@ -423,18 +219,9 @@ async function emptyCanvasPoint(page: Page): Promise<{ x: number; y: number } | 
   )
 }
 
-
-
-
-/** How far along the row the second half of each DFC-06 gesture reaches. */
 const REACH_PX = 160
 
-/**
- * The shape the application is showing at a point -- IN-2 of table T-028, read
- * off the `Schedule Canvas` after moving a real pointer there.
- *
- * @purity non-pure
- */
+/** @purity non-pure */
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
   return page.evaluate(
@@ -443,38 +230,15 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
       const surface = document.querySelector(canvas)
       return surface instanceof HTMLElement ? surface.style.cursor : ''
     },
-    // ⛔ THE PART ITSELF, NOT `CANVAS`. That one reaches the DRAWING inside
-    // the part, and IN-2's shape is carried by the part -- an SVG element has no
-    // `style.cursor` this read can see, and asking it answers the empty string
-    // at every point on the screen.
+    // WHY: the part itself, not CANVAS -- that reaches the SVG drawing inside
+    // it, which carries no style.cursor and reads as '' everywhere.
     CANVAS_PART,
   )
 }
 
-/**
- * A point on empty ground that one of the DRAWN ROWS covers, with room along
- * the row for the rest of the gesture.
- *
- * ⛔ A DIFFERENT QUESTION FROM `emptyCanvasPoint`, which walks up from the
- * bottom of the window and so lands on the ground BELOW the last row. FR-019
- * (MUST) holds a comment box's position by a date and a ROW identifier, and
- * ground no row covers is ground the specification decides no placement for --
- * see the head note.
- *
- * ⛔ AND A DIFFERENT TEST OF EMPTINESS, because `elementFromPoint` cannot answer
- * this one: inside a row the topmost thing at any point is the row's own band,
- * so that reading is never the drawing itself and calling it "something is
- * drawn here" would rule out every point on every row. ⭐ THE APPLICATION IS
- * ASKED INSTEAD: PTD-5 gives ground that hit nothing the plain arrow, so the
- * shape the canvas is showing IS the product's own answer to "is anything here",
- * and it is read with nothing armed so that no arming can colour it.
- *
- * ⭐ THE ROWS ARE THE PAGE'S OWN ANSWER TOO: the panel marks each drawn row with
- * `data-depth`, and the band it reports stands at the same y and height as the
- * row the canvas draws beside it.
- *
- * @purity non-pure
- */
+// WHY: unlike emptyCanvasPoint, elementFromPoint cannot answer inside a row
+// (its own band is always topmost), so this reads the cursor PTD-5 sets there.
+/** @purity non-pure */
 async function emptyPointOnADrawnRow(page: Page): Promise<{ x: number; y: number } | null> {
   const ground = await page.evaluate(
     /** @purity semi-pure-b */
@@ -506,26 +270,13 @@ async function emptyPointOnADrawnRow(page: Page): Promise<{ x: number; y: number
   return null
 }
 
-/** A faint pair of grab-holds, and where each half of it stands. */
 interface FaintHold extends Box {
-  /** The left edge of each half, in the order they are drawn. */
   readonly halves: readonly number[]
 }
 
-/**
- * The faint grab-holds a task that has not started yet is drawn with.
- *
- * ⭐ Found by how faint they are, which is the one thing `FR-043` says about
- * them that a browser can measure without this file copying a number:
- * everything else on the canvas is drawn solid.
- *
- * ⭐ THE TWO HALVES ARE REPORTED SEPARATELY, and they are what gives the case
- * below a unit to measure a drop in. `FR-043` puts the end hold `S-129` beyond
- * the start hold -- one working day at the value that setting comes with -- so
- * the gap between them is a distance the PRODUCT chose, not one written here.
- *
- * @purity semi-pure-b
- */
+// WHY: found by how faint they are -- the one thing FR-043 says about them
+// that a browser can measure, since everything else on the canvas is solid.
+/** @purity semi-pure-b */
 async function faintHolds(page: Page): Promise<FaintHold[]> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -554,7 +305,7 @@ async function faintHolds(page: Page): Promise<FaintHold[]> {
   )
 }
 
-/** The solid bars sitting in one row band, left edge and width. @purity semi-pure-b */
+/** @purity semi-pure-b */
 async function barsAround(page: Page, y: number): Promise<Array<{ x: number; width: number; height: number }>> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -575,20 +326,13 @@ async function barsAround(page: Page, y: number): Promise<Array<{ x: number; wid
   )
 }
 
-/** Entrances of table T-109 these cases press, by the row that names them. */
 const RECTANGLE_TASK = 'IC-23'
 const COMMENT_BOX = 'IC-35'
 const HIDE_WATERMARK = 'IC-41'
 const DATE_RULES = 'IC-42'
 
-// ---------------------------------------------------------------------------
-// DFC-147 -- the entrance that hides the watermark is inert (FIXED 2026-09-02)
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the neighbouring entrance stops answering a press -- either the
-// entrance moved, or the pointer this file drives stopped reaching the palette.
-// It has nothing to say about DFC-147 itself; it is here so that the case below
-// cannot pass by failing to press anything.
+// WHY: proves the palette itself still answers a press, so the DFC-147 case
+// below cannot pass merely because nothing here reaches the product.
 test('control for DFC-147: a neighbouring entrance of the same palette group answers a press', async ({
   baseURL,
 }) => {
@@ -605,19 +349,8 @@ test('control for DFC-147: a neighbouring entrance of the same palette group ans
   await app.close()
 })
 
-// GOES RED IF: the entrance that hides the watermark stops answering a press --
-// which is what DFC-147 was, and it is what happens again if `ENTRY` in the input
-// command translator loses its key for `IC-41`, if `screenStateFromEntry` stops
-// raising U-60, or if UF-66 stops describing that surface.
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-147.
-// Measured on the shipped build: the drawing was byte for byte identical after
-// the press and the notification area was empty, with the entrance reporting
-// `data-enabled=true`.
-// ⛔ WHAT IS ASSERTED IS FR-029's MUST AND NOT THE WATERMARK. That requirement
-// asks a press that cannot act to say why; FR-020 answers it here by raising a
-// surface instead, so 「the screen changed OR something was said」 is the whole
-// of what this case knows -- and it is the same sentence the pinned case
-// carried, so nothing was loosened to make it pass.
+// WHY: asserts FR-029 (MUST) -- a press that cannot act must say why -- and
+// not the watermark's own drawing, which this build does not render at all.
 test('DFC-147: pressing the entrance that hides the watermark either does something or says why not', async ({
   baseURL,
 }) => {
@@ -629,9 +362,6 @@ test('DFC-147: pressing the entrance that hides the watermark either does someth
   )
   const after = await screenCensusOf(app.page)
   try {
-    // FR-029 (MUST): an entrance that is pressed and cannot act must tell the
-    // author why. So "nothing changed AND nothing was said" is the one answer
-    // the specification does not allow, whatever the watermark itself does.
     expect(
       after.parts !== before.parts || after.notice !== before.notice,
       `${HIDE_WATERMARK} was pressed: the parts on screen are unchanged (${after.parts}) and the ` +
@@ -642,14 +372,8 @@ test('DFC-147: pressing the entrance that hides the watermark either does someth
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-06 -- a comment box cannot be placed at all (FIXED 2026-09-02)
-// ---------------------------------------------------------------------------
-
-// GOES RED IF: the canvas stops answering an armed entrance at all, or the spot
-// this file presses on stops being empty ground. It says nothing about the
-// comment box; it proves that the point, the arming and the gesture below are
-// ones the product does respond to.
+// WHY: proves the point, the arming and the drag below still reach the
+// product, so the DFC-06 case cannot pass by pressing something inert.
 test('control for DFC-06: with the rectangle entrance armed, the same drag on the same spot draws', async ({
   baseURL,
 }) => {
@@ -679,14 +403,6 @@ test('control for DFC-06: with the rectangle entrance armed, the same drag on th
   await app.close()
 })
 
-// GOES RED IF: an armed comment box entrance stops planning CM-46 -- which is
-// what DFC-06 was, and it is what happens again if `newCommentBoxId` stops
-// reaching `commandFromArmed`, if AR-5 falls back out of that member, or if the
-// identifier stops being minted afresh per happening (the second press would
-// then be refused by IV-1 and draw nothing).
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-06.
-// Measured on the shipped build: the census was byte for byte identical after
-// both a press and a drag, with the entrance reporting `data-armed=true`.
 test('DFC-06: with the comment box entrance armed, a press on empty canvas places one', async ({
   baseURL,
 }) => {
@@ -711,11 +427,8 @@ test('DFC-06: with the comment box entrance armed, a press on empty canvas place
       `(${before.shapes})`,
   ).not.toBe(before.shapes)
 
-  // ⭐ A SECOND ONE, AND THE ARMING IS NOT PRESSED AGAIN. Table T-023b's closing
-  // rule keeps an arming standing (MUST), so a second press owes a second box --
-  // and it owes a second IDENTIFIER, which is the half no single placement can
-  // show. ⛔ Off the first box, not on it: a press that hits one is PTD-3's and
-  // not PTD-4's.
+  // WHY: pressed off the first box (PTD-3, not PTD-4) -- table T-023b (MUST)
+  // keeps an arming standing, so a second press owes a second box.
   await app.page.mouse.move(spot.x + REACH_PX, spot.y)
   await app.page.mouse.down()
   await app.page.mouse.up()
@@ -733,64 +446,27 @@ test('DFC-06: with the comment box entrance armed, a press on empty canvas place
   }
 })
 
-// ---------------------------------------------------------------------------
-// DFC-182 -- a bar's dummy ignores where it is dropped
-// ---------------------------------------------------------------------------
-
 interface Dropped {
-  /** The left edge of the plan bar the dummy belongs to. */
   readonly planX: number
-  /** How wide that plan bar was drawn, before the hold was touched. */
   readonly planWidth: number
-  /** The width the product draws the one ダミーの印 at -- see `faintHolds`. */
   readonly step: number
-  /** How far the hold was dragged before it was let go. */
   readonly carriedPx: number
-  /** The bars in that row after the drop, shortest first: the actual, then the plan. */
   readonly after: ReadonlyArray<{ x: number; width: number; height: number }>
 }
 
-/**
- * Draw a task that has not started, then drag its actual-start grab-hold
- * `steps` of the product's own spacing to the right, and let go.
- *
- * ⭐ A TASK DRAWN HERE AND NOT ONE OUT OF THE STARTING DOCUMENT. Every task
- * that has not started in that document is drawn off the right of the screen at
- * the zoom the application comes up at, so its hold cannot be reached with a
- * pointer at all. One drawn on the ground below the last row is in view, at the
- * same zoom, with its own plan start to measure against.
- *
- * ⛔ NOT A NUMBER OF PIXELS WRITTEN HERE. The distance is counted in the width
- * the product itself draws the one ダミーの印 at -- `FR-043` (MUST) draws it
- * 「1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」 -- so
- * this file spells no width and no zoom, and a change to either moves the drag
- * with it.
- * ⛔⛔ IT USED TO BE COUNTED IN THE GAP BETWEEN TWO DRAWN MARKS, and on
- * 2026-09-08 there stopped being two: 「**ダミーの印は 1 つだけ描くこと（MUST）。
- * 開始の側と終了の側に別々の印を描いてはならない（MUST NOT）**」. ⚠️ WHAT WENT
- * AWAY IS INK AND NOT A GRAB TARGET -- 「掴む先が 2 つであることは変わらない」,
- * and 表 T-023d still holds `GR-9` and `GR-17`. ⚠️ This file reads figures off
- * the canvas, so it speaks to the drawing side only; the grab side is measured
- * where the hit areas are.
- *
- * ⚠️ NOT COUNTED FROM THE PLAN START. `GR-9` says the start hold stands one
- * working day past the plan start; measured on two screens, the product draws
- * it there on one and on the plan start itself on the other. That is not what
- * this file pins, so it leans on the gap between the two holds instead, which
- * held on both.
- *
- * @purity non-pure
- */
+// WHY: drawn fresh, not from the starting document -- every unstarted task
+// there sits off-screen at the default zoom, out of pointer reach.
+// WHY: the drag distance is the product's own drawn mark width (FR-043), not
+// a pixel count written here, so a change to that width moves the drag too.
+/** @purity non-pure */
 async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   await scrollToTheGround(page)
   const spot = await emptyCanvasPoint(page)
   expect(spot, 'no point on the canvas has empty ground under it').not.toBeNull()
   if (spot === null) throw new Error('unreachable')
 
-  // ⛔ WHICH GRAB-HOLDS WERE THERE BEFORE. The starting document has unstarted
-  // tasks of its own, and one of their holds can be on screen. Taking "the
-  // first faint thing drawn" measured a hold belonging to somebody else's bar
-  // and read a day width of zero out of it.
+  // WHY: excludes holds already on screen -- the starting document has its
+  // own unstarted tasks, and taking the first faint mark found one of those.
   const already = new Set((await faintHolds(page)).map((one) => `${one.x}:${one.y}`))
 
   expect(await pressEntrance(page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(true)
@@ -809,8 +485,8 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   const dummy = fresh[0]
   if (dummy === undefined) throw new Error('unreachable')
 
-  // ⭐ The widest bar in that band is the plan bar. The hold's own two halves
-  // are drawn in the same band and are a fraction of its width.
+  // WHY: the widest bar in the band is the plan bar -- the hold's own two
+  // halves are drawn in the same band as a fraction of that width.
   const beside = await barsAround(page, dummy.y + dummy.height / 2)
   const plan = beside.slice().sort((one, two) => two.width - one.width)[0]
   expect(plan, 'the task drawn has no plan bar beside its grab-hold').not.toBeUndefined()
@@ -820,53 +496,13 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
     `the widest bar beside the grab-hold is ${plan.width}px, and the task drawn was ${barWidth}px`,
   ).toBeLessThan(24)
 
-  // ⭐⭐ ONE MARK (MUST), 利用者の裁定 2026-09-08: `FR-043` 「**ダミーの印は 1 つ
-  // だけ描くこと（MUST）。開始の側と終了の側に別々の印を描いてはならない（MUST
-  // NOT）**」. ⛔ THIS ASKED FOR TWO UNTIL THAT DAY, and it was reading the grab
-  // side's count as a count of drawn figures -- 「⛔ **2026-09-08 まで `GR-9` と
-  // `GR-17` の位置に縦棒が 1 本ずつ立ち、画面には 2 本見えていた**」 is what the
-  // ruling struck down. ⚠️ The grab side did not move: 「掴む先が 2 つであること
-  // は変わらない」.
   expect(dummy.halves.length, 'FR-043 (MUST) draws the ダミーの印 1 つだけ').toBe(1)
-  // ⭐ THE UNIT TO DRAG IN IS THE MARK'S OWN WIDTH, which `FR-043` (MUST) makes
-  // 「1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」 --
-  // a distance the PRODUCT chose at the zoom it came up at, and no number typed
-  // here. ⚠️ It is at most one day, so three of them and eight of them are still
-  // different days, which is all the case below asks of it.
   const step = dummy.width
   expect(step, 'the ダミーの印 is drawn with no width, so there is no unit to drag in')
     .toBeGreaterThan(0)
 
-  // ⛔⛔ THE MIDDLE OF THE MARK, AND IT IS MEASURED, NOT CHOSEN FOR TIDINESS.
-  // The mark stands on GR-9's own day column -- FR-043 (MUST) 「**ダミーを描く
-  // 位置は、予定の開始日の翌稼働日とすること（MUST）**」 -- and GR-17's box begins
-  // a further S-129 along, so the middle of the mark is inside GR-9's reach and
-  // short of GR-17's. That is the one wanted: GR-9 puts the actual start on the
-  // day the hold was let go of, which is what the case below reads.
-  // ⚠️ Nearer the left edge is NOT the start hold: table T-023d puts GR-3, the
-  // plan start point, above GR-9, so it takes the press there. Measured on the
-  // shipped build with one day drawn 6px wide, counting from the mark's own left
-  // edge: at +3px and +6px the PLAN bar moved and no actual was written at all;
-  // at +9px through +15px the actual was written and the plan bar did not move;
-  // at +18px the END hold took it and the actual came out the width of the whole
-  // drag. The middle of the mark lands in the middle of that window.
-  //
-  // ⛔⛔ AND THE PRESS MOVED OFF THE MIDDLE ON 2026-09-10, WHICH IS NOT A
-  // REGRESSION. The ruling of 2026-09-09 cut the one mark down its centre --
-  // 表 T-023d's closing rule (MUST): 「1 つのダミーの印は、その横幅の中央で左右
-  // に割ること（MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側
-  // （`GR-17`）とすること（MUST）」 -- and BOTH halves are closed at that centre,
-  // so the middle pixel is claimed by both rows. ⭐ THE MANUSCRIPT DECIDES IT
-  // AND IT DECIDES FOR THE FINISH: 「実績の開始と終了のどちらを掴んだか決められ
-  // ないときは、終了を優先すること（MUST）」, and 表 T-023d prints GR-17 above
-  // GR-9. ⇒ Pressing the exact middle takes the FINISH hold, which pins the
-  // actual start at GR-9's day and writes only a length -- so the day the hand
-  // let go on stops being what the actual starts on, and this case would report
-  // DFC-182 open again over a build that closed it.
-  // ⭐ WHAT DFC-182 IS ABOUT IS THE START HOLD, and the quarter is squarely inside
-  // its half: 「左半分を実績の開始側（`GR-9`）」. The window measured above --
-  // +9px to +15px on a 6px day, out of a mark 6px wide standing at +6 -- is the
-  // same ground, and a quarter of the mark's own width lands in it at any zoom.
+  // WHY: pressed a quarter into the mark -- inside GR-9's (start) half and
+  // short of the centre pixel, which FR-043 routes to GR-17 (finish) instead.
   const carriedPx = steps * step
   const from = { x: dummy.x + dummy.width / 4, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
@@ -886,9 +522,8 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   }
 }
 
-// GOES RED IF: the dummy stops being reachable, or letting go of it stops
-// writing anything. It says nothing about WHERE the actual lands; it proves
-// that the drag below is a gesture the product accepts and acts on.
+// WHY: proves only that a drop writes something -- not where -- so the
+// DFC-182 case below cannot pass by dragging a gesture the product ignores.
 test('control for DFC-182: dropping the dummy of an unstarted task writes an actual bar', async ({
   baseURL,
 }) => {
@@ -899,10 +534,8 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
     dropped.after.length,
     'after the drop the row holds fewer than two bars, so no actual bar was drawn beside the plan',
   ).toBeGreaterThan(1)
-  // ⛔⛔ AND IT WAS THE HOLD THAT WAS GRABBED, NOT THE PLAN START POINT BESIDE
-  // IT. Table T-023d puts GR-3 above GR-9, so a press a few pixels too far left
-  // moves the plan bar instead -- measured, and it wrote no actual at all. A
-  // pinned case cannot notice that on its own; this is where it is caught.
+  // WHY: catches the press landing on GR-3 (plan start) instead of the hold
+  // -- a pinned case alone would not notice the plan bar moving instead.
   const plan = dropped.after[dropped.after.length - 1]
   expect(
     `${plan?.x ?? '?'}:${plan?.width ?? '?'}`,
@@ -911,22 +544,8 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
   await app.close()
 })
 
-// GOES RED IF: the drop position stops being read, or the actual start goes
-// back to the plan start. Two things are asked:
-//   * FR-043 (MUST NOT) forbids the actual start being put on the plan start
-//     itself, because the plan start point (GR-3) already stands there and the
-//     two would stop being tellable apart.
-//   * dragging the hold three steps along and eight steps along must not write
-//     the same thing. 「掴んで置く値は、実績開始日 ＝ 掴みシロを離した日」
-//     (MUST, 利用者の裁定 2026-09-02), and ⛔ the same requirement forbids that
-//     being read as one rule with 「ダミーを描く位置は、予定の開始日の翌稼働
-//     日」 (MUST NOT) -- reading them as one is exactly what made both drops
-//     write the same day.
-// ⭐ BOTH ARE COLLECTED AND ASSERTED TOGETHER, so that a run shows both rather
-// than stopping at the first.
-// ⚠️ THIS CASE WAS `test.fail()` UNTIL 2026-09-02 and held ledger row DFC-182.
-// Measured on the shipped build with one day 6px wide: +3 steps and +8 steps
-// both put the actual at x=254 before, and put it at two different x's after.
+// WHY: both complaints are collected and asserted together, so a run shows
+// both instead of stopping at the first (FR-043 MUST / MUST NOT, both halves).
 test('DFC-182: where the dummy is dropped decides where the actual starts', async ({ baseURL }) => {
   test.setTimeout(240_000)
   const near = await openTheApp(baseURL)
@@ -954,14 +573,8 @@ test('DFC-182: where the dummy is dropped decides where the actual starts', asyn
   expect(complaints, 'the drop position was ignored').toEqual([])
 })
 
-// ---------------------------------------------------------------------------
-// DFC-232 -- a task drawn on empty ground leaves the keyboard nowhere to go
-// ---------------------------------------------------------------------------
-
-/** How far the drag below carries, wide enough to be read as a drag and not a click. */
 const DRAW_WIDTH_PX = 300
 
-/** The field the keyboard is going into right now, while it is one that takes text. */
 interface TypedInto {
   readonly tag: string
   readonly width: number
@@ -969,16 +582,9 @@ interface TypedInto {
   readonly value: string
 }
 
-/**
- * The focused element, when it is a field a person can type a name into.
- *
- * ⚠️ A BOX OF ITS OWN IS PART OF THE ANSWER. The shipped build keeps a 0x0
- * `input` in the page at all times (measured 2026-09-03), so "an input exists"
- * and even "an input holds the focus" can both be true of a page that offers
- * nobody anything. What is asked for is a field that is focused AND drawn.
- *
- * @purity semi-pure-b
- */
+// WHY: a box of its own is part of the answer -- the shipped build keeps a
+// 0x0 input in the page always, so focus alone does not mean anyone sees it.
+/** @purity semi-pure-b */
 async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   return page.evaluate(
     /** @purity semi-pure-b */
@@ -1003,11 +609,8 @@ async function focusedTypableField(page: Page): Promise<TypedInto | null> {
   )
 }
 
-// GOES RED IF: a task dragged onto empty ground below the last row stops being
-// drawn -- either the rectangle entrance stopped answering a press, or the
-// drag stopped being read as one. It says nothing about the keyboard; it
-// proves that the gesture the pinned case below drives is one the product
-// still acts on.
+// WHY: proves the drag itself still draws a shape, so the pinned DFC-232
+// case below cannot pass because the gesture it drives reaches nothing.
 test('control for DFC-232: a task dragged onto empty ground below the last row is drawn', async ({
   baseURL,
 }) => {
@@ -1039,24 +642,8 @@ test('control for DFC-232: a task dragged onto empty ground below the last row i
   await app.close()
 })
 
-// GOES RED IF: DFC-232 is fixed. Playwright then reports "expected to fail, but
-// passed" and this entry has to be taken out. Nothing else makes it pass: some
-// field that takes text must hold the keyboard the instant the drag lets go,
-// and what is typed into it must reach it.
-// `FR-091` (MUST) is 「作成者がタスクを作った直後、およびあとから求めたとき、`GRS`
-// は、そのタスクの名称をその場で入力・変更できるようにすること」, and its own
-// paragraph adds 「⭐ 作った直後に入力できること（MUST）―― `UC-001` は「置く→名前を
-// 付ける」を 1 つの流れとしており、選び直してからプロパティパネルを開く 2 手に
-// しない。」
-// ⚠️ MEASURED ON THE SHIPPED BUILD, 2026-09-03 (3/3 runs): the 144x28px
-// `polygon` count rises by one, but the field count with any width stays at 0,
-// the Properties Panel stays `display:none`, and the focus stays on `BODY`.
-// `frame-loop.ts`'s `showPropertiesOfChoice()` (paired with `nameFieldWantedRow`)
-// is the road `FR-085`/`MK-13` already uses for a double-click. It used to
-// advance only when something was already selected, and nothing made a
-// just-drawn task the selection -- that was ledger row `DFC-228`, settled by the
-// user on 2026-09-03 and written into FR-001 (MUST). The case is an ordinary
-// assertion now.
+// WHY: FR-091 (MUST) is that a just-drawn task takes text input on the spot,
+// not after re-selecting it and opening the Properties Panel as a second step.
 test('DFC-232: a task drawn on empty ground leaves a name field under the keyboard', async ({
   baseURL,
 }) => {
@@ -1110,46 +697,12 @@ test('DFC-232: a task drawn on empty ground leaves a name field under the keyboa
   }
 })
 
-// ---------------------------------------------------------------------------
-// The pins themselves
-// ---------------------------------------------------------------------------
-
-/**
- * The two files the ledger is kept in.
- *
- * ⛔ BOTH, AND `fixed-defects.md` IS NOT A SECOND LEDGER. The ledger's own
- * opening says the settled rows live next door, that tools and checks read both
- * files, and that a tool reading one of them measures only what the harvest left
- * behind and comes up green for it. ⚠️ THOSE WORDS ARE THE LEDGER'S AND NOT THE
- * SPECIFICATION'S, so they are pointed at rather than quoted:
- * `docs/development-records/defects.md`, the paragraphs above its count table.
- *
- * ⛔⛔ THIS GATE READ ONLY `defects.md` AND WENT RED ON 2026-09-08, when the
- * rows that had reached `実測済` were moved across. DFC-230 had not been deleted
- * and its case had not gone stale: the row was settled and had walked next door.
- * ⇒ The tool was the defect, which is the very thing the ledger's opening warns
- * about, so it is the tool that was mended and not the pin.
- */
+// WHY: both files -- a settled row moves from defects.md to fixed-defects.md,
+// and reading only the first once misread that move as a deletion.
 const LEDGERS: readonly string[] = ['defects.md', 'fixed-defects.md']
 
-// GOES RED IF: a row pinned here has left the ledger PAIR altogether -- somebody
-// deleted the pin's subject and not the pin -- so a System case cannot outlive
-// the row it was written for.
-//
-// ⭐⭐ A PIN ON A SETTLED ROW IS NOT A FAULT, and the two readings are worth
-// keeping apart:
-//   * an OPEN row -- the case beside it is measuring a defect that is still
-//     there, and it must not go green by accident.
-//   * a SETTLED row -- the case has become a CONTROL. DFC-230's is exactly that:
-//     `tests/system/first-frame-is-the-settled-frame.test.ts` asserts the
-//     CORRECT behaviour plainly -- its own comment says it is deliberately not
-//     `test.fail()` -- so the day the fix landed it went from red to green on
-//     its own and now guards the fix. ⛔ Taking such a pin out would throw the
-//     guard away.
-// ⚠️ THE "UNPIN ME" SIGNAL IS NOT LOST BY READING BOTH FILES. A pin built the
-// way "HOW A PIN IS BUILT HERE" describes marks its case `test.fail()`, and the
-// runner itself fails a `test.fail()` case that passes -- so a pin left standing
-// over a row that has been fixed is reported by the run, not by this gate.
+// WHY: a pin on a settled row is not a fault -- it becomes the fix's own
+// control -- so this only checks the row still exists in the ledger pair.
 test('every defect pinned in this file is still a row of the ledger', () => {
   const written = LEDGERS.map((file) =>
     readFileSync(join(process.cwd(), 'docs', 'development-records', file), 'utf8'),
@@ -1161,8 +714,7 @@ test('every defect pinned in this file is still a row of the ledger', () => {
         'under docs/development-records/ -- the row it was written for is gone',
     ).toBe(true)
   }
-  // ⚠️ Every pin is spelled once, so a copied-and-half-edited case cannot pin
-  // the same row twice and leave another with none.
+  // WHY: catches a copied-and-half-edited case pinning the same row twice.
   expect(new Set(PINNED.map((one) => one.ledger)).size, 'two pins name the same ledger row').toBe(
     PINNED.length,
   )

@@ -1,49 +1,4 @@
 // Unit tests for UF-41 `file-gateway.ts` (the public entry) and UF-42
-// `file-store.ts` (the seam declaration) -- table T-075 of
-// docs/spec/05-07-design.md, component `FileGateway` (CP-22 of table T-062),
-// published as PI-22 of table T-064, seam IF-3 of table T-065.
-//
-// Chapter 9 does not admit Unit as a TEST_LEVEL, so these have no node in the
-// specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
-// 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// named below; the whole of file-store.ts, which declares types and no
-// function; and of file-gateway.ts only its head comment, its exported types
-// and its two exported signatures. Every expected value here comes from a
-// requirement or from a table, never from the implementation.
-//
-// The rows these cases answer to:
-//   PI-22        the published names, and their purity
-//   IF-3         the handle stays on the far side, so the state is asked for
-//                and never held here
-//   FR-060       overwrite the file that was opened; win back a lost
-//                permission at startup
-//   OP-2         one entry for reading, two routes (table T-024a)
-//   OP-5         the validation is one shared check, and it is not this one
-//   OP-3 / OP-4 / OP-6 / OP-8 / OP-9 / OP-10
-//                what becomes of what was read -- none of it decided here
-//   IO-1 .. IO-7 the direction column of table T-024, and the BOM its note
-//                forbids
-//   CN-5         UTF-8, no BOM (table T-003)
-//   FR-023       this unit judges no content; its one contribution is the byte
-//                count S-113 is stated in
-//   S-113        read from the generated defaults, and deliberately not
-//                enforced here (table T-211)
-//   FR-096       one entry for writing, with the form as a field
-//   FR-028 / AG-8    a failure is a value; nothing throws (table T-035)
-//   NT-1 / NT-3a     a refusal says which and why, and the reasons are told
-//                apart by what can be done next (table T-037)
-//   UT-5         the gateway stops at text and picks no codec (table T-063)
-//   LY-5 / R7.4  no current value is held here, and no second external read
-//                happens part-way through handling one result
-//   LM-14        opening off the disk may simply not work, and that surfaces
-//                as a reason rather than as a throw (table T-004)
-//
-// Chapter 1.9 (:275) asks a test of a requirement that points at a table to be
-// driven by a fixed copy of that table, one test walking every row. The
-// rosters below are those copies.
 
 import { describe, expect, it } from 'vitest'
 
@@ -72,16 +27,7 @@ import {
 } from '../../src/adapter/file-gateway/file-gateway'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-// ---------------------------------------------------------------------------
-// Fixed copies of the tables these cases are driven by.
-// ---------------------------------------------------------------------------
 
-/**
- * Table T-024, the rows whose destination is a file, with the direction column
- * carried as `comesIn`. IO-1 and IO-2 have both directions; IO-3, IO-4 and
- * IO-7 only go out. That column is the whole of what decides which form can
- * stand in the position FR-060 overwrites.
- */
 const T_024_FILE_ROWS = [
   { id: 'IO-1', form: 'mspdi', comesIn: true, extension: '.xml' },
   { id: 'IO-2', form: 'grsJson', comesIn: true, extension: '.json' },
@@ -95,57 +41,28 @@ const T_024_FILE_ROWS = [
   readonly extension: string
 }[]
 
-/**
- * The extension column of the same five rows, which CR-230 filled for all five
- * and FR-096 now leans on: 「⛔⛔ **書き換えられるのは名前であって、拡張子ではな
- * い。書き出した先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）**」.
- * ⚠️ THE ROW ORDER ABOVE IS THIS FILE'S OWN and says nothing about the order the
- * export chooser offers the formats in -- that order is table T-024's own row
- * order (FR-096, MUST) and is pinned in tests/unit/uf-47-48-choosers.test.ts,
- * which reads the manuscript.
- *
- * @purity pure
- */
+/** @purity pure */
 const extensionOfForm = (form: SaveFileForm): string => {
   const row = T_024_FILE_ROWS.find((one) => one.form === form)
   if (row === undefined) throw new Error(`table T-024 has no file row for the form ${form}`)
   return row.extension
 }
 
-/**
- * Table T-024, the two rows that reach no file. IO-6 answers to IF-5, so it may
- * not appear among the forms this component writes; IO-5 (localStorage) reaches
- * no file either. ⚠️ IO-5 names no seam at all -- table T-065 holds no row
- * for it -- while table T-206 keeps its four settings and nothing else.
- */
 const T_024_ROWS_THAT_ARE_NOT_FILES = [
   { id: 'IO-5', seam: null },
   { id: 'IO-6', seam: 'IF-5' },
 ] as const
 
-/** OP-2 of table T-024a: the routes one entry admits, and no third. */
 const T_024A_OP2_ROUTES = ['chooser', 'drop'] as const satisfies readonly OpenRoute[]
 
-/**
- * OP-13 of table T-024a, which CR-280 added with `SK-21` of table T-036: the
- * third route the union admits. ⚠️ NOT one of OP-2's -- OP-2 still names two
- * ("ファイル選択、およびドラッグ＆ドロップ") and every case that walks those two
- * walks them, while this one opens no chooser and re-reads the file already
- * open.
- */
 const T_024A_OP13_ROUTE = 'reopen' as const satisfies OpenRoute
 
-/** IF-3: the three answers the store gives about FR-060's file. */
 const IF_3_OPENED_STATES = [
   { kind: 'none' },
   { kind: 'writable', fileName: 'plan-a.json' },
   { kind: 'permissionLost', fileName: 'plan-a.json' },
 ] as const satisfies readonly OpenedFileState[]
 
-/**
- * Every member of the union, as a record, so that adding or dropping one stops
- * the compiler here rather than letting a roster walk go quietly short.
- */
 const EVERY_OPEN_ROUTE: Readonly<Record<OpenRoute, true>> = {
   chooser: true,
   drop: true,
@@ -175,11 +92,6 @@ const EVERY_SAVE_FORM: Readonly<Record<SaveFileForm, true>> = {
 
 const storeReasons = Object.keys(EVERY_STORE_REASON) as readonly FileStoreFaultReason[]
 
-/**
- * CN-5 of table T-003 fixes the encoding, and RFC 3629 fixes what that
- * encoding is. One row per sequence length, so a case walks all four rather
- * than proving only that ASCII survives.
- */
 const CN_5_UTF8 = [
   { why: 'one byte', text: 'A', bytes: [0x41] },
   { why: 'two bytes', text: '\u00e9', bytes: [0xc3, 0xa9] },
@@ -187,7 +99,6 @@ const CN_5_UTF8 = [
   { why: 'four bytes', text: '\u{1f5d3}', bytes: [0xf0, 0x9f, 0x97, 0x93] },
 ] as const
 
-/** Byte strings that CN-5's encoding does not admit at all. */
 const NOT_UTF8 = [
   { why: 'a byte that starts no sequence', bytes: [0xff] },
   { why: 'a continuation byte with no lead', bytes: [0x80] },
@@ -197,18 +108,12 @@ const NOT_UTF8 = [
   { why: 'a surrogate half, which this encoding never carries', bytes: [0xed, 0xa0, 0x80] },
 ] as const
 
-/** The mark table T-024's note forbids ever adding (MUST NOT). */
 const BYTE_ORDER_MARK = [0xef, 0xbb, 0xbf] as const
 
-/** S-113 states its ceiling in megabytes and states the factor (table T-211). */
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-/** Read, never re-typed: rule 03 section 1 sends this to the generated value. */
 const S_113_CEILING_BYTES = Number(SETTINGS_DEFAULTS['importMaxBytes']) * BYTES_PER_MEGABYTE
 
-// ---------------------------------------------------------------------------
-// A stand-in for IF-3. Records what it was asked, answers what it was told to.
-// ---------------------------------------------------------------------------
 
 interface StoreCall {
   readonly member: string
@@ -265,7 +170,6 @@ function storeThat(answers: StoreAnswers = {}): StandIn {
 
 const bytesOf = (values: readonly number[]): Uint8Array => Uint8Array.from(values)
 
-/** Builds input only. No expected value below is computed this way. */
 const encoded = (text: string): Uint8Array => new TextEncoder().encode(text)
 
 const readingOf = (bytes: Uint8Array, fileName: string): FileReading => ({
@@ -280,12 +184,6 @@ const overwriteRequest = (
   content: SaveFileContent,
 ): DocumentFileSaveRequest => ({ destination: 'openedFile', content, form })
 
-// The three members table T-227 hangs off are filled with what a document that
-// has never stood in a file carries: DI-1's identity is all `null`, DI-3 can
-// read no owner out of the destination, and DI-4's question is answered "go
-// ahead". ⚠️ The stand-in store these cases use never calls `askToWriteOver`,
-// so none of the three is reached here; the walk of table T-227 is driven by
-// `chosenSaveOf` further down, which records what each of them was asked.
 const chosenRequest = (
   form: SaveFileForm,
   content: SaveFileContent,
@@ -295,17 +193,12 @@ const chosenRequest = (
   content,
   form,
   suggestedFileName,
-  // FR-096 (MUST): the extension of the row the chosen form stands on, which
-  // the host is told so that the written name cannot lose it.
   extension: extensionOfForm(form),
   identity: { projectName: null, projectId: null, fileName: null },
   projectIdentityFromText: () => null,
   confirmOverwrite: () => Promise.resolve(true),
 })
 
-// ---------------------------------------------------------------------------
-// Reading the two published shapes without asserting them into place.
-// ---------------------------------------------------------------------------
 
 async function opened(store: FileStore, route: OpenRoute = 'chooser'): Promise<OpenedDocumentFile> {
   const result = await openDocumentFile(store, route)
@@ -343,13 +236,8 @@ const argumentOf = (calls: readonly StoreCall[], member: string): unknown => {
   return call.argument
 }
 
-// ---------------------------------------------------------------------------
-// The rosters themselves, before anything walks them
-// ---------------------------------------------------------------------------
 
 describe('the rosters these cases walk are the ones the tables state', () => {
-  // A walk over a short roster passes without asserting what it skipped. These
-  // pin the counts so a vacuous case cannot go green.
   it('carries the five file rows of table T-024, two of which come in as well', () => {
     expect(T_024_FILE_ROWS).toHaveLength(5)
     expect(new Set(T_024_FILE_ROWS.map((row) => row.id)).size).toBe(5)
@@ -380,9 +268,6 @@ describe('the rosters these cases walk are the ones the tables state', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// PI-22 of table T-064 -- what leaves this folder
-// ---------------------------------------------------------------------------
 
 describe('PI-22 -- the published members of FileGateway', () => {
   it('publishes the two functions PI-22 names', () => {
@@ -391,9 +276,6 @@ describe('PI-22 -- the published members of FileGateway', () => {
   })
 
   it('publishes no third function -- FR-060 startup offer is a seam member, not one', () => {
-    // FR-060's second MUST is served by IF-3's own members, which the shell
-    // calls. A published `restoreDocumentFilePermission` here would be a
-    // fourth name PI-22 does not list.
     expect(Object.keys(fileGatewayModule).sort()).toEqual([
       'openDocumentFile',
       'saveDocumentFile',
@@ -401,9 +283,6 @@ describe('PI-22 -- the published members of FileGateway', () => {
   })
 
   it('re-exports the seam declared in this folder (Chapter 5.3, MUST)', () => {
-    // Type-only: Chapter 5.3 makes this file the only door out of the folder,
-    // so the layer that implements IF-3 must be able to reach these names
-    // through it. That this compiles is the assertion.
     const seam: FileStore | null = null
     const reading: FileReading | null = null
     const writing: FileWriting | null = null
@@ -417,9 +296,6 @@ describe('PI-22 -- the published members of FileGateway', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// OP-2 of table T-024a -- one entry, two routes
-// ---------------------------------------------------------------------------
 
 describe('OP-2 -- one way in, and the route is a value it carries', () => {
   it('hands the store the route it was given (one case walks both)', async () => {
@@ -449,9 +325,6 @@ describe('OP-2 -- one way in, and the route is a value it carries', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// The ordinary read, and what UT-5 leaves out of it
-// ---------------------------------------------------------------------------
 
 describe('openDocumentFile -- one file, read and decoded, and nothing made of it', () => {
   it('gives back the text, the byte count and the name the store reported', async () => {
@@ -492,9 +365,6 @@ describe('openDocumentFile -- one file, read and decoded, and nothing made of it
   })
 })
 
-// ---------------------------------------------------------------------------
-// CN-5 of table T-003 -- the encoding rule, on the way in
-// ---------------------------------------------------------------------------
 
 describe('CN-5 -- bytes become text by one encoding, and by no other', () => {
   it('decodes every sequence length of that encoding (one case walks the roster)', async () => {
@@ -524,9 +394,6 @@ describe('CN-5 -- bytes become text by one encoding, and by no other', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-023 and S-113 -- the byte count, and the check that is somewhere else
-// ---------------------------------------------------------------------------
 
 describe('FR-023 -- the byte count is this unit contribution, and the ceiling is not', () => {
   it('counts bytes, not characters (S-113 states its ceiling in bytes)', async () => {
@@ -561,9 +428,6 @@ describe('FR-023 -- the byte count is this unit contribution, and the ceiling is
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-096 and FR-060 -- one entry for writing, two destinations
-// ---------------------------------------------------------------------------
 
 describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () => {
   it('writes over the opened file through the member that names it (FR-060)', async () => {
@@ -584,24 +448,6 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
   })
 
   it('hands the store the extension of the chosen row, for every row that is a file (FR-096)', async () => {
-    // 「⛔⛔ **書き換えられるのは名前であって、拡張子ではない。書き出した先の名前
-    //   が、選んだ行の拡張子で終わることを保証すること（MUST）** —— ⚠️ **提案を渡
-    //   しただけでは守られない**（実測 2026-09-01: 提案は `文書名.json` と正しく渡
-    //   っているのに、拡張子の付かない名前で保存でき、利用者が手で付け直した）。
-    //   ⭐ **宿主に「その拡張子の形式である」ことを伝える手立てがあるなら、それを
-    //   使うこと（MUST）。**」（`FR-096`）
-    //
-    // ⭐ THIS SIDE OF THE SEAM CAN ONLY HAND THE VALUE DOWN. The host is told by
-    // the Framework unit (UF-51), which is where FR-096 puts the media type; what
-    // this component owes is that the extension of the row the person chose
-    // reaches IF-3 at all, and that it is the CHOSEN row's and not one form's for
-    // all five.
-    //
-    // ⛔ WHAT WOULD MAKE THIS GO RED: a gateway that drops `extension` on the way
-    // through, or that answers one extension for every form. Demonstrated by
-    // breaking this file's own reader -- `extensionOfForm` was made to answer
-    // `'.json'` for every row, and the case failed on IO-1 with `.json` against
-    // the `.xml` the request carried.
     for (const row of T_024_FILE_ROWS) {
       const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
       await saved(stand.store, chosenRequest(row.form, { text: 'A' }, `plan${row.extension}`))
@@ -611,11 +457,6 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
         `FR-096 (MUST): table T-024 row ${row.id} was chosen and the store was told ` +
           `${JSON.stringify(write.extension)}`,
       ).toBe(row.extension)
-      // ⚠️ AND THE TWO STILL AGREE. The suggested name is a suggestion the
-      // person may overrule; the extension is not. A build that computed the
-      // extension by cutting the suggested name apart would pass the line above
-      // and fail FR-096's MUST the moment the name is overruled, so the two
-      // members are asserted to be two values rather than one read twice.
       expect(write.suggestedFileName.endsWith(write.extension)).toBe(true)
     }
   })
@@ -660,9 +501,6 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
   })
 })
 
-// ---------------------------------------------------------------------------
-// CN-5 and table T-024 note -- the encoding rule, on the way out
-// ---------------------------------------------------------------------------
 
 describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', () => {
   it('encodes every sequence length of that encoding (one case walks the roster)', async () => {
@@ -698,8 +536,6 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
   })
 
   it('leaves bytes alone -- a picture is not decoded and encoded again', async () => {
-    // 0x89 leads no sequence of that encoding, so a round trip through text
-    // could not have given these back.
     const picture = bytesOf([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xff, 0x00])
     const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
     await saved(stand.store, chosenRequest('png', { bytes: picture }, 'a.png'))
@@ -724,18 +560,8 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
   })
 })
 
-// ---------------------------------------------------------------------------
-// The direction column of table T-024 -- which form may hold FR-060 position
-// ---------------------------------------------------------------------------
 
 describe('table T-024 direction column -- what may become the file FR-060 overwrites', () => {
-  // PND-20: whether a save to a file the person chose REDEFINES FR-060's target
-  // is not settled anywhere in docs/spec -- FR-060 names the file that was
-  // opened and FR-096 names a chosen destination, and no row joins the two. So
-  // this walk asserts only the half the direction column does settle: a form
-  // that never comes in cannot close a round trip, so it cannot take the
-  // position. For IO-1 and IO-2 the case records that the row was visited and
-  // asserts nothing about the value.
   it('never lets an out-only form take that position (one case walks table T-024)', async () => {
     for (const row of T_024_FILE_ROWS) {
       const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
@@ -764,9 +590,6 @@ describe('table T-024 direction column -- what may become the file FR-060 overwr
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-028 and AG-8 of table T-035 -- a failure is a value
-// ---------------------------------------------------------------------------
 
 describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', () => {
   it('gives the store reason back on a read (one case walks all four)', async () => {
@@ -866,9 +689,6 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
   })
 })
 
-// ---------------------------------------------------------------------------
-// NT-1 and NT-3a of table T-037 -- a refusal says which, and why
-// ---------------------------------------------------------------------------
 
 describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', () => {
   const everyRefusal = async (): Promise<readonly { why: string; fault: DocumentFileFault }[]> => {
@@ -922,11 +742,6 @@ describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', (
     }
   })
 
-  // A case asserting that a refused read names the FILE was written and then
-  // dropped: NT-1's item is instantiated by FR-023 as a row and a column of the
-  // content, and this unit judges no content. Whether the refusal must carry
-  // the name of the file it refused is therefore open, and the failure arm of
-  // `DocumentFileOpening` carries no name today, so no caller can supply one.
   it('tells the reasons apart by what can be done next (NT-3a), cancelling included', async () => {
     const raised = (await everyRefusal()).map((one) => one.fault.reason)
     expect(raised).toContain('cancelled')
@@ -934,9 +749,6 @@ describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', (
   })
 })
 
-// ---------------------------------------------------------------------------
-// LY-4 and PI-22 purity -- what each function is allowed to touch
-// ---------------------------------------------------------------------------
 
 describe('purity -- openDocumentFile reads outside and writes nothing', () => {
   it('calls no member that writes', async () => {
@@ -970,12 +782,6 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
     const bytes = bytesOf([0x89, 0x50, 0x4e, 0x47])
     const before = Uint8Array.from(bytes)
     const request = chosenRequest('png', { bytes }, 'a.png')
-    // ⚠️ NOT `structuredClone` of the whole request: two members of
-    // `ChosenFileSaveRequest` are calls -- DI-3's reading of the destination and
-    // DI-4's question -- and a function cannot be cloned. The data half is
-    // copied deeply so a mutation of the bytes would show, and the two calls are
-    // carried by reference, which is what "unchanged" means for a member that is
-    // a call. ⛔ The two assertions below are the ones this case always made.
     const frozen = { ...request, content: structuredClone(request.content) }
     await saved(storeThat({ chosen: writtenTo({ kind: 'none' }) }).store, request)
     expect(bytes).toEqual(before)
@@ -986,8 +792,6 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
     const first = storeThat({ chosen: writtenTo({ kind: 'writable', fileName: 'chosen.json' }) })
     await saved(first.store, chosenRequest('grsJson', { text: 'A' }, 'chosen.json'))
 
-    // A second store, and a second call, must be answered by that store alone:
-    // IF-3 keeps the handle, so nothing here can carry the first call forward.
     const second = storeThat({
       overwrite: { ok: false, fault: { reason: 'noOpenedFile', what: 'nothing is open' } },
     })
@@ -996,8 +800,6 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
   })
 
   it('asks the store, never a remembered answer, for what may be overwritten', async () => {
-    // IF-3 is asked and not cached: the same request against two stores gives
-    // two answers, which a held value could not do.
     const writable = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'a' }) })
     const lost = storeThat({ overwrite: writtenTo({ kind: 'permissionLost', fileName: 'a' }) })
     expect(await saved(writable.store, overwriteRequest('grsJson', { text: 'A' }))).toEqual({
@@ -1011,38 +813,8 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
   })
 })
 
-// ===========================================================================
-// Added for table T-227 (DI-1 .. DI-6), OP-11 of table T-024a and FR-061's
-// MUST NOT. Written against docs/spec only; the unit's body was not read.
-//
-// The rows these cases answer to:
-//   DI-1   same document only where the file name AND `Project.name` AND
-//          `Project.id` all three match (MUST)
-//   DI-2   either side `null` in `Project.name` or `Project.id` -- MUST NOT
-//          call it the same document
-//   DI-3   a destination already there whose content cannot be read as
-//          `GRS JSON` -- MUST NOT call it the same document
-//   DI-4   a destination that cannot be called the same -- ask whether it may
-//          be written over (MUST). The manner is NT-7 of table T-037
-//   DI-5   FR-060's route asks nothing (MUST)
-//   DI-6   a destination of zero bytes: not counted as already being there,
-//          and not asked about (MUST). The row states its own precedence over
-//          DI-3, and gives FR-031 as the ground
-//   FR-031 asking anywhere a requirement did not ask for it is forbidden
-//          (MUST NOT), so a destination table T-227 calls the same is written
-//          over in silence
-//   OP-11  several files handed over at once: keep the first, say how many
-//          were left (MUST), and MUST NOT let the act read as refused
-//   FR-061 MUST NOT build the autosave key out of DI-1 -- so no identity
-//          leaves this component at all
-//   FR-096 one entry for the export side (MUST), one per format forbidden
-// ===========================================================================
 
-// ---------------------------------------------------------------------------
-// Fixed copies of table T-227, of OP-11 and of the identity they compare.
-// ---------------------------------------------------------------------------
 
-/** Table T-227, its rows and the subject of each. */
 const T_227_ROWS = [
   { row: 'DI-1', subject: 'how the same document is recognised' },
   { row: 'DI-2', subject: 'what null means' },
@@ -1052,33 +824,19 @@ const T_227_ROWS = [
   { row: 'DI-6', subject: 'a destination of zero bytes' },
 ] as const
 
-/** The document being written, with all three of DI-1's values present. */
 const THIS_DOCUMENT: DocumentIdentity = {
   fileName: 'plan-a.json',
   projectName: 'Bridge Renewal',
   projectId: 'P-001',
 }
 
-/** What DI-1 reads out of the destination when the two are one and the same. */
 const SAME_PROJECT: ProjectIdentity = {
   projectName: THIS_DOCUMENT.projectName,
   projectId: THIS_DOCUMENT.projectId,
 }
 
-/**
- * Multi-byte on purpose: DI-3 reads the destination through CN-5's encoding,
- * and a case that only ever carries ASCII cannot tell one decoding from another.
- */
 const DESTINATION_TEXT = '{"schemaVersion":"2026-08-18","name":"\u6a4b\u306e\u66f4\u65b0"}'
 
-/**
- * Table T-227 as a roster: one row per way the destination can stand to the
- * document being written, and whether DI-1 .. DI-3 leave it the SAME document.
- *
- * `destinationProject` is what DI-3's reading of the destination yields, with
- * `null` standing for the destination DI-3 describes -- one whose content is
- * not `GRS JSON`.
- */
 const T_227_SAMENESS = [
   {
     row: 'DI-1',
@@ -1185,11 +943,6 @@ const T_227_SAMENESS = [
   readonly isSame: boolean
 }[]
 
-/**
- * OP-11 of table T-024a: how many files came in the same hand-over and were
- * left behind. A store that says nothing left nothing, which `FileReading`
- * states, so the absent case is one of the rows.
- */
 const OP_11_COUNTS = [
   { why: 'one file, so the store counts nothing', reported: undefined, told: 0 },
   { why: 'one file, and the store says so', reported: 0, told: 0 },
@@ -1197,23 +950,13 @@ const OP_11_COUNTS = [
   { why: 'a whole folder was dropped', reported: 11, told: 11 },
 ] as const
 
-// ---------------------------------------------------------------------------
-// A stand-in for IF-3 that plays `writeChosenFile` the way its own note fixes:
-// point at the destination, read what is there, ask `askToWriteOver`, and write
-// only on a `true`.
-// ---------------------------------------------------------------------------
 
 interface AskingStandIn {
   readonly store: FileStore
   readonly calls: readonly StoreCall[]
-  /** Every answer `askToWriteOver` gave, in the order it gave them. */
   readonly permissions: readonly boolean[]
 }
 
-/**
- * IF-3's own wording: a `false` answer is `cancelled`, not a failure -- the
- * person called the write off exactly as they may call the chooser off.
- */
 const CANCELLED_BY_THE_ANSWER: FileStoreFault = {
   reason: 'cancelled',
   what: 'the overwrite question was answered no, so nothing was written',
@@ -1264,9 +1007,7 @@ const NOTHING_THERE: ChosenWriteDestination = { kind: 'empty' }
 
 interface ChosenSave {
   readonly request: DocumentFileSaveRequest
-  /** Every text DI-3's reading was handed, in order. */
   readonly textsRead: readonly string[]
-  /** How many times DI-4's question was put to the person. */
   readonly timesAsked: () => number
 }
 
@@ -1288,8 +1029,6 @@ function chosenSaveOf(
     content: overrides.content ?? { text: '{"schemaVersion":"2026-08-18"}' },
     form,
     suggestedFileName: overrides.suggestedFileName ?? 'plan-a.json',
-    // FR-096 (MUST): read off the chosen form's row, never typed beside the
-    // suggested name -- the two are one value said twice if they drift.
     extension: extensionOfForm(form),
     identity,
     projectIdentityFromText: (text: string): ProjectIdentity | null => {
@@ -1313,7 +1052,6 @@ const readingWithIgnored = (
     ? { ok: true, file: { bytes, fileName } }
     : { ok: true, file: { bytes, fileName }, ignoredFileCount }
 
-// ---------------------------------------------------------------------------
 
 describe('the rosters for table T-227 and for OP-11 are the ones the tables state', () => {
   it('GIVEN table T-227 WHEN its rows are counted THEN there are six, DI-1 .. DI-6', () => {
@@ -1329,8 +1067,6 @@ describe('the rosters for table T-227 and for OP-11 are the ones the tables stat
   })
 
   it('GIVEN the sameness roster WHEN it is counted THEN one row is the same document and eleven are not', () => {
-    // A walk that never met the SAME case would prove only that a question is
-    // always asked, which FR-031 forbids just as flatly as DI-4 requires one.
     expect(T_227_SAMENESS.filter((row) => row.isSame)).toHaveLength(1)
     expect(T_227_SAMENESS.filter((row) => !row.isSame)).toHaveLength(11)
     expect(new Set(T_227_SAMENESS.map((row) => row.row))).toEqual(new Set(['DI-1', 'DI-2', 'DI-3']))
@@ -1362,8 +1098,6 @@ describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same docu
 
     const result = await saveDocumentFile(stand.store, save.request)
 
-    // `confirmOverwrite` here would answer `false`; a write that went ahead
-    // proves the question was never put.
     expect(save.timesAsked()).toBe(0)
     expect(stand.permissions).toEqual([true])
     expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile', 'putTheBytesDown'])
@@ -1392,9 +1126,6 @@ describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same docu
   })
 
   it('GIVEN a destination whose bytes are not CN-5 encoded at all WHEN it is judged THEN it is not this document and the question is put (DI-3, DI-4 MUST)', async () => {
-    // DI-3: a destination whose content cannot be read as `GRS JSON` MUST NOT
-    // be called the same document, and DI-4 then puts a MUST on asking. Bytes
-    // that CN-5's encoding does not admit cannot be that JSON by any reading.
     const save = chosenSaveOf(THIS_DOCUMENT, null, true)
     const stand = storeAt({
       kind: 'occupied',
@@ -1421,40 +1152,12 @@ describe('table T-227 DI-1 / DI-2 / DI-3 -- when a destination is this same docu
 
 describe('table T-227 DI-6 -- a destination of zero bytes, and the row it outranks', () => {
   it('GIVEN a destination the store calls occupied but holding no bytes WHEN table T-227 is applied THEN nothing is asked and the bytes go down (DI-6 MUST, over DI-3)', async () => {
-    // ⭐ THE ORDER IS THE WHOLE CASE. DI-6 states its own precedence over DI-3,
-    // and DI-3 is the row that refuses a destination it cannot read as
-    // `GRS JSON`. No bytes decode as that, so DI-3 would refuse every zero-byte
-    // destination and DI-4 would then put the question DI-6 forbids. The row
-    // can therefore only be obeyed by measuring the destination BEFORE trying
-    // to decode it, and this case is what holds the code to that order.
-    //
-    // ⚠️ The stand-in reports `occupied`, not `empty`, on purpose: that is the
-    // arm on which the two rows collide, and the only arm a near side can get
-    // wrong. The other arm is `NOTHING_THERE` in the block above, and neither
-    // store is wrong -- IF-3 asks no store to tell a file a save chooser just
-    // created from one that was already standing empty, which is exactly the
-    // pair DI-6 says cannot be told apart.
-    //
-    // The reader is set to refuse (DI-3's answer) and the person's answer is
-    // "call it off", so a question that WAS put would show in every assertion
-    // below rather than in one.
     const save = chosenSaveOf(THIS_DOCUMENT, null, false)
     const stand = storeAt(occupiedBy('plan-a.json', ''))
 
     const result = await saveDocumentFile(stand.store, save.request)
 
-    // This one is DI-6's own MUST, and nothing else in the case is.
     expect(save.timesAsked()).toBe(0)
-    // ⛔ STRICTER THAN THE ROW, DELIBERATELY, AND THE SPECIFICATION IS SILENT
-    // ON IT. DI-6 fixes the OUTCOME -- not counted as already being there, not
-    // asked about -- and no MUST forbids reading the destination anyway and
-    // then discarding what came back. So an implementation that decoded first
-    // and let DI-6 win afterwards would satisfy the row and fail this line.
-    // ⭐ It is asserted regardless because the outcome alone cannot tell "DI-6
-    // was read first" from "DI-3 was read and then overruled", and DI-6 states
-    // a PRECEDENCE, which is a claim about order that has no other observable.
-    // If a ruling says a pointless read is admissible, this line is the one to
-    // drop -- not the one above it.
     expect(save.textsRead).toEqual([])
     expect(stand.permissions).toEqual([true])
     expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile', 'putTheBytesDown'])
@@ -1462,10 +1165,6 @@ describe('table T-227 DI-6 -- a destination of zero bytes, and the row it outran
   })
 
   it('GIVEN a destination holding one single byte that is not GRS JSON WHEN it is judged THEN the question is put (DI-3 did not change; DI-6 turns on the count, not on being unreadable)', async () => {
-    // The sibling of the case above, one byte away from it. DI-6 turns on the
-    // byte count alone; being unreadable is DI-3's condition and still reaches
-    // DI-4's MUST. A code path that read DI-6 as "unreadable means let it
-    // through" would pass the case above and fail this one.
     const save = chosenSaveOf(THIS_DOCUMENT, null, true)
     const stand = storeAt(occupiedBy('plan-a.json', 'x'))
 
@@ -1574,8 +1273,6 @@ describe('table T-227 DI-5 -- FR-060 route asks nothing', () => {
   })
 
   it('GIVEN FR-060 route WHEN the request is inspected THEN it carries no identity and no question to put (DI-5)', () => {
-    // DI-5's reason: were the question put here it would fire every time the
-    // project was renamed. The arm has nowhere to carry a renaming to compare.
     const request = overwriteRequest('grsJson', { text: 'A' })
     expect(Object.keys(request).sort()).toEqual(['content', 'destination', 'form'])
   })

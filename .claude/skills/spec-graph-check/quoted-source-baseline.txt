@@ -1,4 +1,6 @@
-479
+395
+# LOWERED 479 -> 395 on 2026-09-14: the tests/ comment wave (JDG-77) brought 64 test
+# files to JDG-62 and removed quotations with no source in docs/spec.
 #
 # Check 42 -- 「…」 quotations inside comments of src/ and tests/ that no
 # manuscript under docs/spec contains. Held by check-quoted-source.py; line 1

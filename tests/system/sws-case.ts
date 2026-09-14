@@ -1,29 +1,11 @@
-// What a System case of Chapter 9 needs before it can assert anything: the
-// declaration table T-219 asks every such case to carry, and the two readers
-// that let a case take its expected values out of a specification table.
-//
-// ⭐ WHY A DECLARATION AT ALL. Table T-219 (row TW-2) has Chapter 9's cases
-// GENERATED from the test code and forbids writing them by hand, and Chapter 7
-// lists what the generator needs from a case that lives under
-// `tests/integration/` or `tests/system/`: the `SW_SPEC` node it hangs from,
-// GIVEN, WHEN, THEN, and the test level. Which keys carry those is left to the
-// test code. The keys below are the ones
-// `tests/integration/schedule-drawing.sws.test.ts` already uses, so that one
-// generator reads one literal shape in both places.
-//
-// To find every case: grep for `swsCase({`. To find one node's cases: grep for
-// `sws: 'SWS-8'`.
+// Declares a System case (table T-219) for the tests/system sws generator.
 
 import { expect } from '@playwright/test'
 import type { SpecRow, SpecTable } from '../contract/spec-table'
 
-/** The declaration one case carries. */
 export interface SwsCase {
-  /** The `SW_SPEC` node of Chapter 6.1 the generated case takes as its parent. */
   readonly sws: string
-  /** TEST_LEVEL. Table T-218 gives row TS-3 exactly one. */
   readonly level: 'System'
-  /** Row IDs of the specification table the case verifies, e.g. `NS-3`. */
   readonly covers: readonly string[]
   readonly given: string
   readonly when: string
@@ -31,22 +13,13 @@ export interface SwsCase {
 }
 
 export interface SwsRegistry {
-  /** Declare a case and return the name Playwright prints for it. */
   swsCase(one: SwsCase): string
-  /** Every case declared so far, in declaration order. */
   declared(): readonly SwsCase[]
 }
 
-/**
- * A registry of its own, for one test file.
- *
- * ⚠️ Deliberately NOT one array at module level. Playwright may load two spec
- * files into the same worker process, and a shared array would then let one
- * file's completeness check see the other file's cases -- so the answer would
- * depend on the order the files happened to load in.
- *
- * @purity non-pure
- */
+// WHY: not one module-level array -- Playwright may run two spec files in one
+// worker, and a shared array would let one file's check see the other's.
+/** @purity non-pure */
 export function swsRegistry(): SwsRegistry {
   const cases: SwsCase[] = []
   return {
@@ -62,15 +35,9 @@ export function swsRegistry(): SwsRegistry {
   }
 }
 
-/**
- * Fail unless every declaration in the registry is one a generator could use.
- *
- * ⭐ This is the guard on the declarations themselves, not on the product: an
- * empty GIVEN or a row ID that is in no table would produce a Chapter 9 node
- * that says nothing, and TW-2 has no other reader to catch it.
- *
- * @purity non-pure
- */
+// WHY: guards the declarations, not the product -- TW-2 (Chapter 9) has no
+// other reader that would catch an empty GIVEN or an unknown row ID.
+/** @purity non-pure */
 export function expectDeclarationsUsable(
   registry: SwsRegistry,
   knownRowIds: ReadonlySet<string>,
@@ -97,28 +64,16 @@ export function expectDeclarationsUsable(
   }
 }
 
-/**
- * The row with this ID, or a failure that names the table it was looked for in.
- *
- * @purity pure
- */
+/** @purity pure */
 export function rowOf(table: SpecTable, id: string): SpecRow {
   const row = table.rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table ${table.id} has no row ${id}`)
   return row
 }
 
-/**
- * The last cell of a row.
- *
- * ⭐ Read by position rather than by heading, so that no column name of the
- * manuscript is spelled in this repository -- the headings are Japanese, and
- * rule 03 section 5 keeps this tree ASCII. Every table read from here states
- * its rule in its last column; a caller that needs another column guards the
- * column count itself, so a table that grows a column fails loudly.
- *
- * @purity pure
- */
+// WHY: read by position, not heading -- headings are Japanese and rule 03
+// section 5 keeps this tree ASCII; a caller needing another column guards it.
+/** @purity pure */
 export function lastCellOf(row: SpecRow): string {
   return row.cells[row.cells.length - 1] ?? ''
 }

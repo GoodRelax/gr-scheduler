@@ -1,59 +1,9 @@
-// One System sweep for the four clauses CR-354 put into the manuscript, none of
-// which had a case before this file:
-//
-//   FR-019   what "below" means when a highlight box is normalised on release,
-//            and what the DRAWING side must enclose instead
-//   IV-19    table T-220 -- the same two orderings, as an invariant
-//   HM-9     table T-015a -- where a Task's rank among its WBS siblings comes
-//            from
-//   HM-3     table T-015a -- moving a bar to another row, and what that does
-//            and does not touch
-//
-// ⛔⛔ CORRECTION, 2026-09-05: an earlier note here claimed rule 03 section 5
-// forbids copying the manuscript's Japanese into code. That claim was wrong --
-// what section 5 forbids is TRANSLATING the manuscript's prose into code, not
-// quoting it verbatim. This project's own check 39 (must-clause-coverage)
-// counts a MUST / MUST NOT clause as held only when some file under tests/
-// carries its own trailing text byte for byte, so the row IDs and the
-// verbatim windows for FR-019, `HM-3`, `HM-9` and `HM-8` are now quoted next
-// to the assertion each one actually drives, below. Rule 04 section 1 still
-// forbids reading `src/` to write a case -- nothing under `src/` was opened
-// for this file.
-//
-// ⭐ WHY ONE CASE. Rule 04 section 3.5 asks for one launch that judges
-// everything, and this project has measured that a failing Playwright case
-// followed by another case leaves the run hanging. Every judgement below is
-// therefore a soft expectation inside a single case: they all run, and every
-// one that fails is reported together at the end.
-//
-// ⭐ WHAT MAKES THE PINNED SCENARIO THE WHOLE POINT. `FR-098` (MUST) lifts a
-// pinned row out of the scrolling area and draws it at the top of `Row Area`,
-// so a row that is LAST among the drawn rows in the row tree becomes the FIRST
-// one on the screen. That is the only fixture in which "the row above" and "the
-// row earlier in the tree" disagree, and it is exactly the disagreement CR-354
-// settles -- in opposite directions for the stored value and for the drawing.
-//
-// ⛔ WHAT WAS READ OF `src/`: nothing. Every handle used here
-// (`[data-role]`, `[data-icon]`, `[data-depth]`, `[data-group-id]`,
-// `[data-pinned]`) is one the neighbouring System files already lean on, and
-// the specification settles none of them -- `tests/system/live-app.ts` says so
-// of `DRAWN_SVG`. The published identifier `grSchedulerAgentApi` IS settled:
-// `_assets/tbl-glossary.md` names it above table T-107, and `AM-3` names the
-// member this file reads the document through.
-//
-// ⛔ NO `swsCase` IS DECLARED HERE, for the reason the neighbouring System
-// files give: table T-219 row `TW-2` has Chapter 9's cases generated from those
-// declarations and hung from an `SWS-xxx` node, and none of Chapter 6.1's nodes
-// is about these four rows.
+// One System sweep for the four clauses CR-354 put into the manuscript: FR-019, IV-19, HM-9 and HM-3 (table T-015a / T-220).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { specTable, type SpecTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { lastCellOf, rowOf } from './sws-case'
-
-// ---------------------------------------------------------------------------
-// What the specification says, read at read time
-// ---------------------------------------------------------------------------
 
 const T014: SpecTable = specTable('T-014')
 const T015A: SpecTable = specTable('T-015a')
@@ -64,10 +14,10 @@ const T109: SpecTable = specTable('T-109')
 const T206: SpecTable = specTable('T-206')
 const T220: SpecTable = specTable('T-220')
 
-/** The screen of the base environment: table T-025, row `MC-6`. */
+// see T-025, MC-6
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
-/** The first number written in a cell. @purity pure */
+/** @purity pure */
 function numberIn(cell: string, what: string): number {
   const found = /-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))
   const value = Number(found?.[0] ?? '')
@@ -77,33 +27,18 @@ function numberIn(cell: string, what: string): number {
   return value
 }
 
-/**
- * `S-208` -- the travel that separates a press from a drag when a shape or an
- * annotation is placed. `FR-019` (MUST) makes a highlight box need a drag.
- */
+// see T-206, S-208, FR-019
 const PRESS_OR_DRAG_PX = numberIn(
   rowOf(T206, 'S-208').cells[1] ?? '',
   'table T-206 row S-208',
 )
 
-/**
- * The three sort keys `ST-2` of table T-014 settles, in the order it writes
- * them, taken from the row rather than spelled here.
- *
- * ⭐ Chapter 1.9 asks a case that verifies a requirement pointing at a table to
- * be driven by fixed data copied from that table. `ST-2` is the tie-break
- * CR-354 sends `HM-9` to when two WBS siblings share one row, so the keys and
- * their directions are read, not written down.
- *
- * @purity pure
- */
+// see T-014, ST-2
+/** @purity pure */
 function sortKeysOfSt2(): ReadonlyArray<{ readonly key: string; readonly ascending: boolean }> {
   const cell = lastCellOf(rowOf(T014, 'ST-2'))
-  // ⚠️ Matching the manuscript's own words. Rule 03 section 5 admits handling
-  // Japanese as the exception, and `tests/contract/spec-table.ts` takes the
-  // same exception for the row-ID heading. Given as code points so that the
-  // characters stay out of the source, as `rows-fixed-with-nothing-holding-them`
-  // does. U+6607 U+9806 -- ascending; U+964D U+9806 -- descending.
+  // WHY: given as code points, not literal characters, to keep non-ASCII text
+  // WHY: out of this source file (U+6607 U+9806 ascending; U+964D U+9806 descending).
   const ASCENDING = String.fromCharCode(0x6607, 0x9806)
   const DESCENDING = String.fromCharCode(0x964d, 0x9806)
   const found: Array<{ key: string; ascending: boolean }> = []
@@ -126,15 +61,7 @@ function sortKeysOfSt2(): ReadonlyArray<{ readonly key: string; readonly ascendi
 
 const ST2_KEYS = sortKeysOfSt2()
 
-/**
- * The one entrance of table T-109 that arms a holding of table T-023b.
- *
- * ⭐ Resolved through the tables rather than spelled, the way
- * `tests/system/rows-fixed-with-nothing-holding-them.test.ts` resolves it: the
- * last column of table T-109 names the `AR-n` an entrance arms.
- *
- * @purity pure
- */
+/** @purity pure */
 function entranceArming(holding: string): string {
   const wanted = new RegExp(`${holding}(?![0-9])`)
   const found = T109.rows.filter((row) => wanted.test(lastCellOf(row)))
@@ -144,17 +71,10 @@ function entranceArming(holding: string): string {
   return found[0]?.id ?? ''
 }
 
-/** `IC-36` -- the entrance that arms table T-023b's `AR-6`, the highlight box. */
+// see T-023b, AR-6
 const HIGHLIGHT_BOX_ENTRANCE = entranceArming(rowOf(T023B, 'AR-6').id)
 
-/**
- * The one entrance of table T-109 whose 正 column names this requirement and
- * whose place is the row title panel or the app header.
- *
- * ⭐ Found by the requirement it serves, so that no `IC-nn` is spelled here.
- *
- * @purity pure
- */
+/** @purity pure */
 function entranceServing(requirement: string, place: string): string {
   const wanted = new RegExp(`${requirement}(?![0-9])`)
   const found = T109.rows.filter(
@@ -168,22 +88,15 @@ function entranceServing(requirement: string, place: string): string {
   return found[0]?.id ?? ''
 }
 
-/** `IC-60` -- the `Row Pin` of `FR-098`, one per row of the row title panel. */
 const ROW_PIN_ENTRANCE = entranceServing('FR-098', 'Row Title Panel')
-/** `IC-20` -- the header entrance `FR-065` gives for opening the `Agent API`. */
 const AGENT_API_ENTRANCE = entranceServing('FR-065', 'App Header')
 
-// ⭐ The rows this file is about have to exist before it can name them.
 const HM_3 = rowOf(T015A, 'HM-3').id
 const HM_8 = rowOf(T015A, 'HM-8').id
 const HM_9 = rowOf(T015A, 'HM-9').id
 const IV_19 = rowOf(T220, 'IV-19').id
-/** `GR-20` -- the grab strip table T-023d lays along a row's left edge. */
+// see T-023d, GR-20
 const GR_20 = rowOf(T023D, 'GR-20').id
-
-// ---------------------------------------------------------------------------
-// The document, as `AM-3` of table T-107 hands it over
-// ---------------------------------------------------------------------------
 
 interface DocGroup {
   readonly id: string
@@ -216,7 +129,6 @@ interface DocShot {
   readonly members: ReadonlyArray<{ readonly taskUid: number; readonly groupId: string }>
 }
 
-/** One row of the row title panel, as the page drew it. */
 interface DrawnRow {
   readonly id: string
   readonly depth: number
@@ -226,15 +138,8 @@ interface DrawnRow {
   readonly height: number
 }
 
-/**
- * Every row's place in the ROW TREE: a depth-first walk of `TaskGroup.parentId`
- * taking siblings in `order` (`AT-52` and `AT-55` of table T-058).
- *
- * ⭐ This is the ordering CR-354 makes `FR-019` and `HM-9` judge by, and it is
- * built from the document alone -- no screen coordinate goes into it.
- *
- * @purity pure
- */
+// see T-058, AT-52, AT-55, FR-019, HM-9
+/** @purity pure */
 function rankInRowTree(groups: readonly DocGroup[]): ReadonlyMap<string, number> {
   const children = new Map<string | null, DocGroup[]>()
   for (const group of groups) {
@@ -254,15 +159,11 @@ function rankInRowTree(groups: readonly DocGroup[]): ReadonlyMap<string, number>
   return rank
 }
 
-/** A short, quotable name for one row. @purity pure */
+/** @purity pure */
 function nameOf(groups: readonly DocGroup[], id: string | null): string {
   const group = groups.find((one) => one.id === id)
   return `${group?.label ?? '(no label)'} <${String(id).slice(0, 8)}>`
 }
-
-// ---------------------------------------------------------------------------
-// Driving the running application
-// ---------------------------------------------------------------------------
 
 let browser: Browser | null = null
 
@@ -271,8 +172,7 @@ test.beforeAll(async () => {
 })
 
 test.afterAll(async () => {
-  // ⛔ The hook's own allowance, not an assertion's; `CLEARING_UP_MS` of
-  // `./live-app` carries the measurements and the reason.
+  // WHY: this raises the hook's own timeout, not an assertion's; see CLEARING_UP_MS.
   test.setTimeout(CLEARING_UP_MS)
   await browser?.close()
 })
@@ -286,7 +186,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-/** The application, up and settled, on the screen of the base environment. @purity non-pure */
+/** @purity non-pure */
 async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   if (baseURL === undefined) {
     throw new Error('playwright.config.ts declares no baseURL for the running application')
@@ -305,21 +205,16 @@ async function openTheApp(baseURL: string | undefined): Promise<Opened> {
   }
 }
 
-/**
- * Press with a real pointer.
- *
- * ⛔ A REAL POINTER, not `element.click()`: the shell reads the pointer, and a
- * synthetic click has reached nothing in this project before.
- *
- * @purity non-pure
- */
+// WHY: a real pointer, not element.click() -- a synthetic click has reached
+// WHY: nothing in this project before, because the shell reads the pointer.
+/** @purity non-pure */
 async function pressAt(page: Page, at: { x: number; y: number }): Promise<void> {
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
   await page.mouse.up()
 }
 
-/** Press one entrance of table T-109 wherever it stands. @purity non-pure */
+/** @purity non-pure */
 async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   const at = await page.evaluate((wanted: string) => {
     const entry = document.querySelector(`[data-icon="${wanted}"]`)
@@ -333,15 +228,8 @@ async function pressEntrance(page: Page, icon: string): Promise<boolean> {
   return true
 }
 
-/**
- * Press an entrance drawn inside one row of the panel.
- *
- * ⚠️ The pointer is put on the row's NAME first. Table T-051 row `HF-6` keeps a
- * row's own controls hidden until the pointer is on that row, and measured
- * 2026-09-05 the control has a zero-sized box until then.
- *
- * @purity non-pure
- */
+// see T-051, HF-6
+/** @purity non-pure */
 async function pressEntranceInRow(page: Page, index: number, icon: string): Promise<boolean> {
   const hover = await page.evaluate((wanted: number) => {
     const row = Array.from(document.querySelectorAll('[data-depth]'))[wanted]
@@ -370,7 +258,7 @@ async function pressEntranceInRow(page: Page, index: number, icon: string): Prom
   return true
 }
 
-/** Every row the panel is drawing right now, in the order it drew them. @purity semi-pure-b */
+/** @purity semi-pure-b */
 async function drawnRows(page: Page): Promise<DrawnRow[]> {
   return page.evaluate(() =>
     Array.from(document.querySelectorAll('[data-depth]')).map((row) => {
@@ -387,15 +275,8 @@ async function drawnRows(page: Page): Promise<DrawnRow[]> {
   )
 }
 
-/**
- * The document, through the `Agent API`.
- *
- * ⭐ `AM-3` of table T-107 is the member that hands over a frozen copy of the
- * whole document (`AG-4`), and `FR-065` (MUST) keeps the API shut until a
- * person opens it -- which is what the header entrance above is pressed for.
- *
- * @purity semi-pure-b
- */
+// see T-107, AM-3, AG-4, FR-065
+/** @purity semi-pure-b */
 async function readDocumentShot(page: Page): Promise<DocShot | null> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } })
@@ -411,7 +292,8 @@ async function readDocumentShot(page: Page): Promise<DocShot | null> {
   })
 }
 
-/** The shape the canvas shows at a point -- `IN-2` of table T-028. @purity non-pure */
+// see T-028, IN-2
+/** @purity non-pure */
 async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   await page.mouse.move(x, y)
   return page.evaluate((part: string) => {
@@ -420,19 +302,11 @@ async function cursorAt(page: Page, x: number, y: number): Promise<string> {
   }, CANVAS_PART)
 }
 
-/** How far a drag runs along the time axis. @purity pure */
+/** @purity pure */
 const REACH_PX = 160
 
-/**
- * A column of empty ground that crosses the middles of both named rows.
- *
- * ⛔ Emptiness is the PRODUCT's own answer, not this file's: `PTD-5` of table
- * T-023a gives ground that hit nothing the plain arrow, so a point whose cursor
- * is the plain arrow is ground no item covers. A drag that starts on an item
- * would be that item's default operation instead (`AR-6`'s last column).
- *
- * @purity non-pure
- */
+// see T-023a, PTD-5, AR-6
+/** @purity non-pure */
 async function emptyColumnAcross(
   page: Page,
   first: DrawnRow,
@@ -456,7 +330,7 @@ async function emptyColumnAcross(
   return null
 }
 
-/** Drag with a real pointer, in enough steps that the shell sees the travel. @purity non-pure */
+/** @purity non-pure */
 async function dragBetween(
   page: Page,
   from: { x: number; y: number },
@@ -474,7 +348,7 @@ async function dragBetween(
   await page.waitForTimeout(900)
 }
 
-/** The outlines the drawing holds: a rounded, unfilled rectangle. @purity semi-pure-b */
+/** @purity semi-pure-b */
 async function drawnOutlines(
   page: Page,
 ): Promise<Array<{ y: number; height: number; x: number; width: number }>> {
@@ -492,7 +366,8 @@ async function drawnOutlines(
   )
 }
 
-/** A grab point on a plan bar's body -- `GR-12` of table T-023d. @purity non-pure */
+// see T-023d, GR-12
+/** @purity non-pure */
 async function barBodyOn(page: Page, row: DrawnRow): Promise<{ x: number; y: number } | null> {
   const left = Math.round(
     await page.evaluate(
@@ -504,8 +379,7 @@ async function barBodyOn(page: Page, row: DrawnRow): Promise<{ x: number; y: num
     for (const offset of [-20, 0, 20, 40]) {
       const y = row.y + Math.round(row.height / 2) + offset
       if (y < row.y + 6 || y > row.y + row.height - 6) continue
-      // ⭐ `IN-2` of table T-028 gives a grabbable thing the grabbing shape, so
-      // the product itself says where a bar body is.
+      // see T-028, IN-2
       if ((await cursorAt(page, x, y)) === 'grab') return { x, y }
     }
   }
@@ -550,14 +424,8 @@ async function grabStripCentreOn(
   }, id)
 }
 
-/**
- * Whether one task sorts before another under the three keys of `ST-2`.
- *
- * ⭐ Driven by the keys read out of table T-014, not by three names written
- * here.
- *
- * @purity pure
- */
+// see T-014, ST-2
+/** @purity pure */
 function beforeUnderSt2(left: DocTask, right: DocTask): number {
   const cellOf = (task: DocTask, key: string): string | number | null =>
     (task as unknown as Record<string, string | number | null>)[key] ?? null
@@ -578,33 +446,11 @@ function beforeUnderSt2(left: DocTask, right: DocTask): number {
   return 0
 }
 
-// ---------------------------------------------------------------------------
-// The sweep
-// ---------------------------------------------------------------------------
-
-// GOES RED IF any of the following is untrue of the running application. Each
-// judgement names the row it comes from, and every one of them is soft, so one
-// red never hides the rest.
-//
-//   1  FR-019 -- a drag pulled up and to the left still stores start <= end
-//   2  FR-019 / IV-19 -- and stores the row that is EARLIER IN THE ROW TREE as
-//      the top one, in the fixture where the tree and the screen disagree
-//      because FR-098 lifted a row out of the scrolling area
-//   3  FR-019 -- while the DRAWING encloses the two rows as the screen has them
-//   4  HM-3 -- moving a bar to another row leaves wbsParentUid alone
-//   5  HM-3 / HM-9 -- and gives the moved bar the rank its NEW row has in the
-//      row tree, so that it is not told apart from the bars already there
-//   6  ST-2 -- two WBS siblings sharing one row fall in the table's own order
-//   7  HM-8 -- the row title panel's drag actually reorders siblings, which is
-//      the road HM-9 rides on
 test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / HM-9 / HM-3)', async ({
   baseURL,
 }) => {
   test.setTimeout(600_000)
 
-  // -------------------------------------------------------------------------
-  // 1. FR-019 with nothing pinned -- the control the rest leans on
-  // -------------------------------------------------------------------------
   {
     const opened = await openTheApp(baseURL)
     const page = opened.page
@@ -635,7 +481,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           expect
             .soft(REACH_PX, 'the drag travels further than S-208, so it is a drag')
             .toBeGreaterThan(PRESS_OR_DRAG_PX)
-          // Pulled UP and to the LEFT: both stored orderings arrive reversed.
           await dragBetween(
             page,
             { x: x + REACH_PX, y: low.y + Math.round(low.height / 2) },
@@ -677,9 +522,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
     }
   }
 
-  // -------------------------------------------------------------------------
-  // 2 and 3. FR-098 lifts one row, so the screen and the row tree disagree
-  // -------------------------------------------------------------------------
   {
     const opened = await openTheApp(baseURL)
     const page = opened.page
@@ -700,7 +542,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const pinnedIndex = rows.findIndex((one) => one.pinned)
       expect.soft(pinnedIndex, 'FR-098: the pinned row is drawn first, at the top of Row Area').toBe(0)
 
-      // The fixture is only worth anything while the two orderings disagree.
       const pinned = rows[pinnedIndex < 0 ? 0 : pinnedIndex] as DrawnRow
       const others = rows.filter((one) => !one.pinned)
       const later = others.filter((one) => (rank.get(one.id) ?? 0) < (rank.get(pinned.id) ?? 0))
@@ -719,8 +560,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         if (x === null) continue
         const outlinesBefore = (await drawnOutlines(page)).length
         await pressEntrance(page, HIGHLIGHT_BOX_ENTRANCE)
-        // Pulled DOWN the screen: from the pinned band at the top to a row the
-        // row tree puts EARLIER. Screen order and tree order disagree here.
         await dragBetween(
           page,
           { x, y: pinned.y + Math.round(pinned.height / 2) },
@@ -732,7 +571,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         if (box === undefined) continue
         judged = true
 
-        // 2. The STORED value follows the row tree (CR-354's MUST / MUST NOT).
         // ⭐ Held verbatim -- check 39, row `FR-019`, the same marker window as
         // the control case above:
         // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、行の木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
@@ -749,8 +587,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
           )
           .toBe(true)
 
-        // 3. The DRAWING goes the other way: it encloses the two rows the
-        //    screen is showing, pinned band included.
         // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending at
         // its own marker:
         // 「* —— **同じファイルを、留めていない人が開いても同じ意味でなければならない。**⭐⭐ **描く側は逆である** —— **画面に出ている 2 つの行を囲んで描くこと（MUST）。**⛔ **木の順で描いてはならない（MUST NOT）」
@@ -778,9 +614,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
     }
   }
 
-  // -------------------------------------------------------------------------
-  // 4, 5 and 6. HM-3 and HM-9 -- moving bars between rows
-  // -------------------------------------------------------------------------
   {
     const opened = await openTheApp(baseURL)
     const page = opened.page
@@ -791,8 +624,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
       const rank = rankInRowTree(before?.groups ?? [])
       const homeOf = new Map((before?.members ?? []).map((one) => [one.taskUid, one.groupId]))
 
-      // A source row whose tasks share a WBS parent, and a destination row the
-      // row tree puts LATER than the source.
       const source = rows.find((one) => {
         const held = (before?.tasks ?? []).filter((task) => homeOf.get(task.uid) === one.id)
         return held.length >= 2 && held.every((task) => task.wbsParentUid === held[0]?.wbsParentUid)
@@ -831,7 +662,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         const after = await readDocumentShot(page)
         const afterHome = new Map((after?.members ?? []).map((one) => [one.taskUid, one.groupId]))
 
-        // 4. HM-3's first MUST NOT -- the WBS parent is untouched.
         // ⭐ Held verbatim -- check 39, row `HM-3` (table T-015a), manuscript
         // text ending at its own marker:
         // 「| HM-3 | **タスクバーを別の行へ移す操作では WBS の親を変えてはならない（MUST NOT）」
@@ -846,9 +676,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
             .toBe(was?.wbsParentUid ?? null)
         }
 
-        // 5. HM-3's new clause and HM-9 -- the moved bar takes the rank of the
-        //    row it now sits on, so nothing tells it apart from the bars that
-        //    were already there.
         // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
         // text ending at its own marker:
         // 「トするでよい」）—— **各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている行の、行の木における位置で決めること（MUST）。**⛔ **画面に描かれた位置で決めてはならない（MUST NOT）」
@@ -878,7 +705,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
             .toBe(0)
         }
 
-        // 6. ST-2 -- two siblings that ended up on the SAME row.
         // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), manuscript
         // text ending at its own marker:
         // 「た位置で決めてはならない（MUST NOT）** —— **ピン留め（`FR-098`）と畳みは画面から行を動かすが、書き出しは動かない。**⭐ 同じ行に兄弟が複数いるときは 表 T-014 の `ST-2` の順とすること（MUST）」
@@ -905,9 +731,6 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
     }
   }
 
-  // -------------------------------------------------------------------------
-  // 7. HM-8 -- the road HM-9 rides on
-  // -------------------------------------------------------------------------
   {
     const opened = await openTheApp(baseURL)
     const page = opened.page

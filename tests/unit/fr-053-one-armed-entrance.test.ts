@@ -1,94 +1,5 @@
-// FR-053 (MUST): the entrance that is ARMED is drawn apart from the entrances
-// that are NOT -- and there is one of it.
-//
-// Unit under test: UF-65 of table T-075 (`command-palette.ts`, component CP-37
-// of table T-062, published as PI-37 of table T-064). It is the unit that fills
-// `CommandItem.isArmed`, which is the member the drawing side reads to fill the
-// glyph's box with `S-183` -- 表 T-237's `EN-1`.
-//
-// ⭐ NO CASE IN THIS FILE IS ABOUT HOW THE ARMED ENTRANCE IS DRAWN. FR-053
-// hands that question whole to 表 T-237, where `S-183` is the fill colour;
-// every case here is about WHICH entrance `CommandItem.isArmed` stands on. How
-// the drawing side says it is held by
-// tests/unit/fr-029-in-effect-is-filled-not-rimmed.test.ts.
-//
-// ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node
-// in the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// UF-65 reads the drawing settings of table T-202 to answer table T-237's
-// EN-2, so a case has to hand it a whole `DocumentSettings`. The defaults are
-// generated from the manuscript, so this is not a hand-written copy.
+// Unit test for UF-65: which entrance is drawn as armed (FR-053), read against the manuscript at run time.
 const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
-
-// ---------------------------------------------------------------------------
-// The rules these cases answer to
-// ---------------------------------------------------------------------------
-//
-//   FR-053   ⛔ 「いま構えている入口を、構えていない入口と見分けられるように描く
-//            こと（MUST）」 —— 「構えは持続する（表 T-023b）ので、何を構えている
-//            か読めないと、置くつもりのないものが置かれる。」
-//            ⭐ 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ。」
-//            「見分けさせ方は `FR-029` の 表 T-237 の `EN-1` に従うこと（MUST）」
-//            —— 「同表が塗りの色（`S-183`）を持ち、`FR-029` が塗りと抜き色の規則そ
-//            のものを持つ。」⚠️ 「3 巡にわたって縁が描かれたのは、本要求と `S-183`
-//            の行の名前がそう述べていたからである」 —— 「禁じるのは `FR-029` の側
-//            であり、ここでは繰り返さない。」
-//            ⛔ 「押されている形にしてはならない（MUST NOT）」 —— 表 T-109 の
-//            `IC-54` が「ボタンではない」と明記している。
-//   T-023b   構え。AR-1 (なし、既定) から AR-6 まで。「構えの各値は排他であり、
-//            依存線を構えれば図形の構えは外れる。」
-//   T-109    アイコンの全数。第 2 列 `面` が置き場所、`構え` の欄が「その入口が
-//            押されたときポインタが入る 表 T-023b の行」、`何の入口か` の欄が
-//            その入口が構える形状を 表 T-012 の行 ID で名指す。
-//   T-012    タスク形状（`shapeKind`）。`値` の欄が綴りを持つ（SH-1 = 'rectangle'）。
-//   erd.json `TaskVisual.milestoneGlyph` の 8 つの綴り。⭐ 表 T-109 の section 8
-//            の前書きが、綴りは本表に写さず `_source/erd.json` が持つと述べる。
-//
-// ---------------------------------------------------------------------------
-// ⛔ THE TENSION IN FR-053, AND WHY THESE CASES READ IT THE WAY THEY DO
-// ---------------------------------------------------------------------------
-//
-// The requirement says two things about the join, and only one of them is fine
-// enough to answer the MUST:
-//
-//   1. 「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」 -- and that
-//      column is MANY-TO-ONE. `AR-2` stands against four entrances and `AR-3`
-//      against eight, which the first case below MEASURES rather than assumes.
-//   2. 「いま構えている入口を、構えていない入口と見分けられるように描くこと」 --
-//      one armed entrance, told apart from the rest.
-//
-// ⛔ Reading (1) as the whole join breaks (2): a person who arms the rectangle
-// sees the chevron, the arrow and the endpoint span marked as well, and three
-// entrances that are NOT armed are then drawn exactly like the one that is.
-// ⭐ The finer join the MUST needs is in the specification already, in the same
-// table: table T-109's 何の入口か column names the very row of table T-012 each
-// of those four entrances arms (`SH-1` .. `SH-4`), and table T-012's 値 column
-// spells it. The cases below are driven by that join, read at run time.
-// ⚠️ REPORTED, NOT PAPERED OVER: FR-053 would be clearer if the sentence about
-// the 構え column said that it names the KIND of arm and that the entrance is
-// found by what it arms. No case here invents that sentence -- they assert only
-// what the MUST states.
-//
-// ---------------------------------------------------------------------------
-// ⛔ HOW THE EXPECTED VALUES WERE OBTAINED (docs/development-rules/
-// 04-verification.md, section 1)
-// ---------------------------------------------------------------------------
-//
-// What was read: docs/spec/ for every rule above, and of `src/` nothing but the
-// exported declarations these cases must call or name -- the signature of
-// `commandPaletteFromScreenState`, the `CommandPalette` / `PaletteGroup` /
-// `CommandItem` / `ScreenSession` types, and the `Armed` / `ScreenState` /
-// `Selection` constructors. ⛔ No function body of UF-65 was read, and every
-// expected value below is read out of a manuscript at run time rather than
-// typed here.
-//
-// ⚠️ THE ONE THING THAT IS NOT READ OUT OF A TABLE is which member of the
-// `Armed` union stands for which row of table T-023b (AR-2 is `taskShape`,
-// AR-3 is `milestoneShape`, and so on). The union is a name the specification
-// has not settled -- `Armed` says so of AR-3 in as many words -- so the mapping
-// is written below with the row id beside it, and it is the one thing to
-// re-read if table T-023b grows a row.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -113,20 +24,15 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-// ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
-// its copy from the .md at read time, so a row that moves in the specification
-// moves here too instead of going stale.
+// WHY: the contract reader takes its copy from the .md at read time, so a
+// row that moves in the specification moves here too instead of going stale.
 import { bare, bareAll, specTable } from '../contract/spec-table'
-
-// ---------------------------------------------------------------------------
-// The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
-// ---------------------------------------------------------------------------
 
 const T_109 = specTable('T-109')
 const T_023b = specTable('T-023b')
 const T_012 = specTable('T-012')
 
-/** U-26 of table T-103, as table T-109's 面 column spells it. */
+// see T-103
 const COMMAND_PALETTE = 'Command Palette'
 
 const SURFACE_COLUMN = '面'
@@ -143,23 +49,15 @@ if (!T_012.headings.includes(SHAPE_SPELLING_COLUMN)) {
   throw new Error(`table T-012 no longer has a ${SHAPE_SPELLING_COLUMN} column`)
 }
 
-/** One row of table T-109 that stands on the palette and takes an arm. */
+// see T-109
 interface ArmingEntrance {
-  /** The row id -- the only join table T-109 admits, and what `CommandItem.icon` carries. */
   readonly row: string
-  /** The row of table T-023b its 構え column names. */
   readonly arm: string
-  /** Its 何の入口か cell, as the table writes it. */
   readonly entrance: string
 }
 
-/**
- * Every palette entrance whose 構え column names a row of table T-023b.
- *
- * ⚠️ The rows whose 構え is an em dash are left out here and are NOT ignored --
- * the case that walks the arms asserts that no entrance without an arm is ever
- * marked.
- */
+// WHY: rows whose arm column is an em dash are excluded here but not
+// ignored -- the em-dash case below asserts none of them is ever marked armed.
 const ARMING_ENTRANCES: readonly ArmingEntrance[] = T_109.rows
   .filter((row) => bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
   .map((row) => ({
@@ -169,28 +67,17 @@ const ARMING_ENTRANCES: readonly ArmingEntrance[] = T_109.rows
   }))
   .filter((entrance) => /^AR-\d+$/.test(entrance.arm))
 
-/** The palette entrances one row of table T-023b stands against. */
 const entrancesArmedBy = (arm: string): readonly string[] =>
   ARMING_ENTRANCES.filter((entrance) => entrance.arm === arm).map((entrance) => entrance.row)
 
-/**
- * The spelling table T-012 gives one of its rows, with the quotes its 値 column
- * prints stripped off (`'rectangle'` -> `rectangle`).
- */
 function shapeSpellingOf(shapeRow: string): string {
   const row = T_012.rows.find((one) => one.id === shapeRow)
   if (row === undefined) throw new Error(`table T-012 no longer has row ${shapeRow}`)
   return bare(row.by[SHAPE_SPELLING_COLUMN] ?? '').replace(/'/g, '')
 }
 
-/**
- * Which entrance arms which task shape -- the finer join the MUST needs, made
- * out of the two columns that state it.
- *
- * ⭐ Table T-109's 何の入口か column names the row of table T-012 (「矩形を構え
- * る（表 T-012 の `SH-1`）」), and table T-012's 値 column spells that row. ⛔ No
- * spelling is typed here.
- */
+// WHY: table T-109 names the row of table T-012 each entrance arms, and
+// table T-012 spells that row -- the finer join FR-053 needs, read at run time.
 const ENTRANCE_BY_TASK_SHAPE = new Map<string, string>(
   ARMING_ENTRANCES.filter((entrance) => entrance.arm === 'AR-2').map(
     (entrance): [string, string] => {
@@ -203,11 +90,8 @@ const ENTRANCE_BY_TASK_SHAPE = new Map<string, string>(
   ),
 )
 
-/**
- * The eight milestone glyphs. ⭐ Read out of `_source/erd.json` because the
- * preamble of section 8 of `_assets/tbl-glossary.md` says in as many words that
- * table T-109 does not carry them and that file does.
- */
+// WHY: read out of erd.json -- table T-109's own section 8 preamble says
+// the glyph spellings live there, not copied into the table.
 const MILESTONE_GLYPHS: readonly string[] = ((): readonly string[] => {
   const erd = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'erd.json'), 'utf8'),
@@ -228,12 +112,8 @@ const MILESTONE_GLYPHS: readonly string[] = ((): readonly string[] => {
   throw new Error('erd.json no longer holds the spellings of `milestoneGlyph`')
 })()
 
-// ---------------------------------------------------------------------------
-// The arms themselves. ⚠️ The row -> union member mapping is this file's, for
-// the reason the head comment gives.
-// ---------------------------------------------------------------------------
-
-/** Every value of `Armed` a person can reach through one row of table T-023b. */
+// TRAP: this row -> Armed-member mapping is not settled by the
+// specification; re-read it if table T-023b grows a row.
 function armsOfRow(arm: string): readonly Armed[] {
   switch (arm) {
     case 'AR-1':
@@ -255,33 +135,22 @@ function armsOfRow(arm: string): readonly Armed[] {
   }
 }
 
-/** Every arm a person can take, with the row of table T-023b it belongs to. */
 const EVERY_ARM: readonly { readonly arm: string; readonly armed: Armed }[] = T_023b.rows.flatMap(
   (row) => armsOfRow(row.id).map((armed) => ({ arm: row.id, armed })),
 )
 
-/** The arm table T-023b makes the default -- 「なし（既定）」. */
+// see T-023b
 const NOTHING_ARMED: Armed = { kind: 'none' }
 
-// ---------------------------------------------------------------------------
-// Inputs. UF-65 fills one member of `ScreenView` and reads none of the others,
-// so every member below that a case does not mean is inert.
-// ---------------------------------------------------------------------------
-
-/** S-73's default, read rather than typed (rule 03 section 1). No case reads a colour back. */
+// see T-216
 const THEME_HUE = ((): number => {
   const row = specTable('T-216').rows.find((one) => one.id === 'S-73')
   if (row === undefined) throw new Error('table T-216 no longer has row S-73')
   return Number(bare(row.by['既定'] ?? ''))
 })()
 
-/**
- * ⛔ THE MILESTONE LIST IS OPEN IN EVERY CASE HERE. FR-053 (MUST) keeps the
- * eight glyph entrances out of the palette until it is, and an entrance that is
- * not drawn cannot be the one that is told apart. ⚠️ What a palette should look
- * like while a glyph is armed AND the list is folded away is a question no row
- * of the specification answers, so no case here asks it.
- */
+// WHY: the milestone list is open in every case here -- a folded glyph
+// entrance is not drawn, so it could never be the one told apart.
 const SESSION: ScreenSession = {
   language: 'ja',
   openedFileName: null,
@@ -304,14 +173,11 @@ const SESSION: ScreenSession = {
   notices: [],
   confirmation: null,
   rowBoxes: [],
-  // GR-21 of table T-023d divides these to get the scrollbar grip's
-  // length, and this file asks nothing of it. ⭐ A whole of zero is
-  // "everything fits", which is the lane-long grip SC-4 of table T-031
-  // draws when nothing overflows.
+  // WHY: GR-21 (table T-023d) divides these for the scrollbar grip's
+  // length; zero means everything fits, so this file leaves it inert.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-/** S-99e defaults to showing, so a palette is described. */
 const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
 
 function describedWith(armed: Armed): CommandPalette {
@@ -328,21 +194,15 @@ function describedWith(armed: Armed): CommandPalette {
 const entriesOf = (palette: CommandPalette): readonly CommandItem[] =>
   palette.groups.flatMap((group) => group.commands)
 
-/** The entrances the description marks as armed, by row id. */
 const armedEntrancesOf = (armed: Armed): readonly string[] =>
   entriesOf(describedWith(armed))
     .filter((entry) => entry.isArmed)
     .map((entry) => entry.icon)
 
-/** How a failing case names the arm it was driving with. */
 const spell = (armed: Armed): string => JSON.stringify(armed)
-
-// ===========================================================================
 
 describe('the manuscript still says what these cases read', () => {
   it('⭐ was really driven by the manuscript, and not by a hollow read of it', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT PICKED UP THE WRONG COLUMN WOULD MAKE EVERY
-    // CASE BELOW AGREE WITH ANYTHING (rule 04 section 2).
     expect(ARMING_ENTRANCES.length).toBeGreaterThan(0)
     expect(T_023b.rows.map((row) => row.id)).toContain('AR-1')
     expect(ENTRANCE_BY_TASK_SHAPE.size).toBe(entrancesArmedBy('AR-2').length)
@@ -351,9 +211,6 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ the 構え column really stands more than one entrance under one arm', () => {
-    // ⛔ THIS IS THE WHOLE OF WHY THIS FILE EXISTS. If the column had become
-    // one-to-one, the cases below would be about nothing and should be read
-    // again rather than believed.
     const crowded = T_023b.rows
       .map((row) => ({ arm: row.id, entrances: entrancesArmedBy(row.id) }))
       .filter((one) => one.entrances.length > 1)
@@ -365,8 +222,6 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⭐ every arm the 構え column names is a row of table T-023b', () => {
-    // The column's own definition: 「その入口が押されたときポインタが入る 表
-    // T-023b の行」.
     const arms = new Set(T_023b.rows.map((row) => row.id))
     for (const entrance of ARMING_ENTRANCES) {
       expect(arms.has(entrance.arm), `table T-109's ${entrance.row} names ${entrance.arm}`).toBe(true)
@@ -376,18 +231,14 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that are not', () => {
   it('marks no entrance at all while nothing is armed (AR-1)', () => {
-    // AR-1 is 「なし（既定）」. There is no armed entrance, so nothing may be
-    // drawn as one -- otherwise the mark says a shape is waiting to be placed
-    // when none is.
+    // WHY: with nothing armed, marking any entrance would say a shape is
+    // waiting to be placed when none is.
     expect(armedEntrancesOf(NOTHING_ARMED)).toEqual([])
   })
 
   it('marks exactly ONE entrance, whichever arm the person took', () => {
-    // ⛔ 「いま構えている入口を、構えていない入口と見分けられるように描くこと
-    // （MUST）」. One entrance is armed -- the one that was pressed -- and the
-    // others are the ones it has to be told apart from. Marking four of them
-    // makes three entrances that are NOT armed indistinguishable from the one
-    // that is, which is exactly what the MUST forbids.
+    // WHY: marking more than one entrance would make an entrance that is
+    // NOT armed indistinguishable from the one that is.
     for (const { arm, armed } of EVERY_ARM) {
       if (arm === 'AR-1') continue
       const marked = armedEntrancesOf(armed)
@@ -396,21 +247,16 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
   })
 
   it('marks the entrance table T-109 gives that very shape (AR-2)', () => {
-    // ⭐ WHICH one is not a choice made here: table T-109's 何の入口か column
-    // names the row of table T-012 each entrance arms, and table T-012's 値
-    // column spells it. So the entrance for `rectangle` is the row whose cell
-    // names SH-1, and no other.
+    // WHY: which entrance is not chosen here -- it follows from table
+    // T-109 naming the very row of table T-012 each entrance arms.
     for (const [shapeKind, row] of ENTRANCE_BY_TASK_SHAPE) {
       expect(armedEntrancesOf({ kind: 'taskShape', shapeKind }), shapeKind).toEqual([row])
     }
   })
 
   it('marks a different entrance for every milestone glyph (AR-3)', () => {
-    // ⭐ FOLLOWS FROM THE SAME MUST, WITHOUT NEEDING THE GLYPH-TO-ROW ORDER.
-    // Two glyphs that marked one entrance would leave that entrance armed while
-    // the person had armed the other one -- an entrance that is NOT armed drawn
-    // as the one that is. ⚠️ So this case says the eight answers differ; it
-    // does not say which is which, because no column states that order.
+    // WHY: follows from the same MUST without needing glyph-to-row order --
+    // this only asserts the eight answers differ, not which is which.
     const marked = MILESTONE_GLYPHS.map((glyph) =>
       armedEntrancesOf({ kind: 'milestoneShape', glyph }).join('+'),
     )
@@ -419,8 +265,8 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
   })
 
   it('marks no entrance whose 構え column is an em dash', () => {
-    // The column's own rule: 「構えを持たない入口の欄は `—` である」. An entrance
-    // that arms nothing can never be the armed one.
+    // WHY: an entrance with no arm at all can never be the one told apart
+    // as armed.
     const armless = new Set(
       T_109.rows
         .filter((row) => bareAll(row.by[SURFACE_COLUMN] ?? '').includes(COMMAND_PALETTE))
@@ -438,11 +284,8 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
 
 describe('FR-053 (MUST NOT) -- the armed entrance is not drawn as a pressed button', () => {
   it('taking an arm turns no entry into a pressed one', () => {
-    // ⛔ 「押されている形にしてはならない（MUST NOT）」 —— 表 T-109 の `IC-54`
-    // が「ボタンではない」と明記している。⭐ Asked as a DIFFERENCE rather than
-    // as "nothing is ever pressed": `isPressed` is a toggle that is on, and the
-    // entries that show a drawing setting are entitled to it. What the MUST NOT
-    // forbids is an ARM reaching the screen through that member.
+    // WHY: asked as a difference from "nothing armed," not as "nothing is
+    // ever pressed" -- what MUST NOT forbids is an arm reaching isPressed.
     const whenNothingArmed = entriesOf(describedWith(NOTHING_ARMED)).map((entry) => entry.isPressed)
 
     for (const { arm, armed } of EVERY_ARM) {
