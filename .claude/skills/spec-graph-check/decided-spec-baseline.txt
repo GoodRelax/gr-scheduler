@@ -1,4 +1,8 @@
-79
+80
+#
+# RAISED 79 -> 80 on 2026-09-15, with the user's approval ("すべて推奨通りにやれ。"): DFC-604 is a
+# defect of the e2e harness (a cold Vite dev server outlives the 30 s test timeout). No clause of
+# docs/spec governs the harness, so the row cannot name one. Lower it when DFC-604 is reaped.
 #
 # Check 29 -- rows of defects.md at or past `実装待ち` whose 対応方針・決定仕様
 # cell names no place in the specification (a chapter, a requirement UID or a
