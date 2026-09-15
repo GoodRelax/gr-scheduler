@@ -6,13 +6,13 @@ The Japanese version is [prompt-ja.md](prompt-ja.md).
 
 ## How to use it
 
-1. Attach these three to an AI that can read images and files:
-   - The schedule to convert (an image, a slide file or a spreadsheet file; several are fine)
-   - `grs-skeleton.json` from this folder (an empty GRS document, checked to validate against the schema)
-   - `docs/spec/_source/grs-document.schema.json` (the authority on the shape; attach it if you can)
-2. Paste the block under "Prompt" as it is, and fill in the `[ ]` parts.
-3. Save the JSON the AI returns as `something.json` and open it with GRS's open command.
-4. Check the AI's "Estimates" table against the original, above all the key dates, colours and how the rows were split.
+1. Download these two files. Open each link and press the download button on the file's page (Download raw file). You do not need git.
+   - [grs-skeleton.json](grs-skeleton.json) (an empty GRS document, checked to validate against the schema)
+   - [grs-document.schema.json](../../spec/_source/grs-document.schema.json) (the authority on the shape of GRS JSON)
+2. Attach to an AI that can read images and files the schedule to convert (an image, a slide file or a spreadsheet file; several are fine) and the two files from step 1.
+3. Paste the block under "Prompt" as it is, and fill in the `[ ]` parts.
+4. Save the JSON the AI returns as `something.json` and open it with GRS's open command.
+5. Check the AI's "Estimates" table against the original, above all the key dates, colours and how the rows were split.
 
 ⚠️ Do not use the JSON files in `sample-schedule/` as a base. They no longer validate against the schema (checked 2026-09-16). The base is `grs-skeleton.json`.
 
@@ -217,10 +217,16 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
 
 ## Checking the JSON you got
 
-Opening it in GRS is the surest check. To check only the shape first, validate it with Python's `jsonschema` (from the repository root):
+Opening it in GRS is the surest check. GRS does not open a document whose shape is wrong.
+
+If you have Python, you can also check only the shape before opening it (skip this if you do not).
+
+1. Put the downloaded `grs-document.schema.json` in the same folder as the JSON the AI wrote (`out.json` below).
+2. Install Python's `jsonschema`: `python -m pip install jsonschema`
+3. In that folder, run the following. `0 errors` means the shape is right.
 
 ```bash
-python -c "import json,sys,jsonschema; s=json.load(open('docs/spec/_source/grs-document.schema.json',encoding='utf-8')); d=json.load(open(sys.argv[1],encoding='utf-8')); e=list(jsonschema.Draft202012Validator(s).iter_errors(d)); print(len(e),'errors'); [print(list(x.absolute_path),x.message[:120]) for x in e[:20]]" out.json
+python -c "import json,sys,jsonschema; s=json.load(open('grs-document.schema.json',encoding='utf-8')); d=json.load(open(sys.argv[1],encoding='utf-8')); e=list(jsonschema.Draft202012Validator(s).iter_errors(d)); print(len(e),'errors'); [print(list(x.absolute_path),x.message[:120]) for x in e[:20]]" out.json
 ```
 
 ⚠️ Passing the schema does not cover the document invariants (row depth, every task in exactly one row, fade lengths and so on). The full list is the table of `IV-` rows in section 6.1 of `docs/spec/05-07-design.md`.
@@ -233,7 +239,9 @@ python -c "import json,sys,jsonschema; s=json.load(open('docs/spec/_source/grs-d
 - **Colours**: the palette has 11 colours, and shadows and gloss cannot be drawn.
 - **Name placement and text colour**: GRS places names. A document cannot hold text colours.
 
-## How this relates to the specification
+## Notes for developers
+
+If you only use the app, you can skip this section.
 
 - The authority on the shape is `docs/spec/_source/grs-document.schema.json` (section 6.2 of `docs/spec/05-07-design.md`). The rules here were taken from it, from the `IV-` rows of section 6.1, and from `docs/spec/01-04-requirements.md`'s table T-052 (4.1), table T-012a for fades (`FD-`), table T-014 for stacking (`ST-`) and table T-017 for the palette (`CL-`). When the specification changes, review this guide, the Japanese version and `grs-skeleton.json`.
 - The specification has not yet fixed how the palette colours are spelled (`PND-494`). This guide follows the spellings (`dimgray` and so on) used by GRS's startup template, `src/framework/single-html-shell/startup-template.json`.

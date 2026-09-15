@@ -6,13 +6,13 @@
 
 ## 使い方
 
-1. AI（画像とファイルを読めるもの）に、次の 3 つを添付します。
-   - 変えたい日程（画像・スライドのファイル・表のファイル、どれでも可。複数でも可）
-   - 本フォルダの `grs-skeleton.json`（空の GRS 文書。スキーマに照らして通ることを確かめてある）
-   - `docs/spec/_source/grs-document.schema.json`（形の正。添付できるなら添える）
-2. 下の「プロンプト」のブロックをそのまま貼ります。`［ ］` の所は書き換えます。
-3. AI が返した JSON を `〜.json` として保存し、GRS の開く操作で開きます。
-4. AI が挙げた「推定したこと」の表を見て、主な日付・色・行の分け方を原本と照らします。
+1. 次の 2 つのファイルをダウンロードします。リンクを開き、ファイルの画面にあるダウンロードのボタン（Download raw file）を押します。git は要りません。
+   - [grs-skeleton.json](grs-skeleton.json)（空の GRS 文書。スキーマに照らして通ることを確かめてある）
+   - [grs-document.schema.json](../../spec/_source/grs-document.schema.json)（GRS JSON の形の正）
+2. AI（画像とファイルを読めるもの）に、変えたい日程（画像・スライドのファイル・表のファイル、どれでも可。複数でも可）と、1. の 2 つのファイルを添付します。
+3. 下の「プロンプト」のブロックをそのまま貼ります。`［ ］` の所は書き換えます。
+4. AI が返した JSON を `〜.json` として保存し、GRS の開く操作で開きます。
+5. AI が挙げた「推定したこと」の表を見て、主な日付・色・行の分け方を原本と照らします。
 
 ⚠️ `sample-schedule/` の JSON を土台に使わないでください。いまのスキーマから外れています（2026-09-16 に照合）。土台は `grs-skeleton.json` です。
 
@@ -217,10 +217,16 @@
 
 ## できた JSON を確かめる
 
-GRS で開くのがいちばん確かです。開く前に形だけ確かめたいときは、Python の `jsonschema` で照らせます（リポジトリの根で）:
+GRS で開くのがいちばん確かです。形が合わない文書は、GRS が開きません。
+
+Python が入っていれば、開く前に形だけを確かめることもできます（入っていなければ飛ばしてかまいません）。
+
+1. ダウンロードした `grs-document.schema.json` を、AI が作った JSON（下では `out.json`）と同じフォルダに置きます。
+2. Python の `jsonschema` を入れます: `python -m pip install jsonschema`
+3. そのフォルダで次を打ちます。`0 errors` と出れば、形は合っています。
 
 ```bash
-python -c "import json,sys,jsonschema; s=json.load(open('docs/spec/_source/grs-document.schema.json',encoding='utf-8')); d=json.load(open(sys.argv[1],encoding='utf-8')); e=list(jsonschema.Draft202012Validator(s).iter_errors(d)); print(len(e),'errors'); [print(list(x.absolute_path),x.message[:120]) for x in e[:20]]" out.json
+python -c "import json,sys,jsonschema; s=json.load(open('grs-document.schema.json',encoding='utf-8')); d=json.load(open(sys.argv[1],encoding='utf-8')); e=list(jsonschema.Draft202012Validator(s).iter_errors(d)); print(len(e),'errors'); [print(list(x.absolute_path),x.message[:120]) for x in e[:20]]" out.json
 ```
 
 ⚠️ スキーマに通っても、文書の不変条件（行の深さ、どのタスクもちょうど 1 つの行に載ること、フェードの長さなど）はスキーマの外にあります。全数は `docs/spec/05-07-design.md` の 6.1 の表（`IV-` の行）が持ちます。
@@ -233,7 +239,9 @@ python -c "import json,sys,jsonschema; s=json.load(open('docs/spec/_source/grs-d
 - **色**: パレットは 11 色で、影と光沢は描けない。
 - **名前の置き場と文字の色**: 名前の置き場は GRS が決める。文字の色は文書に持てない。
 
-## 仕様との関係
+## 開発者向けの注
+
+アプリを使うだけなら、この節は読まなくてかまいません。
 
 - 形の正は `docs/spec/_source/grs-document.schema.json`（`docs/spec/05-07-design.md` の 6.2）。本書の決まりはそこと、同じ 6.1 の `IV-` の行、`docs/spec/01-04-requirements.md` の表 T-052（4.1）、表 T-012a のフェード（`FD-`）、表 T-014 の積み方（`ST-`）、表 T-017 のパレット（`CL-`）から写した。仕様が変わったら本書・英語版・`grs-skeleton.json` を見直すこと。
 - パレットの色の綴り（`dimgray` など）は仕様がまだ決めていない（`PND-494`）。本書は GRS の起動時の雛形 `src/framework/single-html-shell/startup-template.json` が使う綴りに合わせた。
