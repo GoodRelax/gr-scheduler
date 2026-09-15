@@ -43,6 +43,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import {
   dependencyEndAtPointer,
+  dependencyStartOfHit,
   itemAtPointer,
   NOT_STORED_SIZES,
   type PointerSlop,
@@ -253,9 +254,9 @@ const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> 
   'GR-6': 'ew-resize',
   'GR-9': 'ew-resize',
   'GR-17': 'ew-resize',
-  'GR-18': 'ew-resize',
   'GR-12': 'grab',
   'GR-15': 'grab',
+  'GR-18': 'grab',
   'GR-1': null,
   'GR-2': null,
   'GR-7': null,
@@ -2232,9 +2233,7 @@ export function frameLoop(
   ): ScheduleGeometry['dependencies'][number] | null {
     if (press === null || at === null || press.on !== null) return null
     if (press.pressRow !== 'PTD-3' || screenState.armed.kind !== 'dependency') return null
-    const hit = press.hit
-    if (hit === null || hit.item.kind !== 'task') return null
-    const from = dependencyEndAtPointer(geometry, press.at.x, press.at.y, hit.item.taskUid)
+    const from = dependencyStartOfHit(geometry, press.at.x, press.at.y, press.hit)
     if (from === null) return null
     const schedule = document.schedule
     const fromTask = taskByUid(schedule, from.taskUid)

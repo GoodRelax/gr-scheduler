@@ -44,6 +44,7 @@ import {
 } from '../../entity/document-model/selection/selection'
 import {
   dependencyEndAtPointer,
+  dependencyStartOfHit,
   itemsInMarquee,
   type Hit,
   type Item,
@@ -2540,9 +2541,7 @@ function commandFromDependencyDrag(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  const hit = press.hit
-  if (hit === null || hit.item.kind !== 'task') return CONSUMED_ELSEWHERE
-  const from = dependencyEndAtPointer(context.geometry, press.at.x, press.at.y, hit.item.taskUid)
+  const from = dependencyStartOfHit(context.geometry, press.at.x, press.at.y, press.hit)
   if (from === null) return CONSUMED_ELSEWHERE
   const into = dependencyEndAtPointer(context.geometry, release.x, release.y, null)
   if (into === null) return CONSUMED_ELSEWHERE

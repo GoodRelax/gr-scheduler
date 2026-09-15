@@ -425,6 +425,18 @@ export function dependencyEndAtPointer(
   return null
 }
 
+// see PI-7, FR-009
+/** @purity pure */
+export function dependencyStartOfHit(
+  geometry: ScheduleGeometry,
+  x: number,
+  y: number,
+  hit: Hit | null,
+): DependencyEnd | null {
+  if (hit === null || hit.item.kind !== 'task') return null
+  return dependencyEndAtPointer(geometry, x, y, hit.item.taskUid)
+}
+
 /** @purity pure */
 function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boolean {
   if (box === null) return false
