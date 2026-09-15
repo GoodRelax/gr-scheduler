@@ -69,13 +69,10 @@
 //   T-023d GR-9 / GR-17  the two dummies FR-043 draws 「未着手のタスクの上」,
 //             both ranked above GR-12 -- which is why the bar Task below is
 //             STARTED.
-//   T-023d GR-18  「未着手のマイルストーンのダミー | **予定の開始日の翌稼働日**
-//             （暦に従う。`FR-054`。当たり判定は `FR-043` が描いた印そのもので
-//             あり、規則は本表の結びが持つ）… ⭐⭐ **`GR-9`
-//             と同じ場所である**」 -- it is ranked ABOVE GR-12 but no longer
-//             stands ON the figure, which the row says of itself: 「⛔⛔
-//             **2026-09-02 まで「未着手のマイルストーンの図形の上」と定めていた**」
-//             (DFC-192). See the last describe.
+//   T-023d GR-18  CR-382 (2026-09-15) put it back on 「予定の開始日」, the
+//             SAME day/size as the figure, still ranked ABOVE GR-12. See the
+//             last describe below and in-2-b-armed-dependency-shows-the-
+//             arrow.test.ts.
 //   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
 //             いるタスクにだけ出すこと（MUST）」 for GR-1 / GR-2 -- the fixture
 //             below keeps all four out of the way, and premises measure that.
@@ -106,14 +103,10 @@
 //   * WHICH of the five ought to be the closed hand and which the resting one.
 //     IN-2 names 握った手 for the pan alone and gives the other four no hand at
 //     all, so nothing here pairs a shape with a name.
-//   * The shape over an armed DEPENDENCY line on empty canvas. IN-2 says
-//     「構えているときは作図の合図」 without qualification, while PTD-4a says an
-//     armed dependency on empty canvas 「何もしない。引きかけの矢印があれば捨て
-//     る。構えは解かない」. The row that fixes which place carries which meaning
-//     and the row that fixes what a press does disagree about this one point.
-//     ⛔ REPORTED AS A HOLE RATHER THAN GUESSED -- a case either way would be
-//     this file writing a requirement. The armed cases below therefore arm AR-2,
-//     which PTD-4 settles without argument.
+//   * The shape while armed for a DEPENDENCY line (AR-4). CR-383 closed this
+//     hole in T-028 IN-2; see tests/unit/in-2-b-armed-dependency-shows-the-
+//     arrow.test.ts. The armed cases below still arm AR-2, which PTD-4
+//     settles without argument.
 //   * The shape while `Dual Cursor` mode is on (PTD-2). IN-2 names no place for
 //     it, and this file does not invent one.
 //   * WHERE or HOW a shape is written. The pointer is the host's to paint and no
@@ -1075,35 +1068,29 @@ describe('T-028 IN-2 names five places and no more', () => {
 })
 
 // ===========================================================================
-// (h) 未着手のマイルストーンの図形
+// (h) A milestone that has not been started
 // ===========================================================================
-//
-// ⭐ THE TWO ROWS AGREE NOW, AND THIS SECTION RECORDS WHICH SENTENCE MOVED.
-//
-//   T-028 IN-2 (利用者の裁定 2026-08-27): 「タスクの本体とマイルストーンの図形の
-//   上は掴めることの合図」 -- with no exception for a milestone nobody has
-//   started -- and its reason: 「⛔ 掴めるものの上で形が変わらないと、選べるのか
-//   どうかを押してみるまで確かめられない」.
-//
-//   T-023d GR-18 no longer claims that point. Its 場所 column now reads
-//   「**予定の開始日の翌稼働日**（暦に従う。`FR-054`。当たり判定は `FR-043` が
-//   描いた印そのものであり、規則は本表の結びが持つ）。⭐⭐ **`GR-9` と同じ場所である**（利用
-//   者の裁定 2026-09-02「マイルストーンは中心が配置する場所。ただし、実績のダミー
-//   は翌日」）」, and the row states the change against itself: 「⛔⛔ **2026-09-02
-//   まで「未着手のマイルストーンの図形の上」と定めていた** —— **ダミーが図形に重
-//   なると、掴む所が図形の一部に見える。**」
-//
-// ⇒ On the figure itself the claiming row is now GR-12 (予定バー本体), whose 操作
-// column is 「予定の平行移動（`FR-011`）と、縦に動かしたときの行の載せ替え」 -- a
-// grab, so IN-2's 合図 is owed there with no exception to write. ⚠️ The row that
-// DID need an exception is the one that stopped standing there.
-//
-// ⛔ NOT TUNED TO WHATEVER THE BUILD ANSWERS: both cases below are judged on
-// IN-2, which is what this file is about, and the second one holds the figure to
-// the SAME shape as an ordinary bar body -- IN-2 gives 「タスクの本体とマイルス
-// トーンの図形」 one meaning, not two.
+// see CR-382
 
-describe('T-028 IN-2 on a milestone that has not been started', () => {
+/**
+ * T-023d GR-18's own text, held verbatim so check 39 ties this clause to a
+ * test and a further edit fails this file instead of leaving a stale quote.
+ *
+ * CR-382 (2026-09-15) moved GR-18 back onto the SAME day and the SAME
+ * size/position as the milestone's own figure (`FR-043`'s milestone
+ * exception), and kept it ranked ABOVE `GR-12` (`予定バー本体`) in this
+ * table's row order. T-028 IN-2's dummy clause (2026-09-10, held verbatim by
+ * `in-2-a-the-dummies-say-slide.test.ts`) still puts GR-9 / GR-17 / GR-18 in
+ * the resize group, unchanged by CR-382. ⇒ A not-started milestone's own
+ * figure is now entirely covered by GR-18's ink, so GR-18 -- not GR-12 --
+ * claims that point, and the shape there is the resize one, not the grab
+ * one this file asserted before CR-382 moved GR-18 off the working-day
+ * offset it used to sit at.
+ */
+const GR_18_GRABS_LIKE_GR_15 =
+  '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GR-15` と同じものを掴むこと（MUST）'
+
+describe('T-028 IN-2 on a milestone that has not been started (CR-382)', () => {
   it('answers a shape on its figure at all', () => {
     const built = stage()
     expect(
@@ -1112,11 +1099,20 @@ describe('T-028 IN-2 on a milestone that has not been started', () => {
     ).not.toBeNull()
   })
 
-  it('answers the same shape as a started milestone and as a bar body', () => {
+  it('answers the resize shape (GR-9/GR-17/GR-18), NOT the grab shape a started milestone gets', () => {
     const built = stage()
+    const grab = shapeAt(built, startedMilestone(built.loop))
     expect(
       shapeAt(built, newMilestone(built.loop)),
-      'T-028 IN-2 gives 「タスクの本体とマイルストーンの図形」 one meaning, and 表 T-023d GR-12 claims that point',
-    ).toBe(shapeAt(built, barBody(built.loop)))
+      GR_18_GRABS_LIKE_GR_15 +
+        ' -- CR-382 put GR-18 on the figure\'s own day/size, ranked above GR-12, so GR-18 (resize) claims the point, not GR-12 (grab)',
+    ).not.toBe(grab)
+  })
+
+  it('answers the SAME shape as the bar plan end (GR-3) -- IN-2 puts GR-18 in that group', () => {
+    const built = stage()
+    const [left] = planEnds(built.loop)
+    const resize = shapeAt(built, left as Point)
+    expect(shapeAt(built, newMilestone(built.loop))).toBe(resize)
   })
 })
