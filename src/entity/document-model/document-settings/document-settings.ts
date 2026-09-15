@@ -37,6 +37,7 @@ export interface DocumentSettings {
   readonly dependencyRunOfArrow: number
   readonly dependencyVisible: boolean
   readonly dependencyWidth: number
+  readonly displayScale: 33 | 50 | 66 | 75 | 85 | 100
   readonly dualCursor: {
     readonly date1: string
     readonly date2: string
@@ -165,6 +166,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dependencyRunOfArrow': 2,
   'dependencyVisible': true,
   'dependencyWidth': 1.5,
+  'displayScale': 50,
   'dualCursor': null,
   'dummyOpacity': 0.20,
   'exportCanvas.height': 900,

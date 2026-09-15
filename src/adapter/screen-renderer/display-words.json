@@ -178,6 +178,28 @@
    }
   },
   {
+   "rowId": "IC-104",
+   "label": {
+    "ja": "小さく表示",
+    "en": "Smaller"
+   },
+   "hint": {
+    "ja": "日程表の図形と字を 1 段小さくする",
+    "en": "Make the chart's shapes and text one step smaller"
+   }
+  },
+  {
+   "rowId": "IC-105",
+   "label": {
+    "ja": "大きく表示",
+    "en": "Larger"
+   },
+   "hint": {
+    "ja": "日程表の図形と字を 1 段大きくする",
+    "en": "Make the chart's shapes and text one step larger"
+   }
+  },
+  {
    "rowId": "IC-16",
    "label": {
     "ja": "明暗テーマ",
@@ -2077,6 +2099,16 @@
    "label": {
     "ja": "文字サイズ",
     "en": "fontScale"
+   }
+  },
+  {
+   "rowId": "K-125",
+   "keys": [
+    "displayScale"
+   ],
+   "label": {
+    "ja": "表示の倍率",
+    "en": "displayScale"
    }
   },
   {

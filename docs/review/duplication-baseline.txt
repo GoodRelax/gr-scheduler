@@ -12,6 +12,7 @@ tbl-glossary.md/T:T-109 IC-12 + tbl-glossary.md/T:T-109 IC-13
 tbl-glossary.md/T:T-109 IC-74 + tbl-glossary.md/T:T-109 IC-78
 tbl-glossary.md/T:T-109 IC-8 + tbl-glossary.md/T:T-109 IC-9
 tbl-glossary.md/T:T-109 IC-14 + tbl-glossary.md/T:T-109 IC-15
+tbl-glossary.md/T:T-109 IC-104 + tbl-glossary.md/T:T-109 IC-105
 tbl-settings.md/T:T-206 S-186 + tbl-settings.md/T:T-206 S-187
 01-04-requirements.md/T:T-023d + 01-04-requirements.md/T:T-038
 01-04-requirements.md/FR-043 + 01-04-requirements.md/T:T-023d

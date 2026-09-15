@@ -186,6 +186,28 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-104",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "表示の倍率を下げる（`S-234`）",
+   "authority": "`FR-039`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-105",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "表示の倍率を上げる（`S-234`）",
+   "authority": "`FR-039`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-16",
    "surfaces": [
     "App Header"

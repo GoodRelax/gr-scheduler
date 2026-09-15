@@ -1,4 +1,10 @@
-13
+11
+#
+# LOWERED 13 -> 11 on 2026-09-16 in the landing commit, as the raises below planned: the display-size
+# spec wave (CR-390 .. CR-395) landed JDG-122, JDG-123 and JDG-131, whose rows now read 適用済.
+# Remaining 11: JDG-78, JDG-85, JDG-87, JDG-102, JDG-107, JDG-124, JDG-126 .. JDG-130. JDG-126
+# (DFC-610) and JDG-122/123/131's code and tests follow in the implementation wave; JDG-124 and
+# JDG-128 land with the stage 3 gates.
 #
 # RAISED 12 -> 13 on 2026-09-16, with the user's approval (asked in chat: "基準線を 13 に上げてよい").
 # JDG-130 (DFC-614: the Agent API's importDocument asks the human the same replace / merge /

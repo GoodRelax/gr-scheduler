@@ -55,7 +55,7 @@ type JsonSchemaKind =
 interface SchemaNode {
   readonly ref?: string
   readonly type?: readonly JsonSchemaKind[]
-  readonly enum?: readonly (null | string)[]
+  readonly enum?: readonly (null | number | string)[]
   readonly minimum?: number
   readonly maximum?: number
   readonly maxLength?: number
@@ -860,6 +860,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         dependencyWidth: {
           type: ['number'],
+        },
+        displayScale: {
+          enum: [33, 50, 66, 75, 85, 100],
         },
         dualCursor: {
           type: ['object', 'null'],

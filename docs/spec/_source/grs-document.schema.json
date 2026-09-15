@@ -133,6 +133,7 @@
     "dependencyRunOfArrow",
     "dependencyVisible",
     "dependencyWidth",
+    "displayScale",
     "dualCursor",
     "dummyOpacity",
     "exportCanvas",
@@ -315,6 +316,16 @@
     "dependencyWidth": {
      "type": "number",
      "minimum": 0.5
+    },
+    "displayScale": {
+     "enum": [
+      33,
+      50,
+      66,
+      75,
+      85,
+      100
+     ]
     },
     "dualCursor": {
      "type": [

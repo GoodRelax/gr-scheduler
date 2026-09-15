@@ -267,6 +267,14 @@
    }
   },
   {
+   "prefix": "DS",
+   "words": "Display Scale",
+   "owner": "spec",
+   "means": {
+    "ja": "表示の倍率を何に掛け、何に掛けないか"
+   }
+  },
+  {
    "prefix": "DU",
    "words": "Duplicate",
    "owner": "spec",
