@@ -1,4 +1,8 @@
-91
+90
+#
+# LOWERED 91 -> 90 on 2026-09-15, with the user's approval ("すべて推奨通りにやれ。", JDG-121):
+# 0b5aa83b folded the dependency-start fragment the translator and the shell both held into
+# ItemHitArea's dependencyStartOfHit (CR-388, DFC-607). Hold the ground.
 #
 # Runs of at least FLOOR tokens written out in two or more places under src/.
 # Held by check-repeated-expressions.py; line 1 is the number and every other
