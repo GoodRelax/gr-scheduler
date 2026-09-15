@@ -197,6 +197,9 @@ export default defineConfig({
   server: {
     port: hasAssignedPort ? assignedPort : 5173,
     strictPort: hasAssignedPort,
+    // WHY: .claude/ holds agent git worktrees (~220k files); chokidar crawling them stalls every
+    // response for up to 31s after startup (DFC-604). Nothing the app serves lives there.
+    watch: { ignored: ['**/.claude/**'] },
   },
   build: {
     target: 'es2022',

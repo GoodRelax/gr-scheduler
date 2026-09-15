@@ -1,5 +1,9 @@
 80
 #
+# 2026-09-16: DFC-604 was fixed and reaped, but check 29 still counts 80 (measured after the
+# reap), so the number below stays. The raise note below named DFC-604 as its reason; the 80th
+# row is some other open row that names no place -- find it before lowering.
+#
 # RAISED 79 -> 80 on 2026-09-15, with the user's approval ("すべて推奨通りにやれ。"): DFC-604 is a
 # defect of the e2e harness (a cold Vite dev server outlives the 30 s test timeout). No clause of
 # docs/spec governs the harness, so the row cannot name one. Lower it when DFC-604 is reaped.
