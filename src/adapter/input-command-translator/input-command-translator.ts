@@ -56,9 +56,9 @@ import {
   groupDepthThresholdOf,
   rowPlacesAtZoomY,
   xFromDay,
+  zoomYAtRectangleLabelFont,
   type RowPlacement,
   type ScheduleLayout,
-  type TaskPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionAtPointer,
@@ -67,6 +67,7 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   DEFAULT_ROW_NAME,
+  rowTitleFontPxOf,
   type FieldCommit,
   type ScreenPart,
 } from '../screen-renderer/screen-renderer'
@@ -3123,54 +3124,60 @@ function zoomXCeiling(context: InputContext): number | null {
 }
 
 /** @purity pure */
-function tallestBandOf(rows: readonly RowPlacement[]): RowPlacement | null {
-  let tallest: RowPlacement | null = null
-  for (const row of rows) {
-    if (tallest === null || row.height > tallest.height) tallest = row
-  }
+function tallestBandOf(rows: readonly RowPlacement[]): number {
+  let tallest = 0
+  for (const row of rows) if (row.height > tallest) tallest = row.height
   return tallest
 }
 
-// WHY: the lane's tallest figure now stands for every zoom; off by one actualGap only
-// where two shapes with different actualGap swap, a span no row covers.
-// see LF-2
-/** @purity pure */
-function bandGrowthOf(
-  context: InputContext,
-  row: RowPlacement,
-): { readonly grows: number; readonly fixed: number } {
-  const settings = context.document.documentSettings
-  const tallestOfLane = new Map<number, TaskPlacement>()
-  for (const figure of context.layout.placements) {
-    if (figure.groupId !== row.groupId) continue
-    const held = tallestOfLane.get(figure.stack)
-    if (held === undefined || figure.height > held.height) tallestOfLane.set(figure.stack, figure)
-  }
-  if (tallestOfLane.size === 0) return { grows: context.layout.rectangleHeight, fixed: 0 }
-  let grows = 0
-  let fixed = settings.stackGap * (tallestOfLane.size - 1)
-  for (const figure of tallestOfLane.values()) {
-    const gap = figure.actualPlacement === 'below' ? settings.actualGap : 0
-    grows += Math.max(0, figure.height - gap)
-    fixed += gap
-  }
-  return { grows, fixed }
-}
+const TOP_ROW_DEPTH = 1
 
-// see FR-016
+// see FR-016, S-36, S-38, S-13
 /** @purity pure */
 function zoomYCeiling(context: InputContext): number | null {
   const settings = context.document.documentSettings
-  const height = context.regions.rowArea.height
-  const tallest = tallestBandOf(context.layout.rows)
-  if (tallest === null || !(height > 0)) return null
-  const { grows, fixed } = bandGrowthOf(context, tallest)
-  if (!(grows > 0)) return null
-  const shapeRatio = settings.shapeHeightOf.rectangle
-  const drawnScale = context.layout.rectangleHeight / shapeRatio
-  const ceiling = (drawnScale * ((height - fixed) / grows)) / settings.basePlanHeight
+  const ceiling = zoomYAtRectangleLabelFont(rowTitleFontPxOf(TOP_ROW_DEPTH, settings), settings)
   if (!Number.isFinite(ceiling) || ceiling <= 0) return null
   return ceiling
+}
+
+/** @purity pure */
+function tallestBandAtZoomY(context: InputContext, zoomY: number): number {
+  const settings = context.document.documentSettings
+  return tallestBandOf(rowPlacesAtZoomY(
+    context.document.schedule,
+    { ...settings, zoomX: zoomOnScreen(context).x },
+    context.regions,
+    zoomY,
+    context.isLevelZeroFolded,
+    context.rowControlsHeightPx,
+  ))
+}
+
+const BAND_CEILING_HALVINGS = 40
+const BAND_CEILING_RELATIVE_TOLERANCE = 1e-6
+
+// see FR-016, OC-10, PI-5
+// WHY: halved, never solved: OC-10 puts S-196 and a label stopped at S-8 in the band, so it is not linear in zoomY.
+/** @purity pure */
+function zoomYWithinBand(context: InputContext, wanted: number): number {
+  const height = context.regions.rowArea.height
+  if (!(height > 0) || !Number.isFinite(wanted)) return wanted
+  const drawn = zoomOnScreen(context).y
+  const drawnFits = tallestBandOf(context.layout.rows) <= height
+  if (wanted <= drawn && drawnFits) return wanted
+  if (tallestBandAtZoomY(context, wanted) <= height) return wanted
+  let fits = drawnFits && drawn < wanted ? drawn : context.zoomMin
+  if (fits >= wanted || tallestBandAtZoomY(context, fits) > height) return Math.min(fits, wanted)
+  let over = wanted
+  for (let step = 0; step < BAND_CEILING_HALVINGS; step++) {
+    if (over - fits <= over * BAND_CEILING_RELATIVE_TOLERANCE) break
+    const middle = (fits + over) / 2
+    if (middle <= fits || middle >= over) break
+    if (tallestBandAtZoomY(context, middle) <= height) fits = middle
+    else over = middle
+  }
+  return fits
 }
 
 // TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
@@ -3180,7 +3187,8 @@ function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): numb
   const on = zoomOnScreen(context)
   const stepped = (axis === 'x' ? on.x : on.y) * factor
   const ceiling = axis === 'x' ? zoomXCeiling(context) : zoomYCeiling(context)
-  return ceiling === null ? stepped : Math.min(stepped, ceiling)
+  const wanted = ceiling === null ? stepped : Math.min(stepped, ceiling)
+  return axis === 'x' ? wanted : zoomYWithinBand(context, wanted)
 }
 
 /** @purity pure */

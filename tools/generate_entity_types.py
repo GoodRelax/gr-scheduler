@@ -1927,8 +1927,7 @@ TARGETS = [
     # hit test both read that one rectangle. ⛔ Solving it in the renderer and
     # again in the hit test is the copied-value defect rule 03 section 1 names.
     (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-3's SECOND FLOOR, IN THE UNIT THAT DECIDES THE BAND. Table T-221's
     # LF-3 (MUST) and table T-051's HF-19 (MUST NOT) hold a row's band at or
@@ -1956,10 +1955,17 @@ TARGETS = [
     # `S-180` の小さい方である」 -- so `dummyReachOf` can no longer read a fixed 30.
     # ⛔ IT MAY NOT REACH ScheduleGeometry FOR IT: that unit imports this one, and
     # LR-3 forbids the cycle.
+    # S-196 is generated here and ONLY here (CR-380 decision 7, table T-064
+    # row PI-5): table T-038's OC-10 counts the lifted label in the band, and
+    # this is the unit that settles a band. `schedule-geometry.ts` places the
+    # label with the same gap and reads it from this unit's public entry -- it
+    # imports this file already, so the edge runs the way LR-3 allows. A second
+    # printing there is the copy PI-5's MUST NOT forbids.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_LABEL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
     # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors

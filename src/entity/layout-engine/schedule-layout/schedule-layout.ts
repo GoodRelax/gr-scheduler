@@ -54,9 +54,13 @@ export interface TaskPlacement {
   readonly dummyReach: number | null
   readonly fadeInPx: number
   readonly fadeOutPx: number
+  // TRAP: T-243's marker (1), whatever is shown; the drawn marker follows FR-013 and reads the toggles itself.
+  readonly markerAnchorX: number | null
   readonly labelPlacement: LabelPlacement
-  // TRAP: already clears the counted marker (and a PA-4 resume icon); do not add the marker width again.
+  // TRAP: already past T-243's markers (1) and (2) and a PA-4 icon; do not add them again.
   readonly labelX: number
+  // TRAP: an inside label starts here, past fadeIn and past a marker (1) standing in the shape (T-013).
+  readonly insideLabelX: number
   readonly label: string
   readonly labelFontSize: number
   readonly outsideLabel: string
@@ -242,11 +246,23 @@ function truncate(text: string, limit: number): string {
 
 // see T-012, FR-094
 /** @purity pure */
-function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): number {
+function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
   const planHeight = planHeightOf(shapeKind, settings)
   return laidBelow(shapeKind)
     ? planHeight + settings.actualGap + planHeight * settings.actualOfPlan
     : planHeight
+}
+
+// see OC-10, S-196
+/** @purity pure */
+function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  if (!laidBelow(shapeKind)) return 0
+  return labelFontSize(shapeKind, settings) + NOT_STORED_LABEL_SIZES['S-196']
+}
+
+/** @purity pure */
+function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  return labelLiftOf(shapeKind, settings) + shapeHeightOf(shapeKind, settings)
 }
 
 /** @purity pure */
@@ -533,19 +549,35 @@ function dummyReachOf(
   return inkX + dummyGrabWidthPx(pxPerDay)
 }
 
-// see T-243, LF-11, PA-4
-// TRAP: never read progressMarkerVisible, planVisible or actualVisible here: the marker is
-// counted where it stands in any of those combinations, so no toggle moves the name.
+// see T-243, FR-013, GR-7
+// TRAP: never read progressMarkerVisible, planVisible or actualVisible here: no toggle may move the name.
 /** @purity pure */
-function markRoomOf(task: Task, shapeKind: ShapeKind, settings: DocumentSettings): number {
-  const marker = settings.markerGap + settings.markerSize
+function shownMarkerAnchorX(
+  shapeKind: ShapeKind,
+  planRight: number,
+  actualReach: number | null,
+  dummyReach: number | null,
+): number | null {
+  if (shapeKind === 'milestone') {
+    return Math.max(planRight, actualReach ?? planRight, dummyReach ?? planRight)
+  }
+  // TRAP: the plan is no candidate once the actual shows: the further-right of the two parks the marker on a late plan's end.
+  return dummyReach ?? actualReach
+}
+
+// see T-243, LF-11, PA-4
+// TRAP: schedule-geometry.ts draws the same marker and PA-4 icon (markerOf, resumeOf); change both together.
+/** @purity pure */
+function markerReachOf(anchorX: number, task: Task, shapeKind: ShapeKind,
+                       settings: DocumentSettings): number {
+  const markerRight = anchorX + settings.markerGap + settings.markerSize
   const resumeBesideMarker =
     shapeKind !== 'milestone' &&
     task.resume === null &&
     planActualState(task) === 'suspendedResumeUnknown'
-  if (!resumeBesideMarker) return marker
-  const side = settings.markerSize
-  return marker + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
+  if (!resumeBesideMarker) return markerRight
+  const side = settings.markerSize * (task.resumeValid !== false ? 1 : settings.resumeScaleInvalid)
+  return markerRight + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
 }
 
 const ROW_CONTROL_LATTICE_RANKS = 2
@@ -634,8 +666,6 @@ export function layoutFromSchedule(
       const font = labelFontSize(kind, settings)
       const text = labelWidth(label, font, settings)
       const fade = clampedFade(task, kind, width, pxPerDay)
-      const roomInside = Math.max(0, width - fade.fadeIn - fade.fadeOut)
-      const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
       const dummyReach =
@@ -644,8 +674,21 @@ export function layoutFromSchedule(
           : finiteOrNull(
               dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
             )
-      const outwardX = Math.max(x + width, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
-      const labelX = outwardX + markRoomOf(task, kind, settings) + settings.labelGap
+      const planRight = x + width
+      const markerAnchorX = shownMarkerAnchorX(kind, planRight, actualReach, dummyReach)
+      const markerInside =
+        markerAnchorX !== null && markerAnchorX + settings.markerGap < planRight
+      const insideLabelX = markerInside
+        ? Math.max(x + fade.fadeIn,
+                   markerAnchorX + settings.markerGap + settings.markerSize + settings.labelGap)
+        : x + fade.fadeIn
+      const roomInside = Math.max(0, planRight - fade.fadeOut - insideLabelX)
+      const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
+      const outwardX = Math.max(planRight, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
+      const reachShown =
+        markerAnchorX === null ? Number.NEGATIVE_INFINITY : markerReachOf(markerAnchorX, task, kind, settings)
+      const reachPlanOnly = markerReachOf(planRight, task, kind, settings)
+      const labelX = Math.max(outwardX, reachShown, reachPlanOnly) + settings.labelGap
       const labelledX1 = placement === 'right' ? labelX + text : x + width
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
@@ -663,7 +706,7 @@ export function layoutFromSchedule(
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
-               occupiedX0, occupiedX1 }
+               occupiedX0, occupiedX1, markerAnchorX, insideLabelX }
     })
 
     for (const item of measured) {
@@ -738,16 +781,18 @@ export function layoutFromSchedule(
         planEndsStandOnOneDay: item.oneDay,
         fadeInPx: item.fade.fadeIn,
         fadeOutPx: item.fade.fadeOut,
-        y: tops[lane]!,
-        height: reservedHeight(item.kind, settings),
+        y: tops[lane]! + labelLiftOf(item.kind, settings),
+        height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),
         actualPlacement: actualPlacementOf(item.kind),
         actualX: item.actual === null ? null : item.actual.x,
         actualWidth: item.actual === null ? 0 : item.actual.width,
         actualReach: item.actualReach,
         dummyReach: item.dummyReach,
+        markerAnchorX: item.markerAnchorX,
         labelPlacement: item.placement,
         labelX: item.labelX,
+        insideLabelX: item.insideLabelX,
         label: item.label,
         labelFontSize: item.font,
         outsideLabel: item.outsideLabel,
@@ -1067,6 +1112,15 @@ export function fitZoom(
   }
 }
 
+// see FR-016, FR-077, FR-094, PI-5
+// WHY: the largest of three: below either floor the name does not grow, so the floor's release answers.
+/** @purity pure */
+export function zoomYAtRectangleLabelFont(fontPx: number, settings: DocumentSettings): number {
+  const fontPerZoom = settings.basePlanHeight * settings.shapeHeightOf.rectangle *
+    settings.actualOfPlan * settings.fontOfActual
+  return Math.max(fontPx / fontPerZoom, zoomYAtPlanHeightFloor(settings), settings.fontMin / fontPerZoom)
+}
+
 // see FR-016, T-068
 /** @purity pure */
 export function rowPlacesAtZoomY(
@@ -1118,5 +1172,12 @@ export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
 } = {
   'S-180': 30,
+}
+
+// see T-206
+export const NOT_STORED_LABEL_SIZES: {
+  readonly 'S-196': number
+} = {
+  'S-196': 2,
 }
 // </generated>

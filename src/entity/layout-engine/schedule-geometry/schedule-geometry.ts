@@ -20,6 +20,7 @@ import {
 } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
 import {
+  NOT_STORED_LABEL_SIZES,
   xFromDay,
   type MilestoneGlyph,
   type ScheduleLayout,
@@ -446,15 +447,8 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
 // see LF-11, FR-013, GR-7
 /** @purity pure */
 function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | null {
-  const planRight = placed.x + placed.width
-  if (!inputs.showActual) return inputs.showPlan ? planRight : null
-  if (placed.shapeKind === 'milestone') {
-    return Math.max(planRight, placed.actualReach ?? planRight, placed.dummyReach ?? planRight)
-  }
-  // TRAP: the plan is no candidate once the actual shows: the further-right of the two parks the marker on a late plan's end.
-  if (placed.dummyReach !== null) return placed.dummyReach
-  if (placed.actualReach !== null) return placed.actualReach
-  return null
+  if (!inputs.showActual) return inputs.showPlan ? placed.x + placed.width : null
+  return placed.markerAnchorX
 }
 
 // TRAP: markerAnchorX already includes a dummy's grab hold (GR-7); adding a width here counts it twice.
@@ -761,11 +755,11 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
   const y = labelTopOf(settings, placed, height)
   return placed.labelPlacement === 'inside'
     ? {
-        x: placed.x + placed.fadeInPx + settings.labelPad,
+        x: placed.insideLabelX + settings.labelPad,
         y,
         width: Math.max(
           0,
-          placed.width - placed.fadeInPx - placed.fadeOutPx - settings.labelPad * 2,
+          placed.x + placed.width - placed.fadeOutPx - placed.insideLabelX - settings.labelPad * 2,
         ),
         height,
       }
@@ -1135,13 +1129,6 @@ export function geometryFromLayout(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206
-export const NOT_STORED_LABEL_SIZES: {
-  readonly 'S-196': number
-} = {
-  'S-196': 2,
-}
-
 // see T-206
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number

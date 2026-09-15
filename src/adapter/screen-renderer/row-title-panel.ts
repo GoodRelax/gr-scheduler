@@ -60,8 +60,9 @@ function availableLabelWidthPx(depth: number, settings: DocumentSettings): numbe
   return Math.max(0, available)
 }
 
+// see HF-5, FR-016, PI-37
 /** @purity pure */
-function rowTitleFontPx(depth: number, settings: DocumentSettings): number {
+export function rowTitleFontPxOf(depth: number, settings: DocumentSettings): number {
   return depth === 1 ? settings.rowTitleFont * settings.rowTitleTopScale : settings.rowTitleFont
 }
 
@@ -140,7 +141,7 @@ function rowTitleOf(
   held: HeldRow | null,
 ): RowTitle {
   const depth = held?.depth ?? rowDepth(group, index.groupsById, settings)
-  const fontSizePx = rowTitleFontPx(depth, settings)
+  const fontSizePx = rowTitleFontPxOf(depth, settings)
   const wholeLabel = rowNameOf(group, index)
   const shownLabel =
     wholeLabel === null

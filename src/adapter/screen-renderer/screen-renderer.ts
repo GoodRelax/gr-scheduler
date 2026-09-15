@@ -33,7 +33,9 @@ export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
 import { openModalFromScreenState } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
-import { rowTitlePanelFromSchedule } from './row-title-panel'
+import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
+
+export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
 import { tooltipsFromScreenView } from './tooltips'
