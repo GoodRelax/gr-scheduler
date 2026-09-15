@@ -104,6 +104,7 @@ import type {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
 import { bare, specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -242,6 +243,7 @@ const rowTitleOf = (part: Partial<RowTitle> = {}): RowTitle => {
   return {
     groupId: 'g1',
     depth: 1,
+    ...rowNameFont(part.depth ?? 1),
     // S-37 x depth 1, the product FR-085 subtracts before the cut.
     indentPx: 12,
     box: rect(0, 0, 200, 24),

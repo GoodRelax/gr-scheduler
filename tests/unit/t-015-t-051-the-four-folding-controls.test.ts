@@ -107,6 +107,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -556,6 +557,7 @@ const THEME: ScreenTheme = {
 const ONE_DRAWN_ROW: RowTitle = {
   groupId: 'RowAlpha',
   depth: 1,
+  ...rowNameFont(1),
   indentPx: SETTINGS_DEFAULTS['rowTitleIndent'] as number,
   box: rect(0, 40, 220, 64),
   label: 'RowAlpha',

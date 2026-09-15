@@ -107,6 +107,7 @@ export interface RowTitle {
   readonly depth: number
   readonly box: ScreenRect
   readonly indentPx: number
+  readonly fontPx: number
   readonly label: string | null
   readonly wholeLabel: string | null
   readonly isLabelTruncated: boolean

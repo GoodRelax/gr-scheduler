@@ -125,6 +125,7 @@ import {
   type Stage,
 } from '../fixtures/fake-browser'
 import { bare, specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -229,6 +230,7 @@ const TALL_ROW = 148
 
 const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
   depth: patch.depth ?? 1,
+  ...rowNameFont(patch.depth ?? 1),
   indentPx: (patch.depth ?? 1) * ROW_TITLE_INDENT,
   box: rect(0, 40, 220, SHORT_ROW),
   label: patch.groupId,

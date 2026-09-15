@@ -141,6 +141,7 @@ import {
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1500,6 +1501,7 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   // deepest row exactly like a root one, which is the very thing FR-085's
   // indent case asks about.
   indentPx: (patch.depth ?? 1) * 12,
+  ...rowNameFont(patch.depth ?? 1),
   box: rect(0, 40, 170, 24),
   label: patch.groupId,
   wholeLabel: patch.groupId,

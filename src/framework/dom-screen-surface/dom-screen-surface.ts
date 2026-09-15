@@ -1047,7 +1047,8 @@ function rowTitleElement(host: Document, title: RowTitle, isPinned: boolean): HT
     row.append(grab)
   }
 
-  const label = made(host, 'span', STYLE.rowLabel)
+  // TRAP: the size goes on the name alone; on the row the em-sized marks would follow it (HF-5).
+  const label = made(host, 'span', STYLE.rowLabel + `font-size:${title.fontPx}px;`)
   label.textContent = title.label
 
   // TRAP: append the ground before every control: with no z-index, paint order is tree order.

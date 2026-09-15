@@ -294,11 +294,14 @@ function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number
     : planHeight
 }
 
-// see OC-10, S-196
+// see OC-10, S-196, S-233
 /** @purity pure */
 function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
   if (!laidBelow(shapeKind)) return 0
-  return labelFontSize(shapeKind, settings) + NOT_STORED_LABEL_SIZES['S-196']
+  return (
+    labelFontSize(shapeKind, settings) * NOT_STORED_LABEL_SIZES['S-233'] +
+    NOT_STORED_LABEL_SIZES['S-196']
+  )
 }
 
 /** @purity pure */
@@ -1224,7 +1227,9 @@ export const NOT_STORED_DUMMY_SIZES: {
 // see T-206
 export const NOT_STORED_LABEL_SIZES: {
   readonly 'S-196': number
+  readonly 'S-233': number
 } = {
   'S-196': 2,
+  'S-233': 1.5,
 }
 // </generated>

@@ -153,6 +153,7 @@ function rowTitleOf(
     depth,
     box: heldBox(box, held),
     indentPx: depth * settings.rowTitleIndent,
+    fontPx: fontSizePx,
     label: shownLabel,
     wholeLabel,
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,

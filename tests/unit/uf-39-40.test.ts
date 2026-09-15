@@ -97,6 +97,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // Settings. ⛔ Rule 03 forbids re-typing a value the specification holds, so
@@ -450,6 +451,7 @@ const rowOf = (
   // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
   // takes 「その行の深さぶんのインデント」 off the usable width.
   indentPx: depth * SETTINGS.rowTitleIndent,
+  ...rowNameFont(depth),
   // Nothing is cut here, and the `RowTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
   wholeLabel: label,

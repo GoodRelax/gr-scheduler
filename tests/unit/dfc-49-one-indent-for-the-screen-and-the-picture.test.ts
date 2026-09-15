@@ -21,6 +21,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 
 const rowOf = (table: string, id: string) => {
@@ -290,6 +291,7 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
         {
           groupId: 'g1',
           depth: 1,
+          ...rowNameFont(1),
           indentPx,
           box: {
             x: 0,

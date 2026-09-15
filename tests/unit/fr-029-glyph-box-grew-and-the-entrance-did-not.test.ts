@@ -79,6 +79,7 @@ import {
   type Stage,
 } from '../fixtures/fake-browser'
 import { bare, specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -174,6 +175,7 @@ const EVERY_CONTROL: RowExpander = { canOpen: true, canClose: true, canCloseBelo
 const rowTitle = (groupId: string): RowTitle => ({
   groupId,
   depth: 1,
+  ...rowNameFont(1),
   indentPx: ROW_TITLE_INDENT,
   box: ROW_BOX,
   label: groupId,

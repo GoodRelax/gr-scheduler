@@ -51,11 +51,20 @@ const REQUIREMENTS = unbroken(
 const OC_10_LOWERED_BY_THE_LABEL =
   'てのみ、名称ラベルが縦に取る高さと `_assets/tbl-settings.md` の 表 T-206 の `S-196` を、予定の縦幅（形状の比を掛けた予定の帯）の上端の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）'
 
+const OC_10_HEIGHT_IS_FONT_TIMES_S_233 =
+  '⭐ 名称ラベルが縦に取る高さは、描いた字の箱の高さを見積もった値とし、字の大きさ（`FR-094` の縦の寸法）に同表の `S-233` を掛けて求めること（MUST）'
+
+const OC_10_NOT_THE_FONT_SIZE_ITSELF =
+  '`S-233` を掛けて求めること（MUST）。⛔ 字の大きさそのものを高さとして数えてはならない（MUST NOT）'
+
 const OC_10_LABEL_SITS_ON_THE_FIGURE_TOP =
-  '（形状の比を掛けた予定の帯）の上端の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）。⭐ ラベルの下端を置く基準は、`S-196` の注のとおり、予定の図形の上端（矢じりと端点の点を含む、描いた線の上端）とすること（MUST）'
+  '（量と導出は `S-233` の注）。⭐ ラベルの下端（数えた高さの下端）を置く基準は、`S-196` の注のとおり、予定の図形の上端（矢じりと端点の点を含む、描いた線の上端）とすること（MUST）'
+
+const OC_10_BASELINE_BELOW_THE_CENTRE =
+  '⭐ 字の基線は、数えた高さの縦の中央から、字の大きさに `_assets/tbl-settings.md` の 表 T-201 の `S-33` を掛けたぶん下に置くこと（MUST）'
 
 const OC_10_WITH_OR_WITHOUT_A_NAME =
-  '6` を持って他のコンポーネントへ渡すのは `05-07-design.md` の 表 T-064 の `PI-5` である。⚠️ 段割当の重なりに当てはめないことは `OC-6` と同じである。⭐ 名前の有無によらず数えること（MUST）'
+  '⭐ `S-196` と `S-233` を持って他のコンポーネントへ渡すのは `05-07-design.md` の 表 T-064 の `PI-5` である。⚠️ 段割当の重なりに当てはめないことは `OC-6` と同じである。⭐ 名前の有無によらず数えること（MUST）'
 
 const T_013_WIDTH_FROM_THE_MARKER =
   '置の左端が、形状の右端より左にあるときは、`NL-1` の「タスクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）'
@@ -158,7 +167,10 @@ const T_023D_FRACTION_OF_THE_PITCH =
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-038 OC-10 (MUST) -- the label height and S-196 are counted above the plan strip', OC_10_LOWERED_BY_THE_LABEL],
-  ['T-038 OC-10 (MUST) -- the label bottom is placed from the drawn figure top', OC_10_LABEL_SITS_ON_THE_FIGURE_TOP],
+  ['T-038 OC-10 (MUST) -- the counted height is the font size x S-233', OC_10_HEIGHT_IS_FONT_TIMES_S_233],
+  ['T-038 OC-10 (MUST NOT) -- the font size itself is not the counted height', OC_10_NOT_THE_FONT_SIZE_ITSELF],
+  ['T-038 OC-10 (MUST) -- the counted height bottom is placed from the drawn figure top', OC_10_LABEL_SITS_ON_THE_FIGURE_TOP],
+  ['T-038 OC-10 (MUST) -- the baseline is S-33 x font below the counted centre', OC_10_BASELINE_BELOW_THE_CENTRE],
   ['T-038 OC-10 (MUST) -- counted whether or not the task has a name', OC_10_WITH_OR_WITHOUT_A_NAME],
   ['T-013 (MUST) -- the NL-1 width runs from marker (1) + S-32 to the shape right', T_013_WIDTH_FROM_THE_MARKER],
   ['T-013 (MUST) -- a name written inside has its box left edge there', T_013_WRITING_STARTS_THERE],
@@ -311,6 +323,8 @@ const drawnOf = (
 
 const S_196_ROW = specTable('T-206').rows.find((one) => one.id === 'S-196')
 const S_196 = Number.parseFloat(S_196_ROW?.by['既定'] ?? 'NaN')
+const S_233_ROW = specTable('T-206').rows.find((one) => one.id === 'S-233')
+const S_233 = Number.parseFloat(S_233_ROW?.by['既定'] ?? 'NaN')
 
 const S_4 = num('basePlanHeight')
 const S_5 = num('actualOfPlan')
@@ -326,6 +340,7 @@ const S_41 = num('thinStrokeMin')
 const S_42 = num('thinStrokeMax')
 const S_45 = num('arrowHeadOfStroke')
 const S_47 = num('spanDotOfStroke')
+const S_33 = num('labelBaseline')
 
 const PLAN_HEIGHT_FLOOR_PX = S_6 / S_5
 const planStripOf = (ratio: number, zoomY: number): number => Math.max(PLAN_HEIGHT_FLOOR_PX, S_4 * zoomY) * ratio
@@ -365,24 +380,111 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
     }
   })
 
-  it.each(LIFTED)('%s: lane top + label height + S-196 is the plan strip top, and the label bottom is S-196 above the figure top (MUST)', (shapeKind) => {
+  const sceneAt = (
+    shapeKind: string,
+    name: string | null,
+    zoomY: number,
+  ): { layout: ScheduleLayout; tasks: readonly TaskGeometry[]; svg: string } => {
+    const schedule = liftedRows(shapeKind, name)
+    const settings = settingsOf({ zoomY })
+    const layout = layoutFromSchedule(schedule, settings, REGIONS)
+    const geometry = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+    const svg = svgFromSchedule(schedule, settings, layout, geometry, REGIONS, emptySelection(), 'screen')
+    return { layout, tasks: geometry.tasks, svg }
+  }
+
+  const countedOf = (layout: ScheduleLayout, uid: number): { fontPx: number; heightPx: number } => {
+    const placed = taskPlacement(layout, uid)
+    if (placed === null) throw new Error(`task ${uid} was not placed`)
+    return { fontPx: placed.labelFontSize, heightPx: placed.labelFontSize * S_233 }
+  }
+
+  const nameTextAttributeOf = (svg: string, uid: number, attribute: string): string | null => {
+    const figure = svg.indexOf(`data-figure="task-${uid}-label"`)
+    const opened = figure < 0 ? -1 : svg.lastIndexOf('<text ', figure)
+    if (opened < 0) throw new Error(`task ${uid}: the name label was not drawn as a text`)
+    const found = new RegExp(`\\s${attribute}="([^"]*)"`).exec(svg.slice(opened, svg.indexOf('>', figure)))
+    return found === null ? null : (found[1] ?? null)
+  }
+
+  it('premise (CR-380 decision 11): S-233 is 1.5 in table T-206, and PI-5 publishes it beside S-196 in NOT_STORED_LABEL_SIZES', () => {
+    expect(S_233).toBe(1.5)
+    const published = (scheduleLayoutModule as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as
+      | Record<string, unknown>
+      | undefined
+    expect(published?.['S-233'], 'T-064 PI-5 owns NOT_STORED_LABEL_SIZES').toBe(S_233)
+  })
+
+  it('premise (CR-380 8.3): at zoomY 1 an arrow name sits on the S-8 floor, so S-8 x S-233 + S-196 = 20 where the font size itself gave 14', () => {
+    const { layout } = sceneAt('arrow', 'ab', 1)
+    const { fontPx, heightPx } = countedOf(layout, 1)
+    expect(fontPx, 'FR-094: the arrow name at zoomY 1 is the S-8 floor').toBe(S_8)
+    expect(heightPx + S_196, 'S-8 x S-233 + S-196').toBeCloseTo(20, 9)
+    expect(fontPx + S_196, 'the forbidden count, S-8 + S-196').toBeCloseTo(14, 9)
+  })
+
+  it.each(LIFTED)('%s: lane top + font x S-233 + S-196 is the plan strip top, and lane top + font + S-196 is not (MUST, MUST NOT)', (shapeKind) => {
     for (const zoomY of ZOOMS) {
-      const { layout, tasks } = drawnOf(liftedRows(shapeKind, 'ab'), settingsOf({ zoomY }))
+      const { layout, tasks } = sceneAt(shapeKind, 'ab', zoomY)
+      for (const [index, uid] of [[0, 1], [1, 2]] as const) {
+        const tag = `zoomY ${zoomY}, row ${index + 1}`
+        const laneTop = layout.rows[index]!.stackTops[0]!
+        const drawn = tasks.find((one) => one.taskUid === uid)!
+        const { fontPx, heightPx } = countedOf(layout, uid)
+        const stripTop = centreLineOf(drawn.plan) - planStripOf(LIFTED_RATIO[shapeKind]!, zoomY) / 2
+        expect(stripTop, `${tag}: strip top = lane top + font x S-233 + S-196; ${OC_10_HEIGHT_IS_FONT_TIMES_S_233}`)
+          .toBeCloseTo(laneTop + heightPx + S_196, 6)
+        expect(stripTop, `${tag}: ${OC_10_NOT_THE_FONT_SIZE_ITSELF}`).not.toBeCloseTo(laneTop + fontPx + S_196, 6)
+      }
+    }
+  })
+
+  it.each(LIFTED)('%s: the counted height ends S-196 above the figure top, holds the label box at its centre, and stays in the band (MUST)', (shapeKind) => {
+    for (const zoomY of ZOOMS) {
+      const { layout, tasks } = sceneAt(shapeKind, 'ab', zoomY)
       for (const [index, uid] of [[0, 1], [1, 2]] as const) {
         const tag = `zoomY ${zoomY}, row ${index + 1}`
         const row = layout.rows[index]!
         const drawn = tasks.find((one) => one.taskUid === uid)!
         const label = drawn.label!
-        const strip = planStripOf(LIFTED_RATIO[shapeKind]!, zoomY)
-        const stripTop = centreLineOf(drawn.plan) - strip / 2
+        const { heightPx } = countedOf(layout, uid)
+        const stripTop = centreLineOf(drawn.plan) - planStripOf(LIFTED_RATIO[shapeKind]!, zoomY) / 2
         const figureTop = extentOf(drawn.plan).top
+        const countedBottom = figureTop - S_196
+        const countedTop = countedBottom - heightPx
         expect(figureTop, `${tag}: premise, the figure top lies inside the strip`).toBeGreaterThanOrEqual(stripTop - 1e-9)
-        expect(label.y + label.height, `${tag}: ${OC_10_LABEL_SITS_ON_THE_FIGURE_TOP}`).toBeCloseTo(figureTop - S_196, 6)
-        expect(stripTop, `${tag}: ${OC_10_LOWERED_BY_THE_LABEL}`).toBeCloseTo(row.stackTops[0]! + label.height + S_196, 6)
-        expect(label.y, `${tag}: the label does not reach into the band above`).toBeGreaterThanOrEqual(row.y - 1e-9)
+        expect(label.y + label.height / 2, `${tag}: label centre = figure top - S-196 - font x S-233 / 2; ${OC_10_LABEL_SITS_ON_THE_FIGURE_TOP}`)
+          .toBeCloseTo(countedBottom - heightPx / 2, 6)
+        expect(label.y, `${tag}: label top = counted top + (font x S-233 - label height) / 2, inside the counted height`)
+          .toBeGreaterThanOrEqual(countedTop - 1e-9)
+        expect(label.y + label.height, `${tag}: label bottom inside the counted height, whose bottom is figure top - S-196`)
+          .toBeLessThanOrEqual(countedBottom + 1e-9)
+        expect(countedTop, `${tag}: counted top = figure top - S-196 - font x S-233 stays in the band; ${OC_10_LOWERED_BY_THE_LABEL}`)
+          .toBeGreaterThanOrEqual(row.y - 1e-9)
       }
       expect(tasks.find((one) => one.taskUid === 1)!.label!.y, 'the top row keeps its label in the Row Area')
         .toBeGreaterThanOrEqual(REGIONS.rowArea.y - 1e-9)
+    }
+  })
+
+  it.each(LIFTED)('%s: the name baseline is the counted centre + S-33 x font (MUST)', (shapeKind) => {
+    for (const zoomY of ZOOMS) {
+      const { layout, tasks, svg } = sceneAt(shapeKind, 'ab', zoomY)
+      for (const uid of [1, 2] as const) {
+        const tag = `zoomY ${zoomY}, task ${uid}`
+        const drawn = tasks.find((one) => one.taskUid === uid)!
+        const { fontPx, heightPx } = countedOf(layout, uid)
+        const countedCentre = extentOf(drawn.plan).top - S_196 - heightPx / 2
+        expect(nameTextAttributeOf(svg, uid, 'dominant-baseline'), `${tag}: premise, y is the alphabetic baseline`).toBeNull()
+        expect(nameTextAttributeOf(svg, uid, 'alignment-baseline'), `${tag}: premise, y is the alphabetic baseline`).toBeNull()
+        const written = nameTextAttributeOf(svg, uid, 'y') ?? 'NaN'
+        const halfOfLastWrittenPlace = 0.5 * 10 ** -(written.split('.')[1] ?? '').length
+        const expectedBaseline = countedCentre + S_33 * fontPx
+        expect(
+          Math.abs(Number(written) - expectedBaseline),
+          `${tag}: drawn y ${written} against figure top - S-196 - font x S-233 / 2 + S-33 x font = ${expectedBaseline}; ${OC_10_BASELINE_BELOW_THE_CENTRE}`,
+        ).toBeLessThanOrEqual(halfOfLastWrittenPlace + 1e-9)
+      }
     }
   })
 

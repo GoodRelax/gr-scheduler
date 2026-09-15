@@ -730,7 +730,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   ]
 }
 
-// see T-012
+// see T-012, OC-10
 /** @purity pure */
 function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: number): number {
   if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
@@ -743,7 +743,9 @@ function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: n
     lineEndHalfHeight(placed.shapeKind, placed.x, placed.x + placed.width, stroke, settings),
   )
   const shapeTop = middle - halfExtent
-  return shapeTop - NOT_STORED_LABEL_SIZES['S-196'] - height
+  // WHY: the font-size box sits on the centre of the counted height, so the baseline lands S-33 below it.
+  const counted = height * NOT_STORED_LABEL_SIZES['S-233']
+  return shapeTop - NOT_STORED_LABEL_SIZES['S-196'] - counted / 2 - height / 2
 }
 
 // see GR-10, LC-6

@@ -40,10 +40,12 @@ import {
   type ScreenEnvironment,
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { specTable } from '../contract/spec-table'
 
 const S_196_FROM_PI_5 = Number(
   ((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined)?.['S-196'],
 )
+const S_233 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-233')?.by['既定'] ?? 'NaN')
 
 // A case states only the keys it deliberately pins; every other key arrives
 // from SETTINGS_DEFAULTS, which `npm run gen` prints from the manuscript, so a
@@ -210,6 +212,10 @@ const strokeTopOf = (bar: BarGeometry | null): number => {
 const centreOf = (box: ScreenRect): number => box.y + box.height / 2
 const bottomOf = (box: ScreenRect): number => box.y + box.height
 
+// see T-038, T-206
+const countedCentreOf = (placed: TaskPlacement, drawn: TaskGeometry): number =>
+  extentOf(drawn.plan)!.top - S_196_FROM_PI_5 - (placed.labelFontSize * S_233) / 2
+
 // A name of two half-width units, which NL-1 of table T-013 keeps inside a bar
 // this long at either type size, and one of 40 units, which NL-3 pushes out to
 // the right. ⚠️ 40 is under `truncateUnits` (S-35, raised to 全角 24 = 半角 48
@@ -314,29 +320,16 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
       [{ taskUid: 1, shapeKind }],
     )
 
-  it('SH-3 puts the label bottom S-196 above the top edge of the plan SHAPE', () => {
-    // T-012 row SH-3 (arrow): the "name label vertical position" column reads
-    // "lifted above the plan and the actual", and S-196 of table T-206 states
-    // the amount as the gap between the TOP EDGE OF THE PLAN SHAPE and the
-    // BOTTOM EDGE OF THE LABEL -- measured from the shape's bounding box
-    // (CR-297: "予定の図形の上端", not "予定の線の上端"), because SH-3's
-    // arrowhead stands taller than the line's own stroke.
-    // ⛔ The 2px is read from the generated constant, never re-typed.
-    const { drawn, label } = drawnOf(shaped('arrow'))
-    expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
-      6,
-    )
+  it('SH-3 centres the label in the counted height, whose bottom is S-196 above the top edge of the plan SHAPE', () => {
+    const { placed, drawn, label } = drawnOf(shaped('arrow'))
+    expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
   })
 
   it('SH-4 does the same, its two end dots being the only difference', () => {
-    // T-012 row SH-4 (endpointSpan) carries the same words in that column as
-    // SH-3, so it takes the same gap from the same edge.
-    const { drawn, label } = drawnOf(shaped('endpointSpan'))
-    expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
-      6,
-    )
+    const { placed, drawn, label } = drawnOf(shaped('endpointSpan'))
+    expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
   })
 
   it('SH-3 leaves the whole label above BOTH lines, which is what the column is for', () => {
@@ -346,13 +339,6 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
     // arithmetic, so it still reports when the gap is measured from a different
     // edge. The paragraph's own words: the label above and the actual below
     // means the three do not overlap, with the plan line between them.
-    // ⛔ THE PLAN SIDE IS MEASURED FROM THE STROKE, NOT FROM `extentOf`. S-196
-    // names its edge in as many words -- 「予定の線の上端と、ラベルの下端との
-    // あいだの隙間である」 -- and `extentOf` answers a BOUNDING BOX that takes in
-    // SH-3's arrow HEAD, which flares above and below the line at the far end.
-    // Comparing against that box asks the label to clear a triangle that stands
-    // at the other end of the bar, which no row asks for, and would contradict
-    // the arithmetic case above rather than confirm it.
     const { drawn, label } = drawnOf(shaped('arrow'))
     const actual = extentOf(drawn.actual)!
     expect(bottomOf(label)).toBeLessThanOrEqual(strokeTopOf(drawn.plan))
@@ -433,10 +419,8 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(placed.labelPlacement).toBe('inside')
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
-    expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
-      6,
-    )
+    expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
   })
 
   it('NL-1 with SH-4 does the same', () => {
@@ -444,10 +428,8 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(placed.labelPlacement).toBe('inside')
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
-    expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
-      6,
-    )
+    expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
   })
 
   it('NL-3 with SH-3 puts the label to the RIGHT of the shape and still lifts it', () => {
@@ -456,9 +438,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     const { placed, drawn, label } = drawnOf(named('arrow', 10, LONG_NAME))
     expect(placed.labelPlacement).toBe('right')
     expect(label.x).toBeGreaterThanOrEqual(placed.x + placed.width)
-    expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
-      6,
-    )
+    expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
   })
 })

@@ -149,6 +149,7 @@ import {
 // takes the copy from the .md at read time, which is what keeps the two rosters
 // below from falling behind a row.
 import { bare, specTable, unbroken } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1101,6 +1102,7 @@ const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => (
   // 表 T-201 の `S-37`）」 off the usable width, so a row at depth n carries n
   // of them. ⭐ The description carries the number; this unit invents none.
   indentPx: (patch.depth ?? 1) * ROW_TITLE_INDENT,
+  ...rowNameFont(patch.depth ?? 1),
   box: rect(0, 0, 170, 24),
   label: patch.groupId,
   // Nothing is cut here, and the `RowTitle` contract fixes that case as

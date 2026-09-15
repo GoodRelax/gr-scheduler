@@ -1235,7 +1235,11 @@ NOT_STORED_TARGETS = {
     # folded into any constant above: one per consuming SUBJECT, and this one
     # is read by the unit that PLACES the label rather than by one that paints
     # a mark over it. Its ground is the sixth, for the reason written there.
-    'NOT_STORED_LABEL_SIZES': (['S-196'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
+    # S-233 (CR-380 decision 11) rides the same constant because PI-5 of table
+    # T-064 hands both rows over and OC-10 reads both to count the label's
+    # height. Its reason for not being kept is its own row's note in table
+    # T-206 (the document holds no typeface), not the sixth ground's.
+    'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
     'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     # ⛔ A COUNT OF ENTRIES AND NOT A LENGTH OF TIME. FR-102 (MUST) drops the

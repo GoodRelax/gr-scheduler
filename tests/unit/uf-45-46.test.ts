@@ -23,6 +23,7 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRegions } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { rowNameFont } from '../fixtures/row-name-font'
 
 
 const T_008_R9 = {
@@ -461,6 +462,7 @@ const EXPORT_VIEW: ScreenView = {
       {
         groupId: 'g1',
         depth: 1,
+        ...rowNameFont(1),
         indentPx: EXPORT_SETTINGS.rowTitleIndent,
         box: { x: 0, y: 120, width: EXPORT_SETTINGS.rowTitlePanelWidth, height: 60 },
         label: 'a row that reaches the picture',
