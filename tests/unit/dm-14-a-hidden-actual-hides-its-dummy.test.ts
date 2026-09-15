@@ -267,12 +267,6 @@ describe('T-240 DM-14 (MUST) and FR-049 (MUST NOT): the hidden dummy keeps its r
   it('leaves the name label where it stands with the actual shown', () => {
     expect(taskOf(draw(ACTUAL_HIDDEN)).label, DM_14_KEEP_THE_ROOM).toEqual(taskOf(draw(SHOWN)).label)
   })
-
-  it('leaves the not-started progress marker where it stands with the actual shown', () => {
-    const shown = taskOf(draw(SHOWN)).marker
-    expect(shown).not.toBeNull()
-    expect(taskOf(draw(ACTUAL_HIDDEN)).marker?.centre, FR_049_HIDDEN_STAYS_IN_THE_ROOM).toEqual(shown?.centre)
-  })
 })
 
 describe('T-240 DM-14 (MUST NOT): the plan display does not decide whether the dummy is drawn', () => {

@@ -16,10 +16,10 @@ import { emptyScreenState } from '../../src/entity/document-model/screen-state/s
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
   geometryFromLayout,
-  NOT_STORED_LABEL_SIZES,
   type BarGeometry,
   type TaskGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import * as scheduleLayoutModule from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   layoutFromSchedule,
   taskPlacement,
@@ -34,6 +34,7 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
+import * as screenRendererModule from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   commandFromInput,
   NOT_STORED_ZOOM_STEP,
@@ -47,16 +48,28 @@ const REQUIREMENTS = unbroken(
 )
 
 const OC_10_LOWERED_BY_THE_LABEL =
-  'は `OC-1` が数える）。縦の占有としてのみ、名称ラベルが縦に取る高さと `_assets/tbl-settings.md` の 表 T-206 の `S-196` を予定の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）'
+  'てのみ、名称ラベルが縦に取る高さと `_assets/tbl-settings.md` の 表 T-206 の `S-196` を、予定の縦幅（形状の比を掛けた予定の帯）の上端の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）'
+
+const OC_10_LABEL_SITS_ON_THE_FIGURE_TOP =
+  '（形状の比を掛けた予定の帯）の上端の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）。⭐ ラベルの下端を置く基準は、`S-196` の注のとおり、予定の図形の上端（矢じりと端点の点を含む、描いた線の上端）とすること（MUST）'
 
 const OC_10_WITH_OR_WITHOUT_A_NAME =
-  'gs.md` の 表 T-206 の `S-196` を予定の上に数え、形状をそのぶん段の上端から下げて置くこと（MUST）。⚠️ 段割当の重なりに当てはめないことは `OC-6` と同じである。⭐ 名前の有無によらず数えること（MUST）'
+  '6` を持って他のコンポーネントへ渡すのは `05-07-design.md` の 表 T-064 の `PI-5` である。⚠️ 段割当の重なりに当てはめないことは `OC-6` と同じである。⭐ 名前の有無によらず数えること（MUST）'
+
+const T_013_WIDTH_FROM_THE_MARKER =
+  '置の左端が、形状の右端より左にあるときは、`NL-1` の「タスクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）'
+
+const T_013_WRITING_STARTS_THERE =
+  'スクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）。形状の中に書くときは、その位置から書き始めること（MUST）'
 
 const T_013_NO_LABEL_OVER_THE_MARKER =
   '中に書くときは、その位置から書き始めること（MUST） —— 名称ラベルの左に状態の記号が来る並びは、形状の外へ出したときの 表 T-243 の `OR-1` と同じである。⛔ マーカーの上に名称ラベルを重ねてはならない（MUST NOT）'
 
-const T_013_MARKER_COUNTED_WHERE_DRAWN =
-  'マーカーの上に名称ラベルを重ねてはならない（MUST NOT） —— 状態の記号も名前も読めなくなる。⭐ マーカーの位置は、同書の 表 T-202 の `S-63` で描いているかどうかによらず、描いたときに立つ位置で数えること（MUST）'
+const T_013_COUNTED_IN_THE_BASE_COMBINATION =
+  'ならない（MUST NOT） —— 状態の記号も名前も読めなくなる。⭐ マーカーの位置は、いまの表示の組（同書の 表 T-202 の `S-63` / `S-227` / `S-228`）によらず、基準の組で立つ位置で数えること（MUST）'
+
+const T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT =
+  '形状の中に書いたラベルには重ならない —— そのラベルは形状の右端より左で終わる。⚠️ フェードを持つ形状では、書き始めは `fadeIn` が終わる位置と、マーカーの右端に `S-32` を足した位置の、右にあるほうとすること（MUST）'
 
 const T_243_SAME_LEFT_EDGE_WHETHER_DRAWN =
   'と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）'
@@ -68,22 +81,28 @@ const T_243_NOT_ONLY_WHEN_DRAWN =
   'OC-3` と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）。`OC-3` / `OC-4` を描かないときも、描いたときに立つ位置で数えること（MUST）。描いたときだけ数えてはならない（MUST NOT）'
 
 const T_243_LABEL_LEFT_EDGE =
-  ' T-202 の `S-63` がマーカーと再開アイコンの両方を持つ。⭐ 名称ラベルの左端は、形状の右端と、形状の外へ出た進捗マーカーの右端のうち、右にあるほうに 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
+  'の `S-63` がマーカーと再開アイコンの両方を持つ。⭐ 名称ラベルの左端は、形状の右端と、次の ① ② に立つ進捗マーカーの右端のうち、いちばん右にあるものに 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
 
 const T_243_HIDDEN_SHAPE_KEEPS_ITS_EDGE =
-  '01 の `S-32` を足した位置とすること（MUST）。⭐ ここでいう形状の右端は、予定・実績・ダミーを表示の切り替え（表 T-202 の `S-227` / `S-228`）で隠しているときも、描いたときの占有で数えること（MUST）'
+  'R-013` がマーカーを予定バーの右端の外側へ移した位置。⭐ ここでいう形状の右端は、予定・実績・ダミーを表示の切り替え（表 T-202 の `S-227` / `S-228`）で隠しているときも、描いたときの占有で数えること（MUST）'
 
-const T_243_RIGHTMOST_MARKER_OF_EVERY_COMBINATION =
-  'えること（MUST）。⭐ マーカーの右端は、`S-63` / `S-227` / `S-228` のどの組でマーカーが立つ位置（`FR-013` が予定だけの表示で予定バーへ移す位置を含む）でも、そのうち右にあるほうで数えること（MUST）'
+const T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN =
+  '隠しているときも、描いたときの占有で数えること（MUST）。⭐ `S-63` / `S-227` / `S-228` のどの組でも、マーカーが立つ位置は ① か ② のどちらかであるので、この 2 つを表示の組によらず数えること（MUST）'
+
+const T_243_NOT_BY_MARKER_1_ALONE =
+  'ちらかであるので、この 2 つを表示の組によらず数えること（MUST） —— 数え方が表示の切り替えに依らないので、名称ラベルも行の帯高も動かず、どの組でもマーカーが名称ラベルに重ならない。⛔ ① だけで数えてはならない（MUST NOT）'
+
+const T_243_NO_OTHER_ROOM =
+  'けの表示で ② へ移ったマーカー（予定の右端から `S-23` 離れて `S-22` の幅を取る）に重なる（`OR-1` の MUST NOT）。⛔ ① と ② のほかに、マーカーのための場所を形状の外に空けてはならない（MUST NOT）'
 
 const T_243_NO_NEW_SETTING =
-  '重ならない。⛔ 形状の中に立つマーカーのために、形状の外に場所を空けてはならない（MUST NOT） —— 空けると、名称ラベルが形状から離れて立ち、どのタスクの名前かが読みにくくなる。⭐ 新しい設定値を立ててはならない（MUST NOT）'
+  '） —— ① が形状の中に立つときに ① のぶんを足したり、マーカーと再開アイコンの幅を一定の量として足したりすると、名称ラベルが形状から離れて立ち、どのタスクの名前かが読みにくくなる。⭐ 新しい設定値を立ててはならない（MUST NOT）'
 
 const T_243_NO_ROOM_FOR_A_DATED_RESUME_ICON =
   'ない。⇒ `OC-3` / `OC-4` の MUST NOT が守っているものは、1 文字も変わらない。⛔ 再開アイコンが 表 T-221 の `LF-11` の日付位置に立つときは、本並びの中に場所を空けてはならない（MUST NOT）'
 
 const T_243_PA_4_COUNTS_THE_ICON =
-  'である。⚠️ `resume` を持たないとき（表 T-019 の `PA-4`）だけは、`LF-11` がアイコンをマーカーの右端から `S-23` 離して並びの中に立てるので、マーカーの右端に代えてアイコンの右端で数えること（MUST）'
+  'e` を持たないとき（表 T-019 の `PA-4`）だけは、`LF-11` がアイコンをマーカーの右端から `S-23` 離して並びの中に立てるので、① と ② のどちらでも、マーカーの右端に代えてアイコンの右端で数えること（MUST）'
 
 const FR_049_HIDDEN_KEEPS_ITS_OCCUPANCY =
   'すたびに行が伸び縮みすると、見ている場所が動く。⭐ `S-227` / `S-228` で隠した予定・実績・実績のダミーは、占有（表 T-038 の算入と、名称ラベルの位置の数え方）をそのまま残し、描かず、当たり判定から外すこと（MUST）'
@@ -97,27 +116,53 @@ const FR_016_ROW_CEILING_IS_THE_SMALLER =
 const FR_016_MEASURED_ON_THE_RECTANGLE =
   'ets/tbl-settings.md` の 表 T-201 の `S-13`）のタスクの名称ラベルの字が、深さ 1 の行の名前の字（同表の `S-36` × `S-38`）に等しくなる倍率である。⭐ 形状によらず矩形で測ること（MUST）'
 
+const FR_016_SOLVED_FOR_THE_ZOOM =
+  'ること（MUST） —— 描かれている形状で測ると、マイルストーンを 1 つ置いただけで上限が動く。⭐ その倍率は、矩形の名称ラベルの字の式（`FR-077` と `FR-094` の縦の寸法の鎖）を倍率について解いて求めること（MUST）'
+
+const FR_016_NOT_FROM_THE_RATIO =
+  'いただけで上限が動く。⭐ その倍率は、矩形の名称ラベルの字の式（`FR-077` と `FR-094` の縦の寸法の鎖）を倍率について解いて求めること（MUST）。⛔ いまの字の大きさといまの倍率の比から求めてはならない（MUST NOT）'
+
+const FR_016_FLOOR_ONLY_STOPS_WHERE_THE_FLOOR_LETS_GO =
+  ' `FR-094` の予定の縦幅の床で止まるので、止まっている倍率では字が倍率に比例しない。⭐ 床だけで矩形の名前の字が既に深さ 1 の行の名前の字以上になる設定の組では、その倍率を、床が外れて字が大きくなり始める倍率とすること（MUST）'
+
+const FR_016_ASK_BOTH_COPY_NEITHER =
+  'の持ち主は `05-07-design.md` の 表 T-064 の `PI-5` であり、深さ 1 の行の名前の字は同表の `PI-37` が答える —— 上限を求める側は 2 つを問い、どちらの式も写してはならない（MUST NOT）'
+
+const FR_016_TALLEST_BAND_ASKED_OF_PI_5 =
+  '表の `PI-37` が答える —— 上限を求める側は 2 つを問い、どちらの式も写してはならない（MUST NOT）。⭐ いちばん高い行の帯も、同表の `PI-5` の `rowPlacesAtZoomY` に問うて求めること（MUST）'
+
 const T_023D_FRACTION_OF_THE_PITCH =
   'が何も起こさず、等倍が成り立たない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**⛔ その端数は、行の帯の高さではなく、行が占める送り（帯の高さと、その下の隙間を合わせた長さ）に対する比とすること（MUST）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['T-038 OC-10 (MUST) -- the shape is lowered by the label and S-196', OC_10_LOWERED_BY_THE_LABEL],
+  ['T-038 OC-10 (MUST) -- the label height and S-196 are counted above the plan strip', OC_10_LOWERED_BY_THE_LABEL],
+  ['T-038 OC-10 (MUST) -- the label bottom is placed from the drawn figure top', OC_10_LABEL_SITS_ON_THE_FIGURE_TOP],
   ['T-038 OC-10 (MUST) -- counted whether or not the task has a name', OC_10_WITH_OR_WITHOUT_A_NAME],
+  ['T-013 (MUST) -- the NL-1 width runs from marker (1) + S-32 to the shape right', T_013_WIDTH_FROM_THE_MARKER],
+  ['T-013 (MUST) -- a name written inside starts there', T_013_WRITING_STARTS_THERE],
   ['T-013 (MUST NOT) -- no name over the marker', T_013_NO_LABEL_OVER_THE_MARKER],
-  ['T-013 (MUST) -- the marker is counted where it stands when drawn', T_013_MARKER_COUNTED_WHERE_DRAWN],
+  ['T-013 (MUST) -- the marker is counted where it stands in the base combination', T_013_COUNTED_IN_THE_BASE_COMBINATION],
+  ['T-013 (MUST) -- with a fade, the start is whichever of fadeIn end and marker + S-32 is right', T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT],
   ['T-243 (MUST) -- the same left edge whether OC-3 / OC-4 are drawn', T_243_SAME_LEFT_EDGE_WHETHER_DRAWN],
   ['T-243 (MUST) -- counted where they stand when drawn', T_243_COUNTED_WHERE_DRAWN],
   ['T-243 (MUST NOT) -- not counted only while drawn', T_243_NOT_ONLY_WHEN_DRAWN],
-  ['T-243 (MUST) -- the name starts S-32 past the shape or the outside marker', T_243_LABEL_LEFT_EDGE],
+  ['T-243 (MUST) -- the name starts S-32 past the rightmost of shape, (1) and (2)', T_243_LABEL_LEFT_EDGE],
   ['T-243 (MUST) -- a hidden plan or actual keeps its right edge', T_243_HIDDEN_SHAPE_KEEPS_ITS_EDGE],
-  ['T-243 (MUST) -- the rightmost marker of every S-63 / S-227 / S-228 combination', T_243_RIGHTMOST_MARKER_OF_EVERY_COMBINATION],
+  ['T-243 (MUST) -- (1) and (2) are both counted whatever is shown', T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN],
+  ['T-243 (MUST NOT) -- not by (1) alone', T_243_NOT_BY_MARKER_1_ALONE],
+  ['T-243 (MUST NOT) -- no room for the marker beyond (1) and (2)', T_243_NO_OTHER_ROOM],
   ['T-243 (MUST NOT) -- no new setting', T_243_NO_NEW_SETTING],
   ['T-243 (MUST NOT) -- no room for a resume icon on its own day', T_243_NO_ROOM_FOR_A_DATED_RESUME_ICON],
-  ['T-243 (MUST) -- PA-4 counts the icon right edge', T_243_PA_4_COUNTS_THE_ICON],
+  ['T-243 (MUST) -- PA-4 counts the icon right edge at (1) and (2)', T_243_PA_4_COUNTS_THE_ICON],
   ['FR-049 (MUST) -- a hidden plan or actual keeps its occupancy', FR_049_HIDDEN_KEEPS_ITS_OCCUPANCY],
   ['FR-049 (MUST NOT) -- a hidden thing is not taken out of the occupancy', FR_049_HIDDEN_NOT_TAKEN_OUT],
   ['FR-016 (MUST) -- the row ceiling is the smaller of the two', FR_016_ROW_CEILING_IS_THE_SMALLER],
   ['FR-016 (MUST) -- measured on the rectangle whatever is drawn', FR_016_MEASURED_ON_THE_RECTANGLE],
+  ['FR-016 (MUST) -- the zoom is solved from the font formula', FR_016_SOLVED_FOR_THE_ZOOM],
+  ['FR-016 (MUST NOT) -- not from the ratio of the present font and zoom', FR_016_NOT_FROM_THE_RATIO],
+  ['FR-016 (MUST) -- a floor-only combination stops where the floor lets go', FR_016_FLOOR_ONLY_STOPS_WHERE_THE_FLOOR_LETS_GO],
+  ['FR-016 (MUST NOT) -- the ceiling asks PI-5 and PI-37 and copies neither formula', FR_016_ASK_BOTH_COPY_NEITHER],
+  ['FR-016 (MUST) -- the tallest band is asked of PI-5 rowPlacesAtZoomY', FR_016_TALLEST_BAND_ASKED_OF_PI_5],
   ['T-023d (MUST) -- S-176 is a fraction of the pitch', T_023D_FRACTION_OF_THE_PITCH],
 ]
 
@@ -185,6 +230,9 @@ const spanning = (uid: number, from: string, days: number, part: Record<string, 
   return taskOf({ uid, start: from, finish: finish.toISOString().slice(0, 10), ...part })
 }
 
+const dayPlus = (from: string, days: number): string =>
+  new Date(new Date(from + 'T00:00:00Z').getTime() + days * 86400000).toISOString().slice(0, 10)
+
 const rowsOf = (
   rows: readonly (readonly Task[])[],
   visuals: readonly Record<string, unknown>[] = [],
@@ -217,6 +265,11 @@ const extentOf = (bar: BarGeometry | null): { top: number; bottom: number } => {
   return { top: Math.min(...ys), bottom: Math.max(...ys) }
 }
 
+const centreLineOf = (bar: BarGeometry | null): number => {
+  if (bar === null || bar.form !== 'line') throw new Error('a lifted shape draws its plan as a line')
+  return (bar.from.y + bar.to.y) / 2
+}
+
 const tallestBand = (layout: ScheduleLayout): number => Math.max(...layout.rows.map((row) => row.height))
 
 const drawnOf = (
@@ -227,7 +280,28 @@ const drawnOf = (
   return { layout, tasks: geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection()).tasks }
 }
 
-const S_196 = NOT_STORED_LABEL_SIZES['S-196']
+const S_196_ROW = specTable('T-206').rows.find((one) => one.id === 'S-196')
+const S_196 = Number.parseFloat(S_196_ROW?.by['既定'] ?? 'NaN')
+
+const S_4 = num('basePlanHeight')
+const S_5 = num('actualOfPlan')
+const S_6 = num('actualMin')
+const S_7 = num('fontOfActual')
+const S_8 = num('fontMin')
+const S_13 = num('shapeHeightOf.rectangle')
+const S_15 = num('shapeHeightOf.arrow')
+const S_16 = num('shapeHeightOf.endpointSpan')
+const S_17 = num('shapeHeightOf.milestone')
+const S_40 = num('thinStrokeOfPlan')
+const S_41 = num('thinStrokeMin')
+const S_42 = num('thinStrokeMax')
+const S_45 = num('arrowHeadOfStroke')
+const S_47 = num('spanDotOfStroke')
+
+const PLAN_HEIGHT_FLOOR_PX = S_6 / S_5
+const planStripOf = (ratio: number, zoomY: number): number => Math.max(PLAN_HEIGHT_FLOOR_PX, S_4 * zoomY) * ratio
+const thinStrokeOf = (strip: number): number => Math.min(S_42, Math.max(S_41, strip * S_40))
+const LIFTED_RATIO: Readonly<Record<string, number>> = { arrow: S_15, endpointSpan: S_16 }
 
 describe('T-038 OC-10 -- a lifted name label is counted in the band height', () => {
   const LIFTED = ['arrow', 'endpointSpan'] as const
@@ -245,7 +319,24 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
       ],
     )
 
-  it.each(LIFTED)('%s: the label box starts at its lane top, the shape label height + S-196 under it (MUST)', (shapeKind) => {
+  it('premise (CR-380 decision 8): S-196 is 2px in table T-206, and PI-5 publishes it as NOT_STORED_LABEL_SIZES', () => {
+    expect(S_196).toBe(2)
+    const published = (scheduleLayoutModule as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as
+      | Record<string, unknown>
+      | undefined
+    expect(published?.['S-196'], 'T-064 PI-5 owns NOT_STORED_LABEL_SIZES').toBe(S_196)
+  })
+
+  it.each(ZOOMS)('premise at zoomY %s: arrow head and span dot stay inside half the plan strip, so the figure top is inside the counted strip', (zoomY) => {
+    for (const shapeKind of LIFTED) {
+      const strip = planStripOf(LIFTED_RATIO[shapeKind]!, zoomY)
+      const stroke = thinStrokeOf(strip)
+      const reach = Math.max((stroke * S_45) / 2, stroke * S_47, stroke / 2)
+      expect(reach, `${shapeKind}: max(stroke x S-45 / 2, stroke x S-47) <= strip / 2`).toBeLessThanOrEqual(strip / 2)
+    }
+  })
+
+  it.each(LIFTED)('%s: lane top + label height + S-196 is the plan strip top, and the label bottom is S-196 above the figure top (MUST)', (shapeKind) => {
     for (const zoomY of ZOOMS) {
       const { layout, tasks } = drawnOf(liftedRows(shapeKind, 'ab'), settingsOf({ zoomY }))
       for (const [index, uid] of [[0, 1], [1, 2]] as const) {
@@ -253,12 +344,12 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
         const row = layout.rows[index]!
         const drawn = tasks.find((one) => one.taskUid === uid)!
         const label = drawn.label!
-        const planTop = extentOf(drawn.plan).top
-        expect(label.y + label.height, `${tag}: T-012 premise, label bottom = plan top - S-196`).toBeCloseTo(
-          planTop - S_196,
-          6,
-        )
-        expect(label.y, `${tag}: lane top + label height + S-196 = plan top`).toBeCloseTo(row.stackTops[0]!, 6)
+        const strip = planStripOf(LIFTED_RATIO[shapeKind]!, zoomY)
+        const stripTop = centreLineOf(drawn.plan) - strip / 2
+        const figureTop = extentOf(drawn.plan).top
+        expect(figureTop, `${tag}: premise, the figure top lies inside the strip`).toBeGreaterThanOrEqual(stripTop - 1e-9)
+        expect(label.y + label.height, `${tag}: ${OC_10_LABEL_SITS_ON_THE_FIGURE_TOP}`).toBeCloseTo(figureTop - S_196, 6)
+        expect(stripTop, `${tag}: ${OC_10_LOWERED_BY_THE_LABEL}`).toBeCloseTo(row.stackTops[0]! + label.height + S_196, 6)
         expect(label.y, `${tag}: the label does not reach into the band above`).toBeGreaterThanOrEqual(row.y - 1e-9)
       }
       expect(tasks.find((one) => one.taskUid === 1)!.label!.y, 'the top row keeps its label in the Row Area')
@@ -271,7 +362,7 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
       const named = drawnOf(liftedRows(shapeKind, 'ab'), settingsOf({ zoomY }))
       const nameless = drawnOf(liftedRows(shapeKind, null), settingsOf({ zoomY }))
       expect(nameless.tasks[0]!.label, 'premise: nothing is written for a task with no name').toBeNull()
-      expect(nameless.layout.rows.map((row) => [row.y, row.height])).toEqual(
+      expect(nameless.layout.rows.map((row) => [row.y, row.height]), OC_10_WITH_OR_WITHOUT_A_NAME).toEqual(
         named.layout.rows.map((row) => [row.y, row.height]),
       )
       for (const [at, drawn] of nameless.tasks.entries()) {
@@ -291,6 +382,7 @@ interface Showing {
 }
 
 const SHOWN: Showing = { marks: true, plan: true, actual: true }
+const PLAN_ONLY: Showing = { marks: true, plan: true, actual: false }
 const EVERY_SHOWING: readonly Showing[] = [true, false].flatMap((marks) =>
   [true, false].flatMap((plan) => [true, false].map((actual) => ({ marks, plan, actual }))),
 )
@@ -314,6 +406,36 @@ const STOPS_INSIDE = spanning(1, '2026-02-02', 20, {
   percentComplete: 40,
   actualStart: '2026-02-02',
   stop: '2026-02-06',
+  resumeValid: true,
+})
+const STOPS_ONE_DAY_SHORT = spanning(1, '2026-02-02', 20, {
+  name: OUTSIDE_NAME,
+  percentComplete: 40,
+  actualStart: '2026-02-02',
+  stop: dayPlus('2026-02-02', 18),
+  resumeValid: true,
+})
+const DATED_AND_INSIDE = spanning(1, '2026-02-02', 20, {
+  name: OUTSIDE_NAME,
+  percentComplete: 40,
+  actualStart: '2026-02-02',
+  stop: '2026-02-06',
+  resume: '2026-02-16',
+  resumeValid: true,
+})
+const UNDATED_AND_INSIDE = spanning(1, '2026-02-02', 20, {
+  name: OUTSIDE_NAME,
+  percentComplete: 40,
+  actualStart: '2026-02-02',
+  stop: '2026-02-06',
+  resume: null,
+  resumeValid: false,
+})
+const NAME_INSIDE = spanning(1, '2026-02-02', 40, {
+  name: 'ab',
+  percentComplete: 40,
+  actualStart: '2026-02-02',
+  stop: '2026-02-21',
   resumeValid: true,
 })
 
@@ -341,9 +463,30 @@ const sceneOf = (
 
 const S_22 = num('markerSize')
 const S_23 = num('markerGap')
+const S_25 = num('resumeScaleInvalid')
+const S_26 = num('resumeArmOfMarker')
+const S_27 = num('resumeHeadOfMarker')
+const S_30 = num('labelCoef')
 const S_32 = num('labelGap')
 
-describe('T-243 closing rule -- the name starts S-32 past the shape or the outside marker', () => {
+const MARKER_REACH = S_23 + S_22
+const UNDATED_ICON_REACH = S_23 + S_22 * S_25 * (S_26 + S_27)
+
+const markerRightOf = (drawn: TaskGeometry | null): number => {
+  const marker = drawn?.marker ?? null
+  if (marker === null) throw new Error('no marker was drawn')
+  return marker.centre.x + marker.radius
+}
+
+const iconRightOf = (drawn: TaskGeometry | null): number => {
+  const icon = drawn?.resume ?? null
+  if (icon === null) throw new Error('no resume icon was drawn')
+  return Math.max(...[...icon.arm, ...icon.head].map((one) => one.x))
+}
+
+const shapeRightOf = (placed: TaskPlacement): number => Math.max(placed.x + placed.width, placed.actualReach ?? -Infinity)
+
+describe('T-243 closing rule -- the name starts S-32 past the rightmost of the shape, marker (1) and marker (2)', () => {
   const PAST_THE_PLAN = [
     ['PA-2', IN_PROGRESS],
     ['PA-3', RESUME_DATED],
@@ -355,39 +498,80 @@ describe('T-243 closing rule -- the name starts S-32 past the shape or the outsi
     expect(placed.labelPlacement).toBe('right')
     expect(placed.actualReach).not.toBeNull()
     expect(placed.actualReach!).toBeGreaterThan(placed.x + placed.width)
-    const marker = drawn!.marker!
-    expect(marker.centre.x + marker.radius, 'marker right = actual right + S-23 + S-22').toBeCloseTo(
-      placed.actualReach! + S_23 + S_22,
+    expect(markerRightOf(drawn), 'marker right = actual right + S-23 + S-22').toBeCloseTo(
+      placed.actualReach! + MARKER_REACH,
       6,
     )
   })
 
   it('PA-2: the name starts at actual right + S-23 + S-22 + S-32, from existing settings only (MUST)', () => {
     const { placed } = sceneOf(IN_PROGRESS)
-    expect(placed.labelX).toBeCloseTo(placed.actualReach! + S_23 + S_22 + S_32, 6)
+    expect(placed.labelX, T_243_NO_NEW_SETTING).toBeCloseTo(placed.actualReach! + MARKER_REACH + S_32, 6)
   })
 
   it('PA-3: a resume icon standing on its own day takes no room in the order (MUST NOT)', () => {
-    const { placed, drawn } = sceneOf(RESUME_DATED)
-    expect(drawn!.resume, 'premise: FR-044 draws the icon while suspended').not.toBeNull()
-    expect(placed.labelX, 'the same edge as PA-2: marker right + S-32').toBeCloseTo(
-      placed.actualReach! + S_23 + S_22 + S_32,
+    for (const task of [RESUME_DATED, DATED_AND_INSIDE]) {
+      const { placed, drawn } = sceneOf(task)
+      expect(drawn!.resume, 'premise: FR-044 draws the icon while suspended').not.toBeNull()
+      expect(placed.labelX, T_243_NO_ROOM_FOR_A_DATED_RESUME_ICON).toBeCloseTo(
+        shapeRightOf(placed) + MARKER_REACH + S_32,
+        6,
+      )
+    }
+  })
+
+  it('an actual one day short of the plan end: (1) stands outside the shape, (2) further right, and the name counts (2) (MUST, MUST NOT)', () => {
+    const both = sceneOf(STOPS_ONE_DAY_SHORT)
+    const planOnly = sceneOf(STOPS_ONE_DAY_SHORT, PLAN_ONLY)
+    const shapeRight = shapeRightOf(both.placed)
+    const marker1 = markerRightOf(both.drawn)
+    const marker2 = markerRightOf(planOnly.drawn)
+    expect(both.layout.pxPerDay, 'premise: one day is narrower than S-23 + S-22').toBeLessThan(MARKER_REACH)
+    expect(marker1, 'premise: (1) right = actual right + S-23 + S-22, right of the shape').toBeGreaterThan(shapeRight)
+    expect(marker2, 'premise: FR-013 moves (2) S-23 off the plan right').toBeCloseTo(both.placed.x + both.placed.width + MARKER_REACH, 6)
+    expect(both.placed.labelX, T_243_LABEL_LEFT_EDGE).toBeCloseTo(Math.max(shapeRight, marker1, marker2) + S_32, 6)
+    expect(both.placed.labelX, T_243_NOT_BY_MARKER_1_ALONE).not.toBeCloseTo(Math.max(shapeRight, marker1) + S_32, 6)
+    expect(both.placed.labelX - shapeRight, `${T_243_NO_OTHER_ROOM} -- CR-380 7.3: 34px to the glyphs = S-23 + S-22 + S-32 + S-31`).toBeCloseTo(
+      MARKER_REACH + S_32,
       6,
     )
   })
 
-  it('PA-4: the undated resume icon stands in the order and is counted by its own right edge (MUST)', () => {
-    const { placed, drawn } = sceneOf(RESUME_UNDATED)
-    const marker = drawn!.marker!
-    const icon = drawn!.resume!
-    const iconRight = Math.max(...[...icon.arm, ...icon.head].map((one) => one.x))
-    expect(iconRight, 'premise: LF-11 stands the icon right of the marker').toBeGreaterThan(
-      marker.centre.x + marker.radius,
-    )
-    expect(placed.labelX, 'icon right + S-32').toBeCloseTo(iconRight + S_32, 6)
+  it('a marker (1) standing inside the shape takes no room outside it: the name is S-32 past (2) (MUST NOT)', () => {
+    const both = sceneOf(STOPS_INSIDE)
+    const planOnly = sceneOf(STOPS_INSIDE, PLAN_ONLY)
+    expect(markerRightOf(both.drawn) - S_22, 'premise: (1) left edge inside the shape').toBeLessThan(shapeRightOf(both.placed))
+    expect(both.placed.labelX, T_243_NO_OTHER_ROOM).toBeCloseTo(markerRightOf(planOnly.drawn) + S_32, 6)
+    expect(both.placed.labelX, T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN).toBeCloseTo(shapeRightOf(both.placed) + MARKER_REACH + S_32, 6)
   })
 
-  const EVERY_TASK = [...PAST_THE_PLAN, ['stops inside the plan', STOPS_INSIDE]] as const
+  it('PA-4, actual past the plan: the undated icon at (1) is counted by its own right edge (MUST)', () => {
+    const { placed, drawn } = sceneOf(RESUME_UNDATED)
+    expect(iconRightOf(drawn), 'premise: LF-11 / LF-13 icon right = marker right + S-23 + S-22 x S-25 x (S-26 + S-27)').toBeCloseTo(
+      markerRightOf(drawn) + UNDATED_ICON_REACH,
+      6,
+    )
+    expect(placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(iconRightOf(drawn) + S_32, 6)
+  })
+
+  it('PA-4, actual inside the plan: the undated icon at (2) is counted by its own right edge (MUST)', () => {
+    const both = sceneOf(UNDATED_AND_INSIDE)
+    const planOnly = sceneOf(UNDATED_AND_INSIDE, PLAN_ONLY)
+    const iconAt2 = iconRightOf(planOnly.drawn)
+    expect(iconAt2, 'premise: (2) icon right = plan right + S-23 + S-22 + S-23 + S-22 x S-25 x (S-26 + S-27)').toBeCloseTo(
+      both.placed.x + both.placed.width + MARKER_REACH + UNDATED_ICON_REACH,
+      6,
+    )
+    expect(both.placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(Math.max(iconRightOf(both.drawn), iconAt2) + S_32, 6)
+  })
+
+  const EVERY_TASK = [
+    ...PAST_THE_PLAN,
+    ['stops inside the plan', STOPS_INSIDE],
+    ['stops one day short', STOPS_ONE_DAY_SHORT],
+    ['PA-4 inside the plan', UNDATED_AND_INSIDE],
+    ['name written inside', NAME_INSIDE],
+  ] as const
 
   it.each(EVERY_TASK)('%s: no S-63 / S-227 / S-228 combination moves the name, the occupancy or the band (MUST, MUST NOT)', (_row, task) => {
     const shown = sceneOf(task)
@@ -399,7 +583,7 @@ describe('T-243 closing rule -- the name starts S-32 past the shape or the outsi
       band: scene.layout.rows[0]!.height,
     })
     for (const showing of EVERY_SHOWING) {
-      const tag = JSON.stringify(showing)
+      const tag = `${JSON.stringify(showing)} ${T_013_COUNTED_IN_THE_BASE_COMBINATION}`
       expect({ tag, ...readingOf(sceneOf(task, showing)) }).toEqual({ tag, ...readingOf(shown) })
     }
   })
@@ -423,20 +607,87 @@ describe('T-243 closing rule -- the name starts S-32 past the shape or the outsi
   })
 })
 
-const S_4 = num('basePlanHeight')
-const S_5 = num('actualOfPlan')
-const S_7 = num('fontOfActual')
-const S_13 = num('shapeHeightOf.rectangle')
-const S_17 = num('shapeHeightOf.milestone')
+const RECTANGLE_NAME_PX_AT_UNITY = S_4 * S_13 * S_5 * S_7
+
+const OUTSIDE_LABEL_EDGE_OFFSET = (): number => {
+  const { placed, drawn } = sceneOf(IN_PROGRESS)
+  if (placed.labelPlacement !== 'right') throw new Error('premise: PA-2 puts its name outside')
+  return drawn!.label!.x - (placed.actualReach! + MARKER_REACH + S_32)
+}
+
+describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)', () => {
+  it('premise: an outside name and an inside name share one left-edge convention, read off PA-2', () => {
+    expect(Number.isFinite(OUTSIDE_LABEL_EDGE_OFFSET())).toBe(true)
+  })
+
+  it('premise: marker (1) stands inside the 40-day plan, S-23 past the actual right', () => {
+    const { placed, drawn } = sceneOf(NAME_INSIDE)
+    expect(markerRightOf(drawn)).toBeCloseTo(placed.actualReach! + MARKER_REACH, 6)
+    expect(markerRightOf(drawn) - S_22).toBeLessThan(placed.x + placed.width)
+  })
+
+  it('a short name is written inside, from marker (1) right + S-32 (MUST)', () => {
+    const { placed, drawn } = sceneOf(NAME_INSIDE)
+    expect(placed.labelPlacement).toBe('inside')
+    expect(drawn!.label!.x - (markerRightOf(drawn) + S_32), T_013_WRITING_STARTS_THERE).toBeCloseTo(
+      OUTSIDE_LABEL_EDGE_OFFSET(),
+      6,
+    )
+  })
+
+  it('a name that fits the whole shape but not the width from marker (1) goes to the right, NL-3 (MUST)', () => {
+    const probe = sceneOf(NAME_INSIDE)
+    const fullWidth = probe.placed.width
+    const fromTheMarker = probe.placed.x + probe.placed.width - (markerRightOf(probe.drawn) + S_32)
+    const perHalfWidthUnit = RECTANGLE_NAME_PX_AT_UNITY * S_30
+    const units = Math.round((fullWidth + fromTheMarker) / 2 / perHalfWidthUnit)
+    expect(units * perHalfWidthUnit, 'premise (FR-093): the name is wider than the width from the marker').toBeGreaterThan(fromTheMarker + 30)
+    expect(units * perHalfWidthUnit, 'premise (FR-093): and narrower than the whole shape').toBeLessThan(fullWidth - 30)
+    const task = spanning(1, '2026-02-02', 40, {
+      name: 'a'.repeat(units),
+      percentComplete: 40,
+      actualStart: '2026-02-02',
+      stop: '2026-02-21',
+      resumeValid: true,
+    })
+    expect(sceneOf(task).placed.labelPlacement, T_013_WIDTH_FROM_THE_MARKER).toBe('right')
+  })
+
+  it('with a fade, the name starts at whichever of the fadeIn end and marker (1) + S-32 stands further right (MUST)', () => {
+    const fadedFor = (fadeInDays: number) =>
+      sceneOf(
+        spanning(1, '2026-02-02', 40, {
+          name: 'ab',
+          percentComplete: 40,
+          actualStart: '2026-02-02',
+          stop: '2026-02-03',
+          resumeValid: true,
+          fadeInDays,
+        }),
+      )
+    for (const fadeInDays of [1, 10]) {
+      const { layout, placed, drawn } = fadedFor(fadeInDays)
+      const fadeEnd = placed.x + fadeInDays * layout.pxPerDay
+      expect(placed.labelPlacement, `fadeInDays ${fadeInDays}`).toBe('inside')
+      expect(
+        drawn!.label!.x - Math.max(fadeEnd, markerRightOf(drawn) + S_32),
+        `fadeInDays ${fadeInDays}: ${T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT}`,
+      ).toBeCloseTo(OUTSIDE_LABEL_EDGE_OFFSET(), 6)
+    }
+  })
+})
+
 const S_36 = num('rowTitleFont')
 const S_38 = num('rowTitleTopScale')
 const S_96 = NOT_STORED_ZOOM_STEP['S-96']
 
 const DEPTH_1_ROW_NAME_PX = S_36 * S_38
-const RECTANGLE_NAME_PX_AT_UNITY = S_4 * S_13 * S_5 * S_7
 const MILESTONE_NAME_PX_AT_UNITY = S_4 * S_17 * S_5 * S_7
 const ROW_CEILING_BY_TYPE = DEPTH_1_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_UNITY
 const CEILING_IF_MEASURED_ON_THE_MILESTONE = DEPTH_1_ROW_NAME_PX / MILESTONE_NAME_PX_AT_UNITY
+const PLAN_FLOOR_LETS_GO_AT = PLAN_HEIGHT_FLOOR_PX / S_4
+const FONT_FLOOR_LETS_GO_AT = S_8 / RECTANGLE_NAME_PX_AT_UNITY
+const FLOOR_FONT_PX = Math.max(S_8, PLAN_HEIGHT_FLOOR_PX * S_13 * S_5 * S_7)
 
 const RAISE_ROWS: KeyInput = {
   kind: 'key',
@@ -457,8 +708,13 @@ const documentOf = (schedule: Schedule, settings: DocumentSettings): Document =>
     changeLog: [],
   }) as unknown as Document
 
-function zoomYAfterRaise(schedule: Schedule, zoomY: number, env: ScreenEnvironment): number {
-  const settings = settingsOf({ zoomY, scrollGroupId: 'g1' })
+function zoomYAfterRaise(
+  schedule: Schedule,
+  zoomY: number,
+  env: ScreenEnvironment,
+  part: Record<string, unknown> = {},
+): number {
+  const settings = settingsOf({ zoomY, scrollGroupId: 'g1', ...part })
   const regions = regionsFromScreen(env, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const context: InputContext = {
@@ -496,8 +752,11 @@ const WITH_A_MILESTONE = rowsOf(
 const SIX_LANES = rowsOf([Array.from({ length: 6 }, (_unused, index) => spanning(index + 1, '2026-01-05', 20))])
 
 describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-1 row name', () => {
-  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.320 CR-381 and JDG-115 name', () => {
-    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.32, 3)
+  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.3201 CR-381 7.3 names, and the floors let go below it', () => {
+    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.3201, 4)
+    expect(PLAN_FLOOR_LETS_GO_AT, '(S-6 / S-5) / S-4').toBeCloseTo(0.99988, 5)
+    expect(FONT_FLOOR_LETS_GO_AT, 'S-8 / (S-4 x S-13 x S-5 x S-7)').toBeCloseTo(0.93738, 5)
+    expect(Math.max(ROW_CEILING_BY_TYPE, PLAN_FLOOR_LETS_GO_AT, FONT_FLOOR_LETS_GO_AT)).toBe(ROW_CEILING_BY_TYPE)
     const layout = layoutFromSchedule(RECTANGLE_ROW, settingsOf({ zoomY: ROW_CEILING_BY_TYPE }), REGIONS)
     expect(taskPlacement(layout, 1)!.labelFontSize, 'the rectangle name at that zoom').toBeCloseTo(
       DEPTH_1_ROW_NAME_PX,
@@ -515,7 +774,31 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
   })
 
   it('a raise past the type ceiling stops at or under it (MUST)', () => {
-    expect(zoomYAfterRaise(RECTANGLE_ROW, 1.25, TALL)).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
+    expect(zoomYAfterRaise(RECTANGLE_ROW, 1.25, TALL), FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
+  })
+
+  it('the ceiling follows S-38: a depth-1 scale of 1.5 lets the raise reach past 1.3201 and stops at S-36 x 1.5 / 12.8016 (MUST)', () => {
+    const solved = (S_36 * 1.5) / RECTANGLE_NAME_PX_AT_UNITY
+    expect(solved, 'premise: 19.5 / 12.8016').toBeCloseTo(1.5232, 4)
+    const start = 1.4
+    expect(start * S_96, 'premise: the raise asks for more than that').toBeGreaterThan(solved)
+    const answered = zoomYAfterRaise(RECTANGLE_ROW, start, TALL, { rowTitleTopScale: 1.5 })
+    expect(answered, FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(solved + 1e-9)
+    expect(answered).toBeGreaterThan(start)
+  })
+
+  it('a floor-only combination (S-36 12, S-38 1) stops where the floor lets go, not below the zoom it started from (MUST, MUST NOT)', () => {
+    const part = { rowTitleFont: 12, rowTitleTopScale: 1 }
+    const target = 12 * 1
+    expect(target, 'premise: the floors alone already reach the depth-1 name').toBeLessThanOrEqual(FLOOR_FONT_PX)
+    const floorLetsGo = Math.max(PLAN_FLOOR_LETS_GO_AT, FONT_FLOOR_LETS_GO_AT)
+    const start = 0.95
+    const fromTheRatio = (target / FLOOR_FONT_PX) * start
+    expect(fromTheRatio, 'premise: the forbidden ratio would answer below the start').toBeLessThan(start)
+    expect(start * S_96, 'premise: the raise asks for more than the floor zoom').toBeGreaterThan(floorLetsGo)
+    const answered = zoomYAfterRaise(RECTANGLE_ROW, start, TALL, part)
+    expect(answered, FR_016_FLOOR_ONLY_STOPS_WHERE_THE_FLOOR_LETS_GO).toBeLessThanOrEqual(floorLetsGo + 1e-9)
+    expect(answered, FR_016_NOT_FROM_THE_RATIO).toBeGreaterThan(start)
   })
 
   it('a milestone on the page does not move the ceiling -- it is measured on the rectangle (MUST)', () => {
@@ -541,9 +824,29 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     const regions = regionsFromScreen(env, settingsOf())
     const answered = zoomYAfterRaise(SIX_LANES, 1, env)
     expect(answered).toBeLessThan(ROW_CEILING_BY_TYPE)
-    expect(bandAt(answered), 'the tallest band does not pass the Row Area').toBeLessThanOrEqual(
+    expect(bandAt(answered), FR_016_TALLEST_BAND_ASKED_OF_PI_5).toBeLessThanOrEqual(
       regions.rowArea.height + 1e-6,
     )
+  })
+
+  it('T-064: PI-5 publishes zoomYAtRectangleLabelFont and PI-37 publishes rowTitleFontPxOf', () => {
+    expect(typeof (scheduleLayoutModule as Record<string, unknown>)['zoomYAtRectangleLabelFont']).toBe('function')
+    expect(typeof (screenRendererModule as Record<string, unknown>)['rowTitleFontPxOf']).toBe('function')
+    expect(typeof (scheduleLayoutModule as Record<string, unknown>)['rowPlacesAtZoomY']).toBe('function')
+  })
+
+  it('the translator imports the three members rather than holding the formulas itself (MUST NOT)', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src', 'adapter', 'input-command-translator', 'input-command-translator.ts'),
+      'utf8',
+    )
+    const importedFrom = (member: string, modulePath: string): boolean =>
+      [...source.matchAll(/import\s*\{([^}]*)\}\s*from\s*'([^']*)'/g)].some(
+        (hit) => (hit[2] ?? '').endsWith(modulePath) && new RegExp(`\\b${member}\\b`).test(hit[1] ?? ''),
+      )
+    expect(importedFrom('zoomYAtRectangleLabelFont', 'schedule-layout/schedule-layout'), FR_016_ASK_BOTH_COPY_NEITHER).toBe(true)
+    expect(importedFrom('rowTitleFontPxOf', 'screen-renderer/screen-renderer'), FR_016_ASK_BOTH_COPY_NEITHER).toBe(true)
+    expect(importedFrom('rowPlacesAtZoomY', 'schedule-layout/schedule-layout'), FR_016_TALLEST_BAND_ASKED_OF_PI_5).toBe(true)
   })
 })
 
@@ -590,6 +893,6 @@ describe('T-201 S-12 / T-221 LF-3 -- rows sit without a gap (CR-384, JDG-93, JDG
     const layout = layoutFromSchedule(schedule, settingsOf({ scrollGroupId: 'g1', scrollGroupOffset: 0 }), REGIONS)
     const pitch = layout.rows[1]!.y - layout.rows[0]!.y
     expect(pitch, 'pitch = band + S-12 = band').toBe(layout.rows[0]!.height)
-    expect(topOf(0) - topOf(0.5)).toBeCloseTo(pitch / 2, 6)
+    expect(topOf(0) - topOf(0.5), T_023D_FRACTION_OF_THE_PITCH).toBeCloseTo(pitch / 2, 6)
   })
 })

@@ -29,9 +29,9 @@ import {
   taskPlacement,
   type TaskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import * as scheduleLayout from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
-  NOT_STORED_LABEL_SIZES,
   type BarGeometry,
   type TaskGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
@@ -40,6 +40,10 @@ import {
   type ScreenEnvironment,
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+
+const S_196_FROM_PI_5 = Number(
+  ((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined)?.['S-196'],
+)
 
 // A case states only the keys it deliberately pins; every other key arrives
 // from SETTINGS_DEFAULTS, which `npm run gen` prints from the manuscript, so a
@@ -320,7 +324,7 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
     // ⛔ The 2px is read from the generated constant, never re-typed.
     const { drawn, label } = drawnOf(shaped('arrow'))
     expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
       6,
     )
   })
@@ -330,7 +334,7 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
     // SH-3, so it takes the same gap from the same edge.
     const { drawn, label } = drawnOf(shaped('endpointSpan'))
     expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
       6,
     )
   })
@@ -430,7 +434,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
       6,
     )
   })
@@ -441,7 +445,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
       6,
     )
   })
@@ -453,7 +457,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(placed.labelPlacement).toBe('right')
     expect(label.x).toBeGreaterThanOrEqual(placed.x + placed.width)
     expect(bottomOf(label)).toBeCloseTo(
-      extentOf(drawn.plan)!.top - NOT_STORED_LABEL_SIZES['S-196'],
+      extentOf(drawn.plan)!.top - S_196_FROM_PI_5,
       6,
     )
   })

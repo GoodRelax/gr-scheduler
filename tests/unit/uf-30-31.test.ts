@@ -284,6 +284,8 @@ const ENV: ScreenEnvironment = {
  */
 const ZOOM_STEP = 3
 
+const ROW_ZOOM_UNDER_THE_CEILING = 0.4
+
 /** Today, spelled the way `textOfDay` spells a date column. FR-046 / SK-20. */
 const TODAY = '2026-03-01T00:00:00'
 
@@ -1079,13 +1081,16 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
   })
 
   it('SK-16a: Alt + sign zooms the row axis only', () => {
-    const bigger = oneCommand(commandFromInput(keyOf('+', { alt: true }), contextOf()), 'setZoom')
-    expect(bigger['zoomY']).toBeCloseTo(SETTINGS.zoomY * ZOOM_STEP, 10)
-    expect(bigger['zoomX']).toBeCloseTo(SETTINGS.zoomX, 10)
+    const low = settingsOf({ ...SETTINGS, zoomY: ROW_ZOOM_UNDER_THE_CEILING })
+    const context = contextOf({ document: documentOf(SCHEDULE, low) })
+    expect(low.zoomY * ZOOM_STEP, 'premise: FR-016 row ceiling 16.9 / 12.8016 = 1.3201 is not reached').toBeLessThan(1.32)
+    const bigger = oneCommand(commandFromInput(keyOf('+', { alt: true }), context), 'setZoom')
+    expect(bigger['zoomY']).toBeCloseTo(low.zoomY * ZOOM_STEP, 10)
+    expect(bigger['zoomX']).toBeCloseTo(low.zoomX, 10)
 
-    const smaller = oneCommand(commandFromInput(keyOf('-', { alt: true }), contextOf()), 'setZoom')
-    expect(smaller['zoomY']).toBeCloseTo(SETTINGS.zoomY / ZOOM_STEP, 10)
-    expect(smaller['zoomX']).toBeCloseTo(SETTINGS.zoomX, 10)
+    const smaller = oneCommand(commandFromInput(keyOf('-', { alt: true }), context), 'setZoom')
+    expect(smaller['zoomY']).toBeCloseTo(low.zoomY / ZOOM_STEP, 10)
+    expect(smaller['zoomX']).toBeCloseTo(low.zoomX, 10)
   })
 
   it('SK-17: Ctrl+0 puts both axes back to unity', () => {
@@ -1439,14 +1444,15 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
   })
 
   it('MK-2: Ctrl+wheel zooms both axes by the same factor', () => {
+    const low = settingsOf({ ...SETTINGS, zoomY: ROW_ZOOM_UNDER_THE_CEILING })
     const zoomed = oneCommand(
-      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ ctrl: true })), contextOf()),
+      commandFromInput(wheelOf(X(), Y(), -1, modsOf({ ctrl: true })), contextOf({ document: documentOf(SCHEDULE, low) })),
       'setZoom',
     )
-    expect(zoomed['zoomX']).not.toBe(SETTINGS.zoomX)
-    expect(zoomed['zoomY']).not.toBe(SETTINGS.zoomY)
-    expect(Number(zoomed['zoomX']) / SETTINGS.zoomX).toBeCloseTo(
-      Number(zoomed['zoomY']) / SETTINGS.zoomY,
+    expect(zoomed['zoomX']).not.toBe(low.zoomX)
+    expect(zoomed['zoomY']).not.toBe(low.zoomY)
+    expect(Number(zoomed['zoomX']) / low.zoomX).toBeCloseTo(
+      Number(zoomed['zoomY']) / low.zoomY,
       10,
     )
   })
@@ -1644,11 +1650,6 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
    * 「その行の帯の高さと、その下の隙間を合わせた長さ。次の行の上端までの距離で
    * あり、最後の行は自身の帯」.
    *
-   * ⛔ NOT THE BAND. `S-176` forbids that in as many words -- 帯の高さに対する比
-   * にしてはならない（MUST NOT）—— because 帯と帯は接していない: a fraction of
-   * the band cannot name a top edge standing in the gap, which is exactly the
-   * 「錠の上にしか着地できない形」 表 T-023d forbids.
-   *
    * ⭐ READ OFF THE LAYOUT, never a constant: the 送り is the distance between
    * two things the picture already places, so nothing here has to know what the
    * gap is made of or how big it is.
@@ -1710,11 +1711,8 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     const dy = Math.round(row.height / 3)
     expect(dy, 'the case only means a drag SHORTER than one row').toBeLessThan(row.height)
     expect(dy, 'and a drag that really is a drag').toBeGreaterThan(0)
-    // ⛔ THE PREMISE THE MUST NOT RESTS ON: 「帯と帯は接していない」(`S-176`).
-    // If the two touched, a fraction of the band and a fraction of the 送り
-    // would be the same number and this case could not tell them apart.
-    expect(pitchOf('g1'), 'S-176: 帯と帯は接していない —— 送りは帯より長い').toBeGreaterThan(
-      row.height,
+    expect(pitchOf('g1'), 'T-023d pan rule and T-201 S-12 (CR-384): the pitch is the band plus S-12, which is fixed at 0').toBe(
+      row.height + Number(SETTINGS.rowGap),
     )
 
     // Dragging the pointer UP carries the schedule up with it (等倍), which is

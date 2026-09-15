@@ -56,6 +56,7 @@ import {
   type TaskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import { specTable } from '../contract/spec-table'
 import {
   regionsFromScreen,
   type ScreenEnvironment,
@@ -205,40 +206,45 @@ const roomOf = (
   throw new Error('no half-width name of any length was pushed out of this bar')
 }
 
-// ---------------------------------------------------------------------------
+const S_180_DEFAULT = Number.parseFloat(
+  specTable('T-206').rows.find((one) => one.id === 'S-180')?.by['既定'] ?? 'NaN',
+)
+
+const markerStartOf = (pxPerDay: number): number =>
+  Math.min(pxPerDay, S_180_DEFAULT) + FLAT['markerGap']! + FLAT['markerSize']! + FLAT['labelGap']!
 
 describe('the paragraph after table T-013 -- the label begins where the fade ends', () => {
-  it('⭐ starts the label at the end of `fadeIn` (MUST)', () => {
-    // 「形状の中に書くときは、`fadeIn` が終わる位置から書き始めること（MUST）」.
-    //
-    // ⛔ STATED AS THE MOVE, NOT AS AN ABSOLUTE x, AND THE REASON IS A HOLE.
-    // The drawn label of a bar with no fade does NOT begin at the shape's left
-    // edge -- it is inset -- and no row of docs/spec fixes that inset. So what
-    // the MUST is asked for here is that the start moves right by exactly the
-    // fade: 「`fadeIn` が終わる位置」 read against wherever the same label began
-    // without one. ⚠️ The inset itself is reported, never asserted.
+  it('premise: a task nobody started stands marker (1) inside the shape, S-23 past the dummy mark on the plan start day', () => {
+    const plain = barOf(60, 'ab')
+    expect(Number.isFinite(S_180_DEFAULT)).toBe(true)
+    expect(markerStartOf(plain.pxPerDay)).toBeLessThan(plain.placed.width)
+  })
+
+  it('⭐ starts the label at whichever of the `fadeIn` end and marker (1) right + S-32 stands further right (MUST)', () => {
     const plain = barOf(60, 'ab')
     const faded = barOf(60, 'ab', { in: 10 })
+    const marker = markerStartOf(plain.pxPerDay)
+    expect(10 * faded.pxPerDay, 'premise: this fade ends right of marker (1) + S-32').toBeGreaterThan(marker)
 
     expect(plain.placed.labelPlacement).toBe('inside')
     expect(faded.placed.labelPlacement).toBe('inside')
     expect((faded.label?.x as number) - faded.placed.x).toBeCloseTo(
-      (plain.label?.x as number) - plain.placed.x + 10 * faded.pxPerDay,
+      (plain.label?.x as number) - plain.placed.x + Math.max(10 * faded.pxPerDay, marker) - marker,
       6,
     )
   })
 
-  it('moves the start by the fade and by nothing else -- twice the fade moves it twice as far', () => {
-    // ⛔ Without this, "it moved by 10 days" could hold of a unit that moved
-    // every faded label by one fixed amount.
+  it('moves the start by the fade only once the fade passes marker (1) right + S-32', () => {
     const plain = barOf(60, 'ab')
     const short = barOf(60, 'ab', { in: 5 })
     const long = barOf(60, 'ab', { in: 10 })
+    const marker = markerStartOf(plain.pxPerDay)
+    expect(5 * plain.pxPerDay, 'premise: the short fade ends left of it').toBeLessThan(marker)
 
     const shift = (drawn: Drawn): number => (drawn.label?.x as number) - drawn.placed.x
 
-    expect(shift(short) - shift(plain)).toBeCloseTo(5 * plain.pxPerDay, 6)
-    expect(shift(long) - shift(plain)).toBeCloseTo(10 * plain.pxPerDay, 6)
+    expect(shift(short) - shift(plain)).toBeCloseTo(Math.max(5 * plain.pxPerDay, marker) - marker, 6)
+    expect(shift(long) - shift(plain)).toBeCloseTo(Math.max(10 * plain.pxPerDay, marker) - marker, 6)
   })
 
   it('⛔ writes nothing on top of either fade (MUST NOT)', () => {
@@ -258,10 +264,9 @@ describe('the paragraph after table T-013 -- the label begins where the fade end
 
 describe('the paragraph after table T-013 -- NL-1 judges the width LESS the fades', () => {
   it('⭐ takes `fadeIn` off the width NL-1 measures against (MUST)', () => {
-    // 「`NL-1` の「タスクの幅」を、形状の幅から `fadeIn` と `fadeOut` を引いた
-    // 残りとすること（MUST）」. Stated as the relation it is: lengthening the bar
-    // by exactly the days the fade takes leaves the room unchanged.
-    expect(roomOf(60, { in: 10 })).toBe(roomOf(50))
+    const pxPerDay = barOf(60, 'ab').pxPerDay
+    expect(10 * pxPerDay, 'premise: both fades end right of marker (1) + S-32').toBeGreaterThan(markerStartOf(pxPerDay))
+    expect(roomOf(70, { in: 20 })).toBe(roomOf(60, { in: 10 }))
   })
 
   it('⭐ takes `fadeOut` off it as well (MUST)', () => {
@@ -269,7 +274,9 @@ describe('the paragraph after table T-013 -- NL-1 judges the width LESS the fade
   })
 
   it('⭐ takes BOTH off, not merely the larger of the two', () => {
-    expect(roomOf(60, { in: 7, out: 9 })).toBe(roomOf(44))
+    const pxPerDay = barOf(60, 'ab').pxPerDay
+    expect(7 * pxPerDay, 'premise: the fadeIn ends right of marker (1) + S-32').toBeGreaterThan(markerStartOf(pxPerDay))
+    expect(roomOf(60, { in: 7, out: 9 })).toBe(roomOf(51, { in: 7 }))
   })
 
   it('⛔ a fade really does cost room -- the three cases above are not comparing a constant', () => {

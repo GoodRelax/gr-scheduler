@@ -898,8 +898,9 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   // `sceneOf` throws before either case below can press it.
   const sceneOf = (
     part: Record<string, unknown>,
+    display: Record<string, unknown> = {},
   ): { placed: TaskPlacement; drawn: TaskGeometry; pxPerDay: number } => {
-    const settings = settingsOf({ ...(markSettings(true) as unknown as Record<string, unknown>), zoomX: 2 })
+    const settings = settingsOf({ ...(markSettings(true) as unknown as Record<string, unknown>), zoomX: 2, ...display })
     const schedule = rowOf([
       taskOf({ uid: 1, name: 'n', start: '2026-02-02', finish: '2026-02-20', percentComplete: 0,
                ...part }),
@@ -936,20 +937,6 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * between them would carry that difference rather than the constant room.
    */
   const startedScene = () => sceneOf({ actualStart: '2026-02-02', stop: '2026-02-20' })
-
-  /**
-   * How far OC-1 begins past the marker's right edge.
-   *
-   * ⭐ THE ONE NUMBER THAT SAYS THE TWO UNITS READ THE SAME REACH, and stated as
-   * a difference rather than as pixels -- the closing rule of table T-243
-   * counts OC-3 where it stands whether or not it is drawn, so
-   * the run is a constant and no case here may name it.
-   */
-  const runOf = (scene: { placed: TaskPlacement; drawn: TaskGeometry }): number => {
-    const marker = scene.drawn.marker
-    if (marker === null) throw new Error('no marker')
-    return scene.placed.labelX - (marker.centre.x + marker.radius)
-  }
 
   /**
    * GR-17's own hold, and this IS the drawn mark's own width: table T-023d's
@@ -991,26 +978,24 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
       .toEqual({ clear: true })
   })
 
-  it('⛔ MUST NOT: OC-1 is measured from that same hold, and not from the mark', () => {
-    // ⚠️ THE OTHER HALF, AND THE ONE NO CASE READ BEFORE (measured 2026-09-09:
-    // taking the hold back out of ScheduleLayout alone turned 0 cases red, and
-    // this one turns red for it).
-    // ⭐ THE HEADING OF TABLE T-038 IS WHAT IS ASSERTED -- 「2 か所で別々に数え
-    // 上げてはならない（MUST NOT）」. ScheduleLayout puts OC-1 down and
-    // ScheduleGeometry anchors OC-3, so the run between them is the same
-    // constant on a Task that is started and on one that is not; a layout that
-    // measured the drawn mark instead of the hold would come up short on the
-    // not-started one alone (they are the same width since 2026-09-10, but a
-    // build that read the mark from the wrong place -- e.g. before the day's
-    // ink is centred on GR-9's day -- would still drift here).
-    // ⛔ Never a count of pixels: the row forbids minting a new setting, and
-    // the closing paragraph makes the room a constant this file may not name.
+  it('⛔ MUST NOT: OC-1 is measured from the rightmost of the shape, marker (1) and marker (2), on a started and a fresh Task alike', () => {
     const started = startedScene()
     const fresh = notStartedScene()
-    // The two scenes really do anchor on different things, or the case is vacuous.
     expect(started.placed.actualX).not.toBeNull()
     expect(fresh.placed.actualX).toBeNull()
-    expect(runOf(fresh)).toBeCloseTo(runOf(started), 6)
+    const markerRightOf = (scene: { drawn: TaskGeometry }): number => {
+      const marker = scene.drawn.marker
+      if (marker === null) throw new Error('no marker')
+      return marker.centre.x + marker.radius
+    }
+    const countedFrom = (part: Record<string, unknown>): number => {
+      const both = sceneOf(part)
+      const planOnly = sceneOf(part, { planVisible: true, actualVisible: false })
+      return Math.max(both.placed.x + both.placed.width, markerRightOf(both), markerRightOf(planOnly))
+    }
+    const startedRun = started.placed.labelX - countedFrom({ actualStart: '2026-02-02', stop: '2026-02-20' })
+    const freshRun = fresh.placed.labelX - countedFrom({ finish: '2026-02-04' })
+    expect(freshRun, 'T-243 closing rule: max(shape right, (1) right, (2) right) + S-32').toBeCloseTo(startedRun, 6)
     expect({ clear: fresh.placed.labelX >= holdRightOf(fresh.drawn) })
       .toEqual({ clear: true })
   })

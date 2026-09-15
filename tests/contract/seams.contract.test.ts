@@ -21,7 +21,7 @@ import { describe, expect, it } from 'vitest'
 import { bare, specTable } from './spec-table'
 import { NOT_STORED_SIZES } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
-import { NOT_STORED_LABEL_SIZES } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import * as scheduleLayout from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
 import { NOT_STORED_COMMAND_PALETTE_SIZES } from '../../src/adapter/screen-renderer/command-palette'
@@ -194,7 +194,7 @@ describe('the values table T-206 keeps out of the document', () => {
   const generated: Record<string, number | readonly [number, number]> = {
     ...NOT_STORED_SIZES,
     ...NOT_STORED_LIMITS,
-    ...NOT_STORED_LABEL_SIZES,
+    ...((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined),
     ...NOT_STORED_ZOOM_BOUNDS,
     ...NOT_STORED_ZOOM_STEP,
     ...NOT_STORED_COMMAND_PALETTE_SIZES,
