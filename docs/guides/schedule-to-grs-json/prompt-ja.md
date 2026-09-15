@@ -1,7 +1,8 @@
 # 日程の画像・スライド・表を GRS JSON に変える AI プロンプト
 
 作図ソフト（PowerPoint など）や表計算ソフト（Excel など）で描いた日程表、またはその画面の画像を AI に渡し、GRS で開ける `GRS JSON` を作らせるためのプロンプトです。
-色・形状・フェード・横並びを、できるだけ元の日程に合わせます。
+色・グラデーション・形状・フェード・横並びを、できるだけ元の日程に合わせます。
+英語版は [prompt-en.md](prompt-en.md) です。
 
 ## 使い方
 
@@ -18,7 +19,7 @@
 ## プロンプト
 
 ````text
-あなたは日程表の読み取りと変換の専門家です。添付した日程（画像・スライド・表）を読み、GRS というガントチャートのツールで開ける「GRS JSON」を 1 つ作ってください。日付だけでなく、色・形状・フェード・横並びも、できるだけ元の日程に合わせてください。
+あなたは日程表の読み取りと変換の専門家です。添付した日程（画像・スライド・表）を読み、GRS というガントチャートのツールで開ける「GRS JSON」を 1 つ作ってください。日付だけでなく、色・グラデーション・形状・フェード・横並びも、できるだけ元の日程に合わせてください。
 
 # 添付
 - 日程の原本: ［ファイル名。複数なら全部］
@@ -46,21 +47,23 @@
    - 日付は 1970-01-01 から 2200-12-31 の間にする。
 3. 行（taskGroups）
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
-   - label に見出しの文字を入れる。derivedFromTaskUid は null。label と derivedFromTaskUid を両方 null にしない。
+   - label に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
    - order は同じ親の下での上からの並び（0 から）。isCollapsed と isHidden は false、height は null。
    - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
    - GRS は 1 つの行の中のタスクを、開始日の早い順に、重ならない一番上の段へ自動で積む。そのため原本で横一列に並んでいた物が、同じ行の別の物に押されて段が崩れることがある。これを防ぐため、次のようにする。
-   - 原本の見出しの行の中で、同じ形状のタスクまたはマイルストーンが 2 つ以上、同じ高さに横一列に並んでいたら、その並び 1 本ごとに、見出しの行の 1 段下に子の行（parentId が見出しの行の id の TaskGroup）を作り、並びの物をすべてその子の行に載せる。子の行には、その並びの物だけを載せる。
-   - 子の行の order は、原本で上にある並びから 0, 1, 2 … と振る。子の行の label は null にし、derivedFromTaskUid に並びの左端の物の uid を入れる（GRS がその場で作る行と同じ名付け方）。
+   - 原本の見出しの行の中で、タスクまたはマイルストーンが 2 つ以上、同じ高さに横一列に並んでいたら、それを 1 本の並びとする。形状が違ってもよい（バーと ◇ が同じ高さに並んでいれば、まとめて 1 本の並び）。
+   - 並び 1 本ごとに、見出しの行の 1 段下に子の行（parentId が見出しの行の id の TaskGroup）を作り、並びの物をすべてその子の行に載せる。子の行には、その並びの物だけを載せる。
+   - 子の行の order は、原本で上にある並びから 0, 1, 2 … と振る。
+   - 子の行の label は、その並びに載る物を一言で要約した語にする。原本が日本語なら 2 語まで（例「承認」「設計レビュー」）、英語なら 3 語まで（例 "Approvals"、"Design reviews"）。derivedFromTaskUid は null。
    - 見出しの行にその並びしか無いときは、子の行を作らず、見出しの行にそのまま載せる。
    - 行の深さ（根の行を 1 と数える）は 3 までにする。深さ 4 以上の行は、既定の縦の倍率では GRS に描かれない。子の行が深さ 4 になるときは、子の行にせず、見出しの行のすぐ下に同じ深さの行として置き、そうしたことを「推定したこと」に書く。
 5. タスク（tasks）
    - uid は 1 から振る整数で、重ならないようにする。
    - name は原本のバーや記号に付いた名前。読めないときは近い語を推定し、「推定したこと」に書く。
-   - start と finish は予定の開始日と終了日。バーの端が斜めのときは、斜めの部分も含めた外側の端の日にする。finish を start より前にしない。
+   - start と finish は予定の開始日と終了日。バーの端が斜めや薄れのときは、その部分も含めた外側の端の日にする。finish を start より前にしない。
    - マイルストーン（◇ ▼ ★ など 1 日の印）は milestone を true にし、start と finish を同じ日にする。それ以外は false。
    - wbsParentUid は、原本に親子（まとめのバーと子のバー）がはっきり描かれているときだけ親の uid を入れる。無ければ null。wbsOrder は同じ親の下での並び（0 から）。親子に輪を作らない。
    - 実績が描かれているとき（予定と別のバー、塗りつぶし、完了の印など）:
@@ -70,23 +73,26 @@
      - 実績の最後の日を actualStart より前にしない。
    - resume は null、resumeValid は null。deadline・notes・calendarUid は null。
    - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lagFormat 7 は日で、lag はその日数。矢印が無ければ []。
-6. フェード（fadeInDays / fadeOutDays）
+6. フェードと、薄れていくグラデーション（fadeInDays / fadeOutDays）
    - GRS のフェードは、予定のバーの端を斜めにする印である（日付がまだ確かでないことを表す）。開始側だけなら左の辺が斜めの台形、終了側だけなら右の辺が斜めの台形、両方なら平行四辺形になる。
-   - 原本のバーの端が斜め、先細り、またはグラデーションで薄れていくときは、開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。
+   - 原本のバーの端が斜め、先細り、または色のグラデーションで背景の色や透明へ薄れていくときは、開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。
    - フェードを付けてよいのは、形状が四角いバー（"rectangle"）か矢羽根（"chevron"）のタスクだけ。矢印・両端に点がある線・マイルストーンには付けない（null）。
    - fadeInDays と fadeOutDays は 0 以上、足して finish − start の暦日の日数を超えない。フェードを付けるタスクは finish を持つ。GRS はこれに反する文書を開かない。
-   - 実績のバーにはフェードが無い。実績の斜めは読み取らない。
+   - 実績のバーにはフェードが無い。実績の斜めや薄れは読み取らない。
 7. どの行に載せるか（taskGroupMembers）
    - どのタスクも、ちょうど 1 つの {"taskUid": uid, "groupId": 行の id, "stackOrder": null} から指されるようにする。原本でそのバーが描かれている行（4. で作った子の行を含む）を選ぶ。
 8. 形状と色（taskVisuals）
    - どのタスクにも 1 件ずつ置く。
    - shapeKind:
-     - 四角いバー（端が斜めのバーを含む）: "rectangle"
+     - 四角いバー（端が斜めや薄れのバーを含む）: "rectangle"
      - 矢羽根の形（>===>）: "chevron"
      - 細い線の矢印（--->）: "arrow"
      - 両端に点がある線（*----*）: "endpointSpan"
      - 記号（マイルストーン）: "milestone"。milestoneGlyph を "circle" / "hexagon" / "pentagon" / "diamond" / "square" / "star" / "triangleUp" / "triangleDown" / "file" / "box" / "floppyDisk" / "cylinder" / "person" / "smile" / "beerMug" から最も近いものにする。記号以外の形状では milestoneGlyph は null。
    - fillColor（塗り）と strokeColor（輪郭の線）は、原本の色から「色の合わせ方」に従って選ぶ。塗りが無い（輪郭だけの）バーは fillColor を "transparent"、輪郭が無いバーは strokeColor を "transparent" にする。fillColor と strokeColor を両方 "transparent" にしない。
+   - 色のグラデーションは元の日程に合わせる:
+     - 背景の色や透明へ薄れていくグラデーションは、濃い側の色を塗りにし、薄れる部分を 6. のフェードで表す。
+     - 2 つの色のあいだのグラデーションは、バーの面積の広いほうの色（半々なら中央の色）を塗りにし、「合わせきれなかったこと」に書く。
    - 原本で最も多く使われているバーの色は null にし、代わりに project.themeHue をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。null の色は themeHue から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHue は 214 のままにする。
    - lineWeight は輪郭の太さを、原本の中で比べて "thin" / "medium" / "thick" から選ぶ。違いが見えなければ null。
    - nameAnchor と nameAlign は null（名前の置き場は GRS が決める）。
@@ -99,33 +105,34 @@
 # 画像を読むときの決まり
 - 日付は時間の目盛りから読み、日の単位に丸める。目盛りが月や週だけのときは、バーの端の位置から日を比例で推定する。
 - 同じ高さに並んでいるかは、物の縦の中心の位置で判じる。わずかにずれて見えても、原本の意図が 1 列なら 1 列とする。
-- 色は、影・光沢・グラデーションを除いた、その物の主な色で判じる。
+- 色は、影と光沢を除いた、その物の主な色で判じる。グラデーションは 6. と 8. のとおりに扱う。
 - 読み取れない所を作り話で埋めない。推定したものは必ず「推定したこと」に書く。
 - 原本に無い見出し・タスク・依存を足さない（4. で作る子の行は足してよい）。
 
 # 出力
-1. 「推定したこと」の表（列: 対象 / 推定した値 / 根拠）。推定が無ければ「なし」と書く。themeHue の値と、子の行を作った所は必ず書く。
-2. 「読み取れなかったこと」と「合わせきれなかったこと」（GRS に無い色・形状・グラデーションなど）の箇条書き。無ければ「なし」。
+1. 「推定したこと」の表（列: 対象 / 推定した値 / 根拠）。推定が無ければ「なし」と書く。themeHue の値と、子の行を作った所（その label）は必ず書く。
+2. 「読み取れなかったこと」と「合わせきれなかったこと」（GRS に無い色・形状・2 色のグラデーションなど）の箇条書き。無ければ「なし」。
 3. 完成した GRS JSON を 1 つのコードブロックで出す。省略記号（...）を入れず、全体を出す。
 4. 出す前に、次を自分で確かめ、確かめた結果を 1 行ずつ書く。
    - tasks・resources・assignments の uid と、taskGroups の id がそれぞれ重ならない
    - どのタスクも taskGroupMembers にちょうど 1 回、taskVisuals にちょうど 1 回出てくる
-   - dependencies の predecessorUid、assignments の taskUid / resourceUid、taskGroupMembers の groupId、taskGroups の parentId と derivedFromTaskUid がすべて実在する
+   - dependencies の predecessorUid、assignments の taskUid / resourceUid、taskGroupMembers の groupId、taskGroups の parentId がすべて実在する
+   - どの TaskGroup も label を持つ
    - finish が start より前のタスクが無い。マイルストーンは start と finish が同じ
    - フェードを持つタスクは rectangle か chevron で、finish を持ち、fadeInDays と fadeOutDays の和が期間の暦日を超えない
-   - 原本で同じ形状が横一列に並んでいた物は、その物だけが載る 1 つの行に入っている（その並びしか無い見出しの行を除く）。行の深さは 3 まで
+   - 原本で同じ高さに横一列に並んでいた物（形状が違っても）は、その物だけが載る 1 つの行に入っている（その並びしか無い見出しの行を除く）。子の行の label は日本語 2 語まで・英語 3 語まで。行の深さは 3 まで
    - 色は「色の合わせ方」で許した値だけで、fillColor と strokeColor が両方 "transparent" のものが無い
    - スキーマに無い鍵を足していない
 ````
 
 ## 形の例
 
-見出しの行 1 つと、その下の子の行 1 つ、タスク 3 つのときの、`schedule` の書き換える部分です。
+原本が英語の日程で、見出しの行 1 つと、その下の子の行 1 つ、タスク 4 つのときの、`schedule` の書き換える部分です。
 
-- 「Draft the plan」: 終了側がグラデーションで薄れているオレンジのバー（完了、フェードアウト 5 日）
-- 「Plan approved」と「Budget approved」: 同じ高さに並んだ黄色の ◇。見出しの行にはバーもあるので、並び 2 つを子の行に載せた
+- 「Draft the plan」: 終了側がグラデーションで薄れていくオレンジのバー（完了）。濃い側のオレンジを塗りにし、薄れる 5 日をフェードアウトにした
+- 「Plan approved」・「Budget review」・「Budget approved」: 同じ高さに並んだ ◇・灰色のバー・◇。形状は混ざっているが 1 本の並びなので、3 つを 1 つの子の行に載せ、見出しを "Approvals" とした。見出しの行には「Draft the plan」もあるので、子の行を作った
 
-これを `grs-skeleton.json` に差し込み、`schedule.project.uidHighWaterMark` を `3` にすると、スキーマに照らして通ります（2026-09-16 に照合）。原本で最も多い色が青なら、`schedule.project.themeHue` は `214` のままです。
+これを `grs-skeleton.json` に差し込み、`schedule.project.uidHighWaterMark` を `4` にすると、スキーマに照らして通ります（2026-09-16 に照合）。原本で最も多い色が青なら、`schedule.project.themeHue` は `214` のままです。
 
 ```json
 {
@@ -151,12 +158,24 @@
       "carry": {}, "carryElements": []
     },
     {
-      "uid": 3, "wbsParentUid": null, "wbsOrder": 2, "name": "Budget approved",
-      "start": "2026-05-15T00:00:00", "finish": "2026-05-15T00:00:00", "milestone": true,
+      "uid": 3, "wbsParentUid": null, "wbsOrder": 2, "name": "Budget review",
+      "start": "2026-05-04T00:00:00", "finish": "2026-05-13T00:00:00", "milestone": false,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
       "fadeInDays": null, "fadeOutDays": null, "dependencies": [], "carry": {}, "carryElements": []
+    },
+    {
+      "uid": 4, "wbsParentUid": null, "wbsOrder": 3, "name": "Budget approved",
+      "start": "2026-05-15T00:00:00", "finish": "2026-05-15T00:00:00", "milestone": true,
+      "deadline": null, "notes": null, "calendarUid": null,
+      "actualStart": null, "stop": null, "actualFinish": null,
+      "resume": null, "resumeValid": null, "percentComplete": null,
+      "fadeInDays": null, "fadeOutDays": null,
+      "dependencies": [
+        { "predecessorUid": 3, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": [] }
+      ],
+      "carry": {}, "carryElements": []
     }
   ],
   "taskGroups": [
@@ -165,14 +184,15 @@
       "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": "lightgray", "height": null
     },
     {
-      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": null,
-      "derivedFromTaskUid": 2, "order": 0, "isCollapsed": false, "isHidden": false, "color": null, "height": null
+      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
+      "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": null, "height": null
     }
   ],
   "taskGroupMembers": [
     { "taskUid": 1, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "stackOrder": null },
     { "taskUid": 2, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null },
-    { "taskUid": 3, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null }
+    { "taskUid": 3, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null },
+    { "taskUid": 4, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "stackOrder": null }
   ],
   "taskVisuals": [
     {
@@ -184,7 +204,11 @@
       "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
     },
     {
-      "taskUid": 3, "nameAnchor": null, "nameAlign": null, "shapeKind": "milestone",
+      "taskUid": 3, "nameAnchor": null, "nameAlign": null, "shapeKind": "rectangle",
+      "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "lineWeight": "thin"
+    },
+    {
+      "taskUid": 4, "nameAnchor": null, "nameAlign": null, "shapeKind": "milestone",
       "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
     }
   ]
@@ -205,11 +229,12 @@ python -c "import json,sys,jsonschema; s=json.load(open('docs/spec/_source/grs-d
 
 - **横並び**: 形状の外に出た名前のラベルも、行の中で場所を取る幅に数えられる（`docs/spec/01-04-requirements.md` の表 T-038 の `OC-1`）。並びの物どうしの間が狭く名前が長いと、子の行の中でも 2 段に分かれる。
 - **深い行**: 行の深さ d（d ≥ 2）は、縦の倍率が `0.32 × 1.875^(d − 2)` 以上のときだけ描かれる（表 T-205 の `S-87` / `S-88`）。倍率 1 では深さ 3 まで、深さ 4 は 1.125 以上、深さ 5 は 2.11 以上で、倍率の上限に近い。だからプロンプトは深さを 3 までにしている。
-- **色**: パレットは 11 色で、影・光沢・グラデーションは描けない。フェードは端を斜めにする形であり、色が薄れる表現ではない。
+- **グラデーション**: GRS は色のグラデーションを描けない。薄れていくグラデーションは、端を斜めにするフェードで近づける。フェードは本来「日付がまだ確かでない」という印なので、原本の飾りのグラデーションにも、その意味の印が付く。2 色のあいだのグラデーションは 1 色になる。
+- **色**: パレットは 11 色で、影と光沢は描けない。
 - **名前の置き場と文字の色**: 名前の置き場は GRS が決める。文字の色は文書に持てない。
 
 ## 仕様との関係
 
-- 形の正は `docs/spec/_source/grs-document.schema.json`（`docs/spec/05-07-design.md` の 6.2）。本書の決まりはそこと、同じ 6.1 の `IV-` の行、`docs/spec/01-04-requirements.md` の表 T-052（4.1）、表 T-012a のフェード（`FD-`）、表 T-014 の積み方（`ST-`）、表 T-017 のパレット（`CL-`）から写した。仕様が変わったら本書と `grs-skeleton.json` も見直すこと。
+- 形の正は `docs/spec/_source/grs-document.schema.json`（`docs/spec/05-07-design.md` の 6.2）。本書の決まりはそこと、同じ 6.1 の `IV-` の行、`docs/spec/01-04-requirements.md` の表 T-052（4.1）、表 T-012a のフェード（`FD-`）、表 T-014 の積み方（`ST-`）、表 T-017 のパレット（`CL-`）から写した。仕様が変わったら本書・英語版・`grs-skeleton.json` を見直すこと。
 - パレットの色の綴り（`dimgray` など）は仕様がまだ決めていない（`PND-494`）。本書は GRS の起動時の雛形 `src/framework/single-html-shell/startup-template.json` が使う綴りに合わせた。
 - `grs-skeleton.json` は同じ雛形から、日程の中身を空にし行を 1 つだけ残して作った。⚠️ 生成物ではないので、`npm run gen:check` はずれを見ない。
