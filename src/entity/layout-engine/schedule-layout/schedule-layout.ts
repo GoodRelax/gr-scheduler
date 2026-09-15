@@ -244,6 +244,47 @@ function truncate(text: string, limit: number): string {
   return kept + TRUNCATION_MARK
 }
 
+// see ND-5
+// TRAP: every Task of the document, never the drawn range or today: a scroll would reflow the lanes (FR-002).
+/** @purity pure */
+function planDatesSpanYears(schedule: Schedule, reader: DayReader): boolean {
+  let year: number | null = null
+  for (const task of schedule.tasks) {
+    for (const text of [task.start, task.finish]) {
+      const day = reader.day(text)
+      if (day === null) continue
+      if (year === null) year = day.year
+      else if (day.year !== year) return true
+    }
+  }
+  return false
+}
+
+// see ND-4, ND-5
+/** @purity pure */
+function planDateText(day: CalendarDay, withYear: boolean): string {
+  return withYear ? `${day.year}/${day.month}/${day.day}` : `${day.month}/${day.day}`
+}
+
+// see ND-1, ND-2, ND-3
+/** @purity pure */
+function planDatesOf(task: Task, reader: DayReader, withYear: boolean): string {
+  const start = reader.day(task.start)
+  if (start === null) return ''
+  if (task.milestone === true) return planDateText(start, withYear)
+  const finish = reader.day(task.finish)
+  if (finish === null) return ''
+  return `${planDateText(start, withYear)} - ${planDateText(finish, withYear)}`
+}
+
+// see FR-002, S-232
+// TRAP: truncate the name alone; the dates are never cut and never count toward S-35.
+/** @purity pure */
+function nameLabelOf(name: string, dates: string): string {
+  if (dates === '') return name
+  return name === '' ? dates : `${name} ${dates}`
+}
+
 // see T-012, FR-094
 /** @purity pure */
 function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
@@ -625,6 +666,8 @@ export function layoutFromSchedule(
 
   const within = workingCalendarOf(schedule)
   const reader = dayReaderFor(within)
+  // TRAP: S-232 alone decides; never tie it to planVisible (S-227), or hiding the plan moves the name (FR-049).
+  const datesWithYear = settings.planDatesVisible ? planDatesSpanYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
   const rowPlacements: RowPlacement[] = []
 
@@ -662,7 +705,10 @@ export function layoutFromSchedule(
       const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
-      const label = truncate(task.name ?? '', settings.truncateUnits)
+      const label = nameLabelOf(
+        truncate(task.name ?? '', settings.truncateUnits),
+        datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear),
+      )
       const font = labelFontSize(kind, settings)
       const text = labelWidth(label, font, settings)
       const fade = clampedFade(task, kind, width, pxPerDay)
@@ -682,7 +728,8 @@ export function layoutFromSchedule(
         ? Math.max(x + fade.fadeIn,
                    markerAnchorX + settings.markerGap + settings.markerSize + settings.labelGap)
         : x + fade.fadeIn
-      const roomInside = Math.max(0, planRight - fade.fadeOut - insideLabelX)
+      // TRAP: take S-31 off too; the glyphs start labelPad past insideLabelX, so NL-1 would pass a name past the fadeOut edge.
+      const roomInside = Math.max(0, planRight - fade.fadeOut - insideLabelX - settings.labelPad)
       const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
       const outwardX = Math.max(planRight, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
       const reachShown =

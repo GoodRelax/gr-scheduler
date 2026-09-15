@@ -101,6 +101,7 @@ const SETTINGS_KEY_BY_ROW: Readonly<Record<string, keyof DocumentSettings>> = {
   'IC-79': 'assigneeVisible',
   'IC-80': 'percentCompleteVisible',
   'IC-81': 'dependencyVisible',
+  'IC-103': 'planDatesVisible',
 }
 
 /** @purity pure */

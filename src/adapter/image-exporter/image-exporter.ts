@@ -6,7 +6,7 @@
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { RowTitle, ScreenView } from '../screen-renderer/screen-renderer'
+import { rowTitleFontPxOf, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
 import { colourOf } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
@@ -114,12 +114,6 @@ function appHeaderSvg(
   return ground + textSvg(x, y, fontSizePx, documentTitle)
 }
 
-// TRAP: row-title-panel.ts computes the same size; change both together.
-/** @purity pure */
-function rowTitleFontPx(depth: number, settings: DocumentSettings): number {
-  return depth === 1 ? settings.rowTitleFont * settings.rowTitleTopScale : settings.rowTitleFont
-}
-
 // see EP-3
 /** @purity pure */
 function rowTitleSvg(
@@ -129,7 +123,7 @@ function rowTitleSvg(
   ratio: number,
 ): string {
   if (title.label === null || title.label === '') return ''
-  const fontSizePx = rowTitleFontPx(title.depth, settings)
+  const fontSizePx = rowTitleFontPxOf(title.depth, settings)
   const x = (panel.x + title.indentPx) * ratio
   const y = (title.box.y + fontSizePx) * ratio
   return textSvg(x, y, fontSizePx * ratio, title.label)

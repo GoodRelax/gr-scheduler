@@ -33,6 +33,7 @@ export type VisibleElement =
   | 'dateGridLinesVisible'
   | 'groupGridLinesVisible'
   | 'baselineVisible'
+  | 'planDatesVisible'
 
 // see T-108
 export type DocumentSettingsCommand =

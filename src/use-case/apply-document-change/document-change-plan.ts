@@ -109,6 +109,7 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     dateGridLinesVisible: current.dateGridLinesVisible,
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
+    planDatesVisible: current.planDatesVisible,
 
     rowTitlePanelWidth: current.rowTitlePanelWidth,
     propertyPanelWidth: current.propertyPanelWidth,

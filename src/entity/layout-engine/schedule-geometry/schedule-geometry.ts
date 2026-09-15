@@ -7,9 +7,9 @@
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
   compareDays,
-  dateFromWorkingDays,
   dayOf,
   isDelayed,
+  lastDayForLength,
   planActualState,
   textOfDay,
   workingCalendarOf,
@@ -683,7 +683,8 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
   const key = textOfDay(from)
   const held = inputs.dummyEndByFrom.get(key)
   if (held !== undefined) return held
-  const made = dateFromWorkingDays(inputs.within, from, inputs.settings.actualInitialDuration)
+  // WHY: the last day the writer puts (edit-task.ts), not the half-open end: a one-day dummy ends on its own day (JDG-15).
+  const made = lastDayForLength(inputs.within, from, inputs.settings.actualInitialDuration)
   inputs.dummyEndByFrom.set(key, made)
   return made
 }
@@ -755,11 +756,12 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
   const y = labelTopOf(settings, placed, height)
   return placed.labelPlacement === 'inside'
     ? {
-        x: placed.insideLabelX + settings.labelPad,
+        // TRAP: no labelPad on x; svg-renderer.ts adds S-31 once, as it does for the outside box (T-013).
+        x: placed.insideLabelX,
         y,
         width: Math.max(
           0,
-          placed.x + placed.width - placed.fadeOutPx - placed.insideLabelX - settings.labelPad * 2,
+          placed.x + placed.width - placed.fadeOutPx - placed.insideLabelX - settings.labelPad,
         ),
         height,
       }

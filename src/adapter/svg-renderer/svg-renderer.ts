@@ -571,6 +571,7 @@ export function svgFromSchedule(
   hovered: Hit | null = null,
   marquee: ScreenRect | null = null,
   watermark: Watermark | null = null,
+  tentativeLink: ScheduleGeometry['dependencies'][number] | null = null,
 ): string {
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
@@ -1095,6 +1096,20 @@ export function svgFromSchedule(
     )
   }
 
+  // see FR-009
+  // WHY: FR-009 calls it a tentative dependency line, so it takes the line's own colour, width and head.
+  const tentative = drawsOperationState ? tentativeLink : null
+  const tentativeArrowId = `grs-tentative-arrow-${pictureId(`${rounded(width)}x${rounded(height)}`)}`
+  const tentativeParts =
+    tentative === null
+      ? []
+      : [
+          dependencyArrowSvg(tentativeArrowId, settings.dependencyArrowLength, themed('S-159')),
+          `<polyline points="${pointsOf(tentative.points)}" fill="none"` +
+            ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"` +
+            ` marker-end="url(#${tentativeArrowId})"/>`,
+        ]
+
   const parts = [
     ...defsParts,
     ...bandParts,
@@ -1111,6 +1126,7 @@ export function svgFromSchedule(
     ...annotationParts,
     ...selectionParts,
     ...handleParts,
+    ...tentativeParts,
     // STOP: spec does not decide how the range-selection rectangle is drawn. Looked in PTD-5, T-020, T-023a (PND-363)
     ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
     ...(watermark === null

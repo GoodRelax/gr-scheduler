@@ -734,6 +734,7 @@ const ENTRY = {
   assigneeVisible: 'IC-79',
   percentCompleteVisible: 'IC-80',
   dependencyVisible: 'IC-81',
+  planDatesVisible: 'IC-103',
   fontScale: 'IC-99',
   themeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
@@ -783,6 +784,7 @@ const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, VisibleElement>> = {
   'IC-79': 'assigneeVisible',
   'IC-80': 'percentCompleteVisible',
   'IC-81': 'dependencyVisible',
+  'IC-103': 'planDatesVisible',
 }
 
 /** @purity pure */
@@ -1595,6 +1597,7 @@ function commandFromEntry(
     case ENTRY.assigneeVisible:
     case ENTRY.percentCompleteVisible:
     case ENTRY.dependencyVisible:
+    case ENTRY.planDatesVisible:
       return commandFromVisibleElementEntry(entry, context)
     case ENTRY.planDisplay:
     case ENTRY.actualDisplay:

@@ -42,6 +42,7 @@ import {
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
 import {
+  dependencyEndAtPointer,
   itemAtPointer,
   NOT_STORED_SIZES,
   type PointerSlop,
@@ -1817,6 +1818,7 @@ export function frameLoop(
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
         watermarkNow(),
+        tentativeDependencyOf(pressed, pointerAt, document, settings, layout, geometry, regions),
       )
     surface.showSvg(drawnSvg)
     recordFrame(drawnSvg, layout)
@@ -2209,6 +2211,77 @@ export function frameLoop(
       }
     }
     return drawn
+  }
+
+  // see FR-009, PTD-3, T-018, T-018a
+  // TRAP: never preview the whole document per move (NFR-002): editDocument and geometryFromLayout
+  // run on a two-Task copy, so T-018's mapping and T-018a's route keep their one owner each.
+  /** @purity semi-pure-b */
+  function tentativeDependencyOf(
+    press: PointerPress | null,
+    at: { readonly x: number; readonly y: number } | null,
+    document: Document,
+    settings: DocumentSettings,
+    layout: ScheduleLayout,
+    geometry: ScheduleGeometry,
+    regions: ScreenRegions,
+  ): ScheduleGeometry['dependencies'][number] | null {
+    if (press === null || at === null || press.on !== null) return null
+    if (press.pressRow !== 'PTD-3' || screenState.armed.kind !== 'dependency') return null
+    const hit = press.hit
+    if (hit === null || hit.item.kind !== 'task') return null
+    const from = dependencyEndAtPointer(geometry, press.at.x, press.at.y, hit.item.taskUid)
+    if (from === null) return null
+    const schedule = document.schedule
+    const fromTask = taskByUid(schedule, from.taskUid)
+    const fromPlaced = layout.placements.find((one) => one.taskUid === from.taskUid)
+    if (fromTask === null || fromPlaced === undefined) return null
+
+    const into = dependencyEndAtPointer(geometry, at.x, at.y, null)
+    // WHY: the Task drawn from is no partner (DN-1), so over itself the line still enters from the pointer's left.
+    const intoTask = into === null || into.taskUid === from.taskUid ? null : taskByUid(schedule, into.taskUid)
+    const intoPlaced =
+      intoTask === null ? undefined : layout.placements.find((one) => one.taskUid === intoTask.uid)
+    const partner = into !== null && intoTask !== null && intoPlaced !== undefined
+      ? { task: intoTask, placed: intoPlaced, edge: into.edge }
+      : null
+    const pointerUid = fromTask.uid + 1
+    const successor = partner === null ? { ...fromTask, uid: pointerUid } : partner.task
+    const successorPlaced =
+      partner === null
+        ? { ...fromPlaced, taskUid: pointerUid, x: at.x, width: 0, y: at.y, planHeight: 0,
+            actualX: null, actualWidth: 0 }
+        : partner.placed
+
+    const pair: Document = {
+      ...document,
+      schedule: {
+        ...schedule,
+        tasks: [{ ...fromTask, dependencies: [] }, { ...successor, dependencies: [] }],
+      },
+    }
+    const made = editDocument(
+      pair,
+      {
+        kind: 'createDependency',
+        predecessorUid: fromTask.uid,
+        successorUid: successor.uid,
+        predecessorEdge: from.edge,
+        successorEdge: partner === null ? 'start' : partner.edge,
+      },
+      settingsLimitsOf(values),
+      DEFAULT_ROW_NAME,
+    )
+    if (!made.ok) return null
+    // WHY: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
+    const drawn = geometryFromLayout(
+      { ...made.document.schedule, highlightBoxes: [], commentBoxes: [] },
+      { ...settings, dependencyVisible: true },
+      { ...layout, placements: [fromPlaced, successorPlaced] },
+      regions,
+      emptySelection(),
+    )
+    return drawn.dependencies[0] ?? null
   }
 
   // see FR-065, S-99b
