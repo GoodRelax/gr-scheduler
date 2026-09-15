@@ -334,11 +334,14 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
   return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
 }
 
-// see T-023d
+// see T-023d, PTD-3, FR-009
 /** @purity pure */
-function isPreviewedPress(press: PointerPress | null): boolean {
+function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean): boolean {
   if (press === null) return false
   if (press.on !== null) return press.on.dividerPanel !== null
+  // WHY: an armed dependency applies no T-023d row (PTD-3); the one tentative line
+  // belongs to FR-009, so a previewed createDependency would draw it twice.
+  if (press.pressRow === 'PTD-3' && isDependencyArmed) return false
   // WHY: PTD-1 is not previewed: scrolledAnchor measures the travel against the
   // previewed layout, so the picture would run away.
   if (press.pressRow === 'PTD-4') return true
@@ -2193,7 +2196,8 @@ export function frameLoop(
     context: InputContext,
     frame: FrameValues,
   ): Document | null {
-    if (press === null || at === null || !isPreviewedPress(press)) return null
+    const isDependencyArmed = screenState.armed.kind === 'dependency'
+    if (press === null || at === null || !isPreviewedPress(press, isDependencyArmed)) return null
     const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
     const action = commandFromInput(release, context).action
     if (action === null || action.kind !== 'changeDocument') return null
