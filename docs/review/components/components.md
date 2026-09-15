@@ -118,6 +118,7 @@
 | dependency | SingleHtmlShell | ScheduleLayout | layout once per frame | computes the frame's layout once and hands it to everyone who needs it (ADR-001) |  |
 | dependency | SingleHtmlShell | ScheduleGeometry | geometry once per frame | computes the frame's geometry from that layout, once (ADR-001) |  |
 | dependency | SingleHtmlShell | ScreenRegions | regions once per frame | computes the frame's screen rectangles once, before the layout (ADR-001) |  |
+| dependency | SingleHtmlShell | ItemHitArea | item under pointer | asks which item is under the pointer for its shape (IN-2), and where a dependency line being drawn starts (FR-009) |  |
 | dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
 | dependency | InputCommandTranslator | ScreenState | next screen state | reads what is armed and which surface is open, and returns the next screen state |  |

@@ -264,7 +264,7 @@
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "layout once per frame",
-   "description": "backed by 3 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry; SingleHtmlShell -> ScreenRegions"
+   "description": "backed by 4 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry; SingleHtmlShell -> ScreenRegions; SingleHtmlShell -> ItemHitArea"
   },
   {
    "source": "framework",

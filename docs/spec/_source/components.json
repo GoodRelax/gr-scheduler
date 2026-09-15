@@ -732,6 +732,13 @@
    "description": "computes the frame's screen rectangles once, before the layout (ADR-001)"
   },
   {
+   "source": "SingleHtmlShell",
+   "target": "ItemHitArea",
+   "arrow": "dependency",
+   "label": "item under pointer",
+   "description": "asks which item is under the pointer for its shape (IN-2), and where a dependency line being drawn starts (FR-009)"
+  },
+  {
    "source": "ScreenRegions",
    "target": "DocumentSettings",
    "arrow": "dependency",
