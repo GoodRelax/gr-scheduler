@@ -3174,6 +3174,17 @@
    }
   },
   {
+   "rowId": "RS-59",
+   "text": {
+    "ja": "ブラウザが全画面表示を認めませんでした",
+    "en": "The browser did not allow full screen"
+   },
+   "nextStep": {
+    "ja": "ブラウザのメニューから全画面表示にしてください",
+    "en": "Use the browser's own menu to go full screen"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

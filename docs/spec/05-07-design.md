@@ -380,7 +380,7 @@ src/
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装 |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` |
@@ -392,7 +392,7 @@ src/
 | UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` |
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） |
-| UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付けと、全画面表示（`FR-051` / `FR-052` / `FR-071`） |
+| UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない |
 | UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-71` である |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
@@ -800,6 +800,7 @@ stateDiagram-v2
 | FT-3 | **画面の寸法が変わったこと** | `SingleHtmlShell`（`CP-25`）が自分で観測する | `NFR-011` ／ 表 T-066 の `CS-1` |
 | FT-4 | **時間が来たこと** | `SingleHtmlShell`（`CP-25`）が自分で計る | `FR-092` の `EZ-2` と `EZ-6` ／ 表 T-037 の `NT-2` |
 | FT-5 | **日程データの群の刻を動かさずに届いた発話** | `PostDialogueMessage`（`CP-16`）が配る | 表 T-035 の `AG-11` |
+| FT-6 | **ブラウザが全画面表示に入ったこと・出たこと**（`fullscreenchange`） | `SingleHtmlShell`（`CP-25`）が自分で観測する。<br>⚠️ **`FT-3` に任せない** —— 画面の寸法が変わらないまま全画面表示が切り替わることがあり、そのとき入口の押された見た目が古いまま残る | `FR-071` |
 
 **本表に無い契機でフレームを起こしてはならない（MUST NOT）** —— これが `NFR-010` の具体である。  
 ⚠️ **最初の 1 枚は 表 T-077 の `BO-5` が起こす。**
