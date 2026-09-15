@@ -180,7 +180,7 @@ const T_027_HERE = ['UN-8', 'UN-9', 'UN-11', 'UN-16'] as const
 type ShortcutRow = {
   readonly row: string
   readonly keys: readonly { readonly key: string; readonly mods?: Partial<InputModifiers> }[]
-  readonly member: 'action' | 'selection' | 'screenState' | 'none'
+  readonly member: 'action' | 'selection' | 'screenState' | 'fullScreen' | 'none'
   readonly action?: string
 }
 
@@ -210,7 +210,7 @@ const T_036: readonly ShortcutRow[] = [
   { row: 'SK-12', keys: [{ key: 'E', mods: { ctrl: true, shift: true } }], member: 'screenState' },
   { row: 'SK-13', keys: [{ key: 'F1' }], member: 'screenState' },
   { row: 'SK-14', keys: [{ key: 'P' }], member: 'screenState' },
-  { row: 'SK-15', keys: [{ key: 'F11' }], member: 'screenState' },
+  { row: 'SK-15', keys: [{ key: 'F11' }], member: 'fullScreen' },
   {
     row: 'SK-16',
     keys: [{ key: '+', mods: { shift: true } }, { key: '-', mods: { shift: true } }],
@@ -977,7 +977,7 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
 
         if (row.member === 'action') {
           expect(answer.action?.kind, where).toBe(row.action)
-        } else {
+        } else if (row.member !== 'fullScreen') {
           // UN-9 and UN-11 keep selection and arming out of the undo record,
           // so neither travels as a command.
           expect(answer.action, where).toBeNull()
@@ -988,6 +988,11 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
         }
         if (row.member === 'screenState') {
           expect(screenStateFromInput(input, context), where).not.toBe(context.screenState)
+        }
+        if (row.member === 'fullScreen') {
+          expect(screenStateFromInput(input, context).fullScreen, `${where}: 求めただけで \`S-99f\` を変えてはならない（MUST NOT）`).toBe(
+            context.screenState.fullScreen,
+          )
         }
 
         // MK-10 (MUST): a combination this tool assigned is taken from the
@@ -1060,14 +1065,15 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
     expect(back.paletteShown).toBe(emptyScreenState().paletteShown)
   })
 
-  it('SK-15 / FR-071: F11 switches full screen both ways', () => {
-    const on = screenStateFromInput(keyOf('F11'), contextOf())
-    expect(on.fullScreen).toBe(true)
-    const off = screenStateFromInput(
+  it('SK-15 / FR-071 (MUST NOT): F11 asks the browser and leaves S-99f as it was, both ways', () => {
+    const askingAlone = '求めただけで `S-99f` を変えてはならない（MUST NOT）'
+    const off = screenStateFromInput(keyOf('F11'), contextOf())
+    expect(off.fullScreen, askingAlone).toBe(false)
+    const on = screenStateFromInput(
       keyOf('F11'),
       contextOf({ screenState: screenStateWithFullScreen(emptyScreenState(), true) }),
     )
-    expect(off.fullScreen).toBe(false)
+    expect(on.fullScreen, askingAlone).toBe(true)
   })
 
   it('SK-16: Shift + sign zooms the time axis only, by the step handed in', () => {

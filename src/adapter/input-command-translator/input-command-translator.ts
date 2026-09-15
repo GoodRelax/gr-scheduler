@@ -10,7 +10,6 @@ import type { Document } from '../../entity/document-model/document/document'
 import {
   escapeTarget,
   screenStateWithArmed,
-  screenStateWithFullScreen,
   screenStateWithPalette,
   screenStateWithSurface,
   screenStateWithWatermark,
@@ -234,6 +233,7 @@ export type InputAction =
   | { readonly kind: 'toggleMilestoneList' }
   | { readonly kind: 'togglePaletteMinimised' }
   | { readonly kind: 'toggleInteractionRecord' }
+  | { readonly kind: 'toggleFullScreen' }
   | {
       readonly kind: 'setDualCursorFollowing'
       readonly following: DualCursorSide | null
@@ -1311,7 +1311,9 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   if (ctrl && key === KEY.r) return acted({ kind: 'reopenDocumentFile' })
 
   if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
-  if (plain && (key === KEY.f1 || key === KEY.p || key === KEY.f11)) return CONSUMED_ELSEWHERE
+  if (plain && (key === KEY.f1 || key === KEY.p)) return CONSUMED_ELSEWHERE
+  // see FR-071, SK-15
+  if (plain && key === KEY.f11) return acted({ kind: 'toggleFullScreen' })
 
   if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
     const factor = keyZoomFactor(context, key === KEY.plus)
@@ -1640,6 +1642,8 @@ function commandFromEntry(
       return acted({ kind: 'togglePaletteMinimised' })
     case ENTRY.interactionRecord:
       return acted({ kind: 'toggleInteractionRecord' })
+    case ENTRY.fullScreen:
+      return acted({ kind: 'toggleFullScreen' })
     case ENTRY.milestoneList:
       return acted({ kind: 'toggleMilestoneList' })
     case ENTRY.paletteGrabBand:
@@ -3566,8 +3570,6 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
   switch (entry) {
     case ENTRY.palette:
       return screenStateWithPalette(state, !state.paletteShown)
-    case ENTRY.fullScreen:
-      return screenStateWithFullScreen(state, !state.fullScreen)
     case ENTRY.help:
       return screenStateWithSurface(state, HELP_MODAL)
     case ENTRY.aiExportModal:
@@ -3641,7 +3643,6 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
 
   if (input.key === KEY.f1) return screenStateWithSurface(state, HELP_MODAL)
   if (input.key === KEY.p) return screenStateWithPalette(state, !state.paletteShown)
-  if (input.key === KEY.f11) return screenStateWithFullScreen(state, !state.fullScreen)
 
   return state
 }

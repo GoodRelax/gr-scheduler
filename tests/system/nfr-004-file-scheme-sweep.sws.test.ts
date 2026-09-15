@@ -723,6 +723,9 @@ async function calm(page: Page): Promise<void> {
   await page.waitForTimeout(150)
   await page.keyboard.press('Escape')
   await page.waitForTimeout(150)
+  await page.evaluate(() =>
+    document.fullscreenElement === null ? undefined : document.exitFullscreen().catch(() => undefined),
+  )
   // WHY: SK-14 toggles the palette and later probes press its entrances, so
   // WHY: it is put back here through IC-7, the same route SK-14 itself uses.
   if ((await page.$('[data-role="Command Palette"]')) === null) {
@@ -787,6 +790,38 @@ async function selectOneRow(page: Page): Promise<void> {
 
 async function stroke(page: Page, keys: string): Promise<null> {
   await page.keyboard.press(keys)
+  return null
+}
+
+// see FR-071, SK-15
+async function fullScreenStroke(page: Page): Promise<null> {
+  await page.keyboard.press('F11')
+  await page.waitForTimeout(600)
+  const seen = await page.evaluate(() => {
+    const keys = ((window as unknown as { __grsKeys?: KeyboardEvent[] }).__grsKeys ?? []).filter(
+      (one) => one.key === 'F11',
+    )
+    const entry = document.querySelector('[data-icon="IC-11"]')
+    return {
+      prevented: keys.length > 0 && keys.every((one) => one.defaultPrevented),
+      entered: document.fullscreenElement === document.documentElement,
+      held: document.fullscreenElement !== null,
+      pressed: entry !== null && entry.getAttribute('aria-pressed') === 'true',
+      told: document.querySelectorAll('[data-notice]').length > 0,
+    }
+  })
+  if (!seen.prevented) {
+    throw new Error('SK-15: the F11 keydown kept its browser default -- FR-071 (MUST) has it stopped')
+  }
+  if (!seen.entered && !seen.told) {
+    throw new Error('SK-15: F11 neither put document.documentElement in full screen nor told RS-59 -- FR-071 (MUST)')
+  }
+  if (seen.pressed !== seen.held) {
+    throw new Error(
+      `SK-15: IC-11 drawn pressed=${String(seen.pressed)} while document.fullscreenElement is ` +
+        `${seen.held ? 'set' : 'null'} -- FR-071 (MUST NOT) does not let the ask alone move S-99f`,
+    )
+  }
   return null
 }
 
@@ -1163,7 +1198,7 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-12'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+Shift+E') },
   { rows: ['SK-13'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'F1') },
   { rows: ['SK-14'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'p') },
-  { rows: ['SK-15'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'F11') },
+  { rows: ['SK-15'], expect: 'answers', setUp: selectBar, act: async (p) => fullScreenStroke(p) },
   { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+=', 'time', 'in') },
   { rows: ['SK-16b'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+-', 'time', 'out') },
   {

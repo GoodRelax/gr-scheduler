@@ -705,8 +705,8 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
 
   it('IN-4a (MUST): `Esc` with nothing to consume reaches the browser', () => {
     // IN-4a: 「消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）」
-    // —— 全画面表示から `Esc` で戻る経路（`FR-071`）はブラウザ側の挙動なので、
-    // 渡さないと戻れなくなる. Nothing is open, nothing is armed, no drag.
+    // -- the browser keeps whatever it gives Esc.
+    // Nothing is open, nothing is armed, no drag.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
 

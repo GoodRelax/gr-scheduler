@@ -1,4 +1,8 @@
-9
+8
+#
+# LOWERED 9 -> 8 on 2026-09-16, as planned in the raise below: JDG-125 landed with CR-389
+# (FR-071, table T-233's RS-59, UF-48, table T-078's FT-6) and its implementation wave, and its
+# row now reads 適用済. Remaining 8: JDG-78, JDG-85, JDG-87, JDG-102, JDG-107, JDG-122 .. JDG-124.
 #
 # RAISED 6 -> 9 on 2026-09-16, with the user's approval (asked in chat: "検査 43 の基準線を 6 → 9 に
 # 上げてよい"). Four rulings were recorded before anything lands them: JDG-122 and JDG-123 (the

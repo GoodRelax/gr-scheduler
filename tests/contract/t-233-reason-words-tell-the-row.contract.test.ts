@@ -489,6 +489,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   changes nothing.
   // ⇒ the words tell the scene.
   'RS-58': '233c73e32acd128b',
+  'RS-59': '2390e3f14b96cec8',
 }
 
 const fingerprintOf = (rowId: string): string => {

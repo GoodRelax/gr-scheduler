@@ -57,8 +57,8 @@
 //                   puts the panel up (MK-13, a double click) selects with its
 //                   first click, so a selection has been standing all along.
 //   表 T-028 IN-4a 「**消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
-//                   （MUST）**」 —— 全画面表示から `Esc` で戻る経路（`FR-071`）は
-//                   ブラウザ側の挙動なので、渡さないと戻れなくなる。
+//                   （MUST）**」 -- its reason is the message of the last rung
+//                   in the case that walks the panel route out to the browser.
 //   表 T-023 MK-10 「本ツールが割り当てた…入力 | ブラウザの既定動作を…止めること
 //                   （MUST）。割り当てていない組合せを止めてはならない（MUST
 //                   NOT）」 -- which is what `isBrowserDefaultStopped` answers,
@@ -736,7 +736,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     // Rung 3 -- there is none. IN-4a hands the press to the browser.
     expect(
       built.loop.isBrowserDefaultStopped(ESCAPE()),
-      'IN-4a: 全画面表示から `Esc` で戻る経路（`FR-071`）はブラウザ側の挙動である',
+      'IN-4a: 本ツールが何もしない `Esc` を止めると、ブラウザが `Esc` に持たせた働きを奪う',
     ).toBe(false)
   })
 

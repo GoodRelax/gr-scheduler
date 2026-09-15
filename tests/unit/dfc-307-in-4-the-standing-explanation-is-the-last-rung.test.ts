@@ -689,7 +689,7 @@ describe('T-028 IN-4a (MUST) -- a second Esc still reaches the browser', () => {
     // ⭐⭐ THE WHOLE POINT OF THE RUNG BEING A QUESTION AND NOT A LATCH. After
     // the first press has put the explanation away, `isTooltipStanding` is
     // false on the next frame -- and IN-4a (MUST) then hands the key to the
-    // browser, which is how 全画面表示から `Esc` で戻る (FR-071) survives.
+    // browser, so the browser keeps whatever it gives Esc (IN-4a).
     const first = escapeTarget(emptyScreenState(), ONLY_A_TOOLTIP)
     expect(first).toBe('tooltip')
     const second = escapeTarget(emptyScreenState(), contextOf({ isTooltipStanding: false }))

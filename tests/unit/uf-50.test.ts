@@ -1132,7 +1132,7 @@ describe('MK-10 -- the browser is stopped only for an input this tool assigned',
     // ⭐ IN-4a is the reason MK-10's answer is injected rather than decided
     // here: with nothing open, no drag, no armed tool and no Dual Cursor, the
     // caller answers `false` and the key must reach the browser -- otherwise
-    // FR-071's way back out of full screen is gone.
+    // the browser loses whatever it gives Esc.
     const run = harness()
     run.answer((input) => input.kind !== 'key' || input.key !== 'Esc')
     run.watch()

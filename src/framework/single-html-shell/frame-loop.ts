@@ -13,6 +13,7 @@ import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialo
 import {
   emptyScreenState,
   escapeTarget,
+  screenStateWithFullScreen,
   screenStateWithPalette,
   screenStateWithSurface,
   screenStateWithWatermark,
@@ -223,6 +224,15 @@ export interface FrameLoop {
   watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void
   /** @purity non-pure */
   raiseStartupNotice(reason: StartupNoticeReason, affectedCount?: number | null): void
+  /** @purity non-pure */
+  fullScreenChanged(isFullScreen: boolean): void
+}
+
+// see FR-071, UF-48
+export interface FullScreenHost {
+  isFullScreen(): boolean
+  requestFullScreen(): Promise<void>
+  exitFullScreen(): Promise<void>
 }
 
 export interface ScreenWiring {
@@ -406,6 +416,8 @@ const WATERMARK_UNLOCK_SURFACE = 'Watermark Unlock'
 
 const WATERMARK_UNLOCK_MISMATCH_REASON: NoticeReason = 'RS-41'
 
+const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
+
 const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
 
 const CONFIRMATION_MANNER = 'NT-7'
@@ -479,6 +491,7 @@ type NoticeReason =
   | 'RS-56'
   | 'RS-57'
   | 'RS-58'
+  | 'RS-59'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -532,6 +545,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-56': 'NT-1',
   'RS-57': 'NT-1',
   'RS-58': 'NT-1',
+  'RS-59': 'NT-3a',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -1477,6 +1491,7 @@ export function frameLoop(
   rasterizer?: Rasterizer,
   appShell?: AppShellSource,
   startupTemplate?: Document,
+  fullScreen?: FullScreenHost,
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
@@ -3392,7 +3407,25 @@ export function frameLoop(
         // @provisional PND-419
         isDialogueFieldVisible = !isDialogueFieldVisible
         return
+      case 'toggleFullScreen':
+        askBrowserForFullScreen()
+        return
     }
+  }
+
+  // see FR-071, UF-48, RS-59
+  /** @purity non-pure */
+  function askBrowserForFullScreen(): void {
+    const tellRefused = (): void => raiseNotice(FULL_SCREEN_REFUSED_REASON, null)
+    const host = fullScreen
+    if (host === undefined) {
+      tellRefused()
+      return
+    }
+    // TRAP: asked here, inside the input's own call; deferred to a frame, the browser's
+    // user-activation window can close first. S-99f waits for fullScreenChanged.
+    const request = host.isFullScreen() ? host.exitFullScreen() : host.requestFullScreen()
+    void request.catch(tellRefused)
   }
 
   // see FR-072
@@ -3728,6 +3761,13 @@ export function frameLoop(
     /** @purity non-pure */
     raiseStartupNotice(reason: StartupNoticeReason, affectedCount: number | null = null): void {
       raiseNotice(reason, affectedCount)
+    },
+    // see FT-6, FR-071, S-99f
+    /** @purity non-pure */
+    fullScreenChanged(isFullScreen: boolean): void {
+      if (screenState.fullScreen === isFullScreen) return
+      screenState = screenStateWithFullScreen(screenState, isFullScreen)
+      if (settled(environment)) ask()
     },
   }
 }

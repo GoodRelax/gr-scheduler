@@ -40,6 +40,7 @@ import {
   GREATEST_KNOWN_SCHEMA_VERSION,
   type FrameEnvironment,
   type FrameLoop,
+  type FullScreenHost,
   type PointerShape,
   type StartupNoticeReason,
 } from './frame-loop'
@@ -66,6 +67,36 @@ let deliveredAppShellHtml: string | null = null
 function readDeliveredHtml(): string {
   const prologue = document.doctype === null ? '' : `<!DOCTYPE ${document.doctype.name}>\n`
   return `${prologue}${document.documentElement.outerHTML}\n`
+}
+
+// see FR-071
+/** @purity semi-pure-b */
+function isPageFullScreen(): boolean {
+  // TRAP: undefined, not null, where the Fullscreen API is absent; that must read as not full screen.
+  return (document.fullscreenElement ?? null) !== null
+}
+
+/** @purity non-pure */
+function askFullScreenOf(call: (() => Promise<void> | undefined) | undefined): Promise<void> {
+  if (typeof call !== 'function') return Promise.reject(new Error('the Fullscreen API is absent'))
+  try {
+    return Promise.resolve(call())
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+// see FR-071, UF-48
+/** @purity non-pure */
+function pageFullScreenHost(): FullScreenHost {
+  const root = document.documentElement
+  return {
+    isFullScreen: isPageFullScreen,
+    /** @purity non-pure */
+    requestFullScreen: () => askFullScreenOf(root.requestFullscreen?.bind(root)),
+    /** @purity non-pure */
+    exitFullScreen: () => askFullScreenOf(document.exitFullscreen?.bind(document)),
+  }
 }
 
 // see IF-8
@@ -386,8 +417,10 @@ function boot(): void {
     canvasRasterizer(document),
     appShellSource(),
     template,
+    pageFullScreenHost(),
   )
   loop = running
+  running.fullScreenChanged(isPageFullScreen())
 
   // TRAP: run the frame, not resize(): a scheduled animation frame lands late and draws against the unmeasured header.
   loop.settleFirstFrameEnvironment(nowEnvironment())
@@ -424,6 +457,9 @@ function boot(): void {
   inputSource.watchInput((input) => loop?.receiveInput(input))
 
   window.addEventListener('resize', () => loop?.resize(nowEnvironment()))
+
+  // see FT-6
+  document.addEventListener('fullscreenchange', () => loop?.fullScreenChanged(isPageFullScreen()))
 
   // WHY: returnValue too, because older browsers of table T-003 gate the prompt on it.
   window.addEventListener('beforeunload', (event) => {

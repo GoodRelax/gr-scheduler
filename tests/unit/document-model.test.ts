@@ -721,10 +721,7 @@ describe('ScreenState (PI-36) -- Esc over a standing question (IN-4, IN-4a)', ()
       .toBeNull()
   })
 
-  it('IN-4a: full screen changes neither answer -- FR-071 needs the browser press', () => {
-    // FR-071 leaves full screen by the browser's own Esc, which is why IN-4a is
-    // a MUST. A question standing is still something to spend, so that press is
-    // taken; with nothing standing the same full-screen view must hand it over.
+  it('IN-4a: full screen changes neither answer -- 全画面表示を `Esc` で解くのはブラウザであり、本行が渡すかどうかに左右されない', () => {
     const full = screenStateWithFullScreen(emptyScreenState(), true)
     expect(escapeTarget(full, { ...quiet, isConfirmationStanding: true })).toBe('confirmation')
     expect(escapeTarget(full, { ...quiet, isConfirmationStanding: false })).toBeNull()
