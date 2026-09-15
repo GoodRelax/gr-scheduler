@@ -1,0 +1,183 @@
+{
+  "ok": true,
+  "conditions": {
+    "probe": "dependency-drag",
+    "measuredAt": "2026-09-15T18:53:58.516Z",
+    "tree": "perf-b-f45e9cd7",
+    "buildSha256": "30de7724ce8cdd5df9f1476dce46b5db049f99838e145d7237b7c6a71cac4fbe",
+    "screen": {
+      "width": 1920,
+      "height": 1080
+    },
+    "tasksRequested": 1000,
+    "samplesPerStretch": 240,
+    "minHoldMsPerStretch": 5000,
+    "agentApiOpenedBeforeMeasuring": true,
+    "channel": "msedge",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "logicalCpus": 16,
+    "os": "Windows_NT 10.0.26200",
+    "node": "v24.12.0",
+    "definition": "frame time = interval between delivered rAF stamps (T-043 preamble); instrument = FRAME_PROBE of the tree's tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts",
+    "tasksMeasured": 1000,
+    "browserVersion": "153.0.4234.32",
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0"
+  },
+  "gesture": "arm IC-61 (AR-4), press a Task finish end (PTD-3), hold and move (FR-009), release over empty ground (no write)",
+  "setup": {
+    "origins": [
+      {
+        "uid": 7,
+        "finishX": 998,
+        "shapesAtFinish": 1,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 98,
+        "finishX": 998,
+        "shapesAtFinish": 1,
+        "partners": 3
+      }
+    ],
+    "attempts": [
+      {
+        "originUid": 98,
+        "origin": {
+          "x": 998,
+          "y": 99
+        },
+        "partner": {
+          "x": 675,
+          "y": 247
+        },
+        "empty": {
+          "x": 1028,
+          "y": 119
+        },
+        "arrowsBefore": 45,
+        "arrowsOverPartner": 46,
+        "arrowsOverEmpty": 46
+      }
+    ],
+    "pxPerDay": 6,
+    "rowAreaX": 200
+  },
+  "frameTime": {
+    "samples": 720,
+    "medianMs": 24.1,
+    "p95Ms": 24.4
+  },
+  "insideRedrawCallbackNotFrameTime": {
+    "samples": 720,
+    "medianMs": 6.3,
+    "p95Ms": 8.5
+  },
+  "stretches": [
+    {
+      "name": "held over empty ground",
+      "rounds": 647,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 24.2,
+        "p95Ms": 24.5
+      },
+      "frameTimeWholeHold": {
+        "samples": 240,
+        "medianMs": 24.2,
+        "p95Ms": 24.5
+      },
+      "meanFrameRate": 41.83,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 6.95,
+        "p95Ms": 8.8
+      },
+      "insideRedrawCallbackWholeHold": {
+        "samples": 240,
+        "medianMs": 6.95,
+        "p95Ms": 8.8
+      },
+      "synchronousDispatch": {
+        "samples": 1174,
+        "medianMs": 0.6,
+        "p95Ms": 1.2
+      },
+      "heldMs": 5756.2,
+      "inputsReceived": 1174
+    },
+    {
+      "name": "held over another Task",
+      "rounds": 647,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 6.1,
+        "p95Ms": 12.1
+      },
+      "frameTimeWholeHold": {
+        "samples": 745,
+        "medianMs": 6.1,
+        "p95Ms": 12.1
+      },
+      "meanFrameRate": 149.24,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 3.9,
+        "p95Ms": 4.6
+      },
+      "insideRedrawCallbackWholeHold": {
+        "samples": 745,
+        "medianMs": 3.7,
+        "p95Ms": 4.5
+      },
+      "synchronousDispatch": {
+        "samples": 1194,
+        "medianMs": 0.5,
+        "p95Ms": 0.8
+      },
+      "heldMs": 5010.1,
+      "inputsReceived": 1194
+    },
+    {
+      "name": "held between that Task and empty ground",
+      "rounds": 551,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 24.2,
+        "p95Ms": 30.2
+      },
+      "frameTimeWholeHold": {
+        "samples": 240,
+        "medianMs": 24.2,
+        "p95Ms": 30.2
+      },
+      "meanFrameRate": 33.84,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 6.4,
+        "p95Ms": 8.6
+      },
+      "insideRedrawCallbackWholeHold": {
+        "samples": 240,
+        "medianMs": 6.4,
+        "p95Ms": 8.6
+      },
+      "synchronousDispatch": {
+        "samples": 973,
+        "medianMs": 0.6,
+        "p95Ms": 1.4
+      },
+      "heldMs": 7114.9,
+      "inputsReceived": 973
+    }
+  ],
+  "documentCheck": {
+    "arrowsBeforeDrag": 45,
+    "arrowsAfterRelease": 45,
+    "linksInTemplate": 509,
+    "linksAtEnd": 509,
+    "note": "links are compared only when --tasks is the default"
+  },
+  "doubts": [],
+  "notMeasured": []
+}

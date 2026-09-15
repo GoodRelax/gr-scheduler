@@ -1,0 +1,608 @@
+{
+  "ok": true,
+  "conditions": {
+    "probe": "zoom-row-axis",
+    "measuredAt": "2026-09-15T18:50:37.821Z",
+    "tree": "perf-b-f45e9cd7",
+    "buildSha256": "30de7724ce8cdd5df9f1476dce46b5db049f99838e145d7237b7c6a71cac4fbe",
+    "screen": {
+      "width": 1920,
+      "height": 1080,
+      "bandHeight": 400,
+      "tallHeight": 1600
+    },
+    "tasksRequested": 1000,
+    "samplesPerStretch": 240,
+    "singlesPerKind": 10,
+    "notchPx": 100,
+    "belowCeilingNotches": 6,
+    "channel": "msedge",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "logicalCpus": 16,
+    "os": "Windows_NT 10.0.26200",
+    "node": "v24.12.0",
+    "definition": "frame time = interval between delivered rAF stamps (T-043 preamble); instrument = FRAME_PROBE of the tree's tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts; synchronousDispatch = window capture to window bubble of one input event (where zoomTimes runs)",
+    "tasksMeasured": 1000,
+    "agentApiOpenedBefore": "nothing: opened after the first section, as lm-19",
+    "drivenMs": 171111,
+    "browserVersion": "153.0.4234.32",
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0"
+  },
+  "inputs": "MK-4 (Alt + wheel) and SK-16a / SK-16c (Alt + = / Alt + -) of docs/spec/01-04-requirements.md; MK-2 (Ctrl + wheel) zooms both axes and is not used",
+  "frameTime": {
+    "samples": 480,
+    "medianMs": 6.1,
+    "p95Ms": 6.3
+  },
+  "insideRedrawCallbackNotFrameTime": {
+    "samples": 480,
+    "medianMs": 3.8,
+    "p95Ms": 4.8
+  },
+  "frameTimeNote": "the two top-level numbers pool the [1920x1080] stretches only",
+  "bandSection": {
+    "frameTime": {
+      "samples": 480,
+      "medianMs": 60.5,
+      "p95Ms": 66.7
+    },
+    "insideRedrawCallbackNotFrameTime": {
+      "samples": 480,
+      "medianMs": 3.9,
+      "p95Ms": 4.5
+    }
+  },
+  "stretches": [
+    {
+      "name": "[1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches",
+      "rounds": 32,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 6.1,
+        "p95Ms": 6.3
+      },
+      "meanFrameRate": 161.74,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 4.1,
+        "p95Ms": 5.1
+      },
+      "synchronousDispatch": {
+        "samples": 254,
+        "medianMs": 0.5,
+        "p95Ms": 0.7
+      },
+      "inputToNextFrameEnter": {
+        "samples": 254,
+        "medianMs": 0.6,
+        "p95Ms": 1
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 254,
+        "medianMs": 4.7,
+        "p95Ms": 6.3
+      },
+      "inputsReceived": 254,
+      "zoomInputsReceived": 254
+    },
+    {
+      "name": "[1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch",
+      "rounds": 39,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 6.1,
+        "p95Ms": 6.3
+      },
+      "meanFrameRate": 164.37,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 3.3,
+        "p95Ms": 3.8
+      },
+      "synchronousDispatch": {
+        "samples": 297,
+        "medianMs": 0.4,
+        "p95Ms": 0.6
+      },
+      "inputToNextFrameEnter": {
+        "samples": 297,
+        "medianMs": 0.4,
+        "p95Ms": 2.4
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 297,
+        "medianMs": 3.8,
+        "p95Ms": 5.8
+      },
+      "inputsReceived": 297,
+      "zoomInputsReceived": 297
+    },
+    {
+      "name": "[1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches",
+      "rounds": 31,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 60.6,
+        "p95Ms": 84.8
+      },
+      "meanFrameRate": 15.68,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 4.1,
+        "p95Ms": 4.5
+      },
+      "synchronousDispatch": {
+        "samples": 249,
+        "medianMs": 56.8,
+        "p95Ms": 61.4
+      },
+      "inputToNextFrameEnter": {
+        "samples": 249,
+        "medianMs": 56.8,
+        "p95Ms": 62
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 249,
+        "medianMs": 60.9,
+        "p95Ms": 66.2
+      },
+      "inputsReceived": 249,
+      "zoomInputsReceived": 249
+    },
+    {
+      "name": "[1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch",
+      "rounds": 36,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 6.1,
+        "p95Ms": 66.66
+      },
+      "meanFrameRate": 40.12,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 3.3,
+        "p95Ms": 4.4
+      },
+      "synchronousDispatch": {
+        "samples": 284,
+        "medianMs": 0.5,
+        "p95Ms": 59.8
+      },
+      "inputToNextFrameEnter": {
+        "samples": 284,
+        "medianMs": 0.6,
+        "p95Ms": 59.8
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 284,
+        "medianMs": 4,
+        "p95Ms": 64
+      },
+      "inputsReceived": 284,
+      "zoomInputsReceived": 284
+    }
+  ],
+  "singles": [
+    {
+      "name": "[1920x1080] MK-4 in 1 notch, under the ceiling",
+      "what": "Alt+wheel -100 px; fits: one layout, no halving",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 7.45,
+        "p95Ms": 11.4
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 12.85,
+        "p95Ms": 18.3
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 4.7,
+        "p95Ms": 6.9
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 7.4,
+        "p95Ms": 11.4
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] MK-4 out 1 notch, under the ceiling",
+      "what": "Alt+wheel +100 px",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 2.9,
+        "p95Ms": 5.6
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 7.85,
+        "p95Ms": 14.1
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 4.95,
+        "p95Ms": 8.5
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 2.9,
+        "p95Ms": 5.6
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] MK-4 out 1 notch, from the ceiling",
+      "what": "Alt+wheel +100 px",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 8.4,
+        "p95Ms": 10.9
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 16.45,
+        "p95Ms": 21.3
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 7.75,
+        "p95Ms": 10.5
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 8.35,
+        "p95Ms": 10.8
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] MK-4 in 2 notches, past the ceiling",
+      "what": "Alt+wheel -200 px; steps past the ceiling",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 13.65,
+        "p95Ms": 17.2
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 19.6,
+        "p95Ms": 24.8
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 6.1,
+        "p95Ms": 7.6
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 13.6,
+        "p95Ms": 17.2
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] SK-16c Alt+- from the ceiling",
+      "what": "Alt+Minus",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 4.4,
+        "p95Ms": 15.7
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 13.1,
+        "p95Ms": 27
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 8.25,
+        "p95Ms": 11.3
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 4.1,
+        "p95Ms": 9.6
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] SK-16a Alt+= back to the ceiling",
+      "what": "Alt+Equal; lands on the ceiling",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 7.5,
+        "p95Ms": 15
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 14.2,
+        "p95Ms": 21.4
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 6.55,
+        "p95Ms": 7.2
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 7.4,
+        "p95Ms": 11.1
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x1080] SK-16a Alt+= past the ceiling",
+      "what": "Alt+Equal on the ceiling; may change nothing",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 0.75,
+        "p95Ms": 3.3
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 4.85,
+        "p95Ms": 10.5
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 3.8,
+        "p95Ms": 7.2
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 0.65,
+        "p95Ms": 1.3
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] MK-4 in 1 notch, under the ceiling",
+      "what": "Alt+wheel -100 px; fits: one layout, no halving",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 10.85,
+        "p95Ms": 13.9
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 15.45,
+        "p95Ms": 18.9
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 4.7,
+        "p95Ms": 5
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 10.8,
+        "p95Ms": 13.8
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] MK-4 out 1 notch, under the ceiling",
+      "what": "Alt+wheel +100 px",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 7,
+        "p95Ms": 9.8
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 11.9,
+        "p95Ms": 14.6
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 4.8,
+        "p95Ms": 5.8
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 6.95,
+        "p95Ms": 9.6
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] MK-4 out 1 notch, from the ceiling",
+      "what": "Alt+wheel +100 px",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 8.2,
+        "p95Ms": 9.8
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 15.9,
+        "p95Ms": 19.5
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 7.8,
+        "p95Ms": 10.2
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 8.15,
+        "p95Ms": 9.7
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] MK-4 in 2 notches, past the ceiling",
+      "what": "Alt+wheel -200 px; steps past the ceiling",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 65.2,
+        "p95Ms": 81.1
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 71.35,
+        "p95Ms": 86.4
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 5.4,
+        "p95Ms": 7.1
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 65.15,
+        "p95Ms": 81.1
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] SK-16c Alt+- from the ceiling",
+      "what": "Alt+Minus",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 3.35,
+        "p95Ms": 11.5
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 9.8,
+        "p95Ms": 19.6
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 6.5,
+        "p95Ms": 8.1
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 3.25,
+        "p95Ms": 8.1
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] SK-16a Alt+= back to the ceiling",
+      "what": "Alt+Equal; lands on the ceiling",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 8.65,
+        "p95Ms": 15.4
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 14.15,
+        "p95Ms": 20.4
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 5.15,
+        "p95Ms": 5.5
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 7.1,
+        "p95Ms": 15.2
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    },
+    {
+      "name": "[1920x400] SK-16a Alt+= past the ceiling",
+      "what": "Alt+Equal on the ceiling; may change nothing",
+      "sent": 10,
+      "inputToNextFrameEnter": {
+        "samples": 10,
+        "medianMs": 58.1,
+        "p95Ms": 64.5
+      },
+      "inputToRedrawCallbackEnd": {
+        "samples": 10,
+        "medianMs": 62.15,
+        "p95Ms": 68.3
+      },
+      "insideThatRedrawCallback": {
+        "samples": 10,
+        "medianMs": 3.8,
+        "p95Ms": 4.6
+      },
+      "synchronousDispatch": {
+        "samples": 10,
+        "medianMs": 58,
+        "p95Ms": 64.4
+      },
+      "inputsWithoutFrame": 0,
+      "inputsNotReceived": 0
+    }
+  ],
+  "ceiling": {
+    "1920x1080": {
+      "zoomY": 1.3201474815648044,
+      "stable": true,
+      "reached": true,
+      "oscillates": false,
+      "readings": [
+        1.3201474815648044,
+        1.3201474815648044
+      ],
+      "rowAreaCeilingInForce": false
+    },
+    "1920x400": {
+      "zoomY": 1.1479589316529375,
+      "stable": true,
+      "reached": true,
+      "oscillates": false,
+      "readings": [
+        1.1479589316529375,
+        1.1479589316529375
+      ],
+      "rowAreaCeilingInForce": true
+    },
+    "1920x1600": {
+      "zoomY": 1.3201474815648044,
+      "stable": true,
+      "reached": true,
+      "oscillates": false,
+      "readings": [
+        1.3201474815648044,
+        1.3201474815648044
+      ]
+    },
+    "method": "the font ceiling reads document settings only, the row-area ceiling grows with the window; so a ceiling lower than the one of a taller window is the row-area ceiling",
+    "reading": [
+      "1920x1080: the font ceiling (or S-98) holds; at the tip \"past the ceiling\" inputs return at wanted <= drawn (:3170) and never halve",
+      "1920x400: the row-area ceiling holds; \"past the ceiling\" inputs halve at the tip (one layout + one + about 18)",
+      "\"under the ceiling\" zoom-ins cost one layout (:3171) at the tip and none for the ceiling at 5c1b915; both builds add one layout per change in rowHeldStill"
+    ]
+  },
+  "doubts": [],
+  "notMeasured": []
+}
