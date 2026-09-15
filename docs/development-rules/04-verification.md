@@ -442,3 +442,14 @@ grep -rln "development-records/defects.md" tests/
 ⭐ **割合を測るときの分母は 溝（track）の長さであって、窓の大きさではない**。
 ⚠️ **既定の窓 1920 × 1080 で、横の溝は `x=200 w=1702`、縦の溝は `y=85 h=977` である。**
 ⛔ **窓で割ると、縦の規則が「予測 0.092 対 実測 0.102」となり、守られているものが壊れて見える。**
+
+### 6.11 ⛔⛔ e2e の時間切れは、開発サーバの監視が根の配下を這うことで起きる（`DFC-604`）
+
+⛔⛔ **「`page.goto: Target page, context or browser has been closed`」＋ 30 秒の時間切れを、並行の走行や冷えたサーバの最初の読み込みのせいと読むな。** ⚠️ **その 2 つの読みは、どちらも誤診であった。**
+⚠️ **実測（2026-09-16）**: `playwright.config.ts` が起動する `npm run dev` の Vite の監視（chokidar）が、根の配下の `.claude/worktrees`（作業木 144 個、ファイル約 22 万）を起動から約 150 秒這い、その間の応答が最大 31 秒止まった。「browser has been closed」は afterAll が閉じた結果であり、原因ではない。
+⇒ ⭐ **`vite.config.ts` の `server.watch.ignored` に `**/.claude/**` を置く。** 直す前は `rows-fixed-with-nothing-holding-them.test.ts` が 187 秒で 1 件落ち、直した後は 32 秒で 12/12、`tests/system` は 120/120 だった。
+
+⛔ **温め（globalSetup で 1 度開く）では防げない** —— 詰まりは「最初の 1 回」ではなく「起動からの経過時間」に縛られる。
+⛔ **直す体の作業木で「再現しない」は、原因が根に在るという印である** —— 作業木の中には入れ子の作業木が無い。
+⛔⛔ **e2e を回しているあいだ、根で checkout もファイルの書き込みもするな** —— Vite が `page reload` を送り、描画が消えて試験が落ちる（別の作業木の `scratch/` への書き込みでも 44 回起きた）。
+⇒ **時間切れの形の赤を見たら、trace でサーバの応答の時刻を読め。** ⚠️ 作業木が溜まれば、監視の外の道具にも同じ重さが出うる —— 溜めたら掃け（OneDrive の中ではフォルダが読み取り専用になり、`git worktree remove` / `prune` が `(y/n)` で止まる。`attrib -R` で外してから消す）。
