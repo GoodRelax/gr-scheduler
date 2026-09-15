@@ -1293,7 +1293,8 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
     expect(fresh.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
     expect(fresh.dummies[0]!.at.x, 'T-240 DM-1 (CR-382): GR-9 on the plan start day').toBeCloseTo(xOf(0), 6)
-    expect(fresh.dummies[1]!.at.x, 'T-023d GR-17: S-129 worked day past GR-9, Thu 01-01 -> Fri 01-02').toBeCloseTo(xOf(1), 6)
+    expect(fresh.dummies[1]!.at.x, 'T-023d GR-17 / FR-043: the day is S-129 - 1 worked days past GR-9, Thu 01-01 itself').toBeCloseTo(xOf(0), 6)
+    expect(fresh.dummies[1]!.ink, 'DM-2 / TE-3: one mark for both, GR-17 holds its right half -- a place, not a day').toEqual(fresh.dummies[0]!.ink)
     const started = geometryOf(
       oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-01' })]),
     ).tasks[0]!

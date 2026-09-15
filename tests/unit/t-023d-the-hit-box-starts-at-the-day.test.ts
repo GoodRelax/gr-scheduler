@@ -247,8 +247,11 @@ const PLAN_FINISH = '2026-01-30'
 
 const DUMMY_START_DAY = PLAN_START
 
-/** Where GR-17 stands: 「`GR-9` の日から `S-129` ぶん進んだ稼働日」. */
-const DUMMY_END_DAY = workedDaysAfter(DUMMY_START_DAY, ACTUAL_INITIAL_DURATION)
+// see GR-17, FR-043
+const DUMMY_END_DAY = workedDaysAfter(DUMMY_START_DAY, ACTUAL_INITIAL_DURATION - 1)
+
+// see TE-3
+const ONE_WORKED_DAY_PAST_GR_9 = workedDaysAfter(DUMMY_START_DAY, ACTUAL_INITIAL_DURATION)
 
 /** A milestone that nobody has started -- table T-023d's GR-18. */
 const MILESTONE_DAY = '2026-01-02'
@@ -531,7 +534,7 @@ describe('the rules and the fixture these cases stand on', () => {
     )
   })
 
-  it('draws a day wider than the ink, so GR-17\'s own day stands clear of it', () => {
+  it('draws a day wider than the ink, so the worked day after GR-9 stands clear of it', () => {
     // FR-017 makes one day `pxPerDayAt1x` times `zoomX` (S-1 and S-75). ⭐ The
     // width is re-derived from the layout rather than trusted from ZOOM_X.
     const drawn = draw(notStarted())
@@ -541,7 +544,7 @@ describe('the rules and the fixture these cases stand on', () => {
       .toBeCloseTo(Math.min(drawn.layout.pxPerDay, INK_WIDTH_CAP), 6)
     expect(
       drawn.layout.pxPerDay,
-      'a day must be wider than the ink, or GR-17\'s day would fall inside it',
+      'a day must be wider than the ink, or the worked day after GR-9 would fall inside it',
     ).toBeGreaterThan(ink.width)
   })
 
@@ -642,27 +645,21 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
     })
   }
 
-  it('⭐⭐ GR-17 does NOT answer on the day it stands on, which is outside the mark', () => {
+  it('⭐⭐ GR-17 does NOT answer one worked day past the mark, which is outside the mark', () => {
     // ⭐⭐ THE LEDGER ROW THIS CLOSES (利用者の申し立て 2026-09-10, 逐語「ログ 4 の
     // 操作をすると、意図せず実績が延びる場合がある。 勝手に伸ばすな」). The
     // interaction record's own witness -- the `done` line that follows the press
     // -- read `grab=GR-17` for a press a whole day column right of the mark, and
     // the drag that followed wrote an actual nobody asked for.
-    // ⛔ GR-17's own day is `S-129` worked days past GR-9's (`T-023d`), which
-    // lies outside the mark. ⇒ With the hold being the ink itself, the row has
-    // no pixels out there at all.
-    // ⚠️ The day is still where GR-17 STANDS (the case in the premises above
-    // asserts that); what changed is that standing there no longer grants a
-    // hold there.
     const drawn = draw(notStarted())
     const ink = dummyNamed(drawn, 'GR-17').ink
     const middleY = ink.y + ink.height / 2
-    const onItsOwnDay = xOfDay(drawn, DUMMY_END_DAY) + A_HAIR
-    expect(onItsOwnDay, 'the day GR-17 stands on is clear of the mark')
+    const aDayOn = xOfDay(drawn, ONE_WORKED_DAY_PAST_GR_9) + A_HAIR
+    expect(aDayOn, 'the worked day after GR-9 is clear of the mark')
       .toBeGreaterThan(ink.x + ink.width)
-    const answer = grabAt(drawn, onItsOwnDay, middleY)
-    expect(answer, 'GR-17 reached out to its own day').not.toBe('GR-17')
-    expect(answer, 'GR-9 reached out to GR-17\'s day').not.toBe('GR-9')
+    const answer = grabAt(drawn, aDayOn, middleY)
+    expect(answer, 'GR-17 reached out to the worked day after GR-9').not.toBe('GR-17')
+    expect(answer, 'GR-9 reached out to the worked day after its own').not.toBe('GR-9')
   })
 
   it('⭐⭐ the plan\'s own end point is reachable on a task the old box would have eaten', () => {
@@ -693,7 +690,7 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
     const justOutside = planRight + 1
     expect(justOutside, 'the press is clear of the mark').toBeGreaterThan(ink.x + ink.width)
     expect(justOutside, 'and the withdrawn box would have covered it')
-      .toBeLessThan(xOfDay(drawn, DUMMY_END_DAY) + INK_WIDTH_CAP)
+      .toBeLessThan(xOfDay(drawn, ONE_WORKED_DAY_PAST_GR_9) + INK_WIDTH_CAP)
     expect(grabAt(drawn, justOutside, middleY)).toBe('GR-4')
   })
 })

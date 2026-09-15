@@ -1392,8 +1392,10 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const at = (pxPerDay: number): string => {
         const drawn = draw(
           [
-            task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
-            task({ uid: 2, name: 's', start: day(7), finish: day(9), dependencies: [dependency(1, 1)] }),
+            // WHY: p runs 8 days, not 4: T-013 counts S-31 in NL-1, so a 4-day p pushes its name out
+            // and onto s's lane; the one day of clear air between the bars is unchanged.
+            task({ uid: 1, name: 'p', start: day(2), finish: day(10) }),
+            task({ uid: 2, name: 's', start: day(11), finish: day(13), dependencies: [dependency(1, 1)] }),
           ],
           ['g1', 'g1'],
           [taskVisual(1), taskVisual(2)],

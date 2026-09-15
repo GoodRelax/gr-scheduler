@@ -184,6 +184,8 @@ const FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION = '⛔ マイルストーンの�
 const FR_043_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL =
   '⭐ その姿は、予定と実績のマイルストーンが同じ日にあるときの絵で、実績をダミーに置き換えたものとすること（MUST）'
 const GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY = '終了点を掴んだときは開始点を予定の開始日で確定させること（MUST）'
+const FR_043_GR_17_NAMES_THE_DAY =
+  '終了点の掴みシロ（表 T-023d の `GR-17`）が指す日は、実績開始日の後に来る稼働日を `S-129` − 1 個数えた日（`FR-011` の床の日であり、既定の `S-129` ＝ 1 では実績開始日と同じ日）とすること（MUST）'
 
 /**
  * One generated default read as the number it is. `SETTINGS_DEFAULTS` is
@@ -310,8 +312,17 @@ const CALENDAR_DAY_AFTER_START = dayAfter(PLAN_START)
  */
 const DROPPED_DAY = CALENDAR_DAY_AFTER_START
 
-/** GR-17: `S-129` worked days past GR-9's day, so the dummy is still that long. */
-const DUMMY_END_DAY = workedDaysAfter(PLAN_START, ACTUAL_INITIAL_DURATION)
+// see GR-17, FR-043
+const DUMMY_END_DAY = workedDaysAfter(PLAN_START, ACTUAL_INITIAL_DURATION - 1)
+
+// see FR-011
+const workedDaysFromThrough = (from: string, through: string): number => {
+  let count = 0
+  for (let at = from; at <= through; at = dayAfter(at)) {
+    if (isWorkedDay(at)) count += 1
+  }
+  return count
+}
 
 /**
  * How far the finish handle is pulled out, in worked days from GR-9's own day.
@@ -742,6 +753,7 @@ describe('the fixture stands where these cases think it does', () => {
     expect(REQUIREMENTS).toContain(FR_043_MILESTONE_POSITION_IS_NO_EXCEPTION)
     expect(REQUIREMENTS).toContain(FR_043_MILESTONE_DUMMY_IS_THE_SAME_DAY_ACTUAL)
     expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY)
+    expect(REQUIREMENTS).toContain(FR_043_GR_17_NAMES_THE_DAY)
   })
 })
 
@@ -760,22 +772,30 @@ describe('table T-240 DM-1 / T-023d GR-9 / GR-17 (CR-382): the dummy stands on t
     )
   })
 
-  it('puts GR-17 S-129 working days past GR-9, so the dummy is still S-129 long', () => {
+  it('puts GR-17 on the worked day S-129 - 1 past GR-9, so the dummy is still S-129 long', () => {
     const drawn = draw(notStarted())
     const task = taskDrawn(drawn)
     const start = dummyNamed(task, 'GR-9')
     const end = dummyNamed(task, 'GR-17')
-    expect(end.at.x, `GR-17 must stand on ${DUMMY_END_DAY}`).toBeCloseTo(
+    expect(end.at.x, `${FR_043_GR_17_NAMES_THE_DAY} -- ${DUMMY_END_DAY}`).toBeCloseTo(
       xOfDay(drawn, DUMMY_END_DAY),
       6,
     )
-    // Stated a second way, so a change of S-129 is visible here as a length and
-    // not only as a day: the span of the two handles IS the placed duration.
+    expect(
+      workedDaysFromThrough(PLAN_START, DUMMY_END_DAY),
+      'FR-011 counts GR-9 day through GR-17 day as the S-129 of DM-2',
+    ).toBe(ACTUAL_INITIAL_DURATION)
     expect(end.at.x - start.at.x).toBeCloseTo(
       xOfDay(drawn, DUMMY_END_DAY) - xOfDay(drawn, PLAN_START),
       6,
     )
-    expect(end.at.x).toBeGreaterThan(start.at.x)
+    expect(end.at.x, 'not S-129 worked days past GR-9, which would make the actual S-129 + 1 days')
+      .not.toBeCloseTo(xOfDay(drawn, workedDaysAfter(PLAN_START, ACTUAL_INITIAL_DURATION)), 6)
+    expect(end.at.x).toBeGreaterThanOrEqual(start.at.x)
+    expect(
+      grabOnTheFinishHalfOfTheMark(drawn, end),
+      'TE-3: the day is not the place -- GR-17 holds the right half of the one mark',
+    ).toBe('GR-17')
   })
 
   it('stands the mark inside the plan bar\'s left end, where GR-3 answers only outside it', () => {

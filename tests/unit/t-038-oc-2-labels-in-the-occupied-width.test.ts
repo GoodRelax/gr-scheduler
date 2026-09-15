@@ -956,10 +956,6 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     if (endpoint === undefined) throw new Error('FR-043 drew no GR-17 to hang the marker off')
     // ⭐⭐ THE HOLD IS THE DRAWN MARK ITSELF (MUST, the closing rule of table
     // T-023d, 利用者の裁定 2026-09-10), so its right edge is the rectangle's.
-    // ⛔⛔ NOT `at.x` PLUS THE MARK'S WIDTH, which lands one whole worked day
-    // too far right: FR-043 draws ONE mark on GR-9's day and GR-17 merely
-    // STANDS `S-129` days further on, so `at.x` is not a corner of anything
-    // drawn. ⚠️ GR-17's own row says as much -- 「⛔ 当たり判定はこの日には無い」.
     return endpoint.ink.x + endpoint.ink.width
   }
 

@@ -11,18 +11,7 @@
 // ⛔ That file pins `fadeInDays` and `fadeOutDays` to `null` in every case and
 // says nothing about either; this file owns the fade alone.
 //
-// THE LINE THIS FILE RESTS ON -- the prose after table T-013
-// (docs/spec/01-04-requirements.md:1167):
-//
-//   「**フェードを持つ形状では、`NL-1` の「タスクの幅」を、形状の幅から
-//    `fadeIn` と `fadeOut` を引いた残りとすること（MUST）。形状の中に書くとき
-//    は、`fadeIn` が終わる位置から書き始めること（MUST）。フェードの上に名称
-//    ラベルを重ねてはならない（MUST NOT）** …… ⚠️ **引くのは 表 T-012a の
-//    `FD-6` / `FD-6b` が切り詰めた後の値とすること（MUST）** …… ⚠️ **フェード
-//    を持つのは 表 T-012 の `SH-1` と `SH-2` だけである**（表 T-012a の
-//    `FD-5`）ので、ほかの 3 つの形状で本規則は何も変えない。⛔ **幅を引かずに
-//    書き始めだけを寄せてはならない（MUST NOT）** —— **`NL-1` が「収まる」と
-//    判じたラベルが、形状の右端を越える。**」
+// see T-013
 //
 //   T-013 NL-1 「打ち切った後のラベルがタスクの幅に収まる | 形状の中に書く」
 //   T-013 NL-3 「収まらない | 形状の右に出す」

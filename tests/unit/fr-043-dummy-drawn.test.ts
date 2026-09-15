@@ -372,14 +372,7 @@ const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:
 /** The Task these cases watch, and one row above it so it is not at the edge. */
 const UNDER_TEST = 1
 
-/**
- * `S-129` worked days, read from the generated defaults rather than typed.
- *
- * FR-043 (MUST): 「実績期間（`actualDuration`）＝ `_assets/tbl-settings.md` の
- * `S-129`」, and T-023d's GR-17 stands 「`GR-9` の日から `S-129` ぶん進んだ稼働日」
- * -- so this one number both makes the twin document below and says how far
- * apart the two dummies stand.
- */
+// see FR-043, S-129
 const ACTUAL_INITIAL_DURATION = ((): number => {
   const value = SETTINGS_DEFAULTS['actualInitialDuration']
   if (typeof value !== 'number') throw new Error('S-129 is not a number')
@@ -1358,22 +1351,19 @@ const taskGeometryOf = (pictures: TwoPictures, uid: number) => {
   return found
 }
 
-/**
- * How wide one day is in the SHELL's picture.
- *
- * ⛔ NOT `S-1` × the document's `zoomX`. The shell runs table T-068's two
- * passes and FR-055 fits the document to the screen, so the magnification the
- * picture is drawn at is not the one the document stores. ⭐ The specification
- * still says how far apart the two dummies of one `Task` stand -- T-023d's
- * GR-17 is 「`GR-9` の日から `S-129` ぶん進んだ稼働日」, and this document's
- * calendar works every day -- so the picture states its own day width.
- */
-const dayWidthOf = (pictures: TwoPictures, uid: number): number => {
-  const dummies = taskGeometryOf(pictures, uid).dummies
-  const gr9 = dummies.find((one) => one.grab === 'GR-9')
-  const gr17 = dummies.find((one) => one.grab === 'GR-17')
-  if (gr9 === undefined || gr17 === undefined) throw new Error(`Task ${uid} has no pair of dummies`)
-  return (gr17.at.x - gr9.at.x) / ACTUAL_INITIAL_DURATION
+// see DM-1, FR-017, FR-055
+const dayWidthOf = (pictures: TwoPictures, schedule: Schedule, one: number, other: number): number => {
+  const gr9At = (uid: number): number => {
+    const found = taskGeometryOf(pictures, uid).dummies.find((dummy) => dummy.grab === 'GR-9')
+    if (found === undefined) throw new Error(`Task ${uid} has no GR-9`)
+    return found.at.x
+  }
+  const startDayOf = (uid: number): number => {
+    const start = schedule.tasks.find((task) => task.uid === uid)?.start ?? null
+    if (start === null) throw new Error(`Task ${uid} has no plan start`)
+    return Date.parse(`${start.slice(0, 10)}T00:00:00Z`) / 86_400_000
+  }
+  return (gr9At(one) - gr9At(other)) / (startDayOf(one) - startDayOf(other))
 }
 
 describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', () => {
@@ -1388,14 +1378,13 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
   })
 
   it('EP-14 (MUST NOT): what the screen draws for the dummy is not in the export', () => {
-    const pictures = shellPictures(notStartedSchedule())
+    const schedule = notStartedSchedule()
+    const pictures = shellPictures(schedule)
     const dummies = taskGeometryOf(pictures, UNDER_TEST).dummies
-    // ⭐ THE GRAB SIDE IS STILL TWO -- and it MUST be, because `dayWidthOf`
-    // below reads the shell's own day width out of the gap between the pair.
     expect(dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
     // FR-043's 「1 日ぶんと … `S-180` の小さい方」, at the width the shell's own
     // picture gives a day.
-    const width = Math.min(dayWidthOf(pictures, UNDER_TEST), DUMMY_WIDTH_UPPER_BOUND)
+    const width = Math.min(dayWidthOf(pictures, schedule, UNDER_TEST, 2), DUMMY_WIDTH_UPPER_BOUND)
     // ⛔ THE PRECONDITION IS PART OF THE CLAIM. Without it this case passes
     // while nothing is drawn anywhere, which is exactly the state EP-14 must
     // not be confused with: a picture that draws no dummy because the dummy is

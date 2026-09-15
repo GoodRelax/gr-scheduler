@@ -1222,9 +1222,6 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** S-1. FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
   const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
 
-  /** S-129. 表 T-023d の GR-17 は 「`GR-9` の日から `S-129` ぶん進んだ稼働日」. */
-  const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
-
   const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
 
   /** FR-043's 「1 日ぶんと … `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
@@ -1327,19 +1324,16 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
         mark.from,
         `the ダミー begins at its day column's left edge at ${days}`,
       ).toBeCloseTo(planLeft, 6)
-      // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
-      // ⚠️ STATED AS A PLACE AND NOT ONLY AS A COUNT: without this, one mark
-      // drawn at GR-17's column instead of GR-9's would pass the count above,
-      // and at 6px a day the two columns are adjacent.
-      const gr17Left = planLeft + S_129 * dayWidth
+      // see FR-043, DM-1
+      const nextColumnLeft = planLeft + dayWidth
       for (const one of dummies) {
         const span = spanOf(one)
         expect(
-          span.from < gr17Left && gr17Left < span.to,
-          `a ダミーの印 straddles GR-17's day column at ${days}`,
+          span.from < nextColumnLeft && nextColumnLeft < span.to,
+          `a ダミーの印 straddles the day column after GR-9's at ${days}`,
         ).toBe(false)
-        expect(span.from, `a ダミーの印 begins at GR-17's day column at ${days}`).not.toBeCloseTo(
-          gr17Left,
+        expect(span.from, `a ダミーの印 begins at the day column after GR-9's at ${days}`).not.toBeCloseTo(
+          nextColumnLeft,
           6,
         )
       }

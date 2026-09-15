@@ -35,6 +35,7 @@ import {
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
 import * as screenRendererModule from '../../src/adapter/screen-renderer/screen-renderer'
+import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   commandFromInput,
   NOT_STORED_ZOOM_STEP,
@@ -60,16 +61,37 @@ const T_013_WIDTH_FROM_THE_MARKER =
   '置の左端が、形状の右端より左にあるときは、`NL-1` の「タスクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）'
 
 const T_013_WRITING_STARTS_THERE =
-  'スクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）。形状の中に書くときは、その位置から書き始めること（MUST）'
+  'スクの幅」を、そのマーカーの右端に `_assets/tbl-settings.md` の 表 T-201 の `S-32` を足した位置から形状の右端までとすること（MUST）。形状の中に書くときは、その位置を名称ラベルの箱の左端とすること（MUST）'
 
 const T_013_NO_LABEL_OVER_THE_MARKER =
-  '中に書くときは、その位置から書き始めること（MUST） —— 名称ラベルの左に状態の記号が来る並びは、形状の外へ出したときの 表 T-243 の `OR-1` と同じである。⛔ マーカーの上に名称ラベルを重ねてはならない（MUST NOT）'
+  '中に書くときは、その位置を名称ラベルの箱の左端とすること（MUST） —— 名称ラベルの左に状態の記号が来る並びは、形状の外へ出したときの 表 T-243 の `OR-1` と同じである。⛔ マーカーの上に名称ラベルを重ねてはならない（MUST NOT）'
 
 const T_013_COUNTED_IN_THE_BASE_COMBINATION =
   'ならない（MUST NOT） —— 状態の記号も名前も読めなくなる。⭐ マーカーの位置は、いまの表示の組（同書の 表 T-202 の `S-63` / `S-227` / `S-228`）によらず、基準の組で立つ位置で数えること（MUST）'
 
 const T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT =
-  '形状の中に書いたラベルには重ならない —— そのラベルは形状の右端より左で終わる。⚠️ フェードを持つ形状では、書き始めは `fadeIn` が終わる位置と、マーカーの右端に `S-32` を足した位置の、右にあるほうとすること（MUST）'
+  '形状の中に書いたラベルには重ならない —— そのラベルは形状の右端より左で終わる。⚠️ フェードを持つ形状では、箱の左端は `fadeIn` が終わる位置と、マーカーの右端に `S-32` を足した位置の、右にあるほうとすること（MUST）'
+
+const T_013_FADE_IN_END_IS_THE_BOX_LEFT =
+  'フェードを持つ形状では、`NL-1` の「タスクの幅」を、形状の幅から `fadeIn` と `fadeOut` を引いた残りとすること（MUST）。形状の中に書くときは、`fadeIn` が終わる位置を名称ラベルの箱の左端とすること（MUST）'
+
+const T_013_BOTH_FADE_AND_MARKER_WIDTH =
+  '⭐ フェードとマーカーの両方があるときの `NL-1` の「タスクの幅」は、その箱の左端から、形状の右端から `fadeOut` を引いた位置までとし、ラベルの内側の余白（同書の 表 T-201 の `S-31`）はこの幅から 1 回だけ引くこと（MUST）'
+
+const T_013_S_31_IS_INSIDE_THE_BOX =
+  '後者だけで数えるとフェードの上に、名称ラベルが乗る。⭐ `S-31` は名称ラベルの箱の内側の余白であり、字は箱の左端から `S-31` だけ右から書くこと（MUST）'
+
+const T_013_NL_1_FITS_WITH_S_31 =
+  '⭐ `NL-1` の「収まる」は、打ち切った後のラベルの字の幅に `S-31` を足した長さが、箱の左端から形状の右端 − `fadeOut`（フェードもマーカーも無ければ形状の右端）までに収まることとすること（MUST）'
+
+const T_013_S_31_NOT_TWICE =
+  'までに収まることとすること（MUST）。⛔ `S-31` を 2 回数えてはならない（MUST NOT）'
+
+const T_243_THE_LEFT_EDGE_IS_THE_BOX =
+  '予定バーの右端の外側へ移した位置。⭐ ここでいう名称ラベルの左端は、名称ラベルの箱の左端とすること（MUST）'
+
+const FR_049_THE_ACCIDENT_IS_NAME_OCCUPANCY_AND_BAND =
+  '⛔ 隠したものを占有から外してはならない（MUST NOT） —— 外すと、予定だけ・実績だけの表示に切り替えるたびに名称ラベルの位置と、`OC-1` を経た占有幅と、行の帯高が動き、段が組み替わる。⚠️ 進捗マーカーを描く位置は本段の対象ではない —— 表示の組で決めるのは `FR-013` であり、予定だけの表示ではマーカーは予定バーの右端の外側へ移る。'
 
 const T_243_SAME_LEFT_EDGE_WHETHER_DRAWN =
   'と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）'
@@ -84,7 +106,7 @@ const T_243_LABEL_LEFT_EDGE =
   'の `S-63` がマーカーと再開アイコンの両方を持つ。⭐ 名称ラベルの左端は、形状の右端と、次の ① ② に立つ進捗マーカーの右端のうち、いちばん右にあるものに 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
 
 const T_243_HIDDEN_SHAPE_KEEPS_ITS_EDGE =
-  'FR-013` がマーカーを予定バーの右端の外側へ移した位置。⭐ ここでいう形状の右端は、予定・実績・ダミーを表示の切り替え（表 T-202 の `S-227` / `S-228`）で隠しているときも、描いたときの占有で数えること（MUST）'
+  '1 回だけ数える（規則は 表 T-013 の後の段が持ち、形状の中と同じ数え方である）。⭐ ここでいう形状の右端は、予定・実績・ダミーを表示の切り替え（表 T-202 の `S-227` / `S-228`）で隠しているときも、描いたときの占有で数えること（MUST）'
 
 const T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN =
   '隠しているときも、描いたときの占有で数えること（MUST）。⭐ `S-63` / `S-227` / `S-228` のどの組でも、マーカーが立つ位置は ① か ② のどちらかであるので、この 2 つを表示の組によらず数えること（MUST）'
@@ -139,7 +161,14 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-038 OC-10 (MUST) -- the label bottom is placed from the drawn figure top', OC_10_LABEL_SITS_ON_THE_FIGURE_TOP],
   ['T-038 OC-10 (MUST) -- counted whether or not the task has a name', OC_10_WITH_OR_WITHOUT_A_NAME],
   ['T-013 (MUST) -- the NL-1 width runs from marker (1) + S-32 to the shape right', T_013_WIDTH_FROM_THE_MARKER],
-  ['T-013 (MUST) -- a name written inside starts there', T_013_WRITING_STARTS_THERE],
+  ['T-013 (MUST) -- a name written inside has its box left edge there', T_013_WRITING_STARTS_THERE],
+  ['T-013 (MUST) -- with a fade, the fadeIn end is the box left edge', T_013_FADE_IN_END_IS_THE_BOX_LEFT],
+  ['T-013 (MUST) -- with both a fade and a marker, the width takes S-31 off once', T_013_BOTH_FADE_AND_MARKER_WIDTH],
+  ['T-013 (MUST) -- S-31 is the padding inside the box, the glyphs start S-31 right of it', T_013_S_31_IS_INSIDE_THE_BOX],
+  ['T-013 (MUST) -- NL-1 fits the glyph width plus S-31', T_013_NL_1_FITS_WITH_S_31],
+  ['T-013 (MUST NOT) -- S-31 is not counted twice', T_013_S_31_NOT_TWICE],
+  ['T-243 (MUST) -- the name label left edge is the box left edge', T_243_THE_LEFT_EDGE_IS_THE_BOX],
+  ['FR-049 (MUST NOT) -- the accident is the name, the occupancy and the band, not where the marker is drawn', FR_049_THE_ACCIDENT_IS_NAME_OCCUPANCY_AND_BAND],
   ['T-013 (MUST NOT) -- no name over the marker', T_013_NO_LABEL_OVER_THE_MARKER],
   ['T-013 (MUST) -- the marker is counted where it stands in the base combination', T_013_COUNTED_IN_THE_BASE_COMBINATION],
   ['T-013 (MUST) -- with a fade, the start is whichever of fadeIn end and marker + S-32 is right', T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT],
@@ -674,6 +703,104 @@ describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)
         `fadeInDays ${fadeInDays}: ${T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT}`,
       ).toBeCloseTo(OUTSIDE_LABEL_EDGE_OFFSET(), 6)
     }
+  })
+})
+
+const S_31 = num('labelPad')
+
+// see T-013, T-243
+const nameGlyphXOf = (task: Task): number => {
+  const settings = settingsOf({ assigneeVisible: false, percentCompleteVisible: false })
+  const schedule = rowsOf([[task]])
+  const layout = layoutFromSchedule(schedule, settings, REGIONS)
+  const geometry = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())
+  const svg = svgFromSchedule(schedule, settings, layout, geometry, REGIONS, emptySelection(), 'screen')
+  const figure = svg.indexOf('data-figure="task-1-label"')
+  const opened = figure < 0 ? -1 : svg.lastIndexOf('<text ', figure)
+  const x = opened < 0 ? null : / x="(-?[\d.]+)"/.exec(svg.slice(opened, figure))
+  if (x === null || x === undefined) throw new Error('the name label was not drawn as a text with an x')
+  return Number(x[1])
+}
+
+const shortActualNamed = (name: string, fade: { readonly fadeInDays?: number; readonly fadeOutDays?: number }): Task =>
+  spanning(1, '2026-02-02', 40, {
+    name,
+    percentComplete: 40,
+    actualStart: '2026-02-02',
+    stop: '2026-02-03',
+    resumeValid: true,
+    ...fade,
+  })
+
+describe('T-013 / T-243 (CR-387) -- the name box, and S-31 counted once inside it', () => {
+  it('the box left edge is marker (1) + S-32 inside, the fadeIn end when that is further right, and T-243\'s left edge outside (MUST)', () => {
+    const inside = sceneOf(NAME_INSIDE)
+    expect(inside.placed.labelPlacement).toBe('inside')
+    expect(inside.drawn!.label!.x, T_013_WRITING_STARTS_THERE).toBeCloseTo(markerRightOf(inside.drawn) + S_32, 6)
+    const faded = sceneOf(shortActualNamed('ab', { fadeInDays: 10 }))
+    const fadeEnd = faded.placed.x + 10 * faded.layout.pxPerDay
+    expect(fadeEnd, 'premise: the fade ends right of marker (1) + S-32').toBeGreaterThan(markerRightOf(faded.drawn) + S_32)
+    expect(faded.drawn!.label!.x, T_013_FADE_IN_END_IS_THE_BOX_LEFT).toBeCloseTo(fadeEnd, 6)
+    const outside = sceneOf(IN_PROGRESS)
+    expect(outside.placed.labelPlacement).toBe('right')
+    expect(outside.drawn!.label!.x, T_243_THE_LEFT_EDGE_IS_THE_BOX).toBeCloseTo(outside.placed.actualReach! + MARKER_REACH + S_32, 6)
+  })
+
+  it('the glyphs start S-31 right of the box left edge, inside and outside alike, and not 2 x S-31 (MUST, MUST NOT)', () => {
+    const inside = sceneOf(NAME_INSIDE)
+    const insideBoxLeft = markerRightOf(inside.drawn) + S_32
+    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_IS_INSIDE_THE_BOX).toBeCloseTo(insideBoxLeft + S_31, 6)
+    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_NOT_TWICE).not.toBeCloseTo(insideBoxLeft + 2 * S_31, 6)
+    const outside = sceneOf(IN_PROGRESS)
+    const outsideBoxLeft = outside.placed.actualReach! + MARKER_REACH + S_32
+    expect(nameGlyphXOf(IN_PROGRESS), T_013_S_31_IS_INSIDE_THE_BOX).toBeCloseTo(outsideBoxLeft + S_31, 6)
+  })
+
+  it('NL-1 fits the glyphs plus S-31 into the room from the box left edge to the shape right less fadeOut (MUST)', () => {
+    const halfWidthUnit = RECTANGLE_NAME_PX_AT_UNITY * S_30
+    const FADES = [
+      {},
+      { fadeInDays: 10 },
+      { fadeOutDays: 5 },
+      { fadeInDays: 10, fadeOutDays: 5 },
+      { fadeInDays: 3, fadeOutDays: 5 },
+      { fadeInDays: 1, fadeOutDays: 2 },
+    ] as const
+    let fitsOnlyWithoutS31 = 0
+    let fitsOnceNotTwice = 0
+    for (const fade of FADES) {
+      const probe = sceneOf(shortActualNamed('a', fade))
+      const pxPerDay = probe.layout.pxPerDay
+      const fadeIn = 'fadeInDays' in fade ? fade.fadeInDays : 0
+      const fadeOut = 'fadeOutDays' in fade ? fade.fadeOutDays : 0
+      const boxLeft = Math.max(probe.placed.x + fadeIn * pxPerDay, markerRightOf(probe.drawn) + S_32)
+      const room = probe.placed.x + probe.placed.width - fadeOut * pxPerDay - boxLeft
+      const clause = fadeIn > 0 && fadeOut > 0 ? T_013_BOTH_FADE_AND_MARKER_WIDTH : T_013_NL_1_FITS_WITH_S_31
+      for (let units = 1; units <= 40; units += 1) {
+        const spare = room - units * halfWidthUnit
+        if (spare >= 0 && spare < S_31) fitsOnlyWithoutS31 += 1
+        if (spare >= S_31 && spare < 2 * S_31) fitsOnceNotTwice += 1
+        const expected = spare >= S_31 - 1e-6 ? 'inside' : 'right'
+        const placement = sceneOf(shortActualNamed('a'.repeat(units), fade)).placed.labelPlacement
+        expect({ clause, fade, units, placement }).toEqual({ clause, fade, units, placement: expected })
+      }
+    }
+    expect(fitsOnlyWithoutS31, 'premise: some name would fit if S-31 were not counted').toBeGreaterThan(0)
+    expect(fitsOnceNotTwice, 'premise: some name fits with S-31 once but not twice').toBeGreaterThan(0)
+  })
+
+  it('FR-049: the plan-only view moves where the marker is drawn, and not the name, the occupancy or the band', () => {
+    const shown = sceneOf(STOPS_INSIDE)
+    const planOnly = sceneOf(STOPS_INSIDE, PLAN_ONLY)
+    expect(markerRightOf(planOnly.drawn), 'premise: FR-013 moves the marker in the plan-only view')
+      .not.toBeCloseTo(markerRightOf(shown.drawn), 6)
+    const readingOf = (scene: ReturnType<typeof sceneOf>) => [
+      scene.placed.labelX,
+      scene.placed.occupiedX0,
+      scene.placed.occupiedX1,
+      scene.layout.rows[0]!.height,
+    ]
+    expect(readingOf(planOnly), FR_049_THE_ACCIDENT_IS_NAME_OCCUPANCY_AND_BAND).toEqual(readingOf(shown))
   })
 })
 
