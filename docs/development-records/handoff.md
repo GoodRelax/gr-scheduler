@@ -33,7 +33,7 @@ refactor ブランチで作業を続けよ。
 5. 残る仕様の件: frame-loop の tentativeDependencyOf が translator の断片を写している（台帳の新しい行、表 T-064 の PI-7 に会員を足す CR）。DFC-594（E）は保留（JDG-107）。
 6. 以前からの件: DFC-571 は DFC-558 待ち。DFC-582 の実行時の直しと CR-379 の 2b-B は段 7。異常系は DFC-586（JDG-78）。段 3（門）の提案は refactor-stage3-gates-proposal-2026-09-15.md（新しい基準線 3 つの初期値は入れる前に利用者に見せよ）。
 7. コミット／push は許可済み（JDG-58）。個人情報の点検の数を報告してから行え（file:// と http:// は絶対パスの検出から除く）。タグは利用者が打つ。
-8. .claude/worktrees/ の古い作業木は、利用者の裁定（2026-09-14）で見送った。利用者が再起動した後にだけ掃け。この巡で作業木がさらに 20 本ほど増えた。
+8. .claude/worktrees/ の古い作業木は 2026-09-16 に掃いた（145 本、ブランチ 143 本、git の記録 145 件）。⚠️ OneDrive の中ではフォルダに読み取り専用が付き、git worktree remove / prune が (y/n) で止まる。⛔ node_modules がリポジトリの根へのジャンクションになっている作業木がある —— 先にリンクだけを外し、attrib -R の後に rd /s /q で消し、.git\worktrees も attrib -R してから prune せよ。作業木が溜まると Vite の監視が重くなる（DFC-604 は vite.config.ts で .claude を外して直した）。
 ```
 
 ---
