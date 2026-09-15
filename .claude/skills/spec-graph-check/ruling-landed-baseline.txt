@@ -1,4 +1,12 @@
-6
+9
+#
+# RAISED 6 -> 9 on 2026-09-16, with the user's approval (asked in chat: "検査 43 の基準線を 6 → 9 に
+# 上げてよい"). Four rulings were recorded before anything lands them: JDG-122 and JDG-123 (the
+# display-size change request and the answers to its nine questions -- next session's spec wave),
+# JDG-124 (stage 3's three baselines and four recommendations -- the commit that installs the
+# gates) and JDG-125 (the full-screen icon and F11 do nothing -- CR-389 and its fix). The count
+# before them was 5 (JDG-78, JDG-85, JDG-87, JDG-102, JDG-107), so the line also absorbs the
+# one-row slack the last landing left. Lower it in each landing commit: to 8 when JDG-125 lands.
 #
 # LOWERED 19 -> 6 on 2026-09-15, with the user's approval (JDG-111): the spec wave CR-380 ..
 # CR-385 landed JDG-83 .. JDG-101 and the day's answers; JDG-114 (the pointer-over-target form
