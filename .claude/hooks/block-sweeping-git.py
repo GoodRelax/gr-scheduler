@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse guard: refuse git commands that sweep up other sessions' changes.
 
-Several Claude sessions may share this checkout (docs/guides/parallel-agents-en.md).
+Several Claude sessions may share this checkout (docs/development-rules/parallel-agents-en.md).
 A command that stages or stashes everything takes another session's uncommitted
 work with it, so these are refused:
 
@@ -21,7 +21,7 @@ import re
 import shlex
 import sys
 
-GUIDE = 'docs/guides/parallel-agents-en.md'
+GUIDE = 'docs/development-rules/parallel-agents-en.md'
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 ASSIGNMENT = re.compile(r'[A-Za-z_][A-Za-z0-9_]*=.*')
 SHORT_CLUSTER = re.compile(r'-[A-Za-z]+')
@@ -188,7 +188,7 @@ SELF_TEST = [
     ('git status --porcelain', False),
     ('git log --all --oneline', False),
     ('echo git add -A', False),
-    ('grep -n "git stash" docs/guides/parallel-agents-ja.md', False),
+    ('grep -n "git stash" docs/development-rules/parallel-agents-ja.md', False),
     ("git commit -m 'it's broken", False),
 ]
 
