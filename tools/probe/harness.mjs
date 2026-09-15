@@ -17,7 +17,7 @@
 //   import { open, press, until, roles, textsEqual, close } from '../../tools/probe/harness.mjs'
 //   const tab = await open()
 //   await press('IC-79')
-//   await until(() => textsEqual('%') > 0, 'percent labels appear')
+//   await until(async () => (await textsEqual('%')) > 0, 'percent labels appear')
 //   await close()
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'node:url'
@@ -69,15 +69,20 @@ export async function close() {
 // ------------------------------------------------------------------ waiting --
 
 /**
- * Wait until `probe` answers truthy, polling in the page.
+ * Wait until `probe` answers truthy, polling until it does.
  *
  * ⭐ THIS IS THE ONE THAT SAVES THE TIME. Probes used to sprinkle
  * `waitForTimeout(300..900)` after every action -- six per file on average, all
  * of them guesses, all of them paid in full whether or not the app had already
  * finished. Waiting on the condition finishes as soon as it is true.
  *
- * @param probe a function evaluated IN THE PAGE, or a local function taking no
- *   arguments that itself awaits page reads
+ * @param probe a FUNCTION is called IN NODE (`await probe()`) -- it is the
+ *   caller's job to await its own page reads inside it. Only a STRING probe is
+ *   evaluated IN THE PAGE (`page().evaluate(probe)`).
+ *   ⛔ A function probe that reads `window` or `document` directly throws in
+ *   Node, and the `catch` below turns that throw into `false` -- so it silently
+ *   never succeeds. Pass a string, or call `page().evaluate(...)` inside the
+ *   function instead.
  */
 export async function until(probe, label = 'condition', { timeout = 5000, every = 50 } = {}) {
   const started = Date.now()

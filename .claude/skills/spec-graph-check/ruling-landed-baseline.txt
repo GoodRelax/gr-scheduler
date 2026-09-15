@@ -1,4 +1,13 @@
-8
+12
+#
+# RAISED 8 -> 12 on 2026-09-16 (second session), with the user's approval (asked in chat: "今記録して
+# 12 に上げる"). Four rulings were recorded before anything lands them: JDG-126 (DFC-610 is fixed in
+# the display-size change request's implementation wave), JDG-127 (the extra A/B counts under
+# JDG-50; DFC-611 is traced before it is fixed), JDG-128 (stage 3 baselines re-measured on the tree
+# with the display wave in are installed if every difference is explained by that wave's diff) and
+# JDG-129 (the front session may run the DFC-610 A/B and the DFC-611 trace while the user is away).
+# Lower it in each landing commit: JDG-122/123/126 with the display-size wave, JDG-124/128 with the
+# stage 3 gates, JDG-127/129 when DFC-611's measurement and fix are recorded.
 #
 # LOWERED 9 -> 8 on 2026-09-16, as planned in the raise below: JDG-125 landed with CR-389
 # (FR-071, table T-233's RS-59, UF-48, table T-078's FT-6) and its implementation wave, and its
