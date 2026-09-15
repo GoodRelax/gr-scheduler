@@ -1166,7 +1166,20 @@ const PROBES: readonly Probe[] = [
   { rows: ['SK-15'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'F11') },
   { rows: ['SK-16'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+=', 'time', 'in') },
   { rows: ['SK-16b'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Shift+-', 'time', 'out') },
-  { rows: ['SK-16a'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Alt+=', 'row', 'in') },
+  {
+    // WHY: MK-4's three notches leave the row axis at its FR-016 ceiling, where
+    // WHY: Alt+= has nothing left to take; one notch out in setUp leaves it room,
+    // WHY: and SK-16c still starts from where it started before.
+    // see FR-016, SK-16a, SK-16c, MK-4
+    rows: ['SK-16a'],
+    expect: 'answers',
+    setUp: async (p) => {
+      await p.keyboard.press('Alt+-')
+      await settled(p)
+      await selectBar(p, await geometryOf(p))
+    },
+    act: async (p) => zoomStroke(p, 'Alt+=', 'row', 'in'),
+  },
   { rows: ['SK-16c'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Alt+-', 'row', 'out') },
   { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },

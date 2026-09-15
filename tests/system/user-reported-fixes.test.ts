@@ -10,6 +10,7 @@ import { rowOf } from './sws-case'
 
 const T025: SpecTable = specTable('T-025')
 const T109: SpecTable = specTable('T-109')
+const T201: SpecTable = specTable('T-201')
 const T202: SpecTable = specTable('T-202')
 const T206: SpecTable = specTable('T-206')
 const T212: SpecTable = specTable('T-212')
@@ -1194,20 +1195,64 @@ function rowAreaSpanOf(
   return bottom - top
 }
 
+// see FR-016, FR-077, FR-094, S-4, S-5, S-7, S-13, S-36, S-38
+const T201_COLUMNS = 7
+const T201_DEFAULT = 3
+
+/** @purity pure */
+function drawingSettingOf(rowId: string): number {
+  return numberIn(cellOf(T201, rowId, T201_DEFAULT, T201_COLUMNS), `table T-201 row ${rowId}`)
+}
+
+const RECTANGLE_NAME_PX_AT_ONE =
+  drawingSettingOf('S-4') * drawingSettingOf('S-13') * drawingSettingOf('S-5') *
+  drawingSettingOf('S-7')
+
+const DEPTH_ONE_ROW_NAME_PX = drawingSettingOf('S-36') * drawingSettingOf('S-38')
+
+const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_ONE
+
+const NAME_PX_TOLERANCE = 0.02
+
+/** @purity semi-pure-b */
+async function nameLabelFontsNow(page: Page): Promise<Readonly<Record<string, number>>> {
+  return page.evaluate((selector: string) => {
+    const fonts: Record<string, number> = {}
+    const svg = window.document.querySelector(selector)
+    if (svg === null) return fonts
+    for (const element of Array.from(svg.querySelectorAll('[data-figure]'))) {
+      const key = element.getAttribute('data-figure') ?? ''
+      if (!/^task-\d+-label$/.test(key)) continue
+      const text = element.tagName.toLowerCase() === 'text' ? element : element.querySelector('text')
+      if (text !== null) fonts[key] = Number.parseFloat(getComputedStyle(text).fontSize)
+    }
+    return fonts
+  }, CANVAS)
+}
+
+/** @purity pure */
+function fontsOfKeys(
+  fonts: Readonly<Record<string, number>>,
+  keys: readonly string[],
+): readonly number[] {
+  return keys.flatMap((key) => (fonts[key] === undefined ? [] : [fonts[key] ?? 0]))
+}
+
 test('DFC-374: magnifying the row axis stops before one row fills the Row Area', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
   const app = await openTheApp(baseURL)
-  const wheelAway = async (times: number): Promise<void> => {
+  const wheelBy = async (times: number, deltaY: number): Promise<void> => {
     for (let turn = 0; turn < times; turn++) {
       await app.page.keyboard.down('Alt')
-      await app.page.mouse.wheel(0, -120)
+      await app.page.mouse.wheel(0, deltaY)
       await app.page.keyboard.up('Alt')
       await app.page.waitForTimeout(35)
     }
     await readSettledDrawnSvg(app.page)
   }
+  const wheelAway = async (times: number): Promise<void> => wheelBy(times, -120)
   try {
     const canvasBox = await canvasBoxNow(app.page)
     expect(canvasBox, 'the Schedule Canvas is not on the screen').not.toBeNull()
@@ -1219,15 +1264,40 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
 
     const opened = await rowBandsNow(app.page)
     expect(opened.length, 'the document opens drawing fewer than three rows').toBeGreaterThan(2)
-    let whenNoNameWasCut: number | null = null
-    for (let turn = 0; turn < 45; turn++) {
-      const bands = await rowBandsNow(app.page)
-      if (whenNoNameWasCut === null && bands.every((band) => !band.isCut)) {
-        whenNoNameWasCut = tallestBandOf(bands)
-      }
-      await wheelAway(1)
-    }
+    const openedFonts = await nameLabelFontsNow(app.page)
+    const rectangles = Object.keys(openedFonts).filter(
+      (key) => Math.abs((openedFonts[key] ?? 0) - RECTANGLE_NAME_PX_AT_ONE) < NAME_PX_TOLERANCE,
+    )
+    expect(
+      rectangles.length,
+      `no name label opens at ${RECTANGLE_NAME_PX_AT_ONE.toFixed(4)}px (S-4 x S-13 x S-5 x S-7 ` +
+        'at the zoomY of 1 that S-76 opens with), so no rectangle can be told from the drawing',
+    ).toBeGreaterThan(0)
+    await wheelAway(45)
     const tall = await rowBandsNow(app.page)
+    const tallFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
+    expect(tallFonts.length, 'no rectangle drawn at the opening is still drawn after the wheel')
+      .toBeGreaterThan(0)
+    const expectedAtTextCeiling = RECTANGLE_NAME_PX_AT_ONE * TEXT_CEILING_ZOOM_Y
+    const worstAtTextCeiling = Math.max(
+      ...tallFonts.map((font) => Math.abs(font - expectedAtTextCeiling)),
+    )
+    expect(
+      worstAtTextCeiling,
+      `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」 —— ` +
+        `「矩形（\`_assets/tbl-settings.md\` の 表 T-201 の \`S-13\`）のタスクの名称ラベルの字が、` +
+        `深さ 1 の行の名前の字（同表の \`S-36\` × \`S-38\`）に等しくなる倍率である」. On the ` +
+        `1080px window the band ceiling is the larger, so the stop is zoomY ` +
+        `${TEXT_CEILING_ZOOM_Y.toFixed(4)} and a rectangle's name ${expectedAtTextCeiling.toFixed(2)}px; ` +
+        `the rectangles read ${tallFonts.map((font) => font.toFixed(2)).join(', ')}px ` +
+        `(「形状によらず矩形で測ること（MUST）」)`,
+    ).toBeLessThan(NAME_PX_TOLERANCE)
+    expect(
+      tall.filter((band) => band.isCut).length,
+      `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
+        'The magnifying settled with no cut row name standing, so this build cannot be told ' +
+        'apart from one that stopped when the mark cleared',
+    ).toBeGreaterThan(0)
     const tallPitch = rowPitchOf(tall)
     expect(
       tallestBandOf(tall),
@@ -1251,20 +1321,6 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
       `ten more notches took the row pitch from ${String(tallPitch)} to ${String(further)}, so ` +
         'the magnification has no ceiling at all',
     ).toBeCloseTo(tallPitch ?? 0, 0)
-
-    expect(
-      whenNoNameWasCut,
-      'no cut row name was ever cleared during the sweep, so this build cannot be told apart ' +
-        'from one that stopped on the mark',
-    ).not.toBeNull()
-    expect(
-      tallestBandOf(tall),
-      `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
-        `The last cut row name cleared while the tallest band stood at ` +
-        `${(whenNoNameWasCut ?? 0).toFixed(1)}px and the magnifying settled at ` +
-        `${tallestBandOf(tall).toFixed(1)}px -- a build that stopped on the mark would have ` +
-        'stopped at the first of the two',
-    ).toBeGreaterThan((whenNoNameWasCut ?? 0) + 1)
 
     await app.page.setViewportSize({ width: 1920, height: 700 })
     await readSettledDrawnSvg(app.page)
@@ -1295,18 +1351,62 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
       `the shorter window did not shorten the Row Area (${shortArea.toFixed(2)}px against ` +
         `${tallArea.toFixed(2)}px), so the two readings are one reading`,
     ).toBeLessThan(tallArea)
-    const bandFall = tallestBandOf(short) / tallestBandOf(tall)
-    const areaFall = shortArea / tallArea
+
+    // WHY: the text ceiling does not read the window, so only a window short
+    // WHY: enough for the band ceiling to be the smaller one can show the band
+    // WHY: ceiling at work; 400px was measured to be one, 300px zooms not at all.
+    // see FR-016, T-025, MC-6
+    await app.page.setViewportSize({ width: 1920, height: 400 })
+    await readSettledDrawnSvg(app.page)
+    const lowBox = await canvasBoxNow(app.page)
+    expect(lowBox, 'the Schedule Canvas is not on the 400px window').not.toBeNull()
+    if (lowBox === null) return
+    await app.page.mouse.move(
+      Math.round(lowBox.x + lowBox.width / 2),
+      Math.round(lowBox.y + lowBox.height / 2),
+    )
+    await wheelBy(45, 120)
+    await wheelAway(45)
+    const low = await rowBandsNow(app.page)
+    const lowFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
+    expect(lowFonts.length, 'no rectangle drawn at the opening is drawn on the 400px window')
+      .toBeGreaterThan(0)
     expect(
-      bandFall,
-      `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
-        `「画面の高さから導く。」 The tallest band settles at ${tallestBandOf(short).toFixed(2)}px ` +
-        `on a 700px window and at ${tallestBandOf(tall).toFixed(2)}px on a 1080px one, a fall to ` +
-        `${bandFall.toFixed(4)}, while the Row Area fell to ${areaFall.toFixed(4)} ` +
-        `(${shortArea.toFixed(2)}px against ${tallArea.toFixed(2)}px). A ceiling read off the ` +
-        'screen falls with the screen; one read off a stored number holds most of its height ' +
-        'and is only dragged down by the cutting',
-    ).toBeLessThan(areaFall * 1.25)
+      Math.min(...lowFonts),
+      `the 400px window settled with rectangle names of ${lowFonts.map((f) => f.toFixed(2)).join(', ')}px, ` +
+        `no larger than the ${RECTANGLE_NAME_PX_AT_ONE.toFixed(2)}px of zoomY 1, so nothing was ` +
+        'zoomed and which ceiling stopped it cannot be read',
+    ).toBeGreaterThan(RECTANGLE_NAME_PX_AT_ONE + NAME_PX_TOLERANCE)
+    expect(
+      Math.max(...lowFonts),
+      `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」; ` +
+        `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
+        `「画面の高さから導く。」 On a 400px window the rectangle names settle at ` +
+        `${lowFonts.map((f) => f.toFixed(2)).join(', ')}px against the ` +
+        `${expectedAtTextCeiling.toFixed(2)}px of the text ceiling -- the band ceiling read off ` +
+        'this screen is the smaller one here; a build with the text ceiling alone, or with no ' +
+        'ceiling, reaches the text ceiling or passes it',
+    ).toBeLessThan(expectedAtTextCeiling - NAME_PX_TOLERANCE)
+    expect(
+      tallestBandOf(low),
+      `FR-016 (MUST): on the 400px window the tallest band reads ${tallestBandOf(low).toFixed(2)}px ` +
+        `against a ${rowAreaSpanOf(low).toFixed(2)}px Row Area`,
+    ).toBeLessThan(rowAreaSpanOf(low))
+    const lowByKey = await nameLabelFontsNow(app.page)
+    await wheelAway(10)
+    const furtherByKey = await nameLabelFontsNow(app.page)
+    const heldKeys = rectangles.filter(
+      (key) => lowByKey[key] !== undefined && furtherByKey[key] !== undefined,
+    )
+    const lowFurther = fontsOfKeys(furtherByKey, heldKeys)
+    expect(heldKeys.length, 'no rectangle stayed drawn through the ten further notches')
+      .toBeGreaterThan(0)
+    expect(
+      Math.max(...heldKeys.map((key) => Math.abs((furtherByKey[key] ?? 0) - (lowByKey[key] ?? 0)))),
+      `ten more notches on the 400px window took the rectangle names from ` +
+        `${lowFonts.map((f) => f.toFixed(2)).join(', ')}px to ` +
+        `${lowFurther.map((f) => f.toFixed(2)).join(', ')}px, so the band ceiling does not hold`,
+    ).toBeLessThan(NAME_PX_TOLERANCE)
   } finally {
     await app.close()
   }
