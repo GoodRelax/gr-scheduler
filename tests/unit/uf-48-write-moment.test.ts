@@ -960,6 +960,7 @@ const EXPECTED_BOOLEAN_KEYS = [
   'dateGridLinesVisible',
   'groupGridLinesVisible',
   'baselineVisible',
+  'planDatesVisible',
 ]
 
 /** S-66's three, read out of its type cell -- FR-048 makes them exclusive. */
@@ -1263,7 +1264,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
-  it('table T-202 gives exactly eight of its thirteen rows a boolean type', () => {
+  it('table T-202 gives exactly eleven of its fifteen rows a boolean type (CR-386 added S-232 planDatesVisible, 真偽)', () => {
     // FR-049 (MUST): the set the requirement names is this one, so a row added
     // or retyped upstream has to reach this file. `S-144` (`watermarkVisible`)
     // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
@@ -1273,7 +1274,7 @@ describe('the tables these ten entrances are driven by', () => {
     // ⭐ S-59 left the four on 2026-09-07 by splitting into the booleans S-227
     // and S-228 (the user's ruling).
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(14)
+    expect(T_202_KEYS.length).toBe(15)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {
