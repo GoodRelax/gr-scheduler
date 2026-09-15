@@ -510,23 +510,24 @@ describe('T-028 IN-2 -- armed for a dependency line, every named place is the de
   })
 })
 
+// see CR-388
 describe('unarmed control -- T-023d places keep their own shapes, not the arrow', () => {
-  it('answers the SAME resize shape at both plan ends, both actual ends and all three dummies', () => {
+  it('answers the SAME resize shape at both plan ends, both actual ends and both task dummies', () => {
     const built = stage()
     const resizeGroup = [
       ...planEnds(built.loop),
       ...actualEnds(built.loop),
       dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9'),
       dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-17'),
-      dummyProbe(built.loop, DUMMY_STONE_UID, 'GR-18'),
     ].map((at) => shapeAt(built, at))
     expect(new Set(resizeGroup).size).toBe(1)
   })
 
-  it('answers the SAME grab shape at the body and the started milestone, distinct from resize', () => {
+  it('answers the SAME grab shape at the body, the started milestone and GR-18, distinct from resize', () => {
     const built = stage()
     const grab = shapeAt(built, barBody(built.loop))
     expect(shapeAt(built, startedMilestone(built.loop))).toBe(grab)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_STONE_UID, 'GR-18'))).toBe(grab)
     expect(grab).not.toBe(shapeAt(built, (planEnds(built.loop)[0] as Point)))
   })
 })

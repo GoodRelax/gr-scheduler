@@ -34,23 +34,10 @@
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   T-028 IN-2  「ポインタの形が、その場所で何ができるかを示すこと（**何にも
-//             当たらない場所は範囲選択の合図、`Ctrl` 併用と中ボタンのパン中は
-//             握った手、構えているときは作図の合図、予定バーと実績バーの端点の
-//             上は横方向の伸縮の合図、タスクの本体とマイルストーンの図形の上は
-//             掴めることの合図**（利用者の裁定 2026-08-27）—— ⛔ **掴めるものの
-//             上で形が変わらないと、選べるのかどうかを押してみるまで確かめられ
-//             ない**）」, and then, since 2026-09-10, ⭐⭐ 「**実績のダミー
-//             （表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮
-//             の合図とすること（MUST）**」（利用者の裁定、逐語「実績タスクを
-//             触れるならマウスカーソルの形状をスライドに変更しろ」）, closing
-//             with 「⚠️ **形の綴りそのものは閉覧環境が持つ** —— 本行が定める
-//             のはどの場所がどの意味を担うかだけである」.
-//             ⭐ THE PLACES ARE READ OUT OF THE MANUSCRIPT at read time by
-//             `placesNamedByIn2()` rather than counted here, so that a new
-//             ruling makes the count fail instead of passing unnoticed.
-//             ⛔⛔ THERE WERE FIVE UNTIL 2026-09-10; the dummies' own clause
-//             made six, and the count is asserted rather than written.
+//   T-028 IN-2  the five places of its first sentence, read out of the
+//             manuscript at read time by `placesNamedByIn2()`. The dummy
+//             sentences after it (GR-9 / GR-17, and GR-18 since CR-388) are
+//             held by in-2-a-the-dummies-say-slide.test.ts.
 //   T-023a    「上から評価し、最初に成立した行で確定すること（MUST）」 with
 //             PTD-1 パン, PTD-2 `Dual Cursor`, PTD-3 何かに当たった, PTD-4 構えて
 //             いるものを作る, PTD-4a 構えが依存線, PTD-5 範囲選択.
@@ -69,10 +56,9 @@
 //   T-023d GR-9 / GR-17  the two dummies FR-043 draws 「未着手のタスクの上」,
 //             both ranked above GR-12 -- which is why the bar Task below is
 //             STARTED.
-//   T-023d GR-18  CR-382 (2026-09-15) put it back on 「予定の開始日」, the
-//             SAME day/size as the figure, still ranked ABOVE GR-12. See the
-//             last describe below and in-2-b-armed-dependency-shows-the-
-//             arrow.test.ts.
+//   T-023d GR-18  on the plan day, the same size as the figure, above GR-12;
+//             it grabs what GR-15 grabs (CR-382) and IN-2 gives it GR-15's
+//             signal (CR-388). See the last describe below.
 //   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
 //             いるタスクにだけ出すこと（MUST）」 for GR-1 / GR-2 -- the fixture
 //             below keeps all four out of the way, and premises measure that.
@@ -1070,27 +1056,12 @@ describe('T-028 IN-2 names five places and no more', () => {
 // ===========================================================================
 // (h) A milestone that has not been started
 // ===========================================================================
-// see CR-382
+// see CR-382, CR-388, GR-18, GR-15
 
-/**
- * T-023d GR-18's own text, held verbatim so check 39 ties this clause to a
- * test and a further edit fails this file instead of leaving a stale quote.
- *
- * CR-382 (2026-09-15) moved GR-18 back onto the SAME day and the SAME
- * size/position as the milestone's own figure (`FR-043`'s milestone
- * exception), and kept it ranked ABOVE `GR-12` (`予定バー本体`) in this
- * table's row order. T-028 IN-2's dummy clause (2026-09-10, held verbatim by
- * `in-2-a-the-dummies-say-slide.test.ts`) still puts GR-9 / GR-17 / GR-18 in
- * the resize group, unchanged by CR-382. ⇒ A not-started milestone's own
- * figure is now entirely covered by GR-18's ink, so GR-18 -- not GR-12 --
- * claims that point, and the shape there is the resize one, not the grab
- * one this file asserted before CR-382 moved GR-18 off the working-day
- * offset it used to sit at.
- */
 const GR_18_GRABS_LIKE_GR_15 =
   '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GR-15` と同じものを掴むこと（MUST）'
 
-describe('T-028 IN-2 on a milestone that has not been started (CR-382)', () => {
+describe('T-028 IN-2 on a milestone that has not been started (CR-382, CR-388)', () => {
   it('answers a shape on its figure at all', () => {
     const built = stage()
     expect(
@@ -1099,20 +1070,16 @@ describe('T-028 IN-2 on a milestone that has not been started (CR-382)', () => {
     ).not.toBeNull()
   })
 
-  it('answers the resize shape (GR-9/GR-17/GR-18), NOT the grab shape a started milestone gets', () => {
+  it('answers the SAME grab shape a started milestone figure (GR-15) gets', () => {
     const built = stage()
     const grab = shapeAt(built, startedMilestone(built.loop))
-    expect(
-      shapeAt(built, newMilestone(built.loop)),
-      GR_18_GRABS_LIKE_GR_15 +
-        ' -- CR-382 put GR-18 on the figure\'s own day/size, ranked above GR-12, so GR-18 (resize) claims the point, not GR-12 (grab)',
-    ).not.toBe(grab)
+    expect(shapeAt(built, newMilestone(built.loop)), GR_18_GRABS_LIKE_GR_15).toBe(grab)
   })
 
-  it('answers the SAME shape as the bar plan end (GR-3) -- IN-2 puts GR-18 in that group', () => {
+  it('answers something OTHER than the bar plan end (GR-3)', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
     const resize = shapeAt(built, left as Point)
-    expect(shapeAt(built, newMilestone(built.loop))).toBe(resize)
+    expect(shapeAt(built, newMilestone(built.loop))).not.toBe(resize)
   })
 })

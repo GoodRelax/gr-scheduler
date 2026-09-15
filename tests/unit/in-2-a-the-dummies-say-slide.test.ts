@@ -1,48 +1,6 @@
-// T-028 IN-2 -- the actual dummies now say the same thing the bar and actual
-// ends say: a horizontal-resize cursor, not the arrow.
-//
-// The unit driven is UF-48 `single-html-shell` (CP-25 of table T-062), whose
-// `frame-loop.ts` answers IN-2 through the sixth argument of `frameLoop`
-// (`showPointerShape`). `tests/unit/in-2-pointer-shape.test.ts` already
-// covers the five places IN-2 named before this round; this file is the one
-// addition the ruling below asks for and does not restate that file's cases.
-//
-// Chapter 9 does not admit `Unit` as a TEST_LEVEL, so this case has no node
-// in the specification. Table T-218 of Chapter 7 gives it its place: TS-6,
-// tests/unit/.
-//
-// ---------------------------------------------------------------------------
-// WHY THIS FILE EXISTS
-// ---------------------------------------------------------------------------
-//
-// T-028 IN-2 named five places until 2026-09-10, and GR-9 / GR-17 / GR-18 --
-// the three actual-dummy marks FR-043 draws on a Task that has not started --
-// were not among them. The user's ruling of 2026-09-10, verbatim 「実績タスクを触れるならマウスカーソルの形状をスライドに変更しろ」,
-// added a sixth clause that names them:
-//
-//   **掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない**）。⭐⭐ **実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）
-//
-// -- read out of the manuscript at read time below rather than typed a
-// second place, so a further wording change moves this file's premise and
-// not just its intent.
-//
-// `frame-loop.ts`'s `POINTER_SHAPE_BY_GRAB` gave all three `null` before this
-// round, on the ground that IN-2 named no dummy -- the ground the ruling
-// above removed. MEASURED BEFORE THE FIX (this file, red): the three cases
-// in the second `describe` below failed, each dummy answering `null` while
-// the bar's own plan end answered a shape.
-//
-// ---------------------------------------------------------------------------
-// THE ROWS THESE CASES REST ON
-// ---------------------------------------------------------------------------
-//   T-028  IN-2   the sixth clause quoted verbatim above, and the existing
-//                 clause it now shares a meaning with: the bar and actual
-//                 ends' own horizontal-resize signal
-//   T-023d GR-9 / GR-17   FR-043's two dummies on a Task not started
-//   T-023d GR-18          the one dummy on a milestone not started -- that
-//                 row's own text says it stands on GR-9's own place
-//   FR-043        draws the dummies only while nothing is started
-//                 (`placed.actualX === null` in `schedule-geometry.ts`)
+// T-028 IN-2 -- the pointer shape on the actual dummies GR-9 / GR-17 / GR-18.
+
+// see IN-2, GR-9, GR-17, GR-18, GR-15, FR-043, CR-388
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -57,7 +15,10 @@ import type {
 import type { ScreenSurface } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task, TaskVisual } from '../../src/entity/document-model/schedule/schedule'
-import type { Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import type {
+  BarGeometry,
+  Point,
+} from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -67,21 +28,11 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable } from '../contract/spec-table'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// see IN-2, GR-9, GR-17
+const IN_2_DUMMY_MUST = '掴めることの合図—— ⛔ 掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない）。⭐ タスクの実績のダミー（表 T-023d の `GR-9` / `GR-17`）の上も、横方向の伸縮の合図とすること（MUST）'
 
-// ---------------------------------------------------------------------------
-// What the manuscript says, read at read time rather than copied a second
-// place -- the same discipline `in-2-pointer-shape.test.ts` uses.
-// ---------------------------------------------------------------------------
-
-/**
- * The trailing slice of T-028 IN-2's own text that ends at its sixth
- * clause's `(MUST)` marker -- held verbatim so check 39
- * (`check-must-clause-coverage.py`) ties this clause to a test, and asserted
- * against the manuscript below so a further edit to IN-2 fails this file
- * instead of leaving a stale quote.
- */
-const IN_2_DUMMY_MUST = '掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない）。⭐ 実績のダミー（表 T-023d の `GR-9` / `GR-17` / `GR-18`）の上も、横方向の伸縮の合図とすること（MUST）'
+// see IN-2, GR-18, GR-15, CR-388
+const IN_2_GR_18_MUST = '⭐ マイルストーンの実績のダミー（表 T-023d の `GR-18`）の上は、同じ日の実績のマイルストーン（表 T-023d の `GR-15`）の図形の上と同じく、掴めることの合図とすること（MUST）'
 
 const IN_2_ROW = specTable('T-028').rows.find((row) => row.id === 'IN-2')
 if (IN_2_ROW === undefined) throw new Error('table T-028 has no row IN-2')
@@ -90,13 +41,11 @@ it('T-028 IN-2 -- the manuscript still carries the dummy clause quoted above', (
   expect(IN_2_ROW.cells.join(' '), IN_2_DUMMY_MUST).toContain(IN_2_DUMMY_MUST)
 })
 
-// ---------------------------------------------------------------------------
-// The document these cases drive: one bar Task and one milestone, NEITHER
-// started, so FR-043 draws GR-9 / GR-17 on the bar and GR-18 on the
-// milestone (`dummiesOf` in `schedule-geometry.ts` returns nothing once
-// `placed.actualX` is set).
-// ---------------------------------------------------------------------------
+it('T-028 IN-2 -- the manuscript still carries the GR-18 clause quoted above', () => {
+  expect(IN_2_ROW.cells.join(' '), IN_2_GR_18_MUST).toContain(IN_2_GR_18_MUST)
+})
 
+// see BT-4, FR-043
 const TEMPLATE_PATH = join(
   process.cwd(),
   'src',
@@ -104,21 +53,30 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
-const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<string, unknown>
+
+interface Template {
+  readonly schemaVersion: unknown
+  readonly schedule: { readonly project: object; readonly calendars: unknown }
+  readonly documentSettings: object
+  readonly documentStamp: unknown
+}
+
+const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Template
 
 const BAR_ROW = '11111111-1111-4111-8111-111111111111'
 const STONE_ROW = '22222222-2222-4222-8222-222222222222'
+const STARTED_STONE_ROW = '33333333-3333-4333-8333-333333333333'
 
-/** Not started: no actual fields at all, so `dummiesOf` draws GR-9 / GR-17. */
 const BAR_UID = 1
 const BAR_START = '2026-04-06'
 const BAR_FINISH = '2026-04-24'
 
-/** Not started: a milestone with no actual, so `dummiesOf` draws GR-18. */
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
 
-/** 1 day is this many px -- wide enough that every probe below is unambiguous. */
+// see GR-15
+const STARTED_STONE_UID = 3
+
 const PX_PER_DAY_AT_1X = 20
 
 const task = (over: Partial<Task> & { readonly uid: number }): Task =>
@@ -133,7 +91,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     notes: null,
     calendarUid: null,
     actualStart: null,
-    actualDuration: null,
+    stop: null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -146,7 +104,7 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
     ...over,
   }) as unknown as Task
 
-/** SH-5 of table T-012 -- a milestone, drawn with the default glyph. */
+// see SH-5
 const milestoneVisual = (taskUid: number): TaskVisual =>
   ({
     taskUid,
@@ -172,7 +130,7 @@ const rowOfSchedule = (id: string, order: number) => ({
 })
 
 function fixtureDocument(): Document {
-  const template = structuredClone(TEMPLATE) as any
+  const template = structuredClone(TEMPLATE)
   const draft = {
     schemaVersion: template.schemaVersion,
     schedule: {
@@ -185,15 +143,28 @@ function fixtureDocument(): Document {
       tasks: [
         task({ uid: BAR_UID, start: BAR_START, finish: BAR_FINISH }),
         task({ uid: STONE_UID, start: STONE_DAY, finish: STONE_DAY, milestone: true }),
+        task({
+          uid: STARTED_STONE_UID,
+          start: STONE_DAY,
+          finish: STONE_DAY,
+          milestone: true,
+          actualStart: STONE_DAY,
+          stop: STONE_DAY,
+        }),
       ],
       resources: [],
       assignments: [],
-      taskGroups: [rowOfSchedule(BAR_ROW, 0), rowOfSchedule(STONE_ROW, 1)],
+      taskGroups: [
+        rowOfSchedule(BAR_ROW, 0),
+        rowOfSchedule(STONE_ROW, 1),
+        rowOfSchedule(STARTED_STONE_ROW, 2),
+      ],
       taskGroupMembers: [
         { taskUid: BAR_UID, groupId: BAR_ROW, stackOrder: null },
         { taskUid: STONE_UID, groupId: STONE_ROW, stackOrder: null },
+        { taskUid: STARTED_STONE_UID, groupId: STARTED_STONE_ROW, stackOrder: null },
       ],
-      taskVisuals: [milestoneVisual(STONE_UID)],
+      taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(STARTED_STONE_UID)],
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],
@@ -209,12 +180,6 @@ function fixtureDocument(): Document {
   return draft as unknown as Document
 }
 
-// ---------------------------------------------------------------------------
-// The host UF-48 is given -- the same fake `in-2-pointer-shape.test.ts` uses,
-// trimmed to what this file needs: nothing here arms a figure or reads the
-// screen surface, so the fake answers no screen part at all.
-// ---------------------------------------------------------------------------
-
 const SCREEN: FrameEnvironment = {
   width: 1200,
   height: 700,
@@ -222,7 +187,9 @@ const SCREEN: FrameEnvironment = {
   scrollbarThickness: 0,
 }
 
-const realRaf = (globalThis as any).requestAnimationFrame
+type AnimationFrame = (callback: (time: number) => void) => number
+const GLOBAL = globalThis as unknown as { requestAnimationFrame?: AnimationFrame }
+const realRaf = GLOBAL.requestAnimationFrame
 
 interface Host {
   readonly surface: { showSvg(svg: string): void }
@@ -232,7 +199,7 @@ interface Host {
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
-  ;(globalThis as any).requestAnimationFrame = (callback: (time: number) => void): number => {
+  GLOBAL.requestAnimationFrame = (callback: (time: number) => void): number => {
     waiting.push(callback)
     return ++handle
   }
@@ -250,8 +217,7 @@ function host(): Host {
   }
 }
 
-/** IF-9's stand-in. Nothing here arms through the Command Palette, so every
- * point answers no screen part at all. */
+// see IF-9
 function screenPane(): ScreenWiring {
   const surface: ScreenSurface = {
     showScreenView: () => undefined,
@@ -264,8 +230,8 @@ function screenPane(): ScreenWiring {
 }
 
 afterEach(() => {
-  if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
-  else (globalThis as any).requestAnimationFrame = realRaf
+  if (realRaf === undefined) delete GLOBAL.requestAnimationFrame
+  else GLOBAL.requestAnimationFrame = realRaf
 })
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
@@ -291,7 +257,7 @@ function stage(): Stage {
   const pen = host()
   const shown: (PointerShape | null)[] = []
   const loop = frameLoop(
-    pen.surface as any,
+    pen.surface as never,
     fixtureDocument(),
     SCREEN,
     screenPane(),
@@ -304,8 +270,6 @@ function stage(): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  // The first frame is owed by the loop being made, so drain it before any
-  // case reads `current()`.
   pen.runAnimationFrames()
   return {
     loop,
@@ -332,19 +296,10 @@ const drawnTask = (loop: FrameLoop, uid: number) => {
   return found
 }
 
-/**
- * A point inside FR-043's one drawn mark that the row named lands on.
- *
- * ⭐ NOT `DummyGeometry.at`. Table T-023d's closing rule gives GR-9 / GR-17 the
- * drawn mark itself and nothing wider, so `item-hit-area.ts` holds no box of
- * its own for them: `isOnTheDrawnMarkHalf`
- * reads GR-9 and GR-17's SHARED `ink` rectangle (both carry the very same
- * object out of `dummiesOf` in `schedule-geometry.ts`) and splits it at its
- * own horizontal middle, left half GR-9 and right half GR-17 -- so GR-17's
- * `at` point (which stands a working day further along, past that shared
- * ink entirely) no longer falls on GR-17's own hit region. GR-18 keeps the
- * whole ink (`isOnTheDrawnMark`), so any point inside it answers.
- */
+const pointsOf = (bar: BarGeometry): readonly Point[] =>
+  bar.form === 'outline' ? bar.points : [bar.from, bar.to]
+
+// see GR-9, GR-17, GR-18
 function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GR-9' | 'GR-17' | 'GR-18'): Point {
   const found = drawnTask(loop, taskUid).dummies.find((one) => one.grab === grab)
   if (found === undefined) throw new Error(`Task ${taskUid} drew no ${grab} dummy`)
@@ -355,23 +310,21 @@ function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GR-9' | 'GR-17' | '
   return { x: ink.x + ink.width / 2, y }
 }
 
-/** The plan bar's left end -- GR-3, kept as this file's control for the SAME
- * meaning the ruling gives the dummies. */
+// see GR-3
 function planStart(loop: FrameLoop): Point {
   const plan = drawnTask(loop, BAR_UID).plan
   if (plan === null) throw new Error("the bar Task's plan bar was not drawn")
-  const points: readonly Point[] = plan.form === 'outline' ? plan.points : [plan.from, plan.to]
+  const points = pointsOf(plan)
   const xs = points.map((one) => one.x)
   const ys = points.map((one) => one.y)
   return { x: Math.min(...xs), y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-/** The plan bar's own middle -- GR-12, the OTHER meaning IN-2 gives, kept as
- * this file's control for what the dummy shape must NOT equal. */
+// see GR-12
 function barBody(loop: FrameLoop): Point {
   const plan = drawnTask(loop, BAR_UID).plan
   if (plan === null) throw new Error("the bar Task's plan bar was not drawn")
-  const points: readonly Point[] = plan.form === 'outline' ? plan.points : [plan.from, plan.to]
+  const points = pointsOf(plan)
   const xs = points.map((one) => one.x)
   const ys = points.map((one) => one.y)
   const x0 = Math.min(...xs)
@@ -379,8 +332,20 @@ function barBody(loop: FrameLoop): Point {
   return { x: (x0 + x1) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
-/** The place nothing is hit -- the far corner of the `Row Area`, past every
- * bar, so a plain press there answers PTD-5's own meaning. */
+// see GR-15
+function startedMilestoneFigure(loop: FrameLoop): Point {
+  const plan = drawnTask(loop, STARTED_STONE_UID).plan
+  if (plan === null) throw new Error("the started milestone's figure was not drawn")
+  const points = pointsOf(plan)
+  const xs = points.map((one) => one.x)
+  const ys = points.map((one) => one.y)
+  return {
+    x: (Math.min(...xs) + Math.max(...xs)) / 2,
+    y: (Math.min(...ys) + Math.max(...ys)) / 2,
+  }
+}
+
+// see PTD-5
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.rowArea
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
@@ -390,10 +355,6 @@ function shapeAt(built: Stage, at: Point): PointerShape | null {
   built.send(move(at))
   return built.latest()
 }
-
-// ===========================================================================
-// The premises these cases stand on
-// ===========================================================================
 
 describe('the fixture draws what FR-043 says it should', () => {
   it('draws the not-started bar with exactly GR-9 and GR-17, and no actual bar', () => {
@@ -412,34 +373,31 @@ describe('the fixture draws what FR-043 says it should', () => {
     expect(stone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
   })
 
+  it('draws the started milestone with a figure and no dummy', () => {
+    const built = stage()
+    const stone = drawnTask(built.loop, STARTED_STONE_UID)
+    expect(stone.plan).not.toBeNull()
+    expect(stone.dummies).toHaveLength(0)
+  })
+
   it('keeps the body probe clear of the plan start, so the two controls differ', () => {
     const built = stage()
     expect(barBody(built.loop).x).not.toBe(planStart(built.loop).x)
   })
 })
 
-// ===========================================================================
-// T-028 IN-2's new clause: the dummies say the same horizontal-resize
-// meaning as the bar's own plan end -- not `null`, and not GR-12's meaning.
-// ===========================================================================
-
-describe('T-028 IN-2 -- the dummies (GR-9 / GR-17 / GR-18) say the same thing the ends do', () => {
-  it('answers a shape on all three dummies (MUST) -- none of them is null', () => {
+describe('T-028 IN-2 -- the task dummies (GR-9 / GR-17) say the same thing the ends do', () => {
+  it('answers a shape on both task dummies (MUST) -- neither is null', () => {
     const built = stage()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), IN_2_DUMMY_MUST).not.toBeNull()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), IN_2_DUMMY_MUST).not.toBeNull()
-    expect(
-      shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18')),
-      IN_2_DUMMY_MUST,
-    ).not.toBeNull()
   })
 
-  it('answers the SAME shape on a dummy as on the bar\'s own plan end (GR-3)', () => {
+  it("answers the SAME shape on a task dummy as on the bar's own plan end (GR-3)", () => {
     const built = stage()
     const end = shapeAt(built, planStart(built.loop))
-    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))).toBe(end)
-    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17'))).toBe(end)
-    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18'))).toBe(end)
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), IN_2_DUMMY_MUST).toBe(end)
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), IN_2_DUMMY_MUST).toBe(end)
   })
 
   it('answers something OTHER than the grabbable body meaning (GR-12)', () => {
@@ -447,7 +405,6 @@ describe('T-028 IN-2 -- the dummies (GR-9 / GR-17 / GR-18) say the same thing th
     const body = shapeAt(built, barBody(built.loop))
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))).not.toBe(body)
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17'))).not.toBe(body)
-    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18'))).not.toBe(body)
   })
 
   it('answers something OTHER than the empty-canvas meaning (PTD-5)', () => {
@@ -455,7 +412,6 @@ describe('T-028 IN-2 -- the dummies (GR-9 / GR-17 / GR-18) say the same thing th
     const empty = shapeAt(built, emptyCanvas(built.loop))
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))).not.toBe(empty)
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17'))).not.toBe(empty)
-    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18'))).not.toBe(empty)
   })
 
   it('answers the same shape every time the pointer returns to a dummy', () => {
@@ -463,5 +419,37 @@ describe('T-028 IN-2 -- the dummies (GR-9 / GR-17 / GR-18) say the same thing th
     const first = shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))
     shapeAt(built, emptyCanvas(built.loop))
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))).toBe(first)
+  })
+})
+
+describe('T-028 IN-2 -- the milestone dummy (GR-18) says what the GR-15 figure says', () => {
+  it('answers a shape on GR-18 (MUST) -- it is not null', () => {
+    const built = stage()
+    expect(
+      shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18')),
+      IN_2_GR_18_MUST,
+    ).not.toBeNull()
+  })
+
+  it('answers the SAME shape on GR-18 as on a started milestone figure (GR-15)', () => {
+    const built = stage()
+    const figure = shapeAt(built, startedMilestoneFigure(built.loop))
+    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18')), IN_2_GR_18_MUST).toBe(
+      figure,
+    )
+  })
+
+  it("answers something OTHER than the bar's own plan end (GR-3)", () => {
+    const built = stage()
+    const end = shapeAt(built, planStart(built.loop))
+    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18')), IN_2_GR_18_MUST).not.toBe(
+      end,
+    )
+  })
+
+  it('answers something OTHER than the empty-canvas meaning (PTD-5)', () => {
+    const built = stage()
+    const empty = shapeAt(built, emptyCanvas(built.loop))
+    expect(shapeAt(built, dummyProbe(built.loop, STONE_UID, 'GR-18'))).not.toBe(empty)
   })
 })
