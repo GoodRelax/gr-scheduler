@@ -197,10 +197,10 @@ const TABLE_T_023D: readonly HitRow[] = [
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left')),
   taskRow('GR-6', 'anyPress',
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'right')),
-  taskRow('GR-17', 'anyPress', (boxed, x, y) =>
-    isInsideThePlanStart(boxed, x) && isOnTheDrawnMarkHalf(boxed.task, x, y, 'right')),
-  taskRow('GR-9', 'anyPress', (boxed, x, y) =>
-    isInsideThePlanStart(boxed, x) && isOnTheDrawnMarkHalf(boxed.task, x, y, 'left')),
+  taskRow('GR-17', 'anyPress',
+    (boxed, x, y) => isOnTheDrawnMarkHalf(boxed, x, y, 'right')),
+  taskRow('GR-9', 'anyPress',
+    (boxed, x, y) => isOnTheDrawnMarkHalf(boxed, x, y, 'left')),
   taskRow('GR-10', 'doubleClickOnly',
     ({ task }, x, y) => task.label !== null && isInsideBoxInclusive(x, y, task.label)),
   taskRow('GR-11', 'doubleClickOnly', ({ task }, x, y) =>
@@ -373,9 +373,10 @@ function isOnTheDrawnMark(task: TaskGeometry, x: number, y: number): boolean {
 
 // see GR-9, GR-17, FR-043
 /** @purity pure */
-function isOnTheDrawnMarkHalf(task: TaskGeometry, x: number, y: number,
+function isOnTheDrawnMarkHalf(boxed: BoxedTask, x: number, y: number,
                               half: 'left' | 'right'): boolean {
-  const mark = task.dummies.find((one) => one.grab === (half === 'left' ? 'GR-9' : 'GR-17'))
+  if (!isInsideThePlanStart(boxed, x)) return false
+  const mark = boxed.task.dummies.find((one) => one.grab === (half === 'left' ? 'GR-9' : 'GR-17'))
   if (mark === undefined || !isInsideBoxInclusive(x, y, mark.ink)) return false
   const middle = mark.ink.x + mark.ink.width / 2
   return half === 'left' ? x <= middle : x >= middle
