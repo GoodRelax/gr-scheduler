@@ -151,13 +151,42 @@ function chromeScaledPx(px: number): number {
 
 // see FR-029
 /** @purity pure */
+function entranceGapPx(): number {
+  return chromeScaledPx(NOT_STORED_ICON_SIZES['S-141'])
+}
+
+// see FR-029
+/** @purity pure */
+function entranceBorderPx(): number {
+  return chromeScaledPx(NOT_STORED_ICON_SIZES['S-237'])
+}
+
+// see FR-029
+/** @purity pure */
+function entranceOuterWidthPx(): number {
+  return chromeScaledPx(
+    NOT_STORED_ICON_SIZES['S-138'] +
+      (NOT_STORED_ICON_SIZES['S-141'] + NOT_STORED_ICON_SIZES['S-237']) * 2,
+  )
+}
+
+// see FR-029, LF-3, HF-19
+/** @purity pure */
+function entranceOuterHeightPx(): number {
+  return chromeScaledPx(
+    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2,
+  )
+}
+
+// see FR-029
+/** @purity pure */
 function entryGlyphRoom(): string {
-  const side = chromeScaledPx(NOT_STORED_ICON_SIZES['S-138'])
-  const gap = chromeScaledPx(NOT_STORED_ICON_SIZES['S-141'])
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
-    `padding:0 ${gap}px;` +
-    `min-height:calc(${side}px + ${gap}px * 2);`
+    'box-sizing:border-box;' +
+    `width:${entranceOuterWidthPx()}px;` +
+    `padding:0 ${entranceGapPx()}px;` +
+    `min-height:${entranceOuterHeightPx()}px;`
   )
 }
 
@@ -322,7 +351,8 @@ function propertyCheckStyle(): string {
 function entryStyle(): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.ink};` +
-    `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:pointer;` +
+    `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
+    'border-radius:0.25em;cursor:pointer;' +
     entryGlyphRoom()
   )
 }
@@ -331,7 +361,8 @@ function entryStyle(): string {
 function entryFaintStyle(): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.rule};` +
-    `border:1px solid ${PAINT.rule};border-radius:0.25em;cursor:default;` +
+    `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
+    'border-radius:0.25em;cursor:default;' +
     entryGlyphRoom()
   )
 }
@@ -897,9 +928,10 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
   )
 }
 
+// see FR-029
 /** @purity pure */
 function rowControlBoxPx(): number {
-  return NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2
+  return entranceOuterWidthPx()
 }
 
 /** @purity pure */
@@ -907,26 +939,31 @@ function rowControlWidthCss(): string {
   return `${rowControlBoxPx()}px`
 }
 
-// see HF-5
+// see HF-5, FR-029
 /** @purity pure */
 function rowControlBoxStyle(): string {
-  return `display:inline-flex;padding:0 ${NOT_STORED_ICON_SIZES['S-141']}px;`
+  return (
+    'display:inline-flex;box-sizing:border-box;' +
+    `width:${entranceOuterWidthPx()}px;` +
+    `padding:0 ${entranceGapPx()}px;`
+  )
 }
 
+// see FR-029
 /** @purity pure */
 function rowControlGlyphGapStyle(): string {
-  return `margin:${NOT_STORED_ICON_SIZES['S-141']}px 0;`
+  return `margin:${entranceGapPx()}px 0;`
 }
 
-// see HF-1, HF-4
+// see HF-1, HF-4, LF-3, HF-19
 /** @purity pure */
 function rowControlGridStyle(columns: number, stepsFromEdge: number): string {
-  const track = rowControlWidthCss()
-  const columnTracks = Array.from({ length: columns }, () => track).join(' ')
+  const columnTracks = Array.from({ length: columns }, () => rowControlWidthCss()).join(' ')
+  const rowTrack = `${entranceOuterHeightPx()}px`
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
     `grid-template-columns:${columnTracks};` +
-    `grid-template-rows:${track} ${track};` +
+    `grid-template-rows:${rowTrack} ${rowTrack};` +
     `right:${rowControlRightPx(stepsFromEdge)}px;` +
     'pointer-events:none;'
   )
@@ -1196,20 +1233,16 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   )
 }
 
+// see FR-029
 /** @purity pure */
 function panelCornerStepPx(): number {
-  const side = NOT_STORED_ICON_SIZES['S-138']
-  const gap = NOT_STORED_ICON_SIZES['S-141']
-  return side + gap * 2 + PANEL_CORNER_BORDER_PX * 2
+  return entranceOuterWidthPx()
 }
 
 /** @purity pure */
 function headFoldedRowCountRight(): string {
   return `right:${panelCornerStepPx() * 4}px;`
 }
-
-// TRAP: must equal the border entryStyle draws on each side; change both together.
-const PANEL_CORNER_BORDER_PX = 1
 
 /** @purity non-pure */
 function markPanelCornerEntry(
@@ -2835,9 +2868,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 export const NOT_STORED_ICON_SIZES: {
   readonly 'S-138': number
   readonly 'S-141': number
+  readonly 'S-237': number
 } = {
   'S-138': 16,
   'S-141': 4,
+  'S-237': 1,
 }
 
 // see T-206

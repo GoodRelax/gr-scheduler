@@ -50,7 +50,7 @@ NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`�
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
 NOT_STORED_ENTRANCE_SIZES            入口の図形の箱・隙間・枠（`S-138` / `S-141` / `S-237`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
-NOT_STORED_ICON_SIZES                アイコンの箱と隔たり（`S-138` / `S-141`）
+NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠（`S-138` / `S-141` / `S-237`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
 NOT_STORED_LABEL_SIZES               ラベルの幅の係数（`S-196`）
 NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）

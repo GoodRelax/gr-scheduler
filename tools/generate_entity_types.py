@@ -1135,7 +1135,8 @@ NOT_STORED_TARGETS = {
     # refuses that reading in as many words.
     'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
                                        SUBTRACTED_WHERE_IT_STANDS),
-    'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_ICON_SIZES': (['S-138', 'S-141', 'S-237'],
+                              DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ THE THREE ROWS AN ENTRANCE'S OUTER WIDTH IS COMPOSED OF, READ WHERE
     # THE FLOOR IS WORKED OUT. FR-029 (MUST) states that width as the box
     # (S-138) plus the gap (S-141) and the frame's line (S-237) on each side,
@@ -1150,9 +1151,11 @@ NOT_STORED_TARGETS = {
     # holds two of the same rows: one constant per consuming UNIT, and that one
     # belongs to the Framework unit that DRAWS an entrance while this one
     # belongs to `screen-regions.ts`, which draws nothing and works out a
-    # width. ⚠️ S-237 is in this constant and not in that one because the
-    # drawing side still carries its border in its own CSS -- the day it reads
-    # the row instead, the row joins ITS constant rather than this one moving.
+    # width. ⚠️ S-237 NOW STANDS IN BOTH CONSTANTS. The drawing side used to
+    # carry its border as a raw `1px` in its own CSS, and the note here said
+    # that the day it read the row instead, the row would join ITS constant
+    # rather than this one moving. That day came: `dom-screen-surface.ts` draws
+    # the entrance's frame from S-237 x S-235, so the row joined there too.
     # ⭐ IT STANDS IN `screen-regions.ts` on the ground the S-236 entry below
     # gives: the floor belongs where the drawn settings are made, and that unit
     # imports `document-settings.ts` alone, so no import cycle is opened.
@@ -1199,11 +1202,12 @@ NOT_STORED_TARGETS = {
     # section 1 forbids; two readings of one generated row are not -- what the
     # rule forbids is a value with two homes, and its home is table T-206.
     # ⛔ NOT FOLDED INTO NOT_STORED_ICON_SIZES: that constant is an ENTRANCE's
-    # shape (S-138's box and S-141's inner gap), and GR-20 is no entrance.
+    # shape (S-138's box, S-141's inner gap and S-237's frame line), and GR-20
+    # is no entrance.
     'NOT_STORED_ROW_GRAB_STRIP_SIZES': (['S-218'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
-    # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138 and
-    # S-141 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
+    # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138, S-141
+    # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
     # marked with -- HF-15's live axis and HF-18's holding mark -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_ROW_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
@@ -1276,9 +1280,9 @@ NOT_STORED_TARGETS = {
     # ⛔ NOT folded into
     # NOT_STORED_ICON_SIZES though both land in dom-screen-surface.ts: one
     # constant per consuming SUBJECT, which is the split the note under
-    # NOT_STORED_DUMMY_SIZES states. S-138 and S-141 are an entrance's shape
-    # and S-186 .. S-193 are the property fields', and a shared constant would
-    # make one of the two paragraphs a lie.
+    # NOT_STORED_DUMMY_SIZES states. S-138, S-141 and S-237 are an entrance's
+    # shape and S-186 .. S-193 are the property fields', and a shared constant
+    # would make one of the two paragraphs a lie.
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
          'S-197', 'S-198'],
