@@ -368,13 +368,15 @@ function labelFontSize(shapeKind: ShapeKind, settings: DocumentSettings): number
   return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
 }
 
-// see LC-3, FR-017
+// see LC-3, FR-017, T-252, DS-1, DS-4, S-8
+// TRAP: STORED settings with a DRAWN pxPerDay; the ruler font is scaled here, the S-8 divisor is not.
 /** @purity pure */
-export function rulerTierOf(pxPerDay: number, settings: DocumentSettings): RulerTier {
-  const scaled = pxPerDay / (settings.rulerFont / settings.fontMin)
-  if (scaled >= settings.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
-  if (scaled >= settings.rulerTierPxPerDayWeek) return 'yearMonthWeek'
-  if (scaled >= settings.rulerTierPxPerDayMonth) return 'yearMonth'
+export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
+  const settings = drawnSettingsOf(storedSettings)
+  const scaled = pxPerDay / (settings.rulerFont / storedSettings.fontMin)
+  if (scaled >= storedSettings.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
+  if (scaled >= storedSettings.rulerTierPxPerDayWeek) return 'yearMonthWeek'
+  if (scaled >= storedSettings.rulerTierPxPerDayMonth) return 'yearMonth'
   return 'year'
 }
 
@@ -386,11 +388,14 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
   return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
 }
 
-// see FR-017
+// see FR-017, T-252, DS-4
+// TRAP: a quotient within an ulp of a whole day IS that day; floor alone answers the day before.
 /** @purity pure */
 export function dateAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null
-  const days = Math.floor((x - layout.originX) / layout.pxPerDay)
+  const span = (x - layout.originX) / layout.pxPerDay
+  const whole = Math.round(span)
+  const days = Math.abs(span - whole) < 1e-9 ? whole : Math.floor(span)
   const foundAt = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
   return { year: foundAt.getUTCFullYear(), month: foundAt.getUTCMonth() + 1, day: foundAt.getUTCDate() }
 }
@@ -755,6 +760,7 @@ export function layoutFromSchedule(
       const grip = NOT_STORED_SIZES['S-91']
       const marksRoom = marksShown ? markerDiameter + settings.markerGap : 0
       const boxRightInActual =
+        label !== '' &&
         actualPlacementOf(kind) === 'inside' && actual !== null && actualReach !== null &&
         boxWidth + settings.labelGap + marksRoom + grip * 2 <= actual.width
           ? actualReach - grip - marksRoom - (marksShown ? settings.labelGap : 0)
@@ -916,7 +922,7 @@ export function layoutFromSchedule(
   return {
     pxPerDay,
     // see FR-017
-    tier: rulerTierOf(pxPerDay, { ...settings, fontMin: storedSettings.fontMin }),
+    tier: rulerTierOf(pxPerDay, storedSettings),
     originDay,
     originX,
     rectangleHeight: planHeightOf('rectangle', settings),
@@ -1200,10 +1206,11 @@ export function fitZoom(
   }
 }
 
-// see FR-016, FR-077, FR-094, PI-5
+// see FR-016, FR-077, FR-094, PI-5, T-252, DS-1
 // WHY: the largest of three: below either floor the name does not grow, so the floor's release answers.
 /** @purity pure */
-export function zoomYAtRectangleLabelFont(fontPx: number, settings: DocumentSettings): number {
+export function zoomYAtRectangleLabelFont(fontPx: number, storedSettings: DocumentSettings): number {
+  const settings = drawnSettingsOf(storedSettings)
   const fontPerZoom = settings.basePlanHeight * settings.shapeHeightOf.rectangle *
     settings.actualOfPlan * settings.fontOfActual
   return Math.max(fontPx / fontPerZoom, zoomYAtPlanHeightFloor(settings), settings.fontMin / fontPerZoom)

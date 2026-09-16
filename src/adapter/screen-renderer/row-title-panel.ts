@@ -65,10 +65,11 @@ function availableLabelWidthPx(depth: number, settings: DocumentSettings): numbe
   return Math.max(0, available)
 }
 
-// see HF-5, FR-016, PI-37
+// see HF-5, FR-016, PI-37, T-252, DS-1, S-36
 /** @purity pure */
 export function rowTitleFontPxOf(depth: number, settings: DocumentSettings): number {
-  return depth === 1 ? settings.rowTitleFont * settings.rowTitleTopScale : settings.rowTitleFont
+  const drawn = drawnSettingsOf(settings)
+  return depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
 }
 
 /** @purity pure */

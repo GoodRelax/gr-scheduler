@@ -100,12 +100,16 @@ function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): n
   return Math.max(settings.rowTitlePanelWidth * ratio, indents + grabStrip + rowControls)
 }
 
+// see FR-039, T-252
+const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
+
 // TRAP: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
 // multiplies the STORED settings once on its way in; none of them scales a scaled value.
 /** @purity pure */
 export function drawnSettingsOf(settings: DocumentSettings): DocumentSettings {
   const ratio = displayRatioOf(settings)
   if (!(ratio > 0)) return settings
+  if ((settings as unknown as Record<string, unknown>)[DRAWN_AT_RATIO] === ratio) return settings
   const panelWidth = drawnRowTitlePanelWidthPx(settings, ratio)
   if (ratio === 1 && panelWidth === settings.rowTitlePanelWidth) return settings
   const drawn: Record<string, unknown> = { ...settings }
@@ -116,6 +120,7 @@ export function drawnSettingsOf(settings: DocumentSettings): DocumentSettings {
     }
   }
   drawn['rowTitlePanelWidth'] = panelWidth
+  Object.defineProperty(drawn, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
   return drawn as unknown as DocumentSettings
 }
 
