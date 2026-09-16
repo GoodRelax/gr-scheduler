@@ -22,6 +22,7 @@ import {
   type ScheduleLayout,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  regionsAtDisplayScale,
   regionsFromScreen,
   type ScreenEnvironment,
   type ScreenRegions,
@@ -613,13 +614,14 @@ const pressOnEntrance = (entry: string): PointerPress => ({
 const scaleWritesOf = (
   settings: DocumentSettings,
   entry: string,
+  schedule: Schedule = NAMED_ROWS,
 ): readonly DocumentCommand[] => {
   const regions = regionsFromScreen(ENV, settings)
-  const layout = layoutFromSchedule(NAMED_ROWS, settings, regions)
+  const layout = layoutFromSchedule(schedule, settings, regions)
   const context = {
-    document: { schemaVersion: '1', schedule: NAMED_ROWS, documentSettings: settings },
+    document: { schemaVersion: '1', schedule, documentSettings: settings },
     layout,
-    geometry: geometryFromLayout(NAMED_ROWS, settings, layout, regions, emptySelection()),
+    geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
     screenState: emptyScreenState(),
     selection: emptySelection(),
@@ -627,6 +629,7 @@ const scaleWritesOf = (
     pressed: pressOnEntrance(entry),
     isTextEntryUnsettled: false,
     isSurfaceStanding: true,
+    isPictureAtStoredZoom: true,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
     newGroupId: 'row-minted-outside',
@@ -643,9 +646,13 @@ const scaleWritesOf = (
 }
 
 // see FR-039, CM-74
-const afterPressing = (settings: DocumentSettings, entry: string): DocumentSettings => {
+const afterPressing = (
+  settings: DocumentSettings,
+  entry: string,
+  schedule: Schedule = NAMED_ROWS,
+): DocumentSettings => {
   let next: Record<string, unknown> = { ...(settings as unknown as Record<string, unknown>) }
-  for (const write of scaleWritesOf(settings, entry)) {
+  for (const write of scaleWritesOf(settings, entry, schedule)) {
     const one = write as unknown as Record<string, unknown>
     if (one['kind'] === 'setDisplayScale') next = { ...next, displayScale: one['scale'] }
     if (one['kind'] === 'setScrollPosition') {
@@ -702,5 +709,128 @@ describe('T-252 (MUST) -- the Row Area middle is what stands still when the scal
       [...seen].sort((a, b) => a - b),
       'the presses did not walk every step table T-202 spells, so this case asked less than it says',
     ).toEqual([...S_234_STEPS].sort((a, b) => a - b))
+  })
+})
+
+// see FR-039
+const TALL_ROW_COUNT = 40
+
+// TRAP: the seat needs room on BOTH sides. Seated at the first row, a step down cannot hold the
+// middle -- the view would have to stand above the top of the document, and no such place exists.
+const SEATED_WITH_ROOM = { scrollGroupId: 'g15', scrollGroupOffset: 0 }
+
+// see S-76
+const TALL_ZOOM_Y = 6
+
+// see FR-039, DS-1, DS-8
+const TALL_ROWS = rowsOf(
+  Array.from({ length: TALL_ROW_COUNT }, (_none, at) => [
+    spanning(at + 1, `2026-01-${String((at % 20) + 1).padStart(2, '0')}`, 10, {
+      name: `row ${at + 1}`,
+    }),
+  ]),
+)
+
+const tallSettings = (displayScale: number): DocumentSettings =>
+  settingsOf({ displayScale, zoomY: TALL_ZOOM_Y, ...SEATED_WITH_ROOM })
+
+// see FR-039
+const middleRowOf = (settings: DocumentSettings) => {
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(TALL_ROWS, settings, regions)
+  const rows = layout.rows.filter((row) => row.isPinned !== true)
+  const middle = regions.rowArea.y + regions.rowArea.height / 2
+  const at = rows.findIndex((row) => middle >= row.y && middle < row.y + row.height)
+  const row = rows[at]
+  if (row === undefined) throw new Error('no row stands under the vertical middle of the Row Area')
+  return {
+    groupId: row.groupId,
+    into: (middle - row.y) / row.height,
+    at,
+    height: row.height,
+    above: rows.filter((one) => one.y < regions.rowArea.y).length,
+  }
+}
+
+describe('T-252 (MUST) -- the row under the vertical middle is what stands still', () => {
+  it('stands on a document where that row is neither the first nor at a band the ratio leaves alone', () => {
+    const seen = middleRowOf(tallSettings(S_234_DEFAULT))
+    expect(seen.at, 'premise: rows stand before the one under the middle').toBeGreaterThan(0)
+    expect(
+      seen.above,
+      'premise: rows stand above the Row Area, so the view has room to move either way',
+    ).toBeGreaterThan(0)
+
+    const low = middleRowOf(tallSettings(S_234_STEPS[0] as number)).height
+    const high = middleRowOf(tallSettings(S_234_STEPS[S_234_STEPS.length - 1] as number)).height
+    expect(
+      high,
+      'premise: the row band really moves with the drawn ratio, so holding the middle is not free',
+    ).toBeGreaterThan(low * 2)
+  })
+
+  it('keeps that row, and the place inside it, under the middle at every step', () => {
+    const start = tallSettings(S_234_DEFAULT)
+    const wanted = middleRowOf(start)
+    const lowest = S_234_STEPS[0] as number
+    const highest = S_234_STEPS[S_234_STEPS.length - 1] as number
+    const walked: number[] = [S_234_DEFAULT]
+
+    let down = start
+    while ((down['displayScale'] as number) > lowest) {
+      down = afterPressing(down, 'IC-104', TALL_ROWS)
+      walked.push(down['displayScale'] as number)
+      const landed = middleRowOf(down)
+      const step = `IC-104 down to step ${down['displayScale']}`
+      expect(landed.groupId, `${T_252_THE_MIDDLE_IS_THE_ANCHOR} -- ${step}`).toBe(wanted.groupId)
+      expect(landed.into, `${T_252_ASK_PI_5_FOR_THE_ROW} -- ${step}`).toBeCloseTo(wanted.into, 9)
+    }
+
+    let up = start
+    while ((up['displayScale'] as number) < highest) {
+      up = afterPressing(up, 'IC-105', TALL_ROWS)
+      walked.push(up['displayScale'] as number)
+      const landed = middleRowOf(up)
+      const step = `IC-105 up to step ${up['displayScale']}`
+      expect(landed.groupId, `${T_252_THE_MIDDLE_IS_THE_ANCHOR} -- ${step}`).toBe(wanted.groupId)
+      expect(landed.into, `${T_252_ASK_PI_5_FOR_THE_ROW} -- ${step}`).toBeCloseTo(wanted.into, 9)
+    }
+
+    expect(
+      [...walked].sort((a, b) => a - b),
+      'the presses did not walk every step table T-202 spells, so this case asked less than it says',
+    ).toEqual([...S_234_STEPS].sort((a, b) => a - b))
+  })
+})
+
+describe('PI-35 -- ScreenRegions answers the rectangles a given display scale draws', () => {
+  // TRAP: the seam is given the drawn regions, the settings behind them and a scale -- no screen.
+  // The property panel's width comes from those regions, never from the settings beside them.
+  const askedAt = (step: number) => {
+    const settings = tallSettings(S_234_DEFAULT)
+    return regionsAtDisplayScale(
+      regionsFromScreen(ENV, settings),
+      settings,
+      step as DocumentSettings['displayScale'],
+    )
+  }
+
+  it('answers what the screen builds at that very step, for every step', () => {
+    for (const step of S_234_STEPS) {
+      expect(askedAt(step), `the regions at step ${step}`).toEqual(
+        regionsFromScreen(ENV, tallSettings(step)),
+      )
+    }
+  })
+
+  it('sits the Row Area below the ruler band that step draws (DS-1)', () => {
+    const bandHeight = tallSettings(S_234_DEFAULT).rulerHeight
+    for (const step of S_234_STEPS) {
+      const asked = askedAt(step)
+      expect(
+        asked.rowArea.y - asked.scheduleCanvas.y,
+        `${FR_039_WHAT_IT_MULTIPLIES} -- the drawn ruler band at step ${step}`,
+      ).toBeCloseTo(bandHeight * ratioOf(step), 6)
+    }
   })
 })
