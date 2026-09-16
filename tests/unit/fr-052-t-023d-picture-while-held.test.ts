@@ -1127,41 +1127,80 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     }
   })
 
+  it('stops the drawn width at the floor while the pointer is left of it (MUST)', () => {
+    const built = stage()
+    const at = boundaryOf(built, 'rowTitlePanel')
+    const was = drawnPanelWidth(built.loop)
+    expect(was, 'premise: at rest the panel stands on its floor, above S-79 x the drawn ratio').toBeGreaterThan(
+      storedPanelWidth(built.loop) * DEFAULT_DISPLAY_RATIO,
+    )
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x - 30, at.y))
+    expect(
+      drawnPanelWidth(built.loop),
+      'FR-052: ⭐ ただし行見出しパネルの幅は、ポインタ位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
+    ).toBeCloseTo(was, 6)
+  })
+
   it('measures the frame with the picture\'s widths, not the stored ones', () => {
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
+    const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     expect(
       (frameOf(built.loop).settingsMeasuredWith as any).rowTitlePanelWidth,
-      'the settings this frame was measured with are the ones it DREW',
-    ).toBeCloseTo(storedPanelWidth(built.loop) + 40 / DEFAULT_DISPLAY_RATIO, 6)
+      'the settings this frame was measured with are the ones it DREW: the drawn width over the drawn ratio (T-252)',
+    ).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('settles the width on the release (IN-1)', () => {
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
+    const was = drawnPanelWidth(built.loop)
     const stored = storedPanelWidth(built.loop)
+    expect(was, 'premise: the press starts on the floor, so S-79 + travel / ratio is not the answer').toBeGreaterThan(
+      stored * DEFAULT_DISPLAY_RATIO,
+    )
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('up', at.x + 40, at.y))
-    expect(storedPanelWidth(built.loop), 'FR-052: 確定は 表 T-028 の IN-1 に従う').toBeCloseTo(
-      stored + 40 / DEFAULT_DISPLAY_RATIO,
-      6,
-    )
-    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO + 40, 6)
+    expect(
+      storedPanelWidth(built.loop),
+      'FR-052: 確定は 表 T-028 の IN-1 に従う -- T-252: 離した時点で描いた幅が本段の床より広ければ、描いた幅を描く比で割った値',
+    ).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
+    expect(drawnPanelWidth(built.loop)).toBeCloseTo(was + 40, 6)
+  })
+
+  it('keeps the stored width when released left of the floor, being under floor / ratio (T-252, MUST)', () => {
+    const built = stage()
+    const at = boundaryOf(built, 'rowTitlePanel')
+    const was = drawnPanelWidth(built.loop)
+    const stored = storedPanelWidth(built.loop)
+    expect(
+      was / DEFAULT_DISPLAY_RATIO,
+      'premise and control: at rest the panel stands on its floor, and storing floor / ratio would widen it',
+    ).toBeGreaterThan(stored)
+    built.send(pointer('down', at.x, at.y))
+    built.send(pointer('move', at.x - 30, at.y))
+    built.send(pointer('up', at.x - 30, at.y))
+    expect(
+      storedPanelWidth(built.loop),
+      'T-252: 床と等しければ（`FR-052` が床で止めて描いているときを含む）、いま保存している `S-79` と、床を描く比で割った値の小さい方とすること（MUST）',
+    ).toBeCloseTo(stored, 6)
+    expect(drawnPanelWidth(built.loop)).toBeCloseTo(was, 6)
   })
 
   it('settles it once: later moves with no button change nothing', () => {
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
-    const stored = storedPanelWidth(built.loop)
+    const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('up', at.x + 40, at.y))
     built.send(pointer('move', at.x + 90, at.y))
     built.send(pointer('move', at.x + 140, at.y))
-    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
+    expect(storedPanelWidth(built.loop)).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('changes the OTHER panel from its own boundary (S-80 wins after a drag)', () => {
@@ -1193,6 +1232,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
     const stored = storedPanelWidth(built.loop)
+    const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('lost', at.x + 40, at.y))
@@ -1202,19 +1242,20 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     ).toBe(stored)
     expect(
       drawnPanelWidth(built.loop),
-      'nothing is held any more, so the picture is the stored width times the drawn ratio again',
-    ).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO, 6)
+      'nothing is held any more, so the picture is the one drawn before the press again (T-252: S-79 x ratio or the floor)',
+    ).toBeCloseTo(was, 6)
   })
 
   it('abandons the drag on Esc (IN-1 / IN-4)', () => {
     const built = stage()
     const at = boundaryOf(built, 'rowTitlePanel')
     const stored = storedPanelWidth(built.loop)
+    const was = drawnPanelWidth(built.loop)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(ESCAPE())
     expect(storedPanelWidth(built.loop), 'IN-1: 中断は `Esc` で行い').toBe(stored)
-    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO, 6)
+    expect(drawnPanelWidth(built.loop)).toBeCloseTo(was, 6)
   })
 })
 
@@ -1242,11 +1283,11 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
     expect(taskOf(built.loop, FADED_UID).fadeInDays).toBe(FADE_IN_DAYS + 3)
 
     const at = boundaryOf(built, 'rowTitlePanel')
-    const stored = storedPanelWidth(built.loop)
+    const settled = (drawnPanelWidth(built.loop) + 40) / DEFAULT_DISPLAY_RATIO
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('up', at.x + 40, at.y))
-    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
+    expect(storedPanelWidth(built.loop)).toBeCloseTo(settled, 6)
 
     built.send(UNDO())
     // ⚠️ SOFT, so that a failure reports BOTH halves: whether the width came
@@ -1254,7 +1295,7 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
     expect.soft(
       storedPanelWidth(built.loop),
       'T-027 UN-16: 対象外 …… パネル幅（`FR-052`）…… ⚠️ 保存することと戻せることは別である',
-    ).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
+    ).toBeCloseTo(settled, 6)
     expect.soft(
       taskOf(built.loop, FADED_UID).fadeInDays,
       'UN-3 IS a target, so this is the half of the undo that must happen',

@@ -64,7 +64,7 @@ const FR_039_NO_WRAP_AT_EITHER_END =
   '段の並びは `S-234` の型の欄の順とし、両端で巡らせてはならない（MUST NOT）'
 
 const T_252_DRAG_STORES_THE_UNDIVIDED_WIDTH =
-  '⭐ 人が境界のドラッグ（`FR-052`）で行見出しパネルの幅を決めたとき、保存する `S-79` は、描いた幅を描く比で割った値とすること（MUST）'
+  '⭐ 人が境界のドラッグ（`FR-052`）で行見出しパネルの幅を決めたとき、保存する `S-79` は、離した時点で描いた幅が本段の床より広ければ、描いた幅を描く比で割った値とし、床と等しければ（`FR-052` が床で止めて描いているときを含む）、いま保存している `S-79` と、床を描く比で割った値の小さい方とすること（MUST）'
 
 const T_252_THE_DRAWN_PANEL_HAS_A_FLOOR =
   '⭐ 描く行見出しパネルの幅は、`S-79` に描く比を掛けた値と、次の床の大きい方とすること（MUST）'
@@ -101,7 +101,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-039 (MUST NOT) -- never multiplied into both a source and what it derives', FR_039_NEVER_TWICE],
   ['FR-039 (MUST) -- the two entrances stand left of IC-16, the shrinking one on the left', FR_039_THE_ENTRANCES],
   ['FR-039 (MUST NOT) -- the steps do not wrap at either end', FR_039_NO_WRAP_AT_EITHER_END],
-  ['T-252 (MUST) -- a dragged panel width is stored as the drawn width divided by the ratio', T_252_DRAG_STORES_THE_UNDIVIDED_WIDTH],
+  ['T-252 (MUST) -- a dragged panel width is stored as the drawn width divided by the ratio above the floor, and at the floor as the smaller of the stored width and the floor divided by the ratio', T_252_DRAG_STORES_THE_UNDIVIDED_WIDTH],
   ['T-252 (MUST) -- the drawn panel width has a floor', T_252_THE_DRAWN_PANEL_HAS_A_FLOOR],
   ['T-252 (MUST) -- the Row Area middle is the anchor when the scale changes', T_252_THE_MIDDLE_IS_THE_ANCHOR],
   ['T-252 (MUST NOT) -- the row is asked of rowPlacesAtZoomY, never computed from the scale', T_252_ASK_PI_5_FOR_THE_ROW],
@@ -456,8 +456,8 @@ describe('FR-039 (MUST NOT) -- drawing never writes back', () => {
   })
 })
 
-describe('T-252 (MUST) -- the panel width a drag stores is the drawn width divided by the ratio', () => {
-  it('round-trips: storing drawn / ratio draws that very width again', () => {
+describe('T-252 (MUST) -- above the floor, the panel width a drag stores is the drawn width divided by the ratio', () => {
+  it('round-trips: storing drawn / ratio draws that very width again, for a drawn width above every step\'s floor', () => {
     for (const step of S_234_STEPS) {
       const ratio = ratioOf(step)
       const drawnWanted = 420

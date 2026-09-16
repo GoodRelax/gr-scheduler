@@ -1912,14 +1912,14 @@ function commandFromPanelDivider(
 ): TranslatedInput {
   const settings = context.document.documentSettings
   const travelled = release.x - press.at.x
-  // WHY: not clamped here; the write side clamps, and a second clamp gives one drag two answers.
+  // WHY: the zero width and Row Area limits stay on the write side alone; judging them here
+  // as well gives one drag two answers.
   return changed([
     {
       kind: 'setPanelWidths',
-      // see FR-039
       rowTitlePanelWidth:
         panel === 'rowTitlePanel'
-          ? settings.rowTitlePanelWidth + travelled / displayRatioOf(settings)
+          ? rowTitlePanelWidthAfterDrag(settings, travelled)
           : settings.rowTitlePanelWidth,
       propertyPanelWidth:
         panel === 'propertiesPanel'
@@ -1927,6 +1927,24 @@ function commandFromPanelDivider(
           : settings.propertyPanelWidth,
     },
   ])
+}
+
+// see FR-052, FR-039, T-252
+// TRAP: count the travel from the DRAWN boundary, which T-252 floors, never from S-79 times the
+// ratio; the held picture draws this value, so a floored boundary would trail the pointer.
+/** @purity pure */
+function rowTitlePanelWidthAfterDrag(settings: DocumentSettings, travelled: number): number {
+  const stored = settings.rowTitlePanelWidth
+  const ratio = displayRatioOf(settings)
+  const drawnAtPress = drawnSettingsOf(settings).rowTitlePanelWidth
+  // WHY: with no stored width only the floor is left in T-252's larger-of, so its one owner answers it.
+  const floor = drawnSettingsOf({ ...settings, rowTitlePanelWidth: 0 }).rowTitlePanelWidth
+  const isWiderThanFloor = drawnAtPress + travelled > floor
+  if (!isWiderThanFloor) return Math.min(stored, floor / ratio)
+  // WHY: added to the stored width, not the drawn width divided whole, so a release where the press
+  // began writes the very same number back and the write moves nothing (T-027).
+  const drawnTravel = drawnAtPress - stored * ratio + travelled
+  return stored + drawnTravel / ratio
 }
 
 // see FR-051, GR-21
