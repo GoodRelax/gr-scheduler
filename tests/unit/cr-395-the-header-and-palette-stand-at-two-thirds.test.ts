@@ -304,10 +304,13 @@ describe('FR-051 (MUST) -- the App Header draws its own contents at S-235', () =
     })
     const nodes = titleNodesOf(built)
     expect(nodes.length, 'premise: the title reaches the screen').toBeGreaterThan(0)
-    const sizes = nodes.map((one) => lengthOf(one, 'font-size')).filter((one) => one !== null)
-    expect(sizes, `${FR_051_WHAT_IT_MULTIPLIES} -- ${S_225} x ${S_235}`).toContainEqual(
-      Number((S_225 * S_235).toFixed(CLOSE_ENOUGH)),
-    )
+    const sizes = nodes
+      .map((one) => lengthOf(one, 'font-size'))
+      .filter((one): one is number => one !== null)
+    expect(
+      sizes.map((size) => Number(size.toFixed(CLOSE_ENOUGH))),
+      `${FR_051_WHAT_IT_MULTIPLIES} -- ${S_225} x ${S_235}`,
+    ).toContainEqual(Number((S_225 * S_235).toFixed(CLOSE_ENOUGH)))
   })
 
   it('does not scale the band height with it -- that is settled from the environment', () => {

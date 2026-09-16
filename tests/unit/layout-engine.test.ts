@@ -430,7 +430,7 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
     const scale = LAYOUT_SETTINGS.rulerFont / settingNumber('fontMin')
     expect(rulerTierOf(0, LAYOUT_SETTINGS)).toBe('year')
     for (const step of T_205_TIERS) {
-      const threshold = settingNumber(step.key) * scale
+      const threshold = drawnPx(settingNumber(step.key) * scale)
       // 「≧ しきい値」 -- the step is reached AT its own threshold ...
       expect(rulerTierOf(threshold, LAYOUT_SETTINGS), step.row).toBe(step.tier)
       // ... and 「単調であること（MUST）」 keeps the coarser step just below it.
@@ -448,7 +448,7 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
     const larger = settingsOf({ ...LAYOUT_SETTINGS, rulerFont })
     const scale = rulerFont / settingNumber('fontMin')
     for (const step of T_205_TIERS) {
-      const threshold = settingNumber(step.key) * scale
+      const threshold = drawnPx(settingNumber(step.key) * scale)
       expect(rulerTierOf(threshold, larger), step.row).toBe(step.tier)
       expect(rulerTierOf(threshold * 0.999, larger), step.row).toBe(step.below)
       // The very same px/day under the smaller text is never COARSER: that is

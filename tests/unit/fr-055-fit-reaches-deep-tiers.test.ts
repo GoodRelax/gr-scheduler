@@ -208,17 +208,14 @@ const settingsTablePx = (id: string): number => {
  * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
  *
  * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
- * … 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである」. So it is
- * composed here: `FR-029` (MUST) draws the glyph in a box of `S-138` a side, keeps
- * `S-141` between that box and the entrance's frame on each side, and draws that
- * frame `S-237` thick; `HF-1` (MUST) stacks four of those 「2 × 2 の格子」.
- * ⚠️ `S-235` MULTIPLIES ALL THREE (`S-138` 「描くときは、どの面でも `S-235` を掛ける」)
- * while the display scale does not (表 T-252 の `DS-7`); `HF-19` keeps it constant.
+ * … 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである」 -- so one
+ * rung is that box plus that gap on each side, and `HF-1` (MUST) stacks two of
+ * them. ⛔ `S-237` IS NOT IN IT: `FR-029`'s 26px is the entrance's WIDTH, and that
+ * requirement leaves the outer HEIGHT to the side that sets the row pitch.
+ * `S-235` multiplies the box and the gap; the display scale does not.
+ * `HF-19` keeps this floor off the reader's type size, so it does not climb.
  */
-const CONTROL_LATTICE_FLOOR =
-  (settingsTablePx('S-138') + (settingsTablePx('S-141') + settingsTablePx('S-237')) * 2) *
-  S_235 *
-  2
+const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-141') * 2) * S_235 * 2
 
 /**
  * The smallest `zoomY` that draws a given depth, which is what FR-055's MUST

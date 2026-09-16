@@ -453,8 +453,8 @@ const rowOf = (
   box,
   label,
   // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
-  // takes 「その行の深さぶんのインデント」 off the usable width.
-  indentPx: depth * SETTINGS.rowTitleIndent,
+  // takes 「その行の深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
+  indentPx: depth * SETTINGS.rowTitleIndent * DISPLAY_RATIO,
   ...rowNameFont(depth),
   // Nothing is cut here, and the `RowTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
