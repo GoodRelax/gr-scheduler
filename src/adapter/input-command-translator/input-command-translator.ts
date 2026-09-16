@@ -1470,9 +1470,12 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,
     scrollDayOffset: moved.scrollDayOffset,
-    scrollGroupId: plain ? rowTurnedTo(context, input.scrollPx.y) : moved.scrollGroupId,
+    // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
+    scrollGroupId: plain
+      ? rowTurnedTo(context, input.scrollPx.y)
+      : context.document.documentSettings.scrollGroupId,
     // TRAP: beside a floored row id, moved.scrollGroupOffset names a place nobody scrolled to.
-    scrollGroupOffset: plain ? 0 : moved.scrollGroupOffset,
+    scrollGroupOffset: plain ? 0 : context.document.documentSettings.scrollGroupOffset,
   } as const
   // WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
   return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])

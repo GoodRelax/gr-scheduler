@@ -364,17 +364,17 @@ function paletteGroupRuleStyle(): string {
   )
 }
 
-// see EP-1
+// see EP-1, FR-051
 /** @purity pure */
 function appHeaderStyle(): string {
-  const inset = NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']
+  const inset = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'])
   return `${STYLE.appHeader}padding-left:${inset}px;`
 }
 
-// see EP-1
+// see EP-1, FR-051
 /** @purity pure */
 function documentTitleStyle(): string {
-  const size = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225']
+  const size = chromeScaledPx(NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'])
   return `${STYLE.documentTitle}font-size:${size}px;`
 }
 
