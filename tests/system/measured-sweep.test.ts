@@ -2937,10 +2937,39 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
     // selected, so arming a milestone also asks SP-2 to change its shape, which
     // CM-20 refuses across 表 T-012's SH-1..SH-4 / SH-5 line -- and FR-083 (MUST)
     // still stands the arm up. The notices are cleared rather than read.
+    // WHY: the point is found, not computed -- FR-001 places what is armed only where
+    // WHY: the press hits no item, and measured here, x=800..1300 is all taken.
+    // WHY: swept outward from the bar the drag just made -- at this height the
+    // WHY: clear ground is sparse, so a handful of guessed x finds none of it.
+    const milestoneTries: number[] = []
+    for (let x = startX + dragPx + 80; x <= 1840; x += 80) milestoneTries.push(x)
+    for (let x = startX - 80; x >= 280; x -= 80) milestoneTries.push(x)
+    let milestoneX: number | null = null
+    for (const x of milestoneTries) {
+      if (!(await armEntrance(page, rectangle))) continue
+      const was = await drawnShapes(page)
+      await page.mouse.move(x, ground)
+      await page.mouse.down()
+      await page.mouse.up()
+      await page.waitForTimeout(900)
+      const told = (await standingNotices(page)).sheets > 0
+      const now = await drawnShapes(page)
+      await page.keyboard.press('Enter')
+      await page.waitForTimeout(400)
+      if (told && now.length === was.length) {
+        milestoneX = x
+        break
+      }
+    }
+    expect(
+      milestoneX,
+      'no x at this height answered a bar press with the telling that says the ground is clear, ' +
+        'so this case has nowhere to put the milestone that FR-001 (MUST) places by a press',
+    ).not.toBeNull()
+    if (milestoneX === null) return
     expect(await armEntrance(page, diamond), `${diamond} would not arm`).toBe(true)
     await page.keyboard.press('Enter')
     await page.waitForTimeout(400)
-    const milestoneX = startX + dragPx + 260
     const beforeMilestone = await drawnShapes(page)
     await page.mouse.move(milestoneX, ground)
     await page.mouse.down()

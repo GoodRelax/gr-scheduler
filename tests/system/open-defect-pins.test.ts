@@ -498,6 +498,10 @@ interface Dropped {
   readonly after: ReadonlyArray<{ x: number; width: number; height: number }>
 }
 
+// WHY: FR-001 / FR-019 part a press from a drag at S-208, read here rather than
+// WHY: written, so the carry below follows the product's own boundary.
+const PRESS_OR_DRAG_PX = settingOf('T-206', 'S-208', DEFAULT_COLUMN)
+
 // WHY: drawn fresh, not from the starting document -- every unstarted task
 // there sits off-screen at the default zoom, out of pointer reach.
 // WHY: the drag distance is the product's own drawn mark width (FR-043), not
@@ -558,7 +562,9 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
 
   // WHY: pressed a quarter into the mark -- inside GR-9's (start) half and
   // short of the centre pixel, which FR-043 routes to GR-17 (finish) instead.
-  const carriedPx = steps * step
+  // WHY: a move no further than S-208 is a press, not a drag, so the product writes
+  // WHY: nothing; the mark is 2px here, so three of them would not reach that boundary.
+  const carriedPx = Math.max(steps * step, PRESS_OR_DRAG_PX + step)
   const from = { x: dummy.x + dummy.width / 4, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
   await page.waitForTimeout(250)

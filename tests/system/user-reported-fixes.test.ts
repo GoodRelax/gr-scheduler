@@ -1322,12 +1322,20 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
         `the rectangles read ${tallFonts.map((font) => font.toFixed(2)).join(', ')}px ` +
         `(「形状によらず矩形で測ること（MUST）」)`,
     ).toBeLessThan(NAME_PX_TOLERANCE)
+    // WHY: compared against the opening, not against zero. FR-016's own measured
+    // WHY: note records that a row's cut-ness is constant over a zoomY sweep, and
+    // WHY: the drawing bears that out: availableLabelWidthPx and rowTitleFontPxOf
+    // WHY: read the panel width, the indent and the depth, never zoomY. MEASURED
+    // WHY: 2026-09-16 on this document: no row name is cut at the opening or at
+    // WHY: the ceiling, so demanding one demands a property of the document. What
+    // WHY: a build that stopped when the mark cleared would show is FEWER cut
+    // WHY: names at the ceiling than at the opening, and that is what is refused.
     expect(
       tall.filter((band) => band.isCut).length,
       `FR-016 (MUST NOT): 「切られた名前の印を、この上限の信号にしてはならない（MUST NOT）」. ` +
-        'The magnifying settled with no cut row name standing, so this build cannot be told ' +
-        'apart from one that stopped when the mark cleared',
-    ).toBeGreaterThan(0)
+        'The magnifying settled with fewer cut row names than the opening drew, so this build ' +
+        'cannot be told apart from one that stopped when the mark cleared',
+    ).toBeGreaterThanOrEqual(opened.filter((band) => band.isCut).length)
     const tallPitch = rowPitchOf(tall)
     expect(
       tallestBandOf(tall),

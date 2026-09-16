@@ -1234,10 +1234,14 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   )
 }
 
-// see FR-029
+// see FR-029, S-237
+// TRAP: step by the width the host paints; a border thinner than one device pixel is
+// painted at 1px, so the box outgrows entranceOuterWidthPx and the entries lap (DFC-160).
 /** @purity pure */
 function panelCornerStepPx(): number {
-  return entranceOuterWidthPx()
+  return chromeScaledPx(
+    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2,
+  ) + Math.ceil(entranceBorderPx()) * 2
 }
 
 /** @purity pure */
