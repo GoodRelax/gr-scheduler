@@ -75,6 +75,14 @@
    }
   },
   {
+   "prefix": "BC",
+   "words": "Band Ceiling",
+   "owner": "spec",
+   "means": {
+    "ja": "行の軸の上限（帯の側）を探す手順の段"
+   }
+  },
+  {
    "prefix": "BO",
    "words": "",
    "owner": "spec",
