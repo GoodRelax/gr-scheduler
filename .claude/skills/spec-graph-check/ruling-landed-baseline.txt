@@ -1,4 +1,15 @@
-11
+18
+#
+# RAISED 11 -> 18 on 2026-09-16 (evening), with the user's approval (asked in chat: "検査 43 は 18 に
+# 上げてよい"). Seven rulings were recorded before anything lands them: JDG-132 (over a drawn bar a
+# dependency line takes only its own drawn stroke -- CR-399), JDG-133 (the row title panel stops at its
+# floor while held, and a drag into the floor never raises the stored width -- CR-400), JDG-134 (the
+# row axis ceiling is the first zoom, rising from the minimum, at which the tallest row reaches the Row
+# Area -- CR-401), JDG-135 (DFC-610 is folded into DFC-628's fix and A/B-measured after it), JDG-136
+# (DFC-611's cause is split on f45e9cd7; its fix is judged on the current tip at display scale 50, then
+# 100), JDG-138 (drawn-px boundary comparisons go through one float-noise tolerance -- rule 03) and
+# JDG-139 (a generated constant is exported only when another file reads it, in three steps). JDG-137
+# (check 42 lowered to 384) lands in the same commit and is not counted. Lower it in each landing commit.
 #
 # LOWERED 13 -> 11 on 2026-09-16 in the landing commit, as the raises below planned: the display-size
 # spec wave (CR-390 .. CR-395) landed JDG-122, JDG-123 and JDG-131, whose rows now read 適用済.
