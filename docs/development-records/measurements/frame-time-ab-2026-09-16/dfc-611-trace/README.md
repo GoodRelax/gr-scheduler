@@ -22,7 +22,7 @@ script / style / layout / paint / 合成 に割る。
 git archive 5c1b915 | tar -x -C <scratch>/perf-a-5c1b915     # 段 0
 git archive <先端>  | tar -x -C <scratch>/perf-b-<先端>       # 比べる側
 # 各木で node_modules を親につなぎ（ジャンクション／シンボリックリンク）、npx vite build
-# 段 0 の dist/index.html の sha256 が 8460eaa9… であることを確かめる
+# 段 0 の dist/index.html の sha256 が 2cf34431… であることを確かめる（⚠️ 旧記の 8460eaa9… は誤り。下の「⚠️ sha256 の訂正」を見ること）
 ```
 
 ### 2. 交互に測る（本番。前に立つ者が、ほかの重い走行を止めてから 1 回だけ）
@@ -87,7 +87,7 @@ python docs/development-records/measurements/frame-time-ab-2026-09-16/dfc-611-tr
 ## SMOKE —— 配管が数を出すことの確認だけ（2026-09-16、⛔ 結果ではない）
 
 各ビルド **1 回・区間ごとに 2 秒**だけ走らせた値。本番は上の 3 回 × 5 秒で測り直すこと。
-木は `perf-a-5c1b915`（sha256 `8460eaa9…`）と `perf-b-f45e9cd7`（`30de7724…`）、Edge 153.0.4234.32 headless、1920×1080、`Task` 1000 件。
+木は `perf-a-5c1b915`（⚠️ **当時 sha256 `8460eaa9…` と記したが、その値は誤りである。正しくは `2cf34431…` —— 下の「⚠️ sha256 の訂正」を見ること**）と `perf-b-f45e9cd7`（`30de7724…`）、Edge 153.0.4234.32 headless、1920×1080、`Task` 1000 件。
 
 | 区間 | 行 | 段 0 `5c1b915` | 先端 `f45e9cd7` |
 |---|---|---:|---:|
@@ -111,3 +111,20 @@ python docs/development-records/measurements/frame-time-ab-2026-09-16/dfc-611-tr
 
 ⚠️ この 2 秒の走行では、段 0 の in-page のフレーム時間が 7.4 ms と出ており、記録 17 追補の 12.0〜12.1 ms と合わない
 （trace の重さ・2 秒という短さ・選ばれたタスクの違いのいずれか）。⛔ **SMOKE の数で `DFC-611` を論じてはならない。**
+
+## ⚠️ sha256 の訂正（2026-09-16）
+
+**本書が 2 か所（上の「走らせ方」の検証条件と、SMOKE の木の素性）で段 0 `5c1b915` の
+`dist/index.html` の sha256 を `8460eaa9…` と書いていたが、その値は誤りである。**
+
+⭐ **実測**: リポジトリに commit されている `5c1b915:dist/index.html` の sha256 は
+`2cf3443178138f31a4e53ee18be868e63c187a038c6b21823a5c78f5b19e949f`（1,181,937 バイト、blob `f381719c`）である。
+測り方は `git show 5c1b915:dist/index.html | sha256sum`（`git cat-file -p` でも同じ値）。
+
+⭐ **道具立てのビルドは再現する**: 今日 `git archive` で写して `npx vite build` した木も同じ `2cf34431…` になり、
+同じ手順で先端 `7ca9524b` は `fe6cd9b4…` となって、commit 済みの `7ca9524b:dist/index.html` と 1 バイト違わなかった
+（前半は配線の体の実測、後半の commit 済みの値は台帳の体が `git show 7ca9524b:dist/index.html | sha256sum` で確かめた）。
+
+⛔ **旧記の `8460eaa9…` がどこから来たのかは分かっていない。**
+⚠️ 同じ値は `docs/development-records/refactor-plan-report-2026-09-13.md:769` も主張しているが、
+**そちらは過去の記録なので書き換えていない** —— 記録は当時書いたままに残し、訂正は本書が持つ。
