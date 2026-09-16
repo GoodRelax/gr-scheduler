@@ -77,18 +77,26 @@ const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'taskLevelOfDetailReadablePx', 'rowTitlePanelWidth',
 ]
 
-// see FR-029
+/** @purity pure */
+function entranceOuterHeightPx(): number {
+  return NOT_STORED_ENTRANCE_SIZES['S-138'] + NOT_STORED_ENTRANCE_SIZES['S-141'] * 2
+}
+
 /** @purity pure */
 function entranceOuterWidthPx(): number {
-  return (
-    NOT_STORED_ENTRANCE_SIZES['S-138'] +
-    NOT_STORED_ENTRANCE_SIZES['S-141'] * 2 +
-    NOT_STORED_ENTRANCE_SIZES['S-237'] * 2
-  )
+  return entranceOuterHeightPx() + NOT_STORED_ENTRANCE_SIZES['S-237'] * 2
 }
 
 // see HF-4
 const ROW_CONTROL_COLUMNS = 4
+
+const ROW_CONTROL_LATTICE_RANKS = 2
+
+// see LF-3, HF-19, FR-029
+/** @purity pure */
+export function rowControlLatticeFloorPx(): number {
+  return entranceOuterHeightPx() * NOT_STORED_CHROME_SCALE['S-235'] * ROW_CONTROL_LATTICE_RANKS
+}
 
 // see FR-039, T-252
 /** @purity pure */

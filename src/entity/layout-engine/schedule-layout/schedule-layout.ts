@@ -24,6 +24,7 @@ import {
 import {
   displayRatioOf,
   drawnSettingsOf,
+  rowControlLatticeFloorPx,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
 
@@ -640,14 +641,6 @@ function markerReachOf(anchorX: number, task: Task, shapeKind: ShapeKind,
   if (!resumeBesideMarker) return markerRight
   const side = diameter * (task.resumeValid !== false ? 1 : settings.resumeScaleInvalid)
   return markerRight + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
-}
-
-const ROW_CONTROL_LATTICE_RANKS = 2
-
-// see LF-3, HF-19
-/** @purity pure */
-function rowControlLatticeFloorPx(): number {
-  return NOT_STORED_ROW_CONTROL_OUTER_SIZES.rowControlOuterHeightPx * ROW_CONTROL_LATTICE_RANKS
 }
 
 // see T-068
