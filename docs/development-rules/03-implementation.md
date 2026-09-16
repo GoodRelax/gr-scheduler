@@ -25,12 +25,13 @@
 
 ⭐ **いま原稿から生成されている定数**（増えたらここに足す）:
 
-⛔⛔ **生成される定数を 1 つ足すには、3 か所に書く**
+⛔⛔ **生成される定数を 1 つ足すには、3 か所に書く**（ほかのファイルが読むなら 4 か所）
 
 ```
 tools/generate_entity_types.py  組の表（`NOT_STORED_` で探せ。行番号で探すな）
 tools/generate_entity_types.py  ファイルごとの出力式（`not_stored_block(...)` を並べている所）
 docs/development-rules/03-implementation.md  すぐ下の一覧
+tools/generate_entity_types.py  公開する写しの一覧（`PUBLISHED_READ_BY_` で探せ）—— ほかのファイルが読むときだけ
 ```
 
 ⛔ **2 つ目を落とすと、黙って何も出ない**（組の表に書いても、出力式が呼ばなければ出力されない）。
@@ -43,6 +44,7 @@ COLUMN_SHAPES                        列の入力の形・選択肢・下限上�
 DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 ENTITY_ROWS                          実体の行（`erd.json`）
+GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
@@ -61,7 +63,6 @@ NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所�
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
-NOT_STORED_ROW_CONTROL_OUTER_SIZES   行の操作子 1 つの外形の高さ（`S-138` ＋ `S-141` × 2）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
 NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
@@ -77,6 +78,7 @@ NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下�
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
+SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
@@ -87,8 +89,10 @@ NOT_STORED_RULER_WEEKDAY_SIZES       目盛の曜日の段の文字の大きさ�
 NOT_STORED_WATERMARK_NAME            透かしに出す名前の既定値（表 T-206 の `S-99a`）
 ```
 
-⭐ **この一覧は機械が見ている** —— `.claude/skills/spec-graph-check/check-generated-constants.py` が検査 30 として走り、**木の生成された `export const` と本一覧が同じ集合を名指しているか**を数える。⛔ **足し忘れれば `check.sh` が落ちる。**⭐ **わざと 1 行消して落ちることを確かめてある**（`NOT_STORED_ICON_SIZES` を抜くと `FAIL` と、木と一覧の本数の食い違いを告げる）。⚠️ **数え方は生成器を走らせない** —— `// <generated -- do not edit by hand>` 〜 `// </generated>` の中だけを読むので、**生成物が古くても答えは変わらない。**
-⭐ **数え方**: `src/` の生成された `export const` を全部拾う。
+⭐ **この一覧は機械が見ている** —— `.claude/skills/spec-graph-check/check-generated-constants.py` が検査 30 として走り、**木の生成された `const` と本一覧が同じ集合を名指しているか**を数える。⛔ **足し忘れれば `check.sh` が落ちる。**⭐ **わざと 1 行消して落ちることを確かめてある**（`NOT_STORED_ICON_SIZES` を抜くと `FAIL` と、木と一覧の本数の食い違いを告げる）。⚠️ **数え方は生成器を走らせない** —— `// <generated -- do not edit by hand>` 〜 `// </generated>` の中だけを読むので、**生成物が古くても答えは変わらない。**
+⭐ **数え方**: `src/` の生成ブロックの行頭の `const` を、**`export` の有無に依らず**全部拾う。
+⚠️ `export const` だけを数えると、下の公開の規則で `export` を外した定数が、木から消えたと読まれる。
+⚠️ 一覧には `tools/generate_json_schema_validator.py` が刷る 2 つ（`GRS_DOCUMENT_SCHEMA` / `SCHEMA_DEFS`）も載る —— 数え方が生成器を問わないからである。
 ⛔ **「増えたらここに足す」と書くだけの一覧は、機械が見ていなければ、増やした者が足し忘れても誰も気づかない。**
 
 ⚠️ **下の 2 つは、表 T-206 の行が値を持たず 表 T-201 の行を名指している初めての例である**（`S-96` → `S-53`）。
@@ -102,6 +106,43 @@ NOT_STORED_WATERMARK_NAME            透かしに出す名前の既定値（表 
 `S-90` 〜 `S-93` は `item-hit-area.ts`（`Entity`）へ、`S-134` は `screen-frame.ts`（`Adapter`）へ行く ——
 ⛔ **1 つの定数に相乗りさせると、片方のユニットが他方の値を持つことになる**（1. の重複）。
 **どの行がどのユニットへ行くかは `tools/generate_entity_types.py` が決める。**
+
+### ⛔ 生成定数に `export` を付けるのは、ほかのファイルが読む写しだけ（JDG-139）
+
+⭐ **利用者の裁定（2026-09-16）** —— 生成器は、ほかのファイルが読む生成定数にだけ `export` を付ける。
+⭐ 利用者の問いは「公開する者だけPublicにするもんじゃない？」である。
+⚠️ **判定は名前ではなく写しで行う。**
+写しとは、定義したファイルと名前の組である。
+1 つの名前は、それを使うユニットごとに刷られる（上の注）。
+⛔ 名前で数えると、ある写しを誰も読んでいないのに、同じ名前の別の写しが読まれているせいで公開のまま残る。
+
+| 何が | 規則 | 誰が落とすか |
+|---|---|---|
+| `export` の付いた写し | ほかのファイルが少なくとも 1 つ import している | 検査 30 |
+| `export` の無い写し | ほかのファイルが読んでいない | 名前での import は `tsc`。<br>名前空間を文字列の鍵で読む形（`(ns as Record<string, unknown>)['NAME']`）は `tsc` を素通りし、実行時に黙って `undefined` になるので、検査 30 |
+| どの写しに `export` を付けるか | `tools/generate_entity_types.py` の一覧に書く。<br>`PUBLISHED_READ_BY_SRC` は `src/` が読む写し、`PUBLISHED_READ_BY_TESTS_ONLY` は試験だけが読む写しである。<br>一覧に無い写しは `export` の無い `const` として刷られる | 一覧が、生成器の刷らない定数を名指せば生成器が止まる。<br>一覧と木の食い違いと、2 つの群の取り違えは検査 30 |
+| 自分のファイルの中でも読まれない写し | 生成しない。<br>`export` を外せば `noUnusedLocals` で落ち、公開のまま残せば消費者の無い公開名になる | `tsc` |
+
+⭐ **一覧は、生成のときに import から割り出さず、手で書く。**
+公開はユニットの顔を決めることなので、import を足した者に自動で与えず、差分の 1 行として残す。
+生成器の出力も、原稿と生成器だけで決まる（試験の import が増えても減っても変わらない）。
+⚠️ **実例**: `NOT_STORED_ROW_CONTROL_OUTER_SIZES` は `CR-397` で床の式が `screen-regions.ts` へ移ったあと、自分のファイルを含めて誰にも読まれないまま刷られ続けていた。
+第 1 段で生成をやめた。
+
+⭐ **3 段で進める。いまは第 1 段が済んだところである。**
+
+| 段 | すること | 検査 30 が数える「ほかのファイル」 |
+|---|---|---|
+| 1（済） | どのファイルからも読まれない写しの `export` を外す | `src/` と `tests/` |
+| 2 | 試験だけが読む写しを読む試験を、期待値を設定表から読む形に直す | `src/` と `tests/` |
+| 3 | `PUBLISHED_READ_BY_TESTS_ONLY` を空にする | `src/` だけ（検査 30 の `READERS_THAT_PUBLISH`） |
+
+⭐ **いまの数は検査 30 が毎回刷る**（`python .claude/skills/spec-graph-check/check-generated-constants.py` の `OK` の行）。
+⚠️ 第 1 段を当てた日（2026-09-16）の実測: 48 名・56 写し。
+うち `export` の付いた写しは 29（`src/` が読む 13、試験だけが読む 16）、ほかのファイルが読まない写しは 27 である。
+⭐ **検査 30 の自己試験**（`--self-test`）は、メモリに持った木を 6 通りに破り、どれも赤になり、破る前の木が緑であることを確かめる。
+⚠️ **検査 30 が見ないもの**: 試験がソースを文字列として読み、`export const 名前` を探す形。
+import ではないので読み手として数えない。
 
 ---
 

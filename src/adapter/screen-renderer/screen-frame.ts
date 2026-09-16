@@ -135,7 +135,7 @@ export const NOT_STORED_PANEL_DIVIDER_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_SCROLLBAR_SIZES: {
+const NOT_STORED_SCROLLBAR_SIZES: {
   readonly 'S-205': number
 } = {
   'S-205': 8,

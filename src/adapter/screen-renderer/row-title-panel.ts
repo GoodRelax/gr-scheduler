@@ -360,7 +360,7 @@ export const NOT_STORED_ROW_CONTROL_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_ROW_GRAB_ROOM_SIZES: {
+const NOT_STORED_ROW_GRAB_ROOM_SIZES: {
   readonly 'S-138': number
   readonly 'S-218': number
 } = {
@@ -369,7 +369,7 @@ export const NOT_STORED_ROW_GRAB_ROOM_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_CHROME_SCALE: {
+const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,

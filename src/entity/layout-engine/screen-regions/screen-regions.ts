@@ -204,14 +204,14 @@ export function regionAtPointer(regions: ScreenRegions, x: number, y: number): R
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
-export const NOT_STORED_DISPLAY_SCALE_BASE: {
+const NOT_STORED_DISPLAY_SCALE_BASE: {
   readonly 'S-236': number
 } = {
   'S-236': 0.6667,
 }
 
 // see T-206
-export const NOT_STORED_ENTRANCE_SIZES: {
+const NOT_STORED_ENTRANCE_SIZES: {
   readonly 'S-138': number
   readonly 'S-141': number
   readonly 'S-237': number
@@ -222,7 +222,7 @@ export const NOT_STORED_ENTRANCE_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_CHROME_SCALE: {
+const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,

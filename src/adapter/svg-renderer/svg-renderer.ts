@@ -1176,7 +1176,7 @@ export const NOT_STORED_SELECTION_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_DEPENDENCY_SIZES: {
+const NOT_STORED_DEPENDENCY_SIZES: {
   readonly 'S-224': number
 } = {
   'S-224': 3,
@@ -1197,7 +1197,7 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_RULER_WEEKDAY_SIZES: {
+const NOT_STORED_RULER_WEEKDAY_SIZES: {
   readonly 'S-219': number
 } = {
   'S-219': 0.6,
@@ -1236,7 +1236,7 @@ export const SCHEDULE_COLOURS: {
 }
 
 // see T-207, FR-020
-export const WATERMARK_MARKS: {
+const WATERMARK_MARKS: {
   readonly 'S-220': string
   readonly 'S-221': string
   readonly 'S-222': string

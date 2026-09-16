@@ -231,7 +231,7 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_CHROME_SCALE: {
+const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,

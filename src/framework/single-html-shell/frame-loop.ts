@@ -3845,7 +3845,7 @@ export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_REPEAT_TIMES: {
+const NOT_STORED_REPEAT_TIMES: {
   readonly 'S-172': number
   readonly 'S-173': number
 } = {
@@ -3861,14 +3861,14 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_INTERACTION_RECORD_LIMITS: {
+const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   readonly 'S-207': number
 } = {
   'S-207': 2000,
 }
 
 // see T-206
-export const NOT_STORED_WATERMARK_NAME: {
+const NOT_STORED_WATERMARK_NAME: {
   readonly 'S-99a': 'user'
 } = {
   'S-99a': 'user',

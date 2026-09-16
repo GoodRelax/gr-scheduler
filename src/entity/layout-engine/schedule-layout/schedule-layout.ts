@@ -1235,13 +1235,6 @@ export function rowPlacesAtZoomY(
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
-// see T-206, S-138, S-141
-export const NOT_STORED_ROW_CONTROL_OUTER_SIZES: {
-  readonly rowControlOuterHeightPx: number
-} = {
-  rowControlOuterHeightPx: 24,
-}
-
 // see T-206
 export const NOT_STORED_SIZES: {
   readonly 'S-90': number

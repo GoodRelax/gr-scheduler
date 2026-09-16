@@ -3824,7 +3824,7 @@ export const NOT_STORED_ROW_GRAB_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_VISIBLE_DAY_FLOOR: {
+const NOT_STORED_VISIBLE_DAY_FLOOR: {
   readonly 'S-229': number
 } = {
   'S-229': 10,

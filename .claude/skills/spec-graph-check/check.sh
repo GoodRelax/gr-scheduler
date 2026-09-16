@@ -40,8 +40,11 @@
 #          inside this script because a check that a rule asks people to run
 #          separately is a check that does not run
 #   11     dup-check.py against the known-duplication baseline
-#   30     the generated `export const` of src/ against the list that
-#          names them in docs/development-rules/03-implementation.md
+#   30     the generated `const` of src/, exported or not, against the list
+#          that names them in docs/development-rules/03-implementation.md;
+#          and JDG-139 copy by copy: an exported copy no other file of src/
+#          or tests/ imports, a read copy that is not exported, and the
+#          generator's PUBLISHED_READ_BY_* list out of step with either
 #   31     check-stale-blocked.py : a defects.md row whose 対応方針・決定仕様
 #          cell still contains 未定 / 利用者の裁定が要る / 裁定を待つ /
 #          仕様に行が無い while the SAME row also shows a ruling, a testing
@@ -374,7 +377,10 @@ section "26b table T-064 and src/ hold each other, both directions"
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-published-members.py || failed
 
 echo ""
-section "30  the generated constants against the list that names them"
+section "30  the generated constants against the list that names them, and exported only where read (JDG-139)"
+# The self-test runs first: it breaks a tree held in memory six ways and is red
+# unless every break goes red and the unbroken tree stays green.
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py --self-test || failed
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-generated-constants.py || failed
 
 echo ""

@@ -184,7 +184,8 @@ function generatedNumber(file: string, constant: string, rowId: string): number 
   const blocks = [...said.matchAll(/\/\/ <generated[^\n]*\n([\s\S]*?)\/\/ <\/generated>/g)].map(
     (one) => one[1] ?? '',
   )
-  const holding = blocks.filter((block) => block.includes(`export const ${constant}`))
+  const declared = new RegExp(`(?:export )?const ${constant}\\b`)
+  const holding = blocks.filter((block) => declared.test(block))
   if (holding.length !== 1) {
     throw new Error(
       `${file} has ${holding.length} generated blocks declaring ${constant}, and this file ` +

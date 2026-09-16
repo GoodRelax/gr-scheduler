@@ -488,7 +488,7 @@ export interface EntityRows {
 }
 
 // see IV-1, IV-2
-export const ENTITY_ROWS: readonly EntityRows[] = [
+const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Project',
     scheduleKey: 'project',

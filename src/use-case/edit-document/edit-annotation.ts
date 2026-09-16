@@ -275,7 +275,7 @@ function reject(command: string, rule: string, what: string): Refusal {
 //   docs/spec/_source/settings.json (table T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-217, FR-019
-export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': number } = {
+const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': number } = {
   'S-132': 4,
 }
 // </generated>

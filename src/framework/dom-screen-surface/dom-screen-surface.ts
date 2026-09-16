@@ -2881,21 +2881,21 @@ export const NOT_STORED_ICON_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_ROW_GRAB_STRIP_SIZES: {
+const NOT_STORED_ROW_GRAB_STRIP_SIZES: {
   readonly 'S-218': number
 } = {
   'S-218': 4,
 }
 
 // see T-206
-export const NOT_STORED_ROW_BAND_SIZES: {
+const NOT_STORED_ROW_BAND_SIZES: {
   readonly 'S-213': number
 } = {
   'S-213': 3,
 }
 
 // see T-206
-export const NOT_STORED_STATE_GROUND_PERCENTS: {
+const NOT_STORED_STATE_GROUND_PERCENTS: {
   readonly 'S-214': number
   readonly 'S-215': number
 } = {
@@ -2904,7 +2904,7 @@ export const NOT_STORED_STATE_GROUND_PERCENTS: {
 }
 
 // see T-206
-export const NOT_STORED_HELP_SIZES: {
+const NOT_STORED_HELP_SIZES: {
   readonly 'S-201': number
   readonly 'S-202': number
   readonly 'S-203': number
@@ -2917,14 +2917,14 @@ export const NOT_STORED_HELP_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
+const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
   readonly 'S-143': readonly [number, number]
 } = {
   'S-143': [1, 6],
 }
 
 // see T-206
-export const NOT_STORED_PROPERTY_FIELD_SIZES: {
+const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-186': number
   readonly 'S-187': number
   readonly 'S-188': readonly [number, number]
@@ -2949,7 +2949,7 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
+const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
 } = {
@@ -2958,14 +2958,14 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_CHROME_SCALE: {
+const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
 }
 
 // see T-236, S-73
-export const SCREEN_COLOURS: {
+const SCREEN_COLOURS: {
   readonly [rowId: string]: {
     readonly light: string
     readonly dark: string

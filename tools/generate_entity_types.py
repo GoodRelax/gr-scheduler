@@ -1586,87 +1586,6 @@ def annotation_defaults_block():
     return '\n'.join(out)
 
 
-# ---- a value table T-206 states in two rows and nothing may add up by hand --
-#
-# ⛔ NOT `not_stored_block`'s SHAPE, AND THE DIFFERENCE IS THE POINT. That one
-# carries ROWS, keyed by the row ID, because the row ID is the specification's
-# own name for the value. This one carries a SUM, and the sum has a name of its
-# own in the specification's prose while no single row holds it -- so a key of
-# "S-138" would be a lie about which row answers for the number, and a hand-
-# typed 24 in any unit would be the copied value rule 03 section 1 forbids.
-#
-# ⭐ ONE MEMBER PER CONSTANT AND A NAME RATHER THAN A ROW ID, for that reason.
-# ⚠️ The terms carry a MULTIPLIER because a gap stated once is taken twice: an
-# entrance has S-141 above the shape and S-141 below it, and 「S-141 x 2」 is
-# how FR-029 composes the entrance rather than a second row saying 8.
-DERIVED_TARGETS = {
-    # ⭐⭐ LF-3 OF TABLE T-221 (MUST) AND HF-19 OF TABLE T-051 (MUST NOT): a
-    # row's band is never shorter than the lattice HF-1 (MUST) draws on it --
-    # 「並びは 2 x 2 の格子とすること」 -- and HF-19 forbids meeting that by
-    # shrinking the lattice instead. ⇒ The floor is two of these, stacked, and
-    # the layer that decides a band is the layer that has to hold it.
-    # ⛔ DO NOT PASS THE FLOOR ONLY AS AN ARGUMENT measured off a drawn lattice
-    # by the side that drew it: a caller that passes nothing drops a MUST NOT
-    # in silence. The layout engine holds the floor of its own (CR-342), and
-    # the measurement is what may raise it.
-    # ⚠️ THE SUM IS THE SPECIFICATION'S OWN, not an arithmetic invented here:
-    # the note on S-138 states the answer in as many words -- 「`S-141` を 6 から
-    # 4 へ同時に下げるので、入口の外形は 26 x 24px のまま動かない」 -- and 16 + 4
-    # x 2 is the 24 of that sentence.
-    'NOT_STORED_ROW_CONTROL_OUTER_SIZES': (
-        'rowControlOuterHeightPx',
-        [('S-138', 1), ('S-141', 2)],
-        ['// see T-206, S-138, S-141'],
-    ),
-}
-
-
-def derived_block(name):
-    """One value that table T-206 states across more than one row.
-
-    ⛔ The sum is worked out HERE and nowhere else. Every unit that needs it
-    reads this constant, so the day either term moves the answer moves with it
-    -- which a value typed into a unit cannot do (rule 03 section 1).
-    """
-    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
-    block = [b for b in doc['blocks'] if b.get('id') == 'T-206']
-    if not block:
-        raise SystemExit('settings.json holds no table T-206')
-    by_id = {r['id']: r for r in block[0]['rows']}
-    member, terms, seam = DERIVED_TARGETS[name]
-    total = 0.0
-    unit = None
-    for row_id, times in terms:
-        if row_id not in by_id:
-            raise SystemExit('table T-206 has no row %s' % row_id)
-        raw = by_id[row_id].get('default') or {}
-        stated = raw.get('num')
-        if stated is None:
-            raise SystemExit(
-                'table T-206 row %s holds no number in its default cell, so '
-                '%s cannot be generated.' % (row_id, name))
-        # ⛔ The units have to agree or the sum means nothing -- the very
-        # failure CR-173 closed for S-113, where a boundary moved in silence
-        # because nothing said what it was measured in.
-        suffix = (raw.get('suffix') or '').strip()
-        if unit is None:
-            unit = suffix
-        elif suffix != unit:
-            raise SystemExit(
-                'table T-206 states %s in %s and another term of %s in %s, and '
-                'two units cannot be added.' % (row_id, suffix or '(none)',
-                                                name, unit or '(none)'))
-        total += float(stated) * times
-    literal = '%d' % int(total) if float(total).is_integer() else repr(total)
-    out = list(seam) + [
-           'export const %s: {' % name,
-           '  readonly %s: number' % member,
-           '} = {',
-           '  %s: %s,' % (member, literal),
-           '}']
-    return '\n'.join(out)
-
-
 # ---- table T-207: what the watermark bakes into the artifact ---------------
 #
 # ⛔ NOT `not_stored_block`'s TABLE, AND NOT ITS SHAPE. That one reads table
@@ -2042,9 +1961,14 @@ TARGETS = [
      + not_stored_block('NOT_STORED_ENTRANCE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
+    # NOT_STORED_ROW_CONTROL_OUTER_SIZES used to lead this entry. CR-397 moved
+    # the row-control floor to `screen-regions.ts`, which composes it from
+    # NOT_STORED_ENTRANCE_SIZES and S-235, and left the sum with no reader
+    # anywhere -- not even in this file. JDG-139 prints a constant nobody
+    # outside its file reads as a plain `const`, and a plain `const` nobody
+    # reads at all is refused by noUnusedLocals, so it is no longer generated.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
-     lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
+     lambda _erd: not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_LABEL_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
@@ -2217,6 +2141,155 @@ TARGETS = [
 ]
 
 
+# ---- JDG-139: which generated constants leave their file ------------------
+#
+# The user's ruling of 2026-09-16: a generated constant is EXPORTED ONLY WHEN
+# ANOTHER FILE READS IT. Every other constant is printed as a plain `const`,
+# because an `export` nobody imports is a public name with no consumer -- it
+# widens the face of the unit and says "something outside depends on this"
+# when nothing does.
+#
+# The decision is made per COPY, a (file, constant) pair, and not per name:
+# one row of table T-206 is printed into every unit that consumes it (see
+# NOT_STORED_SIZES above), and each copy has its own readers. Judged by name,
+# a copy nobody imports stays exported because another copy of the same name
+# is imported somewhere else.
+#
+# The list is written out rather than worked out from the imports at
+# generation time, for two reasons:
+#   - publishing a name is a decision about the unit's public face, so it is
+#     made in a reviewed line, not granted to whoever adds an import;
+#   - this generator stays a function of the manuscripts and of this file --
+#     its output does not change because a test gained or lost an import.
+# The list cannot rot silently: this generator refuses an entry that names no
+# constant it prints into that file, and check 30
+# (.claude/skills/spec-graph-check/check-generated-constants.py) refuses an
+# exported copy that no other file imports, a copy another file reads that is
+# not exported (tsc sees a named import of it, but not a namespace read by a
+# string key), and an entry sitting in the wrong one of the two groups below.
+#
+# Three stages, in the order the user ruled:
+#   1. (done) take `export` off every copy no file of src/ or tests/ reads;
+#   2. rewrite the tests that read the READ_BY_TESTS_ONLY copies so that they
+#      take the expected value from the settings table instead;
+#   3. empty READ_BY_TESTS_ONLY, and narrow check 30 to readers in src/.
+# Paths are relative to the repository root, with forward slashes.
+
+# Copies at least one OTHER file of src/ imports.
+PUBLISHED_READ_BY_SRC = {
+    'src/adapter/input-command-translator/input-command-translator.ts': (
+        'NOT_STORED_ZOOM_STEP',
+    ),
+    'src/entity/document-model/document-settings/document-settings.ts': (
+        'SETTINGS_BOUNDS',
+        'SETTINGS_DEFAULTS',
+        'SETTINGS_DERIVED',
+    ),
+    'src/entity/document-model/edit-history/edit-history.ts': (
+        'NOT_STORED_LIMITS',
+    ),
+    'src/entity/document-model/schedule/schedule.ts': (
+        'COLUMN_DEFAULTS',
+        'COLUMN_SHAPES',
+        'DATE_COLUMNS',
+        'DEFAULT_CALENDAR_VALUES',
+    ),
+    'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
+        'NOT_STORED_SIZES',
+    ),
+    'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
+        'NOT_STORED_LABEL_SIZES',
+    ),
+    'src/framework/single-html-shell/frame-loop.ts': (
+        'NOT_STORED_SCROLLBAR_SIZES',
+    ),
+    'src/use-case/edit-document/edit-document.ts': (
+        'NOT_STORED_ZOOM_BOUNDS',
+    ),
+}
+
+# Copies only tests/ reads. Stage 3 of JDG-139 empties this group.
+PUBLISHED_READ_BY_TESTS_ONLY = {
+    'src/adapter/image-exporter/image-exporter.ts': (
+        'NOT_STORED_DOCUMENT_TITLE_SIZES',
+    ),
+    'src/adapter/input-command-translator/input-command-translator.ts': (
+        'NOT_STORED_ROW_GRAB_SIZES',
+    ),
+    'src/adapter/screen-renderer/command-palette.ts': (
+        'NOT_STORED_COMMAND_PALETTE_SIZES',
+    ),
+    'src/adapter/screen-renderer/properties-panel.ts': (
+        'NOT_STORED_PROPERTY_CONTROL_SIZES',
+    ),
+    'src/adapter/screen-renderer/row-title-panel.ts': (
+        'NOT_STORED_ROW_CONTROL_SIZES',
+    ),
+    'src/adapter/screen-renderer/screen-frame.ts': (
+        'NOT_STORED_PANEL_DIVIDER_SIZES',
+    ),
+    'src/adapter/svg-renderer/svg-renderer.ts': (
+        'NOT_STORED_DUAL_CURSOR_SIZES',
+        'NOT_STORED_DUMMY_SIZES',
+        'NOT_STORED_SELECTION_SIZES',
+        'SCHEDULE_COLOURS',
+    ),
+    'src/entity/layout-engine/schedule-geometry/schedule-geometry.ts': (
+        'NOT_STORED_DUMMY_SIZES',
+    ),
+    'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
+        'NOT_STORED_DUMMY_SIZES',
+        'NOT_STORED_SIZES',
+    ),
+    'src/framework/dom-screen-surface/dom-screen-surface.ts': (
+        'NOT_STORED_ICON_SIZES',
+    ),
+    'src/framework/single-html-shell/frame-loop.ts': (
+        'NOT_STORED_PROPERTIES_PANEL_SIZES',
+        'WATERMARK_UNLOCK_DIGEST',
+    ),
+}
+
+EXPORTED_CONST = re.compile(r'^export const ([A-Za-z_][A-Za-z0-9_]*)', re.M)
+
+
+def published_in(rel):
+    """The constants the file at `rel` exports, from both groups above."""
+    return (set(PUBLISHED_READ_BY_SRC.get(rel, ()))
+            | set(PUBLISHED_READ_BY_TESTS_ONLY.get(rel, ())))
+
+
+def publish_only_listed(rel, body):
+    """Take `export` off every generated constant the lists do not publish.
+
+    The block builders all print `export const`; this is the one place that
+    decides which of those keep the keyword, so no builder needs to know.
+    """
+    published = published_in(rel)
+    printed = set(EXPORTED_CONST.findall(body))
+    unknown = sorted(published - printed)
+    if unknown:
+        raise SystemExit(
+            'generate_entity_types: the JDG-139 list publishes %s from %s, and '
+            'this generator prints no such constant into that file. Take the '
+            'entry out of PUBLISHED_READ_BY_SRC / PUBLISHED_READ_BY_TESTS_ONLY.'
+            % (', '.join(unknown), rel))
+    return EXPORTED_CONST.sub(
+        lambda found: found.group(0) if found.group(1) in published
+        else 'const %s' % found.group(1),
+        body)
+
+
+def refuse_unknown_published_files(written):
+    """Stop when a list entry names a file this generator does not write."""
+    listed = set(PUBLISHED_READ_BY_SRC) | set(PUBLISHED_READ_BY_TESTS_ONLY)
+    stray = sorted(listed - set(written))
+    if stray:
+        raise SystemExit(
+            'generate_entity_types: the JDG-139 list names %s, which is not a '
+            'target of this generator.' % ', '.join(stray))
+
+
 def provenance(sources):
     """The lines that lead a reader from this artifact back to its manuscript."""
     out = ['// Single source of truth:']
@@ -2277,6 +2350,8 @@ def main():
                     object_pairs_hook=collections.OrderedDict)
     checking = '--check' in sys.argv
     drift = 0
+    refuse_unknown_published_files(
+        os.path.relpath(path, ROOT).replace('\\', '/') for path, _b, _s in TARGETS)
 
     for path, build, sources in TARGETS:
         if not os.path.exists(path):
@@ -2288,7 +2363,7 @@ def main():
         # is rewritten every run, so moving the manuscript can never make the
         # region undiscoverable (see the note on OPEN).
         rel = os.path.relpath(path, ROOT).replace('\\', '/')
-        body = provenance(sources) + build(erd)
+        body = publish_only_listed(rel, provenance(sources) + build(erd))
         refuse_non_ascii_comments(rel, body)
         wanted = region(current, body)
         if checking:
