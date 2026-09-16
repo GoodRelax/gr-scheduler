@@ -62,6 +62,7 @@ NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`�
 NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
+NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
 NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）

@@ -1164,9 +1164,22 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     if (env === null) throw new Error('no window height puts the band ceiling between 1 and S-53')
     const regions = regionsFromScreen(env, settingsOf())
     const answered = zoomYAfterRaise(SIX_LANES, 1, env)
+    const s239 = Number(
+      /\d+(?:\.\d+)?/.exec(specTable('T-206').rows.find((one) => one.id === 'S-239')?.by['既定'] ?? '')?.[0] ?? 'NaN',
+    )
+    expect(s239, 'premise: S-239 is read from table T-206').toBeGreaterThan(0)
     expect(answered).toBeLessThan(ROW_CEILING_BY_TYPE)
-    expect(bandAt(answered), FR_016_TALLEST_BAND_ASKED_OF_PI_5).toBeLessThanOrEqual(
-      regions.rowArea.height + 1e-6,
+    expect(bandAt(answered), `${FR_016_TALLEST_BAND_ASKED_OF_PI_5} -- T-253 BC-2 / BC-5: reached at the answer`).toBeGreaterThanOrEqual(
+      regions.rowArea.height,
+    )
+    const inside = Array.from({ length: 9 }, (_unused, index) => answered - s239 * (1 - index / 8))
+    for (let index = 1; index < inside.length; index++) {
+      expect(bandAt(inside[index]!), 'premise: six equal lanes grow without falling back inside the last S-239').toBeGreaterThanOrEqual(
+        bandAt(inside[index - 1]!),
+      )
+    }
+    expect(bandAt(answered - s239), `${FR_016_TALLEST_BAND_ASKED_OF_PI_5} -- T-253 BC-4 / BC-5: not reached S-239 below`).toBeLessThan(
+      regions.rowArea.height,
     )
   })
 

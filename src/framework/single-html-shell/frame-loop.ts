@@ -2433,31 +2433,49 @@ export function frameLoop(
   let didSettleFieldEntry = false
 
   // see FR-016
-  // TRAP: keyed on everything the band is solved from except zoomY itself, so a burst of
-  // row-axis notches reuses one answer; a both-axis zoom moves zoomX and solves again.
+  // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the drawn
+  // zoomX is layout.pxPerDay, never the stored zoomX, which OP-10 may not draw.
   let bandCeilingFrom: {
     readonly schedule: Document['schedule']
-    readonly widthPx: number
-    readonly heightPx: number
-    readonly zoomX: number
+    readonly settings: DocumentSettings
+    readonly pxPerDay: number
+    readonly rowArea: ScreenRect
     readonly isLevelZeroFolded: boolean
     readonly rowControlsHeightPx: number | undefined
     readonly ceiling: number
   } | null = null
 
+  /** @purity pure */
+  function isSameBandSettings(a: DocumentSettings, b: DocumentSettings): boolean {
+    if (a === b) return true
+    const moveWithoutBand = new Set<string>([
+      'zoomY', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
+    ])
+    const keys = new Set<string>([...Object.keys(a), ...Object.keys(b)])
+    for (const key of keys) {
+      if (moveWithoutBand.has(key)) continue
+      if ((a as unknown as Record<string, unknown>)[key] !==
+          (b as unknown as Record<string, unknown>)[key]) return false
+    }
+    return true
+  }
+
   /** @purity semi-pure-b */
   function bandCeilingFor(frame: FrameValues, context: InputContext): number {
     const held = bandCeilingFrom
     const schedule = context.document.schedule
-    const widthPx = frame.regions.rowArea.width
-    const heightPx = frame.regions.rowArea.height
-    const zoomX = frame.settingsMeasuredWith.zoomX
+    const settings = context.document.documentSettings
+    const pxPerDay = frame.layout.pxPerDay
+    const rowArea = frame.regions.rowArea
     if (
       held !== null &&
       held.schedule === schedule &&
-      held.widthPx === widthPx &&
-      held.heightPx === heightPx &&
-      held.zoomX === zoomX &&
+      isSameBandSettings(held.settings, settings) &&
+      held.pxPerDay === pxPerDay &&
+      held.rowArea.x === rowArea.x &&
+      held.rowArea.y === rowArea.y &&
+      held.rowArea.width === rowArea.width &&
+      held.rowArea.height === rowArea.height &&
       held.isLevelZeroFolded === isLevelZeroFolded &&
       held.rowControlsHeightPx === environment.rowControlsHeightPx
     ) {
@@ -2466,9 +2484,9 @@ export function frameLoop(
     const ceiling = rowBandCeilingOf(context)
     bandCeilingFrom = {
       schedule,
-      widthPx,
-      heightPx,
-      zoomX,
+      settings,
+      pxPerDay,
+      rowArea,
       isLevelZeroFolded,
       rowControlsHeightPx: environment.rowControlsHeightPx,
       ceiling,

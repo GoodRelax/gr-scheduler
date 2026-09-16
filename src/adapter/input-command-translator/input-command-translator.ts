@@ -134,8 +134,8 @@ export interface InputContext {
   readonly isPictureAtStoredZoom?: boolean
   readonly rowControlsHeightPx?: number
   // see FR-016
-  // TRAP: the greatest zoomY whose band still fits, worked out once by the caller and
-  // handed back; absent, zoomYWithinBand solves it again on every notch (DFC-610).
+  // TRAP: rowBandCeilingOf's answer for this same context, worked out once by the caller and
+  // handed back; absent, rowBandCeilingOf runs again on every notch (DFC-610).
   readonly rowBandCeiling?: number
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
@@ -3301,63 +3301,51 @@ function tallestBandAtZoomY(context: InputContext, zoomY: number): number {
   ))
 }
 
-const BAND_CEILING_HALVINGS = 40
-const BAND_CEILING_RELATIVE_TOLERANCE = 1e-6
-
-// see FR-016, OC-10, PI-5
-// WHY: halved, never solved: OC-10 puts S-196 and a label stopped at S-8 in the band, so it is not linear in zoomY.
+// see FR-016, PI-18
+// TRAP: never solve the band here; a second solver with its own interval or stop moves
+// where the zoom stops with the zoom it started from (DFC-628).
 /** @purity pure */
 function zoomYWithinBand(context: InputContext, wanted: number): number {
-  const height = context.regions.rowArea.height
-  if (!(height > 0) || !Number.isFinite(wanted)) return wanted
-  // see FR-016
-  // TRAP: solved to a tighter precision than the search below, so a remembered ceiling
-  // lands inside that search's own tolerance instead of moving where the zoom stops.
+  // TRAP: an empty Row Area keeps the old answer (wanted) until the abnormal paths are
+  // taken up after the refactor (JDG-78, DFC-586).
+  if (!(context.regions.rowArea.height > 0) || !Number.isFinite(wanted)) return wanted
   const remembered = context.rowBandCeiling
-  if (remembered !== undefined && Number.isFinite(remembered)) {
-    return Math.min(wanted, remembered)
-  }
-  const drawn = zoomOnScreen(context).y
-  const drawnFits = tallestBandOf(context.layout.rows) <= height
-  if (wanted <= drawn && drawnFits) return wanted
-  if (tallestBandAtZoomY(context, wanted) <= height) return wanted
-  let fits = drawnFits && drawn < wanted ? drawn : context.zoomMin
-  if (fits >= wanted || tallestBandAtZoomY(context, fits) > height) return Math.min(fits, wanted)
-  let over = wanted
-  for (let step = 0; step < BAND_CEILING_HALVINGS; step++) {
-    if (over - fits <= over * BAND_CEILING_RELATIVE_TOLERANCE) break
-    const middle = (fits + over) / 2
-    if (middle <= fits || middle >= over) break
-    if (tallestBandAtZoomY(context, middle) <= height) fits = middle
-    else over = middle
-  }
-  return fits
+  const ceiling =
+    remembered !== undefined && Number.isFinite(remembered) ? remembered : rowBandCeilingOf(context)
+  return Math.min(wanted, ceiling)
 }
 
-const BAND_CEILING_SOLVE_HALVINGS = 80
-const BAND_CEILING_SOLVE_PRECISION = 1e-7
-
-// see FR-016, OC-10, PI-5
-// WHY: solved once for a whole burst of notches, not per notch: the band is not linear
-// in zoomY, so every probe lays the schedule out, and DFC-610 measured that cost.
+// see FR-016, T-253, OC-10, PI-5, PI-18
+// WHY: stepped then halved, never solved: OC-10 puts S-196 and a label stopped at S-8 in the
+// band, so it is neither linear nor monotone in zoomY.
 /** @purity pure */
 export function rowBandCeilingOf(context: InputContext): number {
   const height = context.regions.rowArea.height
+  // TRAP: an empty Row Area keeps the old answer (zoomMax), not BC-2's literal zoomMin,
+  // until the abnormal paths are taken up after the refactor (JDG-78, DFC-586).
   if (!(height > 0)) return context.zoomMax
-  if (tallestBandAtZoomY(context, context.zoomMax) <= height) return context.zoomMax
-  // TRAP: answer the floor, not zero: zoomYWithinBand's own reading of a band that never
-  // fits is zoomMin, and Math.min against it has to give the same.
-  if (tallestBandAtZoomY(context, context.zoomMin) > height) return context.zoomMin
-  let fits = context.zoomMin
-  let over = context.zoomMax
-  for (let step = 0; step < BAND_CEILING_SOLVE_HALVINGS; step++) {
-    if (over - fits <= fits * BAND_CEILING_SOLVE_PRECISION) break
-    const middle = (fits + over) / 2
-    if (middle <= fits || middle >= over) break
-    if (tallestBandAtZoomY(context, middle) <= height) fits = middle
-    else over = middle
+  const search = NOT_STORED_ROW_BAND_CEILING_SEARCH
+  // see BC-2
+  const reaches = (zoomY: number): boolean => tallestBandAtZoomY(context, zoomY) >= height
+  // see BC-1, BC-3
+  let upper = context.zoomMin
+  if (reaches(upper)) return upper
+  let lower = upper
+  for (;;) {
+    if (upper >= context.zoomMax) return context.zoomMax
+    lower = upper
+    const next = upper * search['S-238']
+    upper = next >= context.zoomMax ? context.zoomMax : next
+    if (reaches(upper)) break
   }
-  return fits
+  // see BC-4, BC-5
+  while (upper - lower > search['S-239']) {
+    const middle = (lower + upper) / 2
+    if (middle <= lower || middle >= upper) break
+    if (reaches(middle)) upper = middle
+    else lower = middle
+  }
+  return upper
 }
 
 // TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
@@ -3846,5 +3834,14 @@ const NOT_STORED_VISIBLE_DAY_FLOOR: {
   readonly 'S-229': number
 } = {
   'S-229': 10,
+}
+
+// see T-206
+const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
+  readonly 'S-238': number
+  readonly 'S-239': number
+} = {
+  'S-238': 1.1,
+  'S-239': 0.000001,
 }
 // </generated>

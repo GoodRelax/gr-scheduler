@@ -1,4 +1,4 @@
-15
+35
 #
 # LOWERED 18 -> 15 on 2026-09-17, as the raise below planned: the spec wave CR-399 .. CR-401 landed
 # JDG-132, JDG-133 and JDG-134, whose rows now read 適用済 (code and tests follow in the implementation

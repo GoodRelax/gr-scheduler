@@ -1339,6 +1339,14 @@ NOT_STORED_TARGETS = {
     # subjects, and a shared constant would make one of the three paragraphs a
     # lie.
     'NOT_STORED_VISIBLE_DAY_FLOOR': (['S-229'], DERIVED_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in the translator and
+    # both end in an FR-016 ceiling: S-229 bounds the DAY axis, S-238 / S-239
+    # are the step and the tolerance table T-253 searches the ROW axis's band
+    # side with. The same seam as S-229: both are ends of a derivation only
+    # `rowBandCeilingOf` carries out, and neither may be typed into `src/`.
+    # ⛔ S-238 IS NOT S-53 / S-96 although both default to 1.1: the row's own
+    # note forbids the two to be shared (S-53 is how fast one notch moves).
+    'NOT_STORED_ROW_BAND_CEILING_SEARCH': (['S-238', 'S-239'], DERIVED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
 }
 
@@ -2031,7 +2039,8 @@ TARGETS = [
     (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR'),
+     + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),

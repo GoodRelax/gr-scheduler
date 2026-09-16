@@ -147,6 +147,8 @@ const num = (key: string): number => {
 }
 
 const S_1 = num('pxPerDayAt1x')
+const S_6 = num('actualMin')
+const S_7 = num('fontOfActual')
 const S_8 = num('fontMin')
 const S_37 = num('rowTitleIndent')
 const S_56 = num('canvasPadding')
@@ -493,22 +495,35 @@ describe('T-252 (MUST) -- above the floor, the panel width a drag stores is the 
 })
 
 describe('FR-077 (MUST) -- the readable floor is S-8 times the drawn ratio', () => {
-  it('lets the name font fall to S-8 x the ratio and no further, at every step', () => {
+  // WHY: at zoomY 0.05 the actual strip already stands on its S-6 floor, so the font is
+  // max(S-6 x S-7, S-8) x ratio (T-201, DS-1); S-8 alone binds only with S-6 on its S-8 / S-7 bound.
+  const chainFloorAt = (step: number, actualMin: number): number =>
+    Math.max(actualMin * S_7, S_8) * ratioOf(step)
+
+  it('lets the name font fall to the chain floor x the ratio and no further, never under S-8 x the ratio, at every step', () => {
     for (const step of S_234_STEPS) {
       const { layout } = sceneAt(step, { zoomY: 0.05 })
+      const font = taskPlacement(layout, 1)!.labelFontSize
+      expect(font, `${FR_077_THE_FLOOR_IS_MULTIPLIED} -- step ${step}`).toBeCloseTo(
+        chainFloorAt(step, S_6),
+        6,
+      )
+      expect(font, `${FR_077_THE_FLOOR_IS_MULTIPLIED} -- step ${step}`).toBeGreaterThanOrEqual(
+        S_8 * ratioOf(step) - 1e-9,
+      )
+    }
+  })
+
+  it('puts the floor at S-8 x the ratio where S-6 sits on its S-8 / S-7 bound -- a third of 12px at the default', () => {
+    const actualMinOnItsBound = S_8 / S_7
+    expect(chainFloorAt(S_234_DEFAULT, actualMinOnItsBound)).toBeCloseTo(S_8 * ratioOf(S_234_DEFAULT), 9)
+    for (const step of S_234_STEPS) {
+      const { layout } = sceneAt(step, { zoomY: 0.05, actualMin: actualMinOnItsBound })
       expect(
         taskPlacement(layout, 1)!.labelFontSize,
         `${FR_077_THE_FLOOR_IS_MULTIPLIED} -- step ${step}`,
       ).toBeCloseTo(S_8 * ratioOf(step), 6)
     }
-  })
-
-  it('puts the default document\'s floor at a third of the shipped build\'s 12px', () => {
-    const { layout } = sceneAt(S_234_DEFAULT, { zoomY: 0.05 })
-    expect(taskPlacement(layout, 1)!.labelFontSize, FR_077_THE_FLOOR_IS_MULTIPLIED).toBeCloseTo(
-      S_8 * ratioOf(50),
-      6,
-    )
   })
 })
 
