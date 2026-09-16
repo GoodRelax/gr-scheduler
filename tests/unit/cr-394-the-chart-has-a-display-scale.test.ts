@@ -10,6 +10,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
+import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -26,6 +27,14 @@ import {
   type ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { rowTitleFontPxOf } from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  commandFromInput,
+  type InputContext,
+  type InputModifiers,
+  type PointerInput,
+  type PointerPress,
+} from '../../src/adapter/input-command-translator/input-command-translator'
+import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 
@@ -570,20 +579,128 @@ describe('FR-080 -- the export draws at the same display scale as the screen', (
   })
 })
 
+// see IC-104, IC-105
+const NO_MODS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
+
+// see FR-039
+const pointerPhase = (phase: 'down' | 'up'): PointerInput => ({
+  kind: 'pointer',
+  phase,
+  button: 'left',
+  x: 0,
+  y: 0,
+  modifiers: NO_MODS,
+  clickCount: 1,
+})
+
+// see IC-104, IC-105
+const pressOnEntrance = (entry: string): PointerPress => ({
+  at: pointerPhase('down'),
+  hit: null,
+  on: {
+    part: 'App Header',
+    entry,
+    format: null,
+    rowGroupId: null,
+    resourceUid: null,
+    dividerPanel: null,
+    noticeDismissKey: null,
+  },
+  pressRow: 'PTD-5',
+})
+
+// see FR-039, CM-74
+const scaleWritesOf = (
+  settings: DocumentSettings,
+  entry: string,
+): readonly DocumentCommand[] => {
+  const regions = regionsFromScreen(ENV, settings)
+  const layout = layoutFromSchedule(NAMED_ROWS, settings, regions)
+  const context = {
+    document: { schemaVersion: '1', schedule: NAMED_ROWS, documentSettings: settings },
+    layout,
+    geometry: geometryFromLayout(NAMED_ROWS, settings, layout, regions, emptySelection()),
+    regions,
+    screenState: emptyScreenState(),
+    selection: emptySelection(),
+    zoomStep: 3,
+    pressed: pressOnEntrance(entry),
+    isTextEntryUnsettled: false,
+    isSurfaceStanding: true,
+    dualCursorFollowing: null,
+    today: '2026-03-01T00:00:00',
+    newGroupId: 'row-minted-outside',
+    newCommentBoxId: 'comment-minted-outside',
+    newHighlightBoxId: 'highlight-minted-outside',
+  } as unknown as InputContext
+
+  const answer = commandFromInput(pointerPhase('up'), context)
+  const action = answer.action
+  if (action === null || action.kind !== 'changeDocument') {
+    throw new Error(`${entry} owes a changeDocument and this press did not ask for one`)
+  }
+  return (action.writes as readonly (readonly DocumentCommand[])[]).flat()
+}
+
+// see FR-039, CM-74
+const afterPressing = (settings: DocumentSettings, entry: string): DocumentSettings => {
+  let next: Record<string, unknown> = { ...(settings as unknown as Record<string, unknown>) }
+  for (const write of scaleWritesOf(settings, entry)) {
+    const one = write as unknown as Record<string, unknown>
+    if (one['kind'] === 'setDisplayScale') next = { ...next, displayScale: one['scale'] }
+    if (one['kind'] === 'setScrollPosition') {
+      next = {
+        ...next,
+        scrollDate: one['scrollDate'],
+        scrollDayOffset: one['scrollDayOffset'],
+        scrollGroupId: one['scrollGroupId'],
+        scrollGroupOffset: one['scrollGroupOffset'],
+      }
+    }
+  }
+  return settingsOf(next)
+}
+
 describe('T-252 (MUST) -- the Row Area middle is what stands still when the scale changes', () => {
   it('keeps the date under the horizontal middle of the Row Area', () => {
-    const middleDateAt = (scene: Scene): string | null => {
-      const middle = scene.regions.rowArea.x + scene.regions.rowArea.width / 2
-      const day = dateAtX(scene.layout, middle)
+    const middleDateOf = (settings: DocumentSettings): string | null => {
+      const regions = regionsFromScreen(ENV, settings)
+      const layout = layoutFromSchedule(NAMED_ROWS, settings, regions)
+      const day = dateAtX(layout, regions.rowArea.x + regions.rowArea.width / 2)
       return day === null ? null : JSON.stringify(day)
     }
-    const before = sceneAt(50)
-    const wanted = middleDateAt(before)
+
+    const start = settingsOf({ displayScale: S_234_DEFAULT })
+    const wanted = middleDateOf(start)
     expect(wanted, 'premise: a date stands under the middle before the scale moves').not.toBeNull()
 
-    for (const step of S_234_STEPS) {
-      const after = sceneAt(step)
-      expect(middleDateAt(after), `${T_252_THE_MIDDLE_IS_THE_ANCHOR} -- step ${step}`).toBe(wanted)
+    const lowest = S_234_STEPS[0] as number
+    const highest = S_234_STEPS[S_234_STEPS.length - 1] as number
+    const seen: number[] = [S_234_DEFAULT]
+
+    let down = start
+    while ((down['displayScale'] as number) > lowest) {
+      down = afterPressing(down, 'IC-104')
+      seen.push(down['displayScale'] as number)
+      expect(
+        middleDateOf(down),
+        `${T_252_THE_MIDDLE_IS_THE_ANCHOR} -- IC-104 down to step ${down['displayScale']}`,
+      ).toBe(wanted)
     }
+
+    let up = start
+    while ((up['displayScale'] as number) < highest) {
+      up = afterPressing(up, 'IC-105')
+      seen.push(up['displayScale'] as number)
+      expect(
+        middleDateOf(up),
+        `${T_252_THE_MIDDLE_IS_THE_ANCHOR} -- IC-105 up to step ${up['displayScale']}`,
+      ).toBe(wanted)
+    }
+
+    expect(
+      [...seen].sort((a, b) => a - b),
+      'the presses did not walk every step table T-202 spells, so this case asked less than it says',
+    ).toEqual([...S_234_STEPS].sort((a, b) => a - b))
   })
 })

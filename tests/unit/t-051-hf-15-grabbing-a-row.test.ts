@@ -203,6 +203,9 @@ const S_208_AXIS_SETTLES_AT = settingOf('T-206', 'S-208', '既定')
 /** 表 T-201 `S-37` `rowTitleIndent` -- 段送りの刻み, which HF-15 borrows. */
 const S_37_INDENT = settingOf('T-201', 'S-37', '既定値')
 
+// see HF-15, S-37, DS-1
+const DRAWN_S_37 = S_37_INDENT * DEFAULT_DISPLAY_RATIO
+
 /** 表 T-211 `S-125` `maxGroupDepth`. 「根の行を深さ 1 と数える」. */
 const S_125_MAX_DEPTH = settingOf('T-211', 'S-125', '値')
 
@@ -887,8 +890,8 @@ describe('HF-15 (MUST) -- 軸を 1 本に固定すること。掴んでから最
 
     drag(built, A2, [
       { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
-      { dx: S_37_INDENT, dy: downToDelta },
+      { dx: DRAWN_S_37, dy: 0 },
+      { dx: DRAWN_S_37, dy: downToDelta },
     ])
 
     // 右へ 1 歩はすぐ上の兄弟の末子になること -- A2's sibling immediately above
@@ -1009,7 +1012,7 @@ describe('HF-15 -- 左右は段を変えること（MUST）', () => {
 
     drag(built, A2, [
       { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
+      { dx: DRAWN_S_37, dy: 0 },
     ])
 
     expect(parentOf(built.loop, A2), 'the row did not become a child of the sibling above it').toBe(
@@ -1203,7 +1206,7 @@ describe('HF-15 (MUST) -- 握っているあいだ、行をポインタに追従
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + PAST, at.y))
 
-    const step = S_37_INDENT * DEFAULT_DISPLAY_RATIO
+    const step = DRAWN_S_37
 
     built.send(pointer('move', at.x + step, at.y))
     const oneStep = titleOf(built, A2).indentPx as number
@@ -1215,7 +1218,7 @@ describe('HF-15 (MUST) -- 握っているあいだ、行をポインタに追従
     expect(
       oneStep - restingIndent,
       '描いた S-37 ぶん動かしても、描いた S-37 ぶん行が動かない（表 T-252 の DS-1）',
-    ).toBe(step)
+    ).toBeCloseTo(step, 9)
     expect(
       twoSteps - restingIndent,
       'the picture drifted away from the pointer by the second step',
@@ -1574,8 +1577,8 @@ describe('HF-15 (MUST) -- 拒まれた向きへの追従は途中で止めるこ
     expect(pulled, 'the row did not move at all, so the hand got no answer').toBeGreaterThan(0)
     // ⭐ AND THE AMOUNT IS THE ONE S-212 STATES, on one step of THIS axis.
     expect(
-      Math.abs(pulled - S_212_RESISTED_RATIO * S_37_INDENT),
-      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one S-37 (${S_37_INDENT}px)`,
+      Math.abs(pulled - S_212_RESISTED_RATIO * DRAWN_S_37),
+      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one drawn S-37 (${DRAWN_S_37}px)`,
     ).toBeLessThanOrEqual(1)
     // ⛔ AND IT STOPS: twice the pull is not twice the follow.
     expect(pulledFurther, 'the row went on sliding with the hand').toBe(pulled)
