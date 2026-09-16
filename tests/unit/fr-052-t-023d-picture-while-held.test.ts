@@ -30,9 +30,9 @@
 // ---------------------------------------------------------------------------
 //   FR-052    「境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの
 //             幅で画面を描いて示すこと（MUST）」 -- and, in the same statement,
-//             「⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）
-//             —— `FR-031` は身振り 1 つを取り消しの 1 段と定めており、途中の幅を
-//             書くと 1 回のドラッグが何段にもなる」, 「⚠️ 確定は 表 T-028 の
+//             「⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）」
+//             （CR-400: the reason changed from citing `FR-031` to pointing at
+//             表 T-028 の `IN-1`; see the describe below）, 「⚠️ 確定は 表 T-028 の
 //             `IN-1` に従う（離した時点）」, 「判定は `Row Area` の幅が 0 より
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
 //             受け付けてはならない（MUST NOT）」 and 「行見出しパネルの幅を 0 に
@@ -1227,11 +1227,11 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
   // target (UN-3, the fade) then rolls the width back to what it was before the
   // person ever touched the divider. That is the 戻せる UN-16 refuses.
   //
-  // ⚠️ FR-052's own rationale reasons the other way -- 「`FR-031` は身振り 1 つを
-  // 取り消しの 1 段と定めており、途中の幅を書くと 1 回のドラッグが何段にもなる」 --
-  // as though a settled width were a step. ⭐ This case is NOT judged on that
-  // disputed half: it asserts only what UN-16 alone settles, that an undo of the
-  // FADE leaves the width where the divider left it.
+  // ⚠️ FR-052's own rationale used to reason the other way, citing `FR-031`
+  // as though a settled width were an undo step, in tension with UN-16. ⭐
+  // CR-400 replaced that reason with a pointer at `IN-1` (表 T-028), so the
+  // tension is gone; this case still asserts only what UN-16 alone settles,
+  // that an undo of the FADE leaves the width where the divider left it.
   it('leaves the divider\'s width alone when the fade edit is undone', () => {
     const built = withFadeHandles()
     const scale = pxPerDay(built.loop)

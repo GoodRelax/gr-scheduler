@@ -1999,10 +1999,10 @@ describe('ItemHitArea (PI-7)', () => {
   //
   // 利用者の裁定 2026-09-09: 「依存線の優先度を上げてよい。ただし、依存線の縦幅は実績
   // の縦幅より狭くしろ。」 ⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
-  // こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
-  // （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
+  // こと（MUST）」 -- 旧 表 T-023d の結びの理由（CR-399 で描いた形状の比較に差し替え）.
   // ⭐ The half THIS unit presses, whole on one line (see JDG-35 above for why):
-  // 「ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと（MUST）」
+  // 旧 表 T-023d の結びの「ただし」（`S-137` の掴み代が `S-6` より狭いこと、CR-399 で
+  // 描いた予定と実績の形状の上では線そのものだけを取ることに差し替え）
   // ⛔ The other half -- the line standing above the plan body -- is pressed in
   // tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts, and is latched
   // there rather than here, where no case asks it.

@@ -1079,8 +1079,7 @@ describe('CR-382: a milestone dummy on its figure\'s day is not split at the pla
 //
 // 利用者の裁定 2026-09-09, 逐語「依存線の優先度を上げてよい。ただし、依存線の縦幅は
 // 実績の縦幅より狭くしろ。」⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
-// こと（MUST）。ただし線の掴み代の縦幅が、実績の縦幅の下限（`S-6`）より狭いこと
-// （MUST）」 -- 「狭くなければ、線が実績の帯を丸ごと奪う」.
+// こと（MUST）」 -- 旧 表 T-023d の結びの理由（CR-399 で描いた形状の比較に差し替え）.
 // ⭐ Whole on one line, for the reason given in section 8 above:
 // 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置くこと（MUST）」
 //

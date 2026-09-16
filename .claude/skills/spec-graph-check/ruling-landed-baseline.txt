@@ -1,4 +1,11 @@
-18
+15
+#
+# LOWERED 18 -> 15 on 2026-09-17, as the raise below planned: the spec wave CR-399 .. CR-401 landed
+# JDG-132, JDG-133 and JDG-134, whose rows now read 適用済 (code and tests follow in the implementation
+# wave). JDG-140 and JDG-141 (the user's answers on the milestone figure and the end grab) landed in
+# CR-399 and JDG-142 (check 44 lowered to 88) in the same commit, so they are recorded as 適用済 and
+# never counted. Remaining 15: JDG-78, JDG-85, JDG-87, JDG-102, JDG-107, JDG-124, JDG-126 .. JDG-130,
+# JDG-135, JDG-136, JDG-138, JDG-139.
 #
 # RAISED 11 -> 18 on 2026-09-16 (evening), with the user's approval (asked in chat: "検査 43 は 18 に
 # 上げてよい"). Seven rulings were recorded before anything lands them: JDG-132 (over a drawn bar a

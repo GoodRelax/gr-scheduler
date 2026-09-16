@@ -1,4 +1,7 @@
-93
+88
+# LOWERED 93 -> 88 on 2026-09-17, with the user's approval (JDG-142, asked in chat: "問 C　検査 44 の基準線を
+# 93 → 88 に下げてよい"): measured on the root after CR-399 .. CR-401 were applied and the test comments
+# quoting their retired wording were corrected -- 76 retired, 12 undefined; hold the ground.
 # LOWERED 96 -> 93 on 2026-09-15, with the user's approval (JDG-111): measured after CR-380 ..
 # CR-385 landed; hold the ground.
 # RAISED 93 -> 96 on 2026-09-14: CR-376 retired AT-35 (the stored working-day
