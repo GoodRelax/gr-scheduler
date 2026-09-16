@@ -233,6 +233,9 @@ const placedWith = (
 /** How far the occupancy reaches LEFT of the shape -- OC-2's direction. */
 const jutOf = (placed: TaskPlacement): number => placed.x - placed.occupiedX0
 
+const shapeRightOf = (placed: TaskPlacement): number =>
+  Math.max(placed.x + placed.width, placed.actualReach ?? -Infinity)
+
 // ---------------------------------------------------------------------------
 
 describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () => {
@@ -590,27 +593,39 @@ describe('table T-038, DFC-394 -- the order stands side by side, and the label d
     }
   })
 
-  it('⭐ leaves the name label where it is when S-63 hides the two marks (MUST)', () => {
+  it('⭐ moves the name label to the shape right + S-32 once S-63 hides the two marks (MUST)', () => {
     const shown = drawnWithMarks(true)
     const hidden = drawnWithMarks(false)
     // The switch really did take them off the picture, or the case is vacuous.
     expect([shown.drawn.marker === null, shown.drawn.resume === null]).toEqual([false, false])
     expect([hidden.drawn.marker === null, hidden.drawn.resume === null]).toEqual([true, true])
-    expect(hidden.placed.labelX).toBe(shown.placed.labelX)
     const shownLabel = shown.drawn.label
     const hiddenLabel = hidden.drawn.label
     if (shownLabel === null || hiddenLabel === null) throw new Error('no drawn name label')
-    expect(hiddenLabel.x).toBe(shownLabel.x)
-    expect(hiddenLabel.width).toBe(shownLabel.width)
+    expect(
+      hidden.placed.labelX,
+      '⭐ `S-63` が偽のとき（マーカーと再開アイコンを隠しているとき）は、下の ① ② を数えず、名称ラベルの左端を形状の右端に 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）',
+    ).toBeCloseTo(shapeRightOf(hidden.placed) + BASE.labelGap * DRAWN_RATIO, 6)
+    expect(
+      shown.placed.labelX - hidden.placed.labelX,
+      '隠したマーカーのぶんだけ名称ラベルを左へ寄せる',
+    ).toBeGreaterThan(0)
+    expect(hiddenLabel.x).toBeCloseTo(hidden.placed.labelX, 6)
+    expect(hiddenLabel.width).toBeCloseTo(shownLabel.width, 6)
   })
 
-  it('⭐ leaves the occupied width unmoved by S-63 -- OC-3 / OC-4 (MUST NOT)', () => {
+  it('⭐ carries OC-1 with the label when S-63 hides the two marks -- the stated 代償 (MUST)', () => {
     const shown = drawnWithMarks(true).placed
     const hidden = drawnWithMarks(false).placed
-    expect([hidden.occupiedX0, hidden.occupiedX1]).toEqual([shown.occupiedX0, shown.occupiedX1])
-    // ⭐ 「算入するのは、形状の右端から名称ラベルの右端まで」 -- the reach ends
-    // at the label's right edge, and the reserved room falls INSIDE it.
+    // ⭐ 「算入するのは、形状の右端から名称ラベルの右端まで」 -- the reach ends at the
+    // label's right edge, so the 代償 moves OC-1 by what it moves the label.
+    expect([hidden.occupiedX0]).toEqual([shown.occupiedX0])
     expect(shown.occupiedX1).toBeGreaterThan(shown.labelX)
+    expect(hidden.occupiedX1).toBeGreaterThan(hidden.labelX)
+    expect(
+      shown.occupiedX1 - hidden.occupiedX1,
+      '⚠️ 代償: `S-63` を切り替えると名称ラベルの左端と `OC-1` の算入が変わる',
+    ).toBeCloseTo(shown.labelX - hidden.labelX, 6)
   })
 
   it('⭐ starts the label past the marker standing outside the shape -- not one gap past the bar', () => {
@@ -993,7 +1008,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
       .toEqual({ clear: true })
   })
 
-  it('⛔ MUST NOT: OC-1 is measured from the rightmost of the shape, marker (1) and marker (2), on a started and a fresh Task alike', () => {
+  it('⛔ MUST NOT: OC-1 is measured from the rightmost of the shape, marker (1) and marker (2) on a fresh Task, and counts nothing once the name stands inside the actual', () => {
     const started = startedScene()
     const fresh = notStartedScene()
     expect(started.placed.actualX).not.toBeNull()
@@ -1008,9 +1023,15 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
       const planOnly = sceneOf(part, { planVisible: true, actualVisible: false })
       return Math.max(both.placed.x + both.placed.width, markerRightOf(both), markerRightOf(planOnly))
     }
-    const startedRun = started.placed.labelX - countedFrom({ actualStart: '2026-02-02', stop: '2026-02-20' })
     const freshRun = fresh.placed.labelX - countedFrom({ finish: '2026-02-04' })
-    expect(freshRun, 'T-243 closing rule: max(shape right, (1) right, (2) right) + S-32').toBeCloseTo(startedRun, 6)
+    expect(
+      freshRun,
+      'T-243 closing rule: max(shape right, (1) right, (2) right) + S-32',
+    ).toBeCloseTo(BASE.labelGap * DRAWN_RATIO, 6)
+    expect(
+      started.placed.occupiedX1,
+      '⚠️ 本段が成立したとき、名称ラベルは形状の外へ出ないので `OC-1` に何も数えず',
+    ).toBeCloseTo(shapeRightOf(started.placed), 6)
     expect({ clear: fresh.placed.labelX >= holdRightOf(fresh.drawn) })
       .toEqual({ clear: true })
   })

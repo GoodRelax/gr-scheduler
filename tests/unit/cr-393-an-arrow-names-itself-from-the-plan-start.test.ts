@@ -27,6 +27,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -62,6 +63,9 @@ const T_013_INSIDE_WITH_THE_MARKER_HIDDEN =
 const T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE =
   '⚠️ 実績を持たない未着手のタスクには本段が当たらない —— 実績のダミー（`FR-043`）は実績ではない。'
 
+const FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY =
+  'しきい値は表 T-205 の `S-86` に従うこと（MUST） —— 幅は期間に 1 日あたりの表示幅（`FR-017`）を掛けた値である。'
+
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-013 (MUST) -- an arrow name starts at the plan start point', T_013_ARROW_STARTS_AT_THE_PLAN_START],
   ['T-013 (MUST NOT) -- neither width moves that name', T_013_WIDTH_NEVER_MOVES_THE_ARROW_NAME],
@@ -73,6 +77,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-013 -- S-91 at both ends keeps the endpoint grips clear', T_013_THE_GRIPS_ARE_KEPT_CLEAR],
   ['T-013 (MUST) -- with S-63 false the marker leaves the judgement and the name moves right', T_013_INSIDE_WITH_THE_MARKER_HIDDEN],
   ['T-013 -- a task with no actual is out of this paragraph\'s scope', T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE],
+  ['FR-018 (MUST) -- the dropped width is the span times one day\'s drawn width', FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY],
 ]
 
 describe('CR-393 -- the manuscript these cases are driven by', () => {
@@ -95,6 +100,9 @@ const S_23 = num('markerGap')
 const S_31 = num('labelPad')
 const S_32 = num('labelGap')
 const S_91 = NOT_STORED_SIZES['S-91']
+
+// see FR-039, T-252
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
 const NESTED_DEFAULTS: Record<string, unknown> = (() => {
   const out: Record<string, unknown> = { ...SETTINGS_DEFAULTS }
@@ -236,7 +244,8 @@ describe('T-013 (MUST) -- an SH-3 / SH-4 name starts at the plan start, whatever
   })
 
   it.each(ARROW_SHAPES)('%s: the part standing right of the shape is counted in the occupied width', (shapeKind) => {
-    const scene = sceneOf(arrowNamed(2, '2026-02-03'), shapeKind)
+    const scene = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
+    expect(scene.placed.width, FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY).toBeGreaterThan(0)
     const shapeRight = scene.placed.x + scene.placed.width
     const labelRight = scene.drawn.label!.x + scene.drawn.label!.width
     expect(labelRight, 'premise: this name reaches past its own shape').toBeGreaterThan(shapeRight)
@@ -273,8 +282,8 @@ describe('FR-094 (MUST) -- an SH-3 / SH-4 marker is as wide as that task\'s name
     expect(rectangle.drawn.marker, 'premise: a marker is drawn').not.toBeNull()
     expect(
       rectangle.drawn.marker!.radius * 2,
-      'FR-094 replaces S-22 for the line shapes alone',
-    ).toBeCloseTo(num('markerSize'), 6)
+      'FR-094 replaces S-22 for the line shapes alone; DS-1 still draws S-22 at the display ratio',
+    ).toBeCloseTo(num('markerSize') * DRAWN_RATIO, 6)
   })
 })
 
@@ -303,8 +312,14 @@ describe('T-013 (MUST) -- a rectangle draws the name and the marker inside a wid
     const markerLeft = scene.drawn.marker!.centre.x - scene.drawn.marker!.radius
     const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
 
-    expect(markerRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(actualRight - S_91 - S_23, 6)
-    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(markerLeft - S_32, 6)
+    expect(markerRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(
+      actualRight - S_91 - S_23 * DRAWN_RATIO,
+      6,
+    )
+    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(
+      markerLeft - S_32 * DRAWN_RATIO,
+      6,
+    )
     expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeLessThan(markerLeft)
   })
 

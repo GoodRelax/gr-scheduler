@@ -94,6 +94,7 @@ import {
   tickStrideOf,
   xFromDay,
   NOT_STORED_DUMMY_SIZES,
+  NOT_STORED_SIZES,
   type RulerTier,
   type ScheduleLayout,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -1796,20 +1797,17 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       then: 'the marker clears the right end of the actual bar by markerGap',
     }),
     () => {
-      // FINDING (left failing). LF-11: "the marker goes markerGap clear of the
-      // right end of the bar FR-013 names, as a square of side markerSize. Its
-      // middle is the middle of the plan bar." FR-013 names that bar in as many
-      // words: the marker goes outside the right end of the ACTUAL bar, and
-      // outside the plan bar's right end only while the plan alone is shown
-      // (MUST).
+      // LF-11: "the marker goes markerGap clear of the right end of the bar
+      // FR-013 names, as a square of side markerSize. Its middle is the middle
+      // of the plan bar."
       //
-      // Measured, a Task with an actual bar has its marker at the right end of
-      // the PLAN bar instead -- so the marker walks away from the actual bar it
-      // is meant to sit beside, and the further behind the Task is the further
-      // away it goes. Two things say this is the code and not the reading:
-      // FR-013's MUST spells the two cases out, and the not-started case below
-      // already places the marker off FR-043's dummy actual bar, so the two
-      // branches of one rule disagree with each other.
+      // ⚠️ FR-013 carries an exception, and this scene is inside it: 「⚠️ ただし
+      // `FR-002` が矩形と矢羽根の名称ラベルとマーカーを実績の中に置くときは、マーカーは
+      // 実績の中に立つ —— `OC-3` と `GR-7` の場所も同じに読み替える」. Table T-013 then
+      // fixes where: 「実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの
+      // 右端を」. ⛔ `S-91` is NOT scaled by the display ratio (表 T-252 の `DS-7`
+      // lists it among the grips) while `markerGap` is (`DS-1`), so the two
+      // terms are drawn differently and the case states each as its own row does.
       mentions(T221, 'LF-11', 'markerGap', 'markerSize', 'FR-013')
       const drawn = draw(
         [
@@ -1846,9 +1844,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         6,
       )
       expect(
-        marker.centre.x - marker.radius - actualRight,
-        'markerGap clear of the actual bar',
-      ).toBeCloseTo(drawn.settings.markerGap * DISPLAY_RATIO, 6)
+        marker.centre.x + marker.radius,
+        '実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの右端を',
+      ).toBeCloseTo(
+        actualRight - NOT_STORED_SIZES['S-91'] - drawn.settings.markerGap * DISPLAY_RATIO,
+        6,
+      )
     },
   )
 

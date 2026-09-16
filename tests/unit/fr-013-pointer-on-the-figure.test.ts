@@ -368,11 +368,13 @@ const pastTheMarkAt = (zoomX: number): Probe => {
   return { grab: 'GR-17 の旧い日の列', dayLeft: gone, x: gone + drawnWidthAt(zoomX) / 2 }
 }
 
-/** Points spread across the one mark's own ink, all of them FR-043's arithmetic. */
+const HALF_OF_THE_LAST_WRITTEN_PLACE = 0.5 * 10 ** -2
+
+/** Points across the one mark's own ink, as far out as `NS-3` draws it (PND-360). */
 const acrossTheInkAt = (zoomX: number): readonly number[] => {
   const { dayLeft } = inkProbeAt(zoomX)
   const width = drawnWidthAt(zoomX)
-  return [dayLeft, dayLeft + width / 2, dayLeft + width]
+  return [dayLeft, dayLeft + width / 2, dayLeft + width - HALF_OF_THE_LAST_WRITTEN_PLACE]
 }
 
 // ---------------------------------------------------------------------------

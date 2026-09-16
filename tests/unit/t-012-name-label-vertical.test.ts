@@ -437,12 +437,15 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 
-  it('NL-3 with SH-3 puts the label to the RIGHT of the shape and still lifts it', () => {
-    // The other row of T-013 under the same shape: "written to the right of the
-    // shape" is a horizontal answer, and the vertical column still holds.
+  it('NL-3 with SH-3 still starts the box at the plan start, and still lifts it', () => {
+    // ⭐ 表 T-012 の `SH-3` / `SH-4` の名称ラベルには本表を当てず、名称ラベルの箱の左端を
+    // 予定の開始点（`start` の位置）とすること（MUST） -- so NL-3 moves no box edge.
     const { placed, drawn, label } = drawnOf(named('arrow', 10, LONG_NAME))
     expect(placed.labelPlacement).toBe('right')
-    expect(label.x).toBeGreaterThanOrEqual(placed.x + placed.width)
+    expect(
+      label.x,
+      '名称ラベルの箱の左端を予定の開始点（`start` の位置）とすること（MUST）',
+    ).toBeCloseTo(placed.x, 6)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
     expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })

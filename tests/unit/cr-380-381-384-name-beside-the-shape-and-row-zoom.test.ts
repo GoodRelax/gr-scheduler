@@ -23,6 +23,7 @@ import * as scheduleLayoutModule from '../../src/entity/layout-engine/schedule-l
 import {
   layoutFromSchedule,
   taskPlacement,
+  NOT_STORED_SIZES,
   type ScheduleLayout,
   type TaskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -172,6 +173,18 @@ const FR_016_TALLEST_BAND_ASKED_OF_PI_5 =
 const T_023D_FRACTION_OF_THE_PITCH =
   'が何も起こさず、等倍が成り立たない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**⛔ その端数は、行の帯の高さではなく、行が占める送り（帯の高さと、その下の隙間を合わせた長さ）に対する比とすること（MUST）'
 
+const T_013_INSIDE_THE_ACTUAL =
+  '⭐ 表 T-012 の `SH-1` / `SH-2` で、名称ラベルの箱の幅（打ち切った後の字の幅に `S-31` を足した長さ）＋ `S-32` ＋ 進捗マーカーの径 ＋ `S-23` ＋ `S-91` × 2 が実績の幅以下のときは、本表を当てず、名称ラベルと進捗マーカーを実績の中に置くこと（MUST）。'
+
+const T_013_INSIDE_HOW_THEY_STAND =
+  '置き方は、実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの右端を、そのマーカーの左端から `S-32` だけ左に名称ラベルの箱の右端を置く —— 左から「名前 → マーカー」の順である。'
+
+const T_013_INSIDE_WITH_THE_MARKER_HIDDEN =
+  '⭐ 進捗マーカーを隠しているとき（`_assets/tbl-settings.md` の 表 T-202 の `S-63` が偽）は、判定からマーカーの径と `S-23` を除き、名称ラベルの箱の右端を実績の右端から `S-91` だけ内側に置くこと（MUST）。'
+
+const T_013_INSIDE_COUNTS_NOTHING_IN_OC_1 =
+  '⚠️ 本段が成立したとき、名称ラベルは形状の外へ出ないので `OC-1` に何も数えず、マーカーは `FR-013` の「実績バーの右端の外側」に代えて実績の中に立つ（同要求の注）。'
+
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-038 OC-10 (MUST) -- the label height and S-196 are counted above the plan strip', OC_10_LOWERED_BY_THE_LABEL],
   ['T-038 OC-10 (MUST) -- the counted height is the font size x S-233', OC_10_HEIGHT_IS_FONT_TIMES_S_233],
@@ -214,6 +227,10 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-016 (MUST NOT) -- the ceiling asks PI-5 and PI-37 and copies neither formula', FR_016_ASK_BOTH_COPY_NEITHER],
   ['FR-016 (MUST) -- the tallest band is asked of PI-5 rowPlacesAtZoomY', FR_016_TALLEST_BAND_ASKED_OF_PI_5],
   ['T-023d (MUST) -- S-176 is a fraction of the pitch', T_023D_FRACTION_OF_THE_PITCH],
+  ['T-013 (MUST) -- a rectangle holds the name and the marker inside a wide enough actual', T_013_INSIDE_THE_ACTUAL],
+  ['T-013 -- how the two stand inside, name then marker', T_013_INSIDE_HOW_THEY_STAND],
+  ['T-013 (MUST) -- with S-63 false the box right edge is S-91 inside the actual right', T_013_INSIDE_WITH_THE_MARKER_HIDDEN],
+  ['T-013 -- the inside branch counts nothing in OC-1', T_013_INSIDE_COUNTS_NOTHING_IN_OC_1],
 ]
 
 describe('CR-380 / CR-381 / CR-384 -- the manuscript these cases are driven by', () => {
@@ -628,6 +645,7 @@ const S_26 = num('resumeArmOfMarker')
 const S_27 = num('resumeHeadOfMarker')
 const S_30 = num('labelCoef')
 const S_32 = num('labelGap')
+const S_91 = NOT_STORED_SIZES['S-91']
 
 // see T-252
 const MARKER_REACH = (S_23 + S_22) * DRAWN_RATIO
@@ -768,13 +786,16 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
     ).toBeGreaterThan(0)
   })
 
-  it('hiding the marker also takes it out of the width T-013 measures inside the shape (MUST)', () => {
+  it('hiding the marker drops its diameter and S-23 from the judgement, and the box right edge goes S-91 inside the actual (MUST)', () => {
     const withMarker = sceneOf(NAME_INSIDE)
     const hidden = sceneOf(NAME_INSIDE, { marks: false, plan: true, actual: true })
     expect(withMarker.placed.labelPlacement, 'premise: the short name is written inside').toBe('inside')
-    expect(hidden.placed.labelPlacement, T_013_HIDDEN_MARKER_IS_NOT_COUNTED).toBe('inside')
-    expect(hidden.drawn!.label!.x, T_013_HIDDEN_MARKER_IS_NOT_COUNTED).toBeLessThan(
-      withMarker.drawn!.label!.x,
+    expect(hidden.placed.labelPlacement, T_013_INSIDE_WITH_THE_MARKER_HIDDEN).toBe('inside')
+    expect(hidden.drawn!.marker, 'premise: S-63 false draws no marker').toBeNull()
+    const hiddenRight = hidden.drawn!.label!.x + hidden.drawn!.label!.width
+    expect(hiddenRight, T_013_INSIDE_WITH_THE_MARKER_HIDDEN).toBeCloseTo(
+      hidden.placed.actualReach! - S_91,
+      6,
     )
   })
 
@@ -808,24 +829,27 @@ const OUTSIDE_LABEL_EDGE_OFFSET = (): number => {
 // see T-252
 const AT_THE_SIZES_THIS_CASE_NAMES = { zoomX: 1 / DRAWN_RATIO, zoomY: 1 / DRAWN_RATIO }
 
-describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)', () => {
+describe('T-013 -- a name and a marker written inside a wide enough actual', () => {
   it('premise: an outside name and an inside name share one left-edge convention, read off PA-2', () => {
     expect(Number.isFinite(OUTSIDE_LABEL_EDGE_OFFSET())).toBe(true)
   })
 
-  it('premise: marker (1) stands inside the 40-day plan, S-23 past the actual right', () => {
+  it('premise: the marker stands INSIDE the actual, S-91 and S-23 in from its right edge', () => {
     const { placed, drawn } = sceneOf(NAME_INSIDE)
-    expect(markerRightOf(drawn)).toBeCloseTo(placed.actualReach! + MARKER_REACH, 6)
-    expect(markerRightOf(drawn) - MARKER_SIZE_DRAWN).toBeLessThan(placed.x + placed.width)
-  })
-
-  it('a short name is written inside, from marker (1) right + S-32 (MUST)', () => {
-    const { placed, drawn } = sceneOf(NAME_INSIDE)
-    expect(placed.labelPlacement).toBe('inside')
-    expect(drawn!.label!.x - (markerRightOf(drawn) + LABEL_GAP_DRAWN), T_013_WRITING_STARTS_THERE).toBeCloseTo(
-      OUTSIDE_LABEL_EDGE_OFFSET(),
+    expect(markerRightOf(drawn), T_013_INSIDE_HOW_THEY_STAND).toBeCloseTo(
+      placed.actualReach! - S_91 - S_23 * DRAWN_RATIO,
       6,
     )
+    expect(markerRightOf(drawn), T_013_INSIDE_THE_ACTUAL).toBeLessThan(placed.actualReach!)
+  })
+
+  it('a short name is written inside, its box right edge S-32 left of the marker (MUST)', () => {
+    const { placed, drawn } = sceneOf(NAME_INSIDE)
+    expect(placed.labelPlacement).toBe('inside')
+    const markerLeft = markerRightOf(drawn) - MARKER_SIZE_DRAWN
+    const nameRight = drawn!.label!.x + drawn!.label!.width
+    expect(nameRight, T_013_INSIDE_HOW_THEY_STAND).toBeCloseTo(markerLeft - LABEL_GAP_DRAWN, 6)
+    expect(nameRight, T_013_INSIDE_HOW_THEY_STAND).toBeLessThan(markerLeft)
   })
 
   it('a name that fits the whole shape but not the width from marker (1) goes to the right, NL-3 (MUST)', () => {
@@ -908,10 +932,13 @@ const shortActualNamed = (name: string, fade: { readonly fadeInDays?: number; re
   })
 
 describe('T-013 / T-243 (CR-387) -- the name box, and S-31 counted once inside it', () => {
-  it('the box left edge is marker (1) + S-32 inside, the fadeIn end when that is further right, and T-243\'s left edge outside (MUST)', () => {
+  it('the box right edge is S-32 left of the marker inside the actual, the fadeIn end is the box left when that is further right, and T-243\'s left edge outside (MUST)', () => {
     const inside = sceneOf(NAME_INSIDE)
     expect(inside.placed.labelPlacement).toBe('inside')
-    expect(inside.drawn!.label!.x, T_013_WRITING_STARTS_THERE).toBeCloseTo(markerRightOf(inside.drawn) + LABEL_GAP_DRAWN, 6)
+    expect(
+      inside.drawn!.label!.x + inside.drawn!.label!.width,
+      T_013_INSIDE_HOW_THEY_STAND,
+    ).toBeCloseTo(markerRightOf(inside.drawn) - MARKER_SIZE_DRAWN - LABEL_GAP_DRAWN, 6)
     const faded = sceneOf(shortActualNamed('ab', { fadeInDays: 10 }))
     const fadeEnd = faded.placed.x + 10 * faded.layout.pxPerDay
     expect(fadeEnd, 'premise: the fade ends right of marker (1) + S-32').toBeGreaterThan(markerRightOf(faded.drawn) + LABEL_GAP_DRAWN)
@@ -923,7 +950,11 @@ describe('T-013 / T-243 (CR-387) -- the name box, and S-31 counted once inside i
 
   it('the glyphs start S-31 right of the box left edge, inside and outside alike, and not 2 x S-31 (MUST, MUST NOT)', () => {
     const inside = sceneOf(NAME_INSIDE)
-    const insideBoxLeft = markerRightOf(inside.drawn) + LABEL_GAP_DRAWN
+    const insideBoxLeft =
+      markerRightOf(inside.drawn) -
+      MARKER_SIZE_DRAWN -
+      LABEL_GAP_DRAWN -
+      inside.drawn!.label!.width
     const insideWritten = nameGlyphTextOf(NAME_INSIDE)
     expect(
       Math.abs(Number(insideWritten) - (insideBoxLeft + LABEL_PAD_DRAWN)),
