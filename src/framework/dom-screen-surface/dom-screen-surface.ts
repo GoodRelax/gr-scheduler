@@ -184,7 +184,8 @@ function entryGlyphRoom(): string {
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
     'box-sizing:border-box;' +
-    `width:${entranceOuterWidthPx()}px;` +
+    // TRAP: a floor, never a fixed width -- entryStyle also dresses buttons that carry words.
+    `min-width:${entranceOuterWidthPx()}px;` +
     `padding:0 ${entranceGapPx()}px;` +
     `min-height:${entranceOuterHeightPx()}px;`
   )
@@ -944,7 +945,7 @@ function rowControlWidthCss(): string {
 function rowControlBoxStyle(): string {
   return (
     'display:inline-flex;box-sizing:border-box;' +
-    `width:${entranceOuterWidthPx()}px;` +
+    `min-width:${entranceOuterWidthPx()}px;` +
     `padding:0 ${entranceGapPx()}px;`
   )
 }

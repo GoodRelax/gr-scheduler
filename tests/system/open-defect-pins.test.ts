@@ -11,7 +11,8 @@
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { specTable, type SpecTable } from '../contract/spec-table'
+import { specTable, unbroken, type SpecTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -37,6 +38,41 @@ const T025: SpecTable = specTable('T-025')
 const SCREEN_ROW = 'MC-6'
 
 const BASE_SCREEN = screenOf(rowOf(T025, SCREEN_ROW))
+
+const REQUIREMENTS = unbroken(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+)
+
+// WHY: the headings are Japanese and rule 03 section 5 keeps this file ASCII,
+// so they are spelled as escapes -- as tests/fixtures/display-scale.ts does.
+const DEFAULT_COLUMN = String.fromCharCode(0x65e2, 0x5b9a)
+const DEFAULT_VALUE_COLUMN = String.fromCharCode(0x65e2, 0x5b9a, 0x5024)
+
+/** @purity pure */
+function settingOf(table: string, id: string, column: string): number {
+  const cell = rowOf(specTable(table), id).by[column] ?? ''
+  const found = /-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))
+  const value = Number(found?.[0] ?? '')
+  if (!Number.isFinite(value)) {
+    throw new Error(`table ${table} row ${id} states no number this file can read: ${cell}`)
+  }
+  return value
+}
+
+// see S-1, S-4, S-5
+const S_1 = settingOf('T-201', 'S-1', DEFAULT_VALUE_COLUMN)
+const S_4 = settingOf('T-201', 'S-4', DEFAULT_VALUE_COLUMN)
+const S_5 = settingOf('T-201', 'S-5', DEFAULT_VALUE_COLUMN)
+// see S-75, S-76
+const S_75 = settingOf('T-203', 'S-75', DEFAULT_COLUMN)
+const S_76 = settingOf('T-203', 'S-76', DEFAULT_COLUMN)
+// see S-180
+const S_180 = settingOf('T-206', 'S-180', DEFAULT_COLUMN)
+
+// see DM-3, DS-4, DS-7
+const MARK_WIDTH_PX = Math.min(S_1 * DEFAULT_DISPLAY_RATIO * S_75, S_180)
+// see S-180, DS-1, DS-8
+const MARK_HEIGHT_PX = S_4 * DEFAULT_DISPLAY_RATIO * S_76 * S_5
 
 let browser: Browser | null = null
 
@@ -270,26 +306,34 @@ async function emptyPointOnADrawnRow(page: Page): Promise<{ x: number; y: number
   return null
 }
 
+const DUMMY_FIGURE = '-dummies'
+
 interface FaintHold extends Box {
+  readonly key: string
   readonly halves: readonly number[]
 }
 
 // WHY: found by how faint they are -- the one thing FR-043 says about them
 // that a browser can measure, since everything else on the canvas is solid.
+// TRAP: the PM-1a marker group is faint too, so the key tells the two apart.
+// A width floor cannot: DM-3 draws the mark 2.0001px wide at the default scale.
 /** @purity semi-pure-b */
 async function faintHolds(page: Page): Promise<FaintHold[]> {
   return page.evaluate(
     /** @purity semi-pure-b */
-    (canvas: string) => {
-      const svg = document.querySelector(canvas)
+    (asked: { canvas: string; suffix: string }) => {
+      const svg = document.querySelector(asked.canvas)
       if (svg === null) return []
       const out: FaintHold[] = []
       for (const element of Array.from(svg.querySelectorAll('g'))) {
         if (Number(getComputedStyle(element).opacity) > 0.4) continue
+        const key = element.getAttribute('data-figure') ?? ''
+        if (!key.endsWith(asked.suffix)) continue
         const box = element.getBoundingClientRect()
-        if (box.width < 4 || box.x < 0 || box.x > window.innerWidth - 4) continue
-        if (box.y < 60 || box.y + box.height > window.innerHeight - 4) continue
+        if (box.width <= 0 || box.x < 0 || box.x + box.width > window.innerWidth) continue
+        if (box.y < 60 || box.y + box.height > window.innerHeight) continue
         out.push({
+          key,
           x: Math.round(box.x),
           y: Math.round(box.y),
           width: Math.round(box.width),
@@ -301,7 +345,7 @@ async function faintHolds(page: Page): Promise<FaintHold[]> {
       }
       return out
     },
-    CANVAS,
+    { canvas: CANVAS, suffix: DUMMY_FIGURE },
   )
 }
 
@@ -467,7 +511,9 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
 
   // WHY: excludes holds already on screen -- the starting document has its
   // own unstarted tasks, and taking the first faint mark found one of those.
-  const already = new Set((await faintHolds(page)).map((one) => `${one.x}:${one.y}`))
+  // TRAP: keyed by data-figure, never by position -- the drop redraws the
+  // board, so every existing mark moves and would be counted as a new one.
+  const already = new Set((await faintHolds(page)).map((one) => one.key))
 
   expect(await pressEntrance(page, RECTANGLE_TASK), `${RECTANGLE_TASK} is not on the screen`).toBe(true)
   const barWidth = 300
@@ -477,7 +523,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   await page.mouse.up()
   await page.waitForTimeout(1000)
 
-  const fresh = (await faintHolds(page)).filter((one) => !already.has(`${one.x}:${one.y}`))
+  const fresh = (await faintHolds(page)).filter((one) => !already.has(one.key))
   expect(
     fresh.length,
     'drawing a task put no NEW faint grab-hold on the screen, so it is not being drawn unstarted',
@@ -498,8 +544,17 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
 
   expect(dummy.halves.length, 'FR-043 (MUST) draws the ダミーの印 1 つだけ').toBe(1)
   const step = dummy.width
-  expect(step, 'the ダミーの印 is drawn with no width, so there is no unit to drag in')
-    .toBeGreaterThan(0)
+  expect(
+    step,
+    `表 T-240 の DM-3 (MUST): ダミーを描く幅は 1 日ぶん（S-1 ${S_1}px × 描く比 ` +
+      `${DEFAULT_DISPLAY_RATIO} × zoomX ${S_75}）と S-180 ${S_180}px の小さい方であり、` +
+      `${MARK_WIDTH_PX}px になる`,
+  ).toBe(Math.round(MARK_WIDTH_PX))
+  expect(
+    dummy.height,
+    `S-180: 縦の広がりは実績バーの帯に従う（S-4 ${S_4}px × 描く比 ` +
+      `${DEFAULT_DISPLAY_RATIO} × zoomY ${S_76} × S-5 ${S_5}）ので ${MARK_HEIGHT_PX}px になる`,
+  ).toBe(Math.round(MARK_HEIGHT_PX))
 
   // WHY: pressed a quarter into the mark -- inside GR-9's (start) half and
   // short of the centre pixel, which FR-043 routes to GR-17 (finish) instead.
@@ -695,6 +750,32 @@ test('DFC-232: a task drawn on empty ground leaves a name field under the keyboa
   } finally {
     await app.close()
   }
+})
+
+// WHY: the width and height above are derived from these, so a reworded clause
+// must break this file rather than quietly move what the cases admit.
+const CLAUSES: readonly (readonly [string, string])[] = [
+  [
+    'T-023d closing (MUST) -- the hit area of GR-9 / GR-17 / GR-18 is the mark FR-043 draws',
+    '⭐ `GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。',
+  ],
+  [
+    'T-023d closing (MUST NOT) -- that hit area is never a fixed pixel box',
+    '⛔ ダミーの当たり判定を、固定の画素幅の箱で取ってはならない（MUST NOT）',
+  ],
+]
+
+const DM_3_THE_DRAWN_WIDTH =
+  'ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方とすること（MUST）'
+
+test('the manuscript still states the mark this file measures, word for word', () => {
+  for (const [name, clause] of CLAUSES) {
+    expect(REQUIREMENTS, name).toContain(clause)
+  }
+  expect(
+    rowOf(specTable('T-240'), 'DM-3').cells[1] ?? '',
+    'FR-043 table T-240 row DM-3 (MUST) is what the drawn width above is derived from',
+  ).toContain(DM_3_THE_DRAWN_WIDTH)
 })
 
 // WHY: both files -- a settled row moves from defects.md to fixed-defects.md,
