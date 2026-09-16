@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable } from '../contract/spec-table'
+import { displayRatioAt } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -25,6 +26,8 @@ const AGENT_API_ENTRANCE = ((): string => {
 interface RowNameSettings {
   readonly rowTitleFont: number
   readonly rowTitleTopScale: number
+  // see FR-039, T-202, S-234
+  readonly displayScale: number
 }
 
 interface MeasuredRow {
@@ -35,10 +38,14 @@ interface MeasuredRow {
   readonly controls: readonly string[]
 }
 
-// see FR-094, T-201
+// see FR-094, FR-039, T-201, T-252
+// WHY: S-36 is a px row of the label group, so DS-1 of table T-252 has the
+// WHY: drawing multiply it once by the ratio; the stored value stays as it is.
 /** @purity pure */
 function expectedNamePx(depth: number, settings: RowNameSettings): number {
-  return depth === 1 ? settings.rowTitleFont * settings.rowTitleTopScale : settings.rowTitleFont
+  const stored =
+    depth === 1 ? settings.rowTitleFont * settings.rowTitleTopScale : settings.rowTitleFont
+  return stored * displayRatioAt(settings.displayScale)
 }
 
 let browser: Browser | null = null
@@ -83,6 +90,7 @@ async function readRowNameSettings(page: Page): Promise<RowNameSettings> {
     return {
       rowTitleFont: held.documentSettings.rowTitleFont,
       rowTitleTopScale: held.documentSettings.rowTitleTopScale,
+      displayScale: held.documentSettings.displayScale,
     }
   })
 }
@@ -144,13 +152,22 @@ test('FR-094 / PI-37: every drawn row name is S-36 x S-38 at depth 1 and S-36 be
   try {
     await openAgentApi(opened.page)
     const settings = await readRowNameSettings(opened.page)
-    expect(Number.isFinite(settings.rowTitleFont) && Number.isFinite(settings.rowTitleTopScale), 'the document holds S-36 and S-38').toBe(true)
+    expect(
+      Number.isFinite(settings.rowTitleFont) &&
+        Number.isFinite(settings.rowTitleTopScale) &&
+        Number.isFinite(settings.displayScale),
+      'the document holds S-36, S-38 and S-234',
+    ).toBe(true)
     const rows = await measureRows(opened.page)
     expect(rows.some((row) => row.depth === 1), `a depth-1 row is drawn: ${JSON.stringify(rows)}`).toBe(true)
     const off = rows.filter((row) => Math.abs(row.namePx - expectedNamePx(row.depth, settings)) > SIZE_TOLERANCE_PX)
     expect(
       off.map((row) => ({ depth: row.depth, name: row.name, drawn: row.namePx, expected: expectedNamePx(row.depth, settings) })),
-      `S-36 ${settings.rowTitleFont}, S-38 ${settings.rowTitleTopScale}: every row name at depth 1 is S-36 x S-38, deeper ones S-36`,
+      `S-36 ${settings.rowTitleFont}, S-38 ${settings.rowTitleTopScale}, S-234 ` +
+        `${settings.displayScale}: every row name at depth 1 is S-36 x S-38 and every deeper one ` +
+        `S-36, each of them drawn once at the ratio FR-039 (MUST) gives -- ` +
+        `「描く比は、\`S-234\` を 100 で割り、同書の 表 T-206 の \`S-236\` を掛けた値とすること（MUST）」 ` +
+        `-- which is ${displayRatioAt(settings.displayScale).toFixed(5)} here`,
     ).toEqual([])
   } finally {
     await opened.close()

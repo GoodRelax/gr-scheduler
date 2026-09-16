@@ -827,6 +827,12 @@ async function fullScreenStroke(page: Page): Promise<null> {
 
 // WHY: order is part of the reading -- SL-2's replacement can only be seen
 // WHY: after SL-1 has made a selection, so probes run in the table's order.
+// see SK-16, T-036
+const TIME_ZOOM_IN = 'Shift+='
+
+// see FR-039, T-252, DS-4, S-1
+const TIME_ZOOM_STEPS = 12
+
 const PROBES: readonly Probe[] = [
   { rows: ['MK-1'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, [], 400); return null } },
   { rows: ['MK-2'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, ['Control'], -300); return null } },
@@ -1372,14 +1378,23 @@ const PROBES: readonly Probe[] = [
     // foot of this file already asserts that list is empty. Repeating the same
     // sweep with the drag at 0px now names `GR-21` there.
     act: async (p) => {
-      const lane = await laneOf(p, 'horizontal')
+      let lane = await laneOf(p, 'horizontal')
+      // see FR-039, T-252, DS-4, S-1, SK-16
+      // WHY: DS-4 scales the day width too, so at the default display scale the
+      // WHY: fitted schedule sits inside its lane and GR-21 has nothing to move.
+      for (let step = 0; step < TIME_ZOOM_STEPS; step += 1) {
+        if (lane.gripLength < lane.trackLength - 1) break
+        await p.keyboard.press(TIME_ZOOM_IN)
+        await settled(p)
+        lane = await laneOf(p, 'horizontal')
+      }
       // WHY: named rather than swallowed -- a grip as long as its lane says
       // WHY: something about the document, not about GR-21.
       if (lane.gripLength >= lane.trackLength - 1) {
         throw new Error(
           `GR-21: the horizontal grip fills its lane (${String(Math.round(lane.gripLength))} of ` +
-            `${String(Math.round(lane.trackLength))}px), so nothing is left to scroll and the row ` +
-            'cannot be pressed for an answer here',
+            `${String(Math.round(lane.trackLength))}px) after ${String(TIME_ZOOM_STEPS)} steps of ` +
+            `${TIME_ZOOM_IN}, so nothing is left to scroll and the row cannot be pressed here`,
         )
       }
       const before = await drawingOf(p)

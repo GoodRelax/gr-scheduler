@@ -4,6 +4,7 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { bareAll, specTable, type SpecTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, S_235 } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -44,7 +45,14 @@ const ENTRANCE_SHAPE_PX = numberIn(cellOf(T206, 'S-138', 1, 3), 'table T-206 row
 
 const ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-141', 1, 3), 'table T-206 row S-141')
 
-const NARROWEST_ENTRANCE_PX = ENTRANCE_SHAPE_PX + ENTRANCE_CLEAR_PX * 2
+// see FR-029, T-206, S-237
+const ENTRANCE_FRAME_PX = numberIn(cellOf(T206, 'S-237', 1, 3), 'table T-206 row S-237')
+
+// see FR-029, FR-039, T-252, DS-7, S-235
+// WHY: DS-7 keeps the display scale off an entrance, so S-235 is the one ratio
+// WHY: the outer width FR-029 derives is drawn at, on every surface.
+const NARROWEST_ENTRANCE_PX =
+  (ENTRANCE_SHAPE_PX + (ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
 
 const T109_COLUMNS = 5
 const SURFACE_COLUMN = 0
@@ -308,8 +316,8 @@ function tellingIn(said: string): Telling | null {
 }
 
 async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: number; width: number; height: number }>> {
-  return page.evaluate((canvas: string) => {
-    const svg = document.querySelector(canvas)
+  return page.evaluate((asked: { canvas: string; floor: number }) => {
+    const svg = document.querySelector(asked.canvas)
     if (svg === null) return []
     return Array.from(svg.querySelectorAll('polygon'))
       .map((one) => one.getBoundingClientRect())
@@ -320,7 +328,7 @@ async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: numbe
           box.x + box.width < window.innerWidth - 20 &&
           box.y + box.height < window.innerHeight - 20 &&
           box.width > 60 &&
-          box.height >= 12,
+          box.height >= asked.floor,
       )
       .map((box) => ({
         x: Math.round(box.x),
@@ -329,7 +337,7 @@ async function readBarsOnScreen(page: Page): Promise<Array<{ x: number; y: numbe
         height: Math.round(box.height),
       }))
       .sort((one, two) => one.y - two.y || one.x - two.x)
-  }, CANVAS)
+  }, { canvas: CANVAS, floor: DRAWN_PLAN_BAR_FLOOR_PX })
 }
 
 async function readTooltip(page: Page): Promise<string> {
@@ -362,7 +370,12 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
   const app = await openTheApp(baseURL)
   try {
     const bars = await readBarsOnScreen(app.page)
-    expect(bars.length, 'no task bar is wholly on the screen to rest a pointer on').toBeGreaterThan(1)
+    expect(
+      bars.length,
+      'no task bar is wholly on the screen to rest a pointer on: a drawn plan bar stands ' +
+        `${DRAWN_PLAN_BAR_PX.toFixed(4)}px tall, S-4 x S-13 at the ratio FR-039 (MUST) gives -- ` +
+        '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」',
+    ).toBeGreaterThan(1)
 
     const first = bars[0]
     if (first === undefined) return
@@ -585,8 +598,12 @@ test('DFC-160: the entrances at the head of the row title panel stand apart, in 
     for (const box of boxes) {
       expect(
         box.width,
-        `${box.entrance} is drawn ${box.width}px wide, and FR-029 (MUST) has it hold a shape box of ` +
-          `${ENTRANCE_SHAPE_PX}px with at least ${ENTRANCE_CLEAR_PX}px clear on either side`,
+        `${box.entrance} is drawn ${box.width}px wide. FR-029 (MUST): ` +
+          '「入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`）と枠の線の太さ（`S-237`）を' +
+          '左右のぶん加えた値とすること（MUST）」 and 「箱の一辺（`S-138`）と隙間（`S-141`）と枠の' +
+          '線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）」 ' +
+          `-- (${ENTRANCE_SHAPE_PX} + (${ENTRANCE_CLEAR_PX} + ${ENTRANCE_FRAME_PX}) x 2) x ` +
+          `${S_235} = ${NARROWEST_ENTRANCE_PX.toFixed(4)}px`,
       ).toBeGreaterThanOrEqual(NARROWEST_ENTRANCE_PX)
     }
 
@@ -1208,6 +1225,16 @@ const RECTANGLE_NAME_PX_AT_ONE =
   drawingSettingOf('S-4') * drawingSettingOf('S-13') * drawingSettingOf('S-5') *
   drawingSettingOf('S-7')
 
+// see FR-039, T-252, DS-1, S-4, S-13
+const DRAWN_PLAN_BAR_PX = drawingSettingOf('S-4') * drawingSettingOf('S-13') * DEFAULT_DISPLAY_RATIO
+
+// WHY: a browser hands back a drawn length already rounded, so the floor is let
+// WHY: down by half a pixel -- still well above the S-5 actual bar under it.
+const DRAWN_PLAN_BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
+
+// see FR-039, T-252, DS-1
+const DRAWN_RECTANGLE_NAME_PX_AT_ONE = RECTANGLE_NAME_PX_AT_ONE * DEFAULT_DISPLAY_RATIO
+
 const DEPTH_ONE_ROW_NAME_PX = drawingSettingOf('S-36') * drawingSettingOf('S-38')
 
 const TEXT_CEILING_ZOOM_Y = DEPTH_ONE_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_ONE
@@ -1266,19 +1293,22 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     expect(opened.length, 'the document opens drawing fewer than three rows').toBeGreaterThan(2)
     const openedFonts = await nameLabelFontsNow(app.page)
     const rectangles = Object.keys(openedFonts).filter(
-      (key) => Math.abs((openedFonts[key] ?? 0) - RECTANGLE_NAME_PX_AT_ONE) < NAME_PX_TOLERANCE,
+      (key) =>
+        Math.abs((openedFonts[key] ?? 0) - DRAWN_RECTANGLE_NAME_PX_AT_ONE) < NAME_PX_TOLERANCE,
     )
     expect(
       rectangles.length,
-      `no name label opens at ${RECTANGLE_NAME_PX_AT_ONE.toFixed(4)}px (S-4 x S-13 x S-5 x S-7 ` +
-        'at the zoomY of 1 that S-76 opens with), so no rectangle can be told from the drawing',
+      `no name label opens at ${DRAWN_RECTANGLE_NAME_PX_AT_ONE.toFixed(4)}px (S-4 x S-13 x S-5 x ` +
+        'S-7 at the zoomY of 1 that S-76 opens with, drawn once at the ratio FR-039 (MUST) gives ' +
+        '-- 「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」' +
+        '), so no rectangle can be told from the drawing',
     ).toBeGreaterThan(0)
     await wheelAway(45)
     const tall = await rowBandsNow(app.page)
     const tallFonts = fontsOfKeys(await nameLabelFontsNow(app.page), rectangles)
     expect(tallFonts.length, 'no rectangle drawn at the opening is still drawn after the wheel')
       .toBeGreaterThan(0)
-    const expectedAtTextCeiling = RECTANGLE_NAME_PX_AT_ONE * TEXT_CEILING_ZOOM_Y
+    const expectedAtTextCeiling = DRAWN_RECTANGLE_NAME_PX_AT_ONE * TEXT_CEILING_ZOOM_Y
     const worstAtTextCeiling = Math.max(
       ...tallFonts.map((font) => Math.abs(font - expectedAtTextCeiling)),
     )
@@ -1374,9 +1404,9 @@ test('DFC-374: magnifying the row axis stops before one row fills the Row Area',
     expect(
       Math.min(...lowFonts),
       `the 400px window settled with rectangle names of ${lowFonts.map((f) => f.toFixed(2)).join(', ')}px, ` +
-        `no larger than the ${RECTANGLE_NAME_PX_AT_ONE.toFixed(2)}px of zoomY 1, so nothing was ` +
-        'zoomed and which ceiling stopped it cannot be read',
-    ).toBeGreaterThan(RECTANGLE_NAME_PX_AT_ONE + NAME_PX_TOLERANCE)
+        `no larger than the ${DRAWN_RECTANGLE_NAME_PX_AT_ONE.toFixed(2)}px of zoomY 1, so nothing ` +
+        'was zoomed and which ceiling stopped it cannot be read',
+    ).toBeGreaterThan(DRAWN_RECTANGLE_NAME_PX_AT_ONE + NAME_PX_TOLERANCE)
     expect(
       Math.max(...lowFonts),
       `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」; ` +

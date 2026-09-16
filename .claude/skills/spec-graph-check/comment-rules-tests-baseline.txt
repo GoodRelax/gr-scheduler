@@ -27,7 +27,7 @@
 # shape of every other ratchet here. Raise a line only on purpose, and say why
 # in the commit. `--write-tests-baseline` rewrites this file; the front
 # session re-counts with it at a merge.
-tree-density-basis-points 2713
+tree-density-basis-points 2710
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0

@@ -144,6 +144,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { specTable, type SpecTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -256,6 +257,22 @@ const T201_DEFAULT = 3
  * rather than for the product moving.
  */
 const ROW_INDENT = numberIn(cellOf(T201, 'S-37', T201_DEFAULT, T201_COLUMNS), 'T-201 S-37')
+
+// see FR-039, T-252, T-202, S-234, S-236
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// see FR-039, T-252, DS-1, S-37
+const DRAWN_ROW_INDENT = ROW_INDENT * DRAWN_RATIO
+
+// see FR-039, T-252, DS-1, S-4, S-13
+const DRAWN_PLAN_BAR_PX =
+  numberIn(cellOf(T201, 'S-4', T201_DEFAULT, T201_COLUMNS), 'T-201 S-4') *
+  numberIn(cellOf(T201, 'S-13', T201_DEFAULT, T201_COLUMNS), 'T-201 S-13') *
+  DRAWN_RATIO
+
+// WHY: a browser hands back a drawn length already rounded, so the floor is let
+// WHY: down by half a pixel -- still well above the S-5 actual bar under it.
+const BAR_FLOOR_PX = DRAWN_PLAN_BAR_PX - 0.5
 
 /**
  * `S-81` of table T-204: the size a picture is written at. `FR-025` (MUST) has
@@ -923,7 +940,7 @@ async function drawnTextsReading(page: Page, reading: string): Promise<number> {
 /** A task bar whose middle is on the screen, or null when none is. @purity semi-pure-b */
 async function firstBarOnScreen(page: Page): Promise<{ x: number; y: number } | null> {
   return page.evaluate(
-    (asked: { canvas: string; width: number }) => {
+    (asked: { canvas: string; width: number; floor: number }) => {
       const svg = document.querySelector(asked.canvas)
       if (svg === null) return null
       // ⚠️ THE DRAWING IS WIDER THAN THE WINDOW. A bar's own middle is often
@@ -935,12 +952,12 @@ async function firstBarOnScreen(page: Page): Promise<{ x: number; y: number } | 
         const right = Math.min(box.right, asked.width - 30)
         if (right - left < 120) continue
         if (box.y < 150 || box.bottom > 950) continue
-        if (box.height < 20) continue
+        if (box.height < asked.floor) continue
         return { x: Math.round((left + right) / 2), y: Math.round(box.y + box.height / 2) }
       }
       return null
     },
-    { canvas: CANVAS, width: BASE_SCREEN.width },
+    { canvas: CANVAS, width: BASE_SCREEN.width, floor: BAR_FLOOR_PX },
   )
 }
 
@@ -1593,7 +1610,12 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
   const page = shared()
 
   const bar = await firstBarOnScreen(page)
-  expect(bar, 'no task bar has a middle on the screen to double-click').not.toBeNull()
+  expect(
+    bar,
+    'no task bar has a middle on the screen to double-click: a drawn plan bar stands ' +
+      `${DRAWN_PLAN_BAR_PX.toFixed(4)}px tall, S-4 x S-13 at the ratio FR-039 (MUST) gives -- ` +
+      '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」',
+  ).not.toBeNull()
   if (bar === null) return
 
   await doubleClickBar(page, bar)
@@ -1731,7 +1753,12 @@ test('DFC-130: a name settled in the panel reaches the drawing', async () => {
   const page = shared()
 
   const bar = await firstBarOnScreen(page)
-  expect(bar, 'no task bar has a middle on the screen').not.toBeNull()
+  expect(
+    bar,
+    'no task bar has a middle on the screen: a drawn plan bar stands ' +
+      `${DRAWN_PLAN_BAR_PX.toFixed(4)}px tall, S-4 x S-13 at the ratio FR-039 (MUST) gives -- ` +
+      '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」',
+  ).not.toBeNull()
   if (bar === null) return
   await doubleClickBar(page, bar)
 
@@ -2352,7 +2379,12 @@ test('DFC-52: the written picture is the same whether or not something is select
     await until(page, () => readWrites(page), (seen) => seen.bodies.length === 1, 'the first picture is written')
 
     const bar = await firstBarOnScreen(page)
-    expect(bar, 'no task bar has a middle on the screen to select').not.toBeNull()
+    expect(
+      bar,
+      'no task bar has a middle on the screen to select: a drawn plan bar stands ' +
+        `${DRAWN_PLAN_BAR_PX.toFixed(4)}px tall, S-4 x S-13 at the ratio FR-039 (MUST) gives -- ` +
+        '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」',
+    ).not.toBeNull()
     if (bar === null) return
     await page.mouse.move(bar.x, bar.y)
     await page.mouse.down()
@@ -3122,14 +3154,18 @@ test('DFC-49: the screen and the picture set a row in by the same one tier of S-
     const pictureStep = stepPerTier(inPicture, 'the written picture', room) / ratio
 
     expect(
-      Math.abs(screenStep - ROW_INDENT) <= room,
+      Math.abs(screenStep - DRAWN_ROW_INDENT) <= room,
       `the screen sets a row in by ${screenStep}px per tier and S-37 (rowTitleIndent) is ` +
-        `${ROW_INDENT}px -- readings ${JSON.stringify([...onScreen])}`,
+        `${ROW_INDENT}px drawn at ${DRAWN_RATIO} -- ${DRAWN_ROW_INDENT}px. FR-039 (MUST): ` +
+        '「描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）」 ' +
+        `-- readings ${JSON.stringify([...onScreen])}`,
     ).toBe(true)
     expect(
-      Math.abs(pictureStep - ROW_INDENT) <= room,
+      Math.abs(pictureStep - DRAWN_ROW_INDENT) <= room,
       `the written picture sets a row in by ${pictureStep}px per tier once the S-81 / MC-6 ratio ` +
-        `is taken off, and S-37 is ${ROW_INDENT}px -- readings ${JSON.stringify([...inPicture])}`,
+        `is taken off, and S-37 is ${ROW_INDENT}px drawn at ${DRAWN_RATIO} -- ` +
+        `${DRAWN_ROW_INDENT}px (FR-080 writes the picture at the same ratio) -- readings ` +
+        `${JSON.stringify([...inPicture])}`,
     ).toBe(true)
     expect(
       Math.abs(screenStep - pictureStep) <= room,
