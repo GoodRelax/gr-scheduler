@@ -128,3 +128,53 @@ python docs/development-records/measurements/frame-time-ab-2026-09-16/dfc-611-tr
 ⛔ **旧記の `8460eaa9…` がどこから来たのかは分かっていない。**
 ⚠️ 同じ値は `docs/development-records/refactor-plan-report-2026-09-13.md:769` も主張しているが、
 **そちらは過去の記録なので書き換えていない** —— 記録は当時書いたままに残し、訂正は本書が持つ。
+
+## 本番（2026-09-16）
+
+**条件**: `run-trace-ab.py` で段 0 `5c1b915` と比べる側 `f45e9cd7` を交互に 3 回ずつ、区間ごとに trace を掛けたまま 5000 ms。Edge 153.0.4234.32 headless、1920×1080、`Task` 1000 件。6 走行すべて `ok True`。
+
+**木**:
+- 段 0: `5c1b915` を `git archive` で写し、リポジトリの外の一時領域で `npx vite build`。dist の sha256 は `2cf34431…`（commit 済みの `5c1b915:dist/index.html` と 1 バイト違わない）。
+- 比べる側: `f45e9cd7`（`DFC-611` を測った先端。表示の大きさの変更要求の波の前で、`S-234` は仕様にもコードにも 0 件）。同じ手順でビルドした dist の sha256 `30de7724ce8cdd5df9f1476dce46b5db049f99838e145d7237b7c6a71cac4fbe`。上の SMOKE が同じ木で記した `30de7724…` と一致する。
+  ⚠️ commit 済みの `f45e9cd7:dist/index.html` は `c9cbc8d8…` で一致しない。理由: dist を最後に焼いた commit は `87ad0ff5`（2026-09-15 10:10）で、以後 `f45e9cd7` まで src/ が 3 ファイル変わっても dist は焼き直されていない（`git log -1 f45e9cd7 -- dist/index.html` は `87ad0ff5` を指し、`git diff --stat 87ad0ff5 f45e9cd7 -- src` は `input-command-translator.ts`・`item-hit-area.ts`・`frame-loop.ts` の 3 ファイルを挙げる —— 両方とも本節を書く体が実測）。⇒ **ソースから焼いた `30de7724…` が `f45e9cd7` の実際の出荷ビルドである。**
+
+**なぜ今の先端ではなく `f45e9cd7` か**: 利用者の裁定（2026-09-16、問 5「原因は a で割る」）。今の先端は表示の倍率で既定 1/3 に縮めて描くため、画面に入るタスクが増え、「退行」と「描く量の増加」が混ざる。今の先端で走らせた 3 回は、探り針が掴み代を見つけられず 3 回とも準備で落ちた（`no ew-resize beside the finish edge`）。探り針の直しの書きかけはリポジトリの外に patch として保管してある。
+
+### 空き地の上（`DFC-611` の場面）、3 走行の中央値
+
+| 行 | 段 0 `5c1b915` | 先端 `f45e9cd7` |
+|---|---:|---:|
+| `probe.frameTime` 中央値（in-page） | 6.1 / 6.1 / 6.1 | 24.3 / 24.2 / 24.2 |
+| 描き直しの呼び出しの中（`insideRedrawCallback`） | 6.4〜6.6 | 7.0〜7.9 |
+| `main.script` | 7.35〜7.78 | 8.89〜9.14 |
+| `main.parseHTML` | 0 | 1.83〜2.05 |
+| `main.style` | 0 | 1.37〜1.51 |
+| `main.layout` | 0 | 1.22〜1.41 |
+| `main.paint` | 0.01 | 1.13〜1.82 |
+| `main.composite` | 0.04 | 0.77〜1.11 |
+| `main.hitTest` | 0.12〜0.14 | 0.72〜0.75 |
+| `main.busy` | 7.74〜8.18 | 17.74〜19.63 |
+| `main.idle` | 0.06〜0.1 | 5.85〜6.57 |
+| `off.gpu`（主スレッドの外） | 0 | 6.86〜7.39 |
+| `count.DrawFrame`（窓あたり） | 0 | 1 |
+| `count.BeginFrame`（窓あたり） | 1 | 4 |
+
+⭐ `probe.frameTime` の 24.2 ms は `DFC-611` の行が記す 24.2 ms を再現している。
+
+### 他のタスクの上（対照）
+
+| 行 | 段 0 `5c1b915` | 先端 `f45e9cd7` |
+|---|---:|---:|
+| `probe.frameTime` 中央値（in-page） | 6.1 | 6.1 |
+| `frame interval` 中央値 | 15.75〜22.7 | 6.07〜6.08 |
+| `main.script` | 14.77〜20.96 | 4.29〜4.35（先端のほうが速い） |
+
+### 読み
+
+⚠️ 下の 2 段は分けて読むこと —— 上は trace の実測、下は本書を書く体の見立て（コードは読んでいない）。
+
+**trace が示すこと**: 空き地の上で増えた約 16 ms は JavaScript ではない（`main.script` の増分は中央値の範囲で見て 1.5 ms 前後）。段 0 は空き地の上でフレームを 1 枚も描き直していない（`count.DrawFrame` 0）のに対し、`f45e9cd7` は毎フレーム描き直しており、`main.parseHTML` → `main.style` → `main.layout` → `main.paint` → `main.composite` → `off.gpu`（ラスタ、約 7 ms）を毎フレーム払い、主スレッドは GPU を待って約 6.5 ms（`main.idle`）空いている。
+
+**見立て（コードを読んで確かめてはいない）**: 段 0 には、依存線を引く間にポインタに追従する仮の線が無かった（`fixed-defects.md` の `DFC-591`、`JDG-84` で足した機能）。先端はその仮の線を毎フレーム HTML の文字列で描き直している疑いが濃い（`main.parseHTML` が毎フレーム約 1.9 ms）。⇒ `DFC-611` の行が既に挙げている対応案 ①「仮の線を別の要素にして属性だけを書き換える」と整合する。⛔ 原因の特定はまだ。直す体がコードで確かめること。
+
+⚠️ 段 0 の in-page `probe.frameTime`（6.1 ms）は、記録 17 追補の 12.0〜12.1 ms と合わない。先端の 24.2 ms は一致している。理由は未確認（trace を掛けたまま測っていることなど、上の「限界」の条件が絡んでいる可能性がある）。同じ日に交互に測っているので、この走行の中の比べ方（段 0 対 先端）は有効である、と読む。
