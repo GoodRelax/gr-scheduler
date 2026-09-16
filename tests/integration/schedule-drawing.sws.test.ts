@@ -72,7 +72,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { specTable, type SpecTable } from '../contract/spec-table'
-import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
+import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/display-scale'
 import {
   SETTINGS_BOUNDS,
   SETTINGS_DEFAULTS,
@@ -198,8 +198,9 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
 // は … `S-138` に従うこと（MUST）」 and 「図形と入口の枠のあいだに … `S-141` が定める
 // 隙間を最低限あけること（MUST）」, once on each side -- and 表 T-051 の `HF-1`
 // (MUST) stacks them 「並びは 2 × 2 の格子とすること」, so the lattice is two of
-// those, one above the other. ⇒ composed here out of the manuscript; the total
-// is never typed.
+// those, one above the other. ⭐ AND `S-235` IS ON EVERY SURFACE OF IT (CR-397):
+// 表 T-206 の `S-138` 「⚠️ 描くときは、どの面でも `S-235` を掛ける（規則は
+// `FR-029`）。」 ⇒ composed here out of the manuscript; the total is never typed.
 //
 // ⚠️ THE FLOOR DOES NOT MOVE WITH `zoomY`, and the bands it is compared against
 // do. `HF-19`: 「⛔⛔ **この床を閲覧者の文字サイズに追随させてはならない
@@ -221,7 +222,7 @@ const settingPx = (id: string): number => {
 const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-141') * 2
 
 /** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
-const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * 2
+const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
 
 /** Table T-222's own bend count for a row -- the only all-digit cell it has. */
 const bendsOf = (id: string): number => {

@@ -28,25 +28,22 @@
 // 表 T-206 の `S-138` says so itself:
 //
 //   「⛔ **閲覧者の文字サイズに追随させない** —— 大きくしたい人はブラウザの表示倍率
-//    で変える。…… ⭐ **`S-141` を 6 から 4 へ同時に下げるので、入口の外形は
-//    26 × 24px のまま動かない**（利用者の「アイコンサイズ自体は変えるな」）」
+//    で変える。」
 //
-// ⇒ one entrance is `S-138 + S-141 × 2` tall -- the identity
-// tests/unit/fr-029-glyph-box-grew-and-the-entrance-did-not.test.ts already
-// holds against 表 T-206 -- and `HF-1`'s lattice is 「2 × 2 の格子」, so it is at
-// least TWO of those, stacked. ⭐ AT LEAST, never exactly: 表 T-051 の `HF-6`
-// records that the gap between two controls has no row at all -- 「⛔ **操作子
-// どうしの間隔をここに書いてはならない（MUST NOT）** —— **その量を持つ行はどこにも
-// 無く、まだ裁定を受けていない。**」 -- so the true floor can only be larger.
-// ⇒ every case below asserts `>=` against two entrance heights and never `===`.
+// ⇒ one entrance is `S-138 + S-141 × 2` tall. ⛔ `S-237` IS NOT IN THAT HEIGHT:
+// `FR-029` puts the frame into the WIDTH and leaves the vertical to the side
+// that sets the row pitch -- 「⚠️ 外形の縦は本要求が定めない —— 行送りは入口の側
+// が決める。」 -- and `LF-3` / `HF-19` name only `S-138` and `S-141`.
 //
-// ⚠️ CORRECTED 2026-09-03. This note used to read that 「`LF-3` and `HF-19` both
-// say the floor moves with the reader's text size」 and called that a divergence
-// from `S-138`. ⛔ THEY SAY THE OPPOSITE, in as many words: `LF-3` 「⚠️ **この床は
-// 閲覧者の文字サイズに追随しない** —— `S-138` がそう定めている」 and `HF-19` 「⛔⛔ **この
-// 床を閲覧者の文字サイズに追随させてはならない（MUST NOT）**」. All three rows agree,
-// and nothing was ever divergent. ⭐ WHAT REMAINS UNRULED is narrower and is
-// what the `>=` below is for: 表 T-051 の `HF-6` records that the gap BETWEEN
+// ⭐⭐ AND EVERY SURFACE MULTIPLIES IT BY `S-235` (CR-397, ledger row DFC-618):
+// 表 T-206 の `S-138` 「⚠️ 描くときは、どの面でも `S-235` を掛ける（規則は
+// `FR-029`）。」 ⛔ THE DISPLAY SCALE DOES NOT, which is why this floor stands
+// still while the bands it is compared against move: 表 T-252 の `DS-7` puts the
+// entrance under 「掛けない」.
+//
+// ⇒ one rung is `(S-138 + S-141 × 2) × S-235`, and `HF-1`'s lattice is
+// 「2 × 2 の格子」, so the floor is at least TWO of those, stacked.
+// ⭐ AT LEAST, never exactly: 表 T-051 の `HF-6` records that the gap BETWEEN
 // two controls has no row anywhere -- 「⛔ **操作子どうしの間隔をここに書いては
 // ならない（MUST NOT）** —— **その量を持つ行はどこにも無く、まだ裁定を受けていない。**」
 // ⇒ 「格子はその 2 段ぶんである」 is the tallest thing the specification pins, so
@@ -79,7 +76,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
-import { DISPLAY_SCALE_STEPS, displayRatioAt } from '../fixtures/display-scale'
+import { DISPLAY_SCALE_STEPS, S_235, displayRatioAt } from '../fixtures/display-scale'
 
 // ===========================================================================
 // The manuscript, read at run time rather than copied (Chapter 1.9)
@@ -109,6 +106,9 @@ const S_141 = px('T-206', 'S-141')
 /** One entrance's outer height, the way `FR-029` composes it out of those two. */
 const ONE_ENTRANCE_TALL = S_138 + S_141 * 2
 
+/** One rung of the lattice as it is DRAWN: `FR-029` multiplies it by `S-235`. */
+const ONE_RUNG_DRAWN = ONE_ENTRANCE_TALL * S_235
+
 /**
  * The floor `HF-19` puts under a row's band, as far as docs/spec pins it down.
  *
@@ -116,7 +116,7 @@ const ONE_ENTRANCE_TALL = S_138 + S_141 * 2
  * ⛔ A LOWER BOUND AND NOT THE FIGURE: the gap between them has no row (see the
  * head of this file), so the real lattice can only be taller than this.
  */
-const LATTICE_FLOOR = ONE_ENTRANCE_TALL * 2
+const LATTICE_FLOOR = ONE_RUNG_DRAWN * 2
 
 // see FR-039, T-202
 const TOP_STEP = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1] ?? 100
@@ -219,9 +219,12 @@ describe('the manuscript still says what these cases read', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST THE 既定 COLUMN WOULD MAKE EVERY CASE
     // BELOW AGREE WITH ANYTHING -- rule 04 section 2.
     expect(ONE_ENTRANCE_TALL, `S-138=${S_138}, S-141=${S_141}`).toBe(24)
-    expect(LATTICE_FLOOR).toBe(48)
+    expect(S_235, 'the scale FR-029 puts on every surface').toBe(0.6667)
+    expect(LATTICE_FLOOR).toBeCloseTo(32.0016, 9)
     // The sentence that keeps the outer box out of the row, so FR-029 derives it.
     expect(says('T-206', 'S-138')).toContain('本行は入口の外形を持たない')
+    // ⛔ AND THE HALF DFC-618 GOT WRONG: the drawn floor carries `S-235`.
+    expect(says('T-206', 'S-138')).toContain('描くときは、どの面でも `S-235` を掛ける')
   })
 })
 

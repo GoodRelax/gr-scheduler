@@ -90,7 +90,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
-import { S_235 } from '../fixtures/display-scale'
+import { DISPLAY_SCALE_STEPS, S_235 } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Settings and screens. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -121,12 +121,16 @@ const settingNumber = (key: string): number => {
   return value
 }
 
+// see T-202, S-234
+const TOP_STEP = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1] ?? 100
+
 const SETTINGS = settingsOf({
   scrollDate: '2026-01-01', // S-77, pinned so the time axis has an origin
   scrollGroupId: null, // S-78
   stackDirection: 'down', // S-58, pinned so every y reads from the top
   rulerHeight: 48, // S-2
   rulerFont: 12, // S-3
+  displayScale: TOP_STEP, // S-234, and the block above the shapes says why
 })
 
 const ENV: ScreenEnvironment = {
@@ -141,6 +145,10 @@ const ENV_TALL: ScreenEnvironment = { ...ENV, height: 1400 }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const REGIONS_TALL = regionsFromScreen(ENV_TALL, SETTINGS)
+
+// see T-068
+const ENV_PASS2: ScreenEnvironment = { ...ENV, height: 800 }
+const REGIONS_PASS2 = regionsFromScreen(ENV_PASS2, SETTINGS)
 
 // ---------------------------------------------------------------------------
 // The ladder and the floor, straight out of the manuscript.
@@ -489,23 +497,19 @@ function depthTheFitOwes(
 // arithmetic, and it grows with the tier twice over: more rows AND a taller
 // rung. That is why a document can fit at tier 4 and overflow at tier 5.
 //
-// ⭐⭐ AND SINCE 2026-09-03 A SECOND FLOOR STANDS UNDER EVERY BAND (CR-339 +
-// CR-342). 表 T-221 の `LF-3`: 「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の
-// 操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」, restated as a
-// MUST NOT by 表 T-051 の `HF-19`. `CONTROL_LATTICE_FLOOR` below composes it out
-// of 表 T-206, and it stands above the plan height at every rung whose zoom is
-// under FR-094's floor -- so a row at tiers 1 to 4 is the LATTICE tall, and only
-// tier 5's rung lifts the plan height clear of it.
-// ⇒ the sizes below were re-chosen when that floor landed. ⛔ The ANSWERS each
-// fixture is named for did not move; the row counts that produce them did.
+// ⛔⛔ AND WHY THE DISPLAY SCALE IS PINNED AT ITS TOP STEP (CR-397): the bands
+// carry the display ratio (表 T-252 の `DS-1` / `DS-8`) and `LF-3`'s control
+// floor does not (`DS-7`). At the default step that floor outruns the drawn plan
+// at every rung, so the extent stops moving with `zoomY` and pass 1 of 表 T-068
+// always agrees with pass 2. ⛔ The ANSWERS did not move; the row counts did.
 // ---------------------------------------------------------------------------
 
 /** One chain of five rows -- every tier fits, so the deepest one wins. */
 const FIVE_DEEP_CHAIN: TreeShape = { roots: 1, depths: 5, fanOut: 1 }
-/** Three chains: fifteen rows at tier 5 overflow, twelve rows at tier 4 fit. */
-const FOUR_IS_DEEPEST: TreeShape = { roots: 3, depths: 5, fanOut: 1 }
-/** Four chains: sixteen rows at tier 4 overflow, twelve at tier 3 fit (S-12 is 0). */
-const THREE_IS_DEEPEST: TreeShape = { roots: 4, depths: 5, fanOut: 1 }
+/** Four chains: twenty rows at tier 5 overflow, sixteen rows at tier 4 fit. */
+const FOUR_IS_DEEPEST: TreeShape = { roots: 4, depths: 5, fanOut: 1 }
+/** Five chains: twenty rows at tier 4 overflow, fifteen at tier 3 fit (S-12 is 0). */
+const THREE_IS_DEEPEST: TreeShape = { roots: 5, depths: 5, fanOut: 1 }
 /** Forty chains -- forty root rows alone overrun the Row Area. */
 const NOTHING_FITS: TreeShape = { roots: 40, depths: 5, fanOut: 1 }
 
@@ -833,17 +837,17 @@ describe('FR-055 / FR-018 -- the fit follows S-125 rather than a tier number of 
 const UNDER_THE_FLOOR = settingsOf({ ...SETTINGS, zoomY: FLOOR_BINDS_BELOW / 2 })
 
 /** The extent tier `depth` of a shape has when it is drawn at the floor. */
-const floorExtentOf = (shape: TreeShape, depth: number): number =>
+const floorExtentOf = (shape: TreeShape, depth: number, regions = REGIONS): number =>
   layoutFromSchedule(
     scheduleOf({ roots: rowsDownTo(shape, depth), depths: 1, fanOut: 1 }),
     UNDER_THE_FLOOR,
-    REGIONS,
+    regions,
   ).contentHeight
 
 /** The deepest tier pass 1's floor measurement admits; 0 when none of them fits. */
-const floorAdmits = (shape: TreeShape): number => {
+const floorAdmits = (shape: TreeShape, regions = REGIONS): number => {
   for (let depth = Math.min(shape.depths, MAX_GROUP_DEPTH); depth >= 1; depth--) {
-    if (floorExtentOf(shape, depth) <= REGIONS.rowArea.height) return depth
+    if (floorExtentOf(shape, depth, regions) <= regions.rowArea.height) return depth
   }
   return 0
 }
@@ -879,8 +883,10 @@ describe('T-068 pass 2 -- the tier the floor admits and the fit refuses', () => 
     // which this file already says elsewhere. What makes it pass 2's is that
     // pass 1 had no reason to refuse tier 5.
     const deepest = Math.min(FOUR_IS_DEEPEST.depths, MAX_GROUP_DEPTH)
-    expect(floorExtentOf(FOUR_IS_DEEPEST, deepest)).toBeLessThanOrEqual(REGIONS.rowArea.height)
-    expect(floorAdmits(FOUR_IS_DEEPEST)).toBe(deepest)
+    expect(floorExtentOf(FOUR_IS_DEEPEST, deepest, REGIONS_PASS2)).toBeLessThanOrEqual(
+      REGIONS_PASS2.rowArea.height,
+    )
+    expect(floorAdmits(FOUR_IS_DEEPEST, REGIONS_PASS2)).toBe(deepest)
     // And its rung stands above the floor, which is the condition the rule puts
     // on pass 2 running at all: 「採った段が床より上の倍率を要するときだけ」.
     expect(drawingZoomOf(deepest)).toBeGreaterThan(FLOOR_BINDS_BELOW)
@@ -894,11 +900,11 @@ describe('T-068 pass 2 -- the tier the floor admits and the fit refuses', () => 
     // and write a picture that does not fit. That is the state DFC-24 records
     // (「`frame-loop.ts` は 1 回走らせて無条件に採る」).
     const deepest = Math.min(FOUR_IS_DEEPEST.depths, MAX_GROUP_DEPTH)
-    const drawn = drawnAfterFit(scheduleOf(FOUR_IS_DEEPEST))
+    const drawn = drawnAfterFit(scheduleOf(FOUR_IS_DEEPEST), REGIONS_PASS2)
     expect(deepestDrawnDepth(drawn), '表 T-068 の 2 回目が走っていない').toBe(deepest - 1)
     // ⭐ And the drawing it landed on does fit, which is what the second
     // measurement bought.
-    expect(drawn.contentHeight).toBeLessThanOrEqual(REGIONS.rowArea.height)
+    expect(drawn.contentHeight).toBeLessThanOrEqual(REGIONS_PASS2.rowArea.height)
   })
 })
 

@@ -45,7 +45,7 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
-import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
+import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the second floor under a band
@@ -62,7 +62,9 @@ import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale
 // `FR-029` (MUST) draws a glyph in a box of `S-138` a side and keeps at least
 // `S-141` between that box and the entrance's frame, once on each side, and
 // 表 T-051 の `HF-1` (MUST) stacks the four controls 「2 × 2 の格子」.
-// ⇒ floor = 2 × (S-138 + S-141 × 2), read out of the manuscript at run time.
+// ⇒ floor = 2 × (S-138 + S-141 × 2) × S-235, read out of the manuscript at run
+// time. `S-235` is on it because `S-138` says 「描くときは、どの面でも `S-235` を
+// 掛ける」 (CR-397); the DISPLAY scale is not, by 表 T-252 の `DS-7`.
 //
 // ⚠️ AND IT IS A CONSTANT: 「⛔⛔ **この床を閲覧者の文字サイズに追随させてはならない
 // （MUST NOT）**」 (`HF-19`), so it does not move with `zoomY` the way the bands
@@ -82,7 +84,7 @@ const settingsTablePx = (id: string): number => {
 const ONE_CONTROL_TALL = settingsTablePx('S-138') + settingsTablePx('S-141') * 2
 
 /** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
-const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * 2
+const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
 
 // A whole DocumentSettings is 97 keys. A case states the ones it deliberately
 // pins -- values chosen to make the sums easy to check -- and every other key
