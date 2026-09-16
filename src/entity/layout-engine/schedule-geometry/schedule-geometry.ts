@@ -531,6 +531,19 @@ function corridorY(from: Anchored, to: Anchored, settings: DocumentSettings): nu
 }
 
 // see T-222
+// WHY: argued, NOT measured (JDG-138): an x of 1e9 px, a thousand years of days at the widest S-1 x S-236 x S-98,
+// has an ulp near 1.2e-7 px, so a few rounded terms stay under this, and no screen resolves a millionth of a pixel.
+const DRAWN_PX_ROUNDING = 1e-6
+
+// see T-222
+// TRAP: the spec's at-least is exact; this absorbs rounding only. A gap is a difference of two absolute edges, so once
+// S-236 makes a day non-dyadic an equal run falls short by an ulp and RP-1 turned into RP-4 (DFC-616).
+/** @purity pure */
+function isAtLeastDrawnPx(value: number, bound: number): boolean {
+  return value >= bound - DRAWN_PX_ROUNDING
+}
+
+// see T-222
 /** @purity pure */
 function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DocumentSettings): {
   readonly pattern: DependencyGeometry['pattern']
@@ -545,7 +558,7 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   if (sameSide(linkType)) {
     const x2 = to.edge + entryRun
     if (sameLane) {
-      const outward = Math.abs(x1 - x2) < exitRun ? x2 + exitRun : x1
+      const outward = isAtLeastDrawnPx(Math.abs(x1 - x2), exitRun) ? x1 : x2 + exitRun
       const corridor = corridorY(from, to, settings)
       return {
         pattern: 'RP-8',
@@ -572,10 +585,10 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   }
 
   const x2 = to.edge - entryRun
-  if (sameLane && to.edge - from.edge >= entryRun) {
+  if (sameLane && isAtLeastDrawnPx(to.edge - from.edge, entryRun)) {
     return { pattern: 'RP-1', points: [point(from.edge, from.middle), point(to.edge, to.middle)] }
   }
-  if (!sameLane && x2 >= x1) {
+  if (!sameLane && isAtLeastDrawnPx(x2, x1)) {
     const mid = Math.max(x1, Math.min((from.edge + to.edge) / 2, x2))
     return {
       pattern: below ? 'RP-2' : 'RP-3',
