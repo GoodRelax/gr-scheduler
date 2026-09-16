@@ -84,8 +84,11 @@ export function screenFrameFromRegions(
     width: rowArea.width,
     height: scrollbarThickness,
   }
+  // see FR-051
+  // TRAP: read the panel's left edge, not rowArea's right: canvasPadding lies between
+  // the two, and putting the bar at rowArea's edge leaves that gap against the panel.
   const verticalTrack: ScreenRect = {
-    x: rowArea.x + rowArea.width,
+    x: regions.propertiesPanel.x - scrollbarThickness,
     y: rowArea.y,
     width: scrollbarThickness,
     height: rowArea.height,

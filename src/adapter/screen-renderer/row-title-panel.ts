@@ -6,7 +6,10 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  drawnSettingsOf,
+  type ScreenRect,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './screen-renderer'
 
 interface PanelIndex {
@@ -50,8 +53,10 @@ function availableLabelWidthPx(depth: number, settings: DocumentSettings): numbe
   // STOP: spec does not decide the row controls' arrangement and behaviour. Looked in HF-1, FR-102
   // @provisional PND-397
   const roomForControlsPx = NOT_STORED_ROW_CONTROL_SIZES['S-140']
+  // see FR-029
   const roomForGrabStripPx =
-    NOT_STORED_ROW_GRAB_ROOM_SIZES['S-138'] + NOT_STORED_ROW_GRAB_ROOM_SIZES['S-218']
+    NOT_STORED_ROW_GRAB_ROOM_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235'] +
+    NOT_STORED_ROW_GRAB_ROOM_SIZES['S-218']
   const available =
     settings.rowTitlePanelWidth -
     depth * settings.rowTitleIndent -
@@ -275,10 +280,12 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
 /** @purity pure */
 export function rowTitlePanelFromSchedule(
   schedule: Schedule,
-  settings: DocumentSettings,
+  storedSettings: DocumentSettings,
   _selection: Selection,
   session: ScreenSession,
 ): RowTitlePanel {
+  // see FR-039, T-252
+  const settings = drawnSettingsOf(storedSettings)
   const index = panelIndexOf(schedule, session)
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
   const chosenGroupIds: ReadonlySet<string> = new Set(session.selectedGroupIds)
@@ -358,5 +365,12 @@ export const NOT_STORED_ROW_GRAB_ROOM_SIZES: {
 } = {
   'S-138': 16,
   'S-218': 4,
+}
+
+// see T-206
+export const NOT_STORED_CHROME_SCALE: {
+  readonly 'S-235': number
+} = {
+  'S-235': 0.6667,
 }
 // </generated>

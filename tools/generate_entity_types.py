@@ -1136,6 +1136,34 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
                                        SUBTRACTED_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⭐ THE PRODUCT'S OWN NOTCH, AND NOT A DOCUMENT'S. S-236 is the ratio the
+    # chart is drawn at when table T-202's S-234 reads 100, and FR-039 (MUST)
+    # builds the drawing ratio out of the two: S-234 / 100 * S-236. The DOCUMENT
+    # keeps S-234 and never this row, because this one is where the product's
+    # scale is set rather than one schedule's.
+    # ⛔ NOT WITH S-235 BELOW, although both read 0.6667 today. Table T-206's own
+    # rows for the pair forbid sharing (「`S-235` と兼ねてはならない」 / 「`S-236`
+    # と兼ねてはならない」): one is the chart's base and the other is the frame
+    # around it, and either may be chosen again on its own. One constant would
+    # be exactly the joined value those two notes refuse.
+    # ⭐ IT STANDS IN `screen-regions.ts`, the bottom of the layout engine, because
+    # every side that draws has to multiply table T-252's rows by it and that unit
+    # is the one they can all reach -- see the paragraph above its own entry below.
+    # ⛔ Each side multiplies the STORED settings once on its way in; none of them
+    # scales an already scaled value (FR-039 MUST NOT: 「導く元と導いた値の両方に
+    # … 掛けてはならない」).
+    'NOT_STORED_DISPLAY_SCALE_BASE': (['S-236'], READ_WHERE_IT_STANDS),
+    # ⭐ THE FRAME AROUND THE CHART, FIXED AT TWO THIRDS. S-235 is what FR-051
+    # and FR-053 (MUST) draw the `App Header` and the `Command Palette` at, and
+    # what FR-029 (MUST) multiplies an entrance's box (S-138) and gap (S-141) by
+    # ON EVERY SURFACE. ⛔ The display scale (S-234) is NOT applied to any of it
+    # -- DS-6 and DS-7 of table T-252 say so in as many words.
+    # ⭐⭐ IT IS WRITTEN INTO TWO UNITS, on the bargain S-225 / S-226 already
+    # stand on a few entries below: EP-1 of table T-076 (MUST) has the screen and
+    # the export read ONE row for the title's size and inset, and FR-051 (MUST)
+    # multiplies that same pair by this row -- so the export has to reach it too.
+    # ⛔ A second value in the exporter is what EP-1 (MUST NOT) forbids.
+    'NOT_STORED_CHROME_SCALE': (['S-235'], DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ THE SAME GAP, ON THE SIDE THAT DRAWS IT. S-218 stands twice because two
     # units read it and neither may import the other (Chapter 5.3): the Adapter
     # SUBTRACTS it before cutting the name and this unit LAYS it between the
@@ -1965,6 +1993,18 @@ TARGETS = [
     # label with the same gap and reads it from this unit's public entry -- it
     # imports this file already, so the edge runs the way LR-3 allows. A second
     # printing there is the copy PI-5's MUST NOT forbids.
+    # ⭐ THE DRAWING RATIO STANDS AT THE BOTTOM OF THE LAYOUT ENGINE, and the
+    # reason is the import graph rather than the subject. Every side that draws
+    # has to multiply table T-252's rows by it -- the regions, the layout, the
+    # geometry, the row title panel, the picture and the export -- and
+    # `screen-regions.ts` is the one unit of the engine they can all reach:
+    # it imports `document-settings.ts` alone, while `schedule-layout.ts`
+    # imports IT. ⛔ Putting the row in `schedule-layout.ts` would leave
+    # `regionsFromScreen` unable to scale S-79 and S-2 without the cycle LR-3
+    # forbids.
+    (os.path.join(LAYOUT, 'screen-regions', 'screen-regions.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DISPLAY_SCALE_BASE'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
@@ -2002,7 +2042,8 @@ TARGETS = [
     # the name never had and the browser's own ellipsis ate the difference.
     (os.path.join(ADAPTER, 'screen-renderer', 'row-title-panel.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_ROOM_SIZES'),
+     + not_stored_block('NOT_STORED_ROW_GRAB_ROOM_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The only generated region that lands in Framework, for the reason the
     # note on FRAMEWORK above gives: FR-029 (MUST) makes one box the authority
@@ -2053,6 +2094,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_CHROME_SCALE') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
@@ -2091,7 +2133,8 @@ TARGETS = [
     # forbids an export a constant of its own, because a second value lets
     # the title on the screen and the title in the picture stand apart.
     (os.path.join(ADAPTER, 'image-exporter', 'image-exporter.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means

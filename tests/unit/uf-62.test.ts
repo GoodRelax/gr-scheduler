@@ -187,6 +187,8 @@ const T_109_APP_HEADER_RUNS: readonly {
       'IC-13',
       'IC-14',
       'IC-15',
+      'IC-104',
+      'IC-105',
       'IC-16',
       'IC-17',
     ],
@@ -253,6 +255,8 @@ const T_109_APP_HEADER_ACTIONS = [
   'IC-13',
   'IC-14',
   'IC-15',
+  'IC-104',
+  'IC-105',
   'IC-19',
   'IC-22',
 ] as const

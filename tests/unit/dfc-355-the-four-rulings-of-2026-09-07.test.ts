@@ -196,7 +196,7 @@ const EP_1_ONE_ROW_FOR_SIZE_AND_INSET =
   'UST NOT） —— 詰めると帯より下の全部が上へずれる。`Document Title` の位置を動かしてはならない（MUST NOT）⭐ **字の大きさと左の余白は、画面と書き出しが同じ 1 つの行を読むこと（MUST）'
 
 const EP_1_NO_EXPORT_ONLY_CONSTANT =
-  'T）**—— `_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
+  'T）**—— `_assets/tbl-settings.md` の 表 T-206 の `S-225`（字の大きさ）と `S-226`（左の余白）である。⚠️ 画面も書き出しも、どちらにも同書の 表 T-206 の `S-235` を掛けて描く（`FR-051`）。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）'
 
 /**
  * ⚠️ RE-CUT 2026-09-11. The window used to open on EP-1's own dated
@@ -214,7 +214,7 @@ const EP_1_NO_EXPORT_ONLY_CONSTANT =
  * from the marker.
  */
 const EP_1_DOES_NOT_MEASURE_THE_DOM =
-  '（左の余白）である。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）** —— **別の値を持てば、本行の MUST NOT を守っているかを問えない。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
+  '（左の余白）である。⚠️ 画面も書き出しも、どちらにも同書の 表 T-206 の `S-235` を掛けて描く（`FR-051`）。⛔ **書き出し専用の定数を持ってはならない（MUST NOT）** —— **別の値を持てば、本行の MUST NOT を守っているかを問えない。**⛔ **DOM を直接測って揃えてはならない（MUST NOT）'
 
 // -- FR-060, the file that is not remembered -------------------------------
 
@@ -479,6 +479,7 @@ function settingsRowValue(rowId: string): number {
 
 const S_225_TITLE_FONT_PX = settingsRowValue('S-225')
 const S_226_TITLE_INSET_PX = settingsRowValue('S-226')
+const S_235_TWO_THIRDS = settingsRowValue('S-235')
 
 const TITLE = 'DFC-355 fixture title'
 
@@ -575,12 +576,14 @@ describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () =
     // the numbers the export writes are those rows unaltered.
     const drawn = titleText(pictureOrThrow(exportSvg(sceneWithBand(56))))
 
-    expect(drawn.fontSize, 'EP-1 (MUST): the size is S-225 of table T-206').toBe(
-      S_225_TITLE_FONT_PX,
-    )
-    expect(drawn.x, 'EP-1 (MUST): the left inset is S-226 of table T-206').toBe(
-      S_226_TITLE_INSET_PX,
-    )
+    expect(
+      drawn.fontSize,
+      'EP-1 (MUST): the size is S-225 of table T-206, which CR-395 now draws at S-235 two thirds on screen AND in the export',
+    ).toBeCloseTo(S_225_TITLE_FONT_PX * S_235_TWO_THIRDS, 3)
+    expect(
+      drawn.x,
+      'EP-1 (MUST): the left inset is S-226 of table T-206, drawn at that same S-235 two thirds',
+    ).toBeCloseTo(S_226_TITLE_INSET_PX * S_235_TWO_THIRDS, 3)
   })
 
   it('⛔ neither number moves when the band’s height does', () => {

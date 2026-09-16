@@ -21,7 +21,11 @@ import {
   type TaskVisual,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
-import type { ScreenRegions } from '../screen-regions/screen-regions'
+import {
+  displayRatioOf,
+  drawnSettingsOf,
+  type ScreenRegions,
+} from '../screen-regions/screen-regions'
 
 // see L-1
 export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
@@ -300,7 +304,7 @@ function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
   if (!laidBelow(shapeKind)) return 0
   return (
     labelFontSize(shapeKind, settings) * NOT_STORED_LABEL_SIZES['S-233'] +
-    NOT_STORED_LABEL_SIZES['S-196']
+    NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
   )
 }
 
@@ -639,12 +643,13 @@ function rowControlLatticeFloorPx(): number {
 /** @purity pure */
 export function layoutFromSchedule(
   schedule: Schedule,
-  settings: DocumentSettings,
+  storedSettings: DocumentSettings,
   regions: ScreenRegions,
   groupDepthCap?: number,
   isLevelZeroFolded?: boolean,
   rowControlsHeightPx?: number,
 ): ScheduleLayout {
+  const settings = drawnSettingsOf(storedSettings)
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
   const originDay = dayOf(settings.scrollDate)
   const originSerial = originDay === null ? 0 : serialOf(originDay)
@@ -878,7 +883,8 @@ export function layoutFromSchedule(
 
   return {
     pxPerDay,
-    tier: rulerTierOf(pxPerDay, settings),
+    // see FR-017
+    tier: rulerTierOf(pxPerDay, { ...settings, fontMin: storedSettings.fontMin }),
     originDay,
     originX,
     rectangleHeight: planHeightOf('rectangle', settings),

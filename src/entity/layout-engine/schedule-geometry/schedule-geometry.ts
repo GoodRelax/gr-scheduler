@@ -27,7 +27,12 @@ import {
   type ShapeKind,
   type TaskPlacement,
 } from '../schedule-layout/schedule-layout'
-import type { ScreenRect, ScreenRegions } from '../screen-regions/screen-regions'
+import {
+  displayRatioOf,
+  drawnSettingsOf,
+  type ScreenRect,
+  type ScreenRegions,
+} from '../screen-regions/screen-regions'
 
 export interface Point {
   readonly x: number
@@ -745,7 +750,9 @@ function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: n
   const shapeTop = middle - halfExtent
   // WHY: the font-size box sits on the centre of the counted height, so the baseline lands S-33 below it.
   const counted = height * NOT_STORED_LABEL_SIZES['S-233']
-  return shapeTop - NOT_STORED_LABEL_SIZES['S-196'] - counted / 2 - height / 2
+  // see DS-3
+  const lift = NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
+  return shapeTop - lift - counted / 2 - height / 2
 }
 
 // see GR-10, LC-6
@@ -1072,11 +1079,13 @@ function dualCursorGeometry(
 /** @purity pure */
 export function geometryFromLayout(
   schedule: Schedule,
-  settings: DocumentSettings,
+  storedSettings: DocumentSettings,
   layout: ScheduleLayout,
   regions: ScreenRegions,
   selection: Selection,
 ): ScheduleGeometry {
+  // see FR-039, T-252
+  const settings = drawnSettingsOf(storedSettings)
   const inputs: GeometryInputs = {
     settings,
     layout,

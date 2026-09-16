@@ -310,7 +310,7 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
   it('UN-7 covers exactly the 真偽 rows of 表 T-202, and 多値 rows are left to UN-13 and UN-12', () => {
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
-    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-58', 'S-65', 'S-66', 'S-70'])
+    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-234', 'S-58', 'S-65', 'S-66', 'S-70'])
   })
 })
 
@@ -430,6 +430,17 @@ const UN_13_CASES: readonly InsideCase[] = [
     key: 'fontScale',
     wanted: 'L',
     command: { kind: commandKindOf('CM-62'), scale: 'L' } as unknown as DocumentCommand,
+  },
+  {
+    commandRow: 'CM-74',
+    settingRow: 'S-234',
+    key: 'displayScale',
+    wanted: 100,
+    command: {
+      kind: commandKindOf('CM-74'),
+      scale: 100,
+      displayScale: 100,
+    } as unknown as DocumentCommand,
   },
 ]
 

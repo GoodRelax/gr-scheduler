@@ -5,7 +5,11 @@
 // @publishes table T-064 row PI-21
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  drawnSettingsOf,
+  type ScreenRect,
+  type ScreenRegions,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
 import { rowTitleFontPxOf, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
 import { colourOf } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
@@ -108,8 +112,10 @@ function appHeaderSvg(
 ): string {
   const ground = rectSvg(scaledRect(band, ratio), CHROME_GROUND)
   if (documentTitle === null || documentTitle === '') return ground
-  const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * ratio
-  const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226']) * ratio
+  // see FR-051, EP-1
+  const chrome = NOT_STORED_CHROME_SCALE['S-235']
+  const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome * ratio
+  const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
   const y = (band.y + band.height * settings.labelBaseline) * ratio
   return ground + textSvg(x, y, fontSizePx, documentTitle)
 }
@@ -160,11 +166,13 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const titles = screenView.rowTitlePanel.titles
   const panel = regions.rowTitlePanel
   const pinned = screenView.rowTitlePanel.pinnedTitles
+  // see FR-039, T-252
+  const drawn = drawnSettingsOf(settings)
   const drawnHere =
     appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, ratio) +
     rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
-    pinned.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
-    titles.map((title) => rowTitleSvg(title, panel, settings, ratio)).join('') +
+    pinned.map((title) => rowTitleSvg(title, panel, drawn, ratio)).join('') +
+    titles.map((title) => rowTitleSvg(title, panel, drawn, ratio)).join('') +
     dividerLinesSvg(screenView, settings, scene.themeHue, ratio)
 
   const width = settings.exportCanvas.width
@@ -220,5 +228,12 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
 } = {
   'S-225': 16,
   'S-226': 12,
+}
+
+// see T-206
+export const NOT_STORED_CHROME_SCALE: {
+  readonly 'S-235': number
+} = {
+  'S-235': 0.6667,
 }
 // </generated>

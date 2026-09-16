@@ -3,7 +3,10 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  DISPLAY_SCALE_STEPS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type {
@@ -29,6 +32,8 @@ const REDO_ENTRY: IconId = 'IC-6'
 const PLAN_DISPLAY_ENTRY: IconId = 'IC-8'
 const ACTUAL_DISPLAY_ENTRY: IconId = 'IC-9'
 const FULL_SCREEN_ENTRY: IconId = 'IC-11'
+const DISPLAY_SCALE_DOWN_ENTRY: IconId = 'IC-104'
+const DISPLAY_SCALE_UP_ENTRY: IconId = 'IC-105'
 const DOCUMENT_SETTINGS_ENTRY: IconId = 'IC-17'
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 const AGENT_API_ENTRY: IconId = 'IC-20'
@@ -82,6 +87,17 @@ function commandStateOf(
 
     case FULL_SCREEN_ENTRY:
       return { isEnabled: true, isPressed: state.fullScreen }
+
+    // see FR-029, FR-039
+    case DISPLAY_SCALE_DOWN_ENTRY:
+      return { isEnabled: settings.displayScale !== DISPLAY_SCALE_STEPS[0], isPressed: false }
+
+    case DISPLAY_SCALE_UP_ENTRY:
+      return {
+        isEnabled:
+          settings.displayScale !== DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1],
+        isPressed: false,
+      }
 
     case DOCUMENT_SETTINGS_ENTRY:
       return { isEnabled: true, isPressed: session.propertiesShowing === 'documentSettings' }

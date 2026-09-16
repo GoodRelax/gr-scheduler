@@ -1264,7 +1264,7 @@ describe('the tables these ten entrances are driven by', () => {
     expect(specTable('T-103').headings.length).toBe(3)
   })
 
-  it('table T-202 gives exactly eleven of its fifteen rows a boolean type (CR-386 added S-232 planDatesVisible, 真偽)', () => {
+  it('table T-202 gives exactly eleven of its sixteen rows a boolean type (CR-394 added S-234 displayScale, 多値)', () => {
     // FR-049 (MUST): the set the requirement names is this one, so a row added
     // or retyped upstream has to reach this file. `S-144` (`watermarkVisible`)
     // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
@@ -1273,8 +1273,12 @@ describe('the tables these ten entrances are driven by', () => {
     // accident. The four that are not booleans are S-58, S-65, S-66 and S-70;
     // ⭐ S-59 left the four on 2026-09-07 by splitting into the booleans S-227
     // and S-228 (the user's ruling).
+    // ⭐ S-234 (`displayScale`, CR-394) JOINED THE TABLE ON 2026-09-16 AND IS NOT
+    // A BOOLEAN: its type cell spells six percentages, so FR-049's MUST does not
+    // reach it and no entrance may treat it as a toggle. It takes the table
+    // 15 -> 16 and leaves the booleans at eleven.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
-    expect(T_202_KEYS.length).toBe(15)
+    expect(T_202_KEYS.length).toBe(16)
   })
 
   it('the multi-valued rows spell the values these cases drive', () => {

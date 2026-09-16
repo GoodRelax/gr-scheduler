@@ -413,6 +413,13 @@ export const SETTINGS_DERIVED = {
 } as const
 // </generated>
 
+// see S-234, FR-039
+// TRAP: the order is table T-202's own type column, and FR-039 (MUST NOT) forbids either
+// end wrapping round, so the ends are read from this list rather than counted modulo it.
+export const DISPLAY_SCALE_STEPS: readonly DocumentSettings['displayScale'][] = [
+  33, 50, 66, 75, 85, 100,
+]
+
 export interface ClampedValue {
   readonly key: string
   readonly was: number

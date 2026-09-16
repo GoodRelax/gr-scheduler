@@ -9,6 +9,7 @@ import {
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import { dayOf } from '../../entity/document-model/schedule/schedule'
+import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 
@@ -46,6 +47,7 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'setDualCursor'; readonly date1: string; readonly date2: string }
   | { readonly kind: 'clearDualCursor' }
   | { readonly kind: 'setFontScale'; readonly scale: 'S' | 'M' | 'L' }
+  | { readonly kind: 'setDisplayScale'; readonly scale: DocumentSettings['displayScale'] }
   | { readonly kind: 'setThemePreference'; readonly preference: 'light' | 'dark' }
   | { readonly kind: 'setThemeMonochrome'; readonly monochrome: boolean }
   | { readonly kind: 'setZoom'; readonly zoomX: number; readonly zoomY: number }
@@ -134,6 +136,10 @@ export function editDocumentSettings(
       })
     }
 
+    // see CM-74, FR-039
+    case 'setDisplayScale':
+      return put({ displayScale: command.scale })
+
     case 'setThemePreference':
       return put({ themePreference: command.preference })
 
@@ -169,9 +175,11 @@ export function editDocumentSettings(
       if (!(command.propertyPanelWidth >= 0)) {
         return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
       }
+      // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be
+      // scaled to meet it; S-80 is not scaled, because table T-252 does not name it.
       const rowArea =
         limits.rowAreaWidthWithoutPanels -
-        command.rowTitlePanelWidth -
+        command.rowTitlePanelWidth * displayRatioOf(settings) -
         command.propertyPanelWidth
       if (!(rowArea > 0)) {
         return refused([reject('CM-67', 'FR-052', 'the pair would leave the Row Area at or below zero')])

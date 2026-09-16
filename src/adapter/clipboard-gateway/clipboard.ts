@@ -4,10 +4,13 @@
 // @purity    n/a
 // @seam      Clipboard, implemented in another layer (LR-5)
 
+// see FR-025
+// TRAP: PNG bytes, never SVG text: FR-025 puts one image/png item on the board and
+// forbids the SVG text beside it, so a text-shaped picture arm cannot be honoured.
 export type ClipboardContent =
   | {
       readonly kind: 'picture'
-      readonly svg: string
+      readonly pngBytes: Uint8Array
     }
   | {
       readonly kind: 'document'

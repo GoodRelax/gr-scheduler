@@ -128,6 +128,7 @@ import {
   commandFromFieldCommit,
   commandFromInput,
   pressRowOf,
+  rowBandCeilingOf,
   screenStateFromInput,
   selectionFromInput,
   NOT_STORED_ZOOM_STEP,
@@ -2199,9 +2200,11 @@ export function frameLoop(
       rowAreaWidthWithoutPanels:
         frame === null
           ? 0
-          : frame.regions.rowArea.width +
-            frame.settingsMeasuredWith.rowTitlePanelWidth +
-            frame.settingsMeasuredWith.propertyPanelWidth,
+          // TRAP: the DRAWN panel widths, as the regions are: FR-039 scales S-79 on the way
+        // into a drawing, so a stored width here would not add back up to the canvas.
+        : frame.regions.rowArea.width +
+            frame.regions.rowTitlePanel.width +
+            frame.regions.propertiesPanel.width,
     }
   }
 
@@ -2429,13 +2432,58 @@ export function frameLoop(
 
   let didSettleFieldEntry = false
 
+  // see FR-016
+  // TRAP: keyed on everything the band is solved from except zoomY itself, so a burst of
+  // row-axis notches reuses one answer; a both-axis zoom moves zoomX and solves again.
+  let bandCeilingFrom: {
+    readonly schedule: Document['schedule']
+    readonly widthPx: number
+    readonly heightPx: number
+    readonly zoomX: number
+    readonly isLevelZeroFolded: boolean
+    readonly rowControlsHeightPx: number | undefined
+    readonly ceiling: number
+  } | null = null
+
+  /** @purity semi-pure-b */
+  function bandCeilingFor(frame: FrameValues, context: InputContext): number {
+    const held = bandCeilingFrom
+    const schedule = context.document.schedule
+    const widthPx = frame.regions.rowArea.width
+    const heightPx = frame.regions.rowArea.height
+    const zoomX = frame.settingsMeasuredWith.zoomX
+    if (
+      held !== null &&
+      held.schedule === schedule &&
+      held.widthPx === widthPx &&
+      held.heightPx === heightPx &&
+      held.zoomX === zoomX &&
+      held.isLevelZeroFolded === isLevelZeroFolded &&
+      held.rowControlsHeightPx === environment.rowControlsHeightPx
+    ) {
+      return held.ceiling
+    }
+    const ceiling = rowBandCeilingOf(context)
+    bandCeilingFrom = {
+      schedule,
+      widthPx,
+      heightPx,
+      zoomX,
+      isLevelZeroFolded,
+      rowControlsHeightPx: environment.rowControlsHeightPx,
+      ceiling,
+    }
+    return ceiling
+  }
+
   /** @purity semi-pure-b */
   function collectInputContext(
     frame: FrameValues,
     isNoticeStanding: boolean = raisedNotices.length > 0,
+    wantsBandCeiling = false,
   ): InputContext {
     const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
-    return {
+    const withoutCeiling: InputContext = {
       document: held.document,
       layout: frame.layout,
       geometry: frame.geometry,
@@ -2463,6 +2511,8 @@ export function frameLoop(
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
+    if (!wantsBandCeiling) return withoutCeiling
+    return { ...withoutCeiling, rowBandCeiling: bandCeilingFor(frame, withoutCeiling) }
   }
 
   // see WS-2, AG-9
@@ -3229,24 +3279,35 @@ export function frameLoop(
       case 'copyPictureToClipboard': {
         const seam = clipboard
         if (seam === undefined) return
+        const paint = rasterizer
+        if (paint === undefined) {
+          raiseNotice(SEAM_ABSENT_REASON, null)
+          return
+        }
         const scene = exportScene()
         const capStopInPicture = stackSafetyCapOfLastExportScene
         if (scene === null) return
-        // TRAP: send exportSvg's answer, not scene.svg; FR-025 needs the same picture as the download.
-        const picture = exportSvg(scene)
-        if (!picture.ok) {
-          raiseNotice(HEIGHT_CEILING_REASON, null)
-          return
-        }
-        void writeClipboard(seam, { kind: 'picture', svg: picture.svg }).then(
-          (writing) => {
-            if (!writing.ok) {
-              raiseNotice('RS-15', null)
-              return
-            }
-            if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
-          },
-        )
+        // TRAP: the same PNG road as IO-4, not exportSvg; FR-025 puts one image/png on the
+        // board and forbids the SVG text beside it.
+        void exportPng(paint, scene).then(async (painted) => {
+          if (!painted.ok) {
+            raiseNotice(HEIGHT_CEILING_REASON, null)
+            return
+          }
+          if (!painted.png.ok) {
+            raiseNotice(NOTICE_REASON_OF_RASTER_FAULT[painted.png.fault.reason], null)
+            return
+          }
+          const writing = await writeClipboard(seam, {
+            kind: 'picture',
+            pngBytes: painted.png.pngBytes,
+          })
+          if (!writing.ok) {
+            raiseNotice('RS-15', null)
+            return
+          }
+          if (capStopInPicture !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
+        })
         return
       }
       case 'reopenDocumentFile': {

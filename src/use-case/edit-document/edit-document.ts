@@ -212,6 +212,7 @@ const SETTINGS_KINDS = [
   'setDualCursor',
   'clearDualCursor',
   'setFontScale',
+  'setDisplayScale',
   'setThemePreference',
   'setThemeMonochrome',
   'setZoom',

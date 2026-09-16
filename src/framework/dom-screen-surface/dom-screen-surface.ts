@@ -143,11 +143,17 @@ function stateGround(paint: string, depthRow: 'S-214' | 'S-215'): string {
   return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthRow]}%, transparent)`
 }
 
+// see FR-029, FR-051, FR-053
+/** @purity pure */
+function chromeScaledPx(px: number): number {
+  return px * NOT_STORED_CHROME_SCALE['S-235']
+}
+
 // see FR-029
 /** @purity pure */
 function entryGlyphRoom(): string {
-  const side = NOT_STORED_ICON_SIZES['S-138']
-  const gap = NOT_STORED_ICON_SIZES['S-141']
+  const side = chromeScaledPx(NOT_STORED_ICON_SIZES['S-138'])
+  const gap = chromeScaledPx(NOT_STORED_ICON_SIZES['S-141'])
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
     `padding:0 ${gap}px;` +
@@ -423,7 +429,7 @@ const STYLE = {
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
     `overflow:hidden;white-space:nowrap;background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
-  rowLabel: 'flex:1;overflow:hidden;text-overflow:ellipsis;',
+  rowLabel: 'flex:1;overflow:hidden;',
   // TRAP: in the flex flow each control would take room from the name, so the browser's
   // ellipsis cuts it while isLabelTruncated stays false and no tooltip is raised (FR-085).
   // TRAP: a `top` here moves the controls off the top of the name (HF-5).
@@ -511,7 +517,7 @@ const STYLE = {
 // see FR-029
 /** @purity pure */
 function glyphStyle(): string {
-  const side = NOT_STORED_ICON_SIZES['S-138']
+  const side = chromeScaledPx(NOT_STORED_ICON_SIZES['S-138'])
   return (
     'display:inline-block;vertical-align:middle;' +
     `width:${side}px;height:${side}px;pointer-events:none;`
@@ -2909,6 +2915,13 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
 } = {
   'S-225': 16,
   'S-226': 12,
+}
+
+// see T-206
+export const NOT_STORED_CHROME_SCALE: {
+  readonly 'S-235': number
+} = {
+  'S-235': 0.6667,
 }
 
 // see T-236, S-73

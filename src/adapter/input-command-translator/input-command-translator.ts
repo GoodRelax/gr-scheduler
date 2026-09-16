@@ -61,10 +61,15 @@ import {
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  displayRatioOf,
   regionAtPointer,
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  DISPLAY_SCALE_STEPS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_ROW_NAME,
   rowTitleFontPxOf,
@@ -126,6 +131,10 @@ export interface InputContext {
   readonly zoomMax: number
   readonly isPictureAtStoredZoom?: boolean
   readonly rowControlsHeightPx?: number
+  // see FR-016
+  // TRAP: the greatest zoomY whose band still fits, worked out once by the caller and
+  // handed back; absent, zoomYWithinBand solves it again on every notch (DFC-610).
+  readonly rowBandCeiling?: number
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
@@ -722,6 +731,8 @@ const ENTRY = {
   zoomTimeIn: 'IC-13',
   zoomRowOut: 'IC-14',
   zoomRowIn: 'IC-15',
+  displayScaleDown: 'IC-104',
+  displayScaleUp: 'IC-105',
   themePreference: 'IC-16',
   documentSettingsProperties: 'IC-17',
   agentApi: 'IC-20',
@@ -817,6 +828,73 @@ const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
 function nextFontScale(current: FontScale): FontScale {
   const at = FONT_SCALE_STEPS.indexOf(current)
   return FONT_SCALE_STEPS[(at + 1) % FONT_SCALE_STEPS.length] as FontScale
+}
+
+// see FR-039, S-234
+// TRAP: clamped at both ends and never wrapped; the lowest step answers itself, and so
+// does the highest, because a press that turned round would reach the opposite extreme.
+/** @purity pure */
+function steppedDisplayScale(
+  current: DocumentSettings['displayScale'],
+  towards: 1 | -1,
+): DocumentSettings['displayScale'] {
+  const at = DISPLAY_SCALE_STEPS.indexOf(current)
+  if (at < 0) return current
+  return DISPLAY_SCALE_STEPS[at + towards] ?? current
+}
+
+// see FR-039
+// TRAP: the middle of the Row Area as it stands BEFORE the press; the day's width and the
+// row's height both move with the ratio, so neither the left nor the top edge holds still.
+/** @purity pure */
+function displayScaleWrites(
+  context: InputContext,
+  next: DocumentSettings['displayScale'],
+): readonly DocumentCommand[] {
+  const settings = context.document.documentSettings
+  if (next === settings.displayScale) return []
+  const scale: DocumentCommand = { kind: 'setDisplayScale', scale: next }
+  const before = displayRatioOf(settings)
+  const after = displayRatioOf({ ...settings, displayScale: next })
+  if (!(before > 0) || !(after > 0)) return [scale]
+  const area = context.regions.rowArea
+  const centreX = area.x + area.width / 2
+  const centreY = area.y + area.height / 2
+  const seat = scrolledAnchor(context, 0, 0)
+  const day = dayAnchorAt(context, centreX - (centreX - area.x) / (after / before))
+  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
+  // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
+  const afterRows = rowPlacesAtZoomY(
+    context.document.schedule,
+    {
+      ...settings,
+      displayScale: next,
+      scrollDate: seat.scrollDate,
+      scrollDayOffset: seat.scrollDayOffset,
+      scrollGroupId: seat.scrollGroupId,
+      scrollGroupOffset: seat.scrollGroupOffset,
+    },
+    context.regions,
+    zoomOnScreen(context).y,
+    context.isLevelZeroFolded,
+    context.rowControlsHeightPx,
+  ).filter((row) => row.isPinned !== true)
+  const landed = rowPointIn(afterRows, held)
+  const topEdge = topEdgeIn(afterRows, seat)
+  const row =
+    landed === null || topEdge === null
+      ? null
+      : rowAnchorIn(afterRows, topEdge + (landed - centreY), seat)
+  return [
+    scale,
+    {
+      kind: 'setScrollPosition',
+      scrollDate: day.scrollDate,
+      scrollDayOffset: day.scrollDayOffset,
+      scrollGroupId: (row ?? seat).scrollGroupId,
+      scrollGroupOffset: (row ?? seat).scrollGroupOffset,
+    },
+  ]
 }
 
 // TRAP: Armed types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
@@ -1609,6 +1687,21 @@ function commandFromEntry(
       const isDarkNow = context.document.documentSettings.themePreference === 'dark'
       return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
     }
+    // see FR-039, CM-74
+    case ENTRY.displayScaleDown:
+      return changed(
+        displayScaleWrites(
+          context,
+          steppedDisplayScale(context.document.documentSettings.displayScale, -1),
+        ),
+      )
+    case ENTRY.displayScaleUp:
+      return changed(
+        displayScaleWrites(
+          context,
+          steppedDisplayScale(context.document.documentSettings.displayScale, 1),
+        ),
+      )
     case ENTRY.fontScale:
       return changed([
         {
@@ -1800,9 +1893,10 @@ function commandFromPanelDivider(
   return changed([
     {
       kind: 'setPanelWidths',
+      // see FR-039
       rowTitlePanelWidth:
         panel === 'rowTitlePanel'
-          ? settings.rowTitlePanelWidth + travelled
+          ? settings.rowTitlePanelWidth + travelled / displayRatioOf(settings)
           : settings.rowTitlePanelWidth,
       propertyPanelWidth:
         panel === 'propertiesPanel'
@@ -3169,6 +3263,13 @@ const BAND_CEILING_RELATIVE_TOLERANCE = 1e-6
 function zoomYWithinBand(context: InputContext, wanted: number): number {
   const height = context.regions.rowArea.height
   if (!(height > 0) || !Number.isFinite(wanted)) return wanted
+  // see FR-016
+  // TRAP: solved to a tighter precision than the search below, so a remembered ceiling
+  // lands inside that search's own tolerance instead of moving where the zoom stops.
+  const remembered = context.rowBandCeiling
+  if (remembered !== undefined && Number.isFinite(remembered)) {
+    return Math.min(wanted, remembered)
+  }
   const drawn = zoomOnScreen(context).y
   const drawnFits = tallestBandOf(context.layout.rows) <= height
   if (wanted <= drawn && drawnFits) return wanted
@@ -3178,6 +3279,32 @@ function zoomYWithinBand(context: InputContext, wanted: number): number {
   let over = wanted
   for (let step = 0; step < BAND_CEILING_HALVINGS; step++) {
     if (over - fits <= over * BAND_CEILING_RELATIVE_TOLERANCE) break
+    const middle = (fits + over) / 2
+    if (middle <= fits || middle >= over) break
+    if (tallestBandAtZoomY(context, middle) <= height) fits = middle
+    else over = middle
+  }
+  return fits
+}
+
+const BAND_CEILING_SOLVE_HALVINGS = 80
+const BAND_CEILING_SOLVE_PRECISION = 1e-7
+
+// see FR-016, OC-10, PI-5
+// WHY: solved once for a whole burst of notches, not per notch: the band is not linear
+// in zoomY, so every probe lays the schedule out, and DFC-610 measured that cost.
+/** @purity pure */
+export function rowBandCeilingOf(context: InputContext): number {
+  const height = context.regions.rowArea.height
+  if (!(height > 0)) return context.zoomMax
+  if (tallestBandAtZoomY(context, context.zoomMax) <= height) return context.zoomMax
+  // TRAP: answer the floor, not zero: zoomYWithinBand's own reading of a band that never
+  // fits is zoomMin, and Math.min against it has to give the same.
+  if (tallestBandAtZoomY(context, context.zoomMin) > height) return context.zoomMin
+  let fits = context.zoomMin
+  let over = context.zoomMax
+  for (let step = 0; step < BAND_CEILING_SOLVE_HALVINGS; step++) {
+    if (over - fits <= fits * BAND_CEILING_SOLVE_PRECISION) break
     const middle = (fits + over) / 2
     if (middle <= fits || middle >= over) break
     if (tallestBandAtZoomY(context, middle) <= height) fits = middle

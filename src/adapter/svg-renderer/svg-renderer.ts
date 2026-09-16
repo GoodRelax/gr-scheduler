@@ -25,7 +25,11 @@ import {
   xFromDay,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  drawnSettingsOf,
+  type ScreenRect,
+  type ScreenRegions,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
 
 export type { SvgSurface } from './svg-surface'
 
@@ -558,7 +562,7 @@ function watermarkSvg(
 /** @purity pure */
 export function svgFromSchedule(
   schedule: Schedule,
-  settings: DocumentSettings,
+  storedSettings: DocumentSettings,
   layout: ScheduleLayout,
   geometry: ScheduleGeometry,
   regions: ScreenRegions,
@@ -573,6 +577,7 @@ export function svgFromSchedule(
   watermark: Watermark | null = null,
   tentativeLink: ScheduleGeometry['dependencies'][number] | null = null,
 ): string {
+  const settings = drawnSettingsOf(storedSettings)
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
   const dark = isDarkTheme(settings)

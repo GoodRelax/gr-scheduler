@@ -76,7 +76,10 @@ const T_013_NO_LABEL_OVER_THE_MARKER =
   '中に書くときは、その位置を名称ラベルの箱の左端とすること（MUST） —— 名称ラベルの左に状態の記号が来る並びは、形状の外へ出したときの 表 T-243 の `OR-1` と同じである。⛔ マーカーの上に名称ラベルを重ねてはならない（MUST NOT）'
 
 const T_013_COUNTED_IN_THE_BASE_COMBINATION =
-  'ならない（MUST NOT） —— 状態の記号も名前も読めなくなる。⭐ マーカーの位置は、いまの表示の組（同書の 表 T-202 の `S-63` / `S-227` / `S-228`）によらず、基準の組で立つ位置で数えること（MUST）'
+  'ならない（MUST NOT） —— 状態の記号も名前も読めなくなる。⭐ マーカーの位置は、いまの予実の表示の組（同書の 表 T-202 の `S-227` / `S-228`）によらず、基準の組で立つ位置で数えること（MUST）'
+
+const T_013_HIDDEN_MARKER_IS_NOT_COUNTED =
+  '⭐ ただし進捗マーカーを隠しているとき（同表の `S-63` が偽）は、本段のマーカーを数えないこと（MUST）'
 
 const T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT =
   '形状の中に書いたラベルには重ならない —— そのラベルは形状の右端より左で終わる。⚠️ フェードを持つ形状では、箱の左端は `fadeIn` が終わる位置と、マーカーの右端に `S-32` を足した位置の、右にあるほうとすること（MUST）'
@@ -103,25 +106,28 @@ const FR_049_THE_ACCIDENT_IS_NAME_OCCUPANCY_AND_BAND =
   '⛔ 隠したものを占有から外してはならない（MUST NOT） —— 外すと、予定だけ・実績だけの表示に切り替えるたびに名称ラベルの位置と、`OC-1` を経た占有幅と、行の帯高が動き、段が組み替わる。⚠️ 進捗マーカーを描く位置は本段の対象ではない —— 表示の組で決めるのは `FR-013` であり、予定だけの表示ではマーカーは予定バーの右端の外側へ移る。'
 
 const T_243_SAME_LEFT_EDGE_WHETHER_DRAWN =
-  'と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）'
+  'と `OC-4` を描かないときも、描いたときと同じ位置とすること（MUST）'
 
 const T_243_COUNTED_WHERE_DRAWN =
-  '` と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）。`OC-3` / `OC-4` を描かないときも、描いたときに立つ位置で数えること（MUST）'
+  '` と `OC-4` を描かないときも、描いたときと同じ位置とすること（MUST）。予実の表示の切り替えで `OC-3` / `OC-4` を描かないときも、描いたときに立つ位置で数えること（MUST）'
 
 const T_243_NOT_ONLY_WHEN_DRAWN =
-  'OC-3` と `OC-4` を実際に描いたかどうかによらず、同じ位置とすること（MUST）。`OC-3` / `OC-4` を描かないときも、描いたときに立つ位置で数えること（MUST）。描いたときだけ数えてはならない（MUST NOT）'
+  'OC-3` と `OC-4` を描かないときも、描いたときと同じ位置とすること（MUST）。予実の表示の切り替えで `OC-3` / `OC-4` を描かないときも、描いたときに立つ位置で数えること（MUST）。描いたときだけ数えてはならない（MUST NOT）'
 
 const T_243_LABEL_LEFT_EDGE =
-  'の `S-63` がマーカーと再開アイコンの両方を持つ。⭐ 名称ラベルの左端は、形状の右端と、次の ① ② に立つ進捗マーカーの右端のうち、いちばん右にあるものに 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
+  '⭐ `S-63` が真のとき、名称ラベルの左端は、形状の右端と、次の ① ② に立つ進捗マーカーの右端のうち、いちばん右にあるものに 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
+
+const T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT =
+  '⭐ `S-63` が偽のとき（マーカーと再開アイコンを隠しているとき）は、下の ① ② を数えず、名称ラベルの左端を形状の右端に 同書の 表 T-201 の `S-32` を足した位置とすること（MUST）'
 
 const T_243_HIDDEN_SHAPE_KEEPS_ITS_EDGE =
   '1 回だけ数える（規則は 表 T-013 の後の段が持ち、形状の中と同じ数え方である）。⭐ ここでいう形状の右端は、予定・実績・ダミーを表示の切り替え（表 T-202 の `S-227` / `S-228`）で隠しているときも、描いたときの占有で数えること（MUST）'
 
 const T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN =
-  '隠しているときも、描いたときの占有で数えること（MUST）。⭐ `S-63` / `S-227` / `S-228` のどの組でも、マーカーが立つ位置は ① か ② のどちらかであるので、この 2 つを表示の組によらず数えること（MUST）'
+  '隠しているときも、描いたときの占有で数えること（MUST）。⭐ `S-63` が真のとき、`S-227` / `S-228` のどの組でも、マーカーが立つ位置は ① か ② のどちらかであるので、この 2 つを予実の表示の組によらず数えること（MUST）'
 
 const T_243_NOT_BY_MARKER_1_ALONE =
-  'ちらかであるので、この 2 つを表示の組によらず数えること（MUST） —— 数え方が表示の切り替えに依らないので、名称ラベルも行の帯高も動かず、どの組でもマーカーが名称ラベルに重ならない。⛔ ① だけで数えてはならない（MUST NOT）'
+  'ちらかであるので、この 2 つを予実の表示の組によらず数えること（MUST） —— 数え方が予実の表示の切り替えに依らないので、名称ラベルも行の帯高も動かず、どの組でもマーカーが名称ラベルに重ならない。⛔ ① だけで数えてはならない（MUST NOT）'
 
 const T_243_NO_OTHER_ROOM =
   'けの表示で ② へ移ったマーカー（予定の右端から `S-23` 離れて `S-22` の幅を取る）に重なる（`OR-1` の MUST NOT）。⛔ ① と ② のほかに、マーカーのための場所を形状の外に空けてはならない（MUST NOT）'
@@ -130,7 +136,7 @@ const T_243_NO_NEW_SETTING =
   '） —— ① が形状の中に立つときに ① のぶんを足したり、マーカーと再開アイコンの幅を一定の量として足したりすると、名称ラベルが形状から離れて立ち、どのタスクの名前かが読みにくくなる。⭐ 新しい設定値を立ててはならない（MUST NOT）'
 
 const T_243_NO_ROOM_FOR_A_DATED_RESUME_ICON =
-  'ない。⇒ `OC-3` / `OC-4` の MUST NOT が守っているものは、1 文字も変わらない。⛔ 再開アイコンが 表 T-221 の `LF-11` の日付位置に立つときは、本並びの中に場所を空けてはならない（MUST NOT）'
+  '⇒ `OC-3` / `OC-4` の MUST NOT は 1 文字も変わらない —— `S-63` の切り替えで動くのは、上の段が定める名称ラベルの左端だけである。⛔ 再開アイコンが 表 T-221 の `LF-11` の日付位置に立つときは、本並びの中に場所を空けてはならない（MUST NOT）'
 
 const T_243_PA_4_COUNTS_THE_ICON =
   'e` を持たないとき（表 T-019 の `PA-4`）だけは、`LF-11` がアイコンをマーカーの右端から `S-23` 離して並びの中に立てるので、① と ② のどちらでも、マーカーの右端に代えてアイコンの右端で数えること（MUST）'
@@ -187,7 +193,9 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-243 (MUST) -- the same left edge whether OC-3 / OC-4 are drawn', T_243_SAME_LEFT_EDGE_WHETHER_DRAWN],
   ['T-243 (MUST) -- counted where they stand when drawn', T_243_COUNTED_WHERE_DRAWN],
   ['T-243 (MUST NOT) -- not counted only while drawn', T_243_NOT_ONLY_WHEN_DRAWN],
-  ['T-243 (MUST) -- the name starts S-32 past the rightmost of shape, (1) and (2)', T_243_LABEL_LEFT_EDGE],
+  ['T-243 (MUST) -- with S-63 true, the name starts S-32 past the rightmost of shape, (1) and (2)', T_243_LABEL_LEFT_EDGE],
+  ['T-243 (MUST) -- with S-63 false, the name starts S-32 past the shape right edge alone', T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT],
+  ['T-013 (MUST) -- with S-63 false, the marker is not counted for the width either', T_013_HIDDEN_MARKER_IS_NOT_COUNTED],
   ['T-243 (MUST) -- a hidden plan or actual keeps its right edge', T_243_HIDDEN_SHAPE_KEEPS_ITS_EDGE],
   ['T-243 (MUST) -- (1) and (2) are both counted whatever is shown', T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN],
   ['T-243 (MUST NOT) -- not by (1) alone', T_243_NOT_BY_MARKER_1_ALONE],
@@ -704,7 +712,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
     ['name written inside', NAME_INSIDE],
   ] as const
 
-  it.each(EVERY_TASK)('%s: no S-63 / S-227 / S-228 combination moves the name, the occupancy or the band (MUST, MUST NOT)', (_row, task) => {
+  it.each(EVERY_TASK)('%s: no S-227 / S-228 combination moves the name, the occupancy or the band (MUST, MUST NOT)', (_row, task) => {
     const shown = sceneOf(task)
     const readingOf = (scene: ReturnType<typeof sceneOf>) => ({
       labelPlacement: scene.placed.labelPlacement,
@@ -713,10 +721,34 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
       stack: scene.placed.stack,
       band: scene.layout.rows[0]!.height,
     })
-    for (const showing of EVERY_SHOWING) {
+    for (const showing of EVERY_SHOWING.filter((one) => one.marks)) {
       const tag = `${JSON.stringify(showing)} ${T_013_COUNTED_IN_THE_BASE_COMBINATION}`
       expect({ tag, ...readingOf(sceneOf(task, showing)) }).toEqual({ tag, ...readingOf(shown) })
     }
+  })
+
+  it.each(PAST_THE_PLAN)('%s: hiding the marker (S-63 false) moves the name left to the shape right + S-32 (MUST)', (_row, task) => {
+    const withMarker = sceneOf(task)
+    const hidden = sceneOf(task, { marks: false, plan: true, actual: true })
+    expect(withMarker.placed.labelPlacement, 'premise: this task writes its name outside the shape').toBe('right')
+    expect(
+      hidden.placed.labelX,
+      T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT,
+    ).toBeCloseTo(shapeRightOf(hidden.placed) + S_32, 6)
+    expect(
+      withMarker.placed.labelX - hidden.placed.labelX,
+      `${T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT} -- the name moves left by exactly the room the marker took`,
+    ).toBeGreaterThan(0)
+  })
+
+  it('hiding the marker also takes it out of the width T-013 measures inside the shape (MUST)', () => {
+    const withMarker = sceneOf(NAME_INSIDE)
+    const hidden = sceneOf(NAME_INSIDE, { marks: false, plan: true, actual: true })
+    expect(withMarker.placed.labelPlacement, 'premise: the short name is written inside').toBe('inside')
+    expect(hidden.placed.labelPlacement, T_013_HIDDEN_MARKER_IS_NOT_COUNTED).toBe('inside')
+    expect(hidden.drawn!.label!.x, T_013_HIDDEN_MARKER_IS_NOT_COUNTED).toBeLessThan(
+      withMarker.drawn!.label!.x,
+    )
   })
 
   it.each(EVERY_TASK)('%s: in no combination does the drawn name lie over the drawn marker (MUST NOT)', (_row, task) => {
