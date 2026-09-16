@@ -1113,10 +1113,12 @@ function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): numb
   return Math.min(deepest, settings.maxGroupDepth)
 }
 
-// see FR-016
+// see FR-016, FR-055, T-068
+// TRAP: a bound that is not finite is no bound; clamping on one answers NaN and T-068 misses.
 /** @purity pure */
 function clampedZoom(value: number, zoom: NotStoredZoom): number {
-  return Math.min(zoom.max, Math.max(zoom.min, value))
+  const lifted = Number.isFinite(zoom.min) ? Math.max(zoom.min, value) : value
+  return Number.isFinite(zoom.max) ? Math.min(zoom.max, lifted) : lifted
 }
 
 // see FR-055
