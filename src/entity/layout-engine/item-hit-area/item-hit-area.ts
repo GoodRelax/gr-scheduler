@@ -128,6 +128,44 @@ function isOnPolyline(x: number, y: number, points: Path, slop: number): boolean
   return false
 }
 
+/** @purity pure */
+function isInsideOutline(x: number, y: number, points: Path): boolean {
+  let inside = false
+  for (let index = 0, back = points.length - 1; index < points.length; back = index, index += 1) {
+    const a = points[index]!
+    const b = points[back]!
+    if (distanceToSegment(x, y, a, b) === 0) return true
+    const crosses = (a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x
+    if (crosses) inside = !inside
+  }
+  return inside
+}
+
+// see S-18, S-178, GR-13
+// TRAP: butt ends and square joins, not a distance: a round end reaches past the Task edge the line meets.
+/** @purity pure */
+function isOnTheStroke(x: number, y: number, points: Path, half: number): boolean {
+  const last = points.length - 1
+  for (let index = 1; index <= last; index += 1) {
+    const from = points[index - 1]!
+    const to = points[index]!
+    const length = Math.hypot(to.x - from.x, to.y - from.y)
+    if (length === 0) continue
+    const along = ((x - from.x) * (to.x - from.x) + (y - from.y) * (to.y - from.y)) / length
+    const across = Math.abs((x - from.x) * (to.y - from.y) - (y - from.y) * (to.x - from.x)) / length
+    const before = index === 1 ? 0 : half
+    const after = index === last ? 0 : half
+    if (across <= half && along >= -before && along <= length + after) return true
+  }
+  return false
+}
+
+/** @purity pure */
+function isOnTheDrawnLine(line: ScheduleGeometry['dependencies'][number], x: number, y: number): boolean {
+  if (isInsideOutline(x, y, line.head ?? [])) return true
+  return isOnTheStroke(x, y, line.points, (line.strokeWidth ?? 0) / 2)
+}
+
 type BoxedTask = {
   readonly task: TaskGeometry
   readonly plan: ScreenRect | null
@@ -141,6 +179,44 @@ function boxedTasksOf(geometry: ScheduleGeometry): readonly BoxedTask[] {
     plan: boxOfBar(task.plan),
     actual: boxOfBar(task.actual),
   }))
+}
+
+// see GR-13, T-012
+// WHY: not boxOfBar: GR-3 and GR-4 measure from that box's ends, and a span's dots are drawn past them.
+/** @purity pure */
+function drawnBoxOfBar(bar: BarGeometry): ScreenRect | null {
+  if (bar.form === 'outline') return boxOfPath(bar.points)
+  const half = bar.strokeWidth / 2
+  let box = boxOfPath([
+    { x: bar.from.x, y: bar.from.y - half },
+    { x: bar.to.x, y: bar.to.y + half },
+    ...(bar.head ?? []),
+  ])
+  for (const dot of bar.dots) {
+    const side = dot.radius * 2
+    box = merged(box, { x: dot.at.x - dot.radius, y: dot.at.y - dot.radius, width: side, height: side })
+  }
+  return box
+}
+
+/** @purity pure */
+function isInsideTheFigure(bar: BarGeometry | null, x: number, y: number): boolean {
+  return bar !== null && bar.form === 'outline' && isInsideOutline(x, y, bar.points)
+}
+
+// see GR-13, SH-5
+// WHY: one box round the plan and the actual, not one per bar: the gap between an SH-3 plan line and its actual is the shape.
+/** @purity pure */
+function isOnTheDrawnShape(task: TaskGeometry, x: number, y: number): boolean {
+  if (task.shapeKind === 'milestone') return isInsideTheFigure(task.plan, x, y) || isInsideTheFigure(task.actual, x, y)
+  const plan = task.plan === null ? null : drawnBoxOfBar(task.plan)
+  const range = merged(plan, task.actual === null ? null : drawnBoxOfBar(task.actual))
+  return range !== null && isInsideBoxInclusive(x, y, range)
+}
+
+/** @purity pure */
+function isOnADrawnShape(geometry: ScheduleGeometry, x: number, y: number): boolean {
+  return geometry.tasks.some((task) => isOnTheDrawnShape(task, x, y))
 }
 
 type RowReach = 'anyPress' | 'doubleClickOnly'
@@ -223,8 +299,12 @@ const TABLE_T_023D: readonly HitRow[] = [
     reach: 'anyPress',
     /** @purity pure */
     claim: ({ geometry }, x, y, slop) => {
+      const isOnAShape = geometry.dependencies.length > 0 && isOnADrawnShape(geometry, x, y)
       for (const line of geometry.dependencies) {
-        if (isOnPolyline(x, y, line.points, slop.line)) {
+        const isOnLine = isOnAShape
+          ? isOnTheDrawnLine(line, x, y)
+          : isOnPolyline(x, y, line.points, slop.line)
+        if (isOnLine) {
           return {
             item: {
               kind: 'dependency',

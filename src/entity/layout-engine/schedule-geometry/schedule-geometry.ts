@@ -112,6 +112,10 @@ export interface DependencyGeometry {
   readonly linkType: number
   readonly pattern: 'RP-1' | 'RP-2' | 'RP-3' | 'RP-4' | 'RP-5' | 'RP-6' | 'RP-7' | 'RP-8'
   readonly points: Path
+  // see S-18, S-178, S-19, GR-13
+  // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
+  readonly strokeWidth?: number
+  readonly head?: Path
 }
 
 // see FR-019
@@ -162,6 +166,7 @@ interface GeometryInputs {
   readonly showPlan: boolean
   readonly showActual: boolean
   readonly selectedTaskUids: ReadonlySet<number>
+  readonly selectedLinks: ReadonlySet<string>
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
   readonly dummyFromByStart: Map<string, CalendarDay | null>
   readonly dummyEndByFrom: Map<string, CalendarDay>
@@ -625,6 +630,51 @@ function attachedBar(inputs: GeometryInputs, placed: TaskPlacement): {
     : { x: placed.x, width: placed.width }
 }
 
+// see SL-8, FR-009
+// TRAP: keyed as svg-renderer.ts keys the lines it widens; another key would grab one width and draw another.
+/** @purity pure */
+function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> {
+  const picked = new Set<string>()
+  for (const item of selection.items) {
+    if (item.kind === 'dependency') picked.add(`${item.successorUid}#${item.ordinal}`)
+  }
+  const out = new Set<string>()
+  if (picked.size === 0) return out
+  for (const successor of schedule.tasks) {
+    for (const [ordinal, link] of successor.dependencies.entries()) {
+      if (picked.has(`${successor.uid}#${ordinal}`)) out.add(`${link.predecessorUid}>${successor.uid}`)
+    }
+  }
+  return out
+}
+
+// see S-19, GR-13
+// TRAP: repeats dependencyArrowSvg in svg-renderer.ts, whose marker turns with the last drawn segment;
+// change both together.
+/** @purity pure */
+function arrowHeadOf(points: Path, length: number): Path {
+  const tip = points[points.length - 1]
+  if (tip === undefined) return []
+  let alongX = 1
+  let alongY = 0
+  for (let index = points.length - 1; index > 0; index -= 1) {
+    const before = points[index - 1]!
+    const run = Math.hypot(points[index]!.x - before.x, points[index]!.y - before.y)
+    if (run === 0) continue
+    alongX = (points[index]!.x - before.x) / run
+    alongY = (points[index]!.y - before.y) / run
+    break
+  }
+  const baseX = tip.x - alongX * length
+  const baseY = tip.y - alongY * length
+  const half = length / 2
+  return [
+    tip,
+    point(baseX - alongY * half, baseY + alongX * half),
+    point(baseX + alongY * half, baseY - alongX * half),
+  ]
+}
+
 /** @purity pure */
 function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement,
                           linkType: number): DependencyGeometry {
@@ -642,12 +692,17 @@ function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskP
     }
   }
   const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
+  const points = route.points.map((vertex) => point(sign * vertex.x, vertex.y))
+  const isSelected = inputs.selectedLinks.has(`${from.taskUid}>${to.taskUid}`)
+  const ownWidth = inputs.settings.dependencyWidth
   return {
     predecessorUid: from.taskUid,
     successorUid: to.taskUid,
     linkType,
     pattern: route.pattern,
-    points: route.points.map((vertex) => point(sign * vertex.x, vertex.y)),
+    points,
+    strokeWidth: isSelected ? ownWidth * NOT_STORED_SELECTION_SIZES['S-178'] : ownWidth,
+    head: arrowHeadOf(points, inputs.settings.dependencyArrowLength),
   }
 }
 
@@ -1120,6 +1175,7 @@ export function geometryFromLayout(
     selectedTaskUids: new Set(
       selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : [])),
     ),
+    selectedLinks: selectedLinksOf(schedule, selection),
     dummyFromByStart: new Map<string, CalendarDay | null>(),
     dummyEndByFrom: new Map<string, CalendarDay>(),
   }
@@ -1170,5 +1226,16 @@ export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
 } = {
   'S-180': 30,
+}
+
+// see T-206
+const NOT_STORED_SELECTION_SIZES: {
+  readonly 'S-174': number
+  readonly 'S-175': readonly [number, number]
+  readonly 'S-178': number
+} = {
+  'S-174': 2,
+  'S-175': [2, 2],
+  'S-178': 2,
 }
 // </generated>

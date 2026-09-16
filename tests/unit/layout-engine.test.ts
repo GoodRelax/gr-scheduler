@@ -1993,33 +1993,6 @@ describe('ItemHitArea (PI-7)', () => {
     expect(['GR-9', 'GR-17']).toContain(itemAtPointer(fresh, onTheMark, middle, SLOP)?.grab)
   })
 
-  // =========================================================================
-  // ⭐ JDG-38 -- the dependency line beats the plan body, and stays thin
-  // =========================================================================
-  //
-  // 利用者の裁定 2026-09-09: 「依存線の優先度を上げてよい。ただし、依存線の縦幅は実績
-  // の縦幅より狭くしろ。」 ⇒ 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置く
-  // こと（MUST）」 -- 旧 表 T-023d の結びの理由（CR-399 で描いた形状の比較に差し替え）.
-  // ⭐ The half THIS unit presses, whole on one line (see JDG-35 above for why):
-  // 旧 表 T-023d の結びの「ただし」（`S-137` の掴み代が `S-6` より狭いこと、CR-399 で
-  // 描いた予定と実績の形状の上では線そのものだけを取ることに差し替え）
-  // ⛔ The other half -- the line standing above the plan body -- is pressed in
-  // tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts, and is latched
-  // there rather than here, where no case asks it.
-
-  it('JDG-38 ⭐ MUST: the line\'s own allowance is narrower than the actual\'s floor', () => {
-    // `S-137` is a reach to EITHER side of the line, so the band it makes is
-    // twice the row's number; `S-6` is the actual bar's floor.
-    expect(NOT_STORED_SIZES['S-137'] * 2).toBeLessThan(settingNumber('actualMin'))
-  })
-
-  // ⛔ WHERE THE PRESS HALF OF JDG-38 IS ASKED, AND WHY NOT HERE. Table T-222's
-  // router keeps every route of this unit's own fixtures OFF the plan bodies --
-  // measured on this tree: RP-1, RP-3, RP-4 and RP-5 all clear them -- so a
-  // real layout cannot be made to stage the contest without asking the router
-  // for something it does not do. The press is asked of a figure assembled by
-  // hand instead, in tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts.
-
   it('answers null off everything', () => {
     expect(itemAtPointer(oneTask(), xOf(200), REGIONS.rowArea.y + 400, SLOP)).toBeNull()
   })

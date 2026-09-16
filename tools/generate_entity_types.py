@@ -1909,8 +1909,20 @@ TARGETS = [
     # unit solves it once, onto `DummyGeometry.ink`, and the renderer and the
     # hit test both read that one rectangle. ⛔ Solving it in the renderer and
     # again in the hit test is the copied-value defect rule 03 section 1 names.
+    # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
+    # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
+    # drawn line on a drawn plan or actual shape, and DS-7 of table T-252 puts
+    # that width at S-18 times the drawing ratio, times S-178 when the line is
+    # selected. Only this unit holds both the drawn settings and the selection
+    # the hit test cannot be handed (PI-7 keeps its arguments), so it solves
+    # the width and the head onto `DependencyGeometry` for the hit test. The
+    # constant rides whole, as the one NOT_STORED_SELECTION_SIZES the row
+    # already stands in. WARNING: `svg-renderer.ts` still widens and heads the
+    # line it draws from the same rows by itself; the TRAP lines in
+    # `schedule-geometry.ts` name that pairing until the renderer reads these.
     (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SELECTION_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-3's SECOND FLOOR, IN THE UNIT THAT DECIDES THE BAND. Table T-221's
     # LF-3 (MUST) and table T-051's HF-19 (MUST NOT) hold a row's band at or

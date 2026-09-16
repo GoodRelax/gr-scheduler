@@ -789,18 +789,6 @@ const MARKER_SIZE = ((): number => {
   return Number(found[0])
 })()
 
-/**
- * `S-6` (`actualMin`) of 表 T-201 -- the actual bar's own floor, which section
- * 9 measures the dependency line's band against.
- */
-const ACTUAL_MIN = ((): number => {
-  const row = specTable('T-201').rows.find((one) => one.id === 'S-6')
-  if (row === undefined) throw new Error('table T-201 has no row S-6')
-  const found = (row.by['既定値'] ?? '').match(/\d+(?:\.\d+)?/)
-  if (found === null) throw new Error(`table T-201 row S-6 has no number: ${row.cells.join(' ')}`)
-  return Number(found[0])
-})()
-
 /** The marker's circle -- `S-22` across, so this is its half. */
 const MARKER_RADIUS = MARKER_SIZE / 2
 const MARKER_CENTRE_X = 600
@@ -1083,11 +1071,8 @@ describe('CR-382: a milestone dummy on its figure\'s day is not split at the pla
 // ⭐ Whole on one line, for the reason given in section 8 above:
 // 「依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置くこと（MUST）」
 //
-// ⚠️ WHY THE FIGURE IS ASSEMBLED HERE. Table T-222's router keeps its routes
-// off the plan bodies, so a real layout does not stage this contest; measured
-// on this tree, RP-1, RP-3, RP-4 and RP-5 all clear every bar of the unit
-// fixtures. The rule is still a rule about what a press answers where the two
-// DO meet, and this figure puts them there.
+// WHY: a figure assembled by hand; the same contest on a routed layout, at two display scales,
+// is pressed in cr-399-on-a-drawn-bar-a-line-takes-only-its-ink.test.ts.
 
 describe('JDG-38: the dependency line answers where it runs over a plan body', () => {
   const withALineAcrossTheBar = (): ScheduleGeometry => {
@@ -1123,12 +1108,7 @@ describe('JDG-38: the dependency line answers where it runs over a plan body', (
     expect(hit?.grab).toBe('GR-13')
   })
 
-  it('⭐ MUST: and the line\'s band is narrower than the actual bar\'s floor', () => {
-    // `S-137` reaches to EITHER side of the line, so its band is twice the row.
-    // ⚠️ Measured against `S-6` itself, which is what the clause names.
-    expect(NOT_STORED_SIZES['S-137'] * 2).toBeLessThan(ACTUAL_MIN)
-    // ⭐ THE CONTRAST, as a press: a hair outside that band the plan body has
-    // the ground back, so the line has not swallowed the bar.
+  it('and a hair outside S-137 over the bar, the plan body has the ground back', () => {
     const geometry = withALineAcrossTheBar()
     const justOutside = MID_Y + NOT_STORED_SIZES['S-137'] + 2
     expect(itemAtPointer(geometry, PLAN_START_X + 150, justOutside, SLOP)?.grab).toBe('GR-12')
