@@ -16,6 +16,11 @@ import type {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
 import { bare, specTable } from '../contract/spec-table'
+import {
+  DEFAULT_DISPLAY_RATIO,
+  DEFAULT_DISPLAY_SCALE,
+  S_235,
+} from '../fixtures/display-scale'
 
 const rowOf = (tableId: string, rowId: string): Readonly<Record<string, string>> => {
   const found = specTable(tableId).rows.find((row) => row.id === rowId)
@@ -38,7 +43,8 @@ const S_138 = numberIn(rowOf('T-206', 'S-138')['既定'] ?? '')
 // see T-206, S-218
 const S_218 = numberIn(rowOf('T-206', 'S-218')['既定'] ?? '')
 
-const GRAB_STRIP_ROOM = S_138 + S_218
+// see FR-029, T-252
+const GRAB_STRIP_ROOM = S_138 * S_235 + S_218
 
 // see T-216, S-73
 const THEME_HUE = numberIn(rowOf('T-216', 'S-73')['既定'] ?? '')
@@ -47,6 +53,7 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 const PANEL = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rowTitlePanelWidth: 400, // see S-79
   rowTitleIndent: 20, // see S-37
   rowTitleFont: 20, // see S-36
@@ -67,12 +74,27 @@ const perCharacter = (settings: DocumentSettings): number => {
   return (flat['rowTitleFont'] as number) * (flat['labelCoef'] as number)
 }
 
+// see FR-039, T-252
+const drawnPanelOf = (settings: DocumentSettings): number => {
+  const flat = settings as unknown as Record<string, number>
+  return Math.max(
+    (flat['rowTitlePanelWidth'] as number) * DEFAULT_DISPLAY_RATIO,
+    (flat['rowTitleIndent'] as number) * DEFAULT_DISPLAY_RATIO * (flat['maxGroupDepth'] as number) +
+      S_138 * S_235 +
+      26 * S_235 * 4,
+  )
+}
+
+// see FR-093, FR-039
+const drawnPerCharacter = (settings: DocumentSettings): number =>
+  perCharacter(settings) * DEFAULT_DISPLAY_RATIO
+
 // see FR-085
 const roomInPixels = (settings: DocumentSettings, depth: number): number => {
   const flat = settings as unknown as Record<string, number>
   return (
-    (flat['rowTitlePanelWidth'] as number) -
-    depth * (flat['rowTitleIndent'] as number) -
+    drawnPanelOf(settings) -
+    depth * (flat['rowTitleIndent'] as number) * DEFAULT_DISPLAY_RATIO -
     S_140 -
     GRAB_STRIP_ROOM
   )
@@ -170,7 +192,10 @@ describe('FR-085 (MUST) -- the room for a name is the panel less the indent, S-1
   it.each(DEPTHS)(
     '⭐ gives a depth %i row exactly `S-79` − depth x `S-37` − `S-140` − `S-138` − `S-218`',
     (depth) => {
-      expect(keptOf(PANEL, depth)).toBe(roomInPixels(PANEL, depth) / perCharacter(PANEL))
+      expect(
+        keptOf(PANEL, depth),
+        'FR-085: 描いた幅どうしの引き算を、描いた 1 文字の幅で割った文字数',
+      ).toBe(Math.floor(roomInPixels(PANEL, depth) / drawnPerCharacter(PANEL)))
     },
   )
 
@@ -178,11 +203,12 @@ describe('FR-085 (MUST) -- the room for a name is the panel less the indent, S-1
     expect(S_140, 'table T-206 still prints S-140 as 0px').toBe(0)
 
     const flat = PANEL as unknown as Record<string, number>
-    const wholePanelLessIndentLessGrabStrip =
-      ((flat['rowTitlePanelWidth'] as number) -
-        1 * (flat['rowTitleIndent'] as number) -
+    const wholePanelLessIndentLessGrabStrip = Math.floor(
+      (drawnPanelOf(PANEL) -
+        1 * (flat['rowTitleIndent'] as number) * DEFAULT_DISPLAY_RATIO -
         GRAB_STRIP_ROOM) /
-      perCharacter(PANEL)
+        drawnPerCharacter(PANEL),
+    )
 
     expect(keptOf(PANEL, 1)).toBe(wholePanelLessIndentLessGrabStrip)
   })
@@ -208,12 +234,17 @@ describe('FR-085 (MUST) -- the room for a name is the panel less the indent, S-1
       const wider = panelWith({ rowTitlePanelWidth: width })
       const flat = wider as unknown as Record<string, number>
       const lessIndentOnly =
-        ((flat['rowTitlePanelWidth'] as number) - 2 * (flat['rowTitleIndent'] as number) - S_140) /
-        perCharacter(wider)
+        drawnPanelOf(wider) -
+        2 * (flat['rowTitleIndent'] as number) * DEFAULT_DISPLAY_RATIO -
+        S_140
 
-      expect(lessIndentOnly - keptOf(wider, 2), `at a panel of ${width}px`).toBe(
-        GRAB_STRIP_ROOM / perCharacter(wider),
+      expect(keptOf(wider, 2), `at a panel of ${width}px`).toBe(
+        Math.floor((lessIndentOnly - GRAB_STRIP_ROOM) / drawnPerCharacter(wider)),
       )
+      expect(
+        keptOf(wider, 2),
+        `S-138 x S-235 と S-218 を引かない幅と同じ文字数になっている: ${width}px`,
+      ).not.toBe(Math.floor(lessIndentOnly / drawnPerCharacter(wider)))
     }
   })
 })

@@ -103,6 +103,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The artifact. FR-027 (MUST): 「テンプレートはバンドル済みの `GRS JSON` として
@@ -505,7 +506,10 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // ⛔ A fit would have replaced BOTH, which is what `uf-47-48.test.ts`
     // measures on the branch where OP-10 does run.
     expect(bootFrame.values.layout.originDay).toEqual(dayOf(firstDayCovered()))
-    expect(bootFrame.values.layout.pxPerDay).toBe(SETTINGS.pxPerDayAt1x * SETTINGS.zoomX)
+    expect(
+      bootFrame.values.layout.pxPerDay,
+      'FR-039 の 表 T-252 の DS-4: S-1 x S-75 に、その文書の表示の倍率の描く比を掛けた幅',
+    ).toBe(SETTINGS.pxPerDayAt1x * SETTINGS.zoomX * displayRatioAt(SETTINGS.displayScale))
   })
 
   it('HF-8 (MUST NOT): boot discards nothing -- the shipped settings still say what they said', () => {

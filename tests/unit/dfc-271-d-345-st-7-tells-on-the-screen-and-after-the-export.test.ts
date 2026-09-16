@@ -473,6 +473,30 @@ function clipboardProbe(): ClipboardProbe {
   }
 }
 
+interface RasterProbe {
+  readonly rasterizer: {
+    rasterizePng(
+      svg: string,
+      sizePx: { readonly widthPx: number; readonly heightPx: number },
+    ): Promise<{ readonly ok: true; readonly pngBytes: Uint8Array }>
+  }
+  readonly asked: string[]
+}
+
+// see FR-025
+function rasterProbe(): RasterProbe {
+  const asked: string[] = []
+  return {
+    asked,
+    rasterizer: {
+      rasterizePng: (svg: string) => {
+        asked.push(svg)
+        return Promise.resolve({ ok: true as const, pngBytes: new Uint8Array([137, 80, 78, 71]) })
+      },
+    },
+  }
+}
+
 async function settle(): Promise<void> {
   for (let turn = 0; turn < 16; turn += 1) await Promise.resolve()
   await new Promise((resolve) => setTimeout(resolve, 0))
@@ -524,6 +548,7 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
   const screen = screenPane(language)
   const files = fileStore()
   const board = clipboardProbe()
+  const paint = rasterProbe()
   const loop = frameLoop(
     pen.surface,
     document,
@@ -532,6 +557,8 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
     files.store,
     undefined,
     board.clipboard,
+    undefined,
+    paint.rasterizer,
   )
   pen.runAnimationFrames()
   const press = async (input: HumanInput): Promise<void> => {

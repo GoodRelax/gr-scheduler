@@ -148,6 +148,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at read time rather than copied
@@ -1134,7 +1135,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     expect(
       (frameOf(built.loop).settingsMeasuredWith as any).rowTitlePanelWidth,
       'the settings this frame was measured with are the ones it DREW',
-    ).toBeCloseTo(storedPanelWidth(built.loop) + 40, 6)
+    ).toBeCloseTo(storedPanelWidth(built.loop) + 40 / DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('settles the width on the release (IN-1)', () => {
@@ -1145,10 +1146,10 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('up', at.x + 40, at.y))
     expect(storedPanelWidth(built.loop), 'FR-052: 確定は 表 T-028 の IN-1 に従う').toBeCloseTo(
-      stored + 40,
+      stored + 40 / DEFAULT_DISPLAY_RATIO,
       6,
     )
-    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored + 40, 6)
+    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO + 40, 6)
   })
 
   it('settles it once: later moves with no button change nothing', () => {
@@ -1160,7 +1161,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('up', at.x + 40, at.y))
     built.send(pointer('move', at.x + 90, at.y))
     built.send(pointer('move', at.x + 140, at.y))
-    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40, 6)
+    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('changes the OTHER panel from its own boundary (S-80 wins after a drag)', () => {
@@ -1201,8 +1202,8 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     ).toBe(stored)
     expect(
       drawnPanelWidth(built.loop),
-      'nothing is held any more, so the picture is the stored width again',
-    ).toBeCloseTo(stored, 6)
+      'nothing is held any more, so the picture is the stored width times the drawn ratio again',
+    ).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO, 6)
   })
 
   it('abandons the drag on Esc (IN-1 / IN-4)', () => {
@@ -1213,7 +1214,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x + 40, at.y))
     built.send(ESCAPE())
     expect(storedPanelWidth(built.loop), 'IN-1: 中断は `Esc` で行い').toBe(stored)
-    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored, 6)
+    expect(drawnPanelWidth(built.loop)).toBeCloseTo(stored * DEFAULT_DISPLAY_RATIO, 6)
   })
 })
 
@@ -1245,7 +1246,7 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     built.send(pointer('up', at.x + 40, at.y))
-    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40, 6)
+    expect(storedPanelWidth(built.loop)).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
 
     built.send(UNDO())
     // ⚠️ SOFT, so that a failure reports BOTH halves: whether the width came
@@ -1253,7 +1254,7 @@ describe('table T-027 UN-16: undoing an edit must not take the panel width back'
     expect.soft(
       storedPanelWidth(built.loop),
       'T-027 UN-16: 対象外 …… パネル幅（`FR-052`）…… ⚠️ 保存することと戻せることは別である',
-    ).toBeCloseTo(stored + 40, 6)
+    ).toBeCloseTo(stored + 40 / DEFAULT_DISPLAY_RATIO, 6)
     expect.soft(
       taskOf(built.loop, FADED_UID).fadeInDays,
       'UN-3 IS a target, so this is the half of the undo that must happen',

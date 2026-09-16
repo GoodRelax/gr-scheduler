@@ -18,6 +18,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import {
   oneByRole,
   selfAndDescendants,
@@ -72,6 +73,9 @@ const DEEPER_NAME_PX = S_36
 const RAISED_FONT = 20
 const RAISED_TOP_SCALE = 1.5
 
+// see FR-039, T-252
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
 describe('CR-381 -- the manuscript these cases are driven by', () => {
   it.each(CLAUSES)('still says it, word for word: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
@@ -107,7 +111,7 @@ describe('CR-381 -- the manuscript these cases are driven by', () => {
 })
 
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
-  ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
+  ({ ...SETTINGS_DEFAULTS, displayScale: DEFAULT_DISPLAY_SCALE, ...part }) as unknown as DocumentSettings
 
 const THEME_HUE = Number(bare(specTable('T-216').rows.find((one) => one.id === 'S-73')?.by['既定'] ?? ''))
 
@@ -193,17 +197,29 @@ describe('T-064 PI-37 / FR-094 -- RowTitle.fontPx is the size the row name is dr
     ])
   })
 
-  it('depth 1 carries S-36 x S-38 (16.9 by default), depths 2 and 3 carry S-36 (13) (MUST)', () => {
+  it('depth 1 carries S-36 x S-38 x the drawn ratio, depths 2 and 3 carry S-36 x the drawn ratio (MUST)', () => {
     const [top, below, further] = titlesOf(settingsOf())
-    expect(fontPxOf(top), `depth 1 = S-36 x S-38; ${FR_094_SIZES_FROM_T_201}`).toBeCloseTo(DEPTH_1_NAME_PX, 9)
-    expect(fontPxOf(below), `depth 2 = S-36; ${FR_094_SIZES_FROM_T_201}`).toBeCloseTo(DEEPER_NAME_PX, 9)
-    expect(fontPxOf(further), `depth 3 = S-36; ${FR_094_SIZES_FROM_T_201}`).toBeCloseTo(DEEPER_NAME_PX, 9)
+    expect(
+      fontPxOf(top),
+      `depth 1 = S-36 × S-38 × 描く比（表 T-252 の DS-1）; ${FR_094_SIZES_FROM_T_201}`,
+    ).toBeCloseTo(DEPTH_1_NAME_PX * DRAWN_RATIO, 9)
+    expect(
+      fontPxOf(below),
+      `depth 2 = S-36 × 描く比（表 T-252 の DS-1）; ${FR_094_SIZES_FROM_T_201}`,
+    ).toBeCloseTo(DEEPER_NAME_PX * DRAWN_RATIO, 9)
+    expect(
+      fontPxOf(further),
+      `depth 3 = S-36 × 描く比（表 T-252 の DS-1）; ${FR_094_SIZES_FROM_T_201}`,
+    ).toBeCloseTo(DEEPER_NAME_PX * DRAWN_RATIO, 9)
   })
 
-  it('follows the document settings rather than a size of its own: S-36 20 and S-38 1.5 give 30 and 20 (MUST NOT)', () => {
+  it('follows the document settings rather than a size of its own: S-36 20 and S-38 1.5 give 30 and 20, each times the drawn ratio (MUST NOT)', () => {
     const [top, below] = titlesOf(settingsOf({ rowTitleFont: RAISED_FONT, rowTitleTopScale: RAISED_TOP_SCALE }))
-    expect(fontPxOf(top), FR_094_NO_SIZE_OF_ITS_OWN).toBeCloseTo(RAISED_FONT * RAISED_TOP_SCALE, 9)
-    expect(fontPxOf(below), FR_094_NO_SIZE_OF_ITS_OWN).toBeCloseTo(RAISED_FONT, 9)
+    expect(fontPxOf(top), FR_094_NO_SIZE_OF_ITS_OWN).toBeCloseTo(
+      RAISED_FONT * RAISED_TOP_SCALE * DRAWN_RATIO,
+      9,
+    )
+    expect(fontPxOf(below), FR_094_NO_SIZE_OF_ITS_OWN).toBeCloseTo(RAISED_FONT * DRAWN_RATIO, 9)
   })
 })
 

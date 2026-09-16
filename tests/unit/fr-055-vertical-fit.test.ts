@@ -42,6 +42,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 // Same idiom as tests/unit/layout-engine.test.ts: a case pins the keys it
 // deliberately reads and every other key comes from SETTINGS_DEFAULTS, which
@@ -64,11 +65,16 @@ const ENV: ScreenEnvironment = {
   scrollbarThickness: 8,
 }
 
+const DISPLAY_STEP = DEFAULT_DISPLAY_SCALE
+
+const DISPLAY_RATIO = displayRatioAt(DISPLAY_STEP)
+
 const LAYOUT_SETTINGS = settingsOf({
   rulerHeight: 48,
   scrollDate: '2026-01-01', // S-77
   rulerFont: 12, // S-3
   stackDirection: 'down', // S-58
+  displayScale: DISPLAY_STEP,
   shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
 })
 
@@ -242,6 +248,8 @@ const PLAN_HEIGHT_FLOOR = settingNumber('actualMin') / settingNumber('actualOfPl
 /** Below this zoomY the floor binds, and `basePlanHeight × zoomY` does not. */
 const FLOOR_BINDS_BELOW = PLAN_HEIGHT_FLOOR / settingNumber('basePlanHeight')
 
+const DRAWN_PLAN_HEIGHT_FLOOR = PLAN_HEIGHT_FLOOR * DISPLAY_RATIO
+
 describe("FR-094's floor -- the stretch of zoomY where the vertical layout does not move", () => {
   it('pins a rectangle at the floor, so two zooms under it draw the same band', () => {
     const low = FLOOR_BINDS_BELOW / 4
@@ -255,8 +263,11 @@ describe("FR-094's floor -- the stretch of zoomY where the vertical layout does 
     const a = layoutFromSchedule(schedule, withZoomY(low), REGIONS)
     const b = layoutFromSchedule(schedule, withZoomY(high), REGIONS)
 
-    expect(a.rectangleHeight).toBeCloseTo(PLAN_HEIGHT_FLOOR, 9)
-    expect(b.rectangleHeight).toBeCloseTo(PLAN_HEIGHT_FLOOR, 9)
+    expect(
+      a.rectangleHeight,
+      'FR-039 の 表 T-252 の DS-1: 床は S-6 / S-5 に描く比を掛けた値',
+    ).toBeCloseTo(DRAWN_PLAN_HEIGHT_FLOOR, 9)
+    expect(b.rectangleHeight).toBeCloseTo(DRAWN_PLAN_HEIGHT_FLOOR, 9)
     // LF-2 and ST-9: the band is the stack's, and neither the stack nor the
     // lane heights have anything left to move.
     expect(b.rows[0]!.stackCount).toBe(a.rows[0]!.stackCount)

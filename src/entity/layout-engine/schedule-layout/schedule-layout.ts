@@ -63,8 +63,9 @@ export interface TaskPlacement {
   readonly labelPlacement: LabelPlacement
   // TRAP: already past T-243's markers (1) and (2) and a PA-4 icon; do not add them again.
   readonly labelX: number
-  // TRAP: an inside label starts here, past fadeIn and past a marker (1) standing in the shape (T-013).
   readonly insideLabelX: number
+  // see T-013
+  readonly labelBoxRight: number | null
   readonly label: string
   readonly labelFontSize: number
   readonly outsideLabel: string
@@ -352,6 +353,13 @@ function planHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number 
   return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
 }
 
+// see FR-094
+/** @purity pure */
+export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
+                                 settings: DocumentSettings): number {
+  return laidBelow(shapeKind) ? nameFontSize : settings.markerSize
+}
+
 // see FR-077, FR-094
 /** @purity pure */
 function labelFontSize(shapeKind: ShapeKind, settings: DocumentSettings): number {
@@ -598,7 +606,7 @@ function dummyReachOf(
 }
 
 // see T-243, FR-013, GR-7
-// TRAP: never read progressMarkerVisible, planVisible or actualVisible here: no toggle may move the name.
+// TRAP: read no toggle here but S-63, which its caller reads: no other may move the name.
 /** @purity pure */
 function shownMarkerAnchorX(
   shapeKind: ShapeKind,
@@ -618,13 +626,14 @@ function shownMarkerAnchorX(
 /** @purity pure */
 function markerReachOf(anchorX: number, task: Task, shapeKind: ShapeKind,
                        settings: DocumentSettings): number {
-  const markerRight = anchorX + settings.markerGap + settings.markerSize
+  const diameter = markerDiameterOf(shapeKind, labelFontSize(shapeKind, settings), settings)
+  const markerRight = anchorX + settings.markerGap + diameter
   const resumeBesideMarker =
     shapeKind !== 'milestone' &&
     task.resume === null &&
     planActualState(task) === 'suspendedResumeUnknown'
   if (!resumeBesideMarker) return markerRight
-  const side = settings.markerSize * (task.resumeValid !== false ? 1 : settings.resumeScaleInvalid)
+  const side = diameter * (task.resumeValid !== false ? 1 : settings.resumeScaleInvalid)
   return markerRight + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
 }
 
@@ -719,6 +728,7 @@ export function layoutFromSchedule(
       )
       const font = labelFontSize(kind, settings)
       const text = labelWidth(label, font, settings)
+      const boxWidth = text + settings.labelPad
       const fade = clampedFade(task, kind, width, pxPerDay)
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
@@ -730,21 +740,42 @@ export function layoutFromSchedule(
             )
       const planRight = x + width
       const markerAnchorX = shownMarkerAnchorX(kind, planRight, actualReach, dummyReach)
+      const marksShown = settings.progressMarkerVisible
+      const markerDiameter = markerDiameterOf(kind, font, settings)
+      const namedFromPlanStart = laidBelow(kind)
       const markerInside =
+        marksShown && !namedFromPlanStart &&
         markerAnchorX !== null && markerAnchorX + settings.markerGap < planRight
-      const insideLabelX = markerInside
+      const boxLeftInShape = markerInside
         ? Math.max(x + fade.fadeIn,
-                   markerAnchorX + settings.markerGap + settings.markerSize + settings.labelGap)
+                   markerAnchorX + settings.markerGap + markerDiameter + settings.labelGap)
         : x + fade.fadeIn
       // TRAP: take S-31 off too; the glyphs start labelPad past insideLabelX, so NL-1 would pass a name past the fadeOut edge.
-      const roomInside = Math.max(0, planRight - fade.fadeOut - insideLabelX - settings.labelPad)
-      const placement: LabelPlacement = text <= roomInside ? 'inside' : 'right'
+      const roomInside = Math.max(0, planRight - fade.fadeOut - boxLeftInShape - settings.labelPad)
+      const grip = NOT_STORED_SIZES['S-91']
+      const marksRoom = marksShown ? markerDiameter + settings.markerGap : 0
+      const boxRightInActual =
+        actualPlacementOf(kind) === 'inside' && actual !== null && actualReach !== null &&
+        boxWidth + settings.labelGap + marksRoom + grip * 2 <= actual.width
+          ? actualReach - grip - marksRoom - (marksShown ? settings.labelGap : 0)
+          : null
+      const labelBoxRight = namedFromPlanStart ? x + boxWidth : boxRightInActual
+      const insideLabelX = labelBoxRight === null ? boxLeftInShape : labelBoxRight - boxWidth
+      const placement: LabelPlacement =
+        boxRightInActual !== null || text <= roomInside ? 'inside' : 'right'
       const outwardX = Math.max(planRight, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
       const reachShown =
-        markerAnchorX === null ? Number.NEGATIVE_INFINITY : markerReachOf(markerAnchorX, task, kind, settings)
-      const reachPlanOnly = markerReachOf(planRight, task, kind, settings)
-      const labelX = Math.max(outwardX, reachShown, reachPlanOnly) + settings.labelGap
-      const labelledX1 = placement === 'right' ? labelX + text : x + width
+        !marksShown || markerAnchorX === null
+          ? Number.NEGATIVE_INFINITY
+          : markerReachOf(markerAnchorX, task, kind, settings)
+      const reachPlanOnly =
+        marksShown ? markerReachOf(planRight, task, kind, settings) : Number.NEGATIVE_INFINITY
+      const labelX = namedFromPlanStart
+        ? x
+        : Math.max(outwardX, reachShown, reachPlanOnly) + settings.labelGap
+      const labelledX1 = namedFromPlanStart
+        ? Math.max(planRight, x + boxWidth)
+        : placement === 'right' ? labelX + text : x + width
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
       const assigneeLabel = settings.assigneeVisible
@@ -761,7 +792,7 @@ export function layoutFromSchedule(
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
-               occupiedX0, occupiedX1, markerAnchorX, insideLabelX }
+               occupiedX0, occupiedX1, markerAnchorX, insideLabelX, labelBoxRight }
     })
 
     for (const item of measured) {
@@ -848,6 +879,7 @@ export function layoutFromSchedule(
         labelPlacement: item.placement,
         labelX: item.labelX,
         insideLabelX: item.insideLabelX,
+        labelBoxRight: item.labelBoxRight,
         label: item.label,
         labelFontSize: item.font,
         outsideLabel: item.outsideLabel,

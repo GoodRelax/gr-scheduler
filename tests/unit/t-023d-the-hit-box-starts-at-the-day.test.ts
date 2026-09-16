@@ -99,6 +99,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ===========================================================================
 // The rows, read out of the manuscript rather than copied (Chapter 1.9, :275)
@@ -181,7 +182,7 @@ const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
  * whether the hold reaches out to it. A premise below re-derives the width
  * from the layout rather than trusting this number.
  */
-const ZOOM_X = 8
+const ZOOM_X = 8 / DEFAULT_DISPLAY_RATIO
 
 /**
  * The pointer allowances.
@@ -292,6 +293,7 @@ const settingsAt = (zoomX: number): DocumentSettings =>
     scrollGroupId: 'g1', // S-78, so a row is at the top
     stackDirection: 'down', // S-58, so every y reads from the top of the band
     zoomX,
+    displayScale: DEFAULT_DISPLAY_SCALE,
   })
 
 const ENV: ScreenEnvironment = {
@@ -538,7 +540,7 @@ describe('the rules and the fixture these cases stand on', () => {
     // FR-017 makes one day `pxPerDayAt1x` times `zoomX` (S-1 and S-75). ⭐ The
     // width is re-derived from the layout rather than trusted from ZOOM_X.
     const drawn = draw(notStarted())
-    expect(drawn.layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X * ZOOM_X, 6)
+    expect(drawn.layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X * ZOOM_X * DEFAULT_DISPLAY_RATIO, 6)
     const ink = dummyNamed(drawn, 'GR-9').ink
     expect(ink.width, 'FR-043 draws 「1 日ぶんと `S-180` の小さい方」')
       .toBeCloseTo(Math.min(drawn.layout.pxPerDay, INK_WIDTH_CAP), 6)

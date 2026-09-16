@@ -142,9 +142,26 @@ const S_37 = num('rowTitleIndent')
 const S_56 = num('canvasPadding')
 const S_79 = num('rowTitlePanelWidth')
 
+const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
+  const built: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(flat)) {
+    const dot = key.indexOf('.')
+    if (dot < 0) {
+      built[key] = value
+      continue
+    }
+    const head = key.slice(0, dot)
+    const held = built[head]
+    const group = (typeof held === 'object' && held !== null ? held : {}) as Record<string, unknown>
+    group[key.slice(dot + 1)] = value
+    built[head] = group
+  }
+  return built
+}
+
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
-    ...SETTINGS_DEFAULTS,
+    ...nestedFrom(SETTINGS_DEFAULTS),
     rulerHeight: 48,
     rulerFont: 12,
     scrollDate: '2026-01-01',
@@ -334,7 +351,7 @@ describe('table T-252 -- the rows that say what the display scale reaches', () =
 })
 
 describe('FR-039 (MUST) -- every dimension table T-252 multiplies moves with the ratio', () => {
-  const HIGH_ENOUGH_TO_CLEAR_EVERY_FLOOR = 6
+  const HIGH_ENOUGH_TO_CLEAR_EVERY_FLOOR = 20
 
   it('the day width is S-1 x zoomX x the drawn ratio (DS-4)', () => {
     for (const step of S_234_STEPS) {
@@ -515,7 +532,7 @@ describe('FR-017 -- the ruler tier does not move with the display scale', () => 
 
 describe('FR-080 -- the export draws at the same display scale as the screen', () => {
   const pictureAt = (step: number, picture: 'screen' | 'export'): string => {
-    const { settings, regions, layout } = sceneAt(step)
+    const { settings, regions, layout } = sceneAt(step, { zoomY: 20 })
     const geometry = geometryFromLayout(NAMED_ROWS, settings, layout, regions, emptySelection())
     return svgFromSchedule(
       NAMED_ROWS,
@@ -546,10 +563,10 @@ describe('FR-080 -- the export draws at the same display scale as the screen', (
     const ratioOnScreen = fontOf(pictureAt(100, 'screen')) / fontOf(pictureAt(33, 'screen'))
     const ratioOnExport = fontOf(pictureAt(100, 'export')) / fontOf(pictureAt(33, 'export'))
     expect(ratioOnExport, FR_080_THE_EXPORT_FOLLOWS_THE_SCALE).toBeCloseTo(ratioOnScreen, 6)
-    expect(ratioOnScreen, 'and that ratio is the two steps\' drawn ratios').toBeCloseTo(
-      ratioOf(100) / ratioOf(33),
-      6,
-    )
+    expect(
+      ratioOnScreen,
+      'and that ratio is the two steps\' drawn ratios -- read at a zoom where the font is far above the S-8 floor, and to the two decimals the picture writes a length with',
+    ).toBeCloseTo(ratioOf(100) / ratioOf(33), 3)
   })
 })
 

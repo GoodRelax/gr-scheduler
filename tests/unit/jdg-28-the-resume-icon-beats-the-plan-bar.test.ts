@@ -164,6 +164,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ===========================================================================
 // The document under test
@@ -199,6 +200,7 @@ const stored = (iso: string): string => `${iso}T00:00:00`
 const ZOOM_X = 6
 
 const SETTINGS = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   scrollDate: stored('2026-01-01'), // S-77, so the day-to-x map has an origin
   scrollGroupId: 'g1', // S-78, so a row is at the top
   stackDirection: 'down', // S-58, so every y reads from the top of the band
@@ -557,9 +559,10 @@ describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it tak
     const taken = span.to - span.from
     // ⚠️ WITHIN ONE STEP OF THE SCAN, not to the pixel: the scan walks in
     // quarter pixels and the row states a size, not an edge convention.
-    expect(taken, `S-22 is ${MARKER_SIZE}px wide and the icon took ${taken}px`)
-      .toBeGreaterThan(MARKER_SIZE - 1)
-    expect(taken).toBeLessThanOrEqual(MARKER_SIZE)
+    const drawnMarkerSize = MARKER_SIZE * DEFAULT_DISPLAY_RATIO
+    expect(taken, `S-22 は描く比を掛けて ${drawnMarkerSize}px、アイコンが取ったのは ${taken}px`)
+      .toBeGreaterThan(drawnMarkerSize - 1)
+    expect(taken).toBeLessThanOrEqual(drawnMarkerSize)
     // ⛔⛔ AND IT IS NOT THE RETIRED `S-93` (30PX). Table T-206's `S-93` row
     // was 30 wide and was read out of `NOT_STORED_SIZES['S-93']` here until
     // 2026-09-10, when the row -- and the field -- were retired: 「その

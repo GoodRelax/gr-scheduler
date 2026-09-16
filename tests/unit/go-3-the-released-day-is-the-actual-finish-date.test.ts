@@ -37,6 +37,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -178,7 +179,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: 20,
+      pxPerDayAt1x: 20 / DEFAULT_DISPLAY_RATIO,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

@@ -1065,7 +1065,7 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
       expect(
         Math.abs(now - held - travel),
         `${row} did not follow the pointer: it moved ${now - held} where the pointer moved ${travel}`,
-      ).toBeLessThanOrEqual(pxPerDay(built.loop))
+      ).toBeLessThanOrEqual(pxPerDay(built.loop) + 1e-6)
     })
 
     it(`follows every move, not only the last one (${row})`, () => {

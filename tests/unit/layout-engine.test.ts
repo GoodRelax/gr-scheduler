@@ -45,6 +45,7 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the second floor under a band
@@ -104,6 +105,20 @@ const settingNumber = (key: string): number => {
   return value
 }
 
+// see FR-039, T-202
+const DISPLAY_STEP = DEFAULT_DISPLAY_SCALE
+
+// see FR-039, T-252
+const RATIO = displayRatioAt(DISPLAY_STEP)
+
+/**
+ * One stored px of table T-201, as the display scale draws it (`FR-039`, table
+ * T-252). ⛔ Never applied to a row table T-252 keeps out: the grips `S-90` /
+ * `S-91` / `S-92` / `S-137` / `S-180` / `S-230`, the entrance box `S-138`, or
+ * `S-56` `canvasPadding`.
+ */
+const drawnPx = (stored: number): number => stored * RATIO
+
 /** The four (or six) corners of a bar table T-012 draws as an outline. */
 const outlinePoints = (bar: BarGeometry | null): Path => {
   if (bar === null || bar.form !== 'outline') throw new Error('this bar is not an outline')
@@ -132,6 +147,7 @@ const PROPERTY_PANEL_OPEN = 300
 const SETTINGS = settingsOf({
   rulerHeight: 48, // S-2
   propertyPanelWidth: PROPERTY_PANEL_OPEN, // S-80, open -- see above
+  displayScale: DISPLAY_STEP, // S-234
 })
 
 const ENV: ScreenEnvironment = {
@@ -162,10 +178,14 @@ describe('ScreenRegions (PI-35)', () => {
     // this case as generated defaults. A typed total would say nothing about
     // which of the four is missing when it moved, and would go stale the day
     // the manuscript moves one, as this line's did.
-    expect(regionsFromScreen(ENV, SETTINGS).rowArea.width).toBe(
+    const measured = regionsFromScreen(ENV, SETTINGS)
+    expect(
+      measured.rowArea.width,
+      'FR-039 の 表 T-252 の DS-5: S-56 canvasPadding には描く比を掛けない',
+    ).toBe(
       ENV.width -
         settingNumber('canvasPadding') -
-        settingNumber('rowTitlePanelWidth') -
+        measured.rowTitlePanel.width -
         PROPERTY_PANEL_OPEN -
         ENV.scrollbarThickness,
     )
@@ -181,14 +201,19 @@ describe('ScreenRegions (PI-35)', () => {
     // to 200 (`docs/spec/_source/settings.json`, `S-79`: 「⭐⭐ **2026-09-03 に
     // 170 から 200 へ上げた**（利用者の裁定）—— **深さ 5 の掴み代が操作子に覆わ
     // れないことから決めた。**」).
-    const { rowArea } = regionsFromScreen(ENV, SETTINGS)
-    expect(rowArea.x).toBe(settingNumber('rowTitlePanelWidth'))
-    expect(rowArea.y).toBe(56 + 48)
+    const drawn = regionsFromScreen(ENV, SETTINGS)
+    expect(
+      drawn.rowArea.x,
+      'U-50: Row Area は Row Title Panel の描いた幅の外側から始まる（描く幅は FR-039 の 表 T-252 の DS-9）',
+    ).toBe(drawn.rowTitlePanel.width)
+    expect(drawn.rowArea.y, 'DS-1: 帯の高さ S-2 には描く比が掛かる').toBe(56 + drawnPx(48))
   })
 
   it('takes the ruler band, the padding and the horizontal scrollbar off the Row Area height', () => {
     // 644 canvas - 48 band - 10 padding - 8 scrollbar.
-    expect(regionsFromScreen(ENV, SETTINGS).rowArea.height).toBe(578)
+    expect(regionsFromScreen(ENV, SETTINGS).rowArea.height).toBe(
+      644 - drawnPx(48) - settingNumber('canvasPadding') - ENV.scrollbarThickness,
+    )
   })
 
   it('leaves exactly the padding and the scrollbar between the Row Area and what follows it', () => {
@@ -208,7 +233,7 @@ describe('ScreenRegions (PI-35)', () => {
     expect(r.rowTitlePanel).toEqual({
       x: 0,
       y: 56,
-      width: settingNumber('rowTitlePanelWidth'),
+      width: r.rowArea.x,
       height: 644,
     })
     expect(regionAtPointer(r, 50, 60)).toBe('rowTitlePanel')
@@ -225,7 +250,7 @@ describe('ScreenRegions (PI-35)', () => {
       x: r.rowArea.x,
       y: ENV.appHeaderHeight,
       width: r.rowArea.width,
-      height: 48,
+      height: drawnPx(48),
     })
     // ⛔ "not across the panels" is the half the relation alone cannot make: a
     // ruler spanning the whole window would agree with a Row Area that did too.
@@ -234,7 +259,11 @@ describe('ScreenRegions (PI-35)', () => {
   })
 
   it('FR-052 reports a width of zero or less rather than clamping it', () => {
-    const wide = settingsOf({ ...SETTINGS, rowTitlePanelWidth: 600, propertyPanelWidth: 400 })
+    const wide = settingsOf({
+      ...SETTINGS,
+      rowTitlePanelWidth: 600 / RATIO,
+      propertyPanelWidth: 400,
+    })
     // 1000 - 10 - 600 - 400 - 8 is negative, and that IS the answer FR-052 tests.
     expect(regionsFromScreen(ENV, wide).rowArea.width).toBeLessThanOrEqual(0)
   })
@@ -289,6 +318,7 @@ const LAYOUT_SETTINGS = settingsOf({
   // ⚠️ S-58 defaults to 'up'; these cases pin 'down' so every y below reads
   // from the top of the band. The 'up' half of ST-5 has its own cases.
   stackDirection: 'down', // S-58
+  displayScale: DISPLAY_STEP, // S-234
   shapeHeightOf: {
     rectangle: 1,
     chevron: 1,
@@ -368,9 +398,14 @@ const spanning = (uid: number, from: string, days: number, part: Record<string, 
 
 describe('ScheduleLayout (PI-5) -- the time axis', () => {
   it('FR-017 makes one day pxPerDayAt1x times zoomX', () => {
-    expect(layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS).pxPerDay).toBe(6)
+    expect(
+      layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS).pxPerDay,
+      'FR-039 の 表 T-252 の DS-4: S-1 x zoomX に描く比を掛ける',
+    ).toBe(drawnPx(settingNumber('pxPerDayAt1x')))
     const zoomed = settingsOf({ ...LAYOUT_SETTINGS, zoomX: 3 })
-    expect(layoutFromSchedule(oneRow([]), zoomed, REGIONS).pxPerDay).toBe(18)
+    expect(layoutFromSchedule(oneRow([]), zoomed, REGIONS).pxPerDay).toBe(
+      drawnPx(settingNumber('pxPerDayAt1x') * 3),
+    )
   })
 
   // FR-017: 「しきい値は表 T-205 のしきい値の行（`S-83` 〜 `S-85`）に従うこと」。
@@ -428,7 +463,10 @@ describe('ScheduleLayout (PI-5) -- the time axis', () => {
   it('S-77 pins the left edge of the Row Area to scrollDate', () => {
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
     expect(dateAtX(layout, REGIONS.rowArea.x)).toEqual({ year: 2026, month: 1, day: 1 })
-    expect(dateAtX(layout, REGIONS.rowArea.x + 60)).toEqual({ year: 2026, month: 1, day: 11 })
+    expect(
+      dateAtX(layout, REGIONS.rowArea.x + 10.5 * drawnPx(settingNumber('pxPerDayAt1x'))),
+      '10 日ぶんの描いた幅の先は 11 日目である（半日ぶん内側を指して端の丸めを避ける）',
+    ).toEqual({ year: 2026, month: 1, day: 11 })
   })
 
   it('answers null for the day while no origin is set, which is when OP-10 picks one', () => {
@@ -537,12 +575,14 @@ describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
   it('S-176 is a RATIO of the 送り, so the same fraction moves further once that 送り is longer', () => {
     // ⛔ The half FR-080's MUST NOT is about: a px count would move the picture
     // the same distance at either zoom and point somewhere else on the schedule.
-    const taller = { zoomY: 3, scrollGroupOffset: 0.5 }
-    const tallPitch = pitchOf({ zoomY: 3 })
+    // ⚠️ The zoom is high enough that the drawn band clears `LF-3`'s lattice
+    // floor, which does not move with the display scale (table T-252's `DS-7`).
+    const taller = { zoomY: 9, scrollGroupOffset: 0.5 }
+    const tallPitch = pitchOf({ zoomY: 9 })
     const plainPitch = pitchOf({})
     expect(tallPitch, 'the case only means a 送り that really grew').toBeGreaterThan(plainPitch)
 
-    expect(topOf({ zoomY: 3 }) - topOf(taller)).toBeCloseTo(tallPitch / 2, 6)
+    expect(topOf({ zoomY: 9 }) - topOf(taller)).toBeCloseTo(tallPitch / 2, 6)
   })
 
   it('S-177 moves the picture by LESS than a whole day, and by that fraction of the day itself', () => {
@@ -709,20 +749,26 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
   })
 
   it('LF-2 puts stackGap between the lanes and not after the last one', () => {
-    const one = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), LAYOUT_SETTINGS, REGIONS)
+    // ⚠️ zoomY 3 so the drawn two-lane band clears `LF-3`'s lattice floor: the
+    // lanes carry the display scale (table T-252's DS-1 / DS-8) and the floor,
+    // which is the entrances', does not (DS-7).
+    const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
+    const lane = drawnPx(28 * 3)
+    const gap = drawnPx(settingNumber('stackGap'))
+    const one = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), tall, REGIONS)
     const two = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-05', 20)]),
-      LAYOUT_SETTINGS,
+      tall,
       REGIONS,
     )
     // A rectangle reserves basePlanHeight, 28, at zoomY 1 -- and one lane of
     // that stands UNDER `LF-3`'s second floor, so the single-lane band is the
     // lattice and not the lane. ⇒ the row that can say anything about stackGap
     // is the two-lane one, which clears the floor on its own.
-    expect(one.rows[0]!.height).toBe(Math.max(28, CONTROL_LATTICE_FLOOR))
-    expect(two.rows[0]!.height).toBe(28 + 12 + 28)
+    expect(one.rows[0]!.height).toBe(Math.max(lane, CONTROL_LATTICE_FLOOR))
+    expect(two.rows[0]!.height).toBe(lane + gap + lane)
     expect(
-      28 + 12 + 28,
+      lane + gap + lane,
       'the two-lane band has to clear the floor, or the sum proves nothing',
     ).toBeGreaterThan(CONTROL_LATTICE_FLOOR)
   })
@@ -736,23 +782,33 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       taskOf({ uid: 2, start: '2026-01-05', finish: '2026-01-05', milestone: true }),
     ])
     const top = REGIONS.rowArea.y
+    // ⚠️ zoomY 3 so the drawn band clears `LF-3`'s lattice floor, which the
+    // display scale does not move (table T-252's `DS-7`).
+    const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
+    const lane = drawnPx(28 * 3)
+    const gap = drawnPx(settingNumber('stackGap'))
+    const mile = drawnPx(MILESTONE_SIDE * 3)
 
-    const down = layoutFromSchedule(overlapping, LAYOUT_SETTINGS, REGIONS)
-    expect(down.rows[0]!.height).toBe(28 + 12 + MILESTONE_SIDE)
-    expect(down.rows[0]!.stackTops).toEqual([top, top + 28 + 12])
-    expect(down.placements.map((onePoint) => onePoint.y)).toEqual([top, top + 40])
+    const down = layoutFromSchedule(overlapping, tall, REGIONS)
+    expect(down.rows[0]!.height).toBeCloseTo(lane + gap + mile, 9)
+    expect(down.rows[0]!.stackTops[0]).toBe(top)
+    expect(down.rows[0]!.stackTops[1]).toBeCloseTo(top + lane + gap, 9)
+    expect(down.placements[0]!.y).toBe(top)
+    expect(down.placements[1]!.y).toBeCloseTo(top + lane + gap, 9)
 
     const up = layoutFromSchedule(
       overlapping,
-      settingsOf({ ...LAYOUT_SETTINGS, stackDirection: 'up' }),
+      settingsOf({ ...LAYOUT_SETTINGS, stackDirection: 'up', zoomY: 3 }),
       REGIONS,
     )
     // ST-2 and ST-3 do not read the direction: every Task keeps its lane.
     expect(up.placements.map((onePoint) => onePoint.stack)).toEqual(down.placements.map((onePoint) => onePoint.stack))
-    expect(up.rows[0]!.height).toBe(28 + 12 + MILESTONE_SIDE)
+    expect(up.rows[0]!.height).toBeCloseTo(lane + gap + mile, 9)
     // Lane 0 is now the lowest, and lane 1 -- the taller -- takes the top.
-    expect(up.rows[0]!.stackTops).toEqual([top + MILESTONE_SIDE + 12, top])
-    expect(up.placements.map((onePoint) => onePoint.y)).toEqual([top + MILESTONE_SIDE + 12, top])
+    expect(up.rows[0]!.stackTops[0]).toBeCloseTo(top + mile + gap, 9)
+    expect(up.rows[0]!.stackTops[1]).toBe(top)
+    expect(up.placements[0]!.y).toBeCloseTo(top + mile + gap, 9)
+    expect(up.placements[1]!.y).toBe(top)
   })
 
   it('LF-3 advances the next row by the band height and rowGap', () => {
@@ -769,7 +825,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // and that band is 「矩形が縦に取る高さ」 raised to `HF-1`'s lattice. The
     // first row here holds one rectangle lane, which the lattice outruns.
     expect(layout.rows[1]!.y - layout.rows[0]!.y).toBe(
-      Math.max(28, CONTROL_LATTICE_FLOOR) + settingNumber('rowGap'),
+      Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR) + drawnPx(settingNumber('rowGap')),
     )
   })
 
@@ -780,9 +836,9 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // へ届いた。**」 ⇒ LF-2's 「`Task` を 1 つも持たない段は、矩形が縦に取る高さと
     // する」 still gives the lane, and LF-3's second floor lifts the band off it.
     expect(layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS).rows[0]!.height).toBe(
-      Math.max(28, CONTROL_LATTICE_FLOOR),
+      Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR),
     )
-    expect(28, 'the rectangle no longer stands under the lattice').toBeLessThan(
+    expect(drawnPx(28), 'the rectangle no longer stands under the lattice').toBeLessThan(
       CONTROL_LATTICE_FLOOR,
     )
   })
@@ -790,13 +846,15 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
   it('FR-042 reads a stated row height as a floor, never as a cap', () => {
     const tall = layoutFromSchedule(oneRow([], { height: 90 }), LAYOUT_SETTINGS, REGIONS)
     expect(tall.rows[0]!.height).toBe(90)
+    const lane = drawnPx(28 * 3)
+    const gap = drawnPx(settingNumber('stackGap'))
     const packed = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-05', 20)], { height: 10 }),
-      LAYOUT_SETTINGS,
+      settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 }),
       REGIONS,
     )
-    // Two lanes need 68; a stated 10 must not squeeze them out.
-    expect(packed.rows[0]!.height).toBe(68)
+    // Two lanes need more than that; a stated 10 must not squeeze them out.
+    expect(packed.rows[0]!.height).toBe(lane + gap + lane)
   })
 
   it('ST-7 stops at the cap and says so by a value, and throws nothing', () => {
@@ -883,8 +941,8 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       REGIONS,
     )
     // shapeHeightOf.milestone is S-17 against the rectangle's 1.
-    expect(asMilestone.placements[0]!.height).toBe(MILESTONE_SIDE)
-    expect(asBar.placements[0]!.height).toBe(28)
+    expect(asMilestone.placements[0]!.height).toBe(drawnPx(MILESTONE_SIDE))
+    expect(asBar.placements[0]!.height).toBe(drawnPx(28))
   })
 
   it('FR-055 scales the HORIZONTAL from the drawn extent', () => {
@@ -937,7 +995,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     // One row, so the extent IS that row's band -- which `LF-3` keeps at or
     // above `HF-1`'s lattice as well as at or above the rectangle.
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
-    expect(layout.contentHeight).toBe(Math.max(28, CONTROL_LATTICE_FLOOR))
+    expect(layout.contentHeight).toBe(Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR))
   })
 
   it('FR-055 measures to the RIGHTMOST occupied edge, even when every one is negative', () => {
@@ -948,7 +1006,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     const scrolled = settingsOf({ ...LAYOUT_SETTINGS, scrollDate: '2027-01-01' })
     const layout = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), scrolled, REGIONS)
     expect(taskPlacement(layout, 1)!.occupiedX1).toBeLessThan(0)
-    expect(layout.contentWidth).toBeCloseTo(120, 6)
+    expect(layout.contentWidth).toBeCloseTo(drawnPx(120), 6)
   })
 
   it('FR-077 carries the drawn type size on the placement, with S-8 applied last', () => {
@@ -962,9 +1020,11 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     // to 0.5715 on 2026-09-10 (S-5's own remark carries the arithmetic), and a
     // typed 0.73 here went stale the same day.
     expect(taskPlacement(layout, 1)!.labelFontSize).toBeCloseTo(
-      settingNumber('basePlanHeight') *
-        settingNumber('actualOfPlan') *
-        settingNumber('fontOfActual'),
+      drawnPx(
+        settingNumber('basePlanHeight') *
+          settingNumber('actualOfPlan') *
+          settingNumber('fontOfActual'),
+      ),
       6,
     )
 
@@ -981,7 +1041,10 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     // An arrow is half as tall, so its label falls under S-8's floor once the
     // thin scale is applied. FR-094 puts that floor on AFTER the thin scale, so
     // the answer is the floor itself.
-    expect(taskPlacement(thin, 2)!.labelFontSize).toBe(12)
+    expect(
+      taskPlacement(thin, 2)!.labelFontSize,
+      'FR-077: 可読の下限は S-8 に FR-039 の描く比を掛けた値',
+    ).toBe(drawnPx(settingNumber('fontMin')))
   })
 })
 
@@ -1006,14 +1069,19 @@ const geometryOf = (
 ): ScheduleGeometry =>
   geometryFromLayout(schedule, settings, layoutFromSchedule(schedule, settings, REGIONS), REGIONS, selection)
 
-/** The x of a day index, at pxPerDay 6 from wherever the Row Area starts (`S-79`). */
-const xOf = (dayIndex: number): number => REGIONS.rowArea.x + dayIndex * 6
+/**
+ * The x of a day index, from wherever the Row Area starts (`S-79` drawn). One
+ * day is `S-1` times `zoomX` times the drawn ratio of `FR-039` (table T-252's
+ * `DS-4`), so it is read from the manuscript's own figure rather than typed.
+ */
+const xOf = (dayIndex: number): number =>
+  REGIONS.rowArea.x + dayIndex * drawnPx(settingNumber('pxPerDayAt1x'))
 
 // LF-11 places the marker `markerGap` past the right end of the bar FR-013
 // names, as a square of side `markerSize`, so its CENTRE stands this far past
 // that end. Read from the generated defaults (S-23 = 4, S-22 = 16) rather than
 // re-typed, so moving either value moves these cases with it.
-const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') / 2
+const MARKER_OFFSET = drawnPx(settingNumber('markerGap') + settingNumber('markerSize') / 2)
 
 // ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-023d's closing rule
 // says what that hold is now: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
@@ -1026,7 +1094,8 @@ const MARKER_OFFSET = settingNumber('markerGap') + settingNumber('markerSize') /
 // hold -- and table T-038's order named the two apart: 「実績のダミーの掴みシロ
 // は `S-93` であり、描く幅の `S-180` ではない」. That distinction is retired:
 // 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
-const DUMMY_MARKER_OFFSET = Math.min(6, NOT_STORED_DUMMY_SIZES['S-180']) + MARKER_OFFSET
+const DUMMY_MARKER_OFFSET =
+  Math.min(drawnPx(settingNumber('pxPerDayAt1x')), NOT_STORED_DUMMY_SIZES['S-180']) + MARKER_OFFSET
 
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
@@ -1050,7 +1119,7 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     expect(points).toHaveLength(4)
     const xs = points.map((onePoint) => onePoint.x)
     expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(xOf(10), 6)
-    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(MILESTONE_SIDE, 6)
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(drawnPx(MILESTONE_SIDE), 6)
   })
 
   it('T-012a draws a rectangle as its own four points when no fade is set', () => {
@@ -1091,9 +1160,9 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     // The plan notch is min(120 x 0.35, 28 x 0.45) = 12.6. The actual's is that
     // times actualOfPlan -- NOT min(its own width x 0.35, ...), which would be
     // smaller and would tilt the two slopes apart.
-    expect(Math.max(...planX) - planX[1]!).toBeCloseTo(12.6, 6)
+    expect(Math.max(...planX) - planX[1]!).toBeCloseTo(drawnPx(12.6), 6)
     expect(Math.max(...actualX) - actualX[1]!)
-      .toBeCloseTo(12.6 * settingNumber('actualOfPlan'), 6)
+      .toBeCloseTo(drawnPx(12.6 * settingNumber('actualOfPlan')), 6)
   })
 
   it('LF-9 centres an actual laid inside and pushes one laid below by actualGap', () => {
@@ -1106,7 +1175,8 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const actualTop = Math.min(...outlinePoints(inside.actual).map((onePoint) => onePoint.y))
     const planHeight = settingNumber('basePlanHeight')
     expect(actualTop).toBeCloseTo(
-      REGIONS.rowArea.y + (planHeight - planHeight * settingNumber('actualOfPlan')) / 2,
+      REGIONS.rowArea.y +
+        drawnPx((planHeight - planHeight * settingNumber('actualOfPlan')) / 2),
       6,
     )
 
@@ -1115,9 +1185,9 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const actualLine = lineBar(below.actual)
     // An arrow's plan is 28 x 0.5 = 14 tall, so its line runs at 7 from the
     // top; the actual sits 14 + actualGap below that top, on its own centre.
-    const planTop = planLine.from.y - 7
+    const planTop = planLine.from.y - drawnPx(7)
     expect(actualLine.from.y - planTop)
-      .toBeCloseTo(14 + 2 + (14 * settingNumber('actualOfPlan')) / 2, 6)
+      .toBeCloseTo(drawnPx(14 + 2 + (14 * settingNumber('actualOfPlan')) / 2), 6)
   })
 
   it('LF-7 gives an arrow a head and a span two dots', () => {
@@ -1192,9 +1262,9 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // the case can tell them apart.
     expect(marker.centre.x).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
     // LF-11: 縦は予定バーの中心 -- the plan's centre, not the actual's.
-    expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
+    expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + drawnPx(14), 6)
     // LF-11: markerSize を一辺とする正方形.
-    expect(marker.radius).toBe(settingNumber('markerSize') / 2)
+    expect(marker.radius).toBe(drawnPx(settingNumber('markerSize') / 2))
   })
 
   it('FR-013 moves the marker to the plan bar when only the plan is displayed', () => {
@@ -1398,10 +1468,10 @@ describe('ScheduleGeometry (PI-6) -- FR-014 and LF-12', () => {
     const line = geometryOf(schedule).progressLine
     // Two lanes, plus the entry above and the exit below.
     expect(line).toHaveLength(4)
-    expect(line[0]!.y).toBeCloseTo(REGIONS.rowArea.y - 6, 6)
+    expect(line[0]!.y).toBeCloseTo(REGIONS.rowArea.y - drawnPx(6), 6)
     expect(line[0]!.x).toBeCloseTo(xOf(31), 6)
     // LF-12 puts each vertex half a RECTANGLE's height below its lane's top.
-    expect(line[1]!.y).toBeCloseTo(REGIONS.rowArea.y + 14, 6)
+    expect(line[1]!.y).toBeCloseTo(REGIONS.rowArea.y + drawnPx(14), 6)
   })
 
   it('PL-4 marks a Task not started whose start has gone by; PL-1 leaves a finished one alone', () => {
@@ -1468,7 +1538,9 @@ describe('ScheduleGeometry (PI-6) -- table T-020a, GR-10 and FR-019', () => {
     const label = geometryOf(schedule).tasks[0]!.label!
     expect(placed.labelPlacement).toBe('right')
     expect(label.height).toBe(placed.labelFontSize)
-    expect(label.height).toBe(12)
+    expect(label.height, 'FR-077: 可読の下限は S-8 に FR-039 の描く比を掛けた値').toBe(
+      drawnPx(settingNumber('fontMin')),
+    )
   })
 
   it('FR-019 encloses both rows when the range names the top one below the bottom', () => {
@@ -1527,7 +1599,7 @@ describe('ItemHitArea (PI-7)', () => {
   }
   const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
     geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))
-  const middleY = REGIONS.rowArea.y + 14
+  const middleY = REGIONS.rowArea.y + drawnPx(14)
 
   it('GR-12 answers the plan bar body', () => {
     // ⚠️ PROBED AT DAY 15 AND NOT AT DAY 10 SINCE 2026-09-09. Nothing about
@@ -1631,9 +1703,23 @@ describe('ItemHitArea (PI-7)', () => {
   })
 
   it('GR-5 takes the actual start, and the actual BODY is not a grab area at all', () => {
-    // 2026-01-05 is a Monday, so five worked days reach the 10th: x 194 to 230.
-    const geometry = oneTask({ actualStart: '2026-01-05', stop: '2026-01-09' })
-    expect(itemAtPointer(geometry, xOf(4), middleY, SLOP)?.grab).toBe('GR-5')
+    // 2026-01-05 is a Monday, so five worked days reach the 10th.
+    // ⚠️ zoomX 3 so the DRAWN actual bar is wider than twice `S-91`. The grips
+    // do not shrink with the display scale (table T-252's `DS-7`) while the bar
+    // does, so at the stored zoom the two ends' allowances meet in the middle
+    // and no middle is left for the line below to read.
+    const zoomed = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      zoomX: 3,
+    })
+    const geometry = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-05', stop: '2026-01-09' })]),
+      zoomed,
+    )
+    const actualStartX = Math.min(
+      ...outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x),
+    )
+    expect(itemAtPointer(geometry, actualStartX, middleY, SLOP)?.grab).toBe('GR-5')
     // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
     // two, so where they overlap the plan is what is picked up. ⛔ The middle
     // itself, not a nearby day index -- S-91's true reach (12px, not the 6 this
@@ -1654,19 +1740,29 @@ describe('ItemHitArea (PI-7)', () => {
     // A whole markerSize further along the same plan body -- clear of the
     // square -- GR-12 answers, which is what makes the line above a real win.
     expect(
-      itemAtPointer(running, xOf(7) + MARKER_OFFSET + settingNumber('markerSize'), middleY, SLOP)
-        ?.grab,
+      itemAtPointer(
+        running,
+        xOf(7) + MARKER_OFFSET + drawnPx(settingNumber('markerSize')),
+        middleY,
+        SLOP,
+      )?.grab,
     ).toBe('GR-12')
   })
 
   it('GR-7 follows the end-point dummy while the Task is not started', () => {
     // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
     // end and joins the two faint dummies at the head of the bar.
-    expect(itemAtPointer(oneTask(), xOf(0) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe(
-      'GR-7',
-    )
-    expect(itemAtPointer(oneTask(), xOf(0) + 5, middleY, SLOP)?.grab).toBe('GR-17')
-    expect(itemAtPointer(oneTask(), xOf(1) + 1, middleY, SLOP)?.grab).not.toBe('GR-17')
+    const fresh = oneTask()
+    const mark = fresh.tasks[0]!.dummies[0]!.ink
+    expect(itemAtPointer(fresh, xOf(0) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(
+      itemAtPointer(fresh, mark.x + mark.width * 0.75, middleY, SLOP)?.grab,
+      'FR-043 が描いた印の右半分は実績の終了側',
+    ).toBe('GR-17')
+    expect(
+      itemAtPointer(fresh, mark.x + mark.width + 1, middleY, SLOP)?.grab,
+      '印の外へ広げてはならない（MUST NOT）',
+    ).not.toBe('GR-17')
   })
 
   it('the drawn mark is cut down its middle: left half GR-9, right half GR-17', () => {
@@ -1678,8 +1774,16 @@ describe('ItemHitArea (PI-7)', () => {
     // the mark instead -- 「1 つのダミーの印は、その横幅の中央で左右に割ること
     // （MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）
     // とすること（MUST）」.
-    expect(itemAtPointer(oneTask(), xOf(0) + 2, middleY, SLOP)?.grab, 'DM-1 (CR-382): ink 0..6, middle 3').toBe('GR-9')
-    expect(itemAtPointer(oneTask(), xOf(0) + 5, middleY, SLOP)?.grab).toBe('GR-17')
+    const fresh = oneTask()
+    const mark = fresh.tasks[0]!.dummies[0]!.ink
+    expect(
+      itemAtPointer(fresh, mark.x + mark.width * 0.25, middleY, SLOP)?.grab,
+      'DM-1 (CR-382): 描いた印の左半分',
+    ).toBe('GR-9')
+    expect(
+      itemAtPointer(fresh, mark.x + mark.width * 0.75, middleY, SLOP)?.grab,
+      'DM-1 (CR-382): 描いた印の右半分',
+    ).toBe('GR-17')
   })
 
   it('⛔⛔ past the mark, GR-9 and GR-17 give up the ground entirely', () => {
@@ -1702,7 +1806,9 @@ describe('ItemHitArea (PI-7)', () => {
       pxPerDayAt1x: 24,
     }))
     const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
-    expect(gr9.ink.width, 'FR-043: 1 日ぶんと `S-180` の小さい方').toBe(24)
+    expect(gr9.ink.width, 'FR-043: 1 日ぶんと `S-180` の小さい方').toBe(
+      Math.min(drawnPx(24), NOT_STORED_DUMMY_SIZES['S-180']),
+    )
     expect(itemAtPointer(wide, gr9.ink.x + 1, middleY, SLOP)?.grab).toBe('GR-9')
     expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GR-17')
     // ⭐ MEASURED, NOT ASSUMED: this Task's plan bar stands right where the
@@ -1830,7 +1936,13 @@ describe('ItemHitArea (PI-7)', () => {
     // 「実績の端点の掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の
     // 2 端が同じ画素を争う」. ⚠️ ONE worked day long, so the bar is narrower than
     // twice `S-91` and the clamp is the only thing that can part the two ends.
-    const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-01' })
+    // ⚠️ zoomX 3 so the drawn bar is wide enough that the two halves can be
+    // told apart at all: `S-91` does not shrink with the display scale (table
+    // T-252's `DS-7`) while the bar does.
+    const geometry = geometryOf(
+      oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-01' })]),
+      settingsOf({ ...(GEOM_SETTINGS as unknown as Record<string, unknown>), zoomX: 3 }),
+    )
     const actualXs = outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x)
     const from = Math.min(...actualXs)
     const to = Math.max(...actualXs)

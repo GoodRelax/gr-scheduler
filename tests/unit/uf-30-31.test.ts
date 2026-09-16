@@ -91,6 +91,7 @@ import {
   type WheelInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -267,6 +268,10 @@ const SETTINGS = settingsOf({
   stackDirection: 'down', // S-58, pinned so every y reads from the top
   rulerHeight: 48,
   rulerFont: 12,
+  // WHY: FR-039 draws at S-234 / 100 x S-236, so these two put the DRAWN day
+  // and the DRAWN band back at their stored size, which is what this file means.
+  zoomX: 1 / DEFAULT_DISPLAY_RATIO, // S-75
+  zoomY: 1 / DEFAULT_DISPLAY_RATIO, // S-76
 })
 
 const ENV: ScreenEnvironment = {
@@ -1267,7 +1272,7 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
    * scroll from doing nothing. The case below asserts the height it actually
    * got, never the setting it asked for.
    */
-  const TALL_SETTINGS = settingsOf({ ...SETTINGS, zoomY: 5 })
+  const TALL_SETTINGS = settingsOf({ ...SETTINGS, zoomY: 5 / DEFAULT_DISPLAY_RATIO })
 
   it('MK-1: a bare wheel scrolls, and is not a zoom', () => {
     const answer = commandFromInput(wheelDown(120), contextOf())

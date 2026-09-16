@@ -46,6 +46,7 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The fixture. One `arrow` Task, unstarted, alongside one `rectangle` Task in
@@ -67,10 +68,14 @@ const NESTED = {
 const SETTINGS: DocumentSettings = ({
   ...SETTINGS_DEFAULTS,
   ...NESTED,
+  displayScale: DEFAULT_DISPLAY_SCALE,
   scrollDate: '2026-01-01',
   scrollGroupId: 'g1',
   stackDirection: 'down',
 }) as unknown as DocumentSettings
+
+// see FR-039, T-252
+const DRAWN_ACTUAL_GAP = SETTINGS.actualGap * DEFAULT_DISPLAY_RATIO
 
 const ENV: ScreenEnvironment = {
   width: 1000,
@@ -184,7 +189,7 @@ describe('表 T-012 -- an arrow/endpointSpan dummy sits in the actual band, belo
     // `planTop + placed.planHeight + settings.actualGap`. The dummy must land
     // on the very same band once it has begun -- table T-012 and FR-043 have
     // not moved WHERE the actual belongs merely because none is drawn yet.
-    const belowTop = placed.y + placed.planHeight + SETTINGS.actualGap
+    const belowTop = placed.y + placed.planHeight + DRAWN_ACTUAL_GAP
 
     const ink = geometryOf(1).dummies[0]!.ink
     expect(ink.height).toBeCloseTo(actualHeight, 6)
@@ -204,7 +209,7 @@ describe('表 T-012 -- an arrow/endpointSpan dummy sits in the actual band, belo
     // never drawn in.
     const placed = placedOf(1)
     const actualHeight = placed.planHeight * SETTINGS.actualOfPlan
-    const belowTop = placed.y + placed.planHeight + SETTINGS.actualGap
+    const belowTop = placed.y + placed.planHeight + DRAWN_ACTUAL_GAP
     const bandMiddle = belowTop + actualHeight / 2
 
     const dummies = geometryOf(1).dummies

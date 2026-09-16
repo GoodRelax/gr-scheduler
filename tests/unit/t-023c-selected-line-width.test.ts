@@ -70,6 +70,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -128,6 +129,20 @@ const FRAME_STROKE = oneNumberOf('table T-206 row S-174', rowOf('T-206', 'S-174'
 /** `S-18` `dependencyWidth`, the dependency line's own width. */
 const DEPENDENCY_WIDTH = oneNumberOf('table T-201 row S-18', rowOf('T-201', 'S-18')['既定値'])
 
+// see NS-3
+const PICTURE_GRID = ((): number => {
+  const rule = rowOf('T-231', 'NS-3')[String.fromCharCode(0x898f, 0x5247)] ?? ''
+  const found = /(\d+(?:\.\d+)?)\s*px/.exec(rule)
+  if (found === null) throw new Error('table T-231 row NS-3 states no grid')
+  return Number(found[1])
+})()
+
+// see NS-3
+const onGrid = (value: number): number => Math.round(value / PICTURE_GRID) * PICTURE_GRID
+
+// see FR-039, T-252
+const drawnOnTheGrid = (stored: number): number => onGrid(stored * DEFAULT_DISPLAY_RATIO)
+
 /**
  * 表 T-023c の `SL-8` — the split, copied fixed (Chapter 1.9, :275). ⭐ The
  * `Dual Cursor`'s following side is not a row of table T-023c: `DC-8` of table
@@ -158,6 +173,7 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
  * dotted keys, and the layout reads the nested object.
  */
 const SETTINGS = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rulerHeight: 48, // S-2
   rulerFont: 12, // S-3
   scrollDate: '2026-01-01', // S-77
@@ -483,7 +499,10 @@ describe('T-023c SL-8 -- 依存線は太さで示す', () => {
     // multiplier is applied TO is `dependencyWidth`, and unselected the line is
     // that width and no other.
     const line = dependencyIn(drawn(sceneOf()).svg)
-    expect(strokeWidthOf(line)).toBeCloseTo(DEPENDENCY_WIDTH, 6)
+    expect(onGrid(strokeWidthOf(line)), 'S-18 に FR-039 の描く比を掛けた太さ').toBeCloseTo(
+      drawnOnTheGrid(DEPENDENCY_WIDTH),
+      6,
+    )
   })
 
   it('multiplies THAT width by S-178 when it is selected (SL-8, MUST)', () => {
@@ -492,8 +511,8 @@ describe('T-023c SL-8 -- 依存線は太さで示す', () => {
     const picked = drawn(sceneOf(), {
       selection: pick({ kind: 'dependency', successorUid: 2, ordinal: 0 }),
     }).svg
-    expect(strokeWidthOf(dependencyIn(picked))).toBeCloseTo(
-      DEPENDENCY_WIDTH * LINE_MULTIPLIER,
+    expect(onGrid(strokeWidthOf(dependencyIn(picked)))).toBeCloseTo(
+      drawnOnTheGrid(DEPENDENCY_WIDTH * LINE_MULTIPLIER),
       6,
     )
   })
@@ -511,8 +530,11 @@ describe('T-023c SL-8 -- 依存線は太さで示す', () => {
       }).svg,
     )
 
-    expect(strokeWidthOf(plain)).toBeCloseTo(DEPENDENCY_WIDTH * 2, 6)
-    expect(strokeWidthOf(picked)).toBeCloseTo(DEPENDENCY_WIDTH * 2 * LINE_MULTIPLIER, 6)
+    expect(onGrid(strokeWidthOf(plain))).toBeCloseTo(drawnOnTheGrid(DEPENDENCY_WIDTH * 2), 6)
+    expect(onGrid(strokeWidthOf(picked))).toBeCloseTo(
+      drawnOnTheGrid(DEPENDENCY_WIDTH * 2 * LINE_MULTIPLIER),
+      6,
+    )
   })
 
   it('⛔ puts no frame round it (SL-8, MUST NOT)', () => {
@@ -693,6 +715,9 @@ describe('T-076 EP-12 -- 書き出しに選択の印を出さない', () => {
       picture: 'export',
       selection: pick({ kind: 'dependency', successorUid: 2, ordinal: 0 }),
     }).svg
-    expect(strokeWidthOf(dependencyIn(picked))).toBeCloseTo(DEPENDENCY_WIDTH, 6)
+    expect(onGrid(strokeWidthOf(dependencyIn(picked)))).toBeCloseTo(
+      drawnOnTheGrid(DEPENDENCY_WIDTH),
+      6,
+    )
   })
 })

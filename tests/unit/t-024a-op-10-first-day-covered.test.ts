@@ -121,6 +121,7 @@ import {
   type FrameEnvironment,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable } from '../contract/spec-table'
+import { displayRatioAt } from '../fixtures/display-scale'
 import { validateDocument } from '../fixtures/grs-document'
 
 // ===========================================================================
@@ -662,7 +663,10 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     const drawn = frameOfBoot(nothingDrawn(), true)
     const settings = (nothingDrawn() as any).documentSettings
     expect(settings.zoomX, 'the fixture really stored a zoom that is not 等倍').toBe(STORED_ZOOM_X)
-    expect(drawn.pxPerDay).toBe(settings.pxPerDayAt1x)
+    expect(
+      drawn.pxPerDay,
+      '等倍に戻した 1 日の幅に、FR-039 の 表 T-252 の DS-4 が描く比を掛ける',
+    ).toBe(settings.pxPerDayAt1x * displayRatioAt(settings.displayScale))
   })
 
   it('leaves the stored zoom alone while doing it -- OP-10 is on the reading side (FR-051)', () => {

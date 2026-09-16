@@ -93,6 +93,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The values, solved from the manuscript rather than typed in.
@@ -112,6 +113,12 @@ const RULER_LABEL_PAD = SETTINGS_DEFAULTS['rulerLabelPad'] as number
  * offset is what lets the case below read a 段's height off two baselines.
  */
 const RULER_LABEL_BOTTOM_PAD = SETTINGS_DEFAULTS['rulerLabelBottomPad'] as number
+
+// see FR-039, T-252
+const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// WHY: the picture prints a coordinate rounded to two places.
+const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
 /** `S-1`（`pxPerDayAt1x`）-- FR-017: one day is this multiplied by `zoomX`. */
 const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
@@ -296,6 +303,7 @@ const settingsAt = (rulerFont: number, zoomX: number, fontScale: string): Docume
     rulerFont, // S-3
     rulerHeight: rulerHeightOf(rulerFont), // S-2
     rulerLabelPad: RULER_LABEL_PAD, // S-136
+    displayScale: DEFAULT_DISPLAY_SCALE,
     zoomX, // S-75
     // `S-77`. Chosen so the window crosses a year boundary -- and therefore a
     // month, a week and a day boundary -- at every one of the four tiers, which
@@ -441,10 +449,10 @@ describe('FR-017 -- the four tiers of `L-1`, judged on the corrected px/day', ()
         const zoomX = zoomFor(sample.pxPerDay, scale.font)
         const settings = settingsAt(scale.font, zoomX, scale.name)
         const layout = layoutFromSchedule(EMPTY, settings, regionsFromScreen(ENV, settings))
-        expect(layout.pxPerDay, `${scale.name} / ${sample.name}: S-1 x zoomX`).toBeCloseTo(
-          PX_PER_DAY_AT_1X * zoomX,
-          9,
-        )
+        expect(
+          layout.pxPerDay,
+          `${scale.name} / ${sample.name}: S-1 x zoomX x the drawn ratio (DS-4)`,
+        ).toBeCloseTo(PX_PER_DAY_AT_1X * zoomX * DISPLAY_RATIO, 9)
       }
     }
   })
@@ -531,7 +539,7 @@ describe('FR-017 -- the band height does not move with the tier', () => {
     // are asserted alongside: that is the very chain FR-017 refuses to close
     // (「帯の高さ → `Row Area` の高さ → `zoomY`」).
     for (const scale of FONT_SCALES) {
-      const expected = rulerHeightOf(scale.font)
+      const expected = rulerHeightOf(scale.font) * DISPLAY_RATIO
       const first = bandOf(
         settingsAt(scale.font, zoomFor(TIER_SAMPLE[0].pxPerDay, scale.font), scale.name),
       )
@@ -557,7 +565,7 @@ describe('FR-017 -- the band height does not move with the tier', () => {
     // renderer is the one place that has been handed the tier, so it is the one
     // place a tier-driven height could appear.
     for (const scale of FONT_SCALES) {
-      const expected = rulerHeightOf(scale.font)
+      const expected = rulerHeightOf(scale.font) * DISPLAY_RATIO
       for (const sample of TIER_SAMPLE) {
         const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
         const where = `${scale.name} / ${sample.name}`
@@ -581,10 +589,10 @@ describe('FR-017 -- the band height does not move with the tier', () => {
       bandOf(settingsAt(scale.font, zoomFor(TIER_SAMPLE[3].pxPerDay, scale.font), scale.name))
         .height
     for (const scale of FONT_SCALES) {
-      expect(heightAt(scale), `${scale.name}: S-2 solved at this text size`).toBeCloseTo(
-        rulerHeightOf(scale.font),
-        6,
-      )
+      expect(
+        heightAt(scale),
+        `${scale.name}: S-2 solved at this text size, x the drawn ratio (DS-1)`,
+      ).toBeCloseTo(rulerHeightOf(scale.font) * DISPLAY_RATIO, 6)
     }
     expect(heightAt(FONT_SCALES[0]), 'S is shorter than M').toBeLessThan(heightAt(FONT_SCALES[1]))
     expect(heightAt(FONT_SCALES[1]), 'M is shorter than L').toBeLessThan(heightAt(FONT_SCALES[2]))
@@ -618,7 +626,7 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
     // `rulerFont` and still passes; what cannot pass is any THIRD size, or the
     // smaller size anywhere the exception does not reach.
     for (const scale of FONT_SCALES) {
-      const smaller = scale.font * WEEKDAY_FONT_COEF
+      const smaller = twoPlaces(scale.font * DISPLAY_RATIO * WEEKDAY_FONT_COEF)
       for (const sample of TIER_SAMPLE) {
         const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
         const band = bandOf(settings)
@@ -637,10 +645,14 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
           const onThird =
             third !== null &&
             Math.round((numberAt(one.text, 'y') as number) * 100) / 100 === third
-          if (onThird && Math.abs(size - smaller) < Math.abs(size - scale.font)) {
-            expect(size, `${where}: the 曜's size is \`rulerFont\` x S-219`).toBeCloseTo(smaller, 6)
+          const plain = scale.font * DISPLAY_RATIO
+          if (onThird && Math.abs(size - smaller) < Math.abs(size - plain)) {
+            expect(
+              size,
+              `${where}: the 曜's size is \`rulerFont\` x the drawn ratio x S-219`,
+            ).toBeCloseTo(smaller, 6)
           } else {
-            expect(size, `${where}: ${one.text}`).toBeCloseTo(scale.font, 2)
+            expect(size, `${where}: ${one.text}`).toBeCloseTo(plain, 2)
           }
         }
       }
@@ -734,7 +746,7 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
 
 /** The offset `S-136` and `S-179` pin between them, inside whatever 段 a label sits in. */
 const baselineIntoIts段 = (rulerFont: number): number =>
-  RULER_LABEL_PAD + rulerFont - RULER_LABEL_BOTTOM_PAD
+  (RULER_LABEL_PAD + rulerFont - RULER_LABEL_BOTTOM_PAD) * DISPLAY_RATIO
 
 describe('FR-017 (MUST) -- a tier standing in fewer than three 段 divides the band equally', () => {
   it('has a tier that stands in two 段, or the rule below is asked of nothing', () => {
@@ -797,11 +809,13 @@ describe('FR-017 (MUST) -- a tier standing in fewer than three 段 divides the b
         const baselines = baselinesOf(drawn(settings), band)
         if (baselines.length < 2) continue
         const equal = band.height / baselines.length
+        const printed = (段: number): number =>
+          twoPlaces(band.y + 段 * equal + baselineIntoIts段(scale.font))
         for (let at = 1; at < baselines.length; at += 1) {
           expect(
             (baselines[at] as number) - (baselines[at - 1] as number),
             `${where}: 段 ${at + 1} is one EQUAL 段 below 段 ${at}`,
-          ).toBeCloseTo(equal, 2)
+          ).toBeCloseTo(printed(at) - printed(at - 1), 2)
         }
         if (baselines.length < spent) {
           // ⭐ The arrangement the MUST NOT names, stated as the number it would

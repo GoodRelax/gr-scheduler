@@ -1,6 +1,6 @@
 // Unit tests for UF-53 (browser-clipboard.ts): the one implementation of the Clipboard seam (IF-5), driven with a fake browser.
 
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import * as browserClipboardModule from '../../src/framework/browser-clipboard/browser-clipboard'
 import { browserClipboard } from '../../src/framework/browser-clipboard/browser-clipboard'
@@ -29,8 +29,8 @@ const T_024_IO_6 = {
   canRead: false,
 } as const
 
-// WHY: the parameter of browserClipboard offers writeText and nothing
-// else, and these three browsers are the reason nothing more is needed.
+// WHY: FR-025 (CR-390) puts ONE image/png item on the board for a picture
+// and forbids the SVG text beside it, so the browser owes `write` as well.
 const T_003_CN_2 = {
   id: 'CN-2',
   baseline: 'Chromium',
@@ -58,6 +58,9 @@ const T_065_IF_5 = {
 
 // see T-075
 const T_075_UF_53 = { id: 'UF-53', file: 'browser-clipboard.ts', purity: 'non-pure' } as const
+
+// see FR-025
+const PNG_TYPE = 'image/png'
 
 // WHY: three, because NT-3a (MUST) makes a failure notice carry what can
 // be done next, and these three do not share a next step.
@@ -90,20 +93,32 @@ const OUTSIDE_ASCII = String.fromCodePoint(0x65e5, 0x7a0b, 0x20, 0x2014, 0x20, 0
 const BOUNDARY_TEXTS: readonly { readonly why: string; readonly text: string }[] = [
   { why: 'empty', text: '' },
   { why: 'one character', text: 'x' },
-  {
-    why: 'a picture as SvgRenderer would have made it (PI-19)',
-    text: '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect/></svg>',
-  },
   { why: 'text outside ASCII', text: OUTSIDE_ASCII },
   { why: 'a newline and a tab', text: 'a\r\nb\tc' },
   { why: 'a long payload -- no cap is set for this route', text: 'x'.repeat(200_000) },
 ]
 
+// WHY: FR-025 makes a picture bytes and not characters, so the boundaries
+// of the picture arm are byte counts and byte values, not strings.
+const BOUNDARY_PNGS: readonly { readonly why: string; readonly bytes: Uint8Array }[] = [
+  { why: 'no bytes at all', bytes: new Uint8Array([]) },
+  { why: 'one byte', bytes: new Uint8Array([137]) },
+  {
+    why: "a PNG's own eight-byte signature",
+    bytes: new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]),
+  },
+  {
+    why: 'every byte value once, so no value is treated as a terminator',
+    bytes: new Uint8Array(Array.from({ length: 256 }, (_one, at) => at)),
+  },
+  { why: 'a long payload -- no cap is set for this route', bytes: new Uint8Array(200_000) },
+]
+
 // WHY: kept in CHN-9's own row order, so a walk over this roster is a walk over the row.
 const EVERY_CONTENT: readonly { readonly why: string; readonly content: ClipboardContent }[] = [
-  ...BOUNDARY_TEXTS.map(({ why, text }) => ({
+  ...BOUNDARY_PNGS.map(({ why, bytes }) => ({
     why: `picture, ${why}`,
-    content: { kind: 'picture', svg: text } as ClipboardContent,
+    content: { kind: 'picture', pngBytes: bytes } as ClipboardContent,
   })),
   ...BOUNDARY_TEXTS.map(({ why, text }) => ({
     why: `document, ${why}`,
@@ -111,11 +126,17 @@ const EVERY_CONTENT: readonly { readonly why: string; readonly content: Clipboar
   })),
 ]
 
-const PICTURE: ClipboardContent = { kind: 'picture', svg: '<svg/>' }
+const PICTURE: ClipboardContent = {
+  kind: 'picture',
+  pngBytes: new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]),
+}
 const DOCUMENT: ClipboardContent = { kind: 'document', text: 'a document for an AI' }
 
-const stringOf = (content: ClipboardContent): string =>
-  content.kind === 'picture' ? content.svg : content.text
+const textOf = (content: ClipboardContent): string =>
+  content.kind === 'picture' ? '' : content.text
+
+const bytesOf = (content: ClipboardContent): Uint8Array =>
+  content.kind === 'picture' ? content.pngBytes : new Uint8Array([])
 
 // WHY: stands in for an argument that never arrived, so it cannot be
 // mistaken for a write of the empty string.
@@ -126,17 +147,72 @@ type Outcome =
   | { readonly kind: 'reject'; readonly reason: unknown }
   | { readonly kind: 'throw'; readonly reason: unknown }
 
+// WHY: the unit reaches the two host constructors through globalThis, so
+// the fake has to stand there and not be handed in.
+interface HeldBlob {
+  readonly parts: readonly unknown[]
+  readonly type: string
+}
+
+interface HeldItem {
+  readonly held: Record<string, HeldBlob>
+}
+
+class FakeBlob implements HeldBlob {
+  readonly parts: readonly unknown[]
+  readonly type: string
+  constructor(parts: readonly unknown[], options: { type: string }) {
+    this.parts = parts
+    this.type = options.type
+  }
+}
+
+class FakeItem implements HeldItem {
+  readonly held: Record<string, HeldBlob>
+  constructor(parts: Record<string, HeldBlob>) {
+    this.held = parts
+  }
+}
+
+const HOST = globalThis as unknown as Record<string, unknown>
+let blobWas: unknown
+let itemWas: unknown
+
+beforeEach(() => {
+  blobWas = HOST['Blob']
+  itemWas = HOST['ClipboardItem']
+  HOST['Blob'] = FakeBlob
+  HOST['ClipboardItem'] = FakeItem
+})
+
+afterEach(() => {
+  HOST['Blob'] = blobWas
+  HOST['ClipboardItem'] = itemWas
+})
+
 interface FakeSystemClipboard {
-  readonly systemClipboard: { writeText(text: string): Promise<void> }
+  readonly systemClipboard: {
+    writeText(text: string): Promise<void>
+    write(items: readonly unknown[]): Promise<void>
+  }
   readonly writes: string[]
+  readonly items: (readonly HeldItem[])[]
   readonly argumentCounts: number[]
   readonly touched: string[]
 }
 
 function fakeSystemClipboard(outcomes: readonly Outcome[]): FakeSystemClipboard {
   const writes: string[] = []
+  const items: (readonly HeldItem[])[] = []
   const argumentCounts: number[] = []
   const touched: string[] = []
+  const settle = (): Promise<void> => {
+    const at = Math.min(writes.length + items.length - 1, outcomes.length - 1)
+    const outcome = outcomes[at] ?? { kind: 'ok' as const }
+    if (outcome.kind === 'throw') throw outcome.reason
+    if (outcome.kind === 'reject') return Promise.reject(outcome.reason)
+    return Promise.resolve()
+  }
   const inner = {
     writeText(...args: readonly string[]): Promise<void> {
       argumentCounts.push(args.length)
@@ -144,11 +220,12 @@ function fakeSystemClipboard(outcomes: readonly Outcome[]): FakeSystemClipboard 
       // WHY: a call with no argument is a defect; the sentinel keeps it
       // from reading as a write of the empty string, which is a real case.
       writes.push(first === undefined ? NO_ARGUMENT : first)
-      const at = Math.min(writes.length - 1, outcomes.length - 1)
-      const outcome = outcomes[at] ?? { kind: 'ok' as const }
-      if (outcome.kind === 'throw') throw outcome.reason
-      if (outcome.kind === 'reject') return Promise.reject(outcome.reason)
-      return Promise.resolve()
+      return settle()
+    },
+    write(...args: readonly (readonly HeldItem[])[]): Promise<void> {
+      argumentCounts.push(args.length)
+      items.push(args[0] ?? [])
+      return settle()
     },
   }
   const systemClipboard = new Proxy(inner, {
@@ -157,10 +234,26 @@ function fakeSystemClipboard(outcomes: readonly Outcome[]): FakeSystemClipboard 
       return Reflect.get(target, key, receiver) as unknown
     },
   })
-  return { systemClipboard, writes, argumentCounts, touched }
+  return { systemClipboard, writes, items, argumentCounts, touched }
 }
 
 const accepting = (): FakeSystemClipboard => fakeSystemClipboard([{ kind: 'ok' }])
+
+// see FR-025
+function onlyItem(fake: FakeSystemClipboard): HeldItem {
+  expect(fake.items, 'the picture put no list on the board').toHaveLength(1)
+  const list = fake.items[0] as readonly HeldItem[]
+  expect(list, 'FR-025: one item and no second one').toHaveLength(1)
+  return list[0] as HeldItem
+}
+
+// see FR-025
+function pngOf(item: HeldItem): readonly unknown[] {
+  const blob = item.held[PNG_TYPE]
+  expect(blob, `the item carries no ${PNG_TYPE}`).toBeDefined()
+  expect((blob as HeldBlob).type, `the blob states ${PNG_TYPE}`).toBe(PNG_TYPE)
+  return (blob as HeldBlob).parts
+}
 
 function namedError(name: string, message: string): Error {
   const error = new Error(message)
@@ -192,7 +285,8 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(CLIPBOARD_FAULTS).toHaveLength(3)
     expect(new Set(CLIPBOARD_FAULTS).size).toBe(3)
     expect(T_037_ROWS).toHaveLength(2)
-    expect(EVERY_CONTENT).toHaveLength(BOUNDARY_TEXTS.length * T_008_R9.carries.length)
+    expect(EVERY_CONTENT).toHaveLength(BOUNDARY_PNGS.length + BOUNDARY_TEXTS.length)
+    expect(BOUNDARY_PNGS.length).toBeGreaterThan(0)
     expect(EVERY_REFUSAL.length).toBeGreaterThan(0)
   })
 
@@ -243,10 +337,17 @@ describe('FR-033 -- the OS clipboard is written and never read', () => {
     expect(T_008_R9.isOutboundOnly).toBe(true)
   })
 
-  it('touches `writeText` on the browser object and nothing else on it', async () => {
+  it('touches `write` on the browser object for a picture, and nothing else on it', async () => {
     const fake = accepting()
     const clipboard = browserClipboard(fake.systemClipboard)
     await clipboard.writeClipboardContent(PICTURE)
+    expect([...new Set(fake.touched)]).toEqual(['write'])
+  })
+
+  it('touches `writeText` on the browser object for a document, and nothing else on it', async () => {
+    const fake = accepting()
+    const clipboard = browserClipboard(fake.systemClipboard)
+    await clipboard.writeClipboardContent(DOCUMENT)
     expect([...new Set(fake.touched)]).toEqual(['writeText'])
   })
 
@@ -254,10 +355,66 @@ describe('FR-033 -- the OS clipboard is written and never read', () => {
     const fake = accepting()
     const clipboard = browserClipboard(fake.systemClipboard)
     await clipboard.writeClipboardContent(PICTURE)
-    expect(fake.writes).toHaveLength(1)
+    expect(fake.items).toHaveLength(1)
+    expect(fake.writes).toHaveLength(0)
     await clipboard.writeClipboardContent(DOCUMENT)
-    expect(fake.writes).toHaveLength(2)
+    expect(fake.writes).toHaveLength(1)
+    expect(fake.items).toHaveLength(1)
     expect(fake.argumentCounts).toEqual([1, 1])
+  })
+})
+
+describe('FR-025 (MUST) -- a picture goes as one image/png item and nothing beside it', () => {
+  it('puts exactly one item on the board, carrying exactly one type', async () => {
+    const fake = accepting()
+    const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(PICTURE)
+    expect(writing).toEqual({ ok: true })
+    const item = onlyItem(fake)
+    expect(Object.keys(item.held)).toEqual([PNG_TYPE])
+  })
+
+  it('⛔ puts no text/plain and no image/svg+xml beside it (MUST NOT)', async () => {
+    const fake = accepting()
+    await browserClipboard(fake.systemClipboard).writeClipboardContent(PICTURE)
+    const item = onlyItem(fake)
+    expect(Object.keys(item.held)).not.toContain('text/plain')
+    expect(Object.keys(item.held)).not.toContain('image/svg+xml')
+    expect(fake.writes, 'no characters were written anywhere').toEqual([])
+  })
+
+  it('sends the very bytes it was given -- nothing is made again here', async () => {
+    for (const { why, content } of EVERY_CONTENT.filter((one) => one.content.kind === 'picture')) {
+      const fake = accepting()
+      const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
+      expect(writing, why).toEqual({ ok: true })
+      expect(pngOf(onlyItem(fake)), why).toEqual([bytesOf(content)])
+    }
+  })
+
+  it('answers `unsupported` when the browser cannot put an image on the board', async () => {
+    // WHY: the picture arm needs three things of the host -- `write`, `Blob`
+    // and `ClipboardItem` -- and any one of them missing is the same answer.
+    const held = { Blob: HOST['Blob'], ClipboardItem: HOST['ClipboardItem'] }
+    const bare = { writeText: (): Promise<void> => Promise.resolve() }
+    expect(await browserClipboard(bare).writeClipboardContent(PICTURE)).toEqual({
+      ok: false,
+      fault: 'unsupported',
+    })
+    for (const missing of ['Blob', 'ClipboardItem']) {
+      HOST[missing] = undefined
+      const fake = accepting()
+      expect(
+        await browserClipboard(fake.systemClipboard).writeClipboardContent(PICTURE),
+        `the host has no ${missing}`,
+      ).toEqual({ ok: false, fault: 'unsupported' })
+      expect(fake.items, `the host has no ${missing}`).toEqual([])
+      HOST[missing] = held[missing as 'Blob' | 'ClipboardItem']
+    }
+  })
+
+  it('still writes the text kinds through `writeText`, which needs none of that', async () => {
+    const bare = { writeText: (): Promise<void> => Promise.resolve() }
+    expect(await browserClipboard(bare).writeClipboardContent(DOCUMENT)).toEqual({ ok: true })
   })
 })
 
@@ -270,7 +427,7 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
     const fake = accepting()
     const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(DOCUMENT)
     expect(writing).toEqual({ ok: true })
-    expect(fake.writes).toEqual([stringOf(DOCUMENT)])
+    expect(fake.writes).toEqual([textOf(DOCUMENT)])
   })
 
   it('uses the object it was handed, and a second instance uses a second object', async () => {
@@ -278,14 +435,15 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
     const second = accepting()
     await browserClipboard(first.systemClipboard).writeClipboardContent(PICTURE)
     await browserClipboard(second.systemClipboard).writeClipboardContent(DOCUMENT)
-    expect(first.writes).toEqual([stringOf(PICTURE)])
-    expect(second.writes).toEqual([stringOf(DOCUMENT)])
+    expect(pngOf(onlyItem(first))).toEqual([bytesOf(PICTURE)])
+    expect(second.writes).toEqual([textOf(DOCUMENT)])
   })
 
   it('writes nothing while only being built -- the effect is in the member (UF-53)', () => {
     const fake = accepting()
     const clipboard = browserClipboard(fake.systemClipboard)
     expect(fake.writes).toEqual([])
+    expect(fake.items).toEqual([])
     expect(clipboard).toBeTypeOf('object')
     expect(T_075_UF_53.purity).toBe('non-pure')
   })
@@ -305,28 +463,23 @@ describe('LY-5 of table T-060 -- the browser is a parameter, so this runs withou
     expect(first.ok).toBe(false)
     expect(second).toEqual({ ok: true })
     expect(third.ok).toBe(false)
-    expect(fake.writes).toEqual([stringOf(PICTURE), stringOf(DOCUMENT), stringOf(PICTURE)])
+    expect(fake.items).toHaveLength(2)
+    expect(fake.writes).toEqual([textOf(DOCUMENT)])
   })
 })
 
-describe("CHN-9 of table T-008 -- both payloads leave as the string they arrived as", () => {
+describe('CHN-9 of table T-008 -- both payloads leave as they arrived', () => {
   it('hands every payload of both kinds to the browser (one case walks the row)', async () => {
     for (const { why, content } of EVERY_CONTENT) {
       const fake = accepting()
       const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
       expect(writing, why).toEqual({ ok: true })
+      if (content.kind === 'picture') {
+        expect(pngOf(onlyItem(fake)), why).toEqual([bytesOf(content)])
+        continue
+      }
       expect(fake.writes, why).toHaveLength(1)
-      expect(fake.writes[0], why).toBe(stringOf(content))
-    }
-  })
-
-  it('sends the picture it was given -- nothing is made again here (FR-025)', async () => {
-    for (const { why, content } of EVERY_CONTENT.filter((one) => one.content.kind === 'picture')) {
-      const fake = accepting()
-      await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
-      // WHY: not a re-rendering or re-serialization -- the same characters.
-      expect(fake.writes[0], why).toBe(stringOf(content))
-      expect(fake.writes[0]?.length, why).toBe(stringOf(content).length)
+      expect(fake.writes[0], why).toBe(textOf(content))
     }
   })
 
@@ -353,6 +506,16 @@ describe("CHN-9 of table T-008 -- both payloads leave as the string they arrived
       expect(writing, `length ${boundary.length}`).toEqual({ ok: true })
       expect(fake.writes[0], `length ${boundary.length}`).toBe(boundary)
     }
+    // WHY: the picture arm counts bytes, so its boundaries are byte counts.
+    for (const bytes of [new Uint8Array([]), new Uint8Array(200_000)]) {
+      const fake = accepting()
+      const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent({
+        kind: 'picture',
+        pngBytes: bytes,
+      })
+      expect(writing, `${bytes.length} bytes`).toEqual({ ok: true })
+      expect(pngOf(onlyItem(fake)), `${bytes.length} bytes`).toEqual([bytes])
+    }
   })
 
   it('answers a promise rather than acting into the dark', () => {
@@ -362,25 +525,35 @@ describe("CHN-9 of table T-008 -- both payloads leave as the string they arrived
   })
 })
 
-describe('CN-2 of table T-003 -- writeText is all the browser has to offer', () => {
-  it('is served by an object of one method, for every payload of both kinds', async () => {
+describe('CN-2 of table T-003 -- what the browser has to offer for each payload', () => {
+  it('is served by `write` for a picture and `writeText` for a document, for every payload', async () => {
     expect([T_003_CN_2.baseline, T_003_CN_2.onlyChecked, T_003_CN_2.outOfScope]).toHaveLength(3)
     for (const { why, content } of EVERY_CONTENT) {
-      // WHY: none of the browsers CN-2 admits takes SVG as a clipboard
-      // image, so a path needing more than writeText would be dead code.
-      const bare = { writeText: (): Promise<void> => Promise.resolve() }
-      const writing = await browserClipboard(bare).writeClipboardContent(content)
+      const fake = accepting()
+      const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
       expect(writing, why).toEqual({ ok: true })
+      expect([...new Set(fake.touched)], why).toEqual([
+        content.kind === 'picture' ? 'write' : 'writeText',
+      ])
     }
   })
 
-  it('asks for no media type -- the argument is the string itself', async () => {
-    for (const { why, content } of EVERY_CONTENT) {
+  it('asks for no media type of the text arm -- the argument is the string itself', async () => {
+    for (const { why, content } of EVERY_CONTENT.filter((one) => one.content.kind !== 'picture')) {
       const fake = accepting()
       await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
       expect(fake.argumentCounts, why).toEqual([1])
       expect(typeof fake.writes[0], why).toBe('string')
-      expect(fake.writes[0], why).toBe(stringOf(content))
+      expect(fake.writes[0], why).toBe(textOf(content))
+    }
+  })
+
+  it('names the media type of the picture arm exactly once, on the blob and on the item', async () => {
+    for (const { why, content } of EVERY_CONTENT.filter((one) => one.content.kind === 'picture')) {
+      const fake = accepting()
+      await browserClipboard(fake.systemClipboard).writeClipboardContent(content)
+      expect(fake.argumentCounts, why).toEqual([1])
+      expect(Object.keys(onlyItem(fake).held), why).toEqual([PNG_TYPE])
     }
   })
 })
@@ -409,7 +582,7 @@ describe('FR-028 -- the failure paths all come back as values', () => {
       expect(writing.ok, why).toBe(false)
       if (writing.ok) continue
       expect(CLIPBOARD_FAULTS, why).toContain(writing.fault)
-      expect(fake.writes, why).toHaveLength(1)
+      expect(fake.items, why).toHaveLength(1)
     }
   })
 
@@ -503,7 +676,8 @@ describe('table T-037 -- the refusal carries what the notice needs', () => {
       answers.push(await clipboard.writeClipboardContent(content))
     }
     expect(answers.map((one) => one.ok)).toEqual([true, false, true])
-    expect(fake.writes).toEqual([stringOf(DOCUMENT), stringOf(PICTURE), stringOf(DOCUMENT)])
+    expect(fake.writes).toEqual([textOf(DOCUMENT), textOf(DOCUMENT)])
+    expect(fake.items).toHaveLength(1)
   })
 
   it('gives the absent clipboard its own fault, so its next step differs', async () => {
@@ -583,7 +757,7 @@ describe('PND-121 (provisional) -- NotAllowedError is the refusal read as notPer
       const fake = fakeSystemClipboard([{ kind: 'reject', reason }])
       const writing = await browserClipboard(fake.systemClipboard).writeClipboardContent(PICTURE)
       expect(writing, why).not.toEqual({ ok: false, fault: 'unsupported' })
-      expect(fake.writes, why).toHaveLength(1)
+      expect(fake.items, why).toHaveLength(1)
     }
   })
 })

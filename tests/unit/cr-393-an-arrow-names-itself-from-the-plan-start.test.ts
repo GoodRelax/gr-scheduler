@@ -211,7 +211,7 @@ describe('T-013 (MUST) -- an SH-3 / SH-4 name starts at the plan start, whatever
     const scene = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
     expect(scene.drawn.label, 'premise: the task has a name to draw').not.toBeNull()
     expect(scene.drawn.label!.x, T_013_ARROW_STARTS_AT_THE_PLAN_START).toBeCloseTo(
-      scene.placed.x + S_31,
+      scene.placed.x,
       6,
     )
     expect(scene.placed.labelX, T_013_ARROW_STARTS_AT_THE_PLAN_START).toBeCloseTo(scene.placed.x, 6)

@@ -79,6 +79,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { DISPLAY_SCALE_STEPS, displayRatioAt } from '../fixtures/display-scale'
 
 // ===========================================================================
 // The manuscript, read at run time rather than copied (Chapter 1.9)
@@ -116,6 +117,9 @@ const ONE_ENTRANCE_TALL = S_138 + S_141 * 2
  * head of this file), so the real lattice can only be taller than this.
  */
 const LATTICE_FLOOR = ONE_ENTRANCE_TALL * 2
+
+// see FR-039, T-202
+const TOP_STEP = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1] ?? 100
 
 // ===========================================================================
 // The fixture. Copied from tests/unit/layout-engine.test.ts.
@@ -216,8 +220,8 @@ describe('the manuscript still says what these cases read', () => {
     // BELOW AGREE WITH ANYTHING -- rule 04 section 2.
     expect(ONE_ENTRANCE_TALL, `S-138=${S_138}, S-141=${S_141}`).toBe(24)
     expect(LATTICE_FLOOR).toBe(48)
-    // The sentence that makes 24 the entrance's height and not just a sum.
-    expect(says('T-206', 'S-138')).toContain('26 × 24px')
+    // The sentence that keeps the outer box out of the row, so FR-029 derives it.
+    expect(says('T-206', 'S-138')).toContain('本行は入口の外形を持たない')
   })
 })
 
@@ -289,11 +293,12 @@ describe('LF-3 / HF-19 (MUST): a row is never shorter than its own controls', ()
   it('⭐ and a packed row keeps the height its lanes need, which is more than the floor', () => {
     // `LF-2` still decides the band for a row that has Tasks in it; HF-19 only
     // ever raises a band, never lowers one.
+    const atTopStep = settingsOf({ ...LAYOUT_SETTINGS, displayScale: TOP_STEP })
     const packedWith = (many: number): number => {
       const tasks = Array.from({ length: many }, (_unused, index) =>
         spanning(index + 1, `2026-01-0${index + 1}`, 20),
       )
-      const [height] = heightsOf(oneRow(tasks))
+      const [height] = heightsOf(oneRow(tasks), atTopStep)
       return height ?? 0
     }
     const three = packedWith(3)
@@ -311,12 +316,18 @@ describe('LF-3 / HF-19 (MUST): a row is never shorter than its own controls', ()
     // 段と段のあいだに `stackGap` を段数から 1 を引いた数だけ加える」. One more
     // lane therefore adds exactly one lane and one `stackGap`, and that
     // difference is a lane's own height with no floor in it.
-    const stackGap = SETTINGS_DEFAULTS['stackGap'] as number
+    const stackGap = (SETTINGS_DEFAULTS['stackGap'] as number) * displayRatioAt(TOP_STEP)
     const lane = four - three - stackGap
     expect(lane, 'a lane with no height makes the sum below say nothing').toBeGreaterThan(0)
     expect(lane, 'a lane on its own stands under the floor, which is why it is measured this way')
       .toBeLessThan(LATTICE_FLOOR)
-    expect(three, 'LF-2 (MUST): three lanes and two gaps').toBe(lane * 3 + stackGap * 2)
-    expect(four, 'LF-2 (MUST): four lanes and three gaps').toBe(lane * 4 + stackGap * 3)
+    expect(three, 'LF-2 (MUST): three lanes and two gaps').toBeCloseTo(
+      lane + stackGap + lane + stackGap + lane,
+      9,
+    )
+    expect(four, 'LF-2 (MUST): four lanes and three gaps').toBeCloseTo(
+      lane + stackGap + lane + stackGap + lane + stackGap + lane,
+      9,
+    )
   })
 })

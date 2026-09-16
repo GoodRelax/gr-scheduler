@@ -1136,6 +1136,28 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
                                        SUBTRACTED_WHERE_IT_STANDS),
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⭐ THE THREE ROWS AN ENTRANCE'S OUTER WIDTH IS COMPOSED OF, READ WHERE
+    # THE FLOOR IS WORKED OUT. FR-029 (MUST) states that width as the box
+    # (S-138) plus the gap (S-141) and the frame's line (S-237) on each side,
+    # and FR-039's floor under the DRAWN Row Title Panel is four of them times
+    # S-235, beside one grab strip of S-138 times S-235.
+    # ⛔ THE OUTER WIDTH IS NOT A ROW AND MAY NOT BECOME ONE: FR-029 (MUST NOT)
+    # forbids that px number a place in table T-206, because a table holding
+    # both the terms and their sum lets one of them be corrected alone. ⇒ The
+    # sum is composed in the unit, out of these three rows, and the day any
+    # term moves the floor moves with it.
+    # ⛔ NOT FOLDED INTO NOT_STORED_ICON_SIZES ABOVE, although that constant
+    # holds two of the same rows: one constant per consuming UNIT, and that one
+    # belongs to the Framework unit that DRAWS an entrance while this one
+    # belongs to `screen-regions.ts`, which draws nothing and works out a
+    # width. ⚠️ S-237 is in this constant and not in that one because the
+    # drawing side still carries its border in its own CSS -- the day it reads
+    # the row instead, the row joins ITS constant rather than this one moving.
+    # ⭐ IT STANDS IN `screen-regions.ts` on the ground the S-236 entry below
+    # gives: the floor belongs where the drawn settings are made, and that unit
+    # imports `document-settings.ts` alone, so no import cycle is opened.
+    'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-141', 'S-237'],
+                                  READ_WHERE_IT_STANDS),
     # ⭐ THE PRODUCT'S OWN NOTCH, AND NOT A DOCUMENT'S. S-236 is the ratio the
     # chart is drawn at when table T-202's S-234 reads 100, and FR-039 (MUST)
     # builds the drawing ratio out of the two: S-234 / 100 * S-236. The DOCUMENT
@@ -1158,11 +1180,17 @@ NOT_STORED_TARGETS = {
     # what FR-029 (MUST) multiplies an entrance's box (S-138) and gap (S-141) by
     # ON EVERY SURFACE. ⛔ The display scale (S-234) is NOT applied to any of it
     # -- DS-6 and DS-7 of table T-252 say so in as many words.
-    # ⭐⭐ IT IS WRITTEN INTO TWO UNITS, on the bargain S-225 / S-226 already
+    # ⭐⭐ IT IS WRITTEN INTO THREE UNITS, on the bargain S-225 / S-226 already
     # stand on a few entries below: EP-1 of table T-076 (MUST) has the screen and
     # the export read ONE row for the title's size and inset, and FR-051 (MUST)
     # multiplies that same pair by this row -- so the export has to reach it too.
     # ⛔ A second value in the exporter is what EP-1 (MUST NOT) forbids.
+    # ⭐ THE THIRD IS `screen-regions.ts`, and FR-039's floor is why: the floor
+    # under the drawn Row Title Panel is the grab strip and four entrances
+    # multiplied by THIS row rather than by the display ratio (DS-7 of table
+    # T-252 keeps the display scale off both), and it is worked out where the
+    # drawn settings are made. ⛔ That unit may not import the Adapter or the
+    # Framework one this row already stands in (Chapter 5.3).
     'NOT_STORED_CHROME_SCALE': (['S-235'], DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
     # ⭐ THE SAME GAP, ON THE SIDE THAT DRAWS IT. S-218 stands twice because two
     # units read it and neither may import the other (Chapter 5.3): the Adapter
@@ -2002,8 +2030,13 @@ TARGETS = [
     # imports IT. ⛔ Putting the row in `schedule-layout.ts` would leave
     # `regionsFromScreen` unable to scale S-79 and S-2 without the cycle LR-3
     # forbids.
+    # ⭐ THE ENTRANCE'S THREE ROWS AND THE CHROME'S SCALE STAND HERE TOO, for
+    # FR-039's floor under the drawn Row Title Panel: the floor is composed
+    # where the drawn settings are made, so nothing downstream has to know it.
     (os.path.join(LAYOUT, 'screen-regions', 'screen-regions.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DISPLAY_SCALE_BASE'),
+     lambda _erd: not_stored_block('NOT_STORED_DISPLAY_SCALE_BASE') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ENTRANCE_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: derived_block('NOT_STORED_ROW_CONTROL_OUTER_SIZES') + NEWLINE * 2

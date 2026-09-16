@@ -80,6 +80,7 @@ import {
 } from '../fixtures/fake-browser'
 import { bare, specTable } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
+import { S_235 } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -303,7 +304,9 @@ describe('表 T-206 (`S-138` / `S-141`) -- the glyph grew and the entrance did n
     // ABOVE ARITHMETIC ABOUT NOTHING -- rule 04 section 2.
     expect(rowOf('T-206', 'S-138').by['値']).toContain('図形を描く箱の一辺')
     expect(rowOf('T-206', 'S-141').by['値']).toContain('図形と入口の枠の最低隙間')
-    expect(S_138_ROW, 'S-138 states the outer box that does not move').toContain('26 × 24px')
+    expect(S_138_ROW, 'S-138 keeps the outer box out of the row; FR-029 derives it').toContain(
+      '本行は入口の外形を持たない',
+    )
     expect(S_141_ROW, 'S-141 states that the gap is the corner radius').toContain('角の R と同じ値')
   })
 
@@ -327,8 +330,8 @@ describe('FR-029 (MUST) -- the box a glyph is drawn in is S-138 on a side', () =
 
     expect(
       glyphBoxSides(entry),
-      `FR-029 asks for a glyph box of ${S_138}px: ${whatWasDrawn(entry)}`,
-    ).toContain(S_138)
+      `FR-029 asks for a glyph box of ${S_138} × ${S_235}px: ${whatWasDrawn(entry)}`,
+    ).toContain(S_138 * S_235)
   })
 
   it('⛔ draws the same glyph box on every surface it stands on (MUST NOT)', () => {
@@ -341,7 +344,7 @@ describe('FR-029 (MUST) -- the box a glyph is drawn in is S-138 on a side', () =
       expect(
         sideOn(icon),
         `表 T-109 ${icon}: ${whatWasDrawn(iconEntry(built.root(), icon))}`,
-      ).toContain(S_138)
+      ).toContain(S_138 * S_235)
     }
   })
 
@@ -356,12 +359,12 @@ describe('FR-029 (MUST) -- the box a glyph is drawn in is S-138 on a side', () =
 
     expect(outer, `the entrance states an outer height: ${whatWasDrawn(entry)}`).not.toBeNull()
     expect(
-      (outer as number) - S_138,
-      `FR-029 asks for at least ${S_141}px on each side: ${whatWasDrawn(entry)}`,
-    ).toBeGreaterThanOrEqual(S_141 * 2)
+      (outer as number) - S_138 * S_235,
+      `FR-029 asks for at least ${S_141} × ${S_235}px on each side: ${whatWasDrawn(entry)}`,
+    ).toBeGreaterThanOrEqual(S_141 * S_235 * 2 - 1e-6)
   })
 
-  it('⭐ leaves the entrance the outer height the ruling fixed (S-138 + S-141 × 2)', () => {
+  it('⭐ leaves the entrance the outer height the ruling fixed, at S-235 ((S-138 + S-141 × 2) × S-235)', () => {
     // ⭐ 「入口の外形は 26 × 24px のまま動かない」（`S-138` の備考）. ⚠️ ONLY THE
     // HEIGHT IS ASKED: the 26 of the width is the height plus 「枠の 1px × 2」,
     // and no row of 表 T-206 states that 1px frame -- so a case for the width
@@ -372,6 +375,6 @@ describe('FR-029 (MUST) -- the box a glyph is drawn in is S-138 on a side', () =
     expect(
       outerHeightOf(entry),
       `the entrance's outer box does not move: ${whatWasDrawn(entry)}`,
-    ).toBe(S_138 + S_141 * 2)
+    ).toBe((S_138 + S_141 * 2) * S_235)
   })
 })

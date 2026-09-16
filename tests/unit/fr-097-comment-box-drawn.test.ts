@@ -113,6 +113,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -169,6 +170,12 @@ const FONT_SIZE_OF: Readonly<Record<'S' | 'M' | 'L', number>> = {
   M: oneNumberOf('table T-215 row S-122', rowOf('T-215', 'S-122')['値']),
   L: oneNumberOf('table T-215 row S-123', rowOf('T-215', 'S-123')['値']),
 }
+
+// see FR-039, T-252
+const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// see FR-039, T-252
+const DRAWN_PAD = PAD * DISPLAY_RATIO
 
 /** `S-174`, SL-8's frame thickness. */
 const FRAME_STROKE = oneNumberOf('table T-206 row S-174', rowOf('T-206', 'S-174')['既定'])
@@ -399,7 +406,12 @@ const draw = (
 ): Drawn => {
   // scrollDate (S-77) pins the left edge of the Row Area, so two documents a
   // case compares are always drawn on the same axis.
-  const settings = settingsOf({ zoomX: 10, scrollDate: day(1), ...over })
+  const settings = settingsOf({
+    zoomX: 10,
+    scrollDate: day(1),
+    displayScale: DEFAULT_DISPLAY_SCALE,
+    ...over,
+  })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
@@ -438,6 +450,9 @@ const ELEMENT = /<(\/?)([A-Za-z][\w-]*)((?:[^<>"]|"[^"]*")*?)(\/?)>/g
 
 const attrOf = (attrs: string, name: string): string | null =>
   new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(attrs)?.[1] ?? null
+
+// WHY: the picture prints a coordinate rounded to two places.
+const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
 const numberAttr = (attrs: string, name: string, fallback = 0): number => {
   const raw = attrOf(attrs, name)
@@ -619,7 +634,7 @@ describe('FR-097 -- 本文の箱の大きさは本文に合わせること（MUS
         const box = boxOf(drawBody(text, { fontScale }))
         expect({ text, width: box.body.width }).toEqual({
           text,
-          width: estimatedWidth(text, fontSize) + PAD * 2,
+          width: estimatedWidth(text, fontSize) + DRAWN_PAD * 2,
         })
       }
     },
@@ -631,7 +646,7 @@ describe('FR-097 -- 本文の箱の大きさは本文に合わせること（MUS
       const box = boxOf(drawBody(text))
       expect({ text, width: box.body.width }).toEqual({
         text,
-        width: estimatedWidth(text, fontSize) + PAD * 2,
+        width: estimatedWidth(text, fontSize) + DRAWN_PAD * 2,
       })
     }
   })
@@ -639,7 +654,7 @@ describe('FR-097 -- 本文の箱の大きさは本文に合わせること（MUS
   it.each(SCALES)('at fontScale %s one line is as tall as the type, plus S-181 twice', (fontScale) => {
     const fontSize = FONT_SIZE_OF[fontScale]
     const box = boxOf(drawBody('hello', { fontScale }))
-    expect(box.body.height).toBe(fontSize + PAD * 2)
+    expect(box.body.height).toBe(fontSize + DRAWN_PAD * 2)
   })
 
   it.each(SCALES)('at fontScale %s the type is table T-215\'s size (FR-039)', (fontScale) => {
@@ -682,14 +697,14 @@ describe('FR-097 -- a newline in the body is a line break', () => {
       expect({ text, lines: box.lines.length, height: box.body.height }).toEqual({
         text,
         lines,
-        height: lines * fontSize + PAD * 2,
+        height: lines * fontSize + DRAWN_PAD * 2,
       })
     }
   })
 
   it('is as wide as its widest line', () => {
     const box = boxOf(drawBody('a\nabcd'))
-    expect(box.body.width).toBe(estimatedWidth('abcd', FONT_SIZE_OF.M) + PAD * 2)
+    expect(box.body.width).toBe(estimatedWidth('abcd', FONT_SIZE_OF.M) + DRAWN_PAD * 2)
   })
 
   it('draws one run of text per line', () => {
@@ -732,7 +747,7 @@ describe('S-182 -- the body wraps at commentBoxWrapUnits and not before', () => 
   })
 
   it('keeps the box no wider than S-182 units plus S-181 twice', () => {
-    const widest = WRAP_UNITS * FONT_SIZE_OF.M * LABEL_COEF + PAD * 2
+    const widest = WRAP_UNITS * FONT_SIZE_OF.M * LABEL_COEF + DRAWN_PAD * 2
     expect(boxOf(drawBody(OVER_LIMIT)).body.width).toBe(widest)
     expect(boxOf(drawBody(AT_LIMIT)).body.width).toBe(widest)
   })
@@ -752,8 +767,8 @@ describe('S-181 and S-182 are read from the document, not written into the drawi
   it('pads by whatever commentBoxPad the document holds', () => {
     const pad = PAD + 7
     const box = boxOf(drawBody('hello', { commentBoxPad: pad }))
-    expect(box.body.width).toBe(estimatedWidth('hello', FONT_SIZE_OF.M) + pad * 2)
-    expect(box.body.height).toBe(FONT_SIZE_OF.M + pad * 2)
+    expect(box.body.width).toBe(estimatedWidth('hello', FONT_SIZE_OF.M) + pad * DISPLAY_RATIO * 2)
+    expect(box.body.height).toBe(FONT_SIZE_OF.M + pad * DISPLAY_RATIO * 2)
   })
 
   it('wraps at whatever commentBoxWrapUnits the document holds', () => {
@@ -864,10 +879,10 @@ describe('SL-8 -- a selected comment box wears a dashed frame', () => {
     expect(only).toBeDefined()
     const body = boxOf(drawBody('hello world', {}, SELECTED)).body
     expect(only?.box).toEqual({
-      x0: body.x,
-      y0: body.y,
-      x1: body.x + body.width,
-      y1: body.y + body.height,
+      x0: twoPlaces(body.x),
+      y0: twoPlaces(body.y),
+      x1: twoPlaces(body.x + body.width),
+      y1: twoPlaces(body.y + body.height),
     })
   })
 
@@ -1021,7 +1036,7 @@ describe('FR-097 -- a box with no body does not fall below its floor', () => {
     // where the floor is measured (on the text, or on the box), so the case
     // holds under both.
     const box = boxOf(drawBody('a'))
-    expect(box.body.width).toBe(estimatedWidth('a', FONT_SIZE_OF.M) + PAD * 2)
+    expect(box.body.width).toBe(estimatedWidth('a', FONT_SIZE_OF.M) + DRAWN_PAD * 2)
     expect(box.body.width).toBeLessThan(FONT_SIZE_OF.M)
   })
 })

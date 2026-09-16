@@ -88,6 +88,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // :275 -- a test of a requirement that points at a table is driven by the
 // table).
 import { specTable } from '../contract/spec-table'
+import { displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The document under test
@@ -674,8 +675,13 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
 
     expect(values.layout.originDay).toEqual(day('2026-04-05'))
     // FR-017: one day is `pxPerDayAt1x` times zoomX. Untouched by any fit.
-    expect(values.layout.pxPerDay).toBe(
-      settingsOf(placed).pxPerDayAt1x * settingsOf(placed).zoomX,
+    expect(
+      values.layout.pxPerDay,
+      'FR-039 の 表 T-252 の DS-4: 描く 1 日の幅は S-1 x zoomX に描く比を掛けた値',
+    ).toBe(
+      settingsOf(placed).pxPerDayAt1x *
+        settingsOf(placed).zoomX *
+        displayRatioAt(settingsOf(placed).displayScale),
     )
   })
 })

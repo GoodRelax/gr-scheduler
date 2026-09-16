@@ -145,6 +145,7 @@ import {
 import { specTable, unbroken } from '../contract/spec-table'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -226,7 +227,7 @@ const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
  * distinguishable halves (GR-9's and GR-17's); the case that measures that
  * re-derives it from the drawn `ink.width` rather than trusting this number.
  */
-const ZOOM_X = 6
+const ZOOM_X = 6 / DEFAULT_DISPLAY_RATIO
 
 /**
  * ⭐ THE VERTICAL OF THE DUMMIES' HOLD IS STATED NOWHERE HERE, and that is the
@@ -374,6 +375,7 @@ const SETTINGS = settingsOf({
   scrollGroupId: 'g1', // S-78, so a row is at the top
   stackDirection: 'down', // S-58, so every y reads from the top of the band
   zoomX: ZOOM_X, // S-75 -- see the note on ZOOM_X
+  displayScale: DEFAULT_DISPLAY_SCALE,
 })
 
 const ENV: ScreenEnvironment = {
@@ -685,7 +687,7 @@ describe('the fixture stands where these cases think it does', () => {
     // FR-017 makes one day `pxPerDayAt1x` times `zoomX` (S-1 and S-75). ⭐ The
     // width is re-derived from the layout rather than trusted from ZOOM_X.
     const { layout } = draw(notStarted())
-    expect(layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X * ZOOM_X, 6)
+    expect(layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X * ZOOM_X * DEFAULT_DISPLAY_RATIO, 6)
     expect(
       layout.pxPerDay,
       'S-90 reaches this far to either side of GR-3, so one day must be wider than it',

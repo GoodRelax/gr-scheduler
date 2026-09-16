@@ -150,6 +150,7 @@ import {
 // below from falling behind a row.
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
+import { S_235 } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -3464,10 +3465,10 @@ describe("FR-029 (MUST) -- S-141's least gap between a shape and its entrance's 
       const sides = paddingSides(held.get('padding') ?? '0')
       const where = `${one.row} on the ${one.surface}`
       expect(pxExpression(sides[1] as string), `${where}: right of the shape`).toBeGreaterThanOrEqual(
-        S_141.px,
+        S_141.px * S_235 - 1e-6,
       )
       expect(pxExpression(sides[3] as string), `${where}: left of the shape`).toBeGreaterThanOrEqual(
-        S_141.px,
+        S_141.px * S_235 - 1e-6,
       )
 
       const room = held.get('min-height') ?? held.get('height')
@@ -3475,7 +3476,7 @@ describe("FR-029 (MUST) -- S-141's least gap between a shape and its entrance's 
       expect(
         pxExpression(room as string),
         `${where}: the room downwards is "${room ?? ''}"`,
-      ).toBeGreaterThanOrEqual(S_138.px + S_141.px * 2)
+      ).toBeGreaterThanOrEqual((S_138.px + S_141.px * 2) * S_235 - 1e-6)
     }
   })
 
@@ -3527,13 +3528,14 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
       const built = drawEverySurface()
       const box = glyphBoxOf(iconEntry(built.root(), row))
 
-      expect(pixelsOf(box.width), `${row} on the ${surface} draws its shape ${box.width} wide`).toBe(
-        S_138.px,
-      )
+      expect(
+        pixelsOf(box.width),
+        `${row} on the ${surface} draws its shape ${box.width} wide`,
+      ).toBeCloseTo(S_138.px * S_235, 4)
       expect(
         pixelsOf(box.height),
         `${row} on the ${surface} draws its shape ${box.height} tall`,
-      ).toBe(S_138.px)
+      ).toBeCloseTo(S_138.px * S_235, 4)
     },
   )
 
@@ -3620,8 +3622,14 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     for (const icon of ['IC-58', 'IC-59', 'IC-60']) {
       const boxes = rows.map((one) => glyphBoxOf(iconEntry(one, icon)))
       expect(boxes[0], `${icon} is drawn in two different boxes`).toEqual(boxes[1])
-      expect(pixelsOf(boxes[0]?.width ?? ''), `${icon} is not S-138 wide`).toBe(S_138.px)
-      expect(pixelsOf(boxes[0]?.height ?? ''), `${icon} is not S-138 tall`).toBe(S_138.px)
+      expect(pixelsOf(boxes[0]?.width ?? ''), `${icon} is not S-138 × S-235 wide`).toBeCloseTo(
+        S_138.px * S_235,
+        4,
+      )
+      expect(pixelsOf(boxes[0]?.height ?? ''), `${icon} is not S-138 × S-235 tall`).toBeCloseTo(
+        S_138.px * S_235,
+        4,
+      )
       // HF-5 (MUST NOT): 上端から下げてはならない. A control that carried a top
       // offset of its own would be set down from the name's top edge, which is
       // exactly what that row forbids.
@@ -3722,8 +3730,8 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     const onRoster = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
 
     expect(onRoster).toEqual(onHelp)
-    expect(pixelsOf(onRoster.width)).toBe(S_138.px)
-    expect(pixelsOf(onRoster.height)).toBe(S_138.px)
+    expect(pixelsOf(onRoster.width)).toBeCloseTo(S_138.px * S_235, 4)
+    expect(pixelsOf(onRoster.height)).toBeCloseTo(S_138.px * S_235, 4)
   })
 })
 

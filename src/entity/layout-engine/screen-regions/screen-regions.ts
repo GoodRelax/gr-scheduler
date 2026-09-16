@@ -77,17 +77,45 @@ const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'taskLevelOfDetailReadablePx', 'rowTitlePanelWidth',
 ]
 
+// see FR-029
+/** @purity pure */
+function entranceOuterWidthPx(): number {
+  return (
+    NOT_STORED_ENTRANCE_SIZES['S-138'] +
+    NOT_STORED_ENTRANCE_SIZES['S-141'] * 2 +
+    NOT_STORED_ENTRANCE_SIZES['S-237'] * 2
+  )
+}
+
+// see HF-4
+const ROW_CONTROL_COLUMNS = 4
+
+// see FR-039, T-252
+/** @purity pure */
+function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): number {
+  const indents = settings.rowTitleIndent * ratio * settings.maxGroupDepth
+  const grabStrip = NOT_STORED_ENTRANCE_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235']
+  const rowControls =
+    ROW_CONTROL_COLUMNS * entranceOuterWidthPx() * NOT_STORED_CHROME_SCALE['S-235']
+  return Math.max(settings.rowTitlePanelWidth * ratio, indents + grabStrip + rowControls)
+}
+
 // TRAP: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
 // multiplies the STORED settings once on its way in; none of them scales a scaled value.
 /** @purity pure */
 export function drawnSettingsOf(settings: DocumentSettings): DocumentSettings {
   const ratio = displayRatioOf(settings)
-  if (!(ratio > 0) || ratio === 1) return settings
+  if (!(ratio > 0)) return settings
+  const panelWidth = drawnRowTitlePanelWidthPx(settings, ratio)
+  if (ratio === 1 && panelWidth === settings.rowTitlePanelWidth) return settings
   const drawn: Record<string, unknown> = { ...settings }
-  for (const key of SCALED_BY_THE_DISPLAY) {
-    const value = settings[key]
-    if (typeof value === 'number') drawn[key] = value * ratio
+  if (ratio !== 1) {
+    for (const key of SCALED_BY_THE_DISPLAY) {
+      const value = settings[key]
+      if (typeof value === 'number') drawn[key] = value * ratio
+    }
   }
+  drawn['rowTitlePanelWidth'] = panelWidth
   return drawn as unknown as DocumentSettings
 }
 
@@ -147,5 +175,23 @@ export const NOT_STORED_DISPLAY_SCALE_BASE: {
   readonly 'S-236': number
 } = {
   'S-236': 0.6667,
+}
+
+// see T-206
+export const NOT_STORED_ENTRANCE_SIZES: {
+  readonly 'S-138': number
+  readonly 'S-141': number
+  readonly 'S-237': number
+} = {
+  'S-138': 16,
+  'S-141': 4,
+  'S-237': 1,
+}
+
+// see T-206
+export const NOT_STORED_CHROME_SCALE: {
+  readonly 'S-235': number
+} = {
+  'S-235': 0.6667,
 }
 // </generated>

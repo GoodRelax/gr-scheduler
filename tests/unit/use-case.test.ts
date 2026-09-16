@@ -21,6 +21,7 @@ import { editDocumentSettings, editProject } from '../../src/use-case/edit-docum
 // undoEdit over the held pair. The pair-of-writes case below needs it.
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -193,7 +194,11 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     // passes one at a time but fails together, which is the MUST NOT.
     const tooWide = editDocumentSettings(
       documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 600, propertyPanelWidth: 400 },
+      {
+        kind: 'setPanelWidths',
+        rowTitlePanelWidth: 600 / DEFAULT_DISPLAY_RATIO,
+        propertyPanelWidth: 400,
+      },
       LIMITS,
     )
     expect(tooWide.ok).toBe(false)
@@ -205,7 +210,11 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     // pair that only fits when the scrollbar is forgotten is refused.
     const grazing = editDocumentSettings(
       documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 972, propertyPanelWidth: 10 },
+      {
+        kind: 'setPanelWidths',
+        rowTitlePanelWidth: 972 / DEFAULT_DISPLAY_RATIO,
+        propertyPanelWidth: 10,
+      },
       LIMITS,
     )
     expect(grazing.ok).toBe(false)

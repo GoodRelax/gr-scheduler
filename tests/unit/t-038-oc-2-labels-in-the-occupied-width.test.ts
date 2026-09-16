@@ -71,6 +71,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 // DFC-400's cases ask the PICTURE, not the geometry -- see their own note.
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 // ⛔⛔ THE HOLD IS NOT A SIZE OF ITS OWN, so this file reads no hit-area row out
 // of item-hit-area.ts. Table T-023d's closing rule makes the dummies' hit area
 // `FR-043`'s drawn mark itself: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
@@ -95,8 +96,12 @@ const ENV: ScreenEnvironment = {
   scrollbarThickness: 8,
 }
 
+// see FR-039, T-252
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
 /** The keys these cases pin. Both S-60 and S-61 are stated by every case. */
 const BASE = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rulerHeight: 48, // S-2
   rulerFont: 12, // S-3
   scrollDate: '2026-01-01', // S-77
@@ -337,9 +342,15 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
     const assigneeOnly = placedWith(true, false)
     const percentOnly = placedWith(false, true)
 
-    expect(jutOf(both)).toBeCloseTo(BASE.labelGap + both.outsideLabelWidth, 6)
-    expect(jutOf(assigneeOnly)).toBeCloseTo(BASE.labelGap + assigneeOnly.outsideLabelWidth, 6)
-    expect(jutOf(percentOnly)).toBeCloseTo(BASE.labelGap + percentOnly.outsideLabelWidth, 6)
+    expect(jutOf(both)).toBeCloseTo(BASE.labelGap * DRAWN_RATIO + both.outsideLabelWidth, 6)
+    expect(jutOf(assigneeOnly)).toBeCloseTo(
+      BASE.labelGap * DRAWN_RATIO + assigneeOnly.outsideLabelWidth,
+      6,
+    )
+    expect(jutOf(percentOnly)).toBeCloseTo(
+      BASE.labelGap * DRAWN_RATIO + percentOnly.outsideLabelWidth,
+      6,
+    )
     // ⭐ Both readings ARE counted -- the card holds them and the separator, so
     // it is wider than either part and wider than the two of them together.
     expect(both.outsideLabelWidth).toBeGreaterThan(
@@ -349,7 +360,7 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
     // equalities above already fix the jut at ONE, so this states the same
     // thing the way a reader checks it: the jut of the pair is a single gap
     // past a single measured width.
-    expect(jutOf(both) - both.outsideLabelWidth).toBeCloseTo(BASE.labelGap, 6)
+    expect(jutOf(both) - both.outsideLabelWidth).toBeCloseTo(BASE.labelGap * DRAWN_RATIO, 6)
   })
 
   it('leaves the shape itself where it was -- the labels are occupancy, not geometry', () => {
@@ -390,10 +401,18 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
     }),
   ] as const
 
+  // see T-252
+  const AT_THE_WIDTH_THESE_CASES_NAME = 1 / DRAWN_RATIO
+
   const lanesWith = (assignee: boolean, percent: boolean): readonly number[] =>
-    layoutFromSchedule(rowOf(NEIGHBOURS), showing(assignee, percent), REGIONS).placements.map(
-      (one) => one.stack,
-    )
+    layoutFromSchedule(
+      rowOf(NEIGHBOURS),
+      settingsOf({
+        ...(showing(assignee, percent) as unknown as Record<string, unknown>),
+        zoomX: AT_THE_WIDTH_THESE_CASES_NAME,
+      }),
+      REGIONS,
+    ).placements.map((one) => one.stack)
 
   it('puts the two on ONE lane while the labels are hidden -- their dates do not overlap', () => {
     expect(lanesWith(false, false)).toEqual([0, 0])
@@ -851,7 +870,7 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
     const card = drawn.assigneeLabel
     if (card === null) throw new Error('no OC-2 card')
     const rightEdge = card.x + card.width
-    expect(rightEdge).toBeCloseTo(placed.x - BASE.labelGap, 6)
+    expect(rightEdge).toBeCloseTo(placed.x - BASE.labelGap * DRAWN_RATIO, 6)
 
     // ⛔ THE DEFECT ITSELF. The glyphs used to begin at the box's LEFT edge, so
     // an under-read estimate spilled RIGHTWARD across the gap and onto its

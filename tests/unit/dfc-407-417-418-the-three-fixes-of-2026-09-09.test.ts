@@ -36,6 +36,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -187,7 +188,13 @@ interface Drawn {
 
 /** One pass of table T-068's chain, then PI-19. */
 const draw = (schedule: Schedule, over: Readonly<Record<string, unknown>> = {}): Drawn => {
-  const settings = settingsOf({ zoomX: 1, scrollDate: day(1), stackDirection: 'down', ...over })
+  const settings = settingsOf({
+    zoomX: 1,
+    scrollDate: day(1),
+    stackDirection: 'down',
+    displayScale: DEFAULT_DISPLAY_SCALE,
+    ...over,
+  })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
@@ -196,6 +203,20 @@ const draw = (schedule: Schedule, over: Readonly<Record<string, unknown>> = {}):
     svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen'),
   }
 }
+
+// see NS-3
+const PICTURE_GRID = ((): number => {
+  const row = specTable('T-231').rows.find((one) => one.id === 'NS-3')
+  const found = /(\d+(?:\.\d+)?)\s*px/.exec(row?.by[String.fromCharCode(0x898f, 0x5247)] ?? '')
+  if (found === null) throw new Error('table T-231 row NS-3 states no grid')
+  return Number(found[1])
+})()
+
+// see NS-3
+const onGrid = (value: number): number => Math.round(value / PICTURE_GRID) * PICTURE_GRID
+
+// see FR-039, T-252
+const drawnOnTheGrid = (stored: number): number => onGrid(stored * DEFAULT_DISPLAY_RATIO)
 
 /** Every `stroke-width` the marker's own figure was spelled with. */
 const markerStrokeWidths = (svg: string): number[] =>
@@ -233,13 +254,19 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
     const turned = 3.7
     const drawn = markerStrokeWidths(draw(started(), { markerStroke: turned }).svg)
     expect(drawn.length).toBeGreaterThan(0)
-    for (const width of drawn) expect(width).toBe(turned)
+    for (const width of drawn) {
+      expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(
+        drawnOnTheGrid(turned),
+      )
+    }
   })
 
   it('the same figure follows a second value, so no number of its own is left', () => {
     const drawn = markerStrokeWidths(draw(started(), { markerStroke: 0.8 }).svg)
     expect(drawn.length).toBeGreaterThan(0)
-    for (const width of drawn) expect(width).toBe(0.8)
+    for (const width of drawn) {
+      expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(drawnOnTheGrid(0.8))
+    }
   })
 })
 

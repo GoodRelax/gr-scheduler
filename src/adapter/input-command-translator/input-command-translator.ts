@@ -843,6 +843,11 @@ function steppedDisplayScale(
   return DISPLAY_SCALE_STEPS[at + towards] ?? current
 }
 
+/** @purity pure */
+function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } {
+  return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
+}
+
 // see FR-039
 // TRAP: the middle of the Row Area as it stands BEFORE the press; the day's width and the
 // row's height both move with the ratio, so neither the left nor the top edge holds still.
@@ -858,8 +863,7 @@ function displayScaleWrites(
   const after = displayRatioOf({ ...settings, displayScale: next })
   if (!(before > 0) || !(after > 0)) return [scale]
   const area = context.regions.rowArea
-  const centreX = area.x + area.width / 2
-  const centreY = area.y + area.height / 2
+  const { x: centreX, y: centreY } = centreOf(area)
   const seat = scrolledAnchor(context, 0, 0)
   const day = dayAnchorAt(context, centreX - (centreX - area.x) / (after / before))
   const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)

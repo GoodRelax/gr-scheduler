@@ -25,6 +25,7 @@ import type { Point } from '../../src/entity/layout-engine/schedule-geometry/sch
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -133,7 +134,7 @@ const ALPHA: Planned = { uid: 1, name: 'Alpha', start: '2026-04-06', finish: '20
 const BETA: Planned = { uid: 2, name: 'Beta', start: '2026-04-13', finish: '2026-04-13', milestone: false }
 const GAMMA: Planned = { uid: 3, name: 'Gamma', start: '2026-04-15', finish: '2026-04-15', milestone: true }
 const NAMELESS: Planned = { uid: 4, name: '', start: '2026-04-20', finish: '2026-04-22', milestone: false }
-const NARROW: Planned = { uid: 5, name: 'ab', start: '2026-04-27', finish: '2026-04-29', milestone: false }
+const NARROW: Planned = { uid: 5, name: 'abcdefghij', start: '2026-04-27', finish: '2026-04-29', milestone: false }
 const NEXT_YEAR: Planned = { uid: 6, name: 'Later', start: '2027-01-05', finish: '2027-01-06', milestone: false }
 
 const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]
@@ -430,10 +431,17 @@ describe(`FR-002 (MUST) -- ${FR_002_NL_1_MEASURES_THE_DATES}`, () => {
   const placementOf = (built: Stage) =>
     built.loop.current()?.layout.placements.find((one) => one.taskUid === NARROW.uid)?.labelPlacement
 
+  // see FR-039
+  const AT_THE_DEFAULT_STEP = { displayScale: DEFAULT_DISPLAY_SCALE }
+
   it('a name that fits inside its shape alone goes outside once the dates are added', () => {
-    expect(placementOf(stage(SAME_YEAR, { [PLAN_DATES_KEY]: false })), 'premise: the bare name fits inside').toBe(
-      'inside',
-    )
-    expect(placementOf(stage(SAME_YEAR, { [PLAN_DATES_KEY]: true })), FR_002_NL_1_MEASURES_THE_DATES).toBe('right')
+    expect(
+      placementOf(stage(SAME_YEAR, { ...AT_THE_DEFAULT_STEP, [PLAN_DATES_KEY]: false })),
+      'premise: the bare name fits inside',
+    ).toBe('inside')
+    expect(
+      placementOf(stage(SAME_YEAR, { ...AT_THE_DEFAULT_STEP, [PLAN_DATES_KEY]: true })),
+      FR_002_NL_1_MEASURES_THE_DATES,
+    ).toBe('right')
   })
 })

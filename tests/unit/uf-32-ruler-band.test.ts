@@ -102,6 +102,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { SCHEDULE_COLOURS, svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The values, solved from the manuscript rather than typed in.
@@ -247,6 +248,28 @@ if (!(WEEKDAY_FONT_COEF > 0) || WEEKDAY_FONT_COEF >= 1) {
 }
 const SEGMENT_HEIGHT = RULER_HEIGHT / SEGMENTS_IN_THE_BAND
 
+// see FR-039, T-252
+const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// see FR-039, T-252
+const DRAWN_RULER_HEIGHT = RULER_HEIGHT * DISPLAY_RATIO
+
+// see FR-039, T-252
+const DRAWN_SEGMENT_HEIGHT = SEGMENT_HEIGHT * DISPLAY_RATIO
+
+// see FR-039, T-252
+const DRAWN_RULER_FONT = RULER_FONT * DISPLAY_RATIO
+
+// see FR-039, T-252
+const DRAWN_LABEL_BOTTOM_PAD = RULER_LABEL_BOTTOM_PAD * DISPLAY_RATIO
+
+// see FR-039, T-252
+const DRAWN_BASELINE_IN_SEGMENT =
+  (RULER_LABEL_PAD + RULER_FONT - RULER_LABEL_BOTTOM_PAD) * DISPLAY_RATIO
+
+// WHY: the picture prints a coordinate rounded to two places.
+const twoPlaces = (value: number): number => Math.round(value * 100) / 100
+
 /** 表 T-205 —— the three thresholds, in px/day at `rulerFont` = `S-8`. */
 const TIER_THRESHOLD = {
   month: SETTINGS_DEFAULTS['rulerTierPxPerDayMonth'] as number,
@@ -321,6 +344,7 @@ const SETTINGS = settingsOf({
   rulerFont: RULER_FONT, // S-3
   rulerLabelPad: RULER_LABEL_PAD, // S-136
   rulerLabelBottomPad: RULER_LABEL_BOTTOM_PAD, // S-179
+  displayScale: DEFAULT_DISPLAY_SCALE, // S-234
   // `S-77`. Chosen so that the window crosses a year boundary -- and therefore
   // a month boundary and a week boundary too -- at every one of the four
   // 段階 below, which is what makes each 段 carry a label to read.
@@ -398,6 +422,13 @@ const drawn = (
     weekdayWords,
   )
 }
+
+// see T-201, T-252
+const drawnBaselineAt = (
+  band: ScreenRect,
+  at: number,
+  into: number = DRAWN_BASELINE_IN_SEGMENT,
+): number => twoPlaces(band.y + at * DRAWN_SEGMENT_HEIGHT + into)
 
 /** `regions.timeRuler` —— `U-19`'s band, for whatever settings are handed in. */
 const bandOf = (settings: DocumentSettings = SETTINGS): ScreenRect =>
@@ -684,8 +715,8 @@ describe('UF-32 -- FR-041: the Time Ruler band paints its own ground', () => {
       const ground = groundOf(drawn(EMPTY, settings), bandOf(settings))
       expect(
         numberAt(ground.text, 'height') as number,
-        `${tier.name}: 地の高さは S-2 のまま`,
-      ).toBeCloseTo(RULER_HEIGHT, 2)
+        `${tier.name}: 地の高さは S-2 × 描く比 のまま`,
+      ).toBeCloseTo(DRAWN_RULER_HEIGHT, 2)
     }
   })
 })
@@ -722,7 +753,7 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
       const labels = sizedLabelsOf(drawn(EMPTY, settings, ONE_LANGUAGE), bandOf(settings))
       expect(labels.length, `${tier.name}: 目盛ラベルがある`).toBeGreaterThan(0)
 
-      const smaller = labels.filter((one) => Math.abs(one.size - RULER_FONT) >= 0.005)
+      const smaller = labels.filter((one) => Math.abs(one.size - DRAWN_RULER_FONT) >= 0.005)
 
       // 表 T-238: only `TM-4` prints a 曜 at all, so no coarser 段 may shrink.
       if (!linesAt(at).includes(WEEKDAY_TOKEN)) {
@@ -741,15 +772,15 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
 
       // ⭐ THE RELATION `S-219` STATES, asserted where the MAY was taken.
       for (const one of smaller) {
-        expect(one.size, `${tier.name}: ${one.text} = rulerFont × S-219`).toBeCloseTo(
-          RULER_FONT * WEEKDAY_FONT_COEF,
-          6,
-        )
+        expect(
+          one.size,
+          `${tier.name}: ${one.text} = rulerFont × 描く比 × S-219`,
+        ).toBeCloseTo(twoPlaces(DRAWN_RULER_FONT * WEEKDAY_FONT_COEF), 6)
       }
 
       // 表 T-201: everything the exception does not reach stays at `rulerFont`.
       for (const one of labels.filter((label) => !smaller.includes(label))) {
-        expect(one.size, `${tier.name}: ${one.text}`).toBeCloseTo(RULER_FONT, 2)
+        expect(one.size, `${tier.name}: ${one.text}`).toBeCloseTo(DRAWN_RULER_FONT, 2)
       }
     }
   })
@@ -762,7 +793,10 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
     for (const tier of TIERS) {
       const settings = settingsOf({ ...SETTINGS, zoomX: tier.zoomX })
       const band = bandOf(settings)
-      expect(band.height, `${tier.name}: 帯の高さは S-2`).toBeCloseTo(RULER_HEIGHT, 2)
+      expect(band.height, `${tier.name}: 帯の高さは S-2 × 描く比`).toBeCloseTo(
+        DRAWN_RULER_HEIGHT,
+        2,
+      )
       const baselines = baselinesOf(drawn(EMPTY, settings), band)
       expect(baselines.length, `${tier.name}: 目盛ラベルがある`).toBeGreaterThan(0)
       for (const baseline of baselines) {
@@ -788,13 +822,14 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
     )
     for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
       const settings = settingsOf({ ...SETTINGS, zoomX: tier.zoomX })
-      const baselines = baselinesOf(drawn(EMPTY, settings), bandOf(settings))
+      const band = bandOf(settings)
+      const baselines = baselinesOf(drawn(EMPTY, settings), band)
       expect(baselines.length, `${tier.name}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
       for (let at = 1; at < baselines.length; at += 1) {
         expect(
           (baselines[at] as number) - (baselines[at - 1] as number),
-          `${tier.name}: 段の高さ`,
-        ).toBeCloseTo(SEGMENT_HEIGHT, 2)
+          `${tier.name}: 段の高さは S-2 ÷ 3 × 描く比`,
+        ).toBeCloseTo(drawnBaselineAt(band, at) - drawnBaselineAt(band, at - 1), 2)
       }
     }
   })
@@ -1040,6 +1075,9 @@ describe('UF-32 -- FR-038: the display language reaches the 曜日 and nothing e
 // block above.
 // ---------------------------------------------------------------------------
 
+// see FR-017, T-205
+const WHOLE_PX_PER_DAY_AT_TIER_FOUR = Math.ceil(TIER_THRESHOLD.day * DISPLAY_RATIO)
+
 /** One 目盛ラベル with the place it was drawn at, not only its baseline. */
 interface PlacedLabel {
   readonly x: number
@@ -1067,17 +1105,15 @@ const placedLabelsOf = (svg: string, band: ScreenRect): readonly PlacedLabel[] =
 const rowAt = (labels: readonly PlacedLabel[], baseline: number): readonly PlacedLabel[] =>
   labels.filter((label) => label.baseline === baseline).sort((one, other) => one.x - other.x)
 
-/** The distances between neighbouring 目盛, in the order they are drawn. */
-const gapsOf = (row: readonly PlacedLabel[]): readonly number[] =>
-  row.slice(1).map((label, at) => label.x - (row[at] as PlacedLabel).x)
-
 /** The band at 段階 4, drawn with this file's own seven weekday words. */
 const fourthTier = (): {
   readonly pxPerDay: number
+  readonly band: ScreenRect
   readonly day: readonly PlacedLabel[]
   readonly weekday: readonly PlacedLabel[]
 } => {
-  const settings = settingsOf({ ...SETTINGS, zoomX: FOURTH_TIER.zoomX })
+  const zoomX = WHOLE_PX_PER_DAY_AT_TIER_FOUR / (PX_PER_DAY_AT_1X * DISPLAY_RATIO)
+  const settings = settingsOf({ ...SETTINGS, zoomX })
   const band = bandOf(settings)
   const labels = placedLabelsOf(drawn(EMPTY, settings, ONE_LANGUAGE), band)
   const words = new Set(ONE_LANGUAGE)
@@ -1100,7 +1136,8 @@ const fourthTier = (): {
   return {
     // FR-017 (MUST): 「1 日あたりの表示幅は、表 T-201 の `S-1` に `zoomX` を掛け
     // た値とすること」. Solved, never typed in.
-    pxPerDay: PX_PER_DAY_AT_1X * FOURTH_TIER.zoomX,
+    pxPerDay: PX_PER_DAY_AT_1X * zoomX * DISPLAY_RATIO,
+    band,
     day: rowAt(labels, [...dayBaselines][0] as number),
     weekday: rowAt(labels, weekdayBaseline),
   }
@@ -1178,10 +1215,13 @@ describe('UF-32 -- 表 T-221 の `LF-1`: the 曜日の段 keeps the 日の段の
     // there, closing with 「⛔ **これ以外の間隔を採ってはならない（MUST NOT）**」.
     // GOES RED IF the weekday row is thinned: every gap
     // then reads 2 × pxPerDay or more.
-    const { pxPerDay, weekday } = fourthTier()
+    const { pxPerDay, band, weekday } = fourthTier()
     expect(weekday.length, '曜日の段に目盛が 2 つ以上ある').toBeGreaterThan(1)
-    for (const [at, gap] of gapsOf(weekday).entries()) {
-      expect(gap, `表 T-221 の \`LF-1\`: 曜日の段の刻み ${at + 1}`).toBeCloseTo(pxPerDay, 6)
+    for (const [at, label] of weekday.entries()) {
+      expect(
+        label.x,
+        `表 T-221 の \`LF-1\`: 曜日の段の刻み ${at + 1} は 1 日（描く比を掛けた幅）`,
+      ).toBeCloseTo(twoPlaces(band.x + at * pxPerDay), 6)
     }
   })
 
@@ -1189,9 +1229,12 @@ describe('UF-32 -- 表 T-221 の `LF-1`: the 曜日の段 keeps the 日の段の
     // 「⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからで
     // ある** —— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。**」
     // ⭐ The relation, not a second figure: as many 曜日 as 日, gap for gap.
-    const { pxPerDay, day, weekday } = fourthTier()
-    for (const [at, gap] of gapsOf(day).entries()) {
-      expect(gap, `表 T-221 の \`LF-1\`: 日の段の刻み ${at + 1}`).toBeCloseTo(pxPerDay, 6)
+    const { pxPerDay, band, day, weekday } = fourthTier()
+    for (const [at, label] of day.entries()) {
+      expect(
+        label.x,
+        `表 T-221 の \`LF-1\`: 日の段の刻み ${at + 1} は 1 日（描く比を掛けた幅）`,
+      ).toBeCloseTo(twoPlaces(band.x + at * pxPerDay), 6)
     }
     expect(
       weekday.length,
@@ -1291,9 +1334,9 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
       expect(baselines.length, `${tier.name}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
       for (let at = 0; at < baselines.length; at += 1) {
         expect(
-          band.y + (at + 1) * SEGMENT_HEIGHT - (baselines[at] as number),
-          `${tier.name}: 段 ${at + 1} -- 下の罫線まで S-179 のぶん空く`,
-        ).toBeCloseTo(RULER_LABEL_BOTTOM_PAD, 2)
+          band.y + (at + 1) * DRAWN_SEGMENT_HEIGHT - (baselines[at] as number),
+          `${tier.name}: 段 ${at + 1} -- 下の罫線まで S-179 × 描く比 のぶん空く`,
+        ).toBeCloseTo(DRAWN_LABEL_BOTTOM_PAD, 2)
       }
     }
   })
@@ -1306,14 +1349,14 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       expect(
-        band.y + SEGMENTS_IN_THE_BAND * SEGMENT_HEIGHT,
+        band.y + SEGMENTS_IN_THE_BAND * DRAWN_SEGMENT_HEIGHT,
         `${tier.name}: 3 段目の罫線は帯の下端そのものである`,
       ).toBeCloseTo(band.y + band.height, 6)
       const last = baselines[baselines.length - 1] as number
       expect(
         band.y + band.height - last,
-        `${tier.name}: 帯の下端の罫線も S-179 のぶん空く`,
-      ).toBeCloseTo(RULER_LABEL_BOTTOM_PAD, 2)
+        `${tier.name}: 帯の下端の罫線も S-179 × 描く比 のぶん空く`,
+      ).toBeCloseTo(DRAWN_LABEL_BOTTOM_PAD, 2)
     }
   })
 
@@ -1321,12 +1364,12 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     // The offset `S-136` and `S-179` pin between them, read from the 罫線 that
     // OPENS the 段 rather than the one that closes it. ⭐ Put this way the case
     // never names what the three values are, so it survives an edit to any.
-    const expected = RULER_LABEL_PAD + RULER_FONT - RULER_LABEL_BOTTOM_PAD
+    const expected = DRAWN_BASELINE_IN_SEGMENT
     for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       for (let at = 0; at < baselines.length; at += 1) {
         expect(
-          (baselines[at] as number) - (band.y + at * SEGMENT_HEIGHT),
+          (baselines[at] as number) - (band.y + at * DRAWN_SEGMENT_HEIGHT),
           `${tier.name}: 段 ${at + 1} の中でのベースラインの位置`,
         ).toBeCloseTo(expected, 2)
       }
@@ -1346,7 +1389,7 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     // dependence on the 段's height, so a lone 段 does not centre its label in
     // the band. ⛔ If the drawing ever does centre it, the disagreement is with
     // `S-136`, not with this case.
-    const expected = RULER_LABEL_PAD + RULER_FONT - RULER_LABEL_BOTTOM_PAD
+    const expected = DRAWN_BASELINE_IN_SEGMENT
     for (const tier of TIERS) {
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       expect(baselines.length, `${tier.name}: 目盛ラベルがある`).toBeGreaterThan(0)
@@ -1364,14 +1407,14 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     // with the glyph -- it is the same number at S, M and L.
     for (const scale of ['S', 'M', 'L'] as const) {
       const at = bandAtFontScale(scale)
-      expect(at.band.height, `${scale}: 帯の高さは S-2 が S-3 に追随した値`).toBeCloseTo(
-        bandHeightAt(at.rulerFont),
-        2,
-      )
+      expect(
+        at.band.height,
+        `${scale}: 帯の高さは S-2 が S-3 に追随した値 × 描く比`,
+      ).toBeCloseTo(bandHeightAt(at.rulerFont) * DISPLAY_RATIO, 2)
       expect(at.baselines.length, `${scale}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
       const last = at.baselines[at.baselines.length - 1] as number
       expect(at.band.y + at.band.height - last, `${scale}: 罫線までの空き`).toBeCloseTo(
-        RULER_LABEL_BOTTOM_PAD,
+        DRAWN_LABEL_BOTTOM_PAD,
         2,
       )
     }
@@ -1394,7 +1437,7 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
       )
       for (let at = 0; at < baselines.length; at += 1) {
         expect(
-          (baselines[at] as number) - (band.y + at * SEGMENT_HEIGHT),
+          (baselines[at] as number) - (band.y + at * DRAWN_SEGMENT_HEIGHT),
           `rulerLabelBottomPad = ${bottomPad}: 段 ${at + 1} は上の罫線を越えない`,
         ).toBeGreaterThanOrEqual(0)
       }
@@ -1416,15 +1459,16 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
         zoomX: threeSegmentZoom(RULER_FONT),
         rulerLabelBottomPad: bottomPad,
       })
-      expect(band.height, `rulerLabelBottomPad = ${bottomPad}: 帯の高さは S-2 のまま`).toBeCloseTo(
-        RULER_HEIGHT,
-        2,
-      )
+      expect(
+        band.height,
+        `rulerLabelBottomPad = ${bottomPad}: 帯の高さは S-2 × 描く比 のまま`,
+      ).toBeCloseTo(DRAWN_RULER_HEIGHT, 2)
+      const into = (RULER_LABEL_PAD + RULER_FONT - bottomPad) * DISPLAY_RATIO
       for (let at = 1; at < baselines.length; at += 1) {
         expect(
           (baselines[at] as number) - (baselines[at - 1] as number),
-          `rulerLabelBottomPad = ${bottomPad}: 段の高さは rulerFont + rulerLabelPad`,
-        ).toBeCloseTo(RULER_FONT + RULER_LABEL_PAD, 2)
+          `rulerLabelBottomPad = ${bottomPad}: 段の高さは (rulerFont + rulerLabelPad) × 描く比`,
+        ).toBeCloseTo(drawnBaselineAt(band, at, into) - drawnBaselineAt(band, at - 1, into), 2)
       }
     }
   })

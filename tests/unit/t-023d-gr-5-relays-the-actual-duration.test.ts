@@ -41,6 +41,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const T_023D = specTable('T-023d')
 
@@ -110,7 +111,7 @@ const MILESTONE_ACTUAL_DURATION = ((): number => {
   return value
 })()
 
-const PX_PER_DAY_AT_1X = 20
+const PX_PER_DAY_AT_1X = 20 / DEFAULT_DISPLAY_RATIO
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {

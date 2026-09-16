@@ -501,8 +501,8 @@ function depthTheFitOwes(
 
 /** One chain of five rows -- every tier fits, so the deepest one wins. */
 const FIVE_DEEP_CHAIN: TreeShape = { roots: 1, depths: 5, fanOut: 1 }
-/** Two chains: ten rows at tier 5 overflow, eight rows at tier 4 fit. */
-const FOUR_IS_DEEPEST: TreeShape = { roots: 2, depths: 5, fanOut: 1 }
+/** Three chains: fifteen rows at tier 5 overflow, twelve rows at tier 4 fit. */
+const FOUR_IS_DEEPEST: TreeShape = { roots: 3, depths: 5, fanOut: 1 }
 /** Four chains: sixteen rows at tier 4 overflow, twelve at tier 3 fit (S-12 is 0). */
 const THREE_IS_DEEPEST: TreeShape = { roots: 4, depths: 5, fanOut: 1 }
 /** Forty chains -- forty root rows alone overrun the Row Area. */

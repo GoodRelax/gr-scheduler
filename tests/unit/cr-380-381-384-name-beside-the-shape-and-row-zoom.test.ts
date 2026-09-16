@@ -43,6 +43,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -242,9 +243,13 @@ const num = (key: string): number => {
   return value
 }
 
+// see FR-039, T-252
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
     ...NESTED_DEFAULTS,
+    displayScale: DEFAULT_DISPLAY_SCALE,
     rulerHeight: 48,
     rulerFont: 12,
     scrollDate: '2026-01-01',
@@ -351,8 +356,12 @@ const S_47 = num('spanDotOfStroke')
 const S_33 = num('labelBaseline')
 
 const PLAN_HEIGHT_FLOOR_PX = S_6 / S_5
-const planStripOf = (ratio: number, zoomY: number): number => Math.max(PLAN_HEIGHT_FLOOR_PX, S_4 * zoomY) * ratio
-const thinStrokeOf = (strip: number): number => Math.min(S_42, Math.max(S_41, strip * S_40))
+// see T-252
+const planStripOf = (ratio: number, zoomY: number): number =>
+  Math.max(PLAN_HEIGHT_FLOOR_PX, S_4 * zoomY) * ratio * DRAWN_RATIO
+// see T-252
+const thinStrokeOf = (strip: number): number =>
+  Math.min(S_42 * DRAWN_RATIO, Math.max(S_41 * DRAWN_RATIO, strip * S_40))
 const LIFTED_RATIO: Readonly<Record<string, number>> = { arrow: S_15, endpointSpan: S_16 }
 
 describe('T-038 OC-10 -- a lifted name label is counted in the band height', () => {
@@ -423,12 +432,21 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
     expect(published?.['S-233'], 'T-064 PI-5 owns NOT_STORED_LABEL_SIZES').toBe(S_233)
   })
 
-  it('premise (CR-380 8.3): at zoomY 1 an arrow name sits on the S-8 floor, so S-8 x S-233 + S-196 = 20 where the font size itself gave 14', () => {
+  it('premise (CR-380 8.3): at zoomY 1 an arrow name sits on the S-8 floor x the drawn ratio, so (S-8 x S-233 + S-196) x the ratio is 20 x the ratio where the font size itself gave 14 x the ratio', () => {
     const { layout } = sceneAt('arrow', 'ab', 1)
     const { fontPx, heightPx } = countedOf(layout, 1)
-    expect(fontPx, 'FR-094: the arrow name at zoomY 1 is the S-8 floor').toBe(S_8)
-    expect(heightPx + S_196, 'S-8 x S-233 + S-196').toBeCloseTo(20, 9)
-    expect(fontPx + S_196, 'the forbidden count, S-8 + S-196').toBeCloseTo(14, 9)
+    expect(
+      fontPx,
+      'FR-077: 可読の下限は S-8 × 描く比であり、矢印の名前は zoomY 1 でその床に立つ',
+    ).toBeCloseTo(S_8 * DRAWN_RATIO, 9)
+    expect(heightPx + S_196 * DRAWN_RATIO, '(S-8 × S-233 + S-196) × 描く比').toBeCloseTo(
+      20 * DRAWN_RATIO,
+      9,
+    )
+    expect(
+      fontPx + S_196 * DRAWN_RATIO,
+      'the forbidden count, (S-8 + S-196) × 描く比',
+    ).toBeCloseTo(14 * DRAWN_RATIO, 9)
   })
 
   it.each(LIFTED)('%s: lane top + font x S-233 + S-196 is the plan strip top, and lane top + font + S-196 is not (MUST, MUST NOT)', (shapeKind) => {
@@ -440,9 +458,10 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
         const drawn = tasks.find((one) => one.taskUid === uid)!
         const { fontPx, heightPx } = countedOf(layout, uid)
         const stripTop = centreLineOf(drawn.plan) - planStripOf(LIFTED_RATIO[shapeKind]!, zoomY) / 2
-        expect(stripTop, `${tag}: strip top = lane top + font x S-233 + S-196; ${OC_10_HEIGHT_IS_FONT_TIMES_S_233}`)
-          .toBeCloseTo(laneTop + heightPx + S_196, 6)
-        expect(stripTop, `${tag}: ${OC_10_NOT_THE_FONT_SIZE_ITSELF}`).not.toBeCloseTo(laneTop + fontPx + S_196, 6)
+        expect(stripTop, `${tag}: strip top = lane top + font x S-233 + S-196 x 描く比; ${OC_10_HEIGHT_IS_FONT_TIMES_S_233}`)
+          .toBeCloseTo(laneTop + heightPx + S_196 * DRAWN_RATIO, 6)
+        expect(stripTop, `${tag}: ${OC_10_NOT_THE_FONT_SIZE_ITSELF}`)
+          .not.toBeCloseTo(laneTop + fontPx + S_196 * DRAWN_RATIO, 6)
       }
     }
   })
@@ -458,7 +477,7 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
         const { heightPx } = countedOf(layout, uid)
         const stripTop = centreLineOf(drawn.plan) - planStripOf(LIFTED_RATIO[shapeKind]!, zoomY) / 2
         const figureTop = extentOf(drawn.plan).top
-        const countedBottom = figureTop - S_196
+        const countedBottom = figureTop - S_196 * DRAWN_RATIO
         const countedTop = countedBottom - heightPx
         expect(figureTop, `${tag}: premise, the figure top lies inside the strip`).toBeGreaterThanOrEqual(stripTop - 1e-9)
         expect(label.y + label.height / 2, `${tag}: label centre = figure top - S-196 - font x S-233 / 2; ${OC_10_LABEL_SITS_ON_THE_FIGURE_TOP}`)
@@ -482,7 +501,7 @@ describe('T-038 OC-10 -- a lifted name label is counted in the band height', () 
         const tag = `zoomY ${zoomY}, task ${uid}`
         const drawn = tasks.find((one) => one.taskUid === uid)!
         const { fontPx, heightPx } = countedOf(layout, uid)
-        const countedCentre = extentOf(drawn.plan).top - S_196 - heightPx / 2
+        const countedCentre = extentOf(drawn.plan).top - S_196 * DRAWN_RATIO - heightPx / 2
         expect(nameTextAttributeOf(svg, uid, 'dominant-baseline'), `${tag}: premise, y is the alphabetic baseline`).toBeNull()
         expect(nameTextAttributeOf(svg, uid, 'alignment-baseline'), `${tag}: premise, y is the alphabetic baseline`).toBeNull()
         const written = nameTextAttributeOf(svg, uid, 'y') ?? 'NaN'
@@ -581,6 +600,7 @@ const NAME_INSIDE = spanning(1, '2026-02-02', 40, {
 const sceneOf = (
   task: Task,
   showing: Showing = SHOWN,
+  part: Record<string, unknown> = {},
 ): { layout: ScheduleLayout; placed: TaskPlacement; drawn: TaskGeometry | null } => {
   const settings = settingsOf({
     progressMarkerVisible: showing.marks,
@@ -588,6 +608,7 @@ const sceneOf = (
     actualVisible: showing.actual,
     assigneeVisible: false,
     percentCompleteVisible: false,
+    ...part,
   })
   const schedule = rowsOf([[task]])
   const layout = layoutFromSchedule(schedule, settings, REGIONS)
@@ -608,8 +629,14 @@ const S_27 = num('resumeHeadOfMarker')
 const S_30 = num('labelCoef')
 const S_32 = num('labelGap')
 
-const MARKER_REACH = S_23 + S_22
-const UNDATED_ICON_REACH = S_23 + S_22 * S_25 * (S_26 + S_27)
+// see T-252
+const MARKER_REACH = (S_23 + S_22) * DRAWN_RATIO
+// see T-252
+const UNDATED_ICON_REACH = (S_23 + S_22 * S_25 * (S_26 + S_27)) * DRAWN_RATIO
+// see T-252
+const MARKER_SIZE_DRAWN = S_22 * DRAWN_RATIO
+// see T-252
+const LABEL_GAP_DRAWN = S_32 * DRAWN_RATIO
 
 const markerRightOf = (drawn: TaskGeometry | null): number => {
   const marker = drawn?.marker ?? null
@@ -645,7 +672,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
 
   it('PA-2: the name starts at actual right + S-23 + S-22 + S-32, from existing settings only (MUST)', () => {
     const { placed } = sceneOf(IN_PROGRESS)
-    expect(placed.labelX, T_243_NO_NEW_SETTING).toBeCloseTo(placed.actualReach! + MARKER_REACH + S_32, 6)
+    expect(placed.labelX, T_243_NO_NEW_SETTING).toBeCloseTo(placed.actualReach! + MARKER_REACH + LABEL_GAP_DRAWN, 6)
   })
 
   it('PA-3: a resume icon standing on its own day takes no room in the order (MUST NOT)', () => {
@@ -653,7 +680,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
       const { placed, drawn } = sceneOf(task)
       expect(drawn!.resume, 'premise: FR-044 draws the icon while suspended').not.toBeNull()
       expect(placed.labelX, T_243_NO_ROOM_FOR_A_DATED_RESUME_ICON).toBeCloseTo(
-        shapeRightOf(placed) + MARKER_REACH + S_32,
+        shapeRightOf(placed) + MARKER_REACH + LABEL_GAP_DRAWN,
         6,
       )
     }
@@ -668,10 +695,10 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
     expect(both.layout.pxPerDay, 'premise: one day is narrower than S-23 + S-22').toBeLessThan(MARKER_REACH)
     expect(marker1, 'premise: (1) right = actual right + S-23 + S-22, right of the shape').toBeGreaterThan(shapeRight)
     expect(marker2, 'premise: FR-013 moves (2) S-23 off the plan right').toBeCloseTo(both.placed.x + both.placed.width + MARKER_REACH, 6)
-    expect(both.placed.labelX, T_243_LABEL_LEFT_EDGE).toBeCloseTo(Math.max(shapeRight, marker1, marker2) + S_32, 6)
-    expect(both.placed.labelX, T_243_NOT_BY_MARKER_1_ALONE).not.toBeCloseTo(Math.max(shapeRight, marker1) + S_32, 6)
+    expect(both.placed.labelX, T_243_LABEL_LEFT_EDGE).toBeCloseTo(Math.max(shapeRight, marker1, marker2) + LABEL_GAP_DRAWN, 6)
+    expect(both.placed.labelX, T_243_NOT_BY_MARKER_1_ALONE).not.toBeCloseTo(Math.max(shapeRight, marker1) + LABEL_GAP_DRAWN, 6)
     expect(both.placed.labelX - shapeRight, `${T_243_NO_OTHER_ROOM} -- CR-380 7.3: 34px to the glyphs = S-23 + S-22 + S-32 + S-31`).toBeCloseTo(
-      MARKER_REACH + S_32,
+      MARKER_REACH + LABEL_GAP_DRAWN,
       6,
     )
   })
@@ -679,9 +706,9 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
   it('a marker (1) standing inside the shape takes no room outside it: the name is S-32 past (2) (MUST NOT)', () => {
     const both = sceneOf(STOPS_INSIDE)
     const planOnly = sceneOf(STOPS_INSIDE, PLAN_ONLY)
-    expect(markerRightOf(both.drawn) - S_22, 'premise: (1) left edge inside the shape').toBeLessThan(shapeRightOf(both.placed))
-    expect(both.placed.labelX, T_243_NO_OTHER_ROOM).toBeCloseTo(markerRightOf(planOnly.drawn) + S_32, 6)
-    expect(both.placed.labelX, T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN).toBeCloseTo(shapeRightOf(both.placed) + MARKER_REACH + S_32, 6)
+    expect(markerRightOf(both.drawn) - MARKER_SIZE_DRAWN, 'premise: (1) left edge inside the shape').toBeLessThan(shapeRightOf(both.placed))
+    expect(both.placed.labelX, T_243_NO_OTHER_ROOM).toBeCloseTo(markerRightOf(planOnly.drawn) + LABEL_GAP_DRAWN, 6)
+    expect(both.placed.labelX, T_243_BOTH_COUNTED_WHATEVER_IS_SHOWN).toBeCloseTo(shapeRightOf(both.placed) + MARKER_REACH + LABEL_GAP_DRAWN, 6)
   })
 
   it('PA-4, actual past the plan: the undated icon at (1) is counted by its own right edge (MUST)', () => {
@@ -690,7 +717,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
       markerRightOf(drawn) + UNDATED_ICON_REACH,
       6,
     )
-    expect(placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(iconRightOf(drawn) + S_32, 6)
+    expect(placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(iconRightOf(drawn) + LABEL_GAP_DRAWN, 6)
   })
 
   it('PA-4, actual inside the plan: the undated icon at (2) is counted by its own right edge (MUST)', () => {
@@ -701,7 +728,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
       both.placed.x + both.placed.width + MARKER_REACH + UNDATED_ICON_REACH,
       6,
     )
-    expect(both.placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(Math.max(iconRightOf(both.drawn), iconAt2) + S_32, 6)
+    expect(both.placed.labelX, T_243_PA_4_COUNTS_THE_ICON).toBeCloseTo(Math.max(iconRightOf(both.drawn), iconAt2) + LABEL_GAP_DRAWN, 6)
   })
 
   const EVERY_TASK = [
@@ -734,7 +761,7 @@ describe('T-243 closing rule -- the name starts S-32 past the rightmost of the s
     expect(
       hidden.placed.labelX,
       T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT,
-    ).toBeCloseTo(shapeRightOf(hidden.placed) + S_32, 6)
+    ).toBeCloseTo(shapeRightOf(hidden.placed) + LABEL_GAP_DRAWN, 6)
     expect(
       withMarker.placed.labelX - hidden.placed.labelX,
       `${T_243_HIDDEN_MARKER_MOVES_THE_NAME_LEFT} -- the name moves left by exactly the room the marker took`,
@@ -775,8 +802,11 @@ const RECTANGLE_NAME_PX_AT_UNITY = S_4 * S_13 * S_5 * S_7
 const OUTSIDE_LABEL_EDGE_OFFSET = (): number => {
   const { placed, drawn } = sceneOf(IN_PROGRESS)
   if (placed.labelPlacement !== 'right') throw new Error('premise: PA-2 puts its name outside')
-  return drawn!.label!.x - (placed.actualReach! + MARKER_REACH + S_32)
+  return drawn!.label!.x - (placed.actualReach! + MARKER_REACH + LABEL_GAP_DRAWN)
 }
+
+// see T-252
+const AT_THE_SIZES_THIS_CASE_NAMES = { zoomX: 1 / DRAWN_RATIO, zoomY: 1 / DRAWN_RATIO }
 
 describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)', () => {
   it('premise: an outside name and an inside name share one left-edge convention, read off PA-2', () => {
@@ -786,22 +816,22 @@ describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)
   it('premise: marker (1) stands inside the 40-day plan, S-23 past the actual right', () => {
     const { placed, drawn } = sceneOf(NAME_INSIDE)
     expect(markerRightOf(drawn)).toBeCloseTo(placed.actualReach! + MARKER_REACH, 6)
-    expect(markerRightOf(drawn) - S_22).toBeLessThan(placed.x + placed.width)
+    expect(markerRightOf(drawn) - MARKER_SIZE_DRAWN).toBeLessThan(placed.x + placed.width)
   })
 
   it('a short name is written inside, from marker (1) right + S-32 (MUST)', () => {
     const { placed, drawn } = sceneOf(NAME_INSIDE)
     expect(placed.labelPlacement).toBe('inside')
-    expect(drawn!.label!.x - (markerRightOf(drawn) + S_32), T_013_WRITING_STARTS_THERE).toBeCloseTo(
+    expect(drawn!.label!.x - (markerRightOf(drawn) + LABEL_GAP_DRAWN), T_013_WRITING_STARTS_THERE).toBeCloseTo(
       OUTSIDE_LABEL_EDGE_OFFSET(),
       6,
     )
   })
 
   it('a name that fits the whole shape but not the width from marker (1) goes to the right, NL-3 (MUST)', () => {
-    const probe = sceneOf(NAME_INSIDE)
+    const probe = sceneOf(NAME_INSIDE, SHOWN, AT_THE_SIZES_THIS_CASE_NAMES)
     const fullWidth = probe.placed.width
-    const fromTheMarker = probe.placed.x + probe.placed.width - (markerRightOf(probe.drawn) + S_32)
+    const fromTheMarker = probe.placed.x + probe.placed.width - (markerRightOf(probe.drawn) + LABEL_GAP_DRAWN)
     const perHalfWidthUnit = RECTANGLE_NAME_PX_AT_UNITY * S_30
     const units = Math.round((fullWidth + fromTheMarker) / 2 / perHalfWidthUnit)
     expect(units * perHalfWidthUnit, 'premise (FR-093): the name is wider than the width from the marker').toBeGreaterThan(fromTheMarker + 30)
@@ -813,7 +843,10 @@ describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)
       stop: '2026-02-21',
       resumeValid: true,
     })
-    expect(sceneOf(task).placed.labelPlacement, T_013_WIDTH_FROM_THE_MARKER).toBe('right')
+    expect(
+      sceneOf(task, SHOWN, AT_THE_SIZES_THIS_CASE_NAMES).placed.labelPlacement,
+      T_013_WIDTH_FROM_THE_MARKER,
+    ).toBe('right')
   })
 
   it('with a fade, the name starts at whichever of the fadeIn end and marker (1) + S-32 stands further right (MUST)', () => {
@@ -833,7 +866,7 @@ describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)
       const fadeEnd = placed.x + fadeInDays * layout.pxPerDay
       expect(placed.labelPlacement, `fadeInDays ${fadeInDays}`).toBe('inside')
       expect(
-        drawn!.label!.x - Math.max(fadeEnd, markerRightOf(drawn) + S_32),
+        drawn!.label!.x - Math.max(fadeEnd, markerRightOf(drawn) + LABEL_GAP_DRAWN),
         `fadeInDays ${fadeInDays}: ${T_013_FADE_OR_MARKER_WHICHEVER_IS_RIGHT}`,
       ).toBeCloseTo(OUTSIDE_LABEL_EDGE_OFFSET(), 6)
     }
@@ -842,8 +875,11 @@ describe('T-013 -- a name written inside a shape starts S-32 right of marker (1)
 
 const S_31 = num('labelPad')
 
+// see T-252
+const LABEL_PAD_DRAWN = S_31 * DRAWN_RATIO
+
 // see T-013, T-243
-const nameGlyphXOf = (task: Task): number => {
+const nameGlyphTextOf = (task: Task): string => {
   const settings = settingsOf({ assigneeVisible: false, percentCompleteVisible: false })
   const schedule = rowsOf([[task]])
   const layout = layoutFromSchedule(schedule, settings, REGIONS)
@@ -853,8 +889,13 @@ const nameGlyphXOf = (task: Task): number => {
   const opened = figure < 0 ? -1 : svg.lastIndexOf('<text ', figure)
   const x = opened < 0 ? null : / x="(-?[\d.]+)"/.exec(svg.slice(opened, figure))
   if (x === null || x === undefined) throw new Error('the name label was not drawn as a text with an x')
-  return Number(x[1])
+  return x[1] ?? 'NaN'
 }
+
+const nameGlyphXOf = (task: Task): number => Number(nameGlyphTextOf(task))
+
+const halfOfLastWrittenPlaceOf = (written: string): number =>
+  0.5 * 10 ** -(written.split('.')[1] ?? '').length
 
 const shortActualNamed = (name: string, fade: { readonly fadeInDays?: number; readonly fadeOutDays?: number }): Task =>
   spanning(1, '2026-02-02', 40, {
@@ -870,28 +911,36 @@ describe('T-013 / T-243 (CR-387) -- the name box, and S-31 counted once inside i
   it('the box left edge is marker (1) + S-32 inside, the fadeIn end when that is further right, and T-243\'s left edge outside (MUST)', () => {
     const inside = sceneOf(NAME_INSIDE)
     expect(inside.placed.labelPlacement).toBe('inside')
-    expect(inside.drawn!.label!.x, T_013_WRITING_STARTS_THERE).toBeCloseTo(markerRightOf(inside.drawn) + S_32, 6)
+    expect(inside.drawn!.label!.x, T_013_WRITING_STARTS_THERE).toBeCloseTo(markerRightOf(inside.drawn) + LABEL_GAP_DRAWN, 6)
     const faded = sceneOf(shortActualNamed('ab', { fadeInDays: 10 }))
     const fadeEnd = faded.placed.x + 10 * faded.layout.pxPerDay
-    expect(fadeEnd, 'premise: the fade ends right of marker (1) + S-32').toBeGreaterThan(markerRightOf(faded.drawn) + S_32)
+    expect(fadeEnd, 'premise: the fade ends right of marker (1) + S-32').toBeGreaterThan(markerRightOf(faded.drawn) + LABEL_GAP_DRAWN)
     expect(faded.drawn!.label!.x, T_013_FADE_IN_END_IS_THE_BOX_LEFT).toBeCloseTo(fadeEnd, 6)
     const outside = sceneOf(IN_PROGRESS)
     expect(outside.placed.labelPlacement).toBe('right')
-    expect(outside.drawn!.label!.x, T_243_THE_LEFT_EDGE_IS_THE_BOX).toBeCloseTo(outside.placed.actualReach! + MARKER_REACH + S_32, 6)
+    expect(outside.drawn!.label!.x, T_243_THE_LEFT_EDGE_IS_THE_BOX).toBeCloseTo(outside.placed.actualReach! + MARKER_REACH + LABEL_GAP_DRAWN, 6)
   })
 
   it('the glyphs start S-31 right of the box left edge, inside and outside alike, and not 2 x S-31 (MUST, MUST NOT)', () => {
     const inside = sceneOf(NAME_INSIDE)
-    const insideBoxLeft = markerRightOf(inside.drawn) + S_32
-    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_IS_INSIDE_THE_BOX).toBeCloseTo(insideBoxLeft + S_31, 6)
-    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_NOT_TWICE).not.toBeCloseTo(insideBoxLeft + 2 * S_31, 6)
+    const insideBoxLeft = markerRightOf(inside.drawn) + LABEL_GAP_DRAWN
+    const insideWritten = nameGlyphTextOf(NAME_INSIDE)
+    expect(
+      Math.abs(Number(insideWritten) - (insideBoxLeft + LABEL_PAD_DRAWN)),
+      `drawn x ${insideWritten} against 箱の左端 + S-31 × 描く比 = ${insideBoxLeft + LABEL_PAD_DRAWN}; ${T_013_S_31_IS_INSIDE_THE_BOX}`,
+    ).toBeLessThanOrEqual(halfOfLastWrittenPlaceOf(insideWritten) + 1e-9)
+    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_NOT_TWICE).not.toBeCloseTo(insideBoxLeft + 2 * LABEL_PAD_DRAWN, 6)
     const outside = sceneOf(IN_PROGRESS)
-    const outsideBoxLeft = outside.placed.actualReach! + MARKER_REACH + S_32
-    expect(nameGlyphXOf(IN_PROGRESS), T_013_S_31_IS_INSIDE_THE_BOX).toBeCloseTo(outsideBoxLeft + S_31, 6)
+    const outsideBoxLeft = outside.placed.actualReach! + MARKER_REACH + LABEL_GAP_DRAWN
+    const outsideWritten = nameGlyphTextOf(IN_PROGRESS)
+    expect(
+      Math.abs(Number(outsideWritten) - (outsideBoxLeft + LABEL_PAD_DRAWN)),
+      `drawn x ${outsideWritten} against 箱の左端 + S-31 × 描く比 = ${outsideBoxLeft + LABEL_PAD_DRAWN}; ${T_013_S_31_IS_INSIDE_THE_BOX}`,
+    ).toBeLessThanOrEqual(halfOfLastWrittenPlaceOf(outsideWritten) + 1e-9)
   })
 
   it('NL-1 fits the glyphs plus S-31 into the room from the box left edge to the shape right less fadeOut (MUST)', () => {
-    const halfWidthUnit = RECTANGLE_NAME_PX_AT_UNITY * S_30
+    const halfWidthUnit = RECTANGLE_NAME_PX_AT_UNITY * S_30 * DRAWN_RATIO
     const FADES = [
       {},
       { fadeInDays: 10 },
@@ -907,14 +956,14 @@ describe('T-013 / T-243 (CR-387) -- the name box, and S-31 counted once inside i
       const pxPerDay = probe.layout.pxPerDay
       const fadeIn = 'fadeInDays' in fade ? fade.fadeInDays : 0
       const fadeOut = 'fadeOutDays' in fade ? fade.fadeOutDays : 0
-      const boxLeft = Math.max(probe.placed.x + fadeIn * pxPerDay, markerRightOf(probe.drawn) + S_32)
+      const boxLeft = Math.max(probe.placed.x + fadeIn * pxPerDay, markerRightOf(probe.drawn) + LABEL_GAP_DRAWN)
       const room = probe.placed.x + probe.placed.width - fadeOut * pxPerDay - boxLeft
       const clause = fadeIn > 0 && fadeOut > 0 ? T_013_BOTH_FADE_AND_MARKER_WIDTH : T_013_NL_1_FITS_WITH_S_31
       for (let units = 1; units <= 40; units += 1) {
         const spare = room - units * halfWidthUnit
-        if (spare >= 0 && spare < S_31) fitsOnlyWithoutS31 += 1
-        if (spare >= S_31 && spare < 2 * S_31) fitsOnceNotTwice += 1
-        const expected = spare >= S_31 - 1e-6 ? 'inside' : 'right'
+        if (spare >= 0 && spare < LABEL_PAD_DRAWN) fitsOnlyWithoutS31 += 1
+        if (spare >= LABEL_PAD_DRAWN && spare < 2 * LABEL_PAD_DRAWN) fitsOnceNotTwice += 1
+        const expected = spare >= LABEL_PAD_DRAWN - 1e-6 ? 'inside' : 'right'
         const placement = sceneOf(shortActualNamed('a'.repeat(units), fade)).placed.labelPlacement
         expect({ clause, fade, units, placement }).toEqual({ clause, fade, units, placement: expected })
       }
@@ -1019,10 +1068,10 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     expect(FONT_FLOOR_LETS_GO_AT, 'S-8 / (S-4 x S-13 x S-5 x S-7)').toBeCloseTo(0.93738, 5)
     expect(Math.max(ROW_CEILING_BY_TYPE, PLAN_FLOOR_LETS_GO_AT, FONT_FLOOR_LETS_GO_AT)).toBe(ROW_CEILING_BY_TYPE)
     const layout = layoutFromSchedule(RECTANGLE_ROW, settingsOf({ zoomY: ROW_CEILING_BY_TYPE }), REGIONS)
-    expect(taskPlacement(layout, 1)!.labelFontSize, 'the rectangle name at that zoom').toBeCloseTo(
-      DEPTH_1_ROW_NAME_PX,
-      6,
-    )
+    expect(
+      taskPlacement(layout, 1)!.labelFontSize,
+      'the rectangle name at that zoom, 描く比を掛けたあと（表 T-252 の DS-1）',
+    ).toBeCloseTo(DEPTH_1_ROW_NAME_PX * DRAWN_RATIO, 6)
   })
 
   it('premise: under both ceilings one raise moves by S-53, and the tall band ceiling lies above 1.25 x S-53', () => {
@@ -1124,7 +1173,10 @@ describe('T-201 S-17 -- a milestone is 1.25 of its plan height (CR-381, JDG-110,
       settingsOf({ zoomY: 1 }),
       REGIONS,
     )
-    expect(taskPlacement(layout, 1)!.labelFontSize).toBeCloseTo(MILESTONE_NAME_PX_AT_UNITY, 6)
+    expect(
+      taskPlacement(layout, 1)!.labelFontSize,
+      'S-4 × S-17 × S-5 × S-7 に描く比を掛けた字（表 T-252 の DS-1）',
+    ).toBeCloseTo(MILESTONE_NAME_PX_AT_UNITY * DRAWN_RATIO, 6)
     expect(MILESTONE_NAME_PX_AT_UNITY).toBeLessThanOrEqual(DEPTH_1_ROW_NAME_PX)
   })
 })

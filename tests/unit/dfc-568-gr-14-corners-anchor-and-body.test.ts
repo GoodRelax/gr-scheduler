@@ -47,6 +47,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
@@ -194,7 +195,7 @@ const COMMENT_ID = '3c000000-0000-4000-8000-000000000001'
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
 
-const PX_PER_DAY_AT_1X = 20
+const PX_PER_DAY_AT_1X = 20 / DEFAULT_DISPLAY_RATIO
 const TRAVEL_DAYS = 3
 
 const group = (id: string, order: number, part: Record<string, unknown> = {}): Record<string, unknown> => ({

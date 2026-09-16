@@ -22,6 +22,11 @@ import type {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
+import {
+  DEFAULT_DISPLAY_RATIO,
+  DEFAULT_DISPLAY_SCALE,
+  S_235,
+} from '../fixtures/display-scale'
 
 
 const rowOf = (table: string, id: string) => {
@@ -54,6 +59,7 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 const PANEL = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rowTitlePanelWidth: 400, // see S-79
   rowTitleFont: 20, // see S-36
   rowTitleTopScale: 1, // see S-38
@@ -69,6 +75,22 @@ const panelWith = (part: Record<string, unknown>): DocumentSettings =>
 
 const keyOf = (settings: DocumentSettings, key: string): number =>
   (settings as unknown as Record<string, number>)[key] as number
+
+// see FR-039, T-252
+const drawnPanelOf = (settings: DocumentSettings): number =>
+  Math.max(
+    keyOf(settings, 'rowTitlePanelWidth') * DEFAULT_DISPLAY_RATIO,
+    keyOf(settings, 'rowTitleIndent') * DEFAULT_DISPLAY_RATIO * keyOf(settings, 'maxGroupDepth') +
+      S_138 * S_235 +
+      26 * S_235 * 4,
+  )
+
+// see FR-093, FR-039
+const drawnPerCharacterOf = (settings: DocumentSettings): number =>
+  keyOf(settings, 'rowTitleFont') * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
+
+// see FR-029, T-252
+const DRAWN_GRAB_STRIP = S_138 * S_235 + S_218
 
 const SESSION: ScreenSession = {
   language: 'ja',
@@ -167,7 +189,10 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
     'gives a depth %i row `indentPx` of depth x `S-37`, and no other number',
     (depth) => {
       const indent = keyOf(PANEL, 'rowTitleIndent')
-      expect(deepestTitle(depth, 'a row', PANEL).indentPx).toBe(depth * indent)
+      expect(
+        deepestTitle(depth, 'a row', PANEL).indentPx,
+        'FR-039 の 表 T-252 の DS-1: 描く字下げは S-37 に描く比を掛けた値',
+      ).toBe(depth * indent * DEFAULT_DISPLAY_RATIO)
     },
   )
 
@@ -179,20 +204,30 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
     const steps = byDepth
       .slice(1)
       .map((one, index) => one.indentPx - (byDepth[index] as RowTitle).indentPx)
-    expect(steps).toEqual(byDepth.slice(1).map(() => indent))
+    expect(steps).toEqual(
+      byDepth
+        .slice(1)
+        .map(
+          (_one, index) =>
+            (index + 2) * indent * DEFAULT_DISPLAY_RATIO -
+            (index + 1) * indent * DEFAULT_DISPLAY_RATIO,
+        ),
+    )
   })
 
   it.each(DEPTHS)(
     'cuts a depth %i name at the room `indentPx`, `S-140`, `S-138` and `S-218` leave',
     (depth) => {
-      const perCharacter = keyOf(PANEL, 'rowTitleFont') * keyOf(PANEL, 'labelCoef')
+      const perCharacter = drawnPerCharacterOf(PANEL)
       const room =
-        keyOf(PANEL, 'rowTitlePanelWidth') -
+        drawnPanelOf(PANEL) -
         deepestTitle(depth, 'a row', PANEL).indentPx -
         S_140 -
-        S_138 -
-        S_218
-      expect(keptOf(PANEL, depth)).toBe(Math.floor(room / perCharacter))
+        DRAWN_GRAB_STRIP
+      expect(
+        keptOf(PANEL, depth),
+        'FR-085: 描いたパネルの幅から、描いた字下げと S-140 と S-138 x S-235 と S-218 を引いた残り',
+      ).toBe(Math.floor(room / perCharacter))
     },
   )
 
@@ -202,7 +237,10 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
 
     expect(
       deepestTitle(depth, 'a row', wider).indentPx - deepestTitle(depth, 'a row', PANEL).indentPx,
-    ).toBe(depth * perCharacter)
+    ).toBe(
+      depth * ((keyOf(PANEL, 'rowTitleIndent') + perCharacter) * DEFAULT_DISPLAY_RATIO) -
+        depth * (keyOf(PANEL, 'rowTitleIndent') * DEFAULT_DISPLAY_RATIO),
+    )
     expect(keptOf(wider, depth) - keptOf(PANEL, depth)).toBe(-depth)
   })
 })

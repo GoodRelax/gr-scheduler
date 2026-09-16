@@ -157,6 +157,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 // ===========================================================================
 // What the manuscript says, read at read time rather than copied
@@ -1202,21 +1203,23 @@ describe('HF-15 (MUST) -- 握っているあいだ、行をポインタに追従
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + PAST, at.y))
 
-    built.send(pointer('move', at.x + S_37_INDENT, at.y))
+    const step = S_37_INDENT * DEFAULT_DISPLAY_RATIO
+
+    built.send(pointer('move', at.x + step, at.y))
     const oneStep = titleOf(built, A2).indentPx as number
-    built.send(pointer('move', at.x + S_37_INDENT * 2, at.y))
+    built.send(pointer('move', at.x + step * 2, at.y))
     const twoSteps = titleOf(built, A2).indentPx as number
 
-    built.send(pointer('up', at.x + S_37_INDENT * 2, at.y))
+    built.send(pointer('up', at.x + step * 2, at.y))
 
     expect(
       oneStep - restingIndent,
-      'one S-37 of travel did not move the held row by one S-37',
-    ).toBe(S_37_INDENT)
+      '描いた S-37 ぶん動かしても、描いた S-37 ぶん行が動かない（表 T-252 の DS-1）',
+    ).toBe(step)
     expect(
       twoSteps - restingIndent,
       'the picture drifted away from the pointer by the second step',
-    ).toBe(S_37_INDENT * 2)
+    ).toBe(step * 2)
   })
 
   it('⭐ the position axis draws the held row at the place the hand stands on, and back where it was when the hand comes back', () => {

@@ -129,6 +129,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The rows, read out of the manuscript at run time (Chapter 1.9, :275)
@@ -175,7 +176,8 @@ const PX_PER_DAY_AT_1X = FLAT['pxPerDayAt1x'] as number
 const ACTUAL_INITIAL_DURATION = FLAT['actualInitialDuration'] as number
 
 /** FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
-const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
+const dayWidthAt = (zoomX: number): number =>
+  PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
 /** FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方」. */
 const drawnWidthAt = (zoomX: number): number =>
@@ -202,6 +204,7 @@ const settingsAt = (zoomX: number): DocumentSettings =>
     scrollDate: '2026-01-01', // S-77
     stackDirection: 'down', // S-58
     zoomX, // S-75
+    displayScale: DEFAULT_DISPLAY_SCALE,
     shapeHeightOf: {
       rectangle: FLAT['shapeHeightOf.rectangle'],
       chevron: FLAT['shapeHeightOf.chevron'],
@@ -521,7 +524,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   // ⛔ THE MAGNIFICATION MUST KEEP THE DAY WIDER THAN `S-180`: at 15px a day the
   // day falls to the NARROW side of the bound and this describe proves the same
   // half of the rule as the one below.
-  const ZOOM = 8
+  const ZOOM = 8 / DEFAULT_DISPLAY_RATIO
   const SETTINGS = settingsAt(ZOOM)
 
   it('S-180 is the row that says how wide the one mark is, and how wide it is held by', () => {
@@ -694,7 +697,7 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
   // faint -- at exactly the magnifications a whole document is read at.
   // ⚠️ FR-018's S-86 still has to admit the task, so the zoom is chosen to keep
   // the shape wide enough to be drawn at all.
-  const ZOOM = 0.25
+  const ZOOM = 0.25 / DEFAULT_DISPLAY_RATIO
   const LOW = settingsAt(ZOOM)
 
   it('draws the task at this zoom, or the case below would be asking about nothing', () => {

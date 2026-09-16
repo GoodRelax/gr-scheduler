@@ -578,12 +578,12 @@ describe('T-076 EP-1 -- the exported Document Title reads S-225 and S-226', () =
 
     expect(
       drawn.fontSize,
-      'EP-1 (MUST): the size is S-225 of table T-206, which CR-395 now draws at S-235 two thirds on screen AND in the export',
-    ).toBeCloseTo(S_225_TITLE_FONT_PX * S_235_TWO_THIRDS, 3)
+      'EP-1 (MUST): the size is S-225 of table T-206, which CR-395 now draws at S-235 two thirds on screen AND in the export -- the picture writes every length to two decimals',
+    ).toBeCloseTo(S_225_TITLE_FONT_PX * S_235_TWO_THIRDS, 2)
     expect(
       drawn.x,
-      'EP-1 (MUST): the left inset is S-226 of table T-206, drawn at that same S-235 two thirds',
-    ).toBeCloseTo(S_226_TITLE_INSET_PX * S_235_TWO_THIRDS, 3)
+      'EP-1 (MUST): the left inset is S-226 of table T-206, drawn at that same S-235 two thirds -- the picture writes every length to two decimals',
+    ).toBeCloseTo(S_226_TITLE_INSET_PX * S_235_TWO_THIRDS, 2)
   })
 
   it('⛔ neither number moves when the band’s height does', () => {

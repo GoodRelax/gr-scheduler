@@ -21,6 +21,7 @@ import {
 import type { Selection } from '../../document-model/selection/selection'
 import {
   NOT_STORED_LABEL_SIZES,
+  markerDiameterOf,
   xFromDay,
   type MilestoneGlyph,
   type ScheduleLayout,
@@ -464,10 +465,15 @@ function markerOf(inputs: GeometryInputs, task: Task,
   if (!settings.progressMarkerVisible) return null
   const anchorX = markerAnchorX(inputs, placed)
   if (anchorX === null) return null
-  const radius = settings.markerSize / 2
+  const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
+  const boxRight =
+    placed.actualPlacement === 'inside' && inputs.showActual ? placed.labelBoxRight : null
+  const centreX = boxRight === null
+    ? anchorX + settings.markerGap + radius
+    : boxRight + settings.labelGap + radius
   return {
     symbol: progressSymbolOf(task, inputs.statusDate),
-    centre: point(anchorX + settings.markerGap + radius, placed.y + placed.planHeight / 2),
+    centre: point(centreX, placed.y + placed.planHeight / 2),
     radius,
   }
 }
@@ -477,7 +483,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
 function resumeOf(inputs: GeometryInputs, task: Task, marker: MarkerGeometry,
                   settings: DocumentSettings): ResumeGeometry {
   const valid = task.resumeValid !== false
-  const side = settings.markerSize * (valid ? 1 : settings.resumeScaleInvalid)
+  const side = marker.radius * 2 * (valid ? 1 : settings.resumeScaleInvalid)
   const resumeDay = dayOf(task.resume)
   const x = resumeDay === null
     ? marker.centre.x + marker.radius + settings.markerGap
@@ -493,8 +499,8 @@ function resumeOf(inputs: GeometryInputs, task: Task, marker: MarkerGeometry,
       point(x + arm, middle + head),
     ],
     valid,
-    // TRAP: S-22 unscaled: side carries S-25, and GR-8's hit box does not follow it.
-    hitHalf: settings.markerSize / 2,
+    // TRAP: the marker's own radius: side carries S-25, and GR-8's hit box does not follow it.
+    hitHalf: marker.radius,
   }
 }
 
@@ -763,6 +769,10 @@ function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect |
   const settings = inputs.settings
   const height = placed.labelFontSize
   const y = labelTopOf(settings, placed, height)
+  const boxRight = placed.labelBoxRight
+  if (boxRight !== null) {
+    return { x: placed.insideLabelX, y, width: Math.max(0, boxRight - placed.insideLabelX), height }
+  }
   return placed.labelPlacement === 'inside'
     ? {
         // TRAP: no labelPad on x; svg-renderer.ts adds S-31 once, as it does for the outside box (T-013).

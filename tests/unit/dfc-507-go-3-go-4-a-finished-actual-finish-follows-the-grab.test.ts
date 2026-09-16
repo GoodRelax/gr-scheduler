@@ -43,6 +43,7 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -197,7 +198,7 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: 20,
+      pxPerDayAt1x: 20 / DEFAULT_DISPLAY_RATIO,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

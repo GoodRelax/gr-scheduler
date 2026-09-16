@@ -72,6 +72,7 @@
 
 import { describe, expect, it } from 'vitest'
 import { specTable, type SpecTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import {
   SETTINGS_BOUNDS,
   SETTINGS_DEFAULTS,
@@ -111,6 +112,12 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 // manuscript generates rather than out of the unit under test. ⛔ Table
 // T-023d's closing rule makes the dummies' hold that same mark, so the width
 // this test measures against and the width the mark is drawn at are one.
+
+// see FR-039, T-252
+const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// WHY: the picture prints a coordinate rounded to two places.
+const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
 // ---------------------------------------------------------------------------
 // The declaration every case carries (table T-219, TW-2)
@@ -421,7 +428,13 @@ const draw = (
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
   // scrollDate (S-77) pins the left edge of the Row Area, so the axis is fixed
   // and a case can state the x it expects. stackDirection is pinned per case.
-  const settings = settingsOf({ zoomX: 10, scrollDate: day(1), stackDirection: 'down', ...over })
+  const settings = settingsOf({
+    zoomX: 10,
+    scrollDate: day(1),
+    stackDirection: 'down',
+    displayScale: DEFAULT_DISPLAY_SCALE,
+    ...over,
+  })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
@@ -635,7 +648,7 @@ const boundMax = (key: string): number => {
  * earlier sample drift a whole step away from the boundary its name claimed.
  */
 const pxPerDayReaching = (threshold: number, rulerFont: number): number =>
-  threshold * (rulerFont / FONT_MIN)
+  threshold * ((rulerFont * DISPLAY_RATIO) / FONT_MIN)
 
 const TIER_MONTH_PX = pxPerDayReaching(
   SETTINGS_DEFAULTS['rulerTierPxPerDayMonth'] as number,
@@ -683,7 +696,12 @@ const rulerAt = (
 ): RulerFrame => {
   // S-1 keeps its manuscript default and the zoom carries the whole change, so
   // every sample below is a zoom a reader can actually reach (S-54 to S-55).
-  const settings = settingsOf({ zoomX: pxPerDay / PX_PER_DAY_AT_1X, scrollDate: day(1), ...over })
+  const settings = settingsOf({
+    zoomX: pxPerDay / (PX_PER_DAY_AT_1X * DISPLAY_RATIO),
+    scrollDate: day(1),
+    displayScale: DEFAULT_DISPLAY_SCALE,
+    ...over,
+  })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
@@ -969,7 +987,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
               ? drawn.layout.rectangleHeight
               : Math.max(...onLane.map((p) => p.height))
           }
-          const lf2 = sum + drawn.settings.stackGap * (lanes - 1)
+          const lf2 = sum + drawn.settings.stackGap * DISPLAY_RATIO * (lanes - 1)
           if (lf2 > CONTROL_LATTICE_FLOOR) decidedByTheSum += 1
           const expected = Math.max(lf2, CONTROL_LATTICE_FLOOR)
           expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(expected, 6)
@@ -1024,7 +1042,8 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
         drawn.settings.basePlanHeight *
           drawn.settings.zoomY *
-          drawn.settings.shapeHeightOf.rectangle,
+          drawn.settings.shapeHeightOf.rectangle *
+          DISPLAY_RATIO,
         6,
       )
     },
@@ -1284,8 +1303,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         const successor = placementOf(drawn, 2)
         const exitEdge = predecessor.x + predecessor.width
         const entryEdge = successor.x
-        const entryRun = arrowLength * runOfArrow
-        const exitRun = entryRun - arrowLength
+        const entryRun = arrowLength * runOfArrow * DISPLAY_RATIO
+        const exitRun = entryRun - arrowLength * DISPLAY_RATIO
         const at = (i: number): Point => {
           const p = line.points[i]
           if (p === undefined) throw new Error(`the route has no point ${i}`)
@@ -1366,7 +1385,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const lane = placementOf(same, 1)
       expect(placementOf(same, 2).stack, 'both are on one lane').toBe(lane.stack)
       expect(corridorOf(same), 'inside one lane').toBeCloseTo(
-        lane.y + lane.planHeight + same.settings.stackGap / 2,
+        lane.y + lane.planHeight + (same.settings.stackGap * DISPLAY_RATIO) / 2,
         6,
       )
     },
@@ -1404,7 +1423,10 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         const p = placementOf(drawn, 1)
         const s = placementOf(drawn, 2)
         expect(s.stack, 'both are on one lane').toBe(p.stack)
-        expect(s.x - (p.x + p.width), 'the clearance under test').toBeCloseTo(pxPerDay, 6)
+        expect(s.x - (p.x + p.width), 'the clearance under test').toBeCloseTo(
+          pxPerDay * DISPLAY_RATIO,
+          6,
+        )
         return dependencyOf(drawn).pattern
       }
       expect(at(entryRun), 'exactly the entry run apart').toBe('RP-1')
@@ -1449,8 +1471,10 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const exitEdge = predecessor.x + predecessor.width
       const entryEdge = successor.x
       const entryRun =
-        (drawn.settings.dependencyArrowLength as number) * drawn.settings.dependencyRunOfArrow
-      const exitRun = entryRun - drawn.settings.dependencyArrowLength
+        (drawn.settings.dependencyArrowLength as number) *
+        drawn.settings.dependencyRunOfArrow *
+        DISPLAY_RATIO
+      const exitRun = entryRun - drawn.settings.dependencyArrowLength * DISPLAY_RATIO
       const x1 = exitEdge + exitRun
       const x2 = entryEdge - entryRun
       const plain = (exitEdge + entryEdge) / 2
@@ -1493,8 +1517,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const predecessor = placementOf(drawn, 1)
       const successor = placementOf(drawn, 2)
       expect(successor.stack, 'both are on one lane').toBe(predecessor.stack)
-      const entryRun = arrowLength * runOfArrow
-      const exitRun = entryRun - arrowLength
+      const entryRun = arrowLength * runOfArrow * DISPLAY_RATIO
+      const exitRun = entryRun - arrowLength * DISPLAY_RATIO
       // FF: both anchors are a right edge, so both runs go to the right.
       const x2 = successor.x + successor.width + entryRun
       const plainX1 = predecessor.x + predecessor.width + exitRun
@@ -1611,9 +1635,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         const stroke = Math.min(
           Math.max(
             placed.planHeight * drawn.settings.thinStrokeOfPlan,
-            drawn.settings.thinStrokeMin,
+            drawn.settings.thinStrokeMin * DISPLAY_RATIO,
           ),
-          drawn.settings.thinStrokeMax,
+          drawn.settings.thinStrokeMax * DISPLAY_RATIO,
         )
         expect(line.strokeWidth, JSON.stringify(over)).toBeCloseTo(stroke, 6)
 
@@ -1695,7 +1719,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       const planTop = planLine.from.y - belowPlaced.planHeight / 2
       const actualTop = actualLine.from.y - actualHeight / 2
       expect(actualTop - planTop).toBeCloseTo(
-        belowPlaced.planHeight + below.settings.actualGap,
+        belowPlaced.planHeight + below.settings.actualGap * DISPLAY_RATIO,
         6,
       )
     },
@@ -1814,7 +1838,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker, 'a Task under way carries a marker').not.toBeNull()
       if (marker === null) return
       expect(marker.radius * 2, 'a square of side markerSize').toBeCloseTo(
-        drawn.settings.markerSize,
+        drawn.settings.markerSize * DISPLAY_RATIO,
         6,
       )
       expect(marker.centre.y, 'the middle of the plan bar').toBeCloseTo(
@@ -1824,7 +1848,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(
         marker.centre.x - marker.radius - actualRight,
         'markerGap clear of the actual bar',
-      ).toBeCloseTo(drawn.settings.markerGap, 6)
+      ).toBeCloseTo(drawn.settings.markerGap * DISPLAY_RATIO, 6)
     },
   )
 
@@ -1858,7 +1882,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
         Math.min(drawn.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
       expect(marker.centre.x - marker.radius - holdRight).toBeCloseTo(
-        drawn.settings.markerGap,
+        drawn.settings.markerGap * DISPLAY_RATIO,
         6,
       )
     },
@@ -1909,8 +1933,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 
         expect(resume.valid).toBe(resumeValid)
         const side = resumeValid
-          ? drawn.settings.markerSize
-          : drawn.settings.markerSize * drawn.settings.resumeScaleInvalid
+          ? drawn.settings.markerSize * DISPLAY_RATIO
+          : drawn.settings.markerSize * DISPLAY_RATIO * drawn.settings.resumeScaleInvalid
 
         const foot = resume.arm[0]
         const corner = resume.arm[1]
@@ -1984,7 +2008,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         // EP-14's other arm. This case is about the shape a reader sees.
         'screen',
       )
-      const drawnPoints = points.map((p) => `${p.x},${p.y}`).join(' ')
+      const drawnPoints = points.map((p) => `${twoPlaces(p.x)},${twoPlaces(p.y)}`).join(' ')
       expect(svg).toContain(`points="${drawnPoints}"`)
     },
   )
@@ -2086,8 +2110,14 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         const statusX = xOfDay(10, drawn.regions, drawn.layout.pxPerDay)
         expect(top.x, `overhang ${overhang}`).toBeCloseTo(statusX, 6)
         expect(bottom.x, `overhang ${overhang}`).toBeCloseTo(statusX, 6)
-        expect(top.y, `overhang ${overhang}`).toBeCloseTo(first.y - overhang, 6)
-        expect(bottom.y, `overhang ${overhang}`).toBeCloseTo(last.y + last.height + overhang, 6)
+        expect(top.y, `overhang ${overhang}`).toBeCloseTo(
+          first.y - overhang * DISPLAY_RATIO,
+          6,
+        )
+        expect(bottom.y, `overhang ${overhang}`).toBeCloseTo(
+          last.y + last.height + overhang * DISPLAY_RATIO,
+          6,
+        )
       }
       // No status date: FR-014 has nothing to draw from, so there is no line.
       const none = progressDocument()

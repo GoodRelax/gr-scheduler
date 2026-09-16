@@ -41,11 +41,15 @@ import {
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 const S_196_FROM_PI_5 = Number(
   ((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined)?.['S-196'],
 )
 const S_233 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-233')?.by['既定'] ?? 'NaN')
+
+// see FR-039, T-252
+const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
 // A case states only the keys it deliberately pins; every other key arrives
 // from SETTINGS_DEFAULTS, which `npm run gen` prints from the manuscript, so a
@@ -71,6 +75,7 @@ const ENV: ScreenEnvironment = {
 // because S-77's default is null -- OP-10 of table T-024a would otherwise pick
 // the origin, which is not what these cases are about.
 const SETTINGS = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rulerFont: 12, // S-3, fontScale S
   rulerHeight: 42, // S-2, fontScale S
   stackDirection: 'down', // S-58
@@ -212,9 +217,9 @@ const strokeTopOf = (bar: BarGeometry | null): number => {
 const centreOf = (box: ScreenRect): number => box.y + box.height / 2
 const bottomOf = (box: ScreenRect): number => box.y + box.height
 
-// see T-038, T-206
+// see T-038, T-206, T-252
 const countedCentreOf = (placed: TaskPlacement, drawn: TaskGeometry): number =>
-  extentOf(drawn.plan)!.top - S_196_FROM_PI_5 - (placed.labelFontSize * S_233) / 2
+  extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO - (placed.labelFontSize * S_233) / 2
 
 // A name of two half-width units, which NL-1 of table T-013 keeps inside a bar
 // this long at either type size, and one of 40 units, which NL-3 pushes out to
@@ -323,13 +328,13 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
   it('SH-3 centres the label in the counted height, whose bottom is S-196 above the top edge of the plan SHAPE', () => {
     const { placed, drawn, label } = drawnOf(shaped('arrow'))
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 
   it('SH-4 does the same, its two end dots being the only difference', () => {
     const { placed, drawn, label } = drawnOf(shaped('endpointSpan'))
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 
   it('SH-3 leaves the whole label above BOTH lines, which is what the column is for', () => {
@@ -420,7 +425,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 
   it('NL-1 with SH-4 does the same', () => {
@@ -429,7 +434,7 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 
   it('NL-3 with SH-3 puts the label to the RIGHT of the shape and still lifts it', () => {
@@ -439,6 +444,6 @@ describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
     expect(placed.labelPlacement).toBe('right')
     expect(label.x).toBeGreaterThanOrEqual(placed.x + placed.width)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
   })
 })

@@ -115,6 +115,7 @@ import { exportSvg } from '../../src/adapter/image-exporter/image-exporter'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import startupTemplate from '../../src/framework/single-html-shell/startup-template.json'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The rows, read out of the manuscript at run time (Chapter 1.9, :275)
@@ -195,7 +196,8 @@ const PX_PER_DAY_AT_1X = ((): number => {
 })()
 
 /** FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
-const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
+const dayWidthAt = (zoomX: number): number =>
+  PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
 /**
  * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること」.
@@ -207,7 +209,7 @@ const drawnWidthAt = (zoomX: number): number =>
   Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
 
 /** A magnification at which ONE DAY is the smaller of the two. */
-const NARROW_DAY_ZOOM = 1
+const NARROW_DAY_ZOOM = 1 / DEFAULT_DISPLAY_RATIO
 /**
  * A magnification at which `S-180` is the smaller of the two.
  *
@@ -216,7 +218,7 @@ const NARROW_DAY_ZOOM = 1
  * 「既定を `S-93` と同じ大きさに揃えた」（利用者の裁定 2026-09-09）. A day at zoom 4
  * is 24px, which fell to the NARROW side of the new bound.
  */
-const WIDE_DAY_ZOOM = 8
+const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.
@@ -415,7 +417,13 @@ interface Drawn {
 const draw = (schedule: Schedule, zoomX: number): Drawn => {
   // scrollDate (S-77) pins the left edge of the Row Area, so the axis is fixed
   // and the two documents a case compares are drawn on the same one.
-  const settings = settingsOf({ zoomX, scrollDate: day(1), stackDirection: 'down' })
+  const settings = settingsOf({
+    zoomX,
+    zoomY: 1 / DEFAULT_DISPLAY_RATIO,
+    scrollDate: day(1),
+    stackDirection: 'down',
+    displayScale: DEFAULT_DISPLAY_SCALE,
+  })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
@@ -1042,7 +1050,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   })
 
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
-    const days = `${dayWidthAt(zoomX)}px/day`
+    const days = `${onGrid(dayWidthAt(zoomX))}px/day`
 
     it(`FR-043 (MUST) shows the handle at ${days}: the picture draws ONE figure`, () => {
       // FR-043: 「実績の入力を始める掴みシロを …… 実績の開始点と終了点として
@@ -1205,7 +1213,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
   })
 
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
-    const days = `${dayWidthAt(zoomX)}px/day`
+    const days = `${onGrid(dayWidthAt(zoomX))}px/day`
 
     it(`GR-18 (MUST): a milestone not started draws one dummy, the same square as its own actual figure at ${days}`, () => {
       // FR-043: 「⚠️ **マイルストーンには例外がある** —— 実績バーを持たない

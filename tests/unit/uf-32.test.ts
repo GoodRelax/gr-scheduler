@@ -48,6 +48,7 @@ import {
   svgFromSchedule,
   NOT_STORED_DUMMY_SIZES,
 } from '../../src/adapter/svg-renderer/svg-renderer'
+import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -99,6 +100,7 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
  * the layout reads.
  */
 const SETTINGS = settingsOf({
+  displayScale: DEFAULT_DISPLAY_SCALE,
   rulerHeight: 48, // S-2
   rulerFont: 12, // S-3
   scrollDate: '2026-01-01', // S-77
@@ -1222,7 +1224,8 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** S-1. FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
   const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
 
-  const dayWidthAt = (zoomX: number): number => PX_PER_DAY_AT_1X * zoomX
+  const dayWidthAt = (zoomX: number): number =>
+    PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
   /** FR-043's 「1 日ぶんと … `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
   const drawnWidthAt = (zoomX: number): number =>
@@ -1243,8 +1246,8 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
    * the NARROW side of the bound and the pair then proves one half twice. The
    * case below is what says so rather than letting it pass quietly.
    */
-  const NARROW_DAY_ZOOM = 1
-  const WIDE_DAY_ZOOM = 8
+  const NARROW_DAY_ZOOM = 1 / DEFAULT_DISPLAY_RATIO
+  const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
   it('⭐ the two magnifications below really do fall on opposite sides of S-180', () => {
     // ⛔ Without this the pair could drift onto the same side of 「小さい方」 and
@@ -1256,7 +1259,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   })
 
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
-    const days = `${dayWidthAt(zoomX)}px/day`
+    const days = `${Math.round(dayWidthAt(zoomX))}px/day`
 
     it(`draws the not-started marker AND the one ダミーの印 at S-131 at ${days}, and nothing else faint`, () => {
       // FR-013 (MUST): 「未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く

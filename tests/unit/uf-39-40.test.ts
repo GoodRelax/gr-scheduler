@@ -97,6 +97,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import { rowNameFont } from '../fixtures/row-name-font'
 
 // ---------------------------------------------------------------------------
@@ -128,10 +129,13 @@ const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unk
 
 const SETTINGS_BASE = nestedFrom(SETTINGS_DEFAULTS)
 
+// see FR-039, T-252
+const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({ ...SETTINGS_BASE, ...part }) as unknown as DocumentSettings
 
-const SETTINGS = settingsOf()
+const SETTINGS = settingsOf({ displayScale: DEFAULT_DISPLAY_SCALE })
 
 // ---------------------------------------------------------------------------
 // PI-21's roster, read out of table T-064 rather than typed here
@@ -1315,7 +1319,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'x')
     }
-    const step = SETTINGS.rowTitleIndent * RATIO
+    const step = SETTINGS.rowTitleIndent * DISPLAY_RATIO * RATIO
     expect(xOf('g2') - xOf('g1')).toBeCloseTo(step, 1)
     expect(xOf('g3') - xOf('g1')).toBeCloseTo(step * 2, 1)
     expect(xOf('g4')).toBeCloseTo(xOf('g1'), 1)
@@ -1332,10 +1336,10 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'font-size')
     }
-    expect(sizeOf('g2')).toBeCloseTo(SETTINGS.rowTitleFont * RATIO, 1)
-    expect(sizeOf('g3')).toBeCloseTo(SETTINGS.rowTitleFont * RATIO, 1)
+    expect(sizeOf('g2')).toBeCloseTo(SETTINGS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
+    expect(sizeOf('g3')).toBeCloseTo(SETTINGS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
     expect(sizeOf('g1')).toBeCloseTo(
-      SETTINGS.rowTitleFont * SETTINGS.rowTitleTopScale * RATIO,
+      SETTINGS.rowTitleFont * SETTINGS.rowTitleTopScale * DISPLAY_RATIO * RATIO,
       1,
     )
   })

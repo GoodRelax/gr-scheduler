@@ -43,9 +43,12 @@ COLUMN_SHAPES                        列の入力の形・選択肢・下限上�
 DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 ENTITY_ROWS                          実体の行（`erd.json`）
+NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
+NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
+NOT_STORED_ENTRANCE_SIZES            入口の図形の箱・隙間・枠（`S-138` / `S-141` / `S-237`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
 NOT_STORED_ICON_SIZES                アイコンの箱と隔たり（`S-138` / `S-141`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
