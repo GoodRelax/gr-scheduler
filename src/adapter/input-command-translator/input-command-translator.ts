@@ -62,6 +62,7 @@ import {
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   displayRatioOf,
+  drawnSettingsOf,
   regionAtPointer,
   type ScreenRect,
   type ScreenRegions,
@@ -848,6 +849,17 @@ function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } 
   return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
 }
 
+// see FR-039, DS-9
+// TRAP: the Row Area's own width moves with the ratio -- DS-9 scales the row-title panel
+// beside it, and every other term of that width is left alone, so the panel is the change.
+/** @purity pure */
+function rowAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
+  const settings = context.document.documentSettings
+  const held = drawnSettingsOf(settings).rowTitlePanelWidth
+  const moved = drawnSettingsOf({ ...settings, displayScale: next }).rowTitlePanelWidth
+  return context.regions.rowArea.width + held - moved
+}
+
 // see FR-039
 // TRAP: the middle of the Row Area as it stands BEFORE the press; the day's width and the
 // row's height both move with the ratio, so neither the left nor the top edge holds still.
@@ -865,7 +877,7 @@ function displayScaleWrites(
   const area = context.regions.rowArea
   const { x: centreX, y: centreY } = centreOf(area)
   const seat = scrolledAnchor(context, 0, 0)
-  const day = dayAnchorAt(context, centreX - (centreX - area.x) / (after / before))
+  const day = dayAnchorAt(context, centreX - rowAreaWidthAt(context, next) / 2 / (after / before))
   const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
   // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
   const afterRows = rowPlacesAtZoomY(
@@ -2308,10 +2320,19 @@ function rowGrabPositionOf(
   return { place: best, situation: null }
 }
 
+// see HF-15, S-37, DS-1
+// TRAP: the DRAWN S-37, not the stored one. The panel draws the indent at the display
+// ratio, so a stored step would leave the row behind the hand by that ratio every step.
+/** @purity pure */
+function drawnRowIndentOf(context: InputContext): number {
+  const settings = context.document.documentSettings
+  return settings.rowTitleIndent * displayRatioOf(settings)
+}
+
 // see HF-15, S-37
 /** @purity pure */
 function rowGrabDepthSteps(context: InputContext, at: PointerInput, press: PointerPress): number {
-  const indent = context.document.documentSettings.rowTitleIndent
+  const indent = drawnRowIndentOf(context)
   if (!(indent > 0)) return 0
   // WHY: truncated, not rounded; rounding moves the row half a step before the hand.
   return Math.trunc((at.x - press.at.x) / indent)
@@ -2360,10 +2381,7 @@ function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedIn
       axis,
       atDepth: rowDepthOfGroup(context, groupId),
       atY: found.place.atY,
-      resistedPx: rowGrabResistedPx(
-        input.x - press.at.x,
-        context.document.documentSettings.rowTitleIndent,
-      ),
+      resistedPx: rowGrabResistedPx(input.x - press.at.x, drawnRowIndentOf(context)),
     })
   }
   const step = rowGrabLandingOf(context, groupId, rowGrabDepthSteps(context, input, press))
