@@ -171,6 +171,26 @@ export function regionsFromScreen(
   }
 }
 
+// see FR-039, T-252, DS-1
+/** @purity pure */
+export function regionsAtDisplayScale(
+  regions: ScreenRegions,
+  settings: DocumentSettings,
+  displayScale: DocumentSettings['displayScale'],
+): ScreenRegions {
+  const canvas = regions.scheduleCanvas
+  const bandHeight = drawnSettingsOf(settings).rulerHeight
+  const env: ScreenEnvironment = {
+    width: regions.appHeader.width,
+    height: canvas.y + canvas.height,
+    appHeaderHeight: regions.appHeader.height,
+    scrollbarThickness:
+      canvas.height - bandHeight - settings.canvasPadding - regions.rowArea.height,
+  }
+  const propertyPanelWidth = regions.propertiesPanel.width
+  return regionsFromScreen(env, { ...settings, displayScale, propertyPanelWidth })
+}
+
 /** @purity pure */
 export function regionAtPointer(regions: ScreenRegions, x: number, y: number): RegionName {
   for (const name of INNER_FIRST) {

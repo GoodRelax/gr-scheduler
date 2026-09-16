@@ -64,6 +64,7 @@ import {
   displayRatioOf,
   drawnSettingsOf,
   regionAtPointer,
+  regionsAtDisplayScale,
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -860,9 +861,11 @@ function rowAreaWidthAt(context: InputContext, next: DocumentSettings['displaySc
   return context.regions.rowArea.width + held - moved
 }
 
-// see FR-039
+// see FR-039, DS-1
 // TRAP: the middle of the Row Area as it stands BEFORE the press; the day's width and the
 // row's height both move with the ratio, so neither the left nor the top edge holds still.
+// TRAP: the row lands on the middle the Row Area WILL have -- the drawn ruler band (DS-1)
+// moves that rectangle's top and its height, so the two middles are not the same point.
 /** @purity pure */
 function displayScaleWrites(
   context: InputContext,
@@ -879,6 +882,7 @@ function displayScaleWrites(
   const seat = scrolledAnchor(context, 0, 0)
   const day = dayAnchorAt(context, centreX - rowAreaWidthAt(context, next) / 2 / (after / before))
   const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
+  const afterRegions = regionsAtDisplayScale(context.regions, settings, next)
   // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
   const afterRows = rowPlacesAtZoomY(
     context.document.schedule,
@@ -890,7 +894,7 @@ function displayScaleWrites(
       scrollGroupId: seat.scrollGroupId,
       scrollGroupOffset: seat.scrollGroupOffset,
     },
-    context.regions,
+    afterRegions,
     zoomOnScreen(context).y,
     context.isLevelZeroFolded,
     context.rowControlsHeightPx,
@@ -900,7 +904,7 @@ function displayScaleWrites(
   const row =
     landed === null || topEdge === null
       ? null
-      : rowAnchorIn(afterRows, topEdge + (landed - centreY), seat)
+      : rowAnchorIn(afterRows, topEdge + (landed - centreOf(afterRegions.rowArea).y), seat)
   return [
     scale,
     {
