@@ -49,7 +49,7 @@
 | `AM` | Agent API Member | `Agent API` が公開するメンバ 1 つ | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-107` | 18 |
 | `AR` | Armed shape | パレットで選んでいる構えの種別 | 仕様書 | `T-023b` | 6 |
 | `AS` | — | 担当者を割り当てる入口と規則の条 | 仕様書 | `T-225` | 10 |
-| `AT` | Attribute | エンティティの列 1 つと、その型・交換相手の対応 | 仕様書 | `T-058` | 140 |
+| `AT` | Attribute | エンティティの列 1 つと、その型・交換相手の対応 | 仕様書 | `T-058` | 141 |
 | `BC` | Band Ceiling | 行の軸の上限（帯の側）を探す手順の段 | 仕様書 | `T-253` | 5 |
 | `BO` | — | 起動のときに行うことの順序の段 | 仕様書 | `T-077` | 5 |
 | `BT` | — | 起動時に開く文書の出どころと、その優先順位 | 仕様書 | `T-034` | 3 |
@@ -58,7 +58,7 @@
 | `CH` | Challenge | 本製品が解く課題 | 仕様書 | `T-054` | 6 |
 | `CHN` | Channel | 機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。<br>`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった） | 仕様書 | `T-008` | 9 |
 | `CL` | — | パレットが持つ色と線の太さの区分 | 仕様書 | `T-017` | 2 |
-| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 72 |
+| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 73 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 36 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
@@ -68,7 +68,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 662 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 663 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 13 |
@@ -106,6 +106,7 @@
 | `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 167 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 118 |
+| `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 3 |
 | `LC` | Layout Calculation | レイアウトを求める計算の段 | 仕様書 | `T-068` | 11 |
 | `LF` | Layout Formula | レイアウトの算式の条 | 仕様書 | `T-221` | 15 |
@@ -118,7 +119,7 @@
 | `MM` | — | 合流のときに示す対応付けの選択肢 | 仕様書 | `T-032a` | 4 |
 | `MN` | Minimum | 最小構成に対して増やしたものと、その理由 | 仕様書 | `T-070` | 9 |
 | `MS` | Milestone | 開発の節目 | 仕様書 | `T-042` | 6 |
-| `N` | — | データの語 —— エンティティと列の日本語の呼び名 | 仕様書 | `T-101` | 15 |
+| `N` | — | データの語 —— エンティティと列の日本語の呼び名 | 仕様書 | `T-101` | 16 |
 | `ND` | Name-label Dates | 名称ラベルに添える予定日の文字の書き方 | 仕様書 | `T-251` | 5 |
 | `NF` | No Figure | 描かなかった図と、描かなかった理由 | 仕様書 | `T-072` | 4 |
 | `NL` | Name Label | 名称ラベルの配置の決定順 | 仕様書 | `T-013` | 2 |

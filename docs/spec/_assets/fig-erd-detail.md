@@ -85,6 +85,7 @@ erDiagram
         整数 order "GRS"
         真偽 isCollapsed "GRS"
         真偽 isHidden "GRS"
+        真偽 isKeptOpen "GRS"
         文字列 color "GRS"
         整数 height "GRS"
     }
@@ -360,6 +361,7 @@ erDiagram
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
 | AT-56 | `TaskGroup` | `isCollapsed` | 真偽 | 可 | — | GRS | — | 畳んでいるか |
 | AT-57 | `TaskGroup` | `isHidden` | 真偽 | 可 | — | GRS | — | 隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ |
+| AT-142 | `TaskGroup` | `isKeptOpen` | 真偽 | 否 | — | GRS | — | 開いたままの印。真の行は、その行と祖先と直下の子を倍率によらず描かせる（`FR-018`）。立てる入口と外す入口は 表 T-254 が持つ。**既定は `false`** |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色 |
 | AT-59 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |
 | AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |

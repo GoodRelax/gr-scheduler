@@ -530,6 +530,14 @@
    }
   },
   {
+   "prefix": "KO",
+   "words": "Kept Open",
+   "owner": "spec",
+   "means": {
+    "ja": "開いたままの印を立てる入口と外す入口"
+   }
+  },
+  {
    "prefix": "L",
    "words": "Level of Detail",
    "owner": "spec",

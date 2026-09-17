@@ -1181,6 +1181,7 @@
     "order",
     "isCollapsed",
     "isHidden",
+    "isKeptOpen",
     "color",
     "height"
    ],
@@ -1223,6 +1224,10 @@
       "boolean",
       "null"
      ]
+    },
+    "isKeptOpen": {
+     "type": "boolean",
+     "default": false
     },
     "color": {
      "type": [

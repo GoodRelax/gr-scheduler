@@ -40,6 +40,7 @@
 | N-12 | `Dependency` | 依存。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である |
 | N-13 | `TaskVisual` | タスクの見せ方。<br>形・色・名前の置き方 |
 | N-14 | `TaskOrigin` | 取り込み元の記録 |
+| N-15 | `isKeptOpen` | 開いたままの印。<br>人が開いた行（表 T-254）を持ち、その行の中を倍率によらず描かせる（`FR-018`）。<br>⚠️ `isCollapsed` の否定ではない —— 畳んでいない行の多くは印を持たず、倍率で配下が落ちる |
 
 ## 2. プロパティ
 
@@ -467,9 +468,10 @@
 | CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
 | CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
 | CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体が収まる倍率と表示位置を置く | `FR-055` |
-| CM-72 | `TaskGroup` | `expandAllTaskGroups` | ⭐ | 畳んだ行をすべて開く | `FR-055`（表 T-051 の `HF-8`）|
+| CM-72 | `TaskGroup` | `expandAllTaskGroups` | ⭐ | 畳んだ行をすべて開き、開いたままの印をすべて外す | `FR-055`（表 T-051 の `HF-8`、`FR-018` の 表 T-254 の `KO-7`）|
 | CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | 行の親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|
 | CM-74 | 見せ方の群 | `setDisplayScale` | — | 表示の倍率の段を変える | `FR-039` |
+| CM-75 | `TaskGroup` | `setTaskGroupKeptOpen` | — | 行の開いたままの印を立てる・外す | `FR-018`（表 T-254）|
 
 ⚠️ `群` は対象の確定名（表 T-058 のエンティティ）と、どのエンティティにも属さない見せ方の群である。
 
