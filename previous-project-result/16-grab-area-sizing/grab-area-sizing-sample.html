@@ -35,6 +35,7 @@
 <h1>掴み代を触って決める</h1>
 <p class="note">
   <b>触れます。</b>バーの本体を引けば横に動き、端を引けば伸び縮みします。マイルストーンもフェードの □ も引けます。
+  <b>マーカーは、押せば状態が巡り（未着手 → 50% → 100% → 未着手）、引けば実績の終わりが動きます。</b>
   色の面がその掴み代で、<b>横</b>と<b>縦</b>の広がりをそのまま描いています。つまみで大きさを変えると、絵も当たり判定もその場で変わります。
   最後の行に今の値がまとまります。
 </p>
@@ -265,10 +266,14 @@ function draw() {
   zone(g, 'unset-dummy-start', 'dummy', uX - S.dummyGrab, dBand.y, S.dummyGrab + dw / 2, dBand.h, 'rgba(160,40,200,.30)', arrowCursor('left', true, S.cur));
   zone(g, 'unset-dummy-end', 'dummy', uX + dw / 2, dBand.y, S.dummyGrab + dw / 2, dBand.h, 'rgba(160,40,200,.30)', arrowCursor('right', true, S.cur));
   const putU = placeAlong(g, u, uX, uW, marked, mk);
-  const uMkX = $('markerAtEnd').checked ? uX + uW : putU.markerX;
+  const uMkX = $('markerAtEnd').checked ? (u.actualDays > 0 ? xOf(u.actualStart) + u.actualDays * day : uX + uW) : putU.markerX;
   if (marked) zone(g, 'unset-marker', 'marker', uMkX, uy + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
   rect(g, uX, uy, uW, bh, 'var(--plan)', 'var(--plan-edge)');
-  rect(g, uX, uy + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
+  if (u.actualDays > 0) {
+    rect(g, xOf(u.actualStart), uy + (bh - actualH()) / 2, u.actualDays * day, actualH(), 'var(--actual)', 'var(--actual-edge)');
+  } else {
+    rect(g, uX, uy + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
+  }
   if (marked) el(g, 'circle', { cx: uMkX + mk / 2, cy: uy + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   drawName(g, u, $('markerAtEnd').checked && marked && !putU.fits ? uMkX + mk + S.labelGap : putU.nameX, uy + bh / 2);
   drawOutsideLabel(g, u, uX - S.labelGap, uy + bh / 2);
@@ -387,7 +392,7 @@ stage.addEventListener('pointerdown', e => {
   const p = pointAt(e);
   const z = hitAt(p.x, p.y);
   if (!z) return;
-  drag = { id: z.id, startDay: dayAt(p.x), model: JSON.parse(JSON.stringify(M)) };
+  drag = { id: z.id, startDay: dayAt(p.x), model: JSON.parse(JSON.stringify(M)), moved: 0 };
   stage.setPointerCapture(e.pointerId);
 });
 stage.addEventListener('pointermove', e => {
@@ -399,6 +404,7 @@ stage.addEventListener('pointermove', e => {
     return;
   }
   const moved = Math.round(dayAt(p.x) - drag.startDay);
+  drag.moved = moved;
   const m = JSON.parse(JSON.stringify(drag.model)), t = m.task, u = m.unset;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   switch (drag.id) {
@@ -409,7 +415,10 @@ stage.addEventListener('pointermove', e => {
     case 'task-actual-end': t.actualDays = clamp(t.actualDays + moved, 1, 55 - t.actualStart); break;
     case 'task-fade-in': t.fadeIn = clamp(t.fadeIn + moved, 0, t.planDays); break;
     case 'task-fade-out': t.fadeOut = clamp(t.fadeOut - moved, 0, t.planDays); break;
-    case 'task-marker': break;
+    case 'task-marker': t.actualDays = clamp(t.actualDays + moved, 1, 55 - t.actualStart); break;
+    case 'unset-marker': u.actualDays = clamp((u.actualDays || 0) + moved, 1, 55 - u.planStart); u.actualStart = u.planStart; break;
+    case 'arrow-marker': m.arrow.actualDays = clamp(m.arrow.actualDays + moved, 1, 55 - m.arrow.actualStart); break;
+    case 'ms-marker': m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
     case 'unset-body': u.planStart = clamp(u.planStart + moved, 0, 55); break;
     case 'unset-plan-start': { const end = u.planStart + u.planDays; u.planStart = clamp(u.planStart + moved, 0, end - 1); u.planDays = end - u.planStart; break; }
     case 'unset-plan-end': u.planDays = clamp(u.planDays + moved, 1, 55 - u.planStart); break;
@@ -427,7 +436,33 @@ stage.addEventListener('pointermove', e => {
   draw();
   $('hit').textContent = '引いている: ' + drag.id + '（' + (moved >= 0 ? '+' : '') + moved + ' 日）';
 });
-function endDrag(e) { if (drag) { drag = null; try { stage.releasePointerCapture(e.pointerId); } catch (_) {} draw(); } }
+// FR-013: pressing the marker walks the state round; dragging it moves the actual finish
+function cycleState(id) {
+  const m = JSON.parse(JSON.stringify(M));
+  if (id === 'ms-marker') {
+    const on = $('msActual');
+    on.checked = !on.checked;
+    draw();
+    return;
+  }
+  const item = id === 'task-marker' ? m.task : id === 'unset-marker' ? m.unset : id === 'arrow-marker' ? m.arrow : null;
+  if (!item) return;
+  const days = item.actualDays || 0;
+  if (days === 0) { item.actualStart = item.planStart; item.actualDays = 1; item.percent = 50; }
+  else if (item.percent < 100) { item.actualDays = item.planDays; item.percent = 100; }
+  else { item.actualDays = 0; item.percent = 0; }
+  M = m;
+  draw();
+  $('hit').textContent = '押して状態を巡らせた: ' + (item.actualDays === 0 ? '未着手' : item.percent + '%');
+}
+function endDrag(e) {
+  if (!drag) return;
+  const clicked = drag.moved === 0 && drag.id.endsWith('-marker');
+  const id = drag.id;
+  drag = null;
+  try { stage.releasePointerCapture(e.pointerId); } catch (_) {}
+  if (clicked) cycleState(id); else draw();
+}
 stage.addEventListener('pointerup', endDrag);
 stage.addEventListener('pointercancel', endDrag);
 
