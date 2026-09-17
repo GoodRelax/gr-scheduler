@@ -1059,7 +1059,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['integer'],
         },
         rowTitleFont: {
-          type: ['integer'],
+          type: ['number'],
         },
         rowTitleIndent: {
           type: ['integer'],

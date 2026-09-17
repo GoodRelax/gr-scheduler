@@ -41,6 +41,8 @@ const PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )
 
+const ASSIGNMENT_SEPARATOR = ' \uFF0F '
+
 // see EZ-2, FR-036
 /** @purity pure */
 function entryAssignment(icon: IconId, language: DisplayLanguage): string | null {
@@ -48,7 +50,7 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
   if (found === undefined) return null
   const word = found.press === null ? undefined : PRESS_BY_ROW.get(found.press)?.press[language]
   const press = word === undefined || word === '' ? null : word
-  const written = [found.keys, press].filter((one): one is string => one !== null).join(' ')
+  const written = [found.keys, press].filter((one): one is string => one !== null).join(ASSIGNMENT_SEPARATOR)
   return written === '' ? null : written
 }
 

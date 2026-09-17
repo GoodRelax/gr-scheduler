@@ -45,6 +45,7 @@ Run with PYTHONIOENCODING=utf-8.
 import io
 import json
 import os
+import re
 import sys
 
 import spec_tables
@@ -71,10 +72,23 @@ KEY_HEADING = '割当'
 ENTRANCE_HEADING = '入口'
 # Table T-036 lets one assignment name two entrances only when the direction
 # lives in the input itself (MK-3 turns the wheel either way), and writes them
-# the way it writes two key chords.
+# joined by a half-width slash.
 ENTRANCE_SEPARATOR = ' / '
+# FR-036 (MUST, CR-425): two assignments in one cell of table T-036 or T-255
+# are joined by a full-width slash with one half-width space either side --
+# the same join the help puts between an item's keys and its pointer press.
+ASSIGNMENT_SEPARATOR = u' \uff0f '
 EM_DASH = '—'
 CODE_FENCE = '`'
+# FR-036 (MUST, CR-425): an assignment cell fences each key on its own and
+# joins them with a full-width plus. A fence holding a plus beside another key
+# (`Ctrl+A`), or a half-width slash between two assignments, is the spelling
+# the requirement retired, and the help would print it as written.
+FENCED = re.compile('`([^`]*)`')
+PLUS = '+'
+RETIRED_SEPARATOR = ' / '
+# SK-8's cell closes on a parenthetical in prose, which may hold any slash.
+PROSE_OPENS = u'\uff08'
 # Table T-256 writes the blocks of one column top to bottom, joined by an arrow.
 # The two blocks with no surface name are written in words: the assignments
 # with no entrance, and the browser functions (named by their table id).
@@ -82,7 +96,7 @@ COLUMN_BLOCKS_HEADING = u'\u7f6e\u304f\u584a\uff08\u4e0a\u304b\u3089\u9806\u306b
 COLUMN_BLOCK_SEPARATOR = u' \u2192 '
 BASICS_WORDS = u'\u5165\u53e3\u3092\u6301\u305f\u306a\u3044\u5272\u5f53'
 # A chord is compared after dropping spaces and reading the full-width plus as
-# a plain one: table T-036 writes `Ctrl+A` and `Ctrl` + `0` side by side.
+# a plain one, so a key that is itself a plus (`Ctrl` + `+`) compares too.
 FULL_WIDTH_PLUS = u'\uff0b'
 
 BASICS = 'basics'
@@ -152,20 +166,28 @@ def cell_or_none(row, heading):
     return None if written in ('', EM_DASH) else written
 
 
-def keys_of(row):
+def keys_of(row, table):
     """The key assignment a reader needs, out of the cell table T-036 prints.
 
-    The joins inside the cell (a slash between alternatives, a full-width plus
-    inside a chord) are the table's and are kept as written. SK-8 carries a
-    parenthetical about where its rule lives; that is prose in one language and
-    is dropped.
+    The joins inside the cell (a full-width slash between assignments, a
+    full-width plus inside a chord) are the table's and are kept as written.
+    SK-8 carries a parenthetical about where its rule lives; that is prose in
+    one language and is dropped. A cell still in the retired spelling stops the
+    run rather than reach the help.
 
-    @purity pure
+    @purity non-pure
     """
+    fenced = row.cell(KEY_HEADING).split(PROSE_OPENS)[0]
+    joined_in_a_fence = [one for one in FENCED.findall(fenced)
+                         if PLUS in one and one.strip() != PLUS]
+    if joined_in_a_fence or RETIRED_SEPARATOR in fenced:
+        stop('%s of table %s writes %r; FR-036 (MUST) fences each key on its own '
+             'and joins two assignments with %r'
+             % (row.id, table, fenced, ASSIGNMENT_SEPARATOR))
     written = cell_or_none(row, KEY_HEADING)
     if written is None:
         return None
-    cut = written.find('（')
+    cut = written.find(PROSE_OPENS)
     return (written[:cut] if cut >= 0 else written).strip()
 
 
@@ -208,8 +230,8 @@ def chords_of(keys):
     """
     if keys is None:
         return set()
-    return set(one.replace(' ', '').replace(FULL_WIDTH_PLUS, '+')
-               for one in keys.split(ENTRANCE_SEPARATOR))
+    return set(one.replace(' ', '').replace(FULL_WIDTH_PLUS, PLUS)
+               for one in keys.split(ASSIGNMENT_SEPARATOR))
 
 
 def block_of(written):
@@ -282,7 +304,7 @@ def build():
     # STOP: spec does not decide the order of the help title row. Looked in FR-036, FR-038, IC-52
     # @provisional PND-500
     for row in spec_tables.read(REL_REQUIREMENTS, SHORTCUT_TABLE):
-        keys = keys_of(row)
+        keys = keys_of(row, SHORTCUT_TABLE)
         drives = entrances_of(row)
         if keys is None:
             continue
@@ -319,7 +341,7 @@ def build():
     # table T-036 holds -- MK-10 stops the browser on that chord (MUST NOT).
     browser = [item(BROWSER, None, REQUIREMENT, BROWSER, kind='heading')]
     for row in spec_tables.read(REL_REQUIREMENTS, BROWSER_TABLE):
-        keys = keys_of(row)
+        keys = keys_of(row, BROWSER_TABLE)
         if keys is None:
             stop('%s of table %s has no assignment' % (row.id, BROWSER_TABLE))
         if chords_of(keys) & held_chords:

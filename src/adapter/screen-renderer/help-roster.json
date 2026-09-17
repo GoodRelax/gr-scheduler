@@ -36,7 +36,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-2",
-   "keys": "Ctrl+A",
+   "keys": "Ctrl ＋ A",
    "press": null,
    "glyphs": [],
    "note": null
@@ -49,7 +49,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-3",
-   "keys": "Delete / Backspace",
+   "keys": "Delete ／ Backspace",
    "press": null,
    "glyphs": [],
    "note": null
@@ -62,7 +62,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-4",
-   "keys": "Ctrl+C",
+   "keys": "Ctrl ＋ C",
    "press": null,
    "glyphs": [],
    "note": null
@@ -75,7 +75,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-5",
-   "keys": "Ctrl+V",
+   "keys": "Ctrl ＋ V",
    "press": null,
    "glyphs": [],
    "note": null
@@ -101,7 +101,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-11",
-   "keys": "Ctrl+S",
+   "keys": "Ctrl ＋ S",
    "press": null,
    "glyphs": [],
    "note": null
@@ -192,7 +192,7 @@
    "indent": false,
    "table": "T-255",
    "row": "BF-1",
-   "keys": "Ctrl ＋ + / Ctrl ＋ -",
+   "keys": "Ctrl ＋ + ／ Ctrl ＋ -",
    "press": null,
    "glyphs": [],
    "note": null
@@ -518,7 +518,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-1",
-   "keys": "Ctrl+O",
+   "keys": "Ctrl ＋ O",
    "press": null,
    "glyphs": [
     "IC-1"
@@ -623,7 +623,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-2",
-   "keys": "Ctrl+Shift+E",
+   "keys": "Ctrl ＋ Shift ＋ E",
    "press": null,
    "glyphs": [
     "IC-2"
@@ -668,7 +668,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-5",
-   "keys": "Ctrl+Z",
+   "keys": "Ctrl ＋ Z",
    "press": null,
    "glyphs": [
     "IC-5"
@@ -683,7 +683,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-6",
-   "keys": "Ctrl+Y / Ctrl+Shift+Z",
+   "keys": "Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z",
    "press": null,
    "glyphs": [
     "IC-6"

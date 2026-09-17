@@ -618,8 +618,8 @@ function actualSpanOf(
 
 // see DM-3, OR-3
 /** @purity pure */
-function dummyGrabWidthPx(pxPerDay: number): number {
-  return Math.min(pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
+function dummyInkWidthOf(markerDiameter: number): number {
+  return Math.min(markerDiameter * NOT_STORED_DUMMY_SIZES['S-247'], NOT_STORED_DUMMY_SIZES['S-180'])
 }
 
 /** @purity pure */
@@ -637,6 +637,7 @@ function dummyReachOf(
   pxPerDay: number,
   originX: number,
   settings: DocumentSettings,
+  markerDiameter: number,
 ): number {
   const start = reader.day(task.start)
   if (start === null) return Number.NEGATIVE_INFINITY
@@ -644,7 +645,7 @@ function dummyReachOf(
   if (actualPlacementOf(shapeKind) === 'sideways') {
     return inkX + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
   }
-  return inkX + dummyGrabWidthPx(pxPerDay)
+  return inkX + dummyInkWidthOf(markerDiameter)
 }
 
 // see T-243, FR-013, GR-7
@@ -666,10 +667,10 @@ function shownMarkerAnchorX(
 // see T-243, LF-11, PA-4
 // TRAP: schedule-geometry.ts draws the same marker and PA-4 icon (markerOf, resumeOf); change both together.
 /** @purity pure */
-function markerReachOf(anchorX: number, task: Task, shapeKind: ShapeKind,
+function markerReachOf(markerLeft: number, task: Task, shapeKind: ShapeKind,
                        settings: DocumentSettings): number {
   const diameter = markerDiameterOf(shapeKind, labelFontSize(shapeKind, settings), settings)
-  const markerRight = anchorX + settings.markerGap + diameter
+  const markerRight = markerLeft + diameter
   const resumeBesideMarker =
     shapeKind !== 'milestone' &&
     task.resume === null &&
@@ -769,23 +770,22 @@ export function layoutFromSchedule(
       const fade = clampedFade(task, kind, width, pxPerDay)
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
+      const markerDiameter = markerDiameterOf(kind, font, settings)
       const dummyReach =
         actualReach !== null
           ? null
           : finiteOrNull(
-              dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings),
+              dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings, markerDiameter),
             )
       const planRight = x + width
       const markerAnchorX = shownMarkerAnchorX(kind, planRight, actualReach, dummyReach)
       const marksShown = settings.progressMarkerVisible
-      const markerDiameter = markerDiameterOf(kind, font, settings)
       const namedFromPlanStart = laidBelow(kind)
       const markerInside =
         marksShown && !namedFromPlanStart &&
-        markerAnchorX !== null && markerAnchorX + settings.markerGap < planRight
+        markerAnchorX !== null && markerAnchorX < planRight
       const boxLeftInShape = markerInside
-        ? Math.max(x + fade.fadeIn,
-                   markerAnchorX + settings.markerGap + markerDiameter + settings.labelGap)
+        ? Math.max(x + fade.fadeIn, markerAnchorX + markerDiameter + settings.labelGap)
         : x + fade.fadeIn
       // TRAP: take S-31 off too; the glyphs start labelPad past insideLabelX, so NL-1 would pass a name past the fadeOut edge.
       const roomInside = Math.max(0, planRight - fade.fadeOut - boxLeftInShape - settings.labelPad)
@@ -795,7 +795,7 @@ export function layoutFromSchedule(
         label !== '' &&
         actualPlacementOf(kind) === 'inside' && actual !== null && actualReach !== null &&
         boxWidth + settings.labelGap + marksRoom + grip * 2 <= actual.width
-          ? actualReach - grip - marksRoom - (marksShown ? settings.labelGap : 0)
+          ? actualReach - grip
           : null
       const labelBoxRight = namedFromPlanStart ? x + boxWidth : boxRightInActual
       const insideLabelX = labelBoxRight === null ? boxLeftInShape : labelBoxRight - boxWidth
@@ -806,8 +806,9 @@ export function layoutFromSchedule(
         !marksShown || markerAnchorX === null
           ? Number.NEGATIVE_INFINITY
           : markerReachOf(markerAnchorX, task, kind, settings)
-      const reachPlanOnly =
-        marksShown ? markerReachOf(planRight, task, kind, settings) : Number.NEGATIVE_INFINITY
+      const reachPlanOnly = marksShown
+        ? markerReachOf(planRight + settings.markerGap, task, kind, settings)
+        : Number.NEGATIVE_INFINITY
       const labelX = namedFromPlanStart
         ? x
         : Math.max(outwardX, reachShown, reachPlanOnly) + settings.labelGap
@@ -1283,7 +1284,7 @@ export const NOT_STORED_SIZES: {
 } = {
   'S-90': 12,
   'S-91': 12,
-  'S-92': [15, 15],
+  'S-92': [8, 8],
   'S-137': 6,
   'S-230': 6,
 }
@@ -1291,8 +1292,10 @@ export const NOT_STORED_SIZES: {
 // see T-206
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
+  readonly 'S-247': number
 } = {
   'S-180': 30,
+  'S-247': 0.5,
 }
 
 // see T-206

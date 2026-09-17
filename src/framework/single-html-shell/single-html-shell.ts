@@ -38,6 +38,7 @@ import {
   noWorkingWeekdayReason,
   startupDisplayLanguage,
   GREATEST_KNOWN_SCHEMA_VERSION,
+  FOCUS_ON_DOCUMENT_BODY,
   type FrameEnvironment,
   type FrameLoop,
   type FullScreenHost,
@@ -67,6 +68,22 @@ let deliveredAppShellHtml: string | null = null
 function readDeliveredHtml(): string {
   const prologue = document.doctype === null ? '' : `<!DOCTYPE ${document.doctype.name}>\n`
   return `${prologue}${document.documentElement.outerHTML}\n`
+}
+
+// see FR-102, IR-1
+// TRAP: the two attributes dom-screen-surface.ts draws; a field answers its T-016 row, an entrance
+// its T-109 row, and nothing of the value is read, so no document contents reach the record.
+const FOCUS_ROW_ATTRIBUTES: readonly string[] = ['data-field-row', 'data-icon']
+
+/** @purity semi-pure-b */
+function focusPositionOfPage(): string {
+  const focused = document.activeElement
+  if (focused === null) return FOCUS_ON_DOCUMENT_BODY
+  for (const attribute of FOCUS_ROW_ATTRIBUTES) {
+    const row = focused.getAttribute(attribute)
+    if (row !== null && row !== '') return row
+  }
+  return FOCUS_ON_DOCUMENT_BODY
 }
 
 // see FR-071
@@ -409,6 +426,8 @@ function boot(): void {
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),
       /** @purity semi-pure-b */
       readWatermarkUnlockAnswer: () => readWatermarkUnlockAnswerHeld?.() ?? '',
+      /** @purity semi-pure-b */
+      readFocusPosition: focusPositionOfPage,
     },
     fileStore,
     showPointerShape,

@@ -50,7 +50,8 @@ NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`�
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
-NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
+NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
+NOT_STORED_END_POINTER_SIZES         予定と実績の端点の上に出すポインタの画像の一辺（`S-249`）
 NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
 NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、行見出しパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
@@ -60,6 +61,7 @@ NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `
 NOT_STORED_PALETTE_GROUP_RULE_SIZES  パレットの群の境目の線（`S-143`）
 NOT_STORED_PANEL_DIVIDER_SIZES       `Panel Divider` の掴み帯（`S-134`）
 NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`）
+NOT_STORED_PROPERTIES_PANEL_FLOOR    `Properties Panel` の幅の下限（`S-248`）
 NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
@@ -91,6 +93,8 @@ WATERMARK_UNLOCK_DIGEST              既定の透かし解除パスワードの 
 WATERMARK_MARKS                      透かしを描く 4 値のうち色でないもの（表 T-207 の `S-220` / `S-221` / `S-222` / `S-102`）
 NOT_STORED_RULER_WEEKDAY_SIZES       目盛の曜日の段の文字の大きさの係数（表 T-206 の `S-219`）
 NOT_STORED_WATERMARK_NAME            透かしに出す名前の既定値（表 T-206 の `S-99a`）
+NOT_STORED_TYPEFACES                 画面と書き出す絵のすべての字の書体の並び（表 T-206 の `S-246`）
+NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称ラベルの字の太さ（表 T-206 の `S-245`）
 ```
 
 ⭐ **この一覧は機械が見ている** —— `.claude/skills/spec-graph-check/check-generated-constants.py` が検査 30 として走り、**木の生成された `const` と本一覧が同じ集合を名指しているか**を数える。⛔ **足し忘れれば `check.sh` が落ちる。**⭐ **わざと 1 行消して落ちることを確かめてある**（`NOT_STORED_ICON_SIZES` を抜くと `FAIL` と、木と一覧の本数の食い違いを告げる）。⚠️ **数え方は生成器を走らせない** —— `// <generated -- do not edit by hand>` 〜 `// </generated>` の中だけを読むので、**生成物が古くても答えは変わらない。**

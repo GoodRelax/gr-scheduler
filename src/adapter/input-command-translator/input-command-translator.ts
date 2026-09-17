@@ -145,6 +145,9 @@ export interface InputContext {
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
+  // see IN-5a, MK-13, HF-14
+  // TRAP: kept apart from isTextEntryUnsettled, which AG-9 and WS-2 read; this state is not AG-9's.
+  readonly isTextFieldFocusWanted?: boolean
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
@@ -263,6 +266,9 @@ export interface TranslatedInput {
   // TRAP: present on every press of IC-104 / IC-105 / SK-22 / SK-23 / SK-17; end is set only
   // when a press at an end step changed nothing, never on the press that arrives there.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
+  // see ZE-2, ZE-3, ZE-5
+  // TRAP: present only on a row-axis input that wrote nothing at an end; zoomY is the one drawn.
+  readonly rowZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
 }
 
 const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false }
@@ -1423,9 +1429,14 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
   const shiftOnly = isCombo(modifiers, false, true, false)
   const altOnly = isCombo(modifiers, false, false, true)
 
-  if (context.isTextEntryUnsettled) {
+  // see IN-5a
+  // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
+  // after MK-13 or HF-14 reaches SK-14 or SK-18 instead of the name.
+  if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
     if (plain && isSingleCharacterKey(key)) return UNASSIGNED
     if (plain && (key === KEY.del || key === KEY.backspace)) return UNASSIGNED
+  }
+  if (context.isTextEntryUnsettled) {
     if (ctrl && (key === KEY.c || key === KEY.v)) return UNASSIGNED
   }
 
@@ -1472,8 +1483,7 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
   }
   if (altOnly && (key === KEY.plus || key === KEY.minus)) {
-    const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
+    return rowZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
   }
 
   // see SK-22, SK-23, SK-17, MK-10
@@ -1533,7 +1543,7 @@ function commandFromWheel(input: WheelInput, context: InputContext): TranslatedI
   if (shiftOnly) {
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x, input.y))
   }
-  if (altOnly) return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), input.x, input.y))
+  if (altOnly) return rowZoomAnswer(context, factor, input.x, input.y)
 
   // TRAP: a wheel turn is reported on the vertical axis whatever keys are held, so x alone
   // reads zero for MK-5; a real sideways report is believed first.
@@ -1749,10 +1759,16 @@ function commandFromEntry(
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
       return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
     }
+    // see ZE-2, ZE-3, ZE-5
+    // TRAP: at an end the entrance changes nothing, so FR-029 tells RS-27 beside the message,
+    // as the display scale entrances do (CR-423 decision 7).
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut: {
       const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
-      return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
+      const zoomed = rowZoomAnswer(context, factor, null, null)
+      return zoomed.rowZoomEndShown === undefined
+        ? zoomed
+        : { ...nothingToDo(null), rowZoomEndShown: zoomed.rowZoomEndShown }
     }
     case ENTRY.baselineVisible:
     case ENTRY.progressLineVisible:
@@ -1991,7 +2007,7 @@ function commandFromPanelDivider(
   ])
 }
 
-// see FR-052, S-80, S-171
+// see FR-052, S-80, S-171, S-248
 // TRAP: count the travel from the DRAWN width, never from S-80: a stored 0 is drawn at S-171, so a
 // right drag would go negative and be refused and a left drag would jump to the travel (DFC-644).
 /** @purity pure */
@@ -2005,7 +2021,8 @@ function propertyPanelWidthAfterDrag(
   // nothing (T-027) even while S-80 is still 0.
   if (travelled === 0) return settings.propertyPanelWidth
   const drawnAtPress = press.propertyPanelWidthAtPress ?? context.regions.propertiesPanel.width
-  return drawnAtPress - travelled
+  // WHY: stopped at the floor while held, and the stopped width is the one released (DFC-650).
+  return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - travelled)
 }
 
 // see FR-052, FR-039, T-252
@@ -3429,9 +3446,78 @@ function zoomYCeiling(context: InputContext): number | null {
 // TRAP: a new read of zoomY in layoutFromSchedule must join this key, or the ceiling drifts.
 /** @purity pure */
 function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
+  const reading = rowAxisReadingOf(measuredWith, zoomY)
+  return `${reading.planHeight}|${reading.depthLimit}`
+}
+
+// see FR-016, FR-018, FR-094, ZE-1
+// WHY: the two ways zoomY reaches the row axis picture; the band key and the lower end read one copy.
+/** @purity pure */
+function rowAxisReadingOf(
+  measuredWith: DocumentSettings,
+  zoomY: number,
+): { readonly planHeight: number; readonly depthLimit: number } {
   const drawn = drawnSettingsOf({ ...measuredWith, zoomY })
-  const planHeight = Math.max(drawn.actualMin / drawn.actualOfPlan, drawn.basePlanHeight * drawn.zoomY)
-  return `${planHeight}|${groupDepthLimit(drawn)}`
+  return {
+    planHeight: Math.max(drawn.actualMin / drawn.actualOfPlan, drawn.basePlanHeight * drawn.zoomY),
+    depthLimit: groupDepthLimit(drawn),
+  }
+}
+
+// see FR-016, ZE-1, PI-5
+/** @purity pure */
+function rowsAtZoomY(
+  context: InputContext,
+  measuredWith: DocumentSettings,
+  zoomY: number,
+): readonly RowPlacement[] {
+  return rowPlacesAtZoomY(
+    context.document.schedule,
+    measuredWith,
+    context.regions,
+    zoomY,
+    context.isLevelZeroFolded,
+    context.rowControlsHeightPx,
+  )
+}
+
+// see ZE-1, FR-094, FR-018, S-76
+// WHY: (1) as the plan height equal to its height at S-76's lower bound, where the floor holds it;
+// (2) against the rows drawn there, since going down FR-018 only ever takes rows away.
+/** @purity pure */
+function isRowZoomAtLowerEnd(context: InputContext): boolean {
+  const on = zoomOnScreen(context)
+  const measuredWith = { ...context.document.documentSettings, zoomX: on.x }
+  const now = rowAxisReadingOf(measuredWith, on.y)
+  const lowest = rowAxisReadingOf(measuredWith, context.zoomMin)
+  if (now.planHeight !== lowest.planHeight) return false
+  if (now.depthLimit === lowest.depthLimit) return true
+  const drawnNow = rowsAtZoomY(context, measuredWith, on.y)
+  const drawnLowest = rowsAtZoomY(context, measuredWith, context.zoomMin)
+  return drawnNow.length === drawnLowest.length &&
+    drawnNow.every((row, at) => row.groupId === drawnLowest[at]?.groupId)
+}
+
+// see FR-016, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, SK-16a, SK-16c
+// TRAP: never for MK-2; the date axis still moves there, so that input changes the picture.
+/** @purity pure */
+function rowZoomAnswer(
+  context: InputContext,
+  factor: number,
+  pointerX: number | null,
+  pointerY: number | null,
+): TranslatedInput {
+  const drawnZoomY = zoomOnScreen(context).y
+  if (factor < 1 && isRowZoomAtLowerEnd(context)) {
+    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
+  }
+  // WHY: stopped at S-76 here, so an input from outside the lower end writes the stepped value
+  // S-76 keeps (ZE-2), and a raise at S-76's upper bound finds its end.
+  const stepped = zoomWithinBounds(context, zoomTimes(context, factor, 'y'))
+  if (factor > 1 && stepped === drawnZoomY) {
+    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
+  }
+  return changed(zoomWrites(context, null, stepped, pointerX, pointerY))
 }
 
 // see ST-7
@@ -3473,14 +3559,7 @@ function tallestBandAtZoomY(
     const key = bandZoomKeyOf(measuredWith, zoomY)
     const known = asked.get(key)
     if (known !== undefined) return known
-    const tallest = tallestBandOf(rowPlacesAtZoomY(
-      context.document.schedule,
-      measuredWith,
-      context.regions,
-      zoomY,
-      context.isLevelZeroFolded,
-      context.rowControlsHeightPx,
-    ))
+    const tallest = tallestBandOf(rowsAtZoomY(context, measuredWith, zoomY))
     asked.set(key, tallest)
     return tallest
   }
@@ -4052,5 +4131,12 @@ const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
 } = {
   'S-238': 1.1,
   'S-239': 0.000001,
+}
+
+// see T-206
+const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
+  readonly 'S-248': number
+} = {
+  'S-248': 160,
 }
 // </generated>

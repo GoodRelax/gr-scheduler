@@ -294,6 +294,10 @@ function helpStyle(): string {
 const GLYPH_TOKEN = /\{(IC-\d+[a-z]?)\}/
 
 // see FR-036
+// TRAP: the tooltip joins with the same one; EZ-2 forbids the pair built two ways.
+const ASSIGNMENT_SEPARATOR = ' \uFF0F '
+
+// see FR-036
 /** @purity pure */
 function helpIndentStyle(): string {
   const side = NOT_STORED_ICON_SIZES['S-138']
@@ -592,6 +596,12 @@ function themeStyle(theme: ScreenTheme): string {
     written += `--gr-${name}:${hued(chosen, row.followsHue, theme.hue)};`
   }
   return written
+}
+
+// see FR-039, S-246
+/** @purity pure */
+function typefaceStyle(): string {
+  return `font-family:${NOT_STORED_TYPEFACES['S-246']};`
 }
 
 // see FR-041
@@ -1769,7 +1779,9 @@ function helpItemElement(
   row.append(text)
 
   const assignment = made(host, 'span', STYLE.helpKeys)
-  const written = [line.keys, line.press].filter((one): one is string => one !== null).join(' ')
+  const written = [line.keys, line.press]
+    .filter((one): one is string => one !== null)
+    .join(ASSIGNMENT_SEPARATOR)
   if (written !== '') appendAssignment(host, assignment, written, false)
   row.append(assignment)
   return { row, text }
@@ -2283,7 +2295,7 @@ interface Settlement {
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const { host, readAuthor, readClockMs, onAppHeaderHeightPx, readTheme } = wiring
 
-  const root = made(host, 'div', STYLE.root + themeStyle(readTheme()))
+  const root = made(host, 'div', STYLE.root + typefaceStyle() + themeStyle(readTheme()))
   root.setAttribute('data-unit', UNIT_ROW)
 
   const hoverSheet = host.createElement('style')
@@ -2648,7 +2660,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     showScaleMessage(view.scaleMessage)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
-    root.setAttribute('style', STYLE.rootShown + themeStyle(readTheme()))
+    root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
 
     // TRAP: only the draw takes the settled line; a caller that reads without drawing after it
     // hands the same utterance over twice.
@@ -3283,6 +3295,13 @@ const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
+}
+
+// see T-206
+const NOT_STORED_TYPEFACES: {
+  readonly 'S-246': string
+} = {
+  'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
 }
 
 // see T-236, S-73

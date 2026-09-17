@@ -98,6 +98,7 @@ function rectSvg(rect: ScreenRect, fill: string): string {
 function textSvg(x: number, y: number, fontSizePx: number, text: string): string {
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSizePx)}"` +
+    ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"` +
     ` fill="${CHROME_INK}" xml:space="preserve">${escaped(text)}</text>`
   )
 }
@@ -235,5 +236,12 @@ const NOT_STORED_CHROME_SCALE: {
   readonly 'S-235': number
 } = {
   'S-235': 0.6667,
+}
+
+// see T-206
+const NOT_STORED_TYPEFACES: {
+  readonly 'S-246': string
+} = {
+  'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
 }
 // </generated>

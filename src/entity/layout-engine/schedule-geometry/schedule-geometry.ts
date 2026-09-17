@@ -457,8 +457,8 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
 
 // see LF-11, FR-013, GR-7
 /** @purity pure */
-function markerAnchorX(inputs: GeometryInputs, placed: TaskPlacement): number | null {
-  if (!inputs.showActual) return inputs.showPlan ? placed.x + placed.width : null
+function markerLeftOf(inputs: GeometryInputs, placed: TaskPlacement): number | null {
+  if (!inputs.showActual) return inputs.showPlan ? placed.x + placed.width + inputs.settings.markerGap : null
   return placed.markerAnchorX
 }
 
@@ -468,14 +468,14 @@ function markerOf(inputs: GeometryInputs, task: Task,
                   placed: TaskPlacement): MarkerGeometry | null {
   const settings = inputs.settings
   if (!settings.progressMarkerVisible) return null
-  const anchorX = markerAnchorX(inputs, placed)
-  if (anchorX === null) return null
+  const markerLeft = markerLeftOf(inputs, placed)
+  if (markerLeft === null) return null
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
   const boxRight =
     placed.actualPlacement === 'inside' && inputs.showActual ? placed.labelBoxRight : null
   const centreX = boxRight === null
-    ? anchorX + settings.markerGap + radius
-    : boxRight + settings.labelGap + radius
+    ? markerLeft + radius
+    : placed.insideLabelX - settings.labelGap - radius
   return {
     symbol: progressSymbolOf(task, inputs.statusDate),
     centre: point(centreX, placed.y + placed.planHeight / 2),
@@ -804,7 +804,11 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
     return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink, figure }]
   }
 
-  const width = Math.min(inputs.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
+  // TRAP: schedule-layout.ts counts the same width into dummyReach (dummyInkWidthOf); change both together.
+  const width = Math.min(
+    markerDiameterOf(placed.shapeKind, placed.labelFontSize, inputs.settings) * NOT_STORED_DUMMY_SIZES['S-247'],
+    NOT_STORED_DUMMY_SIZES['S-180'],
+  )
   // TRAP: the band follows actualPlacement (LF-9); the plan's mid-line would put an SH-3 / SH-4 dummy on the plan line.
   const top = placed.actualPlacement === 'below'
     ? placed.y + placed.planHeight + inputs.settings.actualGap
@@ -1236,8 +1240,10 @@ export function geometryFromLayout(
 // see T-206
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
+  readonly 'S-247': number
 } = {
   'S-180': 30,
+  'S-247': 0.5,
 }
 
 // see T-206

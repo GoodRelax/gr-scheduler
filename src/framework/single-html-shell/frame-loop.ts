@@ -243,14 +243,20 @@ export interface ScreenWiring {
   // WHY: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
   readonly focusPropertyField?: (row: string) => unknown
   readonly readWatermarkUnlockAnswer?: () => string
+  // see FR-102, IR-1
+  // TRAP: answers a row ID or FOCUS_ON_DOCUMENT_BODY, never the field's contents (FR-102 MUST NOT).
+  readonly readFocusPosition?: () => string
 }
+
+// see PC-5, PC-6
+type EndArrowCursor = `url(data:image/svg+xml,${string}) ${number} ${number}, ew-resize`
 
 export type PointerShape =
   | 'default'
   | 'copy'
   | 'grabbing'
-  | 'ew-resize'
   | 'grab'
+  | EndArrowCursor
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
 
@@ -258,13 +264,66 @@ type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
 
 type GrabbedArea = Grabbed['grab']
 
-const POINTER_SHAPE_BY_GRAB: Readonly<Record<GrabbedArea, PointerShape | null>> = {
-  'GR-3': 'ew-resize',
-  'GR-4': 'ew-resize',
-  'GR-5': 'ew-resize',
-  'GR-6': 'ew-resize',
-  'GR-9': 'ew-resize',
-  'GR-17': 'ew-resize',
+type EndArrowRow = 'PC-1' | 'PC-2' | 'PC-3' | 'PC-4'
+
+// see T-264
+const END_ARROW_BY_ROW: Readonly<
+  Record<EndArrowRow, { readonly facing: 'left' | 'right'; readonly ink: 'hollow' | 'filled' }>
+> = {
+  'PC-1': { facing: 'left', ink: 'hollow' },
+  'PC-2': { facing: 'right', ink: 'hollow' },
+  'PC-3': { facing: 'left', ink: 'filled' },
+  'PC-4': { facing: 'right', ink: 'filled' },
+}
+
+// see PC-5
+const END_ARROW_INKS: Readonly<
+  Record<'hollow' | 'filled', { readonly fill: string; readonly outline: string }>
+> = {
+  hollow: { fill: '#ffffff', outline: '#000000' },
+  filled: { fill: '#000000', outline: '#ffffff' },
+}
+
+// WHY: the arrow is drawn on its own grid and stretched to S-249, so a new side keeps the drawing.
+const END_ARROW_GRID = 24
+
+// WHY: the head's point and the shaft's far end sit inside the grid by more than the outline's half width.
+const END_ARROW_LEFT_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
+
+const END_ARROW_OUTLINE_WIDTH = 1.5
+
+// TRAP: an unquoted url() ends at a bare quote or parenthesis, which encodeURIComponent leaves as they are.
+const URL_UNSAFE_LEFT_BY_ENCODING = /['()]/g
+
+// see PC-5, PC-6
+// TRAP: S-249 only, never the display scale; the table's closing rule keeps the pointer off FR-039.
+/** @purity pure */
+function endArrowCursor(row: EndArrowRow): EndArrowCursor {
+  const { facing, ink } = END_ARROW_BY_ROW[row]
+  const { fill, outline } = END_ARROW_INKS[ink]
+  const side = NOT_STORED_END_POINTER_SIZES['S-249']
+  const hotspot = side / 2
+  const mirror = facing === 'right' ? ` transform='matrix(-1 0 0 1 ${END_ARROW_GRID} 0)'` : ''
+  const picture =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${side}' height='${side}' ` +
+    `viewBox='0 0 ${END_ARROW_GRID} ${END_ARROW_GRID}'>` +
+    `<path d='${END_ARROW_LEFT_PATH}'${mirror} fill='${fill}' stroke='${outline}' ` +
+    `stroke-width='${END_ARROW_OUTLINE_WIDTH}' stroke-linejoin='round'/></svg>`
+  const encoded = encodeURIComponent(picture).replace(
+    URL_UNSAFE_LEFT_BY_ENCODING,
+    (one) => `%${one.charCodeAt(0).toString(16).toUpperCase()}`,
+  )
+  return `url(data:image/svg+xml,${encoded}) ${hotspot} ${hotspot}, ew-resize`
+}
+
+// see IN-2, T-264
+const POINTER_SIGN_BY_GRAB: Readonly<Record<GrabbedArea, EndArrowRow | 'grab' | null>> = {
+  'GR-3': 'PC-1',
+  'GR-4': 'PC-2',
+  'GR-5': 'PC-3',
+  'GR-6': 'PC-4',
+  'GR-9': 'PC-3',
+  'GR-17': 'PC-4',
   'GR-12': 'grab',
   'GR-15': 'grab',
   'GR-18': 'grab',
@@ -425,9 +484,26 @@ const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
 
 const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
 
-// WHY: counted in frames, not ms: each try needs a drawn frame, and the one known recovery (a held
-// control let go, then redrawn) lands on the next; 10 bounds a focus() that never takes.
+// WHY: counted in frames, not ms: each try needs a drawn frame, and a held control let go lands on
+// the next; 10 bounds the frames asked for, and IN-5b keeps trying on later frames and keys.
 const FIELD_FOCUS_RETRY_FRAMES = 10
+
+// see ZE-5
+const PERCENT_PER_WHOLE = 100
+
+// see FR-102, IR-1, IR-2, IR-3
+// TRAP: the dash the record already writes for an empty value; IR-2's third value of S-99h is none.
+const UNREAD_IN_RECORD = '-'
+
+const PANEL_NOT_SHOWN_IN_RECORD = 'none'
+
+// see IR-1
+// TRAP: single-html-shell.ts answers this when the focus is on no field and no entrance.
+export const FOCUS_ON_DOCUMENT_BODY = 'body'
+
+// see IN-4, IN-5a, IN-5b
+// TRAP: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
+const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
 type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
 
@@ -1636,7 +1712,9 @@ export function frameLoop(
     return screen !== undefined && propertiesShowingNow() !== null
   }
 
-  // see FR-052, FR-072, S-171
+  // see FR-052, FR-072, S-171, S-248
+  // TRAP: laid over the frame's settings only; S-80 below S-248 is never written back here, or
+  // opening the panel alone would leave the document with an unsaved edit (FR-100).
   /** @purity semi-pure-b */
   function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
     // TRAP: before the stored-width test, or a dragged width leaves an empty strip at the edge.
@@ -1645,7 +1723,7 @@ export function frameLoop(
       return { ...stored, propertyPanelWidth: 0 }
     }
     if (propertiesShowing === null) return stored
-    if (stored.propertyPanelWidth > 0) return stored
+    if (stored.propertyPanelWidth >= NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248']) return stored
     return {
       ...stored,
       propertyPanelWidth: NOT_STORED_PROPERTIES_PANEL_SIZES['S-171'],
@@ -1721,8 +1799,18 @@ export function frameLoop(
         `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
         `svgBytes=${svg.length} ${census} follow=${dualCursorFollowing ?? '-'} ` +
         `minimised=${isPaletteMinimised} glyphList=${isMilestoneListOpen} ` +
-        `notices=${raisedNotices.length} asking=${asking !== null}`,
+        `notices=${raisedNotices.length} asking=${asking !== null} ` +
+        `focus=${screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +
+        `panel=${propertiesShowingNow() ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
+        `noticeReasons=${recordedNoticeReasons()}`,
     )
+  }
+
+  // see IR-3
+  /** @purity semi-pure-b */
+  function recordedNoticeReasons(): string {
+    if (raisedNotices.length === 0) return UNREAD_IN_RECORD
+    return raisedNotices.map((one) => one.reason).join(',')
   }
 
   /** @purity semi-pure-b */
@@ -1843,8 +1931,10 @@ export function frameLoop(
         tentativeDependencyOf(pressed, pointerAt, document, settings, layout, geometry, regions),
       )
     surface.showSvg(drawnSvg)
-    recordFrame(drawnSvg, layout)
-    if (screen === undefined) return
+    if (screen === undefined) {
+      recordFrame(drawnSvg, layout)
+      return
+    }
     const screenView =
       screenViewFromRegions(
         regions,
@@ -1893,11 +1983,13 @@ export function frameLoop(
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
+    // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
+    recordFrame(drawnSvg, layout)
   }
 
-  // see MK-13
+  // see MK-13, IN-5a, IN-5b
   // TRAP: kept until the focus is in, so keys typed next reach the field rather than table T-036;
-  // dropped when the choice moves, the panel goes or the retries run out, or it would spin frames.
+  // dropped when the choice moves or the panel goes; past the retries no frame is asked, or it spins.
   /** @purity non-pure */
   function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
     const wanted = nameFieldWantedRow
@@ -1905,12 +1997,39 @@ export function frameLoop(
     const under = nameFieldWantedUnder
     const isChoiceKept = under.selection === selection && under.groupIds === selectedGroupIds
     const isPlaceKept = wanted === DOCUMENT_TITLE_FIELD_ROW || isPropertiesPanelOnScreen()
-    if (isChoiceKept && isPlaceKept && focus?.(wanted) === false && under.retriesLeft > 0) {
+    if (isChoiceKept && isPlaceKept && focus?.(wanted) === false) {
+      if (under.retriesLeft <= 0) return
       nameFieldWantedUnder = { ...under, retriesLeft: under.retriesLeft - 1 }
       ask()
       return
     }
     nameFieldWantedRow = null
+  }
+
+  // see IN-5a, IN-5b, IN-4, IN-6
+  // WHY: a press or a focus-moving key withdraws the want; any other key is tried against the field
+  // first, drawing the owed frame now, so a letter typed before that frame lands in the field.
+  /** @purity non-pure */
+  function tryWantedFieldBeforeInput(input: HumanInput): void {
+    if (nameFieldWantedRow === null) return
+    const isWithdrawn =
+      (input.kind === 'pointer' && input.phase === 'down') ||
+      (input.kind === 'key' && FIELD_FOCUS_WITHDRAWING_KEYS.has(input.key))
+    if (isWithdrawn) {
+      nameFieldWantedRow = null
+      return
+    }
+    if (input.kind !== 'key' || screen === undefined) return
+    if (owed && settled(environment)) runFrame()
+    else focusWantedField(screen.focusPropertyField)
+  }
+
+  // see IN-5a
+  // TRAP: false without the focus seam, whose absence no later frame mends; the want would
+  // otherwise hold every single-character key for ever.
+  /** @purity semi-pure-b */
+  function isFieldFocusWanted(): boolean {
+    return nameFieldWantedRow !== null && screen?.focusPropertyField !== undefined
   }
 
   /** @purity non-pure */
@@ -1948,7 +2067,21 @@ export function frameLoop(
   // (WS-2, a confirmation standing) shows the scale that really stands.
   /** @purity non-pure */
   function showDisplayScaleMessage(shown: { readonly end: 'max' | 'min' | null }): void {
-    scaleMessage = { displayScale: held.document.documentSettings.displayScale, end: shown.end }
+    showScaleMessage(held.document.documentSettings.displayScale, shown.end)
+  }
+
+  // see ZE-5, SE-3, SE-4, SE-5
+  // WHY: the same one message as the display scale's, so a row-axis end and a scale press
+  // replace each other rather than stack; the number is zoomY as a rounded percent.
+  /** @purity non-pure */
+  function showRowZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
+    showScaleMessage(Math.round(shown.zoomY * PERCENT_PER_WHOLE), shown.end)
+  }
+
+  // TRAP: displayScale carries the number the message prints, which ZE-5 fills from zoomY.
+  /** @purity non-pure */
+  function showScaleMessage(percent: number, end: 'max' | 'min' | null): void {
+    scaleMessage = { displayScale: percent, end }
     callOffScaleMessage?.()
     const wake = setTimeout(() => {
       callOffScaleMessage = null
@@ -2422,10 +2555,15 @@ export function frameLoop(
     return itemAtPointer(frame.geometry, x, y, grabSizesOf())
   }
 
-  // see IN-2
-  // STOP: spec does not decide the shape over entries, ruler, panels or in Dual Cursor mode. Looked in IN-2, T-023a, T-029a
-  // @provisional PND-445
-  /** @purity semi-pure-b */
+  let pointerShapeOfPress: {
+    readonly at: PointerPress['at']
+    readonly shape: PointerShape | null
+  } | null = null
+
+  // see PC-7
+  // WHY: keyed on the press's own point, which every rebuild of the press carries over unchanged.
+  // WHY: read off what the press grabbed, so a press whose happening returned early still keeps its shape.
+  /** @purity non-pure */
   function pointerShapeAt(
     frame: FrameValues,
     x: number,
@@ -2433,9 +2571,30 @@ export function frameLoop(
     on: ScreenPart | null,
     hit: Grabbed | null,
   ): PointerShape | null {
+    if (pressed === null) {
+      pointerShapeOfPress = null
+      return pointerShapeUnder(frame, { x, y }, on, hit)
+    }
+    if (pointerShapeOfPress === null || pointerShapeOfPress.at !== pressed.at) {
+      const { at } = pressed
+      pointerShapeOfPress = { at, shape: pointerShapeUnder(frame, at, pressed.on, pressed.hit) }
+    }
+    return pointerShapeOfPress.shape
+  }
+
+  // see IN-2
+  // STOP: spec does not decide the shape over entries, ruler, panels or in Dual Cursor mode. Looked in IN-2, T-023a, T-029a
+  // @provisional PND-445
+  /** @purity semi-pure-b */
+  function pointerShapeUnder(
+    frame: FrameValues,
+    point: { readonly x: number; readonly y: number },
+    on: ScreenPart | null,
+    hit: Grabbed | null,
+  ): PointerShape | null {
     if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
     if (on !== null) return null
-    if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
+    if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
     if (dualCursorFollowing !== null) return null
     const armed = screenState.armed
     if (armed.kind === 'dependency') {
@@ -2445,7 +2604,10 @@ export function frameLoop(
       // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
       return null
     }
-    if (hit !== null) return POINTER_SHAPE_BY_GRAB[hit.grab]
+    if (hit !== null) {
+      const sign = POINTER_SIGN_BY_GRAB[hit.grab]
+      return sign === null || sign === 'grab' ? sign : endArrowCursor(sign)
+    }
     if (armed.kind === 'none') return 'default'
     return 'copy'
   }
@@ -2585,6 +2747,7 @@ export function frameLoop(
         : { rowControlsHeightPx: environment.rowControlsHeightPx }),
       pressed,
       isTextEntryUnsettled: hasUnsettledTextEntry(),
+      isTextFieldFocusWanted: isFieldFocusWanted(),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -3531,16 +3694,18 @@ export function frameLoop(
           : [...chosen, action.uid]
         return
       }
-      case 'toggleDocumentSettingsProperties':
-        // STOP: spec does not decide what IC-17 shows on a panel closed while it showed the settings.
-        // Looked in FR-072, IC-17, EN-4, S-99h
-        // @provisional PND-496
+      case 'toggleDocumentSettingsProperties': {
+        // see FR-072, IC-17, EN-4, S-99h
+        // WHY: going back to the choice counts only while the settings are on screen; a panel put
+        // away while it showed them shows them again (PND-496, JDG-173).
+        const isShowingSettings =
+          !isPropertiesPanelPutAway && propertiesShowing === 'documentSettings'
         isPropertiesPanelPutAway = false
         // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
         // @provisional PND-144
-        propertiesShowing =
-          propertiesShowing === 'documentSettings' ? 'selection' : 'documentSettings'
+        propertiesShowing = isShowingSettings ? 'selection' : 'documentSettings'
         return
+      }
       case 'setDualCursorFollowing':
         // WHY: not changeDocument's road, which asks FR-032's question; no row of T-234 asks one here.
         dualCursorFollowing = action.following
@@ -3669,6 +3834,8 @@ export function frameLoop(
   /** @purity non-pure */
   function receiveInput(input: HumanInput): void {
     recordHappening(input)
+    // TRAP: before values is read; the frame it may draw replaces them.
+    tryWantedFieldBeforeInput(input)
     const frame = values
     if (frame === null) {
       recordLine('dropped', 'reason=noFrameHasRunYet')
@@ -3785,6 +3952,9 @@ export function frameLoop(
     if (!spent && translated.displayScaleShown !== undefined) {
       showDisplayScaleMessage(translated.displayScaleShown)
     }
+    const rowZoomEnd = spent ? undefined : translated.rowZoomEndShown
+    if (rowZoomEnd !== undefined) showRowZoomEndMessage(rowZoomEnd)
+    const isRowZoomEndShown = rowZoomEnd !== undefined
 
     if (
       !spent &&
@@ -3835,9 +4005,11 @@ export function frameLoop(
 
     const hasKeyActed =
       spent || didSettleFieldEntry || escapeLevel !== null || translated.action !== null ||
-      translated.displayScaleShown !== undefined
+      translated.displayScaleShown !== undefined || isRowZoomEndShown
+    // WHY: a wheel at a row-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
-      owesFrame(input, context, partBefore, grabBefore, noticesBefore, hasKeyActed)
+      owesFrame(input, context, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
+      isRowZoomEndShown
     recordLine(
       'done',
       `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
@@ -3952,6 +4124,13 @@ export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
 }
 
 // see T-206
+const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
+  readonly 'S-248': number
+} = {
+  'S-248': 160,
+}
+
+// see T-206
 const NOT_STORED_REPEAT_TIMES: {
   readonly 'S-172': number
   readonly 'S-173': number
@@ -3979,6 +4158,13 @@ const NOT_STORED_INTERACTION_RECORD_LIMITS: {
   readonly 'S-207': number
 } = {
   'S-207': 2000,
+}
+
+// see T-206
+const NOT_STORED_END_POINTER_SIZES: {
+  readonly 'S-249': number
+} = {
+  'S-249': 24,
 }
 
 // see T-206

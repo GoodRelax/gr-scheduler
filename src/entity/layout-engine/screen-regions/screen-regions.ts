@@ -208,7 +208,7 @@ export function regionAtPointer(regions: ScreenRegions, x: number, y: number): R
 const NOT_STORED_DISPLAY_SCALE_BASE: {
   readonly 'S-236': number
 } = {
-  'S-236': 0.5,
+  'S-236': 0.625,
 }
 
 // see T-206

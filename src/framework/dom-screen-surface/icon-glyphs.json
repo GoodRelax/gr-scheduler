@@ -3696,23 +3696,23 @@
      "attributes": [
       {
        "name": "x",
-       "value": "6"
-      },
-      {
-       "name": "y",
        "value": "3"
       },
       {
+       "name": "y",
+       "value": "4"
+      },
+      {
        "name": "width",
-       "value": "12"
+       "value": "11"
       },
       {
        "name": "height",
-       "value": "18"
+       "value": "16"
       },
       {
        "name": "rx",
-       "value": "6"
+       "value": "5.5"
       },
       {
        "name": "style",
@@ -3725,7 +3725,75 @@
      "attributes": [
       {
        "name": "d",
-       "value": "M12 6.5 V10.5"
+       "value": "M8.5 4 V9"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "rect",
+     "attributes": [
+      {
+       "name": "x",
+       "value": "7.5"
+      },
+      {
+       "name": "y",
+       "value": "6"
+      },
+      {
+       "name": "width",
+       "value": "2"
+      },
+      {
+       "name": "height",
+       "value": "4"
+      },
+      {
+       "name": "rx",
+       "value": "1"
+      },
+      {
+       "name": "style",
+       "value": "fill: currentColor; stroke: none"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M19 4 V20"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M16.5 6.5 L19 4 L21.5 6.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M16.5 17.5 L19 20 L21.5 17.5"
       },
       {
        "name": "style",

@@ -762,6 +762,14 @@ def derived_defaults(manuscript, direct):
     ⚠️ Resolved by repeated passes, because one derived key may feed another
     (S-2 reads S-3). A pass that settles nothing means the rest cannot be
     reached, and the caller reports them as unstated rather than guessing.
+
+    ⭐ `times` IS READ ON THE `index` BRANCH TOO (CR-418 decision 1). S-3's
+    cell became `index: [fontScaleSizes, fontScale], times: 1.5` -- the ruler
+    font is the font-size step times 1.5 -- and CR-417 section 6.3 names this
+    function: before it read `times`, the branch ignored the key and the
+    generated default stayed at the bare step (14), which the manuscript no
+    longer states. ⛔ A cell with no `times` multiplies by 1, so an `index`
+    cell written before CR-418 prints the value it always did.
     """
     known = dict(direct)
     pending = {key: said['default'] for key, said in manuscript.items()
@@ -777,6 +785,8 @@ def derived_defaults(manuscript, direct):
                 value = known.get('%s.%s' % (table, chosen)) if chosen else None
                 if isinstance(chosen, str):
                     value = known.get('%s.%s' % (table, chosen.strip("'")))
+                if isinstance(value, (int, float)):
+                    value = value * cell.get('times', 1)
             else:
                 base = known.get(cell['from'])
                 value = None
@@ -925,8 +935,8 @@ SUBTRACTED_WHERE_IT_STANDS = []
 # ⛔⛔ AND THE DRAWING UNIT IS NOT THE ONLY READER. Table T-023d's closing
 # rule (MUST) sends 「描かれたダミーの印の画素」 to GR-17, which makes the drawn
 # rectangle a fact the HIT TEST needs -- so `schedule-geometry.ts` solves
-# 「1 日ぶんと `S-180` の小さい方」 once onto `DummyGeometry.ink` and both
-# sides read that. ⭐ The paragraph below claims only why the document does
+# DM-3's width (the marker's diameter times S-247, at most S-180, CR-421) once
+# onto `DummyGeometry.ink` and both sides read that. ⭐ The paragraph below claims only why the document does
 # not keep the row.
 DRAWN_FOR_THE_SCREEN_ALONE = []
 
@@ -1097,6 +1107,13 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PALETTE_GROUP_RULE_SIZES': (['S-143'],
                                             DRAWN_INSIDE_THE_COMMAND_PALETTE),
     'NOT_STORED_PROPERTIES_PANEL_SIZES': (['S-171'], READ_WHERE_IT_STANDS),
+    # NOT FOLDED INTO THE LINE ABOVE. S-248 is the least width FR-052 lets the
+    # properties panel be drawn at, and TWO units read it that may not import
+    # one another (Chapter 5.3): the translator stops the held boundary there,
+    # and `frame-loop.ts` opens a document whose S-80 is below it at S-171.
+    # One name printed into both, as NOT_STORED_SCROLLBAR_SIZES is; folding it
+    # into the line above would hand the translator S-171, which it never reads.
+    'NOT_STORED_PROPERTIES_PANEL_FLOOR': (['S-248'], READ_WHERE_IT_STANDS),
     # ⛔ THE FLOOR UNDER THE SCROLLBAR AND NOT ITS THICKNESS. FR-051 forbids
     # the thickness to be a setting -- it is measured off the environment at
     # BO-1 -- and S-205 is the least this tool will draw whatever that
@@ -1318,7 +1335,10 @@ NOT_STORED_TARGETS = {
     # height. Its reason for not being kept is its own row's note in table
     # T-206 (the document holds no typeface), not the sixth ground's.
     'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
-    'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
+    # dummy at the marker's diameter times S-247, capped by S-180, and the
+    # row's own note gives S-180's reason for not being kept.
+    'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     # ⭐ How long SE-3 of table T-260 keeps the display scale message. ⚠️ Not
     # folded into NOT_STORED_REPEAT_TIMES though both are times counted off
@@ -1332,6 +1352,14 @@ NOT_STORED_TARGETS = {
     # land in frame-loop.ts: one constant per consuming SUBJECT, and those two
     # are how long a held entrance waits.
     'NOT_STORED_INTERACTION_RECORD_LIMITS': (['S-207'], KEPT_WHERE_IT_STANDS),
+    # ⭐ The side of the arrow picture PC-5 of table T-264 shows over the plan
+    # and actual ends. It arrives on the sentence DRAWN_UNDER_THE_HAND_ALONE
+    # keeps for a future row of this shape: a pointer follows the hand, and a
+    # picture no hand is over has nowhere to put it. ⚠️ Not folded into any
+    # other line of frame-loop.ts: one constant per consuming SUBJECT, and the
+    # others are a panel width, times and a count. ⛔ The display scale
+    # (FR-039) must not reach it -- the closing rule under table T-264.
+    'NOT_STORED_END_POINTER_SIZES': (['S-249'], DRAWN_UNDER_THE_HAND_ALONE),
     # ⛔ NOT FOLDED INTO ANY LINE ABOVE, and the subject is what keeps it
     # apart: every other row in this file's shell block is a length, a count
     # or a time, and this one is a NAME -- the word FR-020 lays over the Row
@@ -1371,6 +1399,31 @@ NOT_STORED_TARGETS = {
     # note forbids the two to be shared (S-53 is how fast one notch moves).
     'NOT_STORED_ROW_BAND_CEILING_SEARCH': (['S-238', 'S-239'], DERIVED_WHERE_IT_STANDS),
     'NOT_STORED_ZOOM_BOUNDS': (['S-97', 'S-98'], ARRIVES_AS_ARGUMENT_ZOOM),
+    # ⭐ THE ONE TYPEFACE LIST EVERY TEXT IS DRAWN IN (CR-419). FR-039 (MUST)
+    # draws every text of the screen AND of the exported picture in S-246's
+    # list, and (MUST NOT) forbids a surface a list of its own -- so the row is
+    # written into the three units that write text: `svg-renderer.ts` (the
+    # chart's labels, ruler, watermark and highlight text, which travel into the
+    # export inside the chart's SVG), `image-exporter.ts` (the title and row
+    # names the export draws around that SVG), and `dom-screen-surface.ts` (the
+    # root every DOM surface inherits from).
+    # ⭐ ONE NAME IN THREE UNITS, on the bargain NOT_STORED_CHROME_SCALE stands
+    # on: the decision is the ROW, and three readers of one row is what "one
+    # list, not one per surface" asks for. ⛔ A second value in any of them is
+    # exactly the per-surface list the MUST NOT refuses.
+    # ⚠️ The row's own note gives the reason the document does not keep it: the
+    # way text is drawn belongs to the product, as S-233's does.
+    'NOT_STORED_TYPEFACES': (['S-246'], DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
+    # ⭐ THE WEIGHT OF THE NAME LABEL ALONE (CR-419). FR-039 (MUST) draws the
+    # shape's name label (OC-1 of table T-038) at S-245 and (MUST NOT) no other
+    # text at that weight. ⛔ NOT FOLDED INTO NOT_STORED_TYPEFACES although both
+    # land in `svg-renderer.ts`: one constant per consuming SUBJECT, and the two
+    # subjects differ -- the list is every text's, the weight is one label's,
+    # and the other two units that carry the list must not carry the weight.
+    # ⛔ Nor into NOT_STORED_LABEL_SIZES: that constant stands in the unit that
+    # PLACES the label, and a weight is read only where the label is written.
+    'NOT_STORED_NAME_LABEL_WEIGHT': (['S-245'],
+                                     DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
 }
 
 
@@ -1384,6 +1437,22 @@ def not_stored_cell(cell):
         return (cell['num'], 'number')
     if 'lit' in cell:
         return ("'%s'" % cell['lit'], "'%s'" % cell['lit'])
+    # ⭐ A CELL PRINTED AS ONE CODE SPAN AND NOTHING ELSE STATES ITS VALUE IN
+    # THAT SPAN. S-246 (CR-419) is the first such row: its value is the CSS
+    # `font-family` list `"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic",
+    # sans-serif`, printed in backticks and carrying no `lit`. The span is the
+    # same in every edition, so reading it is reading the value, not a guess.
+    # ⛔ Only a WHOLE-cell span: a cell with prose around a span (「`S-53`
+    # と同じ」) is not a value, and a span holding a single quote or a backslash
+    # could not be carried in the '...' literal written below, so both are
+    # refused by returning None and letting the caller stop.
+    # ⚠️ Typed `string`, not the literal: a typeface list is not a key anything
+    # switches on, and a 60-character literal type would say otherwise.
+    spoken = cell.get('ja')
+    if isinstance(spoken, str):
+        span = re.match(r"^`([^`'\\]+)`$", spoken.strip())
+        if span:
+            return ("'%s'" % span.group(1), 'string')
     return None
 
 
@@ -1722,19 +1791,34 @@ DERIVED_NOTE = [
     '// once a key they read is edited, work them out again from this rule.',
     '// TRAP: the value is from * times + plus + plusFrom * plusTimes, and',
     '// plusFrom is null when the rule names no second key.',
+    '// TRAP: a rule with index instead of from is index[by] * times.',
     'export const SETTINGS_DERIVED = {',
 ]
 
 
 def derived_rules(manuscript):
-    """Print each `from`-shaped default as the rule the manuscript states.
+    """Print each derived default as the rule the manuscript states.
 
     ⭐ Every field is written out, defaults included, so a reader of the
     generated file never has to know which ones may be left off.
+
+    ⭐ AN `index` RULE IS PRINTED TOO, AND CR-418 IS WHY. Until S-3 carried
+    `times: 1.5` the rule was the bare step -- `fontScaleSizes[fontScale]` --
+    and the use-case that rewrites the ruler font on a font-size change
+    (FR-039: 「目盛の文字と目盛の帯の高さがこれに追随し、その保存値が書き換わる」)
+    could index the table itself. ⛔ With the factor in the manuscript, that
+    use-case would have to type 1.5 a second time, which rule 03 forbids; the
+    rule is printed here instead and the use-case reads it, the way it already
+    reads S-2's.
     """
     out = []
     for key in sorted(manuscript):
         cell = manuscript[key]['default']
+        if isinstance(cell, dict) and 'index' in cell:
+            table, by = cell['index']
+            out.append("  '%s': { index: '%s', by: '%s', times: %s },"
+                       % (key, table, by, cell.get('times', 1)))
+            continue
         if not isinstance(cell, dict) or 'from' not in cell:
             continue
         named = cell.get('plusFrom')
@@ -1935,10 +2019,12 @@ TARGETS = [
     # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS READ TWICE. Table
     # T-023d's closing rule (MUST) sends 「描かれたダミー
     # の印の画素」 to GR-17, so the hit test has to know the rectangle the mark
-    # was drawn in -- and FR-043 states that rectangle as 「1 日ぶんと `S-180` の
-    # 小さい方」, which only a unit holding `layout.pxPerDay` can solve. ⇒ This
-    # unit solves it once, onto `DummyGeometry.ink`, and the renderer and the
-    # hit test both read that one rectangle. ⛔ Solving it in the renderer and
+    # was drawn in. DM-3 of table T-240 (CR-421) states its width as the
+    # marker's diameter times S-247, at most S-180, which only a unit holding
+    # the placed label font can solve. ⇒ This unit solves it once, onto
+    # `DummyGeometry.ink`, and the renderer and the hit test both read that one
+    # rectangle (`schedule-layout.ts` counts the same width into its reach, and
+    # may not import this unit, which imports it). ⛔ Solving it in the renderer and
     # again in the hit test is the copied-value defect rule 03 section 1 names.
     # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
@@ -1977,8 +2063,10 @@ TARGETS = [
     # on the same bargain the entry above states: it is one manuscript row
     # printed into each unit that consumes it, not a duplicated value. This unit
     # needs it because table T-038's order counts 「掴みシロの幅」 and the closing
-    # rule of table T-023d made that width the ink's -- 「その印の幅は 1 日ぶんと
-    # `S-180` の小さい方である」 -- so `dummyReachOf` can no longer read a fixed 30.
+    # rule of table T-023d made that width the ink's -- DM-3 of table T-240
+    # (CR-421) puts it at the marker's diameter times S-247, at most S-180 -- so
+    # `dummyReachOf` can no longer read a fixed 30. `schedule-geometry.ts` solves
+    # the same width from its own copy; a TRAP line there names this pairing.
     # ⛔ IT MAY NOT REACH ScheduleGeometry FOR IT: that unit imports this one, and
     # LR-3 forbids the cycle.
     # S-196 is generated here and ONLY here (CR-380 decision 7, table T-064
@@ -2063,7 +2151,8 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH'),
+     + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
@@ -2102,6 +2191,10 @@ TARGETS = [
      + not_stored_block('NOT_STORED_CONFIRMATION_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE') + NEWLINE * 2
+     # ⭐ CR-419: the typeface list, set once on the surface's root so every
+     # DOM surface under it inherits one list (FR-039 MUST NOT: no per-surface
+     # list). See the entry in NOT_STORED_TARGETS.
+     + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
     # ⭐ The selection frame's own two lengths land beside the colours, in the
@@ -2125,6 +2218,11 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
+     # ⭐ CR-419: every <text> this unit writes carries S-246's list, and the
+     # shape's name label alone carries S-245's weight -- see both entries in
+     # NOT_STORED_TARGETS.
+     + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_NAME_LABEL_WEIGHT') + NEWLINE * 2
      + colour_block('SCHEDULE_COLOURS')
      # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The
      # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236
@@ -2141,7 +2239,11 @@ TARGETS = [
     # the title on the screen and the title in the picture stand apart.
     (os.path.join(ADAPTER, 'image-exporter', 'image-exporter.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_CHROME_SCALE'),
+     + not_stored_block('NOT_STORED_CHROME_SCALE') + NEWLINE * 2
+     # ⭐ CR-419: the title and row names this unit draws AROUND the chart's
+     # SVG are texts of the exported picture too (FR-039 MUST), and the chart's
+     # own texts already carry the list inside that SVG.
+     + not_stored_block('NOT_STORED_TYPEFACES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means
@@ -2156,10 +2258,12 @@ TARGETS = [
     # arrive the same way, and the paragraph above each is what says how.
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR') + NEWLINE * 2
      + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_END_POINTER_SIZES') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
      # names. ⛔ Not folded into the digest below -- that one is a row of table
      # T-207 baked into the artifact, and this is a row of table T-206 the

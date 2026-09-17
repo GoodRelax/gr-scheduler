@@ -172,7 +172,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'exportCanvas.height': 900,
   'exportCanvas.width': 1600,
   'exportCanvasHeightCap': 4096,
-  'fadeHandleHalfPx': 3.5,
+  'fadeHandleHalfPx': 2.5,
   'fadeHandleStrokePx': 1.0,
   'fontMin': 12,
   'fontOfActual': 0.90,
@@ -222,12 +222,12 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'resumeHeadOfMarker': 0.22,
   'resumeScaleInvalid': 0.7,
   'rowGap': 0,
-  'rowTitleFont': 13,
+  'rowTitleFont': 19.5,
   'rowTitleIndent': 16,
-  'rowTitlePanelWidth': 200,
+  'rowTitlePanelWidth': 300,
   'rowTitleTopScale': 1.3,
-  'rulerFont': 14,
-  'rulerHeight': 48,
+  'rulerFont': 21,
+  'rulerHeight': 69,
   'rulerLabelBottomPad': 3,
   'rulerLabelGap': 2,
   'rulerLabelPad': 2,
@@ -307,7 +307,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     maxExpression: [{ key: 'dependencyArrowLength' }, { num: 2 }, { op: '/' }],
   },
   'dummyOpacity': { min: 0.05, max: 0.5 },
-  'fadeHandleHalfPx': { min: 3, max: 8 },
+  'fadeHandleHalfPx': { min: 2.5, max: 8 },
   'fadeHandleStrokePx': { min: 1, max: 3 },
   'fontMin': { min: 12, max: 40 },
   'fontOfActual': { min: 0.05, exclusiveMax: 1 },
@@ -405,7 +405,9 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
 // once a key they read is edited, work them out again from this rule.
 // TRAP: the value is from * times + plus + plusFrom * plusTimes, and
 // plusFrom is null when the rule names no second key.
+// TRAP: a rule with index instead of from is index[by] * times.
 export const SETTINGS_DERIVED = {
+  'rulerFont': { index: 'fontScaleSizes', by: 'fontScale', times: 1.5 },
   'rulerHeight': { from: 'rulerFont', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 // </generated>

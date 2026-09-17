@@ -279,7 +279,13 @@ function resumeSvg(
   )
 }
 
-// see ZO-5, FR-077
+// see FR-039, S-246
+/** @purity pure */
+function typefaceAttribute(): string {
+  return ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"`
+}
+
+// see ZO-5, FR-077, FR-039
 /** @purity pure */
 function labelSvg(
   box: ScreenRect,
@@ -291,12 +297,15 @@ function labelSvg(
   padLeft: number,
   key: string,
   anchor: 'start' | 'end' = 'start',
+  weight: number | null = null,
 ): string {
   const x = anchor === 'end' ? box.x + box.width : box.x + padLeft
   const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
   const haloWidth = fontSize * settings.labelHaloOfFont
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
+    typefaceAttribute() +
+    (weight === null ? '' : ` font-weight="${weight}"`) +
     (anchor === 'end' ? ' text-anchor="end"' : '') +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
     // TRAP: paint-order="stroke" puts the halo under the glyph; without it the label is painted in its own outline.
@@ -504,7 +513,7 @@ function rulerSvg(
       // @provisional PND-477
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
-          ` font-size="${rounded(fontSize)}" fill="${ink}"` +
+          ` font-size="${rounded(fontSize)}"${typefaceAttribute()} fill="${ink}"` +
           ` xml:space="preserve"${figureKey(`ruler-${row}-label-${serialOf(day)}`)}>` +
           `${escaped(label)}</text>`,
       )
@@ -536,11 +545,12 @@ function watermarkSvg(
   const centreY = area.y + area.height / 2
   const reach = Math.hypot(area.width, area.height) / 2
   const text = escaped(`${mark.openedBy} ${mark.stampedAt}`)
+  const typeface = typefaceAttribute()
   const marks: string[] = []
   for (let y = centreY - reach; y <= centreY + reach; y += step) {
     for (let x = centreX - reach; x <= centreX + reach; x += step) {
       marks.push(
-        `<text x="${rounded(x)}" y="${rounded(y)}" xml:space="preserve">${text}</text>`,
+        `<text x="${rounded(x)}" y="${rounded(y)}"${typeface} xml:space="preserve">${text}</text>`,
       )
     }
   }
@@ -846,6 +856,8 @@ export function svgFromSchedule(
           themed('S-169'),
           settings.labelPad,
           `${taskKey}-label`,
+          'start',
+          NOT_STORED_NAME_LABEL_WEIGHT['S-245'],
         ),
       )
     }
@@ -1068,7 +1080,7 @@ export function svgFromSchedule(
       annotationParts.push(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
-          ` font-size="${rounded(box.fontSize)}" fill="${themed('S-147')}"` +
+          ` font-size="${rounded(box.fontSize)}"${typefaceAttribute()} fill="${themed('S-147')}"` +
           ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
           `${escaped(line)}</text>`,
       )
@@ -1185,8 +1197,10 @@ const NOT_STORED_DEPENDENCY_SIZES: {
 // see T-206
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
+  readonly 'S-247': number
 } = {
   'S-180': 30,
+  'S-247': 0.5,
 }
 
 // see T-206
@@ -1201,6 +1215,20 @@ const NOT_STORED_RULER_WEEKDAY_SIZES: {
   readonly 'S-219': number
 } = {
   'S-219': 0.6,
+}
+
+// see T-206
+const NOT_STORED_TYPEFACES: {
+  readonly 'S-246': string
+} = {
+  'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
+}
+
+// see T-206
+const NOT_STORED_NAME_LABEL_WEIGHT: {
+  readonly 'S-245': number
+} = {
+  'S-245': 600,
 }
 
 // see T-236, S-73

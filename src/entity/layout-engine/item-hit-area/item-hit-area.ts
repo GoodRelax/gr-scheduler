@@ -290,19 +290,37 @@ function taskRow(
   }
 }
 
+// see GR-7, LF-11
+/** @purity pure */
+function isOnTheDrawnMarker(task: TaskGeometry, x: number, y: number): boolean {
+  return task.marker !== null &&
+    isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius)
+}
+
+// see T-023d, GR-7
+/** @purity pure */
+function yieldingToADrawnMarker(row: HitRow): HitRow {
+  return {
+    ...row,
+    /** @purity pure */
+    claim: (scene, x, y, slop) =>
+      scene.boxed.some((one) => isOnTheDrawnMarker(one.task, x, y)) ? null : row.claim(scene, x, y, slop),
+  }
+}
+
 // see T-023d
 // TRAP: keep the printed order, not row-ID order; sorting by ID reverses it (GR-17 above GR-9).
 const TABLE_T_023D: readonly HitRow[] = [
-  taskRow('GR-1', 'anyPress', (boxed, x, y, slop) => {
+  yieldingToADrawnMarker(taskRow('GR-1', 'anyPress', (boxed, x, y, slop) => {
     if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
     const corner = boxed.task.fadeHandles[0]
     return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
-  }),
-  taskRow('GR-2', 'anyPress', (boxed, x, y, slop) => {
+  })),
+  yieldingToADrawnMarker(taskRow('GR-2', 'anyPress', (boxed, x, y, slop) => {
     if (standsOnADummyRightOfThePlanStart(boxed, x, y)) return false
     const corner = boxed.task.fadeHandles[1]
     return corner !== undefined && isNearPoint(x, y, corner, slop.fadeHandle, slop.fadeHandle)
-  }),
+  })),
   taskRow('GR-5', 'anyPress',
     (boxed, x, y, slop) => isOnActualEnd(boxed, x, y, slop, 'left')),
   taskRow('GR-6', 'anyPress',
@@ -384,15 +402,13 @@ const TABLE_T_023D: readonly HitRow[] = [
       return null
     },
   },
-  taskRow('GR-3', 'anyPress',
-    (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left')),
-  taskRow('GR-4', 'anyPress',
-    (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right')),
-  taskRow('GR-7', 'anyPress', ({ task }, x, y) =>
-    task.marker !== null &&
-    isNearPoint(x, y, task.marker.centre, task.marker.radius, task.marker.radius)),
-  taskRow('GR-12', 'anyPress', ({ plan }, x, y, slop) =>
-    plan !== null && isInsideBoxInclusive(x, y, grown(plan, slop.planEndpoint))),
+  yieldingToADrawnMarker(taskRow('GR-3', 'anyPress',
+    (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'left'))),
+  yieldingToADrawnMarker(taskRow('GR-4', 'anyPress',
+    (boxed, x, y, slop) => isOnPlanEnd(boxed, x, y, slop, 'right'))),
+  taskRow('GR-7', 'anyPress', ({ task }, x, y) => isOnTheDrawnMarker(task, x, y)),
+  yieldingToADrawnMarker(taskRow('GR-12', 'anyPress', ({ plan }, x, y, slop) =>
+    plan !== null && isInsideBoxInclusive(x, y, grown(plan, slop.planEndpoint)))),
   {
     grab: 'GR-16',
     reach: 'anyPress',
@@ -656,7 +672,7 @@ export const NOT_STORED_SIZES: {
 } = {
   'S-90': 12,
   'S-91': 12,
-  'S-92': [15, 15],
+  'S-92': [8, 8],
   'S-137': 6,
   'S-230': 6,
 }

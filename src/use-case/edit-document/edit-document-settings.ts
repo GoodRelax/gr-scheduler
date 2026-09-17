@@ -123,7 +123,8 @@ export function editDocumentSettings(
       return put({ dualCursor: null })
 
     case 'setFontScale': {
-      const rulerFont = settings.fontScaleSizes[command.scale]
+      const ruler = SETTINGS_DERIVED.rulerFont
+      const rulerFont = settings[ruler.index][command.scale] * ruler.times
       const band = SETTINGS_DERIVED.rulerHeight
       const padded = { ...settings, rulerFont }
       return put({
