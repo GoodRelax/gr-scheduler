@@ -30,10 +30,10 @@
 //   「⛔ **閲覧者の文字サイズに追随させない** —— 大きくしたい人はブラウザの表示倍率
 //    で変える。」
 //
-// ⇒ one entrance is `S-138 + S-141 × 2` tall. ⛔ `S-237` IS NOT IN THAT HEIGHT:
+// ⇒ one entrance is `S-138 + S-243 × 2` tall. ⛔ `S-237` IS NOT IN THAT HEIGHT:
 // `FR-029` puts the frame into the WIDTH and leaves the vertical to the side
-// that sets the row pitch -- 「⚠️ 外形の縦は本要求が定めない —— 行送りは入口の側
-// が決める。」 -- and `LF-3` / `HF-19` name only `S-138` and `S-141`.
+// that sets the row pitch -- and `LF-3` / `HF-19` name only `S-138` and `S-243`,
+// the Row Title Panel gap of `FR-029`.
 //
 // ⭐⭐ AND EVERY SURFACE MULTIPLIES IT BY `S-235` (CR-397, ledger row DFC-618):
 // 表 T-206 の `S-138` 「⚠️ 描くときは、どの面でも `S-235` を掛ける（規則は
@@ -41,7 +41,7 @@
 // still while the bands it is compared against move: 表 T-252 の `DS-7` puts the
 // entrance under 「掛けない」.
 //
-// ⇒ one rung is `(S-138 + S-141 × 2) × S-235`, and `HF-1`'s lattice is
+// ⇒ one rung is `(S-138 + S-243 × 2) × S-235`, and `HF-1`'s lattice is
 // 「2 × 2 の格子」, so the floor is at least TWO of those, stacked.
 // ⭐ AT LEAST, never exactly: 表 T-051 の `HF-6` records that the gap BETWEEN
 // two controls has no row anywhere -- 「⛔ **操作子どうしの間隔をここに書いては
@@ -100,11 +100,11 @@ const px = (table: string, id: string): number => {
 
 /** `S-138` -- 入口の図形を描く箱の一辺. */
 const S_138 = px('T-206', 'S-138')
-/** `S-141` -- 図形と入口の枠の最低隙間. */
-const S_141 = px('T-206', 'S-141')
+/** `S-243` -- the least gap of an entrance on the Row Title Panel. */
+const S_243 = px('T-206', 'S-243')
 
 /** One entrance's outer height, the way `FR-029` composes it out of those two. */
-const ONE_ENTRANCE_TALL = S_138 + S_141 * 2
+const ONE_ENTRANCE_TALL = S_138 + S_243 * 2
 
 /** One rung of the lattice as it is DRAWN: `FR-029` multiplies it by `S-235`. */
 const ONE_RUNG_DRAWN = ONE_ENTRANCE_TALL * S_235
@@ -120,6 +120,13 @@ const LATTICE_FLOOR = ONE_RUNG_DRAWN * 2
 
 // see FR-039, T-202
 const TOP_STEP = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1] ?? 100
+
+// see VG-2, VG-3, VG-4
+const vgGapAt = (step: number): number => {
+  const t201 = (id: string): number =>
+    Number(/-?\d+(?:\.\d+)?/.exec(rowOf('T-201', id).by['既定値'] ?? '')?.[0])
+  return t201('S-11') * 2 + t201('S-18') * displayRatioAt(step)
+}
 
 // ===========================================================================
 // The fixture. Copied from tests/unit/layout-engine.test.ts.
@@ -218,9 +225,9 @@ describe('the manuscript still says what these cases read', () => {
   it('⭐ the floor this file measures against is composed of two rows of the manuscript', () => {
     // ⛔ WITHOUT THIS, A PARSE THAT LOST THE 既定 COLUMN WOULD MAKE EVERY CASE
     // BELOW AGREE WITH ANYTHING -- rule 04 section 2.
-    expect(ONE_ENTRANCE_TALL, `S-138=${S_138}, S-141=${S_141}`).toBe(24)
+    expect(ONE_ENTRANCE_TALL, `S-138=${S_138}, S-243=${S_243}`).toBe(18)
     expect(S_235, 'the scale FR-029 puts on every surface').toBe(0.6667)
-    expect(LATTICE_FLOOR).toBeCloseTo(32.0016, 9)
+    expect(LATTICE_FLOOR).toBeCloseTo(24.0012, 9)
     // The sentence that keeps the outer box out of the row, so FR-029 derives it.
     expect(says('T-206', 'S-138')).toContain('本行は入口の外形を持たない')
     // ⛔ AND THE HALF DFC-618 GOT WRONG: the drawn floor carries `S-235`.
@@ -315,22 +322,13 @@ describe('LF-3 / HF-19 (MUST): a row is never shorter than its own controls', ()
     // raises to `LATTICE_FLOOR`, so that reading handed back the floor and then
     // asked a three-lane band to be three floors and two gaps.
     // ⭐ Both rows below stand clear of the floor, so `LF-2` alone decides them:
-    // 「段ごとに、その段に載る `Task` が縦に取る高さの最大を採り、それらを合計して、
-    // 段と段のあいだに `stackGap` を段数から 1 を引いた数だけ加える」. One more
-    // lane therefore adds exactly one lane and one `stackGap`, and that
-    // difference is a lane's own height with no floor in it.
-    const stackGap = (SETTINGS_DEFAULTS['stackGap'] as number) * displayRatioAt(TOP_STEP)
-    const lane = four - three - stackGap
+    // 「段ごとに、その段に載る `Task` が縦に取る高さ（…）の最大を採り、それらを合計して、
+    // 段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）」.
+    // One more lane therefore adds exactly one lane and one gap.
+    const gap = vgGapAt(TOP_STEP)
+    const lane = four - three - gap
     expect(lane, 'a lane with no height makes the sum below say nothing').toBeGreaterThan(0)
-    expect(lane, 'a lane on its own stands under the floor, which is why it is measured this way')
-      .toBeLessThan(LATTICE_FLOOR)
-    expect(three, 'LF-2 (MUST): three lanes and two gaps').toBeCloseTo(
-      lane + stackGap + lane + stackGap + lane,
-      9,
-    )
-    expect(four, 'LF-2 (MUST): four lanes and three gaps').toBeCloseTo(
-      lane + stackGap + lane + stackGap + lane + stackGap + lane,
-      9,
-    )
+    expect(three, 'LF-2 (MUST): three lanes and three gaps').toBeCloseTo(3 * (lane + gap), 9)
+    expect(four, 'LF-2 (MUST): four lanes and four gaps').toBeCloseTo(4 * (lane + gap), 9)
   })
 })

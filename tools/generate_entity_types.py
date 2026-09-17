@@ -1135,7 +1135,10 @@ NOT_STORED_TARGETS = {
     # refuses that reading in as many words.
     'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
                                        SUBTRACTED_WHERE_IT_STANDS),
-    'NOT_STORED_ICON_SIZES': (['S-138', 'S-141', 'S-237'],
+    # S-243 joins the three because the one unit that draws every entrance
+    # draws the Row Title Panel's too: FR-029 (MUST) gives an entrance on that
+    # panel the gap S-243 instead of S-141, and the box and frame line stay.
+    'NOT_STORED_ICON_SIZES': (['S-138', 'S-141', 'S-237', 'S-243'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ THE THREE ROWS AN ENTRANCE'S OUTER WIDTH IS COMPOSED OF, READ WHERE
     # THE FLOOR IS WORKED OUT. FR-029 (MUST) states that width as the box
@@ -1159,7 +1162,10 @@ NOT_STORED_TARGETS = {
     # ⭐ IT STANDS IN `screen-regions.ts` on the ground the S-236 entry below
     # gives: the floor belongs where the drawn settings are made, and that unit
     # imports `document-settings.ts` alone, so no import cycle is opened.
-    'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-141', 'S-237'],
+    # S-243 AND NOT S-141 SINCE CR-414: every entrance this unit composes sits
+    # on the Row Title Panel (HF-1's lattice for LF-3's floor, four row
+    # controls for FR-039's), and FR-029 (MUST) gives those the gap S-243.
+    'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-237', 'S-243'],
                                   READ_WHERE_IT_STANDS),
     # ⭐ THE PRODUCT'S OWN NOTCH, AND NOT A DOCUMENT'S. S-236 is the ratio the
     # chart is drawn at when table T-202's S-234 reads 100, and FR-039 (MUST)
@@ -1314,6 +1320,11 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
     'NOT_STORED_DUMMY_SIZES': (['S-180'], DRAWN_FOR_THE_SCREEN_ALONE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
+    # ⭐ How long SE-3 of table T-260 keeps the display scale message. ⚠️ Not
+    # folded into NOT_STORED_REPEAT_TIMES though both are times counted off
+    # the clock in frame-loop.ts: one constant per consuming SUBJECT, and those
+    # two are how long a held entrance waits (CR-411).
+    'NOT_STORED_SCALE_MESSAGE_TIMES': (['S-244'], TIMED_WHERE_IT_STANDS),
     # ⛔ A COUNT OF ENTRIES AND NOT A LENGTH OF TIME. FR-102 (MUST) drops the
     # record from the oldest end once S-207 is reached and writes at its head
     # how many were dropped, so what the row bounds is how many happenings the
@@ -2146,6 +2157,7 @@ TARGETS = [
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
@@ -2229,9 +2241,6 @@ PUBLISHED_READ_BY_SRC = {
         'DATE_COLUMNS',
         'DEFAULT_CALENDAR_VALUES',
     ),
-    'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
-        'NOT_STORED_SIZES',
-    ),
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_LABEL_SIZES',
     ),
@@ -2268,6 +2277,10 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
         'NOT_STORED_DUMMY_SIZES',
         'NOT_STORED_SELECTION_SIZES',
         'SCHEDULE_COLOURS',
+    ),
+    # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
+    'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
+        'NOT_STORED_SIZES',
     ),
     'src/entity/layout-engine/schedule-geometry/schedule-geometry.ts': (
         'NOT_STORED_DUMMY_SIZES',

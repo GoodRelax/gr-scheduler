@@ -151,10 +151,14 @@ function chromeScaledPx(px: number): number {
   return px * NOT_STORED_CHROME_SCALE['S-235']
 }
 
+// see FR-029, S-243
+// TRAP: S-243 on the Row Title Panel and S-141 on every other surface; the box and frame line never differ.
+type EntranceGapRow = 'S-141' | 'S-243'
+
 // see FR-029
 /** @purity pure */
-function entranceGapPx(): number {
-  return chromeScaledPx(NOT_STORED_ICON_SIZES['S-141'])
+function entranceGapPx(gapRow: EntranceGapRow = 'S-141'): number {
+  return chromeScaledPx(NOT_STORED_ICON_SIZES[gapRow])
 }
 
 // see FR-029
@@ -165,31 +169,31 @@ function entranceBorderPx(): number {
 
 // see FR-029
 /** @purity pure */
-function entranceOuterWidthPx(): number {
+function entranceOuterWidthPx(gapRow: EntranceGapRow = 'S-141'): number {
   return chromeScaledPx(
     NOT_STORED_ICON_SIZES['S-138'] +
-      (NOT_STORED_ICON_SIZES['S-141'] + NOT_STORED_ICON_SIZES['S-237']) * 2,
+      (NOT_STORED_ICON_SIZES[gapRow] + NOT_STORED_ICON_SIZES['S-237']) * 2,
   )
 }
 
 // see FR-029, LF-3, HF-19
 /** @purity pure */
-function entranceOuterHeightPx(): number {
+function entranceOuterHeightPx(gapRow: EntranceGapRow = 'S-141'): number {
   return chromeScaledPx(
-    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2,
+    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES[gapRow] * 2,
   )
 }
 
 // see FR-029
 /** @purity pure */
-function entryGlyphRoom(): string {
+function entryGlyphRoom(gapRow: EntranceGapRow = 'S-141'): string {
   return (
     'display:inline-flex;align-items:center;justify-content:center;' +
     'box-sizing:border-box;' +
     // TRAP: a floor, never a fixed width -- entryStyle also dresses buttons that carry words.
-    `min-width:${entranceOuterWidthPx()}px;` +
-    `padding:0 ${entranceGapPx()}px;` +
-    `min-height:${entranceOuterHeightPx()}px;`
+    `min-width:${entranceOuterWidthPx(gapRow)}px;` +
+    `padding:0 ${entranceGapPx(gapRow)}px;` +
+    `min-height:${entranceOuterHeightPx(gapRow)}px;`
   )
 }
 
@@ -353,22 +357,22 @@ function propertyCheckStyle(): string {
 }
 
 /** @purity pure */
-function entryStyle(): string {
+function entryStyle(gapRow: EntranceGapRow = 'S-141'): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.ink};` +
     `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
     'border-radius:0.25em;cursor:pointer;' +
-    entryGlyphRoom()
+    entryGlyphRoom(gapRow)
   )
 }
 
 /** @purity pure */
-function entryFaintStyle(): string {
+function entryFaintStyle(gapRow: EntranceGapRow = 'S-141'): string {
   return (
     `font:inherit;background:${PAINT.panel};color:${PAINT.rule};` +
     `border:${entranceBorderPx()}px solid ${PAINT.rule};` +
     'border-radius:0.25em;cursor:default;' +
-    entryGlyphRoom()
+    entryGlyphRoom(gapRow)
   )
 }
 
@@ -941,10 +945,10 @@ function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
   )
 }
 
-// see FR-029
+// see FR-029, S-243
 /** @purity pure */
 function rowControlBoxPx(): number {
-  return entranceOuterWidthPx()
+  return entranceOuterWidthPx('S-243')
 }
 
 /** @purity pure */
@@ -957,22 +961,22 @@ function rowControlWidthCss(): string {
 function rowControlBoxStyle(): string {
   return (
     'display:inline-flex;box-sizing:border-box;' +
-    `min-width:${entranceOuterWidthPx()}px;` +
-    `padding:0 ${entranceGapPx()}px;`
+    `min-width:${entranceOuterWidthPx('S-243')}px;` +
+    `padding:0 ${entranceGapPx('S-243')}px;`
   )
 }
 
-// see FR-029
+// see FR-029, S-243
 /** @purity pure */
 function rowControlGlyphGapStyle(): string {
-  return `margin:${entranceGapPx()}px 0;`
+  return `margin:${entranceGapPx('S-243')}px 0;`
 }
 
 // see HF-1, HF-4, LF-3, HF-19
 /** @purity pure */
 function rowControlGridStyle(columns: number, stepsFromEdge: number): string {
   const columnTracks = Array.from({ length: columns }, () => rowControlWidthCss()).join(' ')
-  const rowTrack = `${entranceOuterHeightPx()}px`
+  const rowTrack = `${entranceOuterHeightPx('S-243')}px`
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
     `grid-template-columns:${columnTracks};` +
@@ -1240,7 +1244,7 @@ function panelCornerEntryElement(host: Document, icon: string, stepsFromEdge: nu
 /** @purity pure */
 function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
   return (
-    (canAct ? entryStyle() : entryFaintStyle()) +
+    (canAct ? entryStyle('S-243') : entryFaintStyle('S-243')) +
     STYLE.panelCornerEntry +
     `right:${panelCornerStepPx() * stepsFromEdge}px;`
   )
@@ -1251,9 +1255,7 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
 // painted at 1px, so the box outgrows entranceOuterWidthPx and the entries lap (DFC-160).
 /** @purity pure */
 function panelCornerStepPx(): number {
-  return chromeScaledPx(
-    NOT_STORED_ICON_SIZES['S-138'] + NOT_STORED_ICON_SIZES['S-141'] * 2,
-  ) + Math.ceil(entranceBorderPx()) * 2
+  return entranceOuterHeightPx('S-243') + Math.ceil(entranceBorderPx()) * 2
 }
 
 /** @purity pure */
@@ -2334,6 +2336,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
   wiring.mount.append(root)
 
+  // see SE-5
+  // TRAP: appended last, above the confirmation and the tooltips; it takes no press, so it
+  // hides nothing a person has to reach.
+  const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
+  root.append(scaleMessageLayer)
+
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
   let langShown = ''
@@ -2637,6 +2645,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
 
     lastKeys = drawnKeys
+    showScaleMessage(view.scaleMessage)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + themeStyle(readTheme()))
@@ -3077,6 +3086,26 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
   }
 
+  // see FR-039, SE-4, SE-5
+  // TRAP: no data-role and pointer-events:none, so readScreenPartAt never answers it and a
+  // press lands on what lies under it; one element, rewritten in place, never stacked (SE-4).
+  /** @purity non-pure */
+  function showScaleMessage(text: string | undefined): void {
+    if (text === undefined) {
+      if (scaleMessageLayer.firstElementChild !== null) scaleMessageLayer.replaceChildren()
+      return
+    }
+    const shown = scaleMessageLayer.firstElementChild
+    if (shown !== null) {
+      if (shown.textContent !== text) shown.textContent = text
+      return
+    }
+    const box = made(host, 'div', SCALE_MESSAGE_STYLE.box)
+    box.setAttribute(SCALE_MESSAGE_MARK, '')
+    box.textContent = text
+    scaleMessageLayer.append(box)
+  }
+
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
   // reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
@@ -3095,6 +3124,22 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 }
 
+// see SE-2
+const SCALE_MESSAGE_MARK = 'data-scale-message'
+
+// see FR-039, SE-5
+// WHY: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
+// an upper-middle box that takes no press.
+const SCALE_MESSAGE_STYLE = {
+  layer:
+    'position:absolute;left:0;right:0;top:33%;pointer-events:none;' +
+    'display:flex;justify-content:center;',
+  box:
+    `padding:0.25em 0.75em;background:${PAINT.ground};color:${PAINT.ink};` +
+    `border:1px solid ${PAINT.rule};box-shadow:0 2px 8px ${PAINT.shadow};` +
+    'font-size:1.5em;font-weight:bold;pointer-events:none;',
+} as const
+
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (tables T-206 and T-236)
@@ -3104,10 +3149,12 @@ export const NOT_STORED_ICON_SIZES: {
   readonly 'S-138': number
   readonly 'S-141': number
   readonly 'S-237': number
+  readonly 'S-243': number
 } = {
   'S-138': 16,
   'S-141': 4,
   'S-237': 1,
+  'S-243': 1,
 }
 
 // see T-206

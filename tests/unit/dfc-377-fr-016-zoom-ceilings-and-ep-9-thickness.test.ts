@@ -519,7 +519,7 @@ const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6 // 3x ZOOM_LOW
 const LATTICE_FLOOR = (() => {
   const px = (id: string): number =>
     Number(/-?\d+(?:\.\d+)?/.exec(specTable('T-206').rows.find((row) => row.id === id)?.by['既定'] ?? '')?.[0])
-  return (px('S-138') + px('S-141') * 2) * 2
+  return (px('S-138') + px('S-243') * 2) * 2
 })()
 
 const placesAt = (zoomY: number) =>

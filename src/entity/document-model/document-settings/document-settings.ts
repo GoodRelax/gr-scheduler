@@ -37,7 +37,7 @@ export interface DocumentSettings {
   readonly dependencyRunOfArrow: number
   readonly dependencyVisible: boolean
   readonly dependencyWidth: number
-  readonly displayScale: 33 | 50 | 66 | 75 | 85 | 100
+  readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
   readonly dualCursor: {
     readonly date1: string
     readonly date2: string
@@ -166,16 +166,16 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dependencyRunOfArrow': 2,
   'dependencyVisible': true,
   'dependencyWidth': 1.5,
-  'displayScale': 50,
+  'displayScale': 100,
   'dualCursor': null,
   'dummyOpacity': 0.20,
   'exportCanvas.height': 900,
   'exportCanvas.width': 1600,
   'exportCanvasHeightCap': 4096,
-  'fadeHandleHalfPx': 4.5,
-  'fadeHandleStrokePx': 1.5,
+  'fadeHandleHalfPx': 3.5,
+  'fadeHandleStrokePx': 1.0,
   'fontMin': 12,
-  'fontOfActual': 0.80,
+  'fontOfActual': 0.90,
   'fontScale': 'M',
   'fontScaleSizes.L': 16,
   'fontScaleSizes.M': 14,
@@ -193,7 +193,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'labelBaseline': 0.35,
   'labelCoef': 0.5,
   'labelGap': 8,
-  'labelHaloOfFont': 0.17,
+  'labelHaloOfFont': 0.10,
   'labelPad': 6,
   'markerGap': 4,
   'markerSize': 16,
@@ -241,11 +241,11 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'shapeHeightOf.arrow': 0.5,
   'shapeHeightOf.chevron': 1.0,
   'shapeHeightOf.endpointSpan': 0.5,
-  'shapeHeightOf.milestone': 1.25,
+  'shapeHeightOf.milestone': 1.0,
   'shapeHeightOf.rectangle': 1.0,
   'spanDotOfStroke': 1.15,
   'stackDirection': 'up',
-  'stackGap': 12,
+  'stackGap': 1,
   'stackSafetyCap': 255,
   'starInnerOfOuter': 0.45,
   'taskLevelOfDetailReadablePx': 24,
@@ -304,7 +304,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'dependencyRunOfArrow': { exclusiveMin: 1, max: 6 },
   'dependencyWidth': {
     min: 0.5,
-    maxExpression: [{ key: 'stackGap' }, { num: 2 }, { op: '/' }],
+    maxExpression: [{ key: 'dependencyArrowLength' }, { num: 2 }, { op: '/' }],
   },
   'dummyOpacity': { min: 0.05, max: 0.5 },
   'fadeHandleHalfPx': { min: 3, max: 8 },
@@ -381,13 +381,10 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'shapeHeightOf.arrow': { min: 0.1, exclusiveMax: 1 },
   'shapeHeightOf.chevron': { min: 0.2, max: 3 },
   'shapeHeightOf.endpointSpan': { min: 0.1, exclusiveMax: 1 },
-  'shapeHeightOf.milestone': { exclusiveMin: 1, max: 4 },
+  'shapeHeightOf.milestone': { min: 0.1, max: 1 },
   'shapeHeightOf.rectangle': { min: 1, max: 1 },
   'spanDotOfStroke': { min: 0.5, max: 4 },
-  'stackGap': {
-    max: 60,
-    minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],
-  },
+  'stackGap': { min: 1, max: 1 },
   'starInnerOfOuter': { min: 0.2, max: 0.8 },
   'taskLevelOfDetailReadablePx': { max: 200, minExpression: [{ key: 'fontMin' }] },
   'thinFontScale': { min: 0.3, max: 1 },
@@ -417,7 +414,7 @@ export const SETTINGS_DERIVED = {
 // TRAP: the order is table T-202's own type column, and FR-039 (MUST NOT) forbids either
 // end wrapping round, so the ends are read from this list rather than counted modulo it.
 export const DISPLAY_SCALE_STEPS: readonly DocumentSettings['displayScale'][] = [
-  33, 50, 66, 75, 85, 100,
+  50, 67, 75, 90, 100, 110, 125, 150, 175, 200,
 ]
 
 export interface ClampedValue {

@@ -865,7 +865,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['number'],
         },
         displayScale: {
-          enum: [33, 50, 66, 75, 85, 100],
+          enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
         },
         dualCursor: {
           type: ['object', 'null'],

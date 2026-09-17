@@ -500,7 +500,9 @@ const T_036_DRIVEN = [
   { row: 'SK-15', spelt: 'F11', input: () => key('F11') },
   { row: 'SK-16', spelt: 'Shift++', input: () => key('+', { shift: true }) },
   { row: 'SK-16a', spelt: 'Alt++', input: () => key('+', { alt: true }) },
-  { row: 'SK-17', spelt: 'Ctrl+0', input: () => key('0', { ctrl: true }) },
+  { row: 'SK-22', spelt: 'Ctrl+Shift++', input: () => key('+', { ctrl: true, shift: true }) },
+  { row: 'SK-23', spelt: 'Ctrl+Shift+-', input: () => key('-', { ctrl: true, shift: true }) },
+  { row: 'SK-17', spelt: 'Ctrl+Shift+0', input: () => key('0', { ctrl: true, shift: true }) },
   { row: 'SK-18', spelt: 'F', input: () => key('F') },
   { row: 'SK-20', spelt: 'Ctrl+Shift+D', input: () => key('D', { ctrl: true, shift: true }) },
 ] as const

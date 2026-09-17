@@ -66,20 +66,21 @@ export function displayRatioOf(settings: DocumentSettings): number {
   return (held / 100) * NOT_STORED_DISPLAY_SCALE_BASE['S-236']
 }
 
-// TRAP: DS-1 to DS-4 and DS-9 only; S-56 (DS-5) and every ratio row keep out.
+// TRAP: DS-1 to DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.
 const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
-  'stackGap', 'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'markerSize',
+  'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'markerSize',
   'markerGap', 'markerStroke', 'resumeDashOn', 'resumeDashOff', 'labelPad', 'labelGap',
   'rowTitleFont', 'rowTitleIndent', 'planStroke', 'thinStrokeMin', 'thinStrokeMax',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',
   'taskLevelOfDetailReadablePx', 'rowTitlePanelWidth',
 ]
 
+// TRAP: S-243, not S-141: every entrance composed here sits on the Row Title Panel.
 /** @purity pure */
 function entranceOuterHeightPx(): number {
-  return NOT_STORED_ENTRANCE_SIZES['S-138'] + NOT_STORED_ENTRANCE_SIZES['S-141'] * 2
+  return NOT_STORED_ENTRANCE_SIZES['S-138'] + NOT_STORED_ENTRANCE_SIZES['S-243'] * 2
 }
 
 /** @purity pure */
@@ -207,18 +208,18 @@ export function regionAtPointer(regions: ScreenRegions, x: number, y: number): R
 const NOT_STORED_DISPLAY_SCALE_BASE: {
   readonly 'S-236': number
 } = {
-  'S-236': 0.6667,
+  'S-236': 0.5,
 }
 
 // see T-206
 const NOT_STORED_ENTRANCE_SIZES: {
   readonly 'S-138': number
-  readonly 'S-141': number
   readonly 'S-237': number
+  readonly 'S-243': number
 } = {
   'S-138': 16,
-  'S-141': 4,
   'S-237': 1,
+  'S-243': 1,
 }
 
 // see T-206

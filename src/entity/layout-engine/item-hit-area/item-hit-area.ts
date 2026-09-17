@@ -61,6 +61,19 @@ export interface PointerSlop {
   readonly boxPoint: number
 }
 
+// WHY: no display scale argument: DS-7 keeps every grab margin at its own size whatever the chart is drawn at.
+/** @purity pure */
+export function grabSizesOf(): PointerSlop {
+  return {
+    planEndpoint: NOT_STORED_SIZES['S-90'],
+    actualEndpoint: NOT_STORED_SIZES['S-91'],
+    // WHY: half of S-92: the square stands centred on the corner, so each side reaches half of it.
+    fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
+    line: NOT_STORED_SIZES['S-137'],
+    boxPoint: NOT_STORED_SIZES['S-230'],
+  }
+}
+
 /** @purity pure */
 function isInsideBoxInclusive(x: number, y: number, box: ScreenRect): boolean {
   return x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height
@@ -209,14 +222,33 @@ function isInsideTheFigure(bar: BarGeometry | null, x: number, y: number): boole
 /** @purity pure */
 function isOnTheDrawnShape(task: TaskGeometry, x: number, y: number): boolean {
   if (task.shapeKind === 'milestone') return isInsideTheFigure(task.plan, x, y) || isInsideTheFigure(task.actual, x, y)
-  const plan = task.plan === null ? null : drawnBoxOfBar(task.plan)
-  const range = merged(plan, task.actual === null ? null : drawnBoxOfBar(task.actual))
+  const range = drawnRangeOf(task)
   return range !== null && isInsideBoxInclusive(x, y, range)
+}
+
+/** @purity pure */
+function drawnRangeOf(task: TaskGeometry): ScreenRect | null {
+  const plan = task.plan === null ? null : drawnBoxOfBar(task.plan)
+  return merged(plan, task.actual === null ? null : drawnBoxOfBar(task.actual))
 }
 
 /** @purity pure */
 function isOnADrawnShape(geometry: ScheduleGeometry, x: number, y: number): boolean {
   return geometry.tasks.some((task) => isOnTheDrawnShape(task, x, y))
+}
+
+type VerticalPlace = { readonly side: 'above' | 'level' | 'below'; readonly distance: number }
+
+// see T-261, GS-2
+// WHY: the box round a milestone's figures, not the figures: GS-2 measures a vertical length only.
+/** @purity pure */
+function verticalPlaceOf(task: TaskGeometry, y: number): VerticalPlace {
+  const range = drawnRangeOf(task)
+  if (range === null) return { side: 'level', distance: Number.POSITIVE_INFINITY }
+  if (y < range.y) return { side: 'below', distance: range.y - y }
+  const bottom = range.y + range.height
+  if (y > bottom) return { side: 'above', distance: y - bottom }
+  return { side: 'level', distance: 0 }
 }
 
 type RowReach = 'anyPress' | 'doubleClickOnly'
@@ -229,6 +261,7 @@ type Scene = {
 type HitRow = {
   readonly grab: GrabArea
   readonly reach: RowReach
+  readonly isTaskRow?: true
   /** @purity pure */
   readonly claim: (scene: Scene, x: number, y: number, slop: PointerSlop) => Hit | null
 }
@@ -244,6 +277,7 @@ function taskRow(
   return {
     grab,
     reach,
+    isTaskRow: true,
     /** @purity pure */
     claim: (scene, x, y, slop) => {
       for (const one of scene.boxed) {
@@ -462,7 +496,60 @@ function isOnTheDrawnMarkHalf(boxed: BoxedTask, x: number, y: number,
   return half === 'left' ? x <= middle : x >= middle
 }
 
-// see T-023d
+/** @purity pure */
+function firstHitIn(
+  rows: readonly HitRow[],
+  scene: Scene,
+  x: number,
+  y: number,
+  slop: PointerSlop,
+  resolving: PointerResolution,
+): Hit | null {
+  for (const row of rows) {
+    if (resolving === 'press' && row.reach === 'doubleClickOnly') continue
+    const hit = row.claim(scene, x, y, slop)
+    if (hit !== null) return hit
+  }
+  return null
+}
+
+const TASK_ROWS: readonly HitRow[] = TABLE_T_023D.filter((row) => row.isTaskRow)
+const LINE_ROWS: readonly HitRow[] = TABLE_T_023D.filter((row) => row.grab === 'GR-13')
+
+/** @purity pure */
+function sceneOf(scene: Scene, admits: (one: BoxedTask) => boolean): Scene {
+  return { geometry: scene.geometry, boxed: scene.boxed.filter(admits) }
+}
+
+// see GS-2, GS-3, GS-4
+// TRAP: an equal distance keeps the table's order; T-261 does not decide the point halfway between two shapes.
+/** @purity pure */
+function splitBetweenStackedNeighbours(
+  scene: Scene,
+  x: number,
+  y: number,
+  slop: PointerSlop,
+  resolving: PointerResolution,
+  first: Hit,
+): Hit | null {
+  if (first.item.kind !== 'task') return first
+  const firstUid = first.item.taskUid
+  const winner = scene.boxed.find((one) => one.task.taskUid === firstUid)
+  const side = winner === undefined ? 'level' : verticalPlaceOf(winner.task, y).side
+  if (side === 'level') return first
+  const claimants = scene.boxed.filter((one) =>
+    firstHitIn(TASK_ROWS, { geometry: scene.geometry, boxed: [one] }, x, y, slop, resolving) !== null)
+  const places = new Map(claimants.map((one) => [one, verticalPlaceOf(one.task, y)] as const))
+  if (![...places.values()].some((place) => place.side !== side && place.side !== 'level')) return first
+  const line = firstHitIn(LINE_ROWS, scene, x, y, slop, resolving)
+  if (line !== null) return line
+  const nearest = Math.min(...[...places.values()].map((place) => place.distance))
+  const near = sceneOf(scene, (one) => places.get(one)?.distance === nearest)
+  return firstHitIn(TABLE_T_023D, near, x, y, slop, resolving)
+}
+
+// see T-023d, T-261
+// WHY: only Tasks stacked above or below give way; beside the pressed shape the table's order stands.
 /** @purity pure */
 export function itemAtPointer(
   geometry: ScheduleGeometry,
@@ -472,12 +559,12 @@ export function itemAtPointer(
   resolving: PointerResolution = 'press',
 ): Hit | null {
   const scene: Scene = { geometry, boxed: boxedTasksOf(geometry) }
-  for (const row of TABLE_T_023D) {
-    if (resolving === 'press' && row.reach === 'doubleClickOnly') continue
-    const hit = row.claim(scene, x, y, slop)
-    if (hit !== null) return hit
+  if (isOnADrawnShape(geometry, x, y)) {
+    const level = sceneOf(scene, (one) => verticalPlaceOf(one.task, y).distance === 0)
+    return firstHitIn(TABLE_T_023D, level, x, y, slop, resolving)
   }
-  return null
+  const first = firstHitIn(TABLE_T_023D, scene, x, y, slop, resolving)
+  return first === null ? null : splitBetweenStackedNeighbours(scene, x, y, slop, resolving, first)
 }
 
 export interface DependencyEnd {

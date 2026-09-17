@@ -43,7 +43,7 @@ import {
   type InputContext,
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { specTable, unbroken } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(
@@ -1093,10 +1093,10 @@ const WITH_A_MILESTONE = rowsOf(
 const SIX_LANES = rowsOf([Array.from({ length: 6 }, (_unused, index) => spanning(index + 1, '2026-01-05', 20))])
 
 describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-1 row name', () => {
-  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.3201 CR-381 7.3 names, and the floors let go below it', () => {
-    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.3201, 4)
+  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.173464 CR-413 section 2 names, and the floors let go below it', () => {
+    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.173464, 6)
     expect(PLAN_FLOOR_LETS_GO_AT, '(S-6 / S-5) / S-4').toBeCloseTo(0.99988, 5)
-    expect(FONT_FLOOR_LETS_GO_AT, 'S-8 / (S-4 x S-13 x S-5 x S-7)').toBeCloseTo(0.93738, 5)
+    expect(FONT_FLOOR_LETS_GO_AT, 'S-8 / (S-4 x S-13 x S-5 x S-7)').toBeCloseTo(0.83323, 5)
     expect(Math.max(ROW_CEILING_BY_TYPE, PLAN_FLOOR_LETS_GO_AT, FONT_FLOOR_LETS_GO_AT)).toBe(ROW_CEILING_BY_TYPE)
     const layout = layoutFromSchedule(RECTANGLE_ROW, settingsOf({ zoomY: ROW_CEILING_BY_TYPE }), REGIONS)
     expect(
@@ -1118,10 +1118,10 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     expect(zoomYAfterRaise(RECTANGLE_ROW, 1.25, TALL), FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
   })
 
-  it('the ceiling follows S-38: a depth-1 scale of 1.5 lets the raise reach past 1.3201 and stops at S-36 x 1.5 / 12.8016 (MUST)', () => {
+  it('the ceiling follows S-38: a depth-1 scale of 1.5 lets the raise reach past 1.173464 and stops at S-36 x 1.5 / 14.4018 (MUST)', () => {
     const solved = (S_36 * 1.5) / RECTANGLE_NAME_PX_AT_UNITY
-    expect(solved, 'premise: 19.5 / 12.8016').toBeCloseTo(1.5232, 4)
-    const start = 1.4
+    expect(solved, 'premise: 19.5 / 14.4018').toBeCloseTo(1.354, 3)
+    const start = 1.3
     expect(start * S_96, 'premise: the raise asks for more than that').toBeGreaterThan(solved)
     const answered = zoomYAfterRaise(RECTANGLE_ROW, start, TALL, { rowTitleTopScale: 1.5 })
     expect(answered, FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(solved + 1e-9)
@@ -1148,7 +1148,9 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     expect(CEILING_IF_MEASURED_ON_THE_MILESTONE).toBeLessThan(1.25)
     expect(beside).toBeCloseTo(alone, 10)
     expect(beside).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
-    expect(beside).toBeGreaterThan(CEILING_IF_MEASURED_ON_THE_MILESTONE)
+    expect(MILESTONE_NAME_PX_AT_UNITY, 'S-17 caps the milestone at the rectangle').toBeLessThanOrEqual(
+      RECTANGLE_NAME_PX_AT_UNITY + 1e-9,
+    )
   })
 
   it('the smaller of the two: a short Row Area stops the raise before the type ceiling (MUST)', () => {
@@ -1204,11 +1206,12 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
   })
 })
 
-describe('T-201 S-17 -- a milestone is 1.25 of its plan height (CR-381, JDG-110, JDG-115)', () => {
-  it('the manuscript and the generated default both hold 1.25', () => {
-    expect(S_17).toBe(1.25)
+describe('T-201 S-17 -- a milestone is no taller than its rectangle (CR-413, JDG-148)', () => {
+  it('the manuscript and the generated default both hold 1.0, under the ceiling 1', () => {
     const row = specTable('T-201').rows.find((one) => one.id === 'S-17')
-    expect(row?.by['既定値'] ?? '').toContain('1.25')
+    expect(Number(bare(row?.by['既定値'] ?? ''))).toBe(1)
+    expect(Number(bare(row?.by['上限'] ?? ''))).toBe(1)
+    expect(S_17).toBe(1)
   })
 
   it('a milestone name at unity is S-4 x S-17 x S-5 x S-7 and does not pass the depth-1 row name', () => {

@@ -165,3 +165,20 @@ export function appHeaderItemsFromDocument(
     language: session.language,
   }
 }
+
+const SCALE_ECHO_BY_END = new Map(displayWords.scaleEcho.map((entry) => [entry.end, entry]))
+
+const PERCENT_SIGN = '%'
+
+// see FR-039, SE-2, FR-038
+// WHY: the number and the percent sign are no words (CR-411 decision 4); only the end word
+// comes from the dictionary.
+/** @purity pure */
+export function displayScaleMessageText(
+  displayScale: number,
+  end: 'max' | 'min' | null,
+  language: DisplayLanguage,
+): string {
+  const word = end === null ? '' : (SCALE_ECHO_BY_END.get(end)?.text[language] ?? '')
+  return `${displayScale}${PERCENT_SIGN}${word}`
+}

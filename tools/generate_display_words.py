@@ -217,6 +217,13 @@ DEFAULT_NAMES = ('row',)
 WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
             'saturday')
 
+# The word SE-2 of table T-260 (MUST) puts after the percentage when a press at
+# an end step changed nothing: one for the largest step, one for the smallest.
+# ⛔ HELD HERE RATHER THAN READ FROM A TABLE, the same move as FILE_STATUS: SE-2
+# states the two in prose and no table holds them as rows (CR-411 decision 9).
+# ⚠️ These are KEYS, not words.
+SCALE_ECHO_ENDS = ('max', 'min')
+
 LANGUAGES = ('ja', 'en')
 
 # ⭐ THE WORDS ARE THE USER'S. The filling is left to the user, because table
@@ -373,6 +380,7 @@ def roster():
         'fileStatus': list(FILE_STATUS),
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
+        'scaleEcho': list(SCALE_ECHO_ENDS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -426,6 +434,7 @@ SHAPE = {
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
+    'scaleEcho': ('end', ('text',)),
 }
 
 
@@ -508,7 +517,8 @@ def build(doc, keys_by_row):
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
-                    'exportFormats', 'assignments', 'arms', 'weekdays'):
+                    'exportFormats', 'assignments', 'arms', 'weekdays',
+                    'scaleEcho'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

@@ -186,20 +186,23 @@ const settingCell = (row: string, heading: string): string => {
 
 /**
  * The two bar heights the scaling cases drive, as multiples of the row's base:
- * the default `shapeHeightOf.milestone` stands for one, and the value 表 T-201
- * allows at the TOP of its range for the other.
+ * the value 表 T-201 allows at the TOP of its range for the larger, and the
+ * middle of that range for the smaller -- S-17's default now stands at the top.
  *
- * ⛔ NEITHER IS TYPED. S-17's default comes out of the generated constant and
- * its ceiling out of the 上限 column of 表 T-201, so a re-ruled row moves these
- * cases rather than leaving them green against a stale pair.
+ * ⛔ NEITHER IS TYPED. Both come out of the 下限 and 上限 columns of 表 T-201,
+ * so a re-ruled row moves these cases rather than leaving them green against a
+ * stale pair.
  */
 const MILESTONE_HEIGHTS = ((): { readonly small: number; readonly large: number } => {
-  const small = SETTINGS_DEFAULTS['shapeHeightOf.milestone']
-  if (typeof small !== 'number') throw new Error('S-17 has no generated default')
-  const ceilingCell = settingCell('S-17', T_201.headings.find((one) => one.includes('上限')) ?? '')
-  const ceiling = Number(bare(ceilingCell))
-  if (!Number.isFinite(ceiling)) throw new Error(`S-17 states no numeric ceiling: ${ceilingCell}`)
-  return { small, large: ceiling }
+  const numberIn = (heading: string): number => {
+    const cell = settingCell('S-17', T_201.headings.find((one) => one.includes(heading)) ?? '')
+    const value = Number(bare(cell))
+    if (!Number.isFinite(value)) throw new Error(`S-17 states no numeric ${heading}: ${cell}`)
+    return value
+  }
+  const floor = numberIn('下限')
+  const ceiling = numberIn('上限')
+  return { small: (floor + ceiling) / 2, large: ceiling }
 })()
 
 // ===========================================================================
@@ -225,6 +228,7 @@ const settingsAt = (milestoneHeight: number): DocumentSettings =>
     rulerFont: 12, // S-3, fontScale S
     rulerHeight: 42, // S-2, fontScale S
     stackDirection: 'down', // S-58, so every y reads from the top of the band
+    zoomY: 4,
     scrollDate: '2026-01-01', // S-77; OP-10 would otherwise pick the origin
     shapeHeightOf: {
       rectangle: FLAT['shapeHeightOf.rectangle'],

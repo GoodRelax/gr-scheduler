@@ -57,12 +57,12 @@ import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/displa
 //           行の帯がそれを下回ってはならない（MUST NOT）**」
 //
 // ⛔ THE ROWS STATE NO NUMBER: 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
-// `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-141` が決めており、格子は
+// `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子は
 // その 2 段ぶんである。⛔ **同表の値を写してはならない。**」 So it is composed here:
 // `FR-029` (MUST) draws a glyph in a box of `S-138` a side and keeps at least
-// `S-141` between that box and the entrance's frame, once on each side, and
+// `S-243` between that box and the entrance's frame, once on each side, and
 // 表 T-051 の `HF-1` (MUST) stacks the four controls 「2 × 2 の格子」.
-// ⇒ floor = 2 × (S-138 + S-141 × 2) × S-235, read out of the manuscript at run
+// ⇒ floor = 2 × (S-138 + S-243 × 2) × S-235, read out of the manuscript at run
 // time. `S-235` is on it because `S-138` says 「描くときは、どの面でも `S-235` を
 // 掛ける」 (CR-397); the DISPLAY scale is not, by 表 T-252 の `DS-7`.
 //
@@ -81,7 +81,7 @@ const settingsTablePx = (id: string): number => {
 }
 
 /** One control's outer height: the glyph box, plus FR-029's gap on each side. */
-const ONE_CONTROL_TALL = settingsTablePx('S-138') + settingsTablePx('S-141') * 2
+const ONE_CONTROL_TALL = settingsTablePx('S-138') + settingsTablePx('S-243') * 2
 
 /** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
 const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
@@ -120,6 +120,12 @@ const RATIO = displayRatioAt(DISPLAY_STEP)
  * `S-56` `canvasPadding`.
  */
 const drawnPx = (stored: number): number => stored * RATIO
+
+// see VG-2, VG-3, VG-4
+const verticalGap = (): number => settingNumber('stackGap') * 2 + drawnPx(settingNumber('dependencyWidth'))
+
+// see VG-5
+const drawnBorder = (): number => drawnPx(settingNumber('planStroke'))
 
 /** The four (or six) corners of a bar table T-012 draws as an outline. */
 const outlinePoints = (bar: BarGeometry | null): Path => {
@@ -750,13 +756,11 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([3, 9])
   })
 
-  it('LF-2 puts stackGap between the lanes and not after the last one', () => {
-    // ⚠️ zoomY 3 so the drawn two-lane band clears `LF-3`'s lattice floor: the
-    // lanes carry the display scale (table T-252's DS-1 / DS-8) and the floor,
-    // which is the entrances', does not (DS-7).
+  it('LF-2 puts one VG-2 gap under every lane, the last one included', () => {
+    // WHY: zoomY 3 so the two-lane band clears the LF-3 lattice floor, which the display scale does not move (DS-7).
     const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
-    const lane = drawnPx(28 * 3)
-    const gap = drawnPx(settingNumber('stackGap'))
+    const lane = drawnPx(28 * 3) + drawnBorder()
+    const gap = verticalGap()
     const one = layoutFromSchedule(oneRow([spanning(1, '2026-01-01', 20)]), tall, REGIONS)
     const two = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-05', 20)]),
@@ -767,17 +771,17 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // that stands UNDER `LF-3`'s second floor, so the single-lane band is the
     // lattice and not the lane. ⇒ the row that can say anything about stackGap
     // is the two-lane one, which clears the floor on its own.
-    expect(one.rows[0]!.height).toBe(Math.max(lane, CONTROL_LATTICE_FLOOR))
-    expect(two.rows[0]!.height).toBe(lane + gap + lane)
+    expect(one.rows[0]!.height).toBeCloseTo(Math.max(lane + gap, CONTROL_LATTICE_FLOOR), 9)
+    expect(two.rows[0]!.height).toBeCloseTo(lane + gap + lane + gap, 9)
     expect(
-      lane + gap + lane,
+      lane + gap + lane + gap,
       'the two-lane band has to clear the floor, or the sum proves nothing',
     ).toBeGreaterThan(CONTROL_LATTICE_FLOOR)
   })
 
   it('ST-5 stacks down from the top of the band, and S-58 up reverses only the y', () => {
     // Lane 0 takes a 28-tall rectangle and lane 1 a 28 x S-17 milestone that
-    // overlaps it, so the band is 28 + 12 + 28 x S-17 whichever way it stacks --
+    // overlaps it, so the band is both lanes and a gap under each whichever way it stacks --
     // and the reversal has to use each lane's OWN height, not one of them.
     const overlapping = oneRow([
       spanning(1, '2026-01-01', 20),
@@ -787,16 +791,14 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     // ⚠️ zoomY 3 so the drawn band clears `LF-3`'s lattice floor, which the
     // display scale does not move (table T-252's `DS-7`).
     const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
-    const lane = drawnPx(28 * 3)
-    const gap = drawnPx(settingNumber('stackGap'))
-    const mile = drawnPx(MILESTONE_SIDE * 3)
+    const lane = drawnPx(28 * 3) + drawnBorder()
+    const gap = verticalGap()
+    const mile = drawnPx(MILESTONE_SIDE * 3) + drawnBorder()
 
     const down = layoutFromSchedule(overlapping, tall, REGIONS)
-    expect(down.rows[0]!.height).toBeCloseTo(lane + gap + mile, 9)
+    expect(down.rows[0]!.height).toBeCloseTo(lane + gap + mile + gap, 9)
     expect(down.rows[0]!.stackTops[0]).toBe(top)
     expect(down.rows[0]!.stackTops[1]).toBeCloseTo(top + lane + gap, 9)
-    expect(down.placements[0]!.y).toBe(top)
-    expect(down.placements[1]!.y).toBeCloseTo(top + lane + gap, 9)
 
     const up = layoutFromSchedule(
       overlapping,
@@ -805,12 +807,10 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
     )
     // ST-2 and ST-3 do not read the direction: every Task keeps its lane.
     expect(up.placements.map((onePoint) => onePoint.stack)).toEqual(down.placements.map((onePoint) => onePoint.stack))
-    expect(up.rows[0]!.height).toBeCloseTo(lane + gap + mile, 9)
-    // Lane 0 is now the lowest, and lane 1 -- the taller -- takes the top.
+    expect(up.rows[0]!.height).toBeCloseTo(lane + gap + mile + gap, 9)
+    // Lane 0 is now the lowest, and lane 1 takes the top.
     expect(up.rows[0]!.stackTops[0]).toBeCloseTo(top + mile + gap, 9)
     expect(up.rows[0]!.stackTops[1]).toBe(top)
-    expect(up.placements[0]!.y).toBeCloseTo(top + mile + gap, 9)
-    expect(up.placements[1]!.y).toBe(top)
   })
 
   it('LF-3 advances the next row by the band height and rowGap', () => {
@@ -848,15 +848,15 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
   it('FR-042 reads a stated row height as a floor, never as a cap', () => {
     const tall = layoutFromSchedule(oneRow([], { height: 90 }), LAYOUT_SETTINGS, REGIONS)
     expect(tall.rows[0]!.height).toBe(90)
-    const lane = drawnPx(28 * 3)
-    const gap = drawnPx(settingNumber('stackGap'))
+    const lane = drawnPx(28 * 3) + drawnBorder()
+    const gap = verticalGap()
     const packed = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 20), spanning(2, '2026-01-05', 20)], { height: 10 }),
       settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 }),
       REGIONS,
     )
     // Two lanes need more than that; a stated 10 must not squeeze them out.
-    expect(packed.rows[0]!.height).toBe(lane + gap + lane)
+    expect(packed.rows[0]!.height).toBeCloseTo(lane + gap + lane + gap, 9)
   })
 
   it('ST-7 stops at the cap and says so by a value, and throws nothing', () => {

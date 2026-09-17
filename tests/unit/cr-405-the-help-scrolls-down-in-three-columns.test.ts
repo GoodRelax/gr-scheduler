@@ -153,10 +153,10 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     for (const row of T_255.rows) expect(T_036.rows.map((one) => one.id)).not.toContain(row.id)
   })
 
-  it('while T-036 holds Ctrl + 0, BF-2 is the one row not listed and BF-1 is listed', () => {
-    expect(T_036_COMBOS.has('Ctrl+0'), 'SK-17 still holds Ctrl + 0').toBe(true)
-    expect(REFUSED_BROWSER_ROWS).toEqual(['BF-2'])
-    expect(LISTED_BROWSER_ROWS).toEqual(['BF-1'])
+  it('with SK-17 moved to Ctrl + Shift + 0, no row of T-255 is refused and BF-1 and BF-2 are listed', () => {
+    expect(T_036_COMBOS.has('Ctrl+0'), 'SK-17 no longer holds Ctrl + 0').toBe(false)
+    expect(REFUSED_BROWSER_ROWS).toEqual([])
+    expect(LISTED_BROWSER_ROWS).toEqual(['BF-1', 'BF-2'])
     expect(combosOf(rowOf(T_255, 'BF-1').by[H_KEYS] ?? '')).toEqual(['Ctrl++', 'Ctrl+-'])
   })
 

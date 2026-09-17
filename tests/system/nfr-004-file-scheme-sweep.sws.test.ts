@@ -1055,6 +1055,39 @@ const PROBES: readonly Probe[] = [
     },
   },
   {
+    // WHY: GR-22's band wins over what lies under it, and FR-052 moves the panel edge with it.
+    rows: ['GR-22'],
+    expect: 'answers',
+    act: async (p) => {
+      const bandAt = async (): Promise<{ x: number; y: number; hit: boolean } | null> =>
+        p.evaluate(() => {
+          const band = document.querySelector('[data-role="Panel Divider"]')
+          if (band === null) return null
+          const r = band.getBoundingClientRect()
+          if (r.width < 1 || r.height < 1) return null
+          const x = Math.round(r.left + r.width / 2)
+          const y = Math.round(r.top + Math.min(r.height / 2, 200))
+          const top = document.elementFromPoint(x, y)
+          return { x, y, hit: top === band }
+        })
+      const before = await bandAt()
+      if (before === null) throw new Error('GR-22 needs a Panel Divider band (U-24) on the screen')
+      if (!before.hit) {
+        throw new Error(`GR-22: the middle of the Panel Divider band (${String(before.x)}, ${String(before.y)}) does not reach the band`)
+      }
+      const held = await dragFrom(p, { x: before.x, y: before.y }, 80, 0)
+      await settled(p)
+      const after = await bandAt()
+      if (after === null || Math.abs(after.x - before.x) < 10) {
+        throw new Error(
+          `GR-22: the Panel Divider band was dragged 80px and stayed at x=${String(before.x)} -> ` +
+            `${after === null ? 'gone' : String(after.x)} (FR-052)`,
+        )
+      }
+      return held
+    },
+  },
+  {
     rows: ['GR-16', 'SK-20'],
     expect: 'answers',
     act: async (p, g) => {

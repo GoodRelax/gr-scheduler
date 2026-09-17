@@ -289,7 +289,7 @@ const ENV: ScreenEnvironment = {
  */
 const ZOOM_STEP = 3
 
-const ROW_ZOOM_UNDER_THE_CEILING = 0.4
+const ROW_ZOOM_UNDER_THE_CEILING = 0.35
 
 /** Today, spelled the way `textOfDay` spells a date column. FR-046 / SK-20. */
 const TODAY = '2026-03-01T00:00:00'
@@ -1094,7 +1094,7 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
   it('SK-16a: Alt + sign zooms the row axis only', () => {
     const low = settingsOf({ ...SETTINGS, zoomY: ROW_ZOOM_UNDER_THE_CEILING })
     const context = contextOf({ document: documentOf(SCHEDULE, low) })
-    expect(low.zoomY * ZOOM_STEP, 'premise: FR-016 row ceiling 16.9 / 12.8016 = 1.3201 is not reached').toBeLessThan(1.32)
+    expect(low.zoomY * ZOOM_STEP, 'premise: FR-016 row ceiling 16.9 / 14.4018 = 1.1735 is not reached').toBeLessThan(1.17)
     const bigger = oneCommand(commandFromInput(keyOf('+', { alt: true }), context), 'setZoom')
     expect(bigger['zoomY']).toBeCloseTo(low.zoomY * ZOOM_STEP, 10)
     expect(bigger['zoomX']).toBeCloseTo(low.zoomX, 10)

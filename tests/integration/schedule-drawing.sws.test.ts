@@ -193,7 +193,7 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
 //           行の帯がそれを下回ってはならない（MUST NOT）**」
 //
 // ⛔ NEITHER ROW STATES A NUMBER. Both say 「数は本行に書かない」 and hand the
-// figure to 表 T-206: 「操作子 1 つの外形は … `S-138` と `S-141` が決めており、格子は
+// figure to 表 T-206: 「操作子 1 つの外形は … `S-138` と `S-243` が決めており、格子は
 // その 2 段ぶんである」. `FR-029` is what composes those two -- 「図形を描く箱の一辺
 // は … `S-138` に従うこと（MUST）」 and 「図形と入口の枠のあいだに … `S-141` が定める
 // 隙間を最低限あけること（MUST）」, once on each side -- and 表 T-051 の `HF-1`
@@ -219,7 +219,7 @@ const settingPx = (id: string): number => {
 }
 
 /** One control's outer height: the glyph box, plus FR-029's gap on each side. */
-const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-141') * 2
+const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-243') * 2
 
 /** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
 const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
@@ -923,12 +923,12 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
       ),
     ],
     [
-      'three lanes, stackGap widened',
+      'three lanes, the dependency line widened',
       draw(
         [long(1, 2, 20), long(2, 3, 21), long(3, 4, 22)],
         ['g1', 'g1', 'g1'],
         [taskVisual(1), taskVisual(2), taskVisual(3)],
-        { stackGap: 30 },
+        { dependencyWidth: 3 },
       ),
     ],
     [
@@ -962,13 +962,11 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       covers: ['LF-2'],
       given: 'rows of one, two and three lanes, and a row holding no Task',
       when: 'layoutFromSchedule places them',
-      then: 'each band is the sum of its lanes plus stackGap once per join',
+      then: 'each band is the sum of its lanes plus one VG-2 gap under each lane',
     }),
     () => {
-      // LF-2: "for each lane take the greatest height a Task on it occupies,
-      // add them up, and add stackGap once for every join between two lanes. A
-      // lane carrying no Task takes the height the rectangle occupies."
-      mentions(T221, 'LF-2', 'stackGap')
+      // STEP: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
+      mentions(T221, 'LF-2', 'VG-5', 'VG-2', '段数と同じ数')
       // ⭐ AND THE SECOND FLOOR LF-3 PUTS UNDER WHATEVER LF-2 SUMS TO:
       // 「その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない」,
       // said again from the controls' side by 表 T-051 の `HF-19`.
@@ -985,12 +983,13 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
             const onLane = drawn.layout.placements.filter(
               (p) => p.groupId === row.groupId && p.stack === lane,
             )
-            // A lane with no Task on it takes the rectangle's height.
+            // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
               ? drawn.layout.rectangleHeight
-              : Math.max(...onLane.map((p) => p.height))
+              : Math.max(...onLane.map((p) => p.height)) + drawn.settings.planStroke * DISPLAY_RATIO
           }
-          const lf2 = sum + drawn.settings.stackGap * DISPLAY_RATIO * (lanes - 1)
+          const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
+          const lf2 = sum + gap * lanes
           if (lf2 > CONTROL_LATTICE_FLOOR) decidedByTheSum += 1
           const expected = Math.max(lf2, CONTROL_LATTICE_FLOOR)
           expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(expected, 6)
@@ -998,7 +997,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       }
       expect(
         decidedByTheSum,
-        'every band stood on the floor, so this case asserted nothing about stackGap',
+        'every band stood on the floor, so this case asserted nothing about the VG-2 gap',
       ).toBeGreaterThan(0)
     },
   )
@@ -1331,11 +1330,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       then: 'the corridor sits where LF-5 puts it for that direction',
     }),
     () => {
-      // LF-5: "going down, the midpoint of the predecessor's bottom and the
-      // successor's top; going up, the midpoint of the successor's bottom and
-      // the predecessor's top; between two Tasks on the SAME lane, that lane's
-      // bottom plus half of stackGap."
-      mentions(T221, 'LF-5', 'stackGap')
+      mentions(T221, 'LF-5', 'VG-2', '隙間の半分')
       const corridorOf = (drawn: Drawn): number => {
         const line = dependencyOf(drawn)
         const mid = line.points[2]
@@ -1387,10 +1382,14 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       )
       const lane = placementOf(same, 1)
       expect(placementOf(same, 2).stack, 'both are on one lane').toBe(lane.stack)
-      expect(corridorOf(same), 'inside one lane').toBeCloseTo(
-        lane.y + lane.planHeight + (same.settings.stackGap * DISPLAY_RATIO) / 2,
-        6,
-      )
+      const outline = same.geometry.tasks.find((one) => one.taskUid === 1)?.plan
+      if (outline === undefined || outline === null || outline.form !== 'outline') {
+        throw new Error('the predecessor draws no outlined plan')
+      }
+      const drawnBottom =
+        Math.max(...outline.points.map((point) => point.y)) + (same.settings.planStroke * DISPLAY_RATIO) / 2
+      const gap = same.settings.stackGap * 2 + same.settings.dependencyWidth * DISPLAY_RATIO
+      expect(corridorOf(same), 'inside one lane').toBeCloseTo(drawnBottom + gap / 2, 6)
     },
   )
 

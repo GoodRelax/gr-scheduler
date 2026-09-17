@@ -316,6 +316,22 @@ function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): numbe
 }
 
 /** @purity pure */
+function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  return laidBelow(shapeKind) ? 0 : settings.planStroke / 2
+}
+
+/** @purity pure */
+function drawnExtentOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, settings) * 2
+}
+
+// see VG-2, VG-5, LF-2, DS-10
+/** @purity pure */
+function verticalGapOf(settings: DocumentSettings): number {
+  return settings.stackGap + settings.dependencyWidth + settings.stackGap
+}
+
+/** @purity pure */
 function laidBelow(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
 }
@@ -712,7 +728,8 @@ export function layoutFromSchedule(
   // TRAP: infinite seeds, not 0: 0 stretches the width to x = 0 when all content sits left of the origin.
   let widest = Number.NEGATIVE_INFINITY
   let leftmost = Number.POSITIVE_INFINITY
-  const emptyLane = reservedHeight('rectangle', settings)
+  const emptyLane = drawnExtentOf('rectangle', settings)
+  const laneGap = verticalGapOf(settings)
   let capStop: StackSafetyCapStop | null = null
 
   for (const row of rows) {
@@ -851,15 +868,14 @@ export function layoutFromSchedule(
     // TRAP: no Math.max(...lane): spreading a huge lane throws RangeError.
     const laneHeights = lanes.map(() => 0)
     measured.forEach((item, index) => {
-      const reserved = reservedHeight(item.kind, settings)
+      const reserved = drawnExtentOf(item.kind, settings)
       const lane = laneOf[index]!
       if (reserved > laneHeights[lane]!) laneHeights[lane] = reserved
     })
     for (let step = 0; step < laneHeights.length; step++) {
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
-    const stacked = laneHeights.reduce((sum, h) => sum + h + settings.stackGap, 0)
-    const packed = Math.max(0, stacked - settings.stackGap)
+    const packed = laneHeights.reduce((sum, h) => sum + h + laneGap, 0)
     const latticeFloor = Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0)
     const height = Math.max(packed, emptyLane, row.height ?? 0, latticeFloor)
 
@@ -872,7 +888,7 @@ export function layoutFromSchedule(
     for (let slot = 0; slot < laneHeights.length; slot++) {
       const lane = upward ? laneHeights.length - 1 - slot : slot
       tops[lane] = laneTop
-      laneTop += laneHeights[lane]! + settings.stackGap
+      laneTop += laneHeights[lane]! + laneGap
     }
 
     measured.forEach((item, index) => {
@@ -888,7 +904,7 @@ export function layoutFromSchedule(
         planEndsStandOnOneDay: item.oneDay,
         fadeInPx: item.fade.fadeIn,
         fadeOutPx: item.fade.fadeOut,
-        y: tops[lane]! + labelLiftOf(item.kind, settings),
+        y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings) + labelLiftOf(item.kind, settings),
         height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),
         actualPlacement: actualPlacementOf(item.kind),

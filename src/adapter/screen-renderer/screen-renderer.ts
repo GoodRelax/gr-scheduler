@@ -18,7 +18,7 @@ import type {
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
-import { appHeaderItemsFromDocument } from './app-header-items'
+import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
 import { commandPaletteFromScreenState } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
@@ -388,6 +388,10 @@ export interface ScreenView {
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
+  // see FR-039, SE-2, SE-5
+  // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
+  // absent while no message stands.
+  readonly scaleMessage?: string
 }
 
 export interface PropertiesSubject {
@@ -444,6 +448,11 @@ export interface ScreenSession {
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  // see FR-039, SE-1, SE-2
+  readonly scaleMessage?: {
+    readonly displayScale: number
+    readonly end: 'max' | 'min' | null
+  } | null
 }
 
 /** @purity pure */
@@ -476,7 +485,14 @@ export function screenViewFromRegions(
     dialogueField: dialogueFieldFromLog(dialogueLog, session),
   }
 
-  return { ...shown, tooltips: tooltipsFromScreenView(shown, settings, session) }
+  const echo = session.scaleMessage ?? null
+  return {
+    ...shown,
+    tooltips: tooltipsFromScreenView(shown, settings, session),
+    ...(echo === null
+      ? {}
+      : { scaleMessage: displayScaleMessageText(echo.displayScale, echo.end, session.language) }),
+  }
 }
 
 // see AG-11

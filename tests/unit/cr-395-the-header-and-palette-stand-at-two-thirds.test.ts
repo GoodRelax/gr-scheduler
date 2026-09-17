@@ -51,7 +51,7 @@ const FR_053_WHAT_IT_MULTIPLIES =
   '⭐ 掛けるのは、入口の図形の箱と隙間（`FR-029` がどの面にも掛ける）と、掴み帯の高さ（同表の `S-135a`）と、群を隔てる線のまわりの空き（同表の `S-143`）である。'
 
 const FR_029_EVERY_SURFACE_IS_TWO_THIRDS =
-  '⭐ 箱の一辺（`S-138`）と隙間（`S-141`）と枠の線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）'
+  '⭐ 箱の一辺（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）'
 
 const FR_029_THE_OTHER_SURFACES_TOO =
   '⚠️ 行の操作子・ヘルプ・プロパティパネルに載る入口も、同じ 2/3 で描かれる。'
@@ -235,7 +235,7 @@ describe('table T-206 S-235 -- the two thirds the user fixed', () => {
     const other = rowOf('T-206', 'S-236').cells.join(' ')
     expect(own, 'S-235 refuses to double as S-236').toContain('`S-236` と兼ねてはならない')
     expect(other, 'and S-236 refuses to double as S-235').toContain('`S-235` と兼ねてはならない')
-    expect(S_235, 'they carry the same number today, which is why the rows say it').toBeCloseTo(
+    expect(S_235, 'they carry different numbers, so conflating them would move one picture').not.toBeCloseTo(
       S_236,
       10,
     )

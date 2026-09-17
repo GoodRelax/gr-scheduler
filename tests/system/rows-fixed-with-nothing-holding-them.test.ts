@@ -494,8 +494,9 @@ test('DFC-180: pressing a row name twice opens the panel with the name field foc
         return {
           panelWidth: Math.round(box?.width ?? 0),
           focusedRow: focused?.getAttribute('data-field-row') ?? null,
+          // WHY: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
           selection:
-            focused instanceof HTMLInputElement
+            focused instanceof HTMLInputElement || focused instanceof HTMLTextAreaElement
               ? { start: focused.selectionStart, end: focused.selectionEnd, value: focused.value }
               : null,
           hasNameField:

@@ -70,6 +70,7 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   DISPLAY_SCALE_STEPS,
+  SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
@@ -258,6 +259,10 @@ export type InputAction =
 export interface TranslatedInput {
   readonly action: InputAction | null
   readonly isBrowserDefaultStopped: boolean
+  // see FR-039, SE-1, SE-2
+  // TRAP: present on every press of IC-104 / IC-105 / SK-22 / SK-23 / SK-17; end is set only
+  // when a press at an end step changed nothing, never on the press that arrives there.
+  readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
 }
 
 const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false }
@@ -849,6 +854,49 @@ function steppedDisplayScale(
   return DISPLAY_SCALE_STEPS[at + towards] ?? current
 }
 
+// see SE-1, SE-2
+// TRAP: the end word follows the press, not the entrance; SK-17 at the default names no end.
+/** @purity pure */
+function withDisplayScaleShown(
+  answer: TranslatedInput,
+  current: DocumentSettings['displayScale'],
+  next: DocumentSettings['displayScale'],
+  towards: 1 | -1 | 0,
+): TranslatedInput {
+  const isStuck = towards !== 0 && next === current
+  const end = !isStuck ? null : towards === 1 ? 'max' : 'min'
+  return { ...answer, displayScaleShown: { end } }
+}
+
+// see FR-039, SK-17
+// TRAP: one bundle, so the two scales come back together on one undo step (CR-410 question 2).
+// TRAP: each half anchors the Row Area middle against the picture as it stands before the
+// press; when both scales move, the zoom's scroll write lands last and wins.
+/** @purity pure */
+function resetLookWrites(context: InputContext): readonly DocumentCommand[] {
+  const settings = context.document.documentSettings
+  const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
+  const zoom = zoomOnScreen(context)
+  const scale = displayScaleWrites(context, home)
+  const zoomed = zoom.x === 1 && zoom.y === 1 && settings.zoomX === 1 && settings.zoomY === 1
+    ? []
+    : zoomWrites(context, 1, 1, null, null)
+  return [...scale, ...zoomed]
+}
+
+// see FR-039, CM-74, SE-1
+/** @purity pure */
+function displayScaleStep(context: InputContext, towards: 1 | -1): TranslatedInput {
+  const current = context.document.documentSettings.displayScale
+  const next = steppedDisplayScale(current, towards)
+  return withDisplayScaleShown(changed(displayScaleWrites(context, next)), current, next, towards)
+}
+
+/** @purity pure */
+function pickShown(answer: TranslatedInput): Pick<TranslatedInput, 'displayScaleShown'> {
+  return answer.displayScaleShown === undefined ? {} : { displayScaleShown: answer.displayScaleShown }
+}
+
 /** @purity pure */
 function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } {
   return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
@@ -1426,8 +1474,15 @@ function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput
     return changed(zoomWrites(context, null, zoomTimes(context, factor, 'y'), null, null))
   }
 
-  if (ctrl && key === KEY.zero) {
-    return changed(zoomWrites(context, 1, 1, null, null))
+  // see SK-22, SK-23, SK-17, MK-10
+  // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
+  if (ctrlShift && (key === KEY.plus || key === KEY.minus)) {
+    return displayScaleStep(context, key === KEY.plus ? 1 : -1)
+  }
+  if (ctrlShift && key === KEY.zero) {
+    const current = context.document.documentSettings.displayScale
+    const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
+    return withDisplayScaleShown(changed(resetLookWrites(context)), current, home, 0)
   }
 
   if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
@@ -1715,20 +1770,14 @@ function commandFromEntry(
       return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
     }
     // see FR-039, CM-74
+    // TRAP: at an end step the entrance can change nothing, so FR-029 tells RS-27 as well as
+    // SE-1 showing the message; the two MUSTs both stand (CR-411 question 1).
     case ENTRY.displayScaleDown:
-      return changed(
-        displayScaleWrites(
-          context,
-          steppedDisplayScale(context.document.documentSettings.displayScale, -1),
-        ),
-      )
-    case ENTRY.displayScaleUp:
-      return changed(
-        displayScaleWrites(
-          context,
-          steppedDisplayScale(context.document.documentSettings.displayScale, 1),
-        ),
-      )
+    case ENTRY.displayScaleUp: {
+      const towards = entry === ENTRY.displayScaleUp ? 1 : -1
+      const stepped = displayScaleStep(context, towards)
+      return stepped.action === null ? { ...nothingToDo(null), ...pickShown(stepped) } : stepped
+    }
     case ENTRY.fontScale:
       return changed([
         {

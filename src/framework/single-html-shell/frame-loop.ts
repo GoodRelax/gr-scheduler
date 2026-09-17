@@ -45,9 +45,8 @@ import {
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
+  grabSizesOf,
   itemAtPointer,
-  NOT_STORED_SIZES,
-  type PointerSlop,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -358,14 +357,6 @@ function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean
   // previewed layout, so the picture would run away.
   if (press.pressRow === 'PTD-4') return true
   return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
-}
-
-const POINTER_SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
 }
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
@@ -900,6 +891,7 @@ interface SessionHeld {
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  readonly scaleMessage?: ScreenSession['scaleMessage']
 }
 
 // see PI-37
@@ -940,6 +932,7 @@ function sessionOf(
     notices,
     canUndo,
     canRedo,
+    scaleMessage,
   } = session
   return {
     language,
@@ -994,6 +987,7 @@ function sessionOf(
     },
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
+    ...(scaleMessage === undefined || scaleMessage === null ? {} : { scaleMessage }),
   }
 }
 
@@ -1592,6 +1586,9 @@ export function frameLoop(
   let pointerRestingSince: number | null = null
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
+  // see SE-3, SE-4
+  let scaleMessage: ScreenSession['scaleMessage'] = null
+  let callOffScaleMessage: (() => void) | null = null
   let dualCursorFollowing: DualCursorSide | null = null
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
@@ -1884,6 +1881,7 @@ export function frameLoop(
           notices: raisedNotices,
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
+          scaleMessage,
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -1923,6 +1921,22 @@ export function frameLoop(
       ask()
     }, held.document.documentSettings.iconHintDelayMs)
     callOffIconHintWait = () => clearTimeout(wake)
+  }
+
+  // see FR-039, SE-1, SE-2, SE-3, SE-4, SE-5
+  // TRAP: kept apart from raisedNotices, so notices= and the Esc / Enter levels never see it.
+  // TRAP: the number is the held value after the press was carried out, so a write refused
+  // (WS-2, a confirmation standing) shows the scale that really stands.
+  /** @purity non-pure */
+  function showDisplayScaleMessage(shown: { readonly end: 'max' | 'min' | null }): void {
+    scaleMessage = { displayScale: held.document.documentSettings.displayScale, end: shown.end }
+    callOffScaleMessage?.()
+    const wake = setTimeout(() => {
+      callOffScaleMessage = null
+      scaleMessage = null
+      if (settled(environment)) ask()
+    }, NOT_STORED_SCALE_MESSAGE_TIMES['S-244'])
+    callOffScaleMessage = () => clearTimeout(wake)
   }
 
   // TRAP: judge the press, not the pointer now, or a pixel of drift stops the repeat.
@@ -2361,7 +2375,7 @@ export function frameLoop(
     // TRAP: without the Row Area test a bar clipped under the Row Title Panel still takes the press.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
-        ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving)
+        ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
         : null
     const pressRow = pressRowOf({ at, hit }, { screenState, dualCursorFollowing })
     return {
@@ -2386,7 +2400,7 @@ export function frameLoop(
     if (on !== null) return null
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
     if (dualCursorFollowing !== null) return null
-    return itemAtPointer(frame.geometry, x, y, POINTER_SLOP)
+    return itemAtPointer(frame.geometry, x, y, grabSizesOf())
   }
 
   // see IN-2
@@ -3729,6 +3743,9 @@ export function frameLoop(
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame)
+    if (!spent && translated.displayScaleShown !== undefined) {
+      showDisplayScaleMessage(translated.displayScaleShown)
+    }
 
     if (
       !spent &&
@@ -3898,6 +3915,13 @@ const NOT_STORED_REPEAT_TIMES: {
 } = {
   'S-172': 1000,
   'S-173': 120,
+}
+
+// see T-206
+const NOT_STORED_SCALE_MESSAGE_TIMES: {
+  readonly 'S-244': number
+} = {
+  'S-244': 1500,
 }
 
 // see T-206

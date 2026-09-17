@@ -1398,7 +1398,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
 })
 
 describe('UF-32 -- FR-075 / S-111: 掴み点は選択しているタスクにだけ', () => {
-  /** S-109 -- 「掴み点の半辺。正方形 9 × 9px を点の中心に置く」. */
+  /** S-109 -- 「掴み点の半辺。正方形 7 × 7px を点の中心に置く」. */
   const S_109 = SETTINGS_DEFAULTS['fadeHandleHalfPx'] as number
 
   /** The squares S-109 gives the two grab points, told apart by their side. */

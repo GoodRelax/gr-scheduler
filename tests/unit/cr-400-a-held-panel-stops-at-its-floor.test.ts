@@ -63,10 +63,10 @@ const T_252_THE_DRAWN_WIDTH =
 const T_252_THE_FLOOR =
   '床 ＝ `S-37` × 描く比 × 同書の 表 T-211 の `S-125` ＋ 行の掴み代の幅（`S-138` × `S-235`）＋ 行の操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）。'
 
-const T_252_EQUAL_AT_THE_TOP_STEP = '16 × 5 × 描く比 ＋ 10.67 ≦ 200 × 描く比 − 69.33'
+const T_252_THE_WORKED_INEQUALITY = '16 × 5 × 描く比 ＋ 10.6672 ≦ 200 × 描く比 − 53.336'
 
 const FR_029_THE_OUTER_WIDTH =
-  '⭐ 入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`）と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）。'
+  '⭐ 入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、行見出しパネルでは `S-243`）と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）。'
 
 const FR_039_THE_RATIO =
   '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST）'
@@ -79,7 +79,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-252 -- a pull to the left never stores a wider value than before', T_252_NEVER_WIDER_THAN_BEFORE],
   ['T-252 (MUST) -- the drawn width is the larger of S-79 x ratio and the floor', T_252_THE_DRAWN_WIDTH],
   ['T-252 -- the floor formula', T_252_THE_FLOOR],
-  ['T-252 -- the worked inequality that is an equality at step 100', T_252_EQUAL_AT_THE_TOP_STEP],
+  ['T-252 -- the worked inequality of the depth-5 grips against the row controls', T_252_THE_WORKED_INEQUALITY],
   ['FR-029 (MUST) -- the outer width of one entrance', FR_029_THE_OUTER_WIDTH],
   ['FR-039 (MUST) -- the drawn ratio', FR_039_THE_RATIO],
 ]
@@ -111,14 +111,14 @@ const S_37 = settingIn('T-201', 'S-37', '既定値')
 const S_79 = settingIn('T-203', 'S-79', '既定')
 const S_125 = settingIn('T-211', 'S-125', '値')
 const S_138 = settingIn('T-206', 'S-138', '既定')
-const S_141 = settingIn('T-206', 'S-141', '既定')
+const S_243 = settingIn('T-206', 'S-243', '既定')
 const S_237 = settingIn('T-206', 'S-237', '既定')
 
 // see HF-4, T-252
 const ROW_CONTROL_COLUMNS = Number(/行の操作子の (\d+) 列/.exec(T_252_THE_FLOOR)?.[1])
 
 // see FR-029
-const ENTRANCE_OUTER_WIDTH = S_138 + 2 * S_141 + 2 * S_237
+const ENTRANCE_OUTER_WIDTH = S_138 + 2 * S_243 + 2 * S_237
 
 // see T-252
 const floorAt = (displayScale: number): number =>
@@ -131,13 +131,14 @@ const TOP_SCALE = Math.max(...DISPLAY_SCALE_STEPS)
 const SCALES: readonly number[] = [DEFAULT_DISPLAY_SCALE, TOP_SCALE]
 
 describe('CR-400 -- the premises: the two steps, the ratio, and the floor read from the manuscript', () => {
-  it('drives the default step 50 and the top step 100 (table T-202 S-234)', () => {
-    expect(SCALES).toEqual([50, 100])
+  it('drives the default step and the top step of table T-202 S-234, which differ', () => {
+    expect(DISPLAY_SCALE_STEPS).toContain(DEFAULT_DISPLAY_SCALE)
+    expect(SCALES[0]).toBeLessThan(SCALES[1]!)
   })
 
   it('reads the floor terms the formula names, with four control columns', () => {
     expect(ROW_CONTROL_COLUMNS, T_252_THE_FLOOR).toBe(4)
-    expect(ENTRANCE_OUTER_WIDTH, `${FR_029_THE_OUTER_WIDTH} -- S-138 + 2 x S-141 + 2 x S-237`).toBe(26)
+    expect(ENTRANCE_OUTER_WIDTH, `${FR_029_THE_OUTER_WIDTH} -- S-138 + 2 x S-243 + 2 x S-237`).toBe(20)
     expect(S_79, 'table T-203 S-79 default').toBe(200)
   })
 
@@ -150,11 +151,12 @@ describe('CR-400 -- the premises: the two steps, the ratio, and the floor read f
     }
   })
 
-  it('lands the floor on S-79 x ratio at step 100, the equality the manuscript works out', () => {
-    expect(floorAt(TOP_SCALE), T_252_EQUAL_AT_THE_TOP_STEP).toBeCloseTo(S_79 * displayRatioAt(TOP_SCALE), 2)
-    expect(floorAt(DEFAULT_DISPLAY_SCALE), 'at step 50 the default S-79 x ratio is under the floor').toBeGreaterThan(
+  it('puts the default S-79 x ratio under the floor at the default step and above it from the next step up', () => {
+    const next = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.indexOf(DEFAULT_DISPLAY_SCALE) + 1] as number
+    expect(floorAt(DEFAULT_DISPLAY_SCALE), T_252_THE_WORKED_INEQUALITY).toBeGreaterThan(
       S_79 * displayRatioAt(DEFAULT_DISPLAY_SCALE),
     )
+    expect(floorAt(next), T_252_THE_WORKED_INEQUALITY).toBeLessThan(S_79 * displayRatioAt(next))
   })
 })
 

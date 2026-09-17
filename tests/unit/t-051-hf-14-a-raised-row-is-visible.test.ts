@@ -308,7 +308,7 @@ function raisedRowId(before: Document, after: Document): string {
 // same unit through the same seam.
 // ===========================================================================
 
-const ROW_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-141') * 2) * 2
+const ROW_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-243') * 2) * 2
 
 const SCREEN: FrameEnvironment = {
   width: 1400,

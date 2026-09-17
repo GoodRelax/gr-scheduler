@@ -51,9 +51,9 @@ NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と�
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
-NOT_STORED_ENTRANCE_SIZES            入口の図形の箱・隙間・枠（`S-138` / `S-141` / `S-237`）
+NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
-NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠（`S-138` / `S-141` / `S-237`）
+NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、行見出しパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
 NOT_STORED_LABEL_SIZES               ラベルの幅の係数（`S-196`）
 NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）
@@ -64,6 +64,7 @@ NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所�
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線の太さ（`S-240` / `S-241`）
+NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）

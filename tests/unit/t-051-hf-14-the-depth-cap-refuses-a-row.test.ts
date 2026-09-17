@@ -277,7 +277,7 @@ const px = (table: string, id: string): number => {
 
 /**
  * The height 表 T-051 の `HF-1`'s 2 x 2 lattice takes, as far as docs/spec pins
- * it down: two entrances stacked, each `S-138 + S-141 × 2` tall.
+ * it down: two entrances stacked, each `S-138 + S-243 × 2` tall.
  *
  * ⭐ COMPOSED FROM 表 T-206 AND NEVER TYPED. `LF-3` and `HF-19` (利用者の裁定
  * 2026-09-03) make it the floor under a row's band, and the host is what
@@ -286,7 +286,7 @@ const px = (table: string, id: string): number => {
  * is a lawful one, and tests/unit/lf-3-hf-19-a-row-is-never-shorter-than-its-
  * controls.test.ts is where the floor itself is asserted.
  */
-const ROW_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-141') * 2) * 2
+const ROW_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-243') * 2) * 2
 
 const SCREEN: FrameEnvironment = {
   width: 1400,

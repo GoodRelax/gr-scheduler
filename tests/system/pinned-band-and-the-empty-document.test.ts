@@ -214,7 +214,11 @@ async function panelState(
         width: Math.round(shown?.getBoundingClientRect().width ?? 0),
         hasField: field !== null && field !== undefined,
         focusedRow: focused?.getAttribute('data-field-row') ?? null,
-        value: field instanceof HTMLInputElement ? field.value : null,
+        // WHY: FR-006 wraps a text field downwards, so the name field is a textarea since CR-408.
+        value:
+          field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement
+            ? field.value
+            : null,
       }
     },
     { panel: PROPERTIES, column },

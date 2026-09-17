@@ -114,7 +114,7 @@
    "indent": false,
    "table": "T-036",
    "row": "SK-17",
-   "keys": "Ctrl ＋ 0",
+   "keys": "Ctrl ＋ Shift ＋ 0",
    "press": null,
    "glyphs": [],
    "note": null
@@ -193,6 +193,19 @@
    "table": "T-255",
    "row": "BF-1",
    "keys": "Ctrl ＋ + / Ctrl ＋ -",
+   "press": null,
+   "glyphs": [],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "browser",
+   "segment": null,
+   "indent": false,
+   "table": "T-255",
+   "row": "BF-2",
+   "keys": "Ctrl ＋ 0",
    "press": null,
    "glyphs": [],
    "note": null
@@ -805,7 +818,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-104",
-   "keys": null,
+   "keys": "Ctrl ＋ Shift ＋ -",
    "press": null,
    "glyphs": [
     "IC-104"
@@ -820,7 +833,7 @@
    "indent": false,
    "table": "T-109",
    "row": "IC-105",
-   "keys": null,
+   "keys": "Ctrl ＋ Shift ＋ +",
    "press": null,
    "glyphs": [
     "IC-105"

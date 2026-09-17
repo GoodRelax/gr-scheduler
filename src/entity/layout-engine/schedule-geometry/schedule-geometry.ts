@@ -521,17 +521,28 @@ function sameSide(linkType: number): boolean {
   return linkType === 0 || linkType === 3
 }
 
+// see VG-5
+// TRAP: schedule-layout.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
+/** @purity pure */
+function drawnOverhangOf(placed: TaskPlacement, settings: DocumentSettings): number {
+  const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
+  return isLine ? 0 : settings.planStroke / 2
+}
+
 interface Anchored {
   readonly edge: number
   readonly middle: number
   readonly top: number
   readonly bottom: number
+  readonly drawnBottom: number
 }
 
-// see LF-5
+// see LF-5, VG-2, VG-5
+// TRAP: schedule-layout.ts stacks tiers with the same gap (verticalGapOf); change both together.
 /** @purity pure */
 function corridorY(from: Anchored, to: Anchored, settings: DocumentSettings): number {
-  if (Math.abs(from.top - to.top) < 0.5) return from.bottom + settings.stackGap / 2
+  const gap = settings.stackGap + settings.dependencyWidth + settings.stackGap
+  if (Math.abs(from.top - to.top) < 0.5) return from.drawnBottom + gap / 2
   return to.top > from.top ? (from.bottom + to.top) / 2 : (to.bottom + from.top) / 2
 }
 
@@ -689,6 +700,7 @@ function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskP
       middle: placed.y + placed.planHeight / 2,
       top: placed.y,
       bottom: placed.y + placed.planHeight,
+      drawnBottom: placed.y + placed.planHeight + drawnOverhangOf(placed, inputs.settings),
     }
   }
   const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
@@ -1234,8 +1246,8 @@ const NOT_STORED_SELECTION_SIZES: {
   readonly 'S-175': readonly [number, number]
   readonly 'S-178': number
 } = {
-  'S-174': 2,
-  'S-175': [2, 2],
+  'S-174': 1,
+  'S-175': [2, 1],
   'S-178': 2,
 }
 // </generated>

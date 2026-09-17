@@ -1170,8 +1170,8 @@ export const NOT_STORED_SELECTION_SIZES: {
   readonly 'S-175': readonly [number, number]
   readonly 'S-178': number
 } = {
-  'S-174': 2,
-  'S-175': [2, 2],
+  'S-174': 1,
+  'S-175': [2, 1],
   'S-178': 2,
 }
 

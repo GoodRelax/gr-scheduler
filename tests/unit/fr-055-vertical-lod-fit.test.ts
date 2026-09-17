@@ -168,7 +168,7 @@ const PINNED_PLAN_HEIGHT = settingNumber('actualMin') / settingNumber('actualOfP
 /**
  * The px figure one row of 表 T-206 prints in its 既定 column.
  *
- * ⛔ Not taken from `SETTINGS_DEFAULTS`: `S-138` and `S-141` describe the screen
+ * ⛔ Not taken from `SETTINGS_DEFAULTS`: `S-138` and `S-243` describe the screen
  * tool, and 表 T-206 says of both 「保存しない」, so the document's settings are
  * not where they live.
  */
@@ -185,14 +185,14 @@ const settingsTablePx = (id: string): number => {
  * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
  *
  * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
- * … 表 T-206 の `S-138` と `S-141` が決めており、格子はその 2 段ぶんである」. So it is
+ * … 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである」. So it is
  * composed: `FR-029` (MUST) draws the glyph in a box of `S-138` a side and keeps
- * at least `S-141` between that box and the entrance's frame on each side, and
+ * at least `S-243` between that box and the entrance's frame on each side, and
  * `HF-1` (MUST) stacks four of those 「2 × 2 の格子」.
  * ⚠️ A CONSTANT, not a function of the zoom: `HF-19` 「⛔⛔ **この床を閲覧者の文字
  * サイズに追随させてはならない（MUST NOT）**」.
  */
-const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-141') * 2) * 2
+const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * 2
 
 /**
  * The smallest zoom that draws depth `d`, which is what FR-055's ⛔ measures

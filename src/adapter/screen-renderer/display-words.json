@@ -2591,8 +2591,8 @@
   {
    "rowId": "SK-17",
    "text": {
-    "ja": "等倍へ戻す",
-    "en": "Back to actual size"
+    "ja": "表示の倍率とズームを戻す",
+    "en": "Reset display scale and zoom"
    }
   },
   {
@@ -3872,6 +3872,22 @@
    "text": {
     "ja": "土",
     "en": "Sat"
+   }
+  }
+ ],
+ "scaleEcho": [
+  {
+   "end": "max",
+   "text": {
+    "ja": "（最大）",
+    "en": " (max)"
+   }
+  },
+  {
+   "end": "min",
+   "text": {
+    "ja": "（最小）",
+    "en": " (min)"
    }
   }
  ]
