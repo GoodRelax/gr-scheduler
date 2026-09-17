@@ -2268,7 +2268,7 @@ export interface ScreenSurfaceWiring {
   readonly readClockMs: () => number
   readonly onAppHeaderHeightPx: (heightPx: number) => void
   readonly onRowControlsHeightPx?: (heightPx: number) => void
-  readonly holdFocusPropertyField?: (focus: (row: string) => void) => void
+  readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
   readonly readTheme: () => ScreenTheme
 }
@@ -2689,17 +2689,45 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const typedControlsByRow = new Map<string, TextEntryControl>()
 
   // see MK-13
+  // TRAP: false while the focus is not in the row's field, so the shell asks again next frame;
+  // true once it is in, or when no field of that row is drawn and no later frame could help.
   /** @purity non-pure */
-  function focusPropertyField(row: string): void {
+  function focusPropertyField(row: string): boolean {
     if (row === DOCUMENT_TITLE_ROW) {
       openDocumentTitleField()
-      return
+      const entry = documentTitleEntry
+      return entry === null || isFocusOn(entry) || focusAndChoose(entry)
+    }
+    // WHY: a held control that takes no text stops the panel redraw, so the fields drawn may be
+    // the last choice's; let it go, and the next frame draws the field this choice asks for.
+    if (isFieldHeld && heldTextControl === null) {
+      const active: unknown = activeElementOfHost()
+      if (propertiesPanel.contains(active as Node)) (active as HTMLElement).blur()
+      isFieldHeld = false
+      return false
     }
     const control = typedControlsByRow.get(row)
-    if (control === undefined) return
+    return control === undefined || focusAndChoose(control)
+  }
+
+  /** @purity non-pure */
+  function focusAndChoose(control: TextEntryControl): boolean {
     if (typeof control.focus === 'function') control.focus()
     // TRAP: select after focus, or the host's own focus handling moves the caret afterwards.
     if (typeof control.select === 'function') control.select()
+    return isFocusOn(control)
+  }
+
+  // WHY: a host with no activeElement cannot say where the focus is, so it is read as in.
+  /** @purity semi-pure-b */
+  function isFocusOn(control: TextEntryControl): boolean {
+    const active = activeElementOfHost()
+    return active === undefined || active === control
+  }
+
+  /** @purity semi-pure-b */
+  function activeElementOfHost(): unknown {
+    return (host as { readonly activeElement?: unknown }).activeElement
   }
 
   let isFieldHeld = false

@@ -335,7 +335,7 @@ function boot(): void {
 
   paintPageGround()
 
-  let focusPropertyFieldHeld: ((row: string) => void) | null = null
+  let focusPropertyFieldHeld: ((row: string) => boolean) | null = null
 
   let readWatermarkUnlockAnswerHeld: (() => string) | null = null
 

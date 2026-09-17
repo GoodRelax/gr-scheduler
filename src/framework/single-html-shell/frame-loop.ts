@@ -240,7 +240,8 @@ export interface ScreenWiring {
   readonly language: DisplayLanguage
   // TRAP: optional, so a host that omits it leaves MK-13 half done with nothing
   // to say so.
-  readonly focusPropertyField?: (row: string) => void
+  // WHY: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
+  readonly focusPropertyField?: (row: string) => unknown
   readonly readWatermarkUnlockAnswer?: () => string
 }
 
@@ -423,6 +424,10 @@ const ASSIGNEE_FIELD_ROW = 'PR-16'
 const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
 
 const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
+
+// WHY: counted in frames, not ms: each try needs a drawn frame, and the one known recovery (a held
+// control let go, then redrawn) lands on the next; 10 bounds a focus() that never takes.
+const FIELD_FOCUS_RETRY_FRAMES = 10
 
 type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
 
@@ -1887,11 +1892,25 @@ export function frameLoop(
     isTooltipStanding = screenView.tooltips.length > 0
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
-    if (nameFieldWantedRow !== null) {
-      const wanted = nameFieldWantedRow
-      nameFieldWantedRow = null
-      screen.focusPropertyField?.(wanted)
+    focusWantedField(screen.focusPropertyField)
+  }
+
+  // see MK-13
+  // TRAP: kept until the focus is in, so keys typed next reach the field rather than table T-036;
+  // dropped when the choice moves, the panel goes or the retries run out, or it would spin frames.
+  /** @purity non-pure */
+  function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
+    const wanted = nameFieldWantedRow
+    if (wanted === null) return
+    const under = nameFieldWantedUnder
+    const isChoiceKept = under.selection === selection && under.groupIds === selectedGroupIds
+    const isPlaceKept = wanted === DOCUMENT_TITLE_FIELD_ROW || isPropertiesPanelOnScreen()
+    if (isChoiceKept && isPlaceKept && focus?.(wanted) === false && under.retriesLeft > 0) {
+      nameFieldWantedUnder = { ...under, retriesLeft: under.retriesLeft - 1 }
+      ask()
+      return
     }
+    nameFieldWantedRow = null
   }
 
   /** @purity non-pure */
@@ -2440,6 +2459,23 @@ export function frameLoop(
   let isSettlingFieldCommit = false
 
   let nameFieldWantedRow: string | null = null
+
+  let nameFieldWantedUnder: {
+    readonly selection: Selection
+    readonly groupIds: readonly string[]
+    readonly retriesLeft: number
+  } = { selection, groupIds: selectedGroupIds, retriesLeft: FIELD_FOCUS_RETRY_FRAMES }
+
+  // see MK-13, HF-14, FR-035
+  /** @purity non-pure */
+  function wantFieldFocused(row: string): void {
+    nameFieldWantedRow = row
+    nameFieldWantedUnder = {
+      selection,
+      groupIds: selectedGroupIds,
+      retriesLeft: FIELD_FOCUS_RETRY_FRAMES,
+    }
+  }
 
   let namingCreatedTaskUid: number | null = null
 
@@ -3414,26 +3450,26 @@ export function frameLoop(
       case 'editInPlace':
         if (action.target.kind === 'taskName') {
           showPropertiesOfChoice()
-          nameFieldWantedRow = TASK_NAME_FIELD_ROW
+          wantFieldFocused(TASK_NAME_FIELD_ROW)
           return
         }
         if (action.target.kind === 'rowName') {
           showPropertiesOfChoice()
-          nameFieldWantedRow = ROW_NAME_FIELD_ROW
+          wantFieldFocused(ROW_NAME_FIELD_ROW)
           return
         }
         if (action.target.kind === 'documentTitle') {
-          nameFieldWantedRow = DOCUMENT_TITLE_FIELD_ROW
+          wantFieldFocused(DOCUMENT_TITLE_FIELD_ROW)
           return
         }
         if (action.target.kind === 'assignee') {
           showPropertiesOfChoice()
-          nameFieldWantedRow = ASSIGNEE_FIELD_ROW
+          wantFieldFocused(ASSIGNEE_FIELD_ROW)
           return
         }
         if (action.target.kind === 'commentBoxText') {
           showPropertiesOfChoice()
-          nameFieldWantedRow = COMMENT_BOX_TEXT_FIELD_ROW
+          wantFieldFocused(COMMENT_BOX_TEXT_FIELD_ROW)
           return
         }
         {
@@ -3564,7 +3600,7 @@ export function frameLoop(
       if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
       selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
       showPropertiesOfChoice()
-      nameFieldWantedRow = TASK_NAME_FIELD_ROW
+      wantFieldFocused(TASK_NAME_FIELD_ROW)
       namingCreatedTaskUid = created.uid
       return
     }
@@ -3573,11 +3609,11 @@ export function frameLoop(
     if (madeRow.parentId === null && isLevelZeroFolded) isLevelZeroFolded = false
     selectedGroupIds = [created.groupId]
     showPropertiesOfChoice()
-    nameFieldWantedRow = ROW_NAME_FIELD_ROW
+    wantFieldFocused(ROW_NAME_FIELD_ROW)
     addedRowOwedSight = created.groupId
   }
 
-  // see FR-048
+  // see FR-048, NFR-010
   /** @purity semi-pure-b */
   function owesFrame(
     input: HumanInput,
@@ -3585,16 +3621,19 @@ export function frameLoop(
     partBefore: ScreenPart | null,
     grabBefore: Grabbed | null,
     noticesBefore: readonly RaisedNotice[],
+    hasKeyActed: boolean,
   ): boolean {
-    if (input.kind === 'wheel') {
+    if (input.kind !== 'pointer') {
       if (pressed !== null) return true
       if (held.document !== before.document) return true
       if (screenState !== before.screenState) return true
       if (selection !== before.selection) return true
       if (raisedNotices !== noticesBefore) return true
-      return false
+      // TRAP: a key that acted on nothing and moved nothing would draw the frame already shown;
+      // a held Shift, Ctrl or Alt repeats its press about 30 times a second.
+      return input.kind === 'key' && (hasKeyActed || !isSameGrab(grabUnderPointer, grabBefore))
     }
-    if (input.kind !== 'pointer' || input.phase !== 'move') return true
+    if (input.phase !== 'move') return true
     if (pressed !== null) return true
     const guideMode = before.document.documentSettings.guideCursorMode
     if (guideMode !== GUIDE_CURSOR_NONE) return true
@@ -3794,7 +3833,11 @@ export function frameLoop(
 
     previewDocument = previewOfHeldPress(pressed, pointerAt, context, frame)
 
-    const owesAFrame = owesFrame(input, context, partBefore, grabBefore, noticesBefore)
+    const hasKeyActed =
+      spent || didSettleFieldEntry || escapeLevel !== null || translated.action !== null ||
+      translated.displayScaleShown !== undefined
+    const owesAFrame =
+      owesFrame(input, context, partBefore, grabBefore, noticesBefore, hasKeyActed)
     recordLine(
       'done',
       `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
