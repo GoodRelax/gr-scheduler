@@ -1,4 +1,7 @@
-30
+20
+#
+# LOWERED 30 -> 20 on 2026-09-17 (second session): CR-409 .. CR-416 landed JDG-146, JDG-147, JDG-148,
+# JDG-149, JDG-150, JDG-152, JDG-153, JDG-154, JDG-156 and JDG-160.
 #
 # LOWERED 35 -> 30 on 2026-09-17 (second session): CR-404 landed JDG-145 and CR-405 .. CR-408 landed
 # JDG-155, JDG-157, JDG-158 and JDG-159 (help, resource roster, list confirmations, property panel).

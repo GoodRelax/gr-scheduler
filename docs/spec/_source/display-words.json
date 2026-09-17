@@ -3267,8 +3267,8 @@
   {
    "rowId": "SK-17",
    "text": {
-    "ja": "等倍へ戻す",
-    "en": "Back to actual size"
+    "ja": "表示の倍率とズームを戻す",
+    "en": "Reset display scale and zoom"
    }
   },
   {

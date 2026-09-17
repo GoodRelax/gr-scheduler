@@ -436,6 +436,14 @@
    }
   },
   {
+   "prefix": "GS",
+   "words": "Grab Split",
+   "owner": "spec",
+   "means": {
+    "ja": "上下に隣り合うタスクの掴み代が縦に重なるときの分け方"
+   }
+  },
+  {
    "prefix": "HB",
    "words": "Highlight box",
    "owner": "spec",
@@ -958,6 +966,14 @@
    }
   },
   {
+   "prefix": "SE",
+   "words": "Scale Echo",
+   "owner": "spec",
+   "means": {
+    "ja": "表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方"
+   }
+  },
+  {
    "prefix": "SF",
    "words": "State-machine Form",
    "owner": "spec",
@@ -1136,6 +1152,14 @@
    "owner": "spec",
    "means": {
     "ja": "ユースケースと、前プロジェクトの要望との対応"
+   }
+  },
+  {
+   "prefix": "VG",
+   "words": "Vertical Gap",
+   "owner": "spec",
+   "means": {
+    "ja": "上下に積んだタスクの形と形の縦の隙間"
    }
   },
   {

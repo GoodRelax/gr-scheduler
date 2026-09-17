@@ -319,12 +319,16 @@
     },
     "displayScale": {
      "enum": [
-      33,
       50,
-      66,
+      67,
       75,
-      85,
-      100
+      90,
+      100,
+      110,
+      125,
+      150,
+      175,
+      200
      ]
     },
     "dualCursor": {
@@ -709,7 +713,8 @@
       },
       "milestone": {
        "type": "number",
-       "maximum": 4
+       "minimum": 0.1,
+       "maximum": 1
       },
       "rectangle": {
        "type": "number",
@@ -731,7 +736,8 @@
     },
     "stackGap": {
      "type": "integer",
-     "maximum": 60
+     "minimum": 1,
+     "maximum": 1
     },
     "stackSafetyCap": {
      "type": "integer"
