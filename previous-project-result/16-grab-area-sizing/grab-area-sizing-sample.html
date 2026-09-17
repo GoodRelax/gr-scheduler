@@ -46,7 +46,6 @@
     <div class="legend">
       <span><i style="background:rgba(30,110,220,.28)"></i>予定の端</span>
       <span><i style="background:rgba(220,120,0,.30)"></i>実績の端</span>
-      <span><i style="background:rgba(160,40,200,.30)"></i>ダミー</span>
       <span><i style="background:rgba(0,150,90,.30)"></i>マーカー</span>
       <span><i style="background:rgba(200,30,60,.30)"></i>フェード</span>
       <span><i style="background:rgba(120,120,120,.22)"></i>本体（動かす）</span>
@@ -66,8 +65,6 @@
     <label><span class="name">予定の端 縦（外へ上下）</span><input id="planV" type="range" min="0" max="20" step="1" value="0"><output id="planVOut"></output></label>
     <label><span class="name">実績の端 横（内側）</span><input id="s91" type="range" min="0" max="24" step="1" value="12"><output id="s91Out"></output></label>
     <label><span class="name">実績の端 縦（外へ上下）</span><input id="actualV" type="range" min="0" max="20" step="1" value="0"><output id="actualVOut"></output></label>
-    <label><span class="name">ダミー 横（片側）</span><input id="dummyGrab" type="range" min="1" max="16" step="1" value="3"><output id="dummyGrabOut"></output></label>
-    <label><span class="name">ダミー 縦（外へ上下）</span><input id="dummyV" type="range" min="0" max="20" step="1" value="0"><output id="dummyVOut"></output></label>
     <label><span class="name">マーカー 一辺</span><input id="markerGrab" type="range" min="6" max="32" step="1" value="14"><output id="markerGrabOut"></output></label>
     <label><span class="name">フェード 一辺</span><input id="s92" type="range" min="4" max="20" step="1" value="8"><output id="s92Out"></output></label>
     <label><span class="name">マイルストーン 外側</span><input id="msGrab" type="range" min="0" max="24" step="1" value="12"><output id="msGrabOut"></output></label>
@@ -88,7 +85,6 @@
       <label style="margin:0"><input id="showName" type="checkbox" checked> タスク名</label>
       <label style="margin:0"><input id="showPercent" type="checkbox" checked> 進捗 ％</label>
       <label style="margin:0"><input id="showAssignee" type="checkbox" checked> 担当者</label>
-      <label style="margin:0"><input id="markerAtEnd" type="checkbox"> マーカーは常に終端（比べる）</label>
       <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
       <button id="reset" type="button">形を元に戻す</button>
     </div>
@@ -99,7 +95,7 @@
 const NS = 'http://www.w3.org/2000/svg';
 const $ = id => document.getElementById(id);
 
-const S = { scale:100, dayPx:12, barH:18, s90:12, planV:0, s91:12, actualV:0, dummyGrab:3, dummyV:0,
+const S = { scale:100, dayPx:12, barH:18, s90:12, planV:0, s91:12, actualV:0,
             markerGrab:14, s92:8, msGrab:12, vMin:0, labelGap:4, labelFont:90, cur:16 };
 const SLIDERS = Object.keys(S);
 
@@ -174,10 +170,12 @@ function measureName(g, name) {
 function placeAlong(g, item, barX, barW, marked, mk) {
   const showName = $('showName').checked && item.name;
   const nameW = showName ? measureName(g, item.name) : 0;
-  const needed = (marked ? mk + S.labelGap : 0) + nameW;
-  const fits = showName ? needed <= barW : true;
-  const startX = fits ? barX : barX + barW;
-  return { fits, markerX: startX, nameX: startX + (marked ? mk + S.labelGap : 0), nameW };
+  const fits = showName ? nameW <= barW : true;
+  // the marker always stands right of the finish; the name goes inside from the start when it fits,
+  // otherwise it follows the marker outside
+  const markerX = barX + barW;
+  const nameX = fits ? barX : markerX + (marked ? mk + S.labelGap : 0);
+  return { fits, markerX, nameX, nameW };
 }
 function drawName(g, item, x, centerY) {
   if ($('showName').checked && item.name) labelRow(g, x, centerY, [{ text: item.name, bold: true }]);
@@ -238,7 +236,7 @@ function draw() {
   const marked = $('showMarker').checked;
   const alongX = t.actualDays > 0 ? actX : planX, alongW = t.actualDays > 0 ? actW : planW;
   const put = placeAlong(g, t, alongX, alongW, marked, mk);
-  const mkX = $('markerAtEnd').checked ? (t.actualDays > 0 ? actX + actW : planX + planW) : put.markerX;
+  const mkX = put.markerX;
   if (marked) zone(g, 'task-marker', 'marker', mkX, ty + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
 
   // fades draw as a lighter wedge inside the plan bar
@@ -251,7 +249,7 @@ function draw() {
   rect(g, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
   rect(g, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
   // the name starts where the rule says: inside from the start when it fits, else outside from the end
-  drawName(g, t, $('markerAtEnd').checked && marked && !put.fits ? mkX + mk + S.labelGap : put.nameX, ty + bh / 2);
+  drawName(g, t, put.nameX, ty + bh / 2);
   drawOutsideLabel(g, t, planX - S.labelGap, ty + bh / 2);
   label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut + ' 日 ・ 札は' + (put.fits ? '中（開始から）' : '外（終了から）'), 11);
 
@@ -259,14 +257,14 @@ function draw() {
   const u = M.unset, uy = TOP.unset;
   const uX = xOf(u.planStart), uW = u.planDays * day;
   label(g, 8, uy + bh / 2 + 4, '② 未着手（ダミー）', 12);
-  const uBand = band(uy, bh, S.planV), dBand = band(uy + (bh - mk) / 2, mk, S.dummyV);
+  const uBand = band(uy, bh, S.planV), dBand = band(uy + (bh - mk) / 2, mk, S.actualV);
   zone(g, 'unset-plan-start', 'planEnd', uX - S.s90, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
   zone(g, 'unset-plan-end', 'planEnd', uX + uW, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
   zone(g, 'unset-body', 'body', uX, uy, uW, bh, 'rgba(120,120,120,.22)', 'grab');
-  zone(g, 'unset-dummy-start', 'dummy', uX - S.dummyGrab, dBand.y, S.dummyGrab + dw / 2, dBand.h, 'rgba(160,40,200,.30)', arrowCursor('left', true, S.cur));
-  zone(g, 'unset-dummy-end', 'dummy', uX + dw / 2, dBand.y, S.dummyGrab + dw / 2, dBand.h, 'rgba(160,40,200,.30)', arrowCursor('right', true, S.cur));
+  zone(g, 'unset-dummy-start', 'dummy', uX - S.s91, dBand.y, S.s91 + dw / 2, dBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
+  zone(g, 'unset-dummy-end', 'dummy', uX + dw / 2, dBand.y, S.s91 + dw / 2, dBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   const putU = placeAlong(g, u, uX, uW, marked, mk);
-  const uMkX = $('markerAtEnd').checked ? (u.actualDays > 0 ? xOf(u.actualStart) + u.actualDays * day : uX + uW) : putU.markerX;
+  const uMkX = putU.markerX;
   if (marked) zone(g, 'unset-marker', 'marker', uMkX, uy + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
   rect(g, uX, uy, uW, bh, 'var(--plan)', 'var(--plan-edge)');
   if (u.actualDays > 0) {
@@ -275,9 +273,9 @@ function draw() {
     rect(g, uX, uy + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
   }
   if (marked) el(g, 'circle', { cx: uMkX + mk / 2, cy: uy + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
-  drawName(g, u, $('markerAtEnd').checked && marked && !putU.fits ? uMkX + mk + S.labelGap : putU.nameX, uy + bh / 2);
+  drawName(g, u, putU.nameX, uy + bh / 2);
   drawOutsideLabel(g, u, uX - S.labelGap, uy + bh / 2);
-  label(g, LEFT, uy - 10, 'ダミーの描く幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px（押せるのは片側 ' + (S.dummyGrab + dw / 2).toFixed(2) + 'px）', 11);
+  label(g, LEFT, uy - 10, 'ダミー（掴み代は実績と同じ）の描く幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px（押せるのは片側 ' + (S.s91 + dw / 2).toFixed(2) + 'px）', 11);
 
   // ---- 3) a milestone: a plan diamond, an actual diamond (or the unstarted dummy)
   const msY = TOP.ms, msR = bh / 2;
@@ -290,8 +288,8 @@ function draw() {
     const msActBand = band(msY + bh * 0.15, bh * 0.7, S.actualV);
     zone(g, 'ms-actual', 'actualEnd', msActX - msR * 0.7 - S.s91, msActBand.y, (msR * 0.7 + S.s91) * 2, msActBand.h, 'rgba(220,120,0,.30)', 'grab');
   } else {
-    const dBand2 = band(msY + (bh - mk) / 2, mk, S.dummyV);
-    zone(g, 'ms-dummy', 'dummy', msX - dw / 2 - S.dummyGrab, dBand2.y, dw + S.dummyGrab * 2, dBand2.h, 'rgba(160,40,200,.30)', arrowCursor('right', true, S.cur));
+    const dBand2 = band(msY + (bh - mk) / 2, mk, S.actualV);
+    zone(g, 'ms-dummy', 'dummy', msX - dw / 2 - S.s91, dBand2.y, dw + S.s91 * 2, dBand2.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   }
   el(g, 'path', { d: 'M ' + msX + ' ' + msY + ' L ' + (msX + msR) + ' ' + (msY + msR) + ' L ' + msX + ' ' + (msY + bh) +
                      ' L ' + (msX - msR) + ' ' + (msY + msR) + ' Z', fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': 1 });
@@ -306,14 +304,15 @@ function draw() {
   // the labels follow the ACTUAL (or the dummy when the milestone is unstarted), never the plan
   const msFollowX = hasMsActual ? msActX : msX;
   // the name starts a quarter of a glyph right of that centre, so short names still sit inside the shape
-  const msNameX = msFollowX + bh * 0.25;
+  const msHalf = hasMsActual ? msR * 0.7 : dw / 2;
   // the marker stands OUTSIDE the shape, so it never covers what the shape itself must answer
-  const msAnchor = (hasMsActual ? msActX + msR * 0.7 : msX + msR);
+  const msAnchor = msFollowX + msHalf;
   if (marked) {
     zone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
     el(g, 'circle', { cx: msAnchor + mk / 2, cy: msY + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   }
-  drawName(g, M.ms, msNameX, msY + bh / 2);
+  // with a marker the name follows it; without one it starts a quarter of a glyph right of the centre
+  drawName(g, M.ms, marked ? msAnchor + mk + S.labelGap : msFollowX + bh * 0.25, msY + bh / 2);
   drawOutsideLabel(g, M.ms, msFollowX - bh * 0.25 - S.labelGap, msY + bh / 2);
   label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）'), 11);
 
@@ -354,13 +353,13 @@ function draw() {
                        ' L ' + aActX + ' ' + (actY2 + th / 2) + ' Z', fill: 'var(--arrow-actual)', stroke: 'none' });
   }
   const putA = placeAlong(g, a, a.actualDays > 0 ? aActX : aX, a.actualDays > 0 ? aActW : aW, marked, mk);
-  const aMkX = $('markerAtEnd').checked ? (a.actualDays > 0 ? aActX + aActW : aX + aW) : putA.markerX;
+  const aMkX = putA.markerX;
   const aLabelY = ay + bh * 0.1;   // above the plan (SH-3 puts the name over plan and actual)
   if (marked) {
     zone(g, 'arrow-marker', 'marker', aMkX, aLabelY - mk / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
     el(g, 'circle', { cx: aMkX + mk / 2, cy: aLabelY, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   }
-  drawName(g, a, $('markerAtEnd').checked && marked && !putA.fits ? aMkX + mk + S.labelGap : putA.nameX, aLabelY);
+  drawName(g, a, putA.nameX, aLabelY);
   drawOutsideLabel(g, a, aX - S.labelGap, planY);
   label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける', 11);
 
@@ -470,10 +469,10 @@ function summary() {
   const t = M.task, dw = dummyPx();
   $('summary').textContent =
     '今の値（このまま貼って「この値にしろ」と伝えられます）\n' +
-    '  掴み代: 予定の端 外側 ' + S.s90 + 'px ・ 実績の端 内側 ' + S.s91 + 'px ・ ダミー 片側 ' + S.dummyGrab +
-    'px（押せる幅 ' + (S.dummyGrab + dw / 2).toFixed(1) + 'px）・ マーカー ' + S.markerGrab + 'px ・ フェード ' + S.s92 +
+    '  掴み代 横: 予定の端 外側 ' + S.s90 + 'px ・ 実績の端 内側 ' + S.s91 + 'px（ダミーも同じ、押せる幅 ' +
+    (S.s91 + dw / 2).toFixed(1) + 'px）・ マーカー ' + S.markerGrab + 'px ・ フェード ' + S.s92 +
     'px ・ マイルストーン 外側 ' + S.msGrab + 'px\n' +
-    '  縦: 帯の外へ上下 ' + S.vPad + 'px ・ 帯の中の下限 ' + S.vMin + 'px（0 なら帯そのまま）\n' +
+    '  掴み代 縦: 予定 帯の外へ ' + S.planV + 'px ・ 実績とダミー 帯の外へ ' + S.actualV + 'px ・ 下限 ' + S.vMin + 'px\n' +
     '  札: 実績との間隔 ' + S.labelGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  ポインタの矢印: 一辺 ' + S.cur + 'px（いまの仕様は 24px）\n' +
     '  絵: ズーム ' + S.scale + '% ・ 1 日 ' + S.dayPx + 'px ・ バーの高さ ' + S.barH + 'px\n' +
@@ -487,7 +486,7 @@ for (const id of SLIDERS) {
   out.textContent = input.value;
   input.addEventListener('input', () => { S[id] = Number(input.value); out.textContent = input.value; draw(); });
 }
-for (const id of ['showZones', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'markerAtEnd', 'msActual']) {
+for (const id of ['showZones', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual']) {
   $(id).addEventListener('change', draw);
 }
 $('reset').addEventListener('click', () => { M = JSON.parse(JSON.stringify(START)); draw(); });
