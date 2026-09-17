@@ -336,8 +336,10 @@ function draw() {
   zone(g, 'arrow-body', 'body', aX, aBand.y, aW, aBand.h, 'rgba(120,120,120,.22)', 'grab');
   if (a.actualDays > 0) {
     const abBand = cut(band(actY2 - headH * 0.4, headH * 0.8, S.actualV), splitY, ay + bh);
-    zone(g, 'arrow-actual-start', 'actualEnd', aActX, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
-    zone(g, 'arrow-actual-end', 'actualEnd', aActX + aActW - S.s91, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
+    // the arrow's actual is held from OUTSIDE its two ends, exactly as its plan is,
+    // so the head stays readable and both ends answer at the same place
+    zone(g, 'arrow-actual-start', 'actualEnd', aActX - S.s91, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
+    zone(g, 'arrow-actual-end', 'actualEnd', aActX + aActW, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   }
   // drawn with fill only -- no outline (the user's ruling of 2026-09-18)
   el(g, 'path', { d: 'M ' + aX + ' ' + (planY - shaft / 2) + ' L ' + (aX + aW - head) + ' ' + (planY - shaft / 2) +
@@ -361,7 +363,7 @@ function draw() {
   }
   drawName(g, a, putA.nameX, aLabelY);
   drawOutsideLabel(g, a, aX - S.labelGap, planY);
-  label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける', 11);
+  label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける。実績の端も予定と同じく外側', 11);
 
   // ruler
   rect(g, LEFT, RULER, 10 * day, 6, '#888', '#333');
@@ -471,7 +473,7 @@ function summary() {
     '今の値（このまま貼って「この値にしろ」と伝えられます）\n' +
     '  掴み代 横: 予定の端 外側 ' + S.s90 + 'px ・ 実績の端 内側 ' + S.s91 + 'px（ダミーも同じ、押せる幅 ' +
     (S.s91 + dw / 2).toFixed(1) + 'px）・ マーカー ' + S.markerGrab + 'px ・ フェード ' + S.s92 +
-    'px ・ マイルストーン 外側 ' + S.msGrab + 'px\n' +
+    'px ・ マイルストーン 外側 ' + S.msGrab + 'px（矢印の実績だけは予定と同じ外側）\n' +
     '  掴み代 縦: 予定 帯の外へ ' + S.planV + 'px ・ 実績とダミー 帯の外へ ' + S.actualV + 'px ・ 下限 ' + S.vMin + 'px\n' +
     '  札: 実績との間隔 ' + S.labelGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  ポインタの矢印: 一辺 ' + S.cur + 'px（いまの仕様は 24px）\n' +
