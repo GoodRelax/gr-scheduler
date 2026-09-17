@@ -298,14 +298,18 @@ function draw() {
   } else {
     rect(g, msX - dw / 2, msY + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
   }
+  // the labels follow the ACTUAL (or the dummy when the milestone is unstarted), never the plan
+  const msFollowX = hasMsActual ? msActX : msX;
+  // the name starts a quarter of a glyph right of that centre, so short names still sit inside the shape
+  const msNameX = msFollowX + bh * 0.25;
   // the marker stands OUTSIDE the shape, so it never covers what the shape itself must answer
   const msAnchor = (hasMsActual ? msActX + msR * 0.7 : msX + msR);
   if (marked) {
     zone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
     el(g, 'circle', { cx: msAnchor + mk / 2, cy: msY + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   }
-  drawName(g, M.ms, msAnchor + (marked ? mk + S.labelGap : 0), msY + bh / 2);
-  drawOutsideLabel(g, M.ms, msX - msR - S.labelGap, msY + bh / 2);
+  drawName(g, M.ms, msNameX, msY + bh / 2);
+  drawOutsideLabel(g, M.ms, msFollowX - bh * 0.25 - S.labelGap, msY + bh / 2);
   label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）'), 11);
 
   // ---- 4) an arrow task (SH-3 `--->`): no outline, the actual sits close under the plan,
@@ -314,13 +318,20 @@ function draw() {
   const aX = xOf(a.planStart), aW = a.planDays * day, head = Math.min(bh * 0.8, aW);
   const aActX = xOf(a.actualStart), aActW = a.actualDays * day;
   const planY = ay + bh * 0.42, actY2 = ay + bh * 0.72, shaft = Math.max(2, bh * 0.16);
+  const headH = shaft * 3.2;   // the arrow head's full height: the grab band matches the drawn shape
   label(g, 8, ay + bh / 2 + 4, '4 矢印（--->）', 12);
-  const aBand = band(planY - shaft / 2, shaft, S.planV);
+  // the two bands are split at the midline between the plan and the actual, so they never overlap
+  const splitY = (planY + actY2) / 2;
+  const cut = (b, top, bottom) => {
+    const y = Math.max(b.y, top), h = Math.min(b.y + b.h, bottom) - y;
+    return { y, h: Math.max(0, h) };
+  };
+  const aBand = cut(band(planY - headH / 2, headH, S.planV), ay, splitY);
   zone(g, 'arrow-plan-start', 'planEnd', aX - S.s90, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
   zone(g, 'arrow-plan-end', 'planEnd', aX + aW, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
-  zone(g, 'arrow-body', 'body', aX, planY - shaft, aW, shaft * 2, 'rgba(120,120,120,.22)', 'grab');
+  zone(g, 'arrow-body', 'body', aX, aBand.y, aW, aBand.h, 'rgba(120,120,120,.22)', 'grab');
   if (a.actualDays > 0) {
-    const abBand = band(actY2 - shaft / 2, shaft, S.actualV);
+    const abBand = cut(band(actY2 - headH * 0.4, headH * 0.8, S.actualV), splitY, ay + bh);
     zone(g, 'arrow-actual-start', 'actualEnd', aActX, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
     zone(g, 'arrow-actual-end', 'actualEnd', aActX + aActW - S.s91, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   }
@@ -330,8 +341,12 @@ function draw() {
                      ' L ' + (aX + aW - head) + ' ' + (planY + shaft * 1.6) + ' L ' + (aX + aW - head) + ' ' + (planY + shaft / 2) +
                      ' L ' + aX + ' ' + (planY + shaft / 2) + ' Z', fill: 'var(--arrow-plan)', stroke: 'none' });
   if (a.actualDays > 0) {
-    el(g, 'path', { d: 'M ' + aActX + ' ' + actY2 + ' L ' + (aActX + aActW) + ' ' + actY2,
-                    stroke: 'var(--arrow-actual)', 'stroke-width': shaft, fill: 'none' });
+    // the actual is an arrow as well, drawn a little thinner and without an outline
+    const aHead = Math.min(shaft * 3, aActW), th = shaft * 0.8;
+    el(g, 'path', { d: 'M ' + aActX + ' ' + (actY2 - th / 2) + ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 - th / 2) +
+                       ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 - th * 1.6) + ' L ' + (aActX + aActW) + ' ' + actY2 +
+                       ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 + th * 1.6) + ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 + th / 2) +
+                       ' L ' + aActX + ' ' + (actY2 + th / 2) + ' Z', fill: 'var(--arrow-actual)', stroke: 'none' });
   }
   const putA = placeAlong(g, a, a.actualDays > 0 ? aActX : aX, a.actualDays > 0 ? aActW : aW, marked, mk);
   const aMkX = $('markerAtEnd').checked ? (a.actualDays > 0 ? aActX + aActW : aX + aW) : putA.markerX;
@@ -342,7 +357,7 @@ function draw() {
   }
   drawName(g, a, $('markerAtEnd').checked && marked && !putA.fits ? aMkX + mk + S.labelGap : putA.nameX, aLabelY);
   drawOutsideLabel(g, a, aX - S.labelGap, planY);
-  label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。名前は予定の上、横位置は実績側にそろえる', 11);
+  label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける', 11);
 
   // ruler
   rect(g, LEFT, RULER, 10 * day, 6, '#888', '#333');
