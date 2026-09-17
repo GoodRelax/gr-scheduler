@@ -376,7 +376,7 @@
     },
     "fadeHandleHalfPx": {
      "type": "number",
-     "minimum": 3,
+     "minimum": 2.5,
      "maximum": 8
     },
     "fadeHandleStrokePx": {
@@ -620,7 +620,7 @@
      "maximum": 0
     },
     "rowTitleFont": {
-     "type": "integer",
+     "type": "number",
      "maximum": 40
     },
     "rowTitleIndent": {

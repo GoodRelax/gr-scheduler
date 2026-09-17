@@ -561,8 +561,12 @@
   </g>
   <text class="lbl" x="424" y="354">IC-101</text>
   <g transform="translate(16 364)">
-    <rect class="s" x="6" y="3" width="12" height="18" rx="6"/>
-    <path class="s" d="M12 6.5 V10.5"/>
+    <rect class="s" x="3" y="4" width="11" height="16" rx="5.5"/>
+    <path class="s" d="M8.5 4 V9"/>
+    <rect class="f" x="7.5" y="6" width="2" height="4" rx="1"/>
+    <path class="s" d="M19 4 V20"/>
+    <path class="s" d="M16.5 6.5 L19 4 L21.5 6.5"/>
+    <path class="s" d="M16.5 17.5 L19 20 L21.5 17.5"/>
   </g>
   <text class="lbl" x="28" y="398">IC-102</text>
   <g transform="translate(52 364)">

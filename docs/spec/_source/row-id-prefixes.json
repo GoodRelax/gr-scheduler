@@ -519,6 +519,14 @@
    }
   },
   {
+   "prefix": "IR",
+   "words": "Interaction Record",
+   "owner": "spec",
+   "means": {
+    "ja": "人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態"
+   }
+  },
+  {
    "prefix": "IV",
    "words": "Invariant",
    "owner": "spec",
@@ -768,6 +776,14 @@
    "owner": "spec",
    "means": {
     "ja": "予定と実績が取りうる状態"
+   }
+  },
+  {
+   "prefix": "PC",
+   "words": "Pointer Cursor",
+   "owner": "spec",
+   "means": {
+    "ja": "予定と実績の端点の上に出すポインタの形と、押しているあいだの形"
    }
   },
   {
@@ -1224,6 +1240,14 @@
    "owner": "spec",
    "means": {
     "ja": "本製品が持たないもの"
+   }
+  },
+  {
+   "prefix": "ZE",
+   "words": "Zoom End",
+   "owner": "spec",
+   "means": {
+    "ja": "行の軸のズームが端で何も変えないときの扱い"
    }
   },
   {
