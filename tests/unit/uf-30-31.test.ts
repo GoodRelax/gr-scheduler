@@ -158,7 +158,7 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * 本行は優先順の上ではなく末尾に置いてある」.
  */
 const T_023D = [
-  'GR-19',
+  'GR-19', 'GR-22',
   'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
   'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
   'GR-20', 'GR-16', 'GR-21',
@@ -672,11 +672,11 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_023B).toHaveLength(6)
     expect(T_023).toHaveLength(14)
     expect(T_023C).toHaveLength(10)
-    expect(T_023D).toHaveLength(21)
+    expect(T_023D).toHaveLength(22)
     expect(T_028).toHaveLength(8)
     expect(T_036).toHaveLength(22)
     expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
-    expect(new Set(T_023D).size).toBe(21)
+    expect(new Set(T_023D).size).toBe(22)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     expect(SL_1_KINDS).toHaveLength(5)

@@ -1230,6 +1230,12 @@ NOT_STORED_TARGETS = {
     # folded into the line above -- one constant per consuming SUBJECT.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204'],
                               DRAWN_WITH_WHERE_IT_STANDS),
+    # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
+    # and the rule width RR-5 reads. Not folded into the help line above -- one
+    # constant per consuming SUBJECT. S-241 is NOT S-237 / S-143 although all
+    # three are 1px: the row's own note forbids sharing them.
+    'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
+                                         DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, which is the split the notes around
@@ -1287,6 +1293,12 @@ NOT_STORED_TARGETS = {
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
          'S-197', 'S-198'],
         DRAWN_WITH_WHERE_IT_STANDS),
+    # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
+    # rule's thickness drawn by dom-screen-surface.ts: one constant per
+    # consuming SUBJECT. S-143 separates the palette's groups, S-242 separates
+    # a confirmation's question from its list (CQ-2 of table T-258), and the
+    # row's own note forbids sharing it with S-241 as well.
+    'NOT_STORED_CONFIRMATION_RULE_SIZES': (['S-242'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, not per file. S-174 to S-178 are the
     # selection frame's and S-180 is the dummy's, and the two paragraphs state
@@ -2073,8 +2085,10 @@ TARGETS = [
      + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_CONFIRMATION_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE') + NEWLINE * 2
      + colour_block('SCREEN_COLOURS'),

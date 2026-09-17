@@ -87,6 +87,8 @@ const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
 
 const CONFIRMATION_ANSWER_ATTRIBUTE = 'data-confirmation-answer'
 
+const CONFIRMATION_PART_ATTRIBUTE = 'data-confirmation-part'
+
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
@@ -233,7 +235,7 @@ function propertiesPanelStyle(): string {
 /** @purity pure */
 function propertyWayOutStyle(): string {
   return (
-    'display:flex;align-items:flex-start;justify-content:flex-end;' +
+    'display:flex;align-items:flex-start;justify-content:flex-end;flex:none;' +
     `gap:${fieldSizes().nameGap}px;margin-left:auto;`
   )
 }
@@ -262,22 +264,24 @@ function tooltipStyle(): string {
   return `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;`
 }
 
-// see FR-036
-// WHY: column-fill auto over a bounded height fills a column before the next, and a block that
-// does not fit moves whole, which is the placement FR-036 asks for instead of balanced flow.
+// see FR-036, T-256
+// TRAP: a height bound here (flex:1 with min-height:0, or column-fill over a bounded box) sends a
+// block that does not fit into a column added to the right, and the help scrolls sideways.
+/** @purity pure */
 function helpColumnsStyle(): string {
   return (
-    `column-count:${NOT_STORED_HELP_SIZES['S-202']};column-gap:1.5em;column-fill:auto;` +
-    'flex:1 1 auto;min-height:0;'
+    `display:grid;grid-template-columns:repeat(${NOT_STORED_HELP_SIZES['S-202']},minmax(0,1fr));` +
+    'column-gap:1.5em;align-items:start;flex:0 0 auto;'
   )
 }
 
 // see FR-036
+/** @purity pure */
 function helpStyle(): string {
   const share = NOT_STORED_HELP_SIZES['S-201'] * 100
   return (
     `width:${share}vw;max-width:${share}vw;` +
-    `height:${share}vh;max-height:${share}vh;overflow:auto;` +
+    `height:${share}vh;max-height:${share}vh;overflow-x:hidden;overflow-y:auto;` +
     'display:flex;flex-direction:column;' +
     `font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
   )
@@ -502,7 +506,8 @@ const STYLE = {
   helpText: 'flex:1;min-width:0;',
   helpKeys: 'flex:0 0 auto;opacity:0.75;white-space:nowrap;',
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
-  helpBlock: 'break-inside:avoid-column;',
+  helpColumn: 'min-width:0;',
+  helpBlock: '',
   helpHeading: 'font-weight:600;',
   helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
   helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
@@ -519,7 +524,11 @@ const STYLE = {
     'display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',
   noticeDismiss: 'flex:none;',
   noticeNextStep: `color:${PAINT.quiet};`,
-  confirmation: STOPPING_BOX + 'display:flex;flex-direction:column;',
+  // TRAP: overflow after STOPPING_BOX's own: a box that scrolls carries the header away (CQ-1).
+  confirmation: STOPPING_BOX + 'display:flex;flex-direction:column;overflow:hidden;',
+  confirmationHeader:
+    'flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',
+  confirmationHeaderAnswers: 'flex:none;display:flex;align-items:center;gap:0.5em;',
   // TRAP: without `min-height:0` the names grow the box instead of scrolling and push the answers out.
   confirmationNames: 'flex:1 1 auto;min-height:0;overflow:auto;',
   confirmationItem: 'display:block;line-height:1.6;',
@@ -849,21 +858,24 @@ function fillAppHeader(
   return title
 }
 
-// see U-21, U-24, SC-4
+// see U-21, U-24, SC-4, GR-22
 /** @purity non-pure */
 function fillScreenFrame(
   host: Document,
   layer: HTMLElement,
+  bandLayer: HTMLElement,
   frame: ScreenFrame,
   anchors: Map<string, HTMLElement>,
 ): void {
   const drawn: HTMLElement[] = []
+  const bands: HTMLElement[] = []
   for (const divider of frame.dividers) {
     const band = part(host, 'div', ROLE.panelDivider, boxStyle(divider.band) + STYLE.dividerBand)
     band.setAttribute('data-panel', divider.panel)
-    drawn.push(band)
+    bands.push(band)
     drawn.push(made(host, 'div', boxStyle(divider.line) + STYLE.dividerLine))
   }
+  bandLayer.replaceChildren(...bands)
   for (const bar of frame.scrollbars) {
     const track = part(host, 'div', ROLE.scrollbars, boxStyle(bar.track) + STYLE.scrollbarTrack)
     track.setAttribute(SCROLLBAR_AXIS_ATTRIBUTE, bar.axis)
@@ -1318,8 +1330,9 @@ function fillRowTitleTree(
 // WHY: not an attribute: a key spelled into one must be parsed back, and a separator breaks that.
 const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFieldKey }>()
 
+// WHY: `text` is a textarea as well: an input cannot wrap, and FR-006 wraps a long name downwards.
 const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
-  text: 'input',
+  text: 'textarea',
   multiline: 'textarea',
   date: 'input',
   number: 'input',
@@ -1329,7 +1342,7 @@ const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
 }
 
 const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> = {
-  text: 'text',
+  text: null,
   multiline: null,
   date: 'date',
   number: 'number',
@@ -1354,6 +1367,82 @@ const IS_KIND_TYPED_INTO: Readonly<Record<PropertyControlKind, boolean>> = {
   boolean: false,
   choice: false,
   color: false,
+}
+
+// see FR-006
+const IS_KIND_WRAPPING: Readonly<Record<PropertyControlKind, boolean>> = {
+  text: true,
+  multiline: true,
+  date: false,
+  number: false,
+  boolean: false,
+  choice: false,
+  color: false,
+}
+
+const WRAPPING_FIELD_ATTRIBUTE = 'data-field-wraps'
+
+const SINGLE_LINE_ROWS = 1
+
+const LINE_BREAKS = /[\r\n]+/g
+
+// see FR-006
+// TRAP: no min-width from widthInFontSizes: FR-006 exempts these kinds from the room rule, and a
+// floor wider than the panel pushes the field out past its right edge.
+/** @purity pure */
+function propertyWrappingStyle(): string {
+  return (
+    'font:inherit;box-sizing:border-box;flex:1 1 100%;width:100%;min-width:0;max-width:100%;' +
+    `min-height:${fieldSizes().controlMinHeight}px;resize:none;overflow:hidden;` +
+    'overflow-wrap:anywhere;white-space:pre-wrap;' +
+    `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};`
+  )
+}
+
+// see FR-006
+/** @purity non-pure */
+function growWrappingField(field: Element): void {
+  const box = field as Partial<HTMLTextAreaElement>
+  const style = box.style
+  if (style === undefined || typeof box.scrollHeight !== 'number') return
+  if (typeof box.offsetHeight !== 'number' || typeof box.clientHeight !== 'number') return
+  // WHY: back to the rows height first, or a field that wrapped once never shrinks again.
+  style.height = ''
+  const frameHeight = box.offsetHeight - box.clientHeight
+  if (box.scrollHeight > box.clientHeight) style.height = `${box.scrollHeight + frameHeight}px`
+}
+
+// see FR-006
+/** @purity non-pure */
+function growWrappingFields(panel: HTMLElement): void {
+  if (typeof panel.querySelectorAll !== 'function') return
+  for (const field of Array.from(panel.querySelectorAll(`[${WRAPPING_FIELD_ATTRIBUTE}]`))) {
+    growWrappingField(field)
+  }
+}
+
+// see FR-006
+/** @purity non-pure */
+function watchWrappingField(field: Element, isSingleLine: boolean): void {
+  if (typeof field.addEventListener !== 'function') return
+  field.addEventListener('input', () => {
+    const typed = field as Partial<HTMLTextAreaElement>
+    // WHY: a paste into a one-line value drops its breaks, as a text input does; wrapping itself
+    // never writes a break into the value (FR-006).
+    if (isSingleLine && typeof typed.value === 'string') {
+      const joined = typed.value.replace(LINE_BREAKS, '')
+      if (joined !== typed.value) typed.value = joined
+    }
+    growWrappingField(field)
+  })
+  if (!isSingleLine) return
+  field.addEventListener('keydown', (event: Event) => {
+    const typed = event as { readonly key?: unknown; readonly isComposing?: unknown }
+    // TRAP: leave a composing Enter alone; it confirms the input method's candidate.
+    if (typed.isComposing === true || typed.key !== HOST_ENTER) return
+    // WHY: default only; the panel's own Enter listener still commits the value.
+    if (typeof event.preventDefault === 'function') event.preventDefault()
+  })
 }
 
 interface TextEntryControl {
@@ -1385,13 +1474,20 @@ function controlElement(
 ): HTMLElement {
   const tag = CONTROL_TAG[control.kind]
   const drawn = host.createElement(tag)
+  const isWrapping = IS_KIND_WRAPPING[control.kind]
   const style =
     control.kind === 'color'
       ? propertyColorStyle()
       : control.kind === 'boolean'
         ? propertyCheckStyle()
-        : propertyControlStyle(control.widthInFontSizes)
+        : isWrapping
+          ? propertyWrappingStyle()
+          : propertyControlStyle(control.widthInFontSizes)
   drawn.setAttribute('style', style)
+  if (isWrapping) {
+    drawn.setAttribute(WRAPPING_FIELD_ATTRIBUTE, 'true')
+    watchWrappingField(drawn, control.kind === 'text')
+  }
   drawn.setAttribute('data-field-row', row)
   drawn.setAttribute('data-field-kind', control.kind)
 
@@ -1415,6 +1511,7 @@ function controlElement(
     if (control.kind === 'multiline') {
       drawn.setAttribute('rows', String(fieldSizes().multilineRows))
     }
+    if (control.kind === 'text') drawn.setAttribute('rows', String(SINGLE_LINE_ROWS))
     if (control.kind === 'number') {
       if (control.min !== null) drawn.setAttribute('min', String(control.min))
       if (control.max !== null) drawn.setAttribute('max', String(control.max))
@@ -1532,6 +1629,8 @@ function fillPropertiesPanel(
   if (entries.length > 0) {
     const wayOut = made(host, 'div', propertyWayOutStyle())
     wayOut.append(...entries)
+    // TRAP: the way-out shares the first field's line; it overlaps no field only because the
+    // wrapping fields keep no min-width and the way-out does not shrink (FR-006, IC-52).
     const first = drawn[0]
     if (first === undefined) drawn.push(wayOut)
     else first.append(wayOut)
@@ -1676,11 +1775,115 @@ function helpItemElement(
 
 type OpenHelpEntry = Extract<OpenModal, { readonly entries: unknown }>['entries'][number]
 
-// see FR-036, FR-053
-// TRAP: a line or a heading lives inside its block, so a block moving to the next column takes them.
+type RosterLine = Extract<OpenModal, { readonly resources: unknown }>['resources'][number]
+
+// see FR-099, RR-1, RR-2
+// WHY: a column box, so the scroller below takes what is left and the heading row stays put.
+/** @purity pure */
+function rosterBoxStyle(): string {
+  return (
+    'display:flex;flex-direction:column;overflow:hidden;' +
+    `font-size:${NOT_STORED_RESOURCE_ROSTER_SIZES['S-240']}em;`
+  )
+}
+
+// see RR-5
+// TRAP: screen px on purpose; S-234, S-235 and S-240 must not scale it, or the line drops below a pixel.
+/** @purity pure */
+function rosterRule(): string {
+  return `${NOT_STORED_RESOURCE_ROSTER_SIZES['S-241']}px solid ${PAINT.rule}`
+}
+
+// see RR-4, RR-5
+/** @purity pure */
+function rosterCellStyle(isNameColumn: boolean, isFirstLine: boolean): string {
+  return (
+    `border-right:${rosterRule()};border-bottom:${rosterRule()};` +
+    (isNameColumn ? `border-left:${rosterRule()};position:sticky;left:0;z-index:1;` : '') +
+    (isFirstLine ? `border-top:${rosterRule()};` : '') +
+    `padding:0.125em 0.5em;white-space:nowrap;vertical-align:middle;background:${PAINT.ground};`
+  )
+}
+
+const ROSTER_SCROLLER = '[data-roster-scroller]'
+
+// see RR-2, RR-3
+// WHY: choosing a line redraws the roster, and a fresh box would jump back to the first column.
+/** @purity non-pure */
+function keepRosterScroll(before: Element | null, after: Element | null): void {
+  if (before === null || after === null) return
+  after.scrollLeft = before.scrollLeft
+  after.scrollTop = before.scrollTop
+}
+
+// TRAP: a window or element wheel listener is passive by default, and a passive preventDefault is ignored.
+const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
+
+// see FR-099, T-257
+// WHY: every line has as many cells as the longest, so every column is ruled on every line (RR-5).
+/** @purity non-pure */
+function rosterGridElement(host: Document, resources: readonly RosterLine[]): HTMLElement {
+  const scroller = made(host, 'div', 'flex:1 1 auto;min-height:0;overflow:auto;')
+  scroller.setAttribute('data-roster-scroller', 'true')
+  const grid = made(host, 'table', 'border-collapse:separate;border-spacing:0;')
+  const lines = made(host, 'tbody', '')
+  const widest = resources.reduce((most, one) => Math.max(most, one.unassignedTaskNames.length), 0)
+  resources.forEach((resource, at) => {
+    const isFirstLine = at === 0
+    const line = made(host, 'tr', '')
+    line.setAttribute('data-uid', String(resource.uid))
+    line.setAttribute('data-referenced', String(resource.isReferenced))
+    line.setAttribute('data-selected', String(resource.isSelected))
+    const name = made(host, 'td', rosterCellStyle(true, isFirstLine))
+    name.setAttribute('data-roster-name', 'true')
+    name.textContent = resource.name
+    const choice = made(host, 'td', rosterCellStyle(false, isFirstLine))
+    choice.append(rosterSelectionEntry(host, resource.isSelected))
+    line.append(name, choice)
+    for (let column = 0; column < widest; column += 1) {
+      const cell = made(host, 'td', rosterCellStyle(false, isFirstLine))
+      if (column < resource.unassignedTaskNames.length) {
+        const taskName = resource.unassignedTaskNames[column] ?? null
+        cell.setAttribute('data-unnamed', String(taskName === null))
+        cell.textContent = taskName
+      }
+      line.append(cell)
+    }
+    lines.append(line)
+  })
+  grid.append(lines)
+  scroller.append(grid)
+  return scroller
+}
+
+// see RR-3, MK-5, T-023
+// WHY: the translator already leaves the chart still while a surface stands, so the one exception
+// T-023 names is kept where the scrolled box lives.
+/** @purity non-pure */
+function rosterSidewaysWheel(scroller: HTMLElement): (event: WheelEvent) => void {
+  return (event) => {
+    if (!event.ctrlKey || !event.shiftKey || event.altKey || event.metaKey) return
+    event.preventDefault()
+    const turned = event.deltaX !== 0 ? event.deltaX : event.deltaY
+    scroller.scrollLeft += turned * wheelUnitPx(event, scroller)
+  }
+}
+
+/** @purity semi-pure-b */
+function wheelUnitPx(event: WheelEvent, scroller: HTMLElement): number {
+  if (event.deltaMode === event.DOM_DELTA_PAGE) return scroller.clientWidth
+  if (event.deltaMode !== event.DOM_DELTA_LINE) return 1
+  const view = scroller.ownerDocument.defaultView
+  const lineHeight = view === null ? Number.NaN : Number.parseFloat(view.getComputedStyle(scroller).fontSize)
+  return Number.isFinite(lineHeight) ? lineHeight : 1
+}
+
+// see FR-036, FR-053, T-256
+// WHY: each entry names its column (table T-256), so a block is placed, never flowed.
 /** @purity non-pure */
 function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle())
+  const columnByRow = new Map<string, HTMLElement>()
   let block: HTMLElement | null = null
   let blockName: string | null = null
   let segment: string | null = null
@@ -1688,10 +1891,18 @@ function helpColumnsElement(host: Document, entries: readonly OpenHelpEntry[]): 
     const name = line.block
     const lineSegment = line.segment
     if (block === null || name !== blockName) {
+      let column = columnByRow.get(line.column)
+      const isColumnTop = column === undefined
+      if (column === undefined) {
+        column = made(host, 'div', STYLE.helpColumn)
+        column.setAttribute('data-help-column', line.column)
+        columnByRow.set(line.column, column)
+        columns.append(column)
+      }
       const opened = made(host, 'div', STYLE.helpBlock)
       opened.setAttribute('data-help-block', name)
-      if (block !== null) opened.append(made(host, 'div', paletteGroupRuleStyle()))
-      columns.append(opened)
+      if (!isColumnTop) opened.append(made(host, 'div', paletteGroupRuleStyle()))
+      column.append(opened)
       block = opened
       blockName = name
       segment = lineSegment
@@ -1729,6 +1940,7 @@ function modalElement(
     modal.surface,
     STYLE.modal +
       ('entries' in modal ? helpStyle() : '') +
+      ('resources' in modal ? rosterBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
@@ -1786,22 +1998,9 @@ function modalElement(
   }
 
   if ('resources' in modal) {
-    for (const resource of modal.resources) {
-      const line = made(host, 'div', STYLE.field)
-      line.setAttribute('data-uid', String(resource.uid))
-      line.setAttribute('data-referenced', String(resource.isReferenced))
-      line.setAttribute('data-selected', String(resource.isSelected))
-      const name = made(host, 'span', STYLE.fieldName)
-      name.textContent = resource.name
-      line.append(name, rosterSelectionEntry(host, resource.isSelected))
-      for (const taskName of resource.unassignedTaskNames) {
-        const unassigned = made(host, 'span', 'margin-right:0.5em;')
-        unassigned.setAttribute('data-unnamed', String(taskName === null))
-        unassigned.textContent = taskName
-        line.append(unassigned)
-      }
-      body.push(line)
-    }
+    const scroller = rosterGridElement(host, modal.resources)
+    drawn.addEventListener('wheel', rosterSidewaysWheel(scroller), WHEEL_MAY_STOP_DEFAULT)
+    body.push(scroller)
   }
 
   if ('candidates' in modal) {
@@ -1982,7 +2181,7 @@ function confirmationAnswerElement(
   return drawn
 }
 
-// see U-55, NT-7, FR-032
+// see U-55, NT-7, FR-032, FR-076, T-258
 /** @purity non-pure */
 function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement {
   const drawn = part(host, 'div', ROLE.confirmation, STYLE.confirmation)
@@ -2007,15 +2206,38 @@ function confirmationElement(host: Document, confirmation: Confirmation): HTMLEl
     return line
   })
 
-  const answers = made(host, 'div', STYLE.confirmationAnswers)
+  const answers = made(host, 'div', STYLE.confirmationHeaderAnswers)
   for (const answer of confirmation.answers) {
     answers.append(confirmationAnswerElement(host, answer))
   }
 
+  const header = made(host, 'div', STYLE.confirmationHeader)
+  header.setAttribute(CONFIRMATION_PART_ATTRIBUTE, 'header')
+  header.replaceChildren(text, answers)
+  // see CQ-4
+  if (items.length === 0) {
+    drawn.replaceChildren(header)
+    return drawn
+  }
+
+  const rule = made(host, 'div', confirmationRuleStyle())
+  rule.setAttribute(CONFIRMATION_PART_ATTRIBUTE, 'rule')
   const names = made(host, 'div', STYLE.confirmationNames)
-  names.replaceChildren(text, ...items)
-  drawn.replaceChildren(names, answers)
+  names.setAttribute(CONFIRMATION_PART_ATTRIBUTE, 'list')
+  names.replaceChildren(...items)
+  drawn.replaceChildren(header, rule, names)
   return drawn
+}
+
+// see CQ-2, S-242
+/** @purity pure */
+function confirmationRuleStyle(): string {
+  const thickness = NOT_STORED_CONFIRMATION_RULE_SIZES['S-242']
+  // WHY: the negative side margins undo STOPPING_BOX's padding, so the rule spans the whole face.
+  return (
+    `flex:none;align-self:stretch;height:${thickness}px;margin:0.5em -1em;` +
+    `background:${PAINT.rule};pointer-events:none;`
+  )
 }
 
 // see FR-066
@@ -2069,6 +2291,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
   const rowTitleTree = part(host, 'div', ROLE.rowTitleTree, STYLE.layer)
   const propertiesPanel = part(host, 'div', ROLE.propertiesPanel, STYLE.hidden)
+  const dividerBandLayer = made(host, 'div', STYLE.layer)
   const paletteLayer = made(host, 'div', STYLE.layer)
   const dialogueField = part(host, 'div', ROLE.dialogueField, STYLE.hidden)
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
@@ -2098,6 +2321,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     rowTitlePanel,
     rowTitleTree,
     propertiesPanel,
+    // TRAP: after both panels and the frame's scrollbar lanes, which cover the band's two halves
+    // (GR-22); before the palette, whose band GR-19 puts above it.
+    dividerBandLayer,
     paletteLayer,
     dialogueField,
     appHeader,
@@ -2263,6 +2489,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
           `top:${headerHeightPx}px;right:0;bottom:0;`
     propertiesPanel.setAttribute('style', propertiesPanelStyle() + place)
+    // WHY: a new panel width re-wraps every text field, so each is grown again (FR-006).
+    growWrappingFields(propertiesPanel)
   }
 
   // STOP: spec does not decide where the Dialogue Field stands. Looked in SC-4, FR-066
@@ -2327,7 +2555,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       }
     }
     if (changed('frame')) {
-      fillScreenFrame(host, frameLayer, view.frame, anchorsOf('frame'))
+      fillScreenFrame(host, frameLayer, dividerBandLayer, view.frame, anchorsOf('frame'))
       root.setAttribute('data-full-screen', String(view.frame.isFullScreen))
     }
     if (changed('rowTitlePanel')) {
@@ -2374,7 +2602,9 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       const modal = view.openModal
       const anchors = anchorsOf('openModal')
       const drawnModal = modal === null ? null : modalElement(host, modal, anchors)
+      const scrolledBefore = modalLayer.querySelector(ROSTER_SCROLLER)
       modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
+      keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       watermarkUnlockEntry = drawnModal === null ? null : drawnModal.watermarkUnlockEntry
       if (drawnModal !== null && drawnModal.watermarkUnlockEntry !== null) {
         watchWatermarkUnlock(drawnModal.element)
@@ -2917,6 +3147,15 @@ const NOT_STORED_HELP_SIZES: {
 }
 
 // see T-206
+const NOT_STORED_RESOURCE_ROSTER_SIZES: {
+  readonly 'S-240': number
+  readonly 'S-241': number
+} = {
+  'S-240': 0.75,
+  'S-241': 1,
+}
+
+// see T-206
 const NOT_STORED_PALETTE_GROUP_RULE_SIZES: {
   readonly 'S-143': readonly [number, number]
 } = {
@@ -2946,6 +3185,13 @@ const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-193': 2,
   'S-197': 0.70,
   'S-198': 0.90,
+}
+
+// see T-206
+const NOT_STORED_CONFIRMATION_RULE_SIZES: {
+  readonly 'S-242': number
+} = {
+  'S-242': 1,
 }
 
 // see T-206

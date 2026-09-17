@@ -39,6 +39,7 @@ const DASH = String.fromCodePoint(0x2014)
 const T_109 = specTable('T-109')
 const T_036 = specTable('T-036')
 const T_023 = specTable('T-023')
+const T_255 = specTable('T-255')
 const T_012 = specTable('T-012')
 const T_206 = specTable('T-206')
 const HIDDEN_BY_TOUCH = ['T-023a', 'T-023b', 'T-023c', 'T-023d'].map((id) => specTable(id))
@@ -73,6 +74,19 @@ const BASIC_KEY_ROWS = T_036.rows
   .map((row) => row.id)
 
 const BASIC_MOUSE_ROWS = ['MK-2', 'MK-5', 'MK-7'] as const
+
+const combosOf = (cell: string): readonly string[] =>
+  cell
+    .split(' / ')
+    .map((one) => one.replace(/`/g, '').replace(/\uff0b/g, '+').replace(/\s+/g, ''))
+    .filter((one) => one !== '')
+
+const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
+
+// see FR-036, T-255
+const LISTED_BROWSER_ROWS = T_255.rows
+  .filter((row) => !combosOf(row.by[H_KEYS] ?? '').some((one) => T_036_COMBOS.has(one)))
+  .map((row) => row.id)
 
 const KEY_DRIVERS = T_036.rows
   .map((row) => ({ row: row.id, icons: entrancesInCell(row.by[H_ENTRANCE] ?? ''), cell: row.by[H_KEYS] ?? '' }))
@@ -207,7 +221,7 @@ const pressOf = (item: Item): string => stringsIn(item['press']).join(' ')
 const rowIdOf = (item: Item): string => (typeof item['row'] === 'string' ? item['row'] : '')
 const describeItem = (item: Item): string => JSON.stringify(item)
 
-const LISTED_ROWS = new Set([...T_109.rows, ...T_036.rows, ...T_023.rows].map((row) => row.id))
+const LISTED_ROWS = new Set([...T_109.rows, ...T_036.rows, ...T_023.rows, ...T_255.rows].map((row) => row.id))
 
 const isListedRow = (entry: Item): boolean => LISTED_ROWS.has(rowIdOf(entry)) || entrancesOf(entry).length > 0
 
@@ -356,19 +370,25 @@ describe('CR-377 roster: what the help lists', () => {
     }
   })
 
-  it('the one entry that is no table row is the heading ahead of the leading block', () => {
+  it('the two entries that are no table row are the headings of the leading block and the browser block', () => {
     const entries = entriesOf(helpModal('ja'))
     const others = entries.filter((one) => !isListedRow(one))
-    expect(others.length, others.map(describeItem).join('\n')).toBe(1)
-    const heading = others[0] as Item
-    expect(entrancesOf(heading), describeItem(heading)).toEqual([])
-    expect(keysOf(heading), describeItem(heading)).toBe('')
-    expect(pressOf(heading), describeItem(heading)).toBe('')
-    expect(entries.indexOf(heading)).toBe(0)
+    expect(others.length, others.map(describeItem).join('\n')).toBe(2)
+    for (const heading of others) {
+      expect(entrancesOf(heading), describeItem(heading)).toEqual([])
+      expect(keysOf(heading), describeItem(heading)).toBe('')
+      expect(pressOf(heading), describeItem(heading)).toBe('')
+    }
+    expect(entries.indexOf(others[0] as Item)).toBe(0)
+    const firstBrowser = entries.findIndex((one) => rowIdOf(one) === LISTED_BROWSER_ROWS[0])
+    expect(firstBrowser, 'a row of T-255 is listed').toBeGreaterThan(0)
+    expect(entries.indexOf(others[1] as Item)).toBe(firstBrowser - 1)
   })
 
   it('carries exactly the item count the named tables add up to', () => {
-    const expected = T_109.rows.length - 1 - ARMED_MILESTONES.length + BASIC_KEY_ROWS.length + BASIC_MOUSE_ROWS.length
+    const expected =
+      T_109.rows.length - 1 - ARMED_MILESTONES.length + BASIC_KEY_ROWS.length + BASIC_MOUSE_ROWS.length +
+      LISTED_BROWSER_ROWS.length
     expect(items.length).toBe(expected)
   })
 

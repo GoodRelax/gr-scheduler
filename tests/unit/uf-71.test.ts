@@ -1196,7 +1196,7 @@ const HELP_MODAL: OpenModal = {
   commands: [command({ icon: 'IC-52', label: 'CloseHelp' })],
   entries: [{
     table: 'T-036', row: 'MK-1', text: 'HelpEntryOne', press: null, keys: null, icon: null,
-    kind: 'item', block: '', segment: null, glyphs: [], indent: false,
+    kind: 'item', block: '', column: 'HC-1', segment: null, glyphs: [], indent: false,
   }],
   legend: 'IC-102',
   language: 'en',

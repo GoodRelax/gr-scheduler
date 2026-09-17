@@ -2364,7 +2364,16 @@ export function frameLoop(
         ? itemAtPointer(frame.geometry, at.x, at.y, POINTER_SLOP, resolving)
         : null
     const pressRow = pressRowOf({ at, hit }, { screenState, dualCursorFollowing })
-    return { at, hit, on, pressRow, followedTo: { x: at.x, y: at.y }, rowGrabAxis: null }
+    return {
+      at,
+      hit,
+      on,
+      pressRow,
+      followedTo: { x: at.x, y: at.y },
+      rowGrabAxis: null,
+      // see FR-052
+      propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
+    }
   }
 
   /** @purity semi-pure-b */
@@ -3640,7 +3649,13 @@ export function frameLoop(
         // STOP: spec does not decide what a press on a put-away panel's boundary does. Looked in FR-052, FR-072, S-99h
         // @provisional PND-451
         if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
+          const wasPutAway = isPropertiesPanelPutAway
           isPropertiesPanelPutAway = false
+          // WHY: FR-052 counts from the width drawn once the panel is back, not the put-away 0.
+          if (wasPutAway && pressed !== null) {
+            const shown = withPropertiesPanelShown(held.document.documentSettings)
+            pressed = { ...pressed, propertyPanelWidthAtPress: shown.propertyPanelWidth }
+          }
         }
         // TRAP: after collectPress; pressHeldOnRepeatingEntry reads the entrance that press recorded.
         beginEntryRepeat()

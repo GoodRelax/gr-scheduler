@@ -130,7 +130,7 @@ import { specTable } from '../contract/spec-table'
  * the way tests/unit/uf-30-31.test.ts does for its own copy.
  */
 const T_023D = [
-  'GR-19',
+  'GR-19', 'GR-22',
   'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
   'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
   'GR-20', 'GR-16', 'GR-21',
@@ -609,8 +609,8 @@ describe('the rosters and the fixture these cases stand on', () => {
   // A walk over an empty roster passes without asserting anything, so the
   // counts are pinned first and a vacuous case cannot go green.
   it('carries the rows of 表 T-023d, 表 T-023 MK-13 and 表 T-028 IN-4 / IN-5a', () => {
-    expect(T_023D).toHaveLength(21)
-    expect(new Set(T_023D).size).toBe(21)
+    expect(T_023D).toHaveLength(22)
+    expect(new Set(T_023D).size).toBe(22)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     // The closing rule names exactly these two, and the table prints GR-10

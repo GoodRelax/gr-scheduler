@@ -315,6 +315,18 @@ function coveredElsewhereRows(): readonly string[] {
 
 const FOLLOWING_ROWS = closingRuleRows()
 
+// see FR-052, GR-22
+// WHY: GR-22 joined T-023d with an operation cell that sends the held picture to FR-052, and none
+// of the three closing sentences of T-023d names it; FR-052 states that MUST itself.
+const FR_052_HELD_PICTURE =
+  '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'
+
+function followedByFr052Rows(): readonly string[] {
+  return specTable('T-023d')
+    .rows.filter((one) => (one.by['操作'] ?? '').includes('`FR-052`'))
+    .map((one) => one.id)
+}
+
 // ===========================================================================
 // The document these cases drive
 // ===========================================================================
@@ -947,7 +959,16 @@ describe('the manuscript still states the rule this file is about', () => {
     // exception's own ⛔ said to do the day the manuscript accounted for it.
     // ⛔ Do not weaken this to `not.toContain` or to a subset check.
     const every = specTable('T-023d').rows.map((one) => one.id)
-    const accounted = new Set([...FOLLOWING_ROWS, ...exemptRows(), ...coveredElsewhereRows()])
+    expect(REQUIREMENTS.join('\n'), 'FR-052 still owes the held picture GR-22 relies on').toContain(
+      FR_052_HELD_PICTURE,
+    )
+    expect(followedByFr052Rows(), 'T-023d GR-22 sends its operation to FR-052').toEqual(['GR-22'])
+    const accounted = new Set([
+      ...FOLLOWING_ROWS,
+      ...exemptRows(),
+      ...coveredElsewhereRows(),
+      ...followedByFr052Rows(),
+    ])
     const missing = every.filter((id) => !accounted.has(id))
     expect(missing, 'table T-023d: 追従しない行を残してはならない（MUST NOT）').toEqual([])
     expect(accounted.size, 'and nothing is accounted for twice').toBe(every.length)

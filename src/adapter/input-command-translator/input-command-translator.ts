@@ -119,6 +119,10 @@ export interface PointerPress {
   readonly followedTo?: { readonly x: number; readonly y: number }
   // TRAP: never default an absent axis to 'position'; a still click would stop choosing the row.
   readonly rowGrabAxis?: RowGrabAxis | null
+  // see FR-052
+  // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
+  // picture, so reading them at release counts the travel twice.
+  readonly propertyPanelWidthAtPress?: number
 }
 
 export interface InputContext {
@@ -1930,10 +1934,27 @@ function commandFromPanelDivider(
           : settings.rowTitlePanelWidth,
       propertyPanelWidth:
         panel === 'propertiesPanel'
-          ? settings.propertyPanelWidth - travelled
+          ? propertyPanelWidthAfterDrag(settings, press, context, travelled)
           : settings.propertyPanelWidth,
     },
   ])
+}
+
+// see FR-052, S-80, S-171
+// TRAP: count the travel from the DRAWN width, never from S-80: a stored 0 is drawn at S-171, so a
+// right drag would go negative and be refused and a left drag would jump to the travel (DFC-644).
+/** @purity pure */
+function propertyPanelWidthAfterDrag(
+  settings: DocumentSettings,
+  press: PointerPress,
+  context: InputContext,
+  travelled: number,
+): number {
+  // WHY: a release where the press began writes the stored number back, so the write moves
+  // nothing (T-027) even while S-80 is still 0.
+  if (travelled === 0) return settings.propertyPanelWidth
+  const drawnAtPress = press.propertyPanelWidthAtPress ?? context.regions.propertiesPanel.width
+  return drawnAtPress - travelled
 }
 
 // see FR-052, FR-039, T-252

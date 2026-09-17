@@ -4,6 +4,7 @@
  "entries": [
   {
    "kind": "heading",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -16,6 +17,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -28,6 +30,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -40,6 +43,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -52,6 +56,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -64,6 +69,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -76,6 +82,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -88,6 +95,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -100,6 +108,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -112,6 +121,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -124,6 +134,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -136,6 +147,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -148,6 +160,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "basics",
    "segment": null,
    "indent": false,
@@ -159,7 +172,34 @@
    "note": null
   },
   {
+   "kind": "heading",
+   "column": "HC-1",
+   "block": "browser",
+   "segment": null,
+   "indent": false,
+   "table": "FR-036",
+   "row": "browser",
+   "keys": null,
+   "press": null,
+   "glyphs": [],
+   "note": null
+  },
+  {
    "kind": "item",
+   "column": "HC-1",
+   "block": "browser",
+   "segment": null,
+   "indent": false,
+   "table": "T-255",
+   "row": "BF-1",
+   "keys": "Ctrl ＋ + / Ctrl ＋ -",
+   "press": null,
+   "glyphs": [],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -174,6 +214,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -188,6 +229,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -202,6 +244,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -216,6 +259,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -230,6 +274,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -244,6 +289,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -258,6 +304,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -272,6 +319,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -286,6 +334,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -300,6 +349,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Row Title Panel",
    "segment": null,
    "indent": false,
@@ -314,6 +364,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -328,6 +379,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -342,6 +394,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -356,6 +409,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -370,6 +424,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -384,6 +439,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -398,6 +454,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
    "block": "Resource Roster",
    "segment": null,
    "indent": false,
@@ -412,6 +469,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -426,6 +484,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -440,6 +499,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -454,6 +514,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -468,6 +529,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -482,6 +544,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -496,6 +559,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -510,6 +574,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -524,6 +589,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": true,
@@ -538,6 +604,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -552,6 +619,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -566,6 +634,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -580,6 +649,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -594,6 +664,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -608,6 +679,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -622,6 +694,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -636,6 +709,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -650,6 +724,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -664,6 +739,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -678,6 +754,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -692,6 +769,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -706,6 +784,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -720,6 +799,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -734,6 +814,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -748,6 +829,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -762,6 +844,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -776,6 +859,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -790,6 +874,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -804,6 +889,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -818,6 +904,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -832,6 +919,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-2",
    "block": "App Header",
    "segment": null,
    "indent": false,
@@ -846,6 +934,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-53",
    "indent": false,
@@ -860,6 +949,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-53",
    "indent": false,
@@ -874,6 +964,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-23",
    "indent": false,
@@ -888,6 +979,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-23",
    "indent": false,
@@ -902,6 +994,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-23",
    "indent": false,
@@ -916,6 +1009,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-23",
    "indent": false,
@@ -930,6 +1024,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-23",
    "indent": false,
@@ -946,6 +1041,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-61",
    "indent": false,
@@ -960,6 +1056,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-61",
    "indent": false,
@@ -974,6 +1071,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-61",
    "indent": false,
@@ -988,6 +1086,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-61",
    "indent": false,
@@ -1002,6 +1101,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-61",
    "indent": false,
@@ -1016,6 +1116,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1030,6 +1131,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1044,6 +1146,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1058,6 +1161,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1072,6 +1176,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1086,6 +1191,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1100,6 +1206,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1114,6 +1221,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1128,6 +1236,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1142,6 +1251,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1156,6 +1266,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1170,6 +1281,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1184,6 +1296,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-39",
    "indent": false,
@@ -1198,6 +1311,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-103",
    "indent": false,
@@ -1212,6 +1326,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-103",
    "indent": false,
@@ -1226,6 +1341,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-103",
    "indent": false,
@@ -1240,6 +1356,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-103",
    "indent": false,
@@ -1254,6 +1371,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-103",
    "indent": false,
@@ -1268,6 +1386,7 @@
   },
   {
    "kind": "item",
+   "column": "HC-3",
    "block": "Command Palette",
    "segment": "IC-54",
    "indent": false,

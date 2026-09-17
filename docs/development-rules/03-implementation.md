@@ -47,6 +47,7 @@ ENTITY_ROWS                          実体の行（`erd.json`）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
+NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅（`S-180`）
@@ -62,6 +63,7 @@ NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`�
 NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
 NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
+NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線の太さ（`S-240` / `S-241`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
 NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）

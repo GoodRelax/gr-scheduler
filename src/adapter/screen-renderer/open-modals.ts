@@ -102,7 +102,13 @@ const HELP_HEADINGS_BY_BLOCK = new Map(
 
 const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.rowId, entry]))
 
+const BROWSER_FUNCTION_WORDS_BY_ROW = new Map(
+  displayWords.browserFunctions.map((entry) => [entry.rowId, entry]),
+)
+
 const ASSIGNMENT_TABLE = 'T-023'
+
+const BROWSER_FUNCTION_TABLE = 'T-255'
 
 type HelpRosterEntry = (typeof helpRoster.entries)[number]
 
@@ -125,6 +131,9 @@ function helpText(entry: HelpRosterEntry, language: DisplayLanguage): string {
   if (entry.table === ASSIGNMENT_TABLE) {
     return MOUSE_PRESS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
   }
+  if (entry.table === BROWSER_FUNCTION_TABLE) {
+    return BROWSER_FUNCTION_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
+  }
   return SHORTCUT_WORDS_BY_ROW.get(entry.row)?.text[language] ?? NO_WORDS
 }
 
@@ -146,6 +155,7 @@ function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
     keys: entry.keys,
     icon: entry.kind === 'item' && entry.table === ICON_TABLE ? entry.row : null,
     kind: entry.kind,
+    column: entry.column,
     block: entry.block,
     segment: entry.segment,
     glyphs: entry.glyphs,

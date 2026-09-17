@@ -117,8 +117,13 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # is on the screen only while something is armed. FR-036 says the dictionary
 # holds the note on IC-54's row, so that section is keyed by the row id.
 # ⚠️ These are KEYS, not words.
-HELP_HEADINGS = ('basics',)
+HELP_HEADINGS = ('basics', 'browser')
 HELP_NOTES = ('IC-54',)
+# The browser's own functions FR-036 lists on the help (table T-255, CR-405).
+# Every row takes a word, including one the help does not show today: whether
+# a row is shown is table T-255's closing rule, read by generate_help_roster.py.
+BROWSER_FUNCTION_ROW = re.compile(r'^\| (BF-\d+[a-z]?) \|')
+BROWSER_FUNCTION_TABLE = 'T-255'
 # ⭐ The words and the next step for a document refused on import. FR-076 has
 # the refusal carry the row of table T-220 it broke, and the words are looked
 # up by that row id exactly as a reason is by its row of table T-233.
@@ -344,6 +349,9 @@ def roster():
         'shortcuts': listed_shortcuts(),
         'helpHeadings': list(HELP_HEADINGS),
         'helpNotes': list(HELP_NOTES),
+        'browserFunctions': [row[0] for row in
+                             table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
+                                        BROWSER_FUNCTION_TABLE)],
         'invariants': [row[0] for row in
                        table_rows(REL_DESIGN, INVARIANT_ROW, INVARIANT_TABLE)],
         'exportFormats': [row[0] for row in
@@ -398,6 +406,7 @@ SHAPE = {
     'shortcuts': ('rowId', ('text',)),
     'helpHeadings': ('block', ('text',)),
     'helpNotes': ('rowId', ('text',)),
+    'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
     'exportFormats': ('rowId', ('name',)),
     'paletteGroups': ('firstRow', ('name',)),
@@ -495,6 +504,7 @@ def build(doc, keys_by_row):
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
                     'shortcuts', 'helpHeadings', 'helpNotes',
+                    'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',

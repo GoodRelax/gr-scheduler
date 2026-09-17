@@ -8,7 +8,10 @@ FR-036 (MUST) has the help list the shortcut keys and the icons: every row of
 table T-109, the rows of table T-036 whose entrance is an em dash and whose
 assignment is not, and MK-2 / MK-5 / MK-7 of table T-023. Tables T-023a,
 T-023b, T-023c and T-023d are (MUST NOT) never listed -- CR-377 retired them
-from the help because touching the screen already tells them.
+from the help because touching the screen already tells them. The rows of
+table T-255 (the browser's own functions, CR-405) are listed too, except a row
+whose chord a row of table T-036 holds (MUST NOT): MK-10 stops the browser on
+that chord, so the help would show a function that does not work.
 
 NOT ONE WORD IS CARRIED. FR-038 (MUST NOT) keeps every printed word in one
 dictionary per language, so what travels here is the row ids, the key
@@ -17,9 +20,12 @@ help joins a word to an entry by row id, as every other surface does.
 
 THE LAYOUT IS FR-036'S OWN:
 
-  - blocks in the order it names them: the assignments with no entrance
-    (`basics`, the only block with a heading), `Row Title Panel`,
-    `Resource Roster`, `App Header`, `Command Palette`;
+  - blocks in the columns and the order table T-256 names them: the
+    assignments with no entrance (`basics`) and the browser functions
+    (`browser`) -- the only two blocks with a heading -- then `Row Title Panel`
+    and `Resource Roster` in HC-1, `App Header` in HC-2, `Command Palette` in
+    HC-3. Every entry carries the row id of its column, and the count of those
+    rows must equal S-202 (MUST);
   - inside a block the order the screen shows, not the print order of table
     T-109;
   - an assignment whose table names an entrance sits on that entrance's item,
@@ -55,6 +61,8 @@ REL_REQUIREMENTS = 'docs/spec/01-04-requirements.md'
 ICON_TABLE = 'T-109'
 SHORTCUT_TABLE = 'T-036'
 ASSIGNMENT_TABLE = 'T-023'
+BROWSER_TABLE = 'T-255'
+COLUMN_TABLE = 'T-256'
 # The requirement itself, as the table of an entry whose word FR-036 asks for
 # but no table row holds: the heading of `basics`.
 REQUIREMENT = 'FR-036'
@@ -67,13 +75,24 @@ ENTRANCE_HEADING = '入口'
 ENTRANCE_SEPARATOR = ' / '
 EM_DASH = '—'
 CODE_FENCE = '`'
+# Table T-256 writes the blocks of one column top to bottom, joined by an arrow.
+# The two blocks with no surface name are written in words: the assignments
+# with no entrance, and the browser functions (named by their table id).
+COLUMN_BLOCKS_HEADING = u'\u7f6e\u304f\u584a\uff08\u4e0a\u304b\u3089\u9806\u306b\uff09'
+COLUMN_BLOCK_SEPARATOR = u' \u2192 '
+BASICS_WORDS = u'\u5165\u53e3\u3092\u6301\u305f\u306a\u3044\u5272\u5f53'
+# A chord is compared after dropping spaces and reading the full-width plus as
+# a plain one: table T-036 writes `Ctrl+A` and `Ctrl` + `0` side by side.
+FULL_WIDTH_PLUS = u'\uff0b'
 
 BASICS = 'basics'
+BROWSER = 'browser'
 ROW_TITLE_PANEL = 'Row Title Panel'
 RESOURCE_ROSTER = 'Resource Roster'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
-BLOCKS = (BASICS, ROW_TITLE_PANEL, RESOURCE_ROSTER, APP_HEADER, COMMAND_PALETTE)
+BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, APP_HEADER,
+          COMMAND_PALETTE)
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
 # rows with an entrance and the rows it keeps off the help. A row of that table
@@ -100,6 +119,7 @@ OPENED_SURFACES = ('Open Chooser', 'Difference Review')
 MILESTONE_ARM = 'AR-3'
 MILESTONE_LIST_ROW = 'IC-50'
 ALWAYS_SHOWN_GLYPHS = 'S-216'
+HELP_COLUMN_COUNT = 'S-202'
 ARMED_NOTE_ROW = 'IC-54'
 LEGEND_ROW = 'IC-102'
 
@@ -156,14 +176,14 @@ def entrances_of(row):
                                        written.split(ENTRANCE_SEPARATOR)]
 
 
-def always_shown_glyph_count():
+def settings_number(row_id):
     """@purity semi-pure-b"""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     found = []
 
     def walk(node):
         if isinstance(node, dict):
-            if node.get('id') == ALWAYS_SHOWN_GLYPHS:
+            if node.get('id') == row_id:
                 found.append(node)
             for value in node.values():
                 walk(value)
@@ -172,8 +192,60 @@ def always_shown_glyph_count():
                 walk(value)
     walk(doc)
     if len(found) != 1:
-        stop('settings.json holds %d row(s) %s' % (len(found), ALWAYS_SHOWN_GLYPHS))
+        stop('settings.json holds %d row(s) %s' % (len(found), row_id))
     return int(found[0]['default']['num'])
+
+
+def always_shown_glyph_count():
+    """@purity semi-pure-b"""
+    return settings_number(ALWAYS_SHOWN_GLYPHS)
+
+
+def chords_of(keys):
+    """The chords one assignment cell names, spelled so two tables compare.
+
+    @purity pure
+    """
+    if keys is None:
+        return set()
+    return set(one.replace(' ', '').replace(FULL_WIDTH_PLUS, '+')
+               for one in keys.split(ENTRANCE_SEPARATOR))
+
+
+def block_of(written):
+    """The block one step of a table T-256 cell names.
+
+    @purity non-pure
+    """
+    step = written.strip()
+    if len(step) > 1 and step.startswith(CODE_FENCE) and step.endswith(CODE_FENCE):
+        return step.strip(CODE_FENCE)
+    if BROWSER_TABLE in step:
+        return BROWSER
+    if step == BASICS_WORDS:
+        return BASICS
+    stop('table %s names a block this script does not know: %r'
+         % (COLUMN_TABLE, step))
+    return None
+
+
+def column_layout():
+    """[(column row id, [block, ...]), ...] in table T-256's order.
+
+    @purity non-pure
+    """
+    layout = [(row.id, [block_of(step) for step in
+                        row.cell(COLUMN_BLOCKS_HEADING).split(COLUMN_BLOCK_SEPARATOR)])
+              for row in spec_tables.read(REL_REQUIREMENTS, COLUMN_TABLE)]
+    placed = [block for _column, blocks in layout for block in blocks]
+    if sorted(placed) != sorted(BLOCKS):
+        stop('table %s places %s, and the blocks this script builds are %s'
+             % (COLUMN_TABLE, placed, list(BLOCKS)))
+    count = settings_number(HELP_COLUMN_COUNT)
+    if len(layout) != count:
+        stop('table %s has %d row(s) and %s says %d columns; FR-036 (MUST) has '
+             'the two agree' % (COLUMN_TABLE, len(layout), HELP_COLUMN_COUNT, count))
+    return layout
 
 
 def item(block, segment, table, row, keys=None, press=None, glyphs=None,
@@ -181,6 +253,7 @@ def item(block, segment, table, row, keys=None, press=None, glyphs=None,
     """@purity pure"""
     return {
         'kind': kind,
+        'column': None,
         'block': block,
         'segment': segment,
         'indent': indent,
@@ -203,6 +276,7 @@ def build():
 
     keys_on = {}
     press_on = {}
+    held_chords = set()
     basics = [item(BASICS, None, REQUIREMENT, BASICS, kind='heading')]
 
     # STOP: spec does not decide the order of the help title row. Looked in FR-036, FR-038, IC-52
@@ -212,6 +286,7 @@ def build():
         drives = entrances_of(row)
         if keys is None:
             continue
+        held_chords |= chords_of(keys)
         if not drives:
             basics.append(item(BASICS, None, SHORTCUT_TABLE, row.id, keys=keys))
             continue
@@ -239,6 +314,17 @@ def build():
             stop('%s of table %s is neither shown nor kept off the help by '
                  'FR-036; the requirement has to decide it'
                  % (row.id, ASSIGNMENT_TABLE))
+
+    # FR-036, table T-255: the browser's own functions, minus a row whose chord
+    # table T-036 holds -- MK-10 stops the browser on that chord (MUST NOT).
+    browser = [item(BROWSER, None, REQUIREMENT, BROWSER, kind='heading')]
+    for row in spec_tables.read(REL_REQUIREMENTS, BROWSER_TABLE):
+        keys = keys_of(row)
+        if keys is None:
+            stop('%s of table %s has no assignment' % (row.id, BROWSER_TABLE))
+        if chords_of(keys) & held_chords:
+            continue
+        browser.append(item(BROWSER, None, BROWSER_TABLE, row.id, keys=keys))
 
     # FR-036: the note on IC-54 belongs to the IC-54 item, so an entrance
     # never stands on a second item for it.
@@ -312,7 +398,15 @@ def build():
                 continue
             palette.append(icon_item(COMMAND_PALETTE, first, rid))
 
-    entries = basics + panel + roster + header + palette
+    by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
+                RESOURCE_ROSTER: roster, APP_HEADER: header,
+                COMMAND_PALETTE: palette}
+    entries = []
+    for column, blocks in column_layout():
+        for block in blocks:
+            for one in by_block[block]:
+                one['column'] = column
+                entries.append(one)
 
     # The one merged item stands for every row armed with AR-3 (FR-036).
     carried = set([LEGEND_ROW] + milestones)

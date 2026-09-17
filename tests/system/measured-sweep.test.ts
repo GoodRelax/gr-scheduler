@@ -1525,7 +1525,18 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
       const dash = String.fromCharCode(0x2014)
       return assignmentText(row.cells[T036_ENTRANCE] ?? '') === dash && assignmentText(row.cells[T036_ASSIGNMENT] ?? '') !== dash
     }).length
-  const owedItems = t109Items.length - legendOnly - foldedIntoOne + keysWithoutEntrance + helpMouseRows.length
+  // see FR-036, T-255
+  const combosOf = (cell: string): string[] =>
+    assignmentText(cell)
+      .split(' / ')
+      .map((one) => one.replace(/\uff0b/g, '+').replace(/\s+/g, ''))
+      .filter((one) => one !== '')
+  const t036Combos = new Set(T036.rows.flatMap((row) => combosOf(row.by['割当'] ?? '')))
+  const browserRowsListed = specTable('T-255').rows.filter(
+    (row) => !combosOf(row.by['割当'] ?? '').some((one) => t036Combos.has(one)),
+  ).length
+  const owedItems =
+    t109Items.length - legendOnly - foldedIntoOne + keysWithoutEntrance + helpMouseRows.length + browserRowsListed
   expect(read.count, 'the help does not put up the item count FR-036 adds up to').toBe(owedItems)
 
   const wrongPlaces = read.shaped.filter((one) => one.places !== 3)
@@ -1634,7 +1645,8 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
   }, PANEL)
 
   expect(state.panelShown, 'a double click on a task body left the Properties Panel hidden').not.toBe('none')
-  expect(state.tag, 'the focus after a double click is not in a field at all').toBe('INPUT')
+  // WHY: FR-006 has a text field wrap inside the panel and grow downwards, which a one-line input cannot do.
+  expect(state.tag, 'the focus after a double click is not in a wrapping name field').toBe('TEXTAREA')
   expect(
     state.row,
     `the focus landed in field row ${JSON.stringify(state.row)}, and MK-13 (MUST) names PR-1`,

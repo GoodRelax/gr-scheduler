@@ -298,6 +298,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   shortcuts: 'rowId',
   helpHeadings: 'block',
   helpNotes: 'rowId',
+  browserFunctions: 'rowId',
   reasons: 'rowId',
   invariants: 'rowId',
   questions: 'rowId',
@@ -1287,6 +1288,43 @@ for (const section of ['helpHeadings', 'helpNotes'] as const) {
       'FR-036 names no member of the help that carries this word, so the whole-view reading asks for it instead',
     )
   }
+}
+
+// see FR-036, T-255
+const T_255_HELD_BY_T_036 = ((): ReadonlySet<string> => {
+  const combosOf = (cell: string): readonly string[] =>
+    cell
+      .split(' / ')
+      .map((one) => one.replace(/`/g, '').replace(/\uff0b/g, '+').replace(/\s+/g, ''))
+      .filter((one) => one !== '')
+  const keys = String.fromCodePoint(0x5272, 0x5f53)
+  const t036 = new Set(specTable('T-036').rows.flatMap((row) => combosOf(row.by[keys] ?? '')))
+  return new Set(
+    specTable('T-255')
+      .rows.filter((row) => combosOf(row.by[keys] ?? '').some((one) => t036.has(one)))
+      .map((row) => row.id),
+  )
+})()
+
+for (const entry of GENERATED['browserFunctions'] ?? []) {
+  const rowId = keyOf('browserFunctions', entry)
+  if (T_255_HELD_BY_T_036.has(rowId)) {
+    drop(
+      'browserFunctions',
+      rowId,
+      'T-255 (MUST NOT): a row of T-036 holds the same combination, so the help never lists this row',
+    )
+    continue
+  }
+  place({
+    section: 'browserFunctions',
+    key: rowId,
+    field: 'text',
+    unit: 'UF-66',
+    what: `what the help says about the browser function ${rowId}`,
+    frame: surfaceOpen('Help Modal'),
+    read: (view) => helpEntryText(view, rowId),
+  })
 }
 
 for (const entry of GENERATED['invariants'] ?? []) {

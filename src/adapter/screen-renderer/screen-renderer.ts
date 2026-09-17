@@ -234,6 +234,8 @@ export interface HelpEntry {
   readonly keys: string | null
   readonly icon: IconId | null
   readonly kind: string
+  // see T-256
+  readonly column: string
   readonly block: string
   readonly segment: string | null
   readonly glyphs: readonly IconId[]

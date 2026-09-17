@@ -3286,6 +3286,13 @@
     "ja": "基本操作",
     "en": "Basic operations"
    }
+  },
+  {
+   "block": "browser",
+   "text": {
+    "ja": "ブラウザの機能（GRS の機能ではない）",
+    "en": "Browser functions (not GRS)"
+   }
   }
  ],
  "helpNotes": [
@@ -3294,6 +3301,22 @@
    "text": {
     "ja": "構えている間だけ出る",
     "en": "Shown only while armed"
+   }
+  }
+ ],
+ "browserFunctions": [
+  {
+   "rowId": "BF-1",
+   "text": {
+    "ja": "ブラウザの表示を拡大・縮小する",
+    "en": "Zoom the browser in or out"
+   }
+  },
+  {
+   "rowId": "BF-2",
+   "text": {
+    "ja": "ブラウザの表示の倍率を戻す",
+    "en": "Reset the browser zoom"
    }
   }
  ],
