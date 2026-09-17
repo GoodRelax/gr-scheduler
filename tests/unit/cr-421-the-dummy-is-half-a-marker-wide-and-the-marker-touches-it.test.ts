@@ -150,9 +150,9 @@ const PLAN_START = '2026-02-02'
 const unstarted = (planDays = 30): Task =>
   taskOf({ name: 'a', start: PLAN_START, finish: isoPlus(PLAN_START, planDays) })
 
-const started = (planDays: number, actualDays: number): Task =>
+const started = (planDays: number, actualDays: number, name = 'a'): Task =>
   taskOf({
-    name: 'a',
+    name,
     start: PLAN_START,
     finish: isoPlus(PLAN_START, planDays),
     percentComplete: 40,
@@ -265,10 +265,13 @@ describe('T-023d closing rule (MUST) -- the marker drawn shape wins over the pla
 
   const PLAN_DAYS = 40
 
+  // WHY: a name too long for the actual keeps FR-002's inside placement off, so the marker stands at FR-013's place.
+  const NAME_WIDER_THAN_THE_ACTUAL = 'a'.repeat(PLAN_DAYS)
+
   // see FR-017, T-023d
   const nearThePlanEnd = (): Scene => {
     for (let actualDays = PLAN_DAYS; actualDays > 0; actualDays -= 1) {
-      const scene = sceneOf(started(PLAN_DAYS, actualDays), { zoomX })
+      const scene = sceneOf(started(PLAN_DAYS, actualDays, NAME_WIDER_THAN_THE_ACTUAL), { zoomX })
       const gap = scene.placed.x + scene.placed.width - scene.placed.actualReach!
       if (gap > EPS) return scene
     }

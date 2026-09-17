@@ -117,6 +117,13 @@ const RULER_LABEL_BOTTOM_PAD = SETTINGS_DEFAULTS['rulerLabelBottomPad'] as numbe
 // see FR-039, T-252
 const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
+// see NS-3 -- the renderer writes coordinates and sizes on a 0.01 px grid, so a drawn value
+// may stand up to half a cell (0.005 px) from the exact one, both ends included.
+const NS_3_HALF_CELL = 0.005 + 1e-9
+const onTheGrid = (drawn: number, exact: number, message: string): void => {
+  expect(Math.abs(drawn - exact), message).toBeLessThanOrEqual(NS_3_HALF_CELL)
+}
+
 // WHY: the picture prints a coordinate rounded to two places.
 const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
@@ -579,10 +586,7 @@ describe('FR-017 -- the band height does not move with the tier', () => {
         const settings = settingsAt(scale.font, zoomFor(sample.pxPerDay, scale.font), scale.name)
         const where = `${scale.name} / ${sample.name}`
         const ground = groundOf(drawn(settings), bandOf(settings), where)
-        expect(numberAt(ground.text, 'height') as number, `${where}: S-2 unchanged`).toBeCloseTo(
-          expected,
-          2,
-        )
+        onTheGrid(numberAt(ground.text, 'height') as number, expected, `${where}: S-2 unchanged`)
       }
     }
   })
@@ -661,7 +665,7 @@ describe('FR-017 -- only the arrangement inside the band changes', () => {
               `${where}: the 曜's size is \`rulerFont\` x the drawn ratio x S-219`,
             ).toBeCloseTo(smaller, 6)
           } else {
-            expect(size, `${where}: ${one.text}`).toBeCloseTo(plain, 2)
+            onTheGrid(size, plain, `${where}: ${one.text}`)
           }
         }
       }

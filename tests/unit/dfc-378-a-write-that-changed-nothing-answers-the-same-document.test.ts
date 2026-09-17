@@ -68,9 +68,10 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       dualCursor: null,
       fontScale: 'M',
       fontScaleSizes: { S: 12, M: 14, L: 16 },
-      rulerFont: 14,
+      // WHY: the pair agrees with fontScale M (S-3 x the T-201 factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
+      rulerFont: 14 * RULER_FONT_FACTOR,
       rulerLabelPad: 2,
-      rulerHeight: 48,
+      rulerHeight: 14 * RULER_FONT_FACTOR * 3 + 2 * 3,
       canvasPadding: 10,
       rowTitlePanelWidth: 170,
       propertyPanelWidth: 280,

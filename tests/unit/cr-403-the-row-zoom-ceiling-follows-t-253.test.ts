@@ -253,9 +253,9 @@ function raiseUntilItStops(
 // depend on S-53, so the stop it reaches is the same one.
 const COARSE_STEP = 2
 
-// WHY: this many tasks in one row puts the band side under the text side at
-// FULL_HD while the band no longer reaches at S-55; the premises re-measure both.
-const DENSE_ROW_TASKS = 400
+// WHY: this many tasks in one row puts the band side under the text side at FULL_HD while the band no longer
+// reaches at S-55; the premises re-measure both (after CR-417 / CR-418, 310 to 380 hold, 390 reaches at S-54).
+const DENSE_ROW_TASKS = 340
 
 describe('T-253 BC-1 -- the probe sequence the oracle walks', () => {
   it('BC-1: starts at S-54, grows by S-238, and ends on S-55 exactly once (86 points at the defaults, CR-403 7.1)', () => {

@@ -250,6 +250,84 @@ interface Shape {
   readonly pointsLeft: boolean
 }
 
+const pairsOf = (text: string): Point[] => {
+  const numbers = (text.match(/-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []).map(Number)
+  const out: Point[] = []
+  for (let at = 0; at + 1 < numbers.length; at += 2) out.push({ x: numbers[at]!, y: numbers[at + 1]! })
+  return out
+}
+
+// see PC-5
+// WHY: H and V carry one number each, so reading a path as bare number pairs misplaces every later point.
+const pathPointsOf = (d: string): Point[] => {
+  const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []
+  const out: Point[] = []
+  let command = ''
+  let at: Point = { x: 0, y: 0 }
+  let opened: Point = at
+  let index = 0
+  const take = (): number => Number(tokens[index++])
+  while (index < tokens.length) {
+    if (/^[a-zA-Z]$/.test(tokens[index]!)) {
+      command = tokens[index++]!
+      if (command === 'Z' || command === 'z') at = opened
+      continue
+    }
+    const relative = command === command.toLowerCase()
+    switch (command.toUpperCase()) {
+      case 'M':
+      case 'L': {
+        const x = take()
+        const y = take()
+        at = relative ? { x: at.x + x, y: at.y + y } : { x, y }
+        if (command.toUpperCase() === 'M') {
+          opened = at
+          command = relative ? 'l' : 'L'
+        }
+        break
+      }
+      case 'H': {
+        const x = take()
+        at = { x: relative ? at.x + x : x, y: at.y }
+        break
+      }
+      case 'V': {
+        const y = take()
+        at = { x: at.x, y: relative ? at.y + y : y }
+        break
+      }
+      default:
+        throw new Error(`this case reads no path command ${command}: ${d}`)
+    }
+    out.push(at)
+  }
+  return out
+}
+
+// see PC-5
+// WHY: a right arrow may be the left one mirrored by a transform, which moves every point it draws.
+const transformOf = (text: string): readonly [number, number, number, number, number, number] => {
+  let m: [number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0]
+  for (const found of text.matchAll(/(matrix|translate|scale)\s*\(([^)]*)\)/g)) {
+    const n = (found[2]!.match(/-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []).map(Number)
+    const next: [number, number, number, number, number, number] =
+      found[1] === 'matrix'
+        ? [n[0]!, n[1]!, n[2]!, n[3]!, n[4]!, n[5]!]
+        : found[1] === 'translate'
+          ? [1, 0, 0, 1, n[0]!, n[1] ?? 0]
+          : [n[0]!, 0, 0, n[1] ?? n[0]!, 0, 0]
+    m = [
+      m[0] * next[0] + m[2] * next[1],
+      m[1] * next[0] + m[3] * next[1],
+      m[0] * next[2] + m[2] * next[3],
+      m[1] * next[2] + m[3] * next[3],
+      m[0] * next[4] + m[2] * next[5] + m[4],
+      m[1] * next[4] + m[3] * next[5] + m[5],
+    ]
+  }
+  return m
+}
+
 // see PC-1, PC-2, PC-3, PC-4, PC-5
 const shapeOf = (svg: string): Shape => {
   const root = /<svg\b[^>]*>/.exec(svg)?.[0] ?? ''
@@ -260,14 +338,18 @@ const shapeOf = (svg: string): Shape => {
   const strokes = drawn
     .map((tag) => paintOf(tag, 'stroke'))
     .filter((one): one is string => one !== null && one !== 'none')
-  const numbers = drawn.flatMap((tag) =>
-    ((attributeOf(tag, 'd') ?? attributeOf(tag, 'points') ?? '').match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number),
-  )
-  const points: Point[] = []
-  for (let at = 0; at + 1 < numbers.length; at += 2) points.push({ x: numbers[at]!, y: numbers[at + 1]! })
-  const centre = width / 2
-  const spread = Math.max(...points.map((one) => Math.abs(one.y - height / 2)))
-  const head = points.filter((one) => Math.abs(one.y - height / 2) >= spread * 0.9)
+  const points: Point[] = drawn.flatMap((tag) => {
+    const d = attributeOf(tag, 'd')
+    const own = d !== null ? pathPointsOf(d) : pairsOf(attributeOf(tag, 'points') ?? '')
+    const matrix = transformOf(attributeOf(tag, 'transform') ?? '')
+    return own.map((one) => ({ x: matrix[0] * one.x + matrix[2] * one.y + matrix[4], y: matrix[1] * one.x + matrix[3] * one.y + matrix[5] }))
+  })
+  // WHY: the path is drawn in viewBox units, which need not be the image's px side.
+  const box = (attributeOf(root, 'viewBox') ?? '').trim().split(/[\s,]+/).map(Number)
+  const [gridWidth, gridHeight] = box.length === 4 ? [box[2]!, box[3]!] : [width, height]
+  const centre = gridWidth / 2
+  const spread = Math.max(...points.map((one) => Math.abs(one.y - gridHeight / 2)))
+  const head = points.filter((one) => Math.abs(one.y - gridHeight / 2) >= spread * 0.9)
   const headX = head.reduce((sum, one) => sum + one.x, 0) / Math.max(head.length, 1)
   return { side: width === height ? width : Number.NaN, fills, strokes, pointsLeft: headX < centre }
 }

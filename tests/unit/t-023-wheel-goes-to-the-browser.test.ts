@@ -456,7 +456,7 @@ interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
   /** One turn of the wheel over the `Row Area`, spelt for one handed-over row. */
-  wheel(modifiers: InputModifiers): WheelInput
+  wheel(modifiers: InputModifiers, sign?: 1 | -1): WheelInput
   /** MK-10's answer for one happening, asked before the loop hears it. */
   stops(input: HumanInput): boolean
   /** Everything the document holds, as one string, so a case can ask 「did it move」. */
@@ -488,13 +488,13 @@ function stage(): Stage {
      * have scrolled -- and `notches` carries the same sign. ⛔ The magnitude is
      * the caller's, never the specification's.
      */
-    wheel: (modifiers) => ({
+    wheel: (modifiers, sign = 1) => ({
       kind: 'wheel',
       x: regions().rowArea.x + 40,
       y: regions().rowArea.y + 40,
       modifiers,
-      notches: 1,
-      scrollPx: { x: 0, y: 120 },
+      notches: sign,
+      scrollPx: { x: 0, y: 120 * sign },
     }),
     stops: (input) => loop.isBrowserDefaultStopped(input),
     snapshot: () => JSON.stringify(loop.document()),
@@ -611,11 +611,16 @@ describe('the two ways a surface can stand, and the state with none', () => {
     // MK-1 is 「縦スクロール」 and MK-5 「横スクロール」, and FR-051 (MUST) has a
     // changed position land in `S-77` / `S-78`; MK-2 〜 MK-4 are zooms and land in
     // the zoom keys -- either way the document is where the assignment shows.
+    // WHY: T-262 ZE-2 / ZE-3 forbid writing a row-axis zoom at its end, so one direction may rightly move
+    // nothing; a build refusing every wheel still moves neither.
     for (const one of HANDED_OVER) {
-      const built = stage()
-      const before = built.snapshot()
-      built.send(built.wheel(one.modifiers))
-      expect(built.snapshot(), `${one.row} moved the document`).not.toBe(before)
+      const moved = ([1, -1] as const).some((sign) => {
+        const built = stage()
+        const before = built.snapshot()
+        built.send(built.wheel(one.modifiers, sign))
+        return built.snapshot() !== before
+      })
+      expect(moved, `${one.row} moved the document in one of its two directions`).toBe(true)
     }
   })
 })

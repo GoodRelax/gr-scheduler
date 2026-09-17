@@ -22,6 +22,15 @@ import { editDocumentSettings, editProject } from '../../src/use-case/edit-docum
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
+import { specTable } from '../contract/spec-table'
+
+// see S-3, T-201, CR-418
+const RULER_FONT_FACTOR = ((): number => {
+  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['既定値'] ?? ''
+  const found = /`fontScaleSizes\[fontScale\]`\s*×\s*(\d+(?:\.\d+)?)/.exec(cell)
+  if (found === null) throw new Error(`S-3 states no factor on the text size: ${cell}`)
+  return Number(found[1])
+})()
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -279,7 +288,8 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   it('FR-039 drags the ruler type and band along with the font scale', () => {
     // WHY: FR-039 (S-2, S-3) has the font scale carry ruler type and band
     // height with it; only the two 3s are literal, every size is read.
-    const sizeL = SETTINGS_DEFAULTS['fontScaleSizes.L'] as number
+    // WHY: CR-418 section 7.2 -- S-3 is fontScaleSizes[fontScale] x the T-201 factor, so L writes 16 x 1.5.
+    const sizeL = (SETTINGS_DEFAULTS['fontScaleSizes.L'] as number) * RULER_FONT_FACTOR
     const pad = SETTINGS_DEFAULTS['rulerLabelPad'] as number
     const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
     expect(result.ok).toBe(true)

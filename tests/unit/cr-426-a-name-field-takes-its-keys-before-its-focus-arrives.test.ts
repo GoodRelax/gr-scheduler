@@ -17,7 +17,12 @@ import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/sc
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import type { Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import {
+  FOCUS_ON_DOCUMENT_BODY,
+  frameLoop,
+  type FrameEnvironment,
+  type FrameLoop,
+} from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -185,6 +190,8 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
   }
   const asked: string[] = []
   const records: string[] = []
+  // WHY: stands in for the host, as focusPropertyField does: a taken ask moves the focus, a press puts it back.
+  let focusAt = FOCUS_ON_DOCUMENT_BODY
   const clipboard: Clipboard = {
     writeClipboardContent: (content: ClipboardContent) => {
       if (content.kind === 'record') records.push(content.text)
@@ -200,8 +207,11 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
       language: 'en',
       focusPropertyField: (row: string) => {
         asked.push(row)
-        return answers(asked.length)
+        const took = answers(asked.length)
+        if (took) focusAt = row
+        return took
       },
+      readFocusPosition: () => focusAt,
     },
     undefined,
     undefined,
@@ -218,6 +228,7 @@ const benchWith = (answers: (asked: number) => boolean): Bench => {
     asked,
     records,
     send: (input) => {
+      if (input.kind === 'pointer' && input.phase === 'down') focusAt = FOCUS_ON_DOCUMENT_BODY
       loop.receiveInput(input)
       drain()
     },
@@ -354,6 +365,32 @@ const pressRecordEntrance = (built: Bench): void => {
 const frameLinesOf = (record: string): readonly string[] =>
   record.split('\n').filter((line) => line.split('\t')[2] === 'frame')
 
+// see T-263, T-016, T-109, S-99h, T-233
+// TRAP: T-263 names what a frame line holds, not how it is spelled; the keys below are frame-loop.ts's.
+const FOCUS_KINDS: ReadonlySet<string> = new Set([
+  ...specTable('T-016').rows.map((one) => one.id),
+  ...specTable('T-109').rows.map((one) => one.id),
+  FOCUS_ON_DOCUMENT_BODY,
+])
+const PANEL_STATES: ReadonlySet<string> = new Set(['selection', 'documentSettings', 'none'])
+const REASON_ROWS: ReadonlySet<string> = new Set(specTable('T-233').rows.map((one) => one.id))
+
+const valueIn = (line: string, name: string): string | null =>
+  new RegExp(`(?:^|\\s)${name}=(\\S+)`).exec(line)?.[1] ?? null
+
+const holdsRow: Record<string, (line: string) => boolean> = {
+  'IR-1': (line) => FOCUS_KINDS.has(valueIn(line, 'focus') ?? ''),
+  'IR-2': (line) => PANEL_STATES.has(valueIn(line, 'panel') ?? ''),
+  'IR-3': (line) => {
+    const reasons = valueIn(line, 'noticeReasons')
+    const many = Number(valueIn(line, 'notices'))
+    if (reasons === null) return false
+    if (reasons === '-') return many === 0
+    const each = reasons.split(',')
+    return each.length === many && each.every((one) => REASON_ROWS.has(one))
+  },
+}
+
 describe(`FR-102 (MUST) -- ${FR_102_ONLY_THESE}`, () => {
   const recorded = (): string => {
     const built = benchWith((asked) => asked >= 1)
@@ -376,7 +413,7 @@ describe(`FR-102 (MUST) -- ${FR_102_ONLY_THESE}`, () => {
     ['IR-2', IR_2_PANEL],
     ['IR-3', IR_3_REASON],
   ])('writes %s on every frame line', (row, clause) => {
-    for (const line of frameLinesOf(recorded())) expect(line, `${clause} -- ${line}`).toContain(row)
+    for (const line of frameLinesOf(recorded())) expect(holdsRow[row]!(line), `${clause} -- ${line}`).toBe(true)
   })
 
   it(`writes the name field row PR-1 as the focus once the name field holds it: ${IR_1_FOCUS}`, () => {

@@ -36,8 +36,6 @@ const firstNumber = (table: string, id: string, column: string): number => {
 const RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 const S_23_DRAWN = firstNumber('T-201', 'S-23', '既定値') * RATIO
 const S_32_DRAWN = firstNumber('T-201', 'S-32', '既定値') * RATIO
-const S_23_STORED = firstNumber('T-201', 'S-23', '既定値')
-const S_32_STORED = firstNumber('T-201', 'S-32', '既定値')
 const S_91 = firstNumber('T-206', 'S-91', '既定')
 const EPS = 1e-6
 
@@ -217,7 +215,8 @@ describe('FR-002 (MUST NOT) -- the order does not flip while the actual shrinks 
     }
   })
 
-  it('keeps the fit sum where it was: the switch happens between S-32 / S-23 drawn and stored readings', () => {
+  // WHY: FR-002 names S-32 and S-23 of T-201, which T-252 DS-1 draws at the display ratio; S-91 is DS-7's, never scaled.
+  it('keeps the fit sum where it was: the switch happens where the drawn sum passes the actual width', () => {
     const insideFrames = frames.filter((one) => nameInsideTheActual(one.scene))
     const firstInside = insideFrames[insideFrames.length - 1]!
     const lastOutside = frames.find((one) => one.actualDays === firstInside.actualDays - 1)!
@@ -230,7 +229,7 @@ describe('FR-002 (MUST NOT) -- the order does not flip while the actual shrinks 
     )
     const outsideLabelWidth = firstInside.scene.drawn.label!.width
     const outsideSum =
-      outsideLabelWidth + S_32_STORED + lastOutside.scene.drawn.marker!.radius * 2 + S_23_STORED + S_91 * 2
+      outsideLabelWidth + S_32_DRAWN + lastOutside.scene.drawn.marker!.radius * 2 + S_23_DRAWN + S_91 * 2
     expect(outsideSum, FR_002_THE_FIT_SUM).toBeGreaterThan(widthOf(lastOutside.scene) - EPS)
   })
 })

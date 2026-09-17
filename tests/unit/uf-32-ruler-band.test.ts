@@ -255,6 +255,13 @@ const SEGMENT_HEIGHT = RULER_HEIGHT / SEGMENTS_IN_THE_BAND
 // see FR-039, T-252
 const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
+// see NS-3 -- the renderer writes coordinates and sizes on a 0.01 px grid, so a drawn value
+// may stand up to half a cell (0.005 px) from the exact one, both ends included.
+const NS_3_HALF_CELL = 0.005 + 1e-9
+const onTheGrid = (drawn: number, exact: number, message: string): void => {
+  expect(Math.abs(drawn - exact), message).toBeLessThanOrEqual(NS_3_HALF_CELL)
+}
+
 // see FR-039, T-252
 const DRAWN_RULER_HEIGHT = RULER_HEIGHT * DISPLAY_RATIO
 
@@ -1340,10 +1347,11 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       expect(baselines.length, `${tier.name}: 3 段`).toBe(SEGMENTS_IN_THE_BAND)
       for (let at = 0; at < baselines.length; at += 1) {
-        expect(
+        onTheGrid(
           band.y + (at + 1) * DRAWN_SEGMENT_HEIGHT - (baselines[at] as number),
+          DRAWN_LABEL_BOTTOM_PAD,
           `${tier.name}: 段 ${at + 1} -- 下の罫線まで S-179 × 描く比 のぶん空く`,
-        ).toBeCloseTo(DRAWN_LABEL_BOTTOM_PAD, 2)
+        )
       }
     }
   })
@@ -1375,10 +1383,11 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     for (const tier of TIERS.filter((one) => one.segments === SEGMENTS_IN_THE_BAND)) {
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       for (let at = 0; at < baselines.length; at += 1) {
-        expect(
+        onTheGrid(
           (baselines[at] as number) - (band.y + at * DRAWN_SEGMENT_HEIGHT),
+          expected,
           `${tier.name}: 段 ${at + 1} の中でのベースラインの位置`,
-        ).toBeCloseTo(expected, 2)
+        )
       }
     }
   })
@@ -1400,10 +1409,11 @@ describe('UF-32 -- 表 T-201 の `S-179`: the 目盛ラベル clears the rule be
     for (const tier of TIERS) {
       const { band, baselines } = threeSegmentBand({ zoomX: tier.zoomX })
       expect(baselines.length, `${tier.name}: 目盛ラベルがある`).toBeGreaterThan(0)
-      expect(
+      onTheGrid(
         (baselines[0] as number) - band.y,
+        expected,
         `${tier.name}: 段 1 のベースラインは帯の上端からこの位置`,
-      ).toBeCloseTo(expected, 2)
+      )
     }
   })
 

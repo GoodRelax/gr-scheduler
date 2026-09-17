@@ -393,7 +393,9 @@ function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GR-9' | 'GR-17' | '
   if (found === undefined) throw new Error(`Task ${taskUid} drew no ${grab} dummy`)
   const ink = found.ink
   const y = ink.y + ink.height / 2
-  if (grab === 'GR-9') return { x: ink.x, y }
+  // WHY: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
+  // the ink's own left edge is that boundary and belongs to GR-3, so probe inside the left half instead.
+  if (grab === 'GR-9') return { x: ink.x + ink.width / 4, y }
   if (grab === 'GR-17') return { x: ink.x + ink.width - 1, y }
   return { x: ink.x + ink.width / 2, y }
 }

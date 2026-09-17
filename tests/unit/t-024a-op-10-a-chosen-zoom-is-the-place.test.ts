@@ -540,7 +540,8 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     one.send(SHIFT_PLUS)
     expect(one.picture().pxPerDay).not.toBe(fitted.pxPerDay)
     one.send(PRESS_F)
-    expect(one.picture().pxPerDay).toBe(fitted.pxPerDay)
+    // WHY: FR-055 names where the fit lands, not a bit-exact float; a zoom and back may differ in the last ulp.
+    expect(one.picture().pxPerDay).toBeCloseTo(fitted.pxPerDay, 9)
   })
 
   it('fills in 表示位置, so the condition of OP-10 stops holding', () => {

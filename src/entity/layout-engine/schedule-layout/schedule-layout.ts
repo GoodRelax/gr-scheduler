@@ -648,19 +648,14 @@ function dummyReachOf(
   return inkX + dummyInkWidthOf(markerDiameter)
 }
 
-// see T-243, FR-013, GR-7
+// see T-243, FR-013, GR-7, LF-11
 // TRAP: read no toggle here but S-63, which its caller reads: no other may move the name.
+// TRAP: the plan is no candidate once the actual shows, for a milestone too: FR-013 touches the actual or dummy figure.
 /** @purity pure */
 function shownMarkerAnchorX(
-  shapeKind: ShapeKind,
-  planRight: number,
   actualReach: number | null,
   dummyReach: number | null,
 ): number | null {
-  if (shapeKind === 'milestone') {
-    return Math.max(planRight, actualReach ?? planRight, dummyReach ?? planRight)
-  }
-  // TRAP: the plan is no candidate once the actual shows: the further-right of the two parks the marker on a late plan's end.
   return dummyReach ?? actualReach
 }
 
@@ -778,7 +773,7 @@ export function layoutFromSchedule(
               dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings, markerDiameter),
             )
       const planRight = x + width
-      const markerAnchorX = shownMarkerAnchorX(kind, planRight, actualReach, dummyReach)
+      const markerAnchorX = shownMarkerAnchorX(actualReach, dummyReach)
       const marksShown = settings.progressMarkerVisible
       const namedFromPlanStart = laidBelow(kind)
       const markerInside =

@@ -4067,7 +4067,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
   }
   const plain = isCombo(input.modifiers, false, false, false)
   if (!plain) return state
-  if (context.isTextEntryUnsettled) {
+  // see IN-5a
+  if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
     if (isSingleCharacterKey(input.key)) return state
   }
 

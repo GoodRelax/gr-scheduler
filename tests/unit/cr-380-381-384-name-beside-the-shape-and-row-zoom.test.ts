@@ -1038,6 +1038,11 @@ const S_36 = num('rowTitleFont')
 const S_38 = num('rowTitleTopScale')
 const S_96 = NOT_STORED_ZOOM_STEP['S-96']
 
+// WHY: CR-418 grew S-36 from 13 to 19.5, so the type ceiling and every zoom these cases start from grew by the
+// same 1.5; the starts keep their place against the ceiling (1.25 and 1.3 before, above and below it).
+const START_ABOVE_THE_TYPE_CEILING = 1.25 * 1.5
+const START_UNDER_THE_WIDER_CEILING = 1.3 * 1.5
+
 const DEPTH_1_ROW_NAME_PX = S_36 * S_38
 const MILESTONE_NAME_PX_AT_UNITY = S_4 * S_17 * S_5 * S_7
 const ROW_CEILING_BY_TYPE = DEPTH_1_ROW_NAME_PX / RECTANGLE_NAME_PX_AT_UNITY
@@ -1109,8 +1114,8 @@ const WITH_A_MILESTONE = rowsOf(
 const SIX_LANES = rowsOf([Array.from({ length: 6 }, (_unused, index) => spanning(index + 1, '2026-01-05', 20))])
 
 describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-1 row name', () => {
-  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.173464 CR-413 section 2 names, and the floors let go below it', () => {
-    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.173464, 6)
+  it('premise: S-36 x S-38 / (S-4 x S-13 x S-5 x S-7) is the 1.760197 CR-418 section 2 names, and the floors let go below it', () => {
+    expect(ROW_CEILING_BY_TYPE).toBeCloseTo(1.760197, 6)
     expect(PLAN_FLOOR_LETS_GO_AT, '(S-6 / S-5) / S-4').toBeCloseTo(0.99988, 5)
     expect(FONT_FLOOR_LETS_GO_AT, 'S-8 / (S-4 x S-13 x S-5 x S-7)').toBeCloseTo(0.83323, 5)
     expect(Math.max(ROW_CEILING_BY_TYPE, PLAN_FLOOR_LETS_GO_AT, FONT_FLOOR_LETS_GO_AT)).toBe(ROW_CEILING_BY_TYPE)
@@ -1121,23 +1126,24 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
     ).toBeCloseTo(DEPTH_1_ROW_NAME_PX * DRAWN_RATIO, 6)
   })
 
-  it('premise: under both ceilings one raise moves by S-53, and the tall band ceiling lies above 1.25 x S-53', () => {
+  it('premise: under both ceilings one raise moves by S-53, and the tall band ceiling lies above the raise from the start above the type ceiling', () => {
     expect(S_96).toBeLessThan(ROW_CEILING_BY_TYPE)
     expect(zoomYAfterRaise(RECTANGLE_ROW, 1, TALL)).toBeCloseTo(S_96, 3)
-    const settings = settingsOf({ zoomY: 1.25 * S_96 })
+    const settings = settingsOf({ zoomY: START_ABOVE_THE_TYPE_CEILING * S_96 })
     const regions = regionsFromScreen(TALL, settings)
-    expect(1.25 * S_96).toBeGreaterThan(ROW_CEILING_BY_TYPE)
+    expect(START_ABOVE_THE_TYPE_CEILING * S_96).toBeGreaterThan(ROW_CEILING_BY_TYPE)
     expect(tallestBand(layoutFromSchedule(RECTANGLE_ROW, settings, regions))).toBeLessThan(regions.rowArea.height)
   })
 
   it('a raise past the type ceiling stops at or under it (MUST)', () => {
-    expect(zoomYAfterRaise(RECTANGLE_ROW, 1.25, TALL), FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
+    expect(zoomYAfterRaise(RECTANGLE_ROW, START_ABOVE_THE_TYPE_CEILING, TALL), FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
   })
 
-  it('the ceiling follows S-38: a depth-1 scale of 1.5 lets the raise reach past 1.173464 and stops at S-36 x 1.5 / 14.4018 (MUST)', () => {
+  it('the ceiling follows S-38: a depth-1 scale of 1.5 lets the raise reach past 1.760197 and stops at S-36 x 1.5 / 14.4018 (MUST)', () => {
     const solved = (S_36 * 1.5) / RECTANGLE_NAME_PX_AT_UNITY
-    expect(solved, 'premise: 19.5 / 14.4018').toBeCloseTo(1.354, 3)
-    const start = 1.3
+    expect(solved, 'premise: 29.25 / 14.4018').toBeCloseTo(2.031, 3)
+    const start = START_UNDER_THE_WIDER_CEILING
+    expect(start, 'premise: the start is past the S-38 1.3 ceiling').toBeGreaterThan(ROW_CEILING_BY_TYPE)
     expect(start * S_96, 'premise: the raise asks for more than that').toBeGreaterThan(solved)
     const answered = zoomYAfterRaise(RECTANGLE_ROW, start, TALL, { rowTitleTopScale: 1.5 })
     expect(answered, FR_016_SOLVED_FOR_THE_ZOOM).toBeLessThanOrEqual(solved + 1e-9)
@@ -1159,9 +1165,9 @@ describe('FR-016 -- the row axis stops where a rectangle name reaches the depth-
   })
 
   it('a milestone on the page does not move the ceiling -- it is measured on the rectangle (MUST)', () => {
-    const alone = zoomYAfterRaise(RECTANGLE_ROW, 1.25, TALL)
-    const beside = zoomYAfterRaise(WITH_A_MILESTONE, 1.25, TALL)
-    expect(CEILING_IF_MEASURED_ON_THE_MILESTONE).toBeLessThan(1.25)
+    const alone = zoomYAfterRaise(RECTANGLE_ROW, START_ABOVE_THE_TYPE_CEILING, TALL)
+    const beside = zoomYAfterRaise(WITH_A_MILESTONE, START_ABOVE_THE_TYPE_CEILING, TALL)
+    expect(CEILING_IF_MEASURED_ON_THE_MILESTONE).toBeLessThan(START_ABOVE_THE_TYPE_CEILING)
     expect(beside).toBeCloseTo(alone, 10)
     expect(beside).toBeLessThanOrEqual(ROW_CEILING_BY_TYPE + 1e-9)
     expect(MILESTONE_NAME_PX_AT_UNITY, 'S-17 caps the milestone at the rectangle').toBeLessThanOrEqual(

@@ -740,8 +740,9 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
 
   const milestoneScene = (
     actualStart = '2026-02-05',
+    actualVisible = true,
   ): { placed: TaskPlacement; drawn: TaskGeometry } => {
-    const settings = markSettings(true)
+    const settings = { ...markSettings(true), actualVisible }
     const schedule = {
       ...rowOf([milestoneOf(actualStart)]),
       taskVisuals: [
@@ -801,14 +802,19 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
     // loses the second by half a figure.
     const together = milestoneScene('2026-02-02') // the plan's figure reaches furthest
     const apart = milestoneScene('2026-02-05') // the actual's does
-    const runOf = (scene: { placed: TaskPlacement; drawn: TaskGeometry }): number => {
-      const marker = scene.drawn.marker
-      if (marker === null) throw new Error('no marker')
-      return scene.placed.labelX - (marker.centre.x + marker.radius)
+    // WHY: since CR-421 (1) touches the figure and (2) keeps S-23 off the plan, so the label clears the
+    // further of the two; (2) is read where the geometry stands the marker with the actual hidden.
+    const runOf = (actualStart: string): number => {
+      const scene = milestoneScene(actualStart)
+      const planOnly = milestoneScene(actualStart, false)
+      const one = scene.drawn.marker
+      const two = planOnly.drawn.marker
+      if (one === null || two === null) throw new Error('no marker')
+      return scene.placed.labelX - Math.max(one.centre.x + one.radius, two.centre.x + two.radius)
     }
     // The two scenes really are different, or the case is vacuous.
     expect(apart.drawn.marker?.centre.x).toBeGreaterThan(together.drawn.marker?.centre.x ?? 0)
-    expect(runOf(apart)).toBeCloseTo(runOf(together), 6)
+    expect(runOf('2026-02-05')).toBeCloseTo(runOf('2026-02-02'), 6)
     expect(apart.placed.labelX).toBeGreaterThan(
       (apart.drawn.marker?.centre.x ?? 0) + (apart.drawn.marker?.radius ?? 0),
     )

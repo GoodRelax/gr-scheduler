@@ -133,21 +133,25 @@ const SETTINGS = settingsOf({
   displayScale: TOP_STEP, // S-234, and the block above the shapes says why
 })
 
+// WHY: the shapes below were sized on a 700px screen at a drawn ratio of 1; CR-417 draws TOP_STEP at 1.25,
+// so every height is grown by the same ratio and the rows the tiers draw still land where the names say.
+const SCREEN_GROWTH = displayRatioAt(TOP_STEP)
+
 const ENV: ScreenEnvironment = {
   width: 1000,
-  height: 700,
+  height: 700 * SCREEN_GROWTH,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
 }
 
 /** Twice the height, same width. Used to open a tier the short screen refused. */
-const ENV_TALL: ScreenEnvironment = { ...ENV, height: 1400 }
+const ENV_TALL: ScreenEnvironment = { ...ENV, height: 1400 * SCREEN_GROWTH }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const REGIONS_TALL = regionsFromScreen(ENV_TALL, SETTINGS)
 
 // see T-068
-const ENV_PASS2: ScreenEnvironment = { ...ENV, height: 800 }
+const ENV_PASS2: ScreenEnvironment = { ...ENV, height: 800 * SCREEN_GROWTH }
 const REGIONS_PASS2 = regionsFromScreen(ENV_PASS2, SETTINGS)
 
 // ---------------------------------------------------------------------------
@@ -486,7 +490,7 @@ function depthTheFitOwes(
 
 // ---------------------------------------------------------------------------
 // The shapes. Every one is five tiers deep, which is what S-125's default
-// allows, and each is named for the answer FR-055 owes on the 1000x700 screen
+// allows, and each is named for the answer FR-055 owes on the ENV screen
 // above. Each case re-derives that answer from the rule rather than trusting
 // the name, and section 0 proves the names are not vacuous.
 //

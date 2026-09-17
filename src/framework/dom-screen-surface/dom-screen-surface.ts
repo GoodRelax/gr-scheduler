@@ -449,7 +449,10 @@ const STYLE = {
     'align-items:center;gap:0.75em;padding:0.375em 0.75em;line-height:1.5;' +
     `overflow:hidden;white-space:nowrap;background:${PAINT.ground};color:${PAINT.ink};` +
     `border-bottom:1px solid ${PAINT.rule};pointer-events:auto;`,
-  documentTitle: 'font-weight:600;overflow:hidden;text-overflow:ellipsis;',
+  // see FR-039
+  // TRAP: every text here stays at the normal weight, the h2 heading included; S-245 is the OC-1 name
+  // labels' alone, and NT-7's answer initial is the one bold.
+  documentTitle: 'overflow:hidden;text-overflow:ellipsis;',
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
@@ -462,7 +465,7 @@ const STYLE = {
   headerCommands: 'display:flex;align-items:center;gap:0.25em;',
   languageCode:
     'display:inline-block;vertical-align:middle;margin-left:0.25em;' +
-    'font-family:monospace;font-size:0.8em;line-height:1;pointer-events:none;',
+    'font-size:0.8em;line-height:1;pointer-events:none;',
   dividerBand: 'cursor:col-resize;pointer-events:auto;',
   dividerLine: `background:${PAINT.rule};pointer-events:none;`,
   scrollbarTrack: `background:${PAINT.panel};pointer-events:auto;`,
@@ -485,7 +488,7 @@ const STYLE = {
     'position:absolute;box-sizing:border-box;overflow-y:auto;' +
     `background:${PAINT.panel};color:${PAINT.ink};border-left:1px solid ${PAINT.rule};` +
     'pointer-events:auto;',
-  heading: 'font-weight:600;margin:0 0 0.5em 0;',
+  heading: 'font-weight:normal;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
   // STOP: spec does not decide the floating layers' shadow offset, blur or spread. Looked in S-170, T-236, T-206
@@ -516,7 +519,7 @@ const STYLE = {
   helpGlyph: 'flex:0 0 auto;display:inline-flex;align-items:center;',
   helpColumn: 'min-width:0;',
   helpBlock: '',
-  helpHeading: 'font-weight:600;',
+  helpHeading: '',
   helpLegend: 'display:inline-flex;align-items:center;gap:0.5em;margin-left:auto;',
   helpLegal: 'margin-top:0.75em;border-top:1px solid currentColor;padding-top:0.5em;',
   helpLegalSummary: 'cursor:pointer;',
@@ -3177,7 +3180,7 @@ const SCALE_MESSAGE_STYLE = {
   box:
     `padding:0.25em 0.75em;background:${PAINT.ground};color:${PAINT.ink};` +
     `border:1px solid ${PAINT.rule};box-shadow:0 2px 8px ${PAINT.shadow};` +
-    'font-size:1.5em;font-weight:bold;pointer-events:none;',
+    'font-size:1.5em;pointer-events:none;',
 } as const
 
 // <generated -- do not edit by hand>
