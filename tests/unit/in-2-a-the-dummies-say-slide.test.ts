@@ -29,7 +29,11 @@ import {
 import { specTable } from '../contract/spec-table'
 
 // see IN-2, GR-9, GR-17
-const IN_2_DUMMY_MUST = '掴めることの合図—— ⛔ 掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない）。⭐ タスクの実績のダミー（表 T-023d の `GR-9` / `GR-17`）の上も、横方向の伸縮の合図とすること（MUST）'
+const IN_2_DUMMY_MUST = '掴めることの合図—— ⛔ 掴めるものの上で形が変わらないと、選べるのかどうかを押してみるまで確かめられない）。⭐ タスクの実績のダミー（表 T-023d の `GR-9` / `GR-17`）の上も、表 T-264 の形とすること（MUST）'
+
+// see T-264, PC-3, PC-4
+const PC_3_MUST = '| PC-3 | 実績の開始点（表 T-023d の `GR-5`）と、実績の開始点のダミー（同表の `GR-9`） | 左を向いた塗りつぶした矢印とすること（MUST）'
+const PC_4_MUST = '| PC-4 | 実績の終了点（表 T-023d の `GR-6`）と、実績の終了点のダミー（同表の `GR-17`） | 右を向いた塗りつぶした矢印とすること（MUST）'
 
 // see IN-2, GR-18, GR-15, CR-388
 const IN_2_GR_18_MUST = '⭐ マイルストーンの実績のダミー（表 T-023d の `GR-18`）の上は、同じ日の実績のマイルストーン（表 T-023d の `GR-15`）の図形の上と同じく、掴めることの合図とすること（MUST）'
@@ -43,6 +47,12 @@ it('T-028 IN-2 -- the manuscript still carries the dummy clause quoted above', (
 
 it('T-028 IN-2 -- the manuscript still carries the GR-18 clause quoted above', () => {
   expect(IN_2_ROW.cells.join(' '), IN_2_GR_18_MUST).toContain(IN_2_GR_18_MUST)
+})
+
+it('T-264 -- the manuscript still gives the actual start and its dummy one arrow, and the actual end and its dummy another', () => {
+  const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+  expect(requirements, PC_3_MUST).toContain(PC_3_MUST)
+  expect(requirements, PC_4_MUST).toContain(PC_4_MUST)
 })
 
 // see BT-4, FR-043
@@ -66,10 +76,17 @@ const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Template
 const BAR_ROW = '11111111-1111-4111-8111-111111111111'
 const STONE_ROW = '22222222-2222-4222-8222-222222222222'
 const STARTED_STONE_ROW = '33333333-3333-4333-8333-333333333333'
+const STARTED_BAR_ROW = '44444444-4444-4444-8444-444444444444'
 
 const BAR_UID = 1
 const BAR_START = '2026-04-06'
 const BAR_FINISH = '2026-04-24'
+
+// see GR-5, GR-6
+const STARTED_BAR_UID = 4
+const STARTED_BAR_FINISH = '2026-04-20'
+const STARTED_BAR_ACTUAL_START = '2026-04-08'
+const STARTED_BAR_ACTUAL_STOP = '2026-04-14'
 
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
@@ -151,6 +168,13 @@ function fixtureDocument(): Document {
           actualStart: STONE_DAY,
           stop: STONE_DAY,
         }),
+        task({
+          uid: STARTED_BAR_UID,
+          start: BAR_START,
+          finish: STARTED_BAR_FINISH,
+          actualStart: STARTED_BAR_ACTUAL_START,
+          stop: STARTED_BAR_ACTUAL_STOP,
+        }),
       ],
       resources: [],
       assignments: [],
@@ -158,11 +182,13 @@ function fixtureDocument(): Document {
         rowOfSchedule(BAR_ROW, 0),
         rowOfSchedule(STONE_ROW, 1),
         rowOfSchedule(STARTED_STONE_ROW, 2),
+        rowOfSchedule(STARTED_BAR_ROW, 3),
       ],
       taskGroupMembers: [
         { taskUid: BAR_UID, groupId: BAR_ROW, stackOrder: null },
         { taskUid: STONE_UID, groupId: STONE_ROW, stackOrder: null },
         { taskUid: STARTED_STONE_UID, groupId: STARTED_STONE_ROW, stackOrder: null },
+        { taskUid: STARTED_BAR_UID, groupId: STARTED_BAR_ROW, stackOrder: null },
       ],
       taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(STARTED_STONE_UID)],
       commentBoxes: [],
@@ -332,6 +358,18 @@ function barBody(loop: FrameLoop): Point {
   return { x: (x0 + x1) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 
+// see GR-5, GR-6, S-91
+function actualEnd(loop: FrameLoop, grab: 'GR-5' | 'GR-6'): Point {
+  const actual = drawnTask(loop, STARTED_BAR_UID).actual
+  if (actual === null) throw new Error("the started bar Task's actual bar was not drawn")
+  const points = pointsOf(actual)
+  const xs = points.map((one) => one.x)
+  const ys = points.map((one) => one.y)
+  const y = (Math.min(...ys) + Math.max(...ys)) / 2
+  // WHY: not the end pixel itself -- the grab is inside the end and the marker touches it from outside.
+  return grab === 'GR-5' ? { x: Math.min(...xs) + 1, y } : { x: Math.max(...xs) - 1, y }
+}
+
 // see GR-15
 function startedMilestoneFigure(loop: FrameLoop): Point {
   const plan = drawnTask(loop, STARTED_STONE_UID).plan
@@ -384,20 +422,49 @@ describe('the fixture draws what FR-043 says it should', () => {
     const built = stage()
     expect(barBody(built.loop).x).not.toBe(planStart(built.loop).x)
   })
+
+  it('draws the started bar with an actual bar and no dummy, its actual wide enough for two probes', () => {
+    const built = stage()
+    const started = drawnTask(built.loop, STARTED_BAR_UID)
+    expect(started.actual).not.toBeNull()
+    expect(started.dummies).toHaveLength(0)
+    expect(actualEnd(built.loop, 'GR-6').x).toBeGreaterThan(actualEnd(built.loop, 'GR-5').x)
+  })
 })
 
-describe('T-028 IN-2 -- the task dummies (GR-9 / GR-17) say the same thing the ends do', () => {
+describe('T-028 IN-2 -- the task dummies (GR-9 / GR-17) say what the actual ends say (T-264)', () => {
   it('answers a shape on both task dummies (MUST) -- neither is null', () => {
     const built = stage()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), IN_2_DUMMY_MUST).not.toBeNull()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), IN_2_DUMMY_MUST).not.toBeNull()
   })
 
-  it("answers the SAME shape on a task dummy as on the bar's own plan end (GR-3)", () => {
+  it('PC-3: answers the SAME shape on the start dummy (GR-9) as on an actual start (GR-5)', () => {
     const built = stage()
-    const end = shapeAt(built, planStart(built.loop))
-    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), IN_2_DUMMY_MUST).toBe(end)
-    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), IN_2_DUMMY_MUST).toBe(end)
+    const start = shapeAt(built, actualEnd(built.loop, 'GR-5'))
+    expect(start).not.toBeNull()
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), PC_3_MUST).toBe(start)
+  })
+
+  it('PC-4: answers the SAME shape on the end dummy (GR-17) as on an actual end (GR-6)', () => {
+    const built = stage()
+    const end = shapeAt(built, actualEnd(built.loop, 'GR-6'))
+    expect(end).not.toBeNull()
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), PC_4_MUST).toBe(end)
+  })
+
+  it('PC-3 / PC-4: the left arrow on GR-9 and the right arrow on GR-17 are two different shapes', () => {
+    const built = stage()
+    const left = shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9'))
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), `${PC_3_MUST} / ${PC_4_MUST}`).not.toBe(left)
+  })
+
+  it("PC-1 / PC-3: a filled dummy arrow is not the hollow arrow of the bar's plan start (GR-3)", () => {
+    const built = stage()
+    const planEnd = shapeAt(built, planStart(built.loop))
+    expect(planEnd).not.toBeNull()
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-9')), IN_2_DUMMY_MUST).not.toBe(planEnd)
+    expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GR-17')), IN_2_DUMMY_MUST).not.toBe(planEnd)
   })
 
   it('answers something OTHER than the grabbable body meaning (GR-12)', () => {

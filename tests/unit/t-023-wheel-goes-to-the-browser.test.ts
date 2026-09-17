@@ -134,7 +134,7 @@ import {
   type FrameLoop,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, specTable, unbroken } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -259,11 +259,14 @@ function wheelRows(): readonly WheelRow[] {
 
 const HANDED_OVER = wheelRows()
 
-/** One row of table T-036, as the manuscript spells its assignment. */
-const assignmentOf = (row: string): string => {
+/** One row of table T-036, as the manuscript spells its assignment: keys per assignment. */
+const assignmentOf = (row: string): readonly (readonly string[])[] => {
   const found = specTable('T-036').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`table T-036 has no row ${row}`)
-  return bare(found.by['割当'] ?? '')
+  return (found.by['割当'] ?? '')
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
 }
 
 // ===========================================================================
@@ -574,9 +577,9 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('the keys these cases press are still the ones table T-036 assigns', () => {
-    expect(assignmentOf('SK-13')).toBe('F1')
-    expect(assignmentOf('SK-8')).toBe('Esc')
-    expect(assignmentOf('SK-11')).toBe('Ctrl+S')
+    expect(assignmentOf('SK-13')).toEqual([['F1']])
+    expect(assignmentOf('SK-8')).toEqual([['Esc']])
+    expect(assignmentOf('SK-11')).toEqual([['Ctrl', 'S']])
   })
 
   it('the fixture is a valid GRS JSON document with a WBS parent on it', () => {

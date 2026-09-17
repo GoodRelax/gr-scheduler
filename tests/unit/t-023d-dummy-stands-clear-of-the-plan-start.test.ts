@@ -53,15 +53,12 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //
-//   * HOW FAR the not-started marker stands from GR-17. GR-7 says 「終了点の
-//     掴みシロの外側」 -- outside the grab allowance -- while LF-11 measures
-//     `markerGap` from a BAR'S END. ⚠️ That allowance IS `DummyGeometry.ink`,
-//     which is `Math.min(pxPerDay, S-180)` and so moves with the zoom instead
-//     of holding still. No row settles which of the two readings applies, so
-//     the case
+//   * HOW FAR the not-started marker stands from GR-17. LF-11 now settles it
+//     (the marker touches the right edge of the dummy mark, no markerGap), and
+//     tests/unit/layout-engine.test.ts and t-038-oc-2 assert that; the case
 //     below asserts only the RELATION: the marker hangs off GR-17 rather than
 //     off the plan's right end, and by the same amount whatever the plan's
-//     length. ⚠️ Reported as a gap; not decided here.
+//     length.
 //   * The drawn width of the dummy (`S-180`) and its opacity (`S-131`).
 //     tests/unit/fr-043-dummy-drawn.test.ts owns both, and nothing here repeats
 //     a case of that file.
@@ -221,8 +218,8 @@ const PLAN_ENDPOINT_SLOP = NOT_STORED_SIZES['S-90']
  *
  * ⭐ AND WHAT ELSE THE ZOOM HAS TO LEAVE ROOM FOR. Table T-023d's closing rule
  * makes the dummies' hit area the mark `FR-043` draws, and that ink is
- * `Math.min(pxPerDay, S-180)` -- never wider than one day by construction --
- * so no fixed width can overrun a neighbour's day. What the zoom has to leave
+ * table T-240 DM-3's width (the marker diameter times S-247, capped by S-180),
+ * narrower than one day at this zoom. What the zoom has to leave
  * room for is the ink itself being wide enough to split into two
  * distinguishable halves (GR-9's and GR-17's); the case that measures that
  * re-derives it from the drawn `ink.width` rather than trusting this number.
@@ -694,10 +691,8 @@ describe('the fixture stands where these cases think it does', () => {
     ).toBeGreaterThan(PLAN_ENDPOINT_SLOP)
     // ⛔ WHY THE SECOND ASSERTION IS ABOUT THE INK AND NOT ABOUT THE HOLD.
     // Table T-023d's closing rule makes the dummies' hit area the mark
-    // `FR-043` draws, and that ink is `Math.min(pxPerDay, S-180)`. Since the
-    // ink can never be wider than one day BY CONSTRUCTION, "one day is wider
-    // than the hold" is trivially true and asserting it would test the formula,
-    // not the rule. What IS a genuine constraint at this zoom is that the ink
+    // `FR-043` draws, and that ink is table T-240 DM-3's width, which does not
+    // follow the day. What IS a genuine constraint at this zoom is that the ink
     // is wide enough for its own two halves (GR-9's and GR-17's, split at its
     // own middle) to land on distinguishable pixels -- below 2px the halves
     // would

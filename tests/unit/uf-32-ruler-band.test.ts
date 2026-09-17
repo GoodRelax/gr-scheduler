@@ -122,16 +122,20 @@ const RULER_LABEL_PAD = SETTINGS_DEFAULTS['rulerLabelPad'] as number
 /** `S-179`（`rulerLabelBottomPad`）——「目盛ラベルの下側の余白（縦）」. */
 const RULER_LABEL_BOTTOM_PAD = SETTINGS_DEFAULTS['rulerLabelBottomPad'] as number
 
-/**
- * 表 T-215 —— the px each 段（表 T-006b の `A-1` の ⑦）of `fontScale` names.
- * `S-3` の 既定値 is `fontScaleSizes[fontScale]`, so a case that wants the ruler
- * drawn at a 段 reads the size from here rather than typing 12 / 14 / 16 in.
- */
+// see T-215
 const FONT_SCALE_SIZES = {
   S: SETTINGS_DEFAULTS['fontScaleSizes.S'] as number,
   M: SETTINGS_DEFAULTS['fontScaleSizes.M'] as number,
   L: SETTINGS_DEFAULTS['fontScaleSizes.L'] as number,
 } as const
+
+// see T-201, S-3, CR-418
+const S_3_FACTOR_ON_THE_TEXT_SIZE = ((): number => {
+  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['\u65e2\u5b9a\u5024'] ?? ''
+  const hit = /`fontScaleSizes\[fontScale\]`\s*\u00d7\s*(\d+(?:\.\d+)?)/.exec(cell)
+  if (hit === null) throw new Error(`S-3 no longer states its default as fontScaleSizes[fontScale] x a factor: ${cell}`)
+  return Number(hit[1])
+})()
 
 /**
  * 表 T-201 の `S-179` の 下限 and 上限, read off the manuscript rather than typed
@@ -1280,13 +1284,16 @@ interface MeasuredBand {
  * / `S-2`）」, so a case that changes 文字サイズ writes all three keys, not one.
  */
 const bandAtFontScale = (scale: 'S' | 'M' | 'L'): MeasuredBand => {
-  const rulerFont = FONT_SCALE_SIZES[scale]
+  const rulerFont = FONT_SCALE_SIZES[scale] * S_3_FACTOR_ON_THE_TEXT_SIZE
   const settings = settingsOf({
     ...SETTINGS,
     fontScale: scale,
     rulerFont,
     rulerHeight: bandHeightAt(rulerFont),
     zoomX: threeSegmentZoom(rulerFont),
+    // WHY: at L the 24px ruler of CR-418 widens a day so far that a window opened on 2025-12-01 ends before
+    // 2026-01-01; opened on 2025-12-20 it still crosses a year, a month and a week boundary at every text size.
+    scrollDate: '2025-12-20',
   })
   const band = bandOf(settings)
   return { rulerFont, band, baselines: baselinesOf(drawn(EMPTY, settings), band) }

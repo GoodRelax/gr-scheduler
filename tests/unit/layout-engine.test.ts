@@ -1079,25 +1079,31 @@ const geometryOf = (
 const xOf = (dayIndex: number): number =>
   REGIONS.rowArea.x + dayIndex * drawnPx(settingNumber('pxPerDayAt1x'))
 
-// LF-11 places the marker `markerGap` past the right end of the bar FR-013
-// names, as a square of side `markerSize`, so its CENTRE stands this far past
-// that end. Read from the generated defaults (S-23 = 4, S-22 = 16) rather than
-// re-typed, so moving either value moves these cases with it.
-const MARKER_OFFSET = drawnPx(settingNumber('markerGap') + settingNumber('markerSize') / 2)
+// see LF-11, FR-013, T-252
+const MARKER_OFFSET = drawnPx(settingNumber('markerSize') / 2)
+// see LF-11, FR-013, T-252
+const MARKER_OFFSET_OFF_THE_PLAN = drawnPx(settingNumber('markerGap') + settingNumber('markerSize') / 2)
+
+// see T-206, T-240
+const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
+
+// see T-240
+const DUMMY_WIDTH = Math.min(drawnPx(settingNumber('markerSize')) * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
+
+const FR_013_NO_GAP_AT_THE_ACTUAL =
+  '依存線がどちらのバーに付くかの定め（`FR-009`）と同じ形である。⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）'
 
 // ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-023d's closing rule
 // says what that hold is now: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
 // `FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない
-// （MUST NOT）」（利用者の裁定 2026-09-10）, and the mark's own width is 「1 日ぶんと
-// … `S-180` の小さい方」. At this file's pxPerDay of 6 (well under `S-180`'s 30),
-// that width IS `pxPerDay`. ⛔ Read from the generated block, so the
-// manuscript's own number is what these cases stand on. Defect DFC-408.
+// （MUST NOT）」（利用者の裁定 2026-09-10）, and the mark's own width is table
+// T-240 DM-3's, the marker diameter times S-247 capped by S-180, whatever the
+// day. ⛔ Read from the manuscript, so its own number is what these cases stand on. Defect DFC-408.
 // ⛔⛔ UNTIL 2026-09-10 THIS WAS `NOT_STORED_SIZES['S-93']` -- the fixed 30px
 // hold -- and table T-038's order named the two apart: 「実績のダミーの掴みシロ
 // は `S-93` であり、描く幅の `S-180` ではない」. That distinction is retired:
 // 「掴みシロが印そのものになった以上、2 つは同じ 1 つの幅であり、区別は消えた」.
-const DUMMY_MARKER_OFFSET =
-  Math.min(drawnPx(settingNumber('pxPerDayAt1x')), NOT_STORED_DUMMY_SIZES['S-180']) + MARKER_OFFSET
+const DUMMY_MARKER_OFFSET = DUMMY_WIDTH + MARKER_OFFSET
 
 /** One row holding the tasks given, with a shape chosen for each. */
 const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, unknown>[]): Schedule =>
@@ -1252,7 +1258,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(symbolOf({ actualStart: '2026-01-01' }, null)).toBe('PM-1')
   })
 
-  it('LF-11 puts the marker markerGap past the ACTUAL bar, on the plan bar centre', () => {
+  it('LF-11 stands the marker touching the ACTUAL bar, on the plan bar centre', () => {
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
@@ -1263,7 +1269,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // Five worked days from Thursday 2026-01-01 end the actual at day 7 (RV-1)
     // while the plan runs to day 20, so the two candidates are 78px apart and
     // the case can tell them apart.
-    expect(marker.centre.x).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
+    expect(marker.centre.x, FR_013_NO_GAP_AT_THE_ACTUAL).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
     // LF-11: 縦は予定バーの中心 -- the plan's centre, not the actual's.
     // STEP: the rectangle's plan top stands half a drawn border below the lane top (VG-5 / LF-2).
     expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + drawnBorder() / 2 + drawnPx(14), 6)
@@ -1284,7 +1290,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
       spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
     expect(geometryOf(schedule, planOnly).tasks[0]!.marker!.centre.x).toBeCloseTo(
-      xOf(20) + MARKER_OFFSET,
+      xOf(20) + MARKER_OFFSET_OFF_THE_PLAN,
       6,
     )
   })
@@ -1298,13 +1304,14 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
       fresh.dummies[0]!.at.x + DUMMY_MARKER_OFFSET,
       6,
     )
+    expect(fresh.dummies[0]!.ink.width, 'T-240 DM-3').toBeCloseTo(DUMMY_WIDTH, 6)
     expect(fresh.marker!.centre.x, 'T-240 DM-1 (CR-382): the mark stands on the plan start day, index 0').toBeCloseTo(
       xOf(0) + DUMMY_MARKER_OFFSET,
       6,
     )
   })
 
-  it("GR-7 keeps a milestone outside its figure AND outside GR-18's hold", () => {
+  it("GR-7 stands a milestone marker touching the GR-18 dummy figure, and outside GR-18's hold", () => {
     // マイルストーンのときは図形の外側. GR-15 gives it no actual bar and so no
     // end-point dummy either; LF-10 already makes the plan figure's right edge
     // the outside of the figure.
@@ -1334,10 +1341,9 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     const figureRight = placedM.x + placedM.width
     expect(ink.x + ink.width, 'T-240 DM-12 (CR-382): the hold is the same-day actual figure, inside the plan figure')
       .toBeLessThanOrEqual(figureRight)
-    expect(milestone.marker!.centre.x).toBeCloseTo(figureRight + MARKER_OFFSET, 6)
-    expect(milestone.marker!.centre.x - milestone.marker!.radius).toBeGreaterThanOrEqual(
-      Math.max(ink.x + ink.width, figureRight),
-    )
+    // WHY: LF-11 now touches the actual or dummy FIGURE's right edge, which stands inside the larger plan figure.
+    expect(milestone.marker!.centre.x, 'LF-11: マイルストーンでは実績かダミーの図形の右端に正方形の左端を接して置く').toBeCloseTo(ink.x + ink.width + MARKER_OFFSET, 6)
+    expect(milestone.marker!.centre.x - milestone.marker!.radius).toBeGreaterThanOrEqual(ink.x + ink.width - 1e-6)
   })
 
   it('S-63 takes the marker away', () => {
@@ -1596,7 +1602,7 @@ describe('ItemHitArea (PI-7)', () => {
     planEndpoint: NOT_STORED_SIZES['S-90'], // S-90 -- above and below the plan bar, and outside its ends
     actualEndpoint: NOT_STORED_SIZES['S-91'], // S-91 -- the actual bar's own band
     // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
-    fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the 15 x 15 square
+    fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the square
     // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
     line: NOT_STORED_SIZES['S-137'],
     boxPoint: NOT_STORED_SIZES['S-230'],
@@ -1734,13 +1740,16 @@ describe('ItemHitArea (PI-7)', () => {
     expect(itemAtPointer(geometry, actualMiddleX, middleY, SLOP)?.grab).toBe('GR-12')
   })
 
-  it('GR-7 takes the marker markerGap outside the ACTUAL bar, over the plan body', () => {
+  it('GR-7 takes the marker touching the ACTUAL bar, over the plan body', () => {
     // GR-7: 進捗マーカー -- 実績バーの右端の外側. ⛔ Outside the ACTUAL bar,
     // which is not "outside every bar": the actual ends at day 7 while the plan
     // runs to day 20, so the marker lands ON the plan bar. GR-7 stands above
     // GR-12 in table T-023d, so the marker wins there anyway.
     const running = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
-    expect(itemAtPointer(running, xOf(7) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(
+      itemAtPointer(running, xOf(7) + MARKER_OFFSET, middleY, SLOP)?.grab,
+      '⭐ 進捗マーカー（`GR-7`）の描いた形の上では、予定の端点（`GR-1` / `GR-2` / `GR-3` / `GR-4`）の掴み代と予定バー本体（`GR-12`）より先に、`GR-7` を成立させること（MUST）',
+    ).toBe('GR-7')
     // A whole markerSize further along the same plan body -- clear of the
     // square -- GR-12 answers, which is what makes the line above a real win.
     expect(
@@ -1810,15 +1819,19 @@ describe('ItemHitArea (PI-7)', () => {
       pxPerDayAt1x: 24,
     }))
     const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
-    expect(gr9.ink.width, 'FR-043: 1 日ぶんと `S-180` の小さい方').toBe(
-      Math.min(drawnPx(24), NOT_STORED_DUMMY_SIZES['S-180']),
+    expect(gr9.ink.width, 'T-240 DM-3: the marker diameter times S-247, capped by S-180, whatever the day').toBeCloseTo(
+      DUMMY_WIDTH,
+      6,
     )
     expect(itemAtPointer(wide, gr9.ink.x + 1, middleY, SLOP)?.grab).toBe('GR-9')
     expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GR-17')
-    // ⭐ MEASURED, NOT ASSUMED: this Task's plan bar stands right where the
-    // dummy's ink does, so the ground the dummies gave up falls straight
-    // through to GR-12 rather than to open ground with no answer at all.
-    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab).toBe('GR-12')
+    const pastTheInk = itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab
+    expect(pastTheInk).not.toBe('GR-9')
+    expect(pastTheInk).not.toBe('GR-17')
+    // WHY: the marker now touches the ink (FR-013), so the plan body is measured past the marker's own square.
+    expect(
+      itemAtPointer(wide, gr9.ink.x + gr9.ink.width + drawnPx(settingNumber('markerSize')) + 1, middleY, SLOP)?.grab,
+    ).toBe('GR-12')
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {
@@ -1840,9 +1853,11 @@ describe('ItemHitArea (PI-7)', () => {
     // Day 20 is the actual's right end, not the plan's, which stopped at 15.
     expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + MARKER_OFFSET, 6)
     const task2DummyInk = geometry.tasks[1]!.dummies[0]!.ink
-    expect(task2DummyInk.x + task2DummyInk.width, 'DM-1 (CR-382): task 2 ink ends before the marker centre')
-      .toBeLessThan(xOf(20) + MARKER_OFFSET)
-    expect(itemAtPointer(geometry, xOf(20) + MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    // WHY: GR-17 / GR-9 stand above GR-7 in table T-023d, so the press sits on the marker right of task 2's DM-3 ink.
+    const onTheMarker = xOf(20) + MARKER_OFFSET + drawnPx(settingNumber('markerSize')) / 4
+    expect(task2DummyInk.x + task2DummyInk.width, 'DM-1 (CR-382): task 2 ink ends before the press')
+      .toBeLessThan(onTheMarker)
+    expect(itemAtPointer(geometry, onTheMarker, middleY, SLOP)?.grab).toBe('GR-7')
   })
 
   it('GR-13 takes a dependency line where it runs clear of the bars', () => {

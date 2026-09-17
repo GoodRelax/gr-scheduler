@@ -127,18 +127,21 @@ const THE_FAST_ROAD_MUST = 'その速い道は 表 T-036 の `SK-11` である�
 const THE_FORM_MUST =
   '表 T-036 の `SK-11`（保存する）は、どの形式から開いた文書であっても `GRS JSON` で書くこと（MUST）'
 
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
  *
- * ⚠️ The column spells a modifier with `＋` in some rows and `+` in others, and
- * a row with two spellings separates them with `/`; the first is taken.
+ * The column spells each key in its own code span joined by a full-width plus,
+ * and a row with two assignments separates them by a full-width slash.
  */
 function keyOf(id: string): KeyInput {
-  const parts = (bare(rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
-    .replace(/＋/g, '+')
-    .split('+')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
+  const parts = assignmentsIn(rowOf(T_036, id).by['割当'] ?? '')[0] ?? []
   const last = parts[parts.length - 1]
   if (last === undefined) throw new Error(`table T-036 row ${id} states no assignment`)
   const named = (name: string): boolean => parts.slice(0, -1).includes(name)

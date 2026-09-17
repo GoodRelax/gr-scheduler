@@ -549,11 +549,16 @@ describe('KO-2 / KO-3 -- [vv] and header [vv] set the mark', () => {
     expect(named(built.kept()).sort()).toEqual(named(ALL).sort())
   })
 
-  it('after KO-3, zooming to zoomMin drops no row (decision 6 cost)', () => {
+  it('after KO-3, zooming down as far as the input goes drops no row, and every marked row is drawn at zoomMin (decision 6 cost)', () => {
     const built = stage(smallDocument({ zoomY: 1.2, folded: [B2] }))
     built.press(HEAD_OPEN_EVERY_ROW, null)
-    for (let step = 0; step < 200 && built.zoomY() > S_54; step++) built.key('-', { alt: true })
+    // STEP: T-262 ZE-2 may stop the input above S-54 once every row is marked, so the loop ends on no change too
+    for (let step = 0, was = Number.NaN; step < 200 && built.zoomY() > S_54 && built.zoomY() !== was; step++) {
+      was = built.zoomY()
+      built.key('-', { alt: true })
+    }
     expect(named(built.drawn()).sort()).toEqual(named(ALL).sort())
+    expect(named(layoutOf(smallDocument({ zoomY: S_54, kept: ALL }))).sort()).toEqual(named(ALL).sort())
   })
 })
 

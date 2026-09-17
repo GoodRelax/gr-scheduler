@@ -153,13 +153,16 @@ const THE_SHOW_MUST =
 /** `FR-101`'s other half -- what stands where the time would be until a save. */
 const THE_NEVER_SAVED_MUST = 'まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を示すこと（MUST）'
 
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
 /** The keystroke 表 T-036 assigns one row, read out of its 割当 column. */
 function keyOf(id: string): KeyInput {
-  const parts = (bare(rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
-    .replace(/＋/g, '+')
-    .split('+')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
+  const parts = assignmentsIn(rowOf(T_036, id).by['割当'] ?? '')[0] ?? []
   const last = parts[parts.length - 1]
   if (last === undefined) throw new Error(`table T-036 row ${id} states no assignment`)
   const named = (name: string): boolean => parts.slice(0, -1).includes(name)

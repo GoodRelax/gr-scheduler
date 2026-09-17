@@ -117,7 +117,7 @@ const SLOP: PointerSlop = {
   // Table T-023d's closing rule reads 「`GR-9` / `GR-17` / `GR-18` の
   // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
   // 広げてはならない（MUST NOT）」, so the dummy's grab area IS the width
-  // `S-180` draws and there is no separate slop to state. `PointerSlop`
+  // table T-240 `DM-3` draws and there is no separate slop to state. `PointerSlop`
   // carries no dummy field at all, and a caller states nothing for it.
   line: NOT_STORED_SIZES['S-137'],
   boxPoint: NOT_STORED_SIZES['S-230'],

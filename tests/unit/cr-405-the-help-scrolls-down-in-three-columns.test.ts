@@ -76,11 +76,20 @@ const rowOf = (table: SpecTable, id: string) => {
   return found
 }
 
-const combosOf = (cell: string): readonly string[] =>
+// see FR-036, T-036, T-255
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
-    .split(' / ')
-    .map((one) => one.replace(/`/g, '').replace(/\uff0b/g, '+').replace(/\s+/g, ''))
-    .filter((one) => one !== '')
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
+const combosOf = (cell: string): readonly string[] => assignmentsIn(cell).map((keys) => keys.join('+'))
+
+// see FR-036, T-255
+const spelledOnScreen = (cell: string): string =>
+  assignmentsIn(cell)
+    .map((keys) => keys.join(' \uff0b '))
+    .join(' \uff0f ')
 
 const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
 
@@ -162,6 +171,28 @@ describe('CR-405 -- the premises read from the manuscript', () => {
 
   it('no row of T-036 holds a combination of BF-1, so MK-10 has nothing of it to stop', () => {
     for (const combo of combosOf(rowOf(T_255, 'BF-1').by[H_KEYS] ?? '')) expect(T_036_COMBOS.has(combo)).toBe(false)
+  })
+
+  it('FR-036: 表 T-036 と 表 T-255 の `割当` の欄は、キーを 1 つずつコードの印で囲み、＋ で繋ぐ形（例: `Ctrl` ＋ `Shift` ＋ `0`）にそろえること（MUST）', () => {
+    const misspelt: string[] = []
+    for (const row of [...T_036.rows, ...T_255.rows]) {
+      const cell = row.by[H_KEYS] ?? ''
+      const spans = [...cell.matchAll(/`([^`]+)`/g)]
+      for (const span of spans) if (/.\+./.test(span[1] ?? '')) misspelt.push(`${row.id}: ${span[0]}`)
+      spans.slice(1).forEach((span, at) => {
+        const before = spans[at]
+        const between = cell.slice((before?.index ?? 0) + (before?.[0].length ?? 0), span.index).trim()
+        if (between !== '\uff0b' && between !== '\uff0f') misspelt.push(`${row.id}: "${between}" between two keys`)
+      })
+    }
+    expect(
+      misspelt,
+      '表 T-036 と 表 T-255 の `割当` の欄が 1 つの欄に 2 つ以上の割当を持つときも、同じ区切りで並べること（MUST）',
+    ).toEqual([])
+    expect(assignmentsIn(rowOf(T_255, 'BF-1').by[H_KEYS] ?? '')).toEqual([
+      ['Ctrl', '+'],
+      ['Ctrl', '-'],
+    ])
   })
 })
 
@@ -325,11 +356,11 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     }
   })
 
-  it('carries BF-1 with the spelling of its T-255 cell and no glyph', () => {
+  it('carries BF-1 with the spelling of its T-255 cell, its two assignments joined by " \uff0f ", and no glyph', () => {
     const entry = entries.find((one) => rowIdOf(one) === 'BF-1')
     expect(entry, 'BF-1 is not in the help').toBeDefined()
     const keys = typeof entry?.['keys'] === 'string' ? (entry['keys'] as string) : ''
-    expect(combosOf(keys)).toEqual(combosOf(rowOf(T_255, 'BF-1').by[H_KEYS] ?? ''))
+    expect(keys).toBe(spelledOnScreen(rowOf(T_255, 'BF-1').by[H_KEYS] ?? ''))
     expect(entry?.['glyphs'] ?? []).toEqual([])
     expect(entry?.['icon'] ?? null).toBeNull()
   })

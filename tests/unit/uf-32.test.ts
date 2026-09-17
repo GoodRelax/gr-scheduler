@@ -49,6 +49,7 @@ import {
   NOT_STORED_DUMMY_SIZES,
 } from '../../src/adapter/svg-renderer/svg-renderer'
 import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1211,15 +1212,14 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   /** S-131. 濃さの値 FR-013 names, printed from the manuscript by `npm run gen`. */
   const S_131 = SETTINGS_DEFAULTS['dummyOpacity'] as number
 
-  /**
-   * S-180 -- ⛔ THE UPPER BOUND ON THE DRAWN WIDTH, NEVER THE WIDTH ITSELF.
-   *
-   * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
-   * 表 T-206 の `S-180` の小さい方とすること」, ⛔ (MUST NOT): 「`S-180` を幅そ
-   * のものとしてはならない」（利用者の裁定 2026-09-02）. The name says which of
-   * the two it is, so that no case here can quietly read it as the width again.
-   */
+  // see T-206, T-240
   const DUMMY_WIDTH_UPPER_BOUND = NOT_STORED_DUMMY_SIZES['S-180']
+
+  // see T-206, T-240
+  const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
+
+  const DM_3_THE_WIDTH =
+    'ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
 
   /** S-1. FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
   const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
@@ -1227,9 +1227,9 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   const dayWidthAt = (zoomX: number): number =>
     PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
-  /** FR-043's 「1 日ぶんと … `S-180` の小さい方」 -- ⭐ NOT A CONSTANT. */
-  const drawnWidthAt = (zoomX: number): number =>
-    Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
+  // see T-240, FR-039
+  const drawnWidthAt = (_zoomX: number): number =>
+    Math.min((SETTINGS_DEFAULTS['markerSize'] as number) * DEFAULT_DISPLAY_RATIO * S_247, DUMMY_WIDTH_UPPER_BOUND)
 
   /** The figures the picture draws 薄く, whatever kind of element they are. */
   const faintFiguresOf = (svg: string): readonly Element[] => {
@@ -1237,25 +1237,17 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     return paintedOf(svg).filter((drawn) => faint.has(drawn.at))
   }
 
-  /**
-   * ⭐ TWO MAGNIFICATIONS, ONE ON EACH SIDE OF `S-180`. FR-043 asks for the
-   * SMALLER of two numbers, so a case run at one magnification proves half the
-   * rule: at 6px a day the DAY is smaller, at 48px a day `S-180` is.
-   *
-   * ⛔ THE WIDE ONE HAS TO CLEAR `S-180`, and 24px a day does not: it falls to
-   * the NARROW side of the bound and the pair then proves one half twice. The
-   * case below is what says so rather than letting it pass quietly.
-   */
-  const NARROW_DAY_ZOOM = 1 / DEFAULT_DISPLAY_RATIO
+  // see T-240, FR-017
+  const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
+  // see T-240, FR-017
   const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 
-  it('⭐ the two magnifications below really do fall on opposite sides of S-180', () => {
-    // ⛔ Without this the pair could drift onto the same side of 「小さい方」 and
-    // the file would read as if it had proved both halves.
-    expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
-    expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(DUMMY_WIDTH_UPPER_BOUND)
-    expect(drawnWidthAt(NARROW_DAY_ZOOM)).toBeCloseTo(dayWidthAt(NARROW_DAY_ZOOM), 6)
-    expect(drawnWidthAt(WIDE_DAY_ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
+  it('⭐ the two magnifications below put one day on either side of the DM-3 width', () => {
+    // WHY: two days both wider than the mark could not tell DM-3 from the retired min(1 day, S-180).
+    expect(Number.isFinite(S_247)).toBe(true)
+    expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(drawnWidthAt(NARROW_DAY_ZOOM))
+    expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(drawnWidthAt(WIDE_DAY_ZOOM))
+    expect(drawnWidthAt(WIDE_DAY_ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
   })
 
   for (const zoomX of [NARROW_DAY_ZOOM, WIDE_DAY_ZOOM]) {
@@ -1309,9 +1301,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       )
       expect(bars, 'the 予定バー is drawn at full 濃さ').toHaveLength(1)
 
-      // ⭐ WHERE THE INK BEGINS AND HOW WIDE IT RUNS (FR-043, 利用者の裁定
-      // 2026-09-02): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
-      // こと（MUST）。日の列の左端に揃えること（MUST）」.
+      // STEP: where the ink begins (DM-1, the day column's left edge) and how wide it runs (DM-3).
       //
       // ⭐ The day column is counted in DAYS from the 予定バー's own left edge:
       // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, and FR-017 makes
@@ -1321,7 +1311,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       const mark = spanOf(dummies[0] as Element)
       expect(
         mark.to - mark.from,
-        `the ダミー is drawn 「1 日ぶんと S-180 の小さい方」 at ${days}`,
+        `the dummy is drawn DM-3 wide at ${days}: ${DM_3_THE_WIDTH}`,
       ).toBeCloseTo(drawnWidthAt(zoomX), 6)
       expect(
         mark.from,
@@ -1331,8 +1321,9 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       const nextColumnLeft = planLeft + dayWidth
       for (const one of dummies) {
         const span = spanOf(one)
+        // WHY: DM-3 accepts that a mark wider than one day covers the next day, so straddling is refused only where the day is wider.
         expect(
-          span.from < nextColumnLeft && nextColumnLeft < span.to,
+          dayWidth >= drawnWidthAt(zoomX) && span.from < nextColumnLeft && nextColumnLeft < span.to,
           `a ダミーの印 straddles the day column after GR-9's at ${days}`,
         ).toBe(false)
         expect(span.from, `a ダミーの印 begins at the day column after GR-9's at ${days}`).not.toBeCloseTo(
@@ -1398,7 +1389,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
 })
 
 describe('UF-32 -- FR-075 / S-111: 掴み点は選択しているタスクにだけ', () => {
-  /** S-109 -- 「掴み点の半辺。正方形 7 × 7px を点の中心に置く」. */
+  // see T-210
   const S_109 = SETTINGS_DEFAULTS['fadeHandleHalfPx'] as number
 
   /** The squares S-109 gives the two grab points, told apart by their side. */

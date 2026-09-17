@@ -85,10 +85,10 @@ describe('CR-381 -- the manuscript these cases are driven by', () => {
     expect(DESIGN).toContain(PI_37_ONE_FORMULA_FOR_THE_ROW_NAME)
   })
 
-  it('T-201: S-36 is 13 and S-38 is 1.3, so depth 1 is 16.9, and the generated defaults agree', () => {
-    expect(S_36).toBe(13)
+  it('T-201: S-36 is 19.5 (CR-418, 13 x 1.5) and S-38 is 1.3, so depth 1 is 25.35, and the generated defaults agree', () => {
+    expect(S_36).toBe(19.5)
     expect(S_38).toBe(1.3)
-    expect(DEPTH_1_NAME_PX).toBeCloseTo(16.9, 9)
+    expect(DEPTH_1_NAME_PX).toBeCloseTo(25.35, 9)
     expect(SETTINGS_DEFAULTS['rowTitleFont']).toBe(S_36)
     expect(SETTINGS_DEFAULTS['rowTitleTopScale']).toBe(S_38)
     expect(rowNameFontPx(1)).toBeCloseTo(DEPTH_1_NAME_PX, 9)

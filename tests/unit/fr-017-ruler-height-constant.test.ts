@@ -123,18 +123,27 @@ const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 /** `S-1`（`pxPerDayAt1x`）-- FR-017: one day is this multiplied by `zoomX`. */
 const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
 
-/** 表 T-215 -- the px of each `fontScale`, which `S-3` says `rulerFont` follows. */
-const FONT_SCALES = [
-  { name: 'S', font: SETTINGS_DEFAULTS['fontScaleSizes.S'] as number },
-  { name: 'M', font: SETTINGS_DEFAULTS['fontScaleSizes.M'] as number },
-  { name: 'L', font: SETTINGS_DEFAULTS['fontScaleSizes.L'] as number },
-] as const
-
+// see T-215
 const FONT_SCALE_SIZES = {
-  S: FONT_SCALES[0].font,
-  M: FONT_SCALES[1].font,
-  L: FONT_SCALES[2].font,
+  S: SETTINGS_DEFAULTS['fontScaleSizes.S'] as number,
+  M: SETTINGS_DEFAULTS['fontScaleSizes.M'] as number,
+  L: SETTINGS_DEFAULTS['fontScaleSizes.L'] as number,
 } as const
+
+// see T-201, S-3, CR-418
+const S_3_FACTOR_ON_THE_TEXT_SIZE = ((): number => {
+  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['\u65e2\u5b9a\u5024'] ?? ''
+  const hit = /`fontScaleSizes\[fontScale\]`\s*\u00d7\s*(\d+(?:\.\d+)?)/.exec(cell)
+  if (hit === null) throw new Error(`S-3 no longer states its default as fontScaleSizes[fontScale] x a factor: ${cell}`)
+  return Number(hit[1])
+})()
+
+// see T-201, S-3, T-215
+const FONT_SCALES = [
+  { name: 'S', font: FONT_SCALE_SIZES.S * S_3_FACTOR_ON_THE_TEXT_SIZE },
+  { name: 'M', font: FONT_SCALE_SIZES.M * S_3_FACTOR_ON_THE_TEXT_SIZE },
+  { name: 'L', font: FONT_SCALE_SIZES.L * S_3_FACTOR_ON_THE_TEXT_SIZE },
+] as const
 
 /**
  * 表 T-201 の `S-2`, solved for the two keys the manuscript spends it on.
@@ -308,7 +317,7 @@ const settingsAt = (rulerFont: number, zoomX: number, fontScale: string): Docume
     // `S-77`. Chosen so the window crosses a year boundary -- and therefore a
     // month, a week and a day boundary -- at every one of the four tiers, which
     // is what gives every 段 of the band a label to read.
-    scrollDate: '2025-12-01',
+    scrollDate: '2025-12-20',
     stackDirection: 'down', // S-58 -- pinned so every y reads from the top
     shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
     planActualGuidePattern: { on: 2, off: 2 },

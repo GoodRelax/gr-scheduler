@@ -133,9 +133,11 @@ const SLOP: PointerSlop = {
 
 // see S-234, FR-039
 const LOW_SCALE = DEFAULT_DISPLAY_SCALE
-// WHY: a step half again above the default, not 100: CR-409 made 100 the default; the top step 200 widens the
-// arrow head past the gap the fixture leaves between S-137 and S-90.
-const HIGH_SCALE = DISPLAY_SCALE_STEPS.find((one) => one >= DEFAULT_DISPLAY_SCALE * 1.5)!
+// WHY: the highest step above the default whose drawn arrow head still fits the gap between S-137 and S-90 the end
+// cases probe; at S-236 0.625 (CR-417) the step 150 no longer leaves it, so the step is solved, not named.
+const HIGH_SCALE = [...DISPLAY_SCALE_STEPS]
+  .reverse()
+  .find((one) => one > DEFAULT_DISPLAY_SCALE && S_19 * displayRatioAt(one) < S_90 - S_137)!
 const SCALES = [LOW_SCALE, HIGH_SCALE] as const
 
 // see DS-7, S-18, S-178

@@ -246,6 +246,18 @@ const FADE_OUT_DAYS = 5
 /** 1 day is this many px at zoom 1 -- S-1's key, set wide so a day is legible. */
 const PX_PER_DAY_AT_1X = 20
 
+const firstNumberIn = (cell: string): number => {
+  const value = Number(/-?\d+(?:\.\d+)?/.exec(cell.replace(/`/g, ''))?.[0] ?? '')
+  if (!Number.isFinite(value)) throw new Error(`no number in ${JSON.stringify(cell)}`)
+  return value
+}
+
+// see T-203, S-79, T-252
+// WHY: S-37 x S-125 x ratio is the first term of the T-252 floor, so this S-79 stands on the floor at every
+// step; the default S-79 (300 x 0.625 = 187.5) stands above the floor 114.0032 and would break the premises.
+const ROW_TITLE_PANEL_WIDTH_ON_THE_FLOOR =
+  firstNumberIn(rowOf('T-201', 'S-37').by['既定値'] ?? '') * firstNumberIn(rowOf('T-211', 'S-125').by['値'] ?? '')
+
 function fixtureDocument(): Document {
   const template = structuredClone(TEMPLATE) as any
   const task = (
@@ -313,6 +325,7 @@ function fixtureDocument(): Document {
     documentSettings: {
       ...structuredClone(template.documentSettings),
       pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      rowTitlePanelWidth: ROW_TITLE_PANEL_WIDTH_ON_THE_FLOOR,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -586,6 +599,17 @@ function selectTheTask(built: Stage): void {
   }
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('up', at.x, at.y))
+}
+
+// see MK-13, FR-072
+function openThePanelOnTheTask(built: Stage): void {
+  const points = outlineOf(drawnTask(built.loop, FADED_UID).plan)
+  const xs = points.map((one) => one.x)
+  const ys = points.map((one) => one.y)
+  const at = { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+  built.send({ ...pointer('down', at.x, at.y), clickCount: 2 })
+  built.send({ ...pointer('up', at.x, at.y), clickCount: 2 })
+  if (built.pane.last().propertiesPanel === null) throw new Error('MK-13 did not put the property panel up')
 }
 
 /** A stage whose Task is selected and whose two fade grab points are drawn. */
@@ -1204,26 +1228,26 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
   })
 
   it('changes the OTHER panel from its own boundary (S-80 wins after a drag)', () => {
-    // FR-052 (STATEMENT): 行見出しパネルとプロパティパネルの幅を変えること -- both
-    // panels, and S-80's note says which value wins afterwards: 「⚠️ 人が境界を
-    // ドラッグした後は `S-80` が勝つ（`FR-052`）」. The panel starts at 0, which
-    // S-80 spells as 「閉じている」, and its band is drawn all the same.
     const built = stage()
+    // STEP: MK-13 puts the property panel up; S-80 is 0, under S-248, so FR-052 draws it at S-171
+    openThePanelOnTheTask(built)
     const at = boundaryOf(built, 'propertiesPanel')
+    const drawn = frameOf(built.loop).regions.propertiesPanel.width
     const stored = settingsOf(built.loop).propertyPanelWidth
+    expect(drawn, 'premise: the panel is up and wider than zero').toBeGreaterThan(0)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x - 120, at.y))
     expect(
       frameOf(built.loop).regions.propertiesPanel.width,
       'FR-052: その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
-    ).toBeCloseTo(stored + 120, 6)
+    ).toBeCloseTo(drawn + 120, 6)
     expect(
       settingsOf(built.loop).propertyPanelWidth,
       'FR-052: ⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）',
     ).toBe(stored)
     built.send(pointer('up', at.x - 120, at.y))
     expect(settingsOf(built.loop).propertyPanelWidth, 'FR-052: 確定は IN-1 に従う').toBeCloseTo(
-      stored + 120,
+      drawn + 120,
       6,
     )
   })

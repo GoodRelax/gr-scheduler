@@ -44,8 +44,8 @@
 //   T-206    `S-90` (the plan endpoint's reach to either side), `S-92` (the
 //            fade handle's square), `S-1` (`pxPerDayAt1x`), `S-54` / `S-55`
 //            (the zoom's floor and ceiling), `S-22` (the marker's own size,
-//            and GR-8's hit box), `S-180` (FR-043's drawn width, which is also
-//            the dummies' hit box).
+//            and GR-8's hit box), `S-180` and `S-247` (table T-240 DM-3's drawn
+//            width, which is also the dummies' hit box).
 //   S-129    the working days between `GR-9`'s day and `GR-17`'s.
 //   FR-043   what each dummy writes when it is grabbed -- which is why both
 //            answers are usable and the tie may be broken either way.
@@ -98,6 +98,7 @@ import type {
   ScheduleGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { specTable, unbroken } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 // ===========================================================================
 // 1. The clauses, verbatim, and the manuscript they were cut from
@@ -265,7 +266,7 @@ const HIGH_ZOOM_PX_PER_DAY = 24
  * assembled by hand so the fence can be pressed at pixels no document would
  * put a dummy at, and this is the band the mark is drawn in.
  */
-const ACTUAL_BAND_HEIGHT = 8
+const ACTUAL_BAND_HEIGHT = 14
 
 /**
  * A line inside BOTH the fade handle's square and the actual bar's band.
@@ -279,17 +280,22 @@ const ACTUAL_BAND_HEIGHT = 8
  * this file measures now lives where the two bands MEET, and a press on the
  * plan's margin is no longer a contest at all.
  */
-const WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND = MID_Y - ACTUAL_BAND_HEIGHT / 2 + 1
+// see T-206
+const S_92_HALF = ((): number => {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-92')
+  const found = (row?.by['既定'] ?? '').match(/\d+(?:\.\d+)?/)
+  if (found === null) throw new Error('table T-206 row S-92 states no size')
+  return Number(found[0]) / 2
+})()
+
+// see T-206, T-023d
+const WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND = BAND_TOP + S_92_HALF - 0.5
 
 /** Table T-206, through the generated block `item-hit-area.ts` publishes. */
 const SLOP: PointerSlop = {
   planEndpoint: NOT_STORED_SIZES['S-90'],
   actualEndpoint: NOT_STORED_SIZES['S-91'],
-  // ⛔ HALF, NOT THE WHOLE SQUARE. `PointerSlop.fadeHandle` is documented on
-  // the unit as 「S-92: the fade handle's square, as its half-width」, and the
-  // shipped shell passes `NOT_STORED_SIZES['S-92'][0] / 2`. This fixture passed
-  // the whole 15 and so measured a grab twice the one that ships -- the very
-  // fault the fence cases below exist to catch, with the yardstick wrong.
+  // WHY: PointerSlop.fadeHandle is a HALF-width; passing the whole S-92 square measured a grab twice the shipped one.
   fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
   // ⛔ `PointerSlop` carries no dummy figure at all: table T-023d's closing rule
   // has the three dummies answer on `FR-043`'s drawn mark and nothing wider, so
@@ -300,14 +306,24 @@ const SLOP: PointerSlop = {
 
 const TASK_UID = 41
 
-/**
- * S-180 -- ⛔ THE UPPER BOUND ON THE DRAWN MARK, NEVER THE MARK'S WIDTH.
- * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること」.
- * ⚠️ Written here rather than imported: this file builds a geometry BY HAND so
- * that the fence can be pressed at pixels a real document would not put a dummy
- * at, and the number is stated in the manuscript this fixture is read against.
- */
+// see T-206, T-240
 const DRAWN_WIDTH_CAP = 30
+
+// see T-206, T-240
+const S_247 = ((): number => {
+  const row = specTable('T-206').rows.find((one) => one.id === 'S-247')
+  const found = (row?.by['既定'] ?? '').match(/\d+(?:\.\d+)?/)
+  if (found === null) throw new Error('table T-206 row S-247 states no ratio')
+  return Number(found[0])
+})()
+
+// see T-240, FR-039
+const DRAWN_WIDTH = ((): number => {
+  const row = specTable('T-201').rows.find((one) => one.id === 'S-22')
+  const found = (row?.by['既定値'] ?? '').match(/\d+(?:\.\d+)?/)
+  if (found === null) throw new Error('table T-201 row S-22 states no size')
+  return Math.min(Number(found[0]) * DEFAULT_DISPLAY_RATIO * S_247, DRAWN_WIDTH_CAP)
+})()
 
 /**
  * A pixel that is GR-9's ALONE at the high zoom: inside the LEFT HALF of the
@@ -319,10 +335,9 @@ const DRAWN_WIDTH_CAP = 30
  * is where GR-9 answers, and it is the half a person aims at to place an
  * actual start. ⛔ 2026-09-09 まで the same manuscript handed EVERY pixel of the
  * mark to the finish, and this probe had to stand past the mark's right edge to
- * find GR-9 at all -- ⚠️ which it can no longer do, because `S-180` rose from
- * 12 to 30 the same day and the mark now covers the whole of a 24px day.
+ * find GR-9 at all.
  */
-const ONLY_GR_9_X = PLAN_START_X + 3
+const ONLY_GR_9_X = PLAN_START_X + 1
 
 /**
  * One rectangle-shaped Task, not started: a plan bar, no actual bar, and the
@@ -338,13 +353,11 @@ const ONLY_GR_9_X = PLAN_START_X + 3
 function notStartedTask(pxPerDay: number): ScheduleGeometry {
   const gr9X = PLAN_START_X
   const gr17X = gr9X + pxPerDay
-  // ⭐ THE ONE MARK FR-043 DRAWS, on GR-9's day and 「1 日ぶんと `S-180` の
-  // 小さい方」 across. ⚠️ The same record on both dummies, which is what
-  // `DummyGeometry.ink` is: the two grab targets share one drawing.
+  // STEP: the one mark DM-3 draws on GR-9's day, whatever the day's width, shared by both dummies.
   const ink = {
     x: gr9X,
     y: MID_Y - ACTUAL_BAND_HEIGHT / 2,
-    width: Math.min(pxPerDay, DRAWN_WIDTH_CAP),
+    width: DRAWN_WIDTH,
     height: ACTUAL_BAND_HEIGHT,
   }
   const dummies: readonly DummyGeometry[] = [
@@ -428,11 +441,7 @@ describe('the plan start is the fence between the plan side and the actual side'
   // here and fails. A build that prefers the START over the finish still
   // passes this one, which is what section 4 is for.
   it('a press RIGHT of the plan start answers an actual dummy at a zoom low enough that the two stand within a few pixels', () => {
-    // ⛔ WHERE THE PRESS STANDS, AND WHY IT IS NOT 3px OUT. The ink at 1px a
-    // day is only `Math.min(pxPerDay, S-180)` == 1px wide, so a press 3px out
-    // clears it and falls on `GR-12` instead. The only ground to press at this
-    // zoom is the ink's own day column -- `GR-9`'s day, one pixel right of the
-    // plan start.
+    // STEP: press on GR-9's day column, one pixel right of the plan start, which is on the DM-3 mark.
     const hit = press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY)
     expect(hit).not.toBeNull()
     expect(hit?.grab).not.toBe('GR-3')
@@ -481,14 +490,8 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // fails. So does a build that sorted table T-023d by row number, which would
   // put `GR-9` above `GR-17` again.
   it('at the low zoom the two dummies are one pixel apart and the finish takes the press', () => {
-    // ⛔ WHERE THE PRESS STANDS, for the same reason as section 3's own
-    // control: at 1px a day the shared ink is only `Math.min(pxPerDay, S-180)`
-    // == 1px wide, so the only pixel to press is the ink's own -- and its right
-    // half (inclusive of the ink's own right edge) is `GR-17`'s. The two
-    // dummies' OWN days are exactly one pixel apart (`GR-9`'s at
-    // `PLAN_START_X + 1`, `GR-17`'s one further), which is what the title
-    // names; the finish takes the one pixel of ink there is.
-    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + LOW_ZOOM_PX_PER_DAY)).toBe('GR-17')
+    // WHY: DM-3 draws the shared mark wider than the two days here, so the one pixel both halves claim is its middle.
+    expect(grabAt(LOW_ZOOM_PX_PER_DAY, PLAN_START_X + DRAWN_WIDTH / 2)).toBe('GR-17')
   })
 
   // ⛔ WHAT THIS CASE ASKS. Table T-023d's closing rule keeps both dummies
@@ -499,7 +502,7 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // not from the ground beyond it.
   it('past the shared ink, right of the fence, neither dummy answers any more', () => {
     const pastTheInk =
-      PLAN_START_X + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP) + 2
+      PLAN_START_X + DRAWN_WIDTH + 2
     const answer = grabAt(HIGH_ZOOM_PX_PER_DAY, pastTheInk)
     expect(ACTUAL_DUMMY_ROWS).not.toContain(answer)
     // ⭐ AND SPECIFICALLY GR-12, not nothing: the fence bars the plan-side rows
@@ -541,7 +544,7 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
   // check cannot catch this class of staleness and a reader has to.
   it('the ONE drawn mark answers the start on its left half and the finish on its right', () => {
     const inkFrom = PLAN_START_X
-    const inkTo = inkFrom + Math.min(HIGH_ZOOM_PX_PER_DAY, DRAWN_WIDTH_CAP)
+    const inkTo = inkFrom + DRAWN_WIDTH
     const middle = (inkFrom + inkTo) / 2
     for (let x = inkFrom + 1; x < middle; x += 1) {
       expect(grabAt(HIGH_ZOOM_PX_PER_DAY, x), `x = ${x - inkFrom} into the mark`).toBe('GR-9')
@@ -558,12 +561,7 @@ describe('where the two actual dummies overlap, the finish is what answers', () 
 
 describe('every answer above names the Task the press was on', () => {
   it('the plan side and the actual side both answer the same Task', () => {
-    // ⛔ WHERE THE RIGHT-HAND PRESS STANDS. The ink at 1px a day is only
-    // `Math.min(pxPerDay, S-180)` == 1px wide, so a press 3px out clears it
-    // and lands on `GR-12` -- the PLAN side -- which would make this case
-    // pass without ever pressing the actual side at all. The ink's own day
-    // column (`GR-9`'s day, one pixel right of the plan start) is where the
-    // actual side stands at this zoom.
+    // STEP: the right-hand press is on GR-9's day column, which the DM-3 mark covers.
     expect(press(LOW_ZOOM_PX_PER_DAY, PLAN_START_X - 3)?.item).toEqual({
       kind: 'task',
       taskUid: TASK_UID,
@@ -732,6 +730,12 @@ describe('JDG-34: the overlapping holds are nested, so the plan keeps both margi
   /** Above the actual band and inside the plan's -- 「外側の縁が必ず残る」. */
   const TOP_MARGIN_Y = MID_Y - ACTUAL_BAND_HEIGHT / 2 - 2
   const BOTTOM_MARGIN_Y = MID_Y + ACTUAL_BAND_HEIGHT / 2 + 2
+
+  it('⭐ the fade square S-92 gives really meets the actual band where section 6 presses', () => {
+    expect(WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND).toBeGreaterThan(MID_Y - ACTUAL_BAND_HEIGHT / 2)
+    expect(WHERE_THE_FADE_SQUARE_MEETS_THE_ACTUAL_BAND).toBeLessThan(BAND_TOP + S_92_HALF)
+    expect(SLOP.fadeHandle, 'S-92 half as the manuscript prints it').toBe(S_92_HALF)
+  })
 
   it('⭐ the fixture really has a margin on both sides of the actual band', () => {
     // ⚠️ A PREMISE. Without it the two cases below could pass on a figure whose

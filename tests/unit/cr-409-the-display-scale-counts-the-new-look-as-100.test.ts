@@ -26,18 +26,18 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_039_THE_RATIO =
-  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 1/2（100 ÷ 100 × 0.5）、200 で出荷ビルドと同じ大きさ（200 ÷ 100 × 0.5 ＝ 1）に立つ。'
+  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 5/8（100 ÷ 100 × 0.625）、200 で出荷ビルドの 5/4（200 ÷ 100 × 0.625 ＝ 1.25）に立つ。'
 const FR_039_OPEN_AT_THE_STORED_STEP = '⭐ 文書を開いたときは、文書が保存している `S-234` の値で描くこと（MUST） —— 既定の 100 に置き換えない。'
 const FR_039_NO_ROUNDING_TO_A_STEP = '⛔ `S-234` の型の欄の段に無い値を、近い段へ読み替えてはならない（MUST NOT）'
-const FR_077_HALF_THE_SHIPPED_BUILD =
-  '既定の倍率で字を 2026-09-16 の出荷ビルドの 1/2 まで縮めることを利用者が定めた（既定の 100 の描く比は `_assets/tbl-settings.md` の 表 T-206 の `S-236` の 0.5）'
+const FR_077_FIVE_EIGHTHS_OF_THE_SHIPPED_BUILD =
+  '既定の倍率で字を 2026-09-16 の出荷ビルドの 5/8 まで縮めることを利用者が定めた（既定の 100 の描く比は `_assets/tbl-settings.md` の 表 T-206 の `S-236` の 0.625）'
 
 describe('CR-409 -- the manuscript these cases are driven by', () => {
   it.each([
-    ['FR-039 (MUST) -- the drawn ratio is S-234 / 100 x S-236, 0.5 at the default', FR_039_THE_RATIO],
+    ['FR-039 (MUST) -- the drawn ratio is S-234 / 100 x S-236, 0.625 at the default (CR-417)', FR_039_THE_RATIO],
     ['FR-039 (MUST) -- a document opens at the step it stored', FR_039_OPEN_AT_THE_STORED_STEP],
     ['FR-039 (MUST NOT) -- a value off the steps is not read as a near step', FR_039_NO_ROUNDING_TO_A_STEP],
-    ['FR-077 -- the default is half the shipped build', FR_077_HALF_THE_SHIPPED_BUILD],
+    ['FR-077 -- the default is five eighths of the shipped build (CR-417)', FR_077_FIVE_EIGHTHS_OF_THE_SHIPPED_BUILD],
   ])('still says it, word for word: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
@@ -53,8 +53,8 @@ describe('S-234 -- the steps and the default of table T-202', () => {
     expect(SETTINGS_DEFAULTS['displayScale']).toBe(DEFAULT_DISPLAY_SCALE)
   })
 
-  it('holds S-236 at exactly 0.5', () => {
-    expect(S_236).toBe(0.5)
+  it('holds S-236 at exactly 0.625, the 5/8 of CR-417 with no rounding', () => {
+    expect(S_236).toBe(5 / 8)
   })
 
   it('carries the same ten steps as the enum of the GRS JSON schema', () => {
@@ -76,9 +76,9 @@ const ENV: FrameEnvironment = { width: 1200, height: 700, appHeaderHeight: 56, s
 
 describe('FR-039 (MUST) -- the drawn ratio', () => {
   it.each([
-    [DEFAULT_DISPLAY_SCALE, 0.5],
-    [200, 1],
-    [50, 0.25],
+    [DEFAULT_DISPLAY_SCALE, 0.625],
+    [200, 1.25],
+    [50, 0.3125],
   ])('answers %s -> %s', (scale, ratio) => {
     expect(displayRatioAt(scale), 'the manuscript alone').toBeCloseTo(ratio, 12)
     const settings = { ...(TEMPLATE.documentSettings as object), displayScale: scale } as unknown as DocumentSettings
@@ -99,16 +99,16 @@ describe('FR-039 (MUST) -- the drawn ratio', () => {
       regionsFromScreen(ENV, settings),
     )
     const s1 = Number(bare(specTable('T-201').rows.find((one) => one.id === 'S-1')?.by['既定値'] ?? '').replace(/[^\d.]/g, ''))
-    expect(layout.pxPerDay, FR_077_HALF_THE_SHIPPED_BUILD).toBeCloseTo(s1 * displayRatioAt(DEFAULT_DISPLAY_SCALE), 9)
+    expect(layout.pxPerDay, FR_077_FIVE_EIGHTHS_OF_THE_SHIPPED_BUILD).toBeCloseTo(s1 * displayRatioAt(DEFAULT_DISPLAY_SCALE), 9)
   })
 })
 
 describe('FR-039 (MUST) -- a document opens at the step it stored', () => {
-  it('reads a stored 150 as 150 and draws it at 0.75', () => {
-    const read = documentFromJson(textWith({ displayScale: 150 }))
+  it.each([150, DEFAULT_DISPLAY_SCALE])('reads a stored %s as that step and draws it at S-234 / 100 x S-236', (stored) => {
+    const read = documentFromJson(textWith({ displayScale: stored }))
     if (!read.ok) throw new Error(`${FR_039_OPEN_AT_THE_STORED_STEP} -- refused: ${JSON.stringify(read.faults)}`)
-    expect(read.document.documentSettings.displayScale, FR_039_OPEN_AT_THE_STORED_STEP).toBe(150)
-    expect(displayRatioOf(read.document.documentSettings)).toBeCloseTo(0.75, 12)
+    expect(read.document.documentSettings.displayScale, FR_039_OPEN_AT_THE_STORED_STEP).toBe(stored)
+    expect(displayRatioOf(read.document.documentSettings), FR_039_THE_RATIO).toBeCloseTo(displayRatioAt(stored), 12)
   })
 })
 

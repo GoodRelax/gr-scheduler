@@ -19,8 +19,8 @@
 // `docs/spec/01-04-requirements.md` の `FR-043` に同日、次の MUST / MUST NOT が
 // 足された（逐語、一度だけここに引く）:
 // 「大きさも例外とすること（MUST）。マイルストーンのダミーを描く箱は、そのマイ
-// ルストーンの実績の図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の
-// 小さい方を横幅としてはならない（MUST NOT）」
+// ルストーンの実績の図形と同じ正方形とすること（MUST）。`DM-3` の幅を横幅と
+// してはならない（MUST NOT）」
 //
 // `dummiesOf` drew EVERY dummy's ink from one shared rectangle --
 // `width: Math.min(pxPerDay, S-180)`, `height: actualHeight` -- a box shaped
@@ -57,6 +57,11 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { specTable } from '../contract/spec-table'
+import { displayRatioAt } from '../fixtures/display-scale'
+
+// see T-206, T-240
+const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
 
 /**
  * The four keys SETTINGS_DEFAULTS carries under dotted names, as objects --
@@ -189,11 +194,12 @@ describe('FR-043 -- a milestone dummy box is the same square as its actual figur
     expect(ink.height).toBeCloseTo(expectedSide, 6)
   })
 
-  it('does NOT take 1 day\'s pixels or S-180 for its width (MUST NOT)', () => {
-    // The bar-shape dummies' own rule (unchanged, GR-9 / GR-17): `min(1 day's
-    // pixels, S-180)`. FR-043 now forbids applying that width to a milestone.
+  it('マイルストーンのダミーを描く箱は、そのマイルストーンの実績の図形と同じ正方形とすること（MUST）。`DM-3` の幅を横幅としてはならない（MUST NOT）', () => {
+    // WHY: the bar dummies' DM-3 width is min(marker diameter x S-247, S-180); a milestone must not take it.
     const placed = placedOf(1)
-    const barDummyWidth = Math.min(LAYOUT.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
+    const diameter = SETTINGS.markerSize * displayRatioAt(SETTINGS.displayScale)
+    const barDummyWidth = Math.min(diameter * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
+    expect(Number.isFinite(barDummyWidth), 'table T-206 prints S-247').toBe(true)
     const expectedSide = placed.planHeight * SETTINGS.actualOfPlan
     // The fixture is only a useful red/green witness while the two differ --
     // guard the assumption rather than let a coincidence pass silently.

@@ -166,9 +166,9 @@ const FULLWIDTH_PLUS = '＋'
 const sameSpelling = (cell: string): string =>
   cell.replace(/[`*]/g, '').split(FULLWIDTH_PLUS).join('+').replace(/\s+/g, '')
 
-/** The alternatives of one assignment cell: SK-7 offers two. */
+/** The assignments of one cell, split at the full-width slash FR-036 puts between them: SK-7 offers two. */
 const spellingsOf = (row: string): string[] =>
-  sameSpelling(rowOf('T-036', row).by[ASSIGNMENT_COLUMN] ?? '').split('/')
+  sameSpelling(rowOf('T-036', row).by[ASSIGNMENT_COLUMN] ?? '').split('\uff0f')
 
 // ---------------------------------------------------------------------------
 // The document these cases drive
@@ -523,7 +523,7 @@ describe('the premises these cases rest on', () => {
     // Table T-023d gives every grab a reach, so mere clearance of the ink is
     // not enough. ⭐ The dummies reach no further than the ink itself since
     // 2026-09-10 (table T-023d's closing rule), so the widest of the reaches
-    // left here is S-92's 15 × 15px; S-90 / S-91 / S-137 are 6px. This asks for
+    // left here is S-90 / S-91's 12px; S-92 is 8 × 8px, S-137 6px. This asks for
     // more than twice the widest of them.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)

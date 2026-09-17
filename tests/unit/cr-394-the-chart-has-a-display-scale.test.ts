@@ -47,7 +47,7 @@ const FR_039_STATEMENT =
   '**STATEMENT**: 読む人が文字サイズ・明暗テーマ・表示の倍率のいずれかを変えたとき、`GRS` は、その指定で描くこと。'
 
 const FR_039_THE_RATIO =
-  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 1/2（100 ÷ 100 × 0.5）、200 で出荷ビルドと同じ大きさ（200 ÷ 100 × 0.5 ＝ 1）に立つ。'
+  '描く比は、`S-234` を 100 で割り、同書の 表 T-206 の `S-236` を掛けた値とすること（MUST） —— 既定の 100 で 2026-09-16 の出荷ビルドの 5/8（100 ÷ 100 × 0.625）、200 で出荷ビルドの 5/4（200 ÷ 100 × 0.625 ＝ 1.25）に立つ。'
 
 const FR_039_WHAT_IT_MULTIPLIES = '描く比を掛ける寸法は 表 T-252 に従うこと（MUST）'
 
@@ -418,6 +418,15 @@ describe('FR-039 (MUST) -- every dimension table T-252 multiplies moves with the
     expect(narrow.rowTitlePanelWidth, FR_039_NEVER_REWRITES_THE_STORED_VALUE).toBe(600)
   })
 
+  it('draws the S-79 default table T-203 prints, 300, at 300 x 0.625 = 187.5px at the default step (CR-418)', () => {
+    const printed = Number(/\d+(?:\.\d+)?/.exec(bare(rowOf('T-203', 'S-79').by['既定'] ?? '').replace(/`/g, ''))?.[0])
+    expect(printed, 'CR-418: S-79 is 200 x 1.5').toBe(300)
+    expect(S_79, 'the generated default is the printed one').toBe(printed)
+    const drawn = regionsFromScreen(ENV, settingsOf({ displayScale: S_234_DEFAULT })).rowTitlePanel.width
+    expect(drawn, T_252_THE_DRAWN_PANEL_HAS_A_FLOOR).toBeCloseTo(printed * ratioOf(S_234_DEFAULT), 6)
+    expect(drawn, 'CR-418 section 7: 300 x 0.625').toBeCloseTo(187.5, 6)
+  })
+
   it('canvasPadding is NOT multiplied, so the Row Area gives up the same strip at every step (DS-5)', () => {
     const at = (step: number): { readonly width: number; readonly panel: number } => {
       const regions = regionsFromScreen(ENV, settingsOf({ displayScale: step }))
@@ -493,18 +502,29 @@ describe('T-252 (MUST) -- above the floor, the panel width a drag stores is the 
       Number(/(-?\d+(?:\.\d+)?)/.exec(bare(rowOf('T-206', id).by['既定'] ?? ''))?.[1])
     const S_138 = pxIn('S-138')
     const PANEL_ENTRANCE_OUTER_WIDTH = S_138 + (pxIn('S-243') + pxIn('S-237')) * 2
-    for (const step of S_234_STEPS) {
-      const ratio = ratioOf(step)
-      const floor = S_37 * ratio * S_125 + S_138 * S_235 + PANEL_ENTRANCE_OUTER_WIDTH * S_235 * 4
-      const drawn = regionsFromScreen(
-        ENV,
-        settingsOf({ displayScale: step, rowTitlePanelWidth: S_79 }),
-      ).rowTitlePanel.width
-      expect(drawn, `${T_252_THE_DRAWN_PANEL_HAS_A_FLOOR} -- step ${step}`).toBeCloseTo(
-        Math.max(S_79 * ratio, floor),
-        6,
-      )
+    // WHY: at S-79 300 and S-236 0.625 the default panel clears the floor at every step (CR-418), so the width the
+    // S-79 note says depth 5 needs before the ratio, 16d+16 plus four outer widths, is swept as well.
+    const DEPTH_5_NEEDS = S_37 * (S_125 + 1) + PANEL_ENTRANCE_OUTER_WIDTH * 4
+    const reached = new Set<string>()
+    for (const stored of [S_79, DEPTH_5_NEEDS]) {
+      for (const step of S_234_STEPS) {
+        const ratio = ratioOf(step)
+        const floor = S_37 * ratio * S_125 + S_138 * S_235 + PANEL_ENTRANCE_OUTER_WIDTH * S_235 * 4
+        const drawn = regionsFromScreen(
+          ENV,
+          settingsOf({ displayScale: step, rowTitlePanelWidth: stored }),
+        ).rowTitlePanel.width
+        expect(drawn, `${T_252_THE_DRAWN_PANEL_HAS_A_FLOOR} -- S-79 ${stored}, step ${step}`).toBeCloseTo(
+          Math.max(stored * ratio, floor),
+          6,
+        )
+        reached.add(stored * ratio < floor ? 'the floor' : 'the stored width')
+      }
     }
+    expect([...reached].sort(), 'premise: the sweep draws the floor at some step and the stored width at another').toEqual([
+      'the floor',
+      'the stored width',
+    ])
   })
 })
 
@@ -531,6 +551,7 @@ describe('FR-077 (MUST) -- the readable floor is S-8 times the drawn ratio', () 
   it('puts the floor at S-8 x the ratio where S-6 sits on its S-8 / S-7 bound, at every step', () => {
     const actualMinOnItsBound = S_8 / S_7
     expect(chainFloorAt(S_234_DEFAULT, actualMinOnItsBound)).toBeCloseTo(S_8 * ratioOf(S_234_DEFAULT), 9)
+    expect(S_8 * ratioOf(S_234_DEFAULT), 'CR-417 section 7: the floor at the default step is 12 x 0.625').toBeCloseTo(7.5, 9)
     for (const step of S_234_STEPS) {
       const { layout } = sceneAt(step, { zoomY: 0.05, actualMin: actualMinOnItsBound })
       expect(

@@ -63,7 +63,12 @@ const T_252_THE_DRAWN_WIDTH =
 const T_252_THE_FLOOR =
   '床 ＝ `S-37` × 描く比 × 同書の 表 T-211 の `S-125` ＋ 行の掴み代の幅（`S-138` × `S-235`）＋ 行の操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）。'
 
-const T_252_THE_WORKED_INEQUALITY = '16 × 5 × 描く比 ＋ 10.6672 ≦ 200 × 描く比 − 53.336'
+const T_252_THE_WORKED_INEQUALITY = '16 × 5 × 描く比 ＋ 10.6672 ≦ 300 × 描く比 − 53.336'
+
+const T_252_HOLDS_AT_EVERY_STEP =
+  '`S-234` のいちばん小さい段 50 の描く比 0.3125 から上のすべての段で成り立ち'
+
+const T_252_THE_DEFAULT_STEP_SIDES = '既定の 100（描く比 0.625）では左辺 60.6672px に対し右辺 134.164px である'
 
 const FR_029_THE_OUTER_WIDTH =
   '⭐ 入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、行見出しパネルでは `S-243`）と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）。'
@@ -80,6 +85,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-252 (MUST) -- the drawn width is the larger of S-79 x ratio and the floor', T_252_THE_DRAWN_WIDTH],
   ['T-252 -- the floor formula', T_252_THE_FLOOR],
   ['T-252 -- the worked inequality of the depth-5 grips against the row controls', T_252_THE_WORKED_INEQUALITY],
+  ['T-252 -- the inequality holds from the lowest step up', T_252_HOLDS_AT_EVERY_STEP],
   ['FR-029 (MUST) -- the outer width of one entrance', FR_029_THE_OUTER_WIDTH],
   ['FR-039 (MUST) -- the drawn ratio', FR_039_THE_RATIO],
 ]
@@ -139,7 +145,7 @@ describe('CR-400 -- the premises: the two steps, the ratio, and the floor read f
   it('reads the floor terms the formula names, with four control columns', () => {
     expect(ROW_CONTROL_COLUMNS, T_252_THE_FLOOR).toBe(4)
     expect(ENTRANCE_OUTER_WIDTH, `${FR_029_THE_OUTER_WIDTH} -- S-138 + 2 x S-243 + 2 x S-237`).toBe(20)
-    expect(S_79, 'table T-203 S-79 default').toBe(200)
+    expect(S_79, 'table T-203 S-79 default').toBe(300)
   })
 
   it('agrees with the ratio PI-35 answers at both steps (FR-039)', () => {
@@ -151,12 +157,20 @@ describe('CR-400 -- the premises: the two steps, the ratio, and the floor read f
     }
   })
 
-  it('puts the default S-79 x ratio under the floor at the default step and above it from the next step up', () => {
-    const next = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.indexOf(DEFAULT_DISPLAY_SCALE) + 1] as number
-    expect(floorAt(DEFAULT_DISPLAY_SCALE), T_252_THE_WORKED_INEQUALITY).toBeGreaterThan(
-      S_79 * displayRatioAt(DEFAULT_DISPLAY_SCALE),
-    )
-    expect(floorAt(next), T_252_THE_WORKED_INEQUALITY).toBeLessThan(S_79 * displayRatioAt(next))
+  it('puts the default S-79 x ratio at or above the floor at every step of S-234, so the scenes below place the panel by fractions of the floor', () => {
+    for (const step of DISPLAY_SCALE_STEPS) {
+      expect(floorAt(step), `${T_252_THE_WORKED_INEQUALITY} -- ${T_252_HOLDS_AT_EVERY_STEP} -- step ${step}`).toBeLessThanOrEqual(
+        S_79 * displayRatioAt(step),
+      )
+    }
+    const ratio = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+    const left = S_37 * S_125 * ratio + S_138 * S_235
+    const right = S_79 * ratio - ROW_CONTROL_COLUMNS * ENTRANCE_OUTER_WIDTH * S_235
+    expect(REQUIREMENTS).toContain(T_252_THE_DEFAULT_STEP_SIDES)
+    expect([left, right], T_252_THE_DEFAULT_STEP_SIDES).toEqual([
+      expect.closeTo(60.6672, 9),
+      expect.closeTo(134.164, 9),
+    ])
   })
 })
 

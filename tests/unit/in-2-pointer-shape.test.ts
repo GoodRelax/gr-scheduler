@@ -85,7 +85,7 @@
 // WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
 //   * WHICH keyword any of the five answers is. IN-2 gives the spelling to the
-//     viewing environment in as many words.
+//     viewing environment, save the ends and T-264 (its own file holds those).
 //   * WHICH of the five ought to be the closed hand and which the resting one.
 //     IN-2 names 握った手 for the pan alone and gives the other four no hand at
 //     all, so nothing here pairs a shape with a name.
@@ -628,9 +628,10 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 /** 実績バーの端点 -- GR-5 (左端) then GR-6 (右端) of table T-023d. */
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
+  // WHY: the end probe stands one px inside, where GR-6 grabs, not on the pixel a touching marker takes.
   return [
     onEndpoint(loop, box.x, midY(box)),
-    onEndpoint(loop, box.x + box.width, midY(box)),
+    onEndpoint(loop, box.x + box.width - 1, midY(box)),
   ]
 }
 
@@ -850,20 +851,42 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
 })
 
 // ===========================================================================
-// (c) 予定バーと実績バーの端点の上は横方向の伸縮の合図
+// (c) 予定バーと実績バーの端点の上は 表 T-264 の形
 //     -- GR-3 / GR-4 / GR-5 / GR-6 of table T-023d
 // ===========================================================================
 
-describe('T-028 IN-2: 予定バーと実績バーの端点の上は横方向の伸縮の合図', () => {
-  it('answers one and the same shape at all four ends', () => {
+// see FR-040, T-264, PC-1, PC-2, PC-3, PC-4
+const T_264_ENDS = [
+  '| PC-1 | 予定の開始点（表 T-023d の `GR-3`） | 左を向いた白抜きの矢印とすること（MUST）',
+  '| PC-2 | 予定の終了点（表 T-023d の `GR-4`） | 右を向いた白抜きの矢印とすること（MUST）',
+  '| PC-3 | 実績の開始点（表 T-023d の `GR-5`）と、実績の開始点のダミー（同表の `GR-9`） | 左を向いた塗りつぶした矢印とすること（MUST）',
+  '| PC-4 | 実績の終了点（表 T-023d の `GR-6`）と、実績の終了点のダミー（同表の `GR-17`） | 右を向いた塗りつぶした矢印とすること（MUST）',
+] as const
+
+// see FR-040, T-264, PC-7
+const PC_7_KEEPS =
+  '押した時点で掴んだもの（表 T-023a）のポインタの形を、離すか中断する（`IN-1`）まで保つこと（MUST）'
+const PC_7_NO_REPICK = '押しているあいだ、ポインタの下の当たりで形を選び直してはならない（MUST NOT）'
+const FR_040_T_264 =
+  '⭐ 予定と実績の端点と実績のダミーの上に出すポインタの形と、押しているあいだのポインタの形は、表 T-264 に従うこと（MUST）'
+
+describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-264 の形', () => {
+  it('the manuscript still holds the four end rows of T-264, the PC-7 row and the FR-040 sentence quoted here', () => {
+    const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
+    for (const row of [...T_264_ENDS, PC_7_KEEPS, PC_7_NO_REPICK, FR_040_T_264]) {
+      expect(requirements, row).toContain(row)
+    }
+  })
+
+  it('answers four DIFFERENT shapes at the four ends -- left and right, hollow and filled', () => {
     const built = stage()
     const ends = [...planEnds(built.loop), ...actualEnds(built.loop)]
     const answers = ends.map((at) => shapeAt(built, at))
-    expect(answers[0], 'T-023d GR-3: 予定の開始点 | 予定バーの左端').not.toBeNull()
+    answers.forEach((shape, at) => expect(shape, T_264_ENDS[at]).not.toBeNull())
     expect(
       new Set(answers).size,
-      `T-028 IN-2 gives 予定バーと実績バーの端点 ONE meaning: ${answers.join(', ')}`,
-    ).toBe(1)
+      `${FR_040_T_264}: ${answers.join(' | ')}`,
+    ).toBe(T_264_ENDS.length)
   })
 
   it('answers it on the plan bar left end -- GR-3, 予定バーの左端', () => {
@@ -885,6 +908,35 @@ describe('T-028 IN-2: 予定バーと実績バーの端点の上は横方向の�
     const first = shapeAt(built, left as Point)
     shapeAt(built, emptyCanvas(built.loop))
     expect(shapeAt(built, left as Point)).toBe(first)
+  })
+})
+
+describe('T-264 PC-7: while pressed, the pointer keeps the shape it had when pressed', () => {
+  it('a press on the plan end keeps its arrow while dragged off the end, over empty canvas', () => {
+    const built = stage()
+    const end = planEnds(built.loop)[1] as Point
+    const away = emptyCanvas(built.loop)
+    const restingAway = shapeAt(built, away)
+    const atPress = shapeAt(built, end)
+    expect(atPress, 'the premise: the end and the empty canvas answer apart').not.toBe(restingAway)
+    // STEP: press on the end, then drag to where the resting shape differs
+    built.send(pointer('down', end))
+    built.send(pointer('move', away))
+    expect(built.latest(), PC_7_KEEPS).toBe(atPress)
+    expect(built.latest(), PC_7_NO_REPICK).not.toBe(restingAway)
+  })
+
+  it('a press on the bar body keeps the grab shape while dragged over empty canvas (not only ends)', () => {
+    const built = stage()
+    const body = barBody(built.loop)
+    const away = emptyCanvas(built.loop)
+    const restingAway = shapeAt(built, away)
+    const atPress = shapeAt(built, body)
+    expect(atPress).not.toBe(restingAway)
+    // STEP: press on the body, then drag to where the resting shape differs
+    built.send(pointer('down', body))
+    built.send(pointer('move', away))
+    expect(built.latest(), PC_7_KEEPS).toBe(atPress)
   })
 })
 
@@ -918,8 +970,8 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
   it('⭐ answers something OTHER than the bars ends do', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
-    // IN-2's two clauses side by side: 「端点の上は横方向の伸縮の合図」 against
-    // 「本体と図形の上は掴めることの合図」. Two meanings, so two shapes --
+    // IN-2's two clauses side by side: 「端点の上は 表 T-264 の形」 against
+    // 「本体とマイルストーンの図形の上は掴めることの合図」. Two meanings, so two shapes --
     // otherwise one bar would promise the same thing end to end.
     expect(shapeAt(built, barBody(built.loop))).not.toBe(shapeAt(built, left as Point))
   })

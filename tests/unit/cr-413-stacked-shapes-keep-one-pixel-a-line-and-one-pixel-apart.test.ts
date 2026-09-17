@@ -286,8 +286,8 @@ describe('VG-1 / VG-2 (MUST) -- the gap between two lanes of one row', () => {
     },
   )
 
-  it('is the 2.75px CR-413 works out at the default step, from the manuscript numbers alone', () => {
-    expect(gapAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(2.75, 9)
+  it('is 1 + 1.5 x 0.625 + 1 = 2.9375px at the default step once CR-417 moved S-236, from the manuscript numbers alone', () => {
+    expect(gapAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(2.9375, 9)
   })
 })
 

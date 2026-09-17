@@ -67,8 +67,8 @@
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, each searched for before being given up
 // ---------------------------------------------------------------------------
 //
-//   1. WHAT SEPARATES the three parts on the screen, or how much room each
-//      takes. ⛔ No row states either. FR-036 states an ORDER and stops.
+//   1. WHAT SEPARATES the glyph and the explanation from the assignment, or how
+//      much room each takes. ⛔ No row states either (two assignments: ／, below).
 //   2. WHETHER A ROW WITH NEITHER KEY NOR MOUSE OPERATION KEEPS A BOX. 「どちら
 //      も持たない行は、その場所を空ける」 says the place is left empty; whether
 //      「場所を空ける」 means an empty box is drawn or nothing is drawn at all is
@@ -227,7 +227,7 @@ const EMPTY_VIEW: ScreenView = {
 
 /** The words this file drives with, all distinct so no case can confuse two. */
 const EXPLANATION = 'HelpExplanationHere'
-const KEYS = 'Ctrl+Shift+K'
+const KEYS = 'Ctrl \uff0b Shift \uff0b K'
 const PRESS = 'HelpMousePressHere'
 
 /** The row of table T-109 the item's glyph stands for. ⚠️ Not IC-52, which closes the help. */
@@ -623,6 +623,19 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
     expect(order.indexOf(pressCell), `the item reads ${whatWasDrawn(item)}`).toBeGreaterThan(
       order.indexOf(explanationCell),
     )
+  })
+
+  it('FR-036: 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに `／`（全角の斜線）を、前後に半角の空白を 1 つずつ置いて並べること（MUST）', () => {
+    const { help } = drawn([entry({ keys: KEYS, press: PRESS })])
+    const item = commonAncestor(theCellShowing(help, EXPLANATION), theCellShowing(help, KEYS))
+    expect(item.textContent, `the item reads ${JSON.stringify(item.textContent)}`).toContain(`${KEYS} \uff0f ${PRESS}`)
+    expect(item.textContent, 'a bare space alone reads the two assignments as one').not.toContain(`${KEYS} ${PRESS}`)
+  })
+
+  it('FR-036: an item with one assignment carries no separator of its own', () => {
+    const { help } = drawn([entry({ keys: KEYS })])
+    const item = commonAncestor(theCellShowing(help, EXPLANATION), theCellShowing(help, KEYS))
+    expect(item.textContent, `the item reads ${whatWasDrawn(item)}`).not.toContain('\uff0f')
   })
 
   it('MUST: the wheel inside a mouse word is drawn as the IC-102 glyph, never as its row id', () => {

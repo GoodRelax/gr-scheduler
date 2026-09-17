@@ -48,12 +48,12 @@
 //   T-023c SL-1  the five kinds a selection may hold -- 「タスク・依存線・ハイライト
 //                ボックス・コメントボックス・基準日線」 -- and 「行（`TaskGroup`）は
 //                対象に含めない」. EVERY ONE OF THE FIVE gets a case below.
-//   T-036  SK-2  「選択できるものをすべて選択する（表 T-023c の SL-1）| `Ctrl+A`」 --
+//   T-036  SK-2  「選択できるものをすべて選択する（表 T-023c の SL-1）| `Ctrl` ＋ `A`」 --
 //                the one door a test outside the loop has for putting all five
 //                kinds into a selection at once.
 //   T-036  SK-3  「選択しているものを削除する（対象の全数は表 T-023c の SL-1）|
-//                `Delete` / `Backspace`」 -- one of the entrances the rule names.
-//   T-036  SK-6 / SK-7   `Ctrl+Z` / `Ctrl+Y` -- 取り消し／やり直し, two more.
+//                `Delete` ／ `Backspace`」 -- one of the entrances the rule names.
+//   T-036  SK-6 / SK-7   `Ctrl` ＋ `Z` / `Ctrl` ＋ `Y` -- 取り消し／やり直し, two more.
 //   T-036  SK-20 「**基準日線を出す / 消す**（`FR-046`。出すと本日が `statusDate` に
 //                入り、消すと `null` になる）」 -- which is what makes the status
 //                line stop existing, and what says how to ask whether it does.
@@ -131,7 +131,7 @@ import {
   type HeldDocumentCall,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bareAll, specTable, unbroken } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -177,16 +177,19 @@ const SL_1_KINDS: readonly { readonly kind: SelectableKind; readonly word: strin
 ]
 
 /**
- * Every spelling one row of table T-036 assigns, as the manuscript writes them.
+ * Every assignment one row of table T-036 holds, each as the keys it joins.
  *
- * ⚠️ A LIST, because the column enumerates: SK-3 is 「`Delete` / `Backspace`」
- * and SK-7 is 「`Ctrl+Y` / `Ctrl+Shift+Z`」. Reading only the first span
+ * ⚠️ A LIST, because the column enumerates: SK-3 is 「`Delete` ／ `Backspace`」
+ * and SK-7 is 「`Ctrl` ＋ `Y` ／ `Ctrl` ＋ `Shift` ＋ `Z`」. Reading only the first span
  * answered for one spelling of two and nothing said so (`DFC-351`).
  */
-const assignmentOf = (row: string): readonly string[] => {
+const assignmentOf = (row: string): readonly (readonly string[])[] => {
   const found = specTable('T-036').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`table T-036 has no row ${row}`)
-  return bareAll(found.by['割当'] ?? '')
+  return (found.by['割当'] ?? '')
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
 }
 
 // ===========================================================================
@@ -563,12 +566,15 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('the keys these cases press are still the ones table T-036 assigns', () => {
-    expect(assignmentOf('SK-2')).toEqual(['Ctrl+A'])
+    expect(assignmentOf('SK-2')).toEqual([['Ctrl', 'A']])
     // ⭐ BOTH spellings, not the first: SK-3 and SK-7 each assign two, and the
     // whole cell is what these cases stand on (`DFC-351`).
-    expect(assignmentOf('SK-3')).toEqual(['Delete', 'Backspace'])
-    expect(assignmentOf('SK-6')).toEqual(['Ctrl+Z'])
-    expect(assignmentOf('SK-7')).toEqual(['Ctrl+Y', 'Ctrl+Shift+Z'])
+    expect(assignmentOf('SK-3')).toEqual([['Delete'], ['Backspace']])
+    expect(assignmentOf('SK-6')).toEqual([['Ctrl', 'Z']])
+    expect(assignmentOf('SK-7')).toEqual([
+      ['Ctrl', 'Y'],
+      ['Ctrl', 'Shift', 'Z'],
+    ])
     // SK-20's cell spells the combination with the manuscript's own spacing.
     expect(specTable('T-036').rows.find((one) => one.id === 'SK-20')?.by['割当'] ?? '').toContain(
       'Shift',

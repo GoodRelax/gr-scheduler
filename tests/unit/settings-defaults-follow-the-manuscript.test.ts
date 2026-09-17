@@ -79,6 +79,48 @@ describe('_assets/tbl-settings.md — the shipped defaults are the printed defau
   })
 })
 
+// see T-201
+const T_201_DEFAULT_COLUMN = '\u65e2\u5b9a\u5024'
+
+// see T-201, S-2, S-3, T-215, CR-418
+const rulerCellOf = (row: string): string =>
+  specTable('T-201').rows.find((one) => one.id === row)?.by[T_201_DEFAULT_COLUMN] ?? ''
+
+// see T-201, S-3, CR-418
+const S_3_FACTOR = ((): number => {
+  const hit = /`fontScaleSizes\[fontScale\]`\s*\u00d7\s*(\d+(?:\.\d+)?)/.exec(rulerCellOf('S-3'))
+  if (hit === null) throw new Error(`S-3 no longer states fontScaleSizes[fontScale] x a factor: ${rulerCellOf('S-3')}`)
+  return Number(hit[1])
+})()
+
+// see T-201, S-2, S-3
+const printedPerTextSize = (row: string): Readonly<Record<string, number>> => {
+  const found = /\uff08S = (\d+(?:\.\d+)?) \/ M = (\d+(?:\.\d+)?) \/ L = (\d+(?:\.\d+)?)\uff09/.exec(rulerCellOf(row))
+  if (found === null) throw new Error(`${row} no longer prints its S / M / L example`)
+  return { S: Number(found[1]), M: Number(found[2]), L: Number(found[3]) }
+}
+
+describe('S-3 / S-2 (table T-201) -- the ruler font is the text size x 1.5 and the band follows it (CR-418)', () => {
+  const pad = SHIPPED['rulerLabelPad'] as number
+
+  it('prints S 18 / M 21 / L 24 and S 60 / M 69 / L 78, the table T-215 sizes x the S-3 factor and three rows of them', () => {
+    expect(S_3_FACTOR, 'CR-418 decision 1').toBe(1.5)
+    for (const size of ['S', 'M', 'L'] as const) {
+      const font = (SHIPPED[`fontScaleSizes.${size}`] as number) * S_3_FACTOR
+      expect(printedPerTextSize('S-3')[size], `table T-201 S-3 at ${size}`).toBe(font)
+      expect(printedPerTextSize('S-2')[size], `table T-201 S-2 at ${size}`).toBe(font * 3 + pad * 3)
+    }
+    expect(printedPerTextSize('S-3')).toEqual({ S: 18, M: 21, L: 24 })
+    expect(printedPerTextSize('S-2')).toEqual({ S: 60, M: 69, L: 78 })
+  })
+
+  it('ships `rulerFont` and `rulerHeight` at the default text size as the table prints them', () => {
+    const size = SHIPPED['fontScale'] as string
+    expect(SHIPPED['rulerFont'], `table T-201 S-3 at fontScale ${size}`).toBe(printedPerTextSize('S-3')[size])
+    expect(SHIPPED['rulerHeight'], `table T-201 S-2 at fontScale ${size}`).toBe(printedPerTextSize('S-2')[size])
+  })
+})
+
 describe('S-35 (表 T-201) — a name is cut at 48 half-width units, not 24', () => {
   it('ships `truncateUnits` at the number the row states', () => {
     const s35 = statedBy('S-35')

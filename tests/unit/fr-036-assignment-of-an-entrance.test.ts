@@ -24,8 +24,8 @@
 //   FR-036        ⭐ 「ここでいう割当は、キー（表 T-036 の `割当`）とマウス操作
 //                 （表 T-023 の `操作`）の両方を指すこと（MUST）」、「どちらも
 //                 持たない行は、その場所を空ける」。
-//                 ⚠️ 「キーの綴りは語ではない —— `Ctrl+S` はどの言語でも同じな
-//                 ので、表 T-036 の `割当` の欄から運ぶ」。
+//                 ⚠️ 「キーの綴りは語ではない —— `Ctrl` ＋ `S` はどの言語でも同
+//                 じなので、表 T-036 の `割当` の欄から運ぶ」。
 //                 ⛔ 「マウス操作は語である（MUST） —— …辞書が 表 T-023 の行 ID
 //                 で持つこと（MUST）。同表の `操作` の欄を画面へ運んではならない
 //                 （MUST NOT）」。
@@ -392,7 +392,7 @@ describe('EZ-2 (MUST) — a key row puts its spelling behind the explanation', (
   }
 
   it('spells a key the same way in both languages', () => {
-    // FR-036: 「キーの綴りは語ではない —— `Ctrl+S` はどの言語でも同じなので」.
+    // FR-036: 「キーの綴りは語ではない —— `Ctrl` ＋ `S` はどの言語でも同じなので」.
     for (const { icon } of KEY_ONLY) {
       expect(assignmentShownFor(icon, 'en'), `${icon} spells its key twice`).toBe(
         assignmentShownFor(icon, 'ja'),
@@ -408,7 +408,10 @@ describe('EZ-2 (MUST) — a mouse row puts the dictionary word behind the explan
         for (const language of LANGUAGES) {
           const word = pressWordOf(row, language)
           expect(word, `the dictionary holds an empty mouse word for ${row} in ${language}`).not.toBe('')
-          expect(assignmentShownFor(icon, language) ?? '', `${icon} in ${language}`).toContain(word)
+          expect(
+            assignmentShownFor(icon, language) ?? '',
+            `${icon} in ${language}: 画面の一覧でも綴りが 2 通りに割れる。⛔ **マウス操作は語である（MUST）`,
+          ).toContain(word)
         }
       })
     }
@@ -451,6 +454,37 @@ describe('FR-036 — an entrance the tables name from both sides, and one they n
       }
     })
   }
+})
+
+// see FR-036, T-036
+const spelledOnScreen = (cell: string): string =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+    .map((keys) => keys.join(' \uff0b '))
+    .join(' \uff0f ')
+
+describe('EZ-2 + FR-036 (MUST) -- two assignments on one entrance are joined by " \uff0f "', () => {
+  it('IC-6 carries both assignments of SK-7, and the key and the wheel of IC-12 to IC-15 stand either side of it', () => {
+    const redo = KEY_DRIVERS.find((one) => (one.icons as readonly string[]).includes('IC-6'))
+    const both = spelledOnScreen(cellOf(T_036, (redo as { row: string }).row, '割当'))
+    expect(both, 'SK-7 no longer holds two assignments').toContain(' \uff0f ')
+    for (const language of LANGUAGES) {
+      expect(assignmentShownFor('IC-6', language) ?? '', `IC-6 (${language})`).toContain(both)
+      for (const icon of NAMED_BY_BOTH) {
+        const keyRow = KEY_DRIVERS.find((one) => (one.icons as readonly string[]).includes(icon))
+        const mouseRow = MOUSE_DRIVERS.find((one) => (one.icons as readonly string[]).includes(icon))
+        const keys = spelledOnScreen(cellOf(T_036, (keyRow as { row: string }).row, '割当'))
+        const word = pressWordOf((mouseRow as { row: string }).row, language)
+        const head = (word.split('{IC-102}')[0] ?? '').trimEnd()
+        expect(
+          assignmentShownFor(icon, language) ?? '',
+          '1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに `／`（全角の斜線）を、前後に半角の空白を 1 つずつ置いて並べること（MUST）',
+        ).toContain(`${keys} \uff0f ${head}`)
+      }
+    }
+  })
 })
 
 describe('FR-036 — an entrance no row drives leaves the place empty', () => {

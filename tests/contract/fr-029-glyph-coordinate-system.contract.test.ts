@@ -813,3 +813,58 @@ describe('the manuscript still says what these cases copy', () => {
     )
   })
 })
+
+// see FR-036, IC-102, F-019
+const FR_036_WHEEL_NOT_A_CHARACTER =
+  '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
+
+// see F-019
+function figureGlyphOf(rowId: string): Glyph {
+  const figure = readFileSync(FIGURE, 'utf8')
+  const label = figure.indexOf(`>${rowId}</text>`)
+  if (label < 0) throw new Error(`figure F-019 labels no ${rowId}`)
+  const open = figure.lastIndexOf('<g ', label)
+  const body = figure.slice(figure.indexOf('>', open) + 1, figure.indexOf('</g>', open))
+  const elements = [...body.matchAll(/<(\w+)\s([^>]*?)\/?>/g)].map((one) => ({
+    tag: one[1] ?? '',
+    attributes: [...(one[2] ?? '').matchAll(/([\w-]+)="([^"]*)"/g)].map((pair) => ({
+      name: pair[1] ?? '',
+      value: pair[2] ?? '',
+    })),
+  }))
+  return { rowId, elements }
+}
+
+// see F-019
+const geometryOf = (glyph: Glyph): readonly string[] =>
+  glyph.elements.map(
+    (element) =>
+      `${element.tag} ${element.attributes
+        .filter((one) => one.name !== 'class' && one.name !== ATTRIBUTE_STYLE)
+        .map((one) => `${one.name}=${one.value}`)
+        .sort()
+        .join(' ')}`,
+  )
+
+describe('FR-036 (MUST NOT): the wheel glyph IC-102 is not read as a character', () => {
+  it('the manuscript still holds the rule, and F-019 draws IC-102 with a filled wheel beside its outline', () => {
+    expect(readFileSync(REQUIREMENTS, 'utf8')).toContain(FR_036_WHEEL_NOT_A_CHARACTER)
+    const drawn = figureGlyphOf('IC-102')
+    expect(drawn.elements.length, geometryOf(drawn).join('; ')).toBeGreaterThan(2)
+    expect(drawn.elements.some((one) => attributeOf(one, 'class') === 'f'), 'no filled part').toBe(true)
+  })
+
+  it(`${FR_036_WHEEL_NOT_A_CHARACTER} -- the carried IC-102 is F-019's own shape, element for element`, () => {
+    const carried = CARRIED_FIGURE.glyphs.find((one) => one.rowId === 'IC-102')
+    expect(carried, 'icon-glyphs.json carries no IC-102').toBeDefined()
+    expect(geometryOf(carried as Glyph)).toEqual(geometryOf(figureGlyphOf('IC-102')))
+  })
+
+  it(`${FR_036_WHEEL_NOT_A_CHARACTER} -- the carried IC-102 is not a tall outline: its ink is about as wide as tall or wider`, () => {
+    const ink = INK_BY_ROW.get('IC-102')
+    expect(ink, 'icon-glyphs.json carries no IC-102').toBeDefined()
+    const frame = ink as Frame
+    // WHY: 0.9 reads CR-425's near-square; the lone tall outline it replaced measures 0.7.
+    expect((frame.maxX - frame.minX) / (frame.maxY - frame.minY), MEASURED).toBeGreaterThanOrEqual(0.9)
+  })
+})

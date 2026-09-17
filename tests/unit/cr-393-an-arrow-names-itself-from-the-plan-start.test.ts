@@ -52,13 +52,19 @@ const T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE =
   '⭐ 表 T-012 の `SH-1` / `SH-2` で、名称ラベルの箱の幅（打ち切った後の字の幅に `S-31` を足した長さ）＋ `S-32` ＋ 進捗マーカーの径 ＋ `S-23` ＋ `S-91` × 2 が実績の幅以下のときは、本表を当てず、名称ラベルと進捗マーカーを実績の中に置くこと（MUST）。'
 
 const T_013_HOW_THEY_STAND_INSIDE =
-  '置き方は、実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの右端を、そのマーカーの左端から `S-32` だけ左に名称ラベルの箱の右端を置く —— 左から「名前 → マーカー」の順である。'
+  '置き方は、実績の右端から `S-91` だけ内側に名称ラベルの箱の右端を、その箱の左端から `S-32` だけ左にマーカーの右端を置く —— 左から「マーカー → 名前」の順である。'
+
+const T_013_THE_LEFT_GAP_THAT_REMAINS =
+  '⚠️ マーカーの左端と実績の左端のあいだには、`S-91` と `S-23` を足した長さ以上が残る —— 上の判定の和が実績の幅以下だからであり、判定の和は並びを入れ替えても変わらない。'
+
+const FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER =
+  '⛔ 進捗マーカーと名称ラベルを両方描くときは、名称ラベルをマーカーの左に置いてはならない（MUST NOT）'
 
 const T_013_THE_GRIPS_ARE_KEPT_CLEAR =
   '⭐ `S-91` を両端に数えるのは、実績の端点の掴み代（表 T-023d の `GR-5` / `GR-6`）の上に名前もマーカーも置かないためである。'
 
 const T_013_INSIDE_WITH_THE_MARKER_HIDDEN =
-  '⭐ 進捗マーカーを隠しているとき（`_assets/tbl-settings.md` の 表 T-202 の `S-63` が偽）は、判定からマーカーの径と `S-23` を除き、名称ラベルの箱の右端を実績の右端から `S-91` だけ内側に置くこと（MUST）。'
+  '⭐ 進捗マーカーを隠しているとき（`_assets/tbl-settings.md` の 表 T-202 の `S-63` が偽）は、判定からマーカーの径と `S-23` を除き、名称ラベルの箱の右端を実績の右端から `S-91` だけ内側に置くこと（MUST）'
 
 const T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE =
   '⚠️ 実績を持たない未着手のタスクには本段が当たらない —— 実績のダミー（`FR-043`）は実績ではない。'
@@ -73,7 +79,9 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-094 (MUST) -- the arrow marker diameter is that task\'s name font', FR_094_THE_ARROW_MARKER_IS_THE_NAME_FONT],
   ['FR-094 (MUST) -- the resume icon is derived from that same diameter', FR_094_THE_RESUME_ICON_FOLLOWS_THAT_DIAMETER],
   ['T-013 (MUST) -- a rectangle holds name and marker inside the actual when they fit', T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE],
-  ['T-013 -- how the two stand inside, name then marker', T_013_HOW_THEY_STAND_INSIDE],
+  ['T-013 -- how the two stand inside, marker then name', T_013_HOW_THEY_STAND_INSIDE],
+  ['T-013 -- the gap left of the marker inside the actual', T_013_THE_LEFT_GAP_THAT_REMAINS],
+  ['FR-002 (MUST NOT) -- the name never stands left of the marker', FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER],
   ['T-013 -- S-91 at both ends keeps the endpoint grips clear', T_013_THE_GRIPS_ARE_KEPT_CLEAR],
   ['T-013 (MUST) -- with S-63 false the marker leaves the judgement and the name moves right', T_013_INSIDE_WITH_THE_MARKER_HIDDEN],
   ['T-013 -- a task with no actual is out of this paragraph\'s scope', T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE],
@@ -97,7 +105,6 @@ const num = (key: string): number => {
 }
 
 const S_23 = num('markerGap')
-const S_31 = num('labelPad')
 const S_32 = num('labelGap')
 const S_91 = NOT_STORED_SIZES['S-91']
 
@@ -305,32 +312,50 @@ describe('T-013 (MUST) -- a rectangle draws the name and the marker inside a wid
       .toBeLessThanOrEqual(actualWidth)
   })
 
-  it('stands the marker S-91 + S-23 inside the actual right edge, and the name S-32 left of it', () => {
+  it('stands the name box S-91 inside the actual right edge, and the marker S-32 left of it', () => {
     const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
     const actualRight = scene.placed.actualReach ?? 0
     const markerRight = scene.drawn.marker!.centre.x + scene.drawn.marker!.radius
-    const markerLeft = scene.drawn.marker!.centre.x - scene.drawn.marker!.radius
+    const nameLeft = scene.drawn.label!.x
     const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
 
-    expect(markerRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(
-      actualRight - S_91 - S_23 * DRAWN_RATIO,
-      6,
-    )
-    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(
-      markerLeft - S_32 * DRAWN_RATIO,
-      6,
-    )
-    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeLessThan(markerLeft)
+    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(actualRight - S_91, 6)
+    expect(markerRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(nameLeft - S_32 * DRAWN_RATIO, 6)
+    expect(markerRight, FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER).toBeLessThan(nameLeft)
   })
 
   it('leaves the endpoint grips clear at both ends of the actual', () => {
     const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
     const actualRight = scene.placed.actualReach ?? 0
-    const markerRight = scene.drawn.marker!.centre.x + scene.drawn.marker!.radius
-    expect(actualRight - markerRight, T_013_THE_GRIPS_ARE_KEPT_CLEAR).toBeGreaterThanOrEqual(
+    const markerLeft = scene.drawn.marker!.centre.x - scene.drawn.marker!.radius
+    const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
+    expect(actualRight - nameRight, T_013_THE_GRIPS_ARE_KEPT_CLEAR).toBeGreaterThanOrEqual(
       S_91 - 1e-6,
     )
-    expect(scene.drawn.label!.x - scene.placed.x, T_013_THE_GRIPS_ARE_KEPT_CLEAR).toBeGreaterThan(0)
+    expect(markerLeft - scene.placed.x, T_013_THE_LEFT_GAP_THAT_REMAINS).toBeGreaterThanOrEqual(
+      S_91 + S_23 * DRAWN_RATIO - 1e-6,
+    )
+  })
+
+  it.each([
+    ['a wide actual that holds both', 120, 'ab'],
+    ['a short plan and actual that send the name outside the shape', 8, 'a name far too long for this plan'],
+  ] as const)('never puts the name left of the marker: %s (MUST NOT)', (_how, planDays, name) => {
+    const task = spanning(1, '2026-02-02', planDays, {
+      name,
+      percentComplete: 40,
+      actualStart: '2026-02-02',
+      stop: planDays === 8 ? '2026-02-03' : '2026-05-20',
+      resumeValid: true,
+    })
+    const scene = sceneOf(task, 'rectangle')
+    expect(scene.placed.labelPlacement === 'inside', 'premise: only the wide actual keeps the name in the shape').toBe(planDays !== 8)
+    expect(scene.drawn.marker, 'premise: a marker is drawn').not.toBeNull()
+    expect(scene.drawn.label, 'premise: a name is drawn').not.toBeNull()
+    expect(
+      scene.drawn.marker!.centre.x + scene.drawn.marker!.radius,
+      FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER,
+    ).toBeLessThanOrEqual(scene.drawn.label!.x + 1e-6)
   })
 
   it('counts nothing in OC-1, because the name never leaves the shape', () => {
@@ -348,6 +373,11 @@ describe('T-013 (MUST) -- a rectangle draws the name and the marker inside a wid
     const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
     expect(scene.drawn.marker, 'premise: S-63 false draws no marker').toBeNull()
     expect(nameRight, T_013_INSIDE_WITH_THE_MARKER_HIDDEN).toBeCloseTo(actualRight - S_91, 6)
+    const shown = sceneOf(WIDE_ACTUAL, 'rectangle')
+    expect(nameRight, 'switching S-63 does not move a name that stays inside the actual').toBeCloseTo(
+      shown.drawn.label!.x + shown.drawn.label!.width,
+      6,
+    )
   })
 
   it('does not reach a task that has no actual at all', () => {

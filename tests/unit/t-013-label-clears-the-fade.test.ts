@@ -201,18 +201,24 @@ const S_180_DEFAULT = Number.parseFloat(
   specTable('T-206').rows.find((one) => one.id === 'S-180')?.by['既定'] ?? 'NaN',
 )
 
+// see T-206
+const S_247_DEFAULT = Number.parseFloat(
+  specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN',
+)
+
 // see FR-039, T-252
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
-// see T-252
-const markerStartOf = (pxPerDay: number): number =>
-  Math.min(pxPerDay, S_180_DEFAULT) +
-  (FLAT['markerGap']! + FLAT['markerSize']! + FLAT['labelGap']!) * DRAWN_RATIO
+// see T-240, FR-013
+const markerStartOf = (_pxPerDay: number): number =>
+  Math.min(FLAT['markerSize']! * DRAWN_RATIO * S_247_DEFAULT, S_180_DEFAULT) +
+  (FLAT['markerSize']! + FLAT['labelGap']!) * DRAWN_RATIO
 
 describe('the paragraph after table T-013 -- the label begins where the fade ends', () => {
-  it('premise: a task nobody started stands marker (1) inside the shape, S-23 past the dummy mark on the plan start day', () => {
+  it('premise: a task nobody started stands marker (1) inside the shape, touching the DM-3 dummy mark on the plan start day', () => {
     const plain = barOf(60, 'ab')
     expect(Number.isFinite(S_180_DEFAULT)).toBe(true)
+    expect(Number.isFinite(S_247_DEFAULT)).toBe(true)
     expect(markerStartOf(plain.pxPerDay)).toBeLessThan(plain.placed.width)
   })
 

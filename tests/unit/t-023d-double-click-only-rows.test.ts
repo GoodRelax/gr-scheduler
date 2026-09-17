@@ -328,7 +328,7 @@ const TASK_NAMED = taskOf({
  *
  * ⚠️ IT CARRIES AN ACTUAL ON PURPOSE. FR-043 draws the two dummies of GR-9 and
  * GR-17 on a Task that has not started, and their hit box is the mark FR-043
- * draws (table T-023d's closing rule, sized by S-180 of table T-206) -- which
+ * draws (table T-023d's closing rule, sized by DM-3 of table T-240) -- which
  * reaches further to the left of the plan start than the assignee label sits.
  * With an actual recorded there is no dummy, so what the probe left of the bar
  * answers is about GR-11 and nothing else.

@@ -17,8 +17,17 @@ import {
   type DocumentSettingsCommand,
   type ProjectCommand,
 } from '../../src/use-case/edit-document/edit-document'
+import { specTable } from '../contract/spec-table'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
+
+// see S-3, T-201
+const RULER_FONT_FACTOR = ((): number => {
+  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['既定値'] ?? ''
+  const found = /×\s*(\d+(?:\.\d+)?)/.exec(cell)
+  if (found === null) throw new Error(`S-3 states no factor: ${cell}`)
+  return Number(found[1])
+})()
 
 const documentOf = (part: Record<string, unknown> = {}): Document =>
   ({
@@ -265,7 +274,10 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document).not.toBe(drifted)
-    expect(result.document.documentSettings.rulerFont).toBe(14)
+    const sizeM = (drifted.documentSettings.fontScaleSizes as unknown as Record<string, number>)['M']!
+    expect(result.document.documentSettings.rulerFont, 'S-3: fontScaleSizes[fontScale] x the T-201 factor').toBe(
+      sizeM * RULER_FONT_FACTOR,
+    )
   })
 
   it('CM-63 setThemePreference', () => {

@@ -59,18 +59,19 @@ function settingOf(table: string, id: string, column: string): number {
   return value
 }
 
-// see S-1, S-4, S-5
-const S_1 = settingOf('T-201', 'S-1', DEFAULT_VALUE_COLUMN)
+// see S-4, S-5
 const S_4 = settingOf('T-201', 'S-4', DEFAULT_VALUE_COLUMN)
 const S_5 = settingOf('T-201', 'S-5', DEFAULT_VALUE_COLUMN)
-// see S-75, S-76
-const S_75 = settingOf('T-203', 'S-75', DEFAULT_COLUMN)
+// see S-76
 const S_76 = settingOf('T-203', 'S-76', DEFAULT_COLUMN)
 // see S-180
 const S_180 = settingOf('T-206', 'S-180', DEFAULT_COLUMN)
+// see S-22, S-247
+const S_22 = settingOf('T-201', 'S-22', DEFAULT_VALUE_COLUMN)
+const S_247 = settingOf('T-206', 'S-247', DEFAULT_COLUMN)
 
-// see DM-3, DS-4, DS-7
-const MARK_WIDTH_PX = Math.min(S_1 * DEFAULT_DISPLAY_RATIO * S_75, S_180)
+// see DM-3, DS-1
+const MARK_WIDTH_PX = Math.min(S_22 * DEFAULT_DISPLAY_RATIO * S_247, S_180)
 // see S-180, DS-1, DS-8
 const MARK_HEIGHT_PX = S_4 * DEFAULT_DISPLAY_RATIO * S_76 * S_5
 
@@ -550,8 +551,8 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   const step = dummy.width
   expect(
     step,
-    `表 T-240 の DM-3 (MUST): ダミーを描く幅は 1 日ぶん（S-1 ${S_1}px × 描く比 ` +
-      `${DEFAULT_DISPLAY_RATIO} × zoomX ${S_75}）と S-180 ${S_180}px の小さい方であり、` +
+    `表 T-240 の DM-3 (MUST): ダミーを描く幅は進捗マーカーの径（S-22 ${S_22}px × 描く比 ` +
+      `${DEFAULT_DISPLAY_RATIO}）× S-247 ${S_247} と S-180 ${S_180}px の小さい方であり、` +
       `${MARK_WIDTH_PX}px になる`,
   ).toBe(Math.round(MARK_WIDTH_PX))
   expect(
@@ -563,7 +564,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   // WHY: pressed a quarter into the mark -- inside GR-9's (start) half and
   // short of the centre pixel, which FR-043 routes to GR-17 (finish) instead.
   // WHY: a move no further than S-208 is a press, not a drag, so the product writes
-  // WHY: nothing; the mark is 2px here, so three of them would not reach that boundary.
+  // WHY: nothing; the mark is a few px here, so three of them may not reach that boundary.
   const carriedPx = Math.max(steps * step, PRESS_OR_DRAG_PX + step)
   const from = { x: dummy.x + dummy.width / 4, y: dummy.y + dummy.height / 2 }
   await page.mouse.move(from.x, from.y)
@@ -766,13 +767,13 @@ const CLAUSES: readonly (readonly [string, string])[] = [
     '⭐ `GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。',
   ],
   [
-    'T-023d closing (MUST NOT) -- that hit area is never a fixed pixel box',
-    '⛔ ダミーの当たり判定を、固定の画素幅の箱で取ってはならない（MUST NOT）',
+    'T-023d closing (MUST NOT) -- that hit area is never a box wider than the mark',
+    '⛔ ダミーの当たり判定を、描いた印より広い箱で取ってはならない（MUST NOT）',
   ],
 ]
 
 const DM_3_THE_DRAWN_WIDTH =
-  'ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方とすること（MUST）'
+  'ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
 
 test('the manuscript still states the mark this file measures, word for word', () => {
   for (const [name, clause] of CLAUSES) {

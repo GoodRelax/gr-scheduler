@@ -38,7 +38,7 @@ import { specTable } from '../contract/spec-table'
 // see IN-2
 
 const IN_2_DEPENDENCY_ARROW_MUST =
-  '依存線を構えているあいだ（表 T-023b の `AR-4`）は、予定と実績の端点・実績のダミー・タスクの本体・マイルストーンの図形の上でも、横方向の伸縮の合図・掴めることの合図・作図の合図のどれにもせず、既定の矢印とすること（MUST）'
+  '依存線を構えているあいだ（表 T-023b の `AR-4`）は、予定と実績の端点・実績のダミー・タスクの本体・マイルストーンの図形の上でも、表 T-264 の形・掴めることの合図・作図の合図のどれにもせず、既定の矢印とすること（MUST）'
 
 const IN_2_ARMED_EMPTY_MUST = '構えているときは作図の合図'
 
@@ -374,7 +374,8 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
-  return [onEndpoint(loop, box.x, midY(box)), onEndpoint(loop, box.x + box.width, midY(box))]
+  // WHY: the end probe stands one px inside, where GR-6 grabs, not on the pixel a touching marker takes.
+  return [onEndpoint(loop, box.x, midY(box)), onEndpoint(loop, box.x + box.width - 1, midY(box))]
 }
 
 function barBody(loop: FrameLoop): Point {
@@ -512,15 +513,15 @@ describe('T-028 IN-2 -- armed for a dependency line, every named place is the de
 
 // see CR-388
 describe('unarmed control -- T-023d places keep their own shapes, not the arrow', () => {
-  it('answers the SAME resize shape at both plan ends, both actual ends and both task dummies', () => {
+  it('T-264: answers four different arrows at the four ends, and the task dummies take the actual ends arrows', () => {
     const built = stage()
-    const resizeGroup = [
-      ...planEnds(built.loop),
-      ...actualEnds(built.loop),
-      dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9'),
-      dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-17'),
-    ].map((at) => shapeAt(built, at))
-    expect(new Set(resizeGroup).size).toBe(1)
+    const [planStart, planEnd] = planEnds(built.loop).map((at) => shapeAt(built, at))
+    const [actualStart, actualEnd] = actualEnds(built.loop).map((at) => shapeAt(built, at))
+    const ends = [planStart, planEnd, actualStart, actualEnd]
+    for (const shape of ends) expect(shape).not.toBeNull()
+    expect(new Set(ends).size, `PC-1 .. PC-4: ${ends.join(' | ')}`).toBe(4)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9')), 'PC-3').toBe(actualStart)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-17')), 'PC-4').toBe(actualEnd)
   })
 
   it('answers the SAME grab shape at the body, the started milestone and GR-18, distinct from resize', () => {

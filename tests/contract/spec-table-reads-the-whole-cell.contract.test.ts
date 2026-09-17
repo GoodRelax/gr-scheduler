@@ -46,6 +46,13 @@ const rowOf = (table: string, id: string): Readonly<Record<string, string>> => {
   return found.by
 }
 
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
 describe('bareAll -- every value a cell states', () => {
   it('gives one value for an ordinary cell', () => {
     expect(bareAll('`Command Palette`')).toEqual(['Command Palette'])
@@ -64,12 +71,20 @@ describe('bareAll -- every value a cell states', () => {
   })
 
   it('gives BOTH spellings 表 T-036 SK-3 assigns', () => {
-    // 「`Delete` / `Backspace`」 -- two spellings of the one key SK-3 assigns.
+    // 「`Delete` ／ `Backspace`」 -- two spellings of the one key SK-3 assigns.
     expect(bareAll(rowOf('T-036', 'SK-3')['割当'] ?? '')).toEqual(['Delete', 'Backspace'])
   })
 
-  it('gives BOTH spellings 表 T-036 SK-7 assigns', () => {
-    expect(bareAll(rowOf('T-036', 'SK-7')['割当'] ?? '')).toEqual(['Ctrl+Y', 'Ctrl+Shift+Z'])
+  it('REFUSES 表 T-036 SK-7, whose two assignments are each welded, and the raw cell holds both', () => {
+    const cell = rowOf('T-036', 'SK-7')['割当'] ?? ''
+    expect(() => bareAll(cell)).toThrow(/welded by/)
+    expect(
+      assignmentsIn(cell),
+      '表 T-036 と 表 T-255 の `割当` の欄が 1 つの欄に 2 つ以上の割当を持つときも、同じ区切りで並べること（MUST）',
+    ).toEqual([
+      ['Ctrl', 'Y'],
+      ['Ctrl', 'Shift', 'Z'],
+    ])
   })
 
   it('gives all six surfaces 表 T-109 IC-52 stands on', () => {

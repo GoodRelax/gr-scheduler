@@ -52,6 +52,13 @@ import { bare, specTable } from '../contract/spec-table'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
@@ -357,17 +364,17 @@ describe('FR-033 -- an empty store, and a source that is gone', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-036 の SK-4 / SK-5 -- the two keys FR-033 is reached by', () => {
-  it('SK-4 copies with Ctrl+C and SK-5 pastes with Ctrl+V', () => {
+  it('SK-4 copies with Ctrl + C and SK-5 pastes with Ctrl + V, each one assignment of two keys', () => {
     // ⭐ Driven from the table rather than typed: 表 T-036 は
     // 「ショートカットキーの割当」 and its 割当 column is the assignment itself.
     const rows = specTable('T-036').rows
-    const assignment = (id: string): string => {
+    const assignment = (id: string): readonly (readonly string[])[] => {
       const row = rows.find((one) => one.id === id)
       if (row === undefined) throw new Error(`table T-036 has no row ${id}`)
-      return bare(row.by['割当'] ?? '')
+      return assignmentsIn(row.by['割当'] ?? '')
     }
-    expect(assignment('SK-4')).toBe('Ctrl+C')
-    expect(assignment('SK-5')).toBe('Ctrl+V')
+    expect(assignment('SK-4')).toEqual([['Ctrl', 'C']])
+    expect(assignment('SK-5')).toEqual([['Ctrl', 'V']])
   })
 
   it('IN-5a hands both keys to the browser while an in-place edit is uncommitted', () => {

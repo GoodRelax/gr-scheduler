@@ -379,12 +379,11 @@ function mannerFor(rowId: string): string {
  * @purity pure
  */
 function keyOf(id: string): KeyInput {
-  const parts = (cellOf(T_036, id, T_036_ASSIGNMENT).split('/')[0] ?? '')
-    .replace(/`/g, '')
-    .replace(/＋/g, '+')
-    .split('+')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
+  const parts =
+    cellOf(T_036, id, T_036_ASSIGNMENT)
+      .split('\uff0f')
+      .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+      .filter((keys) => keys.length > 0)[0] ?? []
   const last = parts[parts.length - 1]
   if (last === undefined) throw new Error(`table T-036 row ${id} states no assignment`)
   const named = (name: string): boolean => parts.slice(0, -1).includes(name)

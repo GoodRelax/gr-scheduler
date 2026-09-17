@@ -10,8 +10,8 @@
 // against `DummyGeometry.ink` --
 // the rectangle ScheduleGeometry DREW -- because 「印そのもの」 is a statement
 // about those two units agreeing, and one of them has to be read to say so.
-// ⛔ The ink's own width is not asserted here: 「1 日ぶんと `S-180` の小さい方」
-// is held from the drawing side, in tests/unit/fr-043-dummy-drawn.test.ts.
+// ⛔ The ink's own width (table T-240 DM-3) is asserted here only as a premise;
+// it is held from the drawing side, in tests/unit/fr-043-dummy-drawn.test.ts.
 //
 // The unit driven is UF-7 `item-hit-area.ts` (`ItemHitArea`, PI-7 of table
 // T-064), reached through UF-5 `schedule-layout.ts` and UF-6
@@ -31,9 +31,8 @@
 //           bar's left edge the plan start day's column edge, which is how the
 //           day columns below are counted without reading a coordinate out of
 //           `src/`
-//   T-206   S-180 「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` /
-//           `GR-18`）」 -- 「本行が描く幅であり、掴みシロでもある」 since the
-//           ruling of 2026-09-10
+//   T-206   S-180 「実績のダミーを描く幅の上限（表 T-240 の `DM-3`）」 --
+//           「本行は掴みシロの上限でもある」
 //   T-206   S-90 「予定の端点の掴み代」
 //   T-201   S-1 `pxPerDayAt1x`, S-75 `zoomX` -- FR-017 makes one day the
 //           product of the two
@@ -44,7 +43,7 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
 //
-//   * ⛔ THE INK'S OWN SIZE. 「1 日ぶんと `S-180` の小さい方」 (bars) and 「その
+//   * ⛔ THE INK'S OWN SIZE. Table T-240 DM-3 (bars) and 「その
 //     マイルストーンの実績の図形と同じ正方形」 (a milestone) are asserted from
 //     the drawing side, in fr-043-dummy-drawn.test.ts and
 //     fr-043-b-a-milestone-dummy-box-is-square.test.ts. This file asks only
@@ -127,14 +126,7 @@ const GR_18_IS_NOT_FENCED = 'マイルストーンのダミー（`GR-18`）に�
 const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
 
 /**
- * `S-180`'s own number, as 表 T-206 states it -- ⭐⭐ THE WIDTH THE INK IS DRAWN
- * AT, AND THE HOLD WITH IT since the ruling of 2026-09-10: 「本行が描く幅であり、
- * 掴みシロでもある」.
- *
- * ⛔ IT IS A CAP AND NOT THE WIDTH. FR-043 draws 「1 日ぶんと `S-180` の小さい方」,
- * so at a low magnification the ink is one day column and this number never
- * shows. The cases below therefore press against the drawn rectangle rather
- * than against this figure; it is read only to keep the premise honest.
+ * `S-180`'s own number, as 表 T-206 states it -- the cap on the DM-3 width.
  *
  * ⛔ NOT TYPED IN AND NOT TAKEN FROM `src/`. Rule 04 section 2 asks the
  * acceptance of a value that travels from a manuscript to be "change the one
@@ -153,6 +145,16 @@ const settingNumber = (key: string): number => {
   if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
   return value
 }
+
+// see T-206, T-240
+const S_247 = ((): number => {
+  const numbers = numbersOf(rowOf('T-206', 'S-247')['既定'] ?? '')
+  if (numbers.length !== 1 || numbers[0]! <= 0) throw new Error('table T-206 row S-247 states no one ratio')
+  return numbers[0]!
+})()
+
+const T_023D_NO_BOX_WIDER_THAN_THE_MARK =
+  '1 日の幅が数 px を切る倍率でも、ダミーは同じ幅で掴める。⛔ ダミーの当たり判定を、描いた印より広い箱で取ってはならない（MUST NOT）'
 
 /**
  * The vertical the hold takes. Table T-023d's closing rule (MUST, 利用者の裁定
@@ -508,9 +510,11 @@ describe('the rules and the fixture these cases stand on', () => {
       REQUIREMENTS.includes('起点を中心にしてはならない（MUST NOT）'),
       'the withdrawn centred-origin MUST NOT is back in table T-023d',
     ).toBe(false)
-    // And S-180 is the row that now carries the one width.
-    expect(S_180['値']).toContain('実績のダミーを描く幅')
-    for (const row of ['GR-9', 'GR-17', 'GR-18']) expect(S_180['値']).toContain(row)
+    // STEP: S-180 caps the one width DM-3 gives, and S-247 is its ratio to the marker.
+    expect(S_180['値']).toContain('実績のダミーを描く幅の上限')
+    expect(S_180['値']).toContain('DM-3')
+    expect(rowOf('T-206', 'S-247')['値']).toContain('DM-3')
+    expect(REQUIREMENTS).toContain(T_023D_NO_BOX_WIDER_THAN_THE_MARK)
     expect(INK_WIDTH_CAP).toBeGreaterThan(0)
     expect(HIT_HEIGHT).toBeGreaterThan(0)
   })
@@ -542,8 +546,8 @@ describe('the rules and the fixture these cases stand on', () => {
     const drawn = draw(notStarted())
     expect(drawn.layout.pxPerDay).toBeCloseTo(PX_PER_DAY_AT_1X * ZOOM_X * DEFAULT_DISPLAY_RATIO, 6)
     const ink = dummyNamed(drawn, 'GR-9').ink
-    expect(ink.width, 'FR-043 draws 「1 日ぶんと `S-180` の小さい方」')
-      .toBeCloseTo(Math.min(drawn.layout.pxPerDay, INK_WIDTH_CAP), 6)
+    expect(ink.width, 'T-240 DM-3 draws the marker diameter times S-247, capped by S-180')
+      .toBeCloseTo(Math.min(settingNumber('markerSize') * DEFAULT_DISPLAY_RATIO * S_247, INK_WIDTH_CAP), 6)
     expect(
       drawn.layout.pxPerDay,
       'a day must be wider than the ink, or the worked day after GR-9 would fall inside it',
@@ -631,7 +635,7 @@ describe('table T-023d (MUST): the hit area is the drawn mark itself', () => {
       const ink = dummyNamed(drawn, grab).ink
       const middleY = ink.y + ink.height / 2
       const past = grabAt(drawn, ink.x + ink.width + A_HAIR, middleY)
-      expect(past, grab).not.toBe('GR-9')
+      expect(past, `${grab}: ${T_023D_NO_BOX_WIDER_THAN_THE_MARK}`).not.toBe('GR-9')
       expect(past, grab).not.toBe('GR-17')
       expect(past, grab).not.toBe('GR-18')
     })

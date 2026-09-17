@@ -55,19 +55,19 @@
 //        受け持ち、`GR-18` は印の全体を受け持つ**」
 //       ⚠️ 「**`GR-9` はタスク全体ではなく、`FR-043` が描いた印の左半分に限る
 //        こと（MUST）**」
-//     FR-043 (MUST) 「**ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とする
-//     こと（MUST）。日の列の左端に揃えること（MUST）**」, and the same requirement
+//     T-240 DM-3 (MUST) gives the width (the marker diameter times S-247, capped
+//     by S-180) and the left edge on the day column, and FR-043
 //     reads the halves back off that mark: 「**人が印を押したときに掴むのは、印の
 //     左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側（同表の `GR-17`）
 //     とすること（MUST）**」.
-//     T-206 S-180 「**本行が描く幅であり、掴みシロでもある**」.
+//     T-206 S-180 「本行は掴みシロの上限でもある」.
 //   ⇒ ⛔ ONE RECTANGLE ANSWERS BOTH QUESTIONS, so the pointer can be -- and here
 //   is -- computed from FR-043's own arithmetic:
 //       T-023d GR-3  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
 //                    start day's column begins;
 //       T-240 DM-1   the mark stands on that same day column;
 //       FR-017 (MUST) 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」;
-//       FR-043's width, halved for the two rows.
+//       DM-3's width, halved for the two rows.
 //   ⭐ That is not the drawing measuring itself: every number comes from the
 //   manuscript, and a case below asserts that the picture's own ink begins and
 //   ends where that arithmetic says.
@@ -157,11 +157,7 @@ const leadingNumberOf = (cell: string | undefined, row: string): number => {
   return first
 }
 
-/**
- * `S-180` -- ⛔ FR-043's UPPER BOUND on the drawn width, never the width itself.
- * ⭐ AND THE HOLD AS WELL SINCE 2026-09-10: 「**本行が描く幅であり、掴みシロでも
- * ある**」, because table T-023d's closing rule made the hit area the mark.
- */
+// see T-206, T-240
 const DUMMY_WIDTH_UPPER_BOUND = leadingNumberOf(S_180['既定'], 'S-180')
 /** `S-90` -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」. */
 const PLAN_ENDPOINT_SLOP = leadingNumberOf(S_90['既定'], 'S-90')
@@ -179,9 +175,15 @@ const ACTUAL_INITIAL_DURATION = FLAT['actualInitialDuration'] as number
 const dayWidthAt = (zoomX: number): number =>
   PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
-/** FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方」. */
-const drawnWidthAt = (zoomX: number): number =>
-  Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
+// see T-206, T-240
+const S_247 = leadingNumberOf(rowOf('T-206', 'S-247')['既定'], 'S-247')
+
+// see T-240, FR-039
+const drawnWidthAt = (_zoomX: number): number =>
+  Math.min((FLAT['markerSize'] as number) * DEFAULT_DISPLAY_RATIO * S_247, DUMMY_WIDTH_UPPER_BOUND)
+
+const DM_3_NOT_CUT_BY_A_DAY =
+  '表 T-012 の `SH-3` / `SH-4` では `FR-094` が名称ラベルの字から導く値である。日の列の左端に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
 
 // ---------------------------------------------------------------------------
 // The fixture
@@ -364,7 +366,9 @@ const inkProbeAt = (zoomX: number): Probe => halvesAt(zoomX)[0] as Probe
  * put GR-17's hit box on this column, a whole day away from the ink.
  */
 const pastTheMarkAt = (zoomX: number): Probe => {
-  const gone = inkProbeAt(zoomX).dayLeft + ACTUAL_INITIAL_DURATION * dayWidthAt(zoomX)
+  const { dayLeft } = inkProbeAt(zoomX)
+  // WHY: DM-3 lets the mark cover GR-17's old column where a day is narrower than the mark, so the point starts past both.
+  const gone = Math.max(dayLeft + ACTUAL_INITIAL_DURATION * dayWidthAt(zoomX), dayLeft + drawnWidthAt(zoomX))
   return { grab: 'GR-17 の旧い日の列', dayLeft: gone, x: gone + drawnWidthAt(zoomX) / 2 }
 }
 
@@ -517,26 +521,16 @@ const isStillFaint = (svg: string, ink: Ink): boolean => {
 // ---------------------------------------------------------------------------
 
 describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
-  // ⭐ A MAGNIFICATION AT WHICH `S-180` IS THE SMALLER OF FR-043'S TWO NUMBERS
-  // (`S-1` × 8 = 48px a day, against S-180's 30). The second describe runs at
-  // one where the DAY is the smaller, so between them the file exercises both
-  // sides of 「1 日ぶんと … `S-180` の小さい方」 -- and the point put under the
-  // pointer is a different distance from the day's left edge in each.
-  //
-  // ⛔ THE MAGNIFICATION MUST KEEP THE DAY WIDER THAN `S-180`: at 15px a day the
-  // day falls to the NARROW side of the bound and this describe proves the same
-  // half of the rule as the one below.
+  // WHY: one day here is wider than the DM-3 mark; the describe below runs where it is narrower, so both sides of the retired day rule are exercised.
   const ZOOM = 8 / DEFAULT_DISPLAY_RATIO
   const SETTINGS = settingsAt(ZOOM)
 
-  it('S-180 is the row that says how wide the one mark is, and how wide it is held by', () => {
-    // ⚠️ A GUARD, NOT THE CLAIM. One row answers both: the closing rule of
-    // table T-023d makes the hold 「`FR-043` が描いた印そのもの」, and `S-180`'s
-    // own note says 「**本行が描く幅であり、掴みシロでもある**」.
-    expect(S_180['値']).toContain('GR-9')
-    expect(S_180['値']).toContain('GR-17')
-    expect(S_180['値']).toContain('GR-18')
-    expect(S_180['値']).toContain('実績のダミーを描く幅')
+  it('S-180 bounds the DM-3 width the one mark is drawn and held by, and S-247 is its ratio to the marker', () => {
+    // STEP: a guard that the file still points at the rows it was written for.
+    expect(S_180['値']).toContain('DM-3')
+    expect(S_180['値']).toContain('実績のダミーを描く幅の上限')
+    expect(S_180['保存しない理由']).toContain('本行は掴みシロの上限でもある')
+    expect(rowOf('T-206', 'S-247')['値']).toContain('DM-3')
     expect(DUMMY_WIDTH_UPPER_BOUND).toBeGreaterThan(0)
   })
 
@@ -559,10 +553,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   })
 
   it('⭐ every point this file uses is on the one mark, in the half its row owns', () => {
-    // ⛔ THE CASE THAT MAKES THE OTHERS MEAN SOMETHING. FR-043 aligns the ink to
-    // 「日の列の左端」 and bounds its width by 「1 日ぶんと … `S-180` の小さい方」,
-    // and since 2026-09-10 that rectangle IS the hold. A point that had drifted
-    // off it would make every case below a claim about something else.
+    // WHY: DM-3 aligns the ink to the day column and gives its width, and that rectangle IS the hold; a drifted point would test something else.
     const resting = drawn(SETTINGS, null)
     // ⭐ THE GRAB SIDE FIRST, AND IT IS STILL TWO -- 表 T-023d keeps GR-9 and
     // GR-17, and its closing rule gives each of them one half of the one mark.
@@ -585,12 +576,11 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
       onTheInk.dayLeft,
       2,
     )
-    expect(ink.x1 - ink.x0, `${onTheInk.grab}'s ink is min(1 day, S-180) wide`).toBeCloseTo(
+    expect(ink.x1 - ink.x0, `${onTheInk.grab}'s ink is DM-3 wide`).toBeCloseTo(
       drawnWidthAt(ZOOM),
       2,
     )
-    // ⭐ AND THIS IS THE `S-180` SIDE OF 「小さい方」 -- the day is wider here.
-    expect(drawnWidthAt(ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
+    expect(dayWidthAt(ZOOM), 'the day is wider than the mark here').toBeGreaterThan(drawnWidthAt(ZOOM))
     // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
     // Nothing stands on the column GR-17 used to be given -- neither ink, nor,
     // since 2026-09-10, a hold.
@@ -675,9 +665,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     // 「ポインタが乗っている」 and 表 T-051 の `HF-6` makes that a PLACE, so a
     // drawing that darkened only at the figure's centre would meet it nowhere
     // else on the mark it is drawn as.
-    // ⚠️ THE THREE POINTS ARE FR-043'S OWN ARITHMETIC, not read off the ink:
-    // the day column's left edge and 「ダミーを描く幅は、1 日ぶんと … `S-180` の
-    // 小さい方」.
+    // STEP: the three points are DM-3's own arithmetic (day column left edge and width), not read off the ink.
     const resting = drawn(SETTINGS, null)
     const ink = dummyUnder(resting, inkProbeAt(ZOOM))
 
@@ -751,16 +739,13 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
     }
   })
 
-  it('⭐ and one day really is the smaller of FR-043 s two numbers here', () => {
-    // ⛔ THE OTHER SIDE OF THE WIDTH RULE. At this magnification a day is
-    // narrower than `S-180`, so the ink is a day wide; the describe above runs
-    // at a magnification where it is not. A file that only ever ran one of the
-    // two would prove half of 「小さい方」.
-    expect(dayWidthAt(ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
+  it('⭐ and one day is narrower than the mark here, which still stands DM-3 wide', () => {
+    // WHY: the describe above runs where the day is wider; here a mark cut to one day would be the retired rule.
+    expect(dayWidthAt(ZOOM)).toBeLessThan(drawnWidthAt(ZOOM))
     const resting = drawn(LOW, null)
     const probe = inkProbeAt(ZOOM)
     const ink = dummyUnder(resting, probe)
-    expect(ink.x1 - ink.x0, `${probe.grab}'s ink`).toBeCloseTo(dayWidthAt(ZOOM), 2)
+    expect(ink.x1 - ink.x0, `${probe.grab}'s ink: ${DM_3_NOT_CUT_BY_A_DAY}`).toBeCloseTo(drawnWidthAt(ZOOM), 2)
     expect(ink.x0, `${probe.grab}'s ink begins at its day column's left edge`).toBeCloseTo(
       probe.dayLeft,
       2,

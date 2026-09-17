@@ -125,8 +125,9 @@ const rectangleNameAt = (scale: number): number =>
   Math.max(S_8 * displayRatioAt(scale), Math.max(S_4 * S_13 * S_5, S_6) * S_7 * displayRatioAt(scale))
 
 describe('S-7 -- a rectangle name at zoomY 1 is the actual strip x 0.90, times the drawn ratio', () => {
-  it('works out to the 7.2009px CR-412 names at the default step, above the S-8 floor', () => {
-    expect(rectangleNameAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(7.2009, 4)
+  it('works out to 14.4018 x 0.625 = 9.001125px at the default step (CR-418 section 2, CR-417), above the S-8 floor', () => {
+    expect(rectangleNameAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(14.4018 * 0.625, 6)
+    expect(rectangleNameAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(9.001125, 6)
     expect(rectangleNameAt(DEFAULT_DISPLAY_SCALE)).toBeGreaterThan(S_8 * displayRatioAt(DEFAULT_DISPLAY_SCALE))
   })
 

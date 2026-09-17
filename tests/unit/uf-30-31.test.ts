@@ -291,6 +291,9 @@ const ZOOM_STEP = 3
 
 const ROW_ZOOM_UNDER_THE_CEILING = 0.35
 
+// see T-262, ZE-1
+const ROW_ZOOM_ABOVE_THE_FLOOR = 1.5
+
 /** Today, spelled the way `textOfDay` spells a date column. FR-046 / SK-20. */
 const TODAY = '2026-03-01T00:00:00'
 
@@ -1094,14 +1097,21 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
   it('SK-16a: Alt + sign zooms the row axis only', () => {
     const low = settingsOf({ ...SETTINGS, zoomY: ROW_ZOOM_UNDER_THE_CEILING })
     const context = contextOf({ document: documentOf(SCHEDULE, low) })
-    expect(low.zoomY * ZOOM_STEP, 'premise: FR-016 row ceiling 16.9 / 14.4018 = 1.1735 is not reached').toBeLessThan(1.17)
+    expect(low.zoomY * ZOOM_STEP, 'premise: the FR-016 row ceiling of CR-418, 25.35 / 14.4018 = 1.760197, is not reached').toBeLessThan(1.76)
     const bigger = oneCommand(commandFromInput(keyOf('+', { alt: true }), context), 'setZoom')
     expect(bigger['zoomY']).toBeCloseTo(low.zoomY * ZOOM_STEP, 10)
     expect(bigger['zoomX']).toBeCloseTo(low.zoomX, 10)
 
-    const smaller = oneCommand(commandFromInput(keyOf('-', { alt: true }), context), 'setZoom')
-    expect(smaller['zoomY']).toBeCloseTo(low.zoomY / ZOOM_STEP, 10)
-    expect(smaller['zoomX']).toBeCloseTo(low.zoomX, 10)
+    // WHY: zoomY 0.35 on depth-1 rows is inside T-262 ZE-1, where a zoom-out writes nothing; the zoom-out starts above that end.
+    const high = settingsOf({ ...SETTINGS, zoomY: ROW_ZOOM_ABOVE_THE_FLOOR })
+    expect(
+      high.basePlanHeight * high.zoomY,
+      'premise: ZE-1 (1) does not hold, the plan height is above its FR-094 floor',
+    ).toBeGreaterThan(high.actualMin / high.actualOfPlan)
+    const highContext = contextOf({ document: documentOf(SCHEDULE, high) })
+    const smaller = oneCommand(commandFromInput(keyOf('-', { alt: true }), highContext), 'setZoom')
+    expect(smaller['zoomY']).toBeCloseTo(high.zoomY / ZOOM_STEP, 10)
+    expect(smaller['zoomX']).toBeCloseTo(high.zoomX, 10)
   })
 
   it('SK-17: Ctrl+Shift+0 puts both axes back to unity', () => {
@@ -1722,8 +1732,10 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
     const dy = Math.round(row.height / 3)
     expect(dy, 'the case only means a drag SHORTER than one row').toBeLessThan(row.height)
     expect(dy, 'and a drag that really is a drag').toBeGreaterThan(0)
-    expect(pitchOf('g1'), 'T-023d pan rule and T-201 S-12 (CR-384): the pitch is the band plus S-12, which is fixed at 0').toBe(
+    // TRAP: at S-236 0.625 the fixture zoom 1 / 0.625 is not a binary fraction, so the band is compared to 9 places.
+    expect(pitchOf('g1'), 'T-023d pan rule and T-201 S-12 (CR-384): the pitch is the band plus S-12, which is fixed at 0').toBeCloseTo(
       row.height + Number(SETTINGS.rowGap),
+      9,
     )
 
     // Dragging the pointer UP carries the schedule up with it (等倍), which is
@@ -1990,8 +2002,10 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     // ⭐ ON THE LINE IS STILL A CLICK, and this fixture makes the reading sharp:
     // one day is S-208 px wide here, so a movement of exactly S-208 lands in the
     // NEXT day's column and is STILL no drag.
-    expect(LAYOUT.pxPerDay, 'the fixture no longer draws a day at S-208 px').toBe(
+    // TRAP: 1 / 0.625 x 0.625 lands on S-208 only to 15 digits, so the day is compared to 9 places.
+    expect(LAYOUT.pxPerDay, 'the fixture no longer draws a day at S-208 px').toBeCloseTo(
       S_208_PRESS_OR_DRAG,
+      9,
     )
     for (const dx of [0, S_208_PRESS_OR_DRAG]) {
       expect(kindsOf(answerFor(dx)), `${dx}px`).toEqual([])
@@ -2004,7 +2018,8 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     expect(String(justBeyond['start']).slice(0, 10)).toBe('2026-01-04')
     expect(String(justBeyond['finish']).slice(0, 10)).toBe('2026-01-05')
 
-    const dragged = oneCommand(answerFor(2 * S_208_PRESS_OR_DRAG), 'createTask')
+    // WHY: one pixel past two days, so a day width a hair over S-208 cannot pull the release back across the column edge.
+    const dragged = oneCommand(answerFor(2 * S_208_PRESS_OR_DRAG + 1), 'createTask')
     expect(String(dragged['start']).slice(0, 10)).toBe('2026-01-04')
     expect(String(dragged['finish']).slice(0, 10)).toBe('2026-01-06')
   })

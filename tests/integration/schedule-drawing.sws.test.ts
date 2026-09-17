@@ -109,13 +109,11 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
-// S-180, the width FR-043's mark is drawn at, out of the block the
-// manuscript generates rather than out of the unit under test. ⛔ Table
-// T-023d's closing rule makes the dummies' hold that same mark, so the width
-// this test measures against and the width the mark is drawn at are one.
-
 // see FR-039, T-252
 const DISPLAY_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
+
+// see T-206, T-240
+const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
 
 // WHY: the picture prints a coordinate rounded to two places.
 const twoPlaces = (value: number): number => Math.round(value * 100) / 100
@@ -1798,20 +1796,11 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-11'],
       given: 'a Task that is under way, so an actual bar is on screen beside its plan',
       when: 'geometryFromLayout places the progress marker',
-      then: 'the marker clears the right end of the actual bar by markerGap',
+      then: 'the marker stands inside the actual bar, S-32 left of the name box that stands S-91 inside its right end',
     }),
     () => {
-      // LF-11: "the marker goes markerGap clear of the right end of the bar
-      // FR-013 names, as a square of side markerSize. Its middle is the middle
-      // of the plan bar."
-      //
-      // ⚠️ FR-013 carries an exception, and this scene is inside it: 「⚠️ ただし
-      // `FR-002` が矩形と矢羽根の名称ラベルとマーカーを実績の中に置くときは、マーカーは
-      // 実績の中に立つ —— `OC-3` と `GR-7` の場所も同じに読み替える」. Table T-013 then
-      // fixes where: 「実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの
-      // 右端を」. ⛔ `S-91` is NOT scaled by the display ratio (表 T-252 の `DS-7`
-      // lists it among the grips) while `markerGap` is (`DS-1`), so the two
-      // terms are drawn differently and the case states each as its own row does.
+      // WHY: FR-013 yields to FR-002 here -- name and marker fit inside the actual, so T-013 places both there, marker first.
+      // TRAP: S-91 is not scaled by the display ratio (T-252 DS-7) while labelGap is (DS-1).
       mentions(T221, 'LF-11', 'markerGap', 'markerSize', 'FR-013')
       const drawn = draw(
         [
@@ -1847,13 +1836,17 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         placed.y + placed.planHeight / 2,
         6,
       )
+      const label = geometryOf(drawn, 1).label
+      expect(label, 'the name is drawn').not.toBeNull()
+      if (label === null) return
+      expect(
+        label.x + label.width,
+        '置き方は、実績の右端から `S-91` だけ内側に名称ラベルの箱の右端を、その箱の左端から `S-32` だけ左にマーカーの右端を置く',
+      ).toBeCloseTo(actualRight - NOT_STORED_SIZES['S-91'], 6)
       expect(
         marker.centre.x + marker.radius,
-        '実績の右端から `S-91` と `S-23` を足した長さだけ内側にマーカーの右端を',
-      ).toBeCloseTo(
-        actualRight - NOT_STORED_SIZES['S-91'] - drawn.settings.markerGap * DISPLAY_RATIO,
-        6,
-      )
+        '⛔ 進捗マーカーと名称ラベルを両方描くときは、名称ラベルをマーカーの左に置いてはならない（MUST NOT）',
+      ).toBeCloseTo(label.x - drawn.settings.labelGap * DISPLAY_RATIO, 6)
     },
   )
 
@@ -1864,7 +1857,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-11'],
       given: 'a Task not started, whose only actual bar is FR-043 dummy',
       when: 'geometryFromLayout places the marker',
-      then: 'it clears that bar by markerGap and sits on the plan middle',
+      then: 'it touches that mark with no markerGap and sits on the plan middle',
     }),
     () => {
       // The other half of LF-11's first sentence. A Task with nothing entered
@@ -1885,11 +1878,11 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker.centre.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
       const holdRight =
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
-        Math.min(drawn.layout.pxPerDay, NOT_STORED_DUMMY_SIZES['S-180'])
-      expect(marker.centre.x - marker.radius - holdRight).toBeCloseTo(
-        drawn.settings.markerGap * DISPLAY_RATIO,
-        6,
-      )
+        Math.min(drawn.settings.markerSize * DISPLAY_RATIO * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
+      expect(
+        marker.centre.x - marker.radius - holdRight,
+        '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',
+      ).toBeCloseTo(0, 6)
     },
   )
 

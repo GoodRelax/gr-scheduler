@@ -70,7 +70,7 @@
 //   `FR-029`      the clause above, and its fall-through to `RS-27`.
 //   表 T-233 RS-27 「押した入口が、いま行えることを持たない | `NT-1` | `FR-029`」.
 //   表 T-233 の結び the closing rule above.
-//   表 T-036      `SK-10` 「開く | `Ctrl+O`」, `SK-11` 「保存する……」 and `SK-21`
+//   表 T-036      `SK-10` 「開く | `Ctrl` ＋ `O`」, `SK-11` 「保存する……」 and `SK-21`
 //                 「**開いているファイルを読み直す**（規則は表 T-024a の `OP-13`）|
 //                 `Ctrl` ＋ `R`」 -- the three keys, READ from the 割当 column.
 //   表 T-024a OP-13 「**選ばせる面を開かずに、同じファイルをもう一度読むこと

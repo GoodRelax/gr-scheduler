@@ -1,6 +1,6 @@
 // The drawn `Actual Operation Dummy` (U-52): FR-043's MUST that it be SHOWN,
-// the width FR-043 now gives it -- 「1 日ぶんと … `S-180` の小さい方」, aligned to
-// 「日の列の左端」 -- and EP-14's rule that an export draws none of it.
+// the width table T-240 DM-3 now gives it -- the marker diameter times S-247, capped by S-180, aligned to
+// the day column's left edge -- and EP-14's rule that an export draws none of it.
 //
 // ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
 // node in the specification. Table T-218 of Chapter 7 gives them their place:
@@ -34,10 +34,10 @@
 //   of figures, and that is precisely the reading the ruling struck down:
 //   「⛔ **2026-09-08 まで `GR-9` と `GR-17` の位置に縦棒が 1 本ずつ立ち、画面には
 //   2 本見えていた** —— **利用者の申し立ては「1つだけにしろ」であった。**」
-//   FR-043    ⭐ 「ダミーを描く幅は、1 日ぶんと `_assets/tbl-settings.md` の
-//             表 T-206 の `S-180` の小さい方とすること（MUST）。日の列の左端に
-//             揃えること（MUST）」（利用者の裁定 2026-09-02）
-//             ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」
+//   T-240 DM-3  the width (marker diameter x S-247, capped by S-180), the
+//             left edge on the day column, and the MUST NOT against cutting
+//             the mark to one day's width
+//             (held verbatim in DM_3_THE_WIDTH and DM_3_NOT_CUT_BY_A_DAY)
 //             ⛔ 「当たり判定は本段の対象ではない（MUST NOT）」
 //   FR-017    「**1 日あたりの表示幅は、表 T-201（`_assets/tbl-settings.md`）の
 //             `S-1` に `zoomX` を掛けた値とすること（MUST）。**」 -- the OTHER half
@@ -47,8 +47,8 @@
 //             ポインタが乗っているあいだだけ濃くすること（MUST）…… 濃さの値
 //             は `S-131`。色は実績バーの色を継ぎ、独立した色を保存しない
 //             （`FR-041`）」
-//   T-206 S-180  「実績のダミーを描く幅（表 T-023d の `GR-9` / `GR-17` /
-//             `GR-18`）」 = 12px, whose note says 「⭐ 本行が定めるのは横だけで
+//   T-206 S-180  「実績のダミーを描く幅の上限（表 T-240 の `DM-3`）」 = 30px,
+//             whose note says 「⭐ 本行が定めるのは横だけで
 //             ある —— 縦の広がりは実績バーの帯に従う」
 //   T-023d の結び  the hold of `GR-9` / `GR-17` / `GR-18`, which since
 //             2026-09-10 IS the mark `FR-043` draws -- so no reader's hit box
@@ -74,8 +74,8 @@
 //     here claimed a height for GR-18 either.
 //     ⭐⭐ THE GAP IS NOW CLOSED, by a different row: 「⭐⭐ 大きさも例外とすること
 //     （MUST）。マイルストーンのダミーを描く箱は、そのマイルストーンの実績の
-//     図形と同じ正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を横幅と
-//     してはならない（MUST NOT）」（利用者の裁定 2026-09-10）. GR-18's box is a
+//     図形と同じ正方形とすること（MUST）。`DM-3` の幅を横幅としてはならない
+//     （MUST NOT）」（利用者の裁定 2026-09-10）. GR-18's box is a
 //     SQUARE now, so its height is pinned along with its width, and the GR-18
 //     cases below measure both.
 //   * ⛔ THE PAINT ORDER. Table T-020 has ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4 and
@@ -172,7 +172,7 @@ const sameOnGrid = (value: number, other: number): boolean =>
 /**
  * S-180, as the manuscript states it -- ⛔ THE UPPER BOUND, NOT THE WIDTH.
  *
- * FR-043 (MUST NOT): 「`S-180` を幅そのものとしてはならない」. The name says
+ * T-240 DM-3 bounds the width by S-180 and derives it from the marker. The name says
  * which of the two it is, so that no case below can quietly go back to reading
  * it as the width.
  *
@@ -200,26 +200,33 @@ const PX_PER_DAY_AT_1X = ((): number => {
 const dayWidthAt = (zoomX: number): number =>
   PX_PER_DAY_AT_1X * zoomX * DEFAULT_DISPLAY_RATIO
 
-/**
- * FR-043 (MUST): 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること」.
- *
- * ⭐ THE WHOLE POINT OF THE RULE IS THAT THIS IS NOT A CONSTANT. Below
- * `DUMMY_WIDTH_UPPER_BOUND` px per day the day wins; above it S-180 wins.
- */
-const drawnWidthAt = (zoomX: number): number =>
-  Math.min(dayWidthAt(zoomX), DUMMY_WIDTH_UPPER_BOUND)
+// see T-206, T-240
+const S_247 = ((): number => {
+  const [only, ...rest] = numbersOf(rowOf('T-206', 'S-247')['既定'] ?? '')
+  if (only === undefined || rest.length !== 0) throw new Error('table T-206 row S-247 states no one ratio')
+  return only
+})()
 
-/** A magnification at which ONE DAY is the smaller of the two. */
-const NARROW_DAY_ZOOM = 1 / DEFAULT_DISPLAY_RATIO
-/**
- * A magnification at which `S-180` is the smaller of the two.
- *
- * ⛔⛔ IT WAS 4 UNTIL 2026-09-09, when `S-180`'s default rose from 12 to 30 so
- * that the drawn mark and the hold `S-93` gives it would be the same size --
- * 「既定を `S-93` と同じ大きさに揃えた」（利用者の裁定 2026-09-09）. A day at zoom 4
- * is 24px, which fell to the NARROW side of the new bound.
- */
+// see T-240, FR-039
+const MARKER_DIAMETER = ((): number => {
+  const value = SETTINGS_DEFAULTS['markerSize']
+  if (typeof value !== 'number' || value <= 0) throw new Error('S-22 is not a positive number')
+  return value * DEFAULT_DISPLAY_RATIO
+})()
+
+// see T-240
+const drawnWidthAt = (_zoomX: number): number =>
+  Math.min(MARKER_DIAMETER * S_247, DUMMY_WIDTH_UPPER_BOUND)
+
+// see T-240, FR-017
+const NARROW_DAY_ZOOM = 0.5 / DEFAULT_DISPLAY_RATIO
+// see T-240, FR-017
 const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
+
+const DM_3_THE_WIDTH =
+  '⭐ ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
+const DM_3_NOT_CUT_BY_A_DAY =
+  '表 T-012 の `SH-3` / `SH-4` では `FR-094` が名称ラベルの字から導く値である。日の列の左端に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.
@@ -1010,14 +1017,15 @@ describe('the reader this file measures pictures with', () => {
 // ---------------------------------------------------------------------------
 
 describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', () => {
-  it('S-180 is still the row that bounds the drawn width of GR-9 / GR-17 / GR-18', () => {
+  it('S-180 is still the row that bounds the drawn width DM-3 gives, and S-247 the ratio to the marker', () => {
     // ⚠️ A GUARD, NOT THE CLAIM. It says this file is still pointed at the rows
     // it was written for; if a row moved, the cases after it would be the wrong
     // ones to be writing rather than a failure of the code.
-    expect(S_180['値']).toContain('GR-9')
-    expect(S_180['値']).toContain('GR-17')
-    expect(S_180['値']).toContain('GR-18')
-    expect(S_180['値']).toContain('描く幅')
+    expect(S_180['値']).toContain('DM-3')
+    expect(S_180['値']).toContain('描く幅の上限')
+    expect(rowOf('T-206', 'S-247')['値']).toContain('DM-3')
+    expect(REQUIREMENTS).toContain(DM_3_THE_WIDTH)
+    expect(REQUIREMENTS).toContain(DM_3_NOT_CUT_BY_A_DAY)
     // T-023d, the two rows the alignment cases count days between.
     expect(GR_3['場所']).toContain('予定バーの左端')
     expect(GR_9['場所']).toContain('予定の開始日')
@@ -1028,15 +1036,12 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     expect(DUMMY_WIDTH_UPPER_BOUND).toBeGreaterThan(0)
   })
 
-  it('⭐ the two magnifications really do fall on opposite sides of S-180', () => {
-    // ⛔ WITHOUT THIS, HALF THE RULE WOULD BE UNTESTED. FR-043 asks for the
-    // SMALLER of two numbers; a pair of zooms that both landed on the same side
-    // would prove only one of them, and the file would read as if it had proved
-    // both.
-    expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
-    expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(DUMMY_WIDTH_UPPER_BOUND)
-    expect(drawnWidthAt(NARROW_DAY_ZOOM)).toBeCloseTo(dayWidthAt(NARROW_DAY_ZOOM), 6)
-    expect(drawnWidthAt(WIDE_DAY_ZOOM)).toBeCloseTo(DUMMY_WIDTH_UPPER_BOUND, 6)
+  it('⭐ the two magnifications put one day on either side of the DM-3 width, which S-180 does not cap here', () => {
+    // WHY: a pair of zooms whose days both exceed the mark could not tell DM-3 from the retired min(1 day, S-180).
+    expect(dayWidthAt(NARROW_DAY_ZOOM)).toBeLessThan(drawnWidthAt(NARROW_DAY_ZOOM))
+    expect(dayWidthAt(WIDE_DAY_ZOOM)).toBeGreaterThan(drawnWidthAt(WIDE_DAY_ZOOM))
+    expect(MARKER_DIAMETER * S_247).toBeLessThan(DUMMY_WIDTH_UPPER_BOUND)
+    expect(drawnWidthAt(NARROW_DAY_ZOOM)).toBeCloseTo(drawnWidthAt(WIDE_DAY_ZOOM), 6)
   })
 
   it('the two documents differ only in the actual, so the difference of the pictures is the dummy', () => {
@@ -1088,31 +1093,22 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
         onGrid(gr9.x0),
         2,
       )
-      // ⛔ AND NO DUMMY INK REACHES INTO GR-17'S OWN DAY COLUMN. ⚠️ Measured
-      // half a day in, so the mark's own right edge -- which touches that column
-      // where a day is the narrower of FR-043's two numbers -- is not counted
-      // as ink standing there. ⚠️ ASKED OF `dummyInkOf` AND NOT OF EVERY DROPPED
-      // FIGURE: 表 T-023d の `GR-7` puts the not-started marker 「終了点の掴み
-      // シロの外側」, so the marker itself stands near this column at the wider
-      // magnification and is not a dummy.
+      // WHY: DM-3 lets the one mark cover GR-17's column where a day is narrower than the mark, so a second mark is one that BEGINS there.
       expect(
-        found.filter((one) => spansX(one, gr17.x0 + dayWidthAt(zoomX) / 2)),
+        found.filter((one) => onGrid(one.x0) >= onGrid(gr17.x0) - GRID / 2),
         'FR-043 (MUST NOT): a second mark is drawn at GR-17',
       ).toHaveLength(0)
     })
 
-    it(`⭐ FR-043 (MUST) draws the dummy min(1 day, S-180) wide at ${days}`, () => {
-      // FR-043: 「ダミーを描く幅は、1 日ぶんと … `S-180` の小さい方とすること
-      // （MUST）」, ⛔ 「`S-180` を幅そのものとしてはならない（MUST NOT）」.
-      // ⭐ The answer differs between the two runs of this case, and that
-      // difference IS the rule.
+    it(`⭐ T-240 DM-3 (MUST) draws the dummy min(marker diameter x S-247, S-180) wide, whatever the day, at ${days}: ${DM_3_THE_WIDTH}`, () => {
+      // STEP: the same width at both zooms is the rule; a mark cut to one day at the narrow zoom is the retired one.
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
       const found = dummyInkOf(fresh, started)
       expect(found).toHaveLength(expected.length)
       for (const [i, ink] of expected.entries()) {
-        expect(onGrid(found[i]!.x1 - found[i]!.x0), `${ink.grab} at ${days}`).toBeCloseTo(
+        expect(onGrid(found[i]!.x1 - found[i]!.x0), `${ink.grab} at ${days}: ${DM_3_NOT_CUT_BY_A_DAY}`).toBeCloseTo(
           onGrid(ink.x1 - ink.x0),
           2,
         )
@@ -1120,10 +1116,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     })
 
     it(`⭐ FR-043 (MUST) begins the dummy at its day column's left edge at ${days}`, () => {
-      // FR-043: 「日の列の左端に揃えること（MUST）」. The left edge is counted in
-      // days from the plan bar's own left edge (T-023d GR-3), which is what
-      // makes this a claim about the specification's arithmetic and not about a
-      // number read off a run.
+      // STEP: the left edge is counted in days from the plan bar's own left edge (T-023d GR-3).
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const expected = inkExpectedOf(fresh, zoomX)
@@ -1134,7 +1127,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       }
     })
 
-    it(`⛔ T-240 DM-1: the dummy ink stays inside the plan start day's column, clear of GR-3 and of the day after, at ${days}`, () => {
+    it(`⛔ T-240 DM-1: the dummy ink starts in the plan start day's column, clear of GR-3, and stays in it where the day is wider than the mark, at ${days}`, () => {
       const fresh = draw(notStartedSchedule(), zoomX)
       const started = draw(startedSchedule(), zoomX)
       const planStartColumnBegins = planBoxOf(fresh, UNDER_TEST).x0
@@ -1145,9 +1138,13 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
         expect(onGrid(ink.x0) + GRID, '**ダミーを描く位置は、予定の開始日とすること（MUST）').toBeGreaterThanOrEqual(
           onGrid(planStartColumnBegins),
         )
-        expect(onGrid(ink.x1) - GRID, 'ること（MUST）。**⛔ **翌稼働日へずらしてはならない（MUST NOT）').toBeLessThanOrEqual(
+        expect(onGrid(ink.x0) - GRID, 'ること（MUST）。**⛔ **翌稼働日へずらしてはならない（MUST NOT）').toBeLessThan(
           onGrid(planStartColumnEnds),
         )
+        // WHY: DM-3 accepts that a mark wider than one day covers the days to its right, so the right edge is held only where the day is wider.
+        if (dayWidthAt(zoomX) >= drawnWidthAt(zoomX)) {
+          expect(onGrid(ink.x1) - GRID).toBeLessThanOrEqual(onGrid(planStartColumnEnds))
+        }
       }
     })
   }
@@ -1168,7 +1165,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     // still a grab target. ⭐ The vertical is what this case is about, and one
     // mark is all there is to measure it on.
     for (const ink of inkExpectedOf(fresh, NARROW_DAY_ZOOM)) {
-      const drawnFigures = drawnAt(fresh.svg, started.svg, (ink.x0 + ink.x1) / 2)
+      const drawnFigures = drawnAt(fresh.svg, started.svg, ink.x0 + 1)
       expect(drawnFigures.length, `nothing is drawn at ${ink.grab}`).toBeGreaterThan(0)
       const box = unionOf(drawnFigures)
       expect(onGrid(box.y0), `${ink.grab} top`).toBeCloseTo(onGrid(band.y0), 2)
@@ -1225,7 +1222,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       // ままである**（本要求の上の段）。**変わったのは形と色だけである。**」 The
       // same day's ruling withdrew it: 「⭐⭐ **大きさも例外とすること（MUST）。
       // マイルストーンのダミーを描く箱は、そのマイルストーンの実績の図形と同じ
-      // 正方形とすること（MUST）。1 日ぶんと `S-180` の小さい方を横幅としては
+      // 正方形とすること（MUST）。`DM-3` の幅を横幅としては
       // ならない（MUST NOT）**」（利用者の裁定 2026-09-10）.
       // ⭐⭐ SO THE VERTICAL IS NOW ASSERTED TOO. A milestone still has no
       // actual BAR (table T-023d, GR-15), but its dummy box is no longer
@@ -1391,9 +1388,9 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
     const pictures = shellPictures(schedule)
     const dummies = taskGeometryOf(pictures, UNDER_TEST).dummies
     expect(dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
-    // FR-043's 「1 日ぶんと … `S-180` の小さい方」, at the width the shell's own
-    // picture gives a day.
-    const width = Math.min(dayWidthOf(pictures, schedule, UNDER_TEST, 2), DUMMY_WIDTH_UPPER_BOUND)
+    // STEP: the DM-3 width, which no day width enters.
+    const width = drawnWidthAt(1)
+    expect(dayWidthOf(pictures, schedule, UNDER_TEST, 2)).toBeGreaterThan(0)
     // ⛔ THE PRECONDITION IS PART OF THE CLAIM. Without it this case passes
     // while nothing is drawn anywhere, which is exactly the state EP-14 must
     // not be confused with: a picture that draws no dummy because the dummy is

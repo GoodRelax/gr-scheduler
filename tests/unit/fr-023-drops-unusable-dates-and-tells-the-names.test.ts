@@ -148,14 +148,16 @@ const IMPORT_REPORT = partNameOf('U-62')
 
 const T_036: SpecTable = specTable('T-036')
 
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
+  cell
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
 /** One row of table T-036, spelt as its assignment column spells it. */
 function keyOf(id: string): KeyInput {
-  const parts = (bare(rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
-    .replace(/`/g, '')
-    .replace(/＋/g, '+')
-    .split('+')
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
+  const parts = assignmentsIn(rowOf(T_036, id).by['割当'] ?? '')[0] ?? []
   const last = parts[parts.length - 1]
   if (last === undefined) throw new Error(`table T-036 row ${id} states no assignment`)
   const named = (name: string): boolean => parts.slice(0, -1).includes(name)

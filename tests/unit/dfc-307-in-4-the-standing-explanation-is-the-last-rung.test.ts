@@ -147,7 +147,7 @@ import { specTable, unbroken } from '../contract/spec-table'
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
 const IN_3_THE_THREE =
-  '本行が定めるのはどの場所がどの意味を担うかだけである |\n| IN-3 | ツールチップは、次の 3 つをすべて満たすこと（MUST）'
+  '押しているあいだの形は 表 T-264 が持つ |\n| IN-3 | ツールチップは、次の 3 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
   'ること** —— 説明そのものの上へポインタを移しても消えないこと。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'

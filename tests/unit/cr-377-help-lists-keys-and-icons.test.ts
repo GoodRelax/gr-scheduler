@@ -75,11 +75,20 @@ const BASIC_KEY_ROWS = T_036.rows
 
 const BASIC_MOUSE_ROWS = ['MK-2', 'MK-5', 'MK-7'] as const
 
-const combosOf = (cell: string): readonly string[] =>
+// see FR-036, T-036
+const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
   cell
-    .split(' / ')
-    .map((one) => one.replace(/`/g, '').replace(/\uff0b/g, '+').replace(/\s+/g, ''))
-    .filter((one) => one !== '')
+    .split('\uff0f')
+    .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
+    .filter((keys) => keys.length > 0)
+
+// see FR-036, T-036
+const spelledOnScreen = (cell: string): string =>
+  assignmentsIn(cell)
+    .map((keys) => keys.join(' \uff0b '))
+    .join(' \uff0f ')
+
+const combosOf = (cell: string): readonly string[] => assignmentsIn(cell).map((keys) => keys.join('+'))
 
 const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
 
@@ -116,7 +125,11 @@ interface Words {
   readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string>; readonly hint: Record<DisplayLanguage, string> }[]
   readonly paletteGroups: readonly { readonly firstRow: string; readonly name: Record<DisplayLanguage, string> }[]
   readonly shortcuts: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[]
-  readonly assignments: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[]
+  readonly assignments: readonly {
+    readonly rowId: string
+    readonly text: Record<DisplayLanguage, string>
+    readonly press?: Record<DisplayLanguage, string>
+  }[]
 }
 
 const WORDS = JSON.parse(
@@ -477,7 +490,8 @@ describe('CR-377 roster: what the help lists', () => {
 describe('CR-377 page: how the help is drawn', () => {
   it('an item with a key reads glyph, explanation, key, and holds one glyph', () => {
     const help = drawnHelp('ja')
-    const spelling = bare(rowOf(T_036, 'SK-10').by[H_KEYS] ?? '')
+    const spelling = spelledOnScreen(rowOf(T_036, 'SK-10').by[H_KEYS] ?? '')
+    expect(spelling, 'the SK-10 cell is Ctrl then O, one assignment').toBe('Ctrl \uff0b O')
     const keysNode = theNodeShowing(help, [spelling])
     const item = nearestHolding(keysNode, (node) => svgsIn(node).length > 0)
     const glyphs = svgsIn(item)
@@ -525,6 +539,34 @@ describe('CR-377 page: how the help is drawn', () => {
       expect(order.indexOf(explanation)).toBeGreaterThan(order.indexOf(entrance as FakeElement))
       expect(order.indexOf(wheel as FakeElement)).toBeGreaterThan(order.indexOf(explanation))
       expect(item.textContent, icon).not.toContain(wheelWord)
+    }
+  })
+
+  it('FR-036: IC-6 carries both assignments of SK-7 -- 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに `／`（全角の斜線）を、前後に半角の空白を 1 つずつ置いて並べること（MUST）', () => {
+    const help = drawnHelp('ja')
+    const driver = KEY_DRIVERS.find((one) => one.icons.includes('IC-6'))
+    expect(driver?.row, 'T-036 no longer drives IC-6 from SK-7').toBe('SK-7')
+    const wanted = spelledOnScreen(driver?.cell ?? '')
+    expect(assignmentsIn(driver?.cell ?? ''), 'SK-7 holds two assignments').toHaveLength(2)
+    const explanation = theNodeShowing(help, iconWords('IC-6', 'ja'))
+    const item = nearestHolding(explanation, (node) => svgsIn(node).length > 0)
+    expect(item.textContent, JSON.stringify(item.textContent)).toContain(wanted)
+  })
+
+  it('FR-036: a zoom entrance reads its key, then " \uff0f ", then its wheel word -- never a bare space between them', () => {
+    const help = drawnHelp('ja')
+    for (const icon of ['IC-12', 'IC-13', 'IC-14', 'IC-15']) {
+      const keyRow = KEY_DRIVERS.find((one) => one.icons.includes(icon))
+      const mouseRow = MOUSE_DRIVERS.find((one) => one.icons.includes(icon))
+      expect(keyRow, `${icon} has no key row`).toBeDefined()
+      expect(mouseRow, `${icon} has no mouse row`).toBeDefined()
+      const keys = spelledOnScreen(keyRow?.cell ?? '')
+      const press = WORDS.assignments.find((one) => one.rowId === mouseRow?.row)?.press?.ja ?? ''
+      const pressHead = (press.split(`{${LEGEND_ROW}}`)[0] ?? '').trimEnd()
+      expect(pressHead, `${icon}: the dictionary holds no wheel word`).not.toBe('')
+      const explanation = theNodeShowing(help, iconWords(icon, 'ja'))
+      const item = nearestHolding(explanation, (node) => svgsIn(node).length > 0)
+      expect(item.textContent, `${icon}: ${JSON.stringify(item.textContent)}`).toContain(`${keys} \uff0f ${pressHead}`)
     }
   })
 

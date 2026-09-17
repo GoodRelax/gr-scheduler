@@ -76,8 +76,8 @@ import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale
 // of item-hit-area.ts. Table T-023d's closing rule makes the dummies' hit area
 // `FR-043`'s drawn mark itself: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
 // `FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない
-// （MUST NOT）」, so the mark's own width -- 1 day and `S-180`'s, whichever is
-// smaller -- is the hold as well, read out of `NOT_STORED_DUMMY_SIZES` above,
+// （MUST NOT）」, so the mark's own width -- table T-240 DM-3's, the marker
+// diameter times S-247 capped by S-180 -- is the hold as well, read out of `NOT_STORED_DUMMY_SIZES` above,
 // the same generated block ScheduleLayout uses for `dummyGrabWidthPx`.
 
 // ---------------------------------------------------------------------------
@@ -919,13 +919,13 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
 // below is derived rather than typed: table T-023d's closing rule makes it
 // `FR-043`'s own mark -- 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
 // が描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」
-// -- whose width is 「1 日ぶんと … `S-180` の小さい方」 and therefore follows the
+// -- whose width table T-240 DM-3 gives and which no longer follows the
 // zoom. The two units still have to agree on ONE width, and this is it.
 
 describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', () => {
   // ⭐⭐ ZOOMED IN TO x2, and `notStartedScene`'s finish is cut to match. Table
-  // T-023d's closing rule makes the hold `FR-043`'s own mark, 「1 日ぶんと
-  // …`S-180` の小さい方」, which SHRINKS to `pxPerDay` at this zoom. A 4-day
+  // T-023d's closing rule makes the hold `FR-043`'s own mark, whose width table
+  // T-240 DM-3 gives and which once SHRANK to `pxPerDay` at this zoom. A 4-day
   // plan's own right edge then reaches past a hold that thin, so
   // `notStartedScene` is cut to 2 days and the zoom doubled to keep the
   // Task's width at `taskLevelOfDetailReadablePx` (24px) -- any narrower and
@@ -976,8 +976,8 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * GR-17's own hold, and this IS the drawn mark's own width: table T-023d's
    * closing rule reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
    * が描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」,
-   * and `FR-043` gives the mark's own width as 「1 日ぶんと
-   * `_assets/tbl-settings.md` の 表 T-206 の `S-180` の小さい方」.
+   * and table T-240 DM-3 gives the mark's own width (the marker diameter
+   * times `S-247`, capped by `S-180`).
    *
    * ⛔⛔ THE HOLD AND THE DRAWN WIDTH ARE ONE NUMBER, not two -- table T-038's
    * closing paragraph says so in as many words: 「掴みシロが印そのものになった
@@ -1004,8 +1004,18 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     const { drawn } = notStartedScene()
     const marker = drawn.marker
     if (marker === null) throw new Error('no marker')
-    expect({ clear: marker.centre.x - marker.radius >= holdRightOf(drawn) })
+    expect({ clear: marker.centre.x - marker.radius >= holdRightOf(drawn) - 1e-6 })
       .toEqual({ clear: true })
+  })
+
+  it('⛔ FR-013 (MUST NOT): OC-3 touches the right edge of the dummy mark, with no gap a press could fall into', () => {
+    const { drawn } = notStartedScene()
+    const marker = drawn.marker
+    if (marker === null) throw new Error('no marker')
+    expect(
+      marker.centre.x - marker.radius,
+      '依存線がどちらのバーに付くかの定め（`FR-009`）と同じ形である。⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',
+    ).toBeCloseTo(holdRightOf(drawn), 6)
   })
 
   it('⛔ MUST NOT: OC-1 is measured from the rightmost of the shape, marker (1) and marker (2) on a fresh Task, and counts nothing once the name stands inside the actual', () => {

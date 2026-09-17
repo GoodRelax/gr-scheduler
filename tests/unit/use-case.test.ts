@@ -227,7 +227,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     )
     expect(flat.ok).toBe(false)
     if (!flat.ok) expect(flat.refusals[0]!.rule).toBe('FR-052')
-    // WHY: S-80 puts no such floor under the properties panel; zero is legitimate.
+    // WHY: S-80 keeps its lower bound 0 (S-248 stops only a divider drag, FR-052); zero is legitimate.
     const collapsed = editDocumentSettings(
       documentOf(),
       { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 0 },
