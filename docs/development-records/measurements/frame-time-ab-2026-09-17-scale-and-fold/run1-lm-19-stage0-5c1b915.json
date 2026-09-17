@@ -1,0 +1,124 @@
+{
+  "ok": true,
+  "conditions": {
+    "measuredAt": "2026-09-17T04:34:31.642Z",
+    "commit": {
+      "head": "5c1b915258b8d51dd7e5be4c258e6916010856da",
+      "dirtyDistOrSrc": true
+    },
+    "buildSha256": "8460eaa9fe055d74f1d0a2bbb544144c8f0f5b7d9bccc8f321514713aaacfeaa",
+    "screen": {
+      "width": 1920,
+      "height": 1080
+    },
+    "tasksRequested": 1000,
+    "samplesPerStretch": 240,
+    "channel": "msedge",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "logicalCpus": 16,
+    "os": "Windows_NT 10.0.26200",
+    "node": "v24.12.0",
+    "definition": "frame time = interval between delivered rAF stamps (T-043 preamble), over MC-8 stretches; instrument = FRAME_PROBE of tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts",
+    "tasksMeasured": 1000,
+    "apiOpenedBeforeMeasuring": false,
+    "browserVersion": "153.0.4234.32",
+    "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x000046A3) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0"
+  },
+  "frameTime": {
+    "samples": 960,
+    "medianMs": 16.67,
+    "p95Ms": 31.6
+  },
+  "insideRedrawCallbackNotFrameTime": {
+    "samples": 960,
+    "medianMs": 9.5,
+    "p95Ms": 16.1
+  },
+  "stretches": [
+    {
+      "name": "MK-1 scroll",
+      "rounds": 49,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 19.88,
+        "p95Ms": 35.43
+      },
+      "meanFrameRate": 47.21,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 10.35,
+        "p95Ms": 16.9
+      },
+      "inputsReceived": 404
+    },
+    {
+      "name": "MK-2 zoom",
+      "rounds": 37,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 22.5,
+        "p95Ms": 33.33
+      },
+      "meanFrameRate": 47.05,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 9.8,
+        "p95Ms": 16.8
+      },
+      "inputsReceived": 304
+    },
+    {
+      "name": "MK-7 pan",
+      "rounds": 307,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 16.1,
+        "p95Ms": 30.3
+      },
+      "meanFrameRate": 55.24,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 9.7,
+        "p95Ms": 15.4
+      },
+      "inputsReceived": 784
+    },
+    {
+      "name": "MK-6 range select",
+      "rounds": 236,
+      "frameTime": {
+        "samples": 240,
+        "medianMs": 8.1,
+        "p95Ms": 15.7
+      },
+      "meanFrameRate": 108.67,
+      "insideRedrawCallback": {
+        "samples": 240,
+        "medianMs": 5.7,
+        "p95Ms": 8.7
+      },
+      "inputsReceived": 453
+    }
+  ],
+  "writeCost": {
+    "what": "one Ctrl+wheel notch (MK-2, setZoom) into a quiet page",
+    "inputToRedrawCallbackEnd": {
+      "samples": 30,
+      "medianMs": 19.15,
+      "p95Ms": 25.7
+    },
+    "insideThatRedrawCallback": {
+      "samples": 30,
+      "medianMs": 6.65,
+      "p95Ms": 9.1
+    },
+    "synchronousDispatch": {
+      "samples": 30,
+      "medianMs": 12.75,
+      "p95Ms": 17.2
+    },
+    "writesWithoutFrame": 0
+  },
+  "notMeasured": []
+}

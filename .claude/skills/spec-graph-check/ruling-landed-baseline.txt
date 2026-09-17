@@ -1,4 +1,7 @@
-20
+18
+#
+# LOWERED 20 -> 18 on 2026-09-17 (second session): JDG-166 (the unattended A/B is recorded) and JDG-167
+# (wave 3 implemented and pushed at cdca63ac) landed.
 #
 # LOWERED 30 -> 20 on 2026-09-17 (second session): CR-409 .. CR-416 landed JDG-146, JDG-147, JDG-148,
 # JDG-149, JDG-150, JDG-152, JDG-153, JDG-154, JDG-156 and JDG-160.

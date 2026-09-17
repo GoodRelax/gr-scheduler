@@ -1,0 +1,115 @@
+supp run 1 order: stage0-5c1b915 head100-cdca63ac head200-cdca63ac
+supp run 1 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:02:54.112Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 1 first-notch head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:05:32.853Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 1 first-notch head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:08:12.304Z, presses None/5, displayScale None, notMeasured [], doubts []
+supp run 1 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:12:33.097Z, presses 0/0, displayScale None, notMeasured [], doubts None
+supp run 1 lm-19 head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:13:17.686Z, presses 0/0, displayScale 100, notMeasured [], doubts None
+supp run 1 lm-19 head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:14:17.883Z, presses 5/5, displayScale 200, notMeasured [], doubts None
+supp run 2 order: head100-cdca63ac head200-cdca63ac stage0-5c1b915
+supp run 2 first-notch head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:15:04.528Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 2 first-notch head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:17:44.401Z, presses None/5, displayScale None, notMeasured [], doubts []
+supp run 2 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:22:04.128Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 2 lm-19 head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:24:42.931Z, presses 0/0, displayScale 100, notMeasured [], doubts None
+supp run 2 lm-19 head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:25:47.935Z, presses 5/5, displayScale 200, notMeasured [], doubts None
+supp run 2 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:26:36.727Z, presses 0/0, displayScale None, notMeasured [], doubts None
+supp run 3 order: head200-cdca63ac stage0-5c1b915 head100-cdca63ac
+supp run 3 first-notch head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:27:25.109Z, presses None/5, displayScale None, notMeasured [], doubts []
+supp run 3 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:31:44.365Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 3 first-notch head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:34:22.940Z, presses None/0, displayScale None, notMeasured [], doubts []
+supp run 3 lm-19 head200-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:37:01.995Z, presses 5/5, displayScale 200, notMeasured [], doubts None
+supp run 3 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T05:37:49.768Z, presses 0/0, displayScale None, notMeasured [], doubts None
+supp run 3 lm-19 head100-cdca63ac: ok True, sha 016a898a, measuredAt 2026-09-17T05:38:41.137Z, presses 0/0, displayScale 100, notMeasured [], doubts None
+
+## first-notch
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| [1920x1080] template firstNotch | synchronousDispatch | stage0-5c1b915 | 15.4 / 16.45 / 16.5 | 23.6 / 18.9 / 23.8 | 15.4-16.5 ms | 18.9-23.8 ms |
+| [1920x1080] template firstNotch | synchronousDispatch | head100-cdca63ac | 21.05 / 20 / 17.65 | 28.4 / 30.6 / 27.3 | 17.65-21.05 ms | 27.3-30.6 ms |
+| [1920x1080] template firstNotch | synchronousDispatch | head200-cdca63ac | 12.3 / 15.35 / 13.4 | 24.3 / 22.4 / 24.8 | 12.3-15.35 ms | 22.4-24.8 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 32.25 / 33.5 / 33.65 | 39.8 / 35.5 / 46.4 | 32.25-33.65 ms | 35.5-46.4 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | head100-cdca63ac | 46.05 / 44.8 / 41.35 | 52.2 / 53.7 / 52.4 | 41.35-46.05 ms | 52.2-53.7 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | head200-cdca63ac | 26.05 / 30.85 / 27.45 | 40.3 / 38 / 51.6 | 26.05-30.85 ms | 38-51.6 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | stage0-5c1b915 | 15.05 / 12.95 / 15.65 | 23.5 / 16.5 / 24.3 | 12.95-15.65 ms | 16.5-24.3 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | head100-cdca63ac | 2.95 / 2.45 / 3.1 | 13.3 / 12.7 / 11.8 | 2.45-3.1 ms | 11.8-13.3 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | head200-cdca63ac | 3.2 / 3.2 / 2.9 | 11.1 / 8.2 / 8.4 | 2.9-3.2 ms | 8.2-11.1 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 27.6 / 24.6 / 27.55 | 42.2 / 28 / 35.6 | 24.6-27.6 ms | 28-42.2 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | head100-cdca63ac | 13.55 / 12.1 / 12.95 | 29 / 30.9 / 27.9 | 12.1-13.55 ms | 27.9-30.9 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | head200-cdca63ac | 11.5 / 12.4 / 10.6 | 21.7 / 22.8 / 19.5 | 10.6-12.4 ms | 19.5-22.8 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | stage0-5c1b915 | 3.7 / 1.85 / 2.85 | 4 / 3.4 / 3.9 | 1.85-3.7 ms | 3.4-4 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | head100-cdca63ac | 3.55 / 4.8 / 3.75 | 6.9 / 5 / 4.8 | 3.55-4.8 ms | 4.8-6.9 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | head200-cdca63ac | 3.6 / 4.6 / 4.25 | 5.2 / 5 / 4.9 | 3.6-4.6 ms | 4.9-5.2 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 6.7 / 4.1 / 4.65 | 8.4 / 6.3 / 5.9 | 4.1-6.7 ms | 5.9-8.4 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | head100-cdca63ac | 5.7 / 7.1 / 6.3 | 11.5 / 8.4 / 8.3 | 5.7-7.1 ms | 8.3-11.5 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | head200-cdca63ac | 5.1 / 5.85 / 5.6 | 7.9 / 6.9 / 7.8 | 5.1-5.85 ms | 6.9-7.9 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | stage0-5c1b915 | 1.4 / 1.1 / 1.2 | 1.8 / 1.8 / 1.8 | 1.1-1.4 ms | 1.8-1.8 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | head100-cdca63ac | 0.55 / 0.6 / 0.6 | 1.4 / 2 / 1.9 | 0.55-0.6 ms | 1.4-2 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | head200-cdca63ac | 0.5 / 0.5 / 0.45 | 1.5 / 1.5 / 1.4 | 0.45-0.5 ms | 1.4-1.5 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 3.25 / 2.7 / 2.95 | 6.1 / 5 / 4.9 | 2.7-3.25 ms | 4.9-6.1 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | head100-cdca63ac | 2.55 / 2.1 / 2.35 | 4.7 / 5.4 / 4.5 | 2.1-2.55 ms | 4.5-5.4 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | head200-cdca63ac | 1.65 / 1.55 / 1.6 | 3.3 / 3.2 / 2.9 | 1.55-1.65 ms | 2.9-3.3 ms |
+| [1920x400] template firstNotch | synchronousDispatch | stage0-5c1b915 | 13.45 / 15.2 / 16.75 | 22.4 / 18.7 / 19.2 | 13.45-16.75 ms | 18.7-22.4 ms |
+| [1920x400] template firstNotch | synchronousDispatch | head100-cdca63ac | 17.85 / 20.8 / 20.15 | 21.6 / 27.7 / 30.5 | 17.85-20.8 ms | 21.6-30.5 ms |
+| [1920x400] template firstNotch | synchronousDispatch | head200-cdca63ac | 13.55 / 13.3 / 12.9 | 15.5 / 17.1 / 19.3 | 12.9-13.55 ms | 15.5-19.3 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 28.35 / 30.45 / 31.2 | 37.9 / 34.3 / 33.7 | 28.35-31.2 ms | 33.7-37.9 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | head100-cdca63ac | 31.85 / 34.3 / 33.75 | 35.9 / 42.6 / 45.1 | 31.85-34.3 ms | 35.9-45.1 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | head200-cdca63ac | 22.55 / 22.95 / 22.5 | 28.2 / 27.5 / 29.1 | 22.5-22.95 ms | 27.5-29.1 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | stage0-5c1b915 | 2.15 / 2.1 / 2 | 15.6 / 18.1 / 18.4 | 2-2.15 ms | 15.6-18.4 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | head100-cdca63ac | 3.65 / 3.3 / 3.2 | 8 / 10.8 / 8.2 | 3.2-3.65 ms | 8-10.8 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | head200-cdca63ac | 2.55 / 2.45 / 2.9 | 8.6 / 10.7 / 11.4 | 2.45-2.9 ms | 8.6-11.4 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 16.65 / 14.8 / 17.4 | 26.2 / 28.9 / 31.2 | 14.8-17.4 ms | 26.2-31.2 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | head100-cdca63ac | 12.2 / 11.7 / 11.2 | 17.6 / 20.6 / 19.1 | 11.2-12.2 ms | 17.6-20.6 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | head200-cdca63ac | 10.2 / 8.85 / 10.5 | 16 / 18 / 18.1 | 8.85-10.5 ms | 16-18.1 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | stage0-5c1b915 | 3.4 / 3.15 / 1.75 | 4.6 / 3.9 / 3.6 | 1.75-3.4 ms | 3.6-4.6 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | head100-cdca63ac | 3.75 / 5.8 / 3.5 | 5.8 / 6.5 / 3.8 | 3.5-5.8 ms | 3.8-6.5 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | head200-cdca63ac | 2.75 / 3.85 / 2.95 | 5.1 / 5.1 / 3.9 | 2.75-3.85 ms | 3.9-5.1 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 5.4 / 5.55 / 3.45 | 8.4 / 6.7 / 6.9 | 3.45-5.55 ms | 6.7-8.4 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | head100-cdca63ac | 6.35 / 7.95 / 5.6 | 9.4 / 9.4 / 5.7 | 5.6-7.95 ms | 5.7-9.4 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | head200-cdca63ac | 3.9 / 5.3 / 4.35 | 6.6 / 6.8 / 6 | 3.9-5.3 ms | 6-6.8 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | stage0-5c1b915 | 1.25 / 1.2 / 1.3 | 1.8 / 1.6 / 1.8 | 1.2-1.3 ms | 1.6-1.8 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | head100-cdca63ac | 0.6 / 0.6 / 0.3 | 1.9 / 1.5 / 0.7 | 0.3-0.6 ms | 0.7-1.9 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | head200-cdca63ac | 0.5 / 0.5 / 0.5 | 1.6 / 1.8 / 1.6 | 0.5-0.5 ms | 1.6-1.8 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 3.1 / 3.05 / 3.2 | 5.3 / 4.1 / 4.8 | 3.05-3.2 ms | 4.1-5.3 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | head100-cdca63ac | 2.2 / 1.95 / 1.4 | 5.6 / 3.7 / 2.7 | 1.4-2.2 ms | 2.7-5.6 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | head200-cdca63ac | 1.6 / 1.5 / 1.55 | 3.3 / 3.2 / 3.3 | 1.5-1.6 ms | 3.2-3.3 ms |
+
+## lm-19
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| MK-1 scroll | frameTime | stage0-5c1b915 | 20.92 / 16.67 / 16.67 | 36.33 / 31.2 / 31.4 | 16.67-20.92 ms | 31.2-36.33 ms |
+| MK-1 scroll | frameTime | head100-cdca63ac | 53 / 53 / 53.1 | 67.37 / 66.9 / 66.1 | 53-53.1 ms | 66.1-67.37 ms |
+| MK-1 scroll | frameTime | head200-cdca63ac | 19.75 / 21.63 / 16.67 | 33.33 / 36.7 / 35.34 | 16.67-21.63 ms | 33.33-36.7 ms |
+| MK-1 scroll | insideRedrawCallback | stage0-5c1b915 | 10.6 / 10.5 / 9.8 | 16 / 14.6 / 14.3 | 9.8-10.6 ms | 14.3-16 ms |
+| MK-1 scroll | insideRedrawCallback | head100-cdca63ac | 16.7 / 16.5 / 14.75 | 25.1 / 25.4 / 22.6 | 14.75-16.7 ms | 22.6-25.4 ms |
+| MK-1 scroll | insideRedrawCallback | head200-cdca63ac | 8.9 / 9 / 8.4 | 13 / 14.3 / 13.1 | 8.4-9 ms | 13-14.3 ms |
+| MK-2 zoom | frameTime | stage0-5c1b915 | 22.03 / 22.15 / 22 | 29.7 / 30.43 / 33.33 | 22-22.15 ms | 29.7-33.33 ms |
+| MK-2 zoom | frameTime | head100-cdca63ac | 52.25 / 53.2 / 51.65 | 61.9 / 70.1 / 66.66 | 51.65-53.2 ms | 61.9-70.1 ms |
+| MK-2 zoom | frameTime | head200-cdca63ac | 21.9 / 21.9 / 20.73 | 33.33 / 33.33 / 33.33 | 20.73-21.9 ms | 33.33-33.33 ms |
+| MK-2 zoom | insideRedrawCallback | stage0-5c1b915 | 9.8 / 9.65 / 9.6 | 12.6 / 12.8 / 14.9 | 9.6-9.8 ms | 12.6-14.9 ms |
+| MK-2 zoom | insideRedrawCallback | head100-cdca63ac | 14.85 / 14.8 / 13.8 | 22.6 / 22.9 / 23 | 13.8-14.85 ms | 22.6-23 ms |
+| MK-2 zoom | insideRedrawCallback | head200-cdca63ac | 8 / 7.7 / 7.7 | 11.5 / 13.6 / 11.3 | 7.7-8 ms | 11.3-13.6 ms |
+| MK-7 pan | frameTime | stage0-5c1b915 | 14.45 / 8.25 / 8.1 | 23.9 / 30.3 / 29.43 | 8.1-14.45 ms | 23.9-30.3 ms |
+| MK-7 pan | frameTime | head100-cdca63ac | 21.75 / 16.67 / 22.45 | 40 / 66 / 53.41 | 16.67-22.45 ms | 40-66 ms |
+| MK-7 pan | frameTime | head200-cdca63ac | 8.1 / 14.6 / 16.67 | 23.1 / 37.8 / 30.2 | 8.1-16.67 ms | 23.1-37.8 ms |
+| MK-7 pan | insideRedrawCallback | stage0-5c1b915 | 8.9 / 7.6 / 6.9 | 12.3 / 11.9 / 13.4 | 6.9-8.9 ms | 11.9-13.4 ms |
+| MK-7 pan | insideRedrawCallback | head100-cdca63ac | 10.6 / 8.95 / 10.5 | 17.6 / 16.9 / 21.2 | 8.95-10.6 ms | 16.9-21.2 ms |
+| MK-7 pan | insideRedrawCallback | head200-cdca63ac | 4.7 / 6.9 / 8.5 | 8.1 / 12.3 / 12.2 | 4.7-8.5 ms | 8.1-12.3 ms |
+| MK-6 range select | frameTime | stage0-5c1b915 | 8.2 / 13.23 / 7.55 | 16.67 / 16.67 / 15.8 | 7.55-13.23 ms | 15.8-16.67 ms |
+| MK-6 range select | frameTime | head100-cdca63ac | 7.85 / 7.7 / 13.65 | 15.7 / 8.3 / 16.67 | 7.7-13.65 ms | 8.3-16.67 ms |
+| MK-6 range select | frameTime | head200-cdca63ac | 7.7 / 7.4 / 8 | 8.2 / 8.2 / 16.67 | 7.4-8 ms | 8.2-16.67 ms |
+| MK-6 range select | insideRedrawCallback | stage0-5c1b915 | 6.4 / 6.4 / 6.1 | 8.8 / 8.8 / 8.9 | 6.1-6.4 ms | 8.8-8.9 ms |
+| MK-6 range select | insideRedrawCallback | head100-cdca63ac | 4.2 / 3.6 / 5.1 | 5.9 / 4.9 / 7.3 | 3.6-5.1 ms | 4.9-7.3 ms |
+| MK-6 range select | insideRedrawCallback | head200-cdca63ac | 3.35 / 3.2 / 3.8 | 4.2 / 4.1 / 4.6 | 3.2-3.8 ms | 4.1-4.6 ms |
+| (pooled) | frameTime | stage0-5c1b915 | 16.67 / 16.67 / 15.3 | 30.2 / 30.2 / 30.8 | 15.3-16.67 ms | 30.2-30.8 ms |
+| (pooled) | frameTime | head100-cdca63ac | 33.33 / 34.62 / 33.33 | 61.4 / 67.6 / 61.7 | 33.33-34.62 ms | 61.4-67.6 ms |
+| (pooled) | frameTime | head200-cdca63ac | 15.2 / 16.67 / 16.67 | 29.7 / 33.33 / 30.7 | 15.2-16.67 ms | 29.7-33.33 ms |
+| MK-2 write cost | inputToRedrawCallbackEnd | stage0-5c1b915 | 24.95 / 21.65 / 21.75 | 33.9 / 30.2 / 25.1 | 21.65-24.95 ms | 25.1-33.9 ms |
+| MK-2 write cost | inputToRedrawCallbackEnd | head100-cdca63ac | 21.9 / 20.95 / 26 | 30.8 / 33.5 / 32.5 | 20.95-26 ms | 30.8-33.5 ms |
+| MK-2 write cost | inputToRedrawCallbackEnd | head200-cdca63ac | 19.15 / 19.25 / 25.15 | 29.1 / 23.6 / 32.8 | 19.15-25.15 ms | 23.6-32.8 ms |
+| MK-2 write cost | insideThatRedrawCallback | stage0-5c1b915 | 12 / 9.45 / 8.55 | 18.1 / 12.2 / 11.5 | 8.55-12 ms | 11.5-18.1 ms |
+| MK-2 write cost | insideThatRedrawCallback | head100-cdca63ac | 9.3 / 8.15 / 13.6 | 13.3 / 16.3 / 21.5 | 8.15-13.6 ms | 13.3-21.5 ms |
+| MK-2 write cost | insideThatRedrawCallback | head200-cdca63ac | 5.9 / 4.5 / 9.1 | 9.7 / 7.3 / 18.5 | 4.5-9.1 ms | 7.3-18.5 ms |
+| MK-2 write cost | synchronousDispatch | stage0-5c1b915 | 12.55 / 11.75 / 12.75 | 18.1 / 19.7 / 15.8 | 11.75-12.75 ms | 15.8-19.7 ms |
+| MK-2 write cost | synchronousDispatch | head100-cdca63ac | 12.5 / 12.2 / 12.5 | 19.8 / 19.3 / 16.8 | 12.2-12.5 ms | 16.8-19.8 ms |
+| MK-2 write cost | synchronousDispatch | head200-cdca63ac | 12.85 / 13.55 / 14.95 | 22.9 / 17.8 / 20.1 | 12.85-14.95 ms | 17.8-22.9 ms |

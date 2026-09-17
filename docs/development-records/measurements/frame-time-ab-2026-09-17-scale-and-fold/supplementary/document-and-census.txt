@@ -1,0 +1,16 @@
+One-off readings taken 2026-09-17 before and after the runs (not timings). Scripts: doc-check.mjs, element-census.mjs.
+msedge headless, 1920x1080, startup template, dist/index.html of each worktree.
+
+doc-check.mjs (on open, then IC-78, then IC-20 and readDocument)
+  stage0 5c1b915 : Task 1000, TaskGroup 100, no displayScale key in documentSettings, zoomX 1, zoomY 1,
+                   IC-104/IC-105 absent; on open Row Expander 32, [data-group-id] 8, canvas SVG elements 492;
+                   after IC-78 Row Expander 0, canvas SVG elements 158
+  head cdca63ac  : Task 1000, TaskGroup 100, displayScale 100, zoomX 1, zoomY 1,
+                   IC-104/IC-105 present; on open Row Expander 64, [data-group-id] 16, canvas SVG elements 2380;
+                   after IC-78 Row Expander 0, canvas SVG elements 268
+
+element-census.mjs (canvas SVG descendants on open; allDom = every element in the page)
+  stage0 5c1b915          total 492  allDom 1134 rowTitles 8  rect 95  line 63  polygon 84  polyline 57  circle 44  text 142 g 2
+  head cdca63ac  scale100 total 2380 allDom 3321 rowTitles 16 rect 375 line 133 polygon 500 polyline 297 circle 390 text 402 g 278
+  head cdca63ac  scale200 total 979  allDom 1679 rowTitles 9  rect 193 line 68  polygon 204 polyline 145 circle 123 text 201 g 40
+  (scale200 = IC-105 pressed 5 times: 100 -> 110 -> 125 -> 150 -> 175 -> 200; lm-19-scaled read displayScale 200 back)
