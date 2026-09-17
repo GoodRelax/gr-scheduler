@@ -430,8 +430,13 @@ describe('S-11 / S-17 / S-18 -- the document ranges table T-201 now states', () 
 
   it('caps dependencyWidth at dependencyArrowLength / 2, not at stackGap / 2', () => {
     expect(cellOf('T-201', 'S-18', '上限')).toContain('dependencyArrowLength')
-    const decoded = read({ dependencyArrowLength: S_19, dependencyWidth: S_19 / 2 + 1 })
-    expect(decoded.document.documentSettings.dependencyWidth).toBeCloseTo(S_19 / 2, 9)
+    // STEP: S-19's own floor (dependencyWidth x 2) could lift the arrow instead, so the arrow stands at S-19's maximum.
+    const longest = numberOf('T-201', 'S-19', '上限')
+    expect(S_19, 'premise: the default S-19 sits below its maximum, so it could have been lifted').toBeLessThan(longest)
+    const decoded = read({ dependencyArrowLength: longest, dependencyWidth: longest / 2 + 1 })
+    expect(decoded.document.documentSettings.dependencyArrowLength).toBe(longest)
+    expect(decoded.document.documentSettings.dependencyWidth).toBeCloseTo(longest / 2, 9)
+    expect(decoded.clampedCount).toBeGreaterThanOrEqual(1)
   })
 })
 

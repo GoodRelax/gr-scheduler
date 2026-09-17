@@ -88,6 +88,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
+import { DEFAULT_DISPLAY_RATIO, S_235 } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Settings and screen. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -120,9 +121,11 @@ const SETTINGS = settingsOf({
   rulerFont: 12, // S-3
 })
 
+// WHY: 550, not 700: CR-414 lowered the lattice from 32 to 24px, so the Row Area shrinks by the same 3/4
+// and each shape below keeps the row counts it was chosen for.
 const ENV: ScreenEnvironment = {
   width: 1000,
-  height: 700,
+  height: 550,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
 }
@@ -192,7 +195,7 @@ const settingsTablePx = (id: string): number => {
  * ⚠️ A CONSTANT, not a function of the zoom: `HF-19` 「⛔⛔ **この床を閲覧者の文字
  * サイズに追随させてはならない（MUST NOT）**」.
  */
-const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * 2
+const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * S_235 * 2
 
 /**
  * The smallest zoom that draws depth `d`, which is what FR-055's ⛔ measures
@@ -496,7 +499,13 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
     // ⛔ THIS IS WHAT SIZES EVERY FIXTURE IN THIS FILE. If the lattice ever
     // stopped outrunning the pinned plan height, the row counts chosen above
     // would be the wrong ones and the answers they are named for would move.
-    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(PINNED_PLAN_HEIGHT)
+    // STEP: compared in drawn px -- the pinned plan to its VG-5 edge plus one VG-2 gap, at the default ratio.
+    const pinnedBand =
+      (PINNED_PLAN_HEIGHT + SETTINGS.planStroke) * DEFAULT_DISPLAY_RATIO +
+      SETTINGS.stackGap * 2 + SETTINGS.dependencyWidth * DEFAULT_DISPLAY_RATIO
+    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(pinnedBand)
+    const oneRow = layoutFromSchedule(scheduleOf({ roots: 1, depths: 1, fanOut: 1 }), SETTINGS, REGIONS)
+    expect(oneRow.rows[0]!.height, 'the band a pinned row draws is the lattice').toBeCloseTo(CONTROL_LATTICE_FLOOR, 6)
     // ...and the manuscript still says both halves of it.
     const says = (table: string, id: string): string => {
       const row = specTable(table).rows.find((one) => one.id === id)

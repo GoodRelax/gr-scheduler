@@ -389,10 +389,13 @@ describe('FR-039 (MUST) -- every dimension table T-252 multiplies moves with the
     const high = sceneAt(HIGHEST_STEP, { zoomY })
     const factor = ratioOf(HIGHEST_STEP) / ratioOf(LOWEST_STEP)
 
-    expect(high.layout.rows[0]!.height / low.layout.rows[0]!.height, 'the band').toBeCloseTo(
-      factor,
-      6,
-    )
+    // STEP: DS-10 keeps S-11 out of the ratio, so the band less its two S-11 (one lane, VG-2) is what scales.
+    const unscaledOf = (scene: Scene): number => scene.settings.stackGap * 2
+    expect(
+      (high.layout.rows[0]!.height - unscaledOf(high)) / (low.layout.rows[0]!.height - unscaledOf(low)),
+      'the band',
+    ).toBeCloseTo(factor, 6)
+    expect(high.layout.rows[0]!.height / low.layout.rows[0]!.height, 'DS-10: the whole band is not').not.toBeCloseTo(factor, 6)
     expect(
       taskPlacement(high.layout, 1)!.labelFontSize / taskPlacement(low.layout, 1)!.labelFontSize,
       'the task name font',

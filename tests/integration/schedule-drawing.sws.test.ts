@@ -1108,13 +1108,16 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       expect(placed.height, 'the arrow itself is drawn shorter than a rectangle').toBeLessThan(
         drawn.layout.rectangleHeight,
       )
-      expect(rowByIdOf(drawn, 'g1').height).toBeCloseTo(
-        Math.max(drawn.layout.rectangleHeight, CONTROL_LATTICE_FLOOR),
-        6,
-      )
+      // STEP: LF-3's rectangle height reaches VG-5's drawn edge -- the border's outer rim, half a stroke each side.
+      const rectangleTall = drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO
+      // STEP: LF-2's own sum for the arrow's one lane: its lifted name (OC-10) and line, then one VG-2 gap.
+      const row = rowByIdOf(drawn, 'g1')
+      const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
+      const lf2 = placed.y - row.y + placed.height + gap
+      expect(row.height).toBeCloseTo(Math.max(lf2, rectangleTall, CONTROL_LATTICE_FLOOR), 6)
       // ⛔ Both floors are above the arrow, so the band clears the taller one.
       expect(rowByIdOf(drawn, 'g1').height).toBeGreaterThanOrEqual(CONTROL_LATTICE_FLOOR)
-      expect(rowByIdOf(drawn, 'g1').height).toBeGreaterThanOrEqual(drawn.layout.rectangleHeight)
+      expect(rowByIdOf(drawn, 'g1').height).toBeGreaterThanOrEqual(rectangleTall - 1e-9)
     },
   )
 

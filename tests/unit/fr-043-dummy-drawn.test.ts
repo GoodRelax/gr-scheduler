@@ -157,7 +157,8 @@ const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? [
  * tolerance this file invented.
  */
 const GRID = ((): number => {
-  const [first] = numbersOf(NS_3['規則'] ?? '')
+  // TRAP: the cell names NS-1 before the grid, so the first bare number is that 1; take the number before px.
+  const [first] = numbersOf(/\d+(?:\.\d+)?\s*px/.exec(NS_3['規則'] ?? '')?.[0] ?? '')
   if (first === undefined || first <= 0) {
     throw new Error(`table T-231 row NS-3 states no grid: ${NS_3['規則']}`)
   }

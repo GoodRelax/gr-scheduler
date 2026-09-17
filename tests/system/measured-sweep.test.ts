@@ -1076,7 +1076,8 @@ async function panelDates(page: Page): Promise<{ start: string; finish: string; 
     const both = Array.from(row.querySelectorAll('input[type="date"]')).map(
       (one) => (one as HTMLInputElement).value,
     )
-    const named = document.querySelector('[data-field-row="PR-1"] input') as HTMLInputElement | null
+    // WHY: textarea, not input: CR-408 made the name field of PR-1 a textarea.
+    const named = document.querySelector('[data-field-row="PR-1"] textarea') as HTMLTextAreaElement | null
     return { start: both[0] ?? '', finish: both[1] ?? '', name: named?.value ?? '' }
   })
 }

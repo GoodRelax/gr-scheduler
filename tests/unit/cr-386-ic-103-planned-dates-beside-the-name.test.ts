@@ -134,7 +134,8 @@ const ALPHA: Planned = { uid: 1, name: 'Alpha', start: '2026-04-06', finish: '20
 const BETA: Planned = { uid: 2, name: 'Beta', start: '2026-04-13', finish: '2026-04-13', milestone: false }
 const GAMMA: Planned = { uid: 3, name: 'Gamma', start: '2026-04-15', finish: '2026-04-15', milestone: true }
 const NAMELESS: Planned = { uid: 4, name: '', start: '2026-04-20', finish: '2026-04-22', milestone: false }
-const NARROW: Planned = { uid: 5, name: 'abcdefghij', start: '2026-04-27', finish: '2026-04-29', milestone: false }
+// WHY: eight letters, not ten: CR-412's S-7 0.90 widens the name, and ten no longer fit inside the three days.
+const NARROW: Planned = { uid: 5, name: 'abcdefgh', start: '2026-04-27', finish: '2026-04-29', milestone: false }
 const NEXT_YEAR: Planned = { uid: 6, name: 'Later', start: '2027-01-05', finish: '2027-01-06', milestone: false }
 
 const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]

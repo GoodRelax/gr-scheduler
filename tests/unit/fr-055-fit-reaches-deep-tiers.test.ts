@@ -90,7 +90,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { specTable } from '../contract/spec-table'
-import { DISPLAY_SCALE_STEPS, S_235 } from '../fixtures/display-scale'
+import { DISPLAY_SCALE_STEPS, S_235, displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // Settings and screens. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -566,15 +566,24 @@ describe('the premises -- tiers 4 and 5 exist, stand above FR-094 floor, and are
     // 表 T-221 の `LF-3` (MUST, 利用者の裁定 2026-09-03): 「**帯高は矩形が縦に取る
     // 高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
     // 高さも下回らない**」, restated as a MUST NOT by 表 T-051 の `HF-19`.
-    // ⛔ THIS IS WHAT SIZES EVERY FIXTURE ABOVE. Tiers 1 to 4 draw a row the
-    // LATTICE tall, because the lattice outruns the plan height at any rung
-    // under FR-094's floor and at tier 4's rung as well; only tier 5's rung
-    // lifts the plan clear of it, which is what makes tier 5 the tier a
-    // document overflows at.
-    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(PINNED_PLAN_HEIGHT)
-    const planAt = (depth: number): number => settingNumber('basePlanHeight') * thresholdOf(depth)
-    expect(planAt(4)).toBeLessThan(CONTROL_LATTICE_FLOOR)
-    expect(planAt(5)).toBeGreaterThan(CONTROL_LATTICE_FLOOR)
+    // WHY: these bands size every fixture above; tier 5's is the tallest, so a document overflows there first.
+    // STEP: since CR-413 / CR-414 the drawn plan band (VG-5 edge plus one VG-2 gap) outruns the lattice at
+    // TOP_STEP, so the premise is the band LF-2 / LF-3 give each tier, measured against the layout.
+    const ratio = displayRatioAt(TOP_STEP)
+    const gap = SETTINGS.stackGap * 2 + SETTINGS.dependencyWidth * ratio
+    const planAt = (depth: number): number =>
+      Math.max(PINNED_PLAN_HEIGHT, settingNumber('basePlanHeight') * thresholdOf(depth)) * ratio
+    const bandAt = (depth: number): number =>
+      Math.max(planAt(depth) + SETTINGS.planStroke * ratio + gap, CONTROL_LATTICE_FLOOR)
+    const chain = scheduleOf(FIVE_DEEP_CHAIN)
+    for (let depth = 2; depth <= 5; depth++) {
+      const drawn = layoutAtDepth(chain, depth)
+      for (const row of drawn.rows) {
+        expect(row.height, `tier ${depth}`).toBeCloseTo(bandAt(depth), 6)
+        expect(row.height, `tier ${depth} stands on the lattice (HF-19)`).toBeGreaterThanOrEqual(CONTROL_LATTICE_FLOOR)
+      }
+    }
+    expect(bandAt(5), 'tier 5 draws the taller band, which is what makes it overflow').toBeGreaterThan(bandAt(4))
     // ...and the manuscript still says both halves of the rule.
     const says = (table: string, id: string): string => {
       const row = specTable(table).rows.find((one) => one.id === id)

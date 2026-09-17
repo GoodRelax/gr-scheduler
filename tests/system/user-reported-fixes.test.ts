@@ -43,16 +43,16 @@ const HINT_DELAY_MS = numberIn(cellOf(T212, 'S-124', 1, 5), 'table T-212 row S-1
 
 const ENTRANCE_SHAPE_PX = numberIn(cellOf(T206, 'S-138', 1, 3), 'table T-206 row S-138')
 
-const ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-141', 1, 3), 'table T-206 row S-141')
+const ROW_PANEL_ENTRANCE_CLEAR_PX = numberIn(cellOf(T206, 'S-243', 1, 3), 'table T-206 row S-243')
 
 // see FR-029, T-206, S-237
 const ENTRANCE_FRAME_PX = numberIn(cellOf(T206, 'S-237', 1, 3), 'table T-206 row S-237')
 
-// see FR-029, FR-039, T-252, DS-7, S-235
+// see FR-029, FR-039, T-252, DS-7, S-235, S-243, HF-19
 // WHY: DS-7 keeps the display scale off an entrance, so S-235 is the one ratio
-// WHY: the outer width FR-029 derives is drawn at, on every surface.
-const NARROWEST_ENTRANCE_PX =
-  (ENTRANCE_SHAPE_PX + (ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
+// WHY: the outer width FR-029 derives is drawn at; the row title panel's clear is S-243.
+const NARROWEST_ROW_PANEL_ENTRANCE_PX =
+  (ENTRANCE_SHAPE_PX + (ROW_PANEL_ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
 
 const T109_COLUMNS = 5
 const SURFACE_COLUMN = 0
@@ -599,12 +599,13 @@ test('DFC-160: the entrances at the head of the row title panel stand apart, in 
       expect(
         box.width,
         `${box.entrance} is drawn ${box.width}px wide. FR-029 (MUST): ` +
-          '「入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`）と枠の線の太さ（`S-237`）を' +
-          '左右のぶん加えた値とすること（MUST）」 and 「箱の一辺（`S-138`）と隙間（`S-141`）と枠の' +
-          '線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）」 ' +
-          `-- (${ENTRANCE_SHAPE_PX} + (${ENTRANCE_CLEAR_PX} + ${ENTRANCE_FRAME_PX}) x 2) x ` +
-          `${S_235} = ${NARROWEST_ENTRANCE_PX.toFixed(4)}px`,
-      ).toBeGreaterThanOrEqual(NARROWEST_ENTRANCE_PX)
+          '「入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、行見出しパネルでは `S-243`）' +
+          'と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）」 and 「箱の一辺' +
+          '（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の ' +
+          '表 T-206 の `S-235` を掛けて描くこと（MUST）」 ' +
+          `-- (${ENTRANCE_SHAPE_PX} + (${ROW_PANEL_ENTRANCE_CLEAR_PX} + ${ENTRANCE_FRAME_PX}) x 2) x ` +
+          `${S_235} = ${NARROWEST_ROW_PANEL_ENTRANCE_PX.toFixed(4)}px`,
+      ).toBeGreaterThanOrEqual(NARROWEST_ROW_PANEL_ENTRANCE_PX)
     }
 
     const overlapping: string[] = []

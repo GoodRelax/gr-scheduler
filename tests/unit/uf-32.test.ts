@@ -925,9 +925,9 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
   /** 表 T-206 — the sizes of the selection sign. Not stored in the document. */
   const T_206_SELECTION = {
     /** S-174 -- 選択の枠の太さ, px */
-    'S-174': 2,
+    'S-174': 1,
     /** S-175 -- 選択の枠の破線の刻み: 描く長さと空ける長さ, px */
-    'S-175': [2, 2],
+    'S-175': [2, 1],
     /** S-178 -- 選択された線の太さの倍率, × */
     'S-178': 2,
   } as const

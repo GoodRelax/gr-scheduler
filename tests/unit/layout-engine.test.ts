@@ -1176,8 +1176,9 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const inside = geometryOf(build('rectangle')).tasks[0]!
     const actualTop = Math.min(...outlinePoints(inside.actual).map((onePoint) => onePoint.y))
     const planHeight = settingNumber('basePlanHeight')
+    // STEP: VG-5 / LF-2 hold the rectangle's border inside its lane, so the plan top stands half a stroke down.
     expect(actualTop).toBeCloseTo(
-      REGIONS.rowArea.y +
+      REGIONS.rowArea.y + drawnBorder() / 2 +
         drawnPx((planHeight - planHeight * settingNumber('actualOfPlan')) / 2),
       6,
     )
@@ -1264,7 +1265,8 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     // the case can tell them apart.
     expect(marker.centre.x).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
     // LF-11: 縦は予定バーの中心 -- the plan's centre, not the actual's.
-    expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + drawnPx(14), 6)
+    // STEP: the rectangle's plan top stands half a drawn border below the lane top (VG-5 / LF-2).
+    expect(marker.centre.y).toBeCloseTo(REGIONS.rowArea.y + drawnBorder() / 2 + drawnPx(14), 6)
     // LF-11: markerSize を一辺とする正方形.
     expect(marker.radius).toBe(drawnPx(settingNumber('markerSize') / 2))
   })

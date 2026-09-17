@@ -444,27 +444,73 @@ function replace(value: unknown, path: readonly string[], put: number): unknown 
   return { ...held, [head]: rest.length === 0 ? put : replace(held[head], rest, put) }
 }
 
+// TRAP: repeats boundValueOf of schedule.ts (IV-16); change both together.
+/** @purity pure */
+function expressionValueOf(expression: readonly SettingsBoundToken[], held: unknown): number | null {
+  const stack: number[] = []
+  for (const token of expression) {
+    if ('key' in token) {
+      const value = reach(held, token.key.split('.'))
+      if (typeof value !== 'number' || !Number.isFinite(value)) return null
+      stack.push(value)
+      continue
+    }
+    if ('num' in token) {
+      stack.push(token.num)
+      continue
+    }
+    const right = stack.pop()
+    const left = stack.pop()
+    if (left === undefined || right === undefined) return null
+    stack.push(token.op === '+' ? left + right
+      : token.op === '-' ? left - right
+        : token.op === '*' ? left * right
+          : left / right)
+  }
+  const answer = stack.length === 1 ? stack[0] : undefined
+  return answer === undefined || !Number.isFinite(answer) ? null : answer
+}
+
+// see RS-51, IV-16
 /** @purity pure */
 export function clampedSettings(settings: DocumentSettings): ClampResult {
   let held: unknown = settings
-  const clamped: ClampedValue[] = []
+  const wasByKey = new Map<string, number>()
+  const keys = Object.keys(SETTINGS_BOUNDS)
 
-  for (const key of Object.keys(SETTINGS_BOUNDS)) {
-    const bound = SETTINGS_BOUNDS[key]
-    if (bound === undefined) continue
-    const path = key.split('.')
-    const value = reach(held, path)
-    if (typeof value !== 'number' || !Number.isFinite(value)) continue
+  // WHY: a floor or ceiling naming another key reads that key after its own clamp; a chain
+  // (fontOfActual -> actualMin -> basePlanHeight) settles within one pass per key at most.
+  for (let pass = 0; pass <= keys.length; pass++) {
+    let moved = false
+    for (const key of keys) {
+      const bound = SETTINGS_BOUNDS[key]
+      if (bound === undefined) continue
+      const path = key.split('.')
+      const value = reach(held, path)
+      if (typeof value !== 'number' || !Number.isFinite(value)) continue
 
-    let now = value
-    if (bound.min !== undefined && now < bound.min) now = bound.min
-    if (bound.max !== undefined && now > bound.max) now = bound.max
-    if (now !== value) {
-      clamped.push({ key, was: value, now })
-      held = replace(held, path, now)
+      let now = value
+      const ceiling = bound.maxExpression === undefined ? null : expressionValueOf(bound.maxExpression, held)
+      if (ceiling !== null && now > ceiling) now = ceiling
+      const floor = bound.minExpression === undefined ? null : expressionValueOf(bound.minExpression, held)
+      if (floor !== null && now < floor) now = floor
+      // WHY: the fixed bounds last, so a floor read from another key never lifts a value past its own maximum.
+      if (bound.min !== undefined && now < bound.min) now = bound.min
+      if (bound.max !== undefined && now > bound.max) now = bound.max
+      if (now !== value) {
+        if (!wasByKey.has(key)) wasByKey.set(key, value)
+        held = replace(held, path, now)
+        moved = true
+      }
     }
+    if (!moved) break
   }
 
+  const clamped: ClampedValue[] = []
+  for (const [key, was] of wasByKey) {
+    const now = reach(held, key.split('.')) as number
+    if (now !== was) clamped.push({ key, was, now })
+  }
   return { settings: held as DocumentSettings, clamped }
 }
 

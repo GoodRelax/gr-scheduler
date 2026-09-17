@@ -275,6 +275,11 @@ export class FakeElement {
     return this.childNodes[0] ?? null
   }
 
+  // WHY: the DOM getter the scale message layer reads (CR-411); absent, it answered undefined, not null.
+  get firstElementChild(): FakeElement | null {
+    return this.children[0] ?? null
+  }
+
   get lastChild(): FakeNode | null {
     return this.childNodes[this.childNodes.length - 1] ?? null
   }

@@ -224,7 +224,7 @@ const T_036: readonly ShortcutRow[] = [
     member: 'action',
     action: 'changeDocument',
   },
-  { row: 'SK-17', keys: [{ key: '0', mods: { ctrl: true } }], member: 'action', action: 'changeDocument' },
+  { row: 'SK-17', keys: [{ key: '0', mods: { ctrl: true, shift: true } }], member: 'action', action: 'changeDocument' },
   { row: 'SK-18', keys: [{ key: 'F' }], member: 'action', action: 'changeDocument' },
   {
     row: 'SK-20',
@@ -1104,10 +1104,10 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
     expect(smaller['zoomX']).toBeCloseTo(low.zoomX, 10)
   })
 
-  it('SK-17: Ctrl+0 puts both axes back to unity', () => {
+  it('SK-17: Ctrl+Shift+0 puts both axes back to unity', () => {
     const zoomed = settingsOf({ ...SETTINGS, zoomX: 4, zoomY: 0.5 })
     const context = contextOf({ document: documentOf(SCHEDULE, zoomed) })
-    const back = oneCommand(commandFromInput(keyOf('0', { ctrl: true }), context), 'setZoom')
+    const back = oneCommand(commandFromInput(keyOf('0', { ctrl: true, shift: true }), context), 'setZoom')
     expect(back['zoomX']).toBe(1)
     expect(back['zoomY']).toBe(1)
   })

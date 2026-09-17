@@ -1220,7 +1220,8 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
       const rows: unknown[] = []
       const members: unknown[] = []
       const tasks = [...draft.schedule.tasks]
-      for (let index = 0; index < 24; index += 1) {
+      // WHY: 48, not 24: CR-414's 24px lattice lets 24 rows fit the Row Area whole, and nothing would be clipped.
+      for (let index = 0; index < 48; index += 1) {
         const id = `row-${index}`
         rows.push({
           id,

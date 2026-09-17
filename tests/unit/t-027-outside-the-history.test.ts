@@ -435,11 +435,12 @@ const UN_13_CASES: readonly InsideCase[] = [
     commandRow: 'CM-74',
     settingRow: 'S-234',
     key: 'displayScale',
-    wanted: 100,
+    // WHY: 150, not 100: CR-409 made 100 the template's own step, and the case must change something.
+    wanted: 150,
     command: {
       kind: commandKindOf('CM-74'),
-      scale: 100,
-      displayScale: 100,
+      scale: 150,
+      displayScale: 150,
     } as unknown as DocumentCommand,
   },
 ]

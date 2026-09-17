@@ -389,10 +389,13 @@ describe('T-252 (MUST) + PI-18 -- released wider than the floor, S-79 is the dra
     const wanted = drag.pointerWidth / drag.ratio
     const storedPlusTravel = STORED_UNDER_FLOOR * q + (drag.pointerWidth - drag.drawnBefore) / drag.ratio
     expect(wanted, 'control: S-79 + travel / ratio stores another value here').not.toBeCloseTo(storedPlusTravel, 3)
-    expect(wanted, 'control: the undivided drawn width stores another value here').not.toBeCloseTo(
-      drag.pointerWidth,
-      3,
-    )
+    // WHY: only where the ratio is not 1: at the top step 200 the ratio is 1, and dividing by it cannot be told apart.
+    if (Math.abs(drag.ratio - 1) > 1e-9) {
+      expect(wanted, 'control: the undivided drawn width stores another value here').not.toBeCloseTo(
+        drag.pointerWidth,
+        3,
+      )
+    }
     expect(drag.storedAfter, T_252_THE_RELEASE_STORES).toBeCloseTo(wanted, 6)
   })
 

@@ -133,7 +133,9 @@ const SLOP: PointerSlop = {
 
 // see S-234, FR-039
 const LOW_SCALE = DEFAULT_DISPLAY_SCALE
-const HIGH_SCALE = 100
+// WHY: a step half again above the default, not 100: CR-409 made 100 the default; the top step 200 widens the
+// arrow head past the gap the fixture leaves between S-137 and S-90.
+const HIGH_SCALE = DISPLAY_SCALE_STEPS.find((one) => one >= DEFAULT_DISPLAY_SCALE * 1.5)!
 const SCALES = [LOW_SCALE, HIGH_SCALE] as const
 
 // see DS-7, S-18, S-178

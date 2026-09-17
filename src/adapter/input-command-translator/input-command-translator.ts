@@ -485,6 +485,8 @@ interface ScrollAnchor {
 /** @purity pure */
 function unitFraction(value: number): number {
   if (!Number.isFinite(value)) return 0
+  // WHY: dateAtX snaps a boundary within 1e-9 to the day it opens, so -1e-15 here is that edge, not 0.999... of a day.
+  if (value < 0 && value > -1e-9) return 0
   const dropped = value - Math.floor(value)
   return dropped < 1 ? dropped : 0
 }
@@ -3056,7 +3058,8 @@ function nearestDrawnRowBoundary(rows: readonly RowPlacement[], y: number): numb
     const gapTop = above === undefined ? Number.NEGATIVE_INFINITY : above.y + above.height
     const gapBottom = below === undefined ? Number.POSITIVE_INFINITY : below.y
     const distance = Math.max(Math.min(gapTop, gapBottom) - y, 0, y - Math.max(gapTop, gapBottom))
-    if (distance <= nearestDistance) {
+    // WHY: within 1e-9, not exact: a band of 24.0012px puts its middle a float step off either gap, and HB-5's tie takes the lower.
+    if (distance <= nearestDistance + 1e-9) {
       nearest = at
       nearestDistance = distance
     }

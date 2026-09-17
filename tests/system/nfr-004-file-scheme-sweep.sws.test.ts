@@ -691,6 +691,77 @@ async function zoomStroke(
   return null
 }
 
+// see FR-039, S-234, T-260, SE-2, SE-4
+const DISPLAY_SCALE_STEPS: readonly number[] = (() => {
+  const row = specTable('T-202').rows.find((one) => one.id === 'S-234')
+  const steps = (row?.cells[1] ?? '').match(/\d+/g)?.map(Number) ?? []
+  if (steps.length < 2) throw new Error('table T-202 row S-234 lists no display scale steps to read')
+  return steps
+})()
+
+const SCALE_UP = 'Control+Shift+='
+const SCALE_DOWN = 'Control+Shift+-'
+const SCALE_MESSAGE_WAIT_MS = 4_000
+
+let scaleShownBeforeAct: number | null = null
+
+/** @purity non-pure */
+async function scaleShown(page: Page, keys: string, unlike: number | null): Promise<number> {
+  const deadline = Date.now() + SCALE_MESSAGE_WAIT_MS
+  let last: string | null = null
+  while (Date.now() < deadline) {
+    last = await page.evaluate(
+      () => document.querySelector('[data-scale-message]')?.textContent ?? null,
+    )
+    const found = last === null ? null : /(\d+)\s*%/.exec(last)
+    if (found !== null && Number(found[1]) !== unlike) return Number(found[1])
+    await page.waitForTimeout(50)
+  }
+  throw new Error(
+    `${keys}: no message of table T-260 showing a percentage other than ${String(unlike)} ` +
+      `appeared within ${String(SCALE_MESSAGE_WAIT_MS)}ms (last read ${JSON.stringify(last)})`,
+  )
+}
+
+// WHY: the opposite step first, so the act starts one step off the end it moves towards
+// WHY: and the sweep leaves the display scale where it found it.
+/** @purity non-pure */
+async function scaleStepSetUp(page: Page, at: Geometry, opposite: string): Promise<void> {
+  await selectBar(page, at)
+  scaleShownBeforeAct = null
+  await page.keyboard.press(opposite)
+  scaleShownBeforeAct = await scaleShown(page, opposite, null)
+}
+
+// WHY: moved alone is vacuous here too, so the act throws unless T-260's message
+// WHY: names the next S-234 step and the drawn day width followed it.
+// see FR-039, SK-22, SK-23, SE-1, SE-2, DS-4
+/** @purity non-pure */
+async function scaleStroke(page: Page, keys: string, towards: 1 | -1): Promise<null> {
+  const from = scaleShownBeforeAct
+  if (from === null) throw new Error(`${keys}: the set-up read no display scale to step from`)
+  const at = DISPLAY_SCALE_STEPS.indexOf(from)
+  const wanted = DISPLAY_SCALE_STEPS[at + towards]
+  if (at < 0 || wanted === undefined) {
+    throw new Error(`${keys}: ${String(from)}% is not a step of S-234 with a step beyond it`)
+  }
+  const before = await axisSpansOf(page)
+  await page.keyboard.press(keys)
+  const shown = await scaleShown(page, keys, from)
+  await settled(page)
+  const time = medianRatio(before.timeSpans, (await axisSpansOf(page)).timeSpans)
+  const told = `${keys}: the message went from ${String(from)}% to ${String(shown)}%, time axis x${String(time)}`
+  if (shown !== wanted) {
+    throw new Error(`${told} -- S-234 puts ${String(wanted)}% one step that way`)
+  }
+  if (time === null) throw new Error(`${told} -- no id was drawn both before and after the key`)
+  const tolerance = 0.005
+  if (towards === 1 ? time <= 1 + tolerance : time >= 1 - tolerance) {
+    throw new Error(`${told} -- DS-4 scales the day width, and it did not follow the step`)
+  }
+  return null
+}
+
 interface Probe {
   readonly rows: readonly string[]
   // WHY: answersWhileHeld is SL-3/PTD-1/GR-19's while-held answer; placesNothing
@@ -1255,7 +1326,19 @@ const PROBES: readonly Probe[] = [
     act: async (p) => zoomStroke(p, 'Alt+=', 'row', 'in'),
   },
   { rows: ['SK-16c'], expect: 'answers', setUp: selectBar, act: async (p) => zoomStroke(p, 'Alt+-', 'row', 'out') },
-  { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+0') },
+  {
+    rows: ['SK-22'],
+    expect: 'answers',
+    setUp: async (p, g) => scaleStepSetUp(p, g, SCALE_DOWN),
+    act: async (p) => scaleStroke(p, SCALE_UP, 1),
+  },
+  {
+    rows: ['SK-23'],
+    expect: 'answers',
+    setUp: async (p, g) => scaleStepSetUp(p, g, SCALE_UP),
+    act: async (p) => scaleStroke(p, SCALE_DOWN, -1),
+  },
+  { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+Shift+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
     // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (DFC-382). Table T-036's

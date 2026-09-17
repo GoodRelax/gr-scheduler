@@ -1242,7 +1242,8 @@ describe('T-201 S-12 / T-221 LF-3 -- rows sit without a gap (CR-384, JDG-93, JDG
     )
     expect(layout.rows).toHaveLength(3)
     for (let at = 1; at < layout.rows.length; at += 1) {
-      expect(layout.rows[at]!.y - layout.rows[at - 1]!.y, `row ${at + 1}`).toBe(layout.rows[at - 1]!.height)
+      // WHY: toBeCloseTo, not toBe: the VG-2 gap carries 0.75px widths, so the running sum is not binary-exact.
+      expect(layout.rows[at]!.y - layout.rows[at - 1]!.y, `row ${at + 1}`).toBeCloseTo(layout.rows[at - 1]!.height, 9)
     }
   })
 
