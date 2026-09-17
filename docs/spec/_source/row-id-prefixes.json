@@ -83,6 +83,14 @@
    }
   },
   {
+   "prefix": "BF",
+   "words": "Browser Function",
+   "owner": "spec",
+   "means": {
+    "ja": "ヘルプに載せる、GRS の割当ではないブラウザの機能"
+   }
+  },
+  {
    "prefix": "BO",
    "words": "",
    "owner": "spec",
@@ -168,6 +176,14 @@
    "owner": "records",
    "means": {
     "ja": "変更要求 1 通。本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである"
+   }
+  },
+  {
+   "prefix": "CQ",
+   "words": "Confirmation with a list",
+   "owner": "spec",
+   "means": {
+    "ja": "名前の一覧を持つ確認の、見出し部・線・一覧の組み方"
    }
   },
   {
@@ -425,6 +441,14 @@
    "owner": "spec",
    "means": {
     "ja": "ハイライトボックスの本体と四隅を離したときに置く値の行"
+   }
+  },
+  {
+   "prefix": "HC",
+   "words": "Help Column",
+   "owner": "spec",
+   "means": {
+    "ja": "ヘルプの段と、段に置く塊の並び"
    }
   },
   {
@@ -875,6 +899,14 @@
    "owner": "spec",
    "means": {
     "ja": "依存線の経路の分岐"
+   }
+  },
+  {
+   "prefix": "RR",
+   "words": "Resource Roster",
+   "owner": "spec",
+   "means": {
+    "ja": "担当者の一覧の字の大きさ・スクロール・罫線"
    }
   },
   {

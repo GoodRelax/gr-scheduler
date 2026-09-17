@@ -51,6 +51,7 @@
 | `AS` | — | 担当者を割り当てる入口と規則の条 | 仕様書 | `T-225` | 10 |
 | `AT` | Attribute | エンティティの列 1 つと、その型・交換相手の対応 | 仕様書 | `T-058` | 141 |
 | `BC` | Band Ceiling | 行の軸の上限（帯の側）を探す手順の段 | 仕様書 | `T-253` | 5 |
+| `BF` | Browser Function | ヘルプに載せる、GRS の割当ではないブラウザの機能 | 仕様書 | `T-255` | 2 |
 | `BO` | — | 起動のときに行うことの順序の段 | 仕様書 | `T-077` | 5 |
 | `BT` | — | 起動時に開く文書の出どころと、その優先順位 | 仕様書 | `T-034` | 3 |
 | `CA` | Cache | キャッシュについての取り決めの条 | 仕様書 | `T-071` | 4 |
@@ -62,13 +63,14 @@
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 36 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
+| `CQ` | Confirmation with a list | 名前の一覧を持つ確認の、見出し部・線・一覧の組み方 | 仕様書 | `T-258` | 4 |
 | `CS` | Consistency | 文書の見え方を一貫させる単位 | 仕様書 | `T-066` | 4 |
 | `CT` | Contrast | テーマ色が満たすコントラストの条件 | 仕様書 | `T-017a` | 5 |
 | `CU` | Cursor | 画面に立てるカーソルの種別 | 仕様書 | `T-029` | 3 |
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 664 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 665 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 13 |
@@ -92,8 +94,9 @@
 | `G` | Glossary | 本書を読むための語 | 仕様書 | `T-005` | 14 |
 | `GD` | Guide | 予実の補助線の条 | 仕様書 | `T-020a` | 7 |
 | `GO` | Grab outcome | 掴んだ端を離したときに置く値と据え置く値の行 | 仕様書 | `T-245` | 4 |
-| `GR` | Grab region | 掴み領域 1 つと、その優先順位の段 | 仕様書 | `T-023d` | 21 |
+| `GR` | Grab region | 掴み領域 1 つと、その優先順位の段 | 仕様書 | `T-023d` | 22 |
 | `HB` | Highlight box | ハイライトボックスの本体と四隅を離したときに置く値の行 | 仕様書 | `T-246` | 6 |
+| `HC` | Help Column | ヘルプの段と、段に置く塊の並び | 仕様書 | `T-256` | 3 |
 | `HF` | — | 行ごとの折り畳みと隠しの操作面の条 | 仕様書 | `T-051` | 19 |
 | `HM` | Hierarchy Move | 階層の移動の規則の条 | 仕様書 | `T-015a` | 11 |
 | `HR` | Hierarchy | 階層の操作（展開・畳み・隠し）の種別 | 仕様書 | `T-015` | 9 |
@@ -148,10 +151,11 @@
 | `RD` | — | 文書をまるごと差し替えるときの、呼び手ごとの扱い | 仕様書 | `T-230` | 6 |
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |
 | `RP` | — | 依存線の経路の分岐 | 仕様書 | `T-222` | 8 |
+| `RR` | Resource Roster | 担当者の一覧の字の大きさ・スクロール・罫線 | 仕様書 | `T-257` | 5 |
 | `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 55 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 5 |
-| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 237 |
+| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 240 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 4 |
 | `SF` | State-machine Form | 状態機械の形の条 | 仕様書 | `T-249` | 10 |

@@ -1,4 +1,10 @@
-35
+30
+#
+# LOWERED 35 -> 30 on 2026-09-17 (second session): CR-404 landed JDG-145 and CR-405 .. CR-408 landed
+# JDG-155, JDG-157, JDG-158 and JDG-159 (help, resource roster, list confirmations, property panel).
+#
+# RAISED 15 -> 35 on 2026-09-17 by the user's own edit, after approving it in chat ("上げて先に記録する
+# (推奨)"): JDG-145 .. JDG-162, JDG-166 and JDG-167 were recorded before the waves land them.
 #
 # LOWERED 18 -> 15 on 2026-09-17, as the raise below planned: the spec wave CR-399 .. CR-401 landed
 # JDG-132, JDG-133 and JDG-134, whose rows now read 適用済 (code and tests follow in the implementation
