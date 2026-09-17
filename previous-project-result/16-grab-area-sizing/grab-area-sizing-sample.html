@@ -129,6 +129,16 @@ function arrowCursor(dir, filled, px) {
   return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', ew-resize';
 }
 
+// the fade handle takes a triangle whose right angle sits under the pointer:
+// the in side points up and left, the out side down and right (the user's ruling of 2026-09-18)
+function fadePoints(dir) { return dir === 'in' ? '23,23 1,23 23,1' : '1,1 23,1 1,23'; }
+function fadeCursor(dir, px) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
+    '<polygon points="' + fadePoints(dir) + '" fill="#10366b" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/></svg>';
+  const hot = dir === 'in' ? px - 1 : 0;
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '") ' + hot + ' ' + hot + ', nwse-resize';
+}
+
 function el(parent, name, attrs) {
   const n = document.createElementNS(NS, name);
   for (const k in attrs) n.setAttribute(k, attrs[k]);
@@ -171,10 +181,10 @@ function placeAlong(g, item, barX, barW, marked, mk) {
   const showName = $('showName').checked && item.name;
   const nameW = showName ? measureName(g, item.name) : 0;
   const fits = showName ? nameW <= barW : true;
-  // the marker always stands right of the finish; the name goes inside from the start when it fits,
-  // otherwise it follows the marker outside
+  // the marker always stands right of the finish, and the name always follows the marker;
+  // with no marker the name goes inside from the start when it fits, else it starts at the finish
   const markerX = barX + barW;
-  const nameX = fits ? barX : markerX + (marked ? mk + S.labelGap : 0);
+  const nameX = marked ? markerX + mk + S.labelGap : (fits ? barX : markerX);
   return { fits, markerX, nameX, nameW };
 }
 function drawName(g, item, x, centerY) {
@@ -231,8 +241,8 @@ function draw() {
   }
   const fadeInX = planX + Math.min(t.fadeIn * day, planW);          // T-012a point 4, it moves with the fade
   const fadeOutX = planX + planW - Math.min(t.fadeOut * day, planW); // T-012a point 2
-  zone(g, 'task-fade-in', 'fade', fadeInX - S.s92 / 2, ty - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', 'nwse-resize');
-  zone(g, 'task-fade-out', 'fade', fadeOutX - S.s92 / 2, ty + bh - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', 'nwse-resize');
+  zone(g, 'task-fade-in', 'fade', fadeInX - S.s92 / 2, ty - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('in', S.cur));
+  zone(g, 'task-fade-out', 'fade', fadeOutX - S.s92 / 2, ty + bh - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('out', S.cur));
   const marked = $('showMarker').checked;
   const alongX = t.actualDays > 0 ? actX : planX, alongW = t.actualDays > 0 ? actW : planW;
   const put = placeAlong(g, t, alongX, alongW, marked, mk);
@@ -497,6 +507,11 @@ $('cursorSizes').innerHTML = [12, 14, 16, 20, 24].map(px => {
   const img = '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
     '<g transform="scale(-1,1) translate(-24,0)"><path d="M10 4 L2 12 L10 20 L10 15 L20 15 L20 9 L10 9 Z" fill="#ffffff" stroke="#000000" stroke-width="1.6" stroke-linejoin="round"/></g></svg>';
   return '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(img) + '"><br>' + px + 'px</div>';
+}).join('') + ['in', 'out'].map(dir => {
+  const img = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+    '<polygon points="' + fadePoints(dir) + '" fill="#10366b" stroke="#ffffff" stroke-width="2" stroke-linejoin="round"/></svg>';
+  return '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(img) +
+    '"><br>フェード ' + (dir === 'in' ? '入' : '出') + '</div>';
 }).join('');
 
 draw();
