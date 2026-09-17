@@ -134,9 +134,9 @@ export interface InputContext {
   readonly isPictureAtStoredZoom?: boolean
   readonly rowControlsHeightPx?: number
   // see FR-016
-  // TRAP: rowBandCeilingOf's answer for this same context, worked out once by the caller and
-  // handed back; absent, rowBandCeilingOf runs again on every notch (DFC-610).
-  readonly rowBandCeiling?: number
+  // TRAP: the caller's remembered rowBandCeilingOf(context, upTo) at drawnZoomX, asked again
+  // once upTo grows past what it holds; absent, every notch walks T-253 again (DFC-610).
+  readonly rowBandCeiling?: (drawnZoomX: number, upTo: number) => number
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean
@@ -3350,51 +3350,119 @@ function zoomYCeiling(context: InputContext): number | null {
   return ceiling
 }
 
+// see FR-016, FR-018, FR-094, PI-5
+// WHY: layoutFromSchedule reads zoomY only through the floored plan height and the depth
+// limit, so two zoomY equal in both lay out the same rows; the band is asked once (DFC-610).
+// TRAP: a new read of zoomY in layoutFromSchedule must join this key, or the ceiling drifts.
 /** @purity pure */
-function tallestBandAtZoomY(context: InputContext, zoomY: number): number {
-  const settings = context.document.documentSettings
-  return tallestBandOf(rowPlacesAtZoomY(
-    context.document.schedule,
-    { ...settings, zoomX: zoomOnScreen(context).x },
-    context.regions,
-    zoomY,
-    context.isLevelZeroFolded,
-    context.rowControlsHeightPx,
-  ))
+function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
+  const drawn = drawnSettingsOf({ ...measuredWith, zoomY })
+  const planHeight = Math.max(drawn.actualMin / drawn.actualOfPlan, drawn.basePlanHeight * drawn.zoomY)
+  return `${planHeight}|${groupDepthLimit(drawn)}`
+}
+
+// see ST-7
+/** @purity pure */
+function mayStopAtStackCap(schedule: Schedule, drawn: DocumentSettings): boolean {
+  const members = new Map<string, number>()
+  for (const one of schedule.taskGroupMembers) {
+    const count = (members.get(one.groupId) ?? 0) + 1
+    if (count > drawn.stackSafetyCap) return true
+    members.set(one.groupId, count)
+  }
+  return false
+}
+
+// see FR-016, FR-018
+// WHY: at the plan height floor only the depth limit moves, and a deeper limit lays out a
+// superset of the rows, each as tall as before; so the deepest floor zoom answers for all.
+// TRAP: void when ST-7 may cut the rows, or once one row's height reads another row.
+/** @purity pure */
+function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
+  const drawn = drawnSettingsOf(measuredWith)
+  const floor = drawn.actualMin / drawn.actualOfPlan
+  const top = floor / drawn.basePlanHeight
+  if (!Number.isFinite(top) || !(top > 0) || drawn.basePlanHeight * top > floor) return null
+  if (mayStopAtStackCap(context.document.schedule, drawn)) return null
+  return top
+}
+
+// see FR-016, PI-5, BC-2
+/** @purity pure */
+function tallestBandAtZoomY(
+  context: InputContext,
+  drawnZoomX: number,
+  height: number,
+): (zoomY: number) => boolean {
+  const measuredWith = { ...context.document.documentSettings, zoomX: drawnZoomX }
+  const asked = new Map<string, number>()
+  const tallestAt = (zoomY: number): number => {
+    const key = bandZoomKeyOf(measuredWith, zoomY)
+    const known = asked.get(key)
+    if (known !== undefined) return known
+    const tallest = tallestBandOf(rowPlacesAtZoomY(
+      context.document.schedule,
+      measuredWith,
+      context.regions,
+      zoomY,
+      context.isLevelZeroFolded,
+      context.rowControlsHeightPx,
+    ))
+    asked.set(key, tallest)
+    return tallest
+  }
+  const deepestFloor = deepestFloorZoomYOf(context, measuredWith)
+  return (zoomY: number): boolean => {
+    if (deepestFloor !== null && zoomY <= deepestFloor && tallestAt(deepestFloor) < height) {
+      return false
+    }
+    return tallestAt(zoomY) >= height
+  }
 }
 
 // see FR-016, PI-18
 // TRAP: never solve the band here; a second solver with its own interval or stop moves
 // where the zoom stops with the zoom it started from (DFC-628).
 /** @purity pure */
-function zoomYWithinBand(context: InputContext, wanted: number): number {
+function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: number, upTo: number): number {
   // TRAP: an empty Row Area keeps the old answer (wanted) until the abnormal paths are
   // taken up after the refactor (JDG-78, DFC-586).
   if (!(context.regions.rowArea.height > 0) || !Number.isFinite(wanted)) return wanted
-  const remembered = context.rowBandCeiling
+  const remembered = context.rowBandCeiling?.(drawnZoomX, upTo)
   const ceiling =
-    remembered !== undefined && Number.isFinite(remembered) ? remembered : rowBandCeilingOf(context)
+    remembered !== undefined && Number.isFinite(remembered)
+      ? remembered
+      : bandCeilingUpTo(context, drawnZoomX, upTo)
   return Math.min(wanted, ceiling)
+}
+
+// see FR-016, T-253, PI-18
+// WHY: upTo only stops the walk early; for every zoom at or below upTo the smaller of that
+// zoom and the answer is the smaller of that zoom and T-253's own answer (DFC-610).
+/** @purity pure */
+export function rowBandCeilingOf(context: InputContext, upTo: number = Number.POSITIVE_INFINITY): number {
+  return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo)
 }
 
 // see FR-016, T-253, OC-10, PI-5, PI-18
 // WHY: stepped then halved, never solved: OC-10 puts S-196 and a label stopped at S-8 in the
 // band, so it is neither linear nor monotone in zoomY.
 /** @purity pure */
-export function rowBandCeilingOf(context: InputContext): number {
+function bandCeilingUpTo(context: InputContext, drawnZoomX: number, upTo: number): number {
   const height = context.regions.rowArea.height
   // TRAP: an empty Row Area keeps the old answer (zoomMax), not BC-2's literal zoomMin,
   // until the abnormal paths are taken up after the refactor (JDG-78, DFC-586).
   if (!(height > 0)) return context.zoomMax
   const search = NOT_STORED_ROW_BAND_CEILING_SEARCH
-  // see BC-2
-  const reaches = (zoomY: number): boolean => tallestBandAtZoomY(context, zoomY) >= height
+  const reaches = tallestBandAtZoomY(context, drawnZoomX, height)
   // see BC-1, BC-3
   let upper = context.zoomMin
   if (reaches(upper)) return upper
   let lower = upper
   for (;;) {
     if (upper >= context.zoomMax) return context.zoomMax
+    // WHY: upper did not reach, so T-253 answers above it and above upTo.
+    if (upper >= upTo) return upper
     lower = upper
     const next = upper * search['S-238']
     upper = next >= context.zoomMax ? context.zoomMax : next
@@ -3402,6 +3470,8 @@ export function rowBandCeilingOf(context: InputContext): number {
   }
   // see BC-4, BC-5
   while (upper - lower > search['S-239']) {
+    // WHY: T-253 answers above lower, so above upTo.
+    if (lower >= upTo) return lower
     const middle = (lower + upper) / 2
     if (middle <= lower || middle >= upper) break
     if (reaches(middle)) upper = middle
@@ -3418,7 +3488,9 @@ function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): numb
   const stepped = (axis === 'x' ? on.x : on.y) * factor
   const ceiling = axis === 'x' ? zoomXCeiling(context) : zoomYCeiling(context)
   const wanted = ceiling === null ? stepped : Math.min(stepped, ceiling)
-  return axis === 'x' ? wanted : zoomYWithinBand(context, wanted)
+  if (axis === 'x') return wanted
+  // WHY: the text side bounds every wanted zoomY, so one walk up to it serves every notch.
+  return zoomYWithinBand(context, on.x, wanted, ceiling === null ? Number.POSITIVE_INFINITY : ceiling)
 }
 
 /** @purity pure */

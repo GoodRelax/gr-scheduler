@@ -2433,21 +2433,26 @@ export function frameLoop(
   let didSettleFieldEntry = false
 
   // see FR-016
-  // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the drawn
-  // zoomX is layout.pxPerDay, never the stored zoomX, which OP-10 may not draw.
+  // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
+  // the one the translator measures at, never the stored zoomX, which OP-10 may not draw.
   let bandCeilingFrom: {
     readonly schedule: Document['schedule']
     readonly settings: DocumentSettings
-    readonly pxPerDay: number
+    readonly drawnZoomX: number
     readonly rowArea: ScreenRect
-    readonly isLevelZeroFolded: boolean
+    readonly isLevelZeroFolded: boolean | undefined
     readonly rowControlsHeightPx: number | undefined
+    readonly zoomMin: number
+    readonly zoomMax: number
+    readonly upTo: number
     readonly ceiling: number
   } | null = null
 
   /** @purity pure */
   function isSameBandSettings(a: DocumentSettings, b: DocumentSettings): boolean {
     if (a === b) return true
+    // WHY: the scroll place moves every row and every x alike, so no band changes height; a zoom
+    // at the pointer rewrites scrollDayOffset in its last digits on every notch.
     const moveWithoutBand = new Set<string>([
       'zoomY', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
     ])
@@ -2461,34 +2466,39 @@ export function frameLoop(
   }
 
   /** @purity semi-pure-b */
-  function bandCeilingFor(frame: FrameValues, context: InputContext): number {
+  function bandCeilingFor(context: InputContext, drawnZoomX: number, upTo: number): number {
     const held = bandCeilingFrom
     const schedule = context.document.schedule
     const settings = context.document.documentSettings
-    const pxPerDay = frame.layout.pxPerDay
-    const rowArea = frame.regions.rowArea
+    const rowArea = context.regions.rowArea
     if (
       held !== null &&
+      held.upTo >= upTo &&
       held.schedule === schedule &&
       isSameBandSettings(held.settings, settings) &&
-      held.pxPerDay === pxPerDay &&
+      held.drawnZoomX === drawnZoomX &&
       held.rowArea.x === rowArea.x &&
       held.rowArea.y === rowArea.y &&
       held.rowArea.width === rowArea.width &&
       held.rowArea.height === rowArea.height &&
-      held.isLevelZeroFolded === isLevelZeroFolded &&
-      held.rowControlsHeightPx === environment.rowControlsHeightPx
+      held.isLevelZeroFolded === context.isLevelZeroFolded &&
+      held.rowControlsHeightPx === context.rowControlsHeightPx &&
+      held.zoomMin === context.zoomMin &&
+      held.zoomMax === context.zoomMax
     ) {
       return held.ceiling
     }
-    const ceiling = rowBandCeilingOf(context)
+    const ceiling = rowBandCeilingOf(context, upTo)
     bandCeilingFrom = {
       schedule,
       settings,
-      pxPerDay,
+      drawnZoomX,
       rowArea,
-      isLevelZeroFolded,
-      rowControlsHeightPx: environment.rowControlsHeightPx,
+      isLevelZeroFolded: context.isLevelZeroFolded,
+      rowControlsHeightPx: context.rowControlsHeightPx,
+      zoomMin: context.zoomMin,
+      zoomMax: context.zoomMax,
+      upTo,
       ceiling,
     }
     return ceiling
@@ -2498,7 +2508,6 @@ export function frameLoop(
   function collectInputContext(
     frame: FrameValues,
     isNoticeStanding: boolean = raisedNotices.length > 0,
-    wantsBandCeiling = false,
   ): InputContext {
     const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
     const withoutCeiling: InputContext = {
@@ -2529,8 +2538,13 @@ export function frameLoop(
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
-    if (!wantsBandCeiling) return withoutCeiling
-    return { ...withoutCeiling, rowBandCeiling: bandCeilingFor(frame, withoutCeiling) }
+    // WHY: asked only by a row-axis zoom, and remembered across contexts, so the shell's second
+    // reading of one input and every later notch reuse the walk (DFC-610).
+    return {
+      ...withoutCeiling,
+      rowBandCeiling: (drawnZoomX: number, upTo: number): number =>
+        bandCeilingFor(withoutCeiling, drawnZoomX, upTo),
+    }
   }
 
   // see WS-2, AG-9
