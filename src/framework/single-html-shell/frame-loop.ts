@@ -1110,6 +1110,33 @@ interface ViewSettings {
   readonly isAtStoredZoom: boolean
 }
 
+type ViewPlace = Pick<
+  DocumentSettings,
+  'zoomX' | 'zoomY' | 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'
+>
+
+// TRAP: input-command-translator.ts names the same half of OP-10's condition in
+// namesAPlace; change both together.
+// see OP-10
+/** @purity pure */
+function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
+  if (stored.scrollDate === null) return false
+  return held.schedule.taskGroups.some((one) => one.id === stored.scrollGroupId)
+}
+
+// see OP-10
+/** @purity pure */
+function viewPlaceOf(settings: DocumentSettings): ViewPlace {
+  return {
+    zoomX: settings.zoomX,
+    zoomY: settings.zoomY,
+    scrollDate: settings.scrollDate,
+    scrollGroupId: settings.scrollGroupId,
+    scrollDayOffset: settings.scrollDayOffset,
+    scrollGroupOffset: settings.scrollGroupOffset,
+  }
+}
+
 // see OP-10, FR-055
 /** @purity pure */
 function viewSettings(
@@ -1120,9 +1147,7 @@ function viewSettings(
   runDay: string,
   rowControlsHeightPx: number | undefined,
 ): ViewSettings {
-  const groupIds = new Set(held.schedule.taskGroups.map((one) => one.id))
-  const placed = stored.scrollDate !== null && groupIds.has(stored.scrollGroupId ?? '')
-  if (placed) return { settings: stored, isAtStoredZoom: true }
+  if (storedNamesAPlace(held, stored)) return { settings: stored, isAtStoredZoom: true }
 
   const covered = held.schedule.tasks
     .flatMap((one) => [one.start, one.actualStart])
@@ -1611,6 +1636,15 @@ export function frameLoop(
   // WHY: not read off the document's template stamp, which the first write turns into
   // user, so the view would jump to the fit on typing.
   let fromStartupTemplate = startedFromTemplate === true
+  // TRAP: taken afresh each frame, the Row Area the properties panel narrows and the extent a
+  // drawn task widens both re-derive this fit, and the picture slides as a task is created.
+  let fitHeldForNoPlace:
+    | {
+        readonly environment: FrameEnvironment
+        readonly place: ViewPlace
+        readonly isAtStoredZoom: boolean
+      }
+    | null = null
   let openedFileName: string | null = null
   let fileSavedAt: string | null = null
   let hasUnsavedEdits = false
@@ -1848,6 +1882,43 @@ export function frameLoop(
     void writeClipboard(seam, { kind: 'record', text })
   }
 
+  // see OP-10
+  /** @purity semi-pure-b */
+  function viewSettingsOnce(
+    document: Document,
+    stored: DocumentSettings,
+    regions: ScreenRegions,
+  ): ViewSettings {
+    if (storedNamesAPlace(document, stored)) {
+      fitHeldForNoPlace = null
+      return { settings: stored, isAtStoredZoom: true }
+    }
+    const taken = fitHeldForNoPlace
+    if (
+      taken !== null &&
+      isSameEnvironment(taken.environment, environment) &&
+      storedNamesAPlace(document, taken.place)
+    ) {
+      // TRAP: the place alone is laid over; the whole held object would freeze every other
+      // setting the author switches while no place is seated.
+      return { settings: { ...stored, ...taken.place }, isAtStoredZoom: taken.isAtStoredZoom }
+    }
+    const view = viewSettings(
+      document,
+      stored,
+      regions,
+      fromStartupTemplate,
+      readToday(),
+      environment.rowControlsHeightPx,
+    )
+    fitHeldForNoPlace = {
+      environment,
+      place: viewPlaceOf(view.settings),
+      isAtStoredZoom: view.isAtStoredZoom,
+    }
+    return view
+  }
+
   /** @purity non-pure */
   function runFrame(): void {
     owed = false
@@ -1863,9 +1934,7 @@ export function frameLoop(
     }
     const regions = regionsFromScreen(environmentForRegions, withPanelShown)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
-    const view = viewSettings(held.document, withPanelShown, regions,
-                              fromStartupTemplate, readToday(),
-                              environment.rowControlsHeightPx)
+    const view = viewSettingsOnce(held.document, withPanelShown, regions)
     const settings = view.settings
     const layout = layoutFromSchedule(
       document.schedule,
@@ -2267,15 +2336,9 @@ export function frameLoop(
       scrollbarThickness: environment.scrollbarThickness,
     }
     const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
-    const settings = viewSettings(
-      document,
-      withPanelsClosed,
-      regions,
-      // TRAP: false here would fit the export differently from the screen.
-      fromStartupTemplate,
-      readToday(),
-      environment.rowControlsHeightPx,
-    ).settings
+    // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
+    // is not showing.
+    const settings = viewSettingsOnce(document, withPanelsClosed, regions).settings
     const layout = layoutFromSchedule(
       document.schedule,
       settings,
@@ -2826,6 +2889,11 @@ export function frameLoop(
       hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6' && call.row !== 'RD-7'
       if (call.row === 'RD-4') fromStartupTemplate = false
       if (call.row === 'RD-7') fromStartupTemplate = true
+      // TRAP: the rows that make it another document, or an arriving document is drawn at the
+      // fit the one before it was given.
+      if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
+        fitHeldForNoPlace = null
+      }
       if (settled(environment)) ask()
       return true
     }
