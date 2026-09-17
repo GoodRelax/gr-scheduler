@@ -114,6 +114,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   order: 0,
   isCollapsed: null,
   isHidden: null,
+  isKeptOpen: false,
   color: null,
   height: null,
   ...part,

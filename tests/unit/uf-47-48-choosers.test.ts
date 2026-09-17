@@ -475,6 +475,7 @@ function row(id: string, label: string): Record<string, unknown> {
     order: 0,
     isCollapsed: false,
     isHidden: false,
+    isKeptOpen: false,
     color: null,
     height: null,
   }

@@ -162,6 +162,7 @@ const TASK_GROUP_KINDS = [
   'setTaskGroupHeight',
   'setTaskGroupCollapsed',
   'setTaskGroupHidden',
+  'setTaskGroupKeptOpen',
   'reorderTaskGroupSiblings',
   'expandAllTaskGroups',
   'moveTaskGroup',

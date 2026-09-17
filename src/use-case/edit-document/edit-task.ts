@@ -381,6 +381,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           order,
           isCollapsed: null,
           isHidden: null,
+          isKeptOpen: false,
           color: null,
           height: null,
         }

@@ -145,6 +145,8 @@ export interface TaskGroup {
   readonly isCollapsed: boolean | null
   /** AT-57 */
   readonly isHidden: boolean | null
+  /** AT-142 */
+  readonly isKeptOpen: boolean
   /** AT-58 */
   readonly color: string | null
   /** AT-59 */
@@ -444,6 +446,7 @@ export const COLUMN_SHAPES: {
     order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
     isCollapsed: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
     isHidden: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
+    isKeptOpen: { kind: 'boolean', choices: null, min: null, max: null, isNullable: false },
     color: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
@@ -646,11 +649,15 @@ export const COLUMN_DEFAULTS: {
   readonly Project: {
     readonly outlineBase: NonNullable<Project['outlineBase']>
   }
+  readonly TaskGroup: {
+    readonly isKeptOpen: NonNullable<TaskGroup['isKeptOpen']>
+  }
   readonly TaskVisual: {
     readonly milestoneGlyph: NonNullable<TaskVisual['milestoneGlyph']>
   }
 } = {
   Project: { outlineBase: 1 },
+  TaskGroup: { isKeptOpen: false },
   TaskVisual: { milestoneGlyph: 'diamond' },
 }
 

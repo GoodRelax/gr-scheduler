@@ -334,6 +334,7 @@ function twoRowDocument(): Document {
     order,
     isCollapsed: false,
     isHidden: false,
+    isKeptOpen: false,
     color: null,
     height: null,
   })

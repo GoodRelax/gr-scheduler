@@ -1788,7 +1788,11 @@ function commandFromEntry(
       return acted({
         kind: 'setLevelZeroFolded',
         isFolded: false,
-        writes: [{ kind: 'expandAllTaskGroups' }, ...unhidesEveryRow(context.document.schedule)],
+        writes: [
+          { kind: 'expandAllTaskGroups' },
+          ...unhidesEveryRow(context.document.schedule),
+          ...marksEveryRowKeptOpen(context.document.schedule),
+        ],
       })
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
@@ -1808,7 +1812,10 @@ function commandFromEntry(
       return acted({
         kind: 'setLevelZeroFolded',
         isFolded: true,
-        writes: foldsEveryRow(context.document.schedule),
+        writes: [
+          ...foldsEveryRow(context.document.schedule),
+          ...keptOpenMarksWritten(context.document.schedule, null, false),
+        ],
       })
     case ENTRY.rowExpanderOpenLevelZero: {
       const unhidden = opensLevelZeroHiddenRows(context.document.schedule)
@@ -2008,19 +2015,26 @@ function commandFromRowEntry(
       return nothingToDo('noUnfoldedRowBelow')
     }
     return foldsOrNothing(
-      foldsRowAndBelow(context.document.schedule, rowGroupId),
+      withKeptOpenMarks(
+        foldsRowAndBelow(context.document.schedule, rowGroupId),
+        keptOpenMarksWritten(context.document.schedule, rowGroupId, false),
+      ),
       'noUnfoldedRowBelow',
     )
   }
 
   if (entry === ENTRY.rowExpanderOpenOneLevel) {
-    if (wouldMoveARow(context, rowGroupId, 'openOneLevel') === false) {
+    const opensAChild = wouldMoveARow(context, rowGroupId, 'openOneLevel')
+    if (opensAChild === false) {
       return nothingToDo('rowIsOpenWithNoHiddenChild')
     }
-    return foldsOrNothing(
-      opensRowAndUnhidesItsChildren(context.document.schedule, rowGroupId),
-      'rowIsOpenWithNoHiddenChild',
-    )
+    const opens = opensRowAndUnhidesItsChildren(context.document.schedule, rowGroupId)
+    const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
+    const marks: readonly DocumentCommand[] = row === undefined || row.isKeptOpen
+      ? []
+      : [{ kind: 'setTaskGroupKeptOpen', groupId: rowGroupId, keptOpen: true }]
+    const pressDraws = opens.length > 0 || (opensAChild ?? hasAChildBelowTheDepthLimit(context, rowGroupId))
+    return foldsOrNothing(pressDraws ? [...opens, ...marks] : [], 'rowIsOpenWithNoHiddenChild')
   }
 
   if (entry === ENTRY.rowAddChild) {
@@ -2036,7 +2050,10 @@ function commandFromRowEntry(
       return nothingToDo('noFoldedRowBelow')
     }
     return foldsOrNothing(
-      opensRowAndBelow(context.document.schedule, rowGroupId),
+      withKeptOpenMarks(
+        opensRowAndBelow(context.document.schedule, rowGroupId),
+        keptOpenMarksWritten(context.document.schedule, rowGroupId, true),
+      ),
       'noFoldedRowBelow',
     )
   }
@@ -2046,7 +2063,43 @@ function commandFromRowEntry(
   return changed([
     { kind: 'setTaskGroupHidden', groupId: rowGroupId, hidden: true },
     ...foldsRowAndBelow(context.document.schedule, rowGroupId),
+    ...keptOpenMarksWritten(context.document.schedule, rowGroupId, false),
   ])
+}
+
+// see T-254
+/** @purity pure */
+function withKeptOpenMarks(
+  folds: readonly DocumentCommand[],
+  marks: readonly DocumentCommand[],
+): readonly DocumentCommand[] {
+  return folds.length === 0 ? [] : [...folds, ...marks]
+}
+
+// see KO-2, KO-4, KO-5, KO-6
+/** @purity pure */
+function keptOpenMarksWritten(
+  schedule: Schedule,
+  rowId: string | null,
+  keptOpen: boolean,
+): readonly DocumentCommand[] {
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+  return schedule.taskGroups
+    .filter((row) => rowId === null || row.id === rowId || isRowUnder(parentOf, row.parentId, rowId))
+    .filter((row) => (row.isKeptOpen === true) !== keptOpen)
+    .map((row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen }) as const)
+}
+
+// see HF-13, FR-018
+/** @purity pure */
+function hasAChildBelowTheDepthLimit(context: InputContext, rowGroupId: string): boolean {
+  const settings = context.document.documentSettings
+  const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
+  if (row === undefined || row.isKeptOpen) return false
+  if (rowDepthOfGroup(context, rowGroupId) + 1 <= groupDepthLimit(settings)) return false
+  return context.document.schedule.taskGroups.some(
+    (child) => child.parentId === rowGroupId && !settings.pinnedGroupIds.includes(child.id),
+  )
 }
 
 // see IC-63, IC-64, IC-65
@@ -2625,6 +2678,15 @@ function unhidesEveryRow(schedule: Schedule): readonly DocumentCommand[] {
   return schedule.taskGroups
     .filter((row) => row.isHidden === true)
     .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
+}
+
+// see KO-3
+// WHY: every row, not only the unmarked: CM-72 earlier in the same write takes every mark off.
+/** @purity pure */
+function marksEveryRowKeptOpen(schedule: Schedule): readonly DocumentCommand[] {
+  return schedule.taskGroups.map(
+    (row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen: true }) as const,
+  )
 }
 
 // see HR-2
@@ -3557,7 +3619,9 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
   return {
     ...schedule,
     taskGroups: schedule.taskGroups.map((one) =>
-      one.isCollapsed === true ? { ...one, isCollapsed: false } : one,
+      one.isCollapsed === true || one.isKeptOpen
+        ? { ...one, isCollapsed: one.isCollapsed === true ? false : one.isCollapsed, isKeptOpen: false }
+        : one,
     ),
   }
 }

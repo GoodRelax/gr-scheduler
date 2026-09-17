@@ -38,6 +38,7 @@ export type TaskGroupCommand =
   | { readonly kind: 'setTaskGroupHeight'; readonly groupId: string; readonly height: number | null }
   | { readonly kind: 'setTaskGroupCollapsed'; readonly groupId: string; readonly collapsed: boolean }
   | { readonly kind: 'setTaskGroupHidden'; readonly groupId: string; readonly hidden: boolean }
+  | { readonly kind: 'setTaskGroupKeptOpen'; readonly groupId: string; readonly keptOpen: boolean }
   | {
       readonly kind: 'reorderTaskGroupSiblings'
       readonly parentId: string | null
@@ -259,6 +260,7 @@ export function editTaskGroup(
         order: command.order,
         isCollapsed: null,
         isHidden: null,
+        isKeptOpen: false,
         color: null,
         height: null,
       }
@@ -409,7 +411,8 @@ export function editTaskGroup(
             : row.parentId === null
               ? null
               : (idOf.get(row.parentId) ?? row.parentId)
-        newRows.push({ ...row, id: fresh, parentId })
+        // WHY: a copy is a row made now, so FR-018 has its kept-open mark start false.
+        newRows.push({ ...row, id: fresh, parentId, isKeptOpen: false })
       }
 
       const newTasks: Task[] = []
@@ -530,6 +533,16 @@ export function editTaskGroup(
       return edited(withRow(document, { ...row, isHidden: command.hidden }))
     }
 
+    // see CM-75, FR-018, T-254
+    case 'setTaskGroupKeptOpen': {
+      const row = byId.get(command.groupId)
+      if (row === undefined) {
+        return refused([reject('CM-75', 'FR-018', `no such row: ${command.groupId}`)])
+      }
+      if (row.isKeptOpen === command.keptOpen) return edited(document)
+      return edited(withRow(document, { ...row, isKeptOpen: command.keptOpen }))
+    }
+
     case 'reorderTaskGroupSiblings': {
       const refusals: Refusal[] = []
       if (command.parentId !== null && !byId.has(command.parentId)) {
@@ -612,10 +625,13 @@ export function editTaskGroup(
       return edited(withWbsOrderFollowingTheRows(document, next))
     }
 
+    // see CM-72, HF-8, KO-7
     case 'expandAllTaskGroups': {
-      const opened = groups.map((one) =>
-        one.isCollapsed === true ? { ...one, isCollapsed: false } : one,
-      )
+      const opened = groups.map((one) => {
+        if (one.isCollapsed !== true && !one.isKeptOpen) return one
+        const unfolded = one.isCollapsed === true ? { ...one, isCollapsed: false } : one
+        return { ...unfolded, isKeptOpen: false }
+      })
       if (opened.every((one, at) => one === groups[at])) return edited(document)
       return edited(withSchedule(document, { taskGroups: opened }))
     }

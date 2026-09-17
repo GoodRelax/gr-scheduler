@@ -270,6 +270,7 @@ function twoTaskDocument(): Document {
     order: 0,
     isCollapsed: false,
     isHidden: false,
+    isKeptOpen: false,
     color: null,
     height: null,
   })

@@ -459,6 +459,26 @@ function drawnGroups(
   return inTreeOrder(drawnRows, byId)
 }
 
+// see FR-018, T-254, AT-142
+// WHY: read over rows a person has not folded or hidden, so a mark never beats HF-7 or HR-6.
+/** @purity pure */
+function keptInViewByOpenMarks(unfoldedRows: readonly TaskGroup[]): ReadonlySet<string> {
+  const byId = new Map(unfoldedRows.map((row) => [row.id, row]))
+  const kept = new Set<string>()
+  for (const row of unfoldedRows) {
+    if (!row.isKeptOpen) continue
+    for (let at: TaskGroup | undefined = row; at !== undefined && !kept.has(at.id);) {
+      kept.add(at.id)
+      at = at.parentId === null ? undefined : byId.get(at.parentId)
+    }
+  }
+  for (const row of unfoldedRows) {
+    const parent = row.parentId === null ? undefined : byId.get(row.parentId)
+    if (parent?.isKeptOpen === true) kept.add(row.id)
+  }
+  return kept
+}
+
 // see LC-9
 /** @purity pure */
 function inTreeOrder<T extends TaskGroup & { depth: number }>(
@@ -665,8 +685,10 @@ export function layoutFromSchedule(
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const pinnedIds = new Set(settings.pinnedGroupIds)
-  const rows = drawnGroups(schedule, settings, isLevelZeroFolded === true).filter(
-    (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id),
+  const unfoldedRows = drawnGroups(schedule, settings, isLevelZeroFolded === true)
+  const keptOpenIds = keptInViewByOpenMarks(unfoldedRows)
+  const rows = unfoldedRows.filter(
+    (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id) || keptOpenIds.has(glyph.id),
   )
 
   const taskByUid = new Map(schedule.tasks.map((text) => [text.uid, text]))

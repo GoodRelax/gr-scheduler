@@ -274,7 +274,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroup: {
     type: ['object'],
-    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'isCollapsed', 'isHidden', 'color', 'height'],
+    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'isCollapsed', 'isHidden', 'isKeptOpen', 'color', 'height'],
     closed: true,
     properties: {
       id: {
@@ -297,6 +297,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       isHidden: {
         type: ['boolean', 'null'],
+      },
+      isKeptOpen: {
+        type: ['boolean'],
       },
       color: {
         type: ['string', 'null'],
@@ -1348,6 +1351,22 @@ function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
   return { shaped: { ...parsed, schedule: { ...schedule, tasks: shapedTasks } }, lengthByTaskIndex }
 }
 
+const FIRST_SCHEMA_VERSION_WITH_KEPT_OPEN_MARK = '2026-09-17'
+
+// see FR-018, FR-073, AT-142
+// WHY: only a version older than AT-142 is filled; a current one without the key stays refused by the schema.
+/** @purity pure */
+function withKeptOpenMarksOfAnOlderVersion(parsed: unknown, declared: string): unknown {
+  if (declared >= FIRST_SCHEMA_VERSION_WITH_KEPT_OPEN_MARK) return parsed
+  const schedule = isObject(parsed) ? parsed['schedule'] : undefined
+  const rows = isObject(schedule) ? schedule['taskGroups'] : undefined
+  if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(rows)) return parsed
+  if (rows.every((row: unknown) => !isObject(row) || 'isKeptOpen' in row)) return parsed
+  const shapedRows = rows.map((row: unknown): unknown =>
+    isObject(row) && !('isKeptOpen' in row) ? { ...row, isKeptOpen: false } : row)
+  return { ...parsed, schedule: { ...schedule, taskGroups: shapedRows } }
+}
+
 /** @purity pure */
 function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): JsonFault[] {
   const out: JsonFault[] = []
@@ -1403,7 +1422,9 @@ export function documentFromJson(
     greatestKnownSchemaVersion,
   )
 
-  const older = withStopInPlaceOfActualDuration(parsed)
+  const older = withStopInPlaceOfActualDuration(
+    withKeptOpenMarksOfAnOlderVersion(parsed, typeof declared === 'string' ? declared : ''),
+  )
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectFaults(older.shaped, GRS_DOCUMENT_SCHEMA, '', faults)
   const isNewer = formatVersion === 'newerThanKnown'

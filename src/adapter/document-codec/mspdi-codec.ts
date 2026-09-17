@@ -1233,6 +1233,7 @@ function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedR
       order: task.wbsOrder ?? 0,
       isCollapsed: null,
       isHidden: null,
+      isKeptOpen: false,
       color: null,
       height: null,
     })

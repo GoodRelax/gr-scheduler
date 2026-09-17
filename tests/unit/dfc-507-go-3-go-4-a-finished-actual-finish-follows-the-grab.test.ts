@@ -138,6 +138,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   isCollapsed: false,
   isHidden: false,
+  isKeptOpen: false,
   color: null,
   height: null,
 })

@@ -320,6 +320,7 @@ function documentWith(part: Fixture = {}): Document {
         order: index,
         isCollapsed: folded.has(one.id),
         isHidden: hidden.has(one.id),
+        isKeptOpen: false,
         color: null,
         height: null,
       })),
