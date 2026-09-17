@@ -46,14 +46,22 @@ function asDriven(spelling: string): string {
     .join('+')
 }
 
+// WHY: the assignment column marks each key on its own and joins them with a
+// fullwidth plus, so the first mark alone reads Ctrl and copies nothing.
+const T036_ALTERNATIVE = /[\uFF0F/]/
+const T036_KEY_MARK = /`([^`]+)`/g
+
 /** @purity pure */
 function keyOf(id: string): string {
   const said = cellOf(T036, id, T036_ASSIGNMENT, T036_COLUMNS)
-  const found = /`([^`]+)`/.exec(said)
-  if (found === null) {
+  const found = said
+    .split(T036_ALTERNATIVE)
+    .map((one) => [...one.matchAll(T036_KEY_MARK)].map((mark) => (mark[1] ?? '').trim()))
+    .filter((keys) => keys.length > 0)[0]
+  if (found === undefined) {
     throw new Error(`table T-036 row ${id} names no key this file can read: ${JSON.stringify(said)}`)
   }
-  return asDriven(found[1] ?? '')
+  return asDriven(found.join('+'))
 }
 
 // see SK-4

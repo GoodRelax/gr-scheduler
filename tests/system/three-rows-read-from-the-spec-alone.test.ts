@@ -118,28 +118,37 @@ const PRESS_OR_DRAG_PX = numberIn(
   'table T-206 row S-208',
 )
 
+// Table T-036 holds three cells after the row ID -- what the key does, the
+// assignment, and the entrance the assignment moves.
+const T036_COLUMNS = 3
+const T036_ASSIGNMENT = 1
+
+// WHY: the assignment column marks each key on its own and joins them with a
+// fullwidth plus, so the first mark alone reads Ctrl and selects nothing.
+const T036_ALTERNATIVE = /[\uFF0F/]/
+const T036_KEY_MARK = /`([^`]+)`/g
+
 /**
- * The keys table T-036 row `SK-3` assigns, read out of the assignment cell.
- *
- * ⛔ NOT WRITTEN OUT HERE. The row's assignment column is the one home of the
- * spelling (`R3.4`), and it names `Delete` and `Backspace` today -- so what the
- * loop below presses is whatever that cell names. A row that gains a third key
- * gains a run of these cases without this file being touched.
+ * The chords table T-036 assigns to a row, in the spelling the driver answers
+ * to. NOT WRITTEN OUT HERE: the assignment column is the one home of the
+ * spelling (R3.4), so what the cases press is whatever that cell names.
  *
  * @purity pure
  */
-function keysOfSk3(): readonly string[] {
-  // Table T-036 holds three cells after the row ID -- what the key does, the
-  // assignment, and the entrance the assignment moves.
-  const said = cellOf(T036, 'SK-3', 1, 3)
-  const found = [...said.matchAll(/`([A-Za-z0-9+ ]+)`/g)].map((one) => (one[1] ?? '').trim())
+function chordsOf(id: string): readonly string[] {
+  const said = cellOf(T036, id, T036_ASSIGNMENT, T036_COLUMNS)
+  const found = said
+    .split(T036_ALTERNATIVE)
+    .map((one) => [...one.matchAll(T036_KEY_MARK)].map((mark) => (mark[1] ?? '').trim()))
+    .filter((keys) => keys.length > 0)
+    .map((keys) => asDriven(keys.join('+')))
   if (found.length === 0) {
-    throw new Error(`table T-036 row SK-3 names no key this file can read: ${JSON.stringify(said)}`)
+    throw new Error(`table T-036 row ${id} names no key this file can read: ${JSON.stringify(said)}`)
   }
   return found
 }
 
-const SK3_KEYS = keysOfSk3()
+const SK3_KEYS = chordsOf('SK-3')
 
 /**
  * The manuscript's spelling of a key, in the spelling the driver answers to.
@@ -160,10 +169,10 @@ function asDriven(spelling: string): string {
 }
 
 /** `SK-2` -- selects everything table T-023c row `SL-1` says can be selected. */
-const SK2_KEY = (() => {
-  const found = /`([^`]+)`/.exec(cellOf(T036, 'SK-2', 1, 3))
-  if (found === null) throw new Error('table T-036 row SK-2 names no key this file can read')
-  return asDriven(found[1] ?? '')
+const SK2_KEY = ((): string => {
+  const found = chordsOf('SK-2')[0]
+  if (found === undefined) throw new Error('table T-036 row SK-2 names no key this file can read')
+  return found
 })()
 
 /**

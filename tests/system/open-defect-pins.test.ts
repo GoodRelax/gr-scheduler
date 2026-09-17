@@ -62,7 +62,8 @@ function settingOf(table: string, id: string, column: string): number {
 // see S-4, S-5
 const S_4 = settingOf('T-201', 'S-4', DEFAULT_VALUE_COLUMN)
 const S_5 = settingOf('T-201', 'S-5', DEFAULT_VALUE_COLUMN)
-// see S-76
+// see S-75, S-76
+const S_75 = settingOf('T-203', 'S-75', DEFAULT_COLUMN)
 const S_76 = settingOf('T-203', 'S-76', DEFAULT_COLUMN)
 // see S-180
 const S_180 = settingOf('T-206', 'S-180', DEFAULT_COLUMN)
@@ -74,6 +75,8 @@ const S_247 = settingOf('T-206', 'S-247', DEFAULT_COLUMN)
 const MARK_WIDTH_PX = Math.min(S_22 * DEFAULT_DISPLAY_RATIO * S_247, S_180)
 // see S-180, DS-1, DS-8
 const MARK_HEIGHT_PX = S_4 * DEFAULT_DISPLAY_RATIO * S_76 * S_5
+// see S-1, DS-4
+const DAY_WIDTH_PX = settingOf('T-201', 'S-1', DEFAULT_VALUE_COLUMN) * DEFAULT_DISPLAY_RATIO * S_75
 
 let browser: Browser | null = null
 
@@ -350,16 +353,18 @@ async function faintHolds(page: Page): Promise<FaintHold[]> {
   )
 }
 
+// TRAP: the floor is half a drawn day and must stay under one, or the S-129 actual a
+// dropped dummy writes is filtered out and the drop reads as having written nothing.
 /** @purity semi-pure-b */
 async function barsAround(page: Page, y: number): Promise<Array<{ x: number; width: number; height: number }>> {
   return page.evaluate(
     /** @purity semi-pure-b */
-    (asked: { canvas: string; y: number }) => {
+    (asked: { canvas: string; y: number; floor: number }) => {
       const svg = document.querySelector(asked.canvas)
       if (svg === null) return []
       return Array.from(svg.querySelectorAll('polygon'))
         .map((one) => one.getBoundingClientRect())
-        .filter((box) => Math.abs(box.y + box.height / 2 - asked.y) < 24 && box.width >= 4)
+        .filter((box) => Math.abs(box.y + box.height / 2 - asked.y) < 24 && box.width >= asked.floor)
         .map((box) => ({
           x: Math.round(box.x),
           width: Math.round(box.width),
@@ -367,7 +372,7 @@ async function barsAround(page: Page, y: number): Promise<Array<{ x: number; wid
         }))
         .sort((one, two) => one.height - two.height)
     },
-    { canvas: CANVAS, y },
+    { canvas: CANVAS, y, floor: DAY_WIDTH_PX / 2 },
   )
 }
 

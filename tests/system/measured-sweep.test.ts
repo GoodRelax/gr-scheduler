@@ -1887,20 +1887,18 @@ test('DFC-152: settling the same value again writes nothing, so one undo puts th
 //
 // ⛔ THREE 行 ARE NOT REACHED HERE and are outside the even-division rule anyway:
 // `TM-4` is the only 段 that stands on three, and 「段が 3 つに満たない段階」 is
-// `TM-1`..`TM-3`. Measured 2026-09-04 on this build, from `zoomX` = 1: the nine
-// readings below walk `TM-3`, `TM-3`, then `TM-2` seven times -- the boundary is
-// crossed on the second press and no further one is reached, so no reading here
-// claims anything about `TM-1` or `TM-4`.
+// `TM-1`..`TM-3`. Measured 2026-09-18 on this build, from `zoomX` = 1: the walk
+// below opens on `TM-2` and reaches `TM-1` on the tenth press, so it crosses one
+// boundary and claims nothing about `TM-4`.
 //
-// ⚠️ WIDENING THE SWEEP TO REACH `TM-1` WAS WEIGHED AND DROPPED. `S-53` steps the
-// zoom by 1.1 and `S-83` puts the `TM-1` boundary at 1.4 px/day against `S-1`'s
-// 6, so it is another six presses at least, and it would leave the shared page so
-// far out that DFC-91 below has to climb all the way back before it finds its three
-// 行. It would buy one thing -- the height MUST asked across two different 行
-// counts -- and `tests/unit/uf-32-ruler-band.test.ts` already asks the band's
-// height at all four 段. ⛔ It would NOT buy the guard: `TM-1` is a boundary this
-// sweep does not cross, and proving a different crossing says nothing about the
-// one the readings below actually walk.
+// ⛔⛔ THE NUMBER OF PRESSES IS NOT WRITTEN DOWN, and it used to be. `S-3` takes
+// the ruler font from the font scale and `FR-017` divides the px/day by that font
+// before it meets the thresholds of `S-83`..`S-85`, so the 段 the page opens on
+// moves whenever the font does: when `S-3` grew, a fixed eight presses opened on
+// `TM-2` and stayed there, and this case failed for having proved nothing rather
+// than for anything the drawing did. The walk now presses until the 段 changes and
+// stops on the reading that changed it, under a ceiling so that a build which never
+// crosses fails loudly instead of spinning.
 test('DFC-92: the ruler band keeps its height across stages and splits it evenly', async () => {
   test.setTimeout(180_000)
   const page = shared()
@@ -1999,12 +1997,14 @@ test('DFC-92: the ruler band keeps its height across stages and splits it evenly
 
   // ⚠️ Zooming OUT, because the coarser 段 are the ones standing on fewer than
   // three 行 -- which is the only case FR-017's even-division MUST is about.
+  const mostPresses = 20
   const coarser = entranceBy(T109_PURPOSE, TIME_AXIS, ZOOM_OUT)
-  for (let step = 0; step < 8; step += 1) {
+  for (let step = 0; step < mostPresses; step += 1) {
     expect(await pressEntrance(page, coarser), `${coarser} is not on the screen`).toBe(true)
     await readSettledDrawnSvg(page)
     const now = await readBand()
     if (now !== null) seen.push({ ...now, tier: nameOf(now) })
+    if (new Set(seen.map((one) => one.tier)).size > 1) break
   }
 
   const walked = seen
