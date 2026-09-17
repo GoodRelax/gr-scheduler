@@ -1,0 +1,407 @@
+run 1 order: stage0-5c1b915 pre-d13dd257 cand-5c723c6d
+run 1 zoom-row-axis stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:15:33.388Z, notMeasured 0, doubts 1
+    doubt: [1920x1600] the ceiling cycles while notches go in (zoomY 4.47, 4.72, 4.47, 4.72, 4.47, 4.72, 4.47); the highest reading is used
+    ceiling zoomY: 1920x1080=3.103571428571429, 1920x400=1.1479591836734695, 1920x1600=4.724489795918366
+run 1 zoom-row-axis pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-16T23:18:10.554Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 1 zoom-row-axis cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-16T23:20:48.838Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 1 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:27:05.941Z, notMeasured 0, doubts 0
+run 1 first-notch pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-16T23:29:38.920Z, notMeasured 0, doubts 0
+run 1 first-notch cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-16T23:32:13.634Z, notMeasured 0, doubts 0
+run 1 dependency-drag stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:35:01.701Z, notMeasured 0, doubts 0
+run 1 dependency-drag pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-16T23:35:30.381Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 1 dependency-drag cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-16T23:35:54.021Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 1 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:36:17.382Z, notMeasured 0, doubts 0
+run 1 lm-19 pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-16T23:36:59.917Z, notMeasured 0, doubts 0
+run 1 lm-19 cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-16T23:39:11.465Z, notMeasured 0, doubts 0
+run 2 order: pre-d13dd257 cand-5c723c6d stage0-5c1b915
+run 2 zoom-row-axis pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-16T23:41:43.047Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 2 zoom-row-axis cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-16T23:44:17.689Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 2 zoom-row-axis stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:50:34.483Z, notMeasured 0, doubts 1
+    doubt: [1920x1600] the ceiling cycles while notches go in (zoomY 4.47, 4.72, 4.47, 4.72, 4.47, 4.72, 4.47); the highest reading is used
+    ceiling zoomY: 1920x1080=3.103571428571429, 1920x400=1.1479591836734695, 1920x1600=4.724489795918366
+run 2 first-notch pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-16T23:53:12.762Z, notMeasured 0, doubts 0
+run 2 first-notch cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-16T23:55:48.550Z, notMeasured 0, doubts 0
+run 2 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-16T23:58:37.199Z, notMeasured 0, doubts 0
+run 2 dependency-drag pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-17T00:01:11.438Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 2 dependency-drag cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-17T00:01:34.626Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 2 dependency-drag stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:01:57.756Z, notMeasured 0, doubts 0
+run 2 lm-19 pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-17T00:02:25.408Z, notMeasured 0, doubts 0
+run 2 lm-19 cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-17T00:04:37.547Z, notMeasured 0, doubts 0
+run 2 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:06:55.354Z, notMeasured 0, doubts 0
+run 3 order: cand-5c723c6d stage0-5c1b915 pre-d13dd257
+run 3 zoom-row-axis cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-17T00:07:38.286Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 3 zoom-row-axis stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:13:53.240Z, notMeasured 0, doubts 1
+    doubt: [1920x1600] the ceiling cycles while notches go in (zoomY 4.47, 4.72, 4.47, 4.72, 4.47, 4.72, 4.47); the highest reading is used
+    ceiling zoomY: 1920x1080=3.103571428571429, 1920x400=1.1479591836734695, 1920x1600=4.724489795918366
+run 3 zoom-row-axis pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-17T00:16:31.254Z, notMeasured 1, doubts 0
+    notMeasured: [1920x400] the row-area ceiling did not hold (zoomY 1.3201474815648044 vs 1.3201474815648044 at 1920x1080); the halving was not reached
+    ceiling zoomY: 1920x1080=1.3201474815648044, 1920x400=1.3201474815648044, 1920x1600=1.3201474815648044
+run 3 first-notch cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-17T00:19:07.256Z, notMeasured 0, doubts 0
+run 3 first-notch stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:21:55.341Z, notMeasured 0, doubts 0
+run 3 first-notch pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-17T00:24:29.365Z, notMeasured 0, doubts 0
+run 3 dependency-drag cand-5c723c6d: ok False, sha 8e75f056, measuredAt 2026-09-17T00:27:03.222Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 3 dependency-drag stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:27:26.168Z, notMeasured 0, doubts 0
+run 3 dependency-drag pre-d13dd257: ok False, sha 7de9ba22, measuredAt 2026-09-17T00:27:54.050Z, notMeasured 1, doubts 0
+    notMeasured: the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup
+run 3 lm-19 cand-5c723c6d: ok True, sha 8e75f056, measuredAt 2026-09-17T00:28:16.987Z, notMeasured 0, doubts 0
+run 3 lm-19 stage0-5c1b915: ok True, sha 8460eaa9, measuredAt 2026-09-17T00:30:31.488Z, notMeasured 0, doubts 0
+run 3 lm-19 pre-d13dd257: ok True, sha 7de9ba22, measuredAt 2026-09-17T00:31:12.221Z, notMeasured 0, doubts 0
+
+## zoom-row-axis (* = that run reported ok false; see its notMeasured above)
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | stage0-5c1b915 | 7.5 / 7.7 / 7.7 | 16.3 / 14.8 / 14.3 | 7.5-7.7 ms | 14.3-16.3 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | pre-d13dd257 | 7.4* / 8.1* / 7.9* | 16.67* / 15.4* / 15.2* | 7.4-8.1 ms | 15.2-16.67 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | cand-5c723c6d | 173* / 173.05* / 171.7* | 216.66* / 189.7* / 183.33* | 171.7-173.05 ms | 183.33-216.66 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | stage0-5c1b915 | 7.2 / 7.1 / 7.1 | 11.4 / 8.3 / 8.2 | 7.1-7.2 ms | 8.2-11.4 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | pre-d13dd257 | 6.5* / 6.8* / 6.6* | 9.5* / 8.5* / 7.8* | 6.5-6.8 ms | 7.8-9.5 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | cand-5c723c6d | 6.5* / 6.6* / 6.7* | 7.4* / 7.4* / 7.5* | 6.5-6.7 ms | 7.4-7.5 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | stage0-5c1b915 | 0.6 / 0.5 / 0.5 | 0.9 / 0.7 / 0.7 | 0.5-0.6 ms | 0.7-0.9 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | pre-d13dd257 | 0.8* / 0.9* / 0.8* | 1.2* / 1.2* / 0.9* | 0.8-0.9 ms | 0.9-1.2 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | cand-5c723c6d | 166.4* / 165.6* / 164.3* | 178.2* / 173* / 170.7* | 164.3-166.4 ms | 170.7-178.2 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | stage0-5c1b915 | 7.8 / 7.7 / 7.6 | 12.5 / 9 / 8.8 | 7.6-7.8 ms | 8.8-12.5 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | pre-d13dd257 | 7.4* / 7.7* / 7.4* | 10.6* / 9.9* / 8.8* | 7.4-7.7 ms | 8.8-10.6 ms |
+| [1920x1080] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | cand-5c723c6d | 173.3* / 172.3* / 171* | 186.8* / 180.5* / 177.3* | 171-173.3 ms | 177.3-186.8 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | stage0-5c1b915 | 7.4 / 7.6 / 7.7 | 15.23 / 8.4 / 8.3 | 7.4-7.7 ms | 8.3-15.23 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | pre-d13dd257 | 7.4* / 7.5* / 7.7* | 14.4* / 8.7* / 8.3* | 7.4-7.7 ms | 8.3-14.4 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | cand-5c723c6d | 171.8* / 175.02* / 172* | 333.32* / 206.3* / 185.3* | 171.8-175.02 ms | 185.3-333.32 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | stage0-5c1b915 | 6.9 / 6.8 / 6.8 | 10.4 / 7.7 / 7.6 | 6.8-6.9 ms | 7.6-10.4 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | pre-d13dd257 | 6* / 6* / 6.1* | 8.9* / 7.9* / 7.2* | 6-6.1 ms | 7.2-8.9 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | cand-5c723c6d | 6.2* / 6.4* / 6.3* | 7.2* / 7.6* / 7.1* | 6.2-6.4 ms | 7.1-7.6 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | stage0-5c1b915 | 0.6 / 0.5 / 0.5 | 0.8 / 0.7 / 0.7 | 0.5-0.6 ms | 0.7-0.8 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | pre-d13dd257 | 0.6* / 0.7* / 0.6* | 0.9* / 0.9* / 0.9* | 0.6-0.7 ms | 0.9-0.9 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | cand-5c723c6d | 164.6* / 167.1* / 164.85* | 174.1* / 180* / 170.6* | 164.6-167.1 ms | 170.6-180 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | stage0-5c1b915 | 7.5 / 7.4 / 7.3 | 11.4 / 8.3 / 8.2 | 7.3-7.5 ms | 8.2-11.4 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | pre-d13dd257 | 6.7* / 6.7* / 6.7* | 10.5* / 9.1* / 8* | 6.7-6.7 ms | 8-10.5 ms |
+| [1920x1080] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | cand-5c723c6d | 170.85* / 173.6* / 171.2* | 182* / 188.2* / 178.6* | 170.85-173.6 ms | 178.6-188.2 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | stage0-5c1b915 | 7.7 / 7.4 / 7.5 | 14.5 / 8.6 / 8.3 | 7.4-7.7 ms | 8.3-14.5 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | pre-d13dd257 | 7.4* / 7.3* / 7.3* | 8.4* / 8.3* / 8.3* | 7.3-7.4 ms | 8.3-8.4 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | frameTime | cand-5c723c6d | 141.6* / 141.6* / 141.45* | 166.66* / 154.5* / 152.3* | 141.45-141.6 ms | 152.3-166.66 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | stage0-5c1b915 | 6.7 / 6.8 / 6.7 | 9.4 / 7.7 / 7.5 | 6.7-6.8 ms | 7.5-9.4 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | pre-d13dd257 | 4.7* / 4.8* / 4.7* | 5.5* / 5.7* / 5.5* | 4.7-4.8 ms | 5.5-5.7 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | insideRedrawCallback | cand-5c723c6d | 5* / 5.1* / 5* | 5.8* / 5.7* / 5.6* | 5-5.1 ms | 5.6-5.8 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | stage0-5c1b915 | 0.5 / 0.5 / 0.5 | 0.8 / 0.7 / 0.6 | 0.5-0.5 ms | 0.6-0.8 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | pre-d13dd257 | 0.8* / 0.8* / 0.7* | 1.1* / 1* / 0.9* | 0.7-0.8 ms | 0.9-1.1 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | synchronousDispatch | cand-5c723c6d | 136.9* / 135.8* / 135.4* | 153.2* / 141.8* / 138.7* | 135.4-136.9 ms | 138.7-153.2 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | stage0-5c1b915 | 7.3 / 7.3 / 7.2 | 10.5 / 8.4 / 8.1 | 7.2-7.3 ms | 8.1-10.5 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | pre-d13dd257 | 5.6* / 5.6* / 5.5* | 7.6* / 7.6* / 7.5* | 5.5-5.6 ms | 7.5-7.6 ms |
+| [1920x400] MK-4 at the ceiling: out 1 notch / in 2 notches | inputToRedrawCallbackEnd | cand-5c723c6d | 142.1* / 140.9* / 140.5* | 158* / 147.2* / 143.8* | 140.5-142.1 ms | 143.8-158 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | stage0-5c1b915 | 7.3 / 7.3 / 7.2 | 8.2 / 8.2 / 8.1 | 7.2-7.3 ms | 8.1-8.2 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | pre-d13dd257 | 7.4* / 7.4* / 7.3* | 8.3* / 8.2* / 8.1* | 7.3-7.4 ms | 8.1-8.3 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | frameTime | cand-5c723c6d | 141.7* / 141.24* / 140.85* | 153.9* / 152.1* / 150* | 140.85-141.7 ms | 150-153.9 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | stage0-5c1b915 | 5.9 / 5.8 / 5.7 | 8.5 / 6.6 / 6.3 | 5.7-5.9 ms | 6.3-8.5 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | pre-d13dd257 | 4.6* / 4.4* / 4.3* | 8.1* / 5.1* / 4.9* | 4.3-4.6 ms | 4.9-8.1 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | insideRedrawCallback | cand-5c723c6d | 4.8* / 4.8* / 4.8* | 5.4* / 5.4* / 5.4* | 4.8-4.8 ms | 5.4-5.4 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | stage0-5c1b915 | 0.4 / 0.4 / 0.4 | 0.7 / 0.5 / 0.5 | 0.4-0.4 ms | 0.5-0.7 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | pre-d13dd257 | 0.7* / 0.6* / 0.6* | 1.2* / 0.8* / 0.7* | 0.6-0.7 ms | 0.7-1.2 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | synchronousDispatch | cand-5c723c6d | 137* / 135.6* / 135* | 143.5* / 140.2* / 139.3* | 135-137 ms | 139.3-143.5 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | stage0-5c1b915 | 6.4 / 6.2 / 6.2 | 9.2 / 7.4 / 7 | 6.2-6.4 ms | 7-9.2 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | pre-d13dd257 | 5.4* / 5.1* / 5* | 9.4* / 7.2* / 6.9* | 5-5.4 ms | 6.9-9.4 ms |
+| [1920x400] MK-4 6 notches under the ceiling: in 1 notch / out 1 notch | inputToRedrawCallbackEnd | cand-5c723c6d | 141.9* / 140.4* / 139.9* | 148.6* / 145.2* / 144.8* | 139.9-141.9 ms | 144.8-148.6 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 11.25 / 13.7 / 15.15 | 18.4 / 18 / 20.9 | 11.25-15.15 ms | 18-20.9 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | pre-d13dd257 | 10.2* / 9.95* / 14.3* | 13.6* / 14.7* / 16.6* | 9.95-14.3 ms | 13.6-16.6 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | cand-5c723c6d | 167.9* / 166.2* / 165* | 170.9* / 173.8* / 175.8* | 165-167.9 ms | 170.9-175.8 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 22.2 / 22.9 / 24.25 | 32.7 / 27.8 / 36.3 | 22.2-24.25 ms | 27.8-36.3 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 25.6* / 23.75* / 27.3* | 31.9* / 31.8* / 31.3* | 23.75-27.3 ms | 31.3-31.9 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 173.9* / 172.2* / 170.9* | 177.5* / 180* / 181.4* | 170.9-173.9 ms | 177.5-181.4 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 9.2 / 8.95 / 8.6 | 16.7 / 10.1 / 15.4 | 8.6-9.2 ms | 10.1-16.7 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | pre-d13dd257 | 15.7* / 14.95* / 14.5* | 18.8* / 17.1* / 16.3* | 14.5-15.7 ms | 16.3-18.8 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | cand-5c723c6d | 6.05* / 6* / 5.9* | 7.9* / 6.7* / 6.1* | 5.9-6.05 ms | 6.1-7.9 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | synchronousDispatch | stage0-5c1b915 | 11.2 / 13.65 / 15.05 | 18.4 / 18 / 20.9 | 11.2-15.05 ms | 18-20.9 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | synchronousDispatch | pre-d13dd257 | 10.15* / 9.9* / 14.3* | 13.5* / 14.6* / 16.5* | 9.9-14.3 ms | 13.5-16.5 ms |
+| [1920x1080] MK-4 in 1 notch, under the ceiling | synchronousDispatch | cand-5c723c6d | 167.9* / 166.2* / 165* | 170.9* / 173.7* / 175.7* | 165-167.9 ms | 170.9-175.7 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 13.75 / 15.4 / 15.4 | 17.6 / 20.1 / 19.7 | 13.75-15.4 ms | 17.6-20.1 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | pre-d13dd257 | 6.8* / 8.95* / 8.2* | 8.4* / 11* / 10* | 6.8-8.95 ms | 8.4-11 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | cand-5c723c6d | 168.8* / 164.25* / 166.2* | 187* / 168.6* / 172.3* | 164.25-168.8 ms | 168.6-187 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 23.7 / 24.25 / 24.9 | 26.4 / 30.1 / 29 | 23.7-24.9 ms | 26.4-30.1 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 23.15* / 22.6* / 22.7* | 27.6* / 40.8* / 30.9* | 22.6-23.15 ms | 27.6-40.8 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 174.65* / 170.1* / 172.4* | 194.8* / 174.9* / 178* | 170.1-174.65 ms | 174.9-194.8 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 9.2 / 8.75 / 8.8 | 13 / 11.3 / 11.4 | 8.75-9.2 ms | 11.3-13 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | pre-d13dd257 | 15.35* / 16.05* / 15.05* | 20.7* / 31.9* / 20.9* | 15.05-16.05 ms | 20.7-31.9 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | cand-5c723c6d | 6.05* / 6.15* / 6.05* | 7.8* / 6.5* / 6.8* | 6.05-6.15 ms | 6.5-7.8 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | synchronousDispatch | stage0-5c1b915 | 13.65 / 15.4 / 15.35 | 17.6 / 20 / 19.7 | 13.65-15.4 ms | 17.6-20 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | synchronousDispatch | pre-d13dd257 | 6.75* / 8.85* / 8.15* | 8.3* / 11* / 9.9* | 6.75-8.85 ms | 8.3-11 ms |
+| [1920x1080] MK-4 out 1 notch, under the ceiling | synchronousDispatch | cand-5c723c6d | 168.75* / 164.2* / 166.15* | 186.9* / 168.6* / 172.2* | 164.2-168.75 ms | 168.6-186.9 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 15.15 / 15.5 / 14.3 | 20.8 / 20.6 / 21.4 | 14.3-15.5 ms | 20.6-21.4 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | pre-d13dd257 | 6.9* / 8.35* / 9.1* | 14.2* / 11* / 13.9* | 6.9-9.1 ms | 11-14.2 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | cand-5c723c6d | 175.35* / 170.1* / 171.35* | 201.6* / 180.4* / 179.3* | 170.1-175.35 ms | 179.3-201.6 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 23.85 / 24 / 22.4 | 31 / 30.9 / 29.4 | 22.4-24 ms | 29.4-31 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 27.15* / 29.95* / 27.75* | 37.6* / 44.6* / 46.6* | 27.15-29.95 ms | 37.6-46.6 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 189.3* / 191.15* / 185.3* | 219.7* / 200.8* / 199.4* | 185.3-191.15 ms | 199.4-219.7 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 9.05 / 8.5 / 8.45 | 10.2 / 10.3 / 10.7 | 8.45-9.05 ms | 10.2-10.7 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | pre-d13dd257 | 19.1* / 21.3* / 18.85* | 32.9* / 33.6* / 35.2* | 18.85-21.3 ms | 32.9-35.2 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | cand-5c723c6d | 12.25* / 18.4* / 12* | 26.7* / 31.7* / 20.1* | 12-18.4 ms | 20.1-31.7 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | synchronousDispatch | stage0-5c1b915 | 15.15 / 15.4 / 14.25 | 20.7 / 20.6 / 21.4 | 14.25-15.4 ms | 20.6-21.4 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | synchronousDispatch | pre-d13dd257 | 6.85* / 8.25* / 9* | 14.2* / 10.9* / 13.9* | 6.85-9 ms | 10.9-14.2 ms |
+| [1920x1080] MK-4 out 1 notch, from the ceiling | synchronousDispatch | cand-5c723c6d | 175.35* / 170.05* / 171.3* | 201.6* / 180.3* / 179.3* | 170.05-175.35 ms | 179.3-201.6 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 16.9 / 18.05 / 15.05 | 23.9 / 19 / 21.1 | 15.05-18.05 ms | 19-23.9 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | pre-d13dd257 | 11.6* / 14.65* / 13.75* | 16.9* / 21.3* / 18* | 11.6-14.65 ms | 16.9-21.3 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | cand-5c723c6d | 173.65* / 174.25* / 174.1* | 243.1* / 180.3* / 179.8* | 173.65-174.25 ms | 179.8-243.1 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 24.95 / 26.95 / 23.6 | 40 / 27.5 / 30.8 | 23.6-26.95 ms | 27.5-40 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 30.95* / 32.1* / 31.9* | 34* / 41.1* / 38.5* | 30.95-32.1 ms | 34-41.1 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 191.45* / 191.95* / 192.75* | 263.8* / 198* / 198* | 191.45-192.75 ms | 198-263.8 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.15 / 8.7 / 8.6 | 16.1 / 9.4 / 10.7 | 8.15-8.7 ms | 9.4-16.1 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | pre-d13dd257 | 18.2* / 18.05* / 17.9* | 20.1* / 19.8* / 20.5* | 17.9-18.2 ms | 19.8-20.5 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | cand-5c723c6d | 17.6* / 17.9* / 17.85* | 20.7* / 18.7* / 19* | 17.6-17.9 ms | 18.7-20.7 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | synchronousDispatch | stage0-5c1b915 | 16.85 / 18.05 / 15.05 | 23.9 / 19 / 21.1 | 15.05-18.05 ms | 19-23.9 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | synchronousDispatch | pre-d13dd257 | 11.5* / 14.6* / 13.7* | 16.9* / 21.3* / 18* | 11.5-14.6 ms | 16.9-21.3 ms |
+| [1920x1080] MK-4 in 2 notches, past the ceiling | synchronousDispatch | cand-5c723c6d | 173.55* / 174.2* / 174* | 243* / 180.2* / 179.7* | 173.55-174.2 ms | 179.7-243 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 9.25 / 8.7 / 8.75 | 12.1 / 15.1 / 17.3 | 8.7-9.25 ms | 12.1-17.3 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | pre-d13dd257 | 4.6* / 5.05* / 4.4* | 10.1* / 7.9* / 8.5* | 4.4-5.05 ms | 7.9-10.1 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | cand-5c723c6d | 170.9* / 168.95* / 166.4* | 196.6* / 173.9* / 171* | 166.4-170.9 ms | 171-196.6 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 19.85 / 18.6 / 18.25 | 21.4 / 24.7 / 26.7 | 18.25-19.85 ms | 21.4-26.7 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 35.25* / 36* / 35.65* | 51.4* / 40.2* / 39.6* | 35.25-36 ms | 39.6-51.4 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 199.75* / 199.4* / 197.55* | 228.4* / 204.5* / 199.6* | 197.55-199.75 ms | 199.6-228.4 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 9.95 / 9.65 / 9.5 | 12.2 / 10.4 / 9.8 | 9.5-9.95 ms | 9.8-12.2 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | pre-d13dd257 | 30.5* / 30.65* / 31.05* | 41.3* / 35.6* / 33.6* | 30.5-31.05 ms | 33.6-41.3 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | cand-5c723c6d | 29.8* / 30.65* / 31.45* | 31.8* / 32.5* / 32.9* | 29.8-31.45 ms | 31.8-32.9 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | synchronousDispatch | stage0-5c1b915 | 9.1 / 8.65 / 8.65 | 11.9 / 11.6 / 11.6 | 8.65-9.1 ms | 11.6-11.9 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | synchronousDispatch | pre-d13dd257 | 4.45* / 4.95* / 4.2* | 10* / 7.8* / 8.4* | 4.2-4.95 ms | 7.8-10 ms |
+| [1920x1080] SK-16c Alt+- from the ceiling | synchronousDispatch | cand-5c723c6d | 170.75* / 168.75* / 166.25* | 196.5* / 173.8* / 170.9* | 166.25-170.75 ms | 170.9-196.5 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 9 / 8.45 / 8.45 | 12.8 / 9.4 / 9.3 | 8.45-9 ms | 9.3-12.8 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | pre-d13dd257 | 7.55* / 8.3* / 7.75* | 13.1* / 10.2* / 8.3* | 7.55-8.3 ms | 8.3-13.1 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | cand-5c723c6d | 166.45* / 170.65* / 167* | 178.8* / 177.7* / 175.9* | 166.45-170.65 ms | 175.9-178.8 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 17.25 / 16.95 / 16.55 | 21.5 / 17.6 / 17.5 | 16.55-17.25 ms | 17.5-21.5 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 25* / 26.55* / 25.4* | 37.7* / 30.1* / 26.6* | 25-26.55 ms | 26.6-37.7 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 184.15* / 188.85* / 184.35* | 195.5* / 195.6* / 193.6* | 184.15-188.85 ms | 193.6-195.6 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.2 / 8.25 / 7.9 | 9.7 / 8.9 / 8.8 | 7.9-8.25 ms | 8.8-9.7 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | pre-d13dd257 | 17.3* / 18.5* / 17.75* | 24.6* / 20.5* / 19.4* | 17.3-18.5 ms | 19.4-24.6 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | cand-5c723c6d | 17.15* / 17.7* / 17.75* | 19.1* / 18.8* / 18* | 17.15-17.75 ms | 18-19.1 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | synchronousDispatch | stage0-5c1b915 | 8.9 / 8.4 / 8.35 | 12.6 / 9.4 / 9.2 | 8.35-8.9 ms | 9.2-12.6 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | synchronousDispatch | pre-d13dd257 | 7.45* / 8.15* / 7.45* | 13* / 10.1* / 8.1* | 7.45-8.15 ms | 8.1-13 ms |
+| [1920x1080] SK-16a Alt+= back to the ceiling | synchronousDispatch | cand-5c723c6d | 166.3* / 170.5* / 166.95* | 178.7* / 177.5* / 175.6* | 166.3-170.5 ms | 175.6-178.7 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 0.8 / 0.75 / 0.7 | 1.5 / 0.9 / 1.9 | 0.7-0.8 ms | 0.9-1.9 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | pre-d13dd257 | 1.05* / 1* / 0.9* | 1.5* / 1.4* / 1.2* | 0.9-1.05 ms | 1.2-1.5 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | cand-5c723c6d | 166.5* / 165.65* / 162.7* | 176.2* / 175.8* / 165.1* | 162.7-166.5 ms | 165.1-176.2 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 7.75 / 7.7 / 7.7 | 10 / 10.9 / 10.2 | 7.7-7.75 ms | 10-10.9 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 8.2* / 7.95* / 7.6* | 9.9* / 10* / 8.1* | 7.6-8.2 ms | 8.1-10 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 172.95* / 172.45* / 168.95* | 182.5* / 182.2* / 171.9* | 168.95-172.95 ms | 171.9-182.5 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 6.9 / 6.95 / 6.8 | 9 / 10.1 / 8.5 | 6.8-6.95 ms | 8.5-10.1 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | pre-d13dd257 | 7.1* / 6.9* / 6.65* | 8.4* / 9* / 7.3* | 6.65-7.1 ms | 7.3-9 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | cand-5c723c6d | 6.4* / 6.55* / 6.3* | 6.8* / 7.4* / 6.8* | 6.3-6.55 ms | 6.8-7.4 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | synchronousDispatch | stage0-5c1b915 | 0.6 / 0.6 / 0.55 | 1.5 / 0.8 / 0.7 | 0.55-0.6 ms | 0.7-1.5 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | synchronousDispatch | pre-d13dd257 | 0.9* / 0.9* / 0.8* | 1.4* / 1.2* / 1.1* | 0.8-0.9 ms | 1.1-1.4 ms |
+| [1920x1080] SK-16a Alt+= past the ceiling | synchronousDispatch | cand-5c723c6d | 166.4* / 165.45* / 162.55* | 176* / 175.7* / 164.9* | 162.55-166.4 ms | 164.9-176 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 13.75 / 11.5 / 11.95 | 20.1 / 18.8 / 15.5 | 11.5-13.75 ms | 15.5-20.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | pre-d13dd257 | 9.8* / 9.65* / 11.55* | 15.2* / 13.6* / 14.5* | 9.65-11.55 ms | 13.6-15.2 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToNextFrameEnter | cand-5c723c6d | 133.55* / 133.95* / 134.8* | 137.4* / 137* / 137.6* | 133.55-134.8 ms | 137-137.6 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 21.4 / 17.7 / 18.7 | 31.8 / 25.9 / 24.5 | 17.7-21.4 ms | 24.5-31.8 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 18.7* / 18.7* / 20.9* | 27.4* / 22.6* / 23.7* | 18.7-20.9 ms | 22.6-27.4 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 137.95* / 138.4* / 139.15* | 141.6* / 142.1* / 141.9* | 137.95-139.15 ms | 141.6-142.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 6.8 / 6.45 / 6.45 | 12.7 / 7.8 / 9 | 6.45-6.8 ms | 7.8-12.7 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | pre-d13dd257 | 9.4* / 9.2* / 8.7* | 13.1* / 10.6* / 10.3* | 8.7-9.4 ms | 10.3-13.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | insideThatRedrawCallback | cand-5c723c6d | 4.5* / 4.5* / 4.3* | 4.9* / 6.1* / 4.7* | 4.3-4.5 ms | 4.7-6.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | synchronousDispatch | stage0-5c1b915 | 13.7 / 11.45 / 11.95 | 20.1 / 18.8 / 15.5 | 11.45-13.7 ms | 15.5-20.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | synchronousDispatch | pre-d13dd257 | 9.8* / 9.6* / 11.55* | 15.1* / 13.5* / 14.4* | 9.6-11.55 ms | 13.5-15.1 ms |
+| [1920x400] MK-4 in 1 notch, under the ceiling | synchronousDispatch | cand-5c723c6d | 133.55* / 133.9* / 134.8* | 137.3* / 136.9* / 137.6* | 133.55-134.8 ms | 136.9-137.6 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 12.45 / 15.3 / 13.25 | 19.4 / 19.7 / 15.9 | 12.45-15.3 ms | 15.9-19.7 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | pre-d13dd257 | 7.05* / 7.4* / 8.55* | 9.6* / 8.8* / 12.2* | 7.05-8.55 ms | 8.8-12.2 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToNextFrameEnter | cand-5c723c6d | 132.9* / 134.5* / 135.55* | 142* / 137.4* / 137.3* | 132.9-135.55 ms | 137.3-142 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 20.5 / 24.05 / 19.7 | 27.4 / 30.5 / 22.2 | 19.7-24.05 ms | 22.2-30.5 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 16.3* / 16.65* / 16.45* | 25.1* / 23.7* / 20.5* | 16.3-16.65 ms | 20.5-25.1 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 137.3* / 139* / 140.1* | 146.5* / 142.6* / 142.1* | 137.3-140.1 ms | 142.1-146.5 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 7.35 / 7.1 / 6.3 | 9.9 / 14.2 / 8 | 6.3-7.35 ms | 8-14.2 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | pre-d13dd257 | 9.1* / 9.4* / 8.5* | 17.7* / 14.9* / 11.1* | 8.5-9.4 ms | 11.1-17.7 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | insideThatRedrawCallback | cand-5c723c6d | 4.4* / 4.5* / 4.5* | 4.9* / 5.2* / 4.8* | 4.4-4.5 ms | 4.8-5.2 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | synchronousDispatch | stage0-5c1b915 | 12.45 / 15.2 / 13.2 | 19.4 / 19.6 / 15.8 | 12.45-15.2 ms | 15.8-19.6 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | synchronousDispatch | pre-d13dd257 | 7.05* / 7.35* / 8.55* | 9.5* / 8.8* / 12.1* | 7.05-8.55 ms | 8.8-12.1 ms |
+| [1920x400] MK-4 out 1 notch, under the ceiling | synchronousDispatch | cand-5c723c6d | 132.85* / 134.45* / 135.45* | 142* / 137.4* / 137.3* | 132.85-135.45 ms | 137.3-142 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 16.6 / 14 / 13.95 | 20.3 / 16.5 / 22.8 | 13.95-16.6 ms | 16.5-22.8 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | pre-d13dd257 | 10.7* / 6.9* / 9.2* | 15.5* / 9.1* / 12.5* | 6.9-10.7 ms | 9.1-15.5 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToNextFrameEnter | cand-5c723c6d | 144.95* / 145.65* / 143.85* | 148.5* / 150.7* / 146.6* | 143.85-145.65 ms | 146.6-150.7 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 25.75 / 22.6 / 22.05 | 31.4 / 24.6 / 32.7 | 22.05-25.75 ms | 24.6-32.7 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 21.95* / 18.35* / 21* | 32* / 23.9* / 23.3* | 18.35-21.95 ms | 23.3-32 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 155.05* / 155.75* / 153.8* | 164.9* / 165.7* / 156.6* | 153.8-155.75 ms | 156.6-165.7 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.95 / 8.1 / 8.3 | 11.1 / 9.5 / 9.9 | 8.1-8.95 ms | 9.5-11.1 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | pre-d13dd257 | 11.2* / 10.95* / 10.2* | 16.5* / 17.1* / 14.8* | 10.2-11.2 ms | 14.8-17.1 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | insideThatRedrawCallback | cand-5c723c6d | 10.3* / 10.05* / 10.15* | 16.4* / 15.6* / 11* | 10.05-10.3 ms | 11-16.4 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | synchronousDispatch | stage0-5c1b915 | 16.6 / 13.9 / 13.9 | 20.3 / 16.5 / 22.8 | 13.9-16.6 ms | 16.5-22.8 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | synchronousDispatch | pre-d13dd257 | 10.7* / 6.85* / 9.15* | 15.5* / 9.1* / 12.5* | 6.85-10.7 ms | 9.1-15.5 ms |
+| [1920x400] MK-4 out 1 notch, from the ceiling | synchronousDispatch | cand-5c723c6d | 144.95* / 145.6* / 143.8* | 148.4* / 150.6* / 146.5* | 143.8-145.6 ms | 146.5-150.6 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 16.4 / 15.5 / 14.85 | 22.5 / 20.2 / 20.9 | 14.85-16.4 ms | 20.2-22.5 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | pre-d13dd257 | 15* / 11.95* / 14.2* | 17.1* / 16.3* / 18.2* | 11.95-15 ms | 16.3-18.2 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToNextFrameEnter | cand-5c723c6d | 145.35* / 144.95* / 145.2* | 152.7* / 151.7* / 156* | 144.95-145.35 ms | 151.7-156 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 24.95 / 24.45 / 23.5 | 33.3 / 28.8 / 30.7 | 23.5-24.95 ms | 28.8-33.3 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 24.9* / 21.3* / 23.4* | 26.6* / 25.9* / 28.7* | 21.3-24.9 ms | 25.9-28.7 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 155* / 154.85* / 155.35* | 170.1* / 161.5* / 166.3* | 154.85-155.35 ms | 161.5-170.1 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.05 / 8.4 / 8.6 | 13.3 / 10.1 / 10 | 8.05-8.6 ms | 10-13.3 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | pre-d13dd257 | 9.95* / 9.5* / 9.6* | 12.1* / 10.9* / 10.7* | 9.5-9.95 ms | 10.7-12.1 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | insideThatRedrawCallback | cand-5c723c6d | 9.85* / 9.65* / 9.9* | 17.4* / 10.4* / 11.2* | 9.65-9.9 ms | 10.4-17.4 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | synchronousDispatch | stage0-5c1b915 | 16.35 / 15.4 / 14.75 | 22.5 / 20.2 / 20.8 | 14.75-16.35 ms | 20.2-22.5 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | synchronousDispatch | pre-d13dd257 | 14.95* / 11.9* / 14.05* | 17.1* / 16.3* / 18.2* | 11.9-14.95 ms | 16.3-18.2 ms |
+| [1920x400] MK-4 in 2 notches, past the ceiling | synchronousDispatch | cand-5c723c6d | 145.3* / 144.95* / 145.2* | 152.7* / 151.7* / 156* | 144.95-145.3 ms | 151.7-156 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 7.55 / 6.9 / 7 | 10.9 / 7.8 / 7.7 | 6.9-7.55 ms | 7.7-10.9 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | pre-d13dd257 | 4.45* / 4.65* / 4.05* | 6.2* / 6.7* / 5.8* | 4.05-4.65 ms | 5.8-6.7 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToNextFrameEnter | cand-5c723c6d | 139.75* / 137.85* / 139* | 154.4* / 143.8* / 142.3* | 137.85-139.75 ms | 142.3-154.4 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 15.95 / 15.4 / 15.15 | 22 / 17 / 16.1 | 15.15-15.95 ms | 16.1-22 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 20.1* / 20.2* / 18.9* | 32.1* / 24* / 20.5* | 18.9-20.2 ms | 20.5-32.1 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 155.15* / 153* / 153.9* | 169.5* / 158.9* / 157.2* | 153-155.15 ms | 157.2-169.5 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.35 / 8.25 / 8.2 | 12.6 / 9.3 / 9.3 | 8.2-8.35 ms | 9.3-12.6 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | pre-d13dd257 | 15.4* / 15.5* / 14.8* | 25.9* / 18.6* / 15.1* | 14.8-15.5 ms | 15.1-25.9 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | insideThatRedrawCallback | cand-5c723c6d | 15.05* / 14.9* / 14.95* | 16.5* / 15.4* / 15.5* | 14.9-15.05 ms | 15.4-16.5 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | synchronousDispatch | stage0-5c1b915 | 7.45 / 6.85 / 6.95 | 10.8 / 7.6 / 7.7 | 6.85-7.45 ms | 7.6-10.8 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | synchronousDispatch | pre-d13dd257 | 4.35* / 4.6* / 3.95* | 6.1* / 6.6* / 5.8* | 3.95-4.6 ms | 5.8-6.6 ms |
+| [1920x400] SK-16c Alt+- from the ceiling | synchronousDispatch | cand-5c723c6d | 139.6* / 137.8* / 138.9* | 154.3* / 143.6* / 142.2* | 137.8-139.6 ms | 142.2-154.3 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 9.6 / 8.35 / 7.85 | 14.5 / 9.6 / 14.7 | 7.85-9.6 ms | 9.6-14.7 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | pre-d13dd257 | 9.3* / 7.7* / 7.65* | 14.1* / 8.4* / 9.3* | 7.65-9.3 ms | 8.4-14.1 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToNextFrameEnter | cand-5c723c6d | 139.55* / 139.05* / 137.3* | 168.4* / 140.7* / 142.3* | 137.3-139.55 ms | 140.7-168.4 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 18.6 / 17.25 / 16.15 | 22.8 / 19.4 / 23.2 | 16.15-18.6 ms | 19.4-23.2 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 18.95* / 17.1* / 16.75* | 24.2* / 18* / 18.6* | 16.75-18.95 ms | 18-24.2 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 149.45* / 148.65* / 147.15* | 179.1* / 150.3* / 152.1* | 147.15-149.45 ms | 150.3-179.1 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 8.2 / 8.45 / 8.15 | 9.2 / 11 / 8.7 | 8.15-8.45 ms | 8.7-11 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | pre-d13dd257 | 9.65* / 9.35* / 9.2* | 11.9* / 10* / 10.3* | 9.2-9.65 ms | 10-11.9 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | insideThatRedrawCallback | cand-5c723c6d | 9.7* / 9.55* / 9.75* | 10.7* / 10.2* / 11.2* | 9.55-9.75 ms | 10.2-11.2 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | synchronousDispatch | stage0-5c1b915 | 9.25 / 8.3 / 7.75 | 12.2 / 9.5 / 9.1 | 7.75-9.25 ms | 9.1-12.2 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | synchronousDispatch | pre-d13dd257 | 9.15* / 7.6* / 7.55* | 13.9* / 8.3* / 9.3* | 7.55-9.15 ms | 8.3-13.9 ms |
+| [1920x400] SK-16a Alt+= back to the ceiling | synchronousDispatch | cand-5c723c6d | 139.4* / 138.95* / 137.15* | 168.3* / 140.7* / 142.2* | 137.15-139.4 ms | 140.7-168.3 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | stage0-5c1b915 | 0.75 / 0.6 / 0.8 | 6.9 / 1.3 / 1.6 | 0.6-0.8 ms | 1.3-6.9 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | pre-d13dd257 | 1.6* / 1.05* / 1.75* | 2.2* / 2.2* / 3.6* | 1.05-1.75 ms | 2.2-3.6 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToNextFrameEnter | cand-5c723c6d | 137* / 136.25* / 135.7* | 139.6* / 146.3* / 139.2* | 135.7-137 ms | 139.2-146.3 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | stage0-5c1b915 | 8.1 / 7.3 / 7.7 | 25.1 / 7.9 / 11.2 | 7.3-8.1 ms | 7.9-25.1 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | pre-d13dd257 | 7.1* / 6.35* / 6.45* | 8* / 9.2* / 11.5* | 6.35-7.1 ms | 8-11.5 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | inputToRedrawCallbackEnd | cand-5c723c6d | 142.55* / 141.1* / 140.6* | 144.3* / 151.1* / 144.7* | 140.6-142.55 ms | 144.3-151.1 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | stage0-5c1b915 | 7.3 / 6.7 / 6.7 | 18.2 / 6.9 / 10.4 | 6.7-7.3 ms | 6.9-18.2 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | pre-d13dd257 | 5.2* / 5.15* / 4.75* | 6* / 7.3* / 7.9* | 4.75-5.2 ms | 6-7.9 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | insideThatRedrawCallback | cand-5c723c6d | 5.1* / 4.85* / 4.85* | 5.7* / 5.6* / 5.5* | 4.85-5.1 ms | 5.5-5.7 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | synchronousDispatch | stage0-5c1b915 | 0.7 / 0.5 / 0.6 | 1.4 / 0.6 / 0.8 | 0.5-0.7 ms | 0.6-1.4 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | synchronousDispatch | pre-d13dd257 | 1.3* / 1* / 1.2* | 2.1* / 1.9* / 3.4* | 1-1.3 ms | 1.9-3.4 ms |
+| [1920x400] SK-16a Alt+= past the ceiling | synchronousDispatch | cand-5c723c6d | 136.9* / 136.2* / 135.6* | 139.4* / 146.1* / 139.1* | 135.6-136.9 ms | 139.1-146.1 ms |
+| (pooled) | frameTime | stage0-5c1b915 | 7.4 / 7.6 / 7.7 | 15.5 / 14.4 / 11.43 | 7.4-7.7 ms | 11.43-15.5 ms |
+| (pooled) | frameTime | pre-d13dd257 | 7.4* / 7.9* / 7.7* | 15.5* / 15.3* / 14.8* | 7.4-7.9 ms | 14.8-15.5 ms |
+| (pooled) | frameTime | cand-5c723c6d | 172.35* / 174.05* / 171.89* | 333.32* / 201.7* / 184.5* | 171.89-174.05 ms | 184.5-333.32 ms |
+
+## first-notch (* = that run reported ok false; see its notMeasured above)
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| [1920x1080] template firstNotch | synchronousDispatch | stage0-5c1b915 | 15.85 / 13.85 / 13.45 | 18.3 / 19.1 / 20 | 13.45-15.85 ms | 18.3-20 ms |
+| [1920x1080] template firstNotch | synchronousDispatch | pre-d13dd257 | 11.55 / 12.65 / 15.25 | 17.7 / 15.4 / 18.2 | 11.55-15.25 ms | 15.4-18.2 ms |
+| [1920x1080] template firstNotch | synchronousDispatch | cand-5c723c6d | 207.75 / 202 / 203.25 | 215.4 / 205 / 217.4 | 202-207.75 ms | 205-217.4 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 31.65 / 30.6 / 29.55 | 34 / 35.7 / 36 | 29.55-31.65 ms | 34-36 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | pre-d13dd257 | 46.15 / 46.25 / 49.3 | 51.5 / 48.9 / 55.3 | 46.15-49.3 ms | 48.9-55.3 ms |
+| [1920x1080] template firstNotch | inputToRedrawCallbackEnd | cand-5c723c6d | 241.1 / 235.2 / 236.65 | 254.3 / 237.7 / 255.5 | 235.2-241.1 ms | 237.7-255.5 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | stage0-5c1b915 | 15 / 15.8 / 15.7 | 17.7 / 19.3 / 20.4 | 15-15.8 ms | 17.7-20.4 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | pre-d13dd257 | 3.2 / 2.9 / 3.25 | 19.8 / 16.9 / 17.4 | 2.9-3.25 ms | 16.9-19.8 ms |
+| [1920x1080] template repeatedNotches | synchronousDispatch | cand-5c723c6d | 196.7 / 196.35 / 196.1 | 214.1 / 213.1 / 211.3 | 196.1-196.7 ms | 211.3-214.1 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 26.35 / 26.8 / 26.65 | 30.8 / 29.9 / 31.3 | 26.35-26.8 ms | 29.9-31.3 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | pre-d13dd257 | 15.95 / 14.7 / 14.9 | 40 / 41.7 / 38.3 | 14.7-15.95 ms | 38.3-41.7 ms |
+| [1920x1080] template repeatedNotches | inputToRedrawCallbackEnd | cand-5c723c6d | 213.75 / 204.15 / 204.2 | 235.1 / 232.5 / 231.3 | 204.15-213.75 ms | 231.3-235.1 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | stage0-5c1b915 | 2.9 / 3.6 / 3.1 | 3.4 / 4 / 4 | 2.9-3.6 ms | 3.4-4 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | pre-d13dd257 | 3.3 / 3.4 / 4.7 | 5.4 / 4.2 / 5.6 | 3.3-4.7 ms | 4.2-5.6 ms |
+| [1920x1080] folded firstNotch | synchronousDispatch | cand-5c723c6d | 28.85 / 29.8 / 28.05 | 33.1 / 31.3 / 28.7 | 28.05-29.8 ms | 28.7-33.1 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 4.6 / 6.85 / 6.25 | 6.3 / 8.2 / 8.4 | 4.6-6.85 ms | 6.3-8.4 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | pre-d13dd257 | 7.1 / 6.3 / 9 | 11.5 / 7.7 / 9.7 | 6.3-9 ms | 7.7-11.5 ms |
+| [1920x1080] folded firstNotch | inputToRedrawCallbackEnd | cand-5c723c6d | 31 / 32.25 / 30.15 | 35.3 / 33.4 / 31 | 30.15-32.25 ms | 31-35.3 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | stage0-5c1b915 | 1.3 / 1.5 / 1.7 | 1.6 / 1.9 / 2.1 | 1.3-1.7 ms | 1.6-2.1 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | pre-d13dd257 | 0.6 / 0.7 / 0.7 | 2.7 / 2.8 / 3.1 | 0.6-0.7 ms | 2.7-3.1 ms |
+| [1920x1080] folded repeatedNotches | synchronousDispatch | cand-5c723c6d | 26.45 / 25.55 / 25.6 | 34.5 / 30.6 / 30.4 | 25.55-26.45 ms | 30.4-34.5 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 3 / 4.55 / 5.4 | 5.5 / 5.8 / 6.5 | 3-5.4 ms | 5.5-6.5 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | pre-d13dd257 | 2.9 / 3.8 / 4 | 9 / 7.5 / 9 | 2.9-4 ms | 7.5-9 ms |
+| [1920x1080] folded repeatedNotches | inputToRedrawCallbackEnd | cand-5c723c6d | 27.75 / 26.95 / 27.2 | 36.8 / 31.8 / 31.6 | 26.95-27.75 ms | 31.6-36.8 ms |
+| [1920x400] template firstNotch | synchronousDispatch | stage0-5c1b915 | 12.55 / 12.8 / 14.7 | 21 / 16.7 / 19.1 | 12.55-14.7 ms | 16.7-21 ms |
+| [1920x400] template firstNotch | synchronousDispatch | pre-d13dd257 | 12.1 / 13.7 / 15.85 | 19.6 / 16.7 / 17.8 | 12.1-15.85 ms | 16.7-19.6 ms |
+| [1920x400] template firstNotch | synchronousDispatch | cand-5c723c6d | 171.45 / 168.8 / 164.8 | 180 / 170.8 / 180.7 | 164.8-171.45 ms | 170.8-180.7 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 27.1 / 26.85 / 28.3 | 35.8 / 31.2 / 33.4 | 26.85-28.3 ms | 31.2-35.8 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | pre-d13dd257 | 30.05 / 31.4 / 33.85 | 37.4 / 33.9 / 35.6 | 30.05-33.85 ms | 33.9-37.4 ms |
+| [1920x400] template firstNotch | inputToRedrawCallbackEnd | cand-5c723c6d | 188.9 / 185.9 / 181.9 | 198.5 / 188.3 / 198.9 | 181.9-188.9 ms | 188.3-198.9 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | stage0-5c1b915 | 1.75 / 2.2 / 2.5 | 19.8 / 18.1 / 19 | 1.75-2.5 ms | 18.1-19.8 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | pre-d13dd257 | 2.75 / 3.35 / 3.6 | 18.2 / 16.6 / 16.5 | 2.75-3.6 ms | 16.5-18.2 ms |
+| [1920x400] template repeatedNotches | synchronousDispatch | cand-5c723c6d | 166.15 / 166.2 / 165.95 | 174.3 / 174.6 / 174.1 | 165.95-166.2 ms | 174.1-174.6 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 13.7 / 15.25 / 17.4 | 30.4 / 28.3 / 28.7 | 13.7-17.4 ms | 28.3-30.4 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | pre-d13dd257 | 11.8 / 16.25 / 15.6 | 30.9 / 27.8 / 28 | 11.8-16.25 ms | 27.8-30.9 ms |
+| [1920x400] template repeatedNotches | inputToRedrawCallbackEnd | cand-5c723c6d | 176.05 / 175 / 172.85 | 184 / 182.8 / 185 | 172.85-176.05 ms | 182.8-185 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | stage0-5c1b915 | 2.3 / 3.4 / 3.7 | 4.2 / 3.7 / 4.6 | 2.3-3.7 ms | 3.7-4.6 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | pre-d13dd257 | 3.65 / 4.8 / 4.6 | 4.3 / 5.2 / 5.2 | 3.65-4.8 ms | 4.3-5.2 ms |
+| [1920x400] folded firstNotch | synchronousDispatch | cand-5c723c6d | 25.05 / 28.6 / 29.2 | 29.8 / 29.3 / 32.3 | 25.05-29.2 ms | 29.3-32.3 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | stage0-5c1b915 | 4.65 / 6.4 / 7.3 | 8.2 / 7.9 / 8.5 | 4.65-7.3 ms | 7.9-8.5 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | pre-d13dd257 | 6.75 / 8.75 / 8.5 | 9.5 / 9.9 / 10.3 | 6.75-8.75 ms | 9.5-10.3 ms |
+| [1920x400] folded firstNotch | inputToRedrawCallbackEnd | cand-5c723c6d | 27.25 / 30.75 / 31.4 | 31.9 / 31.5 / 34.3 | 27.25-31.4 ms | 31.5-34.3 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | stage0-5c1b915 | 1.2 / 1.55 / 1.7 | 1.9 / 2 / 2.1 | 1.2-1.7 ms | 1.9-2.1 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | pre-d13dd257 | 0.55 / 0.7 / 0.75 | 2.1 / 3.2 / 2.8 | 0.55-0.75 ms | 2.1-3.2 ms |
+| [1920x400] folded repeatedNotches | synchronousDispatch | cand-5c723c6d | 23.85 / 26.85 / 24.85 | 29.4 / 33.6 / 29.8 | 23.85-26.85 ms | 29.4-33.6 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | stage0-5c1b915 | 3.25 / 5.1 / 5.05 | 6.1 / 6.3 / 6.2 | 3.25-5.1 ms | 6.1-6.3 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | pre-d13dd257 | 2.3 / 3.9 / 4.1 | 6.2 / 8.4 / 8.6 | 2.3-4.1 ms | 6.2-8.6 ms |
+| [1920x400] folded repeatedNotches | inputToRedrawCallbackEnd | cand-5c723c6d | 24.95 / 28.6 / 26.45 | 30.7 / 35.7 / 31 | 24.95-28.6 ms | 30.7-35.7 ms |
+
+## dependency-drag (* = that run reported ok false; see its notMeasured above)
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| held over empty ground | frameTime | stage0-5c1b915 | 8.1 / 8.1 / 8.1 | 16.67 / 16.67 / 16.67 | 8.1-8.1 ms | 16.67-16.67 ms |
+| held over empty ground | frameTime | pre-d13dd257 | - | - | - ms | - ms |
+| held over empty ground | frameTime | cand-5c723c6d | - | - | - ms | - ms |
+| held over empty ground | insideRedrawCallback | stage0-5c1b915 | 6.6 / 6.4 / 6.4 | 8 / 7.3 / 7 | 6.4-6.6 ms | 7-8 ms |
+| held over empty ground | insideRedrawCallback | pre-d13dd257 | - | - | - ms | - ms |
+| held over empty ground | insideRedrawCallback | cand-5c723c6d | - | - | - ms | - ms |
+| held over empty ground | synchronousDispatch | stage0-5c1b915 | 0.7 / 0.6 / 0.6 | 0.9 / 0.9 / 0.9 | 0.6-0.7 ms | 0.9-0.9 ms |
+| held over empty ground | synchronousDispatch | pre-d13dd257 | - | - | - ms | - ms |
+| held over empty ground | synchronousDispatch | cand-5c723c6d | - | - | - ms | - ms |
+| held over another Task | frameTime | stage0-5c1b915 | 8.1 / 8 / 8 | 16.2 / 15.9 / 15.8 | 8-8.1 ms | 15.8-16.2 ms |
+| held over another Task | frameTime | pre-d13dd257 | - | - | - ms | - ms |
+| held over another Task | frameTime | cand-5c723c6d | - | - | - ms | - ms |
+| held over another Task | insideRedrawCallback | stage0-5c1b915 | 6.2 / 6.1 / 6.1 | 7.6 / 6.7 / 6.6 | 6.1-6.2 ms | 6.6-7.6 ms |
+| held over another Task | insideRedrawCallback | pre-d13dd257 | - | - | - ms | - ms |
+| held over another Task | insideRedrawCallback | cand-5c723c6d | - | - | - ms | - ms |
+| held over another Task | synchronousDispatch | stage0-5c1b915 | 0.5 / 0.5 / 0.5 | 0.7 / 0.8 / 0.7 | 0.5-0.5 ms | 0.7-0.8 ms |
+| held over another Task | synchronousDispatch | pre-d13dd257 | - | - | - ms | - ms |
+| held over another Task | synchronousDispatch | cand-5c723c6d | - | - | - ms | - ms |
+| held between that Task and empty ground | frameTime | stage0-5c1b915 | 22.1 / 22.12 / 16.67 | 30.3 / 31.8 / 29.7 | 16.67-22.12 ms | 29.7-31.8 ms |
+| held between that Task and empty ground | frameTime | pre-d13dd257 | - | - | - ms | - ms |
+| held between that Task and empty ground | frameTime | cand-5c723c6d | - | - | - ms | - ms |
+| held between that Task and empty ground | insideRedrawCallback | stage0-5c1b915 | 8.8 / 9 / 8.5 | 10.7 / 13.7 / 9.7 | 8.5-9 ms | 9.7-13.7 ms |
+| held between that Task and empty ground | insideRedrawCallback | pre-d13dd257 | - | - | - ms | - ms |
+| held between that Task and empty ground | insideRedrawCallback | cand-5c723c6d | - | - | - ms | - ms |
+| held between that Task and empty ground | synchronousDispatch | stage0-5c1b915 | 0.7 / 0.8 / 0.7 | 1.1 / 1.4 / 1.1 | 0.7-0.8 ms | 1.1-1.4 ms |
+| held between that Task and empty ground | synchronousDispatch | pre-d13dd257 | - | - | - ms | - ms |
+| held between that Task and empty ground | synchronousDispatch | cand-5c723c6d | - | - | - ms | - ms |
+| (pooled) | frameTime | stage0-5c1b915 | 8.3 / 8.2 / 8.2 | 24.1 / 25.1 / 23.5 | 8.2-8.3 ms | 23.5-25.1 ms |
+| (pooled) | frameTime | pre-d13dd257 | - | - | - ms | - ms |
+| (pooled) | frameTime | cand-5c723c6d | - | - | - ms | - ms |
+
+## lm-19 (* = that run reported ok false; see its notMeasured above)
+
+| section | metric | build | median per run | p95 per run | median min-max | p95 min-max |
+|---|---|---|---:|---:|---:|---:|
+| MK-1 scroll | frameTime | stage0-5c1b915 | 18.72 / 16.67 / 16.67 | 31 / 31 / 30.8 | 16.67-18.72 ms | 30.8-31 ms |
+| MK-1 scroll | frameTime | pre-d13dd257 | 196.87 / 183.33 / 183.33 | 301.51 / 299.99 / 302.34 | 183.33-196.87 ms | 299.99-302.34 ms |
+| MK-1 scroll | frameTime | cand-5c723c6d | 183.33 / 193.25 / 183.33 | 316.65 / 316.65 / 311.1 | 183.33-193.25 ms | 311.1-316.65 ms |
+| MK-1 scroll | insideRedrawCallback | stage0-5c1b915 | 10.15 / 10 / 10.1 | 14.6 / 12.5 / 13.5 | 10-10.15 ms | 12.5-14.6 ms |
+| MK-1 scroll | insideRedrawCallback | pre-d13dd257 | 21 / 19.65 / 19.4 | 34.2 / 25.2 / 26.3 | 19.4-21 ms | 25.2-34.2 ms |
+| MK-1 scroll | insideRedrawCallback | cand-5c723c6d | 20.9 / 19.6 / 19.45 | 32.7 / 25.4 / 26 | 19.45-20.9 ms | 25.4-32.7 ms |
+| MK-2 zoom | frameTime | stage0-5c1b915 | 22.1 / 21.6 / 21.65 | 33.33 / 31 / 30.03 | 21.6-22.1 ms | 30.03-33.33 ms |
+| MK-2 zoom | frameTime | pre-d13dd257 | 191.66 / 196.83 / 170.06 | 299.99 / 299.99 / 299.99 | 170.06-196.83 ms | 299.99-299.99 ms |
+| MK-2 zoom | frameTime | cand-5c723c6d | 210.55 / 209 / 209.1 | 270.71 / 266.66 / 266.66 | 209-210.55 ms | 266.66-270.71 ms |
+| MK-2 zoom | insideRedrawCallback | stage0-5c1b915 | 9.8 / 9.5 / 9.5 | 13.5 / 11.1 / 11.3 | 9.5-9.8 ms | 11.1-13.5 ms |
+| MK-2 zoom | insideRedrawCallback | pre-d13dd257 | 18.9 / 18.7 / 18.7 | 26.4 / 22.9 / 22.2 | 18.7-18.9 ms | 22.2-26.4 ms |
+| MK-2 zoom | insideRedrawCallback | cand-5c723c6d | 18.05 / 18.25 / 18.1 | 25 / 20.5 / 21.7 | 18.05-18.25 ms | 20.5-25 ms |
+| MK-7 pan | frameTime | stage0-5c1b915 | 8.2 / 7.9 / 7.75 | 23.6 / 29.5 / 23.5 | 7.75-8.2 ms | 23.5-29.5 ms |
+| MK-7 pan | frameTime | pre-d13dd257 | 22.7 / 16.78 / 22.4 | 100 / 133.3 / 225.71 | 16.78-22.7 ms | 100-225.71 ms |
+| MK-7 pan | frameTime | cand-5c723c6d | 22.75 / 16.67 / 15.95 | 260.8 / 132.5 / 44.5 | 15.95-22.75 ms | 44.5-260.8 ms |
+| MK-7 pan | insideRedrawCallback | stage0-5c1b915 | 7.65 / 6.3 / 6.6 | 11.8 / 11.4 / 10.7 | 6.3-7.65 ms | 10.7-11.8 ms |
+| MK-7 pan | insideRedrawCallback | pre-d13dd257 | 9.3 / 9.3 / 9.7 | 18.9 / 20 / 21.6 | 9.3-9.7 ms | 18.9-21.6 ms |
+| MK-7 pan | insideRedrawCallback | cand-5c723c6d | 9.45 / 8.15 / 8.3 | 29.3 / 20.1 / 17.5 | 8.15-9.45 ms | 17.5-29.3 ms |
+| MK-6 range select | frameTime | stage0-5c1b915 | 7.9 / 7.9 / 8 | 16.67 / 16.67 / 15.6 | 7.9-8 ms | 15.6-16.67 ms |
+| MK-6 range select | frameTime | pre-d13dd257 | 7.4 / 8.3 / 7.9 | 8.2 / 16.67 / 8.2 | 7.4-8.3 ms | 8.2-16.67 ms |
+| MK-6 range select | frameTime | cand-5c723c6d | 7.6 / 7.7 / 7.8 | 8.3 / 8.2 / 8.2 | 7.6-7.8 ms | 8.2-8.3 ms |
+| MK-6 range select | insideRedrawCallback | stage0-5c1b915 | 6.4 / 5.8 / 5.8 | 9.3 / 6.3 / 6.4 | 5.8-6.4 ms | 6.3-9.3 ms |
+| MK-6 range select | insideRedrawCallback | pre-d13dd257 | 3.3 / 5.6 / 3.3 | 4 / 6.2 / 3.6 | 3.3-5.6 ms | 3.6-6.2 ms |
+| MK-6 range select | insideRedrawCallback | cand-5c723c6d | 3.5 / 3.2 / 3.4 | 4.3 / 3.6 / 3.7 | 3.2-3.5 ms | 3.6-4.3 ms |
+| (pooled) | frameTime | stage0-5c1b915 | 16.3 / 15.35 / 15.1 | 30 / 30 / 29.5 | 15.1-16.3 ms | 29.5-30 ms |
+| (pooled) | frameTime | pre-d13dd257 | 74.86 / 83.33 / 83.33 | 283.32 / 283.32 / 283.32 | 74.86-83.33 ms | 283.32-283.32 ms |
+| (pooled) | frameTime | cand-5c723c6d | 132.21 / 83.33 / 63.53 | 283.32 / 266.66 / 266.66 | 63.53-132.21 ms | 266.66-283.32 ms |

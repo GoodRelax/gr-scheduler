@@ -1,0 +1,266 @@
+{
+  "ok": true,
+  "conditions": {
+    "probe": "first-notch",
+    "measuredAt": "2026-09-17T00:19:07.256Z",
+    "tree": "ab-5c723c6d",
+    "buildSha256": "8e75f0564e8948b2f80eac6feb671d203bb04f6add5cc73d869d9d9c437007cf",
+    "pagesPerCondition": 6,
+    "notchesPerPage": 6,
+    "gapMs": 700,
+    "channel": "msedge",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "logicalCpus": 16,
+    "os": "Windows_NT 10.0.26200",
+    "node": "v24.12.0",
+    "browserVersion": "153.0.4234.32"
+  },
+  "results": [
+    {
+      "name": "[1920x1080] template",
+      "rowExpandersBeforeAfterFold": [
+        [
+          96,
+          96
+        ],
+        [
+          96,
+          96
+        ],
+        [
+          96,
+          96
+        ],
+        [
+          96,
+          96
+        ],
+        [
+          96,
+          96
+        ],
+        [
+          96,
+          96
+        ]
+      ],
+      "firstNotch": {
+        "synchronousDispatch": {
+          "samples": 6,
+          "medianMs": 203.25,
+          "p95Ms": 217.4
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 6,
+          "medianMs": 236.65,
+          "p95Ms": 255.5
+        }
+      },
+      "repeatedNotches": {
+        "synchronousDispatch": {
+          "samples": 30,
+          "medianMs": 196.1,
+          "p95Ms": 211.3
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 30,
+          "medianMs": 204.2,
+          "p95Ms": 231.3
+        }
+      },
+      "perNotchDispatchMedianMs": [
+        203.25,
+        201.75,
+        209.8,
+        195.5,
+        185.15,
+        182.05
+      ]
+    },
+    {
+      "name": "[1920x1080] folded",
+      "rowExpandersBeforeAfterFold": [
+        [
+          96,
+          0
+        ],
+        [
+          96,
+          0
+        ],
+        [
+          96,
+          0
+        ],
+        [
+          96,
+          0
+        ],
+        [
+          96,
+          0
+        ],
+        [
+          96,
+          0
+        ]
+      ],
+      "firstNotch": {
+        "synchronousDispatch": {
+          "samples": 6,
+          "medianMs": 28.05,
+          "p95Ms": 28.7
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 6,
+          "medianMs": 30.15,
+          "p95Ms": 31
+        }
+      },
+      "repeatedNotches": {
+        "synchronousDispatch": {
+          "samples": 30,
+          "medianMs": 25.6,
+          "p95Ms": 30.4
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 30,
+          "medianMs": 27.2,
+          "p95Ms": 31.6
+        }
+      },
+      "perNotchDispatchMedianMs": [
+        28.05,
+        24.85,
+        28.5,
+        25,
+        24.15,
+        26.55
+      ]
+    },
+    {
+      "name": "[1920x400] template",
+      "rowExpandersBeforeAfterFold": [
+        [
+          32,
+          32
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          32,
+          32
+        ]
+      ],
+      "firstNotch": {
+        "synchronousDispatch": {
+          "samples": 6,
+          "medianMs": 164.8,
+          "p95Ms": 180.7
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 6,
+          "medianMs": 181.9,
+          "p95Ms": 198.9
+        }
+      },
+      "repeatedNotches": {
+        "synchronousDispatch": {
+          "samples": 30,
+          "medianMs": 165.95,
+          "p95Ms": 174.1
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 30,
+          "medianMs": 172.85,
+          "p95Ms": 185
+        }
+      },
+      "perNotchDispatchMedianMs": [
+        164.8,
+        169.3,
+        169.35,
+        165.3,
+        166.45,
+        158.25
+      ]
+    },
+    {
+      "name": "[1920x400] folded",
+      "rowExpandersBeforeAfterFold": [
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          0
+        ],
+        [
+          32,
+          0
+        ]
+      ],
+      "firstNotch": {
+        "synchronousDispatch": {
+          "samples": 6,
+          "medianMs": 29.2,
+          "p95Ms": 32.3
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 6,
+          "medianMs": 31.4,
+          "p95Ms": 34.3
+        }
+      },
+      "repeatedNotches": {
+        "synchronousDispatch": {
+          "samples": 30,
+          "medianMs": 24.85,
+          "p95Ms": 29.8
+        },
+        "inputToRedrawCallbackEnd": {
+          "samples": 30,
+          "medianMs": 26.45,
+          "p95Ms": 31
+        }
+      },
+      "perNotchDispatchMedianMs": [
+        29.2,
+        24.3,
+        23.2,
+        23.9,
+        25.65,
+        27.8
+      ]
+    }
+  ],
+  "doubts": [],
+  "notMeasured": []
+}

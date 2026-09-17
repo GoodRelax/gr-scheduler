@@ -1,0 +1,119 @@
+{
+  "ok": false,
+  "conditions": {
+    "probe": "dependency-drag",
+    "measuredAt": "2026-09-17T00:27:54.050Z",
+    "tree": "ab-d13dd257",
+    "buildSha256": "7de9ba2250a43319660975ba3616188bd62c92418cc113e4f1f97b808973ae8a",
+    "screen": {
+      "width": 1920,
+      "height": 1080
+    },
+    "tasksRequested": 1000,
+    "samplesPerStretch": 240,
+    "minHoldMsPerStretch": 5000,
+    "agentApiOpenedBeforeMeasuring": true,
+    "channel": "msedge",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "logicalCpus": 16,
+    "os": "Windows_NT 10.0.26200",
+    "node": "v24.12.0",
+    "definition": "frame time = interval between delivered rAF stamps (T-043 preamble); instrument = FRAME_PROBE of the tree's tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts"
+  },
+  "setup": {
+    "origins": [
+      {
+        "uid": 7,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 98,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 145,
+        "finishX": 1001,
+        "shapesAtFinish": 1,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 200,
+        "why": "the origin row is not drawn"
+      },
+      {
+        "uid": 254,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 336,
+        "why": "the origin row is not drawn"
+      },
+      {
+        "uid": 397,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 440,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 525,
+        "why": "the origin row is not drawn"
+      },
+      {
+        "uid": 572,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 632,
+        "why": "the origin row is not drawn"
+      },
+      {
+        "uid": 676,
+        "finishX": 1001,
+        "shapesAtFinish": 3,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 753,
+        "why": "the origin row is not drawn"
+      },
+      {
+        "uid": 800,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 848,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      },
+      {
+        "uid": 915,
+        "finishX": 1001,
+        "shapesAtFinish": 0,
+        "why": "no ew-resize beside the finish edge"
+      }
+    ],
+    "attempts": [],
+    "pxPerDay": 6,
+    "rowAreaX": 107
+  },
+  "notMeasured": [
+    "the run broke: no drag start drew an extra arrow over a partner (16 origins, 0 starts); see setup"
+  ]
+}
