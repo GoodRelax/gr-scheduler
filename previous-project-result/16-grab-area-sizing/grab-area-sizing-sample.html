@@ -34,7 +34,7 @@
 <body>
 <h1>掴み代を触って決める</h1>
 <p class="note">
-  <b>触れます。</b>バーの本体を引けば横に動き、端を引けば伸び縮みします。マイルストーンもフェードの □ も引けます。
+  <b>触れます。</b>バーの本体を引くと<b>予定だけ</b>が横に動きます（実績は事実なので、端を掴んで意志を持って動かします）。端を引けば伸び縮みします。マイルストーンもフェードの □ も引けます。
   <b>マーカーは、押せば状態が巡ります（未着手 → 50% → 100% → 未着手）。引いて実績の終わりを動かせるのは、マーカーが実績の右にいるときだけです。</b>
   色の面がその掴み代で、<b>横</b>と<b>縦</b>の広がりをそのまま描いています。つまみで大きさを変えると、絵も当たり判定もその場で変わります。
   最後の行に今の値がまとまります。
@@ -335,15 +335,19 @@ function draw() {
   const hasMsActual = $('msActual').checked;
   label(g, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msBand = band(msY, bh, S.planV);
-  if (showPlan) zone(g, 'ms', 'ms', msX - msR - S.msGrab, msBand.y, (msR + S.msGrab) * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
+  // the plan's grab always reaches further out than the actual's, so however far the picture is
+  // zoomed out the plan, the actual and the marker each keep a place the pointer can reach
+  const msActHalf = msR * 0.7 + S.s91;
+  const msPlanHalf = Math.max(msR + S.msGrab, msActHalf + S.msGrab);
+  if (showPlan) zone(g, 'ms', 'ms', msX - msPlanHalf, msBand.y, msPlanHalf * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
   if (!showActual) {
     // nothing to hold on the actual's side
   } else if (hasMsActual) {
     const msActBand = band(msY + bh * 0.15, bh * 0.7, S.actualV);
-    zone(g, 'ms-actual', 'actualEnd', msActX - msR * 0.7 - S.s91, msActBand.y, (msR * 0.7 + S.s91) * 2, msActBand.h, 'rgba(220,120,0,.30)', 'grab');
+    zone(g, 'ms-actual', 'actualEnd', msActX - msActHalf, msActBand.y, msActHalf * 2, msActBand.h, 'rgba(220,120,0,.30)', 'grab');
   } else {
     const dBand2 = band(msY + bh * 0.15, bh * 0.7, S.actualV);
-    zone(g, 'ms-dummy', 'dummy', msX - msR * 0.7 - S.s91, dBand2.y, (msR * 0.7 + S.s91) * 2, dBand2.h, 'rgba(220,120,0,.30)', 'grab');
+    zone(g, 'ms-dummy', 'dummy', msX - msActHalf, dBand2.y, msActHalf * 2, dBand2.h, 'rgba(220,120,0,.30)', 'grab');
   }
   if (showPlan) {
     el(g, 'path', { d: 'M ' + msX + ' ' + msY + ' L ' + (msX + msR) + ' ' + (msY + msR) + ' L ' + msX + ' ' + (msY + bh) +
@@ -376,7 +380,8 @@ function draw() {
   // with a marker the name follows it; without one it starts a quarter of a glyph right of the centre
   drawName(g, M.ms, marked ? msAnchor + mk + S.labelGap : msFollowX + bh * 0.25, msY + bh / 2);
   drawOutsideLabel(g, M.ms, msFollowX - bh * 0.25 - S.labelGap, msY + bh / 2);
-  label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）'), 11);
+  label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）') +
+    ' ・ 掴み代 予定 中心 ±' + msPlanHalf.toFixed(1) + 'px / 実績 中心 ±' + msActHalf.toFixed(1) + 'px', 11);
 
   // ---- 4) an arrow task (SH-3 `--->`): no outline, the actual sits close under the plan,
   //          and the name stands ABOVE the plan, aligned with the actual when one is drawn
@@ -477,7 +482,7 @@ stage.addEventListener('pointermove', e => {
   const m = JSON.parse(JSON.stringify(drag.model)), t = m.task, u = m.unset;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   switch (drag.id) {
-    case 'task-body': t.planStart = clamp(t.planStart + moved, 0, 55); t.actualStart = clamp(t.actualStart + moved, 0, 55); break;
+    case 'task-body': t.planStart = clamp(t.planStart + moved, 0, 55); break;
     case 'task-plan-start': { const end = t.planStart + t.planDays; t.planStart = clamp(t.planStart + moved, 0, end - 1); t.planDays = end - t.planStart; break; }
     case 'task-plan-end': t.planDays = clamp(t.planDays + moved, 1, 55 - t.planStart); break;
     case 'task-actual-start': { const end = t.actualStart + t.actualDays; t.actualStart = clamp(t.actualStart + moved, 0, end - 1); t.actualDays = end - t.actualStart; break; }
@@ -502,7 +507,7 @@ stage.addEventListener('pointermove', e => {
       u.actualStart = u.actualDays > 0 ? u.actualStart : u.planStart;
       u.actualDays = clamp(d0 + moved, 1, 55 - u.actualStart); break;
     }
-    case 'arrow-body': m.arrow.planStart = clamp(m.arrow.planStart + moved, 0, 55); m.arrow.actualStart = clamp(m.arrow.actualStart + moved, 0, 55); break;
+    case 'arrow-body': m.arrow.planStart = clamp(m.arrow.planStart + moved, 0, 55); break;
     case 'arrow-plan-start': { const e1 = m.arrow.planStart + m.arrow.planDays; m.arrow.planStart = clamp(m.arrow.planStart + moved, 0, e1 - 1); m.arrow.planDays = e1 - m.arrow.planStart; break; }
     case 'arrow-plan-end': m.arrow.planDays = clamp(m.arrow.planDays + moved, 1, 55 - m.arrow.planStart); break;
     case 'arrow-actual-start': { const e2 = m.arrow.actualStart + m.arrow.actualDays; m.arrow.actualStart = clamp(m.arrow.actualStart + moved, 0, e2 - 1); m.arrow.actualDays = e2 - m.arrow.actualStart; break; }
