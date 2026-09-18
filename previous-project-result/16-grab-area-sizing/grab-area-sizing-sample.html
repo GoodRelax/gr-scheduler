@@ -88,7 +88,13 @@
   <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。</div>
 
   <h2>札（名前・進捗・担当）</h2>
-  <label><span class="name">実績と札の間隔（px）</span><input id="labelGap" type="range" min="0" max="24" step="1" value="4"><output id="labelGapOut"></output></label>
+  <label><span class="name">タスク名 開始 → 名前（px）</span><input id="namePad" type="range" min="0" max="24" step="1" value="6"><output id="namePadOut"></output></label>
+  <div class="hint">マーカーを出さないとき、基準（実績・ダミー・予定）の開始から名前の書き出しまで。名前が入らずに終了の外へ出るときは、終了から名前まで（S-31 labelPad）。</div>
+  <label><span class="name">タスク名 マーカー → 名前（px）</span><input id="nameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="nameAfterMarkerOut"></output></label>
+  <label><span class="name">マイルストーン名 マーカー → 名前（px）</span><input id="msNameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="msNameAfterMarkerOut"></output></label>
+  <div class="hint">マーカーを出さないときのマイルストーン名は、基準の菱形の幅を 0〜100% として 25% の位置から左詰めで書く（JDG-183）。</div>
+  <label><span class="name">担当・進捗 → 開始（px）</span><input id="outsideGap" type="range" min="0" max="24" step="1" value="4"><output id="outsideGapOut"></output></label>
+  <div class="hint">担当と進捗の札の右端から、描いた予定と実績の早い方の開始まで。マイルストーンは菱形の 25% の位置まで。</div>
   <label><span class="name">札の字の大きさ（× 実績の高さ）</span><input id="labelFont" type="range" min="50" max="130" step="5" value="90"><output id="labelFontOut"></output></label>
 
   <h2>ポインタの矢印</h2>
@@ -146,7 +152,8 @@ const NS = 'http://www.w3.org/2000/svg';
 const $ = id => document.getElementById(id);
 
 // drawing and labels -- nothing here sizes a grab area
-const S = { scale:100, dayPx:12, barH:18, markerSize:14, labelGap:4, labelFont:90, cur:16, stackBH:100 };
+const S = { scale:100, dayPx:12, barH:18, markerSize:14, namePad:6, nameAfterMarker:6, msNameAfterMarker:6, outsideGap:4,
+            labelFont:90, cur:16, stackBH:100 };
 const SLIDERS = Object.keys(S);
 
 // ---------------------------------------------------------------- grab areas, one set of values per thing grabbed
@@ -368,32 +375,28 @@ function placeAlong(g, item, barX, barW, marked, mk) {
   // question 6: FR-002 keeps the label off both actual ends' grabs (plus S-31, S-32, S-23);
   // "end" keeps it off the finish's grab only, since the marker now sits on the start grab by design
   const mode = $('q6').value;
+  const lead = nameLead(marked, mk);
   const needed = mode === 'fr002' ? nameW + 6 + 8 + (marked ? mk + 4 : 0) + GRAB.actualStart.in + GRAB.actualEnd.in
-               : mode === 'end' ? (marked ? mk + S.labelGap : 0) + nameW + GRAB.actualEnd.in
-               : (marked ? mk + S.labelGap : 0) + nameW;
+               : mode === 'end' ? lead + nameW + GRAB.actualEnd.in
+               : lead + nameW;
   const fits = needed <= barW;
   const markerX = fits ? barX : barX + barW;
-  return { fits, markerX, nameX: markerX + (marked ? mk + S.labelGap : 0), nameW };
+  return { fits, markerX, nameX: markerX + lead, nameW };
 }
 // `--->` arrows: name, plan and actual are stacked, so the marker follows the actual's start
 function placeAlongArrow(g, item, barX, marked, mk) {
   const showName = $('showName').checked && item.name;
   const nameW = showName ? measureName(g, item.name) : 0;
-  return { fits: true, markerX: barX, nameX: barX + (marked ? mk + S.labelGap : 0), nameW };
+  return { fits: true, markerX: barX, nameX: barX + nameLead(marked, mk), nameW };
 }
-function labelRow(g, x, centerY, parts) {
-  const size = Math.max(6, actualH() * (S.labelFont / 100));
-  let at = x;
-  for (const part of parts) {
-    const t = el(g, 'text', { x: at, y: centerY + size * 0.36, 'font-size': size, fill: '#16181d',
-      'font-weight': part.bold ? 600 : 400, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': size * 0.1 });
-    t.textContent = part.text;
-    at += t.getBBox().width + S.labelGap;
-  }
-  return at;
-}
+// a task name starts this far from where its marker starts; with the marker hidden, from the reference's edge
+function nameLead(marked, mk) { return marked ? mk + S.nameAfterMarker : S.namePad; }
 function drawName(g, item, x, centerY) {
-  if ($('showName').checked && item.name) labelRow(g, x, centerY, [{ text: item.name, bold: true }]);
+  if (!$('showName').checked || !item.name) return;
+  const size = Math.max(6, actualH() * (S.labelFont / 100));
+  const t = el(g, 'text', { x, y: centerY + size * 0.36, 'font-size': size, fill: '#16181d',
+    'font-weight': 600, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': size * 0.1 });
+  t.textContent = item.name;
 }
 // OC-2 / OR-1: assignee and percent are ONE label, right-aligned left of the earlier start (JDG-182)
 function drawOutsideLabel(g, item, rightX, centerY) {
@@ -484,7 +487,7 @@ function drawBarTask(g, key, ty, opts) {
     rect(g, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
   }
   drawName(g, q, put.nameX, ty + bh / 2);
-  drawOutsideLabel(g, q, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : refX) - S.labelGap, ty + bh / 2);
+  drawOutsideLabel(g, q, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : refX) - S.outsideGap, ty + bh / 2);
   // RT-4a: a line is drawn only when both of its ends are drawn
   if (showPlan || useAct) {
     ANCHOR[key] = { x0: useAct ? actX : planX, x1: useAct ? actX + actW : planX + planW, y: ty + bh / 2, top: ty, bottom: ty + bh };
@@ -613,8 +616,11 @@ function draw() {
     markerZone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk);
     drawMarker(g, msAnchor + mk / 2, msY + bh / 2, Math.max(2, mk / 2 - 1), hasMsActual ? 'done' : 'unstarted');
   }
-  drawName(g, M.ms, marked ? msAnchor + mk + S.labelGap : msFollowX + bh * 0.25, msY + bh / 2);
-  drawOutsideLabel(g, M.ms, msFollowX - bh * 0.25 - S.labelGap, msY + bh / 2);
+  // measure the reference diamond 0-100% across: with the marker hidden the name starts at its 25% point,
+  // left-aligned, so a short name fits inside the glyph (JDG-183)
+  const ms25 = msFollowX - msHalf / 2;
+  drawName(g, M.ms, marked ? msAnchor + mk + S.msNameAfterMarker : ms25, msY + bh / 2);
+  drawOutsideLabel(g, M.ms, ms25 - S.outsideGap, msY + bh / 2);
   label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）') +
     ' / 隣 ' + M.ms2.day + ' 日目 ・ 掴み代 予定 ±' + msPlanHalf.toFixed(1) + 'px / ' + (hasMsActual ? '実績' : 'ダミー') + ' ±' + msActHalf.toFixed(1) + 'px ・ 重なったら ⑤ の選び方', 11);
 
@@ -664,7 +670,7 @@ function draw() {
     drawMarker(g, putA.markerX + mk / 2, aLabelY, Math.max(2, mk / 2 - 1), a.state);
   }
   drawName(g, a, putA.nameX, aLabelY);
-  drawOutsideLabel(g, a, (showPlan ? (useArrowAct ? Math.min(aX, aActX) : aX) : aActX) - S.labelGap, planY);
+  drawOutsideLabel(g, a, (showPlan ? (useArrowAct ? Math.min(aX, aActX) : aX) : aActX) - S.outsideGap, planY);
   label(g, LEFT, ay - 10, '矢印は縁取りを描かない。掴み代は形の高さで、予定と実績は中線で分ける。端は左端と > の中心に中央合わせ。マーカーは実績の開始', 11);
 
   // ---- 5) three tasks stacked in one row (a multibar row): JDG-148's gap, dependency lines through it
@@ -960,7 +966,8 @@ function summary() {
     ' ・ ④ 予定の開始・終了 上下 ' + GRAB.planStart.v + ' ／ ' + GRAB.planEnd.v +
     ' ・ ⑤ ' + $('q5').selectedOptions[0].textContent + ' ・ ⑥ ' + $('q6').selectedOptions[0].textContent +
     ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent + '\n' +
-    '  札: 実績との間隔 ' + S.labelGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
+    '  札: タスク名 開始→名前 ' + S.namePad + 'px ・ マーカー→名前 ' + S.nameAfterMarker + 'px ・ マイルストーン名 マーカー→名前 ' + S.msNameAfterMarker +
+    'px（マーカーなしは菱形の 25% の位置から）・ 担当・進捗→開始 ' + S.outsideGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  ポインタ: 矢印 一辺 ' + S.cur + 'px（S-249 を 24 → 16 にする、JDG-181）・ フェードの三角 ' + fadeCursorPx() + 'px\n' +
     '  絵: ズーム ' + S.scale + '% ・ 1 日 ' + S.dayPx + 'px ・ バーの高さ ' + S.barH + 'px ・ マーカーの描く径 ' + S.markerSize + 'px ・ ⑤ の隙間 ' + STACK_GAP + 'px\n' +
     '  形: 予定 ' + t.planStart + ' 日目から ' + t.planDays + ' 日 / 実績 ' + t.actualStart + ' 日目から ' + t.actualDays +
