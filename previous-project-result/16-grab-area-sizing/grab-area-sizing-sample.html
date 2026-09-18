@@ -290,7 +290,9 @@ function draw() {
   }
   // the name starts where the rule says: inside from the start when it fits, else outside from the end
   drawName(g, t, put.nameX, ty + bh / 2);
-  drawOutsideLabel(g, t, (showPlan ? planX : alongX) - S.labelGap, ty + bh / 2);
+  // the assignee and the percent hang left of the EARLIER of the two starts, so an actual that
+  // began before the plan pushes them out instead of being written over by the name
+  drawOutsideLabel(g, t, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : alongX) - S.labelGap, ty + bh / 2);
   label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut + ' 日 ・ マーカーは' + (put.fits ? '実績の中（開始のつまみは ' + startGrab(put.fits, marked, mk) + 'px まで、右半分はマーカー）' : '実績の右（引けば実績の終わり）'), 11);
 
   // ---- 2) an unstarted task with the dummy
@@ -326,7 +328,7 @@ function draw() {
   }
   if (marked) el(g, 'circle', { cx: uMkX + mk / 2, cy: uy + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   drawName(g, u, putU.nameX, uy + bh / 2);
-  drawOutsideLabel(g, u, (showPlan ? uX : uActX) - S.labelGap, uy + bh / 2);
+  drawOutsideLabel(g, u, (showPlan ? (showActual ? Math.min(uX, uActX) : uX) : uActX) - S.labelGap, uy + bh / 2);
   label(g, LEFT, uy - 10, 'ダミー（掴み代は実績と同じ）の描く幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px（押せるのは片側 ' + (S.s91 + dw / 2).toFixed(2) + 'px）・ 引けばそのまま実績になる', 11);
 
   // ---- 3) a milestone: a plan diamond, an actual diamond (or the unstarted dummy)
@@ -434,7 +436,7 @@ function draw() {
     el(g, 'circle', { cx: aMkX + mk / 2, cy: aLabelY, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   }
   drawName(g, a, putA.nameX, aLabelY);
-  drawOutsideLabel(g, a, (showPlan ? aX : aActX) - S.labelGap, planY);
+  drawOutsideLabel(g, a, (showPlan ? (useArrowAct ? Math.min(aX, aActX) : aX) : aActX) - S.labelGap, planY);
   label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける。端の掴み代は左端と > の中心に中央合わせ、マーカーは幅によらず実績の開始に付く', 11);
 
   // ruler
