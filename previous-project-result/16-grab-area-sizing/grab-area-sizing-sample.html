@@ -67,7 +67,7 @@
     <label><span class="name">実績の端 縦（外へ上下）</span><input id="actualV" type="range" min="0" max="20" step="1" value="0"><output id="actualVOut"></output></label>
     <label><span class="name">マーカー 一辺</span><input id="markerGrab" type="range" min="6" max="32" step="1" value="14"><output id="markerGrabOut"></output></label>
     <label><span class="name">フェード 一辺</span><input id="s92" type="range" min="4" max="20" step="1" value="8"><output id="s92Out"></output></label>
-    <label><span class="name">マイルストーン 外側</span><input id="msGrab" type="range" min="0" max="24" step="1" value="12"><output id="msGrabOut"></output></label>
+    <label><span class="name">マイルストーン 予定の幅（％）</span><input id="msGrab" type="range" min="100" max="200" step="5" value="115"><output id="msGrabOut"></output></label>
     <label><span class="name">縦の下限（共通、px）</span><input id="vMin" type="range" min="0" max="40" step="1" value="0"><output id="vMinOut"></output></label>
 
     <h2>札（名前・進捗・担当）</h2>
@@ -98,7 +98,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const $ = id => document.getElementById(id);
 
 const S = { scale:100, dayPx:12, barH:18, s90:12, planV:0, s91:12, actualV:0,
-            markerGrab:14, s92:8, msGrab:12, vMin:0, labelGap:4, labelFont:90, cur:16 };
+            markerGrab:14, s92:8, msGrab:115, vMin:0, labelGap:4, labelFont:90, cur:16 };
 const SLIDERS = Object.keys(S);
 
 const START = {
@@ -337,10 +337,10 @@ function draw() {
   const hasMsActual = $('msActual').checked;
   label(g, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msBand = band(msY, bh, S.planV);
-  // the plan's grab always reaches further out than the actual's, so however far the picture is
-  // zoomed out the plan, the actual and the marker each keep a place the pointer can reach
-  const msActHalf = msR * 0.7 + S.s91;
-  const msPlanHalf = Math.max(msR + S.msGrab, msActHalf + S.msGrab);
+  // the actual is held over its own glyph and nothing more; the plan over its glyph's height and
+  // a little past its width, so the two are told apart by where the pointer is (2026-09-19)
+  const msActHalf = msR * 0.7;
+  const msPlanHalf = msR * (S.msGrab / 100);
   if (showPlan) zone(g, 'ms', 'ms', msX - msPlanHalf, msBand.y, msPlanHalf * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
   if (!showActual) {
     // nothing to hold on the actual's side
@@ -571,7 +571,7 @@ function summary() {
     '今の値（このまま貼って「この値にしろ」と伝えられます）\n' +
     '  掴み代 横: 予定の端 外側 ' + S.s90 + 'px ・ 実績の端 内側 ' + S.s91 + 'px（ダミーも同じ、押せる幅 ' +
     (S.s91 + dw / 2).toFixed(1) + 'px）・ マーカー ' + S.markerGrab + 'px ・ フェード ' + S.s92 +
-    'px ・ マイルストーン 外側 ' + S.msGrab + 'px（矢印は左端と > の中心に中央合わせ）\n' +
+    'px ・ マイルストーン 予定の幅 ' + S.msGrab + '％（実績はグリフと同寸）・ 矢印は左端と > の中心に中央合わせ\n' +
     '  掴み代 縦: 予定 帯の外へ ' + S.planV + 'px ・ 実績とダミー 帯の外へ ' + S.actualV + 'px ・ 下限 ' + S.vMin + 'px\n' +
     '  札: 実績との間隔 ' + S.labelGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  ポインタ: 矢印 一辺 ' + S.cur + 'px（いまの仕様は 24px）・ フェードの三角 ' + fadeCursorPx() + 'px\n' +
