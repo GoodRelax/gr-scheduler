@@ -81,6 +81,8 @@
     <h2>表示</h2>
     <div class="row">
       <label style="margin:0"><input id="showZones" type="checkbox" checked> 掴み代の面</label>
+      <label style="margin:0"><input id="showPlan" type="checkbox" checked> 予定</label>
+      <label style="margin:0"><input id="showActual" type="checkbox" checked> 実績</label>
       <label style="margin:0"><input id="showMarker" type="checkbox" checked> 進捗マーカー</label>
       <label style="margin:0"><input id="showName" type="checkbox" checked> タスク名</label>
       <label style="margin:0"><input id="showPercent" type="checkbox" checked> 進捗 ％</label>
@@ -230,6 +232,8 @@ function draw() {
   while (g.firstChild) g.removeChild(g.firstChild);
   zones = [];
   const day = dayPx(), bh = barH(), ah = actualH(), mk = markerPx(), dw = dummyPx();
+  // either side can be hidden; with the actual hidden every label measures against the plan
+  const showPlan = $('showPlan').checked, showActual = $('showActual').checked;
 
   // day grid
   for (let d = 0; d <= 60; d++) {
@@ -244,19 +248,24 @@ function draw() {
   const actX = xOf(t.actualStart), actW = t.actualDays * day, actY = ty + (bh - ah) / 2;
   label(g, 8, ty + bh / 2 + 4, '① 予実のあるタスク', 12);
   const planBand = band(ty, bh, S.planV), actBand = band(actY, ah, S.actualV);
-  zone(g, 'task-plan-start', 'planEnd', planX - S.s90, planBand.y, S.s90, planBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
-  zone(g, 'task-plan-end', 'planEnd', planX + planW, planBand.y, S.s90, planBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
-  zone(g, 'task-body', 'body', planX, ty, planW, bh, 'rgba(120,120,120,.22)', 'grab');
-  if (t.actualDays > 0) {
+  const useAct = showActual && t.actualDays > 0;
+  if (showPlan) {
+    zone(g, 'task-plan-start', 'planEnd', planX - S.s90, planBand.y, S.s90, planBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
+    zone(g, 'task-plan-end', 'planEnd', planX + planW, planBand.y, S.s90, planBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
+    zone(g, 'task-body', 'body', planX, ty, planW, bh, 'rgba(120,120,120,.22)', 'grab');
+  }
+  if (useAct) {
     zone(g, 'task-actual-start', 'actualEnd', actX, actBand.y, S.s91, actBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
     zone(g, 'task-actual-end', 'actualEnd', actX + actW - S.s91, actBand.y, S.s91, actBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   }
   const fadeInX = planX + Math.min(t.fadeIn * day, planW);          // T-012a point 4, it moves with the fade
   const fadeOutX = planX + planW - Math.min(t.fadeOut * day, planW); // T-012a point 2
-  zone(g, 'task-fade-in', 'fade', fadeInX - S.s92 / 2, ty - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('in'));
-  zone(g, 'task-fade-out', 'fade', fadeOutX - S.s92 / 2, ty + bh - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('out'));
+  if (showPlan) {
+    zone(g, 'task-fade-in', 'fade', fadeInX - S.s92 / 2, ty - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('in'));
+    zone(g, 'task-fade-out', 'fade', fadeOutX - S.s92 / 2, ty + bh - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('out'));
+  }
   const marked = $('showMarker').checked;
-  const alongX = t.actualDays > 0 ? actX : planX, alongW = t.actualDays > 0 ? actW : planW;
+  const alongX = useAct ? actX : planX, alongW = useAct ? actW : planW;
   const put = placeAlong(g, t, alongX, alongW, marked, mk);
   const mkX = put.markerX;
   if (marked) zone(g, 'task-marker' + (put.fits ? '-in' : ''), put.fits ? 'markerIn' : 'marker', mkX, ty + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
@@ -264,16 +273,20 @@ function draw() {
 
   // fades draw as a lighter wedge inside the plan bar
   // the bar itself is the trapezoid: point 4 slides right with the fade in, point 2 slides left with the fade out
-  el(g, 'path', { d: 'M ' + fadeInX + ' ' + ty + ' L ' + (planX + planW) + ' ' + ty +
-                     ' L ' + fadeOutX + ' ' + (ty + bh) + ' L ' + planX + ' ' + (ty + bh) + ' Z',
-                  fill: 'var(--plan)', stroke: 'var(--plan-edge)', 'stroke-width': 1 });
-  if (t.actualDays > 0) rect(g, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)');
+  if (showPlan) {
+    el(g, 'path', { d: 'M ' + fadeInX + ' ' + ty + ' L ' + (planX + planW) + ' ' + ty +
+                       ' L ' + fadeOutX + ' ' + (ty + bh) + ' L ' + planX + ' ' + (ty + bh) + ' Z',
+                    fill: 'var(--plan)', stroke: 'var(--plan-edge)', 'stroke-width': 1 });
+  }
+  if (useAct) rect(g, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)');
   if (marked) el(g, 'circle', { cx: mkX + mk / 2, cy: ty + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
-  rect(g, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
-  rect(g, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
+  if (showPlan) {
+    rect(g, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
+    rect(g, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
+  }
   // the name starts where the rule says: inside from the start when it fits, else outside from the end
   drawName(g, t, put.nameX, ty + bh / 2);
-  drawOutsideLabel(g, t, planX - S.labelGap, ty + bh / 2);
+  drawOutsideLabel(g, t, (showPlan ? planX : alongX) - S.labelGap, ty + bh / 2);
   label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut + ' 日 ・ マーカーは' + (put.fits ? '実績の中（開始のつまみと同居、押せば状態）' : '実績の右（引けば実績の終わり）'), 11);
 
   // ---- 2) an unstarted task with the dummy
@@ -281,30 +294,36 @@ function draw() {
   const uX = xOf(u.planStart), uW = u.planDays * day;
   label(g, 8, uy + bh / 2 + 4, '② 未着手（ダミー）', 12);
   const uBand = band(uy, bh, S.planV), dBand = band(uy + (bh - mk) / 2, mk, S.actualV);
-  zone(g, 'unset-plan-start', 'planEnd', uX - S.s90, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
-  zone(g, 'unset-plan-end', 'planEnd', uX + uW, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
-  zone(g, 'unset-body', 'body', uX, uy, uW, bh, 'rgba(120,120,120,.22)', 'grab');
+  if (showPlan) {
+    zone(g, 'unset-plan-start', 'planEnd', uX - S.s90, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
+    zone(g, 'unset-plan-end', 'planEnd', uX + uW, uBand.y, S.s90, uBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
+    zone(g, 'unset-body', 'body', uX, uy, uW, bh, 'rgba(120,120,120,.22)', 'grab');
+  }
   // the dummy is the actual that has not started yet: same cursors, same labels, and one drag
   // makes it a real actual -- undo or the property panel is what removes an actual again
   const uHas = u.actualDays > 0;
   const uActX = uHas ? xOf(u.actualStart) : uX, uActW = uHas ? u.actualDays * day : dw;
   const uaBand = uHas ? band(uy + (bh - actualH()) / 2, actualH(), S.actualV) : dBand;
   const uGrabW = uHas ? S.s91 : S.s91 + dw / 2;
-  zone(g, 'unset-dummy-start', 'dummy', uHas ? uActX : uActX - S.s91, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
-  zone(g, 'unset-dummy-end', 'dummy', uHas ? uActX + uActW - S.s91 : uActX + dw / 2, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
-  const putU = placeAlong(g, u, uActX, uActW, marked, mk);
+  if (showActual) {
+    zone(g, 'unset-dummy-start', 'dummy', uHas ? uActX : uActX - S.s91, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
+    zone(g, 'unset-dummy-end', 'dummy', uHas ? uActX + uActW - S.s91 : uActX + dw / 2, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
+  }
+  const putU = placeAlong(g, u, showActual ? uActX : uX, showActual ? uActW : uW, marked, mk);
   const uMkX = putU.markerX;
   if (marked) zone(g, 'unset-marker' + (putU.fits ? '-in' : ''), putU.fits ? 'markerIn' : 'marker', uMkX, uy + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
   FITS['unset-dummy-start'] = putU.fits;
-  rect(g, uX, uy, uW, bh, 'var(--plan)', 'var(--plan-edge)');
-  if (u.actualDays > 0) {
-    rect(g, xOf(u.actualStart), uy + (bh - actualH()) / 2, u.actualDays * day, actualH(), 'var(--actual)', 'var(--actual-edge)');
-  } else {
-    rect(g, uX, uy + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
+  if (showPlan) rect(g, uX, uy, uW, bh, 'var(--plan)', 'var(--plan-edge)');
+  if (showActual) {
+    if (u.actualDays > 0) {
+      rect(g, xOf(u.actualStart), uy + (bh - actualH()) / 2, u.actualDays * day, actualH(), 'var(--actual)', 'var(--actual-edge)');
+    } else {
+      rect(g, uX, uy + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
+    }
   }
   if (marked) el(g, 'circle', { cx: uMkX + mk / 2, cy: uy + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   drawName(g, u, putU.nameX, uy + bh / 2);
-  drawOutsideLabel(g, u, uX - S.labelGap, uy + bh / 2);
+  drawOutsideLabel(g, u, (showPlan ? uX : uActX) - S.labelGap, uy + bh / 2);
   label(g, LEFT, uy - 10, 'ダミー（掴み代は実績と同じ）の描く幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px（押せるのは片側 ' + (S.s91 + dw / 2).toFixed(2) + 'px）・ 引けばそのまま実績になる', 11);
 
   // ---- 3) a milestone: a plan diamond, an actual diamond (or the unstarted dummy)
@@ -313,17 +332,23 @@ function draw() {
   const hasMsActual = $('msActual').checked;
   label(g, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msBand = band(msY, bh, S.planV);
-  zone(g, 'ms', 'ms', msX - msR - S.msGrab, msBand.y, (msR + S.msGrab) * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
-  if (hasMsActual) {
+  if (showPlan) zone(g, 'ms', 'ms', msX - msR - S.msGrab, msBand.y, (msR + S.msGrab) * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
+  if (!showActual) {
+    // nothing to hold on the actual's side
+  } else if (hasMsActual) {
     const msActBand = band(msY + bh * 0.15, bh * 0.7, S.actualV);
     zone(g, 'ms-actual', 'actualEnd', msActX - msR * 0.7 - S.s91, msActBand.y, (msR * 0.7 + S.s91) * 2, msActBand.h, 'rgba(220,120,0,.30)', 'grab');
   } else {
     const dBand2 = band(msY + bh * 0.15, bh * 0.7, S.actualV);
     zone(g, 'ms-dummy', 'dummy', msX - msR * 0.7 - S.s91, dBand2.y, (msR * 0.7 + S.s91) * 2, dBand2.h, 'rgba(220,120,0,.30)', 'grab');
   }
-  el(g, 'path', { d: 'M ' + msX + ' ' + msY + ' L ' + (msX + msR) + ' ' + (msY + msR) + ' L ' + msX + ' ' + (msY + bh) +
-                     ' L ' + (msX - msR) + ' ' + (msY + msR) + ' Z', fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': 1 });
-  if (hasMsActual) {
+  if (showPlan) {
+    el(g, 'path', { d: 'M ' + msX + ' ' + msY + ' L ' + (msX + msR) + ' ' + (msY + msR) + ' L ' + msX + ' ' + (msY + bh) +
+                       ' L ' + (msX - msR) + ' ' + (msY + msR) + ' Z', fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': 1 });
+  }
+  if (!showActual) {
+    // the actual's side is hidden
+  } else if (hasMsActual) {
     const r2 = msR * 0.7;
     el(g, 'path', { d: 'M ' + msActX + ' ' + (msY + msR - r2) + ' L ' + (msActX + r2) + ' ' + (msY + msR) +
                        ' L ' + msActX + ' ' + (msY + msR + r2) + ' L ' + (msActX - r2) + ' ' + (msY + msR) + ' Z',
@@ -336,9 +361,9 @@ function draw() {
                     fill: 'var(--ms-dummy)', stroke: 'none' });
   }
   // the labels follow the ACTUAL (or the dummy when the milestone is unstarted), never the plan
-  const msFollowX = hasMsActual ? msActX : msX;
+  const msFollowX = showActual && hasMsActual ? msActX : msX;
   // the name starts a quarter of a glyph right of that centre, so short names still sit inside the shape
-  const msHalf = msR * 0.7;
+  const msHalf = showActual ? msR * 0.7 : msR;
   // the marker stands OUTSIDE the shape, so it never covers what the shape itself must answer
   const msAnchor = msFollowX + msHalf;
   if (marked) {
@@ -367,10 +392,13 @@ function draw() {
   const aBand = cut(band(planY - headH / 2, headH, S.planV), ay, splitY);
   // the grab is CENTRED on what it holds: the arrow's left end, and the middle of the `>` head
   const aHeadCx = aX + aW - head / 2;
-  zone(g, 'arrow-plan-start', 'planEnd', aX - S.s90 / 2, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
-  zone(g, 'arrow-plan-end', 'planEnd', aHeadCx - S.s90 / 2, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
-  zone(g, 'arrow-body', 'body', aX, aBand.y, aW, aBand.h, 'rgba(120,120,120,.22)', 'grab');
-  if (a.actualDays > 0) {
+  const useArrowAct = showActual && a.actualDays > 0;
+  if (showPlan) {
+    zone(g, 'arrow-plan-start', 'planEnd', aX - S.s90 / 2, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('left', false, S.cur));
+    zone(g, 'arrow-plan-end', 'planEnd', aHeadCx - S.s90 / 2, aBand.y, S.s90, aBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
+    zone(g, 'arrow-body', 'body', aX, aBand.y, aW, aBand.h, 'rgba(120,120,120,.22)', 'grab');
+  }
+  if (useArrowAct) {
     const abBand = cut(band(actY2 - headH * 0.4, headH * 0.8, S.actualV), splitY, ay + bh);
     // centred the same way as the plan's: on the left end, and on the middle of its own head
     const aHeadW = Math.min(shaft * 3, aActW), aActHeadCx = aActX + aActW - aHeadW / 2;
@@ -378,11 +406,11 @@ function draw() {
     zone(g, 'arrow-actual-end', 'actualEnd', aActHeadCx - S.s91 / 2, abBand.y, S.s91, abBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
   }
   // drawn with fill only -- no outline (the user's ruling of 2026-09-18)
-  el(g, 'path', { d: 'M ' + aX + ' ' + (planY - shaft / 2) + ' L ' + (aX + aW - head) + ' ' + (planY - shaft / 2) +
+  if (showPlan) el(g, 'path', { d: 'M ' + aX + ' ' + (planY - shaft / 2) + ' L ' + (aX + aW - head) + ' ' + (planY - shaft / 2) +
                      ' L ' + (aX + aW - head) + ' ' + (planY - shaft * 1.6) + ' L ' + (aX + aW) + ' ' + planY +
                      ' L ' + (aX + aW - head) + ' ' + (planY + shaft * 1.6) + ' L ' + (aX + aW - head) + ' ' + (planY + shaft / 2) +
                      ' L ' + aX + ' ' + (planY + shaft / 2) + ' Z', fill: 'var(--arrow-plan)', stroke: 'none' });
-  if (a.actualDays > 0) {
+  if (useArrowAct) {
     // the actual is an arrow as well, drawn a little thinner and without an outline
     const aHead = Math.min(shaft * 3, aActW), th = shaft * 0.8;
     el(g, 'path', { d: 'M ' + aActX + ' ' + (actY2 - th / 2) + ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 - th / 2) +
@@ -390,7 +418,7 @@ function draw() {
                        ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 + th * 1.6) + ' L ' + (aActX + aActW - aHead) + ' ' + (actY2 + th / 2) +
                        ' L ' + aActX + ' ' + (actY2 + th / 2) + ' Z', fill: 'var(--arrow-actual)', stroke: 'none' });
   }
-  const putA = placeAlongArrow(g, a, a.actualDays > 0 ? aActX : aX, marked, mk);
+  const putA = placeAlongArrow(g, a, useArrowAct ? aActX : aX, marked, mk);
   const aMkX = putA.markerX;
   const aLabelY = ay + bh * 0.1;   // above the plan (SH-3 puts the name over plan and actual)
   if (marked) {
@@ -398,7 +426,7 @@ function draw() {
     el(g, 'circle', { cx: aMkX + mk / 2, cy: aLabelY, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   }
   drawName(g, a, putA.nameX, aLabelY);
-  drawOutsideLabel(g, a, aX - S.labelGap, planY);
+  drawOutsideLabel(g, a, (showPlan ? aX : aActX) - S.labelGap, planY);
   label(g, LEFT, ay - 10, '矢印はフェードを持たず、縁取りも描かない。掴み代は形の高さに合わせ、予定と実績は中線で分ける。端の掴み代は左端と > の中心に中央合わせ、マーカーは幅によらず実績の開始に付く', 11);
 
   // ruler
@@ -455,9 +483,10 @@ stage.addEventListener('pointermove', e => {
     case 'task-actual-end': t.actualDays = clamp(t.actualDays + moved, 1, 55 - t.actualStart); break;
     case 'task-fade-in': t.fadeIn = clamp(t.fadeIn + moved, 0, t.planDays); break;
     case 'task-fade-out': t.fadeOut = clamp(t.fadeOut - moved, 0, t.planDays); break;
-    case 'task-marker': t.actualDays = clamp(t.actualDays + moved, 1, 55 - t.actualStart); break;
-    case 'unset-marker': u.actualDays = clamp((u.actualDays || 0) + moved, 1, 55 - u.planStart); u.actualStart = u.planStart; break;
-    case 'ms-marker': m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
+    // with the actual hidden there is nothing for the marker to drag
+    case 'task-marker': if (!$('showActual').checked) break; t.actualDays = clamp(t.actualDays + moved, 1, 55 - t.actualStart); break;
+    case 'unset-marker': if (!$('showActual').checked) break; u.actualDays = clamp((u.actualDays || 0) + moved, 1, 55 - u.planStart); u.actualStart = u.planStart; break;
+    case 'ms-marker': if (!$('showActual').checked) break; m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
     case 'unset-body': u.planStart = clamp(u.planStart + moved, 0, 55); break;
     case 'unset-plan-start': { const end = u.planStart + u.planDays; u.planStart = clamp(u.planStart + moved, 0, end - 1); u.planDays = end - u.planStart; break; }
     case 'unset-plan-end': u.planDays = clamp(u.planDays + moved, 1, 55 - u.planStart); break;
@@ -545,7 +574,7 @@ for (const id of SLIDERS) {
   out.textContent = input.value;
   input.addEventListener('input', () => { S[id] = Number(input.value); out.textContent = input.value; draw(); });
 }
-for (const id of ['showZones', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual']) {
+for (const id of ['showZones', 'showPlan', 'showActual', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual']) {
   $(id).addEventListener('change', draw);
 }
 $('reset').addEventListener('click', () => { M = JSON.parse(JSON.stringify(START)); draw(); });
