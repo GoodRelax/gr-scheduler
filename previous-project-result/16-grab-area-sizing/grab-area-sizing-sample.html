@@ -10,12 +10,17 @@
           --arrow-plan:#7aa9de; --arrow-actual:#10366b; --ms-actual:#8a5a00;
           --dep:#4b5563; --dep-picked:#d0342c; }
   html, body { height: 100%; }
-  body { margin: 0; background: #fff; color: var(--ink); font-size: 13px;
+  body { margin: 0; overflow: hidden; background: #fff; color: var(--ink); font-size: 13px;
          font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif; }
-  /* two panes side by side, each scrolling on its own: the picture stays in view while a slider moves */
-  .app { display: grid; grid-template-columns: minmax(0, 1fr) 480px; height: 100vh; }
-  .view { overflow: auto; padding: 12px 16px; }
-  .panel { overflow: auto; padding: 10px 14px; border-left: 1px solid var(--rule); background: #fafbfc; }
+  /* two panes side by side, each scrolling on its own in both directions: the picture stays in view while
+     a slider moves. The bar between them is dragged to set the panel's width (double click folds it) */
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 6px 480px; height: 100vh; }
+  .view { overflow: auto; }
+  .view > .inner { width: 904px; padding: 12px 16px; }
+  .split { cursor: col-resize; background: var(--rule); touch-action: none; }
+  .split:hover, .split.on { background: #9fb3cc; }
+  .panel { overflow: auto; background: #fafbfc; }
+  .panel > .inner { width: 452px; padding: 10px 14px; }
   h1 { font-size: 16px; margin: 0 0 2px; }
   p.note { color: var(--ink2); margin: 0 0 10px; max-width: 900px; }
   .panel h2 { font-size: 13px; margin: 12px 0 4px; }
@@ -39,7 +44,7 @@
   table.grab .none { color: #b8c0cc; text-align: center; }
   svg { border: 1px solid var(--rule); background: var(--ground); touch-action: none; }
   .legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 0; color: var(--ink2); }
-  .legend i { display: inline-block; width: 12px; height: 12px; border: 1px solid #555; margin-right: 4px; vertical-align: -2px; }
+  .legend i { display: inline-block; width: 14px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
   #hit { font-weight: 600; min-height: 18px; margin-top: 4px; }
   #summary { margin-top: 6px; padding: 6px 8px; background: #f4f6f9; border-radius: 4px; white-space: pre-wrap; font-size: 12px; max-width: 900px; }
   .cursorRow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
@@ -55,28 +60,22 @@
 </head>
 <body>
 <div class="app">
-<section class="view">
+<section class="view"><div class="inner">
 <h1>掴み代を触って決める</h1>
 <p class="note">
   <b>触れます。</b>バーの本体を横に引くと<b>予定だけ</b>が動きます（実績は事実なので、端を掴んで意志を持って動かします）。⑤の段では、本体を<b>上下</b>に引くと段が入れ替わります（予定と実績が一緒に移り、日付は変わりません）。
   <b>マーカーは押せば状態が巡り</b>（「7 問」の ② がオンなら表 T-021a の順）、<b>引いて実績の終わりを動かせるのは、マーカーが実績の右にいるときだけ</b>です。
   <b>依存線</b>は押すと選べます（Delete で消せる）。右の「依存線を構える」を押してから、結ぶ元のタスクの左半分（開始）か右半分（終了）を押し、結ぶ先のタスクの左半分か右半分で離すと、新しい線が引けます。
-  色の面が掴み代そのものです。<b>掴み代の値は操作対象ごとに独立していて</b>、右の表の 1 つのバーは 1 つの対象の 1 つの向きだけを動かします。規則と実測は同じフォルダの README.md にあります。
+  色の面が掴み代そのものです（縁取りなし。掴む物とは別の色相で薄く塗る）。<b>掴み代の値は操作対象ごとに独立していて</b>、右の表の 1 つのバーは 1 つの対象の 1 つの向きだけを動かします。
+  2 つのペインのあいだの棒を引くと右のペインの幅が変わり、ダブルクリックで畳む ／ 戻すことができます。規則と実測は同じフォルダの README.md にあります。
 </p>
 <svg id="stage" width="900" height="500" viewBox="0 0 900 500"></svg>
-<div class="legend">
-  <span><i style="background:rgba(30,110,220,.28)"></i>予定の端</span>
-  <span><i style="background:rgba(220,120,0,.30)"></i>実績の端・ダミー</span>
-  <span><i style="background:rgba(0,150,90,.30)"></i>マーカー</span>
-  <span><i style="background:rgba(200,30,60,.30)"></i>フェード</span>
-  <span><i style="background:rgba(75,85,99,.25)"></i>依存線</span>
-  <span><i style="background:rgba(120,120,120,.22)"></i>本体（動かす）</span>
-</div>
+<div class="legend" id="legend"></div>
 <div id="hit">&nbsp;</div>
 <div id="summary"></div>
-</section>
-
-<aside class="panel">
+</div></section>
+<div class="split" id="split" title="引いて右のペインの幅を変える。ダブルクリックで畳む ／ 戻す"></div>
+<aside class="panel"><div class="inner">
   <h2>掴み代（操作対象ごと。px、幅の ％ は菱形の幅に対する比）</h2>
   <div id="grabTable"></div>
   <div class="hint">外側 ＝ 描いた端から外へ ／ 内側 ＝ 描いた端から内へ ／ 上下 ＝ 描いた帯から上と下へ ／ 幅 ＝ 中心に置く掴み代の幅（フェードは正方形の一辺）。— の欄はその対象に無い。</div>
@@ -139,7 +138,7 @@
     <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
     <button id="reset" type="button">形を元に戻す</button>
   </div>
-</aside>
+</div></aside>
 </div>
 
 <script>
@@ -262,8 +261,14 @@ let armed = false;      // the palette's dependency tool is armed
 let pending = null;     // a line being drawn: { from, side, x, y, px, py }
 
 const LEFT = 120, TOP = { task: 52, unset: 150, arrow: 236, ms: 316, stack: 392 }, RULER = 476;
-const BLUE = 'rgba(30,110,220,.28)', MSBLUE = 'rgba(30,110,220,.20)', ORANGE = 'rgba(220,120,0,.30)',
-      GREEN = 'rgba(0,150,90,.30)', PINK = 'rgba(200,30,60,.30)', GREY = 'rgba(120,120,120,.22)', DEPZ = 'rgba(75,85,99,.25)';
+// grab areas are drawn pale and without an outline, in a hue away from the thing they grab:
+// plan (pale blue bar, gold diamond) magenta; actual (blue bar, purple dummy) orange; a milestone's actual
+// (brown diamond) blue; marker (green ring) yellow-green; fade (red square) cyan; dependency line (grey) violet.
+// The body's grab is the drawn shape itself, so it is not painted: a tint would only grey the bar
+const ZC = { plan: 'hsla(320,80%,55%,.24)', actual: 'hsla(28,95%,50%,.26)', msActual: 'hsla(215,85%,50%,.22)',
+             marker: 'hsla(70,90%,42%,.32)', fade: 'hsla(185,90%,40%,.30)', dep: 'hsla(265,70%,58%,.22)', body: null };
+const ZONE_LEGEND = [['plan', '予定の端・◆ の予定'], ['actual', '実績の端・ダミー'], ['msActual', '◆ の実績・ダミー'],
+                     ['marker', '進捗マーカー'], ['fade', 'フェード'], ['dep', '依存線'], ['body', '本体（描いた形そのもの。塗らない）']];
 
 function ratio() { return S.scale / 100; }
 function dayPx() { return S.dayPx * ratio(); }
@@ -315,9 +320,9 @@ function label(parent, x, y, s, size, anchor) {
 
 // ---------------------------------------------------------------- grab areas and drawn shapes
 let zones = [];
+// a grab area is recorded here and painted later, in one layer over every drawn shape (see draw)
 function zone(g, id, kind, x, y, w, h, fill, cursor, info) {
-  if ($('showZones').checked) rect(g, x, y, w, h, fill, '#555', '2 2');
-  const z = { id, kind, x, y, w: Math.max(0, w), h: Math.max(0, h), cursor, info };
+  const z = { id, kind, x, y, w: Math.max(0, w), h: Math.max(0, h), fill, cursor, info };
   zones.push(z);
   return z;
 }
@@ -415,7 +420,7 @@ function drawMarker(g, cx, cy, r, state) {
 // the marker's grab: the drawn square, plus its own `out` all round
 function markerZone(g, id, kind, x, y, mk) {
   const o = GRAB.marker.out;
-  return zone(g, id, kind, x - o, y - o, mk + o * 2, mk + o * 2, GREEN, 'pointer');
+  return zone(g, id, kind, x - o, y - o, mk + o * 2, mk + o * 2, ZC.marker, 'pointer');
 }
 
 // ---------------------------------------------------------------- one `===` task, drawn by one rule set
@@ -433,30 +438,30 @@ function drawBarTask(g, key, ty, opts) {
 
   if (showPlan) {
     const b0 = band(ty, bh, P0.v), b1 = band(ty, bh, P1.v);
-    zone(g, key + '-plan-start', 'planEnd', planX - P0.out, b0.y, P0.out + P0.in, b0.h, BLUE, arrowCursor('left', false, S.cur));
-    zone(g, key + '-plan-end', 'planEnd', planX + planW - P1.in, b1.y, P1.in + P1.out, b1.h, BLUE, arrowCursor('right', false, S.cur));
-    zone(g, key + '-body', 'body', planX, ty, planW, bh, GREY, 'grab');
+    zone(g, key + '-plan-start', 'planEnd', planX - P0.out, b0.y, P0.out + P0.in, b0.h, ZC.plan, arrowCursor('left', false, S.cur));
+    zone(g, key + '-plan-end', 'planEnd', planX + planW - P1.in, b1.y, P1.in + P1.out, b1.h, ZC.plan, arrowCursor('right', false, S.cur));
+    zone(g, key + '-body', 'body', planX, ty, planW, bh, ZC.body, 'grab');
   }
   const fadeInX = planX + Math.min(q.fadeIn * day, planW);            // T-012a point 4, it moves with the fade
   const fadeOutX = planX + planW - Math.min(q.fadeOut * day, planW);  // T-012a point 2
   if (showPlan && opts.fades) {
     const fi = GRAB.fadeIn.w, fo = GRAB.fadeOut.w;
-    zone(g, key + '-fade-in', 'fade', fadeInX - fi / 2, ty - fi / 2, fi, fi, PINK, fadeCursor('in'));
-    zone(g, key + '-fade-out', 'fade', fadeOutX - fo / 2, ty + bh - fo / 2, fo, fo, PINK, fadeCursor('out'));
+    zone(g, key + '-fade-in', 'fade', fadeInX - fi / 2, ty - fi / 2, fi, fi, ZC.fade, fadeCursor('in'));
+    zone(g, key + '-fade-out', 'fade', fadeOutX - fo / 2, ty + bh - fo / 2, fo, fo, ZC.fade, fadeCursor('out'));
   }
   // table RF: the labels measure against the actual, else the dummy, else (actual hidden) the plan
   const refX = useAct ? actX : planX, refW = useAct ? actW : useDummy ? dw : planW;
   const put = placeAlong(g, q, refX, refW, marked, mk);
   if (useAct) {
     const b0 = band(actY, ah, A0.v), b1 = band(actY, ah, A1.v);
-    zone(g, key + '-actual-start', 'actualEnd', actX - A0.out, b0.y, A0.out + startGrab(put.fits, marked, mk), b0.h, ORANGE, arrowCursor('left', true, S.cur));
-    zone(g, key + '-actual-end', 'actualEnd', actX + actW - A1.in, b1.y, A1.in + A1.out, b1.h, ORANGE, arrowCursor('right', true, S.cur));
+    zone(g, key + '-actual-start', 'actualEnd', actX - A0.out, b0.y, A0.out + startGrab(put.fits, marked, mk), b0.h, ZC.actual, arrowCursor('left', true, S.cur));
+    zone(g, key + '-actual-end', 'actualEnd', actX + actW - A1.in, b1.y, A1.in + A1.out, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   } else if (useDummy) {
     // the dummy is the actual that has not started (JDG-186); the mark is split at its centre (JDG-37).
     // Question 1: a dummy start `out` of 0 keeps left of the plan start the plan's (JDG-04 / JDG-19)
     const mid = ty + (bh - mk) / 2, b0 = band(mid, mk, D0.v), b1 = band(mid, mk, D1.v);
-    zone(g, key + '-dummy-start', 'dummy', planX - D0.out, b0.y, D0.out + dw / 2, b0.h, ORANGE, arrowCursor('left', true, S.cur));
-    zone(g, key + '-dummy-end', 'dummy', planX + dw / 2, b1.y, dw / 2 + D1.out, b1.h, ORANGE, arrowCursor('right', true, S.cur));
+    zone(g, key + '-dummy-start', 'dummy', planX - D0.out, b0.y, D0.out + dw / 2, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
+    zone(g, key + '-dummy-end', 'dummy', planX + dw / 2, b1.y, dw / 2 + D1.out, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   }
   if (marked) markerZone(g, key + '-marker' + (put.fits ? '-in' : ''), put.fits ? 'markerIn' : 'marker', put.markerX, ty + (bh - mk) / 2, mk);
 
@@ -520,7 +525,7 @@ function drawDeps(g) {
     for (let j = 0; j + 1 < pts.length; j++) {
       const [x0, y0] = pts[j], [x1, y1] = pts[j + 1];
       const z = zone(g, 'dep' + i + '-' + j, 'dep', Math.min(x0, x1) - o, Math.min(y0, y1) - o,
-                     Math.abs(x1 - x0) + o * 2, Math.abs(y1 - y0) + o * 2, DEPZ, 'pointer', info);
+                     Math.abs(x1 - x0) + o * 2, Math.abs(y1 - y0) + o * 2, ZC.dep, 'pointer', info);
       z.seg = [x0, y0, x1, y1];
       z.dep = i;
     }
@@ -573,15 +578,15 @@ function draw() {
   label(g, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msPlanHalf = msR * (GRAB.msPlan.w / 100), mpBand = band(msY, bh, GRAB.msPlan.v);
   if (showPlan) {
-    zone(g, 'ms', 'ms', msX - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, MSBLUE, 'grab');
-    zone(g, 'ms2', 'ms', ms2X - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, MSBLUE, 'grab');
+    zone(g, 'ms', 'ms', msX - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, 'grab');
+    zone(g, 'ms2', 'ms', ms2X - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, 'grab');
   }
   const T = hasMsActual ? GRAB.msActual : GRAB.msDummy;
   const msActHalf = msR * 0.7 + T.out;
   if (showActual) {
     const b2 = band(msY + bh * 0.15, bh * 0.7, T.v), cx = hasMsActual ? msActX : msX;
-    if (hasMsActual) zone(g, 'ms-actual', 'actualEnd', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ORANGE, 'grab');
-    else zone(g, 'ms-dummy', 'dummy', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ORANGE, 'grab');
+    if (hasMsActual) zone(g, 'ms-actual', 'actualEnd', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
+    else zone(g, 'ms-dummy', 'dummy', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
   }
   const diamond = (cx, r, fill, stroke) => el(g, 'path', { d: 'M ' + cx + ' ' + (msY + msR - r) + ' L ' + (cx + r) + ' ' + (msY + msR) +
     ' L ' + cx + ' ' + (msY + msR + r) + ' L ' + (cx - r) + ' ' + (msY + msR) + ' Z', fill, stroke: stroke || 'none', 'stroke-width': 1 });
@@ -628,15 +633,15 @@ function draw() {
   const useArrowAct = showActual && a.actualDays > 0;
   if (showPlan) {
     const b0 = planBand(GRAB.aPlanStart.v), b1 = planBand(GRAB.aPlanEnd.v), body = planBand(0);
-    zone(g, 'arrow-plan-start', 'planEnd', aX - GRAB.aPlanStart.w / 2, b0.y, GRAB.aPlanStart.w, b0.h, BLUE, arrowCursor('left', false, S.cur));
-    zone(g, 'arrow-plan-end', 'planEnd', aHeadCx - GRAB.aPlanEnd.w / 2, b1.y, GRAB.aPlanEnd.w, b1.h, BLUE, arrowCursor('right', false, S.cur));
-    zone(g, 'arrow-body', 'body', aX, body.y, aW, body.h, GREY, 'grab');
+    zone(g, 'arrow-plan-start', 'planEnd', aX - GRAB.aPlanStart.w / 2, b0.y, GRAB.aPlanStart.w, b0.h, ZC.plan, arrowCursor('left', false, S.cur));
+    zone(g, 'arrow-plan-end', 'planEnd', aHeadCx - GRAB.aPlanEnd.w / 2, b1.y, GRAB.aPlanEnd.w, b1.h, ZC.plan, arrowCursor('right', false, S.cur));
+    zone(g, 'arrow-body', 'body', aX, body.y, aW, body.h, ZC.body, 'grab');
   }
   if (useArrowAct) {
     const b0 = actBand(GRAB.aActualStart.v), b1 = actBand(GRAB.aActualEnd.v);
     const aHeadW = Math.min(shaft * 3, aActW), aActHeadCx = aActX + aActW - aHeadW / 2;
-    zone(g, 'arrow-actual-start', 'actualEnd', aActX - GRAB.aActualStart.w / 2, b0.y, GRAB.aActualStart.w, b0.h, ORANGE, arrowCursor('left', true, S.cur));
-    zone(g, 'arrow-actual-end', 'actualEnd', aActHeadCx - GRAB.aActualEnd.w / 2, b1.y, GRAB.aActualEnd.w, b1.h, ORANGE, arrowCursor('right', true, S.cur));
+    zone(g, 'arrow-actual-start', 'actualEnd', aActX - GRAB.aActualStart.w / 2, b0.y, GRAB.aActualStart.w, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
+    zone(g, 'arrow-actual-end', 'actualEnd', aActHeadCx - GRAB.aActualEnd.w / 2, b1.y, GRAB.aActualEnd.w, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   }
   const arrowPath = (x, w, y, th, hd) => 'M ' + x + ' ' + (y - th / 2) + ' L ' + (x + w - hd) + ' ' + (y - th / 2) +
     ' L ' + (x + w - hd) + ' ' + (y - th * 1.6) + ' L ' + (x + w) + ' ' + y + ' L ' + (x + w - hd) + ' ' + (y + th * 1.6) +
@@ -673,6 +678,11 @@ function draw() {
   label(g, LEFT, TOP.stack - 10, '隙間 ＝ 1px ＋ 依存線 ' + DEP_W + 'px ＋ 1px ＝ ' + STACK_GAP + 'px（JDG-148）。本体を上下に引くと段が入れ替わる（日付は変わらない）。依存線は隙間を通る', 11);
 
   drawDeps(g);
+  // grab areas lie over the drawn shapes, so a grab inside a bar shows as a pale tint of that bar
+  if ($('showZones').checked) {
+    const zg = el(g, 'g', {});
+    for (const z of zones) if (z.fill) rect(zg, z.x, z.y, z.w, z.h, z.fill);
+  }
   if (pending) {
     el(g, 'line', { x1: pending.x, y1: pending.y, x2: pending.px, y2: pending.py, stroke: 'var(--dep-picked)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' });
   }
@@ -968,6 +978,33 @@ function drawCursorLegend() {
     '"><br>フェード ' + (dir === 'in' ? '入' : '出') + '<br>' + fadeCursorPx() + 'px</div>').join('');
 }
 
+// ---------------------------------------------------------------- the bar between the panes sets the panel's width
+const app = document.querySelector('.app'), split = $('split');
+const PANEL_KEY = 'grabSample.panelW';
+let panelW = 480, keptW = 480;
+try { const w = localStorage.getItem(PANEL_KEY); if (w !== null && isFinite(Number(w))) panelW = Number(w); } catch (_) {}
+function setPanelW(w, save) {
+  panelW = clamp(Math.round(w), 0, Math.max(0, window.innerWidth - 6));
+  app.style.gridTemplateColumns = 'minmax(0, 1fr) 6px ' + panelW + 'px';
+  if (save) { try { localStorage.setItem(PANEL_KEY, String(panelW)); } catch (_) {} }
+}
+split.addEventListener('pointerdown', e => { split.setPointerCapture(e.pointerId); split.classList.add('on'); e.preventDefault(); });
+split.addEventListener('pointermove', e => { if (split.classList.contains('on')) setPanelW(window.innerWidth - e.clientX - 3); });
+function endSplit(e) {
+  if (!split.classList.contains('on')) return;
+  split.classList.remove('on');
+  try { split.releasePointerCapture(e.pointerId); } catch (_) {}
+  setPanelW(panelW, true);
+}
+split.addEventListener('pointerup', endSplit);
+split.addEventListener('pointercancel', endSplit);
+split.addEventListener('dblclick', () => {
+  if (panelW > 0) { keptW = panelW; setPanelW(0, true); } else setPanelW(keptW || 480, true);
+});
+window.addEventListener('resize', () => setPanelW(panelW));
+setPanelW(panelW);
+
+$('legend').innerHTML = ZONE_LEGEND.map(([k, n]) => '<span>' + (ZC[k] ? '<i style="background:' + ZC[k] + '"></i>' : '') + n + '</span>').join('');
 buildGrabTable();
 for (const id of SLIDERS) {
   const input = $(id), out = $(id + 'Out');
