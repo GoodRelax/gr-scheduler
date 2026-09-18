@@ -107,6 +107,7 @@ const START = {
   unset: { planStart: 4, planDays: 16, name: '結合試験', percent: 0, assignee: '試験担当' },
   arrow: { planStart: 6, planDays: 14, actualStart: 6, actualDays: 8, name: '設計レビュー', percent: 40, assignee: '設計担当' },
   ms:    { day: 26, actualDay: 24, name: 'リリース判定', percent: 0, assignee: '品質担当' },
+  ms2:   { day: 32 },   // a neighbour: zoomed out its grab overlaps the one above
 };
 let M = JSON.parse(JSON.stringify(START));
 
@@ -355,6 +356,13 @@ function draw() {
     el(g, 'path', { d: 'M ' + msX + ' ' + msY + ' L ' + (msX + msR) + ' ' + (msY + msR) + ' L ' + msX + ' ' + (msY + bh) +
                        ' L ' + (msX - msR) + ' ' + (msY + msR) + ' Z', fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': 1 });
   }
+  // the neighbour, plan only: at a small day width the two plans hold the same pixels
+  const ms2X = xOf(M.ms2.day);
+  if (showPlan) {
+    zone(g, 'ms2', 'ms', ms2X - msPlanHalf, msBand.y, msPlanHalf * 2, msBand.h, 'rgba(30,110,220,.20)', 'grab');
+    el(g, 'path', { d: 'M ' + ms2X + ' ' + msY + ' L ' + (ms2X + msR) + ' ' + (msY + msR) + ' L ' + ms2X + ' ' + (msY + bh) +
+                       ' L ' + (ms2X - msR) + ' ' + (msY + msR) + ' Z', fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': 1 });
+  }
   if (!showActual) {
     // the actual's side is hidden
   } else if (hasMsActual) {
@@ -383,7 +391,9 @@ function draw() {
   drawName(g, M.ms, marked ? msAnchor + mk + S.labelGap : msFollowX + bh * 0.25, msY + bh / 2);
   drawOutsideLabel(g, M.ms, msFollowX - bh * 0.25 - S.labelGap, msY + bh / 2);
   label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）') +
-    ' ・ 掴み代 予定 中心 ±' + msPlanHalf.toFixed(1) + 'px / 実績 中心 ±' + msActHalf.toFixed(1) + 'px', 11);
+    ' / 隣のマイルストーン ' + M.ms2.day + ' 日目' +
+    ' ・ 掴み代 予定 中心 ±' + msPlanHalf.toFixed(1) + 'px / 実績 中心 ±' + msActHalf.toFixed(1) +
+    'px ・ 重なったら中心の近い方が応える', 11);
 
   // ---- 4) an arrow task (SH-3 `--->`): no outline, the actual sits close under the plan,
   //          and the name stands ABOVE the plan, aligned with the actual when one is drawn
@@ -449,11 +459,16 @@ function hitAt(x, y) {
   // a marker INSIDE the actual yields to the end grabs: the actual's start must stay reachable
   const order = ['fade', 'marker', 'dummy', 'actualEnd', 'planEnd', 'markerIn', 'ms', 'body'];
   for (const kind of order) {
+    // crowded milestones overlap: of the ones holding the point, the nearest centre answers
+    let best = null, bestGap = Infinity;
     for (let i = zones.length - 1; i >= 0; i--) {
       const z = zones[i];
       if (z.kind !== kind) continue;
-      if (x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h) return z;
+      if (x < z.x || x > z.x + z.w || y < z.y || y > z.y + z.h) continue;
+      const gap = Math.abs(x - (z.x + z.w / 2));
+      if (gap < bestGap) { bestGap = gap; best = z; }
     }
+    if (best) return best;
   }
   return null;
 }
@@ -515,6 +530,7 @@ stage.addEventListener('pointermove', e => {
     case 'arrow-actual-start': { const e2 = m.arrow.actualStart + m.arrow.actualDays; m.arrow.actualStart = clamp(m.arrow.actualStart + moved, 0, e2 - 1); m.arrow.actualDays = e2 - m.arrow.actualStart; break; }
     case 'arrow-actual-end': m.arrow.actualDays = clamp(m.arrow.actualDays + moved, 1, 55 - m.arrow.actualStart); break;
     case 'ms': m.ms.day = clamp(m.ms.day + moved, 0, 55); break;
+    case 'ms2': m.ms2.day = clamp(m.ms2.day + moved, 0, 55); break;
     case 'ms-actual': m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
     case 'ms-dummy':
       if (moved === 0) break;
