@@ -186,6 +186,9 @@ function measureName(g, name) {
 // `===` bars: the plan, the actual and the labels share one vertical centre, so a label that
 // does not fit would cover the plan. The marker follows the actual's START while the marker and
 // the name both fit its width, and its FINISH once they do not. The name always follows the marker.
+// the grab on the actual's start stops at the marker's centre when the marker stands there,
+// so the marker's right half always answers the pointer (the user's ruling of 2026-09-18)
+function startGrab(fits, marked, mk) { return marked && fits ? Math.min(S.s91, mk / 2) : S.s91; }
 function placeAlong(g, item, barX, barW, marked, mk) {
   const showName = $('showName').checked && item.name;
   const nameW = showName ? measureName(g, item.name) : 0;
@@ -254,10 +257,6 @@ function draw() {
     zone(g, 'task-plan-end', 'planEnd', planX + planW, planBand.y, S.s90, planBand.h, 'rgba(30,110,220,.28)', arrowCursor('right', false, S.cur));
     zone(g, 'task-body', 'body', planX, ty, planW, bh, 'rgba(120,120,120,.22)', 'grab');
   }
-  if (useAct) {
-    zone(g, 'task-actual-start', 'actualEnd', actX, actBand.y, S.s91, actBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
-    zone(g, 'task-actual-end', 'actualEnd', actX + actW - S.s91, actBand.y, S.s91, actBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
-  }
   const fadeInX = planX + Math.min(t.fadeIn * day, planW);          // T-012a point 4, it moves with the fade
   const fadeOutX = planX + planW - Math.min(t.fadeOut * day, planW); // T-012a point 2
   if (showPlan) {
@@ -265,11 +264,15 @@ function draw() {
     zone(g, 'task-fade-out', 'fade', fadeOutX - S.s92 / 2, ty + bh - S.s92 / 2, S.s92, S.s92, 'rgba(200,30,60,.30)', fadeCursor('out'));
   }
   const marked = $('showMarker').checked;
-  const alongX = useAct ? actX : planX, alongW = useAct ? actW : planW;
+  const useDummy = showActual && t.actualDays === 0;   // the marker walked it back to unstarted
+  const alongX = useAct ? actX : planX, alongW = useAct ? actW : (useDummy ? dw : planW);
   const put = placeAlong(g, t, alongX, alongW, marked, mk);
   const mkX = put.markerX;
+  if (useAct) {
+    zone(g, 'task-actual-start', 'actualEnd', actX, actBand.y, startGrab(put.fits, marked, mk), actBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
+    zone(g, 'task-actual-end', 'actualEnd', actX + actW - S.s91, actBand.y, S.s91, actBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
+  }
   if (marked) zone(g, 'task-marker' + (put.fits ? '-in' : ''), put.fits ? 'markerIn' : 'marker', mkX, ty + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
-  FITS['task-actual-start'] = put.fits;
 
   // fades draw as a lighter wedge inside the plan bar
   // the bar itself is the trapezoid: point 4 slides right with the fade in, point 2 slides left with the fade out
@@ -279,6 +282,7 @@ function draw() {
                     fill: 'var(--plan)', stroke: 'var(--plan-edge)', 'stroke-width': 1 });
   }
   if (useAct) rect(g, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)');
+  if (useDummy) rect(g, planX, ty + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)');
   if (marked) el(g, 'circle', { cx: mkX + mk / 2, cy: ty + bh / 2, r: Math.max(2, mk / 2 - 1), fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
   if (showPlan) {
     rect(g, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
@@ -287,7 +291,7 @@ function draw() {
   // the name starts where the rule says: inside from the start when it fits, else outside from the end
   drawName(g, t, put.nameX, ty + bh / 2);
   drawOutsideLabel(g, t, (showPlan ? planX : alongX) - S.labelGap, ty + bh / 2);
-  label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut + ' 日 ・ マーカーは' + (put.fits ? '実績の中（開始のつまみと同居、押せば状態）' : '実績の右（引けば実績の終わり）'), 11);
+  label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut + ' 日 ・ マーカーは' + (put.fits ? '実績の中（開始のつまみは ' + startGrab(put.fits, marked, mk) + 'px まで、右半分はマーカー）' : '実績の右（引けば実績の終わり）'), 11);
 
   // ---- 2) an unstarted task with the dummy
   const u = M.unset, uy = TOP.unset;
@@ -305,14 +309,13 @@ function draw() {
   const uActX = uHas ? xOf(u.actualStart) : uX, uActW = uHas ? u.actualDays * day : dw;
   const uaBand = uHas ? band(uy + (bh - actualH()) / 2, actualH(), S.actualV) : dBand;
   const uGrabW = uHas ? S.s91 : S.s91 + dw / 2;
-  if (showActual) {
-    zone(g, 'unset-dummy-start', 'dummy', uHas ? uActX : uActX - S.s91, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
-    zone(g, 'unset-dummy-end', 'dummy', uHas ? uActX + uActW - S.s91 : uActX + dw / 2, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
-  }
   const putU = placeAlong(g, u, showActual ? uActX : uX, showActual ? uActW : uW, marked, mk);
   const uMkX = putU.markerX;
+  if (showActual) {
+    zone(g, 'unset-dummy-start', 'dummy', uHas ? uActX : uActX - S.s91, uaBand.y, uHas ? startGrab(putU.fits, marked, mk) : uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('left', true, S.cur));
+    zone(g, 'unset-dummy-end', 'dummy', uHas ? uActX + uActW - S.s91 : uActX + dw / 2, uaBand.y, uGrabW, uaBand.h, 'rgba(220,120,0,.30)', arrowCursor('right', true, S.cur));
+  }
   if (marked) zone(g, 'unset-marker' + (putU.fits ? '-in' : ''), putU.fits ? 'markerIn' : 'marker', uMkX, uy + (bh - mk) / 2, mk, mk, 'rgba(0,150,90,.30)', 'pointer');
-  FITS['unset-dummy-start'] = putU.fits;
   if (showPlan) rect(g, uX, uy, uW, bh, 'var(--plan)', 'var(--plan-edge)');
   if (showActual) {
     if (u.actualDays > 0) {
@@ -448,8 +451,6 @@ function hitAt(x, y) {
   return null;
 }
 
-// which rows draw their marker inside the actual, so a click there still means the state
-const FITS = {};
 let drag = null;
 const stage = $('stage');
 function pointAt(e) {
@@ -529,24 +530,28 @@ function cycleState(rawId) {
   }
   const item = id === 'task-marker' ? m.task : id === 'unset-marker' ? m.unset : id === 'arrow-marker' ? m.arrow : null;
   if (!item) return;
-  const days = item.actualDays || 0;
-  if (days === 0) { item.actualStart = item.planStart; item.actualDays = 1; item.percent = 50; }
-  else if (item.percent < 100) { item.actualDays = item.planDays; item.percent = 100; }
-  else { item.actualDays = 0; item.percent = 0; }
+  // a press changes the STATE, never the drawn actual. Becoming unstarted stands the dummy in its
+  // place and remembers what was there; the next press brings that very actual back.
+  if (item.actualDays === 0) {
+    const back = item.kept || { start: item.planStart, days: 1 };
+    item.actualStart = back.start; item.actualDays = back.days; item.percent = 50;
+  } else if (item.percent < 100) {
+    item.percent = 100;
+  } else {
+    item.kept = { start: item.actualStart, days: item.actualDays };
+    item.actualDays = 0; item.percent = 0;
+  }
   M = m;
   draw();
   $('hit').textContent = '押して状態を巡らせた: ' + (item.actualDays === 0 ? '未着手' : item.percent + '%');
 }
-// a press that never moved is a click. On a marker it walks the state round; on the start grab
-// that an inside marker shares, it does the same, so the state stays reachable there too
-const SHARED_MARKER = { 'task-actual-start': 'task-marker', 'unset-dummy-start': 'unset-marker' };
+// a press that never moved is a click, and on a marker it walks the state round
 function endDrag(e) {
   if (!drag) return;
   const still = drag.moved === 0, id = drag.id;
   drag = null;
   try { stage.releasePointerCapture(e.pointerId); } catch (_) {}
   if (still && id.includes('-marker')) { cycleState(id); return; }
-  if (still && SHARED_MARKER[id] && $('showMarker').checked && FITS[id]) { cycleState(SHARED_MARKER[id]); return; }
   draw();
 }
 stage.addEventListener('pointerup', endDrag);
