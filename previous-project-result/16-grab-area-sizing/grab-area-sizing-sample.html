@@ -71,8 +71,8 @@
 <h1>掴み代を触って決める</h1>
 <p class="note">
   <b>触れます。</b>バーの本体を横に引くと<b>予定だけ</b>が動きます（実績は事実なので、端を掴んで意志を持って動かします）。⑤の段では、本体を<b>上下</b>に引くと段が入れ替わります（予定と実績が一緒に移り、日付は変わりません）。
-  <b>マーカーは押せば状態が巡り</b>（「7 問」の ② がオンなら表 T-021a の順）、<b>引いて実績の終わりを動かせるのは、マーカーが実績の右にいるときだけ</b>です。
-  <b>依存線</b>は押すと選べます（Delete で消せる）。右の「依存線を構える」を押してから、結ぶ元のタスクの左半分（開始）か右半分（終了）を押し、結ぶ先のタスクの左半分か右半分で離すと、新しい線が引けます。
+  <b>マーカーは押せば状態が巡り</b>（未着手 → 進行中 → 完了 → 中断 → 未着手。㉟）、<b>引いて実績の終わりを動かせるのは、=== でマーカーが実績（未着手ならダミー）の右にいるときだけ</b>です（㉚）。
+  <b>依存線</b>は押すと選べます（Delete で消せる）。右の「依存線を構える」を押してから、結ぶ元のタスクのどこか（予定・実績・マーカー・名前・札）を押し、結ぶ先のタスクのどこかで離すと、新しい線が引けます（開始か終了かは、予定の中点より左か右か。㉝）。
   色の面が掴み代そのものです（縁取りなし。掴む物とは別の色相で薄く塗る）。<b>掴み代の値は操作対象ごとに独立していて</b>、右の表の 1 つのバーは 1 つの対象の 1 つの向きだけを動かします。
   2 つのペインのあいだの棒を引くと右のペインの幅が変わり、ダブルクリックで畳む ／ 戻すことができます。規則と実測は同じフォルダの README.md にあります。
 </p>
@@ -95,6 +95,7 @@
     <label style="margin:0"><input id="showAssignee" type="checkbox" checked> 担当者</label>
     <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
     <label style="margin:0"><input id="showDeps" type="checkbox" checked> 依存線</label>
+    <label style="margin:0"><input id="showNote" type="checkbox" checked> ハイライトボックス</label>
     <button id="reset" type="button">形を元に戻す</button>
   </div>
   <h3>大きさ</h3>
@@ -103,10 +104,10 @@
   <label><span class="name">予定バーの高さ（S-4）</span><input id="barH" type="range" min="12" max="64" step="0.8" value="28"><output id="barHOut"></output></label>
   <div class="hint">描く寸法のつまみ（バーの高さ・マーカーの径・札の余白・依存線の形・---> の段の間）は<b>仕様の単位</b>（文書に保存する値）で持ち、表示の倍率 100 で × 0.625 して描く（DS-1）。つまみの横に描いた px を出す。既定は、今まで画面で見て決めた大きさを 0.625 で割った値。掴み代とポインタの大きさには掛けない（DS-7・T-264）ので、画面の px のまま。「全体のズーム」は表示の倍率、「1 日の幅」は見るためのつまみ（描いた px）。</div>
   <h3>進捗マーカー（=== ・ ---> ・ ◆ に共通）</h3>
-  <label><span class="name">マーカーの描く径（S-22）</span><input id="markerSize" type="range" min="8" max="40" step="0.8" value="22.4"><output id="markerSizeOut"></output></label>
-  <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。---> のマーカーはこの値に従わず、名前の字の大きさで描く（FR-094）。</div>
+  <label><span class="name">マーカーの描く径（S-22）</span><input id="markerSize" type="range" min="12" max="28" step="0.8" value="22.4"><output id="markerSizeOut"></output></label>
+  <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。---> のマーカーはこの値に従わず、名前の字の大きさで描く（FR-094）。上限は予定バーの高さ（㉔、決まった）—— 予定バーを低くすると、マーカーもそこで止まる。下限は字の床 12（S-8）。</div>
   <div id="grab-common"></div>
-  <div class="hint">再開アイコン（中断のあいだだけ描く。案）: いつも実績の右に立つ —— 再開日があれば実績の帯の中心線の再開日に立ち、停止日から破線で繋ぐ。未定なら停止日の翌日（実績のすぐ右）に小さく薄く立つ。名前とマーカーが実績に入らないときは、実績 → アイコン → マーカー → 名前 の順。大きさはマーカーと同じ（--->は名前の字）。引けば再開日が変わる（停止日より前には置けない）。マーカーを押して 完了 → 中断 にすると、未定のアイコンが出る。</div>
+  <div class="hint">再開アイコン（中断のあいだだけ描く。㉖ で決まった）: いつも実績の右に立つ —— 再開日があれば実績の帯の中心線の再開日に立ち、停止日から破線で繋ぐ。未定なら停止日の翌日（実績のすぐ右）に小さく薄く立つ。名前とマーカーが実績に入らないときは、実績 → アイコン → マーカー → 名前 の順。大きさはマーカーと同じ（--->は名前の字）。引けば再開日が変わる（停止日より前には置けない）。マーカーを押して 完了 → 中断 にすると、未定のアイコンが出る。</div>
   <label><span class="name">再開アイコンのポインタ（px）</span><input id="resumeCur" type="range" min="6" max="24" step="1" value="12"><output id="resumeCurOut"></output></label>
   <div class="hint">ポインタは再開アイコンと同じ折れ矢印（黒の中・白の縁。実績の側のポインタの色）。押さえる点は折れ目 ＝ アイコンが表す再開日の左の境目。既定は小さめの 12px（端の矢印の 16px の 75%）。</div>
   <div class="cursorRow" id="cursor-common"></div>
@@ -144,7 +145,14 @@
   <label><span class="name">線の太さ</span><input id="arrowLine" type="range" min="0.8" max="8" step="0.4" value="2.8"><output id="arrowLineOut"></output></label>
   <label><span class="name">矢じりの横幅（長さ）</span><input id="arrowHeadLen" type="range" min="0" max="24" step="0.4" value="5.6"><output id="arrowHeadLenOut"></output></label>
   <label><span class="name">矢じりの縦幅（高さ）</span><input id="arrowHeadH" type="range" min="0" max="24" step="0.4" value="5.6"><output id="arrowHeadHOut"></output></label>
+  <label><span class="name">線だけの形</span><select id="arrowKind">
+    <option value="arrow" selected>矢印（--->）</option>
+    <option value="span">端点スパン（●───●）</option></select></label>
+  <label><span class="name">端点スパンの点の径</span><input id="spanDot" type="range" min="1.6" max="16" step="0.4" value="6.4"><output id="spanDotOut"></output></label>
   <div class="hint">2 つの間は、描いた線と線のあいだ（名前の段の下端 ＝ 字の大きさの箱の下端 → 予定の線の上の縁、予定の線の下の縁 → 実績の線の上の縁）。0 で接する。矢じりが線より高いと、その差の半分ずつが上下の間へはみ出す。線の太さ・矢じりの横幅・矢じりの縦幅は、それぞれ独立の値（1 値 1 役）。矢じりの横幅は矢の長さの 0.4 倍で頭打ち（S-46）。名前の段の高さは字の大きさで、マーカーの径も同じ（FR-094）。図の上の見出しに、3 段の縦幅と === のバーの高さを出す。</div>
+  <div class="hint">端点スパンは同じ 3 段で、矢じりの代わりに両端へ点を置く。点の径は独立の値（㉕、決まった）で、既定 6.4（描いて 4px）は今の見た目（線 2.8 × 2.3）。掴み代は開始の点と終了の点の中心に中央合わせ。中断中の実績は、矢印が矢じりを付けないのと同じ理由で、終わりの点を付けない。</div>
+  <div class="hint">未着手の ---> は、3 段目の予定の開始に 1 日の印（ダミー。幅 ＝ マーカーの径 × 0.5）を描く。掴み代は実績の端と同じ値で、端ごとに中央合わせ 12。重なる所は印の真ん中で分ける（㉘、決まった）。「設計レビュー」のマーカーを 1 回押すと未着手になって印が出る。</div>
+  <div class="hint">矢印だけの行も、行の床（バーの高さと、行の見出しのボタンの格子）より低くはならない。3 段が低いことが効くのは、段を積んだ行である（㉞、決まった）。</div>
   <h3>掴み代</h3>
   <div id="grab-arrow"></div>
   <h3>ポインタ</h3>
@@ -181,19 +189,25 @@
     <button id="arm" type="button">依存線を構える</button>
     <button id="delDep" type="button">選んだ線を消す</button>
   </div>
-  <div class="hint">構えたら、結ぶ元のタスクの予定の左半分（開始）か右半分（終了）を押し、結ぶ先の予定の左半分か右半分で離す。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。依存線は予定に対して設定する情報なので、予定に付き、予定を表示していないときは描かない（引けない）。依存線を隠しているあいだは、構えることも消すこともできない（表示の切り替えはいちばん上の「表示」）。</div>
+  <div class="hint">構えたら、結ぶ元のタスクのどこか（予定・実績・マーカー・名前・札）を押し、結ぶ先のタスクのどこかで離す。開始か終了かは、ポインタが予定の中点より左か右かで決まる（表 T-018、㉝ で決まった）。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。依存線は予定に対して設定する情報なので、予定に付き、予定を表示していないときは描かない（引けない）。依存線を隠しているあいだは、構えることも消すこともできない（表示の切り替えはいちばん上の「表示」）。</div>
   <h3>ポインタ</h3>
   <div class="hint">細い線の矢印（白の中・黒の縁、角張った縁）。大きさは === の節の「端の矢印 一辺」と同じ。</div>
   <div class="cursorRow" id="cursor-dep"></div>
+  </section>
+
+  <section class="sec"><h2>ハイライトボックス（注記）</h2>
+  <h3>掴み代</h3>
+  <div id="grab-note"></div>
+  <div class="hint">⑤ の行を囲む枠（範囲を囲う注記）。枠線とその近くだけが枠を掴み、引けば日付の向きに動く。四隅は枠の左右の端を動かす。<b>枠の中は素通し</b>で、中のタスクは普段どおり掴める（㉗、決まった）。注記は日程の形より先に応えるが、それは枠線の近くと四隅だけである。</div>
   </section>
 
   <section class="sec"><h2>7 問（推奨と今までの形を比べる）</h2>
   <div class="qs">
     <div class="qrow">① ダミーの掴み代（決まった: 実績と同じ既定、定数は別）<button type="button" data-set="dummyStart.out=0,dummyStart.in=12,dummyEnd.out=0,dummyEnd.in=12">実績と同じ</button><button type="button" data-set="dummyStart.out=12">前の形（開始の外側 12）</button></div>
     <label><span class="name">② マーカーを押したときの巡り</span><select id="q2">
-      <option value="ring" selected>案: 進み順の輪（・ へ戻る）</option>
+      <option value="ring" selected>進み順の輪（決まった。・ へ戻る）</option>
       <option value="t021a">表 T-021a のまま（・ には戻らない）</option></select></label>
-    <div class="hint">表 T-021a は「未着手 → 完了 → 中断 → 進行中 → 完了 → …」で、未着手へ戻すことを禁じる（戻すと人が置いた実績が消える）。案は作業の進み順の輪で、中断 → 未着手 で実績を覚えて外し、次の押下で戻す。代償: 1 日の作業の完了は 2 押し（・ → 進行中 → 完了）、中断からの再開も ・ を通る 2 押し。</div>
+    <div class="hint">㉟ で進み順の輪に決まった（2026-09-19）。比べるために表 T-021a も選べる。表 T-021a は「未着手 → 完了 → 中断 → 進行中 → 完了 → …」で、未着手へ戻すことを禁じる（戻すと人が置いた実績が消える）。案は作業の進み順の輪で、中断 → 未着手 で実績を覚えて外し、次の押下で戻す。代償: 1 日の作業の完了は 2 押し（・ → 進行中 → 完了）、中断からの再開も ・ を通る 2 押し。</div>
     <div class="hint">③（JDG-27 の扱い）は記録だけの問いなので、見本の挙動は変わらない。</div>
     <div class="qrow">④ 予定の開始・終了の上下（=== と矢印）<button type="button" data-set="planStart.v=0,planEnd.v=0,aPlanStart.v=0,aPlanEnd.v=0">裁定 0</button><button type="button" data-set="planStart.v=12,planEnd.v=12,aPlanStart.v=12,aPlanEnd.v=12">GS-3 の 12</button></div>
     <div class="hint">④は利用者が 0 に決めた（2026-09-19）。「GS-3 の 12」は、隣が無い向きに S-90 の 12px を当てる仕様の形を比べるためのボタン。</div>
@@ -207,12 +221,21 @@
       <option value="end" selected>終了側だけ 実績の終了の内側を取る（決まった）</option>
       <option value="fr002">FR-002 のまま（S-31・S-32・S-23・実績の両端の内側）</option>
       <option value="none">マーカー ＋ 間隔 ＋ 名前（今までの形）</option></select></label>
-    <label><input id="gs1" type="checkbox" checked> 描いた形の上は、その形のタスクだけが応える（GS-1。仕様のまま）</label>
+    <label><input id="gs1" type="checkbox" checked> 描いた形の上は、その形のタスクだけが応える（GS-1。仕様のまま。---> の「形の上」は線ごとの帯 —— ㉜、決まった）</label>
     <label><span class="name">⑦ 形の外の依存線</span><select id="q7">
       <option value="fade" selected>フェードが先、次に線（決まった）</option>
       <option value="gs4">線が先（GS-4 のまま）</option>
       <option value="t023d">表 T-023d の並びのまま（線は実績の端より後）</option></select></label>
     <div class="hint">⑦は決まった: 形の外では、フェードの掴み点が先、次に依存線、その後はほかの種類（GS-4 にフェードの掴み点の例外を置く）。フェードの掴み点は選んだタスクにだけ出る（FR-075）ので、利用者がそのタスクを直そうとしているときだけの話であり、線はほかのどこでも選べる。</div>
+    <label><span class="name">㊱ 再開日が先のときの札</span><select id="q36">
+      <option value="near" selected>案: 札は実績のすぐ右。アイコンと重なるときだけアイコンの右へ</option>
+      <option value="after">いつも アイコン → マーカー → 名前（札がアイコンの日まで離れる）</option></select></label>
+    <div class="hint">㊱（新しい問い）: 名前が実績に入らないタスクで、再開日が先に決まっていると、「いつも アイコン → マーカー → 名前」ではマーカーと名前が再開日まで離れる（再開日が 3 週間先なら 3 週間右）。今の仕様は「アイコンのために並びの中に場所を空けない」（MUST NOT）で、名前を形の近くに出す裁定もある。案は、札を実績のすぐ右に置き、アイコンと重なるときだけアイコンの右へ送る —— 未定のアイコン（実績のすぐ右）では今までと同じ 実績 → アイコン → マーカー → 名前 になる。破線は札の下を通る。「準備」の再開アイコンを右へ遠く（例えば 50 日目）引き、1 日の幅を 6px ほどに狭くして比べる（再開日が近いと、どちらもアイコンの右に札が立つ）。</div>
+    <label><span class="name">㊲ 引ける進捗マーカーのポインタ</span><select id="q37">
+      <option value="finger" selected>指（押す役の形。今の形）</option>
+      <option value="arrow">実績の終了の矢印 → 黒（引く役の形）</option></select></label>
+    <div class="hint">㊲（新しい問い）: 実績の右（未着手ならダミーの右）に立つ === のマーカーは、押せば状態が巡り、引けば実績の終わりが動く。ポインタは「何を掴み、引けば何が動くか」を示す（FR-106）が、今は押す役の「指」。引く役を示すなら実績の終了と同じ矢印になる。②の行の「結合試験」のマーカー（ダミーの右に立つ）に乗せて比べる。</div>
+    <div class="hint">㉔〜㉟（2026-09-19 に全部決まった）の見どころ: ㉔ マーカーの径の上限は予定バーの高さ ／ ㉕ ---> の節の「線だけの形」を端点スパンに ／ ㉖ 「準備」「設計レビュー」の再開アイコン ／ ㉗ ⑤ の行のハイライトボックス ／ ㉘ 「設計レビュー」のマーカーを 1 回押して未着手に ／ ㉙ 見本に複数の選択と行の移動が無いので示さない ／ ㉚ 「結合試験」のマーカーは引けば実績を作る。◆ のマーカーは引いても実績を動かさない ／ ㉛ ◆ の予定を縦に引くと、移る先の行を点線で示す ／ ㉜ ---> の「形の上」は線ごとの帯 ／ ㉝ 依存線はタスクのどこでも結べる ／ ㉞ 見本の --->は 1 段なので示さない ／ ㉟ ② の既定。</div>
   </div>
   </section>
 </div></aside>
@@ -229,11 +252,11 @@ const $ = id => document.getElementById(id);
 // day's width is only a way to look at the sample
 const S = { scale:100, dayPx:12, barH:28, markerSize:22.4, namePad:9.6, nameAfterMarker:9.6, msNameAfterMarker:9.6, outsideGap:6.4,
             labelFont:90, cur:16, msCur:12, msActCur:8, resumeCur:12, depRunOut:9.6, depRunIn:16, arrowLen:9.6, arrowWidth:8,
-            arrowNameGap:2, arrowActualGap:2, arrowLine:2.8, arrowHeadLen:5.6, arrowHeadH:5.6, stackBH:100 };
+            arrowNameGap:2, arrowActualGap:2, arrowLine:2.8, arrowHeadLen:5.6, arrowHeadH:5.6, spanDot:6.4, stackBH:100 };
 const SLIDERS = Object.keys(S);
 const SCALED = ['barH', 'markerSize', 'namePad', 'nameAfterMarker', 'msNameAfterMarker', 'outsideGap',
                 'depRunOut', 'depRunIn', 'arrowLen', 'arrowWidth', 'arrowNameGap', 'arrowActualGap',
-                'arrowLine', 'arrowHeadLen', 'arrowHeadH'];
+                'arrowLine', 'arrowHeadLen', 'arrowHeadH', 'spanDot'];
 
 // ---------------------------------------------------------------- grab areas, one set of values per thing grabbed
 // out = beyond the drawn end, in = inside from the drawn end, v = above and below the drawn band,
@@ -259,7 +282,13 @@ const GRAB = {
   aPlanEnd:     { w: 12, v: 0 },             //          and on the middle of `>`
   aActualStart: { w: 12, v: 0 },
   aActualEnd:   { w: 12, v: 0 },
+  // question 28: the `--->` dummy has values of its own, the `--->` actual's by default (JDG-213 carried over)
+  aDummyStart:  { w: 12, v: 0 },
+  aDummyEnd:    { w: 12, v: 0 },
   dep:          { out: 2 },                  // from the drawn line's edges, either side: 1.5 + 2 x 2 = 5.5 px across
+  // question 27: a highlight box is grabbed on its frame line only (FR-019), and at its corners (S-230)
+  noteFrame:    { out: 6 },                  // S-137: either side of the frame line
+  noteCorner:   { w: 12 },                   // S-230 (= S-137): a square centred on each corner
 };
 const GRAB_START = JSON.parse(JSON.stringify(GRAB));
 const GRAB_ROWS = [
@@ -277,10 +306,14 @@ const GRAB_ROWS = [
   { sec: 'arrow', key: 'aPlanEnd', name: '予定の終了', note: '> の中心を中心に' },
   { sec: 'arrow', key: 'aActualStart', name: '実績の開始' },
   { sec: 'arrow', key: 'aActualEnd', name: '実績の終了' },
+  { sec: 'arrow', key: 'aDummyStart', name: 'ダミーの開始', note: '印の左端を中心に。既定は実績の開始と同じ' },
+  { sec: 'arrow', key: 'aDummyEnd', name: 'ダミーの終了', note: '印の右端を中心に。既定は実績の終了と同じ' },
   { sec: 'ms', key: 'msPlan', name: '予定', note: '幅 ＝ 菱形の幅に対する ％' },
   { sec: 'ms', key: 'msActual', name: '実績' },
   { sec: 'ms', key: 'msDummy', name: 'ダミー' },
   { sec: 'dep', key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
+  { sec: 'note', key: 'noteFrame', name: '枠', note: '外側 ＝ 枠線から内と外へそれぞれ' },
+  { sec: 'note', key: 'noteCorner', name: '四隅', note: '幅 ＝ 隅に中央を合わせた正方形の一辺' },
 ];
 const PARAMS = [['out', '外側'], ['in', '内側'], ['v', '上下'], ['w', '幅']];
 function rangeOf(key, param) {
@@ -290,7 +323,7 @@ function rangeOf(key, param) {
   return [0, 24, 1];
 }
 function buildGrabTable() {
-  for (const sec of ['common', 'bar', 'arrow', 'ms', 'dep']) {
+  for (const sec of ['common', 'bar', 'arrow', 'ms', 'dep', 'note']) {
     const rows = GRAB_ROWS.filter(r => r.sec === sec);
     const cols = PARAMS.filter(([p]) => rows.some(r => p in GRAB[r.key]));   // only the directions this subject has
     let html = '<table class="grab"><tr><th>対象</th>' + cols.map(p => '<th>' + p[1] + '</th>').join('') + '</tr>';
@@ -349,6 +382,7 @@ const START = {
   k2: { planStart: 31, planDays: 9, actualStart: 0, actualDays: 0, fadeIn: 0, fadeOut: 0, name: '作業', percent: 0, assignee: '担当 B', state: 'unstarted' },
   k3: { planStart: 26, planDays: 10, actualStart: 26, actualDays: 10, fadeIn: 0, fadeOut: 0, name: '確認', percent: 100, assignee: '担当 C', state: 'done' },
   stack: ['k1', 'k2', 'k3'],
+  note: { from: 24, to: 42 },   // a highlight box round the stacked row, in days
   deps: [ { from: 'task', to: 'unset', type: 'FS' }, { from: 'k1', to: 'k2', type: 'FS' }, { from: 'k2', to: 'k3', type: 'SS' } ],
 };
 let M = JSON.parse(JSON.stringify(START));
@@ -362,9 +396,10 @@ const LEFT = 120, TOP = { task: 52, unset: 150, arrow: 236, ms: 316, stack: 392 
 // (brown diamond) blue; marker (green ring) yellow-green; fade (red square) cyan; dependency line (grey) violet.
 // The body's grab is the drawn shape itself, so it is not painted: a tint would only grey the bar
 const ZC = { plan: 'hsla(320,80%,55%,.24)', actual: 'hsla(28,95%,50%,.26)', msActual: 'hsla(215,85%,50%,.22)',
-             marker: 'hsla(70,90%,42%,.32)', fade: 'hsla(185,90%,40%,.30)', dep: 'hsla(265,70%,58%,.22)', body: null };
+             marker: 'hsla(70,90%,42%,.32)', fade: 'hsla(185,90%,40%,.30)', dep: 'hsla(265,70%,58%,.22)', note: 'hsla(150,70%,38%,.26)', body: null };
 const ZONE_LEGEND = [['plan', '予定の端・◆ の予定'], ['actual', '実績の端・ダミー'], ['msActual', '◆ の実績・ダミー'],
-                     ['marker', '進捗マーカー・再開アイコン'], ['fade', 'フェード'], ['dep', '依存線'], ['body', '本体（描いた形そのもの。塗らない）']];
+                     ['marker', '進捗マーカー・再開アイコン'], ['fade', 'フェード'], ['dep', '依存線'], ['note', 'ハイライトボックスの枠・四隅'],
+                     ['body', '本体（描いた形そのもの。塗らない）']];
 
 function ratio() { return S.scale / 100; }
 function dayPx() { return S.dayPx * ratio(); }
@@ -379,6 +414,7 @@ function arrowFont() { return Math.max(spx(FONT_MIN), arrowPlanH() * AOP * (S.la
 // the dummy mark: the marker times S-247, never wider than S-180 (a grab-side value, not scaled: DS-7)
 function dummyPx() { return Math.min(markerPx() * 0.5, 30); }
 function xOf(day) { return LEFT + day * dayPx(); }
+function msRowPitch() { return barH() * 2; }   // how far a vertical drag goes for one row (the sample's nominal row)
 function dayAt(x) { return (x - LEFT) / dayPx(); }
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
@@ -524,6 +560,13 @@ const PAINT_NAMES = { guide: '目盛・行の見出し', bars: '予定・実績�
 let L = {};   // the <g> of each paint layer, rebuilt by draw()
 
 // ---------------------------------------------------------------- labels
+// where each name and assignee label was drawn: the dependency tool reads a label as its task (question 33)
+let labelBoxes = [];
+function keyOf(item) { return Object.keys(M).find(k => M[k] === item); }
+function keepLabelBox(item, t) {
+  const b = t.getBBox();
+  labelBoxes.push({ owner: keyOf(item), x: b.x, y: b.y, w: b.width, h: b.height });
+}
 function measureName(g, name) {
   const t = el(g, 'text', { x: -9999, y: -9999, 'font-size': barFont() });
   t.textContent = name;
@@ -565,6 +608,7 @@ function drawName(g, item, x, centerY, size) {
   const t = el(g, 'text', { x, y: centerY + size * 0.36, 'font-size': size, fill: '#16181d',
     'font-weight': 600, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': size * 0.1 });
   t.textContent = item.name;
+  keepLabelBox(item, t);
 }
 // OC-2 / OR-1: assignee and percent are ONE label, right-aligned left of the earlier start (JDG-182),
 // joined by a colon with one space either side (FR-090)
@@ -577,6 +621,7 @@ function drawOutsideLabel(g, item, rightX, centerY, size) {
   const t = el(g, 'text', { x: rightX, y: centerY + size * 0.36, 'font-size': size, fill: '#16181d',
     'text-anchor': 'end', 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': size * 0.1 });
   t.textContent = bits.join(' : ');
+  keepLabelBox(item, t);
 }
 // the marker glyph of table T-021 (shown once the T-021a cycle is on)
 function drawMarker(g, cx, cy, r, state) {
@@ -608,20 +653,21 @@ function drawResumeDash(g, x0, x1, y) {
   el(g, 'line', { x1: x0, y1: y, x2: x1, y2: y, stroke: 'var(--actual-edge)', 'stroke-width': 1.2,
     'stroke-dasharray': spx(RESUME_DASH[0]) + ' ' + spx(RESUME_DASH[1]) });
 }
-// the icon's grab: its box plus `out`, cut to [top, bottom]; the day it stands for rides on the zone for dragging
-function resumeZone(g, id, x, cy, side, day, top, bottom) {
+// the icon's grab: a box the marker's size (JDG-39: the icon's hit is the marker's size, R:3462) plus `out`, cut
+// to [top, bottom], even while the undecided icon is drawn smaller; the day it stands for rides on the zone
+function resumeZone(g, id, x, cy, side, drawnSide, day, top, bottom) {
   const o = GRAB.resume.out, y0 = Math.max(cy - side / 2 - o, top), y1 = Math.min(cy + side / 2 + o, bottom);
   const z = zone(g, id, 'resume', x - o, y0, side + o * 2, Math.max(0, y1 - y0), ZC.marker, resumeCursor(), '再開アイコン（' + day + ' 日目から）');
-  z.drawn = { x, y: cy - side / 2, s: side };
+  z.drawn = { x, y: cy - drawnSide / 2, s: drawnSide };
   z.resumeDay = day;
   return z;
 }
 
 // the marker's grab: the drawn square, plus its own `out` all round. The drawn square is kept for table HT:
 // on it the marker answers before a fade's grab point (question 10)
-function markerZone(g, id, kind, x, y, mk) {
+function markerZone(g, id, kind, x, y, mk, cursor) {
   const o = GRAB.marker.out;
-  const z = zone(g, id, kind, x - o, y - o, mk + o * 2, mk + o * 2, ZC.marker, 'pointer');
+  const z = zone(g, id, kind, x - o, y - o, mk + o * 2, mk + o * 2, ZC.marker, cursor || 'pointer');
   z.drawn = { x, y, s: mk };
   return z;
 }
@@ -659,10 +705,19 @@ function drawBarTask(g, key, ty, opts) {
   const resumeX = !resumeOn ? 0 : decided ? xOf(q.resume) : actX + actW;
   // table RF: the labels measure against the actual, else the dummy, else (actual hidden) the plan
   const refX = useAct ? actX : planX, refW = useAct ? actW : useDummy ? dw : planW;
-  const put = placeAlong(g, q, refX, refW, marked, mk, resumeOn ? Math.max(refX + refW, resumeX + rSide) : undefined);
+  // where the labels start when they do not fit (question 36): right of the icon's box always ("after"), or right
+  // of the actual, sent right of the icon only when their run would reach it ("near"; the undecided icon stands
+  // on the day after the stop, so it is always reached and the order stays actual, icon, marker, name)
+  let endX;
+  if (resumeOn) {
+    const a0 = refX + refW, iconR = resumeX + mk;
+    const runW = nameLead(marked, mk) + ($('showName').checked && q.name ? measureName(g, q.name) : 0);
+    endX = $('q36').value === 'after' || a0 + runW > resumeX ? Math.max(a0, iconR) : a0;
+  }
+  const put = placeAlong(g, q, refX, refW, marked, mk, endX);
   if (resumeOn) {
     const cy = ty + bh / 2, day = decided ? q.resume : q.actualStart + q.actualDays;
-    resumeZone(g, key + '-resume', resumeX, cy, rSide, day, -Infinity, Infinity);
+    resumeZone(g, key + '-resume', resumeX, cy, mk, rSide, day, -Infinity, Infinity);
     drawResume(L.markers, resumeX, cy, rSide, !decided);
   }
   if (useAct) {
@@ -681,7 +736,11 @@ function drawBarTask(g, key, ty, opts) {
     zone(g, key + '-dummy-start', 'dummy', planX - D0.out, b0.y, D0.out + in0, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
     zone(g, key + '-dummy-end', 'dummy', planX + dw - in1, b1.y, in1 + D1.out, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   }
-  if (marked) markerZone(g, key + '-marker' + (put.fits ? '-in' : ''), put.fits ? 'markerIn' : 'marker', put.markerX, ty + (bh - mk) / 2, mk);
+  // a `===` marker right of the actual (or of the dummy) also drags the actual's finish (question 30), except while
+  // suspended; question 37 asks whether its pointer shows that
+  const drags = !put.fits && showActual && q.state !== 'paused';
+  if (marked) markerZone(g, key + '-marker' + (put.fits ? '-in' : ''), put.fits ? 'markerIn' : 'marker', put.markerX, ty + (bh - mk) / 2, mk,
+                         drags && $('q37').value === 'arrow' ? arrowCursor('right', true, S.cur) : 'pointer');
 
   if (showPlan) {
     if (opts.fades) {
@@ -768,7 +827,7 @@ function segDistance(z, x, y) {
 function draw() {
   const g = $('stage');
   while (g.firstChild) g.removeChild(g.firstChild);
-  zones = []; shapes = []; ANCHOR = {};
+  zones = []; shapes = []; ANCHOR = {}; labelBoxes = [];
   // one <g> per paint layer, back to front; the line being drawn with the tool always stays on top
   L = {};
   for (const name of PAINT_ORDER) L[name] = el(g, 'g', { 'data-layer': name });
@@ -827,6 +886,13 @@ function draw() {
     diamond(cx, msR * AOP, hasMsActual ? 'var(--ms-actual)' : 'var(--ms-dummy)');   // the dummy differs by contrast alone
     shapes.push({ owner: 'ms', kind: 'diamond', cx, cy: msY + msR, r: msR * AOP });
   }
+  // question 31: a vertical drag on the plan diamond moves plan and actual together to another row, dates unchanged.
+  // The sample has no second milestone row, so the row it would land on shows as a dashed outline while dragging
+  if (drag && drag.id === 'ms' && drag.slots) {
+    const gy = msY + msR + drag.slots * msRowPitch();
+    el(L.tool, 'path', { d: 'M ' + msX + ' ' + (gy - msR) + ' L ' + (msX + msR) + ' ' + gy + ' L ' + msX + ' ' + (gy + msR) + ' L ' + (msX - msR) + ' ' + gy + ' Z',
+      fill: 'none', stroke: '#555', 'stroke-width': 1, 'stroke-dasharray': '3 2' });
+  }
   const msFollowX = showActual && hasMsActual ? msActX : msX;   // labels follow the actual, never the plan
   const msHalf = showActual ? msR * AOP : msR;
   const msAnchor = msFollowX + msHalf;                          // the marker stands outside the glyph
@@ -855,12 +921,16 @@ function draw() {
   const aX = xOf(a.planStart), aW = a.planDays * day;
   const aActX = xOf(a.actualStart), aActW = a.actualDays * day;
   const line = spx(S.arrowLine), headH = spx(S.arrowHeadH);
-  const headOf = span => Math.min(spx(S.arrowHeadLen), span * HEAD_OF_SPAN);
-  // a suspended actual has no finish yet: its line ends flat at the stop, and the resume icon carries the head
+  // question 25 (user ruling 2026-09-19): the endpoint span (SH-4) is the same three rows with a dot on each end
+  // instead of a head; the dot's diameter is a value of its own, like the line and the head (one value, one role)
+  const span = $('arrowKind').value === 'span', dot = spx(S.spanDot);
+  const headOf = w => span ? 0 : Math.min(spx(S.arrowHeadLen), w * HEAD_OF_SPAN);
+  // a suspended actual has no finish yet: its line ends flat at the stop (no head, no end dot), and the resume
+  // icon stands right of it
   const aPaused = showActual && a.actualDays > 0 && a.state === 'paused';
   const head = headOf(aW), actHead = aPaused ? 0 : headOf(aActW);
   const aFont = arrowFont(), aMk = aFont;
-  const half = Math.max(line, headH) / 2;                              // an arrow's drawn half height, head included
+  const half = Math.max(line, span ? dot : headH) / 2;                 // a line's drawn half height, head or dot included
   const aLabelY = ay + aFont / 2;                                      // row 1
   const planY = ay + aFont + spx(S.arrowNameGap) + line / 2;           // row 2: the plan line's centre
   const actY2 = planY + line + spx(S.arrowActualGap);                  // row 3: the actual line's centre
@@ -869,8 +939,13 @@ function draw() {
   const cut = (b, top, bottom) => { const y = Math.max(b.y, top); return { y, h: Math.max(0, Math.min(b.y + b.h, bottom) - y) }; };
   const planBand = v => cut(band(planY - half, half * 2, v), -Infinity, splitY);
   const actBand = v => cut(band(actY2 - half, half * 2, v), splitY, Infinity);
-  const aHeadCx = aX + aW - head / 2;   // grabs are CENTRED on the left end and on the middle of `>`
+  // grabs are CENTRED on the start and on the finish: an arrow's left end and the middle of `>`, a span's dots
+  const aHeadCx = span ? aX + aW : aX + aW - head / 2;
   const useArrowAct = showActual && a.actualDays > 0;
+  // question 28: an unstarted `--->` draws the dummy on row 3 -- a one-day mark at the plan's start, half the
+  // marker wide -- and grabs it with the actual's values, each end centred; where the two meet they split at the
+  // mark's middle (the nearer centre, question 5)
+  const useArrowDummy = showActual && a.actualDays === 0, adw = aMk * 0.5;
   if (showPlan) {
     const b0 = planBand(GRAB.aPlanStart.v), b1 = planBand(GRAB.aPlanEnd.v), body = planBand(0);
     zone(g, 'arrow-plan-start', 'planEnd', aX - GRAB.aPlanStart.w / 2, b0.y, GRAB.aPlanStart.w, b0.h, ZC.plan, arrowCursor('left', false, S.cur));
@@ -878,21 +953,37 @@ function draw() {
     zone(g, 'arrow-body', 'body', aX, body.y, aW, body.h, ZC.body, 'grab');
   }
   if (useArrowAct) {
-    const b0 = actBand(GRAB.aActualStart.v), b1 = actBand(GRAB.aActualEnd.v), aActHeadCx = aActX + aActW - actHead / 2;
+    const b0 = actBand(GRAB.aActualStart.v), b1 = actBand(GRAB.aActualEnd.v);
+    const aActHeadCx = span ? aActX + aActW : aActX + aActW - actHead / 2;
     zone(g, 'arrow-actual-start', 'actualEnd', aActX - GRAB.aActualStart.w / 2, b0.y, GRAB.aActualStart.w, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
     zone(g, 'arrow-actual-end', 'actualEnd', aActHeadCx - GRAB.aActualEnd.w / 2, b1.y, GRAB.aActualEnd.w, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
+  } else if (useArrowDummy) {
+    const b0 = actBand(GRAB.aDummyStart.v), b1 = actBand(GRAB.aDummyEnd.v);
+    zone(g, 'arrow-dummy-start', 'dummy', aX - GRAB.aDummyStart.w / 2, b0.y, GRAB.aDummyStart.w, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
+    zone(g, 'arrow-dummy-end', 'dummy', aX + adw - GRAB.aDummyEnd.w / 2, b1.y, GRAB.aDummyEnd.w, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   }
   // a line of width `th` to the head's base, then the head: `hd` long and the head's height tall
   const arrowPath = (x, w, y, th, hd) => { const hh = headH / 2; return 'M ' + x + ' ' + (y - th / 2) + ' L ' + (x + w - hd) + ' ' + (y - th / 2) +
     ' L ' + (x + w - hd) + ' ' + (y - hh) + ' L ' + (x + w) + ' ' + y + ' L ' + (x + w - hd) + ' ' + (y + hh) +
     ' L ' + (x + w - hd) + ' ' + (y + th / 2) + ' L ' + x + ' ' + (y + th / 2) + ' Z'; };
+  // a span: the line, then a dot centred on each end (none on a suspended finish)
+  const drawSpan = (x, w, y, fill, endDot) => {
+    rect(L.bars, x, y - line / 2, w, line, fill);
+    el(L.bars, 'circle', { cx: x, cy: y, r: dot / 2, fill });
+    if (endDot) el(L.bars, 'circle', { cx: x + w, cy: y, r: dot / 2, fill });
+  };
   if (showPlan) {
-    el(L.bars, 'path', { d: arrowPath(aX, aW, planY, line, head), fill: 'var(--arrow-plan)', stroke: 'none' });   // no outline (JDG-185)
-    shapes.push({ owner: 'arrow', part: 'plan', x: aX, y: planY - half, w: aW, h: half * 2 });
+    if (span) drawSpan(aX, aW, planY, 'var(--arrow-plan)', true);
+    else el(L.bars, 'path', { d: arrowPath(aX, aW, planY, line, head), fill: 'var(--arrow-plan)', stroke: 'none' });   // no outline (JDG-185)
+    shapes.push({ owner: 'arrow', part: 'plan', x: aX - (span ? dot / 2 : 0), y: planY - half, w: aW + (span ? dot : 0), h: half * 2 });
   }
   if (useArrowAct) {
-    el(L.bars, 'path', { d: arrowPath(aActX, aActW, actY2, line, actHead), fill: 'var(--arrow-actual)', stroke: 'none' });
-    shapes.push({ owner: 'arrow', x: aActX, y: actY2 - half, w: aActW, h: half * 2 });
+    if (span) drawSpan(aActX, aActW, actY2, 'var(--arrow-actual)', !aPaused);
+    else el(L.bars, 'path', { d: arrowPath(aActX, aActW, actY2, line, actHead), fill: 'var(--arrow-actual)', stroke: 'none' });
+    shapes.push({ owner: 'arrow', x: aActX - (span ? dot / 2 : 0), y: actY2 - half, w: aActW + (span ? (aPaused ? dot / 2 : dot) : 0), h: half * 2 });
+  } else if (useArrowDummy) {
+    rect(L.bars, aX, actY2 - line / 2, adw, line, 'var(--dummy-edge)');
+    shapes.push({ owner: 'arrow', x: aX, y: actY2 - half, w: adw, h: half * 2 });
   }
   if (showPlan) ANCHOR.arrow = { x0: aX, x1: aX + aW, y: planY, top: ay, bottom: arrowBottom };   // the plan arrow's ends, at its height
   // row 1, left to right: assignee : percent, the marker, the name. The marker follows the reference's start
@@ -904,7 +995,7 @@ function draw() {
     // on row 3, the arm on the actual line, at the resume date or on the day after the stop; grab below the midline
     const ix = aDecided ? xOf(a.resume) : aActX + aActW, cy = actY2;
     const day = aDecided ? a.resume : a.actualStart + a.actualDays;
-    resumeZone(g, 'arrow-resume', ix, cy, aSide, day, splitY, Infinity);
+    resumeZone(g, 'arrow-resume', ix, cy, aMk, aSide, day, splitY, Infinity);
     if (aDecided) drawResumeDash(L.bars, aActX + aActW, ix, cy);
     drawResume(L.markers, ix, cy, aSide, !aDecided);
   }
@@ -914,8 +1005,9 @@ function draw() {
   }
   drawName(L.labels, a, putA.nameX, aLabelY, aFont);
   drawOutsideLabel(L.labels, a, refAX - spx(S.outsideGap), aLabelY, aFont);
-  label(L.guide, LEFT, ay - 10, '矢印は 3 段（担当・進捗・マーカー・名前 ／ 予定 ／ 実績）。縦幅 ' + (arrowBottom - ay).toFixed(2) + 'px（=== のバー ' + bh.toFixed(2) +
-    'px）。予実の掴み代は中線で分ける。端は左端と > の中心に中央合わせ', 11);
+  label(L.guide, LEFT, ay - 10, (span ? '端点スパン' : '矢印') + 'は 3 段（担当・進捗・マーカー・名前 ／ 予定 ／ 実績）。縦幅 ' + (arrowBottom - ay).toFixed(2) + 'px（=== のバー ' + bh.toFixed(2) +
+    'px）。予実の掴み代は中線で分ける。端は' + (span ? '両端の点' : '左端と > ') + 'の中心に中央合わせ' +
+    (useArrowDummy ? '。未着手: 3 段目に 1 日の印（幅 ' + adw.toFixed(2) + 'px）' : ''), 11);
 
   // ---- 5) three tasks stacked in one row (a multibar row): JDG-148's gap, dependency lines through it
   let sy = TOP.stack;
@@ -926,6 +1018,23 @@ function draw() {
     sy += h + stackGap();
   }
   label(L.guide, LEFT, TOP.stack - 10, '隙間 ＝ 1px ＋ 依存線 ' + depW().toFixed(2) + 'px ＋ 1px ＝ ' + stackGap().toFixed(2) + 'px（JDG-148）。本体を上下に引くと段が入れ替わる（日付は変わらない）。依存線は隙間を通る', 11);
+  // a highlight box round the stacked row (GR-14; question 27, user ruling 2026-09-19): the frame line is its only
+  // representation (FR-019), so only the frame and its corners grab it; inside, presses pass through to the tasks
+  NOTE_BOX = null;
+  if ($('showNote').checked) {
+    const nx0 = xOf(M.note.from), nx1 = xOf(M.note.to), ny0 = TOP.stack - 5, ny1 = sy - stackGap() + 5;
+    NOTE_BOX = { x0: nx0, y0: ny0, x1: nx1, y1: ny1 };
+    el(L.deps, 'rect', { x: nx0, y: ny0, width: nx1 - nx0, height: ny1 - ny0, fill: 'none', stroke: '#c07a00', 'stroke-width': 1.5 });
+    const o = GRAB.noteFrame.out, c = GRAB.noteCorner.w / 2, info = 'ハイライトボックスの枠';
+    zone(g, 'note-top', 'note', nx0 - o, ny0 - o, nx1 - nx0 + o * 2, o * 2, ZC.note, 'move', info);
+    zone(g, 'note-bottom', 'note', nx0 - o, ny1 - o, nx1 - nx0 + o * 2, o * 2, ZC.note, 'move', info);
+    zone(g, 'note-left', 'note', nx0 - o, ny0 - o, o * 2, ny1 - ny0 + o * 2, ZC.note, 'move', info);
+    zone(g, 'note-right', 'note', nx1 - o, ny0 - o, o * 2, ny1 - ny0 + o * 2, ZC.note, 'move', info);
+    for (const [id, cx, cy, cur] of [['note-corner-tl', nx0, ny0, 'nwse-resize'], ['note-corner-tr', nx1, ny0, 'nesw-resize'],
+                                      ['note-corner-bl', nx0, ny1, 'nesw-resize'], ['note-corner-br', nx1, ny1, 'nwse-resize']]) {
+      zone(g, id, 'noteCorner', cx - c, cy - c, c * 2, c * 2, ZC.note, cur, 'ハイライトボックスの四隅');
+    }
+  }
 
   drawDeps(L.deps);
   // grab areas lie over the drawn shapes, so a grab inside a bar shows as a pale tint of that bar
@@ -943,15 +1052,27 @@ function draw() {
 
 // ---------------------------------------------------------------- which grab answers (table HT)
 // the hit order: table T-023d; off the drawn shapes question 7 can put the line first (GS-4)
+// question 27: an annotation answers before the schedule's shapes (group B 12), but only on its frame and corners
+const NOTE_KINDS = ['noteCorner', 'note'];
+const NOTE_LINE = 1.5;   // the frame's drawn width
+let NOTE_BOX = null;     // the highlight box's frame as drawn, for the distance to its line
+function noteLineDistance(x, y) {
+  const b = NOTE_BOX;
+  if (!b) return Infinity;
+  const dx = Math.max(b.x0 - x, 0, x - b.x1), dy = Math.max(b.y0 - y, 0, y - b.y1);
+  if (dx || dy) return Math.hypot(dx, dy);
+  return Math.min(x - b.x0, b.x1 - x, y - b.y0, b.y1 - y);
+}
 const HIT_ORDER = ['fade', 'marker', 'resume', 'dummy', 'actualEnd', 'dep', 'planEnd', 'markerIn', 'ms', 'body'];
 const HIT_NAMES = { fade: 'フェード', marker: '進捗マーカー（実績の外）', resume: '再開アイコン', dummy: 'ダミー', actualEnd: '実績の端・◆ の実績',
-                    dep: '依存線', planEnd: '予定の端', markerIn: '進捗マーカー（実績の中）', ms: '◆ の予定', body: '本体' };
+                    dep: '依存線', planEnd: '予定の端', markerIn: '進捗マーカー（実績の中）', ms: '◆ の予定', body: '本体',
+                    noteCorner: 'ハイライトボックスの四隅', note: 'ハイライトボックスの枠' };
 function hitOrder(offShape) {
-  if (!offShape) return HIT_ORDER;
+  if (!offShape) return [...NOTE_KINDS, ...HIT_ORDER];
   const q7 = $('q7').value;
-  if (q7 === 'fade') return ['fade', 'dep', ...HIT_ORDER.filter(k => k !== 'fade' && k !== 'dep')];
-  if (q7 === 'gs4') return ['dep', ...HIT_ORDER.filter(k => k !== 'dep')];
-  return HIT_ORDER;
+  if (q7 === 'fade') return [...NOTE_KINDS, 'fade', 'dep', ...HIT_ORDER.filter(k => k !== 'fade' && k !== 'dep')];
+  if (q7 === 'gs4') return [...NOTE_KINDS, 'dep', ...HIT_ORDER.filter(k => k !== 'dep')];
+  return [...NOTE_KINDS, ...HIT_ORDER];
 }
 function hitAt(x, y) {
   const inside = z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h;
@@ -973,7 +1094,7 @@ function hitAt(x, y) {
   // nearer up or down answers, and the kind order then chooses within it. A dependency line is no task and stays
   let near = null;
   if (offShape && !(under && under.size)) {
-    const owners = [...new Set(zones.filter(z => !z.seg && inside(z)).map(ownerOf))];
+    const owners = [...new Set(zones.filter(z => !z.seg && !NOTE_KINDS.includes(z.kind) && inside(z)).map(ownerOf))];
     if (owners.length > 1) {
       const dy = o => {
         const mine = shapes.filter(q => q.owner === o);
@@ -996,7 +1117,11 @@ function hitAt(x, y) {
     for (let i = zones.length - 1; i >= 0; i--) {
       const z = zones[i];
       if (z.kind !== kind || !inside(z)) continue;
-      if (z.kind === 'dep') {
+      if (NOTE_KINDS.includes(z.kind)) {
+        // an annotation belongs to no task, so GS-2 does not filter it; on a drawn shape it answers only on the frame
+        // line it draws, as a dependency line does there (group A 14), so a frame across a bar takes no press from it
+        if (under && under.size && noteLineDistance(x, y) > NOTE_LINE / 2) continue;
+      } else if (z.kind === 'dep') {
         // on a drawn shape a line answers only on the line it draws (JDG-38; question 14: no extra pixel)
         if (under && under.size && segDistance(z, x, y) > (z.dep === pickedDep ? depW() : depW() / 2)) continue;
       } else if (under && under.size && !under.has(ownerOf(z))) continue;
@@ -1008,14 +1133,19 @@ function hitAt(x, y) {
   }
   return null;
 }
-// the task a point is on, for the dependency tool: halves of the drawn PLAN, never the end grabs (T-018).
-// A dependency is set on the plan, so a task whose plan is not drawn cannot be linked
+// the task a point is on, for the dependency tool (question 33, user ruling 2026-09-19): anywhere on the task --
+// a drawn shape (plan, actual, dummy), its marker or resume icon, its name or assignee label -- and the side is the
+// half of the drawn PLAN the pointer is over (T-018), never the end grabs. A dependency is set on the plan, so a
+// task whose plan is not drawn cannot be linked (JDG-220)
 function taskAt(x, y) {
-  const plans = shapes.filter(q => q.part === 'plan');
-  const hit = plans.filter(q => shapeContains(q, x, y));
-  if (!hit.length) return null;
-  const owner = hit[hit.length - 1].owner;
-  const mine = plans.filter(q => q.owner === owner);
+  const inBox = b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+  const onShape = shapes.filter(q => shapeContains(q, x, y)).map(q => q.owner);
+  const onMark = zones.filter(z => z.drawn && inBox({ x: z.drawn.x, y: z.drawn.y, w: z.drawn.s, h: z.drawn.s })).map(ownerOf);
+  const onLabel = labelBoxes.filter(inBox).map(b => b.owner);
+  const owner = onShape.pop() || onMark.pop() || onLabel.pop();
+  if (!owner) return null;
+  const mine = shapes.filter(q => q.part === 'plan' && q.owner === owner);
+  if (!mine.length) return null;
   const x0 = Math.min(...mine.map(q => q.kind === 'diamond' ? q.cx - q.r : q.x));
   const x1 = Math.max(...mine.map(q => q.kind === 'diamond' ? q.cx + q.r : q.x + q.w));
   return { owner, side: x < (x0 + x1) / 2 ? 'start' : 'end' };
@@ -1059,7 +1189,7 @@ stage.addEventListener('pointermove', e => {
       const t = taskAt(p.x, p.y);
       $('hit').textContent = t ? '結ぶ元: ' + (M[t.owner].name || t.owner) + ' の' + (t.side === 'start' ? '左半分（開始）' : '右半分（終了）')
         : !$('showPlan').checked ? '予定を表示していないので依存線は引けない（依存線は予定に対して設定する）'
-        : '構えている: 結ぶ元のタスクの予定を押す';
+        : '構えている: 結ぶ元のタスクのどこか（予定・実績・マーカー・名前・札）を押す';
       stage.style.cursor = t ? 'crosshair' : 'default';
       return;
     }
@@ -1094,16 +1224,43 @@ stage.addEventListener('pointermove', e => {
       case 'arrow-plan-end': m.arrow.planDays = clamp(m.arrow.planDays + moved, 1, 55 - m.arrow.planStart); break;
       case 'arrow-actual-start': { const e2 = m.arrow.actualStart + m.arrow.actualDays; m.arrow.actualStart = clamp(m.arrow.actualStart + moved, 0, e2 - 1); m.arrow.actualDays = e2 - m.arrow.actualStart; break; }
       case 'arrow-actual-end': m.arrow.actualDays = clamp(m.arrow.actualDays + moved, 1, 55 - m.arrow.actualStart); break;
-      case 'ms': m.ms.day = clamp(m.ms.day + moved, 0, 55); break;
+      // question 28: the `--->` dummy becomes the actual when dragged, as the `===` one does (JDG-186)
+      case 'arrow-dummy-start': {
+        if (moved === 0) break;
+        const end = m.arrow.planStart + 1;
+        m.arrow.actualStart = clamp(m.arrow.planStart + moved, 0, end - 1); m.arrow.actualDays = end - m.arrow.actualStart;
+        m.arrow.state = 'progress'; delete m.arrow.kept;
+        break;
+      }
+      case 'arrow-dummy-end':
+        if (moved === 0) break;
+        m.arrow.actualStart = m.arrow.planStart; m.arrow.actualDays = clamp(1 + moved, 1, 55 - m.arrow.planStart);
+        m.arrow.state = 'progress'; delete m.arrow.kept;
+        break;
+      // question 31: up or down, the milestone goes to another row with its actual; the sample only counts the rows
+      case 'ms':
+        m.ms.day = clamp(m.ms.day + moved, 0, 55);
+        drag.slots = Math.round((p.y - drag.startY) / msRowPitch());
+        break;
       case 'ms2': m.ms2.day = clamp(m.ms2.day + moved, 0, 55); break;
       case 'ms-actual': m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
-      case 'ms-marker': if (!$('showActual').checked) break; m.ms.actualDay = clamp(m.ms.actualDay + moved, 0, 55); break;
+      // question 30: a milestone's marker is only pressed; its actual moves by its own diamond
+      case 'ms-marker': break;
+      // question 27: the frame moves the box along the days; a corner moves that side
+      case 'note-top': case 'note-bottom': case 'note-left': case 'note-right': {
+        const w = m.note.to - m.note.from;
+        m.note.from = clamp(m.note.from + moved, 0, 60 - w); m.note.to = m.note.from + w;
+        break;
+      }
+      case 'note-corner-tl': case 'note-corner-bl': m.note.from = clamp(m.note.from + moved, 0, m.note.to - 1); break;
+      case 'note-corner-tr': case 'note-corner-br': m.note.to = clamp(m.note.to + moved, m.note.from + 1, 60); break;
       case 'ms-dummy': if (moved === 0) break; $('msActual').checked = true; m.ms.actualDay = clamp(m.ms.day + moved, 0, 55); break;
     }
   }
   M = m;
   draw();
-  $('hit').textContent = '引いている: ' + drag.id + '（' + (moved >= 0 ? '+' : '') + moved + ' 日' + (drag.slots ? '、段 ' + (drag.slots > 0 ? '+' : '') + drag.slots : '') + '）';
+  $('hit').textContent = '引いている: ' + drag.id + '（' + (moved >= 0 ? '+' : '') + moved + ' 日' +
+    (drag.slots ? (drag.id === 'ms' ? '、行 ' : '、段 ') + (drag.slots > 0 ? '+' : '') + drag.slots : '') + '）';
 });
 // what a drag on one `===` task changes (table PE): the body slides the plan alone (JDG-188)
 function dragBar(m, key, part, moved) {
@@ -1129,7 +1286,8 @@ function dragBar(m, key, part, moved) {
       break;
     case 'fade-in': q.fadeIn = clamp(q.fadeIn + moved, 0, q.planDays); break;
     case 'fade-out': q.fadeOut = clamp(q.fadeOut - moved, 0, q.planDays); break;
-    // the actual follows the marker only while the marker stands right of it (JDG-187), never when hidden
+    // the actual follows the marker only while the marker stands right of it (JDG-187), never when hidden;
+    // question 30: also the unstarted task's marker, right of the dummy, which starts the actual at the plan's start
     case 'marker':
       if (!$('showActual').checked) break;
       if (q.state === 'paused') break;   // the resume icon stands between the actual and the marker
@@ -1199,8 +1357,13 @@ function endDrag(e) {
     return;
   }
   if (!drag) return;
-  const still = drag.moved === 0 && !drag.slots, id = drag.id, dep = drag.dep;
+  const still = drag.moved === 0 && !drag.slots, id = drag.id, dep = drag.dep, slots = drag.slots;
   drag = null;
+  if (id === 'ms' && slots) {
+    draw();
+    $('hit').textContent = '◆ を ' + (slots > 0 ? '下へ ' : '上へ ') + Math.abs(slots) + ' 行移す操作（予定と実績が一緒に移り、日付は変わらない —— ㉛）。見本には移る先の行が無いので、元の行のまま';
+    return;
+  }
   if (still && id.startsWith('dep')) {
     pickedDep = dep; draw();
     const d = M.deps[dep];
@@ -1274,12 +1437,14 @@ function summary() {
     ' ・ ② ' + $('q2').selectedOptions[0].textContent +
     ' ・ ④ 予定の開始・終了 上下 ' + GRAB.planStart.v + ' ／ ' + GRAB.planEnd.v + '（--->: ' + GRAB.aPlanStart.v + ' ／ ' + GRAB.aPlanEnd.v + '）' +
     ' ・ ⑤ ' + $('q5').selectedOptions[0].textContent + ' ・ ⑥ ' + $('q6').selectedOptions[0].textContent +
-    ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent + '\n' +
+    ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent +
+    ' ・ ㊱ ' + $('q36').selectedOptions[0].textContent + ' ・ ㊲ ' + $('q37').selectedOptions[0].textContent + '\n' +
     '  （描く寸法は仕様の単位。表示の倍率 100 で × 0.625 して描く）\n' +
     '  札: タスク名 開始→名前 ' + S.namePad + ' ・ マーカー→名前 ' + S.nameAfterMarker + ' ・ マイルストーン名 マーカー→名前 ' + S.msNameAfterMarker +
     '（マーカーなしは菱形の 25% の位置から）・ 担当・進捗→開始 ' + S.outsideGap + ' ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  依存線: 引き出し ' + S.depRunOut + ' ・ 引き入れ ' + S.depRunIn + ' ・ 矢じり 長さ ' + S.arrowLen + ' × 幅 ' + S.arrowWidth + ' ・ 線 ' + DEP_STORED + '\n' +
-    '  --->: 名前の段 → 予定 ' + S.arrowNameGap + ' ・ 予定 → 実績 ' + S.arrowActualGap + ' ・ 線 ' + S.arrowLine + ' ・ 矢じり 横幅 ' + S.arrowHeadLen + ' × 縦幅 ' + S.arrowHeadH + '\n' +
+    '  --->: 名前の段 → 予定 ' + S.arrowNameGap + ' ・ 予定 → 実績 ' + S.arrowActualGap + ' ・ 線 ' + S.arrowLine + ' ・ 矢じり 横幅 ' + S.arrowHeadLen + ' × 縦幅 ' + S.arrowHeadH +
+    ' ・ 端点スパンの点の径 ' + S.spanDot + '（いま ' + $('arrowKind').selectedOptions[0].textContent + '）\n' +
     '  描く順（奥 → 手前）: ' + PAINT_ORDER.map(k => PAINT_NAMES[k]).join(' → ') + '\n' +
     '  ポインタ: 矢印 一辺 ' + S.cur + 'px（S-249 を 24 → 16 にする、JDG-181）・ フェードの三角 ' + fadeCursorPx() + 'px ・ ◆ 予定 ○ ' + S.msCur + 'px ・ ◆ 実績 ● ' + S.msActCur + 'px ・ 再開 ↱ ' + S.resumeCur + 'px\n' +
     '  絵: ズーム ' + S.scale + '% ・ 1 日 ' + S.dayPx + 'px（描いた px）・ バーの高さ ' + S.barH + ' ・ マーカーの径 ' + S.markerSize + '（---> は名前の字 ' +
@@ -1340,11 +1505,19 @@ function tieRunIn() {
   inp.min = String(S.arrowLen);
   if (S.depRunIn < S.arrowLen) { S.depRunIn = S.arrowLen; inp.value = String(S.depRunIn); }
 }
+// question 24 (user ruling 2026-09-19): the marker is never larger than the plan bar, so it never leaves its row --
+// the marker's slider ends at the plan bar's height (its old limit, the actual's floor, broke the accepted look)
+function tieMarker() {
+  const inp = $('markerSize');
+  inp.max = String(S.barH);
+  if (S.markerSize > S.barH) { inp.value = String(S.barH); S.markerSize = Number(inp.value); }
+}
 for (const id of SLIDERS) {
   const input = $(id);
-  input.addEventListener('input', () => { S[id] = Number(input.value); tieRunIn(); showOutputs(); draw(); });
+  input.addEventListener('input', () => { S[id] = Number(input.value); tieRunIn(); tieMarker(); showOutputs(); draw(); });
 }
 tieRunIn();
+tieMarker();
 showOutputs();
 $('showDeps').addEventListener('change', () => {
   if (!$('showDeps').checked) { pickedDep = -1; if (armed) setArmed(false); }
@@ -1352,7 +1525,7 @@ $('showDeps').addEventListener('change', () => {
   draw();
 });
 for (const id of ['showZones', 'showPlan', 'showActual', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual',
-                  'q2', 'q5', 'q6', 'gs1', 'q7']) {
+                  'showNote', 'arrowKind', 'q2', 'q5', 'q6', 'gs1', 'q7', 'q36', 'q37']) {
   $(id).addEventListener('change', draw);
 }
 $('reset').addEventListener('click', () => { M = JSON.parse(JSON.stringify(START)); pickedDep = -1; draw(); });
