@@ -106,7 +106,7 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
    - tools/probe/harness.mjs の until は関数を Node の側で呼ぶ（DFC-613）⇒ 探り針を書く体のブリーフに書く。
    - git add -u や一括の add はフックが止める ⇒ パスを名指しする。並行の体がいるときは git stash をしない。
 7. コミット／push は許可済み（JDG-58）。個人情報の点検の数を報告してから行え（file:// と http:// は絶対パスの検出から除く。dist の束の中の著作権表示の名前も偽陽性）。タグは利用者が打つ。説明は日本語、コードとコミット文は英語 ASCII。
-   CR-429 の push は、個人情報の点検の数を報告したうえで利用者に確かめてから。push の前に git ls-files で .xsd と docs/reference/ の下が 0 件であることを数える（MSPDI の XSD・SDK から取り出したファイルは、絶対にコミットも push もしない）。
+   CR-429 の push は、個人情報の点検の数を報告したうえで利用者に確かめてから。push の前に git ls-files で .xsd と docs/reference/mspdi/ の下が 0 件であることを数え、数を読んでから別の手で push する（docs/reference/ の下の README.md 3 つ —— 棚・w3c・wcag の入手手順 —— は、第三者の中身を持たないので追跡してよい。2026-09-20 に docs/reference/ の下で数えて 3 件と出て、中身は README.md だけだった）（MSPDI の XSD・SDK から取り出したファイルは、絶対にコミットも push もしない）。
 ```
 
 ---
