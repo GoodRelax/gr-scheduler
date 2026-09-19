@@ -105,7 +105,7 @@
   <div class="hint">描く寸法のつまみ（バーの高さ・マーカーの径・札の余白・依存線の形・---> の段の間）は<b>仕様の単位</b>（文書に保存する値）で持ち、表示の倍率 100 で × 0.625 して描く（DS-1）。つまみの横に描いた px を出す。既定は、今まで画面で見て決めた大きさを 0.625 で割った値。掴み代とポインタの大きさには掛けない（DS-7・T-264）ので、画面の px のまま。「全体のズーム」は表示の倍率、「1 日の幅」は見るためのつまみ（描いた px）。</div>
   <h3>進捗マーカー（=== ・ ---> ・ ◆ に共通）</h3>
   <label><span class="name">マーカーの描く径（S-22）</span><input id="markerSize" type="range" min="12" max="28" step="0.8" value="22.4"><output id="markerSizeOut"></output></label>
-  <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。---> のマーカーはこの値に従わず、名前の字の大きさで描く（FR-094）。上限は予定バーの高さ（㉔、決まった）—— 予定バーを低くすると、マーカーもそこで止まる。下限は字の床 12（S-8）。</div>
+  <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。---> のマーカーはこの値に従わず、名前の字の大きさで描く（FR-094）。上限は予定バーが縦の倍率でどこまで縮んでも取る高さ（actualMin ÷ actualOfPlan ≒ 28。つまみの刻みでは 27.2 まで。㉔、決まった）—— 見本の予定バーはそれより低くもできるので、低くしたときはバーの高さで止まる。下限は字の床 12（S-8）。</div>
   <div id="grab-common"></div>
   <div class="hint">再開アイコン（中断のあいだだけ描く。㉖ で決まった）: いつも実績の右に立つ —— 再開日があれば実績の帯の中心線の再開日に立ち、停止日から破線で繋ぐ。未定なら停止日の翌日（実績のすぐ右）に小さく薄く立つ。名前とマーカーが実績に入らないときは、実績 → アイコン → マーカー → 名前 の順。大きさはマーカーと同じ（--->は名前の字）。引けば再開日が変わる（停止日より前には置けない）。マーカーを押して 完了 → 中断 にすると、未定のアイコンが出る。</div>
   <label><span class="name">再開アイコンのポインタ（px）</span><input id="resumeCur" type="range" min="6" max="24" step="1" value="12"><output id="resumeCurOut"></output></label>
@@ -228,13 +228,14 @@
       <option value="t023d">表 T-023d の並びのまま（線は実績の端より後）</option></select></label>
     <div class="hint">⑦は決まった: 形の外では、フェードの掴み点が先、次に依存線、その後はほかの種類（GS-4 にフェードの掴み点の例外を置く）。フェードの掴み点は選んだタスクにだけ出る（FR-075）ので、利用者がそのタスクを直そうとしているときだけの話であり、線はほかのどこでも選べる。</div>
     <label><span class="name">㊱ 再開日が先のときの札</span><select id="q36">
-      <option value="near" selected>案: 札は実績のすぐ右。アイコンと重なるときだけアイコンの右へ</option>
+      <option value="near" selected>決まった: 札は実績のすぐ右。アイコンと重なるときだけアイコンの右へ</option>
       <option value="after">いつも アイコン → マーカー → 名前（札がアイコンの日まで離れる）</option></select></label>
-    <div class="hint">㊱（新しい問い）: 名前が実績に入らないタスクで、再開日が先に決まっていると、「いつも アイコン → マーカー → 名前」ではマーカーと名前が再開日まで離れる（再開日が 3 週間先なら 3 週間右）。今の仕様は「アイコンのために並びの中に場所を空けない」（MUST NOT）で、名前を形の近くに出す裁定もある。案は、札を実績のすぐ右に置き、アイコンと重なるときだけアイコンの右へ送る —— 未定のアイコン（実績のすぐ右）では今までと同じ 実績 → アイコン → マーカー → 名前 になる。破線は札の下を通る。「準備」の再開アイコンを右へ遠く（例えば 50 日目）引き、1 日の幅を 6px ほどに狭くして比べる（再開日が近いと、どちらもアイコンの右に札が立つ）。</div>
+    <div class="hint">㊱（2026-09-19 に B に決まった。比べるために A も選べる）: 名前が実績に入らないタスクで、再開日が先に決まっていると、「いつも アイコン → マーカー → 名前」ではマーカーと名前が再開日まで離れる（再開日が 3 週間先なら 3 週間右）。今の仕様は「アイコンのために並びの中に場所を空けない」（MUST NOT）で、名前を形の近くに出す裁定もある。案は、札を実績のすぐ右に置き、アイコンと重なるときだけアイコンの右へ送る —— 未定のアイコン（実績のすぐ右）では今までと同じ 実績 → アイコン → マーカー → 名前 になる。破線は札の下を通る。「準備」の再開アイコンを右へ遠く（例えば 50 日目）引き、1 日の幅を 6px ほどに狭くして比べる（再開日が近いと、どちらもアイコンの右に札が立つ）。</div>
     <label><span class="name">㊲ 引ける進捗マーカーのポインタ</span><select id="q37">
-      <option value="finger" selected>指（押す役の形。今の形）</option>
+      <option value="finger" selected>決まった: 指（押す役の形）</option>
       <option value="arrow">実績の終了の矢印 → 黒（引く役の形）</option></select></label>
-    <div class="hint">㊲（新しい問い）: 実績の右（未着手ならダミーの右）に立つ === のマーカーは、押せば状態が巡り、引けば実績の終わりが動く。ポインタは「何を掴み、引けば何が動くか」を示す（FR-106）が、今は押す役の「指」。引く役を示すなら実績の終了と同じ矢印になる。②の行の「結合試験」のマーカー（ダミーの右に立つ）に乗せて比べる。</div>
+    <div class="hint">㊲（2026-09-19 に A に決まった。比べるために B も選べる）: 実績の右（未着手ならダミーの右）に立つ === のマーカーは、押せば状態が巡り、引けば実績の終わりが動く。ポインタは「何を掴み、引けば何が動くか」を示す（FR-106）が、今は押す役の「指」。引く役を示すなら実績の終了と同じ矢印になる。②の行の「結合試験」のマーカー（ダミーの右に立つ）に乗せて比べる。</div>
+    <div class="hint">㊳（2026-09-19 に A に決まった）: 端点スパンで予定と実績の端が同じ日に立つと、上下の点が 1px 重なる。重ねたまま許す（同じ日の端だけで、点の色で分かれる）。「---> タスク」の「線だけの形」を端点スパンにすると、「設計レビュー」の開始（予実とも 6 日目）で見える。</div>
     <div class="hint">㉔〜㉟（2026-09-19 に全部決まった）の見どころ: ㉔ マーカーの径の上限は予定バーの高さ ／ ㉕ ---> の節の「線だけの形」を端点スパンに ／ ㉖ 「準備」「設計レビュー」の再開アイコン ／ ㉗ ⑤ の行のハイライトボックス ／ ㉘ 「設計レビュー」のマーカーを 1 回押して未着手に ／ ㉙ 見本に複数の選択と行の移動が無いので示さない ／ ㉚ 「結合試験」のマーカーは引けば実績を作る。◆ のマーカーは引いても実績を動かさない ／ ㉛ ◆ の予定を縦に引くと、移る先の行を点線で示す ／ ㉜ ---> の「形の上」は線ごとの帯 ／ ㉝ 依存線はタスクのどこでも結べる ／ ㉞ 見本の --->は 1 段なので示さない ／ ㉟ ② の既定。</div>
   </div>
   </section>
@@ -1505,12 +1506,15 @@ function tieRunIn() {
   inp.min = String(S.arrowLen);
   if (S.depRunIn < S.arrowLen) { S.depRunIn = S.arrowLen; inp.value = String(S.depRunIn); }
 }
-// question 24 (user ruling 2026-09-19): the marker is never larger than the plan bar, so it never leaves its row --
-// the marker's slider ends at the plan bar's height (its old limit, the actual's floor, broke the accepted look)
+// question 24 (user ruling 2026-09-19): the marker is never larger than the plan bar, so it never leaves its row.
+// The limit is the height the plan bar keeps however far the vertical zoom shrinks it, actualMin / actualOfPlan
+// (S-4's floor, 28; the reading the user confirmed): the marker does not follow the zoom, the bar stops there.
+// The sample's bar slider goes below that floor, so the slider ends at the lower of the two
+const PLAN_FLOOR = 16 / AOP;
 function tieMarker() {
-  const inp = $('markerSize');
-  inp.max = String(S.barH);
-  if (S.markerSize > S.barH) { inp.value = String(S.barH); S.markerSize = Number(inp.value); }
+  const inp = $('markerSize'), top = Math.min(S.barH, PLAN_FLOOR);
+  inp.max = String(top);
+  if (S.markerSize > top) { inp.value = String(top); S.markerSize = Number(inp.value); }
 }
 for (const id of SLIDERS) {
   const input = $(id);

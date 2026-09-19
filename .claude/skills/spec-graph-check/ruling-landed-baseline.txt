@@ -1,4 +1,9 @@
-18
+76
+#
+# RAISED 18 -> 76 on 2026-09-19, approved by the user in chat ("検査 43 の基準線を 18 → 76 に上げてよい。"):
+# JDG-180 .. JDG-239 were recorded while the grab-area sample was settled question by question; they land
+# together in the one Step 1b change request (handoff.md section 1.2). JDG-198 and JDG-238 are already
+# applied and not counted: 18 earlier rows + 58 new rows = 76.
 #
 # LOWERED 20 -> 18 on 2026-09-17 (second session): JDG-166 (the unattended A/B is recorded) and JDG-167
 # (wave 3 implemented and pushed at cdca63ac) landed.
