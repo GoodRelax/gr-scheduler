@@ -48,7 +48,7 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
    - 検査 26b: .claude/skills/spec-graph-check/crossing-names-baseline.txt から「ItemHitArea | NOT_STORED_SIZES」と「ItemHitArea | PointerSlop」の 2 行を消す（CR-415 で掴み代の束ねを Entity へ寄せたので、もう層をまたがない）。
    - 検査 37: 表 T-023 の MK-7、表 T-036 の SK-2・SK-3・SK-4・SK-5・SK-11・SK-17、表 T-104 の K-23 を、それぞれ辞書（display-words.json）の語と一緒に読んでから、組の検査を --write-baseline で走らせる（python .claude/skills/spec-graph-check/check-dictionary-table-covariance.py --write-baseline）。
    - 検査 43: .claude/skills/spec-graph-check/ruling-landed-baseline.txt の基準線は 84 である（利用者の許しで 18 → 76（JDG-243、2026-09-19）、76 → 79（JDG-244、2026-09-19）、79 → 84（JDG-250、2026-09-20）と上げた。前に立つ者がファイルを直した）。数も 84 で緑（2026-09-20 に check-ruling-landed.py で数えた: 前からの 18 ＋ この巡の JDG-180〜JDG-250 のうち JDG-198・JDG-238・JDG-243・JDG-244・JDG-250 を除く 66 行。JDG-198 と JDG-238 は仕様を変えず、JDG-243・JDG-244・JDG-250 は基準線の許しなので、どれも適用済）。⛔ 基準線をまた動かすには利用者の許しが要る（体は触らない）。⚠️ 動かす前に check-ruling-landed.py の数で確かめる。⭐ Step 1b が着地したら、下げる。
-   - 作業木の掃除: .claude/worktrees/ の 35（ab-*・ab2-* が 5、agent-* が 30。2026-09-19 に数えた）と、.git/worktrees/ の同名の入口。OneDrive の読み取り専用で、道具では消せない。手順は規則 04 の 6.11 —— 先に agent-a6379b60827a65173/node_modules の junction を rmdir（/s を付けない）で外し、根の node_modules が残ることを確かめる。agent-a2377c68ac2dba9ee は npm ci をした本物の node_modules を持つ（junction ではない）。ほかの agent-* の node_modules は Vite の一時フォルダだけである。そのあと attrib -R、rd /s /q、最後に git worktree prune。
+   - ✅ 作業木の掃除は 2026-09-20 に済んだ（利用者の指示「作業木を掃除しろ」。2 つのセッションで行った）。消したもの: .claude/worktrees/ の 36（ab-*・ab2-* が 5、agent-* が 30、mspdi-pj15 が 1）、.git/worktrees/ の入口 36、手元のブランチ 31（worktree-agent-* が 30 と mspdi-pj15。ab-* はブランチを持たなかった。どれも合流していないコミットは 0 —— git rev-list --count <branch> --not <ほかの全ブランチと origin> で数えた。mspdi-pj15 は origin に無い）。残るのは根の作業木 1 つと、ブランチ main・refactor・restart・scale-and-fold。根の node_modules は 65 項目のまま（node_modules/vite もある）。消す前に、未コミットの変更をパッチに、git 管理外の scratch/ のうち根に無いものを写しに取り、どちらもセッションの scratchpad に置いた（長くは残らない）。⭐ 効いた手順: ジャンクションの node_modules は (Get-Item <path> -Force).Delete() でリンクだけ外す（agent-a6379b60827a65173 と mspdi-pj15 の 2 つ。ほかは OneDrive の置き換えフォルダ（属性 0x431）で根とつながっていない）。フォルダと .git/worktrees/ の読み取り専用の属性を PowerShell で外してから、Remove-Item -Recurse -Force、最後に git worktree prune（入力待ちで止まらなかった）。1 個消すごとに、リンクが残っていないかと根の node_modules の数を確かめた。⛔ 別のセッションが作業木を読んでいるあいだに消すと、ファイルの取り合いになる（2026-09-20 に起きた。消す側が 14 個で止めて引き継いだ）—— 消す前に、ほかのセッションが作業木を触っていないことを確かめる。
    - dist を見る: 根の dist/index.html を file:// で開き、下の 4 の ⑦・⑬・⑮ を見る。
 3. 最初にやること（2 つを並べる）
    ⓪ ⭐ 最初に CR-429 を当てる（本書 §1.3 の手順どおり: 仕様に当てる → 実装の体と、仕様だけを読む試験の体を分けて実装 → 台帳）。§1.2 の Step 1b（掴み代の CR）は CR-429 が入ってから、別のセッションで行う —— 2 つは同じファイル（01-04-requirements.md、_source/settings.json、display-words.json、row-id-prefixes.json、changelog.md、rulings.md）を書き換えるので、同時に走らせない。中身は重ならない（CR-429 が触るのは表 T-033・CN-7・DV-2 など、掴み代の CR は触らない）。CR-429 が入ると、掴み代の仕様案 §9 と対応表が引く行番号（R: ／ D: ／ S: ／ G:）がずれる ⇒ Step 1b の最初に、今の木で測り直す（ID は変わらない）。
@@ -597,8 +597,8 @@ ORIGIN には、ユースケースの段も名指す。置き換える FR（`FR-
 #### 罠
 - 作業木には docs/reference/ が無い（git 管理外）。ルートから docs/reference/mspdi/ を丸ごと写さないと
   uf-36 が読み込めない。node_modules はルートへのジャンクションでつなぐ。
-- 古い作業木 .claude/worktrees/mspdi-pj15 は本件の起草用。使わず、新しく切ること。
-  （探針の使い捨てファイルは、その scratch/mspdi-pj15-probe/ に残っている）
+- 本件を起草した作業木 .claude/worktrees/mspdi-pj15 は、2026-09-20 の掃除で消した（ブランチ mspdi-pj15 も。合流済み）。作業木は新しく切ること。
+  （探針の使い捨てファイル 24 個は、根の scratch/mspdi-pj15-probe/ に写した。git 管理外。XSD は含まない）
 - Microsoft Project の実機で、日付が動くかは確かめていない。試験は XSD への妥当性と往復で主張し、
   実機の挙動を主張しない。
 - push は、個人情報の点検の数を報告したうえで、利用者に確かめてから行う。
