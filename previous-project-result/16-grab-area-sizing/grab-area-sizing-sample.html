@@ -325,13 +325,21 @@ function fadeCursor(dir) {
   const px = fadeCursorPx(), hot = dir === 'in' ? px - 1 : 0;
   return 'url("data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, px)) + '") ' + hot + ' ' + hot + ', nwse-resize';
 }
-// a dependency line takes a LINE arrow -- a thin shaft and an open head, like the glyph "->" -- where a
-// task's end takes a wide block arrow. Black rim, white inside: the path is stroked black, then white over it
+// a dependency line takes a LINE arrow -- a thin shaft and a narrow head, like the glyph "->" -- where a
+// task's end takes a wide block arrow. The white shape gets a black rim of LINE_ARROW_RIM on every side,
+// with square ends and sharp corners (no rounding): the black shape is the white one grown by the rim.
+// Units are the glyph's 24-unit box (the pointer is S.cur px across, 16 px by default)
+const LINE_ARROW_SHAFT = 2.2;   // the white shaft's width
+const LINE_ARROW_RIM = 0.7;     // the black rim, each side (half of the first trial's 1.4)
+const LINE_ARROW_HEAD = 'M13 9 L19 12 L13 15 Z';   // 6 long, 6 wide (half of the first trial's 12)
 function lineArrowGlyph(px) {
-  const d = 'M3 12 L20 12 M14 6 L20 12 L14 18';
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24" fill="none"' +
-    ' stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '" stroke="#000000" stroke-width="5"/>' +
-    '<path d="' + d + '" stroke="#ffffff" stroke-width="2.2"/></svg>';
+  const shaft = 'M3 12 L13 12', r = LINE_ARROW_RIM;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24"' +
+    ' stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">' +
+    '<path d="' + shaft + '" fill="none" stroke="#000000" stroke-width="' + (LINE_ARROW_SHAFT + 2 * r) + '"/>' +
+    '<path d="' + LINE_ARROW_HEAD + '" fill="#000000" stroke="#000000" stroke-width="' + 2 * r + '"/>' +
+    '<path d="' + shaft + '" fill="none" stroke="#ffffff" stroke-width="' + LINE_ARROW_SHAFT + '"/>' +
+    '<path d="' + LINE_ARROW_HEAD + '" fill="#ffffff" stroke="none"/></svg>';
 }
 function depCursor() {
   const px = S.cur;
