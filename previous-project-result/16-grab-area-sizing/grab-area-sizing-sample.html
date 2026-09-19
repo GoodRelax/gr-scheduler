@@ -106,7 +106,7 @@
   <label><span class="name">マーカーの描く径（S-22）</span><input id="markerSize" type="range" min="8" max="40" step="0.8" value="22.4"><output id="markerSizeOut"></output></label>
   <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。---> のマーカーはこの値に従わず、名前の字の大きさで描く（FR-094）。</div>
   <div id="grab-common"></div>
-  <div class="hint">再開アイコン（中断のあいだだけ描く。案）: 再開日があれば実績の帯の中心線の再開日に立ち、停止日から破線で繋ぐ。未定ならマーカーのすぐ右に小さく薄く立ち、名前はその右。大きさはマーカーと同じ（--->は名前の字）。引けば再開日が変わる（停止日より前には置けない）。マーカーを押して 完了 → 中断 にすると、未定のアイコンが出る。</div>
+  <div class="hint">再開アイコン（中断のあいだだけ描く。案）: いつも実績の右に立つ —— 再開日があれば実績の帯の中心線の再開日に立ち、停止日から破線で繋ぐ。未定なら停止日の翌日（実績のすぐ右）に小さく薄く立つ。名前とマーカーが実績に入らないときは、実績 → アイコン → マーカー → 名前 の順。大きさはマーカーと同じ（--->は名前の字）。引けば再開日が変わる（停止日より前には置けない）。マーカーを押して 完了 → 中断 にすると、未定のアイコンが出る。</div>
   <label><span class="name">再開アイコンのポインタ（px）</span><input id="resumeCur" type="range" min="6" max="24" step="1" value="12"><output id="resumeCurOut"></output></label>
   <div class="hint">ポインタは再開アイコンと同じ折れ矢印（黒の中・白の縁。実績の側のポインタの色）。押さえる点は折れ目 ＝ アイコンが表す再開日の左の境目。既定は小さめの 12px（端の矢印の 16px の 75%）。</div>
   <div class="cursorRow" id="cursor-common"></div>
@@ -175,7 +175,7 @@
   <div class="hint">線がタスクの端から横へまっすぐ出る長さと、端へまっすぐ入る長さ。既定は利用者の指定（画面で 引き出し 6px・引き入れ 10px）を仕様の単位にした 9.6 ／ 16（仕様の今の値は 入口 dependencyRunOfArrow 2 × S-19 7 ＝ 14、出口 7）。</div>
   <label><span class="name">矢じりの長さ</span><input id="arrowLen" type="range" min="3.2" max="22.4" step="0.8" value="9.6"><output id="arrowLenOut"></output></label>
   <label><span class="name">矢じりの幅（線に直角）</span><input id="arrowWidth" type="range" min="1.6" max="19.2" step="0.8" value="8"><output id="arrowWidthOut"></output></label>
-  <div class="hint">既定は利用者の指定（画面で 長さ 6px × 幅 5px）を仕様の単位にした 9.6 × 8（仕様の今の値は 長さ ＝ 底辺 ＝ S-19 の 7）。線の太さは 2.4（画面で 1.5px）。引き入れが矢じりの長さより短いと、矢じりの付け根が手前の曲がり角より外へ出る。</div>
+  <div class="hint">既定は利用者の指定（画面で 長さ 6px × 幅 5px）を仕様の単位にした 9.6 × 8（仕様の今の値は 長さ ＝ 底辺 ＝ S-19 の 7）。線の太さは 2.4（画面で 1.5px）。引き入れは矢じりの長さより短くできない（問い 9 の ①、決まった）—— 短いと矢じりの付け根が手前の曲がり角より外へ出るため、引き入れのつまみの下限を矢じりの長さに結んである。</div>
   <h3>引く・消す</h3>
   <div class="row">
     <button id="arm" type="button">依存線を構える</button>
@@ -190,7 +190,10 @@
   <section class="sec"><h2>7 問（推奨と今までの形を比べる）</h2>
   <div class="qs">
     <div class="qrow">① ダミーの掴み代（決まった: 実績と同じ既定、定数は別）<button type="button" data-set="dummyStart.out=0,dummyStart.in=12,dummyEnd.out=0,dummyEnd.in=12">実績と同じ</button><button type="button" data-set="dummyStart.out=12">前の形（開始の外側 12）</button></div>
-    <label><input id="q2" type="checkbox" checked> ② マーカーの押下は表 T-021a の順（決まった。未着手 → 完了 → 中断 → 進行中）</label>
+    <label><span class="name">② マーカーを押したときの巡り</span><select id="q2">
+      <option value="ring" selected>案: 進み順の輪（・ へ戻る）</option>
+      <option value="t021a">表 T-021a のまま（・ には戻らない）</option></select></label>
+    <div class="hint">表 T-021a は「未着手 → 完了 → 中断 → 進行中 → 完了 → …」で、未着手へ戻すことを禁じる（戻すと人が置いた実績が消える）。案は作業の進み順の輪で、中断 → 未着手 で実績を覚えて外し、次の押下で戻す。代償: 1 日の作業の完了は 2 押し（・ → 進行中 → 完了）、中断からの再開も ・ を通る 2 押し。</div>
     <div class="hint">③（JDG-27 の扱い）は記録だけの問いなので、見本の挙動は変わらない。</div>
     <div class="qrow">④ 予定の開始・終了の上下（=== と矢印）<button type="button" data-set="planStart.v=0,planEnd.v=0,aPlanStart.v=0,aPlanEnd.v=0">裁定 0</button><button type="button" data-set="planStart.v=12,planEnd.v=12,aPlanStart.v=12,aPlanEnd.v=12">GS-3 の 12</button></div>
     <div class="hint">④は利用者が 0 に決めた（2026-09-19）。「GS-3 の 12」は、隣が無い向きに S-90 の 12px を当てる仕様の形を比べるためのボタン。</div>
@@ -201,7 +204,7 @@
     <label><span class="name">⑤ 「作業」のバーの高さ（％）</span><input id="stackBH" type="range" min="30" max="100" step="5" value="100"><output id="stackBHOut"></output></label>
     <div class="hint">「中心」と「縁」は、上下のバーの高さが違うときにだけ違う答えを出す。比べるときに下げる。</div>
     <label><span class="name">⑥ 「入る」の判定</span><select id="q6">
-      <option value="end" selected>終了側だけ 実績の終了の内側を取る</option>
+      <option value="end" selected>終了側だけ 実績の終了の内側を取る（決まった）</option>
       <option value="fr002">FR-002 のまま（S-31・S-32・S-23・実績の両端の内側）</option>
       <option value="none">マーカー ＋ 間隔 ＋ 名前（今までの形）</option></select></label>
     <label><input id="gs1" type="checkbox" checked> 描いた形の上は、その形のタスクだけが応える（GS-1。仕様のまま）</label>
@@ -533,27 +536,26 @@ function measureName(g, name) {
 function startGrab(fits, marked, mk) { return marked && fits ? Math.min(GRAB.actualStart.in, mk / 2) : GRAB.actualStart.in; }
 // `===` bars (JDG-183): the marker follows the reference's START while the marker and the name fit
 // its width, and stands right of its FINISH once they do not. The name always follows the marker.
-function placeAlong(g, item, barX, barW, marked, mk, extra, endX) {
-  extra = marked ? extra || 0 : 0;       // an undecided resume icon between the marker and the name
+function placeAlong(g, item, barX, barW, marked, mk, endX) {
   if (endX === undefined) endX = barX + barW;
   const showName = $('showName').checked && item.name;
   const nameW = showName ? measureName(g, item.name) : 0;
   // question 6: FR-002 keeps the label off both actual ends' grabs (plus S-31, S-32, S-23);
   // "end" keeps it off the finish's grab only, since the marker now sits on the start grab by design
   const mode = $('q6').value;
-  const lead = nameLead(marked, mk) + extra;
-  const needed = mode === 'fr002' ? nameW + 6 + 8 + (marked ? mk + 4 + extra : 0) + GRAB.actualStart.in + GRAB.actualEnd.in
+  const lead = nameLead(marked, mk);
+  const needed = mode === 'fr002' ? nameW + 6 + 8 + (marked ? mk + 4 : 0) + GRAB.actualStart.in + GRAB.actualEnd.in
                : mode === 'end' ? lead + nameW + GRAB.actualEnd.in
                : lead + nameW;
   const fits = needed <= barW;
-  // a task suspended with a resume date: the reference ends at the resume icon's right edge, so a marker and a
-  // name that do not fit stand right of the dashed line and the icon, never on them
+  // a suspended task: the reference ends at the resume icon's right edge, so a marker and a name that do not fit
+  // stand right of the icon (actual, icon, marker, name), never on the dashed line or the icon
   const markerX = fits ? barX : endX;
   return { fits, markerX, nameX: markerX + lead, nameW };
 }
 // `--->` arrows: name, plan and actual are stacked, so the marker follows the actual's start
-function placeAlongArrow(barX, marked, mk, extra) {
-  return { fits: true, markerX: barX, nameX: barX + nameLead(marked, mk) + (marked ? extra || 0 : 0) };
+function placeAlongArrow(barX, marked, mk) {
+  return { fits: true, markerX: barX, nameX: barX + nameLead(marked, mk) };
 }
 // a task name starts this far from where its marker starts; with the marker hidden, from the reference's edge
 function nameLead(marked, mk) { return marked ? mk + spx(S.nameAfterMarker) : spx(S.namePad); }
@@ -579,7 +581,6 @@ function drawOutsideLabel(g, item, rightX, centerY, size) {
 // the marker glyph of table T-021 (shown once the T-021a cycle is on)
 function drawMarker(g, cx, cy, r, state) {
   el(g, 'circle', { cx, cy, r, fill: '#fff', stroke: '#0a7a48', 'stroke-width': 1.5 });
-  if (!$('q2').checked) return;
   const k = r * 0.55;
   if (state === 'unstarted') el(g, 'circle', { cx, cy, r: Math.max(1, r * 0.2), fill: '#0a7a48' });
   else if (state === 'done') el(g, 'path', { d: 'M ' + (cx - k) + ' ' + cy + ' L ' + (cx - k * 0.2) + ' ' + (cy + k * 0.7) + ' L ' + (cx + k) + ' ' + (cy - k * 0.7),
@@ -588,14 +589,13 @@ function drawMarker(g, cx, cy, r, state) {
     stroke: '#0a7a48', 'stroke-width': 1.6, 'stroke-linecap': 'round' });
 }
 // ---------------------------------------------------------------- the resume icon (FR-044; a proposal, 2026-09-19)
-// Drawn while a task is suspended (paused). With a resume date it stands on the actual's centre line at that day:
-// its stem on the day's left edge, its arm running right into the day, and a dashed line from the stop (the
-// actual's end) to the stem. With the date not decided it stands in the labels' row just right of the marker,
-// smaller and paler (S-25), and the name follows it. Its box is the marker's size of that shape (FR-094), bottom
-// on the marker's bottom and the arm at the marker's centre (LF-13); the grab is the box (GR-8)
+// Drawn while a task is suspended (paused), always right of the actual -- never inside a stretch that already has
+// an actual (user ruling 2026-09-19). It stands on the actual's centre line (`--->`: row 3) at the resume date, its
+// stem on the day's left edge and its arm running right into the day, joined to the stop by a dashed line. With
+// the date not decided it stands on the day after the stop, smaller and paler (S-25). Its box is the marker's size
+// of that shape (FR-094), the arm at the box's centre (LF-13); the grab is the box (GR-8)
 const RESUME_ARM = 0.62, RESUME_HEAD = 0.22, RESUME_UNDECIDED = 0.7;   // S-26, S-27, S-25
 const RESUME_DASH = [3, 2];                                            // S-28, S-29 (the spec's unit)
-const RESUME_GAP = 4;                                                  // markerGap (S-23): marker to an undecided icon
 function drawResume(g, x, cy, side, undecided) {
   const arm = side * RESUME_ARM, head = side * RESUME_HEAD, op = undecided ? 0.55 : 1;
   el(g, 'path', { d: 'M ' + x + ' ' + (cy + side / 2) + ' L ' + x + ' ' + cy + ' L ' + (x + arm) + ' ' + cy, fill: 'none', stroke: '#0a7a48',
@@ -655,17 +655,15 @@ function drawBarTask(g, key, ty, opts) {
   // the resume icon: shown with the marker (S-63) and the actual (FR-108), only while suspended
   const resumeOn = marked && useAct && q.state === 'paused';
   const decided = resumeOn && q.resume != null, rSide = mk * (decided ? 1 : RESUME_UNDECIDED);
-  const resumeX = decided ? xOf(q.resume) : 0;
+  // at the resume date, or, undecided, on the day after the stop: right of the actual either way
+  const resumeX = !resumeOn ? 0 : decided ? xOf(q.resume) : actX + actW;
   // table RF: the labels measure against the actual, else the dummy, else (actual hidden) the plan
   const refX = useAct ? actX : planX, refW = useAct ? actW : useDummy ? dw : planW;
-  const put = placeAlong(g, q, refX, refW, marked, mk, resumeOn && !decided ? spx(RESUME_GAP) + rSide : 0,
-                         decided ? Math.max(refX + refW, resumeX + rSide) : undefined);
+  const put = placeAlong(g, q, refX, refW, marked, mk, resumeOn ? Math.max(refX + refW, resumeX + rSide) : undefined);
   if (resumeOn) {
-    const cy = decided ? ty + bh / 2 : ty + (bh + mk) / 2 - rSide / 2;
-    const ix = decided ? resumeX : put.markerX + mk + spx(RESUME_GAP);
-    const day = decided ? q.resume : Math.max(q.actualStart + q.actualDays, Math.round(dayAt(ix)));
-    resumeZone(g, key + '-resume', ix, cy, rSide, day, -Infinity, Infinity);
-    drawResume(L.markers, ix, cy, rSide, !decided);
+    const cy = ty + bh / 2, day = decided ? q.resume : q.actualStart + q.actualDays;
+    resumeZone(g, key + '-resume', resumeX, cy, rSide, day, -Infinity, Infinity);
+    drawResume(L.markers, resumeX, cy, rSide, !decided);
   }
   if (useAct) {
     const b0 = band(actY, ah, A0.v), b1 = band(actY, ah, A1.v);
@@ -901,13 +899,12 @@ function draw() {
   // (JDG-183); nothing of another row lies under it, so its grab is the whole marker (question 3)
   const refAX = useArrowAct ? aActX : aX;
   const aResumeOn = marked && aPaused, aDecided = aResumeOn && a.resume != null, aSide = aMk * (aDecided ? 1 : RESUME_UNDECIDED);
-  const putA = placeAlongArrow(refAX, marked, aMk, aResumeOn && !aDecided ? spx(RESUME_GAP) + aSide : 0);
+  const putA = placeAlongArrow(refAX, marked, aMk);
   if (aResumeOn) {
-    // decided: on row 3, the arm on the actual line, the grab below the midline (JDG-185); undecided: row 1
-    const ix = aDecided ? xOf(a.resume) : putA.markerX + aMk + spx(RESUME_GAP);
-    const cy = aDecided ? actY2 : aLabelY + aMk / 2 - aSide / 2;
-    const day = aDecided ? a.resume : Math.max(a.actualStart + a.actualDays, Math.round(dayAt(ix)));
-    resumeZone(g, 'arrow-resume', ix, cy, aSide, day, aDecided ? splitY : -Infinity, Infinity);
+    // on row 3, the arm on the actual line, at the resume date or on the day after the stop; grab below the midline
+    const ix = aDecided ? xOf(a.resume) : aActX + aActW, cy = actY2;
+    const day = aDecided ? a.resume : a.actualStart + a.actualDays;
+    resumeZone(g, 'arrow-resume', ix, cy, aSide, day, splitY, Infinity);
     if (aDecided) drawResumeDash(L.bars, aActX + aActW, ix, cy);
     drawResume(L.markers, ix, cy, aSide, !aDecided);
   }
@@ -1135,46 +1132,56 @@ function dragBar(m, key, part, moved) {
     // the actual follows the marker only while the marker stands right of it (JDG-187), never when hidden
     case 'marker':
       if (!$('showActual').checked) break;
-      if (q.state === 'paused' && q.resume != null) break;   // it stands right of the resume icon, not of the actual
+      if (q.state === 'paused') break;   // the resume icon stands between the actual and the marker
       if (q.actualDays > 0) q.actualDays = clamp(q.actualDays + moved, 1, 55 - q.actualStart);
       else if (moved !== 0) { q.actualStart = q.planStart; q.actualDays = clamp(moved, 1, 55 - q.planStart); if (q.state === 'unstarted') q.state = 'progress'; }
       break;
   }
 }
-// a press on the marker walks the state round (FR-013)
+// a press on the marker walks the state round (FR-013).
+// Question 2 was table T-021a, whose ring never reaches "unstarted" again (PV-4 forbids it: going back would drop
+// the actual a person placed). The user asked to get back to "unstarted" by pressing (2026-09-19). One ring over
+// the four states cannot keep both "unstarted -> done" and "in progress -> done" as one press, so the proposal
+// follows the order of work -- unstarted, in progress, done, suspended, unstarted -- and keeps the actual it takes
+// away: "suspended -> unstarted" remembers it, "unstarted -> in progress" puts it back (or places one day at the
+// plan's start when nothing is remembered). Undo also brings it back
 function cycleState(rawId) {
   const id = rawId.replace(/-in$/, '');
   const m = JSON.parse(JSON.stringify(M));
-  if ($('q2').checked) {
-    // table T-021a: only PV-1 places anything on the picture; the percent is not a value it sets
-    if (id === 'ms-marker') {
-      const on = $('msActual');
-      if (on.checked) { $('hit').textContent = '押した: 完了（見本はマイルストーンの完了の先を扱わない）'; return; }
-      on.checked = true; m.ms.actualDay = m.ms.day; M = m; draw();
-      $('hit').textContent = '押して状態を巡らせた: 未着手 → 完了（PV-1。予定の日に実績を置いた）';
+  const ring = $('q2').value === 'ring';
+  if (id === 'ms-marker') {
+    const on = $('msActual');
+    if (!on.checked) {
+      on.checked = true; m.ms.actualDay = m.ms.kept != null ? m.ms.kept : m.ms.day; delete m.ms.kept; M = m; draw();
+      $('hit').textContent = '押して状態を巡らせた: 未着手 → 完了（' + (M.ms.actualDay === M.ms.day ? '予定の日に実績を置いた' : '覚えていた実績の日を戻した') + '）';
       return;
     }
-    const item = m[id.replace(/-marker$/, '')];
-    if (!item) return;
-    const was = item.state || (item.actualDays > 0 ? 'progress' : 'unstarted');
-    let note;
-    if (was === 'unstarted') { item.actualStart = item.planStart; item.actualDays = S129; item.state = 'done'; note = 'PV-1。予定の開始に 1 日の実績を置いた'; }
-    else if (was === 'progress') { item.state = 'done'; note = 'PV-2。絵は変えない'; }
-    else if (was === 'done') { item.state = 'paused'; item.resume = null; note = 'PV-3。再開日は未定 —— 再開アイコンが小さく薄く出る'; }
-    else { item.state = 'progress'; item.resume = null; note = 'PV-4。再開日を消す。未着手へは戻さない'; }
-    M = m; draw();
-    $('hit').textContent = '押して状態を巡らせた: ' + STATE_NAME[was] + ' → ' + STATE_NAME[item.state] + '（' + note + '）';
+    if (!ring) { $('hit').textContent = '押した: 完了（表 T-021a ではマイルストーンの完了の先が無い）'; return; }
+    m.ms.kept = m.ms.actualDay; on.checked = false; M = m; draw();
+    $('hit').textContent = '押して状態を巡らせた: 完了 → 未着手（実績の日を覚えて外した。次の押下で戻す）';
     return;
   }
-  // the front session's stand-in cycle, kept for comparison: unstarted -> 50% -> 100% -> unstarted
-  if (id === 'ms-marker') { const on = $('msActual'); on.checked = !on.checked; draw(); return; }
   const item = m[id.replace(/-marker$/, '')];
   if (!item) return;
-  if (item.actualDays === 0) { const back = item.kept || { start: item.planStart, days: 1 }; item.actualStart = back.start; item.actualDays = back.days; item.percent = 50; }
-  else if (item.percent < 100) item.percent = 100;
-  else { item.kept = { start: item.actualStart, days: item.actualDays }; item.actualDays = 0; item.percent = 0; }
+  const was = item.state || (item.actualDays > 0 ? 'progress' : 'unstarted');
+  let note;
+  if (ring) {
+    if (was === 'unstarted') {
+      const back = item.kept;
+      item.actualStart = back ? back.start : item.planStart; item.actualDays = back ? back.days : S129; item.state = 'progress'; delete item.kept;
+      note = back ? '覚えていた実績を戻した' : '予定の開始に 1 日の実績を置いた';
+    } else if (was === 'progress') { item.state = 'done'; note = '絵は変えない'; }
+    else if (was === 'done') { item.state = 'paused'; item.resume = null; note = '再開日は未定 —— 実績のすぐ右に再開アイコンが小さく薄く出る'; }
+    else { item.kept = { start: item.actualStart, days: item.actualDays }; item.actualDays = 0; item.resume = null; item.state = 'unstarted'; note = '実績を覚えて外した。次の押下で戻す（取り消しでも戻る）'; }
+  } else {
+    // table T-021a: only PV-1 places anything on the picture
+    if (was === 'unstarted') { item.actualStart = item.planStart; item.actualDays = S129; item.state = 'done'; note = 'PV-1。予定の開始に 1 日の実績を置いた'; }
+    else if (was === 'progress') { item.state = 'done'; note = 'PV-2。絵は変えない'; }
+    else if (was === 'done') { item.state = 'paused'; item.resume = null; note = 'PV-3。再開日は未定'; }
+    else { item.state = 'progress'; item.resume = null; note = 'PV-4。再開日を消す。未着手へは戻さない'; }
+  }
   M = m; draw();
-  $('hit').textContent = '押して状態を巡らせた: ' + (item.actualDays === 0 ? '未着手' : item.percent + '%');
+  $('hit').textContent = '押して状態を巡らせた: ' + STATE_NAME[was] + ' → ' + STATE_NAME[item.state] + '（' + note + '）';
 }
 const DEP_TYPE = { 'end>start': 'FS', 'start>end': 'SF', 'end>end': 'FF', 'start>start': 'SS' };
 function endDrag(e) {
@@ -1264,7 +1271,7 @@ function summary() {
     '今の値（このまま貼って「この値にしろ」と伝えられます）\n' +
     '  掴み代: ' + grabLine + '\n' +
     '  7 問: ① ' + (GRAB.dummyStart.out === 0 ? '推奨（ダミーの開始 外側 0）' : 'ダミーの開始 外側 ' + GRAB.dummyStart.out) +
-    ' ・ ② ' + ($('q2').checked ? '表 T-021a' : '見本の仮の巡り') +
+    ' ・ ② ' + $('q2').selectedOptions[0].textContent +
     ' ・ ④ 予定の開始・終了 上下 ' + GRAB.planStart.v + ' ／ ' + GRAB.planEnd.v + '（--->: ' + GRAB.aPlanStart.v + ' ／ ' + GRAB.aPlanEnd.v + '）' +
     ' ・ ⑤ ' + $('q5').selectedOptions[0].textContent + ' ・ ⑥ ' + $('q6').selectedOptions[0].textContent +
     ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent + '\n' +
@@ -1326,10 +1333,18 @@ buildGrabTable();
 function showOutputs() {
   for (const id of SLIDERS) $(id + 'Out').textContent = S[id] + (SCALED.includes(id) ? '（描いて ' + spx(S[id]).toFixed(2) + 'px）' : '');
 }
+// question 9-1 (user ruling 2026-09-19): the lead-in never runs shorter than the arrowhead, so the head's base
+// never passes the bend before it -- the lead-in's slider starts at the head's length
+function tieRunIn() {
+  const inp = $('depRunIn');
+  inp.min = String(S.arrowLen);
+  if (S.depRunIn < S.arrowLen) { S.depRunIn = S.arrowLen; inp.value = String(S.depRunIn); }
+}
 for (const id of SLIDERS) {
   const input = $(id);
-  input.addEventListener('input', () => { S[id] = Number(input.value); showOutputs(); draw(); });
+  input.addEventListener('input', () => { S[id] = Number(input.value); tieRunIn(); showOutputs(); draw(); });
 }
+tieRunIn();
 showOutputs();
 $('showDeps').addEventListener('change', () => {
   if (!$('showDeps').checked) { pickedDep = -1; if (armed) setArmed(false); }
