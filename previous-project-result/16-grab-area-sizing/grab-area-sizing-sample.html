@@ -23,8 +23,10 @@
   .panel > .inner { width: 452px; padding: 10px 14px; }
   h1 { font-size: 16px; margin: 0 0 2px; }
   p.note { color: var(--ink2); margin: 0 0 10px; max-width: 900px; }
-  .panel h2 { font-size: 13px; margin: 12px 0 4px; }
-  .panel h2:first-child { margin-top: 0; }
+  /* the panel is cut into one box per subject: whole picture, === tasks, ---> tasks, milestones, lines */
+  .panel section.sec { background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px 8px; margin: 0 0 10px; }
+  .panel h2 { font-size: 14px; margin: 0 0 2px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
+  .panel h3 { font-size: 12px; margin: 8px 0 3px; color: var(--ink2); }
   label { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
   label span.name { width: 170px; }
   label input[type=range] { width: 120px; }
@@ -81,7 +83,8 @@
 </div></section>
 <div class="split" id="split" title="引いて右のペインの幅を変える。ダブルクリックで畳む ／ 戻す"></div>
 <aside class="panel"><div class="inner">
-  <h2>表示</h2>
+  <section class="sec"><h2>全体</h2>
+  <h3>表示</h3>
   <div class="row">
     <label style="margin:0"><input id="showZones" type="checkbox" checked> 掴み代の面</label>
     <label style="margin:0"><input id="showPlan" type="checkbox" checked> 予定</label>
@@ -94,52 +97,82 @@
     <label style="margin:0"><input id="showDeps" type="checkbox" checked> 依存線</label>
     <button id="reset" type="button">形を元に戻す</button>
   </div>
-
-  <h2>描く順（上ほど奥、下ほど手前）</h2>
-  <ol id="paintOrder" class="order"></ol>
-  <div class="hint">どれが手前に見えるかだけを決める。どの掴み代が応えるか（当たりの順）は、これとは別に下の順で決まる（表 T-023d。⑦で形の外の依存線を先にできる）。</div>
-  <h2>応える順（当たりの順。上ほど先）</h2>
-  <ol id="hitOrderList" class="order"></ol>
-
-  <h2>掴み代（操作対象ごと。px、幅の ％ は菱形の幅に対する比）</h2>
-  <div id="grabTable"></div>
-  <div class="hint">外側 ＝ 描いた端から外へ ／ 内側 ＝ 描いた端から内へ ／ 上下 ＝ 描いた帯から上と下へ ／ 幅 ＝ 中心に置く掴み代の幅（フェードは正方形の一辺）。— の欄はその対象に無い。</div>
-
-  <h2>絵の大きさ</h2>
+  <h3>大きさ</h3>
   <label><span class="name">全体のズーム（%）</span><input id="scale" type="range" min="50" max="200" step="5" value="100"><output id="scaleOut"></output></label>
   <label><span class="name">1 日の幅（px）</span><input id="dayPx" type="range" min="2" max="40" step="1" value="12"><output id="dayPxOut"></output></label>
   <label><span class="name">予定バーの高さ（px）</span><input id="barH" type="range" min="8" max="40" step="1" value="18"><output id="barHOut"></output></label>
+  <h3>進捗マーカー（=== ・ ---> ・ ◆ に共通）</h3>
   <label><span class="name">マーカーの描く径（px）</span><input id="markerSize" type="range" min="6" max="32" step="1" value="14"><output id="markerSizeOut"></output></label>
   <div class="hint">描く大きさだけ。掴み代は表の「進捗マーカー」で決める。ダミーの幅（径 × 0.5）と札の並びはこの値で決まる。</div>
-
-  <h2>札（名前・進捗・担当）</h2>
-  <label><span class="name">タスク名 開始 → 名前（px）</span><input id="namePad" type="range" min="0" max="24" step="1" value="6"><output id="namePadOut"></output></label>
-  <div class="hint">マーカーを出さないとき、基準（実績・ダミー・予定）の開始から名前の書き出しまで。名前が入らずに終了の外へ出るときは、終了から名前まで（S-31 labelPad）。</div>
-  <label><span class="name">タスク名 マーカー → 名前（px）</span><input id="nameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="nameAfterMarkerOut"></output></label>
-  <label><span class="name">マイルストーン名 マーカー → 名前（px）</span><input id="msNameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="msNameAfterMarkerOut"></output></label>
-  <div class="hint">マーカーを出さないときのマイルストーン名は、基準の菱形の幅を 0〜100% として 25% の位置から左詰めで書く（JDG-183）。</div>
+  <div id="grab-common"></div>
+  <h3>担当・進捗の札（共通）</h3>
   <label><span class="name">担当・進捗 → 開始（px）</span><input id="outsideGap" type="range" min="0" max="24" step="1" value="4"><output id="outsideGapOut"></output></label>
   <div class="hint">担当と進捗の札の右端から、描いた予定と実績の早い方の開始まで。マイルストーンは菱形の 25% の位置まで。</div>
   <label><span class="name">札の字の大きさ（× 実績の高さ）</span><input id="labelFont" type="range" min="50" max="130" step="5" value="90"><output id="labelFontOut"></output></label>
+  <h3>描く順（上ほど奥、下ほど手前）</h3>
+  <ol id="paintOrder" class="order"></ol>
+  <div class="hint">どれが手前に見えるかだけを決める。どの掴み代が応えるか（当たりの順）は、これとは別に下の順で決まる（表 T-023d。⑦で形の外の依存線を先にできる）。</div>
+  <h3>応える順（当たりの順。上ほど先）</h3>
+  <ol id="hitOrderList" class="order"></ol>
+  <div class="hint">外側 ＝ 描いた端から外へ ／ 内側 ＝ 描いた端から内へ ／ 上下 ＝ 描いた帯から上と下へ ／ 幅 ＝ 中心に置く掴み代の幅（フェードは正方形の一辺）。— の欄はその対象に無い。</div>
+  </section>
 
-  <h2>ポインタの矢印</h2>
-  <label><span class="name">一辺（px）</span><input id="cur" type="range" min="8" max="32" step="1" value="16"><output id="curOut"></output></label>
-  <div class="cursorRow" id="cursorSizes"></div>
+  <section class="sec"><h2>=== タスク</h2>
+  <h3>掴み代</h3>
+  <div id="grab-bar"></div>
+  <h3>タスク名（---> も同じ値）</h3>
+  <label><span class="name">タスク名 開始 → 名前（px）</span><input id="namePad" type="range" min="0" max="24" step="1" value="6"><output id="namePadOut"></output></label>
+  <div class="hint">マーカーを出さないとき、基準（実績・ダミー・予定）の開始から名前の書き出しまで。名前が入らずに終了の外へ出るときは、終了から名前まで（S-31 labelPad）。</div>
+  <label><span class="name">タスク名 マーカー → 名前（px）</span><input id="nameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="nameAfterMarkerOut"></output></label>
+  <h3>ポインタ</h3>
+  <label><span class="name">端の矢印 一辺（px）</span><input id="cur" type="range" min="8" max="32" step="1" value="16"><output id="curOut"></output></label>
+  <div class="hint">予定の端は白抜き、実績の端とダミーは塗りの箱型の矢印。---> の端も同じポインタ。フェードの三角は 10px。</div>
+  <div class="cursorRow" id="cursor-bar"></div>
+  </section>
 
-  <h2>依存線</h2>
+  <section class="sec"><h2>---> タスク</h2>
+  <h3>掴み代</h3>
+  <div id="grab-arrow"></div>
+  <h3>ポインタ</h3>
+  <div class="hint">タスク名の余白とポインタは === タスクと同じ値（=== の節で変える）。</div>
+  <div class="cursorRow" id="cursor-arrow"></div>
+  </section>
+
+  <section class="sec"><h2>◆ マイルストーン</h2>
+  <h3>掴み代</h3>
+  <div id="grab-ms"></div>
+  <h3>名前</h3>
+  <label><span class="name">マイルストーン名 マーカー → 名前（px）</span><input id="msNameAfterMarker" type="range" min="0" max="24" step="1" value="6"><output id="msNameAfterMarkerOut"></output></label>
+  <div class="hint">マーカーを出さないときのマイルストーン名は、基準の菱形の幅を 0〜100% として 25% の位置から左詰めで書く（JDG-183）。</div>
+  <h3>ポインタ</h3>
+  <label><span class="name">予定 ○ の径（px）</span><input id="msCur" type="range" min="4" max="32" step="1" value="12"><output id="msCurOut"></output></label>
+  <label><span class="name">実績・ダミー ● の径（px）</span><input id="msActCur" type="range" min="4" max="32" step="1" value="8"><output id="msActCurOut"></output></label>
+  <div class="hint">予定は ○（白の中・黒の縁）、実績とダミーは ●（黒の中・白の縁）。手のひらのポインタに代わる。既定は利用者の指定で、予定 12px（最初の 16px の 75%）、実績 8px（50%）。</div>
+  <div class="cursorRow" id="cursor-ms"></div>
+  </section>
+
+  <section class="sec"><h2>依存線</h2>
+  <h3>掴み代</h3>
+  <div id="grab-dep"></div>
+  <h3>形</h3>
   <label><span class="name">引き出し（先行の端から, px）</span><input id="depRunOut" type="range" min="0" max="20" step="0.5" value="6"><output id="depRunOutOut"></output></label>
   <label><span class="name">引き入れ（後続の端の手前, px）</span><input id="depRunIn" type="range" min="0" max="20" step="0.5" value="10"><output id="depRunInOut"></output></label>
   <div class="hint">線がタスクの端から横へまっすぐ出る長さと、端へまっすぐ入る長さ。既定は利用者の指定で、引き出し 6px・引き入れ 10px（前の版はどちらも 14px。仕様の dependencyRunOfArrow 2 × S-19 7px）。</div>
   <label><span class="name">矢じりの長さ（px）</span><input id="arrowLen" type="range" min="2" max="14" step="0.5" value="6"><output id="arrowLenOut"></output></label>
   <label><span class="name">矢じりの幅（線に直角, px）</span><input id="arrowWidth" type="range" min="1" max="12" step="0.1" value="5"><output id="arrowWidthOut"></output></label>
   <div class="hint">既定は利用者の指定で、長さ 6px × 幅 5px（仕様は長さ ＝ 底辺 ＝ S-19 の 7px）。引き入れが矢じりの長さより短いと、矢じりの付け根が手前の曲がり角より外へ出る。</div>
+  <h3>引く・消す</h3>
   <div class="row">
     <button id="arm" type="button">依存線を構える</button>
     <button id="delDep" type="button">選んだ線を消す</button>
   </div>
-  <div class="hint">構えたら、結ぶ元のタスクの予定の左半分（開始）か右半分（終了）を押し、結ぶ先の予定の左半分か右半分で離す。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。依存線は予定に対して設定する情報なので、予定に付き、予定を表示していないときは描かない（引けない）。依存線を隠しているあいだは、構えることも消すこともできない（表示の切り替えは上の「表示」の節）。</div>
+  <div class="hint">構えたら、結ぶ元のタスクの予定の左半分（開始）か右半分（終了）を押し、結ぶ先の予定の左半分か右半分で離す。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。依存線は予定に対して設定する情報なので、予定に付き、予定を表示していないときは描かない（引けない）。依存線を隠しているあいだは、構えることも消すこともできない（表示の切り替えはいちばん上の「表示」）。</div>
+  <h3>ポインタ</h3>
+  <div class="hint">細い線の矢印（白の中・黒の縁、角張った縁）。大きさは === の節の「端の矢印 一辺」と同じ。</div>
+  <div class="cursorRow" id="cursor-dep"></div>
+  </section>
 
-  <h2>7 問（推奨と今までの形を比べる）</h2>
+  <section class="sec"><h2>7 問（推奨と今までの形を比べる）</h2>
   <div class="qs">
     <div class="qrow">① ダミーの開始 外側（JDG-04 ／ JDG-19）<button type="button" data-set="dummyStart.out=0">推奨 0</button><button type="button" data-set="dummyStart.out=12">今まで 12</button></div>
     <label><input id="q2" type="checkbox" checked> ② マーカーの押下は表 T-021a の順（未着手 → 完了 → 中断 → 進行中）</label>
@@ -162,7 +195,7 @@
       <option value="t023d">表 T-023d の並びのまま（フェードが先）</option></select></label>
     <div class="hint">⑦は依存線を入れて見つかった食い違い（DFC-657）。GS-4 は形の外で線を GS-2 ／ GS-3（フェードの S-92 を含む）より先にする。ただしその理由の文は、表 T-023d の並びを誤って引いている（表ではフェードが線より上）。</div>
   </div>
-
+  </section>
 </div></aside>
 </div>
 
@@ -172,7 +205,7 @@ const $ = id => document.getElementById(id);
 
 // drawing and labels -- nothing here sizes a grab area
 const S = { scale:100, dayPx:12, barH:18, markerSize:14, namePad:6, nameAfterMarker:6, msNameAfterMarker:6, outsideGap:4,
-            labelFont:90, cur:16, depRunOut:6, depRunIn:10, arrowLen:6, arrowWidth:5, stackBH:100 };
+            labelFont:90, cur:16, msCur:12, msActCur:8, depRunOut:6, depRunIn:10, arrowLen:6, arrowWidth:5, stackBH:100 };
 const SLIDERS = Object.keys(S);
 
 // ---------------------------------------------------------------- grab areas, one set of values per thing grabbed
@@ -200,28 +233,23 @@ const GRAB = {
 };
 const GRAB_START = JSON.parse(JSON.stringify(GRAB));
 const GRAB_ROWS = [
-  { group: '=== タスク' },
-  { key: 'planStart', name: '予定の開始' },
-  { key: 'planEnd', name: '予定の終了' },
-  { key: 'actualStart', name: '実績の開始', note: 'マーカーが実績の開始に立つときは、内側をマーカーの中心で止める' },
-  { key: 'actualEnd', name: '実績の終了' },
-  { key: 'dummyStart', name: 'ダミーの開始', note: '印の左半分は常に含む' },
-  { key: 'dummyEnd', name: 'ダミーの終了', note: '印の右半分は常に含む' },
-  { group: 'マーカー・フェード' },
-  { key: 'marker', name: '進捗マーカー', note: '描いたマーカーの外へ（タスク・マイルストーン・矢印）' },
-  { key: 'fadeIn', name: 'フェード入', note: '幅 ＝ 正方形の一辺' },
-  { key: 'fadeOut', name: 'フェード出', note: '幅 ＝ 正方形の一辺' },
-  { group: '◆ マイルストーン' },
-  { key: 'msPlan', name: '予定', note: '幅 ＝ 菱形の幅に対する ％' },
-  { key: 'msActual', name: '実績' },
-  { key: 'msDummy', name: 'ダミー' },
-  { group: '---> 矢印' },
-  { key: 'aPlanStart', name: '予定の開始', note: '左端を中心に' },
-  { key: 'aPlanEnd', name: '予定の終了', note: '> の中心を中心に' },
-  { key: 'aActualStart', name: '実績の開始' },
-  { key: 'aActualEnd', name: '実績の終了' },
-  { group: '依存線' },
-  { key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
+  { sec: 'bar', key: 'planStart', name: '予定の開始' },
+  { sec: 'bar', key: 'planEnd', name: '予定の終了' },
+  { sec: 'bar', key: 'actualStart', name: '実績の開始', note: 'マーカーが実績の開始に立つときは、内側をマーカーの中心で止める' },
+  { sec: 'bar', key: 'actualEnd', name: '実績の終了' },
+  { sec: 'bar', key: 'dummyStart', name: 'ダミーの開始', note: '印の左半分は常に含む' },
+  { sec: 'bar', key: 'dummyEnd', name: 'ダミーの終了', note: '印の右半分は常に含む' },
+  { sec: 'bar', key: 'fadeIn', name: 'フェード入', note: '幅 ＝ 正方形の一辺' },
+  { sec: 'bar', key: 'fadeOut', name: 'フェード出', note: '幅 ＝ 正方形の一辺' },
+  { sec: 'common', key: 'marker', name: '進捗マーカー', note: '描いたマーカーの外へ' },
+  { sec: 'arrow', key: 'aPlanStart', name: '予定の開始', note: '左端を中心に' },
+  { sec: 'arrow', key: 'aPlanEnd', name: '予定の終了', note: '> の中心を中心に' },
+  { sec: 'arrow', key: 'aActualStart', name: '実績の開始' },
+  { sec: 'arrow', key: 'aActualEnd', name: '実績の終了' },
+  { sec: 'ms', key: 'msPlan', name: '予定', note: '幅 ＝ 菱形の幅に対する ％' },
+  { sec: 'ms', key: 'msActual', name: '実績' },
+  { sec: 'ms', key: 'msDummy', name: 'ダミー' },
+  { sec: 'dep', key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
 ];
 const PARAMS = [['out', '外側'], ['in', '内側'], ['v', '上下'], ['w', '幅']];
 function rangeOf(key, param) {
@@ -231,21 +259,23 @@ function rangeOf(key, param) {
   return [0, 24, 1];
 }
 function buildGrabTable() {
-  let html = '<table class="grab"><tr><th>対象</th>' + PARAMS.map(p => '<th>' + p[1] + '</th>').join('') + '</tr>';
-  for (const row of GRAB_ROWS) {
-    if (row.group) { html += '<tr class="group"><td colspan="5">' + row.group + '</td></tr>'; continue; }
-    html += '<tr><td class="name">' + row.name + (row.note ? '<small>' + row.note + '</small>' : '') + '</td>';
-    for (const [param] of PARAMS) {
-      if (!(param in GRAB[row.key])) { html += '<td class="none">—</td>'; continue; }
-      const [lo, hi, step] = rangeOf(row.key, param);
-      html += '<td><div class="cell"><input type="range" id="g-' + row.key + '-' + param + '" min="' + lo + '" max="' + hi + '" step="' + step +
-              '" value="' + GRAB[row.key][param] + '"><span class="val" id="gv-' + row.key + '-' + param + '">' + GRAB[row.key][param] + '</span></div></td>';
+  for (const sec of ['common', 'bar', 'arrow', 'ms', 'dep']) {
+    const rows = GRAB_ROWS.filter(r => r.sec === sec);
+    const cols = PARAMS.filter(([p]) => rows.some(r => p in GRAB[r.key]));   // only the directions this subject has
+    let html = '<table class="grab"><tr><th>対象</th>' + cols.map(p => '<th>' + p[1] + '</th>').join('') + '</tr>';
+    for (const row of rows) {
+      html += '<tr><td class="name">' + row.name + (row.note ? '<small>' + row.note + '</small>' : '') + '</td>';
+      for (const [param] of cols) {
+        if (!(param in GRAB[row.key])) { html += '<td class="none">—</td>'; continue; }
+        const [lo, hi, step] = rangeOf(row.key, param);
+        html += '<td><div class="cell"><input type="range" id="g-' + row.key + '-' + param + '" min="' + lo + '" max="' + hi + '" step="' + step +
+                '" value="' + GRAB[row.key][param] + '"><span class="val" id="gv-' + row.key + '-' + param + '">' + GRAB[row.key][param] + '</span></div></td>';
+      }
+      html += '</tr>';
     }
-    html += '</tr>';
+    $('grab-' + sec).innerHTML = html + '</table>';
   }
-  $('grabTable').innerHTML = html + '</table>';
   for (const row of GRAB_ROWS) {
-    if (row.group) continue;
     for (const param of Object.keys(GRAB[row.key])) {
       $('g-' + row.key + '-' + param).addEventListener('input', e => setGrab(row.key, param, Number(e.target.value)));
     }
@@ -304,36 +334,62 @@ function xOf(day) { return LEFT + day * dayPx(); }
 function dayAt(x) { return (x - LEFT) / dayPx(); }
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-function arrowCursor(dir, filled, px) {
+// a task end's pointer: a wide block arrow, white for the plan, black for the actual and the dummy
+function blockArrowGlyph(dir, filled, px) {
   const fill = filled ? '#000000' : '#ffffff';
   const line = filled ? '#ffffff' : '#000000';
   const flip = dir === 'right' ? ' transform="scale(-1,1) translate(-24,0)"' : '';
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
     '<g' + flip + '><path d="M10 4 L2 12 L10 20 L10 15 L20 15 L20 9 L10 9 Z" fill="' + fill +
     '" stroke="' + line + '" stroke-width="1.6" stroke-linejoin="round"/></g></svg>';
-  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', ew-resize';
 }
-// the fade handle takes a triangle whose right angle sits under the pointer:
-// the in side points up and left, the out side down and right (JDG-191)
-function fadePoints(dir) { return dir === 'in' ? '23,23 1,23 23,1' : '1,1 23,1 1,23'; }
+function arrowCursor(dir, filled, px) {
+  return 'url("data:image/svg+xml,' + encodeURIComponent(blockArrowGlyph(dir, filled, px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', ew-resize';
+}
+// the pointers' black rim, in screen px, the same on every drawn pointer: the dependency pointer's 0.7 of its
+// 24-unit box at the default 16 px (about 0.47 px). A glyph converts it to its own box's units
+const POINTER_RIM_PX = 0.7 * 16 / 24;
+function rimUnits(px) { return POINTER_RIM_PX * 24 / px; }
+// the white shape grown by the rim: the black copy is stroked 2 x rim wide under the white one
+function rimmed(shape, join) {
+  return shape.replace('/>', ' fill="#000000" stroke="#000000" stroke-linejoin="' + join + '" stroke-width="RIM2"/>') +
+         shape.replace('/>', ' fill="#ffffff" stroke="none"/>');
+}
+// the fade handle takes a right triangle whose right angle sits under the pointer: the in side widens up and
+// left, the out side down and right (JDG-191). The legs run 22 units across and FADE_RISE up or down --
+// 75% of the first trial's 22 (user, 2026-09-19). Rounded corners as before, so the rim fits the 10 px box
+const FADE_RISE = 22 * 0.75;
+function fadePoints(dir) { return dir === 'in' ? '23,23 1,23 23,' + (23 - FADE_RISE) : '1,1 23,1 1,' + (1 + FADE_RISE); }
 function fadeCursorPx() { return 10; }
 function fadeGlyph(dir, px) {
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
-    '<polygon points="' + fadePoints(dir) + '" fill="#ffffff" stroke="#000000" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+    rimmed('<polygon points="' + fadePoints(dir) + '"/>', 'round').replace('RIM2', 2 * rimUnits(px)) + '</svg>';
+}
+// a milestone takes a disc: the plan white inside a black rim (like "○"), the actual and its dummy black inside
+// a white rim (like "●") -- the plan / actual arrows' white / black (user, 2026-09-19). The plan's disc is
+// S.msCur px across and the actual's S.msActCur, each its own value
+function discGlyph(filled, px) {
+  const r = rimUnits(px), R = 12 - r - 0.25;
+  const [inside, rim] = filled ? ['#000000', '#ffffff'] : ['#ffffff', '#000000'];
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
+    '<circle cx="12" cy="12" r="' + (R + r) + '" fill="' + rim + '"/><circle cx="12" cy="12" r="' + R + '" fill="' + inside + '"/></svg>';
+}
+function msCursor(filled) {
+  const px = filled ? S.msActCur : S.msCur;
+  return 'url("data:image/svg+xml,' + encodeURIComponent(discGlyph(filled, px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', grab';
 }
 function fadeCursor(dir) {
   const px = fadeCursorPx(), hot = dir === 'in' ? px - 1 : 0;
   return 'url("data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, px)) + '") ' + hot + ' ' + hot + ', nwse-resize';
 }
 // a dependency line takes a LINE arrow -- a thin shaft and a narrow head, like the glyph "->" -- where a
-// task's end takes a wide block arrow. The white shape gets a black rim of LINE_ARROW_RIM on every side,
-// with square ends and sharp corners (no rounding): the black shape is the white one grown by the rim.
-// Units are the glyph's 24-unit box (the pointer is S.cur px across, 16 px by default)
+// task's end takes a wide block arrow. The white shape gets the pointers' black rim (POINTER_RIM_PX, half of
+// the first trial's) on every side, with square ends and sharp corners (no rounding): the black shape is the
+// white one grown by the rim. Units are the glyph's 24-unit box (the pointer is S.cur px across, 16 by default)
 const LINE_ARROW_SHAFT = 2.2;   // the white shaft's width
-const LINE_ARROW_RIM = 0.7;     // the black rim, each side (half of the first trial's 1.4)
 const LINE_ARROW_HEAD = 'M13 9 L19 12 L13 15 Z';   // 6 long, 6 wide (half of the first trial's 12)
 function lineArrowGlyph(px) {
-  const shaft = 'M3 12 L13 12', r = LINE_ARROW_RIM;
+  const shaft = 'M3 12 L13 12', r = rimUnits(px);
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24"' +
     ' stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="10">' +
     '<path d="' + shaft + '" fill="none" stroke="#000000" stroke-width="' + (LINE_ARROW_SHAFT + 2 * r) + '"/>' +
@@ -629,15 +685,15 @@ function draw() {
   label(L.guide, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msPlanHalf = msR * (GRAB.msPlan.w / 100), mpBand = band(msY, bh, GRAB.msPlan.v);
   if (showPlan) {
-    zone(g, 'ms', 'ms', msX - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, 'grab');
-    zone(g, 'ms2', 'ms', ms2X - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, 'grab');
+    zone(g, 'ms', 'ms', msX - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, msCursor(false));
+    zone(g, 'ms2', 'ms', ms2X - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, msCursor(false));
   }
   const T = hasMsActual ? GRAB.msActual : GRAB.msDummy;
   const msActHalf = msR * 0.7 + T.out;
   if (showActual) {
     const b2 = band(msY + bh * 0.15, bh * 0.7, T.v), cx = hasMsActual ? msActX : msX;
-    if (hasMsActual) zone(g, 'ms-actual', 'actualEnd', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
-    else zone(g, 'ms-dummy', 'dummy', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
+    if (hasMsActual) zone(g, 'ms-actual', 'actualEnd', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, msCursor(true));
+    else zone(g, 'ms-dummy', 'dummy', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, msCursor(true));
   }
   const diamond = (cx, r, fill, stroke) => el(L.bars, 'path', { d: 'M ' + cx + ' ' + (msY + msR - r) + ' L ' + (cx + r) + ' ' + (msY + msR) +
     ' L ' + cx + ' ' + (msY + msR + r) + ' L ' + (cx - r) + ' ' + (msY + msR) + ' Z', fill, stroke: stroke || 'none', 'stroke-width': 1 });
@@ -1023,7 +1079,7 @@ function summary() {
   buildOrders();
   drawCursorLegend();
   const t = M.task;
-  const grabLine = GRAB_ROWS.filter(r => !r.group).map(r => {
+  const grabLine = GRAB_ROWS.map(r => {
     const g = GRAB[r.key];
     return (r.key.startsWith('ms') ? '◆' : r.key.startsWith('a') && r.key !== 'actualStart' && r.key !== 'actualEnd' ? '--->' : '') + r.name + ' ' +
       PARAMS.filter(([p]) => p in g).map(([p, n]) => n + g[p] + (r.key === 'msPlan' && p === 'w' ? '%' : '')).join('・');
@@ -1040,7 +1096,7 @@ function summary() {
     'px（マーカーなしは菱形の 25% の位置から）・ 担当・進捗→開始 ' + S.outsideGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
     '  依存線: 引き出し ' + S.depRunOut + 'px ・ 引き入れ ' + S.depRunIn + 'px ・ 矢じり 長さ ' + S.arrowLen + 'px × 幅 ' + S.arrowWidth + 'px\n' +
     '  描く順（奥 → 手前）: ' + PAINT_ORDER.map(k => PAINT_NAMES[k]).join(' → ') + '\n' +
-    '  ポインタ: 矢印 一辺 ' + S.cur + 'px（S-249 を 24 → 16 にする、JDG-181）・ フェードの三角 ' + fadeCursorPx() + 'px\n' +
+    '  ポインタ: 矢印 一辺 ' + S.cur + 'px（S-249 を 24 → 16 にする、JDG-181）・ フェードの三角 ' + fadeCursorPx() + 'px ・ ◆ 予定 ○ ' + S.msCur + 'px ・ ◆ 実績 ● ' + S.msActCur + 'px\n' +
     '  絵: ズーム ' + S.scale + '% ・ 1 日 ' + S.dayPx + 'px ・ バーの高さ ' + S.barH + 'px ・ マーカーの描く径 ' + S.markerSize + 'px ・ ⑤ の隙間 ' + STACK_GAP + 'px\n' +
     '  形: 予定 ' + t.planStart + ' 日目から ' + t.planDays + ' 日 / 実績 ' + t.actualStart + ' 日目から ' + t.actualDays +
     ' 日 / 未着手 ' + M.unset.planStart + ' 日目から ' + M.unset.planDays + ' 日 / マイルストーン ' + M.ms.day + ' 日目' +
@@ -1048,15 +1104,15 @@ function summary() {
 }
 
 function drawCursorLegend() {
-  $('cursorSizes').innerHTML = [12, 14, 16, 20, 24].map(px => {
-    const img = '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
-      '<g transform="scale(-1,1) translate(-24,0)"><path d="M10 4 L2 12 L10 20 L10 15 L20 15 L20 9 L10 9 Z" fill="#ffffff" stroke="#000000" stroke-width="1.6" stroke-linejoin="round"/></g></svg>';
-    return '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(img) + '"><br>' + px + 'px</div>';
-  }).join('') + ['in', 'out'].map(dir =>
-    '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, fadeCursorPx())) +
-    '"><br>フェード ' + (dir === 'in' ? '入' : '出') + '<br>' + fadeCursorPx() + 'px</div>').join('') +
-    '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(lineArrowGlyph(S.cur)) +
-    '"><br>依存線<br>' + S.cur + 'px</div>';
+  const cell = (svg, caption) => '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(svg) + '"><br>' + caption + '</div>';
+  const ends = cell(blockArrowGlyph('left', false, S.cur), '予定の開始') + cell(blockArrowGlyph('right', false, S.cur), '予定の終了') +
+               cell(blockArrowGlyph('left', true, S.cur), '実績の開始') + cell(blockArrowGlyph('right', true, S.cur), '実績の終了');
+  $('cursor-bar').innerHTML = ends + ['in', 'out'].map(dir => cell(fadeGlyph(dir, fadeCursorPx()), 'フェード' + (dir === 'in' ? '入' : '出'))).join('') +
+    '<div style="flex-basis:100%;height:0"></div>' +
+    [12, 14, 16, 20, 24].map(px => cell(blockArrowGlyph('right', false, px), px + 'px')).join('');
+  $('cursor-arrow').innerHTML = ends;
+  $('cursor-ms').innerHTML = cell(discGlyph(false, S.msCur), '予定 ○') + cell(discGlyph(true, S.msActCur), '実績・ダミー ●');
+  $('cursor-dep').innerHTML = cell(lineArrowGlyph(S.cur), '依存線 ' + S.cur + 'px');
 }
 
 // ---------------------------------------------------------------- the bar between the panes sets the panel's width
