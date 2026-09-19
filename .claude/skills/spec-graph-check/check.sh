@@ -347,14 +347,17 @@ echo ""
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the fourteen below plus those five are the nineteen `gen:check` runs.
-section "27  the fourteen other generated artifacts still match their manuscripts"
+# -- so the fifteen below plus those five are the twenty `gen:check` runs.
+section "27  the fifteen other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_glyphs.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_display_words.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_mspdi_custom_fields.py --check || failed
+# ⭐ The MSPDI child order checks its own bodySha256 even where the XSD is
+# absent (JDG-251), so a hand edit goes red in every worktree too.
+PYTHONIOENCODING=utf-8 python tools/generate_mspdi_child_order.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || failed

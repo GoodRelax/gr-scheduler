@@ -369,6 +369,7 @@ const scheduleOf = (
     uidHighWaterMark: 1000,
     importSeq: 0,
     outlineBase: 1,
+    sourceFormat: 'grs',
     carry: {},
     carryElements: [],
   },

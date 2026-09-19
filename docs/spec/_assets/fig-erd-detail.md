@@ -45,6 +45,7 @@ erDiagram
         連想 carry "Carry・文字列→文字列"
         CarryElement[] carryElements "Carry"
         整数 outlineBase "Consume"
+        列挙 sourceFormat "GRS・3 値"
     }
     Task {
         整数 **uid** PK "Own"
@@ -327,6 +328,7 @@ erDiagram
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
 | AT-23 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
 | AT-139 | `Project` | `outlineBase` | 整数 | 否 | — | Consume | — | 取り込んだファイルが`OutlineLevel` を数え始める数（`FR-021`）。書き出しはこの数から書く。**既定は `1`** |
+| AT-143 | `Project` | `sourceFormat` | 列挙（3 値） | 否 | — | GRS | — | 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む |
 | AT-24 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
 | AT-25 | `Task` | `wbsParentUid` | 整数 | 可（`null` = 根） | FK | Consume | — | WBS の親。交換相手には対応要素が無く、深さと出現順から起こす |
 | AT-26 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
@@ -454,7 +456,7 @@ erDiagram
 | 行 ID | エンティティ | 交換相手での名前 | 交換相手の要素 | 何から作るか |
 | --- | --- | --- | --- | --- |
 | DV-1 | `Project` | `finishDate` | `Project/FinishDate` | 最も遅い `Task.finish` |
-| DV-2 | `Project` | `saveVersion` | `Project/SaveVersion` | 書き出す本ソフトウェアの版 |
+| DV-2 | `Project` | `saveVersion` | `Project/SaveVersion` | 取り込んだ値をそのまま返す。取り込まずに作った文書は `12`（`EX-1`） |
 | DV-3 | `Project` | `currencyCode` | `Project/CurrencyCode` | `carry` に控えた原値 |
 | DV-4 | `Task` | `id` | `Task/ID` | 書き出す順に振り直す。**`uid` とは別物で、可変である** |
 | DV-5 | `Task` | `outlineLevel` | `Task/OutlineLevel` | `wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`） |

@@ -324,6 +324,7 @@ const PROJECT: Project = {
   uidHighWaterMark: 400,
   importSeq: 3,
   outlineBase: 1,
+  sourceFormat: 'grs',
   carry: {},
   carryElements: [],
 }

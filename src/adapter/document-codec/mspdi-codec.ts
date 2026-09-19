@@ -26,7 +26,9 @@ import {
   lastDayForLength,
   textOfDay,
   workingCalendarOf,
+  workingDaysBetween,
 } from '../../entity/document-model/schedule/schedule'
+import childOrder from './mspdi-child-order.json'
 import customFields from './mspdi-custom-fields.json'
 
 export interface MspdiFault {
@@ -44,6 +46,8 @@ export type MspdiDecoding =
       readonly ok: true
       readonly document: Document
       readonly notices: readonly MspdiNotice[]
+      // see MR-3, RS-60
+      readonly duplicateLeaves: number
     }
   | { readonly ok: false; readonly faults: readonly MspdiFault[] }
 
@@ -55,101 +59,44 @@ export interface MspdiEncoding {
 // WHY: the XSD's namespace, not the one in the element reference examples; reading matches local names in any namespace.
 export const MSPDI_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 
-// see EX-1
-const CHILD_ORDER: Readonly<Record<string, readonly string[]>> = {
-  Project: [
-    'SaveVersion', 'UID', 'Name', 'Title', 'Subject', 'Category', 'Company', 'Manager',
-    'Author', 'CreationDate', 'Revision', 'LastSaved', 'ScheduleFromStart', 'StartDate',
-    'FinishDate', 'FYStartDate', 'CriticalSlackLimit', 'CurrencyDigits',
-    'CurrencySymbol', 'CurrencyCode', 'CurrencySymbolPosition', 'CalendarUID',
-    'DefaultStartTime', 'DefaultFinishTime', 'MinutesPerDay', 'MinutesPerWeek',
-    'DaysPerMonth', 'DefaultTaskType', 'DefaultFixedCostAccrual', 'DefaultStandardRate',
-    'DefaultOvertimeRate', 'DurationFormat', 'WorkFormat', 'EditableActualCosts',
-    'HonorConstraints', 'EarnedValueMethod', 'InsertedProjectsLikeSummary',
-    'MultipleCriticalPaths', 'NewTasksEffortDriven', 'NewTasksEstimated',
-    'SplitsInProgressTasks', 'SpreadActualCost', 'SpreadPercentComplete',
-    'TaskUpdatesResource', 'FiscalYearStart', 'WeekStartDay', 'MoveCompletedEndsBack',
-    'MoveRemainingStartsBack', 'MoveRemainingStartsForward', 'MoveCompletedEndsForward',
-    'BaselineForEarnedValue', 'AutoAddNewResourcesAndTasks', 'StatusDate',
-    'CurrentDate', 'MicrosoftProjectServerURL', 'Autolink', 'NewTaskStartDate',
-    'DefaultTaskEVMethod', 'ProjectExternallyEdited', 'ExtendedCreationDate',
-    'ActualsInSync', 'RemoveFileProperties', 'AdminProject', 'OutlineCodes', 'WBSMasks',
-    'ExtendedAttributes', 'Calendars', 'Tasks', 'Resources', 'Assignments',
-  ],
-  Task: [
-    'UID', 'ID', 'Name', 'Type', 'IsNull', 'CreateDate', 'Contact', 'WBS', 'WBSLevel',
-    'OutlineNumber', 'OutlineLevel', 'Priority', 'Start', 'Finish', 'Duration',
-    'DurationFormat', 'Work', 'Stop', 'Resume', 'ResumeValid', 'EffortDriven',
-    'Recurring', 'OverAllocated', 'Estimated', 'Milestone', 'Summary', 'Critical',
-    'IsSubproject', 'IsSubprojectReadOnly', 'SubprojectName', 'ExternalTask',
-    'ExternalTaskProject', 'EarlyStart', 'EarlyFinish', 'LateStart', 'LateFinish',
-    'StartVariance', 'FinishVariance', 'WorkVariance', 'FreeSlack', 'TotalSlack',
-    'FixedCost', 'FixedCostAccrual', 'PercentComplete', 'PercentWorkComplete', 'Cost',
-    'OvertimeCost', 'OvertimeWork', 'ActualStart', 'ActualFinish', 'ActualDuration',
-    'ActualCost', 'ActualOvertimeCost', 'ActualWork', 'ActualOvertimeWork',
-    'RegularWork', 'RemainingDuration', 'RemainingCost', 'RemainingWork',
-    'RemainingOvertimeCost', 'RemainingOvertimeWork', 'ACWP', 'CV', 'ConstraintType',
-    'CalendarUID', 'ConstraintDate', 'Deadline', 'LevelAssignments', 'LevelingCanSplit',
-    'LevelingDelay', 'LevelingDelayFormat', 'PreLeveledStart', 'PreLeveledFinish',
-    'Hyperlink', 'HyperlinkAddress', 'HyperlinkSubAddress', 'IgnoreResourceCalendar',
-    'Notes', 'HideBar', 'Rollup', 'BCWS', 'BCWP', 'PhysicalPercentComplete',
-    'EarnedValueMethod', 'PredecessorLink', 'ActualWorkProtected',
-    'ActualOvertimeWorkProtected', 'ExtendedAttribute', 'Baseline', 'OutlineCode',
-    'IsPublished', 'StatusManager', 'CommitmentStart', 'CommitmentFinish',
-    'CommitmentType', 'TimephasedData',
-  ],
-  Resource: [
-    'UID', 'ID', 'Name', 'Type', 'IsNull', 'Initials', 'Phonetics', 'NTAccount',
-    'MaterialLabel', 'Code', 'Group', 'WorkGroup', 'EmailAddress', 'Hyperlink',
-    'HyperlinkAddress', 'HyperlinkSubAddress', 'MaxUnits', 'PeakUnits', 'OverAllocated',
-    'AvailableFrom', 'AvailableTo', 'Start', 'Finish', 'CanLevel', 'AccrueAt', 'Work',
-    'RegularWork', 'OvertimeWork', 'ActualWork', 'RemainingWork', 'ActualOvertimeWork',
-    'RemainingOvertimeWork', 'PercentWorkComplete', 'StandardRate',
-    'StandardRateFormat', 'Cost', 'OvertimeRate', 'OvertimeRateFormat', 'OvertimeCost',
-    'CostPerUse', 'ActualCost', 'ActualOvertimeCost', 'RemainingCost',
-    'RemainingOvertimeCost', 'WorkVariance', 'CostVariance', 'SV', 'CV', 'ACWP',
-    'CalendarUID', 'Notes', 'BCWS', 'BCWP', 'IsGeneric', 'IsInactive', 'IsEnterprise',
-    'BookingType', 'ActualWorkProtected', 'ActualOvertimeWorkProtected',
-    'ActiveDirectoryGUID', 'CreationDate', 'ExtendedAttribute', 'Baseline',
-    'OutlineCode', 'IsCostResource', 'AssnOwner', 'AssnOwnerGuid', 'IsBudget',
-    'AvailabilityPeriods', 'Rates', 'TimephasedData',
-  ],
-  Assignment: [
-    'UID', 'TaskUID', 'ResourceUID', 'PercentWorkComplete', 'ActualCost',
-    'ActualFinish', 'ActualOvertimeCost', 'ActualOvertimeWork', 'ActualStart',
-    'ActualWork', 'ACWP', 'Confirmed', 'Cost', 'CostRateTable', 'CostVariance', 'CV',
-    'Delay', 'Finish', 'FinishVariance', 'Hyperlink', 'HyperlinkAddress',
-    'HyperlinkSubAddress', 'WorkVariance', 'HasFixedRateUnits', 'FixedMaterial',
-    'LevelingDelay', 'LevelingDelayFormat', 'LinkedFields', 'Milestone', 'Notes',
-    'Overallocated', 'OvertimeCost', 'OvertimeWork', 'PeakUnits', 'RegularWork',
-    'RemainingCost', 'RemainingOvertimeCost', 'RemainingOvertimeWork', 'RemainingWork',
-    'ResponsePending', 'Start', 'Stop', 'Resume', 'StartVariance', 'Summary', 'SV',
-    'Units', 'UpdateNeeded', 'VAC', 'Work', 'WorkContour', 'BCWS', 'BCWP',
-    'BookingType', 'ActualWorkProtected', 'ActualOvertimeWorkProtected', 'CreationDate',
-    'AssnOwner', 'AssnOwnerGuid', 'BudgetCost', 'BudgetWork', 'ExtendedAttribute',
-    'Baseline',
-    ...assignmentFieldCodes(),
-    'TimephasedData',
-  ],
-  Calendar: ['UID', 'Name', 'IsBaseCalendar', 'BaseCalendarUID', 'WeekDays',
-    'Exceptions', 'WorkWeeks'],
-  WeekDay: ['DayType', 'DayWorking', 'TimePeriod', 'WorkingTimes'],
-  Exception: ['EnteredByOccurrences', 'TimePeriod', 'Occurrences', 'Name', 'Type',
-    'Period', 'DaysOfWeek', 'MonthItem', 'MonthPosition', 'Month', 'MonthDay',
-    'DayWorking', 'WorkingTimes'],
-  TimePeriod: ['FromDate', 'ToDate'],
-  PredecessorLink: ['PredecessorUID', 'Type', 'CrossProject', 'CrossProjectName',
-    'LinkLag', 'LagFormat'],
+interface ParentOrder {
+  readonly isAll: boolean
+  readonly ranks: ReadonlyMap<string, number>
+  readonly pj15Only: ReadonlySet<string>
 }
 
-// WHY: generated rather than typed, since a typo among the literals would silently misplace a carried scalar.
-/** @purity pure */
-function assignmentFieldCodes(): readonly string[] {
-  const codes: string[] = []
-  for (let code = 0x000; code <= 0x0c8; code += 1) {
-    codes.push(`f404${code.toString(16).padStart(3, '0')}`)
-  }
-  return codes
+// see EX-1, EX-10, AT-143
+const PARENT_ORDERS: ReadonlyMap<string, ParentOrder> = new Map(
+  Object.entries(childOrder.parents).map(([path, row]) => [path, {
+    isAll: row.all,
+    ranks: new Map(row.children.map((name, rank) => [name, rank])),
+    pj15Only: new Set(row.pj15Only),
+  }]),
+)
+
+type ParentPath = keyof typeof childOrder.parents
+
+// WHY: element paths, not names; the table keys by path because one name changes shape with its parent.
+const PATHS = {
+  project: 'Project',
+  calendar: 'Project/Calendars/Calendar',
+  weekDay: 'Project/Calendars/Calendar/WeekDays/WeekDay',
+  exception: 'Project/Calendars/Calendar/Exceptions/Exception',
+  exceptionPeriod: 'Project/Calendars/Calendar/Exceptions/Exception/TimePeriod',
+  definition: 'Project/ExtendedAttributes/ExtendedAttribute',
+  task: 'Project/Tasks/Task',
+  dependency: 'Project/Tasks/Task/PredecessorLink',
+  taskValue: 'Project/Tasks/Task/ExtendedAttribute',
+  resource: 'Project/Resources/Resource',
+  assignment: 'Project/Assignments/Assignment',
+} as const satisfies Readonly<Record<string, ParentPath>>
+
+// WHY: a row carried whole (DF-3) is held on the Project but lives in its collection in the file.
+const CARRIED_ROW_PATHS: Readonly<Record<string, string>> = {
+  Calendar: PATHS.calendar,
+  Task: PATHS.task,
+  Resource: PATHS.resource,
+  Assignment: PATHS.assignment,
 }
 
 interface XmlElement {
@@ -513,7 +460,7 @@ function carrySplit(element: XmlElement, consumed: readonly string[]): CarrySpli
   element.children.forEach((child, ordinal) => {
     if (consumed.includes(child.name)) return
     if (child.children.length === 0) {
-      carry[child.name] = child.text
+      keepFirstLeaf(carry, child)
       return
     }
     carryElements.push(carriedElement(child, ordinal))
@@ -526,67 +473,255 @@ function carriedElement(element: XmlElement, ordinal: number): CarryElement {
   const fields: Record<string, string> = {}
   const children: CarryElement[] = []
   element.children.forEach((child, childOrdinal) => {
-    if (child.children.length === 0) fields[child.name] = child.text
+    if (child.children.length === 0) keepFirstLeaf(fields, child)
     else children.push(carriedElement(child, childOrdinal))
   })
   return { ordinal, name: element.name, fields, children }
 }
 
-// DEVIATION: spec says an unedited file writes back equal (FR-021); here leaves go before children (DFC-563)
+// see MR-3
+// WHY: the first leaf of a name wins, as childOf does for a consumed one; duplicateLeafCount tells the rest.
 /** @purity pure */
-function writtenCarriedElement(carried: CarryElement): XmlElement {
-  const children: XmlElement[] = []
-  for (const [name, value] of Object.entries(carried.fields)) {
-    children.push({ name, text: value, children: [] })
+function keepFirstLeaf(leaves: Record<string, string>, leaf: XmlElement): void {
+  if (!Object.hasOwn(leaves, leaf.name)) leaves[leaf.name] = leaf.text
+}
+
+// see MR-3, RS-60
+/** @purity pure */
+function duplicateLeafCount(root: XmlElement): number {
+  let count = 0
+  const pending: XmlElement[] = [root]
+  for (let element = pending.pop(); element !== undefined; element = pending.pop()) {
+    const seen = new Set<string>()
+    for (const child of element.children) {
+      if (child.children.length > 0) pending.push(child)
+      else if (seen.has(child.name)) count += 1
+      else seen.add(child.name)
+    }
   }
-  for (const child of [...carried.children].sort((a, b) => a.ordinal - b.ordinal)) {
-    children.push(writtenCarriedElement(child))
+  return count
+}
+
+type MspdiVersion = Exclude<Project['sourceFormat'], 'grs'>
+
+interface CarryHolder {
+  readonly holder: unknown
+  readonly path: string
+}
+
+// see AT-143, EX-1
+// WHY: reads the model, not the XML, so a GRS JSON (decision 7 of CR-429) is told the same way; it takes
+// unknown because json-codec asks before its schema check. TRAP: an element GRS consumes is not seen here.
+/** @purity pure */
+export function mspdiVersionOfCarried(schedule: unknown): MspdiVersion {
+  const pending: CarryHolder[] = [...carryHoldersOf(schedule)]
+  for (let one = pending.pop(); one !== undefined; one = pending.pop()) {
+    if (!isObject(one.holder)) continue
+    const marks = PARENT_ORDERS.get(one.path)?.pj15Only
+    const leaves = one.holder['carry'] ?? one.holder['fields']
+    if (marks !== undefined && isObject(leaves) && Object.keys(leaves).some((name) => marks.has(name))) {
+      return 'pj15'
+    }
+    const elements = one.holder['carryElements'] ?? one.holder['children']
+    for (const element of Array.isArray(elements) ? elements : []) {
+      const name = isObject(element) && typeof element['name'] === 'string' ? element['name'] : null
+      if (name === null) continue
+      if (marks?.has(name) === true) return 'pj15'
+      const rowPath = one.path === PATHS.project ? CARRIED_ROW_PATHS[name] : undefined
+      pending.push({ holder: element, path: rowPath ?? `${one.path}/${name}` })
+    }
   }
-  return { name: carried.name, text: '', children }
+  return 'pj12'
+}
+
+/** @purity pure */
+function carryHoldersOf(schedule: unknown): CarryHolder[] {
+  if (!isObject(schedule)) return []
+  const holders: CarryHolder[] = [{ holder: schedule['project'], path: PATHS.project }]
+  const rowsOf = (owner: unknown, key: string, path: string): unknown[] => {
+    const rows = isObject(owner) ? owner[key] : undefined
+    for (const row of Array.isArray(rows) ? rows : []) holders.push({ holder: row, path })
+    return Array.isArray(rows) ? rows : []
+  }
+  for (const calendar of rowsOf(schedule, 'calendars', PATHS.calendar)) {
+    rowsOf(calendar, 'weekDays', PATHS.weekDay)
+    rowsOf(calendar, 'exceptions', PATHS.exception)
+  }
+  for (const task of rowsOf(schedule, 'tasks', PATHS.task)) rowsOf(task, 'dependencies', PATHS.dependency)
+  rowsOf(schedule, 'resources', PATHS.resource)
+  rowsOf(schedule, 'assignments', PATHS.assignment)
+  return holders
+}
+
+/** @purity pure */
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** @purity pure */
+function writtenCarriedElement(carried: CarryElement, path: string): XmlElement {
+  const held = heldInArrivalOrder(path, carried.fields, carried.children)
+  return { name: carried.name, text: '', children: placedChildren(path, held, [], 'siblings') }
 }
 
 interface PlacedChild {
   readonly element: XmlElement
-  readonly ordinal: number
 }
 
+// WHY: a row GRS holds keeps no place between a carried leaf, a carried element and the children it writes, so
+// under such a row an undeclared child is placed among the carried siblings of its own kind (EX-10).
+type ChildAnchors = 'kind' | 'siblings'
+
+// see EX-10
 /** @purity pure */
 function writtenChildren(
-  parentName: string,
+  path: string,
   named: readonly PlacedChild[],
   carry: Readonly<Record<string, string>>,
   carried: readonly CarryElement[],
 ): readonly XmlElement[] {
-  const order = CHILD_ORDER[parentName] ?? []
-  const placed: PlacedChild[] = [...named]
-  for (const [name, value] of Object.entries(carry)) {
-    placed.push({ element: { name, text: value, children: [] }, ordinal: 0 })
-  }
-  for (const one of carried) {
-    placed.push({ element: writtenCarriedElement(one), ordinal: one.ordinal })
-  }
-  return placed
-    .map((child, arrival) => ({ child, arrival }))
-    .sort((a, b) => {
-      const byRank = declaredRank(order, a.child.element.name)
-        - declaredRank(order, b.child.element.name)
-      if (byRank !== 0) return byRank
-      const byOrdinal = a.child.ordinal - b.child.ordinal
-      return byOrdinal !== 0 ? byOrdinal : a.arrival - b.arrival
-    })
-    .map((one) => one.child.element)
+  const written = named.map((one) => one.element)
+  return placedChildren(path, heldInArrivalOrder(path, carry, carried), written, 'kind')
 }
 
-// WHY: an undeclared name ranks last, since misplacing it loses less than dropping it.
+// see EX-10
 /** @purity pure */
-function declaredRank(order: readonly string[], name: string): number {
-  const found = order.indexOf(name)
-  return found < 0 ? order.length : found
+function placedChildren(
+  path: string,
+  held: readonly XmlElement[],
+  written: readonly XmlElement[],
+  anchors: ChildAnchors,
+): readonly XmlElement[] {
+  const order = PARENT_ORDERS.get(path)
+  // WHY: an xsd:all parent takes any order and a parent the table lacks names none, so either keeps
+  // the order the file arrived in.
+  if (order === undefined || order.isAll) return [...held, ...written]
+  return inSchemaOrder(order.ranks, held, written, anchors)
+}
+
+/** @purity pure */
+function heldInArrivalOrder(
+  path: string,
+  leaves: Readonly<Record<string, string>>,
+  carried: readonly CarryElement[],
+): XmlElement[] {
+  const elements = [...carried].sort((a, b) => a.ordinal - b.ordinal)
+  const texts = Object.entries(leaves)
+  const held: XmlElement[] = []
+  // TRAP: a leaf keeps no ordinal (AT-125), so leaves fill in order the places the carried ordinals leave free.
+  for (let leafAt = 0, elementAt = 0; leafAt < texts.length || elementAt < elements.length;) {
+    const element = elements[elementAt]
+    const text = texts[leafAt]
+    if (element !== undefined && (text === undefined || element.ordinal <= held.length)) {
+      held.push(writtenCarriedElement(element, `${path}/${element.name}`))
+      elementAt += 1
+    } else if (text !== undefined) {
+      held.push({ name: text[0], text: text[1], children: [] })
+      leafAt += 1
+    }
+  }
+  return held
+}
+
+interface RankedChild {
+  readonly element: XmlElement
+  readonly rank: number
+  readonly isWritten: boolean
+  readonly arrival: number
+}
+
+// see EX-10
+/** @purity pure */
+function inSchemaOrder(
+  ranks: ReadonlyMap<string, number>,
+  held: readonly XmlElement[],
+  written: readonly XmlElement[],
+  anchors: ChildAnchors,
+): readonly XmlElement[] {
+  const declared: RankedChild[] = []
+  const rankOf = (element: XmlElement): number => ranks.get(element.name) ?? ranks.size
+  held.forEach((element, arrival) => {
+    if (ranks.has(element.name)) declared.push({ element, rank: rankOf(element), isWritten: false, arrival })
+  })
+  written.forEach((element, arrival) => {
+    declared.push({ element, rank: rankOf(element), isWritten: true, arrival })
+  })
+  // TRAP: at one rank the held come first, so a written fade value follows the carried ones of its name.
+  declared.sort((a, b) => a.rank - b.rank
+    || Number(a.isWritten) - Number(b.isWritten) || a.arrival - b.arrival)
+  const undeclared = undeclaredByNeighbour(ranks, held, anchors)
+  const ordered: XmlElement[] = []
+  for (const one of declared) {
+    ordered.push(...undeclared.before.get(one.element) ?? [], one.element)
+    ordered.push(...undeclared.after.get(one.element) ?? [])
+  }
+  return [...ordered, ...undeclared.unanchored]
+}
+
+interface UndeclaredPlaces {
+  readonly after: ReadonlyMap<XmlElement, readonly XmlElement[]>
+  readonly before: ReadonlyMap<XmlElement, readonly XmlElement[]>
+  readonly unanchored: readonly XmlElement[]
+}
+
+// see EX-10
+/** @purity pure */
+function undeclaredByNeighbour(
+  ranks: ReadonlyMap<string, number>,
+  held: readonly XmlElement[],
+  anchors: ChildAnchors,
+): UndeclaredPlaces {
+  if (anchors === 'siblings') return placesByNeighbour(ranks, held)
+  const isLeaf = (element: XmlElement): boolean => element.children.length === 0
+  const byLeaves = placesByNeighbour(ranks, held.filter(isLeaf))
+  const byElements = placesByNeighbour(ranks, held.filter((element) => !isLeaf(element)))
+  return mergedInArrival(held, [byLeaves, byElements])
+}
+
+/** @purity pure */
+function mergedInArrival(held: readonly XmlElement[], places: readonly UndeclaredPlaces[]): UndeclaredPlaces {
+  const arrival = new Map(held.map((element, at) => [element, at]))
+  const inArrival = (list: readonly XmlElement[]): readonly XmlElement[] =>
+    [...list].sort((a, b) => (arrival.get(a) ?? 0) - (arrival.get(b) ?? 0))
+  const joined = (side: 'after' | 'before'): ReadonlyMap<XmlElement, readonly XmlElement[]> => {
+    const lists = new Map<XmlElement, XmlElement[]>()
+    for (const one of places) {
+      for (const [anchor, list] of one[side]) lists.set(anchor, [...lists.get(anchor) ?? [], ...list])
+    }
+    return new Map([...lists].map(([anchor, list]): [XmlElement, readonly XmlElement[]] => [anchor, inArrival(list)]))
+  }
+  const unanchored = inArrival(places.flatMap((one) => one.unanchored))
+  return { after: joined('after'), before: joined('before'), unanchored }
+}
+
+// WHY: a child neither schema declares has no rank, so it rides with the declared child before it, or
+// with the one after it when it came first; with no declared neighbour at all it goes last.
+/** @purity pure */
+function placesByNeighbour(
+  ranks: ReadonlyMap<string, number>,
+  held: readonly XmlElement[],
+): UndeclaredPlaces {
+  const after = new Map<XmlElement, XmlElement[]>()
+  const before = new Map<XmlElement, XmlElement[]>()
+  let leading: XmlElement[] = []
+  let anchor: XmlElement | null = null
+  for (const element of held) {
+    if (ranks.has(element.name)) {
+      if (anchor === null && leading.length > 0) before.set(element, leading)
+      leading = []
+      anchor = element
+    } else if (anchor === null) {
+      leading.push(element)
+    } else {
+      after.set(anchor, [...after.get(anchor) ?? [], element])
+    }
+  }
+  return { after, before, unanchored: leading }
 }
 
 /** @purity pure */
 function leaf(name: string, text: string): PlacedChild {
-  return { element: { name, text, children: [] }, ordinal: 0 }
+  return { element: { name, text, children: [] } }
 }
 
 // WHY: an empty element would tell the partner's tool the value is empty, so nothing is written.
@@ -659,6 +794,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
   return {
     ok: true,
     notices: run.notices,
+    duplicateLeaves: duplicateLeafCount(root),
     document: {
       schemaVersion: current.schemaVersion,
       schedule,
@@ -697,13 +833,21 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     ...assignmentsRead.assignments.map((assignment) => assignment.uid),
     ...calendarsRead.calendars.map((calendar) => calendar.uid),
   )
-
-  return withStopsFromActualDurations({
-    project: { ...project, uidHighWaterMark: highWaterMark },
+  const read = {
     calendars: calendarsRead.calendars,
     tasks: tasksRead.tasks,
     resources: resourcesRead.resources,
     assignments: assignmentsRead.assignments,
+  }
+
+  return withStopsFromActualDurations({
+    ...read,
+    project: {
+      ...project,
+      uidHighWaterMark: highWaterMark,
+      // see AT-143
+      sourceFormat: mspdiVersionOfCarried({ ...read, project }),
+    },
     taskGroups: rows.taskGroups,
     taskGroupMembers: rows.taskGroupMembers,
     // WHY: empty; these entities have no MSPDI element, and task origins are the import use case's.
@@ -721,7 +865,7 @@ function projectFromRoot(
   current: Document,
   carriedRows: readonly CarryElement[],
   outlineBase: number,
-): Project {
+): Omit<Project, 'sourceFormat'> {
   const split = carrySplit(root, PROJECT_CONSUMED)
   return {
     id: textColumn(root, 'UID'),
@@ -1342,7 +1486,7 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
   if (assignments.length > 0) named.push(collection('Assignments', assignments))
 
   return writtenChildren(
-    'Project',
+    PATHS.project,
     named,
     definitions.carry,
     // TRAP: collection rows are written inside their collection; writing them here too duplicates them.
@@ -1352,10 +1496,8 @@ function writtenProjectChildren(schedule: Schedule, run: ExportRun): readonly Xm
 
 /** @purity pure */
 function isCarriedRow(carried: CarryElement): boolean {
-  return CARRIED_ROW_NAMES.includes(carried.name)
+  return Object.hasOwn(CARRIED_ROW_PATHS, carried.name)
 }
-
-const CARRIED_ROW_NAMES: readonly string[] = ['Calendar', 'Task', 'Resource', 'Assignment']
 
 interface ClaimedFrame {
   readonly column: FadeColumn
@@ -1444,7 +1586,7 @@ function writtenFadeDefinitions(
   const collection = foundAt < 0 ? undefined : carried[foundAt]
   if (collection === undefined) {
     const children = missing.map((claimed, index) => writtenCarriedElement(
-      definitionOfFrame(claimed, index),
+      definitionOfFrame(claimed, index), PATHS.definition,
     ))
     // TRAP: an empty ExtendedAttributes that arrived sits in carry as a scalar; it is dropped here
     // once a frame is claimed, and written back otherwise.
@@ -1452,7 +1594,7 @@ function writtenFadeDefinitions(
     return {
       carry: rest,
       carried,
-      named: [{ element: { name: 'ExtendedAttributes', text: '', children }, ordinal: 0 }],
+      named: [{ element: { name: 'ExtendedAttributes', text: '', children } }],
     }
   }
   const nextOrdinal = collection.children.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
@@ -1475,7 +1617,6 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
   return {
     ordinal,
     name: 'ExtendedAttribute',
-    // TRAP: keys in the order the XSD declares; writtenCarriedElement writes fields in insertion order.
     fields: {
       FieldID: String(claimed.fieldId),
       CFType: String(customFields.cfType),
@@ -1490,34 +1631,31 @@ function definitionOfFrame(claimed: ClaimedFrame, ordinal: number): CarryElement
 // DEVIATION: spec says an unedited file writes back equal (FR-021); here fade values go after carried ones (DFC-563)
 /** @purity pure */
 function writtenFadeValues(task: Task, frames: readonly ClaimedFrame[]): PlacedChild[] {
-  const afterCarried = task.carryElements.reduce((top, one) => Math.max(top, one.ordinal + 1), 0)
   const placed: PlacedChild[] = []
   for (const claimed of frames) {
     const days = task[claimed.column]
     if (days === null) continue
+    const named = [leaf('FieldID', String(claimed.fieldId)), leaf('Value', String(days))]
     placed.push({
       element: {
         name: 'ExtendedAttribute',
         text: '',
-        children: [
-          { name: 'FieldID', text: String(claimed.fieldId), children: [] },
-          { name: 'Value', text: String(days), children: [] },
-        ],
+        children: writtenChildren(PATHS.taskValue, named, {}, []),
       },
-      ordinal: afterCarried + placed.length,
     })
   }
   return placed
 }
 
-const GRS_SAVE_VERSION = '0'
+// see DV-2, EX-1
+const GRS_SAVE_VERSION = '12'
 
 // WHY: ISO 4217's no-currency code, since no column of the document holds money.
 const UNSTATED_CURRENCY_CODE = 'XXX'
 
 /** @purity pure */
 function collection(name: string, rows: readonly XmlElement[]): PlacedChild {
-  return { element: { name, text: '', children: rows }, ordinal: 0 }
+  return { element: { name, text: '', children: rows } }
 }
 
 // see DV-1
@@ -1605,12 +1743,13 @@ function splicedCarriedRows(
   carried: readonly CarryElement[],
   name: string,
 ): readonly XmlElement[] {
+  const path = CARRIED_ROW_PATHS[name] ?? `${PATHS.project}/${name}`
   const rowsBack = carried.filter((one) => one.name === name).sort((a, b) => a.ordinal - b.ordinal)
   if (rowsBack.length === 0) return rows
   const out = [...rows]
   for (const row of rowsBack) {
     const foundAt = Math.min(Math.max(row.ordinal, 0), out.length)
-    out.splice(foundAt, 0, writtenCarriedElement(row))
+    out.splice(foundAt, 0, writtenCarriedElement(row, path))
   }
   return out
 }
@@ -1692,12 +1831,56 @@ function writtenTask(
     ...(task.carry['Stop'] === undefined ? optionalLeaf('Stop', task.stop) : []),
     ...task.dependencies.map(writtenDependency),
     ...writtenFadeValues(task, frames),
+    ...writtenConstraintOfGrs(task, schedule, run),
   ]
+  const carry = schedule.project.sourceFormat === 'grs'
+    ? withoutLeaves(task.carry, CONSTRAINT_LEAVES)
+    : task.carry
   return {
     name: 'Task',
     text: '',
-    children: writtenChildren('Task', named, task.carry, task.carryElements),
+    children: writtenChildren(PATHS.task, named, carry, task.carryElements),
   }
+}
+
+// WHY: GRS writes these for a grs document and would write each twice if a merged task carried them too.
+const CONSTRAINT_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDate']
+
+// see EX-11
+const MUST_START_ON = '2'
+
+// see EX-11, EX-12, DV-8
+// WHY: a document read from MSPDI gets these when a task is edited (edit-task.ts), never on write (EX-2).
+/** @purity pure */
+function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun): PlacedChild[] {
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  if (schedule.project.sourceFormat !== 'grs' || start === null || finish === null) return []
+  const constraint = [
+    leaf('ConstraintType', MUST_START_ON),
+    leaf('ConstraintDate', textOfDay(start)),
+  ]
+  // see DV-8
+  if (task.carry['Duration'] !== undefined) return constraint
+  try {
+    const span = workingDaysBetween(workingCalendarOf(schedule), start, finish)
+    const minutes = span * minutesPerWorkingDay(schedule.project.minutesPerDay)
+    return [...constraint, leaf('Duration', durationOfMinutes(minutes))]
+  } catch (why) {
+    run.notices.push(notice(
+      `/Project/Tasks/Task[uid=${task.uid}]/Duration`,
+      `could not be counted: ${why instanceof Error ? why.message : String(why)}`,
+    ))
+    return constraint
+  }
+}
+
+/** @purity pure */
+function withoutLeaves(
+  leaves: Readonly<Record<string, string>>,
+  names: readonly string[],
+): Readonly<Record<string, string>> {
+  return Object.fromEntries(Object.entries(leaves).filter(([name]) => !names.includes(name)))
 }
 
 // see DV-11, T-019
@@ -1737,10 +1920,9 @@ function writtenDependency(dependency: Dependency): PlacedChild {
       name: 'PredecessorLink',
       text: '',
       children: writtenChildren(
-        'PredecessorLink', named, dependency.carry, dependency.carryElements,
+        PATHS.dependency, named, dependency.carry, dependency.carryElements,
       ),
     },
-    ordinal: 0,
   }
 }
 
@@ -1758,7 +1940,7 @@ function writtenResources(schedule: Schedule): readonly XmlElement[] {
     return {
       name: 'Resource',
       text: '',
-      children: writtenChildren('Resource', named, resource.carry, resource.carryElements),
+      children: writtenChildren(PATHS.resource, named, resource.carry, resource.carryElements),
     }
   })
   return splicedCarriedRows(written, schedule.project.carryElements, 'Resource')
@@ -1774,7 +1956,7 @@ function writtenAssignment(assignment: Assignment): XmlElement {
   return {
     name: 'Assignment',
     text: '',
-    children: writtenChildren('Assignment', named, assignment.carry, assignment.carryElements),
+    children: writtenChildren(PATHS.assignment, named, assignment.carry, assignment.carryElements),
   }
 }
 
@@ -1795,7 +1977,7 @@ function writtenCalendar(calendar: Calendar): XmlElement {
   return {
     name: 'Calendar',
     text: '',
-    children: writtenChildren('Calendar', named, calendar.carry, calendar.carryElements),
+    children: writtenChildren(PATHS.calendar, named, calendar.carry, calendar.carryElements),
   }
 }
 
@@ -1808,7 +1990,7 @@ function writtenWeekDay(weekDay: WeekDay): XmlElement {
   return {
     name: 'WeekDay',
     text: '',
-    children: writtenChildren('WeekDay', named, weekDay.carry, weekDay.carryElements),
+    children: writtenChildren(PATHS.weekDay, named, weekDay.carry, weekDay.carryElements),
   }
 }
 
@@ -1828,14 +2010,13 @@ function writtenException(exception: Exception): XmlElement {
       element: {
         name: 'TimePeriod',
         text: '',
-        children: writtenChildren('TimePeriod', period, {}, []),
+        children: writtenChildren(PATHS.exceptionPeriod, period, {}, []),
       },
-      ordinal: 0,
     })
   }
   return {
     name: 'Exception',
     text: '',
-    children: writtenChildren('Exception', named, exception.carry, exception.carryElements),
+    children: writtenChildren(PATHS.exception, named, exception.carry, exception.carryElements),
   }
 }

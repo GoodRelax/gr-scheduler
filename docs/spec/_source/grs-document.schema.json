@@ -829,7 +829,8 @@
     "importSeq",
     "carry",
     "carryElements",
-    "outlineBase"
+    "outlineBase",
+    "sourceFormat"
    ],
    "additionalProperties": false,
    "properties": {
@@ -970,6 +971,13 @@
     "outlineBase": {
      "type": "integer",
      "default": 1
+    },
+    "sourceFormat": {
+     "enum": [
+      "grs",
+      "pj12",
+      "pj15"
+     ]
     }
    }
   },

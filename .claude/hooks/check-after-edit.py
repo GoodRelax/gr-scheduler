@@ -14,6 +14,8 @@ WHAT IT CHECKS
   docs/spec/_source/<file>
       every generator --check that reads that file, from GENERATORS below
       (the one table; it follows the gen:check chain of package.json).
+  a generated file named in ARTIFACT_GENERATORS
+      that generator's --check (a hand edit of the MSPDI child order).
   anything else
       nothing.
 
@@ -65,6 +67,7 @@ ICONS = 'tools/generate_icon_roster.py'
 PROPITEMS = 'tools/generate_property_items.py'
 WORDS = 'tools/generate_display_words.py'
 MSPDI = 'tools/generate_mspdi_custom_fields.py'
+MSPDI_ORDER = 'tools/generate_mspdi_child_order.py'
 
 GENERATORS = {
     'settings.json': [SETTINGS_MD, ERD_SCHEMA, TYPES, STARTUP],
@@ -85,6 +88,14 @@ GENERATORS = {
     'property_items_json_to_md.py': [ITEMS_MD],
     'row_id_prefixes_json_to_md.py': [PREFIXES_MD],
     'build.py': [COMPONENTS],
+}
+
+# Generated file outside docs/spec/_source/ -> the generator whose --check
+# holds it. Only an artifact whose manuscript no clone holds belongs here: the
+# MSPDI child order is made from the git-ignored pj15 XSD, so its own
+# bodySha256 (JDG-251) is the one thing that can catch a hand edit.
+ARTIFACT_GENERATORS = {
+    'src/adapter/document-codec/mspdi-child-order.json': [MSPDI_ORDER],
 }
 
 
@@ -198,6 +209,8 @@ def main():
         generators = GENERATORS.get(rel.rsplit('/', 1)[1])
         if generators:
             return check_generators(root, rel, generators)
+    if rel in ARTIFACT_GENERATORS:
+        return check_generators(root, rel, ARTIFACT_GENERATORS[rel])
     return 0
 
 

@@ -7,6 +7,7 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   COLUMN_SHAPES,
+  DEFAULT_CALENDAR_VALUES,
   actualLastDay,
   actualLengthOf,
   calendarDaysBetween,
@@ -285,6 +286,74 @@ function actualsEdited(task: Task): Task {
   }
 }
 
+const CARRIED_SLACKS: readonly string[] = ['FreeSlack', 'TotalSlack', 'StartSlack', 'FinishSlack']
+
+const CARRIED_PLAN_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDate', 'Duration']
+
+// see EX-11
+const MUST_START_ON = '2'
+
+interface DatedPlan {
+  readonly start: CalendarDay
+  readonly finish: CalendarDay
+  readonly duration: string
+}
+
+// see DV-8, EX-9
+/** @purity pure */
+function datedPlanOf(task: Task, schedule: Schedule, within: WorkingCalendar): DatedPlan | null {
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  if (start === null || finish === null) return null
+  const duration = durationText(workingDaysBetween(within, start, finish) * minutesPerDayOf(schedule))
+  return { start, finish, duration }
+}
+
+// see EX-11, EX-12, AT-143
+// WHY: a document read from MSPDI writes its carry back as it stands (EX-2), so these replace what would
+// contradict the dates; a grs document has them written on export, so its carried ones are dropped.
+/** @purity pure */
+function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
+  if (schedule.project.sourceFormat === 'grs') {
+    const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_PLAN_LEAVES.includes(name))
+    return { ...task, carry: Object.fromEntries(kept) }
+  }
+  const pinned = { ConstraintType: MUST_START_ON, ConstraintDate: textOfDay(span.start), Duration: span.duration }
+  return { ...task, carry: { ...task.carry, ...pinned } }
+}
+
+// see EX-11, EX-12, FR-033
+// WHY: a copy is a task GRS adds, not one the partner sent (FR-033 gives it no TaskOrigin), so a pasted subtree
+// comes through here as well: the links leaving the subtree do not come along, so the source's slack is no fact.
+/** @purity pure */
+function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
+  const span = datedPlanOf(task, schedule, within)
+  if (span === null) return task
+  const rebuilt: ReadonlyMap<string, string> = new Map([
+    ['ManualStart', textOfDay(span.start)],
+    ['ManualFinish', textOfDay(span.finish)],
+    ['ManualDuration', span.duration],
+  ])
+  const kept = Object.entries(task.carry)
+    .filter(([name]) => !CARRIED_SLACKS.includes(name))
+    .map(([name, value]): [string, string] => [name, rebuilt.get(name) ?? value])
+  return pinnedToStart({ ...task, carry: Object.fromEntries(kept) }, schedule, span)
+}
+
+// see FR-054, S-128
+/** @purity pure */
+function minutesPerDayOf(schedule: Schedule): number {
+  const held = schedule.project.minutesPerDay
+  return held !== null && held > 0 ? held : DEFAULT_CALENDAR_VALUES['S-128']
+}
+
+// see EX-9
+/** @purity pure */
+function durationText(minutes: number): string {
+  const whole = Math.max(0, Math.round(minutes))
+  return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`
+}
+
 // see IV-4
 // WHY: a sweep, not a recursion, because rows arrive in no parent-before-child order.
 /** @purity pure */
@@ -361,7 +430,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
         carry: {},
         carryElements: [],
       }
-      const tasks = [...schedule.tasks, repriced(within, created)]
+      const tasks = [...schedule.tasks, repriced(within, planDatesEdited(created, schedule, within))]
 
       // TRAP: write shapeKind down; Task.milestone cannot tell SH-1 from SH-2 (AT-100).
       const taskVisuals = [...schedule.taskVisuals, { ...visualOf(schedule, uid), shapeKind: command.shapeKind }]
@@ -450,7 +519,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
 
       const copies = schedule.tasks
         .filter((one) => subtree.has(one.uid))
-        .map((one) => ({
+        .map((one) => planDatesEdited({
           ...one,
           uid: remap.get(one.uid) as number,
           // STOP: spec does not decide a copied root Task's WBS parent. Looked in FR-033, DU-1, DU-2, TC-11 (PND-492)
@@ -461,7 +530,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           dependencies: one.dependencies
             .filter((link) => subtree.has(link.predecessorUid))
             .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
-        }))
+        }, schedule, within))
 
       const visualCopies = schedule.taskVisuals
         .filter((one) => subtree.has(one.taskUid))
@@ -510,7 +579,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           reject('CM-11', 'IV-12', `fade of ${fade} days does not fit a plan of ${span}`),
         ])
       }
-      const moved = { ...task, start: command.start, finish: command.finish }
+      const moved = planDatesEdited({ ...task, start: command.start, finish: command.finish }, schedule, within)
       return edited(withTask(document, repriced(within, moved)))
     }
 

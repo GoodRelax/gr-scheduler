@@ -85,6 +85,12 @@ ARTIFACTS = [
     # them a second time anywhere.
     ('src/adapter/document-codec/mspdi-custom-fields.json',
      'docs/spec/_source/mspdi-custom-fields.json'),
+    # The names and order of children per MSPDI element path (EX-10 of table
+    # T-033, the exception of CN-7). ⚠️ Its manuscript is the pj15 XSD, which
+    # no clone holds (docs/reference/README.md), so the banner names the local
+    # copy, and the file carries its own bodySha256 (JDG-251).
+    ('src/adapter/document-codec/mspdi-child-order.json',
+     'docs/reference/mspdi/pj15/mspdi_pj15.xsd'),
     # The two values OP-12 of table T-024a compares (CR-214 moved them out of
     # prose and into columns of table T-024, so that a generator could reach
     # them at all). ⚠️ Its manuscript is a REQUIREMENTS document rather than a

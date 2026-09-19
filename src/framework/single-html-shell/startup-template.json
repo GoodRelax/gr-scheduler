@@ -25,7 +25,8 @@
    "importSeq": 0,
    "outlineBase": 1,
    "carry": {},
-   "carryElements": []
+   "carryElements": [],
+   "sourceFormat": "grs"
   },
   "calendars": [
    {

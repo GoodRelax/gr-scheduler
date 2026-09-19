@@ -565,6 +565,7 @@ type NoticeReason =
   | 'RS-57'
   | 'RS-58'
   | 'RS-59'
+  | 'RS-60'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -619,6 +620,7 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-57': 'NT-1',
   'RS-58': 'NT-1',
   'RS-59': 'NT-3a',
+  'RS-60': 'NT-5',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -693,6 +695,9 @@ const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeRe
 const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
 
 const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
+
+// see MR-3
+const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
 
 const RECOUNTED_PERCENT_COMPLETE_REASON: NoticeReason = 'RS-52'
@@ -894,6 +899,7 @@ function exportedText(form: SaveFileForm, document: Document): string | null {
 interface DecodedIntake {
   readonly document: Document
   readonly clampedCount: number
+  readonly duplicateLeaves: number
   readonly unreadColumns: readonly string[]
 }
 
@@ -911,13 +917,16 @@ function decodedDocument(
       ? {
           document: read.document,
           clampedCount: read.clampedCount,
+          duplicateLeaves: 0,
           unreadColumns: read.unreadColumns,
         }
       : null
   }
   // DEVIATION: spec says a reading's notices and faults are told (T-233); here they are dropped (DFC-557)
   const read = documentFromMspdi(text, current)
-  return read.ok ? { document: read.document, clampedCount: 0, unreadColumns: [] } : null
+  return read.ok
+    ? { document: read.document, clampedCount: 0, duplicateLeaves: read.duplicateLeaves, unreadColumns: [] }
+    : null
 }
 
 // see FR-053
@@ -3026,6 +3035,9 @@ export function frameLoop(
       incoming = decoded.document
       if (decoded.clampedCount > 0) {
         raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
+      }
+      if (decoded.duplicateLeaves > 0) {
+        raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
       }
       couldNotBeRead = decoded.unreadColumns
     }

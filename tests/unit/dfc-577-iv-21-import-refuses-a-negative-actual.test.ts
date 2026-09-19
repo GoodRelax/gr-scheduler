@@ -108,6 +108,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   uidHighWaterMark: 0,
   importSeq: 0,
   outlineBase: 1,
+  sourceFormat: 'grs',
   carry: {},
   carryElements: [],
   ...part,

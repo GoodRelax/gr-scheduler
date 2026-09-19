@@ -82,20 +82,25 @@ import { validateDocument } from '../fixtures/grs-document'
 
 // ---------------------------------------------------------------------------
 // The exchange partner's own facts, read from the official schema.
-// Chapter 6.2 names mspdi_pj12.xsd the authority and docs/reference/README.md
-// says the local copy is where a fact is confirmed, so nothing below re-types
-// an element order, and a schema revision cannot leave a copy here stale.
+// Chapter 6.2 names one authority per version (A.1) and docs/reference/README.md
+// says the local copies are where a fact is confirmed, so nothing below re-types
+// an element order, and EX-1 picks pj12 or pj15 by what the output holds.
 // ---------------------------------------------------------------------------
 
-const XSD_PATH = join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj12', 'mspdi_pj12.xsd')
+const XSD_PATHS = {
+  pj12: join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj12', 'mspdi_pj12.xsd'),
+  pj15: join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj15', 'mspdi_pj15.xsd'),
+} as const
+
+const XSD_PATH = XSD_PATHS.pj12
 
 /**
  * For every element path below `Project`, the order the schema declares its
  * children in. The complex types are xsd:sequence throughout, so this order is
  * the only one EX-1 (valid against the official schema, MUST) accepts.
  */
-function declaredChildOrder(): ReadonlyMap<string, readonly string[]> {
-  const source = readFileSync(XSD_PATH, 'utf8')
+function declaredChildOrder(xsdPath: string = XSD_PATH): ReadonlyMap<string, readonly string[]> {
+  const source = readFileSync(xsdPath, 'utf8')
   const order = new Map<string, string[]>()
   const open: (string | null)[] = []
   const tag = /<(\/?)(xsd:[A-Za-z]+)([^>]*?)(\/?)>/g
@@ -125,6 +130,19 @@ function declaredChildOrder(): ReadonlyMap<string, readonly string[]> {
 
 const CHILD_ORDER = declaredChildOrder()
 
+const PJ15_CHILD_ORDER = declaredChildOrder(XSD_PATHS.pj15)
+
+const PJ15_ONLY_PATHS: ReadonlySet<string> = new Set(
+  [...PJ15_CHILD_ORDER.entries()].flatMap(([parent, names]) =>
+    names.filter((name) => !(CHILD_ORDER.get(parent) ?? []).includes(name)).map((name) => `${parent}/${name}`),
+  ),
+)
+
+function holdsPj15OnlyElement(node: XmlNode, path: string): boolean {
+  if (PJ15_ONLY_PATHS.has(path)) return true
+  return node.children.some((each) => holdsPj15OnlyElement(each, `${path}/${each.name}`))
+}
+
 /** The two children of `Project` the schema makes mandatory (no minOccurs). */
 const MANDATORY_PROJECT_CHILDREN = ['SaveVersion', 'CurrencyCode'] as const
 
@@ -135,8 +153,10 @@ const MANDATORY_PROJECT_CHILDREN = ['SaveVersion', 'CurrencyCode'] as const
 /** Table T-053 -- the five rules that shape the document. */
 const T_053_ROWS = ['DF-1', 'DF-2', 'DF-3', 'DF-4', 'DF-5'] as const
 
-/** Table T-033 -- the seven rules of writing. */
-const T_033_ROWS = ['EX-1', 'EX-2', 'EX-3', 'EX-4', 'EX-5', 'EX-6', 'EX-7'] as const
+/** Table T-033 -- the twelve rules of writing. */
+const T_033_ROWS = [
+  'EX-1', 'EX-2', 'EX-3', 'EX-4', 'EX-5', 'EX-6', 'EX-7', 'EX-8', 'EX-9', 'EX-10', 'EX-11', 'EX-12',
+] as const
 
 /** Table T-059 -- the ten values that are made at write time, not stored. */
 const T_059_ROWS = [
@@ -585,14 +605,18 @@ function isSubsequence(part: readonly string[], whole: readonly string[]): boole
 }
 
 /** Every element whose declared order the official schema states, with its written children. */
-function orderFaults(node: XmlNode, path: string): readonly string[] {
-  const declared = CHILD_ORDER.get(path)
+function orderFaults(
+  node: XmlNode,
+  path: string,
+  order: ReadonlyMap<string, readonly string[]> = holdsPj15OnlyElement(node, path) ? PJ15_CHILD_ORDER : CHILD_ORDER,
+): readonly string[] {
+  const declared = order.get(path)
   const names = collapsed(node.children.map((each) => each.name))
   const here =
     declared !== undefined && !isSubsequence(names, declared)
       ? [`${path}: wrote ${names.join(', ')}`]
       : []
-  return [...here, ...node.children.flatMap((each) => orderFaults(each, `${path}/${each.name}`))]
+  return [...here, ...node.children.flatMap((each) => orderFaults(each, `${path}/${each.name}`, order))]
 }
 
 // ---------------------------------------------------------------------------
@@ -745,7 +769,7 @@ describe('the rosters these cases walk', () => {
   // the counts so a vacuous case cannot go green.
   it('carries the counts the tables state', () => {
     expect(T_053_ROWS).toHaveLength(5)
-    expect(T_033_ROWS).toHaveLength(7)
+    expect(T_033_ROWS).toHaveLength(12)
     expect(T_059_ROWS).toHaveLength(10)
     expect(T_019_STOP).toHaveLength(5)
     expect(AT_17_WEEK_START).toHaveLength(7)

@@ -672,6 +672,14 @@
    }
   },
   {
+   "prefix": "MR",
+   "words": "MSPDI Read",
+   "owner": "spec",
+   "means": {
+    "ja": "MSPDI を読むときの規約"
+   }
+  },
+  {
    "prefix": "MS",
    "words": "Milestone",
    "owner": "spec",

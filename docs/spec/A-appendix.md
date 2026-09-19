@@ -15,7 +15,11 @@
 
 > 未記入。  
 > 標準規格と外部資料へのリンクを書く。  
-> MSPDI の正は公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd` を引き、ローカル複製のパスを正として書かない（複製は cache であって正ではない。  
+> MSPDI の正は版ごとに次のとおりとする。  
+> pj12 —— 公式 URL `https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`。  
+> pj15 —— 公式 URL は無い。  
+> Project 2013 SDK（配布元 `https://www.microsoft.com/en-us/download/details.aspx?id=30435`、`Project2013SDK.msi`、SHA-256 `75891caee6e10b87ab2281d33cdb9c19d16e70b48cc1cf7d7433c583564988b1`）に含まれる `mspdi_pj15.xsd`（SHA-256 `1c208a9732d6ba16f677a9f2fb9d5a629f0c200346b1851998a44765c502eb85`）を正とする。  
+> ローカル複製のパスを正として書かない（複製は cache であって正ではない。  
 > `docs/reference/README.md`）。
 
 ## A.2 Licenses (ライセンス)

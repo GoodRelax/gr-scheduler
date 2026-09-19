@@ -1,4 +1,8 @@
-90
+88
+#
+# LOWERED 90 -> 88 on 2026-09-20, with the user's approval ("③ 数え直してから下げてよい", JDG-271):
+# CR-429 replaced mspdi-codec.ts's hand-written child order with the generated table and
+# merged the two codecs' isObject; recounted on the merged tree (88). Hold the ground.
 #
 # LOWERED 91 -> 90 on 2026-09-15, with the user's approval ("すべて推奨通りにやれ。", JDG-121):
 # 0b5aa83b folded the dependency-start fragment the translator and the shell both held into

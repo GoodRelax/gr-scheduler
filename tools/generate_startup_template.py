@@ -907,6 +907,10 @@ PROJECT_LAST_SAVED = date(2027, 6, 14)
 # PF-7: the exchange partner's save count, which is NOT the document's stamp
 # (FR-074 says so). A plan fourteen months in has been saved more than once.
 PROJECT_REVISION = 37
+# AT-143: the template is made by GRS, not read from MSPDI, so EX-11 writes a
+# constraint and a duration for every task of it. One of the column's three
+# values, not prose, but it is a string, so the neutrality check has to know it.
+PROJECT_SOURCE_FORMAT = 'grs'
 
 # A fixed namespace, so every run writes the same TaskGroup ids. A template
 # that changed its ids each rebuild would show up as a diff in every commit.
@@ -2521,6 +2525,7 @@ class Builder(object):
             'outlineBase': 1,
             'carry': {},
             'carryElements': [],
+            'sourceFormat': PROJECT_SOURCE_FORMAT,
         }
 
     def task_groups(self):
@@ -4009,7 +4014,8 @@ def declared_strings(settings):
     said.update(name for name, _first, _last in CALENDAR_EXCEPTIONS)
     said.update((PROJECT_TITLE, PROJECT_NAME, PROJECT_SUBJECT,
                  PROJECT_CATEGORY, PROJECT_COMPANY, PROJECT_MANAGER,
-                 PROJECT_AUTHOR, STAMP_AUTHOR, SCHEMA_VERSION))
+                 PROJECT_AUTHOR, STAMP_AUTHOR, SCHEMA_VERSION,
+                 PROJECT_SOURCE_FORMAT))
     said.update(GLYPHS)
     said.update(SHAPE_KINDS)
     for fill, stroke, weight in AUTHOR_PAINT:

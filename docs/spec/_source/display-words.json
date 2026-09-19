@@ -2786,6 +2786,17 @@
    }
   },
   {
+   "rowId": "RS-60",
+   "text": {
+    "ja": "同じ要素が重なっていたので、最初のものを採りました",
+    "en": "Some elements appeared more than once; the first of each was kept"
+   },
+   "nextStep": {
+    "ja": "後のほうの値が正しいときは、元のファイルを直して読み直してください",
+    "en": "If a later copy held the right value, fix the original file and read it again"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

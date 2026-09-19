@@ -1,0 +1,1076 @@
+{
+ "$comment": [
+  "GENERATED -- do not edit by hand. Your change is overwritten by the next rebuild, and npm run gen:check fails on it even where the XSD is absent (bodySha256).",
+  "Generated from docs/reference/mspdi/pj15/mspdi_pj15.xsd (the order, EX-10 of table T-033) and docs/reference/mspdi/pj12/mspdi_pj12.xsd (the pj15Only marks) by tools/generate_mspdi_child_order.py. Both copies are git-ignored; how to fetch them is in previous-project-result/01-mspdi/mspdi/README.md.",
+  "Rebuild: npm run gen   |   npm run gen:check fails on drift.",
+  "Only the names and the order of children are copied (CN-7 of table T-003): no type, description or enumeration. A leaf has no row; \"all\" marks an xsd:all parent, whose order is free."
+ ],
+ "sourceXsdSha256": "1c208a9732d6ba16f677a9f2fb9d5a629f0c200346b1851998a44765c502eb85",
+ "pj12XsdSha256": "a3e9138f0f02df06d7b1254be6190c2dd48fdcf6a2445ab79a6abab765a8c7b4",
+ "bodySha256": "bb52dce0b72bd5f92fa28419061b5abddc1676c72180fb1ffa917fdc4c9a558a",
+ "parents": {
+  "Project": {
+   "all": false,
+   "children": [
+    "SaveVersion",
+    "UID",
+    "Name",
+    "Title",
+    "Subject",
+    "Category",
+    "Company",
+    "Manager",
+    "Author",
+    "CreationDate",
+    "Revision",
+    "LastSaved",
+    "ScheduleFromStart",
+    "StartDate",
+    "FinishDate",
+    "FYStartDate",
+    "CriticalSlackLimit",
+    "CurrencyDigits",
+    "CurrencySymbol",
+    "CurrencyCode",
+    "CurrencySymbolPosition",
+    "CalendarUID",
+    "DefaultStartTime",
+    "DefaultFinishTime",
+    "MinutesPerDay",
+    "MinutesPerWeek",
+    "DaysPerMonth",
+    "DefaultTaskType",
+    "DefaultFixedCostAccrual",
+    "DefaultStandardRate",
+    "DefaultOvertimeRate",
+    "DurationFormat",
+    "WorkFormat",
+    "EditableActualCosts",
+    "HonorConstraints",
+    "EarnedValueMethod",
+    "InsertedProjectsLikeSummary",
+    "MultipleCriticalPaths",
+    "NewTasksEffortDriven",
+    "NewTasksEstimated",
+    "SplitsInProgressTasks",
+    "SpreadActualCost",
+    "SpreadPercentComplete",
+    "TaskUpdatesResource",
+    "FiscalYearStart",
+    "WeekStartDay",
+    "MoveCompletedEndsBack",
+    "MoveRemainingStartsBack",
+    "MoveRemainingStartsForward",
+    "MoveCompletedEndsForward",
+    "BaselineForEarnedValue",
+    "AutoAddNewResourcesAndTasks",
+    "StatusDate",
+    "CurrentDate",
+    "MicrosoftProjectServerURL",
+    "Autolink",
+    "NewTaskStartDate",
+    "DefaultTaskEVMethod",
+    "ProjectExternallyEdited",
+    "ExtendedCreationDate",
+    "ActualsInSync",
+    "RemoveFileProperties",
+    "AdminProject",
+    "BaslineCalendar",
+    "NewTasksAreManual",
+    "UpdateManuallyScheduledTasksWhenEditingLinks",
+    "KeepTaskOnNearestWorkingTimeWhenMadeAutoScheduled",
+    "OutlineCodes",
+    "WBSMasks",
+    "ExtendedAttributes",
+    "Calendars",
+    "Tasks",
+    "Resources",
+    "Assignments"
+   ],
+   "pj15Only": [
+    "BaslineCalendar",
+    "NewTasksAreManual",
+    "UpdateManuallyScheduledTasksWhenEditingLinks",
+    "KeepTaskOnNearestWorkingTimeWhenMadeAutoScheduled"
+   ]
+  },
+  "Project/OutlineCodes": {
+   "all": false,
+   "children": [
+    "OutlineCode"
+   ],
+   "pj15Only": []
+  },
+  "Project/OutlineCodes/OutlineCode": {
+   "all": false,
+   "children": [
+    "Guid",
+    "FieldID",
+    "FieldName",
+    "Alias",
+    "PhoneticAlias",
+    "Values",
+    "Enterprise",
+    "EnterpriseOutlineCodeAlias",
+    "ResourceSubstitutionEnabled",
+    "LeafOnly",
+    "AllLevelsRequired",
+    "OnlyTableValuesAllowed",
+    "ShowIndent",
+    "Masks"
+   ],
+   "pj15Only": [
+    "ShowIndent"
+   ]
+  },
+  "Project/OutlineCodes/OutlineCode/Values": {
+   "all": false,
+   "children": [
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/OutlineCodes/OutlineCode/Values/Value": {
+   "all": true,
+   "children": [
+    "ValueID",
+    "FieldGUID",
+    "Type",
+    "IsCollapsed",
+    "ParentValueID",
+    "Value",
+    "Description"
+   ],
+   "pj15Only": [
+    "IsCollapsed"
+   ]
+  },
+  "Project/OutlineCodes/OutlineCode/Masks": {
+   "all": false,
+   "children": [
+    "Mask"
+   ],
+   "pj15Only": []
+  },
+  "Project/OutlineCodes/OutlineCode/Masks/Mask": {
+   "all": false,
+   "children": [
+    "Level",
+    "Type",
+    "Length",
+    "Separator"
+   ],
+   "pj15Only": []
+  },
+  "Project/WBSMasks": {
+   "all": false,
+   "children": [
+    "VerifyUniqueCodes",
+    "GenerateCodes",
+    "Prefix",
+    "WBSMask"
+   ],
+   "pj15Only": []
+  },
+  "Project/WBSMasks/WBSMask": {
+   "all": false,
+   "children": [
+    "Level",
+    "Type",
+    "Length",
+    "Separator"
+   ],
+   "pj15Only": []
+  },
+  "Project/ExtendedAttributes": {
+   "all": false,
+   "children": [
+    "ExtendedAttribute"
+   ],
+   "pj15Only": []
+  },
+  "Project/ExtendedAttributes/ExtendedAttribute": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "FieldName",
+    "CFType",
+    "Guid",
+    "ElemType",
+    "MaxMultiValues",
+    "UserDef",
+    "Alias",
+    "SecondaryPID",
+    "AutoRollDown",
+    "DefaultGuid",
+    "Ltuid",
+    "SecondaryGuid",
+    "PhoneticAlias",
+    "RollupType",
+    "CalculationType",
+    "Formula",
+    "RestrictValues",
+    "ValuelistSortOrder",
+    "AppendNewValues",
+    "Default",
+    "ValueList"
+   ],
+   "pj15Only": [
+    "SecondaryGuid"
+   ]
+  },
+  "Project/ExtendedAttributes/ExtendedAttribute/ValueList": {
+   "all": false,
+   "children": [
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/ExtendedAttributes/ExtendedAttribute/ValueList/Value": {
+   "all": true,
+   "children": [
+    "ID",
+    "Value",
+    "Description",
+    "Phonetic"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars": {
+   "all": false,
+   "children": [
+    "Calendar"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar": {
+   "all": false,
+   "children": [
+    "UID",
+    "Name",
+    "IsBaseCalendar",
+    "IsBaselineCalendar",
+    "BaseCalendarUID",
+    "WeekDays",
+    "Exceptions",
+    "WorkWeeks"
+   ],
+   "pj15Only": [
+    "IsBaselineCalendar"
+   ]
+  },
+  "Project/Calendars/Calendar/WeekDays": {
+   "all": false,
+   "children": [
+    "WeekDay"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WeekDays/WeekDay": {
+   "all": false,
+   "children": [
+    "DayType",
+    "DayWorking",
+    "TimePeriod",
+    "WorkingTimes"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WeekDays/WeekDay/TimePeriod": {
+   "all": false,
+   "children": [
+    "FromDate",
+    "ToDate"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WeekDays/WeekDay/WorkingTimes": {
+   "all": false,
+   "children": [
+    "WorkingTime"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WeekDays/WeekDay/WorkingTimes/WorkingTime": {
+   "all": false,
+   "children": [
+    "FromTime",
+    "ToTime"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/Exceptions": {
+   "all": false,
+   "children": [
+    "Exception"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/Exceptions/Exception": {
+   "all": false,
+   "children": [
+    "EnteredByOccurrences",
+    "TimePeriod",
+    "Occurrences",
+    "Name",
+    "Type",
+    "Period",
+    "DaysOfWeek",
+    "MonthItem",
+    "MonthPosition",
+    "Month",
+    "MonthDay",
+    "DayWorking",
+    "WorkingTimes"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/Exceptions/Exception/TimePeriod": {
+   "all": false,
+   "children": [
+    "FromDate",
+    "ToDate"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/Exceptions/Exception/WorkingTimes": {
+   "all": false,
+   "children": [
+    "WorkingTime"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/Exceptions/Exception/WorkingTimes/WorkingTime": {
+   "all": false,
+   "children": [
+    "FromTime",
+    "ToTime"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WorkWeeks": {
+   "all": false,
+   "children": [
+    "WorkWeek"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WorkWeeks/WorkWeek": {
+   "all": false,
+   "children": [
+    "TimePeriod",
+    "Name",
+    "WeekDay"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WorkWeeks/WorkWeek/TimePeriod": {
+   "all": false,
+   "children": [
+    "FromDate",
+    "ToDate"
+   ],
+   "pj15Only": []
+  },
+  "Project/Calendars/Calendar/WorkWeeks/WorkWeek/WeekDay": {
+   "all": false,
+   "children": [
+    "DayType",
+    "DayWorking"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks": {
+   "all": false,
+   "children": [
+    "Task"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task": {
+   "all": false,
+   "children": [
+    "UID",
+    "ID",
+    "Name",
+    "Type",
+    "IsNull",
+    "CreateDate",
+    "Contact",
+    "WBS",
+    "WBSLevel",
+    "OutlineNumber",
+    "OutlineLevel",
+    "Priority",
+    "Start",
+    "Finish",
+    "Duration",
+    "DurationFormat",
+    "Work",
+    "Stop",
+    "Resume",
+    "ResumeValid",
+    "EffortDriven",
+    "Recurring",
+    "OverAllocated",
+    "Estimated",
+    "Milestone",
+    "Summary",
+    "DisplayAsSummary",
+    "Critical",
+    "IsSubproject",
+    "IsSubprojectReadOnly",
+    "SubprojectName",
+    "ExternalTask",
+    "ExternalTaskProject",
+    "EarlyStart",
+    "EarlyFinish",
+    "LateStart",
+    "LateFinish",
+    "StartVariance",
+    "FinishVariance",
+    "WorkVariance",
+    "FreeSlack",
+    "StartSlack",
+    "FinishSlack",
+    "TotalSlack",
+    "FixedCost",
+    "FixedCostAccrual",
+    "PercentComplete",
+    "PercentWorkComplete",
+    "Cost",
+    "OvertimeCost",
+    "OvertimeWork",
+    "ActualStart",
+    "ActualFinish",
+    "ActualDuration",
+    "ActualCost",
+    "ActualOvertimeCost",
+    "ActualWork",
+    "ActualOvertimeWork",
+    "RegularWork",
+    "RemainingDuration",
+    "RemainingCost",
+    "RemainingWork",
+    "RemainingOvertimeCost",
+    "RemainingOvertimeWork",
+    "ACWP",
+    "CV",
+    "ConstraintType",
+    "CalendarUID",
+    "ConstraintDate",
+    "Deadline",
+    "LevelAssignments",
+    "LevelingCanSplit",
+    "LevelingDelay",
+    "LevelingDelayFormat",
+    "PreLeveledStart",
+    "PreLeveledFinish",
+    "Hyperlink",
+    "HyperlinkAddress",
+    "HyperlinkSubAddress",
+    "IgnoreResourceCalendar",
+    "Notes",
+    "HideBar",
+    "Rollup",
+    "BCWS",
+    "BCWP",
+    "PhysicalPercentComplete",
+    "EarnedValueMethod",
+    "PredecessorLink",
+    "ActualWorkProtected",
+    "ActualOvertimeWorkProtected",
+    "ExtendedAttribute",
+    "Baseline",
+    "OutlineCode",
+    "IsPublished",
+    "StatusManager",
+    "CommitmentStart",
+    "CommitmentFinish",
+    "CommitmentType",
+    "Active",
+    "Manual",
+    "ManualStart",
+    "ManualFinish",
+    "ManualDuration",
+    "TimephasedData"
+   ],
+   "pj15Only": [
+    "DisplayAsSummary",
+    "StartSlack",
+    "FinishSlack",
+    "Active",
+    "Manual",
+    "ManualStart",
+    "ManualFinish",
+    "ManualDuration"
+   ]
+  },
+  "Project/Tasks/Task/PredecessorLink": {
+   "all": false,
+   "children": [
+    "PredecessorUID",
+    "Type",
+    "CrossProject",
+    "CrossProjectName",
+    "LinkLag",
+    "LagFormat"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task/ExtendedAttribute": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "Value",
+    "ValueGUID",
+    "DurationFormat"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task/Baseline": {
+   "all": false,
+   "children": [
+    "TimephasedData",
+    "Number",
+    "Interim",
+    "Start",
+    "Finish",
+    "Duration",
+    "DurationFormat",
+    "EstimatedDuration",
+    "Work",
+    "Cost",
+    "BCWS",
+    "BCWP",
+    "FixedCost"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task/Baseline/TimephasedData": {
+   "all": false,
+   "children": [
+    "Type",
+    "UID",
+    "Start",
+    "Finish",
+    "Unit",
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task/OutlineCode": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "ValueID",
+    "ValueGUID"
+   ],
+   "pj15Only": []
+  },
+  "Project/Tasks/Task/TimephasedData": {
+   "all": false,
+   "children": [
+    "Type",
+    "UID",
+    "Start",
+    "Finish",
+    "Unit",
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources": {
+   "all": false,
+   "children": [
+    "Resource"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource": {
+   "all": false,
+   "children": [
+    "UID",
+    "ID",
+    "Name",
+    "Type",
+    "IsNull",
+    "Initials",
+    "Phonetics",
+    "NTAccount",
+    "MaterialLabel",
+    "Code",
+    "Group",
+    "WorkGroup",
+    "EmailAddress",
+    "Hyperlink",
+    "HyperlinkAddress",
+    "HyperlinkSubAddress",
+    "MaxUnits",
+    "PeakUnits",
+    "OverAllocated",
+    "AvailableFrom",
+    "AvailableTo",
+    "Start",
+    "Finish",
+    "CanLevel",
+    "AccrueAt",
+    "Work",
+    "RegularWork",
+    "OvertimeWork",
+    "ActualWork",
+    "RemainingWork",
+    "ActualOvertimeWork",
+    "RemainingOvertimeWork",
+    "PercentWorkComplete",
+    "StandardRate",
+    "StandardRateFormat",
+    "Cost",
+    "OvertimeRate",
+    "OvertimeRateFormat",
+    "OvertimeCost",
+    "CostPerUse",
+    "ActualCost",
+    "ActualOvertimeCost",
+    "RemainingCost",
+    "RemainingOvertimeCost",
+    "WorkVariance",
+    "CostVariance",
+    "SV",
+    "CV",
+    "ACWP",
+    "CalendarUID",
+    "Notes",
+    "BCWS",
+    "BCWP",
+    "IsGeneric",
+    "IsInactive",
+    "IsEnterprise",
+    "BookingType",
+    "ActualWorkProtected",
+    "ActualOvertimeWorkProtected",
+    "ActiveDirectoryGUID",
+    "CreationDate",
+    "ExtendedAttribute",
+    "Baseline",
+    "OutlineCode",
+    "IsCostResource",
+    "AssnOwner",
+    "AssnOwnerGuid",
+    "IsBudget",
+    "AvailabilityPeriods",
+    "Rates",
+    "TimephasedData"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/ExtendedAttribute": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "Value",
+    "ValueGUID",
+    "DurationFormat"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/Baseline": {
+   "all": false,
+   "children": [
+    "Number",
+    "Work",
+    "Cost",
+    "BCWS",
+    "BCWP"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/OutlineCode": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "ValueID",
+    "ValueGUID"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/AvailabilityPeriods": {
+   "all": false,
+   "children": [
+    "AvailabilityPeriod"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/AvailabilityPeriods/AvailabilityPeriod": {
+   "all": false,
+   "children": [
+    "AvailableFrom",
+    "AvailableTo",
+    "AvailableUnits"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/Rates": {
+   "all": false,
+   "children": [
+    "Rate"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/Rates/Rate": {
+   "all": false,
+   "children": [
+    "RatesFrom",
+    "RatesTo",
+    "RateTable",
+    "StandardRate",
+    "StandardRateFormat",
+    "OvertimeRate",
+    "OvertimeRateFormat",
+    "CostPerUse"
+   ],
+   "pj15Only": []
+  },
+  "Project/Resources/Resource/TimephasedData": {
+   "all": false,
+   "children": [
+    "Type",
+    "UID",
+    "Start",
+    "Finish",
+    "Unit",
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/Assignments": {
+   "all": false,
+   "children": [
+    "Assignment"
+   ],
+   "pj15Only": []
+  },
+  "Project/Assignments/Assignment": {
+   "all": false,
+   "children": [
+    "UID",
+    "TaskUID",
+    "ResourceUID",
+    "PercentWorkComplete",
+    "ActualCost",
+    "ActualFinish",
+    "ActualOvertimeCost",
+    "ActualOvertimeWork",
+    "ActualStart",
+    "ActualWork",
+    "ACWP",
+    "Confirmed",
+    "Cost",
+    "CostRateTable",
+    "CostVariance",
+    "CV",
+    "Delay",
+    "Finish",
+    "FinishVariance",
+    "Hyperlink",
+    "HyperlinkAddress",
+    "HyperlinkSubAddress",
+    "WorkVariance",
+    "HasFixedRateUnits",
+    "FixedMaterial",
+    "LevelingDelay",
+    "LevelingDelayFormat",
+    "LinkedFields",
+    "Milestone",
+    "Notes",
+    "Overallocated",
+    "OvertimeCost",
+    "OvertimeWork",
+    "PeakUnits",
+    "RateScale",
+    "RegularWork",
+    "RemainingCost",
+    "RemainingOvertimeCost",
+    "RemainingOvertimeWork",
+    "RemainingWork",
+    "ResponsePending",
+    "Start",
+    "Stop",
+    "Resume",
+    "StartVariance",
+    "Summary",
+    "SV",
+    "Units",
+    "UpdateNeeded",
+    "VAC",
+    "Work",
+    "WorkContour",
+    "BCWS",
+    "BCWP",
+    "BookingType",
+    "ActualWorkProtected",
+    "ActualOvertimeWorkProtected",
+    "CreationDate",
+    "AssnOwner",
+    "AssnOwnerGuid",
+    "BudgetCost",
+    "BudgetWork",
+    "ExtendedAttribute",
+    "Baseline",
+    "f404000",
+    "f404001",
+    "f404002",
+    "f404003",
+    "f404004",
+    "f404005",
+    "f404006",
+    "f404007",
+    "f404008",
+    "f404009",
+    "f40400a",
+    "f40400b",
+    "f40400c",
+    "f40400d",
+    "f40400e",
+    "f40400f",
+    "f404010",
+    "f404011",
+    "f404012",
+    "f404013",
+    "f404014",
+    "f404015",
+    "f404016",
+    "f404017",
+    "f404018",
+    "f404019",
+    "f40401a",
+    "f40401b",
+    "f40401c",
+    "f40401d",
+    "f40401e",
+    "f40401f",
+    "f404020",
+    "f404021",
+    "f404022",
+    "f404023",
+    "f404024",
+    "f404025",
+    "f404026",
+    "f404027",
+    "f404028",
+    "f404029",
+    "f40402a",
+    "f40402b",
+    "f40402c",
+    "f40402d",
+    "f40402e",
+    "f40402f",
+    "f404030",
+    "f404031",
+    "f404032",
+    "f404033",
+    "f404034",
+    "f404035",
+    "f404036",
+    "f404037",
+    "f404038",
+    "f404039",
+    "f40403a",
+    "f40403b",
+    "f40403c",
+    "f40403d",
+    "f40403e",
+    "f40403f",
+    "f404040",
+    "f404041",
+    "f404042",
+    "f404043",
+    "f404044",
+    "f404045",
+    "f404046",
+    "f404047",
+    "f404048",
+    "f404049",
+    "f40404a",
+    "f40404b",
+    "f40404c",
+    "f40404d",
+    "f40404e",
+    "f40404f",
+    "f404050",
+    "f404051",
+    "f404052",
+    "f404053",
+    "f404054",
+    "f404055",
+    "f404056",
+    "f404057",
+    "f404058",
+    "f404059",
+    "f40405a",
+    "f40405b",
+    "f40405c",
+    "f40405d",
+    "f40405e",
+    "f40405f",
+    "f404060",
+    "f404061",
+    "f404062",
+    "f404063",
+    "f404064",
+    "f404065",
+    "f404066",
+    "f404067",
+    "f404068",
+    "f404069",
+    "f40406a",
+    "f40406b",
+    "f40406c",
+    "f40406d",
+    "f40406e",
+    "f40406f",
+    "f404070",
+    "f404071",
+    "f404072",
+    "f404073",
+    "f404074",
+    "f404075",
+    "f404076",
+    "f404077",
+    "f404078",
+    "f404079",
+    "f40407a",
+    "f40407b",
+    "f40407c",
+    "f40407d",
+    "f40407e",
+    "f40407f",
+    "f404080",
+    "f404081",
+    "f404082",
+    "f404083",
+    "f404084",
+    "f404085",
+    "f404086",
+    "f404087",
+    "f404088",
+    "f404089",
+    "f40408a",
+    "f40408b",
+    "f40408c",
+    "f40408d",
+    "f40408e",
+    "f40408f",
+    "f404090",
+    "f404091",
+    "f404092",
+    "f404093",
+    "f404094",
+    "f404095",
+    "f404096",
+    "f404097",
+    "f404098",
+    "f404099",
+    "f40409a",
+    "f40409b",
+    "f40409c",
+    "f40409d",
+    "f40409e",
+    "f40409f",
+    "f4040a0",
+    "f4040a1",
+    "f4040a2",
+    "f4040a3",
+    "f4040a4",
+    "f4040a5",
+    "f4040a6",
+    "f4040a7",
+    "f4040a8",
+    "f4040a9",
+    "f4040aa",
+    "f4040ab",
+    "f4040ac",
+    "f4040ad",
+    "f4040ae",
+    "f4040af",
+    "f4040b0",
+    "f4040b1",
+    "f4040b2",
+    "f4040b3",
+    "f4040b4",
+    "f4040b5",
+    "f4040b6",
+    "f4040b7",
+    "f4040b8",
+    "f4040b9",
+    "f4040ba",
+    "f4040bb",
+    "f4040bc",
+    "f4040bd",
+    "f4040be",
+    "f4040bf",
+    "f4040c0",
+    "f4040c1",
+    "f4040c2",
+    "f4040c3",
+    "f4040c4",
+    "f4040c5",
+    "f4040c6",
+    "f4040c7",
+    "f4040c8",
+    "TimephasedData"
+   ],
+   "pj15Only": [
+    "RateScale"
+   ]
+  },
+  "Project/Assignments/Assignment/ExtendedAttribute": {
+   "all": false,
+   "children": [
+    "FieldID",
+    "Value",
+    "ValueGUID",
+    "DurationFormat"
+   ],
+   "pj15Only": []
+  },
+  "Project/Assignments/Assignment/Baseline": {
+   "all": false,
+   "children": [
+    "TimephasedData",
+    "Number",
+    "Start",
+    "Finish",
+    "Work",
+    "Cost",
+    "BCWS",
+    "BCWP"
+   ],
+   "pj15Only": []
+  },
+  "Project/Assignments/Assignment/Baseline/TimephasedData": {
+   "all": false,
+   "children": [
+    "Type",
+    "UID",
+    "Start",
+    "Finish",
+    "Unit",
+    "Value"
+   ],
+   "pj15Only": []
+  },
+  "Project/Assignments/Assignment/TimephasedData": {
+   "all": false,
+   "children": [
+    "Type",
+    "UID",
+    "Start",
+    "Finish",
+    "Unit",
+    "Value"
+   ],
+   "pj15Only": []
+  }
+ }
+}

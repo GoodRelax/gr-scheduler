@@ -65,6 +65,8 @@ export interface Project {
   readonly carryElements: readonly CarryElement[]
   /** AT-139 */
   readonly outlineBase: number
+  /** AT-143 */
+  readonly sourceFormat: 'grs' | 'pj12' | 'pj15'
 }
 
 /** ET-2 of table T-056. */

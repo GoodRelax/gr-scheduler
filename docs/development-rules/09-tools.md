@@ -75,11 +75,11 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
 | 門 | **35** | `.claude/skills/spec-graph-check/` に 31、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
-| 生成器 | **19** | `tools/` に 13、`docs/spec/_source/` に 6 |
+| 生成器 | **20** | `tools/` に 14、`docs/spec/_source/` に 6 |
 | 修理 | **4** | `tools/` に 4 |
 | 調査 | **18** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 7、`tools/` に 1、`tools/probe/` に 1、`tools/parity/` に 1 |
 | 部品・走者 | **5** | `.claude/skills/spec-graph-check/` に 4、`tools/` に 1 |
-| **合計** | **81** | `.mjs` 10 ＋ `.py` 70 ＋ `.sh` 1 |
+| **合計** | **82** | `.mjs` 10 ＋ `.py` 71 ＋ `.sh` 1 |
 
 ⛔ **目録は拡張子で数えるな。** 名指しではなく `import` で呼ばれる部品も、`.mjs` の走者も、道具である。
 
@@ -127,7 +127,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 5. 生成器 —— 書き出す道具（19 本）
+## 5. 生成器 —— 書き出す道具（20 本）
 
 ⭐ **生成器の `--check` は、書き出し先を作り直して比べるだけである。**
 ⛔ **入力の表が間違っていても緑になる。** 表そのものを見るのは門の側の仕事である。
@@ -147,6 +147,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 27 | `generate_json_schema_validator.py` | docs/spec/_source/grs-document.schema.jsonを読み、EXPRESSEDに列挙された10種のJSON Schemaキーワードだけをsrc/adapter/document-codec/json-codec.tsの<generated>〜</generated>マーカー間にTypeScriptのSchemaNode/GRS_DOCUMENT_SCHEMAとして書き出す。--checkはそのリージョンの中身をビルド結果と比較する。 | format:'uuid'を持つ10列はDROPPEDとして意図的に無検査のまま残り、UNCHECKEDとして毎回一覧表示されるだけで、--check自体はこれを合否判定に含めない（PND-189は未裁定のまま）。 | `npm run validator`／`check.sh` |
 | 27 | `generate_licence.py` | リポジトリ直下のLICENSE・NOTICE・package.jsonを読み、ライセンス全文・NOTICEのCopyright行・（dependenciesが空である限り）空のattributionsをsrc/adapter/screen-renderer/licence.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | package.jsonのdependenciesが空であることしか調べておらず、devDependencies由来のコードが実際にdist/index.htmlへ紛れ込んでいないかはビルド成果物（dist）を見て検証していない。 | `npm run licence`／`check.sh` |
 | 27 | `generate_mspdi_custom_fields.py` | docs/spec/_source/mspdi-custom-fields.json（同フォルダのmspdi-custom-fields.schema.jsonでjsonschema検証）と、docs/spec/_assets/fig-erd-detail.md中の表T-058のfadeInDays/fadeOutDays列を読み、2つのMSPDIカスタムフィールド枠をsrc/adapter/document-codec/mspdi-custom-fields.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | fig-erd-detail.mdはerd.jsonから生成された副産物であり、このスクリプト自身はerd.jsonを直接読まないため、fig-erd-detail.mdがerd.jsonからdriftしていた場合はそのdriftをそのまま読み込んでしまう（コード中のコメントも「二つが食い違えばcheck 16が先に言う」と認めている）。 | `npm run mspdi`／`check.sh` |
+| 27 | `generate_mspdi_child_order.py` | docs/reference/mspdi/pj15/mspdi_pj15.xsd を読み、要素の道筋ごとの子の名と順と xsd:all の印を、docs/reference/mspdi/pj12/mspdi_pj12.xsd に無い子の印（pj15Only）とともに src/adapter/document-codec/mspdi-child-order.json へ書き出す（表 T-033 の EX-10、CN-7 の例外）。元の 2 つの XSD の SHA-256 と、自分の中身の SHA-256（bodySha256、JDG-251）を頭に書く。pj12 の順が pj15 の順の部分列でない・要素が消えた・xsd:all が片方だけ・同じ名の子が 2 つ宣言された、のどれかで止まる。--check は XSD の有無によらず bodySha256 を計り直し、XSD が在ればそのうえで作り直して全体を比べ、2 つの SHA-256 を今の複製に照らす。 | XSD は git 管理外なので、作業木と CI では表が XSD に合っているかを見られない（SKIPPED と言う）。bodySha256 まで書き直した手の改変は、XSD の無い木では通る。SHA-256 を付録 A.1 の値とは照らさない（複製が A.1 と違えば、違う複製から作った表が緑になる）。型・出現回数・列挙値は読まない。 | `npm run mspdi:order`／`check.sh` |
 | 27 | `generate_property_items.py` | docs/spec/_source/property-items.jsonを読み、各項目のrowId・columns・inputKinds・isReadOnly・appliesTo（既定はTask）をsrc/adapter/screen-renderer/property-items.jsonへ書き出す。--checkはディスク上のファイルと比較する。 | 表示名（display-words.json由来）・候補値・上下限・日付列などはここでは一切運ばれず突き合わせもされないため、property-items.json自体の値がgrs-document.schema.jsonやDATE_COLUMNSと矛盾していてもこのスクリプトは検出しない。 | `npm run propitems`／`check.sh` |
 | 27 | `generate_startup_template.py` | PHASES等の内蔵定数、src/entity/document-model配下から読むsettings既定値・カレンダー既定値、docs/spec/_source/settings.json（S-73のthemeHue）、docs/spec/_source/grs-document.schema.jsonを読み、多数のcheck_*関数（check_invariants/check_neutrality/check_schema等）で検証した3年分のサンプルGRS JSON文書をsrc/framework/single-html-shell/startup-template.jsonへ書き出す。--checkはディスク上のファイルとビルド結果をバイト比較する。 | check_neutralityは『生成器自身が書いたと自覚している語彙』に含まれるかどうかしか照合しない禁止語リストではなく既知語リストとの照合なので、その語彙表自体に業界特有語や不適切な単語が紛れ込んでいても、登録さえされていれば通ってしまう。 | `npm run startup`／`check.sh` |
 | 27 | `property_items_json_to_md.py` | docs/spec/_source/property-items.jsonを読み、docs/spec/_assets/tbl-property-items.md（表T-016）を書く。--checkはディスク上のファイルとビルド結果を比較する。 | 各行のnote/mspdiセルの文分割（broken関数）は『。』の位置で機械的に改行するだけで、意味的に正しい文分割になっているか、日本語として自然かは一切検査しない。 | `npm run gen:items`／`check.sh` |

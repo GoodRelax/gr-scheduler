@@ -11,7 +11,7 @@ import {
   textOfDay,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
-import { withoutLeadingByteOrderMark } from './mspdi-codec'
+import { isObject, mspdiVersionOfCarried, withoutLeadingByteOrderMark } from './mspdi-codec'
 
 export interface JsonFault {
   readonly at: string
@@ -69,7 +69,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'lastSaved', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'lastSaved', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'themeHue', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
     closed: true,
     properties: {
       id: {
@@ -154,6 +154,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       outlineBase: {
         type: ['integer'],
+      },
+      sourceFormat: {
+        enum: ['grs', 'pj12', 'pj15'],
       },
     },
   },
@@ -1211,11 +1214,6 @@ function refusal(faults: readonly JsonFault[]): JsonDecoding {
 }
 
 /** @purity pure */
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-/** @purity pure */
 function pointer(at: string, key: string): string {
   return `${at}/${key.replace(/~/g, '~0').replace(/\//g, '~1')}`
 }
@@ -1367,6 +1365,21 @@ function withKeptOpenMarksOfAnOlderVersion(parsed: unknown, declared: string): u
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedRows } }
 }
 
+// see AT-143
+// WHY: not gated by schemaVersion (AT-143 reads any document without the column), and not in the
+// generated schema, which can state a default but not one read from the document's own carry.
+/** @purity pure */
+function withSourceFormatOfAnOlderDocument(parsed: unknown): unknown {
+  const schedule = isObject(parsed) ? parsed['schedule'] : undefined
+  const project = isObject(schedule) ? schedule['project'] : undefined
+  if (!isObject(parsed) || !isObject(schedule) || !isObject(project) || Object.hasOwn(project, 'sourceFormat')) {
+    return parsed
+  }
+  const carry = project['carry']
+  const sourceFormat = isObject(carry) && Object.hasOwn(carry, 'SaveVersion') ? mspdiVersionOfCarried(schedule) : 'grs'
+  return { ...parsed, schedule: { ...schedule, project: { ...project, sourceFormat } } }
+}
+
 /** @purity pure */
 function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): JsonFault[] {
   const out: JsonFault[] = []
@@ -1422,9 +1435,9 @@ export function documentFromJson(
     greatestKnownSchemaVersion,
   )
 
-  const older = withStopInPlaceOfActualDuration(
+  const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(
     withKeptOpenMarksOfAnOlderVersion(parsed, typeof declared === 'string' ? declared : ''),
-  )
+  ))
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectFaults(older.shaped, GRS_DOCUMENT_SCHEMA, '', faults)
   const isNewer = formatVersion === 'newerThanKnown'
