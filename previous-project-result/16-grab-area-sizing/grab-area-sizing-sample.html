@@ -236,6 +236,7 @@
       <option value="arrow">実績の終了の矢印 → 黒（引く役の形）</option></select></label>
     <div class="hint">㊲（2026-09-19 に A に決まった。比べるために B も選べる）: 実績の右（未着手ならダミーの右）に立つ === のマーカーは、押せば状態が巡り、引けば実績の終わりが動く。ポインタは「何を掴み、引けば何が動くか」を示す（FR-106）が、今は押す役の「指」。引く役を示すなら実績の終了と同じ矢印になる。②の行の「結合試験」のマーカー（ダミーの右に立つ）に乗せて比べる。</div>
     <div class="hint">㊳（2026-09-19 に A に決まった）: 端点スパンで予定と実績の端が同じ日に立つと、上下の点が 1px 重なる。重ねたまま許す（同じ日の端だけで、点の色で分かれる）。「---> タスク」の「線だけの形」を端点スパンにすると、「設計レビュー」の開始（予実とも 6 日目）で見える。</div>
+    <div class="hint">㊴〜㊶（2026-09-20 に決まった）: ㊴ 依存線を隠しているあいだは、構えることも選ぶことも消すこともできない（表示に戻してから行う）／ ㊵ 名前は 1 色（濃い字に地の色の縁）で、濃い実績の中でもそのまま ／ ㊶ 画像のポインタを描けない環境では、動く向きを示す環境の形に替える —— 端・フェード・◆ の実績とダミー・再開アイコンは左右（ew-resize）、◆ の予定は上下左右（move）、依存線は指（pointer）。</div>
     <div class="hint">㉔〜㉟（2026-09-19 に全部決まった）の見どころ: ㉔ マーカーの径の上限は予定バーの高さ ／ ㉕ ---> の節の「線だけの形」を端点スパンに ／ ㉖ 「準備」「設計レビュー」の再開アイコン ／ ㉗ ⑤ の行のハイライトボックス ／ ㉘ 「設計レビュー」のマーカーを 1 回押して未着手に ／ ㉙ 見本に複数の選択と行の移動が無いので示さない ／ ㉚ 「結合試験」のマーカーは引けば実績を作る。◆ のマーカーは引いても実績を動かさない ／ ㉛ ◆ の予定を縦に引くと、移る先の行を点線で示す ／ ㉜ ---> の「形の上」は線ごとの帯 ／ ㉝ 依存線はタスクのどこでも結べる ／ ㉞ 見本の --->は 1 段なので示さない ／ ㉟ ② の既定。</div>
   </div>
   </section>
@@ -459,13 +460,16 @@ function discGlyph(filled, px) {
   return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24">' +
     '<circle cx="12" cy="12" r="' + (R + r) + '" fill="' + rim + '"/><circle cx="12" cy="12" r="' + R + '" fill="' + inside + '"/></svg>';
 }
+// question 41 (user ruling 2026-09-20): where an image pointer cannot be drawn, the environment's pointer that
+// shows the way the thing moves -- the plan diamond moves along the days and across rows (move), the actual and
+// the dummy along the days only (ew-resize)
 function msCursor(filled) {
   const px = filled ? S.msActCur : S.msCur;
-  return 'url("data:image/svg+xml,' + encodeURIComponent(discGlyph(filled, px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', grab';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(discGlyph(filled, px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + (filled ? ', ew-resize' : ', move');
 }
 function fadeCursor(dir) {
   const px = fadeCursorPx(), hot = dir === 'in' ? px - 1 : 0;
-  return 'url("data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, px)) + '") ' + hot + ' ' + hot + ', nwse-resize';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, px)) + '") ' + hot + ' ' + hot + ', ew-resize';   // question 41: a fade moves along the days
 }
 // a dependency line takes a LINE arrow -- a thin shaft and a narrow head, like the glyph "->" -- where a
 // task's end takes a wide block arrow. The white shape gets the pointers' black rim (POINTER_RIM_PX, half of
