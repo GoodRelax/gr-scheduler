@@ -1,4 +1,8 @@
-79
+84
+#
+# RAISED 79 -> 84 on 2026-09-20, approved by the user in chat ("基準は上げてよい。", recorded as JDG-250): the
+# answers to questions 39-42 and the annotation grab values (JDG-245 .. JDG-249) wait for the same Step 1b
+# change request.
 #
 # RAISED 76 -> 79 on 2026-09-19, approved by the user in chat ("検査 43 : 基準を上げていいよ。"): the answers
 # to questions 36-38 (JDG-240 .. JDG-242) wait for the same Step 1b change request.

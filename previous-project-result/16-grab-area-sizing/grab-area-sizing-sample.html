@@ -95,7 +95,7 @@
     <label style="margin:0"><input id="showAssignee" type="checkbox" checked> 担当者</label>
     <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
     <label style="margin:0"><input id="showDeps" type="checkbox" checked> 依存線</label>
-    <label style="margin:0"><input id="showNote" type="checkbox" checked> ハイライトボックス</label>
+    <label style="margin:0"><input id="showNote" type="checkbox" checked> 注記</label>
     <button id="reset" type="button">形を元に戻す</button>
   </div>
   <h3>大きさ</h3>
@@ -195,10 +195,11 @@
   <div class="cursorRow" id="cursor-dep"></div>
   </section>
 
-  <section class="sec"><h2>ハイライトボックス（注記）</h2>
+  <section class="sec"><h2>注記（ハイライトボックス・コメントボックス）</h2>
   <h3>掴み代</h3>
   <div id="grab-note"></div>
   <div class="hint">⑤ の行を囲む枠（範囲を囲う注記）。枠線とその近く（枠線から内と外へ 3px）だけが枠を掴み、引けば日付の向きに動く。四隅（隅から 6px）は枠の左右の端を動かす（2026-09-20 に利用者が決めた値）。<b>枠の中は素通し</b>で、中のタスクは普段どおり掴める（㉗、決まった）。注記は日程の形より先に応えるが、それは枠線の近くと四隅だけである。</div>
+  <div class="hint">① の行の右に、コメントボックス「ここを確認」を置いた。本文は箱の全体で掴み、引けば箱が動く。引出し線（線から左右へ 3px）を引いても箱が動く。線先（6px）を引いて離すと、その日と行を指す —— タスクやマイルストーンの上に置けば、どれへのコメントかが分かる（図の下に指す先を出す）。線先はタスクの上でも 6px で掴める。引出し線は、タスクの上では描いた線そのものでだけ応える（㊷、2026-09-20 に決まった）。</div>
   </section>
 
   <section class="sec"><h2>7 問（推奨と今までの形を比べる）</h2>
@@ -291,7 +292,11 @@ const GRAB = {
   // question 27: a highlight box is grabbed on its frame line only (FR-019), and at its corners (S-230);
   // the user set the reaches on 2026-09-20: 3 px either side of the line, 6 px from each corner
   noteFrame:    { out: 3 },                  // from the frame line, inside and outside
-  noteCorner:   { out: 6 },                  // S-230: from the corner, every way (also a comment box's anchor)
+  noteCorner:   { out: 6 },                  // S-230: from the corner, every way
+  // question 42 (user ruling 2026-09-20): a comment box's body is the whole box; its leader line takes 3 px either
+  // side and its tip 6 px -- the tip is what a person puts on a task or a milestone to show what the comment is about
+  commentLine:  { out: 3 },                  // from the leader line, either side
+  commentTip:   { out: 6 },                  // from the tip (the anchor), every way
 };
 const GRAB_START = JSON.parse(JSON.stringify(GRAB));
 const GRAB_ROWS = [
@@ -315,8 +320,10 @@ const GRAB_ROWS = [
   { sec: 'ms', key: 'msActual', name: '実績' },
   { sec: 'ms', key: 'msDummy', name: 'ダミー' },
   { sec: 'dep', key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
-  { sec: 'note', key: 'noteFrame', name: '枠', note: '外側 ＝ 枠線から内と外へそれぞれ' },
-  { sec: 'note', key: 'noteCorner', name: '四隅', note: '外側 ＝ 隅から上下左右へ（コメントボックスのアンカーも同じ値）' },
+  { sec: 'note', key: 'noteFrame', name: 'ハイライトボックスの枠', note: '外側 ＝ 枠線から内と外へそれぞれ' },
+  { sec: 'note', key: 'noteCorner', name: 'ハイライトボックスの四隅', note: '外側 ＝ 隅から上下左右へ' },
+  { sec: 'note', key: 'commentLine', name: 'コメントボックスの引出し線', note: '外側 ＝ 線から左右へ' },
+  { sec: 'note', key: 'commentTip', name: 'コメントボックスの線先', note: '外側 ＝ 線先から上下左右へ' },
 ];
 const PARAMS = [['out', '外側'], ['in', '内側'], ['v', '上下'], ['w', '幅']];
 function rangeOf(key, param) {
@@ -386,12 +393,15 @@ const START = {
   k3: { planStart: 26, planDays: 10, actualStart: 26, actualDays: 10, fadeIn: 0, fadeOut: 0, name: '確認', percent: 100, assignee: '担当 C', state: 'done' },
   stack: ['k1', 'k2', 'k3'],
   note: { from: 24, to: 42 },   // a highlight box round the stacked row, in days
+  // a comment box: the tip (anchor) is a day and a row (FR-019), the body sits at an offset from it (AT-115)
+  comment: { day: 18, row: 'task', dx: 200, dy: 8 },
   deps: [ { from: 'task', to: 'unset', type: 'FS' }, { from: 'k1', to: 'k2', type: 'FS' }, { from: 'k2', to: 'k3', type: 'SS' } ],
 };
 let M = JSON.parse(JSON.stringify(START));
 let pickedDep = -1;     // the dependency line the user has selected (GR-13: a press selects it)
 let armed = false;      // the palette's dependency tool is armed
 let pending = null;     // a line being drawn: { from, side, x, y, px, py }
+let ARROW_BOTTOM = 0, STACK_BOTTOM = 0;   // where the arrow row and the stacked row end, for the comment's rows
 
 const LEFT = 120, TOP = { task: 52, unset: 150, arrow: 236, ms: 316, stack: 392 }, RULER = 476;
 // grab areas are drawn pale and without an outline, in a hue away from the thing they grab:
@@ -401,7 +411,7 @@ const LEFT = 120, TOP = { task: 52, unset: 150, arrow: 236, ms: 316, stack: 392 
 const ZC = { plan: 'hsla(320,80%,55%,.24)', actual: 'hsla(28,95%,50%,.26)', msActual: 'hsla(215,85%,50%,.22)',
              marker: 'hsla(70,90%,42%,.32)', fade: 'hsla(185,90%,40%,.30)', dep: 'hsla(265,70%,58%,.22)', note: 'hsla(150,70%,38%,.26)', body: null };
 const ZONE_LEGEND = [['plan', '予定の端・◆ の予定'], ['actual', '実績の端・ダミー'], ['msActual', '◆ の実績・ダミー'],
-                     ['marker', '進捗マーカー・再開アイコン'], ['fade', 'フェード'], ['dep', '依存線'], ['note', 'ハイライトボックスの枠・四隅'],
+                     ['marker', '進捗マーカー・再開アイコン'], ['fade', 'フェード'], ['dep', '依存線'], ['note', '注記（ハイライトボックス・コメントボックス）'],
                      ['body', '本体（描いた形そのもの。塗らない）']];
 
 function ratio() { return S.scale / 100; }
@@ -559,10 +569,10 @@ let ANCHOR = {};
 // paint order, back to front: which drawing hides which. It is managed apart from the hit order (hitAt):
 // what is seen in front and what answers the pointer are two separate decisions
 // The fade's grab points stand in front of the labels, in the layer of the selection frame (table ZO, row 10)
-const PAINT_ORDER = ['guide', 'bars', 'deps', 'markers', 'labels', 'handles', 'zones'];
+const PAINT_ORDER = ['guide', 'bars', 'deps', 'markers', 'labels', 'notes', 'handles', 'zones'];
 const PAINT_NAMES = { guide: '目盛・行の見出し', bars: '予定・実績・ダミー・菱形・矢・再開の破線', deps: '依存線',
                       markers: '進捗マーカー・再開アイコン', labels: 'タスク名・担当・進捗 ％', handles: 'フェードの掴み点 □（選択の枠の層）',
-                      zones: '掴み代の面（見本だけ）' };
+                      notes: 'コメントボックス（本文・引出し線・線先）', zones: '掴み代の面（見本だけ）' };
 let L = {};   // the <g> of each paint layer, rebuilt by draw()
 
 // ---------------------------------------------------------------- labels
@@ -829,6 +839,49 @@ function segDistance(z, x, y) {
   return Math.hypot(x - (x0 + t * dx), y - (y0 + t * dy));
 }
 
+// ---------------------------------------------------------------- a comment box (GR-14; question 42, 2026-09-20)
+// The body is the whole box -- drawn opaque, so what lies under it is not grabbed through it (FR-108). The leader is
+// one kind of polyline (R:4397) and takes 3 px either side; the tip takes 6 px, also over a task, because it is put
+// on a task or a milestone to show what the comment is about. The tip is read where it is dropped, as the day under
+// it and the row drawn under it (FR-019; AR-5: the comment names no task), and drawn at the day's column centre and
+// the row band's centre (LF-15); the body keeps its offset from the tip (AT-115), so it moves with it
+const COMMENT_TEXT = 'ここを確認', COMMENT_LINE = 1.5;
+const ROW_NAMES = { task: '① の行', unset: '② の行', arrow: '4 の行', ms: '3 の行', stack: '⑤ の行' };
+function rowBands() {
+  const bh = barH();
+  return [['task', TOP.task, bh], ['unset', TOP.unset, bh], ['arrow', TOP.arrow, ARROW_BOTTOM - TOP.arrow], ['ms', TOP.ms, bh],
+          ['stack', TOP.stack, STACK_BOTTOM - TOP.stack]].map(([key, top, h]) => ({ key, top, h, mid: top + h / 2 }));
+}
+function commentTip(c) {
+  const band = rowBands().find(b => b.key === c.row);
+  return band ? { x: xOf(c.day) + dayPx() / 2, y: band.mid } : null;
+}
+function drawComment(g) {
+  if (!$('showNote').checked) return;
+  const c = M.comment, tip = commentTip(c);
+  if (!tip) return;
+  const size = 11, probe = el(L.notes, 'text', { x: -9999, y: -9999, 'font-size': size });
+  probe.textContent = COMMENT_TEXT;
+  const tw = probe.getBBox().width;
+  L.notes.removeChild(probe);
+  const bx = tip.x + c.dx, by = tip.y + c.dy, bw = tw + 10, bh = size + 8;   // (bx, by): the body's bottom-left corner
+  const pts = [[bx, by], [tip.x, by], [tip.x, tip.y]];
+  el(L.notes, 'polyline', { points: pts.map(q => q.join(',')).join(' '), fill: 'none', stroke: '#7a5c00', 'stroke-width': COMMENT_LINE });
+  el(L.notes, 'circle', { cx: tip.x, cy: tip.y, r: 2.5, fill: '#7a5c00' });
+  rect(L.notes, bx, by - bh, bw, bh, '#fff8dc', '#7a5c00');
+  const t = el(L.notes, 'text', { x: bx + 5, y: by - 5, 'font-size': size, fill: '#333' });
+  t.textContent = COMMENT_TEXT;
+  const lo = GRAB.commentLine.out, to = GRAB.commentTip.out;
+  zone(g, 'comment-body', 'commentBody', bx, by - bh, bw, bh, ZC.note, 'move', 'コメントボックスの本文');
+  for (let j = 0; j + 1 < pts.length; j++) {
+    const [x0, y0] = pts[j], [x1, y1] = pts[j + 1];
+    const z = zone(g, 'comment-line-' + j, 'commentLine', Math.min(x0, x1) - lo, Math.min(y0, y1) - lo,
+                   Math.abs(x1 - x0) + lo * 2, Math.abs(y1 - y0) + lo * 2, ZC.note, 'move', 'コメントボックスの引出し線');
+    z.seg = [x0, y0, x1, y1];
+  }
+  zone(g, 'comment-tip', 'commentTip', tip.x - to, tip.y - to, to * 2, to * 2, ZC.note, 'crosshair', 'コメントボックスの線先（' + c.day + ' 日目）');
+}
+
 // ---------------------------------------------------------------- the picture
 function draw() {
   const g = $('stage');
@@ -941,6 +994,7 @@ function draw() {
   const planY = ay + aFont + spx(S.arrowNameGap) + line / 2;           // row 2: the plan line's centre
   const actY2 = planY + line + spx(S.arrowActualGap);                  // row 3: the actual line's centre
   const arrowBottom = actY2 + half;
+  ARROW_BOTTOM = arrowBottom;
   const splitY = (planY + actY2) / 2;   // plan and actual grabs never overlap: split at the midline
   const cut = (b, top, bottom) => { const y = Math.max(b.y, top); return { y, h: Math.max(0, Math.min(b.y + b.h, bottom) - y) }; };
   const planBand = v => cut(band(planY - half, half * 2, v), -Infinity, splitY);
@@ -1044,7 +1098,9 @@ function draw() {
     }
   }
 
+  STACK_BOTTOM = sy - stackGap();
   drawDeps(L.deps);
+  drawComment(g);
   // grab areas lie over the drawn shapes, so a grab inside a bar shows as a pale tint of that bar
   if ($('showZones').checked) {
     for (const z of zones) if (z.fill) rect(L.zones, z.x, z.y, z.w, z.h, z.fill);
@@ -1061,7 +1117,7 @@ function draw() {
 // ---------------------------------------------------------------- which grab answers (table HT)
 // the hit order: table T-023d; off the drawn shapes question 7 can put the line first (GS-4)
 // question 27: an annotation answers before the schedule's shapes (group B 12), but only on its frame and corners
-const NOTE_KINDS = ['noteCorner', 'note'];
+const NOTE_KINDS = ['commentTip', 'noteCorner', 'commentLine', 'note', 'commentBody'];
 const NOTE_LINE = 1.5;   // the frame's drawn width
 let NOTE_BOX = null;     // the highlight box's frame as drawn, for the distance to its line
 function noteLineDistance(x, y) {
@@ -1074,7 +1130,8 @@ function noteLineDistance(x, y) {
 const HIT_ORDER = ['fade', 'marker', 'resume', 'dummy', 'actualEnd', 'dep', 'planEnd', 'markerIn', 'ms', 'body'];
 const HIT_NAMES = { fade: 'フェード', marker: '進捗マーカー（実績の外）', resume: '再開アイコン', dummy: 'ダミー', actualEnd: '実績の端・◆ の実績',
                     dep: '依存線', planEnd: '予定の端', markerIn: '進捗マーカー（実績の中）', ms: '◆ の予定', body: '本体',
-                    noteCorner: 'ハイライトボックスの四隅', note: 'ハイライトボックスの枠' };
+                    noteCorner: 'ハイライトボックスの四隅', note: 'ハイライトボックスの枠',
+                    commentTip: 'コメントボックスの線先', commentLine: 'コメントボックスの引出し線', commentBody: 'コメントボックスの本文' };
 function hitOrder(offShape) {
   if (!offShape) return [...NOTE_KINDS, ...HIT_ORDER];
   const q7 = $('q7').value;
@@ -1132,9 +1189,14 @@ function hitAt(x, y) {
       const z = zones[i];
       if (z.kind !== kind || !inside(z)) continue;
       if (NOTE_KINDS.includes(z.kind)) {
-        // an annotation belongs to no task, so GS-2 does not filter it; on a drawn shape it answers only on the frame
-        // line it draws, as a dependency line does there (group A 14), so a frame across a bar takes no press from it
-        if (under && under.size && noteLineDistance(x, y) > NOTE_LINE / 2) continue;
+        // an annotation belongs to no task, so GS-2 does not filter it. The comment's body is drawn opaque over the
+        // schedule and its tip is put on a task on purpose, so both answer wherever they are; a frame line or a leader
+        // line on a drawn shape answers only on the line it draws, as a dependency line does there (group A 14)
+        if (z.kind === 'commentBody' || z.kind === 'commentTip') { /* always */ }
+        else if (under && under.size) {
+          const lineD = z.kind === 'commentLine' ? segDistance(z, x, y) : noteLineDistance(x, y);
+          if (lineD > (z.kind === 'commentLine' ? COMMENT_LINE : NOTE_LINE) / 2) continue;
+        }
       } else if (z.kind === 'dep') {
         // on a drawn shape a line answers only on the line it draws (JDG-38; question 14: no extra pixel)
         if (under && under.size && segDistance(z, x, y) > (z.dep === pickedDep ? depW() : depW() / 2)) continue;
@@ -1188,7 +1250,7 @@ stage.addEventListener('pointerdown', e => {
   }
   const z = hitAt(p.x, p.y);
   if (!z) { if (pickedDep >= 0) { pickedDep = -1; draw(); } return; }
-  drag = { id: z.id, dep: z.dep, resumeFrom: z.resumeDay, startDay: dayAt(p.x), startY: p.y, model: JSON.parse(JSON.stringify(M)), moved: 0, slots: 0 };
+  drag = { id: z.id, dep: z.dep, resumeFrom: z.resumeDay, startDay: dayAt(p.x), startX: p.x, startY: p.y, model: JSON.parse(JSON.stringify(M)), moved: 0, slots: 0 };
   stage.setPointerCapture(e.pointerId);
 });
 stage.addEventListener('pointermove', e => {
@@ -1220,6 +1282,22 @@ stage.addEventListener('pointermove', e => {
   const m = JSON.parse(JSON.stringify(drag.model));
   const [key, ...rest] = drag.id.split('-');
   const part = rest.join('-');
+  if (key === 'comment') {
+    const c = m.comment, c0 = drag.model.comment;
+    if (part === 'tip') {
+      // read where it is dropped: the day under it and the row drawn under it; with no row there it stays (RS-44)
+      const band = rowBands().find(b => p.y >= b.top - 2 && p.y <= b.top + b.h + 2);
+      if (band) { c.day = clamp(Math.floor(dayAt(p.x)), 0, 55); c.row = band.key; }
+    } else { c.dx = c0.dx + (p.x - drag.startX); c.dy = c0.dy + (p.y - drag.startY); }
+    drag.moved = part === 'tip' ? (c.day !== c0.day || c.row !== c0.row ? 1 : 0) : Math.round(Math.hypot(p.x - drag.startX, p.y - drag.startY));
+    M = m;
+    draw();
+    const tip = commentTip(c), on = part === 'tip' && tip ? taskAt(tip.x, tip.y) : null;
+    $('hit').textContent = part === 'tip'
+      ? '線先: ' + c.day + ' 日目・' + ROW_NAMES[c.row] + (on ? ' —— 「' + (M[on.owner].name || on.owner) + '」へのコメント' : ' —— 指す先のタスクは無い')
+      : '本文の箱を動かしている（線先は動かない）';
+    return;
+  }
   if (part === 'resume') {
     // the resume date goes where the icon is dropped, never on or before the stop (FR-044; resumeValid true)
     const q = m[key];
