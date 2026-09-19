@@ -198,7 +198,7 @@
   <section class="sec"><h2>ハイライトボックス（注記）</h2>
   <h3>掴み代</h3>
   <div id="grab-note"></div>
-  <div class="hint">⑤ の行を囲む枠（範囲を囲う注記）。枠線とその近くだけが枠を掴み、引けば日付の向きに動く。四隅は枠の左右の端を動かす。<b>枠の中は素通し</b>で、中のタスクは普段どおり掴める（㉗、決まった）。注記は日程の形より先に応えるが、それは枠線の近くと四隅だけである。</div>
+  <div class="hint">⑤ の行を囲む枠（範囲を囲う注記）。枠線とその近く（枠線から内と外へ 3px）だけが枠を掴み、引けば日付の向きに動く。四隅（隅から 6px）は枠の左右の端を動かす（2026-09-20 に利用者が決めた値）。<b>枠の中は素通し</b>で、中のタスクは普段どおり掴める（㉗、決まった）。注記は日程の形より先に応えるが、それは枠線の近くと四隅だけである。</div>
   </section>
 
   <section class="sec"><h2>7 問（推奨と今までの形を比べる）</h2>
@@ -288,9 +288,10 @@ const GRAB = {
   aDummyStart:  { w: 12, v: 0 },
   aDummyEnd:    { w: 12, v: 0 },
   dep:          { out: 2 },                  // from the drawn line's edges, either side: 1.5 + 2 x 2 = 5.5 px across
-  // question 27: a highlight box is grabbed on its frame line only (FR-019), and at its corners (S-230)
-  noteFrame:    { out: 6 },                  // S-137: either side of the frame line
-  noteCorner:   { w: 12 },                   // S-230 (= S-137): a square centred on each corner
+  // question 27: a highlight box is grabbed on its frame line only (FR-019), and at its corners (S-230);
+  // the user set the reaches on 2026-09-20: 3 px either side of the line, 6 px from each corner
+  noteFrame:    { out: 3 },                  // from the frame line, inside and outside
+  noteCorner:   { out: 6 },                  // S-230: from the corner, every way (also a comment box's anchor)
 };
 const GRAB_START = JSON.parse(JSON.stringify(GRAB));
 const GRAB_ROWS = [
@@ -315,7 +316,7 @@ const GRAB_ROWS = [
   { sec: 'ms', key: 'msDummy', name: 'ダミー' },
   { sec: 'dep', key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
   { sec: 'note', key: 'noteFrame', name: '枠', note: '外側 ＝ 枠線から内と外へそれぞれ' },
-  { sec: 'note', key: 'noteCorner', name: '四隅', note: '幅 ＝ 隅に中央を合わせた正方形の一辺' },
+  { sec: 'note', key: 'noteCorner', name: '四隅', note: '外側 ＝ 隅から上下左右へ（コメントボックスのアンカーも同じ値）' },
 ];
 const PARAMS = [['out', '外側'], ['in', '内側'], ['v', '上下'], ['w', '幅']];
 function rangeOf(key, param) {
@@ -1032,7 +1033,7 @@ function draw() {
     const nx0 = xOf(M.note.from), nx1 = xOf(M.note.to), ny0 = TOP.stack - 5, ny1 = sy - stackGap() + 5;
     NOTE_BOX = { x0: nx0, y0: ny0, x1: nx1, y1: ny1 };
     el(L.deps, 'rect', { x: nx0, y: ny0, width: nx1 - nx0, height: ny1 - ny0, fill: 'none', stroke: '#c07a00', 'stroke-width': 1.5 });
-    const o = GRAB.noteFrame.out, c = GRAB.noteCorner.w / 2, info = 'ハイライトボックスの枠';
+    const o = GRAB.noteFrame.out, c = GRAB.noteCorner.out, info = 'ハイライトボックスの枠';
     zone(g, 'note-top', 'note', nx0 - o, ny0 - o, nx1 - nx0 + o * 2, o * 2, ZC.note, 'move', info);
     zone(g, 'note-bottom', 'note', nx0 - o, ny1 - o, nx1 - nx0 + o * 2, o * 2, ZC.note, 'move', info);
     zone(g, 'note-left', 'note', nx0 - o, ny0 - o, o * 2, ny1 - ny0 + o * 2, ZC.note, 'move', info);
