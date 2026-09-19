@@ -1,4 +1,7 @@
-76
+79
+#
+# RAISED 76 -> 79 on 2026-09-19, approved by the user in chat ("検査 43 : 基準を上げていいよ。"): the answers
+# to questions 36-38 (JDG-240 .. JDG-242) wait for the same Step 1b change request.
 #
 # RAISED 18 -> 76 on 2026-09-19, approved by the user in chat ("検査 43 の基準線を 18 → 76 に上げてよい。"):
 # JDG-180 .. JDG-239 were recorded while the grab-area sample was settled question by question; they land

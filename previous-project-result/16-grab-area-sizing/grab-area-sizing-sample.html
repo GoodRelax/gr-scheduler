@@ -943,9 +943,9 @@ function draw() {
   // grabs are CENTRED on the start and on the finish: an arrow's left end and the middle of `>`, a span's dots
   const aHeadCx = span ? aX + aW : aX + aW - head / 2;
   const useArrowAct = showActual && a.actualDays > 0;
-  // question 28: an unstarted `--->` draws the dummy on row 3 -- a one-day mark at the plan's start, half the
-  // marker wide -- and grabs it with the actual's values, each end centred; where the two meet they split at the
-  // mark's middle (the nearer centre, question 5)
+  // question 28: an unstarted `--->` draws the dummy on row 3 -- a one-day actual at the plan's start, half the
+  // marker wide -- and grabs it with the actual's values, centred on the mark's two ends; where the two meet they
+  // split at the mark's middle (TE-3; the nearer centre gives the same line)
   const useArrowDummy = showActual && a.actualDays === 0, adw = aMk * 0.5;
   if (showPlan) {
     const b0 = planBand(GRAB.aPlanStart.v), b1 = planBand(GRAB.aPlanEnd.v), body = planBand(0);
@@ -983,7 +983,9 @@ function draw() {
     else el(L.bars, 'path', { d: arrowPath(aActX, aActW, actY2, line, actHead), fill: 'var(--arrow-actual)', stroke: 'none' });
     shapes.push({ owner: 'arrow', x: aActX - (span ? dot / 2 : 0), y: actY2 - half, w: aActW + (span ? (aPaused ? dot / 2 : dot) : 0), h: half * 2 });
   } else if (useArrowDummy) {
-    rect(L.bars, aX, actY2 - line / 2, adw, line, 'var(--dummy-edge)');
+    // the dummy has the shape of a one-day actual (DM-4): the arrow's head is held to its span (S-46), the span's dots stay
+    if (span) drawSpan(aX, adw, actY2, 'var(--dummy-edge)', true);
+    else el(L.bars, 'path', { d: arrowPath(aX, adw, actY2, line, headOf(adw)), fill: 'var(--dummy-edge)', stroke: 'none' });
     shapes.push({ owner: 'arrow', x: aX, y: actY2 - half, w: adw, h: half * 2 });
   }
   if (showPlan) ANCHOR.arrow = { x0: aX, x1: aX + aW, y: planY, top: ay, bottom: arrowBottom };   // the plan arrow's ends, at its height
@@ -1085,7 +1087,13 @@ function hitAt(x, y) {
   // question 10 (JDG-178): on a marker's drawn shape the marker answers before a fade's grab point. The actual
   // start keeps the left half of a marker standing on it (JDG-187): it still comes before the marker inside
   const onMarker = zones.some(z => z.drawn && x >= z.drawn.x && x <= z.drawn.x + z.drawn.s && y >= z.drawn.y && y <= z.drawn.y + z.drawn.s);
-  if (onMarker) { order = order.filter(k => k !== 'fade'); order.splice(order.indexOf('markerIn') + 1, 0, 'fade'); }
+  // On a marker's (or the resume icon's) drawn box, the marker answers right after the actual's ends -- the actual
+  // start keeps the left half of a marker standing on it (JDG-187) -- and before every other kind: the fade (JDG-178),
+  // the plan's ends and body (C8, R:3428: a marker is never taken by the plan's end drawn under it)
+  if (onMarker) {
+    const first = ['actualEnd', 'marker', 'markerIn', 'resume'];
+    order = [...order.filter(k => NOTE_KINDS.includes(k)), ...first, ...order.filter(k => !NOTE_KINDS.includes(k) && !first.includes(k))];
+  }
   // GS-1: on a drawn shape, only the task that shape belongs to may answer (a marker is drawn too)
   const under = $('gs1').checked ? new Set([
     ...shapes.filter(q => shapeContains(q, x, y)).map(q => q.owner),
@@ -1127,8 +1135,10 @@ function hitAt(x, y) {
         if (under && under.size && segDistance(z, x, y) > (z.dep === pickedDep ? depW() : depW() / 2)) continue;
       } else if (under && under.size && !under.has(ownerOf(z))) continue;
       else if (near && !near.has(ownerOf(z))) continue;
-      const gap = gapOf(z);
-      if (gap < bestGap) { bestGap = gap; best = z; }
+      // question 5: the nearer centre; at an equal distance the later date -- the finish side -- answers (the
+      // current TE-1 / TE-4 widened), never the order things were drawn in (FR-110)
+      const gap = gapOf(z), cx = q => q.x + q.w / 2;
+      if (gap < bestGap - 1e-9 || (Math.abs(gap - bestGap) <= 1e-9 && best && cx(z) > cx(best))) { bestGap = gap; best = z; }
     }
     if (best) return best;
   }
