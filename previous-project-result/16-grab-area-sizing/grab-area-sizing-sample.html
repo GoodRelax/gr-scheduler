@@ -76,6 +76,20 @@
 </div></section>
 <div class="split" id="split" title="引いて右のペインの幅を変える。ダブルクリックで畳む ／ 戻す"></div>
 <aside class="panel"><div class="inner">
+  <h2>表示</h2>
+  <div class="row">
+    <label style="margin:0"><input id="showZones" type="checkbox" checked> 掴み代の面</label>
+    <label style="margin:0"><input id="showPlan" type="checkbox" checked> 予定</label>
+    <label style="margin:0"><input id="showActual" type="checkbox" checked> 実績</label>
+    <label style="margin:0"><input id="showMarker" type="checkbox" checked> 進捗マーカー</label>
+    <label style="margin:0"><input id="showName" type="checkbox" checked> タスク名</label>
+    <label style="margin:0"><input id="showPercent" type="checkbox" checked> 進捗 ％</label>
+    <label style="margin:0"><input id="showAssignee" type="checkbox" checked> 担当者</label>
+    <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
+    <label style="margin:0"><input id="showDeps" type="checkbox" checked> 依存線</label>
+    <button id="reset" type="button">形を元に戻す</button>
+  </div>
+
   <h2>掴み代（操作対象ごと。px、幅の ％ は菱形の幅に対する比）</h2>
   <div id="grabTable"></div>
   <div class="hint">外側 ＝ 描いた端から外へ ／ 内側 ＝ 描いた端から内へ ／ 上下 ＝ 描いた帯から上と下へ ／ 幅 ＝ 中心に置く掴み代の幅（フェードは正方形の一辺）。— の欄はその対象に無い。</div>
@@ -103,18 +117,18 @@
 
   <h2>依存線</h2>
   <div class="row">
-    <label style="margin:0"><input id="showDeps" type="checkbox" checked> 依存線を描く</label>
     <button id="arm" type="button">依存線を構える</button>
     <button id="delDep" type="button">選んだ線を消す</button>
   </div>
-  <div class="hint">構えたら、結ぶ元のタスクの左半分（開始）か右半分（終了）を押し、結ぶ先の左半分か右半分で離す。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。</div>
+  <div class="hint">構えたら、結ぶ元のタスクの予定の左半分（開始）か右半分（終了）を押し、結ぶ先の予定の左半分か右半分で離す。組合せで FS ／ SF ／ FF ／ SS が決まる（表 T-018）。Esc で構えを解く。依存線は予定に対して設定する情報なので、予定に付き、予定を表示していないときは描かない（引けない）。依存線を隠しているあいだは、構えることも消すこともできない（表示の切り替えは上の「表示」の節）。</div>
 
   <h2>7 問（推奨と今までの形を比べる）</h2>
   <div class="qs">
     <div class="qrow">① ダミーの開始 外側（JDG-04 ／ JDG-19）<button type="button" data-set="dummyStart.out=0">推奨 0</button><button type="button" data-set="dummyStart.out=12">今まで 12</button></div>
     <label><input id="q2" type="checkbox" checked> ② マーカーの押下は表 T-021a の順（未着手 → 完了 → 中断 → 進行中）</label>
     <div class="hint">③（JDG-27 の扱い）は記録だけの問いなので、見本の挙動は変わらない。</div>
-    <div class="qrow">④ 予定の開始・終了の上下（GS-3。=== と矢印）<button type="button" data-set="planStart.v=12,planEnd.v=12,aPlanStart.v=12,aPlanEnd.v=12">推奨 12</button><button type="button" data-set="planStart.v=0,planEnd.v=0,aPlanStart.v=0,aPlanEnd.v=0">今まで 0</button></div>
+    <div class="qrow">④ 予定の開始・終了の上下（=== と矢印）<button type="button" data-set="planStart.v=0,planEnd.v=0,aPlanStart.v=0,aPlanEnd.v=0">裁定 0</button><button type="button" data-set="planStart.v=12,planEnd.v=12,aPlanStart.v=12,aPlanEnd.v=12">GS-3 の 12</button></div>
+    <div class="hint">④は利用者が 0 に決めた（2026-09-19）。「GS-3 の 12」は、隣が無い向きに S-90 の 12px を当てる仕様の形を比べるためのボタン。</div>
     <label><span class="name">⑤ 同じ種類が重なったら</span><select id="q5">
       <option value="centre" selected>中心が近い方（直線距離）</option>
       <option value="edge">描いた形の縁が近い方（GS-2）</option>
@@ -132,18 +146,6 @@
     <div class="hint">⑦は依存線を入れて見つかった食い違い（DFC-657）。GS-4 は形の外で線を GS-2 ／ GS-3（フェードの S-92 を含む）より先にする。ただしその理由の文は、表 T-023d の並びを誤って引いている（表ではフェードが線より上）。</div>
   </div>
 
-  <h2>表示</h2>
-  <div class="row">
-    <label style="margin:0"><input id="showZones" type="checkbox" checked> 掴み代の面</label>
-    <label style="margin:0"><input id="showPlan" type="checkbox" checked> 予定</label>
-    <label style="margin:0"><input id="showActual" type="checkbox" checked> 実績</label>
-    <label style="margin:0"><input id="showMarker" type="checkbox" checked> 進捗マーカー</label>
-    <label style="margin:0"><input id="showName" type="checkbox" checked> タスク名</label>
-    <label style="margin:0"><input id="showPercent" type="checkbox" checked> 進捗 ％</label>
-    <label style="margin:0"><input id="showAssignee" type="checkbox" checked> 担当者</label>
-    <label style="margin:0"><input id="msActual" type="checkbox" checked> マイルストーンの実績</label>
-    <button id="reset" type="button">形を元に戻す</button>
-  </div>
 </div></aside>
 </div>
 
@@ -161,8 +163,8 @@ const SLIDERS = Object.keys(S);
 // w = a width centred on the thing (a fade's square side; a milestone plan's width as % of its diamond).
 // No value is read by any other thing: changing one row moves one kind of grab area and nothing else.
 const GRAB = {
-  planStart:    { out: 12, in: 0, v: 12 },   // S-90 outside; question 4: 12 above and below (GS-3)
-  planEnd:      { out: 12, in: 0, v: 12 },
+  planStart:    { out: 12, in: 0, v: 0 },    // S-90 outside; question 4: no reach above and below (user ruling)
+  planEnd:      { out: 12, in: 0, v: 0 },
   actualStart:  { out: 0, in: 12, v: 0 },    // S-91 inside
   actualEnd:    { out: 0, in: 12, v: 0 },
   dummyStart:   { out: 0, v: 0 },            // question 1: 0 keeps left of the plan start the plan's (JDG-04 / JDG-19)
@@ -173,11 +175,11 @@ const GRAB = {
   msPlan:       { w: 115, v: 0 },            // JDG-189: 115% of the diamond's width, the diamond's height
   msActual:     { out: 0, v: 0 },            // JDG-189: the actual's own diamond
   msDummy:      { out: 0, v: 0 },
-  aPlanStart:   { w: 12, v: 12 },            // JDG-185: centred on the left end
-  aPlanEnd:     { w: 12, v: 12 },            //          and on the middle of `>`
+  aPlanStart:   { w: 12, v: 0 },             // JDG-185: centred on the left end
+  aPlanEnd:     { w: 12, v: 0 },             //          and on the middle of `>`
   aActualStart: { w: 12, v: 0 },
   aActualEnd:   { w: 12, v: 0 },
-  dep:          { out: 6 },                  // S-137, either side of the line
+  dep:          { out: 2 },                  // from the drawn line's edges, either side: 1.5 + 2 x 2 = 5.5 px across
 };
 const GRAB_START = JSON.parse(JSON.stringify(GRAB));
 const GRAB_ROWS = [
@@ -202,7 +204,7 @@ const GRAB_ROWS = [
   { key: 'aActualStart', name: '実績の開始' },
   { key: 'aActualEnd', name: '実績の終了' },
   { group: '依存線' },
-  { key: 'dep', name: '依存線', note: '外側 ＝ 線の左右それぞれ' },
+  { key: 'dep', name: '依存線', note: '外側 ＝ 描いた線の縁から左右それぞれ' },
 ];
 const PARAMS = [['out', '外側'], ['in', '内側'], ['v', '上下'], ['w', '幅']];
 function rangeOf(key, param) {
@@ -308,6 +310,18 @@ function fadeCursor(dir) {
   const px = fadeCursorPx(), hot = dir === 'in' ? px - 1 : 0;
   return 'url("data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, px)) + '") ' + hot + ' ' + hot + ', nwse-resize';
 }
+// a dependency line takes a LINE arrow -- a thin shaft and an open head, like the glyph "->" -- where a
+// task's end takes a wide block arrow. Black rim, white inside: the path is stroked black, then white over it
+function lineArrowGlyph(px) {
+  const d = 'M3 12 L20 12 M14 6 L20 12 L14 18';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + px + '" height="' + px + '" viewBox="0 0 24 24" fill="none"' +
+    ' stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '" stroke="#000000" stroke-width="5"/>' +
+    '<path d="' + d + '" stroke="#ffffff" stroke-width="2.2"/></svg>';
+}
+function depCursor() {
+  const px = S.cur;
+  return 'url("data:image/svg+xml,' + encodeURIComponent(lineArrowGlyph(px)) + '") ' + Math.round(px / 2) + ' ' + Math.round(px / 2) + ', pointer';
+}
 
 function el(parent, name, attrs) {
   const n = document.createElementNS(NS, name);
@@ -352,7 +366,9 @@ function shapeDy(owner, y) {
   return best === Infinity ? 0 : best;
 }
 function ownerOf(z) { return z.id.split('-')[0]; }
-// where a dependency line may attach to each task: the actual when drawn, else the plan (FR-009 / FR-013)
+// where a dependency line attaches to each task: the drawn plan, and nothing else. A dependency is
+// information set on the plan (user ruling 2026-09-19, overturning FR-009's fall-back to the actual):
+// with no plan, or the plan hidden, the task has no end for a line and the line is not drawn (RT-4a)
 let ANCHOR = {};
 
 // ---------------------------------------------------------------- labels
@@ -477,7 +493,7 @@ function drawBarTask(g, key, ty, opts) {
     } else {
       rect(g, planX, ty, planW, bh, 'var(--plan)', 'var(--plan-edge)');
     }
-    shapes.push({ owner: key, x: planX, y: ty, w: planW, h: bh });
+    shapes.push({ owner: key, part: 'plan', x: planX, y: ty, w: planW, h: bh });
   }
   if (useAct) { rect(g, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)'); shapes.push({ owner: key, x: actX, y: actY, w: actW, h: ah }); }
   if (useDummy) { rect(g, planX, ty + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)'); shapes.push({ owner: key, x: planX, y: ty + (bh - mk) / 2, w: dw, h: mk }); }
@@ -488,10 +504,7 @@ function drawBarTask(g, key, ty, opts) {
   }
   drawName(g, q, put.nameX, ty + bh / 2);
   drawOutsideLabel(g, q, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : refX) - S.outsideGap, ty + bh / 2);
-  // RT-4a: a line is drawn only when both of its ends are drawn
-  if (showPlan || useAct) {
-    ANCHOR[key] = { x0: useAct ? actX : planX, x1: useAct ? actX + actW : planX + planW, y: ty + bh / 2, top: ty, bottom: ty + bh };
-  }
+  if (showPlan) ANCHOR[key] = { x0: planX, x1: planX + planW, y: ty + bh / 2, top: ty, bottom: ty + bh };
   return { put, bh };
 }
 
@@ -518,7 +531,7 @@ function routeDep(P, Q, type) {
 }
 function drawDeps(g) {
   if (!$('showDeps').checked) return;
-  const o = GRAB.dep.out;
+  const o = DEP_W / 2 + GRAB.dep.out;   // the zone runs this far from the line's centre, either side
   M.deps.forEach((d, i) => {
     const P = ANCHOR[d.from], Q = ANCHOR[d.to];
     if (!P || !Q) return;                          // RT-4a
@@ -528,7 +541,7 @@ function drawDeps(g) {
     for (let j = 0; j + 1 < pts.length; j++) {
       const [x0, y0] = pts[j], [x1, y1] = pts[j + 1];
       const z = zone(g, 'dep' + i + '-' + j, 'dep', Math.min(x0, x1) - o, Math.min(y0, y1) - o,
-                     Math.abs(x1 - x0) + o * 2, Math.abs(y1 - y0) + o * 2, ZC.dep, 'pointer', info);
+                     Math.abs(x1 - x0) + o * 2, Math.abs(y1 - y0) + o * 2, ZC.dep, depCursor(), info);
       z.seg = [x0, y0, x1, y1];
       z.dep = i;
     }
@@ -596,8 +609,8 @@ function draw() {
   if (showPlan) {
     diamond(msX, msR, 'var(--ms)', 'var(--ms-edge)');
     diamond(ms2X, msR, 'var(--ms)', 'var(--ms-edge)');
-    shapes.push({ owner: 'ms', kind: 'diamond', cx: msX, cy: msY + msR, r: msR });
-    shapes.push({ owner: 'ms2', kind: 'diamond', cx: ms2X, cy: msY + msR, r: msR });
+    shapes.push({ owner: 'ms', part: 'plan', kind: 'diamond', cx: msX, cy: msY + msR, r: msR });
+    shapes.push({ owner: 'ms2', part: 'plan', kind: 'diamond', cx: ms2X, cy: msY + msR, r: msR });
     ANCHOR.ms2 = { x0: ms2X - msR, x1: ms2X + msR, y: msY + msR, top: msY, bottom: msY + bh };
   }
   if (showActual) {
@@ -608,10 +621,7 @@ function draw() {
   const msFollowX = showActual && hasMsActual ? msActX : msX;   // labels follow the actual, never the plan
   const msHalf = showActual ? msR * 0.7 : msR;
   const msAnchor = msFollowX + msHalf;                          // the marker stands outside the glyph
-  if (showPlan || (showActual && hasMsActual)) {
-    const r = showActual && hasMsActual ? msR * 0.7 : msR;
-    ANCHOR.ms = { x0: msFollowX - r, x1: msFollowX + r, y: msY + msR, top: msY, bottom: msY + bh };
-  }
+  if (showPlan) ANCHOR.ms = { x0: msX - msR, x1: msX + msR, y: msY + msR, top: msY, bottom: msY + bh };
   if (marked) {
     markerZone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk);
     drawMarker(g, msAnchor + mk / 2, msY + bh / 2, Math.max(2, mk / 2 - 1), hasMsActual ? 'done' : 'unstarted');
@@ -654,15 +664,13 @@ function draw() {
     ' L ' + (x + w - hd) + ' ' + (y + th / 2) + ' L ' + x + ' ' + (y + th / 2) + ' Z';
   if (showPlan) {
     el(g, 'path', { d: arrowPath(aX, aW, planY, shaft, head), fill: 'var(--arrow-plan)', stroke: 'none' });   // no outline (JDG-185)
-    shapes.push({ owner: 'arrow', x: aX, y: planY - shaft * 1.6, w: aW, h: shaft * 3.2 });
+    shapes.push({ owner: 'arrow', part: 'plan', x: aX, y: planY - shaft * 1.6, w: aW, h: shaft * 3.2 });
   }
   if (useArrowAct) {
     el(g, 'path', { d: arrowPath(aActX, aActW, actY2, shaft * 0.8, Math.min(shaft * 3, aActW)), fill: 'var(--arrow-actual)', stroke: 'none' });
     shapes.push({ owner: 'arrow', x: aActX, y: actY2 - shaft * 1.3, w: aActW, h: shaft * 2.6 });
   }
-  if (showPlan || useArrowAct) {
-    ANCHOR.arrow = { x0: useArrowAct ? aActX : aX, x1: useArrowAct ? aActX + aActW : aX + aW, y: useArrowAct ? actY2 : planY, top: ay, bottom: ay + bh };
-  }
+  if (showPlan) ANCHOR.arrow = { x0: aX, x1: aX + aW, y: planY, top: ay, bottom: ay + bh };   // the plan arrow's ends, at its height
   const putA = placeAlongArrow(g, a, useArrowAct ? aActX : aX, marked, mk);
   const aLabelY = ay + bh * 0.1;
   if (marked) {
@@ -737,12 +745,14 @@ function hitAt(x, y) {
   }
   return null;
 }
-// the task a point is on, for the dependency tool: halves of the drawn span, never the end grabs (T-018)
+// the task a point is on, for the dependency tool: halves of the drawn PLAN, never the end grabs (T-018).
+// A dependency is set on the plan, so a task whose plan is not drawn cannot be linked
 function taskAt(x, y) {
-  const hit = shapes.filter(q => shapeContains(q, x, y));
+  const plans = shapes.filter(q => q.part === 'plan');
+  const hit = plans.filter(q => shapeContains(q, x, y));
   if (!hit.length) return null;
   const owner = hit[hit.length - 1].owner;
-  const mine = shapes.filter(q => q.owner === owner);
+  const mine = plans.filter(q => q.owner === owner);
   const x0 = Math.min(...mine.map(q => q.kind === 'diamond' ? q.cx - q.r : q.x));
   const x1 = Math.max(...mine.map(q => q.kind === 'diamond' ? q.cx + q.r : q.x + q.w));
   return { owner, side: x < (x0 + x1) / 2 ? 'start' : 'end' };
@@ -781,7 +791,9 @@ stage.addEventListener('pointermove', e => {
   if (!drag) {
     if (armed) {
       const t = taskAt(p.x, p.y);
-      $('hit').textContent = t ? '結ぶ元: ' + (M[t.owner].name || t.owner) + ' の' + (t.side === 'start' ? '左半分（開始）' : '右半分（終了）') : '構えている: 結ぶ元のタスクを押す';
+      $('hit').textContent = t ? '結ぶ元: ' + (M[t.owner].name || t.owner) + ' の' + (t.side === 'start' ? '左半分（開始）' : '右半分（終了）')
+        : !$('showPlan').checked ? '予定を表示していないので依存線は引けない（依存線は予定に対して設定する）'
+        : '構えている: 結ぶ元のタスクの予定を押す';
       stage.style.cursor = t ? 'crosshair' : 'default';
       return;
     }
@@ -963,7 +975,7 @@ function summary() {
     '  掴み代: ' + grabLine + '\n' +
     '  7 問: ① ' + (GRAB.dummyStart.out === 0 ? '推奨（ダミーの開始 外側 0）' : 'ダミーの開始 外側 ' + GRAB.dummyStart.out) +
     ' ・ ② ' + ($('q2').checked ? '表 T-021a' : '見本の仮の巡り') +
-    ' ・ ④ 予定の開始・終了 上下 ' + GRAB.planStart.v + ' ／ ' + GRAB.planEnd.v +
+    ' ・ ④ 予定の開始・終了 上下 ' + GRAB.planStart.v + ' ／ ' + GRAB.planEnd.v + '（--->: ' + GRAB.aPlanStart.v + ' ／ ' + GRAB.aPlanEnd.v + '）' +
     ' ・ ⑤ ' + $('q5').selectedOptions[0].textContent + ' ・ ⑥ ' + $('q6').selectedOptions[0].textContent +
     ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent + '\n' +
     '  札: タスク名 開始→名前 ' + S.namePad + 'px ・ マーカー→名前 ' + S.nameAfterMarker + 'px ・ マイルストーン名 マーカー→名前 ' + S.msNameAfterMarker +
@@ -982,7 +994,9 @@ function drawCursorLegend() {
     return '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(img) + '"><br>' + px + 'px</div>';
   }).join('') + ['in', 'out'].map(dir =>
     '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(fadeGlyph(dir, fadeCursorPx())) +
-    '"><br>フェード ' + (dir === 'in' ? '入' : '出') + '<br>' + fadeCursorPx() + 'px</div>').join('');
+    '"><br>フェード ' + (dir === 'in' ? '入' : '出') + '<br>' + fadeCursorPx() + 'px</div>').join('') +
+    '<div class="cursorCell"><img alt="" src="data:image/svg+xml,' + encodeURIComponent(lineArrowGlyph(S.cur)) +
+    '"><br>依存線<br>' + S.cur + 'px</div>';
 }
 
 // ---------------------------------------------------------------- the bar between the panes sets the panel's width
@@ -1018,7 +1032,12 @@ for (const id of SLIDERS) {
   out.textContent = input.value;
   input.addEventListener('input', () => { S[id] = Number(input.value); out.textContent = input.value; draw(); });
 }
-for (const id of ['showZones', 'showPlan', 'showActual', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual', 'showDeps',
+$('showDeps').addEventListener('change', () => {
+  if (!$('showDeps').checked) { pickedDep = -1; if (armed) setArmed(false); }
+  $('arm').disabled = $('delDep').disabled = !$('showDeps').checked;
+  draw();
+});
+for (const id of ['showZones', 'showPlan', 'showActual', 'showMarker', 'showName', 'showPercent', 'showAssignee', 'msActual',
                   'q2', 'q5', 'q6', 'gs1', 'q7']) {
   $(id).addEventListener('change', draw);
 }
