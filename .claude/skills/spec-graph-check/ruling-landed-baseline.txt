@@ -1,4 +1,7 @@
-84
+83
+#
+# LOWERED 84 -> 83 on 2026-09-20, approved by the user in chat ("基準線を83に下げてよい。", recorded as JDG-254):
+# JDG-162 landed when refactor was fast-forwarded to scale-and-fold (JDG-253), so the count fell to 83.
 #
 # RAISED 79 -> 84 on 2026-09-20, approved by the user in chat ("基準は上げてよい。", recorded as JDG-250): the
 # answers to questions 39-42 and the annotation grab values (JDG-245 .. JDG-249) wait for the same Step 1b
