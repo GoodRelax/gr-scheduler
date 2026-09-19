@@ -127,12 +127,12 @@
   <div class="cursorRow" id="cursorSizes"></div>
 
   <h2>依存線</h2>
-  <label><span class="name">引き出し（先行の端から, px）</span><input id="depRunOut" type="range" min="0" max="20" step="0.5" value="4"><output id="depRunOutOut"></output></label>
-  <label><span class="name">引き入れ（後続の端の手前, px）</span><input id="depRunIn" type="range" min="0" max="20" step="0.5" value="4"><output id="depRunInOut"></output></label>
-  <div class="hint">線がタスクの端から横へまっすぐ出る長さと、端へまっすぐ入る長さ。前の版はどちらも 14px（仕様の dependencyRunOfArrow 2 × S-19 7px）で、既定はその 30% ほどの 4px。</div>
-  <label><span class="name">矢じりの長さ（px）</span><input id="arrowLen" type="range" min="2" max="14" step="0.5" value="7"><output id="arrowLenOut"></output></label>
-  <label><span class="name">矢じりの幅（線に直角, px）</span><input id="arrowWidth" type="range" min="1" max="12" step="0.1" value="4.2"><output id="arrowWidthOut"></output></label>
-  <div class="hint">長さは S-19 の 7px。幅は前の版の 8.4px（長さ × 1.2）の半分。引き入れが矢じりの長さより短いと、矢じりの付け根が手前の曲がり角より外へ出る。</div>
+  <label><span class="name">引き出し（先行の端から, px）</span><input id="depRunOut" type="range" min="0" max="20" step="0.5" value="6"><output id="depRunOutOut"></output></label>
+  <label><span class="name">引き入れ（後続の端の手前, px）</span><input id="depRunIn" type="range" min="0" max="20" step="0.5" value="10"><output id="depRunInOut"></output></label>
+  <div class="hint">線がタスクの端から横へまっすぐ出る長さと、端へまっすぐ入る長さ。既定は利用者の指定で、引き出し 6px・引き入れ 10px（前の版はどちらも 14px。仕様の dependencyRunOfArrow 2 × S-19 7px）。</div>
+  <label><span class="name">矢じりの長さ（px）</span><input id="arrowLen" type="range" min="2" max="14" step="0.5" value="6"><output id="arrowLenOut"></output></label>
+  <label><span class="name">矢じりの幅（線に直角, px）</span><input id="arrowWidth" type="range" min="1" max="12" step="0.1" value="5"><output id="arrowWidthOut"></output></label>
+  <div class="hint">既定は利用者の指定で、長さ 6px × 幅 5px（仕様は長さ ＝ 底辺 ＝ S-19 の 7px）。引き入れが矢じりの長さより短いと、矢じりの付け根が手前の曲がり角より外へ出る。</div>
   <div class="row">
     <button id="arm" type="button">依存線を構える</button>
     <button id="delDep" type="button">選んだ線を消す</button>
@@ -172,7 +172,7 @@ const $ = id => document.getElementById(id);
 
 // drawing and labels -- nothing here sizes a grab area
 const S = { scale:100, dayPx:12, barH:18, markerSize:14, namePad:6, nameAfterMarker:6, msNameAfterMarker:6, outsideGap:4,
-            labelFont:90, cur:16, depRunOut:4, depRunIn:4, arrowLen:7, arrowWidth:4.2, stackBH:100 };
+            labelFont:90, cur:16, depRunOut:6, depRunIn:10, arrowLen:6, arrowWidth:5, stackBH:100 };
 const SLIDERS = Object.keys(S);
 
 // ---------------------------------------------------------------- grab areas, one set of values per thing grabbed
