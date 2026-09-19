@@ -25,7 +25,7 @@
 ブランチ scale-and-fold で作業せよ（refactor d70e181f から切った。根もこのブランチに置いてあり、push 済み）。
 refactor へ早送りするのは、利用者が dist を見て了承してから（JDG-162、未着地）。main では直接作業しない。タグは利用者が打つ。
 
-0. 到達点（2026-09-19 まで。scale-and-fold の先端 = 本書を書き換えた commit）
+0. 到達点（2026-09-20 まで。scale-and-fold の先端 = 本書を書き換えた commit）
    - 2026-09-18: CR-417〜CR-427（JDG-169〜JDG-179 の答え —— 表示の倍率 100 の描く比 0.625、目盛と行見出しの字と行見出しパネルの幅を 1.5 倍、名前の太さと 1 つの書体の並び、マーカーはいつも名前の前、ダミーはマーカーの半分の幅でマーカーと接する、フェードの掴み点 5 × 5 ／ 8 × 8、行の軸のズームの端、プロパティパネルの幅の下限、ヘルプの割当の区切りとホイールの図形、名前の欄のキー、端点の矢印のポインタ）を、仕様 d1d88fb6 → 実装 1403ee62 → 仕様だけを読んだ試験 ae892d1b → 突き合わせ e02d87e7 で入れた。11 本とも tests/unit/cr-417-… 〜 cr-427-… の試験を持つ。e2e の探り針の直しは 3dd6019c。
    - 2026-09-18: 全体表示（表 T-024a の OP-10）の答えを毎フレーム解き直していたのを f02f4050 で直し、77422a5b で原稿から書いた試験を足した。
    - 2026-09-18: 性能は JDG-168「パフォーマンスは一旦良い。」で是とした ⇒ DFC-610 ／ DFC-643 は取下げ（戻す条件は各行の詳細状況）。前の 1 通目の問い ①（JDG-50 を表示の倍率のどの段で比べるか）は、これで済んだ。
@@ -42,7 +42,8 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
      型検査は tests/unit/uf-45-46.test.ts の 8 件だけ（DFC-655。2026-09-19 に npx tsc --noEmit -p . で実測）。⚠️ check.sh はこの型検査を見ない。
      e2e は 3dd6019c の報告で、性能の門 2 本（nfr-001-010-011-013、nfr-002-003）、DFC-627（SWS-8）、DFC-374 の錨（tests/system/user-reported-fixes.test.ts）。⚠️ DFC-374 は fixed-defects.md で実測済であり、開いた台帳の行を持たない ⇒ §4 の「行の無い赤」である。赤のままなら、体に原因を反証させてから台帳に行を立てよ。
      check.sh は 26b と 37（下の 2 の利用者の手）。43 は基準線 84 と数 84 が同じで緑（下の 2。JDG-250）。
-1. 読む順: 本書 §1.2 → rulings.md の JDG-180〜JDG-250 → 見本 previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html（ダブルクリックで開く）と同じフォルダの README.md → §1.1（Step 5 で戻る所）→ §0（基準を測り直す）→ rulings.md の 2026-09-18 の節（JDG-168〜JDG-179）。
+   - 2026-09-19〜20: 別のセッションが CR-429（MSPDI の pj12 ／ pj15 両対応）を起草した（bf2ec162・058904b9・d390becd）。提案（未適用）で、利用者の問いは全部答えが出ている。仕様はまだ変えていない ⇒ 本書 §1.3。
+1. 読む順: 本書 §1.3（CR-429）→ 本書 §1.2 → rulings.md の JDG-180〜JDG-250 → 見本 previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html（ダブルクリックで開く）と同じフォルダの README.md → §1.1（Step 5 で戻る所）→ §0（基準を測り直す）→ rulings.md の 2026-09-18 の節（JDG-168〜JDG-179）。
 2. ⓪ 利用者が手で行うこと（⛔ 前に立つ者は基準線を触らない。2026-09-17 は分類器が消去を拒んだ）
    - 検査 26b: .claude/skills/spec-graph-check/crossing-names-baseline.txt から「ItemHitArea | NOT_STORED_SIZES」と「ItemHitArea | PointerSlop」の 2 行を消す（CR-415 で掴み代の束ねを Entity へ寄せたので、もう層をまたがない）。
    - 検査 37: 表 T-023 の MK-7、表 T-036 の SK-2・SK-3・SK-4・SK-5・SK-11・SK-17、表 T-104 の K-23 を、それぞれ辞書（display-words.json）の語と一緒に読んでから、組の検査を --write-baseline で走らせる（python .claude/skills/spec-graph-check/check-dictionary-table-covariance.py --write-baseline）。
@@ -50,6 +51,7 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
    - 作業木の掃除: .claude/worktrees/ の 35（ab-*・ab2-* が 5、agent-* が 30。2026-09-19 に数えた）と、.git/worktrees/ の同名の入口。OneDrive の読み取り専用で、道具では消せない。手順は規則 04 の 6.11 —— 先に agent-a6379b60827a65173/node_modules の junction を rmdir（/s を付けない）で外し、根の node_modules が残ることを確かめる。agent-a2377c68ac2dba9ee は npm ci をした本物の node_modules を持つ（junction ではない）。ほかの agent-* の node_modules は Vite の一時フォルダだけである。そのあと attrib -R、rd /s /q、最後に git worktree prune。
    - dist を見る: 根の dist/index.html を file:// で開き、下の 4 の ⑦・⑬・⑮ を見る。
 3. 最初にやること（2 つを並べる）
+   ⓪ ⭐ 最初に CR-429 を当てる（本書 §1.3 の手順どおり: 仕様に当てる → 実装の体と、仕様だけを読む試験の体を分けて実装 → 台帳）。§1.2 の Step 1b（掴み代の CR）は CR-429 が入ってから、別のセッションで行う —— 2 つは同じファイル（01-04-requirements.md、_source/settings.json、display-words.json、row-id-prefixes.json、changelog.md、rulings.md）を書き換えるので、同時に走らせない。中身は重ならない（CR-429 が触るのは表 T-033・CN-7・DV-2 など、掴み代の CR は触らない）。CR-429 が入ると、掴み代の仕様案 §9 と対応表が引く行番号（R: ／ D: ／ S: ／ G:）がずれる ⇒ Step 1b の最初に、今の木で測り直す（ID は変わらない）。
    ① ⭐ 仕様案 §8 の問いは全部答えが出た —— 最後の群 H の ㊷ も 2026-09-20 に答えが出た（JDG-249。コメントボックスは本体を箱の全体で掴み、引出し線は 3px、線先は 6px。注記の掴み代の値は JDG-248）。群 G の ㊴・㊵・㊶ は JDG-245〜JDG-247 ⇒ Step 1b（1 枚の CR を書き、仕様の体 1 体で当てる）を新しいセッションで始める（前に立つ者は、仕様の作業をセッションを分けて行うよう利用者に勧めた —— 利用者の問いは JDG-244 の注の 3 行目）。群 F（㉔〜㉟ の答えを今の仕様と突き合わせて出た問い）の ㊱・㊲・㊳ は 2026-09-19 に答えが出た（JDG-240〜JDG-242）。確かめたい読み 4 つも、同じ一通で利用者が確かめた（あっている。JDG-240 の注）。ほかの問いも残っていない —— ㉔・㉕・㉖（再開アイコンの案）・群 E の ㉗〜㉞・㉟（マーカーの押下の巡り）は 2026-09-19 に答えが出た（JDG-228〜JDG-239。中身は rulings.md）。JDG-225 の「⑨-2」の読みと JDG-226 の逐語 5 行目の読みも、同じ一通で利用者が確かめた（あっている。JDG-228 の注）。⭐ ほかも 2026-09-19 に答えが出た（JDG-209〜JDG-227。7 問の 4 は JDG-197）—— 問い直さない。⭐ JDG-236 の読み（端点スパン SH-4 にも ---> と同じ線ごとの帯を当てる）は、群 F の読み 2 として利用者が確かめた。端点スパンに「3 段 ≦ 矩形」を当てるかは一度も問われていない（JDG-212 ／ JDG-229 の注）。⭐ JDG-232 は JDG-41 を ---> のダミーについて覆した（一部。利用者は代償「印の外側まで掴める」を知って A を選んだ）。ほかに問うときは、問う前に rulings.md を grep し、答えが無ければ下の 4 と合わせて 1 通にまとめて問う（具体名・推奨・代償を付ける —— 下の 6 の約束）。答えは rulings.md へ新しい行として足す。⭐ 前に立つ者は答えを見本・見本の README・仕様案に当て、今の仕様と突き合わせた（仕様案 §9。利用者が指示した順は JDG-228 の注）。群 F の答えのあとの利用者の指示は、もう一度見本を更新し、CR を更新すること（JDG-240 の注）。
    ② ⭐ §1.2 の Step 1a は済んだ（2026-09-19、de5955bf）—— 旧 → 新の対応表は previous-project-result/16-grab-area-sizing/old-to-new-map-ja.md（425 件: A 189 ＋ B 236）、整えた仕様案は同じフォルダの spec-draft-ja.md（8 つの表）、同じ CR に入れる要素の洗い出しは cr-inventory-ja.md（23 件。JDG-222）。次は Step 1b の CR（1 枚の CR を書き、仕様の体 1 体で当てる）を新しいセッションで。仕様案 §8 の問いは全部答えが出た（群 A〜H、群 C の ② を問い直した ㉟、問い 8・9、---> の 3 段と線・矢じりの値 ㉓。JDG-209〜JDG-221・JDG-224〜JDG-242・JDG-245〜JDG-249）—— 問い直さない。⛔ 対応表に行の無いものを 1 つも消すな。
 4. ほかの問い（3 の ① と同じ 1 通に入れる。Step 1a を止めない。問う前に rulings.md を grep せよ）
@@ -104,6 +106,7 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
    - tools/probe/harness.mjs の until は関数を Node の側で呼ぶ（DFC-613）⇒ 探り針を書く体のブリーフに書く。
    - git add -u や一括の add はフックが止める ⇒ パスを名指しする。並行の体がいるときは git stash をしない。
 7. コミット／push は許可済み（JDG-58）。個人情報の点検の数を報告してから行え（file:// と http:// は絶対パスの検出から除く。dist の束の中の著作権表示の名前も偽陽性）。タグは利用者が打つ。説明は日本語、コードとコミット文は英語 ASCII。
+   CR-429 の push は、個人情報の点検の数を報告したうえで利用者に確かめてから。push の前に git ls-files で .xsd と docs/reference/ の下が 0 件であることを数える（MSPDI の XSD・SDK から取り出したファイルは、絶対にコミットも push もしない）。
 ```
 
 ---
@@ -392,6 +395,8 @@ refactor へ早送りするのは、利用者が dist を見て了承してか�
 
 ### Step 1b —— 変更要求を 1 本だけ（⛔ 仕様の体 1 体だけ）
 
+⚠️ CR-429（§1.3）が先に入る。入ったら、仕様案 §9 と対応表の行番号を今の木で測り直してから CR を書く。
+
 削除と追加を同じ CR で当てる。⛔ 古い散文と新しい表が両方ある時（二重表現）も、どちらも無い時も作らない。
 CR が運ぶものは次の 6 つである。
 ⭐ 6 つのほかに足した 2 つ（2026-09-19）は、仕様案に入った: 表 T-020 を描くものすべての行へ広げる（表 ZO。親は新しい `FR-110`）／ 日程表の上の押す・引くで字の選択を始めない（`JDG-204`。`FR-105` と表 PE の 0 行に置き、`MK-12` に例外を 1 文足す —— 仕様案 §8 の群 D で利用者が了承した。`JDG-211`）。
@@ -516,6 +521,68 @@ ORIGIN には、ユースケースの段も名指す。置き換える FR（`FR-
 ### Step 5 —— リファクタへ戻る
 
 §1.1 の計画へ、止めた所から戻る。⚠️ 戻る前に、`scale-and-fold` を `refactor` へ早送りするか（`JDG-162`。利用者が `dist` を見て了承してから）を利用者に問う。
+
+---
+
+## 1.3 ⭐⭐ MSPDI の pj12 ／ pj15 両対応を仕様に当て、実装し、試験する（CR-429、2026-09-19〜20）
+
+本節は `scale-and-fold` 上の別のセッションが起草した（`bf2ec162`・`058904b9`・`d390becd`）。以下はそのセッションの計画である。
+
+### 本件: CR-429（MSPDI の pj12 / pj15 両対応）を仕様に当て、実装し、試験する
+
+#### 状態（2026-09-20、scale-and-fold d390becd で push 済み）
+- 変更要求 change-request/CR-429-read-and-write-both-mspdi-versions.md は「提案（未適用）」。
+  利用者の問い（Q1〜Q6、A〜I）はすべて答えが出ており、返す問いは 0。仕様書はまだ 1 行も変えていない。
+- 実測の元: docs/review/mspdi-pj12-vs-pj15-2026-09-19.md（XSD の差、codec の探針、測り方は第 7 節）。
+- 台帳: defects.md の DFC-563（EX-1 も破ると追記済み）、DFC-665（開く道が TaskOrigin を作らない。
+  利用者裁定 H で「文書に元の形式 1 つ」）、DFC-666（DV-8 の Duration を書く実装が無い）。
+- 参照棚: docs/reference/mspdi/pj12/ と pj15/（git 管理外）。取得手順は
+  previous-project-result/01-mspdi/mspdi/README.md。
+- ⛔ MSPDI の XSD・SDK から取り出したファイルは、絶対にコミットも push もしない（利用者の指示）。
+  出典はダウンロード先の URL と SHA-256 で書く（CR-429 第 4 節の 1）。
+
+#### やること（この順で）
+1. 仕様に当てる（規則 02 の手順どおり）
+   - CR-429 の第 3 節の impact.py / induced.py を打ち直す（先端が動いているので）。
+   - 第 4 節の 1〜14 を、オブジェクトごとに 1 回ずつ当てる。
+     DV-2 と sourceFormat は docs/spec/_source/erd.json を直して npm run gen
+     （fig-erd-detail.md は生成物なので手で直さない）。
+     RS-60 の文言は _source/display-words.json、接頭辞 MR は _source/row-id-prefixes.json。
+   - 当てる前に、T-265、MR、RS-60、NR-6、EX-10〜EX-12 がまだ空いているかを確かめる。
+   - CR 冒頭の利用者の逐語を rulings.md に写す（着地先 = 当てた行 ID）。changelog.md に 1 行。
+     CR の状態を「適用済」にする。
+     ⚠️ 検査 43 の基準線を上げるのは、利用者の OK を取ってから。
+   - check.sh と vitest を当てる前と後に回し、出力の全体を突き合わせる。
+     作業木では 26b と 37 が前から赤である。
+2. 実装する（CR-429 の 6.3 の表どおり）。実装する体と試験する体を分ける。
+   - 実装の体（Opus）: tools/generate_mspdi_child_order.py（新）を書き、
+     pj15 の XSD から、要素の道筋ごとの子の順と xsd:all の印を作る。名前付きの型は解く。
+     元の XSD の SHA-256 を表に書く。XSD が無い木では gen:check を SKIPPED にする。
+     出力は src/adapter/document-codec/mspdi-child-order.json（生成物、コミットしてよい：CN-7 の例外）。
+   - 同じ体が次を行う。
+     mspdi-codec.ts の手書きの CHILD_ORDER を置き換える。持ち回りの子も表で並べる（DFC-563）。
+     どちらの XSD にも無い要素は、直前の要素の直後に置く。
+     SaveVersion は、取り込んでいない文書では '12' にする。
+     Project.sourceFormat を加える（grs / pj12 / pj15、決定 7 の読み方の移行を含む）。
+     grs の文書では、全タスクに ConstraintType 2・ConstraintDate・Duration を書く。
+     MSPDI から読んだ文書では、日付の編集とタスクの追加のときに、持ち回りの値を置き換える
+     （edit-task.ts が ActualDuration を落とす所と同じ作り）。
+     Manual* は持っていれば作り直し、*Slack は落とす。
+     葉の重複は最初を採り、RS-60 で件数を告げる（MR（CR-429 で登録する接頭辞）の 3）。
+   - 試験の体（別の体。docs/spec だけを読む）: CR-429 第 7 節の主張をすべて試験にする。
+     uf-36 は、出力を pj15 だけの要素の有無で pj12 か pj15 の XSD に照らす（両方を実行時に読む）。
+     ⭐ 継ぎ目（関数名・JSON の形）は、両方の体への指示に同じ言葉で書く。
+   - 壊し試験は、合流した木で回す。
+3. 台帳: DFC-563 / 665 / 666 の状態を進める（実測は出荷ビルドを押してから）。
+
+#### 罠
+- 作業木には docs/reference/ が無い（git 管理外）。ルートから docs/reference/mspdi/ を丸ごと写さないと
+  uf-36 が読み込めない。node_modules はルートへのジャンクションでつなぐ。
+- 古い作業木 .claude/worktrees/mspdi-pj15 は本件の起草用。使わず、新しく切ること。
+  （探針の使い捨てファイルは、その scratch/mspdi-pj15-probe/ に残っている）
+- Microsoft Project の実機で、日付が動くかは確かめていない。試験は XSD への妥当性と往復で主張し、
+  実機の挙動を主張しない。
+- push は、個人情報の点検の数を報告したうえで、利用者に確かめてから行う。
 
 ---
 
