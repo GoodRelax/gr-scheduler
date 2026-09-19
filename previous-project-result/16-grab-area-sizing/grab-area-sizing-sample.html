@@ -42,7 +42,8 @@
   table.grab input[type=range] { width: 62px; margin: 0; }
   table.grab .val { width: 26px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
   table.grab .none { color: #b8c0cc; text-align: center; }
-  svg { border: 1px solid var(--rule); background: var(--ground); touch-action: none; }
+  /* the picture is for pressing and dragging: its text is never selected */
+  svg { border: 1px solid var(--rule); background: var(--ground); touch-action: none; user-select: none; -webkit-user-select: none; }
   .legend { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 0; color: var(--ink2); }
   .legend i { display: inline-block; width: 14px; height: 12px; border-radius: 2px; margin-right: 4px; vertical-align: -2px; }
   #hit { font-weight: 600; min-height: 18px; margin-top: 4px; }
@@ -56,6 +57,10 @@
   .qs select { font: inherit; max-width: 230px; }
   .qrow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 4px 0; }
   .qrow button { padding: 1px 6px; font-size: 12px; }
+  ol.order { margin: 2px 0 4px; padding-left: 22px; }
+  ol.order li { margin: 1px 0; }
+  ol.order button { padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  ol.order .shape { color: var(--ink2); font-size: 11px; }
 </style>
 </head>
 <body>
@@ -90,6 +95,12 @@
     <button id="reset" type="button">形を元に戻す</button>
   </div>
 
+  <h2>描く順（上ほど奥、下ほど手前）</h2>
+  <ol id="paintOrder" class="order"></ol>
+  <div class="hint">どれが手前に見えるかだけを決める。どの掴み代が応えるか（当たりの順）は、これとは別に下の順で決まる（表 T-023d。⑦で形の外の依存線を先にできる）。</div>
+  <h2>応える順（当たりの順。上ほど先）</h2>
+  <ol id="hitOrderList" class="order"></ol>
+
   <h2>掴み代（操作対象ごと。px、幅の ％ は菱形の幅に対する比）</h2>
   <div id="grabTable"></div>
   <div class="hint">外側 ＝ 描いた端から外へ ／ 内側 ＝ 描いた端から内へ ／ 上下 ＝ 描いた帯から上と下へ ／ 幅 ＝ 中心に置く掴み代の幅（フェードは正方形の一辺）。— の欄はその対象に無い。</div>
@@ -116,6 +127,12 @@
   <div class="cursorRow" id="cursorSizes"></div>
 
   <h2>依存線</h2>
+  <label><span class="name">引き出し（先行の端から, px）</span><input id="depRunOut" type="range" min="0" max="20" step="0.5" value="4"><output id="depRunOutOut"></output></label>
+  <label><span class="name">引き入れ（後続の端の手前, px）</span><input id="depRunIn" type="range" min="0" max="20" step="0.5" value="4"><output id="depRunInOut"></output></label>
+  <div class="hint">線がタスクの端から横へまっすぐ出る長さと、端へまっすぐ入る長さ。前の版はどちらも 14px（仕様の dependencyRunOfArrow 2 × S-19 7px）で、既定はその 30% ほどの 4px。</div>
+  <label><span class="name">矢じりの長さ（px）</span><input id="arrowLen" type="range" min="2" max="14" step="0.5" value="7"><output id="arrowLenOut"></output></label>
+  <label><span class="name">矢じりの幅（線に直角, px）</span><input id="arrowWidth" type="range" min="1" max="12" step="0.1" value="4.2"><output id="arrowWidthOut"></output></label>
+  <div class="hint">長さは S-19 の 7px。幅は前の版の 8.4px（長さ × 1.2）の半分。引き入れが矢じりの長さより短いと、矢じりの付け根が手前の曲がり角より外へ出る。</div>
   <div class="row">
     <button id="arm" type="button">依存線を構える</button>
     <button id="delDep" type="button">選んだ線を消す</button>
@@ -155,7 +172,7 @@ const $ = id => document.getElementById(id);
 
 // drawing and labels -- nothing here sizes a grab area
 const S = { scale:100, dayPx:12, barH:18, markerSize:14, namePad:6, nameAfterMarker:6, msNameAfterMarker:6, outsideGap:4,
-            labelFont:90, cur:16, stackBH:100 };
+            labelFont:90, cur:16, depRunOut:4, depRunIn:4, arrowLen:7, arrowWidth:4.2, stackBH:100 };
 const SLIDERS = Object.keys(S);
 
 // ---------------------------------------------------------------- grab areas, one set of values per thing grabbed
@@ -242,8 +259,6 @@ function setGrab(key, param, value) {
 }
 
 const DEP_W = 1.5;                 // dependencyWidth: the drawn line
-const ARROW_LEN = 7;               // S-19 dependencyArrowLength
-const DEP_RUN = 2 * ARROW_LEN;     // dependencyRunOfArrow x S-19: the straight run before the entry and after the exit
 const STACK_GAP = 1 + DEP_W + 1;   // JDG-148: bar, 1px, the line, 1px, bar -- in every row and between rows
 const S129 = 1;                    // actualInitialDuration: the actual PV-1 places is one working day long
 const STATE_NAME = { unstarted: '未着手', progress: '進行中', done: '完了', paused: '中断' };
@@ -370,6 +385,12 @@ function ownerOf(z) { return z.id.split('-')[0]; }
 // information set on the plan (user ruling 2026-09-19, overturning FR-009's fall-back to the actual):
 // with no plan, or the plan hidden, the task has no end for a line and the line is not drawn (RT-4a)
 let ANCHOR = {};
+// paint order, back to front: which drawing hides which. It is managed apart from the hit order (hitAt):
+// what is seen in front and what answers the pointer are two separate decisions
+const PAINT_ORDER = ['guide', 'bars', 'deps', 'markers', 'labels', 'zones'];
+const PAINT_NAMES = { guide: '目盛・行の見出し', bars: '予定・実績・ダミー・菱形・矢・フェードの □', deps: '依存線',
+                      markers: '進捗マーカー', labels: 'タスク名・担当・進捗 ％', zones: '掴み代の面（見本だけ）' };
+let L = {};   // the <g> of each paint layer, rebuilt by draw()
 
 // ---------------------------------------------------------------- labels
 function measureName(g, name) {
@@ -487,23 +508,23 @@ function drawBarTask(g, key, ty, opts) {
   if (showPlan) {
     if (opts.fades) {
       // the bar is the trapezoid: point 4 slides right with the fade in, point 2 slides left with the fade out
-      el(g, 'path', { d: 'M ' + fadeInX + ' ' + ty + ' L ' + (planX + planW) + ' ' + ty +
+      el(L.bars, 'path', { d: 'M ' + fadeInX + ' ' + ty + ' L ' + (planX + planW) + ' ' + ty +
                          ' L ' + fadeOutX + ' ' + (ty + bh) + ' L ' + planX + ' ' + (ty + bh) + ' Z',
                       fill: 'var(--plan)', stroke: 'var(--plan-edge)', 'stroke-width': 1 });
     } else {
-      rect(g, planX, ty, planW, bh, 'var(--plan)', 'var(--plan-edge)');
+      rect(L.bars, planX, ty, planW, bh, 'var(--plan)', 'var(--plan-edge)');
     }
     shapes.push({ owner: key, part: 'plan', x: planX, y: ty, w: planW, h: bh });
   }
-  if (useAct) { rect(g, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)'); shapes.push({ owner: key, x: actX, y: actY, w: actW, h: ah }); }
-  if (useDummy) { rect(g, planX, ty + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)'); shapes.push({ owner: key, x: planX, y: ty + (bh - mk) / 2, w: dw, h: mk }); }
-  if (marked) drawMarker(g, put.markerX + mk / 2, ty + bh / 2, Math.max(2, mk / 2 - 1), q.state);
+  if (useAct) { rect(L.bars, actX, actY, actW, ah, 'var(--actual)', 'var(--actual-edge)'); shapes.push({ owner: key, x: actX, y: actY, w: actW, h: ah }); }
+  if (useDummy) { rect(L.bars, planX, ty + (bh - mk) / 2, dw, mk, 'var(--dummy)', 'var(--dummy-edge)'); shapes.push({ owner: key, x: planX, y: ty + (bh - mk) / 2, w: dw, h: mk }); }
+  if (marked) drawMarker(L.markers, put.markerX + mk / 2, ty + bh / 2, Math.max(2, mk / 2 - 1), q.state);
   if (showPlan && opts.fades) {
-    rect(g, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
-    rect(g, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
+    rect(L.bars, fadeInX - 2.5, ty - 2.5, 5, 5, '#fff', '#c0203c');
+    rect(L.bars, fadeOutX - 2.5, ty + bh - 2.5, 5, 5, '#fff', '#c0203c');
   }
-  drawName(g, q, put.nameX, ty + bh / 2);
-  drawOutsideLabel(g, q, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : refX) - S.outsideGap, ty + bh / 2);
+  drawName(L.labels, q, put.nameX, ty + bh / 2);
+  drawOutsideLabel(L.labels, q, (showPlan ? (useAct ? Math.min(planX, actX) : planX) : refX) - S.outsideGap, ty + bh / 2);
   if (showPlan) ANCHOR[key] = { x0: planX, x1: planX + planW, y: ty + bh / 2, top: ty, bottom: ty + bh };
   return { put, bh };
 }
@@ -512,10 +533,11 @@ function drawBarTask(g, key, ty, opts) {
 // the route is decided by the two anchors alone (RT-3), always leaves a bar outwards (RT-2), and turns
 // 0, 2 or 4 times (RT-1). A 4-bend route runs its middle leg through the gap under (or over) the start
 function routeDep(P, Q, type) {
-  const run = DEP_RUN;
+  // the lead-out leaves the predecessor's end and the lead-in reaches the successor's end, each straight
+  const runOut = S.depRunOut, runIn = S.depRunIn;
   const outRight = type === 'FS' || type === 'FF', inLeft = type === 'FS' || type === 'SS';
   const ox0 = outRight ? P.x1 : P.x0, ix0 = inLeft ? Q.x0 : Q.x1;
-  const ox = ox0 + (outRight ? run : -run), ix = ix0 + (inLeft ? -run : run);
+  const ox = ox0 + (outRight ? runOut : -runOut), ix = ix0 + (inLeft ? -runIn : runIn);
   const pts = [[ox0, P.y]];
   if (outRight !== inLeft) {                      // same side: FF and SS
     const x = outRight ? Math.max(ox, ix) : Math.min(ox, ix);
@@ -547,8 +569,9 @@ function drawDeps(g) {
     }
     el(g, 'polyline', { points: pts.map(p => p.join(',')).join(' '), fill: 'none',
       stroke: picked ? 'var(--dep-picked)' : 'var(--dep)', 'stroke-width': picked ? DEP_W + 1 : DEP_W });
-    const [ex, ey] = pts[pts.length - 1], k = entersFromLeft ? -1 : 1, a = ARROW_LEN;
-    el(g, 'path', { d: 'M ' + ex + ' ' + ey + ' L ' + (ex + k * a) + ' ' + (ey - a * 0.6) + ' L ' + (ex + k * a) + ' ' + (ey + a * 0.6) + ' Z',
+    // the arrowhead: S.arrowLen along the line, S.arrowWidth across it
+    const [ex, ey] = pts[pts.length - 1], k = entersFromLeft ? -1 : 1, a = S.arrowLen, hw = S.arrowWidth / 2;
+    el(g, 'path', { d: 'M ' + ex + ' ' + ey + ' L ' + (ex + k * a) + ' ' + (ey - hw) + ' L ' + (ex + k * a) + ' ' + (ey + hw) + ' Z',
       fill: picked ? 'var(--dep-picked)' : 'var(--dep)' });
   });
 }
@@ -564,34 +587,38 @@ function draw() {
   const g = $('stage');
   while (g.firstChild) g.removeChild(g.firstChild);
   zones = []; shapes = []; ANCHOR = {};
+  // one <g> per paint layer, back to front; the line being drawn with the tool always stays on top
+  L = {};
+  for (const name of PAINT_ORDER) L[name] = el(g, 'g', { 'data-layer': name });
+  L.tool = el(g, 'g', { 'data-layer': 'tool' });
   const day = dayPx(), bh = barH(), mk = markerPx(), dw = dummyPx();
   const showPlan = $('showPlan').checked, showActual = $('showActual').checked, marked = $('showMarker').checked;
 
   for (let d = 0; d <= 60; d++) {
     const x = xOf(d);
     if (x > 890) break;
-    el(g, 'line', { x1: x, y1: 30, x2: x, y2: 466, stroke: d % 7 === 0 ? '#c9d3e0' : '#eef1f6', 'stroke-width': 1 });
+    el(L.guide, 'line', { x1: x, y1: 30, x2: x, y2: 466, stroke: d % 7 === 0 ? '#c9d3e0' : '#eef1f6', 'stroke-width': 1 });
   }
 
   // ---- 1) a task with plan, actual, marker and fades
   const t = M.task, ty = TOP.task;
-  label(g, 8, ty + bh / 2 + 4, '① 予実のあるタスク', 12);
+  label(L.guide, 8, ty + bh / 2 + 4, '① 予実のあるタスク', 12);
   const r1 = drawBarTask(g, 'task', ty, { fades: true });
-  label(g, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut +
+  label(L.guide, LEFT, ty - 10, '予定 ' + t.planDays + ' 日（' + t.planStart + ' 日目から） / 実績 ' + t.actualDays + ' 日 / フェード 入 ' + t.fadeIn + ' 日・出 ' + t.fadeOut +
     ' 日 ・ マーカーは' + (r1.put.fits ? '実績の中（実績の開始の内側は ' + startGrab(true, marked, mk).toFixed(1) + 'px まで、右半分はマーカー）' : '実績の右（引けば実績の終わり）'), 11);
 
   // ---- 2) an unstarted task with the dummy
   const uy = TOP.unset;
-  label(g, 8, uy + bh / 2 + 4, '② 未着手（ダミー）', 12);
+  label(L.guide, 8, uy + bh / 2 + 4, '② 未着手（ダミー）', 12);
   drawBarTask(g, 'unset', uy, { fades: false });
-  label(g, LEFT, uy - 10, 'ダミー（まだ始まっていない実績）の幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px ・ 開始の掴み代は予定開始日の左 ' +
+  label(L.guide, LEFT, uy - 10, 'ダミー（まだ始まっていない実績）の幅 = マーカー径 × 0.5 = ' + dw.toFixed(2) + 'px ・ 開始の掴み代は予定開始日の左 ' +
     GRAB.dummyStart.out + 'px から印の左半分まで' + (GRAB.dummyStart.out === 0 ? '（①の推奨）' : '') + ' ・ 引けばそのまま実績になる', 11);
 
   // ---- 3) a milestone: a plan diamond, an actual diamond (or the unstarted dummy), and a neighbour
   const msY = TOP.ms, msR = bh / 2;
   const msX = xOf(M.ms.day), msActX = xOf(M.ms.actualDay), ms2X = xOf(M.ms2.day);
   const hasMsActual = $('msActual').checked;
-  label(g, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
+  label(L.guide, 8, msY + bh / 2 + 4, '3 マイルストーン', 12);
   const msPlanHalf = msR * (GRAB.msPlan.w / 100), mpBand = band(msY, bh, GRAB.msPlan.v);
   if (showPlan) {
     zone(g, 'ms', 'ms', msX - msPlanHalf, mpBand.y, msPlanHalf * 2, mpBand.h, ZC.plan, 'grab');
@@ -604,7 +631,7 @@ function draw() {
     if (hasMsActual) zone(g, 'ms-actual', 'actualEnd', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
     else zone(g, 'ms-dummy', 'dummy', cx - msActHalf, b2.y, msActHalf * 2, b2.h, ZC.msActual, 'grab');
   }
-  const diamond = (cx, r, fill, stroke) => el(g, 'path', { d: 'M ' + cx + ' ' + (msY + msR - r) + ' L ' + (cx + r) + ' ' + (msY + msR) +
+  const diamond = (cx, r, fill, stroke) => el(L.bars, 'path', { d: 'M ' + cx + ' ' + (msY + msR - r) + ' L ' + (cx + r) + ' ' + (msY + msR) +
     ' L ' + cx + ' ' + (msY + msR + r) + ' L ' + (cx - r) + ' ' + (msY + msR) + ' Z', fill, stroke: stroke || 'none', 'stroke-width': 1 });
   if (showPlan) {
     diamond(msX, msR, 'var(--ms)', 'var(--ms-edge)');
@@ -624,14 +651,14 @@ function draw() {
   if (showPlan) ANCHOR.ms = { x0: msX - msR, x1: msX + msR, y: msY + msR, top: msY, bottom: msY + bh };
   if (marked) {
     markerZone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk);
-    drawMarker(g, msAnchor + mk / 2, msY + bh / 2, Math.max(2, mk / 2 - 1), hasMsActual ? 'done' : 'unstarted');
+    drawMarker(L.markers, msAnchor + mk / 2, msY + bh / 2, Math.max(2, mk / 2 - 1), hasMsActual ? 'done' : 'unstarted');
   }
   // measure the reference diamond 0-100% across: with the marker hidden the name starts at its 25% point,
   // left-aligned, so a short name fits inside the glyph (JDG-183)
   const ms25 = msFollowX - msHalf / 2;
-  drawName(g, M.ms, marked ? msAnchor + mk + S.msNameAfterMarker : ms25, msY + bh / 2);
-  drawOutsideLabel(g, M.ms, ms25 - S.outsideGap, msY + bh / 2);
-  label(g, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）') +
+  drawName(L.labels, M.ms, marked ? msAnchor + mk + S.msNameAfterMarker : ms25, msY + bh / 2);
+  drawOutsideLabel(L.labels, M.ms, ms25 - S.outsideGap, msY + bh / 2);
+  label(L.guide, LEFT, msY - 10, '予定 ' + M.ms.day + ' 日目' + (hasMsActual ? ' / 実績 ' + M.ms.actualDay + ' 日目' : ' / 未着手（ダミー）') +
     ' / 隣 ' + M.ms2.day + ' 日目 ・ 掴み代 予定 ±' + msPlanHalf.toFixed(1) + 'px / ' + (hasMsActual ? '実績' : 'ダミー') + ' ±' + msActHalf.toFixed(1) + 'px ・ 重なったら ⑤ の選び方', 11);
 
   // ---- 4) an arrow task (SH-3 `--->`): no outline, the name stands ABOVE the plan
@@ -640,7 +667,7 @@ function draw() {
   const aActX = xOf(a.actualStart), aActW = a.actualDays * day;
   const planY = ay + bh * 0.42, actY2 = ay + bh * 0.72, shaft = Math.max(2, bh * 0.16);
   const headH = shaft * 3.2;
-  label(g, 8, ay + bh / 2 + 4, '4 矢印（--->）', 12);
+  label(L.guide, 8, ay + bh / 2 + 4, '4 矢印（--->）', 12);
   const splitY = (planY + actY2) / 2;   // plan and actual grabs never overlap: split at the midline
   const cut = (b, top, bottom) => { const y = Math.max(b.y, top); return { y, h: Math.max(0, Math.min(b.y + b.h, bottom) - y) }; };
   const planBand = v => cut(band(planY - headH / 2, headH, v), ay, splitY);
@@ -663,11 +690,11 @@ function draw() {
     ' L ' + (x + w - hd) + ' ' + (y - th * 1.6) + ' L ' + (x + w) + ' ' + y + ' L ' + (x + w - hd) + ' ' + (y + th * 1.6) +
     ' L ' + (x + w - hd) + ' ' + (y + th / 2) + ' L ' + x + ' ' + (y + th / 2) + ' Z';
   if (showPlan) {
-    el(g, 'path', { d: arrowPath(aX, aW, planY, shaft, head), fill: 'var(--arrow-plan)', stroke: 'none' });   // no outline (JDG-185)
+    el(L.bars, 'path', { d: arrowPath(aX, aW, planY, shaft, head), fill: 'var(--arrow-plan)', stroke: 'none' });   // no outline (JDG-185)
     shapes.push({ owner: 'arrow', part: 'plan', x: aX, y: planY - shaft * 1.6, w: aW, h: shaft * 3.2 });
   }
   if (useArrowAct) {
-    el(g, 'path', { d: arrowPath(aActX, aActW, actY2, shaft * 0.8, Math.min(shaft * 3, aActW)), fill: 'var(--arrow-actual)', stroke: 'none' });
+    el(L.bars, 'path', { d: arrowPath(aActX, aActW, actY2, shaft * 0.8, Math.min(shaft * 3, aActW)), fill: 'var(--arrow-actual)', stroke: 'none' });
     shapes.push({ owner: 'arrow', x: aActX, y: actY2 - shaft * 1.3, w: aActW, h: shaft * 2.6 });
   }
   if (showPlan) ANCHOR.arrow = { x0: aX, x1: aX + aW, y: planY, top: ay, bottom: ay + bh };   // the plan arrow's ends, at its height
@@ -675,47 +702,51 @@ function draw() {
   const aLabelY = ay + bh * 0.1;
   if (marked) {
     markerZone(g, 'arrow-marker', 'marker', putA.markerX, aLabelY - mk / 2, mk);
-    drawMarker(g, putA.markerX + mk / 2, aLabelY, Math.max(2, mk / 2 - 1), a.state);
+    drawMarker(L.markers, putA.markerX + mk / 2, aLabelY, Math.max(2, mk / 2 - 1), a.state);
   }
-  drawName(g, a, putA.nameX, aLabelY);
-  drawOutsideLabel(g, a, (showPlan ? (useArrowAct ? Math.min(aX, aActX) : aX) : aActX) - S.outsideGap, planY);
-  label(g, LEFT, ay - 10, '矢印は縁取りを描かない。掴み代は形の高さで、予定と実績は中線で分ける。端は左端と > の中心に中央合わせ。マーカーは実績の開始', 11);
+  drawName(L.labels, a, putA.nameX, aLabelY);
+  drawOutsideLabel(L.labels, a, (showPlan ? (useArrowAct ? Math.min(aX, aActX) : aX) : aActX) - S.outsideGap, planY);
+  label(L.guide, LEFT, ay - 10, '矢印は縁取りを描かない。掴み代は形の高さで、予定と実績は中線で分ける。端は左端と > の中心に中央合わせ。マーカーは実績の開始', 11);
 
   // ---- 5) three tasks stacked in one row (a multibar row): JDG-148's gap, dependency lines through it
   let sy = TOP.stack;
-  label(g, 8, sy + bh / 2 + 4, '⑤ 縦に積んだ 3 本', 12);
+  label(L.guide, 8, sy + bh / 2 + 4, '⑤ 縦に積んだ 3 本', 12);
   for (const key of M.stack) {
     const h = key === 'k2' ? bh * (S.stackBH / 100) : bh;
     drawBarTask(g, key, sy, { fades: true, h });
     sy += h + STACK_GAP;
   }
-  label(g, LEFT, TOP.stack - 10, '隙間 ＝ 1px ＋ 依存線 ' + DEP_W + 'px ＋ 1px ＝ ' + STACK_GAP + 'px（JDG-148）。本体を上下に引くと段が入れ替わる（日付は変わらない）。依存線は隙間を通る', 11);
+  label(L.guide, LEFT, TOP.stack - 10, '隙間 ＝ 1px ＋ 依存線 ' + DEP_W + 'px ＋ 1px ＝ ' + STACK_GAP + 'px（JDG-148）。本体を上下に引くと段が入れ替わる（日付は変わらない）。依存線は隙間を通る', 11);
 
-  drawDeps(g);
+  drawDeps(L.deps);
   // grab areas lie over the drawn shapes, so a grab inside a bar shows as a pale tint of that bar
   if ($('showZones').checked) {
-    const zg = el(g, 'g', {});
-    for (const z of zones) if (z.fill) rect(zg, z.x, z.y, z.w, z.h, z.fill);
+    for (const z of zones) if (z.fill) rect(L.zones, z.x, z.y, z.w, z.h, z.fill);
   }
   if (pending) {
-    el(g, 'line', { x1: pending.x, y1: pending.y, x2: pending.px, y2: pending.py, stroke: 'var(--dep-picked)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' });
+    el(L.tool, 'line', { x1: pending.x, y1: pending.y, x2: pending.px, y2: pending.py, stroke: 'var(--dep-picked)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' });
   }
 
-  rect(g, LEFT, RULER, 10 * day, 6, '#888', '#333');
-  label(g, LEFT + 10 * day + 6, RULER + 6, '10 日ぶん = ' + (10 * day).toFixed(1) + 'px', 11);
+  rect(L.guide, LEFT, RULER, 10 * day, 6, '#888', '#333');
+  label(L.guide, LEFT + 10 * day + 6, RULER + 6, '10 日ぶん = ' + (10 * day).toFixed(1) + 'px', 11);
   summary();
 }
 
 // ---------------------------------------------------------------- which grab answers (table HT)
+// the hit order: table T-023d; off the drawn shapes question 7 can put the line first (GS-4)
+const HIT_ORDER = ['fade', 'marker', 'dummy', 'actualEnd', 'dep', 'planEnd', 'markerIn', 'ms', 'body'];
+const HIT_NAMES = { fade: 'フェード', marker: '進捗マーカー（実績の外）', dummy: 'ダミー', actualEnd: '実績の端・◆ の実績',
+                    dep: '依存線', planEnd: '予定の端', markerIn: '進捗マーカー（実績の中）', ms: '◆ の予定', body: '本体' };
+function hitOrder(offShape) {
+  return $('q7').value === 'gs4' && offShape ? ['dep', ...HIT_ORDER.filter(k => k !== 'dep')] : HIT_ORDER;
+}
 function hitAt(x, y) {
   const inside = z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h;
   const offShape = !shapes.some(q => shapeContains(q, x, y));
   // a marker INSIDE the actual yields to the end grabs, so the actual's start stays reachable;
   // a dependency line sits above the plan's ends and body (GR-13), and off the shapes also above
   // the fades when question 7 follows GS-4
-  const order = $('q7').value === 'gs4' && offShape
-    ? ['dep', 'fade', 'marker', 'dummy', 'actualEnd', 'planEnd', 'markerIn', 'ms', 'body']
-    : ['fade', 'marker', 'dummy', 'actualEnd', 'dep', 'planEnd', 'markerIn', 'ms', 'body'];
+  const order = hitOrder(offShape);
   // GS-1: on a drawn shape, only the task that shape belongs to may answer (a marker is drawn too)
   const under = $('gs1').checked ? new Set([
     ...shapes.filter(q => shapeContains(q, x, y)).map(q => q.owner),
@@ -766,6 +797,9 @@ function pointAt(e) {
   return { x: (e.clientX - r.left) * (900 / r.width), y: (e.clientY - r.top) * (500 / r.height) };
 }
 stage.addEventListener('pointerdown', e => {
+  // a press on the picture starts a drag, never a text selection that would run on over the description
+  e.preventDefault();
+  window.getSelection().removeAllRanges();
   const p = pointAt(e);
   if (armed) {
     const t = taskAt(p.x, p.y);
@@ -962,7 +996,23 @@ for (const btn of document.querySelectorAll('button[data-set]')) {
   });
 }
 
+function buildOrders() {
+  $('paintOrder').innerHTML = PAINT_ORDER.map((k, i) => '<li>' + PAINT_NAMES[k] +
+    '<button type="button" data-move="' + i + ',-1"' + (i === 0 ? ' disabled' : '') + '>奥へ</button>' +
+    '<button type="button" data-move="' + i + ',1"' + (i === PAINT_ORDER.length - 1 ? ' disabled' : '') + '>手前へ</button></li>').join('');
+  const off = hitOrder(true), on = hitOrder(false);
+  $('hitOrderList').innerHTML = off.map((k, i) => '<li>' + HIT_NAMES[k] + (on[i] !== k ? ' <span class="shape">（形の外。形の上では「' + HIT_NAMES[on[i]] + '」）</span>' : '') + '</li>').join('');
+}
+$('paintOrder').addEventListener('click', e => {
+  const b = e.target.closest('button[data-move]');
+  if (!b) return;
+  const [i, d] = b.dataset.move.split(',').map(Number);
+  [PAINT_ORDER[i], PAINT_ORDER[i + d]] = [PAINT_ORDER[i + d], PAINT_ORDER[i]];
+  draw();
+});
+
 function summary() {
+  buildOrders();
   drawCursorLegend();
   const t = M.task;
   const grabLine = GRAB_ROWS.filter(r => !r.group).map(r => {
@@ -980,6 +1030,8 @@ function summary() {
     ' ・ GS-1 ' + ($('gs1').checked ? 'オン' : 'オフ') + ' ・ ⑦ ' + $('q7').selectedOptions[0].textContent + '\n' +
     '  札: タスク名 開始→名前 ' + S.namePad + 'px ・ マーカー→名前 ' + S.nameAfterMarker + 'px ・ マイルストーン名 マーカー→名前 ' + S.msNameAfterMarker +
     'px（マーカーなしは菱形の 25% の位置から）・ 担当・進捗→開始 ' + S.outsideGap + 'px ・ 字の大きさ 実績の高さ × ' + (S.labelFont / 100).toFixed(2) + '\n' +
+    '  依存線: 引き出し ' + S.depRunOut + 'px ・ 引き入れ ' + S.depRunIn + 'px ・ 矢じり 長さ ' + S.arrowLen + 'px × 幅 ' + S.arrowWidth + 'px\n' +
+    '  描く順（奥 → 手前）: ' + PAINT_ORDER.map(k => PAINT_NAMES[k]).join(' → ') + '\n' +
     '  ポインタ: 矢印 一辺 ' + S.cur + 'px（S-249 を 24 → 16 にする、JDG-181）・ フェードの三角 ' + fadeCursorPx() + 'px\n' +
     '  絵: ズーム ' + S.scale + '% ・ 1 日 ' + S.dayPx + 'px ・ バーの高さ ' + S.barH + 'px ・ マーカーの描く径 ' + S.markerSize + 'px ・ ⑤ の隙間 ' + STACK_GAP + 'px\n' +
     '  形: 予定 ' + t.planStart + ' 日目から ' + t.planDays + ' 日 / 実績 ' + t.actualStart + ' 日目から ' + t.actualDays +
