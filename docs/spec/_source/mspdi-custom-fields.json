@@ -12,17 +12,17 @@
  "elemType": {
   "value": 20,
   "means": "Task",
-  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1027"
+  "source": "docs/reference/mspdi/pj12/mspdi_pj12.xsd:1027"
  },
  "cfType": {
   "value": 5,
   "means": "Number",
-  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1005",
+  "source": "docs/reference/mspdi/pj12/mspdi_pj12.xsd:1005",
   "why": "Duration (CFType 2) is not used: it carries a DurationFormat and invites the partner to give the value a calendar meaning. A fade is a count of days that does not walk the calendar."
  },
  "aliasMaxLength": {
   "value": 50,
-  "source": "docs/reference/mspdi/mspdi_pj12.xsd:1055"
+  "source": "docs/reference/mspdi/pj12/mspdi_pj12.xsd:1055"
  },
  "frames": [
   {

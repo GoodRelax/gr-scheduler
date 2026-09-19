@@ -102,7 +102,7 @@ grep -rl "^authority:" previous-project-result/ | wc -l   # 4 でなければ正
 
 ```
 正            https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd
-ローカル複製   docs/reference/mspdi/mspdi_pj12.xsd   ← 自分で取得する（git 管理外）
+ローカル複製   docs/reference/mspdi/pj12/mspdi_pj12.xsd   ← 自分で取得する（git 管理外）
 ```
 
 **複製の置き場は本フォルダの外**（`docs/reference/`）である。`previous-project-result/` は
@@ -185,7 +185,7 @@ grep -rl "^authority:" previous-project-result/ | wc -l   # 4 でなければ正
 | 文書中の表記 | `previous-project-result/` 内の位置 |
 |---|---|
 | `docs/spec/vendor/mspdi-*.md` | `01-mspdi/mspdi-*.md` |
-| `docs/spec/vendor/mspdi/mspdi_pj12.xsd` | `docs/reference/mspdi/mspdi_pj12.xsd`（**本フォルダの外**。入手方法は `01-mspdi/mspdi/README.md`） |
+| `docs/spec/vendor/mspdi/mspdi_pj12.xsd` | `docs/reference/mspdi/pj12/mspdi_pj12.xsd`（**本フォルダの外**。入手方法は `01-mspdi/mspdi/README.md`） |
 | `docs/spec/_assets/grs-*.md` / `docs/spec/_assets/handover-data-model-entry-ja.md` | `02-data-model/`（**`handover-` の接頭辞は落とした** ＝ `data-model-entry-ja.md`） |
 | `docs/spec/_assets/handover-ui-parts-ja.md` | `03-ui-naming/ui-parts-ja.md`（**接頭辞を落とした**） |
 | `docs/spec/glossary.md`（前プロジェクトの用語集） | **`previous-project-result/` には無い**。旧名で書かれているため外した（`DISCARDED-ja.md` §3） |

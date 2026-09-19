@@ -496,7 +496,7 @@ WAITING_LINKS = 3
 # value docs/spec decided, so it is read from the canon rather than invented:
 # the official XSD's LagFormat enumerates 7 = `d` (days) and 8 = `ed` (elapsed
 # days), and working days is the first of the two
-# (docs/reference/mspdi/_erd-part-M2-task.md, PredecessorLink row 6).
+# (docs/reference/mspdi/pj12/_erd-part-M2-task.md, PredecessorLink row 6).
 LAG_FORMAT_WORKING_DAYS = 7
 
 # ⛔ THE VOCABULARY OF WORK, BY KIND AND THEN BY PHASE. Seven tuples per kind,

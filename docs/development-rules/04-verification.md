@@ -385,7 +385,7 @@ grep -rln "development-records/defects.md" tests/
 ```
 
 ⚠️ **同じ形の罠がもう 1 つある** —— **`tests/unit/uf-36.test.ts` は作業木では必ず落ちる。**
-**読む `docs/reference/mspdi/*.xsd` が `.gitignore` されているからである**（この 1 ファイルで 160 件）。
+**読む `docs/reference/mspdi/pj12/mspdi_pj12.xsd` が `.gitignore` されているからである**（この 1 ファイルで 160 件）。
 ⭐ **どちらも直し方は同じ**: **親の木からその 2 つのフォルダを写す。⛔ `.gitignore` 済みなので `git status` には出ない。**
 ⇒ **体のブリーフには、この 2 行をあらかじめ書いておけ。**書き忘れると、体は毎回これを再発見して 1 回ぶんの調べを使う。
 

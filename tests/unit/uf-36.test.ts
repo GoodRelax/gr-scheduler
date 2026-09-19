@@ -8,7 +8,7 @@
 //
 // WRITTEN WITHOUT READING THE UNIT'S BODY (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, docs/reference/mspdi/mspdi_pj12.xsd for the exchange partner's own
+// below, docs/reference/mspdi/pj12/mspdi_pj12.xsd for the exchange partner's own
 // facts (Chapter 6.2 names it the authority), and of the unit itself only its
 // head comment, its four published types (`MspdiFault`, `MspdiNotice`,
 // `MspdiDecoding`, `MspdiEncoding`), the constant `MSPDI_NAMESPACE` and the two
@@ -87,7 +87,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // an element order, and a schema revision cannot leave a copy here stale.
 // ---------------------------------------------------------------------------
 
-const XSD_PATH = join(process.cwd(), 'docs', 'reference', 'mspdi', 'mspdi_pj12.xsd')
+const XSD_PATH = join(process.cwd(), 'docs', 'reference', 'mspdi', 'pj12', 'mspdi_pj12.xsd')
 
 /**
  * For every element path below `Project`, the order the schema declares its

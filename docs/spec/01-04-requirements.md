@@ -4837,7 +4837,7 @@ MK-9a の優先順位は、Chapter 4 が入口を要求している対象を全�
 | EX-5 | 取り込んだ文書に**中身のない行**が含まれるとき、タスクとして画面に出さず、書き出しでは**元の位置と形のまま戻すこと** |
 | EX-6 | フェード日数を書き出す枠は `_source/mspdi-custom-fields.json` の名簿とし、**その順に空きを探すこと（MUST）。<br>** **取込元が使っている枠を上書きしてはならない（MUST NOT）。<br>** 空き枠へ移して通知し、空き枠が無ければ書き出さずに通知すること（MUST）。<br>⭐ 取込元が使っているかどうかは、定義の側の `Alias` が名簿のものと一致するかで見分けること（MUST） —— **値の側は番号しか持たない**（`mspdi_pj12.xsd:2254`）。<br>取り込むときも同じ見分け方を用い、**合わなければ解釈せずに `carryElements` へ残すこと（MUST）**（表 T-053 の `DF-2`） |
 | EX-7 | **`GRS` が書く日付の時刻は `00:00:00` とすること（MUST）。<br>** 綴りは交換相手の型（`xsd:dateTime`）に合わせる。<br>⚠️ **取り込んだまま編集していない値には掛からない** —— そちらは `EX-2` と `EX-4` が元の文字列のままを求める |
-| EX-8 | 拡張領域へ値を書くときは、定義を `Project/ExtendedAttributes` に 1 度だけ書くこと（MUST）。<br> **子の順は公式スキーマの `xsd:sequence` に従うこと（MUST）**（`docs/reference/mspdi/mspdi_pj12.xsd:991`）。<br>⛔ フェードを持つタスクが 1 つも無いときは、まとまりごと書いてはならない（MUST NOT） —— 公式スキーマが「各 `ExtendedAttributes` には少なくとも 1 つの `ExtendedAttribute` が要る」と定めている（同 `:988`） |
+| EX-8 | 拡張領域へ値を書くときは、定義を `Project/ExtendedAttributes` に 1 度だけ書くこと（MUST）。<br> **子の順は公式スキーマの `xsd:sequence` に従うこと（MUST）**（`docs/reference/mspdi/pj12/mspdi_pj12.xsd:991`）。<br>⛔ フェードを持つタスクが 1 つも無いときは、まとまりごと書いてはならない（MUST NOT） —— 公式スキーマが「各 `ExtendedAttributes` には少なくとも 1 つの `ExtendedAttribute` が要る」と定めている（同 `:988`） |
 | EX-9 | `GRS` が書く時間の量は `PTnHnMnS` の形とし、時・分・秒の 3 つを必ず置くこと（MUST）。<br>年と月を書いてはならない（MUST NOT） —— 年と月の長さは、どこから数え始めるかで変わる。<br>⚠️ **掛からない範囲は `EX-7` と同じである。<br>** ⭐ **綴りが要るのは `Consume` の列だけである** —— 持ち回る値は文字列のまま戻る（表 T-053 の `DF-2`） |
 
 **Relations**:

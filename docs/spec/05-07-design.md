@@ -1257,7 +1257,7 @@ ADR-002 — 保存しない状態を、自前の状態機械 1 つで持つ
 名前の正は `_assets/tbl-glossary.md` の表 T-104 である。
 
 **交換相手のスキーマからの引用は、表 T-003 の `CN-7` に従うこと。**  
-**正は公式 XSD**（`https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`）であり、事実はローカル複製（`docs/reference/mspdi/mspdi_pj12.xsd`）で確かめる（`docs/reference/README.md`）。
+**正は公式 XSD**（`https://schemas.microsoft.com/project/2007/mspdi_pj12.xsd`）であり、事実はローカル複製（`docs/reference/mspdi/pj12/mspdi_pj12.xsd`）で確かめる（`docs/reference/README.md`）。
 
 エンティティ・関係・列の全数を 図 F-011 と 表 T-056・表 T-057・表 T-058 に示す（`_assets/fig-erd-detail.md`）。  
 → [LINK: DOC-FIG-ERD-DETAIL]**文書が持たず、書き出すときに作る値は 表 T-059 が持つ。**  
