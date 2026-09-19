@@ -558,8 +558,11 @@ function drawBarTask(g, key, ty, opts) {
   const put = placeAlong(g, q, refX, refW, marked, mk);
   if (useAct) {
     const b0 = band(actY, ah, A0.v), b1 = band(actY, ah, A1.v);
-    zone(g, key + '-actual-start', 'actualEnd', actX - A0.out, b0.y, A0.out + startGrab(put.fits, marked, mk), b0.h, ZC.actual, arrowCursor('left', true, S.cur));
-    zone(g, key + '-actual-end', 'actualEnd', actX + actW - A1.in, b1.y, A1.in + A1.out, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
+    // an actual end reaches in no further than half the actual (the spec's MUST): the two ends never swap sides,
+    // so on a short actual the left half is the start and the right half the finish
+    const inStart = Math.min(startGrab(put.fits, marked, mk), actW / 2), inEnd = Math.min(A1.in, actW / 2);
+    zone(g, key + '-actual-start', 'actualEnd', actX - A0.out, b0.y, A0.out + inStart, b0.h, ZC.actual, arrowCursor('left', true, S.cur));
+    zone(g, key + '-actual-end', 'actualEnd', actX + actW - inEnd, b1.y, inEnd + A1.out, b1.h, ZC.actual, arrowCursor('right', true, S.cur));
   } else if (useDummy) {
     // the dummy is the actual that has not started (JDG-186); the mark is split at its centre (JDG-37).
     // Question 1: a dummy start `out` of 0 keeps left of the plan start the plan's (JDG-04 / JDG-19)
