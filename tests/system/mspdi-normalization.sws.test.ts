@@ -14,6 +14,8 @@ const T024: SpecTable = specTable('T-024')
 const T103: SpecTable = specTable('T-103')
 const T109: SpecTable = specTable('T-109')
 const T025: SpecTable = specTable('T-025')
+const T265: SpecTable = specTable('T-265')
+const T033: SpecTable = specTable('T-033')
 
 // see T-024
 const FORMAT_ROW = 'IO-1'
@@ -36,6 +38,20 @@ const WHITESPACE_ROW = 'NR-2'
 
 // see T-228
 const NAME_ROW = 'NR-3'
+
+// see T-228
+const SIBLING_ORDER_ROW = 'NR-6'
+
+// WHY: read out of the tables rather than written down here, so a row ID that
+// moves fails at once instead of printing a dead reference in a message.
+// see T-265
+const REPEAT_ROW = rowOf(T265, 'MR-2').id
+
+// see T-265
+const READ_ORDER_ROW = rowOf(T265, 'MR-1').id
+
+// see T-033
+const WRITE_ORDER_ROW = rowOf(T033, 'EX-10').id
 
 // WHY: recorded here (not left out) so the completeness check below still
 // catches a new row that is neither covered nor excused.
@@ -269,18 +285,32 @@ async function sameAfterNormalization(
             .sort()
             .join(' ')
           const hasElementChild = element.children.length > 0
-          const parts: string[] = []
+          const values: string[] = []
+          // see NR-6
+          const columns = new Map<string, string[]>()
           for (const child of Array.from(element.childNodes)) {
             if (child.nodeType === Node.ELEMENT_NODE) {
-              parts.push(written(child as Element))
+              const one = child as Element
+              const column = nameOf(one.namespaceURI, one.localName)
+              const already = columns.get(column)
+              // see NR-6
+              if (already === undefined) columns.set(column, [written(one)])
+              else already.push(written(one))
               continue
             }
             if (child.nodeType !== Node.TEXT_NODE) continue
             const text = child.nodeValue ?? ''
             // see NR-2
             if (hasElementChild && text.trim() === '') continue
-            parts.push(JSON.stringify(text))
+            values.push(JSON.stringify(text))
           }
+          // see NR-6
+          const parts = [
+            ...values,
+            ...Array.from(columns.keys())
+              .sort()
+              .map((column) => (columns.get(column) ?? []).join('')),
+          ]
           const name = nameOf(element.namespaceURI, element.localName)
           return `<${name} ${attributes}>${parts.join('')}</${name}>`
         }
@@ -299,6 +329,96 @@ async function sameAfterNormalization(
       }
     },
     { first, second },
+  )
+}
+
+// WHY: named here and used only where a type is asked for -- the nodes it
+// speaks of live in the page, so none of it survives into the browser.
+interface MovablePair {
+  readonly parent: Element
+  readonly earlier: Element
+  readonly later: Element
+}
+
+interface ReorderedCopies {
+  readonly base: string
+  readonly acrossNames: string | null
+  readonly acrossNamesAt: string
+  readonly withinOneName: string | null
+  readonly withinOneNameAt: string
+}
+
+// WHY: the copies are cut from the document the application wrote, not from
+// markup made up here, so what is put in another order is the format's own.
+/** @purity semi-pure-b */
+async function reorderedCopies(page: Page, markup: string): Promise<ReorderedCopies> {
+  return page.evaluate(
+    /** @purity pure */
+    (text: string) => {
+      const serializer = new XMLSerializer()
+      /** @purity pure */
+      const parsed = (): Document => new DOMParser().parseFromString(text, 'application/xml')
+      // see NR-3
+      /** @purity pure */
+      const nameOf = (one: Element): string => `{${one.namespaceURI ?? ''}}${one.localName}`
+      /** @purity pure */
+      const elementsOf = (doc: Document): Element[] => Array.from(doc.getElementsByTagName('*'))
+      // see NR-6
+      /** @purity pure */
+      const acrossNames = (doc: Document): MovablePair | null => {
+        for (const parent of elementsOf(doc)) {
+          const earlier = parent.children[0]
+          if (earlier === undefined) continue
+          const later = Array.from(parent.children).find((one) => nameOf(one) !== nameOf(earlier))
+          if (later !== undefined) return { parent, earlier, later }
+        }
+        return null
+      }
+      // see NR-6
+      /** @purity pure */
+      const withinOneName = (doc: Document): MovablePair | null => {
+        for (const parent of elementsOf(doc)) {
+          const children = Array.from(parent.children)
+          for (let at = 0; at < children.length; at += 1) {
+            const earlier = children[at]
+            if (earlier === undefined) continue
+            // WHY: the two must differ in what they hold, or putting them in
+            // the other order would leave the document as it was.
+            const later = children
+              .slice(at + 1)
+              .find(
+                (one) =>
+                  nameOf(one) === nameOf(earlier) &&
+                  serializer.serializeToString(one) !== serializer.serializeToString(earlier),
+              )
+            if (later !== undefined) return { parent, earlier, later }
+          }
+        }
+        return null
+      }
+      /** @purity pure */
+      const whereOf = (found: MovablePair | null): string =>
+        found === null
+          ? 'nowhere'
+          : `under ${found.parent.localName}: ${found.later.localName} put before ` +
+            `${found.earlier.localName}`
+      /** @purity pure */
+      const movedBy = (find: (doc: Document) => MovablePair | null): string | null => {
+        const doc = parsed()
+        const found = find(doc)
+        if (found === null) return null
+        found.parent.insertBefore(found.later, found.earlier)
+        return serializer.serializeToString(doc)
+      }
+      return {
+        base: serializer.serializeToString(parsed()),
+        acrossNames: movedBy(acrossNames),
+        acrossNamesAt: whereOf(acrossNames(parsed())),
+        withinOneName: movedBy(withinOneName),
+        withinOneNameAt: whereOf(withinOneName(parsed())),
+      }
+    },
+    markup,
   )
 }
 
@@ -433,6 +553,81 @@ test(
       `table T-228 rows ${WHITESPACE_ROW} / ${NAME_ROW}: the two documents of one run differ ` +
         `from character ${compared.at}\n  first : ${compared.firstAt}\n  second: ${compared.secondAt}`,
     ).toBe(true)
+
+    await context.close()
+  },
+)
+
+test(
+  swsCase({
+    sws: 'SWS-6',
+    level: 'System',
+    covers: [SIBLING_ORDER_ROW],
+    given: 'the application up in the reference browser on the screen of the base environment, having written the document it starts with out in the exchange format',
+    when: 'that document is compared with two copies of itself, one with two siblings of different names put in the other order and one with two children of a single name put in the other order',
+    then: 'the copy that moved siblings of different names is judged the same document and the copy that moved children of a single name is judged a different one, though both differ from it as text',
+  }),
+  async ({ baseURL }) => {
+    test.setTimeout(180_000)
+    const { context, page } = await openedApplication(baseURL)
+
+    const written = await writeOutOnce(page)
+    const copies = await reorderedCopies(page, written.text)
+
+    // WHY: recorded because which siblings were moved is the document's
+    // doing, not this case's, and a failure has to be traceable to them.
+    test.info().annotations.push({
+      type: 'note',
+      description:
+        `across names: ${copies.acrossNamesAt}; within one name: ${copies.withinOneNameAt}`,
+    })
+
+    const { acrossNames, withinOneName } = copies
+    expect(
+      acrossNames,
+      `table T-228 row ${SIBLING_ORDER_ROW}: the document written out carries no parent with ` +
+        'two siblings of different names, so the row has nothing to take out of the verdict',
+    ).not.toBeNull()
+    expect(
+      withinOneName,
+      `table T-228 row ${SIBLING_ORDER_ROW} / table T-265 row ${REPEAT_ROW}: the document ` +
+        'written out carries no parent with two children of a single name that differ, so ' +
+        "the row's MUST NOT cannot be shown",
+    ).not.toBeNull()
+    if (acrossNames === null || withinOneName === null) {
+      throw new Error('unreachable: the two checks above hold these')
+    }
+
+    // WHY: checked before the verdicts -- NR-6 acts BEFORE NR-1, which keeps
+    // the order of children, so a copy equal as text would say nothing.
+    for (const [copy, what] of [
+      [acrossNames, 'siblings of different names'],
+      [withinOneName, 'children of a single name'],
+    ] as const) {
+      expect(
+        copy === copies.base,
+        `table T-228 row ${SIBLING_ORDER_ROW}: putting two ${what} in the other order left the ` +
+          'document as it was, so nothing was moved and neither verdict below means anything',
+      ).toBe(false)
+    }
+
+    const across = await sameAfterNormalization(page, copies.base, acrossNames)
+    expect(
+      across.same,
+      `table T-228 row ${SIBLING_ORDER_ROW} (${copies.acrossNamesAt}): the order of siblings of ` +
+        `different names reached the verdict, so a document read under table T-265 row ` +
+        `${READ_ORDER_ROW} and written back in the order of table T-033 row ${WRITE_ORDER_ROW} ` +
+        `would come out unequal to itself (FR-021)\n  first : ${across.firstAt}` +
+        `\n  second: ${across.secondAt}`,
+    ).toBe(true)
+
+    const within = await sameAfterNormalization(page, copies.base, withinOneName)
+    expect(
+      within.same,
+      `table T-228 row ${SIBLING_ORDER_ROW} (MUST NOT) / table T-265 row ${REPEAT_ROW} ` +
+        `(${copies.withinOneNameAt}): the order of two children of a single name was taken out ` +
+        'of the verdict as well, though that order is itself what the document says',
+    ).toBe(false)
 
     await context.close()
   },
