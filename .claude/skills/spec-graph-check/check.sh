@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 58 mechanical checks for the gr-scheduler specification.
+# All 59 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,10 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 41.
+# The ranges today are 1 + 4 + 8 + 4 + 42.
+# ⚠️ `26b` is written with ONE space after the number, so a recount that
+# splits the heading on two spaces reads it as no number at all and lands one
+# short. Counted by hand it is one check like any other.
 #
 # The index below is for the checks a session reads first. Checks 46 to 55 are
 # read from their own docstrings and from docs/development-rules/09-tools.md.
@@ -241,6 +244,26 @@
 #          read, and it prints that on every run rather than leaving it
 #          implied. Held both ways against module-state-baseline.txt, which
 #          exempts exactly the two findings DFC-583 already records
+#   62     check-identifier-reservation.py : an identifier an IN-FLIGHT
+#          change request says it will create, and the number it cites as
+#          the evidence, re-measured against the tree it will be applied to.
+#          The rule is section 2.5 of
+#          docs/development-rules/02-changing-the-spec.md -- a name picked
+#          from "the current maximum" is a claim with a shelf life of one
+#          commit, and two sessions drafting at once cannot see each other at
+#          all, which is why a number band handed out in a brief cannot close
+#          it. Three claims about the PRESENT are read: 空いて / 空き for the
+#          names to its LEFT (what stands to the right is usually the
+#          opposite list), 表 … 最大 for the `T-nnn` after it, and
+#          接頭辞 / 登録簿 … N 件 for the registry size.
+#          ⛔ IT NEVER READS section 5's 数の予測 -- `rows=` / `tables=` /
+#          `uids=` are frozen history, correct as of their own round, and a
+#          check that held them against today would fault every change
+#          request in the folder. ⛔ Scoped to what git reports as untracked
+#          or modified, precheck.py's reader: a LANDED change request owns
+#          its identifiers and may not be faulted for them. `--all` drops
+#          the scoping and shows what that costs. No baseline: it is exact
+#          and green at zero
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -679,6 +702,34 @@ section "61  the inner three layers hold no module-scope mutable state"
 # a ReadonlyMap nobody writes stay green. Without this gate a third module
 # state could be added in silence while DFC-583's two wait on CR-379.
 PYTHONIOENCODING=utf-8 python "$HERE/check-module-state.py" || failed
+
+echo ""
+section "62  an in-flight change request's identifier reservation still holds"
+# ⛔ The rule is docs/development-rules/02-changing-the-spec.md section 2.5:
+# an identifier a change request says it will CREATE must be free when the
+# change request is APPLIED, not merely when it was drafted, and the count or
+# maximum cited as the evidence must be re-measured immediately before.
+# ⚠️ MEASURED 2026-09-21, the failure it exists for: two sessions drafted a
+# change request at the same moment, both read the tree, both concluded the
+# largest table number was T-274, and both proposed T-275. One landed.
+# ⛔ SCOPED TO WHAT IS IN FLIGHT -- git status's untracked and modified, the
+# same reader tools/precheck.py uses. A LANDED change request must not be
+# faulted: its identifiers are in the tree because it landed. MEASURED with
+# `--all` (the scoping off) on 332 change requests: 66 fault(s) in 22 of
+# them, every one a claim that was true on the day it was written. That is
+# the number the scoping is buying.
+# ⛔ IT NEVER READS section 5's 数の予測 (`rows=` / `tables=` / `uids=`).
+# Those are frozen history -- rule 02 section 2 holds them against the
+# measurement of their OWN round -- and a check that compared them with today
+# would fault the whole folder.
+# ⚠️ So on a clean tree it passes having read nothing, the shape of check 41.
+# ⭐ MEASURED by breaking it: a throwaway in-flight change request claiming
+# 「木が使う表の最大は `T-274`」 and 「`T-275` は空いている」 reports 2; one
+# claiming 「接頭辞 `GP` は空いている」 beside 「登録簿 158 件」 reports 2 (the
+# name and the count are separate claims); and one naming only `T-276`,
+# `FR-112` and the prefix `UD` with the registry at 159 reads 5 claims and is
+# green.
+PYTHONIOENCODING=utf-8 python "$HERE/check-identifier-reservation.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
