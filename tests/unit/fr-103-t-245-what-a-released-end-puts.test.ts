@@ -44,7 +44,7 @@ const REQUIREMENTS = unbroken(
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const FR_103_STATEMENT =
-  '表 T-023d の `GR-3` / `GR-4` / `GR-6` / `GR-15` を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。'
+  '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。'
 
 const FR_103_REFUSALS =
   '拒むときの規則は既存の条項が持つ —— `finish` が `start` より前になる置き方は `FR-012` の MUST NOT と `05-07-design.md` の 表 T-220 の `IV-10` が、フェードの日数の和が期間を超える置き方は同表の `IV-12` が、受け入れる日付の範囲を外れる置き方は同表の `IV-14` が拒む。'
@@ -101,8 +101,8 @@ const dayPart = (value: string | null | undefined): string => {
 
 const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
 const S_130 = SETTINGS_DEFAULTS['milestoneActualDuration'] as number
-const S_90 = NOT_STORED_SIZES['S-90']
-const S_91 = NOT_STORED_SIZES['S-91']
+const S_90 = NOT_STORED_SIZES['S-250']
+const S_91 = NOT_STORED_SIZES['S-257']
 
 const PX_PER_DAY_AT_1X = 20
 
@@ -393,19 +393,19 @@ function grab(built: Stage, at: Point, releaseX: number): void {
   built.send(pointer('up', releaseX, at.y))
 }
 
-// see GR-3
+// see GA-1
 const planStartPress = (loop: FrameLoop, uid: number): Point => {
   const plan = planBox(loop, uid)
   return { x: plan.x0 - S_90 / 2, y: midY(plan) }
 }
 
-// see GR-4
+// see GA-2
 const planEndPress = (loop: FrameLoop, uid: number): Point => {
   const plan = planBox(loop, uid)
   return { x: plan.x1 + S_90 / 2, y: midY(plan) }
 }
 
-// see GR-6
+// see GA-4
 const actualEndPress = (loop: FrameLoop, uid: number): Point => {
   const actual = actualBox(loop, uid)
   return { x: actual.x1 - S_91 / 2, y: midY(actual) }
@@ -415,7 +415,7 @@ const columnFrom = (loop: FrameLoop, edge: number, k: number): number =>
   edge + (k + 0.5) * pxPerDay(loop)
 
 describe('FR-103 -- the manuscript this file is driven by', () => {
-  it('FR-103 still says: 表 T-023d の `GR-3` / `GR-4` / `GR-6` / `GR-15` を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。', () => {
+  it('FR-103 still says: `FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。', () => {
     expect(REQUIREMENTS).toContain(FR_103_STATEMENT)
     expect(REQUIREMENTS).toContain(FR_103_REFUSALS)
     expect(REQUIREMENTS).toContain(FR_012_NOT_BEFORE)

@@ -80,7 +80,7 @@
 // 3. ⛔ THE SIDE OF THE BOX. `S-138` is UF-71's to draw and
 //    tests/unit/uf-71.test.ts measures it on four surfaces. The one case here
 //    that names it is a stop condition, not a measurement: the user's report
-//    reads 「アイコンサイズ自体は変えずに」, so this work must leave that number
+//    reads DFC-75 「アイコンサイズ自体は変えずに」, so this work must leave that number
 //    where it is, and the case below fails if the box stops being 表 T-206's.
 // 4. ⛔ THE GAP `S-141` KEEPS BETWEEN A SHAPE AND AN ENTRANCE'S FRAME. Also
 //    UF-71's, and also already measured there. Neither length is touched by
@@ -787,7 +787,7 @@ describe('the manuscript still says what these cases copy', () => {
   })
 
   it('⛔ the box the shapes are drawn in is still S-138, and this work must not move it', () => {
-    // ⛔ THE STOP CONDITION. The user's report reads 「アイコンサイズ自体は変え
+    // ⛔ THE STOP CONDITION. The user's report reads DFC-75 「アイコンサイズ自体は変え
     // ずにグリフを拡大しろ」, and FR-029 keeps the side of that box in 表 T-206:
     //   「図形を描く箱の一辺は `_assets/tbl-settings.md` の 表 T-206 の `S-138`
     //    に従うこと（MUST）」

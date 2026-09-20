@@ -5,6 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
   COLUMN_SHAPES,
   DEFAULT_CALENDAR_VALUES,
@@ -56,8 +57,11 @@ export type PlanActualPlacement =
       readonly actualFinish: string
     }
 
-// see T-023d, FR-043
-export type ActualGrabHold = 'GR-9' | 'GR-17' | 'GR-18'
+// see T-266, FR-043
+export type ActualGrabHold = 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
+
+// see GO-6, GO-7
+const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['GA-6', 'GA-22']
 
 // see T-108
 export type TaskCommand =
@@ -90,7 +94,11 @@ export type TaskCommand =
       readonly grabbed: ActualGrabHold
       readonly droppedDay: string
     }
-  | { readonly kind: 'cycleTaskPlanActualState'; readonly uid: number }
+  | {
+      readonly kind: 'cycleTaskPlanActualState'
+      readonly uid: number
+      readonly remembered: RememberedActual | null
+    }
   | { readonly kind: 'setTaskFadeInDays'; readonly uid: number; readonly days: number | null }
   | { readonly kind: 'setTaskFadeOutDays'; readonly uid: number; readonly days: number | null }
   | { readonly kind: 'setTaskWbsParent'; readonly uid: number; readonly parentUid: number | null }
@@ -283,6 +291,138 @@ function actualsEdited(task: Task): Task {
     carry: Object.fromEntries(
       Object.entries(task.carry).filter(([name]) => name !== CARRIED_ACTUAL_DURATION),
     ),
+  }
+}
+
+export interface CycleSurroundings {
+  readonly floorDay: string | null
+  readonly milestone: boolean
+}
+
+export interface CycledPlanActual {
+  readonly task: Task
+  readonly remembered: RememberedActual | null
+}
+
+// see PV-4
+/** @purity pure */
+function actualTakenOff(task: Task): RememberedActual {
+  return {
+    actualStart: task.actualStart,
+    actualFinish: task.actualFinish,
+    stop: task.stop,
+    carriedActualDuration: task.carry[CARRIED_ACTUAL_DURATION] ?? null,
+  }
+}
+
+// see PV-1, PV-5
+// WHY: the carried duration goes back with the days, so putting the same actual back is no edit.
+/** @purity pure */
+function actualPutBack(task: Task, actual: RememberedActual): Task {
+  const carry =
+    actual.carriedActualDuration === null
+      ? task.carry
+      : { ...task.carry, [CARRIED_ACTUAL_DURATION]: actual.carriedActualDuration }
+  return {
+    ...task,
+    actualStart: actual.actualStart,
+    actualFinish: actual.actualFinish,
+    stop: actual.stop,
+    resume: null,
+    carry,
+  }
+}
+
+// see PV-4
+/** @purity pure */
+function actualCleared(task: Task): Task {
+  return actualsEdited({
+    ...task,
+    actualStart: null,
+    actualFinish: null,
+    stop: null,
+    resume: null,
+    resumeValid: false,
+  })
+}
+
+// see PV-1
+/** @purity pure */
+function startedAgain(task: Task, remembered: RememberedActual | null,
+                      around: CycleSurroundings): Task {
+  if (remembered !== null) return { ...actualPutBack(task, remembered), resumeValid: true }
+  if (task.start === null) return task
+  return actualsEdited({
+    ...task,
+    actualStart: task.start,
+    stop: around.floorDay,
+    actualFinish: null,
+    resume: null,
+    resumeValid: true,
+  })
+}
+
+// see PV-5
+/** @purity pure */
+function cycledMilestone(task: Task, remembered: RememberedActual | null,
+                         state: ReturnType<typeof planActualState>): CycledPlanActual {
+  if (state !== 'notStarted') {
+    return { task: actualCleared(task), remembered: actualTakenOff(task) }
+  }
+  if (remembered !== null) {
+    return { task: { ...actualPutBack(task, remembered), resumeValid: false }, remembered: null }
+  }
+  if (task.start === null) return { task, remembered }
+  return {
+    task: actualsEdited({
+      ...task,
+      actualStart: task.start,
+      actualFinish: task.start,
+      stop: null,
+      resume: null,
+      resumeValid: false,
+    }),
+    remembered: null,
+  }
+}
+
+// see CM-15, T-021a
+// TRAP: `around` left out reads S-129 as 1 and S-130 as the plan start; a document that raised
+// S-129 must hand the floor day in, or PV-1 puts a one-day actual where the floor is longer.
+/** @purity pure */
+export function cycleTaskPlanActualState(
+  task: Task,
+  remembered: RememberedActual | null,
+  around: CycleSurroundings = { floorDay: task.start, milestone: task.milestone === true },
+): CycledPlanActual {
+  const state = planActualState(task)
+  if (around.milestone) return cycledMilestone(task, remembered, state)
+  switch (state) {
+    case 'notStarted':
+      return { task: startedAgain(task, remembered, around), remembered: null }
+    case 'inProgress':
+      // WHY: one replacement moves the last day, so no actual without a last day is seen (PV-2).
+      return task.stop === null
+        ? { task, remembered }
+        : {
+            task: actualsEdited({ ...task, actualFinish: task.stop, stop: null, resumeValid: false }),
+            remembered,
+          }
+    case 'finished':
+      // WHY: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
+      return {
+        task: actualsEdited({
+          ...task,
+          stop: task.actualFinish,
+          actualFinish: null,
+          resume: null,
+          resumeValid: false,
+        }),
+        remembered,
+      }
+    case 'suspendedResumeUnknown':
+    case 'suspendedResumePlanned':
+      return { task: actualCleared(task), remembered: actualTakenOff(task) }
   }
 }
 
@@ -682,7 +822,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
       if (!dropped.ok) {
         return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
       }
-      if (command.grabbed === 'GR-17') {
+      if (DUMMY_FINISH_HOLDS.includes(command.grabbed)) {
         // TRAP: the plan start day itself, where schedule-layout.ts and schedule-geometry.ts stand the dummy (DM-1);
         // change all three together.
         const planStart = dayOf(task.start)
@@ -720,42 +860,17 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
 
     case 'cycleTaskPlanActualState': {
       const state = planActualState(task)
-      let turned: Task
-      switch (state) {
-        case 'notStarted': {
-          const from = dayOf(task.start)
-          if (from === null) {
-            return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
-          }
-          const milestone = isMilestone(task, visualOf(schedule, task.uid))
-          turned = {
-            ...task,
-            actualStart: task.start,
-            stop: null,
-            actualFinish: textOfDay(floorDayOf(within, settings, from, milestone)),
-            resumeValid: false,
-          }
-          break
-        }
-        case 'inProgress': {
-          if (task.stop === null) {
-            return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
-          }
-          // WHY: one replacement moves the last day, so no actual without a last day is seen (PV-2).
-          turned = { ...task, actualFinish: task.stop, stop: null, resumeValid: false }
-          break
-        }
-        case 'finished':
-          // WHY: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
-          // WHY: clear resume, or an imported finished task keeps a past resume date and lands on PS-4.
-          turned = { ...task, stop: task.actualFinish, actualFinish: null, resume: null, resumeValid: false }
-          break
-        case 'suspendedResumeUnknown':
-        case 'suspendedResumePlanned':
-          turned = { ...task, resume: null, resumeValid: true }
-          break
+      const milestone = isMilestone(task, visualOf(schedule, task.uid))
+      const from = dayOf(task.start)
+      if (state === 'notStarted' && command.remembered === null && from === null) {
+        return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
       }
-      return edited(withTask(document, repriced(within, actualsEdited(turned))))
+      if (state === 'inProgress' && task.stop === null) {
+        return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
+      }
+      const floorDay = from === null ? null : textOfDay(floorDayOf(within, settings, from, milestone))
+      const turned = cycleTaskPlanActualState(task, command.remembered, { floorDay, milestone })
+      return edited(withTask(document, repriced(within, turned.task)))
     }
 
     case 'setTaskFadeInDays':

@@ -25,7 +25,7 @@
 //   T-023c SL-8 「タスク・ハイライトボックス・コメントボックスは、外接矩形に
 //            沿った破線の枠で囲むこと（MUST）」 -- the mark EP-12 keeps out of
 //            the export for the three framed kinds.
-//   FR-016   「作成者がその日数を、表 T-023d の `GR-1` / `GR-2` の掴み点で編集
+//   FR-016   「作成者がその日数を、表 T-023d の `GA-7` / `GA-8` の掴み点で編集
 //            できるようにすること。**掴み点は選択しているタスクにだけ出すこと
 //            （MUST）**」 -- so a selected task carrying fades is what puts a
 //            `Grab Point` in the picture at all, and EP-12 is what keeps it out

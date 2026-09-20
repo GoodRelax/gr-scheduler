@@ -37,7 +37,7 @@
 //            `S-203` と同じである」 —— `S-203`: 「⛔ px で持たない理由は `FR-036`
 //            が持つ」, and FR-036 gives it: 「`NFR-007` が負う WCAG 2.1 の 1.4.4
 //            は、字を大きくした読者を置き去りにしない」。
-//            ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言で「フォン
+//            ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言でDFC-106 「フォン
 //            トサイズのことだ」と述べている」。
 //   T-103    U-53 `Tooltip` -- the settled name that reaches the DOM as a
 //            `data-role`.
@@ -69,7 +69,7 @@
 //   3. THAT THE TOOLTIP IS SMALLER THAN ANY NEIGHBOUR IN PARTICULAR. The ruling
 //      that produced `S-204` is a RATIO against the host's own base, which is
 //      what the cases below drive; 「2 段階」 names no other part of the screen.
-//   4. THE WAIT BEFORE IT APPEARS. `S-124` holds it (「⚠️ `S-124` は 3000ms なの
+//   4. THE WAIT BEFORE IT APPEARS. `S-124` holds it (DFC-106 「⚠️ `S-124` は 3000ms なの
 //      で、2.5 秒しか待たない測り方では 1 度も出なかった」, DFC-106's own note), and
 //      that is a rule about UF-69, which decides WHETHER a tooltip stands.
 
@@ -487,7 +487,7 @@ describe('EZ-2 (MUST) -- the tooltip’s text is S-204 of the base the host give
   })
 
   it('⛔ MUST NOT: 「2 段階」 is not a step of table T-215', () => {
-    // ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言で「フォントサイズ
+    // ⚠️ 「「2 段階」は 表 T-215 の段ではない —— 利用者が同じ発言でDFC-106 「フォントサイズ
     //   のことだ」と述べている」（`S-204`'s own note）. ⭐ DFC-106 records that the
     // question was open before the ruling: 「表 T-215 の `fontScaleSizes` の段か、
     // `S-197` のような係数か。問う前に測ること」 -- and the ruling chose the ratio.

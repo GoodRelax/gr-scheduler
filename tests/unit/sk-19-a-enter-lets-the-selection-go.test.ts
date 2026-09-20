@@ -2,7 +2,7 @@
 // lets the selection go.
 //
 // ⛔⛔ WHAT WAS MEASURED BEFORE THIS (2026-09-10, 出荷ビルド, FR-102 の記録).
-// 「プロパティーパネルを開かず、タスクやマイルストーンをアクティブにした状態で、
+// DFC-427 「プロパティーパネルを開かず、タスクやマイルストーンをアクティブにした状態で、
 // Enter を押下しても何も起きない。」 The record shows the press arriving with
 // `act=-`: `commandFromKey` reached its last line with the panel down and
 // answered UNASSIGNED, and no member anywhere named the selection for `Enter`.

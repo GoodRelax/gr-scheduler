@@ -558,7 +558,7 @@ describe('S-176 / S-177 of 表 T-203 -- the fractions stay inside their bounds',
 
 describe('FR-016 (MUST NOT) -- no wheel zoom and no wheel scroll during a drag', () => {
   /**
-   * A drag of the plan bar's body in flight -- `GR-12` of 表 T-023d, which
+   * A drag of the plan bar's body in flight -- `GA-9` of 表 T-023d, which
    * `PTD-3` of 表 T-023a put in charge of the press.
    *
    * `on: null` says the screen surface had drawn nothing where the press
@@ -566,7 +566,7 @@ describe('FR-016 (MUST NOT) -- no wheel zoom and no wheel scroll during a drag',
    */
   const dragInFlight = (context: InputContext) => ({
     at: pointerOf(context.regions.rowArea.x + 20, context.regions.rowArea.y + 20),
-    hit: hitOf({ kind: 'task', taskUid: 1 }, 'GR-12'),
+    hit: hitOf({ kind: 'task', taskUid: 1 }, 'GA-9'),
     on: null,
     pressRow: 'PTD-3' as const,
   })

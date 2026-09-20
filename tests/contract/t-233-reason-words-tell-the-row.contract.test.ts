@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 //
 // On 2026-08-31 the 場面 of `RS-30` was rewritten and the dictionary was not.
-// A person who pressed a spent `IC-90` was told 「この行は既に畳まれています」
+// A person who pressed a spent `IC-90` was told DFC-166 「この行は既に畳まれています」
 // while the reason the notice was raised for was that the row was NOT folded.
 // ⛔ EVERY MACHINE CHECK STAYED GREEN, because they all ask whether the row's
 // word REACHED the screen and never whether it says what the row says:
@@ -226,9 +226,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // message: the 場面 and the three fields of the dictionary were read side by
   // side first, and this note records what that reading found.
   //
-  // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja 「これ以上深い段には行を
+  // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja DFC-206 「これ以上深い段には行を
   //   足せません」 is again the same sentence, en 「A row cannot be added any
-  //   deeper than this」 says the same, and the next step 「もっと浅い行に足して
+  //   deeper than this」 says the same, and the next step DFC-206 「もっと浅い行に足して
   //   ください」 / 「Add it to a shallower row」 is the one `FR-085`'s cap leaves
   //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
   //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
@@ -250,7 +250,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   makes accepting the document safe: the ruling turned on not losing what
   //   could not be read.
   //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBOURS, and the distinction is WHY the
-  //   item could not be read. `RS-25` 「列が決められた形に合わない」 is a value
+  //   item could not be read. `RS-25` docs/development-records/pending-decisions.md 「列が決められた形に合わない」 is a value
   //   that is malformed; this row is a value that is well formed and UNKNOWN.
   //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
   //   at all; here it opens. ⇒ the words tell the scene.
@@ -269,7 +269,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
   // tells). Read together before anything was recorded, the way this file
   // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
-  // ja 「下記の無効なタスクを削除して取り込みました」 is the user's own wording of
+  // ja DFC-275 「下記の無効なタスクを削除して取り込みました」 is the user's own wording of
   // the ruling and says the same scene -- ⭐ 「下記の」 is load-bearing, because
   // FR-023 (MUST NOT) forbids telling the count alone, so the words themselves
   // promise the list the surface draws. en 「The invalid tasks listed below were

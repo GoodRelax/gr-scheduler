@@ -285,7 +285,7 @@ function outerHeightOf(entry: FakeElement): number | null {
 
 describe('表 T-206 (`S-138` / `S-141`) -- the glyph grew and the entrance did not', () => {
   it('⭐ the entrance keeps its outer height: S-138 + S-141 × 2 = 24', () => {
-    // ⭐ THE INVARIANT, NOT THE LITERALS. 「16 ＋ 4×2 ＝ 24、幅は ＋2 で 26 × 24」
+    // ⭐ THE INVARIANT, NOT THE LITERALS. CR-311 「16 ＋ 4×2 ＝ 24、幅は ＋2 で 26 × 24」
     // against 「12 ＋ 6×2 ＝ 24」 -- the arithmetic is what the ruling settled,
     // and it is what has to hold if the pair is ever re-tuned.
     expect(S_138 + S_141 * 2, `S-138=${S_138}, S-141=${S_141}`).toBe(24)
@@ -311,7 +311,7 @@ describe('表 T-206 (`S-138` / `S-141`) -- the glyph grew and the entrance did n
   })
 
   it('⛔ the glyph really did grow -- the box is larger than the gap it leaves', () => {
-    // ⭐ 「図形は 1.33 倍になり、入口は 1px も動かない。」 A pair that satisfied the
+    // ⭐ CR-311 「図形は 1.33 倍になり、入口は 1px も動かない。」 A pair that satisfied the
     // sum by shrinking the glyph instead would pass the first case and defeat
     // the ruling, which was about the glyph being too small for its frame
     // (defect `DFC-75`).
@@ -365,7 +365,7 @@ describe('FR-029 (MUST) -- the box a glyph is drawn in is S-138 on a side', () =
   })
 
   it('⭐ leaves the entrance the outer height the ruling fixed, at S-235 ((S-138 + S-141 × 2) × S-235)', () => {
-    // ⭐ 「入口の外形は 26 × 24px のまま動かない」（`S-138` の備考）. ⚠️ ONLY THE
+    // ⭐ DFC-75 「入口の外形は 26 × 24px のまま動かない」（`S-138` の備考）. ⚠️ ONLY THE
     // HEIGHT IS ASKED: the 26 of the width is the height plus 「枠の 1px × 2」,
     // and no row of 表 T-206 states that 1px frame -- so a case for the width
     // would be a case for a number the specification does not hold.

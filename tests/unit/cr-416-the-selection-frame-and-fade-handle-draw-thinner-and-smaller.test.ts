@@ -12,7 +12,7 @@ import { emptySelection, selectionWith } from '../../src/entity/document-model/s
 import {
   itemAtPointer,
   NOT_STORED_SIZES,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -34,11 +34,11 @@ const [S_174] = numbersOf('T-206', 'S-174', '既定')
 const [S_175_ON, S_175_OFF] = numbersOf('T-206', 'S-175', '既定')
 const [S_109] = numbersOf('T-210', 'S-109', '値')
 const [S_110] = numbersOf('T-210', 'S-110', '値')
-const [S_92] = numbersOf('T-206', 'S-92', '既定')
-const S_92_BOTH = numbersOf('T-206', 'S-92', '既定')
+const [S_268] = numbersOf('T-206', 'S-268', '既定')
+const [S_269] = numbersOf('T-206', 'S-269', '既定')
 const [S_109_FLOOR] = numbersOf('T-210', 'S-109', '下限')
 
-describe('tables T-206 / T-210 -- the values CR-416 moved, and S-109 / S-92 as CR-422 moved them', () => {
+describe('tables T-206 / T-210 -- the values CR-416 moved, and S-109 / S-268 as CR-422 moved them', () => {
   it('holds S-174 1px, S-175 2 x 1px, S-109 2.5px with its floor 2.5, and S-110 1.0px', () => {
     expect(S_174).toBe(1)
     expect([S_175_ON, S_175_OFF]).toEqual([2, 1])
@@ -47,9 +47,9 @@ describe('tables T-206 / T-210 -- the values CR-416 moved, and S-109 / S-92 as C
     expect(S_110).toBe(1)
   })
 
-  it('holds the S-92 grab at 8 x 8px, wider than the 5 x 5px point', () => {
-    expect(S_92_BOTH).toEqual([8, 8])
-    expect(S_92).toBeGreaterThan(S_109! * 2)
+  it('holds the GA-7 / GA-8 grab at 8px each, wider than the 5 x 5px point', () => {
+    expect([S_268, S_269]).toEqual([8, 8])
+    expect(S_268).toBeGreaterThan(S_109! * 2)
   })
 
   it('generates the two stored fade-handle defaults the manuscript prints', () => {
@@ -159,39 +159,33 @@ describe('S-109 / S-110 -- the fade grab points of the selected Task', () => {
 })
 
 // see T-206, T-023d
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: S_92! / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
-describe('S-92 -- a press outside the drawn point but inside 8 x 8 still takes the fade', () => {
-  it('takes GR-1 or GR-2 at 0.1px inside the S-92 half right of each point centre', () => {
+describe('S-268 -- a press outside the drawn point but inside the 8px square still takes the fade', () => {
+  it('takes GA-7 or GA-8 at 0.1px inside the S-268 half right of each point centre', () => {
     const { geometry } = sceneAt(DEFAULT_DISPLAY_SCALE)
     const slop = SLOP
-    const offset = S_92! / 2 - 0.1
+    const offset = S_268! / 2 - 0.1
     expect(offset, 'premise: the offset is outside the drawn point').toBeGreaterThan(S_109!)
-    expect(offset, 'premise: the offset is inside the S-92 grab').toBeLessThan(S_92! / 2)
+    expect(offset, 'premise: the offset is inside the S-268 grab').toBeLessThan(S_268! / 2)
     const grabs = (geometry.tasks[0]?.fadeHandles ?? []).map(
       (point) => itemAtPointer(geometry, point.x + offset, point.y, slop)?.grab ?? null,
     )
-    expect(new Set(grabs)).toEqual(new Set(['GR-1', 'GR-2']))
+    expect(new Set(grabs)).toEqual(new Set(['GA-7', 'GA-8']))
   })
 
-  it('does not take GR-1 or GR-2 at 0.1px past the S-92 half right of each point centre', () => {
+  it('does not take GA-7 or GA-8 at 0.1px past the S-268 half right of each point centre', () => {
     const { geometry } = sceneAt(DEFAULT_DISPLAY_SCALE)
-    const offset = S_92! / 2 + 0.1
+    const offset = S_268! / 2 + 0.1
     const grabs = (geometry.tasks[0]?.fadeHandles ?? []).map(
       (point) => itemAtPointer(geometry, point.x + offset, point.y, SLOP)?.grab ?? null,
     )
     expect(grabs, 'premise: FR-075 gives the selected Task its two points').toHaveLength(2)
-    expect(grabs).not.toContain('GR-1')
-    expect(grabs).not.toContain('GR-2')
+    expect(grabs).not.toContain('GA-7')
+    expect(grabs).not.toContain('GA-8')
   })
 
-  it('the S-92 half the shell hands the hit test is the manuscript one', () => {
-    expect(NOT_STORED_SIZES['S-92']).toEqual(S_92_BOTH)
+  it('the S-268 half the shell hands the hit test is the manuscript one', () => {
+    expect([NOT_STORED_SIZES['S-268'], NOT_STORED_SIZES['S-269']]).toEqual([S_268, S_269])
   })
 })

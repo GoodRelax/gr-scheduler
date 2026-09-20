@@ -35,7 +35,7 @@
 //            ドラッグしたとき、`GRS` は、構えている形状でその期間のタスクを作る
 //            こと（表 T-023a の PTD-4）」、表 T-239 の `TC-1`「構えている形状が
 //            マイルストーンのときは `Task.milestone` を真……として作ること（MUST）」、
-//            「ドラッグせずに
+//            CR-338 「ドラッグせずに
 //            クリックしたとき……は、開始日と終了日が同じタスクを作ること（MUST）」
 //            RATIONALE: ⛔ 「作るものはコマンドパレットで構えているものが決める。
 //            `GRS` が形状を勝手に読み替えてはならない（MUST NOT）」
@@ -666,7 +666,7 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
   it('⭐ the same entrance pressed again disarms, whatever is selected (SP-4)', () => {
     // 表 T-023b の締め: 「解除は `Esc`、またはパレットの同じ入口の再押下とする
     // こと（MUST）」 with 「選んでいるものの有無で、この再押下の意味を変えては
-    // ならない（MUST NOT）」 (the user's ruling 2026-09-07, 逐語「トグルにせよ。
+    // ならない（MUST NOT）」 (the user's ruling 2026-09-07, 逐語DFC-383 「トグルにせよ。
     // ユーザーに選択肢がある」). SP-4 lost its 「何も選んでいない」 the same day.
     // ⛔ THE CONTROL IS THE SELECTED SIDE: a build that kept the old guard would
     // pass the empty case and fail this one, because it never reached SP-4 with
@@ -714,7 +714,7 @@ describe('⛔ every milestone entrance sets the figure its row names (SP-2 of FR
 describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () => {
   it('placing while armed makes a milestone at all', () => {
     // FR-001 (MUST): 「構えている形状がマイルストーンのときは `Task.milestone` を真、
-    // それ以外の形状のときは偽として作ること」, and 「ドラッグせずにクリックしたとき
+    // それ以外の形状のときは偽として作ること」, and CR-338 「ドラッグせずにクリックしたとき
     // ……は、開始日と終了日が同じタスクを作ること」.
     const first = ENTRANCES[0] as Entrance
     const app = stage(emptyRowDocument())

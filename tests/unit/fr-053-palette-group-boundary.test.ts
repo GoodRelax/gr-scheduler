@@ -134,7 +134,7 @@ function cellOf(id: string): string {
 }
 
 /**
- * S-143 -- 「線の太さと左右の空き」, which the cell writes as one pair.
+ * S-143 -- CR-246 「線の太さと左右の空き」, which the cell writes as one pair.
  *
  * ⚠️ The cell carries the two numbers with a `×` between them, the way S-188
  * and S-192 write a pair in the same column; they are read out of it rather

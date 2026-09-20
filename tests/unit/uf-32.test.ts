@@ -1281,9 +1281,9 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // ⛔⛔ THIS CASE USED TO ASK FOR TWO POLYGONS, quoting FR-043's 「掴みシロ
       // を**2 つ**」 as its reason. That phrase is about the GRAB side and is
       // still true -- 「⭐ **掴む先が 2 つであることは変わらない** —— 表 T-023d の
-      // `GR-9` と `GR-17` はどちらも残り」 -- but it was never a count of DRAWN
+      // `GA-5` と `GA-6` はどちらも残り」 -- but it was never a count of DRAWN
       // FIGURES, and reading it as one is exactly what the 2026-09-08 ruling
-      // struck down: 「⛔ **2026-09-08 まで `GR-9` と `GR-17` の位置に縦棒が
+      // struck down: 「⛔ **2026-09-08 まで `GA-5` と `GA-6` の位置に縦棒が
       // 1 本ずつ立ち、画面には 2 本見えていた** —— **利用者の申し立ては「1つだけ
       // にしろ」であった**」. ⚠️ This file draws pictures and counts figures, so
       // it speaks only to the drawing side. The grab side is measured where the
@@ -1304,7 +1304,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // STEP: where the ink begins (DM-1, the day column's left edge) and how wide it runs (DM-3).
       //
       // ⭐ The day column is counted in DAYS from the 予定バー's own left edge:
-      // 表 T-023d の GR-3 は 「予定の開始点 | 予定バーの左端」, and FR-017 makes
+      // 表 T-023d の GA-1 は 「予定の開始点 | 予定バーの左端」, and FR-017 makes
       // one day `S-1` × `zoomX` wide. ⛔ Nothing here is a number read off a run.
       const dayWidth = dayWidthAt(zoomX)
       const planLeft = spanOf(bars[0] as Element).from
@@ -1324,9 +1324,9 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
         // WHY: DM-3 accepts that a mark wider than one day covers the next day, so straddling is refused only where the day is wider.
         expect(
           dayWidth >= drawnWidthAt(zoomX) && span.from < nextColumnLeft && nextColumnLeft < span.to,
-          `a ダミーの印 straddles the day column after GR-9's at ${days}`,
+          `a ダミーの印 straddles the day column after GA-5's at ${days}`,
         ).toBe(false)
-        expect(span.from, `a ダミーの印 begins at the day column after GR-9's at ${days}`).not.toBeCloseTo(
+        expect(span.from, `a ダミーの印 begins at the day column after GA-5's at ${days}`).not.toBeCloseTo(
           nextColumnLeft,
           6,
         )
@@ -1354,7 +1354,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
   it('does not thin the late mark, which wins over 未着手 -- but still thins the ダミーの印', () => {
     // FR-013: 「⚠️ **遅れの `(!)` は薄くしない** —— `PM-4` が勝つ状態であり、
     // `UC-006` が最も見つけたい対象だからである」, and 「⚠️ **未着手のタスクでも
-    // `PM-4` は進捗マーカーの場所に出る**（表 T-023d の `GR-7`）—— **未着手で
+    // `PM-4` は進捗マーカーの場所に出る**（表 T-023d の `GA-18`）—— **未着手で
     // あることは実績バーの有無が担う**（`FR-043`）」.
     //
     // ⛔ THIS CASE USED TO ASK FOR NO 濃さ AT ALL, AND THAT READING TAKES THE
@@ -1366,7 +1366,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
     //
     // ⛔ THE COUNT IS ONE, AND WAS TWO UNTIL 2026-09-08. FR-043 (MUST): 「ダミー
     // の印は 1 つだけ描くこと」, (MUST NOT): 「開始の側と終了の側に別々の印を描いて
-    // はならない」. ⭐ 「掴む先が 2 つであることは変わらない」, but a grab target is
+    // はならない」. ⭐ DFC-396 「掴む先が 2 つであることは変わらない」, but a grab target is
     // not a figure and this case counts figures.
     const late = oneRow([spanning(1, '2026-01-05', 5, { name: 'late' })], {
       project: { calendarUid: null, statusDate: '2026-02-01', themeHue: 214, title: null },
@@ -1378,7 +1378,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       'FR-043 (MUST): a late Task that has not started still shows its one ダミーの印',
     ).toHaveLength(1)
 
-    // 表 T-021 の `PM-4` is `(!)`, drawn where `GR-7` puts the marker. ⛔ None of
+    // 表 T-021 の `PM-4` is `(!)`, drawn where `GA-18` puts the marker. ⛔ None of
     // its figures is 薄く -- and no `line` of the picture is, which is the same
     // claim made against every figure that is not a bar or a ダミーの印.
     expect(
@@ -1410,7 +1410,7 @@ describe('UF-32 -- FR-075 / S-111: 掴み点は選択しているタスクにだ
     // fade already being there leaves nothing to drag.
     expect(grabPointsOf(drawn(scene())), 'nothing selected, no point').toHaveLength(0)
     const picked = drawn(scene(), SETTINGS, selectionWith(emptySelection(), { kind: 'task', uid: 2 }))
-    expect(grabPointsOf(picked), 'GR-1 and GR-2, for the one Task').toHaveLength(2)
+    expect(grabPointsOf(picked), 'GA-7 and GA-8, for the one Task').toHaveLength(2)
   })
 
   it('gives each point the stroke S-110 states', () => {

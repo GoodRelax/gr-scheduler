@@ -366,7 +366,7 @@ async function drawnOutlines(
   )
 }
 
-// see T-023d, GR-12
+// see T-023d, GA-9
 /** @purity non-pure */
 async function barBodyOn(page: Page, row: DrawnRow): Promise<{ x: number; y: number } | null> {
   const left = Math.round(
@@ -654,7 +654,7 @@ test('the row tree, and not the screen, decides what is below (FR-019 / IV-19 / 
         expect
           .soft(
             moved.length,
-            `${HM_3} / GR-12 of table T-023d: dragging a plan bar down onto ${destination.label} ` +
+            `${HM_3} / GA-9 of table T-023d: dragging a plan bar down onto ${destination.label} ` +
               'puts it on that row',
           )
           .toBeGreaterThan(0)

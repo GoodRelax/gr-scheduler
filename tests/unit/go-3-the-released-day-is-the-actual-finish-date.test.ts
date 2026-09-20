@@ -95,7 +95,7 @@ const dayPart = (value: string | null | undefined): string => {
 }
 
 const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
-const S_91 = NOT_STORED_SIZES['S-91']
+const S_91 = NOT_STORED_SIZES['S-257']
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
@@ -337,7 +337,7 @@ interface Released {
   readonly after: Task
 }
 
-// see GR-6
+// see GA-4
 function actualEndReleasedOn(uid: number, target: string): Released {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))

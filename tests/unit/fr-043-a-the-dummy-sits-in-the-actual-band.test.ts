@@ -26,8 +26,8 @@
 // ---------------------------------------------------------------------------
 //
 //   表 T-012          SH-3 / SH-4's 「実績の置き方」 column: 「下へずらす」
-//   FR-043            draws GR-9 / GR-17 while a Task is not started
-//   表 T-023d GR-9/17 the two grabs the one drawn mark answers to
+//   FR-043            draws GA-5 / GA-6 while a Task is not started
+//   表 T-023d GA-5/17 the two grabs the one drawn mark answers to
 
 import { describe, expect, it } from 'vitest'
 
@@ -46,7 +46,7 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { DEFAULT_DISPLAY_RATIO, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
+import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
 // The fixture. One `arrow` Task, unstarted, alongside one `rectangle` Task in
@@ -73,9 +73,6 @@ const SETTINGS: DocumentSettings = ({
   scrollGroupId: 'g1',
   stackDirection: 'down',
 }) as unknown as DocumentSettings
-
-// see FR-039, T-252
-const DRAWN_ACTUAL_GAP = SETTINGS.actualGap * DEFAULT_DISPLAY_RATIO
 
 const ENV: ScreenEnvironment = {
   width: 1000,
@@ -126,12 +123,30 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
   }) as unknown as Schedule
 
 // Neither Task has started: no `actualStart`, so `placed.actualX` is `null`
-// and `dummiesOf` draws its pair (GR-9 / GR-17) for both.
+// and `dummiesOf` draws its pair (GA-5 / GA-6) for both.
 const TASK_ARROW = taskOf({ uid: 1, start: '2026-01-05', finish: '2026-02-05' })
 const TASK_RECT = taskOf({ uid: 2, start: '2026-01-05', finish: '2026-02-05' })
 
 const SCHEDULE = scheduleOf({
   tasks: [TASK_ARROW, TASK_RECT],
+  taskVisuals: [{ taskUid: 1, shapeKind: 'arrow' }],
+  taskGroups: [
+    { id: 'g1', parentId: null, label: 'row 1', order: 0, height: null },
+    { id: 'g2', parentId: null, label: 'row 2', order: 1, height: null },
+  ],
+  taskGroupMembers: [
+    { groupId: 'g1', taskUid: 1 },
+    { groupId: 'g2', taskUid: 2 },
+  ],
+})
+
+// WHY: the same picture with the arrow started draws a real actual line, and
+// `XS-14` of table T-271 puts the dummy on it -- no band formula written twice.
+const SCHEDULE_STARTED = scheduleOf({
+  tasks: [
+    taskOf({ uid: 1, start: '2026-01-05', finish: '2026-02-05', actualStart: '2026-01-05', stop: '2026-01-05' }),
+    TASK_RECT,
+  ],
   taskVisuals: [{ taskUid: 1, shapeKind: 'arrow' }],
   taskGroups: [
     { id: 'g1', parentId: null, label: 'row 1', order: 0, height: null },
@@ -152,6 +167,33 @@ const GEOMETRY: ScheduleGeometry = geometryFromLayout(
   REGIONS,
   emptySelection(),
 )
+
+const LAYOUT_STARTED = layoutFromSchedule(SCHEDULE_STARTED, SETTINGS, REGIONS)
+const GEOMETRY_STARTED: ScheduleGeometry = geometryFromLayout(
+  SCHEDULE_STARTED,
+  SETTINGS,
+  LAYOUT_STARTED,
+  REGIONS,
+  emptySelection(),
+)
+
+/** The started arrow's own actual line -- the band `XS-14` sends the dummy to. */
+const startedActualLine = (): { readonly centreY: number; readonly strokeWidth: number } => {
+  const task = GEOMETRY_STARTED.tasks.find((each) => each.taskUid === 1)
+  const actual = task?.actual ?? null
+  if (actual === null || actual.form !== 'line') {
+    throw new Error('the started arrow drew no actual line')
+  }
+  return { centreY: actual.from.y, strokeWidth: actual.strokeWidth }
+}
+
+/** The started arrow's own plan line, for the \"below the plan\" half of the claim. */
+const startedPlanLine = (): { readonly centreY: number; readonly strokeWidth: number } => {
+  const task = GEOMETRY_STARTED.tasks.find((each) => each.taskUid === 1)
+  const plan = task?.plan ?? null
+  if (plan === null || plan.form !== 'line') throw new Error('the arrow drew no plan line')
+  return { centreY: plan.from.y, strokeWidth: plan.strokeWidth }
+}
 
 const placedOf = (uid: number) => {
   const one = LAYOUT.placements.find((each) => each.taskUid === uid)
@@ -182,39 +224,32 @@ describe('the fixture both cases stand on', () => {
 })
 
 describe('表 T-012 -- an arrow/endpointSpan dummy sits in the actual band, below the plan', () => {
-  it('puts the ink where a STARTED arrow would draw its actual bar (MUST)', () => {
-    const placed = placedOf(1)
-    const actualHeight = placed.planHeight * SETTINGS.actualOfPlan
-    // 表 T-012's own column, read for a STARTED Task by `taskGeometryOf`:
-    // `planTop + placed.planHeight + settings.actualGap`. The dummy must land
-    // on the very same band once it has begun -- table T-012 and FR-043 have
-    // not moved WHERE the actual belongs merely because none is drawn yet.
-    const belowTop = placed.y + placed.planHeight + DRAWN_ACTUAL_GAP
-
+  it('puts the ink where a STARTED arrow draws its actual line (MUST)', () => {
+    // WHY: read off the started picture, never a formula written again -- the
+    // centre and the stroke both come from `XS-14` of table T-271.
+    const actual = startedActualLine()
     const ink = geometryOf(1).dummies[0]!.ink
-    expect(ink.height).toBeCloseTo(actualHeight, 6)
-    expect(ink.y).toBeCloseTo(belowTop, 6)
-    // ⛔ THE DEFECT, MADE EXPLICIT: the plan bar occupies
-    // [placed.y, placed.y + placed.planHeight). An ink box that starts before
-    // that band ends is still overlapping the plan -- which is what 「予定の
-    // 上にかぶっている」 reported.
-    expect(ink.y).toBeGreaterThanOrEqual(placed.y + placed.planHeight)
+    expect(ink.height).toBeCloseTo(actual.strokeWidth, 6)
+    expect(ink.y + ink.height / 2).toBeCloseTo(actual.centreY, 6)
+    // WHY: the defect reported was a dummy lying over the plan's own line, and
+    // `XS-6` of table T-271 puts the actual a whole `S-10` below the plan.
+    const plan = startedPlanLine()
+    expect(ink.y).toBeGreaterThanOrEqual(plan.centreY + plan.strokeWidth / 2)
   })
 
-  it('centres BOTH grabs (GR-9 and GR-17) on that same lowered band', () => {
+  it('centres BOTH grabs (GA-21 and GA-22) on that same lowered line', () => {
     // `DummyGeometry.at` feeds `centreFromLeftEdge` in `svg-renderer.ts`,
     // which takes `at.y` AS ALREADY the ink's own vertical centre (it passes
     // the y through unchanged). Left at the plan's centre line while the ink
     // moved below it, the hover highlight would darken a box the mark was
     // never drawn in.
-    const placed = placedOf(1)
-    const actualHeight = placed.planHeight * SETTINGS.actualOfPlan
-    const belowTop = placed.y + placed.planHeight + DRAWN_ACTUAL_GAP
-    const bandMiddle = belowTop + actualHeight / 2
+    // ⚠️ `GA-21` / `GA-22`, not `GA-5` / `GA-6`: table T-266 gives the line
+    // family its own two dummy rows.
+    const bandMiddle = startedActualLine().centreY
 
     const dummies = geometryOf(1).dummies
-    expect(dummies.find((one) => one.grab === 'GR-9')?.at.y).toBeCloseTo(bandMiddle, 6)
-    expect(dummies.find((one) => one.grab === 'GR-17')?.at.y).toBeCloseTo(bandMiddle, 6)
+    expect(dummies.find((one) => one.grab === 'GA-21')?.at.y).toBeCloseTo(bandMiddle, 6)
+    expect(dummies.find((one) => one.grab === 'GA-22')?.at.y).toBeCloseTo(bandMiddle, 6)
   })
 
   it('still centres the CONTROL rectangle on the plan (unchanged, `actualPlacement === "inside"`)', () => {

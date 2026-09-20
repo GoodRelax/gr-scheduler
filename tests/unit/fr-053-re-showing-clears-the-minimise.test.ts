@@ -1,4 +1,4 @@
-// FR-053 (MUST) as the user ruled it on 2026-09-01: 「ヘッダーでコマンドパレット
+// FR-053 (MUST) as the user ruled it on 2026-09-01: DFC-179 「ヘッダーでコマンドパレット
 // を再表示した時、コマンドパレットは標準サイズで表示しろ」 -- when S-99e goes from
 // hidden to shown, S-200 goes back to not minimised.
 //
@@ -361,7 +361,7 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
   })
 
   it('⭐ showing it again from the header brings it back at its standard size', () => {
-    // ⭐ THE USER'S RULING, MEASURED AT THE UNIT: 「ヘッダーでコマンドパレットを
+    // ⭐ THE USER'S RULING, MEASURED AT THE UNIT: DFC-179 「ヘッダーでコマンドパレットを
     // 再表示した時、コマンドパレットは標準サイズで表示しろ」.
     // GOES RED IF: the two states go back to being independent, which is what
     // they were until 2026-09-01 -- the palette then came back minimised and

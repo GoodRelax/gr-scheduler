@@ -1,4 +1,7 @@
-1401
+1369
+# LOWERED 1401 -> 1369 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): the CR-430
+# tests carry the clauses of tables T-266 .. T-273 word for word, so 605 clauses are now held
+# and 1369 are not. Hold the ground.
 # RAISED 1374 -> 1401 on 2026-09-15, with the user's approval (asked in chat: raise 39 for now):
 # CR-380 .. CR-385 (the spec wave for DFC-590 .. DFC-603) wrote 27 new MUST / MUST NOT clauses
 # that no test holds verbatim yet. The implementation wave writes their tests; lower it there.

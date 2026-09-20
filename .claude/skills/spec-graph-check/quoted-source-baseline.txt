@@ -1,4 +1,7 @@
-384
+358
+# LOWERED 384 -> 358 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): comments that
+# quoted a sentence docs/spec no longer holds now name the source they really quote (a defect
+# row, a change request or a development rule), so 145 quotations left the count.
 # LOWERED 425 -> 384 on 2026-09-16, as the raise below planned, under the user's ruling JDG-137 (asked
 # in chat: "検査 42 の基準線 ① 384 に下げる"): the display-size wave's implementation rewrote the tests
 # whose comments quoted CR-380 .. CR-385's old wording, and more -- 384 is 11 below the 395 before

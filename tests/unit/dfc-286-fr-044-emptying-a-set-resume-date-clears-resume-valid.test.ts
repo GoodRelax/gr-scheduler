@@ -635,7 +635,7 @@ describe('⛔ RED ON PURPOSE -- FR-044 (MUST): putting a resume date sets `resum
 
 describe('FR-044 -- a task that had no resume date is not suspended by an empty commit', () => {
   it('⛔ a running task stays running', () => {
-    // ⭐⭐ THE HALF THE LEDGER ROW SPELLED OUT: 「無条件に偽を書くと、進行中の
+    // ⭐⭐ THE HALF THE LEDGER ROW SPELLED OUT: DFC-286 「無条件に偽を書くと、進行中の
     // タスクが誰も頼んでいない中断に入る。⇒ 元の再開日が在ったときだけ戻す」.
     // 表 T-019's `PA-2` 進行中 carries 「`resume` 空」 and 「`resumeValid` `true`」,
     // so there is no 「置いた再開日」 to erase.

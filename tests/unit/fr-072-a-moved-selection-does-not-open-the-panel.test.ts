@@ -508,10 +508,10 @@ function stage(): Stage {
 /**
  * A point on one Task's plan bar BODY -- the 本体 half of MK-13's Task entry.
  *
- * ⚠️ NOT SIMPLY THE MIDDLE. These Tasks are not started, so GR-7 hangs the
- * progress marker outside GR-17's hold (「未着手のときは終了点の掴みシロの
- * 外側」), and the square landed on the middle of these bars. ⛔ GR-7 IS ABOVE
- * GR-12 IN TABLE T-023d and is none of MK-13's
+ * ⚠️ NOT SIMPLY THE MIDDLE. These Tasks are not started, so GA-18 hangs the
+ * progress marker outside GA-6's hold (「未着手のときは終了点の掴みシロの
+ * 外側」), and the square landed on the middle of these bars. ⛔ GA-18 IS ABOVE
+ * GA-9 IN TABLE T-023d and is none of MK-13's
  * destinations, so a press there cycles the state instead of moving the
  * selection -- which is not what these cases are about. The point is taken from
  * the part of the body the marker does not stand on.
@@ -603,7 +603,7 @@ describe('the manuscript still says what these cases read', () => {
     // leaving the cases below asserting a rule the manuscript no longer holds.
     //
     // ⛔ THIS GUARD HOLDS NO COUNT, ON PURPOSE. Until 2026-09-04 FR-072 closed
-    // with 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。」 and this
+    // with CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。」 and this
     // very case asserted it word for word. ⛔ The sentence was already false the
     // day it was written -- 行を選ぶ道 (`FR-042`) was a third -- and `FR-091`
     // and `HF-14` of table T-051 have since named more. ⇒ What stands here in

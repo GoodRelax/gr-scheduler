@@ -562,12 +562,12 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   ).toBe(Math.round(MARK_WIDTH_PX))
   expect(
     dummy.height,
-    `S-180: 縦の広がりは実績バーの帯に従う（S-4 ${S_4}px × 描く比 ` +
+    `S-180: 縦の広がりは実績の帯に従う（S-4 ${S_4}px × 描く比 ` +
       `${DEFAULT_DISPLAY_RATIO} × zoomY ${S_76} × S-5 ${S_5}）ので ${MARK_HEIGHT_PX}px になる`,
   ).toBe(Math.round(MARK_HEIGHT_PX))
 
-  // WHY: pressed a quarter into the mark -- inside GR-9's (start) half and
-  // short of the centre pixel, which FR-043 routes to GR-17 (finish) instead.
+  // WHY: pressed a quarter into the mark -- inside GA-5's (start) half and
+  // short of the centre pixel, which FR-043 routes to GA-6 (finish) instead.
   // WHY: a move no further than S-208 is a press, not a drag, so the product writes
   // WHY: nothing; the mark is a few px here, so three of them may not reach that boundary.
   const carriedPx = Math.max(steps * step, PRESS_OR_DRAG_PX + step)
@@ -601,12 +601,12 @@ test('control for DFC-182: dropping the dummy of an unstarted task writes an act
     dropped.after.length,
     'after the drop the row holds fewer than two bars, so no actual bar was drawn beside the plan',
   ).toBeGreaterThan(1)
-  // WHY: catches the press landing on GR-3 (plan start) instead of the hold
+  // WHY: catches the press landing on GA-1 (plan start) instead of the hold
   // -- a pinned case alone would not notice the plan bar moving instead.
   const plan = dropped.after[dropped.after.length - 1]
   expect(
     `${plan?.x ?? '?'}:${plan?.width ?? '?'}`,
-    'the plan bar moved, so the press landed on the plan start point (GR-3) and not on the hold',
+    'the plan bar moved, so the press landed on the plan start point (GA-1) and not on the hold',
   ).toBe(`${dropped.planX}:${dropped.planWidth}`)
   await app.close()
 })
@@ -768,12 +768,12 @@ test('DFC-232: a task drawn on empty ground leaves a name field under the keyboa
 // must break this file rather than quietly move what the cases admit.
 const CLAUSES: readonly (readonly [string, string])[] = [
   [
-    'T-023d closing (MUST) -- the hit area of GR-9 / GR-17 / GR-18 is the mark FR-043 draws',
-    '⭐ `GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。',
+    'T-266 closing (MUST) -- the mark is halved at its middle, left for GA-5 and right for GA-6',
+    '⭐ 矩形では、印（幅は 表 T-240 の `DM-3`）を横幅の中央で左右に割り、左半分を開始側（`GA-5`）、右半分を終了側（`GA-6`）とすること（MUST）。',
   ],
   [
-    'T-023d closing (MUST NOT) -- that hit area is never a box wider than the mark',
-    '⛔ ダミーの当たり判定を、描いた印より広い箱で取ってはならない（MUST NOT）',
+    'T-266 closing (MUST NOT) -- that hit area is never a box wider than the mark',
+    '⛔ 矩形のダミーの掴み代を印の外へ広げてはならない（MUST NOT）。',
   ],
 ]
 

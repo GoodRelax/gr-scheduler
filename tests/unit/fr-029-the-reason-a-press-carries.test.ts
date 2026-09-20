@@ -558,7 +558,7 @@ const SPENT: readonly Spent[] = [
   },
   {
     // ⛔⛔ `IC-59` / `RS-30` STOOD HERE AND `IC-90` HAS TAKEN ITS PLACE.
-    // 表 T-233's `RS-30` read 「その行は既に畳まれている」 with 正 表 T-051 の
+    // 表 T-233's `RS-30` read docs/development-records/pending-decisions.md 「その行は既に畳まれている」 with 正 表 T-051 の
     // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
     // (hide), so 「既に畳まれている」 stopped being its situation and the row it
     // stands on is by definition DRAWN -- hiding it always takes one row off the

@@ -102,10 +102,8 @@ const T_206_DEFAULT = '既定'
 const S_11 = numberOf('T-201', 'S-11', T_201_DEFAULT)
 const S_17 = numberOf('T-201', 'S-17', T_201_DEFAULT)
 const S_18 = numberOf('T-201', 'S-18', T_201_DEFAULT)
-const S_19 = numberOf('T-201', 'S-19', T_201_DEFAULT)
 const S_39 = numberOf('T-201', 'S-39', T_201_DEFAULT)
 const S_196 = numberOf('T-206', 'S-196', T_206_DEFAULT)
-const S_233 = numberOf('T-206', 'S-233', T_206_DEFAULT)
 
 // see VG-2, VG-4
 const gapAt = (scale: number): number => S_11 + S_18 * displayRatioAt(scale) + S_11
@@ -247,8 +245,7 @@ const drawnExtent = (scene: Scene, uid: number): Extent => {
   const bottom = Math.max(...each.map((one) => one.bottom))
   const placed = placementIn(scene, uid)
   if (placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan') {
-    const figureTop = shape.plan === null ? top : barExtent(shape.plan, scene.scale).top
-    top = Math.min(top, figureTop - S_196 * displayRatioAt(scene.scale) - placed.labelFontSize * S_233)
+    top = Math.min(top, placed.y - S_196 * displayRatioAt(scene.scale) - placed.labelFontSize)
   }
   return { top, bottom }
 }
@@ -286,8 +283,10 @@ describe('VG-1 / VG-2 (MUST) -- the gap between two lanes of one row', () => {
     },
   )
 
-  it('is 1 + 1.5 x 0.625 + 1 = 2.9375px at the default step once CR-417 moved S-236, from the manuscript numbers alone', () => {
-    expect(gapAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(2.9375, 9)
+  it('is 1 + 2.4 x 0.625 + 1 = 3.5px at the default step once CR-430 moved S-18, from the manuscript numbers alone', () => {
+    // WHY: `S-18` went 1.5 -> 2.4 with CR-430, so the drawn line is 1.5px at
+    // the default step and the gap it sets is `S-11` + 1.5 + `S-11`.
+    expect(gapAt(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(3.5, 9)
   })
 })
 
@@ -428,14 +427,15 @@ describe('S-11 / S-17 / S-18 -- the document ranges table T-201 now states', () 
     expect(decoded.document.documentSettings.shapeHeightOf.milestone).toBe(numberOf('T-201', 'S-17', '上限'))
   })
 
-  it('caps dependencyWidth at dependencyArrowLength / 2, not at stackGap / 2', () => {
-    expect(cellOf('T-201', 'S-18', '上限')).toContain('dependencyArrowLength')
-    // STEP: S-19's own floor (dependencyWidth x 2) could lift the arrow instead, so the arrow stands at S-19's maximum.
-    const longest = numberOf('T-201', 'S-19', '上限')
-    expect(S_19, 'premise: the default S-19 sits below its maximum, so it could have been lifted').toBeLessThan(longest)
-    const decoded = read({ dependencyArrowLength: longest, dependencyWidth: longest / 2 + 1 })
-    expect(decoded.document.documentSettings.dependencyArrowLength).toBe(longest)
-    expect(decoded.document.documentSettings.dependencyWidth).toBeCloseTo(longest / 2, 9)
+  it('caps dependencyWidth at dependencyArrowWidth / 2, not at stackGap / 2', () => {
+    // WHY: CR-430 parted the arrow head's length from its base -- `S-19` keeps
+    // the length, `S-300` holds the base, and half the base caps the line.
+    expect(cellOf('T-201', 'S-18', '上限')).toContain('dependencyArrowWidth')
+    // STEP: S-300's own floor (dependencyWidth x 2) could lift the base instead, so the base stands at its maximum.
+    const widest = numberOf('T-201', 'S-300', '上限')
+    const decoded = read({ dependencyArrowWidth: widest, dependencyWidth: widest / 2 + 1 })
+    expect(decoded.document.documentSettings.dependencyArrowWidth).toBe(widest)
+    expect(decoded.document.documentSettings.dependencyWidth).toBeCloseTo(widest / 2, 9)
     expect(decoded.clampedCount).toBeGreaterThanOrEqual(1)
   })
 })

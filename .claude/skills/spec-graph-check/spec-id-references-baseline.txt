@@ -1,4 +1,7 @@
-88
+83
+# LOWERED 88 -> 83 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): the retirement
+# pass moved src/ and tests/ off the rows CR-430 retired (GR-1 .. GR-18, GS-*, TE-*, NL-*,
+# PC-*, S-90 .. S-92 and their keys) -- 70 retired, 13 undefined. Hold the ground.
 # LOWERED 93 -> 88 on 2026-09-17, with the user's approval (JDG-142, asked in chat: "問 C　検査 44 の基準線を
 # 93 → 88 に下げてよい"): measured on the root after CR-399 .. CR-401 were applied and the test comments
 # quoting their retired wording were corrected -- 76 retired, 12 undefined; hold the ground.

@@ -20,19 +20,19 @@
 //
 // Table T-023d's closing paragraph, docs/spec/01-04-requirements.md:
 //
-//   1 「再開アイコン（`GR-8`）は、予定バー本体（`GR-12`）に優先すること（MUST）
-//   2 「`GR-8` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が予定バー本体の中間を奪うときも、`GR-8` が勝つこと（MUST）
-//   3 「`GR-8` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が予定バー本体の中間を奪うときも、`GR-8` が勝つこと（MUST）。奪う量に上限を設けてはならない（MUST NOT）
-//   4 「`GR-8` は `GR-12` より上に在り、1 文字も動かしていない。**⛔ **順を根拠に上限を導いてはならない（MUST NOT）
+//   1 「再開アイコン（`GA-20`）は、予定バー本体（`GA-9`）に優先すること（MUST）
+//   2 「`GA-20` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が予定バー本体の中間を奪うときも、`GA-20` が勝つこと（MUST）
+//   3 「`GA-20` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が予定バー本体の中間を奪うときも、`GA-20` が勝つこと（MUST）。奪う量に上限を設けてはならない（MUST NOT）
+//   4 「`GA-20` は `GA-9` より上に在り、1 文字も動かしていない。**⛔ **順を根拠に上限を導いてはならない（MUST NOT）
 //
 // ⭐ THE FOURTH IS A RULE ABOUT READING THE TABLE, not about a press: the
 // printed order settles which row answers where two rows both claim a point,
 // and says nothing about HOW MUCH one may take from the other. The case that
 // presses the third clause is what shows the tree reads it that way -- the span
-// GR-8 takes grows with the box the row gives it and stops at no ceiling of its
+// GA-20 takes grows with the box the row gives it and stops at no ceiling of its
 // own. ⛔ THE ROW IT NAMES IS `S-22` SINCE 2026-09-09, not `S-93`; the two
 // clauses above were re-cut from the manuscript on 2026-09-10, when this file
-// was still quoting -- and still measuring -- the box GR-8 had been taken off.
+// was still quoting -- and still measuring -- the box GA-20 had been taken off.
 //
 // ---------------------------------------------------------------------------
 // ⛔⛔ WHAT THIS FILE CATCHES, MEASURED BY BREAKING THE SPECIFICATION
@@ -47,11 +47,11 @@
 //     ⇒ `npx vitest run`: 191 files, 7327 passed, ZERO red.
 //     ⇒ check 39: FAIL, 977 -> 979 unheld, because the two clauses this file
 //       quotes stopped matching the manuscript.
-//   2 JDG-28 reversed in place -- 「`GR-8` が勝つ」 and the priority sentence
-//     turned round to name `GR-12` as the winner.
+//   2 JDG-28 reversed in place -- 「`GA-20` が勝つ」 and the priority sentence
+//     turned round to name `GA-9` as the winner.
 //     ⇒ `npx vitest run`: ZERO red, again.
 //     ⇒ check 39: FAIL, 977 -> 979 unheld, for the same reason.
-//   3 The ROWS of table T-023d swapped, `GR-12` printed above `GR-8`.
+//   3 The ROWS of table T-023d swapped, `GA-9` printed above `GA-20`.
 //     ⇒ `npx vitest run`: 4 files, 5 cases red -- TWO of them in this file.
 //
 // ⛔⛔ SO SAY IT PLAINLY: a case that presses the build cannot tell whether the
@@ -76,10 +76,10 @@
 //
 // ⛔ MEASURED HERE, 2026-09-09, and the tree does not obey it. On a Task
 // nobody has started, drawn at `zoomX` 6 (one day 36px) with the fixture this
-// file already builds: `GR-17`'s dummy stands at x=416 and its `S-93` grab box
+// file already builds: `GA-6`'s dummy stands at x=416 and its `S-93` grab box
 // runs to x=446, while the progress marker's circle is centred at x=428 with
 // radius 8 -- so the marker covers x=420..436 and leaves the dummy's box FOUR
-// PIXELS of its own. A press at x=421 answers `GR-7`, the marker, not the
+// PIXELS of its own. A press at x=421 answers `GA-18`, the marker, not the
 // dummy. ⭐ That is the requirement's own 実測 reproduced to the pixel: 「マー
 // カーの円がダミーの箱の先頭 4px を残してどの倍率でも覆い、ダミーには先頭の 4px
 // しか残らなかった」. ⛔ A case pressing clause 5 or 6 would be RED, and rule 04
@@ -89,7 +89,7 @@
 // JDG-29, in the same table's paragraph about which end of an actual is grabbed:
 //
 //   8 「1 つのダミーの印は、その横幅の中央で左右に割ること（MUST）
-//   9 「左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）とすること（MUST）
+//   9 「左半分を実績の開始側（`GA-5`）、右半分を実績の終了側（`GA-6`）とすること（MUST）
 //  10 「印より右に残る当たり判定は終了側とすること（MUST）
 //
 // ⛔⛔ THESE THREE REPLACED WHAT JDG-29 USED TO SAY. Until 2026-09-09 the same
@@ -98,7 +98,7 @@
 // instead, so a person can read from the drawing which end a press will take.
 // ⭐ THE PRESS IS ASKED, and not here: the cases stand in
 // tests/unit/t-023d-dummy-stands-clear-of-the-plan-start.test.ts, which walks
-// every pixel of each half. This file is about GR-8 and keeps to it.
+// every pixel of each half. This file is about GA-20 and keeps to it.
 //
 // JDG-30, in `FR-003`, `FR-041` and `FR-039`:
 //
@@ -124,7 +124,7 @@
 // ---------------------------------------------------------------------------
 //
 // Head comments and exported declarations of `item-hit-area.ts` (`Hit`,
-// `GrabArea`, `PointerSlop`, `itemAtPointer`, `NOT_STORED_SIZES`),
+// `GrabArea`, `GrabSizes`, `itemAtPointer`, `NOT_STORED_SIZES`),
 // `schedule-geometry.ts` (`ResumeGeometry`, `TaskGeometry`, `BarGeometry`,
 // `Point`, `ScheduleGeometry`, `geometryFromLayout`), `schedule-layout.ts`
 // (`layoutFromSchedule`), `screen-regions.ts` (`regionsFromScreen`,
@@ -150,7 +150,7 @@ import {
   NOT_STORED_SIZES,
   itemAtPointer,
   type GrabArea,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -218,22 +218,15 @@ const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
 /**
  * ⛔⛔ THIS DOC COMMENT DESCRIBED `dummyWidth` UNTIL 2026-09-10, when the
- * field left `PointerSlop` entirely: table T-023d's closing rule now reads
- * 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものと
+ * field left `GrabSizes` entirely: table T-023d's closing rule now reads
+ * 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043` が描いた印そのものと
  * すること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
  * 2026-09-10）, and `S-180`'s row in `_assets/tbl-settings.md` says the same
  * from the far side: 「その `S-93` は 2026-09-10 に廃した —— 掴みシロが
- * 印そのものになり、読む者が 1 人も残らなかったからである」. `PointerSlop`
+ * 印そのものになり、読む者が 1 人も残らなかったからである」. `GrabSizes`
  * now carries no dummy figure at all.
  */
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  // `PointerSlop.fadeHandle` is documented as a HALF-width; S-92 is a square.
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 /** ⚠️ Every nullable column has to be spelled `null`; `undefined` reads as "set". */
 const taskOf = (part: Record<string, unknown>): Task =>
@@ -328,13 +321,13 @@ const UNDER_TEST = 1
 
 /**
  * A Task suspended with a resume date planned -- PS-4 of table T-019a, which is
- * the one state that draws `GR-8`'s icon.
+ * the one state that draws `GA-20`'s icon.
  *
  * ⭐ THE RESUME DAY STANDS DEEP INSIDE THE PLAN. 2026-02-06 is six weeks along
  * a plan that runs 2026-01-05 to 2026-03-06, so the icon is nowhere near either
- * plan end point (`GR-3` / `GR-4`), nor near the actual's end and the marker
+ * plan end point (`GA-1` / `GA-2`), nor near the actual's end and the marker
  * that hangs off it -- the only rows the press below could be answered by are
- * `GR-8` and `GR-12`, which is what the clause is about.
+ * `GA-20` and `GA-9`, which is what the clause is about.
  */
 const suspendedMidPlan = (): Schedule =>
   scheduleOf({
@@ -368,7 +361,7 @@ const taskDrawn = (geometry: ScheduleGeometry): TaskGeometry => {
   return found
 }
 
-const grabAt = (geometry: ScheduleGeometry, x: number, y: number, slop: PointerSlop = SLOP):
+const grabAt = (geometry: ScheduleGeometry, x: number, y: number, slop: GrabSizes = SLOP):
   GrabArea | null => itemAtPointer(geometry, x, y, slop, 'press')?.grab ?? null
 
 /** Every vertex of the icon LF-13 draws: the arm's three points and the head's three. */
@@ -409,7 +402,7 @@ const boxOfBar = (bar: TaskGeometry['plan']): Box => {
 }
 
 /**
- * The stretch of one horizontal line, around `centre`, that answers `GR-8`.
+ * The stretch of one horizontal line, around `centre`, that answers `GA-20`.
  *
  * ⭐ MEASURED BY PRESSING, not by reading a box off the geometry: the clause is
  * about how much of the plan bar's middle the icon TAKES, which is a fact about
@@ -419,24 +412,24 @@ const boxOfBar = (bar: TaskGeometry['plan']): Box => {
 const spanTakenFromThePlanBody = (
   geometry: ScheduleGeometry,
   centre: Point,
-  slop: PointerSlop,
+  slop: GrabSizes,
 ): Span => {
   const STEP = 0.25
   const REACH = 400
   let from = Number.NaN
   let to = Number.NaN
   for (let x = centre.x - REACH; x <= centre.x + REACH; x += STEP) {
-    if (grabAt(geometry, x, centre.y, slop) !== 'GR-8') continue
+    if (grabAt(geometry, x, centre.y, slop) !== 'GA-20') continue
     if (Number.isNaN(from)) from = x
     to = x
   }
-  if (Number.isNaN(from)) throw new Error('no point on this line answers GR-8')
+  if (Number.isNaN(from)) throw new Error('no point on this line answers GA-20')
   return { from, to }
 }
 
 /**
  * `S-22` (`markerSize`) of 表 T-201, cut out of the manuscript rather than
- * typed: the progress marker's own side and, since 2026-09-09, GR-8's hit box.
+ * typed: the progress marker's own side and, since 2026-09-09, GA-20's hit box.
  */
 const MARKER_SIZE = ((): number => {
   const row = specTable('T-201').rows.find((one) => one.id === 'S-22')
@@ -451,19 +444,32 @@ const MARKER_SIZE = ((): number => {
  * touched -- the drawn paths stand exactly where they stood.
  *
  * ⭐ THE ONE INPUT THE CEILING CASE VARIES. JDG-28 forbids a cap on how much of
- * the plan bar's middle GR-8 takes, and what it takes is that box; growing it
+ * the plan bar's middle GA-20 takes, and what it takes is that box; growing it
  * on the geometry asks the hit test the question without asking the layout to
  * hold a `markerSize` outside the 適合範囲 表 T-201 gives that row.
  */
 const withIconBoxGrown = (geometry: ScheduleGeometry, times: number): ScheduleGeometry => ({
   ...geometry,
-  tasks: geometry.tasks.map((task) =>
-    task.resume === null
-      ? task
-      : { ...task, resume: { ...task.resume, hitHalf: task.resume.hitHalf * times } }),
+  tasks: geometry.tasks.map((task) => {
+    const resume = task.resume
+    if (resume === null) return task
+    const box = resume.box
+    return {
+      ...task,
+      resume: {
+        ...resume,
+        box: {
+          x: box.x + (box.width * (1 - times)) / 2,
+          y: box.y + (box.height * (1 - times)) / 2,
+          width: box.width * times,
+          height: box.height * times,
+        },
+      },
+    }
+  }),
 })
 
-/** The box the icon's own drawing occupies, which is where `GR-8` centres. */
+/** The box the icon's own drawing occupies, which is where `GA-20` centres. */
 const iconCentre = (task: TaskGeometry): Point => {
   const xs = iconVertices(task).map((one) => one.x)
   const ys = iconVertices(task).map((one) => one.y)
@@ -481,24 +487,27 @@ const iconCentre = (task: TaskGeometry): Point => {
  * Which of two rows the manuscript says wins where both claim a point.
  *
  * ⭐⭐ READ OUT OF TABLE T-023d, NOT TYPED HERE, and that is the whole reason
- * this helper exists rather than a bare `'GR-8'` in each case. JDG-28's own
+ * this helper exists rather than a bare `'GA-20'` in each case. JDG-28's own
  * sentence says the priority is already in the printed order -- 「本表の順は
- * 既にそうなっている —— `GR-8` は `GR-12` より上に在り」 -- and 表 T-023d's rule
+ * 既にそうなっている —— `GA-20` は `GA-9` より上に在り」 -- and 表 T-023d's rule
  * is 「上の行ほど優先すること（MUST）」. ⛔ So a round that swaps the two rows in
  * the manuscript turns the cases below RED instead of leaving them agreeing
  * with a tree that no longer agrees with the specification.
  */
+// see T-268
+const KIND_OF: Readonly<Record<string, string>> = { 'GA-20': 'TY-2', 'GA-9': 'TY-9' }
+
 const higherOf = (left: GrabArea, right: GrabArea): GrabArea => {
-  const order = specTable('T-023d').rows.map((row) => row.id)
-  const atLeft = order.indexOf(left)
-  const atRight = order.indexOf(right)
-  if (atLeft < 0 || atRight < 0) throw new Error(`table T-023d has no ${left} or no ${right}`)
+  const order = specTable('T-268').rows.map((row) => row.id)
+  const atLeft = order.indexOf(KIND_OF[left] ?? '')
+  const atRight = order.indexOf(KIND_OF[right] ?? '')
+  if (atLeft < 0 || atRight < 0) throw new Error(`table T-268 has no kind for ${left} or for ${right}`)
   return atLeft < atRight ? left : right
 }
 
-describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it takes', () => {
-  it('answers GR-8 on the icon a person aims at, mid plan bar (MUST)', () => {
-    // 「再開アイコン（`GR-8`）は、予定バー本体（`GR-12`）に優先すること（MUST）」
+describe('table T-268 (JDG-28): the resume icon beats the body, and takes what it takes', () => {
+  it('answers GA-20 on the icon a person aims at, mid plan bar (MUST)', () => {
+    // 「再開アイコン（`GA-20`）は、予定バー本体（`GA-9`）に優先すること（MUST）」
     // ⭐ THE POINTS PRESSED ARE THE PICTURE'S OWN VERTICES -- where LF-13 drew
     // the arm and the head -- and not a point derived from the hit box, so a
     // hit box that moved off the drawing would fail this rather than follow it.
@@ -507,46 +516,46 @@ describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it tak
     const plan = boxOfBar(task.plan)
     for (const vertex of iconVertices(task)) {
       // The premise: this vertex really does stand in the plan bar's MIDDLE,
-      // clear of both end points and their S-90 allowance, so GR-12 is the row
-      // that would answer if GR-8 did not.
-      expect(vertex.x, 'the icon must stand clear of GR-3').toBeGreaterThan(
-        plan.x0 + SLOP.planEndpoint,
+      // clear of both end points and their S-90 allowance, so GA-9 is the row
+      // that would answer if GA-20 did not.
+      expect(vertex.x, 'the icon must stand clear of GA-1').toBeGreaterThan(
+        plan.x0 + SLOP['S-250'],
       )
-      expect(vertex.x, 'the icon must stand clear of GR-4').toBeLessThan(
-        plan.x1 - SLOP.planEndpoint,
+      expect(vertex.x, 'the icon must stand clear of GA-2').toBeLessThan(
+        plan.x1 - SLOP['S-250'],
       )
       expect(grabAt(geometry, vertex.x, vertex.y), `pressing the icon at x=${vertex.x}`).toBe(
-        higherOf('GR-8', 'GR-12'),
+        higherOf('GA-20', 'GA-9'),
       )
     }
   })
 
-  it('leaves the rest of the plan bar to GR-12, which is what makes it a contest', () => {
+  it('leaves the rest of the plan bar to GA-9, which is what makes it a contest', () => {
     // ⛔ THE CONTRAST, and without it the case above says nothing: if the plan
     // bar's body did not answer at this very x when the icon is not under the
-    // pointer, GR-8 would be winning an argument nobody was having.
+    // pointer, GA-20 would be winning an argument nobody was having.
     const geometry = drawn(suspendedMidPlan())
     const task = taskDrawn(geometry)
     const centre = iconCentre(task)
     const top = boxOfBar(task.plan).y0
     // One pixel inside the plan bar's own top edge: the same column, past the
     // reach S-22 gives the icon downward.
-    expect(grabAt(geometry, centre.x, top + 1)).toBe('GR-12')
+    expect(grabAt(geometry, centre.x, top + 1)).toBe('GA-9')
     // And two pixels beyond S-22's half width to either side, on the icon's own
     // line, the plan body has the press back.
     const half = MARKER_SIZE / 2
-    expect(grabAt(geometry, centre.x - half - 2, centre.y)).toBe('GR-12')
-    expect(grabAt(geometry, centre.x + half + 2, centre.y)).toBe('GR-12')
+    expect(grabAt(geometry, centre.x - half - 2, centre.y)).toBe('GA-9')
+    expect(grabAt(geometry, centre.x + half + 2, centre.y)).toBe('GA-9')
   })
 
-  it('gives GR-8 the whole of S-22 out of the middle, clipping none of it (MUST)', () => {
-    // 「`GR-8` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が
-    // 予定バー本体の中間を奪うときも、`GR-8` が勝つこと（MUST）」
+  it('gives GA-20 the whole of S-22 out of the middle, clipping none of it (MUST)', () => {
+    // 「`GA-20` の当たり判定（`_assets/tbl-settings.md` の 表 T-201 の `S-22`）が
+    // 予定バー本体の中間を奪うときも、`GA-20` が勝つこと（MUST）」
     // ⛔⛔ THE ROW THE CLAUSE NAMES MOVED ON 2026-09-09, and this case asked for
-    // the old one until 2026-09-10. GR-8 read the dummies' own `S-93` of 表
+    // the old one until 2026-09-10. GA-20 read the dummies' own `S-93` of 表
     // T-206 until the user's ruling shrank it to the progress marker's size --
-    // 「再開矢印のつかみシロが広い 進捗マーカーとサイズを合わせろ。」 -- and
-    // GR-8's row now says 「新しい設定値を立てない —— 進捗マーカー（`GR-7`）と
+    // docs/development-records/rulings.md 「再開矢印のつかみシロが広い 進捗マーカーとサイズを合わせろ。」 -- and
+    // GA-20's row now says 「新しい設定値を立てない —— 進捗マーカー（`GA-18`）と
     // 同じ寸法をそのまま使う」.
     // ⛔⛔ AND `S-93`'s ROW IS GONE ALTOGETHER as of 2026-09-10 -- 「その `S-93`
     // は 2026-09-10 に廃した」 -- so the sentence this note used to cite from
@@ -569,10 +578,10 @@ describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it tak
     // `S-93` は 2026-09-10 に廃した —— 掴みシロが印そのものになり、読む者が
     // 1 人も残らなかったからである」. Nothing in `src/` can read it any more,
     // so the old figure is kept here as a literal purely to keep this guard
-    // from going quiet: a build that reverted GR-8's hit box to the old
+    // from going quiet: a build that reverted GA-20's hit box to the old
     // dummies' size would still answer here as well as failing the bound
     // above.
-    expect(taken, 'GR-8 must not read the retired S-93 (30px)').toBeLessThan(30)
+    expect(taken, 'GA-20 must not read the retired S-93 (30px)').toBeLessThan(30)
     // ⭐ AND ALL OF IT CAME OUT OF THE PLAN BAR'S MIDDLE. Both edges of what was
     // taken stand inside the bar, so nothing was won from empty ground.
     const plan = boxOfBar(task.plan)
@@ -583,15 +592,15 @@ describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it tak
   it('puts no ceiling on how much of the middle it takes (MUST NOT)', () => {
     // 「奪う量に上限を設けてはならない（MUST NOT）」 and 「順を根拠に上限を導いて
     // はならない（MUST NOT）」.
-    // ⭐⭐ HOW A CEILING WOULD SHOW. Grow the box GR-8 is given and the stretch
+    // ⭐⭐ HOW A CEILING WOULD SHOW. Grow the box GA-20 is given and the stretch
     // it answers on grows by exactly as much; any cap the tree held -- a
     // fraction of the bar, a fixed maximum, a rule that the middle keeps some of
     // itself -- would make the second measurement fall short of ten times the
     // first.
-    // ⭐⭐ GROWN ON THE GEOMETRY AND NOT ON `PointerSlop`, because that is the
+    // ⭐⭐ GROWN ON THE GEOMETRY AND NOT ON `GrabSizes`, because that is the
     // road the size travels since 2026-09-09: `S-22` is a STORED setting, so it
     // cannot ride with table T-206's unstored reaches, and it reaches the hit
-    // test as `ResumeGeometry.hitHalf` beside the paths it belongs to.
+    // test as `ResumeGeometry.box` beside the paths it belongs to.
     const geometry = drawn(suspendedMidPlan())
     const task = taskDrawn(geometry)
     const centre = iconCentre(task)
@@ -602,19 +611,22 @@ describe('table T-023d closing (JDG-28): GR-8 beats GR-12, and takes what it tak
     const takenTenfold = tenfold.to - tenfold.from
     expect(
       takenTenfold,
-      `the icon's box grew ${TIMES}x and the middle GR-8 took went ${takenOnce}px -> ${takenTenfold}px`,
+      `the icon's box grew ${TIMES}x and the middle GA-20 took went ${takenOnce}px -> ${takenTenfold}px`,
     ).toBeGreaterThan(takenOnce * TIMES - 1)
   })
 
-  it('reads the order off table T-023d rather than trusting the tree (MUST)', () => {
-    // 「本表の順は既にそうなっている —— `GR-8` は `GR-12` より上に在り」, which is
+  it('reads the order off table T-268 rather than trusting the tree (MUST)', () => {
+    // 「本表の順は既にそうなっている —— `GA-20` は `GA-9` より上に在り」, which is
     // the ground the two cases above stand on: the table's printed order is what
     // settles a point both rows claim. ⛔ Reversed, every press in the icon
-    // would answer GR-12 and the icon could not be grabbed at all -- which is
-    // the ruling's own reason, 「そうしないと再開できんやろ？」.
-    const order = specTable('T-023d').rows.map((row) => row.id)
-    expect(order).toContain('GR-8')
-    expect(order).toContain('GR-12')
-    expect(order.indexOf('GR-8')).toBeLessThan(order.indexOf('GR-12'))
+    // would answer GA-9 and the icon could not be grabbed at all -- which is
+    // the ruling's own reason, DFC-409 「そうしないと再開できんやろ？」.
+    const rows = specTable('T-268').rows
+    const order = rows.map((row) => row.id)
+    expect(order).toContain('TY-2')
+    expect(order).toContain('TY-9')
+    expect(rows.find((row) => row.id === 'TY-2')?.by['形の上']).toContain('再開アイコン')
+    expect(rows.find((row) => row.id === 'TY-9')?.by['形の上']).toContain('本体')
+    expect(order.indexOf('TY-2')).toBeLessThan(order.indexOf('TY-9'))
   })
 })

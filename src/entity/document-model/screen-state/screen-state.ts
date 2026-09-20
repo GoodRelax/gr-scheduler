@@ -14,15 +14,26 @@ export type Armed =
 
 export type OpenSurface = string | null
 
+// see PV-4, PV-5
+export interface RememberedActual {
+  readonly actualStart: string | null
+  readonly actualFinish: string | null
+  readonly stop: string | null
+  readonly carriedActualDuration: string | null
+}
+
 export interface ScreenState {
   readonly armed: Armed
   readonly paletteShown: boolean
   readonly fullScreen: boolean
   readonly surface: OpenSurface
   readonly watermarkVisible: boolean
+  readonly rememberedActuals: Readonly<Record<number, RememberedActual>>
 }
 
 const NONE: Armed = { kind: 'none' }
+
+const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = {}
 
 const EMPTY: ScreenState = {
   armed: NONE,
@@ -30,6 +41,7 @@ const EMPTY: ScreenState = {
   fullScreen: false,
   surface: null,
   watermarkVisible: true,
+  rememberedActuals: NO_REMEMBERED_ACTUALS,
 }
 
 /** @purity pure */
@@ -60,6 +72,28 @@ export function screenStateWithFullScreen(state: ScreenState, on: boolean): Scre
 /** @purity pure */
 export function screenStateWithWatermark(state: ScreenState, visible: boolean): ScreenState {
   return { ...state, watermarkVisible: visible }
+}
+
+// see PV-4, PV-1, CP-36
+/** @purity pure */
+export function screenStateWithRememberedActual(
+  state: ScreenState,
+  taskUid: number,
+  actual: RememberedActual | null,
+): ScreenState {
+  const held = state.rememberedActuals
+  if (actual === null) {
+    if (held[taskUid] === undefined) return state
+    const kept = Object.entries(held).filter(([uid]) => Number(uid) !== taskUid)
+    return { ...state, rememberedActuals: Object.fromEntries(kept) }
+  }
+  return { ...state, rememberedActuals: { ...held, [taskUid]: actual } }
+}
+
+// see PV-1, PV-5
+/** @purity pure */
+export function rememberedActualOf(state: ScreenState, taskUid: number): RememberedActual | null {
+  return state.rememberedActuals[taskUid] ?? null
 }
 
 export type EscapeTarget =

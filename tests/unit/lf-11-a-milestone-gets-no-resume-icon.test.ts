@@ -16,7 +16,7 @@
 // LF-11 gained its milestone clause on 2026-09-09 and nothing asked for it:
 // the whole suite -- 7434 cases -- was green on 2026-09-10 with the icon still
 // being drawn. ⚠️⚠️ MEASURED ON THE SHIPPED BUILD THAT DAY, 1920 × 1080, one
-// day 6px wide: one press on the GR-7 marker of task 9 (a milestone -- its two
+// day 6px wide: one press on the GA-18 marker of task 9 (a milestone -- its two
 // drawn polygons are 42 × 42 and 24 × 24, squares, not bars) put
 // `data-figure="task-9-resume"` on the page at (1538, 388, 6.9 × 8px), and a
 // press on that figure's own middle answered `grab=-` in FR-102's record.
@@ -32,8 +32,8 @@
 //
 //   表 T-221 LF-11  the placing of the marker and the resume icon, and the two
 //                   MUST NOTs quoted verbatim on their own lines below
-//   表 T-023d GR-8  the grab region, whose own MUST NOT is the other half
-//   表 T-023d GR-15 / GR-18  what a milestone's actual DOES carry
+//   表 T-023d GA-20  the grab region, whose own MUST NOT is the other half
+//   表 T-023d GA-16 / GA-17  what a milestone's actual DOES carry
 //   FR-044          the icon that is drawn while a Task is suspended
 //   表 T-019a PS-4  the state 「中断（再開日あり）」 this fixture stands in
 
@@ -49,7 +49,7 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import {
   NOT_STORED_SIZES,
   itemAtPointer,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -180,17 +180,11 @@ const GEOMETRY: ScheduleGeometry = geometryFromLayout(
 )
 
 // ⛔⛔ NO DUMMY WIDTH BELONGS IN THIS SLOP. Table T-023d's closing rule reads
-// 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものと
+// 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043` が描いた印そのものと
 // すること（MUST）。印の外へ広げてはならない（MUST NOT）」, so a dummy's hold is
 // the mark the renderer already drew and never a slop of its own --
-// `PointerSlop` carries no dummy figure at all.
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+// `GrabSizes` carries no dummy figure at all.
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 const geometryOf = (uid: number) => {
   const one = GEOMETRY.tasks.find((each) => each.taskUid === uid)
@@ -240,10 +234,10 @@ describe('表 T-221 LF-11 -- a milestone is given no resume icon', () => {
   })
 })
 
-describe('表 T-023d GR-8 -- and nothing on a milestone answers that row', () => {
-  it('answers no GR-8 anywhere across the milestone band (MUST NOT)', () => {
+describe('表 T-023d GA-20 -- and nothing on a milestone answers that row', () => {
+  it('answers no GA-20 anywhere across the milestone band (MUST NOT)', () => {
     // 表 T-023d の結び（利用者の裁定 2026-09-09）:
-    // 「イルストーンに再開アイコン（`GR-8`）を当ててはならない（MUST NOT）」
+    // 「イルストーンに再開アイコン（`GA-20`）を当ててはならない（MUST NOT）」
     //
     // ⭐ SWEPT RATHER THAN PROBED AT ONE POINT: the icon is no longer placed,
     // so there is no drawn figure to take a coordinate from -- and a case that
@@ -259,7 +253,7 @@ describe('表 T-023d GR-8 -- and nothing on a milestone answers that row', () =>
       const hit = itemAtPointer(GEOMETRY, x, middle, SLOP)
       if (hit === null) continue
       asked += 1
-      expect(hit.grab, `GR-8 answered at x=${x} on a milestone`).not.toBe('GR-8')
+      expect(hit.grab, `GA-20 answered at x=${x} on a milestone`).not.toBe('GA-20')
     }
     expect(asked, 'the sweep crossed nothing at all, so it asked nothing').toBeGreaterThan(0)
   })

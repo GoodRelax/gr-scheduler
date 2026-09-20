@@ -258,11 +258,11 @@ interface RawGeometry {
 }
 
 interface Geometry {
-  // see GR-12, MK-8, PTD-3, SL-1
+  // see GA-9, MK-8, PTD-3, SL-1
   readonly barBody: Spot
-  // see GR-3
+  // see GA-1
   readonly barStart: Spot
-  // see GR-4
+  // see GA-2
   readonly barFinish: Spot
   // see SL-2, SL-4
   readonly otherBar: Spot | null
@@ -274,10 +274,10 @@ interface Geometry {
   readonly rowGrab: Spot | null
   // see GR-16
   readonly statusLine: Spot | null
-  // see GR-13
+  // see GA-19
   readonly dependency: Spot | null
   // WHY: null with lines drawn means no place to press; null with none drawn
-  // WHY: means RT-4a left the link out at this zoom -- GR-13 names which.
+  // WHY: means RT-4a left the link out at this zoom -- GA-19 names which.
   readonly dependencyLines: number
 }
 
@@ -295,7 +295,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // the schedule area.
   // ⛔ ONLY THE PLAN BOX IS GRABBABLE. item-hit-area.ts states it in as many
   // words -- the actual bar's BODY is deliberately not a grab area, and only its
-  // ENDS are (GR-5 / GR-6 / GR-15). Before this filter the widest qualifying
+  // ENDS are (GA-3 / GA-4 / GA-16). Before this filter the widest qualifying
   // polygons after the sweep's zooms were -actual ones, so SL-7b pressed twice
   // on ground that selects nothing and then read SL-7b's own MUST NOT -- the one
   // about a range selection and a select-all making no order -- as a defect.
@@ -386,7 +386,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // ⭐ TWO POOLS, because the two bars are touched in different places. The
   // second bar is only ever CLICKED IN ITS MIDDLE (SL-2, SL-4, SL-7b), so its
   // middle is the whole of what has to be in the open; the first is also dragged
-  // from both of its ends (GR-3, GR-4), so all three points have to be.
+  // from both of its ends (GA-1, GA-2), so all three points have to be.
   const middleClear = boxes.filter((r) => uncovered(r.left + r.width / 2, r.top + r.height / 2))
   const pressable = middleClear.filter((r) =>
     uncovered(r.left + 2, r.top + r.height / 2) &&
@@ -433,7 +433,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // with, the guides come first in document order, and their rectangles are
   // 42x0 / 53x0 -- which the old width-AND-height test let through. The third
   // reading is the worse one: a guide DID move the drawing, so on another day
-  // the same chooser would have reported GR-13 green for pressing something
+  // the same chooser would have reported GA-19 green for pressing something
   // that is not a dependency.
   // ⛔ AND A BOUNDING RECTANGLE'S CENTRE IS NOT ON THE LINE. A dependency is
   // drawn as an orthogonal Z (measured: '1454,1563 1461,1563 1461,979
@@ -929,7 +929,7 @@ const PROBES: readonly Probe[] = [
       return held
     },
   },
-  { rows: ['MK-8', 'PTD-3', 'GR-12', 'SL-7'], expect: 'answers', act: async (p, g) => dragFrom(p, g.barBody, 140, 0) },
+  { rows: ['MK-8', 'PTD-3', 'GA-9', 'SL-7'], expect: 'answers', act: async (p, g) => dragFrom(p, g.barBody, 140, 0) },
   { rows: ['MK-9'], expect: 'answers', act: async (p) => press(p, 'IC-12') },
   {
     // see GR-19
@@ -1050,12 +1050,12 @@ const PROBES: readonly Probe[] = [
   { rows: ['SL-5', 'SK-2'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+a') },
   {
     // SL-7a: 「選択を掴んだ 1 つに絞り、そのタスクだけをリサイズする」.
-    rows: ['SL-7a', 'GR-4'],
+    rows: ['SL-7a', 'GA-2'],
     expect: 'answers',
     setUp: selectBar,
     act: async (p, g) => dragFrom(p, g.barFinish, 90, 0),
   },
-  { rows: ['GR-3'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, g.barStart, -90, 0) },
+  { rows: ['GA-1'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, g.barStart, -90, 0) },
   {
     // see FR-034
     rows: ['SL-7b'],
@@ -1174,7 +1174,7 @@ const PROBES: readonly Probe[] = [
     // WHY: HF-6 puts a row's controls out on hover, and moved folds the body's
     // WHY: hash in -- so the pointer is revealed in setUp, before the baseline,
     // WHY: leaving the click in the act as the only new thing the baseline lacks.
-    rows: ['GR-13'],
+    rows: ['GA-19'],
     expect: 'answers',
     setUp: async (p, g) => {
       if (g.dependency !== null) await reveal(p, g.dependency)
@@ -1183,8 +1183,8 @@ const PROBES: readonly Probe[] = [
       if (g.dependency === null) {
         throw new Error(
           g.dependencyLines === 0
-            ? 'GR-13 could not be pressed: the drawing put out no dependency line at this zoom'
-            : `GR-13 could not be pressed: ${String(g.dependencyLines)} dependency lines are drawn ` +
+            ? 'GA-19 could not be pressed: the drawing put out no dependency line at this zoom'
+            : `GA-19 could not be pressed: ${String(g.dependencyLines)} dependency lines are drawn ` +
               'and no point on one of them is in the schedule area and clear of every bar',
         )
       }
@@ -1194,7 +1194,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     // see FR-013
-    rows: ['GR-7'],
+    rows: ['GA-18'],
     expect: 'answers',
     setUp: selectBar,
     act: async (p, g) => {
@@ -1206,7 +1206,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     // see FR-044
-    rows: ['GR-8'],
+    rows: ['GA-20'],
     expect: 'answers',
     setUp: selectBar,
     act: async (p, g) => {
@@ -1228,12 +1228,12 @@ const PROBES: readonly Probe[] = [
       return null
     },
   },
-  { rows: ['GR-5'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 4, y: g.barStart.y + 9 }, -70, 0) },
-  { rows: ['GR-6'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 4, y: g.barFinish.y + 9 }, 70, 0) },
-  { rows: ['GR-9'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 10, y: g.barStart.y + 9 }, 30, 0) },
-  { rows: ['GR-17'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 26, y: g.barStart.y + 9 }, 40, 0) },
-  { rows: ['GR-1'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 2, y: g.barStart.y - 8 }, 60, 0) },
-  { rows: ['GR-2'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
+  { rows: ['GA-3'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 4, y: g.barStart.y + 9 }, -70, 0) },
+  { rows: ['GA-4'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 4, y: g.barFinish.y + 9 }, 70, 0) },
+  { rows: ['GA-5'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 10, y: g.barStart.y + 9 }, 30, 0) },
+  { rows: ['GA-6'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 26, y: g.barStart.y + 9 }, 40, 0) },
+  { rows: ['GA-7'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 2, y: g.barStart.y - 8 }, 60, 0) },
+  { rows: ['GA-8'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
   {
     // see AR-5, PTD-4
     rows: ['GR-14'],
@@ -1251,8 +1251,22 @@ const PROBES: readonly Probe[] = [
       return dragFrom(p, g.empty, 90, 40)
     },
   },
-  { rows: ['GR-15'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barBody.x, y: g.barBody.y + 9 }, 60, 0) },
-  { rows: ['GR-18'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barBody.x + 12, y: g.barBody.y + 9 }, 40, 0) },
+  { rows: ['GA-16'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barBody.x, y: g.barBody.y + 9 }, 60, 0) },
+  { rows: ['GA-17'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barBody.x + 12, y: g.barBody.y + 9 }, 40, 0) },
+  {
+    rows: ['GR-23'],
+    expect: 'answers',
+    setUp: async (p, g) => {
+      await p.keyboard.press('Escape')
+      await p.waitForTimeout(150)
+      if (g.empty !== null) await p.mouse.click(g.empty.x, g.empty.y)
+      await p.waitForTimeout(250)
+    },
+    act: async (p, g) => {
+      await p.mouse.click(g.barBody.x, g.barBody.y)
+      return null
+    },
+  },
 
   {
     rows: ['SK-3'],
@@ -1430,7 +1444,7 @@ const PROBES: readonly Probe[] = [
     }),
   ),
   {
-    // IO-6: 「現在の画面を画像として他のアプリへ渡す」, IC-3 in the header.
+    // IO-6: CR-120 「現在の画面を画像として他のアプリへ渡す」, IC-3 in the header.
     rows: ['IO-6'],
     expect: 'answers',
     act: async (p) => press(p, 'IC-3'),
@@ -1746,7 +1760,7 @@ test(
   registry.swsCase({
     sws: 'SWS-8',
     level: 'System',
-    covers: ['MK-1', 'MK-13', 'SL-1', 'GR-3', 'SK-2', 'IO-1', 'IO-7'],
+    covers: ['MK-1', 'MK-13', 'SL-1', 'GR-23', 'SK-2', 'IO-1', 'IO-7'],
     given: 'the built deliverable pressed over its whole NFR-004 population twice',
     when: 'the file:// sweep is set beside the http:// sweep of the same bytes',
     then: 'nothing is answered over http that a directly opened file does not answer',

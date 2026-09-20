@@ -39,9 +39,9 @@ const FR_011_MILESTONE =
   '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
 
 const PV_1_ACTUAL_FINISH =
-  '⭐ `actualFinish` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）（MUST）'
+  '`stop` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）を置くこと（MUST）'
 
-const PV_1_OWN_READING = '`stop` は空のまま、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**'
+const PV_1_OWN_READING = '⭐ 覚えている実績とは、`PV-4` で外して `ScreenState` が持っている実績のことである'
 
 const PV_2_CELL =
   '`actualFinish` ＝ `stop`、`stop` ＝ 空（`FR-011`。2 つを 1 回の置き換えで行うこと（MUST） —— 間に「最後の日を持たない実績」を見せない。`actualFinish` は実績の最後の日そのものであり、実績バーの右端の位置ではない）、**`resumeValid` ＝ `false`**。**左端も右端も動かさない**'
@@ -203,7 +203,7 @@ const accepted = (result: EditResult): Document => {
 }
 
 const pressed = (document: Document): Task => {
-  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1 }, DEFAULT_ROW_NAME_FIXTURE))
+  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null }, DEFAULT_ROW_NAME_FIXTURE))
   const found = next.schedule.tasks.find((one) => one.uid === 1)
   if (found === undefined) throw new Error('Task 1 left the document')
   return found
@@ -244,24 +244,26 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
   })
 })
 
-describe('DFC-572 table T-021a PV-1: not started -> finished writes the floor day', () => {
-  it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes actualFinish = actualStart', () => {
+describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor day', () => {
+  // WHY: CR-430 lengthened the cycle, so `PV-1` writes its floor day to `stop`
+  // and not `actualFinish`; the day is the actual's last, not the bar's end.
+  it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes stop = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(5)))
-    expect(task.stop, 'PV-1: stop stays empty').toBeNull()
-    expect(task.actualFinish, 'PV-1 floor day').toBe(stored(ymd(5)))
-    expect(task.actualFinish, 'FR-011 last day of a 1-day actual is its start').toBe(task.actualStart)
-    expect(task.actualFinish, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5))))
-    expect(planActualState(task)).toBe('finished')
+    expect(task.actualFinish, 'PV-1: actualFinish stays empty until PV-2').toBeNull()
+    expect(task.stop, 'PV-1 floor day').toBe(stored(ymd(5)))
+    expect(task.stop, 'FR-011 last day of a 1-day actual is its start').toBe(task.actualStart)
+    expect(task.stop, 'MUST NOT: the right end').not.toBe(stored(rightEndOf(ymd(5))))
+    expect(planActualState(task)).toBe('inProgress')
   })
 
-  it('PV-1 on a Friday still finishes that Friday, not on the Saturday right end nor the next worked day', () => {
+  it('PV-1 on a Friday still stops that Friday, not on the Saturday right end nor the next worked day', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(9)), finish: stored(ymd(23)) }), 'rectangle'))
     expect(task.actualStart).toBe(stored(ymd(9)))
-    expect(task.actualFinish, 'PV-1 floor day').toBe(stored(ymd(9)))
+    expect(task.stop, 'PV-1 floor day').toBe(stored(ymd(9)))
     expect(rightEndOf(ymd(9))).toBe(ymd(10))
-    expect(task.actualFinish, 'MUST NOT: the next worked day (Monday)').not.toBe(stored(ymd(12)))
-    expect(task.actualFinish, 'MUST NOT: the right end (Saturday)').not.toBe(stored(ymd(10)))
+    expect(task.stop, 'MUST NOT: the next worked day (Monday)').not.toBe(stored(ymd(12)))
+    expect(task.stop, 'MUST NOT: the right end (Saturday)').not.toBe(stored(ymd(10)))
   })
 
   it('⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。 -- PV-1 on a milestone', () => {
@@ -318,7 +320,7 @@ describe('DFC-572 table T-021a PV-2: in progress -> finished moves stop to actua
     expect(task.stop).toBeNull()
   })
 
-  it('PV-2 on a milestone in progress finishes on its actualStart', () => {
+  it('PV-5 on a milestone carrying an actual takes it back to not started', () => {
     const task = pressed(
       documentWith(
         taskOf({
@@ -333,7 +335,10 @@ describe('DFC-572 table T-021a PV-2: in progress -> finished moves stop to actua
         'milestone',
       ),
     )
-    expect(task.actualFinish, 'FR-011: a milestone finishes on its actualStart').toBe(stored(ymd(9)))
-    expect(task.actualStart).toBe(stored(ymd(9)))
+    // WHY: CR-430 gives a milestone two states, one of them carrying an actual,
+    // so this press takes the actual off and `ScreenState` alone remembers it.
+    expect(task.actualFinish, 'PV-5: the actual comes off').toBeNull()
+    expect(task.actualStart, 'PV-5: the actual comes off').toBeNull()
+    expect(task.stop, 'PV-5: the actual comes off').toBeNull()
   })
 })

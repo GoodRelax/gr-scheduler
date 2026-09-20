@@ -24,7 +24,7 @@
 //    パネルを出し、名前の欄で名づけさせること（MUST）**」
 //   ⛔ 「**改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が改名につい
 //    て定めるものと同じものとすること（MUST）。**」
-//   ⭐ 「**既定の名前は表示語として持つこと（MUST）。仕様書に綴りを刷ってはならない
+//   ⭐ DFC-259 「**既定の名前は表示語として持つこと（MUST）。仕様書に綴りを刷ってはならない
 //    （MUST NOT）**」 -- so this file reads the word from the dictionary at run
 //    time and never types it.
 //
@@ -494,7 +494,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
 
     // ⭐⭐ ASK WHETHER THE RULE IS LIVE, NOT WHETHER THE WORDS APPEAR. The
-    // manuscript keeps a withdrawn rule as a dated note on purpose -- 「2026-09-04
+    // manuscript keeps a withdrawn rule as a dated note on purpose -- DFC-243 「2026-09-04
     // までは…と定めていた」 -- because that is how this project records what
     // moved and why. Measured 2026-09-05: a guard reading for the words alone
     // went red against a manuscript that says the opposite of them. So the

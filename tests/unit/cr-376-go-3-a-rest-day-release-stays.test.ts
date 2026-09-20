@@ -45,7 +45,7 @@ const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:
 const dayPart = (value: string | null | undefined): string | null =>
   value === null || value === undefined ? null : value.slice(0, 10)
 
-const S_91 = NOT_STORED_SIZES['S-91']
+const S_91 = NOT_STORED_SIZES['S-257']
 
 const task = (over: Record<string, unknown> & { readonly uid: number }): Task =>
   ({
@@ -207,7 +207,7 @@ const dayUnder = (loop: FrameLoop, x: number): string => {
   return textOfDay(found).slice(0, 10)
 }
 
-// see GR-6, GO-3
+// see GA-4, GO-3
 function releasedOn(uid: number, target: string): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskIn(built.loop, uid))

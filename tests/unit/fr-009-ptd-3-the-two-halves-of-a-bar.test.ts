@@ -20,7 +20,8 @@
 //      落ちる。 ⛔⛔ **割る点は、そのタスクのバー自身の中点とすること（MUST）。
 //      表 T-038 が定める占有幅で割ってはならない（MUST NOT）** —— **占有幅には
 //      バーの外に出るラベルと印が入るので、中点が絵の上のバーの中央からずれる。**
-//      ⭐ **バーは予定の幾何に付き、予定が無いときは実績に落ちる。**⚠️ **中点
+//      ⭐ **割る点は予定のバーの中点である**…⛔ 予定が無いタスクへ落としては
+//      ならない（MUST NOT）…⚠️ **中点
 //      ちょうどに当たったときは右半分とすること（MUST）**…⛔⛔ **どちらの半分か
 //      を、公開された名前から問えるようにすること（MUST）**…⛔ **表 T-023c の
 //      `SL-1` を答える公開名（`_source` の外では 表 T-064 の `PI-7`）に構えを渡
@@ -61,7 +62,7 @@ import {
   dependencyEndAtPointer,
   itemAtPointer,
   NOT_STORED_SIZES,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   regionsFromScreen,
@@ -108,20 +109,7 @@ const SETTINGS = settingsOf({
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
 /** Table T-206, through the generated block `item-hit-area.ts` publishes. */
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  // ⛔⛔ NO DUMMY FIGURE HERE, AND THAT IS THE RULE RATHER THAN AN OVERSIGHT.
-  // Table T-023d's closing rule reads 「`GR-9` / `GR-17` / `GR-18` の
-  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
-  // 広げてはならない（MUST NOT）」, so the dummy's grab area IS the width
-  // table T-240 `DM-3` draws and there is no separate slop to state. `PointerSlop`
-  // carries no dummy field at all, and a caller states nothing for it.
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
@@ -208,7 +196,7 @@ const spanOfBar = (
  * deciding the endpoint by the grab margin, and a bar only a few slops across
  * would let a case pass because the margins happened to fall either side of the
  * middle. 60 days at 6px is 360px, so each quarter is 90px -- far outside the
- * 6px margin of `S-90`.
+ * 6px margin of `S-250`.
  */
 const ONE_WIDE_BAR = oneRowOf({ name: 'Design', start: '2026-01-05', finish: '2026-03-05' })
 
@@ -306,7 +294,7 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     // 定める占有幅で割ってはならない（MUST NOT）** —— 占有幅にはバーの外に出る
     // ラベルと印が入るので、中点が絵の上のバーの中央からずれる」
     //
-    // ⭐ HOW THE TWO MIDDLES ARE PULLED APART: 表 T-013 の `NL-3` puts a name
+    // ⭐ HOW THE TWO MIDDLES ARE PULLED APART: 表 T-273 の `LP-2` puts a name
     // that does not fit 「形状の右に出す」, and 表 T-038 の `OC-1` counts that
     // spill into the occupancy. A short bar with a long name therefore has an
     // occupancy whose middle sits well to the RIGHT of the bar's own middle.
@@ -328,7 +316,7 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     ).not.toBeNull()
     expect(
       label!.x + label!.width,
-      'the label did not spill past the right edge of the bar (NL-3), so this case cannot ask its question',
+      'the label did not spill past the right edge of the bar (LP-2), so this case cannot ask its question',
     ).toBeGreaterThan(right)
 
     const barMiddle = (left + right) / 2
@@ -352,17 +340,9 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     ).toBe('finish')
   })
 
-  it('with no plan bar drawn, the halves are the actual bar halves', () => {
-    // 「⭐ **バーは予定の幾何に付き、予定が無いときは実績に落ちる。**」 and the
-    // same requirement's 「依存線は予定の幾何に付くこと（MUST）。予定を表示して
-    // いないときに限り、実績の幾何に付ける」.
-    //
-    // ⭐ `S-227` (`planVisible`) set false is how a Task comes to have no plan
-    // bar at all: `FR-001`'s floor (`S-49`) means a Task with no dates still
-    // draws one, so hiding the plan is the case the clause describes. ⚠️ `S-228`
-    // (`actualVisible`) is the other, independent switch, and the actual is put
-    // WELL AFTER the plan on purpose -- if the split still followed the plan,
-    // both probes would land on the same side of it.
+  it('with no plan bar drawn, no half is answered at all -- the actual is never used', () => {
+    // STEP: hide the plan (S-227) and put the actual months later, so a fallback
+    // STEP: to the actual band would answer both halves over the probes below.
     const schedule = oneRowOf({
       name: 'Actual only',
       milestone: false,
@@ -383,14 +363,23 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     expect(drawn.actual, 'the fixture drew no actual bar either').not.toBeNull()
     const { left, right, y } = spanOfBar(drawn.actual!)
     expect(right - left, 'the actual bar has no width to halve').toBeGreaterThan(4)
-    expect(dependencyEndAtPointer(geometry, left + (right - left) * 0.25, y, 1)?.edge).toBe('start')
-    expect(dependencyEndAtPointer(geometry, left + (right - left) * 0.75, y, 1)?.edge).toBe('finish')
+    for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
+      const x = left + (right - left) * fraction
+      expect(
+        dependencyEndAtPointer(geometry, x, y, 1),
+        `FR-009 MUST NOT: a Task with no plan bar answered a half (at ${fraction} of its actual bar), so the split fell to the actual`,
+      ).toBeNull()
+      expect(
+        dependencyEndAtPointer(geometry, x, y, null),
+        `RT-4a: an open search made a plan-less Task an endpoint (at ${fraction} of its actual bar)`,
+      ).toBeNull()
+    }
   })
 
   it('a bar a few px wide still falls in one half or the other', () => {
     // 「**端点の掴み代で判定してはならない（MUST NOT）** —— 低いズームでバーが数
     // px まで縮むと掴めなくなる。半分で割れば、どれだけ細くても必ずどちらかに
-    // 落ちる」. ⭐ At this width BOTH endpoints' grab margins (`S-90` = 6px to
+    // 落ちる」. ⭐ At this width BOTH endpoints' grab margins (`S-250` / `S-253` = 6px to
     // either side of an end) cover the WHOLE bar, so a reading that used them
     // could not tell the halves apart here at all.
     //
@@ -418,7 +407,7 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     expect(
       right - left,
       'the bar is not narrow enough to be the case this asks about',
-    ).toBeLessThan(SLOP.planEndpoint * 2)
+    ).toBeLessThan(SLOP['S-250'] * 2)
     // Every point across the bar answers, and the two ends answer differently.
     expect(dependencyEndAtPointer(geometry, left, y, 1)?.edge).toBe('start')
     expect(dependencyEndAtPointer(geometry, right, y, 1)?.edge).toBe('finish')
@@ -430,7 +419,7 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
 // ---------------------------------------------------------------------------
 
 describe('FR-009 -- SL-1 を答える公開名に構えを渡してはならない（MUST NOT）', () => {
-  it('itemAtPointer answers a row of table T-023d, and the same one in both halves', () => {
+  it('itemAtPointer answers a row of table T-266, and the same one in both halves', () => {
     // 「⛔ **表 T-023c の `SL-1` を答える公開名（…表 T-064 の `PI-7`）に構えを渡し
     // てはならない（MUST NOT）** —— その名は「点の上に何が在るか」を答えるもので
     // あり、構えによって答えが変わると、それに対して書かれたすべての呼び手と試験
@@ -443,7 +432,7 @@ describe('FR-009 -- SL-1 を答える公開名に構えを渡してはならな�
     // CALLER, outside this name; `FR-009` puts the half on a name of its own.
     const left = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
     const right = itemAtPointer(GEOMETRY, IN_RIGHT_HALF, MIDDLE_Y, SLOP)
-    const grabRows = new Set(specTable('T-023d').rows.map((one) => one.id))
+    const grabRows = new Set(specTable('T-266').rows.map((one) => one.id))
     expect(left).not.toBeNull()
     expect(right).not.toBeNull()
     expect(left!.item).toEqual({ kind: 'task', taskUid: 1 })
@@ -457,7 +446,7 @@ describe('FR-009 -- SL-1 を答える公開名に構えを渡してはならな�
   it('the half is asked of a separate name that takes no grab margin', () => {
     // 「⭐ **半分を答える名は別に置くこと（MUST）。構えが依存線のときだけ呼ぶ。**」
     // ⇒ two different names; and the one that answers the half is reached
-    // without a `PointerSlop` at all, which is 「端点の掴み代で判定してはならない」
+    // without a `GrabSizes` at all, which is 「端点の掴み代で判定してはならない」
     // made unaskable rather than merely unused.
     expect(dependencyEndAtPointer).not.toBe(itemAtPointer)
     expect(

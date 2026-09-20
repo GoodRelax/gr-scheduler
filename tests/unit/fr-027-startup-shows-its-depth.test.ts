@@ -60,7 +60,7 @@
 //   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
 //            keep, which the fit is handed.
 //   FR-018   the group level of detail: which depths a `zoomY` admits.
-//   FR-055   the fit -- 「描くものが Row Area に収まる最も深い段を採る」, depth
+//   FR-055   the fit -- DFC-621 「描くものが Row Area に収まる最も深い段を採る」, depth
 //            1 when even that does not fit, and the vertical scroll left over.
 //   FR-094   the floor under the plan height, which is why a smaller `zoomY`
 //            below it removes rows instead of shrinking them.

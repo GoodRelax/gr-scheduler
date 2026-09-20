@@ -27,7 +27,7 @@
 // ⭐ DFC-334 had already closed the FOURTH gate of the same family -- the export
 // one -- and its ⚠️ column said 「同じ「黙って戻る」門が、開く・読み直す・保存にも
 // 在る。⇒ 次の巡でまとめて閉じること」. ⛔ THE ROW ALSO CORRECTED ITSELF ABOUT THE
-// KEYS: 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、先の実測が打った 3 つの鍵では
+// KEYS: DFC-337 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、先の実測が打った 3 つの鍵では
 // 読み直しの門に届いていなかった」 -- so the three keys are read out of 表 T-036
 // below rather than typed, and `SK-11a` (which that row also found does not
 // exist) is not driven.
@@ -445,7 +445,7 @@ describe('FR-029 / 表 T-233 -- the manuscript this file is driven by', () => {
       modifiers: { ctrl: true, shift: false, alt: false, meta: false },
     })
     expect(keyOf('SK-11').modifiers.ctrl).toBe(true)
-    // ⛔ THE ONE THE LEDGER GOT WRONG. 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、
+    // ⛔ THE ONE THE LEDGER GOT WRONG. DFC-337 「読み直しは `Ctrl`＋`R`（`SK-21`）であり、
     // 先の実測が打った 3 つの鍵では読み直しの門に届いていなかった」.
     expect(keyOf('SK-21')).toEqual({
       kind: 'key',

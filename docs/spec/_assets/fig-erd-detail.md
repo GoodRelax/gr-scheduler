@@ -404,7 +404,7 @@ erDiagram
 | AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
-| AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は 表 T-013 が決める**（`FR-002`）—— そちらは自動配置の順であって、この格子ではない |
+| AT-98 | `TaskVisual` | `nameAnchor` | 整数（0〜8） | 可 | — | GRS | — | 名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は `FR-109` が決める**（表 T-272 と 表 T-273）—— そちらは自動配置の規則であって、この格子ではない |
 | AT-99 | `TaskVisual` | `nameAlign` | 列挙（3 値） | 可 | — | GRS | — | 名前の揃え |
 | AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | 描画の形だけを決める。`Task.milestone` を変えない（表 T-012） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |

@@ -604,7 +604,7 @@ function marqueeOf(held: string, before: string): Element {
  * Where the name label opens in the picture -- `ZO-5`, the row directly below
  * `ZO-6`.
  *
- * ⭐ FOUND BY THE NAME ITSELF. `NL-1` of table T-013 draws the label inside the
+ * ⭐ FOUND BY THE NAME ITSELF. The 「入る」 rows of table T-273 draw the label inside the
  * shape, and this fixture holds one Task with one name, so the text is the only
  * handle the specification actually gives.
  */

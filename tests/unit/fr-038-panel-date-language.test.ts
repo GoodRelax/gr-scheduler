@@ -33,7 +33,7 @@
 //               ヘルプが説明しているボタン名と画面のボタン名が食い違う。
 //   `S-99`      表 T-206: 「`language`（`ja` / `en`）| — | **別枠。**
 //               `localStorage` に置く。保存しない規則と理由は `FR-038`」.
-//   FR-006      「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**を
+//   FR-006      CR-304 「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**を
 //               プロパティパネルに出し…」, and under that table: 「**入力の形は
 //               同表の「入力の型」の欄に従うこと（MUST）**」 -- so a row whose
 //               入力の型 is 日付 is drawn as a date control, and a date control
@@ -913,7 +913,7 @@ describe('FR-038 (MUST) -- the screen stands in ONE language, and it reaches the
   it('⛔ MUST: the declaration MOVES when the display language moves', () => {
     // ⭐ THE CASE THAT SEPARATES "declared" FROM "declared correctly". A tree
     // that always said `ja` would satisfy the case above at `ja` and would be
-    // exactly the defect: 「英語モードでもカレンダーが日本語のまま」.
+    // exactly the defect: DFC-60 「英語モードでもカレンダーが日本語のまま」.
     const inJapanese = drawPanel('ja')
     const inEnglish = drawPanel('en')
 

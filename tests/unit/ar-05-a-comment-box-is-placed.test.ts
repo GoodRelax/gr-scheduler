@@ -419,8 +419,8 @@ const ARMED_RECTANGLE: Armed = { kind: 'taskShape', shapeKind: 'rectangle' }
 
 const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
 
-/** A `Hit` naming the first Task's plan bar -- GR-12 of table T-023d. */
-const TASK_1_HIT = { item: { kind: 'task', taskUid: 1 }, grab: 'GR-12' } as unknown as Hit
+/** A `Hit` naming the first Task's plan bar -- GA-9 of table T-023d. */
+const TASK_1_HIT = { item: { kind: 'task', taskUid: 1 }, grab: 'GA-9' } as unknown as Hit
 
 /**
  * IN-1 settles a pointer operation on release, so a gesture is a press and then

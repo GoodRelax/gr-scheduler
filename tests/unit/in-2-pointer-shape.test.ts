@@ -36,7 +36,7 @@
 // ---------------------------------------------------------------------------
 //   T-028 IN-2  the five places of its first sentence, read out of the
 //             manuscript at read time by `placesNamedByIn2()`. The dummy
-//             sentences after it (GR-9 / GR-17, and GR-18 since CR-388) are
+//             sentences after it (GA-5 / GA-6, and GA-17 since CR-388) are
 //             held by in-2-a-the-dummies-say-slide.test.ts.
 //   T-023a    「上から評価し、最初に成立した行で確定すること（MUST）」 with
 //             PTD-1 パン, PTD-2 `Dual Cursor`, PTD-3 何かに当たった, PTD-4 構えて
@@ -48,19 +48,19 @@
 //             reads 「ポインタ操作を持たない（MUST NOT）」.
 //   T-023a    「第 1 の分岐は「当たったか」であり、「構えているか」は当たらな
 //             かったときにだけ効く（MUST）」
-//   T-023d    「上の行ほど優先すること（MUST）」, with GR-3 予定の開始点 /
-//             GR-4 予定の終了点 / GR-5 実績の開始点 / GR-6 実績の終了点 --
-//             IN-2's 「予定バーと実績バーの端点」 -- and GR-12 予定バー本体
-//             「端点を除いた中間」 and GR-15 実績のマイルストーン 「実績の図形の
+//   T-023d    「上の行ほど優先すること（MUST）」, with GA-1 予定の開始点 /
+//             GA-2 予定の終了点 / GA-3 実績の開始点 / GA-4 実績の終了点 --
+//             IN-2's 「予定バーと実績バーの端点」 -- and GA-9 予定バー本体
+//             「端点を除いた中間」 and GA-16 実績のマイルストーン 「実績の図形の
 //             上」 -- IN-2's 「タスクの本体とマイルストーンの図形」.
-//   T-023d GR-9 / GR-17  the two dummies FR-043 draws 「未着手のタスクの上」,
-//             both ranked above GR-12 -- which is why the bar Task below is
+//   T-023d GA-5 / GA-6  the two dummies FR-043 draws 「未着手のタスクの上」,
+//             both ranked above GA-9 -- which is why the bar Task below is
 //             STARTED.
-//   T-023d GR-18  on the plan day, the same size as the figure, above GR-12;
-//             it grabs what GR-15 grabs (CR-382) and IN-2 gives it GR-15's
+//   T-023d GA-17  on the plan day, the same size as the figure, above GA-9;
+//             it grabs what GA-16 grabs (CR-382) and IN-2 gives it GA-16's
 //             signal (CR-388). See the last describe below.
 //   T-023d's closing rules for GR-10 / GR-11, and FR-075's 「掴み点は選択して
-//             いるタスクにだけ出すこと（MUST）」 for GR-1 / GR-2 -- the fixture
+//             いるタスクにだけ出すこと（MUST）」 for GA-7 / GA-8 -- the fixture
 //             below keeps all four out of the way, and premises measure that.
 //   T-023b AR-1 .. AR-6, and 「構えは持続すること（MUST）」.
 //   T-036 SK-1  「キーボードだけで図形を置く経路は持たない」 -- which is why the
@@ -68,11 +68,11 @@
 //   T-109's 構え column: 「⭐ `構え` の欄は、その入口が押されたときポインタが
 //             入る 表 T-023b の行である」 -- read at read time to find an entry
 //             that arms AR-2.
-//   T-206 S-90  「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」
-//   T-206 S-91  「実績の端点の掴み代 | 実績バーの帯と、端点の内側に 12px 🔎」
+//   T-206 S-250 / S-253  the plan end's reach, outward only, 12px
+//   T-206 S-257 / S-260  the actual end's reach, inward only, 12px
 //             ⚠️ RE-CUT 2026-09-10. Both rows read 「端点の左右に」 until the
-//             grab-area rulings of 2026-09-09 split the sides -- S-90 keeps
-//             only the outside of the end, S-91 only the inside -- and S-90's
+//             grab-area rulings of 2026-09-09 split the sides -- S-250 / S-253 keep
+//             only the outside of the end, S-257 / S-260 only the inside -- and their
 //             number moved with them. Nothing here reads either number from
 //             this comment; the two constants below take them off table T-206.
 //             ⭐ Both are read at read time, and the body probe is placed so
@@ -85,7 +85,7 @@
 // WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
 //   * WHICH keyword any of the five answers is. IN-2 gives the spelling to the
-//     viewing environment, save the ends and T-264 (its own file holds those).
+//     viewing environment, save the ends and T-269 (its own file holds those).
 //   * WHICH of the five ought to be the closed hand and which the resting one.
 //     IN-2 names 握った手 for the pan alone and gives the other four no hand at
 //     all, so nothing here pairs a shape with a name.
@@ -172,7 +172,7 @@ function placesNamedByIn2(): readonly string[] {
     .filter((one) => one.length > 0)
 }
 
-/** The px a grab allowance cell writes -- S-90's 6 and S-91's 12. */
+/** The px a grab allowance cell writes -- S-250's 12 and S-257's 12. */
 const allowanceOf = (settingRow: string): number => {
   const cell = rowOf('T-206', settingRow).cells.join(' ')
   const found = /(\d+(?:\.\d+)?)px/.exec(cell)
@@ -180,10 +180,10 @@ const allowanceOf = (settingRow: string): number => {
   return Number(found[1])
 }
 
-/** S-90 -- 予定の端点の掴み代, 端点の左右に this many px. */
-const PLAN_END_ALLOWANCE = allowanceOf('S-90')
-/** S-91 -- 実績の端点の掴み代, 端点の左右に this many px. */
-const ACTUAL_END_ALLOWANCE = allowanceOf('S-91')
+/** S-250 -- 表 T-266 の `GA-1`, 端の外側に this many px. */
+const PLAN_END_ALLOWANCE = allowanceOf('S-250')
+/** S-257 -- 表 T-266 の `GA-3`, 端の内側に this many px. */
+const ACTUAL_END_ALLOWANCE = allowanceOf('S-257')
 
 /**
  * An entry of table T-109 whose 構え column is AR-2 -- 「その入口が押されたとき
@@ -223,13 +223,13 @@ const NEW_STONE_ROW = '33333333-3333-4333-8333-333333333333'
  * IN-2's 「予定バーと実績バーの端点」 has four ends to be asked about and its
  * 「タスクの本体」 has a middle.
  *
- * ⛔ IT IS STARTED ON PURPOSE. FR-043 puts GR-9 and GR-17 on a Task that is
- * 未着手, table T-023d ranks both above GR-12, and its closing rule gives them
+ * ⛔ IT IS STARTED ON PURPOSE. FR-043 puts GA-5 and GA-6 on a Task that is
+ * 未着手, table T-023d ranks both above GA-9, and its closing rule gives them
  * the drawn mark itself as their hit area -- so a
  * not-started bar would answer about a dummy where this file means to ask about
  * the body. A premise counts the dummies rather than trusting this.
- * ⚠️ AND ITS NAME IS NULL ON PURPOSE. GR-10 is drawn inside the shape (NL-1 of
- * table T-013) and table T-023d settles its plain press in its own closing rule;
+ * ⚠️ AND ITS NAME IS NULL ON PURPOSE. GR-10 is drawn inside the shape (the 「入る」 rows of
+ * table T-273) and table T-023d settles its plain press in its own closing rule;
  * that ruling has its own file, and this one is not to be judged on it.
  */
 const BAR_UID = 1
@@ -239,7 +239,7 @@ const BAR_ACTUAL_START = '2026-04-08'
 /** A fixture choice, not a settings value: any short actual leaves a long body. */
 const BAR_ACTUAL_STOP = '2026-04-10'
 
-/** A milestone that IS started, so 実績の図形 (GR-15) stands on it. */
+/** A milestone that IS started, so 実績の図形 (GA-16) stands on it. */
 const STONE_UID = 2
 const STONE_DAY = '2026-04-15'
 
@@ -252,9 +252,9 @@ const STONE_DAY = '2026-04-15'
  * half-open. While this day stood at 2026-04-17 the bar Task's 予定の終了点 was
  * the last thing in the document and fell on that edge, and `onEndpoint` below
  * stepped the probe one unit INWARD to reach it. ⛔ That step stopped working on
- * 2026-09-09: 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取ること
+ * 2026-09-09: 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること
  * （MUST）」, ⛔ 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）」 -- so a
- * pixel inside the bar answers `GR-12`, the body, and IN-2's four ends stopped
+ * pixel inside the bar answers `GA-9`, the body, and IN-2's four ends stopped
  * carrying one meaning. ⇒ The milestone is put past the bar instead, which
  * leaves the bar's own finish some ground outside itself.
  */
@@ -602,9 +602,9 @@ function emptyCanvas(loop: FrameLoop): Point {
  * drawing area (MUST), so a point AT `rowArea.x + rowArea.width` is on no region
  * at all and IN-2 names no shape there.
  * ⛔⛔ AND STEPPING IN IS NO LONGER A WAY TO REACH AN END. This clamp read
- * 「keeps the probe on the SAME grab region -- S-90 gives GR-4 six px either side
+ * 「keeps the probe on the SAME grab region -- S-253 gives GA-2 six px either side
  * of the end」 until 2026-09-10, which the ruling of 2026-09-09 made false:
- * 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに取ること（MUST）」.
+ * 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに取ること（MUST）」.
  * ⭐ SO THE FIXTURE MOVED INSTEAD -- `NEW_STONE_DAY` now ends the schedule, so
  * no end of the bar Task falls on the region's edge and this clamp fires on
  * nothing. ⚠️ It is kept as a guard: a probe stepped outside the `Row Area`
@@ -616,7 +616,7 @@ function onEndpoint(loop: FrameLoop, x: number, y: number): Point {
   return { x: Math.min(x, area.x + area.width - 1), y }
 }
 
-/** 予定バーの端点 -- GR-3 (左端) then GR-4 (右端) of table T-023d. */
+/** 予定バーの端点 -- GA-1 (左端) then GA-2 (右端) of table T-023d. */
 function planEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).plan, "the bar Task's plan bar")
   return [
@@ -625,10 +625,10 @@ function planEnds(loop: FrameLoop): readonly Point[] {
   ]
 }
 
-/** 実績バーの端点 -- GR-5 (左端) then GR-6 (右端) of table T-023d. */
+/** 実績バーの端点 -- GA-3 (左端) then GA-4 (右端) of table T-023d. */
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
-  // WHY: the end probe stands one px inside, where GR-6 grabs, not on the pixel a touching marker takes.
+  // WHY: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
   return [
     onEndpoint(loop, box.x, midY(box)),
     onEndpoint(loop, box.x + box.width - 1, midY(box)),
@@ -636,12 +636,12 @@ function actualEnds(loop: FrameLoop): readonly Point[] {
 }
 
 /**
- * タスクの本体 -- GR-12, 「端点を除いた中間」.
+ * タスクの本体 -- GA-9, 「端点を除いた中間」.
  *
  * ⭐ HALFWAY BETWEEN THE ACTUAL'S RIGHT END AND THE PLAN'S RIGHT END, rather
  * than simply the plan bar's centre: that is the widest stretch of the plan bar
- * with no end of either bar inside it, so the probe clears S-90's allowance and
- * S-91's by the largest margin this fixture can give. A premise measures both.
+ * with no end of either bar inside it, so the probe clears S-250 / S-253's allowance and
+ * S-257 / S-260's by the largest margin this fixture can give. A premise measures both.
  */
 function barBody(loop: FrameLoop): Point {
   const plan = boxOf(drawnTask(loop, BAR_UID).plan, "the bar Task's plan bar")
@@ -649,7 +649,7 @@ function barBody(loop: FrameLoop): Point {
   return { x: (actual.x + actual.width + plan.x + plan.width) / 2, y: midY(plan) }
 }
 
-/** マイルストーンの図形 -- the started one, whose 実績の図形 is GR-15. */
+/** マイルストーンの図形 -- the started one, whose 実績の図形 is GA-16. */
 const startedMilestone = (loop: FrameLoop): Point =>
   centre(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
@@ -700,11 +700,11 @@ function arm(built: Stage): void {
 // ===========================================================================
 
 describe('the fixture draws what IN-2 names', () => {
-  it('reads five places out of IN-2, one per meaning it gives (利用者の裁定 2026-08-27)', () => {
+  it('reads four places out of IN-2, one per meaning it gives', () => {
     expect(
       placesNamedByIn2(),
-      'T-028 IN-2: 何にも当たらない場所 / パン中 / 構えているとき / 端点の上 / 本体と図形の上',
-    ).toHaveLength(5)
+      'T-028 IN-2: 何にも当たらない場所 / パン中 / 構えているとき / 掴み代の上',
+    ).toHaveLength(4)
   })
 
   it('draws the bar Task with both a plan bar and an actual bar', () => {
@@ -721,7 +721,7 @@ describe('the fixture draws what IN-2 names', () => {
     expect(drawnTask(built.loop, NEW_STONE_UID).plan).not.toBeNull()
   })
 
-  it('draws no dummy on the started bar Task, so GR-9 / GR-17 cannot claim its body', () => {
+  it('draws no dummy on the started bar Task, so GA-5 / GA-6 cannot claim its body', () => {
     const built = stage()
     expect(
       drawnTask(built.loop, BAR_UID).dummies,
@@ -734,7 +734,7 @@ describe('the fixture draws what IN-2 names', () => {
     expect(drawnTask(built.loop, BAR_UID).label).toBeNull()
   })
 
-  it('draws no fade grab point, so GR-1 / GR-2 do not outrank the ends', () => {
+  it('draws no fade grab point, so GA-7 / GA-8 do not outrank the ends', () => {
     const built = stage()
     expect(
       drawnTask(built.loop, BAR_UID).fadeHandles,
@@ -742,19 +742,19 @@ describe('the fixture draws what IN-2 names', () => {
     ).toHaveLength(0)
   })
 
-  it('puts the body probe clear of every endpoint allowance (S-90 and S-91)', () => {
+  it('puts the body probe clear of every endpoint allowance (S-250 / S-253 and S-257 / S-260)', () => {
     const built = stage()
     const at = barBody(built.loop)
     for (const end of planEnds(built.loop)) {
       expect(
         Math.abs(at.x - end.x),
-        'T-206 S-90: 予定の端点の掴み代 ... 端点の左右に 6px',
+        'T-206 S-250 / S-253: the plan end reach, 6px outside the end',
       ).toBeGreaterThan(PLAN_END_ALLOWANCE)
     }
     for (const end of actualEnds(built.loop)) {
       expect(
         Math.abs(at.x - end.x),
-        'T-206 S-91: 実績の端点の掴み代 ... 端点の左右に 12px',
+        'T-206 S-257 / S-260: the actual end reach, 12px inside the end',
       ).toBeGreaterThan(ACTUAL_END_ALLOWANCE)
     }
   })
@@ -819,8 +819,8 @@ describe('T-028 IN-2: the five places carry five different meanings', () => {
     ).toBe(answers.length)
   })
 
-  it('answers as many distinct shapes as IN-2 names places', () => {
-    expect(new Set(Object.values(fiveAnswers())).size).toBe(placesNamedByIn2().length)
+  it('answers at least as many distinct shapes as IN-2 names places', () => {
+    expect(new Set(Object.values(fiveAnswers())).size).toBeGreaterThanOrEqual(placesNamedByIn2().length)
   })
 })
 
@@ -851,29 +851,26 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
 })
 
 // ===========================================================================
-// (c) 予定バーと実績バーの端点の上は 表 T-264 の形
-//     -- GR-3 / GR-4 / GR-5 / GR-6 of table T-023d
+// (c) 予定バーと実績バーの端点の上は 表 T-269 の形
+//     -- GA-1 / GA-2 / GA-3 / GA-4 of table T-023d
 // ===========================================================================
 
-// see FR-040, T-264, PC-1, PC-2, PC-3, PC-4
-const T_264_ENDS = [
-  '| PC-1 | 予定の開始点（表 T-023d の `GR-3`） | 左を向いた白抜きの矢印とすること（MUST）',
-  '| PC-2 | 予定の終了点（表 T-023d の `GR-4`） | 右を向いた白抜きの矢印とすること（MUST）',
-  '| PC-3 | 実績の開始点（表 T-023d の `GR-5`）と、実績の開始点のダミー（同表の `GR-9`） | 左を向いた塗りつぶした矢印とすること（MUST）',
-  '| PC-4 | 実績の終了点（表 T-023d の `GR-6`）と、実績の終了点のダミー（同表の `GR-17`） | 右を向いた塗りつぶした矢印とすること（MUST）',
+// see T-266
+const T_266_ENDS = [
+  '箱の矢印 ← 白（`PK-1`）',
+  '箱の矢印 → 白（`PK-1`）',
+  '箱の矢印 ← 黒（`PK-2`）',
+  '箱の矢印 → 黒（`PK-2`）',
 ] as const
 
-// see FR-040, T-264, PC-7
-const PC_7_KEEPS =
-  '押した時点で掴んだもの（表 T-023a）のポインタの形を、離すか中断する（`IN-1`）まで保つこと（MUST）'
-const PC_7_NO_REPICK = '押しているあいだ、ポインタの下の当たりで形を選び直してはならない（MUST NOT）'
-const FR_040_T_264 =
-  '⭐ 予定と実績の端点と実績のダミーの上に出すポインタの形と、押しているあいだのポインタの形は、表 T-264 に従うこと（MUST）'
+// see FR-106
+const FR_106_KEEPS = '押しているあいだは、掴んだときの形を保つこと（MUST）'
+const IN_2_T_269 = '掴み代の上は `FR-106` の 表 T-269 の形'
 
-describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-264 の形', () => {
-  it('the manuscript still holds the four end rows of T-264, the PC-7 row and the FR-040 sentence quoted here', () => {
+describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-269 の形', () => {
+  it('the manuscript still holds the four end pointers of T-266, the FR-106 clause and the IN-2 sentence quoted here', () => {
     const requirements = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
-    for (const row of [...T_264_ENDS, PC_7_KEEPS, PC_7_NO_REPICK, FR_040_T_264]) {
+    for (const row of [...T_266_ENDS, FR_106_KEEPS, IN_2_T_269]) {
       expect(requirements, row).toContain(row)
     }
   })
@@ -882,20 +879,20 @@ describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-264 �
     const built = stage()
     const ends = [...planEnds(built.loop), ...actualEnds(built.loop)]
     const answers = ends.map((at) => shapeAt(built, at))
-    answers.forEach((shape, at) => expect(shape, T_264_ENDS[at]).not.toBeNull())
+    answers.forEach((shape, at) => expect(shape, T_266_ENDS[at]).not.toBeNull())
     expect(
       new Set(answers).size,
-      `${FR_040_T_264}: ${answers.join(' | ')}`,
-    ).toBe(T_264_ENDS.length)
+      `${IN_2_T_269}: ${answers.join(' | ')}`,
+    ).toBe(T_266_ENDS.length)
   })
 
-  it('answers it on the plan bar left end -- GR-3, 予定バーの左端', () => {
+  it('answers it on the plan bar left end -- GA-1, 予定バーの左端', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
     expect(shapeAt(built, left as Point)).not.toBe(shapeAt(built, emptyCanvas(built.loop)))
   })
 
-  it('answers it on the actual bar right end -- GR-6, 実績バーの右端', () => {
+  it('answers it on the actual bar right end -- GA-4, 実績バーの右端', () => {
     const built = stage()
     const ends = actualEnds(built.loop)
     const right = ends[ends.length - 1] as Point
@@ -911,7 +908,7 @@ describe('T-028 IN-2: 予定バーと実績バーの端点の上は 表 T-264 �
   })
 })
 
-describe('T-264 PC-7: while pressed, the pointer keeps the shape it had when pressed', () => {
+describe('FR-106: while pressed, the pointer keeps the shape it had when pressed', () => {
   it('a press on the plan end keeps its arrow while dragged off the end, over empty canvas', () => {
     const built = stage()
     const end = planEnds(built.loop)[1] as Point
@@ -922,8 +919,7 @@ describe('T-264 PC-7: while pressed, the pointer keeps the shape it had when pre
     // STEP: press on the end, then drag to where the resting shape differs
     built.send(pointer('down', end))
     built.send(pointer('move', away))
-    expect(built.latest(), PC_7_KEEPS).toBe(atPress)
-    expect(built.latest(), PC_7_NO_REPICK).not.toBe(restingAway)
+    expect(built.latest(), FR_106_KEEPS).toBe(atPress)
   })
 
   it('a press on the bar body keeps the grab shape while dragged over empty canvas (not only ends)', () => {
@@ -936,17 +932,17 @@ describe('T-264 PC-7: while pressed, the pointer keeps the shape it had when pre
     // STEP: press on the body, then drag to where the resting shape differs
     built.send(pointer('down', body))
     built.send(pointer('move', away))
-    expect(built.latest(), PC_7_KEEPS).toBe(atPress)
+    expect(built.latest(), FR_106_KEEPS).toBe(atPress)
   })
 })
 
 // ===========================================================================
-// (d) タスクの本体とマイルストーンの図形の上は掴めることの合図
-//     (利用者の裁定 2026-08-27) -- GR-12 and GR-15 of table T-023d
+// (d) タスクの本体は掴めることの合図、マイルストーンの図形は `PK-5` / `PK-6`
+//     (利用者の裁定 2026-08-27, 表 T-269 の結びで CR-430 が置き換えた) -- GA-9 and GA-16
 // ===========================================================================
 
 describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上は掴めることの合図', () => {
-  it('answers a shape on the bar body -- GR-12, 端点を除いた中間', () => {
+  it('answers a shape on the bar body -- GA-9, 端点を除いた中間', () => {
     const built = stage()
     expect(
       shapeAt(built, barBody(built.loop)),
@@ -954,25 +950,26 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
     ).not.toBeNull()
   })
 
-  it('answers a shape on a milestone figure -- GR-15, 実績の図形の上', () => {
+  it('answers a shape on a milestone figure -- GA-16, 実績の図形の上', () => {
     const built = stage()
     expect(shapeAt(built, startedMilestone(built.loop))).not.toBeNull()
   })
 
-  it('answers ONE AND THE SAME shape on the bar body and on the milestone figure', () => {
+  it('answers the milestone figure with its OWN circle, not the body\'s hand', () => {
+    // WHY: the closing rule of table T-269 replaces IN-2's grab sign on a
+    // milestone with `PK-5` and `PK-6`, so the figure answers with its own circle.
     const built = stage()
     expect(
       shapeAt(built, startedMilestone(built.loop)),
-      'T-028 IN-2 gives 「タスクの本体とマイルストーンの図形」 one meaning, not two',
-    ).toBe(shapeAt(built, barBody(built.loop)))
+      "table T-269 gives a milestone's figure PK-5 / PK-6, not the body's grab hand",
+    ).not.toBe(shapeAt(built, barBody(built.loop)))
   })
 
   it('⭐ answers something OTHER than the bars ends do', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
-    // IN-2's two clauses side by side: 「端点の上は 表 T-264 の形」 against
-    // 「本体とマイルストーンの図形の上は掴めることの合図」. Two meanings, so two shapes --
-    // otherwise one bar would promise the same thing end to end.
+    // WHY: IN-2 gives the ends table T-269's shapes and the body its grab sign;
+    // two meanings need two shapes, or one bar would promise the same end to end.
     expect(shapeAt(built, barBody(built.loop))).not.toBe(shapeAt(built, left as Point))
   })
 
@@ -1108,10 +1105,10 @@ describe('T-028 IN-2 names five places and no more', () => {
 // ===========================================================================
 // (h) A milestone that has not been started
 // ===========================================================================
-// see CR-382, CR-388, GR-18, GR-15
+// see CR-382, CR-388, GA-17, GA-16
 
 const GR_18_GRABS_LIKE_GR_15 =
-  '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GR-15` と同じものを掴むこと（MUST）'
+  '。⭐ **押したときは、予定と実績のマイルストーンが同じ日にあるときの `GA-16` と同じものを掴むこと（MUST）'
 
 describe('T-028 IN-2 on a milestone that has not been started (CR-382, CR-388)', () => {
   it('answers a shape on its figure at all', () => {
@@ -1122,13 +1119,13 @@ describe('T-028 IN-2 on a milestone that has not been started (CR-382, CR-388)',
     ).not.toBeNull()
   })
 
-  it('answers the SAME grab shape a started milestone figure (GR-15) gets', () => {
+  it('answers the SAME grab shape a started milestone figure (GA-16) gets', () => {
     const built = stage()
     const grab = shapeAt(built, startedMilestone(built.loop))
     expect(shapeAt(built, newMilestone(built.loop)), GR_18_GRABS_LIKE_GR_15).toBe(grab)
   })
 
-  it('answers something OTHER than the bar plan end (GR-3)', () => {
+  it('answers something OTHER than the bar plan end (GA-1)', () => {
     const built = stage()
     const [left] = planEnds(built.loop)
     const resize = shapeAt(built, left as Point)

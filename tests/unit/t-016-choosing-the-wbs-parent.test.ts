@@ -18,7 +18,7 @@
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
 //
-//   FR-006     「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**をプロパ
+//   FR-006     CR-304 「作成者がタスクを選んだとき、`GRS` は、**表 T-016 の項目**をプロパ
 //              ティパネルに出し、**同表が読み取り専用と記した項目を除いて**編集で
 //              きるようにすること。」 PR-15 carries no read-only mark.
 //   表 T-016   `PR-15` | `wbsParentUid` | WBS の親 | 選択 | 「階層の深さはここから
@@ -593,7 +593,7 @@ describe('表 T-108 CM-18 -- what a value settled on PR-15 becomes', () => {
     // 表 T-108 carries exactly one row that moves a WBS parent -- `CM-18`
     // `setTaskWbsParent`, 正 `FR-005` -- so it is the only thing a settled PR-15
     // can turn into. FR-006 (MUST) makes the item editable, and `IF-9` of 表
-    // T-065 has the surface hand back 「プロパティパネルの欄で確定した値を、その
+    // T-065 has the surface hand back CR-361 「プロパティパネルの欄で確定した値を、その
     // 欄が名乗る行 ID とともに」; a route that answers with no command is a route
     // that changes nothing, which is the MUST unmet.
     //

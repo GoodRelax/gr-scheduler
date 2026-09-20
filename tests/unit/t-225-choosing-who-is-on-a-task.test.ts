@@ -26,7 +26,7 @@
 // `PropertyFieldKey`, `ScreenSession`, `FieldCommit`),
 // `input-command-translator.ts` (`InputContext`, `TranslatedInput`,
 // `PointerInput`, `PointerPress`, `commandFromFieldCommit`, `commandFromInput`,
-// `pressRowOf`), `item-hit-area.ts` (`Hit`, `PointerSlop`, `itemAtPointer`,
+// `pressRowOf`), `item-hit-area.ts` (`Hit`, `GrabSizes`, `itemAtPointer`,
 // `NOT_STORED_SIZES`), the three layout entries the fixture is built with and
 // the entity types the arguments are made of -- FOUR PIECES OF BODY WERE ALSO
 // READ, and are named here so a reader can weigh the cases against that:
@@ -123,7 +123,7 @@ import {
   NOT_STORED_SIZES,
   itemAtPointer,
   type Hit,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -372,8 +372,8 @@ const TASK_ALONE = 6
 const SCHEDULE = scheduleOf({
   tasks: [
     taskOf({ uid: TASK_HELD, name: 'ab', start: '2026-01-05', finish: '2026-02-05' }),
-    // ⚠️ AN ACTUAL IS RECORDED ON PURPOSE. FR-043 draws the two dummies of GR-9
-    // and GR-17 on a Task that has not started, and their hit box (S-93) reaches
+    // ⚠️ AN ACTUAL IS RECORDED ON PURPOSE. FR-043 draws the two dummies of GA-5
+    // and GA-6 on a Task that has not started, and their hit box (S-93) reaches
     // further to the left of the plan start than the assignee label sits -- so
     // without an actual, what a probe left of the bar answers would be about a
     // dummy rather than about GR-11.
@@ -625,17 +625,7 @@ function afterDoubleClick(x: number, y: number, hit: Hit | null): TranslatedInpu
 }
 
 /** The reach each row of 表 T-023d is grabbed by, read from the generated constant. */
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  // S-92 is a square, and this member is its half-width.
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  // ⛔ NO DUMMY FIGURE. Table T-023d's closing rule makes the hit area of
-  // `GR-9` / `GR-17` / `GR-18` the mark `FR-043` draws, so the dummies have no
-  // reach of their own for `PointerSlop` to carry.
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 /**
  * Every row of 表 T-023d that answers anywhere along one Task's band, under the
@@ -841,7 +831,7 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
     // 残る」.
     //
     // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-08 AND THE SEAM NOW CARRIES IT.
-    // Ruling JDG-07 (逐語 「差し替えでOK。 担当を変える場合はすでにプロパティー
+    // Ruling JDG-07 (逐語 DFC-413 「差し替えでOK。 担当を変える場合はすでにプロパティー
     // パネルから切り替え可能。 削除も担当者一覧から削除可能。」) landed on AS-7 as
     // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を解く
     // こと（MUST）」, so this call carries CM-45 as well whenever exactly one
@@ -899,7 +889,7 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
     // ⛔ THE RELEASE IS AS-7's ALONE. A rostered name travels by AS-8 (uid の
     // 小さいほう) and a uid by AS-9, and neither row carries the 解除 clause --
     // the ruling's own next breath names the chooser as the road for changing
-    // who is seated (逐語 「担当を変える場合はすでにプロパティーパネルから切り替え
+    // who is seated (逐語 DFC-413 「担当を変える場合はすでにプロパティーパネルから切り替え
     // 可能」), so seating a second rostered person leaves the first standing.
     expect(kindsOf(commandsForAssignee(ROSTERED.name as string))).toEqual([CM_44])
     expect(kindsOf(commandsForAssignee(TWIN_NAME))).toEqual([CM_44])
@@ -1052,9 +1042,9 @@ describe('表 T-225 AS-2 -- the glyph that keeps GR-11 reachable', () => {
 // AS-1 -- where the assignee label's double click goes.
 //
 // ⛔⛔ THIS BLOCK WAS REWRITTEN ON 2026-09-08 BECAUSE THE ROW WAS. Until that
-// day AS-1 read 「その場で担当者名を編集させること（MUST）」 and the case below
+// day AS-1 read DFC-397 「その場で担当者名を編集させること（MUST）」 and the case below
 // asserted the destination was NOT the panel, quoting MK-13's ruling of
-// 2026-08-27. Both are gone: the user ruled 「パネルへ（条項を書き換える）」 and
+// 2026-08-27. Both are gone: the user ruled docs/development-records/rulings.md 「パネルへ（条項を書き換える）」 and
 // AS-1 now reads 「プロパティパネルを出し、担当者の欄（表 T-016 の `PR-16`）を
 // 編集できる状態にして焦点を置くこと（MUST）」 with 「その場で打ち換える器を置いて
 // はならない（MUST NOT）」 beside it, while MK-13's 担当ラベル entry now says only

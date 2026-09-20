@@ -92,7 +92,7 @@
 //      ⇒ Reported to the ledger, not asserted here.
 //   2. HOW FAR APART the two marks are drawn, or what padding the band keeps at
 //      its right edge. ⛔ No row states either. `S-135a` states the band's
-//      HEIGHT and its own note says 「本行は帯の高さだけを定める」.
+//      HEIGHT and its own note says DFC-68 「本行は帯の高さだけを定める」.
 //   3. WHICH NODE of the band is 「帯」 in the manuscript's sense. No row names
 //      one, so these cases take the band to be the child of the palette that
 //      carries the marks, and say so where they do.

@@ -488,11 +488,11 @@ function stage(): Stage {
 /**
  * A point on the Task's plan bar BODY -- the 本体 half of MK-13's Task entry.
  *
- * ⚠️ NOT SIMPLY THE MIDDLE. This Task is not started, so GR-7 hangs the progress
- * marker off GR-17's hold rather than off the dummy's drawn edge (「未着手のとき
+ * ⚠️ NOT SIMPLY THE MIDDLE. This Task is not started, so GA-18 hangs the progress
+ * marker off GA-6's hold rather than off the dummy's drawn edge (「未着手のとき
  * は終了点の掴みシロの外側」, and table T-023d's closing rule makes that hold the
  * mark FR-043 draws, sized by S-180 of table T-206), and the square lands on the
- * middle of this fixture's bar. ⛔ GR-7 IS ABOVE GR-12 IN TABLE T-023d and is
+ * middle of this fixture's bar. ⛔ GA-18 IS ABOVE GA-9 IN TABLE T-023d and is
  * not one of MK-13's destinations, so a press there is a state cycle and not the
  * panel -- which is the behaviour these cases are not about. The point is taken
  * from the part of the body the marker does not stand on.
@@ -539,7 +539,7 @@ function selectTheTask(built: Stage): void {
  *
  * ⭐ THE ROUTE CHANGED ON 2026-08-30 AND THE RULE `Esc` IS ASKED ABOUT DID NOT.
  * FR-072 (MUST NOT) forbids a moved selection to start the panel and names the
- * two entrances that do: 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つで
+ * two entrances that do: CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つで
  * ある」. `MK-13` is the one of the two a pointer reaches on the schedule itself
  * -- 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを出し」 --
  * so these cases double click the bar's body.
@@ -636,7 +636,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('MK-13: a double click on a Task puts the panel on the screen', () => {
     // 表 T-023 `MK-13`: 「タスク（名称ラベルと本体のどちらでも）＝プロパティ
-    // パネルを出し…」, and FR-072: 「出す入口は 表 T-023 の `MK-13` と `IC-17`
+    // パネルを出し…」, and FR-072: CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17`
     // の 2 つである」 -- the premise every case below rests on, and a MUST in its
     // own right: a panel that never goes up has failed `MK-13` before `Esc` is
     // reached at all.

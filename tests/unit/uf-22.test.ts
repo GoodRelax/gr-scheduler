@@ -506,7 +506,7 @@ describe('ValidateImportedDocument (UF-22) -- FR-023, the WBS ring', () => {
 })
 
 describe('ValidateImportedDocument (UF-22) -- table T-214, the accepted date range', () => {
-  // FR-023 (MUST NOT): 「受け入れる日付の範囲を表 T-214 に従って持ち、範囲の外に
+  // FR-023 (MUST NOT): CR-179 「受け入れる日付の範囲を表 T-214 に従って持ち、範囲の外に
   // ある日付を含む入力を取り込まないこと」. S-119 is 「これより前の日付を持つ
   // 入力を受け付けない」 and S-120 is 「これより後を受け付けない」, so each end
   // of the range is refused by its own row.

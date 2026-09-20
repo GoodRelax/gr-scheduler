@@ -33,8 +33,8 @@ const REQUIREMENTS = unbroken(
 
 const FR_002_NAME_SPACE_DATES =
   '`_assets/tbl-settings.md` の 表 T-202 の `S-232` が真のとき、名称ラベルの文字は、打ち切った後の名前に半角空白 1 つを続け、その後に 表 T-251 の予定日の文字を続けたものとすること（MUST）'
-const FR_002_NL_1_MEASURES_THE_DATES =
-  '表 T-013 の `NL-1` が幅を測るラベルは、予定日の文字を含めたこの文字とすること（MUST）'
+const FR_002_T_273_MEASURES_THE_DATES =
+  '`FR-109` の 表 T-273 が「入る」を判ずるラベルは、予定日の文字を含めたこの文字とすること（MUST）'
 const FR_002_DATES_NOT_TRUNCATED = '予定日の文字を打ち切ってはならず、`S-35` の長さに数えてもならない（MUST NOT）'
 const FR_002_EMPTY_NAME = '名前が空のときは、半角空白を置かず、予定日の文字から書くこと（MUST）'
 const FR_002_NOT_FROM_THE_VIEW = '予定日の文字を、表示している範囲・基準日・実行日から決めてはならない（MUST NOT）'
@@ -44,7 +44,7 @@ const FR_002_FINISH_NOT_SHIFTED = '予定の終了日は `finish` の日その�
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-002 (MUST) -- name, one half-width space, then the T-251 dates', FR_002_NAME_SPACE_DATES],
-  ['FR-002 (MUST) -- NL-1 measures the label with the dates', FR_002_NL_1_MEASURES_THE_DATES],
+  ['FR-002 (MUST) -- table T-273 measures the label with the dates', FR_002_T_273_MEASURES_THE_DATES],
   ['FR-002 (MUST NOT) -- the dates are not truncated nor counted in S-35', FR_002_DATES_NOT_TRUNCATED],
   ['FR-002 (MUST) -- an empty name starts at the dates', FR_002_EMPTY_NAME],
   ['FR-002 (MUST NOT) -- not decided from the view, status date or run date', FR_002_NOT_FROM_THE_VIEW],
@@ -128,6 +128,7 @@ const PX_PER_DAY_AT_1X = 20
 interface Planned extends Dated {
   readonly uid: number
   readonly name: string
+  readonly actual?: boolean
 }
 
 const ALPHA: Planned = { uid: 1, name: 'Alpha', start: '2026-04-06', finish: '2026-04-08', milestone: false }
@@ -135,7 +136,7 @@ const BETA: Planned = { uid: 2, name: 'Beta', start: '2026-04-13', finish: '2026
 const GAMMA: Planned = { uid: 3, name: 'Gamma', start: '2026-04-15', finish: '2026-04-15', milestone: true }
 const NAMELESS: Planned = { uid: 4, name: '', start: '2026-04-20', finish: '2026-04-22', milestone: false }
 // WHY: eight letters, not ten: CR-412's S-7 0.90 widens the name, and ten no longer fit inside the three days.
-const NARROW: Planned = { uid: 5, name: 'abcdefgh', start: '2026-04-27', finish: '2026-04-29', milestone: false }
+const NARROW: Planned = { uid: 5, name: 'abcdefgh', start: '2026-04-27', finish: '2026-04-29', milestone: false, actual: true }
 const NEXT_YEAR: Planned = { uid: 6, name: 'Later', start: '2027-01-05', finish: '2027-01-06', milestone: false }
 
 const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]
@@ -152,8 +153,8 @@ const task = (one: Planned): Task =>
     deadline: null,
     notes: null,
     calendarUid: null,
-    actualStart: null,
-    stop: null,
+    actualStart: one.actual === true ? one.start : null,
+    stop: one.actual === true ? one.finish : null,
     actualFinish: null,
     resume: null,
     resumeValid: null,
@@ -428,7 +429,7 @@ describe(`FR-002 (MUST) -- ${FR_002_NAME_SPACE_DATES}`, () => {
   })
 })
 
-describe(`FR-002 (MUST) -- ${FR_002_NL_1_MEASURES_THE_DATES}`, () => {
+describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
   const placementOf = (built: Stage) =>
     built.loop.current()?.layout.placements.find((one) => one.taskUid === NARROW.uid)?.labelPlacement
 
@@ -442,7 +443,7 @@ describe(`FR-002 (MUST) -- ${FR_002_NL_1_MEASURES_THE_DATES}`, () => {
     ).toBe('inside')
     expect(
       placementOf(stage(SAME_YEAR, { ...AT_THE_DEFAULT_STEP, [PLAN_DATES_KEY]: true })),
-      FR_002_NL_1_MEASURES_THE_DATES,
+      FR_002_T_273_MEASURES_THE_DATES,
     ).toBe('right')
   })
 })

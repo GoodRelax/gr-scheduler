@@ -61,7 +61,7 @@
 //
 // ⚠️ WHAT IS DELIBERATELY NOT HERE: the `HF-17` ⇔ `HF-14` half of the head's
 // correspondence. Both open a name field rather than writing the document
-// (`HF-14`: 「**名前は空で立て、その場で打たせること（MUST）**」), and IF-9 carries
+// (`HF-14`: CR-348 「**名前は空で立て、その場で打たせること（MUST）**」), and IF-9 carries
 // no member for that -- so the pairing cannot be read at this seam. It is held
 // as a premise (the manuscript still states it) and reported as a hole.
 

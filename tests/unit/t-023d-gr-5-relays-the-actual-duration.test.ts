@@ -1,4 +1,4 @@
-// GR-5 of table T-023d: grabbing the actual bar left end moves actualStart only; GR-15 moves a milestone's last day with it.
+// GO-5 of table T-245: grabbing the actual bar left end moves actualStart only; GO-4 moves a milestone's last day with it.
 
 import { afterEach, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
@@ -43,35 +43,23 @@ import { specTable } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
-const T_023D = specTable('T-023d')
-
-const OPERATION_COLUMN = ((): string => {
-  const found = T_023D.headings.find((heading) => heading.includes('操作'))
-  if (found === undefined) throw new Error('table T-023d has no 操作 column')
-  return found
-})()
-
-const operationOf = (row: string): string => {
-  const found = T_023D.rows.find((one) => one.id === row)
-  if (found === undefined) throw new Error(`table T-023d has no row ${row}`)
-  return found.by[OPERATION_COLUMN] ?? ''
-}
-
-const GR_5 = operationOf('GR-5')
-const GR_6 = operationOf('GR-6')
-const GR_15 = operationOf('GR-15')
-
 const T_245 = specTable('T-245')
 
-const GO_4_PUTS = ((): string => {
-  const found = T_245.rows.find((one) => one.id === 'GO-4')
-  if (found === undefined) throw new Error('table T-245 has no row GO-4')
-  return found.by['置く値'] ?? ''
-})()
+const cellOf = (row: string, column: string): string => {
+  const found = T_245.rows.find((one) => one.id === row)
+  if (found === undefined) throw new Error(`table T-245 has no row ${row}`)
+  return found.by[column] ?? ''
+}
 
-const GR_5_LAST_DAY_STANDS = '実績の最後の日（`actualFinish` または `stop`）は据え置くこと（MUST）'
+const GO_5_PUTS = cellOf('GO-5', '置く値')
+const GO_5_HELD = cellOf('GO-5', '据え置く値')
+const GO_3_PUTS = cellOf('GO-3', '置く値')
+const GO_3_HELD = cellOf('GO-3', '据え置く値')
+const GO_4_PUTS = cellOf('GO-4', '置く値')
 
-const GR_5_NO_LENGTH_COLUMN = '⭐ 長さは `FR-011` が日付から数え直す —— 本行は長さの列を持たない'
+const GO_5_LAST_DAY_STANDS = '実績の最後の日（`actualFinish` または `stop`）'
+
+const GO_5_NO_LENGTH_COLUMN = '長さは `FR-011` が日付から数え直す'
 
 const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
 
@@ -392,31 +380,29 @@ function dragBy(built: Stage, at: Point, days: number): void {
   built.send(pointer('up', to, at.y))
 }
 
-describe('表 T-023d -- the rows this file is driven by', () => {
-  it('GR-5 still says `actualStart` changes and the last day stands still (MUST)', () => {
-    expect(GR_5).toContain('`actualStart` を変える')
-    expect(GR_5).toContain(GR_5_LAST_DAY_STANDS)
-    expect(GR_5).toContain('`FR-011` が両端を動かさない定めを持っており')
+describe('表 T-245 -- the rows this file is driven by', () => {
+  it('GO-5 still says `actualStart` changes and the last day stands still (MUST)', () => {
+    expect(GO_5_PUTS).toContain('`actualStart` ＝ 離した日そのもの')
+    expect(GO_5_HELD).toContain(GO_5_LAST_DAY_STANDS)
   })
 
-  it('GR-5 still forbids moving the actual bar bodily (MUST NOT)', () => {
-    expect(GR_5).toContain('実績バーを平行移動させてはならない（MUST NOT）')
+  it('GO-5 still forbids moving the actual bar bodily (MUST NOT)', () => {
+    expect(GO_5_PUTS).toContain('実績を平行移動させてはならない（MUST NOT）')
   })
 
-  it('GR-5 still holds no length column of its own', () => {
-    expect(GR_5).toContain(GR_5_NO_LENGTH_COLUMN)
+  it('GO-5 still holds no length column of its own', () => {
+    expect(GO_5_PUTS).toContain(GO_5_NO_LENGTH_COLUMN)
   })
 
-  it('GR-6 still changes the last day and leaves the values to FR-103', () => {
-    expect(GR_6).toContain('実績の最後の日を変える')
-    expect(GR_6).toContain('完了していれば `actualFinish`、それ以外は `stop`')
-    expect(GR_6).toContain('置く値と据え置く値は `FR-103`')
+  it('GO-3 still changes the last day and holds `actualStart`', () => {
+    expect(GO_3_PUTS).toContain('実績の最後の日 ＝ 離した日そのもの')
+    expect(GO_3_PUTS).toContain('`actualFinish` を持つとき')
+    expect(GO_3_HELD).toContain('actualStart')
   })
 
-  it('GR-15 still moves `actualStart` and still says a milestone has no actual bar', () => {
-    expect(GR_15).toContain('`actualStart` を動かす')
-    expect(GR_15).toContain('マイルストーンは実績バーを持たない')
-    expect(GR_15).toContain('`GR-5`')
+  it('GO-4 still moves `actualStart` and still says a milestone holds no length', () => {
+    expect(GO_4_PUTS).toContain('`actualStart` ＝ 離した日')
+    expect(GO_4_PUTS).toContain('マイルストーンは長さを持たない点')
     expect(GO_4_PUTS).toContain(GO_4_LAST_DAY)
   })
 })
@@ -440,7 +426,7 @@ describe('the fixture these cases stand on', () => {
     expect(working['2026-04-15']).toBe(true)
   })
 
-  it("puts the plain Task's actual bar three days inside its plan bar, so GR-3 cannot outrank GR-5", () => {
+  it("puts the plain Task's actual bar three days inside its plan bar, so GA-1 cannot outrank GA-3", () => {
     const built = stage()
     const gap = actualBox(built.loop, PLAIN_UID).x0 - planBox(built.loop, PLAIN_UID).x0
     expect(gap).toBeGreaterThan(2 * pxPerDay(built.loop))
@@ -465,7 +451,7 @@ describe('the fixture these cases stand on', () => {
   })
 })
 
-describe('表 T-023d GR-5 -- grabbing the actual bar left end', () => {
+describe('表 T-245 GO-5 -- grabbing the actual bar left end', () => {
   it('leaves the last day exactly where it was, dragged to the right', () => {
     const built = stage()
     const before = taskOf(built.loop, PLAIN_UID)
@@ -475,7 +461,7 @@ describe('表 T-023d GR-5 -- grabbing the actual bar left end', () => {
 
     const after = taskOf(built.loop, PLAIN_UID)
     expect(dayPart(after.actualStart), 'the end this case moved').not.toBe(dayPart(before.actualStart))
-    expect(lastDayOf(after), GR_5_LAST_DAY_STANDS).toBe(endBefore)
+    expect(lastDayOf(after), GO_5_LAST_DAY_STANDS).toBe(endBefore)
     expect(lastDayOf(after)).toBe('2026-04-14')
   })
 
@@ -487,7 +473,7 @@ describe('表 T-023d GR-5 -- grabbing the actual bar left end', () => {
 
     const after = taskOf(built.loop, PLAIN_UID)
     expect(dayPart(after.actualStart)).toBe('2026-04-11')
-    expect(dayPart(after.stop), 'GR-5 (MUST NOT): 実績バーを平行移動させてはならない').not.toBe(
+    expect(dayPart(after.stop), 'GO-5 (MUST NOT): 実績を平行移動させてはならない').not.toBe(
       '2026-04-16',
     )
     expect(lengthOf(after), 'FR-011: Sat 11 counts as an end day, then Mon 13 and Tue 14').toBe(3)
@@ -504,7 +490,7 @@ describe('表 T-023d GR-5 -- grabbing the actual bar left end', () => {
     const after = taskOf(built.loop, PLAIN_UID)
     expect(dayPart(after.actualStart)).toBe('2026-04-08')
     expect(lengthOf(after), 'FR-011: Wed 8 to Tue 14').toBe(5)
-    expect(lastDayOf(after), GR_5_LAST_DAY_STANDS).toBe(endBefore)
+    expect(lastDayOf(after), GO_5_LAST_DAY_STANDS).toBe(endBefore)
   })
 
   it('settles `actualStart` on the day the pointer was let go on, and does not shift it to a working day', () => {
@@ -552,12 +538,12 @@ describe('表 T-023d GR-5 -- grabbing the actual bar left end', () => {
     dragBy(built, { x: before.x0, y: midY(before) }, 2)
 
     const after = actualBox(built.loop, PLAIN_UID)
-    expect(after.x1, GR_5_LAST_DAY_STANDS).toBeCloseTo(before.x1, 6)
+    expect(after.x1, GO_5_LAST_DAY_STANDS).toBeCloseTo(before.x1, 6)
     expect(after.x0 - before.x0).toBeCloseTo(2 * width, 6)
   })
 })
 
-describe('表 T-023d GR-15 -- grabbing a milestone actual figure', () => {
+describe('表 T-245 GO-4 -- grabbing a milestone actual figure', () => {
   it('moves the held last day with `actualStart`, because a milestone is a point (GO-4)', () => {
     const built = stage()
     const before = taskOf(built.loop, MILESTONE_UID)
@@ -569,7 +555,7 @@ describe('表 T-023d GR-15 -- grabbing a milestone actual figure', () => {
     )
 
     const after = taskOf(built.loop, MILESTONE_UID)
-    expect(dayPart(after.actualStart), 'GR-15: `actualStart` を動かす').not.toBe(
+    expect(dayPart(after.actualStart), 'GO-4: `actualStart` を動かす').not.toBe(
       dayPart(before.actualStart),
     )
     expect(lastDayOf(after), GO_4_LAST_DAY).toBe(

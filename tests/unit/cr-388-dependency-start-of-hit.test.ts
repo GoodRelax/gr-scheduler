@@ -82,14 +82,8 @@ const SETTINGS = settingsOf({
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
-// see S-90, S-91, S-92, S-137, S-230
-const SLOP: itemHitArea.PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+// see T-266, T-206
+const SLOP: itemHitArea.GrabSizes = NOT_STORED_SIZES
 
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
@@ -165,7 +159,7 @@ describe('T-064 PI-7 dependencyStartOfHit -- a task hit answers what dependencyE
 
 describe('T-064 PI-7 dependencyStartOfHit -- any other hit, and no hit, answers null', () => {
   const others: readonly (readonly [string, Hit])[] = [
-    ['a dependency line', { item: { kind: 'dependency', predecessorUid: BAR_UID, successorUid: BAR_UID }, grab: 'GR-13' }],
+    ['a dependency line', { item: { kind: 'dependency', predecessorUid: BAR_UID, successorUid: BAR_UID }, grab: 'GA-19' }],
     ['a highlight box', { item: { kind: 'highlightBox', id: 'h1' }, grab: 'GR-14' }],
     ['a comment box', { item: { kind: 'commentBox', id: 'c1' }, grab: 'GR-14' }],
     ['the status line', { item: { kind: 'statusLine' }, grab: 'GR-16' }],
@@ -194,7 +188,7 @@ describe('T-064 PI-7 dependencyStartOfHit -- any other hit, and no hit, answers 
   })
 })
 
-// see GR-7, FR-009
+// see GA-18, FR-009
 const NAMED_UID = 1
 const NEIGHBOUR_UID = 2
 
@@ -202,6 +196,9 @@ const TWO_ROWS = scheduleOf({
   tasks: [
     taskOf({
       uid: NAMED_UID,
+      // WHY: a name too long to fit takes `LP-2` of table T-273, not `LP-1`, so
+      // the marker stands right of the reference -- past this bar, over the next.
+      name: 'A'.repeat(40),
       start: '2026-01-05',
       finish: '2026-01-15',
       actualStart: '2026-01-05',
@@ -271,7 +268,7 @@ describe('T-064 PI-7 dependencyStartOfHit -- only the hit Task, never the Task n
     const named = spanOf(drawnOf(NAMED_UID).plan)
     const x = named.left + (named.right - named.left) * 0.25
     const y = named.y
-    const hit: Hit = { item: { kind: 'task', taskUid: NEIGHBOUR_UID }, grab: 'GR-12' }
+    const hit: Hit = { item: { kind: 'task', taskUid: NEIGHBOUR_UID }, grab: 'GA-9' }
     const expected = dependencyEndAtPointer(TWO_ROWS_GEOMETRY, x, y, NEIGHBOUR_UID)
     expect(
       expected,

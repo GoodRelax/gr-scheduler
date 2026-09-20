@@ -59,7 +59,7 @@
 //            四隅 | 動かす / 大きさを変える」
 //   T-015 HR-1a 「**畳んだ `TaskGroup` の配下の行と、その行に載っている `Task`
 //            を描いてはならない（MUST NOT）**」
-//   T-019 RT-4a 「**端点のいずれかが描かれていないときは、その依存線を描かない
+//   T-019 RT-4a CR-108 「**端点のいずれかが描かれていないときは、その依存線を描かない
 //            （MUST NOT）** —— 畳んだ行・非表示の行・LOD で間引いた `Task` が
 //            端点になる場合。注記が同じ状況で隠れるのと揃える（`UC-008` 拡張
 //            2a）」 -- the row that settles what UC-008 2a's 「畳まれた」 means,
@@ -98,7 +98,7 @@
 //   * ⛔ WHICH CHARACTERS ARE 全角. FR-093 counts 「全角 2・半角 1」 and never
 //     draws the line. Every body below is either plain ASCII or plain CJK, the
 //     two ends no reading disputes; nothing here classifies anything between.
-//   * ⛔ GR-14's GRAB REGION -- 「本体・アンカー・四隅」. PI-6 publishes the
+//   * ⛔ GR-14's GRAB REGION -- DFC-308 「本体・アンカー・四隅」. PI-6 publishes the
 //     geometry and PI-19 the picture; neither carries a corner handle, and no
 //     row of table T-206 gives one a size. Only the 本体's rectangle is asked
 //     about below, and never as a hit area.

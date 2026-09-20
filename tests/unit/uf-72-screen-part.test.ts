@@ -2435,7 +2435,7 @@ const EXPANDER_ROWS = T_109_ROW_EXPANDER.map((one) => one.row).sort()
  * ⛔⛔ FOUND BY `data-icon` AND NO LONGER BY `data-role="Row Expander"`, and the
  * change is a reading of the specification rather than a convenience. 表 T-103's
  * `U-47` says 「行の折り畳みの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
- * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- 「開く操作子と、
+ * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- DFC-161 「開く操作子と、
  * その行自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ」. `IC-90`
  * comes from `HF-13` and `IC-91` from `HF-14`, neither of which `HF-1` counts.
  * ⚠️ WHETHER THOSE TWO ARE PART OF `U-47` IS NOT DECIDED ANYWHERE: `U-47` points
@@ -2707,7 +2707,7 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 �
     const onTheHeader = entryFor(built.root(), 'IC-5')
 
     // ⭐ FR-029 (MUST): 「薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149`
-    // の色で示すこと」, and then 「⚠️ 本規則は 表 T-109 の全行に当たる …
+    // の色で示すこと」, and then DFC-265 「⚠️ 本規則は 表 T-109 の全行に当たる …
     // ⛔ 載る面によって薄くしない入口があってはならない（MUST NOT）」. ⚠️ WHAT THE
     // COLOUR RESOLVES TO IS NOT ASKED HERE -- tests/unit/fr-029-in-effect-is-
     // filled-not-rimmed.test.ts holds it against 表 T-236. What is asked is that
@@ -3243,7 +3243,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
   it('GIVEN both sides of the expander are spent WHEN the controls are read THEN each still has a width and a height (FR-029: 薄く描く, not shrunk to nothing) -- IC-58 / IC-59', () => {
     const built = drawn(withExpander({ canOpen: false, canClose: false, canCloseBelow: false }))
 
-    // ⛔ The boundary FR-029 speaks to. 「掴めない端点を薄く描いて理由をツール
+    // ⛔ The boundary FR-029 speaks to. DFC-315 「掴めない端点を薄く描いて理由をツール
     // チップで示すこと（MUST）」 -- a tooltip has to be pointed AT, so the faint
     // control needs its box more than the live one does.
     for (const one of T_109_ROW_EXPANDER) {
@@ -3412,7 +3412,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 // ===========================================================================
 // ⚠️ THE BLOCK THAT STOOD HERE PINNED A RULE THAT HAS BEEN WITHDRAWN.
 //
-// Until 2026-08-25, 表 T-051 HF-6 read 「操作子は薄く描き、ポインタが乗っている
+// Until 2026-08-25, 表 T-051 HF-6 read CR-143 「操作子は薄く描き、ポインタが乗っている
 // あいだだけ濃くすること」, and two blocks of this file held the unit to the two
 // halves of that sentence: one read the controls' paint, the other read the
 // sheet for a rule that darkened them. The row now reads 「操作子は、その行の

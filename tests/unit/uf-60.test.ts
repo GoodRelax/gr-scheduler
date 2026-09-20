@@ -31,7 +31,7 @@
 //      table T-035 states that as a MUST NOT.
 //
 // ⭐ WHAT MOVED, AND IN WHICH DIRECTION. UF-60's cell of 表 T-075 read
-// 「UI パーツごとの 9 ファイルを束ねて公開する」 when this file was written.
+// CR-140 「UI パーツごとの 9 ファイルを束ねて公開する」 when this file was written.
 // Version 0.71 of the specification (CR-194) rewrote it, and it now reads:
 //
 //     | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツ

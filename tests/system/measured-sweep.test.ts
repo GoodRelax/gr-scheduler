@@ -990,7 +990,7 @@ interface RulerTier {
  * The ruler band's tiers, each with the ticks it is divided by.
  *
  * ⛔ THE TICKS AND NOT THE WORDS ARE WHAT `LF-1` IS ABOUT. Table T-221 row
- * `LF-1` gives an INTERVAL to each tier -- 「年の段は 1 年、年と月の段は 1 か月、
+ * `LF-1` gives an INTERVAL to each tier -- DFC-91 「年の段は 1 年、年と月の段は 1 か月、
  * 週の段は 7 日、日の段と曜日の段は 1 日」 -- and what is drawn at an interval is
  * the tick, not the label; a tier could print a word every second tick and still
  * be ticked every day. So the lines are read, grouped by the height they start
@@ -1259,7 +1259,7 @@ test('DFC-126: the header stands the file name above the time it was written', a
 // says 「更新日時の字の大きさは ... 表 T-206 の `S-210` が定める係数で決める
 // こと（MUST）。px で持ってはならない（MUST NOT）」 and 「まだ 1 度もファイルへ
 // 書いていないときは、時刻の代わりにその旨を示すこと（MUST）」; `S-210` says
-// 「ファイルの名前には掛けない」 in as many words.
+// DFC-217 「ファイルの名前には掛けない」 in as many words.
 //
 // ⭐ THE SECOND HALF OF DFC-65 -- that the time shown is the reader's own and not
 // UTC -- needs a file to have been written, and is judged further down, on the
@@ -2130,7 +2130,7 @@ test('DFC-166: pressing the open-one-level entrance with nothing to bring back t
 // GOES RED IF: the tier that prints weekdays is ticked anywhere other than
 // exactly where the tier that prints day numbers is ticked -- a different count,
 // or the same count at different places. Table T-221 row `LF-1` (MUST NOT, since
-// it closes with 「これ以外の間隔を採ってはならない」) says 「年の段は 1 年、年と
+// it closes with 「これ以外の間隔を採ってはならない」) says DFC-91 「年の段は 1 年、年と
 // 月の段は 1 か月、週の段は 7 日、**日の段と曜日の段は 1 日**」 and gives the
 // reason on the same line: 「同じ軸を 2 段に割ったものだからである ... 別の間隔に
 // すると、その日のものでない曜日が日の下に並ぶ」.

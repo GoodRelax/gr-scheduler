@@ -768,7 +768,7 @@ describe('FR-018 -- more room never answers a shallower depth', () => {
   // 「縮小したのに表示が増える逆転を起こしてはならない（MUST NOT）」 read across
   // FR-055: the fit's answer for a taller Row Area is never a shallower depth
   // than its answer for a shorter one, because the criterion it applies is
-  // 「描くものが Row Area に収まる」 and the taller Row Area admits everything
+  // DFC-621 「描くものが Row Area に収まる」 and the taller Row Area admits everything
   // the shorter one did.
   it.each(EVERY_SHAPE)('a taller Row Area is never fitted to a shallower depth (%s)', (
     _name,

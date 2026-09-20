@@ -1,4 +1,4 @@
-// GR-17 of table T-023d (FR-043): the day the finish handle is released on is the last actual day.
+// GA-6 of table T-023d (FR-043): the day the finish handle is released on is the last actual day.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -28,10 +28,10 @@ const REQUIREMENTS = unbroken(
 const SETTINGS_TABLES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-settings.md'), 'utf8')
 
 const FR_043_RELEASED_DAY_IS_THE_LAST_DAY =
-  '⭐ 終了点（表 T-023d の `GR-17`）を離した日は、表 T-245 の `GO-3` と同じく実績の最後の日（`stop`）として置き、実績バーの右端の位置として数えないこと（MUST）'
+  '⭐ 終了点（`FR-104` の 表 T-266 の `GA-6`）を離した日は、表 T-245 の `GO-7` のとおり実績の最後の日（`stop`）として置き、実績バーの右端の位置として数えないこと（MUST）'
 
 const FR_043_SAME_DAY_AND_THE_FLOOR =
-  '`GR-9` の日に離せば開始日と終了日が同じ日の実績になり、それより左に離したときは `FR-011` の床と `05-07-design.md` の 表 T-220 の `IV-21` が受け持つ。'
+  '予定の開始日に離せば開始日と終了日が同じ日の実績になり、それより左に離したときは `FR-011` の床と `05-07-design.md` の 表 T-220 の `IV-21` が受け持つ。'
 
 const FR_011_SAME_DAY_IS_ONE =
   '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
@@ -45,8 +45,8 @@ const FR_011_FLOOR =
 const FR_011_ENDS_COUNT_ON_REST_DAYS =
   '⭐ ただし両端の日（`actualStart` と最後の日）は、非稼働日であっても 1 日として数えること（MUST）'
 
-const GR_17_PINS_THE_START =
-  '掴めば実績の最後の日（`stop`）を置く（`actualStart` は `GR-9` の日で確定。'
+const GO_7_PINS_THE_START =
+  '実績の最後の日 ＝ 離した日そのもの、`actualStart` ＝ 予定の開始日、`resumeValid` ＝ `true`'
 
 const IV_21_NOT_BELOW_ZERO =
   '`actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。'
@@ -138,7 +138,7 @@ const notStarted = (planStart: string): Document =>
     schemaVersion: '1',
     schedule: {
       project: {
-        title: 'GR-17',
+        title: 'GA-6',
         calendarUid: null,
         statusDate: null,
         startDate: null,
@@ -218,7 +218,7 @@ const notStarted = (planStart: string): Document =>
   }) as unknown as Document
 
 const releasedFromGr17 = (planStart: string, droppedIso: string): EditResult =>
-  editTask(notStarted(planStart), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(droppedIso) }, DEFAULT_ROW_NAME_FIXTURE)
+  editTask(notStarted(planStart), { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-6', droppedDay: stored(droppedIso) }, DEFAULT_ROW_NAME_FIXTURE)
 
 const taskOf = (document: Document): Task => {
   const found = document.schedule.tasks.find((one) => one.uid === 1)
@@ -228,15 +228,15 @@ const taskOf = (document: Document): Task => {
 
 const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
 
-describe('GR-17 premises: the clauses and the calendar still read this way', () => {
-  it('FR-043, FR-011, T-023d GR-17, IV-21, DM-1, S-106 and S-107 still hold the clauses verbatim', () => {
+describe('GA-6 premises: the clauses and the calendar still read this way', () => {
+  it('FR-043, FR-011, T-023d GA-6, IV-21, DM-1, S-106 and S-107 still hold the clauses verbatim', () => {
     expect(REQUIREMENTS).toContain(FR_043_RELEASED_DAY_IS_THE_LAST_DAY)
     expect(REQUIREMENTS).toContain(FR_043_SAME_DAY_AND_THE_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_SAME_DAY_IS_ONE)
     expect(REQUIREMENTS).toContain(FR_011_RIGHT_END_IS_A_POSITION)
     expect(REQUIREMENTS).toContain(FR_011_FLOOR)
     expect(REQUIREMENTS).toContain(FR_011_ENDS_COUNT_ON_REST_DAYS)
-    expect(REQUIREMENTS).toContain(GR_17_PINS_THE_START)
+    expect(REQUIREMENTS).toContain(GO_7_PINS_THE_START)
     expect(cellOf('T-220', 'IV-21', '不変条件')).toContain(IV_21_NOT_BELOW_ZERO)
     expect(cellOf('T-240', 'DM-1', '規則')).toContain(DM_1_THE_PLAN_START_DAY)
     expect(SETTINGS_TABLES).toContain(S_106_WORKED_WEEKDAYS)
@@ -254,10 +254,10 @@ describe('GR-17 premises: the clauses and the calendar still read this way', () 
   })
 })
 
-describe('FR-043 (MUST): GR-17 released on or right of GR-9 day puts that day as stop', () => {
+describe('FR-043 (MUST): GA-6 released on or right of GA-5 day puts that day as stop', () => {
   const cases = [
-    { title: 'released on GR-9 day: one day', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
-    { title: 'released on the worked day after GR-9 day: two days', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
+    { title: 'released on GA-5 day: one day', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: MONDAY_DUMMY_DAY, length: 1 },
+    { title: 'released on the worked day after GA-5 day: two days', planStart: MONDAY_PLAN_START, dummy: MONDAY_DUMMY_DAY, dropped: ymd(13), length: 2 },
     { title: 'released across a weekend, Friday dummy to Monday: two days', planStart: FRIDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(19), length: 2 },
     { title: 'released on the Saturday after a Friday dummy: two days', planStart: FRIDAY_PLAN_START, dummy: FRIDAY_DUMMY_DAY, dropped: ymd(17), length: 2 },
   ]
@@ -268,7 +268,7 @@ describe('FR-043 (MUST): GR-17 released on or right of GR-9 day puts that day as
       expect(result.ok, FR_043_RELEASED_DAY_IS_THE_LAST_DAY).toBe(true)
       if (!result.ok) return
       const task = taskOf(result.document)
-      expect(dayPart(task.actualStart), GR_17_PINS_THE_START).toBe(one.dummy)
+      expect(dayPart(task.actualStart), GO_7_PINS_THE_START).toBe(one.dummy)
       expect(dayPart(task.stop), FR_043_RELEASED_DAY_IS_THE_LAST_DAY).toBe(one.dropped)
       expect(actualLength(one.dummy, dayPart(task.stop)!), FR_011_RIGHT_END_IS_A_POSITION).toBe(one.length)
       expect(task.resumeValid).toBe(true)
@@ -276,7 +276,7 @@ describe('FR-043 (MUST): GR-17 released on or right of GR-9 day puts that day as
   }
 })
 
-describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor and IV-21', () => {
+describe('FR-043: GA-6 released left of GA-5 day is left to the FR-011 floor and IV-21', () => {
   it('released on the Sunday before a Monday dummy: zero by the FR-011 count, so stop is the floor day', () => {
     const dropped = ymd(11)
     expect(actualLength(MONDAY_DUMMY_DAY, dropped), 'the FR-011 count gives zero').toBe(0)
@@ -284,7 +284,7 @@ describe('FR-043: GR-17 released left of GR-9 day is left to the FR-011 floor an
     expect(result.ok, FR_043_SAME_DAY_AND_THE_FLOOR).toBe(true)
     if (!result.ok) return
     const task = taskOf(result.document)
-    expect(dayPart(task.actualStart), GR_17_PINS_THE_START).toBe(MONDAY_DUMMY_DAY)
+    expect(dayPart(task.actualStart), GO_7_PINS_THE_START).toBe(MONDAY_DUMMY_DAY)
     expect(dayPart(task.stop), FR_011_FLOOR).toBe(workedDaysFrom(MONDAY_DUMMY_DAY, S_129 - 1))
   })
 

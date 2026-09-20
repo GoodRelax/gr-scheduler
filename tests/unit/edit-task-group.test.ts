@@ -449,7 +449,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
 
   it('the use-case layer can leave the document with no rows at all (FR-032 deleteTaskGroup)', () => {
     // ⛔⛔ THIS IS THE SEAM, NOT A RULE OF THE PRODUCT. 2026-09-02 まで `FR-001`
-    // はこの節の理由を「FR-032 は行を 1 つも無い状態にできる」と書いていたが、同日
+    // はこの節の理由をDFC-193 「FR-032 は行を 1 つも無い状態にできる」と書いていたが、同日
     // の利用者の裁定が 表 T-050 の直下に不変条件を置いてそれを偽にした ——
     // 「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」。
     // ⭐ `FR-001` のいまの本文はその撤回を記録しており、引ける規則ではない。

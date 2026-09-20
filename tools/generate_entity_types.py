@@ -1082,11 +1082,35 @@ ARRIVES_AS_ARGUMENT_ZOOM = list(ARRIVES_AS_ARGUMENT)
 # alternative was the shell typing the word in, which rule 03 forbids.
 STORED_WHERE_IT_STANDS = []
 NOT_STORED_TARGETS = {
-    # ⛔ S-93 IS NOT IN THIS LIST: table T-023d's closing rule reads
-    # 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
-    # とすること（MUST）」, so the dummies' hit width IS the ink's and S-180 is
-    # the only row that states it.
-    'NOT_STORED_SIZES': (['S-90', 'S-91', 'S-92', 'S-137', 'S-230'], ARRIVES_AS_ARGUMENT),
+    # ⭐ THE 41 VALUES OF TABLE T-266, AND NOT THE THREE THAT STOOD HERE
+    # (CR-430). S-90 .. S-92 held ONE plan margin, ONE actual margin and ONE
+    # fade square for every shape at once; FR-104 (MUST) now gives each of the
+    # 22 grab areas its own row so that widening one target's margin moves no
+    # other target's -- so the constant carries the rows table T-266 names,
+    # in the order that table states them (GA-1 .. GA-22, outer / inner /
+    # band-and-beyond).
+    # ⛔ THE ROWS ARE NOT DERIVED FROM ONE ANOTHER HERE. Table T-266's own
+    # closing rules cap the inner margins at half the drawn width and split
+    # the dummy mark down its middle; those are the hit test's to apply, and
+    # this constant hands over the stated numbers alone.
+    # ⚠️ S-93 IS STILL NOT IN THIS LIST, and the ground outlived the rows that
+    # carried it: the dummy's hit width is the ink's (table T-240's DM-3),
+    # which S-180 states and NOT_STORED_DUMMY_SIZES carries.
+    # ⭐ S-137 AND THE FOUR ANNOTATION ROWS RIDE ALONG, as S-137 and S-230
+    # already did: table T-023d's GR-16 is the base-date line's grab and GR-14
+    # is the annotation's, and the unit that answers WHICH grab area a point
+    # falls in answers for those too (CR-430 section 6.3). S-293 is the
+    # highlight box's frame, S-291 the comment box's leader line and S-292 its
+    # line end -- the three GR-14 rows the older editions had no value for.
+    'NOT_STORED_SIZES': (['S-250', 'S-251', 'S-252', 'S-253', 'S-254', 'S-255',
+                          'S-256', 'S-257', 'S-258', 'S-259', 'S-260', 'S-261',
+                          'S-262', 'S-263', 'S-264', 'S-265', 'S-266', 'S-267',
+                          'S-268', 'S-269', 'S-270', 'S-271', 'S-272', 'S-273',
+                          'S-274', 'S-275', 'S-276', 'S-277', 'S-278', 'S-279',
+                          'S-280', 'S-281', 'S-282', 'S-283', 'S-284', 'S-285',
+                          'S-286', 'S-287', 'S-288', 'S-289', 'S-290',
+                          'S-137', 'S-230', 'S-293', 'S-291', 'S-292'],
+                         ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the
@@ -1352,14 +1376,24 @@ NOT_STORED_TARGETS = {
     # land in frame-loop.ts: one constant per consuming SUBJECT, and those two
     # are how long a held entrance waits.
     'NOT_STORED_INTERACTION_RECORD_LIMITS': (['S-207'], KEPT_WHERE_IT_STANDS),
-    # ⭐ The side of the arrow picture PC-5 of table T-264 shows over the plan
-    # and actual ends. It arrives on the sentence DRAWN_UNDER_THE_HAND_ALONE
-    # keeps for a future row of this shape: a pointer follows the hand, and a
-    # picture no hand is over has nowhere to put it. ⚠️ Not folded into any
-    # other line of frame-loop.ts: one constant per consuming SUBJECT, and the
-    # others are a panel width, times and a count. ⛔ The display scale
-    # (FR-039) must not reach it -- the closing rule under table T-264.
-    'NOT_STORED_END_POINTER_SIZES': (['S-249'], DRAWN_UNDER_THE_HAND_ALONE),
+    # ⭐ THE SIZES OF THE POINTER PICTURES THIS TOOL DRAWS ITSELF (table T-269
+    # since CR-430; table T-264's PC-5 before it). They arrive on the sentence
+    # DRAWN_UNDER_THE_HAND_ALONE keeps for a row of this shape: a pointer
+    # follows the hand, and a picture no hand is over has nowhere to put it.
+    # ⚠️ Not folded into any other line of frame-loop.ts: one constant per
+    # consuming SUBJECT, and the others are a panel width, times and a count.
+    # ⛔ The display scale (FR-039) must not reach any of them -- the closing
+    # rule under table T-269 says so of the pictures.
+    # ⭐ THE FOUR NEW ROWS JOIN S-249 RATHER THAN OPENING A CONSTANT OF THEIR
+    # OWN, because the subject is the one table T-269 names -- the shapes the
+    # tool hands the host. S-249 is the side of PK-1 / PK-2 / PK-4, S-294 the
+    # fade triangle PK-3, S-295 the two circle diameters PK-5 / PK-6, S-296 the
+    # resume arrow PK-9 and S-297 the one border every picture is drawn with.
+    # ⛔ The name is kept as it stands: renaming a published constant is a
+    # separate decision from carrying rows, and check 30 counts these names
+    # against the list in rule 03.
+    'NOT_STORED_END_POINTER_SIZES': (['S-249', 'S-294', 'S-295', 'S-296',
+                                      'S-297'], DRAWN_UNDER_THE_HAND_ALONE),
     # ⛔ NOT FOLDED INTO ANY LINE ABOVE, and the subject is what keeps it
     # apart: every other row in this file's shell block is a length, a count
     # or a time, and this one is a NAME -- the word FR-020 lays over the Row

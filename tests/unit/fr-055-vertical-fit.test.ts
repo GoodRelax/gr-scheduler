@@ -14,7 +14,7 @@
 //      ST-3, ST-9, table T-038, FR-077 and FR-094's floor). ⛔ THE ANSWER IS
 //      NOT "the bar height alone": above FR-094's floor the drawn type size
 //      moves with `zoomY` (FR-077), LC-5 estimates the label width from it,
-//      T-013 decides inside-or-outside from that, OC-1 of table T-038 counts
+//      T-273 decides inside-or-outside from that, OC-1 of table T-038 counts
 //      the outside part, ST-1 stacks on that count, and ST-9 makes the band
 //      height the stack's. So the stack count is a function of `zoomY` too,
 //      and the case below exhibits a document where it changes.
@@ -284,7 +284,7 @@ describe('above the floor, zoomY reaches the occupied WIDTH -- and through it th
   // FR-077: 「タスクの高さに比例させた文字」 -- the drawn type size comes off the
   // bar height, which is `basePlanHeight × zoomY` once clear of FR-094's floor.
   // LC-5 of table T-068: 「ラベルの幅を概算する ... 単位数 × フォント ×
-  // `labelCoef`」. LC-6 then places it (table T-013), OC-1 of table T-038 counts
+  // `labelCoef`」. LC-6 then places it (table T-273), OC-1 of table T-038 counts
   // the part pushed outside, ST-1 「重なり判定は**描画上の占有幅**で行う」 stacks
   // on that count, and ST-9 「行の帯高は段数で決まる」 turns the stack into the
   // band. Every link is a MUST, so the occupied width IS a function of zoomY.

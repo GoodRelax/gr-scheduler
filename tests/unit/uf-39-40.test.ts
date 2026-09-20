@@ -47,7 +47,7 @@
 //               ⛔ EVERY ASSERTION ABOUT WHICH `TaskGroup`s WERE KEPT AND WHICH
 //               WERE DROPPED WAS DELETED FROM THIS FILE, not translated: the
 //               rule they measured is withdrawn, and FR-025 now says in as many
-//               words 「書き出さないと決めた以上、落とす規則は無くなった」. The
+//               words DFC-460 「書き出さないと決めた以上、落とす規則は無くなった」. The
 //               `AT_CEILING` fixture went with them -- it existed only to make
 //               the drop happen at S-81's height, and at the shipped ceiling
 //               (S-217) every scene in this file fits
@@ -1367,8 +1367,8 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
 // 2026-09-02). They were 「drops the row that straddles S-81's bottom edge and
 // every row below it」, 「reports the dropped rows top-most first」, 「cuts at
 // the TOP of the first dropped row」 and 「leaves the fit clip open at the
-// top」. All four measured 「超えた分を下端側から `TaskGroup` 単位で落とす」,
-// which FR-025 no longer says -- 「書き出さないと決めた以上、落とす規則は無く
+// top」. All four measured CR-333 「超えた分を下端側から `TaskGroup` 単位で落とす」,
+// which FR-025 no longer says -- DFC-460 「書き出さないと決めた以上、落とす規則は無く
 // なった」. A test whose premise is withdrawn has nothing to become.
 // ⚠️ Two more went with them further down: 「keeps a row whose bottom lands
 // exactly on the edge, and drops the next」 and 「drops every row when the very
@@ -1939,10 +1939,10 @@ describe('boundaries of the SVG route', () => {
 // past it (CR-333, then CR-337)
 // ===========================================================================
 //
-// ⭐⭐ THE READER'S RULINGS OF 2026-09-02, VERBATIM: 「倍率の問題は出ない。見えて
+// ⭐⭐ THE READER'S RULINGS OF 2026-09-02, VERBATIM: DFC-189 「倍率の問題は出ない。見えて
 // る範囲を 1600x900 に出力が原則だろ？収まらない場合は縦の 900 を延ばせ」,
-// 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」 and
-// 「その場合は、1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
+// CR-333 「上限付きで延ばすが、16,384 は大きすぎるので、4000 程度でよく使う値にしろ」 and
+// CR-337 「その場合は、1600x4096 のサイズに収まらなかったエラーにして、png, svg の出力を止めろ」.
 //
 // ⭐ FR-025 now reads 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収ま
 // るところまで伸ばすこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとするこ

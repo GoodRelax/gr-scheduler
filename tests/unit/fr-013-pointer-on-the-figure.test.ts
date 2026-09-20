@@ -22,14 +22,14 @@
 //   とする。 だから = は1日」「1つだけにしろ」)
 //     「⭐⭐ **ダミーの印は 1 つだけ描くこと（MUST）。開始の側と終了の側に別々の
 //      印を描いてはならない（MUST NOT）**」
-//     ⭐ 「**掴む先が 2 つであることは変わらない** —— 表 T-023d の `GR-9` と
-//      `GR-17` はどちらも残り …… ⇒ **人から見れば掴みシロは 1 つであり、掴めば
+//     ⭐ 「**掴む先が 2 つであることは変わらない** —— 表 T-023d の `GA-5` と
+//      `GA-6` はどちらも残り …… ⇒ **人から見れば掴みシロは 1 つであり、掴めば
 //      実績が立つ。**」
 //   ⇒ ⛔ TWO GRAB TARGETS ON ONE DRAWN MARK, AND SINCE 2026-09-10 THEY SHARE ITS
 //   PIXELS. `halvesAt` below walks the two halves table T-023d cuts that one
-//   mark into -- GR-9 on the left half, GR-17 on the right -- and every one of
+//   mark into -- GA-5 on the left half, GA-6 on the right -- and every one of
 //   those points is on the ink. ⛔ Nothing is drawn, and since that ruling
-//   nothing is held, at the day column GR-17 used to stand on: a case below
+//   nothing is held, at the day column GA-6 used to stand on: a case below
 //   asserts both halves of that, and the closing rule is quoted further down.
 //
 //   T-051 HF-6 (MUST)
@@ -49,21 +49,21 @@
 //   (利用者の裁定 2026-09-10, held by the closing rules of table T-023d)
 //
 //     表 T-023d 結び (MUST / MUST NOT)
-//       「**`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印その
+//       「**`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043` が描いた印その
 //        ものとすること（MUST）。印の外へ広げてはならない（MUST NOT）**」
-//       ⭐ 「**`GR-9` と `GR-17` は、その印を中央で左右に割った半分をそれぞれ
-//        受け持ち、`GR-18` は印の全体を受け持つ**」
-//       ⚠️ 「**`GR-9` はタスク全体ではなく、`FR-043` が描いた印の左半分に限る
+//       ⭐ 「**`GA-5` と `GA-6` は、その印を中央で左右に割った半分をそれぞれ
+//        受け持ち、`GA-17` は印の全体を受け持つ**」
+//       ⚠️ 「**`GA-5` はタスク全体ではなく、`FR-043` が描いた印の左半分に限る
 //        こと（MUST）**」
 //     T-240 DM-3 (MUST) gives the width (the marker diameter times S-247, capped
 //     by S-180) and the left edge on the day column, and FR-043
 //     reads the halves back off that mark: 「**人が印を押したときに掴むのは、印の
-//     左半分なら開始側（表 T-023d の `GR-9`）、右半分なら終了側（同表の `GR-17`）
+//     左半分なら開始側（表 T-023d の `GA-5`）、右半分なら終了側（同表の `GA-6`）
 //     とすること（MUST）**」.
 //     T-206 S-180 「本行は掴みシロの上限でもある」.
 //   ⇒ ⛔ ONE RECTANGLE ANSWERS BOTH QUESTIONS, so the pointer can be -- and here
 //   is -- computed from FR-043's own arithmetic:
-//       T-023d GR-3  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
+//       T-023d GA-1  「予定の開始点 | 予定バーの左端」 -- the pixel where the plan
 //                    start day's column begins;
 //       T-240 DM-1   the mark stands on that same day column;
 //       FR-017 (MUST) 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」;
@@ -72,7 +72,7 @@
 //   manuscript, and a case below asserts that the picture's own ink begins and
 //   ends where that arithmetic says.
 //
-//   T-206 S-90 -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」, which at
+//   T-206 S-250 / S-253 -- the plan end's outward reach, 12px, which at
 //   a low magnification covers the whole mark; the second describe below is
 //   built on that overlap. ⚠️ The row reached to EITHER side of the end, and
 //   half as far, until 2026-09-09: the ruling of that day took it to the end's
@@ -85,9 +85,9 @@
 //     the pointer has LEFT S-131 -- never what it arrived at.
 //   * ⛔⛔ WHERE THE HIT BOX WAS CENTRED was left unasserted until 2026-09-10:
 //     the row then in force gave the dummies a SIZE while table T-023d gave
-//     GR-9 a DAY, and no row said which pixel of the day that box was
+//     GA-5 a DAY, and no row said which pixel of the day that box was
 //     centred on. ⭐ That gap is closed, not carried: the closing rule of table
-//     T-023d makes the hold 「`FR-043` が描いた印そのもの」 and FR-043 aligns the
+//     T-023d makes the hold DFC-424 「`FR-043` が描いた印そのもの」 and FR-043 aligns the
 //     ink 「日の列の左端に揃えること（MUST）」, so the edges are now stated and the
 //     cases below assert them.
 //   * ⛔⛔ THE 未着手 MARKER'S HALF OF THE SAME MUST. FR-013 names 「未着手の
@@ -98,17 +98,17 @@
 //     red, and PND-360 -- 「`FR-013` の「ポインタが乗っている」が、描いた図形の上の
 //     ことか、表 T-023d が点を与えた行のことか」 -- is 未裁定. ⭐ REPORTED, not
 //     guessed at in either direction.
-//   * ⛔⛔ WHETHER A POINTER ON GR-17'S OLD DAY COLUMN DARKENS THE ONE MARK was
+//   * ⛔⛔ WHETHER A POINTER ON GA-6'S OLD DAY COLUMN DARKENS THE ONE MARK was
 //     left unasserted in both directions until 2026-09-10, because 「ポインタが
 //     乗っている」 had two readings there: on the DRAWN figure (nothing was), or
 //     on the ROW's own place (the hand was, since the row's hit box stood a day
 //     right of the ink). ⭐ THE SPLIT IS GONE. The closing rule of table T-023d
-//     puts GR-17 on the right half of the one mark and forbids reaching past it
+//     puts GA-6 on the right half of the one mark and forbids reaching past it
 //     -- 「印の外へ広げてはならない（MUST NOT）」 -- so that column now carries
 //     neither ink nor hold under either reading, and a case below asserts that
 //     the mark stays at S-131 while the pointer is there.
 //   * ⛔ WHICH OF THE TWO ROWS A POINT ON THE MARK IS GRABBING is still not read
-//     off the drawing. FR-043 cuts the mark in half for GR-9 and GR-17, and the
+//     off the drawing. FR-043 cuts the mark in half for GA-5 and GA-6, and the
 //     cases below put a point in each half, ⭐ but they assert only what FR-013
 //     owes -- the mark leaves S-131 -- because the picture darkens one mark and
 //     the specification gives no second 濃さ per half. PND-351 is 未裁定.
@@ -148,7 +148,7 @@ const numbersOf = (cell: string): number[] => (cell.match(/\d+(?:\.\d+)?/g) ?? [
 // which is the check this file wants -- nothing here may read a second row for
 // the hold.
 const S_180 = rowOf('T-206', 'S-180')
-const S_90 = rowOf('T-206', 'S-90')
+const S_250 = rowOf('T-206', 'S-250')
 
 /** The first number of a cell, which is the one the row leads with. */
 const leadingNumberOf = (cell: string | undefined, row: string): number => {
@@ -159,8 +159,8 @@ const leadingNumberOf = (cell: string | undefined, row: string): number => {
 
 // see T-206, T-240
 const DUMMY_WIDTH_UPPER_BOUND = leadingNumberOf(S_180['既定'], 'S-180')
-/** `S-90` -- 「予定の端点の掴み代 | バーの上下と、端点の外側に 12px」. */
-const PLAN_ENDPOINT_SLOP = leadingNumberOf(S_90['既定'], 'S-90')
+/** `S-250` -- 表 T-266 の `GA-1` の掴み代、端の外側の px. */
+const PLAN_ENDPOINT_SLOP = leadingNumberOf(S_250['既定'], 'S-250')
 
 const FLAT = SETTINGS_DEFAULTS as unknown as Record<string, number>
 
@@ -168,7 +168,7 @@ const FLAT = SETTINGS_DEFAULTS as unknown as Record<string, number>
 const S_131 = FLAT['dummyOpacity'] as number
 /** S-1 -- 1 日あたりの表示幅 at `zoomX` = 1 (FR-017). */
 const PX_PER_DAY_AT_1X = FLAT['pxPerDayAt1x'] as number
-/** S-129 -- how many worked days GR-17 stands right of GR-9 (T-023d). */
+/** S-129 -- how many worked days GA-6 stands right of GA-5 (T-023d). */
 const ACTUAL_INITIAL_DURATION = FLAT['actualInitialDuration'] as number
 
 /** FR-017 (MUST): 「1 日あたりの表示幅は … `S-1` に `zoomX` を掛けた値」. */
@@ -302,7 +302,7 @@ const drawn = (settings: DocumentSettings, pointer: Point): string => {
 }
 
 /**
- * Where the plan bar's left edge is -- T-023d GR-3, 「予定の開始点 | 予定バーの
+ * Where the plan bar's left edge is -- T-023d GA-1, 「予定の開始点 | 予定バーの
  * 左端」, which is where the plan start day's column begins.
  *
  * ⭐ Taken from the layout rather than from the ink: a stroke straddles an edge,
@@ -329,23 +329,23 @@ interface Probe {
  * each -- which is the point this file puts under the pointer.
  *
  * ⭐ BOTH ROWS STAND ON ONE RECTANGLE SINCE 2026-09-10 (表 T-023d の結び, MUST):
- * 「**`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのものとする
- * こと（MUST）。印の外へ広げてはならない（MUST NOT）**」, and 「**`GR-9` と `GR-17`
- * は、その印を中央で左右に割った半分をそれぞれ受け持ち、`GR-18` は印の全体を受け
- * 持つ**」. So the grab side is still two -- FR-043 kept 「⭐ **掴む先が 2 つで
+ * 「**`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043` が描いた印そのものとする
+ * こと（MUST）。印の外へ広げてはならない（MUST NOT）**」, and 「**`GA-5` と `GA-6`
+ * は、その印を中央で左右に割った半分をそれぞれ受け持ち、`GA-17` は印の全体を受け
+ * 持つ**」. So the grab side is still two -- FR-043 kept DFC-396 「⭐ **掴む先が 2 つで
  * あることは変わらない**」 -- but the two now stand half a width apart on one
  * mark instead of a day apart on two columns.
  *
  * ⛔ NOT READ OFF THE PICTURE. Every number here comes from the specification:
- * the plan bar's left edge (GR-3), one day (FR-017's `S-1` × `zoomX`), and
+ * the plan bar's left edge (GA-1), one day (FR-017's `S-1` × `zoomX`), and
  * FR-043's drawn width, cut where the closing rule cuts it.
  */
 const halvesAt = (zoomX: number): readonly Probe[] => {
   const dayLeft = planStartOf(settingsAt(zoomX))
   const width = drawnWidthAt(zoomX)
   return [
-    { grab: 'GR-9', dayLeft, x: dayLeft + width / 4 },
-    { grab: 'GR-17', dayLeft, x: dayLeft + (width * 3) / 4 },
+    { grab: 'GA-5', dayLeft, x: dayLeft + width / 4 },
+    { grab: 'GA-6', dayLeft, x: dayLeft + (width * 3) / 4 },
   ]
 }
 
@@ -355,7 +355,7 @@ const halvesAt = (zoomX: number): readonly Probe[] => {
 const inkProbeAt = (zoomX: number): Probe => halvesAt(zoomX)[0] as Probe
 
 /**
- * The day column GR-17 STOOD ON UNTIL 2026-09-10 -- `S-129` worked days right of
+ * The day column GA-6 STOOD ON UNTIL 2026-09-10 -- `S-129` worked days right of
  * the mark -- which FR-043's MUST NOT keeps ink off and which the closing rule
  * of table T-023d now keeps the hold off as well: 「**印の外へ広げてはならない
  * （MUST NOT）**」.
@@ -363,13 +363,13 @@ const inkProbeAt = (zoomX: number): Probe => halvesAt(zoomX)[0] as Probe
  * ⭐ SO A POINTER PUT HERE OWES ONE ANSWER UNDER EITHER READING of 「乗って
  * いる」: there is no figure to be on and no row's place to be in. ⛔⛔ It owed
  * two until that day, and this file asserted neither -- the row then in force
- * put GR-17's hit box on this column, a whole day away from the ink.
+ * put GA-6's hit box on this column, a whole day away from the ink.
  */
 const pastTheMarkAt = (zoomX: number): Probe => {
   const { dayLeft } = inkProbeAt(zoomX)
-  // WHY: DM-3 lets the mark cover GR-17's old column where a day is narrower than the mark, so the point starts past both.
+  // WHY: DM-3 lets the mark cover GA-6's old column where a day is narrower than the mark, so the point starts past both.
   const gone = Math.max(dayLeft + ACTUAL_INITIAL_DURATION * dayWidthAt(zoomX), dayLeft + drawnWidthAt(zoomX))
-  return { grab: 'GR-17 の旧い日の列', dayLeft: gone, x: gone + drawnWidthAt(zoomX) / 2 }
+  return { grab: 'GA-6 の旧い日の列', dayLeft: gone, x: gone + drawnWidthAt(zoomX) / 2 }
 }
 
 const HALF_OF_THE_LAST_WRITTEN_PLACE = 0.5 * 10 ** -2
@@ -529,7 +529,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     // STEP: a guard that the file still points at the rows it was written for.
     expect(S_180['値']).toContain('DM-3')
     expect(S_180['値']).toContain('実績のダミーを描く幅の上限')
-    expect(S_180['保存しない理由']).toContain('本行は掴みシロの上限でもある')
+    expect(S_180['保存しない理由']).toContain('掴み代は 表 T-266 が対象ごとに持つ')
     expect(rowOf('T-206', 'S-247')['値']).toContain('DM-3')
     expect(DUMMY_WIDTH_UPPER_BOUND).toBeGreaterThan(0)
   })
@@ -543,27 +543,27 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     expect(dummiesOf(resting), 'FR-043 (MUST): ダミーの印は 1 つだけ').toHaveLength(1)
     // ⛔ AND IT IS THE FIRST COLUMN, NOT THE SECOND. Without this the case
     // above would be equally green over a picture that drew its one mark at
-    // GR-17's place, which FR-043's drawing-position MUST forbids.
-    expect(dummyAtX(resting, inkProbeAt(ZOOM).x, 'GR-9 の日の列').x0).toBeCloseTo(
+    // GA-6's place, which FR-043's drawing-position MUST forbids.
+    expect(dummyAtX(resting, inkProbeAt(ZOOM).x, 'GA-5 の日の列').x0).toBeCloseTo(
       inkProbeAt(ZOOM).dayLeft,
       2,
     )
-    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GR-17 の旧い日の列')
+    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GA-6 の旧い日の列')
     expect(new Set(faintnessOf(resting))).toEqual(new Set([S_131]))
   })
 
   it('⭐ every point this file uses is on the one mark, in the half its row owns', () => {
     // WHY: DM-3 aligns the ink to the day column and gives its width, and that rectangle IS the hold; a drifted point would test something else.
     const resting = drawn(SETTINGS, null)
-    // ⭐ THE GRAB SIDE FIRST, AND IT IS STILL TWO -- 表 T-023d keeps GR-9 and
-    // GR-17, and its closing rule gives each of them one half of the one mark.
+    // ⭐ THE GRAB SIDE FIRST, AND IT IS STILL TWO -- 表 T-023d keeps GA-5 and
+    // GA-6, and its closing rule gives each of them one half of the one mark.
     // ⛔ The numbers are the specification's; the ink is compared below.
     const width = drawnWidthAt(ZOOM)
     const [left, right] = halvesAt(ZOOM) as [Probe, Probe]
-    expect(left.grab, 'the left half is GR-9').toBe('GR-9')
-    expect(right.grab, 'the right half is GR-17').toBe('GR-17')
-    expect(left.x, 'GR-9 is left of the middle').toBeLessThan(left.dayLeft + width / 2)
-    expect(right.x, 'GR-17 is right of the middle').toBeGreaterThan(right.dayLeft + width / 2)
+    expect(left.grab, 'the left half is GA-5').toBe('GA-5')
+    expect(right.grab, 'the right half is GA-6').toBe('GA-6')
+    expect(left.x, 'GA-5 is left of the middle').toBeLessThan(left.dayLeft + width / 2)
+    expect(right.x, 'GA-6 is right of the middle').toBeGreaterThan(right.dayLeft + width / 2)
     for (const probe of halvesAt(ZOOM)) {
       expect(probe.x, `${probe.grab} is right of the mark`).toBeGreaterThanOrEqual(probe.dayLeft)
       expect(probe.x, `${probe.grab} is inside the mark`).toBeLessThanOrEqual(
@@ -582,9 +582,9 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     )
     expect(dayWidthAt(ZOOM), 'the day is wider than the mark here').toBeGreaterThan(drawnWidthAt(ZOOM))
     // ⛔ FR-043 (MUST NOT): 「開始の側と終了の側に別々の印を描いてはならない」.
-    // Nothing stands on the column GR-17 used to be given -- neither ink, nor,
+    // Nothing stands on the column GA-6 used to be given -- neither ink, nor,
     // since 2026-09-10, a hold.
-    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GR-17 の旧い日の列')
+    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GA-6 の旧い日の列')
   })
 
   it('⭐ leaves S-131 for the dummy the pointer is on, in either half (MUST)', () => {
@@ -592,7 +592,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
     // 「**未着手のマーカーと、実績入力のダミー（`FR-043`）は薄く描き、ポインタが
     // 乗っているあいだだけ濃くすること（MUST）**」. ⛔ WHAT MOVED IS WHERE 「乗って
     // いる」 IS, and both points below are now on the one mark: the half table
-    // T-023d gives GR-9 and the half it gives GR-17.
+    // T-023d gives GA-5 and the half it gives GA-6.
     const resting = drawn(SETTINGS, null)
     const ink = dummyUnder(resting, inkProbeAt(ZOOM))
 
@@ -606,7 +606,7 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
   })
 
   it('⛔ and keeps S-131 while the pointer is past the mark, where no row reaches', () => {
-    // ⛔⛔ THIS CASE COULD NOT BE WRITTEN UNTIL 2026-09-10. GR-17's hit box stood
+    // ⛔⛔ THIS CASE COULD NOT BE WRITTEN UNTIL 2026-09-10. GA-6's hit box stood
     // a whole day right of the ink until then, so a pointer here was on a grab
     // row and off every figure, and the file asserted neither direction. ⭐ The
     // closing rule of table T-023d ended the split: 「**印の外へ広げてはならない
@@ -680,9 +680,9 @@ describe('FR-013 (MUST) -- a dummy under the pointer stops being faint', () => {
 })
 
 describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
-  // ⭐ THE ZOOM THAT USED TO BREAK IT. S-90 gives the plan endpoints a grab slop
+  // ⭐ THE ZOOM THAT USED TO BREAK IT. S-250 / S-253 give the plan endpoints a grab slop
   // (read from the row, never typed here), so once one day is narrow enough the
-  // whole mark stands INSIDE the slop of GR-3 / GR-4. A drawing that asked which
+  // whole mark stands INSIDE the slop of GA-1 / GA-2. A drawing that asked which
   // grab row had won would find the plan endpoint there and leave the dummy
   // faint -- at exactly the magnifications a whole document is read at.
   // ⚠️ FR-018's S-86 still has to admit the task, so the zoom is chosen to keep
@@ -697,7 +697,7 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
     // COUNT MATTERS MOST AT THIS ZOOM: a day is 1.5px here, so two marks a day
     // apart would stand edge to edge and read as one wider mark.
     expect(dummiesOf(resting), 'FR-043 (MUST): ダミーの印は 1 つだけ').toHaveLength(1)
-    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GR-17 の旧い日の列')
+    noDummyAtX(resting, pastTheMarkAt(ZOOM).x, 'GA-6 の旧い日の列')
   })
 
   it('⭐ still leaves S-131 for the dummy under the pointer, with no won grab row handed over', () => {
@@ -705,7 +705,7 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
 
     // ⭐ WALKED ACROSS THE ONE MARK, for the reason the same walk is written at
     // the higher zoom: HF-6's condition is a PLACE, so every point of the ink
-    // owes the same answer -- and here every one of them is also inside S-90's
+    // owes the same answer -- and here every one of them is also inside S-250's
     // slop, which the case below measures.
     const ink = dummyUnder(resting, inkProbeAt(ZOOM))
     for (const x of acrossTheInkAt(ZOOM)) {
@@ -718,8 +718,8 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
 
   it('⛔ and the one mark really does stand inside the plan endpoints\' slop at this zoom', () => {
     // ⚠️ Without this the case above would be green at any zoom at all, and the
-    // condition it means to reproduce would never have been built. ⭐ S-90 is
-    // read from the manuscript, not typed: 「端点の外側に 12px」.
+    // condition it means to reproduce would never have been built. ⭐ S-250 is
+    // read from the manuscript, not typed: docs/development-records/rulings.md 「端点の外側に 12px」.
     // ⛔ IT WALKED TWO DAY COLUMNS UNTIL 2026-09-10, because the two rows had a
     // hit box each; now both halves lie on one mark, so what is measured is the
     // distance from a plan endpoint to each of those two points.
@@ -734,7 +734,7 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
       const toFinish = Math.abs(probe.x - right)
       expect(
         Math.min(toStart, toFinish),
-        `${probe.grab} stands within S-90 of a plan endpoint`,
+        `${probe.grab} stands within S-250 of a plan endpoint`,
       ).toBeLessThanOrEqual(PLAN_ENDPOINT_SLOP)
     }
   })

@@ -20,7 +20,7 @@
 //
 // ⚠️ WHAT WAS READ OF `src/`, STATED HONESTLY RATHER THAN CLAIMED AWAY. Beyond
 // the head comments and the exported declarations these cases must call --
-// `item-hit-area.ts` (`Item`, `GrabArea`, `Hit`, `PointerSlop`, `itemAtPointer`,
+// `item-hit-area.ts` (`Item`, `GrabArea`, `Hit`, `GrabSizes`, `itemAtPointer`,
 // `NOT_STORED_SIZES`), `schedule-geometry.ts` (`TaskGeometry`, `BarGeometry`,
 // `geometryFromLayout`), `schedule-layout.ts` (`TaskPlacement`,
 // `layoutFromSchedule`, `taskPlacement`), `screen-state.ts` (its writers and
@@ -28,7 +28,7 @@
 // `InputAction`, `TranslatedInput`, `PointerPress`, `pressRowOf`,
 // `commandFromInput`, `screenStateFromInput`) -- FOUR PIECES OF BODY WERE ALSO
 // READ, and they are named here so a reader can weigh the cases against that:
-//   - `commandFromGrab`'s two MK-13 branches and its GR-12 arm, to learn which
+//   - `commandFromGrab`'s two MK-13 branches and its GA-9 arm, to learn which
 //     `DocumentCommand` spells a plan move (`setTaskPlanDates`);
 //   - the `isTextEntryUnsettled` and `Esc` branches of the key path, and
 //     `escapeContextOf`, to learn that `EscapeContext` has no member for the
@@ -43,12 +43,12 @@
 //   T-023d  GR-10 / GR-11 -- the two rows that carry only a double click, and
 //           the closing rule under the table that takes the plain press away
 //           from them
-//   T-023d  GR-12 -- the plan bar body, which the closing rule protects
+//   T-023d  GA-9 -- the plan bar body, which the closing rule protects
 //   T-023   MK-13 -- the double click, as it now reads
 //   T-028   IN-4 -- the order Esc consumes, with the unsettled in-place edit
 //           now at its head
 //   T-028   IN-5a -- the keys an unsettled in-place edit takes
-//   T-013   NL-1 -- the label drawn inside the shape, which is the whole reason
+//   T-273   the 「入る」 rows -- the label drawn inside the shape, which is the whole reason
 //           the closing rule exists
 //   T-012   SH-1 -- the shape the fixture uses
 //   T-038   OC-2 -- where the assignee label juts out
@@ -79,7 +79,7 @@ import {
   NOT_STORED_SIZES,
   itemAtPointer,
   type Hit,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -130,10 +130,7 @@ import { specTable } from '../contract/spec-table'
  * the way tests/unit/uf-30-31.test.ts does for its own copy.
  */
 const T_023D = [
-  'GR-19', 'GR-22',
-  'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
-  'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
-  'GR-20', 'GR-16', 'GR-21',
+  'GR-19', 'GR-22', 'GR-10', 'GR-11', 'GR-14', 'GR-23', 'GR-20', 'GR-16', 'GR-21',
 ] as const
 
 /**
@@ -146,9 +143,10 @@ const DOUBLE_CLICK_ONLY = ['GR-10', 'GR-11'] as const
 /**
  * The row the closing rule protects, and its reason in one word: with GR-10
  * standing as a grab, a Task that has a name puts its label inside its own bar
- * (NL-1) and GR-12 can no longer be reached there.
+ * (inside the shape) and GA-9 can no longer be reached there.
  */
-const PROTECTED_BY_THE_CLOSING_RULE = 'GR-12'
+const PROTECTED_ROW = 'GR-23'
+const PROTECTED_BY_THE_CLOSING_RULE = 'GA-9'
 
 /**
  * MK-13's targets, as the row now prints them. FOUR, not five: the name label
@@ -282,7 +280,7 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
 // ---------------------------------------------------------------------------
 // ⭐ THE FIXTURE, AND WHY THE LABEL REALLY LANDS INSIDE THE BAR.
 //
-// NL-1 of table T-013 puts the label inside the shape when the truncated label
+// The 「入る」 rows of table T-273 put the label inside the shape when the truncated label
 // FITS the Task's width, and FR-093 fixes how that width is reckoned: units
 // counted 2 for a full-width character and 1 for a half-width one, times the
 // type size, times `labelCoef` (S-30). ⛔ Nothing here measures a glyph -- the
@@ -302,7 +300,7 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
 // layout's own answer (`labelPlacement`) and the drawn rectangle
 // (`TaskGeometry.label`) that the label is inside the bar. A fixture that
 // stopped being inside would fail there, loudly, instead of quietly turning
-// every case in this file into a test of NL-3.
+// every case in this file into a test of the 「入らない」 rows.
 // ---------------------------------------------------------------------------
 
 /** Two half-width units (FR-093), so the estimate is as small as it can honestly be. */
@@ -321,13 +319,19 @@ const TASK_NAMED = taskOf({
   name: NAME_INSIDE,
   start: '2026-01-05',
   finish: '2026-02-05',
+  // ⚠️ AN ACTUAL ON PURPOSE. Table T-272's RF-1 makes the actual the reference
+  // the 「入る」 judgement measures, and RF-2's dummy is DM-3 wide -- which no
+  // name of any length fits, so every case below would become a 「入らない」 one.
+  actualStart: '2026-01-05',
+  stop: '2026-02-05',
+  percentComplete: 50,
 })
 
 /**
  * The Task the GR-11 case presses beside.
  *
- * ⚠️ IT CARRIES AN ACTUAL ON PURPOSE. FR-043 draws the two dummies of GR-9 and
- * GR-17 on a Task that has not started, and their hit box is the mark FR-043
+ * ⚠️ IT CARRIES AN ACTUAL ON PURPOSE. FR-043 draws the two dummies of GA-5 and
+ * GA-6 on a Task that has not started, and their hit box is the mark FR-043
  * draws (table T-023d's closing rule, sized by DM-3 of table T-240) -- which
  * reaches further to the left of the plan start than the assignee label sits.
  * With an actual recorded there is no dummy, so what the probe left of the bar
@@ -424,26 +428,12 @@ const contextOf = (part: Partial<InputContext> = {}): InputContext => ({ ...BASE
 /**
  * The reach each row of table T-023d is grabbed by.
  *
- * ⭐ READ FROM THE GENERATED CONSTANT, not typed out. Table T-206 keeps S-90 to
- * S-92 and S-137 out of the document because they belong to the reader's
+ * ⭐ READ FROM THE GENERATED CONSTANT, not typed out. Table T-206 keeps S-250 to
+ * S-290 and S-137 out of the document because they belong to the reader's
  * environment, so `itemAtPointer` ships no default and takes them as an
  * argument; `NOT_STORED_SIZES` is what the manuscript prints into `src/`.
  */
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  // S-92 is a square, and this member is its half-width.
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
-  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
-  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ
-  // 広げてはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-93`'s own
-  // row says the field emptied out: 「その `S-93` は 2026-09-10 に廃した ——
-  // 掴みシロが印そのものになり、読む者が 1 人も残らなかったからである」.
-  // `PointerSlop` carries no dummy figure at all now.
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 // ---------------------------------------------------------------------------
 // Reading the fixture's own geometry. Coordinates are taken from what the
@@ -609,8 +599,8 @@ describe('the rosters and the fixture these cases stand on', () => {
   // A walk over an empty roster passes without asserting anything, so the
   // counts are pinned first and a vacuous case cannot go green.
   it('carries the rows of 表 T-023d, 表 T-023 MK-13 and 表 T-028 IN-4 / IN-5a', () => {
-    expect(T_023D).toHaveLength(22)
-    expect(new Set(T_023D).size).toBe(22)
+    expect(T_023D).toHaveLength(9)
+    expect(new Set(T_023D).size).toBe(9)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     // The closing rule names exactly these two, and the table prints GR-10
@@ -620,9 +610,9 @@ describe('the rosters and the fixture these cases stand on', () => {
     expect(T_023D.indexOf('GR-10')).toBeLessThan(T_023D.indexOf('GR-11'))
     // ⭐ The row the closing rule protects sits BELOW both of them, which is
     // the whole of why the plain press had to be taken away rather than the
-    // order rearranged: GR-10 wins wherever it is drawn, and NL-1 draws it on
-    // top of GR-12.
-    expect(T_023D.indexOf(PROTECTED_BY_THE_CLOSING_RULE)).toBeGreaterThan(T_023D.indexOf('GR-11'))
+    // order rearranged: GR-10 wins wherever it is drawn, and T-273 draws it on
+    // top of GA-9.
+    expect(T_023D.indexOf(PROTECTED_ROW)).toBeGreaterThan(T_023D.indexOf('GR-11'))
     // MK-13 prints FOUR targets since 2026-08-27, the name label and the body
     // having been folded into one.
     expect(MK_13_TARGETS).toHaveLength(4)
@@ -647,12 +637,12 @@ describe('the rosters and the fixture these cases stand on', () => {
     expect(placementOf(2).width).toBeGreaterThan(0)
   })
 
-  it('NL-1 -- the fixture Task really has its label drawn INSIDE its bar', () => {
+  it('T-273 -- the fixture Task really has its label drawn INSIDE its bar', () => {
     const placed = placementOf(1)
     const bar = boxOfBar(geometryOf(1).plan)
     const label = labelOf(1)
 
-    // The layout's own answer to table T-013: NL-1, not NL-3.
+    // The layout's own answer to table T-273: 入る, not 入らない.
     expect(placed.labelPlacement).toBe('inside')
 
     // FR-093's estimate, re-derived here from the settings and the drawn type
@@ -667,11 +657,11 @@ describe('the rosters and the fixture these cases stand on', () => {
     expect(label.x + label.width).toBeLessThanOrEqual(bar.x + bar.width)
 
     // ⭐ The probe used by every case below is clear of BOTH end grabs, so what
-    // it answers is a question about GR-10 against GR-12 and about nothing
-    // else. GR-3 and GR-4 reach S-90 to either side of an end.
+    // it answers is a question about GR-10 against GA-9 and about nothing
+    // else. GA-1 reaches S-250 and GA-2 reaches S-253, outside their own ends.
     const probe = centreOf(label)
-    expect(probe.x - bar.x).toBeGreaterThan(SLOP.planEndpoint)
-    expect(bar.x + bar.width - probe.x).toBeGreaterThan(SLOP.planEndpoint)
+    expect(probe.x - bar.x).toBeGreaterThan(SLOP['S-250'])
+    expect(bar.x + bar.width - probe.x).toBeGreaterThan(SLOP['S-250'])
   })
 })
 
@@ -681,10 +671,10 @@ describe('the rosters and the fixture these cases stand on', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-023d closing rule -- a plain press does not land on GR-10', () => {
-  it('answers GR-12 where the name label is drawn inside the bar', () => {
+  it('answers GA-9 where the name label is drawn inside the bar', () => {
     // ⛔ EXPECTED RED. `item-hit-area.ts` still puts GR-10 in table T-023d's
-    // order ahead of GR-12 and claims the label rectangle, which is exactly
-    // the accident the closing rule names: 「名前を持つタスクでは GR-12 に手が
+    // order ahead of GA-9 and claims the label rectangle, which is exactly
+    // the accident the closing rule names: 「名前を持つタスクでは GA-9 に手が
     // 届かない」.
     const probe = centreOf(labelOf(1))
     const hit = itemAtPointer(GEOMETRY, probe.x, probe.y, SLOP)
@@ -758,7 +748,7 @@ describe('表 T-023d closing rule -- a plain press does not land on GR-10', () =
     // ⭐ FIXTURE GUARD. The probe has to be clear of the reach of every endpoint
     // grab that sits above GR-11 in the table, or the case would be answered by
     // one of them and would say nothing about GR-11 at all.
-    expect(bar.x - probe.x).toBeGreaterThan(Math.max(SLOP.planEndpoint, SLOP.actualEndpoint))
+    expect(bar.x - probe.x).toBeGreaterThan(Math.max(SLOP['S-250'], SLOP['S-257']))
 
     const hit = itemAtPointer(GEOMETRY, probe.x, probe.y, SLOP)
     const grab: string | null = hit === null ? null : (hit.grab as string)
@@ -784,13 +774,13 @@ describe('表 T-023 MK-13 -- what a double click reaches', () => {
     })
   })
 
-  it('reaches the name edit through the task body (GR-12)', () => {
-    // ⛔ EXPECTED RED. MK-13 now reads 「タスク（名称ラベルと本体のどちらでも）
+  it('reaches the name edit through the task body (GA-9)', () => {
+    // ⛔ EXPECTED RED. MK-13 now reads CR-304 「タスク（名称ラベルと本体のどちらでも）
     // ＝ 名称の編集」; the tree still answers the body with the properties
     // panel, which the same row now forbids (MUST NOT).
     const bar = boxOfBar(geometryOf(1).plan)
     const probe = { x: bar.x + bar.width * 0.75, y: bar.y + bar.height / 2 }
-    const answer = afterDoubleClick(probe.x, probe.y, taskHitOn('GR-12'))
+    const answer = afterDoubleClick(probe.x, probe.y, taskHitOn('GA-9'))
     expect(answer.action).toEqual({
       kind: 'editInPlace',
       target: { kind: 'taskName', uid: 1 },
@@ -803,12 +793,12 @@ describe('表 T-023 MK-13 -- what a double click reaches', () => {
     // have to resolve to the same thing.
     const probe = centreOf(labelOf(1))
     const throughLabel = afterDoubleClick(probe.x, probe.y, taskHitOn('GR-10'))
-    const throughBody = afterDoubleClick(probe.x, probe.y, taskHitOn('GR-12'))
+    const throughBody = afterDoubleClick(probe.x, probe.y, taskHitOn('GA-9'))
     expect(throughBody.action).toEqual(throughLabel.action)
   })
 
   it('⛔ opens the properties panel from no row of 表 T-023d at all', () => {
-    // ⛔ EXPECTED RED, on GR-12. 「プロパティパネルを開く経路を本行に置いては
+    // ⛔ EXPECTED RED, on GA-9. 「プロパティパネルを開く経路を本行に置いては
     // ならない（MUST NOT）」 -- the panel's contents are FR-072's business, and
     // the selecting press is already the operation FR-072 reads.
     const probe = centreOf(labelOf(1))

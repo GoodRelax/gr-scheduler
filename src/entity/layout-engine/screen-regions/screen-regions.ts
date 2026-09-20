@@ -70,9 +70,12 @@ export function displayRatioOf(settings: DocumentSettings): number {
 const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
-  'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'markerSize',
-  'markerGap', 'markerStroke', 'resumeDashOn', 'resumeDashOff', 'labelPad', 'labelGap',
-  'rowTitleFont', 'rowTitleIndent', 'planStroke', 'thinStrokeMin', 'thinStrokeMax',
+  'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
+  'dependencyLeadIn', 'dependencyArrowWidth', 'markerSize',
+  'markerStroke', 'resumeDashOn', 'resumeDashOff', 'resumeDashWidth', 'labelPad', 'labelGap',
+  'milestoneNameMarkerGap', 'assigneeLabelGap',
+  'rowTitleFont', 'rowTitleIndent', 'planStroke', 'thinStrokeWidth',
+  'thinArrowHeadLength', 'thinArrowHeadHeight', 'spanDotSize',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',
   'taskLevelOfDetailReadablePx', 'rowTitlePanelWidth',
 ]

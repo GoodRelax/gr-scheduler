@@ -102,7 +102,7 @@ const dayPart = (value: string | null | undefined): string => {
   return value.slice(0, 10)
 }
 
-const S_91 = NOT_STORED_SIZES['S-91']
+const S_91 = NOT_STORED_SIZES['S-257']
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
   return {
@@ -335,7 +335,7 @@ function grab(built: Stage, at: Point, releaseX: number): void {
   built.send(pointer('up', releaseX, at.y))
 }
 
-// see GR-6
+// see GA-4
 function actualEndReleasedAt(uid: number, k: number): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))
@@ -346,7 +346,7 @@ function actualEndReleasedAt(uid: number, k: number): { readonly released: strin
   return { released, before, after: taskOf(built.loop, uid) }
 }
 
-// see GR-5
+// see GA-3
 function actualStartReleasedAt(uid: number, k: number): { readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, uid))
@@ -356,7 +356,7 @@ function actualStartReleasedAt(uid: number, k: number): { readonly before: Task;
   return { before, after: taskOf(built.loop, uid) }
 }
 
-// see GR-15
+// see GA-16
 function milestoneReleasedAt(k: number): { readonly released: string; readonly before: Task; readonly after: Task } {
   const built = stage()
   const before = structuredClone(taskOf(built.loop, FINISHED_MILESTONE_UID))
@@ -440,7 +440,7 @@ describe('table T-245 GO-3 -- a finished Task, its actual end grabbed', () => {
     expect(after.actualFinish).toBeNull()
   })
 
-  it('control, GR-5 on the finished Task: the last day stands in `actualFinish`', () => {
+  it('control, GA-3 on the finished Task: the last day stands in `actualFinish`', () => {
     const { before, after } = actualStartReleasedAt(FINISHED_UID, -1)
     expect(after.actualStart, 'premise: the grab did land').not.toBe(before.actualStart)
     expect(dayPart(after.actualFinish)).toBe(dayPart(before.actualFinish))

@@ -7,7 +7,7 @@
 //
 // Unit under test: UF-71 `dom-screen-surface.ts` (CP-38 of 表 T-062), the side
 // of `IF-9` that HAS a field to settle -- 「まだ確定していない文字入力があるかを
-// 答え」 and 「プロパティパネルの欄で確定した値を…返し」 are both its answers, and
+// 答え」 and CR-361 「プロパティパネルの欄で確定した値を…返し」 are both its answers, and
 // this file asks for both because the ledger row says a naive fix to the first
 // breaks the second.
 //
@@ -25,7 +25,7 @@
 // `IN-6` が逐語で「始めた値と同じ値を書いてはならない」と定めている。**」 -- and
 // its 補足 column names the trap this file exists to keep shut:
 //
-//   「⛔⛔ **前の体の見立て「`hasUnsettledTextEntry()` を偽にすればよい」は誤りで
+//   「⛔⛔ **前の体の見立てDFC-152 「`hasUnsettledTextEntry()` を偽にすればよい」は誤りで
 //     あった** —— **同じ答えを 表 T-028 の `IN-5a` が単文字キーの門にも使っており、
 //     偽にすると名称の欄で `p` と打っただけでパレットが開く。**」
 //

@@ -123,7 +123,7 @@
 | U-40 | `Marquee` | **範囲選択**。<br>直訳ではない。<br>例外は表 T-105。<br>何にも当たらない場所からドラッグして矩形で選ぶこと |
 | U-41 | `Percent Complete Label` | 完了率ラベル |
 | U-42 | `Pointer` | ポインタ。<br>マウスが指す点 |
-| U-43 | `Grab Region` / `Grab Point` | 掴み領域 / 掴み点（全数と優先順位は表 T-023d が持つ） |
+| U-43 | `Grab Region` / `Grab Point` | 掴み領域 / 掴み点。<br>形と大きさの全数は表 T-266、応える順は表 T-267 と表 T-268（日程の形でないものは表 T-023d）が持つ |
 | U-44 | `Dialogue Field` | 対話欄 |
 | U-45 | `GoodRelax Scheduler` | 本ソフトウェアの名称。<br>略称は `GRS`。<br>日本語に訳さない |
 | U-46 | `Pinned Row` | ピン止めした行。<br>縦にスクロールしても画面に残る |
@@ -131,7 +131,7 @@
 | U-48 | `Row Pin` | ピン止めの操作子。<br>置き方は `FR-098` |
 | U-49 | `Resource Roster` | 名簿。<br>文書が持つ担当者の一覧。<br>出し方と消し方は `FR-099` |
 | U-50 | `Row Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Rows` が並ぶ領域。<br> 左右は `Row Title Panel` と `Properties Panel` の内側 |
-| U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**未着手のタスクに薄く出す掴みシロ。<br>** 文書のデータとしては存在しない（`FR-043`） |
+| U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`） |
 | U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の `K-67` 〜 `K-72` / `K-110` / `K-111` が既に使っており、あちらは文書に保存する値である |
 | U-53 | `Tooltip` | ツールチップ。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切った行名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`） |
 | U-54 | `Export Chooser` | 書き出しの形式を選ぶ面。<br>開く規則は `FR-096`、入口は表 T-109 の `IC-2`、鍵は表 T-036 の `SK-12` が持つ |
@@ -202,18 +202,24 @@
 | K-17 | 形状の縦幅 | `shapeHeightOf.milestone` | マイルストーン |
 | K-18 | 依存線 | `dependencyWidth` | 依存線の太さ |
 | K-19 | 依存線 | `dependencyArrowLength` | 矢印の三角形の長さ |
-| K-20 | 依存線 | `dependencyRunOfArrow` | 入口の走り ÷ 三角形 |
+| K-126 | 依存線 | `dependencyLeadOut` | 出口の走り |
+| K-127 | 依存線 | `dependencyLeadIn` | 入口の走り |
+| K-128 | 依存線 | `dependencyArrowWidth` | 矢印の三角形の底辺 |
 | K-22 | 進捗マーカー | `markerSize` | マーカー径 |
-| K-23 | 進捗マーカー | `markerGap` | マーカーの隙間（実績の右端には空けない） |
 | K-24 | 進捗マーカー | `markerStroke` | 円の線の太さ |
 | K-25 | 進捗マーカー | `resumeScaleInvalid` | 再開日未定のときの縮小率 |
 | K-26 | 進捗マーカー | `resumeArmOfMarker` | 再開アイコンの腕の長さ ÷ マーカー |
 | K-27 | 進捗マーカー | `resumeHeadOfMarker` | 再開アイコンの矢じり ÷ マーカー |
 | K-28 | 進捗マーカー | `resumeDashOn` | 再開アイコンへ繋ぐ破線の実部 |
 | K-29 | 進捗マーカー | `resumeDashOff` | 再開アイコンへ繋ぐ破線の空部 |
+| K-129 | 進捗マーカー | `resumeOpacityInvalid` | 再開日未定のときの濃さ |
+| K-130 | 進捗マーカー | `resumeDashWidth` | 再開アイコンへ繋ぐ破線の太さ |
 | K-30 | ラベル | `labelCoef` | 幅の概算係数 |
-| K-31 | ラベル | `labelPad` | 形状の内側の余白 |
-| K-32 | ラベル | `labelGap` | 形状の外へ出すときの隙間 |
+| K-31 | ラベル | `labelPad` | タスク名を開始から離す隙間 |
+| K-32 | ラベル | `labelGap` | タスク名をマーカーから離す隙間 |
+| K-131 | ラベル | `milestoneNameMarkerGap` | マイルストーン名をマーカーから離す隙間 |
+| K-132 | ラベル | `assigneeLabelGap` | 担当と進捗の札を開始から離す隙間 |
+| K-133 | ラベル | `milestoneNameStartOfWidth` | マイルストーン名の書き出し ÷ 菱形の幅 |
 | K-33 | ラベル | `labelBaseline` | ベースライン補正 |
 | K-34 | ラベル | `labelHaloOfFont` | 縁取りの太さ ÷ フォント |
 | K-35 | ラベル | `truncateUnits` | 打ち切り幅（半角換算） |
@@ -221,14 +227,13 @@
 | K-37 | ラベル | `rowTitleIndent` | 行名の `TaskGroup` の深さ 1 段ぶんのインデント |
 | K-38 | ラベル | `rowTitleTopScale` | `TaskGroup` 深さ 1 の行名の倍率 |
 | K-39 | 形状の細部 | `planStroke` | 予定の輪郭線 |
-| K-40 | 形状の細部 | `thinStrokeOfPlan` | 細線の太さ ÷ その形状の予定の縦幅 |
-| K-41 | 形状の細部 | `thinStrokeMin` | 細線の太さの下限 |
-| K-42 | 形状の細部 | `thinStrokeMax` | 細線の太さの上限 |
 | K-43 | 形状の細部 | `chevronNotchOfHeight` | 矢羽根の切り欠き ÷ 高さ |
 | K-44 | 形状の細部 | `chevronNotchOfWidth` | 矢羽根の切り欠き ÷ 幅 |
-| K-45 | 形状の細部 | `arrowHeadOfStroke` | 矢印の矢じり ÷ 線の太さ |
 | K-46 | 形状の細部 | `arrowHeadOfSpan` | 矢印の矢じり ÷ 全長（上限） |
-| K-47 | 形状の細部 | `spanDotOfStroke` | 端点スパンの点の半径 ÷ 線の太さ |
+| K-134 | 形状の細部 | `thinStrokeWidth` | 細線の太さ |
+| K-135 | 形状の細部 | `thinArrowHeadLength` | 細線の矢じりの横幅 |
+| K-136 | 形状の細部 | `thinArrowHeadHeight` | 細線の矢じりの縦幅 |
+| K-137 | 形状の細部 | `spanDotSize` | 端点スパンの点の径 |
 | K-48 | 形状の細部 | `starInnerOfOuter` | ☆ の内接半径 ÷ 外接半径 |
 | K-49 | 形状の細部 | `minShapeWidth` | ゼロ期間でも残す最小幅 |
 | K-50 | イナズマ線 | `progressLineWidth` | イナズマ線の太さ |
@@ -413,7 +418,7 @@
 | CM-12 | `Task` | `setTaskDeadline` | — | 期限を置く | `FR-006` |
 | CM-13 | `Task` | `setTaskPlanActualState` | ⭐ | 予実の 5 列を置く | `FR-010` |
 | CM-14 | `Task` | `beginTaskActual` | ⭐ | 実績を置き始める | `FR-043` |
-| CM-15 | `Task` | `cycleTaskPlanActualState` | ⭐ | 予実の状態を巡らせる | `FR-013` |
+| CM-15 | `Task` | `cycleTaskPlanActualState` | ⭐ | 予実の状態を、表 T-021a の輪に沿って 1 つ進める。<br>中断から未着手へ戻すときに外した実績は `ScreenState` が覚え、本命令はそこから受け取る | `FR-013` |
 | CM-16 | `Task` | `setTaskFadeInDays` | — | フェードイン日数を置く | `FR-075` |
 | CM-17 | `Task` | `setTaskFadeOutDays` | — | フェードアウト日数を置く | `FR-075` |
 | CM-18 | `Task` | `setTaskWbsParent` | — | WBS の親を移す | `FR-005` |
@@ -559,7 +564,7 @@
 | IC-43 | `Command Palette` | 表示 | グループ罫線を表示する・非表示にする（`S-68`）| `FR-049`（`FR-042`）| — |
 | IC-79 | `Command Palette` | 表示 | 担当ラベルを表示する・非表示にする（`S-60`）| `FR-049` | — |
 | IC-80 | `Command Palette` | 表示 | 完了率ラベルを表示する・非表示にする（`S-61`）| `FR-049`（`FR-090`）| — |
-| IC-81 | `Command Palette` | 表示 | 依存線を表示する・非表示にする（`S-62`）。<br>⚠️ **隠しているあいだも、依存線を選ぶ・ラグを編集する・削除する経路は別の面に残る** —— 規則と理由は `FR-049` が持つ | `FR-049`（`FR-009`）| — |
+| IC-81 | `Command Palette` | 表示 | 依存線を表示する・非表示にする（`S-62`）。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ | `FR-049`（`FR-009`）| — |
 | IC-99 | `Command Palette` | 表示 | 文字サイズの段を変える（`S-70`。<br>3 値排他）。<br>⭐ **押すたびに 表 T-215 が刷る並びの次の段へ移り、末尾の次は先頭へ戻る** —— `FR-029` が同じ機能の入口を 2 か所に置くことを禁じているので、入口は 1 つであり、1 つの入口が 3 段すべてに届くには巡るほかない。<br>⚠️ **段の並びは 表 T-215 のものであって、本行が定めるものではない** | `FR-039`（表 T-108 の `CM-62`）| — |
 | IC-100 | `Command Palette` | 表示 | モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である | `FR-041`（表 T-108 の `CM-64`）| — |
 | IC-101 | `Command Palette` | 表示 | 積む向きを選ぶ（`S-58`。<br>2 値排他）。<br>⭐ **押すたびにもう一方の向きへ移る** —— `IC-16`（`S-72`）と同じ形であり、値が 2 つしか無いので巡りは往復になる | `FR-003`（表 T-108 の `CM-56`）| — |

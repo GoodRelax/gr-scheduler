@@ -20,7 +20,7 @@
 //   T-023b  AR-1..AR-6 -- what may be armed
 //   T-023   MK-1..MK-13 -- the pointer and keyboard assignment
 //   T-023c  SL-1..SL-8 -- selection (FR-081)
-//   T-023d  GR-1..GR-19 -- grab areas and their priority, and the closing rule
+//   T-023d  GA-7..GR-19 -- grab areas and their priority, and the closing rule
 //           that takes the plain press away from the double-click-only rows
 //   T-036   SK-1..SK-20 -- the shortcut assignment (FR-070)
 //   T-028   IN-1..IN-5a -- input manners (FR-040)
@@ -158,10 +158,7 @@ const SL_1_KINDS = ['task', 'dependency', 'highlightBox', 'commentBox', 'statusL
  * 本行は優先順の上ではなく末尾に置いてある」.
  */
 const T_023D = [
-  'GR-19', 'GR-22',
-  'GR-1', 'GR-2', 'GR-5', 'GR-6', 'GR-17', 'GR-9', 'GR-10', 'GR-11', 'GR-8',
-  'GR-15', 'GR-18', 'GR-13', 'GR-14', 'GR-3', 'GR-4', 'GR-7', 'GR-12',
-  'GR-20', 'GR-16', 'GR-21',
+  'GR-19', 'GR-22', 'GR-10', 'GR-11', 'GR-14', 'GR-23', 'GR-20', 'GR-16', 'GR-21',
 ] as const
 
 /** 表 T-028 -- the input manners (FR-040). */
@@ -589,7 +586,7 @@ const marqueeOverTask1 = (): {
 
 const hitOf = (item: Hit['item'], grab: Hit['grab']): Hit => ({ item, grab })
 
-const TASK_1_HIT = hitOf({ kind: 'task', taskUid: 1 }, 'GR-12')
+const TASK_1_HIT = hitOf({ kind: 'task', taskUid: 1 }, 'GA-9')
 
 // ---------------------------------------------------------------------------
 // Reading the three answers.
@@ -675,11 +672,11 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_023B).toHaveLength(6)
     expect(T_023).toHaveLength(14)
     expect(T_023C).toHaveLength(10)
-    expect(T_023D).toHaveLength(22)
+    expect(T_023D).toHaveLength(9)
     expect(T_028).toHaveLength(8)
     expect(T_036).toHaveLength(22)
     expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
-    expect(new Set(T_023D).size).toBe(22)
+    expect(new Set(T_023D).size).toBe(9)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
     expect(SL_1_KINDS).toHaveLength(5)
@@ -751,7 +748,9 @@ describe('FR-028 -- every answer is a value; nothing is thrown', () => {
       contextOf(),
     )
     expect(answer.action).toBeNull()
-    expect(answer.isBrowserDefaultStopped).toBe(false)
+    // WHY: `FR-105` is MK-12's one exception since CR-430 -- a press or drag on
+    // the schedule starts no text selection, though MK-12 still assigns no action.
+    expect(answer.isBrowserDefaultStopped).toBe(true)
   })
 
   it('answers rather than throwing for a pointer outside every region', () => {
@@ -809,7 +808,7 @@ describe('WS-3 / WS-4 of 表 T-067 and FR-031 -- one write per gesture', () => {
 
   it('carries a whole gesture as ONE `changeDocument` (FR-031, MUST)', () => {
     // A body drag that crosses a row asks two rows of table T-108 at once
-    // (GR-12: the parallel move, and HM-3's transplant).
+    // (GA-9: the parallel move, and HM-3's transplant).
     const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'))
     const to = pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g2'))
     const answer = gestureAction(from, to, TASK_1_HIT)
@@ -1192,14 +1191,17 @@ describe('MK-10 / MK-12 of 表 T-023 -- the browser keeps what this tool did not
   // (docs/spec/01-04-requirements.md:2295), against the prohibition MK-10
   // states: 「割り当てていない組合せを止めてはならない（MUST NOT）」
   // (docs/spec/01-04-requirements.md:2293).
-  it('MK-12 (MUST NOT): an unassigned modified drag does not silence the browser', () => {
+  it('FR-105 (MUST NOT): an unassigned modified drag over the schedule still starts no text selection', () => {
+    // WHY: `FR-105` excepts a modified unassigned drag from MK-12's handover to
+    // the browser, because a drag that selects the page's text was never wanted.
+    // WHY: MK-12 still holds that no action is assigned, which the case above drives.
     for (const mods of [modsOf({ alt: true }), modsOf({ ctrl: true, shift: true })]) {
       const from = pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { modifiers: mods })
       const to = pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1'), { modifiers: mods })
       expect(
         gestureAction(from, to, TASK_1_HIT).isBrowserDefaultStopped,
         JSON.stringify(mods),
-      ).toBe(false)
+      ).toBe(true)
     }
   })
 })
@@ -2109,7 +2111,7 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
   it('SL-2: a click selects a dependency, a box and the status line (SL-1 kinds)', () => {
     const cases: readonly { readonly hit: Hit; readonly expected: ItemRef }[] = [
       {
-        hit: hitOf({ kind: 'dependency', predecessorUid: 1, successorUid: 2 }, 'GR-13'),
+        hit: hitOf({ kind: 'dependency', predecessorUid: 1, successorUid: 2 }, 'GA-19'),
         expected: { kind: 'dependency', successorUid: 2, ordinal: 0 },
       },
       {
@@ -2282,7 +2284,7 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
     const answer = gestureAction(
       pointerOf('down', placementOf(1).x + placementOf(1).width, midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-15'), midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-4'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-2'),
       { selection: held },
     )
     const moved = commandsOf(answer).filter((one) => one.kind === 'setTaskPlanDates')
@@ -2348,23 +2350,23 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
 describe('表 T-023d -- what a grab does', () => {
   /** The rows whose operation the published vocabulary can already express. */
   const ROUTED: Readonly<Record<string, string>> = {
-    'GR-3': 'setTaskPlanDates',
-    'GR-4': 'setTaskPlanDates',
-    'GR-7': 'cycleTaskPlanActualState',
+    'GA-1': 'setTaskPlanDates',
+    'GA-2': 'setTaskPlanDates',
+    'GA-18': 'cycleTaskPlanActualState',
     // FR-043's three faint dummies all place the same three columns, so all
     // three rows route to CM-14. TASK_1 carries no actual, which is the state
     // 「`Task` が未着手であるあいだ」 names.
-    'GR-9': 'beginTaskActual',
-    'GR-17': 'beginTaskActual',
-    'GR-18': 'beginTaskActual',
-    'GR-12': 'setTaskPlanDates',
+    'GA-5': 'beginTaskActual',
+    'GA-6': 'beginTaskActual',
+    'GA-17': 'beginTaskActual',
+    'GA-9': 'setTaskPlanDates',
     'GR-16': 'setStatusDate',
   }
 
   const itemFor = (row: string): Hit['item'] =>
     row === 'GR-16'
       ? { kind: 'statusLine' }
-      : row === 'GR-13'
+      : row === 'GA-19'
         ? { kind: 'dependency', predecessorUid: 1, successorUid: 2 }
         : row === 'GR-14'
           ? { kind: 'commentBox', id: 'c1' }
@@ -2391,11 +2393,11 @@ describe('表 T-023d -- what a grab does', () => {
     }
   })
 
-  it('GR-9 / GR-17 / GR-18 (FR-043): a release on any dummy asks for one CM-14 carrying the day let go on', () => {
+  it('GA-5 / GA-6 / GA-17 (FR-043): a release on any dummy asks for one CM-14 carrying the day let go on', () => {
     // ⚠️ Table T-028's IN-1 settles a pointer operation on the release, so the
     // gesture below is press then up.
     const releasedOn = '2026-01-13'
-    for (const row of ['GR-9', 'GR-17', 'GR-18'] as const) {
+    for (const row of ['GA-5', 'GA-6', 'GA-17'] as const) {
       const answer = gestureAction(
         pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
         // Let go on a different day from the press, so a command that carried
@@ -2411,23 +2413,15 @@ describe('表 T-023d -- what a grab does', () => {
       // The two spellings of one day differ (`textOfDay` writes the exchange
       // partner's own type), so the comparison is of the day, not the text.
       expect(String(asked['droppedDay']).slice(0, 10), row).toBe(releasedOn)
-      // ⭐⭐ AND WHICH HOLD WAS TAKEN TRAVELS WITH IT (ledger DFC-415). The two
-      // rows write DIFFERENT columns -- table T-023d GR-9 「掴めば `actualStart`
-      // と `actualDuration` を置く」, GR-17 「掴めば `actualDuration` を置く
-      // （`actualStart` は `GR-9` の日で確定。`FR-043`）」 -- and ⛔ NOTHING
-      // DOWNSTREAM CAN RECOVER IT: both handles stand on ONE drawn mark
-      // (FR-043, MUST: 「ダミーの印は 1 つだけ描くこと」), and the closing rule
-      // splits that one mark down its middle, so which half was pressed is a
-      // fact of the POINTER and this unit is the only place holding it.
-      // ⚠️ MEASURED 2026-09-10: with this line absent, sending `GR-9` for every
-      // hold left `npx vitest run` at ZERO red -- the carry had no anchor at
-      // all, and the whole GR-17 arm of `edit-task.ts` was unreachable in
-      // practice while every case stayed green.
+      // WHY: GA-5 and GA-6 of table T-023d write different columns and stand on
+      // one drawn mark, so which half was pressed is a fact only the pointer has.
+      // WHY: measured 2026-09-10 -- sending GA-5 for every hold left vitest at
+      // zero red, so the whole GA-6 arm of `edit-task.ts` was never reached.
       expect(asked['grabbed'], row).toBe(row)
     }
   })
 
-  it('⛔ GR-18 (FR-043, MUST NOT): a MILESTONE is no exception -- the released day travels too', () => {
+  it('⛔ GA-17 (FR-043, MUST NOT): a MILESTONE is no exception -- the released day travels too', () => {
     // ⛔ WHAT IS NOT CLAIMED HERE: `S-130`. This unit answers WHICH command a
     // release asks for; the actual period the command places is the use case's,
     // and t-023d-dummy-stands-clear-of-the-plan-start.test.ts holds it.
@@ -2445,7 +2439,7 @@ describe('表 T-023d -- what a grab does', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
       pointerOf('up', xOfDay(releasedOn), midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-18'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-17'),
       milestoneFrame,
     )
     const commands = commandsOf(answer)
@@ -2456,13 +2450,13 @@ describe('表 T-023d -- what a grab does', () => {
     expect(String(asked['droppedDay']).slice(0, 10)).toBe(releasedOn)
   })
 
-  // FINDING (left failing). The unit answers nothing for GR-1 and GR-2, and
+  // FINDING (left failing). The unit answers nothing for GA-7 and GA-8, and
   // the note that records why says the derivation 「is not in any table of the
   // specification」. ⛔ IT IS, in table T-023d's own closing rules, three
   // paragraphs under the table the note names among what it searched:
   //
-  //   「**`GR-1` / `GR-2` の日数は、ポインタの下の日から求めること（MUST）。**
-  //     `GR-1` は `start` からの日数、`GR-2` は `end` までの日数とし、**いずれも
+  //   「**`GA-7` / `GA-8` の日数は、ポインタの下の日から求めること（MUST）。**
+  //     `GA-7` は `start` からの日数、`GA-8` は `end` までの日数とし、**いずれも
   //     1 日単位に四捨五入する。** **得た日数は 表 T-012a の `FD-6` で切り詰める
   //     こと（MUST）。**」
   //
@@ -2477,46 +2471,46 @@ describe('表 T-023d -- what a grab does', () => {
   // so that 「日数」 is 2 whether the count is calendar days or worked days --
   // the two readings are not separated anywhere, and this case does not need
   // them to be.
-  it('GR-1 / GR-2 (FR-075, MUST): a corner dragged two days along sets the fade days', () => {
+  it('GA-7 / GA-8 (FR-075, MUST): a corner dragged two days along sets the fade days', () => {
     const twoDaysIn = xOfDay('2026-01-07')
     const fadeIn = gestureAction(
       pointerOf('down', xOfDay('2026-01-05'), midYOfRow('g1')),
       pointerOf('up', twoDaysIn, midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-1'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-7'),
     )
     expect(commandsOf(fadeIn)).toEqual([{ kind: 'setTaskFadeInDays', uid: 1, days: 2 }])
 
     const fadeOut = gestureAction(
       pointerOf('down', xOfDay('2026-01-09'), midYOfRow('g1')),
       pointerOf('up', twoDaysIn, midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-2'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-8'),
     )
     expect(commandsOf(fadeOut)).toEqual([{ kind: 'setTaskFadeOutDays', uid: 1, days: 2 }])
   })
 
-  it('GR-3: dragging the left end moves `start` to the day it was dropped on', () => {
+  it('GA-1: dragging the left end moves `start` to the day it was dropped on', () => {
     const answer = gestureAction(
       pointerOf('down', placementOf(1).x, midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-02'), midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-3'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-1'),
     )
     const moved = oneCommand(answer, 'setTaskPlanDates')
     expect(String(moved['start']).slice(0, 10)).toBe('2026-01-02')
     expect(String(moved['finish']).slice(0, 10)).toBe('2026-01-09')
   })
 
-  it('GR-4: dragging the right end moves `finish` only', () => {
+  it('GA-2: dragging the right end moves `finish` only', () => {
     const answer = gestureAction(
       pointerOf('down', placementOf(1).x + placementOf(1).width, midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-15'), midYOfRow('g1')),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-4'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-2'),
     )
     const moved = oneCommand(answer, 'setTaskPlanDates')
     expect(String(moved['start']).slice(0, 10)).toBe('2026-01-05')
     expect(String(moved['finish']).slice(0, 10)).toBe('2026-01-15')
   })
 
-  it('GR-12 / FR-011 (MUST): a body drag shifts the plan and keeps its length', () => {
+  it('GA-9 / FR-011 (MUST): a body drag shifts the plan and keeps its length', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-09'), midYOfRow('g1')),
@@ -2529,7 +2523,7 @@ describe('表 T-023d -- what a grab does', () => {
     expect(start - serialOf('2026-01-05')).toBe(3)
   })
 
-  it('GR-12 / FR-011 (MUST NOT): a body drag never writes an actual date', () => {
+  it('GA-9 / FR-011 (MUST NOT): a body drag never writes an actual date', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g2')),
@@ -2538,7 +2532,7 @@ describe('表 T-023d -- what a grab does', () => {
     for (const forbidden of ACTUAL_WRITERS) expect(kindsOf(answer)).not.toContain(forbidden)
   })
 
-  it('GR-12 / HM-3 of 表 T-015a: a vertical body drag transplants the row', () => {
+  it('GA-9 / HM-3 of 表 T-015a: a vertical body drag transplants the row', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-06'), midYOfRow('g4')),
@@ -2549,7 +2543,7 @@ describe('表 T-023d -- what a grab does', () => {
     expect(moved['groupId']).toBe('g4')
   })
 
-  it('GR-12: a body drag that stays on its row asks for no transplant', () => {
+  it('GA-9: a body drag that stays on its row asks for no transplant', () => {
     const answer = gestureAction(
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
@@ -2558,13 +2552,13 @@ describe('表 T-023d -- what a grab does', () => {
     expect(kindsOf(answer)).not.toContain('moveTaskToTaskGroup')
   })
 
-  it('GR-7 / FR-013: pressing the progress marker cycles the state', () => {
+  it('GA-18 / FR-013: pressing the progress marker cycles the state', () => {
     const at = xOfDay('2026-01-10')
     const y = midYOfRow('g1')
     const answer = gestureAction(
       pointerOf('down', at, y),
       pointerOf('up', at, y),
-      hitOf({ kind: 'task', taskUid: 1 }, 'GR-7'),
+      hitOf({ kind: 'task', taskUid: 1 }, 'GA-18'),
     )
     expect(oneCommand(answer, 'cycleTaskPlanActualState')['uid']).toBe(1)
   })
@@ -2611,7 +2605,7 @@ describe('MK-13 of 表 T-023 -- the double click', () => {
   //     操作がすでにその操作である。**」
   // FR-072 is where the panel's contents are settled instead: 「プロパティパネル
   // に出す中身を**最後に行われた操作**で決めること」 -- no input has to ask.
-  // ⚠️ The body is GR-12 of 表 T-023d, and the closing rule under that table
+  // ⚠️ The body is GA-9 of 表 T-023d, and the closing rule under that table
   // says 「ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より
   // 先に読むこと（MUST）」, so the hit this case hands in is the one a double
   // click on the bar really arrives with.

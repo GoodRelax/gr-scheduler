@@ -14,7 +14,7 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import {
   NOT_STORED_SIZES,
   itemAtPointer,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -22,7 +22,11 @@ import {
   type ScheduleGeometry,
   type TaskGeometry,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
-import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  layoutFromSchedule,
+  taskPlacement,
+  type TaskPlacement,
+} from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen, type ScreenEnvironment } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { specTable, unbroken } from '../contract/spec-table'
@@ -36,7 +40,7 @@ const DM_14_KEEP_THE_ROOM = 'あいだ、ダミーを描かないこと（MUST�
 const DM_14_PLAN_DISPLAY_DOES_NOT_DECIDE = '⛔ 予定の表示（`S-227`）で、ダミーを描くかどうかを変えてはならない（MUST NOT）'
 const FR_049_HIDDEN_KEEPS_ROOM_AND_LEAVES_THE_HIT =
   'は、占有（表 T-038 の算入と、名称ラベルの位置の数え方）をそのまま残し、描かず、当たり判定から外すこと（MUST）'
-const FR_049_HIDDEN_STAYS_IN_THE_ROOM = '帯高も段も動かない。⛔ 隠したものを占有から外してはならない（MUST NOT）'
+const FR_049_HIDDEN_STAYS_IN_THE_ROOM = '⛔ 隠したものを占有から外してはならない（MUST NOT）'
 
 const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSettings => {
   const out: Record<string, unknown> = {}
@@ -56,13 +60,7 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
 
 const ENV: ScreenEnvironment = { width: 1200, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }
 
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 const UNDER_TEST = 1
 
@@ -145,6 +143,7 @@ const notStarted = (): Schedule =>
 interface Drawn {
   readonly geometry: ScheduleGeometry
   readonly svg: string
+  readonly placed: TaskPlacement
 }
 
 const draw = (visible: { readonly plan: boolean; readonly actual: boolean }): Drawn => {
@@ -161,7 +160,9 @@ const draw = (visible: { readonly plan: boolean; readonly actual: boolean }): Dr
   const layout = layoutFromSchedule(schedule, settings, regions)
   const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
   const svg = svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen')
-  return { geometry, svg }
+  const placed = taskPlacement(layout, UNDER_TEST)
+  if (placed === null) throw new Error('the Task was not placed')
+  return { geometry, svg, placed }
 }
 
 const SHOWN = { plan: true, actual: true }
@@ -175,8 +176,8 @@ const taskOf = (drawn: Drawn): TaskGeometry => {
 }
 
 const startDummyOf = (drawn: Drawn): DummyGeometry => {
-  const found = taskOf(drawn).dummies.find((one) => one.grab === 'GR-9')
-  if (found === undefined) throw new Error('FR-043 drew no GR-9 on a Task nobody has started')
+  const found = taskOf(drawn).dummies.find((one) => one.grab === 'GA-5')
+  if (found === undefined) throw new Error('FR-043 drew no GA-5 on a Task nobody has started')
   return found
 }
 
@@ -245,7 +246,7 @@ describe('DM-14 premises: the rows still read this way', () => {
   it('with both shown, the picture draws the dummy ink the geometry names, which is what the reader finds', () => {
     const shown = draw(SHOWN)
     expect(drawsTheInk(shown.svg, startDummyOf(shown))).toBe(true)
-    expect(pressOnTheStartHalf(shown, startDummyOf(shown))).toBe('GR-9')
+    expect(pressOnTheStartHalf(shown, startDummyOf(shown))).toBe('GA-5')
   })
 })
 
@@ -258,22 +259,36 @@ describe('T-240 DM-14 (MUST): while S-228 is off the dummy is not drawn', () => 
   it('answers no dummy row where the shown picture had one', () => {
     const where = startDummyOf(draw(SHOWN))
     const answer = pressOnTheStartHalf(draw(ACTUAL_HIDDEN), where)
-    expect(answer, FR_049_HIDDEN_KEEPS_ROOM_AND_LEAVES_THE_HIT).not.toBe('GR-9')
-    expect(answer, FR_049_HIDDEN_KEEPS_ROOM_AND_LEAVES_THE_HIT).not.toBe('GR-17')
+    expect(answer, FR_049_HIDDEN_KEEPS_ROOM_AND_LEAVES_THE_HIT).not.toBe('GA-5')
+    expect(answer, FR_049_HIDDEN_KEEPS_ROOM_AND_LEAVES_THE_HIT).not.toBe('GA-6')
   })
 })
 
 describe('T-240 DM-14 (MUST) and FR-049 (MUST NOT): the hidden dummy keeps its room', () => {
-  it('leaves the name label where it stands with the actual shown', () => {
-    expect(taskOf(draw(ACTUAL_HIDDEN)).label, DM_14_KEEP_THE_ROOM).toEqual(taskOf(draw(SHOWN)).label)
+  it('leaves the occupancy and the counted label place exactly where they stood with the actual shown', () => {
+    const hidden = draw(ACTUAL_HIDDEN).placed
+    const shown = draw(SHOWN).placed
+    expect(
+      [hidden.occupiedX0, hidden.occupiedX1, hidden.labelX, hidden.labelPlacement, hidden.stack],
+      DM_14_KEEP_THE_ROOM,
+    ).toEqual([shown.occupiedX0, shown.occupiedX1, shown.labelX, shown.labelPlacement, shown.stack])
+  })
+
+  it('moves the DRAWN label onto the RF-3 reference, which is what the toggle costs', () => {
+    const hidden = taskOf(draw(ACTUAL_HIDDEN)).label
+    const shown = taskOf(draw(SHOWN)).label
+    if (hidden === null || shown === null) throw new Error('the name label was not drawn')
+    expect(hidden.y, 'only the horizontal follows the reference').toBeCloseTo(shown.y, 6)
+    expect(hidden.width).toBeCloseTo(shown.width, 6)
+    expect(hidden.x, 'RF-2 measures from the dummy, RF-3 from the plan start').toBeLessThan(shown.x)
   })
 })
 
 describe('T-240 DM-14 (MUST NOT): the plan display does not decide whether the dummy is drawn', () => {
-  it('draws the same dummy ink with S-227 off, and it still answers GR-9', () => {
+  it('draws the same dummy ink with S-227 off, and it still answers GA-5', () => {
     const shown = startDummyOf(draw(SHOWN))
     const planHidden = draw(PLAN_HIDDEN)
     expect(drawsTheInk(planHidden.svg, shown), DM_14_PLAN_DISPLAY_DOES_NOT_DECIDE).toBe(true)
-    expect(pressOnTheStartHalf(planHidden, shown), DM_14_PLAN_DISPLAY_DOES_NOT_DECIDE).toBe('GR-9')
+    expect(pressOnTheStartHalf(planHidden, shown), DM_14_PLAN_DISPLAY_DOES_NOT_DECIDE).toBe('GA-5')
   })
 })

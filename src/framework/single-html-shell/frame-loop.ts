@@ -248,15 +248,20 @@ export interface ScreenWiring {
   readonly readFocusPosition?: () => string
 }
 
-// see PC-5, PC-6
-type EndArrowCursor = `url(data:image/svg+xml,${string}) ${number} ${number}, ew-resize`
+// see T-269
+// WHY: the table's closing rule: a viewer that cannot take the drawn image is given a spelling that
+// still says which way the thing moves.
+type PointerFallback = 'ew-resize' | 'move' | 'pointer' | 'grab'
+
+type DrawnPointer = `url(data:image/svg+xml,${string}) ${number} ${number}, ${PointerFallback}`
 
 export type PointerShape =
   | 'default'
   | 'copy'
   | 'grabbing'
   | 'grab'
-  | EndArrowCursor
+  | 'pointer'
+  | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
 
@@ -264,102 +269,304 @@ type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
 
 type GrabbedArea = Grabbed['grab']
 
-type EndArrowRow = 'PC-1' | 'PC-2' | 'PC-3' | 'PC-4'
+// see T-269
+export type PointerRow =
+  | 'PK-1'
+  | 'PK-2'
+  | 'PK-3'
+  | 'PK-4'
+  | 'PK-5'
+  | 'PK-6'
+  | 'PK-7'
+  | 'PK-8'
+  | 'PK-9'
 
-// see T-264
-const END_ARROW_BY_ROW: Readonly<
-  Record<EndArrowRow, { readonly facing: 'left' | 'right'; readonly ink: 'hollow' | 'filled' }>
-> = {
-  'PC-1': { facing: 'left', ink: 'hollow' },
-  'PC-2': { facing: 'right', ink: 'hollow' },
-  'PC-3': { facing: 'left', ink: 'filled' },
-  'PC-4': { facing: 'right', ink: 'filled' },
+// see T-266
+// WHY: table T-269 draws one row two ways (the arrows' two headings, the fade's in and out), and
+// table T-266's pointer column is what says which way a grab margin takes.
+export type PointerFacing = 'start' | 'end'
+
+// TRAP: the grab type itself, not a spelling of its own: a row that leaves it must break here, not pass.
+type PointerGrabArea = GrabbedArea
+
+interface PointerOfGrab {
+  readonly row: PointerRow
+  readonly facing: PointerFacing
 }
 
-// see PC-5
-const END_ARROW_INKS: Readonly<
-  Record<'hollow' | 'filled', { readonly fill: string; readonly outline: string }>
+// see T-266, T-269
+// TRAP: read the pointer column of table T-266, never the drawn order: which shape shows is a
+// property of the grab margin, not of what is painted over it.
+const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> = {
+  'GA-1': { row: 'PK-1', facing: 'start' },
+  'GA-2': { row: 'PK-1', facing: 'end' },
+  'GA-3': { row: 'PK-2', facing: 'start' },
+  'GA-4': { row: 'PK-2', facing: 'end' },
+  'GA-5': { row: 'PK-2', facing: 'start' },
+  'GA-6': { row: 'PK-2', facing: 'end' },
+  'GA-7': { row: 'PK-3', facing: 'start' },
+  'GA-8': { row: 'PK-3', facing: 'end' },
+  'GA-9': { row: 'PK-8', facing: 'start' },
+  'GA-10': { row: 'PK-1', facing: 'start' },
+  'GA-11': { row: 'PK-1', facing: 'end' },
+  'GA-12': { row: 'PK-2', facing: 'start' },
+  'GA-13': { row: 'PK-2', facing: 'end' },
+  'GA-14': { row: 'PK-8', facing: 'start' },
+  'GA-15': { row: 'PK-5', facing: 'start' },
+  'GA-16': { row: 'PK-6', facing: 'start' },
+  'GA-17': { row: 'PK-6', facing: 'start' },
+  'GA-18': { row: 'PK-7', facing: 'start' },
+  'GA-19': { row: 'PK-4', facing: 'end' },
+  'GA-20': { row: 'PK-9', facing: 'start' },
+  'GA-21': { row: 'PK-2', facing: 'start' },
+  'GA-22': { row: 'PK-2', facing: 'end' },
+  // WHY: table T-269 draws the shapes of the schedule only; the rest of table T-023d holds no row there.
+  'GR-10': null,
+  'GR-11': null,
+  'GR-14': null,
+  'GR-16': null,
+}
+
+// WHY: read by row ID: the map above is exhaustive over the grab rows, and a row outside it has none.
+const POINTER_BY_ROW_ID: Readonly<Record<string, PointerOfGrab | null | undefined>> =
+  POINTER_BY_GRAB
+
+type PointerInk = 'hollow' | 'filled'
+
+// see T-269
+// WHY: white is the plan, black the actual and the dummy -- the table asks the box arrows and the
+// circles to keep that promise together.
+const POINTER_INKS: Readonly<
+  Record<PointerInk, { readonly fill: string; readonly outline: string }>
 > = {
   hollow: { fill: '#ffffff', outline: '#000000' },
   filled: { fill: '#000000', outline: '#ffffff' },
 }
 
-// WHY: the arrow is drawn on its own grid and stretched to S-249, so a new side keeps the drawing.
-const END_ARROW_GRID = 24
+// WHY: the square shapes are drawn on this one grid and stretched to their row's side, so a changed
+// side keeps the drawing.
+const POINTER_GRID = 24
 
 // WHY: the head's point and the shaft's far end sit inside the grid by more than the outline's half width.
-const END_ARROW_LEFT_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
+const BOX_ARROW_START_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
 
-const END_ARROW_OUTLINE_WIDTH = 1.5
+// WHY: a thin shaft and a thin triangular head, traced as one outline so the edge runs all the way round.
+const LINE_ARROW_END_PATH = 'M2 11 H13 V6 L22 12 L13 18 V13 H2 Z'
+
+// WHY: the bar, the arm and the head of the resume icon, traced as one outline; the bend is where the
+// bar's own line crosses the arm.
+const RESUME_ARROW_PATH = 'M2 3 H6 V10 H15 V6 L22 12 L15 18 V14 H6 V21 H2 Z'
+
+const RESUME_ARROW_BEND = { x: 4, y: 12 }
 
 // TRAP: an unquoted url() ends at a bare quote or parenthesis, which encodeURIComponent leaves as they are.
 const URL_UNSAFE_LEFT_BY_ENCODING = /['()]/g
 
-// see PC-5, PC-6
-// TRAP: S-249 only, never the display scale; the table's closing rule keeps the pointer off FR-039.
 /** @purity pure */
-function endArrowCursor(row: EndArrowRow): EndArrowCursor {
-  const { facing, ink } = END_ARROW_BY_ROW[row]
-  const { fill, outline } = END_ARROW_INKS[ink]
-  const side = NOT_STORED_END_POINTER_SIZES['S-249']
-  const hotspot = side / 2
-  const mirror = facing === 'right' ? ` transform='matrix(-1 0 0 1 ${END_ARROW_GRID} 0)'` : ''
-  const picture =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='${side}' height='${side}' ` +
-    `viewBox='0 0 ${END_ARROW_GRID} ${END_ARROW_GRID}'>` +
-    `<path d='${END_ARROW_LEFT_PATH}'${mirror} fill='${fill}' stroke='${outline}' ` +
-    `stroke-width='${END_ARROW_OUTLINE_WIDTH}' stroke-linejoin='round'/></svg>`
+function pointerCursor(
+  picture: string,
+  hotspotX: number,
+  hotspotY: number,
+  fallback: PointerFallback,
+): DrawnPointer {
   const encoded = encodeURIComponent(picture).replace(
     URL_UNSAFE_LEFT_BY_ENCODING,
     (one) => `%${one.charCodeAt(0).toString(16).toUpperCase()}`,
   )
-  return `url(data:image/svg+xml,${encoded}) ${hotspot} ${hotspot}, ew-resize`
+  return `url(data:image/svg+xml,${encoded}) ${hotspotX} ${hotspotY}, ${fallback}`
 }
 
-// see IN-2, T-264
-const POINTER_SIGN_BY_GRAB: Readonly<Record<GrabbedArea, EndArrowRow | 'grab' | null>> = {
-  'GR-3': 'PC-1',
-  'GR-4': 'PC-2',
-  'GR-5': 'PC-3',
-  'GR-6': 'PC-4',
-  'GR-9': 'PC-3',
-  'GR-17': 'PC-4',
-  'GR-12': 'grab',
-  'GR-15': 'grab',
-  'GR-18': 'grab',
-  'GR-1': null,
-  'GR-2': null,
-  'GR-7': null,
-  'GR-8': null,
-  'GR-10': null,
-  'GR-11': null,
-  'GR-13': null,
-  'GR-14': null,
-  'GR-16': null,
+// see T-269
+// TRAP: the side comes from S-249 or S-296 alone, never the display scale; the table's closing rule
+// keeps the pointer off FR-039.
+/** @purity pure */
+function squarePointer(
+  side: number,
+  path: string,
+  ink: PointerInk,
+  join: 'round' | 'miter',
+  mirrored: boolean,
+  hotspot: { readonly x: number; readonly y: number },
+  fallback: PointerFallback,
+): DrawnPointer {
+  const { fill, outline } = POINTER_INKS[ink]
+  // WHY: the outline is one width for every shape (S-297), measured in the image's own pixels, so the
+  // grid's own units carry it back up by the same ratio the grid is stretched down by.
+  const edge = (NOT_STORED_END_POINTER_SIZES['S-297'] * POINTER_GRID) / side
+  const mirror = mirrored ? ` transform='matrix(-1 0 0 1 ${POINTER_GRID} 0)'` : ''
+  const picture =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${side}' height='${side}' ` +
+    `viewBox='0 0 ${POINTER_GRID} ${POINTER_GRID}'>` +
+    `<path d='${path}'${mirror} fill='${fill}' stroke='${outline}' ` +
+    `stroke-width='${edge}' stroke-linejoin='${join}'/></svg>`
+  const across = (mirrored ? POINTER_GRID - hotspot.x : hotspot.x) * (side / POINTER_GRID)
+  const down = hotspot.y * (side / POINTER_GRID)
+  return pointerCursor(picture, across, down, fallback)
+}
+
+// see PK-1, PK-2
+/** @purity pure */
+function boxArrowPointer(ink: PointerInk, facing: PointerFacing): DrawnPointer {
+  const side = NOT_STORED_END_POINTER_SIZES['S-249']
+  const middle = POINTER_GRID / 2
+  return squarePointer(
+    side,
+    BOX_ARROW_START_PATH,
+    ink,
+    'round',
+    facing === 'end',
+    { x: middle, y: middle },
+    'ew-resize',
+  )
+}
+
+// see PK-4
+/** @purity pure */
+function lineArrowPointer(): DrawnPointer {
+  const side = NOT_STORED_END_POINTER_SIZES['S-249']
+  const middle = POINTER_GRID / 2
+  // WHY: pointer, not a resize: a dependency line is pressed to choose it, never dragged by an end.
+  return squarePointer(
+    side,
+    LINE_ARROW_END_PATH,
+    'hollow',
+    'miter',
+    false,
+    { x: middle, y: middle },
+    'pointer',
+  )
+}
+
+// see PK-9
+/** @purity pure */
+function resumeArrowPointer(): DrawnPointer {
+  return squarePointer(
+    NOT_STORED_END_POINTER_SIZES['S-296'],
+    RESUME_ARROW_PATH,
+    'filled',
+    'miter',
+    false,
+    RESUME_ARROW_BEND,
+    'ew-resize',
+  )
+}
+
+// see PK-3
+// WHY: the image is S-294 exactly, and the triangle is set in by half the outline, so the whole
+// edge stands inside the size the table names instead of the image growing past it.
+/** @purity pure */
+function fadeTrianglePointer(facing: PointerFacing): DrawnPointer {
+  const [across, down] = NOT_STORED_END_POINTER_SIZES['S-294']
+  const half = NOT_STORED_END_POINTER_SIZES['S-297'] / 2
+  const right = across - half
+  const bottom = down - half
+  const { fill, outline } = POINTER_INKS.hollow
+  // WHY: the in side spreads to the upper left and the out side to the lower right (PK-3), so the
+  // right angle stands at the far corner for one and at the near corner for the other.
+  const corner = facing === 'start' ? { x: right, y: bottom } : { x: half, y: half }
+  const points =
+    facing === 'start'
+      ? `${right},${bottom} ${half},${bottom} ${right},${half}`
+      : `${half},${half} ${right},${half} ${half},${bottom}`
+  const picture =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${across}' height='${down}' ` +
+    `viewBox='0 0 ${across} ${down}'>` +
+    `<polygon points='${points}' fill='${fill}' stroke='${outline}' ` +
+    `stroke-width='${NOT_STORED_END_POINTER_SIZES['S-297']}' stroke-linejoin='round'/></svg>`
+  return pointerCursor(picture, corner.x, corner.y, 'ew-resize')
+}
+
+// see PK-5, PK-6
+// WHY: S-295 is the circle across, outline and all, so the radius gives the outline back its half.
+/** @purity pure */
+function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
+  const [hollowAcross, filledAcross] = NOT_STORED_END_POINTER_SIZES['S-295']
+  const across = ink === 'hollow' ? hollowAcross : filledAcross
+  const edge = NOT_STORED_END_POINTER_SIZES['S-297']
+  const middle = across / 2
+  const { fill, outline } = POINTER_INKS[ink]
+  const picture =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${across}' height='${across}' ` +
+    `viewBox='0 0 ${across} ${across}'>` +
+    `<circle cx='${middle}' cy='${middle}' r='${middle - edge / 2}' fill='${fill}' ` +
+    `stroke='${outline}' stroke-width='${edge}'/></svg>`
+  return pointerCursor(picture, middle, middle, fallback)
+}
+
+// see T-269
+// WHY: PK-7 and PK-8 are the viewer's own finger and palm, so this tool draws no image for them.
+/** @purity pure */
+export function pointerImageOf(
+  row: PointerRow,
+  facing: PointerFacing = 'start',
+): PointerShape {
+  switch (row) {
+    case 'PK-1':
+      return boxArrowPointer('hollow', facing)
+    case 'PK-2':
+      return boxArrowPointer('filled', facing)
+    case 'PK-3':
+      return fadeTrianglePointer(facing)
+    case 'PK-4':
+      return lineArrowPointer()
+    // WHY: move, not a resize: the plan of a milestone travels sideways and across rows alike.
+    case 'PK-5':
+      return discPointer('hollow', 'move')
+    case 'PK-6':
+      return discPointer('filled', 'ew-resize')
+    case 'PK-7':
+      return 'pointer'
+    case 'PK-8':
+      return 'grab'
+    case 'PK-9':
+      return resumeArrowPointer()
+  }
+}
+
+// see IN-2, FR-106
+// WHY: an armed dependency takes none of them -- IN-2 asks for the drawing sign while the tool is armed.
+/** @purity pure */
+export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
+  if (armed || hit === null) return null
+  return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
+}
+
+// see T-266
+/** @purity pure */
+function pointerFacingOf(hit: Grabbed): PointerFacing {
+  return POINTER_BY_ROW_ID[hit.grab]?.facing ?? 'start'
 }
 
 // STOP: spec does not decide which T-023d rows draw while held beyond its two
 // closing rules. Looked in T-023d, FR-052, IN-1
 // @provisional PND-250
 const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
-  'GR-1': true,
-  'GR-2': true,
-  'GR-3': true,
-  'GR-4': true,
-  'GR-5': true,
-  'GR-6': true,
-  'GR-7': false,
-  'GR-8': true,
-  'GR-9': true,
+  'GA-1': true,
+  'GA-2': true,
+  'GA-3': true,
+  'GA-4': true,
+  'GA-5': true,
+  'GA-6': true,
+  'GA-7': true,
+  'GA-8': true,
+  'GA-9': true,
+  'GA-10': true,
+  'GA-11': true,
+  'GA-12': true,
+  'GA-13': true,
+  'GA-14': true,
+  'GA-15': true,
+  'GA-16': true,
+  'GA-17': true,
+  'GA-18': true,
+  'GA-19': false,
+  'GA-20': true,
+  'GA-21': true,
+  'GA-22': true,
   'GR-10': false,
   'GR-11': false,
-  'GR-12': true,
-  'GR-13': false,
   'GR-14': true,
-  'GR-15': true,
   'GR-16': true,
-  'GR-17': true,
-  'GR-18': true,
 }
 
 // see PTD-5
@@ -2614,6 +2821,19 @@ export function frameLoop(
     }
   }
 
+  // see PE-0
+  // WHY: the whole Schedule Canvas, ruler band included, and whatever modifier is held: a press or
+  // WHY: a drag there must not hand the browser its own text selection.
+  /** @purity semi-pure-b */
+  function startsNoTextSelection(input: HumanInput, frame: FrameValues): boolean {
+    if (input.kind !== 'pointer') return false
+    const down = input.phase === 'down' && input.button === 'left'
+    const drag = input.phase === 'move' && pressed !== null && pressed.at.button === 'left'
+    if (!down && !drag) return false
+    const region = regionAtPointer(frame.regions, input.x, input.y)
+    return region === 'rowArea' || region === 'timeRuler' || region === 'scheduleCanvas'
+  }
+
   /** @purity semi-pure-b */
   function grabAtPointer(
     frame: FrameValues,
@@ -2632,7 +2852,7 @@ export function frameLoop(
     readonly shape: PointerShape | null
   } | null = null
 
-  // see PC-7
+  // see FR-106
   // WHY: keyed on the press's own point, which every rebuild of the press carries over unchanged.
   // WHY: read off what the press grabbed, so a press whose happening returned early still keeps its shape.
   /** @purity non-pure */
@@ -2669,17 +2889,17 @@ export function frameLoop(
     if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
     if (dualCursorFollowing !== null) return null
     const armed = screenState.armed
-    if (armed.kind === 'dependency') {
+    const isArmedDependency = armed.kind === 'dependency'
+    const row = pointerRowOf(hit, isArmedDependency)
+    if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit))
+    if (isArmedDependency) {
       // WHY: an armed dependency applies no T-023d row (PTD-3), so an end, a dummy,
       // a body or a figure must not promise a move; IN-2 asks for the plain arrow.
       if (hit !== null) return 'default'
       // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
       return null
     }
-    if (hit !== null) {
-      const sign = POINTER_SIGN_BY_GRAB[hit.grab]
-      return sign === null || sign === 'grab' ? sign : endArrowCursor(sign)
-    }
+    if (hit !== null) return null
     if (armed.kind === 'none') return 'default'
     return 'copy'
   }
@@ -4139,6 +4359,7 @@ export function frameLoop(
       ) {
         return false
       }
+      if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },
     receiveInput,
@@ -4243,8 +4464,16 @@ const NOT_STORED_INTERACTION_RECORD_LIMITS: {
 // see T-206
 const NOT_STORED_END_POINTER_SIZES: {
   readonly 'S-249': number
+  readonly 'S-294': readonly [number, number]
+  readonly 'S-295': readonly [number, number]
+  readonly 'S-296': number
+  readonly 'S-297': number
 } = {
-  'S-249': 24,
+  'S-249': 16,
+  'S-294': [10, 7.5],
+  'S-295': [12, 8],
+  'S-296': 12,
+  'S-297': 0.47,
 }
 
 // see T-206

@@ -1422,13 +1422,33 @@
    }
   },
   {
-   "rowId": "K-20",
+   "rowId": "K-126",
    "keys": [
-    "dependencyRunOfArrow"
+    "dependencyLeadOut"
    ],
    "label": {
-    "ja": "入口の走り ÷ 三角形",
-    "en": "dependencyRunOfArrow"
+    "ja": "出口の走り",
+    "en": "dependencyLeadOut"
+   }
+  },
+  {
+   "rowId": "K-127",
+   "keys": [
+    "dependencyLeadIn"
+   ],
+   "label": {
+    "ja": "入口の走り",
+    "en": "dependencyLeadIn"
+   }
+  },
+  {
+   "rowId": "K-128",
+   "keys": [
+    "dependencyArrowWidth"
+   ],
+   "label": {
+    "ja": "矢印の三角形の底辺",
+    "en": "dependencyArrowWidth"
    }
   },
   {
@@ -1439,16 +1459,6 @@
    "label": {
     "ja": "マーカー径",
     "en": "markerSize"
-   }
-  },
-  {
-   "rowId": "K-23",
-   "keys": [
-    "markerGap"
-   ],
-   "label": {
-    "ja": "実績の右端からの隙間",
-    "en": "markerGap"
    }
   },
   {
@@ -1512,6 +1522,26 @@
    }
   },
   {
+   "rowId": "K-129",
+   "keys": [
+    "resumeOpacityInvalid"
+   ],
+   "label": {
+    "ja": "再開日未定のときの濃さ",
+    "en": "resumeOpacityInvalid"
+   }
+  },
+  {
+   "rowId": "K-130",
+   "keys": [
+    "resumeDashWidth"
+   ],
+   "label": {
+    "ja": "再開アイコンへ繋ぐ破線の太さ",
+    "en": "resumeDashWidth"
+   }
+  },
+  {
    "rowId": "K-30",
    "keys": [
     "labelCoef"
@@ -1527,7 +1557,7 @@
     "labelPad"
    ],
    "label": {
-    "ja": "形状の内側の余白",
+    "ja": "タスク名を開始から離す隙間",
     "en": "labelPad"
    }
   },
@@ -1537,8 +1567,38 @@
     "labelGap"
    ],
    "label": {
-    "ja": "形状の外へ出すときの隙間",
+    "ja": "タスク名をマーカーから離す隙間",
     "en": "labelGap"
+   }
+  },
+  {
+   "rowId": "K-131",
+   "keys": [
+    "milestoneNameMarkerGap"
+   ],
+   "label": {
+    "ja": "マイルストーン名をマーカーから離す隙間",
+    "en": "milestoneNameMarkerGap"
+   }
+  },
+  {
+   "rowId": "K-132",
+   "keys": [
+    "assigneeLabelGap"
+   ],
+   "label": {
+    "ja": "担当と進捗の札を開始から離す隙間",
+    "en": "assigneeLabelGap"
+   }
+  },
+  {
+   "rowId": "K-133",
+   "keys": [
+    "milestoneNameStartOfWidth"
+   ],
+   "label": {
+    "ja": "マイルストーン名の書き出し ÷ 菱形の幅",
+    "en": "milestoneNameStartOfWidth"
    }
   },
   {
@@ -1612,36 +1672,6 @@
    }
   },
   {
-   "rowId": "K-40",
-   "keys": [
-    "thinStrokeOfPlan"
-   ],
-   "label": {
-    "ja": "細線の太さ ÷ その形状の予定の縦幅",
-    "en": "thinStrokeOfPlan"
-   }
-  },
-  {
-   "rowId": "K-41",
-   "keys": [
-    "thinStrokeMin"
-   ],
-   "label": {
-    "ja": "細線の太さの下限",
-    "en": "thinStrokeMin"
-   }
-  },
-  {
-   "rowId": "K-42",
-   "keys": [
-    "thinStrokeMax"
-   ],
-   "label": {
-    "ja": "細線の太さの上限",
-    "en": "thinStrokeMax"
-   }
-  },
-  {
    "rowId": "K-43",
    "keys": [
     "chevronNotchOfHeight"
@@ -1662,16 +1692,6 @@
    }
   },
   {
-   "rowId": "K-45",
-   "keys": [
-    "arrowHeadOfStroke"
-   ],
-   "label": {
-    "ja": "矢印の矢じり ÷ 線の太さ",
-    "en": "arrowHeadOfStroke"
-   }
-  },
-  {
    "rowId": "K-46",
    "keys": [
     "arrowHeadOfSpan"
@@ -1682,13 +1702,43 @@
    }
   },
   {
-   "rowId": "K-47",
+   "rowId": "K-134",
    "keys": [
-    "spanDotOfStroke"
+    "thinStrokeWidth"
    ],
    "label": {
-    "ja": "端点スパンの点の半径 ÷ 線の太さ",
-    "en": "spanDotOfStroke"
+    "ja": "細線の太さ",
+    "en": "thinStrokeWidth"
+   }
+  },
+  {
+   "rowId": "K-135",
+   "keys": [
+    "thinArrowHeadLength"
+   ],
+   "label": {
+    "ja": "細線の矢じりの横幅",
+    "en": "thinArrowHeadLength"
+   }
+  },
+  {
+   "rowId": "K-136",
+   "keys": [
+    "thinArrowHeadHeight"
+   ],
+   "label": {
+    "ja": "細線の矢じりの縦幅",
+    "en": "thinArrowHeadHeight"
+   }
+  },
+  {
+   "rowId": "K-137",
+   "keys": [
+    "spanDotSize"
+   ],
+   "label": {
+    "ja": "端点スパンの点の径",
+    "en": "spanDotSize"
    }
   },
   {

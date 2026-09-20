@@ -662,7 +662,7 @@ describe('表 T-234 QN-3 (MUST) -- the question names the TASKS, not the assigne
   })
 
   it('⛔ and NOT one item per assignee', () => {
-    // ⛔⛔ THE MISTAKE THE ROW WARNS AGAINST IN AS MANY WORDS: 「`QN-3` が挙げる
+    // ⛔⛔ THE MISTAKE THE ROW WARNS AGAINST IN AS MANY WORDS: DFC-289 「`QN-3` が挙げる
     // のはタスクであって担当者ではない」. ANNA is one assignee across three tasks,
     // so a question that listed the chosen assignees would carry ONE item with
     // her name in it.

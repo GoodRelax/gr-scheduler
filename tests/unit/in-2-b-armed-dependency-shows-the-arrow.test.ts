@@ -38,7 +38,7 @@ import { specTable } from '../contract/spec-table'
 // see IN-2
 
 const IN_2_DEPENDENCY_ARROW_MUST =
-  '依存線を構えているあいだ（表 T-023b の `AR-4`）は、予定と実績の端点・実績のダミー・タスクの本体・マイルストーンの図形の上でも、表 T-264 の形・掴めることの合図・作図の合図のどれにもせず、既定の矢印とすること（MUST）'
+  '依存線を構えているあいだ（表 T-023b の `AR-4`）は 表 T-269 の形を当てず、作図の合図とすること（MUST）'
 
 const IN_2_ARMED_EMPTY_MUST = '構えているときは作図の合図'
 
@@ -374,7 +374,7 @@ function planEnds(loop: FrameLoop): readonly Point[] {
 
 function actualEnds(loop: FrameLoop): readonly Point[] {
   const box = boxOf(drawnTask(loop, BAR_UID).actual, "the bar Task's actual bar")
-  // WHY: the end probe stands one px inside, where GR-6 grabs, not on the pixel a touching marker takes.
+  // WHY: the end probe stands one px inside, where GA-4 grabs, not on the pixel a touching marker takes.
   return [onEndpoint(loop, box.x, midY(box)), onEndpoint(loop, box.x + box.width - 1, midY(box))]
 }
 
@@ -387,16 +387,16 @@ function barBody(loop: FrameLoop): Point {
 const startedMilestone = (loop: FrameLoop): Point =>
   centre(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
-// see GR-9, GR-17, GR-18
-function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GR-9' | 'GR-17' | 'GR-18'): Point {
+// see GA-5, GA-6, GA-17
+function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GA-5' | 'GA-6' | 'GA-17'): Point {
   const found = drawnTask(loop, taskUid).dummies.find((one) => one.grab === grab)
   if (found === undefined) throw new Error(`Task ${taskUid} drew no ${grab} dummy`)
   const ink = found.ink
   const y = ink.y + ink.height / 2
   // WHY: T-023d's closing rule gives the dummy only strictly right of the plan start, where its ink begins;
-  // the ink's own left edge is that boundary and belongs to GR-3, so probe inside the left half instead.
-  if (grab === 'GR-9') return { x: ink.x + ink.width / 4, y }
-  if (grab === 'GR-17') return { x: ink.x + ink.width - 1, y }
+  // the ink's own left edge is that boundary and belongs to GA-1, so probe inside the left half instead.
+  if (grab === 'GA-5') return { x: ink.x + ink.width / 4, y }
+  if (grab === 'GA-6') return { x: ink.x + ink.width - 1, y }
   return { x: ink.x + ink.width / 2, y }
 }
 
@@ -425,17 +425,17 @@ describe('the fixture draws what T-023d and FR-043 say it should', () => {
     expect(drawnTask(built.loop, STONE_UID).dummies).toHaveLength(0)
   })
 
-  it('draws the not-started bar with exactly GR-9 and GR-17, no actual bar', () => {
+  it('draws the not-started bar with exactly GA-5 and GA-6, no actual bar', () => {
     const built = stage()
     const bar = drawnTask(built.loop, DUMMY_BAR_UID)
     expect(bar.actual).toBeNull()
-    expect(bar.dummies.map((one) => one.grab).sort()).toEqual(['GR-17', 'GR-9'])
+    expect(bar.dummies.map((one) => one.grab).sort()).toEqual(['GA-5', 'GA-6'])
   })
 
-  it('draws the not-started milestone with exactly GR-18', () => {
+  it('draws the not-started milestone with exactly GA-17', () => {
     const built = stage()
     const stone = drawnTask(built.loop, DUMMY_STONE_UID)
-    expect(stone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
+    expect(stone.dummies.map((one) => one.grab)).toEqual(['GA-17'])
   })
 
   it('keeps every probe out of the rectangle the fake calls the palette', () => {
@@ -446,9 +446,9 @@ describe('the fixture draws what T-023d and FR-043 say it should', () => {
       startedMilestone(built.loop),
       ...planEnds(built.loop),
       ...actualEnds(built.loop),
-      dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9'),
-      dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-17'),
-      dummyProbe(built.loop, DUMMY_STONE_UID, 'GR-18'),
+      dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-5'),
+      dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-6'),
+      dummyProbe(built.loop, DUMMY_STONE_UID, 'GA-17'),
     ]
     for (const at of probes) expect(inside(PALETTE_BOX, at)).toBe(false)
   })
@@ -471,9 +471,9 @@ function armablePlaces(loop: FrameLoop): Readonly<Record<string, Point>> {
     actualEnd: actualEnd as Point,
     body: barBody(loop),
     startedMilestoneFigure: startedMilestone(loop),
-    dummyGr9: dummyProbe(loop, DUMMY_BAR_UID, 'GR-9'),
-    dummyGr17: dummyProbe(loop, DUMMY_BAR_UID, 'GR-17'),
-    dummyGr18: dummyProbe(loop, DUMMY_STONE_UID, 'GR-18'),
+    dummyGr9: dummyProbe(loop, DUMMY_BAR_UID, 'GA-5'),
+    dummyGr17: dummyProbe(loop, DUMMY_BAR_UID, 'GA-6'),
+    dummyGr18: dummyProbe(loop, DUMMY_STONE_UID, 'GA-17'),
   }
 }
 
@@ -508,29 +508,33 @@ describe('T-028 IN-2 -- armed for a dependency line, every named place is the de
     const built = stage()
     armDependency(built)
     const first = shapeAt(built, barBody(built.loop))
-    shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9'))
+    shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-5'))
     expect(shapeAt(built, barBody(built.loop))).toBe(first)
   })
 })
 
 // see CR-388
 describe('unarmed control -- T-023d places keep their own shapes, not the arrow', () => {
-  it('T-264: answers four different arrows at the four ends, and the task dummies take the actual ends arrows', () => {
+  it('T-269: answers four different arrows at the four ends, and the task dummies take the actual ends arrows', () => {
     const built = stage()
     const [planStart, planEnd] = planEnds(built.loop).map((at) => shapeAt(built, at))
     const [actualStart, actualEnd] = actualEnds(built.loop).map((at) => shapeAt(built, at))
     const ends = [planStart, planEnd, actualStart, actualEnd]
     for (const shape of ends) expect(shape).not.toBeNull()
-    expect(new Set(ends).size, `PC-1 .. PC-4: ${ends.join(' | ')}`).toBe(4)
-    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-9')), 'PC-3').toBe(actualStart)
-    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GR-17')), 'PC-4').toBe(actualEnd)
+    expect(new Set(ends).size, `PK-1 and PK-2, each ← and →: ${ends.join(' | ')}`).toBe(4)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-5')), 'PK-2 ←').toBe(actualStart)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-6')), 'PK-2 →').toBe(actualEnd)
   })
 
-  it('answers the SAME grab shape at the body, the started milestone and GR-18, distinct from resize', () => {
+  it('gives the body its own grab shape, and the milestone and GA-17 the circle PK-6, distinct from resize', () => {
+    // WHY: table T-269's closing rule replaces IN-2's grab sign on a milestone
+    // with `PK-5` / `PK-6`, so `GA-16` and `GA-17` both take the filled circle.
     const built = stage()
     const grab = shapeAt(built, barBody(built.loop))
-    expect(shapeAt(built, startedMilestone(built.loop))).toBe(grab)
-    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_STONE_UID, 'GR-18'))).toBe(grab)
+    const circle = shapeAt(built, startedMilestone(built.loop))
+    expect(circle).not.toBeNull()
+    expect(circle).not.toBe(grab)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_STONE_UID, 'GA-17'))).toBe(circle)
     expect(grab).not.toBe(shapeAt(built, (planEnds(built.loop)[0] as Point)))
   })
 })

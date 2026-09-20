@@ -59,7 +59,7 @@
 //      so what the rule can be asked of is the size the moment ENDS UP with
 //      relative to the host's own, which is that product.
 //   3. ⚠️ WHAT THE FILE NAME IS SIZED AT IS NOT ASSERTED, though `S-210`'s
-//      remark does say 「⚠️ **ファイルの名前には掛けない**」. That sentence names
+//      remark does say DFC-217 「⚠️ **ファイルの名前には掛けない**」. That sentence names
 //      what the ROW governs; it is not written as a MUST NOT about the name's
 //      size, and no other row gives the name a size at all. ⛔ A case demanding
 //      one would be this file choosing it. REPORTED, not asserted.

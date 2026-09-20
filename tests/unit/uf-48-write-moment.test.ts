@@ -523,7 +523,7 @@ describe('the premises these cases rest on', () => {
     // Table T-023d gives every grab a reach, so mere clearance of the ink is
     // not enough. ⭐ The dummies reach no further than the ink itself since
     // 2026-09-10 (table T-023d's closing rule), so the widest of the reaches
-    // left here is S-90 / S-91's 12px; S-92 is 8 × 8px, S-137 6px. This asks for
+    // left here is S-250 / S-257's 12px; S-268 / S-269 are 8 × 8px, S-137 6px. This asks for
     // more than twice the widest of them.
     const pane = host()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
@@ -940,7 +940,7 @@ const DEFAULT_OF = new Map(
  * It joined table T-202 on 2026-08-25 and LEFT IT on 2026-09-02 for table T-206
  * (保存しないもの), by the user's ruling. Two things follow, and this list is the
  * copy that says both:
- *   ⭐ `FR-049`'s MUST no longer reaches it. That requirement names 「表 T-202 の
+ *   ⭐ `FR-049`'s MUST no longer reaches it. That requirement names DFC-196 「表 T-202 の
  *     うち型が真偽である行」, so a row that leaves the table leaves the toggle --
  *     which is wanted, because `FR-020` puts a password gate on hiding the
  *     watermark and a plain toggle would walk straight past it.

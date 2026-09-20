@@ -745,7 +745,7 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and carr
   }
 
   // い版」とは、この造りが知る最大の版より新しいことである（MUST）。**⭐⭐ **そのときは、受けて開くこと（MUST）
-  // -09-05「② ただし、具体的に差分を表示してユーザーの確認を受ける」）。⛔ **拒んではならない（MUST NOT）
+  // -09-05CR-357 「② ただし、具体的に差分を表示してユーザーの確認を受ける」）。⛔ **拒んではならない（MUST NOT）
   const accepted = m.imports.find((outcome) => outcome.accepted)
   if (accepted === undefined) {
     unmet.push(

@@ -819,7 +819,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         arrowHeadOfSpan: {
           type: ['number'],
         },
-        arrowHeadOfStroke: {
+        assigneeLabelGap: {
           type: ['number'],
         },
         assigneeVisible: {
@@ -853,13 +853,19 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['boolean'],
         },
         dependencyArrowLength: {
+          type: ['number'],
+        },
+        dependencyArrowWidth: {
           type: ['integer'],
         },
         dependencyLagDefault: {
           type: ['integer'],
         },
-        dependencyRunOfArrow: {
+        dependencyLeadIn: {
           type: ['integer'],
+        },
+        dependencyLeadOut: {
+          type: ['number'],
         },
         dependencyVisible: {
           type: ['boolean'],
@@ -964,19 +970,16 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['number'],
         },
         labelGap: {
-          type: ['integer'],
+          type: ['number'],
         },
         labelHaloOfFont: {
           type: ['number'],
         },
         labelPad: {
-          type: ['integer'],
-        },
-        markerGap: {
-          type: ['integer'],
+          type: ['number'],
         },
         markerSize: {
-          type: ['integer'],
+          type: ['number'],
         },
         markerStroke: {
           type: ['number'],
@@ -986,6 +989,12 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         milestoneActualDuration: {
           type: ['integer'],
+        },
+        milestoneNameMarkerGap: {
+          type: ['number'],
+        },
+        milestoneNameStartOfWidth: {
+          type: ['number'],
         },
         minShapeWidth: {
           type: ['integer'],
@@ -1052,7 +1061,13 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         resumeDashOn: {
           type: ['integer'],
         },
+        resumeDashWidth: {
+          type: ['number'],
+        },
         resumeHeadOfMarker: {
+          type: ['number'],
+        },
+        resumeOpacityInvalid: {
           type: ['number'],
         },
         resumeScaleInvalid: {
@@ -1129,7 +1144,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             },
           },
         },
-        spanDotOfStroke: {
+        spanDotSize: {
           type: ['number'],
         },
         stackDirection: {
@@ -1153,16 +1168,16 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         themePreference: {
           enum: ['light', 'dark'],
         },
+        thinArrowHeadHeight: {
+          type: ['number'],
+        },
+        thinArrowHeadLength: {
+          type: ['number'],
+        },
         thinFontScale: {
           type: ['number'],
         },
-        thinStrokeMax: {
-          type: ['integer'],
-        },
-        thinStrokeMin: {
-          type: ['number'],
-        },
-        thinStrokeOfPlan: {
+        thinStrokeWidth: {
           type: ['number'],
         },
         truncateUnits: {

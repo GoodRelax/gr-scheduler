@@ -117,7 +117,7 @@
     "actualVisible",
     "appHeaderMaxHeight",
     "arrowHeadOfSpan",
-    "arrowHeadOfStroke",
+    "assigneeLabelGap",
     "assigneeVisible",
     "basePlanHeight",
     "baselineVisible",
@@ -129,8 +129,10 @@
     "commentBoxWrapUnits",
     "dateGridLinesVisible",
     "dependencyArrowLength",
+    "dependencyArrowWidth",
     "dependencyLagDefault",
-    "dependencyRunOfArrow",
+    "dependencyLeadIn",
+    "dependencyLeadOut",
     "dependencyVisible",
     "dependencyWidth",
     "displayScale",
@@ -159,11 +161,12 @@
     "labelGap",
     "labelHaloOfFont",
     "labelPad",
-    "markerGap",
     "markerSize",
     "markerStroke",
     "maxGroupDepth",
     "milestoneActualDuration",
+    "milestoneNameMarkerGap",
+    "milestoneNameStartOfWidth",
     "minShapeWidth",
     "percentCompleteVisible",
     "pinnedGroupIds",
@@ -182,7 +185,9 @@
     "resumeArmOfMarker",
     "resumeDashOff",
     "resumeDashOn",
+    "resumeDashWidth",
     "resumeHeadOfMarker",
+    "resumeOpacityInvalid",
     "resumeScaleInvalid",
     "rowGap",
     "rowTitleFont",
@@ -202,7 +207,7 @@
     "scrollGroupId",
     "scrollGroupOffset",
     "shapeHeightOf",
-    "spanDotOfStroke",
+    "spanDotSize",
     "stackDirection",
     "stackGap",
     "stackSafetyCap",
@@ -210,10 +215,10 @@
     "taskLevelOfDetailReadablePx",
     "themeMonochrome",
     "themePreference",
+    "thinArrowHeadHeight",
+    "thinArrowHeadLength",
     "thinFontScale",
-    "thinStrokeMax",
-    "thinStrokeMin",
-    "thinStrokeOfPlan",
+    "thinStrokeWidth",
     "truncateUnits",
     "zoomX",
     "zoomY"
@@ -251,10 +256,10 @@
      "minimum": 0.1,
      "maximum": 1
     },
-    "arrowHeadOfStroke": {
+    "assigneeLabelGap": {
      "type": "number",
-     "minimum": 1.5,
-     "maximum": 8
+     "minimum": 0,
+     "maximum": 30
     },
     "assigneeVisible": {
      "type": "boolean"
@@ -300,15 +305,24 @@
      "type": "boolean"
     },
     "dependencyArrowLength": {
+     "type": "number",
+     "maximum": 40
+    },
+    "dependencyArrowWidth": {
      "type": "integer",
      "maximum": 40
     },
     "dependencyLagDefault": {
      "type": "integer"
     },
-    "dependencyRunOfArrow": {
+    "dependencyLeadIn": {
      "type": "integer",
-     "maximum": 6
+     "maximum": 40
+    },
+    "dependencyLeadOut": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 40
     },
     "dependencyVisible": {
      "type": "boolean"
@@ -479,7 +493,7 @@
      "maximum": 1
     },
     "labelGap": {
-     "type": "integer",
+     "type": "number",
      "minimum": 0,
      "maximum": 30
     },
@@ -489,17 +503,12 @@
      "maximum": 0.3
     },
     "labelPad": {
-     "type": "integer",
+     "type": "number",
      "minimum": 0,
      "maximum": 30
     },
-    "markerGap": {
-     "type": "integer",
-     "minimum": 4,
-     "maximum": 4
-    },
     "markerSize": {
-     "type": "integer"
+     "type": "number"
     },
     "markerStroke": {
      "type": "number",
@@ -515,6 +524,16 @@
      "type": "integer",
      "minimum": 0,
      "maximum": 0
+    },
+    "milestoneNameMarkerGap": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 30
+    },
+    "milestoneNameStartOfWidth": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
     },
     "minShapeWidth": {
      "type": "integer",
@@ -604,10 +623,20 @@
      "minimum": 1,
      "maximum": 12
     },
+    "resumeDashWidth": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 20
+    },
     "resumeHeadOfMarker": {
      "type": "number",
      "minimum": 0.05,
      "maximum": 0.5
+    },
+    "resumeOpacityInvalid": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 1
     },
     "resumeScaleInvalid": {
      "type": "number",
@@ -723,10 +752,10 @@
       }
      }
     },
-    "spanDotOfStroke": {
+    "spanDotSize": {
      "type": "number",
      "minimum": 0.5,
-     "maximum": 4
+     "maximum": 40
     },
     "stackDirection": {
      "enum": [
@@ -760,23 +789,25 @@
       "dark"
      ]
     },
+    "thinArrowHeadHeight": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 40
+    },
+    "thinArrowHeadLength": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 40
+    },
     "thinFontScale": {
      "type": "number",
      "minimum": 0.3,
      "maximum": 1
     },
-    "thinStrokeMax": {
-     "type": "integer",
+    "thinStrokeWidth": {
+     "type": "number",
+     "minimum": 0.5,
      "maximum": 20
-    },
-    "thinStrokeMin": {
-     "type": "number",
-     "minimum": 0.5
-    },
-    "thinStrokeOfPlan": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 0.6
     },
     "truncateUnits": {
      "type": "integer",

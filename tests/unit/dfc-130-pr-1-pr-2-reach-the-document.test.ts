@@ -20,13 +20,13 @@
 // `docs/development-records/defects.md` DFC-130: 「⛔⛔ **プロパティパネルで確定した
 // 値が、文書に届かない**」, whose 期待値 column is 「`FR-006` が定めるとおり、表
 // T-016 の読み取り専用でない項目を編集すると文書が変わる」. The row records what
-// was measured on the shipped build -- 「`PR-1` … の値を `Survey phase` から
+// was measured on the shipped build -- DFC-130 「`PR-1` … の値を `Survey phase` から
 // `RenamedByProbe` に打ち替えて `Enter`。⇒ **画面の文字は `Survey phase` のまま
 // 1 個、`RenamedByProbe` は 0 個。**」 -- and what was at fault: the keydown
-// listener's `preventDefault()` took the host's `change` away, so 「`fieldCommit`
+// listener's `preventDefault()` took the host's `change` away, so DFC-130 「`fieldCommit`
 // を書く者が `onFieldChange` しか居らず、`readFieldCommit` は永久に `null`」.
 // ⭐ The row also measured HOW MANY rows were hurt: 「編集できる 16 行のうち、
-// **届いていなかったのは `PR-1` と `PR-2` の 2 行だけ**であり、どちらも「打ち込んで
+// **届いていなかったのは `PR-1` と `PR-2` の 2 行だけ**であり、どちらもDFC-130 「打ち込んで
 // `Enter` で確定する」欄である」 -- which is why this file drives exactly those two.
 // ⛔ The commit that claimed the fix touched no test file at all.
 //
@@ -45,7 +45,7 @@
 //   表 T-036  `SK-19` 「…ほかに何も出ていないときは、**その場の編集を確定する**
 //             （名称・担当者名・行名・文書名・**プロパティの入力**）」, assignment
 //             `Enter` -- the key these cases press, read out of the 割当 column
-//   表 T-065  `IF-9` 「…**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID
+//   表 T-065  `IF-9` CR-361 「…**プロパティパネルの欄で確定した値を、その欄が名乗る行 ID
 //             とともに返し**…」 -- the seam a settled value leaves on, and the
 //             reason the row id is asserted beside the text
 //   表 T-067  `WS-3` / `WS-6` -- the steps that build the new document and swap
@@ -73,7 +73,7 @@
 //      as already arriving, and they settle on the key that changes the value
 //      rather than on `Enter`. ⛔ `PR-12`'s two colour controls cannot be driven
 //      at all without the host's colour chooser, which the ledger records as
-//      「壊れているとも動くとも示せていない」.
+//      DFC-130 「壊れているとも動くとも示せていない」.
 //   3. THAT PRESSING `Enter` A SECOND TIME PUTS THE PANEL AWAY. That is
 //      `SK-19`'s second stage and
 //      tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts owns it.
@@ -572,7 +572,7 @@ describe('FR-006 / SK-19 -- what is typed into PR-1 and PR-2 leaves by IF-9', ()
 
 describe('FR-006 / 表 T-067 -- a settled PR-1 changes the document', () => {
   it('⛔ the drawn schedule stops carrying the old name and carries the new one', () => {
-    // 「表 T-016 の読み取り専用でない項目を編集すると文書が変わる」 -- the ledger's
+    // DFC-130 「表 T-016 の読み取り専用でない項目を編集すると文書が変わる」 -- the ledger's
     // own 期待値 column. ⭐ `PR-1` is 「バーに描くラベル」 by 表 T-016's own 備考
     // column, so the drawn schedule is where the change shows.
     const document = templateDocument()

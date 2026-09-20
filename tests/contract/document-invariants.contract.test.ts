@@ -700,10 +700,10 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       ],
     }),
 
-  // A setting whose upper bound names another setting, put above it. S-41 and
-  // S-42 name each other, so the pair below breaks whichever way the bound is
-  // read -- inclusive or not.
-  'IV-16': () => withSettings({ thinStrokeMin: settingNumber('thinStrokeMax') + 1 }),
+  // A setting whose upper bound names another setting, put above it. S-83's
+  // ceiling names S-84, so the value below breaks the bound whichever way it
+  // is read -- inclusive or not.
+  'IV-16': () => withSettings({ rulerTierPxPerDayMonth: settingNumber('rulerTierPxPerDayWeek') + 1 }),
 
   // A document holding no row at all -- the state IV-20 forbids, whose origin
   // the row names as the sentence under table T-050 of Chapter 1.4.
@@ -915,7 +915,7 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
  * ⛔ Not a sweep of the bound columns: the head of this file records what is
  * missing before one can be written. These are the rows whose bound cell holds
  * a single key, so no reading of an expression is involved -- the four pairs
- * are S-121 / S-122, S-83 / S-84, S-22 with S-6, and the S-41 / S-42 pair the
+ * are S-121 / S-122, S-83 / S-84, S-22 with S-6, and the S-304 line width the
  * case in BREACH already carries.
  *
  * ⚠️ Each is moved one whole unit past the key it is bounded by, so the case

@@ -186,4 +186,54 @@ RETIRED = {'FR-050', 'T-030',
            # and tests/, and every one of them is the suffixed pair. What still
            # names the bare number is change-request/CR-106 and four files under
            # docs/review, and those records are true of the day they were written.
+           # ⭐ CR-430 (2026-09-20) moved the grab margins, the hit order, the
+           # pointers, the labels, the press/drag effects and the paint order
+           # into nine tables of their own -- T-266 (GA) .. T-273 (LP) and the
+           # widened T-020 -- and retired what those tables absorbed. Every id
+           # below is STILL NAMED by docs/development-records: rulings.md keeps
+           # the verbatim rulings that decided them (JDG-180 .. JDG-249), the
+           # changelog's 2.51 row lists them by name, and defects.md rows name
+           # them as the place a defect was found. Those records are true of the
+           # day they were written, so the references are correct and the seats
+           # stay burnt: a later table or row must not take a used number.
+           #
+           # ⛔ The seats are burnt for the NUMBER, never for the prefix. GR,
+           # DM, OR, LF and S all have live rows either side of these gaps --
+           # GR-10 / GR-11 / GR-14 / GR-16 / GR-19 .. GR-23 are the nine rows
+           # table T-023d kept -- so anything that renumbered into a gap would
+           # quietly reuse a used seat.
+           #
+           # The four whole tables. T-013 (NL, the name-label decision order)
+           # went into FR-109's tables T-272 and T-273; T-261 (GS) and T-244
+           # (TE) went into FR-105's tables T-267 and T-268; T-264 (PC) went
+           # into FR-106's table T-269.
+           'T-013', 'T-244', 'T-261', 'T-264',
+           'NL-1', 'NL-3',
+           'GS-1', 'GS-2', 'GS-3', 'GS-4',
+           'TE-1',
+           'PC-1', 'PC-5', 'PC-6', 'PC-7',
+           # Table T-023d kept nine rows and gained GR-23; these fourteen are
+           # the schedule-shape rows table T-266 and tables T-267 / T-268 now
+           # hold. ⚠️ GR-8 (the resume icon) is in the set even though the icon
+           # itself lives on -- it lives on as a row of table T-266 (GA-20) and
+           # of table T-268 (TY-2), not as GR-8.
+           'GR-1', 'GR-2', 'GR-3', 'GR-4', 'GR-5', 'GR-6', 'GR-7', 'GR-8',
+           'GR-9', 'GR-12', 'GR-13', 'GR-15', 'GR-17', 'GR-18',
+           # Table T-240 kept its drawing rules and lost the four that spoke
+           # about grabbing; table T-243 kept only OR-2.
+           'DM-13', 'OR-1', 'OR-3',
+           # LF-4 held the dependency line's run as one value derived from the
+           # arrow head. The run is now two settings rows of its own
+           # (dependencyLeadOut / dependencyLeadIn), so the formula row has
+           # nothing left to compute.
+           'LF-4',
+           # The settings rows and the saved-format keys the new tables replaced.
+           # S-90 .. S-92 became the 41 rows of table T-266 (S-250 .. S-290);
+           # S-40 .. S-42 / S-45 became the line and arrow head of the
+           # line-only shapes; S-47 became the endpoint span's dot; S-20 became
+           # the two dependency runs; S-23 lost its last user when the resume
+           # icon left the label row.
+           'S-20', 'S-23', 'S-40', 'S-41', 'S-42', 'S-45', 'S-47',
+           'S-90', 'S-91', 'S-92',
+           'K-20', 'K-23',
            'T-006'}

@@ -35,16 +35,16 @@
 //                        thumb is drawn in the view and not in `FrameValues`
 //   item-hit-area.ts     `Item`, `GrabArea`, `Hit` and the head comment
 //                        ⭐ `GrabArea` -- 「Which row of table T-023d claimed
-//                        the point」 -- spells GR-1 .. GR-18 and no more, which
+//                        the point」 -- spells GA-7 .. GA-17 and no more, which
 //                        is one half of why GR-21 is measured and not driven.
 //   schedule.ts          the entity types this fixture writes out
 //   edit-task.ts /       the `kind` spellings of table T-108, to learn WHICH
 //   edit-document.ts     command could carry each release
 //
 // ⚠️ TWO LINES OF `frame-loop.ts` BODY WERE ALSO SEEN, and they are declared
-// here rather than claimed away: a grep for `GR-8` landed on two `Record`
+// here rather than claimed away: a grep for `GA-20` landed on two `Record`
 // literals near line 534 and line 585 in which the tree states, for itself,
-// that `GR-8` and `GR-14` have no release write. ⭐ THAT SET NO EXPECTED VALUE
+// that `GA-20` and `GR-14` have no release write. ⭐ THAT SET NO EXPECTED VALUE
 // BELOW. It told this file where the tree stands, which is what lets the two
 // ⛔ describes say WHY they are red instead of merely that they are; the
 // expected values themselves come from `FR-044`, from 表 T-023d's own 操作
@@ -60,9 +60,9 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   T-023d  its third closing rule, the subject of this file:
-//           「`GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` / `GR-12` / `GR-14` /
-//           `GR-15` / `GR-16` / `GR-21` を掴んでいるあいだ、置くことになる姿を、ポインタに
-//           追従させて描いて示すこと（MUST）……⚠️ `GR-12` は縦にも追従すること
+//           「`GA-1` / `GA-2` / `GA-3` / `GA-4` / `GA-20` / `GA-9` / `GR-14` /
+//           `GA-16` / `GR-16` / `GR-21` を掴んでいるあいだ、置くことになる姿を、ポインタに
+//           追従させて描いて示すこと（MUST）……⚠️ `GA-9` は縦にも追従すること
 //           （MUST）—— 行の載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの
 //           なので、縦を止めるとどの行へ載るのかが見えない。⚠️ 確定は 表 T-028 の
 //           `IN-1` に従う（離した時点）」
@@ -70,33 +70,33 @@
 //           see `closingRuleRows()`.
 //   T-023d  the write ban the closing now states ONCE for every following row,
 //           instead of once per following rule (DFC-466, 利用者の裁定 2026-09-11):
-//           「`GR-1` / `GR-2` / `GR-3` / `GR-4` / `GR-5` / `GR-6` / `GR-8` /
-//           `GR-12` / `GR-14` / `GR-15` / `GR-16` / `GR-21` を掴んでいるあいだ値を
+//           「`GA-7` / `GA-8` / `GA-1` / `GA-2` / `GA-3` / `GA-4` / `GA-20` /
+//           `GA-9` / `GR-14` / `GA-16` / `GR-16` / `GR-21` を掴んでいるあいだ値を
 //           文書へ書いてはならない（MUST NOT）（`FR-031`）—— 追従は絵であって
-//           編集ではない。⚠️ `GR-1` / `GR-2` の日数も値である」
+//           編集ではない。⚠️ `GA-7` / `GA-8` の日数も値である」
 //   T-023d  the paragraph after it: 「本表の 操作 の欄が「動かす」「変える」
 //           「ずらす」と述べる行は、上の 3 つの規則のいずれかで必ず追従する。
 //           ⛔ 追従しない行を残してはならない（MUST NOT）……⭐ 残る行が追従しない
-//           のは、掴んで動かすものではないからである —— `GR-7`（押して状態を
-//           巡らせる）、`GR-13`（選ぶ）、`GR-10` / `GR-11`（ダブルクリックだけを
+//           のは、掴んで動かすものではないからである —— `GA-18`（押して状態を
+//           巡らせる）、`GA-19`（選ぶ）、`GR-10` / `GR-11`（ダブルクリックだけを
 //           持つ）、`GR-19`（パレット自身が `FR-053` で追従する）」
 //   T-023d  「上の行ほど優先すること（MUST）」 -- which is why every press point
 //           below is taken from the picture and checked to be clear of the rows
 //           that outrank it (see the premises).
-//   T-023d GR-3 / GR-4   予定の開始点 / 終了点、予定バーの左端 / 右端、
+//   T-023d GA-1 / GA-2   予定の開始点 / 終了点、予定バーの左端 / 右端、
 //           `start` を変える / `finish` を変える
-//   T-023d GR-5 / GR-6   実績の開始点 / 終了点、実績バーの左端 / 右端、
+//   T-023d GA-3 / GA-4   実績の開始点 / 終了点、実績バーの左端 / 右端、
 //           `actualStart` を変える / `actualDuration` を変える
-//   T-023d GR-7          進捗マーカー、状態を巡らせる（`FR-013`）-- EXEMPT
-//   T-023d GR-8          再開アイコン、マーカーのさらに外側、`resume` を変える
+//   T-023d GA-18          進捗マーカー、状態を巡らせる（`FR-013`）-- EXEMPT
+//   T-023d GA-20          再開アイコン、マーカーのさらに外側、`resume` を変える
 //           （`FR-044`）
-//   T-023d GR-12         予定バー本体、端点を除いた中間、予定の平行移動
+//   T-023d GA-9         予定バー本体、端点を除いた中間、予定の平行移動
 //           （`FR-011`）と、縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）
 //   T-023d GR-14         コメントボックス / ハイライトボックス、本体・アンカー・
 //           四隅、動かす / 大きさを変える
-//   T-023d GR-15         実績のマイルストーン、実績の図形の上、`actualStart` を
-//           動かす。「マイルストーンは実績バーを持たないので `GR-5` / `GR-6` /
-//           `GR-17` に当たらない」
+//   T-023d GA-16         実績のマイルストーン、実績の図形の上、`actualStart` を
+//           動かす。「マイルストーンは実績バーを持たないので `GA-3` / `GA-4` /
+//           `GA-6` に当たらない」
 //   T-023d GR-16         基準日線、線の上、左右に動かして `statusDate` を変える
 //           （`FR-046`）
 //   T-023d GR-21         `Scrollbars` のつまみ, standing at the END of the
@@ -124,7 +124,7 @@
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//   - `GR-1` / `GR-2` (the fade) and `GR-9` / `GR-17` / `GR-18` (the dummies).
+//   - `GA-7` / `GA-8` (the fade) and `GA-5` / `GA-6` / `GA-17` (the dummies).
 //     They are the OTHER two closing rules, and
 //     tests/unit/fr-052-t-023d-picture-while-held.test.ts already drives the
 //     fade pair. ⛔ Nothing here repeats a case of that file.
@@ -141,7 +141,7 @@
 //         nothing at all: `current()` was byte-identical before, during and
 //         after the drag, and so was `document()`;
 //       · `GrabArea` -- the type that answers 「Which row of table T-023d
-//         claimed the point」 -- runs GR-1 .. GR-18, so no unit can even report
+//         claimed the point」 -- runs GA-7 .. GA-17, so no unit can even report
 //         a press as GR-21's.
 //     ⭐ The block at the foot of this file pins those measurements, so the day
 //     the thumb starts to follow they fail and this exemption has to go.
@@ -281,9 +281,9 @@ function closingRuleRows(): readonly string[] {
   return rowIdsIn(head)
 }
 
-/** The line after the rule -- 「本表の 操作 の欄が……」 -- and its exempt list. */
+/** The line after the rule -- 「本表と 表 T-270 の 操作 の欄が……」 -- and its exempt list. */
 function exemptLine(): string {
-  const found = paragraphHolding('本表の 操作 の欄が')
+  const found = paragraphHolding('操作 の欄が')
   if (found === undefined) {
     throw new Error('table T-023d no longer states which rows follow and which do not')
   }
@@ -303,7 +303,7 @@ const exemptRows = (): readonly string[] => rowIdsIn(exemptSegment())
 
 /**
  * The rows the last sentence of that paragraph sends to the OTHER two closing
- * rules -- 「`GR-1` / `GR-2` と `GR-9` / `GR-17` / `GR-18` は、上の 2 つの規則が
+ * rules -- 「`GA-7` / `GA-8` と `GA-5` / `GA-6` / `GA-17` は、上の 2 つの規則が
  * 同じことを既に求めている」.
  */
 function coveredElsewhereRows(): readonly string[] {
@@ -352,9 +352,9 @@ const ROW_E = '2a000000-0000-4000-8000-000000000005'
 
 /** The Task the plan and actual rows are grabbed on. */
 const PLAIN_UID = 1
-/** The milestone GR-15 is grabbed on. */
+/** The milestone GA-16 is grabbed on. */
 const MILESTONE_UID = 3
-/** The suspended Task GR-7 and GR-8 are grabbed on. */
+/** The suspended Task GA-18 and GA-20 are grabbed on. */
 const SUSPENDED_UID = 4
 /** The Task `wideFixtureDocument` adds, GR-21's horizontal drag reads it. */
 const OVERFLOW_UID = 900
@@ -442,10 +442,10 @@ function fixtureDocument(): Document {
       },
       calendars: structuredClone(template.schedule.calendars),
       tasks: [
-        // Row A -- the plan bar and the actual bar GR-3 / GR-4 / GR-5 / GR-6 /
-        // GR-12 are grabbed on. ⚠️ `actualStart` is deliberately LATER than
+        // Row A -- the plan bar and the actual bar GA-1 / GA-2 / GA-3 / GA-4 /
+        // GA-9 are grabbed on. ⚠️ `actualStart` is deliberately LATER than
         // `start`, and the actual end well inside the plan end: the table
-        // prefers GR-3 and GR-4 to GR-5 and GR-6, so two ends standing on the
+        // prefers GA-1 and GA-2 to GA-3 and GA-4, so two ends standing on the
         // same day would leave the actual pair unreachable and the cases would
         // be measuring the plan twice.
         task({
@@ -457,8 +457,8 @@ function fixtureDocument(): Document {
           stop: PLAIN_ACTUAL_LAST_DAY,
           percentComplete: 25,
         }),
-        // Row C -- GR-15. 「マイルストーンは実績バーを持たないので `GR-5` /
-        // `GR-6` / `GR-17` に当たらない」, and its actual stands on another day
+        // Row C -- GA-16. 「マイルストーンは実績バーを持たないので `GA-3` /
+        // `GA-4` / `GA-6` に当たらない」, and its actual stands on another day
         // so that the plan figure and the actual figure do not overlap.
         task({
           uid: MILESTONE_UID,
@@ -470,7 +470,7 @@ function fixtureDocument(): Document {
           stop: MILESTONE_ACTUAL_START,
         }),
         // Row D -- 中断中・再開日あり, which is the only state that draws the
-        // resume icon GR-8 stands on (`FR-044`, MUST).
+        // resume icon GA-20 stands on (`FR-044`, MUST).
         task({
           uid: SUSPENDED_UID,
           name: 'Delta',
@@ -488,7 +488,7 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: [
         group(ROW_A, 0, 'A'),
-        // ⭐ EMPTY ON PURPOSE: GR-12's vertical half needs a row to be carried
+        // ⭐ EMPTY ON PURPOSE: GA-9's vertical half needs a row to be carried
         // ONTO, and an empty one keeps the case's release readable -- the
         // membership that changes is the only membership in it.
         group(ROW_B, 1, 'B'),
@@ -752,9 +752,9 @@ function resumeOf(loop: FrameLoop, uid: number) {
 }
 
 /**
- * GR-8's press point: the middle of the arrow HEAD, which is the icon's outer
- * end. ⚠️ The head and not the whole icon, because table T-023d puts GR-7 (the
- * marker) above GR-8 and the icon starts just outside the marker's circle -- a
+ * GA-20's press point: the middle of the arrow HEAD, which is the icon's outer
+ * end. ⚠️ The head and not the whole icon, because table T-023d puts GA-18 (the
+ * marker) above GA-20 and the icon starts just outside the marker's circle -- a
  * point averaged over the whole icon could fall back inside it.
  */
 const resumePoint = (loop: FrameLoop, uid: number): Point =>
@@ -797,41 +797,41 @@ interface Follower {
  */
 const FOLLOWERS: readonly Follower[] = [
   {
-    row: 'GR-3',
+    row: 'GA-1',
     area: '予定の開始点 -- 予定バーの左端',
     press: (loop) => ({ x: planBox(loop, PLAIN_UID).x0, y: midY(planBox(loop, PLAIN_UID)) }),
     reads: (loop) => planBox(loop, PLAIN_UID).x0,
   },
   {
-    row: 'GR-4',
+    row: 'GA-2',
     area: '予定の終了点 -- 予定バーの右端',
     press: (loop) => ({ x: planBox(loop, PLAIN_UID).x1, y: midY(planBox(loop, PLAIN_UID)) }),
     reads: (loop) => planBox(loop, PLAIN_UID).x1,
   },
   {
-    row: 'GR-5',
+    row: 'GA-3',
     area: '実績の開始点 -- 実績バーの左端',
     press: (loop) => ({ x: actualBox(loop, PLAIN_UID).x0, y: midY(actualBox(loop, PLAIN_UID)) }),
     reads: (loop) => actualBox(loop, PLAIN_UID).x0,
   },
   {
-    row: 'GR-6',
+    row: 'GA-4',
     area: '実績の終了点 -- 実績バーの右端',
     press: (loop) => ({ x: actualBox(loop, PLAIN_UID).x1, y: midY(actualBox(loop, PLAIN_UID)) }),
     reads: (loop) => actualBox(loop, PLAIN_UID).x1,
   },
   {
-    row: 'GR-8',
+    row: 'GA-20',
     area: '再開アイコン -- マーカーのさらに外側',
     press: (loop) => resumePoint(loop, SUSPENDED_UID),
     reads: (loop) => centroid(resumeOf(loop, SUSPENDED_UID).head, 'the resume icon head').x,
   },
   {
-    row: 'GR-12',
+    row: 'GA-9',
     area: '予定バー本体 -- 端点を除いた中間',
     // ⭐ FOUR DAYS IN FROM THE RIGHT END, which is a distance and not a
-    // rectangle: it is clear of GR-4 (the plan end, four days to the right) and
-    // clear of GR-6 (the actual end, further left still), so the press cannot
+    // rectangle: it is clear of GA-2 (the plan end, four days to the right) and
+    // clear of GA-4 (the actual end, further left still), so the press cannot
     // be claimed by a row the table prefers to this one.
     press: (loop) => ({
       x: planBox(loop, PLAIN_UID).x1 - 4 * pxPerDay(loop),
@@ -849,7 +849,7 @@ const FOLLOWERS: readonly Follower[] = [
     reads: (loop) => commentOf(loop).body.x,
   },
   {
-    row: 'GR-15',
+    row: 'GA-16',
     area: '実績のマイルストーン -- 実績の図形の上',
     press: (loop) => ({
       x: midX(actualBox(loop, MILESTONE_UID)),
@@ -862,7 +862,7 @@ const FOLLOWERS: readonly Follower[] = [
     area: '基準日線 -- 線の上',
     // ⭐ PRESSED ON THE EMPTY ROW. The line runs the height of the `Row Area`
     // and this row is the last of the table, so a point where it crosses a bar
-    // belongs to GR-12; row E holds no Task, and the comment box stands far to
+    // belongs to GA-9; row E holds no Task, and the comment box stands far to
     // the left of the status date.
     press: (loop) => {
       const band = bandOf(loop, ROW_E)
@@ -891,25 +891,15 @@ const TRAVEL_DAYS = 4
 // ===========================================================================
 
 describe('the manuscript still states the rule this file is about', () => {
-  it('names ten rows: the nine these cases drive, and GR-21', () => {
-    // ⭐ GR-21 JOINED THE RULE ON 2026-09-07 and the count moved with it. ⛔ The
-    // number is asserted as well as the membership, so a row silently dropped
-    // out of the sentence fails here rather than quietly shrinking what the
-    // `describe.each` below walks.
+  it('names the four rows table T-023d kept, with every schedule shape behind GR-23', () => {
     expect(
-      FOLLOWING_ROWS.length,
+      FOLLOWING_ROWS,
       'table T-023d: the closing rule that makes a held grab follow the pointer',
-    ).toBe(10)
-    // ⛔ NOT A SUBSET CHECK. The nine driven rows are the sentence's own list
-    // with exactly one row taken out, in the sentence's own order -- so a row
-    // ADDED to the rule lands here as a failure instead of passing unnoticed.
-    expect(FOLLOWERS.map((one) => one.row)).toEqual(
-      FOLLOWING_ROWS.filter((row) => row !== MEASURED_NOT_DRIVEN),
-    )
+    ).toEqual(['GR-23', 'GR-14', 'GR-16', 'GR-21'])
     expect(
-      FOLLOWING_ROWS.filter((row) => !FOLLOWERS.some((one) => one.row === row)),
-      'the one row of the closing rule this file measures instead of driving',
-    ).toEqual([MEASURED_NOT_DRIVEN])
+      closingRuleLine(),
+      'the schedule shapes the cases below drive stand behind GR-23',
+    ).toContain('日程の形（`GR-23`）')
   })
 
   it('is a MUST, and forbids a write while the button is down (MUST NOT)', () => {
@@ -935,10 +925,10 @@ describe('the manuscript still states the rule this file is about', () => {
     )
   })
 
-  it('makes GR-12 follow vertically as well (MUST), for the row re-seating of HM-3', () => {
+  it('makes the plan body follow vertically as well (MUST), for the row re-seating of HM-3', () => {
     const line = closingRuleLine()
-    expect(line, 'table T-023d: `GR-12` は縦にも追従すること（MUST）').toContain(
-      '`GR-12` は縦にも追従すること（MUST）',
+    expect(line, 'table T-023d: 予定の本体は縦にも追従すること（MUST）').toContain(
+      '予定の本体は縦にも追従すること（MUST）',
     )
     expect(
       line,
@@ -975,11 +965,11 @@ describe('the manuscript still states the rule this file is about', () => {
   })
 
   it('gives every exempted row a reason of its own', () => {
-    // 「⭐ 残る行が追従しないのは、掴んで動かすものではないからである —— `GR-7`
-    // （押して状態を巡らせる）、`GR-13`（選ぶ）、`GR-10` / `GR-11`（ダブルクリック
+    // 「⭐ 残る行が追従しないのは、掴んで動かすものではないからである —— `GA-18`
+    // （押して状態を巡らせる）、`GA-19`（選ぶ）、`GR-10` / `GR-11`（ダブルクリック
     // だけを持つ）、`GR-19`（パレット自身が `FR-053` で追従する）」
     const segment = exemptSegment()
-    expect(exemptRows()).toEqual(['GR-7', 'GR-13', 'GR-10', 'GR-11', 'GR-19'])
+    expect(exemptRows()).toEqual(['GR-10', 'GR-11', 'GR-19'])
     const clauses = segment.split('、').filter((part) => rowIdsIn(part).length > 0)
     for (const clause of clauses) {
       expect(
@@ -995,9 +985,9 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     const built = stage()
     const plan = planBox(built.loop, PLAIN_UID)
     const actual = actualBox(built.loop, PLAIN_UID)
-    // ⛔ A PREMISE, NOT A DECORATION. 「上の行ほど優先すること（MUST）」 puts GR-3
-    // and GR-4 above GR-5 and GR-6, so ends that coincided would leave the
-    // actual pair unreachable and every GR-5 / GR-6 case below would silently
+    // ⛔ A PREMISE, NOT A DECORATION. 「上の行ほど優先すること（MUST）」 puts GA-1
+    // and GA-2 above GA-3 and GA-4, so ends that coincided would leave the
+    // actual pair unreachable and every GA-3 / GA-4 case below would silently
     // be measuring the plan.
     const oneDay = pxPerDay(built.loop)
     expect(
@@ -1019,15 +1009,15 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     )
     expect(icon.head.length).toBeGreaterThan(0)
     // ⛔ THE PRESS POINT MUST BE OUTSIDE THE MARKER, because table T-023d puts
-    // GR-7 above GR-8: a press inside the marker's circle is GR-7's.
+    // GA-18 above GA-20: a press inside the marker's circle is GA-18's.
     const at = resumePoint(built.loop, SUSPENDED_UID)
     const away = Math.hypot(at.x - marker.centre.x, at.y - marker.centre.y)
-    expect(away, 'table T-023d GR-8: 再開アイコンはマーカーのさらに外側').toBeGreaterThan(
+    expect(away, 'table T-023d GA-20: 再開アイコンはマーカーのさらに外側').toBeGreaterThan(
       marker.radius,
     )
   })
 
-  it('draws the milestone an actual figure of its own (GR-15)', () => {
+  it('draws the milestone an actual figure of its own (GA-16)', () => {
     const built = stage()
     const plan = boxOfBar(drawnTask(built.loop, MILESTONE_UID).plan, "the milestone's plan figure")
     const actual = actualBox(built.loop, MILESTONE_UID)
@@ -1153,11 +1143,11 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
 )
 
 // ===========================================================================
-// (b) GR-12 follows VERTICALLY as well
+// (b) GA-9 follows VERTICALLY as well
 // ===========================================================================
 
-describe('table T-023d GR-12: the plan bar follows the pointer downwards too', () => {
-  /** The point GR-12 is grabbed at -- the same one the following cases use. */
+describe('table T-023d GA-9: the plan bar follows the pointer downwards too', () => {
+  /** The point GA-9 is grabbed at -- the same one the following cases use. */
   const grabPoint = (loop: FrameLoop): Point => ({
     x: planBox(loop, PLAIN_UID).x1 - 4 * pxPerDay(loop),
     y: midY(planBox(loop, PLAIN_UID)),
@@ -1176,7 +1166,7 @@ describe('table T-023d GR-12: the plan bar follows the pointer downwards too', (
     built.send(pointer('move', at.x, at.y + down))
     expect(
       midY(planBox(built.loop, PLAIN_UID)),
-      'table T-023d: `GR-12` は縦にも追従すること（MUST）—— 縦を止めるとどの行へ載るのかが見えない',
+      'table T-023d: `GA-9` は縦にも追従すること（MUST）—— 縦を止めるとどの行へ載るのかが見えない',
     ).toBeGreaterThan(held)
   })
 
@@ -1221,7 +1211,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     built.send(pointer('up', at.x + travel, at.y))
   }
 
-  it('GR-3 settles `start` on the release', () => {
+  it('GA-1 settles `start` on the release', () => {
     const built = stage()
     const before = dayOf(taskOf(built.loop, PLAIN_UID).start)
     dragRight(built, {
@@ -1230,11 +1220,11 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     })
     expect(
       dayOf(taskOf(built.loop, PLAIN_UID).start) > before,
-      'table T-023d GR-3: 予定の開始点 …… `start` を変える。確定は 表 T-028 の `IN-1`',
+      'table T-023d GA-1: 予定の開始点 …… `start` を変える。確定は 表 T-028 の `IN-1`',
     ).toBe(true)
   })
 
-  it('GR-4 settles `finish` on the release', () => {
+  it('GA-2 settles `finish` on the release', () => {
     const built = stage()
     const before = dayOf(taskOf(built.loop, PLAIN_UID).finish)
     dragRight(built, {
@@ -1243,11 +1233,11 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     })
     expect(
       dayOf(taskOf(built.loop, PLAIN_UID).finish) > before,
-      'table T-023d GR-4: 予定の終了点 …… `finish` を変える',
+      'table T-023d GA-2: 予定の終了点 …… `finish` を変える',
     ).toBe(true)
   })
 
-  it('GR-5 settles `actualStart` on the release', () => {
+  it('GA-3 settles `actualStart` on the release', () => {
     const built = stage()
     const before = dayOf(taskOf(built.loop, PLAIN_UID).actualStart)
     dragRight(built, {
@@ -1256,11 +1246,11 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     })
     expect(
       dayOf(taskOf(built.loop, PLAIN_UID).actualStart) > before,
-      'table T-023d GR-5: 実績の開始点 …… `actualStart` を変える',
+      'table T-023d GA-3: 実績の開始点 …… `actualStart` を変える',
     ).toBe(true)
   })
 
-  it('GR-6 settles `stop` on the release', () => {
+  it('GA-4 settles `stop` on the release', () => {
     const built = stage()
     const before = dayOf(taskOf(built.loop, PLAIN_UID).stop)
     dragRight(built, {
@@ -1269,11 +1259,11 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     })
     expect(
       dayOf(taskOf(built.loop, PLAIN_UID).stop) > before,
-      'table T-023d GR-6: the last day of an unfinished actual is held in stop',
+      'table T-023d GA-4: the last day of an unfinished actual is held in stop',
     ).toBe(true)
   })
 
-  it("GR-15 settles the milestone's `actualStart` on the release", () => {
+  it("GA-16 settles the milestone's `actualStart` on the release", () => {
     const built = stage()
     const before = dayOf(taskOf(built.loop, MILESTONE_UID).actualStart)
     dragRight(built, {
@@ -1282,7 +1272,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     })
     expect(
       dayOf(taskOf(built.loop, MILESTONE_UID).actualStart) > before,
-      'table T-023d GR-15: 実績のマイルストーン …… `actualStart` を動かす',
+      'table T-023d GA-16: 実績のマイルストーン …… `actualStart` を動かす',
     ).toBe(true)
   })
 
@@ -1297,7 +1287,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     ).toBe(true)
   })
 
-  it('GR-12 settles the plan dates on the release, and leaves the actual ones alone (MUST NOT)', () => {
+  it('GA-9 settles the plan dates on the release, and leaves the actual ones alone (MUST NOT)', () => {
     // FR-011: 「タスクの本体をドラッグしたとき、予定の日付だけをずらし、実績の
     // 日付を変えてはならない（MUST NOT）—— 一度入力された実績は、担当者が置いた
     // 事実である」.
@@ -1318,7 +1308,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     )
   })
 
-  it('GR-12 settles the row on a downward release, and moves no date and no WBS parent', () => {
+  it('GA-9 settles the row on a downward release, and moves no date and no WBS parent', () => {
     // FR-011: 「行をまたぐ移動では予定も実績も新しい行へ移るが、どちらの日付も
     // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別の行へ
     // 移す操作では WBS を変えてはならない（MUST NOT）—— 行の移動と階層の移動は
@@ -1335,7 +1325,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     built.send(pointer('up', at.x, at.y + down))
     expect(
       memberGroupOf(built.loop, PLAIN_UID),
-      'table T-023d GR-12: 縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）',
+      'table T-023d GA-9: 縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）',
     ).toBe(ROW_B)
     const after = taskOf(built.loop, PLAIN_UID)
     expect(after.start, 'FR-011: どちらの日付も変わらない（MUST NOT）').toBe(before.start)
@@ -1372,24 +1362,24 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
 //      ⛔ LEFT RED ON PURPOSE (04-verification.md section 1).
 // ===========================================================================
 
-describe('table T-028 IN-1: GR-8 settles the resume date on the release', () => {
+describe('table T-028 IN-1: GA-20 settles the resume date on the release', () => {
   // ⛔ EXPECTED RED, AND NOT TO BE SOFTENED.
   //
   // What the specification says. FR-044 (STATEMENT): 「`Task` が中断している
   // あいだ、`GRS` は、作成者が再開予定日を画面上で置き、置いた後に動かせるように
-  // すること」 -- 画面上で, and 動かせる, which is the word table T-023d GR-8
+  // すること」 -- 画面上で, and 動かせる, which is the word table T-023d GA-20
   // uses in its 操作 column too: 「`resume` を変える（`FR-044`）」. The closing
   // rule adds only WHEN it settles: 表 T-028 の `IN-1`, the release.
   //
   // What could carry it. CM-13 of table T-108, `setTaskPlanActualState`
   // -- 「予実の 5 列を置く」 -- and `resume` is one of those five (P-6 of the
   // glossary). So the command vocabulary has a road for this release; nothing
-  // in the specification exempts GR-8 from taking it.
+  // in the specification exempts GA-20 from taking it.
   //
-  // What the tree does instead: it exempts GR-8 from the release altogether
+  // What the tree does instead: it exempts GA-20 from the release altogether
   // (see the declaration at the head of this file). ⭐ THAT IS AN
   // IMPLEMENTATION GAP, NOT A READING OF THE SPECIFICATION -- the paragraph
-  // after the table exempts rows BY NAME, and GR-8 is named in the rule that
+  // after the table exempts rows BY NAME, and GA-20 is named in the rule that
   // requires the following, not in the list of the five that do not follow.
   it('moves `resume` to the day the pointer left the icon on', () => {
     const built = stage()
@@ -1401,7 +1391,7 @@ describe('table T-028 IN-1: GR-8 settles the resume date on the release', () => 
     built.send(pointer('up', at.x + travel, at.y))
     expect(
       dayOf(taskOf(built.loop, SUSPENDED_UID).resume) > before,
-      'FR-044: 作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること / table T-023d GR-8: `resume` を変える',
+      'FR-044: 作成者が再開予定日を画面上で置き、置いた後に動かせるようにすること / table T-023d GA-20: `resume` を変える',
     ).toBe(true)
   })
 
@@ -1429,7 +1419,7 @@ describe('table T-028 IN-1: GR-14 settles the comment box on the release', () =>
   // 「動かす / 大きさを変える」, and the paragraph after the table (MUST NOT)
   // states that every row whose 操作 column says 動かす follows under one of the
   // three closing rules -- naming, as the rows that legitimately do not, only
-  // GR-7, GR-13, GR-10, GR-11 and GR-19. GR-14 is in the rule, not the list.
+  // GA-18, GA-19, GR-10, GR-11 and GR-19. GR-14 is in the rule, not the list.
   //
   // What could carry it. CM-50 `setCommentBoxAnchor`（留め先を変える）and CM-51
   // `setCommentBoxBodyOffsetPx`（本文のずれを変える）of table T-108, whose 正
@@ -1463,31 +1453,36 @@ describe('table T-028 IN-1: GR-14 settles the comment box on the release', () =>
 })
 
 // ===========================================================================
-// (d) A row the closing rule does NOT name draws no such preview
+// (d) A marker the closing rule leaves out of the two dragging scenes
 // ===========================================================================
 
-describe('table T-023d GR-7: the progress marker is pressed, not carried', () => {
-  // 「⭐ 残る行が追従しないのは、掴んで動かすものではないからである —— `GR-7`
-  // （押して状態を巡らせる）」. GR-7 is one of the five the paragraph exempts by
-  // name, so nothing about the marker or its Task may follow the pointer.
+describe('table T-023d GA-18: the progress marker is pressed, not carried', () => {
+  // 「⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く 2 つの場面（`PE-8` /
+  // `PE-9`）では追従する」 -- SUSPENDED_UID is 中断のあいだ, table T-270's
+  // `PE-10`, which is neither. ⚠️ THE PRESS IS IN THE MARKER'S RIGHT HALF: LP-1
+  // stands it on the RF-1 reference's start, where 「中心のその 1 点は実績の開始
+  // が取る」（表 T-266 の `GA-3`）, and GA-3 does follow.
   it('draws no following picture while the marker is held', () => {
     const built = stage()
     const marker = markerOf(built.loop, SUSPENDED_UID)
-    built.send(pointer('down', marker.centre.x, marker.centre.y))
-    const held = structuredClone(drawnTask(built.loop, SUSPENDED_UID))
+    // ⭐ 何もしない is measured against the UNPRESSED picture, not against the
+    // still press, which previews the state 押下の巡り would put.
+    const unpressed = structuredClone(drawnTask(built.loop, SUSPENDED_UID))
+    const pressX = marker.centre.x + marker.radius / 2
+    built.send(pointer('down', pressX, marker.centre.y))
     const oneDay = pxPerDay(built.loop)
     for (const days of [1, 2, 3, 4]) {
-      built.send(pointer('move', marker.centre.x + days * oneDay, marker.centre.y))
+      built.send(pointer('move', pressX + days * oneDay, marker.centre.y))
       expect(
         structuredClone(drawnTask(built.loop, SUSPENDED_UID)),
-        'table T-023d: `GR-7`（押して状態を巡らせる）is named among the rows that do not follow',
-      ).toEqual(held)
+        'table T-270 `PE-10`（進捗マーカー、中断のあいだ）: 横に引く ＝ 何もしない',
+      ).toEqual(unpressed)
     }
   })
 
   it('writes nothing to the document while the marker is held either', () => {
-    // IN-1 governs GR-7 as it governs the nine: 押した時点で実行せず、離した
-    // 時点で確定する. What separates GR-7 is that it draws no preview, not that
+    // IN-1 governs GA-18 as it governs the nine: 押した時点で実行せず、離した
+    // 時点で確定する. What separates GA-18 is that it draws no preview, not that
     // it settles early.
     const built = stage()
     const before = structuredClone(built.loop.document())

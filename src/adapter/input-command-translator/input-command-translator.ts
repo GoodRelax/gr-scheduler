@@ -9,8 +9,10 @@
 import type { Document } from '../../entity/document-model/document/document'
 import {
   escapeTarget,
+  rememberedActualOf,
   screenStateWithArmed,
   screenStateWithPalette,
+  screenStateWithRememberedActual,
   screenStateWithSurface,
   screenStateWithWatermark,
   type Armed,
@@ -48,7 +50,10 @@ import {
   type Hit,
   type Item,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+import type {
+  BarGeometry,
+  ScheduleGeometry,
+} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
   fitZoom,
@@ -79,10 +84,11 @@ import {
   type FieldCommit,
   type ScreenPart,
 } from '../screen-renderer/screen-renderer'
-import type {
-  DocumentCommand,
-  TaskMilestoneGlyph,
-  TaskShapeKind,
+import {
+  cycleTaskPlanActualState,
+  type DocumentCommand,
+  type TaskMilestoneGlyph,
+  type TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
 import type {
   HumanInput,
@@ -276,8 +282,27 @@ const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: fal
 const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
 const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
-  'GR-5', 'GR-6', 'GR-9', 'GR-12', 'GR-14', 'GR-15', 'GR-17', 'GR-18',
+  'GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-9', 'GA-12', 'GA-13', 'GA-14',
+  'GA-15', 'GA-16', 'GA-17', 'GA-21', 'GA-22', 'GR-14',
 ])
+
+// see PE-1, PE-6
+const BODY_GRAB_ROWS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
+
+// see T-266
+type GrabRow =
+  | ActualEndHold
+  | 'GA-1' | 'GA-2' | 'GA-5' | 'GA-6' | 'GA-7' | 'GA-8' | 'GA-9' | 'GA-10'
+  | 'GA-11' | 'GA-14' | 'GA-15' | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20'
+  | 'GA-21' | 'GA-22'
+  | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
+
+// TRAP: the one place the hit's row is read as a T-266 row; widening it anywhere else would
+// let a retired T-023d row through a branch that reads it as a grab margin of the new table.
+/** @purity pure */
+function grabRowOf(hit: Hit): GrabRow {
+  return hit.grab as GrabRow
+}
 
 /** @purity pure */
 function acted(action: InputAction): TranslatedInput {
@@ -497,7 +522,7 @@ function unitFraction(value: number): number {
   return dropped < 1 ? dropped : 0
 }
 
-// see GR-1, GR-2, HB-4
+// see GA-7, GA-8, HB-4
 /** @purity pure */
 function pointerDaySerial(layout: ScheduleLayout, x: number): number | null {
   const day = dayAtX(layout, x)
@@ -1589,9 +1614,28 @@ function isScrollPositionInForce(
 function commandFromPointer(input: PointerInput, context: InputContext): TranslatedInput {
   const assigned = pointerAssignment(input, context)
   // TRAP: read MK-12 after table T-023a has decided; read before, it makes the gesture inert.
-  return isAssignedPointerCombo(gestureModifiers(input, context))
-    ? assigned
-    : browserKept(assigned)
+  if (isAssignedPointerCombo(gestureModifiers(input, context))) return assigned
+  return isOnTheChart(context, input) ? browserStopped(assigned) : browserKept(assigned)
+}
+
+// see PE-0
+// WHY: the press point alone is not enough; a gesture that began on the chart keeps the browser
+// off for the whole drag, or the text under the pointer is taken once it leaves the row area.
+/** @purity pure */
+function isOnTheChart(context: InputContext, input: PointerInput): boolean {
+  const press = context.pressed
+  const at = press === null || press.on !== null ? input : press.at
+  // WHY: the right button is left alone; stopping it would take the context menu, which is
+  // not what PE-0 asks for -- the row that names text selection, not the browser's own menus.
+  if (at.button === 'right') return false
+  const region = regionAtPointer(context.regions, at.x, at.y)
+  return region === 'rowArea' || region === 'timeRuler'
+}
+
+// see PE-0
+/** @purity pure */
+function browserStopped(answer: TranslatedInput): TranslatedInput {
+  return { action: answer.action, isBrowserDefaultStopped: true }
 }
 
 // see T-023a, IN-1, IN-1a, MK-10
@@ -2864,18 +2908,10 @@ function commandFromGrab(
   if (hit === null) return CONSUMED_ELSEWHERE
   const item = hit.item
 
-  // TRAP: MK-13 must be read before the switch; GR-5 / GR-6 stand above GR-12 in T-023d,
+  // TRAP: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
   // so the switch would rewrite the same day instead of opening the name.
   if (release.clickCount >= 2 && item.kind === 'task') {
-    const isNameEntrance =
-      hit.grab === 'GR-10' ||
-      hit.grab === 'GR-12' ||
-      hit.grab === 'GR-15' ||
-      hit.grab === 'GR-5' ||
-      hit.grab === 'GR-6' ||
-      hit.grab === 'GR-9' ||
-      hit.grab === 'GR-17' ||
-      hit.grab === 'GR-18'
+    const isNameEntrance = hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)
     if (isNameEntrance) {
       return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
     }
@@ -2895,7 +2931,7 @@ function commandFromGrab(
   }
 
   // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
-  // switch and reaches a second destination (for GR-17, a 0px actual).
+  // switch and reaches a second destination (for GA-6, a 0px actual).
   if (MK_13_GRAB_ROWS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
     return CONSUMED_ELSEWHERE
   }
@@ -2928,11 +2964,20 @@ function commandFromGrab(
   if (item.kind !== 'task') return CONSUMED_ELSEWHERE
 
   const uid = item.taskUid
-  switch (hit.grab) {
-    case 'GR-7':
-      return changed([{ kind: 'cycleTaskPlanActualState', uid }])
-    case 'GR-1':
-    case 'GR-2': {
+  const grab = grabRowOf(hit)
+  switch (grab) {
+    case 'GA-18':
+      return hasDraggedPastThreshold(press, release)
+        ? markerPullWrite(context, release, uid)
+        : changed([
+            {
+              kind: 'cycleTaskPlanActualState',
+              uid,
+              remembered: rememberedActualOf(context.screenState, uid),
+            },
+          ])
+    case 'GA-7':
+    case 'GA-8': {
       const task = taskByUid(context.document.schedule, uid)
       const start = dayOf(task === null ? null : task.start)
       const finish = dayOf(task === null ? null : task.finish)
@@ -2941,27 +2986,27 @@ function commandFromGrab(
         return CONSUMED_ELSEWHERE
       }
       const pulled =
-        hit.grab === 'GR-1'
+        grab === 'GA-7'
           ? Math.round(atPointer - serialOfDay(start))
           : Math.round(serialOfDay(finish) - atPointer)
-      const days = clampedFadeDays(task, hit.grab, pulled, serialOfDay(finish) - serialOfDay(start))
+      const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
       return changed([
-        hit.grab === 'GR-1'
+        grab === 'GA-7'
           ? { kind: 'setTaskFadeInDays', uid, days }
           : { kind: 'setTaskFadeOutDays', uid, days },
       ])
     }
-    case 'GR-3':
-    case 'GR-4': {
+    case 'GA-1':
+    case 'GA-10':
+    case 'GA-2':
+    case 'GA-11': {
       const task = taskByUid(context.document.schedule, uid)
       const start = dayOf(task === null ? null : task.start)
       const finish = dayOf(task === null ? null : task.finish)
       const day = dayAtX(context.layout, release.x)
       if (start === null || finish === null || day === null) return CONSUMED_ELSEWHERE
-      const moved =
-        hit.grab === 'GR-3'
-          ? { start: day, finish }
-          : { start, finish: day }
+      const isStartHeld = grab === 'GA-1' || grab === 'GA-10'
+      const moved = isStartHeld ? { start: day, finish } : { start, finish: day }
       // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
       return changed([
         {
@@ -2972,59 +3017,40 @@ function commandFromGrab(
         },
       ])
     }
-    case 'GR-5':
-    case 'GR-15':
-    case 'GR-6': {
-      const task = taskByUid(context.document.schedule, uid)
-      const dropped = dayAtX(context.layout, release.x)
-      if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      const place = actualEndPlacement(task, hit.grab, dropped)
-      if (place === null) return CONSUMED_ELSEWHERE
-      return changed([{ kind: 'setTaskPlanActualState', uid, place }])
+    case 'GA-3':
+    case 'GA-12':
+    case 'GA-16':
+    case 'GA-4':
+    case 'GA-13': {
+      return actualEndWrite(context, release, uid, grab)
     }
-    case 'GR-9':
-    case 'GR-17':
-    case 'GR-18': {
+    case 'GA-5':
+    case 'GA-21':
+    case 'GA-6':
+    case 'GA-22':
+    case 'GA-17': {
       const dropped = dayAtX(context.layout, release.x)
       if (dropped === null) return CONSUMED_ELSEWHERE
       return changed([
-        { kind: 'beginTaskActual', uid, grabbed: hit.grab, droppedDay: textOfDay(dropped) },
+        { kind: 'beginTaskActual', uid, grabbed: grab, droppedDay: textOfDay(dropped) },
       ])
     }
-    case 'GR-12': {
-      const shift = dayShift(context, press.at.x, release.x)
-      const row = rowAtY(context.layout, release.y)
-      const movedRow = row === null ? null : row.groupId
-      const moving = movedTaskUids(context, uid)
-      const commands: DocumentCommand[] = []
-      for (const each of moving) {
-        const task = taskByUid(context.document.schedule, each)
-        if (task === null) continue
-        const start = dayOf(task.start)
-        const finish = dayOf(task.finish)
-        if (start !== null && finish !== null && shift !== 0) {
-          commands.push({
-            kind: 'setTaskPlanDates',
-            uid: each,
-            start: textOfDay(dayShifted(start, shift)),
-            finish: textOfDay(dayShifted(finish, shift)),
-          })
-        }
-      }
-      // WHY: only the grabbed Task changes rows; a selection spread over rows has no single row to go to.
-      if (movedRow !== null && movedRow !== rowOfTask(context, uid)) {
-        commands.push({ kind: 'moveTaskToTaskGroup', uid, groupId: movedRow })
-      }
-      return changed(commands)
-    }
-    case 'GR-8': {
+    case 'GA-9':
+    case 'GA-14':
+    case 'GA-15':
+      return changed(bodyMoveWrites(context, press, release, uid))
+    case 'GA-20': {
+      if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      // STOP: spec does not decide GR-8 on a suspended Task with no actual. Looked in T-023d, PA-3, FR-044
+      // STOP: spec does not decide GA-20 on a suspended Task with no actual. Looked in T-266, PA-3, FR-044
       // @provisional PND-318
       const lastDay = actualLastDay(task)
       if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
+      // see GO-10
+      const earliest = dayShifted(lastDay, 1)
+      const resume = compareDay(dropped, earliest) < 0 ? earliest : dropped
       return changed([
         {
           kind: 'setTaskPlanActualState',
@@ -3033,7 +3059,7 @@ function commandFromGrab(
             row: 'PA-3',
             actualStart: task.actualStart,
             stop: textOfDay(lastDay),
-            resume: textOfDay(dropped),
+            resume: textOfDay(resume),
           },
         },
       ])
@@ -3043,13 +3069,152 @@ function commandFromGrab(
   }
 }
 
+// see PE-8, PE-9, PE-10
+/** @purity pure */
+function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-9' | 'PE-10' {
+  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
+  const task = taskByUid(context.document.schedule, uid)
+  if (drawn === undefined || task === null) return 'PE-10'
+  if (drawn.shapeKind !== 'rectangle' && drawn.shapeKind !== 'chevron') return 'PE-10'
+  const marker = drawn.marker
+  if (marker === null) return 'PE-10'
+  const state = planActualState(task)
+  if (state === 'notStarted') {
+    const inks = drawn.dummies.map((one) => one.ink.x + one.ink.width)
+    return inks.length > 0 && marker.centre.x >= Math.max(...inks) ? 'PE-9' : 'PE-10'
+  }
+  if (state === 'suspendedResumeUnknown' || state === 'suspendedResumePlanned') return 'PE-10'
+  const bar = drawn.actual
+  const rightEdge = bar === null ? null : rightEdgeOfBar(bar)
+  return rightEdge !== null && marker.centre.x >= rightEdge ? 'PE-8' : 'PE-10'
+}
+
+/** @purity pure */
+function rightEdgeOfBar(bar: BarGeometry): number | null {
+  if (bar.form === 'line') return Math.max(bar.from.x, bar.to.x)
+  const xs = bar.points.map((one) => one.x)
+  return xs.length === 0 ? null : Math.max(...xs)
+}
+
+// see GO-3, GO-4, GO-5
+/** @purity pure */
+function actualEndWrite(
+  context: InputContext,
+  release: PointerInput,
+  uid: number,
+  grab: ActualEndHold,
+): TranslatedInput {
+  const task = taskByUid(context.document.schedule, uid)
+  const dropped = dayAtX(context.layout, release.x)
+  if (task === null || dropped === null) return CONSUMED_ELSEWHERE
+  const place = actualEndPlacement(task, grab, dropped)
+  if (place === null) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setTaskPlanActualState', uid, place }])
+}
+
+// see GO-9
+/** @purity pure */
+function markerPullWrite(
+  context: InputContext,
+  release: PointerInput,
+  uid: number,
+): TranslatedInput {
+  const row = markerPullRow(context, uid)
+  if (row === 'PE-10') return CONSUMED_ELSEWHERE
+  if (row === 'PE-8') return actualEndWrite(context, release, uid, 'GA-4')
+  const planStart = dayOf(taskByUid(context.document.schedule, uid)?.start ?? null)
+  const dropped = dayAtX(context.layout, release.x)
+  if (planStart === null || dropped === null) return CONSUMED_ELSEWHERE
+  // WHY: released left of the plan start, GO-9 asks for a one-day actual there, not a refusal.
+  const held = compareDay(dropped, planStart) < 0 ? planStart : dropped
+  return changed([
+    { kind: 'beginTaskActual', uid, grabbed: 'GA-6', droppedDay: textOfDay(held) },
+  ])
+}
+
+// see PE-1, PE-6, SL-7
+/** @purity pure */
+function bodyMoveWrites(
+  context: InputContext,
+  press: PointerPress,
+  release: PointerInput,
+  uid: number,
+): readonly DocumentCommand[] {
+  const rows = drawnRowsOf(context.layout)
+  const moving = movedTaskUids(context, uid)
+  const shift = dayShift(context, press.at.x, release.x)
+  const crossed = clampedRowShift(context, rows, moving, drawnRowsCrossed(rows, press.at.y, release.y))
+  const commands: DocumentCommand[] = []
+  for (const each of moving) {
+    const task = taskByUid(context.document.schedule, each)
+    if (task === null) continue
+    const start = dayOf(task.start)
+    const finish = dayOf(task.finish)
+    if (start !== null && finish !== null && shift !== 0) {
+      commands.push({
+        kind: 'setTaskPlanDates',
+        uid: each,
+        start: textOfDay(dayShifted(start, shift)),
+        finish: textOfDay(dayShifted(finish, shift)),
+      })
+    }
+    const at = rowIndexOfTask(context, rows, each)
+    const landed = at === null ? undefined : rows[at + crossed]
+    if (landed !== undefined && landed.groupId !== rowOfTask(context, each)) {
+      commands.push({ kind: 'moveTaskToTaskGroup', uid: each, groupId: landed.groupId })
+    }
+  }
+  return commands
+}
+
+/** @purity pure */
+function rowIndexOfTask(
+  context: InputContext,
+  rows: readonly RowPlacement[],
+  uid: number,
+): number | null {
+  const groupId = rowOfTask(context, uid)
+  if (groupId === null) return null
+  const at = rows.findIndex((one) => one.groupId === groupId)
+  return at < 0 ? null : at
+}
+
+// see PE-1, SL-7
+// WHY: one shift for the whole selection: a per-item clamp would spread a selection that
+// started a row apart, and the table asks for the same number of rows for all of them.
+/** @purity pure */
+function clampedRowShift(
+  context: InputContext,
+  rows: readonly RowPlacement[],
+  moving: readonly number[],
+  asked: number,
+): number {
+  const held: number[] = []
+  for (const uid of moving) {
+    const at = rowIndexOfTask(context, rows, uid)
+    if (at !== null) held.push(at)
+  }
+  for (const one of context.selection.items) {
+    if (one.kind !== 'highlightBox') continue
+    const box = boxById(context.document.schedule.highlightBoxes, one.id)
+    if (box === undefined) continue
+    for (const groupId of [box.topGroupId, box.bottomGroupId]) {
+      const at = rows.findIndex((row) => row.groupId === groupId)
+      if (at >= 0) held.push(at)
+    }
+  }
+  if (held.length === 0) return 0
+  const room = { up: -Math.min(...held), down: rows.length - 1 - Math.max(...held) }
+  return Math.min(Math.max(asked, room.up), room.down)
+}
+
 // see GR-14
 /** @purity pure */
 function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box | undefined {
   return boxes.find((one) => one.id === id)
 }
 
-// see HB-3, GR-12
+// see HB-3, GA-9
 // TRAP: sort by y, not layout order: FR-098 lifts pinned rows, so layout order is not what is drawn.
 /** @purity pure */
 function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
@@ -3102,7 +3267,9 @@ function highlightBoxRangeWrite(
   if (box === undefined || start === null || end === null || firstRow === undefined || lastRow === undefined) {
     return CONSUMED_ELSEWHERE
   }
-  if (part.kind === 'anchor') return CONSUMED_ELSEWHERE
+  // WHY: a highlight box holds a frame and four corners only; the anchor and the leader
+  // belong to a comment box, and CM-54 has no value to write for either.
+  if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
 
   // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
   const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
@@ -3230,25 +3397,30 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
 
 // see FD-6
 /** @purity pure */
-function clampedFadeDays(task: Task, grab: 'GR-1' | 'GR-2', pulled: number, span: number): number {
-  const room = grab === 'GR-1' ? span : span - (task.fadeInDays ?? 0)
+function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span: number): number {
+  const room = grab === 'GA-7' ? span : span - (task.fadeInDays ?? 0)
   return Math.min(Math.max(0, pulled), Math.max(0, room))
 }
 
 type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
 
-// see GR-5, GR-6, GR-15, GO-3, GO-4
+type ActualEndHold = 'GA-3' | 'GA-4' | 'GA-12' | 'GA-13' | 'GA-16'
+
+const ACTUAL_START_HOLDS: readonly ActualEndHold[] = ['GA-3', 'GA-12']
+
+// see GO-3, GO-4, GO-5
 /** @purity pure */
 function actualEndPlacement(
   task: Task,
-  grab: 'GR-5' | 'GR-6' | 'GR-15',
+  grab: ActualEndHold,
   dropped: CalendarDay,
 ): PlacedPlanActual | null {
   const held = dayOf(task.actualStart)
   if (held === null) return null
-  const actualStart = grab === 'GR-6' ? textOfDay(held) : textOfDay(dropped)
-  // WHY: GR-5 keeps the last day; GR-6 puts the released day itself, not moved to a working day (GO-3).
-  const lastDay = grab === 'GR-5' ? null : textOfDay(dropped)
+  const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
+  const actualStart = isStartHeld || grab === 'GA-16' ? textOfDay(dropped) : textOfDay(held)
+  // WHY: GO-5 keeps the last day; the end holds put the released day itself, not a working day (GO-3).
+  const lastDay = isStartHeld ? null : textOfDay(dropped)
   const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
   const moved: Task = lastDay === null
     ? { ...task, actualStart }
@@ -3383,7 +3555,7 @@ function movedTaskUids(context: InputContext, grabbed: number): readonly number[
 }
 
 // TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already
-// draws the Task under the pointer, so GR-12's guard cancels the move.
+// draws the Task under the pointer, so PE-1's guard cancels the move.
 /** @purity pure */
 function rowOfTask(context: InputContext, uid: number): string | null {
   const member = context.document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)
@@ -3975,12 +4147,16 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
 
   switch (pressRowOf(press, context)) {
     case 'PTD-3': {
+      const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
       const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)
-      if (ref === null) return held
+      if (ref === null || grab === null) return held
+      if (grab === 'GA-20' && !hasDraggedPastThreshold(press, input)) return held
       if (isAdding) {
         return isSelected(held, ref) ? selectionWithout(held, ref) : selectionWith(held, ref)
       }
-      return selectionWith(emptySelection(), ref)
+      const isWholeMoved =
+        BODY_GRAB_ROWS.has(grab) && isSelected(held, ref) && hasDraggedPastThreshold(press, input)
+      return isWholeMoved ? held : selectionWith(emptySelection(), ref)
     }
     case 'PTD-5': {
       const rect = marqueeRect(press.at, input)
@@ -4051,6 +4227,33 @@ function screenStateFromEntry(entry: string, context: InputContext): ScreenState
   return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
 }
 
+// see PV-4, PV-5, CP-36
+/** @purity pure */
+function screenStateAfterMarkerPress(input: PointerInput, context: InputContext): ScreenState {
+  const state = context.screenState
+  const press = context.pressed
+  if (press === null || press.hit === null) return state
+  if (grabRowOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return state
+  if (hasDraggedPastThreshold(press, input)) return state
+  const uid = press.hit.item.taskUid
+  const task = taskByUid(context.document.schedule, uid)
+  if (task === null) return state
+  const turned = cycleTaskPlanActualState(task, rememberedActualOf(state, uid), {
+    floorDay: task.start,
+    milestone: isDrawnAsMilestone(context, uid),
+  })
+  return screenStateWithRememberedActual(state, uid, turned.remembered)
+}
+
+// see AT-100, FR-083
+/** @purity pure */
+function isDrawnAsMilestone(context: InputContext, uid: number): boolean {
+  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
+  if (drawn !== undefined) return drawn.shapeKind === 'milestone'
+  const task = taskByUid(context.document.schedule, uid)
+  return task !== null && task.milestone === true
+}
+
 // see CP-36, IN-4
 /** @purity pure */
 export function screenStateFromInput(input: HumanInput, context: InputContext): ScreenState {
@@ -4059,7 +4262,8 @@ export function screenStateFromInput(input: HumanInput, context: InputContext): 
     if (input.phase !== 'up') return state
     const on = context.pressed === null ? null : context.pressed.on
     if (on?.isImportReportDismiss === true) return screenStateWithSurface(state, null)
-    return on === null || on.entry === null ? state : screenStateFromEntry(on.entry, context)
+    if (on === null) return screenStateAfterMarkerPress(input, context)
+    return on.entry === null ? state : screenStateFromEntry(on.entry, context)
   }
   if (input.kind !== 'key') return state
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {

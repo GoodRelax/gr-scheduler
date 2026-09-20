@@ -20,7 +20,7 @@
 // order as a MUST, but `AppHeaderItems` carries no member for an order -- so
 // UF-62 has nothing to be held to. ⭐ CR-299 settled who owes it: 表 T-075's
 // 責務 for UF-71 now reads 「`FR-101` の「名前を時刻の上に置く」を満たすのは本ユ
-// ニットである」, and the ledger's own closing note says 「残るのは試験だけである
+// ニットである」, and the ledger's own closing note says DFC-126 「残るのは試験だけである
 // —— その MUST を主張する試験はまだ 0 件」. This file is that test.
 //
 // ⚠️ U-58 AND U-59 APPEAR IN FIXTURES ALREADY -- tests/unit/uf-71.test.ts:175
@@ -65,7 +65,7 @@
 //   2. HOW THE MOMENT IS SPELLED. FR-101 says in as many words 「時刻の綴りその
 //      ものは本書が定めない —— 読む人の暗黙の綴りに従う」.
 //   3. THAT THE NAME IS SMALLER OR LARGER THAN ANYTHING. `S-210` is 「ヘッダー
-//      の更新日時の文字の大きさの係数」 and its own note says ⚠️ 「ファイルの名前
+//      の更新日時の文字の大きさの係数」 and its own note says ⚠️ DFC-217 「ファイルの名前
 //      には掛けない」, so the pair's relative size is a rule about the MOMENT
 //      only and belongs to a case about `S-210`, not about the order.
 

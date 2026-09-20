@@ -124,7 +124,7 @@ import { specTable, unbroken } from '../contract/spec-table'
  * below cases about the specification rather than about this file's opinion.
  */
 // ⚠️ RE-ANCHORED 2026-09-07. The sentence before this one was rewritten by the
-// user's ruling 「トグルにせよ。 ユーザーに選択肢がある」 (SP-4 no longer turns on
+// user's ruling DFC-383 「トグルにせよ。 ユーザーに選択肢がある」 (SP-4 no longer turns on
 // the selection), so the anchor now starts at the exclusivity sentence -- which
 // is still the same paragraph, and still what makes 「入るとき」 legible.
 const THE_CLAUSE =
@@ -452,7 +452,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   it('SP-4: pressing the entrance that is already armed un-arms it', () => {
     // 「解除は `Esc`、またはパレットの同じ入口の再押下とすること（MUST）」 -- so
     // the second press of the SAME entrance answers AR-1, and that is a
-    // different fact from IC-45's. ⚠️ The clause lost its 「何も選んでいないとき
+    // different fact from IC-45's. ⚠️ The clause lost its DFC-383 「何も選んでいないとき
     // の」 on 2026-09-07 (the user's ruling 「トグルにせよ」); every case in this
     // file presses with an empty selection, so the widened half is driven by
     // tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts instead.

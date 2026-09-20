@@ -21,8 +21,15 @@ import {
 import type { Selection } from '../../document-model/selection/selection'
 import {
   NOT_STORED_LABEL_SIZES,
+  assigneeAnchorOf,
+  dummyBandOf,
+  labelLayoutOf,
+  labelReferenceOf,
   markerDiameterOf,
+  outwardStartOf,
   xFromDay,
+  type LabelLayout,
+  type LabelReference,
   type MilestoneGlyph,
   type ScheduleLayout,
   type ShapeKind,
@@ -71,17 +78,20 @@ export interface MarkerGeometry {
   readonly radius: number
 }
 
-// see LF-13
+// see LF-13, XS-10, XS-11, XS-12, XS-13, GA-20
 export interface ResumeGeometry {
   readonly arm: Path
   readonly head: Path
   readonly valid: boolean
-  readonly hitHalf: number
+  // TRAP: the box does not follow the drawn side; GA-20 keeps it at the marker's diameter.
+  readonly box: ScreenRect
+  readonly dash: Path
+  readonly undecided: boolean
 }
 
-// see FR-043
+// see FR-043, GA-5, GA-6, GA-17, GA-21, GA-22
 export interface DummyGeometry {
-  readonly grab: 'GR-9' | 'GR-17' | 'GR-18'
+  readonly grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
   readonly at: Point
   readonly ink: ScreenRect
   // see DM-4, DM-8, DM-9, PI-5
@@ -112,7 +122,7 @@ export interface DependencyGeometry {
   readonly linkType: number
   readonly pattern: 'RP-1' | 'RP-2' | 'RP-3' | 'RP-4' | 'RP-5' | 'RP-6' | 'RP-7' | 'RP-8'
   readonly points: Path
-  // see S-18, S-178, S-19, GR-13
+  // see S-18, S-178, S-19, GA-19
   // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
   readonly head?: Path
@@ -132,6 +142,12 @@ export interface CommentGeometry {
   readonly body: ScreenRect
   readonly lines: readonly string[]
   readonly fontSize: number
+}
+
+// see GR-14
+/** @purity pure */
+export function leaderOf(comment: CommentGeometry): Path {
+  return [comment.anchor, point(comment.body.x, comment.body.y + comment.body.height)]
 }
 
 // see CU-2
@@ -185,7 +201,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
   ]
 }
 
-// see GR-1, GR-2, FD-4
+// see GA-7, GA-8, FD-4
 // STOP: spec does not decide whether a fade handle stands on the chevron's notch or on the time axis. Looked in FD-5, T-023d
 // @provisional PND-252
 /** @purity pure */
@@ -353,46 +369,36 @@ function milestoneOutline(
   }
 }
 
-// see LF-8
+// see XS-5, XS-6
+// TRAP: repeats lineBar's XS-5 head height and XS-5 dot size; change both together.
 /** @purity pure */
-function thinStroke(planHeight: number, settings: DocumentSettings): number {
-  return Math.max(
-    settings.thinStrokeMin,
-    Math.min(settings.thinStrokeMax, planHeight * settings.thinStrokeOfPlan),
-  )
+function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DocumentSettings): number {
+  return (kind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// TRAP: repeats lineBar's LF-7 head and dot sizes; change both together.
+// see LF-7, LF-8, XS-5
 /** @purity pure */
-function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', x0: number, x1: number, stroke: number,
-                           settings: DocumentSettings): number {
-  if (kind === 'arrow') {
-    const head = Math.min(stroke * settings.arrowHeadOfStroke, (x1 - x0) * settings.arrowHeadOfSpan)
-    return head / 2
-  }
-  return stroke * settings.spanDotOfStroke
-}
-
-// see LF-7
-/** @purity pure */
-function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number, stroke: number,
+function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
                  settings: DocumentSettings): BarGeometry {
+  const stroke = settings.thinStrokeWidth
   if (kind === 'arrow') {
-    const head = Math.min(stroke * settings.arrowHeadOfStroke, (x1 - x0) * settings.arrowHeadOfSpan)
+    // TRAP: the head's length is capped by the span, its height never is: XS-5 holds the tiers still.
+    const length = Math.min(settings.thinArrowHeadLength, (x1 - x0) * settings.arrowHeadOfSpan)
+    const half = lineEndHalfHeight('arrow', settings)
     return {
       form: 'line',
       from: point(x0, middle),
-      to: point(x1 - head, middle),
+      to: point(x1 - length, middle),
       strokeWidth: stroke,
       head: [
         point(x1, middle),
-        point(x1 - head, middle - head / 2),
-        point(x1 - head, middle + head / 2),
+        point(x1 - length, middle - half),
+        point(x1 - length, middle + half),
       ],
       dots: [],
     }
   }
-  const radius = stroke * settings.spanDotOfStroke
+  const radius = lineEndHalfHeight('endpointSpan', settings)
   return {
     form: 'line',
     from: point(x0, middle),
@@ -401,6 +407,22 @@ function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number, stroke
     head: null,
     dots: [{ at: point(x0, middle), radius }, { at: point(x1, middle), radius }],
   }
+}
+
+// see T-012
+/** @purity pure */
+function isThinShape(shapeKind: ShapeKind): boolean {
+  return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
+}
+
+// see XS-4, XS-5, XS-6, XS-7
+// TRAP: schedule-layout.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
+/** @purity pure */
+function thinTierMiddle(placed: TaskPlacement, settings: DocumentSettings,
+                        isActual: boolean): number {
+  const stroke = settings.thinStrokeWidth
+  const planMiddle = placed.y + stroke / 2
+  return isActual ? planMiddle + stroke + settings.actualGap : planMiddle
 }
 
 /** @purity pure */
@@ -422,10 +444,10 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
     }
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {
-    // TRAP: the plan's height for both bars, not height.
-    return lineBar(kind, x0, x1, top + height / 2, thinStroke(placed.planHeight, settings), settings)
+    // TRAP: the tier, never top + height / 2: XS-5 and XS-6 stack the two lines by their own edges.
+    return lineBar(kind, x0, x1, thinTierMiddle(placed, settings, isActual), settings)
   }
-  // TRAP: read the plan's fades off the placement, never clamp again: LC-6 judged NL-1 with these numbers.
+  // TRAP: read the plan's fades off the placement, never clamp again: LC-6 judged the fit with these numbers.
   const fade = isActual
     ? { fadeIn: 0, fadeOut: 0 }
     : { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
@@ -455,57 +477,92 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
   }
 }
 
-// see LF-11, FR-013, GR-7
+// see RF-1, RF-2, RF-3
 /** @purity pure */
-function markerLeftOf(inputs: GeometryInputs, placed: TaskPlacement): number | null {
-  if (!inputs.showActual) return inputs.showPlan ? placed.x + placed.width + inputs.settings.markerGap : null
-  return placed.markerAnchorX
+function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelReference {
+  const settings = inputs.settings
+  const plan = { x: placed.x, width: placed.width }
+  const fade = { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
+  if (!inputs.showActual) return labelReferenceOf(placed.shapeKind, plan, fade, null, settings)
+  const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
+  const band = placed.actualX === null
+    ? dummyBandOf(placed.shapeKind, plan, diameter)
+    : { x: placed.actualX, width: placed.actualWidth }
+  return labelReferenceOf(placed.shapeKind, plan, fade, band, settings)
 }
 
-// TRAP: markerAnchorX already includes a dummy's grab hold (GR-7); adding a width here counts it twice.
+// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+/** @purity pure */
+function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
+                            placed: TaskPlacement): LabelLayout {
+  const settings = inputs.settings
+  const reference = drawnReferenceOf(inputs, placed)
+  const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
+  return labelLayoutOf(
+    placed.shapeKind,
+    reference,
+    placed.labelTextWidth,
+    diameter,
+    settings.progressMarkerVisible,
+    outwardStartOf(reference.x + reference.width, task, placed.shapeKind, diameter),
+    settings,
+  )
+}
+
+// see XS-3, XS-4
+/** @purity pure */
+function labelTierMiddleOf(placed: TaskPlacement, settings: DocumentSettings): number {
+  if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
+    return placed.y + placed.planHeight / 2
+  }
+  return labelTopOf(settings, placed, placed.labelFontSize) + placed.labelFontSize / 2
+}
+
+// see LF-11, XS-3, XS-4
 /** @purity pure */
 function markerOf(inputs: GeometryInputs, task: Task,
                   placed: TaskPlacement): MarkerGeometry | null {
   const settings = inputs.settings
   if (!settings.progressMarkerVisible) return null
-  const markerLeft = markerLeftOf(inputs, placed)
+  const markerLeft = drawnLabelLayoutOf(inputs, task, placed).markerLeft
   if (markerLeft === null) return null
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
-  const boxRight =
-    placed.actualPlacement === 'inside' && inputs.showActual ? placed.labelBoxRight : null
-  const centreX = boxRight === null
-    ? markerLeft + radius
-    : placed.insideLabelX - settings.labelGap - radius
   return {
     symbol: progressSymbolOf(task, inputs.statusDate),
-    centre: point(centreX, placed.y + placed.planHeight / 2),
+    centre: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
   }
 }
 
-// see LF-13, LF-11
+// see LF-13, XS-10, XS-11, XS-12, XS-13
 /** @purity pure */
-function resumeOf(inputs: GeometryInputs, task: Task, marker: MarkerGeometry,
+function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   settings: DocumentSettings): ResumeGeometry {
   const valid = task.resumeValid !== false
-  const side = marker.radius * 2 * (valid ? 1 : settings.resumeScaleInvalid)
+  const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
   const resumeDay = dayOf(task.resume)
-  const x = resumeDay === null
-    ? marker.centre.x + marker.radius + settings.markerGap
-    : xFromDay(inputs.layout, resumeDay)
+  const undecided = resumeDay === null
+  const side = diameter * (valid && !undecided ? 1 : settings.resumeScaleInvalid)
+  const stopX = placed.actualX === null ? placed.x : placed.actualX + placed.actualWidth
+  const x = resumeDay === null ? stopX : xFromDay(inputs.layout, resumeDay)
+  const middle = isThinShape(placed.shapeKind)
+    ? thinTierMiddle(placed, settings, true)
+    : labelTierMiddleOf(placed, settings)
   const arm = side * settings.resumeArmOfMarker
   const head = side * settings.resumeHeadOfMarker
-  const middle = marker.centre.y
   return {
-    arm: [point(x, marker.centre.y + marker.radius), point(x, middle), point(x + arm, middle)],
+    // TRAP: the stem follows `side`, not the diameter; XS-11 and XS-13 shrink the whole drawn
+    // icon by S-25, while GA-20 keeps `box` below at the diameter the marker has.
+    arm: [point(x, middle + side / 2), point(x, middle), point(x + arm, middle)],
     head: [
       point(x + arm, middle - head),
       point(x + arm + head, middle),
       point(x + arm, middle + head),
     ],
     valid,
-    // TRAP: the marker's own radius: side carries S-25, and GR-8's hit box does not follow it.
-    hitHalf: marker.radius,
+    box: { x, y: middle - diameter / 2, width: diameter, height: diameter },
+    dash: undecided ? [] : [point(stopX, middle), point(x, middle)],
+    undecided,
   }
 }
 
@@ -565,8 +622,8 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   readonly pattern: DependencyGeometry['pattern']
   readonly points: Path
 } {
-  const entryRun = settings.dependencyArrowLength * settings.dependencyRunOfArrow
-  const exitRun = entryRun - settings.dependencyArrowLength
+  const entryRun = settings.dependencyLeadIn
+  const exitRun = settings.dependencyLeadOut
   const x1 = from.edge + exitRun
   const sameLane = Math.abs(from.middle - to.middle) < 0.5
   const below = to.middle > from.middle
@@ -630,17 +687,6 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Docum
   }
 }
 
-// see FR-009
-/** @purity pure */
-function attachedBar(inputs: GeometryInputs, placed: TaskPlacement): {
-  readonly x: number
-  readonly width: number
-} {
-  return !inputs.showPlan && placed.actualX !== null
-    ? { x: placed.actualX, width: placed.actualWidth }
-    : { x: placed.x, width: placed.width }
-}
-
 // see SL-8, FR-009
 // TRAP: keyed as svg-renderer.ts keys the lines it widens; another key would grab one width and draw another.
 /** @purity pure */
@@ -659,11 +705,11 @@ function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<
   return out
 }
 
-// see S-19, GR-13
+// see S-19, S-300, GA-19
 // TRAP: repeats dependencyArrowSvg in svg-renderer.ts, whose marker turns with the last drawn segment;
 // change both together.
 /** @purity pure */
-function arrowHeadOf(points: Path, length: number): Path {
+function arrowHeadOf(points: Path, length: number, base: number): Path {
   const tip = points[points.length - 1]
   if (tip === undefined) return []
   let alongX = 1
@@ -678,7 +724,7 @@ function arrowHeadOf(points: Path, length: number): Path {
   }
   const baseX = tip.x - alongX * length
   const baseY = tip.y - alongY * length
-  const half = length / 2
+  const half = base / 2
   return [
     tip,
     point(baseX - alongY * half, baseY + alongX * half),
@@ -694,13 +740,16 @@ function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskP
   const entryRight = sameSide(linkType) ? right : !right
   /** @purity pure */
   const anchor = (placed: TaskPlacement, edgeRight: boolean): Anchored => {
-    const bar = attachedBar(inputs, placed)
+    const thin = isThinShape(placed.shapeKind)
+    const band = thin ? placed.height : placed.planHeight
     return {
-      edge: sign * (edgeRight ? bar.x + bar.width : bar.x),
-      middle: placed.y + placed.planHeight / 2,
+      edge: sign * (edgeRight ? placed.x + placed.width : placed.x),
+      middle: thin
+        ? thinTierMiddle(placed, inputs.settings, false)
+        : placed.y + placed.planHeight / 2,
       top: placed.y,
-      bottom: placed.y + placed.planHeight,
-      drawnBottom: placed.y + placed.planHeight + drawnOverhangOf(placed, inputs.settings),
+      bottom: placed.y + band,
+      drawnBottom: placed.y + band + drawnOverhangOf(placed, inputs.settings),
     }
   }
   const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
@@ -714,7 +763,11 @@ function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskP
     pattern: route.pattern,
     points,
     strokeWidth: isSelected ? ownWidth * NOT_STORED_SELECTION_SIZES['S-178'] : ownWidth,
-    head: arrowHeadOf(points, inputs.settings.dependencyArrowLength),
+    head: arrowHeadOf(
+      points,
+      inputs.settings.dependencyArrowLength,
+      inputs.settings.dependencyArrowWidth,
+    ),
   }
 }
 
@@ -801,7 +854,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
       height: side,
     }
     const figure = barOf(inputs, placed, ink.x, ink.x + side, ink.y, side, true)
-    return [{ grab: 'GR-18', at: point(fromX, planMiddle), ink, figure }]
+    return [{ grab: 'GA-17', at: point(fromX, planMiddle), ink, figure }]
   }
 
   // TRAP: schedule-layout.ts counts the same width into dummyReach (dummyInkWidthOf); change both together.
@@ -809,85 +862,68 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
     markerDiameterOf(placed.shapeKind, placed.labelFontSize, inputs.settings) * NOT_STORED_DUMMY_SIZES['S-247'],
     NOT_STORED_DUMMY_SIZES['S-180'],
   )
+  const thin = isThinShape(placed.shapeKind)
+  const band = thin ? inputs.settings.thinStrokeWidth : actualHeight
   // TRAP: the band follows actualPlacement (LF-9); the plan's mid-line would put an SH-3 / SH-4 dummy on the plan line.
-  const top = placed.actualPlacement === 'below'
-    ? placed.y + placed.planHeight + inputs.settings.actualGap
-    : planMiddle - actualHeight / 2
-  const middle = top + actualHeight / 2
+  const middle = thin
+    ? thinTierMiddle(placed, inputs.settings, true)
+    : planMiddle
+  const top = middle - band / 2
   // TRAP: every dummy of one Task shares this ink; item-hit-area.ts reads the first one only.
-  const ink: ScreenRect = { x: fromX, y: top, width, height: actualHeight }
+  const ink: ScreenRect = { x: fromX, y: top, width, height: band }
   // WHY: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
-  const figure = barOf(inputs, placed, fromX, fromX + width, top, actualHeight, true)
+  const figure = barOf(inputs, placed, fromX, fromX + width, top, band, true)
   const end = dummyEndOf(inputs, from)
   return [
-    { grab: 'GR-9', at: point(fromX, middle), ink, figure },
-    { grab: 'GR-17', at: point(xFromDay(inputs.layout, end), middle), ink, figure },
+    { grab: thin ? 'GA-21' : 'GA-5', at: point(fromX, middle), ink, figure },
+    { grab: thin ? 'GA-22' : 'GA-6', at: point(xFromDay(inputs.layout, end), middle), ink, figure },
   ]
 }
 
-// see T-012, OC-10
+// see T-012, OC-10, XS-4
 /** @purity pure */
 function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: number): number {
-  if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
-    return placed.y + (placed.height - height) / 2
-  }
-  const middle = placed.y + placed.planHeight / 2
-  const stroke = thinStroke(placed.planHeight, settings)
-  const halfExtent = Math.max(
-    stroke / 2,
-    lineEndHalfHeight(placed.shapeKind, placed.x, placed.x + placed.width, stroke, settings),
-  )
-  const shapeTop = middle - halfExtent
-  // WHY: the font-size box sits on the centre of the counted height, so the baseline lands S-33 below it.
-  const counted = height * NOT_STORED_LABEL_SIZES['S-233']
+  if (!isThinShape(placed.shapeKind)) return placed.y + (placed.height - height) / 2
   // see DS-3
   const lift = NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
-  return shapeTop - lift - counted / 2 - height / 2
+  return placed.y - lift - height
 }
 
-// see GR-10, LC-6
+// see GR-10, LC-6, LP-1, LP-3
 // TRAP: use placed.labelFontSize, never a fresh formula: LC-5 measured with it, and FR-094's floors disagree.
 /** @purity pure */
-function labelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
+function labelBoxOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): ScreenRect | null {
   if (placed.label === '') return null
-  const settings = inputs.settings
   const height = placed.labelFontSize
-  const y = labelTopOf(settings, placed, height)
-  const boxRight = placed.labelBoxRight
-  if (boxRight !== null) {
-    return { x: placed.insideLabelX, y, width: Math.max(0, boxRight - placed.insideLabelX), height }
+  return {
+    x: drawnLabelLayoutOf(inputs, task, placed).nameX,
+    y: labelTopOf(inputs.settings, placed, height),
+    width: placed.labelTextWidth,
+    height,
   }
-  return placed.labelPlacement === 'inside'
-    ? {
-        // TRAP: no labelPad on x; svg-renderer.ts adds S-31 once, as it does for the outside box (T-013).
-        x: placed.insideLabelX,
-        y,
-        width: Math.max(
-          0,
-          placed.x + placed.width - placed.fadeOutPx - placed.insideLabelX - settings.labelPad,
-        ),
-        height,
-      }
-    : {
-        // TRAP: read labelX, not the shape's right edge plus labelGap: labelX already clears OC-3 / OC-4.
-        x: placed.labelX,
-        y,
-        width: Math.max(0, placed.occupiedX1 - placed.labelX),
-        height,
-      }
 }
 
-// see OC-2, FR-090
-// STOP: spec does not decide the card's vertical place; LF-11's plan-bar centre stands in. Looked in T-221, T-012
-// @provisional PND-347
+// see OC-2, FR-090, XS-3, XS-4
 /** @purity pure */
 function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.outsideLabel === '') return null
+  const settings = inputs.settings
   const height = placed.labelFontSize
   const width = placed.outsideLabelWidth
+  const drawnStart = inputs.showActual && placed.actualX !== null
+    ? Math.min(placed.x, placed.actualX)
+    : placed.x
+  const anchor = assigneeAnchorOf(
+    placed.shapeKind,
+    drawnReferenceOf(inputs, placed),
+    drawnStart,
+    settings,
+  )
   return {
-    x: placed.x - inputs.settings.labelGap - width,
-    y: placed.y + placed.planHeight / 2 - height / 2,
+    x: anchor - settings.assigneeLabelGap - width,
+    // STOP: spec does not decide the card's vertical place on a milestone. Looked in XS-3, XS-8, LF-11
+    // @provisional PND-347
+    y: labelTierMiddleOf(placed, settings) - height / 2,
     width,
     height,
   }
@@ -938,17 +974,17 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
     marker,
     // WHY: follows the state, not the symbol: a late suspended Task shows PM-4 and is still suspended.
     resume:
-      marker !== null && suspended && placed.shapeKind !== 'milestone'
-        ? resumeOf(inputs, task, marker, settings)
+      marker !== null && suspended && inputs.showActual && placed.shapeKind !== 'milestone'
+        ? resumeOf(inputs, task, placed, settings)
         : null,
     dummies,
-    // TRAP: gate on the selection here, not only when drawing: itemAtPointer asks GR-1 / GR-2 of every Task
-    // before GR-3 / GR-4, so handles on an unselected Task swallow a neighbour's plan-bar end.
+    // TRAP: gate on the selection here, not only when drawing: itemAtPointer asks GA-7 / GA-8 of every Task
+    // before GA-1 / GA-2, so handles on an unselected Task swallow a neighbour's plan-bar end.
     fadeHandles:
       placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
         ? fadeHandlePoints(placed, planTop)
         : [],
-    label: labelBoxOf(inputs, placed),
+    label: labelBoxOf(inputs, task, placed),
     assigneeLabel: outsideLabel,
   }
 }
@@ -1204,7 +1240,8 @@ export function geometryFromLayout(
 
   const placedByUid = new Map(layout.placements.map((one) => [one.taskUid, one]))
   const dependencies: DependencyGeometry[] = []
-  if (settings.dependencyVisible) {
+  // see RT-4a, FR-009
+  if (settings.dependencyVisible && settings.planVisible) {
     for (const successor of schedule.tasks) {
       const toDay = placedByUid.get(successor.uid)
       if (toDay === undefined) continue

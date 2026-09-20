@@ -31,7 +31,7 @@ import {
 // see L-1
 export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
 
-// see T-013
+// see LP-1, LP-2
 export type LabelPlacement = 'inside' | 'right'
 
 export type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
@@ -59,15 +59,13 @@ export interface TaskPlacement {
   readonly dummyReach: number | null
   readonly fadeInPx: number
   readonly fadeOutPx: number
-  // TRAP: T-243's marker (1), whatever is shown; the drawn marker follows FR-013 and reads the toggles itself.
+  // TRAP: the lane marker, whatever is shown; the drawn one follows RF-1 and reads the toggles itself.
   readonly markerAnchorX: number | null
   readonly labelPlacement: LabelPlacement
-  // TRAP: already past T-243's markers (1) and (2) and a PA-4 icon; do not add them again.
+  // TRAP: already past the marker and a PA-4 icon; do not add them again.
   readonly labelX: number
-  readonly insideLabelX: number
-  // see T-013
-  readonly labelBoxRight: number | null
   readonly label: string
+  readonly labelTextWidth: number
   readonly labelFontSize: number
   readonly outsideLabel: string
   readonly outsideLabelWidth: number
@@ -291,21 +289,27 @@ function nameLabelOf(name: string, dates: string): string {
   return name === '' ? dates : `${name} ${dates}`
 }
 
-// see T-012, FR-094
+// see XS-5, XS-6
 /** @purity pure */
-function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  const planHeight = planHeightOf(shapeKind, settings)
-  return laidBelow(shapeKind)
-    ? planHeight + settings.actualGap + planHeight * settings.actualOfPlan
-    : planHeight
+export function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  return (shapeKind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
-// see OC-10, S-196, S-233
+// see T-012, XS-5, XS-6
+/** @purity pure */
+function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
+  if (!laidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
+  const stroke = settings.thinStrokeWidth
+  return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
+}
+
+// see OC-10, XS-4
+// TRAP: the tier is the font size, never S-233; that ratio moves every stacked row.
 /** @purity pure */
 function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
   if (!laidBelow(shapeKind)) return 0
   return (
-    labelFontSize(shapeKind, settings) * NOT_STORED_LABEL_SIZES['S-233'] +
+    labelFontSize(shapeKind, settings) +
     NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
   )
 }
@@ -616,7 +620,7 @@ function actualSpanOf(
   }
 }
 
-// see DM-3, OR-3
+// see DM-3
 /** @purity pure */
 function dummyInkWidthOf(markerDiameter: number): number {
   return Math.min(markerDiameter * NOT_STORED_DUMMY_SIZES['S-247'], NOT_STORED_DUMMY_SIZES['S-180'])
@@ -648,31 +652,127 @@ function dummyReachOf(
   return inkX + dummyInkWidthOf(markerDiameter)
 }
 
-// see T-243, FR-013, GR-7, LF-11
-// TRAP: read no toggle here but S-63, which its caller reads: no other may move the name.
-// TRAP: the plan is no candidate once the actual shows, for a milestone too: FR-013 touches the actual or dummy figure.
-/** @purity pure */
-function shownMarkerAnchorX(
-  actualReach: number | null,
-  dummyReach: number | null,
-): number | null {
-  return dummyReach ?? actualReach
+// see RF-1, RF-2, RF-3
+export interface LabelReference {
+  readonly x: number
+  readonly width: number
+  readonly fitWidth: number
+  readonly nameFloor: number
 }
 
-// see T-243, LF-11, PA-4
-// TRAP: schedule-geometry.ts draws the same marker and PA-4 icon (markerOf, resumeOf); change both together.
+// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+export interface LabelLayout {
+  readonly fits: boolean
+  readonly markerLeft: number | null
+  readonly nameX: number
+}
+
+// see XS-11, GA-20
 /** @purity pure */
-function markerReachOf(markerLeft: number, task: Task, shapeKind: ShapeKind,
-                       settings: DocumentSettings): number {
-  const diameter = markerDiameterOf(shapeKind, labelFontSize(shapeKind, settings), settings)
-  const markerRight = markerLeft + diameter
-  const resumeBesideMarker =
+export function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
+  return (
     shapeKind !== 'milestone' &&
     task.resume === null &&
     planActualState(task) === 'suspendedResumeUnknown'
-  if (!resumeBesideMarker) return markerRight
-  const side = diameter * (task.resumeValid !== false ? 1 : settings.resumeScaleInvalid)
-  return markerRight + settings.markerGap + side * (settings.resumeArmOfMarker + settings.resumeHeadOfMarker)
+  )
+}
+
+// see RF-1, RF-2, RF-3
+/** @purity pure */
+export function labelReferenceOf(
+  shapeKind: ShapeKind,
+  plan: { readonly x: number; readonly width: number },
+  fade: { readonly fadeIn: number; readonly fadeOut: number },
+  actual: { readonly x: number; readonly width: number } | null,
+  settings: DocumentSettings,
+): LabelReference {
+  const sideways = actualPlacementOf(shapeKind) === 'sideways'
+  const side = planHeightOf(shapeKind, settings) * settings.actualOfPlan
+  if (actual === null) {
+    const flat = { x: plan.x, width: plan.width }
+    return sideways
+      ? { ...flat, fitWidth: plan.width, nameFloor: plan.x }
+      : { ...flat, fitWidth: plan.width - fade.fadeIn - fade.fadeOut, nameFloor: plan.x + fade.fadeIn }
+  }
+  const band = sideways
+    ? { x: actual.x - side / 2, width: side }
+    : { x: actual.x, width: actual.width }
+  return { ...band, fitWidth: band.width, nameFloor: band.x }
+}
+
+// see RF-2
+/** @purity pure */
+export function dummyBandOf(
+  shapeKind: ShapeKind,
+  plan: { readonly x: number; readonly width: number },
+  markerDiameter: number,
+): { readonly x: number; readonly width: number } {
+  return actualPlacementOf(shapeKind) === 'sideways'
+    ? { x: plan.x + plan.width / 2, width: 0 }
+    : { x: plan.x, width: dummyInkWidthOf(markerDiameter) }
+}
+
+// see LP-2, LP-4, GA-20
+/** @purity pure */
+export function outwardStartOf(
+  referenceEnd: number,
+  task: Task,
+  shapeKind: ShapeKind,
+  markerDiameter: number,
+): number {
+  if (laidBelow(shapeKind) || !standsUndecidedResume(task, shapeKind)) return referenceEnd
+  return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
+}
+
+// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+/** @purity pure */
+export function labelLayoutOf(
+  shapeKind: ShapeKind,
+  reference: LabelReference,
+  textWidth: number,
+  markerDiameter: number,
+  marksShown: boolean,
+  outwardStart: number,
+  settings: DocumentSettings,
+): LabelLayout {
+  if (shapeKind === 'milestone') {
+    const markerLeft = marksShown ? reference.x + reference.width : null
+    const nameX = markerLeft === null
+      ? reference.x + reference.width * settings.milestoneNameStartOfWidth
+      : markerLeft + markerDiameter + settings.milestoneNameMarkerGap
+    return { fits: true, markerLeft, nameX }
+  }
+  const lead = marksShown ? markerDiameter + settings.labelGap : settings.labelPad
+  if (laidBelow(shapeKind)) {
+    return {
+      fits: true,
+      markerLeft: marksShown ? reference.x : null,
+      nameX: Math.max(reference.x + lead, reference.nameFloor),
+    }
+  }
+  const fits = lead + textWidth + NOT_STORED_SIZES['S-260'] <= reference.fitWidth
+  // TRAP: an undrawn resume icon holds no grab box, so S-63 false leaves the row at the reference end.
+  const outward = marksShown ? outwardStart : reference.x + reference.width
+  const from = fits ? reference.x : outward
+  return {
+    fits,
+    markerLeft: marksShown ? from : null,
+    nameX: Math.max(from + lead, fits ? reference.nameFloor : from + lead),
+  }
+}
+
+// see FR-109, OC-2
+/** @purity pure */
+export function assigneeAnchorOf(
+  shapeKind: ShapeKind,
+  reference: LabelReference,
+  drawnStartX: number,
+  settings: DocumentSettings,
+): number {
+  if (shapeKind === 'milestone') {
+    return reference.x + reference.width * settings.milestoneNameStartOfWidth
+  }
+  return laidBelow(shapeKind) ? reference.x : drawnStartX
 }
 
 // see T-068
@@ -761,7 +861,6 @@ export function layoutFromSchedule(
       )
       const font = labelFontSize(kind, settings)
       const text = labelWidth(label, font, settings)
-      const boxWidth = text + settings.labelPad
       const fade = clampedFade(task, kind, width, pxPerDay)
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
@@ -773,43 +872,32 @@ export function layoutFromSchedule(
               dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings, markerDiameter),
             )
       const planRight = x + width
-      const markerAnchorX = shownMarkerAnchorX(actualReach, dummyReach)
+      // TRAP: read no toggle here but S-63, which the drawing side reads: a toggle must not move a lane (T-038).
+      const reference = labelReferenceOf(
+        kind,
+        { x, width },
+        fade,
+        actual ?? dummyBandOf(kind, { x, width }, markerDiameter),
+        settings,
+      )
       const marksShown = settings.progressMarkerVisible
       const namedFromPlanStart = laidBelow(kind)
-      const markerInside =
-        marksShown && !namedFromPlanStart &&
-        markerAnchorX !== null && markerAnchorX < planRight
-      const boxLeftInShape = markerInside
-        ? Math.max(x + fade.fadeIn, markerAnchorX + markerDiameter + settings.labelGap)
-        : x + fade.fadeIn
-      // TRAP: take S-31 off too; the glyphs start labelPad past insideLabelX, so NL-1 would pass a name past the fadeOut edge.
-      const roomInside = Math.max(0, planRight - fade.fadeOut - boxLeftInShape - settings.labelPad)
-      const grip = NOT_STORED_SIZES['S-91']
-      const marksRoom = marksShown ? markerDiameter + settings.markerGap : 0
-      const boxRightInActual =
-        label !== '' &&
-        actualPlacementOf(kind) === 'inside' && actual !== null && actualReach !== null &&
-        boxWidth + settings.labelGap + marksRoom + grip * 2 <= actual.width
-          ? actualReach - grip
-          : null
-      const labelBoxRight = namedFromPlanStart ? x + boxWidth : boxRightInActual
-      const insideLabelX = labelBoxRight === null ? boxLeftInShape : labelBoxRight - boxWidth
-      const placement: LabelPlacement =
-        boxRightInActual !== null || text <= roomInside ? 'inside' : 'right'
-      const outwardX = Math.max(planRight, actualReach ?? dummyReach ?? Number.NEGATIVE_INFINITY)
-      const reachShown =
-        !marksShown || markerAnchorX === null
-          ? Number.NEGATIVE_INFINITY
-          : markerReachOf(markerAnchorX, task, kind, settings)
-      const reachPlanOnly = marksShown
-        ? markerReachOf(planRight + settings.markerGap, task, kind, settings)
-        : Number.NEGATIVE_INFINITY
-      const labelX = namedFromPlanStart
-        ? x
-        : Math.max(outwardX, reachShown, reachPlanOnly) + settings.labelGap
+      const referenceEnd = reference.x + reference.width
+      const laid = labelLayoutOf(
+        kind,
+        reference,
+        text,
+        markerDiameter,
+        marksShown,
+        outwardStartOf(referenceEnd, task, kind, markerDiameter),
+        settings,
+      )
+      const markerAnchorX = laid.markerLeft
+      const placement: LabelPlacement = laid.fits ? 'inside' : 'right'
+      const labelX = laid.nameX
       const labelledX1 = namedFromPlanStart
-        ? Math.max(planRight, x + boxWidth)
-        : placement === 'right' ? labelX + text : x + width
+        ? Math.max(planRight, laid.nameX + text)
+        : Math.max(planRight, referenceEnd, laid.nameX + text)
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
       const assigneeLabel = settings.assigneeVisible
@@ -818,15 +906,22 @@ export function layoutFromSchedule(
       const percentLabel = settings.percentCompleteVisible ? percentLabelOf(task) : ''
       const outsideLabel = outsideLabelOf(assigneeLabel, percentLabel)
       const outsideLabelWidth = labelWidth(outsideLabel, font, settings)
-      const outsideWidth = outsideLabel === '' ? 0 : settings.labelGap + outsideLabelWidth
-      const labelledX0 = x - outsideWidth
+      const outsideWidth =
+        outsideLabel === '' ? 0 : settings.assigneeLabelGap + outsideLabelWidth
+      const assigneeAnchor = assigneeAnchorOf(
+        kind,
+        reference,
+        actual === null ? x : Math.min(x, actual.x),
+        settings,
+      )
+      const labelledX0 = assigneeAnchor - outsideWidth
       // WHY: OC-8 and OC-9 are not counted yet: their marks are not drawn (MS-4).
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
       return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
-               occupiedX0, occupiedX1, markerAnchorX, insideLabelX, labelBoxRight }
+               occupiedX0, occupiedX1, markerAnchorX, text }
     })
 
     for (const item of measured) {
@@ -911,9 +1006,8 @@ export function layoutFromSchedule(
         markerAnchorX: item.markerAnchorX,
         labelPlacement: item.placement,
         labelX: item.labelX,
-        insideLabelX: item.insideLabelX,
-        labelBoxRight: item.labelBoxRight,
         label: item.label,
+        labelTextWidth: item.text,
         labelFontSize: item.font,
         outsideLabel: item.outsideLabel,
         outsideLabelWidth: item.outsideLabelWidth,
@@ -1271,17 +1365,99 @@ export function rowPlacesAtZoomY(
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_SIZES: {
-  readonly 'S-90': number
-  readonly 'S-91': number
-  readonly 'S-92': readonly [number, number]
+  readonly 'S-250': number
+  readonly 'S-251': number
+  readonly 'S-252': number
+  readonly 'S-253': number
+  readonly 'S-254': number
+  readonly 'S-255': number
+  readonly 'S-256': number
+  readonly 'S-257': number
+  readonly 'S-258': number
+  readonly 'S-259': number
+  readonly 'S-260': number
+  readonly 'S-261': number
+  readonly 'S-262': number
+  readonly 'S-263': number
+  readonly 'S-264': number
+  readonly 'S-265': number
+  readonly 'S-266': number
+  readonly 'S-267': number
+  readonly 'S-268': number
+  readonly 'S-269': number
+  readonly 'S-270': number
+  readonly 'S-271': number
+  readonly 'S-272': number
+  readonly 'S-273': number
+  readonly 'S-274': number
+  readonly 'S-275': number
+  readonly 'S-276': number
+  readonly 'S-277': number
+  readonly 'S-278': number
+  readonly 'S-279': number
+  readonly 'S-280': number
+  readonly 'S-281': number
+  readonly 'S-282': number
+  readonly 'S-283': number
+  readonly 'S-284': number
+  readonly 'S-285': number
+  readonly 'S-286': number
+  readonly 'S-287': number
+  readonly 'S-288': number
+  readonly 'S-289': number
+  readonly 'S-290': number
   readonly 'S-137': number
   readonly 'S-230': number
+  readonly 'S-293': number
+  readonly 'S-291': number
+  readonly 'S-292': number
 } = {
-  'S-90': 12,
-  'S-91': 12,
-  'S-92': [8, 8],
+  'S-250': 12,
+  'S-251': 0,
+  'S-252': 0,
+  'S-253': 12,
+  'S-254': 0,
+  'S-255': 0,
+  'S-256': 0,
+  'S-257': 12,
+  'S-258': 0,
+  'S-259': 0,
+  'S-260': 12,
+  'S-261': 0,
+  'S-262': 0,
+  'S-263': 12,
+  'S-264': 0,
+  'S-265': 0,
+  'S-266': 12,
+  'S-267': 0,
+  'S-268': 8,
+  'S-269': 8,
+  'S-270': 12,
+  'S-271': 0,
+  'S-272': 12,
+  'S-273': 0,
+  'S-274': 12,
+  'S-275': 0,
+  'S-276': 12,
+  'S-277': 0,
+  'S-278': 1.15,
+  'S-279': 0,
+  'S-280': 0,
+  'S-281': 0,
+  'S-282': 0,
+  'S-283': 0,
+  'S-284': 0,
+  'S-285': 2,
+  'S-286': 0,
+  'S-287': 12,
+  'S-288': 0,
+  'S-289': 12,
+  'S-290': 0,
   'S-137': 6,
   'S-230': 6,
+  'S-293': 3,
+  'S-291': 3,
+  'S-292': 6,
 }
 
 // see T-206

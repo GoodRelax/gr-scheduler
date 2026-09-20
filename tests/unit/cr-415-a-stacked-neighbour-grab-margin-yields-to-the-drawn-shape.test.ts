@@ -1,4 +1,4 @@
-// CR-415: when two stacked Tasks' grab margins overlap, the drawn shape is looked at first (table T-261).
+// CR-415: when two stacked Tasks' grab margins overlap, the drawn shape is looked at first (table T-267).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -15,7 +15,7 @@ import {
   itemAtPointer,
   NOT_STORED_SIZES,
   type Hit,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -37,23 +37,16 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const T_023D_LOOK_AT_THE_SHAPE_FIRST =
-  '⭐ 上下に積んだ 2 つのタスクの掴み代が縦に重なるときは、描いた形状を先に見て、表 T-261 に従うこと（MUST）'
-const GS_1_ON_THE_SHAPE = 'その形状のタスクの行だけで、表 T-023d の順に決めること（MUST）'
-const GS_1_NO_NEIGHBOUR_REACHES = '⛔ 上か下の隣のタスクの掴み代を、その形状の上へ届かせてはならない（MUST NOT）'
-const GS_2_THE_NEARER = '押した点からの縦の距離が近いほうの描いた形状のタスクの掴み代とすること（MUST）'
-const GS_3_THE_FULL_MARGIN = '掴み代を `S-90` / `S-92` のまま当てること（MUST）'
-const GS_3_NOT_SHRUNK = '⛔ 隣が無い向きの掴み代を縮めてはならない（MUST NOT）'
-const GS_4_THE_LINE_FIRST = '`GS-2` と `GS-3` より先に、依存線とすること（MUST）'
+const HT_1_ON_THE_SHAPE = '描いた形の上では、その形のタスクの掴み代だけが応えること（MUST）'
+const HT_1_NO_NEIGHBOUR_REACHES = '⛔ 上か下の隣のタスクの掴み代を、その形の上へ届かせてはならない（MUST NOT）'
+const HT_2_THE_NEARER = '形の外で 2 つ以上のタスクの掴み代に入ったときは、描いた形が上下に近いタスクの掴み代だけを残すこと（MUST）'
+const HT_2_THE_LINE_SURVIVES = '⚠️ 依存線はタスクではないので、本手順では落ちない'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['T-023d (MUST) -- overlapping stacked margins look at the drawn shape first', T_023D_LOOK_AT_THE_SHAPE_FIRST],
-  ['GS-1 (MUST) -- on a drawn shape, only that Task decides', GS_1_ON_THE_SHAPE],
-  ['GS-1 (MUST NOT) -- no neighbour margin reaches onto the shape', GS_1_NO_NEIGHBOUR_REACHES],
-  ['GS-2 (MUST) -- in both margins, the vertically nearer shape', GS_2_THE_NEARER],
-  ['GS-3 (MUST) -- with no neighbour, S-90 / S-92 as they are', GS_3_THE_FULL_MARGIN],
-  ['GS-3 (MUST NOT) -- a margin with no neighbour is not shrunk', GS_3_NOT_SHRUNK],
-  ['GS-4 (MUST) -- a dependency line through the gap comes first', GS_4_THE_LINE_FIRST],
+  ['HT-1 (MUST) -- on a drawn shape, only that Task decides', HT_1_ON_THE_SHAPE],
+  ['HT-1 (MUST NOT) -- no neighbour margin reaches onto the shape', HT_1_NO_NEIGHBOUR_REACHES],
+  ['HT-2 (MUST) -- in both margins, the vertically nearer shape', HT_2_THE_NEARER],
+  ['HT-2 -- a dependency line is not dropped by the vertical step', HT_2_THE_LINE_SURVIVES],
 ]
 
 describe('CR-415 -- the manuscript these cases are driven by', () => {
@@ -72,18 +65,10 @@ const numberOf = (table: string, id: string, column: string): number => {
 }
 
 const S_39 = numberOf('T-201', 'S-39', '既定値')
-const S_90 = numberOf('T-206', 'S-90', '既定')
-const S_92 = numberOf('T-206', 'S-92', '既定')
-const S_137 = numberOf('T-206', 'S-137', '既定')
+const S_250 = numberOf('T-206', 'S-250', '既定')
 
-// see S-90, S-91, S-92, S-137, S-230
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+// see T-266, T-206
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 // see T-252
 const nestedDefaults = (): Record<string, unknown> => {
@@ -187,7 +172,13 @@ const shapeOf = (geometry: ScheduleGeometry, uid: number): Box => {
   return { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys) - half, bottom: Math.max(...ys) + half }
 }
 
-const hitAt = (geometry: ScheduleGeometry, x: number, y: number): Hit | null => itemAtPointer(geometry, x, y, SLOP)
+const hitAt = (geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes = SLOP): Hit | null =>
+  itemAtPointer(geometry, x, y, sizes)
+
+// see GA-1, GA-2, S-252, S-255
+// WHY: `S-252` and `S-255` are 0 by default, so a plan end's margin never leaves
+// its own band; a reach is given here to stage the contest `HT-2` settles.
+const reachingBands = (over: number): GrabSizes => ({ ...SLOP, 'S-252': over, 'S-255': over })
 
 const taskOfHit = (hit: Hit | null): number | null =>
   hit !== null && hit.item.kind === 'task' ? hit.item.taskUid : null
@@ -219,8 +210,8 @@ const orderedPair = (geometry: ScheduleGeometry): readonly [Box, Box, number, nu
   return first.top < second.top ? [first, second, UPPER, LOWER] : [second, first, LOWER, UPPER]
 }
 
-describe('GS-1 (MUST NOT) -- on a drawn shape, the neighbour margin does not reach', () => {
-  it.each(LAYOUTS)('takes the long Task, not the short neighbour GR-4, just past the short end (%s)', (how) => {
+describe('HT-1 (MUST NOT) -- on a drawn shape, the neighbour margin does not reach', () => {
+  it.each(LAYOUTS)('takes the long Task, not the short neighbour GA-2, just past the short end (%s)', (how) => {
     const geometry = geometryOf(shortOverLong(how))
     const short = shapeOf(geometry, UPPER)
     const long = shapeOf(geometry, LOWER)
@@ -229,50 +220,34 @@ describe('GS-1 (MUST NOT) -- on a drawn shape, the neighbour margin does not rea
     const shortAbove = short.top < long.top
     const y = shortAbove ? long.top + 1 : long.bottom - 1
     const reach = shortAbove ? y - short.bottom : short.top - y
-    expect(reach, 'premise: the point is inside the S-90 margin of the short Task').toBeLessThan(S_90)
+    expect(reach, 'premise: the point is inside the S-250 margin of the short Task').toBeLessThan(S_250)
     const hit = hitAt(geometry, x, y)
-    expect(taskOfHit(hit), `${GS_1_NO_NEIGHBOUR_REACHES} -- ${JSON.stringify(hit)}`).toBe(LOWER)
-    expect(hit?.grab, GS_1_ON_THE_SHAPE).not.toBe('GR-4')
+    expect(taskOfHit(hit), `${HT_1_NO_NEIGHBOUR_REACHES} -- ${JSON.stringify(hit)}`).toBe(LOWER)
+    expect(hit?.grab, HT_1_ON_THE_SHAPE).not.toBe('GA-2')
   })
 })
 
-describe('GS-2 (MUST) -- off both shapes, inside both margins, the nearer one', () => {
-  it.each(LAYOUTS)('gives the gap near the upper Task to its GR-4, and near the lower Task to that Task (%s)', (how) => {
+describe('HT-2 (MUST) -- off both shapes, inside both margins, the nearer one', () => {
+  it.each(LAYOUTS)('gives the gap near the upper Task to its GA-2, and near the lower Task to that Task (%s)', (how) => {
     const geometry = geometryOf(sideBySide(how))
     const [upper, lower, upperUid, lowerUid] = orderedPair(geometry)
     const x = Math.max(upper.right, lower.right) + OUTSIDE_THE_END
     const gap = lower.top - upper.bottom
     expect(gap, 'premise: the two shapes stand apart').toBeGreaterThan(0)
-    const nearUpper = hitAt(geometry, x, upper.bottom + gap / 4)
-    const nearLower = hitAt(geometry, x, lower.top - gap / 4)
-    expect(taskOfHit(nearUpper), `${GS_2_THE_NEARER} -- near the upper: ${JSON.stringify(nearUpper)}`).toBe(upperUid)
-    expect(nearUpper?.grab).toBe('GR-4')
-    expect(taskOfHit(nearLower), `${GS_2_THE_NEARER} -- near the lower: ${JSON.stringify(nearLower)}`).toBe(lowerUid)
-    expect(nearLower?.grab).toBe('GR-4')
+    // WHY: both margins must reach both probes or there is no contest; a probe
+    // stands a quarter of the gap out, so each end needs three quarters of it.
+    const sizes = reachingBands(gap)
+    const nearUpper = hitAt(geometry, x, upper.bottom + gap / 4, sizes)
+    const nearLower = hitAt(geometry, x, lower.top - gap / 4, sizes)
+    expect(taskOfHit(nearUpper), `${HT_2_THE_NEARER} -- near the upper: ${JSON.stringify(nearUpper)}`).toBe(upperUid)
+    expect(nearUpper?.grab).toBe('GA-2')
+    expect(taskOfHit(nearLower), `${HT_2_THE_NEARER} -- near the lower: ${JSON.stringify(nearLower)}`).toBe(lowerUid)
+    expect(nearLower?.grab).toBe('GA-2')
   })
 })
 
-describe('GS-3 (MUST NOT) -- with no neighbour in that direction, the margin keeps its full S-90', () => {
-  it.each(LAYOUTS)('gives the upper Task its GR-4 S-90 - 1px above its top, and the lower one S-90 - 1px below (%s)', (how) => {
-    const geometry = geometryOf(sideBySide(how))
-    const [upper, lower, upperUid, lowerUid] = orderedPair(geometry)
-    const x = Math.max(upper.right, lower.right) + OUTSIDE_THE_END
-    const above = hitAt(geometry, x, upper.top - (S_90 - 1))
-    const below = hitAt(geometry, x, lower.bottom + (S_90 - 1))
-    expect(taskOfHit(above), `${GS_3_NOT_SHRUNK} -- above: ${JSON.stringify(above)}`).toBe(upperUid)
-    expect(above?.grab, GS_3_THE_FULL_MARGIN).toBe('GR-4')
-    expect(taskOfHit(below), `${GS_3_NOT_SHRUNK} -- below: ${JSON.stringify(below)}`).toBe(lowerUid)
-    expect(below?.grab, GS_3_THE_FULL_MARGIN).toBe('GR-4')
-  })
 
-  it('keeps the fade grab S-92 as the manuscript prints it, untouched by table T-261', () => {
-    expect(SLOP.fadeHandle).toBe(S_92 / 2)
-    expect(SLOP.planEndpoint).toBe(S_90)
-    expect(SLOP.line).toBe(S_137)
-  })
-})
-
-describe('GS-4 (MUST) -- a dependency line running through the gap is taken before either margin', () => {
+describe('HT-2 -- a dependency line running through the gap is not dropped by the vertical step', () => {
   it('takes the line on its corridor between the lane and the lane below', () => {
     const P = 3
     const S = 4
@@ -296,7 +271,7 @@ describe('GS-4 (MUST) -- a dependency line running through the gap is taken befo
     }
     if (corridor === null) throw new Error(`premise: the route ${line.pattern} runs no corridor through the gap`)
     const hit = hitAt(geometry, corridor.x, corridor.y)
-    expect(hit?.item.kind, `${GS_4_THE_LINE_FIRST} -- ${JSON.stringify(hit)}`).toBe('dependency')
-    expect(hit?.grab).toBe('GR-13')
+    expect(hit?.item.kind, `${HT_2_THE_LINE_SURVIVES} -- ${JSON.stringify(hit)}`).toBe('dependency')
+    expect(hit?.grab).toBe('GA-19')
   })
 })

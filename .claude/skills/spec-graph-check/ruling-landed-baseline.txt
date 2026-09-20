@@ -1,4 +1,8 @@
-83
+17
+#
+# LOWERED 83 -> 17 on 2026-09-20, approved by the user in chat ("進めてよい"): CR-430 landed the sixty-six
+# rulings JDG-180 .. JDG-249 in the grab-area tables (T-266 .. T-273 and table T-020), so only the
+# seventeen older ones are still waiting. Hold the ground.
 #
 # LOWERED 84 -> 83 on 2026-09-20, approved by the user in chat ("基準線を83に下げてよい。", recorded as JDG-254):
 # JDG-162 landed when refactor was fast-forwarded to scale-and-fold (JDG-253), so the count fell to 83.

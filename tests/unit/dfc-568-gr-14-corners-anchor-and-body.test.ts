@@ -57,29 +57,31 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
 const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8')
 const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
-const GR_14_SPLIT = '⭐ `GR-14` の 3 つの場所は、箱の種類で分けること（MUST）。'
-const HIGHLIGHT_PARTS = 'ハイライトボックスは本体と四隅を持つ。'
+const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること（MUST）。'
+const HIGHLIGHT_PARTS = 'ハイライトボックスは枠と四隅を持つ。'
 const HIGHLIGHT_CM_54 =
-  '本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。'
+  '枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。'
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
-const COMMENT_PARTS = 'コメントボックスは本体とアンカーを持つ。'
-const COMMENT_COMMANDS = '本体を掴めば `CM-51` で、アンカーを掴めば `CM-50` で書くこと（MUST）。'
+const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
+const COMMENT_COMMANDS =
+  '本体（本文の箱の全体）と引出し線（線から左右へ同表の `S-291`）を掴めば `CM-51` で、線先（線先から同表の `S-292`）を掴めば `CM-50` で書くこと（MUST）。'
 const COMMENT_NO_CORNERS =
   '⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは `FR-097` が本文に合わせて決めており、文書は大きさの列を持たない（`AT-110` 〜 `AT-115`）。'
-const GRAB_MARGIN = '⭐ 四隅とアンカーの掴み代は `_assets/tbl-settings.md` の 表 T-206 の `S-230` とすること（MUST）。'
+const INSIDE_PASSES_THROUGH =
+  '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
 const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの本体と四隅を離したときに置く値は 表 T-246 が持つ。**'
 const T_246_NO_NEW_REFUSAL =
   '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、告げる作法は `FR-029` に従う。'
 const ANCHOR_READ =
-  '⭐ アンカーは離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれた行を `anchorGroupId` に置く。'
+  '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれた行を `anchorGroupId` に置く。'
 const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付と行の識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
 const ANCHOR_NO_ROW =
   '離した点の下に描かれた行が無いときは動かさず、表 T-233 の `RS-44` を告げる —— 置くときに行が無ければ作らずに告げる `FR-019` と同じである。'
 const ANCHOR_NOT_NEAREST =
-  '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、アンカーは日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
+  '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、線先は日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
 const ANCHOR_HORIZONTAL =
-  '⭐ 横にだけ引いて離したときに行が変わらないのは、アンカーを行の帯の中央に描き、掴み代 `S-230` が既定で帯の高さの半分より狭いからである —— 表 T-246 の `HB-5` の根拠と同じである。'
+  '⭐ 横にだけ引いて離したときに行が変わらないのは、線先を行の帯の中央に描き、掴み代 `S-292` が既定で帯の高さの半分より狭いからである —— 表 T-246 の `HB-5` の根拠と同じである。'
 const FR_019_BODY_OFFSET =
   '⛔ コメントボックスの本文の箱は、留めた点からのずれで置き、その基準隅を左下とすること（MUST） —— **ずれ（`bodyOffsetPx`）は、留めた点から本文の**左下隅**へのものである。**'
 const FR_019_POINT_IS_LF_15 = '⭐ 留めた点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
@@ -169,6 +171,15 @@ const grabMarginPx = (): number => {
 }
 
 const S_230 = grabMarginPx()
+
+// WHY: `S-293` is the reach the frame keeps either side of its drawn line; the
+// inside of the box is no grab margin since CR-430, so the move is on the frame.
+const S_293 =((): number => {
+  const cell = t206Default('S-293')
+  const numbers = cell.match(/\d+(?:\.\d+)?/g) ?? []
+  if (numbers.length !== 1) throw new Error(`S-293 does not resolve to one number: ${cell}`)
+  return Number(numbers[0])
+})()
 
 const RS_44_WORDS = ((): string => {
   const reasons = (displayWords as unknown as { reasons: { rowId: string; text: { en: string } }[] }).reasons
@@ -455,6 +466,12 @@ const offsetFrom = (point: Point, direction: Point, by: number): Point => ({
   y: point.y + direction.y * by,
 })
 
+// WHY: the middle of the top frame line is on the frame and clear of both corners.
+const onTheFrame =(box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: box.y })
+
+// WHY: the left frame line at a chosen height lets a move start in a named row.
+const onTheLeftFrame =(box: ScreenRect, y: number): Point => ({ x: box.x, y })
+
 const justInside = (loop: FrameLoop, name: CornerName): Point => {
   const corner = cornerNamed(name)
   return offsetFrom(corner.at(highlightRect(loop)), corner.inward, S_230 / 2)
@@ -508,6 +525,15 @@ function expectBodyMove(built: Stage, press: Point, what: string): void {
   expect(after['bottomGroupId'], `${what}: bottomGroupId moved`).toEqual(before['bottomGroupId'])
 }
 
+// WHY: the inside of a highlight box holds no grab margin since CR-430, so a
+// press there reaches what the box was drawn over and its columns stay put.
+function expectInsidePassesThrough(built: Stage, press: Point, what: string): void {
+  const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  dragBy(built, press, TRAVEL_DAYS * pxPerDay(built.loop))
+  const after = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
+  expect(changedColumns(before, after), `${what}: the inside wrote to the highlight box`).toEqual([])
+}
+
 const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly pxPerDay: number } => {
   const document = fixtureDocument({ range })
   const schedule = document.schedule as Schedule
@@ -524,7 +550,7 @@ const WIDTH_SLACK = 0.05
 
 describe('DFC-568 premises: the clauses and the fixture still read this way', () => {
   it('T-023d, T-108, AT-117..120 and IV-19 still hold the clauses verbatim', () => {
-    for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_COMMANDS, COMMENT_NO_CORNERS, GRAB_MARGIN]) {
+    for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_COMMANDS, COMMENT_NO_CORNERS, INSIDE_PASSES_THROUGH]) {
       expect(REQUIREMENTS).toContain(clause)
     }
     expect(GLOSSARY).toContain(CM_54_ROW)
@@ -575,9 +601,11 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     expect(highlightRect(built.loop).y + highlightRect(built.loop).height).toBe(bandBottom(built.loop, ROW_D))
   })
 
-  it('S-230 resolves to one positive number through S-137', () => {
-    expect(t206Default('S-230')).toContain('`S-137`')
+  it('S-230 and S-293 each resolve to one positive number of their own', () => {
+    // WHY: S-230 pointed at `S-137` until CR-430 and carries its own figure now,
+    // with the frame's reach `S-293` a separate row beside it -- one value, one role.
     expect(S_230).toBeGreaterThan(0)
+    expect(S_293).toBeGreaterThan(0)
   })
 
   it('the highlight box is wider and taller than four margins, and the comment anchor stands two margins clear of its body', () => {
@@ -632,26 +660,35 @@ describe('DFC-568 highlight box: the four corners resize with CM-54', () => {
   }
 })
 
-describe('DFC-568 highlight box: the body moves with CM-54 and keeps its size', () => {
-  it('本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- the body moves and the span is kept', () => {
+describe('DFC-568 highlight box: the frame moves the range with CM-54 and keeps its size', () => {
+  it('枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- the frame moves and the span is kept', () => {
+    const built = stage()
+    expectBodyMove(built, onTheFrame(highlightRect(built.loop)), 'the top frame line')
+  })
+
+  it('枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- S-293 inside the frame line still moves it', () => {
     const built = stage()
     const box = highlightRect(built.loop)
-    expectBodyMove(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 'body centre')
+    expectBodyMove(built, { x: box.x + box.width / 2, y: box.y + S_293 / 2 }, 'inside the top frame line')
   })
 })
 
-describe('DFC-568 highlight box: S-230 parts a corner from the body', () => {
+describe('DFC-568 highlight box: S-230 parts a corner from the frame, and the inside answers neither', () => {
   for (const corner of CORNERS) {
-    it(`⭐ 四隅とアンカーの掴み代は \`_assets/tbl-settings.md\` の 表 T-206 の \`S-230\` とすること（MUST）。 -- just outside the ${corner.name} corner, within S-230, is the corner`, () => {
+    it(`⭐ 四隅（隅から同表の \`S-230\`）を掴めば囲む範囲の大きさを変える -- just outside the ${corner.name} corner, within S-230, is the corner`, () => {
       const built = stage()
       const box = highlightRect(built.loop)
       expectCornerResize(built, corner, offsetFrom(corner.at(box), corner.inward, -S_230 / 2))
     })
 
-    it(`⭐ 四隅とアンカーの掴み代は \`_assets/tbl-settings.md\` の 表 T-206 の \`S-230\` とすること（MUST）。 -- inside the box two S-230 from the ${corner.name} corner is the body`, () => {
+    it(`⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。 -- inside the box two S-230 from the ${corner.name} corner writes nothing to the box`, () => {
       const built = stage()
       const box = highlightRect(built.loop)
-      expectBodyMove(built, offsetFrom(corner.at(box), corner.inward, 2 * S_230), `two margins in from ${corner.name}`)
+      expectInsidePassesThrough(
+        built,
+        offsetFrom(corner.at(box), corner.inward, 2 * S_230),
+        `two margins in from ${corner.name}`,
+      )
     })
   }
 })
@@ -722,8 +759,7 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
 describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
   it(`${HB_3} -- one drawn row down moves both edges one row`, () => {
     const built = stage()
-    const box = highlightRect(built.loop)
-    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, rowsApart(built.loop, ROW_B, ROW_C))
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, rowsApart(built.loop, ROW_B, ROW_C))
     expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_E }, 'HB-3 one row')
     expectNoRs44(built, 'HB-3 one row')
   })
@@ -732,14 +768,13 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
     const built = stage({ rows: FOLDED_ROWS, range: { ...DEFAULT_RANGE, topGroupId: ROW_A, bottomGroupId: ROW_B } })
     const inRowB = drawnRow(built.loop, ROW_B)
     const box = highlightRect(built.loop)
-    dragTo(built, { x: box.x + box.width / 2, y: inRowB.y + inRowB.height / 2 }, 0, rowsApart(built.loop, ROW_B, ROW_D))
+    dragTo(built, onTheLeftFrame(box, inRowB.y + inRowB.height / 2), 0, rowsApart(built.loop, ROW_B, ROW_D))
     expectRange(built.loop, { start: 6, end: 16, top: ROW_C, bottom: ROW_D }, 'HB-3 across the fold')
   })
 
   it(`${HB_3_NO_ROW} -- two drawn rows down reaches the last row and is kept`, () => {
     const built = stage()
-    const box = highlightRect(built.loop)
-    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, 2 * rowsApart(built.loop, ROW_B, ROW_C))
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 2 * rowsApart(built.loop, ROW_B, ROW_C))
     expectRange(built.loop, { start: 6, end: 16, top: ROW_D, bottom: ROW_F }, 'HB-3 to the last row')
     expectNoRs44(built, 'HB-3 to the last row')
   })
@@ -747,8 +782,7 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn rows', () => {
   it(`${HB_3_NO_ROW} -- three drawn rows down leaves the bottom edge with no row, so nothing moves and RS-44 is told`, () => {
     const built = stage()
     const before = storedRange(built.loop)
-    const box = highlightRect(built.loop)
-    dragTo(built, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
+    dragTo(built, onTheFrame(highlightRect(built.loop)), 0, 3 * rowsApart(built.loop, ROW_B, ROW_C))
     expect(storedRange(built.loop), 'HB-3: the box moved').toEqual(before)
     expect(built.noticeTexts(), 'HB-3: RS-44 was not told').toContain(RS_44_WORDS)
   })

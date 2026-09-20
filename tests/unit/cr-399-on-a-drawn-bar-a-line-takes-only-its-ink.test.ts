@@ -1,4 +1,4 @@
-// On a drawn plan or actual shape a dependency line answers only on its drawn ink; off the shapes it keeps S-137.
+// On a drawn plan or actual shape a dependency line answers only on its drawn ink; off the shapes it keeps S-285.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,7 +20,7 @@ import {
   NOT_STORED_SIZES,
   type Hit,
   type Item,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -44,56 +44,28 @@ const REQUIREMENTS = unbroken(
 )
 
 const ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK =
-  'ただし、描いた予定と実績の形状の上では、依存線は描いた線そのものだけを取ること（MUST）'
+  '⭐ 依存線とハイライトボックスの枠は、形の上では描いた線そのものでだけ応えること（MUST）'
 
-const GR_13_STANDS_ABOVE_GR_12 =
-  '⭐ 依存線（`GR-13`）を予定バー本体（`GR-12`）より上に置くこと（MUST）'
+const TY_5_STANDS_ABOVE_TY_9 =
+  '| TY-5 | 5 | 依存線 | 実績の端 |'
 
 const WHAT_A_DRAWN_SHAPE_IS =
-  '⚠️ **ここでいう描いた形状は、表 T-012 の `SH-1` 〜 `SH-4` では予定と実績を描いた範囲の矩形であり、`SH-5`（マイルストーン）では描いた予定と実績の図形そのものである** —— 矢羽根（`SH-2`）の欠けた角も、線だけの形状（`SH-3` / `SH-4`）の細い範囲も、その矩形で読む。'
+  '⭐ 描いた形は形ごとに読むこと（MUST）'
 
 const WHAT_THE_DRAWN_LINE_IS =
-  '⚠️ **描いた線そのものは、描いた本線と矢じり（表 T-201 の `S-19`）である** —— 選ばれて太く描いた本線は、その太さ（表 T-206 の `S-178` を掛けた太さ）で取る。'
+  '依存線の描いた線は本線と矢じりであり、選んだ線は 表 T-206 の `S-178` を掛けた太さで取り、地の色の縁（同表の `S-224`）は含めない'
 
-const THE_HALO_IS_NOT_INCLUDED =
-  '⭐ 縁（同表の `S-224`）は含まない —— 本線と縁は `FR-009` が分けている。'
-
-const OFF_A_SHAPE_S_137_STANDS =
-  '⭐ **描いた形状の外では、依存線は `S-137` の掴み代のまま `GR-12` より上に在る** —— 掴み代を縮めないので、線は形状の外で広く掴める。'
-
-const OFF_THE_INK_THE_SAME_AS_NO_LINE =
-  '線が形状を横切っていても、描いた線の外を押せば、線が無いときと同じものを掴む。'
-
-const AT_AN_END_THE_LINE_TAKES_ITS_S_137 =
-  '⚠️ **「ただし」が守るのは描いた形状の上だけであり、端を掴んで伸ばす掴み代（`GR-3` / `GR-4` の `S-90`）は守らない** —— その掴み代は描いた形状の外に在り、本表で `GR-13` より下に在るので、依存線が付く端では、端の掴み代のうち線から `S-137` 以内を線が取る。'
-
-const AT_AN_END_THE_REST_STAYS_THE_ENDS =
-  '⭐ 端の掴み代のうち、線から `S-137` より離れた所は端に残る —— `S-90` は端の外側だけでなくバーの上下にも届くので、既定の値では線の上にも下にも残る。'
-
-const THE_PROVISO_DOES_NOT_DEPEND_ON_S_137 =
-  '⚠️ **上の「ただし」は `S-137` の値に依らない** —— `_assets/tbl-settings.md` の 表 T-206 の値は読む人の環境に属しており、同表の `S-90` の備考が既にそう述べている。'
-
-const A_WIDENED_S_137_IS_NOT_CUT =
-  '⇒ ⛔ 読む人が `S-137` を広げたときに、道具の側で切り詰めてはならない（MUST NOT）'
-
-const A_WIDENED_S_137_KEEPS_OFF_THE_SHAPE = '**描いた形状の上は、広げても線に取られない。**'
+const GA_19_THE_LINE_MARGIN = '線の縁から左右へ `S-285`'
 
 const DS_7_THE_INK_SHRINKS_WITH_THE_SCALE =
   '⚠️ **掛けないのは掴み代の値である** —— 描いた予定と実績の形状の上で依存線を掴める幅は、`S-137` ではなく描いた線の太さ（同書の 表 T-201 の `S-18` に描く比を掛け、選ばれていれば 表 T-206 の `S-178` を掛けた値）であり、表示の倍率で縮む。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['T-023d (MUST) -- on a drawn shape the line takes only its drawn ink', ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK],
-  ['T-023d (MUST) -- GR-13 stands above GR-12', GR_13_STANDS_ABOVE_GR_12],
-  ['T-023d -- what a drawn shape is, SH-1 to SH-4 and SH-5', WHAT_A_DRAWN_SHAPE_IS],
-  ['T-023d -- the drawn line is the body and the head, thickened by S-178 when selected', WHAT_THE_DRAWN_LINE_IS],
-  ['T-023d -- the halo of S-224 is not part of it', THE_HALO_IS_NOT_INCLUDED],
-  ['T-023d -- off the shapes the line keeps S-137 above GR-12', OFF_A_SHAPE_S_137_STANDS],
-  ['T-023d -- off the ink a press takes what it takes with no line', OFF_THE_INK_THE_SAME_AS_NO_LINE],
-  ['T-023d -- at an attached end the line takes the S-90 slop within S-137', AT_AN_END_THE_LINE_TAKES_ITS_S_137],
-  ['T-023d -- the rest of the S-90 slop stays with the end, above and below', AT_AN_END_THE_REST_STAYS_THE_ENDS],
-  ['T-023d -- the proviso does not depend on the value of S-137', THE_PROVISO_DOES_NOT_DEPEND_ON_S_137],
-  ['T-023d (MUST NOT) -- a widened S-137 is not cut down by the tool', A_WIDENED_S_137_IS_NOT_CUT],
-  ['T-023d -- a widened S-137 still does not take the shape', A_WIDENED_S_137_KEEPS_OFF_THE_SHAPE],
+  ['HT-1 (MUST) -- on a drawn shape the line takes only its drawn ink', ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK],
+  ['TY-5 -- the line stands above the body in the order of table T-268', TY_5_STANDS_ABOVE_TY_9],
+  ['HT-1 (MUST) -- a drawn shape is read shape by shape', WHAT_A_DRAWN_SHAPE_IS],
+  ['HT-1 -- the drawn line is the body and the head, thickened by S-178, without the S-224 halo', WHAT_THE_DRAWN_LINE_IS],
+  ['GA-19 -- off the shapes the line is grabbed S-285 either side of its ink', GA_19_THE_LINE_MARGIN],
   ['DS-7 -- the width the line keeps on a shape shrinks with the display scale', DS_7_THE_INK_SHRINKS_WITH_THE_SCALE],
 ]
 
@@ -117,27 +89,21 @@ const T_206_DEFAULT = '既定'
 
 const S_18 = numberOf('T-201', 'S-18', T_201_DEFAULT)
 const S_19 = numberOf('T-201', 'S-19', T_201_DEFAULT)
-const S_90 = numberOf('T-206', 'S-90', T_206_DEFAULT)
-const S_137 = numberOf('T-206', 'S-137', T_206_DEFAULT)
+const S_250 = numberOf('T-206', 'S-250', T_206_DEFAULT)
+const S_285 = numberOf('T-206', 'S-285', T_206_DEFAULT)
 const S_178 = numberOf('T-206', 'S-178', T_206_DEFAULT)
 const S_224 = numberOf('T-206', 'S-224', T_206_DEFAULT)
 
-// see S-90, S-91, S-92, S-137, S-230
-const SLOP: PointerSlop = {
-  planEndpoint: NOT_STORED_SIZES['S-90'],
-  actualEndpoint: NOT_STORED_SIZES['S-91'],
-  fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2,
-  line: NOT_STORED_SIZES['S-137'],
-  boxPoint: NOT_STORED_SIZES['S-230'],
-}
+// see T-266, T-206
+const SLOP: GrabSizes = NOT_STORED_SIZES
 
 // see S-234, FR-039
 const LOW_SCALE = DEFAULT_DISPLAY_SCALE
-// WHY: the highest step above the default whose drawn arrow head still fits the gap between S-137 and S-90 the end
-// cases probe; at S-236 0.625 (CR-417) the step 150 no longer leaves it, so the step is solved, not named.
+// WHY: the highest step above the default whose drawn arrow head still fits the gap between S-285 and S-250 the
+// end cases probe; the step is solved from the two rows, not named, so a later default takes this with it.
 const HIGH_SCALE = [...DISPLAY_SCALE_STEPS]
   .reverse()
-  .find((one) => one > DEFAULT_DISPLAY_SCALE && S_19 * displayRatioAt(one) < S_90 - S_137)!
+  .find((one) => one > DEFAULT_DISPLAY_SCALE && S_19 * displayRatioAt(one) < S_250 - S_285)!
 const SCALES = [LOW_SCALE, HIGH_SCALE] as const
 
 // see DS-7, S-18, S-178
@@ -146,6 +112,16 @@ const inkHalfAt = (scale: number, selected: boolean): number =>
 
 // see FR-009, S-224
 const haloHalfAt = (scale: number): number => (S_18 * displayRatioAt(scale) * S_224) / 2
+
+// see GA-19, S-285
+// WHY: `S-285` is counted from the drawn EDGE, so the reach off a shape is the ink's own half plus it;
+// half way into that margin is outside the ink and inside the reach at every step.
+const outsideTheInk = (scale: number, selected = false): number =>
+  inkHalfAt(scale, selected) + S_285 / 2
+
+// see GA-19, S-285
+const pastTheMargin = (scale: number, selected = false): number =>
+  inkHalfAt(scale, selected) + S_285 + 2
 
 // see T-252
 const nestedDefaults = (): Record<string, unknown> => {
@@ -317,7 +293,7 @@ const sceneAt = (scale: number, kind: Crossed, selected = false): Scene => {
   }
 }
 
-const hitAt = (geometry: ScheduleGeometry, x: number, y: number, slop: PointerSlop = SLOP): Hit | null =>
+const hitAt = (geometry: ScheduleGeometry, x: number, y: number, slop: GrabSizes = SLOP): Hit | null =>
   itemAtPointer(geometry, x, y, slop)
 
 const middleOf = (box: Box): number => (box.top + box.bottom) / 2
@@ -325,9 +301,9 @@ const middleOf = (box: Box): number => (box.top + box.bottom) / 2
 const TASK_ITEM = (uid: number): Item => ({ kind: 'task', taskUid: uid })
 
 describe('the values the expectations are derived from agree with the manuscript', () => {
-  it('the slop handed to the unit carries S-90 and S-137 as table T-206 prints them', () => {
-    expect(SLOP.planEndpoint).toBe(S_90)
-    expect(SLOP.line).toBe(S_137)
+  it('the sizes handed to the unit carry S-250 and S-285 as table T-206 prints them', () => {
+    expect(SLOP['S-250']).toBe(S_250)
+    expect(SLOP['S-285']).toBe(S_285)
   })
 
   it('the settings the layout draws with carry S-18 and S-19 as table T-201 prints them', () => {
@@ -341,11 +317,12 @@ describe('the values the expectations are derived from agree with the manuscript
     expect(LOW_SCALE).toBeLessThan(HIGH_SCALE)
   })
 
-  it('the probes stand between the ink, the halo and S-137 at both scales', () => {
+  it("the probes stand between the ink, the halo and GA-19's margin at both scales", () => {
     for (const scale of SCALES) {
-      expect(inkHalfAt(scale, true)).toBeLessThan(S_137 / 2)
-      expect(haloHalfAt(scale)).toBeLessThan(S_137)
+      expect(inkHalfAt(scale, false)).toBeLessThan(outsideTheInk(scale))
+      expect(outsideTheInk(scale)).toBeLessThan(inkHalfAt(scale, false) + S_285)
       expect(inkHalfAt(scale, false)).toBeLessThan(haloHalfAt(scale))
+      expect(pastTheMargin(scale)).toBeGreaterThan(inkHalfAt(scale, false) + S_285)
     }
     expect(inkHalfAt(LOW_SCALE, true)).toBeGreaterThan(inkHalfAt(LOW_SCALE, false))
   })
@@ -364,81 +341,75 @@ describe.each(SCALES)('display scale %i -- a line running down across a rectangl
   const bar = boundsOf(scene.crossed.plan)
   const y = middleOf(bar)
 
-  it('the bare bar answers GR-12 where the line will cross it', () => {
-    expect(hitAt(scene.bare, scene.lineX + S_137 / 2, y)).toEqual({ item: TASK_ITEM(CROSSED_UID), grab: 'GR-12' })
+  it('the bare bar answers GA-9 where the line will cross it', () => {
+    expect(hitAt(scene.bare, scene.lineX + outsideTheInk(scale), y)).toEqual({ item: TASK_ITEM(CROSSED_UID), grab: 'GA-9' })
   })
 
-  it('a press on the line itself over the bar answers GR-13', () => {
+  it('a press on the line itself over the bar answers GA-19', () => {
     const hit = hitAt(scene.geometry, scene.lineX, y)
-    expect(hit?.grab, GR_13_STANDS_ABOVE_GR_12).toBe('GR-13')
+    expect(hit?.grab, TY_5_STANDS_ABOVE_TY_9).toBe('GA-19')
     expect(hit?.item).toEqual(LINK_ITEM)
   })
 
-  it('a press inside the drawn ink over the bar answers GR-13', () => {
+  it('a press inside the drawn ink over the bar answers GA-19', () => {
     const inside = inkHalfAt(scale, false) / 2
     for (const sign of [-1, 1]) {
-      expect(hitAt(scene.geometry, scene.lineX + sign * inside, y)?.grab, WHAT_THE_DRAWN_LINE_IS).toBe('GR-13')
+      expect(hitAt(scene.geometry, scene.lineX + sign * inside, y)?.grab, WHAT_THE_DRAWN_LINE_IS).toBe('GA-19')
     }
   })
 
-  it('outside the ink but within S-137, the bar answers exactly as with no line', () => {
+  it("outside the ink but within GA-19's margin, the bar answers exactly as with no line", () => {
     for (const sign of [-1, 1]) {
-      const x = scene.lineX + (sign * S_137) / 2
+      const x = scene.lineX + sign * outsideTheInk(scale)
       const bare = hitAt(scene.bare, x, y)
       expect(bare).not.toBeNull()
       expect(hitAt(scene.geometry, x, y), ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK).toEqual(bare)
-      expect(hitAt(scene.geometry, x, y), OFF_THE_INK_THE_SAME_AS_NO_LINE).toEqual(bare)
+      expect(hitAt(scene.geometry, x, y), ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK).toEqual(bare)
     }
   })
 
   it('the halo S-224 draws around the line is not ink, so the bar answers there', () => {
     const x = scene.lineX + (inkHalfAt(scale, false) + haloHalfAt(scale)) / 2
-    expect(hitAt(scene.geometry, x, y), THE_HALO_IS_NOT_INCLUDED).toEqual(hitAt(scene.bare, x, y))
+    expect(hitAt(scene.geometry, x, y), WHAT_THE_DRAWN_LINE_IS).toEqual(hitAt(scene.bare, x, y))
   })
 
-  it('one pixel above the bar the line answers within S-137, one pixel inside it the bar does', () => {
-    const x = scene.lineX + S_137 / 2
-    expect(hitAt(scene.geometry, x, bar.top - 1)?.grab, OFF_A_SHAPE_S_137_STANDS).toBe('GR-13')
+  it("one pixel above the bar the line answers within its margin, one pixel inside it the bar does", () => {
+    const x = scene.lineX + outsideTheInk(scale)
+    expect(hitAt(scene.geometry, x, bar.top - 1)?.grab, GA_19_THE_LINE_MARGIN).toBe('GA-19')
     expect(hitAt(scene.geometry, x, bar.top + 1), WHAT_A_DRAWN_SHAPE_IS).toEqual(hitAt(scene.bare, x, bar.top + 1))
-    expect(hitAt(scene.bare, x, bar.top + 1)?.grab).toBe('GR-12')
+    expect(hitAt(scene.bare, x, bar.top + 1)?.grab).toBe('GA-9')
   })
 
-  it('between the rows, off every shape, S-137 is not scaled: the line answers out to it and no further', () => {
+  it('between the rows, off every shape, the line answers out to its ink plus S-285 and no further', () => {
     const between = (boundsOf(scene.predecessor.plan).bottom + bar.top) / 2
-    // STEP: three quarters of S-137 lies past S-137 times the drawn ratio at every step up to 100.
-    expect(hitAt(scene.geometry, scene.lineX + (S_137 * 3) / 4, between)?.grab, OFF_A_SHAPE_S_137_STANDS).toBe('GR-13')
-    const past = scene.lineX + S_137 + 2
-    expect(hitAt(scene.geometry, past, between)?.grab).not.toBe('GR-13')
+    // STEP: three quarters of the way into the margin is still inside it at every step.
+    expect(
+      hitAt(scene.geometry, scene.lineX + inkHalfAt(scale, false) + (S_285 * 3) / 4, between)?.grab,
+      GA_19_THE_LINE_MARGIN,
+    ).toBe('GA-19')
+    const past = scene.lineX + pastTheMargin(scale)
+    expect(hitAt(scene.geometry, past, between)?.grab).not.toBe('GA-19')
     expect(hitAt(scene.geometry, past, between)).toEqual(hitAt(scene.bare, past, between))
   })
 
-  it('a widened S-137 reaches further off the shapes and still does not take the bar', () => {
-    const wide: PointerSlop = { ...SLOP, line: S_137 * 2 }
-    const x = scene.lineX + (S_137 * 3) / 2
-    const between = (boundsOf(scene.predecessor.plan).bottom + bar.top) / 2
-    expect(hitAt(scene.geometry, x, between)?.grab).not.toBe('GR-13')
-    expect(hitAt(scene.geometry, x, between, wide)?.grab, A_WIDENED_S_137_IS_NOT_CUT).toBe('GR-13')
-    expect(hitAt(scene.geometry, x, y, wide), A_WIDENED_S_137_KEEPS_OFF_THE_SHAPE).toEqual(hitAt(scene.bare, x, y, wide))
-    expect(hitAt(scene.geometry, x, y, wide)?.grab, THE_PROVISO_DOES_NOT_DEPEND_ON_S_137).toBe('GR-12')
-  })
 
   it('a selected line keeps its ink thickened by S-178 over the bar, and an unselected one does not', () => {
     const selected = sceneAt(scale, 'rectangle', true)
     const x = scene.lineX + (inkHalfAt(scale, false) + inkHalfAt(scale, true)) / 2
     const hit = hitAt(selected.geometry, x, y)
-    expect(hit?.grab, WHAT_THE_DRAWN_LINE_IS).toBe('GR-13')
+    expect(hit?.grab, WHAT_THE_DRAWN_LINE_IS).toBe('GA-19')
     expect(hit?.item).toEqual(LINK_ITEM)
     expect(hitAt(scene.geometry, x, y), ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK).toEqual(hitAt(scene.bare, x, y))
   })
 
   it('past the thickened ink a selected line leaves the bar to the bar', () => {
     const selected = sceneAt(scale, 'rectangle', true)
-    const x = scene.lineX + S_137 / 2
+    const x = scene.lineX + outsideTheInk(scale, true)
     expect(hitAt(selected.geometry, x, y), ON_A_SHAPE_THE_LINE_TAKES_ONLY_ITS_INK).toEqual(hitAt(selected.bare, x, y))
   })
 })
 
-describe('DS-7 -- the ink a line keeps on a shape shrinks with the display scale, S-137 does not', () => {
+describe('DS-7 -- the ink a line keeps on a shape shrinks with the display scale, S-285 does not', () => {
   const offset = (inkHalfAt(LOW_SCALE, false) + inkHalfAt(HIGH_SCALE, false)) / 2
 
   it('the same offset from the line lies inside the ink at the high scale and outside it at the low one', () => {
@@ -446,11 +417,11 @@ describe('DS-7 -- the ink a line keeps on a shape shrinks with the display scale
     const low = sceneAt(LOW_SCALE, 'rectangle')
     const highY = middleOf(boundsOf(high.crossed.plan))
     const lowY = middleOf(boundsOf(low.crossed.plan))
-    expect(hitAt(high.geometry, high.lineX + offset, highY)?.grab, DS_7_THE_INK_SHRINKS_WITH_THE_SCALE).toBe('GR-13')
+    expect(hitAt(high.geometry, high.lineX + offset, highY)?.grab, DS_7_THE_INK_SHRINKS_WITH_THE_SCALE).toBe('GA-19')
     expect(hitAt(low.geometry, low.lineX + offset, lowY), DS_7_THE_INK_SHRINKS_WITH_THE_SCALE).toEqual(
       hitAt(low.bare, low.lineX + offset, lowY),
     )
-    expect(hitAt(low.bare, low.lineX + offset, lowY)?.grab).toBe('GR-12')
+    expect(hitAt(low.bare, low.lineX + offset, lowY)?.grab).toBe('GA-9')
   })
 })
 
@@ -461,16 +432,16 @@ describe.each(SCALES)('display scale %i -- a line running down across a mileston
   const box = boundsOf(figure)
   const y = middleOf(box)
 
-  it('a press on the line itself over the drawn figure answers GR-13', () => {
+  it('a press on the line itself over the drawn figure answers GA-19', () => {
     expect(insidePolygon(scene.lineX, y, figure.points)).toBe(true)
     const hit = hitAt(scene.geometry, scene.lineX, y)
-    expect(hit?.grab).toBe('GR-13')
+    expect(hit?.grab).toBe('GA-19')
     expect(hit?.item).toEqual(LINK_ITEM)
   })
 
-  it('on the drawn figure, outside the ink but within S-137, the milestone answers as with no line', () => {
+  it("on the drawn figure, outside the ink but within GA-19's margin, the milestone answers as with no line", () => {
     for (const sign of [-1, 1]) {
-      const x = scene.lineX + (sign * S_137) / 2
+      const x = scene.lineX + sign * outsideTheInk(scale)
       expect(insidePolygon(x, y, figure.points)).toBe(true)
       const bare = hitAt(scene.bare, x, y)
       expect(bare?.item).toEqual(TASK_ITEM(CROSSED_UID))
@@ -478,18 +449,18 @@ describe.each(SCALES)('display scale %i -- a line running down across a mileston
     }
   })
 
-  it('inside the figure\'s bounding box but off the drawn figure, the line answers within S-137', () => {
-    const x = scene.lineX + S_137 / 2
+  it("inside the figure's bounding box but off the drawn figure, the line answers within its margin", () => {
+    const x = scene.lineX + outsideTheInk(scale)
     const nearTheTop = box.top + (box.bottom - box.top) / 8
     expect(insidePolygon(x, nearTheTop, figure.points)).toBe(false)
     expect(x).toBeLessThan(box.right)
-    expect(hitAt(scene.geometry, x, nearTheTop)?.grab, WHAT_A_DRAWN_SHAPE_IS).toBe('GR-13')
+    expect(hitAt(scene.geometry, x, nearTheTop)?.grab, WHAT_A_DRAWN_SHAPE_IS).toBe('GA-19')
   })
 
   it('a selected line keeps only its thickened ink over the drawn figure', () => {
     const selected = sceneAt(scale, 'milestone', true)
     const inside = scene.lineX + (inkHalfAt(scale, false) + inkHalfAt(scale, true)) / 2
-    expect(hitAt(selected.geometry, inside, y)?.grab).toBe('GR-13')
+    expect(hitAt(selected.geometry, inside, y)?.grab).toBe('GA-19')
     expect(hitAt(scene.geometry, inside, y), WHAT_THE_DRAWN_LINE_IS).toEqual(hitAt(scene.bare, inside, y))
   })
 })
@@ -506,15 +477,16 @@ describe.each(SCALES)('display scale %i -- a line running down across an arrow s
     const y = (plan.from.y + actual.from.y) / 2
     expect(Math.abs(y - plan.from.y)).toBeGreaterThan(plan.strokeWidth / 2)
     expect(Math.abs(y - actual.from.y)).toBeGreaterThan(actual.strokeWidth / 2)
-    const x = scene.lineX + S_137 / 2
-    expect(hitAt(scene.bare, x, y)).toEqual({ item: TASK_ITEM(CROSSED_UID), grab: 'GR-12' })
-    expect(hitAt(scene.geometry, x, y)?.grab, WHAT_A_DRAWN_SHAPE_IS).not.toBe('GR-13')
+    const x = scene.lineX + outsideTheInk(scale)
+    // WHY: `GA-14`, not `GA-9` -- table T-266 gives the line-only family its own body row.
+    expect(hitAt(scene.bare, x, y)).toEqual({ item: TASK_ITEM(CROSSED_UID), grab: 'GA-14' })
+    expect(hitAt(scene.geometry, x, y)?.grab, WHAT_A_DRAWN_SHAPE_IS).not.toBe('GA-19')
     expect(hitAt(scene.geometry, x, y), WHAT_A_DRAWN_SHAPE_IS).toEqual(hitAt(scene.bare, x, y))
   })
 
-  it('on the line itself between them it still answers GR-13', () => {
+  it('on the line itself between them it still answers GA-19', () => {
     const y = (plan.from.y + actual.from.y) / 2
-    expect(hitAt(scene.geometry, scene.lineX, y)?.grab).toBe('GR-13')
+    expect(hitAt(scene.geometry, scene.lineX, y)?.grab).toBe('GA-19')
   })
 })
 
@@ -524,41 +496,15 @@ describe.each(SCALES)('display scale %i -- the plan ends the line is attached to
   const exit = scene.line.points[0]!
   const successor = boundsOf(scene.successor.plan)
   const predecessor = boundsOf(scene.predecessor.plan)
-  const clearOfTheLine = (S_137 + S_90) / 2
+  const clearOfTheLine = (S_285 + S_250) / 2
 
-  it('the fixture attaches the line to the two ends, far from its descent, with room between S-137 and S-90', () => {
+  it('the fixture attaches the line to the two ends, far from its descent, with room between S-285 and S-250', () => {
     expect(entry.x).toBeCloseTo(successor.left, 6)
     expect(exit.x).toBeCloseTo(predecessor.right, 6)
-    expect(Math.abs(scene.lineX - successor.left)).toBeGreaterThan(S_137 * 3)
-    expect(Math.abs(scene.lineX - predecessor.right)).toBeGreaterThan(S_137 * 3)
-    // STEP: past S-137 even from the head's base, and inside S-90 beyond the bar's half height.
-    expect(clearOfTheLine - (S_19 * displayRatioAt(scale)) / 2).toBeGreaterThan(S_137)
-    expect(clearOfTheLine).toBeLessThan((successor.bottom - successor.top) / 2 + S_90)
-  })
-
-  it('outside the successor\'s start, within S-137 of the line, above and below it, the line answers', () => {
-    const x = successor.left - S_137 / 2
-    for (const sign of [-1, 1]) {
-      const hit = hitAt(scene.geometry, x, entry.y + (sign * S_137) / 2)
-      expect(hit?.grab, AT_AN_END_THE_LINE_TAKES_ITS_S_137).toBe('GR-13')
-      expect(hit?.item).toEqual(LINK_ITEM)
-    }
-  })
-
-  it('outside the successor\'s start, farther than S-137 from the line, above and below it, GR-3 stays', () => {
-    const x = successor.left - S_137 / 2
-    for (const sign of [-1, 1]) {
-      const hit = hitAt(scene.geometry, x, entry.y + sign * clearOfTheLine)
-      expect(hit?.grab, AT_AN_END_THE_REST_STAYS_THE_ENDS).toBe('GR-3')
-      expect(hit?.item).toEqual(TASK_ITEM(SUCCESSOR_UID))
-    }
-  })
-
-  it('outside the predecessor\'s finish, the line takes S-137 of the slop and GR-4 keeps the rest', () => {
-    const x = predecessor.right + S_137 / 2
-    expect(hitAt(scene.geometry, x, exit.y + S_137 / 2)?.grab, AT_AN_END_THE_LINE_TAKES_ITS_S_137).toBe('GR-13')
-    const kept = hitAt(scene.geometry, x, exit.y + clearOfTheLine)
-    expect(kept?.grab, AT_AN_END_THE_REST_STAYS_THE_ENDS).toBe('GR-4')
-    expect(kept?.item).toEqual(TASK_ITEM(PREDECESSOR_UID))
+    expect(Math.abs(scene.lineX - successor.left)).toBeGreaterThan(S_285 * 3)
+    expect(Math.abs(scene.lineX - predecessor.right)).toBeGreaterThan(S_285 * 3)
+    // STEP: past S-285 even from the head's base, and inside S-250 beyond the bar's half height.
+    expect(clearOfTheLine - (S_19 * displayRatioAt(scale)) / 2).toBeGreaterThan(S_285)
+    expect(clearOfTheLine).toBeLessThan((successor.bottom - successor.top) / 2 + S_250)
   })
 })

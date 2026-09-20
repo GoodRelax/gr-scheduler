@@ -78,7 +78,7 @@ describe('table T-065 -- the interfaces that cross a layer boundary', () => {
   // now says 「層をまたぐ 8 本だけは…」, 「層をまたぐ 8 本を 表 T-065 に示す」,
   // 「⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない**」 and
   // 「⚠️ **この 8 ファイルもユニットである**」 with eight UF ids listed. ⛔ ONE
-  // SENTENCE STILL SAYS NINE -- the note under table T-075: 「⚠️ **層をまたぐ
+  // SENTENCE STILL SAYS NINE -- the note under table T-075: CR-341 「⚠️ **層をまたぐ
   // インターフェースの 9 ファイルは型の宣言だけを持ち、関数を持たないので、純粋性
   // を持たない（`—`）。**」 That is a leftover of CR-280 inside docs/spec and not
   // something a test may repair; it is reported rather than asserted here.

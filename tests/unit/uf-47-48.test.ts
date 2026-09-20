@@ -1424,7 +1424,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
 
   it('GIVEN the language chosen for this session THEN it reaches the 曜日 and nothing else of the picture', () => {
     // ⛔ THIS CASE USED TO DEMAND THE WHOLE PICTURE BE THE SAME STRING EITHER
-    // WAY, on a comment quoting FR-038 as 「日程表の出力に言語は含まれない」.
+    // WAY, on a comment quoting FR-038 as docs/development-records/W4-adapter.md 「日程表の出力に言語は含まれない」.
     // ⚠️ NO SUCH SENTENCE IS IN docs/spec. What FR-038's RATIONALE says is the
     // opposite of a picture with no words in it:
     //

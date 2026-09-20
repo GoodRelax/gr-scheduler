@@ -21,7 +21,7 @@ export interface DocumentSettings {
   readonly actualVisible: boolean
   readonly appHeaderMaxHeight: number
   readonly arrowHeadOfSpan: number
-  readonly arrowHeadOfStroke: number
+  readonly assigneeLabelGap: number
   readonly assigneeVisible: boolean
   readonly basePlanHeight: number
   readonly baselineVisible: boolean
@@ -33,8 +33,10 @@ export interface DocumentSettings {
   readonly commentBoxWrapUnits: number
   readonly dateGridLinesVisible: boolean
   readonly dependencyArrowLength: number
+  readonly dependencyArrowWidth: number
   readonly dependencyLagDefault: number
-  readonly dependencyRunOfArrow: number
+  readonly dependencyLeadIn: number
+  readonly dependencyLeadOut: number
   readonly dependencyVisible: boolean
   readonly dependencyWidth: number
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
@@ -73,11 +75,12 @@ export interface DocumentSettings {
   readonly labelGap: number
   readonly labelHaloOfFont: number
   readonly labelPad: number
-  readonly markerGap: number
   readonly markerSize: number
   readonly markerStroke: number
   readonly maxGroupDepth: number
   readonly milestoneActualDuration: number
+  readonly milestoneNameMarkerGap: number
+  readonly milestoneNameStartOfWidth: number
   readonly minShapeWidth: number
   readonly percentCompleteVisible: boolean
   readonly pinnedGroupIds: readonly string[]
@@ -99,7 +102,9 @@ export interface DocumentSettings {
   readonly resumeArmOfMarker: number
   readonly resumeDashOff: number
   readonly resumeDashOn: number
+  readonly resumeDashWidth: number
   readonly resumeHeadOfMarker: number
+  readonly resumeOpacityInvalid: number
   readonly resumeScaleInvalid: number
   readonly rowGap: number
   readonly rowTitleFont: number
@@ -125,7 +130,7 @@ export interface DocumentSettings {
     readonly milestone: number
     readonly rectangle: number
   }
-  readonly spanDotOfStroke: number
+  readonly spanDotSize: number
   readonly stackDirection: 'up' | 'down'
   readonly stackGap: number
   readonly stackSafetyCap: number
@@ -133,10 +138,10 @@ export interface DocumentSettings {
   readonly taskLevelOfDetailReadablePx: number
   readonly themeMonochrome: boolean
   readonly themePreference: 'light' | 'dark'
+  readonly thinArrowHeadHeight: number
+  readonly thinArrowHeadLength: number
   readonly thinFontScale: number
-  readonly thinStrokeMax: number
-  readonly thinStrokeMin: number
-  readonly thinStrokeOfPlan: number
+  readonly thinStrokeWidth: number
   readonly truncateUnits: number
   readonly zoomX: number
   readonly zoomY: number
@@ -150,7 +155,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'actualVisible': true,
   'appHeaderMaxHeight': 56,
   'arrowHeadOfSpan': 0.4,
-  'arrowHeadOfStroke': 3.2,
+  'assigneeLabelGap': 6.4,
   'assigneeVisible': false,
   'basePlanHeight': 28,
   'baselineVisible': false,
@@ -161,11 +166,13 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'commentBoxPad': 3,
   'commentBoxWrapUnits': 128,
   'dateGridLinesVisible': false,
-  'dependencyArrowLength': 7,
+  'dependencyArrowLength': 9.6,
+  'dependencyArrowWidth': 8,
   'dependencyLagDefault': 0,
-  'dependencyRunOfArrow': 2,
+  'dependencyLeadIn': 16,
+  'dependencyLeadOut': 9.6,
   'dependencyVisible': true,
-  'dependencyWidth': 1.5,
+  'dependencyWidth': 2.4,
   'displayScale': 100,
   'dualCursor': null,
   'dummyOpacity': 0.20,
@@ -192,14 +199,15 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'importMinDate': '1970-01-01',
   'labelBaseline': 0.35,
   'labelCoef': 0.5,
-  'labelGap': 8,
+  'labelGap': 9.6,
   'labelHaloOfFont': 0.10,
-  'labelPad': 6,
-  'markerGap': 4,
-  'markerSize': 16,
+  'labelPad': 9.6,
+  'markerSize': 22.4,
   'markerStroke': 1.3,
   'maxGroupDepth': 5,
   'milestoneActualDuration': 0,
+  'milestoneNameMarkerGap': 9.6,
+  'milestoneNameStartOfWidth': 0.25,
   'minShapeWidth': 6,
   'percentCompleteVisible': false,
   'pinnedGroupIds': [],
@@ -219,7 +227,9 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'resumeArmOfMarker': 0.62,
   'resumeDashOff': 2,
   'resumeDashOn': 3,
+  'resumeDashWidth': 1.92,
   'resumeHeadOfMarker': 0.22,
+  'resumeOpacityInvalid': 0.55,
   'resumeScaleInvalid': 0.7,
   'rowGap': 0,
   'rowTitleFont': 19.5,
@@ -243,7 +253,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'shapeHeightOf.endpointSpan': 0.5,
   'shapeHeightOf.milestone': 1.0,
   'shapeHeightOf.rectangle': 1.0,
-  'spanDotOfStroke': 1.15,
+  'spanDotSize': 6.4,
   'stackDirection': 'up',
   'stackGap': 1,
   'stackSafetyCap': 255,
@@ -251,10 +261,10 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'taskLevelOfDetailReadablePx': 24,
   'themeMonochrome': false,
   'themePreference': 'light',
+  'thinArrowHeadHeight': 5.6,
+  'thinArrowHeadLength': 5.6,
   'thinFontScale': 0.85,
-  'thinStrokeMax': 4,
-  'thinStrokeMin': 1.2,
-  'thinStrokeOfPlan': 0.20,
+  'thinStrokeWidth': 2.8,
   'truncateUnits': 48,
   'zoomX': 1,
   'zoomY': 1,
@@ -286,7 +296,7 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'actualOfPlan': { min: 0.05, exclusiveMax: 1 },
   'appHeaderMaxHeight': { min: 32, max: 96 },
   'arrowHeadOfSpan': { min: 0.1, max: 1 },
-  'arrowHeadOfStroke': { min: 1.5, max: 8 },
+  'assigneeLabelGap': { min: 0, max: 30 },
   'basePlanHeight': {
     max: 200,
     minExpression: [{ key: 'actualMin' }, { key: 'actualOfPlan' }, { op: '/' }],
@@ -301,10 +311,15 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     max: 40,
     minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],
   },
-  'dependencyRunOfArrow': { exclusiveMin: 1, max: 6 },
+  'dependencyArrowWidth': {
+    max: 40,
+    minExpression: [{ key: 'dependencyWidth' }, { num: 2 }, { op: '*' }],
+  },
+  'dependencyLeadIn': { max: 40, minExpression: [{ key: 'dependencyArrowLength' }] },
+  'dependencyLeadOut': { min: 0, max: 40 },
   'dependencyWidth': {
     min: 0.5,
-    maxExpression: [{ key: 'dependencyArrowLength' }, { num: 2 }, { op: '/' }],
+    maxExpression: [{ key: 'dependencyArrowWidth' }, { num: 2 }, { op: '/' }],
   },
   'dummyOpacity': { min: 0.05, max: 0.5 },
   'fadeHandleHalfPx': { min: 2.5, max: 8 },
@@ -331,14 +346,15 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'labelGap': { min: 0, max: 30 },
   'labelHaloOfFont': { min: 0, max: 0.3 },
   'labelPad': { min: 0, max: 30 },
-  'markerGap': { min: 4, max: 4 },
   'markerSize': {
     minExpression: [{ key: 'fontMin' }],
-    maxExpression: [{ key: 'actualMin' }],
+    maxExpression: [{ key: 'actualMin' }, { key: 'actualOfPlan' }, { op: '/' }],
   },
   'markerStroke': { min: 0.5, max: 4 },
   'maxGroupDepth': { min: 3, max: 8 },
   'milestoneActualDuration': { min: 0, max: 0 },
+  'milestoneNameMarkerGap': { min: 0, max: 30 },
+  'milestoneNameStartOfWidth': { min: 0, max: 1 },
   'minShapeWidth': { min: 1, max: 20 },
   'pinnedGroupIds': { maxExpression: [{ key: 'pinnedRowMax' }] },
   'planActualGuideWeight': { min: 0.5, max: 2 },
@@ -352,7 +368,9 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   },
   'resumeDashOff': { min: 1, max: 12 },
   'resumeDashOn': { min: 1, max: 12 },
+  'resumeDashWidth': { min: 0.5, max: 20 },
   'resumeHeadOfMarker': { min: 0.05, max: 0.5 },
+  'resumeOpacityInvalid': { min: 0.05, max: 1 },
   'resumeScaleInvalid': { min: 0.3, max: 1 },
   'rowGap': { min: 0, max: 0 },
   'rowTitleFont': { max: 40, minExpression: [{ key: 'fontMin' }] },
@@ -383,14 +401,14 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'shapeHeightOf.endpointSpan': { min: 0.1, exclusiveMax: 1 },
   'shapeHeightOf.milestone': { min: 0.1, max: 1 },
   'shapeHeightOf.rectangle': { min: 1, max: 1 },
-  'spanDotOfStroke': { min: 0.5, max: 4 },
+  'spanDotSize': { min: 0.5, max: 40 },
   'stackGap': { min: 1, max: 1 },
   'starInnerOfOuter': { min: 0.2, max: 0.8 },
   'taskLevelOfDetailReadablePx': { max: 200, minExpression: [{ key: 'fontMin' }] },
+  'thinArrowHeadHeight': { min: 0.5, max: 40 },
+  'thinArrowHeadLength': { min: 0.5, max: 40 },
   'thinFontScale': { min: 0.3, max: 1 },
-  'thinStrokeMax': { max: 20, minExpression: [{ key: 'thinStrokeMin' }] },
-  'thinStrokeMin': { min: 0.5, maxExpression: [{ key: 'thinStrokeMax' }] },
-  'thinStrokeOfPlan': { min: 0.05, max: 0.6 },
+  'thinStrokeWidth': { min: 0.5, max: 20 },
   'truncateUnits': { min: 4, max: 120 },
   // TRAP: IV-16 cannot judge these bounds on a document alone; each
   // names a key this group does not hold:

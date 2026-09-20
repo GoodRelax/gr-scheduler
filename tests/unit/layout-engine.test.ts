@@ -35,7 +35,7 @@ import {
   itemAtPointer,
   itemsInMarquee,
   NOT_STORED_SIZES,
-  type PointerSlop,
+  type GrabSizes,
 } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import {
   regionAtPointer,
@@ -115,8 +115,8 @@ const RATIO = displayRatioAt(DISPLAY_STEP)
 
 /**
  * One stored px of table T-201, as the display scale draws it (`FR-039`, table
- * T-252). ⛔ Never applied to a row table T-252 keeps out: the grips `S-90` /
- * `S-91` / `S-92` / `S-137` / `S-180` / `S-230`, the entrance box `S-138`, or
+ * T-252). ⛔ Never applied to a row table T-252 keeps out: the grips `S-250` 〜
+ * `S-290` and `S-137` / `S-180` / `S-230`, the entrance box `S-138`, or
  * `S-56` `canvasPadding`.
  */
 const drawnPx = (stored: number): number => stored * RATIO
@@ -879,10 +879,11 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
 })
 
 describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
-  it('T-013 keeps a label inside a shape wide enough, and puts it right when not', () => {
+  it('T-273 keeps a label inside a shape wide enough, and puts it right when not', () => {
     const layout = layoutFromSchedule(
       oneRow([
-        spanning(1, '2026-01-01', 60, { name: 'ab' }),
+        // RF-1 hands the fit the ACTUAL's width, so the wide case records one.
+        spanning(1, '2026-01-01', 60, { name: 'ab', actualStart: '2026-01-01', stop: '2026-03-01' }),
         spanning(2, '2027-01-01', 10, { name: 'a very long name indeed' }),
       ]),
       LAYOUT_SETTINGS,
@@ -909,7 +910,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     // (FR-093).
     //
     // ⭐ THE MARK IS INSIDE THE LIMIT, NOT ADDED TO IT. The preamble of table
-    // T-013 makes 打ち切ったときは、打ち切ったことが読める記号を末尾に添えること
+    // T-273 makes 打ち切ったときは、打ち切ったことが読める記号を末尾に添えること
     // (MUST) and 記号を含めた長さが `S-35` に収まること（MUST）。超えてはならない
     // (MUST NOT) -- so a cut label is the mark plus as much of the name as the
     // remaining units hold. ⚠️ The mark is full-width, hence two units and one
@@ -924,7 +925,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       1,
     )!.label
     const units = [...label].reduce((sum, ch) => sum + (ch.charCodeAt(0) < 0x100 ? 1 : 2), 0)
-    expect(units, '表 T-013 の前書き: 記号を含めた長さが `S-35` に収まること').toBe(limit)
+    expect(units, '表 T-273 の前書き: 記号を含めた長さが `S-35` に収まること').toBe(limit)
     // ⛔ 切りっぱなしにしてはならない（MUST NOT）-- 短い名前と、切られた長い名前が
     // 見分けられない.
     expect(label.length).toBeLessThan(limit)
@@ -985,7 +986,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       // The floor is handed out with every answer, this arm included: it is a
       // property of the settings and not of what was drawn, so it stands even
       // where nothing was. FR-094's floor is S-24 over S-25, and the zoom that
-      // reaches it is that height over S-23.
+      // reaches it is that height over the label gap `S-32`.
       floorZoomY:
         LAYOUT_SETTINGS.actualMin /
         LAYOUT_SETTINGS.actualOfPlan /
@@ -1062,7 +1063,7 @@ const GEOM_SETTINGS = settingsOf({
 
 // ⚠️ `selection` is PI-6's fifth argument and has no default of its own:
 // FR-075 (MUST) shows the fade grab points on the selected Task alone, so what
-// is selected decides what GR-1 and GR-2 have to be hit. Drawing nothing
+// is selected decides what GA-7 and GA-8 have to be hit. Drawing nothing
 // selected is the ordinary case here, which is why the default is stated once.
 const geometryOf = (
   schedule: Schedule,
@@ -1081,8 +1082,6 @@ const xOf = (dayIndex: number): number =>
 
 // see LF-11, FR-013, T-252
 const MARKER_OFFSET = drawnPx(settingNumber('markerSize') / 2)
-// see LF-11, FR-013, T-252
-const MARKER_OFFSET_OFF_THE_PLAN = drawnPx(settingNumber('markerGap') + settingNumber('markerSize') / 2)
 
 // see T-206, T-240
 const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-247')?.by['既定'] ?? 'NaN')
@@ -1093,8 +1092,8 @@ const DUMMY_WIDTH = Math.min(drawnPx(settingNumber('markerSize')) * S_247, NOT_S
 const FR_013_NO_GAP_AT_THE_ACTUAL =
   '依存線がどちらのバーに付くかの定め（`FR-009`）と同じ形である。⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）'
 
-// ⭐ 未着手のときは終了点の掴みシロの外側 (GR-7), and table T-023d's closing rule
-// says what that hold is now: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
+// ⭐ 未着手のときは終了点の掴みシロの外側 (GA-18), and table T-023d's closing rule
+// says what that hold is now: 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、
 // `FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない
 // （MUST NOT）」（利用者の裁定 2026-09-10）, and the mark's own width is table
 // T-240 DM-3's, the marker diameter times S-247 capped by S-180, whatever the
@@ -1192,11 +1191,12 @@ describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
     const below = geometryOf(build('arrow')).tasks[0]!
     const planLine = lineBar(below.plan)
     const actualLine = lineBar(below.actual)
-    // An arrow's plan is 28 x 0.5 = 14 tall, so its line runs at 7 from the
-    // top; the actual sits 14 + actualGap below that top, on its own centre.
-    const planTop = planLine.from.y - drawnPx(7)
-    expect(actualLine.from.y - planTop)
-      .toBeCloseTo(drawnPx(14 + 2 + (14 * settingNumber('actualOfPlan')) / 2), 6)
+    // XS-6: 線の上の縁を、予定の線の下の縁から `S-10` 下に置く -- so the two
+    // centres are one stroke plus the gap apart, measured edge to edge.
+    expect(actualLine.from.y - planLine.from.y).toBeCloseTo(
+      drawnPx(settingNumber('thinStrokeWidth') + settingNumber('actualGap')),
+      6,
+    )
   })
 
   it('LF-7 gives an arrow a head and a span two dots', () => {
@@ -1277,10 +1277,8 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     expect(marker.radius).toBe(drawnPx(settingNumber('markerSize') / 2))
   })
 
-  it('FR-013 moves the marker to the plan bar when only the plan is displayed', () => {
-    // 予定だけを表示しているときは、予定バーの右端の外側に出すこと（MUST）--
-    // the one exception FR-013 names, keyed on S-227 / S-228, and the same
-    // form as FR-009's 予定を表示していないときに限り、実績の幾何に付ける.
+  it('RF-3 moves the marker onto the plan when only the plan is displayed', () => {
+    // 「| RF-3 | しない | — | 予定 |」 of table T-272, keyed on S-227 / S-228.
     const planOnly = settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
       planVisible: true, // S-227
@@ -1289,15 +1287,19 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-07' }),
     ])
+    // A nameless Task fits its 20-day plan, so LP-1 stands the marker on the
+    // plan's START; with the actual shown, RF-1's 7-day band is too narrow and
+    // LP-2 hangs it off the actual's right end instead.
     expect(geometryOf(schedule, planOnly).tasks[0]!.marker!.centre.x).toBeCloseTo(
-      xOf(20) + MARKER_OFFSET_OFF_THE_PLAN,
+      xOf(0) + MARKER_OFFSET,
       6,
     )
+    expect(geometryOf(schedule).tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(7) + MARKER_OFFSET, 6)
   })
 
-  it('GR-7 hangs the marker off the end-point dummy while nothing is started', () => {
+  it('GA-18 hangs the marker off the end-point dummy while nothing is started', () => {
     // 実績バーの右端の外側。未着手のときは終了点の掴みシロの外側 -- a Task not
-    // started has no actual bar, so FR-043's GR-17 stands in for its right end
+    // started has no actual bar, so FR-043's GA-6 stands in for its right end
     // and the marker leaves the plan's own right end alone.
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
     expect(fresh.marker!.centre.x).toBeCloseTo(
@@ -1311,21 +1313,21 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     )
   })
 
-  it("GR-7 stands a milestone marker touching the GR-18 dummy figure, and outside GR-18's hold", () => {
-    // マイルストーンのときは図形の外側. GR-15 gives it no actual bar and so no
+  it("GA-18 stands a milestone marker touching the GA-17 dummy figure, and outside GA-17's hold", () => {
+    // マイルストーンのときは図形の外側. GA-16 gives it no actual bar and so no
     // end-point dummy either; LF-10 already makes the plan figure's right edge
     // the outside of the figure.
     // ⭐⭐ AND THE HOLD IS COUNTED TOO, WHICH IS TABLE T-038's ORDER AND NOT
-    // GR-7's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロ
+    // GA-18's ROW (MUST, 利用者の裁定 2026-09-09): 「本並びで数える幅は、掴みシロ
     // を持つものについてはその掴みシロの幅とすること（MUST）。描いた印の幅で数え
-    // てはならない（MUST NOT）」. GR-18 HAS a hold -- since 2026-09-10 its own
+    // てはならない（MUST NOT）」. GA-17 HAS a hold -- since 2026-09-10 its own
     // row makes that hold `FR-043`'s own mark -- and forbids a milestone a
     // narrower one, so the same MUST reaches it.
     // ⛔ THE EXPECTATION THIS CASE CARRIED UNTIL 2026-09-09 WAS THE FIGURE'S
     // EDGE ALONE, and it was measured wrong on the shipped build: the marker
-    // stood on 16 of GR-18's 30 hit pixels at 6px a day and 2 at 12.9, which is
+    // stood on 16 of GA-17's 30 hit pixels at 6px a day and 2 at 12.9, which is
     // defect DFC-408's shape on the shape DFC-408 was not repaired for.
-    // ⭐ GR-7's own row is untouched: it says what the marker stands outside OF,
+    // ⭐ GA-18's own row is untouched: it says what the marker stands outside OF,
     // and this says which width the order counts. The marker clears both.
     const zoomedSettings = settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
@@ -1336,7 +1338,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
     const placedM = taskPlacement(layoutM, 1)!
     const milestone = geometryFromLayout(scheduleM, zoomedSettings, layoutM, REGIONS, emptySelection())
       .tasks[0]!
-    expect(milestone.dummies.map((one) => one.grab)).toEqual(['GR-18'])
+    expect(milestone.dummies.map((one) => one.grab)).toEqual(['GA-17'])
     const ink = milestone.dummies[0]!.ink
     const figureRight = placedM.x + placedM.width
     expect(ink.x + ink.width, 'T-240 DM-12 (CR-382): the hold is the same-day actual figure, inside the plan figure')
@@ -1371,10 +1373,10 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
 
   it('FR-043 draws both dummies while nothing is started, and none once it is', () => {
     const fresh = geometryOf(oneRow([spanning(1, '2026-01-01', 20)])).tasks[0]!
-    expect(fresh.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
-    expect(fresh.dummies[0]!.at.x, 'T-240 DM-1 (CR-382): GR-9 on the plan start day').toBeCloseTo(xOf(0), 6)
-    expect(fresh.dummies[1]!.at.x, 'T-023d GR-17 / FR-043: the day is S-129 - 1 worked days past GR-9, Thu 01-01 itself').toBeCloseTo(xOf(0), 6)
-    expect(fresh.dummies[1]!.ink, 'DM-2 / TE-3: one mark for both, GR-17 holds its right half -- a place, not a day').toEqual(fresh.dummies[0]!.ink)
+    expect(fresh.dummies.map((one) => one.grab)).toEqual(['GA-5', 'GA-6'])
+    expect(fresh.dummies[0]!.at.x, 'T-240 DM-1 (CR-382): GA-5 on the plan start day').toBeCloseTo(xOf(0), 6)
+    expect(fresh.dummies[1]!.at.x, 'T-023d GA-6 / FR-043: the day is S-129 - 1 worked days past GA-5, Thu 01-01 itself').toBeCloseTo(xOf(0), 6)
+    expect(fresh.dummies[1]!.ink, "DM-2 / T-266's closing rule: one mark for both, GA-6 holds its right half -- a place, not a day").toEqual(fresh.dummies[0]!.ink)
     const started = geometryOf(
       oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-01' })]),
     ).tasks[0]!
@@ -1546,7 +1548,9 @@ describe('ScheduleGeometry (PI-6) -- table T-020a, GR-10 and FR-019', () => {
     )
     const placed = layoutFromSchedule(schedule, GEOM_SETTINGS, REGIONS).placements[0]!
     const label = geometryOf(schedule).tasks[0]!.label!
-    expect(placed.labelPlacement).toBe('right')
+    // ⭐ LP-5 / LP-6 print （問わない）in the 入る column, so a line-only shape
+    // never leaves its reference start however wide the name is.
+    expect(placed.labelPlacement).toBe('inside')
     expect(label.height).toBe(placed.labelFontSize)
     expect(label.height, 'FR-077: 可読の下限は S-8 に FR-039 の描く比を掛けた値').toBe(
       drawnPx(settingNumber('fontMin')),
@@ -1591,38 +1595,26 @@ describe('ItemHitArea (PI-7)', () => {
   // same way EditHistory takes S-94 / S-95: table T-206 keeps these values out
   // of the document because they belong to the reader's environment. So the
   // cases below state them, at the numbers table T-206 records.
-  // ⛔⛔ `dummyWidth: NOT_STORED_SIZES['S-93']` STOOD HERE UNTIL 2026-09-10.
-  // Table T-023d's closing rule now reads 「`GR-9` / `GR-17` / `GR-18` の
-  // 当たり判定は、`FR-043` が描いた印そのものとすること（MUST）。印の外へ広げ
-  // てはならない（MUST NOT）」（利用者の裁定 2026-09-10）, and `S-180`'s row says
-  // the field emptied out: 「その `S-93` は 2026-09-10 に廃した —— 掴み
-  // シロが印そのものになり、読む者が 1 人も残らなかったからである」.
-  // `PointerSlop` carries no dummy figure at all now, for width or height.
-  const SLOP: PointerSlop = {
-    planEndpoint: NOT_STORED_SIZES['S-90'], // S-90 -- above and below the plan bar, and outside its ends
-    actualEndpoint: NOT_STORED_SIZES['S-91'], // S-91 -- the actual bar's own band
-    // ⛔ HALF, NOT THE WHOLE SQUARE -- see `frame-loop.ts`'s `POINTER_SLOP`.
-    fadeHandle: NOT_STORED_SIZES['S-92'][0] / 2, // S-92 -- half of the square
-    // S-137 -- the line's own grab, 6px either side (GR-13 / GR-16).
-    line: NOT_STORED_SIZES['S-137'],
-    boxPoint: NOT_STORED_SIZES['S-230'],
-  }
+  // ⛔⛔ A DUMMY FIGURE STOOD HERE UNTIL 2026-09-10 and the five named reaches
+  // until CR-430. Table T-266 keeps one setting row per grab margin, and
+  // `GrabSizes` is that whole record, so the cases pass the record itself.
+  const SLOP: GrabSizes = NOT_STORED_SIZES
   const oneTask = (part: Record<string, unknown> = {}): ScheduleGeometry =>
     geometryOf(oneRow([spanning(1, '2026-01-01', 20, part)]))
   const middleY = REGIONS.rowArea.y + drawnPx(14)
 
-  it('GR-12 answers the plan bar body', () => {
+  it('GA-9 answers the plan bar body', () => {
     // ⚠️ PROBED AT DAY 15 AND NOT AT DAY 10 SINCE 2026-09-09. Nothing about
-    // GR-12 changed; the MARKER moved. This Task is not started, so GR-7 hangs
-    // off GR-17's hold (`FR-043`'s own mark, `pxPerDay` wide since 2026-09-10 --
+    // GA-9 changed; the MARKER moved. This Task is not started, so GA-18 hangs
+    // off GA-6's hold (`FR-043`'s own mark, `pxPerDay` wide since 2026-09-10 --
     // the retired `S-93` was a fixed 30) rather than off the day's own edge,
-    // which walks the square over day 10 -- and GR-7 stands above GR-12 in
+    // which walks the square over day 10 -- and GA-18 stands above GA-9 in
     // table T-023d, so it wins there, exactly as the case below shows it
     // winning over the actual bar's body. Day 15 is clear of the square and
     // still the plan's own body, which is what this case reads.
     expect(itemAtPointer(oneTask(), xOf(15), middleY, SLOP)).toEqual({
       item: { kind: 'task', taskUid: 1 },
-      grab: 'GR-12',
+      grab: 'GA-9',
     })
   })
 
@@ -1635,7 +1627,7 @@ describe('ItemHitArea (PI-7)', () => {
   // four points, not from the list the unit builds.
   // -------------------------------------------------------------------------
 
-  /** The plan bar's top-left and bottom-right, where GR-1 and GR-2 stand. */
+  /** The plan bar's top-left and bottom-right, where GA-7 and GA-8 stand. */
   const planCornersOf = (geometry: ScheduleGeometry, uid: number) => {
     const found = geometry.tasks.find((one) => one.taskUid === uid)
     if (found === undefined) throw new Error(`no geometry for task ${uid}`)
@@ -1650,11 +1642,11 @@ describe('ItemHitArea (PI-7)', () => {
 
   const SELECTED_TASK_1 = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
 
-  it('FR-075 (MUST): the fade corners answer GR-1 / GR-2 on the SELECTED Task', () => {
+  it('FR-075 (MUST): the fade corners answer GA-7 / GA-8 on the SELECTED Task', () => {
     // FR-075: 「掴み点は選択しているタスクにだけ出すこと（MUST）」, and S-111 of
     // table T-210 states the condition as 「選択中のタスクだけ」. Table T-023d
-    // places GR-1 at 「予定バーの左上の角」 and GR-2 at 「右下の角」, above
-    // GR-3 and GR-4 -- so the two corners are where the priority can be read.
+    // places GA-7 at 「予定バーの左上の角」 and GA-8 at 「右下の角」, above
+    // GA-1 and GA-2 -- so the two corners are where the priority can be read.
     const schedule = oneRow([spanning(1, '2026-01-01', 20)])
     const corners = planCornersOf(geometryOf(schedule), 1)
     const selected = geometryOf(schedule, GEOM_SETTINGS, SELECTED_TASK_1)
@@ -1662,59 +1654,67 @@ describe('ItemHitArea (PI-7)', () => {
     expect(selected.tasks[0]!.fadeHandles).toEqual([corners.topLeft, corners.bottomRight])
     expect(itemAtPointer(selected, corners.topLeft.x, corners.topLeft.y, SLOP)).toEqual({
       item: { kind: 'task', taskUid: 1 },
-      grab: 'GR-1',
+      grab: 'GA-7',
     })
     expect(
       itemAtPointer(selected, corners.bottomRight.x, corners.bottomRight.y, SLOP)?.grab,
-    ).toBe('GR-2')
+    ).toBe('GA-8')
   })
 
-  it('PND-191: pressing the corner of a Task that is NOT selected does not answer GR-1', () => {
+  it('PND-191: pressing the corner of a Task that is NOT selected does not answer GA-7', () => {
     // Same corner, nothing selected. FR-075 forbids the point being there at
-    // all, so the next row of table T-023d that claims it wins: GR-3 at 「予定
-    // バーの左端」 and GR-4 at 「右端」. ⛔ An answer of GR-1 here is the defect
-    // PND-191 was raised for -- GR-1 and GR-2 are asked of EVERY Task before
-    // GR-3 is asked of any, so one stray pair takes a neighbour's end away.
+    // all, so the next row of table T-023d that claims it wins: GA-1 at 「予定
+    // バーの左端」 and GA-2 at 「右端」. ⛔ An answer of GA-7 here is the defect
+    // PND-191 was raised for -- GA-7 and GA-8 are asked of EVERY Task before
+    // GA-1 is asked of any, so one stray pair takes a neighbour's end away.
     const schedule = oneRow([spanning(1, '2026-01-01', 20)])
     const bare = geometryOf(schedule)
     const corners = planCornersOf(bare, 1)
     expect(bare.tasks[0]!.fadeHandles).toHaveLength(0)
-    expect(itemAtPointer(bare, corners.topLeft.x, corners.topLeft.y, SLOP)?.grab).toBe('GR-3')
+    expect(itemAtPointer(bare, corners.topLeft.x, corners.topLeft.y, SLOP)?.grab).toBe('GA-1')
     expect(
       itemAtPointer(bare, corners.bottomRight.x, corners.bottomRight.y, SLOP)?.grab,
-    ).toBe('GR-4')
+    ).toBe('GA-2')
   })
 
   it('FR-075 (MUST): selecting ONE Task does not put a corner on its neighbour', () => {
     // 「選択しているタスクにだけ」 is per Task, not per frame. Two Tasks on one
-    // row, one selected: the other one's own corner still answers GR-3.
+    // row, one selected: the other one's own corner still answers GA-1.
     const schedule = oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 10)])
     const geometry = geometryOf(schedule, GEOM_SETTINGS, SELECTED_TASK_1)
     const other = planCornersOf(geometry, 2)
     expect(geometry.tasks.find((one) => one.taskUid === 2)!.fadeHandles).toHaveLength(0)
-    expect(itemAtPointer(geometry, other.topLeft.x, other.topLeft.y, SLOP)?.grab).toBe('GR-3')
+    expect(itemAtPointer(geometry, other.topLeft.x, other.topLeft.y, SLOP)?.grab).toBe('GA-1')
   })
 
-  it('GR-3 and GR-4 beat GR-12 at the two ends', () => {
+  it('GA-1 and GA-2 beat GA-9 just outside the two ends', () => {
+    // ⚠️ OUTSIDE THE ENDS. Table T-266 gives the plan's ends `S-250` / `S-253`
+    // outward and `S-251` / `S-254` = 0 inward, and on this not-started Task the
+    // dummy's mark begins ON the left edge (table T-240's `DM-1`), where table
+    // T-268 seats it above the plan's end.
     const geometry = oneTask()
-    expect(itemAtPointer(geometry, xOf(0), middleY, SLOP)?.grab).toBe('GR-3')
-    expect(itemAtPointer(geometry, xOf(20), middleY, SLOP)?.grab).toBe('GR-4')
+    expect(itemAtPointer(geometry, xOf(0) - 1, middleY, SLOP)?.grab).toBe('GA-1')
+    expect(itemAtPointer(geometry, xOf(20), middleY, SLOP)?.grab).toBe('GA-2')
   })
 
-  it('S-90 reaches past the top and the bottom of the bar', () => {
-    // ⚠️ THE TWO PROBES ARE DERIVED FROM `S-90`, NOT TYPED. The row's default
-    // moved from 6 to 12 on 2026-09-09, and a typed -9 turned from "outside the
-    // reach" into "inside it" the same day without saying so.
+  it('S-252 -- and only S-252 -- reaches past the top and the bottom of the bar', () => {
+    // ⭐ TURNED ROUND BY CR-430. `S-250` is the plan start's HORIZONTAL reach
+    // now; the vertical one is its own row, `S-252` (「予定の帯 ＋ `S-252`」), and
+    // its default is 0, so at the shipped values no margin leaves the band.
+    // ⚠️ THE PROBES ARE DERIVED FROM THE REACH HANDED IN, never typed.
     const geometry = oneTask()
-    const reach = NOT_STORED_SIZES['S-90']
-    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - reach + 1, SLOP)?.grab)
-      .toBe('GR-12')
-    expect(itemAtPointer(geometry, xOf(10), REGIONS.rowArea.y - reach - 2, SLOP)).toBeNull()
+    expect(NOT_STORED_SIZES['S-252'], 'the shipped vertical reach is nothing').toBe(0)
+    const planTop = planCornersOf(geometry, 1).topLeft.y
+    expect(itemAtPointer(geometry, xOf(0) - 1, planTop - 1, SLOP)).toBeNull()
+    const reach = 12
+    const over: GrabSizes = { ...SLOP, 'S-252': reach, 'S-255': reach }
+    expect(itemAtPointer(geometry, xOf(0) - 1, planTop - reach + 1, over)?.grab).toBe('GA-1')
+    expect(itemAtPointer(geometry, xOf(0) - 1, planTop - reach - 2, over)).toBeNull()
   })
 
-  it('GR-5 takes the actual start, and the actual BODY is not a grab area at all', () => {
+  it('GA-3 takes the actual start, and the actual BODY is not a grab area at all', () => {
     // 2026-01-05 is a Monday, so five worked days reach the 10th.
-    // ⚠️ zoomX 3 so the DRAWN actual bar is wider than twice `S-91`. The grips
+    // ⚠️ zoomX 3 so the DRAWN actual bar is wider than twice `S-257`. The grips
     // do not shrink with the display scale (table T-252's `DS-7`) while the bar
     // does, so at the stored zoom the two ends' allowances meet in the middle
     // and no middle is left for the line below to read.
@@ -1729,29 +1729,29 @@ describe('ItemHitArea (PI-7)', () => {
     const actualStartX = Math.min(
       ...outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x),
     )
-    expect(itemAtPointer(geometry, actualStartX, middleY, SLOP)?.grab).toBe('GR-5')
-    // The MIDDLE of the actual bar answers GR-12: the plan is the taller of the
+    expect(itemAtPointer(geometry, actualStartX, middleY, SLOP)?.grab).toBe('GA-3')
+    // The MIDDLE of the actual bar answers GA-9: the plan is the taller of the
     // two, so where they overlap the plan is what is picked up. ⛔ The middle
-    // itself, not a nearby day index -- S-91's true reach (12px, not the 6 this
+    // itself, not a nearby day index -- S-257's true reach (12px, not the 6 this
     // fixture used to carry) eats into a bar this narrow enough that a point a
     // couple of days off centre now lands inside the actual finish's own grab.
     const actualXs = outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x)
     const actualMiddleX = (Math.min(...actualXs) + Math.max(...actualXs)) / 2
-    expect(itemAtPointer(geometry, actualMiddleX, middleY, SLOP)?.grab).toBe('GR-12')
+    expect(itemAtPointer(geometry, actualMiddleX, middleY, SLOP)?.grab).toBe('GA-9')
   })
 
-  it('GR-7 takes the marker touching the ACTUAL bar, over the plan body', () => {
-    // GR-7: 進捗マーカー -- 実績バーの右端の外側. ⛔ Outside the ACTUAL bar,
+  it('GA-18 takes the marker touching the ACTUAL bar, over the plan body', () => {
+    // GA-18: 進捗マーカー -- 実績バーの右端の外側. ⛔ Outside the ACTUAL bar,
     // which is not "outside every bar": the actual ends at day 7 while the plan
-    // runs to day 20, so the marker lands ON the plan bar. GR-7 stands above
-    // GR-12 in table T-023d, so the marker wins there anyway.
+    // runs to day 20, so the marker lands ON the plan bar. GA-18 stands above
+    // GA-9 in table T-023d, so the marker wins there anyway.
     const running = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     expect(
       itemAtPointer(running, xOf(7) + MARKER_OFFSET, middleY, SLOP)?.grab,
-      '⭐ 進捗マーカー（`GR-7`）の描いた形の上では、予定の端点（`GR-1` / `GR-2` / `GR-3` / `GR-4`）の掴み代と予定バー本体（`GR-12`）より先に、`GR-7` を成立させること（MUST）',
-    ).toBe('GR-7')
+      '⭐ ただし進捗マーカーと再開アイコンの描いた箱の上では、実績の端の次にそれらが応え、ほかの種別はその後へ回ること（MUST）',
+    ).toBe('GA-18')
     // A whole markerSize further along the same plan body -- clear of the
-    // square -- GR-12 answers, which is what makes the line above a real win.
+    // square -- GA-9 answers, which is what makes the line above a real win.
     expect(
       itemAtPointer(
         running,
@@ -1759,108 +1759,115 @@ describe('ItemHitArea (PI-7)', () => {
         middleY,
         SLOP,
       )?.grab,
-    ).toBe('GR-12')
+    ).toBe('GA-9')
   })
 
-  it('GR-7 follows the end-point dummy while the Task is not started', () => {
+  it('GA-18 follows the end-point dummy while the Task is not started', () => {
     // 未着手のときは終了点の掴みシロの外側: the marker leaves the plan's right
     // end and joins the two faint dummies at the head of the bar.
     const fresh = oneTask()
     const mark = fresh.tasks[0]!.dummies[0]!.ink
-    expect(itemAtPointer(fresh, xOf(0) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(itemAtPointer(fresh, xOf(0) + DUMMY_MARKER_OFFSET, middleY, SLOP)?.grab).toBe('GA-18')
     expect(
       itemAtPointer(fresh, mark.x + mark.width * 0.75, middleY, SLOP)?.grab,
       'FR-043 が描いた印の右半分は実績の終了側',
-    ).toBe('GR-17')
+    ).toBe('GA-6')
     expect(
       itemAtPointer(fresh, mark.x + mark.width + 1, middleY, SLOP)?.grab,
       '印の外へ広げてはならない（MUST NOT）',
-    ).not.toBe('GR-17')
+    ).not.toBe('GA-6')
   })
 
-  it('the drawn mark is cut down its middle: left half GR-9, right half GR-17', () => {
-    // ⭐⭐ THE EXPECTATION HERE WAS `GR-9` FOR THE WHOLE MARK, THEN `GR-17` FOR
+  it('the drawn mark is cut down its middle: left half GA-5, right half GA-6', () => {
+    // ⭐⭐ THE EXPECTATION HERE WAS `GA-5` FOR THE WHOLE MARK, THEN `GA-6` FOR
     // THE WHOLE MARK, AND IS NOW BOTH. Three rulings in two days: 2026-09-08
-    // put GR-17 above GR-9 in table T-023d 「実績の開始と終了のどちらを掴んだか
+    // put GA-6 above GA-5 in table T-023d 「実績の開始と終了のどちらを掴んだか
     // 決められないときは、終了を優先すること（MUST）」; the first ruling of
     // 2026-09-09 handed every pixel of the mark to the finish; the second cut
     // the mark instead -- 「1 つのダミーの印は、その横幅の中央で左右に割ること
-    // （MUST）。左半分を実績の開始側（`GR-9`）、右半分を実績の終了側（`GR-17`）
+    // （MUST）。左半分を実績の開始側（`GA-5`）、右半分を実績の終了側（`GA-6`）
     // とすること（MUST）」.
     const fresh = oneTask()
     const mark = fresh.tasks[0]!.dummies[0]!.ink
     expect(
       itemAtPointer(fresh, mark.x + mark.width * 0.25, middleY, SLOP)?.grab,
       'DM-1 (CR-382): 描いた印の左半分',
-    ).toBe('GR-9')
+    ).toBe('GA-5')
     expect(
       itemAtPointer(fresh, mark.x + mark.width * 0.75, middleY, SLOP)?.grab,
       'DM-1 (CR-382): 描いた印の右半分',
-    ).toBe('GR-17')
+    ).toBe('GA-6')
   })
 
-  it('⛔⛔ past the mark, GR-9 and GR-17 give up the ground entirely', () => {
-    // ⛔⛔ UNTIL 2026-09-10 THIS CASE WAS TITLED "the rest of GR-9's own band is
+  it('⛔⛔ past the mark, GA-5 and GA-6 give up the ground entirely', () => {
+    // ⛔⛔ UNTIL 2026-09-10 THIS CASE WAS TITLED "the rest of GA-5's own band is
     // the FINISH's", and it pressed 1px past `gr9.ink.x + gr9.ink.width` and
-    // expected `GR-17` -- because the hold was `S-93`'s FIXED 30px, wider than
+    // expected `GA-6` -- because the hold was `S-93`'s FIXED 30px, wider than
     // the ink wherever `S-180` capped it, and 「印より右に残る当たり判定は終了側
     // とすること（MUST）」 sent the leftover band to the finish. Table T-023d's
     // closing rule retired both the row and the leftover band on that day:
-    // 「⭐⭐ `GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043` が描いた印そのもの
+    // 「⭐⭐ `GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043` が描いた印そのもの
     // とすること（MUST）。印の外へ広げてはならない（MUST NOT）」（利用者の裁定
     // 2026-09-10）. There is no ground past the ink for either row to hold any
     // more -- a press there answers whatever else stands underneath it,
-    // measured below to be the plan bar's own body (GR-12).
-    // ⭐ THE MARK IS HALVED (GR-9 left, GR-17 right), but the halving is now
+    // measured below to be the plan bar's own body (GA-9).
+    // ⭐ THE MARK IS HALVED (GA-5 left, GA-6 right), but the halving is now
     // spent ENTIRELY inside the ink -- 「印を中央で左右に割る」 divides the one
     // box the mark draws, and there is no wider hold left to divide.
     const wide = geometryOf(oneRow([spanning(1, '2026-01-01', 20)]), settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
       pxPerDayAt1x: 24,
     }))
-    const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
+    const gr9 = wide.tasks[0]!.dummies.find((one) => one.grab === 'GA-5')!
     expect(gr9.ink.width, 'T-240 DM-3: the marker diameter times S-247, capped by S-180, whatever the day').toBeCloseTo(
       DUMMY_WIDTH,
       6,
     )
-    expect(itemAtPointer(wide, gr9.ink.x + 1, middleY, SLOP)?.grab).toBe('GR-9')
-    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GR-17')
+    expect(itemAtPointer(wide, gr9.ink.x + 1, middleY, SLOP)?.grab).toBe('GA-5')
+    expect(itemAtPointer(wide, gr9.ink.x + gr9.ink.width - 1, middleY, SLOP)?.grab).toBe('GA-6')
     const pastTheInk = itemAtPointer(wide, gr9.ink.x + gr9.ink.width + 1, middleY, SLOP)?.grab
-    expect(pastTheInk).not.toBe('GR-9')
-    expect(pastTheInk).not.toBe('GR-17')
+    expect(pastTheInk).not.toBe('GA-5')
+    expect(pastTheInk).not.toBe('GA-6')
     // WHY: the marker now touches the ink (FR-013), so the plan body is measured past the marker's own square.
     expect(
       itemAtPointer(wide, gr9.ink.x + gr9.ink.width + drawnPx(settingNumber('markerSize')) + 1, middleY, SLOP)?.grab,
-    ).toBe('GR-12')
+    ).toBe('GA-9')
   })
 
   it('holds table T-023d order ACROSS Tasks, not within one', () => {
     // Two Tasks on ONE lane. Task 1's plan stops at day 15 but its actual runs
     // on to day 20 -- 14 worked days from Thursday 2026-01-01 (RV-1) -- and
-    // Task 2 starts on day 20, which ST-10 does not call an overlap. GR-7 hangs
+    // Task 2 starts on day 20, which ST-10 does not call an overlap. GA-18 hangs
     // the marker off the ACTUAL bar's right end (FR-013), and OC-3 keeps it out
-    // of the occupancy, so Task 1's marker lands inside Task 2's BODY. GR-7 is
-    // above GR-12 in table T-023d, so it wins -- walking Task by Task instead
-    // would answer GR-12 whenever Task 2 was reached first.
-    // ⚠️ Task 1 is under way on purpose: 未着手 would send GR-7 back to the
+    // of the occupancy, so Task 1's marker lands inside Task 2's BODY. GA-18 is
+    // above GA-9 in table T-023d, so it wins -- walking Task by Task instead
+    // would answer GA-9 whenever Task 2 was reached first.
+    // ⚠️ Task 1 is under way on purpose: 未着手 would send GA-18 back to the
     // end-point dummy at Task 1's own head, and the two Tasks would not meet.
     const geometry = geometryOf(
       oneRow([
-        spanning(1, '2026-01-01', 15, { actualStart: '2026-01-01', stop: '2026-01-20' }),
+        // ⚠️ THE NAME IS WIDER THAN THE ACTUAL ON PURPOSE, so LP-2 hangs the
+        // marker off the actual's right end rather than LP-1 standing it on the
+        // actual's start.
+        spanning(1, '2026-01-01', 15, {
+          name: 'a'.repeat(60),
+          actualStart: '2026-01-01',
+          stop: '2026-01-20',
+        }),
         spanning(2, '2026-01-21', 20),
       ]),
     )
     // Day 20 is the actual's right end, not the plan's, which stopped at 15.
     expect(geometry.tasks[0]!.marker!.centre.x).toBeCloseTo(xOf(20) + MARKER_OFFSET, 6)
     const task2DummyInk = geometry.tasks[1]!.dummies[0]!.ink
-    // WHY: GR-17 / GR-9 stand above GR-7 in table T-023d, so the press sits on the marker right of task 2's DM-3 ink.
+    // WHY: GA-6 / GA-5 stand above GA-18 in table T-023d, so the press sits on the marker right of task 2's DM-3 ink.
     const onTheMarker = xOf(20) + MARKER_OFFSET + drawnPx(settingNumber('markerSize')) / 4
     expect(task2DummyInk.x + task2DummyInk.width, 'DM-1 (CR-382): task 2 ink ends before the press')
       .toBeLessThan(onTheMarker)
-    expect(itemAtPointer(geometry, onTheMarker, middleY, SLOP)?.grab).toBe('GR-7')
+    expect(itemAtPointer(geometry, onTheMarker, middleY, SLOP)?.grab).toBe('GA-18')
   })
 
-  it('GR-13 takes a dependency line where it runs clear of the bars', () => {
+  it('GA-19 takes a dependency line where it runs clear of the bars', () => {
     const schedule = oneRow([
       spanning(1, '2026-01-01', 20),
       taskOf({
@@ -1884,13 +1891,13 @@ describe('ItemHitArea (PI-7)', () => {
   // ⭐ JDG-35 -- the plan's ends reach OUTSIDE, the actual's ends reach INSIDE
   // =========================================================================
   //
-  // ⛔ THE DEFECT. Until 2026-09-09 both `S-90` and `S-91` reached to EITHER
+  // ⛔ THE DEFECT. Until 2026-09-09 both the plan's and the actual's end reaches went EITHER
   // side of the end they belong to, so on a rectangle -- where table T-012 lays
   // the actual inside the plan -- the two allowances stood on the same pixels
   // and the printed order alone decided. 利用者の裁定 of that day settles it by
   // geometry instead: 「予定開始はレクタングルの左外側、実績開始はレクタングル左内側
-  // をつかみシロにする」 ⇒ 「予定の端点（`GR-3` / `GR-4`）の掴み代は端の外側だけに
-  // 取ること（MUST）。実績の端点（`GR-5` / `GR-6`）の掴み代は端の内側だけに取ること
+  // をつかみシロにする」 ⇒ 「予定の端点（`GA-1` / `GA-2`）の掴み代は端の外側だけに
+  // 取ること（MUST）。実績の端点（`GA-3` / `GA-4`）の掴み代は端の内側だけに取ること
   // （MUST）」, with ⛔ 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）。実績の
   // 端点を端の外側へ伸ばしてはならない（MUST NOT）」.
   //
@@ -1898,7 +1905,7 @@ describe('ItemHitArea (PI-7)', () => {
   // for a tail of the manuscript's own characters, and the wrapped copies above
   // hold nothing -- every wrap puts a `// ` inside the run. Measured 2026-09-10:
   // the three cases below press these words; the lines are what latch them.
-  // 「実績の端点（`GR-5` / `GR-6`）の掴み代は端の内側だけに取ること（MUST）」
+  // 「実績の端点（`GA-3` / `GA-4`）の掴み代は端の内側だけに取ること（MUST）」
   // 「予定の端点を端の内側へ伸ばしてはならない（MUST NOT）。実績の端点を端の外側へ伸ばしてはならない（MUST NOT）」
 
   it('JDG-35 ⭐ MUST: outside the left end is the PLAN\'s, inside it is the ACTUAL\'s', () => {
@@ -1913,50 +1920,50 @@ describe('ItemHitArea (PI-7)', () => {
     expect(Math.min(...actualXs)).toBeCloseTo(left, 6)
 
     expect(itemAtPointer(geometry, left - 1, middleY, SLOP)?.grab, 'outside the end')
-      .toBe('GR-3')
+      .toBe('GA-1')
     expect(itemAtPointer(geometry, left + 1, middleY, SLOP)?.grab, 'inside the end')
-      .toBe('GR-5')
+      .toBe('GA-3')
   })
 
   it('JDG-35 ⛔ MUST NOT: neither allowance crosses the end it belongs to', () => {
     // ⛔ THE CONTRAST, at the far reach of each row rather than one pixel in.
-    // A build still spreading `S-90` both ways answers GR-3 well inside the
-    // bar; one still spreading `S-91` both ways answers GR-5 well outside it.
+    // A build still spreading `S-250` both ways answers GA-1 well inside the
+    // bar; one still spreading `S-257` both ways answers GA-3 well outside it.
     const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     const planXs = outlinePoints(geometry.tasks[0]!.plan).map((one) => one.x)
     const left = Math.min(...planXs)
-    const inside = left + NOT_STORED_SIZES['S-90'] - 1
-    const outside = left - NOT_STORED_SIZES['S-91'] + 1
-    expect(itemAtPointer(geometry, inside, middleY, SLOP)?.grab).not.toBe('GR-3')
-    expect(itemAtPointer(geometry, outside, middleY, SLOP)?.grab).not.toBe('GR-5')
+    const inside = left + NOT_STORED_SIZES['S-250'] - 1
+    const outside = left - NOT_STORED_SIZES['S-257'] + 1
+    expect(itemAtPointer(geometry, inside, middleY, SLOP)?.grab).not.toBe('GA-1')
+    expect(itemAtPointer(geometry, outside, middleY, SLOP)?.grab).not.toBe('GA-3')
   })
 
   it('JDG-35 ⛔ MUST NOT: an allowance ten times the row still does not cross the end', () => {
     // ⭐⭐ THE MEASUREMENT THAT MAKES THE TWO CASES ABOVE MORE THAN A COINCIDENCE
     // OF DEFAULTS. `itemAtPointer` takes the allowances as an argument, so the
-    // side each one reaches on can be asked directly: hand it a `planEndpoint`
+    // side each one reaches on can be asked directly: hand it an `S-250`
     // far bigger than the bar and the plan's start must STILL not answer inside
-    // the end, and hand it an `actualEndpoint` just as big and the actual's
+    // the end, and hand it an `S-257` just as big and the actual's
     // start must STILL not answer outside it.
     // ⛔ A build that spread either row to both sides passes the defaults and
     // fails here, because the reach it would spread is now unmistakable.
     const geometry = oneTask({ actualStart: '2026-01-01', stop: '2026-01-07' })
     const planXs = outlinePoints(geometry.tasks[0]!.plan).map((one) => one.x)
     const left = Math.min(...planXs)
-    const huge = NOT_STORED_SIZES['S-90'] * 10
-    expect(itemAtPointer(geometry, left + huge / 2, middleY, { ...SLOP, planEndpoint: huge })?.grab)
-      .not.toBe('GR-3')
+    const huge = NOT_STORED_SIZES['S-250'] * 10
+    expect(itemAtPointer(geometry, left + huge / 2, middleY, { ...SLOP, 'S-250': huge })?.grab)
+      .not.toBe('GA-1')
     expect(
-      itemAtPointer(geometry, left - huge / 2, middleY, { ...SLOP, actualEndpoint: huge })?.grab,
-    ).not.toBe('GR-5')
+      itemAtPointer(geometry, left - huge / 2, middleY, { ...SLOP, 'S-257': huge })?.grab,
+    ).not.toBe('GA-3')
   })
 
   it('JDG-35 ⭐ MUST: the actual end\'s allowance stops at half the actual bar', () => {
     // 「実績の端点の掴み代は、実績バーの半分を超えないこと（MUST）—— 超えると実績の
     // 2 端が同じ画素を争う」. ⚠️ ONE worked day long, so the bar is narrower than
-    // twice `S-91` and the clamp is the only thing that can part the two ends.
+    // twice `S-257` and the clamp is the only thing that can part the two ends.
     // ⚠️ zoomX 3 so the drawn bar is wide enough that the two halves can be
-    // told apart at all: `S-91` does not shrink with the display scale (table
+    // told apart at all: `S-257` does not shrink with the display scale (table
     // T-252's `DS-7`) while the bar does.
     const geometry = geometryOf(
       oneRow([spanning(1, '2026-01-01', 20, { actualStart: '2026-01-01', stop: '2026-01-01' })]),
@@ -1965,20 +1972,20 @@ describe('ItemHitArea (PI-7)', () => {
     const actualXs = outlinePoints(geometry.tasks[0]!.actual).map((one) => one.x)
     const from = Math.min(...actualXs)
     const to = Math.max(...actualXs)
-    expect(to - from, 'the bar must be narrower than twice S-91 for the clamp to bite')
-      .toBeLessThan(NOT_STORED_SIZES['S-91'] * 2)
+    expect(to - from, 'the bar must be narrower than twice S-257 for the clamp to bite')
+      .toBeLessThan(NOT_STORED_SIZES['S-257'] * 2)
     // Past the middle the START may not answer -- its allowance ended there.
-    expect(itemAtPointer(geometry, (from + to) / 2 + 1, middleY, SLOP)?.grab).not.toBe('GR-5')
+    expect(itemAtPointer(geometry, (from + to) / 2 + 1, middleY, SLOP)?.grab).not.toBe('GA-3')
     // ⭐ AND THE CONTRAST: before the middle it still does, so the clamp has
     // not simply taken the start off the figure.
-    expect(itemAtPointer(geometry, from + 1, middleY, SLOP)?.grab).toBe('GR-5')
+    expect(itemAtPointer(geometry, from + 1, middleY, SLOP)?.grab).toBe('GA-3')
   })
 
   // =========================================================================
   // ⭐ JDG-36 -- the not-started dummy and the started actual hold alike
   // =========================================================================
   //
-  // ⛔ THE DEFECT, in 利用者's own words: 「未着手のつかみシロが着手済と形状が違い
+  // ⛔ THE DEFECT, in 利用者's own words: docs/development-records/pending-decisions.md 「未着手のつかみシロが着手済と形状が違い
   // 混乱する。 形状を合わせろ。」 ⇒ 「未着手のダミーと着手済の実績は、同じ形の掴み
   // シロを持つこと（MUST）」, and the vertical is where the two used to part:
   // ⭐ THE CLAUSE WHOLE ON ONE LINE, for the reason given under JDG-35 above:
@@ -1997,17 +2004,17 @@ describe('ItemHitArea (PI-7)', () => {
 
     // The same row with nothing entered: the dummy stands on day 1.
     const fresh = oneTask()
-    const gr9 = fresh.tasks[0]!.dummies.find((one) => one.grab === 'GR-9')!
+    const gr9 = fresh.tasks[0]!.dummies.find((one) => one.grab === 'GA-5')!
     const onTheMark = gr9.ink.x + 1
     // ⛔ A HAIR OUTSIDE THE BAND ANSWERS NO DUMMY. A build whose hold kept its
     // own height -- the shape of 2026-09-08 -- answers one here.
     for (const y of [middle - band / 2 - 2, middle + band / 2 + 2]) {
       const grab = itemAtPointer(fresh, onTheMark, y, SLOP)?.grab ?? null
-      expect(['GR-9', 'GR-17'], `y = ${y}`).not.toContain(grab)
+      expect(['GA-5', 'GA-6'], `y = ${y}`).not.toContain(grab)
     }
     // ⭐ THE CONTRAST: inside the band it does answer one, so the case above
     // cannot pass on a build that lost the dummies altogether.
-    expect(['GR-9', 'GR-17']).toContain(itemAtPointer(fresh, onTheMark, middle, SLOP)?.grab)
+    expect(['GA-5', 'GA-6']).toContain(itemAtPointer(fresh, onTheMark, middle, SLOP)?.grab)
   })
 
   it('answers null off everything', () => {

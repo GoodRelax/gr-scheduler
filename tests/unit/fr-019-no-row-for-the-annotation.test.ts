@@ -332,7 +332,7 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
     it(`⭐ tells RS-44's own words in ${language}, and NOT RS-15's`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR. With no entry for the
       // situation, the row read out is `undefined`, the dictionary answers with
-      // its fallback, and the reader is told RS-15 -- 「操作を終えられませんで
+      // its fallback, and the reader is told RS-15 -- DFC-186 「操作を終えられませんで
       // した／もう一度行ってください」. That is a lie about a press that CAN
       // never act there, and FR-029 (MUST NOT) forbids carrying the fallback
       // where a row of its own fits.

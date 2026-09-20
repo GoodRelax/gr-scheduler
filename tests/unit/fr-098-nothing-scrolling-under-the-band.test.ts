@@ -78,7 +78,7 @@
 //      only, which was the reading no sentence disputed.
 //   1a. A DEPENDENCY WITH ONE END ON A ROW SCROLLED CLEAR OFF THE TOP. `RT-4a`
 //      of table T-018a drops a line 「端点のいずれかが描かれていないとき」 and
-//      `RT-6` keeps it 「端点の一方がピン止めした行にあるとき」; a row cut away at
+//      `RT-6` keeps it docs/development-records/pending-decisions.md 「端点の一方がピン止めした行にあるとき」; a row cut away at
 //      the top is neither pinned nor plainly 「描かれていない」, and no row says
 //      which it is. ⛔ NO CASE BELOW USES ONE. Reported as a hole.
 //   2. THE ROW HEADING SIDE. `svgFromSchedule` draws the schedule side only --
@@ -680,7 +680,7 @@ describe('the manuscript still carries the 2026-08-31 amendment', () => {
 // ===========================================================================
 // The instrument, checked against a picture whose extra ink is KNOWN EXACTLY
 //
-// ⭐ Rule 04 section 2: 「検査・契約・免除は、わざと壊して落ちることを確かめる
+// ⭐ Rule 04 section 2: docs/development-rules/04-verification.md 「検査・契約・免除は、わざと壊して落ちることを確かめる
 // まで、確かめたことにならない」. Every case below reports what the reader found
 // inside the band; a reader that found nothing anywhere would report a clean
 // band whatever the renderer did. So the reader is first run over pictures this
@@ -867,7 +867,7 @@ describe('FR-098 (MUST NOT) -- no figure of a scrolling row is drawn where the b
   it('⛔ MUST: a row STRADDLING the cut is cut, not left whole and not dropped whole', () => {
     // `S-176`'s half-送り puts the anchor row's own top edge above the cut while
     // its foot stays in the remainder, so 「帯が占める場所へ 1 つも描いてはならない」
-    // and 「1 行も描けなくなってはならない」 are asked at once: the row's ink has
+    // and DFC-306 「1 行も描けなくなってはならない」 are asked at once: the row's ink has
     // to stop at the cut and go on below it.
     //
     // ⭐ HOW IT COULD FAIL: a renderer that only drops whole rows leaves this

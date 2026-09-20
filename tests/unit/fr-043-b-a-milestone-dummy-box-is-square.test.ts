@@ -24,7 +24,7 @@
 //
 // `dummiesOf` drew EVERY dummy's ink from one shared rectangle --
 // `width: Math.min(pxPerDay, S-180)`, `height: actualHeight` -- a box shaped
-// for the BAR dummies (GR-9 / GR-17) and never a square. A milestone's real
+// for the BAR dummies (GA-5 / GA-6) and never a square. A milestone's real
 // actual figure (`taskGeometryOf`'s `'sideways'` arm) is a square of side
 // `placed.planHeight * settings.actualOfPlan`, centred on its day -- a circle
 // glyph fit to the old box came out an ellipse.
@@ -37,7 +37,7 @@
 //                      and now size), quoted above
 //   表 T-221 LF-10     the real actual milestone figure: a square of side
 //                      `planHeight * actualOfPlan`, centred on its day
-//   表 T-023d GR-18    the one grab a milestone's dummy answers to
+//   表 T-023d GA-17    the one grab a milestone's dummy answers to
 
 import { describe, expect, it } from 'vitest'
 
@@ -132,7 +132,7 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
   }) as unknown as Schedule
 
 // Not started: no `actualStart`, so `placed.actualX` is `null` and the ONE
-// GR-18 dummy is drawn.
+// GA-17 dummy is drawn.
 const TASK_MILESTONE = taskOf({ uid: 1, milestone: true, start: '2026-01-05', finish: '2026-01-05' })
 
 const SCHEDULE = scheduleOf({
@@ -166,12 +166,12 @@ const geometryOf = (uid: number) => {
 // ---------------------------------------------------------------------------
 
 describe('the fixture this case stands on', () => {
-  it('is a milestone, not started, drawing its one GR-18 dummy', () => {
+  it('is a milestone, not started, drawing its one GA-17 dummy', () => {
     expect(placedOf(1).shapeKind).toBe('milestone')
     expect(placedOf(1).actualPlacement).toBe('sideways')
     expect(placedOf(1).actualX).toBeNull()
     expect(geometryOf(1).dummies.length).toBe(1)
-    expect(geometryOf(1).dummies[0]!.grab).toBe('GR-18')
+    expect(geometryOf(1).dummies[0]!.grab).toBe('GA-17')
   })
 })
 

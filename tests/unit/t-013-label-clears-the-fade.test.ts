@@ -1,4 +1,4 @@
-// The paragraph printed under table T-013: what a fade does to the name label.
+// The paragraph printed under table T-273: what a fade does to the name label.
 //
 // ⚠️ Chapter 9 does not admit `Unit` as a TEST_LEVEL, so these cases have no
 // node in the specification. Table T-218 of Chapter 7 gives them their place:
@@ -11,10 +11,10 @@
 // ⛔ That file pins `fadeInDays` and `fadeOutDays` to `null` in every case and
 // says nothing about either; this file owns the fade alone.
 //
-// see T-013
+// see T-272, T-273
 //
-//   T-013 NL-1 「打ち切った後のラベルがタスクの幅に収まる | 形状の中に書く」
-//   T-013 NL-3 「収まらない | 形状の右に出す」
+//   T-273 LP-1 / LP-3 「入る」 -- the label written inside the shape
+//   T-273 LP-2 / LP-4 「入らない」 -- the label pushed out to the right
 //   T-012a FD-6 「`fadeIn` を `[0, 期間]` に丸めた後、`fadeOut` を
 //    `[0, 期間 − fadeIn]` に丸める（**`fadeIn` が勝つ**）。⛔ **本表の「期間」は
 //    暦日で数えること（MUST）**」
@@ -27,7 +27,7 @@
 //     「フェード長が切り込みの深さを置き換える」, and no row says where a
 //     chevron's usable width begins once the notch is the fade. Every case
 //     below is a rectangle (SH-1), whose FD-6 is stated in full.
-//   * WHERE A LABEL PUSHED OUTSIDE BEGINS. NL-3 says 「形状の右に出す」 and the
+//   * WHERE A LABEL PUSHED OUTSIDE BEGINS. T-273's 「入らない」 rows push it right, and the
 //     paragraph's three rules are all about 「形状の中に書くとき」, so nothing
 //     here claims a fadeOut clears an outside label.
 
@@ -72,13 +72,14 @@ const ENV: ScreenEnvironment = {
 
 const SETTINGS = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
+  actualVisible: false,
   rulerFont: 12, // S-3
   rulerHeight: 42, // S-2
   stackDirection: 'down', // S-58
   scrollDate: '2026-01-01', // S-77
   // ⭐ S-35 IS HELD AT ITS CEILING ON PURPOSE. LC-4 cuts the label to
-  // `truncateUnits` BEFORE table T-013 is evaluated, so at the default every
-  // name long enough to overflow a wide bar would arrive at NL-1 already cut to
+  // `truncateUnits` BEFORE table T-273 is evaluated, so at the default every
+  // name long enough to overflow a wide bar would arrive at T-273 already cut to
   // the same length -- and the room this file measures would stop moving. ⛔ No
   // case below asserts S-35 or anything derived from it.
   truncateUnits: 120,
@@ -145,6 +146,7 @@ interface Drawn {
   readonly placed: TaskPlacement
   readonly label: ScreenRect | null
   readonly pxPerDay: number
+  readonly placement: 'inside' | 'right'
 }
 
 const drawnOf = (schedule: Schedule): Drawn => {
@@ -159,7 +161,14 @@ const drawnOf = (schedule: Schedule): Drawn => {
     emptySelection(),
   ).tasks.find((one) => one.taskUid === 1)
   if (picture === undefined) throw new Error('task 1 has no picture')
-  return { placed, label: picture.label, pxPerDay: layout.pxPerDay }
+  const outside =
+    picture.label !== null && picture.label.x >= placed.x + placed.width - 1e-9
+  return {
+    placed,
+    label: picture.label,
+    pxPerDay: layout.pxPerDay,
+    placement: outside ? 'right' : 'inside',
+  }
 }
 
 /** A rectangle of `days`, named `name`, with the fades given. */
@@ -181,8 +190,8 @@ const barOf = (
 /**
  * The longest half-width name this bar still writes INSIDE its shape.
  *
- * This is the unit's own answer to 「`NL-1` の「タスクの幅」」, read back through
- * the only thing the specification makes observable: which row of table T-013
+ * This is the unit's own answer to T-273's 「入る」 width, read back through
+ * the only thing the specification makes observable: which row of table T-273
  * fires. Every width case below compares two of these rather than naming a
  * number, because the paragraph states a RELATION (the shape's width less the
  * two fades) and no row anywhere fixes the width of one character.
@@ -192,7 +201,7 @@ const roomOf = (
   fade: { readonly in?: number; readonly out?: number } = {},
 ): number => {
   for (let length = 1; length <= 200; length += 1) {
-    if (barOf(days, 'x'.repeat(length), fade).placed.labelPlacement !== 'inside') return length - 1
+    if (barOf(days, 'x'.repeat(length), fade).placement !== 'inside') return length - 1
   }
   throw new Error('no half-width name of any length was pushed out of this bar')
 }
@@ -209,17 +218,18 @@ const S_247_DEFAULT = Number.parseFloat(
 // see FR-039, T-252
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
 
-// see T-240, FR-013
+// see LP-1
 const markerStartOf = (_pxPerDay: number): number =>
-  Math.min(FLAT['markerSize']! * DRAWN_RATIO * S_247_DEFAULT, S_180_DEFAULT) +
   (FLAT['markerSize']! + FLAT['labelGap']!) * DRAWN_RATIO
 
-describe('the paragraph after table T-013 -- the label begins where the fade ends', () => {
-  it('premise: a task nobody started stands marker (1) inside the shape, touching the DM-3 dummy mark on the plan start day', () => {
+describe('the paragraph after table T-273 -- the label begins where the fade ends', () => {
+  it('premise: RF-3 makes the plan the reference, and LP-1 stands the marker on its start', () => {
     const plain = barOf(60, 'ab')
     expect(Number.isFinite(S_180_DEFAULT)).toBe(true)
     expect(Number.isFinite(S_247_DEFAULT)).toBe(true)
+    expect(plain.placement, 'premise: a two-unit name fits a 60-day plan').toBe('inside')
     expect(markerStartOf(plain.pxPerDay)).toBeLessThan(plain.placed.width)
+    expect((plain.label as ScreenRect).x - plain.placed.x).toBeCloseTo(markerStartOf(plain.pxPerDay), 6)
   })
 
   it('⭐ starts the label at whichever of the `fadeIn` end and marker (1) right + S-32 stands further right (MUST)', () => {
@@ -228,8 +238,8 @@ describe('the paragraph after table T-013 -- the label begins where the fade end
     const marker = markerStartOf(plain.pxPerDay)
     expect(10 * faded.pxPerDay, 'premise: this fade ends right of marker (1) + S-32').toBeGreaterThan(marker)
 
-    expect(plain.placed.labelPlacement).toBe('inside')
-    expect(faded.placed.labelPlacement).toBe('inside')
+    expect(plain.placement).toBe('inside')
+    expect(faded.placement).toBe('inside')
     expect((faded.label?.x as number) - faded.placed.x).toBeCloseTo(
       (plain.label?.x as number) - plain.placed.x + Math.max(10 * faded.pxPerDay, marker) - marker,
       6,
@@ -264,8 +274,8 @@ describe('the paragraph after table T-013 -- the label begins where the fade end
 
 })
 
-describe('the paragraph after table T-013 -- NL-1 judges the width LESS the fades', () => {
-  it('⭐ takes `fadeIn` off the width NL-1 measures against (MUST)', () => {
+describe('the paragraph after table T-273 -- 「入る」 judges the width LESS the fades', () => {
+  it('⭐ takes `fadeIn` off the width 「入る」 measures against (MUST)', () => {
     const pxPerDay = barOf(60, 'ab').pxPerDay
     expect(10 * pxPerDay, 'premise: both fades end right of marker (1) + S-32').toBeGreaterThan(markerStartOf(pxPerDay))
     expect(roomOf(70, { in: 20 })).toBe(roomOf(60, { in: 10 }))
@@ -290,17 +300,16 @@ describe('the paragraph after table T-013 -- NL-1 judges the width LESS the fade
   })
 
   it('⛔ pushes a name outside once the fades take the room it needed (MUST NOT: 幅を引かずに書き始めだけを寄せてはならない)', () => {
-    // The failure the MUST NOT names, stated as the two answers of table T-013:
-    // a name that NL-1 admits without a fade is refused with one, rather than
-    // being written inside and running past the shape's right edge.
+    // WHY: the failure the MUST NOT names is a name table T-273 fits without a
+    // fade being pushed out once a fade is on, not written past the right edge.
     const name = 'x'.repeat(roomOf(60))
 
-    expect(barOf(60, name).placed.labelPlacement).toBe('inside')
-    expect(barOf(60, name, { in: 10 }).placed.labelPlacement).toBe('right')
+    expect(barOf(60, name).placement).toBe('inside')
+    expect(barOf(60, name, { in: 10 }).placement).toBe('right')
   })
 })
 
-describe('the paragraph after table T-013 -- the fade it subtracts is the TRUNCATED one', () => {
+describe('the paragraph after table T-273 -- the fade it subtracts is the TRUNCATED one', () => {
   it('⚠️ uses FD-6\'s clamped values, so a fade longer than the bar does not make the room negative (MUST)', () => {
     // 「引くのは 表 T-012a の `FD-6` / `FD-6b` が切り詰めた後の値とすること
     // (MUST) —— 切り詰める前の値で引くと、期間より長いフェードが残りを負にする」.
@@ -311,7 +320,7 @@ describe('the paragraph after table T-013 -- the fade it subtracts is the TRUNCA
 
     // ⛔ Whatever it answers, it may not be a label written on top of the bar
     // as though the fades had cost nothing.
-    expect(swamped.placed.labelPlacement).toBe('right')
+    expect(swamped.placement).toBe('right')
     // ⭐ AND THE ROOM IS ZERO, NOT NEGATIVE: no name of any length fits inside.
     expect(roomOf(20, { in: 50, out: 50 })).toBe(0)
   })

@@ -280,7 +280,7 @@ function commandFor(rowId: string): TaskCommand {
     // CM-14 -- 「実績を置き始める」, FR-043's 掴みシロを離した日.
     case 'CM-14':
       return { kind, uid: TASK_UID, droppedDay: '2026-04-07' } as unknown as TaskCommand
-    // CM-15 -- 「予実の状態を巡らせる」.
+    // CM-15 -- CR-149 「予実の状態を巡らせる」.
     case 'CM-15':
       return { kind, uid: TASK_UID } as unknown as TaskCommand
     // CM-9 -- 「名称を変える」.
@@ -319,7 +319,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
   it('表 T-108 still names the three commands that edit the actuals', () => {
     expect(meaningOf('CM-13')).toContain('予実の 5 列を置く')
     expect(meaningOf('CM-14')).toContain('実績を置き始める')
-    expect(meaningOf('CM-15')).toContain('予実の状態を巡らせる')
+    expect(meaningOf('CM-15')).toContain('予実の状態を、表 T-021a の輪に沿って 1 つ進める')
     // ⛔ AND THE TWO CONTROLS ARE NOT ABOUT THE ACTUALS. If either of these
     // cells ever came to mention 実績 the control below would stop being one.
     expect(meaningOf('CM-9')).toContain('名称を変える')
@@ -345,7 +345,7 @@ describe('表 T-019 の注 -- the manuscript this file is driven by', () => {
 })
 
 // ===========================================================================
-// 5. 「取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、
+// 5. DFC-294 「取り込んだ原値があり、そのタスクの実績を人が編集していないあいだは、
 //     最終列によらず原値をそのまま書き戻すこと（MUST）」
 // ===========================================================================
 
@@ -390,7 +390,7 @@ describe('表 T-019 の注 (MUST) -- while nobody edited the actuals, the origin
 })
 
 // ===========================================================================
-// 6. 「人がそのタスクの実績を編集したときに限り、最終列の値へ置き換える」
+// 6. DFC-294 「人がそのタスクの実績を編集したときに限り、最終列の値へ置き換える」
 // ===========================================================================
 
 describe('表 T-019 の注 -- an edit of the actuals replaces it with the computed value', () => {

@@ -126,7 +126,7 @@
 //
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, because nothing in docs/spec decides it:
 //   - HOW FAR a body drag moves a bar in days for a given pixel distance. FR-011
-//     and GR-12 fix that the plan moves sideways by whole days; no row fixes the
+//     and GA-9 fix that the plan moves sideways by whole days; no row fixes the
 //     rounding of a partial day, so the cases below assert the DIRECTION and the
 //     Task, never the count.
 //   - which of the two remaining Esc levels (構え, `Dual Cursor`) a press takes
@@ -534,9 +534,9 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
   const xs = drawn.plan.points.map((onePoint) => onePoint.x)
   const ys = drawn.plan.points.map((onePoint) => onePoint.y)
   // ⚠️ THE MARKER'S SQUARE IS STEPPED AROUND. These Tasks are not started, so
-  // GR-7 hangs off GR-17's hold (「未着手のときは終了点の掴みシロの外側」), and
+  // GA-18 hangs off GA-6's hold (「未着手のときは終了点の掴みシロの外側」), and
   // table T-023d's closing rule makes that hold `FR-043`'s drawn mark itself
-  // -- and GR-7 stands above GR-12 in table
+  // -- and GA-18 stands above GA-9 in table
   // T-023d, so a press on the square is a state cycle and never the body drag
   // this helper exists to start.
   const right = Math.max(...xs)
@@ -886,7 +886,7 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
   })
 
   it('CS-2: a body drag writes the Task that was under the PRESS', () => {
-    // GR-12 of table T-023d: 「予定バー本体 | 端点を除いた中間 | 予定の平行移動
+    // GA-9 of table T-023d: 「予定バー本体 | 端点を除いた中間 | 予定の平行移動
     // （`FR-011`）」. The release lands where no bar of Task 1 is any longer, so
     // a loop that resolved the hit at the release would have nothing to move.
     // ⚠️ Only the direction is asserted: no row fixes how a partial day rounds.

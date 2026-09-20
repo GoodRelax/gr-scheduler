@@ -127,7 +127,7 @@
 // してはならない（MUST NOT）.
 //
 // ⭐ THE MANUSCRIPT WAS WHERE IT CAME FROM, AND THE MANUSCRIPT IS WHERE IT WAS
-// FIXED. `S-176` had read 「その行自身の高さに対する比」, a height smaller than
+// FIXED. `S-176` had read DFC-138 「その行自身の高さに対する比」, a height smaller than
 // the distance from one row to the next, so the gap had no spelling at all. It
 // now reads 「その行が占める送り……に対する比」 and carries a MUST NOT against
 // the band. ⚠️ THE SIDEWAYS AXIS WAS ALWAYS WHOLE: days abut, so it had no gap
@@ -869,7 +869,7 @@ describe.each(GESTURES.map((one) => [one.name, one.how] as const))(
     it('pans even when the press lands on a Task (構えと当たりによらず優先する)', () => {
       // `PTD-1` is evaluated before `PTD-3`, so a press on a bar with the pan
       // gesture is a pan. ⭐ The proof is that the OTHER Task moves too: a grab
-      // (`GR-12`) would carry the pressed bar alone.
+      // (`GA-9`) would carry the pressed bar alone.
       const built = stage()
       const box = planBox(built.loop, NEAR_UID)
       const at: Point = { x: (box.x0 + box.x1) / 2, y: midY(box) }

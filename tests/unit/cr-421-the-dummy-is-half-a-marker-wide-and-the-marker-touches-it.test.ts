@@ -36,7 +36,6 @@ const firstNumber = (table: string, id: string, column: string): number => {
 }
 
 const S_22 = firstNumber('T-201', 'S-22', '既定値')
-const S_23 = firstNumber('T-201', 'S-23', '既定値')
 const S_180 = firstNumber('T-206', 'S-180', '既定')
 const S_247 = firstNumber('T-206', 'S-247', '既定')
 const LOWEST_SCALE = DISPLAY_SCALE_STEPS[0]!
@@ -49,10 +48,10 @@ const DM_3_LEFT_EDGE = '表 T-012 の `SH-3` / `SH-4` では `FR-094` が名称�
 const DM_3_NOT_ONE_DAY = '日の列の左端に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
 const DM_9_SQUARE =
   'マイルストーンのダミーを描く箱は、そのマイルストーンの実績の図形と同じ正方形とすること（MUST）。`DM-3` の幅を横幅としてはならない（MUST NOT）'
-const FR_013_NO_GAP = '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）'
-const T_023D_NO_WIDER_BOX = '⛔ ダミーの当たり判定を、描いた印より広い箱で取ってはならない（MUST NOT）'
-const T_023D_MARKER_FIRST =
-  '⭐ 進捗マーカー（`GR-7`）の描いた形の上では、予定の端点（`GR-1` / `GR-2` / `GR-3` / `GR-4`）の掴み代と予定バー本体（`GR-12`）より先に、`GR-7` を成立させること（MUST）'
+const T_267_NO_GAP = 'マーカーは実績とダミーの右端に接して立つ'
+const T_266_NO_WIDER_BOX = '⛔ 矩形のダミーの掴み代を印の外へ広げてはならない（MUST NOT）。'
+const T_267_MARKER_FIRST =
+  '⭐ ただし進捗マーカーと再開アイコンの描いた箱の上では、実績の端の次にそれらが応え、ほかの種別（フェードの掴み点・依存線・予定の端・マイルストーンの予定・本体）はその後へ回ること（MUST）'
 
 // see T-252
 const nestedDefaults = (): Record<string, unknown> => {
@@ -162,7 +161,7 @@ const started = (planDays: number, actualDays: number, name = 'a'): Task =>
   })
 
 const inkOf = (scene: Scene) => {
-  const dummy = scene.drawn.dummies.find((one) => one.grab === 'GR-9' || one.grab === 'GR-17')
+  const dummy = scene.drawn.dummies.find((one) => one.grab === 'GA-5' || one.grab === 'GA-6')
   if (dummy === undefined) throw new Error('premise: a bar dummy is drawn for the task not started')
   return dummy.ink
 }
@@ -175,8 +174,9 @@ const expectedDummyWidth = (displayScale: number): number =>
   Math.min(S_22 * displayRatioAt(displayScale) * S_247, S_180)
 
 describe('T-240 DM-3 (MUST) -- the dummy is half a marker wide, whatever the day width', () => {
-  it('premise: at the default display scale the manuscript numbers give 5px', () => {
-    expect(expectedDummyWidth(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(5, 9)
+  it('premise: at the default display scale the manuscript numbers give 7px', () => {
+    expect(expectedDummyWidth(DEFAULT_DISPLAY_SCALE)).toBeCloseTo(7, 9)
+    expect(S_180).toBeGreaterThan(7)
   })
 
   it(`draws it at marker diameter x S-247 at the default scale: ${DM_3_WIDTH}`, () => {
@@ -209,7 +209,7 @@ describe('T-240 DM-9 (MUST NOT) -- a milestone dummy stays the square of its act
   it(DM_9_SQUARE, () => {
     const milestone = taskOf({ name: 'm', start: PLAN_START, finish: PLAN_START, milestone: true })
     const scene = sceneOf(milestone, {}, 'milestone')
-    const dummy = scene.drawn.dummies.find((one) => one.grab === 'GR-18')
+    const dummy = scene.drawn.dummies.find((one) => one.grab === 'GA-17')
     expect(dummy, 'premise: a milestone dummy is drawn').toBeDefined()
     expect(dummy!.ink.width, DM_9_SQUARE).toBeCloseTo(dummy!.ink.height, 6)
     expect(dummy!.ink.width, DM_9_SQUARE).not.toBeCloseTo(expectedDummyWidth(DEFAULT_DISPLAY_SCALE), 3)
@@ -220,42 +220,50 @@ describe('T-023d closing rule (MUST NOT) -- the dummy is held on its drawn mark 
   const zoomX = 64
   const middleOf = (scene: Scene): number => inkOf(scene).y + inkOf(scene).height / 2
 
-  it('takes GR-9 on the left half and GR-17 on the right half of the mark', () => {
+  it('takes GA-5 on the left half and GA-6 on the right half of the mark', () => {
     const scene = sceneOf(unstarted(), { zoomX })
     const ink = inkOf(scene)
     const y = middleOf(scene)
-    expect(itemAtPointer(scene.geometry, ink.x + ink.width * 0.25, y, grabSizesOf())?.grab).toBe('GR-9')
-    expect(itemAtPointer(scene.geometry, ink.x + ink.width * 0.75, y, grabSizesOf())?.grab).toBe('GR-17')
+    expect(itemAtPointer(scene.geometry, ink.x + ink.width * 0.25, y, grabSizesOf())?.grab).toBe('GA-5')
+    expect(itemAtPointer(scene.geometry, ink.x + ink.width * 0.75, y, grabSizesOf())?.grab).toBe('GA-6')
   })
 
-  it(`does not take a dummy 1px outside either side of the mark: ${T_023D_NO_WIDER_BOX}`, () => {
+  it(`does not take a dummy 1px outside either side of the mark: ${T_266_NO_WIDER_BOX}`, () => {
     const scene = sceneOf(unstarted(), { zoomX })
     const ink = inkOf(scene)
     const y = middleOf(scene)
     for (const x of [ink.x - 1, ink.x + ink.width + 1]) {
       const grab = itemAtPointer(scene.geometry, x, y, grabSizesOf())?.grab
-      expect(grab === 'GR-9' || grab === 'GR-17', `x ${x}: ${T_023D_NO_WIDER_BOX}`).toBe(false)
+      expect(grab === 'GA-5' || grab === 'GA-6', `x ${x}: ${T_266_NO_WIDER_BOX}`).toBe(false)
     }
   })
 })
 
 describe('FR-013 / LF-11 (MUST NOT) -- the marker touches what it follows', () => {
-  it(`stands the marker left edge on the actual bar right edge: ${FR_013_NO_GAP}`, () => {
-    const scene = sceneOf(started(40, 10))
+  it(`stands the marker left edge on the actual bar right edge when the name does not fit it: ${T_267_NO_GAP}`, () => {
+    const scene = sceneOf(started(40, 10, 'a'.repeat(40)))
     expect(scene.drawn.marker, 'premise: a marker is drawn').not.toBeNull()
-    expect(markerLeft(scene), FR_013_NO_GAP).toBeCloseTo(scene.placed.actualReach!, 6)
+    expect(scene.placed.labelPlacement, 'premise: the name does not fit the actual').toBe('right')
+    expect(markerLeft(scene), T_267_NO_GAP).toBeCloseTo(scene.placed.actualReach!, 6)
+  })
+
+  it('stands the marker left edge on the actual bar START when the name fits it', () => {
+    const scene = sceneOf(started(40, 40))
+    expect(scene.placed.labelPlacement, 'premise: the name fits the actual').toBe('inside')
+    expect(markerLeft(scene), '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |')
+      .toBeCloseTo(scene.placed.actualX!, 6)
   })
 
   it('stands the marker left edge on the dummy mark right edge for a task not started', () => {
     const scene = sceneOf(unstarted(), { zoomX: 64 })
     const ink = inkOf(scene)
-    expect(markerLeft(scene), FR_013_NO_GAP).toBeCloseTo(ink.x + ink.width, 6)
+    expect(markerLeft(scene), T_267_NO_GAP).toBeCloseTo(ink.x + ink.width, 6)
   })
 
-  it('keeps S-23 drawn at the display ratio between the plan right edge and the marker when only the plan is shown', () => {
-    const scene = sceneOf(started(40, 10), { planVisible: true, actualVisible: false })
+  it('stands the marker on the plan right edge with no gap when only the plan is shown and the name does not fit', () => {
+    const scene = sceneOf(started(40, 10, 'a'.repeat(200)), { planVisible: true, actualVisible: false })
     const planRight = scene.placed.x + scene.placed.width
-    expect(markerLeft(scene)).toBeCloseTo(planRight + S_23 * displayRatioAt(DEFAULT_DISPLAY_SCALE), 6)
+    expect(markerLeft(scene), T_267_NO_GAP).toBeCloseTo(planRight, 6)
   })
 })
 
@@ -278,7 +286,7 @@ describe('T-023d closing rule (MUST) -- the marker drawn shape wins over the pla
     throw new Error('premise: no actual of whole days ends left of the plan end')
   }
 
-  it(`answers GR-7 inside the marker where it stands in the plan end grab margin: ${T_023D_MARKER_FIRST}`, () => {
+  it(`answers GA-18 inside the marker where it stands in the plan end grab margin: ${T_267_MARKER_FIRST}`, () => {
     const scene = nearThePlanEnd()
     const planRight = scene.placed.x + scene.placed.width
     expect(planRight - scene.placed.actualReach!, 'premise: the actual ends 2px left of the plan end').toBeCloseTo(
@@ -287,30 +295,31 @@ describe('T-023d closing rule (MUST) -- the marker drawn shape wins over the pla
     )
     const marker = scene.drawn.marker!
     expect(marker.centre.x, 'premise: the marker centre stands past the plan right edge').toBeGreaterThan(planRight)
-    expect(itemAtPointer(scene.geometry, marker.centre.x, marker.centre.y, grabSizesOf())?.grab, T_023D_MARKER_FIRST).toBe(
-      'GR-7',
+    expect(itemAtPointer(scene.geometry, marker.centre.x, marker.centre.y, grabSizesOf())?.grab, T_267_MARKER_FIRST).toBe(
+      'GA-18',
     )
   })
 
-  it('answers GR-7 inside the marker where it stands over the plan body', () => {
-    const scene = sceneOf(started(40, 10))
+  it('answers GA-18 inside the marker where it stands over the plan body', () => {
+    const scene = sceneOf(started(40, 10, 'a'.repeat(40)))
     const marker = scene.drawn.marker!
-    expect(itemAtPointer(scene.geometry, marker.centre.x, marker.centre.y, grabSizesOf())?.grab, T_023D_MARKER_FIRST).toBe(
-      'GR-7',
+    expect(scene.placed.labelPlacement, 'premise: LP-2, so the marker is off the actual').toBe('right')
+    expect(itemAtPointer(scene.geometry, marker.centre.x, marker.centre.y, grabSizesOf())?.grab, T_267_MARKER_FIRST).toBe(
+      'GA-18',
     )
   })
 
   it.each(['over the plan body', 'near the plan end'] as const)(
-    'grabs neither GR-12 nor GR-4 at the boundary between the actual and the marker, %s',
+    'grabs neither GA-9 nor GA-2 at the boundary between the actual and the marker, %s',
     (where) => {
     const scene = where === 'near the plan end' ? nearThePlanEnd() : sceneOf(started(PLAN_DAYS, 10), { zoomX })
     const boundary = scene.placed.actualReach!
     const y = scene.drawn.marker!.centre.y
     for (const x of [boundary - 0.5, boundary, boundary + 0.5]) {
       const grab = itemAtPointer(scene.geometry, x, y, grabSizesOf())?.grab
-      expect(grab === 'GR-12' || grab === 'GR-4', `x ${x} took ${grab}: ${FR_013_NO_GAP}`).toBe(false)
+      expect(grab === 'GA-9' || grab === 'GA-2', `x ${x} took ${grab}: ${T_267_NO_GAP}`).toBe(false)
     }
-    expect(markerLeft(scene) - boundary, FR_013_NO_GAP).toBeLessThanOrEqual(EPS)
+    expect(markerLeft(scene) - boundary, T_267_NO_GAP).toBeLessThanOrEqual(EPS)
     expect(markerRight(scene)).toBeGreaterThan(boundary)
     },
   )

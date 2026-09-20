@@ -16,7 +16,7 @@
 //
 //   FR-029 (Chapter 3, 「用途をアイコンと形で伝える」), third paragraph:
 //
-//     「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし、図形
+//     DFC-71 「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし、図形
 //      そのものを `_assets/tbl-settings.md` の 表 T-236 の `S-146`（地の色）で抜く
 //      こと（MUST）。縁の色や太さで示してはならない（MUST NOT）」
 //      （利用者の裁定 2026-08-30。逐語「アイコン自体を緑で塗れ。例: イナズマ線が
@@ -283,7 +283,7 @@ function drawn(view: ScreenView, preference: ScreenTheme['preference']): Stage {
 /**
  * Every colour laid as a GROUND anywhere in this entrance.
  *
- * ⭐ THE WHOLE ENTRANCE AND NOT ONE NODE, because FR-029 says 「図形を描く箱を
+ * ⭐ THE WHOLE ENTRANCE AND NOT ONE NODE, because FR-029 says DFC-71 「図形を描く箱を
  * 塗りつぶし」 and no row of the specification says whether that box is the
  * entrance element itself, a node inside it, or the `svg`'s own backing shape.
  * Asking the subtree is what keeps the case about the RULE rather than about a
@@ -393,7 +393,7 @@ describe('the manuscripts still say what these cases read', () => {
   })
 
   it('⛔ FR-029 still states the fill, the knockout and the two MUST NOTs', () => {
-    // ⚠️ WORDED 「図形を描く箱を塗りつぶし」 UNTIL THIS FILE WAS FIRST WRITTEN.
+    // ⚠️ WORDED DFC-71 「図形を描く箱を塗りつぶし」 UNTIL THIS FILE WAS FIRST WRITTEN.
     // The spec-only body reading it found that 表 T-206 defines 図形を描く箱
     // as S-138 (16px), so read literally only the 16 x 16 shape box was filled
     // and a 4px ring inside the 26 x 24 frame was left unpainted. The
@@ -431,7 +431,7 @@ describe('the manuscripts still say what these cases read', () => {
 describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both renderings', () => {
   for (const preference of THEMES) {
     it(`fills the glyph's box with 表 T-237 EN-1's colour (${preference})`, () => {
-      // 「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし」,
+      // DFC-71 「その入口がいま効いていることを示すときは、図形を描く箱を塗りつぶし」,
       // and 表 T-237's EN-1 row says which colour: `S-183`.
       const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
       const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
@@ -455,7 +455,7 @@ describe('FR-029 (MUST) -- an entrance that is in effect is FILLED, in both rend
 
     it(`⛔ does NOT draw the glyph itself in the fill colour (${preference})`, () => {
       // ⭐ THE OTHER HALF OF THE SAME MUST, AND THE ONE THAT CATCHES THE READING
-      // THE RULING REJECTED: 「アイコン全体の色を変える」 leaves the glyph green
+      // THE RULING REJECTED: DFC-71 「アイコン全体の色を変える」 leaves the glyph green
       // on an unpainted box, which is not 「箱を塗りつぶし…図形を…抜く」.
       const built = drawn(paletteShowing(command({ icon: IC_ARMS_A_DEPENDENCY, isArmed: true })), preference)
       const entry = entranceIn(built, IC_ARMS_A_DEPENDENCY)
@@ -516,7 +516,7 @@ describe('FR-029 (MUST NOT) -- the state is not said with a rim', () => {
 describe('表 T-237 EN-2 (MUST) -- an entrance whose function is ON is filled', () => {
   for (const preference of THEMES) {
     it(`fills the lightning-line entrance while it is ON (${preference})`, () => {
-      // ⭐ THE RULING'S OWN EXAMPLE, verbatim: 「イナズマ線が有効ならイナズマ線
+      // ⭐ THE RULING'S OWN EXAMPLE, verbatim: DFC-158 「イナズマ線が有効ならイナズマ線
       // アイコンを緑で塗れ」. 表 T-109's `IC-39` is that entrance (`FR-049`,
       // `S-64`), and 表 T-237's EN-2 gives it `S-183`.
       const built = drawn(paletteShowing(command({ icon: IC_LIGHTNING_LINE, isPressed: true })), preference)

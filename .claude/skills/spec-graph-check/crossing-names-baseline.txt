@@ -109,8 +109,6 @@ InputCommandTranslator | PointerPress
 
 ItemHitArea | Hit
 ItemHitArea | Item
-ItemHitArea | NOT_STORED_SIZES
-ItemHitArea | PointerSlop
 
 
 PostDialogueMessage | SettledUtterance

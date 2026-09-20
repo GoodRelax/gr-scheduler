@@ -10,7 +10,7 @@
 //   SWS-2  the band height and top of a row      FR-003   LF-2 / LF-3
 //          ⚠️ and LF-14, which no SW_SPEC node names -- see the block
 //          that declares it for why it is filed here
-//   SWS-3  the route of a dependency line        FR-009   LF-4 / LF-5, T-222
+//   SWS-3  the route of a dependency line        FR-009   LF-5, T-222
 //   SWS-4  the vertices of what is drawn         FR-094   LF-6..LF-11, LF-13
 //   SWS-5  the vertices of the progress line     FR-014   LF-12
 //
@@ -101,7 +101,6 @@ import {
 import {
   geometryFromLayout,
   type Path,
-  type Point,
 } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   regionsFromScreen,
@@ -1191,7 +1190,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
 })
 
 // ===========================================================================
-// SWS-3 -- the route of a dependency line. FR-009, LF-4, LF-5 and table T-222.
+// SWS-3 -- the route of a dependency line. FR-009, LF-5 and table T-222.
 // ===========================================================================
 
 /**
@@ -1267,60 +1266,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
     },
   )
 
-  it(
-    swsCase({
-      sws: 'SWS-3',
-      level: 'Integration',
-      covers: ['LF-4'],
-      given: 'a four-bend route at two different dependencyArrowLength values',
-      when: 'geometryFromLayout routes it',
-      then: 'the exit run is one arrow length short of the entry run',
-    }),
-    () => {
-      // LF-4: "the entry run is dependencyArrowLength times
-      // dependencyRunOfArrow; the exit run is that less one dependencyArrowLength.
-      // The exit and the entry do NOT get settings of their own."
-      //
-      // RP-4 is the route that shows both: it leaves the exit edge, turns at
-      // x1 (the exit edge plus the exit run) and reaches the entry edge from
-      // x2 (the entry edge less the entry run).
-      mentions(T221, 'LF-4', 'dependencyArrowLength', 'dependencyRunOfArrow')
-      for (const [arrowLength, runOfArrow] of [[10, 2], [20, 3]] as ReadonlyArray<readonly [number, number]>) {
-        const drawn = draw(
-          [
-            task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
-            task({
-              uid: 2,
-              name: 's',
-              start: day(3),
-              finish: day(5),
-              dependencies: [dependency(1, 1)],
-            }),
-          ],
-          ['g1', 'g2'],
-          [taskVisual(1), taskVisual(2)],
-          { dependencyArrowLength: arrowLength, dependencyRunOfArrow: runOfArrow },
-        )
-        const line = dependencyOf(drawn)
-        expect(line.pattern).toBe('RP-4')
-        const predecessor = placementOf(drawn, 1)
-        const successor = placementOf(drawn, 2)
-        const exitEdge = predecessor.x + predecessor.width
-        const entryEdge = successor.x
-        const entryRun = arrowLength * runOfArrow * DISPLAY_RATIO
-        const exitRun = entryRun - arrowLength * DISPLAY_RATIO
-        const at = (i: number): Point => {
-          const p = line.points[i]
-          if (p === undefined) throw new Error(`the route has no point ${i}`)
-          return p
-        }
-        expect(at(0).x, 'the route leaves the exit edge').toBeCloseTo(exitEdge, 6)
-        expect(at(1).x - exitEdge, 'the exit run').toBeCloseTo(exitRun, 6)
-        expect(entryEdge - at(3).x, 'the entry run').toBeCloseTo(entryRun, 6)
-        expect(at(5).x, 'the route reaches the entry edge').toBeCloseTo(entryEdge, 6)
-      }
-    },
-  )
+
 
   it(
     swsCase({
@@ -1409,13 +1355,11 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // apart". "At least" is the boundary, and RP-4 catches "one lane, RP-1
       // not met". At a day of exactly the entry run wide, one day of clear air
       // between the two bars is exactly the threshold.
-      const entryRun =
-        (SETTINGS_DEFAULTS['dependencyArrowLength'] as number) *
-        (SETTINGS_DEFAULTS['dependencyRunOfArrow'] as number)
+      const entryRun = SETTINGS_DEFAULTS['dependencyLeadIn'] as number
       const at = (pxPerDay: number): string => {
         const drawn = draw(
           [
-            // WHY: p runs 8 days, not 4: T-013 counts S-31 in NL-1, so a 4-day p pushes its name out
+            // WHY: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
             // and onto s's lane; the one day of clear air between the bars is unchanged.
             task({ uid: 1, name: 'p', start: day(2), finish: day(10) }),
             task({ uid: 2, name: 's', start: day(11), finish: day(13), dependencies: [dependency(1, 1)] }),
@@ -1454,7 +1398,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // plain midpoint past x2, so the clamp has to bite.
       // ⚠️ THE SCALE IS PART OF THE SCENARIO AND CR-276 MOVED IT. The clamp
       // bites while half the gap is shorter than the entry run, and that run is
-      // S-19 x S-20; S-19 went 10 -> 7, so 35 px a day stopped biting and the
+      // the two runs; S-19 went 10 -> 7, so 35 px a day stopped biting and the
       // case would have passed while testing nothing. The guard below is what
       // said so -- it is asserted first for exactly this reason. ⚠️ 26 and not
       // less: below about 22 px a day the route stops being RP-2 at all and
@@ -1474,11 +1418,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const successor = placementOf(drawn, 2)
       const exitEdge = predecessor.x + predecessor.width
       const entryEdge = successor.x
-      const entryRun =
-        (drawn.settings.dependencyArrowLength as number) *
-        drawn.settings.dependencyRunOfArrow *
-        DISPLAY_RATIO
-      const exitRun = entryRun - drawn.settings.dependencyArrowLength * DISPLAY_RATIO
+      const entryRun = (drawn.settings.dependencyLeadIn as number) * DISPLAY_RATIO
+      const exitRun = (drawn.settings.dependencyLeadOut as number) * DISPLAY_RATIO
       const x1 = exitEdge + exitRun
       const x2 = entryEdge - entryRun
       const plain = (exitEdge + entryEdge) / 2
@@ -1506,7 +1447,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // told apart, there and back." The successor ends just to the left of the
       // predecessor, which is what brings the two together.
       const arrowLength = 40
-      const runOfArrow = 2
+      const leadIn = 80
+      const leadOut = 40
       const drawn = draw(
         [
           task({ uid: 1, name: 'p', start: day(9), finish: day(11) }),
@@ -1514,15 +1456,21 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
-        { pxPerDayAt1x: 12, zoomX: 1, dependencyArrowLength: arrowLength, dependencyRunOfArrow: runOfArrow },
+        {
+          pxPerDayAt1x: 12,
+          zoomX: 1,
+          dependencyArrowLength: arrowLength,
+          dependencyLeadIn: leadIn,
+          dependencyLeadOut: leadOut,
+        },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-8')
       const predecessor = placementOf(drawn, 1)
       const successor = placementOf(drawn, 2)
       expect(successor.stack, 'both are on one lane').toBe(predecessor.stack)
-      const entryRun = arrowLength * runOfArrow * DISPLAY_RATIO
-      const exitRun = entryRun - arrowLength * DISPLAY_RATIO
+      const entryRun = leadIn * DISPLAY_RATIO
+      const exitRun = leadOut * DISPLAY_RATIO
       // FF: both anchors are a right edge, so both runs go to the right.
       const x2 = successor.x + successor.width + entryRun
       const plainX1 = predecessor.x + predecessor.width + exitRun
@@ -1610,54 +1558,40 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-7', 'LF-8'],
       given: 'an arrow and an endpoint span, both drawn as a line',
       when: 'geometryFromLayout gives them a stroke, a head and end dots',
-      then: 'each is the product LF-7 and LF-8 state, with LF-8 held inside its two bounds',
+      then: 'each is the value LF-7 and LF-8 state, taken from its own setting',
     }),
     () => {
-      // LF-8: "multiply the plan height by thinStrokeOfPlan and hold it inside
-      // thinStrokeMin and thinStrokeMax."
-      // LF-7: "the head is the smaller of the stroke times arrowHeadOfStroke
-      // and the width times arrowHeadOfSpan. The radius of an endpoint dot is
-      // the stroke times spanDotOfStroke."
-      mentions(T221, 'LF-8', 'thinStrokeOfPlan', 'thinStrokeMin', 'thinStrokeMax')
-      mentions(T221, 'LF-7', 'arrowHeadOfStroke', 'arrowHeadOfSpan', 'spanDotOfStroke')
+      // LF-8: the stroke is thinStrokeWidth, one setting of its own.
+      // LF-7: the head is the smaller of thinArrowHeadLength and the width
+      // times arrowHeadOfSpan; an endpoint dot's diameter is spanDotSize.
+      mentions(T221, 'LF-8', 'thinStrokeWidth')
+      mentions(T221, 'LF-7', 'thinArrowHeadLength', 'arrowHeadOfSpan', 'thinArrowHeadHeight', 'spanDotSize')
 
-      // Three settings: the product falls inside the bounds, under the floor,
-      // and over the ceiling.
-      for (const over of [
-        {},
-        { thinStrokeMin: 6, thinStrokeMax: 20 },
-        { thinStrokeMin: 0.5, thinStrokeMax: 1 },
-      ]) {
+      {
         const drawn = draw(
           [task({ uid: 1, name: 'a', start: day(2), finish: day(10) })],
           ['g1'],
           [taskVisual(1, { shapeKind: 'arrow' })],
-          over,
         )
         const placed = placementOf(drawn, 1)
         const line = lineOf(geometryOf(drawn, 1).plan)
-        const stroke = Math.min(
-          Math.max(
-            placed.planHeight * drawn.settings.thinStrokeOfPlan,
-            drawn.settings.thinStrokeMin * DISPLAY_RATIO,
-          ),
-          drawn.settings.thinStrokeMax * DISPLAY_RATIO,
-        )
-        expect(line.strokeWidth, JSON.stringify(over)).toBeCloseTo(stroke, 6)
+        const stroke = drawn.settings.thinStrokeWidth * DISPLAY_RATIO
+        expect(line.strokeWidth).toBeCloseTo(stroke, 6)
 
         const head = line.head
         expect(head, 'SH-3 is drawn with a head').not.toBeNull()
-        if (head === null) continue
-        const tip = head[0]
-        const base = head[1]
-        if (tip === undefined || base === undefined) throw new Error('not a head')
-        expect(tip.x - base.x, `head length ${JSON.stringify(over)}`).toBeCloseTo(
-          Math.min(
-            stroke * drawn.settings.arrowHeadOfStroke,
-            placed.width * drawn.settings.arrowHeadOfSpan,
-          ),
-          6,
-        )
+        if (head !== null) {
+          const tip = head[0]
+          const base = head[1]
+          if (tip === undefined || base === undefined) throw new Error('not a head')
+          expect(tip.x - base.x, 'head length').toBeCloseTo(
+            Math.min(
+              drawn.settings.thinArrowHeadLength * DISPLAY_RATIO,
+              placed.width * drawn.settings.arrowHeadOfSpan,
+            ),
+            6,
+          )
+        }
       }
 
       const span = draw(
@@ -1669,7 +1603,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(spanLine.head, 'SH-4 has no head').toBeNull()
       expect(spanLine.dots.length, 'SH-4 has two ends').toBe(2)
       for (const dot of spanLine.dots) {
-        expect(dot.radius).toBeCloseTo(spanLine.strokeWidth * span.settings.spanDotOfStroke, 6)
+        expect(dot.radius).toBeCloseTo((span.settings.spanDotSize * DISPLAY_RATIO) / 2, 6)
       }
     },
   )
@@ -1719,11 +1653,11 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       const actualLine = lineOf(geometryOf(below, 1).actual)
       // A line carries no top of its own: it is drawn down the middle of its
       // band, so the two bands' tops are the two centres less half of each.
-      const actualHeight = belowPlaced.planHeight * below.settings.actualOfPlan
-      const planTop = planLine.from.y - belowPlaced.planHeight / 2
-      const actualTop = actualLine.from.y - actualHeight / 2
-      expect(actualTop - planTop).toBeCloseTo(
-        belowPlaced.planHeight + below.settings.actualGap * DISPLAY_RATIO,
+      // XS-6: 線の上の縁を、予定の線の下の縁から `S-10` 下に置く -- the drop is
+      // one stroke plus the gap, measured edge to edge and not from a strip.
+      const stroke = (below.settings.thinStrokeWidth as number) * DISPLAY_RATIO
+      expect(actualLine.from.y - planLine.from.y).toBeCloseTo(
+        stroke + (below.settings.actualGap as number) * DISPLAY_RATIO,
         6,
       )
     },
@@ -1797,12 +1731,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-11'],
       given: 'a Task that is under way, so an actual bar is on screen beside its plan',
       when: 'geometryFromLayout places the progress marker',
-      then: 'the marker stands inside the actual bar, S-32 left of the name box that stands S-91 inside its right end',
+      then: 'LP-1 stands the marker on the actual start with the name S-32 past it, and S-260 still free at the actual right end',
     }),
     () => {
-      // WHY: FR-013 yields to FR-002 here -- name and marker fit inside the actual, so T-013 places both there, marker first.
-      // TRAP: S-91 is not scaled by the display ratio (T-252 DS-7) while labelGap is (DS-1).
-      mentions(T221, 'LF-11', 'markerGap', 'markerSize', 'FR-013')
+      // WHY: the name and the marker fit the actual, so LP-1 places both there, marker first.
+      // TRAP: S-260 is not scaled by the display ratio (T-252 DS-7) while labelGap is (DS-1).
+      mentions(T221, 'LF-11', 'markerSize', 'T-272', 'T-273')
       const drawn = draw(
         [
           task({
@@ -1837,16 +1771,21 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         placed.y + placed.planHeight / 2,
         6,
       )
+      expect(placed.labelPlacement, '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |').toBe('inside')
+      expect(
+        marker.centre.x - marker.radius,
+        '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |',
+      ).toBeCloseTo(placed.actualX ?? 0, 6)
       const label = geometryOf(drawn, 1).label
       expect(label, 'the name is drawn').not.toBeNull()
       if (label === null) return
       expect(
-        label.x + label.width,
-        '置き方は、実績の右端から `S-91` だけ内側に名称ラベルの箱の右端を、その箱の左端から `S-32` だけ左にマーカーの右端を置く',
-      ).toBeCloseTo(actualRight - NOT_STORED_SIZES['S-91'], 6)
+        label.x + label.width + NOT_STORED_SIZES['S-260'],
+        '⭐ 「入る」とは、（マーカーを出すなら マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。',
+      ).toBeLessThanOrEqual(actualRight + 1e-9)
       expect(
         marker.centre.x + marker.radius,
-        '⛔ 進捗マーカーと名称ラベルを両方描くときは、名称ラベルをマーカーの左に置いてはならない（MUST NOT）',
+        '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。',
       ).toBeCloseTo(label.x - drawn.settings.labelGap * DISPLAY_RATIO, 6)
     },
   )
@@ -1944,15 +1883,18 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         // ⛔ ON THE `resume` DAY, NOT PAST THE MARKER (LF-11, since CR-276).
         // The icon was pinned to the marker until 2026-08-28, and the marker's
         // x is a function of the actual's last day -- it never reads
-        // `resume` -- so GR-8 of table T-023d could not move it whatever the
+        // `resume` -- so GA-20 of table T-023d could not move it whatever the
         // drag did. ⚠️ The marker remains the fallback LF-11 names, but only
         // where no `resume` is held; this fixture holds one in both passes.
         expect(foot.x, 'standing on the resume day').toBeCloseTo(
           xOfDay(8, drawn.regions, drawn.layout.pxPerDay),
           6,
         )
-        expect(foot.y, 'its foot on the bottom of the marker').toBeCloseTo(
-          marker.centre.y + marker.radius,
+        // XS-10 centres the icon's BOX on the actual band's centre line, which
+        // is the marker's own centre; LF-13's `resumeScaleInvalid` shrinks what
+        // is DRAWN inside that box, so the foot follows the side, not the box.
+        expect(foot.y, 'its foot on the bottom of the drawn figure').toBeCloseTo(
+          marker.centre.y + side / 2,
           6,
         )
         expect(corner.x, 'the upright of the L').toBeCloseTo(foot.x, 6)

@@ -18,7 +18,6 @@ import {
 import {
   layoutFromSchedule,
   taskPlacement,
-  NOT_STORED_SIZES,
   type ScheduleLayout,
   type TaskPlacement,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -33,58 +32,22 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const T_013_ARROW_STARTS_AT_THE_PLAN_START =
-  '⭐ 表 T-012 の `SH-3` / `SH-4` の名称ラベルには本表を当てず、名称ラベルの箱の左端を予定の開始点（`start` の位置）とすること（MUST） —— 予定の幅や実績の幅によらず、ラベルは同じ位置から書き始める。'
-
-const T_013_WIDTH_NEVER_MOVES_THE_ARROW_NAME =
-  '⛔ 予定や実績の幅で、その形状の名称ラベルの横の位置を変えてはならない（MUST NOT）'
-
-const T_013_THE_OVERHANG_IS_COUNTED_IN_OC_1 =
-  '⭐ そのラベルのうち形状の右端より右へ出たぶんは 表 T-038 の `OC-1` に数えること（MUST）'
-
 const FR_094_THE_ARROW_MARKER_IS_THE_NAME_FONT =
   '⭐ 表 T-012 の `SH-3` / `SH-4` の進捗マーカーの径は、表 T-201 の `S-22` に代えて、そのタスクの名称ラベルの字の大きさとすること（MUST）'
 
 const FR_094_THE_RESUME_ICON_FOLLOWS_THAT_DIAMETER =
   '⭐ その形状の再開アイコンの広がり（`S-26` / `S-27`）も、この径から導くこと（MUST）'
 
-const T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE =
-  '⭐ 表 T-012 の `SH-1` / `SH-2` で、名称ラベルの箱の幅（打ち切った後の字の幅に `S-31` を足した長さ）＋ `S-32` ＋ 進捗マーカーの径 ＋ `S-23` ＋ `S-91` × 2 が実績の幅以下のときは、本表を当てず、名称ラベルと進捗マーカーを実績の中に置くこと（MUST）。'
-
-const T_013_HOW_THEY_STAND_INSIDE =
-  '置き方は、実績の右端から `S-91` だけ内側に名称ラベルの箱の右端を、その箱の左端から `S-32` だけ左にマーカーの右端を置く —— 左から「マーカー → 名前」の順である。'
-
-const T_013_THE_LEFT_GAP_THAT_REMAINS =
-  '⚠️ マーカーの左端と実績の左端のあいだには、`S-91` と `S-23` を足した長さ以上が残る —— 上の判定の和が実績の幅以下だからであり、判定の和は並びを入れ替えても変わらない。'
-
-const FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER =
-  '⛔ 進捗マーカーと名称ラベルを両方描くときは、名称ラベルをマーカーの左に置いてはならない（MUST NOT）'
-
-const T_013_THE_GRIPS_ARE_KEPT_CLEAR =
-  '⭐ `S-91` を両端に数えるのは、実績の端点の掴み代（表 T-023d の `GR-5` / `GR-6`）の上に名前もマーカーも置かないためである。'
-
-const T_013_INSIDE_WITH_THE_MARKER_HIDDEN =
-  '⭐ 進捗マーカーを隠しているとき（`_assets/tbl-settings.md` の 表 T-202 の `S-63` が偽）は、判定からマーカーの径と `S-23` を除き、名称ラベルの箱の右端を実績の右端から `S-91` だけ内側に置くこと（MUST）'
-
-const T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE =
-  '⚠️ 実績を持たない未着手のタスクには本段が当たらない —— 実績のダミー（`FR-043`）は実績ではない。'
+const T_273_THE_NAME_NEVER_LEFT_OF_THE_MARKER =
+  '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。'
 
 const FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY =
   'しきい値は表 T-205 の `S-86` に従うこと（MUST） —— 幅は期間に 1 日あたりの表示幅（`FR-017`）を掛けた値である。'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['T-013 (MUST) -- an arrow name starts at the plan start point', T_013_ARROW_STARTS_AT_THE_PLAN_START],
-  ['T-013 (MUST NOT) -- neither width moves that name', T_013_WIDTH_NEVER_MOVES_THE_ARROW_NAME],
-  ['T-013 (MUST) -- the part right of the shape is counted in OC-1', T_013_THE_OVERHANG_IS_COUNTED_IN_OC_1],
   ['FR-094 (MUST) -- the arrow marker diameter is that task\'s name font', FR_094_THE_ARROW_MARKER_IS_THE_NAME_FONT],
   ['FR-094 (MUST) -- the resume icon is derived from that same diameter', FR_094_THE_RESUME_ICON_FOLLOWS_THAT_DIAMETER],
-  ['T-013 (MUST) -- a rectangle holds name and marker inside the actual when they fit', T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE],
-  ['T-013 -- how the two stand inside, marker then name', T_013_HOW_THEY_STAND_INSIDE],
-  ['T-013 -- the gap left of the marker inside the actual', T_013_THE_LEFT_GAP_THAT_REMAINS],
-  ['FR-002 (MUST NOT) -- the name never stands left of the marker', FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER],
-  ['T-013 -- S-91 at both ends keeps the endpoint grips clear', T_013_THE_GRIPS_ARE_KEPT_CLEAR],
-  ['T-013 (MUST) -- with S-63 false the marker leaves the judgement and the name moves right', T_013_INSIDE_WITH_THE_MARKER_HIDDEN],
-  ['T-013 -- a task with no actual is out of this paragraph\'s scope', T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE],
+  ['T-273 (MUST NOT) -- the name never stands left of the marker', T_273_THE_NAME_NEVER_LEFT_OF_THE_MARKER],
   ['FR-018 (MUST) -- the dropped width is the span times one day\'s drawn width', FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY],
 ]
 
@@ -103,10 +66,6 @@ const num = (key: string): number => {
   if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
   return value
 }
-
-const S_23 = num('markerGap')
-const S_32 = num('labelGap')
-const S_91 = NOT_STORED_SIZES['S-91']
 
 // see FR-039, T-252
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
@@ -221,47 +180,6 @@ const arrowNamed = (plannedDays: number, actualStop: string): Task =>
     resumeValid: true,
   })
 
-describe('T-013 (MUST) -- an SH-3 / SH-4 name starts at the plan start, whatever the widths', () => {
-  it.each(ARROW_SHAPES)('%s: the name box left edge is the plan start x', (shapeKind) => {
-    const scene = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
-    expect(scene.drawn.label, 'premise: the task has a name to draw').not.toBeNull()
-    expect(scene.drawn.label!.x, T_013_ARROW_STARTS_AT_THE_PLAN_START).toBeCloseTo(
-      scene.placed.x,
-      6,
-    )
-    expect(scene.placed.labelX, T_013_ARROW_STARTS_AT_THE_PLAN_START).toBeCloseTo(scene.placed.x, 6)
-  })
-
-  it.each(ARROW_SHAPES)('%s: neither the plan width nor the actual width moves it (MUST NOT)', (shapeKind) => {
-    const first = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
-    const widerPlan = sceneOf(arrowNamed(60, '2026-02-10'), shapeKind)
-    const widerActual = sceneOf(arrowNamed(20, '2026-03-20'), shapeKind)
-
-    expect(widerPlan.placed.width, 'premise: the plan really is wider').toBeGreaterThan(
-      first.placed.width,
-    )
-    expect(widerPlan.placed.labelX, T_013_WIDTH_NEVER_MOVES_THE_ARROW_NAME).toBeCloseTo(
-      first.placed.labelX,
-      6,
-    )
-    expect(widerActual.placed.labelX, T_013_WIDTH_NEVER_MOVES_THE_ARROW_NAME).toBeCloseTo(
-      first.placed.labelX,
-      6,
-    )
-  })
-
-  it.each(ARROW_SHAPES)('%s: the part standing right of the shape is counted in the occupied width', (shapeKind) => {
-    const scene = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
-    expect(scene.placed.width, FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY).toBeGreaterThan(0)
-    const shapeRight = scene.placed.x + scene.placed.width
-    const labelRight = scene.drawn.label!.x + scene.drawn.label!.width
-    expect(labelRight, 'premise: this name reaches past its own shape').toBeGreaterThan(shapeRight)
-    expect(scene.placed.occupiedX1, T_013_THE_OVERHANG_IS_COUNTED_IN_OC_1).toBeGreaterThanOrEqual(
-      labelRight - 1e-6,
-    )
-  })
-})
-
 describe('FR-094 (MUST) -- an SH-3 / SH-4 marker is as wide as that task\'s name', () => {
   it.each(ARROW_SHAPES)('%s: the marker diameter equals the name font size', (shapeKind) => {
     const scene = sceneOf(arrowNamed(20, '2026-02-10'), shapeKind)
@@ -294,49 +212,7 @@ describe('FR-094 (MUST) -- an SH-3 / SH-4 marker is as wide as that task\'s name
   })
 })
 
-describe('T-013 (MUST) -- a rectangle draws the name and the marker inside a wide enough actual', () => {
-  const WIDE_ACTUAL = spanning(1, '2026-02-02', 120, {
-    name: 'ab',
-    percentComplete: 40,
-    actualStart: '2026-02-02',
-    stop: '2026-05-20',
-    resumeValid: true,
-  })
-
-  it('premise: the name box, the gaps, the marker and both grips fit inside the actual', () => {
-    const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
-    const nameBox = scene.drawn.label!.width
-    const diameter = scene.drawn.marker!.radius * 2
-    const actualWidth = (scene.placed.actualReach ?? 0) - scene.placed.x
-    expect(nameBox + S_32 + diameter + S_23 + S_91 * 2, T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE)
-      .toBeLessThanOrEqual(actualWidth)
-  })
-
-  it('stands the name box S-91 inside the actual right edge, and the marker S-32 left of it', () => {
-    const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
-    const actualRight = scene.placed.actualReach ?? 0
-    const markerRight = scene.drawn.marker!.centre.x + scene.drawn.marker!.radius
-    const nameLeft = scene.drawn.label!.x
-    const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
-
-    expect(nameRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(actualRight - S_91, 6)
-    expect(markerRight, T_013_HOW_THEY_STAND_INSIDE).toBeCloseTo(nameLeft - S_32 * DRAWN_RATIO, 6)
-    expect(markerRight, FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER).toBeLessThan(nameLeft)
-  })
-
-  it('leaves the endpoint grips clear at both ends of the actual', () => {
-    const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
-    const actualRight = scene.placed.actualReach ?? 0
-    const markerLeft = scene.drawn.marker!.centre.x - scene.drawn.marker!.radius
-    const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
-    expect(actualRight - nameRight, T_013_THE_GRIPS_ARE_KEPT_CLEAR).toBeGreaterThanOrEqual(
-      S_91 - 1e-6,
-    )
-    expect(markerLeft - scene.placed.x, T_013_THE_LEFT_GAP_THAT_REMAINS).toBeGreaterThanOrEqual(
-      S_91 + S_23 * DRAWN_RATIO - 1e-6,
-    )
-  })
-
+describe("T-273 (MUST NOT) -- the name never stands left of the marker", () => {
   it.each([
     ['a wide actual that holds both', 120, 'ab'],
     ['a short plan and actual that send the name outside the shape', 8, 'a name far too long for this plan'],
@@ -349,41 +225,11 @@ describe('T-013 (MUST) -- a rectangle draws the name and the marker inside a wid
       resumeValid: true,
     })
     const scene = sceneOf(task, 'rectangle')
-    expect(scene.placed.labelPlacement === 'inside', 'premise: only the wide actual keeps the name in the shape').toBe(planDays !== 8)
     expect(scene.drawn.marker, 'premise: a marker is drawn').not.toBeNull()
     expect(scene.drawn.label, 'premise: a name is drawn').not.toBeNull()
     expect(
       scene.drawn.marker!.centre.x + scene.drawn.marker!.radius,
-      FR_002_THE_NAME_NEVER_LEFT_OF_THE_MARKER,
+      T_273_THE_NAME_NEVER_LEFT_OF_THE_MARKER,
     ).toBeLessThanOrEqual(scene.drawn.label!.x + 1e-6)
-  })
-
-  it('counts nothing in OC-1, because the name never leaves the shape', () => {
-    const scene = sceneOf(WIDE_ACTUAL, 'rectangle')
-    const shapeRight = Math.max(scene.placed.x + scene.placed.width, scene.placed.actualReach ?? 0)
-    expect(scene.placed.occupiedX1, T_013_THE_RECTANGLE_MAY_HOLD_BOTH_INSIDE).toBeCloseTo(
-      shapeRight,
-      6,
-    )
-  })
-
-  it('with the marker hidden, the name box right edge is S-91 inside the actual right edge (MUST)', () => {
-    const scene = sceneOf(WIDE_ACTUAL, 'rectangle', { progressMarkerVisible: false })
-    const actualRight = scene.placed.actualReach ?? 0
-    const nameRight = scene.drawn.label!.x + scene.drawn.label!.width
-    expect(scene.drawn.marker, 'premise: S-63 false draws no marker').toBeNull()
-    expect(nameRight, T_013_INSIDE_WITH_THE_MARKER_HIDDEN).toBeCloseTo(actualRight - S_91, 6)
-    const shown = sceneOf(WIDE_ACTUAL, 'rectangle')
-    expect(nameRight, 'switching S-63 does not move a name that stays inside the actual').toBeCloseTo(
-      shown.drawn.label!.x + shown.drawn.label!.width,
-      6,
-    )
-  })
-
-  it('does not reach a task that has no actual at all', () => {
-    const unstarted = spanning(2, '2026-02-02', 120, { name: 'ab' })
-    const scene = sceneOf(unstarted, 'rectangle')
-    expect(scene.placed.actualReach, 'premise: nothing has been worked on this task').toBeNull()
-    expect(scene.placed.labelPlacement, T_013_AN_UNSTARTED_TASK_IS_OUT_OF_SCOPE).toBe('inside')
   })
 })

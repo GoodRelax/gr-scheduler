@@ -330,7 +330,7 @@ describe('FR-032 (DFC-171) -- a Task drawn onto empty space can be deleted', () 
     // asking for 「group.label ?? source?.name ?? null」 and finding neither, so
     // that `CM-7` / `IV-8` rejects and 表 T-067's `WS-3` drops the whole plan.
     // ⭐ THIS IS THE DEFECT AS THE READER MET IT: 「⛔⛔ **拒むと、そうして描いた
-    // タスクが 1 つも消せなくなる**」, and 「⛔⛔ **`Ctrl+A` は関係ない** ——
+    // タスクが 1 つも消せなくなる**」, and DFC-171 「⛔⛔ **`Ctrl+A` は関係ない** ——
     // **1 つだけ選んでも消せない。**」 -- so one task, selected alone, is the
     // whole of the reproduction.
     const { document, uid } = drawnOntoEmptySpace()
@@ -375,7 +375,7 @@ describe('FR-032 (DFC-171) -- a Task drawn onto empty space can be deleted', () 
     //
     // ⚠️ WHICH OF THE TWO IS NOT ASSERTED, AND THAT IS A GAP IN THE
     // SPECIFICATION RATHER THAN A LOOSENING HERE. The settled label is a
-    // `TaskGroup.label`, so FR-038 puts it beyond translation -- 「**タスク名と
+    // `TaskGroup.label`, so FR-038 puts it beyond translation -- docs/development-records/W4-adapter.md 「**タスク名と
     // 行名、および表 T-016 の項目名は翻訳の対象ではない**」 -- and forbids the
     // reader's language being saved into the document at all (MUST NOT). ⇒ ONE
     // of the two words is written and kept for every reader, and no row of

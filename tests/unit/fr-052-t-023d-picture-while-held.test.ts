@@ -1,5 +1,5 @@
 // The picture a HELD press owes, and the value it may not write yet: FR-052's
-// `Panel Divider` and table T-023d's `GR-1` / `GR-2` fade grab points.
+// `Panel Divider` and table T-023d's `GA-7` / `GA-8` fade grab points.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of table T-062),
 // whose `frame-loop.ts` takes FT-1 of table T-078 -- 人の入力（ポインタとキー）
@@ -37,21 +37,21 @@
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
 //             受け付けてはならない（MUST NOT）」 and 「行見出しパネルの幅を 0 に
 //             できてはならない（MUST NOT）」.
-//   T-023d    its closing rule for the fade: 「`GR-1` / `GR-2` を掴んでいる
+//   T-023d    its closing rule for the fade: 「`GA-7` / `GA-8` を掴んでいる
 //             あいだ、置くことになるフェードの形と掴み点を描いて示すこと
 //             （MUST）。掴み点はポインタが決める日に置くこと（MUST）……⚠️ 確定は
 //             表 T-028 の `IN-1` に従う（離した時点）」,
 //   T-023d    and the write ban the closing states once for every following
-//             row (DFC-466, 利用者の裁定 2026-09-11): 「`GR-1` / `GR-2` / `GR-3`
+//             row (DFC-466, 利用者の裁定 2026-09-11): 「`GA-7` / `GA-8` / `GA-1`
 //             ……を掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）
-//             （`FR-031`）……⚠️ `GR-1` / `GR-2` の日数も値である」,
-//             and the rule after it: 「`GR-1` / `GR-2` の日数は、ポインタの下の
-//             日から求めること（MUST）。`GR-1` は `start` からの日数、`GR-2` は
+//             （`FR-031`）……⚠️ `GA-7` / `GA-8` の日数も値である」,
+//             and the rule after it: 「`GA-7` / `GA-8` の日数は、ポインタの下の
+//             日から求めること（MUST）。`GA-7` は `start` からの日数、`GA-8` は
 //             `end` までの日数とし、いずれも 1 日単位に四捨五入する。得た日数は
 //             表 T-012a の `FD-6` で切り詰めること（MUST）」.
-//   T-023d GR-1  掴み領域「フェードイン」/ 場所「予定バーの左上の角（表 T-012a の
+//   T-023d GA-7  掴み領域「フェードイン」/ 場所「予定バーの左上の角（表 T-012a の
 //             点 4）」/ 操作「`fadeInDays` を変える（矩形と矢羽根のみ）」
-//   T-023d GR-2  掴み領域「フェードアウト」/ 場所「予定バーの右下の角（表 T-012a の
+//   T-023d GA-8  掴み領域「フェードアウト」/ 場所「予定バーの右下の角（表 T-012a の
 //             点 2）」/ 操作「`fadeOutDays` を変える（矩形と矢羽根のみ）」
 //             ⭐ THE 場所 CELLS ARE READ OUT OF THE MANUSCRIPT BELOW, not copied:
 //             which numbered point each row names is what `pointNamedBy` asks.
@@ -63,7 +63,7 @@
 //             切り替える」 -- WHICH IS WHY EVERY CASE BELOW DRIVES A Task WITH
 //             TWO DIFFERENT, NON-ZERO FADES: on a rectangle 点 4 and 点 2
 //             collapse onto the bar's own corners, so a fade-less Task could not
-//             tell GR-1's place from the corner and would prove nothing.
+//             tell GA-7's place from the corner and would prove nothing.
 //   T-012a FD-5  「適用する形状 | 矩形と矢羽根のみ」 -- the fixture's Task is
 //             drawn as the default shape, and a premise below pins that the bar
 //             really came out as an area with four points.
@@ -72,7 +72,7 @@
 //             暦日で数えること（MUST）」
 //   T-220 IV-12  「`fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を
 //             超えないこと」 with the same 暦日 count.
-//   FR-075    「作成者がその日数を、表 T-023d の `GR-1` / `GR-2` の掴み点で編集
+//   FR-075    「作成者がその日数を、表 T-023d の `GA-7` / `GA-8` の掴み点で編集
 //             できるようにすること。掴み点は選択しているタスクにだけ出すこと
 //             （MUST）」 -- so every fade case selects the Task first (SL-2).
 //   T-023c SL-2  「1 つ選ぶ | 対象をクリックする。それまでの選択は置き換える」
@@ -171,10 +171,10 @@ const rowOf = (table: string, id: string) => {
  * cells moved again.
  */
 function pointNamedBy(grabRow: string): number {
-  const cell = rowOf('T-023d', grabRow).by['場所'] ?? ''
+  const cell = rowOf('T-266', grabRow).by['基準点'] ?? ''
   const found = /点\s*(\d+)/.exec(cell)
   if (found === null) {
-    throw new Error(`table T-023d row ${grabRow} names no numbered point of table T-012a: ${cell}`)
+    throw new Error(`table T-266 row ${grabRow} names no numbered point of table T-012a: ${cell}`)
   }
   return Number(found[1])
 }
@@ -238,7 +238,7 @@ const FADE_FINISH = '2026-04-20'
  * ⛔ TWO DIFFERENT NON-ZERO FADES, which is a premise and not a decoration.
  * FD-4 collapses 点 4 and 点 2 onto the bar's corners when both are 0, and equal
  * fades would leave the two offsets indistinguishable -- so neither could show
- * that GR-1 is drawn at 点 4 rather than at the corner.
+ * that GA-7 is drawn at 点 4 rather than at the corner.
  */
 const FADE_IN_DAYS = 2
 const FADE_OUT_DAYS = 5
@@ -583,7 +583,7 @@ function pxPerDay(loop: FrameLoop): number {
   return (four.x - one.x) / days
 }
 
-/** Where the two grab points are drawn -- GR-1 first, then GR-2 (table T-023d). */
+/** Where the two grab points are drawn -- GA-7 first, then GA-8 (table T-023d). */
 function fadeHandlesOf(loop: FrameLoop): readonly Point[] {
   return drawnTask(loop, FADED_UID).fadeHandles
 }
@@ -684,9 +684,9 @@ describe('the fixture draws what the fade rows are about', () => {
     expect(fadeHandlesOf(built.loop)).toHaveLength(2)
   })
 
-  it('reads the two 場所 cells of table T-023d as numbered points of table T-012a', () => {
-    expect(pointNamedBy('GR-1'), 'table T-023d GR-1 場所').toBe(4)
-    expect(pointNamedBy('GR-2'), 'table T-023d GR-2 場所').toBe(2)
+  it('reads the two 基準点 cells of table T-266 as numbered points of table T-012a', () => {
+    expect(pointNamedBy('GA-7'), 'table T-266 GA-7 基準点').toBe(4)
+    expect(pointNamedBy('GA-8'), 'table T-266 GA-8 基準点').toBe(2)
   })
 })
 
@@ -694,23 +694,23 @@ describe('the fixture draws what the fade rows are about', () => {
 // (e) Where the grab points sit while nothing is held
 // ===========================================================================
 
-describe('table T-023d: GR-1 sits on 点 4 and GR-2 on 点 2 of table T-012a', () => {
-  it('puts GR-1 exactly on the point its 場所 cell names', () => {
+describe('table T-266: GA-7 sits on 点 4 and GA-8 on 点 2 of table T-012a', () => {
+  it('puts GA-7 exactly on the point its 基準点 cell names', () => {
     const built = withFadeHandles()
     const by = numberedPoints(outlineOf(drawnTask(built.loop, FADED_UID).plan))
     expect(
       fadeHandlesOf(built.loop)[0],
-      'table T-023d GR-1 場所: 予定バーの左上の角（表 T-012a の 点 4）',
-    ).toEqual(by.get(pointNamedBy('GR-1')))
+      'table T-266 GA-7 基準点: 表 T-012a の 点 4（予定の上辺）',
+    ).toEqual(by.get(pointNamedBy('GA-7')))
   })
 
-  it('puts GR-2 exactly on the point its 場所 cell names', () => {
+  it('puts GA-8 exactly on the point its 基準点 cell names', () => {
     const built = withFadeHandles()
     const by = numberedPoints(outlineOf(drawnTask(built.loop, FADED_UID).plan))
     expect(
       fadeHandlesOf(built.loop)[1],
-      'table T-023d GR-2 場所: 予定バーの右下の角（表 T-012a の 点 2）',
-    ).toEqual(by.get(pointNamedBy('GR-2')))
+      'table T-266 GA-8 基準点: 表 T-012a の 点 2（予定の下辺）',
+    ).toEqual(by.get(pointNamedBy('GA-8')))
   })
 
   it('does not put either of them on the bar\'s own corner (FD-4 is not this Task)', () => {
@@ -745,7 +745,7 @@ describe('table T-023d: GR-1 sits on 点 4 and GR-2 on 点 2 of table T-012a', (
 /**
  * How far into the target day every fade case below aims.
  *
- * ⭐ THE MANUSCRIPT NAMES A DAY AND NEVER A PIXEL: 「`GR-1` / `GR-2` の日数は、
+ * ⭐ THE MANUSCRIPT NAMES A DAY AND NEVER A PIXEL: 「`GA-7` / `GA-8` の日数は、
  * ポインタの下の日から求めること（MUST）……いずれも 1 日単位に四捨五入する」. So a
  * case states which day the pointer stands in, and the answer it may require is
  * that day.
@@ -768,10 +768,10 @@ const insideTheDay = (fromX: number, days: number, scale: number): number =>
   fromX + (days + A_QUARTER_INTO_THE_DAY) * scale
 
 // ===========================================================================
-// (a) GR-1 held: the picture follows the pointer, the document does not move
+// (a) GA-7 held: the picture follows the pointer, the document does not move
 // ===========================================================================
 
-describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', () => {
+describe('table T-023d: while GA-7 is held the fade is DRAWN and not WRITTEN', () => {
   /**
    * Grab a fade point and carry the pointer INTO the day `days` days along.
    *
@@ -867,7 +867,7 @@ describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', (
     expect((fadeHandlesOf(built.loop)[0] as Point).x).toBeGreaterThan(before.x)
   })
 
-  it('carries GR-2 the same way (its own half of the closing rule)', () => {
+  it('carries GA-8 the same way (its own half of the closing rule)', () => {
     const built = withFadeHandles()
     const before = taskOf(built.loop, FADED_UID).fadeOutDays
     const wasAt = fadeHandlesOf(built.loop)[1] as Point
@@ -875,7 +875,7 @@ describe('table T-023d: while GR-1 is held the fade is DRAWN and not WRITTEN', (
     // this grab point towards the start, not away from it.
     const { dayEdge } = dragGrabPoint(built, 1, -2)
     const now = fadeHandlesOf(built.loop)[1] as Point
-    expect(now.x, 'T-023d GR-2: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(
+    expect(now.x, 'T-266 GA-8: 掴み点はポインタが決める日に置くこと（MUST）').toBeCloseTo(
       dayEdge,
       6,
     )
@@ -899,7 +899,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
     built.send(pointer('up', to.x, to.y))
     expect(
       taskOf(built.loop, FADED_UID).fadeInDays,
-      'T-023d: `GR-1` は `start` からの日数 …… 1 日単位に四捨五入する',
+      'T-023d: `GA-7` は `start` からの日数 …… 1 日単位に四捨五入する',
     ).toBe(FADE_IN_DAYS + 3)
   })
 
@@ -944,7 +944,7 @@ describe('table T-028 IN-1: the fade is settled on the release', () => {
   // POSITION -- so nothing below moved and the case went green on the fix.
   // ⚠️ The assertions are untouched; only this note is.
   it('⛔ MUST: rounds to whole days -- both sides of one day boundary settle on the SAME day', () => {
-    // 「`GR-1` は `start` からの日数、`GR-2` は `end` までの日数とし、いずれも
+    // 「`GA-7` は `start` からの日数、`GA-8` は `end` までの日数とし、いずれも
     //   1 日単位に四捨五入する。」
     //
     // ⭐ THE ONE SENTENCE NO CASE HELD. Every other case here carries the

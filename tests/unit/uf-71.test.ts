@@ -1472,7 +1472,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // on a trigger it does not list (「本表に無い契機でフレームを起こしてはなら
     // ない（MUST NOT）」), which is a rule about what leaves this unit, not about
     // how many listeners it holds. ⚠️ Pinning the count also punishes the seam
-    // for growing: IF-9 gained 「プロパティパネルの欄で確定した値を…返し」 and a
+    // for growing: IF-9 gained CR-361 「プロパティパネルの欄で確定した値を…返し」 and a
     // value that is READ rather than pushed still has to be noticed being
     // settled, so more listeners with no more frames is exactly right.
     //
@@ -1487,7 +1487,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // reads keys, not here. This case still falls the day one comes back.
     // ⭐⭐ A THIRD PART JOINED THE TWO ON 2026-08-30 AND LEFT AGAIN ON 2026-09-04,
     // AND BOTH TIMES THE MANUSCRIPT DECIDED IT. HF-14 of 表 T-051 (MUST) used to
-    // read 「名前は空で立て、その場で打たせること（MUST）」, and 「その場」 is
+    // read CR-348 「名前は空で立て、その場で打たせること（MUST）」, and 「その場」 is
     // among the rows -- so a third field took characters, inside the `Row Title
     // Tree`, and a listener serving it was not this unit widening its supply.
     // ⛔ ALL THREE OF THAT ROW'S MUSTS WERE WITHDRAWN (利用者の裁定 2026-09-04,
@@ -1592,12 +1592,12 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //   パネルを出し、名前の欄で名づけさせること（MUST）**」 —— ⛔ 「**改名と別の道を
 //   作ってはならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じ
 //   ものとすること（MUST）**」 —— ⛔ 「**その作法をここに書き写してはならない
-//   （MUST NOT）**」 —— ⭐ 「**既定の名前は表示語として持つこと（MUST）。仕様書に
+//   （MUST NOT）**」 —— ⭐ DFC-259 「**既定の名前は表示語として持つこと（MUST）。仕様書に
 //   綴りを刷ってはならない（MUST NOT）**」（置き場は `FR-038` の辞書）。
 //
 // ⛔⛔ THREE MUSTS WERE WITHDRAWN ON 2026-09-04, and the cases that carried them
-// went with them: 「名前は空で立て、その場で打たせること」「既定の名を与えては
-// ならない」「名前が空のまま確定されたときは、その行を立てないこと」. The row
+// went with them: CR-346 「名前は空で立て、その場で打たせること」「既定の名を与えては
+// ならない」CR-346 「名前が空のまま確定されたときは、その行を立てないこと」. The row
 // says why in its own words -- 「**その禁止の理由は「改名の入口が 1 つも無い」で
 // あり、`FR-085` が 2026-09-01 に改名の道を得た時点で失われていた**」.
 // ⛔ ONE OF THEM HAS NO SUCCESSOR AT ALL, AND NONE WAS INVENTED. 「空のまま確定
@@ -1614,7 +1614,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //     what the fixture typed. ⭐ What CAN be held from here is that the word has
 //     a home and that the specification does not spell it -- the last case reads
 //     the pointer the manuscript does state and then asks FR-038's dictionary.
-//   - 「立てた行が…詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれ
+//   - DFC-318 「立てた行が…詳しさの段（`FR-018`）で落ちる深さになるときは、その行が描かれ
 //     るまで詳しさの段を開くこと（MUST）。表示位置を送るだけで済ませてはならない
 //     （MUST NOT）」 IS NOT CARRIABLE HERE, and is deliberately not asserted. This
 //     unit is HANDED a `ScreenView`: which rows survived the detail tier, and
@@ -1642,7 +1642,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
    *
    * ⭐ HF-14 (MUST NOT) forbids its own cell to write the manner down -- 「**その
    * 作法をここに書き写してはならない（MUST NOT）**」 -- and points at `FR-085`
-   * instead; `FR-085` and `MK-13` both call the field 「名前の欄（`AT-53`）」. So
+   * instead; `FR-085` and `MK-13` both call the field DFC-185 「名前の欄（`AT-53`）」. So
    * the row id has a home already, and a cell that stopped naming one fails here
    * in one line rather than leaving every case below asking about nothing.
    */
@@ -1780,7 +1780,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
   it('⛔ MUST: GIVEN a telling stands WHEN Enter is pressed in the name field THEN the telling goes and the name is NOT settled (NT-8 of 表 T-037)', () => {
     // 「⛔⛔ **この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）**」
     // ——「**階層は 表 T-028 の `IN-4` と 表 T-036 の `SK-19` が持ち、どちらも本行を
-    // 先頭に置く**」. ⭐ The user's own words: 「タスク名の確定の Enter より、
+    // 先頭に置く**」. ⭐ The user's own words: CR-324 「タスク名の確定の Enter より、
     // エラーメッセージの消去を優先しろ」.
     // ⚠️ ONE RUNG PER PRESS, which is what `IN-4` has always asked of `Esc`.
     // ⭐ THE FIELD IS THE PANEL'S NOW, not one standing among the rows: HF-14's
@@ -1815,7 +1815,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     expect(hf14, '表 T-051 no longer holds HF-14').toBeDefined()
     const cells = hf14?.cells.join(' ') ?? ''
 
-    // ⭐⭐ THE RULING OF 2026-09-03, IN THE ROW'S OWN WORDS: 「**No name という
+    // ⭐⭐ THE RULING OF 2026-09-03, IN THE ROW'S OWN WORDS: DFC-243 「**No name という
     // タスクグループを追加してそれを編集するプロパティーウインドウを開け。
     // つまり、現在タスクグループ名を変更する際の操作と操作感を合わせろ。**」
     expect(cells).toContain('押された瞬間に、既定の名前で行を立てること（MUST）')

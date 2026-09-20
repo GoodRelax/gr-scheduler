@@ -141,7 +141,7 @@ const accepted = (result: EditResult): Task => {
   return found
 }
 
-const pressed = (task: Task): EditResult => editTask(documentWith(task), { kind: 'cycleTaskPlanActualState', uid: 1 }, DEFAULT_ROW_NAME_FIXTURE)
+const pressed = (task: Task): EditResult => editTask(documentWith(task), { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null }, DEFAULT_ROW_NAME_FIXTURE)
 
 describe('CR-376 premises read from the manuscript', () => {
   it('the default calendar works Monday to Friday, S-129 is 1, and the chosen days fall as named', () => {
@@ -163,20 +163,22 @@ describe('CR-376 premises read from the manuscript', () => {
   })
 })
 
-describe('T-021a PV-1: not started -> finished', () => {
-  it('writes actualFinish on the floor day (actualStart itself when S-129 is 1) and leaves stop empty', () => {
+describe('T-021a PV-1: not started -> in progress', () => {
+  // WHY: CR-430 lengthened the cycle, so `PV-1` writes the floor day to `stop`
+  // and leaves `actualFinish` to `PV-2`; the day stays a date, never moved on.
+  it('writes stop on the floor day (actualStart itself when S-129 is 1) and leaves actualFinish empty', () => {
     const task = accepted(pressed(taskOf({ start: stored(ymd(9)) })))
     expect(dayPart(task.actualStart)).toBe(ymd(9))
-    expect(dayPart(task.actualFinish)).toBe(ymd(9))
-    expect(task.stop).toBeNull()
-    expect(task.resumeValid).toBe(false)
+    expect(dayPart(task.stop)).toBe(ymd(9))
+    expect(task.actualFinish).toBeNull()
+    expect(task.resumeValid).toBe(true)
   })
 
-  it('on a Saturday plan start the finish day is that Saturday, not the next worked day', () => {
+  it('on a Saturday plan start the stop day is that Saturday, not the next worked day', () => {
     const task = accepted(pressed(taskOf({ start: stored(ymd(10)) })))
     expect(dayPart(task.actualStart)).toBe(ymd(10))
-    expect(dayPart(task.actualFinish)).toBe(ymd(10))
-    expect(task.stop).toBeNull()
+    expect(dayPart(task.stop)).toBe(ymd(10))
+    expect(task.actualFinish).toBeNull()
   })
 })
 
@@ -228,10 +230,10 @@ describe('T-021a PV-2 / PV-3: the last day moves between stop and actualFinish i
   })
 })
 
-describe('T-023d GR-17 via FR-043: the released day is stored as stop', () => {
+describe('T-023d GA-6 via FR-043: the released day is stored as stop', () => {
   const notStarted = (): Document => documentWith(taskOf({ start: stored(ymd(12)) }))
   const released = (iso: string): EditResult =>
-    editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-17', droppedDay: stored(iso) }, DEFAULT_ROW_NAME_FIXTURE)
+    editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-6', droppedDay: stored(iso) }, DEFAULT_ROW_NAME_FIXTURE)
 
   it('released on Saturday the 17th: stop is that Saturday, not Friday 16 nor Monday 19', () => {
     const task = accepted(released(ymd(17)))

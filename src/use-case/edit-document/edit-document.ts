@@ -14,7 +14,10 @@ export type {
   TaskShapeKind,
   PlanActualPlacement,
   ActualGrabHold,
+  CycleSurroundings,
+  CycledPlanActual,
 } from './edit-task'
+export { cycleTaskPlanActualState } from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export type { DependencyCommand, DependencyEdge } from './edit-dependency'
 export type { AnnotationCommand, AnnotationAnchor, HighlightRange } from './edit-annotation'

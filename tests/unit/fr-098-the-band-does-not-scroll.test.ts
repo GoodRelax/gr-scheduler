@@ -28,7 +28,7 @@
 // The user's ruling, verbatim: 「特別な対応は要らない。ピンが多すぎてスクロール
 // できなくなったら、ユーザーが自分でピンを抜く」.
 //
-// FR-098 USED TO SAY 「ピン止めした行が画面に収まらないときは、ピン止めした行の
+// FR-098 USED TO SAY CR-115 「ピン止めした行が画面に収まらないときは、ピン止めした行の
 // 並びを縦にスクロールできるようにすること（MUST）」. ⛔ THAT MUST IS GONE. No case
 // in this file asks the band to scroll, and the premise block below FAILS if the
 // sentence ever comes back -- a test that held a withdrawn clause would be worse
@@ -64,7 +64,7 @@
 //   `FR-098`  「ピン止めした行どうしに優劣を設けてはならない（MUST NOT）—— 固定した
 //             順に上から並べる」 -- UNTOUCHED, and what makes the surviving rows a
 //             PREFIX of the pin order rather than any subset of the same size.
-//   `FR-098`  「⛔ 帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなく
+//   `FR-098`  CR-363 「⛔ 帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなく
 //             なってはならない（MUST NOT）」 -- UNTOUCHED. ⭐ THE FIXTURE IS BUILT
 //             SO IT IS NOT BREACHED: the pinned rows are tall and the rest are
 //             natural height, so the cut band always leaves room for a scrolling
@@ -486,7 +486,7 @@ describe('the manuscript still says what these cases read', () => {
 
     // ⭐ AND THE FIXTURE STAYS CLEAR OF THE UNTOUCHED MUST NOT: even cut down to
     // the two tall rows that do fit, the remainder still holds a natural row, so
-    // 「帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなっては
+    // DFC-306 「帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなっては
     // ならない」 is never the thing these cases are asking to be broken.
     expect(
       bandHeightOf(2) + ROW_GAP + NATURAL_HEIGHT,
@@ -677,7 +677,7 @@ describe('FR-098 -- ユーザーが自分でピンを抜く, and the scrolling r
   })
 
   it('⭐ and the scrolling rows below keep their room throughout -- the band never fills the area', () => {
-    // 「⛔ 帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなっては
+    // CR-363 「⛔ 帯が `Row Area` を埋め尽くし、スクロールする行が 1 行も描けなくなっては
     //   ならない（MUST NOT）」 -- UNTOUCHED by the ruling. ⭐ This case is here so the
     //   block above cannot be read as licence to let a cut band swallow the region.
     const drawn = draw(documentOf(TALL), { pinnedGroupIds: [...PINS] })

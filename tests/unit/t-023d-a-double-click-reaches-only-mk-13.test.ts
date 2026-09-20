@@ -22,11 +22,11 @@
 // ⚠️⚠️ MEASURED ON THE SHIPPED BUILD 2026-09-10, 1920 × 1080, with FR-102's
 // record (IC-76) read for the `done` line after each `in.pointer down`. One
 // double click on the ダミーの印 of an unstarted Task, at the point the app
-// itself answered `grab=GR-17` for:
+// itself answered `grab=GA-6` for:
 //       up  clicks=1  ->  act=changeDocument  doc=changed
 //       up  clicks=2  ->  act=editInPlace     doc=same
 // The dummy count went 1 -> 0 and an actual bar 0px wide appeared where the
-// mark had stood -- GR-17's arm counting a length from a drag of nothing.
+// mark had stood -- GA-6's arm counting a length from a drag of nothing.
 // ⭐ The control was measured the same way: the same mark DRAGGED eight
 // mark-widths still wrote a 48px actual, which is FR-043 working as written.
 //
@@ -36,8 +36,8 @@
 //
 //   表 T-023d の結び  the two clauses quoted verbatim on their own lines below
 //   表 T-023   MK-13  the 対象 list a double click has a destination for
-//   表 T-023d  GR-5 / GR-6 / GR-9 / GR-12 / GR-15 / GR-17 / GR-18  those rows
-//   表 T-023d  GR-3 / GR-4 / GR-7  rows MK-13 names NO destination for, which
+//   表 T-023d  GA-3 / GA-4 / GA-5 / GA-9 / GA-16 / GA-6 / GA-17  those rows
+//   表 T-023d  GA-1 / GA-2 / GA-18  rows MK-13 names NO destination for, which
 //              therefore keep the table's order for every press -- the control
 //   FR-001 / FR-019  「`S-208` を超えて動いたときをドラッグとし、超えないときを
 //              クリックとすること（MUST）」, the one distance that tells the two
@@ -154,7 +154,7 @@ const TASK = taskOf({ uid: 1, name: 'ab', start: '2026-01-05', finish: '2026-02-
 /**
  * A Task that HAS an actual, for the three rows that move one.
  *
- * ⚠️ THE ENDS NEED SOMETHING TO MOVE. GR-5 / GR-6 / GR-15 write through
+ * ⚠️ THE ENDS NEED SOMETHING TO MOVE. GA-3 / GA-4 / GA-16 write through
  * `actualEndPlacement`, which answers nothing for a Task carrying no actual --
  * so a control built on the unstarted Task alone would read 「no write」 for a
  * reason that has nothing to do with the guard it is measuring.
@@ -239,7 +239,7 @@ const pointerOf = (
  * asked about the Task that has one; every other row is asked about the
  * unstarted Task the dummies belong to.
  */
-const ACTUAL_END_ROWS: readonly string[] = ['GR-5', 'GR-6', 'GR-15']
+const ACTUAL_END_ROWS: readonly string[] = ['GA-3', 'GA-4', 'GA-16']
 
 const taskHitOn = (grab: string): Hit =>
   ({
@@ -273,24 +273,27 @@ const PROBE = { x: Math.round(REGIONS.rowArea.x + REGIONS.rowArea.width / 2), y:
 const S_208 = NOT_STORED_ROW_GRAB_SIZES['S-208']
 
 /**
- * The rows of table T-023d that MK-13 gives a double click a destination for
+ * The rows of table T-266 that MK-13 gives a double click a destination for
  * AND that carry a plain-press write.
  *
+ * ⚠️ READ OFF TABLE T-266 SINCE CR-430: the schedule shapes' grab margins left
+ * table T-023d for `FR-104`'s own table; T-023d keeps the rows that are not
+ * schedule shapes.
  * ⛔ GR-10 / GR-11 ARE ABSENT ON PURPOSE: the closing rule keeps a
  * double-click-only row out of a plain press entirely, so there is no
  * plain-press write of theirs for these cases to be about. 行見出し is absent
  * because its press answers `chooseRow` and writes nothing.
  */
-const MK_13_ROWS = ['GR-5', 'GR-6', 'GR-9', 'GR-12', 'GR-15', 'GR-17', 'GR-18'] as const
+const MK_13_ROWS = ['GA-3', 'GA-4', 'GA-5', 'GA-9', 'GA-16', 'GA-6', 'GA-17'] as const
 
 /** Rows MK-13 names NO destination for: the table's order rules them always. */
-const NOT_MK_13_ROWS = ['GR-3', 'GR-4', 'GR-7'] as const
+const NOT_MK_13_ROWS = ['GA-1', 'GA-2', 'GA-18'] as const
 
 // ---------------------------------------------------------------------------
 
 describe('the fixture and the rosters these cases stand on', () => {
-  it('names only rows table T-023d actually prints', () => {
-    const printed = specTable('T-023d').rows.map((row) => row.id)
+  it('names only rows table T-266 actually prints', () => {
+    const printed = specTable('T-266').rows.map((row) => row.id)
     for (const row of MK_13_ROWS) expect(printed).toContain(row)
     for (const row of NOT_MK_13_ROWS) expect(printed).toContain(row)
     // The two lists must not overlap, or the control would prove nothing.
@@ -305,13 +308,8 @@ describe('the fixture and the rosters these cases stand on', () => {
 
 describe('表 T-023d の結び -- the double click`s destination is MK-13`s', () => {
   it('writes nothing on the FIRST click of a double click (MUST)', () => {
-    // 表 T-023d の結び（利用者の裁定 2026-09-08）:
-    // 「替え）に手が届かない。**⚠️ **これは 1 つ下の段落が `GR-9` について述べているのと同じ事故である。**⚠️⚠️ **ダブルクリックの宛先は 表 T-023 の `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」
-    //
-    // ⭐ THE FIRST CLICK IS WHAT THIS CASE IS ABOUT. It carries `clickCount` 1,
-    // which is indistinguishable from a single click at the moment it arrives
-    // -- and it does not need to be told apart: what both halves of every
-    // double click have in common is that the hand did not travel.
+    // WHY: the closing rule of table T-023d sends a double click to `MK-13` before
+    // the priority order; the first click carries `clickCount` 1 and cannot be told
     for (const row of MK_13_ROWS) {
       const answer = afterGesture(
         pointerOf('down', PROBE.x, PROBE.y, 1),
@@ -343,7 +341,7 @@ describe('表 T-023d の結び -- the double click`s destination is MK-13`s', ()
     const answer = afterGesture(
       pointerOf('down', PROBE.x, PROBE.y, 1),
       pointerOf('up', PROBE.x, PROBE.y, 1),
-      taskHitOn('GR-17'),
+      taskHitOn('GA-6'),
     )
     expect(answer.isBrowserDefaultStopped).toBe(true)
   })
@@ -354,7 +352,7 @@ describe('the controls -- what a repair that went too far would break', () => {
     // ⭐ WHAT WOULD PASS IF THE REPAIR HAD GONE THE OTHER WAY: a guard that
     // refused the write
     // outright would pass every case above and take the drag away from FR-011,
-    // FR-043 and GR-15 alike. The travel is `S-208` + 1px, the smallest that
+    // FR-043 and GA-16 alike. The travel is `S-208` + 1px, the smallest that
     // 「`S-208` を超えて動いた」 admits.
     for (const row of MK_13_ROWS) {
       const answer = afterGesture(
@@ -372,16 +370,14 @@ describe('the controls -- what a repair that went too far would break', () => {
     const answer = afterGesture(
       pointerOf('down', PROBE.x, PROBE.y, 1),
       pointerOf('up', PROBE.x + S_208, PROBE.y, 1),
-      taskHitOn('GR-17'),
+      taskHitOn('GA-6'),
     )
     expect(kindsOf(answer)).toEqual([])
   })
 
   it('rows MK-13 names no destination for keep the table`s order for a plain press', () => {
-    // ⭐ 「素の押下の順は 1 文字も変わらない」. GR-3 / GR-4 are the PLAN bar's
-    // ends and GR-7 is the marker, whose cycle FR-013 makes one step per
-    // release whatever the distance -- none of the three is on MK-13's 対象
-    // list, so none of them may be quieted by the guard the cases above ask for.
+    // WHY: a plain press keeps the table's order. GA-1 / GA-2 are the plan bar's
+    // ends and GA-18 the marker, and MK-13 names none of the three.
     for (const row of NOT_MK_13_ROWS) {
       const answer = afterGesture(
         pointerOf('down', PROBE.x, PROBE.y, 1),

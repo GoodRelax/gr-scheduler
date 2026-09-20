@@ -1,4 +1,4 @@
-// CR-422: the fade grab point is drawn as an S-109 half-side square (5 x 5) and pressed within S-92 (8 x 8).
+// CR-422: the fade grab point is drawn as an S-109 half-side square (5 x 5) and pressed within S-268 / S-269 (8 x 8).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -34,21 +34,22 @@ const numbersOf = (table: string, id: string, column: string): readonly number[]
 const [S_109] = numbersOf('T-210', 'S-109', '値')
 const [S_109_FLOOR] = numbersOf('T-210', 'S-109', '下限')
 const [S_110] = numbersOf('T-210', 'S-110', '値')
-const [S_92_WIDE, S_92_TALL] = numbersOf('T-206', 'S-92', '既定')
-const HALF_GRAB = S_92_WIDE! / 2
+const [S_268] = numbersOf('T-206', 'S-268', '既定')
+const [S_269] = numbersOf('T-206', 'S-269', '既定')
+const HALF_GRAB = S_268! / 2
 const INSIDE = HALF_GRAB - 0.1
 const OUTSIDE = HALF_GRAB + 0.1
 
 describe('tables T-210 / T-206 -- the values CR-422 moved', () => {
-  it('holds S-109 at 2.5 with its floor at 2.5, S-110 at 1.0, and S-92 at 8 x 8', () => {
+  it('holds S-109 at 2.5 with its floor at 2.5, S-110 at 1.0, and S-268 / S-269 at 8 x 8', () => {
     expect(S_109).toBe(2.5)
     expect(S_109_FLOOR).toBe(2.5)
     expect(S_110).toBe(1)
-    expect([S_92_WIDE, S_92_TALL]).toEqual([8, 8])
+    expect([S_268, S_269]).toEqual([8, 8])
   })
 
   it('keeps the grab wider than the drawn point', () => {
-    expect(S_92_WIDE!).toBeGreaterThan(S_109! * 2)
+    expect(S_268!).toBeGreaterThan(S_109! * 2)
   })
 
   it('generates the stored fade-handle defaults the manuscript prints', () => {
@@ -56,8 +57,8 @@ describe('tables T-210 / T-206 -- the values CR-422 moved', () => {
     expect(SETTINGS_DEFAULTS['fadeHandleStrokePx']).toBe(S_110)
   })
 
-  it('hands the hit test half of S-92 through grabSizesOf', () => {
-    expect(grabSizesOf().fadeHandle).toBe(HALF_GRAB)
+  it('hands the hit test half of S-268 through grabSizesOf', () => {
+    expect(grabSizesOf()['S-268'] / 2).toBe(HALF_GRAB)
   })
 })
 
@@ -155,13 +156,13 @@ describe('S-109 / S-110 -- the drawn fade grab points of the selected Task', () 
   )
 })
 
-describe('S-92 -- a press within 4px of a point takes its fade, and 4.1px does not', () => {
+describe('S-268 / S-269 -- a press within 4px of a point takes its fade, and 4.1px does not', () => {
   const { geometry } = sceneAt(DEFAULT_DISPLAY_SCALE)
   const points = geometry.tasks[0]?.fadeHandles ?? []
   const grabAt = (x: number, y: number) => itemAtPointer(geometry, x, y, grabSizesOf())?.grab ?? null
 
-  it('premise: each point centre is taken as GR-1 or GR-2', () => {
-    expect(new Set(points.map((point) => grabAt(point.x, point.y)))).toEqual(new Set(['GR-1', 'GR-2']))
+  it('premise: each point centre is taken as GA-7 or GA-8', () => {
+    expect(new Set(points.map((point) => grabAt(point.x, point.y)))).toEqual(new Set(['GA-7', 'GA-8']))
   })
 
   it.each([

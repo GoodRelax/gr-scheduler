@@ -2055,7 +2055,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // ⭐ THE WHOLE OF DFC-173 SAID AS ONE RULE. 「⛔⛔ **書き出しの 5 形式のうち 3
     //   つは、押しても何も保存されない** …… **ファイルも通知も 0 件で戻る。**」
     // ⚠️ 「**選択面には 5 つとも並んでおり、押せる** —— 「効かない入口」ではなく
-    //   「効いたように見えて何も起きない入口」である。」 FR-029's RATIONALE names
+    //   DFC-173 「効いたように見えて何も起きない入口」である。」 FR-029's RATIONALE names
     // that outcome in its first sentence: a press that changes nothing and says
     // nothing is indistinguishable from a broken one.
     //

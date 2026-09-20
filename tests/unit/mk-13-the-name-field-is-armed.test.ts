@@ -36,7 +36,7 @@
 //                  除いて編集できるようにすること」／「入力の形は同表の「入力の型」
 //                  の欄に従うこと（MUST）」 -- why the name is a control a person
 //                  can type in at all.
-//   `FR-072`       「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」 -- the
+//   `FR-072`       CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである」 -- the
 //                  entrance whose second half this is.
 //   `SK-19`        「その場の編集を確定する」 -- what a person presses when the
 //                  typing is done. ⚠️ Not driven here:

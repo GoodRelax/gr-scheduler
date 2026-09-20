@@ -412,6 +412,14 @@
    }
   },
   {
+   "prefix": "GA",
+   "words": "Grab Area",
+   "owner": "spec",
+   "means": {
+    "ja": "操作対象ごとの掴み代の幾何"
+   }
+  },
+  {
    "prefix": "GD",
    "words": "Guide",
    "owner": "spec",
@@ -433,14 +441,6 @@
    "owner": "spec",
    "means": {
     "ja": "掴み領域 1 つと、その優先順位の段"
-   }
-  },
-  {
-   "prefix": "GS",
-   "words": "Grab Split",
-   "owner": "spec",
-   "means": {
-    "ja": "上下に隣り合うタスクの掴み代が縦に重なるときの分け方"
    }
   },
   {
@@ -481,6 +481,14 @@
    "owner": "spec",
    "means": {
     "ja": "階層の操作（展開・畳み・隠し）の種別"
+   }
+  },
+  {
+   "prefix": "HT",
+   "words": "Hit Test",
+   "owner": "spec",
+   "means": {
+    "ja": "応える掴み代を 1 つに決める手順（1〜4）"
    }
   },
   {
@@ -610,6 +618,14 @@
    }
   },
   {
+   "prefix": "LP",
+   "words": "Label Placement",
+   "owner": "spec",
+   "means": {
+    "ja": "札（マーカー・名前・担当と進捗）の配置"
+   }
+  },
+  {
    "prefix": "LR",
    "words": "Layer Rule",
    "owner": "spec",
@@ -712,14 +728,6 @@
    }
   },
   {
-   "prefix": "NL",
-   "words": "Name Label",
-   "owner": "spec",
-   "means": {
-    "ja": "名称ラベルの配置の決定順"
-   }
-  },
-  {
    "prefix": "NR",
    "words": "",
    "owner": "spec",
@@ -787,11 +795,11 @@
    }
   },
   {
-   "prefix": "PC",
-   "words": "Pointer Cursor",
+   "prefix": "PE",
+   "words": "Press Effect",
    "owner": "spec",
    "means": {
-    "ja": "予定と実績の端点の上に出すポインタの形と、押しているあいだの形"
+    "ja": "押す・引くの効果"
    }
   },
   {
@@ -819,6 +827,14 @@
    "owner": "spec",
    "means": {
     "ja": "コンポーネントが公開するメンバの組"
+   }
+  },
+  {
+   "prefix": "PK",
+   "words": "Pointer Kind",
+   "owner": "spec",
+   "means": {
+    "ja": "ポインタの形"
    }
   },
   {
@@ -915,6 +931,14 @@
    "owner": "spec",
    "means": {
     "ja": "文書をまるごと差し替えるときの、呼び手ごとの扱い"
+   }
+  },
+  {
+   "prefix": "RF",
+   "words": "Reference",
+   "owner": "spec",
+   "means": {
+    "ja": "札が付く基準（実績 ／ ダミー ／ 予定）"
    }
   },
   {
@@ -1079,14 +1103,6 @@
    }
   },
   {
-   "prefix": "TE",
-   "words": "",
-   "owner": "spec",
-   "means": {
-    "ja": "実績の端点を掴み分ける規則の条"
-   }
-  },
-  {
    "prefix": "TM",
    "words": "",
    "owner": "spec",
@@ -1133,6 +1149,14 @@
    "owner": "spec",
    "means": {
     "ja": "章ごとのテストの方針と合格基準"
+   }
+  },
+  {
+   "prefix": "TY",
+   "words": "Type",
+   "owner": "spec",
+   "means": {
+    "ja": "同じ手順の中で、種別の掴み代が応える順"
    }
   },
   {
@@ -1248,6 +1272,14 @@
    "owner": "spec",
    "means": {
     "ja": "本製品が持たないもの"
+   }
+  },
+  {
+   "prefix": "XS",
+   "words": "Cross Section",
+   "owner": "spec",
+   "means": {
+    "ja": "形ごとの縦の断面（帯の位置と高さ）"
    }
   },
   {

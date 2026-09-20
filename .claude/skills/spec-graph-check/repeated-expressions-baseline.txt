@@ -1,4 +1,8 @@
-88
+89
+# RAISED 88 -> 89 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): CR-430 left one
+# copy that cannot be folded without publishing a name across the component boundary
+# (isThinShape in schedule-geometry.ts and laidBelow in schedule-layout.ts), which needs a row
+# of table T-064. Fold it in the next round.
 #
 # LOWERED 90 -> 88 on 2026-09-20, with the user's approval ("③ 数え直してから下げてよい", JDG-271):
 # CR-429 replaced mspdi-codec.ts's hand-written child order with the generated table and

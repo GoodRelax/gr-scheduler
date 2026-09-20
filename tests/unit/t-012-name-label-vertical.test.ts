@@ -40,13 +40,11 @@ import {
   type ScreenEnvironment,
   type ScreenRect,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { specTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 
 const S_196_FROM_PI_5 = Number(
   ((scheduleLayout as Record<string, unknown>)['NOT_STORED_LABEL_SIZES'] as Record<string, number> | undefined)?.['S-196'],
 )
-const S_233 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id === 'S-233')?.by['既定'] ?? 'NaN')
 
 // see FR-039, T-252
 const DRAWN_RATIO = displayRatioAt(DEFAULT_DISPLAY_SCALE)
@@ -217,12 +215,16 @@ const strokeTopOf = (bar: BarGeometry | null): number => {
 const centreOf = (box: ScreenRect): number => box.y + box.height / 2
 const bottomOf = (box: ScreenRect): number => box.y + box.height
 
-// see T-038, T-206, T-252
-const countedCentreOf = (placed: TaskPlacement, drawn: TaskGeometry): number =>
-  extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO - (placed.labelFontSize * S_233) / 2
+// see OC-10, XS-5
+const countedBottomOf = (drawn: TaskGeometry): number =>
+  strokeTopOf(drawn.plan) - S_196_FROM_PI_5 * DRAWN_RATIO
 
-// A name of two half-width units, which NL-1 of table T-013 keeps inside a bar
-// this long at either type size, and one of 40 units, which NL-3 pushes out to
+// see OC-10, XS-4
+const countedCentreOf = (placed: TaskPlacement, drawn: TaskGeometry): number =>
+  countedBottomOf(drawn) - placed.labelFontSize / 2
+
+// A name of two half-width units, which table T-273's 「入る」 keeps inside a bar
+// this long at either type size, and one of 40 units, which 「入らない」 pushes out to
 // the right. ⚠️ 40 is under `truncateUnits` (S-35, raised to 全角 24 = 半角 48
 // by CR-283), so LC-4 leaves this one whole.
 const SHORT_NAME = 'ab'
@@ -325,16 +327,16 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
       [{ taskUid: 1, shapeKind }],
     )
 
-  it('SH-3 centres the label in the counted height, whose bottom is S-196 above the top edge of the plan SHAPE', () => {
+  it('SH-3 centres the label in the counted height, whose bottom is S-196 above the upper edge of the plan LINE', () => {
     const { placed, drawn, label } = drawnOf(shaped('arrow'))
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(countedBottomOf(drawn) + 1e-9)
   })
 
   it('SH-4 does the same, its two end dots being the only difference', () => {
     const { placed, drawn, label } = drawnOf(shaped('endpointSpan'))
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(countedBottomOf(drawn) + 1e-9)
   })
 
   it('SH-3 leaves the whole label above BOTH lines, which is what the column is for', () => {
@@ -386,67 +388,77 @@ describe('table T-012 -- a line-only shape lifts the label clear of both lines',
 // The second paragraph under T-012: the horizontal answer does not move.
 // ---------------------------------------------------------------------------
 
-describe('table T-012 -- the vertical rule leaves table T-013 alone', () => {
-  const named = (shapeKind: string, days: number, name: string): Schedule =>
+describe('table T-012 -- the vertical rule leaves table T-273 alone', () => {
+  const named = (shapeKind: string, days: number, name: string, actualDays = 3): Schedule =>
     withVisuals(
-      [spanning(1, '2026-01-01', days, { name, actualStart: '2026-01-04', stop: '2026-01-06' })],
+      [
+        spanning(1, '2026-01-01', days, {
+          name,
+          actualStart: '2026-01-01',
+          stop: `2026-01-${String(actualDays).padStart(2, '0')}`,
+        }),
+      ],
       [{ taskUid: 1, shapeKind }],
     )
 
-  it('NL-1 still answers inside for the lifted shapes as much as for the centred ones', () => {
-    // ⛔ The paragraph under T-012 states (MUST NOT) that the rule does not
-    // change the horizontal placement table T-013 decides. FR-002 evaluates
-    // T-013 in printed order and NL-1 holds here for all four: the cut label is
-    // far narrower than a 20-day bar at either type size.
-    for (const shapeKind of ['rectangle', 'chevron', 'arrow', 'endpointSpan']) {
-      const { placed } = drawnOf(named(shapeKind, 20, SHORT_NAME))
+  // ⛔ 本規則は横の置き場所（`FR-109` の 表 T-273）を変えない（MUST NOT）
+  const LIFTED = ['arrow', 'endpointSpan'] as const
+  const CENTRED = ['rectangle', 'chevron'] as const
+
+  it('「入る」 still answers inside for the lifted shapes as much as for the centred ones', () => {
+    // A 20-day actual holds the marker, S-32 and a two-unit name with S-260 to
+    // spare, so LP-1 / LP-3 answer 「入る」 for the shapes the column judges, and
+    // LP-5 / LP-6 leave the lifted pair inside whatever its width.
+    for (const shapeKind of [...CENTRED, ...LIFTED]) {
+      const { placed } = drawnOf(named(shapeKind, 20, SHORT_NAME, 20))
       expect(placed.labelPlacement, shapeKind).toBe('inside')
     }
   })
 
-  it('NL-3 still answers right for every one of them', () => {
-    // 40 units cut to S-35's 24 are wider than a 10-day bar at either type
-    // size, so NL-3 is the first row that holds -- for the lifted shapes as
-    // much as for the centred ones. ⚠️ 10 days is 60px, clear of S-86's 24px,
-    // so FR-018 is not what is being measured here.
-    for (const shapeKind of ['rectangle', 'chevron', 'arrow', 'endpointSpan']) {
+  it('「入らない」 answers right for the shapes the column judges, and LP-5 / LP-6 ask nothing of the lifted ones', () => {
+    // 40 units are wider than a 3-day actual at either type size, so LP-2 / LP-4
+    // hold for the centred pair. ⭐ LP-5 / LP-6 print （問わない）in the 入る
+    // column, so the lifted pair never leaves its reference start.
+    for (const shapeKind of CENTRED) {
       const { placed } = drawnOf(named(shapeKind, 10, LONG_NAME))
       expect(placed.labelPlacement, shapeKind).toBe('right')
     }
+    for (const shapeKind of LIFTED) {
+      const { placed } = drawnOf(named(shapeKind, 10, LONG_NAME))
+      expect(placed.labelPlacement, shapeKind).toBe('inside')
+    }
   })
 
-  it('NL-1 with SH-3 writes the label INSIDE the width and STILL lifts it', () => {
-    // ⚠️ The case the paragraph names in as many words: when NL-1 holds for
-    // SH-3 or SH-4 the label still moves above the shape, because a line has no
-    // "inside" and NL-1's "written inside the shape" then means the horizontal
-    // fit alone. So both answers hold at once -- inside across, lifted down.
-    const { placed, drawn, label } = drawnOf(named('arrow', 20, SHORT_NAME))
+  it('「入る」 with SH-3 writes the label INSIDE the width and STILL lifts it', () => {
+    // ⚠️ Both answers hold at once -- inside across, lifted down.
+    const { placed, drawn, label } = drawnOf(named('arrow', 20, SHORT_NAME, 20))
     expect(placed.labelPlacement).toBe('inside')
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(countedBottomOf(drawn) + 1e-9)
   })
 
-  it('NL-1 with SH-4 does the same', () => {
-    const { placed, drawn, label } = drawnOf(named('endpointSpan', 20, SHORT_NAME))
+  it('「入る」 with SH-4 does the same', () => {
+    const { placed, drawn, label } = drawnOf(named('endpointSpan', 20, SHORT_NAME, 20))
     expect(placed.labelPlacement).toBe('inside')
     expect(label.x).toBeGreaterThanOrEqual(placed.x)
     expect(label.x + label.width).toBeLessThanOrEqual(placed.x + placed.width)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(countedBottomOf(drawn) + 1e-9)
   })
 
-  it('NL-3 with SH-3 still starts the box at the plan start, and still lifts it', () => {
-    // ⭐ 表 T-012 の `SH-3` / `SH-4` の名称ラベルには本表を当てず、名称ラベルの箱の左端を
-    // 予定の開始点（`start` の位置）とすること（MUST） -- so NL-3 moves no box edge.
+  it('a name too wide for the reference still starts an SH-3 label at the reference start, and still lifts it', () => {
+    // ⭐ `SH-3` / `SH-4` の名称ラベルは基準の開始から書く —— 規則は `FR-109` の
+    // 表 T-273 の `LP-5` / `LP-6` が持つ。
     const { placed, drawn, label } = drawnOf(named('arrow', 10, LONG_NAME))
-    expect(placed.labelPlacement).toBe('right')
+    expect(placed.labelPlacement).toBe('inside')
+    expect(placed.actualX, 'premise: RF-1 makes the actual the reference').not.toBeNull()
     expect(
       label.x,
-      '名称ラベルの箱の左端を予定の開始点（`start` の位置）とすること（MUST）',
-    ).toBeCloseTo(placed.x, 6)
+      '`SH-3` / `SH-4` の名称ラベルは基準の開始から書く（`LP-5` / `LP-6`）',
+    ).toBeGreaterThanOrEqual(placed.actualX! - 1e-9)
     expect(centreOf(label)).toBeCloseTo(countedCentreOf(placed, drawn), 6)
-    expect(bottomOf(label)).toBeLessThanOrEqual(extentOf(drawn.plan)!.top - S_196_FROM_PI_5 * DRAWN_RATIO + 1e-9)
+    expect(bottomOf(label)).toBeLessThanOrEqual(countedBottomOf(drawn) + 1e-9)
   })
 })

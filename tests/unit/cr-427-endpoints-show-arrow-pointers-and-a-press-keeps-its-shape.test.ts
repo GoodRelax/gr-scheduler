@@ -1,4 +1,4 @@
-// CR-427: the four end points show T-264 arrow images of S-249 px with a centre hotspot, falling back to ew-resize.
+// CR-427: the four end points show T-269 arrow images of S-249 px with a centre hotspot, falling back to ew-resize.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -21,17 +21,18 @@ import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const PC_5_SQUARE =
-  '矢印は、`_assets/tbl-settings.md` の 表 T-206 の `S-249` を一辺とする正方形に、矢じりと軸で描くこと（MUST）'
-const PC_5_COLOURS =
-  '白抜きは白（`#ffffff`）の塗りと黒（`#000000`）の輪郭、塗りつぶしは黒の塗りと白の輪郭とすること（MUST）'
-const PC_5_HOTSPOT = '⭐ ホットスポット（ポインタが指す点）を正方形の中心に置くこと（MUST）'
-const PC_6_FALLBACK =
-  '閲覧環境が画像のポインタを描けないときは、横方向の伸縮の合図（`ew-resize`）とすること（MUST）'
-const T_264_NO_DISPLAY_SCALE = '⛔ 矢印の画像に表示の倍率（`FR-039`）を掛けてはならない（MUST NOT）'
+const PK_1_SQUARE =
+  '| PK-1 | 箱の矢印 白 | 幅の広い箱型の矢印（← ／ →） | 白 ／ 黒 | 丸め | 一辺 `S-249` | 中心 |'
+const PK_2_SQUARE =
+  '| PK-2 | 箱の矢印 黒 | 幅の広い箱型の矢印（← ／ →） | 黒 ／ 白 | 丸め | 一辺 `S-249` | 中心 |'
+const FR_106_COLOURS =
+  '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
+const FR_106_FALLBACK =
+  '⭐ 画像のポインタを描けない環境では、動く向きを示す環境の形に替えること（MUST）'
+const FR_106_NO_DISPLAY_SCALE = '⛔ ポインタの画像に表示の倍率を掛けてはならない（MUST NOT）'
 
 describe('CR-427 -- the manuscript these cases are driven by', () => {
-  it.each([PC_5_SQUARE, PC_5_COLOURS, PC_5_HOTSPOT, PC_6_FALLBACK, T_264_NO_DISPLAY_SCALE])(
+  it.each([PK_1_SQUARE, PK_2_SQUARE, FR_106_COLOURS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
     'still says it, word for word: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -47,7 +48,7 @@ const S_249 = ((): number => {
 
 describe('table T-206 S-249', () => {
   it('is a 24px square', () => {
-    expect(S_249).toBe(24)
+    expect(S_249).toBe(16)
   })
 })
 
@@ -189,8 +190,8 @@ const benchAt = (displayScale: number): Bench => {
   }
 }
 
-// see T-023d, GR-3, GR-4, GR-5, GR-6
-const endsOf = (loop: FrameLoop): Readonly<Record<'PC-1' | 'PC-2' | 'PC-3' | 'PC-4', Point>> => {
+// see T-023d, GA-1, GA-2, GA-3, GA-4
+const endsOf = (loop: FrameLoop): Readonly<Record<'GA-1' | 'GA-2' | 'GA-3' | 'GA-4', Point>> => {
   const drawn = loop.current()?.geometry.tasks.find((one) => one.taskUid === BAR_UID)
   if (drawn === undefined) throw new Error('the bar Task is not drawn')
   const boxOf = (bar: BarGeometry | null) => {
@@ -203,10 +204,10 @@ const endsOf = (loop: FrameLoop): Readonly<Record<'PC-1' | 'PC-2' | 'PC-3' | 'PC
   const plan = boxOf(drawn.plan)
   const actual = boxOf(drawn.actual)
   return {
-    'PC-1': { x: plan.left - 1, y: plan.middle },
-    'PC-2': { x: plan.right + 1, y: plan.middle },
-    'PC-3': { x: actual.left + 1, y: actual.middle },
-    'PC-4': { x: actual.right - 1, y: actual.middle },
+    'GA-1': { x: plan.left - 1, y: plan.middle },
+    'GA-2': { x: plan.right + 1, y: plan.middle },
+    'GA-3': { x: actual.left + 1, y: actual.middle },
+    'GA-4': { x: actual.right - 1, y: actual.middle },
   }
 }
 
@@ -217,7 +218,7 @@ interface Cursor {
   readonly fallback: string
 }
 
-// see PC-5, PC-6
+// see PK-1, PK-2, T-269
 const cursorOf = (written: string | null): Cursor | null => {
   if (written === null) return null
   const found = /^url\((['"]?)(data:image\/svg\+xml[^)]*?)\1\)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*,\s*([\w-]+)\s*$/.exec(
@@ -257,7 +258,7 @@ const pairsOf = (text: string): Point[] => {
   return out
 }
 
-// see PC-5
+// see PK-1, PK-2
 // WHY: H and V carry one number each, so reading a path as bare number pairs misplaces every later point.
 const pathPointsOf = (d: string): Point[] => {
   const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []
@@ -304,7 +305,7 @@ const pathPointsOf = (d: string): Point[] => {
   return out
 }
 
-// see PC-5
+// see PK-1, PK-2
 // WHY: a right arrow may be the left one mirrored by a transform, which moves every point it draws.
 const transformOf = (text: string): readonly [number, number, number, number, number, number] => {
   let m: [number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0]
@@ -328,7 +329,7 @@ const transformOf = (text: string): readonly [number, number, number, number, nu
   return m
 }
 
-// see PC-1, PC-2, PC-3, PC-4, PC-5
+// see PK-1, PK-2
 const shapeOf = (svg: string): Shape => {
   const root = /<svg\b[^>]*>/.exec(svg)?.[0] ?? ''
   const width = Number(attributeOf(root, 'width') ?? Number.NaN)
@@ -355,10 +356,10 @@ const shapeOf = (svg: string): Shape => {
 }
 
 const WANTED = {
-  'PC-1': { left: true, fill: '#ffffff', stroke: '#000000' },
-  'PC-2': { left: false, fill: '#ffffff', stroke: '#000000' },
-  'PC-3': { left: true, fill: '#000000', stroke: '#ffffff' },
-  'PC-4': { left: false, fill: '#000000', stroke: '#ffffff' },
+  'GA-1': { left: true, fill: '#ffffff', stroke: '#000000' },
+  'GA-2': { left: false, fill: '#ffffff', stroke: '#000000' },
+  'GA-3': { left: true, fill: '#000000', stroke: '#ffffff' },
+  'GA-4': { left: false, fill: '#000000', stroke: '#ffffff' },
 } as const
 
 const hoverAt = (built: Bench, at: Point): string | null => {
@@ -366,38 +367,38 @@ const hoverAt = (built: Bench, at: Point): string | null => {
   return built.latest()
 }
 
-describe('T-264 -- the image each end shows', () => {
+describe('T-269 -- the image each end shows', () => {
   it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(
-    `%s: an S-249 square image with a centre hotspot: ${PC_5_SQUARE}`,
+    `%s: an S-249 square image with a centre hotspot: ${PK_1_SQUARE}`,
     (row) => {
       const built = benchAt(DEFAULT_DISPLAY_SCALE)
       const written = hoverAt(built, endsOf(built.loop)[row])
       const cursor = cursorOf(written)
       expect(cursor, `${row}: ${written}`).not.toBeNull()
-      expect(shapeOf(cursor!.svg).side, `${row}: ${PC_5_SQUARE}`).toBe(S_249)
-      expect([cursor!.hotspotX, cursor!.hotspotY], `${row}: ${PC_5_HOTSPOT}`).toEqual([S_249 / 2, S_249 / 2])
+      expect(shapeOf(cursor!.svg).side, `${row}: ${PK_1_SQUARE}`).toBe(S_249)
+      expect([cursor!.hotspotX, cursor!.hotspotY], `${row}: ${PK_2_SQUARE}`).toEqual([S_249 / 2, S_249 / 2])
     },
   )
 
-  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: the direction and the paint: ${PC_5_COLOURS}`, (row) => {
+  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: the direction and the paint: ${FR_106_COLOURS}`, (row) => {
     const built = benchAt(DEFAULT_DISPLAY_SCALE)
     const cursor = cursorOf(hoverAt(built, endsOf(built.loop)[row]))
     expect(cursor, row).not.toBeNull()
     const shape = shapeOf(cursor!.svg)
     expect(shape.pointsLeft, `${row} points ${WANTED[row].left ? 'left' : 'right'}`).toBe(WANTED[row].left)
-    expect(new Set(shape.fills), `${row}: ${PC_5_COLOURS}`).toEqual(new Set([WANTED[row].fill]))
-    expect(new Set(shape.strokes), `${row}: ${PC_5_COLOURS}`).toEqual(new Set([WANTED[row].stroke]))
+    expect(new Set(shape.fills), `${row}: ${FR_106_COLOURS}`).toEqual(new Set([WANTED[row].fill]))
+    expect(new Set(shape.strokes), `${row}: ${FR_106_COLOURS}`).toEqual(new Set([WANTED[row].stroke]))
   })
 
-  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: ends with ew-resize: ${PC_6_FALLBACK}`, (row) => {
+  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: ends with ew-resize: ${FR_106_FALLBACK}`, (row) => {
     const built = benchAt(DEFAULT_DISPLAY_SCALE)
     const cursor = cursorOf(hoverAt(built, endsOf(built.loop)[row]))
     expect(cursor, row).not.toBeNull()
-    expect(cursor!.fallback, `${row}: ${PC_6_FALLBACK}`).toBe('ew-resize')
+    expect(cursor!.fallback, `${row}: ${FR_106_FALLBACK}`).toBe('ew-resize')
   })
 })
 
-describe(`T-264 (MUST NOT) -- ${T_264_NO_DISPLAY_SCALE}`, () => {
+describe(`FR-106 (MUST NOT) -- ${FR_106_NO_DISPLAY_SCALE}`, () => {
   it.each([DISPLAY_SCALE_STEPS[0]!, DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!])(
     'keeps the image S-249 wide and the hotspot at its centre at display scale %s',
     (scale) => {
@@ -405,14 +406,14 @@ describe(`T-264 (MUST NOT) -- ${T_264_NO_DISPLAY_SCALE}`, () => {
       for (const row of Object.keys(WANTED) as (keyof typeof WANTED)[]) {
         const cursor = cursorOf(hoverAt(built, endsOf(built.loop)[row]))
         expect(cursor, `${row} at ${scale}`).not.toBeNull()
-        expect(shapeOf(cursor!.svg).side, `${row} at ${scale}: ${T_264_NO_DISPLAY_SCALE}`).toBe(S_249)
-        expect(cursor!.hotspotX, `${row} at ${scale}: ${T_264_NO_DISPLAY_SCALE}`).toBe(S_249 / 2)
+        expect(shapeOf(cursor!.svg).side, `${row} at ${scale}: ${FR_106_NO_DISPLAY_SCALE}`).toBe(S_249)
+        expect(cursor!.hotspotX, `${row} at ${scale}: ${FR_106_NO_DISPLAY_SCALE}`).toBe(S_249 / 2)
       }
     },
   )
 })
 
 describe('CR-427 section 9 -- what the change request leaves open', () => {
-  it.skip('milestone figures and the fade corners (GR-1 / GR-2) keep their own shapes -- open: CR-427 questions 1 and 2, PND-445', () => {})
+  it.skip('milestone figures and the fade corners (GA-7 / GA-8) keep their own shapes -- open: CR-427 questions 1 and 2, PND-445', () => {})
   it.skip('the 24px side is chosen again after it is seen -- open: CR-427 question 3', () => {})
 })

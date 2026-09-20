@@ -74,7 +74,7 @@ import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 // ⛔⛔ THE HOLD IS NOT A SIZE OF ITS OWN, so this file reads no hit-area row out
 // of item-hit-area.ts. Table T-023d's closing rule makes the dummies' hit area
-// `FR-043`'s drawn mark itself: 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、
+// `FR-043`'s drawn mark itself: 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、
 // `FR-043` が描いた印そのものとすること（MUST）。印の外へ広げてはならない
 // （MUST NOT）」, so the mark's own width -- table T-240 DM-3's, the marker
 // diameter times S-247 capped by S-180 -- is the hold as well, read out of `NOT_STORED_DUMMY_SIZES` above,
@@ -345,13 +345,13 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
     const assigneeOnly = placedWith(true, false)
     const percentOnly = placedWith(false, true)
 
-    expect(jutOf(both)).toBeCloseTo(BASE.labelGap * DRAWN_RATIO + both.outsideLabelWidth, 6)
+    expect(jutOf(both)).toBeCloseTo(BASE.assigneeLabelGap * DRAWN_RATIO + both.outsideLabelWidth, 6)
     expect(jutOf(assigneeOnly)).toBeCloseTo(
-      BASE.labelGap * DRAWN_RATIO + assigneeOnly.outsideLabelWidth,
+      BASE.assigneeLabelGap * DRAWN_RATIO + assigneeOnly.outsideLabelWidth,
       6,
     )
     expect(jutOf(percentOnly)).toBeCloseTo(
-      BASE.labelGap * DRAWN_RATIO + percentOnly.outsideLabelWidth,
+      BASE.assigneeLabelGap * DRAWN_RATIO + percentOnly.outsideLabelWidth,
       6,
     )
     // ⭐ Both readings ARE counted -- the card holds them and the separator, so
@@ -363,7 +363,7 @@ describe('table T-038 OC-2 -- the two labels are counted, and to the LEFT', () =
     // equalities above already fix the jut at ONE, so this states the same
     // thing the way a reader checks it: the jut of the pair is a single gap
     // past a single measured width.
-    expect(jutOf(both) - both.outsideLabelWidth).toBeCloseTo(BASE.labelGap * DRAWN_RATIO, 6)
+    expect(jutOf(both) - both.outsideLabelWidth).toBeCloseTo(BASE.assigneeLabelGap * DRAWN_RATIO, 6)
   })
 
   it('leaves the shape itself where it was -- the labels are occupancy, not geometry', () => {
@@ -475,7 +475,7 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 //     state the room as a RELATION -- the marks fall inside it, the label
 //     begins after it -- and never as a count of pixels.
 
-/** NL-3: long enough that no zoom in this fixture fits it inside the shape. */
+/** LP-2: long enough that no zoom in this fixture fits it inside the shape. */
 const OUTSIDE_NAME = 'a name far too long for this bar to hold inside itself'
 
 /**
@@ -538,7 +538,7 @@ const bandOfPoints = (what: string, points: readonly { readonly x: number }[]): 
 describe('table T-038, DFC-394 -- the order stands side by side, and the label does not move', () => {
   it('draws every one of them, or every case below proves nothing', () => {
     const { placed, drawn } = drawnWithMarks(true)
-    expect(placed.labelPlacement).toBe('right') // NL-3: the order only bites here
+    expect(placed.labelPlacement).toBe('right') // LP-2: the order only bites here
     expect(drawn.assigneeLabel).not.toBeNull() // OC-2's one card
     expect(drawn.actual).not.toBeNull() // FR-043's actual bar
     expect(drawn.marker).not.toBeNull() // OC-3
@@ -565,17 +565,17 @@ describe('table T-038, DFC-394 -- the order stands side by side, and the label d
         'FR-043 actual',
         actual.form === 'outline' ? actual.points : [actual.from, actual.to],
       ),
+      // ⛔ OC-4 IS NOT ONE OF THE FOUR. The closing text under table T-273 takes
+      // the resume icon out of the order -- but this fixture names no `resume`
+      // day, and 「⚠️ 未定のアイコンは実績のすぐ右に立つので、いつも 実績 →
+      // アイコン → マーカー → 名前 になる」, so the undated icon really does come
+      // between the actual and the marker here.
+      bandOfPoints('OC-4 resume', [...resume.arm, ...resume.head]),
       {
         what: 'OC-3 marker',
         x0: marker.centre.x - marker.radius,
         x1: marker.centre.x + marker.radius,
       },
-      // ⛔ OC-4 IS NOT ONE OF THE FOUR. The closing text under table T-038 takes
-      // the resume icon out of the order and sends it to LF-11's date position.
-      // It is measured here because THIS fixture names no `resume` day, which is
-      // the one case LF-11 itself stands the icon beside the marker -- so the
-      // reserved room is where it actually is.
-      bandOfPoints('OC-4 resume', [...resume.arm, ...resume.head]),
       { what: 'OC-1 name label', x0: label.x, x1: label.x + label.width },
     ]
     // ⭐ Stated as a chain rather than as fixed numbers: the row forbids the
@@ -684,7 +684,7 @@ describe('FR-044, DFC-400 -- the resume icon reaches the picture, not just the g
   })
 
   it('⭐ puts the drawn ink exactly where the geometry placed it', () => {
-    // ⛔ THE HALF THAT MATTERS TO A HAND. ItemHitArea takes GR-8's box -- table
+    // ⛔ THE HALF THAT MATTERS TO A HAND. ItemHitArea takes GA-20's box -- table
     // T-201's S-22 (MUST), never the figure's own outline -- about the centre
     // of `[...arm, ...head]`, so a picture drawn anywhere else
     // hands the author a grab area with no figure in it -- which is the state
@@ -712,8 +712,8 @@ describe('FR-044, DFC-400 -- the resume icon reaches the picture, not just the g
 // ---------------------------------------------------------------------------
 // DFC-400 -- a milestone's marker was drawn ON its own actual figure.
 //
-//   T-023d GR-7 (01-04-requirements.md)
-//     「| GR-7 | 進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点の
+//   T-023d GA-18 (01-04-requirements.md)
+//     「| GA-18 | 進捗マーカー | 実績バーの右端の外側。**未着手のときは終了点の
 //      掴みシロの外側、マイルストーンのときは図形の外側** |」
 //
 //   the MUST NOT under table T-038 -- 「この 4 つを重ねて描いてはならない（MUST NOT）」
@@ -802,19 +802,20 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
     // loses the second by half a figure.
     const together = milestoneScene('2026-02-02') // the plan's figure reaches furthest
     const apart = milestoneScene('2026-02-05') // the actual's does
-    // WHY: since CR-421 (1) touches the figure and (2) keeps S-23 off the plan, so the label clears the
-    // further of the two; (2) is read where the geometry stands the marker with the actual hidden.
+    // WHY: LP-7 stands ONE marker, on the reference diamond's right edge, and
+    // writes the name S-301 past it -- so the run is that gap whatever the
+    // figures do.
     const runOf = (actualStart: string): number => {
       const scene = milestoneScene(actualStart)
-      const planOnly = milestoneScene(actualStart, false)
       const one = scene.drawn.marker
-      const two = planOnly.drawn.marker
-      if (one === null || two === null) throw new Error('no marker')
-      return scene.placed.labelX - Math.max(one.centre.x + one.radius, two.centre.x + two.radius)
+      if (one === null) throw new Error('no marker')
+      return scene.placed.labelX - (one.centre.x + one.radius)
     }
     // The two scenes really are different, or the case is vacuous.
     expect(apart.drawn.marker?.centre.x).toBeGreaterThan(together.drawn.marker?.centre.x ?? 0)
     expect(runOf('2026-02-05')).toBeCloseTo(runOf('2026-02-02'), 6)
+    expect(runOf('2026-02-05'), '| LP-7 | ◆ | 出す | （問わない）| 基準の菱形の右端 | マーカーの右端 ＋ `S-301` |')
+      .toBeCloseTo(BASE.milestoneNameMarkerGap * DRAWN_RATIO, 6)
     expect(apart.placed.labelX).toBeGreaterThan(
       (apart.drawn.marker?.centre.x ?? 0) + (apart.drawn.marker?.radius ?? 0),
     )
@@ -882,16 +883,16 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
     expect(svg).toContain(`>${placed.outsideLabel}<`)
   })
 
-  it('⭐ aligns the card by its RIGHT edge, one labelGap from the plan bar (MUST)', () => {
-    // 「予定バーの左端から `_assets/tbl-settings.md` の `S-32` だけ左へ離した
-    // 位置に、札の右端を揃えて置くこと」
+  it('⭐ aligns the card by its RIGHT edge, one S-302 from the plan bar (MUST)', () => {
+    // 「⭐ 担当と進捗は 1 枚の札にまとめ、右寄せで、描いている予定と実績のうち
+    // 早いほうの開始から `S-302` だけ左に置くこと（MUST）」
     // -- so the geometry's right edge is that number, and the picture is pinned
     // to the far end rather than begun at the near one.
     const { placed, drawn } = drawnWithMarks(true)
     const card = drawn.assigneeLabel
     if (card === null) throw new Error('no OC-2 card')
     const rightEdge = card.x + card.width
-    expect(rightEdge).toBeCloseTo(placed.x - BASE.labelGap * DRAWN_RATIO, 6)
+    expect(rightEdge).toBeCloseTo(placed.x - BASE.assigneeLabelGap * DRAWN_RATIO, 6)
 
     // ⛔ THE DEFECT ITSELF. The glyphs used to begin at the box's LEFT edge, so
     // an under-read estimate spilled RIGHTWARD across the gap and onto its
@@ -907,7 +908,7 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
 // ---------------------------------------------------------------------------
 // DFC-408 -- the marker stood INSIDE the hold it is supposed to be outside of.
 //
-//   T-023d GR-7 (01-04-requirements.md)
+//   T-023d GA-18 (01-04-requirements.md)
 //     「実績バーの右端の外側。**未着手のときは終了点の掴みシロの外側**」
 //
 //   the closing rule of table T-038 (MUST / MUST NOT, 利用者の裁定 2026-09-09)
@@ -915,7 +916,7 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
 //      こと（MUST）。描いた印の幅で数えてはならない（MUST NOT）**」
 //
 // ⚠️ Measured 2026-09-09 on the shipped build, one board rebuilt per pixel and
-// the answer read back through the Agent API: of GR-17's 30 hit pixels, GR-7
+// the answer read back through the Agent API: of GA-6's 30 hit pixels, GA-18
 // answered 16 at 6, 15 and 36 px a day.
 // ⛔ TWO UNITS HAD TO MOVE, and the heading of table T-038 is why -- 「2 か所で
 // 別々に数え上げてはならない（MUST NOT）」. ScheduleGeometry anchors OC-3 and
@@ -923,7 +924,7 @@ describe('FR-090, JDG-09 -- OC-2 reaches the picture as ONE right-aligned text',
 //
 // ⛔⛔ THE HOLD IS NOT A FIXED SIZE EITHER SIDE READS, which is why the width
 // below is derived rather than typed: table T-023d's closing rule makes it
-// `FR-043`'s own mark -- 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
+// `FR-043`'s own mark -- 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043`
 // が描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」
 // -- whose width table T-240 DM-3 gives and which no longer follows the
 // zoom. The two units still have to agree on ONE width, and this is it.
@@ -955,7 +956,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   }
 
   /**
-   * Nothing entered, so FR-043 draws GR-9 and GR-17 and no actual bar.
+   * Nothing entered, so FR-043 draws GA-5 and GA-6 and no actual bar.
    *
    * ⛔ THE PLAN IS SHORT ON PURPOSE. LC-7 measures OC-1 from whichever reaches
    * further, the shape's own right edge or the reach the marker hangs off, so
@@ -979,8 +980,8 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   const startedScene = () => sceneOf({ actualStart: '2026-02-02', stop: '2026-02-20' })
 
   /**
-   * GR-17's own hold, and this IS the drawn mark's own width: table T-023d's
-   * closing rule reads 「`GR-9` / `GR-17` / `GR-18` の当たり判定は、`FR-043`
+   * GA-6's own hold, and this IS the drawn mark's own width: table T-023d's
+   * closing rule reads 「`GA-5` / `GA-6` / `GA-17` の当たり判定は、`FR-043`
    * が描いた印そのものとすること（MUST）。印の外へ広げてはならない（MUST NOT）」,
    * and table T-240 DM-3 gives the mark's own width (the marker diameter
    * times `S-247`, capped by `S-180`).
@@ -992,8 +993,8 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
    * width from, and may not measure a hold of its own.
    */
   const holdRightOf = (drawn: TaskGeometry): number => {
-    const endpoint = drawn.dummies.find((one) => one.grab === 'GR-17')
-    if (endpoint === undefined) throw new Error('FR-043 drew no GR-17 to hang the marker off')
+    const endpoint = drawn.dummies.find((one) => one.grab === 'GA-6')
+    if (endpoint === undefined) throw new Error('FR-043 drew no GA-6 to hang the marker off')
     // ⭐⭐ THE HOLD IS THE DRAWN MARK ITSELF (MUST, the closing rule of table
     // T-023d, 利用者の裁定 2026-09-10), so its right edge is the rectangle's.
     return endpoint.ink.x + endpoint.ink.width
@@ -1002,11 +1003,11 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   it('draws both dummies and no actual bar, or nothing below is proved', () => {
     const { placed, drawn } = notStartedScene()
     expect(placed.actualX).toBeNull()
-    expect(drawn.dummies.map((one) => one.grab)).toEqual(['GR-9', 'GR-17'])
+    expect(drawn.dummies.map((one) => one.grab)).toEqual(['GA-5', 'GA-6'])
     expect(drawn.marker).not.toBeNull()
   })
 
-  it('⛔ MUST: OC-3 stands outside GR-17’s hold, not on it', () => {
+  it('⛔ MUST: OC-3 stands outside GA-6’s hold, not on it', () => {
     const { drawn } = notStartedScene()
     const marker = drawn.marker
     if (marker === null) throw new Error('no marker')
@@ -1024,7 +1025,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     ).toBeCloseTo(holdRightOf(drawn), 6)
   })
 
-  it('⛔ MUST NOT: OC-1 is measured from the rightmost of the shape, marker (1) and marker (2) on a fresh Task, and counts nothing once the name stands inside the actual', () => {
+  it('⛔ MUST NOT: OC-1 is measured from the RF-2 dummy the row stands on, and counts nothing once the name stands inside the actual', () => {
     const started = startedScene()
     const fresh = notStartedScene()
     expect(started.placed.actualX).not.toBeNull()
@@ -1034,15 +1035,11 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
       if (marker === null) throw new Error('no marker')
       return marker.centre.x + marker.radius
     }
-    const countedFrom = (part: Record<string, unknown>): number => {
-      const both = sceneOf(part)
-      const planOnly = sceneOf(part, { planVisible: true, actualVisible: false })
-      return Math.max(both.placed.x + both.placed.width, markerRightOf(both), markerRightOf(planOnly))
-    }
-    const freshRun = fresh.placed.labelX - countedFrom({ finish: '2026-02-04' })
+    expect(fresh.placed.dummyReach, 'premise: RF-2 makes the dummy the reference').not.toBeNull()
+    const freshRun = fresh.placed.labelX - markerRightOf(fresh)
     expect(
       freshRun,
-      'T-243 closing rule: max(shape right, (1) right, (2) right) + S-32',
+      '| LP-2 | `===` | 出す | 入らない | 基準の終了のすぐ右 | マーカーの右端 ＋ `S-32` |',
     ).toBeCloseTo(BASE.labelGap * DRAWN_RATIO, 6)
     expect(
       started.placed.occupiedX1,

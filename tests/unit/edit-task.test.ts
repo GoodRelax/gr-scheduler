@@ -814,8 +814,8 @@ describe('EditDocument (PI-9) -- CM-13 setTaskPlanActualState', () => {
 
   it('IV-21 must not store an actual whose end is before its start', () => {
     // ⛔ MEASURED ON THE SHIPPED BUILD 2026-09-08, BEFORE THIS GATE: dragging
-    // GR-5 (the actual's LEFT end) to the right of the actual's own right end
-    // wrote `actualDuration` -3 and `percentComplete` -33, and dragging GR-6
+    // GA-3 (the actual's LEFT end) to the right of the actual's own right end
+    // wrote `actualDuration` -3 and `percentComplete` -33, and dragging GA-4
     // (the RIGHT end) left of the start wrote -4 and -44. Both documents then
     // failed the generated `grs-document.schema.json`:
     // 「/schedule/tasks/0/percentComplete must be >= 0」.
@@ -882,7 +882,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const next = accepted(
       run(notStarted({ start: jan(5), finish: jan(9) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
-        grabbed: 'GR-9',
+        grabbed: 'GA-5',
         uid: 1,
         droppedDay: jan(8),
       }),
@@ -900,7 +900,7 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
     const next = accepted(
       run(
         notStarted({ start: jan(9), finish: jan(9), milestone: true }, { shapeKind: 'milestone' }),
-        { kind: 'beginTaskActual', uid: 1, grabbed: 'GR-18', droppedDay: jan(17) },
+        { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-17', droppedDay: jan(17) },
       ),
     )
     const task = taskIn(next, 1)
@@ -918,11 +918,11 @@ describe('EditDocument (PI-9) -- CM-14 beginTaskActual', () => {
 
   const GR_17_PINS_THE_START_ON_THE_PLAN_START_DAY = '終了点を掴んだときは開始点を予定の開始日で確定させること（MUST）'
 
-  it('FR-043 pins the start on the plan start day itself when the finish handle GR-17 is grabbed', () => {
+  it('FR-043 pins the start on the plan start day itself when the finish handle GA-6 is grabbed', () => {
     const next = accepted(
       run(notStarted({ start: jan(9), finish: jan(23) }, { shapeKind: 'rectangle' }), {
         kind: 'beginTaskActual',
-        grabbed: 'GR-17',
+        grabbed: 'GA-6',
         uid: 1,
         droppedDay: jan(14),
       }),
@@ -949,34 +949,28 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     })
 
   const cycled = (document: Document): Task =>
-    taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1 })), 1)
+    taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null })), 1)
 
   it('PV-1 still reads the way these cases drive it', () => {
-    // ⭐ THE ROW ITSELF, HELD VERBATIM. 1.9 asks a case that verifies a
-    // requirement pointing at a table to be driven by data copied from that
-    // table; the cases below copy the FIGURES, and this copies the SENTENCE
-    // they came from -- so a later edit to the row fails here, naming the
-    // row, instead of leaving the figures quietly standing for something
-    // else.
-    // ⚠️ Every clause of it is one this file drives: the length placed
-    // (`S-129`, and `S-130` on a milestone), the ban on the plan's own span,
-    // the ban on choosing that length a second way, and actualFinish being
-    // read the way PV-2 reads it (the actual finish day, not the right end).
+    // WHY: 1.9 drives a table-pointing requirement from copied data, so the cases
+    // copy the figures and this holds the sentence, naming the row when it moves.
+    // WHY: CR-430 re-cut `PV-1` to end in progress, so the floor day it writes
+    // goes to `stop` and `actualFinish` is left to `PV-2`.
     const PV_1 =
-      '`actualStart` ＝ `start`、⭐ `actualFinish` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130` により常に `actualStart`。⭐ `FR-043` がダミーを掴んだときと同じ選び方であり、ここで別の選び方をしてはならない（MUST NOT））、`stop` は空のまま、⛔ **本行が独自の読み方を持ってはならない（MUST NOT）**、**`resumeValid` ＝ `false`'
+      '覚えている実績があれば戻し、無ければ `actualStart` ＝ `start`、`stop` ＝ `FR-011` の床の日（`actualStart` の後に来る稼働日を `_assets/tbl-settings.md` の 表 T-201 の `S-129` − 1 個数えた日）を置くこと（MUST）。予定の期間を置いてはならない（MUST NOT）（マイルストーンは同表の `S-130` により常に `actualStart`）。`resumeValid` ＝ `true`。⭐ 覚えている実績とは、`PV-4` で外して `ScreenState` が持っている実績のことである'
     expect(REQUIREMENTS).toContain(PV_1)
   })
 
-  it('PV-1 takes a task that has not started straight to finished', () => {
-    // One press, because a job that takes a day is common enough that two would
-    // make the tool heavy (FR-013's own reason).
+  it('PV-1 takes a task that has not started to in progress, one worked day long', () => {
+    // WHY: CR-430 lengthened the cycle, so one press opens an actual of `S-129`
+    // worked days rather than closing one.
     const task = cycled(at({}))
     expect(task.actualStart).toBe(jan(5))
-    expect(task.stop).toBeNull()
     expect(SETTINGS_DEFAULTS.actualInitialDuration).toBe(1)
-    expect(task.actualFinish).toBe(jan(5))
-    expect(task.resumeValid).toBe(false)
-    expect(planActualState(task)).toBe('finished')
+    expect(task.stop, 'PV-1 writes the floor day to stop').toBe(jan(5))
+    expect(task.actualFinish, 'PV-1 leaves the finish to PV-2').toBeNull()
+    expect(task.resumeValid).toBe(true)
+    expect(planActualState(task)).toBe('inProgress')
   })
 
   it('PV-1 places S-130 on a milestone, the same way CM-14 chooses it', () => {
@@ -987,7 +981,7 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
       taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
       taskVisuals: [visualOf({ taskUid: 1, shapeKind: 'milestone' })],
     })
-    const task = taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1 })), 1)
+    const task = taskIn(accepted(run(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null })), 1)
     expect(task.actualFinish).toBe(task.actualStart)
     expect(task.actualFinish).toBe(jan(5))
     expect(planActualState(task)).toBe('finished')
@@ -1018,20 +1012,20 @@ describe('EditDocument (PI-9) -- CM-15 cycleTaskPlanActualState', () => {
     expect(planActualState(task)).toBe('suspendedResumeUnknown')
   })
 
-  it('PV-4 returns a suspended task to in progress and must not send it back to not started', () => {
-    // MUST NOT go back to "not started": that state holds no actual at all
-    // (PA-1), so returning there would erase what a person entered. Undo and the
-    // property panel are what remove an actual.
+  it('PV-4 takes a suspended task back to not started, and the actual is remembered rather than kept', () => {
+    // WHY: CR-430 closes the ring at not started, so `PV-4` empties the actual
+    // and `resume`; `ScreenState` remembers it while the document is open.
     for (const suspended of [
       { actualStart: jan(5), stop: jan(7), resume: jan(20), resumeValid: true }, // PA-3
       { actualStart: jan(5), stop: jan(7), resume: null, resumeValid: false }, // PA-4
     ]) {
       const task = cycled(at(suspended))
       expect(task.resume).toBeNull()
-      expect(task.resumeValid).toBe(true)
-      expect(task.actualStart).toBe(jan(5))
-      expect(task.stop).toBe(jan(7))
-      expect(planActualState(task)).toBe('inProgress')
+      expect(task.resumeValid).toBe(false)
+      expect(task.actualStart).toBeNull()
+      expect(task.actualFinish).toBeNull()
+      expect(task.stop).toBeNull()
+      expect(planActualState(task)).toBe('notStarted')
     }
   })
 })

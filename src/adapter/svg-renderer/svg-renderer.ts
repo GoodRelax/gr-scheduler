@@ -72,6 +72,12 @@ const FADE_HANDLE_STROKE_COLOUR = '#374151'
 // @provisional PND-475
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
+// see PE-0, FR-105
+// WHY: the chart's own surface, not a stopped default: MK-12 leaves the browser its defaults, and PE-0
+// takes out the one of them that starts a text selection.
+// TRAP: the prefixed spelling first, so a viewer that reads only that one still obeys PE-0.
+const NO_TEXT_SELECTION_STYLE = '-webkit-user-select:none;user-select:none'
+
 /** @purity pure */
 function escaped(text: string): string {
   return text
@@ -1092,16 +1098,21 @@ export function svgFromSchedule(
     }
   }
 
-  const scrollingBars = [...planParts, ...guideParts, ...actualParts, ...markerParts].join('')
-  const clippedBars = hasPinnedRows
-    ? [`<g clip-path="url(#${scrollClipId})">${scrollingBars}</g>`]
-    : [scrollingBars]
-  const clippedDepLinks = hasPinnedRows
-    ? [`<g clip-path="url(#${scrollClipId})">${depLinkParts.join('')}</g>`]
-    : depLinkParts
-  const clippedLabels = hasPinnedRows
-    ? [`<g clip-path="url(#${scrollClipId})">${labelParts.join('')}</g>`]
-    : labelParts
+  // WHY: the scrolling half of a layer is clipped to the scroll area so it cannot run over a pinned row.
+  /** @purity pure */
+  const scrolling = (drawn: readonly string[]): string => {
+    const inner = drawn.join('')
+    if (inner === '' || !hasPinnedRows) return inner
+    return `<g clip-path="url(#${scrollClipId})">${inner}</g>`
+  }
+  // see T-020
+  // TRAP: one group per row of table T-020, pinned half first: the seam reads the order off this string.
+  /** @purity pure */
+  const zoLayer = (row: string, drawn: readonly string[]): readonly string[] => {
+    const inner = drawn.join('')
+    if (inner === '') return []
+    return [`<g data-zo="${row}">${inner}</g>`]
+  }
 
   const watermarkClipId = `grs-watermark-clip-${pictureId(
     `${rounded(area.x)}x${rounded(area.y)}|${rounded(area.width)}x${rounded(area.height)}`,
@@ -1117,38 +1128,48 @@ export function svgFromSchedule(
   // WHY: FR-009 calls it a tentative dependency line, so it takes the line's own colour, width and head.
   const tentative = drawsOperationState ? tentativeLink : null
   const tentativeArrowId = `grs-tentative-arrow-${pictureId(`${rounded(width)}x${rounded(height)}`)}`
+  // TRAP: the head is a definition, not ink: inside ZO-11's group it would sit in a drawn layer.
+  if (tentative !== null) {
+    defsParts.push(
+      dependencyArrowSvg(tentativeArrowId, settings.dependencyArrowLength, themed('S-159')),
+    )
+  }
   const tentativeParts =
     tentative === null
       ? []
       : [
-          dependencyArrowSvg(tentativeArrowId, settings.dependencyArrowLength, themed('S-159')),
           `<polyline points="${pointsOf(tentative.points)}" fill="none"` +
             ` stroke="${themed('S-159')}" stroke-width="${rounded(settings.dependencyWidth)}"` +
             ` marker-end="url(#${tentativeArrowId})"/>`,
         ]
 
+  // see T-020
+  // TRAP: the rows run back to front in the order the table prints them, not in row-ID order.
   const parts = [
     ...defsParts,
-    ...bandParts,
-    ...planPartsPinned,
-    ...guidePartsPinned,
-    ...actualPartsPinned,
-    ...markerPartsPinned,
-    ...clippedBars,
-    ...depLinkPartsPinned,
-    ...clippedDepLinks,
-    ...linkParts,
-    ...labelPartsPinned,
-    ...clippedLabels,
-    ...annotationParts,
-    ...selectionParts,
-    ...handleParts,
-    ...tentativeParts,
+    ...zoLayer('ZO-7', bandParts),
+    ...zoLayer('ZO-1', [...planPartsPinned, scrolling(planParts)]),
+    ...zoLayer('ZO-1a', [...guidePartsPinned, scrolling(guideParts)]),
+    ...zoLayer('ZO-2', [...actualPartsPinned, scrolling(actualParts)]),
+    ...zoLayer('ZO-4', [...depLinkPartsPinned, scrolling(depLinkParts)]),
+    ...zoLayer('ZO-8', linkParts),
+    ...zoLayer('ZO-3', [...markerPartsPinned, scrolling(markerParts)]),
+    ...zoLayer('ZO-5', [...labelPartsPinned, scrolling(labelParts)]),
+    ...zoLayer('ZO-9', annotationParts),
+    ...zoLayer('ZO-10', [...selectionParts, ...handleParts]),
+    ...zoLayer('ZO-11', tentativeParts),
+    ...zoLayer(
+      'ZO-12',
+      watermark === null
+        ? []
+        : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
+    ),
     // STOP: spec does not decide how the range-selection rectangle is drawn. Looked in PTD-5, T-020, T-023a (PND-363)
-    ...(marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')]),
-    ...(watermark === null
-      ? []
-      : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)]),
+    ...zoLayer(
+      'ZO-6',
+      marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')],
+    ),
+    // WHY: the ruler draws in its own band, so table T-020 holds no row for it (the table's closing note).
     ...rulerSvg(
       layout,
       settings,
@@ -1164,13 +1185,15 @@ export function svgFromSchedule(
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}"` +
+    (drawsOperationState ? ` style="${NO_TEXT_SELECTION_STYLE}"` : '') +
     ` role="img" aria-label="${escaped(schedule.project.title ?? '')}">` +
     parts.join('') +
     '</svg>'
   )
 }
 
-const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GR-7']
+// see T-266
+const MARKER_GRAB_ROWS: readonly Hit['grab'][] = ['GA-18']
 
 // <generated -- do not edit by hand>
 // Single source of truth:

@@ -128,7 +128,7 @@ describe('S-35 (表 T-201) — a name is cut at 48 half-width units, not 24', ()
     expect(SHIPPED['truncateUnits'], '表 T-201 の S-35').toBe(s35.stated)
   })
 
-  it('leaves room for the mark 表 T-013 の前書き requires', () => {
+  it('leaves room for the mark 表 T-273 の前書き requires', () => {
     expect(SHIPPED['truncateUnits'] as number).toBeGreaterThan(2)
   })
 })

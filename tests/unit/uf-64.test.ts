@@ -327,7 +327,7 @@ const DEPENDENCY_ITEMS = ['lag', 'linkType', 'predecessorUid', 'successorUid'] a
 //
 // ⭐ WHAT A FIELD IS FOUND BY INSTEAD, and the specification does fix it: the row
 // id the field names. `IF-9` of table T-065 (docs/spec/05-07-design.md:378) has
-// the surface hand a committed value back 「プロパティパネルの欄で確定した値を、
+// the surface hand a committed value back CR-361 「プロパティパネルの欄で確定した値を、
 // その欄が名乗る行 ID とともに返し」, and `PI-18` of table T-064 names the tables
 // those ids are drawn from -- 「割当は 表 T-016 の「入力の型」の欄と 表 T-104」.
 // ⇒ the selection face names a `PR-n` and the settings face a `K-n`.
@@ -1361,7 +1361,7 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
    *
    * ⭐ Table T-016's note for PR-18 says which of the two names the field --
    * 「実体は `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指す
-   * のはそちら」 -- and FR-085 (MUST) calls it 「名前の欄（`AT-53`）」. ⛔ Read out
+   * のはそちら」 -- and FR-085 (MUST) calls it DFC-185 「名前の欄（`AT-53`）」. ⛔ Read out
    * of the table rather than typed, for the reason `T_016` itself is.
    */
   const T_058 = specTable('T-058')

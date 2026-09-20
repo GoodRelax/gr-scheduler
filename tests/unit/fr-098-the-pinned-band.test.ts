@@ -36,7 +36,7 @@
 //              NOT）」／「行見出しの側と日程の側の両方を、同時に同じ高さへ上げること
 //              （MUST）」／「帯は `Row Area` の中に置き、スクロールする行が並ぶのは
 //              その残りとすること（MUST）。スクロールする行を帯の下へ潜らせてはならない
-//              （MUST NOT）」／⛔ 「帯が `Row Area` を埋め尽くし、スクロールする行が
+//              （MUST NOT）」／⛔ CR-363 「帯が `Row Area` を埋め尽くし、スクロールする行が
 //              1 行も描けなくなってはならない（MUST NOT）」／⛔ 「ピン止めした行を、
 //              表示量の増減（`FR-018`）で描かなくしてはならない（MUST NOT）」（利用者の
 //              裁定 2026-08-30「拡大、縮小しても表示を続けるのがピン止めだ」）／
@@ -449,7 +449,7 @@ describe('LF-14 (MUST) -- the scrolling rows begin below the band, and the hole 
 
   it('⭐ the band MAY fill the Row Area -- the tool does not prevent it (CR-363)', () => {
     // ⛔⛔ THE OPPOSITE OF WHAT THIS CASE USED TO ASSERT, and deliberately.
-    // Until 2026-09-06 FR-098 read 「帯が `Row Area` を埋め尽くし、スクロールする
+    // Until 2026-09-06 FR-098 read CR-363 「帯が `Row Area` を埋め尽くし、スクロールする
     // 行が 1 行も描けなくなってはならない（MUST NOT）」 and this case held it. The
     // user withdrew that clause: 「特別な対応は要らない。ピンが多すぎてスクロール
     // できなくなったら、ユーザーが自分でピンを抜く」.

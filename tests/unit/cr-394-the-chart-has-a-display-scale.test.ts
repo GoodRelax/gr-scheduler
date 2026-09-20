@@ -364,7 +364,7 @@ describe('table T-252 -- the rows that say what the display scale reaches', () =
 
   it('DS-7 keeps the grips and the entrance boxes out of the scale', () => {
     const ds7 = rowOf('T-252', 'DS-7').by['何に'] ?? ''
-    for (const id of ['S-90', 'S-91', 'S-92', 'S-137', 'S-180', 'S-230', 'S-138']) {
+    for (const id of ['S-250', 'S-290', 'S-137', 'S-180', 'S-230', 'S-138']) {
       expect(ds7, `DS-7 names ${id}`).toContain(id)
     }
   })

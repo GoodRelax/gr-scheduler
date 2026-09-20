@@ -147,7 +147,7 @@ import { specTable, unbroken } from '../contract/spec-table'
  * this file red rather than leaving it holding a rule nobody writes any more.
  */
 const IN_3_THE_THREE =
-  '押しているあいだの形は 表 T-264 が持つ |\n| IN-3 | ツールチップは、次の 3 つをすべて満たすこと（MUST）'
+  '表 T-269 が画像で定める形は、本ツールが描いて宿主へ渡す |\n| IN-3 | ツールチップは、次の 3 つをすべて満たすこと（MUST）'
 
 const IN_3_UNTIL_THE_TRIGGER_GOES =
   'ること** —— 説明そのものの上へポインタを移しても消えないこと。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
@@ -570,7 +570,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
 //   T-023d        its closing rule -- 「ダブルクリックの宛先は 表 T-023 の
 //                 `MK-13` が持ち、本表の優先順より先に読むこと（MUST）」 with
 //                 「本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。」
-//   T-023d GR-5 / GR-6 / GR-15 / GR-9 / GR-17 / GR-18 -- the actual's regions
+//   T-023d GA-3 / GA-4 / GA-16 / GA-5 / GA-6 / GA-17 -- the actual's regions
 //
 // Exported declarations read, and nothing else:
 //   input-command-translator.ts  `commandFromInput(input, context)`,
@@ -589,11 +589,15 @@ const T_023D_MK_13_FIRST =
 const T_023D_NOT_BY_THE_ORDER =
   '**本表の順でダブルクリックの宛先を決めてはならない（MUST NOT）。**'
 
-/** ⭐ The regions table T-023d gives the actual, in the row order it prints them. */
-const THE_ACTUALS_GRABS = ['GR-5', 'GR-6', 'GR-15', 'GR-9', 'GR-17', 'GR-18'] as const
+/** ⭐ The rows table T-266 gives the actual, in the row order it prints them. */
+const THE_ACTUALS_ROWS = ['GA-3', 'GA-4', 'GA-16', 'GA-5', 'GA-6', 'GA-17'] as const
 
-/** GR-12, the body -- the entry MK-13 already sent to the name before DFC-399. */
-const THE_BODY = 'GR-12'
+const THE_ACTUALS_GRABS = ['GA-3', 'GA-4', 'GA-16', 'GA-5', 'GA-6', 'GA-17'] as const
+
+/** GA-9, the body -- the entry MK-13 already sent to the name before DFC-399. */
+const THE_BODY_ROW = 'GA-9'
+
+const THE_BODY = 'GA-9'
 
 const pointerAt = (phase: PointerInput['phase'], clicks: number): PointerInput =>
   ({
@@ -652,13 +656,13 @@ describe('T-023 MK-13 / table T-023d (MUST, 利用者の裁定 2026-09-08) -- th
     expect(REQUIREMENTS).toContain(T_023D_MK_13_FIRST)
     expect(REQUIREMENTS).toContain(T_023D_NOT_BY_THE_ORDER)
     // ⭐ THE SIX REGIONS ARE READ OUT OF THE TABLE, not typed from memory: a row
-    // that left table T-023d would take this red before any behaviour case ran.
-    const rows = specTable('T-023d').rows.map((row) => row.id)
-    for (const grab of THE_ACTUALS_GRABS) expect(rows, grab).toContain(grab)
-    expect(rows).toContain(THE_BODY)
+    // that left table T-266 would take this red before any behaviour case ran.
+    const rows = specTable('T-266').rows.map((row) => row.id)
+    for (const row of THE_ACTUALS_ROWS) expect(rows, row).toContain(row)
+    expect(rows).toContain(THE_BODY_ROW)
   })
 
-  it('⛔ THE CONTROL: the body (GR-12) already reached the name field, so an empty answer means nothing', () => {
+  it('⛔ THE CONTROL: the body (GA-9) already reached the name field, so an empty answer means nothing', () => {
     expect(inPlaceKindOf(releaseOn(THE_BODY, 2))).toBe('taskName')
   })
 

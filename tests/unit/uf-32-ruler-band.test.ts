@@ -850,7 +850,7 @@ describe('UF-32 -- 表 T-201: the 段 of the band', () => {
     // とおりとすること（MUST）。同表に無い行を刷ってはならない（MUST NOT）**」.
     //
     // ⛔⛔ THIS CASE USED TO HOLD A RULE THAT NO LONGER BINDS EVERYWHERE. Until
-    // 2026-09-03 FR-017 read「年と月は 1 段に `YYYY-MM`」for EVERY 段階 showing
+    // 2026-09-03 FR-017 readDFC-240 「年と月は 1 段に `YYYY-MM`」for EVERY 段階 showing
     // both, and this case counted 段 against that. 表 T-238 withdrew it for
     // `TM-2` alone —— ⚠️「**`TM-2`（月の段）はそれを覆し、`yyyy` と `m` を 2 段に
     // 分ける**」—— while ⭐「**元の規則の理由はそのまま生きている** …⇒ **畳みが
@@ -1063,7 +1063,7 @@ describe('UF-32 -- FR-038: the display language reaches the 曜日 and nothing e
 //
 // ⛔⛔ IT WAS MENDED A SECOND TIME ON 2026-09-04, AND THE FIRST CASE BELOW USED
 // TO HOLD THE WORDING THAT WENT AWAY. Until then `LF-1` gave ONE interval per
-// 段（「年の段は 1 年、年と月の段は 1 か月、週の段は 7 日、日の段と曜日の段は
+// 段（DFC-91 「年の段は 1 年、年と月の段は 1 か月、週の段は 7 日、日の段と曜日の段は
 // 1 日」）. 表 T-238 (2026-09-03) split the 月の段 into two 行 -- `yyyy` over `m`
 // -- so one 段 came to tick two ways（`LF-1` の実測: 年の行 1 回 / 月の行 12 回）
 // and nothing covered the upper 行. `LF-1` now rules PER 行 instead:
