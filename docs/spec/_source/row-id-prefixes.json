@@ -878,6 +878,14 @@
    }
   },
   {
+   "prefix": "PP",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "直接操作の原則（なぜその振る舞いなのかの理由）"
+   }
+  },
+  {
    "prefix": "PR",
    "words": "Property",
    "owner": "spec",
