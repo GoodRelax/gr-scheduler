@@ -454,6 +454,14 @@
 |---|---|---|---|---|
 | JDG-280 | **「取り下げ、JDG-47 に従う（推奨）（体が書いたもの）」**（前に立つ者が三択で問うたことへの答え。利用者はこの選択肢を選んだだけで、この文言そのものは打っていない —— 引用符の中は前に立つ者が挙げた選択肢の文言である） | `JDG-124` の推奨 ①（`agent-api-members.ts` の型 `InvariantRefusal` / `InvariantRow` の import を `apply-document-change` の公開エントリから読む形に直せという指示）への答え。⭐ 実測すると前提が崩れていた —— 表 T-064 の `PI-9`（`EditDocument`）が `InvariantRefusal` と `InvariantRow` を両方公開しており（`docs/spec/05-07-design.md:429`）、`PI-8`（`ApplyDocumentChange`）はどちらも公開せず再輸出もしていない（同 `:428`）。import は型だけ（`src/adapter/agent-api-endpoint/agent-api-members.ts:21-24` の `import type { InvariantRefusal, InvariantRow } from '../../use-case/edit-document/edit-document'`）で、`Adapter -> UseCase` の層の組は許されている。⚠️ 許可リストを 48 に保つという `JDG-124` の動機も的外れだった —— `a1eca14f` の実測は 52。⭐ 取り下げ、`JDG-47`「型と JSON を含むすべての import を辺とし、『コード ⊆ 図』で検査する形でよい」に従う: 図が単に見落としていた辺として扱い、`docs/spec/_source/components.json` に足す（`0550a5a9`） | `docs/spec/_source/components.json` の `AgentApiEndpoint -> EditDocument` の辺 ＋ `docs/review/components/components.md:135`（`0550a5a9`） | 適用済 —— 2026-09-21 に `0550a5a9` で着地した |
 
+## 2026-09-21 —— 段 3 の門 3・4 の基準線を認め、段 3 を閉じた
+
+⭐ 前に立つ者が、段 3 の門 3（大きさのラチェット）はそれ自体が基準線ファイルであり、この巡の裁定「新しい基準線ファイルを作らない」と衝突すると利用者に報告し、ラチェットは許可リストではなく一方向の歯止めであることを理由に例外として扱うことを勧めた。利用者はこの 2 行を自分で打って答えた —— `JDG-279`・`JDG-280` とは違い選択肢を選んだだけではない。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-281 | **「ラチェットの基準線を認める」**<br>**「門 3 に進んでよい」**（2026-09-21 の一通。前に立つ者が上記の衝突と、ラチェットを例外とする理由を示して問うたことへの答え） | ⭐ ラチェットの基準線 2 つ（`function-size-baseline.txt`・`module-state-baseline.txt`）を認め、段 3 の門 3・4 を `check.sh` に結線してよいとした。⭐ 門 3（検査 60・`JDG-54`）は帯（50 行 ／ 15 分岐）を超える関数 78 件を名指しで持ち、超過の総量（行 8412・分岐 952）のどちらかが増えたら落ちる。⭐ 門 4（検査 61・表 T-249 の `SF-7`）は module-scope の可変状態 2 件を名指しで持つ。⭐⛔ 両基準線とも、HELD 行が名指す関数・箇所が消える・縮む・帯から外れたときも FAIL とする —— 総量が下がっていても、裏づけの無い主張は主張だからである。この条項が基準線を許可リストへ緩めるのを防いでおり、段 4 （関数を割る作業）がこれに拠る —— 割った同じコミットで基準線を書き直す形になる。⇒ 段 3 は完結した（門 1・2 は `0550a5a9`、門 3・4 は `f73f1ec3`） | `.claude/skills/spec-graph-check/function-size-baseline.txt` ＋ `.claude/skills/spec-graph-check/module-state-baseline.txt` ＋ `.claude/skills/spec-graph-check/check.sh`（検査 60・61 の結線。`f73f1ec3`） | 適用済 —— 2026-09-21 に `f73f1ec3` で着地した |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
