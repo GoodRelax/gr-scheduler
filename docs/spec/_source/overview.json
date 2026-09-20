@@ -236,21 +236,21 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 14 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog"
+   "description": "backed by 20 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog; DocumentCodec -> DocumentSettings; DocumentCodec -> Schedule; ImageExporter -> DocumentSettings; InputCommandTranslator -> Document; InputCommandTranslator -> DocumentSettings; InputCommandTranslator -> Schedule"
   },
   {
    "source": "adapter",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "geometry only",
-   "description": "backed by 8 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; SvgRenderer -> ScreenRegions; InputCommandTranslator -> ScheduleLayout; InputCommandTranslator -> ScreenRegions; ScreenRenderer -> ScreenRegions"
+   "description": "backed by 12 component edge(s): InputCommandTranslator -> ItemHitArea; SvgRenderer -> ScheduleGeometry; SvgRenderer -> ScheduleLayout; AgentApiEndpoint -> ScheduleLayout; SvgRenderer -> ScreenRegions; InputCommandTranslator -> ScheduleLayout; InputCommandTranslator -> ScreenRegions; ScreenRenderer -> ScreenRegions; ImageExporter -> ScreenRegions; InputCommandTranslator -> ScheduleGeometry; ScreenRenderer -> ScheduleLayout; SvgRenderer -> ItemHitArea"
   },
   {
    "source": "adapter",
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 6 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage"
+   "description": "backed by 8 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; InputCommandTranslator -> EditDocument"
   },
   {
    "source": "framework",
@@ -261,38 +261,45 @@
   },
   {
    "source": "framework",
+   "target": "documentModel",
+   "arrow": "dependency",
+   "label": "holds the current value",
+   "description": "backed by 7 component edge(s): SingleHtmlShell -> DialogueLog; SingleHtmlShell -> Document; SingleHtmlShell -> DocumentSettings; SingleHtmlShell -> EditHistory; SingleHtmlShell -> Schedule; SingleHtmlShell -> ScreenState; SingleHtmlShell -> Selection"
+  },
+  {
+   "source": "framework",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "layout once per frame",
-   "description": "backed by 4 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry; SingleHtmlShell -> ScreenRegions; SingleHtmlShell -> ItemHitArea"
+   "description": "backed by 5 component edge(s): SingleHtmlShell -> ScheduleLayout; SingleHtmlShell -> ScheduleGeometry; SingleHtmlShell -> ScreenRegions; SingleHtmlShell -> ItemHitArea; DomScreenSurface -> ScreenRegions"
   },
   {
    "source": "framework",
    "target": "usecase",
    "arrow": "dependency",
    "label": "candidates",
-   "description": "backed by 1 component edge(s): SingleHtmlShell -> ChooseStartupDocument"
+   "description": "backed by 6 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument"
   },
   {
    "source": "layoutEngine",
    "target": "documentModel",
    "arrow": "dependency",
    "label": "reads",
-   "description": "backed by 5 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection; ScreenRegions -> DocumentSettings"
+   "description": "backed by 6 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection; ScreenRegions -> DocumentSettings; ScheduleGeometry -> DocumentSettings"
   },
   {
    "source": "usecase",
    "target": "documentModel",
    "arrow": "dependency",
    "label": "updates",
-   "description": "backed by 11 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; ApplyDocumentChange -> Document"
+   "description": "backed by 24 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; ApplyDocumentChange -> Document; ApplyDocumentChange -> DocumentSettings; ApplyDocumentChange -> Schedule; ChooseStartupDocument -> Document; EditDocument -> Document; EditDocument -> ScreenState; ImportDocument -> Document; ImportDocument -> DocumentSettings; NotifyChangeWatchers -> Document; RedoEdit -> Document; UndoEdit -> Document; ValidateImportedDocument -> Document; ValidateImportedDocument -> DocumentSettings; ValidateImportedDocument -> Schedule"
   },
   {
    "source": "usecase",
    "target": "layoutEngine",
    "arrow": "dependency",
    "label": "calculates",
-   "description": "backed by 1 component edge(s): EditDocument -> ScheduleLayout"
+   "description": "backed by 2 component edge(s): EditDocument -> ScheduleLayout; EditDocument -> ScreenRegions"
   }
  ],
  "layout": {

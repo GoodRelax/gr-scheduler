@@ -132,6 +132,58 @@
 | dependency | ScreenRenderer | Selection | selection to show | reads what is selected |  |
 | dependency | ScreenRenderer | DialogueLog | utterances shown | reads the utterances the dialogue field shows |  |
 | dependency | ImageExporter | ScreenRenderer | parts that go out | takes the parts table T-076 lets into the export (EP-1 / EP-3) |  |
+| dependency | AgentApiEndpoint | EditDocument | refusal types | reads the two types an invariant refusal is written in |  |
+| dependency | ApplyDocumentChange | DocumentSettings | settings type | reads the settings type a change plan carries |  |
+| dependency | ApplyDocumentChange | Schedule | task group type | reads the task group type a change plan carries |  |
+| dependency | ChooseStartupDocument | Document | document type | reads the document root type each candidate is |  |
+| dependency | DocumentCodec | DocumentSettings | clamped settings | clamps the settings it read back out of a file |  |
+| dependency | DocumentCodec | Schedule | days + calendar | reads the schedule types, the day arithmetic and the calendar defaults both exchange formats are written in |  |
+| dependency | DomScreenSurface | ScreenRegions | rectangle type | reads the rectangle type it puts each UI part at |  |
+| dependency | EditDocument | Document | document type | reads the document root type every edit takes and returns |  |
+| dependency | EditDocument | ScreenRegions | display ratio | asks what ratio the display is drawn at when a settings edit moves it |  |
+| dependency | EditDocument | ScreenState | remembered actual | reads the remembered actual a task edit puts back |  |
+| dependency | ImageExporter | DocumentSettings | settings type | reads the settings type the exported picture is drawn at |  |
+| dependency | ImageExporter | ScreenRegions | drawn settings | asks which settings the picture is actually drawn at, and reads the rectangles it fills |  |
+| dependency | ImportDocument | Document | document type | reads the document root type an intake produces |  |
+| dependency | ImportDocument | DocumentSettings | settings type | reads the settings type an intake carries |  |
+| dependency | InputCommandTranslator | Document | document type | reads the document root type each input is read against |  |
+| dependency | InputCommandTranslator | DocumentSettings | scale steps + defaults | reads the display scale steps a zoom command moves between, and the settings defaults |  |
+| dependency | InputCommandTranslator | EditDocument | command shapes | reads the command and task shape types it builds, and cycles a task between plan and actual |  |
+| dependency | InputCommandTranslator | Schedule | tasks + days | reads the schedule types, finds a task by UID and turns a day into the text a command carries |  |
+| dependency | InputCommandTranslator | ScheduleGeometry | bar geometry | reads the bar geometry a pointer position is measured against |  |
+| dependency | ItemHitArea | ScreenRegions | rectangle type | reads the rectangle type a hit is tested inside |  |
+| dependency | NotifyChangeWatchers | Document | document type | reads the document root type a change notice carries |  |
+| dependency | RedoEdit | Document | document type | reads the document root type a step forward returns |  |
+| dependency | RedoEdit | UndoEdit | one step | reads the step and held-document types stepping back defines |  |
+| dependency | Schedule | DocumentSettings | bounds | reads the settings bounds an invariant is checked against |  |
+| dependency | ScheduleGeometry | DocumentSettings | settings type | reads the settings type the geometry is computed at |  |
+| dependency | ScheduleGeometry | ScreenRegions | ratio + rectangles | asks the display ratio and the settings actually drawn at, and reads the screen rectangles |  |
+| dependency | ScheduleLayout | ScreenRegions | ratio + lattice floor | asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps |  |
+| dependency | ScreenRenderer | ScheduleLayout | label units | asks the units a properties panel label is written in |  |
+| dependency | ScreenRenderer | SvgRenderer | grid line width | reads the group grid line width, so the frame and the picture draw the same line |  |
+| dependency | SingleHtmlShell | ApplyDocumentChange | one write | hands over each operation, replaces the whole document, and reads the refusal and write-moment types it answers with |  |
+| dependency | SingleHtmlShell | BrowserClipboard | clipboard implementation | wires the browser clipboard in as the Clipboard the adapter declared |  |
+| dependency | SingleHtmlShell | CanvasRasterizer | rasterizer implementation | wires the canvas rasterizer in as the Rasterizer the adapter declared |  |
+| dependency | SingleHtmlShell | DialogueLog | empty log | starts the dialogue log empty and holds it |  |
+| dependency | SingleHtmlShell | Document | document type | reads the document root type of the current value it holds |  |
+| dependency | SingleHtmlShell | DocumentSettings | settings defaults | starts the settings at their defaults and holds them |  |
+| dependency | SingleHtmlShell | DomInputSource | input implementation | wires the DOM input source in as the InputSource the adapter declared |  |
+| dependency | SingleHtmlShell | DomScreenSurface | surface + page ground | wires the DOM screen surface in, and paints the page ground at the screen theme |  |
+| dependency | SingleHtmlShell | DomSvgSurface | SVG surface implementation | wires the DOM SVG surface in as the SvgSurface the adapter declared |  |
+| dependency | SingleHtmlShell | EditDocument | limits nothing saves | calls the edit and hands over the zoom bounds no document stores |  |
+| dependency | SingleHtmlShell | EditHistory | empty history + limits | starts the undo history empty and hands over the limits no document stores |  |
+| dependency | SingleHtmlShell | FileSystemAccessFileStore | file store implementation | wires the File System Access store in as the FileStore the adapter declared, and takes what a drop hands it |  |
+| dependency | SingleHtmlShell | ImportDocument | intake | asks for an intake, and reads which open choice it was |  |
+| dependency | SingleHtmlShell | NotifyChangeWatchers | wake the watchers | wakes the watchers once the frame's write is confirmed |  |
+| dependency | SingleHtmlShell | Schedule | violations + lookup | asks what the schedule violates, finds a task by UID, and writes a day as text |  |
+| dependency | SingleHtmlShell | ScreenState | screen state held | starts the screen state empty and holds the next one the frame returns |  |
+| dependency | SingleHtmlShell | Selection | selection held | starts the selection empty and holds the one each frame returns |  |
+| dependency | SingleHtmlShell | ValidateImportedDocument | untrusted input | checks untrusted input, and hands over the bounds it is checked against |  |
+| dependency | SvgRenderer | ItemHitArea | hit type | reads the hit type the item under the pointer is named by |  |
+| dependency | UndoEdit | Document | document type | reads the document root type a step back returns |  |
+| dependency | ValidateImportedDocument | Document | document type | reads the document root type it checks |  |
+| dependency | ValidateImportedDocument | DocumentSettings | settings type | reads the settings type it checks |  |
+| dependency | ValidateImportedDocument | Schedule | date columns + day maths | reads the date columns and the day arithmetic each taken-in task is checked with |  |
 
 ## Clusters
 

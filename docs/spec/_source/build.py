@@ -64,6 +64,7 @@ CLUSTER_EDGE_LABELS = {
     ("framework", "adapter"): "drives / implements",
     ("framework", "usecase"): "candidates",
     ("framework", "layoutEngine"): "layout once per frame",
+    ("framework", "documentModel"): "holds the current value",
     ("adapter", "usecase"): "one operation",
     ("adapter", "layoutEngine"): "geometry only",
     ("adapter", "documentModel"): "converts",
@@ -290,16 +291,30 @@ def place_labels(drawio_path):
                        and ay < by + bh and by < ay + ah
                        for bx, by, bw, bh in taken)
 
-    taken = []
-    moved, stuck = [], []
-    for match in list(EDGE_RE.finditer(text)):
-        eid, label, rest, src, dst, body = match.groups()
-        if not label:
-            continue
+    def visible_path(body, src, dst):
         waypoints = [(float(a), float(b))
                      for a, b in re.findall(r'<mxPoint x="([-\d.]+)" y="([-\d.]+)"/>', body)]
-        path = _trimmed([centre(src)] + waypoints + [centre(dst)],
+        return _trimmed([centre(src)] + waypoints + [centre(dst)],
                         geom[src], geom[dst])
+
+    def span(path):
+        return sum(math.dist(path[i], path[i + 1]) for i in range(len(path) - 1))
+
+    # ⛔ The shortest edge chooses first. Placement is first-come, so in
+    # document order a long arrow crossing several bands can take the only
+    # points a short arrow between two neighbouring boxes has, and that short
+    # arrow then has nowhere left -- it stopped the build the day the
+    # ScreenRenderer -> SvgRenderer edge was drawn, blocked by "layout once per
+    # frame" and "geometry once per frame", which have a whole corridor to move
+    # along. An edge with more room to give yields it.
+    labelled = [(m, visible_path(m.group(6), m.group(4), m.group(5)))
+                for m in EDGE_RE.finditer(text) if m.group(2)]
+    labelled.sort(key=lambda pair: span(pair[1]))
+
+    taken = []
+    moved, stuck = [], []
+    for match, path in labelled:
+        eid, label, rest, src, dst, body = match.groups()
         chosen = next((f for f in LABEL_FRACTIONS
                        if clear_of_boxes(_point_at(path, f))
                        and clear_of_labels(_point_at(path, f), label)), None)

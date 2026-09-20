@@ -827,6 +827,370 @@
    "arrow": "dependency",
    "label": "parts that go out",
    "description": "takes the parts table T-076 lets into the export (EP-1 / EP-3)"
+  },
+  {
+   "source": "AgentApiEndpoint",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "refusal types",
+   "description": "reads the two types an invariant refusal is written in"
+  },
+  {
+   "source": "ApplyDocumentChange",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings type",
+   "description": "reads the settings type a change plan carries"
+  },
+  {
+   "source": "ApplyDocumentChange",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "task group type",
+   "description": "reads the task group type a change plan carries"
+  },
+  {
+   "source": "ChooseStartupDocument",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type each candidate is"
+  },
+  {
+   "source": "DocumentCodec",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "clamped settings",
+   "description": "clamps the settings it read back out of a file"
+  },
+  {
+   "source": "DocumentCodec",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "days + calendar",
+   "description": "reads the schedule types, the day arithmetic and the calendar defaults both exchange formats are written in"
+  },
+  {
+   "source": "DomScreenSurface",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "rectangle type",
+   "description": "reads the rectangle type it puts each UI part at"
+  },
+  {
+   "source": "EditDocument",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type every edit takes and returns"
+  },
+  {
+   "source": "EditDocument",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "display ratio",
+   "description": "asks what ratio the display is drawn at when a settings edit moves it"
+  },
+  {
+   "source": "EditDocument",
+   "target": "ScreenState",
+   "arrow": "dependency",
+   "label": "remembered actual",
+   "description": "reads the remembered actual a task edit puts back"
+  },
+  {
+   "source": "ImageExporter",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings type",
+   "description": "reads the settings type the exported picture is drawn at"
+  },
+  {
+   "source": "ImageExporter",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "drawn settings",
+   "description": "asks which settings the picture is actually drawn at, and reads the rectangles it fills"
+  },
+  {
+   "source": "ImportDocument",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type an intake produces"
+  },
+  {
+   "source": "ImportDocument",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings type",
+   "description": "reads the settings type an intake carries"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type each input is read against"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "scale steps + defaults",
+   "description": "reads the display scale steps a zoom command moves between, and the settings defaults"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "command shapes",
+   "description": "reads the command and task shape types it builds, and cycles a task between plan and actual"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "tasks + days",
+   "description": "reads the schedule types, finds a task by UID and turns a day into the text a command carries"
+  },
+  {
+   "source": "InputCommandTranslator",
+   "target": "ScheduleGeometry",
+   "arrow": "dependency",
+   "label": "bar geometry",
+   "description": "reads the bar geometry a pointer position is measured against"
+  },
+  {
+   "source": "ItemHitArea",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "rectangle type",
+   "description": "reads the rectangle type a hit is tested inside"
+  },
+  {
+   "source": "NotifyChangeWatchers",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type a change notice carries"
+  },
+  {
+   "source": "RedoEdit",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type a step forward returns"
+  },
+  {
+   "source": "RedoEdit",
+   "target": "UndoEdit",
+   "arrow": "dependency",
+   "label": "one step",
+   "description": "reads the step and held-document types stepping back defines"
+  },
+  {
+   "source": "Schedule",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "bounds",
+   "description": "reads the settings bounds an invariant is checked against"
+  },
+  {
+   "source": "ScheduleGeometry",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings type",
+   "description": "reads the settings type the geometry is computed at"
+  },
+  {
+   "source": "ScheduleGeometry",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "ratio + rectangles",
+   "description": "asks the display ratio and the settings actually drawn at, and reads the screen rectangles"
+  },
+  {
+   "source": "ScheduleLayout",
+   "target": "ScreenRegions",
+   "arrow": "dependency",
+   "label": "ratio + lattice floor",
+   "description": "asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "label units",
+   "description": "asks the units a properties panel label is written in"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "SvgRenderer",
+   "arrow": "dependency",
+   "label": "grid line width",
+   "description": "reads the group grid line width, so the frame and the picture draw the same line"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ApplyDocumentChange",
+   "arrow": "dependency",
+   "label": "one write",
+   "description": "hands over each operation, replaces the whole document, and reads the refusal and write-moment types it answers with"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "BrowserClipboard",
+   "arrow": "dependency",
+   "label": "clipboard implementation",
+   "description": "wires the browser clipboard in as the Clipboard the adapter declared"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "CanvasRasterizer",
+   "arrow": "dependency",
+   "label": "rasterizer implementation",
+   "description": "wires the canvas rasterizer in as the Rasterizer the adapter declared"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DialogueLog",
+   "arrow": "dependency",
+   "label": "empty log",
+   "description": "starts the dialogue log empty and holds it"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type of the current value it holds"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings defaults",
+   "description": "starts the settings at their defaults and holds them"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DomInputSource",
+   "arrow": "dependency",
+   "label": "input implementation",
+   "description": "wires the DOM input source in as the InputSource the adapter declared"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DomScreenSurface",
+   "arrow": "dependency",
+   "label": "surface + page ground",
+   "description": "wires the DOM screen surface in, and paints the page ground at the screen theme"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "DomSvgSurface",
+   "arrow": "dependency",
+   "label": "SVG surface implementation",
+   "description": "wires the DOM SVG surface in as the SvgSurface the adapter declared"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "limits nothing saves",
+   "description": "calls the edit and hands over the zoom bounds no document stores"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "EditHistory",
+   "arrow": "dependency",
+   "label": "empty history + limits",
+   "description": "starts the undo history empty and hands over the limits no document stores"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "FileSystemAccessFileStore",
+   "arrow": "dependency",
+   "label": "file store implementation",
+   "description": "wires the File System Access store in as the FileStore the adapter declared, and takes what a drop hands it"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ImportDocument",
+   "arrow": "dependency",
+   "label": "intake",
+   "description": "asks for an intake, and reads which open choice it was"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "NotifyChangeWatchers",
+   "arrow": "dependency",
+   "label": "wake the watchers",
+   "description": "wakes the watchers once the frame's write is confirmed"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "violations + lookup",
+   "description": "asks what the schedule violates, finds a task by UID, and writes a day as text"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ScreenState",
+   "arrow": "dependency",
+   "label": "screen state held",
+   "description": "starts the screen state empty and holds the next one the frame returns"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "selection held",
+   "description": "starts the selection empty and holds the one each frame returns"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "ValidateImportedDocument",
+   "arrow": "dependency",
+   "label": "untrusted input",
+   "description": "checks untrusted input, and hands over the bounds it is checked against"
+  },
+  {
+   "source": "SvgRenderer",
+   "target": "ItemHitArea",
+   "arrow": "dependency",
+   "label": "hit type",
+   "description": "reads the hit type the item under the pointer is named by"
+  },
+  {
+   "source": "UndoEdit",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type a step back returns"
+  },
+  {
+   "source": "ValidateImportedDocument",
+   "target": "Document",
+   "arrow": "dependency",
+   "label": "document type",
+   "description": "reads the document root type it checks"
+  },
+  {
+   "source": "ValidateImportedDocument",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "settings type",
+   "description": "reads the settings type it checks"
+  },
+  {
+   "source": "ValidateImportedDocument",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "date columns + day maths",
+   "description": "reads the date columns and the day arithmetic each taken-in task is checked with"
   }
  ],
  "layout": {

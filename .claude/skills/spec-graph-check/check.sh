@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 55 mechanical checks for the gr-scheduler specification.
+# All 56 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,7 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 38.
+# The ranges today are 1 + 4 + 8 + 4 + 39.
 #
 # The index below is for the checks a session reads first. Checks 46 to 55 are
 # read from their own docstrings and from docs/development-rules/09-tools.md.
@@ -585,6 +585,22 @@ section "58  the CR-430 sweep: 256 turns, and nothing hidden answers"
 npx --no-install playwright test \
     tests/system/cr-430-labels-and-hidden-things-sweep.test.ts \
     --reporter=line || failed
+
+echo ""
+section "59  every cross-component edge of src/ is in the component figure"
+# ⛔ Green on arrival, with no baseline: MEASURED 2026-09-21, 127 cross-component
+# edges over 193 import sites, read from 302 of 302 import specifiers, 0 of them
+# undeclared -- the 52 the code had grown past the figure were written into
+# components.json in the same change, and the figures rebuilt.
+# ⭐ It reads the edges with check 19's own reader, so the two can never
+# disagree about what an import is; and it holds ONE direction only, because
+# CR-378 決定 7 keeps 「図 ⊆ コード」 out of the gate. The 11 declared edges no
+# import makes are printed, never gated.
+# ⭐ MEASURED by breaking it: adding `import type { Selection }` from
+# entity/document-model/selection to src/use-case/undo-edit/undo-edit.ts -- an
+# edge table T-061 permits and components.json does not declare -- reports
+# exactly 1, while check 19 stays green on the same tree.
+PYTHONIOENCODING=utf-8 python "$HERE/check-component-edges.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

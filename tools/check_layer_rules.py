@@ -19,6 +19,18 @@ requirement with a test. Nothing said who runs that look. This does.
         DOM library, so touching a browser type is a type error rather than a
         name this script could only guess at.
 
+An import of a `.json` is an edge like any other, and the rules above are laid
+on it too. Table T-247 says so in EG-8:
+
+  | EG-8 | 表 T-061 の規則は、本表で数えた辺のすべてに掛かること（MUST） ——
+    `.json` を読む辺も含む |
+
+A `.json` never becomes a public entry (table T-248's JF-1, table T-074's
+SU-1), so reaching into another component's folder for one can never satisfy
+LR-2 -- JF-1 says it outright: 他のコンポーネントのフォルダの `.json` を読んで
+はならない（MUST NOT）. ⛔ Inside one component a `.json` is where JF-2 puts
+it, so those imports are legal and counted as nothing.
+
 ⛔ The first line of every run is the coverage: how many of the import
 specifiers present in src/ this script actually read. A shortfall is a
 violation, not a note. ⚠️ This is not decoration -- a regex that cannot cross
@@ -74,13 +86,21 @@ say = lambda m: sys.stdout.write(m + '\n')
 
 
 def unit_key(path):
-    """(layer, component, file stem) of a file under src/."""
+    """(layer, component, file stem) of a file under src/.
+
+    ⚠️ The stem is taken with splitext rather than by cutting three characters
+    off: EG-8 brings `.json` here too, and a four-letter extension cut as
+    three leaves a stem that matches no component name.
+    """
     rel = os.path.relpath(path, SRC).replace('\\', '/')
     parts = rel.split('/')
     for layer in LAYER_RANK:
         depth = layer.count('/') + 1
         if '/'.join(parts[:depth]) == layer:
-            return layer, parts[depth], parts[-1][:-3]
+            if len(parts) <= depth + 1:
+                # Directly inside the layer folder: it belongs to no component.
+                return layer, None, os.path.splitext(parts[-1])[0]
+            return layer, parts[depth], os.path.splitext(parts[-1])[0]
     return None, None, None
 
 
@@ -134,11 +154,19 @@ def main():
         violations.append('%s: read %d of its %d import specifier(s)'
                           % (name, mine, theirs))
 
+    # ⛔ Printed with the OK below. EG-8 is a clause about a kind of edge this
+    # script used to skip in silence, so the run says how many of them it read.
+    data_read = sum(1 for _path, spec in edges if spec.endswith('.json'))
+
     for path, spec in edges:
         from_layer, from_component, _stem = unit_key(path)
         here = os.path.relpath(path, ROOT).replace('\\', '/')
         if from_layer is None:
             violations.append('%s: sits outside the five layer folders' % here)
+            continue
+        if from_component is None:
+            violations.append('%s: EG-1 -- sits directly in %s/, in no '
+                              'component folder' % (here, from_layer))
             continue
 
         if not spec.startswith('.'):
@@ -147,16 +175,12 @@ def main():
             continue
 
         target = os.path.normpath(os.path.join(os.path.dirname(path), spec))
-        if spec.endswith('.json'):
-            # Data, not a unit. Table T-075 counts units and check 18 counts
-            # `.ts`, so a bundled document (FR-027's template) is neither a
-            # component nor a reach into one. ⛔ Still has to exist: a missing
-            # one would be a build error nobody saw here.
-            if not os.path.exists(target):
-                violations.append('%s: imports %r, which is not a file'
-                                  % (here, spec))
-            continue
-        if not target.endswith('.ts'):
+        # ⛔ EG-8 lays table T-061 on `.json` edges too, so the only thing the
+        # extension changes below is what a legal landing looks like: a `.ts`
+        # may land on another component's public entry, a `.json` may not land
+        # outside its own component at all (JF-1).
+        data = spec.endswith('.json')
+        if not data and not target.endswith('.ts'):
             target += '.ts'
         if not os.path.exists(target):
             violations.append('%s: imports %r, which is not a file' % (here, spec))
@@ -166,6 +190,11 @@ def main():
         if to_layer is None:
             violations.append('%s: imports %r, which is outside the layer folders'
                               % (here, spec))
+            continue
+        if to_component is None:
+            violations.append('%s: imports %r, which sits directly in %s/, in '
+                              'no component folder (EG-1)'
+                              % (here, spec, to_layer))
             continue
 
         # LR-1 / LR-4: crossing a layer boundary is allowed inward only.
@@ -178,6 +207,17 @@ def main():
 
         if (from_layer, from_component) == (to_layer, to_component):
             continue                 # inside one component: Chapter 5.3 allows it
+
+        if data:
+            # JF-1: a `.json` belongs to the component whose folder holds it
+            # and never becomes a public entry, so no reach into another
+            # component's `.json` can go through one. JF-3 names the way that
+            # does: the owner's public entry publishes the value.
+            violations.append(
+                '%s: JF-1 -- reads %s/%s/%s.json, a `.json` of another '
+                'component; the owner publishes it instead (JF-3)'
+                % (here, to_layer, to_component, to_stem))
+            continue
 
         # LR-2 / LR-5: another component is reached through its public entry,
         # the one file whose stem is the component name.
@@ -225,7 +265,8 @@ def main():
     if violations:
         return 1
     say('OK       src/ obeys table T-061 (LR-1 / LR-2 / LR-3 / LR-4 / LR-5) '
-        'over all %d import specifier(s)' % read)
+        'over all %d import specifier(s), the %d that read a `.json` included '
+        '(EG-8 / JF-1)' % (read, data_read))
     return 0
 
 
