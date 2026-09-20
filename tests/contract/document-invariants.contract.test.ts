@@ -384,6 +384,7 @@ const GROUP_ONE: TaskGroup = {
   isCollapsed: null,
   isHidden: null,
   isKeptOpen: false,
+  editGroup: null,
   color: null,
   height: null,
 }

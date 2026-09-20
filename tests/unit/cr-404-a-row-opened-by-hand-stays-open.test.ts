@@ -192,6 +192,7 @@ function smallDocument(part: Fixture): Record<string, any> {
         isCollapsed: folded.has(one.id),
         isHidden: hidden.has(one.id),
         isKeptOpen: kept.has(one.id),
+        editGroup: null,
         color: null,
         height: null,
       })),

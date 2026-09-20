@@ -1227,6 +1227,7 @@
     "isCollapsed",
     "isHidden",
     "isKeptOpen",
+    "editGroup",
     "color",
     "height"
    ],
@@ -1273,6 +1274,12 @@
     "isKeptOpen": {
      "type": "boolean",
      "default": false
+    },
+    "editGroup": {
+     "type": [
+      "string",
+      "null"
+     ]
     },
     "color": {
      "type": [

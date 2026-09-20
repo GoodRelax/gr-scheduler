@@ -119,7 +119,7 @@ function documentWithPanelWidth(propertyPanelWidth: number): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, isCollapsed: false, isHidden: false, isKeptOpen: false, color: null, height: null },
+        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, isCollapsed: false, isHidden: false, isKeptOpen: false, editGroup: null, color: null, height: null },
       ],
       taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID, stackOrder: null }],
       taskVisuals: [],

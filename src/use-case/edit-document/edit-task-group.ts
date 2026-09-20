@@ -261,6 +261,7 @@ export function editTaskGroup(
         isCollapsed: null,
         isHidden: null,
         isKeptOpen: false,
+        editGroup: null,
         color: null,
         height: null,
       }

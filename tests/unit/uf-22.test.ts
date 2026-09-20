@@ -246,6 +246,7 @@ const taskGroupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGr
   isCollapsed: null,
   isHidden: null,
   isKeptOpen: false,
+  editGroup: null,
   color: null,
   height: null,
   ...part,

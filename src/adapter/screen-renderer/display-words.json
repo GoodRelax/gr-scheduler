@@ -3301,6 +3301,17 @@
    }
   },
   {
+   "rowId": "RS-61",
+   "text": {
+    "ja": "この行は別の編集グループのものです",
+    "en": "This row belongs to another edit group"
+   },
+   "nextStep": {
+    "ja": "自分の行へコピーしてから編集してください",
+    "en": "Copy it into one of your own rows, then edit it"
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",

@@ -314,6 +314,7 @@ function documentWith(part: Fixture = {}): Document {
     isCollapsed: folded.has(id),
     isHidden: false,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   })

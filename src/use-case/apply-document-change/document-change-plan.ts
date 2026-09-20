@@ -172,6 +172,7 @@ function documentHoldingOneRow(document: Document, defaultRowName: string): Docu
     isCollapsed: null,
     isHidden: null,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   }

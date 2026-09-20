@@ -88,6 +88,7 @@ function group(id: string, order: number): unknown {
     isCollapsed: false,
     isHidden: false,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   }

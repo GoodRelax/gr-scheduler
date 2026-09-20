@@ -149,6 +149,8 @@ export interface TaskGroup {
   readonly isHidden: boolean | null
   /** AT-142 */
   readonly isKeptOpen: boolean
+  /** AT-144 */
+  readonly editGroup: string | null
   /** AT-58 */
   readonly color: string | null
   /** AT-59 */
@@ -449,6 +451,7 @@ export const COLUMN_SHAPES: {
     isCollapsed: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
     isHidden: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
     isKeptOpen: { kind: 'boolean', choices: null, min: null, max: null, isNullable: false },
+    editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     color: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },

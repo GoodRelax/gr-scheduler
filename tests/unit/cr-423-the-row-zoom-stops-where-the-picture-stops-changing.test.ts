@@ -240,6 +240,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
         isCollapsed: false,
         isHidden: false,
         isKeptOpen: one.isKeptOpen === true,
+        editGroup: null,
         color: null,
         height: null,
       })),

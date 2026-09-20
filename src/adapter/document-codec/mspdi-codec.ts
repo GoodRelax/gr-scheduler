@@ -1378,6 +1378,7 @@ function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): ImportedR
       isCollapsed: null,
       isHidden: null,
       isKeptOpen: false,
+      editGroup: null,
       color: null,
       height: null,
     })

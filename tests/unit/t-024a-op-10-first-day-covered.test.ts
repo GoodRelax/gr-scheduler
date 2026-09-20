@@ -259,6 +259,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   isCollapsed: false,
   isHidden: false,
   isKeptOpen: false,
+  editGroup: null,
   color: null,
   height: null,
 })

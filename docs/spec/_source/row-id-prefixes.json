@@ -436,6 +436,14 @@
    }
   },
   {
+   "prefix": "GP",
+   "words": "Group Permission",
+   "owner": "spec",
+   "means": {
+    "ja": "行の編集グループの規則の条"
+   }
+  },
+  {
    "prefix": "GR",
    "words": "Grab region",
    "owner": "spec",

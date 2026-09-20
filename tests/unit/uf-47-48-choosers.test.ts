@@ -475,6 +475,7 @@ function row(id: string, label: string): Record<string, unknown> {
     isCollapsed: false,
     isHidden: false,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   }

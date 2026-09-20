@@ -1503,6 +1503,22 @@
      }
     },
     {
+     "seat": 144,
+     "name": "editGroup",
+     "type": "文字列",
+     "nullable": "可（`null` ＝ 誰でも編集できる）",
+     "json": {
+      "kind": "string",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111`"
+     }
+    },
+    {
      "seat": 58,
      "name": "color",
      "type": "文字列",

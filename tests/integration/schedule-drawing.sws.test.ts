@@ -312,6 +312,7 @@ const taskGroup = (id: string, order: number, over: Partial<TaskGroup> = {}): Ta
   isCollapsed: false,
   isHidden: false,
   isKeptOpen: false,
+  editGroup: null,
   color: null,
   height: null,
   ...over,

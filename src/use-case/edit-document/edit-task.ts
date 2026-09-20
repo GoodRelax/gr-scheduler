@@ -591,6 +591,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
           isCollapsed: null,
           isHidden: null,
           isKeptOpen: false,
+          editGroup: null,
           color: null,
           height: null,
         }

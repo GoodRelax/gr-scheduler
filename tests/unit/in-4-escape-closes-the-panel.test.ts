@@ -273,6 +273,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
     isCollapsed: false,
     isHidden: false,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   })

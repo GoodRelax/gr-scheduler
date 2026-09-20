@@ -166,6 +166,7 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
         isCollapsed: false,
         isHidden: false,
         isKeptOpen: false,
+        editGroup: null,
         color: null,
         height: null,
       })),

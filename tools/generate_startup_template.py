@@ -2553,6 +2553,9 @@ class Builder(object):
                 'isCollapsed': False,
                 'isHidden': False,
                 'isKeptOpen': False,
+                # GP-1: null is "anyone may edit", which is what a template
+                # that has never met a server must say.
+                'editGroup': None,
                 'color': color,
                 'height': height,
             })

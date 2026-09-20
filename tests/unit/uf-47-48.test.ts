@@ -202,6 +202,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     isCollapsed: false,
     isHidden: false,
     isKeptOpen: false,
+    editGroup: null,
     color: null,
     height: null,
   })
@@ -1232,6 +1233,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
           isCollapsed: false,
           isHidden: false,
           isKeptOpen: false,
+          editGroup: null,
           color: null,
           height: null,
         })
