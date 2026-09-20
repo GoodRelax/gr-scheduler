@@ -84,3 +84,6 @@ tmp/
 # user's ruling): its 64 addresses are all on example.com, its authors and
 # companies are invented, and it holds no secret. Anything a READER saves must
 # still stay out.
+
+# The restored shogi PoC writes its running game beside its server.
+previous-project-result/10-agent-interface/shogi/state.json

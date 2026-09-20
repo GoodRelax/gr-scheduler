@@ -166,7 +166,7 @@ grep -rl "^authority:" previous-project-result/ | wc -l   # 4 でなければ正
 | **14** | **`08-poc/`** | **動く PoC**（`poc-integrated.html` **1 本**・6 タブ。日程表 / 形状の基準 / マルチバー 15 パターン / レベル遷移 / 色と縁取り / 記録）。入口は `08-poc/poc-integrated.html`（**ダブルクリックで開く。サーバー不要**）、結論は `08-poc/POC-RESULTS-ja.md` | **読む前に開いて触る**。**書き戻しは 2026-08-02 に全 13 件を棚卸し済み**（同書 §6 の 6 件と末尾の表の 7 件）。**処置の中身は同書の各行が持つ。ここには複製しない。書き戻し待ちのものは無い** |
 | 15 | `09-architecture/architecture-entry-ja.md` | **アーキ領域の所在**。描画方式 = SVG の結論がどこにあるか / 不変更新ストアが「前提として参照されているのに設計が無い」こと / **モジュール構成と技術スタックは意図的な空白**であること | 事実の所在のみ。決定はしない |
 | 15b | `09-architecture/architecture-layering-draft-ja.md` | **層仕訳の推奨案**。中核計算を entity、操作層を use case、UI と機械向けの口を同格の adapter に置く形 | ⚠️ **`status: draft`。推奨案であって決定ではない**。正式版は次期が決める |
-| **16** | **`10-agent-interface/`** | **機械向けインターフェース**。要求 17 件・API 契約・実測（`file://` の 8 件）・決定 6 件・サンプル JSON 2 本。中心は「**口は 2 つあるが、文書は 1 つ**」 | 入口は `agent-interface-requirements-ja.md`。**`authority` は持たない** |
+| **16** | **`10-agent-interface/`** | **機械向けインターフェース**。要求 17 件・API 契約・実測（`file://` の 8 件）・決定 6 件・サンプル JSON 2 本・将棋 PoC 一式（`shogi/`）。中心は「**口は 2 つあるが、文書は 1 つ**」 | 入口は `agent-interface-requirements-ja.md`。**`authority` は持たない** |
 | — | **`MILESTONES-ja.md`** | **工程表**。節目 6 つ（M0 設計 → M1 骨格 → M2 データと入出力 → M3 核機能 → M4 予実 → M5 仕上げ）と、各節目の**性能ゲート**。**M1 は機能を持たない骨格で、そこで描画方式が決まる** | **着手前に読む。** ⚠️ **節目は再計測が済むまで閉じない**（前プロジェクトはここで死んだ） |
 | — | **`DECIDED-ja.md`** | **決まっていることの全数**。決定文書 8 本に散っている決定を 1 行ずつ引ける索引（175 行）。**結論と所在だけで、値は書いていない** | **最初に読む索引。** ⚠️ **索引であって正ではない**（`type: Index`）。食い違ったら所在の側が勝つ |
 | — | **`NEXT-STEPS-ja.md`** | **実開発ステップ別の欠落一覧 16 件**（要望ヒアリング / UI モック / アーキ / データモデル / 入出力 / 複合動作）。各件に「**今どこまで決まっているか**」を実測で併記 | **着手前に読む。** 既に決まっているものを決め直さないため |
@@ -304,9 +304,12 @@ previous-project-result/
 │   ├── agent-interface-samples-ja.md        動く実例と、トライアルの API との対応表
 │   ├── agent-interface-open-items-ja.md     実測で決着 8 件 / 決定 6 件 / 未決 2 件（いずれも延期）
 │   ├── ai-cowork-trial-findings-ja.md       トライアルの実測（要求の根拠はここ）
-│   └── samples/
-│       ├── grs-document-with-revision-stamp.json
-│       └── agent-apply-request-and-outcomes.json
+│   ├── samples/
+│   │   ├── grs-document-with-revision-stamp.json
+│   │   └── agent-apply-request-and-outcomes.json
+│   └── shogi/                           将棋 PoC（人と AI が 1 つの文書をライブ編集する試作）
+│                                     ⚠️ `e89a17a` で消えた `ai-cowork-trial/shogi/` を
+│                                     2026-09-21 にバイト同一で復元。経緯は `RESTORED-ja.md`
 │
 └── （20-spec-template/ と 21-review-standard/ は移動した）
 ```
