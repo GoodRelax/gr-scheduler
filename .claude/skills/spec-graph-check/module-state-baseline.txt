@@ -1,0 +1,17 @@
+# Check 61 -- module-scope mutable state held by the inner three layers
+# (gate 4, docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md;
+# initial value approved by rulings.md JDG-124).
+#
+# 2 finding(s), measured by check-module-state.py: a column-0 let/var
+# (with or without export) is flagged unconditionally; a column-0 const X =
+# new Map/Set/WeakMap/WeakSet(...), const X = [ or const X = { is flagged
+# only when the same file also mutates X (X.set/add/delete/clear/push/
+# pop/shift/unshift/splice(, X[...] =, or X.prop =). See DFC-583 (docs/development-records/defects.md).
+#
+# HELD both ways (checks 26b and 43's shape): a finding not named here is
+# a new leak and FAILS; a HELD line naming no current finding FAILS too.
+# Delete a line in the same commit that moves its state to the shell
+# (stage 7 / CR-379 decision 7).
+#
+HELD src/use-case/apply-document-change/apply-document-change.ts:deliveringNotices
+HELD src/use-case/notify-change-watchers/notify-change-watchers.ts:REGISTRATIONS

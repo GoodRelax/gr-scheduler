@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 56 mechanical checks for the gr-scheduler specification.
+# All 58 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,7 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 39.
+# The ranges today are 1 + 4 + 8 + 4 + 41.
 #
 # The index below is for the checks a session reads first. Checks 46 to 55 are
 # read from their own docstrings and from docs/development-rules/09-tools.md.
@@ -205,6 +205,42 @@
 #          answers "No test files found" and exits 1. ⚠️ It is the only check
 #          here that starts a dev server; MEASURED 2026-09-21 at 6-7s wall
 #          including the warm-up, and it leaves no server behind
+#
+#   59     check-component-edges.py : a cross-component import of src/ that
+#          `_source/components.json` does not declare as an edge (`EG-5` of
+#          table T-247). One direction only: an edge the figure declares and
+#          no import makes is printed as NOT GATED, because CR-378 decision 7
+#          keeps 「図 ⊆ コード」 out of the gate. ⚠️ It reads the code side
+#          through check 19's own reader, so the two move together
+#
+#   60     check-function-size.py : the function-size ratchet of JDG-54 --
+#          no function of src/ may GROW, and none may newly cross the band
+#          (more than 50 lines or more than 15 branches) without its debt
+#          being written down. ⚠️ There is no line of specification behind
+#          it: JDG-54 deliberately sets no upper limit before stage 8, so
+#          impact.py has nothing to point it at. ⛔ It is the first check
+#          here that calls `node` -- function-size.mjs does the AST walk with
+#          rolldown/parseAst, the parser the plan's record 1 used. Held two
+#          ways against function-size-baseline.txt, the shape of checks 26b
+#          and 43: line 1 carries the two totals (excess-lines,
+#          excess-branches) and a rise in either FAILS, each HELD line is one
+#          banded function and a rise in ITS numbers FAILS, and a HELD line
+#          whose function has shrunk, moved or gone is stale and FAILS too.
+#          ⭐ So SPLITTING a banded function is red until the same commit
+#          rewrites the baseline, which is the point of the second direction:
+#          the totals always fall on a real split, and only the file says
+#          which names paid the debt
+#   61     check-module-state.py : module-scope mutable state in the inner
+#          three layers. The clause is table T-249's SF-7 --
+#          「内側の 3 層のモジュールスコープに可変状態を置かない」 -- and 5.3's prose
+#          behind it. Read lexically at column 0: a `let` / `var` always, a
+#          `const X = new Map/Set/WeakMap/WeakSet(...)` or `const X = [` / `{`
+#          only when the SAME file also mutates X, which is how a ReadonlyMap
+#          nothing writes passes without this check parsing the annotation.
+#          ⚠️ Aliasing and cross-file mutation are invisible to a lexical
+#          read, and it prints that on every run rather than leaving it
+#          implied. Held both ways against module-state-baseline.txt, which
+#          exempts exactly the two findings DFC-583 already records
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -601,6 +637,48 @@ section "59  every cross-component edge of src/ is in the component figure"
 # edge table T-061 permits and components.json does not declare -- reports
 # exactly 1, while check 19 stays green on the same tree.
 PYTHONIOENCODING=utf-8 python "$HERE/check-component-edges.py" || failed
+
+echo ""
+section "60  no function of src/ is bigger than the baseline already holds"
+# ⛔ The clause is JDG-54, not a line of the specification: the upper limit is
+# deliberately not decided before stage 8, so this is a RATCHET -- a function
+# already over the band may stay over it, but it may not GROW, and a new one
+# may not cross the band unheld. MEASURED 2026-09-21 on c71de89b: 1969
+# function(s) in src/**/*.ts, excess-lines=8412 excess-branches=952, 78 held
+# over the band.
+# ⛔ The first check here that calls `node` (function-size.mjs, rolldown's
+# parseAst). `npm run test` already needs node, so this adds no new premise.
+# ⭐ MEASURED by breaking it: adding 6 lines and 1 branch to the held
+# screenFrameFromRegions reports 2 (the totals rise, and that function's own
+# HELD line rises); adding a brand-new 59-line function the baseline does not
+# hold reports 2 (the totals rise, and the new function is banded and unheld);
+# and SHRINKING that same held function out of the band -- its parameter list
+# collapsed onto one line, 55 lines -> 50 -- reports 1, a stale HELD line,
+# although the totals FELL (8412 -> 8407). ⚠️ That last one is the case that
+# surprises people, and it is deliberate: a HELD line is a claim about one
+# named function, so paying the debt means deleting its line in the same
+# commit. Without the totals, a rename could fatten a function and pass;
+# without the HELD lines, one function could grow by exactly as much as
+# another shrank and the totals would not move.
+PYTHONIOENCODING=utf-8 python "$HERE/check-function-size.py" || failed
+
+echo ""
+section "61  the inner three layers hold no module-scope mutable state"
+# ⛔ The clause is SF-7 of 表 T-249 (docs/spec/05-07-design.md:915):
+# 「内側の 3 層のモジュールスコープに可変状態を置かない」, with 5.3's prose behind
+# it. MEASURED 2026-09-21 on c71de89b: 121 column-0 candidate(s) in 60 file(s)
+# of src/entity, src/use-case and src/adapter, 2 flagged after the same-file
+# mutation filter -- exactly the two DFC-583 records, both held.
+# ⚠️ Lexical, not AST: mutation through an alias, and mutation from another
+# file, are invisible to it. Its COVERAGE line prints that on every run.
+# ⭐ MEASURED by breaking it: `let syntheticUndoCounter = 0` at column 0 of
+# src/use-case/undo-edit/undo-edit.ts reports 1, and
+# `const SYNTHETIC_SEEN = new Set<string>()` with one `.add(` in
+# src/entity/document-model/screen-state/screen-state.ts reports 1 -- the
+# const is flagged only because the same file mutates it, which is what lets
+# a ReadonlyMap nobody writes stay green. Without this gate a third module
+# state could be added in silence while DFC-583's two wait on CR-379.
+PYTHONIOENCODING=utf-8 python "$HERE/check-module-state.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

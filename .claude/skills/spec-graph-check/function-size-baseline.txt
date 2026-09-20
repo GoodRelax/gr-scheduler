@@ -1,0 +1,98 @@
+excess-lines=8412 excess-branches=952
+# Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
+# JDG-124). A function bands when it has more than 50 lines or more than 15
+# branches -- see function-size.mjs's docstring for exactly how lines and
+# branches are counted, and how an anonymous function is named
+# "<outer>#<n>". JDG-54 sets no upper limit before stage 8; this file only
+# forbids a rise.
+#
+# THE RATCHET (two-way, like checks 26b and 43). Line 1 above is
+# excess-lines = sum of max(0, lines-50) and excess-branches = sum of
+# max(0, branches-15), over every function src/**/*.ts holds; a rise in
+# either FAILS. Each HELD line below is one function currently over the
+# band; a rise in ITS lines or branches FAILS, a newly banded function
+# absent from this file FAILS, and a HELD line whose function no longer
+# exists or has dropped out of the band is stale and FAILS too -- even when
+# the totals above went down, since a HELD line is a claim about one named
+# function, judged on its own. Splitting a banded function is not blocked:
+# rewrite this file, in the same commit, to drop the old line and add the
+# new ones. Raise a number, or add or keep a HELD line, only on purpose,
+# and say why in the commit.
+HELD src/adapter/agent-api-endpoint/agent-api-members.ts::agentApiMembers lines=358 branches=0
+HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 branches=7
+HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
+HELD src/adapter/document-codec/json-codec.ts::collectFaults lines=61 branches=24
+HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=57 branches=11
+HELD src/adapter/document-codec/mspdi-codec.ts::readStartTag lines=49 branches=27
+HELD src/adapter/document-codec/mspdi-codec.ts::readXml lines=105 branches=27
+HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
+HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromArmed lines=84 branches=25
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=207 branches=79
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromGrab lines=169 branches=69
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromKey lines=89 branches=67
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromRowEntry lines=77 branches=19
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromTaskColumn lines=47 branches=20
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromVisualColumn lines=44 branches=26
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromWheel lines=55 branches=17
+HELD src/adapter/input-command-translator/input-command-translator.ts::highlightBoxRangeWrite lines=82 branches=31
+HELD src/adapter/input-command-translator/input-command-translator.ts::planActualWithColumn lines=38 branches=17
+HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=44 branches=21
+HELD src/adapter/input-command-translator/input-command-translator.ts::rowGrabLandingOf lines=56 branches=7
+HELD src/adapter/input-command-translator/input-command-translator.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
+HELD src/adapter/input-command-translator/input-command-translator.ts::screenStateFromInput lines=45 branches=25
+HELD src/adapter/input-command-translator/input-command-translator.ts::selectionFromInput lines=64 branches=36
+HELD src/adapter/input-command-translator/input-command-translator.ts::wouldMoveARow lines=52 branches=23
+HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=56 branches=13
+HELD src/adapter/screen-renderer/open-modals.ts::openModalFromScreenState lines=89 branches=12
+HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=91 branches=27
+HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
+HELD src/adapter/screen-renderer/screen-frame.ts::screenFrameFromRegions lines=55 branches=2
+HELD src/adapter/svg-renderer/svg-renderer.ts::rulerSvg lines=79 branches=13
+HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=615 branches=126
+HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
+HELD src/entity/document-model/schedule/schedule.ts::find~16 lines=52 branches=10
+HELD src/entity/document-model/schedule/schedule.ts::nestingOf lines=61 branches=14
+HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=62 branches=9
+HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::progressLineOf lines=40 branches=16
+HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::routeOf lines=68 branches=11
+HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::taskGeometryOf lines=58 branches=13
+HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::fitZoom lines=73 branches=12
+HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=277 branches=26
+HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#9 lines=72 branches=18
+HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::pinnedBandOf lines=59 branches=9
+HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::controlElement lines=62 branches=20
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=871 branches=1
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::modalElement lines=172 branches=33
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::rowTitleElement lines=148 branches=16
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=133 branches=37
+HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=257 branches=0
+HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
+HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=103 branches=23
+HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=254 branches=68
+HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=96 branches=2
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2616 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=168 branches=37
+HELD src/framework/single-html-shell/frame-loop.ts::owesFrame lines=30 branches=17
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=189 branches=80
+HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=135 branches=14
+HELD src/framework/single-html-shell/frame-loop.ts::sessionOf lines=94 branches=7
+HELD src/framework/single-html-shell/frame-loop.ts::tentativeDependencyOf lines=64 branches=19
+HELD src/framework/single-html-shell/frame-loop.ts::viewSettings lines=55 branches=6
+HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=205 branches=6
+HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
+HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentReplacement lines=81 branches=13
+HELD src/use-case/edit-document/edit-annotation.ts::editAnnotation lines=148 branches=39
+HELD src/use-case/edit-document/edit-calendar.ts::editCalendar lines=69 branches=22
+HELD src/use-case/edit-document/edit-dependency.ts::editDependency lines=92 branches=21
+HELD src/use-case/edit-document/edit-document-settings.ts::editDocumentSettings lines=141 branches=32
+HELD src/use-case/edit-document/edit-project.ts::editProject lines=49 branches=22
+HELD src/use-case/edit-document/edit-resource.ts::editResource lines=132 branches=16
+HELD src/use-case/edit-document/edit-task-group.ts::editTaskGroup lines=433 branches=103
+HELD src/use-case/edit-document/edit-task.ts::editTask lines=486 branches=101
+HELD src/use-case/import-document/import-document.ts::builtMerge lines=282 branches=56
+HELD src/use-case/import-document/import-document.ts::mergedDocument lines=94 branches=17
+HELD src/use-case/validate-imported-document/validate-imported-document.ts::validateImportedDocument lines=151 branches=29
+HELD src/use-case/validate-imported-document/validate-imported-document.ts::wbsShapeOf lines=55 branches=14

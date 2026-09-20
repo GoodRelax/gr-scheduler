@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 57 -- gate 4 of stage 3: module-scope mutable state in the inner
+"""Check 61 -- gate 4 of stage 3: module-scope mutable state in the inner
 three layers (docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md,
 gate 4; rulings.md JDG-124 approved this baseline's initial value).
 
@@ -294,7 +294,7 @@ def baseline_text(flagged):
     DFC-583; then one `HELD <file>:<name>` line per flagged finding, sorted.
     """
     header = [
-        '# Check 57 -- module-scope mutable state held by the inner three '
+        '# Check 61 -- module-scope mutable state held by the inner three '
         'layers',
         '# (gate 4, docs/development-records/'
         'refactor-stage3-gates-proposal-2026-09-15.md;',
@@ -422,10 +422,10 @@ def self_test():
                         % '; '.join(lines4))
 
     for failure in failures:
-        say('FAIL     check 57 self-test: %s' % failure)
+        say('FAIL     check 61 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 57 self-test: 3 break(s) went red and the current '
+    say('OK       check 61 self-test: 3 break(s) went red and the current '
         'tree, held against a baseline generated from it, is green')
     return 0
 

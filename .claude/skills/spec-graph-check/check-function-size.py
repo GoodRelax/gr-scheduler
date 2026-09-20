@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 56 -- the function-size ratchet (`JDG-54`, `JDG-124`).
+"""Check 60 -- the function-size ratchet (`JDG-54`, `JDG-124`).
 
 `JDG-54` answers the plan's question 6 by refusing to set an upper limit on a
 function's size until stage 8 measures the refactored tree; until then, the
@@ -142,7 +142,7 @@ DATA_RE = re.compile(r'^excess-lines=(\d+)\s+excess-branches=(\d+)$')
 HELD_RE = re.compile(r'^HELD (.+) lines=(\d+) branches=(\d+)$')
 
 BASELINE_HEADER = ('''\
-# Check 56 -- the function-size ratchet (JDG-54; baseline values agreed in
+# Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than %d lines or more than %d
 # branches -- see function-size.mjs's docstring for exactly how lines and
 # branches are counted, and how an anonymous function is named
@@ -163,7 +163,7 @@ BASELINE_HEADER = ('''\
 # and say why in the commit.
 ''' % (LINE_BAND, BRANCH_BAND, LINE_BAND, BRANCH_BAND))
 
-SELF_TEST_FILE = 'src/self-test/check-56-synthetic.ts'
+SELF_TEST_FILE = 'src/self-test/check-60-synthetic.ts'
 
 
 def say(message):
@@ -591,10 +591,10 @@ def self_test():
                             'generated from itself: %s' % '; '.join(msgs4))
 
     for failure in failures:
-        say('FAIL     check 56 self-test: %s' % failure)
+        say('FAIL     check 60 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 56 self-test: 3 break(s) went red for the reason '
+    say('OK       check 60 self-test: 3 break(s) went red for the reason '
         'expected, the split with its baseline rewritten is green, and the '
         'real tree is green against a baseline generated from itself')
     return 0
