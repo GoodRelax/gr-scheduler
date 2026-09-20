@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 52 mechanical checks for the gr-scheduler specification.
+# All 55 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,7 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 35.
+# The ranges today are 1 + 4 + 8 + 4 + 38.
 #
 # The index below is for the checks a session reads first. Checks 46 to 55 are
 # read from their own docstrings and from docs/development-rules/09-tools.md.
@@ -181,6 +181,30 @@
 #          run. It reads what git reports as changed, so on a clean tree it
 #          passes having looked at nothing; that is correct, it is the
 #          cheapest guard
+#   56     check-grab-table-parents.py : a table written inside one of the
+#          grab-area requirements that NO requirement of that family names.
+#          The rule is `FR-104`'s own RATIONALE -- 「親を持たない表を置かない
+#          こと（MUST NOT）」 -- and BOTH the permitted parents and the tables
+#          to check are read out of the document on every run, so neither list
+#          can rot here. ⭐ A table's own `**表 T-nnn —` heading does not count
+#          as a naming; counting it would make the check green by construction.
+#          ⛔ ONE-DIRECTIONAL, exactly as the clause is: a table must have a
+#          parent, a requirement need not have a table (`FR-044` has none --
+#          ledger row DFC-671)
+#   57     check-decision-tables.py : a decision table with a gap or an
+#          overlap once 「—」 and 「（問わない）」 are expanded. The rule is the
+#          MUST at the end of section 1.9. ⛔ The condition columns and each
+#          column's DOMAIN live in the script, with the source of each domain
+#          in a comment beside it, and a cell holding a value outside its
+#          declared domain is itself a failure -- that is what stops the
+#          domains there from going stale in silence
+#   58     the CR-430 sweep, 256 turns of the seven axes, run from inside this
+#          suite. ⛔ It is run with PLAYWRIGHT, not Vitest: tests/system/ is
+#          Playwright's place (table T-218, see playwright.config.ts) and the
+#          case imports `@playwright/test`, so `vitest run` on that file
+#          answers "No test files found" and exits 1. ⚠️ It is the only check
+#          here that starts a dev server; MEASURED 2026-09-21 at 6-7s wall
+#          including the warm-up, and it leaves no server behind
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -522,6 +546,45 @@ section "55  src/ and tests/ comments hold to ruling 17 and JDG-62: ASCII, the a
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" || failed
 
+echo ""
+section "56  every table the grab-area requirements hold is named by one of them"
+# ⛔ Green on arrival, with no baseline: MEASURED 2026-09-21 on 0163153c, 13
+# tables defined inside the ten requirements the clause names, 0 of them
+# parentless. ⭐ Both lists are READ -- the permitted parents from the clause
+# line, the tables from the headings inside those requirements' blocks -- so
+# the day FR-109 gains a table it is checked with no edit to the script.
+# ⭐ MEASURED by breaking it: removing 「前後は表 T-020 に従うこと。」, T-020's
+# only naming, reports 1; removing FR-106's 「表 T-269」 (the break CR-430 §8
+# lists) reports 0, because FR-104's table header still names it -- the naming
+# count falls 2 → 1 and the table still has a parent.
+PYTHONIOENCODING=utf-8 python "$HERE/check-grab-table-parents.py" || failed
+
+echo ""
+section "57  a decision table covers its conditions and never overlaps"
+# ⛔ Green on arrival, with no baseline: MEASURED 2026-09-21, 表 T-272 4/4
+# combinations, 表 T-273 12/12, 表 T-270 42/42 cells over 14 rows, 0 gaps and
+# 0 overlaps. ⭐ MEASURED by breaking it: deleting `LP-3` reports 1 gap,
+# widening `LP-5`'s マーカー to 「（問わない）」 reports 2 overlaps, putting
+# `RF-3`'s 実績を表示 to 「する」 reports 2 gaps and 2 overlaps, and naming a
+# shape the declared domain does not hold reports the stale domain first.
+PYTHONIOENCODING=utf-8 python "$HERE/check-decision-tables.py" || failed
+
+echo ""
+section "58  the CR-430 sweep: 256 turns, and nothing hidden answers"
+# ⛔ RUN WITH PLAYWRIGHT, NOT VITEST. CR-430 §8 asked for `vitest run`, but
+# tests/system/ is Playwright's place (table T-218) and the case imports
+# `@playwright/test`; MEASURED 2026-09-21, `npx --no-install vitest run` on it
+# prints "No test files found" and exits 1, because vitest.config.ts includes
+# only tests/contract, tests/integration and tests/unit.
+# ⚠️ THE ONLY CHECK HERE THAT STARTS A DEV SERVER. 6-7s wall on a warm tree,
+# and the server is gone when it returns.
+# ⭐ MEASURED by breaking it: deleting row `GA-18` from 表 T-266 turns 2 of the
+# 6 cases red (「marker answered nowhere」) -- the sweep reads the table at run
+# time. ⚠️ CR-430 §8's own break ④ (表 GA のマーカーの値を 0 にする) cannot go
+# red: `S-284` IS ALREADY 0px, and putting it to 40px left all 6 green too.
+npx --no-install playwright test \
+    tests/system/cr-430-labels-and-hidden-things-sweep.test.ts \
+    --reporter=line || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
