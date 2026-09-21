@@ -230,8 +230,7 @@ export async function saveDocumentFile(
       bytes,
       suggestedFileName: request.suggestedFileName,
       extension: request.extension,
-      // STOP: spec does not decide if a chosen-file save becomes the opened file. Looked in FR-060
-      // @provisional PND-20
+      // DEVIATION: spec says only GRS JSON round-trips (FR-060, SK-11); here mspdi also does (DFC-720)
       shouldBecomeOpenedFile: isRoundTripForm(request.form),
       // WHY: asked by the store once the destination is open, so it is read only once.
       askToWriteOver: (destination) => askToWriteOver(request, destination),

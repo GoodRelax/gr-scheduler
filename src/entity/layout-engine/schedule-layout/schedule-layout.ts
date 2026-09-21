@@ -1252,8 +1252,7 @@ function clampedZoom(value: number, zoom: NotStoredZoom): number {
 // see FR-055
 // STOP: spec does not decide the zoomX the horizontal is measured at; here unity. Looked in S-86, T-068
 // @provisional PND-203
-// STOP: spec does not decide which axes FR-016's range clamps; here the horizontal only. Looked in FR-016, CM-71
-// @provisional PND-205
+// DEVIATION: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726)
 /** @purity pure */
 export function fitZoom(
   schedule: Schedule,

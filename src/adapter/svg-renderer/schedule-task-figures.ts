@@ -576,9 +576,6 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
       settings.dependencyWidth,
       selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
     )
-    // STOP: spec does not decide a line with one end scrolled out under the band; here it stays and is cut.
-    // Looked in RT-4a, FR-098
-    // @provisional PND-416
     const predecessorPlaced = placedOf.get(link.predecessorUid)
     const successorPlaced = placedOf.get(link.successorUid)
     const predecessorPinned =

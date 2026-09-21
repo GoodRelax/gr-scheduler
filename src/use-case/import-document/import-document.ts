@@ -301,7 +301,6 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
     documentSettings: restoredSettings(request.incoming.documentSettings, request.defaultSettings),
   }
 
-  // STOP: spec does not decide whether a replace advances importSeq. Looked in MG-13, FR-056, OP-3, OP-6 (PND-483)
   return {
     ok: true,
     document,

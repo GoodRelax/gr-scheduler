@@ -51,8 +51,6 @@ function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettin
 
 /** @purity pure */
 function availableLabelWidthPx(depth: number, settings: DocumentSettings): number {
-  // STOP: spec does not decide the row controls' arrangement and behaviour. Looked in HF-1, FR-102
-  // @provisional PND-397
   const roomForControlsPx = NOT_STORED_ROW_CONTROL_SIZES['S-140']
   // see FR-029
   const roomForGrabStripPx =

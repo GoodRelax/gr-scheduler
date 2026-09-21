@@ -690,8 +690,7 @@ export const ENTRY = {
   fontScale: 'IC-99',
   themeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
-  // STOP: spec does not decide whether EN-2 paints this entrance while the watermark shows.
-  // Looked in EN-2, T-237 @provisional PND-418
+  // DEVIATION: spec says EN-5 paints this entrance while shown; here it is not painted (DFC-724)
   watermark: 'IC-41',
   statusLine: 'IC-44',
   alignStart: 'IC-37',

@@ -35,8 +35,7 @@ export function fitWrites(context: InputContext): readonly (readonly DocumentCom
   return [[fitCommand(context)], [{ kind: 'expandAllTaskGroups' }]]
 }
 
-// STOP: spec does not decide the zoom step of one SK-16 / SK-16a / SK-16b / SK-16c press.
-// Looked in S-53, S-75, S-76, FR-016. @provisional PND-11
+// see S-53, FR-016
 /** @purity pure */
 export function keyZoomFactor(context: InputContext, isIn: boolean): number {
   const step = context.zoomStep

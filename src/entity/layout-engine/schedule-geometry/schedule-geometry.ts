@@ -204,9 +204,7 @@ function fadedOutline(x0: number, x1: number, top: number, height: number,
   ]
 }
 
-// see GA-7, GA-8, FD-4
-// STOP: spec does not decide whether a fade handle stands on the chevron's notch or on the time axis. Looked in FD-5, T-023d
-// @provisional PND-252
+// see GA-7, GA-8, FD-4, FD-5
 /** @purity pure */
 function fadeHandlePoints(placed: TaskPlacement, planTop: number): readonly Point[] {
   return [
@@ -1174,8 +1172,7 @@ function commentGeometry(
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     let widest = 0
     for (const line of lines) widest = Math.max(widest, labelUnits(line))
-    // STOP: spec does not decide the size of an empty body. Looked in CM-46, FR-097
-    // @provisional PND-236
+    // DEVIATION: spec says the floor is T-215's font size, not one full-width char (FR-097); here it is (DFC-722)
     if (widest === 0) widest = 2
     // STOP: spec does not decide where a never-dragged body sits; a zero offset stands in. Looked in FR-019, CM-46
     // @provisional PND-232
