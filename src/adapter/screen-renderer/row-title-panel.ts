@@ -13,7 +13,7 @@ import {
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenViewReadings } from './screen-renderer'
 
-interface PanelIndex {
+interface PanelIndex extends OpenAllMarks {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
   readonly groupIdsWithDrawnChildren: ReadonlySet<string>
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
@@ -23,11 +23,16 @@ interface PanelIndex {
   // below it. Looked in HF-18, HF-12. @provisional PND-412
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   readonly foldedRowCountAtLevelZero: number
+  readonly rootGroups: readonly TaskGroup[]
+  readonly taskNameByUid: ReadonlyMap<number, string | null>
+}
+
+type IndexCore = Omit<PanelIndex, keyof OpenAllMarks>
+
+interface OpenAllMarks {
   readonly groupIdsWithAFoldAtOrBelow: ReadonlySet<string>
   readonly groupIdsWithAKeptOpenMarkBelow: ReadonlySet<string>
   readonly isAnyRowMarkedOrFolded: boolean
-  readonly rootGroups: readonly TaskGroup[]
-  readonly taskNameByUid: ReadonlyMap<number, string | null>
 }
 
 const TRUNCATION_MARK = '\u2026'
@@ -194,9 +199,40 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
     : { ...box, y: y + held.resistedPx }
 }
 
+// see HF-2, HF-10, KO-2, KO-3
+/** @purity pure */
+function openAllMarksOf(schedule: Schedule): OpenAllMarks {
+  const childrenOf = new Map<string, TaskGroup[]>()
+  for (const group of schedule.taskGroups) {
+    if (group.parentId !== null) childrenOf.set(group.parentId, [...(childrenOf.get(group.parentId) ?? []), group])
+  }
+  const folds = new Set<string>()
+  const marks = new Set<string>()
+  // TRAP: visited guards a parentId ring; without it the walk never returns.
+  const visited = new Set<string>()
+  const walk = (group: TaskGroup): void => {
+    if (visited.has(group.id)) return
+    visited.add(group.id)
+    if (group.isCollapsed === true || group.isHidden === true) folds.add(group.id)
+    for (const child of childrenOf.get(group.id) ?? []) {
+      walk(child)
+      if (folds.has(child.id)) folds.add(group.id)
+      if (child.isKeptOpen || marks.has(child.id)) marks.add(group.id)
+    }
+  }
+  for (const group of schedule.taskGroups) walk(group)
+  return {
+    groupIdsWithAFoldAtOrBelow: folds,
+    groupIdsWithAKeptOpenMarkBelow: marks,
+    isAnyRowMarkedOrFolded: schedule.taskGroups.some(
+      (one) => one.isCollapsed === true || one.isHidden === true || one.isKeptOpen,
+    ),
+  }
+}
+
 // see HF-12, HF-13, HF-18
 /** @purity pure */
-function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroFolded: boolean): PanelIndex {
+function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroFolded: boolean): IndexCore {
   const groupsById = new Map<string, TaskGroup>()
   const groupIdsWithHiddenChild = new Set<string>()
   const groupIdsWithAChildOutOfThePicture = new Set<string>()
@@ -250,17 +286,10 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     }
   }
   walkDeepestFirst(null)
-  const groupIdsWithAFoldAtOrBelow = new Set<string>()
-  const groupIdsWithAKeptOpenMarkBelow = new Set<string>()
   for (const group of orderedDeepestFirst) {
     let subtreeSize = 1
     let folded = 0
-    if (group.isCollapsed === true || group.isHidden === true) groupIdsWithAFoldAtOrBelow.add(group.id)
     for (const child of childrenByParentId.get(group.id) ?? []) {
-      if (groupIdsWithAFoldAtOrBelow.has(child.id)) groupIdsWithAFoldAtOrBelow.add(group.id)
-      if (child.isKeptOpen || groupIdsWithAKeptOpenMarkBelow.has(child.id)) {
-        groupIdsWithAKeptOpenMarkBelow.add(group.id)
-      }
       const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
       folded +=
@@ -290,11 +319,6 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     boxByGroupId,
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,
-    groupIdsWithAFoldAtOrBelow,
-    groupIdsWithAKeptOpenMarkBelow,
-    isAnyRowMarkedOrFolded: schedule.taskGroups.some(
-      (one) => one.isCollapsed === true || one.isHidden === true || one.isKeptOpen,
-    ),
     rootGroups,
     taskNameByUid,
   }
@@ -312,7 +336,7 @@ export function rowTitlePanelFromSchedule(
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
   const isLevelZeroFolded = session.screen.levelZeroFoldState.kind === 'folded'
-  const index = panelIndexOf(schedule, readings, isLevelZeroFolded)
+  const index = { ...panelIndexOf(schedule, readings, isLevelZeroFolded), ...openAllMarksOf(schedule) }
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
   const chosenGroupIds: ReadonlySet<string> = new Set(readings.selectedGroupIds)
   const grabbed = readings.rowGrabbedAt ?? null
@@ -361,7 +385,6 @@ export function rowTitlePanelFromSchedule(
   return {
     pinnedTitles,
     titles,
-    // see HF-10, KO-3
     canOpenEveryRow: index.isAnyRowMarkedOrFolded,
     canCloseEveryRow:
       !isLevelZeroFolded && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),
