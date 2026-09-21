@@ -14,6 +14,7 @@ export type {
   AgentImportSource,
   AgentRefusal,
   AgentRefusalReason,
+  AgentUtteranceOutcome,
   AgentWatch,
   AgentWriteOutcome,
   AgentWriteRequest,

@@ -36,7 +36,9 @@ export function postDialogueMessage(
 
   holder.replace(posted)
 
-  // STOP: spec does not decide an utterance posted from inside deliver; it delivers again. Looked in AG-6, AG-11, WS-2, FT-5 (PND-456)
+  // see AG-6, AG-11, WS-2, FT-5
+  // WHY: the mid-delivery refusal sits one layer out, at AM-18 in
+  // agent-api-members.ts -- the one caller reachable from inside `deliver`.
   audience.deliver(posted)
 
   return posted
