@@ -1538,9 +1538,9 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
   })
 
   it('FT-1: the frame that paints the question is the press coming back, with no second input', async () => {
-    // 「FT-1 | 人の入力（ポインタとキー）。⭐ **その入力の、待ち（表 T-066 の
-    //   `CS-4`）をまたいだ続きを含む** | …… ⚠️ **待ちをまたいだ続きを起こすのは
-    //   シェル自身である**」
+    // 「FT-1 | 人の入力（ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の
+    //   `OP-2`）。⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む** |
+    //   …… ⚠️ **待ちをまたいだ続きを起こすのはシェル自身である**」
     const pane = host()
     const screen = screenPane()
     const files = fileStore()

@@ -855,8 +855,8 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
   }
 
   it('draws a box with no 線色 in a fixed colour kept away from the hue and the 依存線', () => {
-    // FR-019: 「指定が無ければ注記用の固定色で描くこと（MUST）。その固定色は、
-    // テーマの色相・依存線・イナズマ線のいずれからも離した色とする」。
+    // FR-019: 「指定が無ければ注記用の固定色で描くこと（MUST）」、「その固定色は、
+    // テーマの色相・依存線・イナズマ線のいずれからも離した色とすることが望ましい（SHOULD）」。
     // FR-041 repeats it from the other side: 「注記の固定色は追随させない
     // （MUST NOT）」
     const at214 = boxStroke(withBox(214, null))

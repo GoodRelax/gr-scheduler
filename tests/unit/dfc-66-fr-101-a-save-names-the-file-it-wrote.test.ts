@@ -76,8 +76,8 @@
 //      `FR-101`'s RATIONALE: 「⛔ **実測: 2 度目以降の保存は成功していたのに、
 //      画素が 1 つも変わらないので利用者には失敗として見えていた。**」
 //      ⭐ WHY IT IS STILL NOT ASSERTED. `FT-1` of 表 T-078 reads 「人の入力
-//      （ポインタとキー）。⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ
-//      続きを含む**」, which would make the end of the save that press's own
+//      （ポインタとキー）と、ファイルのドロップ（01-04 の 表 T-024a の `OP-2`）。
+//      ⭐ **その入力の、待ち（表 T-066 の `CS-4`）をまたいだ続きを含む**」, which would make the end of the save that press's own
 //      frame -- but the paragraph that explains it (05-07-design.md, above
 //      表 T-067) gives ONLY the case where a question goes up: 「⭐ **待ちが終わ
 //      って問いが立つときのフレームは 表 T-078 の `FT-1` である**」. ⛔ No row says
