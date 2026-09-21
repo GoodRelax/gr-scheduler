@@ -487,15 +487,15 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     ).toEqual({ canOpen: false, canClose: true, canCloseBelow: true })
   })
 
-  it('does not arm any control against the display amount (HF-7)', () => {
-    // WHY: the zoom (FR-018), not a fold, is why these children are undrawn,
-    // so HR-3/HR-4 find nothing to open or fold; HF-3 (HR-6) still hides `p`.
+  it('arms the opener when the zoom leaves an unmarked row\'s children undrawn (HF-2, seam S-2)', () => {
+    // WHY: HF-2 arms the opener when the pressed row carries no mark and a direct child is not
+    // drawn at the FR-018 scale; nothing is folded, so HF-11 still has nothing to fold below.
     expect(
       parentTitle(
         [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
         ['p'],
       ).expander,
-    ).toEqual({ canOpen: false, canClose: true, canCloseBelow: false })
+    ).toEqual({ canOpen: true, canClose: true, canCloseBelow: false })
   })
 
   it('offers all three at once -- HF-1 is a lattice, not one control in three states', () => {

@@ -1249,8 +1249,8 @@ describe('IC-17 and DR-3 -- the document\'s drawing settings', () => {
     ).toBe(KEYS_WITH_NO_ROW.length)
   })
 
-  it('MUST mark them editable (UN-13 of table T-027 undoes a settings change)', () => {
-    for (const field of settingsPanel().fields) expect(field.isEditable, field.name).toBe(true)
+  it('FR-072: ⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）', () => {
+    for (const field of settingsPanel().fields) expect(field.isEditable, field.name).toBe(false)
   })
 
   it('names a row for each of them', () => {
