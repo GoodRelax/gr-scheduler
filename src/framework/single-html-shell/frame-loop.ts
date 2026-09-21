@@ -708,6 +708,7 @@ const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
 const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
 const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
+const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -1484,6 +1485,8 @@ interface ScreenEffectHands {
   readonly answerOverwriteQuestion: (isProceeding: boolean) => void
   readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
   readonly bringCreatedRowIntoSight: (groupId: string) => void
+  readonly beginInteractionRecord: () => void
+  readonly handInteractionRecordToClipboard: () => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1524,8 +1527,8 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
 
     bringCreatedRowIntoSight: (effect) => hands.bringCreatedRowIntoSight(effect.groupId),
 
-    beginInteractionRecord: unwiredEffect,
-    handInteractionRecordToClipboard: unwiredEffect,
+    beginInteractionRecord: () => hands.beginInteractionRecord(),
+    handInteractionRecordToClipboard: () => hands.handInteractionRecordToClipboard(),
 
     storeAgentApiEnabling: unwiredEffect,
   }
@@ -1735,6 +1738,11 @@ function fieldFocusWantedIn(session: ScreenSession): string | null {
 /** @purity pure */
 function isEditingFieldIn(session: ScreenSession): boolean {
   return session.fieldEntry.fieldEditState.kind === 'editingField'
+}
+
+/** @purity pure */
+function isRecordingInteractionsIn(session: ScreenSession): boolean {
+  return session.interactionRecord.interactionRecordingState.kind === 'recordingInteractions'
 }
 
 // WHY: one empty selection for nothingSelected: the shell compares selections by identity.
@@ -2182,8 +2190,7 @@ export function frameLoop(
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // DEVIATION: spec says a hidden palette has no minimise state (T-280); here the record keeps it (DFC-707)
   let paletteMinimisedWhileHidden = false
-  let isRecordingInteractions = false
-  const interactionRecord: string[] = []
+  const recordedLines: string[] = []
   let interactionRecordDropped = 0
   let interactionRecordBeganAt = 0
   let interactionRecordOffered = 0
@@ -2310,6 +2317,8 @@ export function frameLoop(
     },
     carryOutOwedAction,
     bringCreatedRowIntoSight: (groupId) => (addedRowOwedSight = groupId),
+    beginInteractionRecord,
+    handInteractionRecordToClipboard,
   })
 
   /** @purity non-pure */
@@ -2349,12 +2358,17 @@ export function frameLoop(
   // see FR-102, S-207
   /** @purity non-pure */
   function recordLine(what: string, detail: string): void {
-    if (!isRecordingInteractions) return
+    if (!isRecordingInteractionsIn(session)) return
+    appendRecordedLine(what, detail)
+  }
+
+  /** @purity non-pure */
+  function appendRecordedLine(what: string, detail: string): void {
     interactionRecordOffered += 1
     const foundAt = Math.round(readMonotonicMs() - interactionRecordBeganAt)
-    interactionRecord.push(`${interactionRecordOffered}\t${foundAt}\t${what}\t${detail}`)
-    while (interactionRecord.length > NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']) {
-      interactionRecord.shift()
+    recordedLines.push(`${interactionRecordOffered}\t${foundAt}\t${what}\t${detail}`)
+    while (recordedLines.length > NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']) {
+      recordedLines.shift()
       interactionRecordDropped += 1
     }
   }
@@ -2377,7 +2391,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function recordHappening(input: HumanInput): void {
-    if (!isRecordingInteractions) return
+    if (!isRecordingInteractionsIn(session)) return
     const mods = `mods=${recordedModifiers(input.modifiers)}`
     if (input.kind === 'pointer') {
       recordLine(
@@ -2399,7 +2413,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function recordFrame(svg: string, drawnLayout: ScheduleLayout): void {
-    if (!isRecordingInteractions) return
+    if (!isRecordingInteractionsIn(session)) return
     const drawn = new Map<string, number>()
     for (const found of svg.matchAll(/<([a-z]+)[\s/>]/g)) {
       const tag = found[1] ?? ''
@@ -2435,30 +2449,29 @@ export function frameLoop(
   function interactionRecordText(): string {
     const head = [
       'GRS interaction record (FR-102) -- no document contents are recorded',
-      `lines: ${interactionRecord.length} kept of ${interactionRecordOffered} offered, ` +
+      `lines: ${recordedLines.length} kept of ${interactionRecordOffered} offered, ` +
         `${interactionRecordDropped} dropped from the oldest end ` +
         `(cap ${NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']}, S-207)`,
       'seq\tms\twhat\tdetail',
     ]
-    return [...head, ...interactionRecord].join('\n')
+    return [...head, ...recordedLines].join('\n')
   }
 
   // see IC-76, FR-102
   /** @purity non-pure */
-  function turnInteractionRecord(): void {
-    if (!isRecordingInteractions) {
-      interactionRecord.length = 0
-      interactionRecordDropped = 0
-      interactionRecordOffered = 0
-      interactionRecordBeganAt = readMonotonicMs()
-      isRecordingInteractions = true
-      recordLine('record', 'started entrance=IC-76')
-      return
-    }
-    recordLine('record', 'stopped entrance=IC-76')
+  function beginInteractionRecord(): void {
+    recordedLines.length = 0
+    interactionRecordDropped = 0
+    interactionRecordOffered = 0
+    interactionRecordBeganAt = readMonotonicMs()
+    recordLine('record', 'started entrance=IC-76')
+  }
+
+  /** @purity non-pure */
+  function handInteractionRecordToClipboard(): void {
+    appendRecordedLine('record', 'stopped entrance=IC-76')
     const text = interactionRecordText()
-    isRecordingInteractions = false
-    interactionRecord.length = 0
+    recordedLines.length = 0
     interactionRecordDropped = 0
     interactionRecordOffered = 0
     const seam = clipboard
@@ -2609,7 +2622,7 @@ export function frameLoop(
               : null,
           commandPaletteDraggedTo,
           rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
-          isRecordingInteractions,
+          isRecordingInteractions: isRecordingInteractionsIn(session),
           selectedGroupIds: session.selection.chosenRows,
           selectedResourceUids: session.selection.chosenResources,
           confirmation: questionIn(session),
@@ -3932,7 +3945,7 @@ export function frameLoop(
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
-      turnInteractionRecord()
+      sendToSession(INTERACTION_RECORD_TOGGLED, frame)
       return true
     }
     if (entry === DIALOGUE_FIELD_ENTRY) {
