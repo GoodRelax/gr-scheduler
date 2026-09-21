@@ -4134,19 +4134,6 @@
      ]
     },
     {
-     "key": "fieldFocusLanded",
-     "source": {
-      "kind": "effectResult",
-      "rows": [
-       "IN-5b"
-      ],
-      "note": {
-       "ja": "描いたあとに置いた焦点が、求めた欄に入った（宿主の答え）"
-      }
-     },
-     "carries": []
-    },
-    {
      "key": "fieldFocusWithdrawn",
      "source": {
       "kind": "input",
@@ -4160,6 +4147,69 @@
       }
      },
      "carries": []
+    },
+    {
+     "key": "fieldEditBegan",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IF-9",
+       "IN-5b",
+       "AG-9"
+      ],
+      "note": {
+       "ja": "宿主が知らせる: 文字入力の欄で編集が始まった（焦点が入った）。人の押下・キーで入っても、求めた焦点が入っても同じ"
+      }
+     },
+     "carries": [
+      {
+       "name": "fieldRow",
+       "rows": [
+        "IF-9",
+        "PR-1",
+        "AT-53",
+        "PR-16",
+        "PR-21",
+        "U-27",
+        "U-60"
+       ],
+       "note": {
+        "ja": "編集が始まった欄が名乗る行 ID"
+       }
+      }
+     ]
+    },
+    {
+     "key": "fieldEditEnded",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IF-9",
+       "SK-19",
+       "IN-4",
+       "IN-6"
+      ],
+      "note": {
+       "ja": "宿主が知らせる: その欄の編集が終わった（確定・取り消し・欄が消えた —— どれでも）"
+      }
+     },
+     "carries": [
+      {
+       "name": "fieldRow",
+       "rows": [
+        "IF-9",
+        "PR-1",
+        "AT-53",
+        "PR-16",
+        "PR-21",
+        "U-27",
+        "U-60"
+       ],
+       "note": {
+        "ja": "編集が終わった欄が名乗る行 ID"
+       }
+      }
+     ]
     },
     {
      "key": "choiceMoved",
@@ -4251,7 +4301,7 @@
      }
     },
     {
-     "name": "fieldFocusWantStateMachine",
+     "name": "fieldEditStateMachine",
      "states": [
       {
        "key": "idle",
@@ -4260,7 +4310,8 @@
        "carries": [],
        "evidence": [
         "IN-5a",
-        "IN-5b"
+        "IN-5b",
+        "AG-9"
        ]
       },
       {
@@ -4287,6 +4338,33 @@
         "FR-091",
         "FR-035"
        ]
+      },
+      {
+       "key": "editingField",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "fieldRow",
+         "rows": [
+          "IF-9",
+          "PR-1",
+          "AT-53",
+          "PR-16",
+          "PR-21",
+          "U-27",
+          "U-60"
+         ]
+        }
+       ],
+       "evidence": [
+        "AG-9",
+        "IN-5a",
+        "IN-4",
+        "IN-6",
+        "SK-19",
+        "IF-9"
+       ]
       }
      ],
      "transitions": {
@@ -4308,6 +4386,23 @@
         ],
         "note": {
          "ja": "`fieldRow` を書き換える"
+        }
+       },
+       "editingField": {
+        "to": "fieldFocusWanted",
+        "guard": [
+         {
+          "name": "isEditedField",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "MK-13",
+         "FR-035",
+         "IN-5b"
+        ],
+        "note": {
+         "ja": "求めた欄が編集中の欄なら求めは既に満ちている"
         }
        }
       },
@@ -4333,13 +4428,61 @@
         "note": {
          "ja": "`fieldRow` を書き換える"
         }
+       },
+       "editingField": {
+        "to": "fieldFocusWanted",
+        "evidence": [
+         "FR-091",
+         "HF-14",
+         "IN-5b"
+        ],
+        "note": {
+         "ja": "`fieldRow` はタスクなら `PR-1`、行なら `AT-53`"
+        }
        }
       },
-      "fieldFocusLanded": {
+      "fieldEditBegan": {
+       "idle": {
+        "to": "editingField",
+        "evidence": [
+         "AG-9",
+         "IN-5a",
+         "IF-9"
+        ]
+       },
        "fieldFocusWanted": {
-        "to": "idle",
+        "to": "editingField",
         "evidence": [
          "IN-5b"
+        ],
+        "note": {
+         "ja": "求めた欄なら焦点が入った。別の欄なら人が焦点を動かした —— どちらも求めは終わる"
+        }
+       },
+       "editingField": {
+        "to": "editingField",
+        "evidence": [
+         "IN-5a",
+         "IF-9"
+        ],
+        "note": {
+         "ja": "`fieldRow` を書き換える（編集する欄が替わった）"
+        }
+       }
+      },
+      "fieldEditEnded": {
+       "editingField": {
+        "to": "idle",
+        "guard": [
+         {
+          "name": "isEditedField"
+         }
+        ],
+        "evidence": [
+         "SK-19",
+         "IN-4",
+         "IN-6",
+         "IF-9"
         ]
        }
       },

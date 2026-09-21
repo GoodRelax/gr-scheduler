@@ -1,4 +1,4 @@
-// DFC-579: IN-5a routes a key by where it lands (the Dialogue Field), not by IF-9's one boolean (T-028, T-065, PND-350).
+// DFC-579: IN-5a routes a key by where it lands (the Dialogue Field), not by IF-9's editing state (T-028, T-065, PND-350).
 
 import { describe, expect, it } from 'vitest'
 
@@ -35,8 +35,7 @@ const IN_5A_MUST_NOT =
 const IN_5A_COPY_PASTE = '`SK-4` / `SK-5`（`Ctrl+C` / `Ctrl+V`）も同様に効かせず'
 
 const IF_9 = unbroken(rowOf('T-065', 'IF-9').cells.join(' '))
-const IF_9_ONE_BOOLEAN =
-  '確定していない文字入力の有無は真偽 1 つとし、どの欄が保持しているかを返してはならない（MUST NOT）'
+const IF_9_DIALOGUE_LEFT_OUT = '対話欄（`U-44`）は編集の始まりも終わりも知らせない'
 
 const IN_4 = unbroken(rowOf('T-028', 'IN-4').cells.join(' '))
 
@@ -51,8 +50,8 @@ describe('DFC-579 premises: IN-5a, IF-9 and IN-4 still read this way', () => {
     expect(IN_5A).toContain(IN_5A_COPY_PASTE)
   })
 
-  it("IF-9 still answers unsettled text entry as one boolean, naming no field", () => {
-    expect(IF_9).toContain(IF_9_ONE_BOOLEAN)
+  it('IF-9 still leaves the Dialogue Field out of the editing state', () => {
+    expect(IF_9).toContain(IF_9_DIALOGUE_LEFT_OUT)
   })
 
   it('IN-4 is a different rung of Esc, untouched by this file', () => {

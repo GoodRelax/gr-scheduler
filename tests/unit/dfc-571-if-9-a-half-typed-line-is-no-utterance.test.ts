@@ -1,4 +1,4 @@
-// DFC-571: the surface hands back only a settled utterance, and a half-typed line as one boolean (IF-9, AG-11).
+// DFC-571: the surface hands back only a settled utterance, never a half-typed line (IF-9, AG-11).
 
 import { describe, expect, it } from 'vitest'
 
@@ -31,9 +31,9 @@ const IF_9 = unbroken(rowOf('T-065', 'IF-9').cells.join(' '))
 const AG_11 = unbroken(rowOf('T-035', 'AG-11').cells.join(' '))
 
 const IF_9_SETTLED_UTTERANCE = '対話欄で確定した発話を返し、'
-const IF_9_WHETHER_UNSETTLED = 'まだ確定していない文字入力があるかを答え、'
-const IF_9_ONE_BOOLEAN =
-  '確定していない文字入力の有無は真偽 1 つとし、どの欄が保持しているかを返してはならない（MUST NOT）'
+const IF_9_EDIT_NOTICES = '文字入力を受ける欄で編集が始まったことと終わったことを、その欄が名乗る行 ID とともに知らせ'
+const IF_9_NO_CONTENT =
+  '知らせが運ぶのは欄の行 ID だけとし、確定していない中身（打ちかけの文字）を返してはならない（MUST NOT）'
 const AG_11_MUST_NOT = '確定していない入力途中の文字を読めてはならない（MUST NOT）'
 
 const DIALOGUE_FIELD_ROLE = bare(rowOf('T-103', 'U-44').by['確定名（英）'] ?? '')
@@ -123,8 +123,8 @@ function typed(text: string): { surface: ScreenSurface } {
 describe('DFC-571 -- IF-9 of 表 T-065 and AG-11 of 表 T-035', () => {
   it('the clauses these cases rest on still stand in IF-9 and AG-11', () => {
     expect(IF_9).toContain(IF_9_SETTLED_UTTERANCE)
-    expect(IF_9).toContain(IF_9_WHETHER_UNSETTLED)
-    expect(IF_9).toContain(IF_9_ONE_BOOLEAN)
+    expect(IF_9).toContain(IF_9_EDIT_NOTICES)
+    expect(IF_9).toContain(IF_9_NO_CONTENT)
     expect(AG_11).toContain(AG_11_MUST_NOT)
     expect(DIALOGUE_FIELD_ROLE).not.toBe('')
   })
@@ -145,7 +145,8 @@ describe('DFC-571 -- IF-9 of 表 T-065 and AG-11 of 表 T-035', () => {
     expect(JSON.stringify(second ?? null)).not.toContain(HALF_LINE)
   })
 
-  it('IF-9: まだ確定していない文字入力があるかを答え、 -- an empty field is answered as false, with no utterance', () => {
+  // WHY: the surface still answers a boolean until it sends the begin and end notices (CR-500 wave B).
+  it('IF-9: 文字入力を受ける欄で編集が始まったこと -- an empty field has begun no edit, and hands back no utterance', () => {
     const { surface } = drawn()
 
     expect(surface.hasUnsettledTextEntry()).toBe(false)

@@ -125,8 +125,9 @@ const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } 
 const IS_FIELD_ENTRY_EVENT: { readonly [T in FieldEntryValuesEvent['type']]: true } = {
   fieldFocusAsked: true,
   creationLanded: true,
-  fieldFocusLanded: true,
   fieldFocusWithdrawn: true,
+  fieldEditBegan: true,
+  fieldEditEnded: true,
   choiceMoved: true,
 }
 

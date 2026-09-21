@@ -1295,18 +1295,19 @@ describe('the tables these cases copy still say what the copies say', () => {
 
 describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell names five.
-  // 表 T-065's IF-9 reads 「作った記述を画面に載せ、対話欄で確定した発話を返し、
-  // **プロパティパネルの欄で確定した値を、その欄が名乗る行 ID とともに返し**、
-  // **まだ確定していない文字入力があるかを答え**、
-  // **画面上の点がどの UI パーツ（表 T-103）のどの入口（表 T-109）の上か、および
-  // 書き出しの選択面では 表 T-024 のどの形式の上かを答える**」 -- five duties, in
-  // that order:
+  // 表 T-065's IF-9 names five duties, in this order: put the description on
+  // the screen, hand back the settled utterance, hand back the settled value of
+  // an editable field with its row ID, tell when editing in a text field began
+  // and ended, and answer what is drawn at a point:
   //
   //   put the description on the screen        showScreenView
   //   hand back the settled utterance          readDialogueInput
   //   hand back the settled field value        readFieldCommit
-  //   answer whether text stands unsettled     hasUnsettledTextEntry
+  //   tell when editing began and ended        hasUnsettledTextEntry
   //   answer what is drawn at a point          readScreenPartAt
+  //
+  // ⚠️ hasUnsettledTextEntry still answers the older boolean; wave B of CR-500
+  // replaces it with the begin and end notices, and this roster moves with it.
   //
   // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
   // would go green on a member swapped for another, and one that read the keys

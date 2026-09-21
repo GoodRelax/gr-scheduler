@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { FIELD_ENTRY_VALUES_TRANSITIONS } from '../../src/use-case/advance-screen-session/field-entry-values'
+import { specTable, unbroken } from '../contract/spec-table'
 
 type GuardTerm = { readonly name: string; readonly not?: true } | { readonly in: string }
 
@@ -125,8 +126,29 @@ describe('the printed table of region fieldEntry states every case of a cell onc
   })
 
   it('prints no fall-through where a cell has no guard', () => {
-    const row = printedRow('fieldFocusAsked', '`fieldFocusWanted`')
+    const row = printedRow('fieldEditBegan', '`editingField`')
     expect(row).not.toBe('')
     expect(row).not.toContain('それ以外')
+  })
+})
+
+// WHY: IF-9 hands the field being edited to table T-292, and the printed rows are where
+// that hand-over lands: the field row is read by the isEditedField guard, and only there.
+describe('IF-9 of table T-065 leaves the field row to the cells of table T-292', () => {
+  const row = specTable('T-065').rows.find((one) => one.id === 'IF-9')
+  const IF_9 = unbroken(row?.cells.join(' ') ?? '')
+  const HAND_NOTICES_FIRST = '読む側は、状態を読む前に届いている知らせをすべて状態機械へ渡すこと（MUST）'
+  const ROW_READ_BY_CELLS_ONLY =
+    '行 ID を読むのは 表 T-292 の升（ガードと運ぶ値の書き換え）だけとし、上の 3 つの規則は `editingField` に居るかしか読まない（MUST）'
+
+  it('still says so in IF-9', () => {
+    expect(IF_9).toContain(HAND_NOTICES_FIRST)
+    expect(IF_9).toContain(ROW_READ_BY_CELLS_ONLY)
+  })
+
+  it('prints the guard that reads the field row only on cells leaving editingField', () => {
+    const guarded = FIELD_ENTRY_VALUES_TRANSITIONS.filter((one) => (one.guard ?? '').includes('isEditedField'))
+    expect(guarded.map((one) => one.state)).toEqual(guarded.map(() => 'fieldEditStateMachine.editingField'))
+    expect(guarded.length).toBeGreaterThan(0)
   })
 })

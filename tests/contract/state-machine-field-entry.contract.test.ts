@@ -86,10 +86,16 @@ const FIELD_ROWS = ['PR-1', 'AT-53', 'PR-16', 'PR-21', 'U-27'] as const
 const TASK_FIELD = 'PR-1'
 const ROW_FIELD = 'AT-53'
 const NAMED_UID = 5
+// see IF-9, IN-5a, U-60
+const EDITED_ROWS = ['PR-1', 'AT-53', 'U-27', 'U-60'] as const
 
 const STATE_VALUES: Readonly<Record<string, Readonly<Record<string, readonly Loose[]>>>> = {
   createdTaskNamingStateMachine: { idle: [{}], namingCreatedTask: [{ createdTaskUid: NAMED_UID }] },
-  fieldFocusWantStateMachine: { idle: [{}], fieldFocusWanted: FIELD_ROWS.map((fieldRow) => ({ fieldRow })) },
+  fieldEditStateMachine: {
+    idle: [{}],
+    fieldFocusWanted: FIELD_ROWS.map((fieldRow) => ({ fieldRow })),
+    editingField: EDITED_ROWS.map((fieldRow) => ({ fieldRow })),
+  },
 }
 
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
@@ -99,8 +105,9 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
     { created: { kind: 'task', uid: 9 } },
     { created: { kind: 'row', groupId: 'group1' } },
   ],
-  fieldFocusLanded: [{}],
   fieldFocusWithdrawn: [{}],
+  fieldEditBegan: EDITED_ROWS.map((fieldRow) => ({ fieldRow })),
+  fieldEditEnded: EDITED_ROWS.map((fieldRow) => ({ fieldRow })),
   choiceMoved: [{}],
 }
 
@@ -135,17 +142,21 @@ function entryEvents(): Loose[] {
   })
 }
 
-function guardHolds(guard: RawGuard, event: Loose): boolean {
+function guardHolds(guard: RawGuard, entry: Loose, event: Loose): boolean {
   switch (guard.name) {
     case 'isCreatedTask':
       return (event['created'] as Loose | undefined)?.['kind'] === 'task'
+    case 'isEditedField': {
+      const edit = entry['fieldEditState'] as Loose
+      return edit['kind'] === 'editingField' && edit['fieldRow'] === event['fieldRow']
+    }
     default:
       throw new Error(`guard ${String(guard.name)} is named by the manuscript but not by this file's oracle`)
   }
 }
 
-function pick(cell: RawCell | undefined, event: Loose): RawBranch | undefined {
-  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, event) !== (g.not === true)))
+function pick(cell: RawCell | undefined, entry: Loose, event: Loose): RawBranch | undefined {
+  return branchesOf(cell).find((b) => (b.guard ?? []).every((g) => guardHolds(g, entry, event) !== (g.not === true)))
 }
 
 // WHY: the T-292 notes say which carried value a cell writes; FR-091 names the created
@@ -153,6 +164,7 @@ function pick(cell: RawCell | undefined, event: Loose): RawBranch | undefined {
 function expectedCarried(target: string, event: Loose): Loose {
   const created = event['created'] as Loose | undefined
   if (target === 'namingCreatedTask') return { createdTaskUid: created?.['uid'] }
+  if (target === 'editingField') return { fieldRow: event['fieldRow'] }
   if (target !== 'fieldFocusWanted') return {}
   if (event['type'] === 'fieldFocusAsked') return { fieldRow: event['fieldRow'] }
   return { fieldRow: created?.['kind'] === 'task' ? TASK_FIELD : ROW_FIELD }
@@ -171,10 +183,10 @@ function expectEntryStep(session: ScreenSession, event: Loose): void {
   const type = String(event['type'])
   const before = entryOf(session)
   const fired = ENTRY.machines.flatMap((m) => {
-    const branch = pick(m.transitions[type]?.[kindOf(before[fieldOf(m.name)])], event)
+    const branch = pick(m.transitions[type]?.[kindOf(before[fieldOf(m.name)])], before, event)
     return branch === undefined ? [] : [{ machine: m, branch }]
   })
-  const root = pick(ENTRY.root.transitions[type], event)
+  const root = pick(ENTRY.root.transitions[type], before, event)
   const cells = [...fired.map((f) => f.branch), ...(root === undefined ? [] : [root])]
   const expectedEffects = cells.filter((b) => b.effect !== undefined).map((b) => expectedEffect(b, event))
   const changes = fired.filter((f) => {
@@ -264,7 +276,7 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
   }
   const busy = withEntry({
     createdTaskNamingState: { kind: 'namingCreatedTask', createdTaskUid: NAMED_UID },
-    fieldFocusWantState: { kind: 'fieldFocusWanted', fieldRow: TASK_FIELD },
+    fieldEditState: { kind: 'fieldFocusWanted', fieldRow: TASK_FIELD },
   })
   const cases = OTHER_REGIONS.flatMap((name) =>
     regionNamed(name).events.map((ev) => {
@@ -275,5 +287,39 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
   )
   it.each(cases)('%s', (_, event) => {
     expect(entryOf(step(busy, event).state)).toBe(entryOf(busy))
+  })
+})
+
+describe('IN-5a / IN-5b (T-292): an edit is reported per field, and a wanted focus ends when an edit begins', () => {
+  const editing = (fieldRow: string): ScreenSession => withEntry({ fieldEditState: { kind: 'editingField', fieldRow } })
+
+  it('fieldFocusWanted(PR-1) x fieldEditBegan(PR-1) -> editingField(PR-1), and fieldEditEnded(PR-1) -> idle', () => {
+    const wanted = withEntry({ fieldEditState: { kind: 'fieldFocusWanted', fieldRow: TASK_FIELD } })
+    const began = step(wanted, { type: 'fieldEditBegan', fieldRow: TASK_FIELD }).state
+    expect(entryOf(began)['fieldEditState']).toEqual({ kind: 'editingField', fieldRow: TASK_FIELD })
+    const ended = step(began, { type: 'fieldEditEnded', fieldRow: TASK_FIELD }).state
+    expect(kindOf(entryOf(ended)['fieldEditState'])).toBe('idle')
+  })
+
+  it('isEditedField false: fieldEditEnded on another field leaves the edit of this one', () => {
+    const session = editing('U-27')
+    expect(step(session, { type: 'fieldEditEnded', fieldRow: TASK_FIELD }).state).toBe(session)
+  })
+
+  it('fieldEditBegan on another field while editing switches the carried field', () => {
+    const after = step(editing('U-27'), { type: 'fieldEditBegan', fieldRow: 'U-60' }).state
+    expect(entryOf(after)['fieldEditState']).toEqual({ kind: 'editingField', fieldRow: 'U-60' })
+  })
+
+  it('SF-3: fieldEditBegan on the field already being edited returns the same reference', () => {
+    const session = editing('AT-53')
+    const result = step(session, { type: 'fieldEditBegan', fieldRow: 'AT-53' })
+    expect(result.state).toBe(session)
+    expect(result.effects).toBe(NO_EFFECTS)
+  })
+
+  it.each(['idle', 'editingField'])('fieldFocusWithdrawn acts only in fieldFocusWanted: %s is kept', (kind) => {
+    const session = withEntry({ fieldEditState: kind === 'idle' ? { kind } : { kind, fieldRow: 'U-27' } })
+    expect(step(session, { type: 'fieldFocusWithdrawn' }).state).toBe(session)
   })
 })

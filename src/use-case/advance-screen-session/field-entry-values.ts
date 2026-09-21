@@ -6,7 +6,7 @@
 
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
-// WHY: the five field rows the shell names; a field is asked for by its row, never by its element.
+// WHY: the rows asked for focus; an edited field may name any editable row (IF-9), so carried rows are strings.
 export type FieldEntryFieldRow = 'PR-1' | 'AT-53' | 'PR-16' | 'PR-21' | 'U-27'
 
 export interface FieldEntryCreatedTask {
@@ -24,11 +24,11 @@ export type FieldEntryCreated = FieldEntryCreatedTask | FieldEntryCreatedRow
 
 export interface FieldEntryValuesStateCarried {
   readonly createdTaskUid: number
-  readonly fieldRow: FieldEntryFieldRow
+  readonly fieldRow: string
 }
 
 export interface FieldEntryValuesEventCarried {
-  readonly fieldRow: FieldEntryFieldRow
+  readonly fieldRow: string
   readonly created: FieldEntryCreated
 }
 
@@ -48,20 +48,22 @@ export type FieldEntryValuesKey =
   | 'fieldEntry'
   | 'createdTaskNamingStateMachine.idle'
   | 'createdTaskNamingStateMachine.namingCreatedTask'
-  | 'fieldFocusWantStateMachine.idle'
-  | 'fieldFocusWantStateMachine.fieldFocusWanted'
+  | 'fieldEditStateMachine.idle'
+  | 'fieldEditStateMachine.fieldFocusWanted'
+  | 'fieldEditStateMachine.editingField'
 
 export type CreatedTaskNamingState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'namingCreatedTask'; readonly createdTaskUid: FieldEntryValuesStateCarried['createdTaskUid'] }
 
-export type FieldFocusWantState =
+export type FieldEditState =
   | { readonly kind: 'idle' }
   | { readonly kind: 'fieldFocusWanted'; readonly fieldRow: FieldEntryValuesStateCarried['fieldRow'] }
+  | { readonly kind: 'editingField'; readonly fieldRow: FieldEntryValuesStateCarried['fieldRow'] }
 
 export interface FieldEntryValues {
   readonly createdTaskNamingState: CreatedTaskNamingState
-  readonly fieldFocusWantState: FieldFocusWantState
+  readonly fieldEditState: FieldEditState
 }
 
 export type FieldEntryValuesAxes = Omit<FieldEntryValues, never>
@@ -69,8 +71,9 @@ export type FieldEntryValuesAxes = Omit<FieldEntryValues, never>
 export type FieldEntryValuesEvent =
   | { readonly type: 'fieldFocusAsked'; readonly fieldRow: FieldEntryValuesEventCarried['fieldRow'] }
   | { readonly type: 'creationLanded'; readonly created: FieldEntryValuesEventCarried['created'] }
-  | { readonly type: 'fieldFocusLanded' }
   | { readonly type: 'fieldFocusWithdrawn' }
+  | { readonly type: 'fieldEditBegan'; readonly fieldRow: FieldEntryValuesEventCarried['fieldRow'] }
+  | { readonly type: 'fieldEditEnded'; readonly fieldRow: FieldEntryValuesEventCarried['fieldRow'] }
   | { readonly type: 'choiceMoved' }
 
 export type FieldEntryValuesEffectName =
@@ -87,7 +90,7 @@ export interface FieldEntryValuesTransition {
 
 const FIELD_ENTRY_VALUES_INITIAL_AXES: FieldEntryValuesAxes = {
   createdTaskNamingState: { kind: 'idle' },
-  fieldFocusWantState: { kind: 'idle' },
+  fieldEditState: { kind: 'idle' },
 }
 
 export const FIELD_ENTRY_VALUES_TRANSITIONS: readonly FieldEntryValuesTransition[] = [
@@ -124,50 +127,90 @@ export const FIELD_ENTRY_VALUES_TRANSITIONS: readonly FieldEntryValuesTransition
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.idle',
+    state: 'fieldEditStateMachine.idle',
     event: 'fieldFocusAsked',
     guard: null,
-    to: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
     effect: null,
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    state: 'fieldEditStateMachine.fieldFocusWanted',
     event: 'fieldFocusAsked',
     guard: null,
-    to: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
     effect: null,
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.idle',
+    state: 'fieldEditStateMachine.editingField',
+    event: 'fieldFocusAsked',
+    guard: 'not isEditedField',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fieldEditStateMachine.idle',
     event: 'creationLanded',
     guard: null,
-    to: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
     effect: null,
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    state: 'fieldEditStateMachine.fieldFocusWanted',
     event: 'creationLanded',
     guard: null,
-    to: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
     effect: null,
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.fieldFocusWanted',
-    event: 'fieldFocusLanded',
+    state: 'fieldEditStateMachine.editingField',
+    event: 'creationLanded',
     guard: null,
-    to: 'fieldFocusWantStateMachine.idle',
+    to: 'fieldEditStateMachine.fieldFocusWanted',
     effect: null,
     effectArgument: null,
   },
   {
-    state: 'fieldFocusWantStateMachine.fieldFocusWanted',
+    state: 'fieldEditStateMachine.idle',
+    event: 'fieldEditBegan',
+    guard: null,
+    to: 'fieldEditStateMachine.editingField',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fieldEditStateMachine.fieldFocusWanted',
+    event: 'fieldEditBegan',
+    guard: null,
+    to: 'fieldEditStateMachine.editingField',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fieldEditStateMachine.editingField',
+    event: 'fieldEditBegan',
+    guard: null,
+    to: 'fieldEditStateMachine.editingField',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fieldEditStateMachine.editingField',
+    event: 'fieldEditEnded',
+    guard: 'isEditedField',
+    to: 'fieldEditStateMachine.idle',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fieldEditStateMachine.fieldFocusWanted',
     event: 'fieldFocusWithdrawn',
     guard: null,
-    to: 'fieldFocusWantStateMachine.idle',
+    to: 'fieldEditStateMachine.idle',
     effect: null,
     effectArgument: null,
   },
@@ -187,30 +230,40 @@ const ROW_NAME_FIELD_ROW: FieldEntryFieldRow = 'AT-53'
 // see T-292
 export const emptyFieldEntryValues: FieldEntryValues = { ...FIELD_ENTRY_VALUES_INITIAL_AXES }
 
-// see FR-091, TC-9
 /** @purity pure */
 function isCreatedTask(created: FieldEntryCreated): created is FieldEntryCreatedTask {
   return created.kind === 'task'
 }
 
-// WHY: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
+// WHY: an unmoved machine, or a carried value rewritten with itself, keeps its reference (SD-3, SF-3).
 /** @purity pure */
 function combined(
   values: FieldEntryValues,
   naming: CreatedTaskNamingState,
-  want: FieldFocusWantState,
+  edit: FieldEditState,
   effects: Effects,
 ): FieldEntryStep {
-  const isKept = naming === values.createdTaskNamingState && want === values.fieldFocusWantState
-  const state = isKept ? values : { ...values, createdTaskNamingState: naming, fieldFocusWantState: want }
+  const isKept = naming === values.createdTaskNamingState && edit === values.fieldEditState
+  const state = isKept ? values : { ...values, createdTaskNamingState: naming, fieldEditState: edit }
   return isKept && effects.length === 0 ? unchanged(values) : { state, effects }
 }
 
-// WHY: rewriting a carried value with the one it already holds changes nothing (SF-3).
 /** @purity pure */
-function wanted(want: FieldFocusWantState, fieldRow: FieldEntryFieldRow): FieldFocusWantState {
-  if (want.kind === 'fieldFocusWanted' && want.fieldRow === fieldRow) return want
+function wanted(edit: FieldEditState, fieldRow: string): FieldEditState {
+  if (edit.kind === 'fieldFocusWanted' && edit.fieldRow === fieldRow) return edit
   return { kind: 'fieldFocusWanted', fieldRow }
+}
+
+/** @purity pure */
+function editing(edit: FieldEditState, fieldRow: string): FieldEditState {
+  if (edit.kind === 'editingField' && edit.fieldRow === fieldRow) return edit
+  return { kind: 'editingField', fieldRow }
+}
+
+// WHY: a late end of the previous field must not end the next one's edit (CR-500 decision 5).
+/** @purity pure */
+function isEditedField(edit: FieldEditState, fieldRow: string): boolean {
+  return edit.kind === 'editingField' && edit.fieldRow === fieldRow
 }
 
 /** @purity pure */
@@ -219,40 +272,50 @@ function named(naming: CreatedTaskNamingState, createdTaskUid: number): CreatedT
   return { kind: 'namingCreatedTask', createdTaskUid }
 }
 
-// see T-292, MK-13, FR-035, IN-5b
 /** @purity pure */
 function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusAsked'>): FieldEntryStep {
-  const want = wanted(values.fieldFocusWantState, event.fieldRow)
+  if (isEditedField(values.fieldEditState, event.fieldRow)) return unchanged(values)
+  const want = wanted(values.fieldEditState, event.fieldRow)
   return combined(values, values.createdTaskNamingState, want, NO_EFFECTS)
 }
 
 // WHY: an added row leaves the naming scene as it is, as today's shell does (CR-480 decision 9).
-// see T-292, FR-091, HF-14, HF-17
 /** @purity pure */
 function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLanded'>): FieldEntryStep {
   const { created } = event
-  const { createdTaskNamingState: naming, fieldFocusWantState: want } = values
+  const { createdTaskNamingState: naming, fieldEditState: edit } = values
   if (isCreatedTask(created)) {
-    return combined(values, named(naming, created.uid), wanted(want, TASK_NAME_FIELD_ROW), NO_EFFECTS)
+    return combined(values, named(naming, created.uid), wanted(edit, TASK_NAME_FIELD_ROW), NO_EFFECTS)
   }
   const effects: Effects = [{ type: 'bringCreatedRowIntoSight', groupId: created.groupId }]
-  return combined(values, naming, wanted(want, ROW_NAME_FIELD_ROW), effects)
+  return combined(values, naming, wanted(edit, ROW_NAME_FIELD_ROW), effects)
 }
 
-// WHY: a landed focus and a withdrawn want both end the want (IN-5a, IN-5b).
 /** @purity pure */
-function wantEnded(values: FieldEntryValues): FieldEntryStep {
-  if (values.fieldFocusWantState.kind === 'idle') return unchanged(values)
-  const idle = FIELD_ENTRY_VALUES_INITIAL_AXES.fieldFocusWantState
+function onFieldFocusWithdrawn(values: FieldEntryValues): FieldEntryStep {
+  if (values.fieldEditState.kind !== 'fieldFocusWanted') return unchanged(values)
+  const idle = FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState
   return combined(values, values.createdTaskNamingState, idle, NO_EFFECTS)
 }
 
-// see T-292, FR-091, FR-072
+/** @purity pure */
+function onFieldEditBegan(values: FieldEntryValues, event: EventOf<'fieldEditBegan'>): FieldEntryStep {
+  const edit = editing(values.fieldEditState, event.fieldRow)
+  return combined(values, values.createdTaskNamingState, edit, NO_EFFECTS)
+}
+
+/** @purity pure */
+function onFieldEditEnded(values: FieldEntryValues, event: EventOf<'fieldEditEnded'>): FieldEntryStep {
+  if (!isEditedField(values.fieldEditState, event.fieldRow)) return unchanged(values)
+  const idle = FIELD_ENTRY_VALUES_INITIAL_AXES.fieldEditState
+  return combined(values, values.createdTaskNamingState, idle, NO_EFFECTS)
+}
+
 /** @purity pure */
 function onChoiceMoved(values: FieldEntryValues): FieldEntryStep {
   if (values.createdTaskNamingState.kind === 'idle') return unchanged(values)
   const idle = FIELD_ENTRY_VALUES_INITIAL_AXES.createdTaskNamingState
-  return combined(values, idle, values.fieldFocusWantState, NO_EFFECTS)
+  return combined(values, idle, values.fieldEditState, NO_EFFECTS)
 }
 
 const HANDLERS: {
@@ -260,8 +323,9 @@ const HANDLERS: {
 } = {
   fieldFocusAsked: onFieldFocusAsked,
   creationLanded: onCreationLanded,
-  fieldFocusLanded: wantEnded,
-  fieldFocusWithdrawn: wantEnded,
+  fieldFocusWithdrawn: onFieldFocusWithdrawn,
+  fieldEditBegan: onFieldEditBegan,
+  fieldEditEnded: onFieldEditEnded,
   choiceMoved: onChoiceMoved,
 }
 

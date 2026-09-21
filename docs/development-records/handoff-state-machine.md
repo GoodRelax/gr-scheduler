@@ -108,6 +108,10 @@ SF-10  文書は集約に入れない。セッションは読むだけ
           構えの armModeStateMachine と直交する別の機械（JDG-289）。行・担当者・写したものは根の運ぶ値（chosenRows ・ chosenResources ・ copiedForPaste）。副作用 0。刈るのは書き込みの着地だけ（今の振る舞いを写す —— JDG-57）
           画面の値の原稿は変えない。台帳 DFC-695（Esc ・ Enter が行の選択を数えない）・DFC-696（消えた行が行の選択に残る）・DFC-700（IN-4 の注と FR-072 の食い違い）
           ⭐ CR-490 の第 11 節の分析が、別の変更要求にする新しい機械を挙げた —— 未保存の編集（FR-100）・操作の記録（FR-102）・Agent API の有効（FR-065）、それに欄の編集の機械（いま編集している欄。IF-9 の改訂が先で、利用者の判断が要る）。どれもそれぞれの CR で扱う
+✅ 欄の編集  CR-500 の波 A（領域 fieldEntry の fieldFocusWantStateMachine を fieldEditStateMachine（idle ／ fieldFocusWanted ／ editingField、運ぶ値 fieldRow）へ広げた。表 T-292・図 F-038 を刷り直し）
+          欄ごとに状態を立てない —— 欄は運ぶ値の行 ID（JDG-290）。出来事 fieldFocusLanded を退け fieldEditBegan ・ fieldEditEnded を足した。ガード isEditedField。IF-9 は真偽を答えるのをやめ、編集の始まりと終わりを知らせる
+          ⛔ 波 B: 面（dom-screen-surface.ts の文字入力の欄の focusin ・ focusout）が知らせを溜めて返し、シェルは状態を読む前に溜まった知らせをすべて機械へ渡すこと。
+             それまで仕様（IF-9 の知らせ）とコード（hasUnsettledTextEntry の真偽）は食い違う。台帳 DFC-701（作った直後の Enter がどの欄を確定したかを見ない）・DFC-702（確定も取り消しも通らずに欄が消える道）、DFC-694 に追記
 ⬜ 次の領域  表 T-285 の手順で足す（計画の記録 4 の順: 操作の記録 → Agent API）。命名と原稿の形は 07-review-standards.md の R4.4
           ⚠️ 番号の帯（2026-09-21 に本線と決めた）: こちら 図 F-035〜F-039（F-039 まで使用 —— 使い切り。F-037 は CR-470 が返した）・UF-88〜UF-89（使い切り）。
              それより先の番号と CR の番号は、本線のセッションに宣言してから取れ（本線が終了していたら本書に書いて残せ）
