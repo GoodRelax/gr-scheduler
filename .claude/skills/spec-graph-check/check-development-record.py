@@ -77,6 +77,11 @@ def main():
         # and the fourth is the handing over itself.
         # ⭐ handoff.md is the fourth: it is what one round hands the next, and
         # it answers to the whole tree rather than to a folder of units.
+        # ⭐ handoff-state-machine.md is the same thing for the one piece of
+        # work a SECOND session carries in parallel (the state machine, ruled
+        # in JDG-60: 「計画したらブランチを分けよう」). It hands over rather
+        # than describing a folder, so it answers here the way handoff.md
+        # does. ⛔ Delete it, and this name, once the parallel work ends.
         # ⭐ fixed-defects.md is the fifth: it is the defect
         # ledger's own second half, holding the rows that reached 実測済 or
         # 取下げ, and it is keyed the same way the ledger is.
@@ -107,6 +112,7 @@ def main():
         # of that plan, one table per gate, keyed by gate rather than a folder.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
+            'handoff-state-machine.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
             'src-comment-cleanup-report-2026-09-13.md',
             'refactor-plan-report-2026-09-13.md',

@@ -1,0 +1,20 @@
+unfilled=17
+# Check: tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts
+#
+# The number of requirements that have no starting unit written yet, held as a
+# ratchet: filling one LOWERS it, and any rise is red. Written 2026-09-21 after
+# the user was shown the measurement, under their ruling of the same day
+# ("基準線は一度変更していいよ" / "その形でいい") -- a baseline is moved only by
+# a human, never by a body.
+#
+# 121 requirements = 99 named by the column of table T-075
+#                  +  5 whose starting point is a means of verification (OW-5)
+#                  + 17 not written yet          <- this number
+#
+# The 17 are, per the closing paragraph of 5.3 in docs/spec/05-07-design.md:
+#   12  the specification does not determine the owner (DFC-673)
+#    4  a property of the whole product with no means of verification yet
+#        (NFR-005, NFR-006, NFR-008, NFR-012) -- each new test drops this by one
+#    1  an entry deliberately unbuilt (FR-086)
+#
+# LOWER it in the same commit that fills an entry. Do not raise it.
