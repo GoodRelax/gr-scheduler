@@ -2050,8 +2050,6 @@ export function frameLoop(
   // TRAP: each export scene overwrites this; copy it at the call, never read it across an await.
   let stackSafetyCapOfLastExportScene: string | null = null
   let stackSafetyCapOwedByPictureExport: string | null = null
-  // TRAP: T-050's row id for a replacement; a draw of its own would shift the UUID sequence.
-  let lastDrawnGroupId: string | null = null
   // TRAP: as a ScreenState surface it would open a second modal stacked over this dialog.
   let asking: {
     readonly question: RaisedConfirmation
@@ -3209,7 +3207,6 @@ export function frameLoop(
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
-    lastDrawnGroupId = withoutCeiling.newGroupId
     // WHY: asked only by a row-axis zoom, and remembered across contexts, so the shell's second
     // reading of one input and every later notch reuse the walk (DFC-610).
     return {
@@ -3266,7 +3263,7 @@ export function frameLoop(
         moment: collectWriteMoment(),
         call,
         defaultRowName: DEFAULT_ROW_NAME,
-        newGroupId: lastDrawnGroupId ?? held.document.schedule.taskGroups[0]?.id ?? '',
+        newGroupId: crypto.randomUUID(),
       },
       holder,
       audience,
