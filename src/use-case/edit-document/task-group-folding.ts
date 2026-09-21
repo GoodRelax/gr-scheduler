@@ -6,9 +6,9 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { reject, withRow, withSchedule } from './edit-task-group'
+import { withRow, withSchedule } from './edit-task-group'
 
 // see CM-33, FR-004
 /** @purity pure */

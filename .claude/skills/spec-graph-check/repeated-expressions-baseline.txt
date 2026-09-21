@@ -1,4 +1,9 @@
-90
+86
+# LOWERED 90 -> 86 on 2026-09-21, with the user's approval (the same answer as the raise below):
+# the eight copies of reject() in src/use-case/edit-document/ are one, in edit-document.ts.
+# The copy edit-dependency.ts held took an optional reasonCategory; that one is kept, so the
+# three-argument calls return the same shape as before (golden harness, 128 cases).
+#
 # RAISED 89 -> 90 on 2026-09-21, with the user's approval (asked in chat, answered
 # "分割で 90、次のコミットで 8 つを畳む（推奨）"): stage 4 wave 2 split edit-task.ts and
 # edit-task-group.ts, and both now export their reject() so the siblings can use it. The two

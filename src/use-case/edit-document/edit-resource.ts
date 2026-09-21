@@ -10,7 +10,7 @@ import type {
   Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 
 export type ResourceCommand =
   | { readonly kind: 'createResource'; readonly name: string | null }
@@ -21,11 +21,6 @@ export type ResourceCommand =
   | { readonly kind: 'unassignResource'; readonly taskUid: number; readonly resourceUid: number }
 
 const WORK_RESOURCE = 1
-
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
-}
 
 /** @purity pure */
 function withSchedule(document: Document, part: Partial<Schedule>): Document {

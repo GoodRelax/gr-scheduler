@@ -7,9 +7,9 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, reject, withRow, withSchedule } from './edit-task-group'
+import { depthOf, withRow, withSchedule } from './edit-task-group'
 
 // see CM-26, FR-085, FR-058
 /** @purity pure */

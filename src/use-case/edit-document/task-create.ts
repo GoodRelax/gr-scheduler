@@ -11,8 +11,8 @@ import {
   type WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
-import { checkDay, reject, visualOf, withSchedule, type TaskCommand } from './edit-task'
+import { refused, edited, reject } from './edit-document'
+import { checkDay, visualOf, withSchedule, type TaskCommand } from './edit-task'
 import { repriced } from './percent-complete'
 import { planDatesEdited } from './task-plan-actual'
 

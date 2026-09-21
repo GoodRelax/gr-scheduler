@@ -6,9 +6,9 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { Schedule, Task, TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, reject, subtreeOf, withSchedule } from './edit-task-group'
+import { depthOf, subtreeOf, withSchedule } from './edit-task-group'
 
 // see HM-9
 // TRAP: schedule.ts and the input translator walk the row tree the same way; change all three.

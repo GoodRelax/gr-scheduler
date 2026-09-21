@@ -14,7 +14,7 @@ import type {
 } from '../../entity/document-model/schedule/schedule'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupHeight } from './task-group-look'
 import {
@@ -67,11 +67,6 @@ export type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract<
   TaskGroupCommand,
   { readonly kind: K }
 >
-
-/** @purity pure */
-export function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
-}
 
 /** @purity pure */
 export function withSchedule(document: Document, part: Partial<Schedule>): Document {

@@ -12,7 +12,7 @@ import type {
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditReport, EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import { repriced } from './edit-task'
 
 // see CM-39, FR-088
@@ -148,9 +148,4 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
 /** @purity pure */
 function isDayType(value: number): boolean {
   return Number.isInteger(value) && value >= 1 && value <= 7
-}
-
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
 }

@@ -99,6 +99,18 @@ export function refusedEdit(refusals: readonly Refusal[]): EditResult {
   return { ok: false, refusals }
 }
 
+/** @purity pure */
+export function reject(
+  command: string,
+  rule: string,
+  what: string,
+  reasonCategory?: Refusal['reasonCategory'],
+): Refusal {
+  return reasonCategory === undefined
+    ? { command, rule, what }
+    : { command, rule, reasonCategory, what }
+}
+
 // WHY: deprecated aliases, kept until every caller uses acceptedEdit / refusedEdit.
 export { acceptedEdit as edited, refusedEdit as refused }
 

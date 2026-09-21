@@ -6,7 +6,7 @@
 import { dayOf } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 
 export interface ProjectProfileFields {
   readonly name?: string | null
@@ -92,9 +92,4 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return edited(withProject(document, { ...project, themeHue: command.hue }))
     }
   }
-}
-
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
 }

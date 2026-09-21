@@ -7,7 +7,7 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { Dependency, Task } from '../../entity/document-model/schedule/schedule'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 
 export type DependencyEdge = 'start' | 'finish'
 
@@ -35,18 +35,6 @@ export type DependencyCommand =
 function linkTypeOf(from: DependencyEdge, into: DependencyEdge): number {
   if (from === 'finish') return into === 'start' ? 1 : 0
   return into === 'finish' ? 2 : 3
-}
-
-/** @purity pure */
-function reject(
-  command: string,
-  rule: string,
-  what: string,
-  reasonCategory?: Refusal['reasonCategory'],
-): Refusal {
-  return reasonCategory === undefined
-    ? { command, rule, what }
-    : { command, rule, reasonCategory, what }
 }
 
 /** @purity pure */

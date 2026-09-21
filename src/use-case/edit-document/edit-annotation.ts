@@ -7,7 +7,7 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
 import { dayOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 
 export interface AnnotationAnchor {
   readonly date: string
@@ -263,11 +263,6 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       return edited(putHighlightBox(document, { ...box, strokeColor: command.strokeColor }))
     }
   }
-}
-
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
 }
 
 // <generated -- do not edit by hand>

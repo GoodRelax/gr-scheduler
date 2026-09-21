@@ -12,11 +12,10 @@ import {
   type TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
-import { refused, edited } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import {
   blankVisual,
   isMilestone,
-  reject,
   sameRow,
   visualOf,
   withSchedule,

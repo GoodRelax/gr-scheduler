@@ -17,8 +17,8 @@ import {
   type TaskGroup,
   type TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
-import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import type { EditResult } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 import { tasksRankedByTheRowTree } from './edit-task-group'
 import { createTask } from './task-create'
 import { pasteTaskSubtree } from './task-paste'
@@ -134,11 +134,6 @@ export type TaskCommand =
       readonly nameAlign: TaskNameAlign | null
     }
 
-
-/** @purity pure */
-export function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
-}
 
 /** @purity pure */
 export function withSchedule(document: Document, schedule: Schedule): Document {

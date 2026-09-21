@@ -10,8 +10,8 @@ import {
 } from '../../entity/document-model/document-settings/document-settings'
 import { dayOf } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { EditResult, Refusal } from './edit-document'
-import { refused, edited } from './edit-document'
+import type { EditResult } from './edit-document'
+import { refused, edited, reject } from './edit-document'
 
 // see FR-016, FR-052, T-206
 export interface SettingsLimits {
@@ -70,11 +70,6 @@ export type DocumentSettingsCommand =
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
-
-/** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
-  return { command, rule, what }
-}
 
 /** @purity pure */
 function withSettings(document: Document, settings: DocumentSettings): Document {
