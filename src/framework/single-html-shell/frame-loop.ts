@@ -87,6 +87,15 @@ import {
   type SessionEffect,
   type SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import type {
+  FileFlowImportAnswer,
+  FileFlowOpenRoute,
+  FileFlowOwedAction,
+  FileFlowQuestion,
+  FileFlowSurfaceName,
+  FileFlowWriteForm,
+  FileOperationState,
+} from '../../use-case/advance-screen-session/file-flow-values'
 import type { GrabbedRowAxis, PressedOn } from '../../use-case/advance-screen-session/gesture-values'
 import type { StandingNotice } from '../../use-case/advance-screen-session/notice-values'
 import {
@@ -698,6 +707,10 @@ const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
+const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
+const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
+const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
+const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
 
 // see IN-4, T-283
@@ -1032,6 +1045,12 @@ const DIFFERENCE_REVIEW_SURFACE = 'Difference Review'
 
 const IMPORT_REPORT_SURFACE = 'Import Report'
 
+const SURFACE_NAME_OF_FLOW: Readonly<Record<FileFlowSurfaceName, string>> = {
+  'U-56': OPEN_CHOOSER_SURFACE,
+  'U-61': DIFFERENCE_REVIEW_SURFACE,
+  'U-62': IMPORT_REPORT_SURFACE,
+}
+
 const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
 
 const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
@@ -1045,8 +1064,6 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
 const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
-
-const OPEN_CHOICE_OF_REOPEN: OpenChoice = 'replace'
 
 const SAVE_FORM: SaveFileForm = 'grsJson'
 
@@ -1431,7 +1448,6 @@ function subjectOfChoice(selection: Selection, groupIds: readonly string[]): Pro
   return { selection, groupIds }
 }
 
-// see ST-7
 type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
 
 // see HF-15, SF-5
@@ -1448,6 +1464,14 @@ interface ScreenEffectHands {
   readonly startEntryRepeat: () => void
   readonly repeatHeldEntry: () => void
   readonly restorePaletteCorner: () => void
+  readonly raiseFlowSurface: (surfaceName: FileFlowSurfaceName) => void
+  readonly tellFlowSurfaceClosed: (surfaceName: string, frame: FrameValues | null) => void
+  readonly readDocumentFile: (openRoute: FileFlowOpenRoute) => void
+  readonly writeDocumentFile: (writeForm: FileFlowWriteForm) => void
+  readonly importIncomingDocument: (answer: FileFlowImportAnswer) => void
+  readonly discardIncomingDocument: () => void
+  readonly answerOverwriteQuestion: (isProceeding: boolean) => void
+  readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1462,8 +1486,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     // DEVIATION: spec says this effect writes the step (T-280); here GA-18's action does, after the press drops (DFC-708)
     writeProgressStep: () => undefined,
     askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
-    // WHY: the tidy-up at the end of receiveInput drops a closed surface's wait (CR-460 wave B moves it)
-    tellFlowSurfaceClosed: () => undefined,
+    tellFlowSurfaceClosed: (effect, frame) => hands.tellFlowSurfaceClosed(effect.surfaceName, frame),
     matchWatermarkUnlock: () => hands.matchWatermarkUnlock(),
     clearSelection: () => hands.clearSelection(),
     writeFoldAll: carried,
@@ -1479,13 +1502,13 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     restorePaletteCorner: () => hands.restorePaletteCorner(),
     repeatHeldEntry: () => hands.repeatHeldEntry(),
 
-    raiseFlowSurface: unwiredEffect,
-    readDocumentFile: unwiredEffect,
-    writeDocumentFile: unwiredEffect,
-    importIncomingDocument: unwiredEffect,
-    discardIncomingDocument: unwiredEffect,
-    answerOverwriteQuestion: unwiredEffect,
-    carryOutOwedAction: unwiredEffect,
+    raiseFlowSurface: (effect) => hands.raiseFlowSurface(effect.surfaceName),
+    readDocumentFile: (effect) => hands.readDocumentFile(effect.openRoute),
+    writeDocumentFile: (effect) => hands.writeDocumentFile(effect.writeForm),
+    importIncomingDocument: (effect) => hands.importIncomingDocument(effect.answer),
+    discardIncomingDocument: () => hands.discardIncomingDocument(),
+    answerOverwriteQuestion: (effect) => hands.answerOverwriteQuestion(effect.isProceeding),
+    carryOutOwedAction: (effect, frame) => hands.carryOutOwedAction(effect.owedAction, frame),
 
     bringCreatedRowIntoSight: unwiredEffect,
 
@@ -1735,6 +1758,44 @@ function grabbedRowReadingOf(
 }
 
 /** @purity pure */
+function isQuestionAskedIn(session: ScreenSession): boolean {
+  return session.fileFlow.confirmationState.kind === 'questionAsked'
+}
+
+/** @purity pure */
+function questionIn(session: ScreenSession): FileFlowQuestion | null {
+  const confirmation = session.fileFlow.confirmationState
+  return confirmation.kind === 'questionAsked' ? confirmation.question : null
+}
+
+/** @purity pure */
+function fileOperationKindIn(session: ScreenSession): FileOperationState['kind'] {
+  return session.fileFlow.fileOperationState.kind
+}
+
+/** @purity pure */
+function mergeReviewIn(session: ScreenSession): Pick<ScreenViewReadingsTaken, 'mergeCandidates' | 'unreadColumns'> {
+  const operation = session.fileFlow.fileOperationState
+  if (operation.kind !== 'awaitingMergeMapping') return { mergeCandidates: [], unreadColumns: [] }
+  return { mergeCandidates: operation.mergeCandidates, unreadColumns: operation.unreadColumns }
+}
+
+/** @purity pure */
+function flowSurfaceOf(surfaceName: string): FileFlowSurfaceName | null {
+  const names = Object.keys(SURFACE_NAME_OF_FLOW) as readonly FileFlowSurfaceName[]
+  return names.find((flow) => SURFACE_NAME_OF_FLOW[flow] === surfaceName) ?? null
+}
+
+/** @purity pure */
+function discardQuestionOf(discarded: Document): FileFlowQuestion {
+  return {
+    manner: CONFIRMATION_MANNER,
+    question: DISCARD_QUESTION,
+    items: [{ name: discarded.schedule.project.title, isShownOnAnotherRow: false }],
+  }
+}
+
+/** @purity pure */
 function entrySettledOnRelease(input: HumanInput, context: InputContext): IconId | null {
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   const press = context.pressed
@@ -1842,7 +1903,7 @@ function taskUidsWithAnUnusableDate(
 function confirmationOwedBy(
   commands: readonly DocumentCommand[],
   held: Document,
-): RaisedConfirmation | null {
+): FileFlowQuestion | null {
   const schedule = held.schedule
   const lostRows = new Set<string>()
   const seeds = new Set<number>()
@@ -1884,7 +1945,7 @@ function confirmationOwedBy(
 function confirmationOwedByResourceDeletion(
   uids: readonly number[],
   held: Document,
-): RaisedConfirmation | null {
+): FileFlowQuestion | null {
   const schedule = held.schedule
   const going = new Set(uids)
   const reached: number[] = []
@@ -2090,7 +2151,6 @@ export function frameLoop(
         readonly isAtStoredZoom: boolean
       }
     | null = null
-  let openedFileName: string | null = null
   let fileSavedAt: string | null = null
   let hasUnsavedEdits = false
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
@@ -2110,25 +2170,11 @@ export function frameLoop(
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
-  // TRAP: as a ScreenState surface it would open a second modal stacked over this dialog.
-  let asking: {
-    readonly question: RaisedConfirmation
-    /** @purity non-pure */
-    settle(isProceeding: boolean, frame: FrameValues): void
-  } | null = null
-  let openChoosing: {
-    /** @purity non-pure */
-    settle(choice: OpenChoice | null): void
-  } | null = null
-  // TRAP: kept apart from openChoosing; one shared holder settles whichever was waiting.
-  let mergeChoosing: {
-    /** @purity non-pure */
-    settle(mapping: MergeMapping | null): void
-  } | null = null
-  let mergeCandidates: readonly MergeCandidateLine[] = []
-  let unreadColumns: readonly string[] = []
-  let droppedTaskNames: readonly (string | null)[] = []
-  let isFileOperationWaiting = false
+  // WHY: continuations, not states: the machine's effects settle them (CR-460 decision 5).
+  let settleOpenChoice: ((choice: OpenChoice | null) => void) | null = null
+  // TRAP: kept apart from settleOpenChoice; one shared holder settles whichever was waiting.
+  let settleMergeMapping: ((mapping: MergeMapping | null) => void) | null = null
+  let settleOverwrite: ((isProceeding: boolean) => void) | null = null
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
   let grabUnderPointer: Grabbed | null = null
@@ -2199,6 +2245,22 @@ export function frameLoop(
     restorePaletteCorner: () => {
       if (commandPaletteCornerAtPress !== null) commandPaletteDraggedTo = commandPaletteCornerAtPress
     },
+    raiseFlowSurface: (surfaceName) =>
+      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: SURFACE_NAME_OF_FLOW[surfaceName] }, values),
+    tellFlowSurfaceClosed: (surfaceName, frame) => {
+      const flow = flowSurfaceOf(surfaceName)
+      if (flow !== null) sendToSession({ type: 'flowSurfaceClosed', surfaceName: flow }, frame)
+    },
+    readDocumentFile: beginReadingDocumentFile,
+    writeDocumentFile: beginWritingDocumentFile,
+    importIncomingDocument: settleIncomingDocument,
+    discardIncomingDocument: () => settleIncomingDocument(null),
+    answerOverwriteQuestion: (isProceeding) => {
+      const settle = settleOverwrite
+      settleOverwrite = null
+      settle?.(isProceeding)
+    },
+    carryOutOwedAction,
   })
 
   /** @purity non-pure */
@@ -2305,7 +2367,7 @@ export function frameLoop(
         `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
         `minimised=${paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)} ` +
         `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
-        `notices=${standingNoticesIn(session).length} asking=${asking !== null} ` +
+        `notices=${standingNoticesIn(session).length} asking=${isQuestionAskedIn(session)} ` +
         `focus=${screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +
         `panel=${panelShowingIn(session) ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
         `noticeReasons=${recordedNoticeReasons()}`,
@@ -2484,7 +2546,7 @@ export function frameLoop(
         session,
         dialogueLog,
         screenViewReadingsOf(document, regions, layout, {
-          openedFileName,
+          openedFileName: session.fileFlow.openedFileName,
           fileSavedAt,
           isAgentApiEnabled,
           isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
@@ -2500,10 +2562,9 @@ export function frameLoop(
           isRecordingInteractions,
           selectedGroupIds,
           selectedResourceUids,
-          confirmation: asking?.question ?? null,
-          mergeCandidates,
-          unreadColumns,
-          droppedTaskNames,
+          confirmation: questionIn(session),
+          ...mergeReviewIn(session),
+          droppedTaskNames: session.fileFlow.droppedTaskNames,
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
@@ -2563,9 +2624,15 @@ export function frameLoop(
   }
 
   /** @purity non-pure */
-  function endFileOperationWait(): void {
-    isFileOperationWaiting = false
+  function endFileOperation(ended: SessionEvent): void {
+    sendToSession(ended, null)
     // TRAP: ask even when nothing was raised, or a finished save paints nothing until next input.
+    if (settled(environment)) ask()
+  }
+
+  /** @purity non-pure */
+  function sendFromFlow(event: SessionEvent): void {
+    sendToSession(event, values)
     if (settled(environment)) ask()
   }
 
@@ -2725,11 +2792,8 @@ export function frameLoop(
   // see NT-7
   /** @purity non-pure */
   function answerConfirmation(isProceeding: boolean, frame: FrameValues): boolean {
-    const asked = asking
-    if (asked === null) return false
-    // TRAP: clear before settling; nothing new may start while a question stands.
-    asking = null
-    asked.settle(isProceeding, frame)
+    if (!isQuestionAskedIn(session)) return false
+    sendToSession({ type: 'confirmationAnswered', isProceeding }, frame)
     return true
   }
 
@@ -3265,7 +3329,7 @@ export function frameLoop(
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
       drawnRowBoxes,
       isLevelZeroFolded: isLevelZeroFoldedIn(session),
-      isSurfaceStanding: openSurfaceNameIn(session) !== null || asking !== null,
+      isSurfaceStanding: openSurfaceNameIn(session) !== null || isQuestionAskedIn(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
       newGroupId: crypto.randomUUID(),
@@ -3351,87 +3415,96 @@ export function frameLoop(
     return false
   }
 
-  // see DI-4, QN-4
+  // see DI-4, QN-4, T-290
   /** @purity non-pure */
   function askToWriteOverDestination(): Promise<boolean> {
     return new Promise<boolean>((answer) => {
-      asking = {
-        question: { manner: CONFIRMATION_MANNER, question: OVERWRITE_QUESTION, items: [] },
-        /** @purity non-pure */
-        settle(isProceeding) {
-          answer(isProceeding)
-        },
-      }
-      if (settled(environment)) ask()
+      settleOverwrite = answer
+      const question: FileFlowQuestion = { manner: CONFIRMATION_MANNER, question: OVERWRITE_QUESTION, items: [] }
+      sendFromFlow({ type: 'overwriteQuestionRaised', question })
     })
   }
 
-  // see OP-3
+  // see OP-3, OP-4, OP-13, T-290
+  // WHY: replace only once the discard is confirmed, null when discarded or closed; effects settle it.
   /** @purity non-pure */
-  function askHowToOpen(): Promise<OpenChoice | null> {
+  function askHowToOpen(discarded: Document, handedChoice: OpenChoice | null): Promise<OpenChoice | null> {
     return new Promise<OpenChoice | null>((answer) => {
-      openChoosing = {
-        /** @purity non-pure */
-        settle(choice) {
-          answer(choice)
-        },
-      }
-      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: OPEN_CHOOSER_SURFACE }, values)
-      if (settled(environment)) ask()
+      settleOpenChoice = answer
+      sendFromFlow({ type: 'documentFileRead', question: discardQuestionOf(discarded) })
+      // DEVIATION: spec says OP-3 is asked for a handed document too (JDG-130); here the hand-over answers merge (DFC-614)
+      if (handedChoice !== null) answerOpenChoice(handedChoice, values)
     })
   }
 
-  // see FR-022, T-032a
+  /** @purity non-pure */
+  function answerOpenChoice(openChoice: OpenChoice, frame: FrameValues | null): void {
+    sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_SURFACE }, frame)
+    sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(held.document) }, frame)
+  }
+
+  // see FR-022, T-032a, T-290
   /** @purity non-pure */
   function askWhichFileToTakeFrom(
-    candidates: readonly MergeCandidateLine[],
+    mergeCandidates: readonly MergeCandidateLine[],
+    unreadColumns: readonly string[],
   ): Promise<MergeMapping | null> {
     return new Promise<MergeMapping | null>((answer) => {
-      mergeChoosing = {
-        /** @purity non-pure */
-        settle(mapping) {
-          answer(mapping)
-        },
-      }
-      mergeCandidates = candidates
-      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: DIFFERENCE_REVIEW_SURFACE }, values)
-      if (settled(environment)) ask()
+      settleMergeMapping = answer
+      sendFromFlow({ type: 'mergeMappingAsked', mergeCandidates, unreadColumns })
     })
   }
 
-  // see OP-4, QN-5
   /** @purity non-pure */
-  function askToDiscardCurrentDocument(discarded: Document): Promise<boolean> {
-    return new Promise<boolean>((answer) => {
-      asking = {
-        question: {
-          manner: CONFIRMATION_MANNER,
-          question: DISCARD_QUESTION,
-          items: [{ name: discarded.schedule.project.title, isShownOnAnotherRow: false }],
-        },
-        /** @purity non-pure */
-        settle(isProceeding) {
-          answer(isProceeding)
-        },
-      }
-      if (settled(environment)) ask()
-    })
+  function landOpenedDocument(droppedTaskNames: readonly (string | null)[], openChoice: OpenChoice): void {
+    sendFromFlow({ type: 'documentOpenLanded', droppedTaskNames, openedFileName: null, openChoice })
   }
 
-  // see FR-095, RD-7
   /** @purity non-pure */
-  async function startNewDocument(template: Document): Promise<void> {
-    if (!(await askToDiscardCurrentDocument(held.document))) return
-    // TRAP: not RD-6, whose history cell differs.
-    replaceHeldDocument({ row: 'RD-7', document: template })
+  function beginReadingDocumentFile(openRoute: FileFlowOpenRoute): void {
+    const store = files
+    if (openRoute === 'handed') return
+    if (store === undefined) return endFileOperation(DOCUMENT_OPEN_FAILED)
+    const opening = openRoute === 'reopen' ? reopenDocumentIntoHold(store) : openDocumentIntoHold(store, openRoute)
+    void opening.finally(() => endFileOperation(DOCUMENT_OPEN_FAILED))
   }
 
-  // see FR-023, U-62
   /** @purity non-pure */
-  function tellWhatTheImportDropped(names: readonly (string | null)[]): void {
-    if (names.length === 0) return
-    droppedTaskNames = names
-    sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: IMPORT_REPORT_SURFACE }, values)
+  function beginWritingDocumentFile(writeForm: FileFlowWriteForm): void {
+    const store = files
+    if (store === undefined) return endFileOperation(DOCUMENT_FILE_WRITE_ENDED)
+    const writing =
+      writeForm.kind === 'save'
+        ? saveHeldDocumentToFile(store)
+        : exportHeldDocumentToFile(store, writeForm.format as ExportFormatId)
+    void writing.finally(() => endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
+  }
+
+  /** @purity non-pure */
+  function settleIncomingDocument(answer: FileFlowImportAnswer | null): void {
+    const forChoice = settleOpenChoice
+    const forMapping = settleMergeMapping
+    settleOpenChoice = null
+    settleMergeMapping = null
+    if (answer === null) {
+      forChoice?.(null)
+      forMapping?.(null)
+      return
+    }
+    if (answer.kind === 'openChoice') forChoice?.(answer.openChoice)
+    else forMapping?.(answer.mergeMapping)
+  }
+
+  /** @purity non-pure */
+  function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
+    if (owedAction.kind === 'startNewDocument') {
+      // TRAP: not RD-6, whose history cell differs.
+      if (startupTemplate !== undefined) replaceHeldDocument({ row: 'RD-7', document: startupTemplate })
+      return
+    }
+    if (frame === null) return
+    for (const bundle of owedAction.writes) writeDocument(bundle, frame)
+    if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
   }
 
   // see OP-2, OP-5, OP-12, T-230
@@ -3484,8 +3557,6 @@ export function frameLoop(
     }
     const readIn = handedIn
 
-    if (couldNotBeRead.length > 0) unreadColumns = couldNotBeRead
-
     const verdict = validateImportedDocument(
       {
         document: incoming,
@@ -3531,17 +3602,9 @@ export function frameLoop(
       return false
     }
 
-    const choice =
-      handed !== null
-        ? handed.choice
-        : route === OPEN_ROUTE_REOPEN
-          ? OPEN_CHOICE_OF_REOPEN
-          : await askHowToOpen()
+    const choice = await askHowToOpen(current, handed?.choice ?? null)
     if (choice === null) return false
-
-    const isDiscardConfirmed =
-      choice === 'replace' ? await askToDiscardCurrentDocument(current) : false
-    if (choice === 'replace' && !isDiscardConfirmed) return false
+    const isDiscardConfirmed = choice === 'replace'
 
     const importing = {
       incoming,
@@ -3556,7 +3619,7 @@ export function frameLoop(
 
     if (choice === 'replace') {
       const replaced = replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-      if (replaced) tellWhatTheImportDropped(droppedNames)
+      if (replaced) landOpenedDocument(droppedNames, choice)
       return replaced
     }
     // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -3571,6 +3634,7 @@ export function frameLoop(
           currentName: candidate.currentTaskName,
           incomingName: candidate.incomingTaskName,
         })),
+        couldNotBeRead,
       )
       if (mapping === null) return false
       if (mapping.kind === 'cancelImport') return false
@@ -3587,7 +3651,7 @@ export function frameLoop(
       updatedUtc: readInstantOfWrite(),
     })
 
-    if (landed) tellWhatTheImportDropped(droppedNames)
+    if (landed) landOpenedDocument(droppedNames, choice)
 
     if (!landed || choice !== 'baseline') return landed
 
@@ -3616,8 +3680,9 @@ export function frameLoop(
   // see AM-8, FR-022
   /** @purity non-pure */
   async function takeInHandedDocument(incoming: Document): Promise<boolean> {
-    if (isFileOperationWaiting || asking !== null || openChoosing !== null) return false
-    isFileOperationWaiting = true
+    const before = session
+    sendToSession(AGENT_DOCUMENT_HANDED, null)
+    if (session === before) return false
     try {
       const handedText = jsonFromDocument(incoming)
       const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
@@ -3629,7 +3694,7 @@ export function frameLoop(
         choice: 'merge',
       })
     } finally {
-      endFileOperationWait()
+      endFileOperation(DOCUMENT_OPEN_FAILED)
     }
   }
 
@@ -3652,9 +3717,8 @@ export function frameLoop(
           })
 
     if (saving.ok) {
-      if (saving.openedFile.kind !== 'none') {
-        openedFileName = saving.openedFile.fileName
-      }
+      const openedFileName = saving.openedFile.kind === 'none' ? null : saving.openedFile.fileName
+      sendFromFlow({ type: 'documentFileSaved', openedFileName })
       fileSavedAt = readInstantOfWrite()
       hasUnsavedEdits = false
       return
@@ -3831,20 +3895,13 @@ export function frameLoop(
       return true
     }
     if (entry === NEW_DOCUMENT_ENTRY) {
-      if (asking !== null) {
-        raiseNotice(NOTHING_TO_DO_REASON, null)
-        return true
-      }
-      const template = startupTemplate
-      if (template === undefined) {
-        raiseNotice(NOTHING_TO_DO_REASON, null)
-        return true
-      }
-      void startNewDocument(template)
+      const hasStartupTemplate = startupTemplate !== undefined
+      const question = discardQuestionOf(held.document)
+      sendToSession({ type: 'newDocumentEntryPressed', hasStartupTemplate, question }, frame)
       return true
     }
     if (entry === ROSTER_DELETE_ENTRY) {
-      if (asking !== null) {
+      if (isQuestionAskedIn(session)) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
@@ -3859,34 +3916,21 @@ export function frameLoop(
         writeDocument(writes, frame)
         return true
       }
-      asking = {
-        question: owedQuestion,
-        /** @purity non-pure */
-        settle(isProceeding, answeringFrame) {
-          if (!isProceeding) return
-          writeDocument(writes, answeringFrame)
-        },
-      }
+      const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: [writes], created: null }
+      sendToSession({ type: 'changeQuestionRaised', question: owedQuestion, owedAction }, frame)
       return true
     }
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
     if (openChoice !== undefined) {
-      const choosing = openChoosing
-      if (choosing === null) return false
-      openChoosing = null
-      sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_SURFACE }, frame)
-      choosing.settle(openChoice)
+      if (fileOperationKindIn(session) !== 'awaitingOpenChoice') return false
+      answerOpenChoice(openChoice, frame)
       return true
     }
     const mergeMapping = MERGE_MAPPING_OF_ENTRY[entry]
     if (mergeMapping !== undefined) {
-      const choosing = mergeChoosing
-      if (choosing === null) return false
-      mergeChoosing = null
-      mergeCandidates = []
-      unreadColumns = []
+      if (fileOperationKindIn(session) !== 'awaitingMergeMapping') return false
       sendToSession({ type: 'flowSurfaceAnswered', surfaceName: DIFFERENCE_REVIEW_SURFACE }, frame)
-      choosing.settle(mergeMapping)
+      sendToSession({ type: 'mergeMappingAnswered', mergeMapping }, frame)
       return true
     }
     return false
@@ -3903,12 +3947,7 @@ export function frameLoop(
       raiseNotice(SEAM_ABSENT_REASON, null)
       return true
     }
-    if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
-      raiseNotice(NOTHING_TO_DO_REASON, null)
-      return true
-    }
-    isFileOperationWaiting = true
-    void exportHeldDocumentToFile(store, format).finally(endFileOperationWait)
+    sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: 'export', format } }, values)
     return true
   }
 
@@ -4001,20 +4040,12 @@ export function frameLoop(
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument': {
-        if (asking !== null) return
+        if (isQuestionAskedIn(session)) return
         const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
         if (owedQuestion !== null) {
-          const owedWrites = action.writes
-          const owedCreation = action.created
-          asking = {
-            question: owedQuestion,
-            /** @purity non-pure */
-            settle(isProceeding, answeringFrame) {
-              if (!isProceeding) return
-              for (const bundle of owedWrites) writeDocument(bundle, answeringFrame)
-              if (owedCreation !== undefined) standOnWhatWasCreated(owedCreation)
-            },
-          }
+          const created = action.created ?? null
+          const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }
+          sendToSession({ type: 'changeQuestionRaised', question: owedQuestion, owedAction }, frame)
           return
         }
         for (const bundle of action.writes) writeDocument(bundle, frame)
@@ -4041,17 +4072,10 @@ export function frameLoop(
       case 'pasteClipboard':
         pasteWhatWasCopied(frame)
         return
-      case 'openDocumentFile': {
-        const store = files
-        if (store === undefined) return
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
-          raiseNotice(NOTHING_TO_DO_REASON, null)
-          return
-        }
-        isFileOperationWaiting = true
-        void openDocumentIntoHold(store, OPEN_ROUTE_FROM_CHOOSER).finally(endFileOperationWait)
+      case 'openDocumentFile':
+        if (files === undefined) return
+        sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_CHOOSER }, frame)
         return
-      }
       case 'copyPictureToClipboard': {
         const seam = clipboard
         if (seam === undefined) return
@@ -4086,28 +4110,14 @@ export function frameLoop(
         })
         return
       }
-      case 'reopenDocumentFile': {
-        const store = files
-        if (store === undefined) return
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
-          raiseNotice(NOTHING_TO_DO_REASON, null)
-          return
-        }
-        isFileOperationWaiting = true
-        void reopenDocumentIntoHold(store).finally(endFileOperationWait)
+      case 'reopenDocumentFile':
+        if (files === undefined) return
+        sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_REOPEN }, frame)
         return
-      }
-      case 'saveDocumentFile': {
-        const store = files
-        if (store === undefined) return
-        if (isFileOperationWaiting || asking !== null || openChoosing !== null) {
-          raiseNotice(NOTHING_TO_DO_REASON, null)
-          return
-        }
-        isFileOperationWaiting = true
-        void saveHeldDocumentToFile(store).finally(endFileOperationWait)
+      case 'saveDocumentFile':
+        if (files === undefined) return
+        sendToSession({ type: 'documentFileWriteAsked', writeForm: SAVE_WRITE_FORM }, frame)
         return
-      }
       case 'dismissNotice':
         // WHY: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).
         return
@@ -4240,7 +4250,7 @@ export function frameLoop(
   // see SK-19, FR-091, T-280
   /** @purity non-pure */
   function settleOnScreen(frame: FrameValues): void {
-    if (openSurfaceNameIn(session) !== null || asking !== null) return
+    if (openSurfaceNameIn(session) !== null || isQuestionAskedIn(session)) return
     const isNaming = namingCreatedTaskUid !== null
     namingCreatedTaskUid = null
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
@@ -4414,7 +4424,7 @@ export function frameLoop(
       }
     }
 
-    if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) {
+    if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) {
       answerConfirmation(input.key === CONFIRMATION_PROCEED_KEY, frame)
       ask()
       recordLine('done', `spent=confirmation=${input.key} frame=yes`)
@@ -4429,7 +4439,7 @@ export function frameLoop(
     const escapeLevel = escapeLevelOf(
       input,
       context,
-      asking !== null,
+      isQuestionAskedIn(session),
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
@@ -4485,24 +4495,6 @@ export function frameLoop(
 
     if (selection !== context.selection) followChoiceOnPanel(frame)
 
-    if (openChoosing !== null && openSurfaceNameIn(session) !== OPEN_CHOOSER_SURFACE) {
-      const abandoned = openChoosing
-      openChoosing = null
-      abandoned.settle(null)
-    }
-
-    if (mergeChoosing !== null && openSurfaceNameIn(session) !== DIFFERENCE_REVIEW_SURFACE) {
-      const abandoned = mergeChoosing
-      mergeChoosing = null
-      mergeCandidates = []
-      unreadColumns = []
-      abandoned.settle(null)
-    }
-
-    if (droppedTaskNames.length > 0 && openSurfaceNameIn(session) !== IMPORT_REPORT_SURFACE) {
-      droppedTaskNames = []
-    }
-
     // TRAP: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
     if (pointerAt !== null) {
       grabUnderPointer = grabAtPointer(frame, pointerAt.x, pointerAt.y, partUnderPointer)
@@ -4554,12 +4546,12 @@ export function frameLoop(
       const level = escapeLevelOf(
         input,
         context,
-        asking !== null,
+        isQuestionAskedIn(session),
         isPropertiesPanelOnScreen(),
         isTooltipStanding,
       )
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
-      if (asking !== null && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
+      if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
       // TRAP: rowArea's rectangle also covers the floating Dialogue Field; without this escape,
       // its own press reads as rowArea and preventDefault blocks native focus (DFC-578, FR-066).
       if (

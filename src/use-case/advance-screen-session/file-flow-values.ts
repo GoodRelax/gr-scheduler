@@ -4,6 +4,7 @@
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
+import type { DocumentCommand } from '../edit-document/edit-document'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the file store's OpenRoute plus the Agent API hand-over; UseCase may not read an Adapter type (table T-061).
@@ -38,9 +39,17 @@ export interface FileFlowQuestion {
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
 }
 
-// WHY: handed back unread; EditDocument's DocumentCommand would need an undeclared edge (check 59).
+// WHY: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).
+export type FileFlowCreatedSubject =
+  | { readonly kind: 'task'; readonly uid: number }
+  | { readonly kind: 'row'; readonly groupId: string }
+
 export type FileFlowOwedAction =
-  | { readonly kind: 'changeDocument'; readonly writes: readonly (readonly { readonly kind: string }[])[]; readonly created: unknown }
+  | {
+      readonly kind: 'changeDocument'
+      readonly writes: readonly (readonly DocumentCommand[])[]
+      readonly created: FileFlowCreatedSubject | null
+    }
   | { readonly kind: 'startNewDocument' }
 
 export type FileFlowSurfaceName = 'U-56' | 'U-61' | 'U-62'
