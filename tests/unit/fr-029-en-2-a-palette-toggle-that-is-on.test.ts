@@ -305,8 +305,11 @@ describe('the manuscripts still say what these cases read', () => {
     expect(bare(en2?.by[T_237_FILL_COLUMN] ?? ''), 'EN-2 is filled in S-183').toBe('S-183')
   })
 
-  it('finds no row of table T-237 for an entrance that is the current exclusive choice', () => {
-    expect(T_237.rows.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5'])
+  it('finds row EN-6 of table T-237 for an entrance that is the current exclusive choice', () => {
+    expect(T_237.rows.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5', 'EN-6'])
+    const en6 = T_237.rows.find((row) => row.id === 'EN-6')
+    expect(en6?.by[T_237_OWNER_COLUMN]).toContain('FR-048')
+    expect(bare(en6?.by[T_237_FILL_COLUMN] ?? ''), 'EN-6 is filled in S-183').toBe('S-183')
   })
 })
 
