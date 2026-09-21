@@ -64,18 +64,17 @@ function rowControlStepPx(): number {
   return rowControlBoxPx()
 }
 
-// @provisional PND-348
-// see HF-4, T-206
-const ROW_CONTROL_EDGE_PX = NOT_STORED_ROW_CONTROL_EDGE_SIZES['S-313']
-
 /** @purity pure */
 function rowControlRight(stepsFromEdge: number): string {
   return `right:${rowControlRightPx(stepsFromEdge)}px;`
 }
 
+// @provisional PND-348
+// see HF-4, T-206
+// TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
 /** @purity pure */
 function rowControlRightPx(stepsFromEdge: number): number {
-  return ROW_CONTROL_EDGE_PX + rowControlStepPx() * stepsFromEdge
+  return NOT_STORED_ROW_CONTROL_EDGE_SIZES['S-313'] + rowControlStepPx() * stepsFromEdge
 }
 
 const ROW_CONTROL_STEPS = {
