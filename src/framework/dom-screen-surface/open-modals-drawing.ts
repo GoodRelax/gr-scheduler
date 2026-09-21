@@ -54,6 +54,17 @@ function helpStyle(): string {
 }
 
 // see FR-036
+// WHY: the negative margin and equal padding cover the box's 1em padding, so the scrolled body
+// never shows above or beside the pinned row; net layout is unchanged.
+/** @purity pure */
+function helpTitleRowStyle(): string {
+  return (
+    'position:sticky;top:0;z-index:1;margin:-1em -1em 0 -1em;padding:1em 1em 0.5em 1em;' +
+    `background:${PAINT.ground};`
+  )
+}
+
+// see FR-036
 // TRAP: the tooltip joins with the same one; EZ-2 forbids the pair built two ways.
 const ASSIGNMENT_SEPARATOR = ' \uFF0F '
 
@@ -286,6 +297,31 @@ interface DrawnModal {
   readonly watermarkUnlockEntry: TextEntryControl | null
 }
 
+// see FR-036
+/** @purity non-pure */
+function modalTitleRow(
+  host: Document,
+  modal: OpenModal,
+  anchors: Map<string, HTMLElement>,
+): HTMLElement {
+  const header = made(
+    host,
+    'div',
+    STYLE.surfaceHeader + ('entries' in modal ? helpTitleRowStyle() : ''),
+  )
+  const heading = made(host, 'h2', STYLE.heading)
+  heading.textContent = modal.heading
+  header.append(heading)
+  const legendItem =
+    'entries' in modal ? modal.commands.find((item) => item.icon === modal.legend) : undefined
+  if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
+  for (const item of modal.commands) {
+    if ('entries' in modal && item.icon === modal.legend) continue
+    header.append(anchoredEntry(host, item, anchors))
+  }
+  return header
+}
+
 /** @purity non-pure */
 export function modalElement(
   host: Document,
@@ -304,17 +340,7 @@ export function modalElement(
   drawn.setAttribute('role', 'dialog')
   drawn.setAttribute('aria-modal', 'true')
 
-  const header = made(host, 'div', STYLE.surfaceHeader)
-  const heading = made(host, 'h2', STYLE.heading)
-  heading.textContent = modal.heading
-  header.append(heading)
-  const legendItem =
-    'entries' in modal ? modal.commands.find((item) => item.icon === modal.legend) : undefined
-  if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
-  for (const item of modal.commands) {
-    if ('entries' in modal && item.icon === modal.legend) continue
-    header.append(anchoredEntry(host, item, anchors))
-  }
+  const header = modalTitleRow(host, modal, anchors)
   const body: HTMLElement[] = []
   let watermarkUnlockEntry: TextEntryControl | null = null
 

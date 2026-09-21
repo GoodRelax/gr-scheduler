@@ -383,6 +383,7 @@ describe('the manuscripts still say what these cases read', () => {
     expect(fillRowOf('EN-3')).toBe('S-151')
     expect(fillRowOf('EN-4')).toBe('S-183')
     expect(fillRowOf('EN-5')).toBe('S-183')
+    expect(fillRowOf('EN-6')).toBe('S-183')
   })
 
   it('⭐ 表 T-237 still hands each row to the requirement these cases drive it through', () => {
