@@ -41,6 +41,7 @@ import {
   dependencyStartOfHit,
   grabSizesOf,
   itemAtPointer,
+  type Hit,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
   geometryFromLayout,
@@ -86,6 +87,7 @@ import {
   type SessionEffect,
   type SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { GrabbedRowAxis, PressedOn } from '../../use-case/advance-screen-session/gesture-values'
 import type { StandingNotice } from '../../use-case/advance-screen-session/notice-values'
 import {
   importDocument,
@@ -142,7 +144,6 @@ import {
   type InputContext,
   type PointerInput,
   type PointerPress,
-  type PressRow,
   type SpentEntranceSituation,
 } from '../../adapter/input-command-translator/input-command-translator'
 import {
@@ -694,6 +695,9 @@ const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target
 const POINTER_RESTED: ScreenValuesEvent = { type: 'pointerRestElapsed' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
+const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
+const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
+const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
 const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
 
 // see IN-4, T-283
@@ -713,8 +717,6 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
 }
 
 const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
-
-const REPEATING_ENTRIES: readonly IconId[] = ['IC-12', 'IC-13', 'IC-14', 'IC-15']
 
 const CONFIRMATION_MANNER = 'NT-7'
 
@@ -1432,6 +1434,9 @@ function subjectOfChoice(selection: Selection, groupIds: readonly string[]): Pro
 // see ST-7
 type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
 
+// see HF-15, SF-5
+type GrabbedRowPlace = Omit<NonNullable<ScreenViewReadingsTaken['rowGrabbedAt']>, 'axis'>
+
 interface ScreenEffectHands {
   readonly raiseNotice: (reason: NoticeReason) => void
   readonly storeLanguage: (language: DisplayLanguage) => void
@@ -1440,6 +1445,9 @@ interface ScreenEffectHands {
   readonly clearSelection: () => void
   readonly writeCarried: (writes: readonly DocumentCommand[], frame: FrameValues | null) => void
   readonly startScaleMessageTimer: () => void
+  readonly startEntryRepeat: () => void
+  readonly repeatHeldEntry: () => void
+  readonly restorePaletteCorner: () => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1467,9 +1475,9 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     startScaleMessageTimer: () => hands.startScaleMessageTimer(),
     restartScaleMessageTimer: () => hands.startScaleMessageTimer(),
 
-    startEntryRepeat: unwiredEffect,
-    restorePaletteCorner: unwiredEffect,
-    repeatHeldEntry: unwiredEffect,
+    startEntryRepeat: () => hands.startEntryRepeat(),
+    restorePaletteCorner: () => hands.restorePaletteCorner(),
+    repeatHeldEntry: () => hands.repeatHeldEntry(),
 
     raiseFlowSurface: unwiredEffect,
     readDocumentFile: unwiredEffect,
@@ -1672,29 +1680,58 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
   }
 }
 
-const PRESS_CHANGES_DOCUMENT: Readonly<Record<PressRow, boolean>> = {
-  'PTD-1': false,
-  'PTD-2': true,
-  'PTD-3': true,
-  'PTD-4': true,
-  'PTD-4a': true,
-  'PTD-5': false,
+// see AG-9, WS-2, T-289
+/** @purity pure */
+function isChangingDocumentIn(session: ScreenSession): boolean {
+  return session.gesture.pointerPressState.kind === 'changingDocument'
 }
 
-// see AG-9, UN-8
+// see HF-15, T-289
 /** @purity pure */
-function isDocumentChangingPress(press: PointerPress | null): boolean {
-  if (press === null) return false
-  // TRAP: ask `on` before the row; a press on a drawn entry lands on PTD-5, so the
-  // row first would take AG-9 off every palette press.
-  if (press.on !== null) {
-    // WHY: GR-21's drag writes only the display position (UN-8), so WS-2 must not
-    // refuse its follow writes.
-    if (press.on.scrollbarAxis !== undefined) return false
-    const entry = press.on.entry
-    return entry === null || !REPEATING_ENTRIES.includes(entry)
+function rowGrabAxisIn(session: ScreenSession): GrabbedRowAxis | null {
+  const grab = session.gesture.rowGrabState.kind
+  if (grab === 'changingPosition') return 'position'
+  return grab === 'changingDepth' ? 'depth' : null
+}
+
+/** @purity pure */
+function itemKeyOf(item: Hit['item']): string {
+  switch (item.kind) {
+    case 'task':
+      return `task:${item.taskUid}`
+    case 'dependency':
+      return `dependency:${item.predecessorUid}>${item.successorUid}`
+    case 'highlightBox':
+    case 'commentBox':
+      return `${item.kind}:${item.id}`
+    case 'statusLine':
+      return item.kind
   }
-  return PRESS_CHANGES_DOCUMENT[press.pressRow]
+}
+
+// see T-289, UN-8, GR-21
+// TRAP: the thumb before the entry and the strip before the band; the machine's guards read the kind alone.
+/** @purity pure */
+function pressedOnOf(on: ScreenPart | null, hit: Hit | null): PressedOn | null {
+  if (on === null) return hit === null ? null : { kind: 'grab', grabRow: hit.grab, itemId: itemKeyOf(hit.item) }
+  if (on.scrollbarAxis !== undefined) return { kind: 'scrollbarThumb', axis: on.scrollbarAxis }
+  if (on.isRowGrabStrip === true && on.rowGroupId !== null) return { kind: 'rowGrabStrip', rowGroupId: on.rowGroupId }
+  if (on.entry === PALETTE_GRAB_BAND_ENTRY) return { kind: 'paletteBand' }
+  if (on.entry !== null) return { kind: 'entry', entry: on.entry }
+  if (on.dividerPanel !== null) return { kind: 'panelBorder', panel: on.dividerPanel }
+  return { kind: 'otherPart', part: on.part }
+}
+
+// see HF-15, T-289
+// WHY: the axis is the machine's; the place and the resistance are frame values beside it.
+/** @purity pure */
+function grabbedRowReadingOf(
+  session: ScreenSession,
+  at: GrabbedRowPlace | null,
+): ScreenViewReadingsTaken['rowGrabbedAt'] {
+  const axis = rowGrabAxisIn(session)
+  if (at === null || axis === null) return null
+  return { ...at, axis }
 }
 
 /** @purity pure */
@@ -2033,13 +2070,7 @@ export function frameLoop(
   let previewDocument: Document | null = null
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
-  let rowGrabbedAt: {
-    readonly groupId: string
-    readonly depth: number
-    readonly axis: 'position' | 'depth'
-    readonly resistedPx: number
-    readonly atY: number | null
-  } | null = null
+  let rowGrabbedAt: GrabbedRowPlace | null = null
   // DEVIATION: spec says a hidden palette has no minimise state (T-280); here the record keeps it (DFC-707)
   let paletteMinimisedWhileHidden = false
   let isRecordingInteractions = false
@@ -2163,6 +2194,11 @@ export function frameLoop(
     clearSelection: () => (selection = emptySelection()),
     writeCarried,
     startScaleMessageTimer,
+    startEntryRepeat: beginEntryRepeat,
+    repeatHeldEntry,
+    restorePaletteCorner: () => {
+      if (commandPaletteCornerAtPress !== null) commandPaletteDraggedTo = commandPaletteCornerAtPress
+    },
   })
 
   /** @purity non-pure */
@@ -2460,7 +2496,7 @@ export function frameLoop(
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
               : null,
           commandPaletteDraggedTo,
-          rowGrabbedAt,
+          rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
           isRecordingInteractions,
           selectedGroupIds,
           selectedResourceUids,
@@ -2586,48 +2622,54 @@ export function frameLoop(
     callOffScaleMessage = () => clearTimeout(wake)
   }
 
+  // see FR-018, S-173, T-289
   // TRAP: judge the press, not the pointer now, or a pixel of drift stops the repeat.
-  /** @purity semi-pure-b */
-  function pressHeldOnRepeatingEntry(): PointerPress | null {
-    const press = pressed
-    const entry = press?.on?.entry ?? null
-    if (press === null || entry === null) return null
-    return REPEATING_ENTRIES.includes(entry) ? press : null
-  }
-
   /** @purity non-pure */
   function repeatHeldEntry(): void {
     const frame = values
-    const press = pressHeldOnRepeatingEntry()
-    if (frame === null || press === null) {
-      endEntryRepeat()
-      return
-    }
+    const press = pressed
+    if (frame === null || press === null) return
     // TRAP: phase must become up; a down answers nothing but the press question.
     const continuation: PointerInput = { ...press.at, phase: 'up' }
     const context = collectInputContext(frame)
     carryOutAction(commandFromInput(continuation, context).action, frame)
     ask()
+    tickEntryRepeat(repeatTimesOfHeldEntry().intervalMs)
   }
 
-  // see FR-018, S-172, S-173
+  // see CS-2, T-289
+  // WHY: a second down while one is held replaces the press, as the frame value does (JDG-57).
+  /** @purity non-pure */
+  function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
+    if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
+    sendToSession({ type: 'pointerPressed', pressRow: press.pressRow, pressedOn: pressedOnOf(on, press.hit) }, frame)
+  }
+
+  // see IN-1, IN-1a, FR-053, T-289
+  // TRAP: the press drops before the event; the restorePaletteCorner effect reads the corner still held here.
+  /** @purity non-pure */
+  function endPointerPress(isInterrupted: boolean, frame: FrameValues): void {
+    pressed = null
+    sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
+    commandPaletteCornerAtPress = null
+    rowGrabbedAt = null
+  }
+
+  // see FR-018, S-172, T-289
   /** @purity non-pure */
   function beginEntryRepeat(): void {
     endEntryRepeat()
-    if (pressHeldOnRepeatingEntry() === null) return
-    const times = repeatTimesOfHeldEntry()
-    // WHY: one wake chained per tick, not setInterval, so a late tick cannot pile onto the next.
-    const tickAfter = (afterMs: number): void => {
-      const wake = setTimeout(() => {
-        callOffEntryRepeat = null
-        // TRAP: re-ask each tick; a host may still run a wake that was in flight at release.
-        if (pressHeldOnRepeatingEntry() === null) return
-        repeatHeldEntry()
-        tickAfter(times.intervalMs)
-      }, afterMs)
-      callOffEntryRepeat = () => clearTimeout(wake)
-    }
-    tickAfter(times.delayMs)
+    tickEntryRepeat(repeatTimesOfHeldEntry().delayMs)
+  }
+
+  // WHY: one wake chained per tick, not setInterval, so a late tick cannot pile onto the next.
+  /** @purity non-pure */
+  function tickEntryRepeat(afterMs: number): void {
+    const wake = setTimeout(() => {
+      callOffEntryRepeat = null
+      sendToSession(ENTRY_REPEAT_TIME_ELAPSED, values)
+    }, afterMs)
+    callOffEntryRepeat = () => clearTimeout(wake)
   }
 
   /** @purity non-pure */
@@ -2952,7 +2994,7 @@ export function frameLoop(
         dialogue: dialogueLog,
         frame,
         exportScene: exportScene(),
-        isGestureInFlight: isDocumentChangingPress(pressed),
+        isGestureInFlight: isChangingDocumentIn(session),
         isEditingInPlace: hasUnsettledTextEntry(),
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
@@ -3243,7 +3285,7 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectWriteMoment(): WriteMoment {
     return {
-      gestureInFlight: isDocumentChangingPress(pressed),
+      gestureInFlight: isChangingDocumentIn(session),
       editingInPlace: !isSettlingFieldCommit && hasUnsettledTextEntry(),
       deliveringNotices: isDeliveringNoticesIn(session),
     }
@@ -4126,10 +4168,10 @@ export function frameLoop(
       case 'followRowGrab': {
         // WHY: the axis goes back onto the press because UF-30 is pure and cannot remember it.
         if (pressed !== null) pressed = { ...pressed, rowGrabAxis: action.axis }
+        sendToSession({ type: 'rowGrabAxisSettled', axis: action.axis }, frame)
         rowGrabbedAt = {
           groupId: action.groupId,
           depth: action.atDepth,
-          axis: action.axis,
           resistedPx: action.resistedPx,
           atY: action.atY,
         }
@@ -4362,8 +4404,7 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
-        // TRAP: after collectPress; pressHeldOnRepeatingEntry reads the entrance that press recorded.
-        beginEntryRepeat()
+        beginPointerPress(pressed, partUnderPointer, frame)
       }
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
         dismissNoticeByKey(partUnderPointer.noticeDismissKey, frame)
@@ -4404,16 +4445,10 @@ export function frameLoop(
 
     // TRAP: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).
-    if (hasEndedGesture(input) || escapeLevel === 'gesture') pressed = null
-    if (escapeLevel === 'gesture') endEntryRepeat()
-
     const isDragInterrupted =
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
-    if (isDragInterrupted && commandPaletteCornerAtPress !== null) {
-      commandPaletteDraggedTo = commandPaletteCornerAtPress
-    }
-    if (hasEndedGesture(input) || escapeLevel === 'gesture') commandPaletteCornerAtPress = null
-    if (hasEndedGesture(input) || escapeLevel === 'gesture') rowGrabbedAt = null
+    if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
+    if (escapeLevel === 'gesture') endEntryRepeat()
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
