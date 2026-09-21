@@ -316,6 +316,24 @@ describe(`T-271 XS-8 -- ${says('XS-8')}`, () => {
     expect(band.right - band.left, says('XS-8')).toBeCloseTo(H, 6)
     expect(band.centre, says('XS-8')).toBeCloseTo(placed.y + placed.height / 2, 6)
   })
+
+  it('XS-8 / F-024: a milestone\'s assignee-and-percent card is centred on the plan diamond, like its name and marker', () => {
+    const scene = sceneOf({
+      tasks: [taskOf({ name: 'ab', start: day(4), finish: day(4), milestone: true, actualStart: day(4), percentComplete: 50 })],
+      shapeKind: 'milestone',
+      assignedTaskUids: [1],
+      settings: { assigneeVisible: true, percentCompleteVisible: true },
+    })
+    const drawn = scene.taskOf(1)
+    const plan = bandOf(mustBe(drawn.milestoneFigure ?? drawn.plan, 'a plan diamond'))
+    const name = bandOfRect(mustBe(drawn.label, 'a name'))
+    const card = bandOfRect(mustBe(drawn.assigneeLabel, 'an assignee and percent card'))
+    const marker = mustBe(drawn.marker, 'a started milestone draws a marker')
+    expect(name.centre, 'the name stands on the plan diamond centre').toBeCloseTo(plan.centre, 6)
+    expect(marker.centre.y, 'the marker stands on the plan diamond centre').toBeCloseTo(plan.centre, 6)
+    expect(card.centre, 'the card stands on the plan diamond centre (LP-7 / LP-8, F-024)').toBeCloseTo(plan.centre, 6)
+    expect(card.centre, 'the card and the name share one band').toBeCloseTo(name.centre, 6)
+  })
 })
 
 describe(`T-271 XS-9 -- ${says('XS-9')}`, () => {

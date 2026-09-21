@@ -37,6 +37,15 @@ function linkTypeOf(from: DependencyEdge, into: DependencyEdge): number {
   return into === 'finish' ? 2 : 3
 }
 
+// see FR-009, RT-4a
+/** @purity pure */
+function planlessEndRefusals(ends: readonly (Task | null)[]): Refusal[] {
+  return ends.flatMap((end) =>
+    end === null || (end.start !== null && end.finish !== null)
+      ? []
+      : [reject('CM-36', 'FR-009', `task UID ${end.uid} has no plan dates`)])
+}
+
 /** @purity pure */
 function withTask(document: Document, task: Task): Document {
   const tasks = document.schedule.tasks.map((one) => (one.uid === task.uid ? task : one))
@@ -52,7 +61,7 @@ export function editDependency(document: Document, command: DependencyCommand): 
     case 'createDependency': {
       const predecessor = taskByUid(schedule, command.predecessorUid)
       const successor = taskByUid(schedule, command.successorUid)
-      const refusals: Refusal[] = []
+      const refusals: Refusal[] = planlessEndRefusals([predecessor, successor])
 
       if (command.predecessorUid === command.successorUid) {
         refusals.push(

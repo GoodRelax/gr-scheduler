@@ -201,8 +201,7 @@ export function commandFromGrab(
       const task = taskByUid(context.document.schedule, uid)
       const dropped = dayAtX(context.layout, release.x)
       if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      // STOP: spec does not decide GA-20 on a suspended Task with no actual. Looked in T-266, PA-3, FR-044
-      // @provisional PND-318
+      // WHY: unreachable: PS-1, FR-011, PV-2, GO-6 and GO-7 never leave a started Task without a last day.
       const lastDay = actualLastDay(task)
       if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
       // see GO-10

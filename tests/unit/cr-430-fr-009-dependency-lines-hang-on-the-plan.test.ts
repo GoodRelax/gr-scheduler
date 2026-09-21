@@ -9,6 +9,7 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
+import type { Document } from '../../src/entity/document-model/document/document'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { dependencyEndAtPointer } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
@@ -22,6 +23,7 @@ import {
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { editDependency } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(
@@ -204,15 +206,118 @@ describe(`RT-4a (MUST NOT) -- ${FR_009_HALF_NO_FALLBACK_TO_ACTUAL}`, () => {
 })
 
 describe('RT-4a (MUST NOT) -- a Task with no plan at all is never a dependency line endpoint', () => {
-  // DEVIATION: RT-4a forbids a plan-less endpoint; the floor width still draws one (DFC-658).
-  it.fails('draws no line when the predecessor has no plan at all (DFC-658)', () => {
+  it('draws no line when the predecessor has no plan at all (DFC-658)', () => {
     const geometry = geometryOf(linkedPair({ start: null, finish: null }))
     expect(geometry.dependencies).toHaveLength(0)
   })
 
-  // DEVIATION: RT-4a forbids a plan-less endpoint; the floor width still draws one (DFC-658).
-  it.fails('draws no line when the successor has no plan at all (DFC-658)', () => {
+  it('draws no line when the successor has no plan at all (DFC-658)', () => {
     const geometry = geometryOf(linkedPair(DATED_PREDECESSOR, { start: null, finish: null }))
     expect(geometry.dependencies).toHaveLength(0)
   })
+})
+
+const FR_107_NO_PLAN_NO_END = '⚠️ 予定の無いタスクは、結ぶ元にも先にもならない。'
+
+const PLANLESS_VARIANTS: readonly (readonly [string, Readonly<Record<string, unknown>>])[] = [
+  ['start is null', { start: null, finish: '2026-01-20' }],
+  ['finish is null', { start: '2026-01-05', finish: null }],
+  ['both are null', { start: null, finish: null }],
+]
+
+describe(`FR-107 / FR-009 (input side) -- ${FR_107_NO_PLAN_NO_END}`, () => {
+  it('the manuscript still says a plan-less Task is neither end, word for word', () => {
+    expect(REQUIREMENTS).toContain(FR_107_NO_PLAN_NO_END)
+  })
+
+  for (const [label, dates] of PLANLESS_VARIANTS) {
+    it(`dependencyEndAtPointer answers no end over a Task whose ${label}, wherever it is drawn`, () => {
+      const schedule = linkedPair({ ...dates, ...ACTUAL_FAR_FROM_PLAN })
+      const geometry = geometryOf(schedule)
+      const drawn = geometry.tasks.find((one) => one.taskUid === PREDECESSOR_UID)
+      const placed = layoutFromSchedule(schedule, BASE_SETTINGS, REGIONS).placements
+        .find((one) => one.taskUid === PREDECESSOR_UID)
+
+      // WHY: every point where the Task is drawn -- placement, label boxes, bars.
+      const probes: { x: number; y: number }[] = []
+      if (placed !== undefined) {
+        probes.push({ x: placed.x + 1, y: placed.y + 1 })
+        probes.push({ x: placed.x + placed.width / 2, y: placed.y + placed.height / 2 })
+      }
+      for (const box of [drawn?.label ?? null, drawn?.assigneeLabel ?? null]) {
+        if (box !== null) probes.push({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
+      }
+      for (const bar of [drawn?.plan ?? null, drawn?.actual ?? null]) {
+        if (bar === null) continue
+        const span = spanOf(bar)
+        const ys = (bar.form === 'outline' ? bar.points : [bar.from, bar.to]).map((one) => one.y)
+        probes.push({ x: (span.left + span.right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 })
+      }
+      expect(probes.length, 'premise: the Task is drawn somewhere to press on').toBeGreaterThan(0)
+
+      for (const at of probes) {
+        expect(
+          dependencyEndAtPointer(geometry, at.x, at.y, PREDECESSOR_UID),
+          `${FR_107_NO_PLAN_NO_END} (probe ${at.x},${at.y})`,
+        ).toBeNull()
+      }
+      for (let x = 0; x <= ENV.width; x += 6) {
+        for (let y = 0; y <= ENV.height; y += 6) {
+          const end = dependencyEndAtPointer(geometry, x, y, null)
+          expect(end?.taskUid ?? null, `${FR_107_NO_PLAN_NO_END} (grid ${x},${y})`).not.toBe(PREDECESSOR_UID)
+        }
+      }
+    })
+  }
+
+  it('premise: dependencyEndAtPointer answers an end for a dated Task at the same probe', () => {
+    const schedule = linkedPair(DATED_PREDECESSOR)
+    const placed = layoutFromSchedule(schedule, BASE_SETTINGS, REGIONS).placements
+      .find((one) => one.taskUid === PREDECESSOR_UID)!
+    expect(dependencyEndAtPointer(geometryOf(schedule), placed.x + 1, placed.y + 1, PREDECESSOR_UID)).not.toBeNull()
+  })
+})
+
+const documentOfTasks = (tasks: readonly Task[]): Document =>
+  ({
+    schemaVersion: '1',
+    schedule: scheduleOf({ tasks }),
+    documentSettings: { ...(BASE_SETTINGS as unknown as Record<string, unknown>), dependencyLagDefault: 0 },
+    documentStamp: {
+      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      lastEditedBy: 'user',
+      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+    },
+    changeLog: [],
+  }) as unknown as Document
+
+const DATED_A = { uid: 1, name: 'A', start: '2026-01-05', finish: '2026-01-09' }
+const DATED_B = { uid: 2, name: 'B', start: '2026-01-12', finish: '2026-01-16' }
+
+describe(`createDependency (input side) -- ${FR_107_NO_PLAN_NO_END}`, () => {
+  it('premise: createDependency links two dated Tasks', () => {
+    const before = documentOfTasks([taskOf(DATED_A), taskOf(DATED_B)])
+    const result = editDependency(before, {
+      kind: 'createDependency', predecessorUid: 1, successorUid: 2,
+      predecessorEdge: 'finish', successorEdge: 'start',
+    })
+    expect(result.ok).toBe(true)
+  })
+
+  for (const [label, dates] of PLANLESS_VARIANTS) {
+    for (const end of ['predecessor', 'successor'] as const) {
+      it(`createDependency leaves the document unchanged when the ${end}'s ${label}`, () => {
+        const a = taskOf(end === 'predecessor' ? { ...DATED_A, ...dates } : DATED_A)
+        const b = taskOf(end === 'successor' ? { ...DATED_B, ...dates } : DATED_B)
+        const before = documentOfTasks([a, b])
+        const snapshot = structuredClone(before)
+        const result = editDependency(before, {
+          kind: 'createDependency', predecessorUid: 1, successorUid: 2,
+          predecessorEdge: 'finish', successorEdge: 'start',
+        })
+        const after = result.ok ? result.document : before
+        expect(after.schedule, FR_107_NO_PLAN_NO_END).toEqual(snapshot.schedule)
+      })
+    }
+  }
 })

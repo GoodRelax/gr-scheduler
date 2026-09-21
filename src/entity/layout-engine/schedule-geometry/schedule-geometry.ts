@@ -113,6 +113,9 @@ export interface TaskGeometry {
   readonly fadeHandles: readonly Point[]
   readonly label: ScreenRect | null
   readonly assigneeLabel: ScreenRect | null
+  // see FR-009, RT-4a
+  // WHY: optional, read as true when absent: a hand-built geometry may not say.
+  readonly hasPlanDates?: boolean
 }
 
 // see LC-10, T-222
@@ -903,7 +906,7 @@ function labelBoxOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): 
   }
 }
 
-// see OC-2, FR-090, XS-3, XS-4
+// see OC-2, FR-090, XS-3, XS-4, XS-8, SH-5, F-024
 /** @purity pure */
 function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): ScreenRect | null {
   if (placed.outsideLabel === '') return null
@@ -921,12 +924,25 @@ function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): Scree
   )
   return {
     x: anchor - settings.assigneeLabelGap - width,
-    // STOP: spec does not decide the card's vertical place on a milestone. Looked in XS-3, XS-8, LF-11
-    // @provisional PND-347
     y: labelTierMiddleOf(placed, settings) - height / 2,
     width,
     height,
   }
+}
+
+// see FR-009, RT-4a
+/** @purity pure */
+function hasPlanDates(task: Task): boolean {
+  return task.start !== null && task.finish !== null
+}
+
+// see RT-4a, FR-009
+/** @purity pure */
+function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] {
+  return inputs.layout.placements.filter((one) => {
+    const task = inputs.taskByUid.get(one.taskUid)
+    return task !== undefined && hasPlanDates(task)
+  })
 }
 
 /** @purity pure */
@@ -1235,10 +1251,10 @@ export function geometryFromLayout(
   const tasks: TaskGeometry[] = []
   for (const placed of layout.placements) {
     const task = inputs.taskByUid.get(placed.taskUid)
-    if (task !== undefined) tasks.push(taskGeometryOf(inputs, task, placed))
+    if (task !== undefined) tasks.push({ ...taskGeometryOf(inputs, task, placed), hasPlanDates: hasPlanDates(task) })
   }
 
-  const placedByUid = new Map(layout.placements.map((one) => [one.taskUid, one]))
+  const placedByUid = new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one]))
   const dependencies: DependencyGeometry[] = []
   // see RT-4a, FR-009
   if (settings.dependencyVisible && settings.planVisible) {

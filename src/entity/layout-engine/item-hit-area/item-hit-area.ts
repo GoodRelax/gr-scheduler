@@ -888,9 +888,7 @@ function highlightHit(box: HighlightGeometry, boxPart: BoxPart): Hit {
   return { item: { kind: 'highlightBox', id: box.id }, grab: 'GR-14', boxPart }
 }
 
-// see GR-14
-// STOP: spec does not decide whether a comment box or a highlight box wins inside GR-14. Looked in T-023d, T-023a
-// @provisional PND-235
+// see GR-14, ZO-8, ZO-9
 /** @purity pure */
 function noteHitOf(
   geometry: ScheduleGeometry,
@@ -985,6 +983,7 @@ export function dependencyEndAtPointer(
 ): DependencyEnd | null {
   for (const task of geometry.tasks) {
     if (onTaskUid !== null && task.taskUid !== onTaskUid) continue
+    if (task.hasPlanDates === false) continue
     const shape = shapeOf(task)
     // TRAP: never `?? shape.actualBand` here: FR-009 (MUST NOT) forbids a
     // plan-less endpoint from falling to the actual band (DFC-658).
