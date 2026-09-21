@@ -866,9 +866,9 @@ PHASE_RESOURCES = (
 )
 
 # Colours an author chose, so FR-007's override is exercised rather than every
-# bar taking the theme. ⚠️ The specification names the palette (CL-1 of table
-# T-017) but does not spell its values, so these are this document's own
-# choice of the eleven names it lists. ⛔ Never both transparent (IV-9).
+# bar taking the theme. They are stored names of table T-294 (CV-1 of table
+# T-017b, CR-548), which also holds what each draws. ⛔ Never both transparent
+# (IV-9).
 AUTHOR_PAINT = (
     ('orange', 'dimgray', 'medium'),
     ('lightgray', 'purple', 'thin'),

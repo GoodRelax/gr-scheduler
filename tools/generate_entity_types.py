@@ -194,9 +194,26 @@ COLUMN_SHAPES_NOTE = [
 
 
 def column_shape(node):
-    """One column's accepted shape, read off the 型 column of table T-058."""
-    return (node.get('kind'), node.get('values'), node.get('min'),
+    """One column's accepted shape, read off the 型 column of table T-058.
+
+    A 'color' column's choices are the palette names of table T-294 (CR-548);
+    a custom colour is accepted beside them (CV-2 of table T-017b).
+    """
+    values = node.get('values')
+    if node.get('kind') == 'color':
+        values = [n for n in palette_spellings()
+                  if node.get('transparent', True) or n != 'transparent']
+    return (node.get('kind'), values, node.get('min'),
             node.get('max'), bool(node.get('null')))
+
+
+def palette_spellings():
+    """The stored spellings of table T-294, in row order."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    for block in doc['blocks']:
+        if block.get('id') == 'T-294':
+            return [row['key'].strip('`') for row in block['rows']]
+    raise SystemExit('settings.json holds no table T-294')
 
 
 def column_shapes_block(erd):
@@ -1645,9 +1662,11 @@ def colour_block(name):
 # ⭐ ONE ROW PER COLOUR, EIGHT CELLS: the four drawn forms (fill, outline,
 # actual fill, row band) in both themes. The document stores the row's KEY
 # (CV-1 of table T-017b); these values are baked into the artifact.
-# A cell is '#rrggbb', null (描かない: not drawn), or the row ID a `sameAs`
+# A cell is '#rrggbb', null (描かない: not drawn), the row ID a `sameAs`
 # names -- that row is a row of table T-236 which follows the hue, so the
-# renderer resolves it through its own themed().
+# renderer resolves it through its own themed() -- or false for a dash (—):
+# the colour offers no value for that form (black's row band, CV-9), and the
+# form keeps the theme's.
 
 PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
 
@@ -1657,8 +1676,10 @@ def palette_cell(cell, row_id, field):
         return "'%s'" % cell['colour']
     if isinstance(cell, dict) and 'sameAs' in cell:
         return "{ sameAs: '%s' }" % cell['sameAs']
-    if isinstance(cell, dict) and 'ja' in cell:
+    if isinstance(cell, dict) and cell.get('ja') == '描かない':
         return 'null'
+    if isinstance(cell, dict) and cell.get('ja', '').startswith('—'):
+        return 'false'
     raise SystemExit('table T-294 row %s states nothing readable in %s'
                      % (row_id, field))
 
@@ -1670,8 +1691,8 @@ def palette_block():
     if not block:
         raise SystemExit('settings.json holds no table T-294')
     out = ['// see T-294, T-017b',
-           'export type PaletteCell = string | null | { readonly sameAs: string }',
-           'export interface PaletteForms {',
+           'type PaletteCell = string | null | false | { readonly sameAs: string }',
+           'interface PaletteForms {',
            '  readonly fill: PaletteCell',
            '  readonly outline: PaletteCell',
            '  readonly actual: PaletteCell',
