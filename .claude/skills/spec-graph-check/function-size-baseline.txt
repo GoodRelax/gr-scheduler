@@ -1,5 +1,5 @@
-excess-lines=7841 excess-branches=774
-# LOWERED 7868/777 -> 7841/774 on 2026-09-22, approved by the user in chat: CR-436 wave B1 (JDG-283) shrank screenFrameFromRegions out of the band (HELD line removed), frameLoop 2616 -> 2605, receiveInput 189/80 -> 178/77.
+excess-lines=7664 excess-branches=771
+# LOWERED 7841/774 -> 7664/771 on 2026-09-22, approved by the user in chat: CR-439 (stage 6) split dom-screen-surface.ts -- domScreenSurface 871/1 -> 337/0, showScreenView 133/37 -> 124/34, fieldEditingOf 417/1 new in field-editing.ts, controlElement / modalElement / rowTitleElement moved to their siblings unchanged; commandFromGrab 169 -> 168 was already shrunk by 3d594b22.
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -34,7 +34,7 @@ HELD src/adapter/input-command-translator/field-commit.ts::commandFromVisualColu
 HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=169 branches=72
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=44 branches=21
-HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=169 branches=69
+HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=168 branches=69
 HELD src/adapter/input-command-translator/item-grab.ts::highlightBoxRangeWrite lines=82 branches=31
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56 branches=7
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
@@ -66,12 +66,13 @@ HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSche
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#9 lines=72 branches=18
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::pinnedBandOf lines=59 branches=9
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::controlElement lines=62 branches=20
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=871 branches=1
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::modalElement lines=172 branches=33
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=337 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::rowTitleElement lines=148 branches=16
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=133 branches=37
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=124 branches=34
+HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=417 branches=1
+HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=172 branches=33
+HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=62 branches=20
+HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=257 branches=0
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=103 branches=23

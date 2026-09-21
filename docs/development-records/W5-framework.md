@@ -1133,6 +1133,16 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
 | UF-71 | `dom-screen-surface.ts` | **公開エントリ** | non-pure | PI-38 | ✅ 受入済 |
+| UF-103 | `screen-frame-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-104 | `app-header-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-105 | `row-title-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-106 | `properties-panel-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-107 | `field-editing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-108 | `command-palette-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-109 | `open-modals-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-110 | `notices-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-111 | `dialogue-field-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-112 | `tooltips-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ### `dom-svg-surface` —— DomSvgSurface（PI-26）
 

@@ -2393,6 +2393,17 @@ PUBLISHED_READ_BY_SRC = {
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_LABEL_SIZES',
     ),
+    'src/framework/dom-screen-surface/dom-screen-surface.ts': (
+        'NOT_STORED_CONFIRMATION_RULE_SIZES',
+        'NOT_STORED_DOCUMENT_TITLE_SIZES',
+        'NOT_STORED_HELP_SIZES',
+        'NOT_STORED_ICON_SIZES',
+        'NOT_STORED_PALETTE_GROUP_RULE_SIZES',
+        'NOT_STORED_PROPERTY_FIELD_SIZES',
+        'NOT_STORED_RESOURCE_ROSTER_SIZES',
+        'NOT_STORED_ROW_BAND_SIZES',
+        'NOT_STORED_ROW_GRAB_STRIP_SIZES',
+    ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_SCROLLBAR_SIZES',
     ),
@@ -2433,9 +2444,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_DUMMY_SIZES',
         'NOT_STORED_SIZES',
-    ),
-    'src/framework/dom-screen-surface/dom-screen-surface.ts': (
-        'NOT_STORED_ICON_SIZES',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_PROPERTIES_PANEL_SIZES',

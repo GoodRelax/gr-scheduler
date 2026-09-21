@@ -242,13 +242,13 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **101。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **111。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
 
 ⚠️ **本設計にモジュールは 1 つも無い。**  
-表 T-075 のとおり `EditDocument` が最も多くのユニットを持ち、`InputCommandTranslator`、`ScreenRenderer` がそれに次ぐが、**どれも平らに並べている。**  
+表 T-075 のとおり `EditDocument` が最も多くのユニットを持ち、`InputCommandTranslator` がそれに次ぎ、`ScreenRenderer` と `DomScreenSurface` が同じ数でその次に来るが、**どれも平らに並べている。**  
 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
 
 コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。  
@@ -336,6 +336,7 @@ src/
 | UT-9 | `EditDocument` | `edit-task.ts` と要求ごとの 5 ファイル ／ `edit-task-group.ts` と要求ごとの 4 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>**1 つの集約の中でも、要求ごとに変更の理由が別なので割った**（表 T-276 の `UD-1`）—— 完了率の式（`FR-012`）が変わっても、予定と実績の置き方（`FR-011`・`FR-103`）は変わらない。<br>`FR-011` と `FR-103` は同じ変更で動いてきたので 1 つのユニットに置き、`FR-058` の規則は `FR-085` の分岐の中にあるので 1 つのユニットに置いた |
 | UT-10 | `InputCommandTranslator` | `input-command-translator.ts` と、入力の種類と答える表ごとの 13 ファイル | **純粋性ではない** —— 表 T-075 のとおり 14 とも同じである。<br>**入力の種類ごとに、答える表が別なので割った**（表 T-276 の `UD-1`）—— 打鍵の割当（表 T-036）が変わってもホイールの割当（表 T-023 の `MK-1` 〜 `MK-5`）は変わらず、プロパティパネルの入力の型（表 T-016）が変わっても行の掴み（表 T-051 の `HF-15`）は変わらない。<br>14 とも `pure` であることは、割らない理由にならない（`UD-3`）。<br>兄弟が共有する語彙と補助、入口の振り分け（表 T-023a・表 T-109）は公開エントリに置いた |
 | UT-11 | `AdvanceScreenSession` | `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts` ／ `notice-values.ts` ／ `gesture-values.ts` ／ `file-flow-values.ts` ／ `field-entry-values.ts` ／ `selection-values.ts`） | **変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の出来事と状態機械の表を負う（画面の値は 表 T-280、通知は 表 T-286、身振りは 表 T-289、ファイル操作と問いは 表 T-290、名前付けと入力欄は 表 T-292、選択は 表 T-293）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない |
+| UT-12 | `DomScreenSurface` | `dom-screen-surface.ts` と、描く UI パーツごとの 9 ファイルと、欄の編集の 1 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである（表 T-060 の `LY-5` は `Framework` に `semi-pure-b` と `non-pure` しか与えない）。<br>**UI パーツごとに縛る要求が別なので割った**（表 T-276 の `UD-1`、`UT-7` と同じ形である）—— 通知の作法（表 T-037）が変わってもプロパティパネルの入力の型（表 T-016）は変わらない。<br>欄の編集は UI パーツではなく、表 T-028 の `IN-4`・`IN-5a`・`IN-6` が縛るので別のユニットにした。<br>兄弟が共有する語彙（色・入口の寸法と見た目・UI パーツの名）と層の重ね方は公開エントリに置いた |
 
 ⭐ **要求の側から「まずどのファイルを開くか」を引けるように、表 T-075 は欄「負う要求」を持つ。**  
 欄に書くのは、その要求が動いたときに**最初に開くユニット**だけであり、その要求に触るファイルの全部ではない。  
@@ -455,7 +456,7 @@ src/
 | UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
-| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-71` である | — |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
@@ -464,7 +465,17 @@ src/
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。<br>順序は 表 T-035 の `AG-11`） | `FR-066`（`OW-2`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
-| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38`。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは本ユニットである** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と本ユニットのどちらが正かが読めなくなる | `FR-101`（`OW-2`） |
+| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツの層を重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | — |
+| UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
+| UF-104 | `DomScreenSurface` | `app-header-drawing.ts` | `non-pure` | `App Header` の中身 —— 文書名・ファイルの名と保存の時刻・ヘッダの入口 —— を描く（`U-31`）。<br>名前を時刻の上に置き（`FR-101`）、時刻を土地の時刻で綴り、表示言語の入口に言語の略号を添える（`IC-21`） | `FR-101`（`OW-2`） |
+| UF-105 | `DomScreenSurface` | `row-title-panel-drawing.ts` | `non-pure` | `Row Title Tree` の行を、表 T-051 の操作子・掴み代・畳んだ数とともに描く（`U-22`・`FR-098`）。<br>パネルの角の入口（`HF-10`・`HF-12`・`HF-16`・`HF-17`）を描き、描いた操作子の高さを測って知らせる（`LF-3`・`HF-19`） | — |
+| UF-106 | `DomScreenSurface` | `properties-panel-drawing.ts` | `non-pure` | `Properties Panel` の欄を、表 T-016 の入力の型ごとの操作子として描く（`U-25`・`FR-006`・`FR-072`）。<br>長い値を折り返して高さを伸ばし、出口の入口を最初の欄の行に置く | — |
+| UF-107 | `DomScreenSurface` | `field-editing.ts` | `non-pure` | 文字入力の欄の編集 —— 焦点を持つ・`Esc` で打つ前へ戻す・`Enter` と欄の外の押しで確定する —— を 表 T-028 の `IN-4`・`IN-6` と `SK-19` に従って扱い、確定した値を欄の行 ID とともに返す（`IF-9`）。<br>欄はプロパティパネルの欄・文書名（`U-27`）・透かし解除の答え（`U-60`）である。<br>入力中かを答え（`IN-5a`）、立っている通知が `Enter` と `Esc` を先に取る（`NT-8`） | — |
+| UF-108 | `DomScreenSurface` | `command-palette-drawing.ts` | `non-pure` | `Command Palette` —— 掴み帯・最小化・群と区切り線 —— を描く（`U-26`・`FR-053`・`GR-19`）。<br>区切り線の太さと間は `S-143` から読む | — |
+| UF-109 | `DomScreenSurface` | `open-modals-drawing.ts` | `non-pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）を、面の種類ごとに描く —— ヘルプ（`FR-036`・表 T-256）・資源の名簿（`FR-099`・表 T-257）・書き出しの形式・取り込みの報告（`FR-023`・`U-62`）・設定の欄・透かし解除の問い（`FR-020`）ほか。<br>名簿の横の送りを `Ctrl` ＋ `Shift` ＋ ホイールで受ける（`RR-3`・`MK-5`） | — |
+| UF-110 | `DomScreenSurface` | `notices-drawing.ts` | `non-pure` | 通知と確認を、表 T-037 の作法で描く（`FR-076`・`NT-1`・`NT-7`・`NT-8`）。<br>確認の一覧と答えを区切り線の上に置く（`CQ-2`・`CQ-4`・表 T-258） | — |
+| UF-111 | `DomScreenSurface` | `dialogue-field-drawing.ts` | `non-pure` | `Dialogue Field` の発話を描き、`Enter` で確定した発話を返す（`FR-066`・`AG-11`）。<br>確定の時刻は `AT-129` の綴りで書く | — |
+| UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |
 | UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
 | UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
 | UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と遷移表の定数の区画 | — |
