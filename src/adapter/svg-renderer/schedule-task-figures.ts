@@ -401,8 +401,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       }
     }
     // WHY: the export is dropped here, not in the geometry: one geometry answers both pictures, and it has no picture (EP-14).
-    // STOP: spec does not decide the dummies' paint order; here the actual bar's layer. Looked in T-020
-    // @provisional PND-209
     const dummy = task.dummies[0]
     if (picture === 'screen' && dummy !== undefined && dummy.figure !== undefined) {
       // TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).

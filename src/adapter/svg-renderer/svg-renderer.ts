@@ -378,7 +378,6 @@ export function svgFromSchedule(
         ? []
         : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
     ),
-    // STOP: spec does not decide how the range-selection rectangle is drawn. Looked in PTD-5, T-020, T-023a (PND-363)
     ...zoLayer(
       'ZO-6',
       marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')],

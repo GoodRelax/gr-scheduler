@@ -115,9 +115,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     selectedComments,
   } = input
   const linkParts: string[] = []
-  // STOP: spec does not decide where annotations go in the paint order; here over the labels.
-  // Looked in T-020, NFR-007
-  // @provisional PND-238
   const annotationParts: string[] = []
   const selectionParts: string[] = []
 
@@ -144,8 +141,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const cursors = geometry.dualCursor
   if (cursors !== null) {
-    // STOP: spec does not decide where the cursors go in the paint order; here with CU-1. Looked in T-020
-    // @provisional PND-312
     const colour = themed('S-195')
     const followedDay =
       following === null || following.x === null ? null : dateAtX(layout, following.x)
