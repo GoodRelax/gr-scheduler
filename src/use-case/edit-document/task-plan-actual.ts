@@ -250,6 +250,7 @@ export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingC
   if (span === null) {
     // WHY: EX-12's MUST NOT on carried slack has no exception for a dateless task; Manual*/constraint
     // rebuilding stays undecided (DV-8) since both dates are needed to compute them.
+    // TRAP: nothing shipped makes a dateless task; only a test guards this -- press live once one can enter (JDG-366).
     const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_SLACKS.includes(name))
     return { ...task, carry: Object.fromEntries(kept) }
   }
