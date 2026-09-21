@@ -247,7 +247,12 @@ function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
 /** @purity pure */
 export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
   const span = datedPlanOf(task, schedule, within)
-  if (span === null) return task
+  if (span === null) {
+    // WHY: EX-12's MUST NOT on carried slack has no exception for a dateless task; Manual*/constraint
+    // rebuilding stays undecided (DV-8) since both dates are needed to compute them.
+    const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_SLACKS.includes(name))
+    return { ...task, carry: Object.fromEntries(kept) }
+  }
   const rebuilt: ReadonlyMap<string, string> = new Map([
     ['ManualStart', textOfDay(span.start)],
     ['ManualFinish', textOfDay(span.finish)],
