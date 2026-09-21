@@ -61,7 +61,7 @@
 | `CL` | — | パレットが持つ色と線の太さの区分 | 仕様書 | `T-017` | 2 |
 | `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 73 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
-| `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 36 |
+| `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 37 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
 | `CQ` | Confirmation with a list | 名前の一覧を持つ確認の、見出し部・線・一覧の組み方 | 仕様書 | `T-258` | 4 |
 | `CS` | Consistency | 文書の見え方を一貫させる単位 | 仕様書 | `T-066` | 4 |
@@ -70,7 +70,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 696 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 699 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |
@@ -85,7 +85,7 @@
 | `EN` | — | 入口を塗って示す状態 | 仕様書 | `T-237` | 5 |
 | `EP` | Export Part | 書き出す絵に描く UI パーツと、描かない UI パーツ | 仕様書 | `T-076` | 22 |
 | `ET` | Entity | エンティティ 1 つ | 仕様書 | `T-056` | 18 |
-| `EV` | — | 状態機械が受ける出来事 1 つ | 仕様書 | —（登録のみ） | 0 |
+| `EV` | EVent | 状態機械が受ける出来事 1 つ | 仕様書 | `T-281` | 30 |
 | `EX` | Export | 書き出しの規約の条 | 仕様書 | `T-033` | 12 |
 | `EZ` | Easy | マニュアルを読まずに使えるようにする手立て | 仕様書 | `T-040` | 12 |
 | `FD` | Fade | フェードの形の場合分け | 仕様書 | `T-012a` | 9 |
@@ -110,7 +110,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 287 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 288 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 123 |
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
@@ -143,7 +143,7 @@
 | `PE` | Press Effect | 押す・引くの効果 | 仕様書 | `T-270` | 14 |
 | `PF` | Profile | 文書の基本情報の項目 | 仕様書 | `T-224` | 10 |
 | `PG` | — | 節目ごとに測るものと、それがゲートかどうか | 仕様書（台帳にも 13 行。写しとして申告済み） | `T-043` | 13 |
-| `PI` | Public Interface | コンポーネントが公開するメンバの組 | 仕様書 | `T-064` | 36 |
+| `PI` | Public Interface | コンポーネントが公開するメンバの組 | 仕様書 | `T-064` | 37 |
 | `PK` | Pointer Kind | ポインタの形 | 仕様書 | `T-269` | 9 |
 | `PL` | Progress Line | イナズマ線の頂点の打ち方 | 仕様書 | `T-022` | 5 |
 | `PLM` | — | いまの日程表の作り方が抱えている問題 | 仕様書 | `T-001` | 8 |
@@ -156,6 +156,7 @@
 | `PTD` | Pointer Down | ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない） | 仕様書 | `T-023a` | 6 |
 | `PV` | — | 印を押して状態を確定したときに置く値 | 仕様書 | `T-021a` | 5 |
 | `QN` | Question | 問いが示す文 | 仕様書 | `T-234` | 7 |
+| `RA` | Region Addition | 状態機械に領域を 1 つ足す手順の段 | 仕様書 | `T-285` | 8 |
 | `RC` | Reduction Candidate | 削減・見直しの候補 | 仕様書 | `T-026` | 7 |
 | `RD` | — | 文書をまるごと差し替えるときの、呼び手ごとの扱い | 仕様書 | `T-230` | 6 |
 | `RF` | Reference | 札が付く基準（実績 ／ ダミー ／ 予定） | 仕様書 | `T-272` | 3 |
@@ -173,14 +174,15 @@
 | `SH` | Shape | タスクの形状（`shapeKind`） | 仕様書 | `T-012` | 5 |
 | `SK` | Shortcut Key | ショートカットキーの割当 | 仕様書 | `T-036` | 27 |
 | `SL` | Selection | 選択の規則の条 | 仕様書 | `T-023c` | 10 |
-| `SM` | — | 状態機械の状態 1 つ | 仕様書 | —（登録のみ） | 0 |
+| `SM` | State Machine | 状態機械の状態 1 つ | 仕様書 | `T-280` | 34 |
 | `SO` | Scope | 製品の範囲（含むもの・含まないもの） | 仕様書 | `T-002` | 14 |
 | `SP` | — | パレットの形状を押したときの意味を、選択の状態ごとに定める条 | 仕様書 | —（`FR-083` の無題の表） | 4 |
+| `SS` | Shared Step | 状態機械の全領域が共有する 1 段の形の、公開された名前 1 つと、それが約束すること | 仕様書 | `T-284` | 6 |
 | `ST` | Stack | 積み順の自動割当の規則 | 仕様書 | `T-014` | 10 |
 | `SU` | Structure Unit | 構造の単位（コンポーネント・モジュール・ユニット） | 仕様書 | `T-074` | 3 |
 | `TC` | Task Creation | タスクを作る手つきの規則の条 | 仕様書 | `T-239` | 12 |
 | `TM` | — | 目盛の段が刷るもの | 仕様書 | `T-238` | 4 |
-| `TN` | — | 状態機械の遷移 1 つ | 仕様書 | —（登録のみ） | 0 |
+| `TN` | TransitioN | 状態機械の遷移 1 つ | 仕様書 | `T-282` | 53 |
 | `TP` | Template | 初期テンプレートの中身 | 仕様書 | `T-226` | 8 |
 | `TR` | Trade-off | 意図して払う代償と、その代わりに得るもの | 仕様書 | `T-073` | 3 |
 | `TS` | — | テストの系統 | 仕様書 | `T-218` | 6 |
@@ -188,9 +190,9 @@
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 61 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
-| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 40 行。写しとして申告済み） | `T-075` | 71 |
+| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 40 行。写しとして申告済み） | `T-075` | 74 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 18 |
-| `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 8 |
+| `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 9 |
 | `V` | — | ユースケースと、前プロジェクトの要望との対応 | 仕様書 | `T-011` | 16 |
 | `VG` | Vertical Gap | 上下に積んだタスクの形と形の縦の隙間 | 仕様書 | `T-259` | 7 |
 | `VK` | — | 価値のことば —— 目標が述べる状態を 1 語で指すことば | 仕様書 | `T-106` | 3 |

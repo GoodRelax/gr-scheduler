@@ -1,22 +1,27 @@
 # CR-436 — 画面の値を状態機械へ移す（リファクタ段 2b-B と、段 7 の第 1 領域）
 
-> ⭐ **状態: 起草（2026-09-21）。まだ当てていない。**
+> ⭐ **状態: 波 A を当てた（2026-09-21、`1616d28d` の上。ブランチ `sm-wave-a`）。波 B1 と波 B2 は当てていない。**
+> 当てたのは 第 3.1 節の表のすべてである。当てた体が決めたこと・原稿と付録を合わせ直したことは末尾の「改訂の記録 —— 波 A を当てた」に並べた。
 > 読んだ木: `2112d0c9`（ブランチ `refactor`）。**本書の行番号と数は、断りが無いかぎりこの木で 2026-09-21 に自分で測ったものである。**
+> ⭐ **波 A を `1616d28d` で測り直した（2026-09-21）** —— その間に `CR-432`（表 T-276 と接頭辞 `UD`、`56de8f06`）が当たった。直したところは本書の末尾の「改訂の記録」に並べた。
 >
 > **閉じるもの**:
 > - `CR-379` の第 3 節「2b-B」の表（段 7 の最初の領域の変更要求がコードと同じ波で当てる、と同書の決定 2・3 が延ばした分）。
 > - 第 1 領域「画面の値」の原稿の行（`SM` / `EV` / `TN`）と、その生成器・契約試験・遷移の関数。
 > - ⭐ **利用者の裁定 `JDG-283`**（2026-09-21、逐語「**推奨の Cとせよ**」）—— `PND-451`（出していないプロパティパネルの境界を押したら何が起きるか）。着地先として本書が名指されている（`docs/development-records/rulings.md:480`）。
 >
-> **識別子（規則 02 の 2.5。⛔ どれも当てる直前に測り直し、日付を書き換えること）**:
-> - 木が定義する表の番号の最大は `T-277`（2026-09-21 実測。`docs/spec/*.md` と `docs/spec/_assets/*.md` の見出し `**表 T-nnn —` を数えた）。
-> - `T-280` `T-281` `T-282` `T-283` はどれも空いている（2026-09-21 実測。`docs/spec` ・ `change-request` ・ `src` ・ `tests` ・ `tools` を grep して 0 件）。本書の帯（表は `T-280` 以降）の内側である。
-> - ⛔ 表 `T-276` ・ 接頭辞 `UD` ・ 要求 ID `FR-112` は取らない —— 別セッションの `CR-432`（起草中）が予約している。要求 ID は 1 つも立てない（帯 `FR-120` 以降は使わない）。
-> - 行 ID の接頭辞の登録簿（`docs/spec/_source/row-id-prefixes.json`）の行は 160 件（2026-09-21 実測）。うち `SM` ・ `EV` ・ `TN` は `pending: true` で登録済みであり、本書は新しい接頭辞を登録しない（波 A）。
-> - 図の番号は帯が配られていない。木の最大は `図 F-025` である（2026-09-21 実測）。本書は `図 F-026` を仮に置き、**当てる直前に測り直す**。
-> - ⛔ 表 T-063 の `UT-8` 〜 `UT-10` と 表 T-075 の `UF-72` 〜 `UF-87` は `CR-432` が予約している（同書 :263〜267・:432〜433）。⇒ 本書は `UT-11` と `UF-88` 〜 `UF-90` を仮に置く（`CR-379` の第 3 節が書いた `UT-8` は使わない）。`CP-39` と `PI-39` は `CR-379` が名指しただけで、木にも他の草案にも無い（2026-09-21 実測）。
+> **当てる直前に測り直した識別子**（規則 02 の 2.5。⭐ どれも 2026-09-21 に `1616d28d` で測った値であり、当てたので、いまは履歴である）:
+> - 番号の帯（2026-09-21 に 2 つのセッションが取り決めた。`docs/development-records/handoff.md` の「次のセッションに貼る 1 通目」の 3「衝突の約束」）: **本書（状態機械）は `UF-84` 以降・`UT-11` 以降・`T-280` 以降・`F-026` 以降・`CP-39`・`PI-39`**。本線（`CR-432` ほか）は `UF-72` 〜 `UF-83`・`UT-8` 〜 `UT-10`・`T-276` 〜 `T-279`・`F-030` 以降。
+> - 当てる直前、木が見出しで定義していた表の番号は `T-277` までだった（2026-09-21 に `1616d28d` で実測。`docs/spec/*.md` と `docs/spec/_assets/*.md` の見出し `**表 T-nnn —` を数えた。検査 62 も同じ値を刷る）。
+> - `T-280` `T-281` `T-282` `T-283` は、当てる直前にはどれも使われていなかった（2026-09-21 に `1616d28d` で実測。`docs/spec` ・ `change-request`（本書を除く）・ `src` ・ `tests` ・ `tools` を grep して 0 件）。本書の帯の内側である。⭐ いまは本書が 表 T-280 〜 表 T-282 を定義している（`T-283` は波 B2）。
+> - 表 `T-276` と接頭辞 `UD` は `CR-432` が `56de8f06` で当てた（本書は取らない）。要求 ID は 1 つも立てない。
+> - 行 ID の接頭辞の登録簿（`docs/spec/_source/row-id-prefixes.json`）の行は 161 件（2026-09-21 に `1616d28d` で実測。`CR-432` の `UD` で 160 から 1 増えた）。うち `SM` ・ `EV` ・ `TN` は `pending: true` で登録済みであり、波 A の当初の範囲では新しい接頭辞を登録しなかった。⭐ 波 A の追補で `SS`（表 T-284）と `RA`（表 T-285）を登録した —— 登録の直前（2026-09-21）に `docs` ・ `change-request` ・ `.claude/skills` ・ `src` ・ `tests` ・ `tools` を grep して、`SS-` ・ `RA-` に数字が続く字面は 0 件だった。
+> - 波 A の追補（共通の状態機械そのもの）: `T-284` ・ `T-285` ・ `図 F-027` ・ `図 F-028` は、当てる直前にはどれも使われていなかった（2026-09-21 に `docs` ・ `change-request` ・ `src` ・ `tests` ・ `tools` ・ `.claude` を grep して 0 件）。⭐ いまは本書が定義している。`T-283` は波 B2 のまま。
+- 図の番号: 木の最大は `図 F-025` である（2026-09-21 に `1616d28d` で実測）。`図 F-026` は本書の帯の先頭であり、当てる直前には使われていなかった（同日、同じ 5 か所を grep して 0 件）。⭐ いまは本書が定義している。
+> - 表 T-075 の行 ID は、行の数（68）ではなく ID そのものから測る —— 最大は `UF-71`（欠番 `UF-43` `UF-44` `UF-52`。2026-09-21 に `1616d28d` で実測）。`CR-432` は `UF-72` 〜 `UF-83` を各波の分割のコミットで足す（同書 4.6 節と 10 節）。⇒ **本書は帯の先頭の `UF-84` 〜 `UF-86` を置く。** `UF-84` ・ `UF-86` ・ `UF-87` の字面は `CR-432` の改訂の記録（捨てた旧案の値）にだけ在り、予約ではない。`UF-85` は 0 件（2026-09-21 実測）。
+> - 表 T-063 は `UT-1` 〜 `UT-7`。`UT-8` 〜 `UT-10` は本線の帯である。⇒ 本書は `UT-11` を置く（`CR-379` の第 3 節が書いた `UT-8` は使わない）。`UT-11` は 0 件、`CP-39` と `PI-39` は `CR-379` が名指しただけで木にも他の草案にも無い（2026-09-21 に `1616d28d` で実測）。
 >
-> ⛔ **起草だけである。仕様書・コード・試験・台帳・基準線は 1 文字も動かしていない。**
+> ⭐ **波 A で仕様書・原稿・コード・試験を動かした。基準線は 1 文字も動かしていない**（検査 33 の除外は `JDG-285` が認めた `audit-ch5.py` の `NOT_YET_CALLED` であり、基準線のファイルではない）。
 
 ---
 
@@ -38,6 +43,7 @@
 
 - **`R2` 命名** —— ⛔ **1 つの名が 2 つの概念を指している**: `ScreenSession` は `CR-379` の決定 4 が `UseCase` の集約の名に選んだが、`src/adapter/screen-renderer/screen-renderer.ts:402` に描き手の入力の型として既に在る（決定 4 は `docs/spec` しか測らなかった）。⇒ 決定 2（第 4 節）。出来事は過去形（`SF-1`）—— 付録の `EV` 30 行はすべて過去分詞で終わることを確かめた。
 - **`R2.2`（SRP）** —— 遷移は軸ごとの関数に分け、1 つの `switch` に集めない（`SF-8`）。⚠️ 出来事 30 種の `switch` は 30 分岐になり、検査 60 の帯（15 分岐）を越える ⇒ 決定 12。
+- **表 T-276（ユニットを割る基準、`CR-432` が当てた）** —— 新しい 3 ユニットを `UD-1`（変更の理由が 1 つ）・`UD-3`（3 つとも `pure` であることは理由にしない）・`UD-4`・`UD-5`（迷いの試験）で 1 つずつ確かめた ⇒ 決定 14（第 3.1 節の後の表）。
 - **`R2.19`（コンポーネント境界）** —— 新しいコンポーネントも公開エントリ 1 つだけを外へ見せる。試験も公開エントリを通す。
 - **`R4` グリッジ** —— `step` は次の状態を丸ごと返し、シェルは参照 1 つを差し替える（`SF-2` ・ `SF-7`）。遷移表と関数は契約試験で結ぶ（表 T-250 の `SD-3`）。
 - **`R4` レースコンディション** —— 副作用は値として返し、結果は出来事で戻す（`SF-6`）。
@@ -48,6 +54,7 @@
 ### ③ 利用者に問うたこと・**問わずに決めた**こと
 
 **問うて裁定を得た**: `JDG-283`（`PND-451`）。問う前に打った 3 つの反証は第 5 節に残した。
+**当てる巡で問うて裁定を得た**: `JDG-285`（2026-09-21、逐語「推奨の Aとせよ」）—— 波 A の `AdvanceScreenSession` はまだ呼び手を持たない（入ってくる辺は波 B2）ので、検査 33（`audit-ch5.py` の「呼ばれないコンポーネント」）が赤になった。⭐ 波 A は `audit-ch5.py` の `NOT_YET_CALLED = {AdvanceScreenSession: 'CR-436 wave B2'}` を持って着地する。⛔ 波 B2 はその項を消す（呼ぶ辺が入ると検査が赤にする —— 第 6 節）。
 
 **問うこと**: ⭐ **なし（0 件）。**
 
@@ -64,10 +71,17 @@
 | 決定 7 | **領域をまたぐ優先順の表（`SD-4`）と、その順を `IN-4` の本文と機械で突き合わせる方法は、波 B2 で置く。** 波 A の `escapePressed` は、消費する段の名（`IN-4` の段の語）を呼び手から受け取る | `CR-379` の決定 6 が「原稿を作る波で決める」と延ばした件。波 A では `Esc` を振り分ける呼び手がまだ無い（公開エントリを読むのは試験だけ）。⇒ 決めるのは、振り分けを最初に行う波 B2 である。そこで生成器の `--check` が `IN-4`（`docs/spec/01-04-requirements.md:6795`）の「消費する階層は … の順」を読んで原稿の段の並びと比べる（⭐ 決めておく中身）。行 ID の接頭辞はそのとき測って登録する |
 | 決定 8 | **ツールチップの軸（`SM-32` ・ `SM-33` ・ `EV-30`）を第 1 領域に入れる。** 消したあと戻すのは「待ちが満ちた」という時間の出来事とする | `CR-379` の 2b-B の表が `CP-36` の広げ先に「出ている説明（`IN-3`）」を入れている（同書 :171）。いまのコードはポインタが 1 画素動けば戻す（`frame-loop.ts:4160`）が、`SF-5` は移動ごとの出来事を禁じる。出るかどうかは `EZ-2`（`01-04-requirements.md:6219`）の待ちで決まり、待ちは移動のたびに始め直す（`frame-loop.ts:4159`）ので、見え方は変わらない |
 | 決定 9 | **生成器は 2 本**: `docs/spec/_source/state_machines_json_to_md.py`（表と図を `docs/spec/_assets/tbl-state-machines.md` へ）と `tools/generate_state_machine_types.py`（判別共用体と遷移表の定数を領域のユニットの生成区画へ）。どちらも `--check` を持ち、`gen` / `gen:check` に登録する | 前例の形そのまま —— 設定値は `_source/settings_json_to_md.py`（刊行物）と `tools/generate_entity_types.py`（`src/` の型の区画）の 2 本である（`package.json` の `gen:settings` と `types`） |
-| 決定 10 | **波 A の 表 T-075 の新しい 3 行の「負う要求」は `—` とする。** 波 B2 で、結線した後に最初に開くユニットが変わる要求（候補: `FR-072` ・ `FR-053` ・ `FR-071` ・ `FR-066`）を、`CR-435` の規則（1 要求 1 行）で移す | 波 A では画面がこのユニットを 1 度も呼ばないので、要求が動いたときに最初に開くファイルはまだ変わらない。`—` は「何も負わない」と読まれ、未記入のラチェット（`CR-435` の 6.2、17 件）を動かさない |
-| 決定 11 | 行 ID: `CP-39` ・ `PI-39`（`CR-379` のとおり）、`UT-11`、`UF-88` 〜 `UF-90` | 上の識別子の段 |
+| 決定 10 | **波 A の 表 T-075 の新しい 3 行（`UF-84` 〜 `UF-86`）の「負う要求」は、3 つとも `—` とする。** 波 B2 で、結線した後に最初に開くユニットが変わる要求を、5.3 の規則（同じ要求を 2 つ以上の行に書かない、MUST NOT）どおり、いまの行から消して新しい行へ**移す**。候補といまの持ち主（2026-09-21 に `1616d28d` で実測）: `FR-072`（`UF-64` `properties-panel.ts`、`OW-1`）・`FR-053` と `FR-071`（`UF-59` `screen-state.ts`、`OW-2`）・`FR-066`（`UF-68` `dialogue-field.ts`、`OW-2`）。移すときの区分は 表 T-277 で決め直す（遷移の値を持つ最も内側のユニットは `screen-values.ts` なので、層を跨ぐものは `OW-2`） | ⭐ 欄に書くのは「その要求が動いたときに**最初に開く**ユニット」だけである（5.3、表 T-075 の前の段）。波 A では画面がこのユニットを 1 度も呼ばない（読むのは試験だけ）ので、要求が動いたときに最初に開くファイルはまだ変わらない —— いま `FR-072` を `screen-values.ts` に書けば、`properties-panel.ts` と 2 行に同じ要求が立つか、動いている画面のファイルから要求を外す嘘になる。`—` は 5.3 が「何も負わないユニット」に定める書き方であり、規則を持つユニットでも前例がある（`UF-8` ・ `UF-9` ・ `UF-62`）。<br>⭐ **ラチェットは上がらない** —— 基準線 `.claude/skills/spec-graph-check/requirement-owner-baseline.txt`（`unfilled=17`）と契約試験 `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` が数えるのは、欄に 1 度も名指されない**要求**の数であって行の数ではない。`—` の行を足しても名指しは 1 つも増減しない。波 B2 の「移す」も同じ要求を別の行へ動かすだけなので 17 のまま。⚠️ 例外は下がる向きだけ —— 付録の `EV-18` ・ `TN-33` が根拠にする `FR-091` は未記入の 17 件（「仕様が起点のユニットを決めていない」12 件）の 1 つであり、波 B2 がその起点を決めれば 16 に下がる（そのコミットで基準線を下げる —— 数を利用者に見せてから前に立つ者が書く） |
+| 決定 11 | 行 ID: `CP-39` ・ `PI-39`（`CR-379` のとおり）、`UT-11`、`UF-84` 〜 `UF-86` | 上の識別子の段（本書の帯の先頭） |
 | 決定 12 | **領域の `step` は出来事の種類から軸ごとの関数を引く表（`Record<出来事の kind, 関数>`）で振り分け、`switch` にしない** | 検査 60（帯 50 行 / 15 分岐）。`Record` の鍵の網羅は型が見るので、`SF-4`（`never` による網羅）と同じ強さを保つ。軸ごとの関数は帯の内側に収める |
-| 決定 13 | **`CP-36` に `S-144` を足す直しは波 A で当てる**（`ScreenState` の広げは波 B2） | 文言だけの直しで、`PI-36`（`05-07-design.md:506`）とコード（`screen-state.ts` の `watermarkVisible`）は既に持っている。`CR-379` の :68 が見つけ、いまも欠けている（`05-07-design.md:141` に `S-144` 0 件） |
+| 決定 13 | **`CP-36` に `S-144` を足す直しは波 A で当てる**（`ScreenState` の広げは波 B2） | 文言だけの直しで、`PI-36`（`05-07-design.md:517`。起草時は :506）とコード（`screen-state.ts` の `watermarkVisible`）は既に持っている。`CR-379` の :68 が見つけ、いまも欠けている（`05-07-design.md:141` に `S-144` 0 件。2026-09-21 に `1616d28d` で実測） |
+| 決定 15 | **`SM-21`（`properties.documentSettings`）は運ぶ値 `returnSubject` を持つ**（当てる体が決めた）。無いこともある | `FR-072` の「もう一度同じ入口を押したら直前の選択物へ戻す」（`TN-27`）は、設定を出しているあいだ戻す先を覚えていなければ書けない。⚠️ 戻す先が無いとき（`TN-25` で出していない所から設定を出したとき）に何を出すかは `FR-072` が決めていない ⇒ `DFC-677` |
+| 決定 16 | **`emptyScreenSession` の `language` は `null` で始まる**（当てる体が決めた） | `S-99` は既定値を持たない（`_assets/tbl-settings.md` の 表 T-206 で既定値の欄が `—`）。起動時の言語は `localStorage` と環境から決まる（`frame-loop.ts` の `startupDisplayLanguage`）ので、その値は波 B2 で入力の翻訳係が出来事で運ぶ |
+| 決定 14 | **`AdvanceScreenSession` を 3 ユニットに割る理由は変更の理由である（表 T-276 の `UD-1`）。純粋性ではない（`UD-3`）。** 各ユニットの出どころと迷いの試験は第 3.1 節の後の表 | `05-07-design.md:272`「ユニットは 表 T-276 の基準に従って割ること（MUST）」。表 T-249 の `SF-8` が「`step` は領域ごとのユニットに分ける」と既に定め、その理由を `R2.2` と `UT-2` の形に置いている |
+| 決定 17 | **表 T-284 の行に `SS`（Shared Step）、表 T-285 の行に `RA`（Region Addition）を新しく登録する**（前に立つ者が決めた） | 1 つの接頭辞に 1 つの意味。既存の `SF`（形の条）・ `SD`（原稿が持つもの）・ `PI`（コンポーネントの公開メンバの組）・ `WS` ・ `BO`（別の手順）はどれも意味が合わない |
+| 決定 18 | **`SS-5`（`advanceScreenSession`）は、出来事が触れない領域が 1 段の後も同じ参照のまま残ることを約束する（`SF-3` ・ `SF-8`）。領域の中の触れない軸も同じ参照のまま残る（遷移の表に無い組は `SD-3`）**（前に立つ者が決めた） | コードは `{ ...session, screen: step.state }` で既にそうしている。`SF-3` は状態全体が変わらないときしか言わないので、合成の側の約束を表に置いた。図 F-028 の下の段が同じことを描く |
+| 決定 19 | **`RA-8`（性能）は `LM-19` の手順と「`LM-19` が記す 2026-09-14 の実測より悪くしない」だけを書く。「利用者を呼ぶ」は仕様に書かない**（前に立つ者が決めた） | 段 0 の基準線は `LM-19` が持つ。`JDG-50` は裁定であり仕様から引けないので、それを運ぶ行（`LM-19`）を引いた。利用者を呼ぶのは作り方であって製品の仕様ではない（波 B2 の「利用者を呼んでから」は本書に残る） |
+| 決定 20 | **`UT-11` のユニットの欄を直す段は `RA-4` として独立に置く。検査の番号は仕様に書かない。図 F-027 の前文は「`CR-436` の波 B2」と書かず「移行の次の段で入る」と書く**（前に立つ者が決めた） | 規則 02 の 4 節「仕様書は機械検査の番号を 1 度も引いていない」。`UT-11` の欄と `src/` を突き合わせる機械検査は無い（`audit-ch5.py` は 表 T-063 の行数と、割ったコンポーネントが 表 T-075 で 2 行以上あることだけを見る）ので、`RA-4` の「止めるもの」はそう書いた。md-checks の検査 7 は仕様の中の `CR-436` を「定義の無い行 ID」として赤にする（2026-09-21 に実測） |
 
 ---
 
@@ -118,7 +132,8 @@
 
 種 23（`LY-3 CP-18 CP-25 CP-36 UF-48 UF-59 PI-18 PI-25 PI-36 T-062 T-063 T-064 T-075 T-074 SU-1 SU-3 MN-2 FR-052 GR-22 S-99h T-249 T-250 IN-4`）: **23 種すべて解決、種の間の辺 16、閉路 1（`FR-052` ⇄ `GR-22`）。**
 ⇒ ⛔ **波 B1 は `FR-052` と `GR-22` を 1 つの計画・1 度の編集で書く**（第 5 節）。ほかは 1 対象ずつ書いてよい。
-⚠️ 新設の 表 T-280 〜 T-282、`CP-39` ・ `UT-11` ・ `PI-39` ・ `UF-88` 〜 `UF-90` はまだ無いので種にできない。当てた後にもう一度走らせる。
+⚠️ 新設の 表 T-280 〜 T-282、`CP-39` ・ `UT-11` ・ `PI-39` ・ `UF-84` 〜 `UF-86` はまだ無いので種にできない。当てた後にもう一度走らせる。
+⚠️ 表 T-276（`UD-1` 〜 `UD-5`）は上の種を取ったあと（`56de8f06`）に入り、表 T-277（`OW-1` 〜 `OW-5`）は種に入れていない。波 A が触るのは表 T-063 と 表 T-075 の行を足すことと、`:272` の MUST に従うことだけで、両表の行は変えない —— 当てる体は、当てた後の `induced.py` の種に `UD-1` と `T-277` を足して走らせる。
 
 ---
 
@@ -126,9 +141,9 @@
 
 | 波 | 入口の条件 | 触る所 | 緑を保つ検査 |
 |---|---|---|---|
-| **A** | なし（いま当ててよい） | `docs/spec/_source/state-machines.json`（新）と schema、生成器 2 本、`docs/spec/_assets/tbl-state-machines.md`（生成）、`docs/spec/05-07-design.md`（5.1 の `LY-3`、5.2 の `CP-36` の `S-144` と `CP-39`、5.3 の表と散文、5.5 の散文）、`docs/spec/_source/row-id-prefixes.json`（`pending` を外す）、`docs/spec/_source/components.json`、`src/use-case/advance-screen-session/`（新 3 ファイル）、`tests/contract/` と `tests/unit/` の新しい試験、`package.json` の 2 項目 | 18 ・ 19 ・ 26b ・ 59 ・ 60 ・ 61 ・ 62 ＋ 21（出どころ）・ 27（`gen:check`）・ 30（生成した定数）・ 33（5 章の自己監査）・ vitest |
+| **A** | なし（いま当ててよい） | `docs/spec/_source/state-machines.json`（新）と schema、生成器 2 本、`docs/spec/_assets/tbl-state-machines.md`（生成）、`docs/spec/05-07-design.md`（5.1 の `LY-3`、5.2 の `CP-36` の `S-144` と `CP-39`、5.3 の表と散文、5.5 の散文、追補で 5.6 の 図 F-027 ・ 図 F-028 ・ 表 T-284 ・ 表 T-285）、`docs/spec/_source/row-id-prefixes.json`（`pending` を外す。追補で `SS` ・ `RA` を登録）、`docs/spec/_source/components.json`、`src/use-case/advance-screen-session/`（新 3 ファイル）、`tests/contract/` と `tests/unit/` の新しい試験、`package.json` の 2 項目。<br>当てた巡で足したもの: 検査の道具（`check.sh` の 27、`check-provenance.py`、`.claude/hooks/check-after-edit.py`、`audit-ch5.py` の 表 T-063 の行数と `NOT_YET_CALLED`（`JDG-285`））、`tests/contract/spec-table.ts` の `FILES`、`tests/contract/units.contract.test.ts` の数、`docs/development-rules/03-implementation.md` の生成定数の一覧、`docs/development-records/changelog.md` の版 0.29 の「2 つより多いユニットを持つのは」の文（⭐ 過去の行を書き換えるのは、版 0.29 の同じ文を直した前例 `e33e4f3c` に倣った —— 検査 33 がその文を表 T-075 と突き合わせる） | 18 ・ 19 ・ 26b ・ 59 ・ 60 ・ 61 ・ 62 ＋ 21（出どころ）・ 27（`gen:check`）・ 30（生成した定数）・ 33（5 章の自己監査）・ vitest |
 | **B1** | 段 5 と段 6 が済み、`src/adapter` と `src/framework` が本セッションへ渡っている | `docs/spec/01-04-requirements.md` の `FR-052` と 表 T-023d の `GR-22`（1 度に）、`screen-frame.ts:105`、`frame-loop.ts:4169`〜`:4178` の削除、試験 1 本 | 18 ・ 19 ・ 26b ・ 59 ・ 60 ・ 61 ・ 62 ＋ e2e の境界とスクロールバー |
-| **B2** | 段 5 と段 6 が済み、波 B1 が当たっている | シェルへの結線（handoff の ④）、`CP-18` ・ `CP-25` ・ `CP-36` の広げ ・ `UF-48` ・ `PI-18` ・ `PI-36` ・ `PI-39`、描き手の入力の移行（第 4 節）、`let` 12 の削除、優先順の表 `T-283`、`components.json` の辺 | 18 ・ 19 ・ 26b ・ 59 ・ 60 ・ 61 ・ 62 ＋ e2e 全部、`LM-19` の性能（利用者を呼んでから） |
+| **B2** | 段 5 と段 6 が済み、波 B1 が当たっている | ⛔ `audit-ch5.py` の `NOT_YET_CALLED` から `AdvanceScreenSession` を消す（`JDG-285`。呼ぶ辺が入ると検査 33 が赤にする）、シェルへの結線（handoff の ④）、`CP-18` ・ `CP-25` ・ `CP-36` の広げ ・ `UF-48` ・ `PI-18` ・ `PI-36` ・ `PI-39`、描き手の入力の移行（第 4 節）、`let` 12 の削除、優先順の表 `T-283`、`components.json` の辺 | 18 ・ 19 ・ 26b ・ 59 ・ 60 ・ 61 ・ 62 ＋ e2e 全部、`LM-19` の性能（利用者を呼んでから） |
 
 ⭐ **波 A は段 5・段 6 と並行してよい** —— 触るのが `docs/spec/`（仕様の適用は 1 セッションだけで行う —— 規則 05）、`docs/spec/_source/` の新しい原稿、`src/use-case/` の新しいフォルダ、新しい試験だけで、他セッションの持ち場（`src/adapter` ・ `src/framework` ・段 4 の 4 ファイル）と重ならない。
 ⛔ **波 A は `Adapter` の `ScreenSession` に触らない**（決定 2。移行は波 B2）。
@@ -148,17 +163,38 @@
 | 表 T-060 `LY-3` | 文書を変える操作と、確定までの手順。取り込みの検証。変更の通知 ／ 操作と検証は `pure`、確定と通知は `non-pure` | ＋「保存しない画面とセッションの流れの遷移（出来事から次の状態と副作用を決める）」／ 純粋性に「遷移は `pure`」 |
 | 表 T-062 `CP-36` | 構え … `S-99e` / `S-99f` / `S-99g` と、覚えた実績 | `S-99g` の後に `S-144` を足すだけ（決定 13） |
 | 表 T-062 に `CP-39` | —— | `UseCase` ／ `AdvanceScreenSession` ／ 「保存しない画面とセッションの流れを、出来事を受けて 1 段進め、次の状態と副作用の列を返す。副作用を実行しない」／ 正「5.6 の ADR-002 ／ 表 T-249 ／ 表 T-250 ／ 表 T-280 〜 表 T-282」。⚠️ 表 T-062 は `CP-n` の順なので `CP-38` の後、`UseCase` の行と離れる（`CP-32` 〜 `CP-38` と同じ扱い） |
-| 表 T-063 に `UT-11` | —— | `AdvanceScreenSession` ／ `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとの遷移のユニット（いまは `screen-values.ts`）／ 「**純粋性ではない** —— 3 つとも `pure`。**領域ごとに縛る要求が別なので割った**（`UT-2` ・ `UT-7` と同じ形、表 T-249 の `SF-8`）」。⚠️ `CR-432` が先に当たり 表 T-276（割る基準）が在るなら、その行 ID を名指して書く |
+| 表 T-063 に `UT-11` | —— | コンポーネント `AdvanceScreenSession` ／ ユニット `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts`）／ 割った理由（下の文をそのまま入れる）:<br>「**変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の状態・出来事・遷移の表を負う（画面の値は 表 T-280 〜 表 T-282）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない」<br>⚠️ 表 T-063 は `UT-n` の順なので、本線の `UT-8` 〜 `UT-10` が先に当たっていればその後、当たっていなくても `UT-7` の後に置く（欠番は本線が埋める） |
 | 表 T-064 に `PI-39` | —— | `ScreenSession`（型。根の状態。領域の合成（`SF-8`）で、いまは画面の値の領域だけ）／ `SessionEvent`（型。全数は 表 T-281）／ `SessionEffect`（型。副作用の名の全数は 表 T-282 の副作用の欄）／ `emptyScreenSession`（初期の状態。表 T-280 の初期の欄）／ `advanceScreenSession`（1 段進める。何も変わらないときは受け取った参照を返す —— `SF-3`） |
-| 表 T-075 に 3 行 | 68 行 | `UF-88` `AdvanceScreenSession` ／ `advance-screen-session.ts` ／ `pure` ／ `CP-39` ／ `—`。`UF-89` 同 ／ `session-step.ts` ／ `pure` ／ 領域の遷移が共有する型と定数（`Step` ・ `unchanged` ・ 空の副作用の列 ・ `assertNever`）／ `—`。`UF-90` 同 ／ `screen-values.ts` ／ `pure` ／ 画面の値の領域の遷移（表 T-280 〜 表 T-282）と、生成した型と遷移表の定数の区画 ／ `—`（決定 10）。`CP-n` の順で `UF-71` の後 |
-| 表 T-074 `SU-1` / `SU-3`、5.3 の散文（`:286` ・ `:307`）とディレクトリ木の `use-case/`、`MN-2`（`:904`） | 36 ／ 68 | 37 ／ 当てる時のユニット数 ＋ 3（`CR-432` が先に当たれば 84 ＋ 3）。木に `advance-screen-session/` |
+| 表 T-075 に 3 行 | 68 行（最大 `UF-71`） | 欄は「行 ID ／ コンポーネント ／ ユニット ／ 純粋性 ／ 責務 ／ 負う要求」の 6 つ（`CR-435` が 6 つ目を足した）。<br>`UF-84` ／ `AdvanceScreenSession` ／ `advance-screen-session.ts` ／ `pure` ／ 「領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。ほかの領域や文書の値を出来事へ詰める」／ `—`。<br>`UF-85` ／ 同 ／ `session-step.ts` ／ `pure` ／ 「全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`）」／ `—`。<br>`UF-86` ／ 同 ／ `screen-values.ts` ／ `pure` ／ 「画面の値の領域の遷移（表 T-280 〜 表 T-282）と、そこから生成した型と遷移表の定数の区画」／ `—`（決定 10）。<br>⛔ `UF-84` の責務を `CP-39` とだけ書かない —— 5.3 は「責務の欄が `CP-n` を指しているとき、そのユニットは 表 T-062 のその行の責務をそのまま負う」と読むので、1 段進める中身を `UF-86` が負う形と食い違う（前例は `UF-10` ・ `UF-60` の「束ねて公開する」）。<br>`CP-n` の順で `UF-71` の後（`CP-39` が最後のコンポーネントなので、本線の `UF-72` 〜 `UF-83` がどこへ入っても表の末尾） |
+| 表 T-074 `SU-1` / `SU-3`、5.3 の散文（`:297` ・ `:318`）とディレクトリ木の `use-case/`（`:306` 〜 `:309`）、`MN-2`（`:915`）。行番号は 2026-09-21 に `1616d28d` で実測 | `SU-1` 36 ／ `SU-3` 68（同） | `SU-1` と `:297` ・ `:318` ・ `MN-2` は ＋1、`SU-3` は ＋3。⛔ **足す先の数は当てる時に測り直す** —— 本線も `SU-3` を動かす（`CR-432` は 68 → 80 を最後の波で書くと定める。handoff の 1 通目の 2 の ④）。⇒ `SU-3` は「当てる時の 表 T-075 の行の数 ＋ 3」、`SU-1` は「当てる時の 表 T-062 の行の数 ＋ 1」とし、どちらも本線の最後の波と同じ数え方にそろえる。木に `advance-screen-session/` |
 | `components.json` | nodes 36 ／ edges 138 | node `AdvanceScreenSession` を `UseCase` の枠へ、辺 `AdvanceScreenSession → ScreenState` と `AdvanceScreenSession → Selection`（表 T-247 の `EG-2` ・ `EG-3` で数えたものだけ）。`build.py` で図と `docs/review/components/components.md` を作り直す（draw.io の CLI が要る） |
 | `src/use-case/advance-screen-session/` | 無い | 3 ファイル。`session-step.ts` は `Step<S, E> = { state: S; effects: readonly E[] }`、共有の空の列、`unchanged(state)`、`assertNever`。`screen-values.ts` は軸ごとの関数と、決定 12 の振り分け表。公開エントリは根の状態を持ち、決定 5 の値を出来事へ詰めて領域へ渡す。⛔ モジュールスコープの可変状態を置かない（検査 61、`SF-7`） |
 | **契約試験** `tests/contract/state-machine-screen-values.contract.test.ts` | 無い | 原稿を読み（生成物ではなく原稿 —— 2 つが一致することは `--check` が別に見る）、(1) 各軸の各種類 × 各出来事で、`TN` に行がある組は先の種類が表と一致すること（ガードは真偽の両側を出来事の値で作る）、(2) 行の無い組は受け取った状態と同じ参照と共有の空の列を返すこと（`SD-3`）、(3) 連言の元（`TN-19` ・ `TN-23`）はその組み合わせを作って確かめること。⭐ 書くのは仕様だけを読む別の体 |
+| **追補: 5.6 の図 2 つ**（`05-07-design.md` の 表 T-249 の後） | 共通の状態機械は ADR-002 ・ 表 T-249 ・ 表 T-250 ・ `PI-39` の文だけで、図が無い | **図 F-027 — 1 つの出来事の 1 巡**（`sequenceDiagram`。担い手は 表 T-062 の `InputCommandTranslator` ・ `SingleHtmlShell` ・ `AdvanceScreenSession`）と **図 F-028 — 根の状態の組み立て**（`flowchart`。根 → 領域 → 軸 → 種類と、1 つの軸だけに触れた 1 段の前と後）。前文がそれぞれを指す。⚠️ F-027 の前文は、翻訳係が出来事を作ることとシェルが呼ぶことが「移行の次の段で入る」と書く（決定 20） |
+| **追補: 表 T-284 — 全領域が共有する 1 段の形** | 無い | `SS-1` 〜 `SS-6`: `Step<S, E>` ・ `NO_EFFECTS` ・ `unchanged` ・ `assertNever`（`session-step.ts`、`UF-85`）と `advanceScreenSession` ・ `emptyScreenSession`（`advance-screen-session.ts`、`UF-84`）。欄は「名前 ／ ユニット ／ 約束すること ／ 正」。前文「本表の名前と約束に従うこと（MUST）」。`SS-5` の約束は決定 18 |
+| **追補: 表 T-285 — 領域を 1 つ足す手順** | 無い | `RA-1` 原稿 ・ `RA-2` 生成 ・ `RA-3` 領域のユニットと 表 T-075 の `UF` 行（同じコミット）・ `RA-4` 表 T-063 の `UT-11` のユニットの欄 ・ `RA-5` 根への合成と `PI-39` ・ `RA-6` 仕様だけを読む別の者の契約試験 ・ `RA-7` シェルへの結線 ・ `RA-8` 性能（決定 19）。「止めるもの」の欄は検査を番号でなく中身で名指す（決定 20）。前文「本表の段の順に従うこと（MUST）」 |
+| **追補: 登録簿** | 161 件 | `SS`（Shared Step）と `RA`（Region Addition）を足し 163 件（決定 17）。`npm run gen:prefixes` |
+
+### 3.1a 3 つのユニットを 表 T-276 で確かめる（決定 14）
+
+| ユニット | 変更の理由（`UD-1` の出どころ） | 迷いの試験（`UD-5`）—— この欠陥はこのファイル 1 つ | 割らなかったら |
+|---|---|---|---|
+| `advance-screen-session.ts`（`UF-84`、公開エントリ） | 領域の合成（表 T-249 の `SF-8`）と、ガードが読むほかの領域や文書の値を出来事へ詰めること（決定 5）。どの領域の行が変わっても動かず、領域が増えるか、領域をまたぐ値の出どころが変わったときだけ動く | 「`agentApiEnabled` が出来事に入らず、`TN-35` 〜 `TN-37` のガードが常に偽になる」「根の状態に画面の値の領域が合成されていない」 | 領域の遷移と同居すると、画面の値の遷移を直すたびに合成も開くことになり、2 つ目の領域が来た日に割り直しが要る |
+| `session-step.ts`（`UF-85`） | 全領域が共有する 1 段の形 —— 表 T-249 の `SF-2`（次の状態と副作用を 1 つの値で返す）・`SF-3`（何も変わらなければ同じ参照、空の列は共有の定数）・`SF-4`（`never` による網羅）と 表 T-250 の `SD-3`（表に無い組は同じ参照）。どの領域の要求が変わっても動かない | 「表に無い組で新しい参照が返る」が `unchanged` の側なら本ファイル、`unchanged` を呼び忘れた側なら領域のファイル —— どちらかは 1 回の読みで決まる（`unchanged` の中身は 1 行） | 公開エントリに置くと、領域のファイルが公開エントリを import し、公開エントリが領域のファイルを import する循環になる。領域のファイルに置くと、2 つ目の領域が 1 つ目の領域のファイルを import する —— 画面の値の都合で開くファイルに、全領域の形が載る |
+| `screen-values.ts`（`UF-86`） | 画面の値の領域の行 —— 原稿 `docs/spec/_source/state-machines.json` の `screen` の下と、そこから刷る 表 T-280 〜 表 T-282、その根拠の要求（付録の根拠の列）。生成した型と遷移表の定数の区画も同じ原稿から来るので、出どころは 1 つ | 「`TN-n` の先が表と違う」「`EV-n` を受けて何も変わらないはずの軸が動いた」 | —— （領域 1 つにつきファイル 1 つ。`SF-8`） |
+
+⭐ **純粋性は割った理由ではない** —— 3 つとも `pure` であり、`UD-3` は「純粋性が等しいことを割らない理由にしない」と言う。割った理由は上の変更の理由だけである。⇒ 表 T-063 の `UT-11` の文（第 3.1 節）もそう書く。
+⚠️ 公開エントリと `session-step.ts` の出どころは、どちらも 表 T-249 の行である（別の行 —— `SF-8` と `SF-2` ・ `SF-3` ・ `SF-4`）。`UD-1` は出どころを「要求 ID・表・裁定」と書くので、同じ表の別の行を「互いに素」と読むのは本書の読みである。裏づけは上の迷いの試験（欠陥が 2 つのファイルに分かれて答えられる）と、循環を作らないという構造の理由の 2 つ。⇒ 覆すなら `session-step.ts` を消して公開エントリへ戻すのではなく、`screen-values.ts` へ寄せる形しか残らない（循環のため）。
+
+**`UD-4`（割り方はコードの位置で裏づける）を新しいファイルにどう当てるか**:
+- `UD-4` が縛るのは「いま在るコードを割ることを定める変更要求」である。⭐ **波 A は既存のファイルを 1 つも割らない** —— 3 つとも新しいファイルであり、`frame-loop.ts` は 1 行も動かさない（第 3 節、第 10 節）。⇒ 波 A の 3 ユニットには、割られる元の `file:line` が無く、`UD-4` の範囲の要件はかからない。
+- ⚠️ ただし `UD-4` の狙い（「割るはずの処理が思っていたファイルに無い」ことを防ぐ）は、波 A でも付録の根拠の列が果たす —— `SM` / `EV` / `TN` の各行は、仕様の定義の行を `file:line` で指している。
+- ⭐ **`UD-4` が効くのは波 B2 である** —— `frame-loop.ts` から 12 の `let` とその書き換えを `screen-values.ts` へ移すのは、既存のコードを割ることにほかならない。⇒ 波 B2 の変更要求は、移す処理ごとに `frame-loop.ts` の範囲を書くこと。いまの宣言の位置（2026-09-21 に `1616d28d` で実測）: `screenState` :1816、`isLevelZeroFolded` :1843、`isMilestoneListOpen` :1845、`isPaletteMinimised` :1846、`propertiesShowing` :1879、`propertiesSubject` :1880、`isPropertiesPanelPutAway` :1883、`isDialogueFieldVisible` :1886、`language` :1887、`isTooltipDismissed` :1916、`scaleMessage` :1921、`dualCursorFollowing` :1923。⛔ 書き換えの範囲はここに書かない —— 段 5・段 6 が `frame-loop.ts` を動かしている最中であり、波 B2 の入口で測る。
 
 ### 3.2 波 A の直前の測り直し（⛔ 当てる体が打つ）
 
-1. 木が定義する表の番号がいくつまで在るか。本書の新しい表 3 つ・`図 F-026` ・ `CP-39` ・ `PI-39` ・ `UT-11` ・ `UF-88` 〜 `UF-90` の空き（`CR-432` が当たっていれば `UF-` の最大が動く）。
+1. 木が定義する表の番号がいくつまで在るか。本書の新しい表 3 つ・`図 F-026` ・ `CP-39` ・ `PI-39` ・ `UT-11` ・ `UF-84` 〜 `UF-86` がまだ使われていないこと（本線の `UF-72` 〜 `UF-83` と `UT-8` 〜 `UT-10` が当たっていても、帯が分かれているので重ならない —— それを確かめる）。
+1a. 表 T-075 の「負う要求」の未記入の数（`tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` と基準線の `unfilled=`）が、当てる前と後で同じであること（決定 10）。
 2. 登録簿の件数と `SM` ・ `EV` ・ `TN` の `pending`。
 3. 付録の根拠の行番号（`docs/spec/01-04-requirements.md` は並行して動く。行番号が動いていたら ID で引き直す）。
 
@@ -234,6 +270,7 @@
 | 描き手の入力 | 第 4 節の移行。`ScreenRenderer` は集約（読むだけ）と `RenderFrameInput`（仮称）を受ける。`PI-37` を合わせる |
 | `let` | 12 を消し、`let session` 1 つにする —— `screenState` ・ `isLevelZeroFolded` ・ `isMilestoneListOpen` ・ `isPaletteMinimised` ・ `propertiesShowing` ・ `propertiesSubject` ・ `isPropertiesPanelPutAway` ・ `isDialogueFieldVisible` ・ `language` ・ `dualCursorFollowing` ・ `scaleMessage` ・ `isTooltipDismissed`。⇒ 66 − 12 ＋ 1 ＝ 55。残す: `watermarkStampedAt` ・ `commandPaletteDraggedTo`（フレームの値）、`callOffScaleMessage`（副作用の把手、`SF-6`）、`isTooltipStanding`（描いた結果から導く値） |
 | 優先順の表 `T-283` | 決定 7。`IN-4` の 8 段と、段ごとの状態のキー（まだ移していない領域の段は「未移行」）。行 ID の接頭辞はそのとき測って登録する |
+| `audit-ch5.py` の `NOT_YET_CALLED` | ⛔ `AdvanceScreenSession` の項を消す（`JDG-285`）。下の辺が入った時点で、残した項を検査 33 が赤にする |
 | `components.json` の辺 | `SingleHtmlShell → AdvanceScreenSession`、`ScreenRenderer → AdvanceScreenSession`、`InputCommandTranslator → AdvanceScreenSession`（出来事の型）。`ScreenState` への辺の説明文を直す |
 | 表 T-075 の「負う要求」 | 決定 10 |
 | 台帳 | `PND-338`（閉じたことを保つのは状態機械 —— `SM-19`）・ `PND-144`（`FR-072` の「残す」が決めている —— 行が無いので同じ参照）・ `PND-419`（推奨どおりなら遷移が無い）を閉じる候補。閉じるのは台帳の体 |
@@ -247,17 +284,29 @@
 
 方法: `PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py .` の最終行。
 **起草時（`2112d0c9`、2026-09-21）: `tables=171  figures=17  rows=2183  uids=161`**
+**測り直し（`1616d28d`、2026-09-21）: `tables=172  figures=17  rows=2188  uids=161`** —— 差 ＋1 表 ・ ＋5 行は `CR-432` の 表 T-276（`UD-1` 〜 `UD-5`）である。
 
-**波 A**:
+**波 A**（「前」は `1616d28d` の値）:
 
 | | 前 | 後（予測） | 差 | 内訳 |
 |---|--:|--:|--:|---|
-| tables | 171 | 174 | +3 | 表 T-280 ・ T-281 ・ T-282（生成物。`_assets/*.md` も数えられる見込み） |
+| tables | 172 | 175 | +3 | 表 T-280 ・ T-281 ・ T-282（生成物。md-checks は `specindex.discover` で `docs/spec/_assets/*.md` を走査するので数える —— 2026-09-21 に確かめた） |
 | figures | 17 | 18 | +1 | 図 F-026 |
-| rows | 2183 | 2306 | +123 | `SM` 34 ＋ `EV` 30 ＋ `TN` 53 ＝ 117、`CP-39` ・ `UT-11` ・ `PI-39` ・ `UF-88` 〜 `UF-90` の 6 |
+| rows | 2188 | 2311 | +123 | `SM` 34 ＋ `EV` 30 ＋ `TN` 53 ＝ 117、`CP-39` ・ `UT-11` ・ `PI-39` ・ `UF-84` 〜 `UF-86` の 6 |
 | uids | 161 | 161 | 0 | 要求を足さない |
 
-⚠️ `CR-432` など他の変更要求が先に当たると「前」が動く。⭐ **差だけを突き合わせる。** 生成物の行が rows に入るかは md-checks が `_assets/` の表をどう読むかで決まる —— 外れたら「生成物の 117 行を数えていない」を最初に疑う。
+⚠️ 本線の段 4 の波（表 T-075 に `UF-72` 〜 `UF-83` の 12 行、表 T-063 に `UT-8` 〜 `UT-10`）が先に当たると「前」が動く。⭐ **差だけを突き合わせる。** 外れたら、まず生成物の 117 行が行 ID として読まれているか（md-checks の行 ID の形は英大文字 1 〜 3 字 ＋ 数字）を疑う。
+
+**波 A の追補**（共通の状態機械の図と表）。「前」は波 A を当てた後の値であり、図の数は 図 F-027 ・ 図 F-028 の 2 つの定義を除いて数えた:
+
+| | 前 | 後（予測） | 差 | 内訳 |
+|---|--:|--:|--:|---|
+| tables | 175 | 177 | +2 | 表 T-284 ・ 表 T-285 |
+| figures | 18 | 20 | +2 | 図 F-027 ・ 図 F-028 |
+| rows | 2311 | 2325 | +14 | `SS-1` 〜 `SS-6` の 6 ＋ `RA-1` 〜 `RA-8` の 8 |
+| uids | 162 | 162 | 0 | 要求を足さない |
+
+**実測（2026-09-21、追補を当てた後）: `tables=177  figures=20  rows=2325  uids=162`** —— 予測どおり。⚠️ `uids` は波 A の予測の 161 ではなく 162 であり、追補の前から 162 だった（追補は要求を足していない）。
 
 **波 B1**: 差 0（`FR-052` と `GR-22` のセルの編集だけ）。
 **波 B2**（見込み）: tables +1（`T-283`）、rows +8（`IN-4` の 8 段）、figures 0、uids 0。
@@ -284,10 +333,13 @@
 | `docs/development-records/pending-decisions.md` | `PND-451` を閉じる（B1）。`PND-338` ・ `PND-144` ・ `PND-419` を閉じる候補（B2） | B1 ／ B2 |
 | `docs/development-records/refactor-plan-report-2026-09-13.md` | 段 2b の出口と段 7 の最初の領域。記録 5 の「56 本」を 77 に | 波 A |
 | `docs/development-records/handoff-state-machine.md` | §3 の ①②③ が済んだこと、④ の入口 | 波 A |
-| `docs/development-records/changelog.md` | A-appendix の 1 行 | 各波 |
+| `docs/development-records/changelog.md` | A-appendix の 1 行。⭐ 波 A は版 0.29 の「2 つより多いユニットを持つのは」の文に `AdvanceScreenSession`（3）を足した —— 前例 `e33e4f3c`（同じ文を直した）に倣う | 各波 |
+| `.claude/skills/spec-graph-check/audit-ch5.py` | 表 T-063 の行数 7 → 8、`NOT_YET_CALLED`（`JDG-285`。項は前に立つ者が書いた） | 波 A ／ 波 B2（項を消す） |
 | 登録簿の生成物 `docs/spec/_assets/tbl-row-id-prefixes.md` | `SM` ・ `EV` ・ `TN` が「登録のみ」でなくなる | 波 A |
 | `docs/review/components/components.md` と図 F-013 〜 F-017 | `build.py` が作り直す | 波 A ／ 波 B2 |
 | 検査 30 の名簿 | 生成した遷移表の定数を足す | 波 A |
+| `.claude/skills/spec-graph-check/requirement-owner-baseline.txt` | 波 A・B1 では動かない（決定 10）。波 B2 で `FR-091` の起点が決まれば 17 → 16 に下げる（数を利用者に見せてから前に立つ者） | 波 B2 |
+| `.claude/skills/spec-graph-check/function-size-baseline.txt` | 波 A の 3 ファイルは新しく、決定 12 で帯の内側に収めるので行を足さない見込み。帯を越えれば検査 60 が赤になる（基準線は利用者に数を見せずに動かさない） | 波 A |
 
 ---
 
@@ -333,7 +385,7 @@
 | SM-18 | `screen.watermark.hidden` | `screen` | | — | `WM-8` req:4981 |
 | SM-19 | `screen.properties.none` | `screen` | ○ | — ⭐（`JDG-283`: 運ぶ値を持たない） | `S-99h` set:390（既定「出していない」） |
 | SM-20 | `screen.properties.selection` | `screen` | | `subject`（選択と行の集合） | `S-99h` set:390、`IR-2` req:4689、`FR-072` req:1873（:1876「直前に出していた中身を残す」） |
-| SM-21 | `screen.properties.documentSettings` | `screen` | | — | `S-99h` set:390、`FR-072` req:1877 〜 :1878、`IC-17` glo:530 |
+| SM-21 | `screen.properties.documentSettings` | `screen` | | `returnSubject`（同じ入口をもう一度押したときに戻す選択物。無いこともある —— 決定 15） | `S-99h` set:390、`FR-072` req:1877 〜 :1878、`IC-17` glo:530 |
 | SM-22 | `screen.dialogueField.shown` | `screen` | ○ | — | `S-99i` set:391（既定「表示」） |
 | SM-23 | `screen.dialogueField.hidden` | `screen` | | — | `S-99i` set:391、`FR-066` req:6102（:6105） |
 | SM-24 | `screen.levelZero.unfolded` | `screen` | ○ | — | `S-211` set:401 |
@@ -415,13 +467,13 @@
 | TN-23 | `watermark.shown & surface.open` | EV-13 | `isWatermarkUnlockSurface` | `watermark.hidden & surface.none` | — | `WM-8` req:4981 |
 | TN-24 | `surface.open` | EV-14 | `isWatermarkUnlockSurface` | 自己（面を閉じない） | `raiseNotice(RS-41)` | `WM-8` req:4981、`RS-41` req:6443 |
 | TN-25 | `properties.none` | EV-15 | — | `properties.documentSettings` | — | `FR-072` req:1878 |
-| TN-26 | `properties.selection` | EV-15 | — | `properties.documentSettings` | — | `FR-072` req:1877、`IC-17` glo:530 |
-| TN-27 | `properties.documentSettings` | EV-15 | — | `properties.selection` | — | `FR-072` req:1877 |
+| TN-26 | `properties.selection` | EV-15 | — | `properties.documentSettings`（`subject` を `returnSubject` に移す） | — | `FR-072` req:1877、`IC-17` glo:530 |
+| TN-27 | `properties.documentSettings` | EV-15 | — | `properties.selection`（`returnSubject` を `subject` に戻す） | — | `FR-072` req:1877 |
 | TN-28 | `properties.none`、`properties.documentSettings` | EV-16 | — | `properties.selection` | — | `FR-072` req:1885 〜 :1886 |
 | TN-29 | `properties.selection` | EV-16 | — | 自己（`subject` を書き換え） | — | `FR-072` req:1873 |
 | TN-30 | `properties.selection` | EV-17 | `hasChoice` | 自己（`subject` を書き換え） | — | `FR-072` req:1888 |
 | TN-31 | `properties.selection`、`properties.documentSettings` | EV-8 | `isPanelTarget` | `properties.none` | — | `IC-52` glo:577、`FR-072` req:1889 |
-| TN-32 | `properties.selection`、`properties.documentSettings` | EV-9 | `rungIsSurface & isPanelTopmost` | `properties.none` | — | `IN-4` req:6795、req:4194（⚠️ `DFC-570` 裁定待ち —— 第 8 節の 2） |
+| TN-32 | `properties.selection`、`properties.documentSettings` | EV-9 | `rungIsSurface & isPanelTopmost` | `properties.none` | — | `IN-4` req:6795、req:4194 |
 | TN-33 | `properties.*` | EV-18 | — | `properties.none` | `clearSelection` | `FR-091` req:1351 |
 | TN-34 | `properties.selection`、`properties.documentSettings` | EV-19 | `noSurfaceNoConfirmation & noUnsettledEntry` | `properties.none` | — | `SK-19` req:4158、req:4194 |
 | TN-35 | `dialogueField.shown` | EV-20 | `agentApiEnabled` | `dialogueField.hidden` | — | `S-99i` set:391、`IC-18` glo:531 |
@@ -444,6 +496,22 @@
 | TN-52 | `tooltip.allowed` | EV-9 | `rungIsTooltip` | `tooltip.dismissed` | — | `IN-3` req:6794、`IN-4` req:6795 |
 | TN-53 | `tooltip.dismissed` | EV-30 | — | `tooltip.allowed` | — | `IN-3` req:6794、`EZ-2` req:6219（決定 8） |
 
+⚠️ `TN-32` の段は `IN-4` の本文に従う。`DFC-570`（`裁定待ち`）が逆に裁かれたら直す（第 8 節の 2）。⛔ `DFC-570` は台帳の行なので根拠の欄に置かない —— 生成器は根拠の ID が `docs/spec` に定義されていることを見る。
+
+### A.4 運ぶ値の型（コードが決めた。原稿は名前だけを持つ —— 表 T-250 の `SD-1` ・ `SD-2`）
+
+| 名 | 型 | 置き場 |
+|---|---|---|
+| `rung`（`EV-9`） | `EscapeTarget` —— `'notice' \| 'textEntry' \| 'confirmation' \| 'surface' \| 'gesture' \| 'propertiesPanel' \| 'armed' \| 'selection' \| 'dualCursorMode' \| 'tooltip'`。行が当たるのは `surface` ・ `armed` ・ `dualCursorMode` ・ `tooltip` | `src/entity/document-model/screen-state/screen-state.ts:99` |
+| `target`（`EV-8`） | `'surface' \| 'panel'` | `src/use-case/advance-screen-session/screen-values.ts` の `ScreenValuesEventCarried` |
+| `subject`（`SM-20` ・ `EV-16` ・ `EV-17`）、`returnSubject`（`SM-21`） | `PropertiesSubject` ＝ `{ selection: Selection; groupIds: readonly string[] }`（`returnSubject` は `\| null`）。`hasChoice` は `selection.items` か `groupIds` が空でないこと | 同ファイルの `PropertiesSubject`。⚠️ `Adapter` の同じ形の型（`screen-renderer.ts:397`）は波 B2 で消す（第 4 節） |
+| `shapeKind` ・ `glyph`（`SM-2` ・ `SM-3` ・ `EV-10`） | 状態では `string`、出来事では `string \| null`（`armKind` が `taskShape` なら `shapeKind`、`milestoneShape` なら `glyph` が要る） | 同ファイル |
+| `surfaceName`（`SM-16` ・ `EV-6` ・ `EV-7`） | `string`。`isWatermarkUnlockSurface` は `U-60` であること | 同ファイル |
+| 副作用 `raiseNotice` | `{ type: 'raiseNotice'; reason: 'RS-41' \| 'RS-35' }`。遷移表の定数では `effectArgument` が同じ行 ID を持つ | 同ファイル |
+| 根の運ぶ値（`SM-0`） | `language: 'ja' \| 'en' \| null`（初期は `null` —— 決定 16）、`rememberedActuals` | `ScreenValues` の欄 |
+
+⭐ 生成した型の形: 軸ごとの判別共用体の `kind` はキーの最後の語、入れ子の単一の共用体は欄 `child`、遷移表の定数 `SCREEN_VALUES_TRANSITIONS` の `from` は選択肢の列（1 つの選択肢は軸の連言の列）、`to` は軸の連言の列か `'self'`（自己）、`screen.armed.{armKind}` は出来事の運ぶ値が決める先（初期の種類 `none` を除く）である。
+
 **調査の下書き（`SM` 34 ・ `EV` 30 ・ `TN` 47）から変えたもの**:
 - 任意だった `SM-32` ・ `SM-33` ・ `EV-30` とその 2 遷移を本行に入れた（決定 8）。
 - 出来事を 2 つ持つ 4 行を割った（決定 6）—— 旧 TN-43（`EV-23` ／ `EV-9`）→ `TN-43` ・ `TN-44`、旧 TN-44 → `TN-45` ・ `TN-46`、旧 TN-45 → `TN-47` ・ `TN-48`、旧 TN-47（`EV-28` ／ `EV-29`）→ `TN-50` ・ `TN-51`。
@@ -452,3 +520,49 @@
 - `TN-21` 〜 `TN-24` の「`surface.open`（`U-60`）」を、ガード `isWatermarkUnlockSurface` に書き直した（`surfaceName` は運ぶ値であり種類ではない —— `SM-16`）。
 - `TN-32` のガードに `isPanelTopmost` を足した —— req:4194 が「面が立っているあいだ閉じる手は面へ向かい、面の後ろのパネルではない」と、同じ段の中の順を定める。
 - ⭐ **`JDG-283` により、出していないパネルの境界の押下の行は 0、`SM-19` の運ぶ値は 0。**
+
+---
+
+## 改訂の記録 —— 波 A を `1616d28d` で測り直した（2026-09-21）
+
+`CR-432`（表 T-276・接頭辞 `UD`、`56de8f06`）が当たったあとに、波 A を今の仕様と突き合わせて直した。波 B1・B2 と付録の行は変えていない。
+
+| # | 起草時の文 | 直した文 | 理由 |
+|---|---|---|---|
+| 1 | 識別子の段「`CR-432` が `UF-72` 〜 `UF-87` を予約」「`UF-88` 〜 `UF-90` を仮に置く」 | 帯は本線 `UF-72` 〜 `UF-83`、本書 `UF-84` 以降。⇒ `UF-84` 〜 `UF-86` | handoff の「衝突の約束」の帯。`CR-432` の 4.6 節と 10 節が `UF-72` 〜 `UF-83` に縮めた（`JDG-284` の ③） |
+| 2 | 「表 `T-276` ・ 接頭辞 `UD` ・ 要求 ID `FR-112` は `CR-432`（起草中）が予約」 | `T-276` と `UD` は当たった。`FR-112` の予約は `CR-432` に無い | 2026-09-21 に `CR-432` を grep して `FR-112` 0 件 |
+| 3 | 登録簿の行は 160（起草時の値） | 161（2026-09-21 に `1616d28d` で実測） | `UD` が足された。⚠️ この文の形（「行は N 件」）は検査 62 の読む形に当たらず、赤にならなかった |
+| 4 | 決定 10 の理由の 1 文 | 5.3 の規則・既存の行の書き方・ラチェットが数えるもの（要求であって行ではない）・下がる向きの例外 `FR-091` を書いた | 依頼の 3 |
+| 5 | —— | 決定 14 と 第 3.1a 節（表 T-276 の `UD-1` ・ `UD-3` ・ `UD-4` ・ `UD-5`） | `05-07-design.md:272` の MUST |
+| 6 | `UT-11` の割った理由「領域ごとに縛る要求が別なので割った」 | 3 つの変更の理由を名指し、純粋性でないことを `UD-3` で言う | 起草時の文は 3 つのうち領域のファイルの理由しか言っておらず、公開エントリと `session-step.ts` を割った理由が無かった |
+| 7 | `UF-88` の責務「`CP-39`」 | 「束ねて公開し、根の状態を持って 1 段進める …」 | 5.3 の「責務の欄が `CP-n` を指すときはその行の責務をそのまま負う」と食い違う |
+| 8 | `SU-3`「`CR-432` が先に当たれば 84 ＋ 3」、散文 `:286` ・ `:307`、`MN-2` `:904` | 当てる時の行の数 ＋ 3 ／ ＋ 1、`:297` ・ `:318` ・ `:915` | `CR-432` は 68 → 80（12 ユニット）。本線も `SU-3` を最後の波で書く |
+| 9 | `PI-36` `:506` | `:517` | 実測 |
+| 10 | 数の予測の「前」`171 / 17 / 2183 / 161` | `172 / 17 / 2188 / 161`（差は変えない） | `CR-432` の ＋1 表 ・ ＋5 行 |
+
+## 改訂の記録 —— 波 A を当てた（2026-09-21）
+
+当てた体が、当てたものに合わせて本書を直した。波 B1・B2 の中身は `JDG-285` の 1 項を除いて変えていない。
+
+| # | 起草時の文 | 直した文 | 理由 |
+|---|---|---|---|
+| 11 | 状態「起草。まだ当てていない」、識別子の段の現在形の「空いている」「最大は」 | 状態「波 A を当てた」、識別子の段を過去形の履歴へ | CR-435 ・ CR-432 の書き方。検査 62 は当てた後の現在形の主張を赤にする |
+| 12 | `SM-21` の運ぶ値 `—` | `returnSubject`（決定 15）、`TN-26` ・ `TN-27` の先の注 | `FR-072` の「直前の選択物へ戻す」を書くために要った。戻す先が無いときは `DFC-677` |
+| 13 | —— | 決定 16（`language` は `null` で始まる） | `S-99` に既定値が無い |
+| 14 | `TN-32` の根拠に `DFC-570` | 根拠から外し、A.3 の後の注へ | 台帳の ID は `docs/spec` に無いので、生成器が根拠として拒む |
+| 15 | —— | A.4（運ぶ値の型と、生成した型の形） | 契約試験を書く体が入力を組めるように、コードが受ける型を名指した |
+| 16 | —— | `JDG-285`（第 0 節の ③、第 3 節の波 B2、第 6 節、第 9 節） | 検査 33 が呼び手の無い `AdvanceScreenSession` を赤にした。利用者が案 A（`NOT_YET_CALLED`）を選んだ |
+| 17 | 波 A の触る所 | 検査の道具・試験の数・生成定数の一覧・版 0.29 の文（前例 `e33e4f3c`）を足した | 当てた巡で実際に動かしたもの |
+| 18 | 第 3.1 節「図 F-026 —（`stateDiagram-v2`、軸ごとの並行の区画）」 | 図 F-026 は 1 つの番号のまま、軸ごとに 1 つの `stateDiagram-v2` の図（見出しつき）に分け、ラベルは行 ID だけ。3 つ以上の兄弟のどの 2 つの間も結ぶ遷移と、同じ 1 つの種類へ出る・から入る遷移は、兄弟を 1 つの箱に囲んで 1 本だけ描く（`armed` の `TN-14` ・ `TN-15` ・ `TN-16` ・ `TN-17` ・ `TN-18`）。畳み方は生成器の注と図の前の段が述べ、全数は 表 T-282 が持つ | 1 つの図に 12 軸を並べると幅がおよそ 1600px になり、ラベルが読めなかった（前に立つ者が mermaid 11 で描いて確かめた）。軸ごとに描いて 1600px の画面で読めることを確かめた |
+
+## 改訂の記録 —— 波 A に共通の状態機械の図と表を足した（2026-09-21）
+
+前に立つ者の決めたこと（決定 17 〜 20）に従い、状態機械の 1 つの領域ではなく、全領域に共通の形を 5.6 に書いた。波 B1・B2 と付録の行は変えていない。
+
+| # | 起草時の文 | 直した文 | 理由 |
+|---|---|---|---|
+| 19 | 識別子の段「本書は新しい接頭辞を登録しない（波 A）」 | 当初の範囲では登録しなかったこと、追補で `SS` ・ `RA` を登録したこと、登録の直前の grep | 決定 17 |
+| 20 | —— | 識別子の段に `T-284` ・ `T-285` ・ `図 F-027` ・ `図 F-028` の測り直し | 規則 02 の 2.5 |
+| 21 | 第 3 節の波 A の触る所 | 5.6 の図 2 つと表 2 つ、登録簿の `SS` ・ `RA` | 追補で実際に動かしたもの |
+| 22 | —— | 第 3.1 節に追補の 4 行、第 0 節の ③ に決定 17 〜 20 | 前に立つ者の決定 |
+| 23 | 第 7 節の波 A の予測だけ | 追補の予測と、md-checks の最終行の実測 `tables=177  figures=20  rows=2325  uids=162` | 規則 02 の 2 |

@@ -1,0 +1,175 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/state-machines.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/state-machines.json, which is the single source of truth. Same role as _source/settings.schema.json.",
+  "The shape only. What a row may hold is table T-250 of docs/spec/05-07-design.md; the cross-row rules (evidence ids defined, keys and events resolved, one initial state per union) are checked by the generators, because a schema cannot see another row."
+ ],
+ "title": "The state-machine manuscript",
+ "description": "Per region: the states (SM), events (EV) and transitions (TN) the requirements name. docs/spec/_assets/tbl-state-machines.md and the generated region of each region unit are printed from it.",
+ "type": "object",
+ "required": ["regions"],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {"type": "string"},
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript. JSON carries no comments, so the role declaration goes here. Not rendered.",
+   "type": "array",
+   "items": {"type": "string"}
+  },
+  "regions": {
+   "type": "array",
+   "minItems": 1,
+   "items": {"$ref": "#/$defs/region"}
+  }
+ },
+ "$defs": {
+  "text": {
+   "description": "Printed prose, held per language.",
+   "type": "object",
+   "required": ["ja"],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {"type": "string", "minLength": 1},
+    "en": {"type": "string", "minLength": 1}
+   }
+  },
+  "rowId": {"type": "string", "pattern": "^[A-Z][A-Za-z]*-[0-9]+[a-z]?$"},
+  "identifier": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
+  "stateKey": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*(\\.[a-z][A-Za-z0-9]*)*$"},
+  "targetKey": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*(\\.([a-z][A-Za-z0-9]*|\\{[a-z][A-Za-z0-9]*\\}))*$"},
+  "caption": {
+   "type": "object",
+   "required": ["id", "caption"],
+   "additionalProperties": false,
+   "properties": {
+    "id": {"type": "string", "pattern": "^[TF]-[0-9]+[a-z]?$"},
+    "caption": {"$ref": "#/$defs/text"}
+   }
+  },
+  "carry": {
+   "description": "The NAME of a value the state or event carries (SD-1, SD-2). Its type is the code's.",
+   "type": "object",
+   "required": ["name"],
+   "additionalProperties": false,
+   "properties": {
+    "name": {"$ref": "#/$defs/identifier"},
+    "rows": {"type": "array", "items": {"$ref": "#/$defs/rowId"}},
+    "note": {"$ref": "#/$defs/text"}
+   }
+  },
+  "region": {
+   "type": "object",
+   "required": ["region", "name", "unit", "typeStem", "tables", "figure", "states", "events", "transitions"],
+   "additionalProperties": false,
+   "properties": {
+    "region": {"$ref": "#/$defs/identifier"},
+    "name": {"$ref": "#/$defs/text"},
+    "unit": {"type": "string", "pattern": "^src/.+\\.ts$"},
+    "typeStem": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$"},
+    "tables": {
+     "type": "object",
+     "required": ["states", "events", "transitions"],
+     "additionalProperties": false,
+     "properties": {
+      "states": {"$ref": "#/$defs/caption"},
+      "events": {"$ref": "#/$defs/caption"},
+      "transitions": {"$ref": "#/$defs/caption"}
+     }
+    },
+    "figure": {"$ref": "#/$defs/caption"},
+    "states": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/state"}},
+    "events": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/event"}},
+    "transitions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/transition"}}
+   }
+  },
+  "state": {
+   "description": "SD-1 of table T-250.",
+   "type": "object",
+   "required": ["id", "key", "parent", "initial", "carries", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "id": {"type": "string", "pattern": "^SM-[0-9]+$"},
+    "key": {"$ref": "#/$defs/stateKey"},
+    "parent": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/stateKey"}]},
+    "initial": {"type": "boolean"},
+    "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}}
+   }
+  },
+  "event": {
+   "description": "SD-2 of table T-250.",
+   "type": "object",
+   "required": ["id", "key", "source", "carries"],
+   "additionalProperties": false,
+   "properties": {
+    "id": {"type": "string", "pattern": "^EV-[0-9]+$"},
+    "key": {"$ref": "#/$defs/identifier"},
+    "source": {
+     "type": "object",
+     "required": ["kind", "rows"],
+     "additionalProperties": false,
+     "properties": {
+      "kind": {"enum": ["input", "effectResult", "otherRegion", "time"]},
+      "rows": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+      "note": {"$ref": "#/$defs/text"}
+     }
+    },
+    "carries": {"type": "array", "items": {"$ref": "#/$defs/carry"}}
+   }
+  },
+  "guardTerm": {
+   "type": "object",
+   "required": ["name"],
+   "additionalProperties": false,
+   "properties": {
+    "name": {"$ref": "#/$defs/identifier"},
+    "not": {"const": true}
+   }
+  },
+  "transition": {
+   "description": "SD-3 of table T-250. `from` is a list of alternatives, each a conjunction of state keys across axes; `to` is a conjunction of state keys, or \"self\" for a transition back to the same kind.",
+   "type": "object",
+   "required": ["id", "from", "event", "guard", "to", "effect", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "id": {"type": "string", "pattern": "^TN-[0-9]+$"},
+    "from": {
+     "type": "array",
+     "minItems": 1,
+     "items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/stateKey"}}
+    },
+    "event": {"$ref": "#/$defs/identifier"},
+    "guard": {
+     "oneOf": [
+      {"type": "null"},
+      {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/guardTerm"}}
+     ]
+    },
+    "to": {
+     "oneOf": [
+      {"const": "self"},
+      {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/targetKey"}}
+     ]
+    },
+    "effect": {
+     "oneOf": [
+      {"type": "null"},
+      {
+       "type": "object",
+       "required": ["name"],
+       "additionalProperties": false,
+       "properties": {
+        "name": {"$ref": "#/$defs/identifier"},
+        "row": {"$ref": "#/$defs/rowId"}
+       }
+      }
+     ]
+    },
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "note": {"$ref": "#/$defs/text"}
+   }
+  }
+ }
+}

@@ -51,6 +51,7 @@ const FILES = [
   join('_assets', 'tbl-property-items.md'),
   join('_assets', 'fig-erd-detail.md'),
   join('_assets', 'fig-erd-overview.md'),
+  join('_assets', 'tbl-state-machines.md'),
 ]
 
 /**

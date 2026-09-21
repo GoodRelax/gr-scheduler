@@ -356,9 +356,8 @@
   },
   {
    "prefix": "EV",
-   "words": "",
+   "words": "EVent",
    "owner": "spec",
-   "pending": true,
    "means": {
     "ja": "状態機械が受ける出来事 1 つ"
    }
@@ -942,6 +941,14 @@
    }
   },
   {
+   "prefix": "RA",
+   "words": "Region Addition",
+   "owner": "spec",
+   "means": {
+    "ja": "状態機械に領域を 1 つ足す手順の段"
+   }
+  },
+  {
    "prefix": "RC",
    "words": "Reduction Candidate",
    "owner": "spec",
@@ -1079,9 +1086,8 @@
   },
   {
    "prefix": "SM",
-   "words": "",
+   "words": "State Machine",
    "owner": "spec",
-   "pending": true,
    "means": {
     "ja": "状態機械の状態 1 つ"
    }
@@ -1100,6 +1106,14 @@
    "owner": "spec",
    "means": {
     "ja": "パレットの形状を押したときの意味を、選択の状態ごとに定める条"
+   }
+  },
+  {
+   "prefix": "SS",
+   "words": "Shared Step",
+   "owner": "spec",
+   "means": {
+    "ja": "状態機械の全領域が共有する 1 段の形の、公開された名前 1 つと、それが約束すること"
    }
   },
   {
@@ -1136,9 +1150,8 @@
   },
   {
    "prefix": "TN",
-   "words": "",
+   "words": "TransitioN",
    "owner": "spec",
-   "pending": true,
    "means": {
     "ja": "状態機械の遷移 1 つ"
    }

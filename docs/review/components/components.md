@@ -27,6 +27,7 @@
 | usecase | ChooseStartupDocument | Picks the document to open at start-up, in the given order. | FR-062 / T-034 |
 | usecase | NotifyChangeWatchers | Hands confirmed changes to the watchers. | AG-6 / AG-11 |
 | usecase | PostDialogueMessage | Takes a confirmed utterance, appends it to DialogueLog and passes it on. Runtime only, never saved. | FR-066 / AG-11 |
+| usecase | AdvanceScreenSession | Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them. | ADR-002 / T-249 / T-250 |
 | entity / documentModel | Document | The document root. Composes the three groups of table T-052 and holds the DR-1 invariant. | table T-052 DR-1 |
 | entity / documentModel | Schedule | The schedule-data group and its invariants. | DR-2 / T-056 |
 | entity / documentModel | DocumentSettings | The presentation group: every saved setting with its bounds. | DR-3 / FR-063 |
@@ -103,6 +104,8 @@
 | dependency | SingleHtmlShell | DocumentCodec | implements AppShellSource |  |  |
 | dependency | ScreenRenderer | PostDialogueMessage | confirmed utterance | hands over the utterance a person confirmed in the dialogue field |  |
 | dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
+| dependency | AdvanceScreenSession | ScreenState | carried types | reads the remembered-actual and Esc-rung types the screen values carry |  |
+| dependency | AdvanceScreenSession | Selection | panel subject | reads the selection type, and the empty selection, a properties-panel subject is built from |  |
 | dependency | InputCommandTranslator | ScheduleLayout | pointer to date | turns a pointer position into a date on the time axis |  |
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
 | dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |

@@ -146,6 +146,12 @@
    "remark": "FR-066 / AG-11"
   },
   {
+   "name": "AdvanceScreenSession",
+   "shape": "component",
+   "description": "Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them.",
+   "remark": "ADR-002 / T-249 / T-250"
+  },
+  {
    "name": "Document",
    "shape": "component",
    "description": "The document root. Composes the three groups of table T-052 and holds the DR-1 invariant.",
@@ -292,7 +298,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "updates",
-   "description": "backed by 24 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; ApplyDocumentChange -> Document; ApplyDocumentChange -> DocumentSettings; ApplyDocumentChange -> Schedule; ChooseStartupDocument -> Document; EditDocument -> Document; EditDocument -> ScreenState; ImportDocument -> Document; ImportDocument -> DocumentSettings; NotifyChangeWatchers -> Document; RedoEdit -> Document; UndoEdit -> Document; ValidateImportedDocument -> Document; ValidateImportedDocument -> DocumentSettings; ValidateImportedDocument -> Schedule"
+   "description": "backed by 26 component edge(s): ApplyDocumentChange -> DocumentStamp; ApplyDocumentChange -> EditHistory; ChooseStartupDocument -> DocumentStamp; UndoEdit -> EditHistory; RedoEdit -> EditHistory; EditDocument -> Schedule; EditDocument -> DocumentSettings; ImportDocument -> Schedule; PostDialogueMessage -> DialogueLog; NotifyChangeWatchers -> DialogueLog; AdvanceScreenSession -> ScreenState; AdvanceScreenSession -> Selection; ApplyDocumentChange -> Document; ApplyDocumentChange -> DocumentSettings; ApplyDocumentChange -> Schedule; ChooseStartupDocument -> Document; EditDocument -> Document; EditDocument -> ScreenState; ImportDocument -> Document; ImportDocument -> DocumentSettings; NotifyChangeWatchers -> Document; RedoEdit -> Document; UndoEdit -> Document; ValidateImportedDocument -> Document; ValidateImportedDocument -> DocumentSettings; ValidateImportedDocument -> Schedule"
   },
   {
    "source": "usecase",
@@ -363,7 +369,8 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostDialogueMessage"
+     "PostDialogueMessage",
+     "AdvanceScreenSession"
     ]
    },
    {

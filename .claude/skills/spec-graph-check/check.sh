@@ -95,8 +95,9 @@
 #   27     the generated artifacts `npm run gen:check` holds -- the GRS JSON
 #          validator, the startup template, the icon roster, the icon glyphs,
 #          the display words, the MSPDI custom fields, the exchange formats,
-#          the property items, the row-ID prefix table, and the component
-#          overview and table build.py writes (not its figures).
+#          the property items, the row-ID prefix table, the state-machine
+#          tables and the region types printed from state-machines.json, and
+#          the component overview and table build.py writes (not its figures).
 #          ⛔ A suite quoted as the word on the tree has to run everything that
 #          holds the tree to its manuscript, so none of these is left to
 #          `gen:check` alone
@@ -430,8 +431,8 @@ echo ""
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the fifteen below plus those five are the twenty `gen:check` runs.
-section "27  the fifteen other generated artifacts still match their manuscripts"
+# -- so the seventeen below plus those five are the twenty-two `gen:check` runs.
+section "27  the seventeen other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
@@ -446,6 +447,8 @@ PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python docs/spec/_source/state_machines_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_state_machine_types.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/build.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_comment_rules_card.py --check || failed

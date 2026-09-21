@@ -52,7 +52,7 @@ graph RL
 | --- | --- | --- | --- |
 | LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。<br>および**文書に保存しない実行時の値**（取り消しの履歴・選択・確定した発話・画面の使い方の値。<br>いずれも不変の値として持ち、丸ごと置き換える） | すべて `pure` |
 | LY-2 | `Entity` / `layoutEngine` | 画面の各部の矩形、日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
-| LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。<br>取り込みの検証。<br>変更の通知 | 操作と検証は `pure`、確定と通知は `non-pure` |
+| LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。<br>取り込みの検証。<br>変更の通知。<br>保存しない画面とセッションの流れの遷移（出来事から次の状態と副作用を決める） | 操作と検証は `pure`、確定と通知は `non-pure`。<br>遷移は `pure` |
 | LY-4 | `Adapter` | `Agent API`、SVG の生成、日程表の外側の UI パーツの記述の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
 | LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェル。<br>**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
 
@@ -138,9 +138,10 @@ graph RL
 | CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、刻印とは別の順序。<br>文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
 | CP-34 | `documentModel` | `Document` | **文書ルートの合成と、`DR-1` の不変条件**（ルートに 3 群だけを置く／群に属する値をルート直下へ直に置かない） | 表 T-052 の `DR-1` |
 | CP-35 | `layoutEngine` | `ScreenRegions` | **画面の各部の矩形**（各部の名は 表 T-103 が持つ）と、ポインタがどの領域にあるかの判定 | `FR-051` |
-| CP-36 | `documentModel` | `ScreenState` | **文書に保存しない画面の値** —— 構え（全数は 表 T-023b）と、表 T-206 の `S-99e` / `S-99f` / `S-99g` と、**覚えた実績**（`FR-107` の 表 T-270 の「押下の巡り」で 中断 → 未着手 のときに外した実績。<br>⛔ 文書に保存しない） | `FR-053` / `FR-071` / `FR-107` / 表 T-023b |
+| CP-36 | `documentModel` | `ScreenState` | **文書に保存しない画面の値** —— 構え（全数は 表 T-023b）と、表 T-206 の `S-99e` / `S-99f` / `S-99g` / `S-144` と、**覚えた実績**（`FR-107` の 表 T-270 の「押下の巡り」で 中断 → 未着手 のときに外した実績。<br>⛔ 文書に保存しない） | `FR-053` / `FR-071` / `FR-107` / 表 T-023b |
 | CP-37 | `Adapter` | `ScreenRenderer` | 日程表の外側の UI パーツの記述を作り、対話欄で確定した発話を渡す。<br>`ScreenSurface` を宣言する | `FR-051` / `FR-006` / `FR-036` / `FR-053` / `FR-076` / `FR-066` |
 | CP-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 | — |
+| CP-39 | `UseCase` | `AdvanceScreenSession` | 保存しない画面とセッションの流れを、出来事を受けて 1 段進め、次の状態と副作用の列を返す。<br>副作用を実行しない | 5.6 の ADR-002 / 表 T-249 / 表 T-250 / 表 T-280 〜 表 T-282 |
 
 各コンポーネントの内側のユニットと、公開するインターフェースは Chapter 5.3 が宣言する。  
 本表が定めるのはコンポーネントの境界だけである。
@@ -239,9 +240,9 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 
 | 行 ID | 語 | 定義 | 本設計での全数 |
 | --- | --- | --- | --- |
-| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **36。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
+| SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **71。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **74。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -294,7 +295,7 @@ Vite の入口は `single-html-shell.ts` である —— 表 T-062 の `CP-25` 
 本節は `src/` だけを持つ。
 
 ディレクトリ構成を次に示す。  
-36 のフォルダは 表 T-062 の 36 コンポーネントと 1 対 1 である。
+37 のフォルダは 表 T-062 の 37 コンポーネントと 1 対 1 である。
 
 ```text
 src/
@@ -306,7 +307,7 @@ src/
   use-case/           apply-document-change/ · edit-document/ · import-document/
                       undo-edit/ · redo-edit/ · validate-imported-document/
                       choose-startup-document/ · notify-change-watchers/
-                      post-dialogue-message/
+                      post-dialogue-message/ · advance-screen-session/
   adapter/            agent-api-endpoint/ · input-command-translator/ · svg-renderer/
                       document-codec/ · image-exporter/ · file-gateway/
                       clipboard-gateway/ · screen-renderer/
@@ -315,7 +316,7 @@ src/
                       canvas-rasterizer/ · dom-screen-surface/
 ```
 
-ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、36 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
+ユニットを割った理由を 表 T-063 に、ユニットの全数を 表 T-075 に、37 コンポーネントの公開インターフェースを 表 T-064 に、層をまたぐ 8 本を 表 T-065 に示す。
 
 **表 T-063 が持つのは、割った理由だけである。**  
 ⚠️ **層をまたぐインターフェースの 8 ファイルは本表に行を持たない** —— 割った理由が「宣言の置き場」の 1 つしか無く、その規則を 表 T-065 の後で本節が定めるからである。
@@ -332,6 +333,7 @@ src/
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 | UT-8 | `SvgRenderer` | `svg-renderer.ts` と、描く物ごとの 3 ファイル | **純粋性ではない** —— 表 T-075 のとおり 4 つとも同じである。<br>**描く物ごとに縛る要求が別なので割った**（表 T-276 の `UD-1`）—— 格子の規則（`FR-089`）が変わってもタスクの図の規則（`FR-013`・`FR-075`）は変わらない。<br>依存線をタスクの図と同じユニットに置くのは、両者が同じ変更で動いてきたからである |
+| UT-11 | `AdvanceScreenSession` | `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts`） | **変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の状態・出来事・遷移の表を負う（画面の値は 表 T-280 〜 表 T-282）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない |
 
 ⭐ **要求の側から「まずどのファイルを開くか」を引けるように、表 T-075 は欄「負う要求」を持つ。**  
 欄に書くのは、その要求が動いたときに**最初に開くユニット**だけであり、その要求に触るファイルの全部ではない。  
@@ -439,6 +441,9 @@ src/
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38`。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは本ユニットである** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と本ユニットのどちらが正かが読めなくなる | `FR-101`（`OW-2`） |
+| UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
+| UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
+| UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280 〜 表 T-282）と、そこから生成した型と遷移表の定数の区画 | — |
 
 ⚠️ `semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。  
 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。  
@@ -521,6 +526,7 @@ src/
 | PI-36 | `documentModel` | `ScreenState` | `ScreenState`（型。<br>構えは 表 T-023b、覚えた実績は `FR-107` の 表 T-270、ほかは 表 T-206 の `S-99e` / `S-99f` / `S-99g`）／ `DualCursorSide`（型。<br>`date1` と `date2` のどちらが追従しているか。<br>表 T-029a の `DC-2`。<br>⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない）／ `emptyScreenState` ／ `screenStateWithArmed` ／ `screenStateWithSurface`（開いている面）／ `screenStateWithPalette`（`S-99e`）／ `screenStateWithFullScreen`（`S-99f`）／ `screenStateWithWatermark`（`S-144`。<br>⭐ **同行は 表 T-206 の画面の値であって文書の値ではないので、書き手をここが公開しないと `IC-41` の両方向がどこからも書けない**）／ `escapeTarget`（`Esc` が次に消費するもの。<br>階層は 表 T-028 の `IN-4`） ／ `RememberedActual`（型。<br>中断から未着手へ戻したときに外した実績（`01-04-requirements.md` の `FR-107` の 表 T-270 の「押下の巡り」）。<br>実績の開始・実績の最後の日・停止日と、取り込んだ原値の実績期間を運ぶ。<br>⛔ **文書には持たない** —— 文書を開いているあいだだけの値であり、閉じれば消える）／ `screenStateWithRememberedActual`（そのタスクの覚えた実績を置く、または外す。<br>⛔ 置き直すのは `ScreenState` であって `Task` ではない）／ `rememberedActualOf`（そのタスクの覚えた実績を読む。<br>⭐ 命令（`_assets/tbl-glossary.md` の 表 T-108 の `CM-15`）はここから受け取る） |
 | PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。<br>日程表の外側の UI パーツの記述）／ `screenViewFromRegions` ／ `dialogueMessageFromInput`（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）／ `dismissKeyOf`（表 T-037 の `NT-8` で人が消した告げを名指す鍵）／ `rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br>⭐ 内側の層は読まず、値で受け取る（表 T-248 の `JF-4`）／ `rowTitleFontPxOf`（行の名前の字の大きさ。<br>深さ 1 は 表 T-201 の `S-36` × `S-38`、ほかは `S-36`。<br>`FR-016` の行の軸の上限が深さ 1 を問う。<br>⭐ 公開したのは、字の式を `src/` の 2 か所に置かないためである —— 行見出しを描く側と、上限を求める側・書き出す側が同じ 1 本を読む） |
 | PI-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 1 つ ／ `pageGroundStyle`（地の色の宣言）／ `ScreenTheme`（型） —— ⭐ **地を塗るのはシェルである** —— 本コンポーネントの根は日程の上に重なって敷かれており、そこに地を塗ると日程が隠れる。<br>⛔ `FR-041` は地を塗ることを MUST で求めるので、塗る側が宣言を受け取れなければ満たせない |
+| PI-39 | `UseCase` | `AdvanceScreenSession` | `ScreenSession`（型。<br>根の状態。<br>領域の合成（`SF-8`）で、いまは画面の値の領域だけ）／ `SessionEvent`（型。<br>全数は 表 T-281）／ `SessionEffect`（型。<br>副作用の名の全数は 表 T-282 の副作用の欄）／ `emptyScreenSession`（初期の状態。<br>表 T-280 の初期の欄）／ `advanceScreenSession`（1 段進める。<br>何も変わらないときは受け取った参照を返す —— `SF-3`） |
 
 層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）（例 —— `adapter/svg-renderer/svg-surface.ts`）。  
 **実装を外側の層が持つことは `LR-5` が定めている。**
@@ -717,6 +723,10 @@ src/
 | SD-2 | 出来事（`EV`） | 行 ID、キー、どこから来るか（入力の行・副作用の結果・時間）、運ぶ値の名前 | 画面の語（辞書が持つ） |
 | SD-3 | 遷移（`TN`） | 元の状態、出来事、ガードの名前、先の状態、副作用の名前、根拠の行 | ガードの条件式と副作用の中身（コードが持つ）。<br>⭐ 表と関数のずれは、領域ごとの契約試験（すべての状態と出来事の組で先の状態の種類が表と一致し、表に無い組では同じ参照を返す）が止める |
 | SD-4 | 領域をまたぐ優先順 | 奪い合う出来事、順を決めた要求の行、段ごとの状態のキー | **順そのものの正**（`IN-4` などの要求の行が持つ） |
+
+第 1 領域（画面の値）の状態・出来事・遷移を `_assets/tbl-state-machines.md` の 表 T-280 ・ 表 T-281 ・ 表 T-282 に、状態遷移を 図 F-026 に示す。  
+軸の読み方はキーだけで決まる —— 状態のキーから親のキーを除いた残りが 2 語（`armed.none`）なら「軸.種類」であり、同じ親の下の別の軸とは直交する。  
+残りが 1 語（`expanded`）なら、親の単一の共用体の種類である。
 
 予実の状態遷移を 図 F-018 に示す。  
 箱は 表 T-019 の 5 行、辺は 表 T-021a と `FR-043` / `FR-044` である。
@@ -916,7 +926,7 @@ stateDiagram-v2
 | 行 ID | 増やしたもの | 最小構成では | 増やした理由 | 代償 |
 | --- | --- | --- | --- | --- |
 | MN-1 | 層を 4 つに分け、`Entity` をさらに 2 つに割った（表 T-060） | 1 コンポーネント | `FR-092` の `EZ-5` が設計の合否を `R2` で判定すると定め、`R2.16` が CA を求める。<br>**割った側の理由は 5.1 が持つ** | 構造を保つ手間。<br>**非巡回であることを毎回検算する** |
-| MN-2 | コンポーネントを 36 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
+| MN-2 | コンポーネントを 37 に分けた（表 T-062） | 分けない | 分ける基準は 5.2 が持つ | コンポーネントをまたぐ呼び出しが 表 T-064 の宣言を介する（`LR-2`） |
 | MN-3 | 層をまたぐインターフェースを 8 本宣言した（表 T-065） | ブラウザの API を直に呼ぶ | `LR-5` | `Framework` に、宣言を実装するためのコンポーネントが増えた |
 | MN-4 | 文書への書き込みの経路を 1 本にした（`CP-8`） | 呼ぶ側が直に書き換える | `FR-028` と 表 T-042 の `MS-1`。<br>**入口が 2 つに分かれると、片方にしか掛からない検証や履歴が生まれる** | 描画がこの経路を通らないことを別に定める必要があった（5.1） |
 | MN-5 | 文書ルートをコンポーネントとして立てた（`CP-34`） | ルートに型を与えない | 表 T-052 の `DR-1` は 3 群すべてに同時に掛かる規則であり、どの 1 群からも検査できない | コンポーネントが 1 つ増えた。<br>⚠️ **辺はむしろ 6 本減った** |
@@ -983,6 +993,107 @@ ADR-002 — 保存しない状態を、自前の状態機械 1 つで持つ
 | SF-8 | 根の状態は領域の合成とし、`step` は領域ごとのユニットに分ける。<br>1 つの `switch` に全領域を集めない | `R2.2`、表 T-063 の `UT-2` と同じ理由の形 |
 | SF-9 | クラスを作らない。<br>公開するのは型と関数だけ | 5.3 |
 | SF-10 | 文書は集約に入れない。<br>文書を変えるのは書き込みの唯一の経路で、セッションは読むだけ | 表 T-042 の `MS-1` |
+
+1 つの出来事が 1 巡する流れを 図 F-027 に示す。  
+担い手の名は 表 T-062 のコンポーネントである。  
+⚠️ `InputCommandTranslator` が出来事を作ることと、`SingleHtmlShell` が `advanceScreenSession` を呼ぶことは移行の目標であり、いまの `src/` にはまだ無い（移行の次の段で入る）。
+
+**図 F-027 — 1 つの出来事の 1 巡**
+
+```mermaid
+sequenceDiagram
+    actor Person as 人
+    participant ICT as InputCommandTranslator
+    participant Shell as SingleHtmlShell
+    participant ASS as AdvanceScreenSession
+    Person->>ICT: 押す・掴む・問いに答える
+    ICT->>Shell: 出来事（名は過去形。SF-1 ・ SF-5）
+    Note over Shell: 現在値を 1 つだけ持つ（SF-7）
+    Shell->>ASS: advanceScreenSession（現在値、出来事）
+    ASS->>ASS: 出来事が触れる領域の step（SF-8）
+    ASS-->>Shell: Step（次の state と effects の列。SF-2）
+    alt 違う参照が返った
+        Shell->>Shell: 現在値の参照を差し替える
+    else 受け取った参照がそのまま返った（SF-3）
+        Shell->>Shell: 差し替えない。描き直しの義務は生じない（NFR-010）
+    end
+    loop effects の 1 つずつ（空の列なら 0 回）
+        Shell->>Shell: 副作用を実行する（SF-6）
+        Shell->>ASS: 結果を出来事として渡す（次の 1 巡）
+    end
+```
+
+根の状態の組み立てを 図 F-028 に示す。  
+破線の箱は、まだ無い領域である。  
+下の段は、出来事が 1 つの軸だけに触れた 1 段の前と後であり、触れなかった軸と領域は同じ参照のまま残る（`SF-3`）。  
+⭐ 軸と種類の全数は 表 T-280 が持つ —— 図は 2 つの軸だけを例に描く。
+
+**図 F-028 — 根の状態の組み立て**
+
+```mermaid
+flowchart TB
+    subgraph Shape["根の状態の組み立て"]
+        direction LR
+        Root["ScreenSession<br>根の状態"]
+        Screen["領域 screen<br>画面の値（表 T-280）"]
+        Next["次の領域"]:::future
+        Armed["軸 armed"]
+        Palette["軸 palette"]
+        Others["ほかの軸<br>（全数は 表 T-280）"]
+        ArmedK["none ｜ taskShape ｜ milestoneShape ｜<br>dependency ｜ commentBox ｜ highlightBox"]
+        PaletteK["shown（expanded ｜ minimised）｜ hidden"]
+        Root -->|"領域の合成（SF-8）"| Screen
+        Root -.->|"領域の合成（SF-8）"| Next
+        Screen -->|"直交する軸"| Armed
+        Screen -->|"直交する軸"| Palette
+        Screen -->|"直交する軸"| Others
+        Armed -->|"種類（SF-1）"| ArmedK
+        Palette -->|"種類（SF-1）"| PaletteK
+    end
+    subgraph Step["例: 軸 palette だけに触れた 1 段の前と後（SF-3 ・ SD-3）"]
+        direction LR
+        R0["前: ScreenSession"] -->|"新しい参照"| R1["後: ScreenSession"]
+        S0["前: 領域 screen"] -->|"新しい参照"| S1["後: 領域 screen"]
+        P0["前: 軸 palette"] -->|"新しい参照"| P1["後: 軸 palette"]
+        A0["前: 軸 armed"] ==>|"同じ参照"| A1["後: 軸 armed"]
+        O0["前: ほかの軸"] ==>|"同じ参照"| O1["後: ほかの軸"]
+        N0["前: 次の領域"]:::future ==>|"同じ参照"| N1["後: 次の領域"]:::future
+    end
+    Shape ~~~ Step
+
+    classDef future stroke-dasharray: 5 5,fill:#fff,color:#555
+```
+
+全領域が共有する 1 段の形の約束を 表 T-284 に示す。  
+領域のユニットと公開エントリは、本表の名前と約束に従うこと（MUST）。
+
+**表 T-284 — 全領域が共有する 1 段の形**
+
+| 行 ID | 名前 | ユニット | 約束すること | 正 |
+| --- | --- | --- | --- | --- |
+| SS-1 | `Step<S, E>` | `session-step.ts`（`UF-85`） | 次の状態 `state` と副作用の列 `effects` を、読み取り専用の 1 つの値で運ぶ。<br>次の状態は丸ごと入る | 表 T-249 の `SF-2` |
+| SS-2 | `NO_EFFECTS` | `session-step.ts`（`UF-85`） | 空の副作用の列。<br>凍結した 1 つの定数を全領域が共有する | `SF-3` |
+| SS-3 | `unchanged` | `session-step.ts`（`UF-85`） | 受け取った状態と同じ参照を持ち、副作用が `NO_EFFECTS` の `Step` を返す。<br>何も変わらない出来事と、遷移の表に無い組の答えである | `SF-3`、表 T-250 の `SD-3` |
+| SS-4 | `assertNever` | `session-step.ts`（`UF-85`） | 扱わない種類を `never` で受け、網羅の漏れをコンパイルエラーにする。<br>実行時に届いたら投げる | `SF-4` |
+| SS-5 | `advanceScreenSession` | `advance-screen-session.ts`（`UF-84`） | 根の状態と出来事を受け、出来事が触れる領域の `step` を呼んで `Step` を返す。<br>出来事が触れない領域は、1 段の後も同じ参照のまま残す（`SF-3` ・ `SF-8`）。<br>領域の中でも、出来事が触れない軸は同じ参照のまま残す（遷移の表に無い組は `SD-3`）。<br>どの領域も同じ参照を返し、副作用も無いときは、根も受け取った参照を返す | `SF-2`、`SF-3`、`SF-8`、表 T-064 の `PI-39`、図 F-027、図 F-028 |
+| SS-6 | `emptyScreenSession` | `advance-screen-session.ts`（`UF-84`） | 根の初期の状態。<br>各領域の初期の状態を合成したもの | `PI-39`、表 T-280 の初期の欄 |
+
+状態機械に領域を 1 つ足す手順を 表 T-285 に示す。  
+領域を足すときは、本表の段の順に従うこと（MUST）。  
+「止めるもの」の欄は、その段を飛ばしたときに赤くなる検査か、その段を求める規則である。
+
+**表 T-285 — 領域を 1 つ足す手順**
+
+| 行 ID | 段 | すること | 止めるもの |
+| --- | --- | --- | --- |
+| RA-1 | 原稿 | `_source/state-machines.json` に、その領域の状態（`SM`）・出来事（`EV`）・遷移（`TN`）を足す。<br>要求が名指すものだけを載せる | 表 T-250 の `SD-1` 〜 `SD-3`、5.5 の原稿の段 |
+| RA-2 | 生成 | `npm run gen` で、状態遷移図・表と、判別共用体・遷移表の定数を刷る。<br>生成物を手で直さない | 生成物が原稿と 1 バイトでも違えば落ちる `--check`、生成物の出どころの検査 |
+| RA-3 | 領域のユニット | 領域ごとのファイルに `step` を手で書き、表 T-284 の名前で 1 段を返す。<br>同じコミットで 表 T-075 に `UF` の行を足す | `src/` と 表 T-075 のパスの集合が一致することの検査、`SF-8` |
+| RA-4 | ユニットを割った理由 | 表 T-063 の `UT-11` のユニットの欄に、足した領域のファイルを載せる | 本行だけが求める。<br>⚠️ `UT-11` のユニットの欄と `src/` の食い違いを見る機械検査は無い |
+| RA-5 | 根への合成 | `ScreenSession` に領域を足し、`advanceScreenSession` と `emptyScreenSession` を広げる。<br>同じコミットで 表 T-064 の `PI-39` を直す | 表 T-064 と `src/` を双方向に突き合わせる検査、表 T-284 の `SS-5` ・ `SS-6` |
+| RA-6 | 契約試験 | `step` を書いた者とは別の者が、仕様だけを読んで試験を書く —— すべての状態と出来事の組で先の状態の種類が表と一致し、表に無い組では同じ参照が返ること | `SD-3`、`docs/development-rules/04-verification.md` の 1. |
+| RA-7 | シェルへの結線 | `SingleHtmlShell` の値をその領域の現在値へ置き換え、副作用を実行して結果を出来事として戻す | `SF-6`、`SF-7`、内側の 3 層の可変状態の検査、コンポーネントの辺の検査 |
+| RA-8 | 性能 | `LM-19` の手順で 1 フレームの時間を測る。<br>`LM-19` が記す 2026-09-14 の実測より悪くしない | `LM-19`、ADR-002 の Consequences |
 
 **描かなかった図とその理由を 表 T-072 に示す。**
 

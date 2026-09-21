@@ -38,6 +38,14 @@ ARTIFACTS = [
     ('docs/spec/_assets/fig-erd-overview.md', 'erd.json'),
     ('docs/spec/_source/grs-document.schema.json', 'erd.json'),
     ('docs/review/components/components.md', 'components.json'),
+    # The unsaved state machines (ADR-002, CR-436): the state, event and
+    # transition tables and the diagram of each region, and the region unit
+    # whose marked region holds the unions and the transition table. Most of
+    # that unit is hand written -- the transition functions -- so its banner
+    # has to say which part is generated.
+    ('docs/spec/_assets/tbl-state-machines.md', 'state-machines.json'),
+    ('src/use-case/advance-screen-session/screen-values.ts',
+     'state-machines.json'),
     # The comment rules card (JDG-59), pasted into briefs instead of the rules.
     ('docs/review/comment-rules-card.md', 'comment-rules-src.md'),
     ('src/entity/document-model/schedule/schedule.ts', 'erd.json'),

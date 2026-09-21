@@ -147,6 +147,12 @@
    "remark": "FR-066 / AG-11"
   },
   {
+   "name": "AdvanceScreenSession",
+   "shape": "component",
+   "description": "Advances the unsaved screen session by one event and returns the next state with the effects to run; it runs none of them.",
+   "remark": "ADR-002 / T-249 / T-250"
+  },
+  {
    "name": "Document",
    "shape": "component",
    "description": "The document root. Composes the three groups of table T-052 and holds the DR-1 invariant.",
@@ -625,6 +631,20 @@
    "arrow": "dependency",
    "label": "utterance posted",
    "description": "wakes the watchers although the revision did not move"
+  },
+  {
+   "source": "AdvanceScreenSession",
+   "target": "ScreenState",
+   "arrow": "dependency",
+   "label": "carried types",
+   "description": "reads the remembered-actual and Esc-rung types the screen values carry"
+  },
+  {
+   "source": "AdvanceScreenSession",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "panel subject",
+   "description": "reads the selection type, and the empty selection, a properties-panel subject is built from"
   },
   {
    "source": "InputCommandTranslator",
@@ -1254,7 +1274,8 @@
      "ValidateImportedDocument",
      "ChooseStartupDocument",
      "NotifyChangeWatchers",
-     "PostDialogueMessage"
+     "PostDialogueMessage",
+     "AdvanceScreenSession"
     ]
    },
    {

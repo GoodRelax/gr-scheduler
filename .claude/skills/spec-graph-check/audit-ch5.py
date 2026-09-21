@@ -80,7 +80,7 @@ check("prose '表 T-065 は N 行' == T-065 rows", stated(r"表 T-065 は (\d+) 
 # 部品 (forbidden by T-006b A-17) is NOT counted here any more.  It moved to
 # check 32 of style-checks.py, which check.sh runs -- this file does not, so a
 # word this file caught was caught by nobody.  Two copies would part company.
-check("T-063 rows", len(ut), 8)
+check("T-063 rows", len(ut), 9)
 
 # SU-1 defines a component by its public entry.  The earlier wording -- "it
 # publishes an interface outward" -- was false for 7 of the 34 (CP-25 publishes
@@ -155,8 +155,22 @@ if shell_in:
 
 print()
 print("== landing: every component with members is reached ==")
+# ⛔ NOT YET CALLED, BY NAME AND WITH AN END. A component listed here has its
+# members and its code, but the edge into it lands in a later wave of the same
+# change request. Drawing that edge now would describe a call nobody makes.
+# ⛔ Each entry names the wave that removes it; delete the entry in that wave.
+# Approved by the user in chat on 2026-09-21 ("推奨の Aとせよ").
+NOT_YET_CALLED = {
+    # CR-436 wave B2 wires SingleHtmlShell -> AdvanceScreenSession.
+    "AdvanceScreenSession": "CR-436 wave B2",
+}
+for waiting in sorted(NOT_YET_CALLED):
+    print("  held until %s: %s has no caller yet" % (NOT_YET_CALLED[waiting], waiting))
+    if waiting in incoming:
+        fails.append("%s is called now -- remove it from NOT_YET_CALLED" % waiting)
 unreached = [n for n in nodes
-             if members.get(n) and n not in incoming and n not in FRAMEWORK]
+             if members.get(n) and n not in incoming and n not in FRAMEWORK
+             and n not in NOT_YET_CALLED]
 print("  components with members but no caller: %s" % (unreached or "none"))
 if unreached:
     fails.append("unreached component")

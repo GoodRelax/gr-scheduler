@@ -86,6 +86,9 @@ NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
+SCREEN_VALUES_INITIAL_AXES           画面の値の各軸の初期の種類（表 T-280 の初期の欄。`tools/generate_state_machine_types.py` が刷る）
+SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の初期の欄。同じ生成器）
+SCREEN_VALUES_TRANSITIONS            画面の値の遷移表（表 T-282。同じ生成器）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
