@@ -64,8 +64,8 @@ function rowControlStepPx(): number {
   return rowControlBoxPx()
 }
 
-// see HF-4, T-206
 // @provisional PND-348
+// see HF-4, T-206
 const ROW_CONTROL_EDGE_PX = NOT_STORED_ROW_CONTROL_EDGE_SIZES['S-313']
 
 /** @purity pure */

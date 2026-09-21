@@ -77,7 +77,8 @@ NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線�
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
 NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
-NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさ（`S-140`）
+NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさと右端からの隔たり（`S-140` / `S-313`）
+NOT_STORED_ROW_CONTROL_EDGE_SIZES    行の操作子を描く側の、右端からの隔たり（`S-313`）
 NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
 NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-218`）

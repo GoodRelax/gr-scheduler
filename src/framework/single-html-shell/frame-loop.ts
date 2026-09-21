@@ -2050,7 +2050,7 @@ export function frameLoop(
   // TRAP: each export scene overwrites this; copy it at the call, never read it across an await.
   let stackSafetyCapOfLastExportScene: string | null = null
   let stackSafetyCapOwedByPictureExport: string | null = null
-  // TRAP: the id the latest input context drew; a second draw here would shift the UUID sequence.
+  // TRAP: T-050's row id for a replacement; a draw of its own would shift the UUID sequence.
   let lastDrawnGroupId: string | null = null
   // TRAP: as a ScreenState surface it would open a second modal stacked over this dialog.
   let asking: {
@@ -3266,8 +3266,6 @@ export function frameLoop(
         moment: collectWriteMoment(),
         call,
         defaultRowName: DEFAULT_ROW_NAME,
-        // see T-050
-        // TRAP: before any input there is no drawn id; the outgoing row's id cannot meet an empty arrival.
         newGroupId: lastDrawnGroupId ?? held.document.schedule.taskGroups[0]?.id ?? '',
       },
       holder,

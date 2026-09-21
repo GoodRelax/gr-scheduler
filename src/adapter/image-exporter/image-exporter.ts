@@ -47,8 +47,8 @@ export type ImageExport =
   | ({ readonly ok: true } & SvgPicture & { readonly png: Rastering })
   | { readonly ok: false; readonly fault: ImageExportFault }
 
-// see EP-1, EP-3
 // @provisional PND-50
+// see EP-1, EP-3
 /** @purity pure */
 function chromeGround(settings: DocumentSettings, themeHue: number): string {
   const dark = settings.themePreference === 'dark'
