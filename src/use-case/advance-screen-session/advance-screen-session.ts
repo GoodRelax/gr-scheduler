@@ -5,6 +5,13 @@
 // @publishes table T-064 row PI-39
 
 import {
+  emptyNoticeValues,
+  stepNoticeValues,
+  type NoticeValues,
+  type NoticeValuesEffect,
+  type NoticeValuesEvent,
+} from './notice-values'
+import {
   emptyScreenValues,
   stepScreenValues,
   type ScreenValues,
@@ -18,27 +25,53 @@ import { unchanged, type Step } from './session-step'
 // see SF-8, PI-39
 export interface ScreenSession {
   readonly screen: ScreenValues
+  readonly notices: NoticeValues
 }
 
-// see T-281
-export type SessionEvent = ScreenValuesEvent
+// see T-281, T-287
+export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent
 
-// see T-282
-export type SessionEffect = ScreenValuesEffect
+// see T-282, T-288
+export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect
 
-// see T-280
-export const emptyScreenSession: ScreenSession = { screen: emptyScreenValues }
+// see T-280, T-286, SS-6
+export const emptyScreenSession: ScreenSession = { screen: emptyScreenValues, notices: emptyNoticeValues }
 
-// see SF-2, SF-3, SF-8
+// WHY: a Record over the notices event types, so an event added to the manuscript and left
+// out here fails to compile; every other event belongs to the screen-values region.
+const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
+  noticeRaised: true,
+  newestNoticeDismissAsked: true,
+  noticeDismissPressed: true,
+  documentReplaced: true,
+  changeDelivered: true,
+}
+
+/** @purity pure */
+function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
+  return Object.hasOwn(IS_NOTICE_EVENT, event.type)
+}
+
+// see SS-5, SF-3
+/** @purity pure */
+function composed<K extends keyof ScreenSession>(
+  session: ScreenSession,
+  region: K,
+  step: Step<ScreenSession[K], SessionEffect>,
+): Step<ScreenSession, SessionEffect> {
+  if (step.state !== session[region]) {
+    return { state: { ...session, [region]: step.state }, effects: step.effects }
+  }
+  if (step.effects.length === 0) return unchanged(session)
+  return { state: session, effects: step.effects }
+}
+
+// see SF-2, SF-3, SF-8, SS-5
 /** @purity pure */
 export function advanceScreenSession(
   session: ScreenSession,
   event: SessionEvent,
 ): Step<ScreenSession, SessionEffect> {
-  const step = stepScreenValues(session.screen, event)
-  if (step.state !== session.screen) {
-    return { state: { ...session, screen: step.state }, effects: step.effects }
-  }
-  if (step.effects.length === 0) return unchanged(session)
-  return { state: session, effects: step.effects }
+  if (isNoticeEvent(event)) return composed(session, 'notices', stepNoticeValues(session.notices, event))
+  return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

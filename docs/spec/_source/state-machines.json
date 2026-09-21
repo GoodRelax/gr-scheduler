@@ -2168,6 +2168,432 @@
      ]
     }
    ]
+  },
+  {
+   "region": "notices",
+   "name": {
+    "ja": "通知"
+   },
+   "unit": "src/use-case/advance-screen-session/notice-values.ts",
+   "typeStem": "NoticeValues",
+   "tables": {
+    "states": {
+     "id": "T-286",
+     "caption": {
+      "ja": "通知の状態"
+     }
+    },
+    "events": {
+     "id": "T-287",
+     "caption": {
+      "ja": "通知の出来事"
+     }
+    },
+    "transitions": {
+     "id": "T-288",
+     "caption": {
+      "ja": "通知の遷移"
+     }
+    }
+   },
+   "figure": {
+    "id": "F-029",
+    "caption": {
+     "ja": "通知の状態遷移"
+    }
+   },
+   "states": [
+    {
+     "id": "SM-34",
+     "key": "notices",
+     "parent": null,
+     "initial": true,
+     "carries": [],
+     "evidence": [
+      "FR-076"
+     ]
+    },
+    {
+     "id": "SM-35",
+     "key": "notices.onScreen.none",
+     "parent": "notices",
+     "initial": true,
+     "carries": [],
+     "evidence": [
+      "NT-8",
+      "IN-4"
+     ]
+    },
+    {
+     "id": "SM-36",
+     "key": "notices.onScreen.standing",
+     "parent": "notices",
+     "initial": false,
+     "carries": [
+      {
+       "name": "standing",
+       "note": {
+        "ja": "出ている通知の列。古い順。1 つは理由と件数"
+       }
+      }
+     ],
+     "evidence": [
+      "FR-076",
+      "NT-3",
+      "NT-8",
+      "IN-4",
+      "SK-19",
+      "IR-3"
+     ]
+    },
+    {
+     "id": "SM-37",
+     "key": "notices.delivery.idle",
+     "parent": "notices",
+     "initial": true,
+     "carries": [],
+     "evidence": [
+      "WS-7"
+     ]
+    },
+    {
+     "id": "SM-38",
+     "key": "notices.delivery.delivering",
+     "parent": "notices",
+     "initial": false,
+     "carries": [],
+     "evidence": [
+      "WS-2",
+      "RS-9",
+      "CA-3"
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "EV-31",
+     "key": "noticeRaised",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-076",
+       "NT-3"
+      ],
+      "note": {
+       "ja": "副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す"
+      }
+     },
+     "carries": [
+      {
+       "name": "reason",
+       "note": {
+        "ja": "表 T-233 の `RS-` の行、または 表 T-220 の行"
+       }
+      },
+      {
+       "name": "affectedCount",
+       "note": {
+        "ja": "無いこともある"
+       }
+      }
+     ]
+    },
+    {
+     "id": "EV-32",
+     "key": "newestNoticeDismissAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "NT-8",
+       "IN-4",
+       "SK-19"
+      ],
+      "note": {
+       "ja": "`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める"
+      }
+     },
+     "carries": []
+    },
+    {
+     "id": "EV-33",
+     "key": "noticeDismissPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "NT-8"
+      ],
+      "note": {
+       "ja": "1 つの通知の `OK` の入口を押して離した"
+      }
+     },
+     "carries": [
+      {
+       "name": "reason",
+       "note": {
+        "ja": "押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める"
+       }
+      }
+     ]
+    },
+    {
+     "id": "EV-34",
+     "key": "documentReplaced",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "WS-6",
+       "WS-7"
+      ],
+      "note": {
+       "ja": "`WS-6` の差し替えが済み、`WS-7` の配りが始まる"
+      }
+     },
+     "carries": []
+    },
+    {
+     "id": "EV-35",
+     "key": "changeDelivered",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "WS-7",
+       "AG-6"
+      ],
+      "note": {
+       "ja": "`WS-7` の配りが終わった"
+      }
+     },
+     "carries": [
+      {
+       "name": "silentWatchers",
+       "note": {
+        "ja": "答えを返さなかった配り先の数"
+       }
+      }
+     ]
+    }
+   ],
+   "transitions": [
+    {
+     "id": "TN-54",
+     "from": [
+      [
+       "notices.onScreen.none"
+      ]
+     ],
+     "event": "noticeRaised",
+     "guard": null,
+     "to": [
+      "notices.onScreen.standing"
+     ],
+     "effect": null,
+     "evidence": [
+      "FR-076",
+      "NT-8"
+     ],
+     "note": {
+      "ja": "1 枚"
+     }
+    },
+    {
+     "id": "TN-55",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "noticeRaised",
+     "guard": [
+      {
+       "name": "isSameReasonStanding"
+      }
+     ],
+     "to": "self",
+     "effect": null,
+     "evidence": [
+      "NT-3"
+     ],
+     "note": {
+      "ja": "その 1 枚の件数を増やし、いちばん新しい位置へ動かす"
+     }
+    },
+    {
+     "id": "TN-56",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "noticeRaised",
+     "guard": [
+      {
+       "name": "isSameReasonStanding",
+       "not": true
+      }
+     ],
+     "to": "self",
+     "effect": null,
+     "evidence": [
+      "NT-3",
+      "NT-8"
+     ],
+     "note": {
+      "ja": "いちばん新しいものとして足す。枚数に上限を置かない"
+     }
+    },
+    {
+     "id": "TN-57",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "newestNoticeDismissAsked",
+     "guard": [
+      {
+       "name": "isOnlyOneStanding"
+      }
+     ],
+     "to": [
+      "notices.onScreen.none"
+     ],
+     "effect": null,
+     "evidence": [
+      "NT-8"
+     ]
+    },
+    {
+     "id": "TN-58",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "newestNoticeDismissAsked",
+     "guard": [
+      {
+       "name": "isOnlyOneStanding",
+       "not": true
+      }
+     ],
+     "to": "self",
+     "effect": null,
+     "evidence": [
+      "NT-8"
+     ],
+     "note": {
+      "ja": "いちばん新しいものを除く"
+     }
+    },
+    {
+     "id": "TN-59",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "noticeDismissPressed",
+     "guard": [
+      {
+       "name": "leavesNone"
+      }
+     ],
+     "to": [
+      "notices.onScreen.none"
+     ],
+     "effect": null,
+     "evidence": [
+      "NT-8"
+     ]
+    },
+    {
+     "id": "TN-60",
+     "from": [
+      [
+       "notices.onScreen.standing"
+      ]
+     ],
+     "event": "noticeDismissPressed",
+     "guard": [
+      {
+       "name": "leavesSome"
+      }
+     ],
+     "to": "self",
+     "effect": null,
+     "evidence": [
+      "NT-8"
+     ],
+     "note": {
+      "ja": "押されたものを除く"
+     }
+    },
+    {
+     "id": "TN-61",
+     "from": [
+      [
+       "notices.delivery.idle"
+      ]
+     ],
+     "event": "documentReplaced",
+     "guard": null,
+     "to": [
+      "notices.delivery.delivering"
+     ],
+     "effect": null,
+     "evidence": [
+      "WS-2",
+      "WS-7"
+     ]
+    },
+    {
+     "id": "TN-62",
+     "from": [
+      [
+       "notices.delivery.delivering"
+      ]
+     ],
+     "event": "changeDelivered",
+     "guard": [
+      {
+       "name": "hasSilentWatcher",
+       "not": true
+      }
+     ],
+     "to": [
+      "notices.delivery.idle"
+     ],
+     "effect": null,
+     "evidence": [
+      "WS-7"
+     ]
+    },
+    {
+     "id": "TN-63",
+     "from": [
+      [
+       "notices.delivery.delivering"
+      ]
+     ],
+     "event": "changeDelivered",
+     "guard": [
+      {
+       "name": "hasSilentWatcher"
+      }
+     ],
+     "to": [
+      "notices.delivery.idle"
+     ],
+     "effect": {
+      "name": "raiseNotice",
+      "row": "RS-23"
+     },
+     "evidence": [
+      "RS-23",
+      "AG-6"
+     ]
+    }
+   ]
   }
  ]
 }

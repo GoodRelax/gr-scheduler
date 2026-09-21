@@ -70,7 +70,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 699 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 702 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |
@@ -85,7 +85,7 @@
 | `EN` | — | 入口を塗って示す状態 | 仕様書 | `T-237` | 5 |
 | `EP` | Export Part | 書き出す絵に描く UI パーツと、描かない UI パーツ | 仕様書 | `T-076` | 22 |
 | `ET` | Entity | エンティティ 1 つ | 仕様書 | `T-056` | 18 |
-| `EV` | EVent | 状態機械が受ける出来事 1 つ | 仕様書 | `T-281` | 30 |
+| `EV` | EVent | 状態機械が受ける出来事 1 つ | 仕様書 | `T-281` ／ `T-287` | 35 |
 | `EX` | Export | 書き出しの規約の条 | 仕様書 | `T-033` | 12 |
 | `EZ` | Easy | マニュアルを読まずに使えるようにする手立て | 仕様書 | `T-040` | 12 |
 | `FD` | Fade | フェードの形の場合分け | 仕様書 | `T-012a` | 9 |
@@ -174,7 +174,7 @@
 | `SH` | Shape | タスクの形状（`shapeKind`） | 仕様書 | `T-012` | 5 |
 | `SK` | Shortcut Key | ショートカットキーの割当 | 仕様書 | `T-036` | 27 |
 | `SL` | Selection | 選択の規則の条 | 仕様書 | `T-023c` | 10 |
-| `SM` | State Machine | 状態機械の状態 1 つ | 仕様書 | `T-280` | 34 |
+| `SM` | State Machine | 状態機械の状態 1 つ | 仕様書 | `T-280` ／ `T-286` | 39 |
 | `SO` | Scope | 製品の範囲（含むもの・含まないもの） | 仕様書 | `T-002` | 14 |
 | `SP` | — | パレットの形状を押したときの意味を、選択の状態ごとに定める条 | 仕様書 | —（`FR-083` の無題の表） | 4 |
 | `SS` | Shared Step | 状態機械の全領域が共有する 1 段の形の、公開された名前 1 つと、それが約束すること | 仕様書 | `T-284` | 6 |
@@ -182,7 +182,7 @@
 | `SU` | Structure Unit | 構造の単位（コンポーネント・モジュール・ユニット） | 仕様書 | `T-074` | 3 |
 | `TC` | Task Creation | タスクを作る手つきの規則の条 | 仕様書 | `T-239` | 12 |
 | `TM` | — | 目盛の段が刷るもの | 仕様書 | `T-238` | 4 |
-| `TN` | TransitioN | 状態機械の遷移 1 つ | 仕様書 | `T-282` | 53 |
+| `TN` | TransitioN | 状態機械の遷移 1 つ | 仕様書 | `T-282` ／ `T-288` | 63 |
 | `TP` | Template | 初期テンプレートの中身 | 仕様書 | `T-226` | 8 |
 | `TR` | Trade-off | 意図して払う代償と、その代わりに得るもの | 仕様書 | `T-073` | 3 |
 | `TS` | — | テストの系統 | 仕様書 | `T-218` | 6 |
@@ -190,7 +190,7 @@
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 61 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
-| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 40 行。写しとして申告済み） | `T-075` | 74 |
+| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 40 行。写しとして申告済み） | `T-075` | 75 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 18 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 9 |
 | `V` | — | ユースケースと、前プロジェクトの要望との対応 | 仕様書 | `T-011` | 16 |

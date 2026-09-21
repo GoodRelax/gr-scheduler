@@ -20,9 +20,11 @@ What it prints per region, with <Stem> the region's `typeStem`:
                             carried values typed through <Stem>EventCarried
   <Stem>EffectName          every effect name the transitions use
   <Stem>Transition          the row shape of the table below
-  <STEM>_INITIAL_CHILDREN   the kind entered below a composite state
+  <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
+                            printed for a region that nests no single union)
   <STEM>_INITIAL_AXES       the initial value of every axis
-  <STEM>_TRANSITIONS        the transition table (table T-282 for `screen`)
+  <STEM>_TRANSITIONS        the transition table (table T-282 for `screen`,
+                            table T-288 for `notices`)
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,
@@ -165,6 +167,10 @@ class Printer(object):
 
     def initial_children(self):
         region = self.region
+        # WHY: a region whose states nest no single union (`notices`) would get an
+        # empty table nobody reads, and noUnusedLocals refuses an unread constant.
+        if not region.kinds:
+            return []
         name = '%s_INITIAL_CHILDREN' % self.upper
         lines = ['const %s: {' % name]
         lines += ['  readonly %s: %s' % (quoted(k), self.union_name(k, None))

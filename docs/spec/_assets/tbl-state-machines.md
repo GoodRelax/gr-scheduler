@@ -334,3 +334,72 @@ stateDiagram-v2
     screen_tooltip_allowed --> screen_tooltip_dismissed : TN-52
     screen_tooltip_dismissed --> screen_tooltip_allowed : TN-53
 ```
+
+## 通知（`notices`）
+
+**表 T-286 — 通知の状態**
+
+| 行 ID | キー | 親 | 初期 | 運ぶ値 | 根拠 |
+| --- | --- | --- | --- | --- | --- |
+| SM-34 | `notices` | — | ○ | — | `FR-076` |
+| SM-35 | `notices.onScreen.none` | `notices` | ○ | — | `NT-8` ・ `IN-4` |
+| SM-36 | `notices.onScreen.standing` | `notices` | — | `standing`（出ている通知の列。古い順。1 つは理由と件数） | `FR-076` ・ `NT-3` ・ `NT-8` ・ `IN-4` ・ `SK-19` ・ `IR-3` |
+| SM-37 | `notices.delivery.idle` | `notices` | ○ | — | `WS-7` |
+| SM-38 | `notices.delivery.delivering` | `notices` | — | — | `WS-2` ・ `RS-9` ・ `CA-3` |
+
+**表 T-287 — 通知の出来事**
+
+| 行 ID | キー | どこから来るか | 運ぶ値 |
+| --- | --- | --- | --- |
+| EV-31 | `noticeRaised` | 副作用の結果（副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す）: `FR-076` ・ `NT-3` | `reason`（表 T-233 の `RS-` の行、または 表 T-220 の行） ／ `affectedCount`（無いこともある） |
+| EV-32 | `newestNoticeDismissAsked` | 入力（`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める）: `NT-8` ・ `IN-4` ・ `SK-19` | — |
+| EV-33 | `noticeDismissPressed` | 入力（1 つの通知の `OK` の入口を押して離した）: `NT-8` | `reason`（押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める） |
+| EV-34 | `documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — |
+| EV-35 | `changeDelivered` | 副作用の結果（`WS-7` の配りが終わった）: `WS-7` ・ `AG-6` | `silentWatchers`（答えを返さなかった配り先の数） |
+
+**表 T-288 — 通知の遷移**
+
+| 行 ID | 元 | 出来事 | ガード | 先 | 副作用 | 根拠 |
+| --- | --- | --- | --- | --- | --- | --- |
+| TN-54 | `notices.onScreen.none` | `noticeRaised`（`EV-31`） | — | `notices.onScreen.standing`（1 枚） | — | `FR-076` ・ `NT-8` |
+| TN-55 | `notices.onScreen.standing` | `noticeRaised`（`EV-31`） | `isSameReasonStanding` | 自己（その 1 枚の件数を増やし、いちばん新しい位置へ動かす） | — | `NT-3` |
+| TN-56 | `notices.onScreen.standing` | `noticeRaised`（`EV-31`） | not `isSameReasonStanding` | 自己（いちばん新しいものとして足す。枚数に上限を置かない） | — | `NT-3` ・ `NT-8` |
+| TN-57 | `notices.onScreen.standing` | `newestNoticeDismissAsked`（`EV-32`） | `isOnlyOneStanding` | `notices.onScreen.none` | — | `NT-8` |
+| TN-58 | `notices.onScreen.standing` | `newestNoticeDismissAsked`（`EV-32`） | not `isOnlyOneStanding` | 自己（いちばん新しいものを除く） | — | `NT-8` |
+| TN-59 | `notices.onScreen.standing` | `noticeDismissPressed`（`EV-33`） | `leavesNone` | `notices.onScreen.none` | — | `NT-8` |
+| TN-60 | `notices.onScreen.standing` | `noticeDismissPressed`（`EV-33`） | `leavesSome` | 自己（押されたものを除く） | — | `NT-8` |
+| TN-61 | `notices.delivery.idle` | `documentReplaced`（`EV-34`） | — | `notices.delivery.delivering` | — | `WS-2` ・ `WS-7` |
+| TN-62 | `notices.delivery.delivering` | `changeDelivered`（`EV-35`） | not `hasSilentWatcher` | `notices.delivery.idle` | — | `WS-7` |
+| TN-63 | `notices.delivery.delivering` | `changeDelivered`（`EV-35`） | `hasSilentWatcher` | `notices.delivery.idle` | `raiseNotice`（`RS-23`） | `RS-23` ・ `AG-6` |
+
+**図 F-029 — 通知の状態遷移**
+
+軸ごとに 1 つの図に分けて示す。軸どうしは直交する。  
+矢印のラベルは遷移の行 ID だけであり、出来事・ガード・副作用は 表 T-288 が持つ。  
+⚠️ 図は畳んである —— 同じ遷移が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に行 ID を書く）。  
+⭐ 遷移の全数は 表 T-288 が持つ。
+
+### F-029 の軸 `onScreen`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> notices_onScreen_none
+    notices_onScreen_none : none
+    notices_onScreen_standing : standing
+    notices_onScreen_none --> notices_onScreen_standing : TN-54
+    notices_onScreen_standing --> notices_onScreen_standing : TN-55, TN-56, TN-58, TN-60
+    notices_onScreen_standing --> notices_onScreen_none : TN-57, TN-59
+```
+
+### F-029 の軸 `delivery`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> notices_delivery_idle
+    notices_delivery_idle : idle
+    notices_delivery_delivering : delivering
+    notices_delivery_idle --> notices_delivery_delivering : TN-61
+    notices_delivery_delivering --> notices_delivery_idle : TN-62, TN-63
+```

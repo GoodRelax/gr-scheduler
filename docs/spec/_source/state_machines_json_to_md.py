@@ -26,7 +26,11 @@ What `load()` refuses (CR-436 section 3.1), on top of the schema:
   - a union without exactly one initial state;
   - a key that is neither `axis.kind` nor `kind` below its parent
     (decision 4 of CR-436), or a parent mixing the two readings;
-  - a duplicate row id, key or event, and an event no transition names.
+  - a duplicate row id, key or event, and an event no transition names;
+  - an event key two regions both hold (decision 12 of CR-440): the root
+    finds the region an event touches by its `type` (SS-5 of table T-284),
+    so one key in two regions leaves that lookup without one answer. An
+    effect name may repeat across regions -- the shell only runs it.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -260,6 +264,18 @@ def duplicates(values):
     return out
 
 
+def shared_event_keys(regions):
+    """One problem per event key that more than one region holds."""
+    owners = collections.OrderedDict()
+    for region in regions:
+        for event in region.events:
+            names = owners.setdefault(event['key'], [])
+            if region.name not in names:
+                names.append(region.name)
+    return ['event %s is held by more than one region (%s)' % (key, ', '.join(names))
+            for key, names in owners.items() if len(names) > 1]
+
+
 def load():
     """(regions, problems) -- the validated model, or the reasons it is not."""
     doc = json.load(io.open(SRC, encoding='utf-8'),
@@ -275,6 +291,7 @@ def load():
                 for c in [region.raw['figure']['id']]
                 + [t['id'] for t in region.raw['tables'].values()]]
     found.extend('table or figure %s appears twice' % d for d in duplicates(captions))
+    found.extend(shared_event_keys(regions))
     known = defined_ids()
     for region in regions:
         found.extend('state key %s appears twice' % d
