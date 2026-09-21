@@ -39,6 +39,13 @@ import {
   type ScreenValuesEffect,
   type ScreenValuesEvent,
 } from './screen-values'
+import {
+  emptySelectionValues,
+  stepSelectionValues,
+  type SelectionValues,
+  type SelectionValuesEffect,
+  type SelectionValuesEvent,
+} from './selection-values'
 import { unchanged, type Step } from './session-step'
 
 // TRAP: ScreenRenderer exports another ScreenSession until wave B2 of CR-436; import this one from here.
@@ -49,15 +56,17 @@ export interface ScreenSession {
   readonly gesture: GestureValues
   readonly fileFlow: FileFlowValues
   readonly fieldEntry: FieldEntryValues
+  readonly selection: SelectionValues
 }
 
-// see T-280, T-286, T-289, T-290, T-292
+// see T-280, T-286, T-289, T-290, T-292, T-293
 export type SessionEvent =
   | ScreenValuesEvent
   | NoticeValuesEvent
   | GestureValuesEvent
   | FileFlowValuesEvent
   | FieldEntryValuesEvent
+  | SelectionValuesEvent
 
 export type SessionEffect =
   | ScreenValuesEffect
@@ -65,14 +74,16 @@ export type SessionEffect =
   | GestureValuesEffect
   | FileFlowValuesEffect
   | FieldEntryValuesEffect
+  | SelectionValuesEffect
 
-// see T-280, T-286, T-289, T-290, T-292, SS-6
+// see T-280, T-286, T-289, T-290, T-292, T-293, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
   gesture: emptyGestureValues,
   fileFlow: emptyFileFlowValues,
   fieldEntry: emptyFieldEntryValues,
+  selection: emptySelectionValues,
 }
 
 // WHY: a Record per region fails to compile on a missing event; the rest are screen events.
@@ -119,6 +130,20 @@ const IS_FIELD_ENTRY_EVENT: { readonly [T in FieldEntryValuesEvent['type']]: tru
   choiceMoved: true,
 }
 
+const IS_SELECTION_EVENT: { readonly [T in SelectionValuesEvent['type']]: true } = {
+  objectsPicked: true,
+  emptyAreaClicked: true,
+  selectionEscapePressed: true,
+  selectionSettleKeyPressed: true,
+  selectionCleared: true,
+  selectionPruned: true,
+  createdTaskSelected: true,
+  rowsPicked: true,
+  createdRowSelected: true,
+  resourcesPicked: true,
+  copyTaken: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
@@ -137,6 +162,11 @@ function isFileFlowEvent(event: SessionEvent): event is FileFlowValuesEvent {
 /** @purity pure */
 function isFieldEntryEvent(event: SessionEvent): event is FieldEntryValuesEvent {
   return Object.hasOwn(IS_FIELD_ENTRY_EVENT, event.type)
+}
+
+/** @purity pure */
+function isSelectionEvent(event: SessionEvent): event is SelectionValuesEvent {
+  return Object.hasOwn(IS_SELECTION_EVENT, event.type)
 }
 
 // see SS-5, SF-3
@@ -163,5 +193,6 @@ export function advanceScreenSession(
   if (isGestureEvent(event)) return composed(session, 'gesture', stepGestureValues(session.gesture, event))
   if (isFileFlowEvent(event)) return composed(session, 'fileFlow', stepFileFlowValues(session.fileFlow, event))
   if (isFieldEntryEvent(event)) return composed(session, 'fieldEntry', stepFieldEntryValues(session.fieldEntry, event))
+  if (isSelectionEvent(event)) return composed(session, 'selection', stepSelectionValues(session.selection, event))
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

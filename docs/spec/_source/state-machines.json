@@ -4355,6 +4355,476 @@
      }
     }
    ]
+  },
+  {
+   "region": "selection",
+   "name": {
+    "ja": "選択"
+   },
+   "unit": "src/use-case/advance-screen-session/selection-values.ts",
+   "typeStem": "SelectionValues",
+   "table": {
+    "id": "T-293",
+    "caption": {
+     "ja": "選択の状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-039",
+    "caption": {
+     "ja": "選択の状態遷移"
+    }
+   },
+   "root": {
+    "carries": [
+     {
+      "name": "chosenRows",
+      "rows": [
+       "FR-085"
+      ]
+     },
+     {
+      "name": "chosenResources",
+      "rows": [
+       "FR-099",
+       "AS-6"
+      ]
+     },
+     {
+      "name": "copiedForPaste",
+      "rows": [
+       "FR-033"
+      ],
+      "note": {
+       "ja": "無いこともある"
+      }
+     }
+    ],
+    "evidence": [
+     "FR-081",
+     "FR-085",
+     "FR-099",
+     "FR-033",
+     "UN-9"
+    ],
+    "transitions": {
+     "rowsPicked": {
+      "evidence": [
+       "FR-085",
+       "FR-042"
+      ],
+      "note": {
+       "ja": "`chosenRows` を書き換える"
+      }
+     },
+     "createdRowSelected": {
+      "evidence": [
+       "HF-14",
+       "FR-085"
+      ],
+      "note": {
+       "ja": "`chosenRows` を作った行 1 つにする"
+      }
+     },
+     "resourcesPicked": {
+      "evidence": [
+       "FR-099",
+       "AS-6"
+      ],
+      "note": {
+       "ja": "`chosenResources` を書き換える"
+      }
+     },
+     "copyTaken": {
+      "evidence": [
+       "FR-033",
+       "SK-4"
+      ],
+      "note": {
+       "ja": "`copiedForPaste` を書き換える"
+      }
+     }
+    }
+   },
+   "events": [
+    {
+     "key": "objectsPicked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SL-2",
+       "SL-3",
+       "SL-4",
+       "SK-2",
+       "SL-7a"
+      ],
+      "note": {
+       "ja": "対象を選ぶ押下・範囲・`Shift` での増減・全選択・端のドラッグで絞ること。新しい選択は呼び手（入力の翻訳係）が組み、値が変わったときだけ送る"
+      }
+     },
+     "carries": [
+      {
+       "name": "pickedObjects",
+       "rows": [
+        "SL-1",
+        "SL-7b"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "emptyAreaClicked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "MK-11",
+       "SL-6"
+      ],
+      "note": {
+       "ja": "何にも当たらない場所での素の左クリック（構えなし）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "selectionEscapePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IN-4"
+      ],
+      "note": {
+       "ja": "`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る"
+      }
+     },
+     "carries": [
+      {
+       "name": "rung",
+       "note": {
+        "ja": "消費する `IN-4` の段の語。呼び手が詰める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "selectionSettleKeyPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SK-19"
+      ],
+      "note": {
+       "ja": "`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "selectionCleared",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-091"
+      ],
+      "note": {
+       "ja": "画面の値の副作用 `clearSelection` の結果"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "selectionPruned",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-081",
+       "UN-9"
+      ],
+      "note": {
+       "ja": "書き込みが着地し、文書に無くなった対象を刈った。表示の切り替えでの刈りは書かない"
+      }
+     },
+     "carries": [
+      {
+       "name": "remainingObjects"
+      }
+     ]
+    },
+    {
+     "key": "createdTaskSelected",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-001",
+       "FR-091",
+       "TC-9"
+      ],
+      "note": {
+       "ja": "作る書き込みが着地し、作ったタスクが文書に在る"
+      }
+     },
+     "carries": [
+      {
+       "name": "createdTaskUid",
+       "rows": [
+        "TC-9"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "rowsPicked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FR-085",
+       "FR-042"
+      ],
+      "note": {
+       "ja": "行見出しパネルで行を選ぶ・増減する"
+      }
+     },
+     "carries": [
+      {
+       "name": "chosenRows"
+      }
+     ]
+    },
+    {
+     "key": "createdRowSelected",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "HF-14"
+      ],
+      "note": {
+       "ja": "行を足す書き込みが着地し、足した行が文書に在る"
+      }
+     },
+     "carries": [
+      {
+       "name": "createdGroupId"
+      }
+     ]
+    },
+    {
+     "key": "resourcesPicked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FR-099",
+       "AS-6"
+      ],
+      "note": {
+       "ja": "担当者の一覧で選ぶ・すべて選ぶ・すべて解く・増減する"
+      }
+     },
+     "carries": [
+      {
+       "name": "chosenResources"
+      }
+     ]
+    },
+    {
+     "key": "copyTaken",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SK-4",
+       "FR-033"
+      ],
+      "note": {
+       "ja": "写せる選び方のときだけ呼び手が送る。写せないときは `RS-27` で断り、出来事を作らない"
+      }
+     },
+     "carries": [
+      {
+       "name": "copiedForPaste"
+      }
+     ]
+    }
+   ],
+   "machines": [
+    {
+     "name": "selectionStateMachine",
+     "states": [
+      {
+       "key": "nothingSelected",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "SP-1",
+        "MK-11",
+        "SL-6"
+       ]
+      },
+      {
+       "key": "objectsSelected",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "selectedObjects",
+         "rows": [
+          "SL-1",
+          "SL-7b"
+         ]
+        }
+       ],
+       "evidence": [
+        "SP-2",
+        "SP-3",
+        "SL-1",
+        "IN-4"
+       ]
+      }
+     ],
+     "transitions": {
+      "objectsPicked": {
+       "nothingSelected": {
+        "to": "objectsSelected",
+        "guard": [
+         {
+          "name": "hasPickedObjects"
+         }
+        ],
+        "evidence": [
+         "SL-2",
+         "SL-3",
+         "SL-4",
+         "SK-2"
+        ]
+       },
+       "objectsSelected": [
+        {
+         "to": "objectsSelected",
+         "guard": [
+          {
+           "name": "hasPickedObjects"
+          }
+         ],
+         "evidence": [
+          "SL-2",
+          "SL-3",
+          "SL-4",
+          "SK-2",
+          "SL-7a"
+         ],
+         "note": {
+          "ja": "`selectedObjects` を書き換える"
+         }
+        },
+        {
+         "to": "nothingSelected",
+         "guard": [
+          {
+           "name": "hasPickedObjects",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "SL-3",
+          "SL-4"
+         ]
+        }
+       ]
+      },
+      "emptyAreaClicked": {
+       "objectsSelected": {
+        "to": "nothingSelected",
+        "evidence": [
+         "MK-11",
+         "SL-6"
+        ]
+       }
+      },
+      "selectionEscapePressed": {
+       "objectsSelected": {
+        "to": "nothingSelected",
+        "guard": [
+         {
+          "name": "isRungSelection"
+         }
+        ],
+        "evidence": [
+         "IN-4"
+        ]
+       }
+      },
+      "selectionSettleKeyPressed": {
+       "objectsSelected": {
+        "to": "nothingSelected",
+        "evidence": [
+         "SK-19"
+        ]
+       }
+      },
+      "selectionCleared": {
+       "objectsSelected": {
+        "to": "nothingSelected",
+        "evidence": [
+         "FR-091"
+        ]
+       }
+      },
+      "selectionPruned": {
+       "objectsSelected": [
+        {
+         "to": "objectsSelected",
+         "guard": [
+          {
+           "name": "hasRemainingObjects"
+          }
+         ],
+         "evidence": [
+          "FR-081",
+          "UN-9"
+         ],
+         "note": {
+          "ja": "`selectedObjects` を書き換える"
+         }
+        },
+        {
+         "to": "nothingSelected",
+         "guard": [
+          {
+           "name": "hasRemainingObjects",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-081",
+          "UN-9"
+         ]
+        }
+       ]
+      },
+      "createdTaskSelected": {
+       "nothingSelected": {
+        "to": "objectsSelected",
+        "evidence": [
+         "FR-001",
+         "FR-091"
+        ],
+        "note": {
+         "ja": "`selectedObjects` は作ったタスク 1 つ"
+        }
+       },
+       "objectsSelected": {
+        "to": "objectsSelected",
+        "evidence": [
+         "FR-001",
+         "FR-091"
+        ],
+        "note": {
+         "ja": "`selectedObjects` を作ったタスク 1 つに置き換える"
+        }
+       }
+      }
+     }
+    }
+   ]
   }
  ]
 }

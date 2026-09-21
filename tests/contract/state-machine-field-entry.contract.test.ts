@@ -259,6 +259,8 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
     unreadColumns: [],
     droppedTaskNames: [],
     openedFileName: null,
+    pickedObjects: { items: [{ kind: 'task', uid: 1 }], ordered: true },
+    remainingObjects: { items: [], ordered: true },
   }
   const busy = withEntry({
     createdTaskNamingState: { kind: 'namingCreatedTask', createdTaskUid: NAMED_UID },

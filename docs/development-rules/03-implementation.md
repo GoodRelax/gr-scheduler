@@ -97,6 +97,8 @@ SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `D
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
 SCREEN_VALUES_TRANSITIONS            画面の値の状態遷移表の升を 1 つずつ並べたもの（表 T-280。同じ生成器）
+SELECTION_VALUES_INITIAL_AXES        選択の状態機械の初期の種類（表 T-293 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+SELECTION_VALUES_TRANSITIONS         選択の状態遷移表の升を 1 つずつ並べたもの（表 T-293。同じ生成器）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）

@@ -795,3 +795,76 @@ stateDiagram-v2
 - `fieldFocusWantStateMachine.fieldFocusWanted` —— 運ぶ値 `fieldRow`（`PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27`）。根拠 `IN-5a` ・ `IN-5b` ・ `MK-13` ・ `HF-14` ・ `FR-091` ・ `FR-035`
 
 表に無い出来事は `fieldFocusWantStateMachine` を変えない（同じ参照）。
+
+## 選択（`selection`）
+
+**表 T-293 — 選択の状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+### 選択の出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `selection/objectsPicked` | 入力（対象を選ぶ押下・範囲・`Shift` での増減・全選択・端のドラッグで絞ること。新しい選択は呼び手（入力の翻訳係）が組み、値が変わったときだけ送る）: `SL-2` ・ `SL-3` ・ `SL-4` ・ `SK-2` ・ `SL-7a` | `pickedObjects`（`SL-1` ・ `SL-7b`） | `selectionStateMachine` |
+| `selection/emptyAreaClicked` | 入力（何にも当たらない場所での素の左クリック（構えなし））: `MK-11` ・ `SL-6` | — | `selectionStateMachine` |
+| `selection/selectionEscapePressed` | 入力（`Esc`。画面の値の `escapePressed` と同じ押下から呼び手が作る）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `selectionStateMachine` |
+| `selection/selectionSettleKeyPressed` | 入力（`Enter`。通知も確定していないその場の編集も無く、プロパティパネルも出していないときだけ呼び手が送る）: `SK-19` | — | `selectionStateMachine` |
+| `selection/selectionCleared` | 副作用の結果（画面の値の副作用 `clearSelection` の結果）: `FR-091` | — | `selectionStateMachine` |
+| `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。表示の切り替えでの刈りは書かない）: `FR-081` ・ `UN-9` | `remainingObjects` | `selectionStateMachine` |
+| `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
+| `selection/rowsPicked` | 入力（行見出しパネルで行を選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenRows` | 根 |
+| `selection/createdRowSelected` | 副作用の結果（行を足す書き込みが着地し、足した行が文書に在る）: `HF-14` | `createdGroupId` | 根 |
+| `selection/resourcesPicked` | 入力（担当者の一覧で選ぶ・すべて選ぶ・すべて解く・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
+| `selection/copyTaken` | 入力（写せる選び方のときだけ呼び手が送る。写せないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |
+
+### 根 `selection` の値
+
+運ぶ値: `chosenRows`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある）。  
+根拠: `FR-081` ・ `FR-085` ・ `FR-099` ・ `FR-033` ・ `UN-9`。
+
+| 出来事 | `selection` |
+| --- | --- |
+| `selection/rowsPicked` | → 自己（`chosenRows` を書き換える） |
+| `selection/createdRowSelected` | → 自己（`chosenRows` を作った行 1 つにする） |
+| `selection/resourcesPicked` | → 自己（`chosenResources` を書き換える） |
+| `selection/copyTaken` | → 自己（`copiedForPaste` を書き換える） |
+
+**図 F-039 — 選択の状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-293 の状態遷移表が持つ。
+
+### 状態機械 `selectionStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> selectionStateMachine_nothingSelected
+    selectionStateMachine_nothingSelected : nothingSelected
+    selectionStateMachine_objectsSelected : objectsSelected
+    selectionStateMachine_nothingSelected --> selectionStateMachine_objectsSelected : objectsPicked, createdTaskSelected
+    selectionStateMachine_objectsSelected --> selectionStateMachine_objectsSelected : objectsPicked, selectionPruned, createdTaskSelected
+    selectionStateMachine_objectsSelected --> selectionStateMachine_nothingSelected : objectsPicked, emptyAreaClicked, selectionEscapePressed, selectionSettleKeyPressed, selectionCleared, selectionPruned
+```
+
+| 出来事 | `nothingSelected` | `objectsSelected` |
+| --- | --- | --- |
+| `selection/objectsPicked` | → `objectsSelected` [`hasPickedObjects`]<br>それ以外 → — | → 自己 [`hasPickedObjects`]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasPickedObjects`] |
+| `selection/emptyAreaClicked` | — | → `nothingSelected` |
+| `selection/selectionEscapePressed` | — | → `nothingSelected` [`isRungSelection`]<br>それ以外 → — |
+| `selection/selectionSettleKeyPressed` | — | → `nothingSelected` |
+| `selection/selectionCleared` | — | → `nothingSelected` |
+| `selection/selectionPruned` | — | → 自己 [`hasRemainingObjects`]（`selectedObjects` を書き換える）<br>→ `nothingSelected` [not `hasRemainingObjects`] |
+| `selection/createdTaskSelected` | → `objectsSelected`（`selectedObjects` は作ったタスク 1 つ） | → 自己（`selectedObjects` を作ったタスク 1 つに置き換える） |
+
+- `selectionStateMachine.nothingSelected` —— 初期。根拠 `SP-1` ・ `MK-11` ・ `SL-6`
+- `selectionStateMachine.objectsSelected` —— 運ぶ値 `selectedObjects`（`SL-1` ・ `SL-7b`）。根拠 `SP-2` ・ `SP-3` ・ `SL-1` ・ `IN-4`
+
+表に無い出来事は `selectionStateMachine` を変えない（同じ参照）。

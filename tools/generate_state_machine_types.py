@@ -22,7 +22,8 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             -> armModeState)
   <Stem>Event               one member per event (`type` = the event key),
                             carried values typed through <Stem>EventCarried
-  <Stem>EffectName          every effect name the tables use
+  <Stem>EffectName          every effect name the tables use (`never` when
+                            they use none)
   <Stem>Transition          the row shape of the table below: one branch of
                             one cell (state x event)
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
@@ -31,8 +32,9 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
   <STEM>_TRANSITIONS        every branch of the region's tables (table T-280
                             for `screen`, table T-286 for `notices`, table
                             T-289 for `gesture`, table T-290 for `fileFlow`,
-                            table T-292 for `fieldEntry`), the root's first,
-                            then each machine's in manuscript order
+                            table T-292 for `fieldEntry`, table T-293 for
+                            `selection`), the root's first, then each
+                            machine's in manuscript order
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,
@@ -203,6 +205,9 @@ class Printer(object):
         for _state, _event, branch, _to in self.rows():
             if branch.get('effect') and branch['effect'] not in names:
                 names.append(branch['effect'])
+        # A region whose tables name no effect (table T-293) has none to name.
+        if not names:
+            return ['export type %sEffectName = never' % self.stem, '']
         lines = ['export type %sEffectName =' % self.stem]
         lines += ['  | %s' % quoted(n) for n in names]
         return lines + ['']
