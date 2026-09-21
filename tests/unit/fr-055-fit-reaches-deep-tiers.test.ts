@@ -539,13 +539,15 @@ describe('the premises -- tiers 4 and 5 exist, stand above FR-094 floor, and are
     expect(MAX_GROUP_DEPTH_CEILING).toBeGreaterThanOrEqual(MAX_GROUP_DEPTH)
   })
 
-  it('puts the rungs of tiers 4 and 5 ABOVE the floor and inside S-55', () => {
-    // ⭐ This is why the deep tiers need pass 2 of the rule printed after table
-    // T-068: below FR-094's floor the drawing does not move with `zoomY`, and
-    // these two rungs are not below it. S-88 being over one is what orders them.
+  it('puts the rung of tier 5 ABOVE the floor, tier 4 under it, and both inside S-55', () => {
+    // ⭐ This is why tier 5 needs pass 2 of the rule printed after table T-068:
+    // below FR-094's floor the drawing does not move with `zoomY`, and its rung
+    // is not below it. Since S-88 became 1.5, tier 4's rung (0.72) is.
+    // S-88 being over one is what orders them.
     expect(RATIO).toBeGreaterThan(1) // S-88
     expect(thresholdOf(3)).toBeLessThan(FLOOR_BINDS_BELOW)
-    expect(thresholdOf(4)).toBeGreaterThan(FLOOR_BINDS_BELOW)
+    expect(thresholdOf(4)).toBeLessThan(FLOOR_BINDS_BELOW)
+    expect(thresholdOf(5)).toBeGreaterThan(FLOOR_BINDS_BELOW)
     expect(thresholdOf(5)).toBeGreaterThan(thresholdOf(4))
     // ...and FR-016 can still hold them: S-55, published for this layer as S-98.
     expect(thresholdOf(MAX_GROUP_DEPTH)).toBeLessThanOrEqual(NOT_STORED_ZOOM_BOUNDS['S-98'])
@@ -677,7 +679,7 @@ describe('FR-055 -- the fit chooses tiers 4 and 5, not only 1 to 3', () => {
 describe('FR-055 -- the zoom never falls below the rung of the tier that was chosen', () => {
   it.each(EVERY_SHAPE)('stands at or above its chosen tier rung (%s)', (_name, shape) => {
     // FR-055 (MUST NOT): do not take `zoomY` below the smallest zoom that draws
-    // the chosen tier. For tiers 4 and 5 that zoom is ABOVE FR-094's floor, so
+    // the chosen tier. For tier 5 that zoom is ABOVE FR-094's floor, so
     // the fit has to RAISE the zoom to honour its own choice -- which is the
     // half of the rule a shrink-to-fit implementation cannot satisfy.
     const owed = depthTheFitOwes(shape)
@@ -697,7 +699,9 @@ describe('FR-055 -- the zoom never falls below the rung of the tier that was cho
     // Row Area that would hold far more of them at FR-094's floor, and FR-055's
     // MUST NOT still requires the zoom to sit on the chosen tier's own rung.
     expect(fittedZoomY(scheduleOf(FIVE_DEEP_CHAIN))).toBeGreaterThan(FLOOR_BINDS_BELOW)
-    expect(fittedZoomY(scheduleOf(FOUR_IS_DEEPEST))).toBeGreaterThan(FLOOR_BINDS_BELOW)
+    // ...while tier 4's rung stands under the floor (S-88 = 1.5), so its fit has nothing to raise.
+    expect(fittedZoomY(scheduleOf(FOUR_IS_DEEPEST))).toBeGreaterThanOrEqual(thresholdOf(4))
+    expect(thresholdOf(4)).toBeLessThan(FLOOR_BINDS_BELOW)
   })
 
   it.each(EVERY_SHAPE)('stays inside S-75 / S-76 (FR-016, with S-54 and S-55) (%s)', (

@@ -112,10 +112,10 @@ describe('CR-404 -- the manuscript these cases are driven by', () => {
     expect(taskGroup.properties.isKeptOpen).toEqual({ type: 'boolean', default: false })
   })
 
-  it('the ladder premises: depth 3 at 0.6, depth 4 at 1.125, depth 2 at 0.32 (S-87 / S-88)', () => {
+  it('the ladder premises: depth 3 at 0.48, depth 4 at 0.72, depth 2 at 0.32 (S-87 / S-88)', () => {
     expect(thresholdOf(2)).toBeCloseTo(0.32, 9)
-    expect(thresholdOf(3)).toBeCloseTo(0.6, 9)
-    expect(thresholdOf(4)).toBeCloseTo(1.125, 9)
+    expect(thresholdOf(3)).toBeCloseTo(0.48, 9)
+    expect(thresholdOf(4)).toBeCloseTo(0.72, 9)
   })
 })
 
@@ -322,8 +322,8 @@ describe('CR-404 -- premises of the fixture', () => {
     expect(report.errors).toEqual([])
   })
 
-  it('with no mark, the depth rule of FR-018 alone decides what is drawn (0.8: depth <= 3)', () => {
-    const doc = smallDocument({ zoomY: 0.8 })
+  it('with no mark, the depth rule of FR-018 alone decides what is drawn (0.6: depth <= 3)', () => {
+    const doc = smallDocument({ zoomY: 0.6 })
     const layout = layoutOf(doc)
     expect(named(layout)).toEqual(named([A, B, R, S, B2, B2a, Z, Z1]))
   })
@@ -336,7 +336,7 @@ function layoutOf(doc: Record<string, any>, env = SCREEN): string[] {
 
 describe('FR-018 exemption -- a kept-open row, its ancestors and its direct children are drawn', () => {
   it('claim 1 (MUST): between the depth-3 and depth-4 thresholds, R marked draws C1 and C2 but not the grandchild G1', () => {
-    const zoomY = 0.8
+    const zoomY = 0.6
     expect(zoomY).toBeLessThan(thresholdOf(4))
     expect(zoomY).toBeGreaterThanOrEqual(thresholdOf(3))
     const drawn = layoutOf(smallDocument({ zoomY, kept: [R] }))
@@ -417,8 +417,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
 
   it('[v] draws the children, answers no RS-30, saves the mark through JSON, keeps them while zooming down, and [^^] gives the depth rule back', () => {
     const built = stage(templateDocument())
-    built.key('-', { alt: true })
-    built.key('-', { alt: true })
+    for (let step = 0; step < 60 && built.zoomY() >= thresholdOf(4); step++) built.key('-', { alt: true })
     const kids = childrenOf(target.id).map((one: any) => one.id)
     const grandKids = kids.flatMap((id: string) => childrenOf(id).map((one: any) => one.id))
     expect(built.zoomY(), 'premise: below the depth-4 threshold').toBeLessThan(thresholdOf(4))
@@ -459,8 +458,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
 
   it('[^] (hide, KO-4) on the kept-open row releases the mark as well', () => {
     const built = stage(templateDocument())
-    built.key('-', { alt: true })
-    built.key('-', { alt: true })
+    for (let step = 0; step < 60 && built.zoomY() >= thresholdOf(4); step++) built.key('-', { alt: true })
     built.press(OPEN_ONE_LEVEL, target.id)
     expect(markOf(built.groups(), target.id)).toBe(true)
     built.press(HIDE, target.id)
@@ -471,7 +469,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
 
 describe('HF-13 -- [v] is drawn armed exactly when pressing it does something', () => {
   it('claim 5: a row whose children fell to zoom is armed; the press writes the mark in one step, draws them, and Ctrl+Z undoes both', () => {
-    const built = stage(smallDocument({ zoomY: 0.8 }))
+    const built = stage(smallDocument({ zoomY: 0.6 }))
     expect(built.drawn()).not.toContain(C1)
     expect(built.title(R).canOpenOneLevel).toBe(true)
     built.press(OPEN_ONE_LEVEL, R)

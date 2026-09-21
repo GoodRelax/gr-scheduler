@@ -48,16 +48,15 @@ export interface OverlaysInput {
   >
   readonly selectedBoxes: ReadonlySet<Schedule['highlightBoxes'][number]['id']>
   readonly selectedComments: ReadonlySet<Schedule['commentBoxes'][number]['id']>
+  readonly dualCursorSpanWord: string | null
 }
 
 export interface OverlayParts {
   readonly linkParts: readonly string[]
   readonly annotationParts: readonly string[]
   readonly selectionParts: readonly string[]
+  readonly rulerParts: readonly string[]
 }
-
-// STOP: spec does not decide an annotation's default colour; this hue is S-159's, which FR-019 avoids. Looked in FR-019, T-236 @provisional PND-1
-const ANNOTATION_COLOUR = '#b45309'
 
 const WATERMARK_ROLE = 'Watermark'
 
@@ -98,17 +97,74 @@ export function watermarkSvg(
   )
 }
 
+// see DC-3, FR-038
+// WHY: the lines stand on day boundaries, so their distance over one day's width is a whole number of calendar days.
+// WHY: DC-3 names no size or ink for the count; the ruler's own are taken, so it reads as part of the band.
+/** @purity pure */
+function dualCursorSpanSvg(
+  drawnX: readonly number[],
+  layout: ScheduleLayout,
+  band: ScreenRect,
+  settings: DocumentSettings,
+  themed: (rowId: string) => string,
+  word: string | null,
+): readonly string[] {
+  const [first, second] = drawnX
+  if (word === null || first === undefined || second === undefined) return []
+  if (!(layout.pxPerDay > 0) || band.width <= 0 || band.height <= 0) return []
+  const days = Math.round(Math.abs(second - first) / layout.pxPerDay)
+  return [
+    `<text x="${rounded((first + second) / 2)}" y="${rounded(band.y + band.height / 2)}"` +
+      ` font-size="${rounded(settings.rulerFont)}"${typefaceAttribute()} fill="${themed('S-147')}"` +
+      ` text-anchor="middle" dominant-baseline="central" xml:space="preserve"` +
+      `${figureKey('dual-cursor-span')}>${escaped(word.replace('{n}', String(days)))}</text>`,
+  ]
+}
+
+// see CU-2, DC-2, DC-3, DC-8
+/** @purity pure */
+function dualCursorParts(input: OverlaysInput): {
+  readonly lines: readonly string[]
+  readonly span: readonly string[]
+} {
+  const { geometry, settings, layout, regions, themed, following, dualCursorSpanWord } = input
+  const cursors = geometry.dualCursor
+  if (cursors === null) return { lines: [], span: [] }
+  const colour = themed('S-195')
+  const followedDay =
+    following === null || following.x === null ? null : dateAtX(layout, following.x)
+  const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
+  const lines: string[] = []
+  const drawnX: number[] = []
+  for (const side of ['date1', 'date2'] as const) {
+    const isFollowing = following !== null && following.side === side
+    const standing = side === 'date1' ? cursors.date1X : cursors.date2X
+    const x = isFollowing && followedX !== null ? followedX : standing
+    drawnX.push(x)
+    const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
+    lines.push(
+      `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
+        ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
+        ` stroke="${colour}" stroke-width="${rounded(width)}"` +
+        `${figureKey(`dual-cursor-${side}`)}/>`,
+    )
+  }
+  const band = regions.timeRuler
+  return {
+    lines,
+    span: dualCursorSpanSvg(drawnX, layout, band, settings, themed, dualCursorSpanWord),
+  }
+}
+
 /** @purity pure */
 export function overlayParts(input: OverlaysInput): OverlayParts {
   const {
     geometry,
     settings,
-    layout,
     regions,
     themed,
     drawsOperationState,
     pointer,
-    following,
     selectedStatusLine,
     strokeOfBox,
     selectedBoxes,
@@ -117,6 +173,8 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const linkParts: string[] = []
   const annotationParts: string[] = []
   const selectionParts: string[] = []
+  // STOP: spec does not decide an annotation's default colour; this hue is S-159's, which FR-019 avoids. Looked in FR-019, T-236 @provisional PND-1
+  const annotationColour = themed('S-312')
 
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
     linkParts.push(
@@ -139,25 +197,8 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     )
   }
 
-  const cursors = geometry.dualCursor
-  if (cursors !== null) {
-    const colour = themed('S-195')
-    const followedDay =
-      following === null || following.x === null ? null : dateAtX(layout, following.x)
-    const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
-    for (const side of ['date1', 'date2'] as const) {
-      const isFollowing = following !== null && following.side === side
-      const standing = side === 'date1' ? cursors.date1X : cursors.date2X
-      const x = isFollowing && followedX !== null ? followedX : standing
-      const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
-      linkParts.push(
-        `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
-          ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
-          ` stroke="${colour}" stroke-width="${rounded(width)}"` +
-          `${figureKey(`dual-cursor-${side}`)}/>`,
-      )
-    }
-  }
+  const cursorParts = dualCursorParts(input)
+  linkParts.push(...cursorParts.lines)
 
   if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
@@ -199,7 +240,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
       `<rect x="${rounded(box.box.x)}" y="${rounded(box.box.y)}"` +
         ` width="${rounded(box.box.width)}" height="${rounded(box.box.height)}"` +
         rounding +
-        ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
+        ` fill="none" stroke="${strokeOfBox.get(box.id) ?? annotationColour}"` +
         ` stroke-width="1"${figureKey(`box-${box.id}`)}/>`,
     )
     if (selectedBoxes.has(box.id)) {
@@ -213,7 +254,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     annotationParts.push(
       `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
         ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
-        ` stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        ` stroke="${annotationColour}" stroke-width="1"` +
         `${figureKey(`comment-${box.id}-leader`)}/>`,
     )
     // STOP: spec does not decide the comment body's ground and ink; here S-146 and S-147. Looked in T-236, NFR-007
@@ -221,7 +262,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     annotationParts.push(
       `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
         ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
-        ` fill="${themed('S-146')}" stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        ` fill="${themed('S-146')}" stroke="${annotationColour}" stroke-width="1"` +
         `${figureKey(`comment-${box.id}`)}/>`,
     )
     for (const [index, line] of box.lines.entries()) {
@@ -241,5 +282,5 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
       )
     }
   }
-  return { linkParts, annotationParts, selectionParts }
+  return { linkParts, annotationParts, selectionParts, rulerParts: cursorParts.span }
 }
