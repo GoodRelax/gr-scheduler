@@ -707,6 +707,17 @@ const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
+const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
+// see FR-100, T-230, T-290
+// WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
+const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
+  'RD-1': DOCUMENT_EDIT_LANDED,
+  'RD-2': DOCUMENT_EDIT_LANDED,
+  'RD-3': null,
+  'RD-4': null,
+  'RD-6': { type: 'startupDocumentHeld' },
+  'RD-7': { type: 'newDocumentLanded' },
+}
 const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
 const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
 const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
@@ -2152,7 +2163,6 @@ export function frameLoop(
       }
     | null = null
   let fileSavedAt: string | null = null
-  let hasUnsavedEdits = false
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
   let selectedGroupIds: readonly string[] = []
@@ -3374,7 +3384,7 @@ export function frameLoop(
       audience,
     )
     if (outcome.accepted) {
-      hasUnsavedEdits = true
+      sendToSession(DOCUMENT_EDIT_LANDED, frame)
       const recounted = outcome.report.recountedTaskUids.length
       if (recounted > 0) raiseNotice(RECOUNTED_PERCENT_COMPLETE_REASON, recounted)
       return
@@ -3400,7 +3410,8 @@ export function frameLoop(
     if (outcome.accepted) {
       // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
       previewDocument = null
-      hasUnsavedEdits = call.row !== 'RD-4' && call.row !== 'RD-6' && call.row !== 'RD-7'
+      const landing = LANDING_OF_REPLACEMENT_ROW[call.row]
+      if (landing !== null) sendToSession(landing, values)
       if (call.row === 'RD-4') fromStartupTemplate = false
       if (call.row === 'RD-7') fromStartupTemplate = true
       // TRAP: the rows that make it another document, or an arriving document is drawn at the
@@ -3720,7 +3731,6 @@ export function frameLoop(
       const openedFileName = saving.openedFile.kind === 'none' ? null : saving.openedFile.fileName
       sendFromFlow({ type: 'documentFileSaved', openedFileName })
       fileSavedAt = readInstantOfWrite()
-      hasUnsavedEdits = false
       return
     }
     raiseFileFault(saving.fault)
@@ -4530,7 +4540,7 @@ export function frameLoop(
     // see FR-100
     /** @purity semi-pure-b */
     hasUnsavedEdits(): boolean {
-      return hasUnsavedEdits
+      return session.fileFlow.unsavedEditsState.kind === 'editsUnsaved'
     },
     /** @purity non-pure */
     holdDocument(call: HeldDocumentCall): void {
