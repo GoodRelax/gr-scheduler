@@ -4039,6 +4039,322 @@
      }
     }
    ]
+  },
+  {
+   "region": "fieldEntry",
+   "name": {
+    "ja": "名前付けと入力欄"
+   },
+   "unit": "src/use-case/advance-screen-session/field-entry-values.ts",
+   "typeStem": "FieldEntryValues",
+   "table": {
+    "id": "T-292",
+    "caption": {
+     "ja": "名前付けと入力欄の状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-038",
+    "caption": {
+     "ja": "名前付けと入力欄の状態遷移"
+    }
+   },
+   "root": {
+    "carries": [],
+    "evidence": [
+     "FR-091",
+     "IN-5b"
+    ],
+    "transitions": {
+     "creationLanded": {
+      "guard": [
+       {
+        "name": "isCreatedTask",
+        "not": true
+       }
+      ],
+      "effect": "bringCreatedRowIntoSight",
+      "evidence": [
+       "HF-17"
+      ],
+      "note": {
+       "ja": "足した行が描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる"
+      }
+     }
+    }
+   },
+   "events": [
+    {
+     "key": "fieldFocusAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "MK-13",
+       "FR-035",
+       "FR-097"
+      ],
+      "note": {
+       "ja": "欄に焦点を置くことを要求が名指した押下（名称・行名・担当・注記の本文・文書名）"
+      }
+     },
+     "carries": [
+      {
+       "name": "fieldRow",
+       "rows": [
+        "PR-1",
+        "AT-53",
+        "PR-16",
+        "PR-21",
+        "U-27"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "creationLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "TC-9",
+       "FR-091",
+       "HF-14",
+       "HF-17"
+      ],
+      "note": {
+       "ja": "作る書き込みが着地し、作ったものが文書に在る"
+      }
+     },
+     "carries": [
+      {
+       "name": "created",
+       "note": {
+        "ja": "作ったタスクの UID か、足した行の ID"
+       }
+      }
+     ]
+    },
+    {
+     "key": "fieldFocusLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "IN-5b"
+      ],
+      "note": {
+       "ja": "描いたあとに置いた焦点が、求めた欄に入った（宿主の答え）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "fieldFocusWithdrawn",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IN-5a",
+       "IN-5b",
+       "IN-4"
+      ],
+      "note": {
+       "ja": "`Esc`、欄の外の押し、パネルを閉じたこと、人が焦点を別の所へ動かしたこと。呼び手が決める"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "choiceMoved",
+     "source": {
+      "kind": "otherRegion",
+      "rows": [
+       "FR-091",
+       "FR-072"
+      ],
+      "note": {
+       "ja": "選択。作ったものを選んだ変化は `creationLanded` が運ぶので送らない"
+      }
+     },
+     "carries": []
+    }
+   ],
+   "machines": [
+    {
+     "name": "createdTaskNamingStateMachine",
+     "states": [
+      {
+       "key": "idle",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FR-091",
+        "FR-072"
+       ]
+      },
+      {
+       "key": "namingCreatedTask",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "createdTaskUid",
+         "rows": [
+          "TC-9"
+         ]
+        }
+       ],
+       "evidence": [
+        "FR-091",
+        "TC-9",
+        "FR-001"
+       ]
+      }
+     ],
+     "transitions": {
+      "creationLanded": {
+       "idle": {
+        "to": "namingCreatedTask",
+        "guard": [
+         {
+          "name": "isCreatedTask"
+         }
+        ],
+        "evidence": [
+         "FR-091",
+         "TC-9"
+        ]
+       },
+       "namingCreatedTask": {
+        "to": "namingCreatedTask",
+        "guard": [
+         {
+          "name": "isCreatedTask"
+         }
+        ],
+        "evidence": [
+         "FR-091",
+         "TC-9"
+        ],
+        "note": {
+         "ja": "`createdTaskUid` を書き換える"
+        }
+       }
+      },
+      "choiceMoved": {
+       "namingCreatedTask": {
+        "to": "idle",
+        "evidence": [
+         "FR-091",
+         "FR-072"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "fieldFocusWantStateMachine",
+     "states": [
+      {
+       "key": "idle",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "IN-5a",
+        "IN-5b"
+       ]
+      },
+      {
+       "key": "fieldFocusWanted",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "fieldRow",
+         "rows": [
+          "PR-1",
+          "AT-53",
+          "PR-16",
+          "PR-21",
+          "U-27"
+         ]
+        }
+       ],
+       "evidence": [
+        "IN-5a",
+        "IN-5b",
+        "MK-13",
+        "HF-14",
+        "FR-091",
+        "FR-035"
+       ]
+      }
+     ],
+     "transitions": {
+      "fieldFocusAsked": {
+       "idle": {
+        "to": "fieldFocusWanted",
+        "evidence": [
+         "MK-13",
+         "FR-035",
+         "IN-5b"
+        ]
+       },
+       "fieldFocusWanted": {
+        "to": "fieldFocusWanted",
+        "evidence": [
+         "MK-13",
+         "FR-035",
+         "IN-5b"
+        ],
+        "note": {
+         "ja": "`fieldRow` を書き換える"
+        }
+       }
+      },
+      "creationLanded": {
+       "idle": {
+        "to": "fieldFocusWanted",
+        "evidence": [
+         "FR-091",
+         "HF-14",
+         "IN-5b"
+        ],
+        "note": {
+         "ja": "`fieldRow` はタスクなら `PR-1`、行なら `AT-53`"
+        }
+       },
+       "fieldFocusWanted": {
+        "to": "fieldFocusWanted",
+        "evidence": [
+         "FR-091",
+         "HF-14",
+         "IN-5b"
+        ],
+        "note": {
+         "ja": "`fieldRow` を書き換える"
+        }
+       }
+      },
+      "fieldFocusLanded": {
+       "fieldFocusWanted": {
+        "to": "idle",
+        "evidence": [
+         "IN-5b"
+        ]
+       }
+      },
+      "fieldFocusWithdrawn": {
+       "fieldFocusWanted": {
+        "to": "idle",
+        "evidence": [
+         "IN-5a",
+         "IN-5b"
+        ]
+       }
+      }
+     }
+    }
+   ]
   }
  ]
 }

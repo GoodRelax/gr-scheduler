@@ -5,6 +5,13 @@
 // @publishes table T-064 row PI-39
 
 import {
+  emptyFieldEntryValues,
+  stepFieldEntryValues,
+  type FieldEntryValues,
+  type FieldEntryValuesEffect,
+  type FieldEntryValuesEvent,
+} from './field-entry-values'
+import {
   emptyFileFlowValues,
   stepFileFlowValues,
   type FileFlowValues,
@@ -41,19 +48,31 @@ export interface ScreenSession {
   readonly notices: NoticeValues
   readonly gesture: GestureValues
   readonly fileFlow: FileFlowValues
+  readonly fieldEntry: FieldEntryValues
 }
 
-// see T-280, T-286, T-289, T-290
-export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent | GestureValuesEvent | FileFlowValuesEvent
+// see T-280, T-286, T-289, T-290, T-292
+export type SessionEvent =
+  | ScreenValuesEvent
+  | NoticeValuesEvent
+  | GestureValuesEvent
+  | FileFlowValuesEvent
+  | FieldEntryValuesEvent
 
-export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect | GestureValuesEffect | FileFlowValuesEffect
+export type SessionEffect =
+  | ScreenValuesEffect
+  | NoticeValuesEffect
+  | GestureValuesEffect
+  | FileFlowValuesEffect
+  | FieldEntryValuesEffect
 
-// see T-280, T-286, T-289, T-290, SS-6
+// see T-280, T-286, T-289, T-290, T-292, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
   gesture: emptyGestureValues,
   fileFlow: emptyFileFlowValues,
+  fieldEntry: emptyFieldEntryValues,
 }
 
 // WHY: a Record per region fails to compile on a missing event; the rest are screen events.
@@ -92,6 +111,14 @@ const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } 
   documentFileWriteEnded: true,
 }
 
+const IS_FIELD_ENTRY_EVENT: { readonly [T in FieldEntryValuesEvent['type']]: true } = {
+  fieldFocusAsked: true,
+  creationLanded: true,
+  fieldFocusLanded: true,
+  fieldFocusWithdrawn: true,
+  choiceMoved: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
@@ -105,6 +132,11 @@ function isGestureEvent(event: SessionEvent): event is GestureValuesEvent {
 /** @purity pure */
 function isFileFlowEvent(event: SessionEvent): event is FileFlowValuesEvent {
   return Object.hasOwn(IS_FILE_FLOW_EVENT, event.type)
+}
+
+/** @purity pure */
+function isFieldEntryEvent(event: SessionEvent): event is FieldEntryValuesEvent {
+  return Object.hasOwn(IS_FIELD_ENTRY_EVENT, event.type)
 }
 
 // see SS-5, SF-3
@@ -130,5 +162,6 @@ export function advanceScreenSession(
   if (isNoticeEvent(event)) return composed(session, 'notices', stepNoticeValues(session.notices, event))
   if (isGestureEvent(event)) return composed(session, 'gesture', stepGestureValues(session.gesture, event))
   if (isFileFlowEvent(event)) return composed(session, 'fileFlow', stepFileFlowValues(session.fileFlow, event))
+  if (isFieldEntryEvent(event)) return composed(session, 'fieldEntry', stepFieldEntryValues(session.fieldEntry, event))
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

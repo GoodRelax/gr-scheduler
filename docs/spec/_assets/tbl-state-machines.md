@@ -711,3 +711,87 @@ stateDiagram-v2
 - `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`
 
 表に無い出来事は `confirmationStateMachine` を変えない（同じ参照）。
+
+## 名前付けと入力欄（`fieldEntry`）
+
+**表 T-292 — 名前付けと入力欄の状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+### 名前付けと入力欄の出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `fieldEntry/fieldFocusAsked` | 入力（欄に焦点を置くことを要求が名指した押下（名称・行名・担当・注記の本文・文書名））: `MK-13` ・ `FR-035` ・ `FR-097` | `fieldRow`（`PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27`） | `fieldFocusWantStateMachine` |
+| `fieldEntry/creationLanded` | 副作用の結果（作る書き込みが着地し、作ったものが文書に在る）: `TC-9` ・ `FR-091` ・ `HF-14` ・ `HF-17` | `created`（作ったタスクの UID か、足した行の ID） | 根 ・ `createdTaskNamingStateMachine` ・ `fieldFocusWantStateMachine` |
+| `fieldEntry/fieldFocusLanded` | 副作用の結果（描いたあとに置いた焦点が、求めた欄に入った（宿主の答え））: `IN-5b` | — | `fieldFocusWantStateMachine` |
+| `fieldEntry/fieldFocusWithdrawn` | 入力（`Esc`、欄の外の押し、パネルを閉じたこと、人が焦点を別の所へ動かしたこと。呼び手が決める）: `IN-5a` ・ `IN-5b` ・ `IN-4` | — | `fieldFocusWantStateMachine` |
+| `fieldEntry/choiceMoved` | ほかの領域の結果（選択。作ったものを選んだ変化は `creationLanded` が運ぶので送らない）: `FR-091` ・ `FR-072` | — | `createdTaskNamingStateMachine` |
+
+### 根 `fieldEntry` の値
+
+運ぶ値: —。  
+根拠: `FR-091` ・ `IN-5b`。
+
+| 出来事 | `fieldEntry` |
+| --- | --- |
+| `fieldEntry/creationLanded` | → 自己 [not `isCreatedTask`] / `bringCreatedRowIntoSight`（足した行が描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる）<br>それ以外 → — |
+
+**図 F-038 — 名前付けと入力欄の状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-292 の状態遷移表が持つ。
+
+### 状態機械 `createdTaskNamingStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> createdTaskNamingStateMachine_idle
+    createdTaskNamingStateMachine_idle : idle
+    createdTaskNamingStateMachine_namingCreatedTask : namingCreatedTask
+    createdTaskNamingStateMachine_idle --> createdTaskNamingStateMachine_namingCreatedTask : creationLanded
+    createdTaskNamingStateMachine_namingCreatedTask --> createdTaskNamingStateMachine_namingCreatedTask : creationLanded
+    createdTaskNamingStateMachine_namingCreatedTask --> createdTaskNamingStateMachine_idle : choiceMoved
+```
+
+| 出来事 | `idle` | `namingCreatedTask` |
+| --- | --- | --- |
+| `fieldEntry/creationLanded` | → `namingCreatedTask` [`isCreatedTask`]<br>それ以外 → — | → 自己 [`isCreatedTask`]（`createdTaskUid` を書き換える）<br>それ以外 → — |
+| `fieldEntry/choiceMoved` | — | → `idle` |
+
+- `createdTaskNamingStateMachine.idle` —— 初期。根拠 `FR-091` ・ `FR-072`
+- `createdTaskNamingStateMachine.namingCreatedTask` —— 運ぶ値 `createdTaskUid`（`TC-9`）。根拠 `FR-091` ・ `TC-9` ・ `FR-001`
+
+表に無い出来事は `createdTaskNamingStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `fieldFocusWantStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> fieldFocusWantStateMachine_idle
+    fieldFocusWantStateMachine_idle : idle
+    fieldFocusWantStateMachine_fieldFocusWanted : fieldFocusWanted
+    fieldFocusWantStateMachine_idle --> fieldFocusWantStateMachine_fieldFocusWanted : fieldFocusAsked, creationLanded
+    fieldFocusWantStateMachine_fieldFocusWanted --> fieldFocusWantStateMachine_fieldFocusWanted : fieldFocusAsked, creationLanded
+    fieldFocusWantStateMachine_fieldFocusWanted --> fieldFocusWantStateMachine_idle : fieldFocusLanded, fieldFocusWithdrawn
+```
+
+| 出来事 | `idle` | `fieldFocusWanted` |
+| --- | --- | --- |
+| `fieldEntry/fieldFocusAsked` | → `fieldFocusWanted` | → 自己（`fieldRow` を書き換える） |
+| `fieldEntry/creationLanded` | → `fieldFocusWanted`（`fieldRow` はタスクなら `PR-1`、行なら `AT-53`） | → 自己（`fieldRow` を書き換える） |
+| `fieldEntry/fieldFocusLanded` | — | → `idle` |
+| `fieldEntry/fieldFocusWithdrawn` | — | → `idle` |
+
+- `fieldFocusWantStateMachine.idle` —— 初期。根拠 `IN-5a` ・ `IN-5b`
+- `fieldFocusWantStateMachine.fieldFocusWanted` —— 運ぶ値 `fieldRow`（`PR-1` ・ `AT-53` ・ `PR-16` ・ `PR-21` ・ `U-27`）。根拠 `IN-5a` ・ `IN-5b` ・ `MK-13` ・ `HF-14` ・ `FR-091` ・ `FR-035`
+
+表に無い出来事は `fieldFocusWantStateMachine` を変えない（同じ参照）。
