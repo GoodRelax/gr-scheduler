@@ -1,4 +1,4 @@
-5
+13
 #
 # Check 40 -- rows of defects.md that still read as un-ruled while a pending
 # decision (PND-) they name is 裁定済. Held by check-ruled-elsewhere.py; line 1
@@ -10,5 +10,12 @@
 # RAISED 3 -> 5 on 2026-09-22 with leave from the user (JDG-300, triage Q11):
 # DFC-312 names PND-190, closed by the spec that day; DFC-727 carries the
 # code tidy that PND-188 (closed as stale) pointed at.
+# RAISED 5 -> 13 on 2026-09-22 with leave from the user (JDG-328,
+# 「基準線を上げてよい。」): the triage closed PND rows the ledger's rows
+# still name. Open and 未検討: DFC-693 (PND-391), DFC-727 (PND-188).
+# 実測済 records in fixed-defects.md naming a PND ruled after they were
+# written: DFC-29, DFC-48, DFC-60, DFC-61, DFC-117, DFC-132, DFC-134,
+# DFC-136, DFC-146, DFC-156, DFC-312. DFC-566 and DFC-684 no longer count:
+# CR-548 landed PND-494 and both rows now carry the ruled spec.
 # ⛔ Lower this when a row is corrected; raise it only deliberately, with the
 # row and the reason in the commit.
