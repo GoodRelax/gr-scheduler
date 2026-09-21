@@ -1,4 +1,4 @@
-excess-lines=7906 excess-branches=784
+excess-lines=7868 excess-branches=777
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -27,22 +27,22 @@ HELD src/adapter/document-codec/mspdi-codec.ts::readStartTag lines=49 branches=2
 HELD src/adapter/document-codec/mspdi-codec.ts::readXml lines=105 branches=27
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromArmed lines=84 branches=25
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=207 branches=79
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromGrab lines=169 branches=69
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromKey lines=89 branches=67
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromRowEntry lines=77 branches=19
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromTaskColumn lines=47 branches=20
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromVisualColumn lines=44 branches=26
-HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromWheel lines=55 branches=17
-HELD src/adapter/input-command-translator/input-command-translator.ts::highlightBoxRangeWrite lines=82 branches=31
-HELD src/adapter/input-command-translator/input-command-translator.ts::planActualWithColumn lines=38 branches=17
+HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
+HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn lines=47 branches=20
+HELD src/adapter/input-command-translator/field-commit.ts::commandFromVisualColumn lines=44 branches=26
+HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
+HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=169 branches=72
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=44 branches=21
-HELD src/adapter/input-command-translator/input-command-translator.ts::rowGrabLandingOf lines=56 branches=7
-HELD src/adapter/input-command-translator/input-command-translator.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
-HELD src/adapter/input-command-translator/input-command-translator.ts::screenStateFromInput lines=45 branches=25
-HELD src/adapter/input-command-translator/input-command-translator.ts::selectionFromInput lines=64 branches=36
-HELD src/adapter/input-command-translator/input-command-translator.ts::wouldMoveARow lines=52 branches=23
+HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=169 branches=69
+HELD src/adapter/input-command-translator/item-grab.ts::highlightBoxRangeWrite lines=82 branches=31
+HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56 branches=7
+HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
+HELD src/adapter/input-command-translator/row-tree-entrances.ts::commandFromRowEntry lines=77 branches=19
+HELD src/adapter/input-command-translator/row-tree-entrances.ts::wouldMoveARow lines=52 branches=23
+HELD src/adapter/input-command-translator/screen-state-input.ts::screenStateFromInput lines=45 branches=25
+HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36
+HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=89 branches=67
+HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=55 branches=17
 HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=56 branches=13
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromScreenState lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=91 branches=27

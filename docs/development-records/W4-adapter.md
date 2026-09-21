@@ -745,6 +745,19 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | ユニット | ファイル | 種別 | 純粋性 | 公開 | 段 |
 | --- | --- | --- | --- | --- | --- |
 | UF-30 | `input-command-translator.ts` | **公開エントリ** | pure | PI-18 | 🧪 試験済 |
+| UF-90 | `shortcut-keys.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-91 | `wheel-input.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-92 | `zoom-and-fit.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-93 | `display-scale-steps.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-94 | `frame-drags.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-95 | `dual-cursor-input.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-96 | `row-tree-entrances.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-97 | `row-grab.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-98 | `item-grab.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-99 | `armed-placement.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-100 | `field-commit.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-101 | `selection-input.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-102 | `screen-state-input.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-31 | `input-source.ts` | 内部 | n/a |  | 🧪 試験済 |
 
 ### `screen-renderer` —— ScreenRenderer（PI-37）

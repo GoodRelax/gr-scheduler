@@ -7,58 +7,30 @@
 // do not edit by hand, rebuild with `npm run gen`.
 
 import type { Document } from '../../entity/document-model/document/document'
-import {
-  escapeTarget,
-  rememberedActualOf,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  screenStateWithRememberedActual,
-  screenStateWithSurface,
-  screenStateWithWatermark,
-  type Armed,
-  type DualCursorSide,
-  type EscapeContext,
-  type ScreenState,
+import type {
+  Armed,
+  DualCursorSide,
+  EscapeContext,
+  ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
-  COLUMN_SHAPES,
-  actualLastDay,
   dayOf,
-  lastDayForLength,
   planActualState,
   taskByUid,
   textOfDay,
-  workingCalendarOf,
   type CalendarDay,
   type Schedule,
   type Task,
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
-import {
-  selectionOfAll,
-  selectionWith,
-  selectionWithout,
-  emptySelection,
-  isSelected,
-  type ItemRef,
-  type Selection,
-} from '../../entity/document-model/selection/selection'
-import {
-  dependencyEndAtPointer,
-  dependencyStartOfHit,
-  itemsInMarquee,
-  type Hit,
-  type Item,
-} from '../../entity/layout-engine/item-hit-area/item-hit-area'
+import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
-  BarGeometry,
-  ScheduleGeometry,
-} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+  GrabArea,
+  Hit,
+} from '../../entity/layout-engine/item-hit-area/item-hit-area'
+import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
-  fitZoom,
-  groupDepthLimit,
-  groupDepthThresholdOf,
   rowPlacesAtZoomY,
   xFromDay,
   zoomYAtRectangleLabelFont,
@@ -66,37 +38,66 @@ import {
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
-  displayRatioOf,
-  drawnSettingsOf,
   regionAtPointer,
-  regionsAtDisplayScale,
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
-  DISPLAY_SCALE_STEPS,
-  SETTINGS_DEFAULTS,
-  type DocumentSettings,
-} from '../../entity/document-model/document-settings/document-settings'
-import {
-  DEFAULT_ROW_NAME,
   rowTitleFontPxOf,
-  type FieldCommit,
   type ScreenPart,
 } from '../screen-renderer/screen-renderer'
-import {
-  cycleTaskPlanActualState,
-  type DocumentCommand,
-  type TaskMilestoneGlyph,
-  type TaskShapeKind,
+import type {
+  DocumentCommand,
+  TaskMilestoneGlyph,
+  TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
 import type {
   HumanInput,
   InputModifiers,
-  KeyInput,
   PointerInput,
-  WheelInput,
 } from './input-source'
+import {
+  commandFromArmed,
+  commandFromArmingEntry,
+  commandFromDependencyDrag,
+} from './armed-placement'
+import {
+  displayScaleStep,
+  pickShown,
+} from './display-scale-steps'
+import {
+  commandFromDualCursorEntry,
+  commandFromDualCursorPress,
+} from './dual-cursor-input'
+import {
+  commandFromPanelDivider,
+  commandFromScrollbar,
+  paletteFollow,
+  scrollbarFollow,
+} from './frame-drags'
+import { commandFromGrab } from './item-grab'
+import {
+  commandFromRowGrab,
+  grabbedRowGroupId,
+  rowGrabFollow,
+} from './row-grab'
+import {
+  commandFromRowEntry,
+  commandFromRowExpanderCloseAll,
+  commandFromRowExpanderOpenAll,
+  commandFromRowExpanderOpenLevelZero,
+  rowStoodUp,
+} from './row-tree-entrances'
+import { commandFromKey } from './shortcut-keys'
+import { commandFromWheel } from './wheel-input'
+import {
+  fitWrites,
+  keyZoomFactor,
+  rowZoomAnswer,
+  zoomTimes,
+  zoomWrites,
+} from './zoom-and-fit'
 
 export type {
   HumanInput,
@@ -109,11 +110,15 @@ export type {
   PointerPhase,
   WheelInput,
 } from './input-source'
+export { commandFromFieldCommit } from './field-commit'
+export { screenStateFromInput } from './screen-state-input'
+export { selectionFromInput } from './selection-input'
+export { rowBandCeilingOf } from './zoom-and-fit'
 
 
 export type PressRow = 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
-type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
+export type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
 export type RowGrabAxis = 'position' | 'depth'
 
@@ -175,7 +180,7 @@ export type InPlaceTarget =
   | { readonly kind: 'rowName'; readonly groupId: string }
   | { readonly kind: 'commentBoxText'; readonly id: string }
 
-type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
+export type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 
 type ClearDualCursor = Extract<DocumentCommand, { readonly kind: 'clearDualCursor' }>
 
@@ -277,47 +282,34 @@ export interface TranslatedInput {
   readonly rowZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
 }
 
-const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false }
+export const UNASSIGNED: TranslatedInput = { action: null, isBrowserDefaultStopped: false }
 
-const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
-
-const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
-  'GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-9', 'GA-12', 'GA-13', 'GA-14',
-  'GA-15', 'GA-16', 'GA-17', 'GA-21', 'GA-22', 'GR-14',
-])
-
-// see PE-1, PE-6
-const BODY_GRAB_ROWS: ReadonlySet<string> = new Set(['GA-9', 'GA-14', 'GA-15'])
+export const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true }
 
 // see T-266
-type GrabRow =
-  | ActualEndHold
-  | 'GA-1' | 'GA-2' | 'GA-5' | 'GA-6' | 'GA-7' | 'GA-8' | 'GA-9' | 'GA-10'
-  | 'GA-11' | 'GA-14' | 'GA-15' | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20'
-  | 'GA-21' | 'GA-22'
-  | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
+export type GrabRow = GrabArea
 
 // TRAP: the one place the hit's row is read as a T-266 row; widening it anywhere else would
 // let a retired T-023d row through a branch that reads it as a grab margin of the new table.
 /** @purity pure */
-function grabRowOf(hit: Hit): GrabRow {
+export function grabRowOf(hit: Hit): GrabRow {
   return hit.grab as GrabRow
 }
 
 /** @purity pure */
-function acted(action: InputAction): TranslatedInput {
+export function acted(action: InputAction): TranslatedInput {
   return { action, isBrowserDefaultStopped: true }
 }
 
 /** @purity pure */
-function changed(commands: readonly DocumentCommand[]): TranslatedInput {
+export function changed(commands: readonly DocumentCommand[]): TranslatedInput {
   return commands.length === 0
     ? CONSUMED_ELSEWHERE
     : acted({ kind: 'changeDocument', writes: [commands] })
 }
 
 /** @purity pure */
-function changedAndCreated(
+export function changedAndCreated(
   writes: readonly (readonly DocumentCommand[])[],
   created: CreatedSubject,
 ): TranslatedInput {
@@ -328,12 +320,12 @@ function changedAndCreated(
 }
 
 /** @purity pure */
-function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput {
+export function nothingToDo(situation: SpentEntranceSituation | null): TranslatedInput {
   return acted({ kind: 'tellEntryHasNothingToDo', situation })
 }
 
 /** @purity pure */
-function foldsOrNothing(
+export function foldsOrNothing(
   commands: readonly DocumentCommand[],
   situation: SpentEntranceSituation | null,
 ): TranslatedInput {
@@ -341,14 +333,9 @@ function foldsOrNothing(
 }
 
 /** @purity pure */
-function changedInOrder(writes: readonly (readonly DocumentCommand[])[]): TranslatedInput {
+export function changedInOrder(writes: readonly (readonly DocumentCommand[])[]): TranslatedInput {
   const owed = writes.filter((one) => one.length > 0)
   return owed.length === 0 ? CONSUMED_ELSEWHERE : acted({ kind: 'changeDocument', writes: owed })
-}
-
-/** @purity pure */
-function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] {
-  return [[fitCommand(context)], [{ kind: 'expandAllTaskGroups' }]]
 }
 
 /** @purity pure */
@@ -365,7 +352,7 @@ function isCtrlHeld(modifiers: InputModifiers): boolean {
 }
 
 /** @purity pure */
-function isCombo(
+export function isCombo(
   modifiers: InputModifiers,
   ctrl: boolean,
   shift: boolean,
@@ -389,7 +376,7 @@ function gestureModifiers(input: PointerInput, context: InputContext): InputModi
   return input.phase === 'down' || press === null ? input.modifiers : press.at.modifiers
 }
 
-const KEY = {
+export const KEY = {
   enter: 'Enter',
   escape: 'Esc',
   del: 'Delete',
@@ -414,19 +401,8 @@ const KEY = {
   zero: '0',
 } as const
 
-const HELP_MODAL = 'Help Modal'
-
-const AI_EXPORT_MODAL = 'AI Export Modal'
-const RESOURCE_ROSTER = 'Resource Roster'
-const EXPORT_CHOOSER = 'Export Chooser'
-
-const WATERMARK_UNLOCK = 'Watermark Unlock'
-
-// TRAP: never put this in ScreenState.surface; the drawing side would draw the panel as a modal.
-const PROPERTIES_PANEL = 'Properties Panel'
-
 /** @purity pure */
-function isSingleCharacterKey(key: string): boolean {
+export function isSingleCharacterKey(key: string): boolean {
   return key.length === 1
 }
 
@@ -434,45 +410,45 @@ function isSingleCharacterKey(key: string): boolean {
 const MS_PER_DAY = 86400000
 
 /** @purity pure */
-function serialOfDay(day: CalendarDay): number {
+export function serialOfDay(day: CalendarDay): number {
   return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
 }
 
 /** @purity pure */
-function dayFromSerial(serial: number): CalendarDay {
+export function dayFromSerial(serial: number): CalendarDay {
   const at = new Date(serial * MS_PER_DAY)
   return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
 
 /** @purity pure */
-function dayShifted(day: CalendarDay, days: number): CalendarDay {
+export function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
 }
 
 // TRAP: keep this per axis as rowGrabAxisAt reads it; a diagonal gives one hand two answers.
 /** @purity pure */
-function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
+export function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
   const threshold = NOT_STORED_ROW_GRAB_SIZES['S-208']
   return Math.abs(at.x - press.at.x) > threshold || Math.abs(at.y - press.at.y) > threshold
 }
 
 /** @purity pure */
-function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
+export function dayAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
   return dateAtX(layout, x)
 }
 
 /** @purity pure */
-function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
+export function scrollingRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
   return layout.rows.filter((row) => row.isPinned !== true)
 }
 
 /** @purity pure */
-function scrollAreaTopOf(context: InputContext): number {
+export function scrollAreaTopOf(context: InputContext): number {
   return context.layout.scrollAreaY ?? context.regions.rowArea.y
 }
 
 /** @purity pure */
-function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
+export function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
   for (const row of layout.rows) {
     if (y >= row.y && y < row.y + row.height) return row
   }
@@ -482,7 +458,7 @@ function rowAtY(layout: ScheduleLayout, y: number): RowPlacement | null {
 // see GR-14, FR-019, RS-44
 // WHY: not the drag amount for a move: a moved anchor would land where creating it at that point would not.
 /** @purity pure */
-function commentAnchorAt(
+export function commentAnchorAt(
   layout: ScheduleLayout,
   x: number,
   y: number,
@@ -495,7 +471,7 @@ function commentAnchorAt(
 }
 
 /** @purity pure */
-function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | null {
+export function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | null {
   for (let at = 0; at < rows.length; at++) {
     const row = rows[at]
     if (row === undefined) continue
@@ -506,7 +482,7 @@ function rowIndexAtTopEdge(rows: readonly RowPlacement[], y: number): number | n
   return null
 }
 
-interface ScrollAnchor {
+export interface ScrollAnchor {
   readonly scrollDate: string | null
   readonly scrollDayOffset: number
   readonly scrollGroupId: string | null
@@ -524,14 +500,14 @@ function unitFraction(value: number): number {
 
 // see GA-7, GA-8, HB-4
 /** @purity pure */
-function pointerDaySerial(layout: ScheduleLayout, x: number): number | null {
+export function pointerDaySerial(layout: ScheduleLayout, x: number): number | null {
   const day = dayAtX(layout, x)
   if (day === null) return null
   return serialOfDay(day) + unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay)
 }
 
 /** @purity pure */
-function dayAnchorAt(
+export function dayAnchorAt(
   context: InputContext,
   x: number,
 ): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> {
@@ -560,7 +536,7 @@ function rowAnchorAt(
 }
 
 /** @purity pure */
-function rowAnchorIn(
+export function rowAnchorIn(
   rows: readonly RowPlacement[],
   y: number,
   held: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
@@ -581,7 +557,7 @@ function rowAnchorIn(
 }
 
 /** @purity pure */
-function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
+export function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
   const moved = scrolledAnchor(context, dx, dy)
   return changed([
     {
@@ -595,7 +571,7 @@ function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
 }
 
 /** @purity pure */
-function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
+export function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAnchor {
   const area = context.regions.rowArea
   return {
     ...dayAnchorAt(context, area.x + dx),
@@ -603,96 +579,10 @@ function scrolledAnchor(context: InputContext, dx: number, dy: number): ScrollAn
   }
 }
 
-// STOP: spec does not decide a one-row floor per detent, nor where a turn past an end lands.
-// Looked in MK-1, S-78, S-176, OP-10. @provisional PND-176
-// @provisional PND-177
 /** @purity pure */
-function rowTurnedTo(context: InputContext, dy: number): string | null {
-  const settings = context.document.documentSettings
-  const rows = scrollingRowsOf(context.layout)
-  const areaTop = scrollAreaTopOf(context)
-  const standing = rowIndexAtTopEdge(rows, areaTop)
-  if (dy === 0 || standing === null) return settings.scrollGroupId
-  const landed = rowIndexAtTopEdge(rows, areaTop + dy)
-  if (landed === null) return dy < 0 ? (rows[0]?.groupId ?? null) : settings.scrollGroupId
-  const at = landed === standing ? standing + (dy > 0 ? 1 : -1) : landed
-  const held = Math.min(rows.length - 1, Math.max(0, at))
-  return rows[held]?.groupId ?? settings.scrollGroupId
-}
-
-/** @purity pure */
-function isOnRowArea(context: InputContext, x: number, y: number): boolean {
+export function isOnRowArea(context: InputContext, x: number, y: number): boolean {
   return regionAtPointer(context.regions, x, y) === 'rowArea'
 }
-
-// STOP: spec does not decide which surfaces the wheel is read on. Looked in MK-1, T-023a, U-32
-// @provisional PND-12
-/** @purity pure */
-function isWheelHere(context: InputContext, x: number, y: number): boolean {
-  if (context.isSurfaceStanding) return false
-  const region = regionAtPointer(context.regions, x, y)
-  return region !== null && region !== 'appHeader'
-}
-
-
-/** @purity pure */
-function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
-  switch (item.kind) {
-    case 'task':
-      return { kind: 'task', uid: item.taskUid }
-    case 'dependency': {
-      const successor = taskByUid(schedule, item.successorUid)
-      if (successor === null) return null
-      const ordinal = successor.dependencies.findIndex(
-        (one) => one.predecessorUid === item.predecessorUid,
-      )
-      return ordinal < 0 ? null : { kind: 'dependency', successorUid: item.successorUid, ordinal }
-    }
-    case 'highlightBox':
-      return { kind: 'highlightBox', id: item.id }
-    case 'commentBox':
-      return { kind: 'commentBox', id: item.id }
-    case 'statusLine':
-      return { kind: 'statusLine' }
-  }
-}
-
-/** @purity pure */
-function everythingSelectable(context: InputContext): readonly ItemRef[] {
-  const geometry = context.geometry
-  const schedule = context.document.schedule
-  const all: ItemRef[] = []
-  for (const task of geometry.tasks) {
-    all.push({ kind: 'task', uid: task.taskUid })
-  }
-  for (const line of geometry.dependencies) {
-    const ref = itemRefOf(schedule, {
-      kind: 'dependency',
-      predecessorUid: line.predecessorUid,
-      successorUid: line.successorUid,
-    })
-    if (ref !== null) all.push(ref)
-  }
-  for (const box of geometry.commentBoxes) {
-    all.push({ kind: 'commentBox', id: box.id })
-  }
-  for (const box of geometry.highlightBoxes) {
-    all.push({ kind: 'highlightBox', id: box.id })
-  }
-  if (geometry.statusLine !== null) all.push({ kind: 'statusLine' })
-  return all
-}
-
-/** @purity pure */
-function marqueeRect(from: PointerInput, to: PointerInput): ScreenRect {
-  return {
-    x: Math.min(from.x, to.x),
-    y: Math.min(from.y, to.y),
-    width: Math.abs(to.x - from.x),
-    height: Math.abs(to.y - from.y),
-  }
-}
-
 
 // see T-023a
 /** @purity pure */
@@ -721,7 +611,7 @@ const TASK_SHAPE_KINDS: Readonly<Record<TaskShapeKind, true>> = {
 }
 
 /** @purity pure */
-function taskShapeKindOf(name: string): TaskShapeKind | null {
+export function taskShapeKindOf(name: string): TaskShapeKind | null {
   return Object.prototype.hasOwnProperty.call(TASK_SHAPE_KINDS, name)
     ? (name as TaskShapeKind)
     : null
@@ -746,7 +636,7 @@ const TASK_MILESTONE_GLYPHS: Readonly<Record<TaskMilestoneGlyph, true>> = {
 }
 
 /** @purity pure */
-function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
+export function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
   return Object.prototype.hasOwnProperty.call(TASK_MILESTONE_GLYPHS, name)
     ? (name as TaskMilestoneGlyph)
     : null
@@ -754,12 +644,12 @@ function milestoneGlyphOf(name: string): TaskMilestoneGlyph | null {
 
 // TRAP: one creation per bundle; a second createTask would take mark + 2 while this answers mark + 1.
 /** @purity pure */
-function nextIssuedUid(schedule: Schedule): number {
+export function nextIssuedUid(schedule: Schedule): number {
   return schedule.project.uidHighWaterMark + 1
 }
 
 
-const ENTRY = {
+export const ENTRY = {
   openDocument: 'IC-1',
   exportChooser: 'IC-2',
   copyPicture: 'IC-3',
@@ -874,134 +764,6 @@ function nextFontScale(current: FontScale): FontScale {
   return FONT_SCALE_STEPS[(at + 1) % FONT_SCALE_STEPS.length] as FontScale
 }
 
-// see FR-039, S-234
-// TRAP: clamped at both ends and never wrapped; the lowest step answers itself, and so
-// does the highest, because a press that turned round would reach the opposite extreme.
-/** @purity pure */
-function steppedDisplayScale(
-  current: DocumentSettings['displayScale'],
-  towards: 1 | -1,
-): DocumentSettings['displayScale'] {
-  const at = DISPLAY_SCALE_STEPS.indexOf(current)
-  if (at < 0) return current
-  return DISPLAY_SCALE_STEPS[at + towards] ?? current
-}
-
-// see SE-1, SE-2
-// TRAP: the end word follows the press, not the entrance; SK-17 at the default names no end.
-/** @purity pure */
-function withDisplayScaleShown(
-  answer: TranslatedInput,
-  current: DocumentSettings['displayScale'],
-  next: DocumentSettings['displayScale'],
-  towards: 1 | -1 | 0,
-): TranslatedInput {
-  const isStuck = towards !== 0 && next === current
-  const end = !isStuck ? null : towards === 1 ? 'max' : 'min'
-  return { ...answer, displayScaleShown: { end } }
-}
-
-// see FR-039, SK-17
-// TRAP: one bundle, so the two scales come back together on one undo step (CR-410 question 2).
-// TRAP: each half anchors the Row Area middle against the picture as it stands before the
-// press; when both scales move, the zoom's scroll write lands last and wins.
-/** @purity pure */
-function resetLookWrites(context: InputContext): readonly DocumentCommand[] {
-  const settings = context.document.documentSettings
-  const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
-  const zoom = zoomOnScreen(context)
-  const scale = displayScaleWrites(context, home)
-  const zoomed = zoom.x === 1 && zoom.y === 1 && settings.zoomX === 1 && settings.zoomY === 1
-    ? []
-    : zoomWrites(context, 1, 1, null, null)
-  return [...scale, ...zoomed]
-}
-
-// see FR-039, CM-74, SE-1
-/** @purity pure */
-function displayScaleStep(context: InputContext, towards: 1 | -1): TranslatedInput {
-  const current = context.document.documentSettings.displayScale
-  const next = steppedDisplayScale(current, towards)
-  return withDisplayScaleShown(changed(displayScaleWrites(context, next)), current, next, towards)
-}
-
-/** @purity pure */
-function pickShown(answer: TranslatedInput): Pick<TranslatedInput, 'displayScaleShown'> {
-  return answer.displayScaleShown === undefined ? {} : { displayScaleShown: answer.displayScaleShown }
-}
-
-/** @purity pure */
-function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } {
-  return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
-}
-
-// see FR-039, DS-9
-// TRAP: the Row Area's own width moves with the ratio -- DS-9 scales the row-title panel
-// beside it, and every other term of that width is left alone, so the panel is the change.
-/** @purity pure */
-function rowAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
-  const settings = context.document.documentSettings
-  const held = drawnSettingsOf(settings).rowTitlePanelWidth
-  const moved = drawnSettingsOf({ ...settings, displayScale: next }).rowTitlePanelWidth
-  return context.regions.rowArea.width + held - moved
-}
-
-// see FR-039, DS-1
-// TRAP: the middle of the Row Area as it stands BEFORE the press; the day's width and the
-// row's height both move with the ratio, so neither the left nor the top edge holds still.
-// TRAP: the row lands on the middle the Row Area WILL have -- the drawn ruler band (DS-1)
-// moves that rectangle's top and its height, so the two middles are not the same point.
-/** @purity pure */
-function displayScaleWrites(
-  context: InputContext,
-  next: DocumentSettings['displayScale'],
-): readonly DocumentCommand[] {
-  const settings = context.document.documentSettings
-  if (next === settings.displayScale) return []
-  const scale: DocumentCommand = { kind: 'setDisplayScale', scale: next }
-  const before = displayRatioOf(settings)
-  const after = displayRatioOf({ ...settings, displayScale: next })
-  if (!(before > 0) || !(after > 0)) return [scale]
-  const area = context.regions.rowArea
-  const { x: centreX, y: centreY } = centreOf(area)
-  const seat = scrolledAnchor(context, 0, 0)
-  const day = dayAnchorAt(context, centreX - rowAreaWidthAt(context, next) / 2 / (after / before))
-  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
-  const afterRegions = regionsAtDisplayScale(context.regions, settings, next)
-  // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
-  const afterRows = rowPlacesAtZoomY(
-    context.document.schedule,
-    {
-      ...settings,
-      displayScale: next,
-      scrollDate: seat.scrollDate,
-      scrollDayOffset: seat.scrollDayOffset,
-      scrollGroupId: seat.scrollGroupId,
-      scrollGroupOffset: seat.scrollGroupOffset,
-    },
-    afterRegions,
-    zoomOnScreen(context).y,
-    context.isLevelZeroFolded,
-    context.rowControlsHeightPx,
-  ).filter((row) => row.isPinned !== true)
-  const landed = rowPointIn(afterRows, held)
-  const topEdge = topEdgeIn(afterRows, seat)
-  const row =
-    landed === null || topEdge === null
-      ? null
-      : rowAnchorIn(afterRows, topEdge + (landed - centreOf(afterRegions.rowArea).y), seat)
-  return [
-    scale,
-    {
-      kind: 'setScrollPosition',
-      scrollDate: day.scrollDate,
-      scrollDayOffset: day.scrollDayOffset,
-      scrollGroupId: (row ?? seat).scrollGroupId,
-      scrollGroupOffset: (row ?? seat).scrollGroupOffset,
-    },
-  ]
-}
-
 // TRAP: Armed types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
 const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
   'IC-23': { kind: 'taskShape', shapeKind: 'rectangle' },
@@ -1029,14 +791,14 @@ const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
 }
 
 /** @purity pure */
-function armedByEntry(entry: string): Armed | null {
+export function armedByEntry(entry: string): Armed | null {
   return Object.prototype.hasOwnProperty.call(ARMED_BY_ENTRY, entry)
     ? (ARMED_BY_ENTRY[entry] as Armed)
     : null
 }
 
 /** @purity pure */
-function isSameArm(held: Armed, pressed: Armed): boolean {
+export function isSameArm(held: Armed, pressed: Armed): boolean {
   if (held.kind !== pressed.kind) return false
   if (held.kind === 'taskShape' && pressed.kind === 'taskShape') {
     return held.shapeKind === pressed.shapeKind
@@ -1061,93 +823,10 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
   }
 }
 
-/** @purity pure */
-function settledText(text: string): string | null {
-  const trimmed = text.trim()
-  return trimmed === '' ? null : trimmed
-}
-
-/** @purity pure */
-function settledNumber(text: string): number | null | undefined {
-  const held = settledText(text)
-  if (held === null) return null
-  const value = Number(held)
-  return Number.isFinite(value) ? value : undefined
-}
-
-/** @purity pure */
-function settledDay(text: string): string | null | undefined {
-  const held = settledText(text)
-  if (held === null) return null
-  const day = dayOf(held)
-  return day === null ? undefined : textOfDay(day)
-}
-
-/** @purity pure */
-function settledTruth(text: string): boolean {
-  return text.trim() === String(true)
-}
-
-type VisualColumn = keyof Schedule['taskVisuals'][number]
-
-type TaskLineWeight = NonNullable<Schedule['taskVisuals'][number]['lineWeight']>
-type TaskNameAlign = NonNullable<Schedule['taskVisuals'][number]['nameAlign']>
-
-// see T-016
-/** @purity pure */
-function isVisualChoice(column: VisualColumn, value: string): boolean {
-  return COLUMN_SHAPES.TaskVisual[column]?.choices?.includes(value) ?? false
-}
-
-// see PR-5, P-5
-// WHY: the name of PR-5's row, not a Task column; the length is counted from the dates (FR-011).
-const ACTUAL_LENGTH_ITEM = 'actualDuration'
-
-// see CM-13, T-019, T-019a, FR-044, PR-5
-/** @purity pure */
-function planActualWithColumn(
-  schedule: Schedule,
-  task: Task,
-  column: string,
-  text: string,
-): PlacedPlanActual | null {
-  const next: Task = { ...task }
-  // WHY: written by name; five typed arms would repeat the classification below five times.
-  const written = next as unknown as { [key: string]: unknown }
-  if (column === 'resumeValid') {
-    written[column] = settledTruth(text)
-  } else if (column === ACTUAL_LENGTH_ITEM) {
-    const days = settledNumber(text)
-    const from = dayOf(task.actualStart)
-    if (days === undefined || days === null || from === null) return null
-    const lastDay = textOfDay(lastDayForLength(workingCalendarOf(schedule), from, days))
-    written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = lastDay
-  } else {
-    const day = settledDay(text)
-    if (day === undefined) return null
-    written[column] = day
-    // TRAP: set resumeValid with resume before the row is read: without true a date on PA-4 is
-    // dropped, without false a cleared date ends the suspension; false only where a date stood.
-    if (column === 'resume' && day !== null) {
-      written['resumeValid'] = true
-    }
-    if (column === 'resume' && day === null && task.resume !== null) {
-      written['resumeValid'] = false
-    }
-    // WHY: a cleared actualFinish hands its day to stop as PV-3 does, or the actual loses its right end.
-    if (column === 'actualFinish' && day === null && task.actualFinish !== null && next.stop === null) {
-      written['stop'] = task.actualFinish
-    }
-  }
-
-  if (planActualState(next) === 'notStarted') return { row: 'PA-1' }
-  return placementAt(next)
-}
-
 // see T-019, T-019a
 // TRAP: write back the row the Task already stands at; choosing one lets an end drag finish it.
 /** @purity pure */
-function placementAt(task: Task): PlacedPlanActual | null {
+export function placementAt(task: Task): PlacedPlanActual | null {
   const actualStart = task.actualStart
   if (actualStart === null) return null
   switch (planActualState(task)) {
@@ -1168,434 +847,9 @@ function placementAt(task: Task): PlacedPlanActual | null {
   }
 }
 
-const PLAN_ACTUAL_COLUMNS: readonly string[] = [
-  'actualStart',
-  ACTUAL_LENGTH_ITEM,
-  'actualFinish',
-  'resume',
-  'resumeValid',
-]
-
-// see T-016, PR-3, CM-11, FR-006
-/** @purity pure */
-function commandFromTaskColumn(
-  schedule: Schedule,
-  task: Task,
-  column: keyof Task,
-  text: string,
-): readonly DocumentCommand[] {
-  const uid = task.uid
-
-  if (PLAN_ACTUAL_COLUMNS.includes(column)) {
-    const place = planActualWithColumn(schedule, task, column, text)
-    return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
-  }
-
-  switch (column) {
-    case 'name':
-      return [{ kind: 'setTaskName', uid, name: settledText(text) }]
-    case 'notes':
-      return [{ kind: 'setTaskNotes', uid, notes: settledText(text) }]
-    case 'start':
-    case 'finish': {
-      const settled = settledDay(text)
-      if (settled === undefined || settled === null) return []
-      const start = column === 'start' ? settled : task.start
-      const finish = column === 'finish' ? settled : task.finish
-      if (start === null || finish === null) return []
-      return [{ kind: 'setTaskPlanDates', uid, start, finish }]
-    }
-    case 'deadline': {
-      const deadline = settledDay(text)
-      return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', uid, deadline }]
-    }
-    case 'fadeInDays': {
-      const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', uid, days }]
-    }
-    case 'fadeOutDays': {
-      const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, days }]
-    }
-    case 'wbsParentUid': {
-      const parentUid = settledNumber(text)
-      return parentUid === undefined ? [] : [{ kind: 'setTaskWbsParent', uid, parentUid }]
-    }
-    default:
-      return []
-  }
-}
-
-// see FR-007, FR-078, FR-002, CM-22, CM-23
-/** @purity pure */
-function commandFromVisualColumn(
-  schedule: Schedule,
-  uid: number,
-  column: string,
-  text: string,
-): readonly DocumentCommand[] {
-  const visual = schedule.taskVisuals.find((held) => held.taskUid === uid) ?? null
-
-  switch (column) {
-    case 'milestoneGlyph': {
-      const held = settledText(text)
-      const glyph = held === null ? null : milestoneGlyphOf(held)
-      if (held !== null && glyph === null) return []
-      return [{ kind: 'setTaskVisualMilestoneGlyph', uid, glyph }]
-    }
-    case 'strokeColor':
-    case 'fillColor': {
-      const chosen = settledText(text)
-      const other =
-        column === 'strokeColor' ? (visual?.fillColor ?? null) : (visual?.strokeColor ?? null)
-      if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
-      const strokeColor = column === 'strokeColor' ? chosen : other
-      const fillColor = column === 'fillColor' ? chosen : other
-      return [{ kind: 'setTaskVisualColors', uid, fillColor, strokeColor }]
-    }
-    case 'lineWeight': {
-      const held = settledText(text)
-      if (held !== null && !isVisualChoice('lineWeight', held)) return []
-      const lineWeight = held as TaskLineWeight | null
-      return [{ kind: 'setTaskVisualLineWeight', uid, lineWeight }]
-    }
-    case 'nameAnchor':
-    case 'nameAlign': {
-      const anchor = column === 'nameAnchor' ? settledNumber(text) : (visual?.nameAnchor ?? null)
-      if (anchor === undefined) return []
-      const chosen = column === 'nameAlign' ? settledText(text) : (visual?.nameAlign ?? null)
-      if (chosen !== null && !isVisualChoice('nameAlign', chosen)) return []
-      const nameAlign = chosen as TaskNameAlign | null
-      return [{ kind: 'setTaskVisualNamePlacement', uid, nameAnchor: anchor, nameAlign }]
-    }
-    default:
-      return []
-  }
-}
-
-// see FR-042, AT-53, CM-29, CM-30, CM-31
-/** @purity pure */
-function commandFromGroupColumn(
-  groupId: string,
-  column: string,
-  text: string,
-): readonly DocumentCommand[] {
-  switch (column) {
-    case 'label': {
-      return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
-    }
-    case 'color': {
-      const color = settledText(text)
-      return color === null
-        ? [{ kind: 'resetTaskGroupColor', groupId }]
-        : [{ kind: 'setTaskGroupColor', groupId, color }]
-    }
-    case 'height': {
-      const height = settledNumber(text)
-      return height === undefined ? [] : [{ kind: 'setTaskGroupHeight', groupId, height }]
-    }
-    default:
-      return []
-  }
-}
-
-// see FR-009, CM-38
-/** @purity pure */
-function commandFromDependencyColumn(
-  predecessorUid: number,
-  successorUid: number,
-  column: string,
-  text: string,
-): readonly DocumentCommand[] {
-  if (column !== 'lag') return []
-  const lag = settledNumber(text)
-  if (lag === undefined || lag === null) return []
-  return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lag }]
-}
-
-// see FR-035, CM-1
-/** @purity pure */
-function commandFromProjectColumn(column: string, text: string): readonly DocumentCommand[] {
-  if (column !== 'title') return []
-  return [{ kind: 'setProjectTitle', title: text }]
-}
-
-const ASSIGNEE_ROW = 'PR-16'
-
-const UNASSIGN_TOKEN = '-'
-
-// see AS-8
-/** @purity pure */
-function resourceUidOfName(schedule: Schedule, name: string): number | null {
-  let found: number | null = null
-  for (const resource of schedule.resources) {
-    if (resource.name !== name) continue
-    if (found === null || resource.uid < found) found = resource.uid
-  }
-  return found
-}
-
-// see AS-9
-/** @purity pure */
-function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
-  const uid = Number(text)
-  if (!Number.isInteger(uid)) return null
-  // TRAP: ask the roster, not the spelling: a name made of digits must still reach AS-7 / AS-8,
-  // and a uid gone since the chooser was drawn is read as a name.
-  return schedule.resources.some((one) => one.uid === uid) ? uid : null
-}
-
-// see AS-3, CM-45
-/** @purity pure */
-function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly DocumentCommand[] {
-  const held = new Set<number>()
-  for (const assignment of schedule.assignments) {
-    if (assignment.taskUid !== taskUid || assignment.resourceUid === null) continue
-    held.add(assignment.resourceUid)
-  }
-  // STOP: spec does not decide which of several assignees AS-3 takes off. Looked in AS-3, AS-5, AS-7, AS-9 (PND-461)
-  if (held.size !== 1) return []
-  const [resourceUid] = [...held]
-  if (resourceUid === undefined) return []
-  return [{ kind: 'unassignResource', taskUid, resourceUid }]
-}
-
-// see AS-7, AS-8, AS-9, AS-10, T-225
-/** @purity pure */
-function commandsFromAssignee(
-  schedule: Schedule,
-  taskUid: number,
-  text: string,
-): readonly DocumentCommand[] {
-  const settled = settledText(text)
-  if (settled === null) return []
-  if (settled === UNASSIGN_TOKEN) return commandsFromUnassign(schedule, taskUid)
-
-  const held = resourceUidOfChoice(schedule, settled) ?? resourceUidOfName(schedule, settled)
-  if (held !== null) {
-    const already = schedule.assignments.some(
-      (one) => one.taskUid === taskUid && one.resourceUid === held,
-    )
-    return already ? [] : [{ kind: 'createAssignment', taskUid, resourceUid: held }]
-  }
-
-  return [
-    { kind: 'createResource', name: settled },
-    {
-      kind: 'createAssignment',
-      taskUid,
-      // TRAP: read before the bundle runs; it names the resource CM-40 makes only while nothing
-      // ahead of CM-44 in this bundle but CM-40 issues a uid.
-      resourceUid: nextIssuedUid(schedule),
-    },
-    ...commandsFromUnassign(schedule, taskUid),
-  ]
-}
-
-// see PI-18, T-016
-/** @purity pure */
-export function commandFromFieldCommit(
-  commit: FieldCommit,
-  context: InputContext,
-): readonly DocumentCommand[] {
-  const schedule = context.document.schedule
-  // WHY: the column is the key the panel drew, not worked out again here: the selection may
-  // have changed between drawing and commit.
-  const key = commit.key
-
-  // TRAP: before the holder switch: PR-16's key has holder task and would reach the Task columns.
-  if (commit.row === ASSIGNEE_ROW && key.holder === 'task') {
-    return taskByUid(schedule, key.uid) === null
-      ? []
-      : commandsFromAssignee(schedule, key.uid, commit.text)
-  }
-
-  switch (key.holder) {
-    case 'task': {
-      const task = taskByUid(schedule, key.uid)
-      return task === null ? [] : commandFromTaskColumn(schedule, task, key.column, commit.text)
-    }
-    case 'taskVisual':
-      return taskByUid(schedule, key.uid) === null
-        ? []
-        : commandFromVisualColumn(schedule, key.uid, key.column, commit.text)
-    case 'taskGroup':
-      return schedule.taskGroups.some((held) => held.id === key.groupId)
-        ? commandFromGroupColumn(key.groupId, key.column, commit.text)
-        : []
-    case 'commentBox':
-      return schedule.commentBoxes.some((held) => held.id === key.id)
-        ? [{ kind: 'setCommentBoxText', id: key.id, text: settledText(commit.text) }]
-        : []
-    case 'dependency': {
-      const successor = taskByUid(schedule, key.successorUid)
-      const dependency = successor?.dependencies[key.ordinal]
-      if (dependency === undefined) return []
-      return commandFromDependencyColumn(
-        dependency.predecessorUid,
-        key.successorUid,
-        key.column,
-        commit.text,
-      )
-    }
-    case 'project':
-      return commandFromProjectColumn(key.column, commit.text)
-  }
-}
-
-// see T-036, IN-5a, IN-4, MK-10
-/** @purity pure */
-function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput {
-  const key = input.key
-  const modifiers = input.modifiers
-  const plain = isCombo(modifiers, false, false, false)
-  const ctrl = isCombo(modifiers, true, false, false)
-  const ctrlShift = isCombo(modifiers, true, true, false)
-  const shiftOnly = isCombo(modifiers, false, true, false)
-  const altOnly = isCombo(modifiers, false, false, true)
-
-  // see IN-5a
-  // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
-  // after MK-13 or HF-14 reaches SK-14 or SK-18 instead of the name.
-  if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
-    if (plain && isSingleCharacterKey(key)) return UNASSIGNED
-    if (plain && (key === KEY.del || key === KEY.backspace)) return UNASSIGNED
-  }
-  if (context.isTextEntryUnsettled) {
-    if (ctrl && (key === KEY.c || key === KEY.v)) return UNASSIGNED
-  }
-
-  if (plain && key === KEY.enter) {
-    if (context.isNoticeStanding === true) return acted({ kind: 'dismissNotice' })
-    if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
-    // WHY: same kind as the settle stage; only the shell knows whether its commit settled anything.
-    if (context.isPropertiesPanelShowing === true) return acted({ kind: 'settleTextEntry' })
-    // TRAP: with nothing to act on Enter stays unassigned, or tabbed-to controls lose activation.
-    return context.selection.items.length > 0 ? CONSUMED_ELSEWHERE : UNASSIGNED
-  }
-
-  if (plain && key === KEY.escape) {
-    return escapeTarget(context.screenState, escapeContextOf(context)) === null
-      ? UNASSIGNED
-      : CONSUMED_ELSEWHERE
-  }
-
-  if (ctrl && key === KEY.a) return CONSUMED_ELSEWHERE
-
-  if (plain && (key === KEY.del || key === KEY.backspace)) {
-    return changed(deleteCommandsFor(context))
-  }
-
-  if (ctrl && key === KEY.c) return acted({ kind: 'copySelection' })
-  if (ctrl && key === KEY.v) return acted({ kind: 'pasteClipboard' })
-  if (ctrl && key === KEY.z) return acted({ kind: 'undoEdit' })
-  if (ctrl && key === KEY.y) return acted({ kind: 'redoEdit' })
-  if (ctrlShift && key === KEY.z) return acted({ kind: 'redoEdit' })
-  if (plain && key === KEY.f2) {
-    return acted({ kind: 'editInPlace', target: { kind: 'documentTitle' } })
-  }
-  if (ctrl && key === KEY.o) return acted({ kind: 'openDocumentFile' })
-  if (ctrl && key === KEY.s) return acted({ kind: 'saveDocumentFile' })
-  if (ctrl && key === KEY.r) return acted({ kind: 'reopenDocumentFile' })
-
-  if (ctrlShift && key === KEY.e) return CONSUMED_ELSEWHERE
-  if (plain && (key === KEY.f1 || key === KEY.p)) return CONSUMED_ELSEWHERE
-  // see FR-071, SK-15
-  if (plain && key === KEY.f11) return acted({ kind: 'toggleFullScreen' })
-
-  if (shiftOnly && (key === KEY.plus || key === KEY.minus)) {
-    const factor = keyZoomFactor(context, key === KEY.plus)
-    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
-  }
-  if (altOnly && (key === KEY.plus || key === KEY.minus)) {
-    return rowZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
-  }
-
-  // see SK-22, SK-23, SK-17, MK-10
-  // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
-  if (ctrlShift && (key === KEY.plus || key === KEY.minus)) {
-    return displayScaleStep(context, key === KEY.plus ? 1 : -1)
-  }
-  if (ctrlShift && key === KEY.zero) {
-    const current = context.document.documentSettings.displayScale
-    const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
-    return withDisplayScaleShown(changed(resetLookWrites(context)), current, home, 0)
-  }
-
-  if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
-
-  if (ctrlShift && key === KEY.d) {
-    return changed([
-      context.document.schedule.project.statusDate === null
-        ? { kind: 'setStatusDate', date: context.today }
-        : { kind: 'clearStatusDate' },
-    ])
-  }
-
-  return UNASSIGNED
-}
-
-// see MK-1, MK-2, MK-3, MK-4, MK-5, MK-10, FR-016
-/** @purity pure */
-function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput {
-  const modifiers = input.modifiers
-  const plain = isCombo(modifiers, false, false, false)
-  const ctrl = isCombo(modifiers, true, false, false)
-  const shiftOnly = isCombo(modifiers, false, true, false)
-  const altOnly = isCombo(modifiers, false, false, true)
-  const ctrlShift = isCombo(modifiers, true, true, false)
-
-  const assigned = plain || ctrl || shiftOnly || altOnly || ctrlShift
-  if (!assigned) return UNASSIGNED
-  if (!isWheelHere(context, input.x, input.y)) return UNASSIGNED
-  if (context.pressed !== null) return CONSUMED_ELSEWHERE
-
-  // STOP: spec does not decide which way a wheel turn magnifies. Looked in MK-2, S-53, S-96
-  // @provisional PND-13
-  const factor = Math.pow(context.zoomStep, -input.notches)
-
-  if (ctrl) {
-    return changed(
-      zoomWrites(
-        context,
-        zoomTimes(context, factor, 'x'),
-        zoomTimes(context, factor, 'y'),
-        input.x,
-        input.y,
-      ),
-    )
-  }
-  if (shiftOnly) {
-    return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x, input.y))
-  }
-  if (altOnly) return rowZoomAnswer(context, factor, input.x, input.y)
-
-  // TRAP: a wheel turn is reported on the vertical axis whatever keys are held, so x alone
-  // reads zero for MK-5; a real sideways report is believed first.
-  const sideways = input.scrollPx.x !== 0 ? input.scrollPx.x : input.scrollPx.y
-  // TRAP: without this a plain turn with no vertical distance zeroes S-176.
-  if (plain && input.scrollPx.y === 0) return UNASSIGNED
-  const moved = plain
-    ? scrolledAnchor(context, 0, input.scrollPx.y)
-    : scrolledAnchor(context, sideways, 0)
-  const to = {
-    kind: 'setScrollPosition',
-    scrollDate: moved.scrollDate,
-    scrollDayOffset: moved.scrollDayOffset,
-    // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
-    scrollGroupId: plain
-      ? rowTurnedTo(context, input.scrollPx.y)
-      : context.document.documentSettings.scrollGroupId,
-    // TRAP: beside a floored row id, moved.scrollGroupOffset names a place nobody scrolled to.
-    scrollGroupOffset: plain ? 0 : context.document.documentSettings.scrollGroupOffset,
-  } as const
-  // WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
-  return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])
-}
-
 // see CM-66
 /** @purity pure */
-function isScrollPositionInForce(
+export function isScrollPositionInForce(
   context: InputContext,
   to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>,
 ): boolean {
@@ -1686,7 +940,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
 }
 
 /** @purity pure */
-function followingTravel(
+export function followingTravel(
   at: PointerInput,
   press: PointerPress,
 ): { readonly dx: number; readonly dy: number } {
@@ -1708,50 +962,6 @@ function panFollow(input: PointerInput, context: InputContext): TranslatedInput 
   // layout the preview drew, so the whole travel would be applied again each frame.
   const by = followingTravel(input, press)
   return panTo(context, -by.dx, -by.dy)
-}
-
-// see FR-053, GR-19
-/** @purity pure */
-function paletteFollow(input: PointerInput, context: InputContext): TranslatedInput {
-  const press = context.pressed
-  if (press === null || press.on === null) return UNASSIGNED
-  if (press.on.entry !== ENTRY.paletteGrabBand) return UNASSIGNED
-  if (press.followedTo === undefined) return UNASSIGNED
-  return acted({ kind: 'moveCommandPalette', by: followingTravel(input, press) })
-}
-
-// see GR-21, T-038
-/** @purity pure */
-function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
-  const area = context.regions.rowArea
-  const lane = axis === 'horizontal' ? area.width : area.height
-  const whole = axis === 'horizontal' ? context.layout.contentWidth : context.layout.contentHeight
-  if (!(lane > 0) || !(whole > lane)) return 0
-  return whole / lane
-}
-
-/** @purity pure */
-function scrollbarTravel(
-  context: InputContext,
-  axis: ScrollbarAxis,
-  by: { readonly dx: number; readonly dy: number },
-): { readonly dx: number; readonly dy: number } {
-  const gearing = scrollGearing(context, axis)
-  return axis === 'horizontal'
-    ? { dx: by.dx * gearing, dy: 0 }
-    : { dx: 0, dy: by.dy * gearing }
-}
-
-// see FR-051, GR-21
-/** @purity pure */
-function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput {
-  const press = context.pressed
-  const axis = press?.on?.scrollbarAxis
-  if (press === null || axis === undefined) return UNASSIGNED
-  if (press.followedTo === undefined) return UNASSIGNED
-  const by = scrollbarTravel(context, axis, followingTravel(input, press))
-  // WHY: not negated as the pan is: a hand on the grip drags the marker, not the paper.
-  return panTo(context, by.dx, by.dy)
 }
 
 // see T-109, IN-1, FR-085
@@ -1888,27 +1098,7 @@ function commandFromEntry(
     case ENTRY.rowDelete:
       return commandFromRowEntry(entry, on.rowGroupId, context)
     case ENTRY.rowExpanderOpenAll:
-      // TRAP: judged here, not by the write: opening nothing is silent, and FR-029 wants the reason told.
-      if (
-        !(
-          context.isLevelZeroFolded === true ||
-          (wouldMoveARow(context, null, 'open') ??
-            context.document.schedule.taskGroups.some(
-              (row) => row.isCollapsed === true || row.isHidden === true,
-            ))
-        )
-      ) {
-        return nothingToDo('noFoldedRowAtAll')
-      }
-      return acted({
-        kind: 'setLevelZeroFolded',
-        isFolded: false,
-        writes: [
-          { kind: 'expandAllTaskGroups' },
-          ...unhidesEveryRow(context.document.schedule),
-          ...marksEveryRowKeptOpen(context.document.schedule),
-        ],
-      })
+      return commandFromRowExpanderOpenAll(context)
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
       // TRAP: count chosen Tasks among drawn rows (a fold hides one without changing Selection),
@@ -1918,27 +1108,9 @@ function commandFromEntry(
       }
       return nothingToDo('noTaskChosenToAlignWith')
     case ENTRY.rowExpanderCloseAll:
-      if (
-        context.isLevelZeroFolded === true ||
-        isARowOfTheShallowestLevelDrawn(context) === false
-      ) {
-        return nothingToDo('noUnfoldedRowAtAll')
-      }
-      return acted({
-        kind: 'setLevelZeroFolded',
-        isFolded: true,
-        writes: [
-          ...foldsEveryRow(context.document.schedule),
-          ...keptOpenMarksWritten(context.document.schedule, null, false),
-        ],
-      })
-    case ENTRY.rowExpanderOpenLevelZero: {
-      const unhidden = opensLevelZeroHiddenRows(context.document.schedule)
-      if (context.isLevelZeroFolded !== true && unhidden.length === 0) {
-        return nothingToDo(null)
-      }
-      return acted({ kind: 'setLevelZeroFolded', isFolded: false, writes: unhidden })
-    }
+      return commandFromRowExpanderCloseAll(context)
+    case ENTRY.rowExpanderOpenLevelZero:
+      return commandFromRowExpanderOpenLevelZero(context)
     case ENTRY.rowAddTopRow:
       return rowStoodUp(context, null, 1)
     case ENTRY.documentSettingsProperties:
@@ -1964,143 +1136,6 @@ function commandFromEntry(
   }
 }
 
-// see IC-45, DC-1, DC-4, DC-7
-/** @purity pure */
-function commandFromDualCursorEntry(
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  // TRAP: the Esc path in frame-loop.ts writes the same clearing; change both together.
-  if (context.dualCursorFollowing !== null) {
-    return acted({
-      kind: 'setDualCursorFollowing',
-      following: null,
-      placed: { kind: 'clearDualCursor' },
-    })
-  }
-  const standing = context.document.documentSettings.dualCursor
-  if (standing !== null) {
-    return acted({ kind: 'setDualCursorFollowing', following: 'date1', placed: null })
-  }
-  const rowArea = context.regions.rowArea
-  const onPointer = dayAtX(context.layout, press.at.x)
-  const atCentre = dayAtX(context.layout, rowArea.x + rowArea.width / 2)
-  // STOP: spec does not decide IC-45 where the axis has no day. Looked in DC-1, IV-13, BO-1
-  // @provisional PND-313
-  if (onPointer === null || atCentre === null) return CONSUMED_ELSEWHERE
-  return acted({
-    kind: 'setDualCursorFollowing',
-    following: 'date1',
-    placed: {
-      kind: 'setDualCursor',
-      date1: textOfDay(onPointer),
-      date2: textOfDay(atCentre),
-    },
-  })
-}
-
-// see PTD-2, DC-2
-/** @purity pure */
-function commandFromDualCursorPress(
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  const following = context.dualCursorFollowing
-  const standing = context.document.documentSettings.dualCursor
-  const day = dayAtX(context.layout, press.at.x)
-  // STOP: spec does not decide a DC-2 click where the axis has no day. Looked in DC-2, PTD-2
-  // @provisional PND-314
-  if (following === null || standing === null || day === null) return CONSUMED_ELSEWHERE
-  const fixed = textOfDay(day)
-  const placed: SetDualCursor = {
-    kind: 'setDualCursor',
-    date1: following === 'date1' ? fixed : standing.date1,
-    date2: following === 'date2' ? fixed : standing.date2,
-  }
-  return acted({
-    kind: 'setDualCursorFollowing',
-    following: following === 'date1' ? 'date2' : 'date1',
-    placed,
-  })
-}
-
-// see FR-052, CM-67
-/** @purity pure */
-function commandFromPanelDivider(
-  panel: NonNullable<ScreenPart['dividerPanel']>,
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  const settings = context.document.documentSettings
-  const travelled = release.x - press.at.x
-  // WHY: the zero width and Row Area limits stay on the write side alone; judging them here
-  // as well gives one drag two answers.
-  return changed([
-    {
-      kind: 'setPanelWidths',
-      rowTitlePanelWidth:
-        panel === 'rowTitlePanel'
-          ? rowTitlePanelWidthAfterDrag(settings, travelled)
-          : settings.rowTitlePanelWidth,
-      propertyPanelWidth:
-        panel === 'propertiesPanel'
-          ? propertyPanelWidthAfterDrag(settings, press, context, travelled)
-          : settings.propertyPanelWidth,
-    },
-  ])
-}
-
-// see FR-052, S-80, S-171, S-248
-// TRAP: count the travel from the DRAWN width, never from S-80: a stored 0 is drawn at S-171, so a
-// right drag would go negative and be refused and a left drag would jump to the travel (DFC-644).
-/** @purity pure */
-function propertyPanelWidthAfterDrag(
-  settings: DocumentSettings,
-  press: PointerPress,
-  context: InputContext,
-  travelled: number,
-): number {
-  // WHY: a release where the press began writes the stored number back, so the write moves
-  // nothing (T-027) even while S-80 is still 0.
-  if (travelled === 0) return settings.propertyPanelWidth
-  const drawnAtPress = press.propertyPanelWidthAtPress ?? context.regions.propertiesPanel.width
-  // WHY: stopped at the floor while held, and the stopped width is the one released (DFC-650).
-  return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - travelled)
-}
-
-// see FR-052, FR-039, T-252
-// TRAP: count the travel from the DRAWN boundary, which T-252 floors, never from S-79 times the
-// ratio; the held picture draws this value, so a floored boundary would trail the pointer.
-/** @purity pure */
-function rowTitlePanelWidthAfterDrag(settings: DocumentSettings, travelled: number): number {
-  const stored = settings.rowTitlePanelWidth
-  const ratio = displayRatioOf(settings)
-  const drawnAtPress = drawnSettingsOf(settings).rowTitlePanelWidth
-  // WHY: with no stored width only the floor is left in T-252's larger-of, so its one owner answers it.
-  const floor = drawnSettingsOf({ ...settings, rowTitlePanelWidth: 0 }).rowTitlePanelWidth
-  const isWiderThanFloor = drawnAtPress + travelled > floor
-  if (!isWiderThanFloor) return Math.min(stored, floor / ratio)
-  // WHY: added to the stored width, not the drawn width divided whole, so a release where the press
-  // began writes the very same number back and the write moves nothing (T-027).
-  const drawnTravel = drawnAtPress - stored * ratio + travelled
-  return stored + drawnTravel / ratio
-}
-
-// see FR-051, GR-21
-/** @purity pure */
-function commandFromScrollbar(
-  axis: ScrollbarAxis,
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  // STOP: spec does not decide a press on the scrollbar lane outside the grip. Looked in GR-21, FR-051, S-205
-  // @provisional PND-468
-  const by = scrollbarTravel(context, axis, followingTravel(release, press))
-  return panTo(context, by.dx, by.dy)
-}
-
 // see FR-049, CM-58
 /** @purity pure */
 function commandFromVisibleElementEntry(entry: string, context: InputContext): TranslatedInput {
@@ -2120,121 +1155,6 @@ function commandFromGuideCursorEntry(entry: string, context: InputContext): Tran
   return changed([{ kind: 'setGuideCursorMode', mode: standing === mode ? 'none' : mode }])
 }
 
-// see IC-58, IC-59, IC-60, IC-77, IC-82, IC-90, IC-91
-/** @purity pure */
-function commandFromRowEntry(
-  entry: string,
-  rowGroupId: string | null,
-  context: InputContext,
-): TranslatedInput {
-  if (rowGroupId === null) return CONSUMED_ELSEWHERE
-
-  if (entry === ENTRY.rowPin) {
-    // TRAP: read the document, not the drawn row: against a stale picture the pin never comes off.
-    const isPinned = context.document.documentSettings.pinnedGroupIds.includes(rowGroupId)
-    return changed([
-      isPinned
-        ? { kind: 'unpinTaskGroup', groupId: rowGroupId }
-        : { kind: 'pinTaskGroup', groupId: rowGroupId },
-    ])
-  }
-
-  if (entry === ENTRY.rowDelete) {
-    return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId }])
-  }
-
-  if (entry === ENTRY.rowExpanderCloseBelow) {
-    if (wouldMoveARow(context, rowGroupId, 'fold') === false) {
-      return nothingToDo('noUnfoldedRowBelow')
-    }
-    return foldsOrNothing(
-      withKeptOpenMarks(
-        foldsRowAndBelow(context.document.schedule, rowGroupId),
-        keptOpenMarksWritten(context.document.schedule, rowGroupId, false),
-      ),
-      'noUnfoldedRowBelow',
-    )
-  }
-
-  if (entry === ENTRY.rowExpanderOpenOneLevel) {
-    const opensAChild = wouldMoveARow(context, rowGroupId, 'openOneLevel')
-    if (opensAChild === false) {
-      return nothingToDo('rowIsOpenWithNoHiddenChild')
-    }
-    const opens = opensRowAndUnhidesItsChildren(context.document.schedule, rowGroupId)
-    const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-    const marks: readonly DocumentCommand[] = row === undefined || row.isKeptOpen
-      ? []
-      : [{ kind: 'setTaskGroupKeptOpen', groupId: rowGroupId, keptOpen: true }]
-    const pressDraws = opens.length > 0 || (opensAChild ?? hasAChildBelowTheDepthLimit(context, rowGroupId))
-    return foldsOrNothing(pressDraws ? [...opens, ...marks] : [], 'rowIsOpenWithNoHiddenChild')
-  }
-
-  if (entry === ENTRY.rowAddChild) {
-    const parentDepth = rowDepthOfGroup(context, rowGroupId)
-    if (parentDepth >= context.document.documentSettings.maxGroupDepth) {
-      return nothingToDo('rowIsAtTheDeepestLevel')
-    }
-    return rowStoodUp(context, rowGroupId, parentDepth + 1)
-  }
-
-  if (entry === ENTRY.rowExpanderOpen) {
-    if (wouldMoveARow(context, rowGroupId, 'open') === false) {
-      return nothingToDo('noFoldedRowBelow')
-    }
-    return foldsOrNothing(
-      withKeptOpenMarks(
-        opensRowAndBelow(context.document.schedule, rowGroupId),
-        keptOpenMarksWritten(context.document.schedule, rowGroupId, true),
-      ),
-      'noFoldedRowBelow',
-    )
-  }
-
-  const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-  if (row === undefined || row.isHidden === true) return nothingToDo(null)
-  return changed([
-    { kind: 'setTaskGroupHidden', groupId: rowGroupId, hidden: true },
-    ...foldsRowAndBelow(context.document.schedule, rowGroupId),
-    ...keptOpenMarksWritten(context.document.schedule, rowGroupId, false),
-  ])
-}
-
-// see T-254
-/** @purity pure */
-function withKeptOpenMarks(
-  folds: readonly DocumentCommand[],
-  marks: readonly DocumentCommand[],
-): readonly DocumentCommand[] {
-  return folds.length === 0 ? [] : [...folds, ...marks]
-}
-
-// see KO-2, KO-4, KO-5, KO-6
-/** @purity pure */
-function keptOpenMarksWritten(
-  schedule: Schedule,
-  rowId: string | null,
-  keptOpen: boolean,
-): readonly DocumentCommand[] {
-  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
-  return schedule.taskGroups
-    .filter((row) => rowId === null || row.id === rowId || isRowUnder(parentOf, row.parentId, rowId))
-    .filter((row) => (row.isKeptOpen === true) !== keptOpen)
-    .map((row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen }) as const)
-}
-
-// see HF-13, FR-018
-/** @purity pure */
-function hasAChildBelowTheDepthLimit(context: InputContext, rowGroupId: string): boolean {
-  const settings = context.document.documentSettings
-  const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
-  if (row === undefined || row.isKeptOpen) return false
-  if (rowDepthOfGroup(context, rowGroupId) + 1 <= groupDepthLimit(settings)) return false
-  return context.document.schedule.taskGroups.some(
-    (child) => child.parentId === rowGroupId && !settings.pinnedGroupIds.includes(child.id),
-  )
-}
-
 // see IC-63, IC-64, IC-65
 /** @purity pure */
 function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
@@ -2247,75 +1167,8 @@ function rosterChoiceOfEntry(entry: string, schedule: Schedule): readonly number
   return schedule.resources.filter((one) => !referred.has(one.uid)).map((one) => one.uid)
 }
 
-// see HR-3, HF-2
 /** @purity pure */
-function opensRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentCommand[] {
-  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
-  const commands: DocumentCommand[] = []
-  for (const row of schedule.taskGroups) {
-    if (row.id !== rowId && !isRowUnder(parentOf, row.parentId, rowId)) continue
-    // TRAP: write only what changes: foldsOrNothing tells the reason only when this list is empty.
-    if (row.isHidden === true) {
-      commands.push({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false })
-    }
-    if (row.isCollapsed !== true) continue
-    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: false })
-  }
-  return commands
-}
-
-// see HR-7, HF-13
-/** @purity pure */
-function opensRowAndUnhidesItsChildren(
-  schedule: Schedule,
-  rowId: string,
-): readonly DocumentCommand[] {
-  const commands: DocumentCommand[] = []
-  const row = schedule.taskGroups.find((one) => one.id === rowId)
-  if (row !== undefined && row.isCollapsed === true) {
-    commands.push({ kind: 'setTaskGroupCollapsed', groupId: rowId, collapsed: false })
-  }
-  for (const child of schedule.taskGroups) {
-    if (child.parentId !== rowId) continue
-    if (child.isHidden !== true) continue
-    commands.push({ kind: 'setTaskGroupHidden', groupId: child.id, hidden: false })
-  }
-  return commands
-}
-
-// see HF-16, HR-6
-/** @purity pure */
-function opensLevelZeroHiddenRows(schedule: Schedule): readonly DocumentCommand[] {
-  return schedule.taskGroups
-    .filter((row) => row.parentId === null && row.isHidden === true)
-    .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
-}
-
-// see HF-14
-/** @purity pure */
-function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): number {
-  // TRAP: one past the largest order, not the child count: orders may have gaps (AT-55).
-  let lastOrder: number | null = null
-  for (const row of schedule.taskGroups) {
-    if (row.parentId !== parentGroupId) continue
-    if (lastOrder === null || row.order > lastOrder) lastOrder = row.order
-  }
-  return lastOrder === null ? 0 : lastOrder + 1
-}
-
-/** @purity pure */
-function rowGrabSiblings(
-  rows: readonly TaskGroup[],
-  parentId: string | null,
-  heldGroupId: string,
-): readonly TaskGroup[] {
-  return rows
-    .filter((one) => one.id !== heldGroupId && one.parentId === parentId)
-    .sort((a, b) => a.order - b.order)
-}
-
-/** @purity pure */
-function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
+export function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
   let depth = 1
   let foundAt = row.parentId
   for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
@@ -2328,1024 +1181,32 @@ function rowGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): n
 }
 
 /** @purity pure */
-function rowGrabSubtreeHeight(rows: readonly TaskGroup[], rootId: string): number {
-  let height = 0
-  let level: readonly string[] = [rootId]
-  const seen = new Set<string>()
-  while (level.length > 0) {
-    height += 1
-    for (const id of level) seen.add(id)
-    const above = level
-    level = rows
-      .filter((one) => !seen.has(one.id) && one.parentId !== null && above.includes(one.parentId))
-      .map((one) => one.id)
-  }
-  return height
-}
-
-interface RowGrabLanding {
-  readonly parentId: string | null
-  readonly order: number
-  readonly depth: number
-}
-
-interface RowGrabStep {
-  readonly landing: RowGrabLanding
-  readonly situation: SpentEntranceSituation | null
-}
-
-// see HF-15, FR-085
-/** @purity pure */
-function rowGrabLandingOf(
-  context: InputContext,
-  heldGroupId: string,
-  steps: number,
-): RowGrabStep | null {
-  const rows = context.document.schedule.taskGroups
-  const byId = new Map(rows.map((one) => [one.id, one]))
-  const held = byId.get(heldGroupId)
-  if (held === undefined) return null
-
-  const cap = context.document.documentSettings.maxGroupDepth
-  const height = rowGrabSubtreeHeight(rows, heldGroupId)
-  const startSiblings = rows
-    .filter((one) => one.parentId === held.parentId)
-    .sort((a, b) => a.order - b.order)
-  // TRAP: CM-73 reads a rank among siblings, not the `order` column; orders 0, 2, 7 must answer 0, 1, 2.
-  const startOrder = Math.max(
-    0,
-    startSiblings.findIndex((one) => one.id === heldGroupId),
-  )
-  let landing: RowGrabLanding = {
-    parentId: held.parentId,
-    order: startOrder,
-    depth: rowGrabDepthOf(byId, held),
-  }
-
-  const taken = Math.abs(steps)
-  const deeper = steps > 0
-  for (let step = 0; step < taken; step++) {
-    if (deeper) {
-      const siblings = rowGrabSiblings(rows, landing.parentId, heldGroupId)
-      const above = siblings[landing.order - 1]
-      if (above === undefined) return { landing, situation: 'noSiblingAboveToNestUnder' }
-      if (rowGrabDepthOf(byId, above) + height > cap) {
-        return { landing, situation: 'groupDepthLimitReached' }
-      }
-      landing = {
-        parentId: above.id,
-        // TRAP: a count, not `orderPastLastChild` (largest plus one); CM-73 reads a rank.
-        order: rowGrabSiblings(rows, above.id, heldGroupId).length,
-        depth: landing.depth + 1,
-      }
-      continue
-    }
-    if (landing.parentId === null) return { landing, situation: 'rowIsAtTheShallowestLevel' }
-    const parent = byId.get(landing.parentId)
-    if (parent === undefined) return { landing, situation: null }
-    const uncles = rowGrabSiblings(rows, parent.parentId, heldGroupId)
-    landing = {
-      parentId: parent.parentId,
-      order: uncles.findIndex((one) => one.id === parent.id) + 1,
-      depth: Math.max(1, landing.depth - 1),
-    }
-  }
-  return { landing, situation: null }
-}
-
-interface RowGrabPlace {
-  readonly parentId: string | null
-  readonly order: number
-  readonly atY: number
-  readonly isOwn: boolean
-}
-
-// see HF-15
-/** @purity pure */
-function rowGrabPlacesInDrawingOrder(
-  context: InputContext,
-  heldGroupId: string,
-): readonly RowGrabPlace[] {
-  const drawn = context.drawnRowBoxes
-  if (drawn === undefined) return []
-  const rows = context.document.schedule.taskGroups
-  const byId = new Map(rows.map((one) => [one.id, one]))
-  const held = byId.get(heldGroupId)
-  if (held === undefined) return []
-  const depth = rowGrabDepthOf(byId, held)
-  const parentsWithADrawnChild = new Set<string>()
-  for (const entry of drawn) {
-    const parentId = byId.get(entry.groupId)?.parentId
-    if (parentId !== undefined && parentId !== null) parentsWithADrawnChild.add(parentId)
-  }
-
-  const placeOrderOf = (row: TaskGroup): number => {
-    const among = rows
-      .filter((one) => one.parentId === row.parentId)
-      .sort((a, b) => a.order - b.order)
-    const at = among.findIndex((one) => one.id === row.id)
-    if (at < 0) return 0
-    return among.slice(0, at).filter((one) => one.id !== heldGroupId).length
-  }
-
-  const places: RowGrabPlace[] = []
-  // WHY: two consecutive places with the same landing are merged, or a drag between them never moves.
-  const put = (place: RowGrabPlace): void => {
-    const last = places[places.length - 1]
-    if (last !== undefined && last.parentId === place.parentId && last.order === place.order) return
-    places.push(place)
-  }
-
-  let runParentId: string | null | undefined = undefined
-  let runOrderAfter = 0
-  let runBottom = 0
-  const closeRun = (): void => {
-    if (runParentId === undefined) return
-    put({ parentId: runParentId, order: runOrderAfter, atY: runBottom, isOwn: false })
-    runParentId = undefined
-  }
-
-  for (const entry of drawn) {
-    const row = byId.get(entry.groupId)
-    if (row === undefined) continue
-    const rowDepth = rowGrabDepthOf(byId, row)
-    if (rowDepth > depth) continue
-    if (rowDepth === depth) {
-      if (runParentId !== undefined && runParentId !== row.parentId) closeRun()
-      const order = placeOrderOf(row)
-      const isOwn = row.id === heldGroupId
-      put({ parentId: row.parentId, order, atY: entry.box.y, isOwn })
-      runParentId = row.parentId
-      // TRAP: not one past the held row; with it taken out, before and after it are one place,
-      // and counting past it would hide the end RS-39 is told against.
-      runOrderAfter = isOwn ? order : order + 1
-      runBottom = entry.box.y + entry.box.height
-      continue
-    }
-    closeRun()
-    // TRAP: the one place `isCollapsed` must be read; a folded group has no drawn child to hide it.
-    if (
-      depth > 1 &&
-      rowDepth === depth - 1 &&
-      row.isCollapsed !== true &&
-      !parentsWithADrawnChild.has(row.id)
-    ) {
-      put({ parentId: row.id, order: 0, atY: entry.box.y + entry.box.height, isOwn: false })
-    }
-  }
-  closeRun()
-  return places
-}
-
-// see HF-15, RS-39
-/** @purity pure */
-function rowGrabPositionOf(
-  context: InputContext,
-  heldGroupId: string,
-  travelY: number,
-): { readonly place: RowGrabPlace; readonly situation: SpentEntranceSituation | null } | null {
-  const drawn = context.drawnRowBoxes
-  if (drawn === undefined) return null
-  const heldBox = drawn.find((one) => one.groupId === heldGroupId)?.box
-  if (heldBox === undefined) return null
-  const places = rowGrabPlacesInDrawingOrder(context, heldGroupId)
-  const ownAt = places.findIndex((one) => one.isOwn)
-  if (ownAt < 0) return null
-  const own = places[ownAt]
-  if (own === undefined) return null
-  if (travelY < 0 && ownAt === 0) return { place: own, situation: 'noPlaceLeftInThatDirection' }
-  if (travelY > 0 && ownAt === places.length - 1) {
-    return { place: own, situation: 'noPlaceLeftInThatDirection' }
-  }
-  // WHY: the row's carried top edge, not the pointer's y, or the row jumps the instant it is touched.
-  const carriedTo = heldBox.y + travelY
-  let best = own
-  for (const place of places) {
-    const reach = Math.abs(place.atY - carriedTo)
-    const standing = Math.abs(best.atY - carriedTo)
-    if (reach < standing || (reach === standing && place.isOwn)) best = place
-  }
-  return { place: best, situation: null }
-}
-
-// see HF-15, S-37, DS-1
-// TRAP: the DRAWN S-37, not the stored one. The panel draws the indent at the display
-// ratio, so a stored step would leave the row behind the hand by that ratio every step.
-/** @purity pure */
-function drawnRowIndentOf(context: InputContext): number {
-  const settings = context.document.documentSettings
-  return settings.rowTitleIndent * displayRatioOf(settings)
-}
-
-// see HF-15, S-37
-/** @purity pure */
-function rowGrabDepthSteps(context: InputContext, at: PointerInput, press: PointerPress): number {
-  const indent = drawnRowIndentOf(context)
-  if (!(indent > 0)) return 0
-  // WHY: truncated, not rounded; rounding moves the row half a step before the hand.
-  return Math.trunc((at.x - press.at.x) / indent)
-}
-
-// see HF-15, S-208
-/** @purity pure */
-function rowGrabAxisAt(at: PointerInput, press: PointerPress): RowGrabAxis | null {
-  const settled = press.rowGrabAxis
-  if (settled !== null && settled !== undefined) return settled
-  const across = Math.abs(at.x - press.at.x)
-  const down = Math.abs(at.y - press.at.y)
-  const threshold = NOT_STORED_ROW_GRAB_SIZES['S-208']
-  if (across <= threshold && down <= threshold) return null
-  // WHY: exactly diagonal travel passed neither threshold first, so it settles nothing yet.
-  if (across === down) return null
-  return across > down ? 'depth' : 'position'
-}
-
-// see GR-20
-/** @purity pure */
-function grabbedRowGroupId(press: PointerPress): string | null {
-  const on = press.on
-  // TRAP: a pinned row is refused only because the surface draws no strip on it.
-  if (on === null || on.isRowGrabStrip !== true) return null
-  return on.rowGroupId
-}
-
-// see HF-15
-/** @purity pure */
-function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedInput {
-  const press = context.pressed
-  if (press === null) return UNASSIGNED
-  const groupId = grabbedRowGroupId(press)
-  if (groupId === null) return UNASSIGNED
-  // WHY: a caller that does not record the axis cannot hold it (as `paletteFollow` refuses).
-  if (press.rowGrabAxis === undefined) return UNASSIGNED
-  const axis = rowGrabAxisAt(input, press)
-  if (axis === null) return UNASSIGNED
-  if (axis === 'position') {
-    const found = rowGrabPositionOf(context, groupId, input.y - press.at.y)
-    if (found === null) return UNASSIGNED
-    return acted({
-      kind: 'followRowGrab',
-      groupId,
-      axis,
-      atDepth: rowDepthOfGroup(context, groupId),
-      atY: found.place.atY,
-      resistedPx: rowGrabResistedPx(input.x - press.at.x, drawnRowIndentOf(context)),
-    })
-  }
-  const step = rowGrabLandingOf(context, groupId, rowGrabDepthSteps(context, input, press))
-  if (step === null) return UNASSIGNED
-  return acted({
-    kind: 'followRowGrab',
-    groupId,
-    axis,
-    atDepth: step.landing.depth,
-    atY: null,
-    resistedPx: rowGrabResistedPx(input.y - press.at.y, rowGrabRowHeightOf(context, groupId)),
-  })
-}
-
-// see HF-15, S-212
-/** @purity pure */
-function rowGrabResistedPx(travelPx: number, stepPx: number): number {
-  const furthest = Math.abs(stepPx) * NOT_STORED_ROW_GRAB_SIZES['S-212']
-  return Math.max(-furthest, Math.min(furthest, travelPx))
-}
-
-/** @purity pure */
-function rowGrabRowHeightOf(context: InputContext, heldGroupId: string): number {
-  const placed = (context.drawnRowBoxes ?? []).find((one) => one.groupId === heldGroupId)
-  return placed === undefined ? 0 : placed.box.height
-}
-
-/** @purity pure */
-function rowDepthOfGroup(context: InputContext, groupId: string): number {
+export function rowDepthOfGroup(context: InputContext, groupId: string): number {
   const rows = context.document.schedule.taskGroups
   const byId = new Map(rows.map((one) => [one.id, one]))
   const found = byId.get(groupId)
   return found === undefined ? 1 : rowGrabDepthOf(byId, found)
 }
 
-// see HF-14
-/** @purity pure */
-function parentFoldTakenOff(
-  schedule: Schedule,
-  parentGroupId: string | null,
-): readonly DocumentCommand[] {
-  if (parentGroupId === null) return []
-  const parent = schedule.taskGroups.find((one) => one.id === parentGroupId)
-  if (parent?.isCollapsed !== true) return []
-  return [{ kind: 'setTaskGroupCollapsed', groupId: parentGroupId, collapsed: false }]
-}
-
-// see HF-14, HF-17
-/** @purity pure */
-function rowStoodUp(
-  context: InputContext,
-  parentGroupId: string | null,
-  depth: number,
-): TranslatedInput {
-  const settings = context.document.documentSettings
-  const opensTier = depth > groupDepthLimit(settings)
-  const newGroupId = context.newGroupId
-  // TRAP: keep the parent's fold in the row's bundle; a bundle of its own is a second undo step.
-  return changedAndCreated(
-    [
-      opensTier
-        ? [
-            {
-              kind: 'setZoom',
-              zoomX: settings.zoomX,
-              // TRAP: only `groupDepthThresholdOf`; any other route can differ by one ulp from `groupDepthLimit`.
-              zoomY: groupDepthThresholdOf(depth, settings),
-            } as const,
-          ]
-        : [],
-      [
-        ...parentFoldTakenOff(context.document.schedule, parentGroupId),
-        {
-          kind: 'createTaskGroup',
-          id: newGroupId,
-          parentId: parentGroupId,
-          label: DEFAULT_ROW_NAME,
-          derivedFromTaskUid: null,
-          order: orderPastLastChild(context.document.schedule, parentGroupId),
-        } as const,
-      ],
-    ],
-    { kind: 'row', groupId: newGroupId },
-  )
-}
-
-// see HF-15
-/** @purity pure */
-function commandFromRowGrab(
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-  heldGroupId: string,
-): TranslatedInput {
-  const axis = rowGrabAxisAt(release, press)
-  if (axis === null) {
-    return acted({
-      kind: 'chooseRow',
-      groupId: heldGroupId,
-      isExtending: press.at.modifiers.shift,
-    })
-  }
-  const held = context.document.schedule.taskGroups.find((one) => one.id === heldGroupId)
-  if (axis === 'position') {
-    const found = rowGrabPositionOf(context, heldGroupId, release.y - press.at.y)
-    if (found === null) return CONSUMED_ELSEWHERE
-    if (found.situation !== null) return nothingToDo(found.situation)
-    // WHY: not written: an accepted write marks unsaved edits even if nothing moved.
-    if (found.place.isOwn) return CONSUMED_ELSEWHERE
-    return changed([
-      {
-        kind: 'moveTaskGroup',
-        groupId: heldGroupId,
-        parentId: found.place.parentId,
-        order: found.place.order,
-      },
-    ])
-  }
-  const steps = rowGrabDepthSteps(context, release, press)
-  if (steps === 0) return CONSUMED_ELSEWHERE
-  const step = rowGrabLandingOf(context, heldGroupId, steps)
-  if (step === null) return CONSUMED_ELSEWHERE
-  const landing = step.landing
-  // WHY: judged by the parent, not the step count; every depth step changes the parent.
-  if (held !== undefined && held.parentId === landing.parentId) {
-    return step.situation === null ? CONSUMED_ELSEWHERE : nothingToDo(step.situation)
-  }
-  return changed([
-    {
-      kind: 'moveTaskGroup',
-      groupId: heldGroupId,
-      parentId: landing.parentId,
-      order: landing.order,
-    },
-  ])
-}
-
-// see HR-4, HR-1a
-/** @purity pure */
-function foldsRowAndBelow(schedule: Schedule, rowId: string): readonly DocumentCommand[] {
-  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
-  const commands: DocumentCommand[] = []
-  for (const row of schedule.taskGroups) {
-    if (row.isCollapsed === true) continue
-    // WHY: rows under an already-folded row are written too, or they spring open when that fold comes off.
-    if (row.id !== rowId && !isRowUnder(parentOf, row.parentId, rowId)) continue
-    commands.push({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true })
-  }
-  return commands
-}
-
-// see HR-3, HR-4, HR-7, RS-30
-/** @purity pure */
-function wouldMoveARow(
-  context: InputContext,
-  ancestorId: string | null,
-  operation: 'open' | 'fold' | 'openOneLevel',
-): boolean | null {
-  const drawnIds = context.drawnRowGroupIds
-  if (drawnIds === undefined) return null
-  const drawn = new Set(drawnIds)
-  const schedule = context.document.schedule
-  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
-
-  const withDrawnChild = new Set<string>()
-  const withUnhiddenChild = new Set<string>()
-  // TRAP: must stay the set `row-title-panel.ts` builds as `groupIdsWithAChildOutOfThePicture`.
-  const withAChildOutOfThePicture = new Set<string>()
-  for (const row of schedule.taskGroups) {
-    if (row.parentId === null) continue
-    if (drawn.has(row.id)) withDrawnChild.add(row.parentId)
-    else withAChildOutOfThePicture.add(row.parentId)
-    if (row.isHidden !== true) withUnhiddenChild.add(row.parentId)
-  }
-  const pressedRow =
-    ancestorId === null
-      ? undefined
-      : schedule.taskGroups.find((one) => one.id === ancestorId)
-
-  if (ancestorId !== null && (pressedRow === undefined || !drawn.has(ancestorId))) return false
-
-  if (operation === 'fold') return ancestorId !== null && withDrawnChild.has(ancestorId)
-
-  if (operation === 'openOneLevel') {
-    if (ancestorId === null) return false
-    return withAChildOutOfThePicture.has(ancestorId)
-  }
-
-  if (
-    ancestorId !== null &&
-    pressedRow?.isCollapsed === true &&
-    withUnhiddenChild.has(ancestorId)
-  ) {
-    return true
-  }
-  for (const row of schedule.taskGroups) {
-    if (ancestorId !== null && !isRowUnder(parentOf, row.parentId, ancestorId)) continue
-    // TRAP: the hidden test must precede the `drawn` test; HR-6 keeps hidden rows out of `drawn`,
-    // so swapping them makes the all-below open do less than the one-level open.
-    if (row.isHidden === true) return true
-    if (!drawn.has(row.id)) continue
-    if (row.isCollapsed === true && withUnhiddenChild.has(row.id)) return true
-  }
-  return false
-}
-
-/** @purity pure */
-function isARowOfTheShallowestLevelDrawn(context: InputContext): boolean {
-  const rootRows = context.document.schedule.taskGroups.filter((row) => row.parentId === null)
-  const drawnIds = context.drawnRowGroupIds
-  if (drawnIds === undefined) return rootRows.some((row) => row.isHidden !== true)
-  const drawn = new Set(drawnIds)
-  return rootRows.some((row) => drawn.has(row.id))
-}
-
-// see HR-1
-/** @purity pure */
-function unhidesEveryRow(schedule: Schedule): readonly DocumentCommand[] {
-  return schedule.taskGroups
-    .filter((row) => row.isHidden === true)
-    .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
-}
-
-// see KO-3
-// WHY: every row, not only the unmarked: CM-72 earlier in the same write takes every mark off.
-/** @purity pure */
-function marksEveryRowKeptOpen(schedule: Schedule): readonly DocumentCommand[] {
-  return schedule.taskGroups.map(
-    (row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen: true }) as const,
-  )
-}
-
-// see HR-2
-/** @purity pure */
-function foldsEveryRow(schedule: Schedule): readonly DocumentCommand[] {
-  return schedule.taskGroups
-    .filter((row) => row.isCollapsed !== true)
-    .map((row) => ({ kind: 'setTaskGroupCollapsed', groupId: row.id, collapsed: true }) as const)
-}
-
-/** @purity pure */
-function isRowUnder(
-  parentOf: ReadonlyMap<string, string | null>,
-  parentId: string | null,
-  ancestorId: string,
-): boolean {
-  const climbed = new Set<string>()
-  let at = parentId
-  while (at !== null && !climbed.has(at)) {
-    if (at === ancestorId) return true
-    climbed.add(at)
-    at = parentOf.get(at) ?? null
-  }
-  return false
-}
-
-// see FR-083
-/** @purity pure */
-function commandFromArmingEntry(entry: string, context: InputContext): TranslatedInput {
-  const armed = armedByEntry(entry)
-  if (armed === null) return CONSUMED_ELSEWHERE
-  if (context.selection.items.length === 0) return CONSUMED_ELSEWHERE
-
-  // WHY: a mixed selection is not filtered; CM-20 refuses the crossing and AG-3 keeps the bundle
-  // atomic, while filtering here would decide a question no row decides.
-  const commands: DocumentCommand[] = []
-  for (const one of context.selection.items) {
-    if (one.kind !== 'task') continue
-    if (armed.kind === 'taskShape') {
-      const shapeKind = taskShapeKindOf(armed.shapeKind)
-      if (shapeKind !== null) commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind })
-      continue
-    }
-    if (armed.kind === 'milestoneShape') {
-      const glyph = milestoneGlyphOf(armed.glyph)
-      if (glyph === null) continue
-      commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
-      commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, glyph })
-      continue
-    }
-  }
-  return changed(commands)
-}
-
-// see UC-004, FR-009
-/** @purity pure */
-function commandFromDependencyDrag(
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  const from = dependencyStartOfHit(context.geometry, press.at.x, press.at.y, press.hit)
-  if (from === null) return CONSUMED_ELSEWHERE
-  const into = dependencyEndAtPointer(context.geometry, release.x, release.y, null)
-  if (into === null) return CONSUMED_ELSEWHERE
-  // WHY: no `linkType` here; `edit-dependency.ts` maps the edges through T-018, a second entrance FR-009 refuses.
-  return changed([
-    {
-      kind: 'createDependency',
-      predecessorUid: from.taskUid,
-      successorUid: into.taskUid,
-      predecessorEdge: from.edge,
-      successorEdge: into.edge,
-    },
-  ])
-}
-
-// see T-023d, MK-13
-/** @purity pure */
-function commandFromGrab(
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  const hit = press.hit
-  if (hit === null) return CONSUMED_ELSEWHERE
-  const item = hit.item
-
-  // TRAP: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
-  // so the switch would rewrite the same day instead of opening the name.
-  if (release.clickCount >= 2 && item.kind === 'task') {
-    const isNameEntrance = hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)
-    if (isNameEntrance) {
-      return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
-    }
-    if (hit.grab === 'GR-11') {
-      return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
-    }
-  }
-
-  if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
-    const day = dayAtX(context.layout, release.x)
-    return day === null ? CONSUMED_ELSEWHERE : changed([{ kind: 'setStatusDate', date: textOfDay(day) }])
-  }
-
-  // TRAP: must stay above GR-14's move below, or a double click and a drag on one place are one press.
-  if (release.clickCount >= 2 && item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    return acted({ kind: 'editInPlace', target: { kind: 'commentBoxText', id: item.id } })
-  }
-
-  // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
-  // switch and reaches a second destination (for GA-6, a 0px actual).
-  if (MK_13_GRAB_ROWS.has(hit.grab) && !hasDraggedPastThreshold(press, release)) {
-    return CONSUMED_ELSEWHERE
-  }
-
-  // see GR-14, CM-50
-  if (item.kind === 'commentBox' && hit.grab === 'GR-14' && hit.boxPart?.kind === 'anchor') {
-    return commentBoxAnchorWrite(context, release, item.id)
-  }
-
-  // see GR-14, CM-54
-  if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
-    return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
-  }
-
-  // see GR-14, CM-51
-  if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    const box = boxById(context.document.schedule.commentBoxes, item.id)
-    if (box === undefined) return CONSUMED_ELSEWHERE
-    const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    return changed([
-      {
-        kind: 'setCommentBoxBodyOffsetPx',
-        id: item.id,
-        dx: stood.dx + (release.x - press.at.x),
-        dy: stood.dy + (release.y - press.at.y),
-      },
-    ])
-  }
-
-  if (item.kind !== 'task') return CONSUMED_ELSEWHERE
-
-  const uid = item.taskUid
-  const grab = grabRowOf(hit)
-  switch (grab) {
-    case 'GA-18':
-      return hasDraggedPastThreshold(press, release)
-        ? markerPullWrite(context, release, uid)
-        : changed([
-            {
-              kind: 'cycleTaskPlanActualState',
-              uid,
-              remembered: rememberedActualOf(context.screenState, uid),
-            },
-          ])
-    case 'GA-7':
-    case 'GA-8': {
-      const task = taskByUid(context.document.schedule, uid)
-      const start = dayOf(task === null ? null : task.start)
-      const finish = dayOf(task === null ? null : task.finish)
-      const atPointer = pointerDaySerial(context.layout, release.x)
-      if (task === null || start === null || finish === null || atPointer === null) {
-        return CONSUMED_ELSEWHERE
-      }
-      const pulled =
-        grab === 'GA-7'
-          ? Math.round(atPointer - serialOfDay(start))
-          : Math.round(serialOfDay(finish) - atPointer)
-      const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
-      return changed([
-        grab === 'GA-7'
-          ? { kind: 'setTaskFadeInDays', uid, days }
-          : { kind: 'setTaskFadeOutDays', uid, days },
-      ])
-    }
-    case 'GA-1':
-    case 'GA-10':
-    case 'GA-2':
-    case 'GA-11': {
-      const task = taskByUid(context.document.schedule, uid)
-      const start = dayOf(task === null ? null : task.start)
-      const finish = dayOf(task === null ? null : task.finish)
-      const day = dayAtX(context.layout, release.x)
-      if (start === null || finish === null || day === null) return CONSUMED_ELSEWHERE
-      const isStartHeld = grab === 'GA-1' || grab === 'GA-10'
-      const moved = isStartHeld ? { start: day, finish } : { start, finish: day }
-      // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
-      return changed([
-        {
-          kind: 'setTaskPlanDates',
-          uid,
-          start: textOfDay(moved.start),
-          finish: textOfDay(moved.finish),
-        },
-      ])
-    }
-    case 'GA-3':
-    case 'GA-12':
-    case 'GA-16':
-    case 'GA-4':
-    case 'GA-13': {
-      return actualEndWrite(context, release, uid, grab)
-    }
-    case 'GA-5':
-    case 'GA-21':
-    case 'GA-6':
-    case 'GA-22':
-    case 'GA-17': {
-      const dropped = dayAtX(context.layout, release.x)
-      if (dropped === null) return CONSUMED_ELSEWHERE
-      return changed([
-        { kind: 'beginTaskActual', uid, grabbed: grab, droppedDay: textOfDay(dropped) },
-      ])
-    }
-    case 'GA-9':
-    case 'GA-14':
-    case 'GA-15':
-      return changed(bodyMoveWrites(context, press, release, uid))
-    case 'GA-20': {
-      if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
-      const task = taskByUid(context.document.schedule, uid)
-      const dropped = dayAtX(context.layout, release.x)
-      if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-      // STOP: spec does not decide GA-20 on a suspended Task with no actual. Looked in T-266, PA-3, FR-044
-      // @provisional PND-318
-      const lastDay = actualLastDay(task)
-      if (task.actualStart === null || lastDay === null) return CONSUMED_ELSEWHERE
-      // see GO-10
-      const earliest = dayShifted(lastDay, 1)
-      const resume = compareDay(dropped, earliest) < 0 ? earliest : dropped
-      return changed([
-        {
-          kind: 'setTaskPlanActualState',
-          uid,
-          place: {
-            row: 'PA-3',
-            actualStart: task.actualStart,
-            stop: textOfDay(lastDay),
-            resume: textOfDay(resume),
-          },
-        },
-      ])
-    }
-    default:
-      return CONSUMED_ELSEWHERE
-  }
-}
-
-// see PE-8, PE-9, PE-10
-/** @purity pure */
-function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-9' | 'PE-10' {
-  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
-  const task = taskByUid(context.document.schedule, uid)
-  if (drawn === undefined || task === null) return 'PE-10'
-  if (drawn.shapeKind !== 'rectangle' && drawn.shapeKind !== 'chevron') return 'PE-10'
-  const marker = drawn.marker
-  if (marker === null) return 'PE-10'
-  const state = planActualState(task)
-  if (state === 'notStarted') {
-    const inks = drawn.dummies.map((one) => one.ink.x + one.ink.width)
-    return inks.length > 0 && marker.centre.x >= Math.max(...inks) ? 'PE-9' : 'PE-10'
-  }
-  if (state === 'suspendedResumeUnknown' || state === 'suspendedResumePlanned') return 'PE-10'
-  const bar = drawn.actual
-  const rightEdge = bar === null ? null : rightEdgeOfBar(bar)
-  return rightEdge !== null && marker.centre.x >= rightEdge ? 'PE-8' : 'PE-10'
-}
-
-/** @purity pure */
-function rightEdgeOfBar(bar: BarGeometry): number | null {
-  if (bar.form === 'line') return Math.max(bar.from.x, bar.to.x)
-  const xs = bar.points.map((one) => one.x)
-  return xs.length === 0 ? null : Math.max(...xs)
-}
-
-// see GO-3, GO-4, GO-5
-/** @purity pure */
-function actualEndWrite(
-  context: InputContext,
-  release: PointerInput,
-  uid: number,
-  grab: ActualEndHold,
-): TranslatedInput {
-  const task = taskByUid(context.document.schedule, uid)
-  const dropped = dayAtX(context.layout, release.x)
-  if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-  const place = actualEndPlacement(task, grab, dropped)
-  if (place === null) return CONSUMED_ELSEWHERE
-  return changed([{ kind: 'setTaskPlanActualState', uid, place }])
-}
-
-// see GO-9
-/** @purity pure */
-function markerPullWrite(
-  context: InputContext,
-  release: PointerInput,
-  uid: number,
-): TranslatedInput {
-  const row = markerPullRow(context, uid)
-  if (row === 'PE-10') return CONSUMED_ELSEWHERE
-  if (row === 'PE-8') return actualEndWrite(context, release, uid, 'GA-4')
-  const planStart = dayOf(taskByUid(context.document.schedule, uid)?.start ?? null)
-  const dropped = dayAtX(context.layout, release.x)
-  if (planStart === null || dropped === null) return CONSUMED_ELSEWHERE
-  // WHY: released left of the plan start, GO-9 asks for a one-day actual there, not a refusal.
-  const held = compareDay(dropped, planStart) < 0 ? planStart : dropped
-  return changed([
-    { kind: 'beginTaskActual', uid, grabbed: 'GA-6', droppedDay: textOfDay(held) },
-  ])
-}
-
-// see PE-1, PE-6, SL-7
-/** @purity pure */
-function bodyMoveWrites(
-  context: InputContext,
-  press: PointerPress,
-  release: PointerInput,
-  uid: number,
-): readonly DocumentCommand[] {
-  const rows = drawnRowsOf(context.layout)
-  const moving = movedTaskUids(context, uid)
-  const shift = dayShift(context, press.at.x, release.x)
-  const crossed = clampedRowShift(context, rows, moving, drawnRowsCrossed(rows, press.at.y, release.y))
-  const commands: DocumentCommand[] = []
-  for (const each of moving) {
-    const task = taskByUid(context.document.schedule, each)
-    if (task === null) continue
-    const start = dayOf(task.start)
-    const finish = dayOf(task.finish)
-    if (start !== null && finish !== null && shift !== 0) {
-      commands.push({
-        kind: 'setTaskPlanDates',
-        uid: each,
-        start: textOfDay(dayShifted(start, shift)),
-        finish: textOfDay(dayShifted(finish, shift)),
-      })
-    }
-    const at = rowIndexOfTask(context, rows, each)
-    const landed = at === null ? undefined : rows[at + crossed]
-    if (landed !== undefined && landed.groupId !== rowOfTask(context, each)) {
-      commands.push({ kind: 'moveTaskToTaskGroup', uid: each, groupId: landed.groupId })
-    }
-  }
-  return commands
-}
-
-/** @purity pure */
-function rowIndexOfTask(
-  context: InputContext,
-  rows: readonly RowPlacement[],
-  uid: number,
-): number | null {
-  const groupId = rowOfTask(context, uid)
-  if (groupId === null) return null
-  const at = rows.findIndex((one) => one.groupId === groupId)
-  return at < 0 ? null : at
-}
-
-// see PE-1, SL-7
-// WHY: one shift for the whole selection: a per-item clamp would spread a selection that
-// started a row apart, and the table asks for the same number of rows for all of them.
-/** @purity pure */
-function clampedRowShift(
-  context: InputContext,
-  rows: readonly RowPlacement[],
-  moving: readonly number[],
-  asked: number,
-): number {
-  const held: number[] = []
-  for (const uid of moving) {
-    const at = rowIndexOfTask(context, rows, uid)
-    if (at !== null) held.push(at)
-  }
-  for (const one of context.selection.items) {
-    if (one.kind !== 'highlightBox') continue
-    const box = boxById(context.document.schedule.highlightBoxes, one.id)
-    if (box === undefined) continue
-    for (const groupId of [box.topGroupId, box.bottomGroupId]) {
-      const at = rows.findIndex((row) => row.groupId === groupId)
-      if (at >= 0) held.push(at)
-    }
-  }
-  if (held.length === 0) return 0
-  const room = { up: -Math.min(...held), down: rows.length - 1 - Math.max(...held) }
-  return Math.min(Math.max(asked, room.up), room.down)
-}
-
 // see GR-14
 /** @purity pure */
-function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box | undefined {
+export function boxById<Box extends { readonly id: string }>(boxes: readonly Box[], id: string): Box | undefined {
   return boxes.find((one) => one.id === id)
 }
 
 // see HB-3, GA-9
 // TRAP: sort by y, not layout order: FR-098 lifts pinned rows, so layout order is not what is drawn.
 /** @purity pure */
-function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
+export function drawnRowsOf(layout: ScheduleLayout): readonly RowPlacement[] {
   return [...layout.rows].sort((a, b) => a.y - b.y)
 }
 
 // see HB-3
 // WHY: counts the row tops crossed, so a press on a box's edge and one inside the row move by the same rows.
 /** @purity pure */
-function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number {
+export function drawnRowsCrossed(rows: readonly RowPlacement[], fromY: number, toY: number): number {
   const topsAtOrAbove = (y: number): number => rows.filter((row) => row.y <= y).length
   return topsAtOrAbove(toY) - topsAtOrAbove(fromY)
-}
-
-// see HB-5
-/** @purity pure */
-function nearestDrawnRowBoundary(rows: readonly RowPlacement[], y: number): number {
-  let nearest = 0
-  let nearestDistance = Number.POSITIVE_INFINITY
-  for (let at = 0; at <= rows.length; at++) {
-    const above = rows[at - 1]
-    const below = rows[at]
-    const gapTop = above === undefined ? Number.NEGATIVE_INFINITY : above.y + above.height
-    const gapBottom = below === undefined ? Number.POSITIVE_INFINITY : below.y
-    const distance = Math.max(Math.min(gapTop, gapBottom) - y, 0, y - Math.max(gapTop, gapBottom))
-    // WHY: within 1e-9, not exact: a band of 24.0012px puts its middle a float step off either gap, and HB-5's tie takes the lower.
-    if (distance <= nearestDistance + 1e-9) {
-      nearest = at
-      nearestDistance = distance
-    }
-  }
-  return nearest
-}
-
-// see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6
-/** @purity pure */
-function highlightBoxRangeWrite(
-  context: InputContext,
-  press: PointerPress,
-  release: PointerInput,
-  id: string,
-  part: NonNullable<Hit['boxPart']>,
-): TranslatedInput {
-  const box = boxById(context.document.schedule.highlightBoxes, id)
-  const start = dayOf(box === undefined ? null : box.startDate)
-  const end = dayOf(box === undefined ? null : box.endDate)
-  const rows = drawnRowsOf(context.layout)
-  const firstRow = context.layout.rows[0]
-  const lastRow = context.layout.rows[context.layout.rows.length - 1]
-  if (box === undefined || start === null || end === null || firstRow === undefined || lastRow === undefined) {
-    return CONSUMED_ELSEWHERE
-  }
-  // WHY: a highlight box holds a frame and four corners only; the anchor and the leader
-  // belong to a comment box, and CM-54 has no value to write for either.
-  if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
-
-  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
-  const topAt = rows.indexOf(rows.find((row) => row.groupId === box.topGroupId) ?? firstRow)
-  const bottomAt = rows.indexOf(rows.find((row) => row.groupId === box.bottomGroupId) ?? lastRow)
-  const upperAt = Math.min(topAt, bottomAt)
-  const lowerAt = Math.max(topAt, bottomAt)
-  const early = compareDay(start, end) <= 0 ? start : end
-  const late = compareDay(start, end) <= 0 ? end : start
-
-  let upper: RowPlacement | undefined
-  let lower: RowPlacement | undefined
-  let left: CalendarDay
-  let right: CalendarDay
-  if (part.kind === 'body') {
-    const days = dayShift(context, press.at.x, release.x)
-    const crossed = drawnRowsCrossed(rows, press.at.y, release.y)
-    upper = rows[upperAt + crossed]
-    lower = rows[lowerAt + crossed]
-    left = dayShifted(early, days)
-    right = dayShifted(late, days)
-  } else {
-    const atPointer = pointerDaySerial(context.layout, release.x)
-    if (atPointer === null) return CONSUMED_ELSEWHERE
-    // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
-    const dayBoundary = Math.round(atPointer)
-    const rowBoundary = nearestDrawnRowBoundary(rows, release.y)
-    const earlySerial = serialOfDay(early)
-    const lateSerial = serialOfDay(late)
-    // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
-    if (part.horizontal === 'left') {
-      left = dayFromSerial(Math.min(dayBoundary, lateSerial))
-      right = dayBoundary > lateSerial ? dayFromSerial(dayBoundary - 1) : late
-    } else {
-      left = dayBoundary <= earlySerial ? dayFromSerial(dayBoundary) : early
-      right = dayFromSerial(Math.max(dayBoundary - 1, earlySerial))
-    }
-    if (part.vertical === 'top') {
-      upper = rowBoundary > lowerAt ? rows[lowerAt] : rows[rowBoundary]
-      lower = rowBoundary > lowerAt ? rows[rowBoundary - 1] : rows[lowerAt]
-    } else {
-      upper = rowBoundary <= upperAt ? rows[rowBoundary] : rows[upperAt]
-      lower = rowBoundary <= upperAt ? rows[upperAt] : rows[rowBoundary - 1]
-    }
-  }
-  if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
-
-  // TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
-  const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-  const isUpperFirst = (rankById.get(upper.groupId) ?? 0) <= (rankById.get(lower.groupId) ?? 0)
-  const isLeftFirst = compareDay(left, right) <= 0
-  return changed([
-    {
-      kind: 'setHighlightBoxRange',
-      id,
-      range: {
-        startDate: textOfDay(isLeftFirst ? left : right),
-        endDate: textOfDay(isLeftFirst ? right : left),
-        topGroupId: (isUpperFirst ? upper : lower).groupId,
-        bottomGroupId: (isUpperFirst ? lower : upper).groupId,
-      },
-    },
-  ])
-}
-
-// see GR-14, CM-50, FR-019, RS-44
-// WHY: a released anchor is placed again, and FR-019 refuses a place with no row by RS-44.
-/** @purity pure */
-function commentBoxAnchorWrite(
-  context: InputContext,
-  release: PointerInput,
-  id: string,
-): TranslatedInput {
-  if (boxById(context.document.schedule.commentBoxes, id) === undefined) return CONSUMED_ELSEWHERE
-  const anchor = commentAnchorAt(context.layout, release.x, release.y)
-  if (!('groupId' in anchor)) return anchor
-  return changed([{ kind: 'setCommentBoxAnchor', id, anchor }])
 }
 
 // see FR-029, FR-034
@@ -3395,130 +1256,14 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
   return commands
 }
 
-// see FD-6
-/** @purity pure */
-function clampedFadeDays(task: Task, grab: 'GA-7' | 'GA-8', pulled: number, span: number): number {
-  const room = grab === 'GA-7' ? span : span - (task.fadeInDays ?? 0)
-  return Math.min(Math.max(0, pulled), Math.max(0, room))
-}
+export type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
 
-type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place']
-
-type ActualEndHold = 'GA-3' | 'GA-4' | 'GA-12' | 'GA-13' | 'GA-16'
-
-const ACTUAL_START_HOLDS: readonly ActualEndHold[] = ['GA-3', 'GA-12']
-
-// see GO-3, GO-4, GO-5
-/** @purity pure */
-function actualEndPlacement(
-  task: Task,
-  grab: ActualEndHold,
-  dropped: CalendarDay,
-): PlacedPlanActual | null {
-  const held = dayOf(task.actualStart)
-  if (held === null) return null
-  const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
-  const actualStart = isStartHeld || grab === 'GA-16' ? textOfDay(dropped) : textOfDay(held)
-  // WHY: GO-5 keeps the last day; the end holds put the released day itself, not a working day (GO-3).
-  const lastDay = isStartHeld ? null : textOfDay(dropped)
-  const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
-  const moved: Task = lastDay === null
-    ? { ...task, actualStart }
-    : { ...task, actualStart, [lastDayColumn]: lastDay }
-  return placementAt(moved)
-}
-
-// see PTD-4, FR-001, FR-019
-/** @purity pure */
-function commandFromArmed(
-  release: PointerInput,
-  press: PointerPress,
-  context: InputContext,
-): TranslatedInput {
-  const armed = context.screenState.armed
-  const from = dayAtX(context.layout, press.at.x)
-  const to = dayAtX(context.layout, release.x)
-  const row = rowAtY(context.layout, press.at.y)
-  if (from === null || to === null) return CONSUMED_ELSEWHERE
-  const groupId = row === null ? context.newGroupId : row.groupId
-  const early = compareDay(from, to) <= 0 ? from : to
-  const late = compareDay(from, to) <= 0 ? to : from
-  const dragged = hasDraggedPastThreshold(press, release)
-
-  if (armed.kind === 'taskShape' || armed.kind === 'milestoneShape') {
-    const named = armed.kind === 'taskShape' ? armed.shapeKind : 'milestone'
-    const shapeKind = taskShapeKindOf(named)
-    if (shapeKind === null) return CONSUMED_ELSEWHERE
-    const isMilestone = shapeKind === 'milestone'
-    if (!isMilestone && !dragged) return nothingToDo('barShapeReleasedWithoutADrag')
-    const start = isMilestone ? from : early
-    const finish = isMilestone ? from : late
-    const commands: DocumentCommand[] = [
-      {
-        kind: 'createTask',
-        shapeKind,
-        start: textOfDay(start),
-        finish: textOfDay(finish),
-        groupId,
-      },
-    ]
-    if (armed.kind === 'milestoneShape') {
-      const glyph = milestoneGlyphOf(armed.glyph)
-      if (glyph !== null) {
-        commands.push({
-          kind: 'setTaskVisualMilestoneGlyph',
-          uid: nextIssuedUid(context.document.schedule),
-          glyph,
-        })
-      }
-    }
-    return changedAndCreated([commands], {
-      kind: 'task',
-      uid: nextIssuedUid(context.document.schedule),
-    })
-  }
-
-  if (armed.kind === 'commentBox') {
-    const anchor = commentAnchorAt(context.layout, press.at.x, press.at.y)
-    if (!('groupId' in anchor)) return anchor
-    return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor }])
-  }
-
-  if (armed.kind === 'highlightBox') {
-    if (!dragged) return CONSUMED_ELSEWHERE
-
-    const releaseRow = rowAtY(context.layout, release.y)
-    if (row === null || releaseRow === null) return nothingToDo('noRowToPutTheAnnotationOn')
-
-    // TRAP: rank rows by tree order, not RowPlacement.y: once FR-098 pins a row,
-    // comparing y writes pairs IV-19 refuses.
-    const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-    const pressRank = rankById.get(row.groupId) ?? 0
-    const releaseRank = rankById.get(releaseRow.groupId) ?? 0
-    const isPressAbove = pressRank <= releaseRank
-    const top = isPressAbove ? row : releaseRow
-    const bottom = isPressAbove ? releaseRow : row
-    return changed([
-      {
-        kind: 'createHighlightBox',
-        id: context.newHighlightBoxId,
-        range: {
-          startDate: textOfDay(early),
-          endDate: textOfDay(late),
-          topGroupId: top.groupId,
-          bottomGroupId: bottom.groupId,
-        },
-      },
-    ])
-  }
-
-  return CONSUMED_ELSEWHERE
-}
+export type ActualEndHold = 'GA-3' | 'GA-4' | 'GA-12' | 'GA-13' | 'GA-16'
 
 // TRAP: schedule.ts holds the same walk under the same name; change both together.
 // see IV-19
 /** @purity pure */
-function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
+export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
   const holds = new Set(groups.map((group) => group.id))
   for (const group of groups) {
@@ -3542,28 +1287,8 @@ function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, nu
   return rankById
 }
 
-// see SL-7
 /** @purity pure */
-function movedTaskUids(context: InputContext, grabbed: number): readonly number[] {
-  const held: ItemRef = { kind: 'task', uid: grabbed }
-  if (!isSelected(context.selection, held)) return [grabbed]
-  const uids: number[] = []
-  for (const one of context.selection.items) {
-    if (one.kind === 'task') uids.push(one.uid)
-  }
-  return uids
-}
-
-// TRAP: reading ScheduleLayout.placements instead breaks a body drag: the layout already
-// draws the Task under the pointer, so PE-1's guard cancels the move.
-/** @purity pure */
-function rowOfTask(context: InputContext, uid: number): string | null {
-  const member = context.document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)
-  return member === undefined ? null : member.groupId
-}
-
-/** @purity pure */
-function dayShift(context: InputContext, fromX: number, toX: number): number {
+export function dayShift(context: InputContext, fromX: number, toX: number): number {
   const from = dayAtX(context.layout, fromX)
   const to = dayAtX(context.layout, toX)
   if (from === null || to === null) return 0
@@ -3571,74 +1296,24 @@ function dayShift(context: InputContext, fromX: number, toX: number): number {
 }
 
 /** @purity pure */
-function compareDay(a: CalendarDay, b: CalendarDay): number {
+export function compareDay(a: CalendarDay, b: CalendarDay): number {
   return serialOfDay(a) - serialOfDay(b)
-}
-
-// STOP: spec does not decide the zoom step of one SK-16 / SK-16a / SK-16b / SK-16c press.
-// Looked in S-53, S-75, S-76, FR-016. @provisional PND-11
-/** @purity pure */
-function keyZoomFactor(context: InputContext, isIn: boolean): number {
-  const step = context.zoomStep
-  return isIn ? step : 1 / step
-}
-
-// see FR-016, S-229
-/** @purity pure */
-function zoomXCeiling(context: InputContext): number | null {
-  const width = context.regions.rowArea.width
-  const drawnAt = zoomOnScreen(context).x
-  const pxPerDayAt1x = context.layout.pxPerDay / drawnAt
-  const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
-  if (!Number.isFinite(ceiling) || ceiling <= 0) return null
-  return ceiling
-}
-
-/** @purity pure */
-function tallestBandOf(rows: readonly RowPlacement[]): number {
-  let tallest = 0
-  for (const row of rows) if (row.height > tallest) tallest = row.height
-  return tallest
 }
 
 const TOP_ROW_DEPTH = 1
 
 // see FR-016, S-36, S-38, S-13
 /** @purity pure */
-function zoomYCeiling(context: InputContext): number | null {
+export function zoomYCeiling(context: InputContext): number | null {
   const settings = context.document.documentSettings
   const ceiling = zoomYAtRectangleLabelFont(rowTitleFontPxOf(TOP_ROW_DEPTH, settings), settings)
   if (!Number.isFinite(ceiling) || ceiling <= 0) return null
   return ceiling
 }
 
-// see FR-016, FR-018, FR-094, PI-5
-// WHY: layoutFromSchedule reads zoomY only through the floored plan height and the depth
-// limit, so two zoomY equal in both lay out the same rows; the band is asked once (DFC-610).
-// TRAP: a new read of zoomY in layoutFromSchedule must join this key, or the ceiling drifts.
-/** @purity pure */
-function bandZoomKeyOf(measuredWith: DocumentSettings, zoomY: number): string {
-  const reading = rowAxisReadingOf(measuredWith, zoomY)
-  return `${reading.planHeight}|${reading.depthLimit}`
-}
-
-// see FR-016, FR-018, FR-094, ZE-1
-// WHY: the two ways zoomY reaches the row axis picture; the band key and the lower end read one copy.
-/** @purity pure */
-function rowAxisReadingOf(
-  measuredWith: DocumentSettings,
-  zoomY: number,
-): { readonly planHeight: number; readonly depthLimit: number } {
-  const drawn = drawnSettingsOf({ ...measuredWith, zoomY })
-  return {
-    planHeight: Math.max(drawn.actualMin / drawn.actualOfPlan, drawn.basePlanHeight * drawn.zoomY),
-    depthLimit: groupDepthLimit(drawn),
-  }
-}
-
 // see FR-016, ZE-1, PI-5
 /** @purity pure */
-function rowsAtZoomY(
+export function rowsAtZoomY(
   context: InputContext,
   measuredWith: DocumentSettings,
   zoomY: number,
@@ -3653,531 +1328,9 @@ function rowsAtZoomY(
   )
 }
 
-// see ZE-1, FR-094, FR-018, S-76
-// WHY: (1) as the plan height equal to its height at S-76's lower bound, where the floor holds it;
-// (2) against the rows drawn there, since going down FR-018 only ever takes rows away.
-/** @purity pure */
-function isRowZoomAtLowerEnd(context: InputContext): boolean {
-  const on = zoomOnScreen(context)
-  const measuredWith = { ...context.document.documentSettings, zoomX: on.x }
-  const now = rowAxisReadingOf(measuredWith, on.y)
-  const lowest = rowAxisReadingOf(measuredWith, context.zoomMin)
-  if (now.planHeight !== lowest.planHeight) return false
-  if (now.depthLimit === lowest.depthLimit) return true
-  const drawnNow = rowsAtZoomY(context, measuredWith, on.y)
-  const drawnLowest = rowsAtZoomY(context, measuredWith, context.zoomMin)
-  return drawnNow.length === drawnLowest.length &&
-    drawnNow.every((row, at) => row.groupId === drawnLowest[at]?.groupId)
-}
-
-// see FR-016, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, SK-16a, SK-16c
-// TRAP: never for MK-2; the date axis still moves there, so that input changes the picture.
-/** @purity pure */
-function rowZoomAnswer(
-  context: InputContext,
-  factor: number,
-  pointerX: number | null,
-  pointerY: number | null,
-): TranslatedInput {
-  const drawnZoomY = zoomOnScreen(context).y
-  if (factor < 1 && isRowZoomAtLowerEnd(context)) {
-    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
-  }
-  // WHY: stopped at S-76 here, so an input from outside the lower end writes the stepped value
-  // S-76 keeps (ZE-2), and a raise at S-76's upper bound finds its end.
-  const stepped = zoomWithinBounds(context, zoomTimes(context, factor, 'y'))
-  if (factor > 1 && stepped === drawnZoomY) {
-    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
-  }
-  return changed(zoomWrites(context, null, stepped, pointerX, pointerY))
-}
-
-// see ST-7
-/** @purity pure */
-function mayStopAtStackCap(schedule: Schedule, drawn: DocumentSettings): boolean {
-  const members = new Map<string, number>()
-  for (const one of schedule.taskGroupMembers) {
-    const count = (members.get(one.groupId) ?? 0) + 1
-    if (count > drawn.stackSafetyCap) return true
-    members.set(one.groupId, count)
-  }
-  return false
-}
-
-// see FR-016, FR-018
-// WHY: at the plan height floor only the depth limit moves, and a deeper limit lays out a
-// superset of the rows, each as tall as before; so the deepest floor zoom answers for all.
-// TRAP: void when ST-7 may cut the rows, or once one row's height reads another row.
-/** @purity pure */
-function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
-  const drawn = drawnSettingsOf(measuredWith)
-  const floor = drawn.actualMin / drawn.actualOfPlan
-  const top = floor / drawn.basePlanHeight
-  if (!Number.isFinite(top) || !(top > 0) || drawn.basePlanHeight * top > floor) return null
-  if (mayStopAtStackCap(context.document.schedule, drawn)) return null
-  return top
-}
-
-// see FR-016, PI-5, BC-2
-/** @purity pure */
-function tallestBandAtZoomY(
-  context: InputContext,
-  drawnZoomX: number,
-  height: number,
-): (zoomY: number) => boolean {
-  const measuredWith = { ...context.document.documentSettings, zoomX: drawnZoomX }
-  const asked = new Map<string, number>()
-  const tallestAt = (zoomY: number): number => {
-    const key = bandZoomKeyOf(measuredWith, zoomY)
-    const known = asked.get(key)
-    if (known !== undefined) return known
-    const tallest = tallestBandOf(rowsAtZoomY(context, measuredWith, zoomY))
-    asked.set(key, tallest)
-    return tallest
-  }
-  const deepestFloor = deepestFloorZoomYOf(context, measuredWith)
-  return (zoomY: number): boolean => {
-    if (deepestFloor !== null && zoomY <= deepestFloor && tallestAt(deepestFloor) < height) {
-      return false
-    }
-    return tallestAt(zoomY) >= height
-  }
-}
-
-// see FR-016, PI-18
-// TRAP: never solve the band here; a second solver with its own interval or stop moves
-// where the zoom stops with the zoom it started from (DFC-628).
-/** @purity pure */
-function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: number, upTo: number): number {
-  // TRAP: an empty Row Area keeps the old answer (wanted) until the abnormal paths are
-  // taken up after the refactor (JDG-78, DFC-586).
-  if (!(context.regions.rowArea.height > 0) || !Number.isFinite(wanted)) return wanted
-  const remembered = context.rowBandCeiling?.(drawnZoomX, upTo)
-  const ceiling =
-    remembered !== undefined && Number.isFinite(remembered)
-      ? remembered
-      : bandCeilingUpTo(context, drawnZoomX, upTo)
-  return Math.min(wanted, ceiling)
-}
-
-// see FR-016, T-253, PI-18
-// WHY: upTo only stops the walk early; for every zoom at or below upTo the smaller of that
-// zoom and the answer is the smaller of that zoom and T-253's own answer (DFC-610).
-/** @purity pure */
-export function rowBandCeilingOf(context: InputContext, upTo: number = Number.POSITIVE_INFINITY): number {
-  return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo)
-}
-
-// see FR-016, T-253, OC-10, PI-5, PI-18
-// WHY: stepped then halved, never solved: OC-10 puts S-196 and a label stopped at S-8 in the
-// band, so it is neither linear nor monotone in zoomY.
-/** @purity pure */
-function bandCeilingUpTo(context: InputContext, drawnZoomX: number, upTo: number): number {
-  const height = context.regions.rowArea.height
-  // TRAP: an empty Row Area keeps the old answer (zoomMax), not BC-2's literal zoomMin,
-  // until the abnormal paths are taken up after the refactor (JDG-78, DFC-586).
-  if (!(height > 0)) return context.zoomMax
-  const search = NOT_STORED_ROW_BAND_CEILING_SEARCH
-  const reaches = tallestBandAtZoomY(context, drawnZoomX, height)
-  // see BC-1, BC-3
-  let upper = context.zoomMin
-  if (reaches(upper)) return upper
-  let lower = upper
-  for (;;) {
-    if (upper >= context.zoomMax) return context.zoomMax
-    // WHY: upper did not reach, so T-253 answers above it and above upTo.
-    if (upper >= upTo) return upper
-    lower = upper
-    const next = upper * search['S-238']
-    upper = next >= context.zoomMax ? context.zoomMax : next
-    if (reaches(upper)) break
-  }
-  // see BC-4, BC-5
-  while (upper - lower > search['S-239']) {
-    // WHY: T-253 answers above lower, so above upTo.
-    if (lower >= upTo) return lower
-    const middle = (lower + upper) / 2
-    if (middle <= lower || middle >= upper) break
-    if (reaches(middle)) upper = middle
-    else lower = middle
-  }
-  return upper
-}
-
-// TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
-// see FR-016, FR-018
-/** @purity pure */
-function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
-  const on = zoomOnScreen(context)
-  const stepped = (axis === 'x' ? on.x : on.y) * factor
-  const ceiling = axis === 'x' ? zoomXCeiling(context) : zoomYCeiling(context)
-  const wanted = ceiling === null ? stepped : Math.min(stepped, ceiling)
-  if (axis === 'x') return wanted
-  // WHY: the text side bounds every wanted zoomY, so one walk up to it serves every notch.
-  return zoomYWithinBand(context, on.x, wanted, ceiling === null ? Number.POSITIVE_INFINITY : ceiling)
-}
-
-/** @purity pure */
-function zoomCommand(
-  context: InputContext,
-  zoomX: number | null,
-  zoomY: number | null,
-): DocumentCommand {
-  const on = zoomOnScreen(context)
-  return {
-    kind: 'setZoom',
-    zoomX: zoomX === null ? on.x : zoomX,
-    zoomY: zoomY === null ? on.y : zoomY,
-  }
-}
-
-// TRAP: viewSettings in frame-loop.ts writes the same base half of OP-10's condition;
-// change both together.
-// see OP-10
-/** @purity pure */
-function namesAPlace(
-  schedule: Schedule,
-  scrollDate: string | null,
-  scrollGroupId: string | null,
-): boolean {
-  if (scrollDate === null) return false
-  return schedule.taskGroups.some((one) => one.id === scrollGroupId)
-}
-
-// see OP-10
-/** @purity pure */
-function placeSeated(context: InputContext): readonly DocumentCommand[] {
-  const schedule = context.document.schedule
-  const settings = context.document.documentSettings
-  if (namesAPlace(schedule, settings.scrollDate, settings.scrollGroupId)) return []
-  const at = scrolledAnchor(context, 0, 0)
-  if (!namesAPlace(schedule, at.scrollDate, at.scrollGroupId)) return []
-  return [
-    {
-      kind: 'setScrollPosition',
-      scrollDate: at.scrollDate,
-      scrollDayOffset: at.scrollDayOffset,
-      scrollGroupId: at.scrollGroupId,
-      scrollGroupOffset: at.scrollGroupOffset,
-    },
-  ]
-}
-
-/** @purity pure */
-function zoomCentreX(context: InputContext, pointerX: number | null): number {
-  const area = context.regions.rowArea
-  return pointerX === null ? area.x + area.width / 2 : pointerX
-}
-
-/** @purity pure */
-function zoomCentreY(context: InputContext, pointerY: number | null): number {
-  const area = context.regions.rowArea
-  return pointerY === null ? area.y + area.height / 2 : pointerY
-}
-
-// TRAP: rowAnchorIn and scrollOffsetOf measure the same slab; change all three together.
-/** @purity pure */
-function rowPointIn(
-  rows: readonly RowPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
-): number | null {
-  const at = rows.findIndex((row) => row.groupId === anchor.scrollGroupId)
-  if (at < 0) return null
-  const row = rows[at]
-  if (row === undefined) return null
-  const below = rows[at + 1]
-  const slab = below === undefined ? row.height : below.y - row.y
-  const into = Number.isFinite(anchor.scrollGroupOffset) ? anchor.scrollGroupOffset : 0
-  return row.y + into * slab
-}
-
-/** @purity pure */
-function topEdgeIn(
-  rows: readonly RowPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
-): number | null {
-  const marked = rowPointIn(rows, anchor)
-  if (marked !== null) return marked
-  const first = rows[0]
-  return first === undefined ? null : first.y
-}
-
-// see S-75, S-76
-/** @purity pure */
-function zoomWithinBounds(context: InputContext, value: number): number {
-  return Math.max(context.zoomMin, Math.min(context.zoomMax, value))
-}
-
-// see FR-016
-/** @purity pure */
-function dayHeldStill(
-  context: InputContext,
-  zoomX: number | null,
-  centreX: number,
-): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> | null {
-  if (zoomX === null) return null
-  const area = context.regions.rowArea
-  const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
-  if (!Number.isFinite(factor) || factor <= 0) return null
-  // TRAP: holds only while both layouts start the day axis at regions.rowArea.x.
-  return dayAnchorAt(context, centreX - (centreX - area.x) / factor)
-}
-
-// see FR-016, PI-5
-/** @purity pure */
-function rowHeldStill(
-  context: InputContext,
-  zoomX: number | null,
-  zoomY: number | null,
-  centreY: number,
-): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> | null {
-  if (zoomY === null) return null
-  const on = zoomOnScreen(context)
-  const willBe = zoomWithinBounds(context, zoomY)
-  if (!(willBe > 0) || willBe === on.y) return null
-  const seat = scrolledAnchor(context, 0, 0)
-  const held = rowAnchorIn(scrollingRowsOf(context.layout), centreY, seat)
-  // TRAP: lay the candidate out at the new zoomX too: lanes follow horizontal overlap (ST-2, ST-3).
-  const after = rowPlacesAtZoomY(
-    context.document.schedule,
-    {
-      ...context.document.documentSettings,
-      zoomX: zoomX === null ? on.x : zoomWithinBounds(context, zoomX),
-      scrollDate: seat.scrollDate,
-      scrollDayOffset: seat.scrollDayOffset,
-      scrollGroupId: seat.scrollGroupId,
-      scrollGroupOffset: seat.scrollGroupOffset,
-    },
-    context.regions,
-    willBe,
-    context.isLevelZeroFolded,
-    context.rowControlsHeightPx,
-  ).filter((row) => row.isPinned !== true)
-  const landed = rowPointIn(after, held)
-  const topEdge = topEdgeIn(after, seat)
-  if (landed === null || topEdge === null) return null
-  return rowAnchorIn(after, topEdge + (landed - centreY), seat)
-}
-
-// see FR-016, OP-10
-/** @purity pure */
-function placeHeldStill(
-  context: InputContext,
-  zoomX: number | null,
-  zoomY: number | null,
-  centreX: number,
-  centreY: number,
-): readonly DocumentCommand[] {
-  const day = dayHeldStill(context, zoomX, centreX)
-  const row = rowHeldStill(context, zoomX, zoomY, centreY)
-  if (day === null && row === null) return placeSeated(context)
-  const seat = scrolledAnchor(context, 0, 0)
-  const heldDay = day ?? seat
-  const heldRow = row ?? seat
-  const to = {
-    kind: 'setScrollPosition',
-    scrollDate: heldDay.scrollDate,
-    scrollDayOffset: heldDay.scrollDayOffset,
-    scrollGroupId: heldRow.scrollGroupId,
-    scrollGroupOffset: heldRow.scrollGroupOffset,
-  } as const
-  if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollGroupId)) {
-    return placeSeated(context)
-  }
-  return isScrollPositionInForce(context, to) ? [] : [to]
-}
-
-// see FR-016
-/** @purity pure */
-function zoomWrites(
-  context: InputContext,
-  zoomX: number | null,
-  zoomY: number | null,
-  pointerX: number | null,
-  pointerY: number | null,
-): readonly DocumentCommand[] {
-  return [
-    ...placeHeldStill(
-      context,
-      zoomX,
-      zoomY,
-      zoomCentreX(context, pointerX),
-      zoomCentreY(context, pointerY),
-    ),
-    zoomCommand(context, zoomX, zoomY),
-  ]
-}
-
-// TRAP: CM-72 (expandAllTaskGroups) writes the same predicate; change both together.
-// see HF-8
-/** @purity pure */
-function collapsesDiscarded(schedule: Schedule): Schedule {
-  return {
-    ...schedule,
-    taskGroups: schedule.taskGroups.map((one) =>
-      one.isCollapsed === true || one.isKeptOpen
-        ? { ...one, isCollapsed: one.isCollapsed === true ? false : one.isCollapsed, isKeptOpen: false }
-        : one,
-    ),
-  }
-}
-
-// TRAP: do not move the discard into fitZoom: viewSettings in frame-loop.ts shares fitZoom,
-// and HF-8 forbids the discard at startup.
-// see FR-055, HF-8
-/** @purity pure */
-function fittedNow(context: InputContext) {
-  return fitZoom(
-    collapsesDiscarded(context.document.schedule),
-    context.document.documentSettings,
-    context.regions,
-    { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
-    context.rowControlsHeightPx,
-  )
-}
-
-// see OP-10, FR-055
-/** @purity pure */
-function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } {
-  const settings = context.document.documentSettings
-  // TRAP: keep ?? and not === true: an absent flag falls back to OP-10's base half.
-  const atStoredZoom =
-    context.isPictureAtStoredZoom ??
-    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
-  if (atStoredZoom) {
-    return { x: settings.zoomX, y: settings.zoomY }
-  }
-  const fitted = fittedNow(context)
-  return { x: fitted.zoomX, y: Math.max(fitted.zoomY, fitted.floorZoomY) }
-}
-
-// see SK-18, FR-055
-/** @purity pure */
-function fitCommand(context: InputContext): DocumentCommand {
-  const schedule = context.document.schedule
-  const fitted = fittedNow(context)
-  const at = scrolledAnchor(context, 0, 0)
-  const place = namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId)
-    ? { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
-    : namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
-      ? { scrollDate: at.scrollDate, scrollGroupId: at.scrollGroupId }
-      : { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
-  return {
-    kind: 'fitScheduleToScreen',
-    zoomX: fitted.zoomX,
-    zoomY: fitted.zoomY,
-    scrollDate: place.scrollDate,
-    scrollGroupId: place.scrollGroupId,
-    scrollDayOffset: 0,
-    scrollGroupOffset: 0,
-  }
-}
-
-// see SK-3, SL-1, FR-046
-/** @purity pure */
-function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
-  const schedule = context.document.schedule
-  const commands: DocumentCommand[] = []
-  for (const one of context.selection.items) {
-    switch (one.kind) {
-      case 'task':
-        commands.push({ kind: 'deleteTask', uid: one.uid })
-        break
-      case 'dependency': {
-        const successor = taskByUid(schedule, one.successorUid)
-        const edge = successor === null ? undefined : successor.dependencies[one.ordinal]
-        if (edge === undefined) break
-        commands.push({
-          kind: 'deleteDependency',
-          predecessorUid: edge.predecessorUid,
-          successorUid: one.successorUid,
-        })
-        break
-      }
-      case 'highlightBox':
-        commands.push({ kind: 'deleteHighlightBox', id: one.id })
-        break
-      case 'commentBox':
-        commands.push({ kind: 'deleteCommentBox', id: one.id })
-        break
-      case 'statusLine':
-        commands.push({ kind: 'clearStatusDate' })
-        break
-    }
-  }
-  return commands
-}
-
-// see T-023c
-/** @purity pure */
-export function selectionFromInput(input: HumanInput, context: InputContext): Selection {
-  const held = context.selection
-
-  if (input.kind === 'key') {
-    const isSelectAll = isCombo(input.modifiers, true, false, false) && input.key === KEY.a
-    if (isSelectAll && !context.isTextEntryUnsettled) {
-      return selectionOfAll(everythingSelectable(context))
-    }
-    if (
-      isCombo(input.modifiers, false, false, false) &&
-      input.key === KEY.escape &&
-      escapeTarget(context.screenState, escapeContextOf(context)) === 'selection'
-    ) {
-      return emptySelection()
-    }
-    if (
-      isCombo(input.modifiers, false, false, false) &&
-      input.key === KEY.enter &&
-      context.isNoticeStanding !== true &&
-      !context.isTextEntryUnsettled &&
-      context.isPropertiesPanelShowing !== true
-    ) {
-      return emptySelection()
-    }
-    return held
-  }
-  if (input.kind !== 'pointer' || input.phase !== 'up') return held
-
-  const press = context.pressed
-  if (press === null) return held
-  if (press.on !== null) return held
-  if (!isOnRowArea(context, press.at.x, press.at.y)) return held
-
-  const isAdding = press.at.modifiers.shift
-
-  switch (pressRowOf(press, context)) {
-    case 'PTD-3': {
-      const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
-      const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)
-      if (ref === null || grab === null) return held
-      if (grab === 'GA-20' && !hasDraggedPastThreshold(press, input)) return held
-      if (isAdding) {
-        return isSelected(held, ref) ? selectionWithout(held, ref) : selectionWith(held, ref)
-      }
-      const isWholeMoved =
-        BODY_GRAB_ROWS.has(grab) && isSelected(held, ref) && hasDraggedPastThreshold(press, input)
-      return isWholeMoved ? held : selectionWith(emptySelection(), ref)
-    }
-    case 'PTD-5': {
-      const rect = marqueeRect(press.at, input)
-      if (rect.width === 0 && rect.height === 0) {
-        return isAdding ? held : emptySelection()
-      }
-      const caught: ItemRef[] = []
-      for (const item of itemsInMarquee(context.geometry, rect)) {
-        const ref = itemRefOf(context.document.schedule, item)
-        if (ref !== null) caught.push(ref)
-      }
-      return isAdding ? selectionOfAll([...held.items, ...caught]) : selectionOfAll(caught)
-    }
-    default:
-      return held
-  }
-}
-
 // see IN-4
 /** @purity pure */
-function escapeContextOf(context: InputContext): EscapeContext {
+export function escapeContextOf(context: InputContext): EscapeContext {
   return {
     isNoticeStanding: context.isNoticeStanding === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
@@ -4186,120 +1339,6 @@ function escapeContextOf(context: InputContext): EscapeContext {
     isSelectionStanding: context.selection.items.length > 0,
     dualCursorMode: context.dualCursorFollowing !== null,
   }
-}
-
-// see FR-083, T-023b
-/** @purity pure */
-function screenStateFromEntry(entry: string, context: InputContext): ScreenState {
-  const state = context.screenState
-
-  switch (entry) {
-    case ENTRY.palette:
-      return screenStateWithPalette(state, !state.paletteShown)
-    case ENTRY.help:
-      return screenStateWithSurface(state, HELP_MODAL)
-    case ENTRY.aiExportModal:
-      return screenStateWithSurface(state, AI_EXPORT_MODAL)
-    case ENTRY.resourceRoster:
-      return screenStateWithSurface(state, RESOURCE_ROSTER)
-    case ENTRY.dualCursor:
-      // WHY: the arm drops even where PND-313 takes the press without raising the mode;
-      // re-reading dayAtX here would put that rule in a second place.
-      return context.dualCursorFollowing === null
-        ? screenStateWithArmed(state, { kind: 'none' })
-        : state
-    case ENTRY.watermark:
-      return state.watermarkVisible
-        ? screenStateWithSurface(state, WATERMARK_UNLOCK)
-        : screenStateWithWatermark(state, true)
-    case ENTRY.exportChooser:
-      return screenStateWithSurface(state, EXPORT_CHOOSER)
-    case ENTRY.closeSurface:
-      return context.pressed?.on?.part === PROPERTIES_PANEL
-        ? state
-        : screenStateWithSurface(state, null)
-    default:
-      break
-  }
-
-  const armed = armedByEntry(entry)
-  if (armed === null) return state
-  return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
-}
-
-// see PV-4, PV-5, CP-36
-/** @purity pure */
-function screenStateAfterMarkerPress(input: PointerInput, context: InputContext): ScreenState {
-  const state = context.screenState
-  const press = context.pressed
-  if (press === null || press.hit === null) return state
-  if (grabRowOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return state
-  if (hasDraggedPastThreshold(press, input)) return state
-  const uid = press.hit.item.taskUid
-  const task = taskByUid(context.document.schedule, uid)
-  if (task === null) return state
-  const turned = cycleTaskPlanActualState(task, rememberedActualOf(state, uid), {
-    floorDay: task.start,
-    milestone: isDrawnAsMilestone(context, uid),
-  })
-  return screenStateWithRememberedActual(state, uid, turned.remembered)
-}
-
-// see AT-100, FR-083
-/** @purity pure */
-function isDrawnAsMilestone(context: InputContext, uid: number): boolean {
-  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
-  if (drawn !== undefined) return drawn.shapeKind === 'milestone'
-  const task = taskByUid(context.document.schedule, uid)
-  return task !== null && task.milestone === true
-}
-
-// see CP-36, IN-4
-/** @purity pure */
-export function screenStateFromInput(input: HumanInput, context: InputContext): ScreenState {
-  const state = context.screenState
-  if (input.kind === 'pointer') {
-    if (input.phase !== 'up') return state
-    const on = context.pressed === null ? null : context.pressed.on
-    if (on?.isImportReportDismiss === true) return screenStateWithSurface(state, null)
-    if (on === null) return screenStateAfterMarkerPress(input, context)
-    return on.entry === null ? state : screenStateFromEntry(on.entry, context)
-  }
-  if (input.kind !== 'key') return state
-  if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
-    return screenStateWithSurface(state, EXPORT_CHOOSER)
-  }
-  const plain = isCombo(input.modifiers, false, false, false)
-  if (!plain) return state
-  // see IN-5a
-  if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
-    if (isSingleCharacterKey(input.key)) return state
-  }
-
-  if (input.key === KEY.escape) {
-    // TRAP: escapeContextOf never reports a standing confirmation, so a caller holding one
-    // must not ask this member (it would close the surface behind it); frame-loop.ts skips it.
-    switch (escapeTarget(state, escapeContextOf(context))) {
-      case 'surface':
-        return screenStateWithSurface(state, null)
-      case 'armed':
-        return screenStateWithArmed(state, { kind: 'none' })
-      case 'notice':
-      case 'gesture':
-      case 'dualCursorMode':
-      case 'confirmation':
-      case 'propertiesPanel':
-      case 'selection':
-      case null:
-      default:
-        return state
-    }
-  }
-
-  if (input.key === KEY.f1) return screenStateWithSurface(state, HELP_MODAL)
-  if (input.key === KEY.p) return screenStateWithPalette(state, !state.paletteShown)
-
-  return state
 }
 
 // <generated -- do not edit by hand>
@@ -4323,14 +1362,14 @@ export const NOT_STORED_ROW_GRAB_SIZES: {
 }
 
 // see T-206
-const NOT_STORED_VISIBLE_DAY_FLOOR: {
+export const NOT_STORED_VISIBLE_DAY_FLOOR: {
   readonly 'S-229': number
 } = {
   'S-229': 10,
 }
 
 // see T-206
-const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
+export const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
   readonly 'S-238': number
   readonly 'S-239': number
 } = {
@@ -4339,7 +1378,7 @@ const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
 }
 
 // see T-206
-const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
+export const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
   readonly 'S-248': number
 } = {
   'S-248': 160,

@@ -2363,6 +2363,10 @@ TARGETS = [
 # Copies at least one OTHER file of src/ imports.
 PUBLISHED_READ_BY_SRC = {
     'src/adapter/input-command-translator/input-command-translator.ts': (
+        'NOT_STORED_PROPERTIES_PANEL_FLOOR',
+        'NOT_STORED_ROW_BAND_CEILING_SEARCH',
+        'NOT_STORED_ROW_GRAB_SIZES',
+        'NOT_STORED_VISIBLE_DAY_FLOOR',
         'NOT_STORED_ZOOM_STEP',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
@@ -2401,9 +2405,6 @@ PUBLISHED_READ_BY_SRC = {
 PUBLISHED_READ_BY_TESTS_ONLY = {
     'src/adapter/image-exporter/image-exporter.ts': (
         'NOT_STORED_DOCUMENT_TITLE_SIZES',
-    ),
-    'src/adapter/input-command-translator/input-command-translator.ts': (
-        'NOT_STORED_ROW_GRAB_SIZES',
     ),
     'src/adapter/screen-renderer/command-palette.ts': (
         'NOT_STORED_COMMAND_PALETTE_SIZES',
