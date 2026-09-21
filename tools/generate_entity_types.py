@@ -2365,6 +2365,13 @@ PUBLISHED_READ_BY_SRC = {
     'src/adapter/input-command-translator/input-command-translator.ts': (
         'NOT_STORED_ZOOM_STEP',
     ),
+    'src/adapter/svg-renderer/svg-renderer.ts': (
+        'NOT_STORED_DEPENDENCY_SIZES',
+        'NOT_STORED_DUAL_CURSOR_SIZES',
+        'NOT_STORED_NAME_LABEL_WEIGHT',
+        'NOT_STORED_RULER_WEEKDAY_SIZES',
+        'WATERMARK_MARKS',
+    ),
     'src/entity/document-model/document-settings/document-settings.ts': (
         'SETTINGS_BOUNDS',
         'SETTINGS_DEFAULTS',
@@ -2411,7 +2418,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
         'NOT_STORED_PANEL_DIVIDER_SIZES',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
-        'NOT_STORED_DUAL_CURSOR_SIZES',
         'NOT_STORED_DUMMY_SIZES',
         'NOT_STORED_SELECTION_SIZES',
         'SCHEDULE_COLOURS',

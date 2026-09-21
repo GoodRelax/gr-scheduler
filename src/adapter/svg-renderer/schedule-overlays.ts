@@ -1,0 +1,250 @@
+// SvgRenderer -- the overlays that belong to no Task: lines, cursors, annotations, watermark.
+// @unit      UF-83   (docs/spec/05-07-design.md, table T-075)
+// @component SvgRenderer, layer Adapter (table T-062)
+// @purity    pure
+
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import type {
+  Point,
+  ScheduleGeometry,
+} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  dateAtX,
+  xFromDay,
+  type ScheduleLayout,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import type {
+  ScreenRect,
+  ScreenRegions,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  NOT_STORED_DUAL_CURSOR_SIZES,
+  WATERMARK_MARKS,
+  escaped,
+  figureKey,
+  pointsOf,
+  rounded,
+  selectedLineWidth,
+  selectionFrameSvg,
+  typefaceAttribute,
+  type DualCursorFollow,
+  type Watermark,
+} from './svg-renderer'
+
+export interface OverlaysInput {
+  readonly geometry: ScheduleGeometry
+  readonly settings: DocumentSettings
+  readonly layout: ScheduleLayout
+  readonly regions: ScreenRegions
+  readonly themed: (rowId: string) => string
+  readonly drawsOperationState: boolean
+  readonly pointer: Point | null
+  readonly following: DualCursorFollow | null
+  readonly selectedStatusLine: boolean
+  readonly strokeOfBox: ReadonlyMap<
+    Schedule['highlightBoxes'][number]['id'],
+    Schedule['highlightBoxes'][number]['strokeColor']
+  >
+  readonly selectedBoxes: ReadonlySet<Schedule['highlightBoxes'][number]['id']>
+  readonly selectedComments: ReadonlySet<Schedule['commentBoxes'][number]['id']>
+}
+
+export interface OverlayParts {
+  readonly linkParts: readonly string[]
+  readonly annotationParts: readonly string[]
+  readonly selectionParts: readonly string[]
+}
+
+// STOP: spec does not decide an annotation's default colour; this hue is S-159's, which FR-019 avoids. Looked in FR-019, T-236 @provisional PND-1
+const ANNOTATION_COLOUR = '#b45309'
+
+const WATERMARK_ROLE = 'Watermark'
+
+// see FR-020, T-207
+/** @purity pure */
+export function watermarkSvg(
+  area: ScreenRect,
+  pictureWidth: number,
+  mark: Watermark,
+  ink: string,
+  clipId: string,
+): string {
+  const size = Number(WATERMARK_MARKS['S-221']) * pictureWidth
+  const step = Number(WATERMARK_MARKS['S-222']) * size
+  if (!(size > 0) || !(step > 0) || area.width <= 0 || area.height <= 0) return ''
+  const centreX = area.x + area.width / 2
+  const centreY = area.y + area.height / 2
+  const reach = Math.hypot(area.width, area.height) / 2
+  const text = escaped(`${mark.openedBy} ${mark.stampedAt}`)
+  const typeface = typefaceAttribute()
+  const marks: string[] = []
+  for (let y = centreY - reach; y <= centreY + reach; y += step) {
+    for (let x = centreX - reach; x <= centreX + reach; x += step) {
+      marks.push(
+        `<text x="${rounded(x)}" y="${rounded(y)}"${typeface} xml:space="preserve">${text}</text>`,
+      )
+    }
+  }
+  // TRAP: the clip sits on the outer, unrotated group; on the rotated one it would turn too.
+  return (
+    `<g data-role="${WATERMARK_ROLE}" clip-path="url(#${clipId})"` +
+    ` opacity="${WATERMARK_MARKS['S-102']}" fill="${ink}"` +
+    ` font-size="${rounded(size)}" text-anchor="middle">` +
+    `<g transform="rotate(${WATERMARK_MARKS['S-220']} ${rounded(centreX)}` +
+    ` ${rounded(centreY)})">` +
+    marks.join('') +
+    '</g></g>'
+  )
+}
+
+/** @purity pure */
+export function overlayParts(input: OverlaysInput): OverlayParts {
+  const {
+    geometry,
+    settings,
+    layout,
+    regions,
+    themed,
+    drawsOperationState,
+    pointer,
+    following,
+    selectedStatusLine,
+    strokeOfBox,
+    selectedBoxes,
+    selectedComments,
+  } = input
+  const linkParts: string[] = []
+  // STOP: spec does not decide where annotations go in the paint order; here over the labels.
+  // Looked in T-020, NFR-007
+  // @provisional PND-238
+  const annotationParts: string[] = []
+  const selectionParts: string[] = []
+
+  if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
+    linkParts.push(
+      `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
+        ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +
+        `${figureKey('progress-line')}/>`,
+    )
+  }
+
+  const status = geometry.statusLine
+  if (status !== null) {
+    // STOP: spec does not decide the status line's width. Looked in CU-1, SL-8, S-178, S-194
+    // @provisional PND-478
+    const statusWidth = selectedLineWidth(1, selectedStatusLine)
+    linkParts.push(
+      `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
+        ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
+        ` stroke="${themed('S-163')}" stroke-width="${rounded(statusWidth)}"` +
+        `${figureKey('status-line')}/>`,
+    )
+  }
+
+  const cursors = geometry.dualCursor
+  if (cursors !== null) {
+    // STOP: spec does not decide where the cursors go in the paint order; here with CU-1. Looked in T-020
+    // @provisional PND-312
+    const colour = themed('S-195')
+    const followedDay =
+      following === null || following.x === null ? null : dateAtX(layout, following.x)
+    const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
+    for (const side of ['date1', 'date2'] as const) {
+      const isFollowing = following !== null && following.side === side
+      const standing = side === 'date1' ? cursors.date1X : cursors.date2X
+      const x = isFollowing && followedX !== null ? followedX : standing
+      const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
+      linkParts.push(
+        `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
+          ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
+          ` stroke="${colour}" stroke-width="${rounded(width)}"` +
+          `${figureKey(`dual-cursor-${side}`)}/>`,
+      )
+    }
+  }
+
+  if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
+    const area = regions.rowArea
+    // STOP: spec does not decide the guide cursor's region; here the Row Area only. Looked in CU-3, T-020
+    // @provisional PND-342
+    const inside =
+      pointer.x >= area.x &&
+      pointer.x <= area.x + area.width &&
+      pointer.y >= area.y &&
+      pointer.y <= area.y + area.height
+    if (inside) {
+      // STOP: spec does not decide the guide cursor's colour or width. Looked in T-236, T-206
+      // @provisional PND-341
+      const guideColour = themed('S-148')
+      const guideWidth = 1
+      const vertical = (x: number): string =>
+        `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
+        ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+        ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+        `${figureKey('guide-cursor-vertical')}/>`
+      if (settings.guideCursorMode === 'crosshair') {
+        linkParts.push(vertical(pointer.x))
+        linkParts.push(
+          `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
+            ` x2="${rounded(area.x + area.width)}" y2="${rounded(pointer.y)}"` +
+            ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+            `${figureKey('guide-cursor-horizontal')}/>`,
+        )
+      } else if (settings.guideCursorMode === 'single-vertical') {
+        linkParts.push(vertical(pointer.x))
+      }
+    }
+  }
+
+  for (const box of geometry.highlightBoxes) {
+    const radius = box.cornerRadiusPx
+    const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
+    linkParts.push(
+      `<rect x="${rounded(box.box.x)}" y="${rounded(box.box.y)}"` +
+        ` width="${rounded(box.box.width)}" height="${rounded(box.box.height)}"` +
+        rounding +
+        ` fill="none" stroke="${strokeOfBox.get(box.id) ?? ANNOTATION_COLOUR}"` +
+        ` stroke-width="1"${figureKey(`box-${box.id}`)}/>`,
+    )
+    if (selectedBoxes.has(box.id)) {
+      selectionParts.push(selectionFrameSvg(box.box, themed('S-151'), `box-${box.id}-frame`))
+    }
+  }
+
+  for (const box of geometry.commentBoxes) {
+    // STOP: spec does not decide the comment leader's width. Looked in FR-019, T-206, T-236
+    // @provisional PND-478
+    annotationParts.push(
+      `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
+        ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
+        ` stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        `${figureKey(`comment-${box.id}-leader`)}/>`,
+    )
+    // STOP: spec does not decide the comment body's ground and ink; here S-146 and S-147. Looked in T-236, NFR-007
+    // @provisional PND-231
+    annotationParts.push(
+      `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
+        ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
+        ` fill="${themed('S-146')}" stroke="${ANNOTATION_COLOUR}" stroke-width="1"` +
+        `${figureKey(`comment-${box.id}`)}/>`,
+    )
+    for (const [index, line] of box.lines.entries()) {
+      // STOP: spec does not place a wrapped line's baseline; here the foot of its em box. Looked in FR-097
+      // @provisional PND-230
+      annotationParts.push(
+        `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
+          ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
+          ` font-size="${rounded(box.fontSize)}"${typefaceAttribute()} fill="${themed('S-147')}"` +
+          ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
+          `${escaped(line)}</text>`,
+      )
+    }
+    if (selectedComments.has(box.id)) {
+      selectionParts.push(
+        selectionFrameSvg(box.body, themed('S-151'), `comment-${box.id}-frame`),
+      )
+    }
+  }
+  return { linkParts, annotationParts, selectionParts }
+}

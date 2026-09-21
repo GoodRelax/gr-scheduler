@@ -1,4 +1,4 @@
-excess-lines=8414 excess-branches=952
+excess-lines=8353 excess-branches=894
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -48,8 +48,12 @@ HELD src/adapter/screen-renderer/open-modals.ts::openModalFromScreenState lines=
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=91 branches=27
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
 HELD src/adapter/screen-renderer/screen-frame.ts::screenFrameFromRegions lines=55 branches=2
-HELD src/adapter/svg-renderer/svg-renderer.ts::rulerSvg lines=79 branches=13
-HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=615 branches=126
+HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=65 branches=13
+HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=79 branches=13
+HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=149 branches=29
+HELD src/adapter/svg-renderer/schedule-task-figures.ts::dependencyLinkParts lines=89 branches=19
+HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=219 branches=46
+HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=232 branches=19
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
 HELD src/entity/document-model/schedule/schedule.ts::find~16 lines=52 branches=10
 HELD src/entity/document-model/schedule/schedule.ts::nestingOf lines=61 branches=14

@@ -80,7 +80,7 @@ check("prose '表 T-065 は N 行' == T-065 rows", stated(r"表 T-065 は (\d+) 
 # 部品 (forbidden by T-006b A-17) is NOT counted here any more.  It moved to
 # check 32 of style-checks.py, which check.sh runs -- this file does not, so a
 # word this file caught was caught by nobody.  Two copies would part company.
-check("T-063 rows", len(ut), 7)
+check("T-063 rows", len(ut), 8)
 
 # SU-1 defines a component by its public entry.  The earlier wording -- "it
 # publishes an interface outward" -- was false for 7 of the 34 (CP-25 publishes

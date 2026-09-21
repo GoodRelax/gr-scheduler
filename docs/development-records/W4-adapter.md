@@ -769,6 +769,9 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | --- | --- | --- | --- | --- | --- |
 | UF-32 | `svg-renderer.ts` | **公開エントリ** | pure | PI-19 | ✅ 受入済 |
 | UF-33 | `svg-surface.ts` | 内部 | n/a |  | ✅ 受入済 |
+| UF-81 | `schedule-task-figures.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-82 | `schedule-grid.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-83 | `schedule-overlays.ts` | 内部 | pure |  | 🔧 実装済 |
 
 ---
 
