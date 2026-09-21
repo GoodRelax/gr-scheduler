@@ -4,7 +4,8 @@
 // @purity    pure
 
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
-import type { DialogueField, ScreenSession } from './screen-renderer'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { DialogueField, ScreenViewReadings } from './screen-renderer'
 
 // see FR-066, AG-11
 // STOP: spec does not decide how many utterances the Dialogue Field shows. Looked in FR-066, AG-11, AM-6, T-206
@@ -13,8 +14,10 @@ import type { DialogueField, ScreenSession } from './screen-renderer'
 export function dialogueFieldFromLog(
   log: DialogueLog,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): DialogueField | null {
-  if (!session.isAgentApiEnabled || !session.isDialogueFieldVisible) return null
+  if (!readings.isAgentApiEnabled) return null
+  if (session.screen.dialogueFieldDisplayState.kind === 'hidden') return null
 
   const oldestFirst = [...log.messages].sort(
     (earlier, later) => earlier.sequence - later.sequence,

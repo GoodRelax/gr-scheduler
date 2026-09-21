@@ -67,8 +67,8 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   layoutFromSchedule,
@@ -347,7 +347,7 @@ const contextOf = (
     layout,
     geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     // S-53 arrives as a value. Deliberately not the figure the manuscript
     // prints: no case here reads it.

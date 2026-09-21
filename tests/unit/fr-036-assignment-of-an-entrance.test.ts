@@ -72,10 +72,14 @@ import type {
   CommandItem,
   DisplayLanguage,
   IconId,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -223,25 +227,23 @@ const EMPTY_VIEW: Omit<ScreenView, 'tooltips'> = {
   dialogueField: null,
 }
 
-const EMPTY_SESSION: ScreenSession = {
-  language: 'ja',
+const EMPTY_ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const EMPTY_READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -266,14 +268,17 @@ function assignmentShownFor(icon: string, language: DisplayLanguage): string | n
       commands: [commandOf(icon as IconId)],
     },
   }
-  const session: ScreenSession = {
-    ...EMPTY_SESSION,
-    language,
+  const root: ScreenSession = {
+    ...EMPTY_ROOT,
+    screen: { ...EMPTY_ROOT.screen, language },
+  }
+  const readings: ScreenViewReadings = {
+    ...EMPTY_READINGS,
     pointer: { x: 5, y: 5 },
     pointerRestedMs: WAIT_MS + 1,
     iconUnderPointer: icon as IconId,
   }
-  const shown = tooltipsFromScreenView(view, SETTINGS, session)
+  const shown = tooltipsFromScreenView(view, SETTINGS, root, readings)
   const found = shown.find((one) => one.anchor.kind === 'icon' && one.anchor.icon === icon)
   expect(found, `EZ-2 (MUST): resting on ${icon} past the wait explains nothing`).toBeDefined()
   return (found as { readonly assignment: string | null }).assignment

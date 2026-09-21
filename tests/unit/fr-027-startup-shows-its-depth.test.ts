@@ -81,7 +81,6 @@ import { specTable } from '../contract/spec-table'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { dayOf, type Schedule } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -103,6 +102,7 @@ import {
   type KeyInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { displayRatioAt } from '../fixtures/display-scale'
 
 // ---------------------------------------------------------------------------
@@ -311,7 +311,7 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
     layout,
     geometry: geometryFromLayout(SCHEDULE, settings, layout, REGIONS, emptySelection()),
     regions: REGIONS,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     // S-53 arrives as a value; no case here reads it, so it is deliberately
     // not the figure the manuscript prints.

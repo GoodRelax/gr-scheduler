@@ -131,9 +131,13 @@ import {
 } from '../../src/entity/document-model/selection/selection'
 import type {
   PropertiesPanel,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -250,12 +254,42 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
  */
 const SETTINGS_WIDENED = settingsOf({ propertyPanelWidth: UNWIDENED + 1 })
 
-const SESSION: ScreenSession = {
+interface Bag {
+  readonly language: 'ja' | 'en'
+  readonly propertiesShowing: 'selection' | 'documentSettings' | null
+}
+
+const SESSION: Bag = {
   language: 'ja',
+  propertiesShowing: 'selection',
+}
+
+const sessionWith = (part: Partial<Bag>): Bag => ({ ...SESSION, ...part })
+
+const contentStateOf = (bag: Bag): ScreenSession['screen']['propertiesPanelContentState'] => {
+  if (bag.propertiesShowing === null) return { kind: 'hidden' }
+  if (bag.propertiesShowing === 'documentSettings') {
+    return { kind: 'documentSettingsDisplayed', returnSubject: null }
+  }
+  return {
+    kind: 'selectionDisplayed',
+    subject: { selection: emptySelection(), groupIds: [] },
+  }
+}
+
+const rootOf = (bag: Bag): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: bag.language,
+    propertiesPanelContentState: contentStateOf(bag),
+  },
+})
+
+const readingsOf = (): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -264,19 +298,12 @@ const SESSION: ScreenSession = {
   // names an entrance), `themePreference` is S-72 and `isMilestoneListOpen`
   // S-142 at the manuscript's defaults, `themeHue` is S-73 read from the
   // manuscript, `selectedGroupIds` is FR-085's set of rows and
-  // `selectedResourceUids` FR-099's set of people (both empty), and
-  // `propertiesSubject` is FR-072's remembered subject (`null` -- no operation
-  // has chosen one yet).
+  // `selectedResourceUids` FR-099's set of people (both empty).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -285,9 +312,9 @@ const SESSION: ScreenSession = {
   // "everything fits", which is the lane-long grip SC-4 of table T-031
   // draws when nothing overflows.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-}
+})
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const READINGS = readingsOf()
 
 /** ET-2 with every nullable column spelled out; leaving one `undefined` reads as "set". */
 const taskOf = (part: Record<string, unknown>): Task =>
@@ -372,9 +399,9 @@ const TASK_REF: ItemRef = { kind: 'task', uid: THE_TASK }
 const panelOf = (
   settings: DocumentSettings = SETTINGS_WIDENED,
   selection: Selection = holding(TASK_REF),
-  session: ScreenSession = SESSION,
+  bag: Bag = SESSION,
 ): PropertiesPanel => {
-  const panel = propertiesPanelFromSelection(ONE_TASK, settings, selection, session)
+  const panel = propertiesPanelFromSelection(ONE_TASK, settings, selection, rootOf(bag), READINGS)
   expect(panel, 'the panel is described while `propertiesShowing` names one of the two').not.toBe(
     null,
   )
@@ -527,7 +554,8 @@ describe('S-99h -- what says the panel is showing, kept apart from S-80', () => 
           ONE_TASK,
           settingsOf({ propertyPanelWidth: width }),
           holding(TASK_REF),
-          notShowing,
+          rootOf(notShowing),
+          READINGS,
         ),
         `S-80 at ${width}`,
       ).toBe(null)

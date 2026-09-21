@@ -965,6 +965,14 @@
    }
   },
   {
+   "prefix": "RG",
+   "words": "RunG",
+   "owner": "spec",
+   "means": {
+    "ja": "領域をまたぐ優先順の段（同じ入力を奪い合う状態機械の、どの段が先に消費するか）"
+   }
+  },
+  {
    "prefix": "RL",
    "words": "Relation",
    "owner": "spec",

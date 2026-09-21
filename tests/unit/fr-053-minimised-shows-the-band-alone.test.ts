@@ -4,24 +4,21 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection, type Selection } from '../../src/entity/document-model/selection/selection'
 import type {
   CommandPalette,
-  DisplayLanguage,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from '../contract/spec-table'
 
 const SETTINGS: DocumentSettings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
@@ -46,61 +43,67 @@ const THE_OVERRIDDEN_2026_08_28 =
 const T_023b_ROWS: readonly string[] = specTable('T-023b').rows.map((row) => row.id)
 
 
-const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
+const SHOWN: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
+  },
+}
+
+type Armed = ScreenValues['armModeState']
 
 const EVERY_ARM: readonly { readonly what: string; readonly armed: Armed }[] = [
-  { what: 'AR-1, nothing armed', armed: { kind: 'none' } },
-  { what: 'AR-2, a task shape', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
-  { what: 'AR-3, a milestone shape', armed: { kind: 'milestoneShape', glyph: 'SH-5' } },
-  { what: 'AR-4, a dependency', armed: { kind: 'dependency' } },
-  { what: 'AR-5, a comment box', armed: { kind: 'commentBox' } },
-  { what: 'AR-6, a highlight box', armed: { kind: 'highlightBox' } },
+  { what: 'AR-1, nothing armed', armed: { kind: 'notArmed' } },
+  { what: 'AR-2, a task shape', armed: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
+  { what: 'AR-3, a milestone shape', armed: { kind: 'milestoneShapeArmed', glyph: 'SH-5' } },
+  { what: 'AR-4, a dependency', armed: { kind: 'dependencyArmed' } },
+  { what: 'AR-5, a comment box', armed: { kind: 'commentBoxArmed' } },
+  { what: 'AR-6, a highlight box', armed: { kind: 'highlightBoxArmed' } },
 ]
 
-const NOTHING_ARMED: Armed = { kind: 'none' }
-const A_DEPENDENCY_ARMED: Armed = { kind: 'dependency' }
+const NOTHING_ARMED: Armed = { kind: 'notArmed' }
+const A_DEPENDENCY_ARMED: Armed = { kind: 'dependencyArmed' }
 
-const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession =>
-  ({
-    language: 'ja' as DisplayLanguage,
-    openedFileName: null,
-    fileSavedAt: null,
-    isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
-    pointer: null,
-    pointerRestedMs: 0,
-    commandPaletteAt: { x: 0, y: 0 },
-    iconUnderPointer: null,
-    themePreference: 'light',
-    themeHue: 214,
-    isMilestoneListOpen: true,
-    isPaletteMinimised: false,
-    dualCursorFollowing: null,
-    selectedGroupIds: [],
-    selectedResourceUids: [],
-    propertiesSubject: null,
-    propertiesShowing: null,
-    notices: [],
-    confirmation: null,
-    rowBoxes: [],
-    ...part,
-  }) as unknown as ScreenSession
+const READINGS: ScreenViewReadings = {
+  openedFileName: null,
+  fileSavedAt: null,
+  isAgentApiEnabled: false,
+  pointer: null,
+  pointerRestedMs: 0,
+  commandPaletteAt: { x: 0, y: 0 },
+  iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: 214,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  notices: [],
+  confirmation: null,
+  rowBoxes: [],
+  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
+}
+
+const rootWith = (armed: Armed, isMinimised: boolean): ScreenSession => ({
+  ...SHOWN,
+  screen: {
+    ...SHOWN.screen,
+    armModeState: armed,
+    paletteDisplayState: { kind: 'shown', child: { kind: isMinimised ? 'minimised' : 'expanded' } },
+  },
+})
 
 const describedWith = (
-  session: ScreenSession = sessionOf(),
-  state: ScreenState = SHOWN,
+  root: ScreenSession,
   selection: Selection = emptySelection(),
 ): CommandPalette => {
-  const palette = commandPaletteFromScreenState(state, SETTINGS, selection, session)
+  const palette = commandPaletteFromSession(root, SETTINGS, selection, READINGS)
   expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
   return palette as CommandPalette
 }
 
-const minimisedWith = (armed: Armed): CommandPalette =>
-  describedWith(sessionOf({ isPaletteMinimised: true }), screenStateWithArmed(SHOWN, armed))
+const minimisedWith = (armed: Armed): CommandPalette => describedWith(rootWith(armed, true))
 
-const shownWith = (armed: Armed): CommandPalette =>
-  describedWith(sessionOf(), screenStateWithArmed(SHOWN, armed))
+const shownWith = (armed: Armed): CommandPalette => describedWith(rootWith(armed, false))
 
 
 describe('the manuscript still says what these cases read', () => {

@@ -11,12 +11,12 @@ import {
   commandFromInput,
   rowBandCeilingOf,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { editTaskGroup } from '../../src/use-case/edit-document/edit-task-group'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 import { validateDocument, validateEntity } from '../fixtures/grs-document'
@@ -607,7 +607,7 @@ describe('KO-7 / FR-031 / UN-17 -- fit-all clears every mark in its second write
       layout,
       geometry: geometryFromLayout(doc.schedule, doc.documentSettings, layout, regions, emptySelection()),
       regions,
-      screenState: emptyScreenState(),
+      screen: emptyScreenSession.screen,
       selection: emptySelection(),
       zoomStep: S_53,
       zoomMin: S_54,
@@ -797,7 +797,7 @@ describe('FR-016 -- a kept-open row counts in the row band ceiling', () => {
       layout,
       geometry: geometryFromLayout(doc.schedule, settings, layout, regions, emptySelection()),
       regions,
-      screenState: emptyScreenState(),
+      screen: emptyScreenSession.screen,
       selection: emptySelection(),
       zoomStep: S_53,
       zoomMin: S_54,

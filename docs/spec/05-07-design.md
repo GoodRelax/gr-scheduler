@@ -122,13 +122,13 @@ graph RL
 | CP-15 | `UseCase` | `NotifyChangeWatchers` | 確定を購読者へ配る | 表 T-035 の `AG-6` |
 | CP-16 | `UseCase` | `PostDialogueMessage` | 確定した発話を `DialogueLog` へ積み、配る。<br>文書に保存しない | `FR-066` / 表 T-035 の `AG-11` |
 | CP-17 | `Adapter` | `AgentApiEndpoint` | `Agent API` を設置する。<br>既定で公開しない。<br>`SnapshotSource` を宣言する | `FR-028` / `FR-065` / 表 T-035 / 表 T-107 |
-| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を操作へ変える。<br>`InputSource` を宣言する | `FR-016` / `FR-070` |
+| CP-18 | `Adapter` | `InputCommandTranslator` | 画面の入力を、操作と、どこで何が起きたかを運ぶ出来事へ変える。<br>`InputSource` を宣言する | `FR-016` / `FR-070` |
 | CP-19 | `Adapter` | `SvgRenderer` | 幾何から SVG 文字列を作る。<br>`SvgSurface` を宣言する | `FR-080` |
 | CP-20 | `Adapter` | `DocumentCodec` | `GRS JSON`・`MSPDI`・単一 `.html` を文書と相互変換する。<br>`AppShellSource` を宣言する | `FR-024` / `FR-021` / `FR-056` / `FR-057` / `FR-067` |
 | CP-21 | `Adapter` | `ImageExporter` | 画像として書き出す。<br>表 T-076 が「描く」と定めた UI パーツを組み立てる。<br>⛔ 縦に収まらないときは、絵を返さずに拒む（`FR-025`）。<br> `Rasterizer` を宣言する | `FR-025` / `FR-080` |
 | CP-22 | `Adapter` | `FileGateway` | ファイルの読み書き。<br>`FileStore` を宣言する | `FR-060` / 表 T-024 |
 | CP-24 | `Adapter` | `ClipboardGateway` | クリップボードへ出す。<br>`Clipboard` を宣言する | `FR-033` / `FR-068` |
-| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。<br>起動の順序は 表 T-077、フレームを起こす契機の観測は 表 T-078 に従う。<br> **現在値を保持する。<br>** **フレームの先頭で画面の矩形とレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。<br>埋め込みの入れ物を持ち、公開点を置く。<br>`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / `NFR-011` / 5.6 の ADR-001 |
+| CP-25 | `Framework` | `SingleHtmlShell` | 起動と結線。<br>起動の順序は 表 T-077、フレームを起こす契機の観測は 表 T-078 に従う。<br> **現在値を保持する。<br>** 保存しない画面とセッションの値は、セッションの現在値 1 つとして保持し、出来事を 1 段進めて差し替え、返った副作用を実行して、その結果を出来事で戻す（`CP-39`）。<br> **フレームの先頭で画面の矩形とレイアウトと幾何を 1 回計算して配り**、描画を回し、入力を渡す。<br>埋め込みの入れ物を持ち、公開点を置く。<br>`SnapshotSource` と `AppShellSource` の実装 | `FR-067` / `FR-065` / `NFR-011` / 5.6 の ADR-001 |
 | CP-26 | `Framework` | `DomSvgSurface` | `SvgSurface` の実装 | — |
 | CP-27 | `Framework` | `DomInputSource` | `InputSource` の実装 | — |
 | CP-28 | `Framework` | `FileSystemAccessFileStore` | `FileStore` の実装。<br>**ファイルのハンドルを保持する** | `FR-060` |
@@ -138,7 +138,7 @@ graph RL
 | CP-33 | `documentModel` | `DialogueLog` | 確定した発話と、刻印とは別の順序。<br>文書に保存しない | `FR-066` / 表 T-035 の `AG-11` / `AG-6` |
 | CP-34 | `documentModel` | `Document` | **文書ルートの合成と、`DR-1` の不変条件**（ルートに 3 群だけを置く／群に属する値をルート直下へ直に置かない） | 表 T-052 の `DR-1` |
 | CP-35 | `layoutEngine` | `ScreenRegions` | **画面の各部の矩形**（各部の名は 表 T-103 が持つ）と、ポインタがどの領域にあるかの判定 | `FR-051` |
-| CP-36 | `documentModel` | `ScreenState` | **文書に保存しない画面の値** —— 構え（全数は 表 T-023b）と、表 T-206 の `S-99e` / `S-99f` / `S-99g` / `S-144` と、**覚えた実績**（`FR-107` の 表 T-270 の「押下の巡り」で 中断 → 未着手 のときに外した実績。<br>⛔ 文書に保存しない） | `FR-053` / `FR-071` / `FR-107` / 表 T-023b |
+| CP-36 | `documentModel` | `ScreenState` | **画面の値が運ぶ型と、`Esc` が次に消費する段の判定** —— 覚えた実績（`FR-107` の 表 T-270 の「押下の巡り」で 中断 → 未着手 のときに外した実績。<br>⛔ 文書に保存しない）と、`Dual Cursor` の追従側（表 T-029a の `DC-2`）の型、表 T-028 の `IN-4` の段の判定。<br>⭐ 画面の値の状態そのもの（構え、表 T-206 の `S-99e` / `S-99f` / `S-99g` / `S-144` ほか）は 表 T-280 が持ち、その型は `CP-39` にある | `FR-053` / `FR-071` / `FR-107` / 表 T-023b |
 | CP-37 | `Adapter` | `ScreenRenderer` | 日程表の外側の UI パーツの記述を作り、対話欄で確定した発話を渡す。<br>`ScreenSurface` を宣言する | `FR-051` / `FR-006` / `FR-036` / `FR-053` / `FR-076` / `FR-066` |
 | CP-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 | — |
 | CP-39 | `UseCase` | `AdvanceScreenSession` | 保存しない画面とセッションの流れを、出来事を受けて 1 段進め、次の状態と副作用の列を返す。<br>副作用を実行しない | 5.6 の ADR-002 / 表 T-249 / 表 T-250 / 表 T-280 / 表 T-286 / 表 T-289 / 表 T-290 / 表 T-292 / 表 T-293 |
@@ -242,7 +242,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **111。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **112。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -330,7 +330,7 @@ src/
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
-| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
+| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 | UT-8 | `SvgRenderer` | `svg-renderer.ts` と、描く物ごとの 3 ファイル | **純粋性ではない** —— 表 T-075 のとおり 4 つとも同じである。<br>**描く物ごとに縛る要求が別なので割った**（表 T-276 の `UD-1`）—— 格子の規則（`FR-089`）が変わってもタスクの図の規則（`FR-013`・`FR-075`）は変わらない。<br>依存線をタスクの図と同じユニットに置くのは、両者が同じ変更で動いてきたからである |
 | UT-9 | `EditDocument` | `edit-task.ts` と要求ごとの 5 ファイル ／ `edit-task-group.ts` と要求ごとの 4 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>**1 つの集約の中でも、要求ごとに変更の理由が別なので割った**（表 T-276 の `UD-1`）—— 完了率の式（`FR-012`）が変わっても、予定と実績の置き方（`FR-011`・`FR-103`）は変わらない。<br>`FR-011` と `FR-103` は同じ変更で動いてきたので 1 つのユニットに置き、`FR-058` の規則は `FR-085` の分岐の中にあるので 1 つのユニットに置いた |
@@ -424,7 +424,7 @@ src/
 | UF-99 | `InputCommandTranslator` | `armed-placement.ts` | `pure` | 構え（表 T-023b）を、ドラッグした範囲か、選んでいるタスクに当てて書き込みに変える | — |
 | UF-100 | `InputCommandTranslator` | `field-commit.ts` | `pure` | プロパティパネルで確定した値を、表 T-016 の入力の型に従って 表 T-108 の命令にする | — |
 | UF-101 | `InputCommandTranslator` | `selection-input.ts` | `pure` | 入力から次の選択を、表 T-023c に従って決める | — |
-| UF-102 | `InputCommandTranslator` | `screen-state-input.ts` | `pure` | 入力から次の画面の状態を、表 T-028 の `IN-4` と 表 T-023b に従って決める | — |
+| UF-102 | `InputCommandTranslator` | `screen-state-input.ts` | `pure` | 入力から画面の値の出来事（全数は 表 T-280）を、表 T-023b に従って作る。<br>`Esc` の段は作らない —— 段はシェルが 表 T-028 の `IN-4` に従って決める（表 T-283） | — |
 | UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） | — |
 | UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り —— 1 枚の SVG を、表 T-020 の順に層を重ねて組み立てる。<br>層の並びを決めるのは本ユニットだけであり、兄弟は層ごとの文字列の列を返す | `FR-080`（`OW-2`）・`NFR-007`（`OW-4`） |
 | UF-81 | `SvgRenderer` | `schedule-task-figures.ts` | `pure` | タスクごとの図 —— 予定・実績・ガイド・ダミー・選択枠・フェードの掴み点・進捗マーカー・再開アイコン・札 —— と、タスクを結ぶ依存線 | `FR-013`（`OW-2`）・`FR-075`（`OW-2`） |
@@ -443,7 +443,8 @@ src/
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り | — |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） | — |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 | `NFR-011`（`OW-2`） |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある | `FR-100`（`OW-2`）・`FR-102`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある | `FR-100`（`OW-2`）・`FR-102`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | 状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
@@ -453,7 +454,7 @@ src/
 | UF-56 | `DialogueLog` | `dialogue-log.ts` | `pure` | `CP-33` | — |
 | UF-57 | `Document` | `document.ts` | `pure` | `CP-34` | — |
 | UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` | — |
-| UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
+| UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | — |
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
 | UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
@@ -478,7 +479,7 @@ src/
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |
 | UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
 | UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
-| UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と遷移表の定数の区画 | — |
+| UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と遷移表の定数の区画 | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
 | UF-87 | `AdvanceScreenSession` | `notice-values.ts` | `pure` | 通知の領域の遷移（表 T-286）と、そこから生成した型と遷移表の定数の区画 | — |
 | UF-88 | `AdvanceScreenSession` | `gesture-values.ts` | `pure` | 身振りの領域の遷移（表 T-289）と、そこから生成した型と遷移表の定数の区画 | — |
 | UF-89 | `AdvanceScreenSession` | `file-flow-values.ts` | `pure` | ファイル操作と問いの領域の遷移（表 T-290）と、そこから生成した型と遷移表の定数の区画 | — |
@@ -547,7 +548,7 @@ src/
 | PI-15 | `UseCase` | `NotifyChangeWatchers` | `watchChanges`（`non-pure`）／ `unwatchChanges`（`non-pure`）／ `notifyChangeWatchers`（`non-pure`） |
 | PI-16 | `UseCase` | `PostDialogueMessage` | `postDialogueMessage`（`non-pure`） |
 | PI-17 | `Adapter` | `AgentApiEndpoint` | `installAgentApi`（`non-pure`。<br>既定で公開しない。<br>`FR-065`）／ `SnapshotSource`（表 T-065）。<br>⚠️ 外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。<br>本表に書き写さない（MUST NOT） |
-| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。<br>表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。<br>呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。<br>割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。<br>取り消しの対象外＝`UN-9`）／ `screenStateFromInput`（`Esc` の階層は 表 T-028 の `IN-4`。<br>置き場は `CP-36`）／ `SpentEntranceSituation`（型。<br>押された入口が何を持たないのかを名乗る。<br>⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない）／ `rowBandCeilingOf`（`FR-016` の行の軸の上限のうち、いちばん高い行の帯の高さが初めて `Row Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。<br>⭐ 殻が続けざまの刻みのあいだ同じ答えを読むために公開した —— 帯は `zoomY` に対して線形でないので、刻みごとに解くと日程の割付けを繰り返す。<br>⛔ 帯の側の上限を解くのは本メンバ 1 本とし、呼ぶ側が別の区間や止め方で解き直さない —— 同じ上限を 2 か所で解くと、片方だけが直されて答えが離れ、止まる位置が拡大を始めた倍率で変わる（1.9。<br>`FR-016` はその上限が拡大を始めた倍率に依らないことを求める）） |
+| PI-18 | `Adapter` | `InputCommandTranslator` | `InputSource`（表 T-065）／ `PressRow`（型。<br>表 T-023a の行 ID）／ `pressRowOf`（押下がどの行で始まったかを答える。<br>呼び手が押下の時に解決して `PointerPress` へ載せる）／ `commandFromInput`（割当は 表 T-023 と 表 T-036）／ `commandFromFieldCommit`（プロパティパネルで確定した値を 表 T-108 の命令にする。<br>割当は 表 T-016 の「入力の型」の欄と 表 T-104）／ `selectionFromInput`（規則は 表 T-023c。<br>取り消しの対象外＝`UN-9`）／ `screenEventFromInput`（入力から画面の値の出来事を 1 つ作る。<br>作るものが無ければ `null`。<br>出来事の全数は 表 T-280。<br>`Esc` には作らない —— 段はシェルが決める（表 T-283））／ `SpentEntranceSituation`（型。<br>押された入口が何を持たないのかを名乗る。<br>⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない）／ `rowBandCeilingOf`（`FR-016` の行の軸の上限のうち、いちばん高い行の帯の高さが初めて `Row Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。<br>⭐ 殻が続けざまの刻みのあいだ同じ答えを読むために公開した —— 帯は `zoomY` に対して線形でないので、刻みごとに解くと日程の割付けを繰り返す。<br>⛔ 帯の側の上限を解くのは本メンバ 1 本とし、呼ぶ側が別の区間や止め方で解き直さない —— 同じ上限を 2 か所で解くと、片方だけが直されて答えが離れ、止まる位置が拡大を始めた倍率で変わる（1.9。<br>`FR-016` はその上限が拡大を始めた倍率に依らないことを求める）） |
 | PI-19 | `Adapter` | `SvgRenderer` | `SvgSurface`（表 T-065）／ `svgFromSchedule`（`FR-080`）／ `colourOf`（表 T-236 の行 ID と、いまの色の好みから 1 色を返す。<br>`EP-9` が書き出しに画面と同じ線を引けと定めるので、`ImageExporter` が同じ色を問えなければならない。<br>）／ `GROUP_GRID_LINE_WIDTH_PX`（`Group Grid Lines` の罫の太さ。<br>`EP-9` が、仕切りの線の太さを 1 か所から読むことと、画面と書き出しがその同じ 1 か所を読むことを定めているので、**色と同じ理由でこの数も問えなければならない**。<br>⭐ **描く当の本人が持つ** —— `U-18` を引くのはこのユニットである） |
 | PI-20 | `Adapter` | `DocumentCodec` | `AppShellSource`（表 T-065）／ `documentFromJson` ／ `jsonFromDocument` ／ `documentFromMspdi` ／ `mspdiFromDocument` ／ `exportEmbeddedHtml`（`semi-pure-b`。<br>表 T-024 の `IO-7`）／ `formatFromFile`（どちらの形式として読むかを答える。<br>規則は 表 T-024a の `OP-12`）／ `extensionOfFormat`（表 T-024 の行 ID から、その形式の拡張子を答える。<br>⭐ 殻が形式の名簿を直に読まないために公開した —— 表 T-248 の `JF-3`） |
 | PI-21 | `Adapter` | `ImageExporter` | `Rasterizer`（表 T-065）／ `exportSvg`（表 T-076 が「描く」とした UI パーツを組み立てて返す。<br>⛔ 高さの天井に収まらないときは絵を返さず、拒みを返す —— 規則は `FR-025`）／ `exportPng`（`semi-pure-b`。<br>失敗も値で返す。<br>表 T-035 の `AG-8`） |
@@ -563,10 +564,10 @@ src/
 | PI-33 | `documentModel` | `DialogueLog` | `DialogueLog`（型。<br>刻印とは別の順序は 表 T-035 の `AG-11`）／ `logWithMessage`（1 件積む）／ `messagesSince`（`AG-6` の選び方） |
 | PI-34 | `documentModel` | `Document` | `Document`（型。<br>5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）／ `documentViolations`（`DR-1` に反する箇所） |
 | PI-35 | `layoutEngine` | `ScreenRegions` | `ScreenRect`（型。<br>矩形。<br>左上の座標と幅と高さの数値 4 つを自前で宣言し、**ブラウザの供給する型に触れない**（`LR-6`））／ `ScreenRegions`（型。<br>各部の矩形。<br>各部の名は 表 T-103 が持つ）／ `regionsFromScreen`（画面の寸法と `DocumentSettings` から各部の矩形を出す）／ `regionsAtDisplayScale`（与えた表示の倍率で描いたときの各部の矩形。<br>`Row Area` の縦の置き場と高さは描いた目盛の帯の高さ（`FR-039` の 表 T-252 の `DS-1`）で動くので、倍率を変える側は、変えたあとの `Row Area` を変える前に問える）—— ⭐ **公開したのは、`FR-039` が `Row Area` の縦の中点の指す行を動かさないと定めており、倍率を変える側が変更前の矩形しか持たないからである** —— ⛔ **倍率から矩形を算で求めさせない** —— 組み立ては `regionsFromScreen` が持ち、写すと片方だけが直されて必ず離れる（1.9）／ `regionAtPointer`（ポインタがどの領域にあるか）／ `displayRatioOf`（表示の倍率から描く比を出す。<br>求め方は `FR-039`）／ `drawnSettingsOf`（保存値に描く比を 1 度だけ掛けた設定値を返す。<br>掛ける行は `FR-039` の 表 T-252 が持つ。<br>⛔ **保存値そのものを書き換えない（MUST NOT）** —— 同要求が定めており、描く側はこの 1 本を通って掛ける）／ `rowControlLatticeFloorPx`（行の操作子の格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。<br>算式は 表 T-221 の `LF-3` が持ち、それが行の帯高の下限であることは 表 T-051 の `HF-19` が持つ）—— ⭐ **公開したのは、床を読む `ScheduleLayout` が同じ 1 本を問うためである** —— ⛔ **算式を `src/` の 2 か所に置かない** —— 片方だけが直されて必ず離れる（1.9）。<br>⚠️ 外形に `S-235` を掛けるのは `drawnSettingsOf` と同じ本コンポーネントであり、表示の倍率は掛けない（`FR-039` の 表 T-252 の `DS-7`） |
-| PI-36 | `documentModel` | `ScreenState` | `ScreenState`（型。<br>構えは 表 T-023b、覚えた実績は `FR-107` の 表 T-270、ほかは 表 T-206 の `S-99e` / `S-99f` / `S-99g`）／ `DualCursorSide`（型。<br>`date1` と `date2` のどちらが追従しているか。<br>表 T-029a の `DC-2`。<br>⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない）／ `emptyScreenState` ／ `screenStateWithArmed` ／ `screenStateWithSurface`（開いている面）／ `screenStateWithPalette`（`S-99e`）／ `screenStateWithFullScreen`（`S-99f`）／ `screenStateWithWatermark`（`S-144`。<br>⭐ **同行は 表 T-206 の画面の値であって文書の値ではないので、書き手をここが公開しないと `IC-41` の両方向がどこからも書けない**）／ `escapeTarget`（`Esc` が次に消費するもの。<br>階層は 表 T-028 の `IN-4`） ／ `RememberedActual`（型。<br>中断から未着手へ戻したときに外した実績（`01-04-requirements.md` の `FR-107` の 表 T-270 の「押下の巡り」）。<br>実績の開始・実績の最後の日・停止日と、取り込んだ原値の実績期間を運ぶ。<br>⛔ **文書には持たない** —— 文書を開いているあいだだけの値であり、閉じれば消える）／ `screenStateWithRememberedActual`（そのタスクの覚えた実績を置く、または外す。<br>⛔ 置き直すのは `ScreenState` であって `Task` ではない）／ `rememberedActualOf`（そのタスクの覚えた実績を読む。<br>⭐ 命令（`_assets/tbl-glossary.md` の 表 T-108 の `CM-15`）はここから受け取る） |
-| PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。<br>日程表の外側の UI パーツの記述）／ `screenViewFromRegions` ／ `dialogueMessageFromInput`（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）／ `dismissKeyOf`（表 T-037 の `NT-8` で人が消した告げを名指す鍵）／ `rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br>⭐ 内側の層は読まず、値で受け取る（表 T-248 の `JF-4`）／ `rowTitleFontPxOf`（行の名前の字の大きさ。<br>深さ 1 は 表 T-201 の `S-36` × `S-38`、ほかは `S-36`。<br>`FR-016` の行の軸の上限が深さ 1 を問う。<br>⭐ 公開したのは、字の式を `src/` の 2 か所に置かないためである —— 行見出しを描く側と、上限を求める側・書き出す側が同じ 1 本を読む） |
+| PI-36 | `documentModel` | `ScreenState` | `DualCursorSide`（型。<br>`date1` と `date2` のどちらが追従しているか。<br>表 T-029a の `DC-2`。<br>⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない）／ `EscapeTarget`（型。<br>`Esc` が消費する段の語。<br>段は 表 T-028 の `IN-4`、並びは 表 T-283）／ `EscapeContext`（型。<br>段の判定に要る真偽。<br>呼び手が画面の値とほかの領域から集める）／ `escapeTarget`（`EscapeContext` だけから、`Esc` が次に消費する段を答える。<br>消費するものが無ければ `null`）／ `RememberedActual`（型。<br>中断から未着手へ戻したときに外した実績（`01-04-requirements.md` の `FR-107` の 表 T-270 の「押下の巡り」）。<br>実績の開始・実績の最後の日・停止日と、取り込んだ原値の実績期間を運ぶ。<br>⛔ **文書には持たない** —— 文書を開いているあいだだけの値であり、閉じれば消える。<br>覚えるのは画面の値の根（表 T-280）である） |
+| PI-37 | `Adapter` | `ScreenRenderer` | `ScreenSurface`（表 T-065）／ `ScreenView`（型。<br>日程表の外側の UI パーツの記述）／ `ScreenViewReadings`（型。<br>描き手が根の状態のほかに読む値 —— フレームで取った値（`SF-5`）、文書から導く値（`SF-10`）、まだ根へ移していない領域の値）／ `screenViewFromRegions`（根の状態（`PI-39` の `ScreenSession`）と `ScreenViewReadings` から `ScreenView` を作る。<br>根の状態は読むだけである）／ `dialogueMessageFromInput`（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）／ `dismissKeyOf`（表 T-037 の `NT-8` で人が消した告げを名指す鍵）／ `rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`）／ `DEFAULT_ROW_NAME`（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br>⭐ 内側の層は読まず、値で受け取る（表 T-248 の `JF-4`）／ `rowTitleFontPxOf`（行の名前の字の大きさ。<br>深さ 1 は 表 T-201 の `S-36` × `S-38`、ほかは `S-36`。<br>`FR-016` の行の軸の上限が深さ 1 を問う。<br>⭐ 公開したのは、字の式を `src/` の 2 か所に置かないためである —— 行見出しを描く側と、上限を求める側・書き出す側が同じ 1 本を読む） |
 | PI-38 | `Framework` | `DomScreenSurface` | `ScreenSurface` の実装 1 つ ／ `pageGroundStyle`（地の色の宣言）／ `ScreenTheme`（型） —— ⭐ **地を塗るのはシェルである** —— 本コンポーネントの根は日程の上に重なって敷かれており、そこに地を塗ると日程が隠れる。<br>⛔ `FR-041` は地を塗ることを MUST で求めるので、塗る側が宣言を受け取れなければ満たせない |
-| PI-39 | `UseCase` | `AdvanceScreenSession` | `ScreenSession`（型。<br>根の状態。<br>領域の合成（`SF-8`）で、いまは画面の値・通知・身振り・ファイル操作と問い・名前付けと入力欄・選択の 6 領域）／ `SessionEvent`（型。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の出来事の定義）／ `SessionEffect`（型。<br>副作用の名の全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）／ `emptyScreenSession`（初期の状態。<br>表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態の一覧の初期）／ `advanceScreenSession`（1 段進める。<br>何も変わらないときは受け取った参照を返す —— `SF-3`） |
+| PI-39 | `UseCase` | `AdvanceScreenSession` | `ScreenSession`（型。<br>根の状態。<br>領域の合成（`SF-8`）で、いまは画面の値・通知・身振り・ファイル操作と問い・名前付けと入力欄・選択の 6 領域）／ `SessionEvent`（型。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の出来事の定義）／ `SessionEffect`（型。<br>副作用の名の全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）／ `emptyScreenSession`（初期の状態。<br>表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態の一覧の初期）／ `advanceScreenSession`（1 段進める。<br>何も変わらないときは受け取った参照を返す —— `SF-3`）／ `ScreenValues`（型。<br>画面の値の領域の状態 —— 表 T-280）／ `ScreenValuesEvent`（型。<br>画面の値の領域の出来事 —— 表 T-280 の出来事の定義）／ `PropertiesSubject`（型。<br>プロパティパネルが出す対象）／ `ArmKind`（型。<br>構えの種類 —— 表 T-023b） |
 
 層をまたぐインターフェースは、宣言するコンポーネントのフォルダに、その名前の語幹で置くこと（MUST）（例 —— `adapter/svg-renderer/svg-surface.ts`）。  
 **実装を外側の層が持つことは `LR-5` が定めている。**
@@ -770,6 +771,8 @@ src/
 第 4 領域（ファイル操作と問い）のそれらを同じファイルの 表 T-290 に、状態遷移を 図 F-036 に示す。  
 第 5 領域（名前付けと入力欄）のそれらを同じファイルの 表 T-292 に、状態遷移を 図 F-038 に示す。  
 第 6 領域（選択）のそれらを同じファイルの 表 T-293 に、状態遷移を 図 F-039 に示す。  
+領域をまたぐ優先順（`SD-4`）を同じファイルの 表 T-283 に示す。  
+順そのものの正は `IN-4` ・ `SK-19` ・ `NT-7` の行である。  
 状態機械・状態・出来事・遷移は、番号ではなく名で指す。  
 状態機械（定義）の名は、追うものを表す名詞句に `StateMachine` を付けたもの（`armModeStateMachine`）で、全領域を通して 1 つしかない。  
 コードが今の状態を持つ値とその型は、同じ名詞句に `State` を付ける（`armModeState` ・ `ArmModeState`）。  
@@ -1046,7 +1049,8 @@ ADR-002 — 保存しない状態を、自前の状態機械 1 つで持つ
 
 1 つの出来事が 1 巡する流れを 図 F-027 に示す。  
 担い手の名は 表 T-062 のコンポーネントである。  
-⚠️ `InputCommandTranslator` が出来事を作ることと、`SingleHtmlShell` が `advanceScreenSession` を呼ぶことは移行の目標であり、いまの `src/` にはまだ無い（移行の次の段で入る）。
+⚠️ 出来事を作って `advanceScreenSession` を呼ぶ道が入っているのは、画面の値の領域である。  
+ほかの領域は 表 T-285 の `RA-7` の段がまだ済んでいない。
 
 **図 F-027 — 1 つの出来事の 1 巡**
 

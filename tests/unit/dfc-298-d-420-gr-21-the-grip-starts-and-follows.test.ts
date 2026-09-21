@@ -81,7 +81,10 @@ import type {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { ScreenState } from '../../src/entity/document-model/screen-state/screen-state'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type {
   ScreenRect,
   ScreenRegions,
@@ -128,7 +131,10 @@ const REGIONS: ScreenRegions = {
 }
 
 const SETTINGS = { canvasPadding: CANVAS_PADDING } as unknown as DocumentSettings
-const STATE = { fullScreen: false } as unknown as ScreenState
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, fullScreenModeState: { kind: 'normal' } },
+}
 
 const sessionWith = (extent: {
   contentWidth: number
@@ -145,8 +151,8 @@ const sessionWith = (extent: {
   scrollExtent: extent,
 })
 
-const barOf = (session: any, axis: 'horizontal' | 'vertical') => {
-  const found = screenFrameFromRegions(REGIONS, SETTINGS, STATE, session).scrollbars.find(
+const barOf = (readings: any, axis: 'horizontal' | 'vertical') => {
+  const found = screenFrameFromRegions(REGIONS, SETTINGS, ROOT, readings).scrollbars.find(
     (one) => one.axis === axis,
   )
   if (found === undefined) throw new Error(`SC-4 of table T-031 draws no ${axis} bar`)

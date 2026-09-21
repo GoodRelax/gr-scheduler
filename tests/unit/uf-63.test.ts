@@ -18,9 +18,13 @@ import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/s
 import type {
   RowTitle,
   RowTitlePanel,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
@@ -55,32 +59,38 @@ const LONG = 'x'.repeat(400)
 // src/'s -- written as an actual ellipsis so a diff cannot show three periods instead.
 const MARK = '…'
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const readingsWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({
+  ...READINGS,
+  ...part,
+})
+
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const LEVEL_ZERO_FOLDED: ScreenSession = {
+  ...ROOT,
+  screen: { ...ROOT.screen, levelZeroFoldState: { kind: 'folded' } },
+}
 
 const groupOf = (part: Record<string, unknown>): TaskGroup =>
   ({
@@ -125,15 +135,16 @@ const scheduleOf = (groups: readonly TaskGroup[], tasks: readonly Task[] = []): 
 
 const boxAt = (index: number): ScreenRect => ({ x: 0, y: index * 24, width: 400, height: 24 })
 
-const drawn = (...groupIds: readonly string[]): ScreenSession =>
-  sessionWith({ rowBoxes: groupIds.map((groupId, index) => ({ groupId, box: boxAt(index) })) })
+const drawn = (...groupIds: readonly string[]): ScreenViewReadings =>
+  readingsWith({ rowBoxes: groupIds.map((groupId, index) => ({ groupId, box: boxAt(index) })) })
 
 const panelOf = (
   schedule: Schedule,
-  session: ScreenSession,
+  readings: ScreenViewReadings,
   settings: DocumentSettings = PANEL,
   selection = emptySelection(),
-): RowTitlePanel => rowTitlePanelFromSchedule(schedule, settings, selection, session)
+  root: ScreenSession = ROOT,
+): RowTitlePanel => rowTitlePanelFromSchedule(schedule, settings, selection, root, readings)
 
 const idsOf = (titles: readonly RowTitle[]): readonly string[] => titles.map((drawnText) => drawnText.groupId)
 
@@ -339,7 +350,7 @@ describe('UF-63 -- FR-098: the pinned rows are lifted out', () => {
     // WHY: SC-1 hands this unit rowBoxes and it measures nothing of its
     // own, so the fixture gives g3 the band's box although its order is third.
     const inTheBand = { x: 0, y: 0, width: 400, height: 24 }
-    const session = sessionWith({
+    const session = readingsWith({
       rowBoxes: [
         { groupId: 'g3', box: inTheBand },
         { groupId: 'g1', box: boxAt(1) },
@@ -874,21 +885,29 @@ describe('UF-63 -- table T-075: the unit is `pure`', () => {
     const groups = [groupOf({ id: 'g1', label: 'a' }), groupOf({ id: 'g2', label: 'b' })]
     const schedule = scheduleOf(groups)
     const plain = drawn('g1', 'g2')
-    const other: ScreenSession = {
+    const other: ScreenViewReadings = {
       ...plain,
-      language: 'en',
       openedFileName: null,
       fileSavedAt: null,
       isAgentApiEnabled: true,
-      isDialogueFieldVisible: true,
       pointer: { x: 12, y: 34 },
       pointerRestedMs: 4000,
       commandPaletteAt: { x: 80, y: 90 },
-      propertiesShowing: 'documentSettings',
       notices: [{ manner: 'NT-1', reason: 'refused', affectedCount: 2 }],
     }
+    const otherRoot: ScreenSession = {
+      ...ROOT,
+      screen: {
+        ...ROOT.screen,
+        language: 'en',
+        dialogueFieldDisplayState: { kind: 'shown' },
+        propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null },
+      },
+    }
 
-    expect(panelOf(schedule, other)).toEqual(panelOf(schedule, plain))
+    expect(panelOf(schedule, other, PANEL, emptySelection(), otherRoot)).toEqual(
+      panelOf(schedule, plain),
+    )
   })
 })
 
@@ -914,8 +933,11 @@ describe('UF-63 -- HF-5 of table T-051: the controls are LEVEL with the top of t
 // a different set from table T-023c's (still forbidden to a row by SL-1).
 
 // see FR-085
-const chose = (session: ScreenSession, ...groupIds: readonly string[]): ScreenSession => ({
-  ...session,
+const chose = (
+  readings: ScreenViewReadings,
+  ...groupIds: readonly string[]
+): ScreenViewReadings => ({
+  ...readings,
   selectedGroupIds: groupIds,
 })
 
@@ -1228,7 +1250,7 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST NOT): the display amount’s rows are n
   it('⛔⛔ MUST NOT: the HEAD does not count what the display amount dropped either', () => {
     // WHY: HF-18 says HF-12's rule for level 0 is the same rule stated for a
     // row, so the MUST NOT reaches the head too.
-    const panel = panelOf(scheduleOf(FAMILY()), sessionWith({ rowBoxes: [] }))
+    const panel = panelOf(scheduleOf(FAMILY()), readingsWith({ rowBoxes: [] }))
 
     expect(
       panel.foldedRowCount ?? 0,
@@ -1278,7 +1300,10 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
   it('⭐⭐ MUST: with 段 0 folded the panel describes NO row at all (HR-2: 押すと行が 1 つも描かれない状態になりうる)', () => {
     const panel = panelOf(
       scheduleOf(FAMILY()),
-      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+      readingsWith({ rowBoxes: [] }),
+      PANEL,
+      emptySelection(),
+      LEVEL_ZERO_FOLDED,
     )
 
     expect(panel.titles, 'a row was described although 段 0 is folded').toEqual([])
@@ -1288,7 +1313,10 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
   it('⭐⭐ MUST: and the head says how many rows it is holding (HF-12: 示さないと、行が消えたのか畳まれたのかが読めない)', () => {
     const panel = panelOf(
       scheduleOf(FAMILY()),
-      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+      readingsWith({ rowBoxes: [] }),
+      PANEL,
+      emptySelection(),
+      LEVEL_ZERO_FOLDED,
     )
 
     // WHY: HR-1a holds everything under the shallowest row away with it, so
@@ -1306,7 +1334,10 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
   it('⭐ MUST: with 段 0 folded, the head’s 「すべて畳む」 has nothing left to do (HF-12 reads S-211)', () => {
     const folded = panelOf(
       scheduleOf(FAMILY()),
-      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+      readingsWith({ rowBoxes: [] }),
+      PANEL,
+      emptySelection(),
+      LEVEL_ZERO_FOLDED,
     )
     const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
 
@@ -1372,7 +1403,10 @@ describe('UF-63 -- 表 T-015 HR-6 (MUST): the way back from a hide is an opening
   it('⭐ MUST: a folded 段 0 arms the same head control (HR-2: HR-7 を頭で押せば最も浅い段が戻る)', () => {
     const folded = panelOf(
       scheduleOf(FAMILY()),
-      sessionWith({ isLevelZeroFolded: true, rowBoxes: [] }),
+      readingsWith({ rowBoxes: [] }),
+      PANEL,
+      emptySelection(),
+      LEVEL_ZERO_FOLDED,
     )
     const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
 

@@ -7,9 +7,13 @@ import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row
 import type {
   RowTitle,
   RowTitlePanel,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -92,25 +96,23 @@ const drawnPerCharacterOf = (settings: DocumentSettings): number =>
 // see FR-029, T-252
 const DRAWN_GRAB_STRIP = S_138 * S_235 + S_218
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -162,7 +164,8 @@ const titlesOfChain = (
     scheduleOf(groups),
     settings,
     emptySelection(),
-    { ...SESSION, rowBoxes: ids.map((groupId, index) => ({ groupId, box: boxAt(index) })) },
+    ROOT,
+    { ...READINGS, rowBoxes: ids.map((groupId, index) => ({ groupId, box: boxAt(index) })) },
   )
   return [...panel.pinnedTitles, ...panel.titles]
 }

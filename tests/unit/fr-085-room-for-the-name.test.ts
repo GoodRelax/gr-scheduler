@@ -12,9 +12,13 @@ import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/s
 import type {
   RowTitle,
   RowTitlePanel,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 import {
   DEFAULT_DISPLAY_RATIO,
@@ -100,32 +104,30 @@ const roomInPixels = (settings: DocumentSettings, depth: number): number => {
   )
 }
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const readingsWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({ ...READINGS, ...part })
 
 const groupOf = (part: Record<string, unknown>): TaskGroup =>
   ({
@@ -158,8 +160,8 @@ const scheduleOf = (groups: readonly TaskGroup[]): Schedule =>
 
 const boxAt = (index: number): ScreenRect => ({ x: 0, y: index * 24, width: 400, height: 24 })
 
-const drawn = (...groupIds: readonly string[]): ScreenSession =>
-  sessionWith({ rowBoxes: groupIds.map((groupId, index) => ({ groupId, box: boxAt(index) })) })
+const drawn = (...groupIds: readonly string[]): ScreenViewReadings =>
+  readingsWith({ rowBoxes: groupIds.map((groupId, index) => ({ groupId, box: boxAt(index) })) })
 
 const deepestTitle = (depth: number, label: string, settings: DocumentSettings): RowTitle => {
   const ids = Array.from({ length: depth }, (_unused, index) => `g${index + 1}`)
@@ -170,6 +172,7 @@ const deepestTitle = (depth: number, label: string, settings: DocumentSettings):
     scheduleOf(groups),
     settings,
     emptySelection(),
+    ROOT,
     drawn(...ids),
   )
   const found = [...panel.pinnedTitles, ...panel.titles].filter(

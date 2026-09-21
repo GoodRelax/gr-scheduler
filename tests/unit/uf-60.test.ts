@@ -132,39 +132,38 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithPalette,
-  screenStateWithSurface,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection, type Selection } from '../../src/entity/document-model/selection/selection'
 import type {
   ScreenRect,
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
 import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
 import {
   confirmationFromSession,
   noticesFromSession,
 } from '../../src/adapter/screen-renderer/notices'
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
 import {
   dialogueMessageFromInput,
+  displayLanguageOf,
   screenViewFromRegions,
   type DialogueInput,
   type DisplayLanguage,
   type HelpModal,
-  type ScreenSession,
   type ScreenView,
+  type ScreenViewReadings,
   type Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the specification the cases are driven by (Chapter 1.9).
@@ -387,12 +386,10 @@ const SCHEDULE = scheduleOf([groupOf({ id: 'g1', label: NAME_THAT_FITS, order: 0
 /** Where the shell drew the one row -- inside the `Row Title Panel`, clear of both lanes. */
 const ROW_BOX: ScreenRect = { x: 0, y: 104, width: 400, height: 24 }
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SESSION: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: true,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   iconUnderPointer: null,
@@ -403,13 +400,8 @@ const SESSION: ScreenSession = {
   // (DR-5 of table T-052 keeps the hue on `Project`, not in the settings).
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesShowing: 'selection',
-  propertiesSubject: null,
   notices: [],
   confirmation: null,
   rowBoxes: [{ groupId: 'g1', box: ROW_BOX }],
@@ -420,9 +412,49 @@ const SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const readingsWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({
+  ...SESSION,
+  ...part,
+})
 
-const STATE = screenStateWithSurface(emptyScreenState(), U_30_HELP)
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    openSurfaceState: { kind: 'open', surfaceName: U_30_HELP },
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
+}
+
+const rootWithSurface = (surfaceName: string | null): ScreenSession => ({
+  ...ROOT,
+  screen: {
+    ...ROOT.screen,
+    openSurfaceState: surfaceName === null ? { kind: 'closed' } : { kind: 'open', surfaceName },
+  },
+})
+
+const rootWithPaletteShown = (shown: boolean): ScreenSession => ({
+  ...ROOT,
+  screen: {
+    ...ROOT.screen,
+    paletteDisplayState: shown ? { kind: 'shown', child: { kind: 'expanded' } } : { kind: 'hidden' },
+  },
+})
+
+const rootWithLanguage = (root: ScreenSession, language: DisplayLanguage): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, language },
+})
+
+const rootWithPropertiesHidden = (root: ScreenSession): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, propertiesPanelContentState: { kind: 'hidden' } },
+})
 
 const LOG = [
   { author: 'person', text: 'move the milestone', settledAt: '2026-08-19T09:00:00Z' },
@@ -435,9 +467,9 @@ interface Frame {
   readonly schedule: Schedule
   readonly settings: DocumentSettings
   readonly selection: Selection
-  readonly state: ScreenState
+  readonly root: ScreenSession
   readonly dialogueLog: DialogueLog
-  readonly session: ScreenSession
+  readonly readings: ScreenViewReadings
 }
 
 const FRAME: Frame = {
@@ -445,9 +477,9 @@ const FRAME: Frame = {
   schedule: SCHEDULE,
   settings: SETTINGS,
   selection: emptySelection(),
-  state: STATE,
+  root: ROOT,
   dialogueLog: LOG,
-  session: SESSION,
+  readings: SESSION,
 }
 
 const frameWith = (part: Partial<Frame>): Frame => ({ ...FRAME, ...part })
@@ -462,9 +494,9 @@ const viewOf = (frame: Frame = FRAME): ScreenView =>
     frame.schedule,
     frame.settings,
     frame.selection,
-    frame.state,
+    frame.root,
     frame.dialogueLog,
-    frame.session,
+    frame.readings,
   )
 
 /**
@@ -481,31 +513,33 @@ const viewOf = (frame: Frame = FRAME): ScreenView =>
  * of the seven it can lawfully come from.
  */
 const membersFrom = (frame: Frame): Omit<ScreenView, 'tooltips'> => ({
-  language: frame.session.language,
-  frame: screenFrameFromRegions(frame.regions, frame.settings, frame.state, frame.session),
+  language: displayLanguageOf(frame.root),
+  frame: screenFrameFromRegions(frame.regions, frame.settings, frame.root, frame.readings),
   appHeaderItems: appHeaderItemsFromDocument(
     frame.schedule,
     frame.settings,
-    frame.state,
-    frame.session,
+    frame.root,
+    frame.readings,
   ),
   rowTitlePanel: rowTitlePanelFromSchedule(
     frame.schedule,
     frame.settings,
     frame.selection,
-    frame.session,
+    frame.root,
+    frame.readings,
   ),
   propertiesPanel: propertiesPanelFromSelection(
     frame.schedule,
     frame.settings,
     frame.selection,
-    frame.session,
+    frame.root,
+    frame.readings,
   ),
-  commandPalette: commandPaletteFromScreenState(frame.state, frame.settings, frame.selection, frame.session),
-  openModal: openModalFromScreenState(frame.state, frame.schedule, frame.session),
-  notices: noticesFromSession(frame.session),
-  confirmation: confirmationFromSession(frame.session),
-  dialogueField: dialogueFieldFromLog(frame.dialogueLog, frame.session),
+  commandPalette: commandPaletteFromSession(frame.root, frame.settings, frame.selection, frame.readings),
+  openModal: openModalFromSession(frame.root, frame.schedule, frame.readings),
+  notices: noticesFromSession(frame.root, frame.readings),
+  confirmation: confirmationFromSession(frame.root, frame.readings),
+  dialogueField: dialogueFieldFromLog(frame.dialogueLog, frame.root, frame.readings),
 })
 
 /** The rest as they came back from the composition, which is what UF-69 is owed. */
@@ -539,8 +573,8 @@ const iconTooltipsIn = (view: ScreenView): readonly string[] =>
  * coordinate: IF-9 of table T-065 puts answering where an entry is on the side
  * that DREW it, and none of `ScreenView`'s parts carries an entry's rectangle.
  */
-const restedOn = (icon: string, part: Partial<ScreenSession> = {}): ScreenSession =>
-  sessionWith({
+const restedOn = (icon: string, part: Partial<ScreenViewReadings> = {}): ScreenViewReadings =>
+  readingsWith({
     pointer: { x: 5, y: 5 },
     pointerRestedMs: ICON_HINT_MS + 1,
     iconUnderPointer: icon,
@@ -584,9 +618,9 @@ describe('UF-60 -- the nine parts of table T-075, one member each but UF-67', ()
   }
 
   it('fills tooltips with what UF-69 (tooltips.ts) answers for that very frame', () => {
-    const view = viewOf(frameWith({ session: RESTED }))
+    const view = viewOf(frameWith({ readings: RESTED }))
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(membersOf(view), FRAME.settings, RESTED),
+      tooltipsFromScreenView(membersOf(view), FRAME.settings, FRAME.root, RESTED),
     )
   })
 })
@@ -597,10 +631,10 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // tooltips a caller receives have to be the answer for the rest that same
     // caller receives. Anything else means a tooltip explains a part the reader
     // is not looking at.
-    for (const frame of [FRAME, frameWith({ session: RESTED })]) {
+    for (const frame of [FRAME, frameWith({ readings: RESTED })]) {
       const view = viewOf(frame)
       expect(view.tooltips).toEqual(
-        tooltipsFromScreenView(membersOf(view), frame.settings, frame.session),
+        tooltipsFromScreenView(membersOf(view), frame.settings, frame.root, frame.readings),
       )
     }
   })
@@ -609,7 +643,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // ⛔ The failure this rules out: tooltips computed against a frame that is
     // still empty. With the pointer rested, an empty frame explains nothing,
     // while this one holds the `App Header` entries UF-62 built.
-    const view = viewOf(frameWith({ session: RESTED }))
+    const view = viewOf(frameWith({ readings: RESTED }))
     expect(iconTooltipsIn(view).length).toBeGreaterThan(0)
     expect(iconsIn(view)).toEqual(expect.arrayContaining([...iconTooltipsIn(view)]))
   })
@@ -622,7 +656,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     const view = viewOf(
       frameWith({
         schedule: scheduleOf([groupOf({ id: 'g1', label: NAME_TOO_LONG, order: 0 })]),
-        session: sessionWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }),
+        readings: readingsWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }),
       }),
     )
 
@@ -641,7 +675,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // The same frame with a name that fits: nothing was cut, and nothing is
     // explained -- the two frames answer alike, which is what the MUST NOT asks.
     const view = viewOf(
-      frameWith({ session: sessionWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }) }),
+      frameWith({ readings: readingsWith({ pointer: { x: ROW_BOX.x + 1, y: ROW_BOX.y + 1 } }) }),
     )
 
     expect(
@@ -663,14 +697,14 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
       x: (lane as { track: ScreenRect }).track.x + 1,
       y: (lane as { track: ScreenRect }).track.y + 1,
     }
-    const onLane = viewOf(frameWith({ session: sessionWith({ pointer: inside }) }))
+    const onLane = viewOf(frameWith({ readings: readingsWith({ pointer: inside }) }))
     expect(anchorsOf(onLane.tooltips, 'scrollbar')).toEqual([
       JSON.stringify({ kind: 'scrollbar', axis: 'vertical' }),
     ])
 
     // ⭐ And away from it there is none -- so the tooltip is keyed to the lane's
     // own rectangle, not to the axis being present in the frame.
-    const offLane = viewOf(frameWith({ session: sessionWith({ pointer: { x: 5, y: 300 } }) }))
+    const offLane = viewOf(frameWith({ readings: readingsWith({ pointer: { x: 5, y: 300 } }) }))
     expect(anchorsOf(offLane.tooltips, 'scrollbar')).toEqual([])
   })
 
@@ -685,7 +719,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // drew. Under EZ-2 an entry the pointer is not on explains nothing, however
     // long the pointer has rested, so the old claim asked for a rule the
     // specification does not state.
-    const opened = viewOf(frameWith({ session: restedOn(IC_CLOSE_SURFACE) }))
+    const opened = viewOf(frameWith({ readings: restedOn(IC_CLOSE_SURFACE) }))
     expect(opened.openModal).not.toBeNull()
     const surfaceIcons = opened.openModal?.commands.map((one) => one.icon) ?? []
     expect(surfaceIcons, 'IC-52 closes an open surface').toContain(IC_CLOSE_SURFACE)
@@ -705,7 +739,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // The time: the same place, the wait not yet over, and that entry explains
     // nothing either.
     const tooSoon = viewOf(
-      frameWith({ session: restedOn(IC_CLOSE_SURFACE, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
+      frameWith({ readings: restedOn(IC_CLOSE_SURFACE, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
     )
     expect(iconTooltipsIn(tooSoon), 'S-124: the wait is not over').not.toContain(IC_CLOSE_SURFACE)
 
@@ -713,8 +747,8 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // with the pointer now on IC-7, which the closing did not take away.
     const closed = viewOf(
       frameWith({
-        state: screenStateWithSurface(emptyScreenState(), null),
-        session: RESTED,
+        root: rootWithSurface(null),
+        readings: RESTED,
       }),
     )
     expect(closed.openModal).toBeNull()
@@ -729,7 +763,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // The same two conditions of EZ-2. ⚠️ THE PLACE IS AGAIN WHAT THIS CASE
     // USED TO LEAVE OUT: it rested the pointer on IC-7 -- an `App Header` entry
     // -- and then asked for an explanation of every entry the palette built.
-    const shown = viewOf(frameWith({ session: RESTED }))
+    const shown = viewOf(frameWith({ readings: RESTED }))
     expect(shown.commandPalette).not.toBeNull()
     const paletteIcons =
       shown.commandPalette?.groups.flatMap((group) => group.commands.map((one) => one.icon)) ?? []
@@ -745,7 +779,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // Move it onto one entry of the palette: that one explains itself, and the
     // entries beside it in the same palette still do not.
     const first = paletteIcons[0] as string
-    const onEntry = viewOf(frameWith({ session: restedOn(first) }))
+    const onEntry = viewOf(frameWith({ readings: restedOn(first) }))
     expect(iconTooltipsIn(onEntry)).toContain(first)
     for (const other of [
       ...paletteIcons.filter((icon) => icon !== first),
@@ -756,7 +790,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
 
     // The time (S-124): the same entry, the wait not over, nothing explained.
     const tooSoon = viewOf(
-      frameWith({ session: restedOn(first, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
+      frameWith({ readings: restedOn(first, { pointerRestedMs: ICON_HINT_MS - 1 }) }),
     )
     expect(iconTooltipsIn(tooSoon), 'S-124: the wait is not over').not.toContain(first)
 
@@ -764,7 +798,7 @@ describe('UF-60 -- the order: UF-69 is handed the rest already built', () => {
     // UF-65's contract and not re-tested here -- and with the pointer back on
     // IC-7 the explanation that stands is IC-7's, none of the palette's.
     const hidden = viewOf(
-      frameWith({ state: screenStateWithPalette(STATE, false), session: RESTED }),
+      frameWith({ root: rootWithPaletteShown(false), readings: RESTED }),
     )
     expect(hidden.commandPalette).toBeNull()
     for (const icon of paletteIcons) {
@@ -783,7 +817,7 @@ describe("UF-60 -- 表 T-075: 「画面全体に効く表示言語を運ぶ（FR
     // description is the whole screen, so the state has to reach it -- and
     // 表 T-075 puts the carrying on UF-60 rather than on any of the nine.
     for (const language of BOTH_LANGUAGES) {
-      const view = viewOf(frameWith({ session: sessionWith({ language }) }))
+      const view = viewOf(frameWith({ root: rootWithLanguage(ROOT, language) }))
 
       expect(view.language, `FR-038: the screen stands in ${language}`).toBe(language)
     }
@@ -812,7 +846,7 @@ describe("UF-60 -- 表 T-075: 「画面全体に効く表示言語を運ぶ（FR
     // expectation is NOT bent to `undefined`: the specification is plain, so
     // the case stays red until UF-66 fills the member.
     for (const language of BOTH_LANGUAGES) {
-      const view = viewOf(frameWith({ session: sessionWith({ language }) }))
+      const view = viewOf(frameWith({ root: rootWithLanguage(ROOT, language) }))
       const help = view.openModal as HelpModal | null
 
       expect(help?.surface, 'U-30 `Help Modal` is the surface FRAME opens').toBe(U_30_HELP)
@@ -830,18 +864,18 @@ describe("UF-60 -- 表 T-075: 「画面全体に効く表示言語を運ぶ（FR
       settings: settingsOf({ ...SETTINGS, rowTitlePanelWidth: 320 }),
     })
 
-    expect(viewOf(other).language).toBe(SESSION.language)
+    expect(viewOf(other).language).toBe(ROOT.screen.language)
     expect(viewOf(other).rowTitlePanel, 'the other document really is another one').not.toEqual(
       viewOf().rowTitlePanel,
     )
   })
 
   it('GIVEN the language is the only thing that changed WHEN two frames are described THEN each answers with its own, and the same one twice (R7.6)', () => {
-    const ja = viewOf(frameWith({ session: sessionWith({ language: 'ja' }) }))
-    const en = viewOf(frameWith({ session: sessionWith({ language: 'en' }) }))
+    const ja = viewOf(frameWith({ root: rootWithLanguage(ROOT, 'ja') }))
+    const en = viewOf(frameWith({ root: rootWithLanguage(ROOT, 'en') }))
 
     expect(ja.language).not.toBe(en.language)
-    expect(viewOf(frameWith({ session: sessionWith({ language: 'en' }) })).language).toBe(
+    expect(viewOf(frameWith({ root: rootWithLanguage(ROOT, 'en') })).language).toBe(
       en.language,
     )
   })
@@ -917,11 +951,11 @@ describe('UF-60 -- the arguments each unit receives', () => {
     // member it fills. ⭐ The other seven take a session too, so this checks
     // that the composition does not route the raised notices anywhere else.
     const raised = frameWith({
-      session: sessionWith({
+      readings: readingsWith({
         notices: [{ manner: 'NT-1', reason: 'that day is not a day', affectedCount: null }],
       }),
     })
-    expect(viewOf(raised).notices).toEqual(noticesFromSession(raised.session))
+    expect(viewOf(raised).notices).toEqual(noticesFromSession(raised.root, raised.readings))
     expect(viewOf(raised).notices).not.toEqual(viewOf().notices)
     expectUnreached(raised, ['frame', 'rowTitlePanel', 'dialogueField'])
   })
@@ -935,13 +969,15 @@ describe('UF-60 -- the arguments each unit receives', () => {
       schedule: scheduleOf([]),
       settings: SETTINGS,
       selection: emptySelection(),
-      state: emptyScreenState(),
+      root: rootWithPropertiesHidden(rootWithLanguage(emptyScreenSession, 'ja')),
       dialogueLog: emptyDialogueLog(),
-      session: sessionWith({ rowBoxes: [], propertiesShowing: null, isAgentApiEnabled: false }),
+      readings: readingsWith({ rowBoxes: [], isAgentApiEnabled: false }),
     }
     const view = viewOf(bare)
     expect(membersOf(view)).toEqual(membersFrom(bare))
-    expect(view.tooltips).toEqual(tooltipsFromScreenView(membersOf(view), bare.settings, bare.session))
+    expect(view.tooltips).toEqual(
+      tooltipsFromScreenView(membersOf(view), bare.settings, bare.root, bare.readings),
+    )
   })
 })
 
@@ -951,30 +987,30 @@ describe('UF-60 -- a part that is absent comes back null', () => {
     const view = viewOf(frame)
     expect(membersOf(view)).toEqual(membersFrom(frame))
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(membersOf(view), frame.settings, frame.session),
+      tooltipsFromScreenView(membersOf(view), frame.settings, frame.root, frame.readings),
     )
   }
 
   it('answers null for a closed properties panel (FR-072) without disturbing a neighbour', () => {
-    const closed = frameWith({ session: sessionWith({ propertiesShowing: null }) })
+    const closed = frameWith({ root: rootWithPropertiesHidden(ROOT) })
     expect(viewOf(closed).propertiesPanel).toBeNull()
     expectNeighboursIntact(closed)
   })
 
   it('answers null for a hidden palette (S-99e) without disturbing a neighbour', () => {
-    const hidden = frameWith({ state: screenStateWithPalette(STATE, false) })
+    const hidden = frameWith({ root: rootWithPaletteShown(false) })
     expect(viewOf(hidden).commandPalette).toBeNull()
     expectNeighboursIntact(hidden)
   })
 
   it('answers null when no surface is open (S-99g) without disturbing a neighbour', () => {
-    const none = frameWith({ state: screenStateWithSurface(emptyScreenState(), null) })
+    const none = frameWith({ root: rootWithSurface(null) })
     expect(viewOf(none).openModal).toBeNull()
     expectNeighboursIntact(none)
   })
 
   it('answers null for the dialogue field while the `Agent API` is off (FR-066)', () => {
-    const off = frameWith({ session: sessionWith({ isAgentApiEnabled: false }) })
+    const off = frameWith({ readings: readingsWith({ isAgentApiEnabled: false }) })
     expect(viewOf(off).dialogueField).toBeNull()
     expectNeighboursIntact(off)
   })
@@ -984,8 +1020,16 @@ describe('UF-60 -- a part that is absent comes back null', () => {
     // -- UF-61, UF-62, UF-63, UF-67 and UF-69 -- are still their owners'
     // answers, so one part's absence cannot empty another.
     const bare = frameWith({
-      state: screenStateWithPalette(screenStateWithSurface(emptyScreenState(), null), false),
-      session: sessionWith({ propertiesShowing: null, isAgentApiEnabled: false }),
+      root: {
+        ...ROOT,
+        screen: {
+          ...ROOT.screen,
+          openSurfaceState: { kind: 'closed' },
+          paletteDisplayState: { kind: 'hidden' },
+          propertiesPanelContentState: { kind: 'hidden' },
+        },
+      },
+      readings: readingsWith({ isAgentApiEnabled: false }),
     })
     const view = viewOf(bare)
 
@@ -999,7 +1043,7 @@ describe('UF-60 -- a part that is absent comes back null', () => {
     expect(view.rowTitlePanel).toEqual(membersFrom(bare).rowTitlePanel)
     expect(view.notices).toEqual(membersFrom(bare).notices)
     expect(view.tooltips).toEqual(
-      tooltipsFromScreenView(membersOf(view), bare.settings, bare.session),
+      tooltipsFromScreenView(membersOf(view), bare.settings, bare.root, bare.readings),
     )
   })
 })
@@ -1068,7 +1112,7 @@ describe('PI-37 dialogueMessageFromInput -- AG-11 of table T-035 (MUST NOT)', ()
 describe('UF-60 -- `pure` in table T-075', () => {
   it('gives the same frame the same answer twice (R7.6)', () => {
     expect(viewOf()).toEqual(viewOf())
-    expect(viewOf(frameWith({ session: RESTED }))).toEqual(viewOf(frameWith({ session: RESTED })))
+    expect(viewOf(frameWith({ readings: RESTED }))).toEqual(viewOf(frameWith({ readings: RESTED })))
   })
 
   it('writes to none of the seven arguments it was handed (R7.1)', () => {

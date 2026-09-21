@@ -98,11 +98,15 @@ import type {
   IconId,
   RowTitle,
   Scrollbar,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
 
@@ -314,16 +318,26 @@ const headerWith = (commands: readonly CommandItem[]): ScreenView['appHeaderItem
   commands,
 })
 
-const EMPTY_SESSION: ScreenSession = {
-  language: 'ja',
+const DEFAULT_LANGUAGE: DisplayLanguage = 'ja'
+
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: DEFAULT_LANGUAGE },
+}
+
+const rootWith = (language: DisplayLanguage): ScreenSession => ({
+  ...ROOT,
+  screen: { ...ROOT.screen, language },
+})
+
+const EMPTY_READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The four members `ScreenSession` requires that no case here varies:
+  // The four members `ScreenViewReadings` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
   // on no icon), `selectedGroupIds` is FR-085's set of rows and
   // `selectedResourceUids` FR-099's set of resources (both empty -- none
@@ -335,13 +349,8 @@ const EMPTY_SESSION: ScreenSession = {
   // the manuscript's default; S-73 is read above.
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -352,8 +361,8 @@ const EMPTY_SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionOf = (part: Partial<ScreenSession>): ScreenSession => ({
-  ...EMPTY_SESSION,
+const readingsOf = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({
+  ...EMPTY_READINGS,
   ...part,
 })
 
@@ -363,15 +372,15 @@ const sessionOf = (part: Partial<ScreenSession>): ScreenSession => ({
  * FR-085 and FR-037 are asked with, and the one that shows an icon is never
  * explained by the wait alone.
  */
-const RESTED = sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1 })
+const RESTED = readingsOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS + 1 })
 
 /**
  * A pointer resting ON one row of 表 T-109 -- EZ-2's PLACE condition, which
- * `ScreenSession.iconUnderPointer` (PND-141) carries -- for a rest of `restedMs`,
+ * `ScreenViewReadings.iconUnderPointer` (PND-141) carries -- for a rest of `restedMs`,
  * which is its TIME condition.
  */
-const restingOn = (icon: IconId, restedMs: number = WAIT_MS + 1): ScreenSession =>
-  sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: restedMs, iconUnderPointer: icon })
+const restingOn = (icon: IconId, restedMs: number = WAIT_MS + 1): ScreenViewReadings =>
+  readingsOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: restedMs, iconUnderPointer: icon })
 
 // ---------------------------------------------------------------------------
 // Reading the answer.
@@ -399,7 +408,7 @@ const textAt = (shown: readonly Tooltip[], axis: string): string =>
 
 describe('UF-69 — nothing to explain', () => {
   it('answers with nothing when the frame holds no part any rule speaks about', () => {
-    expect(tooltipsFromScreenView(EMPTY_VIEW, SETTINGS, RESTED)).toEqual([])
+    expect(tooltipsFromScreenView(EMPTY_VIEW, SETTINGS, ROOT, RESTED)).toEqual([])
   })
 
   it('answers with nothing when only the parts that carry no icon are there', () => {
@@ -439,9 +448,8 @@ describe('UF-69 — nothing to explain', () => {
           ],
         },
       }),
-      SETTINGS,
-      RESTED,
-    )
+      SETTINGS, ROOT,
+      RESTED)
     expect(shown).toEqual([])
   })
 })
@@ -450,9 +458,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
   it('shows it once the pointer has rested ON an icon longer than the wait', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
-      SETTINGS,
-      restingOn(ICON_PALETTE),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_PALETTE))
 
     expect(shown).toHaveLength(1)
     expect(shown[0]?.anchor).toEqual({ kind: 'icon', icon: ICON_PALETTE })
@@ -462,7 +469,7 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     // EZ-2 (MUST) shows the explanation OF THAT ICON, and FR-038's fifth
     // paragraph (MUST) is where that word is held -- keyed by the row of 表
     // T-109, in the language `ScreenSession.language` carries.
-    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, EMPTY_SESSION.language))
+    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, DEFAULT_LANGUAGE))
   })
 
   it('shows the explanation in the language the reader chose (FR-038 MUST)', () => {
@@ -474,11 +481,11 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
       const shown = tooltipsFromScreenView(
         viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_PALETTE })]) }),
         SETTINGS,
-        sessionOf({
+        rootWith(language),
+        readingsOf({
           pointer: { x: 5, y: 5 },
           pointerRestedMs: WAIT_MS + 1,
           iconUnderPointer: ICON_PALETTE,
-          language,
         }),
       )
       expect(shown[0]?.text, language).toBe(hintWordOf(ICON_PALETTE, language))
@@ -492,9 +499,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
   it('shows nothing while the pointer has rested less than the wait', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf()]) }),
-      SETTINGS,
-      restingOn(ICON_OPEN, WAIT_MS - 1),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_OPEN, WAIT_MS - 1))
     expect(shown).toEqual([])
   })
 
@@ -506,9 +512,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     // two beside it (`WAIT_MS - 1`, `WAIT_MS + 1`) stand either way.
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf()]) }),
-      SETTINGS,
-      restingOn(ICON_OPEN, WAIT_MS),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_OPEN, WAIT_MS))
     expect(iconsOf(shown)).toEqual([ICON_OPEN])
   })
 
@@ -517,9 +522,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     // being pointed at. `ScreenSession.pointer` is `null` for exactly that.
     const shown = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf()]) }),
-      SETTINGS,
-      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10, iconUnderPointer: ICON_OPEN }),
-    )
+      SETTINGS, ROOT,
+      readingsOf({ pointer: null, pointerRestedMs: WAIT_MS * 10, iconUnderPointer: ICON_OPEN }))
     expect(shown).toEqual([])
   })
 
@@ -531,9 +535,9 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     const view = viewOf({ appHeaderItems: headerWith([commandOf()]) })
     const resting = restingOn(ICON_OPEN, WAIT_MS - 1)
 
-    expect(tooltipsFromScreenView(view, SETTINGS, resting)).toEqual([])
+    expect(tooltipsFromScreenView(view, SETTINGS, ROOT, resting)).toEqual([])
     expect(
-      tooltipsFromScreenView(view, settingsOf({ [T_040_EZ2.wait]: WAIT_MS - 2 }), resting),
+      tooltipsFromScreenView(view, settingsOf({ [T_040_EZ2.wait]: WAIT_MS - 2 }), ROOT, resting),
     ).toHaveLength(1)
   })
 
@@ -567,9 +571,9 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
     })
 
     for (const icon of [ICON_OPEN, ICON_PALETTE, ICON_CLOSE]) {
-      const shown = tooltipsFromScreenView(view, SETTINGS, restingOn(icon))
+      const shown = tooltipsFromScreenView(view, SETTINGS, ROOT, restingOn(icon))
       expect(iconsOf(shown), icon).toEqual([icon])
-      expect(shown[0]?.text, icon).toBe(hintWordOf(icon, EMPTY_SESSION.language))
+      expect(shown[0]?.text, icon).toBe(hintWordOf(icon, DEFAULT_LANGUAGE))
     }
   })
 
@@ -594,9 +598,8 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
         },
         openModal: { surface: 'Resource Roster', heading: '担当者', commands: [] },
       }),
-      SETTINGS,
-      RESTED,
-    )
+      SETTINGS, ROOT,
+      RESTED)
     expect(shown).toEqual([])
   })
 })
@@ -615,10 +618,10 @@ describe('EZ-2 (表 T-040, FR-092) — THAT icon, and no other', () => {
     // 「そのアイコンの説明を出すこと」-- THAT icon's. The other two are on the
     // screen and the wait has passed for all of them alike, so an answer wider
     // than one row is EZ-2's place condition going unread.
-    const shown = tooltipsFromScreenView(THREE_ICONS, SETTINGS, restingOn(ICON_PALETTE))
+    const shown = tooltipsFromScreenView(THREE_ICONS, SETTINGS, ROOT, restingOn(ICON_PALETTE))
 
     expect(iconsOf(shown)).toEqual([ICON_PALETTE])
-    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, EMPTY_SESSION.language))
+    expect(shown[0]?.text).toBe(hintWordOf(ICON_PALETTE, DEFAULT_LANGUAGE))
   })
 
   it('explains none of them while the pointer rests on no icon, however long', () => {
@@ -626,15 +629,14 @@ describe('EZ-2 (表 T-040, FR-092) — THAT icon, and no other', () => {
     // put on none of these, and time does not supply the place.
     const shown = tooltipsFromScreenView(
       THREE_ICONS,
-      SETTINGS,
-      sessionOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS * 10 }),
-    )
+      SETTINGS, ROOT,
+      readingsOf({ pointer: { x: 5, y: 5 }, pointerRestedMs: WAIT_MS * 10 }))
     expect(shown).toEqual([])
   })
 
   it('moves the explanation with the pointer, one icon at a time', () => {
     for (const icon of [ICON_OPEN, ICON_PALETTE, ICON_CLOSE]) {
-      expect(iconsOf(tooltipsFromScreenView(THREE_ICONS, SETTINGS, restingOn(icon))), icon).toEqual([
+      expect(iconsOf(tooltipsFromScreenView(THREE_ICONS, SETTINGS, ROOT, restingOn(icon))), icon).toEqual([
         icon,
       ])
     }
@@ -651,7 +653,7 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
     // 示すこと」. ⛔ The REASON itself is not asserted: no member of
     // `CommandItem` carries one, so the seam cannot express what FR-029 asks
     // for -- only that the entry is not left silent.
-    const shown = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, restingOn(ICON_OPEN))
+    const shown = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, ROOT, restingOn(ICON_OPEN))
 
     expect(iconsOf(shown)).toContain(ICON_OPEN)
     expect(shown[0]?.text.length).toBeGreaterThan(0)
@@ -668,18 +670,16 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
           commandOf({ icon: ICON_PALETTE, isEnabled: true }),
         ]),
       }),
-      SETTINGS,
-      restingOn(ICON_PALETTE),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_PALETTE))
     expect(iconsOf(shown)).toEqual([ICON_PALETTE])
   })
 
   it('does not let an entry that cannot be used escape EZ-2 wait either', () => {
     const shown = tooltipsFromScreenView(
       DISABLED_ONLY,
-      SETTINGS,
-      restingOn(ICON_OPEN, WAIT_MS - 1),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_OPEN, WAIT_MS - 1))
     expect(shown).toEqual([])
   })
 
@@ -687,17 +687,16 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
     // 表 T-109 keys the explanation by the ROW, and neither FR-029 nor FR-038
     // gives an entry that cannot be used a second word -- so what is shown does
     // not turn on `isEnabled`.
-    const disabled = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, restingOn(ICON_OPEN))
+    const disabled = tooltipsFromScreenView(DISABLED_ONLY, SETTINGS, ROOT, restingOn(ICON_OPEN))
     const enabled = tooltipsFromScreenView(
       viewOf({ appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN, isEnabled: true })]) }),
-      SETTINGS,
-      restingOn(ICON_OPEN),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_OPEN))
 
     expect(iconsOf(disabled)).toEqual([ICON_OPEN])
     expect(iconsOf(enabled)).toEqual([ICON_OPEN])
-    expect(disabled[0]?.text).toBe(hintWordOf(ICON_OPEN, EMPTY_SESSION.language))
-    expect(enabled[0]?.text).toBe(hintWordOf(ICON_OPEN, EMPTY_SESSION.language))
+    expect(disabled[0]?.text).toBe(hintWordOf(ICON_OPEN, DEFAULT_LANGUAGE))
+    expect(enabled[0]?.text).toBe(hintWordOf(ICON_OPEN, DEFAULT_LANGUAGE))
   })
 
   it('still explains the row when the same icon stands in two places', () => {
@@ -714,9 +713,8 @@ describe('FR-029 — an entry that cannot be used, and the same entry twice', ()
           commands: [commandOf({ icon: ICON_PALETTE })],
         },
       }),
-      SETTINGS,
-      restingOn(ICON_PALETTE),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_PALETTE))
     expect(iconsOf(shown)).toContain(ICON_PALETTE)
     expect(new Set(iconsOf(shown))).toEqual(new Set([ICON_PALETTE]))
   })
@@ -730,16 +728,15 @@ describe('⛔ FR-085 (MUST NOT) — a cut row name is explained by nothing', () 
   // ではなくなった」, and the triggers it governs are `EZ-2` and `FR-037` alone.
 
   /** The pointer inside the row's own box -- the closest thing to a trigger there is. */
-  const overRow = (box: ScreenRect): ScreenSession =>
-    sessionOf({ pointer: { x: box.x + 1, y: box.y + 1 }, pointerRestedMs: 0 })
+  const overRow = (box: ScreenRect): ScreenViewReadings =>
+    readingsOf({ pointer: { x: box.x + 1, y: box.y + 1 }, pointerRestedMs: 0 })
 
   it('⛔ explains nothing while the pointer rests on the name of a row that WAS cut', () => {
     const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: true })
     const shown = tooltipsFromScreenView(
       viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      overRow(title.box),
-    )
+      SETTINGS, ROOT,
+      overRow(title.box))
 
     expect(shown).toEqual([])
   })
@@ -753,9 +750,8 @@ describe('⛔ FR-085 (MUST NOT) — a cut row name is explained by nothing', () 
     for (const restedMs of [0, WAIT_MS, WAIT_MS * 10]) {
       const shown = tooltipsFromScreenView(
         view,
-        SETTINGS,
-        sessionOf({ pointer: { x: 1, y: 1 }, pointerRestedMs: restedMs }),
-      )
+        SETTINGS, ROOT,
+        readingsOf({ pointer: { x: 1, y: 1 }, pointerRestedMs: restedMs }))
       expect(shown, `after resting ${restedMs} ms`).toEqual([])
     }
   })
@@ -768,9 +764,8 @@ describe('⛔ FR-085 (MUST NOT) — a cut row name is explained by nothing', () 
     const second = rowTitleOf({ groupId: 'g2', isLabelTruncated: true })
     const shown = tooltipsFromScreenView(
       viewOf({ rowTitlePanel: { pinnedTitles: [pinned], titles: [first, second] } }),
-      SETTINGS,
-      overRow(first.box),
-    )
+      SETTINGS, ROOT,
+      overRow(first.box))
 
     expect(rowsOf(shown)).toEqual([])
     expect(shown).toEqual([])
@@ -780,33 +775,30 @@ describe('⛔ FR-085 (MUST NOT) — a cut row name is explained by nothing', () 
     const title = rowTitleOf({ groupId: 'g7', isLabelTruncated: false })
     const shown = tooltipsFromScreenView(
       viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [title] } }),
-      SETTINGS,
-      overRow(title.box),
-    )
+      SETTINGS, ROOT,
+      overRow(title.box))
     expect(shown).toEqual([])
   })
 
   it('explains nothing when the panel holds no row', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ rowTitlePanel: { pinnedTitles: [], titles: [] } }),
-      SETTINGS,
-      sessionOf({ pointer: { x: 1, y: 1 } }),
-    )
+      SETTINGS, ROOT,
+      readingsOf({ pointer: { x: 1, y: 1 } }))
     expect(shown).toEqual([])
   })
 })
 
 describe('FR-037 — the faster assignment, while the pointer is on a scrollbar', () => {
-  const at = (x: number, y: number): ScreenSession => sessionOf({ pointer: { x, y } })
+  const at = (x: number, y: number): ScreenViewReadings => readingsOf({ pointer: { x, y } })
 
   it('shows it while the pointer is on the lane, off the grip', () => {
     // 「スクロールバーへポインタを乗せたとき」names the scrollbar, not its grip:
     // `Scrollbar.track` is the lane FR-051 takes out of the `Row Area`.
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } }),
-      SETTINGS,
-      at(VERTICAL_TRACK.x + 5, VERTICAL_TRACK.y + VERTICAL_TRACK.height - 5),
-    )
+      SETTINGS, ROOT,
+      at(VERTICAL_TRACK.x + 5, VERTICAL_TRACK.y + VERTICAL_TRACK.height - 5))
 
     expect(shown).toHaveLength(1)
     expect(shown[0]?.anchor).toEqual({ kind: 'scrollbar', axis: 'vertical' })
@@ -818,8 +810,8 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     // thing. ⛔ WHAT either one says is not asserted: FR-038 names no store of
     // translated strings and no table holds the words.
     const view = viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } })
-    const onVertical = tooltipsFromScreenView(view, SETTINGS, at(VERTICAL_TRACK.x + 5, 300))
-    const onHorizontal = tooltipsFromScreenView(view, SETTINGS, at(50, HORIZONTAL_TRACK.y + 5))
+    const onVertical = tooltipsFromScreenView(view, SETTINGS, ROOT, at(VERTICAL_TRACK.x + 5, 300))
+    const onHorizontal = tooltipsFromScreenView(view, SETTINGS, ROOT, at(50, HORIZONTAL_TRACK.y + 5))
 
     expect(axesOf(onVertical)).toEqual([T_023_FASTER[0].axis])
     expect(axesOf(onHorizontal)).toEqual([T_023_FASTER[1].axis])
@@ -834,23 +826,22 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     // dictionary, keyed by the row -- so which row each lane teaches can be
     // asserted, and T_023_FASTER above is the fixed copy it is asserted from.
     const view = viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } })
-    const onVertical = tooltipsFromScreenView(view, SETTINGS, at(VERTICAL_TRACK.x + 5, 300))
-    const onHorizontal = tooltipsFromScreenView(view, SETTINGS, at(50, HORIZONTAL_TRACK.y + 5))
+    const onVertical = tooltipsFromScreenView(view, SETTINGS, ROOT, at(VERTICAL_TRACK.x + 5, 300))
+    const onHorizontal = tooltipsFromScreenView(view, SETTINGS, ROOT, at(50, HORIZONTAL_TRACK.y + 5))
 
     expect(textAt(onVertical, T_023_FASTER[0].axis)).toBe(
-      assignmentWordOf(T_023_FASTER[0].row, EMPTY_SESSION.language),
+      assignmentWordOf(T_023_FASTER[0].row, DEFAULT_LANGUAGE),
     )
     expect(textAt(onHorizontal, T_023_FASTER[1].axis)).toBe(
-      assignmentWordOf(T_023_FASTER[1].row, EMPTY_SESSION.language),
+      assignmentWordOf(T_023_FASTER[1].row, DEFAULT_LANGUAGE),
     )
   })
 
   it('takes it away when the pointer leaves', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } }),
-      SETTINGS,
-      at(500, 300),
-    )
+      SETTINGS, ROOT,
+      at(500, 300))
     expect(shown).toEqual([])
   })
 
@@ -859,9 +850,8 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     // 「乗せたとき」, so a lane that answered here would be showing it always.
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: BOTH_LANES } }),
-      SETTINGS,
-      sessionOf({ pointer: null, pointerRestedMs: WAIT_MS * 10 }),
-    )
+      SETTINGS, ROOT,
+      readingsOf({ pointer: null, pointerRestedMs: WAIT_MS * 10 }))
     expect(shown).toEqual([])
   })
 
@@ -873,9 +863,9 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     const pastRight = at(VERTICAL_TRACK.x + VERTICAL_TRACK.width, VERTICAL_TRACK.y)
     const pastBottom = at(VERTICAL_TRACK.x, VERTICAL_TRACK.y + VERTICAL_TRACK.height)
 
-    expect(axesOf(tooltipsFromScreenView(view, SETTINGS, corner))).toEqual(['vertical'])
-    expect(tooltipsFromScreenView(view, SETTINGS, pastRight)).toEqual([])
-    expect(tooltipsFromScreenView(view, SETTINGS, pastBottom)).toEqual([])
+    expect(axesOf(tooltipsFromScreenView(view, SETTINGS, ROOT, corner))).toEqual(['vertical'])
+    expect(tooltipsFromScreenView(view, SETTINGS, ROOT, pastRight)).toEqual([])
+    expect(tooltipsFromScreenView(view, SETTINGS, ROOT, pastBottom)).toEqual([])
   })
 
   it('lets every lane the pointer is on answer', () => {
@@ -888,18 +878,16 @@ describe('FR-037 — the faster assignment, while the pointer is on a scrollbar'
     ]
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: overlapping } }),
-      SETTINGS,
-      at(25, 25),
-    )
+      SETTINGS, ROOT,
+      at(25, 25))
     expect(axesOf(shown)).toEqual(['vertical', 'horizontal'])
   })
 
   it('explains nothing when the frame carries no lane', () => {
     const shown = tooltipsFromScreenView(
       viewOf({ frame: { ...EMPTY_VIEW.frame, scrollbars: [] } }),
-      SETTINGS,
-      at(VERTICAL_TRACK.x + 5, 300),
-    )
+      SETTINGS, ROOT,
+      at(VERTICAL_TRACK.x + 5, 300))
     expect(shown).toEqual([])
   })
 })
@@ -923,8 +911,8 @@ describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', 
   })
 
   /** On the vertical lane, and resting on the header's icon for `restedMs`. */
-  const onLaneAndIcon = (restedMs: number): ScreenSession =>
-    sessionOf({
+  const onLaneAndIcon = (restedMs: number): ScreenViewReadings =>
+    readingsOf({
       pointer: { x: VERTICAL_TRACK.x + 5, y: 300 },
       pointerRestedMs: restedMs,
       iconUnderPointer: ICON_OPEN,
@@ -933,7 +921,7 @@ describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', 
   it('raises both when each of their own conditions is met, and no third', () => {
     // Two triggers, not one, so a frame may carry both at once -- and ⛔ not
     // three: the cut row in this very frame raises nothing (FR-085, MUST NOT).
-    const shown = tooltipsFromScreenView(BOTH, SETTINGS, onLaneAndIcon(WAIT_MS + 1))
+    const shown = tooltipsFromScreenView(BOTH, SETTINGS, ROOT, onLaneAndIcon(WAIT_MS + 1))
 
     expect(iconsOf(shown)).toEqual([ICON_OPEN])
     expect(axesOf(shown)).toEqual(['vertical'])
@@ -944,7 +932,7 @@ describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', 
     // ⭐ S-124 is EZ-2's wait and EZ-2's alone. FR-037 turns on a pointer that
     // is on the lane and names no wait, so holding it back for
     // `iconHintDelayMs` would be a condition invented here.
-    const shown = tooltipsFromScreenView(BOTH, SETTINGS, onLaneAndIcon(0))
+    const shown = tooltipsFromScreenView(BOTH, SETTINGS, ROOT, onLaneAndIcon(0))
 
     expect(iconsOf(shown)).toEqual([])
     expect(axesOf(shown)).toEqual(['vertical'])
@@ -954,9 +942,8 @@ describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', 
   it('leaves the other standing while the pointer rests on no icon', () => {
     const shown = tooltipsFromScreenView(
       BOTH,
-      SETTINGS,
-      sessionOf({ pointer: { x: VERTICAL_TRACK.x + 5, y: 300 }, pointerRestedMs: WAIT_MS * 10 }),
-    )
+      SETTINGS, ROOT,
+      readingsOf({ pointer: { x: VERTICAL_TRACK.x + 5, y: 300 }, pointerRestedMs: WAIT_MS * 10 }))
 
     expect(iconsOf(shown)).toEqual([])
     expect(axesOf(shown)).toEqual(['vertical'])
@@ -972,9 +959,8 @@ describe('IN-3 (表 T-028) — the two raisers each keep their own conditions', 
         appHeaderItems: headerWith([commandOf({ icon: ICON_OPEN })]),
         rowTitlePanel: { pinnedTitles: [], titles: [CUT_ROW] },
       }),
-      SETTINGS,
-      restingOn(ICON_OPEN),
-    )
+      SETTINGS, ROOT,
+      restingOn(ICON_OPEN))
 
     expect(iconsOf(shown)).toEqual([ICON_OPEN])
     expect(rowsOf(shown)).toEqual([])
@@ -992,7 +978,7 @@ describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
       titles: [rowTitleOf({ groupId: 'g1', box: rect(0, 0, 200, 24), isLabelTruncated: true })],
     },
   })
-  const CROWDED_SESSION = sessionOf({
+  const CROWDED_READINGS = readingsOf({
     pointer: { x: VERTICAL_TRACK.x + 5, y: 300 },
     pointerRestedMs: WAIT_MS + 1,
     iconUnderPointer: ICON_OPEN,
@@ -1006,7 +992,7 @@ describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
     // こと（MUST）」. FR-036 fixes what it points at and where its words come
     // from, and says 「どちらも持たない行は、その場所を空ける」-- so the member
     // is on every tooltip and empty, not absent, on a row with no assignment.
-    const shown = tooltipsFromScreenView(CROWDED, SETTINGS, CROWDED_SESSION)
+    const shown = tooltipsFromScreenView(CROWDED, SETTINGS, ROOT, CROWDED_READINGS)
 
     expect(shown.length).toBeGreaterThan(0)
     for (const one of shown) {
@@ -1020,11 +1006,11 @@ describe('IN-3 (表 T-028) and R7.1 — what every tooltip is', () => {
   it('answers the same frame the same way twice and writes nothing it was handed', () => {
     // `pure` in table T-075 (R7.1). ⚠️ 04-verification.md 1. records a unit
     // that named itself `pure` while rewriting an argument.
-    const before = JSON.stringify([CROWDED, SETTINGS, CROWDED_SESSION])
-    const once = tooltipsFromScreenView(CROWDED, SETTINGS, CROWDED_SESSION)
-    const twice = tooltipsFromScreenView(CROWDED, SETTINGS, CROWDED_SESSION)
+    const before = JSON.stringify([CROWDED, SETTINGS, ROOT, CROWDED_READINGS])
+    const once = tooltipsFromScreenView(CROWDED, SETTINGS, ROOT, CROWDED_READINGS)
+    const twice = tooltipsFromScreenView(CROWDED, SETTINGS, ROOT, CROWDED_READINGS)
 
     expect(twice).toEqual(once)
-    expect(JSON.stringify([CROWDED, SETTINGS, CROWDED_SESSION])).toBe(before)
+    expect(JSON.stringify([CROWDED, SETTINGS, ROOT, CROWDED_READINGS])).toBe(before)
   })
 })

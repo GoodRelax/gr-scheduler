@@ -5,7 +5,6 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -20,6 +19,7 @@ import {
   commandFromInput,
   rowBandCeilingOf,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 type Settings = Parameters<typeof regionsFromScreen>[1]
@@ -179,7 +179,7 @@ function build(doc: Record<string, any>, env: Env, atStoredZoom: boolean | undef
     layout,
     geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep,
     zoomMin: S_54,

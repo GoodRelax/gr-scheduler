@@ -6,20 +6,18 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import type {
   CommandItem,
   CommandPalette,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -112,24 +110,26 @@ const MILESTONE_GLYPHS: readonly string[] = ((): readonly string[] => {
   throw new Error('erd.json no longer holds the spellings of `milestoneGlyph`')
 })()
 
+type Armed = ScreenValues['armModeState']
+
 // TRAP: this row -> Armed-member mapping is not settled by the
 // specification; re-read it if table T-023b grows a row.
 function armsOfRow(arm: string): readonly Armed[] {
   switch (arm) {
     case 'AR-1':
-      return [{ kind: 'none' }]
+      return [{ kind: 'notArmed' }]
     case 'AR-2':
       return [...ENTRANCE_BY_TASK_SHAPE.keys()].map(
-        (shapeKind): Armed => ({ kind: 'taskShape', shapeKind }),
+        (shapeKind): Armed => ({ kind: 'taskShapeArmed', shapeKind }),
       )
     case 'AR-3':
-      return MILESTONE_GLYPHS.map((glyph): Armed => ({ kind: 'milestoneShape', glyph }))
+      return MILESTONE_GLYPHS.map((glyph): Armed => ({ kind: 'milestoneShapeArmed', glyph }))
     case 'AR-4':
-      return [{ kind: 'dependency' }]
+      return [{ kind: 'dependencyArmed' }]
     case 'AR-5':
-      return [{ kind: 'commentBox' }]
+      return [{ kind: 'commentBoxArmed' }]
     case 'AR-6':
-      return [{ kind: 'highlightBox' }]
+      return [{ kind: 'highlightBoxArmed' }]
     default:
       throw new Error(`table T-023b has a row this file does not build an arm for: ${arm}`)
   }
@@ -140,7 +140,7 @@ const EVERY_ARM: readonly { readonly arm: string; readonly armed: Armed }[] = T_
 )
 
 // see T-023b
-const NOTHING_ARMED: Armed = { kind: 'none' }
+const NOTHING_ARMED: Armed = { kind: 'notArmed' }
 
 // see T-216
 const THEME_HUE = ((): number => {
@@ -151,25 +151,31 @@ const THEME_HUE = ((): number => {
 
 // WHY: the milestone list is open in every case here -- a folded glyph
 // entrance is not drawn, so it could never be the one told apart.
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SHOWN: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    dialogueFieldDisplayState: { kind: 'shown' },
+    milestoneListDisplayState: { kind: 'open' },
+    paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
+    dualCursorModeState: { kind: 'off' },
+    propertiesPanelContentState: { kind: 'hidden' },
+  },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: true,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -178,14 +184,17 @@ const SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
+const withArmed = (root: ScreenSession, armed: Armed): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, armModeState: armed },
+})
 
 function describedWith(armed: Armed): CommandPalette {
-  const palette = commandPaletteFromScreenState(
-    screenStateWithArmed(SHOWN, armed),
+  const palette = commandPaletteFromSession(
+    withArmed(SHOWN, armed),
     SETTINGS,
     emptySelection(),
-    SESSION,
+    READINGS,
   )
   expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
   return palette as CommandPalette
@@ -250,7 +259,7 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
     // WHY: which entrance is not chosen here -- it follows from table
     // T-109 naming the very row of table T-012 each entrance arms.
     for (const [shapeKind, row] of ENTRANCE_BY_TASK_SHAPE) {
-      expect(armedEntrancesOf({ kind: 'taskShape', shapeKind }), shapeKind).toEqual([row])
+      expect(armedEntrancesOf({ kind: 'taskShapeArmed', shapeKind }), shapeKind).toEqual([row])
     }
   })
 
@@ -258,7 +267,7 @@ describe('FR-053 (MUST) -- the armed entrance is told apart from the ones that a
     // WHY: follows from the same MUST without needing glyph-to-row order --
     // this only asserts the eight answers differ, not which is which.
     const marked = MILESTONE_GLYPHS.map((glyph) =>
-      armedEntrancesOf({ kind: 'milestoneShape', glyph }).join('+'),
+      armedEntrancesOf({ kind: 'milestoneShapeArmed', glyph }).join('+'),
     )
 
     expect(new Set(marked).size, marked.join(' | ')).toBe(MILESTONE_GLYPHS.length)

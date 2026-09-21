@@ -10,7 +10,8 @@ import {
   drawnSettingsOf,
   type ScreenRect,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { RowExpander, RowTitle, RowTitlePanel, ScreenSession } from './screen-renderer'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { RowExpander, RowTitle, RowTitlePanel, ScreenViewReadings } from './screen-renderer'
 
 interface PanelIndex {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
@@ -185,7 +186,7 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
 
 // see HF-12, HF-13, HF-18
 /** @purity pure */
-function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
+function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroFolded: boolean): PanelIndex {
   const groupsById = new Map<string, TaskGroup>()
   const groupIdsWithHiddenChild = new Set<string>()
   const groupIdsWithAChildOutOfThePicture = new Set<string>()
@@ -200,7 +201,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   }
 
   const boxByGroupId = new Map<string, ScreenRect>()
-  for (const placed of session.rowBoxes) {
+  for (const placed of readings.rowBoxes) {
     if (boxByGroupId.has(placed.groupId)) continue
     boxByGroupId.set(placed.groupId, placed.box)
   }
@@ -259,7 +260,7 @@ function panelIndexOf(schedule: Schedule, session: ScreenSession): PanelIndex {
   for (const root of rootGroups) {
     const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
     foldedRowCountAtLevelZero +=
-      session.isLevelZeroFolded === true || root.isHidden === true
+      isLevelZeroFolded || root.isHidden === true
         ? subtreeSize
         : (foldedRowCountByGroupId.get(root.id) ?? 0)
   }
@@ -284,14 +285,15 @@ export function rowTitlePanelFromSchedule(
   storedSettings: DocumentSettings,
   _selection: Selection,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): RowTitlePanel {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
-  const index = panelIndexOf(schedule, session)
+  const isLevelZeroFolded = session.screen.levelZeroFoldState.kind === 'folded'
+  const index = panelIndexOf(schedule, readings, isLevelZeroFolded)
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
-  const chosenGroupIds: ReadonlySet<string> = new Set(session.selectedGroupIds)
-
-  const grabbed = session.rowGrabbedAt ?? null
+  const chosenGroupIds: ReadonlySet<string> = new Set(readings.selectedGroupIds)
+  const grabbed = readings.rowGrabbedAt ?? null
   const heldOf = (groupId: string): HeldRow | null =>
     grabbed === null || grabbed.groupId !== groupId
       ? null
@@ -312,7 +314,7 @@ export function rowTitlePanelFromSchedule(
 
   const describedGroupIds = new Set(pinnedGroupIds)
   const titles: RowTitle[] = []
-  for (const placed of session.rowBoxes) {
+  for (const placed of readings.rowBoxes) {
     if (describedGroupIds.has(placed.groupId)) continue
     const group = index.groupsById.get(placed.groupId)
     if (group === undefined) continue
@@ -330,7 +332,6 @@ export function rowTitlePanelFromSchedule(
     )
   }
 
-  const isLevelZeroFolded = session.isLevelZeroFolded === true
   if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroFolded) {
     return { pinnedTitles, titles }
   }

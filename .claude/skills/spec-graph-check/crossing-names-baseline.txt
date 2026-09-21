@@ -172,13 +172,9 @@ ScreenRenderer | RowTitle
 ScreenRenderer | RowTitlePanel
 ScreenRenderer | ScreenFrame
 ScreenRenderer | ScreenPart
-ScreenRenderer | ScreenSession
 ScreenRenderer | Tooltip
 ScreenRenderer | TooltipAnchor
 
-ScreenState | Armed
-ScreenState | EscapeContext
-ScreenState | EscapeTarget
 
 Selection | ItemRef
 Selection | lastPicked

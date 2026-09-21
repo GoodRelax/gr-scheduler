@@ -14,10 +14,14 @@ import { emptySelection } from '../../src/entity/document-model/selection/select
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type {
   RowTitle,
-  ScreenSession,
+  ScreenViewReadings,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { rowTitlePanelFromSchedule } from '../../src/adapter/screen-renderer/row-title-panel'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { DEFAULT_DISPLAY_SCALE, displayRatioAt } from '../fixtures/display-scale'
 import {
   oneByRole,
@@ -115,29 +119,27 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
 
 const THEME_HUE = Number(bare(specTable('T-216').rows.find((one) => one.id === 'S-73')?.by['既定'] ?? ''))
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
+}
+
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
 }
 
 const groupOf = (part: Record<string, unknown>): TaskGroup =>
@@ -178,8 +180,8 @@ const THREE_DEPTHS = [
 ]
 
 const titlesOf = (settings: DocumentSettings): readonly RowTitle[] => {
-  const panel = rowTitlePanelFromSchedule(scheduleOf(THREE_DEPTHS), settings, emptySelection(), {
-    ...SESSION,
+  const panel = rowTitlePanelFromSchedule(scheduleOf(THREE_DEPTHS), settings, emptySelection(), ROOT, {
+    ...READINGS,
     rowBoxes: ['g1', 'g2', 'g3'].map((groupId, index) => ({ groupId, box: rect(0, index * 24, 400, 24) })),
   })
   return [...panel.pinnedTitles, ...panel.titles]

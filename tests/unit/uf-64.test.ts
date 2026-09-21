@@ -143,9 +143,14 @@ import type {
   PropertiesPanel,
   PropertyControlKind,
   PropertyField,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
+import {
+  emptyScreenSession,
+  type PropertiesSubject,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -441,33 +446,60 @@ const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
-const SESSION: ScreenSession = {
+interface Bag {
+  readonly language: 'ja' | 'en'
+  readonly propertiesShowing: 'selection' | 'documentSettings' | null
+  readonly propertiesSubject: PropertiesSubject | null
+  readonly selectedGroupIds: readonly string[]
+}
+
+const SESSION: Bag = {
   language: 'ja',
+  propertiesShowing: 'selection',
+  propertiesSubject: null,
+  selectedGroupIds: [],
+}
+
+const sessionWith = (part: Partial<Bag>): Bag => ({ ...SESSION, ...part })
+
+const contentStateOf = (bag: Bag): ScreenSession['screen']['propertiesPanelContentState'] => {
+  if (bag.propertiesShowing === null) return { kind: 'hidden' }
+  if (bag.propertiesShowing === 'documentSettings') {
+    return { kind: 'documentSettingsDisplayed', returnSubject: bag.propertiesSubject }
+  }
+  return {
+    kind: 'selectionDisplayed',
+    subject: bag.propertiesSubject ?? { selection: emptySelection(), groupIds: [] },
+  }
+}
+
+const rootOf = (bag: Bag): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: bag.language,
+    propertiesPanelContentState: contentStateOf(bag),
+  },
+})
+
+const readingsOf = (bag: Bag): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The seven members `ScreenSession` requires that no case here varies:
+  // The seven members `ScreenViewReadings` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
   // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
   // (both the manuscript's default -- a property field carries neither),
-  // `themeHue` is S-73 read from the manuscript, `selectedGroupIds` is FR-085's
-  // set of rows and `selectedResourceUids` FR-099's set of resources (both
-  // empty -- none chosen), and `propertiesSubject` is FR-072's remembered
-  // subject (`null` -- no operation has chosen one yet).
+  // `themeHue` is S-73 read from the manuscript, and `selectedResourceUids`
+  // FR-099's set of resources (empty -- none chosen).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
-  selectedGroupIds: [],
+  selectedGroupIds: bag.selectedGroupIds,
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -476,9 +508,7 @@ const SESSION: ScreenSession = {
   // "everything fits", which is the lane-long grip SC-4 of table T-031
   // draws when nothing overflows.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-}
-
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+})
 
 /** ET-2 with every nullable column spelled out; leaving one `undefined` reads as "set". */
 const taskOf = (part: Record<string, unknown>): Task =>
@@ -587,10 +617,16 @@ const TASK_REF: ItemRef = { kind: 'task', uid: THE_TASK }
 const panelOf = (
   schedule: Schedule,
   selection: Selection = holding(TASK_REF),
-  session: ScreenSession = SESSION,
+  bag: Bag = SESSION,
   settings: DocumentSettings = SETTINGS,
 ): PropertiesPanel => {
-  const panel = propertiesPanelFromSelection(schedule, settings, selection, session)
+  const panel = propertiesPanelFromSelection(
+    schedule,
+    settings,
+    selection,
+    rootOf(bag),
+    readingsOf(bag),
+  )
   expect(panel, 'the panel is described while `propertiesShowing` names one of the two').not.toBe(
     null,
   )
@@ -628,11 +664,17 @@ const settingsPanel = (settings: DocumentSettings = SETTINGS): PropertiesPanel =
 
 describe('UF-64 -- whether the panel is described at all', () => {
   it('is absent while the panel is closed', () => {
-    // `ScreenSession.propertiesShowing` is `null` for exactly that state, and
-    // `ScreenView.propertiesPanel` is `null` when the panel is closed.
+    // `ScreenSession.propertiesPanelContentState.kind` is `'hidden'` for exactly
+    // that state, and `ScreenView.propertiesPanel` is `null` when the panel is closed.
     const closed = sessionWith({ propertiesShowing: null })
     expect(
-      propertiesPanelFromSelection(oneTaskSchedule(), SETTINGS, holding(TASK_REF), closed),
+      propertiesPanelFromSelection(
+        oneTaskSchedule(),
+        SETTINGS,
+        holding(TASK_REF),
+        rootOf(closed),
+        readingsOf(closed),
+      ),
     ).toBe(null)
   })
 
@@ -1565,17 +1607,21 @@ describe('R7.1 -- table T-075 makes this unit `pure`', () => {
       { resources: [resourceOf(7, 'Ann')], assignments: [assignmentOf(90, THE_TASK, 7)] },
     )
     const selection = holding(TASK_REF)
-    const before = [schedule, SETTINGS, selection, SESSION].map((one) => JSON.stringify(one))
+    const root = rootOf(SESSION)
+    const readings = readingsOf(SESSION)
+    const settingsBag = sessionWith({ propertiesShowing: 'documentSettings' })
+    const before = [schedule, SETTINGS, selection, root, readings].map((one) => JSON.stringify(one))
 
-    propertiesPanelFromSelection(schedule, SETTINGS, selection, SESSION)
+    propertiesPanelFromSelection(schedule, SETTINGS, selection, root, readings)
     propertiesPanelFromSelection(
       schedule,
       SETTINGS,
       selection,
-      sessionWith({ propertiesShowing: 'documentSettings' }),
+      rootOf(settingsBag),
+      readingsOf(settingsBag),
     )
 
-    expect([schedule, SETTINGS, selection, SESSION].map((one) => JSON.stringify(one))).toEqual(
+    expect([schedule, SETTINGS, selection, root, readings].map((one) => JSON.stringify(one))).toEqual(
       before,
     )
   })

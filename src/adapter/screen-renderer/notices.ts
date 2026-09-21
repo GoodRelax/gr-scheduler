@@ -9,8 +9,10 @@ import type {
   DisplayLanguage,
   Notice,
   RaisedNotice,
-  ScreenSession,
+  ScreenViewReadings,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
@@ -180,13 +182,17 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
 // STOP: spec does not decide the order several shown notices stand in. Looked in T-037, FR-076
 // @provisional PND-453
 /** @purity pure */
-export function noticesFromSession(session: ScreenSession): readonly Notice[] {
-  const told = session.notices.map((raised) => toldNotice(raised, session.language))
+export function noticesFromSession(
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+): readonly Notice[] {
+  const language = displayLanguageOf(session)
+  const told = readings.notices.map((raised) => toldNotice(raised, language))
   const startupPending = told.filter(isStartupPending)
 
   if (startupPending.length < 2) return told
 
-  const gathered = gatheredStartupNotice(startupPending, session.language)
+  const gathered = gatheredStartupNotice(startupPending, language)
   const shown: Notice[] = []
   let isGatheredShown = false
 
@@ -205,14 +211,18 @@ export function noticesFromSession(session: ScreenSession): readonly Notice[] {
 
 // see NT-7
 /** @purity pure */
-export function confirmationFromSession(session: ScreenSession): Confirmation | null {
-  const raised = session.confirmation
+export function confirmationFromSession(
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+): Confirmation | null {
+  const raised = readings.confirmation
   if (raised === null) return null
+  const language = displayLanguageOf(session)
   return {
     ...raised,
-    mannerText: mannerText(raised.manner, session.language),
-    text: questionText(raised.question, session.language),
-    answers: confirmationAnswers(session.language),
-    shownOnAnotherRowMark: shownOnAnotherRowMark(session.language),
+    mannerText: mannerText(raised.manner, language),
+    text: questionText(raised.question, language),
+    answers: confirmationAnswers(language),
+    shownOnAnotherRowMark: shownOnAnotherRowMark(language),
   }
 }

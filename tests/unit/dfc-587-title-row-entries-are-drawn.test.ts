@@ -15,19 +15,19 @@ import {
   selectionWith,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
-import {
-  emptyScreenState,
-  screenStateWithSurface,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   DisplayLanguage,
   OpenModal,
   PropertiesPanel,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
   oneByRole,
@@ -71,30 +71,42 @@ const legendWord = (language: DisplayLanguage): string =>
 
 const LANGUAGES: readonly DisplayLanguage[] = ['ja', 'en']
 
-const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-  ...part,
+}
+
+const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language,
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
+  },
+})
+
+const rootShowing = (showing: 'selection' | 'documentSettings'): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    propertiesPanelContentState:
+      showing === 'selection'
+        ? { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } }
+        : { kind: 'documentSettingsDisplayed', returnSubject: null },
+  },
 })
 
 const THE_TASK = 1
@@ -191,8 +203,7 @@ function commonAncestor(one: FakeElement, other: FakeElement): FakeElement {
 }
 
 function drawnHelp(language: DisplayLanguage): FakeElement {
-  const state = screenStateWithSurface(emptyScreenState(), HELP_SURFACE)
-  const modal = openModalFromScreenState(state, ONE_TASK, sessionOf({ language }))
+  const modal = openModalFromSession(rootOn(HELP_SURFACE, language), ONE_TASK, READINGS)
   if (modal === null) throw new Error('the help is open but nothing describes it')
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, language, openModal: { ...modal, heading: HEADING_MARK } as OpenModal })
@@ -206,7 +217,7 @@ function helpTitleRow(help: FakeElement, language: DisplayLanguage): FakeElement
 }
 
 function drawnPanel(showing: 'selection' | 'documentSettings'): FakeElement {
-  const panel = propertiesPanelFromSelection(ONE_TASK, SETTINGS, HOLDING_THE_TASK, sessionOf({ propertiesShowing: showing }))
+  const panel = propertiesPanelFromSelection(ONE_TASK, SETTINGS, HOLDING_THE_TASK, rootShowing(showing), READINGS)
   if (panel === null) throw new Error(`the panel is showing ${showing} but nothing describes it`)
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, propertiesPanel: panel as PropertiesPanel })

@@ -113,7 +113,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
     if (
       isCombo(input.modifiers, false, false, false) &&
       input.key === KEY.escape &&
-      escapeTarget(context.screenState, escapeContextOf(context)) === 'selection'
+      escapeTarget(escapeContextOf(context)) === 'selection'
     ) {
       return emptySelection()
     }

@@ -66,19 +66,20 @@ import { describe, expect, it } from 'vitest'
 
 import type { Resource, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
   escapeTarget,
-  screenStateWithSurface,
   type EscapeContext,
-  type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   CommandItem,
   DisplayLanguage,
   OpenModal,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -187,15 +188,19 @@ const SURFACES_ASKED = [
 // so every member below that a case does not mean is inert.
 // ---------------------------------------------------------------------------
 
-const surfaceState = (surface: string | null): ScreenState =>
-  screenStateWithSurface(emptyScreenState(), surface)
+const surfaceState = (surface: string | null, language: DisplayLanguage = 'ja'): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language,
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
+  },
+})
 
-const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
-  language,
+const sessionOf = (): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
@@ -211,13 +216,8 @@ const sessionOf = (language: DisplayLanguage = 'ja'): ScreenSession => ({
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -289,7 +289,7 @@ const EMPTY_DOCUMENT = scheduleOf()
 
 /** Fails the case when no surface is described, so a case can go on reading. */
 const describedOn = (surface: string | null, schedule: Schedule = EMPTY_DOCUMENT): OpenModal => {
-  const modal = openModalFromScreenState(surfaceState(surface), schedule, sessionOf())
+  const modal = openModalFromSession(surfaceState(surface), schedule, sessionOf())
   expect(modal, `S-99g: a surface is open, so one is described`).not.toBeNull()
   return modal as OpenModal
 }
@@ -357,8 +357,8 @@ describe('UF-66 -- S-99g: one open surface, and none open by default', () => {
   it('describes nothing while S-99g says none is open', () => {
     // S-99g's default is that none is open, and `ScreenView.openModal` is
     // `null` for exactly that.
-    expect(openModalFromScreenState(emptyScreenState(), EMPTY_DOCUMENT, sessionOf())).toBeNull()
-    expect(openModalFromScreenState(surfaceState(null), EMPTY_DOCUMENT, sessionOf())).toBeNull()
+    expect(openModalFromSession(emptyScreenSession, EMPTY_DOCUMENT, sessionOf())).toBeNull()
+    expect(openModalFromSession(surfaceState(null), EMPTY_DOCUMENT, sessionOf())).toBeNull()
   })
 
   it('describes at most one surface, because S-99g holds one', () => {
@@ -384,11 +384,12 @@ describe('UF-66 -- S-99g: one open surface, and none open by default', () => {
     // takes. `escapeTarget` is where that order lives, so the two answers have
     // to agree name by name -- including for the empty name, which no
     // requirement gives a second meaning to.
-    const nothingElseToConsume: EscapeContext = { isTextEntryUnsettled: false, gestureInFlight: false, dualCursorMode: false }
+    const nothingElseToConsume: EscapeContext = { isTextEntryUnsettled: false, isSurfaceOpen: false, gestureInFlight: false, isArmed: false, dualCursorMode: false }
     for (const surface of [null, ...SURFACES_ASKED]) {
       const state = surfaceState(surface)
-      const closesASurface = escapeTarget(state, nothingElseToConsume) === 'surface'
-      const isDescribed = openModalFromScreenState(state, EMPTY_DOCUMENT, sessionOf()) !== null
+      const isSurfaceOpen = state.screen.openSurfaceState.kind === 'open'
+      const closesASurface = escapeTarget({ ...nothingElseToConsume, isSurfaceOpen }) === 'surface'
+      const isDescribed = openModalFromSession(state, EMPTY_DOCUMENT, sessionOf()) !== null
       expect(isDescribed, `IN-4: Esc and the description disagree about "${surface}"`).toBe(
         closesASurface,
       )
@@ -499,10 +500,10 @@ describe('UF-66 -- FR-038: the display language', () => {
     // settled names are English on both sides of the choice.
     for (const language of ['ja', 'en'] as const) {
       for (const surface of SURFACES_ASKED) {
-        const modal = openModalFromScreenState(
-          surfaceState(surface),
+        const modal = openModalFromSession(
+          surfaceState(surface, language),
           EMPTY_DOCUMENT,
-          sessionOf(language),
+          sessionOf(),
         )
         expect((modal as OpenModal).surface, `${language}: "${surface}"`).toBe(surface)
       }
@@ -519,10 +520,10 @@ describe('UF-66 -- FR-038: the display language', () => {
     // of table T-109 for an entry.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
       for (const surface of SURFACES_ASKED) {
-        const modal = openModalFromScreenState(
-          surfaceState(surface),
+        const modal = openModalFromSession(
+          surfaceState(surface, language),
           EMPTY_DOCUMENT,
-          sessionOf(language),
+          sessionOf(),
         ) as OpenModal
         const heading = headingWordOf(surface, language)
 
@@ -551,10 +552,10 @@ describe('UF-66 -- FR-038: the display language', () => {
       for (const surface of SURFACES_ASKED.filter(
         (name) => headingWordOf(name, language) !== undefined,
       )) {
-        const modal = openModalFromScreenState(
-          surfaceState(surface),
+        const modal = openModalFromSession(
+          surfaceState(surface, language),
           EMPTY_DOCUMENT,
-          sessionOf(language),
+          sessionOf(),
         ) as OpenModal
         for (const text of wordsOf(modal)) {
           expect(hasWord(text), `${language}: "${surface}" prints something with no word in it`).toBe(
@@ -576,7 +577,7 @@ describe('UF-66 -- table T-075 makes the unit `pure` (R7.1)', () => {
     const session = deepFreeze(sessionOf())
     const before = JSON.stringify([state, schedule, session])
 
-    openModalFromScreenState(state, schedule, session)
+    openModalFromSession(state, schedule, session)
 
     expect(JSON.stringify([state, schedule, session])).toBe(before)
   })
@@ -584,8 +585,8 @@ describe('UF-66 -- table T-075 makes the unit `pure` (R7.1)', () => {
   it('answers the same for the same inputs', () => {
     for (const surface of SURFACES_ASKED) {
       const state = surfaceState(surface)
-      const first = openModalFromScreenState(state, EMPTY_DOCUMENT, sessionOf())
-      const second = openModalFromScreenState(state, EMPTY_DOCUMENT, sessionOf())
+      const first = openModalFromSession(state, EMPTY_DOCUMENT, sessionOf())
+      const second = openModalFromSession(state, EMPTY_DOCUMENT, sessionOf())
       expect(second).toEqual(first)
     }
   })

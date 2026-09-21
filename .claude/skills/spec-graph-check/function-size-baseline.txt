@@ -1,4 +1,5 @@
-excess-lines=7664 excess-branches=771
+excess-lines=7568 excess-branches=751
+# LOWERED 7664/771 -> 7568/751 on 2026-09-22, approved by the user in chat: CR-436 wave B2 wired the screen values into the shell -- sessionOf and screenStateFromInput left the band, openModalFromScreenState renamed openModalFromSession (89/12, unchanged), frameLoop 2605 -> 2599, receiveInput 178/77 -> 170/73, carryOutAction 254/68 -> 239/62, runFrame 135/14 -> 123/12, exportScene 96 -> 85, owesFrame 30 -> 29.
 # LOWERED 7841/774 -> 7664/771 on 2026-09-22, approved by the user in chat: CR-439 (stage 6) split dom-screen-surface.ts -- domScreenSurface 871/1 -> 337/0, showScreenView 133/37 -> 124/34, fieldEditingOf 417/1 new in field-editing.ts, controlElement / modalElement / rowTitleElement moved to their siblings unchanged; commandFromGrab 169 -> 168 was already shrunk by 3d594b22.
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
@@ -40,12 +41,11 @@ HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
 HELD src/adapter/input-command-translator/row-tree-entrances.ts::commandFromRowEntry lines=77 branches=19
 HELD src/adapter/input-command-translator/row-tree-entrances.ts::wouldMoveARow lines=52 branches=23
-HELD src/adapter/input-command-translator/screen-state-input.ts::screenStateFromInput lines=45 branches=25
 HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36
 HELD src/adapter/input-command-translator/shortcut-keys.ts::commandFromKey lines=89 branches=67
 HELD src/adapter/input-command-translator/wheel-input.ts::commandFromWheel lines=55 branches=17
 HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=56 branches=13
-HELD src/adapter/screen-renderer/open-modals.ts::openModalFromScreenState lines=89 branches=12
+HELD src/adapter/screen-renderer/open-modals.ts::openModalFromSession lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=91 branches=27
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
 HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=65 branches=13
@@ -76,14 +76,13 @@ HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElemen
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=257 branches=0
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=103 branches=23
-HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=254 branches=68
-HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=96 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2605 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=239 branches=62
+HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=85 branches=2
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2599 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=168 branches=37
-HELD src/framework/single-html-shell/frame-loop.ts::owesFrame lines=30 branches=17
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=178 branches=77
-HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=135 branches=14
-HELD src/framework/single-html-shell/frame-loop.ts::sessionOf lines=94 branches=7
+HELD src/framework/single-html-shell/frame-loop.ts::owesFrame lines=29 branches=17
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=170 branches=73
+HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=123 branches=12
 HELD src/framework/single-html-shell/frame-loop.ts::tentativeDependencyOf lines=64 branches=19
 HELD src/framework/single-html-shell/frame-loop.ts::viewSettings lines=55 branches=6
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=205 branches=6

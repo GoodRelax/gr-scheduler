@@ -68,11 +68,8 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithSurface,
-  type Armed,
-  type ScreenState,
+  escapeTarget,
+  type EscapeTarget,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
@@ -102,14 +99,20 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
+  escapeContextOf,
   pressRowOf,
-  screenStateFromInput,
   type InputContext,
   type InputModifiers,
   type KeyInput,
   type PointerInput,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  advanceScreenSession,
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -407,7 +410,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: ZOOM_STEP,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -587,9 +590,23 @@ function oneCommand(answer: TranslatedInput, kind: string): Record<string, unkno
 /** CM-25 -- the one command that writes `nameAnchor` / `nameAlign` (AT-98 / AT-99). */
 const CM_25 = 'setTaskVisualNamePlacement'
 
-const ARMED_RECTANGLE: Armed = { kind: 'taskShape', shapeKind: 'rectangle' }
+type Armed = ScreenValues['armModeState']
 
-const surfaceOpen = (): ScreenState => screenStateWithSurface(emptyScreenState(), 'U-30')
+const ARMED_RECTANGLE: Armed = { kind: 'taskShapeArmed', shapeKind: 'rectangle' }
+
+const SURFACE_OPEN_SCREEN: ScreenValues = {
+  ...emptyScreenSession.screen,
+  openSurfaceState: { kind: 'open', surfaceName: 'U-30' },
+}
+
+const rungFor = (context: InputContext): EscapeTarget => {
+  const rung = escapeTarget(escapeContextOf(context))
+  if (rung === null) throw new Error('no rung stands')
+  return rung
+}
+
+const afterEscape = (root: ScreenSession, rung: EscapeTarget): ScreenSession =>
+  advanceScreenSession(root, { type: 'escapePressed', rung }).state
 
 // ---------------------------------------------------------------------------
 // The rosters and the fixture, before anything walks them.
@@ -821,15 +838,15 @@ describe('表 T-023 MK-13 -- what a double click reaches', () => {
 
 describe('表 T-028 IN-4 -- Esc spends one level, innermost first', () => {
   it('takes the unsettled in-place edit BEFORE the open surface', () => {
-    // ⛔ EXPECTED RED. IN-4 now begins 「確定していないその場の編集 → 開いている
+    // IN-4 begins 「確定していないその場の編集 → 開いている
     // 面 → …」 and spends ONE level per press (MUST), so with text being typed
     // over an open surface the surface MUST still stand afterwards.
-    const state = surfaceOpen()
-    const after = screenStateFromInput(
-      keyOf('Esc'),
-      contextOf({ screenState: state, isTextEntryUnsettled: true }),
-    )
-    expect(after.surface).toBe(state.surface)
+    const root: ScreenSession = { ...emptyScreenSession, screen: SURFACE_OPEN_SCREEN }
+    const context = contextOf({ screen: root.screen, isTextEntryUnsettled: true })
+    const rung = rungFor(context)
+    expect(rung).toBe('textEntry')
+    const after = afterEscape(root, rung)
+    expect(after.screen.openSurfaceState).toEqual(root.screen.openSurfaceState)
   })
 
   it('consumes the key when the in-place edit is the only level standing', () => {
@@ -850,34 +867,43 @@ describe('表 T-028 IN-4 -- Esc spends one level, innermost first', () => {
   })
 
   it('takes the open surface before the arming, with nothing being typed', () => {
-    const state = screenStateWithArmed(surfaceOpen(), ARMED_RECTANGLE)
-    const after = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state }))
-    expect(after.surface).toBeNull()
+    const screen: ScreenValues = { ...SURFACE_OPEN_SCREEN, armModeState: ARMED_RECTANGLE }
+    const root: ScreenSession = { ...emptyScreenSession, screen }
+    const rung = rungFor(contextOf({ screen }))
+    expect(rung).toBe('surface')
+    const after = afterEscape(root, rung)
+    expect(after.screen.openSurfaceState).toEqual({ kind: 'closed' })
     // One level per press: the arming is untouched.
-    expect(after.armed).toEqual(ARMED_RECTANGLE)
+    expect(after.screen.armModeState).toEqual(ARMED_RECTANGLE)
   })
 
   it('takes the gesture in flight before the arming', () => {
     const probe = centreOf(labelOf(1))
     const down = pointerOf('down', probe.x, probe.y)
     const hit = itemAtPointer(GEOMETRY, probe.x, probe.y, SLOP)
-    const state = screenStateWithArmed(emptyScreenState(), ARMED_RECTANGLE)
+    const screen: ScreenValues = { ...emptyScreenSession.screen, armModeState: ARMED_RECTANGLE }
+    const root: ScreenSession = { ...emptyScreenSession, screen }
     const context = contextOf({
-      screenState: state,
-      pressed: { at: down, hit, on: null, pressRow: pressRowOf({ at: down, hit }, contextOf({ screenState: state })) },
+      screen,
+      pressed: { at: down, hit, on: null, pressRow: pressRowOf({ at: down, hit }, contextOf({ screen })) },
     })
-    // ⭐ The gesture is the Framework's to drop (LY-5), so the screen state is
+    const rung = rungFor(context)
+    expect(rung).toBe('gesture')
+    // ⭐ The gesture is the Framework's to drop (LY-5), so the screen values are
     // answered UNCHANGED -- the level was consumed by a holder this member
     // cannot reach. What the case pins is that the ARMING survived the press.
-    const after = screenStateFromInput(keyOf('Esc'), context)
-    expect(after.armed).toEqual(ARMED_RECTANGLE)
+    const after = afterEscape(root, rung)
+    expect(after.screen.armModeState).toEqual(ARMED_RECTANGLE)
     expect(commandFromInput(keyOf('Esc'), context).isBrowserDefaultStopped).toBe(true)
   })
 
   it('takes the arming when it is the innermost thing standing', () => {
-    const state = screenStateWithArmed(emptyScreenState(), ARMED_RECTANGLE)
-    const after = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state }))
-    expect(after.armed).toEqual({ kind: 'none' })
+    const screen: ScreenValues = { ...emptyScreenSession.screen, armModeState: ARMED_RECTANGLE }
+    const root: ScreenSession = { ...emptyScreenSession, screen }
+    const rung = rungFor(contextOf({ screen }))
+    expect(rung).toBe('armed')
+    const after = afterEscape(root, rung)
+    expect(after.screen.armModeState).toEqual({ kind: 'notArmed' })
   })
 
   it('takes the Dual Cursor mode after the arming', () => {

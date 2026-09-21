@@ -235,6 +235,7 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   hasNoUnsettledEntry: [true, false],
   isAgentApiEnabled: [true, false],
   hasDaysToPlace: [true, false],
+  writes: [[]],
 }
 
 const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(

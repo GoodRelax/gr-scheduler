@@ -5,16 +5,17 @@
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
   CommandPalette,
   DisplayLanguage,
   IconId,
   PaletteGroup,
-  ScreenSession,
+  ScreenViewReadings,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
 import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
 
@@ -79,10 +80,10 @@ function isEntryUsable(
 /** @purity pure */
 function drawnTaskUids(
   schedule: Schedule | undefined,
-  session: ScreenSession,
+  readings: ScreenViewReadings,
 ): ReadonlySet<number> | null {
   if (schedule === undefined) return null
-  const drawnGroupIds = new Set(session.rowBoxes.map((placed) => placed.groupId))
+  const drawnGroupIds = new Set(readings.rowBoxes.map((placed) => placed.groupId))
   const uids = new Set<number>()
   for (const member of schedule.taskGroupMembers) {
     if (drawnGroupIds.has(member.groupId)) uids.add(member.taskUid)
@@ -201,19 +202,19 @@ interface ArmedEntry {
 
 // see T-023b
 /** @purity pure */
-function armedEntry(armed: ScreenState['armed']): ArmedEntry {
+function armedEntry(armed: ScreenSession['screen']['armModeState']): ArmedEntry {
   switch (armed.kind) {
-    case 'none':
+    case 'notArmed':
       return { row: 'AR-1', shape: null }
-    case 'taskShape':
+    case 'taskShapeArmed':
       return { row: 'AR-2', shape: armed.shapeKind }
-    case 'milestoneShape':
+    case 'milestoneShapeArmed':
       return { row: 'AR-3', shape: armed.glyph }
-    case 'dependency':
+    case 'dependencyArmed':
       return { row: 'AR-4', shape: null }
-    case 'commentBox':
+    case 'commentBoxArmed':
       return { row: 'AR-5', shape: null }
-    case 'highlightBox':
+    case 'highlightBoxArmed':
       return { row: 'AR-6', shape: null }
   }
 }
@@ -222,7 +223,10 @@ function armedEntry(armed: ScreenState['armed']): ArmedEntry {
 // STOP: spec does not decide what an arm with no word says. Looked in T-023b, FR-038
 // @provisional PND-221
 /** @purity pure */
-function armedWord(armed: ScreenState['armed'], language: DisplayLanguage): string {
+function armedWord(
+  armed: ScreenSession['screen']['armModeState'],
+  language: DisplayLanguage,
+): string {
   const word = ARM_WORDS_BY_ROW.get(armedEntry(armed).row)?.text[language]
   if (word === undefined) return NO_WORDS
   return word === '' ? NO_WORDS : word
@@ -238,50 +242,52 @@ function minimiseRow(): IconRosterRow {
 }
 
 /** @purity pure */
-function isRecordingInteractions(session: ScreenSession): boolean {
-  return session.isRecordingInteractions === true
+function isRecordingInteractions(readings: ScreenViewReadings): boolean {
+  return readings.isRecordingInteractions === true
 }
 
 // see FR-053, S-99e
 /** @purity pure */
-export function commandPaletteFromScreenState(
-  state: ScreenState,
+export function commandPaletteFromSession(
+  session: ScreenSession,
   settings: DocumentSettings,
   selection: Selection,
-  session: ScreenSession,
+  readings: ScreenViewReadings,
   schedule?: Schedule,
 ): CommandPalette | null {
-  if (!state.paletteShown) return null
+  const palette = session.screen.paletteDisplayState
+  if (palette.kind === 'hidden') return null
 
-  const drawnTasks = drawnTaskUids(schedule, session)
+  const drawnTasks = drawnTaskUids(schedule, readings)
+  const language = displayLanguageOf(session)
+  const armed = session.screen.armModeState
+  const isMinimised = palette.child.kind === 'minimised'
 
   return {
-    at: session.commandPaletteAt,
+    at: readings.commandPaletteAt,
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
     minimise: commandItemFor(
       minimiseRow(),
       selection,
       drawnTasks,
-      session.language,
-      armedEntry(state.armed),
-      isRecordingInteractions(session),
+      language,
+      armedEntry(armed),
+      isRecordingInteractions(readings),
       settings,
     ),
-    isMinimised: session.isPaletteMinimised,
-    groups: session.isPaletteMinimised
+    isMinimised,
+    groups: isMinimised
       ? []
       : paletteGroups(
           selection,
           drawnTasks,
-          session.language,
-          session.isMilestoneListOpen,
-          armedEntry(state.armed),
-          isRecordingInteractions(session),
+          language,
+          session.screen.milestoneListDisplayState.kind === 'open',
+          armedEntry(armed),
+          isRecordingInteractions(readings),
           settings,
         ),
-    armedText: session.isPaletteMinimised
-      ? null
-      : armedWord(state.armed, session.language),
+    armedText: isMinimised ? null : armedWord(armed, language),
   }
 }
 

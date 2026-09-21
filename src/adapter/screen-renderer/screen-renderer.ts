@@ -8,18 +8,15 @@ import displayWords from './display-words.json'
 import type { DialogueLog, DialogueMessage } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Exception, Schedule, Task, WeekDay } from '../../entity/document-model/schedule/schedule'
-import type {
-  DualCursorSide,
-  ScreenState,
-} from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
-import { commandPaletteFromScreenState } from './command-palette'
+import { commandPaletteFromSession } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
 
@@ -31,7 +28,7 @@ export { dismissKeyOf }
 const DEFAULT_ROW_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
 export const DEFAULT_ROW_NAME: string =
   DEFAULT_ROW_NAME_ENTRY === undefined ? '' : DEFAULT_ROW_NAME_ENTRY.text.en
-import { openModalFromScreenState } from './open-modals'
+import { openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 
@@ -394,17 +391,11 @@ export interface ScreenView {
   readonly scaleMessage?: string
 }
 
-export interface PropertiesSubject {
-  readonly selection: Selection
-  readonly groupIds: readonly string[]
-}
-
-export interface ScreenSession {
-  readonly language: DisplayLanguage
+// see PI-37, SF-5, SF-10
+export interface ScreenViewReadings {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   readonly isAgentApiEnabled: boolean
-  readonly isDialogueFieldVisible: boolean
   readonly aiExportDocument?: string
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
@@ -412,12 +403,9 @@ export interface ScreenSession {
   // @provisional PND-141
   readonly iconUnderPointer: IconId | null
   readonly taskUnderPointer?: Task | null
-  readonly isTooltipDismissed?: boolean
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
   readonly themePreference: 'light' | 'dark'
   readonly themeHue: number
-  readonly isMilestoneListOpen: boolean
-  readonly isPaletteMinimised: boolean
   readonly isRecordingInteractions?: boolean
   readonly rowGrabbedAt?: {
     readonly groupId: string
@@ -426,8 +414,6 @@ export interface ScreenSession {
     readonly resistedPx: number
     readonly atY: number | null
   } | null
-  readonly isLevelZeroFolded?: boolean
-  readonly dualCursorFollowing: DualCursorSide | null
   // STOP: spec does not decide where the selected rows are held. Looked in FR-085, FR-042, SL-1, T-203, T-206
   // @provisional PND-142
   readonly selectedGroupIds: readonly string[]
@@ -437,10 +423,6 @@ export interface ScreenSession {
   readonly mergeCandidates?: readonly MergeCandidateLine[]
   readonly unreadColumns?: readonly string[]
   readonly droppedTaskNames?: readonly (string | null)[]
-  readonly propertiesShowing: 'selection' | 'documentSettings' | null
-  // STOP: spec does not decide what the panel keeps once the selection is gone. Looked in FR-072, T-203, T-206
-  // @provisional PND-144
-  readonly propertiesSubject: PropertiesSubject | null
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
@@ -448,50 +430,57 @@ export interface ScreenSession {
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
-  // see FR-039, SE-1, SE-2
-  readonly scaleMessage?: {
-    readonly displayScale: number
-    readonly end: 'max' | 'min' | null
-  } | null
 }
 
+// WHY: the shell seats the startup language before the first frame (FR-038); only a root built
+// elsewhere, as a picture's, reaches this.
+const DEFAULT_DISPLAY_LANGUAGE: DisplayLanguage = 'en'
+
+// see PI-37, T-280
+/** @purity pure */
+export function displayLanguageOf(session: ScreenSession): DisplayLanguage {
+  return session.screen.language ?? DEFAULT_DISPLAY_LANGUAGE
+}
+
+// see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
   regions: ScreenRegions,
   schedule: Schedule,
   settings: DocumentSettings,
   selection: Selection,
-  state: ScreenState,
-  dialogueLog: DialogueLog,
   session: ScreenSession,
+  dialogueLog: DialogueLog,
+  readings: ScreenViewReadings,
 ): ScreenView {
+  const language = displayLanguageOf(session)
   const shown: Omit<ScreenView, 'tooltips'> = {
-    language: session.language,
-    frame: screenFrameFromRegions(regions, settings, state, session),
-    appHeaderItems: appHeaderItemsFromDocument(schedule, settings, state, session),
-    rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session),
-    propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session),
-    commandPalette: commandPaletteFromScreenState(
-      state,
+    language,
+    frame: screenFrameFromRegions(regions, settings, session, readings),
+    appHeaderItems: appHeaderItemsFromDocument(schedule, settings, session, readings),
+    rowTitlePanel: rowTitlePanelFromSchedule(schedule, settings, selection, session, readings),
+    propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session, readings),
+    commandPalette: commandPaletteFromSession(
+      session,
       settings,
       selection,
-      session,
+      readings,
       // TRAP: never omit schedule, or the palette counts tasks no row draws.
       schedule,
     ),
-    openModal: openModalFromScreenState(state, schedule, session),
-    notices: noticesFromSession(session),
-    confirmation: confirmationFromSession(session),
-    dialogueField: dialogueFieldFromLog(dialogueLog, session),
+    openModal: openModalFromSession(session, schedule, readings),
+    notices: noticesFromSession(session, readings),
+    confirmation: confirmationFromSession(session, readings),
+    dialogueField: dialogueFieldFromLog(dialogueLog, session, readings),
   }
 
-  const echo = session.scaleMessage ?? null
+  const echo = session.screen.scaleMessageDisplayState
   return {
     ...shown,
-    tooltips: tooltipsFromScreenView(shown, settings, session),
-    ...(echo === null
+    tooltips: tooltipsFromScreenView(shown, settings, session, readings),
+    ...(echo.kind === 'hidden'
       ? {}
-      : { scaleMessage: displayScaleMessageText(echo.displayScale, echo.end, session.language) }),
+      : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),
   }
 }
 

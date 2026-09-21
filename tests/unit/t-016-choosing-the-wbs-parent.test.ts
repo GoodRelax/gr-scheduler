@@ -114,7 +114,6 @@ import {
   type Task,
   type TaskGroup,
 } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionWith,
@@ -142,13 +141,17 @@ import type {
   PropertiesPanel,
   PropertyControl,
   PropertyField,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import {
   commandFromFieldCommit,
   type InputContext,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
@@ -380,25 +383,18 @@ const chainOf = (links: number): Schedule =>
     })),
   })
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -407,6 +403,18 @@ const SESSION: ScreenSession = {
   // "everything fits", which is the lane-long grip SC-4 of table T-031
   // draws when nothing overflows.
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
+}
+
+const SESSION: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
 }
 
 const holding = (...items: readonly ItemRef[]): Selection =>
@@ -422,6 +430,7 @@ const panelOf = (taskUid: number, schedule: Schedule = THREE_ROOTS): PropertiesP
     SETTINGS,
     holding({ kind: 'task', uid: taskUid } as ItemRef),
     SESSION,
+    READINGS,
   )
   expect(panel, 'the panel is described while `propertiesShowing` names one of the two').not.toBe(
     null,
@@ -481,7 +490,7 @@ const BASE_CONTEXT = (schedule: Schedule): InputContext => {
     layout,
     geometry,
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: ZOOM_STEP,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

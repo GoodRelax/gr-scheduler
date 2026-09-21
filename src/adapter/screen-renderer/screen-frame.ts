@@ -5,16 +5,16 @@
 // Generated region at the end: docs/spec/_source/settings.json. Do not edit by hand; npm run gen.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
 import type {
   ScreenRect,
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
 import type {
   PanelDivider,
   ScreenFrame,
-  ScreenSession,
+  ScreenViewReadings,
   Scrollbar,
 } from './screen-renderer'
 
@@ -74,7 +74,7 @@ function dividersOf(regions: ScreenRegions, session: ScreenSession): readonly Pa
     regions.rowTitlePanel,
     regions.rowTitlePanel.x + regions.rowTitlePanel.width,
   )
-  if (session.propertiesShowing === null) return [rowTitle]
+  if (session.screen.propertiesPanelContentState.kind === 'hidden') return [rowTitle]
   const properties = dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x)
   return [rowTitle, properties]
 }
@@ -84,8 +84,8 @@ function dividersOf(regions: ScreenRegions, session: ScreenSession): readonly Pa
 export function screenFrameFromRegions(
   regions: ScreenRegions,
   settings: DocumentSettings,
-  state: ScreenState,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): ScreenFrame {
   const rowArea = regions.rowArea
 
@@ -109,22 +109,22 @@ export function screenFrameFromRegions(
   }
 
   return {
-    isFullScreen: state.fullScreen,
+    isFullScreen: session.screen.fullScreenModeState.kind === 'full',
     dividers: dividersOf(regions, session),
     scrollbars: [
       scrollbarIn(
         'horizontal',
         horizontalTrack,
         horizontalTrack.width,
-        session.scrollExtent.contentWidth,
-        session.scrollExtent.offsetX ?? 0,
+        readings.scrollExtent.contentWidth,
+        readings.scrollExtent.offsetX ?? 0,
       ),
       scrollbarIn(
         'vertical',
         verticalTrack,
-        session.scrollExtent.visibleHeight,
-        session.scrollExtent.contentHeight,
-        session.scrollExtent.offsetY ?? 0,
+        readings.scrollExtent.visibleHeight,
+        readings.scrollExtent.contentHeight,
+        readings.scrollExtent.offsetY ?? 0,
       ),
     ],
   }

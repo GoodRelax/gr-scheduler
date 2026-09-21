@@ -105,7 +105,6 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   commandFromInput,
   pressRowOf,
-  screenStateFromInput,
   NOT_STORED_ROW_GRAB_SIZES,
   type HumanInput,
   type InputAction,
@@ -116,6 +115,7 @@ import {
   type PointerPhase,
   type PointerPress,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { screenEventFromInput } from '../../src/adapter/input-command-translator/screen-state-input'
 import type {
   DisplayLanguage,
   Notice,
@@ -131,14 +131,15 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
-import {
   emptySelection,
   selectionOfAll,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  advanceScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -505,7 +506,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   // ⭐ A stand-in: no case below reads S-53, and a figure that is not the
   // manuscript's makes that plain.
@@ -548,7 +549,7 @@ const partOf = (entrance: Entrance): ScreenPart =>
 
 interface Gesture {
   /** The screen as it stands when the gesture has been let go. */
-  readonly screenState: ScreenState
+  readonly screen: ScreenValues
   /** What `commandFromInput` planned for the release. */
   readonly action: InputAction | null
 }
@@ -563,8 +564,14 @@ interface Gesture {
  * entry's arming lands on -- threading the state through both is what a shell
  * does, and it makes the case indifferent to that choice.
  */
+function screenAfter(screen: ScreenValues, event: ReturnType<typeof screenEventFromInput>): ScreenValues {
+  return event === null
+    ? screen
+    : advanceScreenSession({ ...emptyScreenSession, screen }, event).state.screen
+}
+
 function gesture(options: {
-  readonly screenState: ScreenState
+  readonly screen: ScreenValues
   readonly selection?: Selection
   readonly on?: ScreenPart | null
   readonly from: { readonly x: number; readonly y: number }
@@ -580,37 +587,37 @@ function gesture(options: {
     on,
     pressRow: pressRowOf(
       { at: down, hit: null },
-      { screenState: options.screenState, dualCursorFollowing: null },
+      { screen: options.screen, dualCursorFollowing: null },
     ),
   }
   const atPress: InputContext = {
     ...BASE,
-    screenState: options.screenState,
+    screen: options.screen,
     selection,
     pressed: press,
   }
-  const afterDown = screenStateFromInput(down, atPress)
+  const afterDown = screenAfter(options.screen, screenEventFromInput(down, atPress))
   const up = pointer('up', to.x, to.y)
-  const atRelease: InputContext = { ...BASE, screenState: afterDown, selection, pressed: press }
-  const afterUp = screenStateFromInput(up, atRelease)
+  const atRelease: InputContext = { ...BASE, screen: afterDown, selection, pressed: press }
+  const afterUp = screenAfter(afterDown, screenEventFromInput(up, atRelease))
   const released = commandFromInput(up, atRelease)
-  return { screenState: afterUp, action: released.action }
+  return { screen: afterUp, action: released.action }
 }
 
 /** Press one entrance of the palette and answer with the arm it left standing. */
 function pressEntrance(
   entrance: Entrance,
-  screenState: ScreenState,
+  screen: ScreenValues,
   selection: Selection = emptySelection(),
-): ScreenState {
+): ScreenValues {
   return gesture({
-    screenState,
+    screen,
     selection,
     on: partOf(entrance),
     // ⚠️ Anywhere: table T-023a's decision order does not reach a point the
     // screen surface answered for, so the coordinates carry no meaning here.
     from: { x: 40, y: 200 },
-  }).screenState
+  }).screen
 }
 
 /** A point of the `Row Area` with nothing drawn over it and nothing under it. */
@@ -634,17 +641,17 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // ⚠️ WITHOUT THIS, A BUILD THAT ARMED NOTHING AT ALL WOULD PASS EVERY
     // DISARM CASE BELOW -- an arm that never stands is an arm that is always
     // down. SP-1 of table T-023a is what this reads.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
-    expect(armed.armed.kind).toBe('taskShape')
-    expect((armed.armed as any).shapeKind).toBe(RECTANGLE_SPELLING)
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
+    expect(armed.armModeState.kind).toBe('taskShapeArmed')
+    expect((armed.armModeState as any).shapeKind).toBe(RECTANGLE_SPELLING)
   })
 
   it('⭐ SP-4: pressing the ARMED entrance again puts the arm down', () => {
     // The half of SP-4 that was true before 2026-09-07 as well. It is here so
     // that the case below it isolates the RULING and not the row.
-    const once = pressEntrance(RECTANGLE, emptyScreenState())
+    const once = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const twice = pressEntrance(RECTANGLE, once)
-    expect(twice.armed.kind).toBe('none')
+    expect(twice.armModeState.kind).toBe('notArmed')
   })
 
   it('⭐⭐ THE RULING: the same re-press puts the arm down WITH SOMETHING SELECTED', () => {
@@ -659,23 +666,23 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // stand, and the one below it, which shows a press can still ARM while a
     // selection stands -- a build that answered `none` to every palette press
     // would fail both.
-    const once = pressEntrance(RECTANGLE, emptyScreenState(), SOMETHING_SELECTED)
+    const once = pressEntrance(RECTANGLE, emptyScreenSession.screen, SOMETHING_SELECTED)
     const twice = pressEntrance(RECTANGLE, once, SOMETHING_SELECTED)
-    expect(once.armed.kind, 'the first press armed nothing').toBe('taskShape')
-    expect(twice.armed.kind).toBe('none')
+    expect(once.armModeState.kind, 'the first press armed nothing').toBe('taskShapeArmed')
+    expect(twice.armModeState.kind).toBe('notArmed')
   })
 
   it('⭐ the two roads answer the same: a selection changes NOTHING about the re-press', () => {
     // ⛔ THE CLAUSE OF TABLE T-023b READ AS ONE COMPARISON. Written as two
     // separate expectations the pair could drift apart; written as one, the
     // only way to pass is for the selection to have no say at all.
-    const alone = pressEntrance(RECTANGLE, pressEntrance(RECTANGLE, emptyScreenState()))
+    const alone = pressEntrance(RECTANGLE, pressEntrance(RECTANGLE, emptyScreenSession.screen))
     const holding = pressEntrance(
       RECTANGLE,
-      pressEntrance(RECTANGLE, emptyScreenState(), SOMETHING_SELECTED),
+      pressEntrance(RECTANGLE, emptyScreenSession.screen, SOMETHING_SELECTED),
       SOMETHING_SELECTED,
     )
-    expect(holding.armed).toEqual(alone.armed)
+    expect(holding.armModeState).toEqual(alone.armModeState)
   })
 
   it('⛔ THE CONTROL: pressing a DIFFERENT entrance ARMS it, selection or not', () => {
@@ -683,18 +690,18 @@ describe('FR-083 SP-1..SP-4 and table T-023b: the entrance is a toggle', () => {
     // shape, and (MUST NOT) arming may not be refused because something is
     // selected. ⚠️ WITHOUT THIS, A BUILD THAT DISARMED ON EVERY PALETTE PRESS
     // WOULD PASS THE THREE CASES ABOVE.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState(), SOMETHING_SELECTED)
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen, SOMETHING_SELECTED)
     const moved = pressEntrance(CHEVRON, armed, SOMETHING_SELECTED)
-    expect(moved.armed.kind).toBe('taskShape')
-    expect((moved.armed as any).shapeKind).toBe(CHEVRON_SPELLING)
+    expect(moved.armModeState.kind).toBe('taskShapeArmed')
+    expect((moved.armModeState as any).shapeKind).toBe(CHEVRON_SPELLING)
   })
 
   it('⭐ the arms of table T-023b are exclusive: the milestone press takes the shape arm off', () => {
     // AR-2 and AR-3 are two rows of one column, and the closing paragraph of
     // table T-023b says the values are exclusive.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const moved = pressEntrance(MILESTONE, armed)
-    expect(moved.armed.kind).toBe('milestoneShape')
+    expect(moved.armModeState.kind).toBe('milestoneShapeArmed')
   })
 })
 
@@ -709,8 +716,8 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     // FR-001 (MUST): a bar shape armed and dragged makes a task of the span
     // that was drawn. ⚠️ WITHOUT THIS, A BUILD THAT REFUSED EVERY PRESS WOULD
     // PASS THE REFUSAL CASE BELOW.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
-    const drawn = gesture({ screenState: armed, from: GROUND, to: FAR })
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
+    const drawn = gesture({ screen: armed, from: GROUND, to: FAR })
     const made = creations(drawn.action)
     expect(made.length, 'the drag planned no createTask').toBe(1)
     expect(made[0].shapeKind).toBe(RECTANGLE_SPELLING)
@@ -721,8 +728,8 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     // FR-001 (MUST NOT) and FR-083's RATIONALE (MUST NOT). Until 2026-09-07
     // this press made a task of zero length, which is the build the ruling was
     // given against.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
-    const pressed = gesture({ screenState: armed, from: GROUND })
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
+    const pressed = gesture({ screen: armed, from: GROUND })
     expect(creations(pressed.action).length).toBe(0)
   })
 
@@ -733,8 +740,8 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     // entrance that does nothing at all.
     // ⛔ AND THE SITUATION MAY NOT BE NULL: FR-029 (MUST NOT) forbids carrying
     // the fallback where a row of table T-233 fits, and RS-53 is that row.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
-    const pressed = gesture({ screenState: armed, from: GROUND })
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
+    const pressed = gesture({ screen: armed, from: GROUND })
     expect(pressed.action?.kind).toBe('tellEntryHasNothingToDo')
     expect((pressed.action as any)?.situation ?? null).not.toBeNull()
   })
@@ -743,9 +750,9 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     // FR-001 (MUST, 利用者の裁定 2026-09-02, still live): the travel that is
     // not past S-208 is a click. A hand that trembled by one pixel has not
     // drawn a span.
-    const armed = pressEntrance(RECTANGLE, emptyScreenState())
+    const armed = pressEntrance(RECTANGLE, emptyScreenSession.screen)
     const trembled = gesture({
-      screenState: armed,
+      screen: armed,
       from: GROUND,
       to: { x: GROUND.x + Math.max(1, DRAG_THRESHOLD - 1), y: GROUND.y },
     })
@@ -757,7 +764,7 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     // ⚠️ WITHOUT THIS, A BUILD THAT RAISED THE TELLING ON EVERY PRESS OF THE
     // GROUND WOULD PASS ABOVE. With no arm, PTD-5 of table T-023a makes the
     // press a range selection, which is not an attempt to make anything.
-    const bare = gesture({ screenState: emptyScreenState(), from: GROUND })
+    const bare = gesture({ screen: emptyScreenSession.screen, from: GROUND })
     expect(bare.action?.kind).not.toBe('tellEntryHasNothingToDo')
   })
 })
@@ -766,8 +773,8 @@ describe('FR-001: the milestone is exempt from the ruling, in both directions', 
   it('⛔ THE CONTROL THAT STOPS "REFUSE EVERY PRESS" FROM PASSING: a milestone is placed by a press alone', () => {
     // FR-001 (MUST): the milestone is placed by pressing, and FR-083's
     // RATIONALE puts it outside the MUST NOT above in as many words.
-    const armed = pressEntrance(MILESTONE, emptyScreenState())
-    const pressed = gesture({ screenState: armed, from: GROUND })
+    const armed = pressEntrance(MILESTONE, emptyScreenSession.screen)
+    const pressed = gesture({ screen: armed, from: GROUND })
     const made = creations(pressed.action)
     expect(made.length, 'the milestone press planned no createTask').toBe(1)
     expect(made[0].shapeKind).toBe(shapeSpelling('SH-5'))
@@ -780,10 +787,10 @@ describe('FR-001: the milestone is exempt from the ruling, in both directions', 
     // that no case here has to know the day-to-x map: the dragged milestone has
     // to answer the same day as a plain press at the point it started from, and
     // a DIFFERENT day from a plain press where it was let go.
-    const armed = pressEntrance(MILESTONE, emptyScreenState())
-    const dragged = creations(gesture({ screenState: armed, from: GROUND, to: FAR }).action)
-    const atPress = creations(gesture({ screenState: armed, from: GROUND }).action)
-    const atRelease = creations(gesture({ screenState: armed, from: FAR }).action)
+    const armed = pressEntrance(MILESTONE, emptyScreenSession.screen)
+    const dragged = creations(gesture({ screen: armed, from: GROUND, to: FAR }).action)
+    const atPress = creations(gesture({ screen: armed, from: GROUND }).action)
+    const atRelease = creations(gesture({ screen: armed, from: FAR }).action)
     expect(dragged.length, 'the dragged milestone was refused').toBe(1)
     expect(dragged[0].start).toBe(atPress[0].start)
     expect(dragged[0].finish).toBe(atPress[0].start)

@@ -80,24 +80,38 @@ const cycleSeam = async (): Promise<(task: unknown, remembered: unknown) => Cycl
   throw new Error(`seam S8: neither ${CYCLE_HOMES.join(' nor ')} exports cycleTaskPlanActualState(task, remembered)`)
 }
 
-const screenStateSeam = async (): Promise<Record<string, unknown>> =>
-  (await import('../../src/entity/document-model/screen-state/screen-state')) as unknown as Record<string, unknown>
+type Session = Record<string, unknown>
 
-const rememberSeam = async (): Promise<(state: unknown, taskUid: number, actual: unknown) => unknown> => {
-  const loaded = await screenStateSeam()
-  const found = loaded['screenStateWithRememberedActual']
-  if (typeof found !== 'function') {
-    throw new Error('seam S8: screen-state.ts exports no screenStateWithRememberedActual(state, taskUid, actual)')
+const sessionSeam = async (): Promise<Record<string, unknown>> =>
+  (await import('../../src/use-case/advance-screen-session/advance-screen-session')) as unknown as Record<
+    string,
+    unknown
+  >
+
+const emptySession = async (): Promise<Session> => {
+  const found = (await sessionSeam())['emptyScreenSession']
+  if (typeof found !== 'object' || found === null) {
+    throw new Error('advance-screen-session.ts exports no emptyScreenSession')
   }
-  return found as (state: unknown, taskUid: number, actual: unknown) => unknown
+  return found as Session
 }
 
-const emptyState = async (): Promise<Record<string, unknown>> => {
-  const loaded = await screenStateSeam()
-  const found = loaded['emptyScreenState']
-  if (typeof found !== 'function') throw new Error('screen-state.ts exports no emptyScreenState')
-  return (found as () => Record<string, unknown>)()
+// see T-280, PV-4
+const rememberSeam = async (): Promise<(state: unknown, taskUid: number, actual: unknown) => unknown> => {
+  const found = (await sessionSeam())['advanceScreenSession']
+  if (typeof found !== 'function') {
+    throw new Error('seam S8: advance-screen-session.ts exports no advanceScreenSession(session, event)')
+  }
+  const advance = found as (session: Session, event: unknown) => { readonly state: Session }
+  const session = await emptySession()
+  return (state, taskUid, actual) => {
+    const event = { type: 'progressMarkerPressed', taskUid, rememberedActual: actual, writes: [] }
+    return advance({ ...session, screen: state }, event).state['screen']
+  }
 }
+
+const emptyState = async (): Promise<Record<string, unknown>> =>
+  (await emptySession())['screen'] as Record<string, unknown>
 
 const taskOf = (over: Record<string, unknown>): Record<string, unknown> => ({
   uid: 1,

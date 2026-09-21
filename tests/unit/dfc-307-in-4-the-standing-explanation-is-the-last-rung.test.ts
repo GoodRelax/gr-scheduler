@@ -102,22 +102,22 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import {
-  emptyScreenState,
   escapeTarget,
-  screenStateWithArmed,
-  screenStateWithSurface,
   type EscapeContext,
   type EscapeTarget,
-  type ScreenState,
 } from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   CommandItem,
   IconId,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { tooltipsFromScreenView } from '../../src/adapter/screen-renderer/tooltips'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   commandFromInput,
   selectionFromInput,
@@ -212,7 +212,9 @@ const LADDER_AS_PRINTED = [
  */
 const QUIET: EscapeContext = {
   isTextEntryUnsettled: false,
+  isSurfaceOpen: false,
   gestureInFlight: false,
+  isArmed: false,
   dualCursorMode: false,
 }
 
@@ -264,25 +266,28 @@ const VIEW: Omit<ScreenView, 'tooltips'> = {
   dialogueField: null,
 }
 
-const EMPTY_SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const rootWithTooltipDismissed = (dismissed: boolean): ScreenSession => ({
+  ...ROOT,
+  screen: { ...ROOT.screen, tooltipDisplayState: { kind: dismissed ? 'dismissed' : 'allowed' } },
+})
+
+const EMPTY_READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 214,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -293,24 +298,24 @@ const EMPTY_SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
-  ...EMPTY_SESSION,
+const readingsOf = (part: Partial<ScreenViewReadings> = {}): ScreenViewReadings => ({
+  ...EMPTY_READINGS,
   ...part,
 })
 
 /**
  * EZ-2's two conditions met at once: the pointer is ON the icon (the place) and
- * has waited longer than `iconHintDelayMs` (the time). This is the session that
+ * has waited longer than `iconHintDelayMs` (the time). This is the reading that
  * puts an explanation on the screen.
  */
-const RESTING_ON_THE_ICON = sessionOf({
+const RESTING_ON_THE_ICON = readingsOf({
   pointer: { x: 5, y: 5 },
   pointerRestedMs: WAIT_MS + 1,
   iconUnderPointer: ICON,
 })
 
-const shownFor = (session: ScreenSession): readonly Tooltip[] =>
-  tooltipsFromScreenView(VIEW, SETTINGS, session)
+const shownFor = (readings: ScreenViewReadings, root: ScreenSession = ROOT): readonly Tooltip[] =>
+  tooltipsFromScreenView(VIEW, SETTINGS, root, readings)
 
 // ===========================================================================
 // 4. The premises every case below stands on
@@ -363,7 +368,7 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
 
 describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladder', () => {
   it('answers tooltip when an explanation is the only thing standing', () => {
-    expect(escapeTarget(emptyScreenState(), ONLY_A_TOOLTIP)).toBe(
+    expect(escapeTarget(ONLY_A_TOOLTIP)).toBe(
       'tooltip' satisfies EscapeTarget,
     )
   })
@@ -371,10 +376,10 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
   it('is spent AFTER the Dual Cursor mode, which is the rung above it', () => {
     // 「... → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）」
     const both = contextOf({ dualCursorMode: true, isTooltipStanding: true })
-    expect(escapeTarget(emptyScreenState(), both)).toBe('dualCursorMode')
+    expect(escapeTarget(both)).toBe('dualCursorMode')
     // ⭐ AND THE MODE HAS TO BE REACHABLE THE OTHER WAY ROUND: with the mode
     // down, the same standing explanation is what the press finds.
-    expect(escapeTarget(emptyScreenState(), contextOf({ isTooltipStanding: true }))).toBe(
+    expect(escapeTarget(contextOf({ isTooltipStanding: true }))).toBe(
       'tooltip',
     )
   })
@@ -385,47 +390,39 @@ describe('T-028 IN-4 (MUST) -- the standing explanation is the foot of the ladde
     // which is what 「1 階層ぶん消費し」 forbids.
     const standing: ReadonlyArray<{
       readonly rung: EscapeTarget
-      readonly state: ScreenState
       readonly context: EscapeContext
     }> = [
       {
         rung: 'notice',
-        state: emptyScreenState(),
         context: contextOf({ isNoticeStanding: true, isTooltipStanding: true }),
       },
       {
         rung: 'textEntry',
-        state: emptyScreenState(),
         context: contextOf({ isTextEntryUnsettled: true, isTooltipStanding: true }),
       },
       {
         rung: 'surface',
-        state: screenStateWithSurface(emptyScreenState(), 'U-53'),
-        context: contextOf({ isTooltipStanding: true }),
+        context: contextOf({ isSurfaceOpen: true, isTooltipStanding: true }),
       },
       {
         rung: 'gesture',
-        state: emptyScreenState(),
         context: contextOf({ gestureInFlight: true, isTooltipStanding: true }),
       },
       {
         rung: 'armed',
-        state: screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
-        context: contextOf({ isTooltipStanding: true }),
+        context: contextOf({ isArmed: true, isTooltipStanding: true }),
       },
       {
         rung: 'selection',
-        state: emptyScreenState(),
         context: contextOf({ isSelectionStanding: true, isTooltipStanding: true }),
       },
       {
         rung: 'dualCursorMode',
-        state: emptyScreenState(),
         context: contextOf({ dualCursorMode: true, isTooltipStanding: true }),
       },
     ]
-    for (const { rung, state, context } of standing) {
-      expect(escapeTarget(state, context), rung).toBe(rung)
+    for (const { rung, context } of standing) {
+      expect(escapeTarget(context), rung).toBe(rung)
     }
   })
 })
@@ -467,7 +464,7 @@ const contextWithSelection = (
     layout: { rows: [], pxPerDay: 0 },
     geometry: { items: [] },
     regions: {},
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection,
     zoomStep: 0.1,
     zoomMin: 0.2,
@@ -482,7 +479,7 @@ const contextWithSelection = (
 
 describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a rung', () => {
   it('answers selection when something is selected and nothing above it stands', () => {
-    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+    expect(escapeTarget(contextOf({ isSelectionStanding: true }))).toBe(
       'selection' satisfies EscapeTarget,
     )
   })
@@ -491,18 +488,17 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
     // ⛔⛔ THE WHOLE OF THE ROW'S MUST NOT. With the rung placed ABOVE 構え, a
     // press made with a shape armed AND a Task selected would answer
     // 'selection', and 「構えを解く手立てが `Esc` から消える」.
-    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
-    expect(escapeTarget(armed, contextOf({ isSelectionStanding: true }))).toBe('armed')
+    expect(escapeTarget(contextOf({ isSelectionStanding: true, isArmed: true }))).toBe('armed')
     // ⭐ AND THE OTHER WAY ROUND, which is what makes the case above mean
     // something: with nothing armed, the same selection IS what the press finds.
-    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+    expect(escapeTarget(contextOf({ isSelectionStanding: true }))).toBe(
       'selection',
     )
   })
 
   it('is spent before the Dual Cursor mode, which is the rung below it', () => {
     const both = contextOf({ isSelectionStanding: true, dualCursorMode: true })
-    expect(escapeTarget(emptyScreenState(), both)).toBe('selection')
+    expect(escapeTarget(both)).toBe('selection')
   })
 
   it('lets the open panel take the press first, so one press never spends two rungs', () => {
@@ -512,18 +508,18 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
     // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 is kept by
     // the ORDER, not by a second question.
     const withPanel = contextOf({ isSelectionStanding: true, isPropertiesPanelOpen: true })
-    expect(escapeTarget(emptyScreenState(), withPanel)).toBe('propertiesPanel')
+    expect(escapeTarget(withPanel)).toBe('propertiesPanel')
     // ⭐ AND THE SELECTION IS STILL THERE FOR THE NEXT PRESS -- DFC-398's whole
     // measurement was that the second press found nothing and fell to IN-4a.
-    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: true }))).toBe(
+    expect(escapeTarget(contextOf({ isSelectionStanding: true }))).toBe(
       'selection',
     )
   })
 
   it('answers null when nothing is selected, so IN-4a still hands the key over', () => {
-    expect(escapeTarget(emptyScreenState(), contextOf({ isSelectionStanding: false }))).toBeNull()
+    expect(escapeTarget(contextOf({ isSelectionStanding: false }))).toBeNull()
     // The member is optional; absence reads as 「何も選んでいない」.
-    expect(escapeTarget(emptyScreenState(), QUIET)).toBeNull()
+    expect(escapeTarget(QUIET)).toBeNull()
   })
 
   it('and the rung is actually SPENT: the press that names it clears the selection', () => {
@@ -630,7 +626,7 @@ const releaseOn = (grab: string, clicks: number): TranslatedInput => {
     layout: { rows: [], pxPerDay: 0 } as never,
     geometry: { items: [] } as never,
     regions: {} as never,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: 0.1,
     zoomMin: 0.2,
@@ -694,9 +690,9 @@ describe('T-028 IN-4a (MUST) -- a second Esc still reaches the browser', () => {
     // the first press has put the explanation away, `isTooltipStanding` is
     // false on the next frame -- and IN-4a (MUST) then hands the key to the
     // browser, so the browser keeps whatever it gives Esc (IN-4a).
-    const first = escapeTarget(emptyScreenState(), ONLY_A_TOOLTIP)
+    const first = escapeTarget(ONLY_A_TOOLTIP)
     expect(first).toBe('tooltip')
-    const second = escapeTarget(emptyScreenState(), contextOf({ isTooltipStanding: false }))
+    const second = escapeTarget(contextOf({ isTooltipStanding: false }))
     expect(second, 'the second Esc was swallowed').toBeNull()
   })
 
@@ -705,7 +701,7 @@ describe('T-028 IN-4a (MUST) -- a second Esc still reaches the browser', () => {
     // いない」. ⛔ A rung that consumed on `undefined` would swallow every Esc
     // in a build whose Framework never raised the member -- exactly the failure
     // IN-4a exists to forbid.
-    expect(escapeTarget(emptyScreenState(), QUIET)).toBeNull()
+    expect(escapeTarget(QUIET)).toBeNull()
   })
 })
 
@@ -724,32 +720,29 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
   })
 
   it('answers with nothing once the person has put it away', () => {
-    const away = sessionOf({ ...RESTING_ON_THE_ICON, isTooltipDismissed: true })
-    expect(shownFor(away)).toEqual([])
+    expect(shownFor(RESTING_ON_THE_ICON, rootWithTooltipDismissed(true))).toEqual([])
   })
 
   it('puts it away WITHOUT the pointer or the focus moving', () => {
     // 「ポインタもフォーカスも動かさずに消す手立てがあること」 -- so the two
-    // sessions differ in exactly one member, and that member is not the place
+    // readings differ in exactly one member, and that member is not the place
     // or the rest. ⭐ THIS IS THE HALF THE ROW ACTUALLY STATES: a build that
     // only stopped explaining once the pointer left would satisfy 引き金が外れ
     // たら消してよい and still fail 消せること.
     const standing = RESTING_ON_THE_ICON
-    const away = sessionOf({ ...standing, isTooltipDismissed: true })
+    const away = RESTING_ON_THE_ICON
     expect(away.pointer).toEqual(standing.pointer)
     expect(away.pointerRestedMs).toBe(standing.pointerRestedMs)
     expect(away.iconUnderPointer).toBe(standing.iconUnderPointer)
     expect(shownFor(standing).length).toBe(1)
-    expect(shownFor(away)).toEqual([])
+    expect(shownFor(away, rootWithTooltipDismissed(true))).toEqual([])
   })
 
   it('can be raised again after it was put away', () => {
     // 「引き金が外れるまで出ていること」 with its ⭐: 引き金が外れたら消してよい.
     // ⇒ Putting one away is not permanent; the next rest raises the next one.
-    const away = sessionOf({ ...RESTING_ON_THE_ICON, isTooltipDismissed: true })
-    expect(shownFor(away)).toEqual([])
-    const again = sessionOf({ ...RESTING_ON_THE_ICON, isTooltipDismissed: false })
-    expect(shownFor(again).length).toBe(1)
+    expect(shownFor(RESTING_ON_THE_ICON, rootWithTooltipDismissed(true))).toEqual([])
+    expect(shownFor(RESTING_ON_THE_ICON, rootWithTooltipDismissed(false)).length).toBe(1)
   })
 
   it('the dismissal is one answer for whatever stands, not one per raiser', () => {
@@ -770,14 +763,10 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
         ],
       },
     }
-    const onTheLane = sessionOf({ pointer: { x: 105, y: 300 }, pointerRestedMs: WAIT_MS * 10 })
-    const standing = tooltipsFromScreenView(lanes, SETTINGS, onTheLane)
+    const onTheLane = readingsOf({ pointer: { x: 105, y: 300 }, pointerRestedMs: WAIT_MS * 10 })
+    const standing = tooltipsFromScreenView(lanes, SETTINGS, ROOT, onTheLane)
     expect(standing.length, 'FR-037 raised no hint, so this case holds nothing').toBeGreaterThan(0)
-    const away = tooltipsFromScreenView(
-      lanes,
-      SETTINGS,
-      sessionOf({ ...onTheLane, isTooltipDismissed: true }),
-    )
+    const away = tooltipsFromScreenView(lanes, SETTINGS, rootWithTooltipDismissed(true), onTheLane)
     expect(away).toEqual([])
   })
 })
@@ -788,11 +777,10 @@ describe('T-028 IN-3 (MUST) -- a shown explanation goes away without moving anyt
 
 describe('T-028 IN-4 -- one press spends one rung', () => {
   it('with a surface open and an explanation standing, the surface goes first', () => {
-    const opened = screenStateWithSurface(emptyScreenState(), 'U-53')
-    expect(escapeTarget(opened, contextOf({ isTooltipStanding: true }))).toBe('surface')
+    expect(escapeTarget(contextOf({ isTooltipStanding: true, isSurfaceOpen: true }))).toBe('surface')
     // ⭐ AND THE EXPLANATION IS STILL THERE FOR THE NEXT PRESS. The surface is
     // closed by that first press, so the second finds the foot of the ladder.
-    expect(escapeTarget(emptyScreenState(), contextOf({ isTooltipStanding: true }))).toBe(
+    expect(escapeTarget(contextOf({ isTooltipStanding: true }))).toBe(
       'tooltip',
     )
   })

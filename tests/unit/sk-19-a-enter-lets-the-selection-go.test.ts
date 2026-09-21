@@ -56,7 +56,7 @@ import {
   selectionWith,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 import { unbroken } from '../contract/spec-table'
 
@@ -122,7 +122,7 @@ const contextWithSelection = (
     layout: { rows: [], pxPerDay: 0 },
     geometry: { items: [] },
     regions: {},
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection,
     zoomStep: 0.1,
     zoomMin: 0.2,

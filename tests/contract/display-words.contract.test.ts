@@ -189,14 +189,6 @@ import {
 import { emptyDialogueLog, type DialogueLog } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  screenStateWithSurface,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
-import {
   emptySelection,
   selectionWith,
   type ItemRef,
@@ -211,9 +203,14 @@ import {
   type CommandItem,
   type HelpEntry,
   type DisplayLanguage,
-  type ScreenSession,
+  type ScreenViewReadings,
   type ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // The dictionary, read as data at load time.
@@ -663,12 +660,10 @@ const SCHEDULE = {
 const TASK_REF: ItemRef = { kind: 'task', uid: THE_TASK }
 const HOLDING_A_TASK: Selection = selectionWith(emptySelection(), TASK_REF)
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SESSION: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   iconUnderPointer: null,
@@ -679,13 +674,8 @@ const SESSION: ScreenSession = {
   // settings). S-142 is the palette's, and `PALETTE_SHOWN` states it.
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesShowing: 'selection',
-  propertiesSubject: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -696,15 +686,40 @@ const SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
+const SCREEN_ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
+}
+
+const rootWith = (part: Partial<ScreenSession['screen']>): ScreenSession => ({
+  ...SCREEN_ROOT,
+  screen: { ...SCREEN_ROOT.screen, ...part },
+})
+
+const withScreen = (root: ScreenSession, part: Partial<ScreenSession['screen']>): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, ...part },
+})
+
+const rootWithSurface = (surfaceName: string | null): ScreenSession =>
+  rootWith({ openSurfaceState: surfaceName === null ? { kind: 'closed' } : { kind: 'open', surfaceName } })
+
 /** The whole argument list of `screenViewFromRegions` (PI-37), in its declared order. */
 interface Frame {
   readonly regions: ScreenRegions
   readonly schedule: Schedule
   readonly settings: DocumentSettings
   readonly selection: Selection
-  readonly state: ScreenState
+  readonly root: ScreenSession
   readonly dialogueLog: DialogueLog
-  readonly session: ScreenSession
+  readonly readings: ScreenViewReadings
 }
 
 const BASE: Frame = {
@@ -712,14 +727,17 @@ const BASE: Frame = {
   schedule: SCHEDULE,
   settings: SETTINGS,
   selection: HOLDING_A_TASK,
-  state: emptyScreenState(),
+  root: SCREEN_ROOT,
   dialogueLog: emptyDialogueLog(),
-  session: SESSION,
+  readings: SESSION,
 }
 
 const frameWith = (part: Partial<Frame>): Frame => ({ ...BASE, ...part })
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const sessionWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({
+  ...SESSION,
+  ...part,
+})
 
 /**
  * S-99e says the palette is shown (FR-053), and S-142 says its list of
@@ -741,13 +759,11 @@ const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSI
  * that is ever settled, this frame is where it lands.
  */
 const PALETTE_SHOWN = frameWith({
-  state: screenStateWithPalette(emptyScreenState(), true),
-  session: sessionWith({ isMilestoneListOpen: true }),
+  root: rootWith({ milestoneListDisplayState: { kind: 'open' } }),
 })
 
 /** S-99g says which surface is open (IN-4 of table T-028). */
-const surfaceOpen = (surface: string): Frame =>
-  frameWith({ state: screenStateWithSurface(emptyScreenState(), surface) })
+const surfaceOpen = (surface: string): Frame => frameWith({ root: rootWithSurface(surface) })
 
 // ---------------------------------------------------------------------------
 // Reading the answer through the published entry (table T-064, PI-37).
@@ -761,9 +777,9 @@ const viewOf = (build: Build, frame: Frame, language: string): ScreenView =>
     frame.schedule,
     frame.settings,
     frame.selection,
-    frame.state,
+    withScreen(frame.root, { language: language as DisplayLanguage }),
     frame.dialogueLog,
-    { ...frame.session, language: language as DisplayLanguage },
+    frame.readings,
   )
 
 const labelIn = (commands: readonly CommandItem[] | undefined, icon: string): string | undefined =>
@@ -884,8 +900,8 @@ for (const entry of GENERATED['icons'] ?? []) {
     if (!iconFrames.has(rowId)) {
       iconFrames.set(rowId, {
         ...frame,
-        session: {
-          ...frame.session,
+        readings: {
+          ...frame.readings,
           pointer,
           iconUnderPointer: rowId,
           pointerRestedMs: ICON_HINT_MS + 1,
@@ -988,11 +1004,25 @@ for (const entry of GENERATED['surfaces'] ?? []) {
  * cases below still ask what the panel IS in each of them.
  */
 const PANEL_STATES: Readonly<Record<string, Frame>> = {
-  selection: frameWith({ session: sessionWith({ propertiesShowing: 'selection' }) }),
-  documentSettings: frameWith({ session: sessionWith({ propertiesShowing: 'documentSettings' }) }),
+  selection: frameWith({
+    root: rootWith({
+      propertiesPanelContentState: {
+        kind: 'selectionDisplayed',
+        subject: { selection: emptySelection(), groupIds: [] },
+      },
+    }),
+  }),
+  documentSettings: frameWith({
+    root: rootWith({ propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null } }),
+  }),
   noSelection: frameWith({
     selection: emptySelection(),
-    session: sessionWith({ propertiesShowing: 'selection' }),
+    root: rootWith({
+      propertiesPanelContentState: {
+        kind: 'selectionDisplayed',
+        subject: { selection: emptySelection(), groupIds: [] },
+      },
+    }),
   }),
 }
 
@@ -1092,7 +1122,7 @@ const SCHEDULE_WITH_A_ROW = {
 
 const ROW_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_ROW,
-  session: sessionWith({ propertiesShowing: 'selection', selectedGroupIds: [THE_ROW] }),
+  readings: sessionWith({ selectedGroupIds: [THE_ROW] }),
 })
 
 /**
@@ -1123,7 +1153,6 @@ const SCHEDULE_WITH_A_COMMENT_BOX = {
 const BOX_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_COMMENT_BOX,
   selection: selectionWith(emptySelection(), { kind: 'commentBox', id: THE_BOX }),
-  session: sessionWith({ propertiesShowing: 'selection' }),
 })
 
 /**
@@ -1364,7 +1393,7 @@ for (const entry of GENERATED['assignments'] ?? []) {
     field: 'text',
     unit: 'UF-69',
     what: `the hint FR-037 shows on the ${axis} scrollbar`,
-    frame: frameWith({ session: sessionWith({ pointer: scrollbarPointer(axis) }) }),
+    frame: frameWith({ readings: sessionWith({ pointer: scrollbarPointer(axis) }) }),
     read: (view) => scrollbarTooltip(view, axis),
   })
 }
@@ -1384,13 +1413,13 @@ for (const entry of GENERATED['assignments'] ?? []) {
  * gives `milestoneGlyph`. Neither reaches the word -- table T-023b gives AR-2
  * and AR-3 one row each, whatever shape is on them.
  */
-const ARMED_BY_ROW: Readonly<Record<string, Armed>> = {
-  'AR-1': { kind: 'none' },
-  'AR-2': { kind: 'taskShape', shapeKind: 'rectangle' },
-  'AR-3': { kind: 'milestoneShape', glyph: 'diamond' },
-  'AR-4': { kind: 'dependency' },
-  'AR-5': { kind: 'commentBox' },
-  'AR-6': { kind: 'highlightBox' },
+const ARMED_BY_ROW: Readonly<Record<string, ScreenValues['armModeState']>> = {
+  'AR-1': { kind: 'notArmed' },
+  'AR-2': { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
+  'AR-3': { kind: 'milestoneShapeArmed', glyph: 'diamond' },
+  'AR-4': { kind: 'dependencyArmed' },
+  'AR-5': { kind: 'commentBoxArmed' },
+  'AR-6': { kind: 'highlightBoxArmed' },
 }
 
 for (const entry of GENERATED['arms'] ?? []) {
@@ -1415,7 +1444,7 @@ for (const entry of GENERATED['arms'] ?? []) {
     what: `what the palette says it has armed while ${rowId} is armed`,
     frame: {
       ...PALETTE_SHOWN,
-      state: screenStateWithArmed(PALETTE_SHOWN.state, armed),
+      root: withScreen(PALETTE_SHOWN.root, { armModeState: armed }),
     },
     // ⚠️ `?? undefined` FOLDS THE ONE NULL STATE INTO "no reading at all", and
     // it cannot arise here: `PALETTE_SHOWN` is not minimised, and FR-053 makes
@@ -1553,7 +1582,9 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
     field: 'text',
     unit: 'UF-62',
     what: `the word SE-2 puts after the percentage at the ${end} step`,
-    frame: frameWith({ session: sessionWith({ scaleMessage: { displayScale: step, end: end as 'max' | 'min' } }) }),
+    frame: frameWith({
+      root: rootWith({ scaleMessageDisplayState: { kind: 'shown', percent: step, end: end as 'max' | 'min' } }),
+    }),
     // WHY: SE-2 writes the value and % first, so the word is what follows them.
     read: (view) => view.scaleMessage?.startsWith(`${step}%`) === true ? view.scaleMessage.slice(`${step}%`.length) : undefined,
   })
@@ -1632,7 +1663,7 @@ const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>
  */
 const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
   frameWith({
-    session: sessionWith({
+    readings: sessionWith({
       confirmation: {
         manner: 'the manner NT-7 asks for',
         question,
@@ -1657,7 +1688,7 @@ const ASKING = (question: string, namesWhatGoes: boolean): Frame =>
  * the published entry's own declaration of `RaisedNotice` (table T-064, PI-37).
  */
 const TELLING = (manner: string, reason: string): Frame =>
-  frameWith({ session: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
+  frameWith({ readings: sessionWith({ notices: [{ manner, reason, affectedCount: null }] }) })
 
 /**
  * Every frame this file knows how to put on the screen, each named.

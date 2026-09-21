@@ -86,7 +86,6 @@ import { describe, expect, it } from 'vitest'
 
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
 import { rowPlacesAtZoomY } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -100,11 +99,15 @@ import type {
   PanelDivider,
   RowTitlePanel,
   ScreenFrame,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { GROUP_GRID_LINE_WIDTH_PX } from '../../src/adapter/svg-renderer/svg-renderer'
 import { exportSvg, type ExportScene, type SvgExport } from '../../src/adapter/image-exporter/image-exporter'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 import { specTable, unbroken } from '../contract/spec-table'
 
@@ -236,33 +239,31 @@ const ENV: ScreenEnvironment = {
 const SETTINGS = settingsOf()
 const REGIONS: ScreenRegions = regionsFromScreen(ENV, SETTINGS)
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: false,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 0,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-} as unknown as ScreenSession
+}
 
 const frameOf = (): ScreenFrame =>
-  screenFrameFromRegions(REGIONS, SETTINGS, emptyScreenState(), SESSION)
+  screenFrameFromRegions(REGIONS, SETTINGS, ROOT, READINGS)
 
 describe('T-076 EP-9 (MUST NOT) -- 「太さを 0 で描いてはならない」', () => {
   it('the one published thickness is not zero', () => {

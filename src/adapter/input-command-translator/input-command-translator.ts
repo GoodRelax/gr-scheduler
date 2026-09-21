@@ -8,10 +8,9 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type {
-  Armed,
   DualCursorSide,
   EscapeContext,
-  ScreenState,
+  RememberedActual,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   dayOf,
@@ -52,6 +51,7 @@ import type {
   TaskMilestoneGlyph,
   TaskShapeKind,
 } from '../../use-case/edit-document/edit-document'
+import type { ScreenValues } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   HumanInput,
   InputModifiers,
@@ -111,7 +111,7 @@ export type {
   WheelInput,
 } from './input-source'
 export { commandFromFieldCommit } from './field-commit'
-export { screenStateFromInput } from './screen-state-input'
+export { screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
 export { rowBandCeilingOf } from './zoom-and-fit'
 
@@ -142,7 +142,7 @@ export interface InputContext {
   readonly layout: ScheduleLayout
   readonly geometry: ScheduleGeometry
   readonly regions: ScreenRegions
-  readonly screenState: ScreenState
+  readonly screen: ScreenValues
   readonly selection: Selection
   readonly zoomStep: number
   readonly zoomMin: number
@@ -579,6 +579,12 @@ export function scrolledAnchor(context: InputContext, dx: number, dy: number): S
   }
 }
 
+// see PV-4, PV-5
+/** @purity pure */
+export function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual | null {
+  return context.screen.rememberedActuals[taskUid] ?? null
+}
+
 /** @purity pure */
 export function isOnRowArea(context: InputContext, x: number, y: number): boolean {
   return regionAtPointer(context.regions, x, y) === 'rowArea'
@@ -588,16 +594,16 @@ export function isOnRowArea(context: InputContext, x: number, y: number): boolea
 /** @purity pure */
 export function pressRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
-  context: Pick<InputContext, 'screenState' | 'dualCursorFollowing'>,
+  context: Pick<InputContext, 'screen' | 'dualCursorFollowing'>,
 ): PressRow {
   const modifiers = press.at.modifiers
   if (press.at.button === 'middle') return 'PTD-1'
   if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PTD-1'
   if (context.dualCursorFollowing !== null) return 'PTD-2'
   if (press.hit !== null) return 'PTD-3'
-  const armed = context.screenState.armed
-  if (armed.kind === 'dependency') return 'PTD-4a'
-  if (armed.kind !== 'none') return 'PTD-4'
+  const armed = context.screen.armModeState
+  if (armed.kind === 'dependencyArmed') return 'PTD-4a'
+  if (armed.kind !== 'notArmed') return 'PTD-4'
   return 'PTD-5'
 }
 
@@ -764,30 +770,32 @@ function nextFontScale(current: FontScale): FontScale {
   return FONT_SCALE_STEPS[(at + 1) % FONT_SCALE_STEPS.length] as FontScale
 }
 
-// TRAP: Armed types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
+export type Armed = Exclude<ScreenValues['armModeState'], { readonly kind: 'notArmed' }>
+
+// TRAP: the arm types shapeKind and glyph as bare strings; a misspelling here compiles and arms nothing.
 const ARMED_BY_ENTRY: Readonly<Record<string, Armed>> = {
-  'IC-23': { kind: 'taskShape', shapeKind: 'rectangle' },
-  'IC-24': { kind: 'taskShape', shapeKind: 'chevron' },
-  'IC-25': { kind: 'taskShape', shapeKind: 'arrow' },
-  'IC-26': { kind: 'taskShape', shapeKind: 'endpointSpan' },
-  'IC-27': { kind: 'milestoneShape', glyph: 'circle' },
-  'IC-28': { kind: 'milestoneShape', glyph: 'hexagon' },
-  'IC-29': { kind: 'milestoneShape', glyph: 'pentagon' },
-  'IC-30': { kind: 'milestoneShape', glyph: 'diamond' },
-  'IC-31': { kind: 'milestoneShape', glyph: 'square' },
-  'IC-32': { kind: 'milestoneShape', glyph: 'star' },
-  'IC-33': { kind: 'milestoneShape', glyph: 'triangleUp' },
-  'IC-34': { kind: 'milestoneShape', glyph: 'triangleDown' },
-  'IC-83': { kind: 'milestoneShape', glyph: 'file' },
-  'IC-84': { kind: 'milestoneShape', glyph: 'box' },
-  'IC-85': { kind: 'milestoneShape', glyph: 'floppyDisk' },
-  'IC-86': { kind: 'milestoneShape', glyph: 'cylinder' },
-  'IC-87': { kind: 'milestoneShape', glyph: 'person' },
-  'IC-88': { kind: 'milestoneShape', glyph: 'smile' },
-  'IC-89': { kind: 'milestoneShape', glyph: 'beerMug' },
-  'IC-35': { kind: 'commentBox' },
-  'IC-36': { kind: 'highlightBox' },
-  'IC-61': { kind: 'dependency' },
+  'IC-23': { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
+  'IC-24': { kind: 'taskShapeArmed', shapeKind: 'chevron' },
+  'IC-25': { kind: 'taskShapeArmed', shapeKind: 'arrow' },
+  'IC-26': { kind: 'taskShapeArmed', shapeKind: 'endpointSpan' },
+  'IC-27': { kind: 'milestoneShapeArmed', glyph: 'circle' },
+  'IC-28': { kind: 'milestoneShapeArmed', glyph: 'hexagon' },
+  'IC-29': { kind: 'milestoneShapeArmed', glyph: 'pentagon' },
+  'IC-30': { kind: 'milestoneShapeArmed', glyph: 'diamond' },
+  'IC-31': { kind: 'milestoneShapeArmed', glyph: 'square' },
+  'IC-32': { kind: 'milestoneShapeArmed', glyph: 'star' },
+  'IC-33': { kind: 'milestoneShapeArmed', glyph: 'triangleUp' },
+  'IC-34': { kind: 'milestoneShapeArmed', glyph: 'triangleDown' },
+  'IC-83': { kind: 'milestoneShapeArmed', glyph: 'file' },
+  'IC-84': { kind: 'milestoneShapeArmed', glyph: 'box' },
+  'IC-85': { kind: 'milestoneShapeArmed', glyph: 'floppyDisk' },
+  'IC-86': { kind: 'milestoneShapeArmed', glyph: 'cylinder' },
+  'IC-87': { kind: 'milestoneShapeArmed', glyph: 'person' },
+  'IC-88': { kind: 'milestoneShapeArmed', glyph: 'smile' },
+  'IC-89': { kind: 'milestoneShapeArmed', glyph: 'beerMug' },
+  'IC-35': { kind: 'commentBoxArmed' },
+  'IC-36': { kind: 'highlightBoxArmed' },
+  'IC-61': { kind: 'dependencyArmed' },
 }
 
 /** @purity pure */
@@ -797,17 +805,6 @@ export function armedByEntry(entry: string): Armed | null {
     : null
 }
 
-/** @purity pure */
-export function isSameArm(held: Armed, pressed: Armed): boolean {
-  if (held.kind !== pressed.kind) return false
-  if (held.kind === 'taskShape' && pressed.kind === 'taskShape') {
-    return held.shapeKind === pressed.shapeKind
-  }
-  if (held.kind === 'milestoneShape' && pressed.kind === 'milestoneShape') {
-    return held.glyph === pressed.glyph
-  }
-  return true
-}
 
 
 // see PI-18, T-023, T-036
@@ -927,7 +924,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
     case 'PTD-2':
       return commandFromDualCursorPress(press, context)
     case 'PTD-3':
-      return context.screenState.armed.kind === 'dependency'
+      return context.screen.armModeState.kind === 'dependencyArmed'
         ? commandFromDependencyDrag(input, press, context)
         : commandFromGrab(input, press, context)
     case 'PTD-4':
@@ -1334,7 +1331,9 @@ export function escapeContextOf(context: InputContext): EscapeContext {
   return {
     isNoticeStanding: context.isNoticeStanding === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
+    isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
     gestureInFlight: context.pressed !== null,
+    isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,
     isSelectionStanding: context.selection.items.length > 0,
     dualCursorMode: context.dualCursorFollowing !== null,

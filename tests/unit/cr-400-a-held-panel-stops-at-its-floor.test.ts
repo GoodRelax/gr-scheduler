@@ -20,7 +20,6 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -30,6 +29,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { DocumentCommand } from '../../src/use-case/edit-document/edit-document'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from '../contract/spec-table'
 import {
   DEFAULT_DISPLAY_SCALE,
@@ -273,7 +273,7 @@ const contextFor = (settings: DocumentSettings, pressed: PointerPress | null): I
     layout,
     geometry: geometryFromLayout(ONE_ROW, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: 3,
     pressed,

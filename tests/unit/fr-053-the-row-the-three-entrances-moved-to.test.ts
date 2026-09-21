@@ -1,21 +1,20 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
 import type {
   CommandPalette,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import {
-  emptyScreenState,
-  screenStateWithPalette,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, bareAll, specTable } from '../contract/spec-table'
 
 
@@ -89,35 +88,35 @@ const THEME_HUE = ((): number => {
 
 const SETTINGS = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SESSION: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: true,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
+const SHOWN: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    milestoneListDisplayState: { kind: 'open' },
+  },
+}
 
 function palette(): CommandPalette {
-  const drawn = commandPaletteFromScreenState(SHOWN, SETTINGS, emptySelection(), SESSION)
+  const drawn = commandPaletteFromSession(SHOWN, SETTINGS, emptySelection(), SESSION)
   if (drawn === null) throw new Error('S-99e says the palette is shown, so one must be described')
   return drawn
 }

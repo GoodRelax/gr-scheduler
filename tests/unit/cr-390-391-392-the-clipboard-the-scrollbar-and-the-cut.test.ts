@@ -9,7 +9,6 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   ScreenRect,
   ScreenRegions,
@@ -19,8 +18,8 @@ import type {
   RowExpander,
   RowTitle,
   ScreenFrame,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
@@ -36,6 +35,10 @@ import {
 } from '../fixtures/fake-browser'
 import { rowNameFont } from '../fixtures/row-name-font'
 import { bare, specTable, unbroken } from '../contract/spec-table'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -182,30 +185,38 @@ const regionsOf = (part: Partial<MeasuredScreen> = {}): ScreenRegions => {
   }
 }
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: false,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 214,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
+
+const withPropertiesShowing = (showing: boolean): ScreenSession => ({
+  ...ROOT,
+  screen: {
+    ...ROOT.screen,
+    propertiesPanelContentState: showing
+      ? { kind: 'documentSettingsDisplayed', returnSubject: null }
+      : { kind: 'hidden' },
+  },
+})
 
 const verticalBarOf = (frame: ScreenFrame): Scrollbar => {
   const found = frame.scrollbars.filter((bar) => bar.axis === 'vertical')
@@ -219,8 +230,8 @@ describe('FR-051 (MUST) -- the vertical scrollbar meets the panel on its right',
     const frame = screenFrameFromRegions(
       regions,
       settingsOf({ propertyPanelWidth: SCREEN.propertyPanelWidth }),
-      emptyScreenState(),
-      { ...SESSION, propertiesShowing: 'documentSettings' },
+      withPropertiesShowing(true),
+      READINGS,
     )
     const bar = verticalBarOf(frame)
     expect(bar.track.x + bar.track.width, FR_051_THE_BAR_MEETS_THE_PANEL).toBeCloseTo(
@@ -234,8 +245,8 @@ describe('FR-051 (MUST) -- the vertical scrollbar meets the panel on its right',
     const frame = screenFrameFromRegions(
       regions,
       settingsOf({ propertyPanelWidth: 0 }),
-      emptyScreenState(),
-      { ...SESSION, propertiesShowing: null },
+      withPropertiesShowing(false),
+      READINGS,
     )
     const bar = verticalBarOf(frame)
     expect(bar.track.x + bar.track.width, FR_051_THE_BAR_MEETS_THE_PANEL).toBeCloseTo(
@@ -251,8 +262,8 @@ describe('FR-051 (MUST) -- the vertical scrollbar meets the panel on its right',
       const frame = screenFrameFromRegions(
         regions,
         settingsOf({ propertyPanelWidth: width }),
-        emptyScreenState(),
-        { ...SESSION, propertiesShowing: shown ? 'documentSettings' : null },
+        withPropertiesShowing(shown),
+        READINGS,
       )
       const bar = verticalBarOf(frame)
       const meets = shown
@@ -268,8 +279,8 @@ describe('FR-051 (MUST) -- the vertical scrollbar meets the panel on its right',
     const frame = screenFrameFromRegions(
       regions,
       settingsOf({ propertyPanelWidth: SCREEN.propertyPanelWidth }),
-      emptyScreenState(),
-      { ...SESSION, propertiesShowing: 'documentSettings' },
+      withPropertiesShowing(true),
+      READINGS,
     )
     const bar = verticalBarOf(frame)
     const rowAreaRight = regions.rowArea.x + regions.rowArea.width

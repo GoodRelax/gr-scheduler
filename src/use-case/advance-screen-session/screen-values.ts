@@ -9,6 +9,7 @@ import type {
   RememberedActual,
 } from '../../entity/document-model/screen-state/screen-state'
 import { emptySelection, type Selection } from '../../entity/document-model/selection/selection'
+import type { DocumentCommand } from '../edit-document/edit-document'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
@@ -55,9 +56,12 @@ export interface ScreenValuesEventCarried {
   readonly language: DisplayLanguage
   readonly taskUid: number
   readonly rememberedActual: RememberedActual | null
+  readonly writes: readonly DocumentCommand[]
 }
 
 type NoPayload = Readonly<Record<never, never>>
+
+type Carried = Pick<ScreenValuesEventCarried, 'writes'>
 
 interface ScreenValuesEffectPayloads {
   readonly askBrowserForFullScreen: NoPayload
@@ -65,16 +69,16 @@ interface ScreenValuesEffectPayloads {
   readonly matchWatermarkUnlock: NoPayload
   readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-35' }
   readonly clearSelection: NoPayload
-  readonly writeFoldAll: NoPayload
-  readonly writeOpenLevel: NoPayload
-  readonly writePlaceDualCursor: { readonly date: string }
-  readonly writeFixDate1: { readonly date: string }
-  readonly writeFixDate2: { readonly date: string }
+  readonly writeFoldAll: Carried
+  readonly writeOpenLevel: Carried
+  readonly writePlaceDualCursor: { readonly date: string } & Carried
+  readonly writeFixDate1: { readonly date: string } & Carried
+  readonly writeFixDate2: { readonly date: string } & Carried
   readonly writeClearDualCursor: NoPayload
   readonly startScaleMessageTimer: NoPayload
   readonly restartScaleMessageTimer: NoPayload
   readonly storeLanguage: { readonly language: DisplayLanguage }
-  readonly writeProgressStep: { readonly taskUid: number }
+  readonly writeProgressStep: { readonly taskUid: number } & Carried
 }
 
 export type ScreenValuesEffect = {
@@ -223,15 +227,15 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'foldAllPressed' }
-  | { readonly type: 'levelZeroOpened' }
-  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
-  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
+  | { readonly type: 'foldAllPressed'; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'levelZeroOpened'; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'scaleMessageTimeElapsed' }
   | { readonly type: 'displayLanguageChosen'; readonly language: ScreenValuesEventCarried['language'] }
-  | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual'] }
+  | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'pointerRestElapsed' }
 
 export type ScreenValuesEffectName =
@@ -1204,16 +1208,20 @@ function onDialogueFieldEntryPressed(
 
 // see T-280
 /** @purity pure */
-function onFoldAllPressed(values: ScreenValues): ScreenStep {
+function onFoldAllPressed(values: ScreenValues, event: EventOf<'foldAllPressed'>): ScreenStep {
   if (values.levelZeroFoldState.kind === 'folded') return unchanged(values)
-  return moved(values, { levelZeroFoldState: { kind: 'folded' } }, [{ type: 'writeFoldAll' }])
+  return moved(values, { levelZeroFoldState: { kind: 'folded' } }, [
+    { type: 'writeFoldAll', writes: event.writes },
+  ])
 }
 
 // see T-280
 /** @purity pure */
-function onLevelZeroOpened(values: ScreenValues): ScreenStep {
+function onLevelZeroOpened(values: ScreenValues, event: EventOf<'levelZeroOpened'>): ScreenStep {
   if (values.levelZeroFoldState.kind === 'unfolded') return unchanged(values)
-  return moved(values, { levelZeroFoldState: { kind: 'unfolded' } }, [{ type: 'writeOpenLevel' }])
+  return moved(values, { levelZeroFoldState: { kind: 'unfolded' } }, [
+    { type: 'writeOpenLevel', writes: event.writes },
+  ])
 }
 
 // see T-280, FR-016
@@ -1227,7 +1235,7 @@ function onDualCursorEntryPressed(
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
   return moved(values, { dualCursorModeState: { kind: 'on', child }, armModeState: armed }, [
-    { type: 'writePlaceDualCursor', date: event.date },
+    { type: 'writePlaceDualCursor', date: event.date, writes: event.writes },
   ])
 }
 
@@ -1239,12 +1247,12 @@ function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlac
   if (dualCursor.child.kind === 'placingDate1') {
     const child = { kind: 'placingDate2' } as const
     return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
-      { type: 'writeFixDate1', date: event.date },
+      { type: 'writeFixDate1', date: event.date, writes: event.writes },
     ])
   }
   const child = { kind: 'placingDate1' } as const
   return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
-    { type: 'writeFixDate2', date: event.date },
+    { type: 'writeFixDate2', date: event.date, writes: event.writes },
   ])
 }
 
@@ -1288,7 +1296,9 @@ function onProgressMarkerPressed(
   const remembered = event.rememberedActual
   const rememberedActuals =
     remembered === null ? Object.fromEntries(kept) : { ...held, [event.taskUid]: remembered }
-  return moved(values, { rememberedActuals }, [{ type: 'writeProgressStep', taskUid: event.taskUid }])
+  return moved(values, { rememberedActuals }, [
+    { type: 'writeProgressStep', taskUid: event.taskUid, writes: event.writes },
+  ])
 }
 
 // see T-280

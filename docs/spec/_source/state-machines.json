@@ -8,8 +8,291 @@
   "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and the discriminated unions and the transition-table constant in the generated region of each region unit under src/use-case/advance-screen-session/ (tools/generate_state_machine_types.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a cell whose state or target is not a state of its machine, an event a table uses that its region does not define, a union without exactly one initial state, a machine name or event key used twice, a machine name that does not end in StateMachine.",
-  "Guard expressions and effect bodies are NOT here -- the code holds them (SD-3). Every string that is printed prose is a language dictionary."
+  "Guard expressions and effect bodies are NOT here -- the code holds them (SD-3). Every string that is printed prose is a language dictionary.",
+  "PRIORITIES ARE ONE TABLE ACROSS THE REGIONS (SD-4, table T-283): per contested key, its rungs in the order they consume it, each naming the states that stand on it with ids this file already defines. The ORDER is not this file's: it is the requirement rows each rung cites (IN-4, SK-19, NT-7), and the generator holds the Esc rungs word for word, in order, against the chain IN-4 writes with arrows. Printed at the head of _assets/tbl-state-machines.md; no code constant is generated from it -- the code's Esc rung is escapeTarget."
  ],
+ "priorities": {
+  "table": {
+   "id": "T-283",
+   "caption": {
+    "ja": "領域をまたぐ優先順"
+   }
+  },
+  "rungs": [
+   {
+    "id": "RG-1",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "出ている通知"
+    },
+    "states": [
+     {
+      "in": "noticeDisplayStateMachine.shown"
+     }
+    ],
+    "evidence": [
+     "IN-4",
+     "NT-8"
+    ],
+    "note": {
+     "ja": "消すものが無いときは消費しない（`NT-8`）"
+    }
+   },
+   {
+    "id": "RG-2",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "確定していないその場の編集"
+    },
+    "states": [
+     {
+      "in": "fieldEditStateMachine.editingField"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ],
+    "note": {
+     "ja": "面が消費する（`IF-9`）"
+    }
+   },
+   {
+    "id": "RG-3",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "開いている面"
+    },
+    "states": [
+     {
+      "in": "confirmationStateMachine.questionAsked"
+     },
+     {
+      "in": "openSurfaceStateMachine.open"
+     },
+     {
+      "machine": "propertiesPanelContentStateMachine",
+      "except": "hidden"
+     }
+    ],
+    "evidence": [
+     "IN-4",
+     "FR-070"
+    ],
+    "note": {
+     "ja": "同じ段の中は、問い → 面 → パネルの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）"
+    }
+   },
+   {
+    "id": "RG-4",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "進行中のドラッグ・引きかけの矢印"
+    },
+    "states": [
+     {
+      "in": "pointerPressStateMachine.changingDocument"
+     },
+     {
+      "in": "pointerPressStateMachine.viewingDocument"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ]
+   },
+   {
+    "id": "RG-5",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "構え"
+    },
+    "states": [
+     {
+      "machine": "armModeStateMachine",
+      "except": "notArmed"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ]
+   },
+   {
+    "id": "RG-6",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "選択"
+    },
+    "states": [
+     {
+      "in": "selectionStateMachine.objectsSelected"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ],
+    "note": {
+     "ja": "構えより前に置かない（`IN-4`）"
+    }
+   },
+   {
+    "id": "RG-7",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "`Dual Cursor` モード"
+    },
+    "states": [
+     {
+      "in": "dualCursorModeStateMachine.on"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ]
+   },
+   {
+    "id": "RG-8",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "出ている説明"
+    },
+    "states": [
+     {
+      "in": "tooltipDisplayStateMachine.allowed"
+     }
+    ],
+    "also": {
+     "ja": "フレームの値（描いた説明がある）"
+    },
+    "evidence": [
+     "IN-4",
+     "IN-3"
+    ],
+    "note": {
+     "ja": "状態だけでは決まらない段（`SF-5`）"
+    }
+   },
+   {
+    "id": "RG-9",
+    "keys": [
+     "Enter"
+    ],
+    "rung": {
+     "ja": "出ている通知"
+    },
+    "states": [
+     {
+      "in": "noticeDisplayStateMachine.shown"
+     }
+    ],
+    "evidence": [
+     "SK-19",
+     "NT-8"
+    ]
+   },
+   {
+    "id": "RG-10",
+    "keys": [
+     "Enter"
+    ],
+    "rung": {
+     "ja": "その場の編集の確定"
+    },
+    "states": [
+     {
+      "in": "fieldEditStateMachine.editingField"
+     },
+     {
+      "in": "createdTaskNamingStateMachine.namingCreatedTask"
+     }
+    ],
+    "evidence": [
+     "SK-19",
+     "FR-091"
+    ],
+    "note": {
+     "ja": "面も問いも立っていないとき"
+    }
+   },
+   {
+    "id": "RG-11",
+    "keys": [
+     "Enter"
+    ],
+    "rung": {
+     "ja": "プロパティパネルを出すのをやめる"
+    },
+    "states": [
+     {
+      "machine": "propertiesPanelContentStateMachine",
+      "except": "hidden"
+     }
+    ],
+    "evidence": [
+     "SK-19"
+    ],
+    "note": {
+     "ja": "面も問いも立っておらず、確定していないその場の編集も無いとき"
+    }
+   },
+   {
+    "id": "RG-12",
+    "keys": [
+     "Enter"
+    ],
+    "rung": {
+     "ja": "選択を解く"
+    },
+    "states": [
+     {
+      "in": "selectionStateMachine.objectsSelected"
+     }
+    ],
+    "evidence": [
+     "SK-19"
+    ],
+    "note": {
+     "ja": "プロパティパネルも出していないとき"
+    }
+   },
+   {
+    "id": "RG-13",
+    "keys": [
+     "y",
+     "n"
+    ],
+    "rung": {
+     "ja": "問いに答える"
+    },
+    "states": [
+     {
+      "in": "confirmationStateMachine.questionAsked"
+     }
+    ],
+    "evidence": [
+     "NT-7"
+    ],
+    "note": {
+     "ja": "`NT-8` の消去の次、`IN-4` と `SK-19` の階層より先"
+    }
+   }
+  ]
+ },
  "regions": [
   {
    "region": "screen",
@@ -421,7 +704,14 @@
        "ja": "`HF-12` の操作子"
       }
      },
-     "carries": []
+     "carries": [
+      {
+       "name": "writes",
+       "note": {
+        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
+       }
+      }
+     ]
     },
     {
      "key": "levelZeroOpened",
@@ -434,7 +724,14 @@
        "S-211"
       ]
      },
-     "carries": []
+     "carries": [
+      {
+       "name": "writes",
+       "note": {
+        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
+       }
+      }
+     ]
     },
     {
      "key": "dualCursorEntryPressed",
@@ -455,6 +752,12 @@
       },
       {
        "name": "hasDaysToPlace"
+      },
+      {
+       "name": "writes",
+       "note": {
+        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
+       }
       }
      ]
     },
@@ -475,6 +778,12 @@
        "name": "date",
        "note": {
         "ja": "置く日付"
+       }
+      },
+      {
+       "name": "writes",
+       "note": {
+        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
        }
       }
      ]
@@ -568,6 +877,12 @@
        "name": "rememberedActual",
        "note": {
         "ja": "覚える実績"
+       }
+      },
+      {
+       "name": "writes",
+       "note": {
+        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
        }
       }
      ]

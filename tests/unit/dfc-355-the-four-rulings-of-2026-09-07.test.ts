@@ -98,7 +98,7 @@ import {
   type ExportScene,
   type SvgExport,
 } from '../../src/adapter/image-exporter/image-exporter'
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import type {
   AppHeaderItems,
@@ -106,14 +106,13 @@ import type {
   OpenModal,
   RowTitlePanel,
   ScreenFrame,
-  ScreenSession,
+  ScreenViewReadings,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
-  emptyScreenState,
-  screenStateWithSurface,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   SETTINGS_DEFAULTS,
@@ -648,36 +647,35 @@ const EMPTY_SCHEDULE = {
   baselineTasks: [],
 } as unknown as Schedule
 
-const sessionOf = (language: DisplayLanguage): ScreenSession =>
-  ({
-    language,
-    openedFileName: null,
-    fileSavedAt: null,
-    isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
-    pointer: null,
-    pointerRestedMs: 0,
-    iconUnderPointer: null,
-    commandPaletteAt: { x: 0, y: 0 },
-    themePreference: 'light',
-    themeHue: 214,
-    isMilestoneListOpen: false,
-    isPaletteMinimised: false,
-    dualCursorFollowing: null,
-    selectedGroupIds: [],
-    selectedResourceUids: [],
-    propertiesShowing: null,
-    propertiesSubject: null,
-    notices: [],
-    confirmation: null,
-    rowBoxes: [],
-  }) as unknown as ScreenSession
+const READINGS: ScreenViewReadings = {
+  openedFileName: null,
+  fileSavedAt: null,
+  isAgentApiEnabled: false,
+  pointer: null,
+  pointerRestedMs: 0,
+  iconUnderPointer: null,
+  commandPaletteAt: { x: 0, y: 0 },
+  themePreference: 'light',
+  themeHue: 214,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
+  notices: [],
+  confirmation: null,
+  rowBoxes: [],
+  scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
+}
 
-const stateOn = (surface: string): ScreenState =>
-  screenStateWithSurface(emptyScreenState(), surface)
+const rootOn = (surface: string, language: DisplayLanguage): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language,
+    openSurfaceState: { kind: 'open', surfaceName: surface },
+  },
+})
 
 function unlockSurface(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromScreenState(stateOn(U_60), EMPTY_SCHEDULE, sessionOf(language))
+  const modal = openModalFromSession(rootOn(U_60, language), EMPTY_SCHEDULE, READINGS)
   if (modal === null) throw new Error(`S-99g holds ${U_60}, so a surface is described`)
   return modal
 }

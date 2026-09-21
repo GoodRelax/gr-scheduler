@@ -242,7 +242,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "converts",
-   "description": "backed by 20 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog; DocumentCodec -> DocumentSettings; DocumentCodec -> Schedule; ImageExporter -> DocumentSettings; InputCommandTranslator -> Document; InputCommandTranslator -> DocumentSettings; InputCommandTranslator -> Schedule"
+   "description": "backed by 19 component edge(s): SvgRenderer -> DocumentSettings; AgentApiEndpoint -> Selection; AgentApiEndpoint -> DialogueLog; SvgRenderer -> Selection; SvgRenderer -> Schedule; InputCommandTranslator -> Selection; DocumentCodec -> Document; AgentApiEndpoint -> Document; InputCommandTranslator -> ScreenState; ScreenRenderer -> Schedule; ScreenRenderer -> DocumentSettings; ScreenRenderer -> Selection; ScreenRenderer -> DialogueLog; DocumentCodec -> DocumentSettings; DocumentCodec -> Schedule; ImageExporter -> DocumentSettings; InputCommandTranslator -> Document; InputCommandTranslator -> DocumentSettings; InputCommandTranslator -> Schedule"
   },
   {
    "source": "adapter",
@@ -256,7 +256,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "one operation",
-   "description": "backed by 8 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; InputCommandTranslator -> EditDocument"
+   "description": "backed by 10 component edge(s): InputCommandTranslator -> ApplyDocumentChange; AgentApiEndpoint -> ApplyDocumentChange; AgentApiEndpoint -> NotifyChangeWatchers; AgentApiEndpoint -> PostDialogueMessage; FileGateway -> ApplyDocumentChange; ScreenRenderer -> PostDialogueMessage; AgentApiEndpoint -> EditDocument; InputCommandTranslator -> EditDocument; InputCommandTranslator -> AdvanceScreenSession; ScreenRenderer -> AdvanceScreenSession"
   },
   {
    "source": "framework",
@@ -284,7 +284,7 @@
    "target": "usecase",
    "arrow": "dependency",
    "label": "candidates",
-   "description": "backed by 6 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument"
+   "description": "backed by 7 component edge(s): SingleHtmlShell -> ChooseStartupDocument; SingleHtmlShell -> ApplyDocumentChange; SingleHtmlShell -> EditDocument; SingleHtmlShell -> ImportDocument; SingleHtmlShell -> NotifyChangeWatchers; SingleHtmlShell -> ValidateImportedDocument; SingleHtmlShell -> AdvanceScreenSession"
   },
   {
    "source": "layoutEngine",

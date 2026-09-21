@@ -647,6 +647,13 @@
    "description": "reads the selection type, and the empty selection, a properties-panel subject is built from"
   },
   {
+   "source": "AdvanceScreenSession",
+   "target": "EditDocument",
+   "arrow": "dependency",
+   "label": "carried writes",
+   "description": "reads the command type a writing effect carries"
+  },
+  {
    "source": "InputCommandTranslator",
    "target": "ScheduleLayout",
    "arrow": "dependency",
@@ -776,8 +783,8 @@
    "source": "InputCommandTranslator",
    "target": "ScreenState",
    "arrow": "dependency",
-   "label": "next screen state",
-   "description": "reads what is armed and which surface is open, and returns the next screen state"
+   "label": "Esc rung + remembered actual",
+   "description": "reads the Esc rung and the remembered-actual type the screen values carry"
   },
   {
    "source": "InputCommandTranslator",
@@ -805,13 +812,6 @@
    "arrow": "dependency",
    "label": "where each part sits",
    "description": "reads the rectangle of each screen part"
-  },
-  {
-   "source": "ScreenRenderer",
-   "target": "ScreenState",
-   "arrow": "dependency",
-   "label": "screen values",
-   "description": "reads the screen values the document never saves"
   },
   {
    "source": "ScreenRenderer",
@@ -982,6 +982,13 @@
    "description": "reads the bar geometry a pointer position is measured against"
   },
   {
+   "source": "InputCommandTranslator",
+   "target": "AdvanceScreenSession",
+   "arrow": "dependency",
+   "label": "events made",
+   "description": "reads the event types it makes from an input"
+  },
+  {
    "source": "ItemHitArea",
    "target": "ScreenRegions",
    "arrow": "dependency",
@@ -1050,6 +1057,13 @@
    "arrow": "dependency",
    "label": "grid line width",
    "description": "reads the group grid line width, so the frame and the picture draw the same line"
+  },
+  {
+   "source": "ScreenRenderer",
+   "target": "AdvanceScreenSession",
+   "arrow": "dependency",
+   "label": "session read",
+   "description": "reads the screen values it draws from the root session state"
   },
   {
    "source": "SingleHtmlShell",
@@ -1160,8 +1174,8 @@
    "source": "SingleHtmlShell",
    "target": "ScreenState",
    "arrow": "dependency",
-   "label": "screen state held",
-   "description": "starts the screen state empty and holds the next one the frame returns"
+   "label": "Esc rung",
+   "description": "asks which rung of IN-4 the next Esc consumes, from the truths the shell gathers"
   },
   {
    "source": "SingleHtmlShell",
@@ -1176,6 +1190,13 @@
    "arrow": "dependency",
    "label": "untrusted input",
    "description": "checks untrusted input, and hands over the bounds it is checked against"
+  },
+  {
+   "source": "SingleHtmlShell",
+   "target": "AdvanceScreenSession",
+   "arrow": "dependency",
+   "label": "one step per event",
+   "description": "holds the one current session, advances it one step per event and runs the effects the step returns"
   },
   {
    "source": "SvgRenderer",

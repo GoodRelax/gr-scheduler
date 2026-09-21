@@ -106,6 +106,7 @@
 | dependency | PostDialogueMessage | NotifyChangeWatchers | utterance posted | wakes the watchers although the revision did not move |  |
 | dependency | AdvanceScreenSession | ScreenState | carried types | reads the remembered-actual and Esc-rung types the screen values carry |  |
 | dependency | AdvanceScreenSession | Selection | panel subject | reads the selection type, and the empty selection, a properties-panel subject is built from |  |
+| dependency | AdvanceScreenSession | EditDocument | carried writes | reads the command type a writing effect carries |  |
 | dependency | InputCommandTranslator | ScheduleLayout | pointer to date | turns a pointer position into a date on the time axis |  |
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
 | dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |
@@ -124,12 +125,11 @@
 | dependency | SingleHtmlShell | ItemHitArea | item under pointer | asks which item is under the pointer for its shape (IN-2), and where a dependency line being drawn starts (FR-009) |  |
 | dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
-| dependency | InputCommandTranslator | ScreenState | next screen state | reads what is armed and which surface is open, and returns the next screen state |  |
+| dependency | InputCommandTranslator | ScreenState | Esc rung + remembered actual | reads the Esc rung and the remembered-actual type the screen values carry |  |
 | dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016) |  |
 | dependency | SingleHtmlShell | ScreenRenderer | screen frame | rebuilds the UI parts outside the schedule once per frame |  |
 | realization | DomScreenSurface | ScreenRenderer | implements ScreenSurface |  |  |
 | dependency | ScreenRenderer | ScreenRegions | where each part sits | reads the rectangle of each screen part |  |
-| dependency | ScreenRenderer | ScreenState | screen values | reads the screen values the document never saves |  |
 | dependency | ScreenRenderer | Schedule | row names + attributes | reads the row names and the attributes the properties panel shows |  |
 | dependency | ScreenRenderer | DocumentSettings | outer presentation | reads the presentation values |  |
 | dependency | ScreenRenderer | Selection | selection to show | reads what is selected |  |
@@ -154,6 +154,7 @@
 | dependency | InputCommandTranslator | EditDocument | command shapes | reads the command and task shape types it builds, and cycles a task between plan and actual |  |
 | dependency | InputCommandTranslator | Schedule | tasks + days | reads the schedule types, finds a task by UID and turns a day into the text a command carries |  |
 | dependency | InputCommandTranslator | ScheduleGeometry | bar geometry | reads the bar geometry a pointer position is measured against |  |
+| dependency | InputCommandTranslator | AdvanceScreenSession | events made | reads the event types it makes from an input |  |
 | dependency | ItemHitArea | ScreenRegions | rectangle type | reads the rectangle type a hit is tested inside |  |
 | dependency | NotifyChangeWatchers | Document | document type | reads the document root type a change notice carries |  |
 | dependency | RedoEdit | Document | document type | reads the document root type a step forward returns |  |
@@ -164,6 +165,7 @@
 | dependency | ScheduleLayout | ScreenRegions | ratio + lattice floor | asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps |  |
 | dependency | ScreenRenderer | ScheduleLayout | label units | asks the units a properties panel label is written in |  |
 | dependency | ScreenRenderer | SvgRenderer | grid line width | reads the group grid line width, so the frame and the picture draw the same line |  |
+| dependency | ScreenRenderer | AdvanceScreenSession | session read | reads the screen values it draws from the root session state |  |
 | dependency | SingleHtmlShell | ApplyDocumentChange | one write | hands over each operation, replaces the whole document, and reads the refusal and write-moment types it answers with |  |
 | dependency | SingleHtmlShell | BrowserClipboard | clipboard implementation | wires the browser clipboard in as the Clipboard the adapter declared |  |
 | dependency | SingleHtmlShell | CanvasRasterizer | rasterizer implementation | wires the canvas rasterizer in as the Rasterizer the adapter declared |  |
@@ -179,9 +181,10 @@
 | dependency | SingleHtmlShell | ImportDocument | intake | asks for an intake, and reads which open choice it was |  |
 | dependency | SingleHtmlShell | NotifyChangeWatchers | wake the watchers | wakes the watchers once the frame's write is confirmed |  |
 | dependency | SingleHtmlShell | Schedule | violations + lookup | asks what the schedule violates, finds a task by UID, and writes a day as text |  |
-| dependency | SingleHtmlShell | ScreenState | screen state held | starts the screen state empty and holds the next one the frame returns |  |
+| dependency | SingleHtmlShell | ScreenState | Esc rung | asks which rung of IN-4 the next Esc consumes, from the truths the shell gathers |  |
 | dependency | SingleHtmlShell | Selection | selection held | starts the selection empty and holds the one each frame returns |  |
 | dependency | SingleHtmlShell | ValidateImportedDocument | untrusted input | checks untrusted input, and hands over the bounds it is checked against |  |
+| dependency | SingleHtmlShell | AdvanceScreenSession | one step per event | holds the one current session, advances it one step per event and runs the effects the step returns |  |
 | dependency | SvgRenderer | ItemHitArea | hit type | reads the hit type the item under the pointer is named by |  |
 | dependency | UndoEdit | Document | document type | reads the document root type a step back returns |  |
 | dependency | ValidateImportedDocument | Document | document type | reads the document root type it checks |  |

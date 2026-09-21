@@ -1,6 +1,6 @@
 # CR-436 — 画面の値を状態機械へ移す（リファクタ段 2b-B と、段 7 の第 1 領域）
 
-> ⭐ **状態: 波 A を当てた（2026-09-21、`1616d28d` の上。ブランチ `sm-wave-a`）。波 B1 と波 B2 は当てていない。**
+> ⭐ **状態: 波 A を当てた（2026-09-21、`1616d28d` の上。ブランチ `sm-wave-a`）。波 B1 を当てた（2026-09-22、`5413bea5`）。波 B2 は第 1 段（仕様）を当て、コードと試験はまだ（2026-09-22 —— 末尾の「波 B2 —— シェルへ結線する設計」の B.16）。**
 > ⭐ **波 A2 を当てた（2026-09-21、`JDG-286`）** —— 原稿と印字を状態機械ごとに組み替え、`SM` ・ `EV` ・ `TN` の番号をやめて名で指すようにした。付録 A.1 〜 A.3 の番号は当てた日の履歴であり、いまの名は末尾の「波 A2」の節で引く。
 > 当てたのは 第 3.1 節の表のすべてである。当てた体が決めたこと・原稿と付録を合わせ直したことは末尾の「改訂の記録 —— 波 A を当てた」に並べた。
 > 読んだ木: `2112d0c9`（ブランチ `refactor`）。**本書の行番号と数は、断りが無いかぎりこの木で 2026-09-21 に自分で測ったものである。**
@@ -760,3 +760,560 @@ md-checks の数の読み方: 行は `SM` 39 ・ `EV` 35 ・ `TN` 63 の計 137 
 | `dividersOf`（新） | —— | 10 / 1 |
 
 ⇒ 全体の超過は `excess-lines` が 27、`excess-branches` が 3 下がる。`screenFrameFromRegions` の HELD の行は古くなるので、基準線の書き換えは前に立つ者が利用者に数を見せてから行う。
+
+---
+
+## 波 B2 —— シェルへ結線する設計（2026-09-22、`5413bea5` で測り直した）
+
+⭐ **状態（2026-09-22）: 波 B2 の第 1 段（仕様・原稿・生成器・辺・表 T-283）を `5413bea5` の上で当てた（B.16）。第 2 段（コード）と第 3 段（仕様だけを読む試験）はまだである。**  
+⭐ **波 B1 は当てた** —— 本書の末尾の「改訂の記録 —— 波 B1 を当てた（2026-09-22）」。本節の B.4.1 と B.5 は、B1 を B2 の直前に置いた理由の記録として残す。  
+⭐ 本節は、読むだけの体が `9b8a22b7` で起草した設計（利用者に問うた候補はすべて反証済み —— B.13）を、当てる体が 1 か所ずつ突き合わせて本書へ移したものである。
+⭐ 利用者の裁定（2026-09-21、前に立つ者が `rulings.md` に記す）—— 段 5・段 6 の完了を待たずに結線を始める。まず本書の波 B2（共通の 1 段の結線と `ScreenSession` の移行）を 1 つにまとめて入れ、その後にほかの領域の結線（`CR-440` ・ `CR-450` ・ `CR-460` ・ `CR-480` ・ `CR-490`）を別々の作業木で並べて進め、`frame-loop.ts` へ 1 つずつ合流する。性能はすべての結線の後に 1 度だけ測る（⇒ 各波は 1 コミットで、二分探索できること）。各波の合否は単体試験・`check.sh`・型検査で判じ、e2e と照合（parity）は段の出口だけで回す。`CR-500` の波 B（面の `focusin` ／ `focusout` の知らせ）は段 6 を待つ。
+⛔ `src/framework/dom-screen-surface/` は段 6 のセッションの持ち場である。本節の変更はそこに 1 字も触れない（面の公開の名前と署名は変わらない）。
+
+**本節の行番号と数は、断りが無いかぎり `9b8a22b7`（ブランチ `refactor` の先端）で 2026-09-22 に測った。** ⛔ 当てる体は入口で測り直すこと。  
+⭐ **`5413bea5`（B1 を当てた木）で測り直した値は B.1a にある。** `frame-loop.ts` の行番号は、`9b8a22b7` の :1799〜:4168 が `5413bea5` では ＋4、:4180 以降が −7 ずれる（B1 の差し引き。`screenState` の宣言 :1816 → :1820、書き手 :4214 → :4207 で確かめた）。
+
+---
+
+### B.0 ⭐ 結論（前に立つ者へ）
+
+1. **波 B1 は波 B2 の直前に、同じ作業木の別のコミットとして当てた**（`5413bea5`。B.5 の導き。利用者の順の指示から 1 点だけ外れる —— 問いではなく、導いた帰結として伝えた）。
+2. **波 B2 は 1 コミット**。範囲は「シェルの `let session` と 1 本の送り口」「画面の値の領域の出来事と副作用の結線」「描き手の入力の移行（袋を消す）」「入力の翻訳係の入力文脈と出来事」「旧 `ScreenState` の形を消す」「表 T-283」。
+3. **決定 3（生成器の出力先を `screen-state.ts` へ移す）は B2 に入れない**。段 7 の出口へ延ばす（B.8）。
+4. **継ぎ目**（B.3）を B2 が敷くので、後の領域の波は `frame-loop.ts` の自分の塊だけを書き換え、仕様の数（`SU-3` ・ 表 T-063 の `UT-6` ・ 表 T-075）にも表 T-283 にも触れずに済む。
+5. **振る舞いの同一は、B1 を当てた木と B2 を当てた木を同じ台本で回して、画面に渡したものをバイトで比べる照合器で示す**（B.9）。読んで見つけた食い違いの候補 8 件（B.7）は、すべて「今日を写す」詰め方で B2 に入れ、台帳に起こしてから別のコミットで直す（`JDG-57`）。
+
+---
+
+### B.1 測った事実（`9b8a22b7`、2026-09-22）
+
+| 数 | 値 | 測り方 |
+|---|--:|---|
+| `frameLoop` の範囲 | 1799〜4414 行 | `function-size.mjs` が返す `startLine` ・ `endLine`（`^}` の grep は 4477 を拾う —— それは後ろの生成定数の閉じ括弧である） |
+| `frameLoop` が直に持つ `let` | **66** | `sed -n '1799,4414p' src/framework/single-html-shell/frame-loop.ts \| grep -c "^  let "` |
+| 移す 12 の `let` の宣言 | `screenState` :1816 ・ `isLevelZeroFolded` :1843 ・ `isMilestoneListOpen` :1845 ・ `isPaletteMinimised` :1846 ・ `propertiesShowing` :1879 ・ `propertiesSubject` :1880 ・ `isPropertiesPanelPutAway` :1883 ・ `isDialogueFieldVisible` :1886 ・ `language` :1887 ・ `isTooltipDismissed` :1916 ・ `scaleMessage` :1921 ・ `dualCursorFollowing` :1923 | `grep -n "^  let "`。`1616d28d` と同じ行（第 3.1a 節） |
+| その 12 を書く所 | `screenState`: :2502 ・ :2520 ・ :3158 ・ :3176 ・ :3213 ・ :3653 ・ :3664 ・ :3678 ・ :4214 ・ :4410。`isLevelZeroFolded`: :4015 ・ :4074。`isMilestoneListOpen`: :3606。`isPaletteMinimised`: :3593 ・ :4215。`propertiesShowing`: :4006 ・ :4053。`propertiesSubject`: :4056。`isPropertiesPanelPutAway`: :3573 ・ :3897 ・ :3902 ・ :4003 ・ :4052 ・ :4173 ・ :4220。`isDialogueFieldVisible`: :4025。`language`: :3588。`isTooltipDismissed`: :4160 ・ :4208。`scaleMessage`: :2369 ・ :2373。`dualCursorFollowing`: :4011 ・ :4222 | `grep -nE "\b<名>\s*=[^=]"`（宣言の行を除く） |
+| `@provisional PND-451` の塊 | :4169〜:4179 | 読んだ |
+| 出していないパネルの境界の帯 | `src/adapter/screen-renderer/screen-frame.ts:105` | 読んだ |
+| `FR-052` ・ `GR-22` の定義の行 | `docs/spec/01-04-requirements.md:4034`（`**UID**: FR-052`）・ `:3337` | `grep -n` |
+| 旧 `ScreenState`（`Entity`）を読む `src/` のファイル | 15（`Adapter` 10、`Framework` 1、`UseCase` 4）。うち型 `ScreenState` を読むのは `Adapter` 7 と `frame-loop.ts`。`UseCase` の 4 つ（`screen-values.ts` ・ `selection-values.ts` ・ `edit-task.ts` ・ `task-plan-actual.ts`）は `RememberedActual` ・ `EscapeTarget` だけ | `grep -rlE "screen-state/screen-state" src` と名ごとの `grep -oE` |
+| `Adapter` の袋 `ScreenSession` を読む `src/` のファイル | 11（`screen-renderer/` の 10 ＋ `frame-loop.ts`）。ほかに集約の `ScreenSession` を定義する `advance-screen-session.ts` | `grep -rlw ScreenSession src` |
+| 袋か旧 `ScreenState` を読む試験 | **80 ファイル** | `grep -rlE "emptyScreenState\|ScreenState\b\|screenStateWith\|screenStateFromInput" tests` と、袋を読む（`advance-screen-session` を読まない）ファイルの和 |
+| `frame-loop.ts` を import する試験 | 80。うち袋も旧 `ScreenState` も読まないもの **67** —— B2 で 1 字も変えずに緑であるべき試験（B.9） | `grep -rl "single-html-shell/frame-loop" tests` と上の差 |
+| 検査 60 の基準線 | `excess-lines=7868 excess-branches=777`、HELD 87 行。検査は緑 | `python .claude/skills/spec-graph-check/check-function-size.py` |
+| B2 が触る HELD の関数（いまの値） | `frameLoop` 2616 / 4 ・ `receiveInput` 189 / 80 ・ `carryOutAction` 254 / 68 ・ `runFrame` 135 / 14 ・ `sessionOf` 94 / 7 ・ `owesFrame` 30 / 17 ・ `answerSettledEntry` 103 / 23 ・ `screenStateFromInput` 45 / 25 ・ `openModalFromScreenState` 89 / 12 ・ `commandStateOf` 56 / 13 ・ `screenFrameFromRegions` 55 / 2 | 同上と `function-size.mjs` の直の出力 |
+| 検査 61 の基準線 | HELD 2（`deliveringNotices` ・ `REGISTRATIONS`）。`Framework` は検査の外 | `module-state-baseline.txt` |
+| `components.json` | nodes 37、edges 140 | `python -c` で `len` |
+| `audit-ch5.py` の `NOT_YET_CALLED` | `{"AdvanceScreenSession": "CR-436 wave B2"}`（:163〜:166） | 読んだ |
+| 表 T-075 の行と最大 | 101 行、最大 `UF-122`。`UF-123` は 0 件 | `grep -c "^\| UF-"`、`git grep -nE "UF-12[3-9]\b"` |
+| `SU-1` ・ `SU-3` | 37 ・ 101 | `05-07-design.md:243` ・ `:245` |
+| `T-283` | 定義 0。`docs/development-records/handoff.md:46` が「T-280 以降と T-283 は相手（状態機械のセッション）」と取り決めている | `git grep -n "T-283"` |
+| 行 ID の接頭辞の登録簿 | 160 件。`RG` は 0 件（`docs` ・ `change-request` ・ `src` ・ `tests` ・ `tools` ・ `.claude` ・ `package.json` を `\bRG-[0-9]+` で grep） | `row-id-prefixes.json` の `prefixes` の `len` |
+| md-checks の最終行 | `tables=181  figures=25  rows=2241  uids=162` | `python .claude/skills/spec-graph-check/md-checks.py .` |
+| 台帳の上端 | `DFC-702` | `grep -oE "DFC-[0-9]+" docs/development-records/defects.md` |
+
+⚠️ 本書の第 1 節の「`frameLoop` の範囲 1799〜4414」は `2112d0c9` の値であり、`9b8a22b7` でも同じだった（段 5 は `frameLoop` の外の翻訳係を割った）。
+
+#### B.1a `5413bea5` で測り直した値（2026-09-22、仕様の体が当てる直前）
+
+| 数 | 値 | 測り方 |
+|---|--:|---|
+| `frameLoop` の範囲 | 1803〜4407 行（2605 行） | 基準線 `function-size-baseline.txt` の `frameLoop lines=2605` と `grep -n "^export function frameLoop"` |
+| `frameLoop` が直に持つ `let` | **66** | `sed -n '1803,4407p' src/framework/single-html-shell/frame-loop.ts \| grep -c "^  let "` |
+| 移す 12 の `let` の宣言 | `screenState` :1820 ・ `isLevelZeroFolded` :1847 ・ `isMilestoneListOpen` :1849 ・ `isPaletteMinimised` :1850 ・ `propertiesShowing` :1883 ・ `propertiesSubject` :1884 ・ `isPropertiesPanelPutAway` :1887 ・ `isDialogueFieldVisible` :1890 ・ `language` :1891 ・ `isTooltipDismissed` :1920 ・ `scaleMessage` :1925 ・ `dualCursorFollowing` :1927 | `grep -nE "^  let <名>\b"` |
+| その 12 を書く所 | **32 か所** —— `screenState` 10（:2506 ・ :2524 ・ :3162 ・ :3180 ・ :3217 ・ :3657 ・ :3668 ・ :3682 ・ :4207 ・ :4403）、`isLevelZeroFolded` 2（:4019 ・ :4078）、`isMilestoneListOpen` 1（:3610）、`isPaletteMinimised` 2（:3597 ・ :4208）、`propertiesShowing` 2（:4010 ・ :4057）、`propertiesSubject` 1（:4060）、`isPropertiesPanelPutAway` 6（:3577 ・ :3901 ・ :3906 ・ :4007 ・ :4056 ・ :4213 —— B1 が `:4173` を消した）、`isDialogueFieldVisible` 1（:4029）、`language` 1（:3592）、`isTooltipDismissed` 2（:4164 ・ :4201）、`scaleMessage` 2（:2373 ・ :2377）、`dualCursorFollowing` 2（:4015 ・ :4215） | `grep -nE "\b<名>\s*=[^=]"` から宣言の行を除いた |
+| 関数の位置 | `SessionHeld` :1159 ・ `sessionOf` :1200 ・ `escapeLevelOf` :1426 ・ `showScaleMessage` :2372 ・ `answerWatermarkUnlock` :2503 ・ `collectInputContext` :3025 ・ `askHowToOpen` :3154 ・ `answerSettledEntry` :3571 ・ `carryOutAction` :3782 ・ `showPropertiesOfChoice` :4054 ・ `standOnWhatWasCreated` :4065 ・ `owesFrame` :4087 ・ `receiveInput` :4139 ・ 公開の `fullScreenChanged` :4401 | `grep -n "function <名>"` |
+| 検査 60 | 実測 `excess-lines=7840 excess-branches=774`、HELD 86 行（基準線の見出しは B1 の後の 7841 / 774） | `check.sh` の検査 60 の行 |
+| B2 が触る HELD の関数 | `frameLoop` 2605 / 4 ・ `receiveInput` 178 / 77 ・ `carryOutAction` 254 / 68 ・ `runFrame` 135 / 14 ・ `sessionOf` 94 / 7 ・ `owesFrame` 30 / 17 ・ `answerSettledEntry` 103 / 23 ・ `screenStateFromInput` 45 / 25（`screenFrameFromRegions` は B1 で帯の外へ出た） | `function-size-baseline.txt` |
+| `components.json` | nodes 37、edges 140 | `python -c` で `len` |
+| 表 T-075 | 101 行、`UF-123` は 0 件 | `impact.py T-075`、`git grep -nE "UF-12[3-9]\b" HEAD` |
+| `T-283` | `docs/spec` に 0 件 | `git grep -c "T-283" HEAD -- docs/spec` |
+| 行 ID の接頭辞の登録簿 | 160 件。`RG` は 0 件 | `row-id-prefixes.json` の `prefixes` の `len`、`git grep -nE "\bRG-[0-9]+"` を `docs` ・ `change-request` ・ `src` ・ `tests` ・ `tools` ・ `.claude` ・ `package.json` に |
+| md-checks の最終行 | `tables=181  figures=25  rows=2231  uids=162`（`9b8a22b7` の 2241 との差 −10 は `CR-441` が退けた 10 行） | `python .claude/skills/spec-graph-check/md-checks.py .` |
+| 台帳 | `DFC-703` 〜 `DFC-711` は 0 件（本波の予約。前に立つ者が起こす）。表の最大の行は `DFC-760`（別の帯）、その下は `DFC-702` | `git grep -nE "DFC-70[3-9]\b\|DFC-71[01]\b"` |
+
+
+---
+
+### B.2 名（`R2`）
+
+| 名 | 何か | 選んだ理由 | 退けた名 |
+|---|---|---|---|
+| **`ScreenViewReadings`**（型、`ScreenRenderer`） | 描き手が集約のほかに読む値 —— フレームで取ったポインタの値・寸法、文書から導く値（`SF-10`）、まだ集約へ移していない領域の欄 | 出力の型 `ScreenView`（`PI-37`）と対になり、「`ScreenView` を作るために取った読み」と読める。`R2` の型は名詞句 | 仮称 `RenderFrameInput`（`Frame` が `FrameValues` と、`Input` がこの木の「人の入力」（`HumanInput` ・ `InputSource`）と紛れる）。`…Source`（`SnapshotSource` ・ `InputSource` と紛れる）。`…Extras`（汎用名） |
+| **`screenViewReadingsOf`**（`frame-loop.ts` のモジュールの関数、`pure`） | いまの `sessionOf`（:1196）の後継。フレームの値と文書から `ScreenViewReadings` を組む | `pure` のクエリは名詞句（`R2` の品詞の規約） | `sessionOf`（集約と同じ語を持つ） |
+| **`ScreenViewReadingsTaken`**（同、モジュールの `interface`） | いまの `SessionHeld`（:1155）の後継 | 同上 | `SessionHeld` |
+| **`sendToSession`**（`frameLoop` の中の関数、`non-pure`） | 出来事を 1 つ集約へ渡し、現在値を差し替え、返った副作用をその場で実行する唯一の道 | コマンドは動詞 ＋ 目的語 | `dispatch`（曖昧な動詞）、`advance`（`UseCase` の名と重なる） |
+| **`screenEventFromInput`**（`PI-18`、`screen-state-input.ts`） | いまの `screenStateFromInput` の後継。入力から画面の値の出来事（無ければ `null`）を返す | 同じユニットの同じ形の名（`commandFromInput` ・ `selectionFromInput`） | —— |
+| **`session-effects.ts`**（新しいユニット、`SingleHtmlShell`） | 副作用の実行の形（型 `EffectRunners` と 1 本の実行 `runSessionEffects`、まだ結線していない領域の置き場 `unwiredEffect`） | ファイル名は中身の名（`R2`） | —— |
+
+⛔ どの名も `FrameValues` ・ `ScreenSession` ・ `ScreenFrame` を含まない（第 4 節の禁止）。
+⭐ `Adapter` の袋 `ScreenSession`（`screen-renderer.ts:402`）と `Adapter` の `PropertiesSubject`（`:397`）は B2 で消え、名 `ScreenSession` は集約だけが持つ（決定 2）。描き手は集約の `PropertiesSubject`（`screen-values.ts:15`）を公開エントリ経由で読む。
+
+---
+
+### B.3 ⭐ 継ぎ目 —— 後の領域の波が `frame-loop.ts` に最小の手で入り、1 つずつ合流できる形
+
+**5 行で**:
+1. シェルは `let session: ScreenSession` を 1 つ持ち、出来事は必ず `sendToSession(event, frame)` を通す —— `advanceScreenSession` を呼び、参照を差し替え、返った副作用を同じ呼び出しの中で順に実行する（`SF-6` ・ `SF-7`、`UF-48` の全画面表示の MUST はこれで保たれる）。
+2. 副作用の実行は、効果の種類をキーにした 1 つの表 `effectRunners` で引く。表の型 `EffectRunners<SessionEffect>` は 6 領域の全種類を求めるので、B2 は画面の値の 14 種と共有の `raiseNotice` を書き、ほかの領域の 11 種を `unwiredEffect` で埋める。表は領域ごとの塊に分け、後の波は自分の塊の行だけを差し替える。
+3. 描き手は B2 から根の `ScreenSession` 全体を受ける（`screenViewFromRegions` の署名は B2 で 1 度だけ変わる）。後の波は `ScreenViewReadings` の自分の欄を消し、部品が `session.<領域>` を読むように直すだけで、署名にも組み立ての他の行にも触れない。
+4. `Esc` の段は `receiveInput` の中の 1 つの表（段 → 出来事、1 段 1 行）で送る。まだ結線していない段は今日の呼び出しのまま 1 行を占め、後の波はその行だけを差し替える。
+5. 描き直しの義務は根の参照 1 つで判じる（`owesFrame` の `screenState` の比較を `session` の比較へ）。後の波で自分の値が根へ入ると、`owesFrame` の自分の比較の行（`selection` ・ `raisedNotices` ・ `pressed`）を消すだけでよい。
+
+#### B.3.1 送り口（`frame-loop.ts`、`frameLoop` の中）
+
+```ts
+// see SF-6, SF-7, UF-48
+/** @purity non-pure */
+function sendToSession(event: SessionEvent, frame: FrameValues | null): void {
+  const step = advanceScreenSession(session, event)
+  session = step.state
+  runSessionEffects(step.effects, effectRunners, frame)
+}
+```
+
+- 分岐 0（検査 60 の帯の内側）。参照が同じなら差し替えても何も変わらない（`SS-5`）。
+- `frame` を渡すのは、いまの書き込み `writeDocument(commands, frame)` がその入力の `frame` を使うからである。`requestAnimationFrame` の無い試験の環境では `ask()` がその場で `runFrame()` を回し、入力の途中で `values` が差し替わる（`:2328`〜`:2335`）—— `values` を読み直すと今日と違う `frame` で書く。
+- 結果を出来事で戻す副作用（照合 `matchWatermarkUnlock`、時計）は、実行の中で `sendToSession` を呼び直す。同期の副作用はその場で、非同期の副作用は `Promise` と時計の後で。
+- ⭐ **全画面表示**: `fullScreenEntryPressed` は入力の翻訳から `receiveInput` の中で送られ、`askBrowserForFullScreen` はその同じ呼び出しの中で実行される。フレームへ延ばす道が構造上ない。
+
+#### B.3.2 副作用の実行（新しいユニット `src/framework/single-html-shell/session-effects.ts`）
+
+```ts
+export type EffectRunner<E> = (effect: E, frame: FrameValues | null) => void
+export type EffectRunners<E extends { readonly type: string }> = {
+  readonly [T in E['type']]: EffectRunner<Extract<E, { readonly type: T }>>
+}
+export function runSessionEffects(effects, runners: EffectRunners<SessionEffect>, frame): void // 1 つずつ順に
+export function unwiredEffect(effect: { readonly type: string }): never // 投げる。届かない
+```
+
+- ⭐ **`raiseNotice` は 3 領域が持つ**（画面の値 `RS-41` ・ `RS-35`、通知 `RS-23`、ファイル操作と問い `RS-27`）。表の型は 3 つの和を 1 つの項目に求めるので、`raiseNotice` の項目は共有の塊に 1 つだけ置く（`raiseNotice(effect.reason, null)`）。
+- `frameLoop` の中の表 `effectRunners` の形（B2 が敷く）:
+
+```ts
+const effectRunners: EffectRunners<SessionEffect> = {
+  // shared
+  raiseNotice: (effect) => raiseNotice(effect.reason, null),
+  // screen (T-280) -- CR-436
+  storeLanguage: …, writeProgressStep: …, askBrowserForFullScreen: …, …（14 行）
+  // gesture (T-289) -- CR-450 wave B replaces these lines
+  startEntryRepeat: unwiredEffect,
+  restorePaletteCorner: unwiredEffect,
+  repeatHeldEntry: unwiredEffect,
+  // fileFlow (T-290) -- CR-460 wave B replaces these lines
+  raiseFlowSurface: unwiredEffect, …（7 行）
+  // fieldEntry (T-292) -- CR-480 wave B replaces this line
+  bringCreatedRowIntoSight: unwiredEffect,
+}
+```
+
+  ⭐ 塊と塊のあいだに注の行を 1 つ置く —— Git は隣り合う行の変更を衝突にするので、塊を隔てる変わらない行が要る。通知と選択は、共有の `raiseNotice` の外に副作用を持たない（`notice-values.ts` の副作用の名は `raiseNotice` だけ、`selection-values.ts` は `never`）。
+- ⚠️ `unwiredEffect` は届かない —— まだ結線していない領域の出来事を、シェルは 1 つも送らない。`JDG-285` の `NOT_YET_CALLED` と同じ種類の「名指しで待たせる」置き場であり、各波が自分の行を消す。
+- ⚠️ **ユニットを割る理由（表 T-276）**: `session-effects.ts` の変更の理由は「副作用の名の全数（表 T-280 ・ T-286 ・ T-289 ・ T-290 ・ T-292 の升）と、実行の順（`SF-6`）」であり、フレームの回し方（`frame-loop.ts`）とは互いに素（`UD-1`）。迷いの試験（`UD-5`）: 「副作用が 2 度実行された」「種類の漏れがコンパイルを通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行。純粋性は理由にしない（`UD-3`）。
+- ⛔ 実行の本体（閉包）は `frameLoop` の中に残す —— 書き込み・通知・時計はシェルの閉包の値を読む。本体を外へ出すには「手」の `interface` を 1 つ挟むことになり、行も辺も増えるだけである。
+
+#### B.3.3 描き手の入力
+
+```
+screenViewFromRegions(regions, schedule, settings, selection, session: ScreenSession /* 集約の根 */, dialogueLog, readings: ScreenViewReadings)
+```
+
+- 5 番目の引数（いまは旧 `ScreenState`）と 7 番目の引数（いまは袋）の位置を変えない —— 呼び手と試験の書き換えが引数の中身だけで済む。
+- 描き手は根の全体を受ける —— 後の波が `session.notices` ・ `session.selection` などを読むときに署名が動かない。`ScreenRenderer → AdvanceScreenSession` の辺は B2 で 1 本だけ足す（B.6.3）。
+- `ScreenViewReadings` の欄（B2 の後）: フレームの値 7（`pointer` ・ `pointerRestedMs` ・ `iconUnderPointer` ・ `taskUnderPointer` ・ `commandPaletteAt` ・ `rowBoxes` ・ `scrollExtent`）、文書から導く値 5（`themePreference` ・ `themeHue` ・ `canUndo` ・ `canRedo` ・ `aiExportDocument`）、まだ移していない領域の値 12（第 4 節の表の 2 行目）。⭐ 画面の値の 10 欄はここから消える（描き手は `session.screen` から導く）。
+- 第 4 節の「⭐ 段 7 の出口に『フレームの値の入力はフレームの値と文書から導く値だけ』を足す」は、この 12 欄が全部消えたときに成る。どの波がどの欄を消すか:
+
+| 欄 | 消す波 |
+|---|---|
+| `notices` | `CR-440` の波 B1 |
+| `confirmation` ・ `mergeCandidates` ・ `unreadColumns` ・ `droppedTaskNames` ・ `openedFileName` ・ `fileSavedAt` | `CR-460` の波 B |
+| `rowGrabbedAt`（掴んでいるかだけ。`resistedPx` ・ `atY` は読みに残る） | `CR-450` の波 B |
+| `selectedGroupIds` ・ `selectedResourceUids` | `CR-490` の波 B |
+| `isAgentApiEnabled` ・ `isRecordingInteractions` | まだ変更要求が無い（`CR-490` の第 11 節が別の変更要求にすると挙げた） |
+
+#### B.3.4 入力の翻訳係
+
+- `InputContext.screenState: ScreenState` → **`InputContext.screen: ScreenValues`**（読むだけ）。
+- ⭐ いま翻訳係が読む派生の値 `dualCursorFollowing` ・ `isLevelZeroFolded` ・ `isPropertiesPanelShowing` ・ `isSurfaceStanding` は、**名と型を保ち**、シェルが `session` から詰める —— 翻訳係の兄弟 13 と、その試験の入力の見本を動かさない（`CR-480` 2.2 の 3、`CR-490` 2.2 の 2 と同じ約束）。
+- `screenEventFromInput(input, context): ScreenValuesEvent | null` —— 旧 `screenStateFromInput` が返していた「次の状態」の 1 つの変化ずつを、その変化を起こす出来事 1 つに写す（旧は 1 つの入力で 1 つしか変えない —— :114〜:158 と :48〜:83 を読んで確かめた）。
+- ⭐ `Esc` の段は翻訳係ではなくシェルが決める（いまの `escapeLevelOf`、:1422）—— 段の判定は通知・問い・パネル・説明を見るが、翻訳係の `escapeContextOf` はそれを見ない（`screen-state-input.ts:135` の TRAP）。⇒ `screenEventFromInput` は `Esc` に `null` を返し、シェルの段の表（B.3.5）が送る。
+- 翻訳係が `InputAction` として返している画面の値の 7 種（`togglePaletteMinimised` ・ `toggleMilestoneList` ・ `toggleDocumentSettingsProperties` ・ `toggleDialogueFieldVisible` ・ `toggleFullScreen` ・ `setLevelZeroFolded` ・ `setDualCursorFollowing`）は、**B2 では `InputAction` のまま**にし、シェルの `carryOutAction` のその `case` が出来事へ写して送る。⭐ 理由: 7 種を返すのは `commandFromEntry`（HELD 169 / 72）と兄弟 3 つであり、ほかの領域の波も同じ関数の別の枝を動かす。B2 で型を変えると、後の波の全部がそこで衝突する。
+- 表示の言語の入口（`DISPLAY_LANGUAGE_ENTRY`）・パレットの最小化・マイルストーン一覧・対話欄の入口は、いま `answerSettledEntry`（:3567〜）がシェルで消費している。B2 はその枝の本体を `sendToSession` 1 行へ替える。
+
+#### B.3.5 `Esc` の段の表（`receiveInput` の中）
+
+いまの :4201〜:4224 の枝の並びを、段 → 送るもの の 1 段 1 行へ組み替える。
+
+| 段（コードの `EscapeTarget`） | B2 が送るもの | 後で差し替える波 |
+|---|---|---|
+| `notice` | いまのまま `dismissNewestNotice()` | `CR-440` の波 B1（`notices/newestNoticeDismissAsked`） |
+| `textEntry` | いまのまま（何もしない —— 面が消費する） | `CR-500` の波 B |
+| `confirmation` | いまのまま `answerConfirmation(false, frame)` | `CR-460` の波 B（`fileFlow/confirmationAnswered`） |
+| `surface` | `screen/escapePressed{rung: 'surface'}` | —— |
+| `gesture` | いまのまま（`pressed = null` ほか、:4227〜:4239） | `CR-450` の波 B（`gesture/pressInterrupted`） |
+| `propertiesPanel` | `screen/escapePressed{rung: 'surface'}` —— 画面の値の機械は、面が閉じているときの `surface` の段をパネルに当てる（`screen-values.ts:1030`〜`:1034`）。コードがパネルの段を身振りの下に置く食い違いは `DFC-570` のまま | —— |
+| `armed` | `screen/escapePressed{rung: 'armed'}` | —— |
+| `selection` | いまのまま（`selectionFromInput` が解く） | `CR-490` の波 B（`selection/selectionEscapePressed`） |
+| `dualCursorMode` | `screen/escapePressed{rung: 'dualCursorMode'}`（書き込み `clearDualCursor` は副作用 `writeClearDualCursor` の実行が行う） | —— |
+| `tooltip` | `screen/escapePressed{rung: 'tooltip'}` | —— |
+
+⚠️ `isBrowserDefaultStopped`（:4338〜）は同じ段の判定を読むだけで、何も送らない（`FrameLoop` の宣言 :211 の TRAP「ここで状態を変えると `IN-4a` が動いた後の画面を読む」を保つ）。
+
+#### B.3.6 後の波の手の数（見込み）
+
+| 波 | `frame-loop.ts` で触るもの | 触らないもの |
+|---|---|---|
+| `CR-440` 波 B1 | `effectRunners` の塊 0 行（通知は `raiseNotice` だけ）、段の表の `notice` の 1 行、`raiseNotice` の本体、`receiveInput` の通知の枝、`owesFrame` の `raisedNotices` の比較の 1 行、`ScreenViewReadings` の `notices` の 1 行、`let` 4 | 送り口・表の型・描き手の署名・`SU-3` ・ `UT-6` ・ 表 T-283 |
+| `CR-450` 波 B | 塊の 3 行、段の表の `gesture` の 1 行、押下の開始と終わり、`collectWriteMoment` の 1 行、`readSnapshot` の 1 行 | 同上 |
+| `CR-460` 波 B | 塊の 7 行、段の表の `confirmation` の 1 行、`tellFlowSurfaceClosed` の 1 行（B.4.3）、開く・保存の枝、`receiveInput` の末尾の 3 つの片付け（:4278〜:4294） | 同上 |
+| `CR-480` 波 B | 塊の 1 行、名前付けの 4 つの `let` の読み手 | 同上 |
+| `CR-490` 波 B | 塊 0 行、段の表の `selection` の 1 行、`let` 4 の書き手 9 か所 | 同上 |
+
+⚠️ 衝突が残る所: `collectWriteMoment`（:3066〜:3072）と `readSnapshot`（:2765〜:2777）は 3 つの波（通知・身振り・名前付け）が別々の行を動かす —— ⭐ **B2 はこの 2 つの関数の欄を 1 行 1 欄のまま保ち、欄の順を変えない**。隣り合う欄の変更は Git が衝突にするので、合流する側は 1 行ずつ足し合わせる（中身は互いに素）。
+
+---
+
+### B.4 変更の一覧
+
+#### B.4.1 波 B1（`JDG-283`）—— B2 の直前の別のコミット（⭐ 当てた。本書の末尾の「改訂の記録 —— 波 B1 を当てた（2026-09-22）」。下の表は起草時の計画の記録）
+
+| 対象 | 変更 |
+|---|---|
+| `docs/spec/01-04-requirements.md` の `FR-052`（`:4034`〜）と 表 T-023d の `GR-22`（`:3337`） | 第 5.3 節の文のまま、**1 度の編集で**（閉路 `FR-052` ⇄ `GR-22`） |
+| `src/adapter/screen-renderer/screen-frame.ts:105` | 出していないあいだ `propertiesPanel` の帯を並べない。⚠️ `screenFrameFromRegions` は HELD 55 / 2 —— 条件を関数の中に足すと分岐が 3 になり検査 60 が赤。⇒ 帯の列を返す小さな関数を別に置き、`:105` の行はその呼び出しに替える |
+| `src/framework/single-html-shell/frame-loop.ts:4169`〜`:4179` | `@provisional PND-451` の塊を消す（`receiveInput` は 11 行と分岐 2 が減る） |
+| 試験 | 第 5.3 節のとおり（仕様だけを読む体） |
+| 台帳 | `PND-451` を閉じ、`JDG-283` の着地の欄を埋める（前に立つ者） |
+
+#### B.4.2 波 B2 —— コード
+
+| ファイル | 変更 |
+|---|---|
+| `src/framework/single-html-shell/frame-loop.ts` | ① `let` 12 を消し `let session` を置く。初期値は `emptyScreenSession` の画面の値の `language` だけを起動の読み（`screen?.language ?? startupDisplayLanguage()`、:1887）で埋めた値（決定 21）。② `sendToSession`、`effectRunners`（B.3.2）。③ 書き手 31 か所（B.1）を出来事へ（B.4.3 の表）。④ `collectInputContext` の `screenState` を `screen: session.screen` に、派生の 4 つを `session` から詰める。⑤ `owesFrame` の `screenState` の比較 2 行を根の参照の比較へ（引数 `sessionBefore` を 1 つ足す）。⑥ `escapeLevelOf` と `isBrowserDefaultStopped` の読みを `session` へ。⑦ `runFrame` と `exportScene` の描き手の呼び出しを B.3.3 へ —— `exportScene` は「絵の根」（画面の値は初期の値に、言語と第 0 階層の畳みを写し、パレットと対話欄は `hidden` —— いまの `:2575` の `stateForExport` と `:2601`〜`:2629` の袋と同じ見え方。透かしは `:2590` の TRAP のとおり現在の根から読む）を組むモジュールの関数を 1 つ持つ。⑧ `sessionOf` ・ `SessionHeld` を `screenViewReadingsOf` ・ `ScreenViewReadingsTaken` へ（10 欄を消す）。⑨ `fullScreenChanged`（:4408〜:4412）を `sendToSession` へ。⑩ `propertiesShowingNow` ・ `isPropertiesPanelOnScreen` ・ `withPropertiesPanelShown` は `session.screen.propertiesPanelContentState` から読む |
+| `src/framework/single-html-shell/session-effects.ts`（新） | B.3.2 |
+| `src/adapter/input-command-translator/screen-state-input.ts` | `screenStateFromInput` → `screenEventFromInput`（B.3.4）。`screenStateFromEntry` ・ `screenStateAfterMarkerPress` も出来事を返す形へ |
+| `src/adapter/input-command-translator/input-command-translator.ts` | `InputContext.screen`、旧 `Armed` を `ArmModeState` ・ `ArmKind` へ（種類の字面は波 A2 の改名 —— `taskShape` → `taskShapeArmed` ほか、本書 A2.3 の表）。`isSameArm` は機械のガードになったので、翻訳係からは消える見込み（読み手を測って決める） |
+| `src/adapter/input-command-translator/armed-placement.ts` ・ `item-grab.ts` ・ `selection-input.ts` ・ `shortcut-keys.ts` | 構えの読み（新しい字面）、覚えた実績を `context.screen.rememberedActuals` から、`escapeTarget` の新しい署名 |
+| `src/adapter/screen-renderer/screen-renderer.ts` | 袋 `ScreenSession` と `PropertiesSubject` を消し、`ScreenViewReadings` を置く。`screenViewFromRegions` の署名（B.3.3） |
+| `src/adapter/screen-renderer/` の部品（`app-header-items.ts` ・ `command-palette.ts` ・ `dialogue-field.ts` ・ `notices.ts` ・ `open-modals.ts` ・ `properties-panel.ts` ・ `row-title-panel.ts` ・ `screen-frame.ts` ・ `tooltips.ts`） | 画面の値の 10 欄と旧 `ScreenState` の 6 欄を `session.screen` から導く（例: `isPaletteMinimised` ＝ `paletteDisplayState.kind === 'shown' && paletteDisplayState.child.kind === 'minimised'`）。`notices.ts` ・ `row-title-panel.ts` は型の import だけが変わる見込み |
+| `src/entity/document-model/screen-state/screen-state.ts` | 型 `ScreenState` ・ `Armed` ・ `OpenSurface` と `emptyScreenState` ・ `screenStateWith…` 6 つ ・ `rememberedActualOf` を消す。`escapeTarget(state, context)` → `escapeTarget(context)`（`EscapeContext` に `isSurfaceOpen` ・ `isArmed` を足す）。残るもの: `RememberedActual` ・ `EscapeTarget` ・ `DualCursorSide` ・ `EscapeContext` ・ `escapeTarget` |
+| `src/use-case/advance-screen-session/advance-screen-session.ts` | 外が読む型を公開する（見込み: `ScreenValues` ・ `PropertiesSubject` ・ `ArmKind` ・ `ScreenValuesEvent`。⛔ 数は当てる時に、外の import から測って `PI-39` と揃える）。冒頭の TRAP（`Adapter` の同名の型）を消す |
+| `src/use-case/advance-screen-session/screen-values.ts`（手書きの区画） | 書き込みの副作用が翻訳係の作った命令を運ぶ形（決定 23）。生成の区画は原稿から刷り直す |
+| `docs/spec/_source/state-machines.json` と schema、生成器 2 本 | ① 表 T-283 の原稿（最上位の `priorities`、決定 24）。② 決定 23 の運ぶ値を 5 つの出来事へ。③ `state_machines_json_to_md.py` が表 T-283 を刷り、`--check` が `IN-4` の「消費する階層は … の順」と `Esc` の行の段の並びを比べる（決定 7） |
+| `.claude/skills/spec-graph-check/audit-ch5.py` | `NOT_YET_CALLED` の項を消す（辞書は空で残し、注の「各項は除く波を名指す」を保つ）。表 T-075 の数を読んでいれば 101 → 102 |
+| 試験 | ① 袋か旧 `ScreenState` を組む **80 ファイル**の入力の見本を新しい形へ（機械的。⛔ 主張の行は変えない —— 差分が見本の行だけであることを前に立つ者が数えて確かめる）。② 新しい単体試験: `session-effects.ts` の実行の順と全種類、`screenEventFromInput` の出来事（仕様だけを読む別の体 —— `RA-6` と同じ作法。継ぎ目の名は両方のブリーフに同じ字面で書く）。③ `tests/contract/units.contract.test.ts` のユニットの数 |
+| 生成物 | `npm run gen`（`tbl-state-machines.md` ・ 登録簿 ・ 生成定数）、`components.json` の `build.py`（`docs/review/components/components.md` と図） |
+
+⛔ `src/framework/dom-screen-surface/` には触らない —— B.1 の grep で、袋も旧 `ScreenState` も読んでいない（`grep -rl "ScreenSession\|screen-state/screen-state" src/framework/dom-screen-surface` が 0 件）。
+
+#### B.4.3 書き手 → 出来事（`R2.19`、第 3.1a 節の `UD-4` の求め —— 割る処理ごとに `frame-loop.ts` の範囲を書く）
+
+| いまの書き手（`frame-loop.ts`） | B2 が送るもの | 副作用の実行（`effectRunners` の画面の値の塊） |
+|---|---|---|
+| `receiveInput` :4214 `screenStateFromInput` | `screenEventFromInput` が返した出来事 | —— |
+| 同 :4215 パレットを出し直したら最小化を解く | —— （機械が子を初期の `expanded` に戻す） | —— |
+| `answerSettledEntry` :3573 パネルの閉じる入口 | `screen/surfaceCloseAsked{target: 'panel'}` | —— |
+| 同 :3588 表示の言語 | `screen/displayLanguageChosen{language: いまの逆}` | `storeLanguage` → `writeBrowserStored('S-99', …)`（いまの :3589） |
+| 同 :3593 パレットの最小化 | `screen/paletteMinimiseToggled` | —— |
+| 同 :3606 マイルストーン一覧 | `screen/milestoneListToggled` | —— |
+| 同 :3653 ・ :3664 取り込みの答え | いまのまま（`CR-460` の波 B が `screen/flowSurfaceAnswered` へ）。⚠️ B2 では `screen/flowSurfaceAnswered{surfaceName}` を送る —— 面を閉じる書き手は `session` しか無い | —— |
+| 同 :3678 書き出しの形式 | `screen/flowSurfaceAnswered{surfaceName: U-54}`（`PND-448` の仮置きを写す） | —— |
+| `askHowToOpen` :3158 ・ `askWhichFileToTakeFrom` :3176 ・ `tellWhatTheImportDropped` :3213 | `screen/surfaceRaisedByFlow{surfaceName}` | —— |
+| `answerWatermarkUnlock` :2502 / `matchWatermarkUnlock` :2520 | `screen/watermarkUnlockAnswered{isProceeding}` → 照合の結果で `watermarkUnlockMatched` ／ `watermarkUnlockMismatched` | `matchWatermarkUnlock` → いまの :2513〜:2524（面から答えを読み、SHA-256 を比べ、結果を出来事で戻す）。不一致の告げは副作用 `raiseNotice`（`RS-41`、共有の塊） |
+| `carryOutAction` :4003〜:4006 `toggleDocumentSettingsProperties` | `screen/settingsEntryPressed`（⚠️ B.7 の D2） | —— |
+| 同 :4011 `setDualCursorFollowing` | 入る・抜ける: `screen/dualCursorEntryPressed`、置く: `screen/dualCursorPlaced` | `writePlaceDualCursor` ・ `writeFixDate1` ・ `writeFixDate2` → 運んだ命令を `writeDocument`（null なら書かない —— D4）。`writeClearDualCursor` → `writeDocument([{ kind: 'clearDualCursor' }], frame)` |
+| 同 :4015 `setLevelZeroFolded` | `screen/foldAllPressed` ／ `screen/levelZeroOpened` | `writeFoldAll` ・ `writeOpenLevel` → 運んだ命令を `writeDocument` |
+| 同 :4025 `toggleDialogueFieldVisible` | `screen/dialogueFieldEntryPressed{isAgentApiEnabled}` | 無効のときの `raiseNotice`（`RS-35`）は共有の塊。⚠️ いま無効のときの告げは `answerSettledEntry` の `:3600`〜 の枝が出し、有効のときはその枝が `false` を返して `carryOutAction` の切り替えへ落ちる —— B2 はその枝で両方の場合に出来事を 1 つ送り、同じ入力で 2 度送らない（照合器が数える） |
+| 同 `toggleFullScreen` | `screen/fullScreenEntryPressed` | `askBrowserForFullScreen` → いまの :4035〜:4046（`UF-48` の MUST —— 入力の呼び出しの中） |
+| 公開の `fullScreenChanged` :4408〜:4412 | `screen/fullScreenChanged{isFullScreen}`（`values` を渡す） | —— |
+| `showPropertiesOfChoice` :4052〜:4056 | `screen/propertiesOfChoiceAsked{subject}`（選択が空なら送らない —— いまの :4051） | —— |
+| `receiveInput` :4274〜:4276 選択が動いた | `screen/selectionMoved{subject}`（⚠️ D7） | —— |
+| `settleTextEntry` :3897 ・ :3902 | 作った直後の名前なら `screen/createdNameSettled`、ほかは `screen/settleKeyPressed{hasNoSurfaceOrConfirmation, hasNoUnsettledEntry}`（`CR-480` 2.2 の 2 の詰め方） | `clearSelection` → `selection = emptySelection()`（`let selection` は `CR-490` の波 B まで残る） |
+| `standOnWhatWasCreated` :4074 行を作ったら第 0 階層を開く | `screen/levelZeroOpened`（運ぶ命令は空 —— D8） | `writeOpenLevel` → 何も書かない |
+| `receiveInput` :4208 ・ :4220 ・ :4222 `Esc` | B.3.5 の表 | —— |
+| 同 :4160 動いたら説明を戻す | 説明を消しているときだけ `screen/pointerRestElapsed`（D1） | —— |
+| `showScaleMessage` :2369 ・ :2373 | `screen/displayScaleStepped{percent, end}` ／ `screen/rowZoomEndReached{percent, end}` —— 送る場所はいまの `showDisplayScaleMessage` ・ `showRowZoomEndMessage` の呼び出し（数は書き込みの後の値 —— :2351 の TRAP） | `startScaleMessageTimer` ・ `restartScaleMessageTimer` → 時計を張り直し、満ちたら `screen/scaleMessageTimeElapsed` を送って `ask()`（`callOffScaleMessage` は把手として残る —— 第 6 節） |
+| （いまは無い）休止の時計が満ちた（:2342〜:2345） | B2 では送らない —— D1 の写しで、戻すのは移動である（`dismissed` のまま時計が満ちることは今日の振る舞いに無い） | —— |
+| `tellFlowSurfaceClosed`（機械が面を閉じたとき） | —— | ⚠️ **B2 では何もしない**。いまの片付け（`receiveInput` の末尾 :4278〜:4294 —— 面が選ばせる面でなくなったら待ちを捨てる）が、入力のたびに `session.screen.openSurfaceState` を読んで同じことをする。`CR-460` の波 B がこの 1 行と末尾の片付けを `fileFlow/flowSurfaceClosed` へ替える |
+| 進捗マーカーの押下（`screenStateAfterMarkerPress`、翻訳係 :87〜:101） | `screen/progressMarkerPressed{taskUid, rememberedActual, writes}` | `writeProgressStep` → 運んだ命令を `writeDocument`。⚠️ いまその書き込みは `commandFromInput`（`item-grab.ts:126`〜 の `GA-18`）が別の操作として返す —— 同じ押下で 2 度書かないよう、翻訳係は片方だけを返す（照合器が履歴の長さで数える） |
+
+---
+
+### B.5 波の順 —— B1 は B2 の直前（導いた帰結）
+
+利用者の順の指示は B1 を「後で並べて進める波」に数えている。**B1 は B2 の直前に同じ作業木で当てる**のが、次の 3 つから導ける:
+
+1. **`JDG-57`**（リファクタは見える振る舞いを変えない）—— B2 は今日を写さなければならない。
+2. **`JDG-283`**（「状態機械には遷移も運ぶ値も足さない」、`rulings.md:480`）—— 出していないパネルの境界を押したとき、いまのコード（:4169〜:4179）は「直前に出していた中身」でパネルを戻すが、画面の値の機械の `hidden` は何も覚えない。⇒ B2 はこの振る舞いを機械でも「写す詰め方」（B.7）でも表せない。残すには閉じたときの中身を覚える `let` を 1 つ残すしかなく、それは `JDG-283` が捨てた `lastShown` そのものである。
+3. **本書の第 5.3 節の末尾**「B1 を B2 の前に置くのは、B2 で結線したとき原稿とコードが食い違わないためである」。
+
+⇒ B1 を B2 の後に回すと、B2 は `JDG-57` と `JDG-283` のどちらかを破る。B1 は 3 ファイルの小さな変更で、触るファイル（`screen-frame.ts` ・ `frame-loop.ts`）は B2 と重なるので、並べて進める利得も無い。⭐ 照合器の「前」は B1 を当てた木である（B1 は見える振る舞いを変える唯一の波 —— 仕様の変更）。
+
+---
+
+### B.6 仕様の変更
+
+#### B.6.1 表の行（`05-07-design.md`）
+
+| 行 | いま | 案 |
+|---|---|---|
+| `CP-18`（:125） | 画面の入力を操作へ変える。`InputSource` を宣言する | 画面の入力を、操作と、どこで何が起きたかを運ぶ出来事へ変える。`InputSource` を宣言する |
+| `CP-25`（:131） | … **現在値を保持する。** … | 「現在値を保持する」を「セッションの現在値を 1 つ保持し、出来事を 1 段進めて差し替え、返った副作用を実行して結果を出来事で戻す」へ。残りは据え置き |
+| `CP-36`（:141） | 文書に保存しない画面の値 —— 構え …、`S-99e` / `S-99f` / `S-99g` / `S-144`、覚えた実績 | 「画面の値が運ぶ型（覚えた実績 —— `FR-107` の 表 T-270、`Dual Cursor` の追従側 —— `DC-2`）と、`Esc` が次に消費する段の判定（表 T-028 の `IN-4`）」。⭐ 画面の値の状態そのものは 表 T-280 が持ち、型は `CP-39` のユニットにある（決定 3 を延ばしたことは本書だけが書く —— 仕様は変更要求を名指さない、決定 20） |
+| `UF-48`（:445） | 現在値の保持、… | 「現在値の保持」→「セッションの現在値 1 つの保持と、1 段ごとの副作用の実行」。⛔ **全画面表示の MUST の文は 1 字も変えない**。「負う要求」は据え置き |
+| `UF-59`（:455） | `CP-36` ／ `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） | 責務 `CP-36` のまま ／ 負う要求 `—`（下の `UF-86` へ移す —— 決定 10） |
+| `UF-86`（:470） | … ／ `—` | 負う要求 `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`）。⚠️ `FR-072`（いま `UF-64` の `OW-1`）と `FR-066`（`UF-68` の `OW-2`）は、当てる体が 表 T-277 の「最初に開くユニット」で決め直す（出す・隠すの規則は `screen-values.ts` に移るが、出す中身は部品のまま）。⭐ 未記入の数（基準線 `unfilled=17`）は動かない —— 移すだけ |
+| `UF-102`（:426） | 入力から次の画面の状態を … 決める | 入力から画面の値の出来事を、表 T-028 の `IN-4` と 表 T-023b に従って作る（`Esc` の段はシェルが決める） |
+| 表 T-075 に `UF-123` | —— | `SingleHtmlShell` ／ `session-effects.ts` ／ `non-pure` ／ 「状態機械が返した副作用を種類ごとの実行へ 1 つずつ渡す形と、その全種類の網羅」／ `—` |
+| 表 T-063 `UT-6`（:333） | `single-html-shell.ts` ／ `frame-loop.ts` | ＋ `session-effects.ts`。理由の文に B.3.2 の「割る理由」を 1 段足す |
+| `SU-3`（:245） | 101 | 102（⛔ 当てる時の 表 T-075 の行の数 ＋ 1 で書く） |
+| 5.3 のディレクトリ木 | —— | `single-html-shell/` に `session-effects.ts` |
+| `PI-18`（:539） | … `screenStateFromInput`（`Esc` の階層は …。置き場は `CP-36`）… | `screenEventFromInput`（画面の値の出来事。全数は 表 T-280。`Esc` の段は含まない） |
+| `PI-36`（:555） | `ScreenState` ／ `DualCursorSide` ／ `emptyScreenState` ／ `screenStateWith…` 6 ／ `escapeTarget` ／ `RememberedActual` ／ … | `DualCursorSide` ／ `escapeTarget`（`EscapeContext` の真偽から段を答える）／ `EscapeTarget` ／ `RememberedActual`。消した名は書かない |
+| `PI-37`（:556） | `ScreenSurface` ／ `ScreenView` ／ `screenViewFromRegions` ／ … | ＋ `ScreenViewReadings`（型。描き手が集約のほかに読む値 —— フレームの値と文書から導く値）。`screenViewFromRegions` の注に「根の状態（`PI-39` の `ScreenSession`）を読むだけ」 |
+| `PI-39`（:558） | 5 つの名 | ＋ 外が読む型（B.4.2 の見込み。当てる時に import から測る） |
+| 図 F-027 の前文（:1037） | ⚠️ … 移行の目標であり、いまの `src/` にはまだ無い（移行の次の段で入る） | 「⚠️ 出来事を作って `advanceScreenSession` を呼ぶ道が入っているのは、画面の値の領域である。ほかの領域は 表 T-285 の `RA-7` の段がまだ済んでいない」 |
+| 5.5 の散文（:760 付近、表 T-250 の後） | —— | 「領域をまたぐ優先順（`SD-4`）を 同じファイルの 表 T-283 に示す。順そのものの正は `IN-4` ・ `SK-19` ・ `NT-7` の行である」 |
+
+⚠️ 表 T-062 の `SU-1`（37）は動かない —— コンポーネントは増えない。
+
+#### B.6.2 表 T-283 —— 領域をまたぐ優先順（決定 7 ・ 決定 24）
+
+- 置き場: 原稿 `state-machines.json` の最上位 `priorities` から、`_assets/tbl-state-machines.md` の冒頭に刷る（5.5 の「原稿から … 優先順の表 … を生成し」、:738）。
+- 行 ID の接頭辞: **`RG`**（`RunG`、「領域をまたぐ優先順の段」）。2026-09-22 に `docs` ・ `change-request` ・ `src` ・ `tests` ・ `tools` ・ `.claude` ・ `package.json` を `\bRG-[0-9]+` で grep して 0 件。登録簿は 160 → 161。⭐ 当てる直前（2026-09-22、`5413bea5`）に測り直して同じ値だった（B.1a）。
+- 欄（`SD-4` の 3 つと注）: 行 ID ／ 奪い合う出来事 ／ 段（上ほど先に消費する）／ 段ごとの状態のキー ／ 順を決めた行 ／ 注。
+- ⭐ **状態のキーは、いま原稿に在る名で全部埋める** —— 6 領域の原稿は波 A で揃っている（`9b8a22b7` で `regions` の 6 つの `machines` を読んだ）。「未移行」の段を置かないので、**後の領域の波は表 T-283 に触れない**（CR-440 ・ 450 ・ 460 が「申し送る」と書いた行は、ここで全部書く）。
+
+| 行 | 出来事 | 段 | 状態のキー | 順を決めた行 | 注 |
+|---|---|---|---|---|---|
+| RG-1 | `Esc` | 出ている通知 | `noticeDisplayStateMachine.shown` | `IN-4`、`NT-8` | 消すものが無いとき消費しない（`NT-8`）—— `hidden` には升が無い |
+| RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
+| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` ／ `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4`、`FR-070`（表の注 `01-04-requirements.md:4202` —— 問いか面が立っているあいだ `SK-19` の 2 段目を当てない） | 同じ段の中は、問い → 面 → パネル |
+| RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `viewingDocument` | `IN-4` | —— |
+| RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | —— |
+| RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` | `IN-4` | 構えより前に置かない（`IN-4`） |
+| RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | —— |
+| RG-8 | `Esc` | 出ている説明 | `tooltipDisplayStateMachine.allowed` と、フレームの値（描いた説明がある） | `IN-4`、`IN-3` | 状態だけでは決まらない段（`SF-5`） |
+| RG-9 | `Enter` | 出ている通知 | `noticeDisplayStateMachine.shown` | `SK-19`、`NT-8` | —— |
+| RG-10 | `Enter` | その場の編集の確定 | `fieldEditStateMachine.editingField` ／ `createdTaskNamingStateMachine.namingCreatedTask` | `SK-19`、`FR-091` | 面も問いも立っていないとき |
+| RG-11 | `Enter` | プロパティパネルを出すのをやめる | `propertiesPanelContentStateMachine`（`hidden` 以外） | `SK-19` | 同上 |
+| RG-12 | `Enter` | 選択を解く | `selectionStateMachine.objectsSelected` | `SK-19` | パネルも出していないとき |
+| RG-13 | `y` ／ `n` | 問いに答える | `confirmationStateMachine.questionAsked` | `NT-7` | `NT-8` の消去の次、`IN-4` と `SK-19` の階層より先 |
+
+⚠️ RG-3 の「順を決めた行」の 2 つ目は、本書の付録が `req:4194` と書いた文であり、`9b8a22b7` では `:4202`（その前の `**UID**:` の行は `:4151` の `FR-070`）。
+⚠️ `DFC-570`（コードはパネルの段を身振りの下に置く）は表を変えない —— 表は `IN-4` に従う。コードの並びは台帳のまま（`JDG-57`）。
+⭐ **機械の突き合わせ（決定 7）**: 生成器の `--check` は、`IN-4` の行（`01-04-requirements.md:6804`）から「消費する階層は」と「の順」のあいだを ` → ` で割った 8 語を取り、出来事 `Esc` の行の段の語と順に 1 対 1 で比べる。1 語でも違えば落ちる。`Enter` と `y` ／ `n` の順は要求の文が矢印で書いていないので比べない。
+⇒ 予測: tables +1、rows +13、figures 0、uids 0（本書の第 7 節の「rows +8」は `Enter` と `y` ／ `n` の 5 行を数えていなかった）。
+
+#### B.6.3 `components.json`
+
+| 辺 | 変更 | ラベル（案） |
+|---|---|---|
+| `SingleHtmlShell → AdvanceScreenSession` | 足す | `one step per event` —— 出来事ごとに 1 段進め、返った副作用を実行する |
+| `ScreenRenderer → AdvanceScreenSession` | 足す | `session read` —— 描く画面の値を根の状態から読む |
+| `InputCommandTranslator → AdvanceScreenSession` | 足す | `events made` —— 入力から作る出来事の型 |
+| `AdvanceScreenSession → EditDocument` | 足す（決定 23） | `carried writes` —— 書き込みの副作用が運ぶ命令の型 |
+| `SingleHtmlShell → ScreenState` | 説明を直す | `Esc rung` —— いまの「screen state held」は偽になる |
+| `InputCommandTranslator → ScreenState` | 説明を直す | `Esc rung + remembered actual` |
+| `ScreenRenderer → ScreenState` | ⚠️ 移した描き手がまだ import するかを測る。0 なら消す（`list-lying-edges.py` が挙げる） | —— |
+
+⇒ edges 140 → 144（最後の行で 143 もありうる）。⭐ `AdvanceScreenSession → EditDocument` は、`CR-460` の波 B が「後で実行する書き込み」の型を厳密にするときにも要る辺であり（handoff-state-machine.md の §3）、B2 が先に敷けばその波は辺を足さずに済む。
+
+#### B.6.4 検査の道具
+
+- `audit-ch5.py` の `NOT_YET_CALLED` から `AdvanceScreenSession` を消す（`JDG-285`）。
+- 生成定数の名簿（検査 30）に表 T-283 の定数を足すかは、生成器が定数を刷るかで決める —— ⭐ 刷らない案を推す（表 T-283 は仕様の表であり、コードの段の判定は `escapeTarget` が持つ。両者の一致は `IN-4` との突き合わせで足りる）。
+
+---
+
+### B.7 読んで見つけた食い違いの候補（⚠️ 未検証 —— コードと原稿を読んだだけ）
+
+B2 は今日を写す（`JDG-57`）。機械の升と今日のコードが違う所では、**シェルがどの出来事を送るかで今日の結果を作る**（`CR-480` の決定 10 の「写す詰め方」と同じ筋）。写した所には `DEVIATION` の注と台帳の行（当てる体が `DFC-703` 以降を測って取り、本線に宣言する）を置き、直すのは B2 の後の別のコミット（波 C）。照合器（B.9）がここに無い食い違いを出したら、⛔ 当てる体は止まって前に立つ者へ返す。
+
+| # | 場面 | 今日のコード | 画面の値の機械 | 写し方 | 台帳 |
+|---|---|---|---|---|---|
+| D1 | 説明を `Esc` で消した後にポインタを動かす | 動いたら戻す（:4160） | 休止が満ちたら戻す | 説明を消しているあいだに動いたら `screen/pointerRestElapsed` を送る（移動のたびには送らない —— `SF-5`） | 既に `DFC-692` |
+| D2 | 選択を出したパネルを閉じ、設定の入口を 2 度押す | 2 度目で、閉じる前の対象を出す（`propertiesSubject` が残る） | `hidden` は何も覚えず、戻す先の無い `selectionDisplayed` になる | シェルに「今日のコードが覚える対象」を 1 つ残し（決定 22）、`hidden` から設定を出すとき、先に `screen/propertiesOfChoiceAsked{残した対象}` を送る | 既に `DFC-677`（戻す先が無いとき）。今日の写しとして追記 |
+| D3 | 軸に日の無い所で `Dual Cursor` の入口を押す（`PND-313`） | 構えを解く（`screen-state-input.ts:62`〜`:66` の WHY） | 置ける日が無ければ何も変えない | その場合だけ `screen/escapePressed{rung: 'armed'}` を送る | 新 |
+| D4 | 文書が既に `Dual Cursor` を持ち、モードに入る | 書かずに入る（`dual-cursor-input.ts:31`〜`:33`） | 入るたびに `writePlaceDualCursor` | 副作用が運ぶ命令を `null` にする（決定 23 の形で自然に写る —— 台帳は要らない見込み） | —— |
+| D5 | 面が開いているとき `F1` などで別の面を開く | 開いている面を差し替える（`screen-state-input.ts:147` ほか） | `open` の升が無く、何も変えない | `screen/surfaceCloseAsked{target: 'surface'}` の後に `screen/surfaceEntryPressed` を送る | 新 |
+| D6 | 面が開いているとき透かしの入口を押す | 透かしの解除の面へ差し替える（`:69`〜`:72`） | 面が閉じているときだけ開く | D5 と同じ 2 つ | 新（D5 と 1 行にしてよい） |
+| D7 | 設定を出しているとき選択が動く | 選択の中身へ替わる（:4274〜:4276 → `showPropertiesOfChoice`） | `documentSettingsDisplayed` に `selectionMoved` の升が無い | その場合（選択が空でないとき）は `screen/selectionMoved` の代わりに `screen/propertiesOfChoiceAsked` を送る | 新（`PND-144` の仮置きの範囲） |
+| D8 | 畳んだ第 0 階層の直下に行を作る | 書かずに畳みを解く（:4074） | `levelZeroOpened` は `writeOpenLevel` を返す | 運ぶ命令を空にする（決定 23 —— 台帳は要らない見込み） | —— |
+
+⚠️ D1 は `CR-470` の第 7 節の候補 1 が「写すか、期待どおりの失敗を留めるかは `CR-436` の波 B2 が決める」と申し送ったもの —— 本節は「写す」を選ぶ（`JDG-57`。留めるのは波 C の直しの側）。
+
+---
+
+### B.8 決定 3 を B2 に入れない
+
+| 見るもの | 事実 | 帰結 |
+|---|---|---|
+| 決定 3 がすること | 生成器の出力先を `screen-state.ts`（`Entity`）へ移し、領域のユニットが型を `Entity` から読む | —— |
+| 生成の区画の中身 | 状態の型・出来事・副作用の名・遷移表の定数・初期の値が 1 つの区画にある（`screen-values.ts:84`〜`:920`） | 移すなら生成器が区画を 2 つに割る —— 状態の型は `Entity` へ、出来事と副作用は `UseCase` に残す（決定 23 で副作用が `EditDocument` の命令の型を運ぶので、`Entity` に置くと層の規則 `LR-1` を破る） |
+| B2 の読み手が要る型 | 描き手は根 `ScreenSession`（`UseCase`、どのみち `PI-39`）を受け、欄を構造で読む。翻訳係は出来事の型（`UseCase`）を返す | 決定 3 をしても、読み手は `AdvanceScreenSession` から根と出来事を読み続ける。延ばしたときの後の手戻りは、状態の型を名で import する数か所の import の行だけ |
+| `Entity` に状態の型が要る読み手 | B2 の後は 0 —— `escapeTarget` は真偽を受け（B.4.2）、`edit-task.ts` ・ `task-plan-actual.ts` は `RememberedActual` しか読まない | 決定 3 を急ぐ理由が無い |
+| `JDG-60` | 「`ScreenState` を広げる」置き場を了承した（`rulings.md:137`） | 延ばすのは時機であって置き場を覆さない ⇒ 裁定は要らない |
+
+⇒ **決定 3 は段 7 の出口（全領域の結線の後）の 1 コミットへ延ばす。** そのとき、生成器の区画の割り方と `CP-36` の書き直しを決める。B2 は旧 `ScreenState` の形（`armed` ・ `paletteShown` ほか）を消すだけで、決定 3 を先取りも否定もしない。
+
+---
+
+### B.9 振る舞いが同じことの示し方
+
+**照合器**（段 5 の 4,592 件・バイト一致の形。⛔ スクラッチに置き、コミットしない —— 次のセッションに残らないので、手順を本書に残す）:
+
+1. **前と後の木** —— 前: B1 を当てたコミット。後: B2 を当てたコミット。2 つの作業木に置き、同じ照合器を `TREE` の環境変数で向けて 2 回走らせ、記録を比べる。
+2. **駆動** —— `frameLoop` を偽の配線で組む: 面の偽物は `showSvg` の文字列と `showScreenView` の値（`JSON.stringify`）を記録し、`readScreenPartAt` は台本が名指す入口（パレット・最小化・ヘルプ・AI 書き出し・担当者一覧・書き出しの選択・透かし・閉じる（面／パネル）・設定・対話欄・マイルストーン一覧・言語・第 0 階層の畳みと開き・`Dual Cursor`）と日程の上の点（進捗マーカー、`Row Area`）を返す。全画面表示の宿主の偽物は求めと解除を記録する。`localStorage` の偽物は書き込みを記録する。時計は偽の時計（`S-244` ・ アイコンの説明の待ち ・ 押し続け）。`requestAnimationFrame` は置かない（1 入力ごとにフレームがその場で回る）。
+3. **台本の語彙**（約 30）—— 打鍵（`Esc` ・ `Enter` ・ `P` ・ `F1` ・ `Ctrl+Shift+E` ・ `y` ・ `n` ・ 単文字）、上の入口の押下と離し、日程の上の押下と離し、`Ctrl` ＋ホイール（表示の倍率）、行の軸のズームの端、ポインタの移動（説明の休止）、時計を進める、`fullScreenChanged(true / false)`、`raiseStartupNotice`。
+4. **件数** —— 開始の文書 4（起動の雛形・空・`Dual Cursor` を持つ文書・第 0 階層を畳んだ文書）× 長さ 2 の全組（約 900）＝ 約 3,600 件 ＋ 種を固定した長さ 6 の乱数の台本 2,000 件。
+5. **1 段ごとに記録するもの** —— `isBrowserDefaultStopped(input)` の答え（宿主と同じく `receiveInput` の前に問う）、描いた `ScreenView` の JSON、SVG、文書の JSON と取り消し・やり直しの記録の長さ、`localStorage` の書き込み、全画面表示の求め、ポインタの形。
+6. **合否** —— 前と後の記録がバイトで一致すること。⭐ B.7 の D1 〜 D8 は写すので、差は 0 件が期待値である。
+7. **照合器が効くことの確かめ** —— 後の木を 10 通り壊す（パレットの出来事を取り違える、副作用の行を 1 つ `unwiredEffect` にする、`askBrowserForFullScreen` を時計の後へ延ばす、`owesFrame` の比較を落とす、D1 の写しを外す、ほか）。段 5 と同じく 10 のうち 8 以上を捕まえること。
+
+**既に在る試験で、結線した道を通るもの**:
+- `frame-loop.ts` を import する 80 ファイルのうち、袋も旧 `ScreenState` も組まない **67 ファイルは 1 字も変えずに緑**であること（例: `cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts`（`UF-48` の MUST）、`fr-020-both-ways-ic-41.test.ts`、`fr-020-the-surface-that-asks-for-the-watermark-password.test.ts`、`fr-053-re-showing-clears-the-minimise.test.ts`、`fr-072-a-moved-selection-does-not-open-the-panel.test.ts`、`in-4-escape-closes-the-panel.test.ts`、`cr-411-a-changed-display-scale-shows-its-percentage-for-a-moment.test.ts`、`t-015-t-051-the-four-folding-controls.test.ts`、`t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts`、`dfc-578-a-press-on-the-dialogue-field-keeps-the-browser-default.test.ts`）。⭐ この 67 は、照合器の外にある第 2 の証拠である。
+- 状態機械の契約試験 6 本と `t-284-the-shared-step.contract.test.ts` は変わらない（原稿の升を変えない —— 決定 23 の運ぶ値は升の先を動かさない）。
+- 残り 13 と、袋か旧 `ScreenState` を組む単体試験は、見本の形だけを直す（B.4.2 の試験の ①）。
+
+**段の出口でだけ回すもの**: e2e 全部と parity、`LM-19` の性能（⛔ 測る前に利用者を呼ぶ —— `RISK-001`）。
+
+---
+
+### B.10 基準線への影響（数だけ。⛔ 書くのは、数を利用者に見せてから前に立つ者）
+
+| 基準線 | いま | B1 の後（見込み） | B2 の後（見込み） |
+|---|---|---|---|
+| 検査 60 の合計 | `excess-lines=7868 excess-branches=777` | 下がる（`receiveInput` が 11 行・分岐 2 減る —— 189 / 80 → 178 / 78） | 上げない。⭐ 下がる見込み |
+| 検査 60 の HELD | 87 行 | `receiveInput` の値を下げる 1 行 | ① 消える名（`screenStateFromInput` 45 / 25、`sessionOf` 94 / 7）の行を消す。② 新しい名（`screenEventFromInput` ・ `screenViewReadingsOf`）は帯の内側に割って行を足さないのを推す —— 帯を出られなければ、消した行以下の値で足す。③ 名を変えずに縮む関数（`frameLoop` ・ `receiveInput` ・ `carryOutAction` ・ `runFrame` ・ `answerSettledEntry` ・ `owesFrame` ・ `openModalFromScreenState` ・ `commandStateOf` ・ `screenFrameFromRegions`）は値を下げる。⛔ `frameLoop` は 2616 を越えられない —— 12 の `let` と書き手の本体が減り、送り口（約 6 行）と `effectRunners`（約 30 行）が増える |
+| 検査 61 | HELD 2 | 動かない | 動かない（`Framework` だけに現在値を置く。内側 3 層に可変状態を足さない） |
+| 表 T-075 の負う要求（`unfilled=17`） | 17 | 17 | 17（移すだけ —— 決定 10） |
+| 検査 39（MUST の条の網羅） | —— | 試験を 1 本足す分だけ動きうる | 見本を直すだけなら動かない見込み。当てる体が前後を比べる |
+
+⚠️ 名を変えると HELD の古い行が「関数が無い」で赤くなり、新しい名が「名簿に無い」で赤くなる —— 同じコミットで名簿を書き直す（検査 60 の注）。⇒ B2 の基準線の書き換えは必ず起きる。
+
+---
+
+### B.11 `let` の数
+
+| | 値 |
+|---|--:|
+| いま（`9b8a22b7`） | 66 |
+| B2 が消す | 12（B.1 の表） |
+| B2 が足す | `session` 1、今日の写しの覚え 1（決定 22 —— 旧 `propertiesSubject` の代わり。`DFC-677` の直しで消える） |
+| B2 の後 | **56**（本書の第 6 節の「55」は写しの覚えを数えていなかった） |
+| 残す（第 6 節のとおり） | `watermarkStampedAt` ・ `commandPaletteDraggedTo`（フレームの値）、`callOffScaleMessage`（副作用の把手）、`isTooltipStanding`（描いた結果から導く値） |
+
+⚠️ `language` は `let` をやめて起動の読みを持つ `const` になる（決定 21）。
+
+---
+
+### B.12 決めたこと（覆してよい）
+
+| # | 決めたこと | 導き |
+|---|---|---|
+| 決定 21 | **根の初期の値は、`emptyScreenSession` の画面の値の `language` だけを起動の読みで埋めたものとする。** 起動の読みを `screen/displayLanguageChosen` で送らない | 決定 16 は起動の値を「出来事で運ぶ」と延ばしたが、その出来事は副作用 `storeLanguage` を返し、起動のたびに `S-99` を書く —— 今日は書かない（:1887 は読むだけ）ので `JDG-57` に反する。`S-99` は既定値を持たない（表 T-206）ので、初期の値の欄を起動の読みで埋めるのは遷移ではなく初期の値の確定である |
+| 決定 22 | **閉じたパネルが次に出す対象を、シェルに 1 つだけ残す**（B.7 の D2 の写し）。`DFC-677` の直しの波で消す | `JDG-57` と `JDG-283`（機械の `hidden` に運ぶ値を持たせない）の両方を守る道はこれだけである。前例は `CR-480` の波 B が残す `nameFieldWantedUnder` ・ `addedRowOwedSight`（今日の振る舞いを写すためのシェルの覚え） |
+| 決定 23 | **文書に書く副作用（`writeFoldAll` ・ `writeOpenLevel` ・ `writePlaceDualCursor` ・ `writeFixDate1` ・ `writeFixDate2` ・ `writeProgressStep`）は、翻訳係が作った命令を運ぶ。** 出来事 `foldAllPressed` ・ `levelZeroOpened` ・ `dualCursorEntryPressed` ・ `dualCursorPlaced` ・ `progressMarkerPressed` の運ぶ値に `writes` を足す（原稿と生成した型）。`writeClearDualCursor` は命令が文書によらないので運ばない | 本書の決定 5（ガードや副作用が文書の値を要るとき、その値は出来事が運び、詰めるのは翻訳係）。命令を副作用の実行（シェル）で作り直すと、翻訳係と同じ規則が 2 か所に立つ（`R1.3`）。空の命令が D4 ・ D8 を自然に写す |
+| 決定 24 | **表 T-283 は 1 つの表に `Esc` ・ `Enter` ・ `y` ／ `n` の 13 行を持ち、状態のキーは原稿に在る名で全部埋める** | `SD-4` の欄が「奪い合う出来事」を持つ ⇒ 1 つの表が複数の出来事を持つ形である（`CR-440` 2.2 が申し送った問い）。6 領域の原稿は揃っているので「未移行」の段は要らず、後の波が表に触れずに済む |
+| 決定 25 | **画面の値の `InputAction` 7 種は B2 では型を変えず、シェルの `carryOutAction` で出来事へ写す** | B.3.4 の理由（`commandFromEntry` は後の波と共有の地面）。翻訳係が出来事を直に返す形へ寄せるのは、全領域の結線の後にまとめて行う（段 7 の出口） |
+| 決定 26 | **`Esc` の段はシェルが決め、段の表（B.3.5）が 1 段 1 行で送る** | 段の判定は翻訳係が見ない値（通知・問い・パネル・描いた説明）を読む（`screen-state-input.ts:135` の TRAP、`CR-470` 2.2 の 1）。決定 5 の「詰めるのは翻訳係」は、翻訳係が見える値についての約束である |
+| 決定 27 | **B1 は B2 の直前の別のコミット**（B.5） | `JDG-57` ・ `JDG-283` ・ 本書の第 5.3 節 |
+| 決定 28 | **決定 3 を段 7 の出口へ延ばす**（B.8） | B.8 の表 |
+
+---
+
+### B.13 問うこと
+
+⭐ **なし（0 件）。** 下の候補は、どれも `handoff.md` §0.2 の 3 手で反証できた。
+
+| 候補 | (1) `rulings.md` を grep（2026-09-22） | (2) `impact.py` | (3) 導けるか | 結果 |
+|---|---|---|---|---|
+| B1 を利用者の順どおり B2 の後に回してよいか | 「波 B1」0 件。`JDG-283`（:480）は「状態機械には遷移も運ぶ値も足さない」「どちらも段 6 を待つ波」と言い、B1 と B2 の前後は言わない | `FR-052` → 要求 6 件 ／ 参照 17 箇所（本書 5.1）。どれも結線の順を述べない | **導けた** —— B.5（`JDG-57` ・ `JDG-283` ・ 第 5.3 節） | 決定 27。⚠️ 利用者の指示から外れるので、前に立つ者が伝える |
+| 決定 3 を延ばしてよいか | 「ScreenState を広げ」0 件、「決定 3」2 件（`JDG-153` ・ `JDG-263`、どちらも別の変更要求の決定 3 で無関係）。`JDG-60`（:137）は置き場を了承 | `CP-36` → 要求 2 件 ／ 参照 5（本書 2.1）。どれも時機を述べない | **導けた** —— B.8。本書の決定 3 は「覆してよい」の表にある | 決定 28 |
+| 閉じたパネルの対象の覚え（D2）を残すか、振る舞いを変えるか | 「PND-144」「DFC-677」0 件 | `PI-37` → 要求 1 ／ 参照 2 | **導けた** —— `JDG-57` が変えることを禁じ、`JDG-283` が機械に覚えを持たせることを禁じる ⇒ シェルに残す | 決定 22 |
+| 表 T-283 を 1 つにするか、出来事ごとにするか | 「優先順」2 件（`JDG-34` ・ `JDG-203`、掴み代と描く順の話で無関係）、「SD-4」0 件 | `SD-4` → **浮いている**（要求 0 ／ 参照 0）。`IN-4` → 要求 9 ／ 参照 41 | **導けた** —— `SD-4` の欄 | 決定 24 |
+| 起動の言語をどう根へ入れるか | 「S-99」0 件 | —— | **導けた** —— 決定 16 と `JDG-57` | 決定 21 |
+| 描き手の入力の型の名 | 「RenderFrameInput」「描き手の入力」0 件 | —— | **導けた** —— 第 4 節の禁止と `R2` の品詞 | B.2 |
+
+---
+
+### B.14 危うい所
+
+| # | 何が | 見立て | 手当て |
+|---|---|---|---|
+| 1 | B2 の大きさ | コード 約 25 ファイル ＋ 試験 約 80 ファイル（見本の形）＋ 仕様 ・ 原稿 ・ 生成器。1 コミットで二分探索の単位にはなるが、読むのは重い | 体を 3 つに割り、同じ作業木で順に積む（① 仕様・原稿・生成器と表 T-283、② コードと新しい試験、③ 既存試験の見本）。コミットは 1 つにまとめる。③ は軽い模型（機械的）、② は重い模型（判断） |
+| 2 | 照合器が拾えない所 | 非同期（SHA-256 の照合、全画面表示の `Promise`）、時計の順、`rAF` の有る実ブラウザでのフレームの束ね | 偽の時計と `await` の段を台本の語彙に入れる。実ブラウザは段の出口の e2e に任せる |
+| 3 | B.7 に無い食い違い | 機械は仕様から書いた（今日のコードからではない）ので、まだある見込みが高い | 照合器が出したら止まる（B.7 の冒頭）。写し方が無いものだけが利用者への問いになる |
+| 4 | `frameLoop` の行の上限 2616 | 送り口と `effectRunners` で約 36 行増える。減る側（12 の `let`、`showPropertiesOfChoice` ・ `propertiesShowingNow` ・ `withPropertiesPanelShown` の分岐、`answerSettledEntry` の 4 つの枝、`receiveInput` の `Esc` の枝、`fullScreenChanged`）が上回る見込みだが測っていない | 当てる体が前後を `function-size.mjs` で数える。越えたら、`effectRunners` の画面の値の塊の本体を `frameLoop` の外のモジュールの関数へ出す（閉包を引数で受ける） |
+| 5 | 並行の合流 | `collectWriteMoment` ・ `readSnapshot` ・ `owesFrame` ・ `receiveInput` の末尾は 3 波以上が触る | B.3.6 の注。合流は 1 つずつ、合流した木で単体試験・`check.sh` ・ 型検査を回す |
+| 6 | `CR-500` の波 B との順 | RG-2 ・ RG-10 の状態のキーは `editingField` だが、コードは段 6 の後まで面の真偽（`hasUnsettledTextEntry`）で段を決める | 表は仕様の形を書く。コードとの差は `CR-500` 第 6 節が既に書いている（仕様が先に着地し、コードが実装の波で追う） |
+| 7 | 番号の衝突 | `UF-123` ・ `RG` ・ `DFC-703` 以降は別のセッションも取りうる | 当てる直前に測り直し、本線へ宣言してから取る（handoff の「衝突の約束」） |
+
+---
+
+### B.15 数の予測（md-checks の最終行、「前」は `9b8a22b7` の `tables=181  figures=25  rows=2241  uids=162`）
+
+| 波 | tables | figures | rows | uids | 内訳 |
+|---|--:|--:|--:|--:|---|
+| B1 | 0 | 0 | 0 | 0 | セルの編集だけ |
+| B2 | +1 | 0 | +14 | 0 | 表 T-283 の 13 行、表 T-075 の `UF-123` の 1 行 |
+
+⚠️ 本線の段 6 の波が先に当たれば「前」が動く。差だけを突き合わせる。
+
+---
+
+### B.16 第 1 段（仕様）で当てたもの —— 2026-09-22、`5413bea5` の上
+
+⭐ 当てたのは仕様・原稿・生成器・辺・台帳の数だけである。`src/` の手書きの行と `tests/` の主張には触れていない（例外は生成物と数だけ —— 下の表の ⚙ の行）。
+
+| 対象 | 当てたこと |
+|---|---|
+| `docs/spec/05-07-design.md` | B.6.1 の行を 1 行ずつ書いた: `CP-18` ・ `CP-25` ・ `CP-36` ・ `SU-3`（101 → 102）・ `UT-6` ・ `UF-48` ・ `UF-59` ・ `UF-86` ・ `UF-102` ・ `UF-123`（新）・ `PI-18` ・ `PI-36` ・ `PI-37` ・ `PI-39`、5.5 の散文（表 T-283 を名指す 2 文）、図 F-027 の前文。`UF-48` の全画面表示の MUST の文は 1 字も変えていない |
+| `docs/spec/_source/state-machines.json` ・ `state-machines.schema.json` | 最上位の `priorities`（表 T-283 の 13 行）と、その形（`priorities` ・ `rung` ・ `rungState`）。決定 23 の運ぶ値 `writes` を 5 つの出来事（`foldAllPressed` ・ `levelZeroOpened` ・ `dualCursorEntryPressed` ・ `dualCursorPlaced` ・ `progressMarkerPressed`）に足した |
+| `docs/spec/_source/state_machines_json_to_md.py` | 表 T-283 を `_assets/tbl-state-machines.md` の冒頭に刷る。`load_priorities()` が拒むもの: 行 ID の重なり、どの領域も定めない状態機械・状態、`docs/spec` が定めない根拠の行、`Esc` の段の語と並びが `IN-4` の「消費する階層は … の順」と 1 対 1 で一致しないこと。⭐ 壊して確かめた —— 段を 2 つ入れ替える・無い状態・無い根拠の行・無い最上位の状態の 4 通りが、どれも 1 件ずつ止まった。⭐ 生成定数は刷らない（B.6.4 の推し） |
+| `docs/spec/_source/row-id-prefixes.json` | `RG` を登録した（160 → 161） |
+| `docs/spec/_source/components.json` | B.6.3 の 4 辺を足し（140 → 144）、`SingleHtmlShell → ScreenState`（`Esc rung`）と `InputCommandTranslator → ScreenState`（`Esc rung + remembered actual`）の説明を直した。`ScreenRenderer → ScreenState` はコードの段で測る |
+| `.claude/skills/spec-graph-check/audit-ch5.py` | ⚠️ `NOT_YET_CALLED` の項を**この段で**消した —— 検査 33 は `components.json` の辺から呼び手を数えるので、辺を足した時点で項が残っていると赤になる（辞書は空で残した） |
+| `tests/contract/units.contract.test.ts` | ユニットの数 101 → 102 |
+| `docs/development-records/changelog.md` | 版 2.67 の行と、版 0.29 の「2 つより多いユニットを持つのは」の文に `SingleHtmlShell`（3） |
+| `docs/development-records/W5-framework.md` | `UF-123` の行（⬜ 未着手） |
+| ⚙ 生成物 | `npm run gen`（`tbl-state-machines.md` ・ `tbl-row-id-prefixes.md` ・ `screen-values.ts` の生成の区画）と `build.py`（`components.md` ・ `overview.json` ・ 図 `view-read` ・ `view-write`）。`npm run tree` が `src/framework/single-html-shell/session-effects.ts` の空のユニットを作った |
+
+**起草と変えたところ**（どれも 1 行の判断。覆してよい）:
+
+| # | 起草 | 当てたもの | 理由 |
+|---|---|---|---|
+| 1 | `PI-36` に `DualCursorSide` ／ `escapeTarget` ／ `EscapeTarget` ／ `RememberedActual` | ＋ `EscapeContext`（型） | `escapeTarget(context)` の引数の型であり、段の判定を試す者が仕様だけから組めるように。⚠️ `EscapeTarget` と `EscapeContext` は `crossing-names-baseline.txt` に「行の無い越境」として載っている —— 行ができたので、その 2 行は基準線から消すことになる（前に立つ者） |
+| 2 | `PI-39` に外が読む型（見込み） | `ScreenValues` ・ `ScreenValuesEvent` ・ `PropertiesSubject` ・ `ArmKind` の 4 つを書いた | 仕様だけを読む試験が名を要る。⛔ コードの段が外の import から測って違えば、`PI-39` を合わせる |
+| 3 | `UF-86` の負う要求に `FR-072` ・ `FR-066` を移すかは 表 T-277 で決め直す | **移さない** | 状態機械が持つのは出す・隠すだけであり、`FR-072`（何を出すか、選択との関係）と `FR-066`（対話欄の中身と `AG-11` の順）の規則の値は部品（`UF-64` ・ `UF-68`）に残る。`OW-1` ・ `OW-2` の「規則の値を持つユニット」は動かない。未記入の数（`unfilled=17`）は動かない |
+| 4 | 5.3 のディレクトリ木に `session-effects.ts` | 触らない | 木はフォルダだけを並べ、ファイルを書いていない（`05-07-design.md` の 5.3） |
+| 5 | 表 T-283 の `RG-1` の注「`hidden` には升が無い」 | 「消すものが無いときは消費しない（`NT-8`）」 | 升の有無は 表 T-286 が持つ。注は順を読む者への一言に留めた |
+| 6 | `RG-11` の注「同上」 | 「面も問いも立っておらず、確定していないその場の編集も無いとき」 | 規則 02 の 4「同・」で前の行を継がない。`SK-19` の文を写した |
+| 7 | 決定 23 の原稿の変更を第 1 段に入れるか（起草は B.4.2 の原稿の行に入れていた） | 入れた | 仕様だけを読む試験が `screenEventFromInput` の返す出来事を組むには、運ぶ値 `writes` が 表 T-280 に要る。⚠️ その代わり、下の赤が第 2 段まで残る |
+| 8 | 第 1 章の要求 `FR-013` ・ `FR-107` の「`ScreenState` が覚える／持つ（`CP-36` / `PI-36`）」 | 触らない | 起草の範囲の外。値を覚えるのは画面の値の根（表 T-280）になり、`ScreenState` は型を持つ。要求の MUST（開いているあいだ覚え、文書に保存しない）は偽にならない。⚠️ 言い回しを直すかは前に立つ者に渡す（決定 3 を段 7 の出口で当てれば、状態の型が `ScreenState` へ戻り、文はそのまま真になる） |
+
+**数（md-checks の最終行）**: 前 `tables=181  figures=25  rows=2231  uids=162` → 後 `tables=182  figures=25  rows=2245  uids=162`。⭐ B.15 の予測（＋1 ・ 0 ・ ＋14 ・ 0）どおり。
+
+**第 2 段（コード）が閉じる赤**（第 1 段の後に残るもの。どれもコードがまだ無いことだけが理由）:
+
+| 検査 | 理由 | 閉じ方 |
+|---|---|---|
+| 型検査 | `screen-values.ts` の生成の区画が `ScreenValuesEventCarried['writes']` を読むが、手書きの区画にその欄が無い（5 件） | 決定 23 の `writes` の型（書き込みの命令の列）を手書きの区画に足し、`write…` の副作用がそれを運ぶ |
+| 単体（契約） | `tests/contract/state-machine-screen-values.contract.test.ts` が「no sample for carried value writes」で読み込みの時点で止まる | その試験の見本の表に `writes` の見本を足す（主張の行は変えない） |
+| 単体（契約） | `tests/contract/units.contract.test.ts` の `UF-123` の行 —— いまのファイルは空のユニットであり、公開する形がまだ無い | `session-effects.ts` に B.3.2 の形を書く（見出しの `@unit      UF-123 ` と `@purity    non-pure` は生成器が書いたものを保つ） |
+| 26b | `PI-18` の `screenEventFromInput`、`PI-37` の `ScreenViewReadings`、`PI-39` の 4 つの型が公開エントリから出ていない。旧 `ScreenState` の名（`ScreenState` ・ `emptyScreenState` ・ `screenStateWith…` ・ `rememberedActualOf`）と `screenStateFromInput` が行を持たずに越境する。基準線が `EscapeContext` ・ `EscapeTarget` を「行の無い越境」として持ったまま | コードが名を出し、旧い名を消す。基準線の 2 行は前に立つ者が消す（起草と変えたところの 1） |
+| 24 | `W5-framework.md` の `UF-123` は ⬜ —— ファイルを書いた時点で「未着手なのに空のユニットでない」と赤になる | 同じ変更で ⬜ を 🔧 へ |
+| 55 | 生成器が書いた空のユニットの注記 7 行が、`src/` の注記の形（規則 17）に合わない | 中身を書くときに注記を規則 17 の形へ |
+
+## 改訂の記録 —— 波 B2 の第 1 段（仕様）を当てた（2026-09-22）
+
+| # | 対象 | 変えたこと |
+|---|---|---|
+| 30 | 本書 | 波 B2 の設計（B.0 〜 B.15）を、`9b8a22b7` で起草した形から移し、`5413bea5` で測り直した値（B.1a）と、第 1 段で当てたもの（B.16）を足した |
+| 31 | 第 6 節の表の「描き手の入力」の仮称 `RenderFrameInput` | `ScreenViewReadings`（B.2）。第 6 節の本文は起草の日の記録として書き換えない |
+| 32 | 第 6 節の表の `CP-36` の「生成器の出力先を `screen-state.ts` へ移し」（本書の決定 3） | 波 B2 では行わない（B.8、決定 28）。段 7 の出口へ延ばした |
+| 33 | 第 7 節の「波 B2（見込み）: rows +8」 | ＋14（表 T-283 の 13 行 ＋ `UF-123`）。`Enter` と `y` ／ `n` の 5 行を数えていなかった（B.6.2） |
+| 34 | 第 6 節の表の `let` の数「55」 | 56（B.11 —— 今日の写しの覚えを数えていなかった） |

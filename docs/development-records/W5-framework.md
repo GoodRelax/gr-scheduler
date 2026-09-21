@@ -1162,6 +1162,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | --- | --- | --- | --- | --- | --- |
 | UF-47 | `single-html-shell.ts` | **公開エントリ** | non-pure | PI-25 | 🔧 実装済 |
 | UF-48 | `frame-loop.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---
 

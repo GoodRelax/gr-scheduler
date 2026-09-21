@@ -41,7 +41,6 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -65,6 +64,7 @@ import {
   type KeyInput,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // Settings and screen. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -254,7 +254,7 @@ const frameOf = (schedule: Schedule): Frame => {
       layout,
       geometry: geometryFromLayout(schedule, SETTINGS, layout, REGIONS, emptySelection()),
       regions: REGIONS,
-      screenState: emptyScreenState(),
+      screen: emptyScreenSession.screen,
       selection: emptySelection(),
       // S-53 arrives as a value. Deliberately not the figure the manuscript
       // prints: no case here reads it.

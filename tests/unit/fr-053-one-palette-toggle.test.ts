@@ -6,26 +6,24 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
 import type {
   AppHeaderItems,
   CommandItem,
   CommandPalette,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 // WHY: the one reader that takes its copy from the .md at read time, so a
 // moved spec row moves here too instead of going stale.
 import { bare, specTable } from '../contract/spec-table'
@@ -105,22 +103,23 @@ const MILESTONE_GLYPHS: readonly string[] = ((): readonly string[] => {
   throw new Error('erd.json no longer holds the spellings of `milestoneGlyph`')
 })()
 
-// WHY: the row -> union member names are this file's own choice, since the
-// spec leaves Armed's members unsettled; re-check this if T-023b grows a row.
+type Armed = ScreenValues['armModeState']
+
+// WHY: the row -> state names are table T-280's armModeStateMachine; re-check this if T-023b grows a row.
 function armOfRow(row: string): Armed {
   switch (row) {
     case 'AR-1':
-      return { kind: 'none' }
+      return { kind: 'notArmed' }
     case 'AR-2':
-      return { kind: 'taskShape', shapeKind: shapeSpellingOf('SH-1') }
+      return { kind: 'taskShapeArmed', shapeKind: shapeSpellingOf('SH-1') }
     case 'AR-3':
-      return { kind: 'milestoneShape', glyph: MILESTONE_GLYPHS[0] as string }
+      return { kind: 'milestoneShapeArmed', glyph: MILESTONE_GLYPHS[0] as string }
     case 'AR-4':
-      return { kind: 'dependency' }
+      return { kind: 'dependencyArmed' }
     case 'AR-5':
-      return { kind: 'commentBox' }
+      return { kind: 'commentBoxArmed' }
     case 'AR-6':
-      return { kind: 'highlightBox' }
+      return { kind: 'highlightBoxArmed' }
     default:
       throw new Error(`table T-023b has a row this file does not build an arm for: ${row}`)
   }
@@ -130,7 +129,7 @@ const EVERY_ARM: readonly { readonly row: string; readonly armed: Armed }[] = T_
   (row) => ({ row: row.id, armed: armOfRow(row.id) }),
 )
 
-const S_99_LANGUAGES: readonly ScreenSession['language'][] = ['ja', 'en']
+const S_99_LANGUAGES: readonly ('ja' | 'en')[] = ['ja', 'en']
 
 // WHY: read from the manuscript rather than typed (rule 03 section 1).
 const THEME_HUE = ((): number => {
@@ -159,43 +158,50 @@ const SCHEDULE = {
   baselineTasks: [],
 } as unknown as Schedule
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  // WHY: FR-053 keeps the eight glyph entrances out of the palette until
-  // this is open, and a case below walks every entry wanting them present.
-  isMilestoneListOpen: true,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const SHOWN: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    // WHY: FR-053 keeps the eight glyph entrances out of the palette until
+    // this is open, and a case below walks every entry wanting them present.
+    milestoneListDisplayState: { kind: 'open' },
+  },
+}
+const HIDDEN: ScreenSession = { ...SHOWN, screen: { ...SHOWN.screen, paletteDisplayState: { kind: 'hidden' } } }
 
-const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
-const HIDDEN: ScreenState = screenStateWithPalette(emptyScreenState(), false)
+const withLanguage = (root: ScreenSession, language: 'ja' | 'en'): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, language },
+})
+const withArm = (root: ScreenSession, armed: Armed): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, armModeState: armed },
+})
 
-const headerOf = (state: ScreenState = SHOWN, session: ScreenSession = SESSION): AppHeaderItems =>
-  appHeaderItemsFromDocument(SCHEDULE, SETTINGS, state, session)
+const headerOf = (root: ScreenSession = SHOWN): AppHeaderItems =>
+  appHeaderItemsFromDocument(SCHEDULE, SETTINGS, root, READINGS)
 
-const paletteOf = (state: ScreenState = SHOWN, session: ScreenSession = SESSION): CommandPalette => {
-  const described = commandPaletteFromScreenState(state, SETTINGS, emptySelection(), session)
+const paletteOf = (root: ScreenSession = SHOWN): CommandPalette => {
+  const described = commandPaletteFromSession(root, SETTINGS, emptySelection(), READINGS)
   if (described === null) throw new Error('S-99e says it is showing, so one is described')
   return described
 }
@@ -271,7 +277,7 @@ describe('UF-62 -- FR-053 (MUST): the entrance is on the `App Header`', () => {
 
   it('carries it once in either display language (FR-038 changes the words, not the roster)', () => {
     for (const language of S_99_LANGUAGES) {
-      const icons = headerIcons(headerOf(SHOWN, sessionWith({ language })))
+      const icons = headerIcons(headerOf(withLanguage(SHOWN, language)))
       expect(timesIn(icons, theOneEntrance()), language).toBe(1)
     }
   })
@@ -287,7 +293,7 @@ describe('UF-65 -- FR-053 (MUST): the entrance is NOT on the palette', () => {
     // property of the palette, not of one description.
     for (const language of S_99_LANGUAGES) {
       for (const { row, armed } of EVERY_ARM) {
-        const palette = paletteOf(screenStateWithArmed(SHOWN, armed), sessionWith({ language }))
+        const palette = paletteOf(withLanguage(withArm(SHOWN, armed), language))
         expect(paletteIcons(palette), `${language} / ${row}`).not.toContain(theOneEntrance())
       }
     }
@@ -312,7 +318,7 @@ describe("UF-65 -- table T-023b (MUST NOT): the arm's row id is not what is read
 
     for (const language of S_99_LANGUAGES) {
       for (const { row, armed } of EVERY_ARM) {
-        const palette = paletteOf(screenStateWithArmed(SHOWN, armed), sessionWith({ language }))
+        const palette = paletteOf(withLanguage(withArm(SHOWN, armed), language))
         // WHY: null is the minimised reading (FR-053); this palette is not
         // minimised, so ?? '' cannot hide a real word -- only the already-failing empty one.
         const said = palette.armedText ?? ''
@@ -333,7 +339,7 @@ describe("UF-65 -- table T-023b (MUST NOT): the arm's row id is not what is read
     const spellsARow = new RegExp(`(^|[^A-Za-z0-9-])(${armRows.join('|')})([^A-Za-z0-9-]|$)`)
 
     for (const language of S_99_LANGUAGES) {
-      const palette = paletteOf(SHOWN, sessionWith({ language }))
+      const palette = paletteOf(withLanguage(SHOWN, language))
       const printable = [
         palette.armedText ?? '',
         ...palette.groups.map((group) => group.name),

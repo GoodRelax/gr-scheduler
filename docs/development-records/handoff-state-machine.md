@@ -88,8 +88,11 @@ SF-10  文書は集約に入れない。セッションは読むだけ
 ✅ 波 A   原稿・生成器・AdvanceScreenSession・契約試験・共通の状態機械の仕様（CR-436）
 ✅ 波 B1  JDG-283（隠したパネルの境界に掴み帯を置かない）—— FR-052 と GR-22 を 1 度に、
           screen-frame.ts の dividersOf、frame-loop.ts の @provisional PND-451 を消した（2026-09-22）
-⬜ 波 B2  シェルへ結線し、frameLoop の let 12 を消す。Adapter の ScreenSession の袋を
-          集約へ移す（CR-436 第 4 節）。NOT_YET_CALLED から AdvanceScreenSession を消す
+✅ 波 B2  シェルへ結線した（2026-09-22）。frameLoop の let 66 → 57、送り口は sendToSession 1 本、副作用は
+          session-effects.ts（UF-123）の runSessionEffects、Esc は表 T-283（RG-1〜RG-13）。Adapter の袋は ScreenViewReadings に。
+          照合器（5,844 の台本）で B2 の前後の差 0。写した所は DFC-703〜708、仕様とコードの食い違いは DFC-709〜711（it.fails で留めた）。
+          ⭐ 次の領域の波（通知・身振り・ファイル操作・名前付け・選択）は、effectRunnersOf の自分の行と unwiredEffect の置き場を
+             差し替えるだけで入る —— 別々の作業木で並行し、frame-loop.ts へは 1 本ずつ併合する
           ⭐ 入口条件は緩めた（JDG-291、2026-09-21）: 段 5・6 を待たずに結線してよい。B2 を先に 1 本で入れ、
              残りの領域は別々の作業木で並行し、frame-loop.ts へは 1 本ずつ併合する。性能は全部の結線の後に 1 回だけ測る
              （波ごとに 1 コミット ⇒ git bisect で絞れる）。持ち場: こちら frame-loop.ts ・ screen-renderer ・

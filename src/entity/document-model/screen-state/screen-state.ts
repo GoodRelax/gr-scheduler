@@ -4,96 +4,12 @@
 // @purity    pure
 // @publishes table T-064 row PI-36
 
-export type Armed =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'taskShape'; readonly shapeKind: string }
-  | { readonly kind: 'milestoneShape'; readonly glyph: string }
-  | { readonly kind: 'dependency' }
-  | { readonly kind: 'commentBox' }
-  | { readonly kind: 'highlightBox' }
-
-export type OpenSurface = string | null
-
 // see PV-4, PV-5
 export interface RememberedActual {
   readonly actualStart: string | null
   readonly actualFinish: string | null
   readonly stop: string | null
   readonly carriedActualDuration: string | null
-}
-
-export interface ScreenState {
-  readonly armed: Armed
-  readonly paletteShown: boolean
-  readonly fullScreen: boolean
-  readonly surface: OpenSurface
-  readonly watermarkVisible: boolean
-  readonly rememberedActuals: Readonly<Record<number, RememberedActual>>
-}
-
-const NONE: Armed = { kind: 'none' }
-
-const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = {}
-
-const EMPTY: ScreenState = {
-  armed: NONE,
-  paletteShown: true,
-  fullScreen: false,
-  surface: null,
-  watermarkVisible: true,
-  rememberedActuals: NO_REMEMBERED_ACTUALS,
-}
-
-/** @purity pure */
-export function emptyScreenState(): ScreenState {
-  return EMPTY
-}
-
-/** @purity pure */
-export function screenStateWithArmed(state: ScreenState, armed: Armed): ScreenState {
-  return { ...state, armed }
-}
-
-/** @purity pure */
-export function screenStateWithSurface(state: ScreenState, surface: OpenSurface): ScreenState {
-  return { ...state, surface }
-}
-
-/** @purity pure */
-export function screenStateWithPalette(state: ScreenState, shown: boolean): ScreenState {
-  return { ...state, paletteShown: shown }
-}
-
-/** @purity pure */
-export function screenStateWithFullScreen(state: ScreenState, on: boolean): ScreenState {
-  return { ...state, fullScreen: on }
-}
-
-/** @purity pure */
-export function screenStateWithWatermark(state: ScreenState, visible: boolean): ScreenState {
-  return { ...state, watermarkVisible: visible }
-}
-
-// see PV-4, PV-1, CP-36
-/** @purity pure */
-export function screenStateWithRememberedActual(
-  state: ScreenState,
-  taskUid: number,
-  actual: RememberedActual | null,
-): ScreenState {
-  const held = state.rememberedActuals
-  if (actual === null) {
-    if (held[taskUid] === undefined) return state
-    const kept = Object.entries(held).filter(([uid]) => Number(uid) !== taskUid)
-    return { ...state, rememberedActuals: Object.fromEntries(kept) }
-  }
-  return { ...state, rememberedActuals: { ...held, [taskUid]: actual } }
-}
-
-// see PV-1, PV-5
-/** @purity pure */
-export function rememberedActualOf(state: ScreenState, taskUid: number): RememberedActual | null {
-  return state.rememberedActuals[taskUid] ?? null
 }
 
 export type EscapeTarget =
@@ -115,7 +31,9 @@ export type DualCursorSide = 'date1' | 'date2'
 export interface EscapeContext {
   readonly isNoticeStanding?: boolean
   readonly isTextEntryUnsettled: boolean
+  readonly isSurfaceOpen: boolean
   readonly gestureInFlight: boolean
+  readonly isArmed: boolean
   readonly isSelectionStanding?: boolean
   readonly dualCursorMode: boolean
   readonly isConfirmationStanding?: boolean
@@ -123,17 +41,17 @@ export interface EscapeContext {
   readonly isTooltipStanding?: boolean
 }
 
-// see IN-4
+// see IN-4, T-283
 /** @purity pure */
-export function escapeTarget(state: ScreenState, context: EscapeContext): EscapeTarget | null {
+export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isNoticeStanding === true) return 'notice'
   if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
-  if (state.surface !== null) return 'surface'
+  if (context.isSurfaceOpen) return 'surface'
   // DEVIATION: spec says the panel rung is above the drag (IN-4); here the drag goes first (DFC-570)
   if (context.gestureInFlight) return 'gesture'
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
-  if (state.armed.kind !== 'none') return 'armed'
+  if (context.isArmed) return 'armed'
   if (context.isSelectionStanding === true) return 'selection'
   if (context.dualCursorMode) return 'dualCursorMode'
   if (context.isTooltipStanding === true) return 'tooltip'

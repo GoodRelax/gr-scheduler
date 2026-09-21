@@ -9,15 +9,14 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
-  screenStateWithArmed,
-  type Armed,
-} from '../../src/entity/document-model/screen-state/screen-state'
-import {
   emptySelection,
   selectionWith,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -153,7 +152,7 @@ const contextOf = (settingsPart: Record<string, unknown> = {}, part: Partial<Inp
     layout,
     geometry: geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: 1.1,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -196,7 +195,9 @@ const rowOf = (groupId: string) => {
 }
 const midYOfRow = (groupId: string): number => rowOf(groupId).y + rowOf(groupId).height / 2
 
-const armedWith = (armed: Armed) => screenStateWithArmed(emptyScreenState(), armed)
+type Armed = ScreenValues['armModeState']
+
+const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })
 
 interface Gesture {
   readonly answer: TranslatedInput
@@ -248,13 +249,13 @@ describe('UF-30 table T-023a (FR-016) -- the first row that holds decides the pr
   })
 
   it('PTD-3 before PTD-4: an armed shape does not win over a hit', () => {
-    const armed = { ...BASE, screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) }
+    const armed = { ...BASE, screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }) }
     expect(pressRowOf({ at, hit: TASK_1_BODY }, armed)).toBe('PTD-3')
     expect(pressRowOf({ at, hit: null }, armed)).toBe('PTD-4')
   })
 
   it('PTD-4a: a dependency arm on nothing is PTD-4a, not PTD-4', () => {
-    expect(pressRowOf({ at, hit: null }, { ...BASE, screenState: armedWith({ kind: 'dependency' }) })).toBe('PTD-4a')
+    expect(pressRowOf({ at, hit: null }, { ...BASE, screen: armedWith({ kind: 'dependencyArmed' }) })).toBe('PTD-4a')
   })
 })
 
@@ -359,7 +360,7 @@ describe('UF-99 table T-023b (FR-019) -- an arm put to a drag on nothing', () =>
       pointerOf('down', midXOfDay('2026-01-20'), midYOfRow('g3')),
       pointerOf('up', midXOfDay('2026-01-24'), midYOfRow('g5')),
       null,
-      { screenState: armedWith({ kind: 'highlightBox' }) },
+      { screen: armedWith({ kind: 'highlightBoxArmed' }) },
     )
     const created = ofKind(answer, 'createHighlightBox')
     expect(created).toHaveLength(1)

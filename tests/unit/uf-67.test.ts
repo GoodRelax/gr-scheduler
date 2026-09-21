@@ -99,12 +99,16 @@ import type {
   Notice,
   RaisedConfirmation,
   RaisedNotice,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
   confirmationFromSession,
   noticesFromSession,
 } from '../../src/adapter/screen-renderer/notices'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -300,33 +304,34 @@ const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
-const sessionOf = (notices: readonly RaisedNotice[]): ScreenSession => ({
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const withLanguage = (root: ScreenSession, language: DisplayLanguage): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, language },
+})
+
+const readingsOf = (notices: readonly RaisedNotice[]): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The seven members `ScreenSession` requires that no case here varies:
+  // The six members `ScreenViewReadings` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
-  // (both the manuscript's default -- a telling carries neither), `themeHue`
-  // is S-73 read from the manuscript, `selectedGroupIds` is FR-085's set of
-  // rows and `selectedResourceUids` FR-099's set of resources (both empty --
-  // none chosen), and `propertiesSubject` is FR-072's remembered subject
-  // (`null` -- no operation has chosen one yet).
+  // on no icon), `themePreference` is S-72 (the manuscript's default -- a
+  // telling carries neither), `themeHue` is S-73 read from the manuscript,
+  // `selectedGroupIds` is FR-085's set of rows and `selectedResourceUids`
+  // FR-099's set of resources (both empty -- none chosen).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices,
   confirmation: null,
   rowBoxes: [],
@@ -418,7 +423,8 @@ describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surfa
     // NT-4 speaks about its own run only. A telling of another row is not part
     // of it, and folding one in would put it under another row's manner.
     const shown = noticesFromSession(
-      sessionOf([REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY, PENDING_AGENT_API]),
+      ROOT,
+      readingsOf([REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY, PENDING_AGENT_API]),
     )
 
     expect(withManner(shown, STARTUP_PENDING).length).toBe(1)
@@ -434,7 +440,7 @@ describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surfa
     // after another.
     const raisers = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]
     for (let count = 2; count <= raisers.length; count += 1) {
-      const shown = noticesFromSession(sessionOf(raisers.slice(0, count)))
+      const shown = noticesFromSession(ROOT, readingsOf(raisers.slice(0, count)))
       expect(withManner(shown, STARTUP_PENDING).length, `raised ${count}`).toBe(1)
       expect(shown.length, `raised ${count}, and nothing else was`).toBe(1)
     }
@@ -447,7 +453,7 @@ describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surfa
     const many = Array.from({ length: 12 }, (_, index) =>
       raisedOf(STARTUP_PENDING, reasonRow(index)),
     )
-    const shown = noticesFromSession(sessionOf(many))
+    const shown = noticesFromSession(ROOT, readingsOf(many))
 
     expect(shown.length).toBe(1)
     expect(gatheredOf(shown).manner).toBe(STARTUP_PENDING)
@@ -456,14 +462,14 @@ describe('UF-67 -- NT-4 (MUST): the pending items at startup arrive as ONE surfa
   it('leaves a lone pending item as the one surface it already is', () => {
     // NT-4 asks for one surface; with one raiser there is nothing to gather,
     // and dropping it would tell nobody about the pending item.
-    const shown = noticesFromSession(sessionOf([PENDING_RECOVERY]))
+    const shown = noticesFromSession(ROOT, readingsOf([PENDING_RECOVERY]))
 
     expect(shown.length).toBe(1)
     expect((shown[0] as Notice).manner).toBe(STARTUP_PENDING)
   })
 
   it('leaves the lone pending item alone while other rows stand beside it', () => {
-    const shown = noticesFromSession(sessionOf([REFUSAL, PENDING_WATERMARK, AT_LIMIT]))
+    const shown = noticesFromSession(ROOT, readingsOf([REFUSAL, PENDING_WATERMARK, AT_LIMIT]))
 
     expect(shown.length).toBe(3)
     expect(withManner(shown, STARTUP_PENDING).length).toBe(1)
@@ -481,7 +487,8 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     for (const entry of OTHER_ROWS) {
       const one = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 4)
       const shown = noticesFromSession(
-        sessionOf([PENDING_RESTORE, one, PENDING_RECOVERY, PENDING_AGENT_API]),
+        ROOT,
+        readingsOf([PENDING_RESTORE, one, PENDING_RECOVERY, PENDING_AGENT_API]),
       )
       const carried = withManner(shown, entry.row)
 
@@ -498,7 +505,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     for (const entry of OTHER_ROWS) {
       const first = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 1)
       const second = raisedOf(entry.row, reasonWrittenAgainst(entry.row), 2)
-      const shown = noticesFromSession(sessionOf([first, PENDING_RESTORE, second, PENDING_RECOVERY]))
+      const shown = noticesFromSession(ROOT, readingsOf([first, PENDING_RESTORE, second, PENDING_RECOVERY]))
       const both = withManner(shown, entry.row)
 
       expect(both.length, `two of ${entry.row} stay two`).toBe(2)
@@ -510,7 +517,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // NT-5 (MUST) requires the accepted-with-a-warning telling to be tellable
     // from NT-1's refusal. The manner is what carries that difference, so
     // neither may come back wearing the other's.
-    const shown = noticesFromSession(sessionOf([REFUSAL, WARNING, PENDING_RESTORE]))
+    const shown = noticesFromSession(ROOT, readingsOf([REFUSAL, WARNING, PENDING_RESTORE]))
 
     expect(mannersOf(shown)).toEqual(['NT-1', 'NT-4', 'NT-5'])
   })
@@ -520,7 +527,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // `affectedCount` is `null` where the row asks for none, so both values
     // have to survive as they are -- and zero is a count, not an absence.
     const none = raisedOf('NT-3', reasonWrittenAgainst('NT-3'), 0)
-    const shown = noticesFromSession(sessionOf([DESTRUCTIVE, none, REFUSAL, PENDING_RESTORE]))
+    const shown = noticesFromSession(ROOT, readingsOf([DESTRUCTIVE, none, REFUSAL, PENDING_RESTORE]))
 
     expect(withManner(shown, 'NT-3').map((notice) => notice.affectedCount).sort()).toEqual([0, 12])
     expect((withManner(shown, 'NT-1')[0] as Notice).affectedCount).toBeNull()
@@ -531,7 +538,7 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // person; a raised notice that is never shown discharges none of them. The
     // one change NT-4 asks for is that its own run arrives as one surface.
     const raised = [REFUSAL, FAILURE, PENDING_RESTORE, AT_LIMIT, PENDING_RECOVERY, DESTRUCTIVE]
-    const shown = noticesFromSession(sessionOf(raised))
+    const shown = noticesFromSession(ROOT, readingsOf(raised))
 
     expect(mannersOf(shown)).toEqual(['NT-1', 'NT-3', 'NT-3a', 'NT-4', 'NT-6'])
     expect(shown.length, 'the gathered surface, and the four that are not gathered').toBe(5)
@@ -543,14 +550,14 @@ describe('UF-67 -- table T-037: only the NT-4 run is gathered', () => {
     // follows NT-2 is therefore shown like any other while it is raised: one
     // whose time is up is one that is no longer raised.
     const fading = raisedOf('NT-2', reasonWrittenAgainst('NT-2'))
-    const shown = noticesFromSession(sessionOf([fading]))
+    const shown = noticesFromSession(ROOT, readingsOf([fading]))
 
     expect(shown.length).toBe(1)
     expect((shown[0] as Notice).manner).toBe('NT-2')
   })
 
   it('tells nothing when nothing was raised', () => {
-    expect(noticesFromSession(sessionOf([]))).toEqual([])
+    expect(noticesFromSession(ROOT, readingsOf([]))).toEqual([])
   })
 })
 
@@ -559,7 +566,7 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     // FR-028 (MUST NOT) makes a refusal a value rather than an exception, which
     // is what lets the shell still be holding one; FR-076 then binds it to
     // table T-037. A value that is received and never told satisfies neither.
-    const shown = noticesFromSession(sessionOf(SHELL_RAISED))
+    const shown = noticesFromSession(ROOT, readingsOf(SHELL_RAISED))
 
     expect(shown.length).toBe(SHELL_RAISED.length)
     expect(mannersOf(shown)).toEqual(['NT-1', 'NT-1', 'NT-3a'])
@@ -572,7 +579,8 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     // `Notice` is entitled to the declared type, and `tsc` cannot see a value
     // that only exists at run time.
     const shown = noticesFromSession(
-      sessionOf([...SHELL_RAISED, PENDING_RESTORE, WARNING, DESTRUCTIVE, AT_LIMIT]),
+      ROOT,
+      readingsOf([...SHELL_RAISED, PENDING_RESTORE, WARNING, DESTRUCTIVE, AT_LIMIT]),
     )
 
     for (const notice of shown) {
@@ -602,7 +610,7 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     ]
 
     for (const raised of mustBeToldInWords) {
-      const told = noticesFromSession(sessionOf([raised]))[0] as Notice
+      const told = noticesFromSession(ROOT, readingsOf([raised]))[0] as Notice
 
       expect(told.text.length, `${raised.manner} (MUST): told in words`).toBeGreaterThan(0)
       expect(
@@ -620,7 +628,7 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     // returns -- an empty list of steps breaks the MUST NOT outright.
     for (const entry of T_037.filter((row) => row.owesNextStep)) {
       const raised = raisedOf(entry.row, reasonWrittenAgainst(entry.row))
-      const shown = noticesFromSession(sessionOf([raised]))
+      const shown = noticesFromSession(ROOT, readingsOf([raised]))
 
       expect((shown[0] as Notice).nextSteps.length, `${entry.row} (MUST)`).toBeGreaterThan(0)
     }
@@ -634,7 +642,7 @@ describe('UF-67 -- FR-028: the three the shell holds reach the person', () => {
     // walked here too.
     const raised = [...SHELL_RAISED, DESTRUCTIVE, AT_LIMIT, PENDING_RESTORE, PENDING_RECOVERY]
     const keysHandedIn = raised.map((one) => one.reason)
-    const shown = noticesFromSession(sessionOf(raised))
+    const shown = noticesFromSession(ROOT, readingsOf(raised))
 
     for (const notice of shown) {
       for (const key of keysHandedIn) {
@@ -728,10 +736,10 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
     for (const language of LANGUAGES) {
       for (const entry of T_233) {
         const words = reasonWordsFor(entry.row, language)
-        const shown = noticesFromSession({
-          ...sessionOf([raisedOf(entry.manner, entry.row)]),
-          language,
-        })
+        const shown = noticesFromSession(
+          withLanguage(ROOT, language),
+          readingsOf([raisedOf(entry.manner, entry.row)]),
+        )
         const told = shown[0] as Notice
 
         expect(told.text, `${entry.row} in ${language}`).toBe(words.text)
@@ -750,7 +758,7 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
     for (const language of LANGUAGES) {
       for (const entry of OTHER_ROWS) {
         const raised = raisedOf(entry.row, reasonWrittenAgainst(entry.row))
-        const shown = noticesFromSession({ ...sessionOf([raised]), language })
+        const shown = noticesFromSession(withLanguage(ROOT, language), readingsOf([raised]))
 
         expect((shown[0] as Notice).mannerText, `${entry.row} in ${language}`).toBe(
           mannerTextFor(entry.row, language),
@@ -773,10 +781,10 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
 
     for (const language of LANGUAGES) {
       const fallback = reasonWordsFor(FALLBACK_REASON, language)
-      const shown = noticesFromSession({
-        ...sessionOf([raisedOf('NT-1', outsider)]),
-        language,
-      })
+      const shown = noticesFromSession(
+        withLanguage(ROOT, language),
+        readingsOf([raisedOf('NT-1', outsider)]),
+      )
       const told = shown[0] as Notice
 
       expect(told.text, `the fallback text in ${language}`).toBe(fallback.text)
@@ -799,7 +807,7 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
     const gathered = [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]
 
     for (const language of LANGUAGES) {
-      const shown = noticesFromSession({ ...sessionOf(gathered), language })
+      const shown = noticesFromSession(withLanguage(ROOT, language), readingsOf(gathered))
       const surface = gatheredOf(shown)
 
       for (const raised of gathered) {
@@ -847,18 +855,18 @@ describe('UF-67 -- @purity pure (table T-075, R7.1)', () => {
     // T-075 makes UF-67 `pure`.
     const raised: RaisedNotice[] = [REFUSAL, PENDING_RESTORE, WARNING, PENDING_RECOVERY]
     const before = structuredClone(raised)
-    const session = sessionOf(raised)
+    const session = readingsOf(raised)
 
-    noticesFromSession(session)
+    noticesFromSession(ROOT, session)
 
     expect(raised).toEqual(before)
     expect(session.notices).toEqual(before)
   })
 
   it('answers the same session the same way twice', () => {
-    const session = sessionOf([REFUSAL, PENDING_RESTORE, DESTRUCTIVE, PENDING_AGENT_API])
+    const session = readingsOf([REFUSAL, PENDING_RESTORE, DESTRUCTIVE, PENDING_AGENT_API])
 
-    expect(noticesFromSession(session)).toEqual(noticesFromSession(session))
+    expect(noticesFromSession(ROOT, session)).toEqual(noticesFromSession(ROOT, session))
   })
 })
 
@@ -1155,10 +1163,10 @@ const shownFor = (
   shownOnAnotherRowMark: markFor('shownOnAnotherRow', language),
 })
 
-const sessionAsking = (
+const readingsAsking = (
   confirmation: RaisedConfirmation | null,
   notices: readonly RaisedNotice[] = [],
-): ScreenSession => ({ ...sessionOf(notices), confirmation })
+): ScreenViewReadings => ({ ...readingsOf(notices), confirmation })
 
 /**
  * OP-11 of table T-024a as it reaches this unit -- accepted, with a warning
@@ -1272,7 +1280,7 @@ async function shownWithMarkedDictionary(
   try {
     const fresh = await import('../../src/adapter/screen-renderer/notices')
     const asked = confirmationOf(question, [])
-    const shown = fresh.confirmationFromSession({ ...sessionAsking(asked), language })
+    const shown = fresh.confirmationFromSession(withLanguage(ROOT, language), readingsAsking(asked))
     expect(shown, 'a raised question came back as none').not.toBeNull()
     return shown as Confirmation
   } finally {
@@ -1322,7 +1330,7 @@ async function noticesWithDictionary(
   vi.doMock(DISPLAY_WORDS_MODULE, () => ({ default: dictionary }))
   try {
     const fresh = await import('../../src/adapter/screen-renderer/notices')
-    return fresh.noticesFromSession({ ...sessionOf(raised), language })
+    return fresh.noticesFromSession(withLanguage(ROOT, language), readingsOf(raised))
   } finally {
     vi.doUnmock(DISPLAY_WORDS_MODULE)
     vi.resetModules()
@@ -1353,7 +1361,7 @@ async function noticesWithMarkedDictionary(
   vi.doMock(DISPLAY_WORDS_MODULE, () => ({ default: dictionaryOfMarksEverywhere() }))
   try {
     const fresh = await import('../../src/adapter/screen-renderer/notices')
-    return fresh.noticesFromSession(sessionOf(raised))
+    return fresh.noticesFromSession(ROOT, readingsOf(raised))
   } finally {
     vi.doUnmock(DISPLAY_WORDS_MODULE)
     vi.resetModules()
@@ -1383,7 +1391,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // 「人がその場で消せること（MUST）」-- a telling with no entrance is one that
     // stays on the schedule for ever, which is the reason the row gives itself.
     for (const raised of EVERY_TELLING) {
-      const told = noticesFromSession(sessionOf([raised]))[0] as Notice
+      const told = noticesFromSession(ROOT, readingsOf([raised]))[0] as Notice
 
       expect(told.dismissText.length, `${raised.manner}: 消す入口の語`).toBeGreaterThan(0)
       expect(told.dismissKey.length, `${raised.manner}: どの通知を消すのか`).toBeGreaterThan(0)
@@ -1395,7 +1403,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // （MUST）」. ⭐ Both halves: the word is READ from the dictionary, and the
     // dictionary's own two cells hold the one spelling the user ruled on.
     for (const language of LANGUAGES) {
-      const told = noticesFromSession({ ...sessionOf([REFUSAL]), language })[0] as Notice
+      const told = noticesFromSession(withLanguage(ROOT, language), readingsOf([REFUSAL]))[0] as Notice
 
       expect(told.dismissText, language).toBe(dismissTextFor(language))
       expect(told.dismissText, `NT-8 (MUST): ${language} でも OK と綴る`).toBe('OK')
@@ -1419,7 +1427,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // 「どちらでもない」が生まれる」. The whole of the choice is the two answers
     // `NT-7` (MUST) asks for, so a third road off the surface is exactly what
     // the row bars.
-    const shown = confirmationFromSession(sessionAsking(confirmationOf(questionRow(0), []))) as Confirmation
+    const shown = confirmationFromSession(ROOT, readingsAsking(confirmationOf(questionRow(0), []))) as Confirmation
     const carried = shown as unknown as Record<string, unknown>
 
     expect(Object.keys(carried)).not.toContain('dismissText')
@@ -1433,7 +1441,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // 「WHICH telling a press on that entrance put away」-- `manner` cannot say
     // it, because 表 T-037 lets any number of tellings wear one row. So two
     // tellings that are not the same telling may not answer to one key.
-    const shown = noticesFromSession(sessionOf([REFUSAL, FAILURE]))
+    const shown = noticesFromSession(ROOT, readingsOf([REFUSAL, FAILURE]))
 
     expect(shown.length).toBe(2)
     expect((shown[0] as Notice).dismissKey).not.toBe((shown[1] as Notice).dismissKey)
@@ -1443,7 +1451,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // The other side of the same rule: two tellings carrying one manner and one
     // reason carry one set of words, so leaving one standing after a press would
     // look to the person like the press did nothing.
-    const shown = noticesFromSession(sessionOf([REFUSAL, REFUSAL]))
+    const shown = noticesFromSession(ROOT, readingsOf([REFUSAL, REFUSAL]))
 
     expect(shown.length).toBeGreaterThan(0)
     const keys = new Set(shown.map((one) => one.dismissKey))
@@ -1455,7 +1463,8 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
     // written of 「告げた通知」 without exception -- so the gathered one is a
     // telling like any other and may not be the one thing that cannot be put away.
     const gathered = noticesFromSession(
-      sessionOf([PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]),
+      ROOT,
+      readingsOf([PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API, PENDING_WATERMARK]),
     )
 
     expect(gathered.length).toBe(1)
@@ -1466,7 +1475,7 @@ describe('UF-67 -- NT-8 (MUST): 告げた通知は人がその場で消せる', 
 
 describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
   it('GIVEN no question was raised WHEN the view is filled THEN there is none to answer (the empty case)', () => {
-    expect(confirmationFromSession(sessionAsking(null))).toBeNull()
+    expect(confirmationFromSession(ROOT, readingsAsking(null))).toBeNull()
   })
 
   it('GIVEN a question was raised WHEN the view is filled THEN it comes back exactly as it was raised', () => {
@@ -1476,7 +1485,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
       { name: 'foundation work', isShownOnAnotherRow: false },
     ])
 
-    expect(confirmationFromSession(sessionAsking(asked))).toEqual(shownFor(asked))
+    expect(confirmationFromSession(ROOT, readingsAsking(asked))).toEqual(shownFor(asked))
   })
 
   it('GIVEN each place a requirement asks WHEN the view is filled THEN each comes back untouched (one case walks the roster; FR-031 MUST NOT)', () => {
@@ -1485,7 +1494,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     for (const site of NT_7_ASKING_SITES) {
       const asked = confirmationOf(site.question, site.items)
 
-      expect(confirmationFromSession(sessionAsking(asked)), site.by).toEqual(shownFor(asked))
+      expect(confirmationFromSession(ROOT, readingsAsking(asked)), site.by).toEqual(shownFor(asked))
     }
   })
 
@@ -1500,7 +1509,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     for (const entry of takingNothing) {
       const asked = confirmationOf(entry.row, [])
 
-      const shown = confirmationFromSession(sessionAsking(asked))
+      const shown = confirmationFromSession(ROOT, readingsAsking(asked))
 
       expect(shown, entry.by).not.toBeNull()
       expect((shown as Confirmation).items, entry.by).toEqual([])
@@ -1516,7 +1525,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
       { name: 'painting', isShownOnAnotherRow: true },
     ])
 
-    const shown = confirmationFromSession(sessionAsking(asked)) as Confirmation
+    const shown = confirmationFromSession(ROOT, readingsAsking(asked)) as Confirmation
 
     expect(shown.items).toHaveLength(2)
     expect(shown.items.map((item) => item.name)).toEqual([null, 'painting'])
@@ -1530,7 +1539,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     }))
     const asked = confirmationOf(questionRow(3), many)
 
-    expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).items).toEqual(many)
+    expect((confirmationFromSession(ROOT, readingsAsking(asked)) as Confirmation).items).toEqual(many)
   })
 
   it('GIVEN a question raised WHEN it is shown THEN the row of table T-037 it follows travels with it', () => {
@@ -1538,16 +1547,16 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     // assumed -- the same move `Notice.manner` makes for NT-5 against NT-1.
     const asked = confirmationOf(questionRow(4), [])
 
-    expect((confirmationFromSession(sessionAsking(asked)) as Confirmation).manner).toBe(ASKING)
+    expect((confirmationFromSession(ROOT, readingsAsking(asked)) as Confirmation).manner).toBe(ASKING)
   })
 
   it('GIVEN notices raised beside the question WHEN both members are filled THEN neither becomes the other (a question is not a notice)', () => {
     // NT-7 stops until it is answered and NT-1 .. NT-6 do not, so a question
     // wearing a notice's shape would let a caller show one nobody can answer.
     const asked = confirmationOf(questionRow(4), [])
-    const session = sessionAsking(asked, [REFUSAL, PENDING_RESTORE, WARNING])
+    const session = readingsAsking(asked, [REFUSAL, PENDING_RESTORE, WARNING])
 
-    const shown = noticesFromSession(session)
+    const shown = noticesFromSession(ROOT, session)
 
     expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-4', 'NT-5'])
     // ⭐ The question's own sentence -- the one 表 T-234 holds for the row that
@@ -1555,7 +1564,7 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     expect(
       shown.some((notice) => notice.text === questionTextFor(asked.question, 'ja')),
     ).toBe(false)
-    expect(confirmationFromSession(session)).toEqual(shownFor(asked))
+    expect(confirmationFromSession(ROOT, session)).toEqual(shownFor(asked))
   })
 
   it('GIVEN pending startup items being gathered WHEN a question stands beside them THEN NT-4 gathering does not reach it', () => {
@@ -1564,17 +1573,17 @@ describe('UF-67 -- NT-7 (MUST): 続けてよいかを問う', () => {
     const asked = confirmationOf(questionRow(5), [
       { name: 'the autosave of 09:00', isShownOnAnotherRow: false },
     ])
-    const session = sessionAsking(asked, [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API])
+    const session = readingsAsking(asked, [PENDING_RESTORE, PENDING_RECOVERY, PENDING_AGENT_API])
 
-    expect(noticesFromSession(session)).toHaveLength(1)
-    expect(confirmationFromSession(session)).toEqual(shownFor(asked))
+    expect(noticesFromSession(ROOT, session)).toHaveLength(1)
+    expect(confirmationFromSession(ROOT, session)).toEqual(shownFor(asked))
   })
 
   it('GIVEN nothing was raised at all WHEN both members are filled THEN there is nothing to tell and nothing to answer', () => {
-    const session = sessionAsking(null, [])
+    const session = readingsAsking(null, [])
 
-    expect(noticesFromSession(session)).toEqual([])
-    expect(confirmationFromSession(session)).toBeNull()
+    expect(noticesFromSession(ROOT, session)).toEqual([])
+    expect(confirmationFromSession(ROOT, session)).toBeNull()
   })
 })
 
@@ -1590,7 +1599,7 @@ describe('UF-67 -- FR-076 and 表 T-234: the sentence a question shows is READ, 
     for (const language of LANGUAGES) {
       for (const entry of T_234) {
         const asked = confirmationOf(entry.row, [])
-        const shown = confirmationFromSession({ ...sessionAsking(asked), language })
+        const shown = confirmationFromSession(withLanguage(ROOT, language), readingsAsking(asked))
 
         expect(shown, `${entry.row} in ${language}`).not.toBeNull()
         expect((shown as Confirmation).text, `${entry.row} in ${language}`).toBe(
@@ -1605,7 +1614,8 @@ describe('UF-67 -- FR-076 and 表 T-234: the sentence a question shows is READ, 
     // still carrying the row the asker handed over is a word from nowhere.
     for (const entry of T_234) {
       const shown = confirmationFromSession(
-        sessionAsking(confirmationOf(entry.row, [])),
+        ROOT,
+        readingsAsking(confirmationOf(entry.row, [])),
       ) as Confirmation
 
       expect(shown.text, `${entry.row} is a key, not a sentence`).not.toContain(entry.row)
@@ -1629,10 +1639,10 @@ describe('UF-67 -- FR-076 and 表 T-234: the sentence a question shows is READ, 
     const outsider = 'QN-no-row-of-its-own'
 
     for (const language of LANGUAGES) {
-      const shown = confirmationFromSession({
-        ...sessionAsking(confirmationOf(outsider, [])),
-        language,
-      }) as Confirmation
+      const shown = confirmationFromSession(
+        withLanguage(ROOT, language),
+        readingsAsking(confirmationOf(outsider, [])),
+      ) as Confirmation
 
       expect(shown.text, `the fallback sentence in ${language}`).toBe(
         questionTextFor(FALLBACK_QUESTION, language),
@@ -1702,7 +1712,7 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
     // so composing them onto the raised half is the unit's work.
     const asked = confirmationOf(questionRow(4), [])
 
-    const shown = confirmationFromSession(sessionAsking(asked)) as Confirmation
+    const shown = confirmationFromSession(ROOT, readingsAsking(asked)) as Confirmation
 
     expect(shown.answers.map((one) => one.answer)).toEqual(CONFIRMATION_ANSWERS)
   })
@@ -1716,7 +1726,8 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
     // claim from the other end: NT-7 (MUST) makes choosing between the two the
     // whole of the surface, so there is no state for one of them to be in.
     const shown = confirmationFromSession(
-      sessionAsking(confirmationOf(questionRow(0), [])),
+      ROOT,
+      readingsAsking(confirmationOf(questionRow(0), [])),
     ) as Confirmation
 
     expect(shown.answers.length).toBe(CONFIRMATION_ANSWERS.length)
@@ -1736,12 +1747,9 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
     // tell a word that went astray on the way, but not a word READ from a word
     // MINTED. The two cases below are the ones that tell those apart.
     for (const language of LANGUAGES) {
-      const session: ScreenSession = {
-        ...sessionAsking(confirmationOf(questionRow(2), [])),
-        language,
-      }
+      const readings: ScreenViewReadings = readingsAsking(confirmationOf(questionRow(2), []))
 
-      const shown = confirmationFromSession(session) as Confirmation
+      const shown = confirmationFromSession(withLanguage(ROOT, language), readings) as Confirmation
 
       expect(shown.answers, language).toEqual(answersOnConfirmation(language))
     }
@@ -1773,10 +1781,10 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
     // half a dictionary reading alone cannot show.
     const wordsIn = (language: DisplayLanguage): readonly string[] =>
       (
-        confirmationFromSession({
-          ...sessionAsking(confirmationOf(questionRow(1), [])),
-          language,
-        }) as Confirmation
+        confirmationFromSession(
+          withLanguage(ROOT, language),
+          readingsAsking(confirmationOf(questionRow(1), [])),
+        ) as Confirmation
       ).answers.map((one) => one.text)
     expect(wordsIn('ja')).toEqual(wordsIn('en'))
   })
@@ -1836,9 +1844,9 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
     // ⛔ `ScreenSession.confirmation` is the RAISED half. Widening it in place
     // would let a caller settle words FR-038 (MUST) keeps in one dictionary.
     const asked = confirmationOf(questionRow(5), [])
-    const session = sessionAsking(asked)
+    const session = readingsAsking(asked)
 
-    expect((confirmationFromSession(session) as Confirmation).answers.length).toBeGreaterThan(0)
+    expect((confirmationFromSession(ROOT, session) as Confirmation).answers.length).toBeGreaterThan(0)
     expect(session.confirmation).not.toHaveProperty('answers')
     expect(asked).not.toHaveProperty('answers')
   })
@@ -1846,7 +1854,7 @@ describe('UF-67 -- NT-7: the two word buttons the `Confirmation` surface answers
   it('GIVEN no question was raised WHEN the member is filled THEN there is no surface, and so no answers to place on one', () => {
     // NT-7 puts the two answers on U-55; U-55 is the surface a question stands
     // on, and NT-7 admits none where nothing was asked.
-    expect(confirmationFromSession(sessionAsking(null))).toBeNull()
+    expect(confirmationFromSession(ROOT, readingsAsking(null))).toBeNull()
   })
 })
 
@@ -1855,7 +1863,7 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
     // OP-11 of table T-024a (MUST) takes the first file and tells that the rest
     // were ignored, in NT-5's manner, and (MUST NOT) forbids showing that as
     // not having been accepted -- one of them WAS opened.
-    const shown = noticesFromSession(sessionOf([REFUSAL, OP_11_TELLING]))
+    const shown = noticesFromSession(ROOT, readingsOf([REFUSAL, OP_11_TELLING]))
 
     expect(shown).toHaveLength(2)
     expect(shown.map((notice) => notice.manner).sort()).toEqual(['NT-1', 'NT-5'])
@@ -1864,14 +1872,14 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
   })
 
   it('GIVEN the count of what was ignored WHEN the telling is shown THEN the count survives (NT-3)', () => {
-    const shown = noticesFromSession(sessionOf([OP_11_TELLING]))
+    const shown = noticesFromSession(ROOT, readingsOf([OP_11_TELLING]))
 
     expect((shown[0] as Notice).affectedCount).toBe(2)
   })
 
   it('GIVEN nothing was left behind WHEN a count of zero is told THEN zero survives as zero, not as absent', () => {
     const none = raisedOf('NT-5', reasonWrittenAgainst('NT-5'), 0)
-    const shown = noticesFromSession(sessionOf([none]))
+    const shown = noticesFromSession(ROOT, readingsOf([none]))
 
     expect((shown[0] as Notice).affectedCount).toBe(0)
   })
@@ -1879,7 +1887,7 @@ describe('UF-67 -- NT-5: OP-11 of table T-024a is told, not refused', () => {
   it('GIVEN the OP-11 telling raised at startup beside pending items WHEN the surfaces are chosen THEN it is not swept into NT-4 gathering', () => {
     // Merging it would put it under another row's manner, and NT-5 (MUST) has
     // to stay tellable apart from NT-1's refusal.
-    const shown = noticesFromSession(sessionOf([PENDING_RESTORE, OP_11_TELLING, PENDING_RECOVERY]))
+    const shown = noticesFromSession(ROOT, readingsOf([PENDING_RESTORE, OP_11_TELLING, PENDING_RECOVERY]))
     const told = shown.filter((notice) => notice.manner === 'NT-5')
 
     expect(shown).toHaveLength(2)
@@ -1895,18 +1903,18 @@ describe('UF-67 -- confirmationFromSession is @purity pure (table T-075, R7.1)',
       { name: null, isShownOnAnotherRow: true },
     ])
     const before = structuredClone(asked)
-    const session = sessionAsking(asked, [REFUSAL, PENDING_RESTORE])
+    const session = readingsAsking(asked, [REFUSAL, PENDING_RESTORE])
 
-    confirmationFromSession(session)
+    confirmationFromSession(ROOT, session)
 
     expect(asked).toEqual(before)
     expect(session.confirmation).toEqual(before)
   })
 
   it('GIVEN the same session WHEN it is asked twice THEN it answers the same way both times', () => {
-    const session = sessionAsking(confirmationOf(questionRow(4), []), [REFUSAL])
+    const session = readingsAsking(confirmationOf(questionRow(4), []), [REFUSAL])
 
-    expect(confirmationFromSession(session)).toEqual(confirmationFromSession(session))
+    expect(confirmationFromSession(ROOT, session)).toEqual(confirmationFromSession(ROOT, session))
   })
 })
 
@@ -1923,7 +1931,7 @@ describe('UF-67 -- FR-038: the words are READ from the dictionary, never minted'
     // looked up under -- replacing its words changed nothing. ⛔ Do not weaken
     // it into a case that a unit writing its own sentence would pass -- that
     // unit is exactly what FR-038 forbids, and this is the case that names it.
-    const asGenerated = noticesFromSession(sessionOf(SHELL_RAISED)).map((one) => one.text)
+    const asGenerated = noticesFromSession(ROOT, readingsOf(SHELL_RAISED)).map((one) => one.text)
     const asMarked = (await noticesWithMarkedDictionary(SHELL_RAISED)).map((one) => one.text)
 
     expect(asMarked, 'FR-038 (MUST): the words follow the dictionary').not.toEqual(asGenerated)

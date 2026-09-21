@@ -15,17 +15,17 @@ import {
   type DialogueLog,
 } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   AppHeaderItems,
   CommandItem,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
 import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
 
@@ -150,34 +150,46 @@ const SCHEDULE: Schedule = {
   baselineTasks: [],
 } as unknown as Schedule
 
-const STATE: ScreenState = emptyScreenState()
+interface Session {
+  readonly root: ScreenSession
+  readonly readings: ScreenViewReadings
+}
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: false,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const SESSION: Session = { root: ROOT, readings: READINGS }
+
+const sessionWith = (part: { isAgentApiEnabled: boolean; isDialogueFieldVisible: boolean }): Session => ({
+  root: {
+    ...SESSION.root,
+    screen: {
+      ...SESSION.root.screen,
+      dialogueFieldDisplayState: { kind: part.isDialogueFieldVisible ? 'shown' : 'hidden' },
+    },
+  },
+  readings: { ...SESSION.readings, isAgentApiEnabled: part.isAgentApiEnabled },
+})
 
 const LOG: DialogueLog = [
   { author: 'person', text: 'move the milestone', settledAt: '2026-08-19T09:00:00Z' },
@@ -198,14 +210,14 @@ const PAIRS: readonly Pair[] = [
   { name: 'the API off, the field hidden', apiEnabled: false, fieldVisible: false },
 ]
 
-const sessionOf = (pair: Pair): ScreenSession =>
+const sessionOf = (pair: Pair): Session =>
   sessionWith({ isAgentApiEnabled: pair.apiEnabled, isDialogueFieldVisible: pair.fieldVisible })
 
 const fieldIsUp = (pair: Pair): boolean => pair.apiEnabled && pair.fieldVisible
 
 
-const itemsOf = (session: ScreenSession): AppHeaderItems =>
-  appHeaderItemsFromDocument(SCHEDULE, SETTINGS, STATE, session)
+const itemsOf = (session: Session): AppHeaderItems =>
+  appHeaderItemsFromDocument(SCHEDULE, SETTINGS, session.root, session.readings)
 
 const commandFor = (items: AppHeaderItems, icon: string): CommandItem => {
   const found = items.commands.filter((command) => command.icon === icon)
@@ -215,7 +227,7 @@ const commandFor = (items: AppHeaderItems, icon: string): CommandItem => {
 
 const entryOf = (pair: Pair, icon: string): CommandItem => commandFor(itemsOf(sessionOf(pair)), icon)
 
-const fieldShownFor = (pair: Pair): boolean => dialogueFieldFromLog(LOG, sessionOf(pair)) !== null
+const fieldShownFor = (pair: Pair): boolean => { const session = sessionOf(pair); return dialogueFieldFromLog(LOG, session.root, session.readings) !== null }
 
 
 describe('the manuscript still says what these cases read', () => {
@@ -396,17 +408,17 @@ describe('UF-62 IC-18: faint while the API is off (FR-066 ⚠️, through FR-029
 
 describe('UF-68: the field is described only while both conditions hold (FR-066)', () => {
   it('⭐ describes it while the API is on and the field is shown', () => {
-    expect(dialogueFieldFromLog(LOG, sessionOf(PAIRS[0] as Pair))).not.toBeNull()
+    expect(dialogueFieldFromLog(LOG, sessionOf(PAIRS[0] as Pair).root, sessionOf(PAIRS[0] as Pair).readings)).not.toBeNull()
   })
 
   it('⛔ describes nothing while the API is on and the reader has hidden it (MUST)', () => {
     const hidden = sessionWith({ isAgentApiEnabled: true, isDialogueFieldVisible: false })
-    expect(dialogueFieldFromLog(LOG, hidden)).toBeNull()
+    expect(dialogueFieldFromLog(LOG, hidden.root, hidden.readings)).toBeNull()
   })
 
   it('⛔ describes nothing while the API is off, whichever way `S-99i` stands', () => {
     for (const pair of PAIRS.filter((one) => !one.apiEnabled)) {
-      expect(dialogueFieldFromLog(LOG, sessionOf(pair)), pair.name).toBeNull()
+      expect(dialogueFieldFromLog(LOG, sessionOf(pair).root, sessionOf(pair).readings), pair.name).toBeNull()
     }
   })
 
@@ -418,8 +430,8 @@ describe('UF-68: the field is described only while both conditions hold (FR-066)
 
   it('⛔ answers `null` and not an empty field when the field is hidden', () => {
     const hidden = sessionWith({ isAgentApiEnabled: true, isDialogueFieldVisible: false })
-    expect(dialogueFieldFromLog(LOG, hidden)).toBeNull()
-    expect(dialogueFieldFromLog(emptyDialogueLog(), hidden)).toBeNull()
+    expect(dialogueFieldFromLog(LOG, hidden.root, hidden.readings)).toBeNull()
+    expect(dialogueFieldFromLog(emptyDialogueLog(), hidden.root, hidden.readings)).toBeNull()
   })
 
   it('⚠️ reads `S-99i` and not the log: a hidden field with things said stays hidden', () => {
@@ -429,7 +441,7 @@ describe('UF-68: the field is described only while both conditions hold (FR-066)
       text: 'and moved the next one too',
       settledAt: '2026-08-19T09:00:09Z',
     })
-    expect(dialogueFieldFromLog(spoken, hidden)).toBeNull()
+    expect(dialogueFieldFromLog(spoken, hidden.root, hidden.readings)).toBeNull()
   })
 })
 
@@ -444,12 +456,12 @@ describe('EN-5: the press on IC-18 says what the screen is actually doing', () =
 
 
 describe('the default of `S-99i` -- one press, not two (表 T-206)', () => {
-  const atTheDefault = (isAgentApiEnabled: boolean): ScreenSession =>
+  const atTheDefault = (isAgentApiEnabled: boolean): Session =>
     sessionWith({ isAgentApiEnabled, isDialogueFieldVisible: S_99I_DEFAULT })
 
   it('⭐ turning the API on puts the field up, with no second press', () => {
     expect(S_99I_DEFAULT, 'the manuscript still says 「表示」').toBe(true)
-    expect(dialogueFieldFromLog(LOG, atTheDefault(true))).not.toBeNull()
+    expect(dialogueFieldFromLog(LOG, atTheDefault(true).root, atTheDefault(true).readings)).not.toBeNull()
   })
 
   it('⭐ and IC-18 is pressed at once, because the field really is up', () => {
@@ -457,7 +469,7 @@ describe('the default of `S-99i` -- one press, not two (表 T-206)', () => {
   })
 
   it('⛔ but the default does not put a field up while the API is off', () => {
-    expect(dialogueFieldFromLog(LOG, atTheDefault(false))).toBeNull()
+    expect(dialogueFieldFromLog(LOG, atTheDefault(false).root, atTheDefault(false).readings)).toBeNull()
     expect(commandFor(itemsOf(atTheDefault(false)), IC_DIALOGUE_FIELD).isPressed).toBe(false)
     expect(commandFor(itemsOf(atTheDefault(false)), IC_DIALOGUE_FIELD).isEnabled).toBe(false)
   })

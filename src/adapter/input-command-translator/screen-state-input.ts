@@ -1,103 +1,110 @@
-// InputCommandTranslator -- the next screen state from an input (IN-4 of table T-028, T-023b).
+// InputCommandTranslator -- the screen-value event of an input (T-280, IN-4 of table T-028, T-023b).
 // @unit      UF-102  (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import {
-  escapeTarget,
-  rememberedActualOf,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  screenStateWithRememberedActual,
-  screenStateWithSurface,
-  screenStateWithWatermark,
-  type ScreenState,
-} from '../../entity/document-model/screen-state/screen-state'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
+import type { ScreenValuesEvent } from '../../use-case/advance-screen-session/advance-screen-session'
 import { cycleTaskPlanActualState } from '../../use-case/edit-document/edit-document'
 import type {
   HumanInput,
+  KeyInput,
   PointerInput,
 } from './input-source'
 import {
   ENTRY,
   KEY,
   armedByEntry,
-  escapeContextOf,
   grabRowOf,
   hasDraggedPastThreshold,
   isCombo,
-  isSameArm,
   isSingleCharacterKey,
+  rememberedActualIn,
   type InputContext,
 } from './input-command-translator'
 
+// DEVIATION: spec says a surface is named by its U row (T-280); here by its glossary name, U-30 naming two (DFC-703)
 const HELP_MODAL = 'Help Modal'
 
 const AI_EXPORT_MODAL = 'AI Export Modal'
 const RESOURCE_ROSTER = 'Resource Roster'
 const EXPORT_CHOOSER = 'Export Chooser'
 
-const WATERMARK_UNLOCK = 'Watermark Unlock'
-
-// TRAP: never put this in ScreenState.surface; the drawing side would draw the panel as a modal.
+// TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
 const PROPERTIES_PANEL = 'Properties Panel'
 
-// see FR-083, T-023b
-/** @purity pure */
-function screenStateFromEntry(entry: string, context: InputContext): ScreenState {
-  const state = context.screenState
+const PALETTE_TOGGLED: ScreenValuesEvent = { type: 'paletteToggled' }
 
+const WATERMARK_ENTRY_PRESSED: ScreenValuesEvent = { type: 'watermarkEntryPressed' }
+
+const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
+
+const ARM_DROPPED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
+
+/** @purity pure */
+function surfaceEntered(surfaceName: string): ScreenValuesEvent {
+  return { type: 'surfaceEntryPressed', surfaceName }
+}
+
+// see FR-083, T-023b, T-280
+/** @purity pure */
+function screenEventFromEntry(entry: string, context: InputContext): ScreenValuesEvent | null {
   switch (entry) {
     case ENTRY.palette:
-      return screenStateWithPalette(state, !state.paletteShown)
+      return PALETTE_TOGGLED
     case ENTRY.help:
-      return screenStateWithSurface(state, HELP_MODAL)
+      return surfaceEntered(HELP_MODAL)
     case ENTRY.aiExportModal:
-      return screenStateWithSurface(state, AI_EXPORT_MODAL)
+      return surfaceEntered(AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
-      return screenStateWithSurface(state, RESOURCE_ROSTER)
+      return surfaceEntered(RESOURCE_ROSTER)
     case ENTRY.dualCursor:
-      // WHY: the arm drops even where PND-313 takes the press without raising the mode;
-      // re-reading dayAtX here would put that rule in a second place.
-      return context.dualCursorFollowing === null
-        ? screenStateWithArmed(state, { kind: 'none' })
-        : state
+      // DEVIATION: spec says only a raised mode drops the arm (T-280); here any press with the mode off does, PND-313 too (DFC-704)
+      return context.dualCursorFollowing === null ? ARM_DROPPED : null
     case ENTRY.watermark:
-      return state.watermarkVisible
-        ? screenStateWithSurface(state, WATERMARK_UNLOCK)
-        : screenStateWithWatermark(state, true)
+      return WATERMARK_ENTRY_PRESSED
     case ENTRY.exportChooser:
-      return screenStateWithSurface(state, EXPORT_CHOOSER)
+      return surfaceEntered(EXPORT_CHOOSER)
     case ENTRY.closeSurface:
-      return context.pressed?.on?.part === PROPERTIES_PANEL
-        ? state
-        : screenStateWithSurface(state, null)
+      return context.pressed?.on?.part === PROPERTIES_PANEL ? null : SURFACE_CLOSE_ASKED
     default:
       break
   }
 
   const armed = armedByEntry(entry)
-  if (armed === null) return state
-  return screenStateWithArmed(state, isSameArm(state.armed, armed) ? { kind: 'none' } : armed)
+  if (armed === null) return null
+  return {
+    type: 'armEntryPressed',
+    armKind: armed.kind,
+    shapeKind: armed.kind === 'taskShapeArmed' ? armed.shapeKind : null,
+    glyph: armed.kind === 'milestoneShapeArmed' ? armed.glyph : null,
+  }
 }
 
-// see PV-4, PV-5, CP-36
+// see PV-4, PV-5, T-280
 /** @purity pure */
-function screenStateAfterMarkerPress(input: PointerInput, context: InputContext): ScreenState {
-  const state = context.screenState
+function screenEventAfterMarkerPress(
+  input: PointerInput,
+  context: InputContext,
+): ScreenValuesEvent | null {
   const press = context.pressed
-  if (press === null || press.hit === null) return state
-  if (grabRowOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return state
-  if (hasDraggedPastThreshold(press, input)) return state
+  if (press === null || press.hit === null) return null
+  if (grabRowOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
+  if (hasDraggedPastThreshold(press, input)) return null
   const uid = press.hit.item.taskUid
   const task = taskByUid(context.document.schedule, uid)
-  if (task === null) return state
-  const turned = cycleTaskPlanActualState(task, rememberedActualOf(state, uid), {
+  if (task === null) return null
+  const remembered = rememberedActualIn(context, uid)
+  const turned = cycleTaskPlanActualState(task, remembered, {
     floorDay: task.start,
     milestone: isDrawnAsMilestone(context, uid),
   })
-  return screenStateWithRememberedActual(state, uid, turned.remembered)
+  return {
+    type: 'progressMarkerPressed',
+    taskUid: uid,
+    rememberedActual: turned.remembered,
+    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered }],
+  }
 }
 
 // see AT-100, FR-083
@@ -109,50 +116,30 @@ function isDrawnAsMilestone(context: InputContext, uid: number): boolean {
   return task !== null && task.milestone === true
 }
 
-// see CP-36, IN-4
+// see SK-12, IN-5a, T-280
 /** @purity pure */
-export function screenStateFromInput(input: HumanInput, context: InputContext): ScreenState {
-  const state = context.screenState
-  if (input.kind === 'pointer') {
-    if (input.phase !== 'up') return state
-    const on = context.pressed === null ? null : context.pressed.on
-    if (on?.isImportReportDismiss === true) return screenStateWithSurface(state, null)
-    if (on === null) return screenStateAfterMarkerPress(input, context)
-    return on.entry === null ? state : screenStateFromEntry(on.entry, context)
-  }
-  if (input.kind !== 'key') return state
+function screenEventFromKey(input: KeyInput, context: InputContext): ScreenValuesEvent | null {
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
-    return screenStateWithSurface(state, EXPORT_CHOOSER)
+    return surfaceEntered(EXPORT_CHOOSER)
   }
-  const plain = isCombo(input.modifiers, false, false, false)
-  if (!plain) return state
-  // see IN-5a
-  if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
-    if (isSingleCharacterKey(input.key)) return state
-  }
+  if (!isCombo(input.modifiers, false, false, false)) return null
+  const isFieldTaking = context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true
+  if (isFieldTaking && isSingleCharacterKey(input.key)) return null
+  if (input.key === KEY.f1) return surfaceEntered(HELP_MODAL)
+  if (input.key === KEY.p) return PALETTE_TOGGLED
+  return null
+}
 
-  if (input.key === KEY.escape) {
-    // TRAP: escapeContextOf never reports a standing confirmation, so a caller holding one
-    // must not ask this member (it would close the surface behind it); frame-loop.ts skips it.
-    switch (escapeTarget(state, escapeContextOf(context))) {
-      case 'surface':
-        return screenStateWithSurface(state, null)
-      case 'armed':
-        return screenStateWithArmed(state, { kind: 'none' })
-      case 'notice':
-      case 'gesture':
-      case 'dualCursorMode':
-      case 'confirmation':
-      case 'propertiesPanel':
-      case 'selection':
-      case null:
-      default:
-        return state
-    }
-  }
-
-  if (input.key === KEY.f1) return screenStateWithSurface(state, HELP_MODAL)
-  if (input.key === KEY.p) return screenStateWithPalette(state, !state.paletteShown)
-
-  return state
+// see T-280, IN-4, T-283
+/** @purity pure */
+export function screenEventFromInput(
+  input: HumanInput,
+  context: InputContext,
+): ScreenValuesEvent | null {
+  if (input.kind === 'key') return screenEventFromKey(input, context)
+  if (input.kind !== 'pointer' || input.phase !== 'up') return null
+  const on = context.pressed === null ? null : context.pressed.on
+  if (on?.isImportReportDismiss === true) return SURFACE_CLOSE_ASKED
+  if (on === null) return screenEventAfterMarkerPress(input, context)
+  return on.entry === null ? null : screenEventFromEntry(on.entry, context)
 }

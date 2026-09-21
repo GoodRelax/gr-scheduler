@@ -8,7 +8,6 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionWith,
@@ -27,13 +26,17 @@ import {
 import type {
   FieldCommit,
   PropertyFieldKey,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import {
   commandFromFieldCommit,
   type InputContext,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const built: Record<string, unknown> = {}
@@ -130,7 +133,7 @@ const CONTEXT: InputContext = {
   layout: LAYOUT,
   geometry: geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection()),
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: 1.1,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -145,33 +148,44 @@ const CONTEXT: InputContext = {
   newHighlightBoxId: 'highlight-box-minted-outside',
 }
 
-const SESSION = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 214,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-} as unknown as ScreenSession
+}
 
 const keyOnPanel = (item: ItemRef, row: string): PropertyFieldKey => {
-  const panel = propertiesPanelFromSelection(SCHEDULE, SETTINGS, selectionWith(emptySelection(), item), SESSION)
+  const panel = propertiesPanelFromSelection(
+    SCHEDULE,
+    SETTINGS,
+    selectionWith(emptySelection(), item),
+    ROOT,
+    READINGS,
+  )
   const field = panel?.fields.find((one) => one.row === row)
   const key = field?.controls[0]?.key
   if (key === undefined) throw new Error(`the panel offers no control for ${row}`)

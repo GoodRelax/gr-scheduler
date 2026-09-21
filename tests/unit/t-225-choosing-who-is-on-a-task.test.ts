@@ -112,7 +112,6 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionWith,
@@ -141,13 +140,17 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type {
   FieldCommit,
   PropertiesPanel,
   PropertyControl,
   PropertyField,
   PropertyFieldKey,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import {
@@ -461,7 +464,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: ZOOM_STEP,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -482,25 +485,34 @@ const contextOf = (schedule: Schedule = SCHEDULE): InputContext => ({
   document: documentOf(schedule),
 })
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    dialogueFieldDisplayState: { kind: 'shown' },
+    milestoneListDisplayState: { kind: 'closed' },
+    paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
+    dualCursorModeState: { kind: 'off' },
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -523,7 +535,8 @@ const panelOf = (taskUid: number, schedule: Schedule = SCHEDULE): PropertiesPane
     schedule,
     SETTINGS,
     holding({ kind: 'task', uid: taskUid } as ItemRef),
-    SESSION,
+    ROOT,
+    READINGS,
   )
   expect(panel, 'the panel is described while `propertiesShowing` names one of the two').not.toBe(
     null,

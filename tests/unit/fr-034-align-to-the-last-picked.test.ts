@@ -82,10 +82,7 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  emptyScreenState,
-  screenStateWithPalette,
-} from '../../src/entity/document-model/screen-state/screen-state'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   emptySelection,
   selectionOfAll,
@@ -317,7 +314,10 @@ const BASE: InputContext = {
   regions: REGIONS,
   // FR-053 has the palette on the screen; a press on one of its entries could
   // not be answered otherwise.
-  screenState: screenStateWithPalette(emptyScreenState(), true),
+  screen: {
+    ...emptyScreenSession.screen,
+    paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
+  },
   selection: emptySelection(),
   zoomStep: 3,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

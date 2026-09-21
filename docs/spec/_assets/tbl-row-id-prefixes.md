@@ -70,7 +70,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 8 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 731 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 740 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |
@@ -159,6 +159,7 @@
 | `RC` | Reduction Candidate | 削減・見直しの候補 | 仕様書 | `T-026` | 7 |
 | `RD` | — | 文書をまるごと差し替えるときの、呼び手ごとの扱い | 仕様書 | `T-230` | 6 |
 | `RF` | Reference | 札が付く基準（実績 ／ ダミー ／ 予定） | 仕様書 | `T-272` | 2 |
+| `RG` | RunG | 領域をまたぐ優先順の段（同じ入力を奪い合う状態機械の、どの段が先に消費するか） | 仕様書 | `T-283` | 13 |
 | `RL` | Relation | エンティティのあいだの関係 1 本 | 仕様書 | `T-057` | 30 |
 | `RP` | — | 依存線の経路の分岐 | 仕様書 | `T-222` | 8 |
 | `RR` | Resource Roster | 担当者の一覧の字の大きさ・スクロール・罫線 | 仕様書 | `T-257` | 5 |
@@ -187,7 +188,7 @@
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 61 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
-| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 63 行。写しとして申告済み） | `T-075` | 111 |
+| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 64 行。写しとして申告済み） | `T-075` | 112 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 18 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 12 |
 | `V` | — | ユースケースと、前プロジェクトの要望との対応 | 仕様書 | `T-011` | 16 |

@@ -48,21 +48,20 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import type {
   AppHeaderItems,
   DisplayLanguage,
   OpenModal,
   ScreenFrame,
   ScreenPart,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
-  emptyScreenState,
-  screenStateWithSurface,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
@@ -79,11 +78,12 @@ import {
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import {
   pressRowOf,
-  screenStateFromInput,
+  screenEventFromInput,
   type InputContext,
   type InputModifiers,
   type PointerInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { advanceScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   domScreenSurface,
   type ScreenTheme,
@@ -214,38 +214,39 @@ const DOCUMENT: Document = {
 /** FR-023's dropped names -- one plain, one nameless (AT-27). */
 const DROPPED_TASK_NAMES: readonly (string | null)[] = ['Foundation pour', null]
 
-const sessionOf = (language: DisplayLanguage): ScreenSession =>
-  ({
+const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
     language,
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
+  },
+})
+
+const readingsOf = (): ScreenViewReadings =>
+  ({
     openedFileName: null,
     fileSavedAt: null,
     isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
     pointer: null,
     pointerRestedMs: 0,
     iconUnderPointer: null,
     commandPaletteAt: { x: 0, y: 0 },
     themePreference: 'light',
     themeHue: 214,
-    isMilestoneListOpen: false,
-    isPaletteMinimised: false,
-    dualCursorFollowing: null,
     selectedGroupIds: [],
     selectedResourceUids: [],
-    propertiesShowing: null,
-    propertiesSubject: null,
     notices: [],
     confirmation: null,
     rowBoxes: [],
     droppedTaskNames: DROPPED_TASK_NAMES,
-  }) as unknown as ScreenSession
+  }) as unknown as ScreenViewReadings
 
-const stateOn = (surface: string | null): ScreenState =>
-  screenStateWithSurface(emptyScreenState(), surface)
+const stateOn = (surface: string | null): ScreenSession => rootOn(surface)
 
 /** U-62 as UF-66 describes it, with the case failed where S-99g holds nothing. */
 function describedOn(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromScreenState(stateOn(U_62), SCHEDULE, sessionOf(language))
+  const modal = openModalFromSession(rootOn(U_62, language), SCHEDULE, readingsOf())
   expect(modal, `S-99g holds ${U_62}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }
@@ -376,7 +377,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       layout: LAYOUT,
       geometry: GEOMETRY,
       regions: REGIONS,
-      screenState: stateOn(U_62),
+      screen: stateOn(U_62).screen,
       selection: emptySelection(),
       zoomStep: 3,
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -406,8 +407,16 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       on: onDismiss,
       pressRow: pressRowOf({ at: down, hit: null }, baseContext),
     }
-    const afterDismiss = screenStateFromInput(up, { ...baseContext, pressed: pressedOnDismiss })
-    expect(afterDismiss.surface, 'S-99g is put away').toBeNull()
+    const eventOnDismiss = screenEventFromInput(up, { ...baseContext, pressed: pressedOnDismiss })
+    expect(eventOnDismiss, 'FR-023: the OK entrance asks to close the surface').toEqual({
+      type: 'surfaceCloseAsked',
+      target: 'surface',
+    })
+    const afterDismiss = advanceScreenSession(
+      { ...emptyScreenSession, screen: baseContext.screen },
+      eventOnDismiss as NonNullable<typeof eventOnDismiss>,
+    ).state.screen
+    expect(afterDismiss.openSurfaceState.kind, 'S-99g is put away').toBe('closed')
 
     // ⛔ (MUST NOT) THE SAME PRESS ANYWHERE ELSE ON U-62 MAY NOT CLOSE IT: the
     // member is what carries the entrance, not `on.part`.
@@ -419,10 +428,10 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       on: onElsewhere,
       pressRow: pressRowOf({ at: down, hit: null }, baseContext),
     }
-    const afterElsewhere = screenStateFromInput(up, {
+    const eventElsewhere = screenEventFromInput(up, {
       ...baseContext,
       pressed: pressedElsewhere,
     })
-    expect(afterElsewhere.surface, `S-99g still holds ${U_62}`).toBe(U_62)
+    expect(eventElsewhere, `S-99g still holds ${U_62}: no close event off the entrance`).toBeNull()
   })
 })

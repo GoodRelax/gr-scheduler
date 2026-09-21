@@ -1,17 +1,10 @@
-// Unit tests for commandPaletteFromScreenState (UF-65 of table T-075): the palette described from screen state.
+// Unit tests for commandPaletteFromSession (UF-65 of table T-075): the palette described from the screen session.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithPalette,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionOfAll,
@@ -23,9 +16,14 @@ import type {
   CommandItem,
   CommandPalette,
   DisplayLanguage,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -98,15 +96,17 @@ const T_109_ELSEWHERE: readonly string[] = T_109_ROWS.filter(
   (entry) => !entry.surfaces.includes(COMMAND_PALETTE_SURFACE),
 ).map((entry) => entry.row)
 
+type Armed = ScreenValues['armModeState']
+
 // WHY: the spellings a shape/glyph carry are not settled (Armed says so
 // of AR-3), so each row uses a spelling no case reads back.
 const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
-  { row: 'AR-1', armed: { kind: 'none' } },
-  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
-  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'SH-5' } },
-  { row: 'AR-4', armed: { kind: 'dependency' } },
-  { row: 'AR-5', armed: { kind: 'commentBox' } },
-  { row: 'AR-6', armed: { kind: 'highlightBox' } },
+  { row: 'AR-1', armed: { kind: 'notArmed' } },
+  { row: 'AR-2', armed: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
+  { row: 'AR-3', armed: { kind: 'milestoneShapeArmed', glyph: 'SH-5' } },
+  { row: 'AR-4', armed: { kind: 'dependencyArmed' } },
+  { row: 'AR-5', armed: { kind: 'commentBoxArmed' } },
+  { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } },
 ]
 
 // see T-109
@@ -211,32 +211,22 @@ const GRAB_BAND_HEIGHT = settingDefaultNumber('T-206', 'S-135a')
 // Project rather than settings, so no generated constant holds it.
 const THEME_HUE = settingDefaultNumber('T-216', 'S-73')
 
-const SHOWN: ScreenState = screenStateWithPalette(emptyScreenState(), true)
-const HIDDEN: ScreenState = screenStateWithPalette(emptyScreenState(), false)
-
-const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
-  language: 'ja',
+// WHY: readings-only builder; the moved members now live on the
+// session's `screen`, built by `rootOf`/`withArm`/`withLanguage`.
+const readingsOf = (part: Partial<ScreenViewReadings> = {}): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // WHY: these seven members stay fixed here because no case below varies
-  // them (theme, selection sets, and the remembered properties subject).
+  // WHY: these members stay fixed here because no case below varies
+  // them (theme, selection sets).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  // WHY: open, not S-142's default -- PALETTE_ENTRY_ROWS holds the
-  // milestone entrances FR-053 keeps hidden until the list opens.
-  isMilestoneListOpen: true,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -245,6 +235,33 @@ const sessionOf = (part: Partial<ScreenSession> = {}): ScreenSession => ({
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   ...part,
 })
+
+// WHY: root builder for the session's `screen`; overrides only the two
+// defaults that were not already emptyScreenValues' own default.
+const rootOf = (part: Partial<ScreenValues> = {}): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    // WHY: open, not S-142's default -- PALETTE_ENTRY_ROWS holds the
+    // milestone entrances FR-053 keeps hidden until the list opens.
+    milestoneListDisplayState: { kind: 'open' },
+    ...part,
+  },
+})
+
+const withArm = (root: ScreenSession, armed: Armed): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, armModeState: armed },
+})
+
+const withLanguage = (root: ScreenSession, language: DisplayLanguage): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, language },
+})
+
+const SHOWN: ScreenSession = rootOf()
+const HIDDEN: ScreenSession = rootOf({ paletteDisplayState: { kind: 'hidden' } })
 
 const TASK_A: ItemRef = { kind: 'task', uid: 11 }
 const TASK_B: ItemRef = { kind: 'task', uid: 12 }
@@ -267,10 +284,10 @@ const SELECTIONS: readonly { readonly what: string; readonly selection: Selectio
 
 const describedWith = (
   selection: Selection = emptySelection(),
-  session: ScreenSession = sessionOf(),
-  state: ScreenState = SHOWN,
+  readings: ScreenViewReadings = readingsOf(),
+  root: ScreenSession = SHOWN,
 ): CommandPalette => {
-  const palette = commandPaletteFromScreenState(state, SETTINGS, selection, session)
+  const palette = commandPaletteFromSession(root, SETTINGS, selection, readings)
   expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
   return palette as CommandPalette
 }
@@ -295,19 +312,21 @@ const deepFreeze = <T>(value: T): T => {
 
 describe('UF-65 -- S-99e: described only while the palette is showing', () => {
   it('describes nothing while S-99e says it is hidden', () => {
-    expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, emptySelection(), sessionOf())).toBeNull()
+    expect(commandPaletteFromSession(HIDDEN, SETTINGS, emptySelection(), readingsOf())).toBeNull()
   })
 
   it('describes one by default, because S-99e defaults to showing', () => {
-    // WHY: emptyScreenState is where that default lives; this does not repeat it.
-    expect(commandPaletteFromScreenState(emptyScreenState(), SETTINGS, emptySelection(), sessionOf())).not.toBeNull()
+    // WHY: emptyScreenSession is where that default lives; this does not repeat it.
+    expect(
+      commandPaletteFromSession(emptyScreenSession, SETTINGS, emptySelection(), readingsOf()),
+    ).not.toBeNull()
   })
 
   it('spells hidden one way only, which EP-11 of table T-076 also exports', () => {
     // WHY: EP-11 treats the palette as closed on export; a description
     // with no entries would be a second spelling of hidden.
     for (const { what, selection } of SELECTIONS) {
-      expect(commandPaletteFromScreenState(HIDDEN, SETTINGS, selection, sessionOf()), what).toBeNull()
+      expect(commandPaletteFromSession(HIDDEN, SETTINGS, selection, readingsOf()), what).toBeNull()
       expect(entriesOf(describedWith(selection)).length, what).toBeGreaterThan(0)
     }
   })
@@ -315,15 +334,15 @@ describe('UF-65 -- S-99e: described only while the palette is showing', () => {
   it('answers hidden whatever else is going on', () => {
     // WHY: S-99e is the whole condition -- no arm, pointer, or selection turns it back on.
     for (const { row, armed } of T_023b) {
-      const state = screenStateWithArmed(HIDDEN, armed)
-      const session = sessionOf({ pointer: { x: 5, y: 5 }, commandPaletteAt: { x: 0, y: 0 } })
-      expect(commandPaletteFromScreenState(state, SETTINGS, pickedInTurn(TASK_A), session), row).toBeNull()
+      const root = withArm(HIDDEN, armed)
+      const readings = readingsOf({ pointer: { x: 5, y: 5 }, commandPaletteAt: { x: 0, y: 0 } })
+      expect(commandPaletteFromSession(root, SETTINGS, pickedInTurn(TASK_A), readings), row).toBeNull()
     }
   })
 })
 
 describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
-  it('puts the corner it floats at where `ScreenSession.commandPaletteAt` says', () => {
+  it('puts the corner it floats at where `ScreenViewReadings.commandPaletteAt` says', () => {
     // WHY: FR-053 has the person drag the palette, so its place is not
     // one of ScreenRegions' rectangles; the corner is the whole geometry here.
     for (const at of [
@@ -332,7 +351,7 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
       { x: -40, y: -1 },
       { x: 1919.5, y: 1079.5 },
     ]) {
-      const corner = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at })).at
+      const corner = describedWith(emptySelection(), readingsOf({ commandPaletteAt: at })).at
       expect(corner, JSON.stringify(at)).toEqual(at)
     }
   })
@@ -340,7 +359,7 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
   it('carries a place and no extent, because FR-053 forbids one being held', () => {
     // WHY: FR-053 (MUST NOT) bars a width, height, box or rectangle here
     // -- no unit on this side of IF-9 measures anything (LR-6).
-    const palette = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 12, y: 34 } }))
+    const palette = describedWith(emptySelection(), readingsOf({ commandPaletteAt: { x: 12, y: 34 } }))
     expect(Object.keys(palette.at).sort()).toEqual(['x', 'y'])
     // WHY: grabBandHeight is a height, not an extent; minimise and
     // isMinimised are the toggle and its state, not a size either.
@@ -358,8 +377,8 @@ describe('UF-65 -- FR-053: it floats where the person dragged it', () => {
   it('moves only the place when the person drags it', () => {
     // WHY: SC-6 (table T-031) keeps the palette still against the
     // screen, so a drag is the only thing that can move it.
-    const here = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 0, y: 0 } }))
-    const there = describedWith(emptySelection(), sessionOf({ commandPaletteAt: { x: 300, y: 90 } }))
+    const here = describedWith(emptySelection(), readingsOf({ commandPaletteAt: { x: 0, y: 0 } }))
+    const there = describedWith(emptySelection(), readingsOf({ commandPaletteAt: { x: 300, y: 90 } }))
     expect({ ...there, at: here.at }).toEqual(here)
   })
 })
@@ -373,8 +392,8 @@ describe('UF-65 -- GR-19 of table T-023d: the band FR-053 is dragged by', () => 
         for (const { row, armed } of T_023b) {
           const palette = describedWith(
             selection,
-            sessionOf({ language, commandPaletteAt: { x: -12, y: 900 } }),
-            screenStateWithArmed(SHOWN, armed),
+            readingsOf({ commandPaletteAt: { x: -12, y: 900 } }),
+            withArm(withLanguage(SHOWN, language), armed),
           )
           expect(palette.grabBandHeight, `${language} / ${what} / ${row}`).toBe(GRAB_BAND_HEIGHT)
         }
@@ -411,8 +430,8 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
     // WHY: an empty armedText answers nothing, and FR-053 makes reading
     // what is armed a MUST.
     for (const { row, armed } of T_023b) {
-      const palette = describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed))
-      // WHY: null is the minimised reading and nothing else; sessionOf()
+      const palette = describedWith(emptySelection(), readingsOf(), withArm(SHOWN, armed))
+      // WHY: null is the minimised reading and nothing else; SHOWN
       // is not minimised, so null here is the MUST broken.
       expect(palette.armedText, `FR-053 (MUST): ${row} reads null while shown`).not.toBeNull()
       expect(palette.armedText?.length ?? 0, `FR-053 (MUST): ${row}`).toBeGreaterThan(0)
@@ -424,19 +443,19 @@ describe('UF-65 -- FR-053 (MUST): what is armed is readable on the screen', () =
     // sharing one text could not be told apart.
     const texts = T_023b.map(
       ({ armed }) =>
-        describedWith(emptySelection(), sessionOf(), screenStateWithArmed(SHOWN, armed)).armedText,
+        describedWith(emptySelection(), readingsOf(), withArm(SHOWN, armed)).armedText,
     )
     expect(new Set(texts).size).toBe(T_023b.length)
   })
 
-  it('reads the arm off `ScreenState` and nothing else', () => {
+  it('reads the arm off the session and nothing else', () => {
     // WHY: U-38 forbids calling an arm a selection; neither the
     // selection nor the pointer may move it.
     for (const { row, armed } of T_023b) {
-      const state = screenStateWithArmed(SHOWN, armed)
+      const root = withArm(SHOWN, armed)
       const texts = SELECTIONS.map(
         ({ selection }) =>
-          describedWith(selection, sessionOf({ pointer: { x: 3, y: 4 } }), state).armedText,
+          describedWith(selection, readingsOf({ pointer: { x: 3, y: 4 } }), root).armedText,
       )
       expect(new Set(texts).size, row).toBe(1)
     }
@@ -536,7 +555,7 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
     const notAnEntry = T_109_PALETTE.find((entry) => !entry.isButton && entry.group !== '')
     expect(notAnEntry, 'table T-109 no longer puts a 群 on a row that is not an entry').toBeDefined()
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
-      const palette = describedWith(emptySelection(), sessionOf({ language }))
+      const palette = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, language))
       expect(palette.groups.map((group) => group.name), language).not.toContain(
         groupWordOf((notAnEntry as { readonly row: string }).row, language),
       )
@@ -548,7 +567,7 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
     // WHY: FR-038's fifth paragraph now settles one store; the word
     // printed is the dictionary's word for the row the group opens at.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
-      const palette = describedWith(emptySelection(), sessionOf({ language }))
+      const palette = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, language))
       expect(palette.groups.map((group) => group.name), language).toEqual(groupWordsIn(language))
     }
   })
@@ -556,8 +575,8 @@ describe('UF-65 -- FR-029: U-34 `Palette Groups` follow the 群 column', () => {
   it('answers a different name per language, because the words are per language', () => {
     // WHY: only asked of groups the dictionary really holds two
     // different words for; agreement there is the dictionary's answer, not a fault.
-    const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' })).groups
-    const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' })).groups
+    const inJapanese = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, 'ja')).groups
+    const inEnglish = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, 'en')).groups
 
     FIRST_ROW_OF_GROUP.forEach((row, at) => {
       if (groupWordOf(row, 'ja') === groupWordOf(row, 'en')) return
@@ -619,7 +638,9 @@ describe('UF-65 -- FR-038: the display language', () => {
     // WHY: FR-038's fifth paragraph settled the one store; the expected
     // value is read out of the dictionary, not off what the unit answers.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
-      for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
+      for (const entry of entriesOf(
+        describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, language)),
+      )) {
         expect(entry.label, `${language}: ${entry.icon}`).toBe(labelWordOf(entry.icon, language))
       }
     }
@@ -629,7 +650,9 @@ describe('UF-65 -- FR-038: the display language', () => {
     // WHY: an entry printed with nothing on it cannot be named; an
     // empty dictionary would still pass the previous case.
     for (const language of ['ja', 'en'] as const satisfies readonly DisplayLanguage[]) {
-      for (const entry of entriesOf(describedWith(emptySelection(), sessionOf({ language })))) {
+      for (const entry of entriesOf(
+        describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, language)),
+      )) {
         expect(hasWord(entry.label), `${language}: ${entry.icon} carries no word`).toBe(true)
       }
     }
@@ -638,8 +661,8 @@ describe('UF-65 -- FR-038: the display language', () => {
   it('describes the same entries in either language', () => {
     // WHY: FR-038 keeps one language state for the whole screen and
     // translates no roster; which entries appear is table T-109's answer.
-    const inJapanese = describedWith(emptySelection(), sessionOf({ language: 'ja' }))
-    const inEnglish = describedWith(emptySelection(), sessionOf({ language: 'en' }))
+    const inJapanese = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, 'ja'))
+    const inEnglish = describedWith(emptySelection(), readingsOf(), withLanguage(SHOWN, 'en'))
     expect(iconsOf(inEnglish)).toEqual(iconsOf(inJapanese))
   })
 })
@@ -648,21 +671,21 @@ describe('UF-65 -- table T-075 makes the unit `pure` (R7.1)', () => {
   it('rewrites none of its three arguments', () => {
     // WHY: a pure unit that rewrites an argument is a defect a
     // specification-driven run has caught before.
-    const state = deepFreeze(screenStateWithArmed(SHOWN, { kind: 'dependency' }))
+    const root = deepFreeze(withArm(SHOWN, { kind: 'dependencyArmed' }))
     const selection = deepFreeze(pickedInTurn(TASK_A, TASK_B))
-    const session = deepFreeze(sessionOf({ pointer: { x: 4, y: 4 } }))
-    const before = JSON.stringify([state, selection, session])
+    const readings = deepFreeze(readingsOf({ pointer: { x: 4, y: 4 } }))
+    const before = JSON.stringify([root, selection, readings])
 
-    commandPaletteFromScreenState(state, SETTINGS, selection, session)
+    commandPaletteFromSession(root, SETTINGS, selection, readings)
 
-    expect(JSON.stringify([state, selection, session])).toBe(before)
+    expect(JSON.stringify([root, selection, readings])).toBe(before)
   })
 
   it('answers the same for the same inputs', () => {
     for (const { what, selection } of SELECTIONS) {
-      const session = sessionOf({ commandPaletteAt: { x: 7, y: 8 }, pointer: { x: 7, y: 8 } })
-      const first = commandPaletteFromScreenState(SHOWN, SETTINGS, selection, session)
-      const second = commandPaletteFromScreenState(SHOWN, SETTINGS, selection, session)
+      const readings = readingsOf({ commandPaletteAt: { x: 7, y: 8 }, pointer: { x: 7, y: 8 } })
+      const first = commandPaletteFromSession(SHOWN, SETTINGS, selection, readings)
+      const second = commandPaletteFromSession(SHOWN, SETTINGS, selection, readings)
       expect(second, what).toEqual(first)
     }
   })
@@ -683,14 +706,14 @@ describe('UF-65 -- boundaries the specification admits', () => {
   it('describes the palette while the pointer is outside the window', () => {
     // WHY: a pointer nowhere at all takes nothing off the description
     // now that the faintness question moved across IF-9.
-    const palette = describedWith(emptySelection(), sessionOf({ pointer: null }))
+    const palette = describedWith(emptySelection(), readingsOf({ pointer: null }))
     expect(iconsOf(palette).length).toBe(PALETTE_ENTRY_ROWS.length)
   })
 
   it('takes a corner outside the screen without changing what it holds', () => {
     // WHY: table T-206 holds no row for the palette's place, so there is no bound to apply.
     const at = { x: -500, y: -500 }
-    const offScreen = describedWith(emptySelection(), sessionOf({ commandPaletteAt: at }))
+    const offScreen = describedWith(emptySelection(), readingsOf({ commandPaletteAt: at }))
     expect(iconsOf(offScreen)).toEqual(PALETTE_ENTRY_ROWS_GROUPED)
     expect(offScreen.at).toEqual(at)
   })

@@ -12,7 +12,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
   geometryFromLayout,
@@ -1024,7 +1024,7 @@ function zoomYAfterRaise(
     layout,
     geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: S_96,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

@@ -28,17 +28,21 @@ import {
 } from '../../entity/document-model/selection/selection'
 import { labelUnits } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
+  PropertiesSubject,
+  ScreenSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
+import type {
   CommandItem,
   DisplayLanguage,
   IconId,
   PropertiesPanel,
-  PropertiesSubject,
   PropertyControl,
   PropertyControlKind,
   PropertyField,
   PropertyFieldKey,
-  ScreenSession,
+  ScreenViewReadings,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
@@ -737,32 +741,34 @@ export function propertiesPanelFromSelection(
   settings: DocumentSettings,
   selection: Selection,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): PropertiesPanel | null {
-  const showing = session.propertiesShowing
-  if (showing === null) return null
+  const content = session.screen.propertiesPanelContentState
+  if (content.kind === 'hidden') return null
+  const language = displayLanguageOf(session)
 
-  if (showing === 'documentSettings') {
+  if (content.kind === 'documentSettingsDisplayed') {
     return {
-      showing,
+      showing: 'documentSettings',
       isSubjectGone: false,
-      fields: settingsFields(settings, session.language),
-      commands: panelCommands(session.language),
+      fields: settingsFields(settings, language),
+      commands: panelCommands(language),
     }
   }
 
-  const isNothingPicked = selection.items.length === 0 && session.selectedGroupIds.length === 0
+  const isNothingPicked = selection.items.length === 0 && readings.selectedGroupIds.length === 0
   const subject = isNothingPicked
-    ? session.propertiesSubject
-    : { selection, groupIds: session.selectedGroupIds }
-  const fields = subject === null ? null : fieldsOfSubject(schedule, subject, settings.labelCoef, session.language)
+    ? content.subject
+    : { selection, groupIds: readings.selectedGroupIds }
+  const fields = fieldsOfSubject(schedule, subject, settings.labelCoef, language)
 
   const isSubjectGone = isNothingPicked || fields === null
 
   return {
-    showing,
+    showing: 'selection',
     isSubjectGone,
     fields: fields ?? [],
-    commands: panelCommands(session.language),
+    commands: panelCommands(language),
   }
 }
 

@@ -161,8 +161,8 @@ print("== landing: every component with members is reached ==")
 # ⛔ Each entry names the wave that removes it; delete the entry in that wave.
 # Approved by the user in chat on 2026-09-21 ("推奨の Aとせよ").
 NOT_YET_CALLED = {
-    # CR-436 wave B2 wires SingleHtmlShell -> AdvanceScreenSession.
-    "AdvanceScreenSession": "CR-436 wave B2",
+    # Empty since CR-436 wave B2 (2026-09-22) drew SingleHtmlShell ->
+    # AdvanceScreenSession: the one entry this dictionary ever held is gone.
 }
 for waiting in sorted(NOT_YET_CALLED):
     print("  held until %s: %s has no caller yet" % (NOT_YET_CALLED[waiting], waiting))

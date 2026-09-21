@@ -8,14 +8,15 @@ import {
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   AppHeaderItems,
   CommandItem,
   DisplayLanguage,
   IconId,
-  ScreenSession,
+  ScreenViewReadings,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
 import iconRoster from './icon-roster.json'
 import displayWords from './display-words.json'
 
@@ -57,27 +58,39 @@ interface CommandState {
 // DEVIATION: spec says an entry that can change nothing is drawn faint (FR-029); here IC-1, IC-2, IC-12..IC-15 never are (DFC-567)
 const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
 
+// see FR-072, T-280
+/** @purity pure */
+function isShowingSettings(session: ScreenSession): boolean {
+  return session.screen.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
+}
+
+// see FR-066, T-280
+/** @purity pure */
+function isDialogueFieldShown(session: ScreenSession): boolean {
+  return session.screen.dialogueFieldDisplayState.kind === 'shown'
+}
+
 // see FR-029, T-109
 /** @purity pure */
 function commandStateOf(
   icon: IconId,
   settings: DocumentSettings,
-  state: ScreenState,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): CommandState {
   switch (icon) {
     case COMMAND_PALETTE_ENTRY:
-      return { isEnabled: true, isPressed: state.paletteShown }
+      return { isEnabled: true, isPressed: session.screen.paletteDisplayState.kind === 'shown' }
 
     case BASELINE_OVERLAY_ENTRY:
       return { isEnabled: true, isPressed: settings.baselineVisible }
 
     case UNDO_ENTRY:
       // WHY: !== false, not === true, so an absent answer leaves the entry usable.
-      return { isEnabled: session.canUndo !== false, isPressed: false }
+      return { isEnabled: readings.canUndo !== false, isPressed: false }
 
     case REDO_ENTRY:
-      return { isEnabled: session.canRedo !== false, isPressed: false }
+      return { isEnabled: readings.canRedo !== false, isPressed: false }
 
     case PLAN_DISPLAY_ENTRY:
       return { isEnabled: true, isPressed: settings.planVisible }
@@ -86,7 +99,7 @@ function commandStateOf(
       return { isEnabled: true, isPressed: settings.actualVisible }
 
     case FULL_SCREEN_ENTRY:
-      return { isEnabled: true, isPressed: state.fullScreen }
+      return { isEnabled: true, isPressed: session.screen.fullScreenModeState.kind === 'full' }
 
     // see FR-029, FR-039
     case DISPLAY_SCALE_DOWN_ENTRY:
@@ -100,16 +113,16 @@ function commandStateOf(
       }
 
     case DOCUMENT_SETTINGS_ENTRY:
-      return { isEnabled: true, isPressed: session.propertiesShowing === 'documentSettings' }
+      return { isEnabled: true, isPressed: isShowingSettings(session) }
 
     case DIALOGUE_FIELD_ENTRY:
       return {
-        isEnabled: session.isAgentApiEnabled,
-        isPressed: session.isAgentApiEnabled && session.isDialogueFieldVisible,
+        isEnabled: readings.isAgentApiEnabled,
+        isPressed: readings.isAgentApiEnabled && isDialogueFieldShown(session),
       }
 
     case AGENT_API_ENTRY:
-      return { isEnabled: true, isPressed: session.isAgentApiEnabled }
+      return { isEnabled: true, isPressed: readings.isAgentApiEnabled }
 
     default:
       return USABLE_AND_OFF
@@ -120,28 +133,28 @@ function commandStateOf(
 function commandItemFor(
   icon: IconId,
   settings: DocumentSettings,
-  state: ScreenState,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): CommandItem {
-  const commandState = commandStateOf(icon, settings, state, session)
+  const commandState = commandStateOf(icon, settings, session, readings)
   return {
     icon,
     isEnabled: commandState.isEnabled,
     isPressed: commandState.isPressed,
     isArmed: false,
-    label: entryLabel(icon, session.language),
+    label: entryLabel(icon, displayLanguageOf(session)),
   }
 }
 
 /** @purity pure */
 function headerCommands(
   settings: DocumentSettings,
-  state: ScreenState,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): readonly CommandItem[] {
   return iconRoster.icons
     .filter((row) => row.surfaces.includes(APP_HEADER))
-    .map((row) => commandItemFor(row.rowId, settings, state, session))
+    .map((row) => commandItemFor(row.rowId, settings, session, readings))
 }
 
 // see U-31, FR-101, FR-038
@@ -149,20 +162,20 @@ function headerCommands(
 export function appHeaderItemsFromDocument(
   schedule: Schedule,
   settings: DocumentSettings,
-  state: ScreenState,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): AppHeaderItems {
   return {
     documentTitle: schedule.project.title,
 
-    openedFileName: session.openedFileName,
-    fileSavedAt: session.fileSavedAt,
+    openedFileName: readings.openedFileName,
+    fileSavedAt: readings.fileSavedAt,
     fileNeverSavedText:
-      FILE_STATUS_BY_STATE.get('neverSaved')?.text[session.language] ?? '',
+      FILE_STATUS_BY_STATE.get('neverSaved')?.text[displayLanguageOf(session)] ?? '',
 
-    commands: headerCommands(settings, state, session),
+    commands: headerCommands(settings, session, readings),
 
-    language: session.language,
+    language: displayLanguageOf(session),
   }
 }
 

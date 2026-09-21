@@ -8,18 +8,18 @@ import { afterEach, describe, expect, it } from 'vitest'
 import type { HumanInput, KeyInput } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import type { Document } from '../../src/entity/document-model/document/document'
-import {
-  emptyScreenState,
-  screenStateWithSurface,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   DisplayLanguage,
   OpenModal,
-  ScreenSession,
   ScreenSurface,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { frameLoop, type FrameEnvironment } from '../../src/framework/single-html-shell/frame-loop'
 import {
@@ -198,30 +198,28 @@ describe('CR-405 -- the premises read from the manuscript', () => {
 
 const THEME_HUE = Number(bare(rowOf(specTable('T-216'), 'S-73').by[H_DEFAULT] ?? ''))
 
-const sessionOf = (language: DisplayLanguage): ScreenSession => ({
-  language,
+const rootOf = (language: DisplayLanguage): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language },
+})
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-})
+}
 
 const EMPTY_DOCUMENT = {
   project: {
@@ -239,8 +237,12 @@ const EMPTY_DOCUMENT = {
 const HELP_SURFACE = 'Help Modal'
 
 function helpModal(language: DisplayLanguage): OpenModal {
-  const state = screenStateWithSurface(emptyScreenState(), HELP_SURFACE)
-  const modal = openModalFromScreenState(state, EMPTY_DOCUMENT, sessionOf(language))
+  const root = rootOf(language)
+  const opened: ScreenSession = {
+    ...root,
+    screen: { ...root.screen, openSurfaceState: { kind: 'open', surfaceName: HELP_SURFACE } },
+  }
+  const modal = openModalFromSession(opened, EMPTY_DOCUMENT, READINGS)
   if (modal === null) throw new Error('the help is open but nothing describes it')
   return modal
 }

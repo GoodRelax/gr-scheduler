@@ -107,21 +107,21 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
-  emptyScreenState,
-  screenStateWithFullScreen,
-  screenStateWithPalette,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
-import {
   emptySelection,
   selectionWith,
 } from '../../src/entity/document-model/selection/selection'
 import type {
   AppHeaderItems,
   CommandItem,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { appHeaderItemsFromDocument } from '../../src/adapter/screen-renderer/app-header-items'
+import {
+  emptyScreenSession,
+  type PropertiesSubject,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
@@ -282,7 +282,7 @@ const S_59_ROWS: readonly {
 ]
 
 /** S-99 (table T-206). FR-038 admits exactly these two. */
-const S_99_LANGUAGES: readonly ScreenSession['language'][] = ['ja', 'en']
+const S_99_LANGUAGES: readonly ScreenValues['language'][] = ['ja', 'en']
 
 // ---------------------------------------------------------------------------
 // Inputs. A whole DocumentSettings is 100+ keys, so a case pins the ones it
@@ -325,41 +325,51 @@ const WITH_OVERLAY = scheduleOf(null, {
   baselineTasks: [{ uid: 1, name: null, start: null, finish: null, milestone: null }],
 })
 
-const STATE: ScreenState = emptyScreenState()
+/** Every member but `language` is `emptyScreenSession.screen`'s own default. */
+const ROOT: ScreenSession = { ...emptyScreenSession, screen: { ...emptyScreenSession.screen, language: 'ja' } }
+
+const withRoot = (part: Partial<ScreenValues>): ScreenSession => ({
+  ...ROOT,
+  screen: { ...ROOT.screen, ...part },
+})
+
+const paletteStateOf = (shown: boolean): ScreenValues['paletteDisplayState'] =>
+  shown ? { kind: 'shown', child: { kind: 'expanded' } } : { kind: 'hidden' }
+
+const propertiesContentStateOf = (
+  showing: 'selection' | 'documentSettings' | null,
+  subject: PropertiesSubject | null = null,
+): ScreenValues['propertiesPanelContentState'] => {
+  if (showing === null) return { kind: 'hidden' }
+  if (showing === 'documentSettings') return { kind: 'documentSettingsDisplayed', returnSubject: subject }
+  return { kind: 'selectionDisplayed', subject: subject ?? { selection: emptySelection(), groupIds: [] } }
+}
 
 /**
- * Every member of `ScreenSession` is spelled out, so that a case which means to
- * vary one of them varies exactly one. The `Agent API` is off here because
- * FR-065 makes turning it on the reader's own act.
+ * Every member of `ScreenViewReadings` this unit's four arguments admit is
+ * spelled out, so that a case which means to vary one of them varies exactly
+ * one. The `Agent API` is off here because FR-065 makes turning it on the
+ * reader's own act.
  */
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
-  // The seven members `ScreenSession` requires that no case here varies:
+  // The four members `ScreenViewReadings` requires that no case here varies:
   // `iconUnderPointer` is EZ-2's place condition (`null` -- the pointer rests
-  // on no icon), `themePreference` is S-72 and `isMilestoneListOpen` S-142
-  // (both the manuscript's default -- note 2 above says why the light/dark
-  // entry is not asserted here), `themeHue` is S-73 read from the manuscript,
-  // `selectedGroupIds` is FR-085's set of rows and `selectedResourceUids`
-  // FR-099's set of resources (both empty -- none chosen), and
-  // `propertiesSubject` is FR-072's remembered subject (`null` -- no operation
-  // has chosen one yet).
+  // on no icon), `themePreference` is S-72 (the manuscript's default -- note 2
+  // above says why the light/dark entry is not asserted here), `themeHue` is
+  // S-73 read from the manuscript, `selectedGroupIds` is FR-085's set of rows
+  // and `selectedResourceUids` FR-099's set of resources (both empty -- none
+  // chosen).
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -370,7 +380,7 @@ const SESSION: ScreenSession = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const withReadings = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({ ...READINGS, ...part })
 
 // ---------------------------------------------------------------------------
 // Reading the answer.
@@ -379,9 +389,9 @@ const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSI
 const itemsOf = (
   schedule: Schedule = UNNAMED,
   settings: DocumentSettings = SETTINGS,
-  state: ScreenState = STATE,
-  session: ScreenSession = SESSION,
-): AppHeaderItems => appHeaderItemsFromDocument(schedule, settings, state, session)
+  root: ScreenSession = ROOT,
+  readings: ScreenViewReadings = READINGS,
+): AppHeaderItems => appHeaderItemsFromDocument(schedule, settings, root, readings)
 
 const iconsOf = (items: AppHeaderItems): readonly string[] =>
   items.commands.map((command) => command.icon)
@@ -417,7 +427,7 @@ describe('UF-62 documentTitle', () => {
 
   it('does not translate the document\'s own value (FR-038)', () => {
     const titles = S_99_LANGUAGES.map(
-      (language) => itemsOf(scheduleOf('Kanji Title'), SETTINGS, STATE, sessionWith({ language })).documentTitle,
+      (language) => itemsOf(scheduleOf('Kanji Title'), SETTINGS, withRoot({ language })).documentTitle,
     )
     expect(new Set(titles).size).toBe(1)
     expect(titles[0]).toBe('Kanji Title')
@@ -445,20 +455,20 @@ describe('UF-62 documentTitle', () => {
 describe('UF-62 openedFileName / fileSavedAt', () => {
   const NAME = 'plan-for-line-3.grs.json'
   const AT = '2026-08-29T01:02:03Z'
-  const OPEN_AND_SAVED = sessionWith({ openedFileName: NAME, fileSavedAt: AT })
+  const OPEN_AND_SAVED = withReadings({ openedFileName: NAME, fileSavedAt: AT })
 
   it('carries the name of the file that is open (FR-101, MUST)', () => {
-    expect(itemsOf(UNNAMED, SETTINGS, STATE, OPEN_AND_SAVED).openedFileName).toBe(NAME)
+    expect(itemsOf(UNNAMED, SETTINGS, ROOT, OPEN_AND_SAVED).openedFileName).toBe(NAME)
   })
 
   it('carries the moment it was last written to (FR-101, MUST)', () => {
-    expect(itemsOf(UNNAMED, SETTINGS, STATE, OPEN_AND_SAVED).fileSavedAt).toBe(AT)
+    expect(itemsOf(UNNAMED, SETTINGS, ROOT, OPEN_AND_SAVED).fileSavedAt).toBe(AT)
   })
 
   it('makes no time of its own for a document never written to a file (CS-1: a pure unit has no clock)', () => {
-    // ⚠️ `SESSION` opens no file, so both members arrive `null`. A unit that
+    // ⚠️ `READINGS` opens no file, so both members arrive `null`. A unit that
     // reached for a clock would answer with something.
-    const items = itemsOf(UNNAMED, SETTINGS, STATE, SESSION)
+    const items = itemsOf(UNNAMED, SETTINGS, ROOT, READINGS)
     expect(items.openedFileName).toBeNull()
     expect(items.fileSavedAt).toBeNull()
   })
@@ -467,7 +477,7 @@ describe('UF-62 openedFileName / fileSavedAt', () => {
     // FR-101: 「まだ 1 度もファイルへ書いていないときは、時刻の代わりにその旨を
     // 示すこと（MUST）」, with the reason spelled out: 「空欄では「書けたのに
     // 読めない」と区別がつかない」. So the empty string will not do.
-    const items = itemsOf(UNNAMED, SETTINGS, STATE, SESSION)
+    const items = itemsOf(UNNAMED, SETTINGS, ROOT, READINGS)
     expect(items.fileSavedAt).toBeNull()
     expect(typeof items.fileNeverSavedText).toBe('string')
     expect(items.fileNeverSavedText.length).toBeGreaterThan(0)
@@ -478,14 +488,14 @@ describe('UF-62 openedFileName / fileSavedAt', () => {
     // adds the rule those words obey: 「画面に刷る語は、言語ごとの辞書として 1 か所に
     // 持つこと（MUST）」. These words are screen words, so the two languages differ.
     const said = S_99_LANGUAGES.map(
-      (language) => itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language })).fileNeverSavedText,
+      (language) => itemsOf(UNNAMED, SETTINGS, withRoot({ language })).fileNeverSavedText,
     )
     expect(new Set(said).size).toBe(S_99_LANGUAGES.length)
   })
 
   it('does not translate the file name or the moment (FR-038 translates menus and panels)', () => {
     const shown = S_99_LANGUAGES.map((language) =>
-      itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language, openedFileName: NAME, fileSavedAt: AT })),
+      itemsOf(UNNAMED, SETTINGS, withRoot({ language }), withReadings({ openedFileName: NAME, fileSavedAt: AT })),
     )
     expect(shown[0]?.openedFileName).toBe(shown[1]?.openedFileName)
     expect(shown[0]?.fileSavedAt).toBe(shown[1]?.fileSavedAt)
@@ -497,11 +507,11 @@ describe('UF-62 openedFileName / fileSavedAt', () => {
     // 「2 つが違う値になることは正常である」. So the document's own title
     // may not leak into the file name, and a named document with no file open
     // still has none.
-    const items = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, STATE, OPEN_AND_SAVED)
+    const items = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, ROOT, OPEN_AND_SAVED)
     expect(items.documentTitle).toBe('Line 3 relocation')
     expect(items.openedFileName).toBe(NAME)
 
-    const noFile = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, STATE, SESSION)
+    const noFile = itemsOf(scheduleOf('Line 3 relocation'), SETTINGS, ROOT, READINGS)
     expect(noFile.openedFileName).toBeNull()
   })
 
@@ -509,8 +519,8 @@ describe('UF-62 openedFileName / fileSavedAt', () => {
     const withRows = scheduleOf('same', {
       baselineTasks: [{ uid: 9, name: 'a', start: null, finish: null, milestone: null }],
     })
-    const rich = itemsOf(withRows, SETTINGS, STATE, OPEN_AND_SAVED)
-    const bareOne = itemsOf(scheduleOf('same'), SETTINGS, STATE, OPEN_AND_SAVED)
+    const rich = itemsOf(withRows, SETTINGS, ROOT, OPEN_AND_SAVED)
+    const bareOne = itemsOf(scheduleOf('same'), SETTINGS, ROOT, OPEN_AND_SAVED)
     expect(rich.openedFileName).toBe(bareOne.openedFileName)
     expect(rich.fileSavedAt).toBe(bareOne.fileSavedAt)
   })
@@ -590,7 +600,7 @@ describe('UF-62 commands: the roster and its order', () => {
 
   it('keeps the same roster in both display languages (FR-038 changes the words, not the roster)', () => {
     const rosters = S_99_LANGUAGES.map((language) =>
-      iconsOf(itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ language }))),
+      iconsOf(itemsOf(UNNAMED, SETTINGS, withRoot({ language }))),
     )
     expect(rosters[0]).toEqual(rosters[1])
   })
@@ -599,8 +609,12 @@ describe('UF-62 commands: the roster and its order', () => {
     const everything = itemsOf(
       WITH_OVERLAY,
       settingsOf({ baselineVisible: true, planActualDisplay: 'actual-only' }),
-      screenStateWithFullScreen(screenStateWithPalette(STATE, false), true),
-      sessionWith({ isAgentApiEnabled: true, propertiesShowing: 'documentSettings' }),
+      withRoot({
+        fullScreenModeState: { kind: 'full' },
+        paletteDisplayState: paletteStateOf(false),
+        propertiesPanelContentState: propertiesContentStateOf('documentSettings'),
+      }),
+      withReadings({ isAgentApiEnabled: true }),
     )
     expect(iconsOf(everything)).toEqual([...T_109_APP_HEADER])
   })
@@ -676,13 +690,13 @@ describe('UF-62 IC-4: the overlay of the plan before the change (FR-049 through 
 describe('UF-62 IC-7: the command palette (FR-053, S-99e)', () => {
   it('presses exactly while the palette is shown', () => {
     for (const paletteShown of [true, false]) {
-      const items = itemsOf(UNNAMED, SETTINGS, screenStateWithPalette(STATE, paletteShown))
+      const items = itemsOf(UNNAMED, SETTINGS, withRoot({ paletteDisplayState: paletteStateOf(paletteShown) }))
       expect(commandFor(items, IC_COMMAND_PALETTE).isPressed).toBe(paletteShown)
     }
   })
 
   it('keeps the entry outside the palette and usable while the palette is hidden (FR-053, MUST)', () => {
-    const hidden = itemsOf(UNNAMED, SETTINGS, screenStateWithPalette(STATE, false))
+    const hidden = itemsOf(UNNAMED, SETTINGS, withRoot({ paletteDisplayState: paletteStateOf(false) }))
     expect(commandFor(hidden, IC_COMMAND_PALETTE).isEnabled).toBe(true)
   })
 })
@@ -690,34 +704,36 @@ describe('UF-62 IC-7: the command palette (FR-053, S-99e)', () => {
 describe('UF-62 IC-11: full screen (FR-071, S-99f)', () => {
   it('presses exactly while the view is full screen', () => {
     for (const fullScreen of [true, false]) {
-      const items = itemsOf(UNNAMED, SETTINGS, screenStateWithFullScreen(STATE, fullScreen))
+      const items = itemsOf(UNNAMED, SETTINGS, withRoot({ fullScreenModeState: { kind: fullScreen ? 'full' : 'normal' } }))
       expect(commandFor(items, IC_FULL_SCREEN).isPressed).toBe(fullScreen)
     }
   })
 
   it('is the one entry that also leaves full screen, so it stays usable inside it (FR-071)', () => {
-    const inside = itemsOf(UNNAMED, SETTINGS, screenStateWithFullScreen(STATE, true))
+    const inside = itemsOf(UNNAMED, SETTINGS, withRoot({ fullScreenModeState: { kind: 'full' } }))
     expect(commandFor(inside, IC_FULL_SCREEN).isEnabled).toBe(true)
   })
 })
 
 describe('UF-62 IC-17: what the properties panel is showing (FR-072, MUST)', () => {
   it('presses only for the document settings', () => {
-    const showing: readonly ScreenSession['propertiesShowing'][] = [
+    const showing: readonly ('documentSettings' | 'selection' | null)[] = [
       'documentSettings',
       'selection',
       null,
     ]
     const pressed = showing.map(
-      (propertiesShowing) =>
-        commandFor(itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ propertiesShowing })), IC_DOCUMENT_SETTINGS)
-          .isPressed,
+      (kind) =>
+        commandFor(
+          itemsOf(UNNAMED, SETTINGS, withRoot({ propertiesPanelContentState: propertiesContentStateOf(kind) })),
+          IC_DOCUMENT_SETTINGS,
+        ).isPressed,
     )
     expect(pressed).toEqual([true, false, false])
   })
 
   it('stays usable while the panel is closed, since the entry is what opens it (FR-072)', () => {
-    const closed = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ propertiesShowing: null }))
+    const closed = itemsOf(UNNAMED, SETTINGS, withRoot({ propertiesPanelContentState: { kind: 'hidden' } }))
     expect(commandFor(closed, IC_DOCUMENT_SETTINGS).isEnabled).toBe(true)
   })
 
@@ -735,18 +751,17 @@ describe('UF-62 IC-17: what the properties panel is showing (FR-072, MUST)', () 
     // is held at `selection` throughout -- FR-072 (MUST NOT) forbids the panel to
     // move to the settings when the selection is cleared, so that is the state a
     // cleared selection leaves the session in.
-    const subjects: readonly ScreenSession['propertiesSubject'][] = [
+    const subjects: readonly (PropertiesSubject | null)[] = [
       null,
       { selection: emptySelection(), groupIds: [] },
       { selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }), groupIds: [] },
     ]
-    const entries = subjects.map((propertiesSubject) =>
+    const entries = subjects.map((subject) =>
       commandFor(
         itemsOf(
           UNNAMED,
           SETTINGS,
-          STATE,
-          sessionWith({ propertiesShowing: 'selection', propertiesSubject }),
+          withRoot({ propertiesPanelContentState: propertiesContentStateOf('selection', subject) }),
         ),
         IC_DOCUMENT_SETTINGS,
       ),
@@ -763,14 +778,14 @@ describe('UF-62 IC-17: what the properties panel is showing (FR-072, MUST)', () 
 describe('UF-62 IC-20: the Agent API (FR-065, MUST)', () => {
   it('shows on the screen that the Agent API is on', () => {
     for (const isAgentApiEnabled of [true, false]) {
-      const items = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled }))
+      const items = itemsOf(UNNAMED, SETTINGS, ROOT, withReadings({ isAgentApiEnabled }))
       expect(commandFor(items, IC_AGENT_API).isPressed).toBe(isAgentApiEnabled)
     }
   })
 
   it('stays usable both ways, since the same entry turns it off (table T-109 IC-20)', () => {
     for (const isAgentApiEnabled of [true, false]) {
-      const items = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled }))
+      const items = itemsOf(UNNAMED, SETTINGS, ROOT, withReadings({ isAgentApiEnabled }))
       expect(commandFor(items, IC_AGENT_API).isEnabled).toBe(true)
     }
   })
@@ -806,8 +821,8 @@ describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
           itemsOf(
             UNNAMED,
             SETTINGS,
-            STATE,
-            sessionWith({ isAgentApiEnabled, isDialogueFieldVisible }),
+            withRoot({ dialogueFieldDisplayState: { kind: isDialogueFieldVisible ? 'shown' : 'hidden' } }),
+            withReadings({ isAgentApiEnabled }),
           ),
           IC_DIALOGUE_FIELD,
         )
@@ -823,7 +838,7 @@ describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
     // never broke, and the one FR-066 still ties to the capability alone.
     for (const isAgentApiEnabled of [true, false]) {
       const entry = commandFor(
-        itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled })),
+        itemsOf(UNNAMED, SETTINGS, ROOT, withReadings({ isAgentApiEnabled })),
         IC_DIALOGUE_FIELD,
       )
       expect(entry.isEnabled).toBe(isAgentApiEnabled)
@@ -831,7 +846,7 @@ describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
   })
 
   it('is a second entry for the field and not for the Agent API (FR-029, MUST NOT)', () => {
-    const off = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled: false }))
+    const off = itemsOf(UNNAMED, SETTINGS, ROOT, withReadings({ isAgentApiEnabled: false }))
     expect(commandFor(off, IC_DIALOGUE_FIELD).isEnabled).toBe(false)
     expect(commandFor(off, IC_AGENT_API).isEnabled).toBe(true)
   })
@@ -843,7 +858,7 @@ describe('UF-62 IC-18: the dialogue field (FR-066)', () => {
 
 describe('UF-62 faintness is a claim, not a default (FR-029)', () => {
   it('faints nothing beyond what the requirements settle, with the Agent API on', () => {
-    const on = itemsOf(UNNAMED, SETTINGS, STATE, sessionWith({ isAgentApiEnabled: true }))
+    const on = itemsOf(UNNAMED, SETTINGS, ROOT, withReadings({ isAgentApiEnabled: true }))
     expect(faintIconsOf(on)).toEqual([])
   })
 
@@ -882,8 +897,12 @@ describe('UF-62 the entries table T-109 keys no state on', () => {
     const after = itemsOf(
       WITH_OVERLAY,
       settingsOf({ baselineVisible: true, planActualDisplay: 'actual-only' }),
-      screenStateWithFullScreen(screenStateWithPalette(STATE, false), true),
-      sessionWith({ isAgentApiEnabled: true, propertiesShowing: 'documentSettings' }),
+      withRoot({
+        fullScreenModeState: { kind: 'full' },
+        paletteDisplayState: paletteStateOf(false),
+        propertiesPanelContentState: propertiesContentStateOf('documentSettings'),
+      }),
+      withReadings({ isAgentApiEnabled: true }),
     )
     for (const icon of T_109_APP_HEADER_ACTIONS) {
       expect(commandFor(after, icon)).toEqual(commandFor(before, icon))
@@ -905,12 +924,15 @@ describe('UF-62 purity (R7.1, table T-075)', () => {
       baselineTasks: [{ uid: 3, name: null, start: null, finish: null, milestone: null }],
     })
     const settings = settingsOf({ planActualDisplay: 'plan-only', baselineVisible: true })
-    const state = screenStateWithPalette(STATE, false)
-    const session = sessionWith({ isAgentApiEnabled: true, propertiesShowing: 'selection' })
+    const root = withRoot({
+      paletteDisplayState: paletteStateOf(false),
+      propertiesPanelContentState: propertiesContentStateOf('selection'),
+    })
+    const readings = withReadings({ isAgentApiEnabled: true })
 
-    const before = structuredClone({ schedule, settings, state, session })
-    appHeaderItemsFromDocument(schedule, settings, state, session)
+    const before = structuredClone({ schedule, settings, root, readings })
+    appHeaderItemsFromDocument(schedule, settings, root, readings)
 
-    expect({ schedule, settings, state, session }).toEqual(before)
+    expect({ schedule, settings, root, readings }).toEqual(before)
   })
 })

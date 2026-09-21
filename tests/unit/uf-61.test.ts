@@ -79,14 +79,7 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithFullScreen,
-  screenStateWithPalette,
-  screenStateWithSurface,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import type {
   ScreenRect,
   ScreenRegions,
@@ -94,10 +87,15 @@ import type {
 import type {
   PanelDivider,
   ScreenFrame,
-  ScreenSession,
+  ScreenViewReadings,
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the specification the cases are driven by (Chapter 1.9).
@@ -222,8 +220,6 @@ const regionsOf = (part: Partial<MeasuredScreen> = {}): ScreenRegions => {
 
 const REGIONS = regionsOf()
 
-const STATE = emptyScreenState()
-
 // ---------------------------------------------------------------------------
 // Reading the answer.
 // ---------------------------------------------------------------------------
@@ -243,25 +239,27 @@ const STATE = emptyScreenState()
  * asserts GR-21's fraction; a case that means to would say so and hand this
  * helper a `scrollExtent` of its own.
  */
-const SESSION: ScreenSession = {
-  language: 'ja',
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    dialogueFieldDisplayState: { kind: 'hidden' },
+  },
+}
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: false,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 0,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
@@ -271,11 +269,47 @@ const SESSION: ScreenSession = {
 const frameOf = (
   regions: ScreenRegions = REGIONS,
   settings: DocumentSettings = SETTINGS,
-  state: ScreenState = STATE,
-  session: ScreenSession = SESSION,
-): ScreenFrame => screenFrameFromRegions(regions, settings, state, session)
+  session: ScreenSession = ROOT,
+  readings: ScreenViewReadings = READINGS,
+): ScreenFrame => screenFrameFromRegions(regions, settings, session, readings)
 
-const SHOWING: ScreenSession = { ...SESSION, propertiesShowing: 'selection' }
+const withFullScreen = (root: ScreenSession, isFullScreen: boolean): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, fullScreenModeState: { kind: isFullScreen ? 'full' : 'normal' } },
+})
+
+const withArmed = (root: ScreenSession, armed: ScreenValues['armModeState']): ScreenSession => ({
+  ...root,
+  screen: { ...root.screen, armModeState: armed },
+})
+
+const withPaletteShown = (root: ScreenSession, shown: boolean): ScreenSession => ({
+  ...root,
+  screen: {
+    ...root.screen,
+    paletteDisplayState: shown ? { kind: 'shown', child: { kind: 'expanded' } } : { kind: 'hidden' },
+  },
+})
+
+const withSurface = (root: ScreenSession, surface: string | null): ScreenSession => ({
+  ...root,
+  screen: {
+    ...root.screen,
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
+  },
+})
+
+const withPropertiesShowing = (
+  root: ScreenSession,
+  showing: ScreenValues['propertiesPanelContentState'],
+): ScreenSession => ({ ...root, screen: { ...root.screen, propertiesPanelContentState: showing } })
+
+const SHOWING_SELECTION = {
+  kind: 'selectionDisplayed' as const,
+  subject: { selection: emptySelection(), groupIds: [] },
+}
+
+const SHOWING: ScreenSession = withPropertiesShowing(ROOT, SHOWING_SELECTION)
 
 const scrollbarOn = (frame: ScreenFrame, axis: Scrollbar['axis']): Scrollbar => {
   const found = frame.scrollbars.filter((bar) => bar.axis === axis)
@@ -321,7 +355,7 @@ describe('UF-61 -- FR-071 and S-99f: full screen is carried, not decided', () =>
   })
 
   it('answers full screen while the state says so', () => {
-    expect(frameOf(REGIONS, SETTINGS, screenStateWithFullScreen(STATE, true)).isFullScreen).toBe(
+    expect(frameOf(REGIONS, SETTINGS, withFullScreen(ROOT, true)).isFullScreen).toBe(
       true,
     )
   })
@@ -329,8 +363,8 @@ describe('UF-61 -- FR-071 and S-99f: full screen is carried, not decided', () =>
   it('leaves by the entry it entered by', () => {
     // FR-071: the same entry enters and leaves, so no transition belongs here --
     // the answer is whatever the state carries, both ways round.
-    const on = screenStateWithFullScreen(STATE, true)
-    const off = screenStateWithFullScreen(on, false)
+    const on = withFullScreen(ROOT, true)
+    const off = withFullScreen(on, false)
 
     expect(frameOf(REGIONS, SETTINGS, on).isFullScreen).toBe(true)
     expect(frameOf(REGIONS, SETTINGS, off).isFullScreen).toBe(false)
@@ -339,20 +373,20 @@ describe('UF-61 -- FR-071 and S-99f: full screen is carried, not decided', () =>
   it('reads no other member of the screen state', () => {
     // ⛔ IN-4 of table T-028 gives the armed shape and the open surface to Esc,
     // not to this unit. Moving all three must not move the answer.
-    const busy = screenStateWithSurface(
-      screenStateWithPalette(
-        screenStateWithArmed(STATE, { kind: 'taskShape', shapeKind: 'rectangle' }),
+    const busy = withSurface(
+      withPaletteShown(
+        withArmed(ROOT, { kind: 'taskShapeArmed', shapeKind: 'rectangle' }),
         false,
       ),
       'Help Modal',
     )
 
-    expect(frameOf(REGIONS, SETTINGS, busy)).toEqual(frameOf(REGIONS, SETTINGS, STATE))
+    expect(frameOf(REGIONS, SETTINGS, busy)).toEqual(frameOf(REGIONS, SETTINGS, ROOT))
   })
 
   it('holds an open surface without letting it stand for full screen', () => {
     // `OpenSurface` is `string | null`; both are ordinary states here.
-    expect(frameOf(REGIONS, SETTINGS, screenStateWithSurface(STATE, 'Resource Roster')).isFullScreen)
+    expect(frameOf(REGIONS, SETTINGS, withSurface(ROOT, 'Resource Roster')).isFullScreen)
       .toBe(false)
   })
 })
@@ -384,7 +418,7 @@ describe('UF-61 -- SC-4 of table T-031: both bars, at all times', () => {
   })
 
   it('keeps both bars while the view is full screen', () => {
-    const frame = frameOf(REGIONS, SETTINGS, screenStateWithFullScreen(STATE, true))
+    const frame = frameOf(REGIONS, SETTINGS, withFullScreen(ROOT, true))
 
     expect(frame.scrollbars).toHaveLength(T_031_SC4.axes.length)
   })
@@ -539,20 +573,23 @@ describe('UF-61 -- FR-051 (MUST): the bars take their place from the `Row Area`'
 
 describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
   it("describes both boundaries, in FR-052's own order", () => {
-    expect(frameOf(REGIONS, SETTINGS, STATE, SHOWING).dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
+    expect(frameOf(REGIONS, SETTINGS, SHOWING).dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
   })
 
   it('describes the shown properties panel boundary whatever the screen state says', () => {
     // WHY: S-99h lives in the session, so no screen state takes a shown panel's boundary away.
-    const busy = screenStateWithSurface(screenStateWithFullScreen(STATE, true), 'Help Modal')
+    const busy = withPropertiesShowing(
+      withSurface(withFullScreen(ROOT, true), 'Help Modal'),
+      SHOWING_SELECTION,
+    )
 
-    expect(frameOf(REGIONS, SETTINGS, busy, SHOWING).dividers.map((divider) => divider.panel)).toEqual([
+    expect(frameOf(REGIONS, SETTINGS, busy).dividers.map((divider) => divider.panel)).toEqual([
       ...FR_052_PANELS,
     ])
   })
 
   it('puts each band on the edge whose width a drag on it changes', () => {
-    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
+    const frame = frameOf(REGIONS, SETTINGS, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(REGIONS.rowTitlePanel)),
@@ -565,7 +602,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
   it('puts the line on the same boundary as the band', () => {
     // EP-9 (MUST) keeps the line in the export although the control does not go:
     // the line and the band mark one and the same boundary.
-    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
+    const frame = frameOf(REGIONS, SETTINGS, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').line, right(REGIONS.rowTitlePanel)),
@@ -579,7 +616,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
     // EP-9's reason is that the eye loses the join between the row titles and
     // the schedule when the line goes, so a line that covered part of the
     // boundary would leave that join unreadable for the rest of it.
-    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
+    const frame = frameOf(REGIONS, SETTINGS, SHOWING)
 
     for (const panel of FR_052_PANELS) {
       const line = dividerOn(frame, panel).line
@@ -590,7 +627,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
 
   it('moves both boundaries when the person changes both widths', () => {
     const dragged = regionsOf({ rowTitlePanelWidth: 400, propertyPanelWidth: 160 })
-    const frame = frameOf(dragged, SETTINGS, STATE, SHOWING)
+    const frame = frameOf(dragged, SETTINGS, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(dragged.rowTitlePanel)),
@@ -603,13 +640,13 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
 
 describe('UF-61 -- FR-052 and GR-22 of table T-023d: no band on a panel that is not shown', () => {
   it('⭐ プロパティパネルを出していないあいだ（`S-99h`）、その境界に掴み帯を敷かないこと（MUST）', () => {
-    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+    const frame = frameOf(REGIONS, SETTINGS, ROOT)
 
     expect(frame.dividers.map((divider) => divider.panel)).toEqual(['rowTitlePanel'])
   })
 
   it('lays no band over the vertical bar while the panel is not shown', () => {
-    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+    const frame = frameOf(REGIONS, SETTINGS, ROOT)
     const track = scrollbarOn(frame, 'vertical').track
 
     for (const divider of frame.dividers) {
@@ -623,7 +660,7 @@ describe('UF-61 -- FR-052 and GR-22 of table T-023d: no band on a panel that is 
   })
 
   it('keeps the row title panel band while the properties panel is not shown', () => {
-    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+    const frame = frameOf(REGIONS, SETTINGS, ROOT)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(REGIONS.rowTitlePanel)),
@@ -631,8 +668,12 @@ describe('UF-61 -- FR-052 and GR-22 of table T-023d: no band on a panel that is 
   })
 
   it('lays the band again once the panel is shown, whichever subject it shows', () => {
-    for (const shown of ['selection', 'documentSettings'] as const) {
-      const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: shown })
+    const contents = [
+      SHOWING_SELECTION,
+      { kind: 'documentSettingsDisplayed' as const, returnSubject: null },
+    ]
+    for (const showing of contents) {
+      const frame = frameOf(REGIONS, SETTINGS, withPropertiesShowing(ROOT, showing))
 
       expect(frame.dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
       expect(
@@ -672,18 +713,18 @@ describe('UF-61 -- table T-075 makes the unit `pure`', () => {
   it('writes to none of the three values it was handed (R7.1)', () => {
     const regions = regionsOf()
     const settings = settingsOf({})
-    const state = screenStateWithFullScreen(emptyScreenState(), true)
+    const session = withFullScreen(emptyScreenSession, true)
     const before = {
       regions: structuredClone(regions),
       settings: structuredClone(settings),
-      state: structuredClone(state),
+      session: structuredClone(session),
     }
 
-    screenFrameFromRegions(regions, settings, state, SESSION)
+    screenFrameFromRegions(regions, settings, session, READINGS)
 
     expect(regions).toEqual(before.regions)
     expect(settings).toEqual(before.settings)
-    expect(state).toEqual(before.state)
+    expect(session).toEqual(before.session)
   })
 
   it('answers the same value for the same values', () => {
@@ -710,7 +751,7 @@ describe('UF-61 -- ⛔ LEFT FAILING: FR-051 calls the divider a grab band', () =
   // is settled this case stands, because a green suite here would say the
   // boundary can be dragged when it cannot.
   it('gives the band a width a pointer can land in', () => {
-    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
+    const frame = frameOf(REGIONS, SETTINGS, SHOWING)
 
     for (const panel of FR_052_PANELS) {
       expect(dividerOn(frame, panel).band.width).toBeGreaterThan(0)

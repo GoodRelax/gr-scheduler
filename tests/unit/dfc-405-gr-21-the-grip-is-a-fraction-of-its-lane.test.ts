@@ -4,12 +4,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { screenFrameFromRegions } from '../../src/adapter/screen-renderer/screen-frame'
+import type { ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
-import type { ScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import type {
   ScreenRect,
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, type SpecTable } from '../contract/spec-table'
 
 
@@ -55,7 +56,10 @@ const REGIONS: ScreenRegions = {
 }
 
 const SETTINGS = { canvasPadding: CANVAS_PADDING } as unknown as DocumentSettings
-const STATE = { fullScreen: false } as unknown as ScreenState
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, fullScreenModeState: { kind: 'normal' } },
+}
 
 const sessionWith = (extent: {
   contentWidth: number
@@ -63,17 +67,26 @@ const sessionWith = (extent: {
   visibleHeight: number
   offsetX?: number
   offsetY?: number
-}): any => ({
+}): ScreenViewReadings => ({
+  openedFileName: null,
+  fileSavedAt: null,
+  isAgentApiEnabled: false,
+  pointer: null,
+  pointerRestedMs: 0,
+  commandPaletteAt: { x: 0, y: 0 },
+  iconUnderPointer: null,
+  themePreference: 'light',
+  themeHue: 214,
+  selectedGroupIds: [],
+  selectedResourceUids: [],
   notices: [],
-  mergeCandidates: [],
-  droppedTaskNames: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: extent,
 })
 
-const barOf = (session: any, axis: 'horizontal' | 'vertical') => {
-  const found = screenFrameFromRegions(REGIONS, SETTINGS, STATE, session).scrollbars.find(
+const barOf = (readings: ScreenViewReadings, axis: 'horizontal' | 'vertical') => {
+  const found = screenFrameFromRegions(REGIONS, SETTINGS, ROOT, readings).scrollbars.find(
     (one) => one.axis === axis,
   )
   if (found === undefined) throw new Error(`SC-4 of table T-031 draws no ${axis} bar`)

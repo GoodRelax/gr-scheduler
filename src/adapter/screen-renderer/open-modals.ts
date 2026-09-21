@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { Assignment, Schedule, Task } from '../../entity/document-model/schedule/schedule'
-import type { ScreenState } from '../../entity/document-model/screen-state/screen-state'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   CommandItem,
   DisplayLanguage,
@@ -13,8 +13,9 @@ import type {
   IconId,
   OpenModal,
   RosterResource,
-  ScreenSession,
+  ScreenViewReadings,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
 import { confirmationAnswers, reasonSurfaceWords } from './notices'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
@@ -35,6 +36,9 @@ const EXPORT_CHOOSER = 'Export Chooser'
 
 const WATERMARK_UNLOCK = 'Watermark Unlock'
 
+// see U-60, T-280
+const WATERMARK_UNLOCK_ROW = 'U-60'
+
 const DIFFERENCE_REVIEW = 'Difference Review'
 
 const IMPORT_REPORT = 'Import Report'
@@ -45,14 +49,14 @@ const NEWER_FORMAT_VERSION_REASON = 'RS-48'
 
 // see FR-073
 /** @purity pure */
-function unreadWords(session: ScreenSession): {
+function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   readonly unreadText: string
   readonly unreadNextStep: string
 } {
-  if ((session.unreadColumns ?? []).length === 0) {
+  if ((readings.unreadColumns ?? []).length === 0) {
     return { unreadText: '', unreadNextStep: '' }
   }
-  const said = reasonSurfaceWords(NEWER_FORMAT_VERSION_REASON, session.language)
+  const said = reasonSurfaceWords(NEWER_FORMAT_VERSION_REASON, language)
   return { unreadText: said.text, unreadNextStep: said.nextStep }
 }
 
@@ -235,10 +239,13 @@ function unassignedTaskNamesOf(
 // see FR-099
 // TRAP: list every resource kind; one left out could never be deleted.
 /** @purity pure */
-function rosterResourcesOf(schedule: Schedule, session: ScreenSession): readonly RosterResource[] {
+function rosterResourcesOf(
+  schedule: Schedule,
+  readings: ScreenViewReadings,
+): readonly RosterResource[] {
   const tasksReached = tasksReachedByEachResource(schedule.assignments)
   const tasksByUid = new Map<number, Task>(schedule.tasks.map((task) => [task.uid, task]))
-  const selectedUids = new Set<number>(session.selectedResourceUids)
+  const selectedUids = new Set<number>(readings.selectedResourceUids)
 
   return schedule.resources.map((resource) => ({
     uid: resource.uid,
@@ -249,26 +256,34 @@ function rosterResourcesOf(schedule: Schedule, session: ScreenSession): readonly
   }))
 }
 
+// DEVIATION: spec says a surface is named by its U row (T-280); here only U-60 is, by the state machine (DFC-703)
+/** @purity pure */
+function openSurfaceNameOf(session: ScreenSession): string | null {
+  const open = session.screen.openSurfaceState
+  if (open.kind === 'closed') return null
+  return open.surfaceName === WATERMARK_UNLOCK_ROW ? WATERMARK_UNLOCK : open.surfaceName
+}
+
 // see FR-029, FR-038
 /** @purity pure */
-export function openModalFromScreenState(
-  state: ScreenState,
-  schedule: Schedule,
+export function openModalFromSession(
   session: ScreenSession,
+  schedule: Schedule,
+  readings: ScreenViewReadings,
 ): OpenModal | null {
-  const surface = state.surface
+  const surface = openSurfaceNameOf(session)
   if (surface === null) return null
-
-  const commands = commandsOnSurface(surface, session.language)
-  const heading = surfaceHeading(surface, session.language)
+  const language = displayLanguageOf(session)
+  const commands = commandsOnSurface(surface, language)
+  const heading = surfaceHeading(surface, language)
 
   if (surface === HELP_MODAL) {
     return {
       surface: HELP_MODAL,
       heading,
       commands,
-      language: session.language,
-      entries: helpEntries(session.language),
+      language,
+      entries: helpEntries(language),
       legend: helpRoster.legend,
       licenceText: licence.licenceText,
       copyrightNotice: licence.copyrightNotice,
@@ -281,7 +296,7 @@ export function openModalFromScreenState(
       surface: RESOURCE_ROSTER,
       heading,
       commands,
-      resources: rosterResourcesOf(schedule, session),
+      resources: rosterResourcesOf(schedule, readings),
     }
   }
 
@@ -290,7 +305,7 @@ export function openModalFromScreenState(
       surface: EXPORT_CHOOSER,
       heading,
       commands,
-      formats: exportFormatChoices(session.language),
+      formats: exportFormatChoices(language),
     }
   }
 
@@ -299,8 +314,8 @@ export function openModalFromScreenState(
       surface: WATERMARK_UNLOCK,
       heading,
       commands,
-      question: questionTextOf(WATERMARK_UNLOCK_QUESTION, session.language),
-      answers: confirmationAnswers(session.language),
+      question: questionTextOf(WATERMARK_UNLOCK_QUESTION, language),
+      answers: confirmationAnswers(language),
     }
   }
 
@@ -309,9 +324,9 @@ export function openModalFromScreenState(
       surface: DIFFERENCE_REVIEW,
       heading,
       commands,
-      candidates: session.mergeCandidates ?? [],
-      unreadColumns: session.unreadColumns ?? [],
-      ...unreadWords(session),
+      candidates: readings.mergeCandidates ?? [],
+      unreadColumns: readings.unreadColumns ?? [],
+      ...unreadWords(readings, language),
     }
   }
 
@@ -320,18 +335,18 @@ export function openModalFromScreenState(
       surface: IMPORT_REPORT,
       heading,
       commands,
-      droppedTaskNames: session.droppedTaskNames ?? [],
-      ...reasonSurfaceWords(IMPORT_REPORT_REASON, session.language),
+      droppedTaskNames: readings.droppedTaskNames ?? [],
+      ...reasonSurfaceWords(IMPORT_REPORT_REASON, language),
     }
   }
 
   // TRAP: an absent aiExportDocument falls to the catch-all; an empty text claims an empty document.
-  if (surface === AI_EXPORT_MODAL && session.aiExportDocument !== undefined) {
+  if (surface === AI_EXPORT_MODAL && readings.aiExportDocument !== undefined) {
     return {
       surface: AI_EXPORT_MODAL,
       heading,
       commands,
-      documentText: session.aiExportDocument,
+      documentText: readings.aiExportDocument,
     }
   }
 

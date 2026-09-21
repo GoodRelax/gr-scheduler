@@ -7,7 +7,10 @@ file prints, per region, the event definitions, the root's values and one
 section per state machine -- its state diagram, its state transition table and
 its states -- and _assets/tbl-state-machines.md is a generated artifact: a
 hand edit to it is overwritten, and --check catches one before it can be
-committed.
+committed. Ahead of the regions it prints table T-283, the order across
+regions (SD-4), from the manuscript's top-level `priorities`; what
+`load_priorities()` refuses is written on it. Only this printer reads
+`priorities` -- no code constant is generated from it.
 
     python state_machines_json_to_md.py           rebuild the document
     python state_machines_json_to_md.py --check   exit 1 if the file differs
@@ -438,6 +441,72 @@ def load():
     return regions, found
 
 
+# The chain IN-4 writes with arrows: 「消費する階層は A → B → … の順」.
+ESCAPE_KEY = 'Esc'
+ESCAPE_CHAIN = re.compile(u'消費する階層は (.+?) の順')
+ESCAPE_ROW = '| IN-4 |'
+REQUIREMENTS = os.path.join(SPEC, '01-04-requirements.md')
+
+
+def escape_chain():
+    """The Esc rungs as the requirement row IN-4 writes them, first to last,
+    or None when the row or its chain cannot be found."""
+    body = io.open(REQUIREMENTS, encoding='utf-8').read().replace('\r\n', '\n')
+    for line in body.split('\n'):
+        if line.startswith(ESCAPE_ROW):
+            found = ESCAPE_CHAIN.search(line)
+            return found.group(1).split(u' → ') if found else None
+    return None
+
+
+def load_priorities(regions):
+    """(priorities, problems) -- table T-283 (SD-4), or None when the
+    manuscript holds none. Refused, on top of the schema: a rung id used
+    twice; a rung state whose machine or state no region defines; an
+    evidence id docs/spec does not define; and Esc rungs whose words are not,
+    one for one and in order, the chain the requirement row IN-4 writes --
+    the ORDER is the requirement's (SD-4), so the table may not drift from it.
+    Enter and y / n are not compared: their requirements do not write the
+    order as one arrowed chain."""
+    doc = json.load(io.open(SRC, encoding='utf-8'),
+                    object_pairs_hook=collections.OrderedDict)
+    raw = doc.get('priorities')
+    if raw is None:
+        return None, []
+    found = []
+    machines = collections.OrderedDict(
+        (m.name, m) for r in regions for m in r.machines)
+    rungs = raw['rungs']
+    found.extend('rung %s appears twice' % d for d in duplicates(r['id'] for r in rungs))
+    known = defined_ids()
+    for rung in rungs:
+        where = 'priorities %s' % rung['id']
+        for state in rung['states']:
+            if 'in' in state:
+                head, _, key = state['in'].partition('.')
+            else:
+                head, key = state['machine'], state['except']
+            machine = machines.get(head)
+            if machine is None:
+                found.append('%s: no region defines the machine %s' % (where, head))
+            elif key not in machine.by_key or machine.by_key[key]['parent'] is not None \
+                    and 'except' in state:
+                found.append('%s: %s has no %sstate %s'
+                             % (where, head, '' if 'in' in state else 'top-level ', key))
+        for one in rung['evidence']:
+            if one not in known:
+                found.append('%s: %s is not defined in docs/spec' % (where, one))
+    chain = escape_chain()
+    written = [text(r['rung']) for r in rungs if r['keys'] == [ESCAPE_KEY]]
+    if chain is None:
+        found.append('priorities: the chain of %s was not found in %s'
+                     % (ESCAPE_ROW.strip('| '), os.path.basename(REQUIREMENTS)))
+    elif written != chain:
+        found.append('priorities: the %s rungs %s are not the chain IN-4 writes %s'
+                     % (ESCAPE_KEY, ' -> '.join(written), ' -> '.join(chain)))
+    return raw, found
+
+
 # ---------------------------------------------------------------------------
 # Printing
 # ---------------------------------------------------------------------------
@@ -858,8 +927,42 @@ def region_lines(region):
     return lines
 
 
-def build(regions):
+def rung_state_text(state):
+    if 'in' in state:
+        return code(state['in'])
+    return u'%s（%s 以外）' % (code(state['machine']), code(state['except']))
+
+
+def priority_lines(priorities):
+    """Table T-283: the order across regions (SD-4), printed ahead of the
+    regions because it reads the states of all of them."""
+    table = priorities['table']
+    lines = [u'', u'## 領域をまたぐ優先順', u'']
+    lines.append(u'**表 %s — %s**' % (table['id'], text(table['caption'])))
+    lines.append(u'')
+    lines.append(u'本表は、2 つ以上の領域が同じ入力を奪い合うとき、どの段が先に消費するかを並べる（`05-07-design.md` の 表 T-250 の `SD-4`）。  ')
+    lines.append(u'同じ出来事の行は、上ほど先に消費する。  ')
+    lines.append(u'段ごとの状態のキーは、その段に当たる状態であり、名は本書の各領域の状態の一覧に在る。  ')
+    lines.append(u'⭐ 順そのものの正は、各行の「順を決めた行」が名指す要求の行である —— '
+                 u'`Esc` の段の語と並びは `IN-4` の「消費する階層は」の並びと 1 対 1 で一致し、生成器がそれを確かめる。')
+    lines.append(u'')
+    rows = []
+    for rung in priorities['rungs']:
+        states = ALT.join(rung_state_text(s) for s in rung['states'])
+        if rung.get('also'):
+            states += u' と、' + text(rung['also'])
+        rows.append([rung['id'], ALT.join(code(k) for k in rung['keys']), text(rung['rung']),
+                     states, cited(rung['evidence']),
+                     text(rung['note']) if rung.get('note') else NONE_CELL])
+    lines += table_lines([u'行 ID', u'奪い合う出来事', u'段', u'段ごとの状態のキー',
+                          u'順を決めた行', u'注'], rows)
+    return lines
+
+
+def build(regions, priorities=None):
     lines = list(HEADER)
+    if priorities is not None:
+        lines += priority_lines(priorities)
     for region in regions:
         lines += region_lines(region)
     return u'\n'.join(lines) + u'\n'
@@ -867,12 +970,14 @@ def build(regions):
 
 def main(argv):
     regions, found = load()
+    if not found:
+        priorities, found = load_priorities(regions)
     if found:
         for one in found:
             say('PROBLEM  ' + one)
         say('FAIL     %s: %d problem(s); nothing written' % (os.path.basename(SRC), len(found)))
         return 1
-    body = build(regions)
+    body = build(regions, priorities)
     if '--check' in argv:
         current = io.open(OUT, encoding='utf-8', newline='').read() \
             if os.path.exists(OUT) else None

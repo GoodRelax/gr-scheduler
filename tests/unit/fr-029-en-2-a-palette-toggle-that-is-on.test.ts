@@ -6,19 +6,18 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
-import { emptySelection, type Selection } from '../../src/entity/document-model/selection/selection'
+import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import type {
   CommandItem,
   CommandPalette,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 const T_202_KEY_COLUMN = 'キー'
@@ -171,63 +170,55 @@ const everyToggleAt = (value: boolean): Record<string, unknown> =>
 const ALL_OFF = settingsWith(everyToggleAt(false))
 const ALL_ON = settingsWith(everyToggleAt(true))
 
+type Armed = ScreenValues['armModeState']
+
 // see S-99e
-const SHOWN: ScreenState = emptyScreenState()
-
-const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
-  { row: 'AR-1', armed: { kind: 'none' } },
-  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
-  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'SH-5' } },
-  { row: 'AR-4', armed: { kind: 'dependency' } },
-  { row: 'AR-5', armed: { kind: 'commentBox' } },
-  { row: 'AR-6', armed: { kind: 'highlightBox' } },
-]
-
 // WHY: the milestone list is left OPEN -- FR-053 keeps its entrances out of
 // WHY: the palette while shut, which would narrow the roster this file walks.
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SHOWN: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    // see FR-065, FR-066
+    dialogueFieldDisplayState: { kind: 'hidden' },
+    milestoneListDisplayState: { kind: 'open' },
+  },
+}
+
+const T_023b: readonly { readonly row: string; readonly armed: Armed }[] = [
+  { row: 'AR-1', armed: { kind: 'notArmed' } },
+  { row: 'AR-2', armed: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
+  { row: 'AR-3', armed: { kind: 'milestoneShapeArmed', glyph: 'SH-5' } },
+  { row: 'AR-4', armed: { kind: 'dependencyArmed' } },
+  { row: 'AR-5', armed: { kind: 'commentBoxArmed' } },
+  { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } },
+]
+
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  // see FR-065, FR-066
-  isDialogueFieldVisible: false,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: true,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-// WHY: no row fixes UF-65's argument list, so this cast encodes the order
-// WHY: read back from uf-65.test.ts; an ignored argument fails case 1 instead.
-type PaletteFromScreenState = (
-  state: ScreenState,
-  settings: DocumentSettings,
-  selection: Selection,
-  session: ScreenSession,
-) => CommandPalette | null
-
-const paletteFrom = commandPaletteFromScreenState as unknown as PaletteFromScreenState
-
 const describedWith = (
   settings: DocumentSettings,
-  state: ScreenState = SHOWN,
-  session: ScreenSession = SESSION,
+  root: ScreenSession = SHOWN,
+  readings: ScreenViewReadings = READINGS,
 ): CommandPalette => {
-  const palette = paletteFrom(state, settings, emptySelection(), session)
+  const palette = commandPaletteFromSession(root, settings, emptySelection(), readings)
   expect(palette, 'S-99e: the palette is showing, so one is described').not.toBeNull()
   return palette as CommandPalette
 }
@@ -381,7 +372,9 @@ describe('FR-053 (MUST NOT) -- arming an entrance does not press it', () => {
       const unarmed = pressedVectorOf(describedWith(settings))
       for (const { row, armed } of T_023b) {
         expect(
-          pressedVectorOf(describedWith(settings, screenStateWithArmed(SHOWN, armed))),
+          pressedVectorOf(
+            describedWith(settings, { ...SHOWN, screen: { ...SHOWN.screen, armModeState: armed } }),
+          ),
           `FR-053 (MUST NOT): table T-023b ${row} reached a pressed state`,
         ).toEqual(unarmed)
       }

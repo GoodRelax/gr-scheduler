@@ -145,9 +145,9 @@ import type {
   RaisedConfirmation,
   ScreenFrame,
   ScreenPart,
-  ScreenSession,
   ScreenSurface,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -156,6 +156,10 @@ import {
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 // ⭐ Borrowed from the contract kind on purpose: it is the one reader that takes
 // the copy from the .md at read time, which is what keeps the rosters below from
 // falling behind a row.
@@ -1293,12 +1297,23 @@ const THEME: ScreenTheme = {
   hue: THEME_HUE,
 }
 
-const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
-  language: LANGUAGE,
+const rootAsking: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: LANGUAGE,
+    dialogueFieldDisplayState: { kind: 'shown' },
+    milestoneListDisplayState: { kind: 'closed' },
+    paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },
+    dualCursorModeState: { kind: 'off' },
+    propertiesPanelContentState: { kind: 'hidden' },
+  },
+}
+
+const readingsAsking = (raised: RaisedConfirmation | null): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   iconUnderPointer: null,
@@ -1308,13 +1323,8 @@ const sessionAsking = (raised: RaisedConfirmation | null): ScreenSession => ({
   // the manuscript's default; S-73 is read above.
   themePreference: THEME.preference,
   themeHue: THEME.hue,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesShowing: null,
-  propertiesSubject: null,
   notices: [],
   confirmation: raised,
   rowBoxes: [],
@@ -1353,7 +1363,7 @@ const named = (name: string, isShownOnAnotherRow = false): ConfirmationItem => (
  * roster all the way to the screen.
  */
 function composed(raised: RaisedConfirmation): Confirmation {
-  const shown = confirmationFromSession(sessionAsking(raised))
+  const shown = confirmationFromSession(rootAsking, readingsAsking(raised))
   if (shown === null) throw new Error('a raised question came back as none')
   return shown
 }
@@ -1568,7 +1578,7 @@ describe('NT-7 -- the two word buttons that stand on the surface', () => {
 
   it('GIVEN no question was raised WHEN the view is filled THEN there is nothing to answer', () => {
     // NT-7 (MUST): a question may be asked only where a requirement says one is.
-    expect(confirmationFromSession(sessionAsking(null))).toBeNull()
+    expect(confirmationFromSession(rootAsking, readingsAsking(null))).toBeNull()
   })
 
   it('GIVEN each place a requirement asks WHEN each is composed THEN the same two answers stand on all of them (FR-031 MUST NOT: the places are not enumerated)', () => {

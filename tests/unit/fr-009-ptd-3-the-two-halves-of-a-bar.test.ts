@@ -49,9 +49,9 @@ import {
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
-  emptyScreenState,
-  screenStateWithArmed,
-} from '../../src/entity/document-model/screen-state/screen-state'
+  emptyScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   geometryFromLayout,
@@ -209,8 +209,11 @@ const IN_LEFT_HALF = BAR.x + BAR.width * 0.25
 const IN_RIGHT_HALF = BAR.x + BAR.width * 0.75
 const MIDDLE_Y = BAR.y + BAR.planHeight / 2
 
-const ARMED_DEPENDENCY = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
-const ARMED_NOTHING = emptyScreenState()
+const ARMED_DEPENDENCY: ScreenValues = {
+  ...emptyScreenSession.screen,
+  armModeState: { kind: 'dependencyArmed' },
+}
+const ARMED_NOTHING: ScreenValues = emptyScreenSession.screen
 
 const pointerAt = (x: number): Record<string, unknown> => ({
   x,
@@ -230,10 +233,10 @@ describe('表 T-023a の PTD-3 -- a hit beats the arming', () => {
   it('PTD-3 claims the press whenever something was hit, dependency armed or not', () => {
     const hit = itemAtPointer(GEOMETRY, IN_LEFT_HALF, MIDDLE_Y, SLOP)
     expect(hit, 'nothing was hit on the bar, so this file cannot ask its question').not.toBeNull()
-    for (const screenState of [ARMED_NOTHING, ARMED_DEPENDENCY]) {
+    for (const screen of [ARMED_NOTHING, ARMED_DEPENDENCY]) {
       expect(
         pressRowOf({ at: pointerAt(IN_LEFT_HALF) as never, hit }, {
-          screenState,
+          screen,
           dualCursorFollowing: null,
         } as never),
       ).toBe('PTD-3')
@@ -245,7 +248,7 @@ describe('表 T-023a の PTD-3 -- a hit beats the arming', () => {
     // | **何もしない。** 引きかけの矢印があれば捨てる。構えは解かない」
     expect(
       pressRowOf({ at: pointerAt(IN_LEFT_HALF) as never, hit: null }, {
-        screenState: ARMED_DEPENDENCY,
+        screen: ARMED_DEPENDENCY,
         dualCursorFollowing: null,
       } as never),
     ).toBe('PTD-4a')

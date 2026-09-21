@@ -48,7 +48,8 @@ import {
 } from './selection-values'
 import { unchanged, type Step } from './session-step'
 
-// TRAP: ScreenRenderer exports another ScreenSession until wave B2 of CR-436; import this one from here.
+export type { ArmKind, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
+
 // see SF-8, PI-39
 export interface ScreenSession {
   readonly screen: ScreenValues

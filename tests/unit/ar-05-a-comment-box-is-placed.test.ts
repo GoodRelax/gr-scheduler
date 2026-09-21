@@ -97,13 +97,11 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Hit } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -334,7 +332,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: ZOOM_STEP,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -414,10 +412,12 @@ const RELEASE_DAY = '2026-01-20'
 // Reading the answers
 // ---------------------------------------------------------------------------
 
-const ARMED_COMMENT_BOX: Armed = { kind: 'commentBox' }
-const ARMED_RECTANGLE: Armed = { kind: 'taskShape', shapeKind: 'rectangle' }
+type Armed = ScreenValues['armModeState']
 
-const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
+const ARMED_COMMENT_BOX: Armed = { kind: 'commentBoxArmed' }
+const ARMED_RECTANGLE: Armed = { kind: 'taskShapeArmed', shapeKind: 'rectangle' }
+
+const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })
 
 /** A `Hit` naming the first Task's plan bar -- GA-9 of table T-023d. */
 const TASK_1_HIT = { item: { kind: 'task', taskUid: 1 }, grab: 'GA-9' } as unknown as Hit
@@ -469,7 +469,7 @@ const placingGesture = (
   part: Partial<InputContext> = {},
   from = pointerOf('down', midXOfDay(PRESS_DAY), midYOfRow(PRESS_ROW_ID)),
   to = pointerOf('up', midXOfDay(PRESS_DAY), midYOfRow(PRESS_ROW_ID)),
-): TranslatedInput => afterGesture(from, to, null, { screenState: armedWith(ARMED_COMMENT_BOX), ...part })
+): TranslatedInput => afterGesture(from, to, null, { screen: armedWith(ARMED_COMMENT_BOX), ...part })
 
 /** The anchor CM-46 carries, as `{ date, groupId }`. */
 const anchorOf = (answer: TranslatedInput): Record<string, unknown> =>
@@ -554,7 +554,7 @@ describe('the rows these cases stand on', () => {
 describe('PTD-4 / AR-5 -- an armed comment box entrance plans a placement', () => {
   it('PTD-4: a press that hit nothing while AR-5 is armed resolves to PTD-4', () => {
     const row = pressRowFor(pointerOf('down', midXOfDay(PRESS_DAY), midYOfRow(PRESS_ROW_ID)), null, {
-      screenState: armedWith(ARMED_COMMENT_BOX),
+      screen: armedWith(ARMED_COMMENT_BOX),
     })
     expect(row).toBe('PTD-4')
   })
@@ -590,7 +590,7 @@ describe('PTD-4 / AR-5 -- an armed comment box entrance plans a placement', () =
       pointerOf('down', midXOfDay('2026-01-06'), y),
       pointerOf('up', midXOfDay('2026-01-06'), y),
       TASK_1_HIT,
-      { screenState: armedWith(ARMED_COMMENT_BOX) },
+      { screen: armedWith(ARMED_COMMENT_BOX) },
     )
     expect(kindsOf(answer)).not.toContain(CM_46)
   })
@@ -605,7 +605,7 @@ describe('PTD-4 / AR-5 -- an armed comment box entrance plans a placement', () =
   })
 
   it('AR-2: an armed SHAPE places no comment box, so CM-46 is AR-5’s alone', () => {
-    const answer = placingGesture({ screenState: armedWith(ARMED_RECTANGLE) })
+    const answer = placingGesture({ screen: armedWith(ARMED_RECTANGLE) })
     expect(kindsOf(answer)).not.toContain(CM_46)
     // ⭐ THE CONTROL, AND WHY IT NO LONGER READS `createTask`. This gesture is a
     // press and a release on one point, and FR-001 (MUST NOT, 利用者の裁定

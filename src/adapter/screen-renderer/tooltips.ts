@@ -10,13 +10,15 @@ import {
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   DisplayLanguage,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
   IconId,
   Tooltip,
 } from './screen-renderer'
+import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 
@@ -98,27 +100,28 @@ export function tooltipsFromScreenView(
   shown: Omit<ScreenView, 'tooltips'>,
   settings: DocumentSettings,
   session: ScreenSession,
+  readings: ScreenViewReadings,
 ): readonly Tooltip[] {
-  if (session.isTooltipDismissed === true) return []
+  if (session.screen.tooltipDisplayState.kind === 'dismissed') return []
 
-  const pointer = session.pointer
-
-  const isHintDue = pointer !== null && session.pointerRestedMs >= settings.iconHintDelayMs
+  const pointer = readings.pointer
+  const language = displayLanguageOf(session)
+  const isHintDue = pointer !== null && readings.pointerRestedMs >= settings.iconHintDelayMs
 
   const tooltips: Tooltip[] = []
 
-  const iconWithHintDue = isHintDue ? session.iconUnderPointer : null
+  const iconWithHintDue = isHintDue ? readings.iconUnderPointer : null
   if (iconWithHintDue !== null) {
     tooltips.push({
       anchor: { kind: 'icon', icon: iconWithHintDue },
-      text: iconHint(iconWithHintDue, session.language),
-      assignment: entryAssignment(iconWithHintDue, session.language),
+      text: iconHint(iconWithHintDue, language),
+      assignment: entryAssignment(iconWithHintDue, language),
     })
   }
 
   if (pointer === null) return tooltips
 
-  const task = isHintDue ? (session.taskUnderPointer ?? null) : null
+  const task = isHintDue ? (readings.taskUnderPointer ?? null) : null
   if (task !== null) {
     tooltips.push({
       anchor: { kind: 'task', taskUid: task.uid },
@@ -134,7 +137,7 @@ export function tooltipsFromScreenView(
     if (!rectHoldsPoint(scrollbar.track, pointer.x, pointer.y)) continue
     tooltips.push({
       anchor: { kind: 'scrollbar', axis: scrollbar.axis },
-      text: assignmentText(FASTER_SCROLL_ASSIGNMENT_ROWS[scrollbar.axis], session.language),
+      text: assignmentText(FASTER_SCROLL_ASSIGNMENT_ROWS[scrollbar.axis], language),
       assignment: null,
     })
   }

@@ -8,10 +8,14 @@ import { describe, expect, it } from 'vitest'
 import type {
   ConfirmationItem,
   RaisedConfirmation,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { confirmationFromSession } from '../../src/adapter/screen-renderer/notices'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
   selfAndDescendants,
@@ -65,31 +69,29 @@ describe('CR-407 -- the premises read from the manuscript', () => {
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 
-const sessionAsking = (raised: RaisedConfirmation): ScreenSession =>
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'en' },
+}
+
+const readingsAsking = (raised: RaisedConfirmation): ScreenViewReadings =>
   ({
-    language: 'en',
     openedFileName: null,
     fileSavedAt: null,
     isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
     pointer: null,
     pointerRestedMs: 0,
     iconUnderPointer: null,
     commandPaletteAt: { x: 0, y: 0 },
     themePreference: 'light',
     themeHue: 214,
-    isMilestoneListOpen: false,
-    isPaletteMinimised: false,
-    dualCursorFollowing: null,
     selectedGroupIds: [],
     selectedResourceUids: [],
-    propertiesShowing: null,
-    propertiesSubject: null,
     notices: [],
     confirmation: raised,
     rowBoxes: [],
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-  }) as ScreenSession
+  }) as ScreenViewReadings
 
 const EMPTY_VIEW: ScreenView = {
   language: 'en',
@@ -120,7 +122,7 @@ interface Drawn {
 }
 
 function drawnAsking(question: string, items: readonly ConfirmationItem[]): Drawn {
-  const shown = confirmationFromSession(sessionAsking({ manner: 'NT-7', question, items }))
+  const shown = confirmationFromSession(ROOT, readingsAsking({ manner: 'NT-7', question, items }))
   if (shown === null) throw new Error('a raised question came back as none')
   const built = wire(THEME, { 'App Header': 37 })
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, confirmation: shown })

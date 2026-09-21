@@ -30,20 +30,19 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { openModalFromScreenState } from '../../src/adapter/screen-renderer/open-modals'
+import { openModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
 import type {
   ConfirmationAnswer,
   DisplayLanguage,
   OpenModal,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import iconRoster from '../../src/adapter/screen-renderer/icon-roster.json'
 import {
-  emptyScreenState,
-  screenStateWithSurface,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import type { AppHeaderItems, ScreenFrame, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
@@ -125,37 +124,36 @@ const scheduleOf = (): Schedule =>
 
 const EMPTY_DOCUMENT = scheduleOf()
 
-const sessionOf = (language: DisplayLanguage): ScreenSession =>
+const readingsOf = (): ScreenViewReadings =>
   ({
-    language,
     openedFileName: null,
     fileSavedAt: null,
     isAgentApiEnabled: false,
-    isDialogueFieldVisible: true,
     pointer: null,
     pointerRestedMs: 0,
     iconUnderPointer: null,
     commandPaletteAt: { x: 0, y: 0 },
     themePreference: 'light',
     themeHue: 214,
-    isMilestoneListOpen: false,
-    isPaletteMinimised: false,
-    dualCursorFollowing: null,
     selectedGroupIds: [],
     selectedResourceUids: [],
-    propertiesShowing: null,
-    propertiesSubject: null,
     notices: [],
     confirmation: null,
     rowBoxes: [],
-  }) as unknown as ScreenSession
+  }) as unknown as ScreenViewReadings
 
-const stateOn = (surface: string | null): ScreenState =>
-  screenStateWithSurface(emptyScreenState(), surface)
+const rootOn = (language: DisplayLanguage, surface: string | null): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language,
+    openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
+  },
+})
 
 /** The surface as UF-66 describes it, with the case failed where none is. */
 function describedOn(language: DisplayLanguage): OpenModal {
-  const modal = openModalFromScreenState(stateOn(U_60), EMPTY_DOCUMENT, sessionOf(language))
+  const modal = openModalFromSession(rootOn(language, U_60), EMPTY_DOCUMENT, readingsOf())
   expect(modal, `S-99g holds ${U_60}, so UF-66 describes a surface`).not.toBeNull()
   return modal as OpenModal
 }

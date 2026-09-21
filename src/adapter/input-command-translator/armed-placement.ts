@@ -42,12 +42,12 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
   const commands: DocumentCommand[] = []
   for (const one of context.selection.items) {
     if (one.kind !== 'task') continue
-    if (armed.kind === 'taskShape') {
+    if (armed.kind === 'taskShapeArmed') {
       const shapeKind = taskShapeKindOf(armed.shapeKind)
       if (shapeKind !== null) commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind })
       continue
     }
-    if (armed.kind === 'milestoneShape') {
+    if (armed.kind === 'milestoneShapeArmed') {
       const glyph = milestoneGlyphOf(armed.glyph)
       if (glyph === null) continue
       commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
@@ -88,7 +88,7 @@ export function commandFromArmed(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  const armed = context.screenState.armed
+  const armed = context.screen.armModeState
   const from = dayAtX(context.layout, press.at.x)
   const to = dayAtX(context.layout, release.x)
   const row = rowAtY(context.layout, press.at.y)
@@ -98,8 +98,8 @@ export function commandFromArmed(
   const late = compareDay(from, to) <= 0 ? to : from
   const dragged = hasDraggedPastThreshold(press, release)
 
-  if (armed.kind === 'taskShape' || armed.kind === 'milestoneShape') {
-    const named = armed.kind === 'taskShape' ? armed.shapeKind : 'milestone'
+  if (armed.kind === 'taskShapeArmed' || armed.kind === 'milestoneShapeArmed') {
+    const named = armed.kind === 'taskShapeArmed' ? armed.shapeKind : 'milestone'
     const shapeKind = taskShapeKindOf(named)
     if (shapeKind === null) return CONSUMED_ELSEWHERE
     const isMilestone = shapeKind === 'milestone'
@@ -115,7 +115,7 @@ export function commandFromArmed(
         groupId,
       },
     ]
-    if (armed.kind === 'milestoneShape') {
+    if (armed.kind === 'milestoneShapeArmed') {
       const glyph = milestoneGlyphOf(armed.glyph)
       if (glyph !== null) {
         commands.push({
@@ -131,13 +131,13 @@ export function commandFromArmed(
     })
   }
 
-  if (armed.kind === 'commentBox') {
+  if (armed.kind === 'commentBoxArmed') {
     const anchor = commentAnchorAt(context.layout, press.at.x, press.at.y)
     if (!('groupId' in anchor)) return anchor
     return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor }])
   }
 
-  if (armed.kind === 'highlightBox') {
+  if (armed.kind === 'highlightBoxArmed') {
     if (!dragged) return CONSUMED_ELSEWHERE
 
     const releaseRow = rowAtY(context.layout, release.y)

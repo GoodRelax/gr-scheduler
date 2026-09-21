@@ -8,8 +8,12 @@ import {
   type DialogueLog,
   type DialogueMessage,
 } from '../../src/entity/document-model/dialogue-log/dialogue-log'
-import type { DialogueField, ScreenSession } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { DialogueField, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import { dialogueFieldFromLog } from '../../src/adapter/screen-renderer/dialogue-field'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
 
 // WHY: DR-5 keeps the hue on Project, not settings, so no generated constant
@@ -18,34 +22,40 @@ const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
 
-// WHY: every ScreenSession member is spelled out, so a case that varies one
+// WHY: every ScreenViewReadings member is spelled out, so a case that varies one
 // member varies exactly one; most cases hold isAgentApiEnabled steady here.
-const SESSION: ScreenSession = {
-  language: 'ja',
+const SESSION: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: true,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: null,
   notices: [],
   confirmation: null,
   rowBoxes: [],
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-const sessionWith = (part: Partial<ScreenSession>): ScreenSession => ({ ...SESSION, ...part })
+const sessionWith = (part: Partial<ScreenViewReadings>): ScreenViewReadings => ({
+  ...SESSION,
+  ...part,
+})
+
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, language: 'ja' },
+}
+
+const rootWith = (part: Partial<ScreenSession['screen']>): ScreenSession => ({
+  ...ROOT,
+  screen: { ...ROOT.screen, ...part },
+})
 
 const utterance = (
   sequence: number,
@@ -62,8 +72,8 @@ const logOf = (messages: readonly DialogueMessage[]): DialogueLog => ({
 })
 
 // see FR-066
-const fieldOf = (log: DialogueLog, session: ScreenSession = SESSION): DialogueField => {
-  const field = dialogueFieldFromLog(log, session)
+const fieldOf = (log: DialogueLog, readings: ScreenViewReadings = SESSION): DialogueField => {
+  const field = dialogueFieldFromLog(log, ROOT, readings)
   expect(field).not.toBeNull()
   return field as DialogueField
 }
@@ -80,17 +90,17 @@ describe('UF-68 -- FR-066: the field stands while the `Agent API` is enabled', (
   ])
 
   it('answers a field while the API is on', () => {
-    expect(dialogueFieldFromLog(settled, SESSION)).not.toBeNull()
+    expect(dialogueFieldFromLog(settled, ROOT, SESSION)).not.toBeNull()
   })
 
   it('answers null while the API is off, although utterances were settled', () => {
-    expect(dialogueFieldFromLog(settled, sessionWith({ isAgentApiEnabled: false }))).toBeNull()
+    expect(dialogueFieldFromLog(settled, ROOT, sessionWith({ isAgentApiEnabled: false }))).toBeNull()
   })
 
   it('answers null rather than a field holding nothing while the API is off', () => {
     // WHY: an empty field is not "no field" -- it would draw an empty
     // conversation over an API FR-066 says is not open.
-    const field = dialogueFieldFromLog(emptyDialogueLog(), sessionWith({ isAgentApiEnabled: false }))
+    const field = dialogueFieldFromLog(emptyDialogueLog(), ROOT, sessionWith({ isAgentApiEnabled: false }))
     expect(field).toBeNull()
   })
 
@@ -103,8 +113,8 @@ describe('UF-68 -- FR-066: the field stands while the `Agent API` is enabled', (
   it('turns on nothing but the flag S-99b keeps in the environment (FR-065)', () => {
     // WHY: S-99b keeps this flag in localStorage, keyed by the document's
     // id, because the document itself cannot hold it.
-    expect(dialogueFieldFromLog(settled, sessionWith({ isAgentApiEnabled: true }))).not.toBeNull()
-    expect(dialogueFieldFromLog(settled, sessionWith({ isAgentApiEnabled: false }))).toBeNull()
+    expect(dialogueFieldFromLog(settled, ROOT, sessionWith({ isAgentApiEnabled: true }))).not.toBeNull()
+    expect(dialogueFieldFromLog(settled, ROOT, sessionWith({ isAgentApiEnabled: false }))).toBeNull()
   })
 })
 
@@ -260,7 +270,7 @@ describe('UF-68 -- table T-075: the unit is `pure`', () => {
       utterance(1, 'person', 'a', '2026-08-19T09:00:00Z'),
     ])
 
-    expect(dialogueFieldFromLog(log, SESSION)).toEqual(dialogueFieldFromLog(log, SESSION))
+    expect(dialogueFieldFromLog(log, ROOT, SESSION)).toEqual(dialogueFieldFromLog(log, ROOT, SESSION))
   })
 
   it('reads no member of the session but the one FR-066 conditions on', () => {
@@ -270,18 +280,22 @@ describe('UF-68 -- table T-075: the unit is `pure`', () => {
       utterance(1, 'person', 'a', '2026-08-19T09:00:00Z'),
       utterance(2, 'ai', 'b', '2026-08-19T09:00:01Z'),
     ])
-    const other = sessionWith({
+    const otherRoot = rootWith({
       language: 'en',
+      propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject: null },
+    })
+    const otherReadings = sessionWith({
       openedFileName: null,
       fileSavedAt: null,
       pointer: { x: 12, y: 34 },
       pointerRestedMs: 4000,
       commandPaletteAt: { x: 80, y: 90 },
-      propertiesShowing: 'documentSettings',
       notices: [{ manner: 'NT-1', reason: 'refused', affectedCount: 2 }],
       rowBoxes: [{ groupId: 'g1', box: { x: 0, y: 0, width: 100, height: 20 } }],
     })
 
-    expect(dialogueFieldFromLog(log, other)).toEqual(dialogueFieldFromLog(log, SESSION))
+    expect(dialogueFieldFromLog(log, otherRoot, otherReadings)).toEqual(
+      dialogueFieldFromLog(log, ROOT, SESSION),
+    )
   })
 })

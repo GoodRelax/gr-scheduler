@@ -47,15 +47,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  screenStateWithFullScreen,
-  screenStateWithPalette,
-  screenStateWithSurface,
-  type Armed,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+import { escapeTarget } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionOfAll,
@@ -74,14 +66,22 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
+  advanceScreenSession,
+  emptyScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
+import {
   NOT_STORED_ZOOM_BOUNDS,
   type DocumentCommand,
 } from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
+  escapeContextOf,
   pressRowOf,
-  screenStateFromInput,
+  screenEventFromInput,
   selectionFromInput,
+  type Armed,
+  type HumanInput,
   type InputContext,
   type InputModifiers,
   type InputSource,
@@ -102,12 +102,12 @@ const T_023A = ['PTD-1', 'PTD-2', 'PTD-3', 'PTD-4', 'PTD-4a', 'PTD-5'] as const
 
 /** 表 T-023b -- what the palette may have armed. */
 const T_023B = [
-  { row: 'AR-1', armed: { kind: 'none' } as Armed, makesATask: false },
-  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'rectangle' } as Armed, makesATask: true },
-  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'diamond' } as Armed, makesATask: true },
-  { row: 'AR-4', armed: { kind: 'dependency' } as Armed, makesATask: false },
-  { row: 'AR-5', armed: { kind: 'commentBox' } as Armed, makesATask: false },
-  { row: 'AR-6', armed: { kind: 'highlightBox' } as Armed, makesATask: false },
+  { row: 'AR-1', armed: { kind: 'notArmed' } as ScreenValues['armModeState'], makesATask: false },
+  { row: 'AR-2', armed: { kind: 'taskShapeArmed', shapeKind: 'rectangle' } as ScreenValues['armModeState'], makesATask: true },
+  { row: 'AR-3', armed: { kind: 'milestoneShapeArmed', glyph: 'diamond' } as ScreenValues['armModeState'], makesATask: true },
+  { row: 'AR-4', armed: { kind: 'dependencyArmed' } as ScreenValues['armModeState'], makesATask: false },
+  { row: 'AR-5', armed: { kind: 'commentBoxArmed' } as ScreenValues['armModeState'], makesATask: false },
+  { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } as ScreenValues['armModeState'], makesATask: false },
 ] as const
 
 /** 表 T-023 -- the pointer and keyboard assignment (FR-016). */
@@ -458,7 +458,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: ZOOM_STEP,
   // S-54 / S-55, travelling as values the way S-53 does. The range CM-71
@@ -488,6 +488,23 @@ const richOf = (part: Partial<InputContext> = {}): InputContext =>
     geometry: RICH_GEOMETRY,
     ...part,
   })
+
+function screenAfter(input: HumanInput, context: InputContext): ScreenValues {
+  const event = screenEventFromInput(input, context)
+  return event === null
+    ? context.screen
+    : advanceScreenSession({ ...emptyScreenSession, screen: context.screen }, event).state.screen
+}
+
+function escapeAfter(context: InputContext): ScreenValues {
+  const rung = escapeTarget(escapeContextOf(context))
+  return rung === null
+    ? context.screen
+    : advanceScreenSession(
+        { ...emptyScreenSession, screen: context.screen },
+        { type: 'escapePressed', rung },
+      ).state.screen
+}
 
 // ---------------------------------------------------------------------------
 // Building the happenings IF-2 supplies.
@@ -757,7 +774,7 @@ describe('FR-028 -- every answer is a value; nothing is thrown', () => {
     const far = pointerOf('up', 10_000, 10_000)
     expect(() => commandFromInput(far, contextOf())).not.toThrow()
     expect(() => selectionFromInput(far, contextOf())).not.toThrow()
-    expect(() => screenStateFromInput(far, contextOf())).not.toThrow()
+    expect(() => screenEventFromInput(far, contextOf())).not.toThrow()
   })
 
   it('answers rather than throwing for a document with nothing in it', () => {
@@ -780,7 +797,7 @@ describe('FR-028 -- every answer is a value; nothing is thrown', () => {
     ]) {
       expect(() => commandFromInput(input, context), JSON.stringify(input.kind)).not.toThrow()
       expect(() => selectionFromInput(input, context)).not.toThrow()
-      expect(() => screenStateFromInput(input, context)).not.toThrow()
+      expect(() => screenEventFromInput(input, context)).not.toThrow()
     }
   })
 })
@@ -846,51 +863,49 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
   })
 
   it('IN-1a: an aborted creation drag writes nothing either', () => {
-    const armed = screenStateWithArmed(emptyScreenState(), {
-      kind: 'taskShape',
-      shapeKind: 'rectangle',
-    })
+    const armed: ScreenValues = { ...emptyScreenSession.screen, armModeState: { kind: 'taskShapeArmed', shapeKind: 'rectangle' } }
     const from = pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3'))
     const lost = pointerOf('lost', xOfDay('2026-01-11'), midYOfRow('g3'))
-    expect(gestureAction(from, lost, null, { screenState: armed }).action).toBeNull()
+    expect(gestureAction(from, lost, null, { screen: armed }).action).toBeNull()
   })
 
   it('IN-4: one press of Esc consumes ONE level, in the order the row fixes', () => {
     // All four levels are up at once; each Esc takes the outermost that is
     // left, so four presses walk IN_4_LEVELS from the top.
-    let state: ScreenState = screenStateWithSurface(
-      screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
-      'Help Modal',
-    )
+    let screen: ScreenValues = {
+      ...emptyScreenSession.screen,
+      armModeState: { kind: 'dependencyArmed' },
+      openSurfaceState: { kind: 'open', surfaceName: 'Help Modal' },
+    }
     // `on: null` is what admits table T-023a: the press landed on the
     // schedule's drawing area and on no drawn entry.
     // PTD-2 of table T-023a: in Dual Cursor mode the press hits nothing by rule.
     const pressed = { at: pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')), hit: null, on: null, pressRow: 'PTD-2' as const }
 
     // Level 1 -- the open surface.
-    state = screenStateFromInput(keyOf('Esc'), contextOf({ screenState: state, pressed, dualCursorFollowing: 'date1' }))
-    expect(state.surface).toBeNull()
-    expect(state.armed.kind).toBe('dependency')
+    let context = contextOf({ screen, pressed, dualCursorFollowing: 'date1' })
+    expect(escapeTarget(escapeContextOf(context))).toBe('surface')
+    screen = escapeAfter(context)
+    expect(screen.openSurfaceState.kind).toBe('closed')
+    expect(screen.armModeState.kind).toBe('dependencyArmed')
 
     // Level 2 -- the gesture in flight. Nothing in ScreenState moves, because
     // the gesture is the Framework's to hold (LY-5).
-    const afterGestureEsc = screenStateFromInput(
-      keyOf('Esc'),
-      contextOf({ screenState: state, pressed, dualCursorFollowing: 'date1' }),
-    )
-    expect(afterGestureEsc.armed.kind).toBe('dependency')
+    context = contextOf({ screen, pressed, dualCursorFollowing: 'date1' })
+    expect(escapeTarget(escapeContextOf(context))).toBe('gesture')
+    const afterGesture = escapeAfter(context)
+    expect(afterGesture.armModeState.kind).toBe('dependencyArmed')
 
     // Level 3 -- what is armed, once no gesture is in flight.
-    state = screenStateFromInput(
-      keyOf('Esc'),
-      contextOf({ screenState: state, pressed: null, dualCursorFollowing: 'date1' }),
-    )
-    expect(state.armed.kind).toBe('none')
+    context = contextOf({ screen, pressed: null, dualCursorFollowing: 'date1' })
+    expect(escapeTarget(escapeContextOf(context))).toBe('armed')
+    screen = escapeAfter(context)
+    expect(screen.armModeState.kind).toBe('notArmed')
   })
 
   it('IN-4: Esc that consumes a level emits no command (UN-11 of 表 T-027)', () => {
-    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'commentBox' })
-    const answer = commandFromInput(keyOf('Esc'), contextOf({ screenState: armed }))
+    const armed: ScreenValues = { ...emptyScreenSession.screen, armModeState: { kind: 'commentBoxArmed' } }
+    const answer = commandFromInput(keyOf('Esc'), contextOf({ screen: armed }))
     expect(answer.action).toBeNull()
     expect(answer.isBrowserDefaultStopped).toBe(true)
   })
@@ -902,9 +917,9 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
   })
 
   it('IN-4a: while something is armed the key is consumed, so it does not reach the browser', () => {
-    const armed = screenStateWithArmed(emptyScreenState(), { kind: 'taskShape', shapeKind: 'arrow' })
+    const armed: ScreenValues = { ...emptyScreenSession.screen, armModeState: { kind: 'taskShapeArmed', shapeKind: 'arrow' } }
     expect(
-      commandFromInput(keyOf('Esc'), contextOf({ screenState: armed })).isBrowserDefaultStopped,
+      commandFromInput(keyOf('Esc'), contextOf({ screen: armed })).isBrowserDefaultStopped,
     ).toBe(true)
   })
 
@@ -918,7 +933,7 @@ describe('表 T-028 -- the input manners (FR-040)', () => {
     for (const key of ['P', 'F', 'Delete', 'Backspace']) {
       const answer = commandFromInput(keyOf(key), typing)
       expect(answer.action, key).toBeNull()
-      expect(screenStateFromInput(keyOf(key), typing), key).toBe(typing.screenState)
+      expect(screenAfter(keyOf(key), typing), key).toBe(typing.screen)
     }
   })
 
@@ -960,7 +975,11 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
   /** The context each row needs to have something to act on. */
   function contextFor(row: string): InputContext {
     if (row === 'SK-19') return contextOf({ isTextEntryUnsettled: true })
-    if (row === 'SK-8') return contextOf({ screenState: screenStateWithSurface(emptyScreenState(), 'Help Modal') })
+    if (row === 'SK-8') {
+      return contextOf({
+        screen: { ...emptyScreenSession.screen, openSurfaceState: { kind: 'open', surfaceName: 'Help Modal' } },
+      })
+    }
     if (row === 'SK-3') {
       return contextOf({ selection: selectionWith(emptySelection(), { kind: 'task', uid: 1 }) })
     }
@@ -994,11 +1013,12 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
           expect(selectionFromInput(input, context), where).not.toBe(context.selection)
         }
         if (row.member === 'screenState') {
-          expect(screenStateFromInput(input, context), where).not.toBe(context.screenState)
+          const after = row.row === 'SK-8' ? escapeAfter(context) : screenAfter(input, context)
+          expect(after, where).not.toBe(context.screen)
         }
         if (row.member === 'fullScreen') {
-          expect(screenStateFromInput(input, context).fullScreen, `${where}: 求めただけで \`S-99f\` を変えてはならない（MUST NOT）`).toBe(
-            context.screenState.fullScreen,
+          expect(screenAfter(input, context).fullScreenModeState, `${where}: 求めただけで \`S-99f\` を変えてはならない（MUST NOT）`).toEqual(
+            context.screen.fullScreenModeState,
           )
         }
 
@@ -1059,28 +1079,28 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
   it('SK-13 / FR-029: F1 OPENS the help and does not toggle it', () => {
     // The assignment column says open, where SK-14 and SK-15 say switch. IN-4
     // already owns the closing, and FR-029 forbids a second entrance.
-    const opened = screenStateFromInput(keyOf('F1'), contextOf())
-    expect(opened.surface).toBe('Help Modal')
-    const again = screenStateFromInput(keyOf('F1'), contextOf({ screenState: opened }))
-    expect(again.surface).toBe('Help Modal')
+    const opened = screenAfter(keyOf('F1'), contextOf())
+    expect(opened.openSurfaceState).toEqual({ kind: 'open', surfaceName: 'Help Modal' })
+    const again = screenAfter(keyOf('F1'), contextOf({ screen: opened }))
+    expect(again.openSurfaceState).toEqual({ kind: 'open', surfaceName: 'Help Modal' })
   })
 
   it('SK-14: P switches the palette both ways', () => {
-    const first = screenStateFromInput(keyOf('P'), contextOf())
-    expect(first.paletteShown).toBe(!emptyScreenState().paletteShown)
-    const back = screenStateFromInput(keyOf('P'), contextOf({ screenState: first }))
-    expect(back.paletteShown).toBe(emptyScreenState().paletteShown)
+    const first = screenAfter(keyOf('P'), contextOf())
+    expect(first.paletteDisplayState.kind).toBe('hidden')
+    const back = screenAfter(keyOf('P'), contextOf({ screen: first }))
+    expect(back.paletteDisplayState.kind).toBe('shown')
   })
 
   it('SK-15 / FR-071 (MUST NOT): F11 asks the browser and leaves S-99f as it was, both ways', () => {
     const askingAlone = '求めただけで `S-99f` を変えてはならない（MUST NOT）'
-    const off = screenStateFromInput(keyOf('F11'), contextOf())
-    expect(off.fullScreen, askingAlone).toBe(false)
-    const on = screenStateFromInput(
+    const off = screenAfter(keyOf('F11'), contextOf())
+    expect(off.fullScreenModeState.kind, askingAlone).toBe('normal')
+    const on = screenAfter(
       keyOf('F11'),
-      contextOf({ screenState: screenStateWithFullScreen(emptyScreenState(), true) }),
+      contextOf({ screen: { ...emptyScreenSession.screen, fullScreenModeState: { kind: 'full' } } }),
     )
-    expect(on.fullScreen, askingAlone).toBe(true)
+    expect(on.fullScreenModeState.kind, askingAlone).toBe('full')
   })
 
   it('SK-16: Shift + sign zooms the time axis only, by the step handed in', () => {
@@ -1549,10 +1569,10 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
 // ---------------------------------------------------------------------------
 
 describe('表 T-023a -- the press decision order, first row that holds (MUST)', () => {
-  const armedShape = screenStateWithArmed(emptyScreenState(), {
-    kind: 'taskShape',
-    shapeKind: 'rectangle',
-  })
+  const armedShape: ScreenValues = {
+    ...emptyScreenSession.screen,
+    armModeState: { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
+  }
 
   it('walks 表 T-023a and settles each row on what it names', () => {
     const from = xOfDay('2026-01-06')
@@ -1582,7 +1602,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
             pointerOf('down', from, y1),
             pointerOf('up', to, y1),
             TASK_1_HIT,
-            { dualCursorFollowing: 'date1', screenState: armedShape },
+            { dualCursorFollowing: 'date1', screen: armedShape },
           )
           expect(kindsOf(answer), row).not.toContain('setTaskPlanDates')
           expect(kindsOf(answer), row).not.toContain('createTask')
@@ -1604,23 +1624,23 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
             pointerOf('down', from, y3),
             pointerOf('up', to, y3),
             null,
-            { screenState: armedShape },
+            { screen: armedShape },
           )
           expect(kindsOf(answer), row).toContain('createTask')
           seen[row] = true
           break
         }
         case 'PTD-4a': {
-          const armedLine = screenStateWithArmed(emptyScreenState(), { kind: 'dependency' })
+          const armedLine: ScreenValues = { ...emptyScreenSession.screen, armModeState: { kind: 'dependencyArmed' } }
           const context = contextOf({
-            screenState: armedLine,
+            screen: armedLine,
             // PTD-4a: the dependency arm on ground that hit nothing.
             pressed: { at: pointerOf('down', from, y3), hit: null, on: null, pressRow: 'PTD-4a' as const },
           })
           const up = pointerOf('up', to, y3)
           expect(commandFromInput(up, context).action, row).toBeNull()
           // The arm is not released by the gesture.
-          expect(screenStateFromInput(up, context).armed.kind, row).toBe('dependency')
+          expect(screenAfter(up, context).armModeState.kind, row).toBe('dependencyArmed')
           seen[row] = true
           break
         }
@@ -1802,7 +1822,7 @@ describe('表 T-023a -- the press decision order, first row that holds (MUST)', 
       pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
       pointerOf('up', xOfDay('2026-01-13'), midYOfRow('g1')),
       TASK_1_HIT,
-      { screenState: armedShape },
+      { screen: armedShape },
     )
     expect(kindsOf(answer)).not.toContain('createTask')
     expect(kindsOf(answer)).toContain('setTaskPlanDates')
@@ -1835,7 +1855,10 @@ const S_208_PRESS_OR_DRAG = (() => {
 })()
 
 describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
-  const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
+  const armedWith = (armed: Armed | ScreenValues['armModeState']): ScreenValues => ({
+    ...emptyScreenSession.screen,
+    armModeState: armed,
+  })
 
   it('walks 表 T-023b: only a shape row makes a Task on empty ground', () => {
     for (const row of T_023B) {
@@ -1843,7 +1866,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
         pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
         pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
         null,
-        { screenState: armedWith(row.armed) },
+        { screen: armedWith(row.armed) },
       )
       expect(kindsOf(answer).includes('createTask'), `${row.row}`).toBe(row.makesATask)
       // UN-11: arming is outside the undo record, so nothing here ever asks
@@ -1857,7 +1880,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
       pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
       pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
       null,
-      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'chevron' }) },
+      { screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'chevron' }) },
     )
     expect(oneCommand(answer, 'createTask')['shapeKind']).toBe('chevron')
   })
@@ -1867,7 +1890,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
       pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
       pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
       null,
-      { screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }) },
+      { screen: armedWith({ kind: 'milestoneShapeArmed', glyph: 'diamond' }) },
     )
     expect(oneCommand(answer, 'createTask')['shapeKind']).toBe('milestone')
   })
@@ -1879,7 +1902,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
       pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
       pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g5')),
       null,
-      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+      { screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }) },
     )
     expect(oneCommand(answer, 'createTask')['groupId']).toBe('g3')
   })
@@ -1923,7 +1946,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     const at = xOfDay('2026-01-04')
     for (const shapeKind of ['rectangle', 'chevron', 'arrow', 'endpointSpan'] as const) {
       const answer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-        screenState: armedWith({ kind: 'taskShape', shapeKind }),
+        screen: armedWith({ kind: 'taskShapeArmed', shapeKind }),
       })
       expect(kindsOf(answer), shapeKind).not.toContain('createTask')
       expect(kindsOf(answer), shapeKind).toEqual([])
@@ -1943,7 +1966,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
         pointerOf('down', xOfDay('2026-01-04'), y),
         pointerOf('up', xOfDay('2026-01-11'), y),
         null,
-        { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+        { screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }) },
       ),
       'createTask',
     )
@@ -1965,7 +1988,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     const at = xOfDay('2026-01-04')
     const clicked = oneCommand(
       gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
-        screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }),
+        screen: armedWith({ kind: 'milestoneShapeArmed', glyph: 'diamond' }),
       }),
       'createTask',
     )
@@ -1975,7 +1998,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
 
     const drawn = oneCommand(
       gestureAction(pointerOf('down', at, y), pointerOf('up', xOfDay('2026-01-11'), y), null, {
-        screenState: armedWith({ kind: 'milestoneShape', glyph: 'diamond' }),
+        screen: armedWith({ kind: 'milestoneShapeArmed', glyph: 'diamond' }),
       }),
       'createTask',
     )
@@ -1998,7 +2021,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
     const at = xOfDay('2026-01-04')
     const answerFor = (dx: number): TranslatedInput =>
       gestureAction(pointerOf('down', at, y), pointerOf('up', at + dx, y), null, {
-        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }),
       })
 
     // ⭐ ON THE LINE IS STILL A CLICK, and this fixture makes the reading sharp:
@@ -2039,7 +2062,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
         layout,
         regions,
         geometry: geometryFromLayout(bare, SETTINGS, layout, regions, emptySelection()),
-        screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }),
+        screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }),
       },
     )
     // FR-001's second MUST is answered by naming an id no row holds: CM-6 is
@@ -2057,7 +2080,7 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
       pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
       pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
       null,
-      { screenState: armedWith({ kind: 'taskShape', shapeKind: 'rectangle' }) },
+      { screen: armedWith({ kind: 'taskShapeArmed', shapeKind: 'rectangle' }) },
     )
     expect(oneCommand(answer, 'createTask')).not.toHaveProperty('wbsParentUid')
     expect(kindsOf(answer)).not.toContain('setTaskWbsParent')
@@ -2065,13 +2088,13 @@ describe('表 T-023b and FR-001 -- creating from an armed palette', () => {
 
   it('AR-4 / PTD-4a: the dependency arm on empty ground writes nothing and keeps the arm', () => {
     const context = contextOf({
-      screenState: armedWith({ kind: 'dependency' }),
+      screen: armedWith({ kind: 'dependencyArmed' }),
       // PTD-4a: the dependency arm on ground that hit nothing.
       pressed: { at: pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')), hit: null, on: null, pressRow: 'PTD-4a' as const },
     })
     const up = pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3'))
     expect(commandFromInput(up, context).action).toBeNull()
-    expect(screenStateFromInput(up, context).armed.kind).toBe('dependency')
+    expect(screenAfter(up, context).armModeState.kind).toBe('dependencyArmed')
   })
 })
 
@@ -2247,10 +2270,10 @@ describe('表 T-023c -- the selection rules (FR-081)', () => {
     const y = midYOfRow('g4')
     const armedAnswer = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
       selection: held,
-      screenState: screenStateWithArmed(emptyScreenState(), {
-        kind: 'taskShape',
-        shapeKind: 'rectangle',
-      }),
+      screen: {
+        ...emptyScreenSession.screen,
+        armModeState: { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
+      },
     })
     expect(armedAnswer.action?.kind).toBe('tellEntryHasNothingToDo')
     const bare = gestureAction(pointerOf('down', at, y), pointerOf('up', at, y), null, {
@@ -2657,10 +2680,10 @@ describe('表 T-027 -- undo carries the document, not the view', () => {
           break
         }
         case 'UN-11': {
-          const armed = screenStateWithArmed(emptyScreenState(), { kind: 'highlightBox' })
-          const context = contextOf({ screenState: armed })
+          const armed: ScreenValues = { ...emptyScreenSession.screen, armModeState: { kind: 'highlightBoxArmed' } }
+          const context = contextOf({ screen: armed })
           expect(commandFromInput(keyOf('Esc'), context).action, row).toBeNull()
-          expect(screenStateFromInput(keyOf('Esc'), context).armed.kind, row).toBe('none')
+          expect(escapeAfter(context).armModeState.kind, row).toBe('notArmed')
           break
         }
         case 'UN-16': {
@@ -2676,10 +2699,10 @@ describe('表 T-027 -- undo carries the document, not the view', () => {
   })
 
   it('LY-1: an input with no effect on the screen gives back the same state', () => {
-    const state = screenStateWithPalette(emptyScreenState(), false)
-    const context = contextOf({ screenState: state })
+    const state: ScreenValues = { ...emptyScreenSession.screen, paletteDisplayState: { kind: 'hidden' } }
+    const context = contextOf({ screen: state })
     for (const input of [keyOf('S', { ctrl: true }), keyOf('Delete'), wheelOf(300, 300, 1)]) {
-      expect(screenStateFromInput(input, context), JSON.stringify(input)).toBe(state)
+      expect(screenAfter(input, context), JSON.stringify(input)).toBe(state)
     }
   })
 })
@@ -2692,10 +2715,10 @@ describe('DC-5 of 表 T-029a / PTD-2 -- the Dual Cursor mode is exclusive', () =
   const dual = { dualCursorFollowing: 'date1' as const }
 
   it('refuses to create, move or edit while the mode is up (MUST NOT)', () => {
-    const armed = screenStateWithArmed(emptyScreenState(), {
-      kind: 'taskShape',
-      shapeKind: 'rectangle',
-    })
+    const armed: ScreenValues = {
+      ...emptyScreenSession.screen,
+      armModeState: { kind: 'taskShapeArmed', shapeKind: 'rectangle' },
+    }
     const cases: readonly TranslatedInput[] = [
       gestureAction(
         pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1')),
@@ -2707,7 +2730,7 @@ describe('DC-5 of 表 T-029a / PTD-2 -- the Dual Cursor mode is exclusive', () =
         pointerOf('down', xOfDay('2026-01-04'), midYOfRow('g3')),
         pointerOf('up', xOfDay('2026-01-11'), midYOfRow('g3')),
         null,
-        { ...dual, screenState: armed },
+        { ...dual, screen: armed },
       ),
       gestureAction(
         pointerOf('down', xOfDay('2026-01-06'), midYOfRow('g1'), { clickCount: 2 }),

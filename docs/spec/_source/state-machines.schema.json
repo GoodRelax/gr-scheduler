@@ -18,6 +18,7 @@
    "type": "array",
    "items": {"type": "string"}
   },
+  "priorities": {"$ref": "#/$defs/priorities"},
   "regions": {
    "type": "array",
    "minItems": 1,
@@ -25,6 +26,51 @@
   }
  },
  "$defs": {
+  "priorities": {
+   "description": "SD-4: the order across regions in which the contested keys are consumed (table T-283). Each rung names the states that stand on it; the order itself is the requirement rows the rung cites.",
+   "type": "object",
+   "required": ["table", "rungs"],
+   "additionalProperties": false,
+   "properties": {
+    "table": {"$ref": "#/$defs/caption"},
+    "rungs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rung"}}
+   }
+  },
+  "rung": {
+   "description": "One rung: the key or keys it contests, its words (for Esc, the words of the chain IN-4 writes), the states standing on it, and the rows that decided its place. Rungs of one key are listed first to last.",
+   "type": "object",
+   "required": ["id", "keys", "rung", "states", "evidence"],
+   "additionalProperties": false,
+   "properties": {
+    "id": {"$ref": "#/$defs/rowId"},
+    "keys": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "rung": {"$ref": "#/$defs/text"},
+    "states": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rungState"}},
+    "also": {"$ref": "#/$defs/text"},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/rowId"}},
+    "note": {"$ref": "#/$defs/text"}
+   }
+  },
+  "rungState": {
+   "description": "A state standing on a rung: one state, or every top-level state of a machine but one.",
+   "oneOf": [
+    {
+     "type": "object",
+     "required": ["in"],
+     "additionalProperties": false,
+     "properties": {"in": {"$ref": "#/$defs/stateId"}}
+    },
+    {
+     "type": "object",
+     "required": ["machine", "except"],
+     "additionalProperties": false,
+     "properties": {
+      "machine": {"$ref": "#/$defs/machineName"},
+      "except": {"$ref": "#/$defs/stateKey"}
+     }
+    }
+   ]
+  },
   "text": {
    "description": "Printed prose, held per language.",
    "type": "object",

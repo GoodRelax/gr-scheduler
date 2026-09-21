@@ -15,7 +15,7 @@ import {
   type PointerPhase,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { emptyScreenState, screenStateWithArmed } from '../../src/entity/document-model/screen-state/screen-state'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import type {
@@ -1041,7 +1041,7 @@ function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
     layout: values.layout,
     geometry: values.geometry,
     regions: values.regions,
-    screenState: screenStateWithArmed(emptyScreenState(), { kind: 'commentBox' }),
+    screen: { ...emptyScreenSession.screen, armModeState: { kind: 'commentBoxArmed' } },
     selection: emptySelection(),
     zoomStep: 3,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

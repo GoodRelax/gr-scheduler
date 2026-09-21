@@ -11,19 +11,19 @@ import type {
   PointerInput,
   PointerPhase,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { commandPaletteFromScreenState } from '../../src/adapter/screen-renderer/command-palette'
-import type { ScreenPart, ScreenSession, ScreenSurface } from '../../src/adapter/screen-renderer/screen-renderer'
+import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/command-palette'
+import type { ScreenPart, ScreenSurface, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import type { Point } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { emptyScreenSession, type ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
@@ -327,31 +327,33 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
 
   it('the palette the renderer describes puts IC-103 immediately left of IC-44 in one group', () => {
     const settings = { ...SETTINGS_DEFAULTS } as unknown as DocumentSettings
-    const session = {
-      language: 'ja',
+    const root: ScreenSession = {
+      ...emptyScreenSession,
+      screen: {
+        ...emptyScreenSession.screen,
+        language: 'ja',
+        dialogueFieldDisplayState: { kind: 'hidden' },
+        milestoneListDisplayState: { kind: 'open' },
+      },
+    }
+    const readings: ScreenViewReadings = {
       openedFileName: null,
       fileSavedAt: null,
       isAgentApiEnabled: false,
-      isDialogueFieldVisible: false,
       pointer: null,
       pointerRestedMs: 0,
       commandPaletteAt: { x: 0, y: 0 },
       iconUnderPointer: null,
       themePreference: 'light',
       themeHue: 214,
-      isMilestoneListOpen: true,
-      isPaletteMinimised: false,
-      dualCursorFollowing: null,
       selectedGroupIds: [],
       selectedResourceUids: [],
-      propertiesSubject: null,
-      propertiesShowing: null,
       notices: [],
       confirmation: null,
       rowBoxes: [],
       scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
-    } as unknown as ScreenSession
-    const palette = commandPaletteFromScreenState(emptyScreenState(), settings, emptySelection(), session)
+    }
+    const palette = commandPaletteFromSession(root, settings, emptySelection(), readings)
     expect(palette, 'S-99e: the palette is showing').not.toBeNull()
     const group = palette?.groups.find((one) => one.commands.some((entry) => entry.icon === STATUS_DATE_ENTRY))
     const icons = (group?.commands ?? []).map((entry) => entry.icon as string)

@@ -8,10 +8,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-} from '../../src/entity/document-model/screen-state/screen-state'
+import { escapeTarget, type EscapeTarget } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionWith,
@@ -29,13 +26,18 @@ import {
 } from '../../src/use-case/edit-document/edit-document'
 import {
   commandFromInput,
-  screenStateFromInput,
+  escapeContextOf,
   selectionFromInput,
   type InputContext,
   type InputModifiers,
   type KeyInput,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  advanceScreenSession,
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { DISPLAY_SCALE_STEPS, DEFAULT_DISPLAY_SCALE } from '../fixtures/display-scale'
 
 const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
@@ -153,7 +155,7 @@ const contextOf = (settingsPart: Record<string, unknown> = {}, part: Partial<Inp
     layout,
     geometry: geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: 1.5,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -279,13 +281,19 @@ describe('UF-93 FR-039 / table T-260 -- one step of the display scale, and the m
 })
 
 const ONE_TASK_SELECTED: Selection = selectionWith(emptySelection(), { kind: 'task', uid: 1 })
-const ARMED_BOX = screenStateWithArmed(emptyScreenState(), { kind: 'highlightBox' })
+const ARMED_BOX: ScreenSession = {
+  ...emptyScreenSession,
+  screen: { ...emptyScreenSession.screen, armModeState: { kind: 'highlightBoxArmed' } },
+}
 
 describe('UF-102 / UF-101 table T-028 IN-4 (FR-040) -- Esc consumes one level, in the row order', () => {
   it('IN-4 (MUST NOT put the selection before the arm): with both, Esc drops the arm and keeps the selection', () => {
-    const context = contextOf({}, { screenState: ARMED_BOX, selection: ONE_TASK_SELECTED })
+    const context = contextOf({}, { screen: ARMED_BOX.screen, selection: ONE_TASK_SELECTED })
     const esc = keyOf('Esc')
-    expect(screenStateFromInput(esc, context).armed.kind).toBe('none')
+    const rung: EscapeTarget | null = escapeTarget(escapeContextOf(context))
+    expect(rung, 'IN-4 (MUST NOT): the arm stands above the selection').toBe('armed')
+    const stepped = advanceScreenSession(ARMED_BOX, { type: 'escapePressed', rung: rung as EscapeTarget }).state
+    expect(stepped.screen.armModeState.kind).toBe('notArmed')
     expect(selectionFromInput(esc, context)).toEqual(ONE_TASK_SELECTED)
   })
 

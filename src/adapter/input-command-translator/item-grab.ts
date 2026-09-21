@@ -3,7 +3,6 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { rememberedActualOf } from '../../entity/document-model/screen-state/screen-state'
 import {
   actualLastDay,
   dayOf,
@@ -42,6 +41,7 @@ import {
   pointerDaySerial,
   serialOfDay,
   taskGroupRankById,
+  rememberedActualIn,
   type ActualEndHold,
   type InputContext,
   type PlacedPlanActual,
@@ -130,7 +130,7 @@ export function commandFromGrab(
             {
               kind: 'cycleTaskPlanActualState',
               uid,
-              remembered: rememberedActualOf(context.screenState, uid),
+              remembered: rememberedActualIn(context, uid),
             },
           ])
     case 'GA-7':

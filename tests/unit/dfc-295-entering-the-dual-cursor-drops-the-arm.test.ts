@@ -88,13 +88,7 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
-import {
-  emptyScreenState,
-  screenStateWithArmed,
-  type Armed,
-  type DualCursorSide,
-  type ScreenState,
-} from '../../src/entity/document-model/screen-state/screen-state'
+import { type DualCursorSide } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -104,12 +98,18 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-surface'
 import {
-  screenStateFromInput,
+  screenEventFromInput,
+  type Armed,
   type InputContext,
   type InputModifiers,
   type PointerInput,
   type PointerPress,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import {
+  advanceScreenSession,
+  emptyScreenSession,
+  type ScreenValues,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import { specTable, unbroken } from '../contract/spec-table'
 
@@ -277,7 +277,7 @@ const BASE: InputContext = {
   layout: LAYOUT,
   geometry: GEOMETRY,
   regions: REGIONS,
-  screenState: emptyScreenState(),
+  screen: emptyScreenSession.screen,
   selection: emptySelection(),
   zoomStep: 3,
   zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -301,26 +301,29 @@ const BASE: InputContext = {
  */
 const pressing = (
   entry: string,
-  screenState: ScreenState,
+  screen: ScreenValues,
   dualCursorFollowing: DualCursorSide | null = null,
-): ScreenState =>
-  screenStateFromInput(pointerOf('up'), {
+): ScreenValues => {
+  const event = screenEventFromInput(pointerOf('up'), {
     ...BASE,
-    screenState,
+    screen,
     pressed: pressOn(entry),
     dualCursorFollowing,
   })
+  if (event === null) return screen
+  return advanceScreenSession({ ...emptyScreenSession, screen }, event).state.screen
+}
 
-/** The six values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenState` holds. */
+/** The six values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenSession.screen` holds. */
 const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
-  { row: 'AR-2', armed: { kind: 'taskShape', shapeKind: 'SH-1' } },
-  { row: 'AR-3', armed: { kind: 'milestoneShape', glyph: 'IC-30' } },
-  { row: 'AR-4', armed: { kind: 'dependency' } },
-  { row: 'AR-5', armed: { kind: 'commentBox' } },
-  { row: 'AR-6', armed: { kind: 'highlightBox' } },
+  { row: 'AR-2', armed: { kind: 'taskShapeArmed', shapeKind: 'SH-1' } },
+  { row: 'AR-3', armed: { kind: 'milestoneShapeArmed', glyph: 'IC-30' } },
+  { row: 'AR-4', armed: { kind: 'dependencyArmed' } },
+  { row: 'AR-5', armed: { kind: 'commentBoxArmed' } },
+  { row: 'AR-6', armed: { kind: 'highlightBoxArmed' } },
 ]
 
-const armedWith = (armed: Armed): ScreenState => screenStateWithArmed(emptyScreenState(), armed)
+const armedWith = (armed: Armed): ScreenValues => ({ ...emptyScreenSession.screen, armModeState: armed })
 
 // ===========================================================================
 // 3. The premises every case below stands on
@@ -368,26 +371,27 @@ describe('DFC-295 -- the manuscript this file is driven by', () => {
 describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the arm', () => {
   it.each(ARMS)('drops $row when IC-45 is pressed and the mode is not up', ({ armed }) => {
     const after = pressing(IC_45, armedWith(armed), null)
-    expect(after.armed).toEqual({ kind: 'none' })
+    expect(after.armModeState).toEqual({ kind: 'notArmed' })
   })
 
   it('leaves the rest of the screen state alone while it drops the arm', () => {
     // ⛔ THE CLAUSE IS ABOUT THE ARM AND NOTHING ELSE. A build that answered a
     // freshly emptied state would pass the case above and quietly close an open
     // surface, put the palette back, or leave full screen.
-    const before: ScreenState = {
-      ...screenStateWithArmed(emptyScreenState(), { kind: 'dependency' }),
-      paletteShown: false,
-      fullScreen: true,
-      surface: 'U-53',
+    const before: ScreenValues = {
+      ...emptyScreenSession.screen,
+      armModeState: { kind: 'dependencyArmed' },
+      paletteDisplayState: { kind: 'hidden' },
+      fullScreenModeState: { kind: 'full' },
+      openSurfaceState: { kind: 'open', surfaceName: 'U-53' },
     }
     const after = pressing(IC_45, before, null)
-    expect(after.armed).toEqual({ kind: 'none' })
-    expect({ ...after, armed: null }).toEqual({ ...before, armed: null })
+    expect(after.armModeState).toEqual({ kind: 'notArmed' })
+    expect({ ...after, armModeState: null }).toEqual({ ...before, armModeState: null })
   })
 
   it('is idempotent: pressing IC-45 with nothing armed still answers AR-1', () => {
-    expect(pressing(IC_45, emptyScreenState(), null).armed).toEqual({ kind: 'none' })
+    expect(pressing(IC_45, emptyScreenSession.screen, null).armModeState).toEqual({ kind: 'notArmed' })
   })
 })
 
@@ -405,15 +409,15 @@ describe('T-029a DC-4 -- going out leaves the arm alone', () => {
     // 2026-08-26 and that `null` there means not in the mode.
     const before = armedWith(armed)
     const after = pressing(IC_45, before, 'date1')
-    expect(after.armed).toEqual(armed)
+    expect(after.armModeState).toEqual(armed)
   })
 
   it('answers the same whichever side is following', () => {
     // ⚠️ DC-2 swaps the following side on every click, so both values are
     // reachable at the moment DC-4's press arrives.
     for (const side of ['date1', 'date2'] as const satisfies readonly DualCursorSide[]) {
-      expect(pressing(IC_45, armedWith({ kind: 'commentBox' }), side).armed, side).toEqual({
-        kind: 'commentBox',
+      expect(pressing(IC_45, armedWith({ kind: 'commentBoxArmed' }), side).armModeState, side).toEqual({
+        kind: 'commentBoxArmed',
       })
     }
   })
@@ -444,8 +448,8 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
 
   it('SP-1: a press with nothing selected arms that entrance, and does NOT answer none', () => {
     for (const entry of ARMING_ENTRIES) {
-      const after = pressing(entry, emptyScreenState(), null)
-      expect(after.armed.kind, `${entry} (${armRowOfEntry(entry)}) armed nothing`).not.toBe('none')
+      const after = pressing(entry, emptyScreenSession.screen, null)
+      expect(after.armModeState.kind, `${entry} (${armRowOfEntry(entry)}) armed nothing`).not.toBe('notArmed')
     }
   })
 
@@ -457,9 +461,9 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
     // file presses with an empty selection, so the widened half is driven by
     // tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts instead.
     for (const entry of ARMING_ENTRIES) {
-      const armed = pressing(entry, emptyScreenState(), null)
+      const armed = pressing(entry, emptyScreenSession.screen, null)
       const again = pressing(entry, armed, null)
-      expect(again.armed, `${entry} did not un-arm on the second press`).toEqual({ kind: 'none' })
+      expect(again.armModeState, `${entry} did not un-arm on the second press`).toEqual({ kind: 'notArmed' })
     }
   })
 
@@ -486,8 +490,8 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
     ])
     for (const entry of guideCursorEntries) {
       expect(armRowOfEntry(entry), `${entry} is no longer a bare cursor entrance`).toBe('—')
-      const after = pressing(entry, armedWith({ kind: 'highlightBox' }), null)
-      expect(after.armed, entry).toEqual({ kind: 'highlightBox' })
+      const after = pressing(entry, armedWith({ kind: 'highlightBoxArmed' }), null)
+      expect(after.armModeState, entry).toEqual({ kind: 'highlightBoxArmed' })
     }
   })
 })

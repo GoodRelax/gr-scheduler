@@ -11,15 +11,9 @@ import {
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
-  emptyScreenState,
   escapeTarget,
-  screenStateWithFullScreen,
-  screenStateWithPalette,
-  screenStateWithSurface,
-  screenStateWithWatermark,
   type DualCursorSide,
   type EscapeTarget,
-  type ScreenState,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
@@ -83,6 +77,16 @@ import {
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
 import {
+  advanceScreenSession,
+  emptyScreenSession,
+  type PropertiesSubject,
+  type ScreenSession,
+  type ScreenValues,
+  type ScreenValuesEvent,
+  type SessionEffect,
+  type SessionEvent,
+} from '../../use-case/advance-screen-session/advance-screen-session'
+import {
   importDocument,
   type OpenChoice,
 } from '../../use-case/import-document/import-document'
@@ -128,7 +132,7 @@ import {
   commandFromInput,
   pressRowOf,
   rowBandCeilingOf,
-  screenStateFromInput,
+  screenEventFromInput,
   selectionFromInput,
   NOT_STORED_ZOOM_STEP,
   type HumanInput,
@@ -151,8 +155,8 @@ import {
   type RaisedConfirmation,
   type RaisedNotice,
   type ScreenPart,
-  type ScreenSession,
   type ScreenSurface,
+  type ScreenViewReadings,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
@@ -160,6 +164,7 @@ import {
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import startupTemplate from './startup-template.json'
+import { runSessionEffects, unwiredEffect, type EffectRunners } from './session-effects'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
@@ -673,11 +678,37 @@ const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 
 const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
-// TRAP: also spelled in input-command-translator.ts, open-modals.ts and screen-renderer.ts;
-// a misspelling raises a surface nothing describes.
-const WATERMARK_UNLOCK_SURFACE = 'Watermark Unlock'
+// TRAP: also spelled in screen-state-input.ts and open-modals.ts; a misspelling raises a surface
+// nothing describes.
+const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
 
-const WATERMARK_UNLOCK_MISMATCH_REASON: NoticeReason = 'RS-41'
+// see U-60, T-280
+const WATERMARK_UNLOCK_ROW = 'U-60'
+
+const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
+const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
+const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'dualCursorMode' }
+const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
+const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
+const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
+const POINTER_RESTED: ScreenValuesEvent = { type: 'pointerRestElapsed' }
+const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
+
+// see IN-4, T-283
+// WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
+// by the surface (IF-9), gesture below the translators, selection by selectionFromInput.
+const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | null } = {
+  notice: null,
+  textEntry: null,
+  confirmation: null,
+  surface: ESCAPE_SURFACE,
+  gesture: null,
+  propertiesPanel: ESCAPE_SURFACE,
+  armed: ESCAPE_ARMED,
+  selection: null,
+  dualCursorMode: ESCAPE_DUAL_CURSOR,
+  tooltip: ESCAPE_TOOLTIP,
+}
 
 const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
 
@@ -968,8 +999,6 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   barShapeReleasedWithoutADrag: 'RS-53',
 }
 
-const DIALOGUE_FIELD_UNAVAILABLE_REASON: NoticeReason = 'RS-35'
-
 const NO_WORKING_WEEKDAY_INVARIANT = 'IV-17'
 
 // see FR-088, IV-17
@@ -1149,25 +1178,21 @@ function paletteCornerOf(
   return draggedTo ?? { x: regions.rowArea.x, y: regions.rowArea.y }
 }
 
-type PropertiesShowing = ScreenSession['propertiesShowing']
-type PropertiesSubject = NonNullable<ScreenSession['propertiesSubject']>
+type PanelShowing = 'selection' | 'documentSettings' | null
 
-type MergeCandidateLine = NonNullable<ScreenSession['mergeCandidates']>[number]
+type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number]
 type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']>
 type MergeMapping = NonNullable<MergeChoices['mapping']>
 
-interface SessionHeld {
-  readonly language: DisplayLanguage
+interface ScreenViewReadingsTaken {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
   readonly isAgentApiEnabled: boolean
-  readonly isDialogueFieldVisible: boolean
   readonly isAiExportSurfaceOpen: boolean
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly iconUnderPointer: IconId | null
   readonly taskUnderPointer: Task | null
-  readonly isTooltipDismissed: boolean
   readonly commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null
   readonly rowGrabbedAt: {
     readonly groupId: string
@@ -1176,15 +1201,9 @@ interface SessionHeld {
     readonly resistedPx: number
     readonly atY: number | null
   } | null
-  readonly isLevelZeroFolded: boolean
-  readonly isMilestoneListOpen: boolean
-  readonly isPaletteMinimised: boolean
   readonly isRecordingInteractions: boolean
-  readonly dualCursorFollowing: DualCursorSide | null
   readonly selectedGroupIds: readonly string[]
   readonly selectedResourceUids: readonly number[]
-  readonly propertiesShowing: PropertiesShowing
-  readonly propertiesSubject: PropertiesSubject | null
   readonly confirmation: RaisedConfirmation | null
   readonly mergeCandidates: readonly MergeCandidateLine[]
   readonly unreadColumns: readonly string[]
@@ -1192,103 +1211,243 @@ interface SessionHeld {
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
-  readonly scaleMessage?: ScreenSession['scaleMessage']
 }
 
-// see PI-37
+// see PI-37, SF-5, SF-10
+// STOP: spec does not decide where the chosen rows and assignees are held,
+// since SL-1 admits neither. Looked in FR-085, FR-099, SL-1
+// @provisional PND-142
 /** @purity pure */
-function sessionOf(
+function screenViewReadingsOf(
   held: Document,
   regions: ScreenRegions,
   layout: ScheduleLayout,
-  session: SessionHeld,
-): ScreenSession {
-  const {
-    language,
-    openedFileName,
-    fileSavedAt,
-    isAgentApiEnabled,
-    isDialogueFieldVisible,
-    isAiExportSurfaceOpen,
-    pointer,
-    pointerRestedMs,
-    iconUnderPointer,
-    taskUnderPointer,
-    isTooltipDismissed,
-    commandPaletteDraggedTo,
-    rowGrabbedAt,
-    isLevelZeroFolded,
-    isMilestoneListOpen,
-    isPaletteMinimised,
-    isRecordingInteractions,
-    dualCursorFollowing,
-    selectedGroupIds,
-    selectedResourceUids,
-    propertiesShowing,
-    propertiesSubject,
-    confirmation,
-    mergeCandidates,
-    unreadColumns,
-    droppedTaskNames,
-    notices,
-    canUndo,
-    canRedo,
-    scaleMessage,
-  } = session
+  taken: ScreenViewReadingsTaken,
+): ScreenViewReadings {
+  const { isAiExportSurfaceOpen, commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
   return {
-    language,
-    openedFileName,
-    fileSavedAt,
-    isAgentApiEnabled,
-    isDialogueFieldVisible,
+    ...carried,
     ...(isAiExportSurfaceOpen ? { aiExportDocument: jsonFromDocument(held) } : {}),
-    pointer,
-    pointerRestedMs,
-    iconUnderPointer,
-    taskUnderPointer,
-    isTooltipDismissed,
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
-    rowGrabbedAt,
-    isLevelZeroFolded,
     themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
-    isMilestoneListOpen,
-    isPaletteMinimised,
-    isRecordingInteractions,
-    dualCursorFollowing,
-    // STOP: spec does not decide where the chosen rows and assignees are held,
-    // since SL-1 admits neither. Looked in FR-085, FR-099, SL-1
-    // @provisional PND-142
-    selectedGroupIds,
-    // @provisional PND-143
-    selectedResourceUids,
-    // STOP: spec does not decide what the panel keeps when the selection goes.
-    // Looked in FR-072, SL-1
-    // @provisional PND-144
-    propertiesShowing,
-    // @provisional PND-144
-    propertiesSubject,
-    notices,
-    mergeCandidates,
-    unreadColumns,
-    droppedTaskNames,
-    confirmation,
     rowBoxes: drawnRowBoxesOf(layout, regions),
-    scrollExtent: {
-      contentWidth: layout.contentWidth,
-      contentHeight: layout.contentHeight,
-      // TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
-      // would grow the grip as rows are pinned (FR-098).
-      visibleHeight: Math.max(
-        0,
-        regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
-      ),
-      offsetX: Math.max(0, regions.rowArea.x - (layout.contentX0 ?? regions.rowArea.x)),
-      offsetY: scrolledPastOf(layout, regions),
-    },
+    scrollExtent: scrollExtentOf(layout, regions),
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
-    ...(scaleMessage === undefined || scaleMessage === null ? {} : { scaleMessage }),
+  }
+}
+
+// see SC-1, FR-098
+/** @purity pure */
+function scrollExtentOf(layout: ScheduleLayout, regions: ScreenRegions): ScreenViewReadings['scrollExtent'] {
+  return {
+    contentWidth: layout.contentWidth,
+    contentHeight: layout.contentHeight,
+    // TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
+    // would grow the grip as rows are pinned (FR-098).
+    visibleHeight: Math.max(
+      0,
+      regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
+    ),
+    offsetX: Math.max(0, regions.rowArea.x - (layout.contentX0 ?? regions.rowArea.x)),
+    offsetY: scrolledPastOf(layout, regions),
+  }
+}
+
+// see T-280, SS-6
+// WHY: the startup language seats the initial value; sent as an event it would store S-99 on
+// every start, which today's start never writes (FR-038).
+/** @purity pure */
+function startingSession(language: DisplayLanguage): ScreenSession {
+  return { ...emptyScreenSession, screen: { ...emptyScreenSession.screen, language } }
+}
+
+// see FR-080, EP-11, EP-12
+// TRAP: the fold the layout was built with, or half of one picture is folded.
+/** @purity pure */
+function pictureSessionOf(session: ScreenSession): ScreenSession {
+  const now = session.screen
+  const screen: ScreenValues = {
+    ...emptyScreenSession.screen,
+    language: now.language,
+    levelZeroFoldState: now.levelZeroFoldState,
+    paletteDisplayState: { kind: 'hidden' },
+    dialogueFieldDisplayState: { kind: 'hidden' },
+  }
+  return { ...emptyScreenSession, screen }
+}
+
+/** @purity pure */
+function dualCursorDrawnOf(
+  session: ScreenSession,
+  pointerAt: { readonly x: number; readonly y: number } | null,
+): { readonly side: DualCursorSide; readonly x: number | null } | null {
+  const side = dualCursorFollowingIn(session)
+  return side === null ? null : { side, x: pointerAt === null ? null : pointerAt.x }
+}
+
+/** @purity pure */
+function openSurfaceNameIn(session: ScreenSession): string | null {
+  const open = session.screen.openSurfaceState
+  return open.kind === 'open' ? open.surfaceName : null
+}
+
+/** @purity pure */
+function isLevelZeroFoldedIn(session: ScreenSession): boolean {
+  return session.screen.levelZeroFoldState.kind === 'folded'
+}
+
+/** @purity pure */
+function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | null {
+  const mode = session.screen.dualCursorModeState
+  if (mode.kind === 'off') return null
+  return mode.child.kind === 'placingDate1' ? 'date1' : 'date2'
+}
+
+// WHY: never null here; startingSession seats the language before the first frame.
+/** @purity pure */
+function displayLanguageIn(session: ScreenSession): DisplayLanguage {
+  return session.screen.language ?? 'en'
+}
+
+/** @purity pure */
+function panelShowingIn(session: ScreenSession): PanelShowing {
+  const content = session.screen.propertiesPanelContentState.kind
+  if (content === 'hidden') return null
+  return content === 'selectionDisplayed' ? 'selection' : 'documentSettings'
+}
+
+/** @purity pure */
+function surfaceOpenedBy(event: ScreenValuesEvent, screen: ScreenValues): string | null {
+  if (event.type === 'surfaceEntryPressed' || event.type === 'surfaceRaisedByFlow') return event.surfaceName
+  if (event.type !== 'watermarkEntryPressed') return null
+  return screen.watermarkDisplayState.kind === 'shown' ? WATERMARK_UNLOCK_ROW : null
+}
+
+// DEVIATION: spec says an open surface takes no other (T-280); here the new one replaces it (DFC-705)
+/** @purity pure */
+function withSurfaceReplaced(
+  event: ScreenValuesEvent,
+  screen: ScreenValues,
+): readonly ScreenValuesEvent[] {
+  const opened = surfaceOpenedBy(event, screen)
+  const open = screen.openSurfaceState
+  const isReplacing = opened !== null && open.kind === 'open' && open.surfaceName !== opened
+  return isReplacing ? [SURFACE_CLOSE_ASKED, event] : [event]
+}
+
+/** @purity pure */
+function paletteMinimisedForRecordOf(session: ScreenSession, whileHidden: boolean): boolean {
+  const palette = session.screen.paletteDisplayState
+  return palette.kind === 'hidden' ? whileHidden : palette.child.kind === 'minimised'
+}
+
+// see DC-1, DC-2, DC-4, T-280
+/** @purity pure */
+function dualCursorEventOf(
+  action: Extract<InputAction, { readonly kind: 'setDualCursorFollowing' }>,
+  session: ScreenSession,
+): ScreenValuesEvent {
+  const placed = action.placed
+  const writes: readonly DocumentCommand[] =
+    placed === null || placed.kind === 'clearDualCursor' ? [] : [placed]
+  const following = dualCursorFollowingIn(session)
+  if (following === null || action.following === null) {
+    const date = placed?.kind === 'setDualCursor' ? placed.date1 : ''
+    return { type: 'dualCursorEntryPressed', date, hasDaysToPlace: true, writes }
+  }
+  if (placed?.kind !== 'setDualCursor') return { type: 'dualCursorPlaced', date: '', writes }
+  return { type: 'dualCursorPlaced', date: following === 'date1' ? placed.date1 : placed.date2, writes }
+}
+
+// see T-051, T-280
+// WHY: null with level zero open, where the fold is no screen value's to change; the writes stand alone.
+/** @purity pure */
+function foldEventOf(
+  action: Extract<InputAction, { readonly kind: 'setLevelZeroFolded' }>,
+  session: ScreenSession,
+): ScreenValuesEvent | null {
+  if (action.isFolded) return { type: 'foldAllPressed', writes: action.writes }
+  return isLevelZeroFoldedIn(session) ? { type: 'levelZeroOpened', writes: action.writes } : null
+}
+
+// see FR-072, IC-17, EN-4, S-99h
+// DEVIATION: spec says a hidden panel keeps no subject (T-280, JDG-283); here the settings go back to the last one (DFC-677)
+/** @purity pure */
+function settingsEntryEventsOf(
+  session: ScreenSession,
+  kept: PropertiesSubject | null,
+): readonly ScreenValuesEvent[] {
+  const pressed: ScreenValuesEvent = { type: 'settingsEntryPressed' }
+  if (panelShowingIn(session) !== null || kept === null) return [pressed]
+  return [{ type: 'propertiesOfChoiceAsked', subject: kept }, pressed]
+}
+
+// see FR-072, T-280
+// DEVIATION: spec says a moved choice leaves the settings shown (T-280); here the choice is shown (DFC-706)
+/** @purity pure */
+function choiceFollowedOf(session: ScreenSession, subject: PropertiesSubject): ScreenValuesEvent | null {
+  const showing = panelShowingIn(session)
+  if (showing === null) return null
+  if (showing === 'selection') return { type: 'selectionMoved', subject }
+  return { type: 'propertiesOfChoiceAsked', subject }
+}
+
+/** @purity pure */
+function subjectOfChoice(selection: Selection, groupIds: readonly string[]): PropertiesSubject | null {
+  if (selection.items.length === 0 && groupIds.length === 0) return null
+  return { selection, groupIds }
+}
+
+interface ScreenEffectHands {
+  readonly raiseNotice: (reason: NoticeReason) => void
+  readonly storeLanguage: (language: DisplayLanguage) => void
+  readonly askBrowserForFullScreen: () => void
+  readonly matchWatermarkUnlock: () => void
+  readonly clearSelection: () => void
+  readonly writeCarried: (writes: readonly DocumentCommand[], frame: FrameValues | null) => void
+  readonly startScaleMessageTimer: () => void
+}
+
+// see SF-6, UF-123, T-280
+/** @purity pure */
+function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect> {
+  const carried = (effect: { readonly writes: readonly DocumentCommand[] }, frame: FrameValues | null): void =>
+    hands.writeCarried(effect.writes, frame)
+  return {
+    raiseNotice: (effect) => hands.raiseNotice(effect.reason),
+
+    storeLanguage: (effect) => hands.storeLanguage(effect.language),
+    // DEVIATION: spec says this effect writes the step (T-280); here GA-18's action does, after the press drops (DFC-708)
+    writeProgressStep: () => undefined,
+    askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
+    // WHY: the tidy-up at the end of receiveInput drops a closed surface's wait (CR-460 wave B moves it)
+    tellFlowSurfaceClosed: () => undefined,
+    matchWatermarkUnlock: () => hands.matchWatermarkUnlock(),
+    clearSelection: () => hands.clearSelection(),
+    writeFoldAll: carried,
+    writeOpenLevel: carried,
+    writePlaceDualCursor: carried,
+    writeFixDate1: carried,
+    writeFixDate2: carried,
+    writeClearDualCursor: (_effect, frame) => hands.writeCarried(CLEAR_DUAL_CURSOR, frame),
+    startScaleMessageTimer: () => hands.startScaleMessageTimer(),
+    restartScaleMessageTimer: () => hands.startScaleMessageTimer(),
+
+    startEntryRepeat: unwiredEffect,
+    restorePaletteCorner: unwiredEffect,
+    repeatHeldEntry: unwiredEffect,
+
+    raiseFlowSurface: unwiredEffect,
+    readDocumentFile: unwiredEffect,
+    writeDocumentFile: unwiredEffect,
+    importIncomingDocument: unwiredEffect,
+    discardIncomingDocument: unwiredEffect,
+    answerOverwriteQuestion: unwiredEffect,
+    carryOutOwedAction: unwiredEffect,
+
+    bringCreatedRowIntoSight: unwiredEffect,
   }
 }
 
@@ -1431,10 +1590,12 @@ function escapeLevelOf(
   isTooltipStanding: boolean,
 ): EscapeTarget | null {
   if (input.kind !== 'key' || input.key !== ESCAPE_KEY) return null
-  return escapeTarget(context.screenState, {
+  return escapeTarget({
     isNoticeStanding: context.isNoticeStanding === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
+    isSurfaceOpen: context.screen.openSurfaceState.kind === 'open',
     gestureInFlight: context.pressed !== null,
+    isArmed: context.screen.armModeState.kind !== 'notArmed',
     dualCursorMode: context.dualCursorFollowing !== null,
     isConfirmationStanding,
     isPropertiesPanelOpen,
@@ -1817,7 +1978,7 @@ export function frameLoop(
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
   let selection: Selection = emptySelection()
-  let screenState: ScreenState = emptyScreenState()
+  let session: ScreenSession = startingSession(screen?.language ?? startupDisplayLanguage())
   let watermarkStampedAt = readInstantOfWrite()
   const watermarkStoredName = readBrowserStored('S-99a')
   const watermarkOpenedBy =
@@ -1827,7 +1988,7 @@ export function frameLoop(
   // see FR-020, S-144
   /** @purity semi-pure-b */
   function watermarkNow(): { readonly openedBy: string; readonly stampedAt: string } | null {
-    return screenState.watermarkVisible
+    return session.screen.watermarkDisplayState.kind === 'shown'
       ? { openedBy: watermarkOpenedBy, stampedAt: watermarkStampedAt }
       : null
   }
@@ -1844,10 +2005,8 @@ export function frameLoop(
     readonly resistedPx: number
     readonly atY: number | null
   } | null = null
-  let isLevelZeroFolded = false
-  // TRAP: held outside ScreenState, where Esc would reach and close it.
-  let isMilestoneListOpen = false
-  let isPaletteMinimised = false
+  // DEVIATION: spec says a hidden palette has no minimise state (T-280); here the record keeps it (DFC-707)
+  let paletteMinimisedWhileHidden = false
   let isRecordingInteractions = false
   const interactionRecord: string[] = []
   let interactionRecordDropped = 0
@@ -1878,17 +2037,11 @@ export function frameLoop(
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
   let selectedResourceUids: readonly number[] = []
-  // STOP: spec does not decide what the panel keeps once selection goes. Looked in FR-072, SL-1
-  // @provisional PND-144
-  let propertiesShowing: PropertiesShowing = null
-  let propertiesSubject: PropertiesSubject | null = null
   // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-80, T-206
   // @provisional PND-338
-  let isPropertiesPanelPutAway = false
+  let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
   let isAgentApiEnabled = startupAgentApiEnabled()
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
-  let isDialogueFieldVisible = true
-  let language: DisplayLanguage = screen?.language ?? startupDisplayLanguage()
   let raisedNotices: readonly RaisedNotice[] = []
   let stackSafetyCapToldFor: string | null = null
   // TRAP: each export scene overwrites this; copy it at the call, never read it across an await.
@@ -1917,14 +2070,11 @@ export function frameLoop(
   let partUnderPointer: ScreenPart | null = null
   let grabUnderPointer: Grabbed | null = null
   let isTooltipStanding = false
-  let isTooltipDismissed = false
   let pointerRestingSince: number | null = null
   let callOffIconHintWait: (() => void) | null = null
   let callOffEntryRepeat: (() => void) | null = null
   // see SE-3, SE-4
-  let scaleMessage: ScreenSession['scaleMessage'] = null
   let callOffScaleMessage: (() => void) | null = null
-  let dualCursorFollowing: DualCursorSide | null = null
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
 
@@ -1955,15 +2105,38 @@ export function frameLoop(
     },
   }
 
-  // TRAP: describe the panel from this, not propertiesShowing, or a closed panel stays drawn.
-  /** @purity semi-pure-b */
-  function propertiesShowingNow(): PropertiesShowing {
-    return isPropertiesPanelPutAway ? null : propertiesShowing
+  // see SF-6, SF-7, UF-48
+  /** @purity non-pure */
+  function sendToSession(event: SessionEvent, frame: FrameValues | null): void {
+    const step = advanceScreenSession(session, event)
+    session = step.state
+    runSessionEffects(step.effects, effectRunners, frame)
+  }
+
+  // see SF-6, UF-123
+  const effectRunners = effectRunnersOf({
+    raiseNotice: (reason) => raiseNotice(reason, null),
+    storeLanguage: (language) => writeBrowserStored('S-99', language),
+    askBrowserForFullScreen,
+    matchWatermarkUnlock: () => void matchWatermarkUnlock(screen?.readWatermarkUnlockAnswer?.() ?? ''),
+    clearSelection: () => (selection = emptySelection()),
+    writeCarried,
+    startScaleMessageTimer,
+  })
+
+  /** @purity non-pure */
+  function writeCarried(writes: readonly DocumentCommand[], frame: FrameValues | null): void {
+    if (frame !== null && writes.length > 0) writeDocument(writes, frame)
   }
 
   /** @purity semi-pure-b */
   function isPropertiesPanelOnScreen(): boolean {
-    return screen !== undefined && propertiesShowingNow() !== null
+    return screen !== undefined && panelShowingIn(session) !== null
+  }
+
+  /** @purity non-pure */
+  function notePanelPutAway(): void {
+    propertiesPanelKept = propertiesPanelKept ?? { subject: null }
   }
 
   // see FR-052, FR-072, S-171, S-248
@@ -1971,12 +2144,13 @@ export function frameLoop(
   // opening the panel alone would leave the document with an unsaved edit (FR-100).
   /** @purity semi-pure-b */
   function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
+    const isHidden = panelShowingIn(session) === null
     // TRAP: before the stored-width test, or a dragged width leaves an empty strip at the edge.
-    if (isPropertiesPanelPutAway) {
+    if (isHidden && propertiesPanelKept !== null) {
       if (stored.propertyPanelWidth === 0) return stored
       return { ...stored, propertyPanelWidth: 0 }
     }
-    if (propertiesShowing === null) return stored
+    if (isHidden) return stored
     if (stored.propertyPanelWidth >= NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248']) return stored
     return {
       ...stored,
@@ -2051,11 +2225,12 @@ export function frameLoop(
       'frame',
       `w=${environment.width} h=${environment.height} ` +
         `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
-        `svgBytes=${svg.length} ${census} follow=${dualCursorFollowing ?? '-'} ` +
-        `minimised=${isPaletteMinimised} glyphList=${isMilestoneListOpen} ` +
+        `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
+        `minimised=${paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)} ` +
+        `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
         `notices=${raisedNotices.length} asking=${asking !== null} ` +
         `focus=${screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +
-        `panel=${propertiesShowingNow() ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
+        `panel=${panelShowingIn(session) ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
         `noticeReasons=${recordedNoticeReasons()}`,
     )
   }
@@ -2161,7 +2336,7 @@ export function frameLoop(
       settings,
       regions,
       undefined,
-      isLevelZeroFolded,
+      isLevelZeroFoldedIn(session),
       environment.rowControlsHeightPx,
     )
     const capStop = layout.stackSafetyCapReached
@@ -2209,10 +2384,8 @@ export function frameLoop(
         regions,
         selection,
         'screen',
-        dualCursorFollowing === null
-          ? null
-          : { side: dualCursorFollowing, x: pointerAt === null ? null : pointerAt.x },
-        rulerWeekdayWords(language),
+        dualCursorDrawnOf(session, pointerAt),
+        rulerWeekdayWords(displayLanguageIn(session)),
         pointerAt,
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
@@ -2230,15 +2403,13 @@ export function frameLoop(
         document.schedule,
         settings,
         selection,
-        screenState,
+        session,
         dialogueLog,
-        sessionOf(document, regions, layout, {
-          language,
+        screenViewReadingsOf(document, regions, layout, {
           openedFileName,
           fileSavedAt,
           isAgentApiEnabled,
-          isDialogueFieldVisible,
-          isAiExportSurfaceOpen: screenState.surface === AI_EXPORT_MODAL_SURFACE,
+          isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
           pointer: pointerAt,
           pointerRestedMs,
           iconUnderPointer: partUnderPointer?.entry ?? null,
@@ -2246,18 +2417,11 @@ export function frameLoop(
             grabUnderPointer !== null && grabUnderPointer.item.kind === 'task'
               ? taskByUid(document.schedule, grabUnderPointer.item.taskUid)
               : null,
-          isTooltipDismissed,
           commandPaletteDraggedTo,
           rowGrabbedAt,
-          isLevelZeroFolded,
-          isMilestoneListOpen,
-          isPaletteMinimised,
           isRecordingInteractions,
-          dualCursorFollowing,
           selectedGroupIds,
           selectedResourceUids,
-          propertiesShowing: propertiesShowingNow(),
-          propertiesSubject,
           confirmation: asking?.question ?? null,
           mergeCandidates,
           unreadColumns,
@@ -2265,7 +2429,6 @@ export function frameLoop(
           notices: raisedNotices,
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
-          scaleMessage,
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -2356,7 +2519,8 @@ export function frameLoop(
   // (WS-2, a confirmation standing) shows the scale that really stands.
   /** @purity non-pure */
   function showDisplayScaleMessage(shown: { readonly end: 'max' | 'min' | null }): void {
-    showScaleMessage(held.document.documentSettings.displayScale, shown.end)
+    const percent = held.document.documentSettings.displayScale
+    sendToSession({ type: 'displayScaleStepped', percent, end: shown.end }, values)
   }
 
   // see ZE-5, SE-3, SE-4, SE-5
@@ -2364,17 +2528,17 @@ export function frameLoop(
   // replace each other rather than stack; the number is zoomY as a rounded percent.
   /** @purity non-pure */
   function showRowZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
-    showScaleMessage(Math.round(shown.zoomY * PERCENT_PER_WHOLE), shown.end)
+    const percent = Math.round(shown.zoomY * PERCENT_PER_WHOLE)
+    sendToSession({ type: 'rowZoomEndReached', percent, end: shown.end }, values)
   }
 
-  // TRAP: displayScale carries the number the message prints, which ZE-5 fills from zoomY.
+  // see SE-3, SE-4
   /** @purity non-pure */
-  function showScaleMessage(percent: number, end: 'max' | 'min' | null): void {
-    scaleMessage = { displayScale: percent, end }
+  function startScaleMessageTimer(): void {
     callOffScaleMessage?.()
     const wake = setTimeout(() => {
       callOffScaleMessage = null
-      scaleMessage = null
+      sendToSession({ type: 'scaleMessageTimeElapsed' }, null)
       if (settled(environment)) ask()
     }, NOT_STORED_SCALE_MESSAGE_TIMES['S-244'])
     callOffScaleMessage = () => clearTimeout(wake)
@@ -2501,14 +2665,9 @@ export function frameLoop(
   // see FR-020, U-60
   /** @purity non-pure */
   function answerWatermarkUnlock(isProceeding: boolean): boolean {
-    if (screenState.surface !== WATERMARK_UNLOCK_SURFACE) return false
-    if (!isProceeding) {
-      screenState = screenStateWithSurface(screenState, null)
-      ask()
-      return true
-    }
-    const answer = screen?.readWatermarkUnlockAnswer?.() ?? ''
-    void matchWatermarkUnlock(answer)
+    if (openSurfaceNameIn(session) !== WATERMARK_UNLOCK_ROW) return false
+    sendToSession({ type: 'watermarkUnlockAnswered', isProceeding }, values)
+    if (!isProceeding) ask()
     return true
   }
 
@@ -2518,10 +2677,10 @@ export function frameLoop(
     const given = await sha256HexOf(answer)
     // DEVIATION: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559)
     if (given === null || given !== watermarkUnlockDigest()) {
-      raiseNotice(WATERMARK_UNLOCK_MISMATCH_REASON, null)
+      sendToSession({ type: 'watermarkUnlockMismatched' }, null)
       return
     }
-    screenState = screenStateWithWatermark(screenStateWithSurface(screenState, null), false)
+    sendToSession({ type: 'watermarkUnlockMatched' }, null)
     ask()
   }
 
@@ -2564,7 +2723,7 @@ export function frameLoop(
       settings,
       regions,
       undefined,
-      isLevelZeroFolded,
+      isLevelZeroFoldedIn(session),
       environment.rowControlsHeightPx,
     )
     stackSafetyCapOfLastExportScene = layout.stackSafetyCapReached?.groupId ?? null
@@ -2576,7 +2735,6 @@ export function frameLoop(
       regions,
       nothingSelected,
     )
-    const stateForExport = screenStateWithPalette(emptyScreenState(), false)
     return {
       svg: svgFromSchedule(
         document.schedule,
@@ -2587,11 +2745,11 @@ export function frameLoop(
         nothingSelected,
         'export',
         null,
-        rulerWeekdayWords(language),
+        rulerWeekdayWords(displayLanguageIn(session)),
         null,
         null,
         null,
-        // TRAP: not stateForExport, whose default S-144 would restore a watermark the person hid.
+        // TRAP: not the picture's root, whose default S-144 would restore a watermark the person hid.
         watermarkNow(),
       ),
       regions,
@@ -2600,32 +2758,22 @@ export function frameLoop(
         document.schedule,
         settings,
         nothingSelected,
-        stateForExport,
+        pictureSessionOf(session),
         dialogueLog,
-        sessionOf(document, regions, layout, {
-          language,
+        screenViewReadingsOf(document, regions, layout, {
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
           isAiExportSurfaceOpen: false,
-          isDialogueFieldVisible: false,
           pointer: null,
           pointerRestedMs: 0,
           iconUnderPointer: null,
           taskUnderPointer: null,
-          isTooltipDismissed: false,
           commandPaletteDraggedTo: null,
           rowGrabbedAt: null,
-          // TRAP: the fold the layout was built with, or half of one picture is folded.
-          isLevelZeroFolded,
-          isMilestoneListOpen: false,
-          isPaletteMinimised: false,
           isRecordingInteractions: false,
-          dualCursorFollowing: null,
           selectedGroupIds: [],
           selectedResourceUids: [],
-          propertiesShowing: null,
-          propertiesSubject: null,
           confirmation: null,
           mergeCandidates: [],
           unreadColumns: [],
@@ -2664,7 +2812,7 @@ export function frameLoop(
     context: InputContext,
     frame: FrameValues,
   ): Document | null {
-    const isDependencyArmed = screenState.armed.kind === 'dependency'
+    const isDependencyArmed = session.screen.armModeState.kind === 'dependencyArmed'
     if (press === null || at === null || !isPreviewedPress(press, isDependencyArmed)) return null
     const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
     const action = commandFromInput(release, context).action
@@ -2699,7 +2847,7 @@ export function frameLoop(
     regions: ScreenRegions,
   ): ScheduleGeometry['dependencies'][number] | null {
     if (press === null || at === null || press.on !== null) return null
-    if (press.pressRow !== 'PTD-3' || screenState.armed.kind !== 'dependency') return null
+    if (press.pressRow !== 'PTD-3' || session.screen.armModeState.kind !== 'dependencyArmed') return null
     const from = dependencyStartOfHit(geometry, press.at.x, press.at.y, press.hit)
     if (from === null) return null
     const schedule = document.schedule
@@ -2812,7 +2960,7 @@ export function frameLoop(
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
         : null
-    const pressRow = pressRowOf({ at, hit }, { screenState, dualCursorFollowing })
+    const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session) })
     return {
       at,
       hit,
@@ -2847,7 +2995,7 @@ export function frameLoop(
   ): Grabbed | null {
     if (on !== null) return null
     if (regionAtPointer(frame.regions, x, y) !== 'rowArea') return null
-    if (dualCursorFollowing !== null) return null
+    if (dualCursorFollowingIn(session) !== null) return null
     return itemAtPointer(frame.geometry, x, y, grabSizesOf())
   }
 
@@ -2891,9 +3039,9 @@ export function frameLoop(
     if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
     if (on !== null) return null
     if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
-    if (dualCursorFollowing !== null) return null
-    const armed = screenState.armed
-    const isArmedDependency = armed.kind === 'dependency'
+    if (dualCursorFollowingIn(session) !== null) return null
+    const armed = session.screen.armModeState
+    const isArmedDependency = armed.kind === 'dependencyArmed'
     const row = pointerRowOf(hit, isArmedDependency)
     if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
     if (isArmedDependency) {
@@ -2904,7 +3052,7 @@ export function frameLoop(
       return null
     }
     if (hit !== null) return null
-    if (armed.kind === 'none') return 'default'
+    if (armed.kind === 'notArmed') return 'default'
     return 'copy'
   }
 
@@ -3032,7 +3180,7 @@ export function frameLoop(
       layout: frame.layout,
       geometry: frame.geometry,
       regions: frame.regions,
-      screenState,
+      screen: session.screen,
       selection,
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -3048,9 +3196,9 @@ export function frameLoop(
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
       drawnRowBoxes,
-      isLevelZeroFolded,
-      isSurfaceStanding: screenState.surface !== null || asking !== null,
-      dualCursorFollowing,
+      isLevelZeroFolded: isLevelZeroFoldedIn(session),
+      isSurfaceStanding: openSurfaceNameIn(session) !== null || asking !== null,
+      dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
       newGroupId: crypto.randomUUID(),
       newCommentBoxId: crypto.randomUUID(),
@@ -3159,7 +3307,7 @@ export function frameLoop(
           answer(choice)
         },
       }
-      screenState = screenStateWithSurface(screenState, OPEN_CHOOSER_SURFACE)
+      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: OPEN_CHOOSER_SURFACE }, values)
       if (settled(environment)) ask()
     })
   }
@@ -3177,7 +3325,7 @@ export function frameLoop(
         },
       }
       mergeCandidates = candidates
-      screenState = screenStateWithSurface(screenState, DIFFERENCE_REVIEW_SURFACE)
+      sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: DIFFERENCE_REVIEW_SURFACE }, values)
       if (settled(environment)) ask()
     })
   }
@@ -3214,7 +3362,7 @@ export function frameLoop(
   function tellWhatTheImportDropped(names: readonly (string | null)[]): void {
     if (names.length === 0) return
     droppedTaskNames = names
-    screenState = screenStateWithSurface(screenState, IMPORT_REPORT_SURFACE)
+    sendScreenEvent({ type: 'surfaceRaisedByFlow', surfaceName: IMPORT_REPORT_SURFACE }, values)
   }
 
   // see OP-2, OP-5, OP-12, T-230
@@ -3574,7 +3722,7 @@ export function frameLoop(
     frame: FrameValues,
   ): boolean {
     if (entry === CLOSE_SURFACE_ENTRY && surface === PROPERTIES_PANEL_SURFACE) {
-      isPropertiesPanelPutAway = true
+      sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
     if (entry === CLOSE_SURFACE_ENTRY && surface === AI_EXPORT_MODAL_SURFACE) {
@@ -3589,12 +3737,12 @@ export function frameLoop(
       return false
     }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
-      language = language === 'ja' ? 'en' : 'ja'
-      writeBrowserStored('S-99', language)
+      const language = displayLanguageIn(session) === 'ja' ? 'en' : 'ja'
+      sendToSession({ type: 'displayLanguageChosen', language }, frame)
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
-      isPaletteMinimised = !isPaletteMinimised
+      sendScreenEvent({ type: 'paletteMinimiseToggled' }, frame)
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {
@@ -3603,11 +3751,11 @@ export function frameLoop(
     }
     if (entry === DIALOGUE_FIELD_ENTRY) {
       if (isAgentApiEnabled) return false
-      raiseNotice(DIALOGUE_FIELD_UNAVAILABLE_REASON, null)
+      sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
       return true
     }
     if (entry === MILESTONE_LIST_ENTRY) {
-      isMilestoneListOpen = !isMilestoneListOpen
+      sendToSession({ type: 'milestoneListToggled' }, frame)
       return true
     }
     if (entry === NEW_DOCUMENT_ENTRY) {
@@ -3654,7 +3802,7 @@ export function frameLoop(
       const choosing = openChoosing
       if (choosing === null) return false
       openChoosing = null
-      screenState = screenStateWithSurface(screenState, null)
+      sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_SURFACE }, frame)
       choosing.settle(openChoice)
       return true
     }
@@ -3665,7 +3813,7 @@ export function frameLoop(
       mergeChoosing = null
       mergeCandidates = []
       unreadColumns = []
-      screenState = screenStateWithSurface(screenState, null)
+      sendToSession({ type: 'flowSurfaceAnswered', surfaceName: DIFFERENCE_REVIEW_SURFACE }, frame)
       choosing.settle(mergeMapping)
       return true
     }
@@ -3679,7 +3827,7 @@ export function frameLoop(
     // @provisional PND-448
     // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
     // closes the chooser with nothing written and nothing said (FR-029).
-    screenState = screenStateWithSurface(screenState, null)
+    sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_SURFACE }, values)
     const store = files
     if (store === undefined) {
       raiseNotice(SEAM_ABSENT_REASON, null)
@@ -3733,7 +3881,7 @@ export function frameLoop(
         frame.settingsMeasuredWith,
         frame.regions,
         undefined,
-        isLevelZeroFolded,
+        isLevelZeroFoldedIn(session),
         environment.rowControlsHeightPx,
       )
       if (wouldDraw.stackSafetyCapReached !== null) {
@@ -3893,19 +4041,9 @@ export function frameLoop(
       case 'dismissNotice':
         dismissNewestNotice()
         return
-      case 'settleTextEntry': {
-        if (screenState.surface !== null || asking !== null) return
-        // TRAP: must precede the guard below, which would return with the panel still up (FR-091).
-        if (namingCreatedTaskUid !== null) {
-          namingCreatedTaskUid = null
-          isPropertiesPanelPutAway = true
-          selection = emptySelection()
-          return
-        }
-        if (didSettleFieldEntry || hasUnsettledTextEntry()) return
-        isPropertiesPanelPutAway = true
+      case 'settleTextEntry':
+        settleOnScreen(frame)
         return
-      }
       case 'tellEntryHasNothingToDo':
         raiseNotice(
           action.situation === null
@@ -3999,26 +4137,21 @@ export function frameLoop(
         return
       }
       case 'toggleDocumentSettingsProperties': {
-        // see FR-072, IC-17, EN-4, S-99h
-        // WHY: going back to the choice counts only while the settings are on screen; a panel put
-        // away while it showed them shows them again (PND-496, JDG-173).
-        const isShowingSettings =
-          !isPropertiesPanelPutAway && propertiesShowing === 'documentSettings'
-        isPropertiesPanelPutAway = false
-        // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
-        // @provisional PND-144
-        propertiesShowing = isShowingSettings ? 'selection' : 'documentSettings'
+        const kept = propertiesPanelKept?.subject ?? null
+        propertiesPanelKept = { subject: kept }
+        for (const event of settingsEntryEventsOf(session, kept)) sendToSession(event, frame)
         return
       }
       case 'setDualCursorFollowing':
         // WHY: not changeDocument's road, which asks FR-032's question; no row of T-234 asks one here.
-        dualCursorFollowing = action.following
-        if (action.placed !== null) writeDocument([action.placed], frame)
+        sendToSession(dualCursorEventOf(action, session), frame)
         return
-      case 'setLevelZeroFolded':
-        isLevelZeroFolded = action.isFolded
-        if (action.writes.length > 0) writeDocument(action.writes, frame)
+      case 'setLevelZeroFolded': {
+        const fold = foldEventOf(action, session)
+        if (fold === null) writeCarried(action.writes, frame)
+        else sendToSession(fold, frame)
         return
+      }
       case 'toggleAgentApi':
         setAgentApiEnabled(!isAgentApiEnabled)
         if (!isAgentApiEnabled) raiseNotice(HANDED_REFERENCE_STANDS_REASON, null)
@@ -4026,12 +4159,43 @@ export function frameLoop(
       case 'toggleDialogueFieldVisible':
         // STOP: spec does not decide whether turning the API off resets S-99i. Looked in FR-066, S-99i
         // @provisional PND-419
-        isDialogueFieldVisible = !isDialogueFieldVisible
+        sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
         return
       case 'toggleFullScreen':
-        askBrowserForFullScreen()
+        sendToSession({ type: 'fullScreenEntryPressed' }, frame)
         return
     }
+  }
+
+  // see SK-19, FR-091, T-280
+  /** @purity non-pure */
+  function settleOnScreen(frame: FrameValues): void {
+    if (openSurfaceNameIn(session) !== null || asking !== null) return
+    const isNaming = namingCreatedTaskUid !== null
+    namingCreatedTaskUid = null
+    // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
+    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || hasUnsettledTextEntry())
+    if (hasNoUnsettledEntry) notePanelPutAway()
+    const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
+    sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
+  }
+
+  /** @purity non-pure */
+  function sendScreenEvent(event: ScreenValuesEvent, frame: FrameValues | null): void {
+    if (event.type === 'paletteToggled') {
+      paletteMinimisedWhileHidden = paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)
+    }
+    if (event.type === 'paletteMinimiseToggled') paletteMinimisedWhileHidden = !paletteMinimisedWhileHidden
+    for (const one of withSurfaceReplaced(event, session.screen)) sendToSession(one, frame)
+  }
+
+  /** @purity non-pure */
+  function followChoiceOnPanel(frame: FrameValues): void {
+    const subject = subjectOfChoice(selection, selectedGroupIds)
+    const followed = subject === null ? null : choiceFollowedOf(session, subject)
+    if (followed === null) return
+    propertiesPanelKept = { subject }
+    sendToSession(followed, frame)
   }
 
   // see FR-071, UF-48, RS-59
@@ -4052,12 +4216,12 @@ export function frameLoop(
   // see FR-072
   /** @purity non-pure */
   function showPropertiesOfChoice(): void {
-    if (selection.items.length === 0 && selectedGroupIds.length === 0) return
-    isPropertiesPanelPutAway = false
-    propertiesShowing = 'selection'
+    const subject = subjectOfChoice(selection, selectedGroupIds)
+    if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
-    propertiesSubject = { selection, groupIds: selectedGroupIds }
+    propertiesPanelKept = { subject }
+    sendToSession({ type: 'propertiesOfChoiceAsked', subject }, values)
   }
 
   // see FR-091, HF-14, HF-17
@@ -4075,7 +4239,7 @@ export function frameLoop(
     }
     const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
     if (madeRow === undefined) return
-    if (madeRow.parentId === null && isLevelZeroFolded) isLevelZeroFolded = false
+    if (madeRow.parentId === null) sendToSession({ type: 'levelZeroOpened', writes: [] }, values)
     selectedGroupIds = [created.groupId]
     showPropertiesOfChoice()
     wantFieldFocused(ROW_NAME_FIELD_ROW)
@@ -4087,6 +4251,7 @@ export function frameLoop(
   function owesFrame(
     input: HumanInput,
     before: InputContext,
+    sessionBefore: ScreenSession,
     partBefore: ScreenPart | null,
     grabBefore: Grabbed | null,
     noticesBefore: readonly RaisedNotice[],
@@ -4094,8 +4259,7 @@ export function frameLoop(
   ): boolean {
     if (input.kind !== 'pointer') {
       if (pressed !== null) return true
-      if (held.document !== before.document) return true
-      if (screenState !== before.screenState) return true
+      if (held.document !== before.document || session !== sessionBefore) return true
       if (selection !== before.selection) return true
       if (raisedNotices !== noticesBefore) return true
       // TRAP: a key that acted on nothing and moved nothing would draw the frame already shown;
@@ -4106,10 +4270,9 @@ export function frameLoop(
     if (pressed !== null) return true
     const guideMode = before.document.documentSettings.guideCursorMode
     if (guideMode !== GUIDE_CURSOR_NONE) return true
-    if (dualCursorFollowing !== null) return true
+    if (dualCursorFollowingIn(session) !== null) return true
     if (selection !== before.selection) return true
-    if (screenState !== before.screenState) return true
-    if (held.document !== before.document) return true
+    if (session !== sessionBefore || held.document !== before.document) return true
     if (!isSameScreenPart(partUnderPointer, partBefore)) return true
     if (isTooltipStanding) return true
     return !isSameGrab(grabUnderPointer, grabBefore)
@@ -4161,7 +4324,8 @@ export function frameLoop(
       const hasMoved = pointerAt === null || pointerAt.x !== input.x || pointerAt.y !== input.y
       pointerAt = { x: input.x, y: input.y }
       if (hasMoved) beginPointerRest()
-      if (hasMoved) isTooltipDismissed = false
+      // DEVIATION: spec says an elapsed rest allows the tooltip again (T-280); here a move does (DFC-692)
+      if (hasMoved) sendToSession(POINTER_RESTED, frame)
       partUnderPointer =
         screen === undefined ? null : screen.surface.readScreenPartAt(input.x, input.y)
       if (input.phase === 'down') {
@@ -4188,9 +4352,11 @@ export function frameLoop(
       return
     }
 
+    // DEVIATION: spec says owesFrame compares the whole root (UF-48); a restored tooltip owed no frame (DFC-692)
+    const sessionBefore = session
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
     const context = collectInputContext(frame, noticeReasonsOnArrival.size > 0)
-    // TRAP: asked before the members run; asked after screenStateFromInput, one press spends two levels.
+    // TRAP: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
     const escapeLevel = escapeLevelOf(
       input,
       context,
@@ -4198,23 +4364,16 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    if (escapeLevel === 'tooltip') isTooltipDismissed = true
     const chosenBeforeThisHappening = selection
     selection = selectionFromInput(input, context)
     endCreatedNamingIfChosenMoved(chosenBeforeThisHappening)
-    const isEscapeSpentHere = escapeLevel === 'confirmation' || escapeLevel === 'propertiesPanel'
-    const wasPaletteShown = screenState.paletteShown
-    screenState = isEscapeSpentHere ? screenState : screenStateFromInput(input, context)
-    if (!wasPaletteShown && screenState.paletteShown) isPaletteMinimised = false
+    const screenEvent = screenEventFromInput(input, context)
+    if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
-
     if (escapeLevel === 'notice') dismissNewestNotice()
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
-    if (escapeLevel === 'propertiesPanel') isPropertiesPanelPutAway = true
-    if (escapeLevel === 'dualCursorMode') {
-      dualCursorFollowing = null
-      writeDocument([{ kind: 'clearDualCursor' }], frame)
-    }
+    const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
+    if (rungEvent !== null) sendToSession(rungEvent, frame)
 
     // TRAP: dropped after the translator read the press (CS-2) and before the write below,
     // because WS-2 refuses a write during a gesture (AG-9).
@@ -4262,19 +4421,15 @@ export function frameLoop(
       pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
     }
 
-    // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
-    // @provisional PND-144
-    if (selection !== context.selection && propertiesShowingNow() !== null) {
-      showPropertiesOfChoice()
-    }
+    if (selection !== context.selection) followChoiceOnPanel(frame)
 
-    if (openChoosing !== null && screenState.surface !== OPEN_CHOOSER_SURFACE) {
+    if (openChoosing !== null && openSurfaceNameIn(session) !== OPEN_CHOOSER_SURFACE) {
       const abandoned = openChoosing
       openChoosing = null
       abandoned.settle(null)
     }
 
-    if (mergeChoosing !== null && screenState.surface !== DIFFERENCE_REVIEW_SURFACE) {
+    if (mergeChoosing !== null && openSurfaceNameIn(session) !== DIFFERENCE_REVIEW_SURFACE) {
       const abandoned = mergeChoosing
       mergeChoosing = null
       mergeCandidates = []
@@ -4282,7 +4437,7 @@ export function frameLoop(
       abandoned.settle(null)
     }
 
-    if (droppedTaskNames.length > 0 && screenState.surface !== IMPORT_REPORT_SURFACE) {
+    if (droppedTaskNames.length > 0 && openSurfaceNameIn(session) !== IMPORT_REPORT_SURFACE) {
       droppedTaskNames = []
     }
 
@@ -4298,10 +4453,10 @@ export function frameLoop(
 
     const hasKeyActed =
       spent || didSettleFieldEntry || escapeLevel !== null || translated.action !== null ||
-      translated.displayScaleShown !== undefined || isRowZoomEndShown
+      translated.displayScaleShown !== undefined || isRowZoomEndShown || screenEvent !== null
     // WHY: a wheel at a row-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
-      owesFrame(input, context, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
+      owesFrame(input, context, sessionBefore, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
       isRowZoomEndShown
     recordLine(
       'done',
@@ -4399,9 +4554,9 @@ export function frameLoop(
     // see FT-6, FR-071, S-99f
     /** @purity non-pure */
     fullScreenChanged(isFullScreen: boolean): void {
-      if (screenState.fullScreen === isFullScreen) return
-      screenState = screenStateWithFullScreen(screenState, isFullScreen)
-      if (settled(environment)) ask()
+      const before = session
+      sendToSession({ type: 'fullScreenChanged', isFullScreen }, values)
+      if (session !== before && settled(environment)) ask()
     },
   }
 }

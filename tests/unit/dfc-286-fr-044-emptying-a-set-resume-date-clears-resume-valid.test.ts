@@ -101,7 +101,7 @@ import type {
   PropertiesPanel,
   PropertyControl,
   PropertyField,
-  ScreenSession,
+  ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
@@ -109,13 +109,16 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import {
   emptySelection,
   selectionWith,
   type ItemRef,
   type Selection,
 } from '../../src/entity/document-model/selection/selection'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
   geometryFromLayout,
   type ScheduleGeometry,
@@ -311,29 +314,34 @@ const documentOf = (schedule: Schedule): Document =>
     changeLog: [],
   }) as unknown as Document
 
-const SESSION: ScreenSession = {
-  language: 'ja',
+const READINGS: ScreenViewReadings = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
-  isDialogueFieldVisible: true,
   pointer: null,
   pointerRestedMs: 0,
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  isMilestoneListOpen: false,
-  isPaletteMinimised: false,
-  dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
-  propertiesSubject: null,
-  propertiesShowing: 'selection',
   notices: [],
   confirmation: null,
   rowBoxes: [],
-} as unknown as ScreenSession
+} as unknown as ScreenViewReadings
+
+const ROOT: ScreenSession = {
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    propertiesPanelContentState: {
+      kind: 'selectionDisplayed',
+      subject: { selection: emptySelection(), groupIds: [] },
+    },
+  },
+}
 
 const holding = (...items: readonly ItemRef[]): Selection =>
   items.reduce((selection, item) => selectionWith(selection, item), emptySelection())
@@ -383,7 +391,7 @@ const contextFor = (schedule: Schedule): InputContext => {
     layout,
     geometry,
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: ZOOM_STEP,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
@@ -404,7 +412,8 @@ const panelOf = (schedule: Schedule): PropertiesPanel | null =>
     schedule,
     SETTINGS,
     holding({ kind: 'task', uid: THE_TASK } as ItemRef),
-    SESSION,
+    ROOT,
+    READINGS,
   )
 
 const fieldFor = (schedule: Schedule, row: string): PropertyField | null =>

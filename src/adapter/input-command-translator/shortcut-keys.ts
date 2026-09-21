@@ -69,7 +69,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   }
 
   if (plain && key === KEY.escape) {
-    return escapeTarget(context.screenState, escapeContextOf(context)) === null
+    return escapeTarget(escapeContextOf(context)) === null
       ? UNASSIGNED
       : CONSUMED_ELSEWHERE
   }
