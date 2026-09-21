@@ -1,4 +1,8 @@
-86
+85
+# LOWERED 86 -> 85 on 2026-09-22, with the user's approval (asked in chat, answered "4 つとも
+# 下げる（推奨）"): measured 85 by check 45 after the CR-441 code wave (frame-loop.ts, item-grab.ts,
+# schedule-geometry.ts, schedule-layout.ts); which group went was not attributed.
+#
 # LOWERED 90 -> 86 on 2026-09-21, with the user's approval (the same answer as the raise below):
 # the eight copies of reject() in src/use-case/edit-document/ are one, in edit-document.ts.
 # The copy edit-dependency.ts held took an optional reasonCategory; that one is kept, so the

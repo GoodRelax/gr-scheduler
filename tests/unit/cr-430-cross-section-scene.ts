@@ -139,7 +139,7 @@ export interface Dummy {
   readonly figure?: Bar
 }
 
-// see XS-10, XS-11
+// see XS-10
 export interface Resume {
   readonly arm?: readonly Pt[]
   readonly head?: readonly Pt[]

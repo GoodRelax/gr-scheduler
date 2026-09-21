@@ -521,14 +521,14 @@ describe('unarmed control -- T-023d places keep their own shapes, not the arrow'
     const [actualStart, actualEnd] = actualEnds(built.loop).map((at) => shapeAt(built, at))
     const ends = [planStart, planEnd, actualStart, actualEnd]
     for (const shape of ends) expect(shape).not.toBeNull()
-    expect(new Set(ends).size, `PK-1 and PK-2, each ← and →: ${ends.join(' | ')}`).toBe(4)
-    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-5')), 'PK-2 ←').toBe(actualStart)
-    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-6')), 'PK-2 →').toBe(actualEnd)
+    expect(new Set(ends).size, `PK-1 white and black, each ← and →: ${ends.join(' | ')}`).toBe(4)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-5')), 'PK-1 black ←').toBe(actualStart)
+    expect(shapeAt(built, dummyProbe(built.loop, DUMMY_BAR_UID, 'GA-6')), 'PK-1 black →').toBe(actualEnd)
   })
 
-  it('gives the body its own grab shape, and the milestone and GA-17 the circle PK-6, distinct from resize', () => {
+  it('gives the body its own grab shape, and the milestone and GA-17 the filled circle of PK-5, distinct from resize', () => {
     // WHY: table T-269's closing rule replaces IN-2's grab sign on a milestone
-    // with `PK-5` / `PK-6`, so `GA-16` and `GA-17` both take the filled circle.
+    // with `PK-5`, so `GA-16` and `GA-17` both take the filled circle.
     const built = stage()
     const grab = shapeAt(built, barBody(built.loop))
     const circle = shapeAt(built, startedMilestone(built.loop))

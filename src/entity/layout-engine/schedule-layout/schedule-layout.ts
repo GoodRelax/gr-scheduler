@@ -652,7 +652,7 @@ function dummyReachOf(
   return inkX + dummyInkWidthOf(markerDiameter)
 }
 
-// see RF-1, RF-2, RF-3
+// see RF-1, RF-3
 export interface LabelReference {
   readonly x: number
   readonly width: number
@@ -667,7 +667,7 @@ export interface LabelLayout {
   readonly nameX: number
 }
 
-// see XS-11, GA-20
+// see XS-10, GA-20
 /** @purity pure */
 export function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   return (
@@ -677,7 +677,7 @@ export function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean
   )
 }
 
-// see RF-1, RF-2, RF-3
+// see RF-1, RF-3
 /** @purity pure */
 export function labelReferenceOf(
   shapeKind: ShapeKind,
@@ -700,7 +700,7 @@ export function labelReferenceOf(
   return { ...band, fitWidth: band.width, nameFloor: band.x }
 }
 
-// see RF-2
+// see RF-1
 /** @purity pure */
 export function dummyBandOf(
   shapeKind: ShapeKind,

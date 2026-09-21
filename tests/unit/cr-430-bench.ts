@@ -106,7 +106,7 @@ export function widestGrabMargin(): number {
   return widest
 }
 
-// see XS-10, XS-11
+// see XS-10
 // WHY: the seam names ResumeGeometry.box, the tree still draws an arm and a
 // WHY: head; reading both keeps this measuring the icon, not a member's name.
 /** @purity pure */

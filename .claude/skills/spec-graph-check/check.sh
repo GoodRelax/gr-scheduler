@@ -185,16 +185,17 @@
 #          run. It reads what git reports as changed, so on a clean tree it
 #          passes having looked at nothing; that is correct, it is the
 #          cheapest guard
-#   56     check-grab-table-parents.py : a table written inside one of the
-#          grab-area requirements that NO requirement of that family names.
-#          The rule is `FR-104`'s own RATIONALE -- 「親を持たない表を置かない
-#          こと（MUST NOT）」 -- and BOTH the permitted parents and the tables
-#          to check are read out of the document on every run, so neither list
-#          can rot here. ⭐ A table's own `**表 T-nnn —` heading does not count
-#          as a naming; counting it would make the check green by construction.
-#          ⛔ ONE-DIRECTIONAL, exactly as the clause is: a table must have a
-#          parent, a requirement need not have a table (`FR-044` has none --
-#          ledger row DFC-671)
+#   56     check-grab-table-parents.py : both directions between the
+#          grab-area requirements and their tables. FORWARD: a table written
+#          inside one of those requirements that NO requirement of the family
+#          names. REVERSE (CR-441): a requirement of the family that names
+#          none of the nine grab tables. Both rules are `FR-104`'s own
+#          RATIONALE -- 「親を持たない表を置かないこと（MUST NOT）」 and the line
+#          after it, 「…のうち少なくとも 1 つを名指すこと（MUST）」 -- and the
+#          requirements and tables of both are read out of the document on
+#          every run, so no list can rot here. ⭐ A table's own `**表 T-nnn —`
+#          heading and the two clause lines do not count as namings; counting
+#          them would make the check green by construction
 #   57     check-decision-tables.py : a decision table with a gap or an
 #          overlap once 「—」 and 「（問わない）」 are expanded. The rule is the
 #          MUST at the end of section 1.9. ⛔ The condition columns and each
@@ -616,7 +617,7 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" --self-test || fail
 PYTHONIOENCODING=utf-8 python "$HERE/check-comment-rules.py" || failed
 
 echo ""
-section "56  every table the grab-area requirements hold is named by one of them"
+section "56  the grab-area requirements and their tables name each other, both ways"
 # ⛔ Green on arrival, with no baseline: MEASURED 2026-09-21 on 0163153c, 13
 # tables defined inside the ten requirements the clause names, 0 of them
 # parentless. ⭐ Both lists are READ -- the permitted parents from the clause
@@ -626,6 +627,10 @@ section "56  every table the grab-area requirements hold is named by one of them
 # only naming, reports 1; removing FR-106's 「表 T-269」 (the break CR-430 §8
 # lists) reports 0, because FR-104's table header still names it -- the naming
 # count falls 2 → 1 and the table still has a parent.
+# ⭐ REVERSE (CR-441), MEASURED 2026-09-22: 10 requirements x 9 tables read
+# from the second clause line, 0 naming none; FR-044 names exactly one
+# (表 T-270, its 「PE-13」 pointer). Breaking it: deleting that sentence reports
+# FR-044; deleting every naming but the clauses from FR-104 reports FR-104.
 PYTHONIOENCODING=utf-8 python "$HERE/check-grab-table-parents.py" || failed
 
 echo ""

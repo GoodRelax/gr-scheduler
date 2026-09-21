@@ -21,10 +21,9 @@ import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS } from '../fixtures/display-
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// WHY: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
 const PK_1_SQUARE =
-  '| PK-1 | 箱の矢印 白 | 幅の広い箱型の矢印（← ／ →） | 白 ／ 黒 | 丸め | 一辺 `S-249` | 中心 |'
-const PK_2_SQUARE =
-  '| PK-2 | 箱の矢印 黒 | 幅の広い箱型の矢印（← ／ →） | 黒 ／ 白 | 丸め | 一辺 `S-249` | 中心 |'
+  '| PK-1 | 箱の矢印 | 幅の広い箱型の矢印（← ／ →） | 予定は 白 ／ 黒、実績とダミーは 黒 ／ 白（本表の結びの約束） | 丸め | 一辺 `S-249` | 中心 |'
 const FR_106_COLOURS =
   '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
 const FR_106_FALLBACK =
@@ -32,7 +31,7 @@ const FR_106_FALLBACK =
 const FR_106_NO_DISPLAY_SCALE = '⛔ ポインタの画像に表示の倍率を掛けてはならない（MUST NOT）'
 
 describe('CR-427 -- the manuscript these cases are driven by', () => {
-  it.each([PK_1_SQUARE, PK_2_SQUARE, FR_106_COLOURS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
+  it.each([PK_1_SQUARE, FR_106_COLOURS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
     'still says it, word for word: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -219,7 +218,7 @@ interface Cursor {
   readonly fallback: string
 }
 
-// see PK-1, PK-2, T-269
+// see PK-1, T-269
 const cursorOf = (written: string | null): Cursor | null => {
   if (written === null) return null
   const found = /^url\((['"]?)(data:image\/svg\+xml[^)]*?)\1\)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*,\s*([\w-]+)\s*$/.exec(
@@ -259,7 +258,7 @@ const pairsOf = (text: string): Point[] => {
   return out
 }
 
-// see PK-1, PK-2
+// see PK-1
 // WHY: H and V carry one number each, so reading a path as bare number pairs misplaces every later point.
 const pathPointsOf = (d: string): Point[] => {
   const tokens = d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? []
@@ -306,7 +305,7 @@ const pathPointsOf = (d: string): Point[] => {
   return out
 }
 
-// see PK-1, PK-2
+// see PK-1
 // WHY: a right arrow may be the left one mirrored by a transform, which moves every point it draws.
 const transformOf = (text: string): readonly [number, number, number, number, number, number] => {
   let m: [number, number, number, number, number, number] = [1, 0, 0, 1, 0, 0]
@@ -330,7 +329,7 @@ const transformOf = (text: string): readonly [number, number, number, number, nu
   return m
 }
 
-// see PK-1, PK-2
+// see PK-1
 const shapeOf = (svg: string): Shape => {
   const root = /<svg\b[^>]*>/.exec(svg)?.[0] ?? ''
   const width = Number(attributeOf(root, 'width') ?? Number.NaN)
@@ -377,7 +376,7 @@ describe('T-269 -- the image each end shows', () => {
       const cursor = cursorOf(written)
       expect(cursor, `${row}: ${written}`).not.toBeNull()
       expect(shapeOf(cursor!.svg).side, `${row}: ${PK_1_SQUARE}`).toBe(S_249)
-      expect([cursor!.hotspotX, cursor!.hotspotY], `${row}: ${PK_2_SQUARE}`).toEqual([S_249 / 2, S_249 / 2])
+      expect([cursor!.hotspotX, cursor!.hotspotY], `${row}: ${PK_1_SQUARE}`).toEqual([S_249 / 2, S_249 / 2])
     },
   )
 

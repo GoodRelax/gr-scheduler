@@ -320,7 +320,7 @@ const TASK_NAMED = taskOf({
   start: '2026-01-05',
   finish: '2026-02-05',
   // ⚠️ AN ACTUAL ON PURPOSE. Table T-272's RF-1 makes the actual the reference
-  // the 「入る」 judgement measures, and RF-2's dummy is DM-3 wide -- which no
+  // the 「入る」 judgement measures, and RF-1's dummy is DM-3 wide -- which no
   // name of any length fits, so every case below would become a 「入らない」 one.
   actualStart: '2026-01-05',
   stop: '2026-02-05',

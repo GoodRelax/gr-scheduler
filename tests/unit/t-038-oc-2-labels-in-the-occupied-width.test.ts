@@ -649,8 +649,8 @@ describe('table T-038, DFC-394 -- the order stands side by side, and the label d
 // this one case asks the renderer.
 //
 //   FR-044 (01-04-requirements.md, the STATEMENT)
-//     「**中断のあいだは再開アイコンを描くこと（MUST）。再開日が未定のときは
-//      表 T-201 の `S-25` に従って別の見た目にすること（MUST）**」
+//     「中断のあいだは再開アイコンを描くこと（MUST）。」 and, two sentences on,
+//     「再開日が未定のときは表 T-201 の `S-25` に従って別の見た目にすること（MUST）」
 //
 //   T-038 OC-4 (01-04-requirements.md)
 //     「| OC-4 | 再開アイコン | **算入してはならない（MUST NOT）**…… 場所は
@@ -1025,7 +1025,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
     ).toBeCloseTo(holdRightOf(drawn), 6)
   })
 
-  it('⛔ MUST NOT: OC-1 is measured from the RF-2 dummy the row stands on, and counts nothing once the name stands inside the actual', () => {
+  it('⛔ MUST NOT: OC-1 is measured from the RF-1 dummy the row stands on, and counts nothing once the name stands inside the actual', () => {
     const started = startedScene()
     const fresh = notStartedScene()
     expect(started.placed.actualX).not.toBeNull()
@@ -1035,7 +1035,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
       if (marker === null) throw new Error('no marker')
       return marker.centre.x + marker.radius
     }
-    expect(fresh.placed.dummyReach, 'premise: RF-2 makes the dummy the reference').not.toBeNull()
+    expect(fresh.placed.dummyReach, 'premise: RF-1 makes the dummy the reference').not.toBeNull()
     const freshRun = fresh.placed.labelX - markerRightOf(fresh)
     expect(
       freshRun,

@@ -236,4 +236,19 @@ RETIRED = {'FR-050', 'T-030',
            'S-20', 'S-23', 'S-40', 'S-41', 'S-42', 'S-45', 'S-47',
            'S-90', 'S-91', 'S-92',
            'K-20', 'K-23',
+           # ⭐ CR-441 (2026-09-22) normalised five of those nine tables by the
+           # rules that already decide their rows (CR-441 section 3): a dummy
+           # counts as an actual (FR-043), a variant another MUST already
+           # decides is not a row of its own, and two rows with identical
+           # conclusions are one. The absorbing row keeps the smaller id and
+           # widens its meaning; no id was renumbered. PK-2 -> PK-1, PK-6 ->
+           # PK-5 (table T-269); PE-2 / PE-4 -> PE-3, PE-5 -> PE-7, PE-9 ->
+           # PE-8 (table T-270); XS-11 -> XS-10, XS-13 -> XS-12, XS-14 -> XS-6
+           # (table T-271); RF-2 -> RF-1 (table T-272, whose column 実績がある
+           # left with it). rulings.md still names them in the landing column
+           # of the rulings that decided them, and the seats stay burnt.
+           'PK-2', 'PK-6',
+           'PE-2', 'PE-4', 'PE-5', 'PE-9',
+           'XS-11', 'XS-13', 'XS-14',
+           'RF-2',
            'T-006'}

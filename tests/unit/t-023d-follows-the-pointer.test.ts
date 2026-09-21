@@ -1457,8 +1457,8 @@ describe('table T-028 IN-1: GR-14 settles the comment box on the release', () =>
 // ===========================================================================
 
 describe('table T-023d GA-18: the progress marker is pressed, not carried', () => {
-  // 「⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く 2 つの場面（`PE-8` /
-  // `PE-9`）では追従する」 -- SUSPENDED_UID is 中断のあいだ, table T-270's
+  // 「⚠️ 進捗マーカーは押す的と引く的を兼ねるので、引く場面（`PE-8`）では追従する」
+  // -- SUSPENDED_UID is 中断のあいだ, table T-270's
   // `PE-10`, which is neither. ⚠️ THE PRESS IS IN THE MARKER'S RIGHT HALF: LP-1
   // stands it on the RF-1 reference's start, where 「中心のその 1 点は実績の開始
   // が取る」（表 T-266 の `GA-3`）, and GA-3 does follow.

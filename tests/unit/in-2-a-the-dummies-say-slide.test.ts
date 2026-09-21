@@ -32,11 +32,11 @@ import { specTable } from '../contract/spec-table'
 const IN_2_GRAB_MARGIN_MUST = '掴み代の上は `FR-106` の 表 T-269 の形'
 
 // see T-266
-const GA_5_POINTER = '箱の矢印 ← 黒（`PK-2`）'
-const GA_6_POINTER = '箱の矢印 → 黒（`PK-2`）'
+const GA_5_POINTER = '箱の矢印 ← 黒（`PK-1`）'
+const GA_6_POINTER = '箱の矢印 → 黒（`PK-1`）'
 
 // see T-266
-const GA_17_POINTER = '円 ●（`PK-6`）'
+const GA_17_POINTER = '円 ●（`PK-5`）'
 
 const IN_2_ROW = specTable('T-028').rows.find((row) => row.id === 'IN-2')
 if (IN_2_ROW === undefined) throw new Error('table T-028 has no row IN-2')
@@ -450,27 +450,27 @@ describe('T-028 IN-2 -- the task dummies (GA-5 / GA-6) say what the actual ends 
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GA-6')), IN_2_GRAB_MARGIN_MUST).not.toBeNull()
   })
 
-  it('PK-2 ←: answers the SAME shape on the start dummy (GA-5) as on an actual start (GA-3)', () => {
+  it('PK-1 black ←: answers the SAME shape on the start dummy (GA-5) as on an actual start (GA-3)', () => {
     const built = stage()
     const start = shapeAt(built, actualEnd(built.loop, 'GA-3'))
     expect(start).not.toBeNull()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GA-5')), GA_5_POINTER).toBe(start)
   })
 
-  it('PK-2 →: answers the SAME shape on the end dummy (GA-6) as on an actual end (GA-4)', () => {
+  it('PK-1 black →: answers the SAME shape on the end dummy (GA-6) as on an actual end (GA-4)', () => {
     const built = stage()
     const end = shapeAt(built, actualEnd(built.loop, 'GA-4'))
     expect(end).not.toBeNull()
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GA-6')), GA_6_POINTER).toBe(end)
   })
 
-  it('PK-2 ← / →: the left arrow on GA-5 and the right arrow on GA-6 are two different shapes', () => {
+  it('PK-1 black ← / →: the left arrow on GA-5 and the right arrow on GA-6 are two different shapes', () => {
     const built = stage()
     const left = shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GA-5'))
     expect(shapeAt(built, dummyProbe(built.loop, BAR_UID, 'GA-6')), `${GA_5_POINTER} / ${GA_6_POINTER}`).not.toBe(left)
   })
 
-  it("PK-1 / PK-2: a filled dummy arrow is not the hollow arrow of the bar's plan start (GA-1)", () => {
+  it("PK-1 white / black: a filled dummy arrow is not the hollow arrow of the bar's plan start (GA-1)", () => {
     const built = stage()
     const planEnd = shapeAt(built, startedPlanStart(built.loop))
     expect(planEnd).not.toBeNull()

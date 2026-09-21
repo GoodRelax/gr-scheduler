@@ -1278,7 +1278,7 @@ describe('ScheduleGeometry (PI-6) -- RV-1, RV-5 and LF-11', () => {
   })
 
   it('RF-3 moves the marker onto the plan when only the plan is displayed', () => {
-    // 「| RF-3 | しない | — | 予定 |」 of table T-272, keyed on S-227 / S-228.
+    // 「| RF-3 | しない | 予定 |」 of table T-272, keyed on S-227 / S-228.
     const planOnly = settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
       planVisible: true, // S-227

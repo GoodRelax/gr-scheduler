@@ -78,7 +78,7 @@ export interface MarkerGeometry {
   readonly radius: number
 }
 
-// see LF-13, XS-10, XS-11, XS-12, XS-13, GA-20
+// see LF-13, XS-10, XS-12, S-25, GA-20
 export interface ResumeGeometry {
   readonly arm: Path
   readonly head: Path
@@ -480,7 +480,7 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
   }
 }
 
-// see RF-1, RF-2, RF-3
+// see RF-1, RF-3
 /** @purity pure */
 function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelReference {
   const settings = inputs.settings
@@ -537,7 +537,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
   }
 }
 
-// see LF-13, XS-10, XS-11, XS-12, XS-13
+// see LF-13, XS-10, XS-12, S-25
 /** @purity pure */
 function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   settings: DocumentSettings): ResumeGeometry {
@@ -554,8 +554,8 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const arm = side * settings.resumeArmOfMarker
   const head = side * settings.resumeHeadOfMarker
   return {
-    // TRAP: the stem follows `side`, not the diameter; XS-11 and XS-13 shrink the whole drawn
-    // icon by S-25, while GA-20 keeps `box` below at the diameter the marker has.
+    // TRAP: the stem follows `side`, not the diameter; an undecided resume shrinks the
+    // whole drawn icon by S-25, while GA-20 keeps `box` below at the marker's diameter.
     arm: [point(x, middle + side / 2), point(x, middle), point(x + arm, middle)],
     head: [
       point(x + arm, middle - head),

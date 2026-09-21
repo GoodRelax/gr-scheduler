@@ -221,7 +221,7 @@ describe(`GO-8 -- マイルストーンのダミー: ${cellOf('GO-8', PUTS)}`, (
 })
 
 describe(`GO-9 -- 進捗マーカーを引く: ${cellOf('GO-9', PUTS)}`, () => {
-  it('GO-9 through PE-8: the last day is the released day', () => {
+  it('GO-9 through PE-8 right of an actual: the last day is the released day', () => {
     const one = built()
     const before = dayPart(taskIn(one.loop, BAR_UID).actualStart)
     dragTo(one, at(one, BAR_UID, 'GA-18'), xOfDay(one.loop, april(18)))
@@ -229,7 +229,7 @@ describe(`GO-9 -- 進捗マーカーを引く: ${cellOf('GO-9', PUTS)}`, () => {
     expect(dayPart(taskIn(one.loop, BAR_UID).actualStart), cellOf('GO-9', KEEPS)).toBe(before)
   })
 
-  it('GO-9 through PE-9: actualStart is the plan start and the last day is the released day', () => {
+  it('GO-9 through PE-8 right of a dummy: actualStart is the plan start and the last day is the released day', () => {
     const one = built()
     const planStart = dayPart(taskIn(one.loop, FRESH_UID).start)
     dragTo(one, at(one, FRESH_UID, 'GA-18'), xOfDay(one.loop, april(17)))

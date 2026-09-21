@@ -280,7 +280,7 @@ describe('T-240 DM-14 (MUST) and FR-049 (MUST NOT): the hidden dummy keeps its r
     if (hidden === null || shown === null) throw new Error('the name label was not drawn')
     expect(hidden.y, 'only the horizontal follows the reference').toBeCloseTo(shown.y, 6)
     expect(hidden.width).toBeCloseTo(shown.width, 6)
-    expect(hidden.x, 'RF-2 measures from the dummy, RF-3 from the plan start').toBeLessThan(shown.x)
+    expect(hidden.x, 'RF-1 measures from the dummy, RF-3 from the plan start').toBeLessThan(shown.x)
   })
 })
 

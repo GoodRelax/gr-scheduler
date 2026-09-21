@@ -12,18 +12,21 @@ import {
   bandOfRect,
   cellOf,
   day,
+  rowOf,
   sceneOf,
   taskOf,
   type Scene,
 } from './cr-430-cross-section-scene'
 
 const SHOWN = '実績を表示'
-const EXISTS = '実績がある'
 const BASIS = '札の基準'
 
+// WHY: the whole cell as written; bare() would reduce RF-1's basis to the one id it names (DM-3).
+const textOf = (row: string, heading: string): string => rowOf('T-272', row).by[heading] ?? ''
+
 const says = (row: string): string =>
-  `T-272 ${row} [${SHOWN}: ${cellOf('T-272', row, SHOWN)} / ${EXISTS}: ${cellOf('T-272', row, EXISTS)}] ` +
-  `${BASIS}: ${cellOf('T-272', row, BASIS)}`
+  `T-272 ${row} [${SHOWN}: ${cellOf('T-272', row, SHOWN)}] ` +
+  `${BASIS}: ${textOf(row, BASIS)}`
 
 const RF_3_HIDING_BOTH =
   '予定も実績も隠したときは、形を描かず、札は予定の位置に置く（`RF-3`） —— 予定を隠しても札の基準は予定である。'
@@ -87,35 +90,37 @@ describe(`T-272 RF-1 -- ${says('RF-1')}`, () => {
     expect(widerPlan.marker, says('RF-1')).toBeCloseTo(here.marker, 6)
     expect(widerPlan.name, says('RF-1')).toBeCloseTo(here.name, 6)
   })
-})
 
-describe(`T-272 RF-2 -- ${says('RF-2')}`, () => {
+  it('holds the dummy in the same row: a not-started actual is the dummy', () => {
+    expect(textOf('RF-1', BASIS), says('RF-1')).toContain('実績（ダミーを含む')
+  })
+
   it('hangs the labels on the dummy, which stands on the plan start', () => {
     const here = scene({})
     const dummy = mustBe(here.taskOf(1).dummies[0], 'a not-started task draws a dummy')
     const spot = labelSpotOf(here)
     const plan = bandOf(mustBe(here.taskOf(1).plan, 'a plan'))
-    expect(dummy.ink.x, `${says('RF-2')} -- ${DM_1_THE_DUMMY_STANDS_ON_THE_PLAN_START}`).toBeCloseTo(plan.left, 6)
-    expect(spot.marker - dummy.ink.x, says('RF-2')).toBeGreaterThanOrEqual(0)
+    expect(dummy.ink.x, `${says('RF-1')} -- ${DM_1_THE_DUMMY_STANDS_ON_THE_PLAN_START}`).toBeCloseTo(plan.left, 6)
+    expect(spot.marker - dummy.ink.x, says('RF-1')).toBeGreaterThanOrEqual(0)
     const later = scene({ start: day(6) })
     const laterDummy = mustBe(later.taskOf(1).dummies[0], 'a dummy')
     const laterSpot = labelSpotOf(later)
-    expect(laterSpot.marker - spot.marker, says('RF-2')).toBeCloseTo(laterDummy.ink.x - dummy.ink.x, 6)
+    expect(laterSpot.marker - spot.marker, says('RF-1')).toBeCloseTo(laterDummy.ink.x - dummy.ink.x, 6)
   })
 
   it('gives the dummy the width table T-240 DM-3 sets', () => {
     const here = scene({})
     const dummy = mustBe(here.taskOf(1).dummies[0], 'a dummy')
-    expect(dummy.ink.width, says('RF-2')).toBeCloseTo(Math.min(MARKER_D * S_247, S_180), 6)
+    expect(dummy.ink.width, says('RF-1')).toBeCloseTo(Math.min(MARKER_D * S_247, S_180), 6)
   })
 
   it('gives a milestone a dummy diamond to hang its labels on', () => {
     const here = milestoneScene({})
     const dummy = mustBe(here.taskOf(1).dummies[0], 'a not-started milestone draws a dummy')
     const ink = bandOfRect(dummy.ink)
-    expect(ink.height, says('RF-2')).toBeCloseTo(ink.right - ink.left, 6)
+    expect(ink.height, says('RF-1')).toBeCloseTo(ink.right - ink.left, 6)
     const marker = mustBe(here.taskOf(1).marker, 'a marker')
-    expect(marker.centre.x - marker.radius, says('RF-2')).toBeCloseTo(ink.right, 6)
+    expect(marker.centre.x - marker.radius, says('RF-1')).toBeCloseTo(ink.right, 6)
   })
 })
 

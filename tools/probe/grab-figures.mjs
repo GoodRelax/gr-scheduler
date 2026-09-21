@@ -453,7 +453,7 @@ async function buildLabelPlacementFigure(page) {
   }
 }
 
-/** Figure 6 (fig-pointer-shapes.svg): the 9 rows of table PK, actual size and a true 4x optical zoom
+/** Figure 6 (fig-pointer-shapes.svg): the 7 rows of table PK, actual size and a true 4x optical zoom
  *  (same generated markup, width/height scaled -- NOT re-invoked at 4x the px argument, because
  *  several glyph functions hold their rim to a constant PHYSICAL width via rimUnits(px), so a fresh
  *  call at a larger px would change the shape's proportions rather than just magnify it). Rows 7/8
@@ -466,13 +466,13 @@ function scaleGlyph(svg, factor) {
 
 async function buildPointerShapesFigure(page) {
   const glyphs = await page.evaluate(() => ({
-    'PK-1': { label: '箱の矢印 白', svg: blockArrowGlyph('left', false, S.cur) },
-    'PK-2': { label: '箱の矢印 黒', svg: blockArrowGlyph('left', true, S.cur) },
+    'PK-1a': { label: '箱の矢印 白', svg: blockArrowGlyph('left', false, S.cur) },
+    'PK-1b': { label: '箱の矢印 黒', svg: blockArrowGlyph('left', true, S.cur) },
     'PK-3a': { label: '三角 入', svg: fadeGlyph('in', fadeCursorPx()) },
     'PK-3b': { label: '三角 出', svg: fadeGlyph('out', fadeCursorPx()) },
     'PK-4': { label: '線の矢印', svg: lineArrowGlyph(S.cur) },
-    'PK-5': { label: '円 〇', svg: discGlyph(false, S.msCur) },
-    'PK-6': { label: '円 ●', svg: discGlyph(true, S.msActCur) },
+    'PK-5a': { label: '円 〇', svg: discGlyph(false, S.msCur) },
+    'PK-5b': { label: '円 ●', svg: discGlyph(true, S.msActCur) },
     'PK-9': { label: '再開の折れ矢印', svg: resumeGlyph(S.resumeCur) },
   }))
   const NATIVE = { 'PK-7': '指（環境の既定カーソル。描いた図形を持たない）', 'PK-8': 'てのひら（環境の既定カーソル。描いた図形を持たない）' }
@@ -503,9 +503,9 @@ async function buildPointerShapesFigure(page) {
   return {
     file: 'fig-pointer-shapes.svg',
     svg: svgDocument({
-      file: 'fig-pointer-shapes.svg', title: '図 F-025 -- 表 PK（ポインタの形）9 種、実寸と 4 倍',
+      file: 'fig-pointer-shapes.svg', title: '図 F-025 -- 表 PK（ポインタの形）7 種、実寸と 4 倍',
       width, height, viewBox: `0 0 ${width} ${height}`,
-      ariaLabel: '9 pointer glyphs at actual size and 4x magnification',
+      ariaLabel: '7 pointer kinds (10 glyphs) at actual size and 4x magnification',
       body,
     }),
     note: `glyph rows: ${glyphRows.length} drawn + ${Object.keys(NATIVE).length} native`,

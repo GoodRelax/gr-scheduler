@@ -46,7 +46,7 @@ tests/fixtures/display-scale.ts 0
 tests/fixtures/fake-browser.ts 77
 tests/fixtures/grs-document.ts 0
 tests/fixtures/row-name-font.ts 0
-tests/integration/schedule-drawing.sws.test.ts 561
+tests/integration/schedule-drawing.sws.test.ts 528
 tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts 488
 tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts 757
 tests/nfr/nfr-004-single-file.test.ts 0
@@ -61,7 +61,7 @@ tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts 95
 tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 349
 tests/system/global-warm-dev-server.ts 0
 tests/system/live-app.ts 0
-tests/system/measured-sweep.test.ts 1642
+tests/system/measured-sweep.test.ts 1640
 tests/system/mspdi-normalization.sws.test.ts 0
 tests/system/nfr-004-file-scheme-sweep.sws.test.ts 235
 tests/system/open-defect-pins.test.ts 0
@@ -70,7 +70,7 @@ tests/system/rows-fixed-with-nothing-holding-them.test.ts 0
 tests/system/single-html-policy.sws.test.ts 0
 tests/system/step-safety-valve-and-its-telling.test.ts 0
 tests/system/sws-case.ts 0
-tests/system/three-rows-read-from-the-spec-alone.test.ts 355
+tests/system/three-rows-read-from-the-spec-alone.test.ts 351
 tests/system/user-reported-fixes.test.ts 0
 tests/unit/ar-05-a-comment-box-is-placed.test.ts 316
 tests/unit/cr-376-exchange-carries-the-last-day.test.ts 0
@@ -123,7 +123,7 @@ tests/unit/dfc-582-every-invariant-row-has-a-dictionary-entry.test.ts 0
 tests/unit/dfc-587-title-row-entries-are-drawn.test.ts 0
 tests/unit/dfc-592-a-dummy-takes-its-tasks-shape.test.ts 0
 tests/unit/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts 248
-tests/unit/dfc-97-sk-11-overwrites-the-open-file.test.ts 183
+tests/unit/dfc-97-sk-11-overwrites-the-open-file.test.ts 182
 tests/unit/dm-14-a-hidden-actual-hides-its-dummy.test.ts 0
 tests/unit/document-model.test.ts 97
 tests/unit/edit-annotation.test.ts 211
@@ -131,13 +131,13 @@ tests/unit/edit-calendar.test.ts 302
 tests/unit/edit-dependency.test.ts 133
 tests/unit/edit-resource.test.ts 113
 tests/unit/edit-task-group.test.ts 216
-tests/unit/edit-task.test.ts 319
+tests/unit/edit-task.test.ts 302
 tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
 tests/unit/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
 tests/unit/fr-006-panel-close-entrance.test.ts 321
 tests/unit/fr-006-panel-fields-drawn.test.ts 519
 tests/unit/fr-006-panel-typography.test.ts 460
-tests/unit/fr-009-ptd-3-the-two-halves-of-a-bar.test.ts 255
+tests/unit/fr-009-ptd-3-the-two-halves-of-a-bar.test.ts 230
 tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts 0
 tests/unit/fr-013-pointer-on-the-figure.test.ts 474
 tests/unit/fr-016-zoom-bounds.test.ts 0

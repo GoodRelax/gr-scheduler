@@ -24,7 +24,7 @@ TWO SHAPES OF TABLE ARE READ.
 
   * FULL -- several condition columns, each with a closed domain. The
     shorthand is expanded and EXACTLY ONE row must answer every combination.
-    表 T-272 (2 columns, 4 combinations) and 表 T-273 (3 columns, 12) are read
+    表 T-272 (1 column, 2 combinations) and 表 T-273 (3 columns, 12) are read
     this way.
   * MATRIX -- one condition column whose values ARE the rows (a domain that
     cannot be enumerated from anywhere), and the remaining columns are one
@@ -33,9 +33,11 @@ TWO SHAPES OF TABLE ARE READ.
     ⚠️ 「—」 in a CONCLUSION column is a literal answer ("nothing happens"),
     never a wildcard -- the rule names the condition columns only.
 
-MEASURED on 0163153c: 表 T-272 4 of 4 combinations, one row each; 表 T-273 12
-of 12, one row each; 表 T-270 13 rows, 13 distinct 掴んだもの, 39 of 39 cells
-answered. 0 gaps and 0 overlaps in all three.
+MEASURED 2026-09-22 with CR-441 applied: 表 T-272 2 of 2 combinations, one
+row each; 表 T-273 12 of 12, one row each; 表 T-270 10 rows, 10 distinct
+掴んだもの, 30 of 30 cells answered. 0 gaps and 0 overlaps in all three.
+(Before CR-441 表 T-272 had a second column 実績がある, 4 of 4, and 表 T-270
+had 14 rows, 42 of 42 cells -- the 13 once written here was already stale.)
 
 ⚠️ WHAT IT DOES NOT SEE. Only the three tables listed below. The suite has no
 way to tell a decision table from a value table by its shape alone -- 表 T-266
@@ -71,13 +73,14 @@ TABLES = [
         'table': 'T-272',
         'mode': 'full',
         'conditions': [
-            # 実績を表示 / 実績がある: both are two-valued by construction --
-            # a display switch (FR-108, `actualVisible`) and "is there an
-            # actual at all". READ FROM the table's own two columns and from
-            # 表 T-272's closing note, which treats 「しない」 as the one other
-            # case of 「する」.
+            # 実績を表示: two-valued by construction -- a display switch
+            # (FR-108, `actualVisible`). READ FROM the table's own column and
+            # from 表 T-272's closing note, which treats 「しない」 as the one
+            # other case of 「する」.
+            # ⛔ The column 実績がある left with CR-441: under FR-043's MUST a
+            # dummy is an actual not yet started, so it never split a
+            # conclusion (RF-2 folded into RF-1).
             (u'実績を表示', [u'する', u'しない']),
-            (u'実績がある', [u'ある', u'ない']),
         ],
     },
     {
@@ -93,7 +96,7 @@ TABLES = [
             # and ◆ for SH-5.
             (u'形', [u'`===`', u'`--->`', u'◆']),
             # マーカー: the progress marker is drawn or it is not.
-            # READ FROM 表 T-273's own column and 表 T-270's `PE-8` 〜 `PE-10`.
+            # READ FROM 表 T-273's own column and 表 T-270's `PE-8` and `PE-10`.
             (u'マーカー', [u'出す', u'出さない']),
             # 入る: the predicate 表 T-273's closing defines as a MUST
             # (「入る」とは ... 基準の幅以下であることとすること) -- true or false.

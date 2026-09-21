@@ -225,9 +225,9 @@ export function commandFromGrab(
   }
 }
 
-// see PE-8, PE-9, PE-10
+// see PE-8, PE-10
 /** @purity pure */
-function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-9' | 'PE-10' {
+function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-10' {
   const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
   const task = taskByUid(context.document.schedule, uid)
   if (drawn === undefined || task === null) return 'PE-10'
@@ -235,9 +235,11 @@ function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-9' | 'P
   const marker = drawn.marker
   if (marker === null) return 'PE-10'
   const state = planActualState(task)
-  if (state === 'notStarted') {
+  // TRAP: the geometry is the held picture, the document is not; while a dummy's pull is shown the
+  // dummy is gone and the actual it will put stands, so read the dummy only when no actual is drawn.
+  if (state === 'notStarted' && drawn.actual === null) {
     const inks = drawn.dummies.map((one) => one.ink.x + one.ink.width)
-    return inks.length > 0 && marker.centre.x >= Math.max(...inks) ? 'PE-9' : 'PE-10'
+    return inks.length > 0 && marker.centre.x >= Math.max(...inks) ? 'PE-8' : 'PE-10'
   }
   if (state === 'suspendedResumeUnknown' || state === 'suspendedResumePlanned') return 'PE-10'
   const bar = drawn.actual
@@ -275,10 +277,12 @@ function markerPullWrite(
   release: PointerInput,
   uid: number,
 ): TranslatedInput {
-  const row = markerPullRow(context, uid)
-  if (row === 'PE-10') return CONSUMED_ELSEWHERE
-  if (row === 'PE-8') return actualEndWrite(context, release, uid, 'GA-4')
-  const planStart = dayOf(taskByUid(context.document.schedule, uid)?.start ?? null)
+  if (markerPullRow(context, uid) === 'PE-10') return CONSUMED_ELSEWHERE
+  const task = taskByUid(context.document.schedule, uid)
+  if (task !== null && planActualState(task) !== 'notStarted') {
+    return actualEndWrite(context, release, uid, 'GA-4')
+  }
+  const planStart = dayOf(task?.start ?? null)
   const dropped = dayAtX(context.layout, release.x)
   if (planStart === null || dropped === null) return CONSUMED_ELSEWHERE
   // WHY: released left of the plan start, GO-9 asks for a one-day actual there, not a refusal.

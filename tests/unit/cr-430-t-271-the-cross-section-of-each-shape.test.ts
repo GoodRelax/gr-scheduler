@@ -24,6 +24,7 @@ import {
   bandOfRect,
   cellOf,
   day,
+  rowOf,
   sceneOf,
   taskOf,
   tierOneFontOf,
@@ -39,9 +40,13 @@ const HOW_TALL = '高さ'
 const SHAPE = '形'
 const BAND = '帯'
 
+// WHY: a label quotes the whole cell as written; XS-6's height cell names DM-3 and DM-4 together,
+// WHY: which bare() rightly refuses to reduce to one value.
+const textOf = (row: string, heading: string): string => (rowOf('T-271', row).by[heading] ?? '').replace(/`/g, '')
+
 const says = (row: string): string =>
-  `T-271 ${row} [${cellOf('T-271', row, SHAPE)} / ${cellOf('T-271', row, BAND)}] ` +
-  `${WHERE}: ${cellOf('T-271', row, WHERE)} / ${HOW_TALL}: ${cellOf('T-271', row, HOW_TALL)}`
+  `T-271 ${row} [${textOf(row, SHAPE)} / ${textOf(row, BAND)}] ` +
+  `${WHERE}: ${textOf(row, WHERE)} / ${HOW_TALL}: ${textOf(row, HOW_TALL)}`
 
 const XS_4_TIER_1_IS_COUNTED_IN_THE_FONT =
   '1 段目の高さは字の大きさ f で数えること（MUST）'
@@ -52,7 +57,11 @@ const XS_THREE_TIERS_FIT_IN_H =
   '3 段の縦幅は f ＋ `S-196` ＋ 線 ＋ `S-10` ＋ 線 ＋（端の印の縦幅 − 線）÷ 2 であり、既定の縦の倍率で h 以下である。'
 const XS_TIER_3_IS_KEPT = '実績を隠しても、実績が無くても、3 段目を取っておくこと（MUST）。'
 const XS_THE_SPAN_TAKES_THE_SAME_TIERS =
-  '線だけの形の行（`XS-4` 〜 `XS-7` と `XS-12` 〜 `XS-14`）は、端点スパン（`SH-4`）にも当てること（MUST） —— 同じ 3 段であり、矢じりの代わりに両端へ点（径は `S-307`）を置く。'
+  '線だけの形の行（`XS-4` 〜 `XS-7` と `XS-12`）は、端点スパン（`SH-4`）にも当てること（MUST） —— 同じ 3 段であり、矢じりの代わりに両端へ点（径は `S-307`）を置く。'
+
+const XS_UNDECIDED_SHRINKS_BY_S_25 =
+  '⭐ 再開日が未定の再開アイコン（`XS-10` ／ `XS-12`）は、箱に `FR-044` の `S-25` を掛ける。'
+const XS_DUMMY_IS_IN_THE_ACTUAL_BAND = '⚠️ ダミーは 1 日の実績と同じ形で描くので、描く帯も掴む帯も実績の帯である。'
 
 const TALL_BASE_PLAN_HEIGHT = 120
 const PLAN_FROM = 2
@@ -277,6 +286,23 @@ describe(`T-271 XS-6 -- ${says('XS-6')}`, () => {
     expect(heightOf(hidden), XS_TIER_3_IS_KEPT).toBeCloseTo(heightOf(shown), 6)
     expect(heightOf(notStarted), XS_TIER_3_IS_KEPT).toBeCloseTo(heightOf(shown), 6)
   })
+
+  it(`draws the not-started mark on tier 3, from the plan start, f x S-247 wide: ${XS_DUMMY_IS_IN_THE_ACTUAL_BAND}`, () => {
+    expect(cellOf('T-271', 'XS-6', BAND), says('XS-6')).toContain('未着手の印 ＝ ダミーを含む')
+    const scene = lineShape('arrow', {})
+    const drawn = scene.taskOf(1)
+    const placed = scene.placedOf(1)
+    const f = tierOneFontOf(H, 'arrow')
+    const dummy = mustBe(drawn.dummies[0], 'a not-started line-only task draws a dummy')
+    const figure = mustBe(dummy.figure, 'the dummy is drawn as a figure')
+    const band = bandOf(figure)
+    const started = lineShape('arrow', RUNNING)
+    const actual = bandOf(mustBe(started.taskOf(1).actual, 'an actual line'))
+    expect(band.centre - placed.y, says('XS-6')).toBeCloseTo(actual.centre - started.placedOf(1).y, 6)
+    expect(band.height, says('XS-6')).toBeCloseTo(THIN_STROKE, 6)
+    expect(band.left, says('XS-6')).toBeCloseTo(placed.x, 6)
+    expect(dummy.ink.width, says('XS-6')).toBeCloseTo(Math.min(f * S_247, S_180), 6)
+  })
 })
 
 describe(`T-271 XS-7 -- ${says('XS-7')}`, () => {
@@ -359,7 +385,7 @@ describe(`T-271 XS-9 -- ${says('XS-9')}`, () => {
   })
 })
 
-// see XS-11, XS-13
+// see XS-10, XS-12
 const drawnResumeHeightOf = (scene: Scene): number => {
   const resume = mustBe(scene.taskOf(1).resume, 'a stopped task draws a resume icon')
   const ys = [...(resume.arm ?? []), ...(resume.head ?? [])].map((one) => one.y)
@@ -372,7 +398,7 @@ const resumeBoxOf = (scene: Scene): Rect => {
 }
 
 describe(`T-271 XS-10 -- ${says('XS-10')}`, () => {
-  it('sizes the box at the marker diameter, on the actual centre line, its bottom on the marker bottom', () => {
+  it('sizes the box at the marker diameter, on the actual centre line, its bottom on the marker bottom (LF-13)', () => {
     const scene = rectangle(STOPPED_WITH_RESUME)
     const drawn = scene.taskOf(1)
     const actual = bandOf(mustBe(drawn.actual, 'an actual'))
@@ -384,24 +410,22 @@ describe(`T-271 XS-10 -- ${says('XS-10')}`, () => {
     expect(box.centre, says('XS-10')).toBeCloseTo(actual.centre, 6)
     expect(box.bottom, says('XS-10')).toBeCloseTo(marker.centre.y + marker.radius, 6)
   })
-})
 
-describe(`T-271 XS-11 -- ${says('XS-11')}`, () => {
-  it('shrinks the box by S-25 and stands it at the right edge of the actual', () => {
+  it(`the undecided icon stands right of the stop day: ${XS_UNDECIDED_SHRINKS_BY_S_25}`, () => {
     const scene = rectangle(STOPPED_UNDECIDED)
     const drawn = scene.taskOf(1)
     const actual = bandOf(mustBe(drawn.actual, 'an actual'))
     const decided = bandOfRect(resumeBoxOf(rectangle(STOPPED_WITH_RESUME)))
     const box = bandOfRect(resumeBoxOf(scene))
-    expect(mustBe(drawn.resume?.undecided, 'the icon says whether the day is undecided'), says('XS-11')).toBe(true)
+    expect(mustBe(drawn.resume?.undecided, 'the icon says whether the day is undecided'), says('XS-10')).toBe(true)
     // WHY: the DRAWN icon is what S-25 shrinks; GA-20 keeps the grab box at the marker's diameter.
-    expect(drawnResumeHeightOf(scene), says('XS-11')).toBeCloseTo(
+    expect(drawnResumeHeightOf(scene), XS_UNDECIDED_SHRINKS_BY_S_25).toBeCloseTo(
       drawnResumeHeightOf(rectangle(STOPPED_WITH_RESUME)) * S_25,
       6,
     )
-    expect(box.height, says('XS-11')).toBeCloseTo(MARKER_D, 6)
-    expect(box.centre, says('XS-11')).toBeCloseTo(decided.centre, 6)
-    expect(box.left, says('XS-11')).toBeCloseTo(actual.right, 6)
+    expect(box.height, says('XS-10')).toBeCloseTo(MARKER_D, 6)
+    expect(box.centre, says('XS-10')).toBeCloseTo(decided.centre, 6)
+    expect(box.left, says('XS-10')).toBeCloseTo(actual.right, 6)
   })
 })
 
@@ -415,47 +439,27 @@ describe(`T-271 XS-12 -- ${says('XS-12')}`, () => {
     expect(box.height, says('XS-12')).toBeCloseTo(f, 6)
     expect(box.centre, says('XS-12')).toBeCloseTo(actual.centre, 6)
   })
-})
 
-describe(`T-271 XS-13 -- ${says('XS-13')}`, () => {
-  it('shrinks the arrow icon by S-25 and stands it at the right end of the actual line', () => {
+  it(`the undecided arrow icon stands at the right end of the actual line: ${XS_UNDECIDED_SHRINKS_BY_S_25}`, () => {
     const scene = lineShape('arrow', STOPPED_UNDECIDED)
     const drawn = scene.taskOf(1)
     const f = tierOneFontOf(H, 'arrow')
     const actual = bandOf(mustBe(drawn.actual, 'an actual line'))
     const box = bandOfRect(resumeBoxOf(scene))
-    expect(mustBe(drawn.resume?.undecided, 'the icon says whether the day is undecided'), says('XS-13')).toBe(true)
+    expect(mustBe(drawn.resume?.undecided, 'the icon says whether the day is undecided'), says('XS-12')).toBe(true)
     // WHY: the DRAWN icon is what S-25 shrinks; GA-20 keeps the grab box at the tier's font size.
-    expect(drawnResumeHeightOf(scene), says('XS-13')).toBeCloseTo(
+    expect(drawnResumeHeightOf(scene), XS_UNDECIDED_SHRINKS_BY_S_25).toBeCloseTo(
       drawnResumeHeightOf(lineShape('arrow', STOPPED_WITH_RESUME)) * S_25,
       6,
     )
-    expect(box.height, says('XS-13')).toBeCloseTo(f, 6)
+    expect(box.height, says('XS-12')).toBeCloseTo(f, 6)
     // WHY: the day boundary the actual line ends on, not the drawn extent -- an arrow draws its
-    // WHY: head beyond that boundary, and XS-13 stands the stem on the boundary itself.
+    // WHY: head beyond that boundary, and XS-12 stands the stem on the boundary itself.
     const placed = scene.placedOf(1)
-    expect((placed.actualX ?? 0) + placed.actualWidth, `premise: ${says('XS-13')}`).toBeGreaterThan(
+    expect((placed.actualX ?? 0) + placed.actualWidth, `premise: ${says('XS-12')}`).toBeGreaterThan(
       actual.right,
     )
-    expect(box.left, says('XS-13')).toBeCloseTo((placed.actualX ?? 0) + placed.actualWidth, 6)
-  })
-})
-
-describe(`T-271 XS-14 -- ${says('XS-14')}`, () => {
-  it('draws the not-started mark on tier 3, from the plan start, f x S-247 wide', () => {
-    const scene = lineShape('arrow', {})
-    const drawn = scene.taskOf(1)
-    const placed = scene.placedOf(1)
-    const f = tierOneFontOf(H, 'arrow')
-    const dummy = mustBe(drawn.dummies[0], 'a not-started line-only task draws a dummy')
-    const figure = mustBe(dummy.figure, 'the dummy is drawn as a figure')
-    const band = bandOf(figure)
-    const started = lineShape('arrow', RUNNING)
-    const actual = bandOf(mustBe(started.taskOf(1).actual, 'an actual line'))
-    expect(band.centre - placed.y, says('XS-14')).toBeCloseTo(actual.centre - started.placedOf(1).y, 6)
-    expect(band.height, says('XS-14')).toBeCloseTo(THIN_STROKE, 6)
-    expect(band.left, says('XS-14')).toBeCloseTo(placed.x, 6)
-    expect(dummy.ink.width, says('XS-14')).toBeCloseTo(Math.min(f * S_247, S_180), 6)
+    expect(box.left, says('XS-12')).toBeCloseTo((placed.actualX ?? 0) + placed.actualWidth, 6)
   })
 })
 

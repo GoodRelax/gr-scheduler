@@ -141,7 +141,7 @@ const SCHEDULE = scheduleOf({
 })
 
 // WHY: the same picture with the arrow started draws a real actual line, and
-// `XS-14` of table T-271 puts the dummy on it -- no band formula written twice.
+// `XS-6` of table T-271 puts the dummy on it -- no band formula written twice.
 const SCHEDULE_STARTED = scheduleOf({
   tasks: [
     taskOf({ uid: 1, start: '2026-01-05', finish: '2026-02-05', actualStart: '2026-01-05', stop: '2026-01-05' }),
@@ -177,7 +177,7 @@ const GEOMETRY_STARTED: ScheduleGeometry = geometryFromLayout(
   emptySelection(),
 )
 
-/** The started arrow's own actual line -- the band `XS-14` sends the dummy to. */
+/** The started arrow's own actual line -- the band `XS-6` sends the dummy to. */
 const startedActualLine = (): { readonly centreY: number; readonly strokeWidth: number } => {
   const task = GEOMETRY_STARTED.tasks.find((each) => each.taskUid === 1)
   const actual = task?.actual ?? null
@@ -226,7 +226,7 @@ describe('the fixture both cases stand on', () => {
 describe('表 T-012 -- an arrow/endpointSpan dummy sits in the actual band, below the plan', () => {
   it('puts the ink where a STARTED arrow draws its actual line (MUST)', () => {
     // WHY: read off the started picture, never a formula written again -- the
-    // centre and the stroke both come from `XS-14` of table T-271.
+    // centre and the stroke both come from `XS-6` of table T-271.
     const actual = startedActualLine()
     const ink = geometryOf(1).dummies[0]!.ink
     expect(ink.height).toBeCloseTo(actual.strokeWidth, 6)

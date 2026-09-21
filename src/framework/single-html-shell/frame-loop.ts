@@ -272,11 +272,9 @@ type GrabbedArea = Grabbed['grab']
 // see T-269
 export type PointerRow =
   | 'PK-1'
-  | 'PK-2'
   | 'PK-3'
   | 'PK-4'
   | 'PK-5'
-  | 'PK-6'
   | 'PK-7'
   | 'PK-8'
   | 'PK-9'
@@ -289,9 +287,12 @@ export type PointerFacing = 'start' | 'end'
 // TRAP: the grab type itself, not a spelling of its own: a row that leaves it must break here, not pass.
 type PointerGrabArea = GrabbedArea
 
+// WHY: PK-1 and PK-5 are drawn white for the plan and black for the actual and the dummy
+// (table T-269); an entry without an ink is the plan.
 interface PointerOfGrab {
   readonly row: PointerRow
   readonly facing: PointerFacing
+  readonly ink?: PointerInk
 }
 
 // see T-266, T-269
@@ -300,26 +301,26 @@ interface PointerOfGrab {
 const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> = {
   'GA-1': { row: 'PK-1', facing: 'start' },
   'GA-2': { row: 'PK-1', facing: 'end' },
-  'GA-3': { row: 'PK-2', facing: 'start' },
-  'GA-4': { row: 'PK-2', facing: 'end' },
-  'GA-5': { row: 'PK-2', facing: 'start' },
-  'GA-6': { row: 'PK-2', facing: 'end' },
+  'GA-3': { row: 'PK-1', facing: 'start', ink: 'filled' },
+  'GA-4': { row: 'PK-1', facing: 'end', ink: 'filled' },
+  'GA-5': { row: 'PK-1', facing: 'start', ink: 'filled' },
+  'GA-6': { row: 'PK-1', facing: 'end', ink: 'filled' },
   'GA-7': { row: 'PK-3', facing: 'start' },
   'GA-8': { row: 'PK-3', facing: 'end' },
   'GA-9': { row: 'PK-8', facing: 'start' },
   'GA-10': { row: 'PK-1', facing: 'start' },
   'GA-11': { row: 'PK-1', facing: 'end' },
-  'GA-12': { row: 'PK-2', facing: 'start' },
-  'GA-13': { row: 'PK-2', facing: 'end' },
+  'GA-12': { row: 'PK-1', facing: 'start', ink: 'filled' },
+  'GA-13': { row: 'PK-1', facing: 'end', ink: 'filled' },
   'GA-14': { row: 'PK-8', facing: 'start' },
   'GA-15': { row: 'PK-5', facing: 'start' },
-  'GA-16': { row: 'PK-6', facing: 'start' },
-  'GA-17': { row: 'PK-6', facing: 'start' },
+  'GA-16': { row: 'PK-5', facing: 'start', ink: 'filled' },
+  'GA-17': { row: 'PK-5', facing: 'start', ink: 'filled' },
   'GA-18': { row: 'PK-7', facing: 'start' },
   'GA-19': { row: 'PK-4', facing: 'end' },
   'GA-20': { row: 'PK-9', facing: 'start' },
-  'GA-21': { row: 'PK-2', facing: 'start' },
-  'GA-22': { row: 'PK-2', facing: 'end' },
+  'GA-21': { row: 'PK-1', facing: 'start', ink: 'filled' },
+  'GA-22': { row: 'PK-1', facing: 'end', ink: 'filled' },
   // WHY: table T-269 draws the shapes of the schedule only; the rest of table T-023d holds no row there.
   'GR-10': null,
   'GR-11': null,
@@ -404,7 +405,7 @@ function squarePointer(
   return pointerCursor(picture, across, down, fallback)
 }
 
-// see PK-1, PK-2
+// see PK-1
 /** @purity pure */
 function boxArrowPointer(ink: PointerInk, facing: PointerFacing): DrawnPointer {
   const side = NOT_STORED_END_POINTER_SIZES['S-249']
@@ -476,7 +477,7 @@ function fadeTrianglePointer(facing: PointerFacing): DrawnPointer {
   return pointerCursor(picture, corner.x, corner.y, 'ew-resize')
 }
 
-// see PK-5, PK-6
+// see PK-5
 // WHY: S-295 is the circle across, outline and all, so the radius gives the outline back its half.
 /** @purity pure */
 function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
@@ -499,21 +500,18 @@ function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
 export function pointerImageOf(
   row: PointerRow,
   facing: PointerFacing = 'start',
+  ink: PointerInk = 'hollow',
 ): PointerShape {
   switch (row) {
     case 'PK-1':
-      return boxArrowPointer('hollow', facing)
-    case 'PK-2':
-      return boxArrowPointer('filled', facing)
+      return boxArrowPointer(ink, facing)
     case 'PK-3':
       return fadeTrianglePointer(facing)
     case 'PK-4':
       return lineArrowPointer()
     // WHY: move, not a resize: the plan of a milestone travels sideways and across rows alike.
     case 'PK-5':
-      return discPointer('hollow', 'move')
-    case 'PK-6':
-      return discPointer('filled', 'ew-resize')
+      return discPointer(ink, ink === 'hollow' ? 'move' : 'ew-resize')
     case 'PK-7':
       return 'pointer'
     case 'PK-8':
@@ -535,6 +533,12 @@ export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | 
 /** @purity pure */
 function pointerFacingOf(hit: Grabbed): PointerFacing {
   return POINTER_BY_ROW_ID[hit.grab]?.facing ?? 'start'
+}
+
+// see T-266, T-269
+/** @purity pure */
+function pointerInkOf(hit: Grabbed): PointerInk {
+  return POINTER_BY_ROW_ID[hit.grab]?.ink ?? 'hollow'
 }
 
 // STOP: spec does not decide which T-023d rows draw while held beyond its two
@@ -2891,7 +2895,7 @@ export function frameLoop(
     const armed = screenState.armed
     const isArmedDependency = armed.kind === 'dependency'
     const row = pointerRowOf(hit, isArmedDependency)
-    if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit))
+    if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
     if (isArmedDependency) {
       // WHY: an armed dependency applies no T-023d row (PTD-3), so an end, a dummy,
       // a body or a figure must not promise a move; IN-2 asks for the plain arrow.

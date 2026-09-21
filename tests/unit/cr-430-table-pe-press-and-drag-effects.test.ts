@@ -1,4 +1,4 @@
-// CR-430: table T-270 (PE-0..PE-13) -- what a press and a drag do, and what FR-107 keeps still.
+// CR-430, CR-441: table T-270 (ten rows, PE-0..PE-13) -- what a press and a drag do, and what FR-107 keeps still.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -40,14 +40,14 @@ import {
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_107_ONLY_THESE =
-  '`GRS` は、日程表の上の直接操作では、実績の日付を、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` 〜 `PE-10` と同表の「押下の巡り」の段）にだけ変えること（MUST）。'
+  '`GRS` は、日程表の上の直接操作では、実績の日付を、利用者が実績（ダミーを含む）を掴んで意図して動かしたとき、または進捗マーカーを押す・引くとき（表 T-270 の `PE-8` と `PE-10` と同表の「押下の巡り」の段）にだけ変えること（MUST）。'
 const FR_107_NOT_ON_THE_SIDE = 'ほかの操作のついでに変えてはならない（MUST NOT）。'
 const T_270_EVERY_ROAD = '⭐ 実績を直接動かす経路の全数は本表が持つ（MUST）。'
 const T_270_NO_OTHER_ROAD = '⛔ 本表に無い直接操作で実績の日付を変えてはならない（MUST NOT）。'
 const T_270_PAUSED_MARKER =
   '⚠️ 中断のあいだ、進捗マーカーを引いても何もしない（`PE-10`） —— 停止日を動かすのは実績の終了の端（`PE-3`）である。'
 const T_270_SELECTS =
-  '⭐ タスクに属する行（`PE-1` 〜 `PE-11`）は、押して離せばそのタスクを選ぶこと（MUST）'
+  '⭐ タスクに属する行（`PE-1` ／ `PE-3` ／ `PE-6` ／ `PE-7` ／ `PE-8` ／ `PE-10` ／ `PE-11`）は、押して離せばそのタスクを選ぶこと（MUST）'
 const FR_105_NO_TEXT_SELECTION =
   '`Schedule Canvas`（`Time Ruler` の帯を含む）の上の押下と引く操作で、字の選択を始めてはならない（MUST NOT）。'
 const FR_105_MODIFIED_TOO =
@@ -120,18 +120,14 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-270 holds PE-0 to PE-13 and nothing else', () => {
+  it('table T-270 holds the ten rows PE-0, PE-1, PE-3, PE-6, PE-7, PE-8, PE-10 to PE-13 and nothing else', () => {
     expect(T_270.rows.map((one) => one.id)).toEqual([
       'PE-0',
       'PE-1',
-      'PE-2',
       'PE-3',
-      'PE-4',
-      'PE-5',
       'PE-6',
       'PE-7',
       'PE-8',
-      'PE-9',
       'PE-10',
       'PE-11',
       'PE-12',
@@ -235,21 +231,19 @@ describe('PE-1 -- 予定の本体', () => {
   })
 })
 
-describe('PE-2 -- 予定の端', () => {
-  it(`PE-2 sideways: ${cellOf('PE-2', SIDEWAYS)}`, () => {
+describe(`PE-3 -- ${cellOf('PE-3', GRABBED)}`, () => {
+  it(`PE-3 sideways on the plan end: ${cellOf('PE-3', SIDEWAYS)}`, () => {
     const one = built()
     const before = datesOf(one, BAR_UID)
     dragTo(one, at(one, BAR_UID, 'GA-2'), xOfDay(one.loop, april(20)))
     const after = datesOf(one, BAR_UID)
-    expect(after['finish'], cellOf('PE-2', SIDEWAYS)).toBe('2026-04-20')
-    expect(after['start'], cellOf('PE-2', SIDEWAYS)).toBe(before['start'])
+    expect(after['finish'], cellOf('PE-3', SIDEWAYS)).toBe('2026-04-20')
+    expect(after['start'], cellOf('PE-3', SIDEWAYS)).toBe(before['start'])
     expect(after['actualStart'], FR_107_NOT_ON_THE_SIDE).toBe(before['actualStart'])
     expect(after['stop'], FR_107_NOT_ON_THE_SIDE).toBe(before['stop'])
   })
-})
 
-describe('PE-3 -- 実績の端', () => {
-  it(`PE-3 sideways: ${cellOf('PE-3', SIDEWAYS)}`, () => {
+  it(`PE-3 sideways on the actual end: ${cellOf('PE-3', SIDEWAYS)}`, () => {
     const one = built()
     const before = datesOf(one, BAR_UID)
     dragTo(one, at(one, BAR_UID, 'GA-4'), xOfDay(one.loop, april(16)))
@@ -259,33 +253,47 @@ describe('PE-3 -- 実績の端', () => {
     expect(after['start'], FR_107_NOT_ON_THE_SIDE).toBe(before['start'])
     expect(after['finish'], FR_107_NOT_ON_THE_SIDE).toBe(before['finish'])
   })
-})
 
-describe('PE-4 -- ダミー（タスク。=== と --->）', () => {
+  it('PE-3 holds the plan end, the actual end and the dummy end of === and --->', () => {
+    const grabbed = cellOf('PE-3', GRABBED)
+    for (const word of ['予定の端', '実績の端', 'ダミーの端', '`===`', '`--->`']) expect(grabbed).toContain(word)
+  })
+
   const DUMMY_SHAPES: readonly { readonly what: string; readonly uid: number; readonly ends: readonly string[] }[] = [
     { what: '===', uid: FRESH_UID, ends: ['GA-6', 'GA-5'] },
     { what: '--->', uid: FRESH_ARROW_UID, ends: ['GA-22', 'GA-21'] },
   ]
 
-  it.each(DUMMY_SHAPES)(`PE-4 sideways on $what: ${cellOf('PE-4', SIDEWAYS)}`, ({ what, uid, ends }) => {
+  it.each(DUMMY_SHAPES)(`PE-3 sideways on the dummy end of $what: ${cellOf('PE-3', SIDEWAYS)}`, ({ what, uid, ends }) => {
     const one = built()
     expect(datesOf(one, uid)['actualStart'], `${what}: premise: the Task has no actual`).toBeNull()
     const scan = scanOf(one, uid)
     const end = ends.find((row) => scan.points.has(row)) ?? ends[0]!
     dragTo(one, pointAnswering(scan, end), xOfDay(one.loop, april(15)))
-    expect(datesOf(one, uid)['actualStart'], `${what}: ${cellOf('PE-4', SIDEWAYS)}`).not.toBeNull()
-    expect(lastActualDayOf(one, uid), `${what}: ${cellOf('PE-4', SIDEWAYS)}`).not.toBeNull()
+    expect(datesOf(one, uid)['actualStart'], `${what}: ${cellOf('PE-3', SIDEWAYS)}`).not.toBeNull()
+    expect(lastActualDayOf(one, uid), `${what}: ${cellOf('PE-3', SIDEWAYS)}`).not.toBeNull()
   })
 })
 
-describe('PE-5 -- ダミー（◆）', () => {
-  it(`PE-5 sideways: ${cellOf('PE-5', SIDEWAYS)}`, () => {
+describe(`PE-7 -- ${cellOf('PE-7', GRABBED)}`, () => {
+  it(`PE-7 sideways on the dummy: ${cellOf('PE-7', SIDEWAYS)}`, () => {
+    expect(cellOf('PE-7', GRABBED)).toContain('ダミーを含む')
     const one = built()
     expect(datesOf(one, FRESH_MILESTONE_UID)['actualStart'], 'premise: no actual yet').toBeNull()
     dragTo(one, at(one, FRESH_MILESTONE_UID, 'GA-17'), xOfDay(one.loop, april(16)))
     const after = datesOf(one, FRESH_MILESTONE_UID)
-    expect(after['actualStart'], cellOf('PE-5', SIDEWAYS)).toBe('2026-04-16')
-    expect(lastActualDayOf(one, FRESH_MILESTONE_UID), cellOf('PE-5', SIDEWAYS)).toBe('2026-04-16')
+    expect(after['actualStart'], cellOf('PE-7', SIDEWAYS)).toBe('2026-04-16')
+    expect(lastActualDayOf(one, FRESH_MILESTONE_UID), cellOf('PE-7', SIDEWAYS)).toBe('2026-04-16')
+  })
+
+  it(`PE-7 sideways on the actual: ${cellOf('PE-7', SIDEWAYS)}`, () => {
+    const one = built()
+    const before = datesOf(one, MILESTONE_UID)
+    dragTo(one, at(one, MILESTONE_UID, 'GA-16'), xOfDay(one.loop, april(21)))
+    const after = datesOf(one, MILESTONE_UID)
+    expect(after['actualStart'], cellOf('PE-7', SIDEWAYS)).toBe('2026-04-21')
+    expect(after['start'], FR_107_NOT_ON_THE_SIDE).toBe(before['start'])
+    expect(after['finish'], FR_107_NOT_ON_THE_SIDE).toBe(before['finish'])
   })
 })
 
@@ -315,20 +323,8 @@ describe('PE-6 -- ◆ の予定', () => {
   })
 })
 
-describe('PE-7 -- ◆ の実績', () => {
-  it(`PE-7 sideways: ${cellOf('PE-7', SIDEWAYS)}`, () => {
-    const one = built()
-    const before = datesOf(one, MILESTONE_UID)
-    dragTo(one, at(one, MILESTONE_UID, 'GA-16'), xOfDay(one.loop, april(21)))
-    const after = datesOf(one, MILESTONE_UID)
-    expect(after['actualStart'], cellOf('PE-7', SIDEWAYS)).toBe('2026-04-21')
-    expect(after['start'], FR_107_NOT_ON_THE_SIDE).toBe(before['start'])
-    expect(after['finish'], FR_107_NOT_ON_THE_SIDE).toBe(before['finish'])
-  })
-})
-
-describe('PE-8 -- 進捗マーカー（=== で実績の右に立つ）', () => {
-  it(`PE-8 sideways: ${cellOf('PE-8', SIDEWAYS)}`, () => {
+describe(`PE-8 -- ${cellOf('PE-8', GRABBED)}`, () => {
+  it(`PE-8 sideways right of an actual: ${cellOf('PE-8', SIDEWAYS)}`, () => {
     const one = built()
     const drawn = drawnTask(one.loop, BAR_UID)
     expect(drawn.marker, 'premise: a marker is drawn on the bar Task').not.toBeNull()
@@ -337,16 +333,15 @@ describe('PE-8 -- 進捗マーカー（=== で実績の右に立つ）', () => {
     expect(lastActualDayOf(one, BAR_UID), cellOf('PE-8', SIDEWAYS)).toBe('2026-04-17')
     expect(datesOf(one, BAR_UID)['actualStart'], cellOf('PE-8', SIDEWAYS)).toBe(before['actualStart'])
   })
-})
 
-describe('PE-9 -- 進捗マーカー（=== で未着手のダミーの右に立つ）', () => {
-  it(`PE-9 sideways: ${cellOf('PE-9', SIDEWAYS)}`, () => {
+  it(`PE-8 sideways right of a dummy: ${cellOf('PE-8', SIDEWAYS)}`, () => {
+    expect(cellOf('PE-8', GRABBED)).toContain('実績はダミーを含む')
     const one = built()
     expect(datesOf(one, FRESH_UID)['actualStart'], 'premise: the Task has not started').toBeNull()
     dragTo(one, at(one, FRESH_UID, 'GA-18'), xOfDay(one.loop, april(15)))
     const after = datesOf(one, FRESH_UID)
-    expect(after['actualStart'], cellOf('PE-9', SIDEWAYS)).toBe(dayPart(april(6)))
-    expect(lastActualDayOf(one, FRESH_UID), cellOf('PE-9', SIDEWAYS)).toBe('2026-04-15')
+    expect(after['actualStart'], cellOf('PE-8', SIDEWAYS)).toBe(dayPart(april(6)))
+    expect(lastActualDayOf(one, FRESH_UID), cellOf('PE-8', SIDEWAYS)).toBe('2026-04-15')
   })
 })
 
@@ -453,7 +448,7 @@ describe('T-270 closing -- a completed Task keeps its actual when the plan is dr
 })
 
 describe('control -- the bench can tell one released day from another', () => {
-  it('two different releases of PE-2 put two different finishes', () => {
+  it('two different releases of PE-3 on the plan end put two different finishes', () => {
     const one = built()
     dragTo(one, at(one, BAR_UID, 'GA-2'), xOfDay(one.loop, april(20)))
     const first = datesOf(one, BAR_UID)['finish']

@@ -1,4 +1,7 @@
-1363
+1360
+# LOWERED 1363 -> 1360 on 2026-09-22, with the user's approval (asked in chat, answered "4 つとも
+# 下げる（推奨）"): CR-441's spec-only tester quoted the new FR-104 reverse-direction MUST and the
+# reworded FR-016 PE-8 clause verbatim, and asserted them.
 # RAISED 1362 -> 1363 on 2026-09-21, with the user's approval (asked in chat, answered "1363 に上げる
 # （推奨）"): CR-437 wrote one MUST (table T-023c's closing paragraph: a selection points only at
 # what is drawn). No test can hold it before DFC-683 is implemented; that wave lowers this line.

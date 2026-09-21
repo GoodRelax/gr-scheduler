@@ -24,7 +24,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const FR_106_HOLDS_WHILE_PRESSED = '押しているあいだは、掴んだときの形を保つこと（MUST）。'
 const FR_106_MARKER_IS_A_FINGER =
-  '⭐ 押す役と引く役を兼ねる進捗マーカー（表 T-270 の `PE-8` / `PE-9`）は、押す役の形（指）とすること（MUST）。'
+  '⭐ 押す役と引く役を兼ねる進捗マーカー（表 T-270 の `PE-8`）は、押す役の形（指）とすること（MUST）。'
 const T_269_ONE_EDGE_WIDTH =
   '⭐ 縁の太さは形によらず 表 T-206 の `S-297` の 1 つとすること（MUST） —— 縁は形を地から切り離すためのものであり、形ごとに変える理由が無い。'
 const T_269_WHITE_IS_PLAN = '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
@@ -37,7 +37,7 @@ const T_269_TWO_HEADINGS =
   '幅の広い箱型の矢印（← ／ →）'
 const T_269_CORNER_MEANS =
   '⭐ 縁の角とは、縁の線と線が出会う継ぎ目の描き方である —— 丸めは継ぎ目を丸く、角張りは継ぎ目を尖らせる。'
-const T_269_MILESTONE_SIGN = '⭐ マイルストーンの上の「掴めることの合図」（同じく `IN-2`）は、`PK-5` と `PK-6` に置き換わる。'
+const T_269_MILESTONE_SIGN = '⭐ マイルストーンの上の「掴めることの合図」（同じく `IN-2`）は、`PK-5` に置き換わる。'
 
 const T_269 = specTable('T-269')
 const NAME = '名前'
@@ -56,11 +56,39 @@ const PK_ROWS = T_269.rows.map((one) => one.id)
 const ENVIRONMENT_ROWS = PK_ROWS.filter((row) => cellOf(row, SIZE).includes('環境のまま'))
 const IMAGE_ROWS = PK_ROWS.filter((row) => !ENVIRONMENT_ROWS.includes(row))
 
-const INK_BY_WORD: Readonly<Record<string, string>> = { '白': '#ffffff', '黑': '#000000' }
+const INK_BY_WORD: Readonly<Record<string, string>> = { '白': '#ffffff', '黒': '#000000' }
 
-const inksOf = (row: string): { readonly fill: string | null; readonly stroke: string | null } => {
-  const parts = cellOf(row, INK).split('／').map((one) => one.trim())
-  return { fill: INK_BY_WORD[parts[0] ?? ''] ?? null, stroke: INK_BY_WORD[parts[1] ?? ''] ?? null }
+// see T-269
+// WHY: PK-1 and PK-5 hold the plan (white) and the actual and dummy (black) in one cell, split by
+// WHY: the closing white/black rule; the seam is asked for each with its ink argument.
+type Ink = 'hollow' | 'filled'
+
+interface Variant {
+  readonly row: string
+  readonly ink: Ink | undefined
+  readonly words: string
+}
+
+const PLAN_WORD = '予定は'
+const ACTUAL_WORD = '実績とダミーは'
+
+const variantsOf = (row: string): readonly Variant[] => {
+  const cell = cellOf(row, INK)
+  if (!cell.includes(PLAN_WORD)) return [{ row, ink: undefined, words: cell }]
+  const at = cell.indexOf(ACTUAL_WORD)
+  if (at < 0) throw new Error(`table T-269 row ${row} names the plan but not the actual: ${cell}`)
+  return [
+    { row, ink: 'hollow', words: cell.slice(0, at) },
+    { row, ink: 'filled', words: cell.slice(at) },
+  ]
+}
+
+const labelOf = (variant: Variant): string => (variant.ink === undefined ? variant.row : `${variant.row} ${variant.ink}`)
+
+const inksOf = (variant: Variant): { readonly fill: string | null; readonly stroke: string | null } => {
+  const found = /(白|黒) ／ (白|黒)/.exec(variant.words)
+  if (found === null) return { fill: null, stroke: null }
+  return { fill: INK_BY_WORD[found[1] ?? ''] ?? null, stroke: INK_BY_WORD[found[2] ?? ''] ?? null }
 }
 
 const sizeRowOf = (row: string): string => {
@@ -76,18 +104,25 @@ const sizeNumbersOf = (row: string): readonly number[] => {
 }
 
 // see T-269
-const FALLBACK_BY_ROW = ((): Readonly<Record<string, string>> => {
+const IMAGE_VARIANTS = IMAGE_ROWS.flatMap(variantsOf)
+
+// WHY: the circle's two fills carry their sign (hollow / filled) in the ink cell, and the fallback
+// WHY: clause tells the two apart by that sign alone.
+const signsOf = (variant: Variant): readonly string[] => [...variant.words].filter((one) => one === '○' || one === '●')
+
+const FALLBACK_BY_VARIANT = ((): Readonly<Record<string, string>> => {
   const out: Record<string, string> = {}
   for (const found of T_269_FALLBACKS.matchAll(/([^、—]+?)は `([a-z-]+)`/g)) {
     const words = found[1] ?? ''
     const keyword = found[2] ?? ''
-    for (const row of IMAGE_ROWS) {
-      // WHY: any part of the name, not the first: the clause tells the two circles apart by their
-      // WHY: sign alone, so a row keyed on its leading word would reach neither of them.
-      const parts = cellOf(row, NAME)
+    for (const variant of IMAGE_VARIANTS) {
+      // WHY: any part of the name, not the first: a row keyed on its leading word alone would miss.
+      const parts = cellOf(variant.row, NAME)
         .split(/[\s／]+/)
         .filter((one) => one !== '')
-      if (parts.some((one) => words.includes(one))) out[row] = keyword
+      const signs = signsOf(variant)
+      const named = signs.length > 0 ? signs.some((one) => words.includes(one)) : parts.some((one) => words.includes(one))
+      if (named) out[labelOf(variant)] = keyword
     }
   }
   return out
@@ -175,10 +210,13 @@ const seamOf = async (name: string): Promise<(...args: never[]) => unknown> => {
   return found as (...args: never[]) => unknown
 }
 
-const imageOf = async (row: string): Promise<Cursor | null> => {
+const imageOf = async (row: string, ink?: Ink): Promise<Cursor | null> => {
   const pointerImageOf = await seamOf('pointerImageOf')
-  return cursorOf(cursorTextOf(pointerImageOf(row as never)))
+  const written = ink === undefined ? pointerImageOf(row as never) : pointerImageOf(row as never, 'start' as never, ink as never)
+  return cursorOf(cursorTextOf(written))
 }
+
+const imageOfVariant = (variant: Variant): Promise<Cursor | null> => imageOf(variant.row, variant.ink)
 
 const built = (): Stage => stage(benchDocument())
 
@@ -212,11 +250,25 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-269 holds PK-1 to PK-9', () => {
-    expect(PK_ROWS).toEqual(['PK-1', 'PK-2', 'PK-3', 'PK-4', 'PK-5', 'PK-6', 'PK-7', 'PK-8', 'PK-9'])
+  it('table T-269 holds the seven rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9', () => {
+    expect(PK_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9'])
   })
 
-  it('two of the nine take the environment shape, and the seven others name an S row', () => {
+  it(`the box arrow and the circle each hold the plan and the actual in one row: ${T_269_WHITE_IS_PLAN}`, () => {
+    expect(IMAGE_VARIANTS.filter((one) => one.ink !== undefined).map(labelOf)).toEqual([
+      'PK-1 hollow',
+      'PK-1 filled',
+      'PK-5 hollow',
+      'PK-5 filled',
+    ])
+    for (const variant of IMAGE_VARIANTS.filter((one) => one.ink !== undefined)) {
+      const inks = inksOf(variant)
+      const wanted = variant.ink === 'hollow' ? ['#ffffff', '#000000'] : ['#000000', '#ffffff']
+      expect([inks.fill, inks.stroke], `${labelOf(variant)}: ${variant.words}`).toEqual(wanted)
+    }
+  })
+
+  it('two of the seven take the environment shape, and the five others name an S row', () => {
     expect(ENVIRONMENT_ROWS).toEqual(['PK-7', 'PK-8'])
     for (const row of IMAGE_ROWS) expect(sizeNumbersOf(row).length, `${row}: ${cellOf(row, SIZE)}`).toBeGreaterThan(0)
   })
@@ -229,8 +281,11 @@ describe('control -- a quotation this file leans on can go red', () => {
 })
 
 describe('table T-269 -- the image each row draws', () => {
-  it.each(IMAGE_ROWS)(`%s: its side is the size table T-269 names`, async (row) => {
-    const cursor = await imageOf(row)
+  const VARIANT_CASES = IMAGE_VARIANTS.map((variant) => ({ label: labelOf(variant), variant }))
+
+  it.each(VARIANT_CASES)(`$label: its side is the size table T-269 names`, async ({ variant }) => {
+    const row = variant.row
+    const cursor = await imageOfVariant(variant)
     expect(cursor, `${row}: ${cellOf(row, SIZE)}`).not.toBeNull()
     const wanted = sizeNumbersOf(row)
     for (const side of sidesOf(cursor!.svg)) {
@@ -238,20 +293,29 @@ describe('table T-269 -- the image each row draws', () => {
     }
   })
 
-  it.each(IMAGE_ROWS)(`%s: the paint is what 中 ／ 縁 says: ${T_269_WHITE_IS_PLAN}`, async (row) => {
-    const inks = inksOf(row)
-    const cursor = await imageOf(row)
-    expect(cursor, `${row}: ${cellOf(row, INK)}`).not.toBeNull()
+  it('PK-5: the two fills take the two different diameters of S-295', async () => {
+    expect(cellOf('PK-5', SIZE)).toContain('○ と ● で別の値')
+    const hollow = await imageOf('PK-5', 'hollow')
+    const filled = await imageOf('PK-5', 'filled')
+    expect(hollow, 'PK-5 hollow').not.toBeNull()
+    expect(filled, 'PK-5 filled').not.toBeNull()
+    expect(sidesOf(hollow!.svg), cellOf('PK-5', SIZE)).not.toEqual(sidesOf(filled!.svg))
+  })
+
+  it.each(VARIANT_CASES)(`$label: the paint is what 中 ／ 縁 says: ${T_269_WHITE_IS_PLAN}`, async ({ variant }) => {
+    const inks = inksOf(variant)
+    const cursor = await imageOfVariant(variant)
+    expect(cursor, `${labelOf(variant)}: ${variant.words}`).not.toBeNull()
     const tags = drawnTagsOf(cursor!.svg)
     const fills = new Set(tags.map((tag) => paintOf(tag, 'fill')).filter((one) => one !== null && one !== 'none'))
     const strokes = new Set(tags.map((tag) => paintOf(tag, 'stroke')).filter((one) => one !== null && one !== 'none'))
-    if (inks.fill !== null) expect(fills, `${row}: ${cellOf(row, INK)}`).toEqual(new Set([inks.fill]))
-    if (inks.stroke !== null) expect(strokes, `${row}: ${cellOf(row, INK)}`).toEqual(new Set([inks.stroke]))
+    if (inks.fill !== null) expect(fills, `${labelOf(variant)}: ${variant.words}`).toEqual(new Set([inks.fill]))
+    if (inks.stroke !== null) expect(strokes, `${labelOf(variant)}: ${variant.words}`).toEqual(new Set([inks.stroke]))
   })
 
-  it.each(IMAGE_ROWS)(`%s: one edge width for every shape: ${T_269_ONE_EDGE_WIDTH}`, async (row) => {
-    const cursor = await imageOf(row)
-    expect(cursor, row).not.toBeNull()
+  it.each(VARIANT_CASES)(`$label: one edge width for every shape: ${T_269_ONE_EDGE_WIDTH}`, async ({ variant }) => {
+    const cursor = await imageOfVariant(variant)
+    expect(cursor, labelOf(variant)).not.toBeNull()
     const scale = drawnScaleOf(cursor!.svg)
     const widths = new Set(
       drawnTagsOf(cursor!.svg)
@@ -259,26 +323,27 @@ describe('table T-269 -- the image each row draws', () => {
         .filter((one): one is string => one !== null)
         .map((one) => roundedTo(Number(one) * scale, 6)),
     )
-    expect([...widths], `${row}: ${T_269_ONE_EDGE_WIDTH}`).toEqual([roundedTo(sizePx('S-297'), 6)])
+    expect([...widths], `${labelOf(variant)}: ${T_269_ONE_EDGE_WIDTH}`).toEqual([roundedTo(sizePx('S-297'), 6)])
   })
 
-  it.each(IMAGE_ROWS.filter((row) => cellOf(row, HOTSPOT) === '中心'))(
-    '%s: the hotspot is the centre of the image',
-    async (row) => {
-      const cursor = await imageOf(row)
-      expect(cursor, row).not.toBeNull()
+  it.each(VARIANT_CASES.filter(({ variant }) => cellOf(variant.row, HOTSPOT) === '中心'))(
+    '$label: the hotspot is the centre of the image',
+    async ({ variant }) => {
+      const cursor = await imageOfVariant(variant)
+      expect(cursor, labelOf(variant)).not.toBeNull()
       const [width, height] = sidesOf(cursor!.svg)
-      expect([cursor!.hotspot.x, cursor!.hotspot.y], `${row}: ${cellOf(row, HOTSPOT)}`).toEqual([
+      expect([cursor!.hotspot.x, cursor!.hotspot.y], `${labelOf(variant)}: ${cellOf(variant.row, HOTSPOT)}`).toEqual([
         (width ?? 0) / 2,
         (height ?? 0) / 2,
       ])
     },
   )
 
-  it.each(IMAGE_ROWS.filter((row) => cellOf(row, HOTSPOT) !== '中心'))(
-    '%s: the hotspot is a point of the image, not off it',
-    async (row) => {
-      const cursor = await imageOf(row)
+  it.each(VARIANT_CASES.filter(({ variant }) => cellOf(variant.row, HOTSPOT) !== '中心'))(
+    '$label: the hotspot is a point of the image, not off it',
+    async ({ variant }) => {
+      const row = variant.row
+      const cursor = await imageOfVariant(variant)
       expect(cursor, `${row}: ${cellOf(row, HOTSPOT)}`).not.toBeNull()
       const [width, height] = sidesOf(cursor!.svg)
       expect(cursor!.hotspot.x, `${row}: ${cellOf(row, HOTSPOT)}`).toBeLessThanOrEqual(width ?? 0)
@@ -286,12 +351,12 @@ describe('table T-269 -- the image each row draws', () => {
     },
   )
 
-  it.each(IMAGE_ROWS)(`%s: the environment shape it falls back to: ${T_269_FALLBACKS}`, async (row) => {
-    const wanted = FALLBACK_BY_ROW[row]
-    expect(wanted, `${row}: the closing clause of table T-269 names no fallback`).toBeDefined()
-    const cursor = await imageOf(row)
-    expect(cursor, row).not.toBeNull()
-    expect(cursor!.fallback, `${row}: ${T_269_FALLBACKS}`).toBe(wanted)
+  it.each(VARIANT_CASES)(`$label: the environment shape it falls back to: ${T_269_FALLBACKS}`, async ({ variant }) => {
+    const wanted = FALLBACK_BY_VARIANT[labelOf(variant)]
+    expect(wanted, `${labelOf(variant)}: the closing clause of table T-269 names no fallback`).toBeDefined()
+    const cursor = await imageOfVariant(variant)
+    expect(cursor, labelOf(variant)).not.toBeNull()
+    expect(cursor!.fallback, `${labelOf(variant)}: ${T_269_FALLBACKS}`).toBe(wanted)
   })
 
   it.each(ENVIRONMENT_ROWS)('%s: no image is drawn -- the environment keeps its own', async (row) => {
@@ -335,9 +400,14 @@ describe('table T-266 -- the pointer row each grab area shows', () => {
   it(`the milestone rows show the circles: ${T_269_MILESTONE_SIGN}`, () => {
     expect([pointerRowFor('GA-15'), pointerRowFor('GA-16'), pointerRowFor('GA-17')], T_269_MILESTONE_SIGN).toEqual([
       'PK-5',
-      'PK-6',
-      'PK-6',
+      'PK-5',
+      'PK-5',
     ])
+    // WHY: the plan circle is hollow and the actual and dummy circles filled -- T-266 says which by its sign.
+    expect(specRow('T-266', 'GA-15').by['ポインタ（表 T-269）'], T_269_WHITE_IS_PLAN).toContain('○')
+    for (const id of ['GA-16', 'GA-17']) {
+      expect(specRow('T-266', id).by['ポインタ（表 T-269）'], `${id}: ${T_269_WHITE_IS_PLAN}`).toContain('●')
+    }
   })
 
   it(`${T_269_ARMED_WINS}`, async () => {

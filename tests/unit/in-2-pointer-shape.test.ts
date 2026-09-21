@@ -859,8 +859,8 @@ describe('T-028 IN-2: 何にも当たらない場所は範囲選択の合図', (
 const T_266_ENDS = [
   '箱の矢印 ← 白（`PK-1`）',
   '箱の矢印 → 白（`PK-1`）',
-  '箱の矢印 ← 黒（`PK-2`）',
-  '箱の矢印 → 黒（`PK-2`）',
+  '箱の矢印 ← 黒（`PK-1`）',
+  '箱の矢印 → 黒（`PK-1`）',
 ] as const
 
 // see FR-106
@@ -937,7 +937,7 @@ describe('FR-106: while pressed, the pointer keeps the shape it had when pressed
 })
 
 // ===========================================================================
-// (d) タスクの本体は掴めることの合図、マイルストーンの図形は `PK-5` / `PK-6`
+// (d) タスクの本体は掴めることの合図、マイルストーンの図形は `PK-5`
 //     (利用者の裁定 2026-08-27, 表 T-269 の結びで CR-430 が置き換えた) -- GA-9 and GA-16
 // ===========================================================================
 
@@ -957,11 +957,11 @@ describe('T-028 IN-2: タスクの本体とマイルストーンの図形の上�
 
   it('answers the milestone figure with its OWN circle, not the body\'s hand', () => {
     // WHY: the closing rule of table T-269 replaces IN-2's grab sign on a
-    // milestone with `PK-5` and `PK-6`, so the figure answers with its own circle.
+    // milestone with `PK-5`, so the figure answers with its own circle.
     const built = stage()
     expect(
       shapeAt(built, startedMilestone(built.loop)),
-      "table T-269 gives a milestone's figure PK-5 / PK-6, not the body's grab hand",
+      "table T-269 gives a milestone's figure PK-5, not the body's grab hand",
     ).not.toBe(shapeAt(built, barBody(built.loop)))
   })
 
