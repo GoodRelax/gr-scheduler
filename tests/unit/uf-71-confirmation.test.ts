@@ -1239,6 +1239,7 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
   // bars the pressed form -- so an arm may not travel on the toggle.
   isArmed: false,
+  isChosen: false,
   label: '',
   ...patch,
 })

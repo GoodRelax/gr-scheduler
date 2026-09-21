@@ -196,6 +196,7 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   isEnabled: true,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: patch.icon,
   ...patch,
 })

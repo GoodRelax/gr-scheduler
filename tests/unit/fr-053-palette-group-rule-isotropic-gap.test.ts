@@ -925,6 +925,7 @@ const entryFor = (icon: string): CommandItem => ({
   isEnabled: true,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: `IsotropicGapCommandWordFor${icon}`,
 })
 
@@ -938,6 +939,7 @@ const paletteOf = (groupCount: number): CommandPalette => ({
     isEnabled: true,
     isPressed: false,
     isArmed: false,
+    isChosen: false,
   },
   isMinimised: false,
   groups: Array.from(

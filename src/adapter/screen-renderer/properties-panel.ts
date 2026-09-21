@@ -59,6 +59,8 @@ const ENTRY_WORDS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowI
 
 const ITEM_WORDS_BY_ROW = new Map(displayWords.properties.map((item) => [item.rowId, item]))
 
+const DEPENDENCY_KINDS = displayWords.dependencyKinds
+
 const SETTINGS_WORDS_BY_KEY = new Map(
   displayWords.settings.flatMap((entry) =>
     entry.keys.map((key) => [key, entry] as const),
@@ -109,6 +111,7 @@ function panelCommands(language: DisplayLanguage): readonly CommandItem[] {
       isEnabled: true,
       isPressed: false,
       isArmed: false,
+      isChosen: false,
       label: entryLabel(row.rowId, language),
     }))
 }
@@ -500,11 +503,18 @@ const DEPENDENCY_ITEMS: readonly { readonly row: string; readonly column: keyof 
   { row: 'AT-45', column: 'predecessorUid' },
 ]
 
-// STOP: spec does not decide the names of FR-009's dependency items. Looked in FR-009, T-058, T-018, FR-006
 // @provisional PND-462
 const SUCCESSOR_ROW = 'FR-009'
 
 const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successorUid'
+
+// see T-018
+/** @purity pure */
+function dependencyText(dependency: Dependency, column: keyof Dependency): string {
+  if (column !== 'linkType') return textOfValue(dependency[column])
+  const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
+  return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
+}
 
 // see FR-009
 // DEVIATION: spec says only the lag is editable (FR-009); here kind, predecessor and far end are marked editable (DFC-565)
@@ -519,7 +529,7 @@ function dependencyFields(
   const columnFields: readonly PropertyField[] = DEPENDENCY_ITEMS.map((item) => ({
     row: item.row,
     name: item.column,
-    text: textOfValue(dependency[item.column]),
+    text: dependencyText(dependency, item.column),
     isEditable: true,
     controls: [
       controlOf(
@@ -726,8 +736,8 @@ function settingsFields(
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
-    isEditable: true,
-    // STOP: spec does not decide whether a setting is edited here or read only. Looked in IC-17, T-108, FR-006, FR-029 (PND-465)
+    // see FR-072
+    isEditable: false,
     controls: [],
   }))
 }

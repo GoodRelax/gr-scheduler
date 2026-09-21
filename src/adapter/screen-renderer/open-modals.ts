@@ -189,6 +189,7 @@ function commandItemFor(icon: IconId, language: DisplayLanguage): CommandItem {
     isEnabled: true,
     isPressed: false,
     isArmed: false,
+    isChosen: false,
     label: entryLabel(icon, language),
   }
 }

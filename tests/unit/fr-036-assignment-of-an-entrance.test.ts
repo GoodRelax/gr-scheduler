@@ -204,6 +204,7 @@ const commandOf = (icon: IconId): CommandItem => ({
   isEnabled: true,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: `the name of ${icon}`,
 })
 

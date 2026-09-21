@@ -195,6 +195,7 @@ const commandOf = (part: Partial<CommandItem> = {}): CommandItem => ({
   // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
   // bars the pressed form -- so an arm may not travel on the toggle.
   isArmed: false,
+  isChosen: false,
   label: `the name of ${part.icon ?? ICON_OPEN}`,
   ...part,
 })
@@ -558,6 +559,7 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
           isEnabled: true,
           isPressed: false,
           isArmed: false,
+          isChosen: false,
         },
         isMinimised: false,
         groups: [{ name: '表示', commands: [commandOf({ icon: ICON_PALETTE })] }],
@@ -591,6 +593,7 @@ describe('EZ-2 (表 T-040, FR-092) — the explanation of an icon', () => {
             isEnabled: true,
             isPressed: false,
             isArmed: false,
+            isChosen: false,
           },
           isMinimised: false,
           groups: [],

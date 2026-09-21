@@ -23,6 +23,9 @@ interface PanelIndex {
   // below it. Looked in HF-18, HF-12. @provisional PND-412
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   readonly foldedRowCountAtLevelZero: number
+  readonly groupIdsWithAFoldAtOrBelow: ReadonlySet<string>
+  readonly groupIdsWithAKeptOpenMarkBelow: ReadonlySet<string>
+  readonly isAnyRowMarkedOrFolded: boolean
   readonly rootGroups: readonly TaskGroup[]
   readonly taskNameByUid: ReadonlyMap<number, string | null>
 }
@@ -111,11 +114,20 @@ function rowDepth(
   return depth
 }
 
+// see HF-2, KO-2
+// TRAP: row-tree-entrances.ts arms IC-58 by this same test (isOpenAllBelowArmed); change both together.
+/** @purity pure */
+function isOpenAllBelowOn(group: TaskGroup, index: PanelIndex): boolean {
+  if (index.groupIdsWithAFoldAtOrBelow.has(group.id)) return true
+  if (index.groupIdsWithAKeptOpenMarkBelow.has(group.id)) return true
+  return !group.isKeptOpen && index.groupIdsWithAChildOutOfThePicture.has(group.id)
+}
+
 // see HF-1
 /** @purity pure */
 function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   return {
-    canOpen: (index.foldedRowCountByGroupId.get(group.id) ?? 0) > 0,
+    canOpen: isOpenAllBelowOn(group, index),
     canClose: index.boxByGroupId.has(group.id),
     canCloseBelow: index.groupIdsWithDrawnChildren.has(group.id),
   }
@@ -238,10 +250,17 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     }
   }
   walkDeepestFirst(null)
+  const groupIdsWithAFoldAtOrBelow = new Set<string>()
+  const groupIdsWithAKeptOpenMarkBelow = new Set<string>()
   for (const group of orderedDeepestFirst) {
     let subtreeSize = 1
     let folded = 0
+    if (group.isCollapsed === true || group.isHidden === true) groupIdsWithAFoldAtOrBelow.add(group.id)
     for (const child of childrenByParentId.get(group.id) ?? []) {
+      if (groupIdsWithAFoldAtOrBelow.has(child.id)) groupIdsWithAFoldAtOrBelow.add(group.id)
+      if (child.isKeptOpen || groupIdsWithAKeptOpenMarkBelow.has(child.id)) {
+        groupIdsWithAKeptOpenMarkBelow.add(group.id)
+      }
       const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
       folded +=
@@ -271,6 +290,11 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     boxByGroupId,
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,
+    groupIdsWithAFoldAtOrBelow,
+    groupIdsWithAKeptOpenMarkBelow,
+    isAnyRowMarkedOrFolded: schedule.taskGroups.some(
+      (one) => one.isCollapsed === true || one.isHidden === true || one.isKeptOpen,
+    ),
     rootGroups,
     taskNameByUid,
   }
@@ -337,7 +361,8 @@ export function rowTitlePanelFromSchedule(
   return {
     pinnedTitles,
     titles,
-    canOpenEveryRow: index.foldedRowCountAtLevelZero > 0,
+    // see HF-10, KO-3
+    canOpenEveryRow: index.isAnyRowMarkedOrFolded,
     canCloseEveryRow:
       !isLevelZeroFolded && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),
     canOpenLevelZero: isLevelZeroFolded

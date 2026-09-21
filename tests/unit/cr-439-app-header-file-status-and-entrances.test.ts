@@ -80,6 +80,7 @@ const command = (icon: string, isEnabled: boolean) => ({
   isEnabled,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: `label of ${icon}`,
 })
 

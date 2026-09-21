@@ -834,6 +834,7 @@ const entryFor = (icon: string): CommandItem => ({
   isEnabled: true,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: `PaletteCommandWordFor${icon}`,
 })
 
@@ -854,6 +855,7 @@ const paletteOf = (groupCount: number): CommandPalette => ({
     isEnabled: true,
     isPressed: false,
     isArmed: false,
+    isChosen: false,
   },
   isMinimised: false,
   groups: Array.from(

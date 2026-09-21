@@ -51,6 +51,8 @@ export interface CommandItem {
   readonly isPressed: boolean
   // WHY: not isPressed, which writes aria-pressed and would announce an arm as a pressed button.
   readonly isArmed: boolean
+  // WHY: not isPressed: a chosen exclusive entry is EN-6 of T-237, not a toggle that is on (EN-2).
+  readonly isChosen: boolean
   readonly label: string
 }
 

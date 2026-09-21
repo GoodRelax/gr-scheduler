@@ -831,6 +831,7 @@ const entryFor = (icon: string): CommandItem => ({
   isEnabled: true,
   isPressed: false,
   isArmed: false,
+  isChosen: false,
   label: `PaletteCommandWordFor${icon}`,
 })
 
@@ -861,6 +862,7 @@ const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette => ({
     isEnabled: true,
     isPressed: false,
     isArmed: false,
+    isChosen: false,
   },
   isMinimised: false,
   groups: [groupOf(2)],

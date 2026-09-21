@@ -53,6 +53,7 @@ const command = (icon: string, isArmed: boolean): CommandItem => ({
   isEnabled: true,
   isPressed: false,
   isArmed,
+  isChosen: false,
   label: `label of ${icon}`,
 })
 

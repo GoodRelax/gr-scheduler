@@ -241,6 +241,7 @@ const ENTRANCE_STATE_FILL = [
   ['EN-2', PAINT.pressed],
   ['EN-3', PAINT.pinned],
   ['EN-4', PAINT.pressed],
+  ['EN-6', PAINT.pressed],
 ] as const
 
 type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
@@ -575,6 +576,7 @@ export function commandEntry(host: Document, item: CommandItem): HTMLElement {
   const standing: EntranceStateRow[] = []
   if (item.isEnabled && item.isArmed) standing.push('EN-1')
   if (item.isEnabled && item.isPressed) standing.push('EN-2')
+  if (item.isEnabled && item.isChosen) standing.push('EN-6')
   const entry = made(host, 'button', base + entranceStateFill(standing))
   entry.setAttribute('type', 'button')
   entry.setAttribute('data-icon', item.icon)

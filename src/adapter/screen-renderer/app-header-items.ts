@@ -142,6 +142,7 @@ function commandItemFor(
     isEnabled: commandState.isEnabled,
     isPressed: commandState.isPressed,
     isArmed: false,
+    isChosen: false,
     label: entryLabel(icon, displayLanguageOf(session)),
   }
 }

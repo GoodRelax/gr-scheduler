@@ -350,6 +350,7 @@ const commandOf = (label: string): CommandItem => ({
   // because IC-54 says the palette entry is not a button and FR-053 (MUST NOT)
   // bars the pressed form -- so an arm may not travel on the toggle.
   isArmed: false,
+  isChosen: false,
   label,
 })
 
@@ -508,6 +509,7 @@ const viewOf = (
       isEnabled: true,
       isPressed: false,
       isArmed: false,
+      isChosen: false,
     },
     isMinimised: false,
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],

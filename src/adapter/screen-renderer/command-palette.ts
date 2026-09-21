@@ -112,9 +112,20 @@ function isSettingsToggleOn(row: IconRosterRow, settings: DocumentSettings): boo
   return settings[key] === true
 }
 
+// see FR-048, T-237
+const GUIDE_CURSOR_MODE_BY_ROW: Readonly<Record<string, DocumentSettings['guideCursorMode']>> = {
+  'IC-47': 'crosshair',
+  'IC-48': 'single-vertical',
+}
+
+// see FR-048, T-237
+/** @purity pure */
+function isExclusiveChoiceChosen(row: IconRosterRow, settings: DocumentSettings): boolean {
+  const mode = GUIDE_CURSOR_MODE_BY_ROW[row.rowId]
+  return mode !== undefined && settings.guideCursorMode === mode
+}
+
 // see FR-049, FR-053, FR-102
-// STOP: spec does not decide whether a chosen exclusive entry draws on. Looked in T-237, FR-029
-// @provisional PND-417
 /** @purity pure */
 function commandItemFor(
   row: IconRosterRow,
@@ -131,6 +142,7 @@ function commandItemFor(
     isPressed:
       (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isSettingsToggleOn(row, settings),
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
+    isChosen: isExclusiveChoiceChosen(row, settings),
     label: entryLabel(row.rowId, language),
   }
 }
