@@ -1,9 +1,4 @@
-// CR-550: the Dual Cursor readout shows both dates and the span beside the pointer (DC-3 of
-// table T-029a, and EZ-6's exclusion while the mode stands).
-//
-// WRITTEN FROM docs/spec ONLY. src/ was read for entry-point names and signatures alone:
-// dualCursorReadoutOf and tooltipsFromScreenView (screen renderer), showDualCursorReadout
-// (DOM surface), calendarSpanOf (PI-1), timeAxisOf / dateAtX / xFromDay (PI-5), svgFromSchedule.
+// CR-550: the Dual Cursor readout beside the pointer (DC-3) and EZ-6 standing down in the mode.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -39,10 +34,6 @@ import { unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-// ---------------------------------------------------------------------------
-// The clauses, verbatim.
-// ---------------------------------------------------------------------------
-
 const DC_3_THREE_LINES = '本モードにいるあいだ、ポインタのそばに 3 行を小さく示すこと（MUST）'
 const DC_3_FOLLOWING = '⭐ 追従している側の日付は、その線がいま立っている日とすること（MUST）'
 const DC_3_DATE = '線と字が同じ日を指す。日付は `yyyy/m/d` と書くこと（MUST）'
@@ -77,11 +68,6 @@ describe('CR-550 -- the clauses still stand in the manuscript', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
-
-// ---------------------------------------------------------------------------
-// Fixtures. The words are FR-038's dictionary's, as DC-3's own example prints them
-// (`カーソルAの日付: 2026/4/1`).
-// ---------------------------------------------------------------------------
 
 const A_WORD = 'カーソルAの日付: '
 const B_WORD = 'カーソルBの日付: '
@@ -207,7 +193,6 @@ const stageOf = (stored: { date1: string; date2: string } | null) => {
   const layout = layoutFromSchedule(SCHEDULE, settings, regions)
   const axis = timeAxisOf(settings, regions)
   const middleY = regions.rowArea.y + regions.rowArea.height / 2
-  /** A point over the Row Area standing on the given day, checked against the axis. */
   const pointOn = (year: number, month: number, day: number) => {
     const x = xFromDay(layout, { year, month, day })
     expect(dateAtX(axis, x), 'premise: the point stands on that day').toEqual({ year, month, day })
@@ -219,10 +204,6 @@ const stageOf = (stored: { date1: string; date2: string } | null) => {
 }
 
 const STORED = { date1: '2026-04-01T00:00:00', date2: '2026-04-15T00:00:00' }
-
-// ---------------------------------------------------------------------------
-// DC-3
-// ---------------------------------------------------------------------------
 
 describe('DC-3 -- the readout', () => {
   it(DC_3_THREE_LINES, () => {
@@ -255,7 +236,6 @@ describe('DC-3 -- the readout', () => {
   })
 
   it(DC_3_SPAN, () => {
-    // DC-3's own examples, E and L either way round.
     const examples = [
       [[2026, 4, 1], [2026, 4, 15], [0, 0, 14, 14]],
       [[2026, 1, 31], [2026, 2, 28], [0, 1, 0, 28]],
@@ -288,10 +268,6 @@ describe('DC-3 -- the readout', () => {
     expect(shown?.lines).toEqual([`${A_WORD}2026/4/10`, `${B_WORD}${UNDECIDED}`, `${SPAN_WORD}${UNDECIDED}`])
   })
 })
-
-// ---------------------------------------------------------------------------
-// DC-3's placing, on a stand-in for the host document.
-// ---------------------------------------------------------------------------
 
 interface FakeNode {
   style: string
@@ -343,7 +319,6 @@ const drawnReadout = (at: { x: number; y: number }, room: { width: number; heigh
 
 describe('DC-3 -- where the readout stands', () => {
   it(DC_3_PLACE, () => {
-    // IN-3's exception for EZ-6: the top-left corner on the pointer's point, taking no pointer.
     const { style, left, top } = drawnReadout({ x: 100, y: 120 }, { width: 1000, height: 700 })
     expect(left).toBe(100)
     expect(top).toBe(120)
@@ -362,10 +337,6 @@ describe('DC-3 -- where the readout stands', () => {
     expect(left).toBe(100)
   })
 })
-
-// ---------------------------------------------------------------------------
-// EZ-6 stands down while the mode stands; the export carries no readout.
-// ---------------------------------------------------------------------------
 
 const taskTooltips = (mode: Mode): number => {
   const stage = stageOf(STORED)

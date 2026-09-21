@@ -1,9 +1,4 @@
-// CR-548: palette colours are stored by name, a custom colour holds a light and a dark side
-// (FR-007, table T-017b CV-1..CV-9, table T-294 of _assets/tbl-settings.md).
-//
-// WRITTEN FROM docs/spec ONLY. src/ was read for entry-point names and signatures alone:
-// swatchOf and svgFromSchedule (PI-19), propertiesPanelFromSelection, commandFromFieldCommit,
-// editTask. Every expected value comes from table T-294 or from a sentence of T-017b.
+// CR-548: palette colours stored by name, custom colours with light and dark sides (FR-007, T-017b).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -52,10 +47,6 @@ import {
 import { specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
-
-// ---------------------------------------------------------------------------
-// The clauses, verbatim.
-// ---------------------------------------------------------------------------
 
 const FR_007_CUSTOM = '⭐ パレットに無い色は、カスタムカラーとして選ばせること（MUST）'
 const FR_007_T_017B = 'カスタムカラーとして選ばせること（MUST） —— 持ち方と描き方は 表 T-017b に従うこと（MUST）'
@@ -115,10 +106,6 @@ describe('CR-548 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Table T-294, read out of the manuscript.
-// ---------------------------------------------------------------------------
-
 type Side = 'light' | 'dark'
 type Form = 'fill' | 'outline' | 'actual' | 'band'
 
@@ -148,7 +135,6 @@ interface PaletteRow {
 const T_294: readonly PaletteRow[] = specTable('T-294').rows.map((row) => ({
   id: row.id,
   spelling: (row.by['保存する綴り'] ?? '').replace(/`/g, '').trim(),
-  // WHY: null for a cell that holds no value of its own ('S-157 に同じ', '描かない', '—').
   cell: (side: Side, form: Form) => HEX.exec(row.by[COLUMN[side][form]] ?? '')?.[0].toLowerCase() ?? null,
 }))
 
@@ -157,10 +143,6 @@ const rowNamed = (spelling: string): PaletteRow => {
   if (found === undefined) throw new Error(`table T-294 has no ${spelling}`)
   return found
 }
-
-// ---------------------------------------------------------------------------
-// Colour arithmetic, from WCAG 2.1 (NFR-007) and the HSL the rows are written in.
-// ---------------------------------------------------------------------------
 
 type Rgb = readonly [number, number, number]
 
@@ -212,16 +194,10 @@ const ratio = (a: string, b: string): number => {
   return (high + 0.05) / (low + 0.05)
 }
 
-// S-146: the light ground is #ffffff; the dark ground is hsl(H 12% 9%) for any hue. The
-// measuring note above table T-294 takes the worse of those 360 hues and #14161a.
 const LIGHT_GROUND = '#ffffff'
 const DARK_GROUNDS = [...Array.from({ length: 360 }, (_unused, h) => `hsl(${h} 12% 9%)`), '#14161a']
 const worstAgainstGround = (colour: string, side: Side): number =>
   side === 'light' ? ratio(colour, LIGHT_GROUND) : Math.min(...DARK_GROUNDS.map((ground) => ratio(colour, ground)))
-
-// ---------------------------------------------------------------------------
-// Fixtures.
-// ---------------------------------------------------------------------------
 
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
@@ -420,10 +396,6 @@ const contextOf = (schedule: Schedule, side: Side): InputContext => {
   }
 }
 
-/**
- * Commits text on the task's fill field, as the panel keys it, applies what the commit asks,
- * and returns the fill the document then stores (null for none).
- */
 const fillCommitted = (previous: string | null, text: string, side: Side): string | null => {
   const schedule = scheduleOf({ fillColor: previous })
   const control = colourControl(panelOf(schedule, side, holdingTask()), 'fillColor')
@@ -465,10 +437,6 @@ const CUSTOM_LIGHT = '#c0504d'
 const CUSTOM_DARK = '#102030'
 const PICKED = '#123456'
 
-// ---------------------------------------------------------------------------
-// FR-007
-// ---------------------------------------------------------------------------
-
 describe('FR-007 -- a colour not on the palette is chosen as a custom colour', () => {
   it(FR_007_CUSTOM, () => {
     const control = colourControl(panelOf(scheduleOf(null), 'light', holdingTask()), 'fillColor')
@@ -478,7 +446,6 @@ describe('FR-007 -- a colour not on the palette is chosen as a custom colour', (
   })
 
   it(FR_007_T_017B, () => {
-    // Held and drawn by T-017b: stored in the CV-2 form, drawn by CV-3 on the side it lacks.
     const accepted = setColours(`${CUSTOM_LIGHT}/`, null)
     expect(accepted.ok, 'the CV-2 form is accepted').toBe(true)
     expect(paint(`${CUSTOM_LIGHT}/`, 'fill', 'dark')).toBe(CUSTOM_LIGHT)
@@ -489,10 +456,6 @@ describe('FR-007 -- a colour not on the palette is chosen as a custom colour', (
     expect(setColours('transparent', 'red').ok, 'one of the two alone may be transparent').toBe(true)
   })
 })
-
-// ---------------------------------------------------------------------------
-// Table T-017b
-// ---------------------------------------------------------------------------
 
 describe('CV-1 -- a palette colour is stored by its name', () => {
   it(CV_1_NAME, () => {
@@ -575,7 +538,6 @@ describe('CV-6 -- the value drawn', () => {
   })
 
   it(CV_6_ACTUAL, () => {
-    // Light: saturation + 16, lightness - 46; dark: saturation + 30, lightness + 38; both kept to 0..100.
     const clamp = (value: number): number => Math.min(100, Math.max(0, value))
     const base = hslOf(CUSTOM_LIGHT)
     for (const [side, ds, dl] of [
@@ -641,7 +603,6 @@ describe('CV-8 -- what the values satisfy', () => {
   })
 
   it(CV_8_NO_CORRECTION, () => {
-    // A custom value that fails CT-5 against the light ground is drawn as chosen, on either side.
     const faint = '#fefefe'
     expect(worstAgainstGround(faint, 'light'), 'premise: it fails CT-5').toBeLessThan(1.3)
     for (const side of SIDES) {

@@ -491,20 +491,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-58': '233c73e32acd128b',
   'RS-59': '2390e3f14b96cec8',
   'RS-60': '0a81e9c568c92770',
-  //
-  // RS-61 -- 場面 「別の編集グループの行なので、書き換えを受け付けない」, 作法
-  //   `NT-1`, 正 `FR-111`. Re-read 2026-09-22.
-  // ⭐ The words are the ones the user chose, option B of Q2 in JDG-300: the row
-  //   is read-only because an edit group is set on it, and the step is to copy
-  //   it into a row with no edit group and edit it there. The old words
-  //   (fingerprint 'dedea349eba795b3') were replaced, not re-keyed.
-  // ⚠️ The ja says 「編集グループが設定されています」 where the scene says
-  //   「別の編集グループの行」: the telling names the cause the reader can see
-  //   (the row carries a group), which is the one the refusal turns on.
-  // ⭐ The next step leaves the row's own group alone -- a copy into a row with
-  //   no group is a write FR-111 does not refuse, so a person who follows it
-  //   gets an editable row and the original stays as the group owns it.
-  // ⇒ the words tell the scene.
+  // WHY: the words are option B of Q2 (JDG-300), read against the scene: the row is read-only
+  // because a group is set on it, and a copy into a row with no group is a write FR-111 allows.
   'RS-61': '2c03ff35e993eb7c',
 }
 
