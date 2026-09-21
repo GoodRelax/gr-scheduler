@@ -5,6 +5,13 @@
 // @publishes table T-064 row PI-39
 
 import {
+  emptyFileFlowValues,
+  stepFileFlowValues,
+  type FileFlowValues,
+  type FileFlowValuesEffect,
+  type FileFlowValuesEvent,
+} from './file-flow-values'
+import {
   emptyGestureValues,
   stepGestureValues,
   type GestureValues,
@@ -27,30 +34,29 @@ import {
 } from './screen-values'
 import { unchanged, type Step } from './session-step'
 
-// TRAP: ScreenRenderer exports another ScreenSession, its render input, until wave B2 of
-// CR-436 removes it; a file that needs this one imports it from this path.
+// TRAP: ScreenRenderer exports another ScreenSession until wave B2 of CR-436; import this one from here.
 // see SF-8, PI-39
 export interface ScreenSession {
   readonly screen: ScreenValues
   readonly notices: NoticeValues
   readonly gesture: GestureValues
+  readonly fileFlow: FileFlowValues
 }
 
-// see T-280, T-286, T-289
-export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent | GestureValuesEvent
+// see T-280, T-286, T-289, T-290
+export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent | GestureValuesEvent | FileFlowValuesEvent
 
-// see T-280, T-286, T-289
-export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect | GestureValuesEffect
+export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect | GestureValuesEffect | FileFlowValuesEffect
 
-// see T-280, T-286, T-289, SS-6
+// see T-280, T-286, T-289, T-290, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
   gesture: emptyGestureValues,
+  fileFlow: emptyFileFlowValues,
 }
 
-// WHY: a Record over each region's event types, so an event added to the manuscript and left
-// out here fails to compile; every other event belongs to the screen-values region.
+// WHY: a Record per region fails to compile on a missing event; the rest are screen events.
 const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
   noticeRaised: true,
   newestNoticeDismissAsked: true,
@@ -67,6 +73,25 @@ const IS_GESTURE_EVENT: { readonly [T in GestureValuesEvent['type']]: true } = {
   entryRepeatTimeElapsed: true,
 }
 
+const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } = {
+  documentOpenAsked: true,
+  agentDocumentHanded: true,
+  documentFileWriteAsked: true,
+  openChoiceAnswered: true,
+  mergeMappingAnswered: true,
+  confirmationAnswered: true,
+  changeQuestionRaised: true,
+  newDocumentEntryPressed: true,
+  flowSurfaceClosed: true,
+  documentFileRead: true,
+  documentOpenFailed: true,
+  mergeMappingAsked: true,
+  documentOpenLanded: true,
+  overwriteQuestionRaised: true,
+  documentFileSaved: true,
+  documentFileWriteEnded: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
@@ -75,6 +100,11 @@ function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
 /** @purity pure */
 function isGestureEvent(event: SessionEvent): event is GestureValuesEvent {
   return Object.hasOwn(IS_GESTURE_EVENT, event.type)
+}
+
+/** @purity pure */
+function isFileFlowEvent(event: SessionEvent): event is FileFlowValuesEvent {
+  return Object.hasOwn(IS_FILE_FLOW_EVENT, event.type)
 }
 
 // see SS-5, SF-3
@@ -99,5 +129,6 @@ export function advanceScreenSession(
 ): Step<ScreenSession, SessionEffect> {
   if (isNoticeEvent(event)) return composed(session, 'notices', stepNoticeValues(session.notices, event))
   if (isGestureEvent(event)) return composed(session, 'gesture', stepGestureValues(session.gesture, event))
+  if (isFileFlowEvent(event)) return composed(session, 'fileFlow', stepFileFlowValues(session.fileFlow, event))
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

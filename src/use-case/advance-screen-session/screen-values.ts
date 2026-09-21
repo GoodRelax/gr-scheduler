@@ -209,6 +209,7 @@ export type ScreenValuesEvent =
   | { readonly type: 'fullScreenChanged'; readonly isFullScreen: ScreenValuesEventCarried['isFullScreen'] }
   | { readonly type: 'surfaceEntryPressed'; readonly surfaceName: ScreenValuesEventCarried['surfaceName'] }
   | { readonly type: 'surfaceRaisedByFlow'; readonly surfaceName: ScreenValuesEventCarried['surfaceName'] }
+  | { readonly type: 'flowSurfaceAnswered'; readonly surfaceName: ScreenValuesEventCarried['surfaceName'] }
   | { readonly type: 'surfaceCloseAsked'; readonly target: ScreenValuesEventCarried['target'] }
   | { readonly type: 'escapePressed'; readonly rung: ScreenValuesEventCarried['rung'] }
   | { readonly type: 'armEntryPressed'; readonly armKind: ScreenValuesEventCarried['armKind']; readonly shapeKind: ScreenValuesEventCarried['shapeKind']; readonly glyph: ScreenValuesEventCarried['glyph'] }
@@ -560,6 +561,14 @@ export const SCREEN_VALUES_TRANSITIONS: readonly ScreenValuesTransition[] = [
     event: 'surfaceRaisedByFlow',
     guard: null,
     to: 'openSurfaceStateMachine.open',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'flowSurfaceAnswered',
+    guard: null,
+    to: 'openSurfaceStateMachine.closed',
     effect: null,
     effectArgument: null,
   },
@@ -988,6 +997,13 @@ function onSurfaceOpened(
   return moved(values, { openSurfaceState: { kind: 'open', surfaceName: event.surfaceName } })
 }
 
+// WHY: no tellFlowSurfaceClosed; the answer already reached the file-flow region (OP-3, FR-022).
+/** @purity pure */
+function onFlowSurfaceAnswered(values: ScreenValues): ScreenStep {
+  if (values.openSurfaceState.kind === 'closed') return unchanged(values)
+  return moved(values, { openSurfaceState: { kind: 'closed' } })
+}
+
 // see T-280
 /** @purity pure */
 function surfaceClosed(values: ScreenValues): ScreenStep {
@@ -1294,6 +1310,7 @@ const HANDLERS: {
   fullScreenChanged: onFullScreenChanged,
   surfaceEntryPressed: onSurfaceOpened,
   surfaceRaisedByFlow: onSurfaceOpened,
+  flowSurfaceAnswered: onFlowSurfaceAnswered,
   surfaceCloseAsked: onSurfaceCloseAsked,
   escapePressed: onEscapePressed,
   armEntryPressed: onArmEntryPressed,

@@ -167,6 +167,30 @@
      ]
     },
     {
+     "key": "flowSurfaceAnswered",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-71",
+       "IC-72",
+       "IC-73",
+       "IC-95",
+       "IC-96",
+       "IC-97",
+       "OP-3",
+       "FR-022"
+      ],
+      "note": {
+       "ja": "`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る"
+      }
+     },
+     "carries": [
+      {
+       "name": "surfaceName"
+      }
+     ]
+    },
+    {
      "key": "surfaceCloseAsked",
      "source": {
       "kind": "input",
@@ -1148,6 +1172,18 @@
          "U-61",
          "U-62"
         ]
+       }
+      },
+      "flowSurfaceAnswered": {
+       "open": {
+        "to": "closed",
+        "evidence": [
+         "OP-3",
+         "FR-022"
+        ],
+        "note": {
+         "ja": "`tellFlowSurfaceClosed` を返さない —— 答えた後に「閉じた」が戻らない"
+        }
        }
       },
       "surfaceCloseAsked": {
@@ -2749,6 +2785,1253 @@
          "evidence": [
           "HF-15",
           "S-208"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ]
+  },
+  {
+   "region": "fileFlow",
+   "name": {
+    "ja": "ファイル操作と問い"
+   },
+   "unit": "src/use-case/advance-screen-session/file-flow-values.ts",
+   "typeStem": "FileFlowValues",
+   "table": {
+    "id": "T-290",
+    "caption": {
+     "ja": "ファイル操作と問いの状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-036",
+    "caption": {
+     "ja": "ファイル操作と問いの状態遷移"
+    }
+   },
+   "root": {
+    "carries": [
+     {
+      "name": "openedFileName",
+      "rows": [
+       "U-58",
+       "FR-101"
+      ]
+     },
+     {
+      "name": "droppedTaskNames",
+      "rows": [
+       "U-62",
+       "RS-50"
+      ]
+     }
+    ],
+    "evidence": [
+     "OP-8",
+     "CS-4"
+    ],
+    "transitions": {
+     "documentFileSaved": {
+      "evidence": [
+       "FR-101",
+       "U-58"
+      ],
+      "note": {
+       "ja": "`openedFileName` を書き換える（名が運ばれたときだけ）"
+      }
+     },
+     "documentOpenLanded": [
+      {
+       "guard": [
+        {
+         "name": "hasDroppedTasks"
+        }
+       ],
+       "effect": "raiseFlowSurface",
+       "effectArgument": "U-62",
+       "evidence": [
+        "FR-023",
+        "U-62",
+        "RS-50",
+        "FR-101"
+       ],
+       "note": {
+        "ja": "`droppedTaskNames` と `openedFileName` を書き換える（名は運ばれたときだけ）"
+       }
+      },
+      {
+       "guard": [
+        {
+         "name": "hasDroppedTasks",
+         "not": true
+        }
+       ],
+       "evidence": [
+        "FR-101"
+       ],
+       "note": {
+        "ja": "`openedFileName` を書き換える（名が運ばれたときだけ）"
+       }
+      }
+     ],
+     "flowSurfaceClosed": {
+      "guard": [
+       {
+        "name": "isImportReportSurface"
+       }
+      ],
+      "evidence": [
+       "U-62",
+       "IC-52"
+      ],
+      "note": {
+       "ja": "`droppedTaskNames` を空にする"
+      }
+     }
+    }
+   },
+   "events": [
+    {
+     "key": "documentOpenAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-1",
+       "SK-10",
+       "OP-2",
+       "CHN-1",
+       "SK-21",
+       "OP-13"
+      ],
+      "note": {
+       "ja": "開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`"
+      }
+     },
+     "carries": [
+      {
+       "name": "openRoute",
+       "rows": [
+        "OP-2",
+        "OP-13"
+       ],
+       "note": {
+        "ja": "`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）"
+       }
+      }
+     ]
+    },
+    {
+     "key": "agentDocumentHanded",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "AM-8",
+       "FR-022"
+      ],
+      "note": {
+       "ja": "`Agent API` が文書を渡した（`openRoute` は `handed`）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "documentFileWriteAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SK-11",
+       "FR-060",
+       "SK-12",
+       "FR-096",
+       "U-54"
+      ],
+      "note": {
+       "ja": "`Ctrl` ＋ `S`、書き出しの形式を選んだ"
+      }
+     },
+     "carries": [
+      {
+       "name": "writeForm",
+       "rows": [
+        "FR-060",
+        "FR-096"
+       ],
+       "note": {
+        "ja": "保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式"
+       }
+      }
+     ]
+    },
+    {
+     "key": "openChoiceAnswered",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-71",
+       "IC-72",
+       "IC-73",
+       "OP-3"
+      ],
+      "note": {
+       "ja": "`U-56` の 3 つの入口"
+      }
+     },
+     "carries": [
+      {
+       "name": "openChoice",
+       "rows": [
+        "OP-3"
+       ],
+       "note": {
+        "ja": "置き換え ／ 合流 ／ 重ね"
+       }
+      },
+      {
+       "name": "question",
+       "rows": [
+        "QN-5"
+       ],
+       "note": {
+        "ja": "置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "mergeMappingAnswered",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-95",
+       "IC-96",
+       "IC-97",
+       "FR-022"
+      ],
+      "note": {
+       "ja": "`U-61` の 3 つの入口"
+      }
+     },
+     "carries": [
+      {
+       "name": "mergeMapping",
+       "rows": [
+        "MM-1",
+        "MM-2",
+        "MM-4"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "confirmationAnswered",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "NT-7",
+       "IN-4"
+      ],
+      "note": {
+       "ja": "`Yes` / `No`、`y` / `n`、`Esc`"
+      }
+     },
+     "carries": [
+      {
+       "name": "isProceeding",
+       "rows": [
+        "NT-7"
+       ],
+       "note": {
+        "ja": "`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "changeQuestionRaised",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FR-032",
+       "FR-099",
+       "QN-1",
+       "QN-2",
+       "QN-3",
+       "IC-66"
+      ],
+      "note": {
+       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除）、担当者の削除"
+      }
+     },
+     "carries": [
+      {
+       "name": "question",
+       "rows": [
+        "QN-1",
+        "QN-2",
+        "QN-3"
+       ]
+      },
+      {
+       "name": "owedAction",
+       "note": {
+        "ja": "「続ける」で行う書き込みの束"
+       }
+      }
+     ]
+    },
+    {
+     "key": "newDocumentEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-98",
+       "FR-095"
+      ],
+      "note": {
+       "ja": "新しく始める入口"
+      }
+     },
+     "carries": [
+      {
+       "name": "hasStartupTemplate",
+       "rows": [
+        "FR-095"
+       ],
+       "note": {
+        "ja": "始める元の文書が在るか。呼び手が詰める"
+       }
+      },
+      {
+       "name": "question",
+       "rows": [
+        "QN-5"
+       ],
+       "note": {
+        "ja": "いまの文書を捨てる問い。呼び手が詰める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "flowSurfaceClosed",
+     "source": {
+      "kind": "otherRegion",
+      "rows": [
+       "IC-52",
+       "IN-4"
+      ],
+      "note": {
+       "ja": "画面の値の副作用 `tellFlowSurfaceClosed`。人が `×` か `Esc` で面を閉じた"
+      }
+     },
+     "carries": [
+      {
+       "name": "surfaceName",
+       "rows": [
+        "U-56",
+        "U-61",
+        "U-62"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "documentFileRead",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "OP-5",
+       "OP-12",
+       "FR-023"
+      ],
+      "note": {
+       "ja": "`readDocumentFile` が読み、形式を判じ、検証を通した"
+      }
+     },
+     "carries": [
+      {
+       "name": "question",
+       "rows": [
+        "QN-5"
+       ],
+       "note": {
+        "ja": "読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める"
+       }
+      }
+     ]
+    },
+    {
+     "key": "documentOpenFailed",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "OP-5",
+       "OP-13",
+       "FR-023"
+      ],
+      "note": {
+       "ja": "読めない・選ばなかった・検証が拒んだ・読み直す相手が無い・着地を拒まれた（告げるのは副作用の中身）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "mergeMappingAsked",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-022",
+       "U-61",
+       "FR-073"
+      ],
+      "note": {
+       "ja": "`importIncomingDocument` が対応付けを問うことになった"
+      }
+     },
+     "carries": [
+      {
+       "name": "mergeCandidates",
+       "rows": [
+        "U-61"
+       ]
+      },
+      {
+       "name": "unreadColumns",
+       "rows": [
+        "FR-073"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "documentOpenLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "RD-3",
+       "RD-4",
+       "FR-023",
+       "FR-101"
+      ],
+      "note": {
+       "ja": "取り込みが着地した"
+      }
+     },
+     "carries": [
+      {
+       "name": "droppedTaskNames",
+       "rows": [
+        "RS-50"
+       ]
+      },
+      {
+       "name": "openedFileName",
+       "rows": [
+        "FR-101"
+       ],
+       "note": {
+        "ja": "無いこともある"
+       }
+      }
+     ]
+    },
+    {
+     "key": "overwriteQuestionRaised",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "DI-4",
+       "QN-4"
+      ],
+      "note": {
+       "ja": "`writeDocumentFile` の途中で、同じとみなせない相手を見つけた"
+      }
+     },
+     "carries": [
+      {
+       "name": "question",
+       "rows": [
+        "QN-4"
+       ]
+      }
+     ]
+    },
+    {
+     "key": "documentFileSaved",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-060",
+       "FR-101"
+      ],
+      "note": {
+       "ja": "保存が書けた"
+      }
+     },
+     "carries": [
+      {
+       "name": "openedFileName",
+       "rows": [
+        "FR-101"
+       ],
+       "note": {
+        "ja": "無いこともある"
+       }
+      }
+     ]
+    },
+    {
+     "key": "documentFileWriteEnded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-096",
+       "CS-4"
+      ],
+      "note": {
+       "ja": "書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
+      }
+     },
+     "carries": []
+    }
+   ],
+   "machines": [
+    {
+     "name": "fileOperationStateMachine",
+     "states": [
+      {
+       "key": "idle",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "OP-8",
+        "CS-4"
+       ]
+      },
+      {
+       "key": "readingDocumentFile",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "openRoute",
+         "rows": [
+          "OP-2",
+          "OP-13"
+         ]
+        }
+       ],
+       "evidence": [
+        "OP-2",
+        "OP-5",
+        "OP-8",
+        "OP-12",
+        "OP-13",
+        "CS-4"
+       ]
+      },
+      {
+       "key": "awaitingOpenChoice",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "OP-3",
+        "U-56",
+        "OP-5",
+        "CS-4"
+       ]
+      },
+      {
+       "key": "awaitingDiscardAnswer",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "OP-4",
+        "QN-5",
+        "OP-13"
+       ]
+      },
+      {
+       "key": "importingDocument",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "RD-3",
+        "RD-4",
+        "OP-9",
+        "FR-022"
+       ]
+      },
+      {
+       "key": "awaitingMergeMapping",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "mergeCandidates",
+         "rows": [
+          "U-61"
+         ]
+        },
+        {
+         "name": "unreadColumns",
+         "rows": [
+          "FR-073"
+         ]
+        }
+       ],
+       "evidence": [
+        "FR-022",
+        "U-61",
+        "FR-073"
+       ]
+      },
+      {
+       "key": "writingDocumentFile",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "FR-060",
+        "FR-096",
+        "DI-4",
+        "CS-4"
+       ]
+      }
+     ],
+     "transitions": {
+      "documentOpenAsked": {
+       "idle": [
+        {
+         "to": "readingDocumentFile",
+         "guard": [
+          {
+           "in": "confirmationStateMachine.notAsked"
+          }
+         ],
+         "effect": "readDocumentFile",
+         "evidence": [
+          "OP-2",
+          "OP-13",
+          "CS-4"
+         ]
+        },
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "in": "confirmationStateMachine.questionAsked"
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-27",
+         "evidence": [
+          "OP-8",
+          "RS-27"
+         ]
+        }
+       ],
+       "readingDocumentFile": {
+        "to": "readingDocumentFile",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingOpenChoice": {
+        "to": "awaitingOpenChoice",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingDiscardAnswer": {
+        "to": "awaitingDiscardAnswer",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "importingDocument": {
+        "to": "importingDocument",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingMergeMapping": {
+        "to": "awaitingMergeMapping",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "writingDocumentFile": {
+        "to": "writingDocumentFile",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       }
+      },
+      "agentDocumentHanded": {
+       "idle": {
+        "to": "readingDocumentFile",
+        "guard": [
+         {
+          "in": "confirmationStateMachine.notAsked"
+         }
+        ],
+        "effect": "readDocumentFile",
+        "evidence": [
+         "AM-8",
+         "OP-8"
+        ],
+        "note": {
+         "ja": "`openRoute` は `handed`"
+        }
+       }
+      },
+      "documentFileWriteAsked": {
+       "idle": [
+        {
+         "to": "writingDocumentFile",
+         "guard": [
+          {
+           "in": "confirmationStateMachine.notAsked"
+          }
+         ],
+         "effect": "writeDocumentFile",
+         "evidence": [
+          "FR-060",
+          "FR-096",
+          "CS-4"
+         ]
+        },
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "in": "confirmationStateMachine.questionAsked"
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-27",
+         "evidence": [
+          "OP-8",
+          "RS-27"
+         ]
+        }
+       ],
+       "readingDocumentFile": {
+        "to": "readingDocumentFile",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingOpenChoice": {
+        "to": "awaitingOpenChoice",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingDiscardAnswer": {
+        "to": "awaitingDiscardAnswer",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "importingDocument": {
+        "to": "importingDocument",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "awaitingMergeMapping": {
+        "to": "awaitingMergeMapping",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       },
+       "writingDocumentFile": {
+        "to": "writingDocumentFile",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "OP-8"
+        ]
+       }
+      },
+      "documentFileRead": {
+       "readingDocumentFile": [
+        {
+         "to": "awaitingDiscardAnswer",
+         "guard": [
+          {
+           "name": "isReopenRoute"
+          }
+         ],
+         "evidence": [
+          "OP-13",
+          "OP-4"
+         ]
+        },
+        {
+         "to": "awaitingOpenChoice",
+         "guard": [
+          {
+           "name": "isReopenRoute",
+           "not": true
+          }
+         ],
+         "effect": "raiseFlowSurface",
+         "effectArgument": "U-56",
+         "evidence": [
+          "OP-3",
+          "OP-5"
+         ]
+        }
+       ]
+      },
+      "documentOpenFailed": {
+       "readingDocumentFile": {
+        "to": "idle",
+        "evidence": [
+         "OP-5",
+         "OP-13"
+        ]
+       },
+       "importingDocument": {
+        "to": "idle",
+        "evidence": [
+         "FR-023"
+        ]
+       }
+      },
+      "openChoiceAnswered": {
+       "awaitingOpenChoice": [
+        {
+         "to": "awaitingDiscardAnswer",
+         "guard": [
+          {
+           "name": "isReplaceChoice"
+          }
+         ],
+         "evidence": [
+          "OP-3",
+          "OP-4"
+         ]
+        },
+        {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isReplaceChoice",
+           "not": true
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "OP-3",
+          "OP-9",
+          "RD-3"
+         ]
+        }
+       ]
+      },
+      "confirmationAnswered": {
+       "awaitingDiscardAnswer": [
+        {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isProceeding"
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "OP-4",
+          "RD-4"
+         ]
+        },
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "name": "isProceeding",
+           "not": true
+          }
+         ],
+         "effect": "discardIncomingDocument",
+         "evidence": [
+          "OP-4"
+         ]
+        }
+       ],
+       "writingDocumentFile": {
+        "to": "writingDocumentFile",
+        "guard": [
+         {
+          "name": "isOverwriteQuestion"
+         }
+        ],
+        "effect": "answerOverwriteQuestion",
+        "evidence": [
+         "DI-4",
+         "QN-4"
+        ]
+       }
+      },
+      "mergeMappingAsked": {
+       "importingDocument": {
+        "to": "awaitingMergeMapping",
+        "effect": "raiseFlowSurface",
+        "effectArgument": "U-61",
+        "evidence": [
+         "FR-022",
+         "U-61"
+        ]
+       }
+      },
+      "mergeMappingAnswered": {
+       "awaitingMergeMapping": [
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "name": "isImportCancelled"
+          }
+         ],
+         "effect": "discardIncomingDocument",
+         "evidence": [
+          "MM-4",
+          "MG-6"
+         ]
+        },
+        {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isImportCancelled",
+           "not": true
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "MM-1",
+          "MM-2",
+          "FR-022"
+         ]
+        }
+       ]
+      },
+      "flowSurfaceClosed": {
+       "awaitingOpenChoice": {
+        "to": "idle",
+        "guard": [
+         {
+          "name": "isOpenChooserSurface"
+         }
+        ],
+        "effect": "discardIncomingDocument",
+        "evidence": [
+         "IC-52",
+         "IN-4",
+         "OP-3"
+        ]
+       },
+       "awaitingMergeMapping": {
+        "to": "idle",
+        "guard": [
+         {
+          "name": "isDifferenceReviewSurface"
+         }
+        ],
+        "effect": "discardIncomingDocument",
+        "evidence": [
+         "IC-52",
+         "IN-4",
+         "MG-6"
+        ]
+       }
+      },
+      "documentOpenLanded": {
+       "importingDocument": {
+        "to": "idle",
+        "evidence": [
+         "RD-3",
+         "RD-4",
+         "FR-023"
+        ]
+       }
+      },
+      "documentFileSaved": {
+       "writingDocumentFile": {
+        "to": "idle",
+        "evidence": [
+         "FR-060"
+        ]
+       }
+      },
+      "documentFileWriteEnded": {
+       "writingDocumentFile": {
+        "to": "idle",
+        "evidence": [
+         "FR-096",
+         "CS-4"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "confirmationStateMachine",
+     "states": [
+      {
+       "key": "notAsked",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "NT-7",
+        "U-55"
+       ]
+      },
+      {
+       "key": "questionAsked",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "question",
+         "rows": [
+          "QN-1",
+          "QN-2",
+          "QN-3",
+          "QN-4",
+          "QN-5"
+         ]
+        },
+        {
+         "name": "owedAction",
+         "note": {
+          "ja": "「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い"
+         }
+        }
+       ],
+       "evidence": [
+        "NT-7",
+        "U-55",
+        "QN-1",
+        "QN-2",
+        "QN-3",
+        "QN-4",
+        "QN-5"
+       ]
+      }
+     ],
+     "transitions": {
+      "changeQuestionRaised": {
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "NT-7",
+         "FR-032",
+         "FR-099",
+         "QN-1",
+         "QN-2",
+         "QN-3"
+        ]
+       }
+      },
+      "newDocumentEntryPressed": {
+       "notAsked": [
+        {
+         "to": "questionAsked",
+         "guard": [
+          {
+           "name": "hasStartupTemplate"
+          }
+         ],
+         "evidence": [
+          "FR-095",
+          "QN-5"
+         ]
+        },
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "name": "hasStartupTemplate",
+           "not": true
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-27",
+         "evidence": [
+          "RS-27"
+         ]
+        }
+       ],
+       "questionAsked": {
+        "to": "questionAsked",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-27",
+        "evidence": [
+         "RS-27"
+        ]
+       }
+      },
+      "openChoiceAnswered": {
+       "notAsked": {
+        "to": "questionAsked",
+        "guard": [
+         {
+          "name": "isReplaceChoice"
+         },
+         {
+          "in": "fileOperationStateMachine.awaitingOpenChoice"
+         }
+        ],
+        "evidence": [
+         "OP-4",
+         "QN-5"
+        ]
+       },
+       "questionAsked": {
+        "to": "questionAsked",
+        "guard": [
+         {
+          "name": "isReplaceChoice"
+         },
+         {
+          "in": "fileOperationStateMachine.awaitingOpenChoice"
+         }
+        ],
+        "evidence": [
+         "OP-4",
+         "QN-5"
+        ]
+       }
+      },
+      "documentFileRead": {
+       "notAsked": {
+        "to": "questionAsked",
+        "guard": [
+         {
+          "name": "isReopenRoute"
+         },
+         {
+          "in": "fileOperationStateMachine.readingDocumentFile"
+         }
+        ],
+        "evidence": [
+         "OP-13",
+         "QN-5"
+        ]
+       },
+       "questionAsked": {
+        "to": "questionAsked",
+        "guard": [
+         {
+          "name": "isReopenRoute"
+         },
+         {
+          "in": "fileOperationStateMachine.readingDocumentFile"
+         }
+        ],
+        "evidence": [
+         "OP-13",
+         "QN-5"
+        ]
+       }
+      },
+      "overwriteQuestionRaised": {
+       "notAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "DI-4",
+         "QN-4"
+        ]
+       },
+       "questionAsked": {
+        "to": "questionAsked",
+        "evidence": [
+         "DI-4",
+         "QN-4"
+        ]
+       }
+      },
+      "confirmationAnswered": {
+       "questionAsked": [
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "name": "isProceeding"
+          },
+          {
+           "name": "isFileOperationQuestion",
+           "not": true
+          }
+         ],
+         "effect": "carryOutOwedAction",
+         "evidence": [
+          "NT-7",
+          "FR-032",
+          "FR-099",
+          "FR-095"
+         ]
+        },
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "name": "isProceeding"
+          },
+          {
+           "name": "isFileOperationQuestion"
+          }
+         ],
+         "evidence": [
+          "NT-7",
+          "OP-4",
+          "DI-4"
+         ]
+        },
+        {
+         "to": "notAsked",
+         "guard": [
+          {
+           "name": "isProceeding",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "NT-7"
          ]
         }
        ]

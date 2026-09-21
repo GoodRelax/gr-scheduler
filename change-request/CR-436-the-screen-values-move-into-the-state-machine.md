@@ -738,3 +738,4 @@ md-checks の数の読み方: 行は `SM` 39 ・ `EV` 35 ・ `TN` 63 の計 137 
 |---|---|---|---|
 | 24 | 付録 A.1 〜 A.3 と本文の `SM-0` 〜 `SM-33` ・ `EV-1` 〜 `EV-30` ・ `TN-1` 〜 `TN-53` | 本書では直さない。番号は `JDG-286` で退き、いまの名は「波 A2」の節の A2.3 と A2.5 の読み方で引ける。全数は `docs/spec/_assets/tbl-state-machines.md` の 表 T-280 | `JDG-286`。当てた日の履歴を書き換えると、その日の測りと突き合わせられなくなる |
 | 25 | 冒頭の状態「波 A を当てた」 | 波 A2 を当てたことを足した | 本書の読み手が、原稿の形が付録と違うことを冒頭で知るため |
+| 26 | 画面の値の原稿の出来事 30、`openSurfaceStateMachine` の升 8 | `CR-460` の波 A（2026-09-21）が、出来事 `screen/flowSurfaceAnswered`（`U-56` ・ `U-61` の答えの入口。運ぶ値 `surfaceName`）と、`openSurfaceStateMachine` の `open` × それ → `closed` の 1 升（副作用なし）を足した。画面の値の出来事は 31、`openSurfaceStateMachine` の升は 9。`screen-values.ts` に `onFlowSurfaceAnswered` | `CR-460` の決定 7 —— 答えの枝は `fileFlow` 側で副作用を 1 つ持つので、面を閉じることを画面の値の出来事に割った。`tellFlowSurfaceClosed` を返さないので、答えた後に `fileFlow/flowSurfaceClosed` が戻らない。本書の波 B2 の 表 T-283 へ申し送る 3 行は `CR-460` の 2.2 |

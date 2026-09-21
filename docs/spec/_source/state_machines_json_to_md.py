@@ -505,25 +505,49 @@ def term_key(term):
     return ('in', term['in']) if 'in' in term else ('name', term['name'])
 
 
-def covers_every_case(branches):
+def can_happen(truth, region):
+    """False when the `in` terms of one machine cannot all hold as assigned: a
+    machine is in exactly one leaf state, so `in a` and `in b` of one machine
+    are never both true, and the `in` terms naming all of its leaves are never
+    all false. Without the region every assignment is taken as possible."""
+    if region is None:
+        return True
+    by_machine = collections.OrderedDict()
+    for key, value in truth.items():
+        if key[0] != 'in':
+            continue
+        machine, state = region.state_of(key[1])
+        if machine is not None:
+            by_machine.setdefault(machine.name, (machine, []))[1].append((state, value))
+    for machine, terms in by_machine.values():
+        if not any(all(machine.covers(state, leaf['key']) == value for state, value in terms)
+                   for leaf in machine.leaves()):
+            return False
+    return True
+
+
+def covers_every_case(branches, region=None):
     """True when some branch has no guard, or every truth assignment of the guard
-    terms the cell names satisfies one branch (a guard is a conjunction)."""
+    terms the cell names satisfies one branch (a guard is a conjunction). An
+    assignment the `in` terms cannot take (can_happen) is not a case."""
     if any(not b.get('guard') for b in branches):
         return True
     keys = sorted(set(term_key(t) for b in branches for t in b['guard']))
     for bits in range(2 ** len(keys)):
         truth = dict((k, bool(bits >> i & 1)) for i, k in enumerate(keys))
+        if not can_happen(truth, region):
+            continue
         if not any(all(truth[term_key(t)] != bool(t.get('not')) for t in b['guard'])
                    for b in branches):
             return False
     return True
 
 
-def cell_text(branches, source, leaf):
+def cell_text(branches, source, leaf, region=None):
     """Every case of the cell is stated (R4.4): guards that leave cases open get
     an explicit fall-through to no change."""
     lines = [branch_text(b, source) for b in branches]
-    if not covers_every_case(branches):
+    if not covers_every_case(branches, region):
         lines.append(u'それ以外 → %s' % NONE_CELL)
     body = u'<br>'.join(lines)
     if source != leaf:
@@ -558,7 +582,7 @@ def root_lines(region):
     if not root['transitions']:
         lines.append(u'根の運ぶ値だけを書き換える出来事は無い。')
         return lines
-    rows = [[code(region.event_id(event)), cell_text(branches, None, None)]
+    rows = [[code(region.event_id(event)), cell_text(branches, None, None, region)]
             for event, branches in region.root_cells()]
     lines += table_lines([u'出来事', code(region.name)], rows)
     return lines
@@ -573,7 +597,7 @@ def transition_rows(machine):
             answer = NONE_CELL
             for source, cell in row.items():
                 if machine.covers(source, leaf['key']):
-                    answer = cell_text(branches_of(cell), source, leaf['key'])
+                    answer = cell_text(branches_of(cell), source, leaf['key'], region)
             cells.append(answer)
         yield cells
 
