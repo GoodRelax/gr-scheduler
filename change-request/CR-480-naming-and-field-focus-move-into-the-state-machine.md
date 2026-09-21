@@ -29,7 +29,7 @@
 ⭐ **波 A はどの `CH-` も直接には前へ進めない —— 基盤の作業である。** 利用者に見える振る舞いを 1 つも変えない（波 A では画面がこの領域を呼ばない）。波 B（結線）も振る舞いを変えない（`JDG-57`、`rulings.md:134`）。
 
 守るもの:
-- **`FR-091`（req:1347）「作った直後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと」と「これは作った直後の場面に限る」** —— いまは `namingCreatedTaskUid`（`frame-loop.ts:2934`）が「作った直後の場面」を持ち、`settleTextEntry` の枝（`:3895`〜`:3900`）が読む。移した後は `createdTaskNamingStateMachine.namingCreatedTask` が持ち、呼び手が画面の値の既存の出来事 `screen/createdNameSettled`（原稿 `state-machines.json` の画面の値の出来事、`CR-436` の `EV-18`）を選ぶ。
+- **`FR-091`（req:1347）「作った直後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと」と「これは作った直後の場面に限る」** —— いまは `namingCreatedTaskUid`（`frame-loop.ts:2934`）が「作った直後の場面」を持ち、`settleTextEntry` の枝（`:3895`〜`:3900`）が読む。移した後は `createdTaskNamingStateMachine.namingCreatedTask` が持ち、呼び手が画面の値の既存の出来事 `screen/createdNameSettled`（原稿 `state-machines.json` の画面の値の出来事、`CR-436` の `screen/createdNameSettled`）を選ぶ。
 - **`IN-5a` の後の段と `IN-5b`（req:6807 ・ 6808）「焦点を置く求め」「置き直しは、焦点が入るか、求めが取り下げられるまで続けること」** —— いまは `nameFieldWantedRow` ・ `nameFieldWantedUnder`（`:2915` ・ `:2917`）が持つ。移した後は `fieldFocusWantStateMachine.fieldFocusWanted` が持つ。
 - **`GL-003`** —— この領域の出来事は人の押下・書き込みの着地・宿主の答え・選択の変化だけで、ポインタの移動では 1 つも作らない（表 T-249 の `SF-5`、des:1011）。性能は `LM-19`（表 T-285 の `RA-8`、des:1126）。⛔ **測る前に利用者を呼ぶ**（`RISK-001` の門）。
 
@@ -54,7 +54,7 @@
 | 決定 2 | **「作った直後の場面」を機械 `createdTaskNamingStateMachine`（`idle` ／ `namingCreatedTask{createdTaskUid}`）とする** | `FR-091` は「これは作った直後の場面に限る（MUST）」「あちらは人が選んだ選択を守り、こちらは道具が立てた選択を片づける」と場面を名指す（req:1347 の本文）。選択の今の値からは導けない —— 同じ選択を人が選んだのか道具が立てたのかは、立てた時を覚えなければ分からない |
 | 決定 3 | **「欄に焦点を置く求め」を機械 `fieldFocusWantStateMachine`（`idle` ／ `fieldFocusWanted{fieldRow}`）とする** | `IN-5a` の後の段（req:6807）が求めを名指し、そのあいだ単文字キーをショートカットにしないことと、取り下げの 4 つの事由を定める。`IN-5b`（req:6808）が「焦点が入るか、求めが取り下げられるまで」続けることを定める。入力とフレームをまたいで残り、入力の翻訳係が読む（`input-command-translator.ts:1460`、`frame-loop.ts:3042`）。`JDG-175`（`rulings.md:294`）が問 8 でこの形を了承した |
 | 決定 4 | **「まだ確定していないその場の編集」（`AG-9` の「入力中」）は状態にしない。** 宿主が答える値（フレームの値）として、読む出来事が運ぶ | `IF-9`（des:563）が、答える者を `ScreenSurface` と定め、真偽 1 つで答えると定める。いまのコードも覚えずに毎回問う（`frame-loop.ts:2907`「asked, never cached; focus moves without any happening」）。焦点は出来事なしに動く（ブラウザが動かす）ので、状態にすると焦点の移動ごとの出来事が要る。読む 4 か所はすべて出来事の運ぶ値か呼び手の詰め方で受けられる（2.1） |
-| 決定 5 | **`isSettlingFieldCommit` ・ `didSettleFieldEntry` は領域に入れない。** 前者は 1 回の書き込みの呼び出しの中だけの窓で、波 B で書き込みの時機（`WS-2` の `editingInPlace`）を引数で渡す形に置き換える。後者は 1 つの入力の中だけの値（`readFieldCommit` の答え）で、画面の値の既存の運ぶ値 `settleKeyPressed.hasNoUnsettledEntry` が既に受ける | 棚卸しが両方を「実装の都合」とした（`refactor-stage1-state-inventory-2026-09-13.md:95` ・ `:100`）。書き手と読み手が同じ入力の中に閉じる（`spendFieldCommit` の `:4117`〜`:4129`、読み手 `:3069` ・ `:3901` ・ `:4307`）。画面の値の `settleKeyPressed` は運ぶ値 `hasNoSurfaceOrConfirmation` ・ `hasNoUnsettledEntry` を既に持つ（原稿、`CR-436` の `EV-19`） |
+| 決定 5 | **`isSettlingFieldCommit` ・ `didSettleFieldEntry` は領域に入れない。** 前者は 1 回の書き込みの呼び出しの中だけの窓で、波 B で書き込みの時機（`WS-2` の `editingInPlace`）を引数で渡す形に置き換える。後者は 1 つの入力の中だけの値（`readFieldCommit` の答え）で、画面の値の既存の運ぶ値 `settleKeyPressed.hasNoUnsettledEntry` が既に受ける | 棚卸しが両方を「実装の都合」とした（`refactor-stage1-state-inventory-2026-09-13.md:95` ・ `:100`）。書き手と読み手が同じ入力の中に閉じる（`spendFieldCommit` の `:4117`〜`:4129`、読み手 `:3069` ・ `:3901` ・ `:4307`）。画面の値の `settleKeyPressed` は運ぶ値 `hasNoSurfaceOrConfirmation` ・ `hasNoUnsettledEntry` を既に持つ（原稿、`CR-436` の `screen/settleKeyPressed`） |
 | 決定 6 | **作った行を見える位置へ送ること（`HF-17`）は、根の升の副作用 `bringCreatedRowIntoSight` とする。** 描かれているかを判じて送るのはシェル（次のレイアウトで）。持ち越しの覚え `addedRowOwedSight` はシェルに残す | 送るかは描いた行の箱（フレームの値）で決まる（`frame-loop.ts:2178`〜`:2181`）。`SF-6` の副作用の実行の中身である。前例 `CR-460` の決定 5（待ちの継続はシェルの文脈） |
 | 決定 7 | **求めの取り下げは 1 つの出来事 `fieldFocusWithdrawn` とし、どの入力が取り下げかは呼び手が決める。** 原稿は `IN-5a` の 4 つの事由だけを出どころに書く | 事由は入力の種類（`Esc` ・ `Tab` ・ 押下）と画面の値の変化（パネルを閉じた）にまたがる。出来事を事由ごとに分けると、画面の値・身振りの既存のキー（`escapePressed` ・ `pointerPressed`）と重なる名を避けて 4 つ作ることになり、升はどれも同じ（`fieldFocusWanted` → `idle`）。⚠️ いまのコードは要求に無い事由でも求めを消す ⇒ 第 8 節の候補 1。波 B のシェルが写す（決定 10） |
 | 決定 8 | **選択の変化はこの領域の出来事 `choiceMoved` として受け、`createdTaskNamingStateMachine` だけを動かす。** 作ったものを選んだ変化は `creationLanded` が運ぶので、呼び手は送らない | 画面の値の `selectionMoved`（原稿、`otherRegion`「選択」）と同じ入力から 2 つの出来事を作る —— 1 つのキーを 2 つの領域に置けない（`state_machines_json_to_md.py:48`〜`:51`、`CR-440` の決定 12）。1 入力 → 2 出来事の前例は `CR-450` の 2.1 と `CR-460` の決定 7。名はコードの `endCreatedNamingIfChosenMoved`（`frame-loop.ts:2937`）の字面 |
@@ -74,7 +74,7 @@
 | 棚卸しとの差 | 棚卸しは `frameLoop` 5 ＋ `boot` 2 ＋ 面の閉包 14 ＋ モジュール 2 ＝ 23（`refactor-stage1-state-inventory-2026-09-13.md:207`）。**`nameFieldWantedUnder`（`:2917`）は棚卸しの後に `2d7c0670`（`DFC-651` の直し、`CR-426` の `IN-5b`）が足した** —— 本書は 24 行 | `git log -S"nameFieldWantedUnder"` |
 | `domScreenSurface` の範囲 | 2298〜3168 行 | 同じ測り方 |
 | 原稿の今 | 4 領域・機械 18・状態 53・出来事 57・升 127 ＋ 根の升 5 | スクラッチの `n-sm.py` で `state-machines.json` を数えた |
-| 画面の値の原稿が既に持つこの領域の受け口 | 出来事 `createdNameSettled`（入力「作った直後の名前の `Enter`」、`FR-091`）・`settleKeyPressed`（運ぶ値 `hasNoSurfaceOrConfirmation` ・ `hasNoUnsettledEntry`、`SK-19`）・`selectionMoved`（ほかの領域「選択」）・`propertiesOfChoiceAsked`、段 `escapePressed.rung` | 原稿を読んだ（`CR-436` の `EV-18` ・ `EV-19`、`CR-436:428`〜`:429`） |
+| 画面の値の原稿が既に持つこの領域の受け口 | 出来事 `createdNameSettled`（入力「作った直後の名前の `Enter`」、`FR-091`）・`settleKeyPressed`（運ぶ値 `hasNoSurfaceOrConfirmation` ・ `hasNoUnsettledEntry`、`SK-19`）・`selectionMoved`（ほかの領域「選択」）・`propertiesOfChoiceAsked`、段 `escapePressed.rung` | 原稿を読んだ（`CR-436` の `screen/createdNameSettled` ・ `screen/settleKeyPressed`、`CR-436:428`〜`:429`） |
 | md-checks の最終行 | `tables=179  figures=23  rows=2225  uids=162` | 第 7 節 |
 | 草案の原稿を生成器に通した | `load()` の問題 0。表と図を刷れた | スクラッチの `n-try-gen.py`（原稿の写しに付録の領域を足し、`SRC` を写しへ向けて `load()` と `build()` を呼んだ。木には何も書いていない ——`git status --short` が前後で同じ） |
 
@@ -184,7 +184,7 @@
 
 | 候補 | (1) `rulings.md` | (2) `impact.py` | (3) 導けるか | 結果 |
 |---|---|---|---|---|
-| 名前付けを新しい領域にするか、画面の値の領域に機械を足すか | 「名前付け」0 件、「入力欄」0 件、`FR-091` 0 件、「作った直後」0 件 | `FR-091` → 要求 4 件 ／ 参照 8 | **導けた** —— 計画が別の領域に数える（`:242` ・ `:253`）。画面の値の `createdNameSettled` は呼び手が判じる入力の出来事（`CR-436` の `EV-18`）なので `{in: …}` の読みが要らず、画面の値の原稿を 1 字も変えずに済む | 決定 1 |
+| 名前付けを新しい領域にするか、画面の値の領域に機械を足すか | 「名前付け」0 件、「入力欄」0 件、`FR-091` 0 件、「作った直後」0 件 | `FR-091` → 要求 4 件 ／ 参照 8 | **導けた** —— 計画が別の領域に数える（`:242` ・ `:253`）。画面の値の `createdNameSettled` は呼び手が判じる入力の出来事（`CR-436` の `screen/createdNameSettled`）なので `{in: …}` の読みが要らず、画面の値の原稿を 1 字も変えずに済む | 決定 1 |
 | 「入力中」（`AG-9`）を状態にするか | `AG-9` 0 件、`IF-9` 1 件（`JDG-68` —— 対話欄の打ちかけ。`IF-9` を正とした） | `AG-9` → 要求 1 件 ／ 参照 12、`IF-9` → 要求 1 件 ／ 参照 2 | **導けた（しない）** —— `IF-9`（des:563）が宿主に答えさせ、`JDG-68` が `IF-9` を正とした。焦点は出来事なしに動く（`frame-loop.ts:2907`） | 決定 4 |
 | 焦点の求めを状態にするか | `IN-5a` ・ `IN-5b` ・「焦点」各 1 件（`JDG-175`、問 8 を提案どおり） | `IN-5b` → 要求 0 件 ／ 参照 0、`IN-5a` → 要求 2 件 ／ 参照 4 | **導けた** —— `IN-5a` の後の段が求めと取り下げを名指し、`JDG-175` が了承した（`rulings.md:294`） | 決定 3 |
 | 再試行の上限（10 フレーム）を原稿や設定の行に載せるか | 0 件 | `IN-5b` → 要求 0 件 ／ 参照 0 | **導けた（載せない）** —— `IN-5b` は「入るか取り下げられるまで」と言い、上限を名指さない。上限はフレームを求めるかのシェルの規則（`frame-loop.ts:694`〜`:695` の WHY）。尽きた後の扱いは既存の `DFC-654` | 決定 3、第 8 節 |
