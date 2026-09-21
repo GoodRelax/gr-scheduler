@@ -29,9 +29,9 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             printed for a region that nests no composite)
   <STEM>_INITIAL_AXES       the initial value of every machine
   <STEM>_TRANSITIONS        every branch of the region's tables (table T-280
-                            for `screen`, table T-286 for `notices`), the
-                            root's first, then each machine's in manuscript
-                            order
+                            for `screen`, table T-286 for `notices`, table
+                            T-289 for `gesture`), the root's first, then each
+                            machine's in manuscript order
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,

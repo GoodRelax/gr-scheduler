@@ -44,6 +44,8 @@ COLUMN_SHAPES                        列の入力の形・選択肢・下限上�
 DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 ENTITY_ROWS                          実体の行（`erd.json`）
+GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+GESTURE_VALUES_TRANSITIONS           身振りの状態遷移表の升を 1 つずつ並べたもの（表 T-289。同じ生成器）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）

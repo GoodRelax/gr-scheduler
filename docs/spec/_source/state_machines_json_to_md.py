@@ -501,16 +501,22 @@ def branch_text(branch, source):
     return cell
 
 
+def term_key(term):
+    return ('in', term['in']) if 'in' in term else ('name', term['name'])
+
+
 def covers_every_case(branches):
-    """True when some branch has no guard, or two branches hold one guard and its `not`."""
+    """True when some branch has no guard, or every truth assignment of the guard
+    terms the cell names satisfies one branch (a guard is a conjunction)."""
     if any(not b.get('guard') for b in branches):
         return True
-    singles = set()
-    for b in branches:
-        guard = b['guard']
-        if len(guard) == 1 and 'name' in guard[0]:
-            singles.add((guard[0]['name'], bool(guard[0].get('not'))))
-    return any((name, not negated) in singles for name, negated in singles)
+    keys = sorted(set(term_key(t) for b in branches for t in b['guard']))
+    for bits in range(2 ** len(keys)):
+        truth = dict((k, bool(bits >> i & 1)) for i, k in enumerate(keys))
+        if not any(all(truth[term_key(t)] != bool(t.get('not')) for t in b['guard'])
+                   for b in branches):
+            return False
+    return True
 
 
 def cell_text(branches, source, leaf):

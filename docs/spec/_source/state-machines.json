@@ -2252,6 +2252,510 @@
      }
     }
    ]
+  },
+  {
+   "region": "gesture",
+   "name": {
+    "ja": "身振り"
+   },
+   "unit": "src/use-case/advance-screen-session/gesture-values.ts",
+   "typeStem": "GestureValues",
+   "table": {
+    "id": "T-289",
+    "caption": {
+     "ja": "身振りの状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-035",
+    "caption": {
+     "ja": "身振りの状態遷移"
+    }
+   },
+   "root": {
+    "carries": [],
+    "evidence": [
+     "CS-2"
+    ],
+    "transitions": {}
+   },
+   "events": [
+    {
+     "key": "pointerPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "CS-2",
+       "IN-1"
+      ],
+      "note": {
+       "ja": "ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressRow",
+       "rows": [
+        "PTD-1",
+        "PTD-2",
+        "PTD-3",
+        "PTD-4",
+        "PTD-4a",
+        "PTD-5"
+       ],
+       "note": {
+        "ja": "押下の行。呼び手が構えと `Dual Cursor` から詰める"
+       }
+      },
+      {
+       "name": "pressedOn",
+       "note": {
+        "ja": "押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・行の掴み代・つまみ）。座標は運ばない"
+       }
+      }
+     ]
+    },
+    {
+     "key": "pointerReleased",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IN-1",
+       "CS-2"
+      ],
+      "note": {
+       "ja": "押していたボタンを離した"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "pressInterrupted",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IN-1",
+       "IN-1a",
+       "IN-4"
+      ],
+      "note": {
+       "ja": "`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "rowGrabAxisSettled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "HF-15",
+       "S-208"
+      ],
+      "note": {
+       "ja": "行を掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる"
+      }
+     },
+     "carries": [
+      {
+       "name": "axis",
+       "rows": [
+        "HF-15"
+       ],
+       "note": {
+        "ja": "`position`（上下）か `depth`（左右）"
+       }
+      }
+     ]
+    },
+    {
+     "key": "entryRepeatTimeElapsed",
+     "source": {
+      "kind": "time",
+      "rows": [
+       "FR-018",
+       "S-172",
+       "S-173"
+      ],
+      "note": {
+       "ja": "`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた"
+      }
+     },
+     "carries": []
+    }
+   ],
+   "machines": [
+    {
+     "name": "pointerPressStateMachine",
+     "states": [
+      {
+       "key": "notPressed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "IN-1",
+        "AG-9"
+       ]
+      },
+      {
+       "key": "changingDocument",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "pressRow",
+         "note": {
+          "ja": "押した時点の押下の行"
+         }
+        },
+        {
+         "name": "pressedOn",
+         "note": {
+          "ja": "押したもの"
+         }
+        }
+       ],
+       "evidence": [
+        "AG-9",
+        "WS-2",
+        "CS-2",
+        "IN-4",
+        "UN-4"
+       ]
+      },
+      {
+       "key": "viewingDocument",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "pressRow",
+         "note": {
+          "ja": "押した時点の押下の行"
+         }
+        },
+        {
+         "name": "pressedOn",
+         "note": {
+          "ja": "押したもの"
+         }
+        }
+       ],
+       "evidence": [
+        "AG-9",
+        "UN-8",
+        "UN-9",
+        "IN-4",
+        "FR-018"
+       ]
+      }
+     ],
+     "transitions": {
+      "pointerPressed": {
+       "notPressed": [
+        {
+         "to": "changingDocument",
+         "guard": [
+          {
+           "name": "isDocumentChangingPress"
+          }
+         ],
+         "evidence": [
+          "AG-9",
+          "CS-2",
+          "UN-4"
+         ]
+        },
+        {
+         "to": "viewingDocument",
+         "guard": [
+          {
+           "name": "isDocumentChangingPress",
+           "not": true
+          },
+          {
+           "name": "isOnRepeatingEntry"
+          }
+         ],
+         "effect": "startEntryRepeat",
+         "evidence": [
+          "AG-9",
+          "UN-8",
+          "FR-018",
+          "S-172"
+         ],
+         "note": {
+          "ja": "前の待ちを捨てて張り直す"
+         }
+        },
+        {
+         "to": "viewingDocument",
+         "guard": [
+          {
+           "name": "isDocumentChangingPress",
+           "not": true
+          },
+          {
+           "name": "isOnRepeatingEntry",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "AG-9",
+          "UN-8",
+          "UN-9"
+         ]
+        }
+       ]
+      },
+      "pointerReleased": {
+       "changingDocument": {
+        "to": "notPressed",
+        "evidence": [
+         "IN-1",
+         "CS-2"
+        ]
+       },
+       "viewingDocument": {
+        "to": "notPressed",
+        "evidence": [
+         "IN-1",
+         "CS-2"
+        ]
+       }
+      },
+      "pressInterrupted": {
+       "changingDocument": [
+        {
+         "to": "notPressed",
+         "guard": [
+          {
+           "name": "isOnPaletteBand"
+          }
+         ],
+         "effect": "restorePaletteCorner",
+         "evidence": [
+          "FR-053",
+          "GR-19",
+          "IN-1",
+          "IN-1a",
+          "IN-4"
+         ],
+         "note": {
+          "ja": "パレットを押した時点の角へ戻す"
+         }
+        },
+        {
+         "to": "notPressed",
+         "guard": [
+          {
+           "name": "isOnPaletteBand",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "IN-1",
+          "IN-1a",
+          "IN-4"
+         ]
+        }
+       ],
+       "viewingDocument": [
+        {
+         "to": "notPressed",
+         "guard": [
+          {
+           "name": "isOnPaletteBand"
+          }
+         ],
+         "effect": "restorePaletteCorner",
+         "evidence": [
+          "FR-053",
+          "GR-19",
+          "IN-1",
+          "IN-1a",
+          "IN-4"
+         ],
+         "note": {
+          "ja": "パレットを押した時点の角へ戻す"
+         }
+        },
+        {
+         "to": "notPressed",
+         "guard": [
+          {
+           "name": "isOnPaletteBand",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "IN-1",
+          "IN-1a",
+          "IN-4"
+         ]
+        }
+       ]
+      },
+      "entryRepeatTimeElapsed": {
+       "viewingDocument": {
+        "to": "viewingDocument",
+        "guard": [
+         {
+          "name": "isOnRepeatingEntry"
+         }
+        ],
+        "effect": "repeatHeldEntry",
+        "evidence": [
+         "FR-018",
+         "S-173"
+        ],
+        "note": {
+         "ja": "入口の命令をもう 1 度実行し、`S-173` の待ちを張る"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "rowGrabStateMachine",
+     "states": [
+      {
+       "key": "notGrabbed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "HF-15"
+       ]
+      },
+      {
+       "key": "axisUndecided",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HF-15",
+        "GR-20",
+        "S-208"
+       ]
+      },
+      {
+       "key": "changingPosition",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HF-15"
+       ]
+      },
+      {
+       "key": "changingDepth",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HF-15"
+       ]
+      }
+     ],
+     "transitions": {
+      "pointerPressed": {
+       "notGrabbed": {
+        "to": "axisUndecided",
+        "guard": [
+         {
+          "name": "isRowGrabStrip"
+         }
+        ],
+        "evidence": [
+         "HF-15",
+         "GR-20",
+         "UN-4"
+        ]
+       }
+      },
+      "pointerReleased": {
+       "axisUndecided": {
+        "to": "notGrabbed",
+        "evidence": [
+         "HF-15",
+         "IN-1"
+        ]
+       },
+       "changingPosition": {
+        "to": "notGrabbed",
+        "evidence": [
+         "HF-15",
+         "IN-1"
+        ]
+       },
+       "changingDepth": {
+        "to": "notGrabbed",
+        "evidence": [
+         "HF-15",
+         "IN-1"
+        ]
+       }
+      },
+      "pressInterrupted": {
+       "axisUndecided": {
+        "to": "notGrabbed",
+        "evidence": [
+         "IN-1",
+         "IN-1a",
+         "IN-4"
+        ]
+       },
+       "changingPosition": {
+        "to": "notGrabbed",
+        "evidence": [
+         "IN-1",
+         "IN-1a",
+         "IN-4"
+        ]
+       },
+       "changingDepth": {
+        "to": "notGrabbed",
+        "evidence": [
+         "IN-1",
+         "IN-1a",
+         "IN-4"
+        ]
+       }
+      },
+      "rowGrabAxisSettled": {
+       "axisUndecided": [
+        {
+         "to": "changingPosition",
+         "guard": [
+          {
+           "name": "isPositionAxis"
+          }
+         ],
+         "evidence": [
+          "HF-15",
+          "S-208"
+         ]
+        },
+        {
+         "to": "changingDepth",
+         "guard": [
+          {
+           "name": "isPositionAxis",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-15",
+          "S-208"
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ]
   }
  ]
 }

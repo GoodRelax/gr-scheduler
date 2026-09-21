@@ -48,6 +48,8 @@ ARTIFACTS = [
      'state-machines.json'),
     ('src/use-case/advance-screen-session/notice-values.ts',
      'state-machines.json'),
+    ('src/use-case/advance-screen-session/gesture-values.ts',
+     'state-machines.json'),
     # The comment rules card (JDG-59), pasted into briefs instead of the rules.
     ('docs/review/comment-rules-card.md', 'comment-rules-src.md'),
     ('src/entity/document-model/schedule/schedule.ts', 'erd.json'),

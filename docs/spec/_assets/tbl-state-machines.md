@@ -474,3 +474,98 @@ stateDiagram-v2
 - `changeDeliveryStateMachine.delivering` —— 根拠 `WS-2` ・ `RS-9` ・ `CA-3`
 
 表に無い出来事は `changeDeliveryStateMachine` を変えない（同じ参照）。
+
+## 身振り（`gesture`）
+
+**表 T-289 — 身振りの状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+### 身振りの出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `gesture/pointerPressed` | 入力（ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構えと `Dual Cursor` から詰める） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・行の掴み代・つまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
+| `gesture/pointerReleased` | 入力（押していたボタンを離した）: `IN-1` ・ `CS-2` | — | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
+| `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `rowGrabStateMachine` |
+| `gesture/rowGrabAxisSettled` | 入力（行を掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる）: `HF-15` ・ `S-208` | `axis`（`HF-15`。`position`（上下）か `depth`（左右）） | `rowGrabStateMachine` |
+| `gesture/entryRepeatTimeElapsed` | 時間（`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた）: `FR-018` ・ `S-172` ・ `S-173` | — | `pointerPressStateMachine` |
+
+### 根 `gesture` の値
+
+運ぶ値: —。  
+根拠: `CS-2`。
+
+根の運ぶ値だけを書き換える出来事は無い。
+
+**図 F-035 — 身振りの状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-289 の状態遷移表が持つ。
+
+### 状態機械 `pointerPressStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> pointerPressStateMachine_notPressed
+    pointerPressStateMachine_notPressed : notPressed
+    pointerPressStateMachine_changingDocument : changingDocument
+    pointerPressStateMachine_viewingDocument : viewingDocument
+    pointerPressStateMachine_notPressed --> pointerPressStateMachine_changingDocument : pointerPressed
+    pointerPressStateMachine_notPressed --> pointerPressStateMachine_viewingDocument : pointerPressed
+    pointerPressStateMachine_changingDocument --> pointerPressStateMachine_notPressed : pointerReleased, pressInterrupted
+    pointerPressStateMachine_viewingDocument --> pointerPressStateMachine_notPressed : pointerReleased, pressInterrupted
+    pointerPressStateMachine_viewingDocument --> pointerPressStateMachine_viewingDocument : entryRepeatTimeElapsed
+```
+
+| 出来事 | `notPressed` | `changingDocument` | `viewingDocument` |
+| --- | --- | --- | --- |
+| `gesture/pointerPressed` | → `changingDocument` [`isDocumentChangingPress`]<br>→ `viewingDocument` [not `isDocumentChangingPress` & `isOnRepeatingEntry`] / `startEntryRepeat`（前の待ちを捨てて張り直す）<br>→ `viewingDocument` [not `isDocumentChangingPress` & not `isOnRepeatingEntry`] | — | — |
+| `gesture/pointerReleased` | — | → `notPressed` | → `notPressed` |
+| `gesture/pressInterrupted` | — | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] | → `notPressed` [`isOnPaletteBand`] / `restorePaletteCorner`（パレットを押した時点の角へ戻す）<br>→ `notPressed` [not `isOnPaletteBand`] |
+| `gesture/entryRepeatTimeElapsed` | — | — | → 自己 [`isOnRepeatingEntry`] / `repeatHeldEntry`（入口の命令をもう 1 度実行し、`S-173` の待ちを張る）<br>それ以外 → — |
+
+- `pointerPressStateMachine.notPressed` —— 初期。根拠 `IN-1` ・ `AG-9`
+- `pointerPressStateMachine.changingDocument` —— 運ぶ値 `pressRow`（押した時点の押下の行） ／ `pressedOn`（押したもの）。根拠 `AG-9` ・ `WS-2` ・ `CS-2` ・ `IN-4` ・ `UN-4`
+- `pointerPressStateMachine.viewingDocument` —— 運ぶ値 `pressRow`（押した時点の押下の行） ／ `pressedOn`（押したもの）。根拠 `AG-9` ・ `UN-8` ・ `UN-9` ・ `IN-4` ・ `FR-018`
+
+表に無い出来事は `pointerPressStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `rowGrabStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction TB
+    [*] --> rowGrabStateMachine_notGrabbed
+    rowGrabStateMachine_notGrabbed : notGrabbed
+    state "notGrabbed 以外" as rowGrabStateMachine_group {
+        rowGrabStateMachine_axisUndecided : axisUndecided
+        rowGrabStateMachine_changingPosition : changingPosition
+        rowGrabStateMachine_changingDepth : changingDepth
+    }
+    rowGrabStateMachine_group --> rowGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
+    rowGrabStateMachine_notGrabbed --> rowGrabStateMachine_axisUndecided : pointerPressed
+    rowGrabStateMachine_axisUndecided --> rowGrabStateMachine_changingPosition : rowGrabAxisSettled
+    rowGrabStateMachine_axisUndecided --> rowGrabStateMachine_changingDepth : rowGrabAxisSettled
+```
+
+| 出来事 | `notGrabbed` | `axisUndecided` | `changingPosition` | `changingDepth` |
+| --- | --- | --- | --- | --- |
+| `gesture/pointerPressed` | → `axisUndecided` [`isRowGrabStrip`]<br>それ以外 → — | — | — | — |
+| `gesture/pointerReleased` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
+| `gesture/pressInterrupted` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
+| `gesture/rowGrabAxisSettled` | — | → `changingPosition` [`isPositionAxis`]<br>→ `changingDepth` [not `isPositionAxis`] | — | — |
+
+- `rowGrabStateMachine.notGrabbed` —— 初期。根拠 `HF-15`
+- `rowGrabStateMachine.axisUndecided` —— 根拠 `HF-15` ・ `GR-20` ・ `S-208`
+- `rowGrabStateMachine.changingPosition` —— 根拠 `HF-15`
+- `rowGrabStateMachine.changingDepth` —— 根拠 `HF-15`
+
+表に無い出来事は `rowGrabStateMachine` を変えない（同じ参照）。

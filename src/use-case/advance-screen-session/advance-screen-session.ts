@@ -5,6 +5,13 @@
 // @publishes table T-064 row PI-39
 
 import {
+  emptyGestureValues,
+  stepGestureValues,
+  type GestureValues,
+  type GestureValuesEffect,
+  type GestureValuesEvent,
+} from './gesture-values'
+import {
   emptyNoticeValues,
   stepNoticeValues,
   type NoticeValues,
@@ -26,18 +33,23 @@ import { unchanged, type Step } from './session-step'
 export interface ScreenSession {
   readonly screen: ScreenValues
   readonly notices: NoticeValues
+  readonly gesture: GestureValues
 }
 
-// see T-280, T-286
-export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent
+// see T-280, T-286, T-289
+export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent | GestureValuesEvent
 
-// see T-280, T-286
-export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect
+// see T-280, T-286, T-289
+export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect | GestureValuesEffect
 
-// see T-280, T-286, SS-6
-export const emptyScreenSession: ScreenSession = { screen: emptyScreenValues, notices: emptyNoticeValues }
+// see T-280, T-286, T-289, SS-6
+export const emptyScreenSession: ScreenSession = {
+  screen: emptyScreenValues,
+  notices: emptyNoticeValues,
+  gesture: emptyGestureValues,
+}
 
-// WHY: a Record over the notices event types, so an event added to the manuscript and left
+// WHY: a Record over each region's event types, so an event added to the manuscript and left
 // out here fails to compile; every other event belongs to the screen-values region.
 const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
   noticeRaised: true,
@@ -47,9 +59,22 @@ const IS_NOTICE_EVENT: { readonly [T in NoticeValuesEvent['type']]: true } = {
   changeDelivered: true,
 }
 
+const IS_GESTURE_EVENT: { readonly [T in GestureValuesEvent['type']]: true } = {
+  pointerPressed: true,
+  pointerReleased: true,
+  pressInterrupted: true,
+  rowGrabAxisSettled: true,
+  entryRepeatTimeElapsed: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
+}
+
+/** @purity pure */
+function isGestureEvent(event: SessionEvent): event is GestureValuesEvent {
+  return Object.hasOwn(IS_GESTURE_EVENT, event.type)
 }
 
 // see SS-5, SF-3
@@ -73,5 +98,6 @@ export function advanceScreenSession(
   event: SessionEvent,
 ): Step<ScreenSession, SessionEffect> {
   if (isNoticeEvent(event)) return composed(session, 'notices', stepNoticeValues(session.notices, event))
+  if (isGestureEvent(event)) return composed(session, 'gesture', stepGestureValues(session.gesture, event))
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }
