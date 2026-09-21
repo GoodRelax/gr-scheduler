@@ -224,11 +224,12 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 # ⚠️ These are KEYS, not words.
 SCALE_ECHO_ENDS = ('max', 'min')
 
-# The word DC-3 of table T-029a (MUST) prints between the two Dual Cursor
-# lines: the day count, with {n} standing for the whole number of calendar
-# days. HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 is one row and the
-# word is its only column. These are KEYS, not words (CR-541).
-DUAL_CURSOR_SPAN_ROWS = ('DC-3',)
+# The lines DC-3 of table T-029a (MUST) shows beside the pointer while the
+# Dual Cursor mode is on: the date of cursor A (date1), of cursor B (date2), and
+# the span between them, whose value is `days`, or `oneDay` when the count is 1.
+# HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 states the lines in prose
+# and no table holds them as rows (CR-550). These are KEYS, not words.
+DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 
 # Table T-018 names each dependency kind; the screen shows the abbreviation
 # before the full-width parenthesis of its name column (CR-541, the note under
@@ -394,7 +395,7 @@ def roster():
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
-        'dualCursorSpan': list(DUAL_CURSOR_SPAN_ROWS),
+        'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -449,7 +450,7 @@ SHAPE = {
     'questions': ('rowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
     'scaleEcho': ('end', ('text',)),
-    'dualCursorSpan': ('rowId', ('text',)),
+    'dualCursorReadout': ('line', ('text',)),
 }
 
 
@@ -533,7 +534,7 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'scaleEcho', 'dualCursorSpan'):
+                    'scaleEcho', 'dualCursorReadout'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],
