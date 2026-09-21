@@ -1,4 +1,4 @@
-50
+49
 #
 # Check 31 -- rows of defects.md whose cells still read as blocked while the
 # row says it is settled. Held by check-stale-blocked.py; line 1 is the number.

@@ -78,7 +78,7 @@ HELD src/framework/file-system-access-file-store/file-system-access-file-store.t
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=103 branches=23
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=239 branches=62
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=85 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2599 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2600 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=168 branches=37
 HELD src/framework/single-html-shell/frame-loop.ts::owesFrame lines=29 branches=17
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=170 branches=73

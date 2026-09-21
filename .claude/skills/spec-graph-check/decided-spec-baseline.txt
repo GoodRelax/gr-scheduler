@@ -1,4 +1,4 @@
-79
+78
 #
 # LOWERED 80 -> 79 on 2026-09-16: the 80th row was DFC-604 itself. Check 29 also reads
 # fixed-defects.md, so reaping a row does not drop it; its decided-spec cell now names

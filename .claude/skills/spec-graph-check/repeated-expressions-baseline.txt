@@ -1,4 +1,4 @@
-85
+82
 # LOWERED 86 -> 85 on 2026-09-22, with the user's approval (asked in chat, answered "4 つとも
 # 下げる（推奨）"): measured 85 by check 45 after the CR-441 code wave (frame-loop.ts, item-grab.ts,
 # schedule-geometry.ts, schedule-layout.ts); which group went was not attributed.
