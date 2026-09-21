@@ -1,4 +1,4 @@
-3
+5
 #
 # Check 40 -- rows of defects.md that still read as un-ruled while a pending
 # decision (PND-) they name is 裁定済. Held by check-ruled-elsewhere.py; line 1
@@ -7,5 +7,8 @@
 # The rows left are 実測済 records that name a PND ruled after they were
 # written (DFC-61, DFC-48, DFC-156): a record is true of the day it was
 # written, and the check reads it as a claim (DFC-367).
+# RAISED 3 -> 5 on 2026-09-22 with leave from the user (JDG-300, triage Q11):
+# DFC-312 names PND-190, closed by the spec that day; DFC-727 carries the
+# code tidy that PND-188 (closed as stale) pointed at.
 # ⛔ Lower this when a row is corrected; raise it only deliberately, with the
 # row and the reason in the commit.
