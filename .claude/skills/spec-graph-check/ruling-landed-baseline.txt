@@ -1,4 +1,5 @@
-18
+17
+# LOWERED 18 -> 17 on 2026-09-22: JDG-283 landed at FR-052 / GR-22 (CR-436 wave B1).
 #
 # RAISED 17 -> 18 on 2026-09-21, approved by the user in chat ("上げてよい"): JDG-283 (PND-451, no divider band on a
 # put-away properties panel) came down before its landing; CR-436 carries the FR-052 sentence. Lower it back

@@ -86,11 +86,15 @@ SF-10  文書は集約に入れない。セッションは読むだけ
 
 ```
 ✅ 波 A   原稿・生成器・AdvanceScreenSession・契約試験・共通の状態機械の仕様（CR-436）
-⬜ 波 B1  JDG-283（隠したパネルの境界に掴み帯を置かない）—— FR-052 と GR-22 を 1 度に、
-          screen-frame.ts:105 と frame-loop.ts の @provisional PND-451 を消す
+✅ 波 B1  JDG-283（隠したパネルの境界に掴み帯を置かない）—— FR-052 と GR-22 を 1 度に、
+          screen-frame.ts の dividersOf、frame-loop.ts の @provisional PND-451 を消した（2026-09-22）
 ⬜ 波 B2  シェルへ結線し、frameLoop の let 12 を消す。Adapter の ScreenSession の袋を
           集約へ移す（CR-436 第 4 節）。NOT_YET_CALLED から AdvanceScreenSession を消す
-          ⛔ B1 ・ B2 の入口条件は段 5・6 の完了である（src/adapter ・ src/framework は本線の持ち場）
+          ⭐ 入口条件は緩めた（JDG-291、2026-09-21）: 段 5・6 を待たずに結線してよい。B2 を先に 1 本で入れ、
+             残りの領域は別々の作業木で並行し、frame-loop.ts へは 1 本ずつ併合する。性能は全部の結線の後に 1 回だけ測る
+             （波ごとに 1 コミット ⇒ git bisect で絞れる）。持ち場: こちら frame-loop.ts ・ screen-renderer ・
+             apply-document-change.ts ほか結線に要るシェルと adapter、段 6 は src/framework/dom-screen-surface/ だけ。
+             ⛔ 例外: CR-500 の波 B（面の focusin ・ focusout の知らせ）は段 6（CR-439）の着地を待つ
 ✅ 通知    CR-440 の波 A（原稿 SM-34〜38 ・ EV-31〜35 ・ TN-54〜63、notice-values.ts、表 T-286〜T-288、図 F-029）
           ⛔ 結線（let 4 つ）と配布中の旗の移し（apply-document-change.ts、検査 61 の基準線が動く）は
              CR-440 の波 B1 ・ B2 —— 段 5・6 と CR-436 の波 B2 の後

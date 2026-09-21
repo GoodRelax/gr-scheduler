@@ -275,6 +275,8 @@ const frameOf = (
   session: ScreenSession = SESSION,
 ): ScreenFrame => screenFrameFromRegions(regions, settings, state, session)
 
+const SHOWING: ScreenSession = { ...SESSION, propertiesShowing: 'selection' }
+
 const scrollbarOn = (frame: ScreenFrame, axis: Scrollbar['axis']): Scrollbar => {
   const found = frame.scrollbars.filter((bar) => bar.axis === axis)
   expect(found).toHaveLength(1)
@@ -537,22 +539,20 @@ describe('UF-61 -- FR-051 (MUST): the bars take their place from the `Row Area`'
 
 describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
   it("describes both boundaries, in FR-052's own order", () => {
-    expect(frameOf().dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
+    expect(frameOf(REGIONS, SETTINGS, STATE, SHOWING).dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
   })
 
-  it('describes the properties panel boundary whatever the screen state says', () => {
-    // ⚠️ Whether the panel is open reaches UF-64 through the session and does
-    // not reach this unit at all, and ScreenRegions gives the panel a rectangle
-    // either way -- so the boundary is described every frame.
+  it('describes the shown properties panel boundary whatever the screen state says', () => {
+    // WHY: S-99h lives in the session, so no screen state takes a shown panel's boundary away.
     const busy = screenStateWithSurface(screenStateWithFullScreen(STATE, true), 'Help Modal')
 
-    expect(frameOf(REGIONS, SETTINGS, busy).dividers.map((divider) => divider.panel)).toEqual([
+    expect(frameOf(REGIONS, SETTINGS, busy, SHOWING).dividers.map((divider) => divider.panel)).toEqual([
       ...FR_052_PANELS,
     ])
   })
 
   it('puts each band on the edge whose width a drag on it changes', () => {
-    const frame = frameOf()
+    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(REGIONS.rowTitlePanel)),
@@ -565,7 +565,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
   it('puts the line on the same boundary as the band', () => {
     // EP-9 (MUST) keeps the line in the export although the control does not go:
     // the line and the band mark one and the same boundary.
-    const frame = frameOf()
+    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').line, right(REGIONS.rowTitlePanel)),
@@ -579,7 +579,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
     // EP-9's reason is that the eye loses the join between the row titles and
     // the schedule when the line goes, so a line that covered part of the
     // boundary would leave that join unreadable for the rest of it.
-    const frame = frameOf()
+    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
 
     for (const panel of FR_052_PANELS) {
       const line = dividerOn(frame, panel).line
@@ -590,7 +590,7 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
 
   it('moves both boundaries when the person changes both widths', () => {
     const dragged = regionsOf({ rowTitlePanelWidth: 400, propertyPanelWidth: 160 })
-    const frame = frameOf(dragged)
+    const frame = frameOf(dragged, SETTINGS, STATE, SHOWING)
 
     expect(
       coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(dragged.rowTitlePanel)),
@@ -598,6 +598,47 @@ describe('UF-61 -- FR-052 and EP-9: one divider per panel boundary', () => {
     expect(
       coversXInclusive(dividerOn(frame, 'propertiesPanel').band, dragged.propertiesPanel.x),
     ).toBe(true)
+  })
+})
+
+describe('UF-61 -- FR-052 and GR-22 of table T-023d: no band on a panel that is not shown', () => {
+  it('⭐ プロパティパネルを出していないあいだ（`S-99h`）、その境界に掴み帯を敷かないこと（MUST）', () => {
+    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+
+    expect(frame.dividers.map((divider) => divider.panel)).toEqual(['rowTitlePanel'])
+  })
+
+  it('lays no band over the vertical bar while the panel is not shown', () => {
+    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+    const track = scrollbarOn(frame, 'vertical').track
+
+    for (const divider of frame.dividers) {
+      const overlapsTrack =
+        divider.band.x < right(track) &&
+        track.x < right(divider.band) &&
+        divider.band.y < bottom(track) &&
+        track.y < bottom(divider.band)
+      expect(overlapsTrack).toBe(false)
+    }
+  })
+
+  it('keeps the row title panel band while the properties panel is not shown', () => {
+    const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: null })
+
+    expect(
+      coversXInclusive(dividerOn(frame, 'rowTitlePanel').band, right(REGIONS.rowTitlePanel)),
+    ).toBe(true)
+  })
+
+  it('lays the band again once the panel is shown, whichever subject it shows', () => {
+    for (const shown of ['selection', 'documentSettings'] as const) {
+      const frame = frameOf(REGIONS, SETTINGS, STATE, { ...SESSION, propertiesShowing: shown })
+
+      expect(frame.dividers.map((divider) => divider.panel)).toEqual([...FR_052_PANELS])
+      expect(
+        coversXInclusive(dividerOn(frame, 'propertiesPanel').band, REGIONS.propertiesPanel.x),
+      ).toBe(true)
+    }
   })
 })
 
@@ -669,7 +710,7 @@ describe('UF-61 -- ⛔ LEFT FAILING: FR-051 calls the divider a grab band', () =
   // is settled this case stands, because a green suite here would say the
   // boundary can be dragged when it cannot.
   it('gives the band a width a pointer can land in', () => {
-    const frame = frameOf()
+    const frame = frameOf(REGIONS, SETTINGS, STATE, SHOWING)
 
     for (const panel of FR_052_PANELS) {
       expect(dividerOn(frame, panel).band.width).toBeGreaterThan(0)

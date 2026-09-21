@@ -1,4 +1,5 @@
-excess-lines=7868 excess-branches=777
+excess-lines=7841 excess-branches=774
+# LOWERED 7868/777 -> 7841/774 on 2026-09-22, approved by the user in chat: CR-436 wave B1 (JDG-283) shrank screenFrameFromRegions out of the band (HELD line removed), frameLoop 2616 -> 2605, receiveInput 189/80 -> 178/77.
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -47,7 +48,6 @@ HELD src/adapter/screen-renderer/app-header-items.ts::commandStateOf lines=56 br
 HELD src/adapter/screen-renderer/open-modals.ts::openModalFromScreenState lines=89 branches=12
 HELD src/adapter/screen-renderer/row-title-panel.ts::panelIndexOf lines=91 branches=27
 HELD src/adapter/screen-renderer/row-title-panel.ts::rowTitlePanelFromSchedule lines=68 branches=12
-HELD src/adapter/screen-renderer/screen-frame.ts::screenFrameFromRegions lines=55 branches=2
 HELD src/adapter/svg-renderer/schedule-grid.ts::gridParts lines=65 branches=13
 HELD src/adapter/svg-renderer/schedule-grid.ts::rulerSvg lines=79 branches=13
 HELD src/adapter/svg-renderer/schedule-overlays.ts::overlayParts lines=149 branches=29
@@ -77,10 +77,10 @@ HELD src/framework/file-system-access-file-store/file-system-access-file-store.t
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=103 branches=23
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=254 branches=68
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=96 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2616 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2605 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=168 branches=37
 HELD src/framework/single-html-shell/frame-loop.ts::owesFrame lines=30 branches=17
-HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=189 branches=80
+HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=178 branches=77
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=135 branches=14
 HELD src/framework/single-html-shell/frame-loop.ts::sessionOf lines=94 branches=7
 HELD src/framework/single-html-shell/frame-loop.ts::tentativeDependencyOf lines=64 branches=19

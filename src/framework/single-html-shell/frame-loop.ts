@@ -4170,17 +4170,6 @@ export function frameLoop(
           partUnderPointer?.entry === PALETTE_GRAB_BAND_ENTRY
             ? paletteCornerOf(commandPaletteDraggedTo, frame.regions)
             : null
-        // STOP: spec does not decide what a press on a put-away panel's boundary does. Looked in FR-052, FR-072, S-99h
-        // @provisional PND-451
-        if (partUnderPointer?.dividerPanel === 'propertiesPanel') {
-          const wasPutAway = isPropertiesPanelPutAway
-          isPropertiesPanelPutAway = false
-          // WHY: FR-052 counts from the width drawn once the panel is back, not the put-away 0.
-          if (wasPutAway && pressed !== null) {
-            const shown = withPropertiesPanelShown(held.document.documentSettings)
-            pressed = { ...pressed, propertyPanelWidthAtPress: shown.propertyPanelWidth }
-          }
-        }
         // TRAP: after collectPress; pressHeldOnRepeatingEntry reads the entrance that press recorded.
         beginEntryRepeat()
       }

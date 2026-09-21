@@ -65,6 +65,20 @@ function scrollbarIn(
   }
 }
 
+// see FR-052, GR-22, S-99h
+// WHY: a put-away panel's boundary is the screen's right edge, the only place to grab the vertical bar.
+/** @purity pure */
+function dividersOf(regions: ScreenRegions, session: ScreenSession): readonly PanelDivider[] {
+  const rowTitle = dividerAt(
+    'rowTitlePanel',
+    regions.rowTitlePanel,
+    regions.rowTitlePanel.x + regions.rowTitlePanel.width,
+  )
+  if (session.propertiesShowing === null) return [rowTitle]
+  const properties = dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x)
+  return [rowTitle, properties]
+}
+
 // see FR-051, FR-052, SC-4
 /** @purity pure */
 export function screenFrameFromRegions(
@@ -96,14 +110,7 @@ export function screenFrameFromRegions(
 
   return {
     isFullScreen: state.fullScreen,
-    dividers: [
-      dividerAt(
-        'rowTitlePanel',
-        regions.rowTitlePanel,
-        regions.rowTitlePanel.x + regions.rowTitlePanel.width,
-      ),
-      dividerAt('propertiesPanel', regions.propertiesPanel, regions.propertiesPanel.x),
-    ],
+    dividers: dividersOf(regions, session),
     scrollbars: [
       scrollbarIn(
         'horizontal',
