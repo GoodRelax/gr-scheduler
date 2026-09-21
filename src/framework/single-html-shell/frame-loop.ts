@@ -86,6 +86,7 @@ import {
   type SessionEffect,
   type SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { StandingNotice } from '../../use-case/advance-screen-session/notice-values'
 import {
   importDocument,
   type OpenChoice,
@@ -130,6 +131,7 @@ import {
 import {
   commandFromFieldCommit,
   commandFromInput,
+  isCombo,
   pressRowOf,
   rowBandCeilingOf,
   screenEventFromInput,
@@ -641,6 +643,7 @@ const HISTORY_LIMITS: HistoryLimits = {
 }
 
 const ESCAPE_KEY = 'Esc'
+const ENTER_KEY = 'Enter'
 
 const GUIDE_CURSOR_NONE = 'none'
 
@@ -689,6 +692,8 @@ const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'toolti
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
 const POINTER_RESTED: ScreenValuesEvent = { type: 'pointerRestElapsed' }
+const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
+const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
 
 // see IN-4, T-283
@@ -968,8 +973,6 @@ const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
 const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 
 const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
-
-const WATCHER_SILENT_REASON: NoticeReason = 'RS-23'
 
 const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
 
@@ -1312,6 +1315,38 @@ function panelShowingIn(session: ScreenSession): PanelShowing {
   return content === 'selectionDisplayed' ? 'selection' : 'documentSettings'
 }
 
+// see NT-3, T-286
+/** @purity pure */
+function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] {
+  const onScreen = session.notices.noticeDisplayState
+  return onScreen.kind === 'shown' ? onScreen.standing : []
+}
+
+// see WS-2, T-286
+/** @purity pure */
+function isDeliveringNoticesIn(session: ScreenSession): boolean {
+  return session.notices.changeDeliveryState.kind === 'delivering'
+}
+
+// see FR-076, T-233, T-286
+// WHY: the region carries no manner; the renderer's RaisedNotice takes it from the reason.
+/** @purity pure */
+function raisedNoticesOf(session: ScreenSession): readonly RaisedNotice[] {
+  return standingNoticesIn(session).map((one) => ({
+    manner: NOTICE_MANNER_OF_REASON[one.reason as NoticeReason],
+    reason: one.reason,
+    affectedCount: one.affectedCount,
+  }))
+}
+
+// see NT-8, IN-4, SK-19, T-283
+// WHY: the keys whose first rung is a standing notice: Esc (RG-1) and a plain Enter (T-036).
+/** @purity pure */
+function isNoticeDismissKey(input: HumanInput): boolean {
+  if (input.kind !== 'key') return false
+  return input.key === ESCAPE_KEY || (input.key === ENTER_KEY && isCombo(input.modifiers, false, false, false))
+}
+
 /** @purity pure */
 function surfaceOpenedBy(event: ScreenValuesEvent, screen: ScreenValues): string | null {
   if (event.type === 'surfaceEntryPressed' || event.type === 'surfaceRaisedByFlow') return event.surfaceName
@@ -1393,6 +1428,9 @@ function subjectOfChoice(selection: Selection, groupIds: readonly string[]): Pro
   if (selection.items.length === 0 && groupIds.length === 0) return null
   return { selection, groupIds }
 }
+
+// see ST-7
+type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
 
 interface ScreenEffectHands {
   readonly raiseNotice: (reason: NoticeReason) => void
@@ -2039,11 +2077,8 @@ export function frameLoop(
   let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
   let isAgentApiEnabled = startupAgentApiEnabled()
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
-  let raisedNotices: readonly RaisedNotice[] = []
+  // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
-  // TRAP: each export scene overwrites this; copy it at the call, never read it across an await.
-  let stackSafetyCapOfLastExportScene: string | null = null
-  let stackSafetyCapOwedByPictureExport: string | null = null
   // TRAP: as a ScreenState surface it would open a second modal stacked over this dialog.
   let asking: {
     readonly question: RaisedConfirmation
@@ -2094,11 +2129,20 @@ export function frameLoop(
     },
   }
 
+  // see WS-6, WS-7, T-286
+  // WHY: the delivery window is the notices region's state (SM-38); RS-23 comes back as TN-63's effect.
   const audience: ChangeAudience = {
     /** @purity non-pure */
     deliver(document: Document, hasMovedSchedule: boolean): void {
-      const outcome = notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
-      if (outcome.failures.length > 0) raiseNotice(WATCHER_SILENT_REASON, null)
+      sendToSession(DOCUMENT_REPLACED, null)
+      try {
+        const outcome = notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
+        sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
+      } catch (fault) {
+        // TRAP: the window must close on a throw too, or WS-2 refuses every later write.
+        sendToSession({ type: 'changeDelivered', silentWatchers: 0 }, null)
+        throw fault
+      }
     },
   }
 
@@ -2225,7 +2269,7 @@ export function frameLoop(
         `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
         `minimised=${paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)} ` +
         `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
-        `notices=${raisedNotices.length} asking=${asking !== null} ` +
+        `notices=${standingNoticesIn(session).length} asking=${asking !== null} ` +
         `focus=${screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +
         `panel=${panelShowingIn(session) ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
         `noticeReasons=${recordedNoticeReasons()}`,
@@ -2235,8 +2279,9 @@ export function frameLoop(
   // see IR-3
   /** @purity semi-pure-b */
   function recordedNoticeReasons(): string {
-    if (raisedNotices.length === 0) return UNREAD_IN_RECORD
-    return raisedNotices.map((one) => one.reason).join(',')
+    const standing = standingNoticesIn(session)
+    if (standing.length === 0) return UNREAD_IN_RECORD
+    return standing.map((one) => one.reason).join(',')
   }
 
   /** @purity semi-pure-b */
@@ -2423,7 +2468,7 @@ export function frameLoop(
           mergeCandidates,
           unreadColumns,
           droppedTaskNames,
-          notices: raisedNotices,
+          notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
         }),
@@ -2511,7 +2556,7 @@ export function frameLoop(
   }
 
   // see FR-039, SE-1, SE-2, SE-3, SE-4, SE-5
-  // TRAP: kept apart from raisedNotices, so notices= and the Esc / Enter levels never see it.
+  // TRAP: kept apart from the notices region, so notices= and the Esc / Enter levels never see it.
   // TRAP: the number is the held value after the press was carried out, so a write refused
   // (WS-2, a confirmation standing) shows the scale that really stands.
   /** @purity non-pure */
@@ -2609,43 +2654,30 @@ export function frameLoop(
     )
   }
 
-  // see FR-076, NT-3, T-233
+  // see FR-076, NT-3, T-233, T-286
+  // WHY: the gathering of a repeated reason (NT-3) lives in TN-55 alone; the shell only sends EV-31.
   /** @purity non-pure */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
-    const standing = raisedNotices.find((one) => one.reason === reason)
-    if (standing !== undefined) {
-      // TRAP: the gathered telling must move to the end, or newest-first dismissal misses it.
-      raisedNotices = [
-        ...raisedNotices.filter((one) => one.reason !== reason),
-        {
-          ...standing,
-          affectedCount: (standing.affectedCount ?? 1) + (affectedCount ?? 1),
-        },
-      ]
-    } else {
-      raisedNotices = [
-        ...raisedNotices,
-        { manner: NOTICE_MANNER_OF_REASON[reason], reason, affectedCount },
-      ]
-    }
+    sendToSession({ type: 'noticeRaised', reason, affectedCount }, null)
     if (settled(environment)) ask()
   }
 
-  /** @purity pure */
-  function noticesWithout(answered: string): readonly RaisedNotice[] {
-    return raisedNotices.filter((one) => dismissKeyOf(one) !== answered)
+  // see NT-8, T-286
+  // WHY: the surface names the pressed telling by its dismiss key; the region takes the reason (EV-33).
+  /** @purity non-pure */
+  function dismissNoticeByKey(answered: string, frame: FrameValues): void {
+    const told = raisedNoticesOf(session).find((one) => dismissKeyOf(one) === answered)
+    if (told !== undefined) sendToSession({ type: 'noticeDismissPressed', reason: told.reason }, frame)
   }
 
-  // see NT-8, SK-19
+  // see NT-8, SK-19, T-283
+  // WHY: EV-32 goes before anything else the input carries (CR-440 decision 6): spendFieldCommit
+  // can raise a telling this key never saw, and the newest as of arrival is the one it dismisses.
   /** @purity non-pure */
-  function dismissNewestNotice(): void {
-    // TRAP: newest as of key arrival; the list end may be a telling this press raised.
-    const standing = raisedNotices.filter((one) => noticeReasonsOnArrival.has(one.reason))
-    const newest = standing[standing.length - 1]
-    if (newest === undefined) return
-    // TRAP: by identity, not dismiss key; two failures of one kind share a key and both would go.
-    raisedNotices = raisedNotices.filter((one) => one !== newest)
-    ask()
+  function spendNoticeRungFirst(input: HumanInput, frame: FrameValues): boolean {
+    const isStanding = standingNoticesIn(session).length > 0
+    if (isStanding && isNoticeDismissKey(input)) sendToSession(NEWEST_NOTICE_DISMISS_ASKED, frame)
+    return isStanding
   }
 
   // see NT-7
@@ -2696,9 +2728,10 @@ export function frameLoop(
     raiseNotice(reason, null)
   }
 
-  // see FR-080, EP-11, EP-12
+  // see FR-080, EP-11, EP-12, ST-7
+  // WHY: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
   /** @purity semi-pure-b */
-  function exportScene(): ExportScene | null {
+  function exportScene(): ExportSceneWithCapStop | null {
     if (!settled(environment)) return null
     const document = held.document
     const withPanelsClosed: DocumentSettings = {
@@ -2723,7 +2756,6 @@ export function frameLoop(
       isLevelZeroFoldedIn(session),
       environment.rowControlsHeightPx,
     )
-    stackSafetyCapOfLastExportScene = layout.stackSafetyCapReached?.groupId ?? null
     const nothingSelected = emptySelection()
     const geometry = geometryFromLayout(
       document.schedule,
@@ -2781,6 +2813,7 @@ export function frameLoop(
       ),
       settings,
       themeHue: document.schedule.project.themeHue,
+      capStopGroupId: layout.stackSafetyCapReached?.groupId ?? null,
     }
   }
 
@@ -2921,6 +2954,7 @@ export function frameLoop(
         exportScene: exportScene(),
         isGestureInFlight: isDocumentChangingPress(pressed),
         isEditingInPlace: hasUnsettledTextEntry(),
+        isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
         defaultRowName: DEFAULT_ROW_NAME,
@@ -3087,9 +3121,6 @@ export function frameLoop(
 
   let addedRowOwedSight: string | null = null
 
-  // TRAP: reasons, not telling objects; a gathered repeat is a new object and would stop matching.
-  let noticeReasonsOnArrival: ReadonlySet<string> = new Set<string>()
-
   let didSettleFieldEntry = false
 
   // see FR-016
@@ -3167,7 +3198,7 @@ export function frameLoop(
   /** @purity semi-pure-b */
   function collectInputContext(
     frame: FrameValues,
-    isNoticeStanding: boolean = raisedNotices.length > 0,
+    isNoticeStanding: boolean = standingNoticesIn(session).length > 0,
   ): InputContext {
     const drawnRowBoxes = drawnRowBoxesOf(frame.layout, frame.regions)
     const withoutCeiling: InputContext = {
@@ -3214,7 +3245,7 @@ export function frameLoop(
     return {
       gestureInFlight: isDocumentChangingPress(pressed),
       editingInPlace: !isSettlingFieldCommit && hasUnsettledTextEntry(),
-      deliveringNotices: false,
+      deliveringNotices: isDeliveringNoticesIn(session),
     }
   }
 
@@ -3597,54 +3628,57 @@ export function frameLoop(
   ): Promise<void> {
     const form = saveFormOfExportFormat(format)
     if (form === null) return
-    // TRAP: wiped at the head, or a form that builds no picture inherits an earlier export's stop.
-    stackSafetyCapOwedByPictureExport = null
     const written = held.document
     const text = exportedText(form, written)
-    const content = text === null ? await exportPictureContent(form, written) : { text }
-    if (content === null) return
+    // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
+    const picture =
+      text === null ? await exportPictureContent(form, written) : { content: { text }, capStopGroupId: null }
+    if (picture === null) return
 
     const saving = await saveDocumentFile(
       store,
-      chosenFileSave(content, written.schedule.project, form),
+      chosenFileSave(picture.content, written.schedule.project, form),
     )
     if (saving.ok) {
       // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
-      if (stackSafetyCapOwedByPictureExport !== null) {
-        stackSafetyCapOwedByPictureExport = null
-        raiseNotice(STACK_SAFETY_CAP_REASON, null)
-      }
+      if (picture.capStopGroupId !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
       return
     }
     raiseFileFault(saving.fault)
   }
 
-  // see IO-3, IO-4, IO-7
+  // see IO-3, IO-4, IO-7, ST-7
   /** @purity non-pure */
   async function exportPictureContent(
     form: SaveFileForm,
     written: Document,
-  ): Promise<ChosenFileSaveRequest['content'] | null> {
+  ): Promise<{
+    readonly content: ChosenFileSaveRequest['content']
+    readonly capStopGroupId: string | null
+  } | null> {
     switch (form) {
       case 'grsJson':
       case 'mspdi':
         return null
-      case 'singleHtml':
-        return await embeddedHtmlContent(written)
+      case 'singleHtml': {
+        const content = await embeddedHtmlContent(written)
+        return content === null ? null : { content, capStopGroupId: null }
+      }
       case 'svg':
       case 'png': {
         const scene = exportScene()
-        stackSafetyCapOwedByPictureExport = stackSafetyCapOfLastExportScene
         if (scene === null) return null
+        const capStopGroupId = scene.capStopGroupId
         if (form === 'svg') {
           const picture = exportSvg(scene)
           if (!picture.ok) {
             raiseNotice(HEIGHT_CEILING_REASON, null)
             return null
           }
-          return { text: picture.svg }
+          return { content: { text: picture.svg }, capStopGroupId }
         }
-        return await rasteredContent(scene)
+        const rastered = await rasteredContent(scene)
+        return rastered === null ? null : { content: rastered, capStopGroupId }
       }
     }
   }
@@ -3985,8 +4019,8 @@ export function frameLoop(
           return
         }
         const scene = exportScene()
-        const capStopInPicture = stackSafetyCapOfLastExportScene
         if (scene === null) return
+        const capStopInPicture = scene.capStopGroupId
         // TRAP: the same PNG road as IO-4, not exportSvg; FR-025 puts one image/png on the
         // board and forbids the SVG text beside it.
         void exportPng(paint, scene).then(async (painted) => {
@@ -4033,7 +4067,7 @@ export function frameLoop(
         return
       }
       case 'dismissNotice':
-        dismissNewestNotice()
+        // WHY: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).
         return
       case 'settleTextEntry':
         settleOnScreen(frame)
@@ -4248,14 +4282,14 @@ export function frameLoop(
     sessionBefore: ScreenSession,
     partBefore: ScreenPart | null,
     grabBefore: Grabbed | null,
-    noticesBefore: readonly RaisedNotice[],
+    noticesBefore: ScreenSession['notices'],
     hasKeyActed: boolean,
   ): boolean {
     if (input.kind !== 'pointer') {
       if (pressed !== null) return true
       if (held.document !== before.document || session !== sessionBefore) return true
       if (selection !== before.selection) return true
-      if (raisedNotices !== noticesBefore) return true
+      if (session.notices !== noticesBefore) return true
       // TRAP: a key that acted on nothing and moved nothing would draw the frame already shown;
       // a held Shift, Ctrl or Alt repeats its press about 30 times a second.
       return input.kind === 'key' && (hasKeyActed || !isSameGrab(grabUnderPointer, grabBefore))
@@ -4303,14 +4337,14 @@ export function frameLoop(
       return
     }
 
-    // TRAP: taken before spendFieldCommit, whose settling can raise a notice this key never saw.
-    noticeReasonsOnArrival = new Set(raisedNotices.map((one) => one.reason))
+    // TRAP: the notice rung is spent before spendFieldCommit, whose settling can raise a telling this key never saw.
+    const noticesBefore = session.notices
+    const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
     spendFieldCommit(frame)
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
-    const noticesBefore = raisedNotices
     if (input.kind === 'pointer') {
       // TRAP: first in this block; the NT-8 dismissal below returns early, and the repeat would tick for ever.
       if (input.phase === 'up' || input.phase === 'lost') endEntryRepeat()
@@ -4332,7 +4366,7 @@ export function frameLoop(
         beginEntryRepeat()
       }
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
-        raisedNotices = noticesWithout(partUnderPointer.noticeDismissKey)
+        dismissNoticeByKey(partUnderPointer.noticeDismissKey, frame)
         ask()
         recordLine('done', 'spent=noticeDismiss frame=yes')
         return
@@ -4349,7 +4383,7 @@ export function frameLoop(
     // DEVIATION: spec says owesFrame compares the whole root (UF-48); a restored tooltip owed no frame (DFC-692)
     const sessionBefore = session
     // TRAP: one context for all three members; rebuilding it reads the clock again (R7.4).
-    const context = collectInputContext(frame, noticeReasonsOnArrival.size > 0)
+    const context = collectInputContext(frame, isNoticeStandingOnArrival)
     // TRAP: asked before the members run; asked after an Esc rung is spent, one press spends two levels.
     const escapeLevel = escapeLevelOf(
       input,
@@ -4364,7 +4398,6 @@ export function frameLoop(
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
-    if (escapeLevel === 'notice') dismissNewestNotice()
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
     if (rungEvent !== null) sendToSession(rungEvent, frame)

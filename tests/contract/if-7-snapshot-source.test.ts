@@ -200,6 +200,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
       exportScene: withholdScene ? null : over.loop.exportScene(),
       isGestureInFlight: false,
       isEditingInPlace: false,
+      isDeliveringNotices: false,
       historyLimits: {
         maxSteps: NOT_STORED_LIMITS['S-94'],
         // S-95 is stated in megabytes; the plan counts bytes.

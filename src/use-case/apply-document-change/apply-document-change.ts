@@ -15,7 +15,6 @@ import {
   type ReplacementInput,
   type ReplacementPlan,
   type ReplacementRefusal,
-  type WriteMoment,
 } from './document-change-plan'
 
 export type {
@@ -65,14 +64,8 @@ export type ReplaceOutcome =
       readonly hasMovedSchedule: boolean
     }
 
-// WHY: module-scoped, not on WriteMoment: a subscriber writing back from deliver would say false.
-let deliveringNotices = false
-
-/** @purity semi-pure-b */
-function momentInsideTheWindow(moment: WriteMoment): WriteMoment {
-  return { ...moment, deliveringNotices: moment.deliveringNotices || deliveringNotices }
-}
-
+// see WS-6, WS-7, T-286
+// WHY: the delivery window is the caller's session state (SM-38), handed in on WriteMoment (CR-440).
 /** @purity non-pure */
 function replaceThenTell(
   next: HeldDocument,
@@ -81,13 +74,7 @@ function replaceThenTell(
   audience: ChangeAudience,
 ): void {
   holder.replace(next)
-
-  deliveringNotices = true
-  try {
-    audience.deliver(next.document, hasMovedSchedule)
-  } finally {
-    deliveringNotices = false
-  }
+  audience.deliver(next.document, hasMovedSchedule)
 }
 
 // see CP-8, T-067
@@ -100,7 +87,6 @@ export function applyDocumentChange(
   const held = holder.read()
   const plan: ChangePlan = planDocumentChange({
     ...input,
-    moment: momentInsideTheWindow(input.moment),
     document: held.document,
     history: held.history,
   })
@@ -130,7 +116,6 @@ export function replaceDocument(
   const held = holder.read()
   const plan: ReplacementPlan = planDocumentReplacement({
     ...input,
-    moment: momentInsideTheWindow(input.moment),
     held,
   })
   if (!plan.ok) return { accepted: false, refusal: plan.refusal }

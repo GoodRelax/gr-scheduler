@@ -110,6 +110,7 @@ function bench(): Bench {
     exportScene: null,
     isGestureInFlight: false,
     isEditingInPlace: false,
+    isDeliveringNotices: false,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: SETTINGS_LIMITS,
     readAt: READ_AT,

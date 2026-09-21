@@ -323,7 +323,7 @@ function planAndApply(
       moment: {
         gestureInFlight: snapshot.isGestureInFlight,
         editingInPlace: snapshot.isEditingInPlace,
-        deliveringNotices: false,
+        deliveringNotices: snapshot.isDeliveringNotices,
       },
       historyLimits: snapshot.historyLimits,
       settingsLimits: snapshot.settingsLimits,

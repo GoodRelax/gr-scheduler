@@ -398,6 +398,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       exportScene: state.frame === null ? null : exportSceneOf(state.document),
       isGestureInFlight: state.isGestureInFlight,
       isEditingInPlace: state.isEditingInPlace,
+      isDeliveringNotices: false,
       historyLimits: state.historyLimits,
       settingsLimits: SETTINGS_LIMITS,
       readAt: state.readAt,
