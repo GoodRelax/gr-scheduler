@@ -12,6 +12,7 @@ import type { ScreenSurfaceWiring, ScreenTheme } from './dom-screen-surface'
 import {
   NOT_STORED_ICON_SIZES,
   NOT_STORED_ROW_BAND_SIZES,
+  NOT_STORED_ROW_CONTROL_EDGE_SIZES,
   NOT_STORED_ROW_GRAB_STRIP_SIZES,
   PAINT,
   ROLE,
@@ -63,9 +64,9 @@ function rowControlStepPx(): number {
   return rowControlBoxPx()
 }
 
-// STOP: spec does not decide the inset of the nearest row control from the right edge.
-// Looked in HF-4, T-051, T-206. @provisional PND-348
-const ROW_CONTROL_EDGE_PX = 4
+// see HF-4, T-206
+// @provisional PND-348
+const ROW_CONTROL_EDGE_PX = NOT_STORED_ROW_CONTROL_EDGE_SIZES['S-313']
 
 /** @purity pure */
 function rowControlRight(stepsFromEdge: number): string {

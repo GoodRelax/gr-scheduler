@@ -1168,7 +1168,7 @@ No new generator: check 27's count of generated artifacts does not move.
 | S-6 | CR-541 ↔ CR-544 | 生成される `src/adapter/screen-renderer/display-words.json` の節 `dualCursorSpan`、項 `{ "rowId": "DC-3", "text": { "ja": "{n} 日", "en": "{n} days" } }`。`{n}` を暦日の整数（2 本の日付の差）で置き換えて刷る |
 | S-7 | CR-541 ↔ CR-544 | 表 T-236 の行 `S-312`（注記の色、明暗とも `#b45309`、色相に追随しない）。生成器が `svg-renderer.ts` の `SCHEDULE_COLOURS` に `'S-312'` を載せる。描く側は `themed('S-312')` で読み、`schedule-overlays.ts:60` の `ANNOTATION_COLOUR` を消す。⚠️ `schedule-task-figures.ts:103` のフェードの掴み点の 2 色は `S-312` ではない（11 節の問い 5） |
 | S-8 | CR-541 ↔ CR-545 | 生成される `src/adapter/screen-renderer/display-words.json` の節 `dependencyKinds`、表 T-018 の行の順に `{ "rowId": "DP-1", "linkType": 1, "abbreviation": "FS" }` ・ `{ "rowId": "DP-2", "linkType": 2, "abbreviation": "SF" }` ・ `{ "rowId": "DP-3", "linkType": 0, "abbreviation": "FF" }` ・ `{ "rowId": "DP-4", "linkType": 3, "abbreviation": "SS" }`。パネルは保存した `linkType` で引いて `abbreviation` を出す |
-| S-9 | CR-541 ↔ CR-545 | 表 T-206 の行 `S-313`（既定 `4`、単位 px、`S-235` も表示の倍率も掛けない）。生成器が `NOT_STORED_ROW_CONTROL_SIZES`（生成先は `src/adapter/screen-renderer/row-title-panel.ts:356`）に `'S-313': 4` を載せる（当てて確かめた）。描く側は `ROW_CONTROL_EDGE_PX`（`dom-screen-surface.ts:918`）をこれに置き換える |
+| S-9 | CR-541 ↔ CR-545 | 表 T-206 の行 `S-313`（既定 `4`、単位 px、`S-235` も表示の倍率も掛けない）。生成器が `NOT_STORED_ROW_CONTROL_SIZES`（生成先は `src/adapter/screen-renderer/row-title-panel.ts:356`）に `'S-313': 4` を載せる（当てて確かめた）。描く側のためにも、生成器は同じ行を `NOT_STORED_ROW_CONTROL_EDGE_SIZES`（生成先は `src/framework/dom-screen-surface/dom-screen-surface.ts` の生成ブロック、`S-218` の `NOT_STORED_ROW_GRAB_STRIP_SIZES` と同じ書き方）に `'S-313': 4` として載せる。描く側 `row-title-panel-drawing.ts` の `ROW_CONTROL_EDGE_PX` はこれを読む |
 
 ---
 

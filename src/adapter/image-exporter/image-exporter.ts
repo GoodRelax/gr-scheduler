@@ -47,10 +47,20 @@ export type ImageExport =
   | ({ readonly ok: true } & SvgPicture & { readonly png: Rastering })
   | { readonly ok: false; readonly fault: ImageExportFault }
 
-// STOP: spec does not decide the colours of the export band and panel. Looked in EP-1, EP-3
+// see EP-1, EP-3
 // @provisional PND-50
-const CHROME_GROUND = '#f3f4f6'
-const CHROME_INK = '#111111'
+/** @purity pure */
+function chromeGround(settings: DocumentSettings, themeHue: number): string {
+  const dark = settings.themePreference === 'dark'
+  return colourOf('S-150', themeHue, dark, settings.themeMonochrome)
+}
+
+// see EP-1, EP-3
+/** @purity pure */
+function chromeInk(settings: DocumentSettings, themeHue: number): string {
+  const dark = settings.themePreference === 'dark'
+  return colourOf('S-147', themeHue, dark, settings.themeMonochrome)
+}
 
 // TRAP: must not collide with an id inside the received picture it clips.
 const FIT_CLIP_ID = 'grs-export-fit'
@@ -95,11 +105,11 @@ function rectSvg(rect: ScreenRect, fill: string): string {
 }
 
 /** @purity pure */
-function textSvg(x: number, y: number, fontSizePx: number, text: string): string {
+function textSvg(x: number, y: number, fontSizePx: number, text: string, ink: string): string {
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSizePx)}"` +
     ` font-family="${escaped(NOT_STORED_TYPEFACES['S-246'])}"` +
-    ` fill="${CHROME_INK}" xml:space="preserve">${escaped(text)}</text>`
+    ` fill="${ink}" xml:space="preserve">${escaped(text)}</text>`
   )
 }
 
@@ -109,16 +119,17 @@ function appHeaderSvg(
   band: ScreenRect,
   documentTitle: string | null,
   settings: DocumentSettings,
+  themeHue: number,
   ratio: number,
 ): string {
-  const ground = rectSvg(scaledRect(band, ratio), CHROME_GROUND)
+  const ground = rectSvg(scaledRect(band, ratio), chromeGround(settings, themeHue))
   if (documentTitle === null || documentTitle === '') return ground
   // see FR-051, EP-1
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
   const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome * ratio
   const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
   const y = (band.y + band.height * settings.labelBaseline) * ratio
-  return ground + textSvg(x, y, fontSizePx, documentTitle)
+  return ground + textSvg(x, y, fontSizePx, documentTitle, chromeInk(settings, themeHue))
 }
 
 // see EP-3
@@ -127,13 +138,14 @@ function rowTitleSvg(
   title: RowTitle,
   panel: ScreenRect,
   settings: DocumentSettings,
+  ink: string,
   ratio: number,
 ): string {
   if (title.label === null || title.label === '') return ''
   const fontSizePx = rowTitleFontPxOf(title.depth, settings)
   const x = (panel.x + title.indentPx) * ratio
   const y = (title.box.y + fontSizePx) * ratio
-  return textSvg(x, y, fontSizePx * ratio, title.label)
+  return textSvg(x, y, fontSizePx * ratio, title.label, ink)
 }
 
 // see EP-9
@@ -169,11 +181,13 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const pinned = screenView.rowTitlePanel.pinnedTitles
   // see FR-039, T-252
   const drawn = drawnSettingsOf(settings)
+  const hue = scene.themeHue
+  const ink = chromeInk(settings, hue)
   const drawnHere =
-    appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, ratio) +
-    rectSvg(scaledRect(panel, ratio), CHROME_GROUND) +
-    pinned.map((title) => rowTitleSvg(title, panel, drawn, ratio)).join('') +
-    titles.map((title) => rowTitleSvg(title, panel, drawn, ratio)).join('') +
+    appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, hue, ratio) +
+    rectSvg(scaledRect(panel, ratio), chromeGround(settings, hue)) +
+    pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
+    titles.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     dividerLinesSvg(screenView, settings, scene.themeHue, ratio)
 
   const width = settings.exportCanvas.width

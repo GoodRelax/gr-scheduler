@@ -1001,6 +1001,13 @@ export const NOT_STORED_ROW_BAND_SIZES: {
 }
 
 // see T-206
+export const NOT_STORED_ROW_CONTROL_EDGE_SIZES: {
+  readonly 'S-313': number
+} = {
+  'S-313': 4,
+}
+
+// see T-206
 const NOT_STORED_STATE_GROUND_PERCENTS: {
   readonly 'S-214': number
   readonly 'S-215': number

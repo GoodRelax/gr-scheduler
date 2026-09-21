@@ -1258,6 +1258,14 @@ NOT_STORED_TARGETS = {
     # marked with -- HF-15's live axis and HF-18's holding mark -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_ROW_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
+    # THE SAME ROW, ON THE SIDE THAT DRAWS IT (seam S-9 of CR-541). S-313 stands
+    # in NOT_STORED_ROW_CONTROL_SIZES for row-title-panel.ts, which measures the
+    # controls, and here for row-title-panel-drawing.ts, which lays the nearest
+    # one in from the panel's right edge (HF-4 of table T-051); neither unit may
+    # import the other (Chapter 5.3), so both read one generated row -- the
+    # bargain S-218 already stands on. NOT folded into the lines above: one
+    # constant per consuming SUBJECT, and this subject is the controls' inset.
+    'NOT_STORED_ROW_CONTROL_EDGE_SIZES': (['S-313'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE EITHER, though it lands in the same
     # file: S-213 is a BAND drawn on a row's edge and these two are how faint a
     # GROUND laid under something is, which is the subject S-214's own row
@@ -1570,7 +1578,7 @@ COLOUR_TARGETS = {
     # colour it lends is deliberately neither S-163's nor S-195's, which is what
     # FR-048's closing MUST asks of a line that carries no date. @provisional
     # PND-341
-    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-151', 'S-155', 'S-156',
+    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-312', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
                          'S-169', 'S-195', 'S-223'],
@@ -2217,6 +2225,7 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_GRAB_STRIP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_ROW_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
@@ -2402,6 +2411,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_PROPERTY_FIELD_SIZES',
         'NOT_STORED_RESOURCE_ROSTER_SIZES',
         'NOT_STORED_ROW_BAND_SIZES',
+        'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
         'NOT_STORED_ROW_GRAB_STRIP_SIZES',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
