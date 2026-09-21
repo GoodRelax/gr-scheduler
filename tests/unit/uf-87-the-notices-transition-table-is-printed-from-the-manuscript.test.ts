@@ -7,25 +7,36 @@ import { describe, expect, it } from 'vitest'
 
 import { NOTICE_VALUES_TRANSITIONS } from '../../src/use-case/advance-screen-session/notice-values'
 
-interface GuardTerm {
-  readonly name: string
-  readonly not?: true
+type GuardTerm = { readonly name: string; readonly not?: true } | { readonly in: string }
+
+interface Branch {
+  readonly to?: string
+  readonly guard?: readonly GuardTerm[]
+  readonly effect?: string
+  readonly effectArgument?: string
 }
 
-interface ManuscriptTransition {
-  readonly id: string
-  readonly from: readonly (readonly string[])[]
-  readonly event: string
-  readonly guard: readonly GuardTerm[] | null
-  readonly to: readonly string[] | 'self'
-  readonly effect: { readonly name: string; readonly row?: string } | null
-}
+type Cell = Branch | readonly Branch[]
 
 interface Manuscript {
   readonly regions: readonly {
     readonly region: string
-    readonly transitions: readonly ManuscriptTransition[]
+    readonly root: { readonly transitions: Readonly<Record<string, Cell>> }
+    readonly machines: readonly {
+      readonly name: string
+      readonly transitions: Readonly<Record<string, Readonly<Record<string, Cell>>>>
+    }[]
   }[]
+}
+
+interface ManuscriptTransition {
+  readonly id: string
+  readonly state: string
+  readonly event: string
+  readonly guard: readonly GuardTerm[] | null
+  readonly to: string
+  readonly effect: string | null
+  readonly effectArgument: string | null
 }
 
 const MANUSCRIPT = JSON.parse(
@@ -36,29 +47,61 @@ const NOTICES = MANUSCRIPT.regions.find((one) => one.region === 'notices')
 
 function guardText(guard: readonly GuardTerm[] | null): string | null {
   if (guard === null) return null
-  return guard.map((term) => (term.not === true ? `not ${term.name}` : term.name)).join(' & ')
+  return guard.map((term) => ('in' in term ? `in ${term.in}` : term.not === true ? `not ${term.name}` : term.name)).join(' & ')
 }
+
+function branchesOf(cell: Cell): readonly Branch[] {
+  return Array.isArray(cell) ? cell : [cell as Branch]
+}
+
+function rowOf(state: string, event: string, branch: Branch, to: string): ManuscriptTransition {
+  const guard = branch.guard ?? null
+  const id = `${state} x ${event}${guard === null ? '' : ` [${guardText(guard) ?? ''}]`}`
+  return { id, state, event, guard, to, effect: branch.effect ?? null, effectArgument: branch.effectArgument ?? null }
+}
+
+// WHY: one row per branch of every cell, the root's first and then each machine's in
+// manuscript order -- the order the generator prints them in.
+function transitionsOf(region: Manuscript['regions'][number] | undefined): ManuscriptTransition[] {
+  if (region === undefined) return []
+  const root = Object.entries(region.root.transitions).flatMap(([event, cell]) =>
+    branchesOf(cell).map((branch) => rowOf(region.region, event, branch, region.region)),
+  )
+  const machines = region.machines.flatMap((machine) =>
+    Object.entries(machine.transitions).flatMap(([event, row]) =>
+      Object.entries(row).flatMap(([key, cell]) =>
+        branchesOf(cell).map((branch) =>
+          rowOf(`${machine.name}.${key}`, event, branch, `${machine.name}.${branch.to ?? key}`),
+        ),
+      ),
+    ),
+  )
+  return [...root, ...machines]
+}
+
+function idOf(row: { readonly state: string; readonly event: string; readonly guard: string | null }): string {
+  return `${row.state} x ${row.event}${row.guard === null ? '' : ` [${row.guard}]`}`
+}
+
+const TRANSITIONS = transitionsOf(NOTICES)
 
 describe('the generated table of region notices against state-machines.json', () => {
   it('holds the rows of the manuscript, in its order', () => {
     expect(NOTICES).toBeDefined()
-    expect(NOTICE_VALUES_TRANSITIONS.map((row) => row.id)).toEqual(
-      (NOTICES?.transitions ?? []).map((row) => row.id),
-    )
+    expect(NOTICE_VALUES_TRANSITIONS.map(idOf)).toEqual(TRANSITIONS.map((row) => row.id))
   })
 
-  it.each((NOTICES?.transitions ?? []).map((row) => [row.id, row] as const))(
+  it.each(TRANSITIONS.map((row) => [row.id, row] as const))(
     '%s carries its source, event, guard, target and effect unchanged',
     (id, row) => {
-      const printed = NOTICE_VALUES_TRANSITIONS.find((one) => one.id === id)
+      const printed = NOTICE_VALUES_TRANSITIONS.find((one) => idOf(one) === id)
       expect(printed).toEqual({
-        id,
-        from: row.from,
+        state: row.state,
         event: row.event,
         guard: guardText(row.guard),
         to: row.to,
-        effect: row.effect?.name ?? null,
-        effectArgument: row.effect?.row ?? null,
+        effect: row.effect,
+        effectArgument: row.effectArgument,
       })
     },
   )

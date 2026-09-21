@@ -265,6 +265,13 @@
 #          its identifiers and may not be faulted for them. `--all` drops
 #          the scoping and shows what that costs. No baseline: it is exact
 #          and green at zero
+#   63     check-sm-ev-tn-prefix-gone.py : `SM-` / `EV-` / `TN-` followed by
+#          a number, over every tracked file. JDG-286 replaced the numbered
+#          states, events and transitions of the state-machine manuscript
+#          with names, and the three prefixes left the registry; this is the
+#          check 51 form for them. The change requests that built the rows
+#          keep the old numbers as history and are excluded BY NAME, with
+#          their reasons printed on every run
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -733,6 +740,16 @@ section "62  an in-flight change request's identifier reservation still holds"
 # `FR-112` and the prefix `UD` with the registry at 159 reads 5 claims and is
 # green.
 PYTHONIOENCODING=utf-8 python "$HERE/check-identifier-reservation.py" || failed
+
+echo ""
+section "63  the SM- / EV- / TN- prefixes, followed by a number, are gone"
+# ⛔ JDG-286 (2026-09-21): the state-machine manuscript names its machines,
+# states, events and transitions instead of numbering them. The same form as
+# check 51: the exclusions -- the change requests whose appendices ARE the
+# history of the numbered rows -- are named one at a time and printed.
+# ⭐ MEASURED by breaking it: a see line naming the old number of the first
+# palette transition, put back into screen-values.ts, reports 1.
+PYTHONIOENCODING=utf-8 python "$HERE/check-sm-ev-tn-prefix-gone.py" "$REPO" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

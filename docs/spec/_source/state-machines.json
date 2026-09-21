@@ -2,11 +2,12 @@
  "$schema": "./state-machines.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6): per region, the states (SM), the events (EV) and the transitions (TN) the requirements name. What a row holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
-  "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- the state, event and transition tables and the state diagram of each region; and the discriminated unions and the transition-table constant in the generated region of each region unit under src/use-case/advance-screen-session/ (tools/generate_state_machine_types.py).",
+  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
+  "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingDate1), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
+  "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is a name the code holds, or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
+  "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and the discriminated unions and the transition-table constant in the generated region of each region unit under src/use-case/advance-screen-session/ (tools/generate_state_machine_types.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
-  "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a transition whose state keys are not states or whose event is not an event, and a union without exactly one initial state.",
-  "HOW A KEY IS READ (decision 4 of CR-436): what is left of a state key after its parent key is either two words (axis.kind -- the axes under one parent are orthogonal and compose) or one word (a kind of the parent's own single union). A key segment {name} in a transition target names a carried value of the event and stands for any kind of that union but its initial one.",
+  "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a cell whose state or target is not a state of its machine, an event a table uses that its region does not define, a union without exactly one initial state, a machine name or event key used twice, a machine name that does not end in StateMachine.",
   "Guard expressions and effect bodies are NOT here -- the code holds them (SD-3). Every string that is printed prose is a language dictionary."
  ],
  "regions": [
@@ -17,24 +18,10 @@
    },
    "unit": "src/use-case/advance-screen-session/screen-values.ts",
    "typeStem": "ScreenValues",
-   "tables": {
-    "states": {
-     "id": "T-280",
-     "caption": {
-      "ja": "画面の値の状態"
-     }
-    },
-    "events": {
-     "id": "T-281",
-     "caption": {
-      "ja": "画面の値の出来事"
-     }
-    },
-    "transitions": {
-     "id": "T-282",
-     "caption": {
-      "ja": "画面の値の遷移"
-     }
+   "table": {
+    "id": "T-280",
+    "caption": {
+     "ja": "画面の値の状態機械"
     }
    },
    "figure": {
@@ -43,439 +30,45 @@
      "ja": "画面の値の状態遷移"
     }
    },
-   "states": [
-    {
-     "id": "SM-0",
-     "key": "screen",
-     "parent": null,
-     "initial": true,
-     "carries": [
-      {
-       "name": "language"
-      },
-      {
-       "name": "rememberedActuals"
+   "root": {
+    "carries": [
+     {
+      "name": "language"
+     },
+     {
+      "name": "rememberedActuals"
+     }
+    ],
+    "evidence": [
+     "CP-36",
+     "S-99",
+     "PV-4"
+    ],
+    "transitions": {
+     "displayLanguageChosen": {
+      "effect": "storeLanguage",
+      "evidence": [
+       "S-99",
+       "FR-038"
+      ],
+      "note": {
+       "ja": "`language` を書き換える"
       }
-     ],
-     "evidence": [
-      "CP-36",
-      "S-99",
-      "PV-4"
-     ]
-    },
-    {
-     "id": "SM-1",
-     "key": "screen.armed.none",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "AR-1"
-     ]
-    },
-    {
-     "id": "SM-2",
-     "key": "screen.armed.taskShape",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "shapeKind",
-       "rows": [
-        "SH-1",
-        "SH-2",
-        "SH-3",
-        "SH-4"
-       ]
+     },
+     "progressMarkerPressed": {
+      "effect": "writeProgressStep",
+      "evidence": [
+       "FR-107",
+       "PV-4"
+      ],
+      "note": {
+       "ja": "`rememberedActuals` を書き換える"
       }
-     ],
-     "evidence": [
-      "AR-2",
-      "IC-23",
-      "IC-24",
-      "IC-25",
-      "IC-26"
-     ]
-    },
-    {
-     "id": "SM-3",
-     "key": "screen.armed.milestoneShape",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "glyph",
-       "rows": [
-        "SH-5"
-       ]
-      }
-     ],
-     "evidence": [
-      "AR-3",
-      "IC-27"
-     ]
-    },
-    {
-     "id": "SM-4",
-     "key": "screen.armed.dependency",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "AR-4",
-      "IC-61"
-     ]
-    },
-    {
-     "id": "SM-5",
-     "key": "screen.armed.commentBox",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "AR-5",
-      "IC-35"
-     ]
-    },
-    {
-     "id": "SM-6",
-     "key": "screen.armed.highlightBox",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "AR-6",
-      "IC-36"
-     ]
-    },
-    {
-     "id": "SM-7",
-     "key": "screen.palette.shown",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-99e"
-     ]
-    },
-    {
-     "id": "SM-8",
-     "key": "screen.palette.shown.expanded",
-     "parent": "screen.palette.shown",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-200",
-      "FR-053"
-     ]
-    },
-    {
-     "id": "SM-9",
-     "key": "screen.palette.shown.minimised",
-     "parent": "screen.palette.shown",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "S-200",
-      "IC-75"
-     ]
-    },
-    {
-     "id": "SM-10",
-     "key": "screen.palette.hidden",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "S-99e"
-     ]
-    },
-    {
-     "id": "SM-11",
-     "key": "screen.milestoneList.closed",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-142",
-      "FR-053"
-     ]
-    },
-    {
-     "id": "SM-12",
-     "key": "screen.milestoneList.open",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "S-142",
-      "IC-50"
-     ]
-    },
-    {
-     "id": "SM-13",
-     "key": "screen.fullScreen.normal",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-99f"
-     ]
-    },
-    {
-     "id": "SM-14",
-     "key": "screen.fullScreen.full",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "S-99f",
-      "FR-071"
-     ]
-    },
-    {
-     "id": "SM-15",
-     "key": "screen.surface.none",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-99g"
-     ]
-    },
-    {
-     "id": "SM-16",
-     "key": "screen.surface.open",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "surfaceName",
-       "rows": [
-        "U-30",
-        "U-49",
-        "U-54",
-        "U-56",
-        "U-60",
-        "U-61",
-        "U-62"
-       ]
-      }
-     ],
-     "evidence": [
-      "S-99g",
-      "IC-52"
-     ]
-    },
-    {
-     "id": "SM-17",
-     "key": "screen.watermark.shown",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-144"
-     ]
-    },
-    {
-     "id": "SM-18",
-     "key": "screen.watermark.hidden",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "WM-8"
-     ]
-    },
-    {
-     "id": "SM-19",
-     "key": "screen.properties.none",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-99h"
-     ]
-    },
-    {
-     "id": "SM-20",
-     "key": "screen.properties.selection",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "subject",
-       "note": {
-        "ja": "選択と行の集合"
-       }
-      }
-     ],
-     "evidence": [
-      "S-99h",
-      "IR-2",
-      "FR-072"
-     ]
-    },
-    {
-     "id": "SM-21",
-     "key": "screen.properties.documentSettings",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "returnSubject",
-       "note": {
-        "ja": "同じ入口をもう一度押したときに戻す選択物。無いこともある"
-       }
-      }
-     ],
-     "evidence": [
-      "S-99h",
-      "FR-072",
-      "IC-17"
-     ]
-    },
-    {
-     "id": "SM-22",
-     "key": "screen.dialogueField.shown",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-99i"
-     ]
-    },
-    {
-     "id": "SM-23",
-     "key": "screen.dialogueField.hidden",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "S-99i",
-      "FR-066"
-     ]
-    },
-    {
-     "id": "SM-24",
-     "key": "screen.levelZero.unfolded",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "S-211"
-     ]
-    },
-    {
-     "id": "SM-25",
-     "key": "screen.levelZero.folded",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "HR-2",
-      "S-211"
-     ]
-    },
-    {
-     "id": "SM-26",
-     "key": "screen.dualCursor.off",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "DC-1"
-     ]
-    },
-    {
-     "id": "SM-27",
-     "key": "screen.dualCursor.on",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "DC-1",
-      "PTD-2"
-     ]
-    },
-    {
-     "id": "SM-28",
-     "key": "screen.dualCursor.on.date1Following",
-     "parent": "screen.dualCursor.on",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "DC-1"
-     ]
-    },
-    {
-     "id": "SM-29",
-     "key": "screen.dualCursor.on.date2Following",
-     "parent": "screen.dualCursor.on",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "DC-2",
-      "DC-8"
-     ]
-    },
-    {
-     "id": "SM-30",
-     "key": "screen.scaleMessage.none",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "SE-1"
-     ]
-    },
-    {
-     "id": "SM-31",
-     "key": "screen.scaleMessage.shown",
-     "parent": "screen",
-     "initial": false,
-     "carries": [
-      {
-       "name": "percent"
-      },
-      {
-       "name": "end",
-       "note": {
-        "ja": "`max` ・ `min` ・ なし"
-       }
-      }
-     ],
-     "evidence": [
-      "SE-2",
-      "ZE-5",
-      "S-244"
-     ]
-    },
-    {
-     "id": "SM-32",
-     "key": "screen.tooltip.allowed",
-     "parent": "screen",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "IN-3"
-     ]
-    },
-    {
-     "id": "SM-33",
-     "key": "screen.tooltip.dismissed",
-     "parent": "screen",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "IN-3",
-      "IN-4"
-     ]
+     }
     }
-   ],
+   },
    "events": [
     {
-     "id": "EV-1",
      "key": "paletteToggled",
      "source": {
       "kind": "input",
@@ -487,7 +80,6 @@
      "carries": []
     },
     {
-     "id": "EV-2",
      "key": "paletteMinimiseToggled",
      "source": {
       "kind": "input",
@@ -498,7 +90,6 @@
      "carries": []
     },
     {
-     "id": "EV-3",
      "key": "milestoneListToggled",
      "source": {
       "kind": "input",
@@ -509,7 +100,6 @@
      "carries": []
     },
     {
-     "id": "EV-4",
      "key": "fullScreenEntryPressed",
      "source": {
       "kind": "input",
@@ -521,7 +111,6 @@
      "carries": []
     },
     {
-     "id": "EV-5",
      "key": "fullScreenChanged",
      "source": {
       "kind": "effectResult",
@@ -539,7 +128,6 @@
      ]
     },
     {
-     "id": "EV-6",
      "key": "surfaceEntryPressed",
      "source": {
       "kind": "input",
@@ -559,7 +147,6 @@
      ]
     },
     {
-     "id": "EV-7",
      "key": "surfaceRaisedByFlow",
      "source": {
       "kind": "effectResult",
@@ -580,7 +167,6 @@
      ]
     },
     {
-     "id": "EV-8",
      "key": "surfaceCloseAsked",
      "source": {
       "kind": "input",
@@ -598,7 +184,6 @@
      ]
     },
     {
-     "id": "EV-9",
      "key": "escapePressed",
      "source": {
       "kind": "input",
@@ -619,7 +204,6 @@
      ]
     },
     {
-     "id": "EV-10",
      "key": "armEntryPressed",
      "source": {
       "kind": "input",
@@ -648,7 +232,6 @@
      ]
     },
     {
-     "id": "EV-11",
      "key": "watermarkEntryPressed",
      "source": {
       "kind": "input",
@@ -660,7 +243,6 @@
      "carries": []
     },
     {
-     "id": "EV-12",
      "key": "watermarkUnlockAnswered",
      "source": {
       "kind": "input",
@@ -680,7 +262,6 @@
      ]
     },
     {
-     "id": "EV-13",
      "key": "watermarkUnlockMatched",
      "source": {
       "kind": "effectResult",
@@ -695,7 +276,6 @@
      "carries": []
     },
     {
-     "id": "EV-14",
      "key": "watermarkUnlockMismatched",
      "source": {
       "kind": "effectResult",
@@ -709,7 +289,6 @@
      "carries": []
     },
     {
-     "id": "EV-15",
      "key": "settingsEntryPressed",
      "source": {
       "kind": "input",
@@ -721,7 +300,6 @@
      "carries": []
     },
     {
-     "id": "EV-16",
      "key": "propertiesOfChoiceAsked",
      "source": {
       "kind": "input",
@@ -739,7 +317,6 @@
      ]
     },
     {
-     "id": "EV-17",
      "key": "selectionMoved",
      "source": {
       "kind": "otherRegion",
@@ -760,7 +337,6 @@
      ]
     },
     {
-     "id": "EV-18",
      "key": "createdNameSettled",
      "source": {
       "kind": "input",
@@ -774,7 +350,6 @@
      "carries": []
     },
     {
-     "id": "EV-19",
      "key": "settleKeyPressed",
      "source": {
       "kind": "input",
@@ -788,15 +363,14 @@
      },
      "carries": [
       {
-       "name": "noSurfaceNoConfirmation"
+       "name": "hasNoSurfaceOrConfirmation"
       },
       {
-       "name": "noUnsettledEntry"
+       "name": "hasNoUnsettledEntry"
       }
      ]
     },
     {
-     "id": "EV-20",
      "key": "dialogueFieldEntryPressed",
      "source": {
       "kind": "input",
@@ -807,12 +381,11 @@
      },
      "carries": [
       {
-       "name": "agentApiEnabled"
+       "name": "isAgentApiEnabled"
       }
      ]
     },
     {
-     "id": "EV-21",
      "key": "foldAllPressed",
      "source": {
       "kind": "input",
@@ -827,7 +400,6 @@
      "carries": []
     },
     {
-     "id": "EV-22",
      "key": "levelZeroOpened",
      "source": {
       "kind": "input",
@@ -841,7 +413,6 @@
      "carries": []
     },
     {
-     "id": "EV-23",
      "key": "dualCursorEntryPressed",
      "source": {
       "kind": "input",
@@ -864,7 +435,6 @@
      ]
     },
     {
-     "id": "EV-24",
      "key": "dualCursorPlaced",
      "source": {
       "kind": "input",
@@ -886,7 +456,6 @@
      ]
     },
     {
-     "id": "EV-25",
      "key": "displayScaleStepped",
      "source": {
       "kind": "input",
@@ -909,7 +478,6 @@
      ]
     },
     {
-     "id": "EV-26",
      "key": "rowZoomEndReached",
      "source": {
       "kind": "effectResult",
@@ -930,7 +498,6 @@
      ]
     },
     {
-     "id": "EV-27",
      "key": "scaleMessageTimeElapsed",
      "source": {
       "kind": "time",
@@ -942,7 +509,6 @@
      "carries": []
     },
     {
-     "id": "EV-28",
      "key": "displayLanguageChosen",
      "source": {
       "kind": "input",
@@ -958,7 +524,6 @@
      ]
     },
     {
-     "id": "EV-29",
      "key": "progressMarkerPressed",
      "source": {
       "kind": "input",
@@ -984,7 +549,6 @@
      ]
     },
     {
-     "id": "EV-30",
      "key": "pointerRestElapsed",
      "source": {
       "kind": "time",
@@ -995,1177 +559,1362 @@
      "carries": []
     }
    ],
-   "transitions": [
+   "machines": [
     {
-     "id": "TN-1",
-     "from": [
-      [
-       "screen.palette.shown"
-      ]
-     ],
-     "event": "paletteToggled",
-     "guard": null,
-     "to": [
-      "screen.palette.hidden"
-     ],
-     "effect": null,
-     "evidence": [
-      "S-99e",
-      "IC-7"
-     ]
-    },
-    {
-     "id": "TN-2",
-     "from": [
-      [
-       "screen.palette.hidden"
-      ]
-     ],
-     "event": "paletteToggled",
-     "guard": null,
-     "to": [
-      "screen.palette.shown"
-     ],
-     "effect": null,
-     "evidence": [
-      "S-99e",
-      "IC-7",
-      "FR-053"
-     ]
-    },
-    {
-     "id": "TN-3",
-     "from": [
-      [
-       "screen.palette.shown.expanded"
-      ]
-     ],
-     "event": "paletteMinimiseToggled",
-     "guard": null,
-     "to": [
-      "screen.palette.shown.minimised"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-053"
-     ]
-    },
-    {
-     "id": "TN-4",
-     "from": [
-      [
-       "screen.palette.shown.minimised"
-      ]
-     ],
-     "event": "paletteMinimiseToggled",
-     "guard": null,
-     "to": [
-      "screen.palette.shown.expanded"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-053",
-      "IC-75"
-     ]
-    },
-    {
-     "id": "TN-5",
-     "from": [
-      [
-       "screen.milestoneList.closed"
-      ]
-     ],
-     "event": "milestoneListToggled",
-     "guard": null,
-     "to": [
-      "screen.milestoneList.open"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-053"
-     ]
-    },
-    {
-     "id": "TN-6",
-     "from": [
-      [
-       "screen.milestoneList.open"
-      ]
-     ],
-     "event": "milestoneListToggled",
-     "guard": null,
-     "to": [
-      "screen.milestoneList.closed"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-053"
-     ]
-    },
-    {
-     "id": "TN-7",
-     "from": [
-      [
-       "screen.fullScreen.normal"
-      ],
-      [
-       "screen.fullScreen.full"
-      ]
-     ],
-     "event": "fullScreenEntryPressed",
-     "guard": null,
-     "to": "self",
-     "effect": {
-      "name": "askBrowserForFullScreen"
-     },
-     "evidence": [
-      "FR-071",
-      "S-99f"
-     ]
-    },
-    {
-     "id": "TN-8",
-     "from": [
-      [
-       "screen.fullScreen.normal"
-      ]
-     ],
-     "event": "fullScreenChanged",
-     "guard": [
+     "name": "armModeStateMachine",
+     "states": [
       {
-       "name": "isFullScreen"
-      }
-     ],
-     "to": [
-      "screen.fullScreen.full"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-071"
-     ]
-    },
-    {
-     "id": "TN-9",
-     "from": [
-      [
-       "screen.fullScreen.full"
-      ]
-     ],
-     "event": "fullScreenChanged",
-     "guard": [
-      {
-       "name": "isFullScreen",
-       "not": true
-      }
-     ],
-     "to": [
-      "screen.fullScreen.normal"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-071"
-     ]
-    },
-    {
-     "id": "TN-10",
-     "from": [
-      [
-       "screen.surface.none"
-      ]
-     ],
-     "event": "surfaceEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.surface.open"
-     ],
-     "effect": null,
-     "evidence": [
-      "S-99g"
-     ]
-    },
-    {
-     "id": "TN-11",
-     "from": [
-      [
-       "screen.surface.none"
-      ]
-     ],
-     "event": "surfaceRaisedByFlow",
-     "guard": null,
-     "to": [
-      "screen.surface.open"
-     ],
-     "effect": null,
-     "evidence": [
-      "OP-3",
-      "U-61",
-      "U-62"
-     ]
-    },
-    {
-     "id": "TN-12",
-     "from": [
-      [
-       "screen.surface.open"
-      ]
-     ],
-     "event": "surfaceCloseAsked",
-     "guard": [
-      {
-       "name": "isSurfaceTarget"
-      }
-     ],
-     "to": [
-      "screen.surface.none"
-     ],
-     "effect": {
-      "name": "tellFlowSurfaceClosed"
-     },
-     "evidence": [
-      "IC-52"
-     ]
-    },
-    {
-     "id": "TN-13",
-     "from": [
-      [
-       "screen.surface.open"
-      ]
-     ],
-     "event": "escapePressed",
-     "guard": [
-      {
-       "name": "rungIsSurface"
-      }
-     ],
-     "to": [
-      "screen.surface.none"
-     ],
-     "effect": {
-      "name": "tellFlowSurfaceClosed"
-     },
-     "evidence": [
-      "IN-4",
-      "WM-9"
-     ]
-    },
-    {
-     "id": "TN-14",
-     "from": [
-      [
-       "screen.armed.none"
-      ]
-     ],
-     "event": "armEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.armed.{armKind}"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-016",
-      "AR-2",
-      "AR-3",
-      "AR-4",
-      "AR-5",
-      "AR-6"
-     ]
-    },
-    {
-     "id": "TN-15",
-     "from": [
-      [
-       "screen.armed.taskShape"
-      ],
-      [
-       "screen.armed.milestoneShape"
-      ],
-      [
-       "screen.armed.dependency"
-      ],
-      [
-       "screen.armed.commentBox"
-      ],
-      [
-       "screen.armed.highlightBox"
-      ]
-     ],
-     "event": "armEntryPressed",
-     "guard": [
-      {
-       "name": "isSameArm"
-      }
-     ],
-     "to": [
-      "screen.armed.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-016",
-      "SP-4"
-     ]
-    },
-    {
-     "id": "TN-16",
-     "from": [
-      [
-       "screen.armed.taskShape"
-      ],
-      [
-       "screen.armed.milestoneShape"
-      ],
-      [
-       "screen.armed.dependency"
-      ],
-      [
-       "screen.armed.commentBox"
-      ],
-      [
-       "screen.armed.highlightBox"
-      ]
-     ],
-     "event": "armEntryPressed",
-     "guard": [
-      {
-       "name": "isSameArm",
-       "not": true
-      }
-     ],
-     "to": [
-      "screen.armed.{armKind}"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-016"
-     ]
-    },
-    {
-     "id": "TN-17",
-     "from": [
-      [
-       "screen.armed.taskShape"
-      ],
-      [
-       "screen.armed.milestoneShape"
-      ],
-      [
-       "screen.armed.dependency"
-      ],
-      [
-       "screen.armed.commentBox"
-      ],
-      [
-       "screen.armed.highlightBox"
-      ]
-     ],
-     "event": "escapePressed",
-     "guard": [
-      {
-       "name": "rungIsArmed"
-      }
-     ],
-     "to": [
-      "screen.armed.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-016",
-      "IN-4"
-     ]
-    },
-    {
-     "id": "TN-18",
-     "from": [
-      [
-       "screen.armed.taskShape"
-      ],
-      [
-       "screen.armed.milestoneShape"
-      ],
-      [
-       "screen.armed.dependency"
-      ],
-      [
-       "screen.armed.commentBox"
-      ],
-      [
-       "screen.armed.highlightBox"
-      ]
-     ],
-     "event": "dualCursorEntryPressed",
-     "guard": [
-      {
-       "name": "entersDualCursor"
-      }
-     ],
-     "to": [
-      "screen.armed.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-016"
-     ]
-    },
-    {
-     "id": "TN-19",
-     "from": [
-      [
-       "screen.watermark.shown",
-       "screen.surface.none"
-      ]
-     ],
-     "event": "watermarkEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.surface.open"
-     ],
-     "effect": null,
-     "evidence": [
-      "WM-6",
-      "WM-10"
-     ],
-     "note": {
-      "ja": "`surfaceName` は `U-60`"
-     }
-    },
-    {
-     "id": "TN-20",
-     "from": [
-      [
-       "screen.watermark.hidden"
-      ]
-     ],
-     "event": "watermarkEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.watermark.shown"
-     ],
-     "effect": null,
-     "evidence": [
-      "WM-10",
-      "IC-41"
-     ]
-    },
-    {
-     "id": "TN-21",
-     "from": [
-      [
-       "screen.surface.open"
-      ]
-     ],
-     "event": "watermarkUnlockAnswered",
-     "guard": [
-      {
-       "name": "isWatermarkUnlockSurface"
+       "key": "notArmed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "AR-1"
+       ]
       },
       {
-       "name": "isProceeding"
-      }
-     ],
-     "to": "self",
-     "effect": {
-      "name": "matchWatermarkUnlock"
-     },
-     "evidence": [
-      "WM-6"
-     ]
-    },
-    {
-     "id": "TN-22",
-     "from": [
-      [
-       "screen.surface.open"
-      ]
-     ],
-     "event": "watermarkUnlockAnswered",
-     "guard": [
-      {
-       "name": "isWatermarkUnlockSurface"
+       "key": "taskShapeArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "shapeKind",
+         "rows": [
+          "SH-1",
+          "SH-2",
+          "SH-3",
+          "SH-4"
+         ]
+        }
+       ],
+       "evidence": [
+        "AR-2",
+        "IC-23",
+        "IC-24",
+        "IC-25",
+        "IC-26"
+       ]
       },
       {
-       "name": "isProceeding",
-       "not": true
-      }
-     ],
-     "to": [
-      "screen.surface.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "WM-9"
-     ]
-    },
-    {
-     "id": "TN-23",
-     "from": [
-      [
-       "screen.watermark.shown",
-       "screen.surface.open"
-      ]
-     ],
-     "event": "watermarkUnlockMatched",
-     "guard": [
-      {
-       "name": "isWatermarkUnlockSurface"
-      }
-     ],
-     "to": [
-      "screen.watermark.hidden",
-      "screen.surface.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "WM-8"
-     ]
-    },
-    {
-     "id": "TN-24",
-     "from": [
-      [
-       "screen.surface.open"
-      ]
-     ],
-     "event": "watermarkUnlockMismatched",
-     "guard": [
-      {
-       "name": "isWatermarkUnlockSurface"
-      }
-     ],
-     "to": "self",
-     "effect": {
-      "name": "raiseNotice",
-      "row": "RS-41"
-     },
-     "evidence": [
-      "WM-8",
-      "RS-41"
-     ],
-     "note": {
-      "ja": "面を閉じない"
-     }
-    },
-    {
-     "id": "TN-25",
-     "from": [
-      [
-       "screen.properties.none"
-      ]
-     ],
-     "event": "settingsEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.properties.documentSettings"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-072"
-     ]
-    },
-    {
-     "id": "TN-26",
-     "from": [
-      [
-       "screen.properties.selection"
-      ]
-     ],
-     "event": "settingsEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.properties.documentSettings"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-072",
-      "IC-17"
-     ],
-     "note": {
-      "ja": "`subject` を `returnSubject` に移す"
-     }
-    },
-    {
-     "id": "TN-27",
-     "from": [
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "settingsEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.properties.selection"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-072"
-     ],
-     "note": {
-      "ja": "`returnSubject` を `subject` に戻す"
-     }
-    },
-    {
-     "id": "TN-28",
-     "from": [
-      [
-       "screen.properties.none"
-      ],
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "propertiesOfChoiceAsked",
-     "guard": null,
-     "to": [
-      "screen.properties.selection"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-072"
-     ]
-    },
-    {
-     "id": "TN-29",
-     "from": [
-      [
-       "screen.properties.selection"
-      ]
-     ],
-     "event": "propertiesOfChoiceAsked",
-     "guard": null,
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "FR-072"
-     ],
-     "note": {
-      "ja": "`subject` を書き換える"
-     }
-    },
-    {
-     "id": "TN-30",
-     "from": [
-      [
-       "screen.properties.selection"
-      ]
-     ],
-     "event": "selectionMoved",
-     "guard": [
-      {
-       "name": "hasChoice"
-      }
-     ],
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "FR-072"
-     ],
-     "note": {
-      "ja": "`subject` を書き換える"
-     }
-    },
-    {
-     "id": "TN-31",
-     "from": [
-      [
-       "screen.properties.selection"
-      ],
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "surfaceCloseAsked",
-     "guard": [
-      {
-       "name": "isPanelTarget"
-      }
-     ],
-     "to": [
-      "screen.properties.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "IC-52",
-      "FR-072"
-     ]
-    },
-    {
-     "id": "TN-32",
-     "from": [
-      [
-       "screen.properties.selection"
-      ],
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "escapePressed",
-     "guard": [
-      {
-       "name": "rungIsSurface"
+       "key": "milestoneShapeArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "glyph",
+         "rows": [
+          "SH-5"
+         ]
+        }
+       ],
+       "evidence": [
+        "AR-3",
+        "IC-27"
+       ]
       },
       {
-       "name": "isPanelTopmost"
-      }
-     ],
-     "to": [
-      "screen.properties.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "IN-4",
-      "FR-070"
-     ]
-    },
-    {
-     "id": "TN-33",
-     "from": [
-      [
-       "screen.properties.none"
-      ],
-      [
-       "screen.properties.selection"
-      ],
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "createdNameSettled",
-     "guard": null,
-     "to": [
-      "screen.properties.none"
-     ],
-     "effect": {
-      "name": "clearSelection"
-     },
-     "evidence": [
-      "FR-091"
-     ]
-    },
-    {
-     "id": "TN-34",
-     "from": [
-      [
-       "screen.properties.selection"
-      ],
-      [
-       "screen.properties.documentSettings"
-      ]
-     ],
-     "event": "settleKeyPressed",
-     "guard": [
-      {
-       "name": "noSurfaceNoConfirmation"
+       "key": "dependencyArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "AR-4",
+        "IC-61"
+       ]
       },
       {
-       "name": "noUnsettledEntry"
-      }
-     ],
-     "to": [
-      "screen.properties.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "SK-19",
-      "FR-070"
-     ]
-    },
-    {
-     "id": "TN-35",
-     "from": [
-      [
-       "screen.dialogueField.shown"
-      ]
-     ],
-     "event": "dialogueFieldEntryPressed",
-     "guard": [
+       "key": "commentBoxArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "AR-5",
+        "IC-35"
+       ]
+      },
       {
-       "name": "agentApiEnabled"
+       "key": "highlightBoxArmed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "AR-6",
+        "IC-36"
+       ]
       }
      ],
-     "to": [
-      "screen.dialogueField.hidden"
-     ],
-     "effect": null,
-     "evidence": [
-      "S-99i",
-      "IC-18"
-     ]
-    },
-    {
-     "id": "TN-36",
-     "from": [
-      [
-       "screen.dialogueField.hidden"
-      ]
-     ],
-     "event": "dialogueFieldEntryPressed",
-     "guard": [
-      {
-       "name": "agentApiEnabled"
+     "transitions": {
+      "escapePressed": {
+       "taskShapeArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4"
+        ]
+       },
+       "milestoneShapeArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4"
+        ]
+       },
+       "dependencyArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4"
+        ]
+       },
+       "commentBoxArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4"
+        ]
+       },
+       "highlightBoxArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "isRungArmed"
+         }
+        ],
+        "evidence": [
+         "FR-016",
+         "IN-4"
+        ]
+       }
+      },
+      "armEntryPressed": {
+       "notArmed": {
+        "to": "{armKind}",
+        "evidence": [
+         "FR-016",
+         "AR-2",
+         "AR-3",
+         "AR-4",
+         "AR-5",
+         "AR-6"
+        ]
+       },
+       "taskShapeArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
+       ],
+       "milestoneShapeArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
+       ],
+       "dependencyArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
+       ],
+       "commentBoxArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
+       ],
+       "highlightBoxArmed": [
+        {
+         "to": "notArmed",
+         "guard": [
+          {
+           "name": "isSameArm"
+          }
+         ],
+         "evidence": [
+          "FR-016",
+          "SP-4"
+         ]
+        },
+        {
+         "to": "{armKind}",
+         "guard": [
+          {
+           "name": "isSameArm",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FR-016"
+         ]
+        }
+       ]
+      },
+      "dualCursorEntryPressed": {
+       "taskShapeArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       },
+       "milestoneShapeArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       },
+       "dependencyArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       },
+       "commentBoxArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       },
+       "highlightBoxArmed": {
+        "to": "notArmed",
+        "guard": [
+         {
+          "name": "canEnterDualCursor"
+         }
+        ],
+        "evidence": [
+         "FR-016"
+        ]
+       }
       }
-     ],
-     "to": [
-      "screen.dialogueField.shown"
-     ],
-     "effect": null,
-     "evidence": [
-      "S-99i",
-      "IC-18"
-     ]
-    },
-    {
-     "id": "TN-37",
-     "from": [
-      [
-       "screen.dialogueField.shown"
-      ],
-      [
-       "screen.dialogueField.hidden"
-      ]
-     ],
-     "event": "dialogueFieldEntryPressed",
-     "guard": [
-      {
-       "name": "agentApiEnabled",
-       "not": true
-      }
-     ],
-     "to": "self",
-     "effect": {
-      "name": "raiseNotice",
-      "row": "RS-35"
-     },
-     "evidence": [
-      "FR-066",
-      "RS-35"
-     ]
-    },
-    {
-     "id": "TN-38",
-     "from": [
-      [
-       "screen.levelZero.unfolded"
-      ]
-     ],
-     "event": "foldAllPressed",
-     "guard": null,
-     "to": [
-      "screen.levelZero.folded"
-     ],
-     "effect": {
-      "name": "writeFoldAll"
-     },
-     "evidence": [
-      "HR-2",
-      "HF-12"
-     ]
-    },
-    {
-     "id": "TN-39",
-     "from": [
-      [
-       "screen.levelZero.folded"
-      ]
-     ],
-     "event": "levelZeroOpened",
-     "guard": null,
-     "to": [
-      "screen.levelZero.unfolded"
-     ],
-     "effect": {
-      "name": "writeOpenLevel"
-     },
-     "evidence": [
-      "HF-16",
-      "HF-10",
-      "HF-17",
-      "S-211"
-     ]
-    },
-    {
-     "id": "TN-40",
-     "from": [
-      [
-       "screen.dualCursor.off"
-      ]
-     ],
-     "event": "dualCursorEntryPressed",
-     "guard": [
-      {
-       "name": "hasDaysToPlace"
-      }
-     ],
-     "to": [
-      "screen.dualCursor.on"
-     ],
-     "effect": {
-      "name": "writePlaceDualCursor"
-     },
-     "evidence": [
-      "DC-1"
-     ]
-    },
-    {
-     "id": "TN-41",
-     "from": [
-      [
-       "screen.dualCursor.on.date1Following"
-      ]
-     ],
-     "event": "dualCursorPlaced",
-     "guard": null,
-     "to": [
-      "screen.dualCursor.on.date2Following"
-     ],
-     "effect": {
-      "name": "writeFixDate1"
-     },
-     "evidence": [
-      "DC-2",
-      "DC-6"
-     ]
-    },
-    {
-     "id": "TN-42",
-     "from": [
-      [
-       "screen.dualCursor.on.date2Following"
-      ]
-     ],
-     "event": "dualCursorPlaced",
-     "guard": null,
-     "to": [
-      "screen.dualCursor.on.date1Following"
-     ],
-     "effect": {
-      "name": "writeFixDate2"
-     },
-     "evidence": [
-      "DC-2",
-      "DC-6"
-     ]
-    },
-    {
-     "id": "TN-43",
-     "from": [
-      [
-       "screen.dualCursor.on"
-      ]
-     ],
-     "event": "dualCursorEntryPressed",
-     "guard": null,
-     "to": [
-      "screen.dualCursor.off"
-     ],
-     "effect": {
-      "name": "writeClearDualCursor"
-     },
-     "evidence": [
-      "DC-4"
-     ]
-    },
-    {
-     "id": "TN-44",
-     "from": [
-      [
-       "screen.dualCursor.on"
-      ]
-     ],
-     "event": "escapePressed",
-     "guard": [
-      {
-       "name": "rungIsDualCursor"
-      }
-     ],
-     "to": [
-      "screen.dualCursor.off"
-     ],
-     "effect": {
-      "name": "writeClearDualCursor"
-     },
-     "evidence": [
-      "DC-7",
-      "IN-4"
-     ]
-    },
-    {
-     "id": "TN-45",
-     "from": [
-      [
-       "screen.scaleMessage.none"
-      ]
-     ],
-     "event": "displayScaleStepped",
-     "guard": null,
-     "to": [
-      "screen.scaleMessage.shown"
-     ],
-     "effect": {
-      "name": "startScaleMessageTimer"
-     },
-     "evidence": [
-      "SE-1",
-      "SE-2"
-     ]
-    },
-    {
-     "id": "TN-46",
-     "from": [
-      [
-       "screen.scaleMessage.none"
-      ]
-     ],
-     "event": "rowZoomEndReached",
-     "guard": null,
-     "to": [
-      "screen.scaleMessage.shown"
-     ],
-     "effect": {
-      "name": "startScaleMessageTimer"
-     },
-     "evidence": [
-      "ZE-5",
-      "SE-2"
-     ]
-    },
-    {
-     "id": "TN-47",
-     "from": [
-      [
-       "screen.scaleMessage.shown"
-      ]
-     ],
-     "event": "displayScaleStepped",
-     "guard": null,
-     "to": "self",
-     "effect": {
-      "name": "restartScaleMessageTimer"
-     },
-     "evidence": [
-      "SE-4"
-     ],
-     "note": {
-      "ja": "中身を書き換える"
      }
     },
     {
-     "id": "TN-48",
-     "from": [
-      [
-       "screen.scaleMessage.shown"
-      ]
-     ],
-     "event": "rowZoomEndReached",
-     "guard": null,
-     "to": "self",
-     "effect": {
-      "name": "restartScaleMessageTimer"
-     },
-     "evidence": [
-      "SE-4",
-      "ZE-5"
-     ],
-     "note": {
-      "ja": "中身を書き換える"
-     }
-    },
-    {
-     "id": "TN-49",
-     "from": [
-      [
-       "screen.scaleMessage.shown"
-      ]
-     ],
-     "event": "scaleMessageTimeElapsed",
-     "guard": null,
-     "to": [
-      "screen.scaleMessage.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "SE-3"
-     ]
-    },
-    {
-     "id": "TN-50",
-     "from": [
-      [
-       "screen"
-      ]
-     ],
-     "event": "displayLanguageChosen",
-     "guard": null,
-     "to": "self",
-     "effect": {
-      "name": "storeLanguage"
-     },
-     "evidence": [
-      "S-99",
-      "FR-038"
-     ],
-     "note": {
-      "ja": "`language` を書き換える"
-     }
-    },
-    {
-     "id": "TN-51",
-     "from": [
-      [
-       "screen"
-      ]
-     ],
-     "event": "progressMarkerPressed",
-     "guard": null,
-     "to": "self",
-     "effect": {
-      "name": "writeProgressStep"
-     },
-     "evidence": [
-      "FR-107",
-      "PV-4"
-     ],
-     "note": {
-      "ja": "`rememberedActuals` を書き換える"
-     }
-    },
-    {
-     "id": "TN-52",
-     "from": [
-      [
-       "screen.tooltip.allowed"
-      ]
-     ],
-     "event": "escapePressed",
-     "guard": [
+     "name": "paletteDisplayStateMachine",
+     "states": [
       {
-       "name": "rungIsTooltip"
+       "key": "shown",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99e"
+       ]
+      },
+      {
+       "key": "shown.expanded",
+       "parent": "shown",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-200",
+        "FR-053"
+       ]
+      },
+      {
+       "key": "shown.minimised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-200",
+        "IC-75"
+       ]
+      },
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99e"
+       ]
       }
      ],
-     "to": [
-      "screen.tooltip.dismissed"
-     ],
-     "effect": null,
-     "evidence": [
-      "IN-3",
-      "IN-4"
-     ]
+     "transitions": {
+      "paletteToggled": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "S-99e",
+         "IC-7"
+        ]
+       },
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "S-99e",
+         "IC-7",
+         "FR-053"
+        ]
+       }
+      },
+      "paletteMinimiseToggled": {
+       "shown.expanded": {
+        "to": "shown.minimised",
+        "evidence": [
+         "FR-053"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.expanded",
+        "evidence": [
+         "FR-053",
+         "IC-75"
+        ]
+       }
+      }
+     }
     },
     {
-     "id": "TN-53",
-     "from": [
-      [
-       "screen.tooltip.dismissed"
-      ]
+     "name": "milestoneListDisplayStateMachine",
+     "states": [
+      {
+       "key": "closed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-142",
+        "FR-053"
+       ]
+      },
+      {
+       "key": "open",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-142",
+        "IC-50"
+       ]
+      }
      ],
-     "event": "pointerRestElapsed",
-     "guard": null,
-     "to": [
-      "screen.tooltip.allowed"
+     "transitions": {
+      "milestoneListToggled": {
+       "closed": {
+        "to": "open",
+        "evidence": [
+         "FR-053"
+        ]
+       },
+       "open": {
+        "to": "closed",
+        "evidence": [
+         "FR-053"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "fullScreenModeStateMachine",
+     "states": [
+      {
+       "key": "normal",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99f"
+       ]
+      },
+      {
+       "key": "full",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99f",
+        "FR-071"
+       ]
+      }
      ],
-     "effect": null,
-     "evidence": [
-      "IN-3",
-      "EZ-2"
-     ]
+     "transitions": {
+      "fullScreenEntryPressed": {
+       "normal": {
+        "to": "normal",
+        "effect": "askBrowserForFullScreen",
+        "evidence": [
+         "FR-071",
+         "S-99f"
+        ]
+       },
+       "full": {
+        "to": "full",
+        "effect": "askBrowserForFullScreen",
+        "evidence": [
+         "FR-071",
+         "S-99f"
+        ]
+       }
+      },
+      "fullScreenChanged": {
+       "normal": {
+        "to": "full",
+        "guard": [
+         {
+          "name": "isFullScreen"
+         }
+        ],
+        "evidence": [
+         "FR-071"
+        ]
+       },
+       "full": {
+        "to": "normal",
+        "guard": [
+         {
+          "name": "isFullScreen",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "FR-071"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "openSurfaceStateMachine",
+     "states": [
+      {
+       "key": "closed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99g"
+       ]
+      },
+      {
+       "key": "open",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "surfaceName",
+         "rows": [
+          "U-30",
+          "U-49",
+          "U-54",
+          "U-56",
+          "U-60",
+          "U-61",
+          "U-62"
+         ]
+        }
+       ],
+       "evidence": [
+        "S-99g",
+        "IC-52"
+       ]
+      }
+     ],
+     "transitions": {
+      "surfaceEntryPressed": {
+       "closed": {
+        "to": "open",
+        "evidence": [
+         "S-99g"
+        ]
+       }
+      },
+      "surfaceRaisedByFlow": {
+       "closed": {
+        "to": "open",
+        "evidence": [
+         "OP-3",
+         "U-61",
+         "U-62"
+        ]
+       }
+      },
+      "surfaceCloseAsked": {
+       "open": {
+        "to": "closed",
+        "guard": [
+         {
+          "name": "isSurfaceTarget"
+         }
+        ],
+        "effect": "tellFlowSurfaceClosed",
+        "evidence": [
+         "IC-52"
+        ]
+       }
+      },
+      "escapePressed": {
+       "open": {
+        "to": "closed",
+        "guard": [
+         {
+          "name": "isRungSurface"
+         }
+        ],
+        "effect": "tellFlowSurfaceClosed",
+        "evidence": [
+         "IN-4",
+         "WM-9"
+        ]
+       }
+      },
+      "watermarkEntryPressed": {
+       "closed": {
+        "to": "open",
+        "guard": [
+         {
+          "in": "watermarkDisplayStateMachine.shown"
+         }
+        ],
+        "evidence": [
+         "WM-6",
+         "WM-10"
+        ],
+        "note": {
+         "ja": "`surfaceName` は `U-60`"
+        }
+       }
+      },
+      "watermarkUnlockAnswered": {
+       "open": [
+        {
+         "to": "open",
+         "guard": [
+          {
+           "name": "isWatermarkUnlockSurface"
+          },
+          {
+           "name": "isProceeding"
+          }
+         ],
+         "effect": "matchWatermarkUnlock",
+         "evidence": [
+          "WM-6"
+         ]
+        },
+        {
+         "to": "closed",
+         "guard": [
+          {
+           "name": "isWatermarkUnlockSurface"
+          },
+          {
+           "name": "isProceeding",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "WM-9"
+         ]
+        }
+       ]
+      },
+      "watermarkUnlockMatched": {
+       "open": {
+        "to": "closed",
+        "guard": [
+         {
+          "in": "watermarkDisplayStateMachine.shown"
+         },
+         {
+          "name": "isWatermarkUnlockSurface"
+         }
+        ],
+        "evidence": [
+         "WM-8"
+        ]
+       }
+      },
+      "watermarkUnlockMismatched": {
+       "open": {
+        "to": "open",
+        "guard": [
+         {
+          "name": "isWatermarkUnlockSurface"
+         }
+        ],
+        "effect": "raiseNotice",
+        "effectArgument": "RS-41",
+        "evidence": [
+         "WM-8",
+         "RS-41"
+        ],
+        "note": {
+         "ja": "面を閉じない"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "watermarkDisplayStateMachine",
+     "states": [
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-144"
+       ]
+      },
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "WM-8"
+       ]
+      }
+     ],
+     "transitions": {
+      "watermarkEntryPressed": {
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "WM-10",
+         "IC-41"
+        ]
+       }
+      },
+      "watermarkUnlockMatched": {
+       "shown": {
+        "to": "hidden",
+        "guard": [
+         {
+          "in": "openSurfaceStateMachine.open"
+         },
+         {
+          "name": "isWatermarkUnlockSurface"
+         }
+        ],
+        "evidence": [
+         "WM-8"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "propertiesPanelContentStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99h"
+       ]
+      },
+      {
+       "key": "selectionDisplayed",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "subject",
+         "note": {
+          "ja": "選択と行の集合"
+         }
+        }
+       ],
+       "evidence": [
+        "S-99h",
+        "IR-2",
+        "FR-072"
+       ]
+      },
+      {
+       "key": "documentSettingsDisplayed",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "returnSubject",
+         "note": {
+          "ja": "同じ入口をもう一度押したときに戻す選択物。無いこともある"
+         }
+        }
+       ],
+       "evidence": [
+        "S-99h",
+        "FR-072",
+        "IC-17"
+       ]
+      }
+     ],
+     "transitions": {
+      "surfaceCloseAsked": {
+       "selectionDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isPanelTarget"
+         }
+        ],
+        "evidence": [
+         "IC-52",
+         "FR-072"
+        ]
+       },
+       "documentSettingsDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isPanelTarget"
+         }
+        ],
+        "evidence": [
+         "IC-52",
+         "FR-072"
+        ]
+       }
+      },
+      "escapePressed": {
+       "selectionDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungSurface"
+         },
+         {
+          "name": "isPanelTopmost"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-070"
+        ]
+       },
+       "documentSettingsDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungSurface"
+         },
+         {
+          "name": "isPanelTopmost"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "FR-070"
+        ]
+       }
+      },
+      "settingsEntryPressed": {
+       "hidden": {
+        "to": "documentSettingsDisplayed",
+        "evidence": [
+         "FR-072"
+        ]
+       },
+       "selectionDisplayed": {
+        "to": "documentSettingsDisplayed",
+        "evidence": [
+         "FR-072",
+         "IC-17"
+        ],
+        "note": {
+         "ja": "`subject` を `returnSubject` に移す"
+        }
+       },
+       "documentSettingsDisplayed": {
+        "to": "selectionDisplayed",
+        "evidence": [
+         "FR-072"
+        ],
+        "note": {
+         "ja": "`returnSubject` を `subject` に戻す"
+        }
+       }
+      },
+      "propertiesOfChoiceAsked": {
+       "hidden": {
+        "to": "selectionDisplayed",
+        "evidence": [
+         "FR-072"
+        ]
+       },
+       "selectionDisplayed": {
+        "to": "selectionDisplayed",
+        "evidence": [
+         "FR-072"
+        ],
+        "note": {
+         "ja": "`subject` を書き換える"
+        }
+       },
+       "documentSettingsDisplayed": {
+        "to": "selectionDisplayed",
+        "evidence": [
+         "FR-072"
+        ]
+       }
+      },
+      "selectionMoved": {
+       "selectionDisplayed": {
+        "to": "selectionDisplayed",
+        "guard": [
+         {
+          "name": "hasChoice"
+         }
+        ],
+        "evidence": [
+         "FR-072"
+        ],
+        "note": {
+         "ja": "`subject` を書き換える"
+        }
+       }
+      },
+      "createdNameSettled": {
+       "hidden": {
+        "to": "hidden",
+        "effect": "clearSelection",
+        "evidence": [
+         "FR-091"
+        ]
+       },
+       "selectionDisplayed": {
+        "to": "hidden",
+        "effect": "clearSelection",
+        "evidence": [
+         "FR-091"
+        ]
+       },
+       "documentSettingsDisplayed": {
+        "to": "hidden",
+        "effect": "clearSelection",
+        "evidence": [
+         "FR-091"
+        ]
+       }
+      },
+      "settleKeyPressed": {
+       "selectionDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "hasNoSurfaceOrConfirmation"
+         },
+         {
+          "name": "hasNoUnsettledEntry"
+         }
+        ],
+        "evidence": [
+         "SK-19",
+         "FR-070"
+        ]
+       },
+       "documentSettingsDisplayed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "hasNoSurfaceOrConfirmation"
+         },
+         {
+          "name": "hasNoUnsettledEntry"
+         }
+        ],
+        "evidence": [
+         "SK-19",
+         "FR-070"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "dialogueFieldDisplayStateMachine",
+     "states": [
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-99i"
+       ]
+      },
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-99i",
+        "FR-066"
+       ]
+      }
+     ],
+     "transitions": {
+      "dialogueFieldEntryPressed": {
+       "shown": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isAgentApiEnabled"
+          }
+         ],
+         "evidence": [
+          "S-99i",
+          "IC-18"
+         ]
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isAgentApiEnabled",
+           "not": true
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-35",
+         "evidence": [
+          "FR-066",
+          "RS-35"
+         ]
+        }
+       ],
+       "hidden": [
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isAgentApiEnabled"
+          }
+         ],
+         "evidence": [
+          "S-99i",
+          "IC-18"
+         ]
+        },
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isAgentApiEnabled",
+           "not": true
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-35",
+         "evidence": [
+          "FR-066",
+          "RS-35"
+         ]
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "levelZeroFoldStateMachine",
+     "states": [
+      {
+       "key": "unfolded",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-211"
+       ]
+      },
+      {
+       "key": "folded",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HR-2",
+        "S-211"
+       ]
+      }
+     ],
+     "transitions": {
+      "foldAllPressed": {
+       "unfolded": {
+        "to": "folded",
+        "effect": "writeFoldAll",
+        "evidence": [
+         "HR-2",
+         "HF-12"
+        ]
+       }
+      },
+      "levelZeroOpened": {
+       "folded": {
+        "to": "unfolded",
+        "effect": "writeOpenLevel",
+        "evidence": [
+         "HF-16",
+         "HF-10",
+         "HF-17",
+         "S-211"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "dualCursorModeStateMachine",
+     "states": [
+      {
+       "key": "off",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "DC-1"
+       ]
+      },
+      {
+       "key": "on",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "DC-1",
+        "PTD-2"
+       ]
+      },
+      {
+       "key": "on.placingDate1",
+       "parent": "on",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "DC-1"
+       ]
+      },
+      {
+       "key": "on.placingDate2",
+       "parent": "on",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "DC-2",
+        "DC-8"
+       ]
+      }
+     ],
+     "transitions": {
+      "escapePressed": {
+       "on": {
+        "to": "off",
+        "guard": [
+         {
+          "name": "isRungDualCursor"
+         }
+        ],
+        "effect": "writeClearDualCursor",
+        "evidence": [
+         "DC-7",
+         "IN-4"
+        ]
+       }
+      },
+      "dualCursorEntryPressed": {
+       "off": {
+        "to": "on",
+        "guard": [
+         {
+          "name": "hasDaysToPlace"
+         }
+        ],
+        "effect": "writePlaceDualCursor",
+        "evidence": [
+         "DC-1"
+        ]
+       },
+       "on": {
+        "to": "off",
+        "effect": "writeClearDualCursor",
+        "evidence": [
+         "DC-4"
+        ]
+       }
+      },
+      "dualCursorPlaced": {
+       "on.placingDate1": {
+        "to": "on.placingDate2",
+        "effect": "writeFixDate1",
+        "evidence": [
+         "DC-2",
+         "DC-6"
+        ]
+       },
+       "on.placingDate2": {
+        "to": "on.placingDate1",
+        "effect": "writeFixDate2",
+        "evidence": [
+         "DC-2",
+         "DC-6"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "scaleMessageDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "SE-1"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "percent"
+        },
+        {
+         "name": "end",
+         "note": {
+          "ja": "`max` ・ `min` ・ なし"
+         }
+        }
+       ],
+       "evidence": [
+        "SE-2",
+        "ZE-5",
+        "S-244"
+       ]
+      }
+     ],
+     "transitions": {
+      "displayScaleStepped": {
+       "hidden": {
+        "to": "shown",
+        "effect": "startScaleMessageTimer",
+        "evidence": [
+         "SE-1",
+         "SE-2"
+        ]
+       },
+       "shown": {
+        "to": "shown",
+        "effect": "restartScaleMessageTimer",
+        "evidence": [
+         "SE-4"
+        ],
+        "note": {
+         "ja": "中身を書き換える"
+        }
+       }
+      },
+      "rowZoomEndReached": {
+       "hidden": {
+        "to": "shown",
+        "effect": "startScaleMessageTimer",
+        "evidence": [
+         "ZE-5",
+         "SE-2"
+        ]
+       },
+       "shown": {
+        "to": "shown",
+        "effect": "restartScaleMessageTimer",
+        "evidence": [
+         "SE-4",
+         "ZE-5"
+        ],
+        "note": {
+         "ja": "中身を書き換える"
+        }
+       }
+      },
+      "scaleMessageTimeElapsed": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "SE-3"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "tooltipDisplayStateMachine",
+     "states": [
+      {
+       "key": "allowed",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "IN-3"
+       ]
+      },
+      {
+       "key": "dismissed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "IN-3",
+        "IN-4"
+       ]
+      }
+     ],
+     "transitions": {
+      "escapePressed": {
+       "allowed": {
+        "to": "dismissed",
+        "guard": [
+         {
+          "name": "isRungTooltip"
+         }
+        ],
+        "evidence": [
+         "IN-3",
+         "IN-4"
+        ]
+       }
+      },
+      "pointerRestElapsed": {
+       "dismissed": {
+        "to": "allowed",
+        "evidence": [
+         "IN-3",
+         "EZ-2"
+        ]
+       }
+      }
+     }
     }
    ]
   },
@@ -2176,24 +1925,10 @@
    },
    "unit": "src/use-case/advance-screen-session/notice-values.ts",
    "typeStem": "NoticeValues",
-   "tables": {
-    "states": {
-     "id": "T-286",
-     "caption": {
-      "ja": "通知の状態"
-     }
-    },
-    "events": {
-     "id": "T-287",
-     "caption": {
-      "ja": "通知の出来事"
-     }
-    },
-    "transitions": {
-     "id": "T-288",
-     "caption": {
-      "ja": "通知の遷移"
-     }
+   "table": {
+    "id": "T-286",
+    "caption": {
+     "ja": "通知の状態機械"
     }
    },
    "figure": {
@@ -2202,76 +1937,15 @@
      "ja": "通知の状態遷移"
     }
    },
-   "states": [
-    {
-     "id": "SM-34",
-     "key": "notices",
-     "parent": null,
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "FR-076"
-     ]
-    },
-    {
-     "id": "SM-35",
-     "key": "notices.onScreen.none",
-     "parent": "notices",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "NT-8",
-      "IN-4"
-     ]
-    },
-    {
-     "id": "SM-36",
-     "key": "notices.onScreen.standing",
-     "parent": "notices",
-     "initial": false,
-     "carries": [
-      {
-       "name": "standing",
-       "note": {
-        "ja": "出ている通知の列。古い順。1 つは理由と件数"
-       }
-      }
-     ],
-     "evidence": [
-      "FR-076",
-      "NT-3",
-      "NT-8",
-      "IN-4",
-      "SK-19",
-      "IR-3"
-     ]
-    },
-    {
-     "id": "SM-37",
-     "key": "notices.delivery.idle",
-     "parent": "notices",
-     "initial": true,
-     "carries": [],
-     "evidence": [
-      "WS-7"
-     ]
-    },
-    {
-     "id": "SM-38",
-     "key": "notices.delivery.delivering",
-     "parent": "notices",
-     "initial": false,
-     "carries": [],
-     "evidence": [
-      "WS-2",
-      "RS-9",
-      "CA-3"
-     ]
-    }
-   ],
+   "root": {
+    "carries": [],
+    "evidence": [
+     "FR-076"
+    ],
+    "transitions": {}
+   },
    "events": [
     {
-     "id": "EV-31",
      "key": "noticeRaised",
      "source": {
       "kind": "effectResult",
@@ -2299,7 +1973,6 @@
      ]
     },
     {
-     "id": "EV-32",
      "key": "newestNoticeDismissAsked",
      "source": {
       "kind": "input",
@@ -2315,7 +1988,6 @@
      "carries": []
     },
     {
-     "id": "EV-33",
      "key": "noticeDismissPressed",
      "source": {
       "kind": "input",
@@ -2336,7 +2008,6 @@
      ]
     },
     {
-     "id": "EV-34",
      "key": "documentReplaced",
      "source": {
       "kind": "effectResult",
@@ -2351,7 +2022,6 @@
      "carries": []
     },
     {
-     "id": "EV-35",
      "key": "changeDelivered",
      "source": {
       "kind": "effectResult",
@@ -2373,225 +2043,213 @@
      ]
     }
    ],
-   "transitions": [
+   "machines": [
     {
-     "id": "TN-54",
-     "from": [
-      [
-       "notices.onScreen.none"
-      ]
+     "name": "noticeDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "NT-8",
+        "IN-4"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "standing",
+         "note": {
+          "ja": "出ている通知の列。古い順。1 つは理由と件数"
+         }
+        }
+       ],
+       "evidence": [
+        "FR-076",
+        "NT-3",
+        "NT-8",
+        "IN-4",
+        "SK-19",
+        "IR-3"
+       ]
+      }
      ],
-     "event": "noticeRaised",
-     "guard": null,
-     "to": [
-      "notices.onScreen.standing"
-     ],
-     "effect": null,
-     "evidence": [
-      "FR-076",
-      "NT-8"
-     ],
-     "note": {
-      "ja": "1 枚"
+     "transitions": {
+      "noticeRaised": {
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "FR-076",
+         "NT-8"
+        ],
+        "note": {
+         "ja": "1 枚"
+        }
+       },
+       "shown": [
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isSameReasonStanding"
+          }
+         ],
+         "evidence": [
+          "NT-3"
+         ],
+         "note": {
+          "ja": "その 1 枚の件数を増やし、いちばん新しい位置へ動かす"
+         }
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isSameReasonStanding",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "NT-3",
+          "NT-8"
+         ],
+         "note": {
+          "ja": "いちばん新しいものとして足す。枚数に上限を置かない"
+         }
+        }
+       ]
+      },
+      "newestNoticeDismissAsked": {
+       "shown": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isOnlyOneStanding"
+          }
+         ],
+         "evidence": [
+          "NT-8"
+         ]
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isOnlyOneStanding",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "NT-8"
+         ],
+         "note": {
+          "ja": "いちばん新しいものを除く"
+         }
+        }
+       ]
+      },
+      "noticeDismissPressed": {
+       "shown": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isLeavingNone"
+          }
+         ],
+         "evidence": [
+          "NT-8"
+         ]
+        },
+        {
+         "to": "shown",
+         "guard": [
+          {
+           "name": "isLeavingSome"
+          }
+         ],
+         "evidence": [
+          "NT-8"
+         ],
+         "note": {
+          "ja": "押されたものを除く"
+         }
+        }
+       ]
+      }
      }
     },
     {
-     "id": "TN-55",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "noticeRaised",
-     "guard": [
+     "name": "changeDeliveryStateMachine",
+     "states": [
       {
-       "name": "isSameReasonStanding"
+       "key": "idle",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "WS-7"
+       ]
+      },
+      {
+       "key": "delivering",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "WS-2",
+        "RS-9",
+        "CA-3"
+       ]
       }
      ],
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "NT-3"
-     ],
-     "note": {
-      "ja": "その 1 枚の件数を増やし、いちばん新しい位置へ動かす"
+     "transitions": {
+      "documentReplaced": {
+       "idle": {
+        "to": "delivering",
+        "evidence": [
+         "WS-2",
+         "WS-7"
+        ]
+       }
+      },
+      "changeDelivered": {
+       "delivering": [
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "name": "hasSilentWatcher",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "WS-7"
+         ]
+        },
+        {
+         "to": "idle",
+         "guard": [
+          {
+           "name": "hasSilentWatcher"
+          }
+         ],
+         "effect": "raiseNotice",
+         "effectArgument": "RS-23",
+         "evidence": [
+          "RS-23",
+          "AG-6"
+         ]
+        }
+       ]
+      }
      }
-    },
-    {
-     "id": "TN-56",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "noticeRaised",
-     "guard": [
-      {
-       "name": "isSameReasonStanding",
-       "not": true
-      }
-     ],
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "NT-3",
-      "NT-8"
-     ],
-     "note": {
-      "ja": "いちばん新しいものとして足す。枚数に上限を置かない"
-     }
-    },
-    {
-     "id": "TN-57",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "newestNoticeDismissAsked",
-     "guard": [
-      {
-       "name": "isOnlyOneStanding"
-      }
-     ],
-     "to": [
-      "notices.onScreen.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "NT-8"
-     ]
-    },
-    {
-     "id": "TN-58",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "newestNoticeDismissAsked",
-     "guard": [
-      {
-       "name": "isOnlyOneStanding",
-       "not": true
-      }
-     ],
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "NT-8"
-     ],
-     "note": {
-      "ja": "いちばん新しいものを除く"
-     }
-    },
-    {
-     "id": "TN-59",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "noticeDismissPressed",
-     "guard": [
-      {
-       "name": "leavesNone"
-      }
-     ],
-     "to": [
-      "notices.onScreen.none"
-     ],
-     "effect": null,
-     "evidence": [
-      "NT-8"
-     ]
-    },
-    {
-     "id": "TN-60",
-     "from": [
-      [
-       "notices.onScreen.standing"
-      ]
-     ],
-     "event": "noticeDismissPressed",
-     "guard": [
-      {
-       "name": "leavesSome"
-      }
-     ],
-     "to": "self",
-     "effect": null,
-     "evidence": [
-      "NT-8"
-     ],
-     "note": {
-      "ja": "押されたものを除く"
-     }
-    },
-    {
-     "id": "TN-61",
-     "from": [
-      [
-       "notices.delivery.idle"
-      ]
-     ],
-     "event": "documentReplaced",
-     "guard": null,
-     "to": [
-      "notices.delivery.delivering"
-     ],
-     "effect": null,
-     "evidence": [
-      "WS-2",
-      "WS-7"
-     ]
-    },
-    {
-     "id": "TN-62",
-     "from": [
-      [
-       "notices.delivery.delivering"
-      ]
-     ],
-     "event": "changeDelivered",
-     "guard": [
-      {
-       "name": "hasSilentWatcher",
-       "not": true
-      }
-     ],
-     "to": [
-      "notices.delivery.idle"
-     ],
-     "effect": null,
-     "evidence": [
-      "WS-7"
-     ]
-    },
-    {
-     "id": "TN-63",
-     "from": [
-      [
-       "notices.delivery.delivering"
-      ]
-     ],
-     "event": "changeDelivered",
-     "guard": [
-      {
-       "name": "hasSilentWatcher"
-      }
-     ],
-     "to": [
-      "notices.delivery.idle"
-     ],
-     "effect": {
-      "name": "raiseNotice",
-      "row": "RS-23"
-     },
-     "evidence": [
-      "RS-23",
-      "AG-6"
-     ]
     }
    ]
   }

@@ -1,4 +1,4 @@
-// Contract test: table T-250 SD-3 -- the notices manuscript (T-286..T-288) against advanceScreenSession.
+// Contract test: table T-250 SD-3 -- the notices manuscript (T-286) against advanceScreenSession.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -39,12 +39,76 @@ type Region = {
 }
 type Loose = Record<string, unknown>
 type Notice = { readonly reason: string; readonly affectedCount: number | null }
+type RawGuard = { readonly name: string; readonly not?: boolean } | { readonly in: string }
+type RawBranch = {
+  readonly to?: string
+  readonly guard?: readonly RawGuard[]
+  readonly effect?: string
+  readonly effectArgument?: string
+}
+type RawCell = RawBranch | readonly RawBranch[]
+type RawRegion = {
+  readonly region: string
+  readonly root: { readonly carries: readonly Carried[]; readonly transitions: Readonly<Record<string, RawCell>> }
+  readonly events: readonly { readonly key: string; readonly carries: readonly Carried[] }[]
+  readonly machines: readonly {
+    readonly name: string
+    readonly states: readonly { readonly key: string; readonly parent: string | null; readonly initial: boolean; readonly carries: readonly Carried[] }[]
+    readonly transitions: Readonly<Record<string, Readonly<Record<string, RawCell>>>>
+  }[]
+}
+
+function branchesOf(cell: RawCell): readonly RawBranch[] {
+  return Array.isArray(cell) ? cell : [cell as RawBranch]
+}
+
+function guardWords(guard: readonly RawGuard[]): string {
+  return guard.map((g) => ('in' in g ? `in ${g.in}` : g.not === true ? `not ${g.name}` : g.name)).join(' & ')
+}
+
+function tnRow(raw: RawRegion, state: string, event: string, branch: RawBranch, others: readonly string[]): TnRow {
+  const guard = branch.guard ?? null
+  return {
+    id: `${state} x ${raw.region}/${event}${guard === null ? '' : ` [${guardWords(guard)}]`}`,
+    from: [[state, ...others]],
+    event,
+    guard: guard === null ? null : guard.flatMap((g) => ('in' in g ? [] : [g])),
+    to: branch.to === undefined || `${state.split('.')[0] ?? ''}.${branch.to}` === state ? 'self' : [`${state.split('.')[0] ?? ''}.${branch.to}`],
+    effect: branch.effect === undefined ? null : { name: branch.effect, ...(branch.effectArgument === undefined ? {} : { row: branch.effectArgument }) },
+  }
+}
+
+// WHY: the manuscript holds one table per machine (JDG-286); this reads it back into the state,
+// event and transition rows the oracle walks. An `in` guard term joins the source conjunction.
+function regionOf(raw: RawRegion): Region {
+  const states: SmRow[] = [{ id: raw.region, key: raw.region, parent: null, initial: true, carries: raw.root.carries }]
+  for (const m of raw.machines) {
+    for (const s of m.states) {
+      const key = `${m.name}.${s.key}`
+      states.push({ id: key, key, parent: s.parent === null ? raw.region : `${m.name}.${s.parent}`, initial: s.initial, carries: s.carries })
+    }
+  }
+  const rootRows = Object.entries(raw.root.transitions).flatMap(([event, cell]) =>
+    branchesOf(cell).map((b) => tnRow(raw, raw.region, event, b, [])),
+  )
+  const machineRows = raw.machines.flatMap((m) =>
+    Object.entries(m.transitions).flatMap(([event, row]) =>
+      Object.entries(row).flatMap(([key, cell]) =>
+        branchesOf(cell).map((b) =>
+          tnRow(raw, `${m.name}.${key}`, event, b, (b.guard ?? []).flatMap((g) => ('in' in g ? [g.in] : []))),
+        ),
+      ),
+    ),
+  )
+  const events = raw.events.map((e) => ({ id: `${raw.region}/${e.key}`, key: e.key, carries: e.carries }))
+  return { region: raw.region, states, events, transitions: [...rootRows, ...machineRows] }
+}
 
 const REGIONS = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
-    readonly regions: readonly Region[]
+    readonly regions: readonly RawRegion[]
   }
-).regions
+).regions.map(regionOf)
 
 function regionNamed(name: string): Region {
   const region = REGIONS.find((r) => r.region === name)
@@ -60,9 +124,10 @@ function leavesOf(region: Region): SmRow[] {
 }
 
 function axisAndPath(key: string): { axis: string; path: string[] } {
-  const [axis, ...path] = key.split('.').slice(1)
-  if (axis === undefined) throw new Error(`state key ${key} has no axis`)
-  return { axis, path }
+  const [machine, ...path] = key.split('.')
+  if (machine === undefined) throw new Error(`state key ${key} has no machine`)
+  // WHY: the machine is named `...StateMachine` and the value holding its current state `...State` (R4.4).
+  return { axis: machine.replace(/Machine$/, ''), path }
 }
 
 function regionsOf(session: ScreenSession): Loose {
@@ -87,17 +152,17 @@ const NEWEST: Notice = { reason: 'RS-35', affectedCount: null }
 const ABSENT_REASON = 'RS-9'
 
 const ON_SCREEN_VARIANTS: Record<string, readonly { label: string; value: Loose }[]> = {
-  none: [{ label: 'none', value: { kind: 'none' } }],
-  standing: [
-    { label: 'standing[RS-41]', value: { kind: 'standing', standing: [OLDEST] } },
-    { label: 'standing[RS-41, RS-35]', value: { kind: 'standing', standing: [OLDEST, NEWEST] } },
+  hidden: [{ label: 'hidden', value: { kind: 'hidden' } }],
+  shown: [
+    { label: 'shown[RS-41]', value: { kind: 'shown', standing: [OLDEST] } },
+    { label: 'shown[RS-41, RS-35]', value: { kind: 'shown', standing: [OLDEST, NEWEST] } },
   ],
 }
 
 function valuesOf(sm: SmRow): readonly { label: string; value: Loose }[] {
   const { axis, path } = axisAndPath(sm.key)
   const kind = path[0] as string
-  if (axis === 'onScreen') return ON_SCREEN_VARIANTS[kind] ?? []
+  if (axis === 'noticeDisplayState') return ON_SCREEN_VARIANTS[kind] ?? []
   return [{ label: kind, value: { kind } }]
 }
 
@@ -139,7 +204,7 @@ const NOTICE_EVENT_VARIANTS: Record<string, readonly Loose[]> = {
 function noticeEvents(): Loose[] {
   return NOTICES.events.flatMap((ev) => {
     const variants = NOTICE_EVENT_VARIANTS[ev.key]
-    if (variants === undefined) throw new Error(`no sample for ${ev.id} ${ev.key}`)
+    if (variants === undefined) throw new Error(`no sample for ${ev.id}`)
     return variants.map((v) => ({ type: ev.key, ...v }))
   })
 }
@@ -148,12 +213,12 @@ function describeEvent(event: Loose): string {
   const { type, ...rest } = event
   const shown = Object.entries(rest).map(([k, v]) => `${k}=${String(v)}`)
   const row = [...NOTICES.events, ...SCREEN.events].find((e) => e.key === type)
-  return `${row?.id ?? '?'} ${String(type)}${shown.length === 0 ? '' : `(${shown.join(', ')})`}`
+  return `${row?.id ?? `?/${String(type)}`}${shown.length === 0 ? '' : `(${shown.join(', ')})`}`
 }
 
 function standingOf(notices: Loose): readonly Notice[] {
-  const onScreen = notices['onScreen'] as Loose
-  return onScreen['kind'] === 'standing' ? (onScreen['standing'] as readonly Notice[]) : []
+  const onScreen = notices['noticeDisplayState'] as Loose
+  return onScreen['kind'] === 'shown' ? (onScreen['standing'] as readonly Notice[]) : []
 }
 
 // see NT-3, NT-8, AG-6
@@ -165,9 +230,9 @@ function guardHolds(name: string, notices: Loose, event: Loose): boolean {
       return reasonStands
     case 'isOnlyOneStanding':
       return standing.length === 1
-    case 'leavesNone':
+    case 'isLeavingNone':
       return reasonStands && standing.length === 1
-    case 'leavesSome':
+    case 'isLeavingSome':
       return reasonStands && standing.length > 1
     case 'hasSilentWatcher':
       return Number(event['silentWatchers']) > 0
@@ -191,18 +256,18 @@ function firingRows(notices: Loose, event: Loose): TnRow[] {
   )
 }
 
-// WHY: T-288 notes carry what a self row does to the list; NT-3 says the bundled one
+// WHY: T-286 notes carry what a self cell does to the list; NT-3 says the bundled one
 // becomes the newest and its count grows, NT-8 says the newest goes first.
 function expectedStanding(row: TnRow, before: readonly Notice[], event: Loose): readonly Notice[] | undefined {
   const reason = event['reason'] as string
   switch (row.id) {
-    case 'TN-54':
+    case 'noticeDisplayStateMachine.hidden x notices/noticeRaised':
       return [{ reason, affectedCount: event['affectedCount'] as number | null }]
-    case 'TN-56':
+    case 'noticeDisplayStateMachine.shown x notices/noticeRaised [not isSameReasonStanding]':
       return [...before, { reason, affectedCount: event['affectedCount'] as number | null }]
-    case 'TN-58':
+    case 'noticeDisplayStateMachine.shown x notices/newestNoticeDismissAsked [not isOnlyOneStanding]':
       return before.slice(0, -1)
-    case 'TN-60':
+    case 'noticeDisplayStateMachine.shown x notices/noticeDismissPressed [isLeavingSome]':
       return before.filter((n) => n.reason !== reason)
     default:
       return undefined
@@ -220,8 +285,8 @@ function expectNoticeStep(session: ScreenSession, event: Loose): void {
     regionsOf(session)['screen'],
   )
   if (rows.length === 0) {
-    expect(result.state, 'no TN row: the same session reference').toBe(session)
-    expect(result.effects, 'no TN row: the shared NO_EFFECTS').toBe(NO_EFFECTS)
+    expect(result.state, 'no cell: the same session reference').toBe(session)
+    expect(result.effects, 'no cell: the shared NO_EFFECTS').toBe(NO_EFFECTS)
     return
   }
 
@@ -259,7 +324,7 @@ describe('T-286 initial kinds: emptyScreenSession holds the notices region in it
   })
 })
 
-describe('SD-3 (T-288): every notices kind (both axes crossed) x every notice event', () => {
+describe('SD-3 (T-286): every notices kind (both machines crossed) x every notice event', () => {
   const cases = orthogonalSessions().flatMap((s) =>
     noticeEvents().map((event) => [`${s.name} x ${describeEvent(event)}`, s.session, event] as const),
   )
@@ -268,15 +333,15 @@ describe('SD-3 (T-288): every notices kind (both axes crossed) x every notice ev
   })
 })
 
-describe('TN-55 (NT-3): a notice with a reason already standing is bundled into that one', () => {
-  const session = withNotices({ onScreen: { kind: 'standing', standing: [OLDEST, NEWEST] } })
+describe('isSameReasonStanding (NT-3): a notice with a reason already standing is bundled into that one', () => {
+  const session = withNotices({ noticeDisplayState: { kind: 'shown', standing: [OLDEST, NEWEST] } })
 
-  it('TN-55: the bundled notice becomes the newest, and no second notice for the reason is stacked', () => {
+  it('isSameReasonStanding: the bundled notice becomes the newest, and no second notice for the reason is stacked', () => {
     const after = standingOf(noticesOf(step(session, { type: 'noticeRaised', reason: OLDEST.reason, affectedCount: 2 }).state))
     expect(after.map((n) => n.reason)).toEqual([NEWEST.reason, OLDEST.reason])
   })
 
-  it('TN-55: with both counts given, the count grows by the raised count', () => {
+  it('isSameReasonStanding: with both counts given, the count grows by the raised count', () => {
     const after = standingOf(noticesOf(step(session, { type: 'noticeRaised', reason: OLDEST.reason, affectedCount: 2 }).state))
     expect(after.at(-1)?.affectedCount).toBe(5)
   })
@@ -285,14 +350,14 @@ describe('TN-55 (NT-3): a notice with a reason already standing is bundled into 
     ['standing 3, raised null', OLDEST.reason, null, 3],
     ['standing null, raised 4', NEWEST.reason, 4, null],
     ['standing null, raised null', NEWEST.reason, null, null],
-  ] as const)('TN-55: the count grows (%s)', (_, reason, raised, standingCount) => {
+  ] as const)('isSameReasonStanding: the count grows (%s)', (_, reason, raised, standingCount) => {
     const after = standingOf(noticesOf(step(session, { type: 'noticeRaised', reason, affectedCount: raised }).state))
     const bundled = after.at(-1)
     expect(bundled?.reason).toBe(reason)
     expect(bundled?.affectedCount).toBeGreaterThan(standingCount ?? 0)
   })
 
-  it('TN-56 (NT-3 MUST NOT): the count of standing notices has no ceiling', () => {
+  it('not isSameReasonStanding (NT-3 MUST NOT): the count of standing notices has no ceiling', () => {
     let s = withNotices({})
     for (let i = 1; i <= 50; i += 1) s = step(s, { type: 'noticeRaised', reason: `RS-${i}`, affectedCount: null }).state
     expect(standingOf(noticesOf(s))).toHaveLength(50)
@@ -304,7 +369,7 @@ describe('SS-5: screen events leave the notices region at the same reference', (
     surfaceName: 'U-30',
     target: 'surface',
     rung: 'surface',
-    armKind: 'dependency',
+    armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
     subject: { selection: { items: [], ordered: false }, groupIds: [] },
@@ -316,8 +381,8 @@ describe('SS-5: screen events leave the notices region at the same reference', (
     rememberedActual: null,
   }
   const standingSession = withNotices({
-    onScreen: { kind: 'standing', standing: [OLDEST] },
-    delivery: { kind: 'delivering' },
+    noticeDisplayState: { kind: 'shown', standing: [OLDEST] },
+    changeDeliveryState: { kind: 'delivering' },
   })
   const cases = SCREEN.events.map((ev) => {
     const event: Loose = { type: ev.key }
@@ -333,7 +398,7 @@ describe('SS-5: screen events leave the notices region at the same reference', (
 describe('SS-5: notice events leave every screen kind at the same reference', () => {
   const screenLeaves = leavesOf(SCREEN)
   const cases = screenLeaves.flatMap((sm) =>
-    noticeEvents().map((event) => [`${sm.id} ${sm.key} x ${describeEvent(event)}`, sm, event] as const),
+    noticeEvents().map((event) => [`${sm.id} x ${describeEvent(event)}`, sm, event] as const),
   )
   it.each(cases)('%s', (_, sm, event) => {
     const { axis, path } = axisAndPath(sm.key)

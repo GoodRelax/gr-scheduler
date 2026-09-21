@@ -24,9 +24,11 @@ type Loose = Record<string, unknown>
 type Region = {
   readonly region: string
   readonly unit: string
-  readonly states: readonly unknown[]
   readonly events: readonly unknown[]
-  readonly transitions: readonly unknown[]
+  readonly machines: readonly {
+    readonly states: readonly unknown[]
+    readonly transitions: Readonly<Record<string, Readonly<Record<string, unknown>>>>
+  }[]
 }
 
 const REGIONS = (
@@ -97,8 +99,8 @@ describe(`table T-284: ${T284_LEAD}`, () => {
     expect(after).not.toBe(before)
     const touched = axesOf(after['screen'])
     const untouched = axesOf(before['screen'])
-    expect(touched['palette']).not.toBe(untouched['palette'])
-    for (const axis of Object.keys(untouched).filter((k) => k !== 'palette' && isAxis(untouched[k]))) {
+    expect(touched['paletteDisplayState']).not.toBe(untouched['paletteDisplayState'])
+    for (const axis of Object.keys(untouched).filter((k) => k !== 'paletteDisplayState' && isAxis(untouched[k]))) {
       expect(touched[axis], axis).toBe(untouched[axis])
     }
     for (const region of Object.keys(before).filter((k) => k !== 'screen')) {
@@ -131,9 +133,9 @@ describe(`table T-285: ${T285_LEAD}`, () => {
   })
 
   it.each(REGIONS.map((r) => [r.region, r] as const))('RA-1: region %s has states, events and transitions', (_, r) => {
-    expect(r.states.length).toBeGreaterThan(0)
+    expect(r.machines.flatMap((m) => m.states).length).toBeGreaterThan(0)
     expect(r.events.length).toBeGreaterThan(0)
-    expect(r.transitions.length).toBeGreaterThan(0)
+    expect(r.machines.flatMap((m) => Object.values(m.transitions).flatMap((row) => Object.keys(row))).length).toBeGreaterThan(0)
   })
 
   it.each([

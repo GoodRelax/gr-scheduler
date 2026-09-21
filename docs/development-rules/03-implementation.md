@@ -83,14 +83,14 @@ NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-2
 NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下限（`S-229`）
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
-NOTICE_VALUES_INITIAL_AXES           通知の各軸の初期の種類（表 T-286 の初期の欄。`tools/generate_state_machine_types.py` が刷る）
-NOTICE_VALUES_TRANSITIONS            通知の遷移表（表 T-288。同じ生成器）
+NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+NOTICE_VALUES_TRANSITIONS            通知の状態遷移表の升を 1 つずつ並べたもの（表 T-286。同じ生成器）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
-SCREEN_VALUES_INITIAL_AXES           画面の値の各軸の初期の種類（表 T-280 の初期の欄。`tools/generate_state_machine_types.py` が刷る）
-SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の初期の欄。同じ生成器）
-SCREEN_VALUES_TRANSITIONS            画面の値の遷移表（表 T-282。同じ生成器）
+SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
+SCREEN_VALUES_TRANSITIONS            画面の値の状態遷移表の升を 1 つずつ並べたもの（表 T-280。同じ生成器）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）

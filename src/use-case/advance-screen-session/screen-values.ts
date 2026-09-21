@@ -17,7 +17,7 @@ export interface PropertiesSubject {
   readonly groupIds: readonly string[]
 }
 
-export type ArmKind = Exclude<ScreenValuesArmed['kind'], 'none'>
+export type ArmKind = Exclude<ArmModeState['kind'], 'notArmed'>
 
 type DisplayLanguage = 'ja' | 'en'
 
@@ -45,9 +45,9 @@ export interface ScreenValuesEventCarried {
   readonly glyph: string | null
   readonly isProceeding: boolean
   readonly subject: PropertiesSubject
-  readonly noSurfaceNoConfirmation: boolean
-  readonly noUnsettledEntry: boolean
-  readonly agentApiEnabled: boolean
+  readonly hasNoSurfaceOrConfirmation: boolean
+  readonly hasNoUnsettledEntry: boolean
+  readonly isAgentApiEnabled: boolean
   readonly date: string
   readonly hasDaysToPlace: boolean
   readonly percent: number
@@ -82,121 +82,121 @@ export type ScreenValuesEffect = {
 }[ScreenValuesEffectName]
 
 // <generated -- do not edit by hand>
-// From docs/spec/_source/state-machines.json, region screen (tables T-280 to T-282).
+// From docs/spec/_source/state-machines.json, region screen (table T-280).
 // Rebuild: npm run gen (tools/generate_state_machine_types.py).
 
 export type ScreenValuesKey =
   | 'screen'
-  | 'screen.armed.none'
-  | 'screen.armed.taskShape'
-  | 'screen.armed.milestoneShape'
-  | 'screen.armed.dependency'
-  | 'screen.armed.commentBox'
-  | 'screen.armed.highlightBox'
-  | 'screen.palette.shown'
-  | 'screen.palette.shown.expanded'
-  | 'screen.palette.shown.minimised'
-  | 'screen.palette.hidden'
-  | 'screen.milestoneList.closed'
-  | 'screen.milestoneList.open'
-  | 'screen.fullScreen.normal'
-  | 'screen.fullScreen.full'
-  | 'screen.surface.none'
-  | 'screen.surface.open'
-  | 'screen.watermark.shown'
-  | 'screen.watermark.hidden'
-  | 'screen.properties.none'
-  | 'screen.properties.selection'
-  | 'screen.properties.documentSettings'
-  | 'screen.dialogueField.shown'
-  | 'screen.dialogueField.hidden'
-  | 'screen.levelZero.unfolded'
-  | 'screen.levelZero.folded'
-  | 'screen.dualCursor.off'
-  | 'screen.dualCursor.on'
-  | 'screen.dualCursor.on.date1Following'
-  | 'screen.dualCursor.on.date2Following'
-  | 'screen.scaleMessage.none'
-  | 'screen.scaleMessage.shown'
-  | 'screen.tooltip.allowed'
-  | 'screen.tooltip.dismissed'
+  | 'armModeStateMachine.notArmed'
+  | 'armModeStateMachine.taskShapeArmed'
+  | 'armModeStateMachine.milestoneShapeArmed'
+  | 'armModeStateMachine.dependencyArmed'
+  | 'armModeStateMachine.commentBoxArmed'
+  | 'armModeStateMachine.highlightBoxArmed'
+  | 'paletteDisplayStateMachine.shown'
+  | 'paletteDisplayStateMachine.shown.expanded'
+  | 'paletteDisplayStateMachine.shown.minimised'
+  | 'paletteDisplayStateMachine.hidden'
+  | 'milestoneListDisplayStateMachine.closed'
+  | 'milestoneListDisplayStateMachine.open'
+  | 'fullScreenModeStateMachine.normal'
+  | 'fullScreenModeStateMachine.full'
+  | 'openSurfaceStateMachine.closed'
+  | 'openSurfaceStateMachine.open'
+  | 'watermarkDisplayStateMachine.shown'
+  | 'watermarkDisplayStateMachine.hidden'
+  | 'propertiesPanelContentStateMachine.hidden'
+  | 'propertiesPanelContentStateMachine.selectionDisplayed'
+  | 'propertiesPanelContentStateMachine.documentSettingsDisplayed'
+  | 'dialogueFieldDisplayStateMachine.shown'
+  | 'dialogueFieldDisplayStateMachine.hidden'
+  | 'levelZeroFoldStateMachine.unfolded'
+  | 'levelZeroFoldStateMachine.folded'
+  | 'dualCursorModeStateMachine.off'
+  | 'dualCursorModeStateMachine.on'
+  | 'dualCursorModeStateMachine.on.placingDate1'
+  | 'dualCursorModeStateMachine.on.placingDate2'
+  | 'scaleMessageDisplayStateMachine.hidden'
+  | 'scaleMessageDisplayStateMachine.shown'
+  | 'tooltipDisplayStateMachine.allowed'
+  | 'tooltipDisplayStateMachine.dismissed'
 
-export type ScreenValuesPaletteShown =
+export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
   | { readonly kind: 'minimised' }
 
-export type ScreenValuesDualCursorOn =
-  | { readonly kind: 'date1Following' }
-  | { readonly kind: 'date2Following' }
+export type DualCursorModeOnState =
+  | { readonly kind: 'placingDate1' }
+  | { readonly kind: 'placingDate2' }
 
-export type ScreenValuesArmed =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'taskShape'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] }
-  | { readonly kind: 'milestoneShape'; readonly glyph: ScreenValuesStateCarried['glyph'] }
-  | { readonly kind: 'dependency' }
-  | { readonly kind: 'commentBox' }
-  | { readonly kind: 'highlightBox' }
+export type ArmModeState =
+  | { readonly kind: 'notArmed' }
+  | { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] }
+  | { readonly kind: 'milestoneShapeArmed'; readonly glyph: ScreenValuesStateCarried['glyph'] }
+  | { readonly kind: 'dependencyArmed' }
+  | { readonly kind: 'commentBoxArmed' }
+  | { readonly kind: 'highlightBoxArmed' }
 
-export type ScreenValuesPalette =
-  | { readonly kind: 'shown'; readonly child: ScreenValuesPaletteShown }
+export type PaletteDisplayState =
+  | { readonly kind: 'shown'; readonly child: PaletteDisplayShownState }
   | { readonly kind: 'hidden' }
 
-export type ScreenValuesMilestoneList =
+export type MilestoneListDisplayState =
   | { readonly kind: 'closed' }
   | { readonly kind: 'open' }
 
-export type ScreenValuesFullScreen =
+export type FullScreenModeState =
   | { readonly kind: 'normal' }
   | { readonly kind: 'full' }
 
-export type ScreenValuesSurface =
-  | { readonly kind: 'none' }
+export type OpenSurfaceState =
+  | { readonly kind: 'closed' }
   | { readonly kind: 'open'; readonly surfaceName: ScreenValuesStateCarried['surfaceName'] }
 
-export type ScreenValuesWatermark =
+export type WatermarkDisplayState =
   | { readonly kind: 'shown' }
   | { readonly kind: 'hidden' }
 
-export type ScreenValuesProperties =
-  | { readonly kind: 'none' }
-  | { readonly kind: 'selection'; readonly subject: ScreenValuesStateCarried['subject'] }
-  | { readonly kind: 'documentSettings'; readonly returnSubject: ScreenValuesStateCarried['returnSubject'] }
+export type PropertiesPanelContentState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject'] }
+  | { readonly kind: 'documentSettingsDisplayed'; readonly returnSubject: ScreenValuesStateCarried['returnSubject'] }
 
-export type ScreenValuesDialogueField =
+export type DialogueFieldDisplayState =
   | { readonly kind: 'shown' }
   | { readonly kind: 'hidden' }
 
-export type ScreenValuesLevelZero =
+export type LevelZeroFoldState =
   | { readonly kind: 'unfolded' }
   | { readonly kind: 'folded' }
 
-export type ScreenValuesDualCursor =
+export type DualCursorModeState =
   | { readonly kind: 'off' }
-  | { readonly kind: 'on'; readonly child: ScreenValuesDualCursorOn }
+  | { readonly kind: 'on'; readonly child: DualCursorModeOnState }
 
-export type ScreenValuesScaleMessage =
-  | { readonly kind: 'none' }
+export type ScaleMessageDisplayState =
+  | { readonly kind: 'hidden' }
   | { readonly kind: 'shown'; readonly percent: ScreenValuesStateCarried['percent']; readonly end: ScreenValuesStateCarried['end'] }
 
-export type ScreenValuesTooltip =
+export type TooltipDisplayState =
   | { readonly kind: 'allowed' }
   | { readonly kind: 'dismissed' }
 
 export interface ScreenValues {
   readonly language: ScreenValuesStateCarried['language']
   readonly rememberedActuals: ScreenValuesStateCarried['rememberedActuals']
-  readonly armed: ScreenValuesArmed
-  readonly palette: ScreenValuesPalette
-  readonly milestoneList: ScreenValuesMilestoneList
-  readonly fullScreen: ScreenValuesFullScreen
-  readonly surface: ScreenValuesSurface
-  readonly watermark: ScreenValuesWatermark
-  readonly properties: ScreenValuesProperties
-  readonly dialogueField: ScreenValuesDialogueField
-  readonly levelZero: ScreenValuesLevelZero
-  readonly dualCursor: ScreenValuesDualCursor
-  readonly scaleMessage: ScreenValuesScaleMessage
-  readonly tooltip: ScreenValuesTooltip
+  readonly armModeState: ArmModeState
+  readonly paletteDisplayState: PaletteDisplayState
+  readonly milestoneListDisplayState: MilestoneListDisplayState
+  readonly fullScreenModeState: FullScreenModeState
+  readonly openSurfaceState: OpenSurfaceState
+  readonly watermarkDisplayState: WatermarkDisplayState
+  readonly propertiesPanelContentState: PropertiesPanelContentState
+  readonly dialogueFieldDisplayState: DialogueFieldDisplayState
+  readonly levelZeroFoldState: LevelZeroFoldState
+  readonly dualCursorModeState: DualCursorModeState
+  readonly scaleMessageDisplayState: ScaleMessageDisplayState
+  readonly tooltipDisplayState: TooltipDisplayState
 }
 
 export type ScreenValuesAxes = Omit<ScreenValues, 'language' | 'rememberedActuals'>
@@ -220,8 +220,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'propertiesOfChoiceAsked'; readonly subject: ScreenValuesEventCarried['subject'] }
   | { readonly type: 'selectionMoved'; readonly subject: ScreenValuesEventCarried['subject'] }
   | { readonly type: 'createdNameSettled' }
-  | { readonly type: 'settleKeyPressed'; readonly noSurfaceNoConfirmation: ScreenValuesEventCarried['noSurfaceNoConfirmation']; readonly noUnsettledEntry: ScreenValuesEventCarried['noUnsettledEntry'] }
-  | { readonly type: 'dialogueFieldEntryPressed'; readonly agentApiEnabled: ScreenValuesEventCarried['agentApiEnabled'] }
+  | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
+  | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
   | { readonly type: 'foldAllPressed' }
   | { readonly type: 'levelZeroOpened' }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
@@ -234,6 +234,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'pointerRestElapsed' }
 
 export type ScreenValuesEffectName =
+  | 'storeLanguage'
+  | 'writeProgressStep'
   | 'askBrowserForFullScreen'
   | 'tellFlowSurfaceClosed'
   | 'matchWatermarkUnlock'
@@ -241,523 +243,667 @@ export type ScreenValuesEffectName =
   | 'clearSelection'
   | 'writeFoldAll'
   | 'writeOpenLevel'
+  | 'writeClearDualCursor'
   | 'writePlaceDualCursor'
   | 'writeFixDate1'
   | 'writeFixDate2'
-  | 'writeClearDualCursor'
   | 'startScaleMessageTimer'
   | 'restartScaleMessageTimer'
-  | 'storeLanguage'
-  | 'writeProgressStep'
 
 export interface ScreenValuesTransition {
-  readonly id: string
-  readonly from: readonly (readonly ScreenValuesKey[])[]
+  readonly state: ScreenValuesKey
   readonly event: ScreenValuesEvent['type']
   readonly guard: string | null
-  readonly to: readonly string[] | 'self'
+  readonly to: string
   readonly effect: ScreenValuesEffectName | null
   readonly effectArgument: string | null
 }
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
-  readonly 'screen.palette.shown': ScreenValuesPaletteShown
-  readonly 'screen.dualCursor.on': ScreenValuesDualCursorOn
+  readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
+  readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
 } = {
-  'screen.palette.shown': { kind: 'expanded' },
-  'screen.dualCursor.on': { kind: 'date1Following' },
+  'paletteDisplayStateMachine.shown': { kind: 'expanded' },
+  'dualCursorModeStateMachine.on': { kind: 'placingDate1' },
 }
 
 const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
-  armed: { kind: 'none' },
-  palette: { kind: 'shown', child: SCREEN_VALUES_INITIAL_CHILDREN['screen.palette.shown'] },
-  milestoneList: { kind: 'closed' },
-  fullScreen: { kind: 'normal' },
-  surface: { kind: 'none' },
-  watermark: { kind: 'shown' },
-  properties: { kind: 'none' },
-  dialogueField: { kind: 'shown' },
-  levelZero: { kind: 'unfolded' },
-  dualCursor: { kind: 'off' },
-  scaleMessage: { kind: 'none' },
-  tooltip: { kind: 'allowed' },
+  armModeState: { kind: 'notArmed' },
+  paletteDisplayState: { kind: 'shown', child: SCREEN_VALUES_INITIAL_CHILDREN['paletteDisplayStateMachine.shown'] },
+  milestoneListDisplayState: { kind: 'closed' },
+  fullScreenModeState: { kind: 'normal' },
+  openSurfaceState: { kind: 'closed' },
+  watermarkDisplayState: { kind: 'shown' },
+  propertiesPanelContentState: { kind: 'hidden' },
+  dialogueFieldDisplayState: { kind: 'shown' },
+  levelZeroFoldState: { kind: 'unfolded' },
+  dualCursorModeState: { kind: 'off' },
+  scaleMessageDisplayState: { kind: 'hidden' },
+  tooltipDisplayState: { kind: 'allowed' },
 }
 
 export const SCREEN_VALUES_TRANSITIONS: readonly ScreenValuesTransition[] = [
   {
-    id: 'TN-1',
-    from: [['screen.palette.shown']],
-    event: 'paletteToggled',
-    guard: null,
-    to: ['screen.palette.hidden'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-2',
-    from: [['screen.palette.hidden']],
-    event: 'paletteToggled',
-    guard: null,
-    to: ['screen.palette.shown'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-3',
-    from: [['screen.palette.shown.expanded']],
-    event: 'paletteMinimiseToggled',
-    guard: null,
-    to: ['screen.palette.shown.minimised'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-4',
-    from: [['screen.palette.shown.minimised']],
-    event: 'paletteMinimiseToggled',
-    guard: null,
-    to: ['screen.palette.shown.expanded'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-5',
-    from: [['screen.milestoneList.closed']],
-    event: 'milestoneListToggled',
-    guard: null,
-    to: ['screen.milestoneList.open'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-6',
-    from: [['screen.milestoneList.open']],
-    event: 'milestoneListToggled',
-    guard: null,
-    to: ['screen.milestoneList.closed'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-7',
-    from: [['screen.fullScreen.normal'], ['screen.fullScreen.full']],
-    event: 'fullScreenEntryPressed',
-    guard: null,
-    to: 'self',
-    effect: 'askBrowserForFullScreen',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-8',
-    from: [['screen.fullScreen.normal']],
-    event: 'fullScreenChanged',
-    guard: 'isFullScreen',
-    to: ['screen.fullScreen.full'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-9',
-    from: [['screen.fullScreen.full']],
-    event: 'fullScreenChanged',
-    guard: 'not isFullScreen',
-    to: ['screen.fullScreen.normal'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-10',
-    from: [['screen.surface.none']],
-    event: 'surfaceEntryPressed',
-    guard: null,
-    to: ['screen.surface.open'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-11',
-    from: [['screen.surface.none']],
-    event: 'surfaceRaisedByFlow',
-    guard: null,
-    to: ['screen.surface.open'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-12',
-    from: [['screen.surface.open']],
-    event: 'surfaceCloseAsked',
-    guard: 'isSurfaceTarget',
-    to: ['screen.surface.none'],
-    effect: 'tellFlowSurfaceClosed',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-13',
-    from: [['screen.surface.open']],
-    event: 'escapePressed',
-    guard: 'rungIsSurface',
-    to: ['screen.surface.none'],
-    effect: 'tellFlowSurfaceClosed',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-14',
-    from: [['screen.armed.none']],
-    event: 'armEntryPressed',
-    guard: null,
-    to: ['screen.armed.{armKind}'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-15',
-    from: [['screen.armed.taskShape'], ['screen.armed.milestoneShape'], ['screen.armed.dependency'], ['screen.armed.commentBox'], ['screen.armed.highlightBox']],
-    event: 'armEntryPressed',
-    guard: 'isSameArm',
-    to: ['screen.armed.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-16',
-    from: [['screen.armed.taskShape'], ['screen.armed.milestoneShape'], ['screen.armed.dependency'], ['screen.armed.commentBox'], ['screen.armed.highlightBox']],
-    event: 'armEntryPressed',
-    guard: 'not isSameArm',
-    to: ['screen.armed.{armKind}'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-17',
-    from: [['screen.armed.taskShape'], ['screen.armed.milestoneShape'], ['screen.armed.dependency'], ['screen.armed.commentBox'], ['screen.armed.highlightBox']],
-    event: 'escapePressed',
-    guard: 'rungIsArmed',
-    to: ['screen.armed.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-18',
-    from: [['screen.armed.taskShape'], ['screen.armed.milestoneShape'], ['screen.armed.dependency'], ['screen.armed.commentBox'], ['screen.armed.highlightBox']],
-    event: 'dualCursorEntryPressed',
-    guard: 'entersDualCursor',
-    to: ['screen.armed.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-19',
-    from: [['screen.watermark.shown', 'screen.surface.none']],
-    event: 'watermarkEntryPressed',
-    guard: null,
-    to: ['screen.surface.open'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-20',
-    from: [['screen.watermark.hidden']],
-    event: 'watermarkEntryPressed',
-    guard: null,
-    to: ['screen.watermark.shown'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-21',
-    from: [['screen.surface.open']],
-    event: 'watermarkUnlockAnswered',
-    guard: 'isWatermarkUnlockSurface & isProceeding',
-    to: 'self',
-    effect: 'matchWatermarkUnlock',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-22',
-    from: [['screen.surface.open']],
-    event: 'watermarkUnlockAnswered',
-    guard: 'isWatermarkUnlockSurface & not isProceeding',
-    to: ['screen.surface.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-23',
-    from: [['screen.watermark.shown', 'screen.surface.open']],
-    event: 'watermarkUnlockMatched',
-    guard: 'isWatermarkUnlockSurface',
-    to: ['screen.watermark.hidden', 'screen.surface.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-24',
-    from: [['screen.surface.open']],
-    event: 'watermarkUnlockMismatched',
-    guard: 'isWatermarkUnlockSurface',
-    to: 'self',
-    effect: 'raiseNotice',
-    effectArgument: 'RS-41',
-  },
-  {
-    id: 'TN-25',
-    from: [['screen.properties.none']],
-    event: 'settingsEntryPressed',
-    guard: null,
-    to: ['screen.properties.documentSettings'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-26',
-    from: [['screen.properties.selection']],
-    event: 'settingsEntryPressed',
-    guard: null,
-    to: ['screen.properties.documentSettings'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-27',
-    from: [['screen.properties.documentSettings']],
-    event: 'settingsEntryPressed',
-    guard: null,
-    to: ['screen.properties.selection'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-28',
-    from: [['screen.properties.none'], ['screen.properties.documentSettings']],
-    event: 'propertiesOfChoiceAsked',
-    guard: null,
-    to: ['screen.properties.selection'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-29',
-    from: [['screen.properties.selection']],
-    event: 'propertiesOfChoiceAsked',
-    guard: null,
-    to: 'self',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-30',
-    from: [['screen.properties.selection']],
-    event: 'selectionMoved',
-    guard: 'hasChoice',
-    to: 'self',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-31',
-    from: [['screen.properties.selection'], ['screen.properties.documentSettings']],
-    event: 'surfaceCloseAsked',
-    guard: 'isPanelTarget',
-    to: ['screen.properties.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-32',
-    from: [['screen.properties.selection'], ['screen.properties.documentSettings']],
-    event: 'escapePressed',
-    guard: 'rungIsSurface & isPanelTopmost',
-    to: ['screen.properties.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-33',
-    from: [['screen.properties.none'], ['screen.properties.selection'], ['screen.properties.documentSettings']],
-    event: 'createdNameSettled',
-    guard: null,
-    to: ['screen.properties.none'],
-    effect: 'clearSelection',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-34',
-    from: [['screen.properties.selection'], ['screen.properties.documentSettings']],
-    event: 'settleKeyPressed',
-    guard: 'noSurfaceNoConfirmation & noUnsettledEntry',
-    to: ['screen.properties.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-35',
-    from: [['screen.dialogueField.shown']],
-    event: 'dialogueFieldEntryPressed',
-    guard: 'agentApiEnabled',
-    to: ['screen.dialogueField.hidden'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-36',
-    from: [['screen.dialogueField.hidden']],
-    event: 'dialogueFieldEntryPressed',
-    guard: 'agentApiEnabled',
-    to: ['screen.dialogueField.shown'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-37',
-    from: [['screen.dialogueField.shown'], ['screen.dialogueField.hidden']],
-    event: 'dialogueFieldEntryPressed',
-    guard: 'not agentApiEnabled',
-    to: 'self',
-    effect: 'raiseNotice',
-    effectArgument: 'RS-35',
-  },
-  {
-    id: 'TN-38',
-    from: [['screen.levelZero.unfolded']],
-    event: 'foldAllPressed',
-    guard: null,
-    to: ['screen.levelZero.folded'],
-    effect: 'writeFoldAll',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-39',
-    from: [['screen.levelZero.folded']],
-    event: 'levelZeroOpened',
-    guard: null,
-    to: ['screen.levelZero.unfolded'],
-    effect: 'writeOpenLevel',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-40',
-    from: [['screen.dualCursor.off']],
-    event: 'dualCursorEntryPressed',
-    guard: 'hasDaysToPlace',
-    to: ['screen.dualCursor.on'],
-    effect: 'writePlaceDualCursor',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-41',
-    from: [['screen.dualCursor.on.date1Following']],
-    event: 'dualCursorPlaced',
-    guard: null,
-    to: ['screen.dualCursor.on.date2Following'],
-    effect: 'writeFixDate1',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-42',
-    from: [['screen.dualCursor.on.date2Following']],
-    event: 'dualCursorPlaced',
-    guard: null,
-    to: ['screen.dualCursor.on.date1Following'],
-    effect: 'writeFixDate2',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-43',
-    from: [['screen.dualCursor.on']],
-    event: 'dualCursorEntryPressed',
-    guard: null,
-    to: ['screen.dualCursor.off'],
-    effect: 'writeClearDualCursor',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-44',
-    from: [['screen.dualCursor.on']],
-    event: 'escapePressed',
-    guard: 'rungIsDualCursor',
-    to: ['screen.dualCursor.off'],
-    effect: 'writeClearDualCursor',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-45',
-    from: [['screen.scaleMessage.none']],
-    event: 'displayScaleStepped',
-    guard: null,
-    to: ['screen.scaleMessage.shown'],
-    effect: 'startScaleMessageTimer',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-46',
-    from: [['screen.scaleMessage.none']],
-    event: 'rowZoomEndReached',
-    guard: null,
-    to: ['screen.scaleMessage.shown'],
-    effect: 'startScaleMessageTimer',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-47',
-    from: [['screen.scaleMessage.shown']],
-    event: 'displayScaleStepped',
-    guard: null,
-    to: 'self',
-    effect: 'restartScaleMessageTimer',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-48',
-    from: [['screen.scaleMessage.shown']],
-    event: 'rowZoomEndReached',
-    guard: null,
-    to: 'self',
-    effect: 'restartScaleMessageTimer',
-    effectArgument: null,
-  },
-  {
-    id: 'TN-49',
-    from: [['screen.scaleMessage.shown']],
-    event: 'scaleMessageTimeElapsed',
-    guard: null,
-    to: ['screen.scaleMessage.none'],
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    id: 'TN-50',
-    from: [['screen']],
+    state: 'screen',
     event: 'displayLanguageChosen',
     guard: null,
-    to: 'self',
+    to: 'screen',
     effect: 'storeLanguage',
     effectArgument: null,
   },
   {
-    id: 'TN-51',
-    from: [['screen']],
+    state: 'screen',
     event: 'progressMarkerPressed',
     guard: null,
-    to: 'self',
+    to: 'screen',
     effect: 'writeProgressStep',
     effectArgument: null,
   },
   {
-    id: 'TN-52',
-    from: [['screen.tooltip.allowed']],
+    state: 'armModeStateMachine.taskShapeArmed',
     event: 'escapePressed',
-    guard: 'rungIsTooltip',
-    to: ['screen.tooltip.dismissed'],
+    guard: 'isRungArmed',
+    to: 'armModeStateMachine.notArmed',
     effect: null,
     effectArgument: null,
   },
   {
-    id: 'TN-53',
-    from: [['screen.tooltip.dismissed']],
+    state: 'armModeStateMachine.milestoneShapeArmed',
+    event: 'escapePressed',
+    guard: 'isRungArmed',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.dependencyArmed',
+    event: 'escapePressed',
+    guard: 'isRungArmed',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.commentBoxArmed',
+    event: 'escapePressed',
+    guard: 'isRungArmed',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.highlightBoxArmed',
+    event: 'escapePressed',
+    guard: 'isRungArmed',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.notArmed',
+    event: 'armEntryPressed',
+    guard: null,
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.taskShapeArmed',
+    event: 'armEntryPressed',
+    guard: 'isSameArm',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.taskShapeArmed',
+    event: 'armEntryPressed',
+    guard: 'not isSameArm',
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.milestoneShapeArmed',
+    event: 'armEntryPressed',
+    guard: 'isSameArm',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.milestoneShapeArmed',
+    event: 'armEntryPressed',
+    guard: 'not isSameArm',
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.dependencyArmed',
+    event: 'armEntryPressed',
+    guard: 'isSameArm',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.dependencyArmed',
+    event: 'armEntryPressed',
+    guard: 'not isSameArm',
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.commentBoxArmed',
+    event: 'armEntryPressed',
+    guard: 'isSameArm',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.commentBoxArmed',
+    event: 'armEntryPressed',
+    guard: 'not isSameArm',
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.highlightBoxArmed',
+    event: 'armEntryPressed',
+    guard: 'isSameArm',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.highlightBoxArmed',
+    event: 'armEntryPressed',
+    guard: 'not isSameArm',
+    to: 'armModeStateMachine.{armKind}',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.taskShapeArmed',
+    event: 'dualCursorEntryPressed',
+    guard: 'canEnterDualCursor',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.milestoneShapeArmed',
+    event: 'dualCursorEntryPressed',
+    guard: 'canEnterDualCursor',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.dependencyArmed',
+    event: 'dualCursorEntryPressed',
+    guard: 'canEnterDualCursor',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.commentBoxArmed',
+    event: 'dualCursorEntryPressed',
+    guard: 'canEnterDualCursor',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'armModeStateMachine.highlightBoxArmed',
+    event: 'dualCursorEntryPressed',
+    guard: 'canEnterDualCursor',
+    to: 'armModeStateMachine.notArmed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'paletteDisplayStateMachine.shown',
+    event: 'paletteToggled',
+    guard: null,
+    to: 'paletteDisplayStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'paletteDisplayStateMachine.hidden',
+    event: 'paletteToggled',
+    guard: null,
+    to: 'paletteDisplayStateMachine.shown',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'paletteDisplayStateMachine.shown.expanded',
+    event: 'paletteMinimiseToggled',
+    guard: null,
+    to: 'paletteDisplayStateMachine.shown.minimised',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'paletteDisplayStateMachine.shown.minimised',
+    event: 'paletteMinimiseToggled',
+    guard: null,
+    to: 'paletteDisplayStateMachine.shown.expanded',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'milestoneListDisplayStateMachine.closed',
+    event: 'milestoneListToggled',
+    guard: null,
+    to: 'milestoneListDisplayStateMachine.open',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'milestoneListDisplayStateMachine.open',
+    event: 'milestoneListToggled',
+    guard: null,
+    to: 'milestoneListDisplayStateMachine.closed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fullScreenModeStateMachine.normal',
+    event: 'fullScreenEntryPressed',
+    guard: null,
+    to: 'fullScreenModeStateMachine.normal',
+    effect: 'askBrowserForFullScreen',
+    effectArgument: null,
+  },
+  {
+    state: 'fullScreenModeStateMachine.full',
+    event: 'fullScreenEntryPressed',
+    guard: null,
+    to: 'fullScreenModeStateMachine.full',
+    effect: 'askBrowserForFullScreen',
+    effectArgument: null,
+  },
+  {
+    state: 'fullScreenModeStateMachine.normal',
+    event: 'fullScreenChanged',
+    guard: 'isFullScreen',
+    to: 'fullScreenModeStateMachine.full',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'fullScreenModeStateMachine.full',
+    event: 'fullScreenChanged',
+    guard: 'not isFullScreen',
+    to: 'fullScreenModeStateMachine.normal',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.closed',
+    event: 'surfaceEntryPressed',
+    guard: null,
+    to: 'openSurfaceStateMachine.open',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.closed',
+    event: 'surfaceRaisedByFlow',
+    guard: null,
+    to: 'openSurfaceStateMachine.open',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'surfaceCloseAsked',
+    guard: 'isSurfaceTarget',
+    to: 'openSurfaceStateMachine.closed',
+    effect: 'tellFlowSurfaceClosed',
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'escapePressed',
+    guard: 'isRungSurface',
+    to: 'openSurfaceStateMachine.closed',
+    effect: 'tellFlowSurfaceClosed',
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.closed',
+    event: 'watermarkEntryPressed',
+    guard: 'in watermarkDisplayStateMachine.shown',
+    to: 'openSurfaceStateMachine.open',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'watermarkUnlockAnswered',
+    guard: 'isWatermarkUnlockSurface & isProceeding',
+    to: 'openSurfaceStateMachine.open',
+    effect: 'matchWatermarkUnlock',
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'watermarkUnlockAnswered',
+    guard: 'isWatermarkUnlockSurface & not isProceeding',
+    to: 'openSurfaceStateMachine.closed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'watermarkUnlockMatched',
+    guard: 'in watermarkDisplayStateMachine.shown & isWatermarkUnlockSurface',
+    to: 'openSurfaceStateMachine.closed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'openSurfaceStateMachine.open',
+    event: 'watermarkUnlockMismatched',
+    guard: 'isWatermarkUnlockSurface',
+    to: 'openSurfaceStateMachine.open',
+    effect: 'raiseNotice',
+    effectArgument: 'RS-41',
+  },
+  {
+    state: 'watermarkDisplayStateMachine.hidden',
+    event: 'watermarkEntryPressed',
+    guard: null,
+    to: 'watermarkDisplayStateMachine.shown',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'watermarkDisplayStateMachine.shown',
+    event: 'watermarkUnlockMatched',
+    guard: 'in openSurfaceStateMachine.open & isWatermarkUnlockSurface',
+    to: 'watermarkDisplayStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'surfaceCloseAsked',
+    guard: 'isPanelTarget',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'surfaceCloseAsked',
+    guard: 'isPanelTarget',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'escapePressed',
+    guard: 'isRungSurface & isPanelTopmost',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'escapePressed',
+    guard: 'isRungSurface & isPanelTopmost',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.hidden',
+    event: 'settingsEntryPressed',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'settingsEntryPressed',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'settingsEntryPressed',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.hidden',
+    event: 'propertiesOfChoiceAsked',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'propertiesOfChoiceAsked',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'propertiesOfChoiceAsked',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'selectionMoved',
+    guard: 'hasChoice',
+    to: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.hidden',
+    event: 'createdNameSettled',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: 'clearSelection',
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'createdNameSettled',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: 'clearSelection',
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'createdNameSettled',
+    guard: null,
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: 'clearSelection',
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.selectionDisplayed',
+    event: 'settleKeyPressed',
+    guard: 'hasNoSurfaceOrConfirmation & hasNoUnsettledEntry',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'propertiesPanelContentStateMachine.documentSettingsDisplayed',
+    event: 'settleKeyPressed',
+    guard: 'hasNoSurfaceOrConfirmation & hasNoUnsettledEntry',
+    to: 'propertiesPanelContentStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'dialogueFieldDisplayStateMachine.shown',
+    event: 'dialogueFieldEntryPressed',
+    guard: 'isAgentApiEnabled',
+    to: 'dialogueFieldDisplayStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'dialogueFieldDisplayStateMachine.shown',
+    event: 'dialogueFieldEntryPressed',
+    guard: 'not isAgentApiEnabled',
+    to: 'dialogueFieldDisplayStateMachine.shown',
+    effect: 'raiseNotice',
+    effectArgument: 'RS-35',
+  },
+  {
+    state: 'dialogueFieldDisplayStateMachine.hidden',
+    event: 'dialogueFieldEntryPressed',
+    guard: 'isAgentApiEnabled',
+    to: 'dialogueFieldDisplayStateMachine.shown',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'dialogueFieldDisplayStateMachine.hidden',
+    event: 'dialogueFieldEntryPressed',
+    guard: 'not isAgentApiEnabled',
+    to: 'dialogueFieldDisplayStateMachine.hidden',
+    effect: 'raiseNotice',
+    effectArgument: 'RS-35',
+  },
+  {
+    state: 'levelZeroFoldStateMachine.unfolded',
+    event: 'foldAllPressed',
+    guard: null,
+    to: 'levelZeroFoldStateMachine.folded',
+    effect: 'writeFoldAll',
+    effectArgument: null,
+  },
+  {
+    state: 'levelZeroFoldStateMachine.folded',
+    event: 'levelZeroOpened',
+    guard: null,
+    to: 'levelZeroFoldStateMachine.unfolded',
+    effect: 'writeOpenLevel',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.on',
+    event: 'escapePressed',
+    guard: 'isRungDualCursor',
+    to: 'dualCursorModeStateMachine.off',
+    effect: 'writeClearDualCursor',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.off',
+    event: 'dualCursorEntryPressed',
+    guard: 'hasDaysToPlace',
+    to: 'dualCursorModeStateMachine.on',
+    effect: 'writePlaceDualCursor',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.on',
+    event: 'dualCursorEntryPressed',
+    guard: null,
+    to: 'dualCursorModeStateMachine.off',
+    effect: 'writeClearDualCursor',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.on.placingDate1',
+    event: 'dualCursorPlaced',
+    guard: null,
+    to: 'dualCursorModeStateMachine.on.placingDate2',
+    effect: 'writeFixDate1',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.on.placingDate2',
+    event: 'dualCursorPlaced',
+    guard: null,
+    to: 'dualCursorModeStateMachine.on.placingDate1',
+    effect: 'writeFixDate2',
+    effectArgument: null,
+  },
+  {
+    state: 'scaleMessageDisplayStateMachine.hidden',
+    event: 'displayScaleStepped',
+    guard: null,
+    to: 'scaleMessageDisplayStateMachine.shown',
+    effect: 'startScaleMessageTimer',
+    effectArgument: null,
+  },
+  {
+    state: 'scaleMessageDisplayStateMachine.shown',
+    event: 'displayScaleStepped',
+    guard: null,
+    to: 'scaleMessageDisplayStateMachine.shown',
+    effect: 'restartScaleMessageTimer',
+    effectArgument: null,
+  },
+  {
+    state: 'scaleMessageDisplayStateMachine.hidden',
+    event: 'rowZoomEndReached',
+    guard: null,
+    to: 'scaleMessageDisplayStateMachine.shown',
+    effect: 'startScaleMessageTimer',
+    effectArgument: null,
+  },
+  {
+    state: 'scaleMessageDisplayStateMachine.shown',
+    event: 'rowZoomEndReached',
+    guard: null,
+    to: 'scaleMessageDisplayStateMachine.shown',
+    effect: 'restartScaleMessageTimer',
+    effectArgument: null,
+  },
+  {
+    state: 'scaleMessageDisplayStateMachine.shown',
+    event: 'scaleMessageTimeElapsed',
+    guard: null,
+    to: 'scaleMessageDisplayStateMachine.hidden',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'tooltipDisplayStateMachine.allowed',
+    event: 'escapePressed',
+    guard: 'isRungTooltip',
+    to: 'tooltipDisplayStateMachine.dismissed',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'tooltipDisplayStateMachine.dismissed',
     event: 'pointerRestElapsed',
     guard: null,
-    to: ['screen.tooltip.allowed'],
+    to: 'tooltipDisplayStateMachine.allowed',
     effect: null,
     effectArgument: null,
   },
@@ -792,105 +938,105 @@ function stayed(values: ScreenValues, effects: readonly ScreenValuesEffect[]): S
   return { state: values, effects }
 }
 
-// see TN-1, TN-2
+// see T-280
 /** @purity pure */
 function onPaletteToggled(values: ScreenValues): ScreenStep {
-  if (values.palette.kind === 'hidden') {
-    const child = SCREEN_VALUES_INITIAL_CHILDREN['screen.palette.shown']
-    return moved(values, { palette: { kind: 'shown', child } })
+  if (values.paletteDisplayState.kind === 'hidden') {
+    const child = SCREEN_VALUES_INITIAL_CHILDREN['paletteDisplayStateMachine.shown']
+    return moved(values, { paletteDisplayState: { kind: 'shown', child } })
   }
-  return moved(values, { palette: { kind: 'hidden' } })
+  return moved(values, { paletteDisplayState: { kind: 'hidden' } })
 }
 
-// see TN-3, TN-4
+// see T-280
 /** @purity pure */
 function onPaletteMinimiseToggled(values: ScreenValues): ScreenStep {
-  const palette = values.palette
+  const palette = values.paletteDisplayState
   if (palette.kind === 'hidden') return unchanged(values)
   const kind = palette.child.kind === 'expanded' ? 'minimised' : 'expanded'
-  return moved(values, { palette: { kind: 'shown', child: { kind } } })
+  return moved(values, { paletteDisplayState: { kind: 'shown', child: { kind } } })
 }
 
-// see TN-5, TN-6
+// see T-280
 /** @purity pure */
 function onMilestoneListToggled(values: ScreenValues): ScreenStep {
-  const kind = values.milestoneList.kind === 'closed' ? 'open' : 'closed'
-  return moved(values, { milestoneList: { kind } })
+  const kind = values.milestoneListDisplayState.kind === 'closed' ? 'open' : 'closed'
+  return moved(values, { milestoneListDisplayState: { kind } })
 }
 
-// see TN-7
+// see T-280
 /** @purity pure */
 function onFullScreenEntryPressed(values: ScreenValues): ScreenStep {
   return stayed(values, [{ type: 'askBrowserForFullScreen' }])
 }
 
-// see TN-8, TN-9
+// see T-280
 /** @purity pure */
 function onFullScreenChanged(values: ScreenValues, event: EventOf<'fullScreenChanged'>): ScreenStep {
-  const isFull = values.fullScreen.kind === 'full'
+  const isFull = values.fullScreenModeState.kind === 'full'
   if (isFull === event.isFullScreen) return unchanged(values)
-  return moved(values, { fullScreen: { kind: event.isFullScreen ? 'full' : 'normal' } })
+  return moved(values, { fullScreenModeState: { kind: event.isFullScreen ? 'full' : 'normal' } })
 }
 
-// see TN-10, TN-11
+// see T-280
 /** @purity pure */
 function onSurfaceOpened(
   values: ScreenValues,
   event: EventOf<'surfaceEntryPressed'> | EventOf<'surfaceRaisedByFlow'>,
 ): ScreenStep {
-  if (values.surface.kind === 'open') return unchanged(values)
-  return moved(values, { surface: { kind: 'open', surfaceName: event.surfaceName } })
+  if (values.openSurfaceState.kind === 'open') return unchanged(values)
+  return moved(values, { openSurfaceState: { kind: 'open', surfaceName: event.surfaceName } })
 }
 
-// see TN-12, TN-13
+// see T-280
 /** @purity pure */
 function surfaceClosed(values: ScreenValues): ScreenStep {
-  const surface = values.surface
-  if (surface.kind === 'none') return unchanged(values)
-  return moved(values, { surface: { kind: 'none' } }, [
+  const surface = values.openSurfaceState
+  if (surface.kind === 'closed') return unchanged(values)
+  return moved(values, { openSurfaceState: { kind: 'closed' } }, [
     { type: 'tellFlowSurfaceClosed', surfaceName: surface.surfaceName },
   ])
 }
 
-// see TN-31, TN-32, TN-34
+// see T-280
 /** @purity pure */
 function propertiesPutAway(values: ScreenValues): ScreenStep {
-  if (values.properties.kind === 'none') return unchanged(values)
-  return moved(values, { properties: { kind: 'none' } })
+  if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
+  return moved(values, { propertiesPanelContentState: { kind: 'hidden' } })
 }
 
 /** @purity pure */
 function onSurfaceCloseAsked(values: ScreenValues, event: EventOf<'surfaceCloseAsked'>): ScreenStep {
-  if (values.surface.kind === 'none' && values.properties.kind === 'none') return unchanged(values)
+  if (values.openSurfaceState.kind === 'closed' && values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   return event.target === 'surface' ? surfaceClosed(values) : propertiesPutAway(values)
 }
 
 /** @purity pure */
 function surfaceRungConsumed(values: ScreenValues): ScreenStep {
-  const isPanelTopmost = values.surface.kind === 'none'
+  const isPanelTopmost = values.openSurfaceState.kind === 'closed'
   return isPanelTopmost ? propertiesPutAway(values) : surfaceClosed(values)
 }
 
 /** @purity pure */
 function disarmed(values: ScreenValues): ScreenStep {
-  if (values.armed.kind === 'none') return unchanged(values)
-  return moved(values, { armed: { kind: 'none' } })
+  if (values.armModeState.kind === 'notArmed') return unchanged(values)
+  return moved(values, { armModeState: { kind: 'notArmed' } })
 }
 
-// see TN-43, TN-44
+// see T-280
 /** @purity pure */
 function dualCursorCleared(values: ScreenValues): ScreenStep {
-  if (values.dualCursor.kind === 'off') return unchanged(values)
-  return moved(values, { dualCursor: { kind: 'off' } }, [{ type: 'writeClearDualCursor' }])
+  if (values.dualCursorModeState.kind === 'off') return unchanged(values)
+  return moved(values, { dualCursorModeState: { kind: 'off' } }, [{ type: 'writeClearDualCursor' }])
 }
 
 /** @purity pure */
 function tooltipDismissed(values: ScreenValues): ScreenStep {
-  if (values.tooltip.kind === 'dismissed') return unchanged(values)
-  return moved(values, { tooltip: { kind: 'dismissed' } })
+  if (values.tooltipDisplayState.kind === 'dismissed') return unchanged(values)
+  return moved(values, { tooltipDisplayState: { kind: 'dismissed' } })
 }
 
-// see TN-13, TN-17, TN-32, TN-44, TN-52, IN-4
+// see T-280, IN-4
 /** @purity pure */
 function onEscapePressed(values: ScreenValues, event: EventOf<'escapePressed'>): ScreenStep {
   if (event.rung === 'surface') return surfaceRungConsumed(values)
@@ -907,55 +1053,55 @@ function required<T>(value: T | null, name: string): T {
 }
 
 const ARMED_BY_KIND: {
-  readonly [K in ArmKind]: (event: EventOf<'armEntryPressed'>) => ScreenValuesArmed
+  readonly [K in ArmKind]: (event: EventOf<'armEntryPressed'>) => ArmModeState
 } = {
-  taskShape: (event) => ({ kind: 'taskShape', shapeKind: required(event.shapeKind, 'shapeKind') }),
-  milestoneShape: (event) => ({ kind: 'milestoneShape', glyph: required(event.glyph, 'glyph') }),
-  dependency: () => ({ kind: 'dependency' }),
-  commentBox: () => ({ kind: 'commentBox' }),
-  highlightBox: () => ({ kind: 'highlightBox' }),
+  taskShapeArmed: (event) => ({ kind: 'taskShapeArmed', shapeKind: required(event.shapeKind, 'shapeKind') }),
+  milestoneShapeArmed: (event) => ({ kind: 'milestoneShapeArmed', glyph: required(event.glyph, 'glyph') }),
+  dependencyArmed: () => ({ kind: 'dependencyArmed' }),
+  commentBoxArmed: () => ({ kind: 'commentBoxArmed' }),
+  highlightBoxArmed: () => ({ kind: 'highlightBoxArmed' }),
 }
 
 /** @purity pure */
-function carriedArmOf(armed: ScreenValuesArmed): string | null {
+function carriedArmOf(armed: ArmModeState): string | null {
   switch (armed.kind) {
-    case 'taskShape':
+    case 'taskShapeArmed':
       return armed.shapeKind
-    case 'milestoneShape':
+    case 'milestoneShapeArmed':
       return armed.glyph
-    case 'none':
-    case 'dependency':
-    case 'commentBox':
-    case 'highlightBox':
+    case 'notArmed':
+    case 'dependencyArmed':
+    case 'commentBoxArmed':
+    case 'highlightBoxArmed':
       return null
     default:
       return assertNever(armed)
   }
 }
 
-// see TN-14, TN-15, TN-16, FR-016
+// see T-280, FR-016
 /** @purity pure */
 function onArmEntryPressed(values: ScreenValues, event: EventOf<'armEntryPressed'>): ScreenStep {
   const entered = ARMED_BY_KIND[event.armKind](event)
-  const current = values.armed
+  const current = values.armModeState
   const isSameArm = current.kind === entered.kind && carriedArmOf(current) === carriedArmOf(entered)
-  return moved(values, { armed: isSameArm ? { kind: 'none' } : entered })
+  return moved(values, { armModeState: isSameArm ? { kind: 'notArmed' } : entered })
 }
 
-// see TN-19, TN-20
+// see T-280
 /** @purity pure */
 function onWatermarkEntryPressed(values: ScreenValues): ScreenStep {
-  if (values.watermark.kind === 'hidden') return moved(values, { watermark: { kind: 'shown' } })
-  if (values.surface.kind === 'open') return unchanged(values)
-  return moved(values, { surface: { kind: 'open', surfaceName: WATERMARK_UNLOCK_SURFACE } })
+  if (values.watermarkDisplayState.kind === 'hidden') return moved(values, { watermarkDisplayState: { kind: 'shown' } })
+  if (values.openSurfaceState.kind === 'open') return unchanged(values)
+  return moved(values, { openSurfaceState: { kind: 'open', surfaceName: WATERMARK_UNLOCK_SURFACE } })
 }
 
 /** @purity pure */
 function isWatermarkUnlockSurface(values: ScreenValues): boolean {
-  return values.surface.kind === 'open' && values.surface.surfaceName === WATERMARK_UNLOCK_SURFACE
+  return values.openSurfaceState.kind === 'open' && values.openSurfaceState.surfaceName === WATERMARK_UNLOCK_SURFACE
 }
 
-// see TN-21, TN-22
+// see T-280
 /** @purity pure */
 function onWatermarkUnlockAnswered(
   values: ScreenValues,
@@ -963,148 +1109,148 @@ function onWatermarkUnlockAnswered(
 ): ScreenStep {
   if (!isWatermarkUnlockSurface(values)) return unchanged(values)
   if (event.isProceeding) return stayed(values, [{ type: 'matchWatermarkUnlock' }])
-  return moved(values, { surface: { kind: 'none' } })
+  return moved(values, { openSurfaceState: { kind: 'closed' } })
 }
 
-// see TN-23
+// see T-280
 /** @purity pure */
 function onWatermarkUnlockMatched(values: ScreenValues): ScreenStep {
-  if (values.watermark.kind === 'hidden' || !isWatermarkUnlockSurface(values)) {
+  if (values.watermarkDisplayState.kind === 'hidden' || !isWatermarkUnlockSurface(values)) {
     return unchanged(values)
   }
-  return moved(values, { watermark: { kind: 'hidden' }, surface: { kind: 'none' } })
+  return moved(values, { watermarkDisplayState: { kind: 'hidden' }, openSurfaceState: { kind: 'closed' } })
 }
 
-// see TN-24
+// see T-280
 /** @purity pure */
 function onWatermarkUnlockMismatched(values: ScreenValues): ScreenStep {
   if (!isWatermarkUnlockSurface(values)) return unchanged(values)
   return stayed(values, [{ type: 'raiseNotice', reason: 'RS-41' }])
 }
 
-// see TN-25, TN-26, TN-27
+// see T-280
 /** @purity pure */
 function onSettingsEntryPressed(values: ScreenValues): ScreenStep {
-  const properties = values.properties
-  if (properties.kind === 'documentSettings') {
+  const properties = values.propertiesPanelContentState
+  if (properties.kind === 'documentSettingsDisplayed') {
     const subject = properties.returnSubject ?? { selection: emptySelection(), groupIds: [] }
-    return moved(values, { properties: { kind: 'selection', subject } })
+    return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject } })
   }
-  const returnSubject = properties.kind === 'selection' ? properties.subject : null
-  return moved(values, { properties: { kind: 'documentSettings', returnSubject } })
+  const returnSubject = properties.kind === 'selectionDisplayed' ? properties.subject : null
+  return moved(values, { propertiesPanelContentState: { kind: 'documentSettingsDisplayed', returnSubject } })
 }
 
-// see TN-28, TN-29
+// see T-280
 /** @purity pure */
 function onPropertiesOfChoiceAsked(
   values: ScreenValues,
   event: EventOf<'propertiesOfChoiceAsked'>,
 ): ScreenStep {
-  return moved(values, { properties: { kind: 'selection', subject: event.subject } })
+  return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject: event.subject } })
 }
 
-// see TN-30
+// see T-280
 /** @purity pure */
 function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>): ScreenStep {
-  if (values.properties.kind !== 'selection') return unchanged(values)
+  if (values.propertiesPanelContentState.kind !== 'selectionDisplayed') return unchanged(values)
   const subject = event.subject
   const hasChoice = subject.selection.items.length > 0 || subject.groupIds.length > 0
   if (!hasChoice) return unchanged(values)
-  return moved(values, { properties: { kind: 'selection', subject } })
+  return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject } })
 }
 
-// see TN-33
+// see T-280
 /** @purity pure */
 function onCreatedNameSettled(values: ScreenValues): ScreenStep {
   const effects: readonly ScreenValuesEffect[] = [{ type: 'clearSelection' }]
-  if (values.properties.kind === 'none') return stayed(values, effects)
-  return moved(values, { properties: { kind: 'none' } }, effects)
+  if (values.propertiesPanelContentState.kind === 'hidden') return stayed(values, effects)
+  return moved(values, { propertiesPanelContentState: { kind: 'hidden' } }, effects)
 }
 
-// see TN-34
+// see T-280
 /** @purity pure */
 function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPressed'>): ScreenStep {
-  if (values.properties.kind === 'none') return unchanged(values)
-  if (!event.noSurfaceNoConfirmation || !event.noUnsettledEntry) return unchanged(values)
+  if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
+  if (!event.hasNoSurfaceOrConfirmation || !event.hasNoUnsettledEntry) return unchanged(values)
   return propertiesPutAway(values)
 }
 
-// see TN-35, TN-36, TN-37
+// see T-280
 /** @purity pure */
 function onDialogueFieldEntryPressed(
   values: ScreenValues,
   event: EventOf<'dialogueFieldEntryPressed'>,
 ): ScreenStep {
-  if (!event.agentApiEnabled) return stayed(values, [{ type: 'raiseNotice', reason: 'RS-35' }])
-  const kind = values.dialogueField.kind === 'shown' ? 'hidden' : 'shown'
-  return moved(values, { dialogueField: { kind } })
+  if (!event.isAgentApiEnabled) return stayed(values, [{ type: 'raiseNotice', reason: 'RS-35' }])
+  const kind = values.dialogueFieldDisplayState.kind === 'shown' ? 'hidden' : 'shown'
+  return moved(values, { dialogueFieldDisplayState: { kind } })
 }
 
-// see TN-38
+// see T-280
 /** @purity pure */
 function onFoldAllPressed(values: ScreenValues): ScreenStep {
-  if (values.levelZero.kind === 'folded') return unchanged(values)
-  return moved(values, { levelZero: { kind: 'folded' } }, [{ type: 'writeFoldAll' }])
+  if (values.levelZeroFoldState.kind === 'folded') return unchanged(values)
+  return moved(values, { levelZeroFoldState: { kind: 'folded' } }, [{ type: 'writeFoldAll' }])
 }
 
-// see TN-39
+// see T-280
 /** @purity pure */
 function onLevelZeroOpened(values: ScreenValues): ScreenStep {
-  if (values.levelZero.kind === 'unfolded') return unchanged(values)
-  return moved(values, { levelZero: { kind: 'unfolded' } }, [{ type: 'writeOpenLevel' }])
+  if (values.levelZeroFoldState.kind === 'unfolded') return unchanged(values)
+  return moved(values, { levelZeroFoldState: { kind: 'unfolded' } }, [{ type: 'writeOpenLevel' }])
 }
 
-// see TN-18, TN-40, TN-43, FR-016
+// see T-280, FR-016
 /** @purity pure */
 function onDualCursorEntryPressed(
   values: ScreenValues,
   event: EventOf<'dualCursorEntryPressed'>,
 ): ScreenStep {
-  if (values.dualCursor.kind === 'on') return dualCursorCleared(values)
+  if (values.dualCursorModeState.kind === 'on') return dualCursorCleared(values)
   if (!event.hasDaysToPlace) return unchanged(values)
-  const child = SCREEN_VALUES_INITIAL_CHILDREN['screen.dualCursor.on']
-  const armed = values.armed.kind === 'none' ? values.armed : ({ kind: 'none' } as const)
-  return moved(values, { dualCursor: { kind: 'on', child }, armed }, [
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
+  const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
+  return moved(values, { dualCursorModeState: { kind: 'on', child }, armModeState: armed }, [
     { type: 'writePlaceDualCursor', date: event.date },
   ])
 }
 
-// see TN-41, TN-42
+// see T-280
 /** @purity pure */
 function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlaced'>): ScreenStep {
-  const dualCursor = values.dualCursor
+  const dualCursor = values.dualCursorModeState
   if (dualCursor.kind === 'off') return unchanged(values)
-  if (dualCursor.child.kind === 'date1Following') {
-    const child = { kind: 'date2Following' } as const
-    return moved(values, { dualCursor: { kind: 'on', child } }, [
+  if (dualCursor.child.kind === 'placingDate1') {
+    const child = { kind: 'placingDate2' } as const
+    return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
       { type: 'writeFixDate1', date: event.date },
     ])
   }
-  const child = { kind: 'date1Following' } as const
-  return moved(values, { dualCursor: { kind: 'on', child } }, [
+  const child = { kind: 'placingDate1' } as const
+  return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
     { type: 'writeFixDate2', date: event.date },
   ])
 }
 
-// see TN-45, TN-46, TN-47, TN-48
+// see T-280
 /** @purity pure */
 function onScaleMessageRaised(
   values: ScreenValues,
   event: EventOf<'displayScaleStepped'> | EventOf<'rowZoomEndReached'>,
 ): ScreenStep {
-  const timer = values.scaleMessage.kind === 'none' ? 'startScaleMessageTimer' : 'restartScaleMessageTimer'
+  const timer = values.scaleMessageDisplayState.kind === 'hidden' ? 'startScaleMessageTimer' : 'restartScaleMessageTimer'
   const scaleMessage = { kind: 'shown', percent: event.percent, end: event.end } as const
-  return moved(values, { scaleMessage }, [{ type: timer }])
+  return moved(values, { scaleMessageDisplayState: scaleMessage }, [{ type: timer }])
 }
 
-// see TN-49
+// see T-280
 /** @purity pure */
 function onScaleMessageTimeElapsed(values: ScreenValues): ScreenStep {
-  if (values.scaleMessage.kind === 'none') return unchanged(values)
-  return moved(values, { scaleMessage: { kind: 'none' } })
+  if (values.scaleMessageDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { scaleMessageDisplayState: { kind: 'hidden' } })
 }
 
-// see TN-50
+// see T-280
 /** @purity pure */
 function onDisplayLanguageChosen(
   values: ScreenValues,
@@ -1115,7 +1261,7 @@ function onDisplayLanguageChosen(
   ])
 }
 
-// see TN-51, PV-4
+// see T-280, PV-4
 /** @purity pure */
 function onProgressMarkerPressed(
   values: ScreenValues,
@@ -1129,11 +1275,11 @@ function onProgressMarkerPressed(
   return moved(values, { rememberedActuals }, [{ type: 'writeProgressStep', taskUid: event.taskUid }])
 }
 
-// see TN-53
+// see T-280
 /** @purity pure */
 function onPointerRestElapsed(values: ScreenValues): ScreenStep {
-  if (values.tooltip.kind === 'allowed') return unchanged(values)
-  return moved(values, { tooltip: { kind: 'allowed' } })
+  if (values.tooltipDisplayState.kind === 'allowed') return unchanged(values)
+  return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
 // WHY: a table from event type to function, not one switch: thirty cases would cross the
@@ -1173,7 +1319,7 @@ const HANDLERS: {
   pointerRestElapsed: onPointerRestElapsed,
 }
 
-// see SF-2, SF-8, T-282
+// see SF-2, SF-8, T-280
 /** @purity pure */
 export function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent): ScreenStep {
   const handler = HANDLERS[event.type] as (values: ScreenValues, event: ScreenValuesEvent) => ScreenStep

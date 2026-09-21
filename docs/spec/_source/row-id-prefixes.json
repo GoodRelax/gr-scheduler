@@ -355,14 +355,6 @@
    }
   },
   {
-   "prefix": "EV",
-   "words": "EVent",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械が受ける出来事 1 つ"
-   }
-  },
-  {
    "prefix": "EX",
    "words": "Export",
    "owner": "spec",
@@ -1085,14 +1077,6 @@
    }
   },
   {
-   "prefix": "SM",
-   "words": "State Machine",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械の状態 1 つ"
-   }
-  },
-  {
    "prefix": "SO",
    "words": "Scope",
    "owner": "spec",
@@ -1146,14 +1130,6 @@
    "owner": "spec",
    "means": {
     "ja": "目盛の段が刷るもの"
-   }
-  },
-  {
-   "prefix": "TN",
-   "words": "TransitioN",
-   "owner": "spec",
-   "means": {
-    "ja": "状態機械の遷移 1 つ"
    }
   },
   {

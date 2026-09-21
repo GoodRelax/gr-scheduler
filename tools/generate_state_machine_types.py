@@ -7,24 +7,31 @@ WRITES  the region between `// <generated -- do not edit by hand>` and
         `// </generated>` of the unit each region names (`unit`), e.g.
         src/use-case/advance-screen-session/screen-values.ts
 
-What it prints per region, with <Stem> the region's `typeStem`:
-  <Stem>Key                 every state key, as a string-literal union
-  <Stem><Axis>              one discriminated union per axis (`kind` = the
-                            last key segment); a state with orthogonal
-                            children holds one field per axis, a state with a
-                            single union of children holds it as `child`;
+What it prints per region, with <Stem> the region's `typeStem` and <Noun>
+a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
+  <Stem>Key                 the root key and every state id (`machine.key`),
+                            as a string-literal union
+  <Noun>State               the current state of one machine, a discriminated
+                            union (`kind` = the last key segment); a
+                            composite state holds its own union as `child`,
+                            typed <Noun><Path>State;
                             a carried value is a field typed through the
                             hand-written <Stem>StateCarried
-  <Stem>                    the root: its carried values and its axes
+  <Stem>                    the root: its carried values and one field per
+                            machine, named <noun>State (armModeStateMachine
+                            -> armModeState)
   <Stem>Event               one member per event (`type` = the event key),
                             carried values typed through <Stem>EventCarried
-  <Stem>EffectName          every effect name the transitions use
-  <Stem>Transition          the row shape of the table below
+  <Stem>EffectName          every effect name the tables use
+  <Stem>Transition          the row shape of the table below: one branch of
+                            one cell (state x event)
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
-                            printed for a region that nests no single union)
-  <STEM>_INITIAL_AXES       the initial value of every axis
-  <STEM>_TRANSITIONS        the transition table (table T-282 for `screen`,
-                            table T-288 for `notices`)
+                            printed for a region that nests no composite)
+  <STEM>_INITIAL_AXES       the initial value of every machine
+  <STEM>_TRANSITIONS        every branch of the region's tables (table T-280
+                            for `screen`, table T-286 for `notices`), the
+                            root's first, then each machine's in manuscript
+                            order
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,
@@ -77,16 +84,15 @@ class Printer(object):
         self.region = region
         self.stem = region.stem
         self.upper = upper_snake(region.stem)
-        self.root = region.root['key']
+        self.root = region.name
 
     # --- names ---------------------------------------------------------------
 
-    def union_name(self, parent, axis):
-        """The type of one union: an axis below `parent`, or its own kinds."""
-        path = parent[len(self.root):].split('.')[1:]
-        if axis is not None:
-            path.append(axis)
-        return self.stem + ''.join(pascal(p) for p in path)
+    def union_name(self, machine, parent):
+        """The type of one union: a machine's top kinds, or a composite's kinds."""
+        path = parent.split('.') if parent else []
+        noun = machine.name[:-len('StateMachine')]
+        return pascal(noun) + ''.join(pascal(p) for p in path) + 'State'
 
     def state_carried(self, name):
         return "%sStateCarried['%s']" % (self.stem, name)
@@ -96,47 +102,37 @@ class Printer(object):
 
     # --- the state types -----------------------------------------------------
 
-    def child_fields(self, key):
-        """The fields a state holds for the states below it."""
-        region = self.region
-        if key in region.axes:
-            return ['readonly %s: %s' % (axis, self.union_name(key, axis))
-                    for axis in region.axes[key]]
-        if key in region.kinds:
-            return ['readonly child: %s' % self.union_name(key, None)]
-        return []
-
-    def member(self, state):
-        fields = ["readonly kind: '%s'" % self.region.remainder(state)[-1]]
+    def member(self, machine, state):
+        fields = ["readonly kind: '%s'" % machine.word(state)]
         fields += ['readonly %s: %s' % (c['name'], self.state_carried(c['name']))
                    for c in state['carries']]
-        fields += self.child_fields(state['key'])
+        if state['key'] in machine.children:
+            fields.append('readonly child: %s' % self.union_name(machine, state['key']))
         return '{ %s }' % '; '.join(fields)
 
-    def union(self, name, members):
-        lines = ['export type %s =' % name]
-        lines += ['  | %s' % self.member(s) for s in members]
+    def union(self, machine, parent):
+        lines = ['export type %s =' % self.union_name(machine, parent)]
+        lines += ['  | %s' % self.member(machine, s) for s in machine.children[parent]]
         return lines + ['']
+
+    def composites(self):
+        return [(m, p) for m in self.region.machines for p in m.children if p is not None]
 
     def unions(self):
         """Innermost first, so a type is printed before the one that holds it."""
-        region = self.region
         out = []
-        parents = list(region.axes.keys()) + list(region.kinds.keys())
-        for parent in sorted(parents, key=lambda k: -k.count('.')):
-            if parent in region.axes:
-                for axis, members in region.axes[parent].items():
-                    out += self.union(self.union_name(parent, axis), members)
-            else:
-                out += self.union(self.union_name(parent, None), region.kinds[parent])
+        for machine, parent in sorted(self.composites(), key=lambda mp: -mp[1].count('.')):
+            out += self.union(machine, parent)
+        for machine in self.region.machines:
+            out += self.union(machine, None)
         return out
 
     def root_type(self):
-        root = self.region.root
-        carried = [c['name'] for c in root['carries']]
+        carried = [c['name'] for c in self.region.root['carries']]
         lines = ['export interface %s {' % self.stem]
         lines += ['  readonly %s: %s' % (n, self.state_carried(n)) for n in carried]
-        lines += ['  %s' % f for f in self.child_fields(root['key'])]
+        lines += ['  readonly %s: %s' % (m.holder(), self.union_name(m, None))
+                  for m in self.region.machines]
         lines += ['}', '']
         omitted = ' | '.join(quoted(n) for n in carried) or 'never'
         lines += ['export type %sAxes = Omit<%s, %s>' % (self.stem, self.stem, omitted), '']
@@ -144,46 +140,39 @@ class Printer(object):
 
     # --- the initial values --------------------------------------------------
 
-    def initial_of(self, members):
+    def initial_of(self, machine, parent):
         """The object literal of a union's initial member."""
-        state = [s for s in members if s['initial']][0]
+        state = [s for s in machine.children[parent] if s['initial']][0]
         if state['carries']:
             raise ValueError('%s is an initial state and carries %s, which the '
                              'manuscript gives no initial value'
-                             % (state['id'], ', '.join(c['name'] for c in state['carries'])))
-        fields = ["kind: '%s'" % self.region.remainder(state)[-1]]
-        fields += ['%s: %s' % (name, value)
-                   for name, value in self.children_initial(state['key'])]
+                             % (machine.state_id(state['key']),
+                                ', '.join(c['name'] for c in state['carries'])))
+        fields = ["kind: '%s'" % machine.word(state)]
+        if state['key'] in machine.children:
+            fields.append('child: %s_INITIAL_CHILDREN[%s]'
+                          % (self.upper, quoted(machine.state_id(state['key']))))
         return '{ %s }' % ', '.join(fields)
 
-    def children_initial(self, key):
-        region = self.region
-        if key in region.axes:
-            return [(axis, self.initial_of(members))
-                    for axis, members in region.axes[key].items()]
-        if key in region.kinds:
-            return [('child', '%s_INITIAL_CHILDREN[%s]' % (self.upper, quoted(key)))]
-        return []
-
     def initial_children(self):
-        region = self.region
-        # WHY: a region whose states nest no single union (`notices`) would get an
+        # WHY: a region whose states nest no composite (`notices`) would get an
         # empty table nobody reads, and noUnusedLocals refuses an unread constant.
-        if not region.kinds:
+        composites = self.composites()
+        if not composites:
             return []
         name = '%s_INITIAL_CHILDREN' % self.upper
         lines = ['const %s: {' % name]
-        lines += ['  readonly %s: %s' % (quoted(k), self.union_name(k, None))
-                  for k in region.kinds]
+        lines += ['  readonly %s: %s' % (quoted(m.state_id(p)), self.union_name(m, p))
+                  for m, p in composites]
         lines += ['} = {']
-        lines += ['  %s: %s,' % (quoted(k), self.initial_of(region.kinds[k]))
-                  for k in region.kinds]
+        lines += ['  %s: %s,' % (quoted(m.state_id(p)), self.initial_of(m, p))
+                  for m, p in composites]
         return lines + ['}', '']
 
     def initial_axes(self):
         lines = ['const %s_INITIAL_AXES: %sAxes = {' % (self.upper, self.stem)]
-        lines += ['  %s: %s,' % (name, value)
-                  for name, value in self.children_initial(self.root)]
+        lines += ['  %s: %s,' % (m.holder(), self.initial_of(m, None))
+                  for m in self.region.machines]
         return lines + ['}', '']
 
     # --- events, effects, transitions -----------------------------------------
@@ -197,11 +186,22 @@ class Printer(object):
             lines.append('  | { %s }' % '; '.join(fields))
         return lines + ['']
 
+    def rows(self):
+        """(state id, event, branch, target id) for every branch, the root's first."""
+        region = self.region
+        for event, branches in region.root_cells():
+            for branch in branches:
+                yield self.root, event, branch, self.root
+        for machine in region.machines:
+            for event, key, branches in machine.cells():
+                for branch in branches:
+                    yield machine.state_id(key), event, branch, machine.state_id(branch['to'])
+
     def effect_names(self):
         names = []
-        for row in self.region.transitions:
-            if row['effect'] and row['effect']['name'] not in names:
-                names.append(row['effect']['name'])
+        for _state, _event, branch, _to in self.rows():
+            if branch.get('effect') and branch['effect'] not in names:
+                names.append(branch['effect'])
         lines = ['export type %sEffectName =' % self.stem]
         lines += ['  | %s' % quoted(n) for n in names]
         return lines + ['']
@@ -209,56 +209,45 @@ class Printer(object):
     def transition_type(self):
         return [
             'export interface %sTransition {' % self.stem,
-            '  readonly id: string',
-            '  readonly from: readonly (readonly %sKey[])[]' % self.stem,
+            '  readonly state: %sKey' % self.stem,
             "  readonly event: %sEvent['type']" % self.stem,
             '  readonly guard: string | null',
-            "  readonly to: readonly string[] | 'self'",
+            '  readonly to: string',
             '  readonly effect: %sEffectName | null' % self.stem,
             '  readonly effectArgument: string | null',
             '}',
             '',
         ]
 
-    def guard_text(self, guard):
-        if not guard:
-            return 'null'
-        return quoted(' & '.join(('not ' if t.get('not') else '') + t['name']
-                                 for t in guard))
-
     def transitions(self):
         lines = ['export const %s_TRANSITIONS: readonly %sTransition[] = ['
                  % (self.upper, self.stem)]
-        for row in self.region.transitions:
-            source = '[%s]' % ', '.join(
-                '[%s]' % ', '.join(quoted(k) for k in alt) for alt in row['from'])
-            target = quoted('self') if row['to'] == 'self' else \
-                '[%s]' % ', '.join(quoted(k) for k in row['to'])
-            effect = row['effect']
+        for state, event, branch, target in self.rows():
+            guard = manuscript.guard_words(branch.get('guard'))
+            effect = branch.get('effect')
+            argument = branch.get('effectArgument')
             lines += [
                 '  {',
-                '    id: %s,' % quoted(row['id']),
-                '    from: %s,' % source,
-                '    event: %s,' % quoted(row['event']),
-                '    guard: %s,' % self.guard_text(row['guard']),
-                '    to: %s,' % target,
-                '    effect: %s,' % (quoted(effect['name']) if effect else 'null'),
-                '    effectArgument: %s,' % (quoted(effect['row'])
-                                             if effect and effect.get('row') else 'null'),
+                '    state: %s,' % quoted(state),
+                '    event: %s,' % quoted(event),
+                '    guard: %s,' % (quoted(guard) if guard else 'null'),
+                '    to: %s,' % quoted(target),
+                '    effect: %s,' % (quoted(effect) if effect else 'null'),
+                '    effectArgument: %s,' % (quoted(argument) if argument else 'null'),
                 '  },',
             ]
         return lines + [']']
 
     def keys(self):
-        lines = ['export type %sKey =' % self.stem]
-        lines += ['  | %s' % quoted(s['key']) for s in self.region.states]
+        lines = ['export type %sKey =' % self.stem, '  | %s' % quoted(self.root)]
+        lines += ['  | %s' % quoted(m.state_id(s['key']))
+                  for m in self.region.machines for s in m.states]
         return lines + ['']
 
     def block(self):
-        tables = self.region.raw['tables']
         lines = [OPEN,
-                 '// From docs/spec/_source/state-machines.json, region %s (tables %s to %s).'
-                 % (self.region.name, tables['states']['id'], tables['transitions']['id']),
+                 '// From docs/spec/_source/state-machines.json, region %s (table %s).'
+                 % (self.region.name, self.region.raw['table']['id']),
                  '// Rebuild: npm run gen (tools/generate_state_machine_types.py).',
                  '']
         lines += self.keys()

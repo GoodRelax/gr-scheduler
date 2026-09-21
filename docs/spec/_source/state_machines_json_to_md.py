@@ -3,10 +3,11 @@
 
 state-machines.json is the manuscript for the unsaved state machines (ADR-002
 of Chapter 5.6, table T-250 of docs/spec/05-07-design.md). EDIT THAT. This
-file prints, per region, the state table, the event table, the transition
-table and the state diagram, and _assets/tbl-state-machines.md is a generated
-artifact: a hand edit to it is overwritten, and --check catches one before it
-can be committed.
+file prints, per region, the event definitions, the root's values and one
+section per state machine -- its state diagram, its state transition table and
+its states -- and _assets/tbl-state-machines.md is a generated artifact: a
+hand edit to it is overwritten, and --check catches one before it can be
+committed.
 
     python state_machines_json_to_md.py           rebuild the document
     python state_machines_json_to_md.py --check   exit 1 if the file differs
@@ -15,18 +16,35 @@ It is also the ONE reader of the manuscript: tools/generate_state_machine_types.
 imports `load()` from here, so the two artifacts are printed from one
 validated model and cannot disagree about what the manuscript says.
 
-What `load()` refuses (CR-436 section 3.1), on top of the schema:
-  - an evidence id -- of a state, a transition, an event source, a carried
-    value or an effect -- that no table row or requirement of docs/spec
-    defines (this file's own output is not counted as a definition);
-  - a transition whose source or target key is not a state, whose event is
-    not an event, or whose `{name}` target segment is not a value the event
-    carries (such a segment stands for any kind of that union but its
-    initial one);
+NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-
+standards.md). A machine -- the definition -- is a noun phrase plus
+`StateMachine` and is unique across every region; the code holds its current
+state under the same noun phrase plus `State` (`armModeStateMachine` ->
+`armModeState`); a state is `machine.key`; an event is `region/key`; a
+transition is its cell -- the machine, the current state and the event.
+
+What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
+  - an evidence id -- of a state, the root, a branch, an event source, a
+    carried value or an effect argument -- that no table row or requirement
+    of docs/spec defines (this file's own output is not counted);
+  - a cell whose state is not a state of its machine, whose `to` is not a
+    state of the SAME machine, or whose `{name}` target is not a value the
+    event carries (such a target stands for any top-level kind of the
+    machine but its initial one);
+  - a guard term `in` that names no state of another machine of the region;
+  - an event a machine's or the root's table uses that its region does not
+    define, and an event no table uses;
+  - an event with a cell on a state and on one of that state's ancestors in
+    the same machine, and a cell of two or more branches one of which has no
+    guard;
   - a union without exactly one initial state;
-  - a key that is neither `axis.kind` nor `kind` below its parent
-    (decision 4 of CR-436), or a parent mixing the two readings;
-  - a duplicate row id, key or event, and an event no transition names;
+  - a key that is not one word below its parent (or one word at the top);
+  - a duplicate state key or event key, and a machine name two machines
+    share, in one region or across regions;
+  - a guard name that does not start with is / has / can (R4.4);
+  - a machine name that does not end in `StateMachine`, or whose current-
+    state name (the noun phrase plus `State`) is also a value the root
+    carries;
   - an event key two regions both hold (decision 12 of CR-440): the root
     finds the region an event touches by its `type` (SS-5 of table T-284),
     so one key in two regions leaves that lookup without one answer. An
@@ -67,6 +85,7 @@ SOURCE_WORD = {
 ROW = re.compile(r'^\|\s*(?:\*\*)?`?([A-Z][A-Za-z]*-\d+[a-z]?)`?(?:\*\*)?\s*\|')
 UID = re.compile(r'^\*\*UID\*\*:\s*(\S+)')
 PLACEHOLDER = re.compile(r'^\{([a-z][A-Za-z0-9]*)\}$')
+GUARD_NAME = re.compile(r'^(is|has|can)[A-Z]')
 
 
 def say(message):
@@ -123,69 +142,84 @@ def schema_problems(doc):
     return out
 
 
-class Region(object):
-    """One region, read and cross-checked. Everything a printer needs."""
+def branches_of(cell):
+    """A cell is one branch or a list of two or more; always a list here."""
+    return cell if isinstance(cell, list) else [cell]
 
-    def __init__(self, raw):
+
+def guard_words(guard):
+    """The guard as one line of ASCII, the form the generated table holds."""
+    words = []
+    for term in guard or []:
+        if 'in' in term:
+            words.append('in %s' % term['in'])
+        else:
+            words.append(('not ' if term.get('not') else '') + term['name'])
+    return ' & '.join(words)
+
+
+class Machine(object):
+    """One state machine: its states, its unions and its table."""
+
+    def __init__(self, region, raw):
+        self.region = region
         self.raw = raw
-        self.name = raw['region']
-        self.stem = raw['typeStem']
+        self.name = raw['name']
         self.states = raw['states']
-        self.events = raw['events']
-        self.transitions = raw['transitions']
+        self.table = raw['transitions']
         self.by_key = collections.OrderedDict((s['key'], s) for s in self.states)
-        self.event_by_key = collections.OrderedDict(
-            (e['key'], e) for e in self.events)
-        self.root = None
-        # parent key -> ordered axes {axis: [state, ...]}  (two-word children)
-        self.axes = collections.OrderedDict()
-        # parent key -> [state, ...]                         (one-word children)
-        self.kinds = collections.OrderedDict()
+        # parent key (None for the top) -> [state, ...]
+        self.children = collections.OrderedDict()
 
-    def remainder(self, state):
-        return state['key'][len(state['parent']) + 1:].split('.')
+    def holder(self):
+        """The name the code holds this machine's current state under (R4.4)."""
+        return self.name[:-len('Machine')]
+
+    def state_id(self, key):
+        return '%s.%s' % (self.name, key)
+
+    def word(self, state):
+        return state['key'].split('.')[-1]
+
+    def leaves(self):
+        return [s for s in self.states if s['key'] not in self.children]
+
+    def ancestors(self, key):
+        out = []
+        state = self.by_key[key]
+        while state['parent'] is not None:
+            out.insert(0, state['parent'])
+            state = self.by_key[state['parent']]
+        return out
+
+    def covers(self, source, leaf):
+        """Does a cell on `source` answer for the leaf state `leaf`?"""
+        return source == leaf or source in self.ancestors(leaf)
 
     def classify(self, found):
         for state in self.states:
-            if state['parent'] is None:
-                if self.root is not None:
-                    found.append('%s: a second root %s' % (self.name, state['id']))
-                self.root = state
+            parent = state['parent']
+            if parent is None:
+                if '.' in state['key']:
+                    found.append('%s: a top-level key has more than one word'
+                                 % self.state_id(state['key']))
+                self.children.setdefault(None, []).append(state)
                 continue
-            if state['parent'] not in self.by_key:
-                found.append('%s: parent %s is not a state' % (state['id'], state['parent']))
+            if parent not in self.by_key:
+                found.append('%s: parent %s is not a state of %s'
+                             % (self.state_id(state['key']), parent, self.name))
                 continue
-            if not state['key'].startswith(state['parent'] + '.'):
-                found.append('%s: key %s is not below its parent %s'
-                             % (state['id'], state['key'], state['parent']))
+            rest = state['key'][len(parent) + 1:]
+            if not state['key'].startswith(parent + '.') or '.' in rest:
+                found.append('%s: the key is not one word below its parent %s'
+                             % (self.state_id(state['key']), parent))
                 continue
-            rest = self.remainder(state)
-            if len(rest) == 2:
-                self.axes.setdefault(state['parent'], collections.OrderedDict()) \
-                    .setdefault(rest[0], []).append(state)
-            elif len(rest) == 1:
-                self.kinds.setdefault(state['parent'], []).append(state)
-            else:
-                found.append('%s: %s is neither axis.kind nor kind below %s'
-                             % (state['id'], state['key'], state['parent']))
-        for parent in self.axes:
-            if parent in self.kinds:
-                found.append('%s: its children are read both as axes and as kinds'
-                             % parent)
-        if self.root is None:
-            found.append('%s: no root state' % self.name)
-        elif self.root['key'] != self.name:
-            found.append('%s: the root key is %s' % (self.name, self.root['key']))
+            self.children.setdefault(parent, []).append(state)
 
     def unions(self):
-        """(label, [state, ...]) for every union, the root as a union of one."""
-        out = [(self.name, [self.root])] if self.root else []
-        for parent, axes in self.axes.items():
-            for axis, members in axes.items():
-                out.append(('%s.%s' % (parent, axis), members))
-        for parent, members in self.kinds.items():
-            out.append((parent, members))
-        return out
+        """(label, [state, ...]) for every union of kinds in this machine."""
+        return [(self.name if parent is None else self.state_id(parent), members)
+                for parent, members in self.children.items()]
 
     def check_initials(self, found):
         for label, members in self.unions():
@@ -195,62 +229,149 @@ class Region(object):
                              % (self.name, count, label))
 
     def targets_of(self, key, event):
-        """The state keys a target key can mean: itself, or its expansion."""
-        parts = key.split('.')
-        holes = [i for i, p in enumerate(parts) if PLACEHOLDER.match(p)]
-        if not holes:
+        """The state keys a `to` can mean: itself, or the kinds a value names."""
+        hole = PLACEHOLDER.match(key)
+        if not hole:
             return [key] if key in self.by_key else []
-        if holes != [len(parts) - 1]:
+        if hole.group(1) not in [c['name'] for c in event['carries']]:
             return []
-        name = PLACEHOLDER.match(parts[-1]).group(1)
-        if name not in [c['name'] for c in event['carries']]:
-            return []
-        head = '.'.join(parts[:-1])
         # The value names a kind that is ENTERED, so never the union's
-        # initial kind -- the absence the union starts from (`armed.none`).
-        return [k for k, s in self.by_key.items()
-                if k.startswith(head + '.') and '.' not in k[len(head) + 1:]
-                and not s['initial']]
+        # initial kind -- the absence the union starts from (`none`).
+        return [s['key'] for s in self.children.get(None, []) if not s['initial']]
 
-    def check_transitions(self, found):
-        named = set()
-        for row in self.transitions:
-            event = self.event_by_key.get(row['event'])
-            if event is None:
-                found.append('%s: event %s is not an event' % (row['id'], row['event']))
+    def cells(self):
+        """(event key, state key, [branch, ...]) in the manuscript's order."""
+        for event, row in self.table.items():
+            for key, cell in row.items():
+                yield event, key, branches_of(cell)
+
+
+class Region(object):
+    """One region, read and cross-checked. Everything a printer needs."""
+
+    def __init__(self, raw):
+        self.raw = raw
+        self.name = raw['region']
+        self.stem = raw['typeStem']
+        self.root = raw['root']
+        self.events = raw['events']
+        self.event_by_key = collections.OrderedDict(
+            (e['key'], e) for e in self.events)
+        self.machines = [Machine(self, m) for m in raw['machines']]
+        self.machine_by_name = collections.OrderedDict(
+            (m.name, m) for m in self.machines)
+
+    def event_id(self, key):
+        return '%s/%s' % (self.name, key)
+
+    def root_cells(self):
+        for event, cell in self.root['transitions'].items():
+            yield event, branches_of(cell)
+
+    def state_of(self, state_id):
+        """(machine, key) for a state id of this region, or (None, None)."""
+        head, _, key = state_id.partition('.')
+        machine = self.machine_by_name.get(head)
+        if machine is None or key not in machine.by_key:
+            return None, None
+        return machine, key
+
+    def movers(self, event):
+        """The machines whose tables name the event, in manuscript order."""
+        return [m.name for m in self.machines if event in m.table]
+
+    def check_guard(self, where, machine, guard, found):
+        for term in guard or []:
+            if 'in' not in term:
+                if not GUARD_NAME.match(term['name']):
+                    found.append('%s: guard %s does not start with is / has / can'
+                                 % (where, term['name']))
                 continue
-            named.add(row['event'])
-            for alternative in row['from']:
-                for key in alternative:
-                    if key not in self.by_key:
-                        found.append('%s: source %s is not a state' % (row['id'], key))
-            if row['to'] != 'self':
-                for key in row['to']:
-                    if not self.targets_of(key, event):
-                        found.append('%s: target %s is not a state' % (row['id'], key))
+            other, _key = self.state_of(term['in'])
+            if other is None:
+                found.append('%s: guard in %s names no state of region %s'
+                             % (where, term['in'], self.name))
+            elif machine is not None and other is machine:
+                found.append('%s: guard in %s names its own machine'
+                             % (where, term['in']))
+
+    def check_branches(self, where, branches, found):
+        if len(branches) > 1 and any(not b.get('guard') for b in branches):
+            found.append('%s: %d branches, and one of them has no guard'
+                         % (where, len(branches)))
+
+    def check_tables(self, found):
+        used = set()
+        for event, branches in self.root_cells():
+            where = '%s x %s' % (self.name, self.event_id(event))
+            if event not in self.event_by_key:
+                found.append('%s: event %s is not defined in region %s'
+                             % (where, event, self.name))
+            used.add(event)
+            self.check_branches(where, branches, found)
+            for branch in branches:
+                self.check_guard(where, None, branch.get('guard'), found)
+        for machine in self.machines:
+            for event, row in machine.table.items():
+                used.add(event)
+                known = self.event_by_key.get(event)
+                if known is None:
+                    found.append('%s: event %s is not defined in region %s'
+                                 % (machine.name, event, self.name))
+                keys = [k for k in row if k in machine.by_key]
+                for key in row:
+                    if key not in machine.by_key:
+                        found.append('%s x %s: %s is not a state of %s'
+                                     % (machine.name, self.event_id(event), key, machine.name))
+                for key in keys:
+                    for above in machine.ancestors(key):
+                        if above in keys:
+                            found.append('%s x %s: cells on both %s and its ancestor %s'
+                                         % (machine.name, self.event_id(event), key, above))
+                for key, cell in row.items():
+                    where = '%s x %s' % (machine.state_id(key), self.event_id(event))
+                    branches = branches_of(cell)
+                    self.check_branches(where, branches, found)
+                    for branch in branches:
+                        self.check_guard(where, machine, branch.get('guard'), found)
+                        if known is not None and not machine.targets_of(branch['to'], known):
+                            found.append('%s: target %s is not a state of %s'
+                                         % (where, branch['to'], machine.name))
         for event in self.events:
-            if event['key'] not in named:
-                found.append('%s: no transition names event %s'
-                             % (event['id'], event['key']))
+            if event['key'] not in used:
+                found.append('%s: no table names the event' % self.event_id(event['key']))
 
     def evidence(self):
-        """(row id, [cited id, ...]) for everything this region cites."""
+        """(where, [cited id, ...]) for everything this region cites."""
         out = []
-        for state in self.states:
-            cited = list(state['evidence'])
-            for carried in state['carries']:
-                cited.extend(carried.get('rows', []))
-            out.append((state['id'], cited))
+        cited = list(self.root['evidence'])
+        for carried in self.root['carries']:
+            cited.extend(carried.get('rows', []))
+        out.append((self.name, cited))
         for event in self.events:
             cited = list(event['source']['rows'])
             for carried in event['carries']:
                 cited.extend(carried.get('rows', []))
-            out.append((event['id'], cited))
-        for row in self.transitions:
-            cited = list(row['evidence'])
-            if row['effect'] and row['effect'].get('row'):
-                cited.append(row['effect']['row'])
-            out.append((row['id'], cited))
+            out.append((self.event_id(event['key']), cited))
+        for event, branches in self.root_cells():
+            for branch in branches:
+                cited = list(branch['evidence'])
+                if branch.get('effectArgument'):
+                    cited.append(branch['effectArgument'])
+                out.append(('%s x %s' % (self.name, self.event_id(event)), cited))
+        for machine in self.machines:
+            for state in machine.states:
+                cited = list(state['evidence'])
+                for carried in state['carries']:
+                    cited.extend(carried.get('rows', []))
+                out.append((machine.state_id(state['key']), cited))
+            for event, key, branches in machine.cells():
+                for branch in branches:
+                    cited = list(branch['evidence'])
+                    if branch.get('effectArgument'):
+                        cited.append(branch['effectArgument'])
+                    out.append(('%s x %s' % (machine.state_id(key), self.event_id(event)),
+                                cited))
         return out
 
 
@@ -284,27 +405,36 @@ def load():
     if found:
         return [], found
     regions = [Region(raw) for raw in doc['regions']]
-    ids = [r['id'] for region in regions
-           for r in region.states + region.events + region.transitions]
-    found.extend('row id %s appears twice' % d for d in duplicates(ids))
+    found.extend('region %s appears twice' % d
+                 for d in duplicates(r.name for r in regions))
+    found.extend('machine %s appears twice' % d
+                 for d in duplicates(m.name for r in regions for m in r.machines))
+    for region in regions:
+        carried = set(c['name'] for c in region.root['carries'])
+        for one in region.machines:
+            if not one.name.endswith('StateMachine'):
+                found.append('%s: a machine name ends in StateMachine' % one.name)
+            elif one.holder() in carried:
+                found.append('%s: its current state %s is also a value the root carries'
+                             % (one.name, one.holder()))
     captions = [c for region in regions
-                for c in [region.raw['figure']['id']]
-                + [t['id'] for t in region.raw['tables'].values()]]
+                for c in (region.raw['figure']['id'], region.raw['table']['id'])]
     found.extend('table or figure %s appears twice' % d for d in duplicates(captions))
     found.extend(shared_event_keys(regions))
     known = defined_ids()
     for region in regions:
-        found.extend('state key %s appears twice' % d
-                     for d in duplicates(s['key'] for s in region.states))
-        found.extend('event %s appears twice' % d
+        found.extend('event %s appears twice' % region.event_id(d)
                      for d in duplicates(e['key'] for e in region.events))
-        region.classify(found)
-        region.check_initials(found)
-        region.check_transitions(found)
-        for row_id, cited in region.evidence():
+        for machine in region.machines:
+            found.extend('state %s appears twice' % machine.state_id(d)
+                         for d in duplicates(s['key'] for s in machine.states))
+            machine.classify(found)
+            machine.check_initials(found)
+        region.check_tables(found)
+        for where, cited in region.evidence():
             for one in cited:
                 if one not in known:
-                    found.append('%s: %s is not defined in docs/spec' % (row_id, one))
+                    found.append('%s: %s is not defined in docs/spec' % (where, one))
     return regions, found
 
 
@@ -344,159 +474,191 @@ def source_cell(source):
     return u'%s: %s' % (word, JOIN.join(code(r) for r in source['rows']))
 
 
-def keys_cell(conjunction):
-    return AND.join(code(k) for k in conjunction)
+def guard_text(guard):
+    terms = []
+    for term in guard:
+        if 'in' in term:
+            terms.append(u'%s にいる' % code(term['in']))
+        else:
+            terms.append((u'not ' if term.get('not') else u'') + code(term['name']))
+    return u'[%s]' % AND.join(terms)
 
 
-def guard_cell(guard):
-    if not guard:
-        return NONE_CELL
-    return AND.join((u'not ' if term.get('not') else u'') + code(term['name'])
-                    for term in guard)
-
-
-def target_cell(row):
-    cell = u'自己' if row['to'] == 'self' else keys_cell(row['to'])
-    if row.get('note'):
-        cell += u'（%s）' % text(row['note'])
+def branch_text(branch, source):
+    """One branch as「→ 次 [ガード] / 副作用」. `source` is the state the cell is on."""
+    if 'to' not in branch or branch['to'] == source:
+        cell = u'→ 自己'
+    else:
+        cell = u'→ ' + code(branch['to'])
+    if branch.get('guard'):
+        cell += u' ' + guard_text(branch['guard'])
+    if branch.get('effect'):
+        cell += u' / ' + code(branch['effect'])
+        if branch.get('effectArgument'):
+            cell += u'（%s）' % code(branch['effectArgument'])
+    if branch.get('note'):
+        cell += u'（%s）' % text(branch['note'])
     return cell
 
 
-def effect_cell(effect):
-    if not effect:
-        return NONE_CELL
-    cell = code(effect['name'])
-    if effect.get('row'):
-        cell += u'（%s）' % code(effect['row'])
-    return cell
+def covers_every_case(branches):
+    """True when some branch has no guard, or two branches hold one guard and its `not`."""
+    if any(not b.get('guard') for b in branches):
+        return True
+    singles = set()
+    for b in branches:
+        guard = b['guard']
+        if len(guard) == 1 and 'name' in guard[0]:
+            singles.add((guard[0]['name'], bool(guard[0].get('not'))))
+    return any((name, not negated) in singles for name, negated in singles)
 
 
-def table(caption, head, rows):
-    lines = [u'**表 %s — %s**' % (caption['id'], text(caption['caption'])), u'']
-    lines.append(u'| ' + u' | '.join(head) + u' |')
-    lines.append(u'| ' + u' | '.join([u'---'] * len(head)) + u' |')
+def cell_text(branches, source, leaf):
+    """Every case of the cell is stated (R4.4): guards that leave cases open get
+    an explicit fall-through to no change."""
+    lines = [branch_text(b, source) for b in branches]
+    if not covers_every_case(branches):
+        lines.append(u'それ以外 → %s' % NONE_CELL)
+    body = u'<br>'.join(lines)
+    if source != leaf:
+        body += u'（親 %s の升）' % code(source)
+    return body
+
+
+def table_lines(head, rows):
+    lines = [u'| ' + u' | '.join(head) + u' |',
+             u'| ' + u' | '.join([u'---'] * len(head)) + u' |']
     for cells in rows:
         lines.append(u'| ' + u' | '.join(cells) + u' |')
     return lines
 
 
-def state_rows(region):
-    for s in region.states:
-        yield [s['id'], code(s['key']),
-               code(s['parent']) if s['parent'] else NONE_CELL,
-               u'○' if s['initial'] else NONE_CELL,
-               carried_cell(s['carries']), cited(s['evidence'])]
-
-
 def event_rows(region):
     for e in region.events:
-        yield [e['id'], code(e['key']), source_cell(e['source']),
-               carried_cell(e['carries'])]
+        movers = region.movers(e['key'])
+        if e['key'] in region.root['transitions']:
+            movers = [u'根'] + movers
+        yield [code(region.event_id(e['key'])), source_cell(e['source']),
+               carried_cell(e['carries']), JOIN.join(code(m) if m != u'根' else m
+                                                     for m in movers)]
 
 
-def transition_rows(region):
-    for t in region.transitions:
-        event = region.event_by_key[t['event']]
-        yield [t['id'], ALT.join(keys_cell(a) for a in t['from']),
-               u'%s（`%s`）' % (code(t['event']), event['id']),
-               guard_cell(t['guard']), target_cell(t), effect_cell(t['effect']),
-               cited(t['evidence'])]
+def root_lines(region):
+    root = region.root
+    lines = [u'', u'### 根 %s の値' % code(region.name), u'']
+    lines.append(u'運ぶ値: %s。  ' % carried_cell(root['carries']))
+    lines.append(u'根拠: %s。' % cited(root['evidence']))
+    lines.append(u'')
+    if not root['transitions']:
+        lines.append(u'根の運ぶ値だけを書き換える出来事は無い。')
+        return lines
+    rows = [[code(region.event_id(event)), cell_text(branches, None, None)]
+            for event, branches in region.root_cells()]
+    lines += table_lines([u'出来事', code(region.name)], rows)
+    return lines
+
+
+def transition_rows(machine):
+    region = machine.region
+    leaves = machine.leaves()
+    for event, row in machine.table.items():
+        cells = [code(region.event_id(event))]
+        for leaf in leaves:
+            answer = NONE_CELL
+            for source, cell in row.items():
+                if machine.covers(source, leaf['key']):
+                    answer = cell_text(branches_of(cell), source, leaf['key'])
+            cells.append(answer)
+        yield cells
+
+
+def state_list(machine):
+    lines = []
+    for s in machine.states:
+        parts = []
+        if s['initial']:
+            parts.append(u'初期')
+        if s['parent'] is not None:
+            parts.append(u'親 %s' % code(machine.state_id(s['parent'])))
+        if s['carries']:
+            parts.append(u'運ぶ値 %s' % carried_cell(s['carries']))
+        parts.append(u'根拠 %s' % cited(s['evidence']))
+        lines.append(u'- %s —— %s' % (code(machine.state_id(s['key'])), u'。'.join(parts)))
+    return lines
 
 
 # --- the diagram -------------------------------------------------------------
 #
-# ONE FIGURE, ONE BLOCK PER AXIS. A single diagram of every axis side by side
-# came out about 1600px wide with labels a few pixels tall, so the figure is
-# printed as one stateDiagram-v2 block per axis of the root, each under its own
-# small heading, all inside the one figure caption.
+# ONE FIGURE PER REGION, ONE BLOCK PER MACHINE. A single diagram of every
+# machine side by side came out about 1600px wide with labels a few pixels
+# tall, so each machine is drawn in its own stateDiagram-v2 block, inside its
+# own section, all under the region's one figure caption.
 #
-# THE PICTURE IS FOLDED; table T-282 is the full truth. Two folds, both read
-# off the manuscript mechanically and never by name:
-#   - a GROUP is a set of at least MIN_GROUP sibling kinds that one transition
-#     links pairwise in both directions (a full mesh), or that one transition
-#     leaves for a single kind outside the set (a fan-in), or enters from a
-#     single kind outside the set (a fan-out). The siblings are drawn inside
-#     one composite state;
-#   - a transition that meshes the group is drawn ONCE as a self-loop on the
+# THE PICTURE IS FOLDED; the machine's state transition table is the full
+# truth. A fold unit is one outcome -- the same event, guard, target and
+# effect -- written in several cells. Two folds, both read off the manuscript
+# mechanically and never by name:
+#   - a GROUP is a set of at least MIN_GROUP sibling kinds that one unit links
+#     pairwise in both directions (a full mesh), or that one unit leaves for a
+#     single kind outside the set (a fan-in), or enters from a single kind
+#     outside the set (a fan-out). The siblings are drawn inside one
+#     composite state;
+#   - a unit that meshes the group is drawn ONCE as a self-loop on the
 #     composite, and a fan-in or fan-out is drawn once from or to the
-#     composite. A note beside the composite names the meshing transitions.
+#     composite. A note beside the composite names the meshing events.
 # Two candidate groups that overlap without being equal are both left
-# unfolded rather than choosing one. Arrow labels carry the row id only; the
-# event, guard and effect are in table T-282.
+# unfolded rather than choosing one. Arrow labels carry the event key only;
+# the guard and the effect are in the table.
 
 MIN_GROUP = 3
 
 
-def node(key):
-    return key.replace('.', '_')
+def node(machine, key):
+    return machine.name + (u'_' + key.replace('.', '_') if key else u'')
 
 
-def containers(region, key):
-    """The sections enclosing a state, outermost first: (parent, axis) for an
-    axis of orthogonal kinds, (parent, None) for a single union of kinds."""
-    out = []
-    state = region.by_key[key]
-    while state['parent'] is not None:
-        rest = region.remainder(state)
-        out.insert(0, (state['parent'], rest[0] if len(rest) == 2 else None))
-        state = region.by_key[state['parent']]
-    return out
-
-
-def scope_of(region, source, target):
-    """The innermost section holding both ends -- where mermaid needs the
-    arrow written, or it draws a second copy of the state elsewhere."""
+def scope_of(machine, source, target):
+    """The innermost composite holding both ends (None for the top) -- where
+    mermaid needs the arrow written, or it draws a second copy elsewhere."""
     common = None
-    for a, b in zip(containers(region, source), containers(region, target)):
+    for a, b in zip(machine.ancestors(source), machine.ancestors(target)):
         if a != b:
             break
         common = a
     return common
 
 
-def arrows(region):
-    """{section: [(row id, source, target), ...]} and the undrawn rows.
-
-    A transition from the root itself has no section to be drawn in, so it is
-    listed instead of drawn. A conjunctive source is drawn from its key on the
-    target's axis; a target naming a carried value is drawn to every kind it
-    can name.
-    """
+def arrows(machine):
+    """{section: [(unit, label, source, target), ...]} for one machine."""
+    region = machine.region
+    units = collections.OrderedDict()
     drawn = collections.OrderedDict()
-    skipped = []
-    for t in region.transitions:
-        event = region.event_by_key[t['event']]
-        pairs = []
-        for alternative in t['from']:
-            if t['to'] == 'self':
-                pairs.extend((k, k) for k in alternative)
-                continue
-            for target in t['to']:
-                ends = region.targets_of(target, event)
-                axis = containers(region, ends[0])[:1]
-                for source in alternative:
-                    if containers(region, source)[:1] == axis:
-                        pairs.extend((source, one) for one in ends
-                                     if one != source or len(ends) == 1)
-        pairs = [p for p in pairs if p[0] != region.root['key']]
-        if not pairs:
-            skipped.append(t['id'])
-        for source, target in pairs:
-            section = drawn.setdefault(scope_of(region, source, target), [])
-            if (t['id'], source, target) not in section:
-                section.append((t['id'], source, target))
-    return drawn, skipped
+    for event, key, branches in machine.cells():
+        for branch in branches:
+            unit = units.setdefault(
+                (event, guard_words(branch.get('guard')), branch['to'],
+                 branch.get('effect'), branch.get('effectArgument')), len(units))
+            if branch['to'] == key:
+                pairs = [(key, key)]
+            else:
+                ends = machine.targets_of(branch['to'], region.event_by_key[event])
+                pairs = [(key, one) for one in ends if one != key or len(ends) == 1]
+            for source, target in pairs:
+                section = drawn.setdefault(scope_of(machine, source, target), [])
+                if (unit, event, source, target) not in section:
+                    section.append((unit, event, source, target))
+    return drawn
 
 
-def by_row(edges):
-    rows = collections.OrderedDict()
-    for row_id, source, target in edges:
-        rows.setdefault(row_id, []).append((source, target))
-    return rows
+def by_unit(edges):
+    units = collections.OrderedDict()
+    for unit, _label, source, target in edges:
+        units.setdefault(unit, []).append((source, target))
+    return units
 
 
 def fold_shape(pairs):
-    """('mesh' | 'in' | 'out', the set, the outside kind) for one row, or None."""
+    """('mesh' | 'in' | 'out', the set, the outside kind) for one unit, or None."""
     sources = set(s for s, _ in pairs)
     targets = set(t for _, t in pairs)
     if len(sources) >= MIN_GROUP and sources == targets:
@@ -511,138 +673,119 @@ def fold_shape(pairs):
 
 
 def group_of(edges):
-    """The one group this section folds, and how each row folds into it."""
+    """The one group this section folds, and how each unit folds into it."""
     shapes = collections.OrderedDict()
-    for row_id, pairs in by_row(edges).items():
+    for unit, pairs in by_unit(edges).items():
         shape = fold_shape(pairs)
         if shape:
-            shapes[row_id] = shape
+            shapes[unit] = shape
     sets = set(shape[1] for shape in shapes.values())
     if len(sets) != 1:
         return None, {}
     return next(iter(sets)), shapes
 
 
-def group_label(region, members, group):
+def group_label(machine, members, group):
     """What the composite is called: the kinds it leaves out, or those it holds."""
     outside = [s for s in members if s['key'] not in group]
     if len(outside) == 1:
-        return u'%s 以外' % region.remainder(outside[0])[-1]
-    return u' ・ '.join(region.remainder(s)[-1] for s in members if s['key'] in group)
+        return u'%s 以外' % machine.word(outside[0])
+    return u' ・ '.join(machine.word(s) for s in members if s['key'] in group)
 
 
 def edge_lines(pad, edges):
     merged = collections.OrderedDict()
-    for row_id, source, target in edges:
-        merged.setdefault((source, target), []).append(row_id)
-    return [pad + u'%s --> %s : %s' % (source, target, u', '.join(ids))
-            for (source, target), ids in merged.items()]
+    for label, source, target in edges:
+        labels = merged.setdefault((source, target), [])
+        if label not in labels:
+            labels.append(label)
+    return [pad + u'%s --> %s : %s' % (source, target, u', '.join(labels))
+            for (source, target), labels in merged.items()]
 
 
-def section_lines(region, members, section, drawn, indent):
+def section_lines(machine, parent, drawn, indent):
     pad = u' ' * indent
-    edges = drawn.get(section, [])
+    members = machine.children.get(parent, [])
+    edges = drawn.get(parent, [])
     group, shapes = group_of(edges)
+    labels = dict((unit, label) for unit, label, _s, _t in edges)
     lines = []
     for s in members:
         if s['initial']:
-            lines.append(pad + u'[*] --> %s' % node(s['key']))
+            lines.append(pad + u'[*] --> %s' % node(machine, s['key']))
     grouped = [s for s in members if group and s['key'] in group]
     for s in members:
         if s in grouped:
             continue
-        lines.extend(state_lines(region, s, drawn, indent))
+        lines.extend(state_lines(machine, s, drawn, indent))
     out = []
     if grouped:
-        box = node(section[0]) + u'_' + (section[1] or u'kinds') + u'_group'
-        lines.append(pad + u'state "%s" as %s {' % (group_label(region, members, group), box))
+        box = node(machine, parent) + u'_group'
+        lines.append(pad + u'state "%s" as %s {' % (group_label(machine, members, group), box))
         for s in grouped:
-            lines.extend(state_lines(region, s, drawn, indent + 4))
+            lines.extend(state_lines(machine, s, drawn, indent + 4))
         lines.append(pad + u'}')
-        meshes = [r for r, shape in shapes.items() if shape[0] == 'mesh']
-        for row_id, (kind, _members, other) in shapes.items():
+        meshes = []
+        for unit, (kind, _members, other) in shapes.items():
             if kind == 'mesh':
-                out.append((row_id, box, box))
+                out.append((labels[unit], box, box))
+                if labels[unit] not in meshes:
+                    meshes.append(labels[unit])
             elif kind == 'in':
-                out.append((row_id, box, node(other)))
+                out.append((labels[unit], box, node(machine, other)))
             else:
-                out.append((row_id, node(other), box))
+                out.append((labels[unit], node(machine, other), box))
         if meshes:
             lines.append(pad + u'note right of %s : %s は組のどの 2 つの間も結ぶ'
                          % (box, u' ・ '.join(meshes)))
-    for row_id, source, target in edges:
-        if row_id in shapes:
+    for unit, label, source, target in edges:
+        if unit in shapes:
             continue
-        out.append((row_id, node(source), node(target)))
+        out.append((label, node(machine, source), node(machine, target)))
     return lines + edge_lines(pad, out)
 
 
-def state_lines(region, s, drawn, indent):
+def state_lines(machine, s, drawn, indent):
     pad = u' ' * indent
-    lines = [pad + u'%s : %s' % (node(s['key']), region.remainder(s)[-1])]
-    if s['key'] in region.axes or s['key'] in region.kinds:
-        lines.append(pad + u'state %s {' % node(s['key']))
-        lines.extend(composite_lines(region, s['key'], drawn, indent + 4))
+    lines = [pad + u'%s : %s' % (node(machine, s['key']), machine.word(s))]
+    if s['key'] in machine.children:
+        lines.append(pad + u'state %s {' % node(machine, s['key']))
+        lines.extend(section_lines(machine, s['key'], drawn, indent + 4))
         lines.append(pad + u'}')
     return lines
 
 
-def composite_lines(region, parent, drawn, indent):
-    """The body of one composite state: its concurrent axes, or its kinds."""
-    lines = []
-    if parent in region.axes:
-        for number, (axis, members) in enumerate(region.axes[parent].items()):
-            if number:
-                lines.append(u' ' * indent + u'--')
-            lines.extend(section_lines(region, members, (parent, axis), drawn, indent))
-    elif parent in region.kinds:
-        lines.extend(section_lines(region, region.kinds[parent], (parent, None),
-                                   drawn, indent))
-    return lines
-
-
-def axis_block(region, axis, members, drawn):
-    section = (region.root['key'], axis)
-    body = section_lines(region, members, section, drawn, 4)
-    # LR keeps a flat axis one row high; a nested or folded one reads narrower TB.
-    nested = any(s['key'] in region.kinds or s['key'] in region.axes for s in members)
-    folded = group_of(drawn.get(section, []))[0] is not None
+def diagram(machine):
+    drawn = arrows(machine)
+    body = section_lines(machine, None, drawn, 4)
+    # LR keeps a flat machine one row high; a nested or folded one reads narrower TB.
+    nested = len(machine.children) > 1
+    folded = group_of(drawn.get(None, []))[0] is not None
     direction = u'TB' if nested or folded else u'LR'
     return [u'```mermaid', u'stateDiagram-v2', u'    direction %s' % direction] \
         + body + [u'```']
 
 
-def figure(region):
-    caption = region.raw['figure']
-    transitions_table = region.raw['tables']['transitions']['id']
-    drawn, skipped = arrows(region)
-    root = region.root['key']
-    lines = [u'**図 %s — %s**' % (caption['id'], text(caption['caption'])), u'']
-    lines.append(u'軸ごとに 1 つの図に分けて示す。軸どうしは直交する。  ')
-    lines.append(u'矢印のラベルは遷移の行 ID だけであり、出来事・ガード・副作用は 表 %s が持つ。  '
-                 % transitions_table)
-    lines.append(u'⚠️ 図は畳んである —— 同じ遷移が %d つ以上の兄弟の種類のどの 2 つの間も結ぶか、'
-                 u'それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、'
-                 u'兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、'
-                 u'箱の注に行 ID を書く）。  ' % MIN_GROUP)
-    lines.append(u'⭐ 遷移の全数は 表 %s が持つ。' % transitions_table)
-    if skipped:
-        lines.append(u'')
-        lines.append(u'根（`%s`）が元の遷移 %s は図に描かず、表 %s だけが持つ。'
-                     % (root, JOIN.join(code(i) for i in skipped), transitions_table))
-    for axis, members in region.axes.get(root, {}).items():
-        lines += [u'', u'### %s の軸 `%s`' % (caption['id'], axis), u'']
-        lines += axis_block(region, axis, members, drawn)
+def machine_lines(machine):
+    lines = [u'', u'### 状態機械 %s' % code(machine.name), u'']
+    lines += diagram(machine)
+    lines.append(u'')
+    head = [u'出来事'] + [code(s['key']) for s in machine.leaves()]
+    lines += table_lines(head, transition_rows(machine))
+    lines.append(u'')
+    lines += state_list(machine)
+    lines.append(u'')
+    lines.append(u'表に無い出来事は %s を変えない（同じ参照）。' % code(machine.name))
     return lines
 
 
 # --- the document ------------------------------------------------------------
 
 HEADER = [
-    u'# 状態機械 — 状態・出来事・遷移',
+    u'# 状態機械 — 出来事・状態・状態遷移表',
     u'',
     u'**UID**: DOC-TBL-STATE-MACHINES',
-    u'**Version**: 0.1',
+    u'**Version**: 0.2',
     u'',
     u'> ⛔ 本書は生成物である。  ',
     u'> 手で直さない —— 直しても次の `npm run gen` で消える。',
@@ -650,30 +793,45 @@ HEADER = [
     u'> 本書はそれを `_source/state_machines_json_to_md.py` が印字したものである。',
     u'> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
     u'',
-    u'本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごとに印字したものである。  ',
+    u'本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  ',
     u'原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  ',
-    u'キーの読み方は `05-07-design.md` の 5.5 が持つ。',
+    u'名前の読み方は `05-07-design.md` の 5.5 が持つ。',
 ]
+
+
+def region_lines(region):
+    table = region.raw['table']
+    figure = region.raw['figure']
+    lines = [u'', u'## %s（%s）' % (text(region.raw['name']), code(region.name)), u'']
+    lines.append(u'**表 %s — %s**' % (table['id'], text(table['caption'])))
+    lines.append(u'')
+    lines.append(u'本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  ')
+    lines.append(u'状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、'
+                 u'升は「→ 次の状態 [ガード] / 副作用」である。  ')
+    lines.append(u'升の「%s」は変化なし（同じ参照）を表す。  ' % NONE_CELL)
+    lines.append(u'ガードの付いた枝がすべての場合を覆わない升には「それ以外 → %s」を添え、どの場合に何が起きるかを升ごとに言い切る。  ' % NONE_CELL)
+    lines.append(u'親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。')
+    lines += [u'', u'### %sの出来事' % text(region.raw['name']), u'']
+    lines += table_lines([u'出来事', u'どこから来るか', u'運ぶ値', u'動かすもの'],
+                         event_rows(region))
+    lines += root_lines(region)
+    lines += [u'', u'**図 %s — %s**' % (figure['id'], text(figure['caption'])), u'']
+    lines.append(u'状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  ')
+    lines.append(u'矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  ')
+    lines.append(u'⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が %d つ以上の兄弟の種類の'
+                 u'どの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、'
+                 u'同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く'
+                 u'（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  ' % MIN_GROUP)
+    lines.append(u'⭐ 遷移の全数は 表 %s の状態遷移表が持つ。' % table['id'])
+    for machine in region.machines:
+        lines += machine_lines(machine)
+    return lines
 
 
 def build(regions):
     lines = list(HEADER)
     for region in regions:
-        tables = region.raw['tables']
-        lines += [u'', u'## %s（`%s`）' % (text(region.raw['name']), region.name), u'']
-        lines += table(tables['states'],
-                       [u'行 ID', u'キー', u'親', u'初期', u'運ぶ値', u'根拠'],
-                       state_rows(region))
-        lines.append(u'')
-        lines += table(tables['events'],
-                       [u'行 ID', u'キー', u'どこから来るか', u'運ぶ値'],
-                       event_rows(region))
-        lines.append(u'')
-        lines += table(tables['transitions'],
-                       [u'行 ID', u'元', u'出来事', u'ガード', u'先', u'副作用', u'根拠'],
-                       transition_rows(region))
-        lines.append(u'')
-        lines += figure(region)
+        lines += region_lines(region)
     return u'\n'.join(lines) + u'\n'
 
 

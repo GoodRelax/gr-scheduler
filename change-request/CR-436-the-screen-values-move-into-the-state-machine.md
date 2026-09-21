@@ -1,6 +1,7 @@
 # CR-436 — 画面の値を状態機械へ移す（リファクタ段 2b-B と、段 7 の第 1 領域）
 
 > ⭐ **状態: 波 A を当てた（2026-09-21、`1616d28d` の上。ブランチ `sm-wave-a`）。波 B1 と波 B2 は当てていない。**
+> ⭐ **波 A2 を当てた（2026-09-21、`JDG-286`）** —— 原稿と印字を状態機械ごとに組み替え、`SM` ・ `EV` ・ `TN` の番号をやめて名で指すようにした。付録 A.1 〜 A.3 の番号は当てた日の履歴であり、いまの名は末尾の「波 A2」の節で引く。
 > 当てたのは 第 3.1 節の表のすべてである。当てた体が決めたこと・原稿と付録を合わせ直したことは末尾の「改訂の記録 —— 波 A を当てた」に並べた。
 > 読んだ木: `2112d0c9`（ブランチ `refactor`）。**本書の行番号と数は、断りが無いかぎりこの木で 2026-09-21 に自分で測ったものである。**
 > ⭐ **波 A を `1616d28d` で測り直した（2026-09-21）** —— その間に `CR-432`（表 T-276 と接頭辞 `UD`、`56de8f06`）が当たった。直したところは本書の末尾の「改訂の記録」に並べた。
@@ -566,3 +567,174 @@
 | 21 | 第 3 節の波 A の触る所 | 5.6 の図 2 つと表 2 つ、登録簿の `SS` ・ `RA` | 追補で実際に動かしたもの |
 | 22 | —— | 第 3.1 節に追補の 4 行、第 0 節の ③ に決定 17 〜 20 | 前に立つ者の決定 |
 | 23 | 第 7 節の波 A の予測だけ | 追補の予測と、md-checks の最終行の実測 `tables=177  figures=20  rows=2325  uids=162` | 規則 02 の 2 |
+
+---
+
+## 波 A2 —— 原稿と印字を状態機械ごとに組み替え、番号をやめて名で指す（`JDG-286`）
+
+⭐ **状態: 当てた（2026-09-21、`97868072` の上。ブランチ `sm-restructure`）。**
+波 B1 ・ B2 の中身は変えていない。付録 A.1 〜 A.3 の番号は当てた日の履歴として残し、いまの名への対応は A2.5 に書いた。
+
+### A2.1 裁定
+
+- **利用者の裁定 `JDG-286`**（2026-09-21、逐語「**推奨の Dで進めろ**」）—— 原稿とその印字を**状態機械（＝波 A の軸）ごと**に組み替え、`SM` ・ `EV` ・ `TN` の通し番号をやめて名で指す。
+- 同じ巡の追補（利用者、前に立つ者が伝えた）—— 状態機械の名と状態の名の規則を、レビュー観点 `docs/development-rules/07-review-standards.md` の R4 の節「状態機械（State Machine）」と R4.4 として書いた（`0a888ce5`、前に立つ者のコミット）。本波の命名はそれに従う。途中で 2 度出た案（軸の名のまま、名詞句 ＋ `Machine`）は、この節が置き換えた。
+- 裁定の記録（`docs/development-records/rulings.md`）は前に立つ者が書く。本書は書かない。
+
+### A2.2 前と後の形
+
+| 項目 | 前（波 A） | 後（波 A2） |
+|---|---|---|
+| 原稿の単位 | 領域ごとに `states` ・ `events` ・ `transitions` の 3 つの行の列 | 領域ごとに `events`（1 度だけ定める）・ `root`（根が運ぶ値と、それだけを書き換える出来事）・ `machines`（状態機械ごとに `states` と `transitions`） |
+| 遷移の持ち方 | 行 —— 元の状態の選言 × 出来事 × ガード → 先の状態の連言、または `self` | 升 —— `transitions[出来事][今の状態]` に `{to, guard?, effect?, effectArgument?, evidence, note?}`（ガードで分かれるときは 2 つ以上の枝の列）。**升の無い組は変化なし（同じ参照）** |
+| ほかの状態機械にかかる条件 | 元の連言（`watermark.shown & surface.none`） | ガードの項 `{"in": "watermarkDisplayStateMachine.shown"}` |
+| 2 つの軸を同時に動かす遷移 | 1 行に先を 2 つ | 2 つの状態機械の表に 1 升ずつ（出来事は 1 度だけ定める） |
+| 名前 | `SM-n` ・ `EV-n` ・ `TN-n` | 状態機械 `armModeStateMachine`、状態 `armModeStateMachine.taskShapeArmed` ・ `paletteDisplayStateMachine.shown.expanded`、出来事 `screen/armEntryPressed`、遷移はその升（状態機械 × 今の状態 × 出来事） |
+| 印字（`docs/spec/_assets/tbl-state-machines.md`） | 領域ごとに表 3 つ（状態・出来事・遷移）と図 1 つ（軸ごとの図） | 領域ごとに表 1 つ・図 1 つ。表の先頭に出来事の定義（動かすものの欄つき）と根の値、続けて状態機械ごとの節 —— 状態遷移図（軸ごとの畳み方はそのまま）、状態遷移表（行 ＝ その状態機械を動かす出来事、列 ＝ 葉の今の状態、升 ＝「→ 次 [ガード] / 処理」、何も変わらない升も空けず「—」＝ 変化なし（同じ参照））、状態の一覧と根拠、表に無い出来事は変えないという注 |
+| 表と図の番号 | 表 `T-280` ・ `T-281` ・ `T-282`、表 `T-286` ・ `T-287` ・ `T-288`、図 `F-026` ・ `F-029` | 表 `T-280` ・ 表 `T-286`、図 `F-026` ・ 図 `F-029`。`T-281` ・ `T-282` ・ `T-287` ・ `T-288` は使われなくなった —— **ほかの表に配り直さない** |
+| 今の状態の値と型 | 根の欄は軸の名（`armed`）、型は `<Stem><Axis>`（`ScreenValuesArmed`） | 根の欄は `〈名詞句〉State`（`armModeState`）、型は `〈名詞句〉State`（`ArmModeState`）、入れ子は `〈名詞句〉〈道〉State`（`PaletteDisplayShownState`）。生成器が `〜StateMachine` から `〜State` を名で導き、名が `StateMachine` で終わらないもの・根の運ぶ値と重なるものを拒む |
+| 種類の字面（`kind`） | 状態のキーの末尾（`none` ・ `taskShape`） | 改めた状態の名（A2.3 の 2 つ目の表）。`ARMED_BY_KIND` のキーと `ArmKind` も同じ字面 |
+| 遷移表の定数 | `{ id, from, event, guard, to, effect, effectArgument }` を行ごと | `{ state, event, guard, to, effect, effectArgument }` を升の枝ごと。根の升を先に、続けて状態機械ごとに原稿の順 |
+| 升の書き切り | —— | ガードの付いた枝がすべての場合を覆わない升（`armModeStateMachine` × `screen/escapePressed` の「→ `notArmed` [`isRungArmed`]」など）には「それ以外 → —」（変化なし・同じ参照）を添える。ガードの無い枝があるか、ガードとその `not` の 2 枝があるときは添えない。判定は印字の生成器だけが行い、原稿は変えていない（R4.4 の「何も変わらない交点も空けずに書く」を升の中まで及ぼした） |
+| 行 ID の接頭辞 | `SM` ・ `EV` ・ `TN` を登録 | 登録簿から外した。書き戻しは検査 63（`check-sm-ev-tn-prefix-gone.py`）が止める |
+
+### A2.3 名の規則と、改めた名
+
+規則（R4.4）: 状態機械（定義）は**追うものの名詞句 ＋ `StateMachine`**、全領域を通して 1 つ（生成器が重なりを拒む）。今の状態を持つ値と型は**同じ名詞句 ＋ `State`**。状態は「この状態機械は今〈状態〉である」と読める**過去分詞・形容詞**、進行中の活動は**現在分詞 ＋ 目的語**で、名詞だけは状態ではない。出来事は主語 ＋ 過去形。ガードは `is` / `has` / `can`、処理は動詞 ＋ 目的語。
+`R2` の品詞の規約（型は名詞句、プロパティは名詞、イベントは過去形）とも突き合わせた —— 食い違いは無い。
+
+**状態機械と今の状態**（14）:
+
+| 領域 | 波 A の軸 | 状態機械 | 今の状態の値 ／ 型 |
+|---|---|---|---|
+| `screen` | `armed` | `armModeStateMachine` | `armModeState` ／ `ArmModeState` |
+| `screen` | `palette` | `paletteDisplayStateMachine` | `paletteDisplayState` ／ `PaletteDisplayState`（入れ子 `PaletteDisplayShownState`） |
+| `screen` | `milestoneList` | `milestoneListDisplayStateMachine` | `milestoneListDisplayState` ／ `MilestoneListDisplayState` |
+| `screen` | `fullScreen` | `fullScreenModeStateMachine` | `fullScreenModeState` ／ `FullScreenModeState` |
+| `screen` | `surface` | `openSurfaceStateMachine` | `openSurfaceState` ／ `OpenSurfaceState` |
+| `screen` | `watermark` | `watermarkDisplayStateMachine` | `watermarkDisplayState` ／ `WatermarkDisplayState` |
+| `screen` | `properties` | `propertiesPanelContentStateMachine` | `propertiesPanelContentState` ／ `PropertiesPanelContentState` |
+| `screen` | `dialogueField` | `dialogueFieldDisplayStateMachine` | `dialogueFieldDisplayState` ／ `DialogueFieldDisplayState` |
+| `screen` | `levelZero` | `levelZeroFoldStateMachine` | `levelZeroFoldState` ／ `LevelZeroFoldState` |
+| `screen` | `dualCursor` | `dualCursorModeStateMachine` | `dualCursorModeState` ／ `DualCursorModeState`（入れ子 `DualCursorModeOnState`） |
+| `screen` | `scaleMessage` | `scaleMessageDisplayStateMachine` | `scaleMessageDisplayState` ／ `ScaleMessageDisplayState` |
+| `screen` | `tooltip` | `tooltipDisplayStateMachine` | `tooltipDisplayState` ／ `TooltipDisplayState` |
+| `notices` | `onScreen` | `noticeDisplayStateMachine` | `noticeDisplayState` ／ `NoticeDisplayState` |
+| `notices` | `delivery` | `changeDeliveryStateMachine` | `changeDeliveryState` ／ `ChangeDeliveryState` |
+
+**状態の名を改めたもの**（14 の状態機械の 37 の状態を規則に当て、15 を改めた。残りの 22 は過去分詞・形容詞か現在分詞で、そのまま）:
+
+| 状態機械 | 前 | 後 | 理由 |
+|---|---|---|---|
+| `armModeStateMachine` | `none` | `notArmed` | 名詞（「無い」）だけでは状態でない |
+| `armModeStateMachine` | `taskShape` | `taskShapeArmed` | 物の名前 |
+| `armModeStateMachine` | `milestoneShape` | `milestoneShapeArmed` | 物の名前 |
+| `armModeStateMachine` | `dependency` | `dependencyArmed` | 物の名前 |
+| `armModeStateMachine` | `commentBox` | `commentBoxArmed` | 物の名前 |
+| `armModeStateMachine` | `highlightBox` | `highlightBoxArmed` | 物の名前 |
+| `openSurfaceStateMachine` | `none` | `closed` | 名詞だけ。面が 1 つも開いていない |
+| `propertiesPanelContentStateMachine` | `none` | `hidden` | 名詞だけ。パネルを出していない |
+| `propertiesPanelContentStateMachine` | `selection` | `selectionDisplayed` | 物の名前 |
+| `propertiesPanelContentStateMachine` | `documentSettings` | `documentSettingsDisplayed` | 物の名前 |
+| `dualCursorModeStateMachine` | `on.date1Following` | `on.placingDate1` | 〈名詞〉＋現在分詞は主語と目的語が逆に読まれる（R4.4 の禁止）⇒ 現在分詞 ＋ 目的語 |
+| `dualCursorModeStateMachine` | `on.date2Following` | `on.placingDate2` | 同上 |
+| `scaleMessageDisplayStateMachine` | `none` | `hidden` | 名詞だけ |
+| `noticeDisplayStateMachine` | `none` | `hidden` | 名詞だけ |
+| `noticeDisplayStateMachine` | `standing` | `shown` | 目的語の無い現在分詞で、「今〈状態〉である」と読めない。運ぶ値の名 `standing`（出ている通知の列）は変えない |
+
+**出来事**（35）: すべて主語 ＋ 過去形（`paletteToggled` ・ `surfaceCloseAsked` ・ `noticeRaised` など）で、**改めたものは無い**。
+**処理**（15）: すべて動詞 ＋ 目的語（`askBrowserForFullScreen` ・ `writeFoldAll` ・ `raiseNotice` など）で、改めたものは無い。
+**ガード**（22）: `is` / `has` / `can` で始まらない 10 を改めた（R4.4 は本変更が入れる規則なので、同じ変更で合わせる）。生成器は、`is` / `has` / `can` の後に大文字が続かないガードの名を拒む（壊して確かめた: `isRungTooltip` を `rungIsTooltip` に戻すと 1 件）。
+
+| 前 | 後 | 何を確かめるか（契約試験の判定 `guardHolds` の中身） |
+|---|---|---|
+| `rungIsArmed` | `isRungArmed` | `IN-4` の段が `armed` |
+| `rungIsSurface` | `isRungSurface` | 段が `surface` |
+| `rungIsDualCursor` | `isRungDualCursor` | 段が `dualCursorMode` |
+| `rungIsTooltip` | `isRungTooltip` | 段が `tooltip` |
+| `noSurfaceNoConfirmation` | `hasNoSurfaceOrConfirmation` | 出来事の運ぶ値 `noSurfaceNoConfirmation` が真（面も確認も立っていない） |
+| `noUnsettledEntry` | `hasNoUnsettledEntry` | 出来事の運ぶ値 `noUnsettledEntry` が真 |
+| `agentApiEnabled` | `isAgentApiEnabled` | 出来事の運ぶ値 `agentApiEnabled` が真 |
+| `entersDualCursor` | `canEnterDualCursor` | `dualCursorModeStateMachine.off` にいて、置ける日がある |
+| `leavesNone` | `isLeavingNone` | 押された理由が立っていて、立っているのが 1 枚だけ |
+| `leavesSome` | `isLeavingSome` | 押された理由が立っていて、2 枚以上 |
+
+どの名も中身を言い違えていないので、依頼の名のまま当てた。
+**真偽の運ぶ値**: `R2` の「Boolean は `is` / `has` / `can`」に合わせ、出来事の運ぶ値のうち 3 つを、同じ字面のガードと同じ名に改めた —— `noSurfaceNoConfirmation` → `hasNoSurfaceOrConfirmation`、`noUnsettledEntry` → `hasNoUnsettledEntry`、`agentApiEnabled` → `isAgentApiEnabled`（原稿・生成した型・`ScreenValuesEventCarried` と `onSettleKeyPressed` ・ `onDialogueFieldEntryPressed`・契約試験の入力の見本）。両方の領域のほかの真偽の値 —— 出来事の `isFullScreen` ・ `isProceeding` ・ `hasDaysToPlace` —— は規則どおりで、状態が運ぶ値と今の状態の欄に真偽は無い（`src/use-case/advance-screen-session/` の `boolean` を grep）。`frame-loop.ts` の保存のキー `agentApiEnabled`（`S-99b`）は別の名であり、変えていない。
+⚠️ **真偽の運ぶ値の名を生成器では拒めない** —— 原稿の運ぶ値は名前しか持たず、型はコードが持つ（表 T-250 の `SD-1` ・ `SD-2`）。原稿に型の欄を足すことは本波ではしていない。
+コードの遷移の関数はガードの名を持たない（生成した定数の `guard` の字面だけが変わった）。
+
+⭐ 根の型 `ScreenValues` ・ `NoticeValues` の欄の名は今の状態の名である（継ぎ目）—— `session.screen.armModeState`。
+改名が `src/use-case/advance-screen-session/` と 5 本の試験の外へ届かないことを grep で確かめた（型の名と欄の名を読むファイルは、その 3 ユニットと 5 本の試験だけ）。
+⚠️ 古い `ScreenState`（`src/entity/document-model/screen-state/screen-state.ts`）と `InputCommandTranslator` は、いまも `taskShape` などの古い字面を持つ。**本波の型とは別の型**であり、`CR-436` の波 B2 がシェルを移すときに入れ替わる。
+
+### A2.4 動かしたもの
+
+| ファイル | 何を |
+|---|---|
+| `docs/spec/_source/state-machines.json` ・ `state-machines.schema.json` | A2.2 の形へ。変換は機械で行い、状態 39 ・ 出来事 35 ・ 遷移 63 の中身（キー・親・初期・運ぶ値・根拠・ガード・副作用・注）は 1 つも落としていない |
+| `docs/spec/_source/state_machines_json_to_md.py` | 新しい形を読み、A2.2 の印字を刷る。拒むもの: 前からの 4 つ（根拠の ID が `docs/spec` に無い、升の状態・先・出来事が無い、共用体の初期が 1 つでない、出来事のキーが 2 つの領域にある）に加え、升の先が同じ状態機械の状態でない、表が使う出来事がその領域に無い、状態機械の名の重なり、名が `StateMachine` で終わらない、今の状態の名が根の運ぶ値と重なる、ガードの名が `is` / `has` / `can` で始まらない、`in` の項が同じ状態機械やありもしない状態を指す、1 つの出来事が状態とその祖先の両方に升を持つ、2 つ以上の枝のうちガードの無い枝がある、どの表も使わない出来事 |
+| `tools/generate_state_machine_types.py` | A2.2 の型と定数を刷る。判別共用体の形（`kind` ・ 運ぶ値 ・ `child`）、出来事・処理の名、定数の名（`SCREEN_VALUES_INITIAL_AXES` など）は変えていない |
+| `src/use-case/advance-screen-session/screen-values.ts` ・ `notice-values.ts` ・ `advance-screen-session.ts` | 型の名・根の欄の名・種類の字面だけ（A2.3）。振る舞いは変えていない。旧番号の `see` の行は、`see` の形に名を書けない（検査 55 が ID の形だけを許す）ので、その升を持つ表 `T-280` ／ `T-286` を指すように直した |
+| `tests/contract/state-machine-screen-values.contract.test.ts` ・ `state-machine-notices.contract.test.ts` ・ `t-284-the-shared-step.contract.test.ts` | 原稿を読む部分（`regionOf` ・ `axisAndPath`）を新しい形へ。升を前と同じ行の形（元の連言・ガード・先）に読み戻すので、確かめることは変わらない。改名に引かれて、根の欄の名・種類の字面（`armEvent` の `taskShapeArmed`、見本の `dependencyArmed`、通知の `hidden` ・ `shown`）と試験の名も直した |
+| `tests/unit/uf-86-…` ・ `uf-87-…` | 原稿を読む部分を升の枝ごとへ。定数と原稿が枝ごとに一致することを見る点は変わらない |
+| `docs/spec/05-07-design.md` | 5.5 の散文と 表 T-250 の `SD-1` 〜 `SD-3`、名の読み方（R4.4 の形）、`CP-39` ・ `UT-11` ・ `UF-86` ・ `UF-87` ・ `PI-39` の表の番号、図 F-028 の軸の名、表 T-284 の `SS-3` ・ `SS-5` ・ `SS-6`、表 T-285 の `RA-1` |
+| `docs/spec/_source/row-id-prefixes.json`（と生成物） | `SM` ・ `EV` ・ `TN` を外した（登録簿の行は 163 から 160 へ） |
+| `.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py` ・ `check.sh` | 検査 63。`PD-` を止める検査 51 と同じ形で、履歴として番号を持つファイル（本書・`CR-440` ・ `handoff-state-machine.md`）を名指しで除く |
+| `docs/development-rules/03-implementation.md` | 生成定数の一覧の表の番号 |
+| `docs/development-records/defects.md` | `DFC-677` ・ `DFC-680` の番号を名へ。`ledger_metrics.py` を走らせた |
+| `change-request/CR-440-…` | 改訂の記録の 12 ・ 13 |
+
+⚠️ 登録簿から外すことは、`PD-` と同じやり方にした —— 登録簿そのものには「二度と使わない接頭辞」を持つしくみが無く、登録したまま残すと、行を持たない接頭辞として登録簿の生成器が赤にする（`pending: true` はまだ書いていない行のための旗であり、退けた接頭辞に使えば意味が逆になる）。
+⇒ 登録簿からは外し、書き戻しは検査 63 が止める。
+
+### A2.5 番号から名への対応（付録 A.1 〜 A.3 の読み方）
+
+- `SM-n`: 付録 A.1 のキー `screen.<軸>.<残り>` → `<状態機械>.<残り>`（軸から状態機械へは A2.3 の 1 つ目の表、残りの語を改めたものは 2 つ目の表）。根 `SM-0` ・ `SM-34` は各領域の `root`。
+- `EV-n`: 付録 A.2 のキー → `<領域>/<キー>`。
+- `TN-n`: 付録 A.3 の行の元の選言の 1 つずつが、先の状態機械の表の升 1 つになる。元の連言のうち先と違う状態機械の状態は、その升のガードの `in` の項になる。`self` は `to` ＝ いまの状態。根から出る行はその領域の `root` の升。先が 2 つの状態機械にある行（波 A の付録で 1 行）は、両方の表に 1 升ずつ。
+- ⇒ 画面の値の 53 行は 78 の枝、通知の 10 行は 10 の枝になった（生成した遷移表の定数の要素の数）。
+
+### A2.6 試験の数（前 → 後、2026-09-21 に同じ木で実測）
+
+| 試験 | 前 | 後 | 違い |
+|---|---|---|---|
+| `tests/contract/state-machine-screen-values.contract.test.ts` | 1792 | 1792 | — |
+| `tests/contract/state-machine-notices.contract.test.ts` | 445 | 445 | — |
+| `tests/contract/t-284-the-shared-step.contract.test.ts` | 23 | 23 | — |
+| `tests/unit/uf-86-the-transition-table-is-printed-from-the-manuscript.test.ts` | 54 | 79 | 1 ＋ 行 53 → 1 ＋ 枝 78。遷移表の定数の要素が行から升の枝へ変わった（A2.5） |
+| `tests/unit/uf-87-the-notices-transition-table-is-printed-from-the-manuscript.test.ts` | 11 | 11 | 通知の 10 行は、どれも元が 1 つ・先が 1 つなので 10 枝のまま |
+
+⭐ 壊して確かめた: 原稿の `milestoneListDisplayStateMachine.closed` の升の先を `closed` に変え、`changeDeliveryStateMachine` の `documentReplaced` の行を消すと、2 本の契約試験が 35 件赤になる。
+生成器は、A2.4 の拒むもの 15 通りを 1 つずつ壊した原稿で、それぞれ 1 件だけを拒み、壊さない原稿は 0 件だった。
+
+### A2.7 検査（前 → 後）
+
+| 検査 | 前（`97868072`） | 後 |
+|---|---|---|
+| md-checks の最終行 | `tables=180  figures=21  rows=2360  uids=162` | `tables=177  figures=21  rows=2223  uids=162` |
+| 同・検査 5 〜 10 ・ 15 ・ 48 | すべて 0 | すべて 0 |
+| `check.sh` の最終行 | `FAILURES ABOVE -- red: 23 39` | `FAILURES ABOVE -- red: 23 39` |
+| 検査 39 | `went 1369 -> 1382` | `went 1369 -> 1382`（動いていない） |
+| 検査 63 | —— | 0 site(s)（1227 ファイル、除外は木 2 ・ ファイル 4） |
+| 登録簿の生成器（`row_id_prefixes_json_to_md.py --check`） | 163 registered、spec 158/2360 | 160 registered、spec 155/2223 |
+| `npm run gen:check` | 緑 | 緑 |
+
+md-checks の数の読み方: 行は `SM` 39 ・ `EV` 35 ・ `TN` 63 の計 137 が減った（2360 − 137 ＝ 2223）。
+表は番号の付いた表が 4 つ減り（`T-281` ・ `T-282` ・ `T-287` ・ `T-288`）、見出しの下の番号の無い表を md-checks が 1 つの「表」と数える分が 1 つ増えた（180 − 4 ＋ 1 ＝ 177）。
+⭐ 番号の無い表は行 ID を持たない（先頭の欄は出来事の名）ので、md-checks の「番号の無い表の行 ID」の注には載らない。
+⭐ 表の番号の飛び（`T-281` ・ `T-282` ・ `T-287` ・ `T-288`）を赤にする検査は無い —— md-checks は定義の重なりと参照の行き先だけを見、検査 62 は作りかけの変更要求の主張だけを読む。どちらも本波の後で緑である。
+
+### A2.8 この波でやらないこと
+
+- 過去の変更要求（`CR-379` ・ 本書 ・ `CR-440`）の番号は書き換えない。本書と `CR-440` には改訂の記録を足しただけである。
+- `docs/development-records/handoff-state-machine.md` の番号は、その日の引き継ぎの履歴として残す（検査 63 が名指しで除く）。
+- `docs/development-records/rulings.md` には書かない（前に立つ者が裁定を記す）。
+- 波 B1 ・ B2 の中身。
+
+## 改訂の記録 —— 波 A2 を当てた（2026-09-21）
+
+| # | 起草時の文 | 直した文 | 理由 |
+|---|---|---|---|
+| 24 | 付録 A.1 〜 A.3 と本文の `SM-0` 〜 `SM-33` ・ `EV-1` 〜 `EV-30` ・ `TN-1` 〜 `TN-53` | 本書では直さない。番号は `JDG-286` で退き、いまの名は「波 A2」の節の A2.3 と A2.5 の読み方で引ける。全数は `docs/spec/_assets/tbl-state-machines.md` の 表 T-280 | `JDG-286`。当てた日の履歴を書き換えると、その日の測りと突き合わせられなくなる |
+| 25 | 冒頭の状態「波 A を当てた」 | 波 A2 を当てたことを足した | 本書の読み手が、原稿の形が付録と違うことを冒頭で知るため |

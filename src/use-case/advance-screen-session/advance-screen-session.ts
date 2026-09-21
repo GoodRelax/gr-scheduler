@@ -28,10 +28,10 @@ export interface ScreenSession {
   readonly notices: NoticeValues
 }
 
-// see T-281, T-287
+// see T-280, T-286
 export type SessionEvent = ScreenValuesEvent | NoticeValuesEvent
 
-// see T-282, T-288
+// see T-280, T-286
 export type SessionEffect = ScreenValuesEffect | NoticeValuesEffect
 
 // see T-280, T-286, SS-6

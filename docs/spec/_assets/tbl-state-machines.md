@@ -1,7 +1,7 @@
-# 状態機械 — 状態・出来事・遷移
+# 状態機械 — 出来事・状態・状態遷移表
 
 **UID**: DOC-TBL-STATE-MACHINES
-**Version**: 0.1
+**Version**: 0.2
 
 > ⛔ 本書は生成物である。  
 > 手で直さない —— 直しても次の `npm run gen` で消える。
@@ -9,397 +9,468 @@
 > 本書はそれを `_source/state_machines_json_to_md.py` が印字したものである。
 > **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。
 
-本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごとに印字したものである。  
+本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  
 原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  
-キーの読み方は `05-07-design.md` の 5.5 が持つ。
+名前の読み方は `05-07-design.md` の 5.5 が持つ。
 
 ## 画面の値（`screen`）
 
-**表 T-280 — 画面の値の状態**
+**表 T-280 — 画面の値の状態機械**
 
-| 行 ID | キー | 親 | 初期 | 運ぶ値 | 根拠 |
-| --- | --- | --- | --- | --- | --- |
-| SM-0 | `screen` | — | ○ | `language` ／ `rememberedActuals` | `CP-36` ・ `S-99` ・ `PV-4` |
-| SM-1 | `screen.armed.none` | `screen` | ○ | — | `AR-1` |
-| SM-2 | `screen.armed.taskShape` | `screen` | — | `shapeKind`（`SH-1` ・ `SH-2` ・ `SH-3` ・ `SH-4`） | `AR-2` ・ `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` |
-| SM-3 | `screen.armed.milestoneShape` | `screen` | — | `glyph`（`SH-5`） | `AR-3` ・ `IC-27` |
-| SM-4 | `screen.armed.dependency` | `screen` | — | — | `AR-4` ・ `IC-61` |
-| SM-5 | `screen.armed.commentBox` | `screen` | — | — | `AR-5` ・ `IC-35` |
-| SM-6 | `screen.armed.highlightBox` | `screen` | — | — | `AR-6` ・ `IC-36` |
-| SM-7 | `screen.palette.shown` | `screen` | ○ | — | `S-99e` |
-| SM-8 | `screen.palette.shown.expanded` | `screen.palette.shown` | ○ | — | `S-200` ・ `FR-053` |
-| SM-9 | `screen.palette.shown.minimised` | `screen.palette.shown` | — | — | `S-200` ・ `IC-75` |
-| SM-10 | `screen.palette.hidden` | `screen` | — | — | `S-99e` |
-| SM-11 | `screen.milestoneList.closed` | `screen` | ○ | — | `S-142` ・ `FR-053` |
-| SM-12 | `screen.milestoneList.open` | `screen` | — | — | `S-142` ・ `IC-50` |
-| SM-13 | `screen.fullScreen.normal` | `screen` | ○ | — | `S-99f` |
-| SM-14 | `screen.fullScreen.full` | `screen` | — | — | `S-99f` ・ `FR-071` |
-| SM-15 | `screen.surface.none` | `screen` | ○ | — | `S-99g` |
-| SM-16 | `screen.surface.open` | `screen` | — | `surfaceName`（`U-30` ・ `U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`） | `S-99g` ・ `IC-52` |
-| SM-17 | `screen.watermark.shown` | `screen` | ○ | — | `S-144` |
-| SM-18 | `screen.watermark.hidden` | `screen` | — | — | `WM-8` |
-| SM-19 | `screen.properties.none` | `screen` | ○ | — | `S-99h` |
-| SM-20 | `screen.properties.selection` | `screen` | — | `subject`（選択と行の集合） | `S-99h` ・ `IR-2` ・ `FR-072` |
-| SM-21 | `screen.properties.documentSettings` | `screen` | — | `returnSubject`（同じ入口をもう一度押したときに戻す選択物。無いこともある） | `S-99h` ・ `FR-072` ・ `IC-17` |
-| SM-22 | `screen.dialogueField.shown` | `screen` | ○ | — | `S-99i` |
-| SM-23 | `screen.dialogueField.hidden` | `screen` | — | — | `S-99i` ・ `FR-066` |
-| SM-24 | `screen.levelZero.unfolded` | `screen` | ○ | — | `S-211` |
-| SM-25 | `screen.levelZero.folded` | `screen` | — | — | `HR-2` ・ `S-211` |
-| SM-26 | `screen.dualCursor.off` | `screen` | ○ | — | `DC-1` |
-| SM-27 | `screen.dualCursor.on` | `screen` | — | — | `DC-1` ・ `PTD-2` |
-| SM-28 | `screen.dualCursor.on.date1Following` | `screen.dualCursor.on` | ○ | — | `DC-1` |
-| SM-29 | `screen.dualCursor.on.date2Following` | `screen.dualCursor.on` | — | — | `DC-2` ・ `DC-8` |
-| SM-30 | `screen.scaleMessage.none` | `screen` | ○ | — | `SE-1` |
-| SM-31 | `screen.scaleMessage.shown` | `screen` | — | `percent` ／ `end`（`max` ・ `min` ・ なし） | `SE-2` ・ `ZE-5` ・ `S-244` |
-| SM-32 | `screen.tooltip.allowed` | `screen` | ○ | — | `IN-3` |
-| SM-33 | `screen.tooltip.dismissed` | `screen` | — | — | `IN-3` ・ `IN-4` |
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
 
-**表 T-281 — 画面の値の出来事**
+### 画面の値の出来事
 
-| 行 ID | キー | どこから来るか | 運ぶ値 |
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| EV-1 | `paletteToggled` | 入力: `IC-7` ・ `SK-14` | — |
-| EV-2 | `paletteMinimiseToggled` | 入力: `IC-75` | — |
-| EV-3 | `milestoneListToggled` | 入力: `IC-50` | — |
-| EV-4 | `fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — |
-| EV-5 | `fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` |
-| EV-6 | `surfaceEntryPressed` | 入力: `IC-22` ・ `SK-13` ・ `IC-19` ・ `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` |
-| EV-7 | `surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` |
-| EV-8 | `surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルか） |
-| EV-9 | `escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） |
-| EV-10 | `armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` |
-| EV-11 | `watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — |
-| EV-12 | `watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` |
-| EV-13 | `watermarkUnlockMatched` | 副作用の結果（照合）: `WM-6` ・ `WM-8` | — |
-| EV-14 | `watermarkUnlockMismatched` | 副作用の結果（照合）: `WM-8` | — |
-| EV-15 | `settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — |
-| EV-16 | `propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` |
-| EV-17 | `selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） |
-| EV-18 | `createdNameSettled` | 入力（作った直後の名前の `Enter`）: `FR-091` | — |
-| EV-19 | `settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `noSurfaceNoConfirmation` ／ `noUnsettledEntry` |
-| EV-20 | `dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `agentApiEnabled` |
-| EV-21 | `foldAllPressed` | 入力（`HF-12` の操作子）: `HF-12` ・ `HR-2` | — |
-| EV-22 | `levelZeroOpened` | 入力: `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` | — |
-| EV-23 | `dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` |
-| EV-24 | `dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） |
-| EV-25 | `displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SK-17` ・ `SE-1` | `percent` ／ `end` |
-| EV-26 | `rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` |
-| EV-27 | `scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — |
-| EV-28 | `displayLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `language` |
-| EV-29 | `progressMarkerPressed` | 入力（進捗マーカーの押下）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） |
-| EV-30 | `pointerRestElapsed` | 時間: `EZ-2` | — |
+| `screen/paletteToggled` | 入力: `IC-7` ・ `SK-14` | — | `paletteDisplayStateMachine` |
+| `screen/paletteMinimiseToggled` | 入力: `IC-75` | — | `paletteDisplayStateMachine` |
+| `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
+| `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
+| `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
+| `screen/surfaceEntryPressed` | 入力: `IC-22` ・ `SK-13` ・ `IC-19` ・ `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
+| `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` |
+| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` |
+| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` |
+| `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
+| `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
+| `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
+| `screen/watermarkUnlockMatched` | 副作用の結果（照合）: `WM-6` ・ `WM-8` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
+| `screen/watermarkUnlockMismatched` | 副作用の結果（照合）: `WM-8` | — | `openSurfaceStateMachine` |
+| `screen/settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — | `propertiesPanelContentStateMachine` |
+| `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` |
+| `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` |
+| `screen/createdNameSettled` | 入力（作った直後の名前の `Enter`）: `FR-091` | — | `propertiesPanelContentStateMachine` |
+| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
+| `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
+| `screen/foldAllPressed` | 入力（`HF-12` の操作子）: `HF-12` ・ `HR-2` | — | `levelZeroFoldStateMachine` |
+| `screen/levelZeroOpened` | 入力: `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` | — | `levelZeroFoldStateMachine` |
+| `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
+| `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
+| `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SK-17` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
+| `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
+| `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
+| `screen/displayLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `language` | 根 |
+| `screen/progressMarkerPressed` | 入力（進捗マーカーの押下）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） | 根 |
+| `screen/pointerRestElapsed` | 時間: `EZ-2` | — | `tooltipDisplayStateMachine` |
 
-**表 T-282 — 画面の値の遷移**
+### 根 `screen` の値
 
-| 行 ID | 元 | 出来事 | ガード | 先 | 副作用 | 根拠 |
-| --- | --- | --- | --- | --- | --- | --- |
-| TN-1 | `screen.palette.shown` | `paletteToggled`（`EV-1`） | — | `screen.palette.hidden` | — | `S-99e` ・ `IC-7` |
-| TN-2 | `screen.palette.hidden` | `paletteToggled`（`EV-1`） | — | `screen.palette.shown` | — | `S-99e` ・ `IC-7` ・ `FR-053` |
-| TN-3 | `screen.palette.shown.expanded` | `paletteMinimiseToggled`（`EV-2`） | — | `screen.palette.shown.minimised` | — | `FR-053` |
-| TN-4 | `screen.palette.shown.minimised` | `paletteMinimiseToggled`（`EV-2`） | — | `screen.palette.shown.expanded` | — | `FR-053` ・ `IC-75` |
-| TN-5 | `screen.milestoneList.closed` | `milestoneListToggled`（`EV-3`） | — | `screen.milestoneList.open` | — | `FR-053` |
-| TN-6 | `screen.milestoneList.open` | `milestoneListToggled`（`EV-3`） | — | `screen.milestoneList.closed` | — | `FR-053` |
-| TN-7 | `screen.fullScreen.normal` ／ `screen.fullScreen.full` | `fullScreenEntryPressed`（`EV-4`） | — | 自己 | `askBrowserForFullScreen` | `FR-071` ・ `S-99f` |
-| TN-8 | `screen.fullScreen.normal` | `fullScreenChanged`（`EV-5`） | `isFullScreen` | `screen.fullScreen.full` | — | `FR-071` |
-| TN-9 | `screen.fullScreen.full` | `fullScreenChanged`（`EV-5`） | not `isFullScreen` | `screen.fullScreen.normal` | — | `FR-071` |
-| TN-10 | `screen.surface.none` | `surfaceEntryPressed`（`EV-6`） | — | `screen.surface.open` | — | `S-99g` |
-| TN-11 | `screen.surface.none` | `surfaceRaisedByFlow`（`EV-7`） | — | `screen.surface.open` | — | `OP-3` ・ `U-61` ・ `U-62` |
-| TN-12 | `screen.surface.open` | `surfaceCloseAsked`（`EV-8`） | `isSurfaceTarget` | `screen.surface.none` | `tellFlowSurfaceClosed` | `IC-52` |
-| TN-13 | `screen.surface.open` | `escapePressed`（`EV-9`） | `rungIsSurface` | `screen.surface.none` | `tellFlowSurfaceClosed` | `IN-4` ・ `WM-9` |
-| TN-14 | `screen.armed.none` | `armEntryPressed`（`EV-10`） | — | `screen.armed.{armKind}` | — | `FR-016` ・ `AR-2` ・ `AR-3` ・ `AR-4` ・ `AR-5` ・ `AR-6` |
-| TN-15 | `screen.armed.taskShape` ／ `screen.armed.milestoneShape` ／ `screen.armed.dependency` ／ `screen.armed.commentBox` ／ `screen.armed.highlightBox` | `armEntryPressed`（`EV-10`） | `isSameArm` | `screen.armed.none` | — | `FR-016` ・ `SP-4` |
-| TN-16 | `screen.armed.taskShape` ／ `screen.armed.milestoneShape` ／ `screen.armed.dependency` ／ `screen.armed.commentBox` ／ `screen.armed.highlightBox` | `armEntryPressed`（`EV-10`） | not `isSameArm` | `screen.armed.{armKind}` | — | `FR-016` |
-| TN-17 | `screen.armed.taskShape` ／ `screen.armed.milestoneShape` ／ `screen.armed.dependency` ／ `screen.armed.commentBox` ／ `screen.armed.highlightBox` | `escapePressed`（`EV-9`） | `rungIsArmed` | `screen.armed.none` | — | `FR-016` ・ `IN-4` |
-| TN-18 | `screen.armed.taskShape` ／ `screen.armed.milestoneShape` ／ `screen.armed.dependency` ／ `screen.armed.commentBox` ／ `screen.armed.highlightBox` | `dualCursorEntryPressed`（`EV-23`） | `entersDualCursor` | `screen.armed.none` | — | `FR-016` |
-| TN-19 | `screen.watermark.shown` & `screen.surface.none` | `watermarkEntryPressed`（`EV-11`） | — | `screen.surface.open`（`surfaceName` は `U-60`） | — | `WM-6` ・ `WM-10` |
-| TN-20 | `screen.watermark.hidden` | `watermarkEntryPressed`（`EV-11`） | — | `screen.watermark.shown` | — | `WM-10` ・ `IC-41` |
-| TN-21 | `screen.surface.open` | `watermarkUnlockAnswered`（`EV-12`） | `isWatermarkUnlockSurface` & `isProceeding` | 自己 | `matchWatermarkUnlock` | `WM-6` |
-| TN-22 | `screen.surface.open` | `watermarkUnlockAnswered`（`EV-12`） | `isWatermarkUnlockSurface` & not `isProceeding` | `screen.surface.none` | — | `WM-9` |
-| TN-23 | `screen.watermark.shown` & `screen.surface.open` | `watermarkUnlockMatched`（`EV-13`） | `isWatermarkUnlockSurface` | `screen.watermark.hidden` & `screen.surface.none` | — | `WM-8` |
-| TN-24 | `screen.surface.open` | `watermarkUnlockMismatched`（`EV-14`） | `isWatermarkUnlockSurface` | 自己（面を閉じない） | `raiseNotice`（`RS-41`） | `WM-8` ・ `RS-41` |
-| TN-25 | `screen.properties.none` | `settingsEntryPressed`（`EV-15`） | — | `screen.properties.documentSettings` | — | `FR-072` |
-| TN-26 | `screen.properties.selection` | `settingsEntryPressed`（`EV-15`） | — | `screen.properties.documentSettings`（`subject` を `returnSubject` に移す） | — | `FR-072` ・ `IC-17` |
-| TN-27 | `screen.properties.documentSettings` | `settingsEntryPressed`（`EV-15`） | — | `screen.properties.selection`（`returnSubject` を `subject` に戻す） | — | `FR-072` |
-| TN-28 | `screen.properties.none` ／ `screen.properties.documentSettings` | `propertiesOfChoiceAsked`（`EV-16`） | — | `screen.properties.selection` | — | `FR-072` |
-| TN-29 | `screen.properties.selection` | `propertiesOfChoiceAsked`（`EV-16`） | — | 自己（`subject` を書き換える） | — | `FR-072` |
-| TN-30 | `screen.properties.selection` | `selectionMoved`（`EV-17`） | `hasChoice` | 自己（`subject` を書き換える） | — | `FR-072` |
-| TN-31 | `screen.properties.selection` ／ `screen.properties.documentSettings` | `surfaceCloseAsked`（`EV-8`） | `isPanelTarget` | `screen.properties.none` | — | `IC-52` ・ `FR-072` |
-| TN-32 | `screen.properties.selection` ／ `screen.properties.documentSettings` | `escapePressed`（`EV-9`） | `rungIsSurface` & `isPanelTopmost` | `screen.properties.none` | — | `IN-4` ・ `FR-070` |
-| TN-33 | `screen.properties.none` ／ `screen.properties.selection` ／ `screen.properties.documentSettings` | `createdNameSettled`（`EV-18`） | — | `screen.properties.none` | `clearSelection` | `FR-091` |
-| TN-34 | `screen.properties.selection` ／ `screen.properties.documentSettings` | `settleKeyPressed`（`EV-19`） | `noSurfaceNoConfirmation` & `noUnsettledEntry` | `screen.properties.none` | — | `SK-19` ・ `FR-070` |
-| TN-35 | `screen.dialogueField.shown` | `dialogueFieldEntryPressed`（`EV-20`） | `agentApiEnabled` | `screen.dialogueField.hidden` | — | `S-99i` ・ `IC-18` |
-| TN-36 | `screen.dialogueField.hidden` | `dialogueFieldEntryPressed`（`EV-20`） | `agentApiEnabled` | `screen.dialogueField.shown` | — | `S-99i` ・ `IC-18` |
-| TN-37 | `screen.dialogueField.shown` ／ `screen.dialogueField.hidden` | `dialogueFieldEntryPressed`（`EV-20`） | not `agentApiEnabled` | 自己 | `raiseNotice`（`RS-35`） | `FR-066` ・ `RS-35` |
-| TN-38 | `screen.levelZero.unfolded` | `foldAllPressed`（`EV-21`） | — | `screen.levelZero.folded` | `writeFoldAll` | `HR-2` ・ `HF-12` |
-| TN-39 | `screen.levelZero.folded` | `levelZeroOpened`（`EV-22`） | — | `screen.levelZero.unfolded` | `writeOpenLevel` | `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` |
-| TN-40 | `screen.dualCursor.off` | `dualCursorEntryPressed`（`EV-23`） | `hasDaysToPlace` | `screen.dualCursor.on` | `writePlaceDualCursor` | `DC-1` |
-| TN-41 | `screen.dualCursor.on.date1Following` | `dualCursorPlaced`（`EV-24`） | — | `screen.dualCursor.on.date2Following` | `writeFixDate1` | `DC-2` ・ `DC-6` |
-| TN-42 | `screen.dualCursor.on.date2Following` | `dualCursorPlaced`（`EV-24`） | — | `screen.dualCursor.on.date1Following` | `writeFixDate2` | `DC-2` ・ `DC-6` |
-| TN-43 | `screen.dualCursor.on` | `dualCursorEntryPressed`（`EV-23`） | — | `screen.dualCursor.off` | `writeClearDualCursor` | `DC-4` |
-| TN-44 | `screen.dualCursor.on` | `escapePressed`（`EV-9`） | `rungIsDualCursor` | `screen.dualCursor.off` | `writeClearDualCursor` | `DC-7` ・ `IN-4` |
-| TN-45 | `screen.scaleMessage.none` | `displayScaleStepped`（`EV-25`） | — | `screen.scaleMessage.shown` | `startScaleMessageTimer` | `SE-1` ・ `SE-2` |
-| TN-46 | `screen.scaleMessage.none` | `rowZoomEndReached`（`EV-26`） | — | `screen.scaleMessage.shown` | `startScaleMessageTimer` | `ZE-5` ・ `SE-2` |
-| TN-47 | `screen.scaleMessage.shown` | `displayScaleStepped`（`EV-25`） | — | 自己（中身を書き換える） | `restartScaleMessageTimer` | `SE-4` |
-| TN-48 | `screen.scaleMessage.shown` | `rowZoomEndReached`（`EV-26`） | — | 自己（中身を書き換える） | `restartScaleMessageTimer` | `SE-4` ・ `ZE-5` |
-| TN-49 | `screen.scaleMessage.shown` | `scaleMessageTimeElapsed`（`EV-27`） | — | `screen.scaleMessage.none` | — | `SE-3` |
-| TN-50 | `screen` | `displayLanguageChosen`（`EV-28`） | — | 自己（`language` を書き換える） | `storeLanguage` | `S-99` ・ `FR-038` |
-| TN-51 | `screen` | `progressMarkerPressed`（`EV-29`） | — | 自己（`rememberedActuals` を書き換える） | `writeProgressStep` | `FR-107` ・ `PV-4` |
-| TN-52 | `screen.tooltip.allowed` | `escapePressed`（`EV-9`） | `rungIsTooltip` | `screen.tooltip.dismissed` | — | `IN-3` ・ `IN-4` |
-| TN-53 | `screen.tooltip.dismissed` | `pointerRestElapsed`（`EV-30`） | — | `screen.tooltip.allowed` | — | `IN-3` ・ `EZ-2` |
+運ぶ値: `language` ／ `rememberedActuals`。  
+根拠: `CP-36` ・ `S-99` ・ `PV-4`。
+
+| 出来事 | `screen` |
+| --- | --- |
+| `screen/displayLanguageChosen` | → 自己 / `storeLanguage`（`language` を書き換える） |
+| `screen/progressMarkerPressed` | → 自己 / `writeProgressStep`（`rememberedActuals` を書き換える） |
 
 **図 F-026 — 画面の値の状態遷移**
 
-軸ごとに 1 つの図に分けて示す。軸どうしは直交する。  
-矢印のラベルは遷移の行 ID だけであり、出来事・ガード・副作用は 表 T-282 が持つ。  
-⚠️ 図は畳んである —— 同じ遷移が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に行 ID を書く）。  
-⭐ 遷移の全数は 表 T-282 が持つ。
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-280 の状態遷移表が持つ。
 
-根（`screen`）が元の遷移 `TN-50` ・ `TN-51` は図に描かず、表 T-282 だけが持つ。
-
-### F-026 の軸 `armed`
+### 状態機械 `armModeStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction TB
-    [*] --> screen_armed_none
-    screen_armed_none : none
-    state "none 以外" as screen_armed_group {
-        screen_armed_taskShape : taskShape
-        screen_armed_milestoneShape : milestoneShape
-        screen_armed_dependency : dependency
-        screen_armed_commentBox : commentBox
-        screen_armed_highlightBox : highlightBox
+    [*] --> armModeStateMachine_notArmed
+    armModeStateMachine_notArmed : notArmed
+    state "notArmed 以外" as armModeStateMachine_group {
+        armModeStateMachine_taskShapeArmed : taskShapeArmed
+        armModeStateMachine_milestoneShapeArmed : milestoneShapeArmed
+        armModeStateMachine_dependencyArmed : dependencyArmed
+        armModeStateMachine_commentBoxArmed : commentBoxArmed
+        armModeStateMachine_highlightBoxArmed : highlightBoxArmed
     }
-    note right of screen_armed_group : TN-16 は組のどの 2 つの間も結ぶ
-    screen_armed_none --> screen_armed_group : TN-14
-    screen_armed_group --> screen_armed_none : TN-15, TN-17, TN-18
-    screen_armed_group --> screen_armed_group : TN-16
+    note right of armModeStateMachine_group : armEntryPressed は組のどの 2 つの間も結ぶ
+    armModeStateMachine_group --> armModeStateMachine_notArmed : escapePressed, armEntryPressed, dualCursorEntryPressed
+    armModeStateMachine_notArmed --> armModeStateMachine_group : armEntryPressed
+    armModeStateMachine_group --> armModeStateMachine_group : armEntryPressed
 ```
 
-### F-026 の軸 `palette`
+| 出来事 | `notArmed` | `taskShapeArmed` | `milestoneShapeArmed` | `dependencyArmed` | `commentBoxArmed` | `highlightBoxArmed` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `screen/escapePressed` | — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — | → `notArmed` [`isRungArmed`]<br>それ以外 → — |
+| `screen/armEntryPressed` | → `{armKind}` | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] | → `notArmed` [`isSameArm`]<br>→ `{armKind}` [not `isSameArm`] |
+| `screen/dualCursorEntryPressed` | — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — | → `notArmed` [`canEnterDualCursor`]<br>それ以外 → — |
+
+- `armModeStateMachine.notArmed` —— 初期。根拠 `AR-1`
+- `armModeStateMachine.taskShapeArmed` —— 運ぶ値 `shapeKind`（`SH-1` ・ `SH-2` ・ `SH-3` ・ `SH-4`）。根拠 `AR-2` ・ `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26`
+- `armModeStateMachine.milestoneShapeArmed` —— 運ぶ値 `glyph`（`SH-5`）。根拠 `AR-3` ・ `IC-27`
+- `armModeStateMachine.dependencyArmed` —— 根拠 `AR-4` ・ `IC-61`
+- `armModeStateMachine.commentBoxArmed` —— 根拠 `AR-5` ・ `IC-35`
+- `armModeStateMachine.highlightBoxArmed` —— 根拠 `AR-6` ・ `IC-36`
+
+表に無い出来事は `armModeStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `paletteDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction TB
-    [*] --> screen_palette_shown
-    screen_palette_shown : shown
-    state screen_palette_shown {
-        [*] --> screen_palette_shown_expanded
-        screen_palette_shown_expanded : expanded
-        screen_palette_shown_minimised : minimised
-        screen_palette_shown_expanded --> screen_palette_shown_minimised : TN-3
-        screen_palette_shown_minimised --> screen_palette_shown_expanded : TN-4
+    [*] --> paletteDisplayStateMachine_shown
+    paletteDisplayStateMachine_shown : shown
+    state paletteDisplayStateMachine_shown {
+        [*] --> paletteDisplayStateMachine_shown_expanded
+        paletteDisplayStateMachine_shown_expanded : expanded
+        paletteDisplayStateMachine_shown_minimised : minimised
+        paletteDisplayStateMachine_shown_expanded --> paletteDisplayStateMachine_shown_minimised : paletteMinimiseToggled
+        paletteDisplayStateMachine_shown_minimised --> paletteDisplayStateMachine_shown_expanded : paletteMinimiseToggled
     }
-    screen_palette_hidden : hidden
-    screen_palette_shown --> screen_palette_hidden : TN-1
-    screen_palette_hidden --> screen_palette_shown : TN-2
+    paletteDisplayStateMachine_hidden : hidden
+    paletteDisplayStateMachine_shown --> paletteDisplayStateMachine_hidden : paletteToggled
+    paletteDisplayStateMachine_hidden --> paletteDisplayStateMachine_shown : paletteToggled
 ```
 
-### F-026 の軸 `milestoneList`
+| 出来事 | `shown.expanded` | `shown.minimised` | `hidden` |
+| --- | --- | --- | --- |
+| `screen/paletteToggled` | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `shown` |
+| `screen/paletteMinimiseToggled` | → `shown.minimised` | → `shown.expanded` | — |
+
+- `paletteDisplayStateMachine.shown` —— 初期。根拠 `S-99e`
+- `paletteDisplayStateMachine.shown.expanded` —— 初期。親 `paletteDisplayStateMachine.shown`。根拠 `S-200` ・ `FR-053`
+- `paletteDisplayStateMachine.shown.minimised` —— 親 `paletteDisplayStateMachine.shown`。根拠 `S-200` ・ `IC-75`
+- `paletteDisplayStateMachine.hidden` —— 根拠 `S-99e`
+
+表に無い出来事は `paletteDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `milestoneListDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_milestoneList_closed
-    screen_milestoneList_closed : closed
-    screen_milestoneList_open : open
-    screen_milestoneList_closed --> screen_milestoneList_open : TN-5
-    screen_milestoneList_open --> screen_milestoneList_closed : TN-6
+    [*] --> milestoneListDisplayStateMachine_closed
+    milestoneListDisplayStateMachine_closed : closed
+    milestoneListDisplayStateMachine_open : open
+    milestoneListDisplayStateMachine_closed --> milestoneListDisplayStateMachine_open : milestoneListToggled
+    milestoneListDisplayStateMachine_open --> milestoneListDisplayStateMachine_closed : milestoneListToggled
 ```
 
-### F-026 の軸 `fullScreen`
+| 出来事 | `closed` | `open` |
+| --- | --- | --- |
+| `screen/milestoneListToggled` | → `open` | → `closed` |
+
+- `milestoneListDisplayStateMachine.closed` —— 初期。根拠 `S-142` ・ `FR-053`
+- `milestoneListDisplayStateMachine.open` —— 根拠 `S-142` ・ `IC-50`
+
+表に無い出来事は `milestoneListDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `fullScreenModeStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_fullScreen_normal
-    screen_fullScreen_normal : normal
-    screen_fullScreen_full : full
-    screen_fullScreen_normal --> screen_fullScreen_normal : TN-7
-    screen_fullScreen_full --> screen_fullScreen_full : TN-7
-    screen_fullScreen_normal --> screen_fullScreen_full : TN-8
-    screen_fullScreen_full --> screen_fullScreen_normal : TN-9
+    [*] --> fullScreenModeStateMachine_normal
+    fullScreenModeStateMachine_normal : normal
+    fullScreenModeStateMachine_full : full
+    fullScreenModeStateMachine_normal --> fullScreenModeStateMachine_normal : fullScreenEntryPressed
+    fullScreenModeStateMachine_full --> fullScreenModeStateMachine_full : fullScreenEntryPressed
+    fullScreenModeStateMachine_normal --> fullScreenModeStateMachine_full : fullScreenChanged
+    fullScreenModeStateMachine_full --> fullScreenModeStateMachine_normal : fullScreenChanged
 ```
 
-### F-026 の軸 `surface`
+| 出来事 | `normal` | `full` |
+| --- | --- | --- |
+| `screen/fullScreenEntryPressed` | → 自己 / `askBrowserForFullScreen` | → 自己 / `askBrowserForFullScreen` |
+| `screen/fullScreenChanged` | → `full` [`isFullScreen`]<br>それ以外 → — | → `normal` [not `isFullScreen`]<br>それ以外 → — |
+
+- `fullScreenModeStateMachine.normal` —— 初期。根拠 `S-99f`
+- `fullScreenModeStateMachine.full` —— 根拠 `S-99f` ・ `FR-071`
+
+表に無い出来事は `fullScreenModeStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `openSurfaceStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_surface_none
-    screen_surface_none : none
-    screen_surface_open : open
-    screen_surface_none --> screen_surface_open : TN-10, TN-11, TN-19
-    screen_surface_open --> screen_surface_none : TN-12, TN-13, TN-22, TN-23
-    screen_surface_open --> screen_surface_open : TN-21, TN-24
+    [*] --> openSurfaceStateMachine_closed
+    openSurfaceStateMachine_closed : closed
+    openSurfaceStateMachine_open : open
+    openSurfaceStateMachine_closed --> openSurfaceStateMachine_open : surfaceEntryPressed, surfaceRaisedByFlow, watermarkEntryPressed
+    openSurfaceStateMachine_open --> openSurfaceStateMachine_closed : surfaceCloseAsked, escapePressed, watermarkUnlockAnswered, watermarkUnlockMatched
+    openSurfaceStateMachine_open --> openSurfaceStateMachine_open : watermarkUnlockAnswered, watermarkUnlockMismatched
 ```
 
-### F-026 の軸 `watermark`
+| 出来事 | `closed` | `open` |
+| --- | --- | --- |
+| `screen/surfaceEntryPressed` | → `open` | — |
+| `screen/surfaceRaisedByFlow` | → `open` | — |
+| `screen/surfaceCloseAsked` | — | → `closed` [`isSurfaceTarget`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
+| `screen/escapePressed` | — | → `closed` [`isRungSurface`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | — |
+| `screen/watermarkUnlockAnswered` | — | → 自己 [`isWatermarkUnlockSurface` & `isProceeding`] / `matchWatermarkUnlock`<br>→ `closed` [`isWatermarkUnlockSurface` & not `isProceeding`]<br>それ以外 → — |
+| `screen/watermarkUnlockMatched` | — | → `closed` [`watermarkDisplayStateMachine.shown` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — |
+| `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
+
+- `openSurfaceStateMachine.closed` —— 初期。根拠 `S-99g`
+- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-30` ・ `U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`）。根拠 `S-99g` ・ `IC-52`
+
+表に無い出来事は `openSurfaceStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `watermarkDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_watermark_shown
-    screen_watermark_shown : shown
-    screen_watermark_hidden : hidden
-    screen_watermark_hidden --> screen_watermark_shown : TN-20
-    screen_watermark_shown --> screen_watermark_hidden : TN-23
+    [*] --> watermarkDisplayStateMachine_shown
+    watermarkDisplayStateMachine_shown : shown
+    watermarkDisplayStateMachine_hidden : hidden
+    watermarkDisplayStateMachine_hidden --> watermarkDisplayStateMachine_shown : watermarkEntryPressed
+    watermarkDisplayStateMachine_shown --> watermarkDisplayStateMachine_hidden : watermarkUnlockMatched
 ```
 
-### F-026 の軸 `properties`
+| 出来事 | `shown` | `hidden` |
+| --- | --- | --- |
+| `screen/watermarkEntryPressed` | — | → `shown` |
+| `screen/watermarkUnlockMatched` | → `hidden` [`openSurfaceStateMachine.open` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — | — |
+
+- `watermarkDisplayStateMachine.shown` —— 初期。根拠 `S-144`
+- `watermarkDisplayStateMachine.hidden` —— 根拠 `WM-8`
+
+表に無い出来事は `watermarkDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `propertiesPanelContentStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_properties_none
-    screen_properties_none : none
-    screen_properties_selection : selection
-    screen_properties_documentSettings : documentSettings
-    screen_properties_none --> screen_properties_documentSettings : TN-25
-    screen_properties_selection --> screen_properties_documentSettings : TN-26
-    screen_properties_documentSettings --> screen_properties_selection : TN-27, TN-28
-    screen_properties_none --> screen_properties_selection : TN-28
-    screen_properties_selection --> screen_properties_selection : TN-29, TN-30
-    screen_properties_selection --> screen_properties_none : TN-31, TN-32, TN-33, TN-34
-    screen_properties_documentSettings --> screen_properties_none : TN-31, TN-32, TN-33, TN-34
-    screen_properties_none --> screen_properties_none : TN-33
+    [*] --> propertiesPanelContentStateMachine_hidden
+    propertiesPanelContentStateMachine_hidden : hidden
+    propertiesPanelContentStateMachine_selectionDisplayed : selectionDisplayed
+    propertiesPanelContentStateMachine_documentSettingsDisplayed : documentSettingsDisplayed
+    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_hidden : surfaceCloseAsked, escapePressed, createdNameSettled, settleKeyPressed
+    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
+    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_documentSettingsDisplayed : settingsEntryPressed
+    propertiesPanelContentStateMachine_documentSettingsDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : settingsEntryPressed, propertiesOfChoiceAsked
+    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked
+    propertiesPanelContentStateMachine_selectionDisplayed --> propertiesPanelContentStateMachine_selectionDisplayed : propertiesOfChoiceAsked, selectionMoved
+    propertiesPanelContentStateMachine_hidden --> propertiesPanelContentStateMachine_hidden : createdNameSettled
 ```
 
-### F-026 の軸 `dialogueField`
+| 出来事 | `hidden` | `selectionDisplayed` | `documentSettingsDisplayed` |
+| --- | --- | --- | --- |
+| `screen/surfaceCloseAsked` | — | → `hidden` [`isPanelTarget`]<br>それ以外 → — | → `hidden` [`isPanelTarget`]<br>それ以外 → — |
+| `screen/escapePressed` | — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — | → `hidden` [`isRungSurface` & `isPanelTopmost`]<br>それ以外 → — |
+| `screen/settingsEntryPressed` | → `documentSettingsDisplayed` | → `documentSettingsDisplayed`（`subject` を `returnSubject` に移す） | → `selectionDisplayed`（`returnSubject` を `subject` に戻す） |
+| `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
+| `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | — |
+| `screen/createdNameSettled` | → 自己 / `clearSelection` | → `hidden` / `clearSelection` | → `hidden` / `clearSelection` |
+| `screen/settleKeyPressed` | — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — |
+
+- `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
+- `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択と行の集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
+- `propertiesPanelContentStateMachine.documentSettingsDisplayed` —— 運ぶ値 `returnSubject`（同じ入口をもう一度押したときに戻す選択物。無いこともある）。根拠 `S-99h` ・ `FR-072` ・ `IC-17`
+
+表に無い出来事は `propertiesPanelContentStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `dialogueFieldDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_dialogueField_shown
-    screen_dialogueField_shown : shown
-    screen_dialogueField_hidden : hidden
-    screen_dialogueField_shown --> screen_dialogueField_hidden : TN-35
-    screen_dialogueField_hidden --> screen_dialogueField_shown : TN-36
-    screen_dialogueField_shown --> screen_dialogueField_shown : TN-37
-    screen_dialogueField_hidden --> screen_dialogueField_hidden : TN-37
+    [*] --> dialogueFieldDisplayStateMachine_shown
+    dialogueFieldDisplayStateMachine_shown : shown
+    dialogueFieldDisplayStateMachine_hidden : hidden
+    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
+    dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed
 ```
 
-### F-026 の軸 `levelZero`
+| 出来事 | `shown` | `hidden` |
+| --- | --- | --- |
+| `screen/dialogueFieldEntryPressed` | → `hidden` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`] / `raiseNotice`（`RS-35`） | → `shown` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`] / `raiseNotice`（`RS-35`） |
+
+- `dialogueFieldDisplayStateMachine.shown` —— 初期。根拠 `S-99i`
+- `dialogueFieldDisplayStateMachine.hidden` —— 根拠 `S-99i` ・ `FR-066`
+
+表に無い出来事は `dialogueFieldDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `levelZeroFoldStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_levelZero_unfolded
-    screen_levelZero_unfolded : unfolded
-    screen_levelZero_folded : folded
-    screen_levelZero_unfolded --> screen_levelZero_folded : TN-38
-    screen_levelZero_folded --> screen_levelZero_unfolded : TN-39
+    [*] --> levelZeroFoldStateMachine_unfolded
+    levelZeroFoldStateMachine_unfolded : unfolded
+    levelZeroFoldStateMachine_folded : folded
+    levelZeroFoldStateMachine_unfolded --> levelZeroFoldStateMachine_folded : foldAllPressed
+    levelZeroFoldStateMachine_folded --> levelZeroFoldStateMachine_unfolded : levelZeroOpened
 ```
 
-### F-026 の軸 `dualCursor`
+| 出来事 | `unfolded` | `folded` |
+| --- | --- | --- |
+| `screen/foldAllPressed` | → `folded` / `writeFoldAll` | — |
+| `screen/levelZeroOpened` | — | → `unfolded` / `writeOpenLevel` |
+
+- `levelZeroFoldStateMachine.unfolded` —— 初期。根拠 `S-211`
+- `levelZeroFoldStateMachine.folded` —— 根拠 `HR-2` ・ `S-211`
+
+表に無い出来事は `levelZeroFoldStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `dualCursorModeStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction TB
-    [*] --> screen_dualCursor_off
-    screen_dualCursor_off : off
-    screen_dualCursor_on : on
-    state screen_dualCursor_on {
-        [*] --> screen_dualCursor_on_date1Following
-        screen_dualCursor_on_date1Following : date1Following
-        screen_dualCursor_on_date2Following : date2Following
-        screen_dualCursor_on_date1Following --> screen_dualCursor_on_date2Following : TN-41
-        screen_dualCursor_on_date2Following --> screen_dualCursor_on_date1Following : TN-42
+    [*] --> dualCursorModeStateMachine_off
+    dualCursorModeStateMachine_off : off
+    dualCursorModeStateMachine_on : on
+    state dualCursorModeStateMachine_on {
+        [*] --> dualCursorModeStateMachine_on_placingDate1
+        dualCursorModeStateMachine_on_placingDate1 : placingDate1
+        dualCursorModeStateMachine_on_placingDate2 : placingDate2
+        dualCursorModeStateMachine_on_placingDate1 --> dualCursorModeStateMachine_on_placingDate2 : dualCursorPlaced
+        dualCursorModeStateMachine_on_placingDate2 --> dualCursorModeStateMachine_on_placingDate1 : dualCursorPlaced
     }
-    screen_dualCursor_off --> screen_dualCursor_on : TN-40
-    screen_dualCursor_on --> screen_dualCursor_off : TN-43, TN-44
+    dualCursorModeStateMachine_on --> dualCursorModeStateMachine_off : escapePressed, dualCursorEntryPressed
+    dualCursorModeStateMachine_off --> dualCursorModeStateMachine_on : dualCursorEntryPressed
 ```
 
-### F-026 の軸 `scaleMessage`
+| 出来事 | `off` | `on.placingDate1` | `on.placingDate2` |
+| --- | --- | --- | --- |
+| `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） |
+| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `writePlaceDualCursor`<br>それ以外 → — | → `off` / `writeClearDualCursor`（親 `on` の升） | → `off` / `writeClearDualCursor`（親 `on` の升） |
+| `screen/dualCursorPlaced` | — | → `on.placingDate2` / `writeFixDate1` | → `on.placingDate1` / `writeFixDate2` |
+
+- `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`
+- `dualCursorModeStateMachine.on` —— 根拠 `DC-1` ・ `PTD-2`
+- `dualCursorModeStateMachine.on.placingDate1` —— 初期。親 `dualCursorModeStateMachine.on`。根拠 `DC-1`
+- `dualCursorModeStateMachine.on.placingDate2` —— 親 `dualCursorModeStateMachine.on`。根拠 `DC-2` ・ `DC-8`
+
+表に無い出来事は `dualCursorModeStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `scaleMessageDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_scaleMessage_none
-    screen_scaleMessage_none : none
-    screen_scaleMessage_shown : shown
-    screen_scaleMessage_none --> screen_scaleMessage_shown : TN-45, TN-46
-    screen_scaleMessage_shown --> screen_scaleMessage_shown : TN-47, TN-48
-    screen_scaleMessage_shown --> screen_scaleMessage_none : TN-49
+    [*] --> scaleMessageDisplayStateMachine_hidden
+    scaleMessageDisplayStateMachine_hidden : hidden
+    scaleMessageDisplayStateMachine_shown : shown
+    scaleMessageDisplayStateMachine_hidden --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, rowZoomEndReached
+    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_shown : displayScaleStepped, rowZoomEndReached
+    scaleMessageDisplayStateMachine_shown --> scaleMessageDisplayStateMachine_hidden : scaleMessageTimeElapsed
 ```
 
-### F-026 の軸 `tooltip`
+| 出来事 | `hidden` | `shown` |
+| --- | --- | --- |
+| `screen/displayScaleStepped` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
+| `screen/rowZoomEndReached` | → `shown` / `startScaleMessageTimer` | → 自己 / `restartScaleMessageTimer`（中身を書き換える） |
+| `screen/scaleMessageTimeElapsed` | — | → `hidden` |
+
+- `scaleMessageDisplayStateMachine.hidden` —— 初期。根拠 `SE-1`
+- `scaleMessageDisplayStateMachine.shown` —— 運ぶ値 `percent` ／ `end`（`max` ・ `min` ・ なし）。根拠 `SE-2` ・ `ZE-5` ・ `S-244`
+
+表に無い出来事は `scaleMessageDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `tooltipDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> screen_tooltip_allowed
-    screen_tooltip_allowed : allowed
-    screen_tooltip_dismissed : dismissed
-    screen_tooltip_allowed --> screen_tooltip_dismissed : TN-52
-    screen_tooltip_dismissed --> screen_tooltip_allowed : TN-53
+    [*] --> tooltipDisplayStateMachine_allowed
+    tooltipDisplayStateMachine_allowed : allowed
+    tooltipDisplayStateMachine_dismissed : dismissed
+    tooltipDisplayStateMachine_allowed --> tooltipDisplayStateMachine_dismissed : escapePressed
+    tooltipDisplayStateMachine_dismissed --> tooltipDisplayStateMachine_allowed : pointerRestElapsed
 ```
+
+| 出来事 | `allowed` | `dismissed` |
+| --- | --- | --- |
+| `screen/escapePressed` | → `dismissed` [`isRungTooltip`]<br>それ以外 → — | — |
+| `screen/pointerRestElapsed` | — | → `allowed` |
+
+- `tooltipDisplayStateMachine.allowed` —— 初期。根拠 `IN-3`
+- `tooltipDisplayStateMachine.dismissed` —— 根拠 `IN-3` ・ `IN-4`
+
+表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。
 
 ## 通知（`notices`）
 
-**表 T-286 — 通知の状態**
+**表 T-286 — 通知の状態機械**
 
-| 行 ID | キー | 親 | 初期 | 運ぶ値 | 根拠 |
-| --- | --- | --- | --- | --- | --- |
-| SM-34 | `notices` | — | ○ | — | `FR-076` |
-| SM-35 | `notices.onScreen.none` | `notices` | ○ | — | `NT-8` ・ `IN-4` |
-| SM-36 | `notices.onScreen.standing` | `notices` | — | `standing`（出ている通知の列。古い順。1 つは理由と件数） | `FR-076` ・ `NT-3` ・ `NT-8` ・ `IN-4` ・ `SK-19` ・ `IR-3` |
-| SM-37 | `notices.delivery.idle` | `notices` | ○ | — | `WS-7` |
-| SM-38 | `notices.delivery.delivering` | `notices` | — | — | `WS-2` ・ `RS-9` ・ `CA-3` |
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
 
-**表 T-287 — 通知の出来事**
+### 通知の出来事
 
-| 行 ID | キー | どこから来るか | 運ぶ値 |
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| EV-31 | `noticeRaised` | 副作用の結果（副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す）: `FR-076` ・ `NT-3` | `reason`（表 T-233 の `RS-` の行、または 表 T-220 の行） ／ `affectedCount`（無いこともある） |
-| EV-32 | `newestNoticeDismissAsked` | 入力（`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める）: `NT-8` ・ `IN-4` ・ `SK-19` | — |
-| EV-33 | `noticeDismissPressed` | 入力（1 つの通知の `OK` の入口を押して離した）: `NT-8` | `reason`（押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める） |
-| EV-34 | `documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — |
-| EV-35 | `changeDelivered` | 副作用の結果（`WS-7` の配りが終わった）: `WS-7` ・ `AG-6` | `silentWatchers`（答えを返さなかった配り先の数） |
+| `notices/noticeRaised` | 副作用の結果（副作用 `raiseNotice` の実行。ほかの領域の遷移とシェルの流れが返す）: `FR-076` ・ `NT-3` | `reason`（表 T-233 の `RS-` の行、または 表 T-220 の行） ／ `affectedCount`（無いこともある） | `noticeDisplayStateMachine` |
+| `notices/newestNoticeDismissAsked` | 入力（`Esc`（`IN-4` の第 1 段）／ `Enter`（`SK-19` の第 1 段）。段は呼び手が決め、同じ入力のほかの何よりも先に進める）: `NT-8` ・ `IN-4` ・ `SK-19` | — | `noticeDisplayStateMachine` |
+| `notices/noticeDismissPressed` | 入力（1 つの通知の `OK` の入口を押して離した）: `NT-8` | `reason`（押された通知の理由。`NT-3` の束ねで 1 つの理由に 1 枚なので、理由が通知を 1 つに決める） | `noticeDisplayStateMachine` |
+| `notices/documentReplaced` | 副作用の結果（`WS-6` の差し替えが済み、`WS-7` の配りが始まる）: `WS-6` ・ `WS-7` | — | `changeDeliveryStateMachine` |
+| `notices/changeDelivered` | 副作用の結果（`WS-7` の配りが終わった）: `WS-7` ・ `AG-6` | `silentWatchers`（答えを返さなかった配り先の数） | `changeDeliveryStateMachine` |
 
-**表 T-288 — 通知の遷移**
+### 根 `notices` の値
 
-| 行 ID | 元 | 出来事 | ガード | 先 | 副作用 | 根拠 |
-| --- | --- | --- | --- | --- | --- | --- |
-| TN-54 | `notices.onScreen.none` | `noticeRaised`（`EV-31`） | — | `notices.onScreen.standing`（1 枚） | — | `FR-076` ・ `NT-8` |
-| TN-55 | `notices.onScreen.standing` | `noticeRaised`（`EV-31`） | `isSameReasonStanding` | 自己（その 1 枚の件数を増やし、いちばん新しい位置へ動かす） | — | `NT-3` |
-| TN-56 | `notices.onScreen.standing` | `noticeRaised`（`EV-31`） | not `isSameReasonStanding` | 自己（いちばん新しいものとして足す。枚数に上限を置かない） | — | `NT-3` ・ `NT-8` |
-| TN-57 | `notices.onScreen.standing` | `newestNoticeDismissAsked`（`EV-32`） | `isOnlyOneStanding` | `notices.onScreen.none` | — | `NT-8` |
-| TN-58 | `notices.onScreen.standing` | `newestNoticeDismissAsked`（`EV-32`） | not `isOnlyOneStanding` | 自己（いちばん新しいものを除く） | — | `NT-8` |
-| TN-59 | `notices.onScreen.standing` | `noticeDismissPressed`（`EV-33`） | `leavesNone` | `notices.onScreen.none` | — | `NT-8` |
-| TN-60 | `notices.onScreen.standing` | `noticeDismissPressed`（`EV-33`） | `leavesSome` | 自己（押されたものを除く） | — | `NT-8` |
-| TN-61 | `notices.delivery.idle` | `documentReplaced`（`EV-34`） | — | `notices.delivery.delivering` | — | `WS-2` ・ `WS-7` |
-| TN-62 | `notices.delivery.delivering` | `changeDelivered`（`EV-35`） | not `hasSilentWatcher` | `notices.delivery.idle` | — | `WS-7` |
-| TN-63 | `notices.delivery.delivering` | `changeDelivered`（`EV-35`） | `hasSilentWatcher` | `notices.delivery.idle` | `raiseNotice`（`RS-23`） | `RS-23` ・ `AG-6` |
+運ぶ値: —。  
+根拠: `FR-076`。
+
+根の運ぶ値だけを書き換える出来事は無い。
 
 **図 F-029 — 通知の状態遷移**
 
-軸ごとに 1 つの図に分けて示す。軸どうしは直交する。  
-矢印のラベルは遷移の行 ID だけであり、出来事・ガード・副作用は 表 T-288 が持つ。  
-⚠️ 図は畳んである —— 同じ遷移が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に行 ID を書く）。  
-⭐ 遷移の全数は 表 T-288 が持つ。
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-286 の状態遷移表が持つ。
 
-### F-029 の軸 `onScreen`
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> notices_onScreen_none
-    notices_onScreen_none : none
-    notices_onScreen_standing : standing
-    notices_onScreen_none --> notices_onScreen_standing : TN-54
-    notices_onScreen_standing --> notices_onScreen_standing : TN-55, TN-56, TN-58, TN-60
-    notices_onScreen_standing --> notices_onScreen_none : TN-57, TN-59
-```
-
-### F-029 の軸 `delivery`
+### 状態機械 `noticeDisplayStateMachine`
 
 ```mermaid
 stateDiagram-v2
     direction LR
-    [*] --> notices_delivery_idle
-    notices_delivery_idle : idle
-    notices_delivery_delivering : delivering
-    notices_delivery_idle --> notices_delivery_delivering : TN-61
-    notices_delivery_delivering --> notices_delivery_idle : TN-62, TN-63
+    [*] --> noticeDisplayStateMachine_hidden
+    noticeDisplayStateMachine_hidden : hidden
+    noticeDisplayStateMachine_shown : shown
+    noticeDisplayStateMachine_hidden --> noticeDisplayStateMachine_shown : noticeRaised
+    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_shown : noticeRaised, newestNoticeDismissAsked, noticeDismissPressed
+    noticeDisplayStateMachine_shown --> noticeDisplayStateMachine_hidden : newestNoticeDismissAsked, noticeDismissPressed
 ```
+
+| 出来事 | `hidden` | `shown` |
+| --- | --- | --- |
+| `notices/noticeRaised` | → `shown`（1 枚） | → 自己 [`isSameReasonStanding`]（その 1 枚の件数を増やし、いちばん新しい位置へ動かす）<br>→ 自己 [not `isSameReasonStanding`]（いちばん新しいものとして足す。枚数に上限を置かない） |
+| `notices/newestNoticeDismissAsked` | — | → `hidden` [`isOnlyOneStanding`]<br>→ 自己 [not `isOnlyOneStanding`]（いちばん新しいものを除く） |
+| `notices/noticeDismissPressed` | — | → `hidden` [`isLeavingNone`]<br>→ 自己 [`isLeavingSome`]（押されたものを除く）<br>それ以外 → — |
+
+- `noticeDisplayStateMachine.hidden` —— 初期。根拠 `NT-8` ・ `IN-4`
+- `noticeDisplayStateMachine.shown` —— 運ぶ値 `standing`（出ている通知の列。古い順。1 つは理由と件数）。根拠 `FR-076` ・ `NT-3` ・ `NT-8` ・ `IN-4` ・ `SK-19` ・ `IR-3`
+
+表に無い出来事は `noticeDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `changeDeliveryStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> changeDeliveryStateMachine_idle
+    changeDeliveryStateMachine_idle : idle
+    changeDeliveryStateMachine_delivering : delivering
+    changeDeliveryStateMachine_idle --> changeDeliveryStateMachine_delivering : documentReplaced
+    changeDeliveryStateMachine_delivering --> changeDeliveryStateMachine_idle : changeDelivered
+```
+
+| 出来事 | `idle` | `delivering` |
+| --- | --- | --- |
+| `notices/documentReplaced` | → `delivering` | — |
+| `notices/changeDelivered` | — | → `idle` [not `hasSilentWatcher`]<br>→ `idle` [`hasSilentWatcher`] / `raiseNotice`（`RS-23`） |
+
+- `changeDeliveryStateMachine.idle` —— 初期。根拠 `WS-7`
+- `changeDeliveryStateMachine.delivering` —— 根拠 `WS-2` ・ `RS-9` ・ `CA-3`
+
+表に無い出来事は `changeDeliveryStateMachine` を変えない（同じ参照）。
