@@ -1341,3 +1341,33 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py <the 25
 #   strictdoc export (html) of the copy + check-render.py  -> RESULT: PASS (0 literal **)
 #   check-spec-holds-no-history.py on the copy   -> 0 sites
 ```
+
+---
+
+## 13. 当てた結果（2026-09-22、当てる commit `98968cd7` の木で測った）
+
+- 当てた編集: 72 のうち 70（E-62 と E-67 は当てていない）。旧はどれも 1 回だけ現れた。生成器 2 つ（E-63）も当てた。
+- `npm run gen` → `npm run gen:check` は差分 0。`strictdoc export` を木の外の一時の場所へ出し、`check-render.py` は PASS（`**` の生の残り 0）。
+- 数: `tables=181 figures=25 rows=2234 uids=162`（7 節の予測どおり）。
+
+### 13.1 `check.sh`（前: 仕分けの走り `check-2df504f2` の赤は 23 と 40）
+
+| 検査 | 前 → 後 | 何が動いたか | 直す所 |
+|---|---|---|---|
+| 11 重複 | 緑 → 赤 | `docs/review/duplication-baseline.txt:3` の 6 行の組（`IC-58` `IC-77` `IC-90` `IC-91` `IC-92` `IC-93`）が、4 行（`IC-58` `IC-77` `IC-90` `IC-92`）と 2 行（`IC-91` `IC-93`）に割れて「NEW」と読まれる。どの行の字も本書は変えていない（似ている度合いの重みが、ほかの所の字で動いた） | 基準線（利用者の許しが要る） |
+| 37 辞書と表の組 | 緑 → 赤 | `T-036 SK-19` 0fea97f9222ba0d6 → c136341b74186e3c、`T-109 IC-52` cdab431953c2c166 → ff5c0864227f3824、`T-036 SK-17` の行が残っている（E-62 を当てていないため） | 組の指紋のファイル（読み合わせてから） |
+| 39 MUST を逐語で持つ試験 | 1360 → 1400 | 本書が足した MUST と、行の字が動いて逐語の結び付きが切れた MUST | 仕様だけを読む試験者の逐語の試験（wave 1b）、足りなければ基準線 |
+| 42 出所の無い引用 | 358 → 366 | `src/` ・ `tests/` のコメントと試験が、変わった文を引いている | CR-542 〜 546 |
+| 44 退いた ID を引く所 | 83 → 111 | `SK-17` を引くコードと試験（`shortcut-keys.ts:108`、`display-scale-steps.ts:47` ・ `:60`、`input-command-translator.ts:277` ほか） | CR-542 |
+| 23 ・ 40 | 赤のまま | 前からの赤（利用者の手の編集を待つ） | — |
+
+⚠️ 検査 46（文の終わりの改行）と 62（識別子の予約）は、途中で一度赤くなり、本書の文を直して緑に戻した。
+
+### 13.2 `npx vitest run`（前: `783f276a` を別の worktree に出して同じ `node_modules` で走らせた）
+
+前の赤 14（うち 10 は、木に無い MSPDI の XSD を読めずに 0 件で落ちるファイル。いまも同じ）、後の赤 44。**新しい赤は 31 件で、どれも試験とコードの側にある**（本書は `src/` の手書きのファイルと `tests/` に触れていない）:
+- 仕様の逐語を引く試験: `cr-410`（3）・`cr-411`（3）・`cr-426`（`IR-3`）・`cr-380-381-384`（パンの段）・`dfc-307` ・ `dfc-322` ・ `in-4-escape-closes-the-panel` ・ `uf-48-input`（2）・`t-015-t-051-the-four-folding-controls`（2）・`fr-029-en-2` ・ `fr-029-in-effect`
+- `S-88` = 1.5 の前提: `cr-404`（5）・`cr-423` ・ `fr-055-fit-reaches-deep-tiers`（2）・`fr-055-vertical-lod-fit` ・ `layout-engine`
+- 辞書と生成物: `display-words.contract`（2。CR-541 の持ち分とされた試験だが、前に立つ者の指示で触れていない）
+- そのほか: `dfc-271`（`ST-7` の前提）
+- 消えた赤 1: `cr-430-table-t-021a-the-press-cycle`（本書と無関係。揺れと見られる）
