@@ -173,7 +173,7 @@ import {
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import startupTemplate from './startup-template.json'
-import { runSessionEffects, unwiredEffect, type EffectRunners } from './session-effects'
+import { runSessionEffects, type EffectRunners } from './session-effects'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
@@ -709,6 +709,7 @@ const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
 const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
+const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -1002,8 +1003,6 @@ const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
 
 const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
-
-const HANDED_REFERENCE_STANDS_REASON: NoticeReason = 'RS-20'
 
 const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 
@@ -1487,6 +1486,7 @@ interface ScreenEffectHands {
   readonly bringCreatedRowIntoSight: (groupId: string) => void
   readonly beginInteractionRecord: () => void
   readonly handInteractionRecordToClipboard: () => void
+  readonly storeAgentApiEnabling: () => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1530,7 +1530,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     beginInteractionRecord: () => hands.beginInteractionRecord(),
     handInteractionRecordToClipboard: () => hands.handInteractionRecordToClipboard(),
 
-    storeAgentApiEnabling: unwiredEffect,
+    storeAgentApiEnabling: () => hands.storeAgentApiEnabling(),
   }
 }
 
@@ -1743,6 +1743,11 @@ function isEditingFieldIn(session: ScreenSession): boolean {
 /** @purity pure */
 function isRecordingInteractionsIn(session: ScreenSession): boolean {
   return session.interactionRecord.interactionRecordingState.kind === 'recordingInteractions'
+}
+
+/** @purity pure */
+function isAgentApiEnabledIn(session: ScreenSession): boolean {
+  return session.agentApi.agentApiEnablingState.kind === 'enabled'
 }
 
 // WHY: one empty selection for nothingSelected: the shell compares selections by identity.
@@ -2214,7 +2219,6 @@ export function frameLoop(
   // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-80, T-206
   // @provisional PND-338
   let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
-  let isAgentApiEnabled = startupAgentApiEnabled()
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
@@ -2319,7 +2323,9 @@ export function frameLoop(
     bringCreatedRowIntoSight: (groupId) => (addedRowOwedSight = groupId),
     beginInteractionRecord,
     handInteractionRecordToClipboard,
+    storeAgentApiEnabling,
   })
+  sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
   /** @purity non-pure */
   function writeCarried(writes: readonly DocumentCommand[], frame: FrameValues | null): void {
@@ -2611,7 +2617,7 @@ export function frameLoop(
         screenViewReadingsOf(document, regions, layout, {
           openedFileName: session.fileFlow.openedFileName,
           fileSavedAt,
-          isAgentApiEnabled,
+          isAgentApiEnabled: isAgentApiEnabledIn(session),
           isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
           pointer: pointerAt,
           pointerRestedMs,
@@ -3103,12 +3109,12 @@ export function frameLoop(
 
   // see FR-065, S-99b
   /** @purity non-pure */
-  function setAgentApiEnabled(next: boolean): void {
-    // TRAP: telling an unmoved value makes the installer overwrite a reference already handed out.
-    if (next === isAgentApiEnabled) return
-    isAgentApiEnabled = next
-    writeBrowserStored('S-99b', String(next))
-    agentApiEnablingWatch?.(next)
+  function storeAgentApiEnabling(): void {
+    // TRAP: only a press reaches here, and a press always moves the root (T-296); telling an unmoved
+    // value would make the installer overwrite a reference already handed out.
+    const isEnabled = isAgentApiEnabledIn(session)
+    writeBrowserStored('S-99b', String(isEnabled))
+    agentApiEnablingWatch?.(isEnabled)
   }
 
   const snapshotSource: AgentApiSeams['source'] = {
@@ -3949,6 +3955,7 @@ export function frameLoop(
       return true
     }
     if (entry === DIALOGUE_FIELD_ENTRY) {
+      const isAgentApiEnabled = isAgentApiEnabledIn(session)
       if (isAgentApiEnabled) return false
       sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
       return true
@@ -4297,13 +4304,15 @@ export function frameLoop(
         return
       }
       case 'toggleAgentApi':
-        setAgentApiEnabled(!isAgentApiEnabled)
-        if (!isAgentApiEnabled) raiseNotice(HANDED_REFERENCE_STANDS_REASON, null)
+        sendToSession(AGENT_API_ENTRY_PRESSED, frame)
         return
       case 'toggleDialogueFieldVisible':
         // STOP: spec does not decide whether turning the API off resets S-99i. Looked in FR-066, S-99i
         // @provisional PND-419
-        sendToSession({ type: 'dialogueFieldEntryPressed', isAgentApiEnabled }, frame)
+        sendToSession(
+          { type: 'dialogueFieldEntryPressed', isAgentApiEnabled: isAgentApiEnabledIn(session) },
+          frame,
+        )
         return
       case 'toggleFullScreen':
         sendToSession({ type: 'fullScreenEntryPressed' }, frame)
@@ -4655,7 +4664,7 @@ export function frameLoop(
     /** @purity non-pure */
     watchAgentApiEnabling(watch: (isEnabled: boolean) => void): void {
       agentApiEnablingWatch = watch
-      if (isAgentApiEnabled) watch(true)
+      if (isAgentApiEnabledIn(session)) watch(true)
     },
     /** @purity non-pure */
     raiseStartupNotice(reason: StartupNoticeReason, affectedCount: number | null = null): void {
