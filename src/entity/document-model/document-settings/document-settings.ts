@@ -191,7 +191,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'groupLevelOfDetailBase': 0.32,
   'groupLevelOfDetailRatio': 1.5,
   'guideCursorMode': 'none',
-  'iconHintDelayMs': 2000,
+  'iconHintDelayMs': 1000,
   'importMaxBytes': 32,
   'importMaxDate': '2200-12-31',
   'importMaxDepth': 64,
