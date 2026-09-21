@@ -746,7 +746,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "開いている面を閉じる",
+   "entryTo": "開いている面とプロパティパネルを閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null

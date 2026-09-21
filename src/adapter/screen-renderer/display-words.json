@@ -2639,13 +2639,6 @@
    }
   },
   {
-   "rowId": "SK-17",
-   "text": {
-    "ja": "表示の倍率とズームを戻す",
-    "en": "Reset display scale and zoom"
-   }
-  },
-  {
    "rowId": "SK-21",
    "text": {
     "ja": "開いているファイルを読み直す",
@@ -3303,12 +3296,12 @@
   {
    "rowId": "RS-61",
    "text": {
-    "ja": "この行は別の編集グループのものです",
-    "en": "This row belongs to another edit group"
+    "ja": "この行は読み取り専用です（編集グループが設定されています）",
+    "en": "This row is read-only (an edit group is set on it)"
    },
    "nextStep": {
-    "ja": "自分の行へコピーしてから編集してください",
-    "en": "Copy it into one of your own rows, then edit it"
+    "ja": "編集グループの無い行へコピーしてから編集してください",
+    "en": "Copy it into a row with no edit group, then edit it"
    }
   },
   {
@@ -3961,6 +3954,37 @@
     "ja": "（最小）",
     "en": " (min)"
    }
+  }
+ ],
+ "dualCursorSpan": [
+  {
+   "rowId": "DC-3",
+   "text": {
+    "ja": "{n} 日",
+    "en": "{n} days"
+   }
+  }
+ ],
+ "dependencyKinds": [
+  {
+   "rowId": "DP-1",
+   "linkType": 1,
+   "abbreviation": "FS"
+  },
+  {
+   "rowId": "DP-2",
+   "linkType": 2,
+   "abbreviation": "SF"
+  },
+  {
+   "rowId": "DP-3",
+   "linkType": 0,
+   "abbreviation": "FF"
+  },
+  {
+   "rowId": "DP-4",
+   "linkType": 3,
+   "abbreviation": "SS"
   }
  ]
 }

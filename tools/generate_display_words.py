@@ -224,6 +224,19 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 # ⚠️ These are KEYS, not words.
 SCALE_ECHO_ENDS = ('max', 'min')
 
+# The word DC-3 of table T-029a (MUST) prints between the two Dual Cursor
+# lines: the day count, with {n} standing for the whole number of calendar
+# days. HELD HERE, the same move as SCALE_ECHO_ENDS: DC-3 is one row and the
+# word is its only column. These are KEYS, not words (CR-541).
+DUAL_CURSOR_SPAN_ROWS = ('DC-3',)
+
+# Table T-018 names each dependency kind; the screen shows the abbreviation
+# before the full-width parenthesis of its name column (CR-541, the note under
+# table T-018). NOT a dictionary word: the abbreviation does not change with
+# the language, so it is read from the table and carried into src/ only.
+DEPENDENCY_KIND_ROW = re.compile(r'^\| (DP-\d+) \|')
+DEPENDENCY_KIND_TABLE = 'T-018'
+
 LANGUAGES = ('ja', 'en')
 
 # ⭐ THE WORDS ARE THE USER'S. The filling is left to the user, because table
@@ -381,6 +394,7 @@ def roster():
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
+        'dualCursorSpan': list(DUAL_CURSOR_SPAN_ROWS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -435,6 +449,7 @@ SHAPE = {
     'questions': ('rowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
     'scaleEcho': ('end', ('text',)),
+    'dualCursorSpan': ('rowId', ('text',)),
 }
 
 
@@ -518,7 +533,7 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'scaleEcho'):
+                    'scaleEcho', 'dualCursorSpan'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],
@@ -526,7 +541,25 @@ def build(doc, keys_by_row):
                             for entry in doc[section]]
             continue
         out[section] = doc[section]
+    out['dependencyKinds'] = dependency_kinds()
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
+
+
+def dependency_kinds():
+    """Table T-018's rows as the screen needs them: row id, stored number and
+    the abbreviation its name column starts with (CR-541).
+
+    @purity semi-pure-b
+    """
+    kinds = []
+    for cells in table_rows(REL_REQUIREMENTS, DEPENDENCY_KIND_ROW,
+                            DEPENDENCY_KIND_TABLE):
+        name = cells[2].strip()
+        cut = name.find(u'\uff08')
+        kinds.append({'rowId': cells[0].strip('`* '),
+                      'linkType': int(cells[1].strip()),
+                      'abbreviation': (name[:cut] if cut >= 0 else name).strip()})
+    return kinds
 
 
 def counted(doc):

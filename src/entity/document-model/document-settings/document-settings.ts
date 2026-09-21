@@ -189,7 +189,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'fontScaleSizes.S': 12,
   'groupGridLinesVisible': true,
   'groupLevelOfDetailBase': 0.32,
-  'groupLevelOfDetailRatio': 1.875,
+  'groupLevelOfDetailRatio': 1.5,
   'guideCursorMode': 'none',
   'iconHintDelayMs': 2000,
   'importMaxBytes': 32,

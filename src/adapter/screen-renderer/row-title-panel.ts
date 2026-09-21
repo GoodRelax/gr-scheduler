@@ -354,8 +354,10 @@ export function rowTitlePanelFromSchedule(
 // see T-206
 export const NOT_STORED_ROW_CONTROL_SIZES: {
   readonly 'S-140': number
+  readonly 'S-313': number
 } = {
   'S-140': 0,
+  'S-313': 4,
 }
 
 // see T-206

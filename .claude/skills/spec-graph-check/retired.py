@@ -61,6 +61,12 @@ RETIRED = {'FR-050', 'T-030',
            # from, and that record is true of the day it was written, so the
            # seats stay burnt.
            'IC-46', 'IC-49',
+           # SK-17 (Ctrl + Shift + 0, reset the display scale and the chart
+           # zoom) left table T-036 with CR-541 on the user's ruling JDG-301
+           # of 2026-09-22 ("discard the function, remove it from the help
+           # too"). CR-410, CR-411 and the ledgers name it, so the seat
+           # stays burnt.
+           'SK-17',
            # AT-35 (Task.actualDuration) and DV-9 (the written Task/Stop) left
            # tables T-058 and T-059 with CR-376: the actual is held as dates
            # (JDG-69), the length is counted from them by FR-011, and Stop is

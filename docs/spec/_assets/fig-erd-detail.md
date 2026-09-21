@@ -375,12 +375,12 @@ erDiagram
 | AT-64 | `Calendar` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Name` | 暦の名前 |
 | AT-65 | `Calendar` | `isBaseCalendar` | 真偽 | 可 | — | Own | `Calendars/Calendar/IsBaseCalendar` | 基準の暦か |
 | AT-66 | `Calendar` | `baseCalendarUid` | 整数 | 可 | FK | Consume | `Calendars/Calendar/BaseCalendarUID` | 継承元の暦 |
-| AT-67 | `Calendar` | `ordinal` | 整数 | 否 | — | GRS | — | 出現順。書き出しで元の並びに戻す |
+| AT-67 | `Calendar` | `ordinal` | 整数 | 否 | — | GRS | — | 出現順。書き出しで元の並びに戻す。`GRS` が足す暦（合流の `MG-5` ほか）は、既にある暦の最大の次を取る |
 | AT-68 | `Calendar` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
 | AT-69 | `Calendar` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkWeeks` ほか、行にならなかった子要素 |
 | AT-70 | `Calendar` | `weekDays` | `WeekDay[]` | 否（空可） | — | Consume | `Calendars/Calendar/WeekDays/WeekDay` | **曜日ごとの稼働**（表 T-053 の `DF-1`） |
 | AT-71 | `Calendar` | `exceptions` | `Exception[]` | 否（空可） | — | Consume | `Calendars/Calendar/Exceptions/Exception` | **例外日**（表 T-053 の `DF-1`） |
-| AT-72 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
+| AT-72 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順。`GRS` が足す曜日の行（表 T-108 の `CM-39` ほか）は、同じ親の中の最大の次を取る |
 | AT-73 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日。**`1` が日曜で、土曜の `7` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⚠️ **`0` は例外日を表すので本列は採らない** —— 例外日は `Exception` が持つ。⛔ **`Project.weekStartDay` とは番号が 1 ずれる** —— 交換相手が列ごとに別の体系を使っている。 |
 | AT-74 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
 | AT-75 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |

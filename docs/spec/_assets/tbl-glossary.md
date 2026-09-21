@@ -411,7 +411,7 @@
 | CM-5 | `Project` | `setThemeHue` | — | テーマの色相を変える | `FR-041` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
-| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する | `FR-033` |
+| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ） | `FR-033` |
 | CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
 | CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
 | CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |
@@ -574,7 +574,7 @@
 | IC-48 | `Command Palette` | カーソル | 同・`'single-vertical'` | `FR-048` | — |
 | IC-45 | `Command Palette` | カーソル | デュアルカーソルの 2 本を置く（`S-65`）| `FR-082` | — |
 | IC-50 | `Command Palette` | 置く | マイルストーンの図形の一覧を、**同じ入口で開閉する**（`S-142`）。<br>⭐ **トグルは 1 つである**（`IC-11` / `IC-60` が先例）—— ⛔ 2 つ置くと 図 F-019 が同じ図形を 2 度描くことになり、読む人に見分けのつかない入口が並んで、どちらの状態でも片方が何もしない | `FR-078` | — |
-| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面を閉じる | 表 T-028 の `IN-4` | — |
+| IC-52 | `Help Modal` / `AI Export Modal` / `Resource Roster` / `Export Chooser` / `Open Chooser` / `Properties Panel` | — | 開いている面とプロパティパネルを閉じる | 表 T-028 の `IN-4` | — |
 | IC-53 | `Command Palette` | — | 掴んで動かせることを示す。<br>**ボタンではない** | `FR-053` | — |
 | IC-75 | `Command Palette` | — | 掴み帯の右端で、パレットを最小化し、**同じ入口で戻す**（`S-200`）。<br>⭐ **`IC-53` の右に並ぶ**（`FR-053`）| `FR-053` | — |
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — |
