@@ -5,7 +5,6 @@
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { installAgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import {
   commandFromInput,
   pressRowOf,
@@ -14,6 +13,12 @@ import {
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Document } from '../../src/entity/document-model/document/document'
+import type { EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
+import type { ChangeStep, WriteMoment } from '../../src/use-case/apply-document-change/apply-document-change'
+import {
+  planDocumentChange,
+  planDocumentReplacement,
+} from '../../src/use-case/apply-document-change/document-change-plan'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { emptySelection, selectionWith, type Selection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
@@ -21,7 +26,6 @@ import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layo
 import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   editTask,
-  editTaskGroup,
   NOT_STORED_ZOOM_BOUNDS,
   type EditResult,
 } from '../../src/use-case/edit-document/edit-document'
@@ -34,7 +38,6 @@ import {
   SCREEN,
   shell,
   taskOf,
-  TEMPLATE,
   type ShellBench,
 } from './cr-541-stage'
 
@@ -95,8 +98,28 @@ describe('TC-3 -- the made row is the last child of the shallowest level', () =>
 // ---------------------------------------------------------------------------
 
 const oneRow = (): Document => rowDocument([{ id: 'only-row', parentId: null }]) as unknown as Document
-const deleteLast = (newGroupId: string): Document =>
-  accepted(editTaskGroup(oneRow(), { kind: 'deleteTaskGroup', groupId: 'only-row', newGroupId } as never, DEFAULT_ROW_NAME))
+const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
+const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
+
+// WHY: through the change plan, the one road every write takes; T-050 forbids a copy per road.
+const deleteLastPlanned = (newGroupId: string) => {
+  const document = oneRow()
+  const plan = planDocumentChange({
+    document,
+    readStamp: document.documentStamp,
+    commands: [{ kind: 'deleteTaskGroup', groupId: 'only-row', newGroupId } as never],
+    moment: CALM,
+    history: EMPTY_HISTORY,
+    historyLimits: { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 },
+    settingsLimits: { zoomMin: 0.02, zoomMax: 64, rowAreaWidthWithoutPanels: 982 },
+    defaultRowName: DEFAULT_ROW_NAME,
+    editedBy: 'cr-541 row deleter',
+    updatedUtc: '2026-09-22T01:00:00Z',
+  })
+  if (!plan.ok) throw new Error(`the delete was refused: ${JSON.stringify(plan.refusal)}`)
+  return plan
+}
+const deleteLast = (newGroupId: string): Document => deleteLastPlanned(newGroupId).document
 
 describe('T-050 -- the row made when the last row goes', () => {
   it(Q09, () => {
@@ -112,28 +135,22 @@ describe('T-050 -- the row made when the last row goes', () => {
   })
 
   it(`${Q11} -- one undo brings the deleted row back`, () => {
-    const built = shell(rowDocument([{ id: 'only-row', parentId: null }]))
-    try {
-      const api = installAgentApi({
-        ...built.loop.agentApiSeams(),
-        writerName: 'cr-541 row deleter',
-        schemaVersion: TEMPLATE.schemaVersion,
-      } as never)
-      const before = JSON.stringify(api.readDocument().schedule.taskGroups)
-      const wrote = api.applyCommands({
-        readStamp: api.readStamp(),
-        commands: [{ kind: 'deleteTaskGroup', groupId: 'only-row', newGroupId: 'dddddddd-0000-4000-8000-000000000001' } as never],
-      })
-      expect(wrote.accepted, 'premise: the delete is accepted').toBe(true)
-      expect(api.readDocument().schedule.taskGroups.map((one) => one.id)).toEqual([
-        'dddddddd-0000-4000-8000-000000000001',
-      ])
-      const undone = api.undoEdit()
-      expect(undone.accepted).toBe(true)
-      expect(JSON.stringify(api.readDocument().schedule.taskGroups)).toBe(before)
-    } finally {
-      built.restore()
-    }
+    const before = JSON.stringify(oneRow().schedule.taskGroups)
+    const deleted = deleteLastPlanned('dddddddd-0000-4000-8000-000000000001')
+    expect(deleted.document.schedule.taskGroups.map((one) => one.id)).toEqual([
+      'dddddddd-0000-4000-8000-000000000001',
+    ])
+    const undone = planDocumentReplacement({
+      held: { document: deleted.document, history: deleted.history },
+      readStamp: deleted.document.documentStamp,
+      moment: CALM,
+      call: { row: 'RD-1' },
+      defaultRowName: DEFAULT_ROW_NAME,
+      newGroupId: 'dddddddd-0000-4000-8000-000000000002',
+    })
+    expect(undone.ok).toBe(true)
+    if (!undone.ok) return
+    expect(JSON.stringify(undone.next.document.schedule.taskGroups)).toBe(before)
   })
 })
 
