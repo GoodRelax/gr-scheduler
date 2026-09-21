@@ -487,9 +487,11 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
     for (let depth = 1; depth <= 3; depth++) {
       expect(drawingZoomOf(depth)).toBeLessThan(FLOOR_BINDS_BELOW)
     }
-    // ...and depth 4 is the first rung above it, which is exactly the case the
-    // T-068 rule sends to pass 2. No fixture in this file reaches it.
-    expect(thresholdOf(4)).toBeGreaterThan(FLOOR_BINDS_BELOW)
+    // ...and since S-88 became 1.5, depth 4 stands under it too and depth 5 is
+    // the first rung above it, which is exactly the case the T-068 rule sends to
+    // pass 2. No fixture in this file reaches either.
+    expect(thresholdOf(4)).toBeLessThan(FLOOR_BINDS_BELOW)
+    expect(thresholdOf(5)).toBeGreaterThan(FLOOR_BINDS_BELOW)
   })
 
   it('⭐ and LF-3 puts the CONTROLS under the band, above the plan height FR-094 pins', () => {
@@ -530,9 +532,8 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
       // after table T-068 does not say that; it makes the invariance
       // conditional on one thing only: 「その床より下では絵が倍率に依らないので、
       // 1 回測れば床の内側に収まる段の縦幅は算術で出る」. Depth 3's band runs
-      // from its own rung up to depth 4's, and the case above proves depth 4's
-      // rung stands ABOVE the floor -- so the floor falls inside that band and
-      // is the end this premise may reach. Above it the plan height is no
+      // from its own rung up to depth 4's; whichever of that rung and the floor
+      // comes first is the end this premise may reach. Above it the plan height is no
       // longer pinned (FR-094) and the drawing does move with `zoomY`.
       const high = Math.min(thresholdOf(depth + 1), FLOOR_BINDS_BELOW) * (1 - 1e-9)
       expect(high).toBeLessThan(FLOOR_BINDS_BELOW)

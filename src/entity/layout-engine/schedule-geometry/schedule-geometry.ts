@@ -1164,9 +1164,11 @@ function commentGeometry(
   const out: CommentGeometry[] = []
   // TRAP: read no setting before the loop: fontScaleSizes[fontScale] throws for a document with no comment box.
   for (const box of schedule.commentBoxes) {
-    const day = dayOf(box.anchorDate)
+    // see FR-019, UC-008, AT-12
+    // WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
+    const day = dayOf(box.anchorDate) ?? dayOf(schedule.project.startDate)
     const row = box.anchorGroupId === null ? undefined : rowById.get(box.anchorGroupId)
-    // STOP: spec does not decide a box whose row is not drawn or whose date is null; it is not drawn. Looked in UC-008, AT-113, AT-114
+    // STOP: spec does not decide a box whose row is not drawn or is null; it is not drawn. Looked in UC-008, AT-114
     // @provisional PND-234
     if (day === null || row === undefined) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)

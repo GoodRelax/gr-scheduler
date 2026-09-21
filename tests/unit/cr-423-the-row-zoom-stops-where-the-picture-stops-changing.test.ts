@@ -146,9 +146,9 @@ describe('CR-423 -- the premises read from the manuscript', () => {
     expect(REQUIREMENTS).toContain('① は `zoomY` ≦ 16 ÷ 0.5715 ÷ 28 ＝ 0.999875… で成り立つ')
   })
 
-  it('the depth-2 threshold is S-87 (0.32) and depth 3 is 0.6', () => {
+  it('the depth-2 threshold is S-87 (0.32) and depth 3 is 0.48', () => {
     expect(thresholdOf(2)).toBeCloseTo(0.32, 12)
-    expect(thresholdOf(3)).toBeCloseTo(0.6, 12)
+    expect(thresholdOf(3)).toBeCloseTo(0.48, 12)
   })
 
   it('the text side of the ceiling rounds to the example of ZE-5', () => {

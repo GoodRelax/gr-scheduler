@@ -775,6 +775,15 @@ export function assigneeAnchorOf(
   return laidBelow(shapeKind) ? reference.x : drawnStartX
 }
 
+// see LF-3, HF-1, HF-19, FR-085, HF-5
+// WHY: the row name's box is a floor too, or a zoomed-down row loses the name that tells it apart.
+// TRAP: takes the DRAWN settings; the stored ones would miss the display ratio (FR-039).
+/** @purity pure */
+function bandFloorOf(depth: number, drawn: DocumentSettings, rowControlsHeightPx?: number): number {
+  const nameBox = depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
+  return Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0, nameBox)
+}
+
 // see T-068
 // STOP: spec does not decide how pass 1 of the fit reaches every depth at one zoom.
 // Looked in T-068, FR-018
@@ -967,8 +976,8 @@ export function layoutFromSchedule(
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
     const packed = laneHeights.reduce((sum, h) => sum + h + laneGap, 0)
-    const latticeFloor = Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0)
-    const height = Math.max(packed, emptyLane, row.height ?? 0, latticeFloor)
+    const bandFloor = bandFloorOf(row.depth, settings, rowControlsHeightPx)
+    const height = Math.max(packed, emptyLane, row.height ?? 0, bandFloor)
 
     // STOP: spec does not decide which end lane 0 sits at, nor where FR-042's extra slack goes.
     // Looked in ST-5, S-58, FR-042
