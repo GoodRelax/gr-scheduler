@@ -1,4 +1,11 @@
-89
+90
+# RAISED 89 -> 90 on 2026-09-21, with the user's approval (asked in chat, answered
+# "分割で 90、次のコミットで 8 つを畳む（推奨）"): stage 4 wave 2 split edit-task.ts and
+# edit-task-group.ts, and both now export their reject() so the siblings can use it. The two
+# copies were there before the split; the export made them read as one new group. The very
+# next commit folds all 8 copies of reject() in src/use-case/edit-document/ into one and
+# lowers this line again.
+#
 # RAISED 88 -> 89 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): CR-430 left one
 # copy that cannot be folded without publishing a name across the component boundary
 # (isThinShape in schedule-geometry.ts and laidBelow in schedule-layout.ts), which needs a row

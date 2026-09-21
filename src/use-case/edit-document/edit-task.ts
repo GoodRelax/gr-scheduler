@@ -7,30 +7,39 @@ import type { Document } from '../../entity/document-model/document/document'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
-  COLUMN_SHAPES,
-  DEFAULT_CALENDAR_VALUES,
-  actualLastDay,
-  actualLengthOf,
-  calendarDaysBetween,
   compareDays,
   dayOf,
-  lastDayForLength,
-  planActualState,
   taskByUid,
-  textOfDay,
   workingCalendarOf,
-  workingDaysBetween,
-  type Assignment,
   type CalendarDay,
   type Schedule,
   type Task,
   type TaskGroup,
   type TaskVisual,
-  type WorkingCalendar,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
 import { tasksRankedByTheRowTree } from './edit-task-group'
+import { createTask } from './task-create'
+import { pasteTaskSubtree } from './task-paste'
+import {
+  beginTaskActual,
+  cycleTaskPlanActualStateInDocument,
+  setTaskPlanActualState,
+  setTaskPlanDates,
+} from './task-plan-actual'
+import {
+  resetTaskVisualColors,
+  setTaskFadeDays,
+  setTaskVisualColors,
+  setTaskVisualLineWeight,
+  setTaskVisualMilestoneGlyph,
+  setTaskVisualNamePlacement,
+  setTaskVisualShapeKind,
+} from './task-appearance'
+
+export { cycleTaskPlanActualState, type CycleSurroundings, type CycledPlanActual } from './task-plan-actual'
+export { repriced } from './percent-complete'
 
 export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
@@ -59,9 +68,6 @@ export type PlanActualPlacement =
 
 // see T-266, FR-043
 export type ActualGrabHold = 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
-
-// see GO-6, GO-7
-const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['GA-6', 'GA-22']
 
 // see T-108
 export type TaskCommand =
@@ -128,21 +134,20 @@ export type TaskCommand =
       readonly nameAlign: TaskNameAlign | null
     }
 
-const TRANSPARENT = 'transparent'
 
 /** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
+export function reject(command: string, rule: string, what: string): Refusal {
   return { command, rule, what }
 }
 
 /** @purity pure */
-function withSchedule(document: Document, schedule: Schedule): Document {
+export function withSchedule(document: Document, schedule: Schedule): Document {
   return { ...document, schedule }
 }
 
 // TRAP: list and map columns compare by reference; exact only while every arm spreads the held row.
 /** @purity pure */
-function sameRow<T extends object>(a: T, b: T): boolean {
+export function sameRow<T extends object>(a: T, b: T): boolean {
   const left = a as Record<string, unknown>
   const right = b as Record<string, unknown>
   const keys = Object.keys(left)
@@ -150,7 +155,7 @@ function sameRow<T extends object>(a: T, b: T): boolean {
 }
 
 /** @purity pure */
-function withTask(document: Document, next: Task): Document {
+export function withTask(document: Document, next: Task): Document {
   const held = document.schedule.tasks.find((one) => one.uid === next.uid)
   // TRAP: return the same document when nothing changed; document-change-plan.ts compares references.
   if (held !== undefined && sameRow(held, next)) return document
@@ -159,18 +164,7 @@ function withTask(document: Document, next: Task): Document {
 }
 
 /** @purity pure */
-function withVisual(document: Document, next: TaskVisual): Document {
-  const held = document.schedule.taskVisuals
-  const foundAt = held.findIndex((one) => one.taskUid === next.taskUid)
-  // TRAP: an absent row compares as blank, or a no-op would append a null row and move the instant.
-  const standing = foundAt < 0 ? blankVisual(next.taskUid) : held[foundAt]
-  if (standing !== undefined && sameRow(standing, next)) return document
-  const taskVisuals = foundAt < 0 ? [...held, next] : held.map((one, index) => (index === foundAt ? next : one))
-  return withSchedule(document, { ...document.schedule, taskVisuals })
-}
-
-/** @purity pure */
-function blankVisual(taskUid: number): TaskVisual {
+export function blankVisual(taskUid: number): TaskVisual {
   return {
     taskUid,
     nameAnchor: null,
@@ -184,13 +178,13 @@ function blankVisual(taskUid: number): TaskVisual {
 }
 
 /** @purity pure */
-function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
+export function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
   return schedule.taskVisuals.find((one) => one.taskUid === taskUid) ?? blankVisual(taskUid)
 }
 
 // see AT-100, FR-083
 /** @purity pure */
-function isMilestone(task: Task, visual: TaskVisual): boolean {
+export function isMilestone(task: Task, visual: TaskVisual): boolean {
   return visual.shapeKind === null ? task.milestone === true : visual.shapeKind === 'milestone'
 }
 
@@ -200,7 +194,7 @@ type DayCheck =
 
 // see IV-14, T-214
 /** @purity pure */
-function checkDay(settings: DocumentSettings, text: string): DayCheck {
+export function checkDay(settings: DocumentSettings, text: string): DayCheck {
   const day = dayOf(text)
   if (day === null) return { ok: false, what: `is not a date: ${text}` }
   const min = dayOf(settings.importMinDate)
@@ -214,290 +208,10 @@ function checkDay(settings: DocumentSettings, text: string): DayCheck {
   return { ok: true, day }
 }
 
-// see FR-012
-/** @purity pure */
-function planSpanOf(within: WorkingCalendar, task: Task): number | null {
-  const start = dayOf(task.start)
-  const finish = dayOf(task.finish)
-  if (start === null || finish === null) return null
-  return workingDaysBetween(within, start, finish)
-}
-
-// see FD-6, IV-12
-// TRAP: count calendar days; worked days would refuse fades the handle allowed (FD-7).
-/** @purity pure */
-function fadeSpanOf(task: Task): number | null {
-  const start = dayOf(task.start)
-  const finish = dayOf(task.finish)
-  if (start === null || finish === null) return null
-  return calendarDaysBetween(start, finish)
-}
-
-// see FR-012, FR-090, EX-5
-/** @purity pure */
-function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
-  const span = planSpanOf(within, task)
-  if (span === null) return task.percentComplete
-  if (span === 0) return task.actualFinish !== null ? 100 : 0
-  return Math.round((heldActualLength(within, task) / span) * 100)
-}
-
-// see FR-011, FR-012
-/** @purity pure */
-function heldActualLength(within: WorkingCalendar, task: Task): number {
-  const start = dayOf(task.actualStart)
-  const lastDay = actualLastDay(task)
-  if (start === null || lastDay === null) return 0
-  return actualLengthOf(within, start, lastDay)
-}
-
-// see FR-012
-/** @purity pure */
-export function repriced(within: WorkingCalendar, task: Task): Task {
-  return { ...task, percentComplete: percentCompleteOf(within, task) }
-}
-
-// see FR-011, S-129, S-130, PV-1
-// WHY: a milestone's floor day is its actualStart itself, so no length is counted for it.
-/** @purity pure */
-function floorDayOf(within: WorkingCalendar, settings: DocumentSettings, start: CalendarDay,
-                    milestone: boolean): CalendarDay {
-  return milestone ? start : lastDayForLength(within, start, settings.actualInitialDuration)
-}
-
-type LastDayCheck =
-  | { readonly ok: true; readonly lastDay: CalendarDay }
-  | { readonly ok: false; readonly length: number }
-
-// see FR-011, IV-21
-// WHY: a length below 0 is refused, a length of 0 or under the floor is lifted to the floor day.
-/** @purity pure */
-function settledLastDay(within: WorkingCalendar, start: CalendarDay, lastDay: CalendarDay,
-                        floor: CalendarDay): LastDayCheck {
-  const length = actualLengthOf(within, start, lastDay)
-  if (length < 0) return { ok: false, length }
-  return { ok: true, lastDay: compareDays(lastDay, floor) < 0 ? floor : lastDay }
-}
-
-const CARRIED_ACTUAL_DURATION = 'ActualDuration'
-
-// see T-019
-// TRAP: call only where actuals are edited; dropping ActualDuration on other edits breaks T-033's round trip.
-/** @purity pure */
-function actualsEdited(task: Task): Task {
-  if (task.carry[CARRIED_ACTUAL_DURATION] === undefined) return task
-  return {
-    ...task,
-    carry: Object.fromEntries(
-      Object.entries(task.carry).filter(([name]) => name !== CARRIED_ACTUAL_DURATION),
-    ),
-  }
-}
-
-export interface CycleSurroundings {
-  readonly floorDay: string | null
-  readonly milestone: boolean
-}
-
-export interface CycledPlanActual {
-  readonly task: Task
-  readonly remembered: RememberedActual | null
-}
-
-// see PV-4
-/** @purity pure */
-function actualTakenOff(task: Task): RememberedActual {
-  return {
-    actualStart: task.actualStart,
-    actualFinish: task.actualFinish,
-    stop: task.stop,
-    carriedActualDuration: task.carry[CARRIED_ACTUAL_DURATION] ?? null,
-  }
-}
-
-// see PV-1, PV-5
-// WHY: the carried duration goes back with the days, so putting the same actual back is no edit.
-/** @purity pure */
-function actualPutBack(task: Task, actual: RememberedActual): Task {
-  const carry =
-    actual.carriedActualDuration === null
-      ? task.carry
-      : { ...task.carry, [CARRIED_ACTUAL_DURATION]: actual.carriedActualDuration }
-  return {
-    ...task,
-    actualStart: actual.actualStart,
-    actualFinish: actual.actualFinish,
-    stop: actual.stop,
-    resume: null,
-    carry,
-  }
-}
-
-// see PV-4
-/** @purity pure */
-function actualCleared(task: Task): Task {
-  return actualsEdited({
-    ...task,
-    actualStart: null,
-    actualFinish: null,
-    stop: null,
-    resume: null,
-    resumeValid: false,
-  })
-}
-
-// see PV-1
-/** @purity pure */
-function startedAgain(task: Task, remembered: RememberedActual | null,
-                      around: CycleSurroundings): Task {
-  if (remembered !== null) return { ...actualPutBack(task, remembered), resumeValid: true }
-  if (task.start === null) return task
-  return actualsEdited({
-    ...task,
-    actualStart: task.start,
-    stop: around.floorDay,
-    actualFinish: null,
-    resume: null,
-    resumeValid: true,
-  })
-}
-
-// see PV-5
-/** @purity pure */
-function cycledMilestone(task: Task, remembered: RememberedActual | null,
-                         state: ReturnType<typeof planActualState>): CycledPlanActual {
-  if (state !== 'notStarted') {
-    return { task: actualCleared(task), remembered: actualTakenOff(task) }
-  }
-  if (remembered !== null) {
-    return { task: { ...actualPutBack(task, remembered), resumeValid: false }, remembered: null }
-  }
-  if (task.start === null) return { task, remembered }
-  return {
-    task: actualsEdited({
-      ...task,
-      actualStart: task.start,
-      actualFinish: task.start,
-      stop: null,
-      resume: null,
-      resumeValid: false,
-    }),
-    remembered: null,
-  }
-}
-
-// see CM-15, T-021a
-// TRAP: `around` left out reads S-129 as 1 and S-130 as the plan start; a document that raised
-// S-129 must hand the floor day in, or PV-1 puts a one-day actual where the floor is longer.
-/** @purity pure */
-export function cycleTaskPlanActualState(
-  task: Task,
-  remembered: RememberedActual | null,
-  around: CycleSurroundings = { floorDay: task.start, milestone: task.milestone === true },
-): CycledPlanActual {
-  const state = planActualState(task)
-  if (around.milestone) return cycledMilestone(task, remembered, state)
-  switch (state) {
-    case 'notStarted':
-      return { task: startedAgain(task, remembered, around), remembered: null }
-    case 'inProgress':
-      // WHY: one replacement moves the last day, so no actual without a last day is seen (PV-2).
-      return task.stop === null
-        ? { task, remembered }
-        : {
-            task: actualsEdited({ ...task, actualFinish: task.stop, stop: null, resumeValid: false }),
-            remembered,
-          }
-    case 'finished':
-      // WHY: move the last day to stop, or clearing actualFinish erases the actual's right end (PV-3).
-      return {
-        task: actualsEdited({
-          ...task,
-          stop: task.actualFinish,
-          actualFinish: null,
-          resume: null,
-          resumeValid: false,
-        }),
-        remembered,
-      }
-    case 'suspendedResumeUnknown':
-    case 'suspendedResumePlanned':
-      return { task: actualCleared(task), remembered: actualTakenOff(task) }
-  }
-}
-
-const CARRIED_SLACKS: readonly string[] = ['FreeSlack', 'TotalSlack', 'StartSlack', 'FinishSlack']
-
-const CARRIED_PLAN_LEAVES: readonly string[] = ['ConstraintType', 'ConstraintDate', 'Duration']
-
-// see EX-11
-const MUST_START_ON = '2'
-
-interface DatedPlan {
-  readonly start: CalendarDay
-  readonly finish: CalendarDay
-  readonly duration: string
-}
-
-// see DV-8, EX-9
-/** @purity pure */
-function datedPlanOf(task: Task, schedule: Schedule, within: WorkingCalendar): DatedPlan | null {
-  const start = dayOf(task.start)
-  const finish = dayOf(task.finish)
-  if (start === null || finish === null) return null
-  const duration = durationText(workingDaysBetween(within, start, finish) * minutesPerDayOf(schedule))
-  return { start, finish, duration }
-}
-
-// see EX-11, EX-12, AT-143
-// WHY: a document read from MSPDI writes its carry back as it stands (EX-2), so these replace what would
-// contradict the dates; a grs document has them written on export, so its carried ones are dropped.
-/** @purity pure */
-function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
-  if (schedule.project.sourceFormat === 'grs') {
-    const kept = Object.entries(task.carry).filter(([name]) => !CARRIED_PLAN_LEAVES.includes(name))
-    return { ...task, carry: Object.fromEntries(kept) }
-  }
-  const pinned = { ConstraintType: MUST_START_ON, ConstraintDate: textOfDay(span.start), Duration: span.duration }
-  return { ...task, carry: { ...task.carry, ...pinned } }
-}
-
-// see EX-11, EX-12, FR-033
-// WHY: a copy is a task GRS adds, not one the partner sent (FR-033 gives it no TaskOrigin), so a pasted subtree
-// comes through here as well: the links leaving the subtree do not come along, so the source's slack is no fact.
-/** @purity pure */
-function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
-  const span = datedPlanOf(task, schedule, within)
-  if (span === null) return task
-  const rebuilt: ReadonlyMap<string, string> = new Map([
-    ['ManualStart', textOfDay(span.start)],
-    ['ManualFinish', textOfDay(span.finish)],
-    ['ManualDuration', span.duration],
-  ])
-  const kept = Object.entries(task.carry)
-    .filter(([name]) => !CARRIED_SLACKS.includes(name))
-    .map(([name, value]): [string, string] => [name, rebuilt.get(name) ?? value])
-  return pinnedToStart({ ...task, carry: Object.fromEntries(kept) }, schedule, span)
-}
-
-// see FR-054, S-128
-/** @purity pure */
-function minutesPerDayOf(schedule: Schedule): number {
-  const held = schedule.project.minutesPerDay
-  return held !== null && held > 0 ? held : DEFAULT_CALENDAR_VALUES['S-128']
-}
-
-// see EX-9
-/** @purity pure */
-function durationText(minutes: number): string {
-  const whole = Math.max(0, Math.round(minutes))
-  return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`
-}
-
 // see IV-4
 // WHY: a sweep, not a recursion, because rows arrive in no parent-before-child order.
 /** @purity pure */
-function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> {
+export function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<number> {
   const held = new Set<number>([root])
   for (let grew = true; grew; ) {
     grew = false
@@ -533,85 +247,8 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
   const task = named as Task
 
   switch (command.kind) {
-    case 'createTask': {
-      const start = checkDay(settings, command.start)
-      const finish = checkDay(settings, command.finish)
-      if (!start.ok || !finish.ok) {
-        const faults: Refusal[] = []
-        if (!start.ok) faults.push(reject('CM-6', 'IV-14', `start ${start.what}`))
-        if (!finish.ok) faults.push(reject('CM-6', 'IV-14', `finish ${finish.what}`))
-        return refused(faults)
-      }
-      if (compareDays(finish.day, start.day) < 0) {
-        return refused([reject('CM-6', 'FR-012', 'finish is before start')])
-      }
-
-      const uid = schedule.project.uidHighWaterMark + 1
-      const created: Task = {
-        uid,
-        wbsParentUid: null,
-        wbsOrder: null,
-        name: null,
-        start: command.start,
-        finish: command.finish,
-        milestone: command.shapeKind === 'milestone',
-        deadline: null,
-        notes: null,
-        calendarUid: null,
-        actualStart: null,
-        stop: null,
-        actualFinish: null,
-        resume: null,
-        resumeValid: null,
-        percentComplete: null,
-        fadeInDays: null,
-        fadeOutDays: null,
-        dependencies: [],
-        carry: {},
-        carryElements: [],
-      }
-      const tasks = [...schedule.tasks, repriced(within, planDatesEdited(created, schedule, within))]
-
-      // TRAP: write shapeKind down; Task.milestone cannot tell SH-1 from SH-2 (AT-100).
-      const taskVisuals = [...schedule.taskVisuals, { ...visualOf(schedule, uid), shapeKind: command.shapeKind }]
-
-      const held = schedule.taskGroups.find((one) => one.id === command.groupId)
-      let taskGroups = schedule.taskGroups
-      if (held === undefined) {
-        // STOP: spec does not decide where FR-001's new row goes. Looked in TC-3, HF-14, HF-17, AT-55 (PND-491)
-        const order = schedule.taskGroups
-          .filter((one) => one.parentId === null)
-          .reduce((best, one) => Math.max(best, one.order), -1) + 1
-        const made: TaskGroup = {
-          id: command.groupId,
-          parentId: null,
-          label: null,
-          derivedFromTaskUid: uid,
-          order,
-          isCollapsed: null,
-          isHidden: null,
-          isKeptOpen: false,
-          editGroup: null,
-          color: null,
-          height: null,
-        }
-        taskGroups = [...schedule.taskGroups, made]
-      }
-      const taskGroupMembers = [
-        ...schedule.taskGroupMembers,
-        { taskUid: uid, groupId: command.groupId, stackOrder: null },
-      ]
-      return edited(
-        withSchedule(document, {
-          ...schedule,
-          project: { ...schedule.project, uidHighWaterMark: uid },
-          tasks,
-          taskVisuals,
-          taskGroups,
-          taskGroupMembers,
-        }),
-      )
-    }
+    case 'createTask':
+      return createTask(document, command, within)
 
     case 'deleteTask': {
       const doomed = wbsSubtreeOf(schedule, command.uid)
@@ -650,50 +287,8 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
       )
     }
 
-    case 'pasteTaskSubtree': {
-      // STOP: spec does not decide who passes ST-7's cap (S-89) to FR-033's refusal. Looked in ST-1, T-038, T-067 (PND-179)
-      const subtree = wbsSubtreeOf(schedule, command.sourceUid)
-
-      let mark = schedule.project.uidHighWaterMark
-      const remap = new Map<number, number>()
-      for (const one of schedule.tasks) if (subtree.has(one.uid)) remap.set(one.uid, ++mark)
-
-      const copies = schedule.tasks
-        .filter((one) => subtree.has(one.uid))
-        .map((one) => planDatesEdited({
-          ...one,
-          uid: remap.get(one.uid) as number,
-          // STOP: spec does not decide a copied root Task's WBS parent. Looked in FR-033, DU-1, DU-2, TC-11 (PND-492)
-          wbsParentUid:
-            one.uid === command.sourceUid
-              ? one.wbsParentUid
-              : (remap.get(one.wbsParentUid as number) as number),
-          dependencies: one.dependencies
-            .filter((link) => subtree.has(link.predecessorUid))
-            .map((link) => ({ ...link, predecessorUid: remap.get(link.predecessorUid) as number })),
-        }, schedule, within))
-
-      const visualCopies = schedule.taskVisuals
-        .filter((one) => subtree.has(one.taskUid))
-        .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
-      const memberCopies = schedule.taskGroupMembers
-        .filter((one) => subtree.has(one.taskUid))
-        .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
-      const assignmentCopies: Assignment[] = schedule.assignments
-        .filter((one) => one.taskUid !== null && subtree.has(one.taskUid))
-        .map((one) => ({ ...one, uid: ++mark, taskUid: remap.get(one.taskUid as number) as number }))
-
-      return edited(
-        withSchedule(document, {
-          ...schedule,
-          project: { ...schedule.project, uidHighWaterMark: mark },
-          tasks: [...schedule.tasks, ...copies],
-          taskVisuals: [...schedule.taskVisuals, ...visualCopies],
-          taskGroupMembers: [...schedule.taskGroupMembers, ...memberCopies],
-          assignments: [...schedule.assignments, ...assignmentCopies],
-        }),
-      )
-    }
+    case 'pasteTaskSubtree':
+      return pasteTaskSubtree(document, command, within)
 
     case 'setTaskName':
       return edited(withTask(document, { ...task, name: command.name }))
@@ -701,28 +296,8 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
     case 'setTaskNotes':
       return edited(withTask(document, { ...task, notes: command.notes }))
 
-    case 'setTaskPlanDates': {
-      const start = checkDay(settings, command.start)
-      const finish = checkDay(settings, command.finish)
-      if (!start.ok || !finish.ok) {
-        const faults: Refusal[] = []
-        if (!start.ok) faults.push(reject('CM-11', 'IV-14', `start ${start.what}`))
-        if (!finish.ok) faults.push(reject('CM-11', 'IV-14', `finish ${finish.what}`))
-        return refused(faults)
-      }
-      if (compareDays(finish.day, start.day) < 0) {
-        return refused([reject('CM-11', 'FR-012', 'finish is before start')])
-      }
-      const fade = (task.fadeInDays ?? 0) + (task.fadeOutDays ?? 0)
-      const span = calendarDaysBetween(start.day, finish.day)
-      if (fade > span) {
-        return refused([
-          reject('CM-11', 'IV-12', `fade of ${fade} days does not fit a plan of ${span}`),
-        ])
-      }
-      const moved = planDatesEdited({ ...task, start: command.start, finish: command.finish }, schedule, within)
-      return edited(withTask(document, repriced(within, moved)))
-    }
+    case 'setTaskPlanDates':
+      return setTaskPlanDates(document, command, task, within)
 
     case 'setTaskDeadline': {
       if (command.deadline !== null) {
@@ -732,173 +307,18 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
       return edited(withTask(document, { ...task, deadline: command.deadline }))
     }
 
-    case 'setTaskPlanActualState': {
-      const place = command.place
-      const faults: Refusal[] = []
-      const dates: readonly (readonly [string, string])[] =
-        place.row === 'PA-1'
-          ? []
-          : place.row === 'PA-3'
-            ? [['actualStart', place.actualStart], ['stop', place.stop], ['resume', place.resume]]
-            : place.row === 'PA-5'
-              ? [['actualStart', place.actualStart], ['actualFinish', place.actualFinish]]
-              : [['actualStart', place.actualStart], ['stop', place.stop]]
-      for (const [label, text] of dates) {
-        const checked = checkDay(settings, text)
-        if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
-      }
-      if (faults.length > 0) return refused(faults)
+    case 'setTaskPlanActualState':
+      return setTaskPlanActualState(document, command, task, within)
 
-      if (place.row === 'PA-1') {
-        // TRAP: leave resumeValid alone; T-019's PA-1 cell is a dash, not empty.
-        const cleared: Task = { ...task, actualStart: null, stop: null, actualFinish: null, resume: null }
-        return edited(withTask(document, repriced(within, actualsEdited(cleared))))
-      }
+    case 'beginTaskActual':
+      return beginTaskActual(document, command, task, within)
 
-      const askedText = place.row === 'PA-5' ? place.actualFinish : place.stop
-      // WHY: checkDay above has read both texts as days, so neither is null here.
-      const from = dayOf(place.actualStart) as CalendarDay
-      const asked = dayOf(askedText) as CalendarDay
-      const milestone = isMilestone(task, visualOf(schedule, task.uid))
-      const settled = settledLastDay(within, from, asked, floorDayOf(within, settings, from, milestone))
-      if (!settled.ok) {
-        return refused([
-          reject('CM-13', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
-        ])
-      }
-      const lastDay = compareDays(settled.lastDay, asked) === 0 ? askedText : textOfDay(settled.lastDay)
-
-      let placed: Task
-      switch (place.row) {
-        case 'PA-2':
-          placed = {
-            ...task,
-            actualStart: place.actualStart,
-            stop: lastDay,
-            actualFinish: null,
-            resume: null,
-            resumeValid: true,
-          }
-          break
-        case 'PA-3':
-          placed = {
-            ...task,
-            actualStart: place.actualStart,
-            stop: lastDay,
-            actualFinish: null,
-            resume: place.resume,
-            resumeValid: true,
-          }
-          break
-        case 'PA-4':
-          placed = {
-            ...task,
-            actualStart: place.actualStart,
-            stop: lastDay,
-            actualFinish: null,
-            resume: null,
-            resumeValid: false,
-          }
-          break
-        case 'PA-5':
-          placed = {
-            ...task,
-            actualStart: place.actualStart,
-            stop: null,
-            actualFinish: lastDay,
-            resume: null,
-            resumeValid: false,
-          }
-          break
-      }
-      return edited(withTask(document, repriced(within, actualsEdited(placed))))
-    }
-
-    case 'beginTaskActual': {
-      if (planActualState(task) !== 'notStarted') {
-        return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
-      }
-      const isDrawnAsMilestone = isMilestone(task, visualOf(schedule, task.uid))
-      const dropped = checkDay(settings, command.droppedDay)
-      if (!dropped.ok) {
-        return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
-      }
-      if (DUMMY_FINISH_HOLDS.includes(command.grabbed)) {
-        // TRAP: the plan start day itself, where schedule-layout.ts and schedule-geometry.ts stand the dummy (DM-1);
-        // change all three together.
-        const planStart = dayOf(task.start)
-        if (planStart === null) {
-          return refused([
-            reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
-          ])
-        }
-        const pinned = planStart
-        // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
-        const settled = settledLastDay(
-          within, pinned, dropped.day, floorDayOf(within, settings, pinned, isDrawnAsMilestone),
-        )
-        if (!settled.ok) {
-          return refused([
-            reject('CM-14', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
-          ])
-        }
-        const pulled: Task = {
-          ...task,
-          actualStart: textOfDay(pinned),
-          stop: textOfDay(settled.lastDay),
-          resumeValid: true,
-        }
-        return edited(withTask(document, repriced(within, actualsEdited(pulled))))
-      }
-      const begun: Task = {
-        ...task,
-        actualStart: textOfDay(dropped.day),
-        stop: textOfDay(floorDayOf(within, settings, dropped.day, isDrawnAsMilestone)),
-        resumeValid: true,
-      }
-      return edited(withTask(document, repriced(within, actualsEdited(begun))))
-    }
-
-    case 'cycleTaskPlanActualState': {
-      const state = planActualState(task)
-      const milestone = isMilestone(task, visualOf(schedule, task.uid))
-      const from = dayOf(task.start)
-      if (state === 'notStarted' && command.remembered === null && from === null) {
-        return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
-      }
-      if (state === 'inProgress' && task.stop === null) {
-        return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
-      }
-      const floorDay = from === null ? null : textOfDay(floorDayOf(within, settings, from, milestone))
-      const turned = cycleTaskPlanActualState(task, command.remembered, { floorDay, milestone })
-      return edited(withTask(document, repriced(within, turned.task)))
-    }
+    case 'cycleTaskPlanActualState':
+      return cycleTaskPlanActualStateInDocument(document, command, task, within)
 
     case 'setTaskFadeInDays':
-    case 'setTaskFadeOutDays': {
-      const row = command.kind === 'setTaskFadeInDays' ? 'CM-16' : 'CM-17'
-      const days = command.days
-      if (days !== null) {
-        if (!Number.isInteger(days) || days < 0) {
-          return refused([reject(row, 'FD-7', `fade days must be a whole number of days, not ${days}`)])
-        }
-        if (task.finish === null) {
-          return refused([reject(row, 'IV-11', 'a task with a fade must have a finish')])
-        }
-        const span = fadeSpanOf(task)
-        const other = command.kind === 'setTaskFadeInDays' ? task.fadeOutDays : task.fadeInDays
-        if (span !== null && days + (other ?? 0) > span) {
-          return refused([
-            reject(row, 'IV-12', `fade of ${days + (other ?? 0)} days does not fit a plan of ${span}`),
-          ])
-        }
-      }
-      const faded =
-        command.kind === 'setTaskFadeInDays'
-          ? { ...task, fadeInDays: days }
-          : { ...task, fadeOutDays: days }
-      return edited(withTask(document, faded))
-    }
+    case 'setTaskFadeOutDays':
+      return setTaskFadeDays(document, command, task)
 
     case 'setTaskWbsParent': {
       if (command.parentUid !== null) {
@@ -930,74 +350,23 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
       return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheRowTree(moved) }))
     }
 
-    case 'setTaskVisualShapeKind': {
-      const visual = visualOf(schedule, command.uid)
-      const wanted = command.shapeKind === 'milestone'
-      if (isMilestone(task, visual) !== wanted) {
-        return refused([
-          reject('CM-20', 'FR-083', 'a milestone and a task with a duration are not interchangeable'),
-        ])
-      }
-      return edited(withVisual(document, { ...visual, shapeKind: command.shapeKind }))
-    }
+    case 'setTaskVisualShapeKind':
+      return setTaskVisualShapeKind(document, command, task)
 
-    case 'setTaskVisualMilestoneGlyph': {
-      // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
-      if (
-        command.glyph !== null
-        && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.glyph)
-      ) {
-        return refused([
-          reject('CM-21', 'FR-078', 'the figure is not one of those table T-012 SH-5 names'),
-        ])
-      }
-      const visual = visualOf(schedule, command.uid)
-      return edited(withVisual(document, { ...visual, milestoneGlyph: command.glyph }))
-    }
+    case 'setTaskVisualMilestoneGlyph':
+      return setTaskVisualMilestoneGlyph(document, command)
 
-    case 'setTaskVisualColors': {
-      if (command.fillColor === TRANSPARENT && command.strokeColor === TRANSPARENT) {
-        return refused([reject('CM-22', 'IV-9', 'the fill and the stroke may not both be transparent')])
-      }
-      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, AT-102, FR-007 (PND-494)
-      const visual = visualOf(schedule, command.uid)
-      return edited(
-        withVisual(document, {
-          ...visual,
-          fillColor: command.fillColor,
-          strokeColor: command.strokeColor,
-        }),
-      )
-    }
+    case 'setTaskVisualColors':
+      return setTaskVisualColors(document, command)
 
-    case 'resetTaskVisualColors': {
-      const visual = visualOf(schedule, command.uid)
-      return edited(withVisual(document, { ...visual, fillColor: null, strokeColor: null }))
-    }
+    case 'resetTaskVisualColors':
+      return resetTaskVisualColors(document, command)
 
-    case 'setTaskVisualLineWeight': {
-      const visual = visualOf(schedule, command.uid)
-      return edited(withVisual(document, { ...visual, lineWeight: command.lineWeight }))
-    }
+    case 'setTaskVisualLineWeight':
+      return setTaskVisualLineWeight(document, command)
 
-    case 'setTaskVisualNamePlacement': {
-      if (
-        command.nameAnchor !== null &&
-        (!Number.isInteger(command.nameAnchor) || command.nameAnchor < 0 || command.nameAnchor > 8)
-      ) {
-        return refused([
-          reject('CM-25', 'AT-98', `the name anchor is an integer 0 to 8, not ${command.nameAnchor}`),
-        ])
-      }
-      const visual = visualOf(schedule, command.uid)
-      return edited(
-        withVisual(document, {
-          ...visual,
-          nameAnchor: command.nameAnchor,
-          nameAlign: command.nameAlign,
-        }),
-      )
-    }
+    case 'setTaskVisualNamePlacement':
+      return setTaskVisualNamePlacement(document, command)
   }
 }
 

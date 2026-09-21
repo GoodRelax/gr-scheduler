@@ -15,6 +15,17 @@ import type {
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited } from './edit-document'
+import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
+import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupHeight } from './task-group-look'
+import {
+  expandAllTaskGroups,
+  setTaskGroupCollapsed,
+  setTaskGroupHidden,
+  setTaskGroupKeptOpen,
+} from './task-group-folding'
+import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
+
+export { tasksRankedByTheRowTree } from './task-group-order'
 
 export type TaskGroupCommand =
   | {
@@ -52,25 +63,30 @@ export type TaskGroupCommand =
     }
   | { readonly kind: 'expandAllTaskGroups' }
 
+export type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract<
+  TaskGroupCommand,
+  { readonly kind: K }
+>
+
 /** @purity pure */
-function reject(command: string, rule: string, what: string): Refusal {
+export function reject(command: string, rule: string, what: string): Refusal {
   return { command, rule, what }
 }
 
 /** @purity pure */
-function withSchedule(document: Document, part: Partial<Schedule>): Document {
+export function withSchedule(document: Document, part: Partial<Schedule>): Document {
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
 /** @purity pure */
-function withRow(document: Document, row: TaskGroup): Document {
+export function withRow(document: Document, row: TaskGroup): Document {
   return withSchedule(document, {
     taskGroups: document.schedule.taskGroups.map((one) => (one.id === row.id ? row : one)),
   })
 }
 
 /** @purity pure */
-function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
+export function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
   let depth = 1
   let foundAt = row.parentId
   for (let guard = 0; foundAt !== null && guard <= byId.size; guard++) {
@@ -82,13 +98,13 @@ function depthOf(byId: ReadonlyMap<string, TaskGroup>, row: TaskGroup): number {
   return depth
 }
 
-interface Subtree {
+export interface Subtree {
   readonly rows: readonly TaskGroup[]
   readonly height: number
 }
 
 /** @purity pure */
-function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree | null {
+export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree | null {
   const root = groups.find((one) => one.id === rootId)
   if (root === undefined) return null
   const rows: TaskGroup[] = []
@@ -124,82 +140,6 @@ function withWbsDescendants(tasks: readonly Task[], seeds: Iterable<number>): Re
   return held
 }
 
-// see HM-9
-// TRAP: schedule.ts and the input translator walk the row tree the same way; change all three.
-/** @purity pure */
-function rowTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
-  const childrenOf = new Map<string | null, TaskGroup[]>()
-  const holds = new Set(groups.map((one) => one.id))
-  for (const one of groups) {
-    const parent = one.parentId !== null && holds.has(one.parentId) ? one.parentId : null
-    const kin = childrenOf.get(parent)
-    if (kin === undefined) childrenOf.set(parent, [one])
-    else kin.push(one)
-  }
-  for (const kin of childrenOf.values()) kin.sort((a, b) => a.order - b.order)
-
-  const rankById = new Map<string, number>()
-  const walk = (parent: string | null): void => {
-    for (const one of childrenOf.get(parent) ?? []) {
-      if (rankById.has(one.id)) continue
-      rankById.set(one.id, rankById.size)
-      walk(one.id)
-    }
-  }
-  walk(null)
-  for (const one of groups) if (!rankById.has(one.id)) rankById.set(one.id, rankById.size)
-  return rankById
-}
-
-// see ST-2
-/** @purity pure */
-function compareByStackOrder(left: Task, right: Task): number {
-  const text = (a: string | null, b: string | null): number =>
-    a === b ? 0 : (a ?? '') < (b ?? '') ? -1 : 1
-  const byStart = text(left.start, right.start)
-  if (byStart !== 0) return byStart
-  const byFinish = text(left.finish, right.finish)
-  if (byFinish !== 0) return -byFinish
-  return left.uid - right.uid
-}
-
-// see HM-9
-/** @purity pure */
-export function tasksRankedByTheRowTree(schedule: Schedule): readonly Task[] {
-  if (schedule.tasks.length === 0) return schedule.tasks
-  const rankById = rowTreeRankById(schedule.taskGroups)
-  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
-  const rankOf = (task: Task): number => {
-    const row = rowOfTask.get(task.uid)
-    const rank = row === undefined ? undefined : rankById.get(row)
-    return rank === undefined ? rankById.size : rank
-  }
-  const family = new Map<number | null, Task[]>()
-  for (const task of schedule.tasks) {
-    const kin = family.get(task.wbsParentUid)
-    if (kin === undefined) family.set(task.wbsParentUid, [task])
-    else kin.push(task)
-  }
-  const placeOf = new Map<number, number>()
-  for (const kin of family.values()) {
-    const ordered = [...kin].sort((a, b) => {
-      const byRow = rankOf(a) - rankOf(b)
-      return byRow !== 0 ? byRow : compareByStackOrder(a, b)
-    })
-    ordered.forEach((task, at) => placeOf.set(task.uid, at))
-  }
-  return schedule.tasks.map((task) => {
-    const at = placeOf.get(task.uid)
-    return at === undefined || task.wbsOrder === at ? task : { ...task, wbsOrder: at }
-  })
-}
-
-/** @purity pure */
-function withWbsOrderFollowingTheRows(document: Document, rows: readonly TaskGroup[]): Document {
-  const moved = withSchedule(document, { taskGroups: rows })
-  return withSchedule(moved, { tasks: tasksRankedByTheRowTree(moved.schedule) })
-}
-
 // see CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-33, CM-34, CM-35, CM-72, CM-73
 // TRAP: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
@@ -215,58 +155,8 @@ export function editTaskGroup(
   const byId = new Map(groups.map((one) => [one.id, one]))
 
   switch (command.kind) {
-    case 'createTaskGroup': {
-      const refusals: Refusal[] = []
-      if (byId.has(command.id)) {
-        refusals.push(reject('CM-26', 'IV-1', `a row already holds the id ${command.id}`))
-      }
-      if (!Number.isInteger(command.order)) {
-        refusals.push(reject('CM-26', 'AT-55', `order is not an integer: ${command.order}`))
-      }
-      if (command.label === null && command.derivedFromTaskUid === null) {
-        refusals.push(
-          reject('CM-26', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
-        )
-      }
-      if (
-        command.derivedFromTaskUid !== null &&
-        taskByUid(schedule, command.derivedFromTaskUid) === null
-      ) {
-        refusals.push(
-          reject('CM-26', 'IV-2', `no Task holds the uid ${command.derivedFromTaskUid}`),
-        )
-      }
-      if (command.parentId !== null) {
-        const parent = byId.get(command.parentId)
-        if (parent === undefined) {
-          refusals.push(reject('CM-26', 'FR-085', `no such parent row: ${command.parentId}`))
-        } else if (depthOf(byId, parent) >= settings.maxGroupDepth) {
-          refusals.push(
-            reject(
-              'CM-26',
-              'FR-085',
-              `the parent is already at the depth S-125 allows (${settings.maxGroupDepth})`,
-            ),
-          )
-        }
-      }
-      if (refusals.length > 0) return refused(refusals)
-
-      const row: TaskGroup = {
-        id: command.id,
-        parentId: command.parentId,
-        label: command.label,
-        derivedFromTaskUid: command.derivedFromTaskUid,
-        order: command.order,
-        isCollapsed: null,
-        isHidden: null,
-        isKeptOpen: false,
-        editGroup: null,
-        color: null,
-        height: null,
-      }
-      return edited(withSchedule(document, { taskGroups: [...groups, row] }))
-    }
+    case 'createTaskGroup':
+      return createTaskGroup(document, command, byId)
 
     case 'deleteTaskGroup': {
       const doomed = subtreeOf(groups, command.groupId)
@@ -470,171 +360,25 @@ export function editTaskGroup(
       )
     }
 
-    case 'setTaskGroupLabel': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-29', 'FR-085', `no such row: ${command.groupId}`)])
-      }
-      if (command.label === null && row.derivedFromTaskUid === null) {
-        return refused([
-          reject('CM-29', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
-        ])
-      }
-      if (row.label === command.label) return edited(document)
-      return edited(withRow(document, { ...row, label: command.label }))
-    }
-
-    case 'setTaskGroupColor': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
-      }
-      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, FR-007, FR-042 (PND-494)
-      if (row.color === command.color) return edited(document)
-      return edited(withRow(document, { ...row, color: command.color }))
-    }
-
-    case 'resetTaskGroupColor': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-31', 'FR-007', `no such row: ${command.groupId}`)])
-      }
-      if (row.color === null) return edited(document)
-      return edited(withRow(document, { ...row, color: null }))
-    }
-
-    case 'setTaskGroupHeight': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-32', 'FR-042', `no such row: ${command.groupId}`)])
-      }
-      if (command.height !== null && !Number.isInteger(command.height)) {
-        return refused([reject('CM-32', 'AT-59', `height is not an integer: ${command.height}`)])
-      }
-      // WHY: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
-      if (row.height === command.height) return edited(document)
-      return edited(withRow(document, { ...row, height: command.height }))
-    }
-
-    case 'setTaskGroupCollapsed': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-33', 'FR-004', `no such row: ${command.groupId}`)])
-      }
-      if (row.isCollapsed === command.collapsed) return edited(document)
-      return edited(withRow(document, { ...row, isCollapsed: command.collapsed }))
-    }
-
-    case 'setTaskGroupHidden': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-34', 'FR-004', `no such row: ${command.groupId}`)])
-      }
-      if (row.isHidden === command.hidden) return edited(document)
-      return edited(withRow(document, { ...row, isHidden: command.hidden }))
-    }
-
-    // see CM-75, FR-018, T-254
-    case 'setTaskGroupKeptOpen': {
-      const row = byId.get(command.groupId)
-      if (row === undefined) {
-        return refused([reject('CM-75', 'FR-018', `no such row: ${command.groupId}`)])
-      }
-      if (row.isKeptOpen === command.keptOpen) return edited(document)
-      return edited(withRow(document, { ...row, isKeptOpen: command.keptOpen }))
-    }
-
-    case 'reorderTaskGroupSiblings': {
-      const refusals: Refusal[] = []
-      if (command.parentId !== null && !byId.has(command.parentId)) {
-        refusals.push(reject('CM-35', 'FR-005', `no such parent row: ${command.parentId}`))
-      }
-      const siblings = groups.filter((one) => one.parentId === command.parentId)
-      const asked = new Set(command.orderedIds)
-      if (asked.size !== command.orderedIds.length) {
-        refusals.push(reject('CM-35', 'HM-8', 'the same row is named twice'))
-      }
-      if (asked.size !== siblings.length || !siblings.every((one) => asked.has(one.id))) {
-        refusals.push(
-          reject('CM-35', 'HM-8', 'the list must name every child of that parent, and no other row'),
-        )
-      }
-      if (refusals.length > 0) return refused(refusals)
-
-      const rank = new Map(command.orderedIds.map((id, at) => [id, at]))
-      const ordered = groups.map((one) => {
-        const place = rank.get(one.id)
-        return place === undefined || place === one.order ? one : { ...one, order: place }
-      })
-      if (ordered.every((one, at) => one === groups[at])) return edited(document)
-      return edited(withWbsOrderFollowingTheRows(document, ordered))
-    }
-
-    case 'moveTaskGroup': {
-      const moved = byId.get(command.groupId)
-      if (moved === undefined) {
-        return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
-      }
-      const refusals: Refusal[] = []
-      const parent = command.parentId === null ? null : byId.get(command.parentId)
-      if (command.parentId !== null && parent === undefined) {
-        refusals.push(reject('CM-73', 'FR-005', `no such parent row: ${command.parentId}`))
-      }
-      const carried = subtreeOf(groups, command.groupId)
-      if (carried === null) {
-        return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
-      }
-      if (command.parentId !== null && carried.rows.some((one) => one.id === command.parentId)) {
-        refusals.push(
-          reject('CM-73', 'HM-4', 'a row may not be moved under itself or its own descendant'),
-        )
-      }
-      const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
-      if (under + carried.height > settings.maxGroupDepth) {
-        refusals.push(
-          reject(
-            'CM-73',
-            'HM-3a',
-            `the move would reach depth ${under + carried.height}, ` +
-              `past S-125's ${settings.maxGroupDepth}`,
-          ),
-        )
-      }
-      if (refusals.length > 0) return refused(refusals)
-
-      const landing = Math.max(0, Math.trunc(command.order))
-      const stays = groups.filter(
-        (one) => one.id !== command.groupId && one.parentId === command.parentId,
-      )
-      const placed = [...stays.slice(0, landing), moved, ...stays.slice(landing)]
-      const rank = new Map(placed.map((one, at) => [one.id, at]))
-      const left = groups.filter(
-        (one) => one.id !== command.groupId && one.parentId === moved.parentId,
-      )
-      const leftRank = new Map(left.map((one, at) => [one.id, at]))
-      const next = groups.map((one) => {
-        if (one.id === command.groupId) {
-          const at = rank.get(one.id) ?? landing
-          return one.parentId === command.parentId && one.order === at
-            ? one
-            : { ...one, parentId: command.parentId, order: at }
-        }
-        const place = rank.get(one.id) ?? leftRank.get(one.id)
-        return place === undefined || place === one.order ? one : { ...one, order: place }
-      })
-      if (next.every((one, at) => one === groups[at])) return edited(document)
-      return edited(withWbsOrderFollowingTheRows(document, next))
-    }
-
-    // see CM-72, HF-8, KO-7
-    case 'expandAllTaskGroups': {
-      const opened = groups.map((one) => {
-        if (one.isCollapsed !== true && !one.isKeptOpen) return one
-        const unfolded = one.isCollapsed === true ? { ...one, isCollapsed: false } : one
-        return { ...unfolded, isKeptOpen: false }
-      })
-      if (opened.every((one, at) => one === groups[at])) return edited(document)
-      return edited(withSchedule(document, { taskGroups: opened }))
-    }
+    case 'setTaskGroupLabel':
+      return setTaskGroupLabel(document, command, byId)
+    case 'setTaskGroupColor':
+      return setTaskGroupColor(document, command, byId)
+    case 'resetTaskGroupColor':
+      return resetTaskGroupColor(document, command, byId)
+    case 'setTaskGroupHeight':
+      return setTaskGroupHeight(document, command, byId)
+    case 'setTaskGroupCollapsed':
+      return setTaskGroupCollapsed(document, command, byId)
+    case 'setTaskGroupHidden':
+      return setTaskGroupHidden(document, command, byId)
+    case 'setTaskGroupKeptOpen':
+      return setTaskGroupKeptOpen(document, command, byId)
+    case 'reorderTaskGroupSiblings':
+      return reorderTaskGroupSiblings(document, command, byId)
+    case 'moveTaskGroup':
+      return moveTaskGroup(document, command, byId)
+    case 'expandAllTaskGroups':
+      return expandAllTaskGroups(document)
   }
 }

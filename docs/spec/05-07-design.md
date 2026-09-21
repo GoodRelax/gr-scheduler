@@ -242,13 +242,13 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **75。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **84。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
 
 ⚠️ **本設計にモジュールは 1 つも無い。**  
-表 T-075 のとおり `ScreenRenderer` と `EditDocument` が最も多くのユニットを持つが、**どちらも平らに並べている。**  
+表 T-075 のとおり `EditDocument` が最も多くのユニットを持ち、`ScreenRenderer` がそれに次ぐが、**どちらも平らに並べている。**  
 束ねる必要が出たときに階層を足す —— **要らないうちは作らない**（`R2.9`）。
 
 コンポーネントごとにフォルダを作り、コンポーネント名と語幹が同じ 1 ファイルだけを公開エントリとすること（MUST）。  
@@ -326,13 +326,14 @@ src/
 | 行 ID | コンポーネント | ユニット | 割った理由 |
 | --- | --- | --- | --- |
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
-| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル | **純粋性ではない** —— 表 T-075 のとおり 9 つとも同じである。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない |
+| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル | **純粋性ではない** —— 表 T-075 のとおり 9 つとも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>設置は `FR-065`（既定で公開しない）が、18 メンバは 表 T-107 が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 | UT-8 | `SvgRenderer` | `svg-renderer.ts` と、描く物ごとの 3 ファイル | **純粋性ではない** —— 表 T-075 のとおり 4 つとも同じである。<br>**描く物ごとに縛る要求が別なので割った**（表 T-276 の `UD-1`）—— 格子の規則（`FR-089`）が変わってもタスクの図の規則（`FR-013`・`FR-075`）は変わらない。<br>依存線をタスクの図と同じユニットに置くのは、両者が同じ変更で動いてきたからである |
+| UT-9 | `EditDocument` | `edit-task.ts` と要求ごとの 5 ファイル ／ `edit-task-group.ts` と要求ごとの 4 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>**1 つの集約の中でも、要求ごとに変更の理由が別なので割った**（表 T-276 の `UD-1`）—— 完了率の式（`FR-012`）が変わっても、予定と実績の置き方（`FR-011`・`FR-103`）は変わらない。<br>`FR-011` と `FR-103` は同じ変更で動いてきたので 1 つのユニットに置き、`FR-058` の規則は `FR-085` の分岐の中にあるので 1 つのユニットに置いた |
 | UT-11 | `AdvanceScreenSession` | `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts` ／ `notice-values.ts`） | **変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の状態・出来事・遷移の表を負う（画面の値は 表 T-280 〜 表 T-282、通知は 表 T-286 〜 表 T-288）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない |
 
 ⭐ **要求の側から「まずどのファイルを開くか」を引けるように、表 T-075 は欄「負う要求」を持つ。**  
@@ -380,8 +381,17 @@ src/
 | UF-8 | `ApplyDocumentChange` | `apply-document-change.ts` | `non-pure` | 確定と通知 | — |
 | UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て | — |
 | UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルを束ねて公開する | `FR-007`（`OW-3`） |
-| UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の編集 | `FR-001`（`OW-2`）・`FR-011`（`OW-2`）・`FR-012`（`OW-2`）・`FR-033`（`OW-2`）・`FR-083`（`OW-2`）・`FR-103`（`OW-2`） |
-| UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の編集 | `FR-004`（`OW-2`）・`FR-005`（`OW-2`）・`FR-042`（`OW-2`）・`FR-058`（`OW-2`）・`FR-085`（`OW-2`）・`FR-111`（`OW-2`） |
+| UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | — |
+| UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`） |
+| UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクを WBS の部分木ごと写す | `FR-033`（`OW-2`） |
+| UF-74 | `EditDocument` | `task-plan-actual.ts` | `pure` | 予定と実績の日付を、表 T-245・表 T-019・表 T-021a に従って置く | `FR-011`（`OW-2`）・`FR-103`（`OW-2`） |
+| UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す | `FR-012`（`OW-2`） |
+| UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`） |
+| UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | `FR-111`（`OW-2`） |
+| UF-77 | `EditDocument` | `task-group-naming.ts` | `pure` | 行を、名か由来を持つものとして立て、名を付け替える | `FR-058`（`OW-2`）・`FR-085`（`OW-2`） |
+| UF-78 | `EditDocument` | `task-group-look.ts` | `pure` | 行の色と高さを書き換える | `FR-042`（`OW-2`） |
+| UF-79 | `EditDocument` | `task-group-folding.ts` | `pure` | 行の畳み・隠し・開いたままの印を、1 行または全行について書き換える | `FR-004`（`OW-2`） |
+| UF-80 | `EditDocument` | `task-group-order.ts` | `pure` | 兄弟の行の並びと親を、表 T-015a に従って変える | `FR-005`（`OW-2`） |
 | UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 | — |
 | UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`） |
 | UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 | `FR-008`（`OW-2`） |

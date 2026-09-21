@@ -1,4 +1,4 @@
-excess-lines=8353 excess-branches=894
+excess-lines=7906 excess-branches=784
 # Check 60 -- the function-size ratchet (JDG-54; baseline values agreed in
 # JDG-124). A function bands when it has more than 50 lines or more than 15
 # branches -- see function-size.mjs's docstring for exactly how lines and
@@ -94,8 +94,13 @@ HELD src/use-case/edit-document/edit-dependency.ts::editDependency lines=92 bran
 HELD src/use-case/edit-document/edit-document-settings.ts::editDocumentSettings lines=141 branches=32
 HELD src/use-case/edit-document/edit-project.ts::editProject lines=49 branches=22
 HELD src/use-case/edit-document/edit-resource.ts::editResource lines=132 branches=16
-HELD src/use-case/edit-document/edit-task-group.ts::editTaskGroup lines=434 branches=103
-HELD src/use-case/edit-document/edit-task.ts::editTask lines=487 branches=101
+HELD src/use-case/edit-document/edit-task-group.ts::editTaskGroup lines=238 branches=55
+HELD src/use-case/edit-document/edit-task.ts::editTask lines=142 branches=39
+HELD src/use-case/edit-document/task-create.ts::createTask lines=85 branches=6
+HELD src/use-case/edit-document/task-group-naming.ts::createTaskGroup lines=59 branches=10
+HELD src/use-case/edit-document/task-group-order.ts::moveTaskGroup lines=61 branches=12
+HELD src/use-case/edit-document/task-plan-actual.ts::beginTaskActual lines=51 branches=5
+HELD src/use-case/edit-document/task-plan-actual.ts::setTaskPlanActualState lines=88 branches=14
 HELD src/use-case/import-document/import-document.ts::builtMerge lines=282 branches=56
 HELD src/use-case/import-document/import-document.ts::mergedDocument lines=94 branches=17
 HELD src/use-case/validate-imported-document/validate-imported-document.ts::validateImportedDocument lines=151 branches=29
