@@ -48,7 +48,6 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isTextEntryUnsettled) return 'textEntry'
   if (context.isConfirmationStanding === true) return 'confirmation'
   if (context.isSurfaceOpen) return 'surface'
-  // DEVIATION: spec says the panel rung is above the drag (IN-4); here the drag goes first (DFC-570)
   if (context.gestureInFlight) return 'gesture'
   if (context.isPropertiesPanelOpen === true) return 'propertiesPanel'
   if (context.isArmed) return 'armed'

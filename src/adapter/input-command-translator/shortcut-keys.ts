@@ -5,10 +5,6 @@
 
 import { escapeTarget } from '../../entity/document-model/screen-state/screen-state'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
-import {
-  SETTINGS_DEFAULTS,
-  type DocumentSettings,
-} from '../../entity/document-model/document-settings/document-settings'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import type { KeyInput } from './input-source'
 import {
@@ -24,11 +20,7 @@ import {
   type InputContext,
   type TranslatedInput,
 } from './input-command-translator'
-import {
-  displayScaleStep,
-  resetLookWrites,
-  withDisplayScaleShown,
-} from './display-scale-steps'
+import { displayScaleStep } from './display-scale-steps'
 import {
   fitWrites,
   keyZoomFactor,
@@ -56,7 +48,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
     if (plain && (key === KEY.del || key === KEY.backspace)) return UNASSIGNED
   }
   if (context.isTextEntryUnsettled) {
-    if (ctrl && (key === KEY.c || key === KEY.v)) return UNASSIGNED
+    if (ctrl && (key === KEY.c || key === KEY.v || key === KEY.a)) return UNASSIGNED
   }
 
   if (plain && key === KEY.enter) {
@@ -105,15 +97,10 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
     return rowZoomAnswer(context, keyZoomFactor(context, key === KEY.plus), null, null)
   }
 
-  // see SK-22, SK-23, SK-17, MK-10
+  // see SK-22, SK-23, MK-10
   // TRAP: Ctrl alone with + / - / 0 stays UNASSIGNED; it is the browser's own zoom (T-255).
   if (ctrlShift && (key === KEY.plus || key === KEY.minus)) {
     return displayScaleStep(context, key === KEY.plus ? 1 : -1)
-  }
-  if (ctrlShift && key === KEY.zero) {
-    const current = context.document.documentSettings.displayScale
-    const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
-    return withDisplayScaleShown(changed(resetLookWrites(context)), current, home, 0)
   }
 
   if (plain && key === KEY.f) return changedInOrder(fitWrites(context))

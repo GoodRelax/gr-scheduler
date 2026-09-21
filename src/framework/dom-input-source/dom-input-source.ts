@@ -127,8 +127,9 @@ const HOST_DELETE = 'Delete'
 const HOST_BACKSPACE = 'Backspace'
 const HOST_COPY = 'C'
 const HOST_PASTE = 'V'
+const HOST_SELECT_ALL = 'A'
 
-// see IN-5a, SK-4, SK-5
+// see IN-5a, SK-2, SK-4, SK-5
 /** @purity semi-pure-b */
 function isTypedIntoDialogueEntry(event: {
   readonly key: string
@@ -145,7 +146,7 @@ function isTypedIntoDialogueEntry(event: {
   if (event.altKey || event.metaKey) return false
   if (event.ctrlKey) {
     const letter = event.key.toUpperCase()
-    return letter === HOST_COPY || letter === HOST_PASTE
+    return letter === HOST_COPY || letter === HOST_PASTE || letter === HOST_SELECT_ALL
   }
   return event.key.length === 1 || event.key === HOST_DELETE || event.key === HOST_BACKSPACE
 }

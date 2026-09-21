@@ -132,7 +132,6 @@ const T_036_KEYS = [
   { row: 'SK-16c', hostKey: '-', hostCode: 'Minus', mods: { alt: true }, key: '-' },
   { row: 'SK-22', hostKey: '+', hostCode: 'Equal', mods: { ctrl: true, shift: true }, key: '+' },
   { row: 'SK-23', hostKey: '_', hostCode: 'Minus', mods: { ctrl: true, shift: true }, key: '-' },
-  { row: 'SK-17', hostKey: ')', hostCode: 'Digit0', mods: { ctrl: true, shift: true }, key: '0' },
   { row: 'SK-18', hostKey: 'f', hostCode: 'KeyF', mods: {}, key: 'F' },
   { row: 'SK-20', hostKey: 'd', hostCode: 'KeyD', mods: { ctrl: true, shift: true }, key: 'D' },
   // ⭐ CR-280 put `SK-21`「開いているファイルを読み直す」`Ctrl` ＋ `R` in the
@@ -150,7 +149,6 @@ const T_036_NUMPAD = [
   { row: 'SK-16b', hostKey: '-', hostCode: 'NumpadSubtract', mods: { shift: true }, key: '-' },
   { row: 'SK-22', hostKey: '+', hostCode: 'NumpadAdd', mods: { ctrl: true, shift: true }, key: '+' },
   { row: 'SK-23', hostKey: '-', hostCode: 'NumpadSubtract', mods: { ctrl: true, shift: true }, key: '-' },
-  { row: 'SK-17', hostKey: '0', hostCode: 'Numpad0', mods: { ctrl: true, shift: true }, key: '0' },
 ] as const
 
 /**

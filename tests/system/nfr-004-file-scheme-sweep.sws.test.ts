@@ -1352,7 +1352,6 @@ const PROBES: readonly Probe[] = [
     setUp: async (p, g) => scaleStepSetUp(p, g, SCALE_UP),
     act: async (p) => scaleStroke(p, SCALE_DOWN, -1),
   },
-  { rows: ['SK-17'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'Control+Shift+0') },
   { rows: ['SK-18'], expect: 'answers', setUp: selectBar, act: async (p) => stroke(p, 'f') },
   {
     // ⛔⛔ WHAT THIS PROBE JUDGES IS SK-19's SECOND STAGE (DFC-382). Table T-036's
@@ -1364,7 +1363,7 @@ const PROBES: readonly Probe[] = [
     // ⛔⛔ THE DOUBLE-CLICK THAT USED TO SET THIS UP DID NOT PUT THE PANEL UP,
     // AND THAT -- NOT THE BUILD -- IS WHY THE ROW WAS RED. Measured 2026-09-08 on
     // the shipped build with the four probes that stand before this one replayed
-    // in order (SK-16, SK-16a, SK-17, SK-18) and `calm` run between them, then
+    // in order (SK-16, SK-16a, the reset key JDG-301 retired, SK-18) and `calm` run between them, then
     // the same `geometryOf` point double-clicked:
     //
     //   from a fresh page   dblclick (584, 511) -> Properties Panel 279px wide

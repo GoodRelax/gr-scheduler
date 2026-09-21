@@ -221,7 +221,6 @@ const T_036: readonly ShortcutRow[] = [
     member: 'action',
     action: 'changeDocument',
   },
-  { row: 'SK-17', keys: [{ key: '0', mods: { ctrl: true, shift: true } }], member: 'action', action: 'changeDocument' },
   { row: 'SK-18', keys: [{ key: 'F' }], member: 'action', action: 'changeDocument' },
   {
     row: 'SK-20',
@@ -691,8 +690,8 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_023C).toHaveLength(10)
     expect(T_023D).toHaveLength(9)
     expect(T_028).toHaveLength(8)
-    expect(T_036).toHaveLength(22)
-    expect(new Set(T_036.map((one) => one.row)).size).toBe(22)
+    expect(T_036).toHaveLength(21)
+    expect(new Set(T_036.map((one) => one.row)).size).toBe(21)
     expect(new Set(T_023D).size).toBe(9)
     // 「上の行ほど優先すること（MUST）」 and GR-19 is the row printed first.
     expect(T_023D[0]).toBe('GR-19')
@@ -1133,12 +1132,12 @@ describe('表 T-036 -- the shortcut assignment (FR-070)', () => {
     expect(smaller['zoomX']).toBeCloseTo(high.zoomX, 10)
   })
 
-  it('SK-17: Ctrl+Shift+0 puts both axes back to unity', () => {
+  it('JDG-301: Ctrl+Shift+0 is no longer assigned, so it writes nothing and is left to the browser', () => {
     const zoomed = settingsOf({ ...SETTINGS, zoomX: 4, zoomY: 0.5 })
     const context = contextOf({ document: documentOf(SCHEDULE, zoomed) })
-    const back = oneCommand(commandFromInput(keyOf('0', { ctrl: true, shift: true }), context), 'setZoom')
-    expect(back['zoomX']).toBe(1)
-    expect(back['zoomY']).toBe(1)
+    const answer = commandFromInput(keyOf('0', { ctrl: true, shift: true }), context)
+    expect(answer.action).toBeNull()
+    expect(answer.isBrowserDefaultStopped).toBe(false)
   })
 
   it('SK-18 / FR-055: F asks for one fit, zoom and position together', () => {
@@ -1346,19 +1345,12 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     }
   })
 
-  it('MK-1: a turn moves the row at the top even where one row is taller than the turn', () => {
+  it('MK-1: a turn shorter than the row at the top moves by its distance and keeps the part in S-176', () => {
     // ⛔ The case MK-1 earns, and the one the fixture above cannot make.
-    // `S-78` pins the top of the `Row Area` to a WHOLE row and table T-206 has
-    // nowhere to keep part of one, so a turn whose landing point stays inside
-    // the row already at the top can only answer that same row. MK-1 assigns a
-    // bare wheel to 「**縦スクロール**（ズームではない）」
-    // (docs/spec/01-04-requirements.md:2283), and a turn that carries the view
-    // nowhere is not a vertical scroll; FR-016's STATEMENT makes taking the
-    // assignment the requirement:
-    // 「`GRS` は、ポインタとキーボードの操作を**表 T-023 の割当**で受け付けること」
-    // (docs/spec/01-04-requirements.md:2231).
-    // ⚠️ HOW FAR one turn carries is not asserted -- `S-96` leaves that to the
-    // device, and no row anywhere turns a distance into a count of rows.
+    // FR-016: 「修飾なしのホイールの縦スクロール（表 T-023 の `MK-1`）も、入力装置が
+    // 出した距離だけ日程表を動かすこと（MUST） —— 1 行に満たない端数は `S-176` に持つ」
+    // and 「距離を行の数へ丸めてはならない（MUST NOT）」. So a turn whose landing
+    // point stays inside the row at the top keeps that row and moves its part.
     const context = frameOf(TALL_SETTINGS)
     const pitch = nthRow(context.layout, 1).y - nthRow(context.layout, 0).y
     expect(pitch, 'the case only means a row taller than one notch').toBeGreaterThan(NOTCH_PX)
@@ -1368,7 +1360,8 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
     const answer = commandFromInput(bareWheel(context, 1), context)
     expect(kindsOf(answer)).not.toContain('setZoom')
     const moved = oneCommand(answer, 'setScrollPosition')
-    expect(moved['scrollGroupId']).not.toBe(TALL_SETTINGS.scrollGroupId)
+    expect(moved['scrollGroupId']).toBe(TALL_SETTINGS.scrollGroupId)
+    expect(moved['scrollGroupOffset']).toBeGreaterThan(TALL_SETTINGS.scrollGroupOffset)
     // The row axis alone: the day at the left edge (`S-77`) stays where it was.
     expect(String(moved['scrollDate']).slice(0, 10)).toBe(TALL_SETTINGS.scrollDate)
   })

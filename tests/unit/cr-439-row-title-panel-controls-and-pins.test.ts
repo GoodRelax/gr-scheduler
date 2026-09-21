@@ -45,7 +45,7 @@ const englishName = (id: string): string => bare(rowOf('T-103', id).by['確定�
 const HF_10_ORDER = '頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの順とすること（MUST）'
 const HF_12_COUNT = 'そのときは、頭にいま何行を畳み込んでいるかを示すこと（MUST）'
 const HF_18_COUNT = '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
-const HF_2_FAINT = 'その行が抱えている畳み込みが 0 のときは、`FR-029` に従って薄く描くこと（MUST）'
+const HF_2_FAINT = '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
 const HF_6_KEEP_PLACE = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
 const HF_6_PIN = 'ピン止めしている行の `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）'
 const HF_15_MARK = '印は縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること（MUST）'

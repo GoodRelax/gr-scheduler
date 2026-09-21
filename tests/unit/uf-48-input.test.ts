@@ -79,7 +79,7 @@
 //                   refuses every later write
 //   表 T-028 IN-4   「`Esc` は閉じる対象または取り消す対象があるときだけ
 //                   1 階層ぶん消費し、無ければブラウザへ渡すこと。消費する階層
-//                   は 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え
+//                   は 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え
 //                   → `Dual Cursor` モード の順とすること（MUST）」
 //   表 T-028 IN-4a  「消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと
 //                   （MUST）」
@@ -503,7 +503,6 @@ const T_036_DRIVEN = [
   { row: 'SK-16a', spelt: 'Alt++', input: () => key('+', { alt: true }) },
   { row: 'SK-22', spelt: 'Ctrl+Shift++', input: () => key('+', { ctrl: true, shift: true }) },
   { row: 'SK-23', spelt: 'Ctrl+Shift+-', input: () => key('-', { ctrl: true, shift: true }) },
-  { row: 'SK-17', spelt: 'Ctrl+Shift+0', input: () => key('0', { ctrl: true, shift: true }) },
   { row: 'SK-18', spelt: 'F', input: () => key('F') },
   { row: 'SK-20', spelt: 'Ctrl+Shift+D', input: () => key('D', { ctrl: true, shift: true }) },
 ] as const
@@ -515,6 +514,7 @@ const T_036_DRIVEN = [
 const NOT_ASSIGNED = [
   { why: 'MK-10 names it: `Ctrl+P`（印刷）', input: () => key('P', { ctrl: true }) },
   { why: 'MK-10 names it: `Ctrl+F`（検索）', input: () => key('F', { ctrl: true }) },
+  { why: 'JDG-301 took Ctrl+Shift+0 out of table T-036', input: () => key('0', { ctrl: true, shift: true }) },
   {
     why: 'table T-023 gives the right button no row, so the context menu stays the browser’s',
     input: () => pointer('down', 500, 400, { button: 'right' }),
@@ -751,7 +751,7 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
   })
 
   it('IN-4 (MUST): the first Esc takes the open surface and leaves the drag in flight', () => {
-    // 「消費する階層は 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え
+    // 「消費する階層は 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え
     // → `Dual Cursor` モード の順とすること（MUST）」 -- one level per press.
     const pane = host()
     const screen = screenPane()
@@ -1283,7 +1283,7 @@ describe('the specification still says what these cases copy', () => {
   it('IN-4 still fixes the order of the levels, and IN-4a still hands the rest to the browser', () => {
     const in4 = rowOf('T-028', 'IN-4').cells.join(' ')
     expect(in4).toContain('1 階層ぶん消費し')
-    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え')
+    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え')
     expect(rowOf('T-028', 'IN-4a').cells.join(' ')).toContain(
       '消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）',
     )

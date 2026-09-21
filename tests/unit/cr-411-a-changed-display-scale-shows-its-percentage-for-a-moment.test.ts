@@ -25,12 +25,12 @@ const REQUIREMENTS = unbroken(
 
 const FR_039_A_MESSAGE_EVERY_PRESS =
   '⭐ 表示の倍率を変える入口と割当が押されるたびに、いまの倍率を示すメッセージを 表 T-260 に従って出すこと（MUST）'
-const SE_1_EVERY_PRESS = '`IC-104` / `IC-105` と 表 T-036 の `SK-22` / `SK-23` / `SK-17` が押されるたびに出すこと（MUST）'
+const SE_1_EVERY_PRESS = '`IC-104` / `IC-105` と 表 T-036 の `SK-22` / `SK-23` が押されるたびに出すこと（MUST）'
 const SE_1_EVEN_UNCHANGED =
-  '押しても倍率が変わらなかったとき（いちばん大きい段で上げる側、いちばん小さい段で下げる側、既定の段で `SK-17`）も出すこと（MUST）'
+  '押しても倍率が変わらなかったとき（いちばん大きい段で上げる側、いちばん小さい段で下げる側）も出すこと（MUST）'
 const SE_2_THE_PERCENTAGE = '押したあとの `S-234` の値に `%` を付けて示すこと（MUST）'
 const SE_2_THE_END_WORD =
-  '⭐ いちばん大きい段で上げる側を押して倍率が変わらなかったときは最大であることを示す語を、いちばん小さい段で下げる側を押して変わらなかったときは最小であることを示す語を、数の後に添えること（MUST）'
+  '⭐ 押したあとの倍率がいちばん大きい段のときは最大であることを示す語を、いちばん小さい段のときは最小であることを示す語を、数の後に添えること（MUST）'
 const SE_3_IT_GOES_BY_ITSELF =
   '出した時点から `_assets/tbl-settings.md` の 表 T-206 の `S-244` が経ったら、人の操作を待たずに消すこと（MUST）'
 const SE_4_REWRITE_AND_RESTART =
@@ -41,7 +41,7 @@ const SE_5_NOT_A_NOTICE = '⛔ `FR-076` の通知として扱ってはならな�
 describe('CR-411 -- the manuscript these cases are driven by', () => {
   it.each([
     ['FR-039 (MUST) -- a message on every press, by table T-260', FR_039_A_MESSAGE_EVERY_PRESS],
-    ['SE-1 (MUST) -- on IC-104 / IC-105 / SK-22 / SK-23 / SK-17', SE_1_EVERY_PRESS],
+    ['SE-1 (MUST) -- on IC-104 / IC-105 / SK-22 / SK-23', SE_1_EVERY_PRESS],
     ['SE-1 (MUST) -- also when the press changed nothing', SE_1_EVEN_UNCHANGED],
     ['SE-2 (MUST) -- the value after the press, with %', SE_2_THE_PERCENTAGE],
     ['SE-2 (MUST) -- the maximum / minimum word at an end', SE_2_THE_END_WORD],
@@ -112,7 +112,8 @@ const key = (sign: string, part: Partial<InputModifiers> = {}): KeyInput => ({ k
 const CTRL_SHIFT = { ctrl: true, shift: true }
 const SK_22 = key('+', CTRL_SHIFT)
 const SK_23 = key('-', CTRL_SHIFT)
-const SK_17 = key('0', CTRL_SHIFT)
+// WHY: JDG-301 took Ctrl + Shift + 0 out of table T-036, so it is no longer assigned.
+const CTRL_SHIFT_ZERO = key('0', CTRL_SHIFT)
 
 const pointer = (phase: 'down' | 'up'): PointerInput => ({
   kind: 'pointer',
@@ -210,10 +211,10 @@ describe('SE-1 / SE-2 (MUST) -- one message with the value after the press', () 
     expect(built.messages(), `${SE_1_EVERY_PRESS} -- ${SE_2_THE_PERCENTAGE}`).toEqual([`${stepAfter(DEFAULT_DISPLAY_SCALE, by)}%`])
   })
 
-  it('shows the default step for SK-17 pressed at the default step, which changes nothing', () => {
+  it('shows nothing for Ctrl + Shift + 0, which JDG-301 took out of table T-036', () => {
     const built = bench(DEFAULT_DISPLAY_SCALE)
-    built.press(SK_17)
-    expect(built.messages(), SE_1_EVEN_UNCHANGED).toEqual([`${DEFAULT_DISPLAY_SCALE}%`])
+    built.press(CTRL_SHIFT_ZERO)
+    expect(built.messages(), SE_1_EVERY_PRESS).toEqual([])
   })
 })
 

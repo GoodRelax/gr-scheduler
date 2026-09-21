@@ -1,4 +1,4 @@
-// CR-410: Ctrl + Shift + [+] / [-] step the display scale, Ctrl + Shift + [0] resets it and the chart zoom, and plain Ctrl stays the browser's.
+// CR-410: Ctrl + Shift + [+] / [-] step the display scale, Ctrl + Shift + [0] is no longer assigned (JDG-301), and plain Ctrl stays the browser's.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -22,8 +22,6 @@ const REQUIREMENTS = unbroken(
 )
 
 const FR_039_THE_TWO_KEYS = '⭐ 表示の倍率を 1 段ずつ上げ下げする割当は、表 T-036 の `SK-22`（上げる）と `SK-23`（下げる）である。'
-const FR_039_SK_17_RESETS_BOTH =
-  '⭐ 表 T-036 の `SK-17` が押されたときは、表示の倍率を `S-234` の既定の段へ、日程表のズーム（同書の 表 T-203 の `S-75` / `S-76`）を等倍へ戻すこと（MUST）'
 const T_036_PLAIN_CTRL_IS_THE_BROWSERS =
   '⚠️ `Shift` を伴わない `Ctrl` ＋ `+` / `-` / `0` は本表に置かない —— ブラウザの拡大・縮小と倍率を戻す機能であり（`FR-036` の 表 T-255）、表 T-023 の `MK-10` が、割り当てていない組を止めることを禁じている。'
 const MK_10_STOPS_ASSIGNED = 'ブラウザの既定動作を画面全体で止めること（MUST）。'
@@ -32,7 +30,6 @@ const MK_10_KEEPS_UNASSIGNED = '割り当てていない組合せを止めては
 describe('CR-410 -- the manuscript these cases are driven by', () => {
   it.each([
     ['FR-039 -- SK-22 raises and SK-23 lowers the display scale', FR_039_THE_TWO_KEYS],
-    ['FR-039 (MUST) -- SK-17 resets the display scale and the chart zoom', FR_039_SK_17_RESETS_BOTH],
     ['T-036 -- Ctrl + [+] / [-] / [0] without Shift stay out of the table', T_036_PLAIN_CTRL_IS_THE_BROWSERS],
     ['MK-10 (MUST) -- an assigned combination stops the browser default', MK_10_STOPS_ASSIGNED],
     ['MK-10 (MUST NOT) -- an unassigned one does not', MK_10_KEEPS_UNASSIGNED],
@@ -40,7 +37,7 @@ describe('CR-410 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-036 spells SK-22, SK-23 and SK-17 with Ctrl and Shift, on IC-105, IC-104 and no entrance', () => {
+  it('table T-036 spells SK-22 and SK-23 with Ctrl and Shift on IC-105 and IC-104, and no row holds Ctrl + Shift + 0', () => {
     const rowOf = (id: string) => {
       const found = specTable('T-036').rows.find((one) => one.id === id)
       if (found === undefined) throw new Error(`table T-036 has no row ${id}`)
@@ -49,7 +46,8 @@ describe('CR-410 -- the manuscript these cases are driven by', () => {
     const spelt = (id: string): string => (rowOf(id).by['割当'] ?? '').replace(/[`\s]/g, '')
     expect(spelt('SK-22')).toBe('Ctrl＋Shift＋+')
     expect(spelt('SK-23')).toBe('Ctrl＋Shift＋-')
-    expect(spelt('SK-17')).toBe('Ctrl＋Shift＋0')
+    const spellings = specTable('T-036').rows.map((one) => (one.by['割当'] ?? '').replace(/[`\s]/g, ''))
+    expect(spellings, 'JDG-301 retired the reset key').not.toContain('Ctrl＋Shift＋0')
     expect((rowOf('SK-22').by['入口'] ?? '').trim()).toBe('IC-105')
     expect((rowOf('SK-23').by['入口'] ?? '').trim()).toBe('IC-104')
   })
@@ -156,17 +154,14 @@ describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one s
   })
 })
 
-describe('SK-17 (MUST) -- Ctrl + Shift + [0] resets the display scale and the chart zoom together', () => {
-  it('takes 150 / zoomX 2 / zoomY 0.5 to the default step and 1 / 1, and stops the browser default', () => {
-    const built = stage({ displayScale: 150, zoomX: 2, zoomY: 0.5 })
-    expect(built.press(key('0', CTRL_SHIFT)), MK_10_STOPS_ASSIGNED).toBe(true)
+describe('JDG-301 -- Ctrl + Shift + [0] is no longer assigned, so MK-10 leaves it to the browser', () => {
+  it('leaves 150 / zoomX 2 / zoomY 0.5 alone and does not stop the browser default', () => {
+    const start = { displayScale: 150, zoomX: 2, zoomY: 0.5 }
+    const built = stage(start)
+    expect(built.press(key('0', CTRL_SHIFT)), MK_10_KEEPS_UNASSIGNED).toBe(false)
     const after = built.settings()
-    expect(after['displayScale'], FR_039_SK_17_RESETS_BOTH).toBe(DEFAULT_DISPLAY_SCALE)
-    expect(after['zoomX'], FR_039_SK_17_RESETS_BOTH).toBe(1)
-    expect(after['zoomY'], FR_039_SK_17_RESETS_BOTH).toBe(1)
+    expect({ displayScale: after['displayScale'], zoomX: after['zoomX'], zoomY: after['zoomY'] }).toEqual(start)
   })
-
-  it.skip('undoes both in one step -- open: CR-410 section 9 question 2 leaves FR-031 unread', () => {})
 })
 
 describe('MK-10 (MUST NOT) -- Ctrl + [+] / [-] / [0] without Shift are the browser zoom, and GRS takes none of them', () => {
@@ -243,10 +238,10 @@ describe('PND-93 -- the physical keys reach the loop as the three signs, with Ct
   it.each([
     { key: ')', code: 'Digit0', shift: true },
     { key: '0', code: 'Numpad0', shift: true },
-  ])('resets through $code with Ctrl + Shift', (one) => {
+  ])('lets $code with Ctrl + Shift reach the browser, now that nothing holds it (JDG-301)', (one) => {
     const { prevented, built } = through({ displayScale: 150, zoomX: 2, zoomY: 0.5 }, one)
-    expect(prevented, MK_10_STOPS_ASSIGNED).toBe(true)
-    expect(built.settings()['displayScale'], FR_039_SK_17_RESETS_BOTH).toBe(DEFAULT_DISPLAY_SCALE)
+    expect(prevented, MK_10_KEEPS_UNASSIGNED).toBe(false)
+    expect(built.settings()['displayScale']).toBe(150)
   })
 
   it.each([
@@ -287,10 +282,8 @@ describe('FR-036 / T-255 -- the help lists both browser functions and the Ctrl +
     expect(keys).toContain(sign)
   })
 
-  it('carries Ctrl + Shift + 0 on SK-17', () => {
-    const keys = entryOf('SK-17').keys ?? ''
-    expect(keys).toContain('Ctrl')
-    expect(keys).toContain('Shift')
-    expect(keys).toContain('0')
+  it('carries Ctrl + Shift + 0 on no entry, now that JDG-301 retired that key', () => {
+    const spelt = ROSTER.entries.map((one) => (one.keys ?? '').replace(/\s/g, ''))
+    expect(spelt.filter((keys) => /Ctrl.*Shift.*[^0-9]0$/.test(keys))).toEqual([])
   })
 })

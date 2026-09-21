@@ -741,12 +741,12 @@ describe('ST-7 (MUST NOT) -- the telling is not the screen road’s alone', () =
     // ⛔ WITHOUT THIS, EVERY CASE BELOW WOULD BE VACUOUS. A drawing road that
     // raised the valve on every frame would put `RS-24` back up during the
     // frames an export runs, and the export road could stay silent unnoticed.
-    // ⭐ `SK-17` 「等倍へ戻す」 is driven because it makes frames and exports
-    // nothing, so what it measures is the drawing road alone.
+    // ⭐ `SK-16` (the time axis one step larger) is driven because it makes
+    // frames and exports nothing, so what it measures is the drawing road alone.
     const built = stage(documentOfOverlaps(CAP + 1))
     await built.clearNotices()
 
-    await built.press(keyOf('SK-17'))
+    await built.press(keyOf('SK-16'))
 
     expect(
       built.notices().some((one) => isTheValve(one, 'ja')),

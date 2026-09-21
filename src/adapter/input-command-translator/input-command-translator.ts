@@ -62,10 +62,7 @@ import {
   commandFromArmingEntry,
   commandFromDependencyDrag,
 } from './armed-placement'
-import {
-  displayScaleStep,
-  pickShown,
-} from './display-scale-steps'
+import { displayScaleStep } from './display-scale-steps'
 import {
   commandFromDualCursorEntry,
   commandFromDualCursorPress,
@@ -274,8 +271,8 @@ export interface TranslatedInput {
   readonly action: InputAction | null
   readonly isBrowserDefaultStopped: boolean
   // see FR-039, SE-1, SE-2
-  // TRAP: present on every press of IC-104 / IC-105 / SK-22 / SK-23 / SK-17; end is set only
-  // when a press at an end step changed nothing, never on the press that arrives there.
+  // TRAP: present on every press of IC-104 / IC-105 / SK-22 / SK-23; end is set whenever the
+  // step after the press is an end one, on the press that arrives there as well.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
   // see ZE-2, ZE-3, ZE-5
   // TRAP: present only on a row-axis input that wrote nothing at an end; zoomY is the one drawn.
@@ -1009,17 +1006,11 @@ function commandFromEntry(
       const factor = keyZoomFactor(context, entry === ENTRY.zoomTimeIn)
       return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, null, null))
     }
-    // see ZE-2, ZE-3, ZE-5
-    // TRAP: at an end the entrance changes nothing, so FR-029 tells RS-27 beside the message,
-    // as the display scale entrances do (CR-423 decision 7).
+    // see ZE-2, ZE-3, ZE-5, SE-5
+    // TRAP: at an end the message alone tells it; an FR-029 notice beside it is forbidden.
     case ENTRY.zoomRowIn:
-    case ENTRY.zoomRowOut: {
-      const factor = keyZoomFactor(context, entry === ENTRY.zoomRowIn)
-      const zoomed = rowZoomAnswer(context, factor, null, null)
-      return zoomed.rowZoomEndShown === undefined
-        ? zoomed
-        : { ...nothingToDo(null), rowZoomEndShown: zoomed.rowZoomEndShown }
-    }
+    case ENTRY.zoomRowOut:
+      return rowZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomRowIn), null, null)
     case ENTRY.baselineVisible:
     case ENTRY.progressLineVisible:
     case ENTRY.progressMarkerVisible:
@@ -1037,15 +1028,10 @@ function commandFromEntry(
       const isDarkNow = context.document.documentSettings.themePreference === 'dark'
       return changed([{ kind: 'setThemePreference', preference: isDarkNow ? 'light' : 'dark' }])
     }
-    // see FR-039, CM-74
-    // TRAP: at an end step the entrance can change nothing, so FR-029 tells RS-27 as well as
-    // SE-1 showing the message; the two MUSTs both stand (CR-411 question 1).
+    // see FR-039, CM-74, SE-5
     case ENTRY.displayScaleDown:
-    case ENTRY.displayScaleUp: {
-      const towards = entry === ENTRY.displayScaleUp ? 1 : -1
-      const stepped = displayScaleStep(context, towards)
-      return stepped.action === null ? { ...nothingToDo(null), ...pickShown(stepped) } : stepped
-    }
+    case ENTRY.displayScaleUp:
+      return displayScaleStep(context, entry === ENTRY.displayScaleUp ? 1 : -1)
     case ENTRY.fontScale:
       return changed([
         {

@@ -270,13 +270,20 @@ describe('UF-93 FR-039 / table T-260 -- one step of the display scale, and the m
     expect(answer.displayScaleShown).toEqual({ end: 'min' })
   })
 
-  it('SE-1: SK-17 raises the message too, and brings the display scale back to the default step', () => {
+  it('SE-2: SK-22 that arrives at the top step says "max" on that press', () => {
+    const answer = commandFromInput(keyOf('+', { ctrl: true, shift: true }), contextOf({ displayScale: stepBefore(top) }))
+    expect(ofKind(answer, 'setDisplayScale').map((one) => one['scale'])).toEqual([top])
+    expect(answer.displayScaleShown).toEqual({ end: 'max' })
+  })
+
+  it('JDG-301: Ctrl + Shift + 0 is no longer assigned, raises no message and writes nothing', () => {
     const answer = commandFromInput(
       keyOf('0', { ctrl: true, shift: true }),
       contextOf({ displayScale: top, zoomX: 3, zoomY: 0.5 }),
     )
-    expect(answer.displayScaleShown).toBeDefined()
-    expect(ofKind(answer, 'setDisplayScale').map((one) => one['scale'])).toEqual([DEFAULT_DISPLAY_SCALE])
+    expect(answer.displayScaleShown).toBeUndefined()
+    expect(answer.action).toBeNull()
+    expect(answer.isBrowserDefaultStopped).toBe(false)
   })
 })
 

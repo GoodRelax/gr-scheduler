@@ -12,7 +12,6 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   DISPLAY_SCALE_STEPS,
-  SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
@@ -25,12 +24,7 @@ import {
   type InputContext,
   type TranslatedInput,
 } from './input-command-translator'
-import {
-  rowPointIn,
-  topEdgeIn,
-  zoomOnScreen,
-  zoomWrites,
-} from './zoom-and-fit'
+import { rowPointIn, topEdgeIn, zoomOnScreen } from './zoom-and-fit'
 
 // see FR-039, S-234
 /** @purity pure */
@@ -44,44 +38,26 @@ function steppedDisplayScale(
 }
 
 // see SE-1, SE-2
-// TRAP: the end word follows the press, not the entrance; SK-17 at the default names no end.
+// TRAP: the end word follows the step the press leaves, so the press arriving there names it too.
 /** @purity pure */
-export function withDisplayScaleShown(
+function withDisplayScaleShown(
   answer: TranslatedInput,
-  current: DocumentSettings['displayScale'],
   next: DocumentSettings['displayScale'],
-  towards: 1 | -1 | 0,
 ): TranslatedInput {
-  const isStuck = towards !== 0 && next === current
-  const end = !isStuck ? null : towards === 1 ? 'max' : 'min'
+  const end =
+    next === DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]
+      ? 'max'
+      : next === DISPLAY_SCALE_STEPS[0]
+        ? 'min'
+        : null
   return { ...answer, displayScaleShown: { end } }
 }
 
-// see FR-039, SK-17
-// TRAP: one bundle, so the two scales come back together on one undo step (CR-410 question 2).
-/** @purity pure */
-export function resetLookWrites(context: InputContext): readonly DocumentCommand[] {
-  const settings = context.document.documentSettings
-  const home = SETTINGS_DEFAULTS['displayScale'] as DocumentSettings['displayScale']
-  const zoom = zoomOnScreen(context)
-  const scale = displayScaleWrites(context, home)
-  const zoomed = zoom.x === 1 && zoom.y === 1 && settings.zoomX === 1 && settings.zoomY === 1
-    ? []
-    : zoomWrites(context, 1, 1, null, null)
-  return [...scale, ...zoomed]
-}
-
-// see FR-039, CM-74, SE-1
+// see FR-039, CM-74, SE-1, SE-5
 /** @purity pure */
 export function displayScaleStep(context: InputContext, towards: 1 | -1): TranslatedInput {
-  const current = context.document.documentSettings.displayScale
-  const next = steppedDisplayScale(current, towards)
-  return withDisplayScaleShown(changed(displayScaleWrites(context, next)), current, next, towards)
-}
-
-/** @purity pure */
-export function pickShown(answer: TranslatedInput): Pick<TranslatedInput, 'displayScaleShown'> {
-  return answer.displayScaleShown === undefined ? {} : { displayScaleShown: answer.displayScaleShown }
+  const next = steppedDisplayScale(context.document.documentSettings.displayScale, towards)
+  return withDisplayScaleShown(changed(displayScaleWrites(context, next)), next)
 }
 
 /** @purity pure */

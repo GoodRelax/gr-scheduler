@@ -36,16 +36,15 @@
 //                   column 「表 T-028 の `IN-4`」. ⭐ SO THE MANUSCRIPT ALREADY
 //                   CALLS THE PANEL A 面, AND ALREADY SAYS WHICH RULE CLOSES IT.
 //                   Read at run time below, never typed.
-//   `S-99g`        表 T-206: 「開いている面 | 開いていない | …「面」とは、画面の上
-//                   に重ねて開き、`Esc` の第 1 階層で閉じられるものをいう（表
-//                   T-028 の `IN-4`）」. ⭐ THIS IS THE JOIN. A 面 is DEFINED as
-//                   what the first level of `Esc` closes; IC-52 names the panel
-//                   a 面; therefore `Esc` closes the panel.
+//   `S-99g`        表 T-206: 「「面」とは、画面の上に重ねて開き、`Esc` の段（表
+//                   T-028 の `IN-4`）の「開いている面」で閉じられるものをいう」.
+//                   ⚠️ Since Q20 (2026-09-22) the same row says the panel is NOT
+//                   a 面: IN-4 gives it a rung of its own, right after the drag.
 //   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん
-//                   消費し、無ければブラウザへ渡すこと。**消費する階層は 出ている
+//                   消費し、無ければブラウザへ渡すこと。消費する階層は 出ている
 //                   通知 → 確定していないその場の編集 → 開いている面 → 進行中の
-//                   ドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード
-//                   → 出ている説明 の順とすること（MUST）**」
+//                   ドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 →
+//                   `Dual Cursor` モード → 出ている説明 の順とすること（MUST）」
 //                   ⚠️⚠️ 「選択」 WAS PUT INTO THIS LADDER ON 2026-09-08, and the
 //                   row records what it was before: 「タスクを選ぶと `FR-006` に
 //                   よりパネルが立つので、1 度目の `Esc` はパネルの段が食い、2 度目
@@ -589,7 +588,11 @@ describe('the manuscript still says what these cases read', () => {
     expect(U_25).toBe('Properties Panel')
     expect(IN_4, 'IN-4 still fixes the order of the levels').toContain('1 階層')
     expect(IN_4A, 'IN-4a still hands the rest to the browser').toContain('ブラウザへ渡すこと')
-    expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('第 1 階層')
+    expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('「開いている面」で閉じられるもの')
+    // Q20 (2026-09-22): the panel is no 面 any more; IN-4 gives it a rung of its own.
+    expect(IN_4, 'IN-4 gives the panel its own rung after the drag').toContain(
+      '進行中のドラッグ・引きかけの矢印 → プロパティパネル',
+    )
   })
 
   it('⛔ table T-109 still calls the `Properties Panel` a 面 that IN-4 closes', () => {
@@ -672,10 +675,9 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
   it('⛔ MUST: one press of `Esc` takes the panel off the screen', () => {
-    // S-99g: 「「面」とは、画面の上に重ねて開き、`Esc` の第 1 階層で閉じられるもの
-    // をいう」, and IC-52 of table T-109 names `Properties Panel` among its 面.
-    // ⛔ Two rows of the manuscript, and between them there is nothing left to
-    // decide: the panel is a 面, and `Esc` closes a 面.
+    // IN-4: 「消費する階層は … 進行中のドラッグ・引きかけの矢印 → プロパティパネル
+    // → 構え …の順とすること（MUST）」 -- the panel has a rung of its own, so with
+    // nothing above it standing, one press of `Esc` takes it.
     const built = withThePanelUp()
 
     built.send(ESCAPE())
@@ -705,7 +707,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     //
     // ⭐⭐ THE LADDER HAS THREE RUNGS ON THIS ROUTE, and asserting them in order
     // is what makes the claim about the panel exact. IN-4 orders 「開いている面
-    // → 進行中のドラッグ・引きかけの矢印 → 構え → 選択」, and `MK-13` is a double
+    // → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択」, and `MK-13` is a double
     // click whose first half already moved the selection -- so the panel, the
     // selection and then nothing is the whole of what this fixture has to spend.
     // ⛔ NEITHER 「進行中のドラッグ」 NOR 「構え」 STANDS HERE: the gesture was

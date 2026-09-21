@@ -268,6 +268,8 @@ interface Fixture {
   readonly folded?: readonly string[]
   /** Rows standing hidden (`AT-57`). */
   readonly hidden?: readonly string[]
+  // WHY: OP-10 keeps the stored zoom 1, where FR-018 draws every depth; JDG-302 needs that.
+  readonly atStoredZoom?: boolean
 }
 
 function documentWith(part: Fixture = {}): Document {
@@ -336,7 +338,10 @@ function documentWith(part: Fixture = {}): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: structuredClone(template.documentSettings),
+    documentSettings: {
+      ...structuredClone(template.documentSettings),
+      ...(part.atStoredZoom === true ? { scrollDate: '2026-04-01', scrollGroupId: ALPHA } : {}),
+    },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document
@@ -880,7 +885,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   })
 
   it('⭐ HF-2 draws the pressed row’s whole subtree at once (HR-3)', () => {
-    const built = stage({ folded: [ALPHA, BETA, GAMMA, DELTA, EPSILON] })
+    const built = stage({ folded: [ALPHA, BETA, GAMMA, DELTA, EPSILON], atStoredZoom: true })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
@@ -990,7 +995,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     // 「⭐⭐ **「配下をすべて開く」操作子でも戻せること（MUST）**（利用者の裁定
     // 2026-08-31）…**2 本は配下のすべて**」, and `HR-3` (MUST NOT) 「**畳みだけを解いて
     // 隠しを残してはならない**」.
-    const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA] })
+    const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
@@ -998,7 +1003,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐ MUST: a hidden row anywhere below comes back too (「配下のどこにあろうとも」)', () => {
-    const built = stage({ hidden: [DELTA] })
+    const built = stage({ hidden: [DELTA], atStoredZoom: true })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
@@ -1012,8 +1017,8 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     // ⛔ WITHOUT THIS THE FIVE ABOVE WOULD ALL PASS ON A BUILD THAT MADE THE TWO
     // ENTRANCES ONE. `HF-13` (MUST NOT): 「押すたびに違う量が開く入口は、何が起きる
     // かを押す前に読めない」.
-    const narrow = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA] })
-    const wide = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA] })
+    const narrow = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
+    const wide = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
 
     narrow.press(OPEN_ONE_LEVEL, ALPHA)
     wide.press(OPEN_ALL_BELOW, ALPHA)
@@ -1079,7 +1084,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   it('⭐⭐ HF-10 brings back what HF-3 hid, wherever it is (HR-1: HR-3 と同じく)', () => {
     // `HR-1`: 「⭐ **`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと（MUST）** ——
     // **本行は `HR-3` の段 0 である**」.
-    const built = stage({ hidden: [ZETA, DELTA], folded: [ALPHA] })
+    const built = stage({ hidden: [ZETA, DELTA], folded: [ALPHA], atStoredZoom: true })
 
     built.press(HEAD_OPEN_EVERY_ROW, null)
 
@@ -1363,8 +1368,8 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
   })
 
   it('⛔ MUST: with no kept-open mark and every row drawn, the number shown and the arming of HF-2 agree', () => {
-    // 「**示す数と構えの条件は同じ 1 つである**」 -- walked over several shapes so
-    // that a build which computed them separately comes apart on one of them.
+    // 「構えの条件は `HF-18` の数と同じではない」 only through marks and zoom, so with
+    // neither the two agree -- walked over several shapes so a split shows.
     const shapes: readonly Fixture[] = [
       {},
       { folded: [BETA] },
@@ -1376,7 +1381,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     ]
     const apart: string[] = []
     for (const shape of shapes) {
-      const built = stage(shape)
+      const built = stage({ ...shape, atStoredZoom: true })
       for (const name of drawnRows(built)) {
         const row = ROWS.find((one) => one.name === name)
         if (row === undefined) continue
@@ -1407,7 +1412,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     ]
     for (const shape of shapes) {
       for (const row of ROWS) {
-        const built = stage(shape)
+        const built = stage({ ...shape, atStoredZoom: true })
         if (!drawnRows(built).includes(row.name)) continue
         const shown = foldedCountOf(built, row.id)
         const before = drawnRows(built).length

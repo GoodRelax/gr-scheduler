@@ -162,8 +162,8 @@ describe('CR-405 -- the premises read from the manuscript', () => {
     for (const row of T_255.rows) expect(T_036.rows.map((one) => one.id)).not.toContain(row.id)
   })
 
-  it('with SK-17 moved to Ctrl + Shift + 0, no row of T-255 is refused and BF-1 and BF-2 are listed', () => {
-    expect(T_036_COMBOS.has('Ctrl+0'), 'SK-17 no longer holds Ctrl + 0').toBe(false)
+  it('with the reset key retired (JDG-301), no row of T-255 is refused and BF-1 and BF-2 are listed', () => {
+    expect(T_036_COMBOS.has('Ctrl+0'), 'no row of T-036 holds Ctrl + 0').toBe(false)
     expect(REFUSED_BROWSER_ROWS).toEqual([])
     expect(LISTED_BROWSER_ROWS).toEqual(['BF-1', 'BF-2'])
     expect(combosOf(rowOf(T_255, 'BF-1').by[H_KEYS] ?? '')).toEqual(['Ctrl++', 'Ctrl+-'])
@@ -395,7 +395,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     }
   })
 
-  it.skip('T-255 (MUST NOT): with SK-17 moved off Ctrl + 0 in a copy of the manuscript, BF-2 is listed -- open: needs the roster generator run against a modified manuscript, which a unit case cannot do', () => {})
+  it.skip('T-255 (MUST NOT): with a row of T-036 put on Ctrl + 0 in a copy of the manuscript, BF-2 is refused -- open: needs the roster generator run against a modified manuscript, which a unit case cannot do', () => {})
 })
 
 describe('FR-036 + T-256 (MUST) -- the page: three columns placed by T-256, not flowed', () => {

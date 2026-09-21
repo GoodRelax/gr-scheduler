@@ -87,10 +87,10 @@
 //   - IN-3's other two thirds (ポインタを乗せられること / 引き金が外れるまで
 //     出ていること). DFC-307 is about the first, and the third is a geometry and
 //     a rest that uf-69.test.ts already holds.
-//   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against 選択. IN-4
-//     gives the panel no rung of its own, and asserting an order the manuscript
-//     does not state would be this file inventing one -- but the row DOES print
-//     one relation, 「本行の並びで選択より上に在る」, and that one is asserted.
+//   - Where the ladder's `propertiesPanel` rung sits, EXCEPT against the
+//     selection. Since Q20 (2026-09-22) IN-4 prints the panel its own rung, right
+//     after the drag, and only its place above the selection is asserted here:
+//     「プロパティパネル → 構え → 選択」.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -153,7 +153,7 @@ const IN_3_UNTIL_THE_TRIGGER_GOES =
   'ること** —— 説明そのものの上へポインタを移しても消えないこと。**引き金が外れるまで出ていること** —— ポインタまたはフォーカスがその対象から外れるか、人が消すか、その内容が有効でなくなるまで、消してはならない（MUST NOT）'
 
 const IN_4_THE_LADDER =
-  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  'ればブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 
 /**
  * IN-4's MUST NOT about where 選択 may stand, quoted whole. ⭐ DFC-398 is the
@@ -502,9 +502,9 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
   })
 
   it('lets the open panel take the press first, so one press never spends two rungs', () => {
-    // ⭐ THE ROW REFUSES A 「パネルが出ていないとき」 CONDITION and says why:
-    // 「プロパティパネルは「開いている面」に当たり、本行の並びで選択より上に在る
-    // ので、出ているあいだの `Esc` はそちらが先に消費する。」 ⇒ FR-072's
+    // ⭐ THE ROW REFUSES A 「パネルが出ていないとき」 CONDITION: the panel's rung,
+    // 「プロパティパネル → 構え → 選択」, stands above 選択, so while the panel is
+    // up `Esc` is spent there first. ⇒ FR-072's
     // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 is kept by
     // the ORDER, not by a second question.
     const withPanel = contextOf({ isSelectionStanding: true, isPropertiesPanelOpen: true })

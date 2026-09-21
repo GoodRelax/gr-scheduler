@@ -237,8 +237,8 @@ describe('UF-96 tables T-015 / T-051 / T-254 (FR-004, FR-018) -- the row entranc
     expect(ofKind(answer, 'setTaskGroupHidden')).toEqual([])
   })
 
-  it('HF-10 / HR-1 / KO-3: IC-74 at the head opens what was folded and leaves every row marked kept open', () => {
-    const answer = pressRowEntry('IC-74', null, contextOf({ collapsed: ['n2'] }))
+  it('HF-10 / HR-1 / KO-3: IC-74 at the head opens what was folded and leaves no row marked kept open', () => {
+    const answer = pressRowEntry('IC-74', null, contextOf({ collapsed: ['n2'], keptOpen: ['n1'] }))
     const writes = commandsOf(answer)
     const opensN2 = writes.some(
       (one) =>
@@ -246,12 +246,20 @@ describe('UF-96 tables T-015 / T-051 / T-254 (FR-004, FR-018) -- the row entranc
         (one.kind === 'setTaskGroupCollapsed' && one.groupId === 'n2' && !one.collapsed),
     )
     expect(opensN2).toBe(true)
-    const lastMark = new Map<string, boolean>()
+    // WHY: CM-72 takes every mark off, so what counts is the last mark each row is left with.
+    const lastMark = new Map<string, boolean>(ROWS.map((one) => [one.id, one.id === 'n1']))
     for (const one of writes) {
-      if (one.kind === 'expandAllTaskGroups') lastMark.clear()
+      if (one.kind === 'expandAllTaskGroups') for (const id of lastMark.keys()) lastMark.set(id, false)
       if (one.kind === 'setTaskGroupKeptOpen') lastMark.set(one.groupId, one.keptOpen)
     }
-    expect([...lastMark.entries()].sort()).toEqual(ROWS.map((one) => [one.id, true]).sort())
+    expect([...lastMark.values()].every((kept) => !kept)).toBe(true)
+  })
+
+  it('HF-2 / HR-3 / KO-2: IC-58 marks the pressed row and takes the marks off every row under it', () => {
+    const answer = pressRowEntry('IC-58', 'n1', contextOf({ collapsed: ['n1'], keptOpen: ['n1a', 'n2'] }))
+    expect(groupsWhere(answer, 'setTaskGroupCollapsed', 'collapsed', false)).toEqual(['n1'])
+    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', true)).toEqual(['n1'])
+    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', false)).toEqual(['n1a'])
   })
 })
 

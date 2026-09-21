@@ -11,11 +11,13 @@ import {
   changed,
   isCombo,
   isScrollPositionInForce,
+  rowAnchorIn,
   rowIndexAtTopEdge,
   scrollAreaTopOf,
   scrolledAnchor,
   scrollingRowsOf,
   type InputContext,
+  type ScrollAnchor,
   type TranslatedInput,
 } from './input-command-translator'
 import {
@@ -24,21 +26,30 @@ import {
   zoomWrites,
 } from './zoom-and-fit'
 
-// STOP: spec does not decide a one-row floor per detent, nor where a turn past an end lands.
-// Looked in MK-1, S-78, S-176, OP-10. @provisional PND-176
+type RowAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
+
+/** @purity pure */
+function rowHeldOf(context: InputContext): RowAnchor {
+  const settings = context.document.documentSettings
+  return { scrollGroupId: settings.scrollGroupId, scrollGroupOffset: settings.scrollGroupOffset }
+}
+
+// see FR-016, MK-1, S-176
+// TRAP: the device distance itself, never whole rows: a band taller than a notch never moved.
+// STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
+// @provisional PND-176
 // @provisional PND-177
 /** @purity pure */
-function rowTurnedTo(context: InputContext, dy: number): string | null {
-  const settings = context.document.documentSettings
+function rowTurnedTo(context: InputContext, dy: number): RowAnchor {
+  const held = rowHeldOf(context)
   const rows = scrollingRowsOf(context.layout)
   const areaTop = scrollAreaTopOf(context)
-  const standing = rowIndexAtTopEdge(rows, areaTop)
-  if (dy === 0 || standing === null) return settings.scrollGroupId
-  const landed = rowIndexAtTopEdge(rows, areaTop + dy)
-  if (landed === null) return dy < 0 ? (rows[0]?.groupId ?? null) : settings.scrollGroupId
-  const at = landed === standing ? standing + (dy > 0 ? 1 : -1) : landed
-  const held = Math.min(rows.length - 1, Math.max(0, at))
-  return rows[held]?.groupId ?? settings.scrollGroupId
+  if (dy === 0 || rowIndexAtTopEdge(rows, areaTop) === null) return held
+  if (rowIndexAtTopEdge(rows, areaTop + dy) === null) {
+    const first = rows[0]
+    return dy < 0 && first !== undefined ? { scrollGroupId: first.groupId, scrollGroupOffset: 0 } : held
+  }
+  return rowAnchorIn(rows, areaTop + dy, held)
 }
 
 // STOP: spec does not decide which surfaces the wheel is read on. Looked in MK-1, T-023a, U-32
@@ -94,16 +105,13 @@ export function commandFromWheel(input: WheelInput, context: InputContext): Tran
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
+  // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
+  const row = plain ? rowTurnedTo(context, input.scrollPx.y) : rowHeldOf(context)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,
     scrollDayOffset: moved.scrollDayOffset,
-    // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
-    scrollGroupId: plain
-      ? rowTurnedTo(context, input.scrollPx.y)
-      : context.document.documentSettings.scrollGroupId,
-    // TRAP: beside a floored row id, moved.scrollGroupOffset names a place nobody scrolled to.
-    scrollGroupOffset: plain ? 0 : context.document.documentSettings.scrollGroupOffset,
+    ...row,
   } as const
   // WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
   return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])

@@ -23,29 +23,27 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
-// see IC-74
+// see IC-74, HF-10, KO-3
 /** @purity pure */
 export function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput {
+  const rows = context.document.schedule.taskGroups
   // TRAP: judged here, not by the write: opening nothing is silent, and FR-029 wants the reason told.
+  // A kept-open mark alone arms it, since the press takes every mark off.
   if (
     !(
       context.isLevelZeroFolded === true ||
+      rows.some((row) => row.isKeptOpen) ||
       (wouldMoveARow(context, null, 'open') ??
-        context.document.schedule.taskGroups.some(
-          (row) => row.isCollapsed === true || row.isHidden === true,
-        ))
+        rows.some((row) => row.isCollapsed === true || row.isHidden === true))
     )
   ) {
     return nothingToDo('noFoldedRowAtAll')
   }
+  // WHY: no mark write of its own: CM-72 at the head of the write takes every mark off.
   return acted({
     kind: 'setLevelZeroFolded',
     isFolded: false,
-    writes: [
-      { kind: 'expandAllTaskGroups' },
-      ...unhidesEveryRow(context.document.schedule),
-      ...marksEveryRowKeptOpen(context.document.schedule),
-    ],
+    writes: [{ kind: 'expandAllTaskGroups' }, ...unhidesEveryRow(context.document.schedule)],
   })
 }
 
@@ -97,9 +95,7 @@ export function commandFromRowEntry(
     ])
   }
 
-  if (entry === ENTRY.rowDelete) {
-    return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId }])
-  }
+  if (entry === ENTRY.rowDelete) return rowDeleted(context, rowGroupId)
 
   if (entry === ENTRY.rowExpanderCloseBelow) {
     if (wouldMoveARow(context, rowGroupId, 'fold') === false) {
@@ -137,14 +133,12 @@ export function commandFromRowEntry(
   }
 
   if (entry === ENTRY.rowExpanderOpen) {
-    if (wouldMoveARow(context, rowGroupId, 'open') === false) {
-      return nothingToDo('noFoldedRowBelow')
-    }
+    if (!isOpenAllBelowArmed(context, rowGroupId)) return nothingToDo('noFoldedRowBelow')
     return foldsOrNothing(
-      withKeptOpenMarks(
-        opensRowAndBelow(context.document.schedule, rowGroupId),
-        keptOpenMarksWritten(context.document.schedule, rowGroupId, true),
-      ),
+      [
+        ...opensRowAndBelow(context.document.schedule, rowGroupId),
+        ...pressedRowMarkedAndBelowCleared(context.document.schedule, rowGroupId),
+      ],
       'noFoldedRowBelow',
     )
   }
@@ -156,6 +150,13 @@ export function commandFromRowEntry(
     ...foldsRowAndBelow(context.document.schedule, rowGroupId),
     ...keptOpenMarksWritten(context.document.schedule, rowGroupId, false),
   ])
+}
+
+// see CM-27, T-050
+// WHY: the fresh id rides on every delete; only the use case knows the rows would run out.
+/** @purity pure */
+function rowDeleted(context: InputContext, rowGroupId: string): TranslatedInput {
+  return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId, newGroupId: context.newGroupId }])
 }
 
 // see T-254
@@ -179,6 +180,46 @@ function keptOpenMarksWritten(
     .filter((row) => rowId === null || row.id === rowId || isRowUnder(parentOf, row.parentId, rowId))
     .filter((row) => (row.isKeptOpen === true) !== keptOpen)
     .map((row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen }) as const)
+}
+
+// see HF-2, KO-2
+// TRAP: row-title-panel.ts must arm IC-58 by this same test, or a dark [vv] answers RS-30.
+/** @purity pure */
+function isOpenAllBelowArmed(context: InputContext, rowGroupId: string): boolean {
+  const row = context.document.schedule.taskGroups.find((one) => one.id === rowGroupId)
+  if (row === undefined) return false
+  const schedule = context.document.schedule
+  if (context.drawnRowGroupIds?.includes(rowGroupId) === false) return false
+  const opens =
+    wouldMoveARow(context, rowGroupId, 'open') ?? opensRowAndBelow(schedule, rowGroupId).length > 0
+  if (opens) return true
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+  const isAMarkBelow = schedule.taskGroups.some(
+    (one) => one.isKeptOpen && isRowUnder(parentOf, one.parentId, rowGroupId),
+  )
+  if (isAMarkBelow) return true
+  if (row.isKeptOpen) return false
+  return (
+    wouldMoveARow(context, rowGroupId, 'openOneLevel') ??
+    hasAChildBelowTheDepthLimit(context, rowGroupId)
+  )
+}
+
+// see KO-2
+/** @purity pure */
+function pressedRowMarkedAndBelowCleared(
+  schedule: Schedule,
+  rowId: string,
+): readonly DocumentCommand[] {
+  const parentOf = new Map(schedule.taskGroups.map((one) => [one.id, one.parentId] as const))
+  const commands: DocumentCommand[] = []
+  for (const row of schedule.taskGroups) {
+    const isPressed = row.id === rowId
+    if (!isPressed && !isRowUnder(parentOf, row.parentId, rowId)) continue
+    if (row.isKeptOpen === isPressed) continue
+    commands.push({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen: isPressed })
+  }
+  return commands
 }
 
 // see HF-13, FR-018
@@ -384,15 +425,6 @@ function unhidesEveryRow(schedule: Schedule): readonly DocumentCommand[] {
   return schedule.taskGroups
     .filter((row) => row.isHidden === true)
     .map((row) => ({ kind: 'setTaskGroupHidden', groupId: row.id, hidden: false }) as const)
-}
-
-// see KO-3
-// WHY: every row, not only the unmarked: CM-72 earlier in the same write takes every mark off.
-/** @purity pure */
-function marksEveryRowKeptOpen(schedule: Schedule): readonly DocumentCommand[] {
-  return schedule.taskGroups.map(
-    (row) => ({ kind: 'setTaskGroupKeptOpen', groupId: row.id, keptOpen: true }) as const,
-  )
 }
 
 // see HR-2
