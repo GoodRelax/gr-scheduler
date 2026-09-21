@@ -74,10 +74,6 @@
      },
      {
       "in": "openSurfaceStateMachine.open"
-     },
-     {
-      "machine": "propertiesPanelContentStateMachine",
-      "except": "hidden"
      }
     ],
     "evidence": [
@@ -85,7 +81,7 @@
      "FR-070"
     ],
     "note": {
-     "ja": "同じ段の中は、問い → 面 → パネルの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）"
+     "ja": "同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）"
     }
    },
    {
@@ -107,6 +103,27 @@
     "evidence": [
      "IN-4"
     ]
+   },
+   {
+    "id": "RG-14",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "プロパティパネル"
+    },
+    "states": [
+     {
+      "machine": "propertiesPanelContentStateMachine",
+      "except": "hidden"
+     }
+    ],
+    "evidence": [
+     "IN-4"
+    ],
+    "note": {
+     "ja": "面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ"
+    }
    },
    {
     "id": "RG-5",

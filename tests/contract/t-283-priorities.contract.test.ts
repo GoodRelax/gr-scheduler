@@ -16,7 +16,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
 const IN_4_SELECTION_AFTER_ARM = '⭐ **選択は構えの次に置く** —— ⛔ **構えより前に置いてはならない（MUST NOT）'
 const NT_8_FIRST = '⛔ この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）'
 const NT_8_NOTHING_TO_CLEAR = '⛔ 消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならない（MUST NOT）'
@@ -80,9 +80,11 @@ const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
   .split(' → ')
 
 describe('table T-283 -- the manuscript and the printed table agree', () => {
-  it('the priorities block names table T-283 and holds RG-1..RG-13 in order', () => {
+  it('the priorities block names table T-283 and holds RG-1..RG-14, RG-14 standing after RG-4', () => {
     expect(MANUSCRIPT.priorities.table.id).toBe('T-283')
-    expect(RUNGS.map((r) => r.id)).toEqual(Array.from({ length: 13 }, (_, i) => `RG-${String(i + 1)}`))
+    expect(RUNGS.map((r) => r.id)).toEqual([
+      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
+    ])
   })
 
   it('the printed table carries the same rows in the same order', () => {
@@ -107,14 +109,14 @@ describe('table T-283 -- the manuscript and the printed table agree', () => {
   })
 })
 
-describe(`table T-283, Esc (RG-1..RG-8) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
+describe(`table T-283, Esc (RG-1..RG-8 and RG-14) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
   it('the requirement still says it, word for word', () => {
     expect(REQUIREMENTS).toContain(IN_4_ORDER)
   })
 
   it('the Esc rungs, top to bottom, are the IN-4 rungs one for one', () => {
     expect(rungsOf('Esc').map((r) => r.rung.ja)).toEqual(IN_4_WORDS)
-    expect(rungsOf('Esc').map((r) => r.id)).toEqual(['RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-5', 'RG-6', 'RG-7', 'RG-8'])
+    expect(rungsOf('Esc').map((r) => r.id)).toEqual(['RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8'])
   })
 
   it(IN_4_SELECTION_AFTER_ARM, () => {
@@ -125,11 +127,13 @@ describe(`table T-283, Esc (RG-1..RG-8) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
     expect(RUNGS.find((r) => r.id === 'RG-6')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
 
-  it('RG-3 holds, inside the one rung, the question, then the surface, then the panel', () => {
+  it('RG-3 holds, inside the one rung, the question, then the surface; the panel is RG-14 after the drag', () => {
     const rg3 = RUNGS.find((r) => r.id === 'RG-3')
     expect(rg3?.states).toEqual([
       { in: 'confirmationStateMachine.questionAsked' },
       { in: 'openSurfaceStateMachine.open' },
+    ])
+    expect(RUNGS.find((r) => r.id === 'RG-14')?.states).toEqual([
       { machine: 'propertiesPanelContentStateMachine', except: 'hidden' },
     ])
   })
@@ -240,8 +244,8 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-2', 'textEntry', 'isTextEntryUnsettled'],
   ['RG-3', 'confirmation', 'isConfirmationStanding'],
   ['RG-3', 'surface', 'isSurfaceOpen'],
-  ['RG-3', 'propertiesPanel', 'isPropertiesPanelOpen'],
   ['RG-4', 'gesture', 'gestureInFlight'],
+  ['RG-14', 'propertiesPanel', 'isPropertiesPanelOpen'],
   ['RG-5', 'armed', 'isArmed'],
   ['RG-6', 'selection', 'isSelectionStanding'],
   ['RG-7', 'dualCursorMode', 'dualCursorMode'],
@@ -261,10 +265,6 @@ const EVERY_WORD: Record<EscapeTarget, true> = {
   dualCursorMode: true,
   tooltip: true,
 }
-
-// WHY: pinned, not dropped: CR-541 adds a panel rung after the drag, and these cases change with it.
-const isPinnedByDfc570 = (upper: EscapeTarget, lower: readonly EscapeTarget[]): boolean =>
-  upper === 'propertiesPanel' && lower.includes('gesture')
 
 const on = (...flags: readonly Flag[]): EscapeContext => {
   const context: Record<string, boolean> = { ...NOTHING_ON }
@@ -302,38 +302,19 @@ describe(`PI-36 escapeTarget against table T-283 -- IN-4 (MUST): ${IN_4_ORDER}`,
     expect(escapeTarget(on(upper[2], lower[2]))).toBe(upper[1])
   }
 
-  it.each(pairs.filter(([, upper, lower]) => !isPinnedByDfc570(upper[1], [lower[1]])))(
-    '%s: both on, the earlier row wins',
-    earlierRowWins,
-  )
-
-  // DEVIATION: spec says the panel rung is above the drag (IN-4); here the drag goes first (DFC-570)
-  it.fails.each(pairs.filter(([, upper, lower]) => isPinnedByDfc570(upper[1], [lower[1]])))(
-    '%s: both on, the earlier row wins',
-    earlierRowWins,
-  )
+  it.each(pairs)('%s: both on, the earlier row wins', earlierRowWins)
 
   it(`${NT_8_FIRST} -- everything on answers the notice`, () => {
     expect(escapeTarget(on(...LADDER.map(([, , flag]) => flag)))).toBe('notice')
   })
 
   const withEveryLower = LADDER.map(([id, word, flag], i) => [`${id} ${word}`, i, word, flag] as const)
-  const belowOf = (i: number): readonly EscapeTarget[] => LADDER.slice(i + 1).map(([, one]) => one)
   const stillWins = (_name: string, i: number, word: EscapeTarget, flag: Flag): void => {
     const below = LADDER.slice(i + 1).map(([, , one]) => one)
     expect(escapeTarget(on(flag, ...below))).toBe(word)
   }
 
-  it.each(withEveryLower.filter(([, i, word]) => !isPinnedByDfc570(word, belowOf(i))))(
-    '%s with every lower rung on still wins',
-    stillWins,
-  )
-
-  // DEVIATION: spec says the panel rung is above the drag (IN-4); here the drag goes first (DFC-570)
-  it.fails.each(withEveryLower.filter(([, i, word]) => isPinnedByDfc570(word, belowOf(i))))(
-    '%s with every lower rung on still wins',
-    stillWins,
-  )
+  it.each(withEveryLower)('%s with every lower rung on still wins', stillWins)
 
   it(`${IN_4_SELECTION_AFTER_ARM} -- armed and selected, Esc drops the arm first`, () => {
     expect(escapeTarget(on('isArmed', 'isSelectionStanding'))).toBe('armed')

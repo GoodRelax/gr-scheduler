@@ -26,8 +26,9 @@
 | --- | --- | --- | --- | --- | --- |
 | RG-1 | `Esc` | 出ている通知 | `noticeDisplayStateMachine.shown` | `IN-4` ・ `NT-8` | 消すものが無いときは消費しない（`NT-8`） |
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
-| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` ／ `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面 → パネルの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`） |
+| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
+| RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` | `IN-4` | 構えより前に置かない（`IN-4`） |
 | RG-7 | `Esc` | `Dual Cursor` モード | `dualCursorModeStateMachine.on` | `IN-4` | — |
@@ -77,7 +78,7 @@
 | `screen/levelZeroOpened` | 入力: `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` | `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `levelZeroFoldStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `dualCursorModeStateMachine` |
-| `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SK-17` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
+| `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
 | `screen/displayLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `language` | 根 |
