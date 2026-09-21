@@ -90,7 +90,8 @@ def ts_type(spec, name):
         base = 'number'
     elif kind == 'boolean':
         base = 'boolean'
-    elif kind == 'string':
+    elif kind in ('string', 'color'):
+        # 'color' is stored text (table T-017b of 01-04); the parser is in the entity.
         base = 'string'
     elif kind == 'enum':
         base = (' | '.join("'%s'" % v for v in spec['values'])
@@ -1639,6 +1640,65 @@ def colour_block(name):
     return NEWLINE.join(out)
 
 
+# ---- table T-294: the palette colours (CR-548) ---------------------------
+#
+# ⭐ ONE ROW PER COLOUR, EIGHT CELLS: the four drawn forms (fill, outline,
+# actual fill, row band) in both themes. The document stores the row's KEY
+# (CV-1 of table T-017b); these values are baked into the artifact.
+# A cell is '#rrggbb', null (描かない: not drawn), or the row ID a `sameAs`
+# names -- that row is a row of table T-236 which follows the hue, so the
+# renderer resolves it through its own themed().
+
+PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
+
+
+def palette_cell(cell, row_id, field):
+    if isinstance(cell, dict) and 'colour' in cell:
+        return "'%s'" % cell['colour']
+    if isinstance(cell, dict) and 'sameAs' in cell:
+        return "{ sameAs: '%s' }" % cell['sameAs']
+    if isinstance(cell, dict) and 'ja' in cell:
+        return 'null'
+    raise SystemExit('table T-294 row %s states nothing readable in %s'
+                     % (row_id, field))
+
+
+def palette_block():
+    """COLOUR_NAME_VALUES: table T-294 keyed by the stored spelling."""
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-294']
+    if not block:
+        raise SystemExit('settings.json holds no table T-294')
+    out = ['// see T-294, T-017b',
+           'export type PaletteCell = string | null | { readonly sameAs: string }',
+           'export interface PaletteForms {',
+           '  readonly fill: PaletteCell',
+           '  readonly outline: PaletteCell',
+           '  readonly actual: PaletteCell',
+           '  readonly band: PaletteCell',
+           '}',
+           'export const COLOUR_NAME_VALUES: {',
+           '  readonly [spelling: string]: {',
+           '    readonly rowId: string',
+           '    readonly light: PaletteForms',
+           '    readonly dark: PaletteForms',
+           '  }',
+           '} = {']
+    for row in block[0]['rows']:
+        key = row['key'].strip('`')
+        out.append("  %s: {" % key)
+        out.append("    rowId: '%s'," % row['id'])
+        for side in ('light', 'dark'):
+            cells = ', '.join(
+                '%s: %s' % (form, palette_cell(row.get(side + form.capitalize()),
+                                               row['id'], side + form.capitalize()))
+                for form in PALETTE_FORMS)
+            out.append('    %s: { %s },' % (side, cells))
+        out.append('  },')
+    out.append('}')
+    return NEWLINE.join(out)
+
+
 def not_stored_block(name):
     """The rows of table T-206 one unit needs, by row ID.
 
@@ -2266,7 +2326,9 @@ TARGETS = [
      # NOT_STORED_TARGETS.
      + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_NAME_LABEL_WEIGHT') + NEWLINE * 2
-     + colour_block('SCHEDULE_COLOURS')
+     + colour_block('SCHEDULE_COLOURS') + NEWLINE * 2
+     # ⭐ CR-548: the palette colours' drawn values, beside the theme's own.
+     + palette_block()
      # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The
      # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236
      # and has a light and a dark rendering; the angle, the size, the spacing
@@ -2274,7 +2336,7 @@ TARGETS = [
      # ⛔ Not in the shell beside WATERMARK_UNLOCK_DIGEST -- that one is
      # compared against an answer the shell hashes, and these are drawn.
      + NEWLINE * 2 + watermark_block('WATERMARK_MARKS'),
-     ['docs/spec/_source/settings.json (tables T-206, T-207 and T-236)']),
+     ['docs/spec/_source/settings.json (tables T-206, T-207, T-236 and T-294)']),
     # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
     # one unit that assembles a picture that goes out. ⛔ Do not derive them
     # here as fractions of the band's own height (PND-52): EP-1 (MUST NOT)

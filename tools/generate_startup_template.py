@@ -4117,6 +4117,7 @@ def check_stack_order(built):
 SCHEMA_READ = frozenset((
     'type', 'properties', 'required', 'additionalProperties', 'items',
     'enum', 'minimum', 'maximum', 'minLength', 'maxLength', 'format', '$ref',
+    'pattern',
 ))
 # Words a subschema may carry that say nothing about whether a value is valid.
 # ⚠️ `$defs` is among them because it holds subschemas nothing is measured
@@ -4190,6 +4191,9 @@ def schema_faults(value, shape, defs, path):
             out.append('%s is shorter than the schema allows' % path)
         if 'maxLength' in shape and len(value) > shape['maxLength']:
             out.append('%s is longer than the schema allows' % path)
+        if 'pattern' in shape and re.search(shape['pattern'], value) is None:
+            out.append('%s is %r, which the schema pattern refuses'
+                       % (path, value))
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         if 'minimum' in shape and value < shape['minimum']:
             out.append('%s is %s, under the schema minimum %s'

@@ -407,7 +407,7 @@ export function svgFromSchedule(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (tables T-206, T-207 and T-236)
+//   docs/spec/_source/settings.json (tables T-206, T-207, T-236 and T-294)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_SELECTION_SIZES: {
@@ -496,6 +496,78 @@ export const SCHEDULE_COLOURS: {
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+}
+
+// see T-294, T-017b
+export type PaletteCell = string | null | { readonly sameAs: string }
+export interface PaletteForms {
+  readonly fill: PaletteCell
+  readonly outline: PaletteCell
+  readonly actual: PaletteCell
+  readonly band: PaletteCell
+}
+const COLOUR_NAME_VALUES: {
+  readonly [spelling: string]: {
+    readonly rowId: string
+    readonly light: PaletteForms
+    readonly dark: PaletteForms
+  }
+} = {
+  white: {
+    rowId: 'S-314',
+    light: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
+    dark: { fill: '#14161a', outline: '#14161a', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
+  },
+  black: {
+    rowId: 'S-315',
+    light: { fill: '#000000', outline: '#000000', actual: { sameAs: 'S-157' }, band: null },
+    dark: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: null },
+  },
+  dimgray: {
+    rowId: 'S-316',
+    light: { fill: '#575757', outline: '#383838', actual: { sameAs: 'S-157' }, band: '#e0e0e0' },
+    dark: { fill: '#a3a3a3', outline: '#cccccc', actual: { sameAs: 'S-157' }, band: '#474747' },
+  },
+  lightgray: {
+    rowId: 'S-317',
+    light: { fill: '#cccccc', outline: '#757575', actual: '#575757', band: '#f5f5f5' },
+    dark: { fill: '#424242', outline: '#a8a8a8', actual: '#a3a3a3', band: '#333333' },
+  },
+  red: {
+    rowId: 'S-318',
+    light: { fill: '#e3b9b5', outline: '#a94c42', actual: '#8c2c21', band: '#f9f1f1' },
+    dark: { fill: '#58312d', outline: '#d08880', actual: '#dc766a', band: '#3c2c2a' },
+  },
+  blue: {
+    rowId: 'S-319',
+    light: { fill: '#b5c9e3', outline: '#426ea9', actual: '#21508c', band: '#f1f4f9' },
+    dark: { fill: '#2d3f58', outline: '#80a3d0', actual: '#6a9cdc', band: '#2a323c' },
+  },
+  yellow: {
+    rowId: 'S-320',
+    light: { fill: '#dfd6a9', outline: '#8c7d36', actual: '#79691c', band: '#f9f8f1' },
+    dark: { fill: '#58502d', outline: '#d0c380', actual: '#dcc96a', band: '#3c392a' },
+  },
+  green: {
+    rowId: 'S-321',
+    light: { fill: '#afe1bf', outline: '#3c9a5b', actual: '#1f8340', band: '#f1f9f3' },
+    dark: { fill: '#2d583b', outline: '#80d09b', actual: '#6adc90', band: '#2a3c30' },
+  },
+  orange: {
+    rowId: 'S-322',
+    light: { fill: '#e3cab5', outline: '#a97242', actual: '#8c5321', band: '#f9f5f1' },
+    dark: { fill: '#58412d', outline: '#d0a680', actual: '#dc9f6a', band: '#3c322a' },
+  },
+  purple: {
+    rowId: 'S-323',
+    light: { fill: '#d8b5e3', outline: '#8f42a9', actual: '#72218c', band: '#f7f1f9' },
+    dark: { fill: '#4d2d58', outline: '#bc80d0', actual: '#c06adc', band: '#382a3c' },
+  },
+  transparent: {
+    rowId: 'S-324',
+    light: { fill: null, outline: null, actual: null, band: null },
+    dark: { fill: null, outline: null, actual: null, band: null },
+  },
 }
 
 // see T-207, FR-020

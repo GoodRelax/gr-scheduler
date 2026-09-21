@@ -59,6 +59,7 @@ interface SchemaNode {
   readonly minimum?: number
   readonly maximum?: number
   readonly maxLength?: number
+  readonly pattern?: string
   readonly required?: readonly string[]
   readonly closed?: true
   readonly values?: SchemaNode
@@ -309,6 +310,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       color: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       height: {
         type: ['integer', 'null'],
@@ -532,9 +534,11 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       fillColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       strokeColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       lineWeight: {
         enum: ['thin', 'medium', 'thick', null],
@@ -620,6 +624,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       strokeColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       cornerRadiusPx: {
         type: ['number', 'null'],

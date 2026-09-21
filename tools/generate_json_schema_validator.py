@@ -19,8 +19,8 @@ T-232 allows script-src exactly one sha256, and ajv's ordinary compile builds
 its validator with `new Function`, which that one hash cannot cover in the
 single file://-openable page; ajv's standalone output grows the artifact by
 28-34%. ⭐ The measurement that makes a hand-rolled walker safe: the generated
-schema speaks only ten keywords (EXPRESSED below), and this generator REFUSES
-to run when it grows an eleventh, so the walker can never be handed a rule it
+schema speaks only eleven keywords (EXPRESSED below), and this generator REFUSES
+to run when it grows a twelfth, so the walker can never be handed a rule it
 would silently ignore.
 
 Two departures from the manuscript, both required rather than chosen:
@@ -79,10 +79,12 @@ SOURCES = [
     '   erd.json and docs/spec/_assets/tbl-settings.md)',
 ]
 
-# The ten keywords this generator turns into something the walker obeys.
+# The eleven keywords this generator turns into something the walker obeys.
+# 'pattern' is the shape of a chosen colour (CR-548, table T-017b of 01-04).
 EXPRESSED = frozenset((
     'type', 'required', 'properties', '$ref', 'items',
     'additionalProperties', 'enum', 'minimum', 'maximum', 'maxLength',
+    'pattern',
 ))
 
 # ⭐ Carried nowhere, on purpose, one reason each. A keyword that is neither
@@ -111,7 +113,7 @@ RELAXED_ROOT = '/documentSettings'
 # ⭐ Listed rather than written out at each site, so that "only the type and
 # the enumeration survive there" is one line a reader can check.
 RELAXED_OFF = frozenset(('required', 'closed', 'minimum', 'maximum',
-                         'maxLength'))
+                         'maxLength', 'pattern'))
 
 say = lambda m: sys.stdout.write(m + '\n')
 
@@ -170,7 +172,7 @@ def reduce_node(node, at, formats):
     strict = not (at == RELAXED_ROOT or at.startswith(RELAXED_ROOT + '/'))
     keeps = (lambda keyword: strict or keyword not in RELAXED_OFF)
 
-    for keyword in ('minimum', 'maximum', 'maxLength'):
+    for keyword in ('minimum', 'maximum', 'maxLength', 'pattern'):
         if keyword in node and keeps(keyword):
             out[keyword] = node[keyword]
     if 'required' in node and keeps('required'):
@@ -239,7 +241,7 @@ def ts_node(node, indent):
                          % (inner, ', '.join(ts_string(k) for k in value)))
         elif keyword == 'closed':
             lines.append('%sclosed: true,' % inner)
-        elif keyword in ('minimum', 'maximum', 'maxLength'):
+        elif keyword in ('minimum', 'maximum', 'maxLength', 'pattern'):
             lines.append('%s%s: %s,' % (inner, keyword, ts_scalar(value)))
         elif keyword in ('values', 'items'):
             lines.append('%s%s: %s,' % (inner, keyword, ts_node(value, indent + 1)))
@@ -342,6 +344,7 @@ def build(schema):
     lines.append('  readonly minimum?: number')
     lines.append('  readonly maximum?: number')
     lines.append('  readonly maxLength?: number')
+    lines.append('  readonly pattern?: string')
     lines.append('  readonly required?: readonly string[]')
     lines.append('  readonly closed?: true')
     lines.append('  readonly values?: SchemaNode')

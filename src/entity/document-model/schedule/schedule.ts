@@ -438,8 +438,8 @@ export const COLUMN_SHAPES: {
     nameAlign: { kind: 'enum', choices: ['left', 'center', 'right'], min: null, max: null, isNullable: true },
     shapeKind: { kind: 'enum', choices: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'], min: null, max: null, isNullable: true },
     milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug'], min: null, max: null, isNullable: true },
-    fillColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    strokeColor: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    fillColor: { kind: 'color', choices: null, min: null, max: null, isNullable: true },
+    strokeColor: { kind: 'color', choices: null, min: null, max: null, isNullable: true },
     lineWeight: { kind: 'enum', choices: ['thin', 'medium', 'thick'], min: null, max: null, isNullable: true },
   },
   TaskGroup: {
@@ -452,7 +452,7 @@ export const COLUMN_SHAPES: {
     isHidden: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
     isKeptOpen: { kind: 'boolean', choices: null, min: null, max: null, isNullable: false },
     editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    color: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    color: { kind: 'color', choices: null, min: null, max: null, isNullable: true },
     height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
   Dependency: {
