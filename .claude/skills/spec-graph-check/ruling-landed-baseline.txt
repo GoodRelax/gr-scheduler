@@ -1,4 +1,8 @@
-17
+18
+#
+# RAISED 17 -> 18 on 2026-09-21, approved by the user in chat ("上げてよい"): JDG-283 (PND-451, no divider band on a
+# put-away properties panel) came down before its landing; CR-436 carries the FR-052 sentence. Lower it back
+# to 17 in the commit that lands CR-436.
 #
 # LOWERED 83 -> 17 on 2026-09-20, approved by the user in chat ("進めてよい"): CR-430 landed the sixty-six
 # rulings JDG-180 .. JDG-249 in the grab-area tables (T-266 .. T-273 and table T-020), so only the
