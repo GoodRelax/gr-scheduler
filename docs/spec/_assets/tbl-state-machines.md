@@ -623,10 +623,13 @@ stateDiagram-v2
 | `fileFlow/documentFileRead` | 副作用の結果（`readDocumentFile` が読み、形式を判じ、検証を通した）: `OP-5` ・ `OP-12` ・ `FR-023` | `question`（`QN-5`。読み直すときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。副作用の実行が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/documentOpenFailed` | 副作用の結果（読めない・選ばなかった・検証が拒んだ・読み直す相手が無い・着地を拒まれた（告げるのは副作用の中身））: `OP-5` ・ `OP-13` ・ `FR-023` | — | `fileOperationStateMachine` |
 | `fileFlow/mergeMappingAsked` | 副作用の結果（`importIncomingDocument` が対応付けを問うことになった）: `FR-022` ・ `U-61` ・ `FR-073` | `mergeCandidates`（`U-61`） ／ `unreadColumns`（`FR-073`） | `fileOperationStateMachine` |
-| `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` | `droppedTaskNames`（`RS-50`） ／ `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` |
+| `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` | `droppedTaskNames`（`RS-50`） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/overwriteQuestionRaised` | 副作用の結果（`writeDocumentFile` の途中で、同じとみなせない相手を見つけた）: `DI-4` ・ `QN-4` | `question`（`QN-4`） | `confirmationStateMachine` |
-| `fileFlow/documentFileSaved` | 副作用の結果（保存が書けた）: `FR-060` ・ `FR-101` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` |
+| `fileFlow/documentFileSaved` | 副作用の結果（保存が書けた）: `FR-060` ・ `FR-101` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/documentFileWriteEnded` | 副作用の結果（書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` | — | `fileOperationStateMachine` |
+| `fileFlow/documentEditLanded` | 副作用の結果（画面からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。`Agent API` の書き込みと合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない）: `WS-6` ・ `RD-1` ・ `RD-2` ・ `FR-100` | — | `unsavedEditsStateMachine` |
+| `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | `unsavedEditsStateMachine` |
+| `fileFlow/startupDocumentHeld` | 副作用の結果（起動時の文書の差し替えが受け入れられた）: `FR-062` ・ `RD-6` | — | `unsavedEditsStateMachine` |
 
 ### 根 `fileFlow` の値
 
@@ -736,6 +739,31 @@ stateDiagram-v2
 - `confirmationStateMachine.questionAsked` —— 運ぶ値 `question`（`QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`） ／ `owedAction`（「続ける」で行う書き込みの束か、新しく始めること。ファイル操作の問いでは無い）。根拠 `NT-7` ・ `U-55` ・ `QN-1` ・ `QN-2` ・ `QN-3` ・ `QN-4` ・ `QN-5`
 
 表に無い出来事は `confirmationStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `unsavedEditsStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> unsavedEditsStateMachine_nothingUnsaved
+    unsavedEditsStateMachine_nothingUnsaved : nothingUnsaved
+    unsavedEditsStateMachine_editsUnsaved : editsUnsaved
+    unsavedEditsStateMachine_nothingUnsaved --> unsavedEditsStateMachine_editsUnsaved : documentEditLanded, documentOpenLanded
+    unsavedEditsStateMachine_editsUnsaved --> unsavedEditsStateMachine_nothingUnsaved : documentOpenLanded, documentFileSaved, newDocumentLanded, startupDocumentHeld
+```
+
+| 出来事 | `nothingUnsaved` | `editsUnsaved` |
+| --- | --- | --- |
+| `fileFlow/documentEditLanded` | → `editsUnsaved` | — |
+| `fileFlow/documentOpenLanded` | → `editsUnsaved` [not `isReplaceChoice`]（合流・重ねは、ファイルに無い文書を作る）<br>それ以外 → — | → `nothingUnsaved` [`isReplaceChoice`]（置き換えは、開いたファイルと同じ文書にする）<br>それ以外 → — |
+| `fileFlow/documentFileSaved` | — | → `nothingUnsaved` |
+| `fileFlow/newDocumentLanded` | — | → `nothingUnsaved` |
+| `fileFlow/startupDocumentHeld` | — | → `nothingUnsaved` |
+
+- `unsavedEditsStateMachine.nothingUnsaved` —— 初期。根拠 `FR-100` ・ `ZE-4`
+- `unsavedEditsStateMachine.editsUnsaved` —— 根拠 `FR-100` ・ `LM-11`
+
+表に無い出来事は `unsavedEditsStateMachine` を変えない（同じ参照）。
 
 ## 名前付けと入力欄（`fieldEntry`）
 

@@ -121,6 +121,9 @@ const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } 
   overwriteQuestionRaised: true,
   documentFileSaved: true,
   documentFileWriteEnded: true,
+  documentEditLanded: true,
+  newDocumentLanded: true,
+  startupDocumentHeld: true,
 }
 
 const IS_FIELD_ENTRY_EVENT: { readonly [T in FieldEntryValuesEvent['type']]: true } = {

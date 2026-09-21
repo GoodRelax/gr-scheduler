@@ -3550,6 +3550,17 @@
        "note": {
         "ja": "無いこともある"
        }
+      },
+      {
+       "name": "openChoice",
+       "rows": [
+        "OP-3",
+        "RD-3",
+        "RD-4"
+       ],
+       "note": {
+        "ja": "置き換え（`RD-4`）か、合流・重ね（`RD-3`）か"
+       }
       }
      ]
     },
@@ -3608,6 +3619,50 @@
       ],
       "note": {
        "ja": "書き出しが終わった、または保存・書き出しが書けなかった（告げるのは副作用の中身）"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "documentEditLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "WS-6",
+       "RD-1",
+       "RD-2",
+       "FR-100"
+      ],
+      "note": {
+       "ja": "画面からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。`Agent API` の書き込みと合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "newDocumentLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-095",
+       "RD-7"
+      ],
+      "note": {
+       "ja": "`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "startupDocumentHeld",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-062",
+       "RD-6"
+      ],
+      "note": {
+       "ja": "起動時の文書の差し替えが受け入れられた"
       }
      },
      "carries": []
@@ -4350,6 +4405,107 @@
          ]
         }
        ]
+      }
+     }
+    },
+    {
+     "name": "unsavedEditsStateMachine",
+     "states": [
+      {
+       "key": "nothingUnsaved",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FR-100",
+        "ZE-4"
+       ]
+      },
+      {
+       "key": "editsUnsaved",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "FR-100",
+        "LM-11"
+       ]
+      }
+     ],
+     "transitions": {
+      "documentEditLanded": {
+       "nothingUnsaved": {
+        "to": "editsUnsaved",
+        "evidence": [
+         "FR-100",
+         "WS-6",
+         "RD-1",
+         "RD-2"
+        ]
+       }
+      },
+      "documentOpenLanded": {
+       "nothingUnsaved": {
+        "to": "editsUnsaved",
+        "guard": [
+         {
+          "name": "isReplaceChoice",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "FR-100",
+         "RD-3"
+        ],
+        "note": {
+         "ja": "合流・重ねは、ファイルに無い文書を作る"
+        }
+       },
+       "editsUnsaved": {
+        "to": "nothingUnsaved",
+        "guard": [
+         {
+          "name": "isReplaceChoice"
+         }
+        ],
+        "evidence": [
+         "FR-100",
+         "OP-4",
+         "RD-4"
+        ],
+        "note": {
+         "ja": "置き換えは、開いたファイルと同じ文書にする"
+        }
+       }
+      },
+      "documentFileSaved": {
+       "editsUnsaved": {
+        "to": "nothingUnsaved",
+        "evidence": [
+         "FR-100",
+         "FR-060"
+        ]
+       }
+      },
+      "newDocumentLanded": {
+       "editsUnsaved": {
+        "to": "nothingUnsaved",
+        "evidence": [
+         "FR-100",
+         "FR-095",
+         "RD-7"
+        ]
+       }
+      },
+      "startupDocumentHeld": {
+       "editsUnsaved": {
+        "to": "nothingUnsaved",
+        "evidence": [
+         "FR-100",
+         "FR-062",
+         "RD-6"
+        ]
+       }
       }
      }
     }

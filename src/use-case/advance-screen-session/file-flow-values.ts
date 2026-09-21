@@ -109,6 +109,8 @@ export type FileFlowValuesKey =
   | 'fileOperationStateMachine.writingDocumentFile'
   | 'confirmationStateMachine.notAsked'
   | 'confirmationStateMachine.questionAsked'
+  | 'unsavedEditsStateMachine.nothingUnsaved'
+  | 'unsavedEditsStateMachine.editsUnsaved'
 
 export type FileOperationState =
   | { readonly kind: 'idle' }
@@ -123,11 +125,16 @@ export type ConfirmationState =
   | { readonly kind: 'notAsked' }
   | { readonly kind: 'questionAsked'; readonly question: FileFlowValuesStateCarried['question']; readonly owedAction: FileFlowValuesStateCarried['owedAction'] }
 
+export type UnsavedEditsState =
+  | { readonly kind: 'nothingUnsaved' }
+  | { readonly kind: 'editsUnsaved' }
+
 export interface FileFlowValues {
   readonly openedFileName: FileFlowValuesStateCarried['openedFileName']
   readonly droppedTaskNames: FileFlowValuesStateCarried['droppedTaskNames']
   readonly fileOperationState: FileOperationState
   readonly confirmationState: ConfirmationState
+  readonly unsavedEditsState: UnsavedEditsState
 }
 
 export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppedTaskNames'>
@@ -145,10 +152,13 @@ export type FileFlowValuesEvent =
   | { readonly type: 'documentFileRead'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentOpenFailed' }
   | { readonly type: 'mergeMappingAsked'; readonly mergeCandidates: FileFlowValuesEventCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesEventCarried['unreadColumns'] }
-  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
+  | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
   | { readonly type: 'overwriteQuestionRaised'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentFileSaved'; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
   | { readonly type: 'documentFileWriteEnded' }
+  | { readonly type: 'documentEditLanded' }
+  | { readonly type: 'newDocumentLanded' }
+  | { readonly type: 'startupDocumentHeld' }
 
 export type FileFlowValuesEffectName =
   | 'raiseFlowSurface'
@@ -172,6 +182,7 @@ export interface FileFlowValuesTransition {
 const FILE_FLOW_VALUES_INITIAL_AXES: FileFlowValuesAxes = {
   fileOperationState: { kind: 'idle' },
   confirmationState: { kind: 'notAsked' },
+  unsavedEditsState: { kind: 'nothingUnsaved' },
 }
 
 export const FILE_FLOW_VALUES_TRANSITIONS: readonly FileFlowValuesTransition[] = [
@@ -583,6 +594,54 @@ export const FILE_FLOW_VALUES_TRANSITIONS: readonly FileFlowValuesTransition[] =
     effect: null,
     effectArgument: null,
   },
+  {
+    state: 'unsavedEditsStateMachine.nothingUnsaved',
+    event: 'documentEditLanded',
+    guard: null,
+    to: 'unsavedEditsStateMachine.editsUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'unsavedEditsStateMachine.nothingUnsaved',
+    event: 'documentOpenLanded',
+    guard: 'not isReplaceChoice',
+    to: 'unsavedEditsStateMachine.editsUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'unsavedEditsStateMachine.editsUnsaved',
+    event: 'documentOpenLanded',
+    guard: 'isReplaceChoice',
+    to: 'unsavedEditsStateMachine.nothingUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'unsavedEditsStateMachine.editsUnsaved',
+    event: 'documentFileSaved',
+    guard: null,
+    to: 'unsavedEditsStateMachine.nothingUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'unsavedEditsStateMachine.editsUnsaved',
+    event: 'newDocumentLanded',
+    guard: null,
+    to: 'unsavedEditsStateMachine.nothingUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'unsavedEditsStateMachine.editsUnsaved',
+    event: 'startupDocumentHeld',
+    guard: null,
+    to: 'unsavedEditsStateMachine.nothingUnsaved',
+    effect: null,
+    effectArgument: null,
+  },
 ]
 // </generated>
 
@@ -597,6 +656,10 @@ const NO_DROPPED_TASK_NAMES: readonly (string | null)[] = Object.freeze([])
 const IDLE = FILE_FLOW_VALUES_INITIAL_AXES.fileOperationState
 
 const NOT_ASKED = FILE_FLOW_VALUES_INITIAL_AXES.confirmationState
+
+const NOTHING_UNSAVED = FILE_FLOW_VALUES_INITIAL_AXES.unsavedEditsState
+
+const EDITS_UNSAVED: UnsavedEditsState = { kind: 'editsUnsaved' }
 
 // see T-290
 export const emptyFileFlowValues: FileFlowValues = {
@@ -624,6 +687,17 @@ function isOverwriteQuestion(values: FileFlowValues): boolean {
 /** @purity pure */
 function hasDroppedTasks(names: readonly (string | null)[]): boolean {
   return names.length > 0
+}
+
+/** @purity pure */
+function isReplaceChoice(openChoice: FileFlowOpenChoice): boolean {
+  return openChoice === 'replace'
+}
+
+// WHY: a machine already in the wanted kind keeps its reference (SF-3).
+/** @purity pure */
+function unsavedEditsMoved(current: UnsavedEditsState, next: UnsavedEditsState): UnsavedEditsState {
+  return current.kind === next.kind ? current : next
 }
 
 // WHY: every part the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
@@ -770,11 +844,17 @@ function onFlowSurfaceClosed(values: FileFlowValues, event: EventOf<'flowSurface
 
 // WHY: a landing that carries no name keeps the one shown, as today's open road does (DFC-574).
 /** @purity pure */
+// WHY: a replacement is the opened file itself; a merge or a baseline is a document no file holds (FR-100).
+/** @purity pure */
 function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOpenLanded'>): FileFlowStep {
   const openedFileName = event.openedFileName ?? values.openedFileName
   const fileOperationState = values.fileOperationState.kind === 'importingDocument' ? IDLE : values.fileOperationState
-  if (!hasDroppedTasks(event.droppedTaskNames)) return combined(values, { openedFileName, fileOperationState }, NO_EFFECTS)
-  const moves = { openedFileName, fileOperationState, droppedTaskNames: event.droppedTaskNames }
+  const landed = isReplaceChoice(event.openChoice) ? NOTHING_UNSAVED : EDITS_UNSAVED
+  const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, landed)
+  if (!hasDroppedTasks(event.droppedTaskNames)) {
+    return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
+  }
+  const moves = { openedFileName, fileOperationState, unsavedEditsState, droppedTaskNames: event.droppedTaskNames }
   return combined(values, moves, [{ type: 'raiseFlowSurface', surfaceName: 'U-62' }])
 }
 
@@ -782,7 +862,20 @@ function onDocumentOpenLanded(values: FileFlowValues, event: EventOf<'documentOp
 function onDocumentFileSaved(values: FileFlowValues, event: EventOf<'documentFileSaved'>): FileFlowStep {
   const openedFileName = event.openedFileName ?? values.openedFileName
   const fileOperationState = values.fileOperationState.kind === 'writingDocumentFile' ? IDLE : values.fileOperationState
-  return combined(values, { openedFileName, fileOperationState }, NO_EFFECTS)
+  const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED)
+  return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
+}
+
+// see T-290, FR-100, ZE-4
+/** @purity pure */
+function onDocumentEditLanded(values: FileFlowValues): FileFlowStep {
+  return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, EDITS_UNSAVED) }, NO_EFFECTS)
+}
+
+// see T-290, FR-095, RD-6, RD-7
+/** @purity pure */
+function onDocumentHeldAfresh(values: FileFlowValues): FileFlowStep {
+  return combined(values, { unsavedEditsState: unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED) }, NO_EFFECTS)
 }
 
 /** @purity pure */
@@ -829,6 +922,9 @@ const HANDLERS: {
   overwriteQuestionRaised: onOverwriteQuestionRaised,
   documentFileSaved: onDocumentFileSaved,
   documentFileWriteEnded: onDocumentFileWriteEnded,
+  documentEditLanded: onDocumentEditLanded,
+  newDocumentLanded: onDocumentHeldAfresh,
+  startupDocumentHeld: onDocumentHeldAfresh,
 }
 
 // see SF-2, SF-8, T-290

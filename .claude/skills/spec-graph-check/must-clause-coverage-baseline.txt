@@ -1,4 +1,6 @@
-1360
+1340
+# LOWERED 1360 -> 1340 on 2026-09-22, with the user's approval of baseline moves ("変えてよい"): CR-436
+# wave B2's and CR-510's spec-only testers quoted 20 MUST / MUST NOT clauses verbatim (T-283, UF-48, FR-100, OP-3 ...).
 # LOWERED 1363 -> 1360 on 2026-09-22, with the user's approval (asked in chat, answered "4 つとも
 # 下げる（推奨）"): CR-441's spec-only tester quoted the new FR-104 reverse-direction MUST and the
 # reworded FR-016 PE-8 clause verbatim, and asserted them.

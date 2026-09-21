@@ -170,14 +170,17 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenFailed: [{}],
   mergeMappingAsked: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Notes'] }],
   documentOpenLanded: [
-    { droppedTaskNames: ['Task C', null], openedFileName: 'next.xml' },
-    { droppedTaskNames: ['Task C'], openedFileName: null },
-    { droppedTaskNames: [], openedFileName: 'next.xml' },
-    { droppedTaskNames: [], openedFileName: null },
+    { droppedTaskNames: ['Task C', null], openedFileName: 'next.xml', openChoice: 'replace' },
+    { droppedTaskNames: ['Task C'], openedFileName: null, openChoice: 'merge' },
+    { droppedTaskNames: [], openedFileName: 'next.xml', openChoice: 'baseline' },
+    { droppedTaskNames: [], openedFileName: null, openChoice: 'replace' },
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
   documentFileWriteEnded: [{}],
+  documentEditLanded: [{}],
+  newDocumentLanded: [{}],
+  startupDocumentHeld: [{}],
 }
 
 function flowEvents(): Loose[] {
