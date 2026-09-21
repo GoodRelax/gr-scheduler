@@ -61,6 +61,11 @@ export type AgentExport<TValue> =
   | { readonly ok: true; readonly value: TValue }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
+// see AM-18, AG-11, AG-9a
+export type AgentUtteranceOutcome =
+  | { readonly accepted: true; readonly message: DialogueMessage }
+  | { readonly accepted: false; readonly refusal: AgentRefusal }
+
 // see AM-7, AG-3
 export interface AgentWriteRequest {
   readonly readStamp: DocumentStamp
@@ -134,7 +139,7 @@ export interface AgentApi {
   watchChanges(receive: AgentChangeReceiver): AgentWatch
 
   /** @purity non-pure */
-  postDialogueMessage(text: string): DialogueMessage
+  postDialogueMessage(text: string): AgentUtteranceOutcome
 }
 
 export interface AgentApiWiring {
@@ -334,6 +339,43 @@ function planAndApply(
     wiring.holder,
     wiring.audience,
   )
+}
+
+// see AM-18, AG-11, T-233, WS-2
+// WHY: refused like a write -- a subscriber answering mid-delivery would
+// keep the round from ever finishing (Chapter 5.5).
+/** @purity non-pure */
+function postAgentUtterance(
+  wiring: AgentApiWiring,
+  snapshot: AgentSnapshot,
+  text: string,
+): AgentUtteranceOutcome {
+  if (NotifyChangeWatchers.isDeliveringNotices()) {
+    return {
+      accepted: false,
+      refusal: agentRefusal(
+        'AM-18',
+        'deliveringNotices',
+        snapshot,
+        'Chapter 5.5 with AG-11: a subscriber answering mid-delivery would never let the round end',
+        [],
+      ),
+    }
+  }
+  const utterance: PostDialogueMessage.SettledUtterance = {
+    author: wiring.writerName,
+    text,
+    settledAt: snapshot.readAt,
+  }
+  const posted = PostDialogueMessage.postDialogueMessage(
+    utterance,
+    wiring.dialogueHolder,
+    wiring.dialogueAudience,
+  )
+  return {
+    accepted: true,
+    message: frozenCopy({ ...utterance, sequence: latestSequence(posted) }),
+  }
 }
 
 // see T-107
@@ -680,19 +722,8 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity non-pure */
-    postDialogueMessage(text: string): DialogueMessage {
-      const snapshot = source.readSnapshot()
-      const utterance: PostDialogueMessage.SettledUtterance = {
-        author: wiring.writerName,
-        text,
-        settledAt: snapshot.readAt,
-      }
-      const posted = PostDialogueMessage.postDialogueMessage(
-        utterance,
-        wiring.dialogueHolder,
-        wiring.dialogueAudience,
-      )
-      return frozenCopy({ ...utterance, sequence: latestSequence(posted) })
+    postDialogueMessage(text: string): AgentUtteranceOutcome {
+      return postAgentUtterance(wiring, source.readSnapshot(), text)
     },
   }
 }

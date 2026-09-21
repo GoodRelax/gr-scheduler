@@ -553,16 +553,20 @@ const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
 // does not move the schedule-data instant for it.
 const RECOLOUR = { kind: 'setThemeMonochrome', monochrome: true } as const
 
-function accepted(outcome: AgentWriteOutcome): Extract<AgentWriteOutcome, { accepted: true }> {
+function accepted<TOutcome extends { readonly accepted: boolean }>(
+  outcome: TOutcome,
+): Extract<TOutcome, { accepted: true }> {
   if (!outcome.accepted) {
-    throw new Error(`expected acceptance, was refused: ${JSON.stringify(outcome.refusal)}`)
+    throw new Error(`expected acceptance, was refused: ${JSON.stringify((outcome as { refusal?: unknown }).refusal)}`)
   }
-  return outcome
+  return outcome as Extract<TOutcome, { accepted: true }>
 }
 
-function refused(outcome: AgentWriteOutcome): Extract<AgentWriteOutcome, { accepted: false }> {
+function refused<TOutcome extends { readonly accepted: boolean }>(
+  outcome: TOutcome,
+): Extract<TOutcome, { accepted: false }> {
   if (outcome.accepted) throw new Error('expected a refusal, was accepted')
-  return outcome
+  return outcome as Extract<TOutcome, { accepted: false }>
 }
 
 function exported<TValue>(answer: AgentExport<TValue>): TValue {
@@ -1419,7 +1423,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
 describe('AM-18 postDialogueMessage -- AG-11', () => {
   it('answers the message the log gave a sequence to', () => {
     const one = bench()
-    const posted = one.api.postDialogueMessage('the survey phase now ends a week later')
+    const posted = accepted(one.api.postDialogueMessage('the survey phase now ends a week later')).message
 
     expect(posted.text).toBe('the survey phase now ends a week later')
     expect(posted.sequence).toBe(1)
@@ -1428,13 +1432,15 @@ describe('AM-18 postDialogueMessage -- AG-11', () => {
 
   it('records the author under the name AM-17 subscribes with (AG-6 compares against it)', () => {
     const one = bench()
-    expect(one.api.postDialogueMessage('anything').author).toBe(one.writerName)
+    expect(accepted(one.api.postDialogueMessage('anything')).message.author).toBe(one.writerName)
   })
 
   it('takes the time from the snapshot rather than reading a clock (CS-1, LY-5)', () => {
     const one = bench()
     one.readAt = '2027-01-02T03:04:05Z'
-    expect(one.api.postDialogueMessage('anything').settledAt).toBe('2027-01-02T03:04:05Z')
+    expect(accepted(one.api.postDialogueMessage('anything')).message.settledAt).toBe(
+      '2027-01-02T03:04:05Z',
+    )
   })
 
   it("moves no instant, so a caller's AG-2 lock survives a post (AG-11)", () => {
@@ -1452,7 +1458,7 @@ describe('AM-18 postDialogueMessage -- AG-11', () => {
     one.speakAsPerson('first', 'a person at the keyboard')
     one.speakAsPerson('second', 'a person at the keyboard')
 
-    expect(one.api.postDialogueMessage('third').sequence).toBe(3)
+    expect(accepted(one.api.postDialogueMessage('third')).message.sequence).toBe(3)
     expect(one.api.readDialogueMessages().map((message) => message.text)).toEqual([
       'first',
       'second',
@@ -1462,7 +1468,7 @@ describe('AM-18 postDialogueMessage -- AG-11', () => {
 
   it('answers with a value for empty text, since no row states a rule it could fail', () => {
     const one = bench()
-    const posted = one.api.postDialogueMessage('')
+    const posted = accepted(one.api.postDialogueMessage('')).message
 
     expect(posted.text).toBe('')
     expect(one.api.readDialogueMessages()).toHaveLength(1)
