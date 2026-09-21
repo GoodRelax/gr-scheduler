@@ -8,7 +8,7 @@ import type { FrameValues } from './frame-loop'
 
 export type EffectRunner<E> = (effect: E, frame: FrameValues | null) => void
 
-// see UF-123, T-280, T-286, T-289, T-290, T-292, T-293, T-295
+// see UF-123, T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296
 export type EffectRunners<E extends { readonly type: string }> = {
   readonly [T in E['type']]: EffectRunner<Extract<E, { readonly type: T }>>
 }

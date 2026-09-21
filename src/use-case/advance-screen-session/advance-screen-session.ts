@@ -5,6 +5,13 @@
 // @publishes table T-064 row PI-39
 
 import {
+  emptyAgentApiValues,
+  stepAgentApiValues,
+  type AgentApiValues,
+  type AgentApiValuesEffect,
+  type AgentApiValuesEvent,
+} from './agent-api-values'
+import {
   emptyFieldEntryValues,
   stepFieldEntryValues,
   type FieldEntryValues,
@@ -66,9 +73,10 @@ export interface ScreenSession {
   readonly fieldEntry: FieldEntryValues
   readonly selection: SelectionValues
   readonly interactionRecord: InteractionRecordValues
+  readonly agentApi: AgentApiValues
 }
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, T-295
+// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296
 export type SessionEvent =
   | ScreenValuesEvent
   | NoticeValuesEvent
@@ -77,6 +85,7 @@ export type SessionEvent =
   | FieldEntryValuesEvent
   | SelectionValuesEvent
   | InteractionRecordValuesEvent
+  | AgentApiValuesEvent
 
 export type SessionEffect =
   | ScreenValuesEffect
@@ -86,8 +95,9 @@ export type SessionEffect =
   | FieldEntryValuesEffect
   | SelectionValuesEffect
   | InteractionRecordValuesEffect
+  | AgentApiValuesEffect
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, SS-6
+// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, T-296, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
@@ -96,6 +106,7 @@ export const emptyScreenSession: ScreenSession = {
   fieldEntry: emptyFieldEntryValues,
   selection: emptySelectionValues,
   interactionRecord: emptyInteractionRecordValues,
+  agentApi: emptyAgentApiValues,
 }
 
 // WHY: a Record per region fails to compile on a missing event; the rest are screen events.
@@ -164,6 +175,11 @@ const IS_INTERACTION_RECORD_EVENT: { readonly [T in InteractionRecordValuesEvent
   interactionRecordToggled: true,
 }
 
+const IS_AGENT_API_EVENT: { readonly [T in AgentApiValuesEvent['type']]: true } = {
+  agentApiEntryPressed: true,
+  rememberedEnablingLoaded: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
@@ -194,6 +210,11 @@ function isInteractionRecordEvent(event: SessionEvent): event is InteractionReco
   return Object.hasOwn(IS_INTERACTION_RECORD_EVENT, event.type)
 }
 
+/** @purity pure */
+function isAgentApiEvent(event: SessionEvent): event is AgentApiValuesEvent {
+  return Object.hasOwn(IS_AGENT_API_EVENT, event.type)
+}
+
 // see SS-5, SF-3
 /** @purity pure */
 function composed<K extends keyof ScreenSession>(
@@ -222,5 +243,6 @@ export function advanceScreenSession(
   if (isInteractionRecordEvent(event)) {
     return composed(session, 'interactionRecord', stepInteractionRecordValues(session.interactionRecord, event))
   }
+  if (isAgentApiEvent(event)) return composed(session, 'agentApi', stepAgentApiValues(session.agentApi, event))
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

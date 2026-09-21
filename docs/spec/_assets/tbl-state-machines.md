@@ -982,3 +982,58 @@ stateDiagram-v2
 - `interactionRecordingStateMachine.recordingInteractions` —— 根拠 `FR-102` ・ `S-206` ・ `IC-76`
 
 表に無い出来事は `interactionRecordingStateMachine` を変えない（同じ参照）。
+
+## `Agent API`（`agentApi`）
+
+**表 T-296 — `Agent API` の状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+### `Agent API` の出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `agentApi/agentApiEntryPressed` | 入力（`IC-20` を押した。無効のときは有効にし、有効のときは無効にする —— 有効にするのと無効にするのは同じ 1 つの入口である）: `IC-20` ・ `FR-065` | — | 根 ・ `agentApiEnablingStateMachine` |
+| `agentApi/rememberedEnablingLoaded` | 副作用の結果（起動のとき、シェルがブラウザ（オリジン）の記憶を読んだ結果）: `FR-065` ・ `S-99b` | `isRememberedEnabled`（`S-99b`。記憶が有効を指すか） | `agentApiEnablingStateMachine` |
+
+### 根 `agentApi` の値
+
+運ぶ値: —。  
+根拠: `FR-065` ・ `S-99b`。
+
+| 出来事 | `agentApi` |
+| --- | --- |
+| `agentApi/agentApiEntryPressed` | → 自己 / `storeAgentApiEnabling`（押した後の有効・無効をブラウザ（オリジン）の記憶に書く） |
+
+**図 F-042 — `Agent API` の状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-296 の状態遷移表が持つ。
+
+### 状態機械 `agentApiEnablingStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> agentApiEnablingStateMachine_disabled
+    agentApiEnablingStateMachine_disabled : disabled
+    agentApiEnablingStateMachine_enabled : enabled
+    agentApiEnablingStateMachine_disabled --> agentApiEnablingStateMachine_enabled : agentApiEntryPressed, rememberedEnablingLoaded
+    agentApiEnablingStateMachine_enabled --> agentApiEnablingStateMachine_disabled : agentApiEntryPressed
+```
+
+| 出来事 | `disabled` | `enabled` |
+| --- | --- | --- |
+| `agentApi/agentApiEntryPressed` | → `enabled` | → `disabled` / `raiseNotice`（`RS-20`） |
+| `agentApi/rememberedEnablingLoaded` | → `enabled` [`isRememberedEnabled`]<br>それ以外 → — | — |
+
+- `agentApiEnablingStateMachine.disabled` —— 初期。根拠 `FR-065` ・ `CP-17` ・ `RS-35`
+- `agentApiEnablingStateMachine.enabled` —— 根拠 `FR-065` ・ `FR-066` ・ `S-99b`
+
+表に無い出来事は `agentApiEnablingStateMachine` を変えない（同じ参照）。

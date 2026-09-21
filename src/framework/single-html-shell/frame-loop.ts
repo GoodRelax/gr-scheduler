@@ -1451,6 +1451,8 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
 
     beginInteractionRecord: unwiredEffect,
     handInteractionRecordToClipboard: unwiredEffect,
+
+    storeAgentApiEnabling: unwiredEffect,
   }
 }
 

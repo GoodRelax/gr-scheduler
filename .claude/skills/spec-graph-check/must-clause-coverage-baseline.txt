@@ -1,4 +1,5 @@
-1337
+1334
+# LOWERED 1337 -> 1334 on 2026-09-22 (user approval of baseline moves): CR-530's spec-only tester quoted 3 more FR-065 clauses verbatim (recounted on the tree merged with the wave-1 landing a131ca8d).
 # LOWERED 1340 -> 1335 on 2026-09-22 (user approval of baseline moves): CR-520's spec-only tester quoted 5 FR-102 clauses verbatim.
 # LOWERED 1360 -> 1340 on 2026-09-22, with the user's approval of baseline moves ("変えてよい"): CR-436
 # wave B2's and CR-510's spec-only testers quoted 20 MUST / MUST NOT clauses verbatim (T-283, UF-48, FR-100, OP-3 ...).

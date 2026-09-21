@@ -39,6 +39,8 @@ tools/generate_entity_types.py  公開する写しの一覧（`PUBLISHED_READ_BY
 ⭐ **表 T-206 以外の表から出すときは、その表用の出力式を新しく書く** ——
 **`not_stored_block` は 表 T-206 専用である**（`S-132` は 表 T-217 なので `annotation_defaults_block` を足した）。
 ```
+AGENT_API_VALUES_INITIAL_AXES        `Agent API` の状態機械の初期の種類（表 T-296 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+AGENT_API_VALUES_TRANSITIONS         `Agent API` の状態遷移表の升を 1 つずつ並べたもの（表 T-296。同じ生成器）
 COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
 COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
 DATE_COLUMNS                         日付列の全数（表 T-058）

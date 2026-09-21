@@ -140,6 +140,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       restorePaletteCorner: true,
       startEntryRepeat: true,
       startScaleMessageTimer: true,
+      storeAgentApiEnabling: true,
       storeLanguage: true,
       tellFlowSurfaceClosed: true,
       writeClearDualCursor: true,

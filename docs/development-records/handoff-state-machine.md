@@ -124,8 +124,12 @@ SF-10  文書は集約に入れない。セッションは読むだけ
 ✅ 操作の記録  CR-520 の波 A（第 7 領域 interactionRecord: interactionRecordingStateMachine（notRecording ／ recordingInteractions）、
           interaction-record-values.ts（UF-124）、表 T-295・図 F-041）。記録の中身はシェルに残す（CR-490 の 11.1 の 4 行目を覆した）。台帳 DFC-785・786
           ⚠️ 波 B: シェルの溜め const interactionRecord は領域のキーと同じ名 —— 結線のときに改名せよ
-⬜ Agent API  CR-530 の波 A（第 8 領域 agentApi）。草案はこのセッションの scratchpad にあった（次のセッションには残らない ⇒ CR-490 の 11.7 と本書から起こし直せ）
-          命名と原稿の形は 07-review-standards.md の R4.4。⚠️ T-294 ・ F-040 は CR-510 が使わずに返した
+✅ Agent API  CR-530 の波 A（第 8 領域 agentApi: agentApiEnablingStateMachine（disabled ／ enabled）、agent-api-values.ts（UF-125）、
+          表 T-296・図 F-042）。起動で読んだ記憶は出来事 rememberedEnablingLoaded、記憶へ書くのは根の副作用 storeAgentApiEnabling。
+          dialogueLog と REGISTRATIONS は外（SF-10 に 1 文）。台帳 DFC-787・788
+          ⚠️ 仕様の空白: 同じ出来事で根の升と機械の升の両方が副作用を出すとき、どちらが先かを表 T-284 ・ T-285 も SS-5 も書いていない
+             （コードは根が先）。契約試験は順を問わない。直すなら T-284 に 1 行を足す変更要求を先に
+⭐ CR-490 の 11.7 が挙げた 3 つの機械はすべて波 A まで当てた。残る「いま編集している欄」は CR-500 が当てた。⚠️ T-294 ・ F-040 は空いたまま
           ⚠️ 番号の帯（2026-09-21 に本線と決めた）: こちら 図 F-035〜F-039（F-039 まで使用 —— 使い切り。F-037 は CR-470 が返した）・UF-88〜UF-89（使い切り）。
              それより先の番号と CR の番号は、本線のセッションに宣言してから取れ（本線が終了していたら本書に書いて残せ）
           ⚠️ 図の帯: こちら F-035〜F-039（F-035 は身振り）、本線 F-030〜F-034、F-040 以降は取る側が宣言してから

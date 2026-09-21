@@ -5554,6 +5554,149 @@
      }
     }
    ]
+  },
+  {
+   "region": "agentApi",
+   "name": {
+    "ja": "`Agent API`"
+   },
+   "unit": "src/use-case/advance-screen-session/agent-api-values.ts",
+   "typeStem": "AgentApiValues",
+   "table": {
+    "id": "T-296",
+    "caption": {
+     "ja": "`Agent API` の状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-042",
+    "caption": {
+     "ja": "`Agent API` の状態遷移"
+    }
+   },
+   "root": {
+    "carries": [],
+    "evidence": [
+     "FR-065",
+     "S-99b"
+    ],
+    "transitions": {
+     "agentApiEntryPressed": {
+      "effect": "storeAgentApiEnabling",
+      "evidence": [
+       "FR-065",
+       "S-99b"
+      ],
+      "note": {
+       "ja": "押した後の有効・無効をブラウザ（オリジン）の記憶に書く"
+      }
+     }
+    }
+   },
+   "events": [
+    {
+     "key": "agentApiEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-20",
+       "FR-065"
+      ],
+      "note": {
+       "ja": "`IC-20` を押した。無効のときは有効にし、有効のときは無効にする —— 有効にするのと無効にするのは同じ 1 つの入口である"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "rememberedEnablingLoaded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-065",
+       "S-99b"
+      ],
+      "note": {
+       "ja": "起動のとき、シェルがブラウザ（オリジン）の記憶を読んだ結果"
+      }
+     },
+     "carries": [
+      {
+       "name": "isRememberedEnabled",
+       "rows": [
+        "S-99b"
+       ],
+       "note": {
+        "ja": "記憶が有効を指すか"
+       }
+      }
+     ]
+    }
+   ],
+   "machines": [
+    {
+     "name": "agentApiEnablingStateMachine",
+     "states": [
+      {
+       "key": "disabled",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FR-065",
+        "CP-17",
+        "RS-35"
+       ]
+      },
+      {
+       "key": "enabled",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "FR-065",
+        "FR-066",
+        "S-99b"
+       ]
+      }
+     ],
+     "transitions": {
+      "agentApiEntryPressed": {
+       "disabled": {
+        "to": "enabled",
+        "evidence": [
+         "FR-065",
+         "IC-20"
+        ]
+       },
+       "enabled": {
+        "to": "disabled",
+        "effect": "raiseNotice",
+        "effectArgument": "RS-20",
+        "evidence": [
+         "FR-065",
+         "RS-20",
+         "NT-5"
+        ]
+       }
+      },
+      "rememberedEnablingLoaded": {
+       "disabled": {
+        "to": "enabled",
+        "guard": [
+         {
+          "name": "isRememberedEnabled"
+         }
+        ],
+        "evidence": [
+         "FR-065",
+         "S-99b"
+        ]
+       }
+      }
+     }
+    }
+   ]
   }
  ]
 }

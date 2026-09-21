@@ -910,7 +910,9 @@ def region_lines(region):
     lines.append(u'升の「%s」は変化なし（同じ参照）を表す。  ' % NONE_CELL)
     lines.append(u'ガードの付いた枝がすべての場合を覆わない升には「それ以外 → %s」を添え、どの場合に何が起きるかを升ごとに言い切る。  ' % NONE_CELL)
     lines.append(u'親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。')
-    lines += [u'', u'### %sの出来事' % text(region.raw['name']), u'']
+    name = text(region.raw['name'])
+    # A name that ends in code (`Agent API`) takes a space before the particle, as the prose does.
+    lines += [u'', u'### %s%sの出来事' % (name, u' ' if name.endswith(u'`') else u''), u'']
     lines += table_lines([u'出来事', u'どこから来るか', u'運ぶ値', u'動かすもの'],
                          event_rows(region))
     lines += root_lines(region)
