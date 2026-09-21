@@ -1192,6 +1192,14 @@
    }
   },
   {
+   "prefix": "UD",
+   "words": "Unit Division",
+   "owner": "spec",
+   "means": {
+    "ja": "ユニットを割る基準"
+   }
+  },
+  {
    "prefix": "UF",
    "words": "",
    "owner": "spec",

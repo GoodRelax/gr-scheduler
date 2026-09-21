@@ -110,7 +110,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 286 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 287 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 123 |
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
@@ -187,6 +187,7 @@
 | `TW` | — | 章ごとのテストの方針と合格基準 | 仕様書 | `T-219` | 3 |
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 61 |
+| `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
 | `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 37 行。写しとして申告済み） | `T-075` | 68 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 18 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 7 |
