@@ -4,6 +4,15 @@
 **番号を増やすな。本書 1 ファイルを毎巡書き換える。**
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 
+> 🆕⭐⭐ **2026-09-22 の巡（段 7 の波 B の結線）—— 下の古い行より本節が正。** ⛔ 数は測り直せ。
+> - `main` は `6f5cebf4` へ早送り・push 済み（利用者の指示。⛔ この後の `refactor` を `main` へ上げるなら利用者に問え）。`refactor` は `37fc8da2` 以降（push 済み）。
+> - **波 B の結線は全 9 領域で着地した**（利用者の指示で **テストは走らせていない**。型検査だけ既知の 8 件のまま）: 通知 `43496359`・身振り `c8d05ab1`・ファイル操作 `4b9687e8`・未保存の編集 `f1dcda1d`・名前付けと入力欄 `aae9551d`・CR-500 の波 B `81dca548`・選択 `888185ef`・操作の記録 `96851652`・Agent API `fcc1e046`。frameLoop の `let` 62 → 43、frame-loop.ts の `unwiredEffect` の置き場 0。dist は `b3f66ec7`。
+> - その後、利用者の指示で説明の待ち時間 `S-124 iconHintDelayMs` を 2000 → **1000 ms**（原稿 settings.json → `npm run gen`、dist も作り直し。`37fc8da2`）。
+> - ⛔ **次にやること（この順）**:
+>   1. **テストの巡**: vitest・e2e・check.sh を測り、赤を仕分ける。赤になるはずのもの: 面の偽物で `hasUnsettledTextEntry` を返す試験群（fr-001・fr-072・cr-541-stage・uf-48 ほか —— シェルは CR-500 の波 B で真偽を読まず、知らせ `readFieldEditNotices` を読む。`hasUnsettledTextEntry` は試験のために宣言だけ残した）、`use-case.test.ts` の約 591 行目と `uf-8-9-replace-document.test.ts` の約 858 行目（通知の窓を UseCase が開く前提。CR-440 の 5 節はシェル経由へ書き直せと言う）、S-124 の既定値 2000 を名指しする試験があれば 1000 へ。
+>   2. **利用者に問う 2 件**: 検査 61 の基準線の `HELD ...apply-document-change.ts:deliveringNotices` は指す先が無い（消してよいか —— 消せば CR-530 の決定 6 の `REGISTRATIONS` の移しも入る）／ `DFC-694` をどちらに揃えるか（いまは今の振る舞いを写し、frame-loop.ts に `DEVIATION ... (DFC-694)` の印 3 か所）。
+>   3. 結線で残したもの: 選択の出来事 `emptyAreaClicked`・`selectionEscapePressed`・`selectionSettleKeyPressed` は送っていない（翻訳器が Selection を 1 つ返すため。CR-490 の 2.2 注 2 → 段 5）／ CR-460 の Promise の継続 3 つは `let` のまま（CR-460 §2 が領域の外とする）／ CR-440 の決定 13 の仕様の文（PI-8）は未記入／ PND-142・143 の STOP が元の `let` の場所に残った（下の 2 の ② ア）。
+>   4. その後は下の「2. やること」の ① の残り（H2〜H10）→ ⑤ 段 8。
 > ⭐⭐ **2026-09-21 夜〜09-22 の巡は、段 6 を閉じ（`CR-439`、着地 `006aefbc`）、段 7 の波 B2 と全領域の波 A を入れ、裁定待ちの溜まりを閉じた（`CR-541`〜`CR-550`）。** 並行したセッション（段 6 ＝調整役・状態機械・掴みの表・STOP の片付け ×2・台帳の掃除・裁定の仕分け）は **すべて終わり、未 push は無い**。⇒ **次の巡は 1 本の話である: 段 7 の残り（波 B の結線）→ 段 8。** 残件は下の 1 通目の 2 が全部持つ。
 > ✅ **`refactor` は `c5e65515` 以降（push 済み。⛔ `git log -1 origin/refactor` で測れ）。`main` は `b1ce74a4`（⛔ これも測れ。この巡は触っていない）。** ⛔ `main` では直接作業しない。
 > ⭐ **状態機械の仕事は終わっていない**（段 7 の波 B）。**その細目は `handoff-state-machine.md` の §3 が持つ。⛔ あちらは本書に従属する** —— 唯一の引継書は本書であり、食い違ったら本書が正である。
