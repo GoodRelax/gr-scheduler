@@ -535,31 +535,38 @@ describe('KO-1 / UN-14 -- [v] on a folded row writes the unfold and the mark in 
   })
 })
 
-describe('KO-2 / KO-3 -- [vv] and header [vv] set the mark', () => {
-  it('claim 8 KO-2: [vv] on a folded R marks R and every row under it, and nothing else', () => {
-    const built = stage(smallDocument({ zoomY: 1.2, folded: [R] }))
+describe('KO-2 / KO-3 -- [vv] marks the pressed row and makes the rows under it neutral; header [vv] makes every row neutral', () => {
+  const foldsAndHides = (built: Stage, ids: readonly string[]): string[] =>
+    built
+      .groups()
+      .filter((one) => ids.includes(one.id) && (one.isCollapsed === true || one.isHidden === true))
+      .map((one) => one.id)
+
+  it('claim 8 KO-2: [vv] on a folded R marks R, clears every fold, hide and mark under it, and leaves the rest', () => {
+    const built = stage(smallDocument({ zoomY: 1.2, folded: [R, C1], hidden: [G1], kept: [A, C1, G1] }))
     built.press(OPEN_ALL_BELOW, R)
     expect(built.notices()).toEqual([])
-    expect(named(built.kept()).sort()).toEqual(named(subtreeOf(R)).sort())
+    expect(named(built.kept()).sort()).toEqual(named([A, R]).sort())
+    expect(named(foldsAndHides(built, subtreeOf(R)))).toEqual([])
   })
 
-  it('claim 8 KO-3 (CR-404 q1 as recommended): header [vv] marks every row', () => {
-    const built = stage(smallDocument({ zoomY: 1.2, folded: [B2] }))
+  it('claim 8 KO-3 (JDG-302): header [vv] clears every fold, hide and mark', () => {
+    const built = stage(smallDocument({ zoomY: 1.2, folded: [B2], kept: [R, C1] }))
     built.press(HEAD_OPEN_EVERY_ROW, null)
     expect(built.notices()).toEqual([])
-    expect(named(built.kept()).sort()).toEqual(named(ALL).sort())
+    expect(built.kept()).toEqual([])
+    expect(named(foldsAndHides(built, ALL))).toEqual([])
   })
 
-  it('after KO-3, zooming down as far as the input goes drops no row, and every marked row is drawn at zoomMin (decision 6 cost)', () => {
-    const built = stage(smallDocument({ zoomY: 1.2, folded: [B2] }))
+  it('after KO-3 no mark is left, so zooming down drops rows by the depth rule again', () => {
+    const built = stage(smallDocument({ zoomY: 1.2, folded: [B2], kept: ALL }))
     built.press(HEAD_OPEN_EVERY_ROW, null)
-    // STEP: T-262 ZE-2 may stop the input above S-54 once every row is marked, so the loop ends on no change too
     for (let step = 0, was = Number.NaN; step < 200 && built.zoomY() > S_54 && built.zoomY() !== was; step++) {
       was = built.zoomY()
       built.key('-', { alt: true })
     }
-    expect(named(built.drawn()).sort()).toEqual(named(ALL).sort())
-    expect(named(layoutOf(smallDocument({ zoomY: S_54, kept: ALL }))).sort()).toEqual(named(ALL).sort())
+    expect(built.kept()).toEqual([])
+    expect(built.drawn().length).toBeLessThan(ALL.length)
   })
 })
 

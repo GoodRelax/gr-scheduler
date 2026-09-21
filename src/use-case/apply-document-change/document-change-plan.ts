@@ -155,16 +155,27 @@ function stepSizeBytes(document: Document): number {
   return utf8Length(JSON.stringify(document))
 }
 
-// STOP: spec does not decide the id of T-050's invariant row. Looked in T-050, IV-20, AT-51, CM-26 (PND-488)
-const EMPTY_DOCUMENT_TASK_GROUP_ID = '00000000-0000-4000-8000-000000000001'
+// see T-050, CM-27
+// TRAP: on the command road only CM-27 can leave no row, so a batch that does carries this id.
+/** @purity pure */
+function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
+  for (const command of commands) {
+    if (command.kind === 'deleteTaskGroup') return command.newGroupId
+  }
+  return null
+}
 
 // see T-050, FR-004
 // TRAP: a non-empty document must come back as the same reference; WS-6 replaces one reference.
 /** @purity pure */
-function documentHoldingOneRow(document: Document, defaultRowName: string): Document {
-  if (document.schedule.taskGroups.length > 0) return document
+function documentHoldingOneRow(
+  document: Document,
+  defaultRowName: string,
+  freshRowId: string | null,
+): Document {
+  if (document.schedule.taskGroups.length > 0 || freshRowId === null) return document
   const row: TaskGroup = {
-    id: EMPTY_DOCUMENT_TASK_GROUP_ID,
+    id: freshRowId,
     parentId: null,
     label: defaultRowName,
     derivedFromTaskUid: null,
@@ -227,7 +238,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }
 
-  const settled = documentHoldingOneRow(held, input.defaultRowName)
+  const settled = documentHoldingOneRow(held, input.defaultRowName, freshRowIdOf(input.commands))
 
   // TRAP: identity means nothing moved only while every edit-document arm returns the document it got.
   const recorded = input.commands.filter(isUndoable)
@@ -293,6 +304,7 @@ export interface ReplacementInput {
   readonly moment: WriteMoment
   readonly call: ReplacementCall
   readonly defaultRowName: string
+  readonly newGroupId: string
 }
 
 export type ReplacementRefusal =
@@ -323,9 +335,9 @@ function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolea
 function replacementSettled(
   held: HeldDocument,
   next: HeldDocument,
-  defaultRowName: string,
+  input: ReplacementInput,
 ): ReplacementPlan {
-  const settled = documentHoldingOneRow(next.document, defaultRowName)
+  const settled = documentHoldingOneRow(next.document, input.defaultRowName, input.newGroupId)
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
   return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }
@@ -351,28 +363,27 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
     case 'RD-1': {
       const outcome = undoEdit(held)
       // TRAP: nothing moved, so return the very pair; a fresh object breaks WS-6's one-reference swap.
-      if (!outcome.undone) return replacementSettled(held, outcome.next, input.defaultRowName)
+      if (!outcome.undone) return replacementSettled(held, outcome.next, input)
       return replacementSettled(
         held,
         keepingColumnsOutsideHistory(outcome.next, held.document),
-        input.defaultRowName,
+        input,
       )
     }
 
     case 'RD-2': {
       const outcome = redoEdit(held)
-      if (!outcome.redone) return replacementSettled(held, outcome.next, input.defaultRowName)
+      if (!outcome.redone) return replacementSettled(held, outcome.next, input)
       return replacementSettled(
         held,
         keepingColumnsOutsideHistory(outcome.next, held.document),
-        input.defaultRowName,
+        input,
       )
     }
 
     case 'RD-3': {
       const outcome = importDocument({ ...call.importing, current: held.document })
       if (!outcome.ok) return importRefused(outcome.refusal)
-      // STOP: spec does not decide whether an overlay import is undoable. Looked in T-027, UN-6, OP-9, FR-015 (PND-482)
       const history =
         outcome.report.undo === 'oneStep'
           ? historyWithStep(
@@ -391,7 +402,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
           { hasMovedSchedule: hasMovedScheduleGroup(held.document, outcome.document) },
         ),
       }
-      return replacementSettled(held, { document, history }, input.defaultRowName)
+      return replacementSettled(held, { document, history }, input)
     }
 
     case 'RD-4': {
@@ -400,7 +411,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       return replacementSettled(
         held,
         { document: outcome.document, history: emptyHistory() },
-        input.defaultRowName,
+        input,
       )
     }
 
@@ -408,14 +419,14 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
       return replacementSettled(
         held,
         { document: call.document, history: emptyHistory() },
-        input.defaultRowName,
+        input,
       )
 
     case 'RD-7':
       return replacementSettled(
         held,
         { document: call.document, history: emptyHistory() },
-        input.defaultRowName,
+        input,
       )
   }
 }

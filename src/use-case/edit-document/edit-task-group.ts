@@ -36,7 +36,7 @@ export type TaskGroupCommand =
       readonly derivedFromTaskUid: number | null
       readonly order: number
     }
-  | { readonly kind: 'deleteTaskGroup'; readonly groupId: string }
+  | { readonly kind: 'deleteTaskGroup'; readonly groupId: string; readonly newGroupId: string }
   | {
       readonly kind: 'pasteTaskGroupSubtree'
       readonly sourceGroupId: string

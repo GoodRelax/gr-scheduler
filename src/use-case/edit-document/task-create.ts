@@ -69,7 +69,6 @@ export function createTask(
   const held = schedule.taskGroups.find((one) => one.id === command.groupId)
   let taskGroups = schedule.taskGroups
   if (held === undefined) {
-    // STOP: spec does not decide where FR-001's new row goes. Looked in TC-3, HF-14, HF-17, AT-55 (PND-491)
     const order = schedule.taskGroups
       .filter((one) => one.parentId === null)
       .reduce((best, one) => Math.max(best, one.order), -1) + 1

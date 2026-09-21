@@ -262,7 +262,7 @@ describe('EX-11 and EX-12 -- a document read from MSPDI, one task pasted into it
   it('EX-11, EX-12, FR-033: the copy is a task GRS added -- pinned to its Start, with a Duration from its dates', () => {
     const input = mspdiText(withTaskLeaves(pj12Fixture(), 3, [leaf('Duration', hours(1))]))
     const document = accepted(input).document
-    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUid: 3 })
+    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUids: [3] })
     const task = writtenTaskOf(pasted, copyUidOf(document, pasted))
     const drawn = created(readPj12(), 13, 24)
     expect(textAt(task, 'ConstraintType')).toBe(START_ON)
@@ -281,7 +281,7 @@ describe('EX-11 and EX-12 -- a document read from MSPDI, one task pasted into it
       leaf('FinishSlack', 0),
     ]))
     const document = accepted(input).document
-    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUid: 3 })
+    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUids: [3] })
     const task = writtenTaskOf(pasted, copyUidOf(document, pasted))
     expect(slacksOf(task)).toEqual([])
     expect(textAt(task, 'ManualStart')).toBe(textAt(task, 'Start'))

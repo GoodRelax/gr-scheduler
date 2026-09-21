@@ -510,6 +510,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
       replaceDocument(
         {
           defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          newGroupId: 'fresh-row',
           readStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,

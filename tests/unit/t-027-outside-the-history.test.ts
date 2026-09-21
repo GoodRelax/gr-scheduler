@@ -158,6 +158,7 @@ function bench(): Bench {
       replaceDocument(
         {
           defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          newGroupId: 'fresh-row',
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           call: { row: 'RD-1' },

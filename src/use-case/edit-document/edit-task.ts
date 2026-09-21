@@ -79,7 +79,7 @@ export type TaskCommand =
       readonly groupId: string
     }
   | { readonly kind: 'deleteTask'; readonly uid: number }
-  | { readonly kind: 'pasteTaskSubtree'; readonly sourceUid: number }
+  | { readonly kind: 'pasteTaskSubtree'; readonly sourceUids: readonly number[] }
   | { readonly kind: 'setTaskName'; readonly uid: number; readonly name: string | null }
   | { readonly kind: 'setTaskNotes'; readonly uid: number; readonly notes: string | null }
   | {
@@ -226,17 +226,14 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
   const schedule = document.schedule
   const settings = document.documentSettings
   const within = workingCalendarOf(schedule)
+  if (command.kind === 'pasteTaskSubtree') return pasteTaskSubtree(document, command, within)
 
-  const named =
-    command.kind === 'createTask'
-      ? null
-      : taskByUid(schedule, command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid)
+  const named = command.kind === 'createTask' ? null : taskByUid(schedule, command.uid)
   // WHY: CM-7 is exempt; FR-032's select-all delete bundles one CM-7 per task, an earlier one can
   // carry off a later one's subtree, and refusing that one would throw the bundle away (AG-3).
   const missingTargetIsRefused = command.kind !== 'createTask' && command.kind !== 'deleteTask'
   if (missingTargetIsRefused && named === null) {
-    const uid = command.kind === 'pasteTaskSubtree' ? command.sourceUid : command.uid
-    return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${uid}`)])
+    return refused([reject(TABLE_T108_ROWS[command.kind], 'IV-2', `no Task with uid ${command.uid}`)])
   }
   // TRAP: the cast holds only for guarded kinds; createTask and deleteTask must not read task.
   const task = named as Task
@@ -281,9 +278,6 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
         }),
       )
     }
-
-    case 'pasteTaskSubtree':
-      return pasteTaskSubtree(document, command, within)
 
     case 'setTaskName':
       return edited(withTask(document, { ...task, name: command.name }))

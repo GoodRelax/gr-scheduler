@@ -538,7 +538,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
   }
 
   it('DU-1 copies the WBS descendants of the Task', () => {
-    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUids: [1] }))
     expect(next.schedule.tasks).toHaveLength(5)
     const { root, child } = pasted(next)
     expect(child.wbsParentUid).toBe(root.uid)
@@ -547,7 +547,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
 
   it('FR-033 must not give a copy the UID of the Task it was copied from', () => {
     // MUST NOT: the numbering is FR-001's, so a copy is a new task.
-    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUids: [1] }))
     const uids = next.schedule.tasks.map((task) => task.uid)
     expect(new Set(uids).size).toBe(uids.length)
     const { root, child } = pasted(next)
@@ -558,7 +558,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
   it('DU-1 copies the TaskVisual, the membership and the assignment, and lands on the same row', () => {
     // MUST: the copy goes on the same row as the source -- without that,
     // CD-2's range is undecided too.
-    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUids: [1] }))
     const { root, child } = pasted(next)
     expect(rowOf(next, root.uid)).toBe('g1')
     expect(rowOf(next, child.uid)).toBe('g1')
@@ -570,7 +570,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
   it('DU-1 must not copy the TaskOrigin', () => {
     // MUST NOT: a copy did not come from the exchange partner, so it is not a
     // candidate for the merge's matching.
-    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUids: [1] }))
     expect(next.schedule.taskOrigins.map((o) => o.taskUid).sort()).toEqual([1, 2])
   })
 
@@ -578,7 +578,7 @@ describe('EditDocument (PI-9) -- CM-8 pasteTaskSubtree', () => {
     // MUST NOT copy an edge leaving the subtree: copying the edge to 9 would add
     // one more line to the same predecessor on every paste. The edge that IS
     // copied is the one to 1, and inside the copy it names the copy of 1.
-    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUid: 1 }))
+    const next = accepted(run(before, { kind: 'pasteTaskSubtree', sourceUids: [1] }))
     const { root, child } = pasted(next)
     expect(child.dependencies.map((oneDivider) => oneDivider.predecessorUid)).toEqual([root.uid])
   })

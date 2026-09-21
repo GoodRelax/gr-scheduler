@@ -257,7 +257,7 @@ const deleteTask = (document: Document, uid: number): EditResult =>
   editTask(document, { kind: 'deleteTask', uid } as TaskCommand, DEFAULT_ROW_NAMES[0]!)
 
 const deleteTaskGroup = (document: Document, groupId: string): EditResult =>
-  editTaskGroup(document, { kind: 'deleteTaskGroup', groupId } as TaskGroupCommand, DEFAULT_ROW_NAMES[0]!)
+  editTaskGroup(document, { kind: 'deleteTaskGroup', groupId, newGroupId: 'fresh-row' } as TaskGroupCommand, DEFAULT_ROW_NAMES[0]!)
 
 // ---------------------------------------------------------------------------
 // The manuscript itself, before anything is asked of a unit.

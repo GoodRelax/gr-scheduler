@@ -165,6 +165,7 @@ function bench(): Bench {
       replaceDocument(
         {
           defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
+          newGroupId: 'fresh-row',
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, deliveringNotices: false },
           // WHY: table T-230 forbids a replacement naming no row; RD-1 is the undo row.

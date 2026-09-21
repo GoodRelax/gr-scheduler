@@ -537,13 +537,10 @@ describe('ImportDocument (UF-19) -- OP-9 重ね', () => {
     }
   })
 
-  // ⛔ Whether 重ね is undoable is NOT decided: table T-027 has no row naming
-  // it, and UN-6 covers only 合流での上書き and its 置き換え exception. The unit
-  // answers `notDecided`; this case pins that the gap is REPORTED rather than
-  // guessed, and must be rewritten the day a row is added to table T-027.
-  it('⛔ 重ね has no row in table T-027, so the undo disposition is reported as undecided', () => {
+  // 表 T-027 の UN-18: 「重ねの取り込み ... 取り込み 1 回を 1 段とする」.
+  it('UN-18: one 重ね import is one undo step', () => {
     const { report } = accepted(importDocument(requestOf({ choice: 'baseline' })))
-    expect(report.undo).toBe('notDecided')
+    expect(report.undo).toBe('oneStep')
   })
 })
 

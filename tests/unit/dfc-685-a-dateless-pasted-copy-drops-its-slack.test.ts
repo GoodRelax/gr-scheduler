@@ -58,7 +58,7 @@ describe(`CM-8, EX-12: ${EX_12_NO_SLACK}`, () => {
     const source = document.schedule.tasks.find((each) => each.uid === SOURCE_UID)
     expect(source?.start).toBeNull()
 
-    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUid: SOURCE_UID })
+    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUids: [SOURCE_UID] })
     const copyUid = copyUidOf(document, pasted)
     const copy = pasted.schedule.tasks.find((each) => each.uid === copyUid)
     expect(copy?.start).toBeNull()
@@ -71,7 +71,7 @@ describe(`CM-8, EX-12: ${EX_12_NO_SLACK}`, () => {
     const source = document.schedule.tasks.find((each) => each.uid === SOURCE_UID)
     expect(source?.finish).toBeNull()
 
-    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUid: SOURCE_UID })
+    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUids: [SOURCE_UID] })
     const copyUid = copyUidOf(document, pasted)
     const copy = pasted.schedule.tasks.find((each) => each.uid === copyUid)
     expect(copy?.finish).toBeNull()
@@ -81,7 +81,7 @@ describe(`CM-8, EX-12: ${EX_12_NO_SLACK}`, () => {
 
   it('control: pasting a dateless task does not change the source task`s own carried slack', () => {
     const document = dateless('Start')
-    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUid: SOURCE_UID })
+    const pasted = edited(document, { kind: 'pasteTaskSubtree', sourceUids: [SOURCE_UID] })
     expect([...slacksOf(writtenTask(pasted, SOURCE_UID))].sort()).toEqual([...SLACKS].sort())
   })
 })

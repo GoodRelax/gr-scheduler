@@ -1179,10 +1179,10 @@ describe('表 T-051 の結び -- the head has four entrances and a row has seven
 describe('FR-029 -- the arming of every entrance the panel carries', () => {
   it('⛔ the manuscript still gives each of them its own condition', () => {
     expect(says('T-051', 'HF-2')).toContain(
-      'その行が抱えている畳み込みが 0 のときは、`FR-029` に従って薄く描くこと（MUST）',
+      '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-2')).toContain(
-      'その数を示すのが `HF-18` であり、示す数と構えの条件は同じ 1 つである',
+      '押しが何かを変えるのは、押した行かその配下に畳みか隠しがあるとき、配下に開いたままの印があるとき',
     )
     expect(says('T-051', 'HF-3')).toContain(
       '描かれている行はいつでも隠せるので、本操作子を薄く描く場面は無い',
@@ -1339,15 +1339,16 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
 // ===========================================================================
 
 describe('表 T-051 の HF-18 -- the number a row shows is the number that arms its opener', () => {
-  it('⛔ the manuscript still ties the count to the arming', () => {
+  it('⛔ the manuscript ties the count to the arming only where no mark and no zoom take part', () => {
     expect(says('T-051', 'HF-18')).toContain(
       '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）',
     )
     expect(says('T-051', 'HF-18')).toContain(
       '数えるのは人が畳んだ分だけとすること（MUST）。表示量（`FR-018`）が落とした行を数えてはならない（MUST NOT）',
     )
+    expect(says('T-051', 'HF-2')).toContain('構えの条件は `HF-18` の数と同じではない')
     expect(says('T-051', 'HF-2')).toContain(
-      'その数を示すのが `HF-18` であり、示す数と構えの条件は同じ 1 つである',
+      '`HF-18` は人が畳んだ分だけを数え、倍率が落とした行も開いたままの印も数えない',
     )
   })
 
@@ -1361,7 +1362,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     )
   })
 
-  it('⛔ MUST: the number shown and the arming of HF-2 are one condition, never two', () => {
+  it('⛔ MUST: with no kept-open mark and every row drawn, the number shown and the arming of HF-2 agree', () => {
     // 「**示す数と構えの条件は同じ 1 つである**」 -- walked over several shapes so
     // that a build which computed them separately comes apart on one of them.
     const shapes: readonly Fixture[] = [

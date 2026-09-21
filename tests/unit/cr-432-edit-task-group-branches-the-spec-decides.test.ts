@@ -239,7 +239,7 @@ describe('CR-432 TaskGroup branches the specification decides', () => {
       taskGroups: [groupOf({ id: 'A', order: 0 }), groupOf({ id: 'B', order: 1 })],
       taskGroupMembers: [memberOf(1, 'A'), memberOf(2, 'A')],
     })
-    const out = accepted(run(input, { kind: 'deleteTaskGroup', groupId: 'B' })).schedule
+    const out = accepted(run(input, { kind: 'deleteTaskGroup', groupId: 'B', newGroupId: 'fresh-row' })).schedule
     expect(out.taskGroups.map((one) => one.id)).toEqual(['A'])
     expect(out.tasks.find((one) => one.uid === 1)).toEqual(t1)
     expect(out.tasks.find((one) => one.uid === 2)).toEqual(t2)

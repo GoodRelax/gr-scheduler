@@ -278,12 +278,12 @@ describe('table T-050 -- deleting the last row', () => {
   it('is not refused', () => {
     // 「最後の 1 行の削除を拒んではならない（MUST NOT）」 -- 拒むと、その行に載る
     // `Task` ごと消す道が無くなる.
-    const plan = planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1' }])
+    const plan = planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }])
     expect(plan.ok).toBe(true)
   })
 
   it('leaves the document holding one row at L1, named from the dictionary', () => {
-    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1' }]))
+    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }]))
     const row = holdsTheRequiredRow(plan.document)
     // ⛔ NOT THE ROW THAT WAS DELETED. The one the invariant made is a new row,
     // and everything CD-2 takes with the old one is gone.
@@ -295,7 +295,7 @@ describe('table T-050 -- deleting the last row', () => {
   it('carries no Task, so the count FR-032 asks about has nothing to pick up', () => {
     // 「`FR-032` が問う件数に、作られる 1 行を足してはならない（MUST NOT）」 --
     // the question is about what disappears, and this row is not one of them.
-    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1' }]))
+    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }]))
     const row = holdsTheRequiredRow(plan.document)
     expect(
       plan.document.schedule.taskGroupMembers.filter((one) => one.groupId === row.id),
@@ -303,14 +303,14 @@ describe('table T-050 -- deleting the last row', () => {
   })
 
   it('moves the schedule instant, because a TaskGroup is schedule-group data', () => {
-    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1' }]))
+    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }]))
     expect(plan.hasMovedSchedule).toBe(true)
   })
 
   it('gives the deleted row back on ONE press of undo', () => {
     // 「取り消しの単位を分けてはならない（MUST NOT）。消したことと作ったことは
     // 1 つの操作であり、取り消し 1 回で消した行が戻ること（MUST）」
-    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1' }]))
+    const plan = accepted(planOf(ONE_ROW, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' }]))
     // WS-4 pushed exactly ONE step for the whole operation.
     expect(plan.history.done).toHaveLength(1)
 
@@ -343,6 +343,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultRowName: DICTIONARY_ROW_WORD.text.en,
+        newGroupId: 'fresh-row',
         held: { document: ONE_ROW, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -359,6 +360,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultRowName: DICTIONARY_ROW_WORD.text.en,
+        newGroupId: 'fresh-row',
         held: { document: EMPTY_OF_ROWS, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -379,6 +381,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultRowName: DICTIONARY_ROW_WORD.text.en,
+        newGroupId: 'fresh-row',
         held: { document: ONE_ROW, history },
         readStamp: null,
         moment: CALM,
@@ -396,6 +399,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultRowName: DICTIONARY_ROW_WORD.text.en,
+        newGroupId: 'fresh-row',
         held: { document: ONE_ROW, history },
         readStamp: null,
         moment: CALM,

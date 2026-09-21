@@ -355,7 +355,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
 
   it('CD-2 takes the rows beneath and every Task on them, each with its CD-1 cascade', () => {
     const document = cascadeDocument()
-    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1' })
+    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const after = result.document.schedule
@@ -391,7 +391,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
       },
       documentSettings: { pinnedGroupIds: ['g1', 'g2', 'g9'] },
     })
-    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1' })
+    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
 
@@ -411,7 +411,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
       schedule: { taskGroups: [groupOf({ id: 'g1' })] },
       documentSettings: { scrollGroupId: 'g1', scrollDate: '2026-01-01' },
     })
-    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1' })
+    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     // CD-2: その行を指す表示位置（S-78）は消さず null へ戻す -- null means
@@ -437,7 +437,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
         taskGroupMembers: [memberOf(1, 'g1'), memberOf(4, 'g9')],
       },
     })
-    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1' })
+    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const kept = groupById(result.document.schedule, 'g9')
@@ -467,7 +467,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
         taskGroupMembers: [memberOf(1, 'g1')],
       },
     })
-    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1' })
+    const result = run(document, { kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-row' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document.schedule.taskGroups).toEqual([])
@@ -477,7 +477,7 @@ describe('EditTaskGroup (UF-12) -- CM-27 deleteTaskGroup', () => {
   })
 
   it('refuses a row id the document does not hold', () => {
-    expect(run(documentOf(), { kind: 'deleteTaskGroup', groupId: 'nowhere' }).ok).toBe(false)
+    expect(run(documentOf(), { kind: 'deleteTaskGroup', groupId: 'nowhere', newGroupId: 'fresh-row' }).ok).toBe(false)
   })
 })
 

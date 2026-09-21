@@ -132,7 +132,6 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
     return { ...one, dayWorking }
   })
 
-  // STOP: spec does not decide the ordinal of a row GRS creates. Looked in AT-67, AT-72, MG-5, FR-054 (PND-485)
   let nextOrdinal = held.reduce((high, one) => Math.max(high, one.ordinal), -1) + 1
   for (const dayType of DAY_TYPES) {
     if (!worked.has(dayType)) continue
