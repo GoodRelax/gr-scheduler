@@ -18,7 +18,7 @@ import { appHeaderStyle, fillAppHeader } from './app-header-drawing'
 import { confirmationElement, noticeElement } from './notices-drawing'
 import { paletteElement } from './command-palette-drawing'
 import { fieldEditingOf } from './field-editing'
-import { tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
+import { showDualCursorReadout, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
 import {
   fillPropertiesPanel,
   growWrappingFields,
@@ -676,7 +676,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // TRAP: appended last, above the confirmation and the tooltips; it takes no press, so it
   // hides nothing a person has to reach.
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
-  root.append(scaleMessageLayer)
+  const readoutLayer = made(host, 'div', STYLE.layer)
+  root.append(scaleMessageLayer, readoutLayer)
 
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
@@ -846,7 +847,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
 
     lastKeys = drawnKeys
-    showScaleMessage(view.scaleMessage)
+    showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
@@ -917,26 +918,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
   }
 
-  // see FR-039, SE-4, SE-5
-  // TRAP: no data-role and pointer-events:none, so readScreenPartAt never answers it and a
-  // press lands on what lies under it; one element, rewritten in place, never stacked (SE-4).
-  /** @purity non-pure */
-  function showScaleMessage(text: string | undefined): void {
-    if (text === undefined) {
-      if (scaleMessageLayer.firstElementChild !== null) scaleMessageLayer.replaceChildren()
-      return
-    }
-    const shown = scaleMessageLayer.firstElementChild
-    if (shown !== null) {
-      if (shown.textContent !== text) shown.textContent = text
-      return
-    }
-    const box = made(host, 'div', SCALE_MESSAGE_STYLE.box)
-    box.setAttribute(SCALE_MESSAGE_MARK, '')
-    box.textContent = text
-    scaleMessageLayer.append(box)
-  }
-
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
   // reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
@@ -957,6 +938,38 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
 // see SE-2
 const SCALE_MESSAGE_MARK = 'data-scale-message'
+
+// see FR-039, SE-4, SE-5
+// TRAP: no data-role and pointer-events:none, so readScreenPartAt never answers it and a
+// press lands on what lies under it; one element, rewritten in place, never stacked (SE-4).
+/** @purity non-pure */
+function showScaleMessage(host: Document, layer: HTMLElement, text: string | undefined): void {
+  if (text === undefined) {
+    if (layer.firstElementChild !== null) layer.replaceChildren()
+    return
+  }
+  const shown = layer.firstElementChild
+  if (shown !== null) {
+    if (shown.textContent !== text) shown.textContent = text
+    return
+  }
+  const box = made(host, 'div', SCALE_MESSAGE_STYLE.box)
+  box.setAttribute(SCALE_MESSAGE_MARK, '')
+  box.textContent = text
+  layer.append(box)
+}
+
+// see SE-5, DC-3
+/** @purity non-pure */
+function showUnpressableWords(
+  host: Document,
+  scaleMessageLayer: HTMLElement,
+  readoutLayer: HTMLElement,
+  view: ScreenView,
+): void {
+  showScaleMessage(host, scaleMessageLayer, view.scaleMessage)
+  showDualCursorReadout(host, readoutLayer, view.dualCursorReadout)
+}
 
 // see FR-039, SE-5
 // WHY: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,

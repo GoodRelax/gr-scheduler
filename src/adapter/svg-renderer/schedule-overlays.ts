@@ -48,14 +48,12 @@ export interface OverlaysInput {
   >
   readonly selectedBoxes: ReadonlySet<Schedule['highlightBoxes'][number]['id']>
   readonly selectedComments: ReadonlySet<Schedule['commentBoxes'][number]['id']>
-  readonly dualCursorSpanWord: string | null
 }
 
 export interface OverlayParts {
   readonly linkParts: readonly string[]
   readonly annotationParts: readonly string[]
   readonly selectionParts: readonly string[]
-  readonly rulerParts: readonly string[]
 }
 
 const WATERMARK_ROLE = 'Watermark'
@@ -97,50 +95,21 @@ export function watermarkSvg(
   )
 }
 
-// see DC-3, FR-038
-// WHY: the lines stand on day boundaries, so their distance over one day's width is a whole number of calendar days.
-// WHY: DC-3 names no size or ink for the count; the ruler's own are taken, so it reads as part of the band.
+// see CU-2, DC-2, DC-8
 /** @purity pure */
-function dualCursorSpanSvg(
-  drawnX: readonly number[],
-  layout: ScheduleLayout,
-  band: ScreenRect,
-  settings: DocumentSettings,
-  themed: (rowId: string) => string,
-  word: string | null,
-): readonly string[] {
-  const [first, second] = drawnX
-  if (word === null || first === undefined || second === undefined) return []
-  if (!(layout.pxPerDay > 0) || band.width <= 0 || band.height <= 0) return []
-  const days = Math.round(Math.abs(second - first) / layout.pxPerDay)
-  return [
-    `<text x="${rounded((first + second) / 2)}" y="${rounded(band.y + band.height / 2)}"` +
-      ` font-size="${rounded(settings.rulerFont)}"${typefaceAttribute()} fill="${themed('S-147')}"` +
-      ` text-anchor="middle" dominant-baseline="central" xml:space="preserve"` +
-      `${figureKey('dual-cursor-span')}>${escaped(word.replace('{n}', String(days)))}</text>`,
-  ]
-}
-
-// see CU-2, DC-2, DC-3, DC-8
-/** @purity pure */
-function dualCursorParts(input: OverlaysInput): {
-  readonly lines: readonly string[]
-  readonly span: readonly string[]
-} {
-  const { geometry, settings, layout, regions, themed, following, dualCursorSpanWord } = input
+function dualCursorLines(input: OverlaysInput): readonly string[] {
+  const { geometry, layout, themed, following } = input
   const cursors = geometry.dualCursor
-  if (cursors === null) return { lines: [], span: [] }
+  if (cursors === null) return []
   const colour = themed('S-195')
   const followedDay =
     following === null || following.x === null ? null : dateAtX(layout, following.x)
   const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
   const lines: string[] = []
-  const drawnX: number[] = []
   for (const side of ['date1', 'date2'] as const) {
     const isFollowing = following !== null && following.side === side
     const standing = side === 'date1' ? cursors.date1X : cursors.date2X
     const x = isFollowing && followedX !== null ? followedX : standing
-    drawnX.push(x)
     const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
     lines.push(
       `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
@@ -149,11 +118,7 @@ function dualCursorParts(input: OverlaysInput): {
         `${figureKey(`dual-cursor-${side}`)}/>`,
     )
   }
-  const band = regions.timeRuler
-  return {
-    lines,
-    span: dualCursorSpanSvg(drawnX, layout, band, settings, themed, dualCursorSpanWord),
-  }
+  return lines
 }
 
 /** @purity pure */
@@ -197,8 +162,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     )
   }
 
-  const cursorParts = dualCursorParts(input)
-  linkParts.push(...cursorParts.lines)
+  linkParts.push(...dualCursorLines(input))
 
   if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
@@ -282,5 +246,5 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
       )
     }
   }
-  return { linkParts, annotationParts, selectionParts, rulerParts: cursorParts.span }
+  return { linkParts, annotationParts, selectionParts }
 }

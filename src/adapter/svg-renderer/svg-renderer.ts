@@ -170,8 +170,7 @@ function pictureId(seed: string): string {
   return (hash >>> 0).toString(36)
 }
 
-// see FR-080, T-020, T-076, DC-3
-// WHY: dualCursorSpanWord is DC-3's word in the display language, from the caller; null draws no count.
+// see FR-080, T-020, T-076
 // TRAP: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
 /** @purity pure */
 export function svgFromSchedule(
@@ -190,7 +189,6 @@ export function svgFromSchedule(
   marquee: ScreenRect | null = null,
   watermark: Watermark | null = null,
   tentativeLink: ScheduleGeometry['dependencies'][number] | null = null,
-  dualCursorSpanWord: string | null = null,
 ): string {
   const settings = drawnSettingsOf(storedSettings)
   const hue = schedule.project.themeHue
@@ -305,7 +303,7 @@ export function svgFromSchedule(
     height,
   })
   defsParts.push(...links.defsParts)
-  const overlays = overlayParts({ ...drawing, dualCursorSpanWord })
+  const overlays = overlayParts(drawing)
 
   // WHY: the scrolling half of a layer is clipped to the scroll area so it cannot run over a pinned row.
   /** @purity pure */
@@ -392,7 +390,6 @@ export function svgFromSchedule(
       themed('S-149'),
       weekdayWords,
     ),
-    ...overlays.rulerParts,
   ]
 
   return (

@@ -35,7 +35,7 @@ import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
-import { tooltipsFromScreenView } from './tooltips'
+import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
 
 export type { DialogueInput, FieldCommit, ScreenPart, ScreenSurface } from './screen-surface'
 
@@ -391,6 +391,15 @@ export interface ScreenView {
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
   readonly scaleMessage?: string
+  // see DC-3
+  // TRAP: never a Tooltip: it neither waits for S-124 nor sits in the tooltip count the shell reads.
+  readonly dualCursorReadout?: DualCursorReadout
+}
+
+// see DC-3, IN-3
+export interface DualCursorReadout {
+  readonly lines: readonly string[]
+  readonly at: { readonly x: number; readonly y: number }
 }
 
 // see PI-37, SF-5, SF-10
@@ -477,9 +486,11 @@ export function screenViewFromRegions(
   }
 
   const echo = session.screen.scaleMessageDisplayState
+  const readout = dualCursorReadoutOf(regions, settings, session, readings)
   return {
     ...shown,
     tooltips: tooltipsFromScreenView(shown, settings, session, readings),
+    ...(readout === null ? {} : { dualCursorReadout: readout }),
     ...(echo.kind === 'hidden'
       ? {}
       : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),

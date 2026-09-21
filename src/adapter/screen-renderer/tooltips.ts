@@ -5,14 +5,21 @@
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
+  calendarSpanOf,
   dayOf,
   textOfDay,
+  type CalendarDay,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
-import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import { dateAtX, timeAxisOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import type {
+  ScreenRect,
+  ScreenRegions,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type {
   DisplayLanguage,
+  DualCursorReadout,
   ScreenView,
   ScreenViewReadings,
   IconId,
@@ -121,7 +128,8 @@ export function tooltipsFromScreenView(
 
   if (pointer === null) return tooltips
 
-  const task = isHintDue ? (readings.taskUnderPointer ?? null) : null
+  // see EZ-6, DC-3
+  const task = isHintDue && !isDualCursorOn(session) ? (readings.taskUnderPointer ?? null) : null
   if (task !== null) {
     tooltips.push({
       anchor: { kind: 'task', taskUid: task.uid },
@@ -143,4 +151,82 @@ export function tooltipsFromScreenView(
   }
 
   return tooltips
+}
+
+const READOUT_WORDS = new Map(displayWords.dualCursorReadout.map((one) => [one.line, one.text]))
+const UNKNOWN = '—'
+const YEAR_DIGITS = 4
+
+/** @purity pure */
+function isDualCursorOn(session: ScreenSession): boolean {
+  return session.screen.dualCursorModeState.kind !== 'off'
+}
+
+/** @purity pure */
+function readoutWord(line: string, language: DisplayLanguage): string {
+  return READOUT_WORDS.get(line)?.[language] ?? line
+}
+
+// see DC-3
+/** @purity pure */
+function readoutDate(day: CalendarDay | null): string {
+  if (day === null) return UNKNOWN
+  return `${String(day.year).padStart(YEAR_DIGITS, '0')}/${day.month}/${day.day}`
+}
+
+// see DC-3
+/** @purity pure */
+function readoutSpan(a: CalendarDay | null, b: CalendarDay | null, language: DisplayLanguage): string {
+  if (a === null || b === null) return UNKNOWN
+  const span = calendarSpanOf(a, b)
+  return readoutWord(span.dayCount === 1 ? 'oneDay' : 'days', language)
+    .replace('{y}', String(span.years))
+    .replace('{m}', String(span.months))
+    .replace('{d}', String(span.days))
+    .replace('{n}', String(span.dayCount))
+}
+
+// see DC-1, DC-2, DC-3
+// WHY: the following side reads the day under the pointer, as its line stands there (dateAtX).
+/** @purity pure */
+function readoutDays(
+  regions: ScreenRegions,
+  settings: DocumentSettings,
+  session: ScreenSession,
+  pointerX: number,
+): { readonly date1: CalendarDay | null; readonly date2: CalendarDay | null } {
+  const mode = session.screen.dualCursorModeState
+  const following = mode.kind !== 'off' && mode.child.kind === 'placingDate2' ? 'date2' : 'date1'
+  const followed = dateAtX(timeAxisOf(settings, regions), pointerX)
+  const standing = settings.dualCursor
+  return {
+    date1: following === 'date1' ? followed : dayOf(standing?.date1 ?? null),
+    date2: following === 'date2' ? followed : dayOf(standing?.date2 ?? null),
+  }
+}
+
+// see DC-3, IN-3, EZ-6
+/** @purity pure */
+export function dualCursorReadoutOf(
+  regions: ScreenRegions,
+  settings: DocumentSettings,
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+): DualCursorReadout | null {
+  const pointer = readings.pointer
+  if (pointer === null || !isDualCursorOn(session)) return null
+  const isOverChart =
+    rectHoldsPoint(regions.rowArea, pointer.x, pointer.y) ||
+    rectHoldsPoint(regions.timeRuler, pointer.x, pointer.y)
+  if (!isOverChart) return null
+  const language = displayLanguageOf(session)
+  const { date1, date2 } = readoutDays(regions, settings, session, pointer.x)
+  return {
+    lines: [
+      readoutWord('a', language).replace('{date}', readoutDate(date1)),
+      readoutWord('b', language).replace('{date}', readoutDate(date2)),
+      readoutWord('span', language).replace('{span}', readoutSpan(date1, date2, language)),
+    ],
+    at: pointer,
+  }
 }
