@@ -321,6 +321,26 @@ src/
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 9 ファイル | **純粋性ではない** —— 表 T-075 のとおり 10 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない |
 
+⭐ **要求の側から「まずどのファイルを開くか」を引けるように、表 T-075 は欄「負う要求」を持つ。**  
+欄に書くのは、その要求が動いたときに**最初に開くユニット**だけであり、その要求に触るファイルの全部ではない。  
+同じ要求を 2 つ以上の行に書いてはならない（MUST NOT） —— 2 つ書くと、どちらを先に開くかが読めなくなる。  
+何も負わないユニットは `—` とする —— 層をまたぐ宣言だけの 8 ファイルは規則を持たないので、必ずそうなる。
+
+⚠️ **持ち主の形は 1 つではない。**  
+⛔ 1 対 1 を強いると、層をまたぐことが要求そのものである要求について嘘を書くことになる。  
+区分を 表 T-277 に示し、欄では要求 ID にその行 ID を添える。
+
+**表 T-277 — 要求の持ち主の区分**
+
+| 行 ID | 区分 | 定義 | 欄に立つユニット | 例 |
+| --- | --- | --- | --- | --- |
+| OW-1 | 単独 | 規則を決めるユニットが 1 つだけあり、ほかのファイルはその結果を使うだけである。<br>要求が動いても、ほかのファイルの規則は動かない | そのユニット 1 つ | `FR-014`（イナズマ線の頂点）は `schedule-geometry.ts` |
+| OW-2 | 連鎖 | 層を跨ぐことが要求そのものである。<br>入力 → ユースケース → 幾何 → 描画 → DOM と伝わる。<br>跨ぐのは 表 T-061 の依存規則がそう強いているからであり、設計の失敗ではない | 規則の値を持つ最も内側のユニット。<br>外側はそれに従うだけなので、変更はそこから始まる | `FR-085`（行を作る）は `edit-task-group.ts` |
+| OW-3 | 群 | 同じコンポーネントの兄弟ユニットが並列に分担する。<br>表 T-063 の `UT-2` と `UT-7` が「集約ごと」「UI パーツごと」と言っているのがこの形である | そのコンポーネントの公開エントリ。<br>入口は規則を持たないが、兄弟の全数をそこで読めるので 1 ホップで正しい兄弟に着く | `FR-096`（書き出しの入口を 1 つにする）は `document-codec.ts` |
+| OW-4 | 横断 | ユニットが何をするかではなく、どう書かれるかを縛る。<br>検証の作法・可読の下限・寸法の出どころ・速さの下限などがこれである | 起点のユニット。<br>起点のユニットを持たない要求は本欄に現れず、本節の結びが名指す | `FR-023`（外部入力の検証）は `validate-imported-document.ts` |
+
+⭐ `OW-3` は 表 T-063 の `UT-2` と `UT-7` が言う「ごと」の中身を、要求 ID で名指したものである。
+
 ユニットの全数を 表 T-075 に示す。  
 行は 表 T-062 の `CP-n` の順に並べ、コンポーネントの中では公開エントリを先に置く。
 
@@ -333,80 +353,101 @@ src/
 
 **表 T-075 — ユニット**
 
-| 行 ID | コンポーネント | ユニット | 純粋性 | 責務 |
-| --- | --- | --- | --- | --- |
-| UF-1 | `Schedule` | `schedule.ts` | `pure` | `CP-1` |
-| UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` |
-| UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` |
-| UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` |
-| UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | `CP-5` |
-| UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | `CP-6` |
-| UF-7 | `ItemHitArea` | `item-hit-area.ts` | `pure` | `CP-7` |
-| UF-8 | `ApplyDocumentChange` | `apply-document-change.ts` | `non-pure` | 確定と通知 |
-| UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て |
-| UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルを束ねて公開する |
-| UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の編集 |
-| UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の編集 |
-| UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 |
-| UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 |
-| UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 |
-| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集 |
-| UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 |
-| UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 |
-| UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` |
-| UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` |
-| UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` |
-| UF-22 | `ValidateImportedDocument` | `validate-imported-document.ts` | `pure` | `CP-13` |
-| UF-23 | `ChooseStartupDocument` | `choose-startup-document.ts` | `pure` | `CP-14` |
-| UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること |
-| UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更と発話を選ぶ |
-| UF-26 | `PostDialogueMessage` | `post-dialogue-message.ts` | `non-pure` | `CP-16` |
-| UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 |
-| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 18 メンバの結線 |
-| UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） |
-| UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り |
-| UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） |
-| UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り |
-| UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） |
-| UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する |
-| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` と文書の相互変換 |
-| UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` と文書の相互変換 |
-| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出し |
-| UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） |
-| UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り |
-| UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） |
-| UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-22` の残り |
-| UF-42 | `FileGateway` | `file-store.ts` | `—` | `FileStore` の宣言（`IF-3`） |
-| UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り |
-| UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） |
-| UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある |
-| UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` |
-| UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` |
-| UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` |
-| UF-53 | `BrowserClipboard` | `browser-clipboard.ts` | `non-pure` | `CP-30` |
-| UF-54 | `CanvasRasterizer` | `canvas-rasterizer.ts` | `semi-pure-b` | `CP-31` |
-| UF-55 | `Selection` | `selection.ts` | `pure` | `CP-32` |
-| UF-56 | `DialogueLog` | `dialogue-log.ts` | `pure` | `CP-33` |
-| UF-57 | `Document` | `document.ts` | `pure` | `CP-34` |
-| UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` |
-| UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` |
-| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） |
-| UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない |
-| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-71` である |
-| UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） |
-| UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） |
-| UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） |
-| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` |
-| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 通知と確認（`FR-076`。<br>作法は 表 T-037） |
-| UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。<br>順序は 表 T-035 の `AG-11`） |
-| UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） |
-| UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） |
-| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38`。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは本ユニットである** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と本ユニットのどちらが正かが読めなくなる |
+| 行 ID | コンポーネント | ユニット | 純粋性 | 責務 | 負う要求 |
+| --- | --- | --- | --- | --- | --- |
+| UF-1 | `Schedule` | `schedule.ts` | `pure` | `CP-1` | `FR-010`（`OW-1`）・`FR-047`（`OW-1`）・`FR-054`（`OW-2`） |
+| UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
+| UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
+| UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
+| UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | `CP-5` | `FR-002`（`OW-2`）・`FR-003`（`OW-1`）・`FR-017`（`OW-1`）・`FR-018`（`OW-2`）・`FR-055`（`OW-1`）・`FR-059`（`OW-2`）・`FR-077`（`OW-2`）・`FR-090`（`OW-2`）・`FR-093`（`OW-1`）・`FR-109`（`OW-1`） |
+| UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | `CP-6` | `FR-009`（`OW-1`）・`FR-014`（`OW-1`）・`FR-020`（`OW-2`）・`FR-043`（`OW-2`）・`FR-045`（`OW-2`）・`FR-079`（`OW-4`）・`FR-082`（`OW-2`）・`FR-084`（`OW-1`）・`FR-094`（`OW-4`）・`NFR-013`（`OW-4`） |
+| UF-7 | `ItemHitArea` | `item-hit-area.ts` | `pure` | `CP-7` | `FR-104`（`OW-1`）・`FR-108`（`OW-2`） |
+| UF-8 | `ApplyDocumentChange` | `apply-document-change.ts` | `non-pure` | 確定と通知 | — |
+| UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て | — |
+| UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルを束ねて公開する | `FR-007`（`OW-3`） |
+| UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の編集 | `FR-001`（`OW-2`）・`FR-011`（`OW-2`）・`FR-012`（`OW-2`）・`FR-033`（`OW-2`）・`FR-083`（`OW-2`）・`FR-103`（`OW-2`） |
+| UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の編集 | `FR-004`（`OW-2`）・`FR-005`（`OW-2`）・`FR-042`（`OW-2`）・`FR-058`（`OW-2`）・`FR-085`（`OW-2`）・`FR-111`（`OW-2`） |
+| UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 | — |
+| UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`） |
+| UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 | `FR-008`（`OW-2`） |
+| UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集 | `FR-088`（`OW-2`） |
+| UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 | `FR-035`（`OW-2`）・`FR-046`（`OW-2`） |
+| UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
+| UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` | `FR-015`（`OW-2`）・`FR-022`（`OW-2`）・`FR-056`（`OW-1`）・`FR-087`（`OW-1`） |
+| UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` | — |
+| UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` | — |
+| UF-22 | `ValidateImportedDocument` | `validate-imported-document.ts` | `pure` | `CP-13` | `FR-023`（`OW-4`）・`NFR-009`（`OW-4`） |
+| UF-23 | `ChooseStartupDocument` | `choose-startup-document.ts` | `pure` | `CP-14` | `FR-062`（`OW-1`） |
+| UF-24 | `NotifyChangeWatchers` | `notify-change-watchers.ts` | `non-pure` | 購読の登録・解除と、配ること | — |
+| UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更と発話を選ぶ | — |
+| UF-26 | `PostDialogueMessage` | `post-dialogue-message.ts` | `non-pure` | `CP-16` | — |
+| UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`） |
+| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 18 メンバの結線 | `FR-028`（`OW-2`） |
+| UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
+| UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り | `FR-016`（`OW-1`）・`FR-040`（`OW-4`）・`FR-070`（`OW-1`） |
+| UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） | — |
+| UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り | `FR-013`（`OW-2`）・`FR-075`（`OW-2`）・`FR-080`（`OW-2`）・`FR-089`（`OW-2`）・`NFR-007`（`OW-4`） |
+| UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） | — |
+| UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する | `FR-096`（`OW-3`） |
+| UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` と文書の相互変換 | `FR-024`（`OW-1`）・`FR-073`（`OW-2`） |
+| UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` と文書の相互変換 | `FR-021`（`OW-2`）・`FR-057`（`OW-1`） |
+| UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出し | `FR-067`（`OW-2`） |
+| UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） | — |
+| UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り | `FR-025`（`OW-2`） |
+| UF-40 | `ImageExporter` | `rasterizer.ts` | `—` | `Rasterizer` の宣言（`IF-6`） | — |
+| UF-41 | `FileGateway` | `file-gateway.ts` | `semi-pure-b` ／ `non-pure` | `CP-22` の残り | `FR-060`（`OW-2`） |
+| UF-42 | `FileGateway` | `file-store.ts` | `—` | `FileStore` の宣言（`IF-3`） | — |
+| UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り | — |
+| UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） | — |
+| UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 | `NFR-011`（`OW-2`） |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある | `FR-100`（`OW-2`）・`FR-102`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
+| UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
+| UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
+| UF-53 | `BrowserClipboard` | `browser-clipboard.ts` | `non-pure` | `CP-30` | — |
+| UF-54 | `CanvasRasterizer` | `canvas-rasterizer.ts` | `semi-pure-b` | `CP-31` | — |
+| UF-55 | `Selection` | `selection.ts` | `pure` | `CP-32` | `FR-081`（`OW-1`） |
+| UF-56 | `DialogueLog` | `dialogue-log.ts` | `pure` | `CP-33` | — |
+| UF-57 | `Document` | `document.ts` | `pure` | `CP-34` | — |
+| UF-58 | `ScreenRegions` | `screen-regions.ts` | `pure` | `CP-35` | — |
+| UF-59 | `ScreenState` | `screen-state.ts` | `pure` | `CP-36` | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
+| UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 9 ファイルを束ねて公開し、画面全体に効く表示言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
+| UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
+| UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・表示言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは 2 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-71` である | — |
+| UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
+| UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
+| UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
+| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` | `FR-036`（`OW-2`）・`FR-068`（`OW-2`）・`FR-074`（`OW-2`）・`FR-099`（`OW-2`） |
+| UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 通知と確認（`FR-076`。<br>作法は 表 T-037） | `FR-076`（`OW-2`） |
+| UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。<br>順序は 表 T-035 の `AG-11`） | `FR-066`（`OW-2`） |
+| UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
+| UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
+| UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38`。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは本ユニットである** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と本ユニットのどちらが正かが読めなくなる | `FR-101`（`OW-2`） |
 
 ⚠️ `semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。  
 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。  
 外を読むだけのメンバと外へ書くメンバが同じ入口に並ぶのは、表 T-065 のインターフェース 1 本が両方を持つときである。
+
+**「負う要求」の欄の結び。**
+
+`01-04-requirements.md` が持つ要求は 121 件である（`FR` が 108 件、`NFR` が 13 件）。  
+そのうち 99 件は、上の欄が起点のユニットを名指している。
+
+⛔ **起点のユニットを持たない要求が 1 件ある** —— `FR-092` である。  
+表 T-040 の手立ては、どのユニットも単独では備えられない。  
+⭐ この要求の正は `docs/development-rules/07-review-standards.md` の `R2` であり、5.1 が既にそう名乗っている。
+
+⚠️ **起点をまだ書いていない要求が 21 件ある。**  
+⛔ これは「持ち主が無い」ではなく「まだ決めていない」である。  
+理由は 3 つに分かれる。
+
+- **仕様が起点のユニットを決めていない（12 件）** —— `FR-027` ・ `FR-032` ・ `FR-034` ・ `FR-044` ・ `FR-048` ・ `FR-051` ・ `FR-091` ・ `FR-095` ・ `FR-097` ・ `FR-105` ・ `FR-106` ・ `FR-110`。
+  ⚠️ どの行も起点を名指していないか、表 T-062 の `CP-n` と 表 T-075 の `UF-n` が別のファイルを指している。
+  ⛔ どちらが正かは、本節では決めない。
+- **1 つのユニットの性質ではなく、木の全体の性質である（8 件）** —— `FR-030` ・ `FR-069` ・ `NFR-001` ・ `NFR-004` ・ `NFR-005` ・ `NFR-006` ・ `NFR-008` ・ `NFR-012`。
+  ⛔ どの 1 ファイルを名指しても嘘になる。
+  ⚠️ `OW-4` は「起点のユニットが無ければ規則か表を名指す」と言うが、これらは名指せる規則も表も持たない。
+- **要求が要る入口を、いまは作らないと決めている（1 件）** —— `FR-086`。
 
 表 T-064 の `PI-n` は、表 T-062 の `CP-n` と同じコンポーネントである。  
 純粋性を添えていないメンバは `pure` である。  

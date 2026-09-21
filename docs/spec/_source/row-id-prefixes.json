@@ -787,6 +787,14 @@
    }
   },
   {
+   "prefix": "OW",
+   "words": "Owner",
+   "owner": "spec",
+   "means": {
+    "ja": "要求の持ち主の区分（どのユニットから開くか）"
+   }
+  },
+  {
    "prefix": "P",
    "words": "Property",
    "owner": "spec",
