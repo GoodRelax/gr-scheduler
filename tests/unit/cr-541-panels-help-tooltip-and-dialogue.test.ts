@@ -12,10 +12,14 @@ import { describe, expect, it } from 'vitest'
 import { propertiesPanelFromSelection } from '../../src/adapter/screen-renderer/properties-panel'
 import type {
   OpenModal,
-  ScreenSession,
   ScreenView,
+  ScreenViewReadings,
   Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import {
+  emptyScreenSession,
+  type ScreenSession,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection, selectionWith } from '../../src/entity/document-model/selection/selection'
 import { domScreenSurface, type ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
@@ -51,8 +55,7 @@ describe('CR-541 -- the clauses still stand in the manuscript', () => {
 // The properties panel, as the screen renderer describes it
 // ---------------------------------------------------------------------------
 
-const SESSION = {
-  language: 'ja',
+const READINGS = {
   openedFileName: null,
   fileSavedAt: null,
   isAgentApiEnabled: false,
@@ -73,7 +76,19 @@ const SESSION = {
   notices: [],
   confirmation: null,
   rowBoxes: [],
-} as unknown as ScreenSession
+} as unknown as ScreenViewReadings
+
+const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSession => ({
+  ...emptyScreenSession,
+  screen: {
+    ...emptyScreenSession.screen,
+    language: 'ja',
+    propertiesPanelContentState:
+      showing === 'documentSettings'
+        ? { kind: 'documentSettingsDisplayed', returnSubject: null }
+        : { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } },
+  },
+})
 
 // T-018: the abbreviation is the 名 cell before its bracket, keyed by the linkType cell.
 const KINDS = specTable('T-018').rows.map((one) => ({
@@ -104,7 +119,8 @@ describe('FR-072 -- the document settings are read only in the panel', () => {
       document.schedule as unknown as Schedule,
       document.documentSettings as never,
       emptySelection(),
-      { ...SESSION, propertiesShowing: 'documentSettings' } as ScreenSession,
+      sessionShowing('documentSettings'),
+      READINGS,
     )
   }
 
@@ -139,7 +155,8 @@ describe('T-018 -- a dependency kind on the screen', () => {
       document.schedule as unknown as Schedule,
       document.documentSettings as never,
       selectionWith(emptySelection(), { kind: 'dependency', successorUid: 2, ordinal: 0 }),
-      SESSION,
+      sessionShowing('selection'),
+      READINGS,
     )
     const texts = (described?.fields ?? []).map((one) => one.text)
     expect(texts.some((one) => one.includes(abbreviation)), `the kind is shown as ${abbreviation}: ${JSON.stringify(texts)}`).toBe(true)
@@ -151,7 +168,8 @@ describe('T-018 -- a dependency kind on the screen', () => {
       document.schedule as unknown as Schedule,
       document.documentSettings as never,
       selectionWith(emptySelection(), { kind: 'dependency', successorUid: 2, ordinal: 0 }),
-      SESSION,
+      sessionShowing('selection'),
+      READINGS,
     )
     const kindFields = (described?.fields ?? []).filter((one) => one.row === LINK_TYPE_SEAT)
     expect(kindFields.length, `premise: the panel carries the ${LINK_TYPE_SEAT} field`).toBeGreaterThan(0)

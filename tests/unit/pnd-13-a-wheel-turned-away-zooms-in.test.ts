@@ -8,7 +8,6 @@ import {
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
-import { emptyScreenState } from '../../src/entity/document-model/screen-state/screen-state'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -23,6 +22,7 @@ import {
   type InputModifiers,
   type WheelInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 const settingsOf = (): DocumentSettings => {
   const built: Record<string, unknown> = {}
@@ -69,7 +69,7 @@ const contextOf = (): InputContext => {
     layout,
     geometry: geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection()),
     regions,
-    screenState: emptyScreenState(),
+    screen: emptyScreenSession.screen,
     selection: emptySelection(),
     zoomStep: 1.1,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],

@@ -14,7 +14,7 @@ import {
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { emptyScreenState, screenStateWithPalette } from '../../src/entity/document-model/screen-state/screen-state'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { emptySelection, selectionWith, type Selection } from '../../src/entity/document-model/selection/selection'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -265,7 +265,7 @@ function pressAlign(entry: string, selection: Selection): TranslatedInput {
     layout,
     geometry: geometryFromLayout(document.schedule, settings, layout, regions, emptySelection()),
     regions,
-    screenState: screenStateWithPalette(emptyScreenState(), true),
+    screen: emptyScreenSession.screen,
     selection,
     zoomStep: 3,
     zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
