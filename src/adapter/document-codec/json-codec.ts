@@ -1276,6 +1276,17 @@ function jsonTypeOf(value: unknown): string {
   return typeof value
 }
 
+// see T-220, T-017b
+/** @purity pure */
+function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFault[]): void {
+  if (node.maxLength !== undefined && value.length > node.maxLength) {
+    out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
+  }
+  if (node.pattern !== undefined && !new RegExp(node.pattern).test(value)) {
+    out.push(fault(at, 'is not spelled as the schema allows'))
+  }
+}
+
 /** @purity pure */
 function collectFaults(
   value: unknown,
@@ -1311,13 +1322,7 @@ function collectFaults(
       out.push(fault(at, `is above the greatest value allowed, ${node.maximum}`))
     }
   }
-  if (
-    typeof value === 'string' &&
-    node.maxLength !== undefined &&
-    value.length > node.maxLength
-  ) {
-    out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
-  }
+  if (typeof value === 'string') stringFaults(value, node, at, out)
 
   if (isObject(value)) {
     for (const key of node.required ?? []) {

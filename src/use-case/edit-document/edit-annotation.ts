@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isStoredColour } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -49,6 +49,16 @@ export type AnnotationCommand =
     }
 
 const TRANSPARENT = 'transparent'
+
+// see FR-019, CV-1
+/** @purity pure */
+function boxStrokeRefusal(strokeColor: string | null): Refusal | null {
+  if (strokeColor === TRANSPARENT) {
+    return reject('CM-55', 'FR-019', 'a highlight box outline may not be transparent')
+  }
+  if (strokeColor === null || isStoredColour(strokeColor, false)) return null
+  return reject('CM-55', 'CV-1', `not a palette name or a custom colour: ${strokeColor}`)
+}
 
 /** @purity pure */
 function withSchedule(document: Document, part: Partial<Schedule>): Document {
@@ -255,10 +265,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (box === null) {
         return refused([reject('CM-55', 'AT-116', `no highlight box with id ${command.id}`)])
       }
-      // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, FR-007, FR-019 (PND-494)
-      if (command.strokeColor === TRANSPARENT) {
-        return refused([reject('CM-55', 'FR-019', 'a highlight box outline may not be transparent')])
-      }
+      const wrongStroke = boxStrokeRefusal(command.strokeColor)
+      if (wrongStroke !== null) return refused([wrongStroke])
       if (box.strokeColor === command.strokeColor) return edited(document)
       return edited(putHighlightBox(document, { ...box, strokeColor: command.strokeColor }))
     }

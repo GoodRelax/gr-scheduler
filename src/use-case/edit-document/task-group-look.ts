@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { isStoredColour, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
@@ -21,7 +21,9 @@ export function setTaskGroupColor(
   if (row === undefined) {
     return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
   }
-  // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, FR-007, FR-042 (PND-494)
+  if (!isStoredColour(command.color, true)) {
+    return refused([reject('CM-30', 'CV-1', `not a palette name or a custom colour: ${command.color}`)])
+  }
   if (row.color === command.color) return edited(document)
   return edited(withRow(document, { ...row, color: command.color }))
 }

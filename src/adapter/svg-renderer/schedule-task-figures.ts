@@ -18,7 +18,6 @@ import type { ScreenRect } from '../../entity/layout-engine/screen-regions/scree
 import {
   NOT_STORED_DEPENDENCY_SIZES,
   NOT_STORED_NAME_LABEL_WEIGHT,
-  achromatic,
   boxOfPoints,
   escaped,
   figureKey,
@@ -27,6 +26,7 @@ import {
   selectedLineWidth,
   selectionFrameSvg,
   typefaceAttribute,
+  type ChosenColour,
   type SchedulePicture,
 } from './svg-renderer'
 
@@ -37,8 +37,8 @@ export interface TaskFiguresInput {
   readonly geometry: ScheduleGeometry
   readonly settings: DocumentSettings
   readonly picture: SchedulePicture
-  readonly monochrome: boolean
   readonly themed: (rowId: string) => string
+  readonly chosen: ChosenColour
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly visualOf: ReadonlyMap<number, Schedule['taskVisuals'][number]>
   readonly pinnedGroupIds: ReadonlySet<PinnedGroupId>
@@ -125,21 +125,19 @@ function barMaskRectSvg(box: ScreenRect, key: string): string {
   )
 }
 
-// see FR-007, FR-041
+// see FR-007, CV-6
+// WHY: the chosen values arrive already drawn for the theme and monochrome (CV-7); null keeps the theme's.
 /** @purity pure */
 function paintOf(
   chosenStroke: string | null,
   chosenFill: string | null,
   themedStroke: string,
   themedFill: string,
-  monochrome: boolean,
   strokeWidth: number,
 ): Paint {
-  const stroke = chosenStroke === null ? themedStroke : chosenStroke
-  const fill = chosenFill === null ? themedFill : chosenFill
   return {
-    stroke: monochrome ? achromatic(stroke) : stroke,
-    fill: monochrome ? achromatic(fill) : fill,
+    stroke: chosenStroke ?? themedStroke,
+    fill: chosenFill ?? themedFill,
     strokeWidth,
   }
 }
@@ -294,8 +292,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     geometry,
     settings,
     picture,
-    monochrome,
     themed,
+    chosen,
     placedOf,
     visualOf,
     pinnedGroupIds,
@@ -358,20 +356,19 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       }
     }
     const taskKey = `task-${task.taskUid}`
+    const outline = chosen(visual?.strokeColor ?? null, 'outline')
     const plan = paintOf(
-      visual?.strokeColor ?? null,
-      visual?.fillColor ?? null,
+      outline,
+      chosen(visual?.fillColor ?? null, 'fill'),
       themed('S-156'),
       themed('S-155'),
-      monochrome,
       settings.planStroke,
     )
     const actual = paintOf(
-      visual?.strokeColor ?? null,
-      visual?.fillColor ?? null,
+      outline,
+      chosen(visual?.fillColor ?? null, 'actual'),
       themed('S-158'),
       themed('S-157'),
-      monochrome,
       settings.planStroke,
     )
     if (task.plan !== null) {

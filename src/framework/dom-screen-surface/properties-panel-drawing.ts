@@ -120,7 +120,7 @@ const CONTROL_TAG: Readonly<Record<PropertyControlKind, string>> = {
   number: 'input',
   boolean: 'input',
   choice: 'select',
-  color: 'input',
+  color: 'select',
 }
 
 const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> = {
@@ -130,8 +130,7 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   number: 'number',
   boolean: 'checkbox',
   choice: null,
-  // DEVIATION: spec says colours are chosen from the T-017 palette (FR-007); here the host picker takes any colour (DFC-566)
-  color: 'color',
+  color: null,
 }
 
 // TRAP: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
@@ -255,15 +254,12 @@ function controlElement(
   const inputType = CONTROL_INPUT_TYPE[control.kind]
   if (inputType !== null) drawn.setAttribute('type', inputType)
 
-  if (control.kind === 'choice') {
+  if (tag === 'select') {
     const values = control.choiceValues ?? null
     const choices = control.choices ?? []
     for (let index = 0; index < choices.length; index += 1) {
       const choice = choices[index] ?? ''
-      const option = host.createElement('option')
-      option.setAttribute('value', values?.[index] ?? choice)
-      option.textContent = choice
-      drawn.append(option)
+      drawn.append(optionElement(host, values?.[index] ?? choice, choice, control.colour, index))
     }
     ;(drawn as HTMLSelectElement).value = control.text
   } else if (control.kind === 'boolean') {
@@ -288,6 +284,66 @@ function controlElement(
     }
   }
   return drawn as HTMLElement
+}
+
+type ColourField = NonNullable<PropertyControl['colour']>
+
+// see T-016, CV-9
+/** @purity non-pure */
+function optionElement(
+  host: Document,
+  value: string,
+  choice: string,
+  colour: ColourField | undefined,
+  index: number,
+): HTMLElement {
+  const option = host.createElement('option')
+  option.setAttribute('value', value)
+  option.textContent = choice
+  if (colour === undefined) return option
+  const paint = colour.swatches[index] ?? ''
+  const ink = colour.inks[index] ?? ''
+  option.setAttribute('style', `background:${paint};${ink === '' ? '' : `color:${ink};`}`)
+  return option
+}
+
+const SWATCH_MARK = '\u25a0'
+
+const SIDE_SEPARATOR = ' / '
+
+// see CV-9
+/** @purity non-pure */
+function sideElements(host: Document, side: ColourField['light']): readonly HTMLElement[] {
+  const word = made(host, 'span', '')
+  word.textContent = `${side.word} `
+  const mark = made(host, 'span', `color:${side.paint};`)
+  mark.setAttribute('data-colour-swatch', side.paint)
+  mark.textContent = SWATCH_MARK
+  const note = made(host, 'span', '')
+  note.textContent = side.note
+  return [word, mark, note]
+}
+
+// see CV-9, CV-4
+// WHY: the custom entrance commits one #rrggbb; the translator writes it to the side being drawn.
+/** @purity non-pure */
+function colourExtras(host: Document, row: string, control: PropertyControl): readonly HTMLElement[] {
+  const colour = control.colour
+  if (colour === undefined) return []
+  const custom = made(host, 'input', propertyColorStyle())
+  custom.setAttribute('type', 'color')
+  custom.setAttribute('title', colour.customWord)
+  custom.setAttribute('aria-label', colour.customWord)
+  custom.setAttribute('data-field-row', row)
+  custom.setAttribute('data-colour-custom', 'true')
+  if (colour.customValue !== '') (custom as HTMLInputElement).value = colour.customValue
+  CONTROL_KEYS.set(custom, { row, key: control.key })
+  const readout = made(host, 'span', 'flex:1 1 100%;')
+  readout.setAttribute('data-colour-sides', 'true')
+  const separator = made(host, 'span', '')
+  separator.textContent = SIDE_SEPARATOR
+  readout.append(...sideElements(host, colour.light), separator, ...sideElements(host, colour.dark))
+  return [custom, readout]
 }
 
 function rosterId(row: string): string {
@@ -356,6 +412,7 @@ export function fieldElement(
   }
   for (const control of field.controls) {
     controls.append(controlElement(host, field.row, control, typedByRow))
+    controls.append(...colourExtras(host, field.row, control))
     const words = control.searchWords
     if (words !== undefined) {
       controls.append(...searchElements(host, field.row, control, words, typedByRow))

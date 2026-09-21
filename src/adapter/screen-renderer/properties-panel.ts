@@ -12,6 +12,8 @@ import {
   DATE_COLUMNS,
   actualLastDay,
   actualLengthOf,
+  customColourOf,
+  customSideOf,
   dayOf,
   taskByUid,
   textOfDay,
@@ -31,7 +33,9 @@ import type {
   PropertiesSubject,
   ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import { swatchOf } from '../svg-renderer/svg-renderer'
 import type {
+  ColourSide,
   CommandItem,
   DisplayLanguage,
   IconId,
@@ -303,9 +307,6 @@ function assigneeChoices(schedule: Schedule): readonly Assignee[] {
   return people
 }
 
-// TRAP: listed by hand, since the schema types a colour as a plain string; add a new colour column here.
-const COLOUR_COLUMNS: readonly string[] = ['strokeColor', 'fillColor', 'color']
-
 const MULTILINE_COLUMNS: readonly string[] = ['notes', 'text']
 
 const CHOICE_OVER_DOCUMENT_COLUMNS: readonly string[] = ['wbsParentUid']
@@ -315,8 +316,8 @@ type ShapedEntity = keyof typeof COLUMN_SHAPES
 // see T-016
 /** @purity pure */
 function controlKindOf(entity: ShapedEntity, column: string): PropertyControlKind {
-  // TRAP: keep these first: colours, notes and dates are strings, and wbsParentUid is an integer to the shape.
-  if (COLOUR_COLUMNS.includes(column)) return 'color'
+  // TRAP: keep these first: notes and dates are strings, and wbsParentUid is an integer to the shape.
+  if (COLUMN_SHAPES[entity][column]?.kind === 'color') return 'color'
   if (MULTILINE_COLUMNS.includes(column)) return 'multiline'
   if (CHOICE_OVER_DOCUMENT_COLUMNS.includes(column)) return 'choice'
   // WHY: PR-5 has no column shape to read since AT-35 retired, and table T-016 still takes a number.
@@ -742,6 +743,84 @@ function settingsFields(
   }))
 }
 
+// see CV-6, CV-9
+const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>[1]>> = {
+  fillColor: 'fill',
+  strokeColor: 'outline',
+  color: 'band',
+}
+
+// see CV-9, S-315
+const LEFT_OUT_OF_ROW_COLOUR = 'black'
+
+const HEX_PAINT = /^#[0-9a-f]{6}$/
+
+const COLOUR_NAME_WORDS = new Map(displayWords.colourNames.map((entry) => [entry.spelling, entry.text]))
+
+const COLOUR_FIELD_WORDS = new Map(displayWords.colourField.map((entry) => [entry.part, entry.text]))
+
+interface ColourLook {
+  readonly hue: number
+  readonly dark: boolean
+  readonly language: DisplayLanguage
+}
+
+type ColourForm = Parameters<typeof swatchOf>[1]
+
+// see CV-9, CV-3
+/** @purity pure */
+function colourSide(stored: string | null, form: ColourForm, look: ColourLook, dark: boolean): ColourSide {
+  const custom = stored === null ? null : customColourOf(stored)
+  const isUndefinedSide = custom !== null && (dark ? custom.dark : custom.light) === null
+  const notePart = dark ? 'sameAsLight' : 'sameAsDark'
+  return {
+    word: COLOUR_FIELD_WORDS.get(dark ? 'dark' : 'light')?.[look.language] ?? '',
+    paint: swatchOf(stored, form, look.hue, dark).paint,
+    note: isUndefinedSide ? (COLOUR_FIELD_WORDS.get(notePart)?.[look.language] ?? '') : '',
+  }
+}
+
+// see CV-9, CV-4
+/** @purity pure */
+function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
+  const form = COLOUR_FORM_OF_COLUMN[control.key.column]
+  if (control.kind !== 'color' || form === undefined) return control
+  const stored = control.text === '' ? null : control.text
+  const custom = stored === null ? null : customColourOf(stored)
+  const names = displayWords.colourNames
+    .map((entry) => entry.spelling)
+    .filter((name) => form !== 'band' || name !== LEFT_OUT_OF_ROW_COLOUR)
+  const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
+  const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
+  const drawn = swatchOf(stored, form, look.hue, look.dark).paint
+  const swatches = values.map((value) => swatchOf(value === '' ? null : value, form, look.hue, look.dark))
+  return {
+    ...control,
+    choices: values.map((value) =>
+      value === stored && custom !== null ? customWord : (COLOUR_NAME_WORDS.get(value)?.[look.language] ?? ''),
+    ),
+    choiceValues: values,
+    colour: {
+      swatches: swatches.map((one) => one.paint),
+      inks: swatches.map((one) => one.ink),
+      customWord,
+      customValue: custom !== null ? customSideOf(custom, look.dark) : HEX_PAINT.test(drawn) ? drawn : '',
+      light: colourSide(stored, form, look, false),
+      dark: colourSide(stored, form, look, true),
+    },
+  }
+}
+
+// see CV-9
+/** @purity pure */
+function withColourFields(fields: readonly PropertyField[], look: ColourLook): readonly PropertyField[] {
+  return fields.map((field) =>
+    field.controls.some((one) => one.kind === 'color')
+      ? { ...field, controls: field.controls.map((one) => withColourField(one, look)) }
+      : field,
+  )
+}
+
 // see FR-072, U-25
 // STOP: spec does not decide what is kept when the selection empties; the subject is kept, not the fields. Looked in FR-072, SL-1, FR-085
 // @provisional PND-144
@@ -770,7 +849,13 @@ export function propertiesPanelFromSelection(
   const subject = isNothingPicked
     ? content.subject
     : { selection, groupIds: readings.selectedGroupIds }
-  const fields = fieldsOfSubject(schedule, subject, settings.labelCoef, language)
+  const described = fieldsOfSubject(schedule, subject, settings.labelCoef, language)
+  const look = {
+    hue: schedule.project.themeHue,
+    dark: settings.themePreference === 'dark',
+    language,
+  }
+  const fields = described === null ? null : withColourFields(described, look)
 
   const isSubjectGone = isNothingPicked || fields === null
 
