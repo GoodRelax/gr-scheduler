@@ -249,8 +249,6 @@ function regularCorners(
   return out
 }
 
-// STOP: spec does not decide a milestone glyph's vertices; every glyph shares one circle. Looked in S-48
-// @provisional PND-2
 const CIRCLE_CORNERS = 24
 
 /** @purity pure */
@@ -1114,8 +1112,6 @@ function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly
 }
 
 // see FR-093
-// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35
-// @provisional PND-467
 // TRAP: repeats labelUnits in schedule-layout.ts; change them together.
 /** @purity pure */
 function charUnits(ch: string): number {
@@ -1130,8 +1126,6 @@ function labelUnits(text: string): number {
 }
 
 // see FR-097, S-182
-// STOP: spec does not decide whether a fill break may fall inside a word. Looked in FR-097, S-182, FR-093
-// @provisional PND-237
 /** @purity pure */
 function wrappedLines(text: string, limit: number): readonly string[] {
   const out: string[] = []
@@ -1168,16 +1162,12 @@ function commentGeometry(
     // WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
     const day = dayOf(box.anchorDate) ?? dayOf(schedule.project.startDate)
     const row = box.anchorGroupId === null ? undefined : rowById.get(box.anchorGroupId)
-    // STOP: spec does not decide a box whose row is not drawn or is null; it is not drawn. Looked in UC-008, AT-114
-    // @provisional PND-234
     if (day === null || row === undefined) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     let widest = 0
     for (const line of lines) widest = Math.max(widest, labelUnits(line))
     // DEVIATION: spec says the floor is T-215's font size, not one full-width char (FR-097); here it is (DFC-722)
     if (widest === 0) widest = 2
-    // STOP: spec does not decide where a never-dragged body sits; a zero offset stands in. Looked in FR-019, CM-46
-    // @provisional PND-232
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
     const anchor = point(xFromDay(layout, day) + layout.pxPerDay / 2, row.y + row.height / 2)
     const fontSize = settings.fontScaleSizes[settings.fontScale]

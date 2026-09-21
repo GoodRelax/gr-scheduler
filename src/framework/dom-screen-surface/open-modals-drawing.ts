@@ -77,8 +77,6 @@ function helpIndentStyle(): string {
 }
 
 // see FR-099
-// STOP: spec does not decide where the selection entry stands on a roster line. Looked in FR-099, IC-67, IC-68, HF-4
-// @provisional PND-473
 /** @purity non-pure */
 function rosterSelectionEntry(host: Document, isSelected: boolean): HTMLElement {
   const icon = isSelected ? ROSTER_CHOSEN_ENTRY : ROSTER_UNCHOSEN_ENTRY

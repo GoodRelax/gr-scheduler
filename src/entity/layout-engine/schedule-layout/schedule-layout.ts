@@ -145,8 +145,6 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
 }
 
 // see FR-093
-// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35
-// @provisional PND-467
 /** @purity pure */
 export function labelUnits(text: string): number {
   let units = 0
@@ -164,8 +162,6 @@ const WORK_RESOURCE = 1
 
 const NO_ASSIGNEE_MARK = '-'
 
-// STOP: spec does not decide how FR-059's first name joins the remaining count. Looked in FR-059, T-225, OC-2
-// @provisional PND-346
 const MORE_ASSIGNEES_MARK = '+'
 
 const PERCENT_MARK = '%'
@@ -785,9 +781,6 @@ function bandFloorOf(depth: number, drawn: DocumentSettings, rowControlsHeightPx
 }
 
 // see T-068
-// STOP: spec does not decide how pass 1 of the fit reaches every depth at one zoom.
-// Looked in T-068, FR-018
-// @provisional PND-206
 /** @purity pure */
 export function layoutFromSchedule(
   schedule: Schedule,
@@ -979,9 +972,6 @@ export function layoutFromSchedule(
     const bandFloor = bandFloorOf(row.depth, settings, rowControlsHeightPx)
     const height = Math.max(packed, emptyLane, row.height ?? 0, bandFloor)
 
-    // STOP: spec does not decide which end lane 0 sits at, nor where FR-042's extra slack goes.
-    // Looked in ST-5, S-58, FR-042
-    // @provisional PND-480
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)
     let laneTop = y
@@ -1233,8 +1223,6 @@ export interface NotStoredZoom {
   readonly max: number
 }
 
-// STOP: spec does not decide depth 1's landing zoom; here one S-53 notch below depth 2. Looked in FR-018, FR-055
-// @provisional PND-204
 /** @purity pure */
 function landingZoomY(depth: number, settings: DocumentSettings, step: number): number {
   if (depth <= 1) return groupDepthThresholdOf(2, settings) / step
@@ -1259,8 +1247,6 @@ function clampedZoom(value: number, zoom: NotStoredZoom): number {
 }
 
 // see FR-055
-// STOP: spec does not decide the zoomX the horizontal is measured at; here unity. Looked in S-86, T-068
-// @provisional PND-203
 // DEVIATION: spec clamps both axes to S-75/S-76 (FR-016); here only zoomX is (DFC-726)
 /** @purity pure */
 export function fitZoom(
@@ -1319,9 +1305,6 @@ export function fitZoom(
     } else {
       depth -= 1
       zoomY = landingZoomY(depth, settings, zoom.step)
-      // STOP: spec does not decide which run a retreated depth takes its position from; here its floor run.
-      // Looked in T-068
-      // @provisional PND-207
       chosen = atFloor[depth - 1]!
     }
   }

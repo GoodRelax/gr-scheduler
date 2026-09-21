@@ -125,8 +125,6 @@ export function commandFromScrollbar(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
-  // STOP: spec does not decide a press on the scrollbar lane outside the grip. Looked in GR-21, FR-051, S-205
-  // @provisional PND-468
   const by = scrollbarTravel(context, axis, followingTravel(release, press))
   return panTo(context, by.dx, by.dy)
 }

@@ -32,13 +32,11 @@ import {
 
 export type { SvgSurface } from './svg-surface'
 
-// STOP: spec does not decide how the export road says not to draw dummies. Looked in EP-14, T-076 @provisional PND-210
 export type SchedulePicture = 'screen' | 'export'
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
   readonly side: 'date1' | 'date2'
-  // STOP: spec does not decide whether the following line snaps to a day, nor where it stands with no pointer. Looked in DC-2, DC-8 @provisional PND-310 @provisional PND-311
   readonly x: number | null
 }
 
@@ -48,7 +46,6 @@ export interface Watermark {
   readonly stampedAt: string
 }
 
-// STOP: spec does not decide how far past the Row Area a Task is still drawn. Looked in T-202, T-203, T-206, PG-6 @provisional PND-475
 const OFF_SCREEN_SIDE_MARGIN = 0.25
 
 // see PE-0, FR-105

@@ -301,8 +301,6 @@ def build():
     held_chords = set()
     basics = [item(BASICS, None, REQUIREMENT, BASICS, kind='heading')]
 
-    # STOP: spec does not decide the order of the help title row. Looked in FR-036, FR-038, IC-52
-    # @provisional PND-500
     for row in spec_tables.read(REL_REQUIREMENTS, SHORTCUT_TABLE):
         keys = keys_of(row, SHORTCUT_TABLE)
         drives = entrances_of(row)

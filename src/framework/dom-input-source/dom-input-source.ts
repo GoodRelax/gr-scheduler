@@ -43,8 +43,6 @@ const DELTA_IN_PAGES = 2
 const HOST_ESCAPE = 'Escape'
 const ESCAPE_KEY = 'Esc'
 
-// STOP: spec does not decide if signs are read by physical key or character. Looked in T-036
-// @provisional PND-93
 const SIGN_BY_CODE: Readonly<Record<string, string>> = {
   Equal: '+',
   NumpadAdd: '+',
@@ -54,32 +52,20 @@ const SIGN_BY_CODE: Readonly<Record<string, string>> = {
   Numpad0: '0',
 }
 
-// STOP: spec does not decide the double-click time and distance. Looked in MK-13, S-124
-// @provisional PND-90
 const DOUBLE_CLICK_WITHIN_MS = 500
-/** @provisional PND-90 */
 const DOUBLE_CLICK_WITHIN_PX = 4
 
-// STOP: spec does not decide one wheel notch in lines or pixels. Looked in S-96
-// @provisional PND-91
 const PIXELS_PER_LINE = 40
-/** @provisional PND-91 */
 const PIXELS_PER_NOTCH = 100
-/** @provisional PND-91 */
 const LINES_PER_NOTCH = 3
 
-// STOP: spec does not decide the button and click count of a hover move. Looked in IN-1, MK-13
-// @provisional PND-92
 const HOVER_BUTTON: PointerButton = 'left'
-/** @provisional PND-92 */
 const HOVER_CLICK_COUNT = 0
 
 interface Gesture {
   readonly pointerId: number
   readonly button: PointerButton
   readonly clickCount: number
-  // STOP: spec does not decide if a press the tool did not take is captured. Looked in IN-1a
-  // @provisional PND-94
   readonly isHeld: boolean
 }
 
@@ -109,8 +95,6 @@ function modifiersOf(event: {
   return { ctrl: event.ctrlKey, shift: event.shiftKey, alt: event.altKey, meta: event.metaKey }
 }
 
-// STOP: spec does not decide if and how unassigned keys are reported. Looked in T-036, MK-10
-// @provisional PND-95
 /** @purity pure */
 function keyOf(event: { readonly key: string; readonly code: string }): string {
   const physical = SIGN_BY_CODE[event.code]

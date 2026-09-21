@@ -34,8 +34,6 @@ export function tooltipElement(
   drawn.append(words)
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
-  // STOP: spec does not decide where EZ-6's tooltip stands. Looked in IN-3, EZ-6
-  // @provisional PND-391
   if (tip.at !== undefined) {
     drawn.setAttribute(
       'style',

@@ -194,8 +194,6 @@ export type PropertyFieldKey =
     }
 
 export interface CommandPalette {
-  // STOP: spec does not decide whether a moved palette's corner outlives the page. Looked in FR-053, T-206
-  // @provisional PND-466
   readonly at: { readonly x: number; readonly y: number }
   // TRAP: the surface must draw the band inside the palette part, or the palette fades while grabbed.
   readonly grabBandHeight: number
@@ -364,8 +362,6 @@ export interface Tooltip {
   readonly anchor: TooltipAnchor
   readonly text: string
   readonly assignment: string | null
-  // STOP: spec does not decide where a Task tooltip stands; the pointer's point is used. Looked in T-040, IN-3, EP-15, T-206
-  // @provisional PND-391
   readonly at?: { readonly x: number; readonly y: number }
 }
 

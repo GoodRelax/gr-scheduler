@@ -341,8 +341,6 @@ function browserKept(answer: TranslatedInput): TranslatedInput {
 }
 
 
-// STOP: spec does not decide whether Cmd reads as Ctrl. Looked in T-023, T-036, FR-070
-// @provisional PND-10
 /** @purity pure */
 function isCtrlHeld(modifiers: InputModifiers): boolean {
   return modifiers.ctrl || modifiers.meta
@@ -1207,8 +1205,6 @@ function chosenDrawnTaskCount(context: InputContext): number {
 }
 
 // see FR-034, SL-7b
-// STOP: spec does not decide whether the unaligned end follows or holds still. Looked in FR-034, CM-11, IV-10
-// @provisional PND-406
 /** @purity pure */
 function alignWrites(context: InputContext, byStart: boolean): readonly DocumentCommand[] {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')

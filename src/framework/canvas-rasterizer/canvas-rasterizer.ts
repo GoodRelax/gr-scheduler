@@ -103,8 +103,6 @@ type SizedPicture =
   | { readonly ok: true; readonly svg: string }
   | { readonly ok: false; readonly what: string }
 
-// STOP: spec does not decide how the root svg size is fitted to the raster. Looked in IO-3, IO-4
-// @provisional PND-132
 /** @purity pure */
 function sizedSvg(svg: string, sizePx: RasterSizePx): SizedPicture {
   const tag = rootSvgTag(svg)
@@ -146,8 +144,6 @@ function pngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), PNG_MIME))
 }
 
-// STOP: spec does not decide which host refusal maps to which fault reason. Looked in IF-6, NT-3a
-// @provisional PND-130
 /** @purity semi-pure-b */
 async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Promise<Rastering> {
   if (!isPaintableSize(sizePx)) {
@@ -186,8 +182,6 @@ async function paintPng(host: Document, svg: string, sizePx: RasterSizePx): Prom
     return failedRastering('rasterFailed', `${WHAT_DECODE}: ${errorName(error)}`)
   }
 
-  // STOP: spec does not decide whether the PNG keeps transparency. Looked in IO-4, FR-080, T-076
-  // @provisional PND-134
   try {
     const blob = await pngBlob(canvas)
     if (blob === null) return failedRastering('rasterFailed', WHAT_NO_BYTES)

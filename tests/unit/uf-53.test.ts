@@ -695,8 +695,6 @@ describe('table T-037 -- the refusal carries what the notice needs', () => {
   })
 })
 
-// STOP: spec does not decide which browser refusal reads as notPermitted. Looked in FR-028, NT-3a, IF-5
-// @provisional PND-121
 const PD_121_MAPPING: readonly {
   readonly why: string
   readonly reason: unknown

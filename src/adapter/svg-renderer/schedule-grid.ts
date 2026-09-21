@@ -184,8 +184,6 @@ export function rulerSvg(
         row === 'weekday'
           ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
           : settings.rulerFont
-      // STOP: spec does not decide a tick-to-label inset; the label starts on its rule. Looked in S-135, S-136
-      // @provisional PND-477
       out.push(
         `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
           ` font-size="${rounded(fontSize)}"${typefaceAttribute()} fill="${ink}"` +
@@ -238,8 +236,6 @@ export function gridParts(input: GridInput): GridParts {
     )
   }
 
-  // STOP: spec does not decide the date grid line colour; here S-149. Looked in FR-089, T-236
-  // @provisional PND-315
   if (settings.dateGridLinesVisible) {
     const gridFrom = dateAtX(layout, area.x)
     if (gridFrom !== null) {

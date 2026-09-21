@@ -40,8 +40,6 @@ interface Settlement {
   readonly settledAt: string
 }
 
-// STOP: spec does not decide where the Dialogue Field stands. Looked in SC-4, FR-066
-// @provisional PND-151
 /** @purity non-pure */
 export function placeDialogueField(dialogueField: HTMLElement, view: ScreenView): void {
   if (view.dialogueField === null) {

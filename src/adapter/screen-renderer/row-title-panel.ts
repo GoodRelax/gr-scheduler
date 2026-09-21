@@ -19,8 +19,6 @@ interface PanelIndex extends OpenAllMarks {
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
   readonly groupIdsWithHiddenChild: ReadonlySet<string>
   readonly groupIdsWithAChildOutOfThePicture: ReadonlySet<string>
-  // STOP: spec does not decide whether HF-18 counts only this row's fold or every fold
-  // below it. Looked in HF-18, HF-12. @provisional PND-412
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   readonly foldedRowCountAtLevelZero: number
   readonly rootGroups: readonly TaskGroup[]
@@ -37,8 +35,6 @@ interface OpenAllMarks {
 
 const TRUNCATION_MARK = '\u2026'
 
-// STOP: spec does not decide which characters FR-093 counts as full-width. Looked in FR-093, S-30, S-35, S-182
-// @provisional PND-467
 // TRAP: U+0100 is the boundary ScheduleLayout's LC-5 uses; change both together.
 /** @purity pure */
 function charUnits(ch: string): number {

@@ -37,7 +37,6 @@ function rowHeldOf(context: InputContext): RowAnchor {
 // see FR-016, MK-1, S-176
 // TRAP: the device distance itself, never whole rows: a band taller than a notch never moved.
 // STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
-// @provisional PND-176
 // @provisional PND-177
 /** @purity pure */
 function rowTurnedTo(context: InputContext, dy: number): RowAnchor {
@@ -52,8 +51,6 @@ function rowTurnedTo(context: InputContext, dy: number): RowAnchor {
   return rowAnchorIn(rows, areaTop + dy, held)
 }
 
-// STOP: spec does not decide which surfaces the wheel is read on. Looked in MK-1, T-023a, U-32
-// @provisional PND-12
 /** @purity pure */
 function isWheelHere(context: InputContext, x: number, y: number): boolean {
   if (context.isSurfaceStanding) return false
@@ -77,8 +74,6 @@ export function commandFromWheel(input: WheelInput, context: InputContext): Tran
   if (!isWheelHere(context, input.x, input.y)) return UNASSIGNED
   if (context.pressed !== null) return CONSUMED_ELSEWHERE
 
-  // STOP: spec does not decide which way a wheel turn magnifies. Looked in MK-2, S-53, S-96
-  // @provisional PND-13
   const factor = Math.pow(context.zoomStep, -input.notches)
 
   if (ctrl) {

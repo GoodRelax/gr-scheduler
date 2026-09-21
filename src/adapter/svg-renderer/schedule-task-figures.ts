@@ -99,8 +99,6 @@ interface Paint {
   readonly strokeWidth: number
 }
 
-// STOP: spec does not decide the fade grab point's face and outline colours. Looked in FR-075, T-210, T-236
-// @provisional PND-1
 const FADE_HANDLE_FILL_COLOUR = '#ffffff'
 const FADE_HANDLE_STROKE_COLOUR = '#374151'
 
@@ -314,9 +312,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     hover.item.kind === 'task' &&
     hover.item.taskUid === taskUid &&
     rows.includes(hover.grab)
-  // STOP: spec does not decide whether FR-013's pointer-on-it asks the drawn figure or the grab row.
-  // Looked in HF-6, MK-9a, T-023d
-  // @provisional PND-360
   /** @purity pure */
   const handInside = (centre: Point, width: number, height: number): boolean =>
     hand !== null &&
@@ -406,9 +401,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       // TRAP: draw DummyGeometry.figure, never rebuild it here: the shape's formula lives once, in the geometry (PI-5).
       const ink = dummy.ink
       const marks = barSvg(dummy.figure, actual, `${taskKey}-dummies`)
-      // STOP: spec does not decide how far FR-013 darkens, nor whether per dummy or per Task.
-      // Looked in FR-013, S-131
-      // @provisional PND-351
       const faintness = handInside(
         { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
         ink.width,

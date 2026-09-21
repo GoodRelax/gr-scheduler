@@ -57,8 +57,6 @@ const ROW_CONTROL_PAIR_MARK = 'data-row-control-pair'
 
 const ROW_CONTROLS_LULL_MS = 1000
 
-// STOP: spec does not decide the spacing of row controls from the right edge.
-// Looked in HF-4, T-051, T-206. @provisional PND-348
 /** @purity pure */
 function rowControlStepPx(): number {
   return rowControlBoxPx()
@@ -69,7 +67,6 @@ function rowControlRight(stepsFromEdge: number): string {
   return `right:${rowControlRightPx(stepsFromEdge)}px;`
 }
 
-// @provisional PND-348
 // see HF-4, T-206
 // TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
 /** @purity pure */

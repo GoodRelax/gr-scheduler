@@ -218,8 +218,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     }
     isHeldTextTakenBack = false
 
-    // STOP: spec does not decide if pressing another field releases this one. Looked in IN-6
-    // @provisional PND-352
     if (textEntryControlOf(pressedOn) !== null) return
 
     if (typeof held.blur === 'function') held.blur()

@@ -158,8 +158,6 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-// STOP: spec does not decide the first value or spelling of the Agent API version. Looked in AG-1, T-035, T-107
-// @provisional PND-60
 const AGENT_API_VERSION = 1
 
 // see AG-4
@@ -243,9 +241,6 @@ function handedDocument(
     : null
 }
 
-// STOP: spec does not decide where in the view AM-16 puts the task, or which day an undated plan takes.
-// Looked in FR-055, T-203, T-051, AM-16
-// @provisional PND-61
 /** @purity pure */
 function viewThatShowsTask(
   snapshot: AgentSnapshot,
@@ -703,8 +698,6 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const snapshot = source.readSnapshot()
       const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges({
         watcher: wiring.writerName,
-        // STOP: spec does not decide what a fresh AM-17 subscription is told first. Looked in AG-6, AM-17
-        // @provisional PND-62
         since: {
           seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedUtc,
           seenSequence: latestSequence(snapshot.dialogue),

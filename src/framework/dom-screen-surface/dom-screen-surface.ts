@@ -75,8 +75,6 @@ export const ROLE = {
   tooltips: 'Tooltip',
 } as const
 
-// STOP: spec does not decide the key that settles an utterance. Looked in SK-19, T-036
-// @provisional PND-150
 export const HOST_ENTER = 'Enter'
 
 export const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice'
@@ -255,20 +253,14 @@ export function entranceStateFill(standing: readonly EntranceStateRow[]): string
   return ''
 }
 
-// STOP: spec does not decide a measured value for S-210. Looked in FR-101, S-210
-// @provisional PND-326
 const FILE_STATUS_TEXT_SCALE = 0.75
 
-// STOP: spec does not decide where a surface that stops the reading stands. Looked in IN-4, NT-7
-// @provisional PND-151
 const STOPPING_BOX =
   'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);' +
   'box-sizing:border-box;max-width:92%;max-height:92%;overflow:auto;padding:1em;' +
   `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${PAINT.rule};` +
   `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`
 
-// STOP: spec does not decide how parts without a rectangle are placed. Looked in IF-9, T-103
-// @provisional PND-151
 export const STYLE = {
   root:
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
@@ -323,16 +315,12 @@ export const STYLE = {
   heading: 'font-weight:normal;margin:0 0 0.5em 0;',
   field: 'display:flex;gap:0.5em;line-height:1.6;',
   fieldName: `color:${PAINT.quiet};min-width:9em;`,
-  // STOP: spec does not decide the floating layers' shadow offset, blur or spread. Looked in S-170, T-236, T-206
-  // @provisional PND-469
   // STOP: spec does not decide what a palette larger than the window does. Looked in FR-053, SC-6, S-135a
   // @provisional PND-470
   commandPalette:
     `box-sizing:border-box;background:${PAINT.panel};color:${PAINT.ink};` +
     `border:1px solid ${PAINT.rule};border-radius:0.25em;` +
     `box-shadow:0 0.5em 1.5em ${PAINT.shadow};pointer-events:auto;`,
-  // STOP: spec does not decide the grab band's paint or the room around its marks. Looked in GR-19, FR-053, S-141, T-236
-  // @provisional PND-471
   paletteGrabBand:
     'display:flex;align-items:center;justify-content:flex-end;' +
     'cursor:grab;pointer-events:auto;position:relative;',
@@ -468,8 +456,6 @@ const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}'
 
-// STOP: spec does not decide how faint the palette stands while the pointer is off it. Looked in FR-053, S-131, S-102
-// @provisional PND-472
 const PALETTE_FAINTNESS = '0.6'
 
 const PALETTE_FAINT_CSS =
@@ -700,8 +686,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const dialogue = dialogueSettlement(dialogueEntry, readAuthor, readClockMs)
 
-  // STOP: spec does not decide where the panels' widths come from. Looked in FR-052, S-80
-  // @provisional PND-155
   /** @purity non-pure */
   function placePanels(view: ScreenView): void {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
@@ -748,8 +732,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     // next frame and keep the old description after its control is let go.
     const drawnKeys: Record<string, string> = { ...keys }
 
-    // STOP: spec does not decide whether the surface root repeats the page's lang. Looked in FR-038
-    // @provisional PND-323
     if (view.language !== langShown) {
       langShown = view.language
       root.setAttribute('lang', view.language)

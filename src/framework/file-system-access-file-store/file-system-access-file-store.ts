@@ -160,8 +160,6 @@ function firstDroppedFile(items: DroppedItems): DroppedItem | null {
   return null
 }
 
-// STOP: spec does not decide what a host without queryPermission answers. Looked in IF-3, FR-060
-// @provisional PND-105
 /** @purity semi-pure-b */
 async function readWritePermission(handle: FileHandle): Promise<FilePermissionState> {
   if (handle.queryPermission === undefined) return 'granted'
@@ -282,8 +280,6 @@ export function fileSystemAccessFileStore(
 
     let chosen: readonly FileHandle[]
     try {
-      // STOP: spec does not decide a type filter for the open chooser. Looked in OP-1, T-024, CN-5
-      // @provisional PND-104
       chosen = await picker({ multiple: false })
     } catch (thrown) {
       if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }

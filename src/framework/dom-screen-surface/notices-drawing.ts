@@ -28,8 +28,6 @@ export function noticeElement(host: Document, notice: Notice): HTMLElement {
   text.textContent = notice.text
   drawn.append(text)
   if (notice.affectedCount !== null) {
-    // STOP: spec does not decide the word for the count. Looked in NT-1, NT-3, FR-038
-    // @provisional PND-157
     const count = made(host, 'div', '')
     count.textContent = String(notice.affectedCount)
     drawn.append(count)

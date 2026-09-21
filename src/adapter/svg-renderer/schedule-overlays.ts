@@ -173,7 +173,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const linkParts: string[] = []
   const annotationParts: string[] = []
   const selectionParts: string[] = []
-  // STOP: spec does not decide an annotation's default colour; this hue is S-159's, which FR-019 avoids. Looked in FR-019, T-236 @provisional PND-1
   const annotationColour = themed('S-312')
 
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
@@ -186,8 +185,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const status = geometry.statusLine
   if (status !== null) {
-    // STOP: spec does not decide the status line's width. Looked in CU-1, SL-8, S-178, S-194
-    // @provisional PND-478
     const statusWidth = selectedLineWidth(1, selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
@@ -202,16 +199,12 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
-    // STOP: spec does not decide the guide cursor's region; here the Row Area only. Looked in CU-3, T-020
-    // @provisional PND-342
     const inside =
       pointer.x >= area.x &&
       pointer.x <= area.x + area.width &&
       pointer.y >= area.y &&
       pointer.y <= area.y + area.height
     if (inside) {
-      // STOP: spec does not decide the guide cursor's colour or width. Looked in T-236, T-206
-      // @provisional PND-341
       const guideColour = themed('S-148')
       const guideWidth = 1
       const vertical = (x: number): string =>
@@ -249,16 +242,12 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   }
 
   for (const box of geometry.commentBoxes) {
-    // STOP: spec does not decide the comment leader's width. Looked in FR-019, T-206, T-236
-    // @provisional PND-478
     annotationParts.push(
       `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
         ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
         ` stroke="${annotationColour}" stroke-width="1"` +
         `${figureKey(`comment-${box.id}-leader`)}/>`,
     )
-    // STOP: spec does not decide the comment body's ground and ink; here S-146 and S-147. Looked in T-236, NFR-007
-    // @provisional PND-231
     annotationParts.push(
       `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
         ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
@@ -266,8 +255,6 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
         `${figureKey(`comment-${box.id}`)}/>`,
     )
     for (const [index, line] of box.lines.entries()) {
-      // STOP: spec does not place a wrapped line's baseline; here the foot of its em box. Looked in FR-097
-      // @provisional PND-230
       annotationParts.push(
         `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
           ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +

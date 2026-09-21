@@ -373,8 +373,6 @@ export function markPropertiesPanel(panel: HTMLElement, description: PropertiesP
 }
 
 // see U-25, FR-072
-// STOP: spec does not decide where the way-out sits. Looked in FR-072, T-109 @provisional PND-327
-// STOP: spec does not decide redrawing a held field. Looked in FR-006, FR-072 @provisional PND-271
 /** @purity non-pure */
 export function fillPropertiesPanel(
   host: Document,

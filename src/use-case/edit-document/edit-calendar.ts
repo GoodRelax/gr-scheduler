@@ -27,8 +27,6 @@ export type CalendarCommand =
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 
 // see CM-39, FR-088, FR-012
-// STOP: spec does not decide which tasks FR-088's affected-task count covers. Looked in FR-088, FR-012, NT-3
-// @provisional PND-489
 /** @purity pure */
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {

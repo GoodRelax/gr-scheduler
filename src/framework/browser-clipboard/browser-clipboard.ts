@@ -33,8 +33,6 @@ function pictureHost(): PictureHost {
   return { makeBlob: host.Blob, makeItem: host.ClipboardItem }
 }
 
-// STOP: spec does not decide which host refusal reads as notPermitted.
-// Looked in FR-028, NT-3a, IF-5. @provisional PND-121
 /** @purity pure */
 function faultFromThrown(thrown: unknown): ClipboardFault {
   const isRefused =

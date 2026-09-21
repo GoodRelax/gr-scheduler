@@ -192,8 +192,6 @@ const READ_ONLY_ROWS: readonly string[] = propertyItems.items
   .filter((item) => item.isReadOnly)
   .map((item) => item.rowId)
 
-// STOP: spec does not decide how a number, truth value or list is spelled on this panel. Looked in T-016, FR-006, FR-072
-// @provisional PND-459
 /** @purity pure */
 function textOfValue(value: unknown): string {
   if (value === null || value === undefined) return ''
@@ -201,16 +199,12 @@ function textOfValue(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
   if (Array.isArray(value)) return value.map(textOfValue).join(PART_SEPARATOR)
 
-  // STOP: spec does not decide how a group-valued setting is written. Looked in T-104
-  // @provisional PND-459
   return ''
 }
 
 // WHY: found by shape, not by key: a hand roster of id-holding keys misses the next one added.
 const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
 
-// STOP: spec does not decide what stands in a hidden identifier's place. Looked in T-104, FR-072, FR-006, T-016
-// @provisional PND-459
 /** @purity pure */
 function textOfSettingsValue(value: unknown): string {
   if (typeof value === 'string') return IDENTIFIER.test(value) ? '' : value
@@ -282,8 +276,6 @@ function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
   return assignees
 }
 
-// STOP: spec does not decide how several assignees are written here. Looked in T-225, FR-059, FR-008, T-016
-// @provisional PND-460
 /** @purity pure */
 function assigneeText(schedule: Schedule, taskUid: number): string {
   return assigneesOf(schedule, taskUid)
@@ -345,8 +337,6 @@ interface Candidates {
 }
 
 // see PR-15, AT-25
-// STOP: spec does not decide what PR-15's parent is chosen from, or how it is spelled. Looked in T-016, FR-005, AT-24, AT-25
-// @provisional PND-272
 /** @purity pure */
 function parentCandidates(schedule: Schedule, subjectUid: number): Candidates {
   const words: string[] = ['']
@@ -503,7 +493,6 @@ const DEPENDENCY_ITEMS: readonly { readonly row: string; readonly column: keyof 
   { row: 'AT-45', column: 'predecessorUid' },
 ]
 
-// @provisional PND-462
 const SUCCESSOR_ROW = 'FR-009'
 
 const SUCCESSOR_NAME: keyof Extract<ItemRef, { kind: 'dependency' }> = 'successorUid'
@@ -556,8 +545,6 @@ function dependencyFields(
   ]
 }
 
-// STOP: spec does not decide what the panel shows for several selected items. Looked in FR-072, FR-006, FR-009, T-023c
-// @provisional PND-463
 /** @purity pure */
 function subjectOf(selection: Selection): ItemRef | null {
   const [only] = selection.items
@@ -682,8 +669,6 @@ function groupFields(
   }))
 }
 
-// STOP: spec does not decide which of several picked rows is described. Looked in FR-042, FR-085, T-023c, T-015
-// @provisional PND-463
 /** @purity pure */
 function onlyGroupId(groupIds: readonly string[]): string | null {
   const [only] = groupIds
@@ -725,8 +710,6 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
 }
 
 // see IC-17, T-104
-// STOP: spec does not decide which settings show or in what order. Looked in IC-17, T-104, FR-072
-// @provisional PND-464
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,

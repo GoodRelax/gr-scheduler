@@ -181,9 +181,6 @@ export interface FrameValues {
   readonly regions: ScreenRegions
   readonly layout: ScheduleLayout
   readonly geometry: ScheduleGeometry
-  // STOP: spec does not decide whether a frame is measured from the picture's
-  // document or the held one. Looked in FR-052, MN-6, ADR-001
-  // @provisional PND-254
   readonly settingsMeasuredWith: DocumentSettings
   readonly isPictureAtStoredZoom: boolean
 }
@@ -1073,9 +1070,6 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
   return null
 }
 
-// STOP: spec does not decide the spelling of this tool's localStorage key
-// prefix. Looked in S-99, LM-6, LM-14, T-206
-// @provisional PND-110
 const WEB_STORAGE_KEY_PREFIX = 'grsched.'
 
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
@@ -1806,8 +1800,6 @@ function confirmationOwedBy(
       isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
     })
   }
-  // STOP: spec does not decide QN-1 or QN-2 for one write deleting a row and a Task. Looked in FR-032, T-234, T-050, NT-7
-  // @provisional PND-450
   const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
   return { manner: CONFIRMATION_MANNER, question, items }
 }
@@ -3032,8 +3024,6 @@ export function frameLoop(
   }
 
   // see IN-2
-  // STOP: spec does not decide the shape over entries, ruler, panels or in Dual Cursor mode. Looked in IN-2, T-023a, T-029a
-  // @provisional PND-445
   /** @purity semi-pure-b */
   function pointerShapeUnder(
     frame: FrameValues,
@@ -3829,8 +3819,6 @@ export function frameLoop(
   // see FR-096, SK-12
   /** @purity non-pure */
   function answerSettledFormat(format: ExportFormatId): boolean {
-    // STOP: spec does not decide whether U-54 closes once a format is taken. Looked in FR-096, U-54, IN-4, IC-52
-    // @provisional PND-448
     // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
     // closes the chooser with nothing written and nothing said (FR-029).
     sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_SURFACE }, values)

@@ -73,8 +73,6 @@ function dateText(stored: string | null): string {
   return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
 }
 
-// STOP: spec does not decide what separates the task name from its dates. Looked in EZ-6, T-040, IN-3
-// @provisional PND-390
 /** @purity pure */
 function taskHint(task: Task): string {
   const name = task.name ?? ''
@@ -127,8 +125,6 @@ export function tooltipsFromScreenView(
       anchor: { kind: 'task', taskUid: task.uid },
       text: taskHint(task),
       assignment: null,
-      // STOP: spec does not decide where an EZ-6 tooltip stands. Looked in T-040, IN-3, EP-15
-      // @provisional PND-391
       at: pointer,
     })
   }
