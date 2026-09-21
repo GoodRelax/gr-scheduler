@@ -68,7 +68,7 @@
 | P-16 | `milestoneGlyph` | マイルストーン形状（〇 六角形 五角形 ◇ □ ☆ △ ▽） |
 | P-17 | `actualPlacement` | 実績の置き方（`'inside'` = 内側 / `'below'` = 下 / `'atActualDate'` = 実績日）。<br>`shapeKind` から導出する |
 | P-18 | `strokeColor` / `fillColor` / `lineWeight` | 線色 / 塗り色 / 線の太さ |
-| P-19 | `'transparent'` | 透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値。<br>`null`（選んでいない）とは別物である |
+| P-19 | `'transparent'` | 透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値であり、`tbl-settings.md` の 表 T-294 の保存する綴りの 1 つである（`S-324`）。<br>`null`（選んでいない）とは別物である |
 | P-20 | `nameAnchor` / `nameAlign` | 名称アンカー / 名称の揃え |
 | P-21 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
 | P-22 | `wbsParentUid` | WBS の親（深さは導出する） |

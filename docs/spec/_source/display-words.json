@@ -3577,6 +3577,122 @@
    }
   }
  ],
+ "colourNames": [
+  {
+   "spelling": "white",
+   "text": {
+    "ja": "白",
+    "en": "White"
+   }
+  },
+  {
+   "spelling": "black",
+   "text": {
+    "ja": "黒",
+    "en": "Black"
+   }
+  },
+  {
+   "spelling": "dimgray",
+   "text": {
+    "ja": "濃い灰色",
+    "en": "Dark gray"
+   }
+  },
+  {
+   "spelling": "lightgray",
+   "text": {
+    "ja": "薄い灰色",
+    "en": "Light gray"
+   }
+  },
+  {
+   "spelling": "red",
+   "text": {
+    "ja": "赤",
+    "en": "Red"
+   }
+  },
+  {
+   "spelling": "blue",
+   "text": {
+    "ja": "青",
+    "en": "Blue"
+   }
+  },
+  {
+   "spelling": "yellow",
+   "text": {
+    "ja": "黄",
+    "en": "Yellow"
+   }
+  },
+  {
+   "spelling": "green",
+   "text": {
+    "ja": "緑",
+    "en": "Green"
+   }
+  },
+  {
+   "spelling": "orange",
+   "text": {
+    "ja": "オレンジ",
+    "en": "Orange"
+   }
+  },
+  {
+   "spelling": "purple",
+   "text": {
+    "ja": "紫",
+    "en": "Purple"
+   }
+  },
+  {
+   "spelling": "transparent",
+   "text": {
+    "ja": "透明",
+    "en": "Transparent"
+   }
+  }
+ ],
+ "colourField": [
+  {
+   "part": "custom",
+   "text": {
+    "ja": "カスタムカラー",
+    "en": "Custom color"
+   }
+  },
+  {
+   "part": "light",
+   "text": {
+    "ja": "ライト",
+    "en": "Light"
+   }
+  },
+  {
+   "part": "dark",
+   "text": {
+    "ja": "ダーク",
+    "en": "Dark"
+   }
+  },
+  {
+   "part": "sameAsLight",
+   "text": {
+    "ja": "（ライトと同じ）",
+    "en": " (same as light)"
+   }
+  },
+  {
+   "part": "sameAsDark",
+   "text": {
+    "ja": "（ダークと同じ）",
+    "en": " (same as dark)"
+   }
+  }
+ ],
  "scaleEcho": [
   {
    "end": "max",

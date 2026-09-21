@@ -211,6 +211,14 @@
    }
   },
   {
+   "prefix": "CV",
+   "words": "Colour Value",
+   "owner": "spec",
+   "means": {
+    "ja": "作成者が選んだ色の持ち方と描き方"
+   }
+  },
+  {
    "prefix": "DC",
    "words": "Dual Cursor",
    "owner": "spec",
