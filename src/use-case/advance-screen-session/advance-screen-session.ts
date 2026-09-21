@@ -26,6 +26,13 @@ import {
   type GestureValuesEvent,
 } from './gesture-values'
 import {
+  emptyInteractionRecordValues,
+  stepInteractionRecordValues,
+  type InteractionRecordValues,
+  type InteractionRecordValuesEffect,
+  type InteractionRecordValuesEvent,
+} from './interaction-record-values'
+import {
   emptyNoticeValues,
   stepNoticeValues,
   type NoticeValues,
@@ -58,9 +65,10 @@ export interface ScreenSession {
   readonly fileFlow: FileFlowValues
   readonly fieldEntry: FieldEntryValues
   readonly selection: SelectionValues
+  readonly interactionRecord: InteractionRecordValues
 }
 
-// see T-280, T-286, T-289, T-290, T-292, T-293
+// see T-280, T-286, T-289, T-290, T-292, T-293, T-295
 export type SessionEvent =
   | ScreenValuesEvent
   | NoticeValuesEvent
@@ -68,6 +76,7 @@ export type SessionEvent =
   | FileFlowValuesEvent
   | FieldEntryValuesEvent
   | SelectionValuesEvent
+  | InteractionRecordValuesEvent
 
 export type SessionEffect =
   | ScreenValuesEffect
@@ -76,8 +85,9 @@ export type SessionEffect =
   | FileFlowValuesEffect
   | FieldEntryValuesEffect
   | SelectionValuesEffect
+  | InteractionRecordValuesEffect
 
-// see T-280, T-286, T-289, T-290, T-292, T-293, SS-6
+// see T-280, T-286, T-289, T-290, T-292, T-293, T-295, SS-6
 export const emptyScreenSession: ScreenSession = {
   screen: emptyScreenValues,
   notices: emptyNoticeValues,
@@ -85,6 +95,7 @@ export const emptyScreenSession: ScreenSession = {
   fileFlow: emptyFileFlowValues,
   fieldEntry: emptyFieldEntryValues,
   selection: emptySelectionValues,
+  interactionRecord: emptyInteractionRecordValues,
 }
 
 // WHY: a Record per region fails to compile on a missing event; the rest are screen events.
@@ -149,6 +160,10 @@ const IS_SELECTION_EVENT: { readonly [T in SelectionValuesEvent['type']]: true }
   copyTaken: true,
 }
 
+const IS_INTERACTION_RECORD_EVENT: { readonly [T in InteractionRecordValuesEvent['type']]: true } = {
+  interactionRecordToggled: true,
+}
+
 /** @purity pure */
 function isNoticeEvent(event: SessionEvent): event is NoticeValuesEvent {
   return Object.hasOwn(IS_NOTICE_EVENT, event.type)
@@ -172,6 +187,11 @@ function isFieldEntryEvent(event: SessionEvent): event is FieldEntryValuesEvent 
 /** @purity pure */
 function isSelectionEvent(event: SessionEvent): event is SelectionValuesEvent {
   return Object.hasOwn(IS_SELECTION_EVENT, event.type)
+}
+
+/** @purity pure */
+function isInteractionRecordEvent(event: SessionEvent): event is InteractionRecordValuesEvent {
+  return Object.hasOwn(IS_INTERACTION_RECORD_EVENT, event.type)
 }
 
 // see SS-5, SF-3
@@ -199,5 +219,8 @@ export function advanceScreenSession(
   if (isFileFlowEvent(event)) return composed(session, 'fileFlow', stepFileFlowValues(session.fileFlow, event))
   if (isFieldEntryEvent(event)) return composed(session, 'fieldEntry', stepFieldEntryValues(session.fieldEntry, event))
   if (isSelectionEvent(event)) return composed(session, 'selection', stepSelectionValues(session.selection, event))
+  if (isInteractionRecordEvent(event)) {
+    return composed(session, 'interactionRecord', stepInteractionRecordValues(session.interactionRecord, event))
+  }
   return composed(session, 'screen', stepScreenValues(session.screen, event))
 }

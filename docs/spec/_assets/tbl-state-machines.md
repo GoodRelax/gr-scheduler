@@ -930,3 +930,54 @@ stateDiagram-v2
 - `selectionStateMachine.objectsSelected` —— 運ぶ値 `selectedObjects`（`SL-1` ・ `SL-7b`）。根拠 `SP-2` ・ `SP-3` ・ `SL-1` ・ `IN-4`
 
 表に無い出来事は `selectionStateMachine` を変えない（同じ参照）。
+
+## 操作の記録（`interactionRecord`）
+
+**表 T-295 — 操作の記録の状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+### 操作の記録の出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `interactionRecord/interactionRecordToggled` | 入力（`IC-76` を押して離した。記録していないときは始め、記録しているときは止める —— 開始と停止は同じ 1 つの入口である）: `IC-76` ・ `FR-102` | — | `interactionRecordingStateMachine` |
+
+### 根 `interactionRecord` の値
+
+運ぶ値: —。  
+根拠: `FR-102` ・ `S-206`。
+
+根の運ぶ値だけを書き換える出来事は無い。
+
+**図 F-041 — 操作の記録の状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-295 の状態遷移表が持つ。
+
+### 状態機械 `interactionRecordingStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> interactionRecordingStateMachine_notRecording
+    interactionRecordingStateMachine_notRecording : notRecording
+    interactionRecordingStateMachine_recordingInteractions : recordingInteractions
+    interactionRecordingStateMachine_notRecording --> interactionRecordingStateMachine_recordingInteractions : interactionRecordToggled
+    interactionRecordingStateMachine_recordingInteractions --> interactionRecordingStateMachine_notRecording : interactionRecordToggled
+```
+
+| 出来事 | `notRecording` | `recordingInteractions` |
+| --- | --- | --- |
+| `interactionRecord/interactionRecordToggled` | → `recordingInteractions` / `beginInteractionRecord`（記録の溜めを空にし、始めた時刻を取り、始めたことを 1 行目に書く） | → `notRecording` / `handInteractionRecordToClipboard`（止めたことを書き、記録の文を組んでクリップボードへ渡し、溜めを空にする） |
+
+- `interactionRecordingStateMachine.notRecording` —— 初期。根拠 `S-206` ・ `FR-102`
+- `interactionRecordingStateMachine.recordingInteractions` —— 根拠 `FR-102` ・ `S-206` ・ `IC-76`
+
+表に無い出来事は `interactionRecordingStateMachine` を変えない（同じ参照）。

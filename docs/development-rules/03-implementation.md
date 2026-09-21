@@ -51,6 +51,8 @@ FILE_FLOW_VALUES_TRANSITIONS         ファイル操作と問いの状態遷移�
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 GESTURE_VALUES_TRANSITIONS           身振りの状態遷移表の升を 1 つずつ並べたもの（表 T-289。同じ生成器）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
+INTERACTION_RECORD_VALUES_INITIAL_AXES 操作の記録の状態機械の初期の種類（表 T-295 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+INTERACTION_RECORD_VALUES_TRANSITIONS 操作の記録の状態遷移表の升を 1 つずつ並べたもの（表 T-295。同じ生成器）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）

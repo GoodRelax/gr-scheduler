@@ -33,8 +33,9 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             for `screen`, table T-286 for `notices`, table
                             T-289 for `gesture`, table T-290 for `fileFlow`,
                             table T-292 for `fieldEntry`, table T-293 for
-                            `selection`), the root's first, then each
-                            machine's in manuscript order
+                            `selection`, table T-295 for
+                            `interactionRecord`), the root's first, then
+                            each machine's in manuscript order
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,

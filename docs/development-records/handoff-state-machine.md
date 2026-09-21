@@ -119,7 +119,13 @@ SF-10  文書は集約に入れない。セッションは読むだけ
           欄ごとに状態を立てない —— 欄は運ぶ値の行 ID（JDG-290）。出来事 fieldFocusLanded を退け fieldEditBegan ・ fieldEditEnded を足した。ガード isEditedField。IF-9 は真偽を答えるのをやめ、編集の始まりと終わりを知らせる
           ⛔ 波 B: 面（dom-screen-surface.ts の文字入力の欄の focusin ・ focusout）が知らせを溜めて返し、シェルは状態を読む前に溜まった知らせをすべて機械へ渡すこと。
              それまで仕様（IF-9 の知らせ）とコード（hasUnsettledTextEntry の真偽）は食い違う。台帳 DFC-701（作った直後の Enter がどの欄を確定したかを見ない）・DFC-702（確定も取り消しも通らずに欄が消える道）、DFC-694 に追記
-⬜ 次の領域  表 T-285 の手順で足す（計画の記録 4 の順: 操作の記録 → Agent API）。命名と原稿の形は 07-review-standards.md の R4.4
+✅ 未保存の変更  CR-510 の波 A（領域 fileFlow に unsavedEditsStateMachine（nothingUnsaved ／ editsUnsaved）を足した。表 T-290・図 F-036 を刷り直し）
+          CR-460 の決定 9 の hasUnsavedEdits の半分を覆した。fileSavedAt は状態でも運ぶ値でもない（FR-101 ／ AT-140、DFC-459）。台帳 DFC-780〜784
+✅ 操作の記録  CR-520 の波 A（第 7 領域 interactionRecord: interactionRecordingStateMachine（notRecording ／ recordingInteractions）、
+          interaction-record-values.ts（UF-124）、表 T-295・図 F-041）。記録の中身はシェルに残す（CR-490 の 11.1 の 4 行目を覆した）。台帳 DFC-785・786
+          ⚠️ 波 B: シェルの溜め const interactionRecord は領域のキーと同じ名 —— 結線のときに改名せよ
+⬜ Agent API  CR-530 の波 A（第 8 領域 agentApi）。草案はこのセッションの scratchpad にあった（次のセッションには残らない ⇒ CR-490 の 11.7 と本書から起こし直せ）
+          命名と原稿の形は 07-review-standards.md の R4.4。⚠️ T-294 ・ F-040 は CR-510 が使わずに返した
           ⚠️ 番号の帯（2026-09-21 に本線と決めた）: こちら 図 F-035〜F-039（F-039 まで使用 —— 使い切り。F-037 は CR-470 が返した）・UF-88〜UF-89（使い切り）。
              それより先の番号と CR の番号は、本線のセッションに宣言してから取れ（本線が終了していたら本書に書いて残せ）
           ⚠️ 図の帯: こちら F-035〜F-039（F-035 は身振り）、本線 F-030〜F-034、F-040 以降は取る側が宣言してから

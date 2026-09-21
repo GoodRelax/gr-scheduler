@@ -1448,6 +1448,9 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     carryOutOwedAction: unwiredEffect,
 
     bringCreatedRowIntoSight: unwiredEffect,
+
+    beginInteractionRecord: unwiredEffect,
+    handInteractionRecordToClipboard: unwiredEffect,
   }
 }
 

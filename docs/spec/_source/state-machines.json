@@ -5439,6 +5439,105 @@
      }
     }
    ]
+  },
+  {
+   "region": "interactionRecord",
+   "name": {
+    "ja": "操作の記録"
+   },
+   "unit": "src/use-case/advance-screen-session/interaction-record-values.ts",
+   "typeStem": "InteractionRecordValues",
+   "table": {
+    "id": "T-295",
+    "caption": {
+     "ja": "操作の記録の状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-041",
+    "caption": {
+     "ja": "操作の記録の状態遷移"
+    }
+   },
+   "root": {
+    "carries": [],
+    "evidence": [
+     "FR-102",
+     "S-206"
+    ],
+    "transitions": {}
+   },
+   "events": [
+    {
+     "key": "interactionRecordToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-76",
+       "FR-102"
+      ],
+      "note": {
+       "ja": "`IC-76` を押して離した。記録していないときは始め、記録しているときは止める —— 開始と停止は同じ 1 つの入口である"
+      }
+     },
+     "carries": []
+    }
+   ],
+   "machines": [
+    {
+     "name": "interactionRecordingStateMachine",
+     "states": [
+      {
+       "key": "notRecording",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-206",
+        "FR-102"
+       ]
+      },
+      {
+       "key": "recordingInteractions",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "FR-102",
+        "S-206",
+        "IC-76"
+       ]
+      }
+     ],
+     "transitions": {
+      "interactionRecordToggled": {
+       "notRecording": {
+        "to": "recordingInteractions",
+        "effect": "beginInteractionRecord",
+        "evidence": [
+         "FR-102",
+         "IC-76"
+        ],
+        "note": {
+         "ja": "記録の溜めを空にし、始めた時刻を取り、始めたことを 1 行目に書く"
+        }
+       },
+       "recordingInteractions": {
+        "to": "notRecording",
+        "effect": "handInteractionRecordToClipboard",
+        "evidence": [
+         "FR-102",
+         "IC-76",
+         "CHN-9"
+        ],
+        "note": {
+         "ja": "止めたことを書き、記録の文を組んでクリップボードへ渡し、溜めを空にする"
+        }
+       }
+      }
+     }
+    }
+   ]
   }
  ]
 }

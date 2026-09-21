@@ -124,10 +124,12 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
     const every: Record<SessionEffect['type'], true> = {
       answerOverwriteQuestion: true,
       askBrowserForFullScreen: true,
+      beginInteractionRecord: true,
       bringCreatedRowIntoSight: true,
       carryOutOwedAction: true,
       clearSelection: true,
       discardIncomingDocument: true,
+      handInteractionRecordToClipboard: true,
       importIncomingDocument: true,
       matchWatermarkUnlock: true,
       raiseFlowSurface: true,
