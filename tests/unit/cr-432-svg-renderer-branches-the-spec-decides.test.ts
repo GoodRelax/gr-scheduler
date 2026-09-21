@@ -279,12 +279,12 @@ describe('CR-432 -- branches of svgFromSchedule the specification decides', () =
     expect(outer.y1).toBeGreaterThanOrEqual(inner.y1 - ROUNDING)
   })
 
-  it('FR-041, S-74: a human-chosen #rgb colour on a Task fill and a TaskGroup color is drawn achromatic under monochrome', () => {
+  it('FR-041, S-74: a custom colour (CV-2) on a Task fill and a TaskGroup color is drawn achromatic under monochrome', () => {
     const base = scheduleOf({ tasks: [taskOf({ uid: 1, name: 'a', start: day(3), finish: day(9) })] })
     const schedule = {
       ...base,
-      taskVisuals: base.taskVisuals.map((one) => ({ ...one, fillColor: '#c63' })),
-      taskGroups: base.taskGroups.map((one) => ({ ...one, color: '#3c6' })),
+      taskVisuals: base.taskVisuals.map((one) => ({ ...one, fillColor: '#cc6633/' })),
+      taskGroups: base.taskGroups.map((one) => ({ ...one, color: '#33cc66/' })),
     } as unknown as Schedule
     const fillsOf = (monochrome: boolean): { plan: string; band: string } => {
       const elements = painted(elementsOf(drawOf(schedule, { settings: { themeMonochrome: monochrome } }).svg))
@@ -360,7 +360,7 @@ describe('CR-432 -- branches of svgFromSchedule the specification decides', () =
           endDate: day(8),
           topGroupId: 'g1',
           bottomGroupId: 'g1',
-          strokeColor: '#4527a0',
+          strokeColor: '#4527a0/',
           cornerRadiusPx: CORNER_RADIUS,
         },
       ],

@@ -244,7 +244,7 @@ const HIGHLIGHT = {
   endDate: '2026-01-08',
   topGroupId: 'g1',
   bottomGroupId: 'g1',
-  strokeColor: '#4527a0',
+  strokeColor: '#4527a0/',
   cornerRadiusPx: null,
 }
 

@@ -43,9 +43,10 @@ const FR_007 =
   '作成者が色を選ぶとき、`GRS` は、**表 T-017 のパレット色**から選ばせ、線色と塗り色を個別に指定できるようにすること。'
 const IF_9_COMMIT = '**編集できる欄で確定した値を、その欄が名乗る行 ID とともに返し**'
 
-const CL_1_COLOURS = (rowOf('T-017', 'CL-1').cells[1] ?? '')
+// WHY: since CR-548 the cell goes on, after the list's full stop, to point at table T-294.
+const CL_1_COLOURS = ((rowOf('T-017', 'CL-1').cells[1] ?? '').split('。')[0] ?? '')
   .split('/')
-  .map((one) => one.replace(/\*/g, '').trim())
+  .map((one) => one.replace(/[*。]/g, '').trim())
   .filter((one) => one !== '')
 
 const PROPERTIES_PANEL = bare(rowOf('T-103', 'U-25').by['確定名（英）'] ?? '')
@@ -77,7 +78,22 @@ const FIELDS: PropertyField[] = [
   // WHY: the renderer gives a read-only row no control, so this description gives none either.
   { row: 'PR-9', name: 'Percent label', text: '50', isEditable: false, controls: [] },
   field('PR-17', 'Glyph label', true, [controlOf('milestoneGlyph', 'choice', 'circle', ['circle', 'diamond', 'star'])]),
-  field('PR-12', 'Stroke label', true, [controlOf('strokeColor', 'color', '#000000')]),
+  // WHY: the colour control as the renderer describes it after CR-548 (CV-9): a blank for the
+  // theme, the palette names, a swatch per choice and the two theme sides.
+  field('PR-12', 'Stroke label', true, [
+    {
+      ...controlOf('strokeColor', 'color', 'red', ['', ...CL_1_COLOURS]),
+      choiceValues: ['', ...CL_1_COLOURS.map((_one, index) => `name-${index}`)],
+      colour: {
+        swatches: ['', ...CL_1_COLOURS.map(() => '#a94c42')],
+        inks: ['', ...CL_1_COLOURS.map(() => '#ffffff')],
+        customWord: 'Custom',
+        customValue: '',
+        light: { word: 'Light', paint: '#a94c42', note: '' },
+        dark: { word: 'Dark', paint: '#d08880', note: '' },
+      },
+    },
+  ]),
 ]
 
 const PANEL: PropertiesPanel = { showing: 'selection', isSubjectGone: false, fields: FIELDS, commands: [] }
@@ -223,17 +239,18 @@ describe('FR-006 -- 表 T-016 の項目をプロパティパネルに出し', ()
     expect(offered).toEqual(['circle', 'diamond', 'star'])
   })
 
-  // DEVIATION: spec says the T-017 palette; here the host colour picker (DFC-566)
-  it.fails('FR-007 表 T-017 のパレット色から選ばせ -- the colour field offers the CL-1 palette, not the host picker', () => {
+  it('FR-007 表 T-017 のパレット色から選ばせ -- the colour field offers the CL-1 palette, and the host picker only as the custom entrance (CV-9)', () => {
     const { built } = drawn()
     const entries = entriesOf(built, 'PR-12')
-    for (const one of entries) expect(one.getAttribute('type')).not.toBe('color')
+    const pickers = entries.filter((one) => one.getAttribute('type') === 'color')
+    expect(pickers).toHaveLength(1)
+    expect(pickers[0]?.getAttribute('data-colour-custom')).toBe('true')
     const panel = oneByRole(built.root(), PROPERTIES_PANEL)
     const row = descendants(panel).find(
       (one) => one.getAttribute('data-field-row') === 'PR-12' && !ENTRY_TAGS.includes(one.tagName),
     ) as FakeElement
     const choices = descendants(row).filter(
-      (one) => one.tagName === 'OPTION' || one.tagName === 'BUTTON',
+      (one) => (one.tagName === 'OPTION' || one.tagName === 'BUTTON') && one.getAttribute('value') !== '',
     )
     expect(choices).toHaveLength(CL_1_COLOURS.length)
   })

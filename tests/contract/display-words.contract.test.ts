@@ -355,6 +355,10 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // stands last for the same reason `arms` does: this roster is the GENERATED
   // file's printed order, and the generator prints `weekdays` after `arms`.
   weekdays: 'weekday',
+  // WHY: CR-548 keys a palette colour by its stored spelling (table T-294) and a
+  // part of the colour field by the part it names (CV-9); neither is a row.
+  colourNames: 'spelling',
+  colourField: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
 }
@@ -646,8 +650,10 @@ const SCHEDULE = {
       nameAlign: null,
       shapeKind: null,
       milestoneGlyph: null,
-      fillColor: null,
-      strokeColor: null,
+      // WHY: one custom colour with each side left undefined, so the colour field
+      // prints both notes of CV-9 (CR-548).
+      fillColor: '#c0504d/',
+      strokeColor: '/#3a5f8a',
       lineWeight: null,
     },
   ],

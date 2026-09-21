@@ -331,8 +331,8 @@ describe('CR-432 TaskGroup branches the specification decides', () => {
   })
 
   it('CM-30 / AT-58: setTaskGroupColor with the current string changes nothing', () => {
-    const input = oneRow({ color: '#336699' })
-    expect(accepted(run(input, { kind: 'setTaskGroupColor', groupId: 'r', color: '#336699' }))).toEqual(input)
+    const input = oneRow({ color: '#336699/' })
+    expect(accepted(run(input, { kind: 'setTaskGroupColor', groupId: 'r', color: '#336699/' }))).toEqual(input)
   })
 
   it('CM-31: resetTaskGroupColor on a row whose color is already null changes nothing', () => {
