@@ -15,11 +15,7 @@ import {
   type DualCursorSide,
   type EscapeTarget,
 } from '../../entity/document-model/screen-state/screen-state'
-import {
-  emptySelection,
-  selectionOfAll,
-  selectionWith,
-} from '../../entity/document-model/selection/selection'
+import { emptySelection, selectionOfAll } from '../../entity/document-model/selection/selection'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
 import {
   emptyHistory,
@@ -711,6 +707,7 @@ const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed'
 const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
 const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
 const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
+const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -1740,6 +1737,21 @@ function isEditingFieldIn(session: ScreenSession): boolean {
   return session.fieldEntry.fieldEditState.kind === 'editingField'
 }
 
+// WHY: one empty selection for nothingSelected: the shell compares selections by identity.
+const NO_OBJECTS_SELECTED: Selection = emptySelection()
+
+/** @purity pure */
+function selectedObjectsIn(session: ScreenSession): Selection {
+  const state = session.selection.selectionState
+  return state.kind === 'objectsSelected' ? state.selectedObjects : NO_OBJECTS_SELECTED
+}
+
+/** @purity pure */
+function rowsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
+  if (!isExtending) return [groupId]
+  return chosen.includes(groupId) ? chosen.filter((one) => one !== groupId) : [...chosen, groupId]
+}
+
 /** @purity pure */
 function fieldEditEventOf(notice: FieldEditNotice): SessionEvent {
   const type = notice.kind === 'began' ? 'fieldEditBegan' : 'fieldEditEnded'
@@ -2147,7 +2159,6 @@ export function frameLoop(
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
-  let selection: Selection = emptySelection()
   let session: ScreenSession = startingSession(screen?.language ?? startupDisplayLanguage())
   let watermarkStampedAt = readInstantOfWrite()
   const watermarkStoredName = readBrowserStored('S-99a')
@@ -2191,14 +2202,8 @@ export function frameLoop(
   let fileSavedAt: string | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
-  let selectedGroupIds: readonly string[] = []
-  let copiedForPaste:
-    | { readonly kind: 'task'; readonly uid: number }
-    | { readonly kind: 'row'; readonly groupId: string }
-    | null = null
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
-  let selectedResourceUids: readonly number[] = []
   // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-80, T-206
   // @provisional PND-338
   let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
@@ -2234,9 +2239,12 @@ export function frameLoop(
         watermarkStampedAt = readInstantOfWrite()
       }
       held = next
-      const chosenBeforeTheWrite = selection
-      selection = selectionWithinSchedule(selection, held.document.schedule)
-      if (selection !== chosenBeforeTheWrite) noteChoiceMoved(null)
+      const chosenBeforeTheWrite = selectedObjectsIn(session)
+      const remainingObjects = selectionWithinSchedule(chosenBeforeTheWrite, held.document.schedule)
+      if (remainingObjects !== chosenBeforeTheWrite) {
+        sendToSession({ type: 'selectionPruned', remainingObjects }, null)
+        noteChoiceMoved(null)
+      }
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (settled(environment)) ask()
     },
@@ -2274,9 +2282,9 @@ export function frameLoop(
     askBrowserForFullScreen,
     matchWatermarkUnlock: () => void matchWatermarkUnlock(screen?.readWatermarkUnlockAnswer?.() ?? ''),
     clearSelection: () => {
-      const chosenBeforeTheClear = selection
-      selection = emptySelection()
-      if (selection !== chosenBeforeTheClear) noteChoiceMoved(values)
+      if (selectedObjectsIn(session) === NO_OBJECTS_SELECTED) return
+      sendToSession(SELECTION_CLEARED, values)
+      noteChoiceMoved(values)
     },
     writeCarried,
     startScaleMessageTimer,
@@ -2527,7 +2535,8 @@ export function frameLoop(
     } else if (capStop === null) {
       stackSafetyCapToldFor = null
     }
-    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selection)
+    const chosenObjects = selectedObjectsIn(session)
+    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, chosenObjects)
     values = {
       regions,
       layout,
@@ -2563,7 +2572,7 @@ export function frameLoop(
         layout,
         geometry,
         regions,
-        selection,
+        chosenObjects,
         'screen',
         dualCursorDrawnOf(session, pointerAt),
         rulerWeekdayWords(displayLanguageIn(session)),
@@ -2583,7 +2592,7 @@ export function frameLoop(
         regions,
         document.schedule,
         settings,
-        selection,
+        chosenObjects,
         session,
         dialogueLog,
         screenViewReadingsOf(document, regions, layout, {
@@ -2601,8 +2610,8 @@ export function frameLoop(
           commandPaletteDraggedTo,
           rowGrabbedAt: grabbedRowReadingOf(session, rowGrabbedAt),
           isRecordingInteractions,
-          selectedGroupIds,
-          selectedResourceUids,
+          selectedGroupIds: session.selection.chosenRows,
+          selectedResourceUids: session.selection.chosenResources,
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
           droppedTaskNames: session.fileFlow.droppedTaskNames,
@@ -3095,7 +3104,7 @@ export function frameLoop(
       const frame = values
       return {
         document: held.document,
-        selection,
+        selection: selectedObjectsIn(session),
         dialogue: dialogueLog,
         frame,
         exportScene: exportScene(),
@@ -3350,7 +3359,7 @@ export function frameLoop(
       geometry: frame.geometry,
       regions: frame.regions,
       screen: session.screen,
-      selection,
+      selection: selectedObjectsIn(session),
       zoomStep: NOT_STORED_ZOOM_STEP['S-96'],
       zoomMin: NOT_STORED_ZOOM_BOUNDS['S-97'],
       zoomMax: NOT_STORED_ZOOM_BOUNDS['S-98'],
@@ -3946,7 +3955,7 @@ export function frameLoop(
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
       }
-      const chosen = selectedResourceUids
+      const chosen = session.selection.chosenResources
       if (chosen.length === 0) {
         raiseNotice(NOTHING_TO_DO_REASON, null)
         return true
@@ -3996,15 +4005,18 @@ export function frameLoop(
   /** @purity non-pure */
   function copyForPaste(): void {
     // STOP: spec does not decide copy when a row and a Task, or several, are chosen. Looked in FR-033, T-223, SL-1 (PND-449)
-    if (selectedGroupIds.length === 1) {
-      copiedForPaste = { kind: 'row', groupId: selectedGroupIds[0] as string }
+    const chosenRows = session.selection.chosenRows
+    if (chosenRows.length === 1) {
+      const copiedForPaste = { kind: 'row', groupId: chosenRows[0] as string } as const
+      sendToSession({ type: 'copyTaken', copiedForPaste }, values)
       return
     }
-    const chosenTaskUids = selection.items.flatMap((one) =>
+    const chosenTaskUids = selectedObjectsIn(session).items.flatMap((one) =>
       one.kind === 'task' ? [one.uid] : [],
     )
-    if (selectedGroupIds.length === 0 && chosenTaskUids.length === 1) {
-      copiedForPaste = { kind: 'task', uid: chosenTaskUids[0] as number }
+    if (chosenRows.length === 0 && chosenTaskUids.length === 1) {
+      const copiedForPaste = { kind: 'task', uid: chosenTaskUids[0] as number } as const
+      sendToSession({ type: 'copyTaken', copiedForPaste }, values)
       return
     }
     raiseNotice(NOTHING_TO_DO_REASON, null)
@@ -4013,7 +4025,7 @@ export function frameLoop(
   // see SK-5, FR-033
   /** @purity non-pure */
   function pasteWhatWasCopied(frame: FrameValues): void {
-    const copied = copiedForPaste
+    const copied = session.selection.copiedForPaste
     if (copied === null) {
       raiseNotice(NOTHING_TO_DO_REASON, null)
       return
@@ -4059,7 +4071,8 @@ export function frameLoop(
     }
     if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
     // STOP: spec does not decide a paste with several rows chosen. Looked in FR-033, T-223, CM-28 (PND-449)
-    if (selectedGroupIds.length > 1) return null
+    const chosenRows = session.selection.chosenRows
+    if (chosenRows.length > 1) return null
     const newGroupIds: Record<string, string> = {}
     const walking = [copied.groupId]
     while (walking.length > 0) {
@@ -4071,7 +4084,7 @@ export function frameLoop(
     return {
       kind: 'pasteTaskGroupSubtree',
       sourceGroupId: copied.groupId,
-      targetGroupId: selectedGroupIds.length === 1 ? (selectedGroupIds[0] as string) : null,
+      targetGroupId: chosenRows.length === 1 ? (chosenRows[0] as string) : null,
       newGroupIds,
     }
   }
@@ -4230,14 +4243,8 @@ export function frameLoop(
       }
       case 'chooseRow': {
         // TRAP: read the held set, not the drawn row; FR-048 may skip a paint, so a picture can be older.
-        const chosen = selectedGroupIds
-        if (!action.isExtending) {
-          selectedGroupIds = [action.groupId]
-        } else if (chosen.includes(action.groupId)) {
-          selectedGroupIds = chosen.filter((one) => one !== action.groupId)
-        } else {
-          selectedGroupIds = [...chosen, action.groupId]
-        }
+        const chosenRows = rowsChosenWith(session.selection.chosenRows, action.groupId, action.isExtending)
+        sendToSession({ type: 'rowsPicked', chosenRows }, frame)
         // STOP: spec does not decide where the chosen rows are held. Looked in FR-085, FR-042, SL-1
         // @provisional PND-142
         showPropertiesOfChoice()
@@ -4248,15 +4255,16 @@ export function frameLoop(
       case 'chooseResources':
         // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
         // @provisional PND-143
-        selectedResourceUids = action.uids
+        sendToSession({ type: 'resourcesPicked', chosenResources: action.uids }, frame)
         return
       case 'toggleChosenResource': {
         // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
         // @provisional PND-143
-        const chosen = selectedResourceUids
-        selectedResourceUids = chosen.includes(action.uid)
+        const chosen = session.selection.chosenResources
+        const chosenResources = chosen.includes(action.uid)
           ? chosen.filter((one) => one !== action.uid)
           : [...chosen, action.uid]
+        sendToSession({ type: 'resourcesPicked', chosenResources }, frame)
         return
       }
       case 'toggleDocumentSettingsProperties': {
@@ -4313,7 +4321,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
-    const subject = subjectOfChoice(selection, selectedGroupIds)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
     const followed = subject === null ? null : choiceFollowedOf(session, subject)
     if (followed === null) return
     propertiesPanelKept = { subject }
@@ -4338,7 +4346,7 @@ export function frameLoop(
   // see FR-072
   /** @purity non-pure */
   function showPropertiesOfChoice(): void {
-    const subject = subjectOfChoice(selection, selectedGroupIds)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenRows)
     if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
@@ -4353,12 +4361,12 @@ export function frameLoop(
   ): void {
     if (created.kind === 'task') {
       if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
-      selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
+      sendToSession({ type: 'createdTaskSelected', createdTaskUid: created.uid }, values)
     } else {
       const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
       if (madeRow === undefined) return
       if (madeRow.parentId === null) sendToSession({ type: 'levelZeroOpened', writes: [] }, values)
-      selectedGroupIds = [created.groupId]
+      sendToSession({ type: 'createdRowSelected', createdGroupId: created.groupId }, values)
     }
     showPropertiesOfChoice()
     fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
@@ -4379,7 +4387,6 @@ export function frameLoop(
     if (input.kind !== 'pointer') {
       if (pressed !== null) return true
       if (held.document !== before.document || session !== sessionBefore) return true
-      if (selection !== before.selection) return true
       if (session.notices !== noticesBefore) return true
       // TRAP: a key that acted on nothing and moved nothing would draw the frame already shown;
       // a held Shift, Ctrl or Alt repeats its press about 30 times a second.
@@ -4390,7 +4397,6 @@ export function frameLoop(
     const guideMode = before.document.documentSettings.guideCursorMode
     if (guideMode !== GUIDE_CURSOR_NONE) return true
     if (dualCursorFollowingIn(session) !== null) return true
-    if (selection !== before.selection) return true
     if (session !== sessionBefore || held.document !== before.document) return true
     if (!isSameScreenPart(partUnderPointer, partBefore)) return true
     if (isTooltipStanding) return true
@@ -4477,8 +4483,12 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    selection = selectionFromInput(input, context)
-    if (selection !== context.selection) noteChoiceMoved(frame)
+    const pickedObjects = selectionFromInput(input, context)
+    const hasChoiceMoved = pickedObjects !== context.selection
+    if (hasChoiceMoved) {
+      sendToSession({ type: 'objectsPicked', pickedObjects }, frame)
+      noteChoiceMoved(frame)
+    }
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
@@ -4526,7 +4536,7 @@ export function frameLoop(
       pressed = { ...pressed, followedTo: { x: input.x, y: input.y } }
     }
 
-    if (selection !== context.selection) followChoiceOnPanel(frame)
+    if (hasChoiceMoved) followChoiceOnPanel(frame)
 
     // TRAP: last, after the press is dropped, so a release no longer finds PTD-1 in flight.
     if (pointerAt !== null) {
@@ -4539,7 +4549,7 @@ export function frameLoop(
     previewDocument = previewOfHeldPress(pressed, pointerAt, context, frame)
 
     const hasKeyActed =
-      spent || didSettleFieldEntry || escapeLevel !== null || translated.action !== null ||
+      spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
       translated.displayScaleShown !== undefined || isRowZoomEndShown || screenEvent !== null
     // WHY: a wheel at a row-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
@@ -4551,7 +4561,7 @@ export function frameLoop(
         `esc=${escapeLevel ?? '-'} act=${translated.action?.kind ?? '-'} ` +
         `assigned=${translated.isBrowserDefaultStopped} spentByShell=${spent} ` +
         `doc=${held.document === context.document ? 'same' : 'changed'} ` +
-        `sel=${selection === context.selection ? 'same' : 'changed'} ` +
+        `sel=${hasChoiceMoved ? 'changed' : 'same'} ` +
         `frame=${owesAFrame}`,
     )
     if (owesAFrame) ask()
