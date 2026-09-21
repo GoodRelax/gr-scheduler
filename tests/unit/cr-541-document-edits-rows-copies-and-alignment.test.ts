@@ -1,7 +1,4 @@
-// CR-541: the document edits whose MUST clauses CR-541 added -- where a drawn task's new row goes
-// (T-239 TC-3), the row made when the last one is deleted (T-050 closing rules), duplicating several
-// selected tasks (FR-033), and alignment keeping the duration (FR-034).
-// Expectations come from docs/spec only; the seam shapes are CR-541 section 5 (S-3, S-4).
+// CR-541: the document edits whose MUST clauses CR-541 added: new rows, the last row, copies, alignment.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -64,10 +61,6 @@ describe('CR-541 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// T-239 TC-3 -- the row a drawn task makes when its vertical position points at no row
-// ---------------------------------------------------------------------------
-
 describe('TC-3 -- the made row is the last child of the shallowest level', () => {
   it(Q01, () => {
     const document = rowDocument([
@@ -92,10 +85,6 @@ describe('TC-3 -- the made row is the last child of the shallowest level', () =>
     expect(member, 'the task is carried on the made row').toBeDefined()
   })
 })
-
-// ---------------------------------------------------------------------------
-// T-050 -- deleting the last row makes one L1 row with a newly taken id (seam S-4)
-// ---------------------------------------------------------------------------
 
 const oneRow = (): Document => rowDocument([{ id: 'only-row', parentId: null }]) as unknown as Document
 const CALM: WriteMoment = { gestureInFlight: false, editingInPlace: false, deliveringNotices: false }
@@ -154,11 +143,6 @@ describe('T-050 -- the row made when the last row goes', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-033 -- duplicating several selected tasks (CM-8, seam S-3: sourceUids)
-// ---------------------------------------------------------------------------
-//   row-1: P (1) -> A (2) -> A1 (3)          row-2: B (4)
-
 const copyDocument = (): Document =>
   rowDocument([{ id: 'row-1', parentId: null }, { id: 'row-2', parentId: null }], {}, {
     tasks: [
@@ -208,10 +192,6 @@ describe('FR-033 -- several selected tasks', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// FR-033 -- a row paste with two rows selected is refused and told
-// ---------------------------------------------------------------------------
-
 const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 const benches: ShellBench[] = []
 afterEach(() => {
@@ -220,8 +200,8 @@ afterEach(() => {
 
 describe('FR-033 -- the paste target', () => {
   it(Q15, () => {
-    // ⚠️ docs/spec does not name the modifier that adds a row to the picked rows (FR-085 増減する),
-    // so each ordinary one is tried; the premise fails only when none of them picks two rows.
+    // WHY: no row names the modifier that adds a row to the picked rows, so each one is tried;
+    // the premise fails only when none of them picks two rows.
     let built: ShellBench | null = null
     for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
       const trial = shell(
@@ -254,10 +234,6 @@ describe('FR-033 -- the paste target', () => {
     expect(built!.notices().length, 'and it is told').toBeGreaterThan(0)
   })
 })
-
-// ---------------------------------------------------------------------------
-// FR-034 -- alignment keeps the duration (IC-37 / IC-38 on the Command Palette)
-// ---------------------------------------------------------------------------
 
 const ALIGN_ENTRANCES = specTable('T-109')
   .rows.filter((one) => bare(one.by['正'] ?? '') === 'FR-034')

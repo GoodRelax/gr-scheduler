@@ -1,8 +1,4 @@
-// CR-541: what the screen shows -- document settings are read only in the properties panel (FR-072),
-// a dependency kind is shown by its abbreviation (T-018), Enter in the dialogue field settles the
-// utterance (T-036 SK-19), the help title row stays on top while the body scrolls (FR-036), and a
-// task's tooltip stands at the pointer and takes no pointer (T-028 IN-3 / EZ-6).
-// Expectations come from docs/spec only.
+// CR-541: what the screen shows in the properties panel, the help, the tooltip and the dialogue.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -51,10 +47,6 @@ describe('CR-541 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// The properties panel, as the screen renderer describes it
-// ---------------------------------------------------------------------------
-
 const READINGS = {
   openedFileName: null,
   fileSavedAt: null,
@@ -90,13 +82,11 @@ const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSessio
   },
 })
 
-// T-018: the abbreviation is the 名 cell before its bracket, keyed by the linkType cell.
 const KINDS = specTable('T-018').rows.map((one) => ({
   linkType: Number(bare(one.by['`linkType`'] ?? one.cells[1] ?? '')),
   abbreviation: (bare(one.by['名'] ?? one.cells[2] ?? '').split('（')[0] ?? '').trim(),
 }))
 
-// fig-erd-detail.md: `AT-46` is `Dependency.linkType`, the seat the panel's field is keyed by.
 const LINK_TYPE_SEAT = 'AT-46'
 const ERD_DETAIL = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
 
@@ -176,10 +166,6 @@ describe('T-018 -- a dependency kind on the screen', () => {
     for (const one of kindFields) expect(one.text.trim(), 'the stored number is not shown as it is').not.toBe(String(linkType))
   })
 })
-
-// ---------------------------------------------------------------------------
-// The DOM surface
-// ---------------------------------------------------------------------------
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 

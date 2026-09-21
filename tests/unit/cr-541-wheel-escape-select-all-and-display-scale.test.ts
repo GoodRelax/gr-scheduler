@@ -1,7 +1,4 @@
-// CR-541: the plain wheel scrolls by the device's distance (FR-016 / S-176); the display-scale message
-// on every press, even at an end, and no FR-029 notice at an end (T-260 SE-1 / SE-5, T-262 ZE-2 / ZE-3);
-// Esc during a drag cancels the drag before the properties panel (T-028 IN-4); Ctrl+A while text entry
-// is unsettled goes to the browser (T-028 IN-5a). Expectations come from docs/spec only.
+// CR-541: the plain wheel, the display-scale steps, Esc during a drag, and Ctrl+A in text entry.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -45,10 +42,6 @@ afterEach(() => {
 const manyRows = (count: number): RowSeed[] =>
   Array.from({ length: count }, (_unused, index) => ({ id: `row-${String(index + 1).padStart(2, '0')}`, parentId: null }))
 
-// ---------------------------------------------------------------------------
-// FR-016 -- the plain wheel
-// ---------------------------------------------------------------------------
-
 const wheelOf = (x: number, y: number, dy: number): HumanInput => ({
   kind: 'wheel',
   x,
@@ -87,10 +80,6 @@ describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () =>
     expect(offset).toBeLessThan(1)
   })
 })
-
-// ---------------------------------------------------------------------------
-// T-260 SE-1 / SE-5 and T-262 ZE-2 / ZE-3
-// ---------------------------------------------------------------------------
 
 const scaleBench = (displayScale: number, zoomY = 1): ShellBench =>
   keep(shell(rowDocument(manyRows(4), { displayScale, zoomY })))
@@ -158,7 +147,7 @@ describe('SE-5 -- no FR-029 notice at an end', () => {
       built.send(keyOf(sign, { alt: true }))
     }
     const atEnd = zoomY()
-    // The loop stops on the first press that changed nothing -- already one end press.
+    // WHY: the loop stops on the first press that changed nothing, which is already one end press.
     const noticesBefore = built.notices().length
     built.send(keyOf(sign, { alt: true }))
     expect(zoomY(), 'premise: at the end the press does not change zoomY').toBe(atEnd)
@@ -166,10 +155,6 @@ describe('SE-5 -- no FR-029 notice at an end', () => {
     expect(noticesBefore, 'and none was standing from the presses that led there').toBe(0)
   })
 })
-
-// ---------------------------------------------------------------------------
-// T-028 IN-4 -- Esc while a bar is being dragged, with the properties panel out
-// ---------------------------------------------------------------------------
 
 describe('IN-4 -- Esc cancels the drag before the panel', () => {
   it(Q39, () => {
@@ -186,7 +171,6 @@ describe('IN-4 -- Esc cancels the drag before the panel', () => {
     const xs = plan.points.map((one) => one.x)
     const ys = plan.points.map((one) => one.y)
     const centre = { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
-    // FR-072: the panel is put out by its entrance, never by a selection alone (IC-17 of table T-109).
     pressHeader(built, 'IC-17')
     expect(built.last().propertiesPanel, 'premise: IC-17 puts the properties panel out').not.toBeNull()
     const before = JSON.stringify((built.loop.document().schedule as any).tasks[0])
@@ -199,10 +183,6 @@ describe('IN-4 -- Esc cancels the drag before the panel', () => {
     expect(JSON.stringify((built.loop.document().schedule as any).tasks[0]), 'the first Esc cancelled the drag').toBe(before)
   })
 })
-
-// ---------------------------------------------------------------------------
-// T-028 IN-5a -- Ctrl+A while text entry is unsettled
-// ---------------------------------------------------------------------------
 
 describe('IN-5a -- Ctrl+A reaches the text field', () => {
   it(Q40, () => {

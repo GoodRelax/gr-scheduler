@@ -1,5 +1,4 @@
 // CR-541: the shared bench the cr-541-*.test.ts files drive the shell and the use cases through.
-// Written from docs/spec only; src/ is read for public entry points and their names alone.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -58,11 +57,6 @@ export const pointerOf = (
   modifiers: { ...NO_MODS, ...mods },
   clickCount: 1,
 })
-
-// ---------------------------------------------------------------------------
-// A small document: a tree of rows, one task on each, built on the template's
-// own settings so it stays a valid GRS JSON document.
-// ---------------------------------------------------------------------------
 
 export interface RowSeed {
   readonly id: string
@@ -145,11 +139,6 @@ export function rowDocument(
     changeLog: [],
   }
 }
-
-// ---------------------------------------------------------------------------
-// The shell, driven through FrameLoop.receiveInput, with a surface that
-// records every description it is handed.
-// ---------------------------------------------------------------------------
 
 export const SCREEN = { width: 1400, height: 800, appHeaderHeight: 56, scrollbarThickness: 8 }
 

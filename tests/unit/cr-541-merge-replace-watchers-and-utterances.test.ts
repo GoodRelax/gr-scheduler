@@ -1,7 +1,4 @@
-// CR-541: a merge keeps the current row and annotation of a shared id (T-032 MG-12); an MSPDI replace
-// puts every document setting back to its default (T-024a OP-6); a second subscription under one name
-// replaces the first and says so (T-035 AG-6); an utterance while notices are being delivered is refused
-// like a write (T-035 AG-11, Chapter 5.5). Expectations come from docs/spec only.
+// CR-541: merge and MSPDI replace, a second subscription, and an utterance during a delivery.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -35,11 +32,6 @@ describe('CR-541 -- the clauses still stand in the manuscript', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// MG-12 and OP-6 -- importDocument
-// ---------------------------------------------------------------------------
-
-// The defaults of tables T-201 .. T-206 as the entity publishes them, dotted keys folded into objects.
 const DEFAULTS: Record<string, unknown> = (() => {
   const out: Record<string, any> = {}
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
@@ -100,8 +92,6 @@ describe('MG-12 -- a merge keeps the current content of a shared id', () => {
 
 describe('OP-6 -- an MSPDI read by replace puts every setting to its default', () => {
   it(Q30, () => {
-    // Through the whole road a person takes: the MSPDI text is decoded against the current
-    // document, then read by replace. The current document's settings are all moved off default.
     const moved = { zoomX: 7, zoomY: 0.5, scrollDate: '2026-06-01', displayScale: 125, dependencyVisible: false }
     const current = documentWith('current label', 'current note', moved)
     const decoded = documentFromMspdi(mspdiFromDocument(current).text, current)
@@ -117,10 +107,6 @@ describe('OP-6 -- an MSPDI read by replace puts every setting to its default', (
     expect(differing, 'every documentSettings item is its default').toEqual([])
   })
 })
-
-// ---------------------------------------------------------------------------
-// AG-6 -- two subscriptions under one name
-// ---------------------------------------------------------------------------
 
 const WATCHER = 'cr-541 watcher'
 afterEach(() => {
@@ -147,10 +133,6 @@ describe('AG-6 -- the same name subscribed twice', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// AG-11 -- an utterance posted from inside a delivery is refused
-// ---------------------------------------------------------------------------
-
 const benches: ShellBench[] = []
 afterEach(() => {
   for (const one of benches.splice(0)) one.restore()
@@ -173,7 +155,7 @@ describe('AG-11 -- no utterance while notices are being delivered', () => {
       try {
         api.postDialogueMessage(text)
       } catch {
-        // a refusal may be thrown or returned; either way the log below is what is asked
+        // WHY: a refusal may be thrown or returned; either way the log below is what is asked.
       }
     }
     a.watchChanges(answerBack(a, 'a answers from inside a delivery'))

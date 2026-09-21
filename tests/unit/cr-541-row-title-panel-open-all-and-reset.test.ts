@@ -1,6 +1,4 @@
-// CR-541: the [vv] entrances of the Row Title Panel (T-051 HF-2 / HF-10, T-254 KO-2 / KO-3) and the
-// gap between the rightmost row control and the panel's right edge (HF-4, T-206 S-313).
-// Expectations come from docs/spec only.
+// CR-541: the [vv] entrances of the Row Title Panel and the gap of its row controls.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -30,7 +28,6 @@ function entranceFor(rule: string): string {
 const OPEN_ALL_BELOW = entranceFor('HF-2')
 const HEAD_OPEN_EVERY_ROW = entranceFor('HF-10')
 
-// A  -> B -> (C1 -> G1), C2 ; Z -> Z1
 const A = 'aaaaaaaa-0000-4000-8000-000000000001'
 const B = 'aaaaaaaa-0000-4000-8000-000000000002'
 const C1 = 'aaaaaaaa-0000-4000-8000-000000000003'
@@ -142,10 +139,6 @@ describe('HF-10 [vv] at the head of the panel (KO-3)', () => {
     expect(built.last().rowTitlePanel.canOpenEveryRow).toBe(armed)
   })
 })
-
-// ---------------------------------------------------------------------------
-// HF-4 / S-313 -- drawn by the DOM surface
-// ---------------------------------------------------------------------------
 
 const S_313 = numberOfPx(rowOf('T-206', 'S-313').cells.join(' '))
 function numberOfPx(cell: string): number {

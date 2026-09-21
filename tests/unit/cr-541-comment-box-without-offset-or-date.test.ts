@@ -1,6 +1,4 @@
-// CR-541: FR-019 -- a comment box whose offset is null sits with its body's lower-left corner on the
-// anchored point, and a box whose anchor date is null is still drawn and grabbable, anchored at the
-// document's start date on its row. Expectations come from docs/spec only.
+// CR-541: where a comment box stands when its offset or its anchor date is null (FR-019).
 
 import { describe, expect, it } from 'vitest'
 
