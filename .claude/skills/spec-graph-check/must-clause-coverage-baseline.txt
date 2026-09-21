@@ -1,4 +1,7 @@
-1362
+1363
+# RAISED 1362 -> 1363 on 2026-09-21, with the user's approval (asked in chat, answered "1363 に上げる
+# （推奨）"): CR-437 wrote one MUST (table T-023c's closing paragraph: a selection points only at
+# what is drawn). No test can hold it before DFC-683 is implemented; that wave lowers this line.
 # LOWERED 1369 -> 1362 on 2026-09-21, with the user's approval (JDG-287, "1362 に下げる（推奨）"): the
 # stage-4 branch tests (tests/unit/cr-432-*-branches-the-spec-decides.test.ts) carry their clauses
 # word for word, so 628 clauses are now held and 1362 are not. Hold the ground.
