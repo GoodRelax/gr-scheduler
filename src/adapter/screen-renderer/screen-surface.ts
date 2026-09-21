@@ -41,6 +41,13 @@ export interface FieldCommit {
 }
 
 // see IF-9
+// WHY: the row the field names, not which control: the field-edit machine carries rows (T-292).
+export interface FieldEditNotice {
+  readonly kind: 'began' | 'ended'
+  readonly row: string
+}
+
+// see IF-9
 export interface ScreenSurface {
   /** @purity non-pure */
   showScreenView(view: ScreenView): void
@@ -57,4 +64,9 @@ export interface ScreenSurface {
 
   /** @purity semi-pure-b */
   hasUnsettledTextEntry(): boolean
+
+  // TRAP: reading takes the notices, in the order the host raised them; a surface without this
+  // seam reports no edit, so the shell reads no field as being edited.
+  /** @purity semi-pure-b */
+  readFieldEditNotices?(): readonly FieldEditNotice[]
 }

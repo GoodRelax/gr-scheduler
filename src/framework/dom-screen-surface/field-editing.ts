@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { FieldCommit, PropertyFieldKey } from '../../adapter/screen-renderer/screen-renderer'
+import type { FieldCommit, FieldEditNotice, PropertyFieldKey } from '../../adapter/screen-renderer/screen-renderer'
 import { HOST_ENTER, STYLE, made } from './dom-screen-surface'
 
 // WHY: not an attribute: a key spelled into one must be parsed back, and a separator breaks that.
@@ -34,6 +34,18 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
 export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let watermarkUnlockEntry: TextEntryControl | null = null
   let fieldCommit: FieldCommit | null = null
+  const fieldEditNotices: FieldEditNotice[] = []
+
+  // see IF-9
+  /** @purity non-pure */
+  function noteFieldEdit(kind: FieldEditNotice['kind'], row: string): void {
+    fieldEditNotices.push({ kind, row })
+  }
+
+  /** @purity pure */
+  function rowOf(control: TextEntryControl): string {
+    return CONTROL_KEYS.get(control as unknown as Element)?.row ?? ''
+  }
 
   /** @purity pure */
   function fieldCommitOf(target: unknown): FieldCommit | null {
@@ -108,6 +120,15 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     return key === HOST_ENTER || key === HOST_ESCAPE_KEY
   }
   let heldTextControl: TextEntryControl | null = null
+  // see IF-9, T-292
+  /** @purity non-pure */
+  function holdText(control: TextEntryControl | null): void {
+    const was = heldTextControl
+    if (was === control) return
+    heldTextControl = control
+    if (was !== null) noteFieldEdit('ended', rowOf(was))
+    if (control !== null) noteFieldEdit('began', rowOf(control))
+  }
   let heldTextValueAtFocus = ''
   let isHeldTextTakenBack = false
   // see IN-4, IN-5a
@@ -117,20 +138,20 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   function releaseTakenBackText(held: TextEntryControl): void {
     if (heldTextControl !== held || !isHeldTextTakenBack) return
     if (typeof held.blur === 'function') held.blur()
-    heldTextControl = null
+    holdText(null)
     heldTextValueAtFocus = ''
     isFieldHeld = false
     isHeldTextTakenBack = false
   }
   propertiesPanel.addEventListener('focusin', (event: Event) => {
     isFieldHeld = true
-    heldTextControl = textEntryControlOf(event.target)
+    holdText(textEntryControlOf(event.target))
     heldTextValueAtFocus = heldTextControl === null ? '' : heldTextControl.value
     isHeldTextTakenBack = false
   })
   propertiesPanel.addEventListener('focusout', () => {
     isFieldHeld = false
-    heldTextControl = null
+    holdText(null)
     heldTextValueAtFocus = ''
     isHeldTextTakenBack = false
   })
@@ -178,7 +199,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     // TRAP: blur before clearing heldTextControl: onFieldChange drops the repeated change only
     // while heldTextControl names the control, or one value is written twice.
     if (typeof held.blur === 'function') held.blur()
-    heldTextControl = null
+    holdText(null)
     heldTextValueAtFocus = ''
     isFieldHeld = false
     isHeldTextTakenBack = false
@@ -198,7 +219,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     if (field === null || !isWatermarkUnlockHeld) return
     if ((event as { target?: unknown }).target === (field as unknown)) return
     if (typeof field.blur === 'function') field.blur()
-    isWatermarkUnlockHeld = false
+    holdWatermarkUnlock(false)
     isWatermarkUnlockTakenBack = false
   }
 
@@ -221,7 +242,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     if (textEntryControlOf(pressedOn) !== null) return
 
     if (typeof held.blur === 'function') held.blur()
-    heldTextControl = null
+    holdText(null)
     heldTextValueAtFocus = ''
     isFieldHeld = false
   }
@@ -233,6 +254,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let isDocumentTitleTakenBack = false
 
   const DOCUMENT_TITLE_ROW = 'U-27'
+  const WATERMARK_UNLOCK_ROW = 'U-60'
   const DOCUMENT_TITLE_KEY: PropertyFieldKey = { holder: 'project', column: 'title' }
 
   // see FR-035
@@ -250,6 +272,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     // TRAP: the field goes inside the box, not in its place, or a point on the name answers no part.
     box.replaceChildren(drawn)
     documentTitleEntry = entry
+    noteFieldEdit('began', DOCUMENT_TITLE_ROW)
     documentTitleValueAtFocus = documentTitleShown
     isDocumentTitleTakenBack = false
     // TRAP: watch before focusing: the host may raise focusin or focusout on the focus below.
@@ -262,6 +285,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   function closeDocumentTitleField(): void {
     if (documentTitleEntry === null) return
     documentTitleEntry = null
+    noteFieldEdit('ended', DOCUMENT_TITLE_ROW)
     documentTitleValueAtFocus = ''
     isDocumentTitleTakenBack = false
     // TRAP: clear the entry before rewriting the box: a focusout on the removed field must find nothing.
@@ -349,6 +373,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // WHY: held by focus, not by contents: a keydown is answered before the character lands,
   // so the first keystroke would reach table T-036.
   let isWatermarkUnlockHeld = false
+  // see IF-9, T-292
+  /** @purity non-pure */
+  function holdWatermarkUnlock(isHeld: boolean): void {
+    if (isHeld === isWatermarkUnlockHeld) return
+    isWatermarkUnlockHeld = isHeld
+    noteFieldEdit(isHeld ? 'began' : 'ended', WATERMARK_UNLOCK_ROW)
+  }
   let isWatermarkUnlockTakenBack = false
   // see FR-020
   /** @purity non-pure */
@@ -362,13 +393,14 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
       if (typeof field.focus === 'function') field.focus()
     })
     surface.addEventListener('focusin', (event: Event) => {
-      isWatermarkUnlockHeld =
+      holdWatermarkUnlock(
         watermarkUnlockEntry !== null &&
-        (event as { target?: unknown }).target === (watermarkUnlockEntry as unknown)
+          (event as { target?: unknown }).target === (watermarkUnlockEntry as unknown),
+      )
       isWatermarkUnlockTakenBack = false
     })
     surface.addEventListener('focusout', () => {
-      isWatermarkUnlockHeld = false
+      holdWatermarkUnlock(false)
       isWatermarkUnlockTakenBack = false
     })
     surface.addEventListener('input', () => {
@@ -401,7 +433,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   function releaseTakenBackWatermarkUnlock(held: TextEntryControl): void {
     if (watermarkUnlockEntry !== held || !isWatermarkUnlockTakenBack) return
     if (typeof held.blur === 'function') held.blur()
-    isWatermarkUnlockHeld = false
+    holdWatermarkUnlock(false)
     isWatermarkUnlockTakenBack = false
   }
 
@@ -416,6 +448,12 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     const held = fieldCommit
     fieldCommit = null
     return held
+  }
+
+  // see IF-9
+  /** @purity semi-pure-b */
+  function readFieldEditNotices(): readonly FieldEditNotice[] {
+    return fieldEditNotices.splice(0)
   }
 
   return {
@@ -444,5 +482,6 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     readWatermarkUnlockAnswer,
     readFieldCommit,
     hasUnsettledTextEntry,
+    readFieldEditNotices,
   }
 }

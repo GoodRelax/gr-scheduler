@@ -915,6 +915,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     readFieldCommit: fieldEditing.readFieldCommit,
     readScreenPartAt,
     hasUnsettledTextEntry: fieldEditing.hasUnsettledTextEntry,
+    readFieldEditNotices: fieldEditing.readFieldEditNotices,
   }
 }
 

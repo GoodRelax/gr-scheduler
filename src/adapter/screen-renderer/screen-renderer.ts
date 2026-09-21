@@ -37,7 +37,7 @@ import { screenFrameFromRegions } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
 
-export type { DialogueInput, FieldCommit, ScreenPart, ScreenSurface } from './screen-surface'
+export type { DialogueInput, FieldCommit, FieldEditNotice, ScreenPart, ScreenSurface } from './screen-surface'
 
 export type IconId = string
 

@@ -163,6 +163,7 @@ import {
   type ConfirmationItem,
   type DisplayLanguage,
   type ExportFormatId,
+  type FieldEditNotice,
   type IconId,
   type RaisedConfirmation,
   type RaisedNotice,
@@ -1734,6 +1735,17 @@ function fieldFocusWantedIn(session: ScreenSession): string | null {
   return edit.kind === 'fieldFocusWanted' ? edit.fieldRow : null
 }
 
+/** @purity pure */
+function isEditingFieldIn(session: ScreenSession): boolean {
+  return session.fieldEntry.fieldEditState.kind === 'editingField'
+}
+
+/** @purity pure */
+function fieldEditEventOf(notice: FieldEditNotice): SessionEvent {
+  const type = notice.kind === 'began' ? 'fieldEditBegan' : 'fieldEditEnded'
+  return { type, fieldRow: notice.row }
+}
+
 // see HF-15, T-289
 /** @purity pure */
 function rowGrabAxisIn(session: ScreenSession): GrabbedRowAxis | null {
@@ -2603,6 +2615,7 @@ export function frameLoop(
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
+    drainFieldEditNotices(values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(drawnSvg, layout)
   }
@@ -2621,7 +2634,8 @@ export function frameLoop(
       ask()
       return
     }
-    sendToSession(FIELD_FOCUS_WITHDRAWN, values)
+    drainFieldEditNotices(values)
+    if (fieldFocusWantedIn(session) !== null) sendToSession(FIELD_FOCUS_WITHDRAWN, values)
   }
 
   // see IN-5a, IN-5b, IN-4, IN-6
@@ -3086,7 +3100,7 @@ export function frameLoop(
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isChangingDocumentIn(session),
-        isEditingInPlace: hasUnsettledTextEntry(),
+        isEditingInPlace: isEditingField(),
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
@@ -3218,10 +3232,20 @@ export function frameLoop(
     return 'copy'
   }
 
-  // WHY: asked, never cached; focus moves without any happening, so a held value goes stale.
-  /** @purity semi-pure-b */
-  function hasUnsettledTextEntry(): boolean {
-    return screen === undefined ? false : screen.surface.hasUnsettledTextEntry()
+  // see IF-9, T-292
+  // TRAP: drained before every reading of the edit state; the surface's listeners run before the shell's.
+  /** @purity non-pure */
+  function drainFieldEditNotices(frame: FrameValues | null): void {
+    if (screen === undefined) return
+    for (const notice of screen.surface.readFieldEditNotices?.() ?? []) {
+      sendToSession(fieldEditEventOf(notice), frame)
+    }
+  }
+
+  /** @purity non-pure */
+  function isEditingField(): boolean {
+    drainFieldEditNotices(values)
+    return isEditingFieldIn(session)
   }
 
   let fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
@@ -3335,7 +3359,7 @@ export function frameLoop(
         ? {}
         : { rowControlsHeightPx: environment.rowControlsHeightPx }),
       pressed,
-      isTextEntryUnsettled: hasUnsettledTextEntry(),
+      isTextEntryUnsettled: isEditingField(),
       isTextFieldFocusWanted: isFieldFocusWanted(),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
@@ -3363,7 +3387,7 @@ export function frameLoop(
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
       gestureInFlight: isChangingDocumentIn(session),
-      editingInPlace: !isSettlingFieldCommit && hasUnsettledTextEntry(),
+      editingInPlace: !isSettlingFieldCommit && isEditingField(),
       deliveringNotices: isDeliveringNoticesIn(session),
     }
   }
@@ -4272,7 +4296,7 @@ export function frameLoop(
     if (openSurfaceNameIn(session) !== null || isQuestionAskedIn(session)) return
     const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
-    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || hasUnsettledTextEntry())
+    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField())
     if (hasNoUnsettledEntry) notePanelPutAway()
     const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
     sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
@@ -4391,6 +4415,8 @@ export function frameLoop(
     recordHappening(input)
     // TRAP: before values is read; the frame it may draw replaces them.
     tryWantedFieldBeforeInput(input)
+    // TRAP: before sessionBefore is taken; a notice drained later would owe a frame on its own.
+    drainFieldEditNotices(values)
     const frame = values
     if (frame === null) {
       recordLine('dropped', 'reason=noFrameHasRunYet')
