@@ -1,4 +1,7 @@
-1369
+1362
+# LOWERED 1369 -> 1362 on 2026-09-21, with the user's approval (JDG-287, "1362 に下げる（推奨）"): the
+# stage-4 branch tests (tests/unit/cr-432-*-branches-the-spec-decides.test.ts) carry their clauses
+# word for word, so 628 clauses are now held and 1362 are not. Hold the ground.
 # LOWERED 1401 -> 1369 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): the CR-430
 # tests carry the clauses of tables T-266 .. T-273 word for word, so 605 clauses are now held
 # and 1369 are not. Hold the ground.
