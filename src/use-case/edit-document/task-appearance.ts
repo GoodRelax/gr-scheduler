@@ -8,6 +8,7 @@ import {
   COLUMN_SHAPES,
   calendarDaysBetween,
   dayOf,
+  isStoredColour,
   type Task,
   type TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
@@ -124,7 +125,11 @@ export function setTaskVisualColors(
   if (command.fillColor === TRANSPARENT && command.strokeColor === TRANSPARENT) {
     return refused([reject('CM-22', 'IV-9', 'the fill and the stroke may not both be transparent')])
   }
-  // STOP: spec does not decide a spelling for CL-1's palette colours. Looked in CL-1, P-19, AT-102, FR-007 (PND-494)
+  for (const chosen of [command.fillColor, command.strokeColor]) {
+    if (chosen !== null && !isStoredColour(chosen, true)) {
+      return refused([reject('CM-22', 'CV-1', `not a palette name or a custom colour: ${chosen}`)])
+    }
+  }
   const visual = visualOf(schedule, command.uid)
   return edited(
     withVisual(document, {

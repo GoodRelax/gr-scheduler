@@ -231,6 +231,17 @@ SCALE_ECHO_ENDS = ('max', 'min')
 # and no table holds them as rows (CR-550). These are KEYS, not words.
 DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 
+# The parts of the colour field of the properties panel (CV-9 of table
+# T-017b, CR-548): the entrance to a custom colour, the two theme swatches and
+# the note on an undefined side. HELD HERE, the same move as SCALE_ECHO_ENDS:
+# CV-9 states them in prose and no table holds them as rows. KEYS, not words.
+COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark')
+
+# The palette colours are keyed by their stored spelling, READ from the key
+# column of table T-294 in settings.json, so a new colour needs no edit here.
+REL_SETTINGS = 'docs/spec/_source/settings.json'
+PALETTE_TABLE = 'T-294'
+
 # Table T-018 names each dependency kind; the screen shows the abbreviation
 # before the full-width parenthesis of its name column (CR-541, the note under
 # table T-018). NOT a dictionary word: the abbreviation does not change with
@@ -316,6 +327,18 @@ def settings_keys():
                                       SETTINGS_TABLE))
 
 
+def colour_spellings():
+    """The stored spellings of table T-294, in the table's order.
+
+    @purity semi-pure-b
+    """
+    doc = json.load(io.open(path_of(REL_SETTINGS), encoding='utf-8'))
+    for block in doc['blocks']:
+        if block['kind'] == 'table' and block.get('id') == PALETTE_TABLE:
+            return [row['key'].strip('`') for row in block['rows']]
+    raise SystemExit('%s: no table %s' % (REL_SETTINGS, PALETTE_TABLE))
+
+
 def listed_shortcuts():
     """The rows of table T-036 FR-036 lists as their own item, in print order.
 
@@ -394,6 +417,8 @@ def roster():
         'fileStatus': list(FILE_STATUS),
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
+        'colourNames': colour_spellings(),
+        'colourField': list(COLOUR_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'assignments': [row[0] for row in
@@ -449,6 +474,8 @@ SHAPE = {
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
+    'colourNames': ('spelling', ('text',)),
+    'colourField': ('part', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
 }
@@ -534,6 +561,7 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
+                    'colourNames', 'colourField',
                     'scaleEcho', 'dualCursorReadout'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],

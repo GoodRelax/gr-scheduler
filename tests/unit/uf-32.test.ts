@@ -514,7 +514,7 @@ describe('UF-32 -- FR-007: 作成者が指定した線色・塗り色', () => {
     // FR-007: 「線色と塗り色を個別に指定できるようにすること」。
     // 表 T-016 の PR-12 keeps them on `TaskVisual` as strokeColor / fillColor.
     const svg = drawn(
-      scene({ taskVisuals: [visualOf(2, { fillColor: '#c62828', strokeColor: '#1b5e20' })] }),
+      scene({ taskVisuals: [visualOf(2, { fillColor: '#c62828/', strokeColor: '#1b5e20/' })] }),
     )
     const chosen = paintedOf(svg).find((drawn) => attribute(drawn.text, 'fill') === '#c62828')
     expect(chosen, 'the chosen 塗り色 reaches the picture').toBeDefined()
@@ -523,7 +523,7 @@ describe('UF-32 -- FR-007: 作成者が指定した線色・塗り色', () => {
 
   it('takes 線色 and 塗り色 one at a time, leaving the other on the theme', () => {
     // FR-007: 「個別に指定できるようにすること」。
-    const svg = drawn(scene({ taskVisuals: [visualOf(2, { strokeColor: '#1b5e20' })] }))
+    const svg = drawn(scene({ taskVisuals: [visualOf(2, { strokeColor: '#1b5e20/' })] }))
     const chosen = paintedOf(svg).find((drawn) => attribute(drawn.text, 'stroke') === '#1b5e20')
     expect(chosen, 'a 線色 on its own reaches the picture').toBeDefined()
     const fill = attribute((chosen as Element).text, 'fill') as string
@@ -532,9 +532,9 @@ describe('UF-32 -- FR-007: 作成者が指定した線色・塗り色', () => {
   })
 
   it('leaves a chosen colour where it is when themeHue moves', () => {
-    // FR-007: 「パレットから選べば上書きになり、`themeHue` や明暗を変えても
-    // 動かなくなる」
-    const visuals = [visualOf(2, { fillColor: '#c62828', strokeColor: '#1b5e20' })]
+    // FR-007: 「パレットから選べば上書きになり、`themeHue` を変えても
+    // 動かなくなる」 -- the custom colour '#c62828/' holds a light side only (CV-2).
+    const visuals = [visualOf(2, { fillColor: '#c62828/', strokeColor: '#1b5e20/' })]
     const at214 = drawn(scene({ taskVisuals: visuals }))
     const at30 = drawn(
       scene({
@@ -617,7 +617,7 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
   it('draws even a chosen colour 無彩色 while themeMonochrome holds', () => {
     // FR-041 RATIONALE: 「モノクロは描画の段で効くので、人が指定した色も
     // 無彩色で描かれる。保存値は変わらないので、戻せば色も戻る」
-    const visuals = [visualOf(2, { fillColor: '#c62828', strokeColor: '#1b5e20' })]
+    const visuals = [visualOf(2, { fillColor: '#c62828/', strokeColor: '#1b5e20/' })]
     const mono = drawn(
       scene({ taskVisuals: visuals }),
       settingsOf({ ...SETTINGS, themeMonochrome: true }),
@@ -632,7 +632,7 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
   it('returns to the chosen colour when themeMonochrome is dropped again', () => {
     // FR-041: 「保存値は変わらないので、戻せば色も戻る」-- the same values in,
     // monochrome off, and the author's colour is back.
-    const visuals = [visualOf(2, { fillColor: '#c62828', strokeColor: '#1b5e20' })]
+    const visuals = [visualOf(2, { fillColor: '#c62828/', strokeColor: '#1b5e20/' })]
     const back = drawn(
       scene({ taskVisuals: visuals }),
       settingsOf({ ...SETTINGS, themeMonochrome: false }),
@@ -708,7 +708,7 @@ describe('UF-32 -- FR-041: テーマ追随', () => {
     // `themeHue` / `themeMonochrome` / `themePreference` の 3 つだけとし…」。
     // Table T-075 makes the unit `pure`, so the only place it could store one
     // is its own arguments.
-    const schedule = scene({ taskVisuals: [visualOf(2, { fillColor: '#c62828' })] })
+    const schedule = scene({ taskVisuals: [visualOf(2, { fillColor: '#c62828/' })] })
     const before = JSON.stringify(schedule)
     const beforeSettings = JSON.stringify(SETTINGS)
     drawn(schedule)
@@ -879,7 +879,7 @@ describe('UF-32 -- FR-019: 注記の固定色', () => {
 
   it('uses the 線色 the author chose for the box', () => {
     // FR-019: 「ハイライトボックスの線色を指定でき」
-    expect(boxStroke(withBox(214, '#4527a0'))).toBe('#4527a0')
+    expect(boxStroke(withBox(214, '#4527a0/'))).toBe('#4527a0')
   })
 })
 
@@ -939,7 +939,7 @@ describe('UF-32 -- SL-8 of 表 T-023c: the sign splits by the kind of the target
     endDate: '2026-01-08',
     topGroupId: 'g1',
     bottomGroupId: 'g1',
-    strokeColor: '#4527a0',
+    strokeColor: '#4527a0/',
     cornerRadiusPx: null,
   }
 

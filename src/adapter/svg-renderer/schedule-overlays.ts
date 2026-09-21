@@ -28,6 +28,7 @@ import {
   selectedLineWidth,
   selectionFrameSvg,
   typefaceAttribute,
+  type ChosenColour,
   type DualCursorFollow,
   type Watermark,
 } from './svg-renderer'
@@ -38,6 +39,7 @@ export interface OverlaysInput {
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
   readonly themed: (rowId: string) => string
+  readonly chosen: ChosenColour
   readonly drawsOperationState: boolean
   readonly pointer: Point | null
   readonly following: DualCursorFollow | null
@@ -128,6 +130,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     settings,
     regions,
     themed,
+    chosen,
     drawsOperationState,
     pointer,
     selectedStatusLine,
@@ -191,13 +194,15 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   }
 
   for (const box of geometry.highlightBoxes) {
+    // see CV-6
+    const stroke = chosen(strokeOfBox.get(box.id) ?? null, 'outline') ?? annotationColour
     const radius = box.cornerRadiusPx
     const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
     linkParts.push(
       `<rect x="${rounded(box.box.x)}" y="${rounded(box.box.y)}"` +
         ` width="${rounded(box.box.width)}" height="${rounded(box.box.height)}"` +
         rounding +
-        ` fill="none" stroke="${strokeOfBox.get(box.id) ?? annotationColour}"` +
+        ` fill="none" stroke="${stroke}"` +
         ` stroke-width="1"${figureKey(`box-${box.id}`)}/>`,
     )
     if (selectedBoxes.has(box.id)) {

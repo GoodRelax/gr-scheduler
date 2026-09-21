@@ -7,6 +7,8 @@
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
+  customColourOf,
+  customSideOf,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
@@ -143,6 +145,134 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
   return monochrome ? achromatic(substituted) : substituted
 }
 
+// see CV-6
+export type ColourForm = 'fill' | 'outline' | 'actual' | 'band'
+
+// see CV-6
+export type ChosenColour = (stored: string | null, form: ColourForm) => string | null
+
+const NOT_DRAWN = 'none'
+
+const HSL_CELL = /^hsl\(\s*\S+\s+([\d.]+)%\s+([\d.]+)%\s*\)$/
+
+// see CV-6, S-155, S-157
+/** @purity pure */
+function planToActualShift(dark: boolean): { readonly s: number; readonly l: number } {
+  const cellOf = (rowId: string): string => {
+    const row = SCHEDULE_COLOURS[rowId]
+    return (dark ? row?.dark : row?.light) ?? ''
+  }
+  const plan = HSL_CELL.exec(cellOf('S-155'))
+  const actual = HSL_CELL.exec(cellOf('S-157'))
+  if (plan === null || actual === null) throw new Error('table T-236 S-155 / S-157 is not an hsl() cell')
+  return {
+    s: Number(actual[1]) - Number(plan[1]),
+    l: Number(actual[2]) - Number(plan[2]),
+  }
+}
+
+/** @purity pure */
+function clampedPercent(value: number): number {
+  return Math.min(100, Math.max(0, value))
+}
+
+/** @purity pure */
+function hueSector(red: number, green: number, blue: number, high: number, chroma: number): number {
+  if (chroma === 0) return 0
+  if (high === red) return ((green - blue) / chroma) % 6
+  if (high === green) return (blue - red) / chroma + 2
+  return (red - green) / chroma + 4
+}
+
+// see CV-6
+/** @purity pure */
+export function actualOfCustom(hex: string, dark: boolean): string {
+  const [red = 0, green = 0, blue = 0] = [1, 3, 5].map(
+    (at) => parseInt(hex.slice(at, at + 2), 16) / 255,
+  )
+  const high = Math.max(red, green, blue)
+  const low = Math.min(red, green, blue)
+  const lightness = (high + low) / 2
+  const chroma = high - low
+  const saturation = chroma === 0 ? 0 : chroma / (1 - Math.abs(2 * lightness - 1))
+  const hue = (hueSector(red, green, blue, high, chroma) * 60 + 360) % 360
+  const shift = planToActualShift(dark)
+  const s = clampedPercent(saturation * 100 + shift.s)
+  const l = clampedPercent(lightness * 100 + shift.l)
+  return `hsl(${rounded(hue)} ${rounded(s)}% ${rounded(l)}%)`
+}
+
+// see CV-6, CV-3, T-294
+/** @purity pure */
+function drawnChoice(
+  stored: string,
+  form: ColourForm,
+  dark: boolean,
+  themed: (rowId: string) => string,
+): string | null {
+  const named = COLOUR_NAME_VALUES[stored]
+  if (named !== undefined) {
+    const cell = (dark ? named.dark : named.light)[form]
+    if (cell === null) return NOT_DRAWN
+    if (cell === false) return null
+    return typeof cell === 'string' ? cell : themed(cell.sameAs)
+  }
+  const custom = customColourOf(stored)
+  if (custom === null) return null
+  const side = customSideOf(custom, dark)
+  return form === 'actual' ? actualOfCustom(side, dark) : side
+}
+
+// see CV-6, CV-7, FR-041
+// WHY: null keeps the theme's colour: nothing chosen, or a form the chosen name offers no value for.
+/** @purity pure */
+function chosenColourOf(
+  stored: string | null,
+  form: ColourForm,
+  dark: boolean,
+  monochrome: boolean,
+  themed: (rowId: string) => string,
+): string | null {
+  if (stored === null) return null
+  const drawn = drawnChoice(stored, form, dark, themed)
+  if (drawn === null) return null
+  return monochrome ? achromatic(drawn) : drawn
+}
+
+// see CV-9, T-236
+const THEME_ROW_OF_FORM: Readonly<Record<ColourForm, string>> = {
+  fill: 'S-155',
+  outline: 'S-156',
+  actual: 'S-157',
+  band: 'S-164',
+}
+
+const GREY_LIGHTNESS = /([\d.]+)%\)$/
+
+const INK_ON_LIGHT = '#000000'
+const INK_ON_DARK = '#ffffff'
+const INK_TURNS_AT_LIGHTNESS = 50
+
+/** @purity pure */
+function inkOn(paint: string): string {
+  const lightness = GREY_LIGHTNESS.exec(achromatic(paint))
+  if (lightness === null) return ''
+  return Number(lightness[1]) < INK_TURNS_AT_LIGHTNESS ? INK_ON_DARK : INK_ON_LIGHT
+}
+
+// see CV-9
+/** @purity pure */
+export function swatchOf(
+  stored: string | null,
+  form: ColourForm,
+  hue: number,
+  dark: boolean,
+): { readonly paint: string; readonly ink: string } {
+  const themed = (rowId: string): string => colourOf(rowId, hue, dark, false)
+  const paint = chosenColourOf(stored, form, dark, false, themed) ?? themed(THEME_ROW_OF_FORM[form])
+  return { paint, ink: inkOn(paint) }
+}
+
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
 /** @purity pure */
@@ -192,11 +322,10 @@ export function svgFromSchedule(
   const monochrome = settings.themeMonochrome
   const dark = isDarkTheme(settings)
   const themed = (rowId: string): string => colourOf(rowId, hue, dark, monochrome)
+  const chosen: ChosenColour = (stored, form) => chosenColourOf(stored, form, dark, monochrome, themed)
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
-  const strokeOfBox = new Map(
-    schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]),
-  )
+  const strokeOfBox = new Map(schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]))
   const colourOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
   // TRAP: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8); marquee is ungated and relies on the export call passing null.
   const drawsOperationState = picture === 'screen'
@@ -248,6 +377,7 @@ export function svgFromSchedule(
     drawsOperationState,
     monochrome,
     themed,
+    chosen,
     colourOfGroup,
     visualOf,
     placedOf,
@@ -401,7 +531,7 @@ export function svgFromSchedule(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (tables T-206, T-207 and T-236)
+//   docs/spec/_source/settings.json (tables T-206, T-207, T-236 and T-294)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_SELECTION_SIZES: {
@@ -490,6 +620,78 @@ export const SCHEDULE_COLOURS: {
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+}
+
+// see T-294, T-017b
+type PaletteCell = string | null | false | { readonly sameAs: string }
+interface PaletteForms {
+  readonly fill: PaletteCell
+  readonly outline: PaletteCell
+  readonly actual: PaletteCell
+  readonly band: PaletteCell
+}
+const COLOUR_NAME_VALUES: {
+  readonly [spelling: string]: {
+    readonly rowId: string
+    readonly light: PaletteForms
+    readonly dark: PaletteForms
+  }
+} = {
+  white: {
+    rowId: 'S-314',
+    light: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
+    dark: { fill: '#14161a', outline: '#14161a', actual: { sameAs: 'S-157' }, band: { sameAs: 'S-146' } },
+  },
+  black: {
+    rowId: 'S-315',
+    light: { fill: '#000000', outline: '#000000', actual: { sameAs: 'S-157' }, band: false },
+    dark: { fill: '#ffffff', outline: '#ffffff', actual: { sameAs: 'S-157' }, band: false },
+  },
+  dimgray: {
+    rowId: 'S-316',
+    light: { fill: '#575757', outline: '#383838', actual: { sameAs: 'S-157' }, band: '#e0e0e0' },
+    dark: { fill: '#a3a3a3', outline: '#cccccc', actual: { sameAs: 'S-157' }, band: '#474747' },
+  },
+  lightgray: {
+    rowId: 'S-317',
+    light: { fill: '#cccccc', outline: '#757575', actual: '#575757', band: '#f5f5f5' },
+    dark: { fill: '#424242', outline: '#a8a8a8', actual: '#a3a3a3', band: '#333333' },
+  },
+  red: {
+    rowId: 'S-318',
+    light: { fill: '#e3b9b5', outline: '#a94c42', actual: '#8c2c21', band: '#f9f1f1' },
+    dark: { fill: '#58312d', outline: '#d08880', actual: '#dc766a', band: '#3c2c2a' },
+  },
+  blue: {
+    rowId: 'S-319',
+    light: { fill: '#b5c9e3', outline: '#426ea9', actual: '#21508c', band: '#f1f4f9' },
+    dark: { fill: '#2d3f58', outline: '#80a3d0', actual: '#6a9cdc', band: '#2a323c' },
+  },
+  yellow: {
+    rowId: 'S-320',
+    light: { fill: '#dfd6a9', outline: '#8c7d36', actual: '#79691c', band: '#f9f8f1' },
+    dark: { fill: '#58502d', outline: '#d0c380', actual: '#dcc96a', band: '#3c392a' },
+  },
+  green: {
+    rowId: 'S-321',
+    light: { fill: '#afe1bf', outline: '#3c9a5b', actual: '#1f8340', band: '#f1f9f3' },
+    dark: { fill: '#2d583b', outline: '#80d09b', actual: '#6adc90', band: '#2a3c30' },
+  },
+  orange: {
+    rowId: 'S-322',
+    light: { fill: '#e3cab5', outline: '#a97242', actual: '#8c5321', band: '#f9f5f1' },
+    dark: { fill: '#58412d', outline: '#d0a680', actual: '#dc9f6a', band: '#3c322a' },
+  },
+  purple: {
+    rowId: 'S-323',
+    light: { fill: '#d8b5e3', outline: '#8f42a9', actual: '#72218c', band: '#f7f1f9' },
+    dark: { fill: '#4d2d58', outline: '#bc80d0', actual: '#c06adc', band: '#382a3c' },
+  },
+  transparent: {
+    rowId: 'S-324',
+    light: { fill: null, outline: null, actual: null, band: null },
+    dark: { fill: null, outline: null, actual: null, band: null },
+  },
 }
 
 // see T-207, FR-020

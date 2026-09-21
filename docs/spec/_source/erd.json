@@ -1524,14 +1524,14 @@
      "type": "文字列",
      "nullable": "可（`null` = テーマから解く）",
      "json": {
-      "kind": "string",
+      "kind": "color",
       "null": true
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の帯の色"
+      "ja": "行の帯の色。形は `AT-102` と同じ。規則は表 T-017b"
      }
     },
     {
@@ -2408,14 +2408,14 @@
      "type": "文字列",
      "nullable": "可（`null` = テーマから解く）",
      "json": {
-      "kind": "string",
+      "kind": "color",
       "null": true
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "塗り。**輪郭と同時に透明にできない**（`FR-030`）"
+      "ja": "塗り。`_assets/tbl-settings.md` の表 T-294 の保存する綴り（例: `red`）か、カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）。規則は表 T-017b。輪郭と同時に透明にできない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`）"
      }
     },
     {
@@ -2424,7 +2424,7 @@
      "type": "文字列",
      "nullable": "可（同上）",
      "json": {
-      "kind": "string",
+      "kind": "color",
       "null": true
      },
      "key": "",
@@ -2773,14 +2773,15 @@
      "type": "文字列",
      "nullable": "可",
      "json": {
-      "kind": "string",
-      "null": true
+      "kind": "color",
+      "null": true,
+      "transparent": false
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "枠の色"
+      "ja": "枠の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`）"
      }
     },
     {

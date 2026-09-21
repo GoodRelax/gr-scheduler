@@ -65,6 +65,9 @@ TABLE_GROUP = {
     # into the artifact: FR-041 (MUST NOT) forbids saving a derived colour,
     # so none of these may reach documentSettings.
     'T-236': ('notStored', '文書には保存しない'),
+    # The palette colours' drawn values (CR-548). A document stores the NAME
+    # (table T-017b CV-1 of 01-04), never these values.
+    'T-294': ('notStored', '文書には保存しない'),
 }
 
 def manuscript_types():
@@ -91,6 +94,23 @@ def manuscript_types():
 
 
 MANUSCRIPT_TYPES = manuscript_types()
+
+
+def colour_names():
+    """The stored spellings of the palette colours: table T-294's key column.
+
+    Read from settings.json in row order, so a new colour needs no edit here.
+    """
+    doc = json.load(io.open(os.path.join(HERE, 'settings.json'), encoding='utf-8'))
+    for block in doc['blocks']:
+        if block['kind'] == 'table' and block.get('id') == 'T-294':
+            return [row['key'].strip('`') for row in block['rows']]
+    raise SystemExit('settings.json holds no table T-294 (the palette colours)')
+
+
+# A custom colour: <light>/<dark>, each #rrggbb or empty, never both empty
+# (table T-017b CV-2 of 01-04).
+CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
 
 NOT_STORED_MARK = '⛔'          # the stop sign the sources put on a key
 UNSOURCED_MARK = '\U0001f50e'       # the magnifier marking a default with no origin
@@ -148,6 +168,12 @@ def frag_body(spec, open_enums, where):
             extra.append(('format', 'date-time'))
             extra.append(('$comment', 'ISO 8601, UTC, to the second.'))
         return typed('string', extra)
+
+    if kind == 'color':
+        names = [n for n in colour_names()
+                 if spec.get('transparent', True) or n != 'transparent']
+        return typed('string', [('pattern', '^(?:%s|%s)$'
+                                 % ('|'.join(names), CUSTOM_COLOUR))])
 
     if kind == 'enum':
         if 'values' in spec:

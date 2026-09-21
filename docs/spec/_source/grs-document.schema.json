@@ -1285,7 +1285,8 @@
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
     "height": {
      "type": [
@@ -1658,13 +1659,15 @@
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
     "strokeColor": {
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
     "lineWeight": {
      "enum": [
@@ -1823,7 +1826,8 @@
      "type": [
       "string",
       "null"
-     ]
+     ],
+     "pattern": "^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
     "cornerRadiusPx": {
      "type": [

@@ -490,11 +490,11 @@ describe('EditAnnotation (UF-14) -- the HighlightBox group, CM-52 to CM-55', () 
     const chosen = editAnnotation(document, {
       kind: 'setHighlightBoxStrokeColor',
       id: 'h1',
-      strokeColor: '#c02040',
+      strokeColor: '#c02040/',
     })
     // FR-019: 「ハイライトボックスの線色を指定でき、指定が無ければ注記用の固定色
     // で描くこと（MUST）」-- so both a colour and its absence are legitimate.
-    expect(chosen.ok && chosen.document.schedule.highlightBoxes[0]!.strokeColor).toBe('#c02040')
+    expect(chosen.ok && chosen.document.schedule.highlightBoxes[0]!.strokeColor).toBe('#c02040/')
     const unset = editAnnotation(chosen.ok ? chosen.document : document, {
       kind: 'setHighlightBoxStrokeColor',
       id: 'h1',
@@ -511,7 +511,7 @@ describe('EditAnnotation (UF-14) -- the HighlightBox group, CM-52 to CM-55', () 
     const strangers: readonly AnnotationCommand[] = [
       { kind: 'deleteHighlightBox', id: 'nope' },
       { kind: 'setHighlightBoxRange', id: 'nope', range: RANGE },
-      { kind: 'setHighlightBoxStrokeColor', id: 'nope', strokeColor: '#c02040' },
+      { kind: 'setHighlightBoxStrokeColor', id: 'nope', strokeColor: '#c02040/' },
     ]
     for (const command of strangers) {
       expect(editAnnotation(document, command).ok).toBe(false)

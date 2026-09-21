@@ -439,8 +439,10 @@
       "enum",
       "map",
       "array",
-      "object"
-     ]
+      "object",
+      "color"
+     ],
+     "description": "\"color\" is a colour an author chose (table T-017b of 01-04): a name of table T-294 (settings.json), or a custom colour spelled <light>/<dark>, each #rrggbb or empty and never both empty. The spellings are read from table T-294 by the generator, so they are not repeated here."
     },
     "min": {
      "type": "integer"
@@ -493,6 +495,10 @@
      "additionalProperties": {
       "$ref": "#/$defs/jsonTypeElement"
      }
+    },
+    "transparent": {
+     "const": false,
+     "description": "Only with kind \"color\": this column may not hold the transparent name (FR-019 forbids it for a highlight box). Absent means it may."
     },
     "null": {
      "type": "boolean",

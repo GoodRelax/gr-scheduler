@@ -149,12 +149,31 @@ export type PropertyControlKind =
   | 'choice'
   | 'color'
 
+// see CV-9
+export interface ColourSide {
+  readonly word: string
+  readonly paint: string
+  readonly note: string
+}
+
+// see CV-9
+// WHY: swatches run beside choiceValues; the custom entrance commits one #rrggbb (CV-4).
+export interface ColourField {
+  readonly swatches: readonly string[]
+  readonly inks: readonly string[]
+  readonly customWord: string
+  readonly customValue: string
+  readonly light: ColourSide
+  readonly dark: ColourSide
+}
+
 export interface PropertyControl {
   readonly key: PropertyFieldKey
   readonly kind: PropertyControlKind
   readonly text: string
   readonly choices: readonly string[] | null
   readonly choiceValues?: readonly string[]
+  readonly colour?: ColourField
   readonly searchWords?: readonly string[]
   readonly min: number | null
   readonly max: number | null

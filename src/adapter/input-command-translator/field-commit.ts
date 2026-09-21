@@ -5,6 +5,7 @@
 
 import {
   COLUMN_SHAPES,
+  customColourChosen,
   dayOf,
   lastDayForLength,
   planActualState,
@@ -44,6 +45,15 @@ function settledDay(text: string): string | null | undefined {
   if (held === null) return null
   const day = dayOf(held)
   return day === null ? undefined : textOfDay(day)
+}
+
+// see CV-4, CV-5
+// WHY: the colour field commits a palette name, an empty text (back to the theme) or one #rrggbb
+// from its custom entrance; only the last is folded into the side of the theme being drawn.
+/** @purity pure */
+function settledColour(text: string, previous: string | null, dark: boolean): string | null {
+  const held = settledText(text)
+  return held === null ? null : (customColourChosen(previous, held, dark) ?? held)
 }
 
 /** @purity pure */
@@ -165,6 +175,24 @@ function commandFromTaskColumn(
   }
 }
 
+// see FR-007, CM-22, CM-23, CV-4, CV-5
+/** @purity pure */
+function commandsFromVisualColour(
+  visual: Schedule['taskVisuals'][number] | null,
+  uid: number,
+  isStroke: boolean,
+  text: string | null,
+  dark: boolean,
+): readonly DocumentCommand[] {
+  const held = (isStroke ? visual?.strokeColor : visual?.fillColor) ?? null
+  const chosen = text === null ? null : settledColour(text, held, dark)
+  const other = (isStroke ? visual?.fillColor : visual?.strokeColor) ?? null
+  if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
+  const strokeColor = isStroke ? chosen : other
+  const fillColor = isStroke ? other : chosen
+  return [{ kind: 'setTaskVisualColors', uid, fillColor, strokeColor }]
+}
+
 // see FR-007, FR-078, FR-002, CM-22, CM-23
 /** @purity pure */
 function commandFromVisualColumn(
@@ -172,6 +200,7 @@ function commandFromVisualColumn(
   uid: number,
   column: string,
   text: string,
+  dark: boolean,
 ): readonly DocumentCommand[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === uid) ?? null
 
@@ -183,15 +212,8 @@ function commandFromVisualColumn(
       return [{ kind: 'setTaskVisualMilestoneGlyph', uid, glyph }]
     }
     case 'strokeColor':
-    case 'fillColor': {
-      const chosen = settledText(text)
-      const other =
-        column === 'strokeColor' ? (visual?.fillColor ?? null) : (visual?.strokeColor ?? null)
-      if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
-      const strokeColor = column === 'strokeColor' ? chosen : other
-      const fillColor = column === 'fillColor' ? chosen : other
-      return [{ kind: 'setTaskVisualColors', uid, fillColor, strokeColor }]
-    }
+    case 'fillColor':
+      return commandsFromVisualColour(visual, uid, column === 'strokeColor', settledText(text), dark)
     case 'lineWeight': {
       const held = settledText(text)
       if (held !== null && !isVisualChoice('lineWeight', held)) return []
@@ -215,16 +237,18 @@ function commandFromVisualColumn(
 // see FR-042, AT-53, CM-29, CM-30, CM-31
 /** @purity pure */
 function commandFromGroupColumn(
-  groupId: string,
+  group: Schedule['taskGroups'][number],
   column: string,
   text: string,
+  dark: boolean,
 ): readonly DocumentCommand[] {
+  const groupId = group.id
   switch (column) {
     case 'label': {
       return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
     }
     case 'color': {
-      const color = settledText(text)
+      const color = settledColour(text, group.color, dark)
       return color === null
         ? [{ kind: 'resetTaskGroupColor', groupId }]
         : [{ kind: 'setTaskGroupColor', groupId, color }]
@@ -338,6 +362,8 @@ export function commandFromFieldCommit(
   context: InputContext,
 ): readonly DocumentCommand[] {
   const schedule = context.document.schedule
+  // see CV-4
+  const dark = context.document.documentSettings.themePreference === 'dark'
   // WHY: the column is the key the panel drew, not worked out again here: the selection may
   // have changed between drawing and commit.
   const key = commit.key
@@ -357,11 +383,11 @@ export function commandFromFieldCommit(
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
         ? []
-        : commandFromVisualColumn(schedule, key.uid, key.column, commit.text)
-    case 'taskGroup':
-      return schedule.taskGroups.some((held) => held.id === key.groupId)
-        ? commandFromGroupColumn(key.groupId, key.column, commit.text)
-        : []
+        : commandFromVisualColumn(schedule, key.uid, key.column, commit.text, dark)
+    case 'taskGroup': {
+      const group = schedule.taskGroups.find((held) => held.id === key.groupId)
+      return group === undefined ? [] : commandFromGroupColumn(group, key.column, commit.text, dark)
+    }
     case 'commentBox':
       return schedule.commentBoxes.some((held) => held.id === key.id)
         ? [{ kind: 'setCommentBoxText', id: key.id, text: settledText(commit.text) }]

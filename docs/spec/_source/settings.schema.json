@@ -452,7 +452,7 @@
       "additionalProperties": false,
       "properties": {
        "field": {
-        "description": "The English name the cells of this column are keyed by. 値 is one field even though table T-206 uses that column for what the value IS while the T-211 shape uses it for the value itself; telling those apart is a promotion, not a rename. light / dark / hue belong to table T-236 alone: a colour is ONE decision with two renderings, so the pair is one ROW with two cells rather than two tables whose rows could silently drift apart, and hue says whether the row follows themeHue (S-73) or is fixed.",
+        "description": "The English name the cells of this column are keyed by. 値 is one field even though table T-206 uses that column for what the value IS while the T-211 shape uses it for the value itself; telling those apart is a promotion, not a rename. light / dark / hue belong to table T-236 alone: a colour is ONE decision with two renderings, so the pair is one ROW with two cells rather than two tables whose rows could silently drift apart, and hue says whether the row follows themeHue (S-73) or is fixed. lightFill .. darkBand belong to table T-294 alone, for the same reason: one palette colour is one ROW holding its four drawn forms in both themes.",
         "enum": [
          "id",
          "group",
@@ -467,7 +467,15 @@
          "note",
          "light",
          "dark",
-         "hue"
+         "hue",
+         "lightFill",
+         "lightOutline",
+         "lightActual",
+         "lightBand",
+         "darkFill",
+         "darkOutline",
+         "darkActual",
+         "darkBand"
         ]
        },
        "ja": {
@@ -538,6 +546,30 @@
         "$ref": "#/$defs/cell"
        },
        "hue": {
+        "$ref": "#/$defs/cell"
+       },
+       "lightFill": {
+        "$ref": "#/$defs/cell"
+       },
+       "lightOutline": {
+        "$ref": "#/$defs/cell"
+       },
+       "lightActual": {
+        "$ref": "#/$defs/cell"
+       },
+       "lightBand": {
+        "$ref": "#/$defs/cell"
+       },
+       "darkFill": {
+        "$ref": "#/$defs/cell"
+       },
+       "darkOutline": {
+        "$ref": "#/$defs/cell"
+       },
+       "darkActual": {
+        "$ref": "#/$defs/cell"
+       },
+       "darkBand": {
         "$ref": "#/$defs/cell"
        },
        "json": {

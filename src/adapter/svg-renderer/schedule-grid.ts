@@ -19,11 +19,11 @@ import type { ScreenRect } from '../../entity/layout-engine/screen-regions/scree
 import {
   GROUP_GRID_LINE_WIDTH_PX,
   NOT_STORED_RULER_WEEKDAY_SIZES,
-  achromatic,
   escaped,
   figureKey,
   rounded,
   typefaceAttribute,
+  type ChosenColour,
 } from './svg-renderer'
 
 export interface GridInput {
@@ -35,6 +35,7 @@ export interface GridInput {
   readonly scrollTop: number
   readonly monochrome: boolean
   readonly themed: (rowId: string) => string
+  readonly chosen: ChosenColour
   readonly colourOfGroup: ReadonlyMap<
     Schedule['taskGroups'][number]['id'],
     Schedule['taskGroups'][number]['color']
@@ -210,8 +211,8 @@ export function gridParts(input: GridInput): GridParts {
     area,
     areaBottom,
     scrollTop,
-    monochrome,
     themed,
+    chosen,
     colourOfGroup,
   } = input
   const bandParts: string[] = []
@@ -219,13 +220,12 @@ export function gridParts(input: GridInput): GridParts {
     const top = Math.max(row.y, row.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(row.y + row.height, areaBottom)
     if (bottom <= top) continue
-    const chosen = colourOfGroup.get(row.groupId) ?? null
-    const band = chosen === null ? themed(bandRowOf(row.depth, position)) : chosen
+    const band = chosen(colourOfGroup.get(row.groupId) ?? null, 'band') ?? themed(bandRowOf(row.depth, position))
     const rowKey = `row-${row.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
         ` width="${rounded(area.width)}" height="${rounded(bottom - top)}"` +
-        ` fill="${monochrome ? achromatic(band) : band}"${figureKey(`${rowKey}-band`)}/>`,
+        ` fill="${band}"${figureKey(`${rowKey}-band`)}/>`,
     )
     if (!settings.groupGridLinesVisible) continue
     bandParts.push(

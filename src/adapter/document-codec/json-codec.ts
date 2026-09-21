@@ -59,6 +59,7 @@ interface SchemaNode {
   readonly minimum?: number
   readonly maximum?: number
   readonly maxLength?: number
+  readonly pattern?: string
   readonly required?: readonly string[]
   readonly closed?: true
   readonly values?: SchemaNode
@@ -309,6 +310,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       color: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       height: {
         type: ['integer', 'null'],
@@ -532,9 +534,11 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       fillColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       strokeColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       lineWeight: {
         enum: ['thin', 'medium', 'thick', null],
@@ -620,6 +624,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       strokeColor: {
         type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
       cornerRadiusPx: {
         type: ['number', 'null'],
@@ -1271,6 +1276,17 @@ function jsonTypeOf(value: unknown): string {
   return typeof value
 }
 
+// see T-220, T-017b
+/** @purity pure */
+function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFault[]): void {
+  if (node.maxLength !== undefined && value.length > node.maxLength) {
+    out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
+  }
+  if (node.pattern !== undefined && !new RegExp(node.pattern).test(value)) {
+    out.push(fault(at, 'is not spelled as the schema allows'))
+  }
+}
+
 /** @purity pure */
 function collectFaults(
   value: unknown,
@@ -1306,13 +1322,7 @@ function collectFaults(
       out.push(fault(at, `is above the greatest value allowed, ${node.maximum}`))
     }
   }
-  if (
-    typeof value === 'string' &&
-    node.maxLength !== undefined &&
-    value.length > node.maxLength
-  ) {
-    out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
-  }
+  if (typeof value === 'string') stringFaults(value, node, at, out)
 
   if (isObject(value)) {
     for (const key of node.required ?? []) {

@@ -5006,6 +5006,527 @@
    "lines": [
     "",
     {
+     "ja": "表 T-294 はパレット色（`01-04-requirements.md` の 表 T-017 の `CL-1`）が描く値である。保存するのは「保存する綴り」の欄の名だけであり、値は保存しない（同書の 表 T-017b の `CV-1`）。"
+    },
+    {
+     "ja": "値は `previous-project-result/08-poc/poc-integrated.html` の「色と縁取り」タブの確定した組（予定の塗り・予定の縁・実績の塗り）と行の帯の規則を、各色の色相に当てて求めた。テーマの色相には追随しない。"
+    },
+    {
+     "ja": "測り方（2026-09-22）: 比は WCAG 2.1 のコントラスト比で、丸めた `#rrggbb` の値から PoC 自身の輝度の式（同ファイル `:610-615`）で求めた。暗いテーマの地は `S-146` の 360 の色相の最悪と `#14161a` の悪いほうとした。モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った（`01-04-requirements.md` の `FR-041`）。"
+    },
+    ""
+   ]
+  },
+  {
+   "kind": "table",
+   "id": "T-294",
+   "caption": {
+    "ja": "パレット色の値（成果物に埋め込む定数、文書には保存しない）"
+   },
+   "columns": [
+    {
+     "field": "id",
+     "ja": "行 ID"
+    },
+    {
+     "field": "name",
+     "ja": "色"
+    },
+    {
+     "field": "key",
+     "ja": "保存する綴り"
+    },
+    {
+     "field": "lightFill",
+     "ja": "明るいテーマの塗り"
+    },
+    {
+     "field": "lightOutline",
+     "ja": "明るいテーマの縁"
+    },
+    {
+     "field": "lightActual",
+     "ja": "明るいテーマの実績の塗り"
+    },
+    {
+     "field": "lightBand",
+     "ja": "明るいテーマの行の帯"
+    },
+    {
+     "field": "darkFill",
+     "ja": "暗いテーマの塗り"
+    },
+    {
+     "field": "darkOutline",
+     "ja": "暗いテーマの縁"
+    },
+    {
+     "field": "darkActual",
+     "ja": "暗いテーマの実績の塗り"
+    },
+    {
+     "field": "darkBand",
+     "ja": "暗いテーマの行の帯"
+    },
+    {
+     "field": "note",
+     "ja": "備考"
+    }
+   ],
+   "separator": "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+   "blank_before_header": "",
+   "rows": [
+    {
+     "id": "S-314",
+     "name": {
+      "ja": "白"
+     },
+     "key": "`white`",
+     "lightFill": {
+      "colour": "#ffffff",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#ffffff",
+      "code": true
+     },
+     "lightActual": {
+      "sameAs": "S-157"
+     },
+     "lightBand": {
+      "sameAs": "S-146"
+     },
+     "darkFill": {
+      "colour": "#14161a",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#14161a",
+      "code": true
+     },
+     "darkActual": {
+      "sameAs": "S-157"
+     },
+     "darkBand": {
+      "sameAs": "S-146"
+     },
+     "note": {
+      "ja": "地と同じ色である（PoC の地 `:41` / `:663`）。暗いテーマでは黒と入れ替わる（`CV-6`）。⚠️ 地の上では塗りも縁も見えない —— 表 T-017a の `CT-4` と `CT-5` を問わない（`CV-8`）。実績の塗りはテーマの実績（`S-157`）を継ぐ —— PoC に白の実績の形が無い"
+     }
+    },
+    {
+     "id": "S-315",
+     "name": {
+      "ja": "黒"
+     },
+     "key": "`black`",
+     "lightFill": {
+      "colour": "#000000",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#000000",
+      "code": true
+     },
+     "lightActual": {
+      "sameAs": "S-157"
+     },
+     "lightBand": {
+      "ja": "—（行の色には選ばせない）"
+     },
+     "darkFill": {
+      "colour": "#ffffff",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#ffffff",
+      "code": true
+     },
+     "darkActual": {
+      "sameAs": "S-157"
+     },
+     "darkBand": {
+      "ja": "—（行の色には選ばせない）"
+     },
+     "note": {
+      "ja": "ラベルの文字色（`S-168`、PoC `:72` / `:106`）と同じ値である。暗いテーマでは白と入れ替わる（`CV-6`）。実績の塗りはテーマの実績（`S-157`）を継ぐ —— 黒より濃い実績は無い。行の帯を持たない —— 明るいテーマで黒の帯はラベルの黒い字を消す（`01-04-requirements.md` の 表 T-017b の `CV-9`）"
+     }
+    },
+    {
+     "id": "S-316",
+     "name": {
+      "ja": "濃い灰色"
+     },
+     "key": "`dimgray`",
+     "lightFill": {
+      "colour": "#575757",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#383838",
+      "code": true
+     },
+     "lightActual": {
+      "sameAs": "S-157"
+     },
+     "lightBand": {
+      "colour": "#e0e0e0",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#a3a3a3",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#cccccc",
+      "code": true
+     },
+     "darkActual": {
+      "sameAs": "S-157"
+     },
+     "darkBand": {
+      "colour": "#474747",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の実績の組（`:55-56` / `:95-96`）を彩度 0（`:2733`）で描いた値である。実績の塗りはテーマの実績（`S-157`）を継ぐ —— これより濃い灰で 3 : 1 に届く値が無い（明 2.95、暗 2.52）。行の帯は PoC の帯の縁の灰であり、帯としての根拠は PoC に無い"
+     }
+    },
+    {
+     "id": "S-317",
+     "name": {
+      "ja": "薄い灰色"
+     },
+     "key": "`lightgray`",
+     "lightFill": {
+      "colour": "#cccccc",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#757575",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#575757",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f5f5f5",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#424242",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#a8a8a8",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#a3a3a3",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#333333",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の予定の組（`:53-55` / `:93-95`）を彩度 0 で描いた値である"
+     }
+    },
+    {
+     "id": "S-318",
+     "name": {
+      "ja": "赤"
+     },
+     "key": "`red`",
+     "lightFill": {
+      "colour": "#e3b9b5",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#a94c42",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#8c2c21",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f9f1f1",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#58312d",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#d08880",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#dc766a",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#3c2c2a",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 6（`:707`）に、確定した組（`:53-56` / `:93-96`）を当てた値である"
+     }
+    },
+    {
+     "id": "S-319",
+     "name": {
+      "ja": "青"
+     },
+     "key": "`blue`",
+     "lightFill": {
+      "colour": "#b5c9e3",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#426ea9",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#21508c",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f1f4f9",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#2d3f58",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#80a3d0",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#6a9cdc",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#2a323c",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 214（`:701`。`themeHue` の既定と同じ）に、確定した組を当てた値である"
+     }
+    },
+    {
+     "id": "S-320",
+     "name": {
+      "ja": "黄"
+     },
+     "key": "`yellow`",
+     "lightFill": {
+      "colour": "#dfd6a9",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#8c7d36",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#79691c",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f9f8f1",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#58502d",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#d0c380",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#dcc96a",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#3c392a",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 50（`:705`）。明るいテーマは PoC の寄せの規則（`:2750-2760`）で k = 8 寄せた —— 寄せないと縁 ÷ 地が 2.89 : 1 で `CT-4` を割る。k は、地と行の地（`S-164` / `S-166` / `S-167`、360 の色相の最悪）の両方で `CT-3` ・ `CT-4` ・ `CT-5` を満たす最小の値である"
+     }
+    },
+    {
+     "id": "S-321",
+     "name": {
+      "ja": "緑"
+     },
+     "key": "`green`",
+     "lightFill": {
+      "colour": "#afe1bf",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#3c9a5b",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#1f8340",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f1f9f3",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#2d583b",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#80d09b",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#6adc90",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#2a3c30",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 140（`:703`）。明るいテーマは `S-320` と同じ規則で k = 4 寄せた —— 寄せないと縁 ÷ 地が 2.96 : 1 で `CT-4` を割る"
+     }
+    },
+    {
+     "id": "S-322",
+     "name": {
+      "ja": "オレンジ"
+     },
+     "key": "`orange`",
+     "lightFill": {
+      "colour": "#e3cab5",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#a97242",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#8c5321",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f9f5f1",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#58412d",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#d0a680",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#dc9f6a",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#3c322a",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 28（`:706`）に、確定した組を当てた値である"
+     }
+    },
+    {
+     "id": "S-323",
+     "name": {
+      "ja": "紫"
+     },
+     "key": "`purple`",
+     "lightFill": {
+      "colour": "#d8b5e3",
+      "code": true
+     },
+     "lightOutline": {
+      "colour": "#8f42a9",
+      "code": true
+     },
+     "lightActual": {
+      "colour": "#72218c",
+      "code": true
+     },
+     "lightBand": {
+      "colour": "#f7f1f9",
+      "code": true
+     },
+     "darkFill": {
+      "colour": "#4d2d58",
+      "code": true
+     },
+     "darkOutline": {
+      "colour": "#bc80d0",
+      "code": true
+     },
+     "darkActual": {
+      "colour": "#c06adc",
+      "code": true
+     },
+     "darkBand": {
+      "colour": "#382a3c",
+      "code": true
+     },
+     "note": {
+      "ja": "PoC の色相 285（`:709`）に、確定した組を当てた値である"
+     }
+    },
+    {
+     "id": "S-324",
+     "name": {
+      "ja": "透明"
+     },
+     "key": "`transparent`",
+     "lightFill": {
+      "ja": "描かない"
+     },
+     "lightOutline": {
+      "ja": "描かない"
+     },
+     "lightActual": {
+      "ja": "描かない"
+     },
+     "lightBand": {
+      "ja": "描かない"
+     },
+     "darkFill": {
+      "ja": "描かない"
+     },
+     "darkOutline": {
+      "ja": "描かない"
+     },
+     "darkActual": {
+      "ja": "描かない"
+     },
+     "darkBand": {
+      "ja": "描かない"
+     },
+     "note": {
+      "ja": "塗りも線も描かない。`null`（選んでいない）とは別物である（`_assets/tbl-glossary.md` の `P-19`）"
+     }
+    }
+   ]
+  },
+  {
+   "kind": "prose",
+   "lines": [
+    "",
+    {
      "ja": "## 9. 後から選び直す値"
     },
     "",
