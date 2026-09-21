@@ -34,38 +34,39 @@ interface Registration {
   readonly mark: WatcherMark
 }
 
-const REGISTRATIONS = new Map<string, Registration>()
+// WHY: the delivery window lives beside the registrations, not in a let of its own, and not in a
+// parameter -- a parameter would let a subscriber fake this window's edge (uf-24-25).
+const REGISTRATIONS: { readonly byWatcher: Map<string, Registration>; isDelivering: boolean } = {
+  byWatcher: new Map<string, Registration>(),
+  isDelivering: false,
+}
 
 // see AG-6, AM-17, ED-2, LM-16
 /** @purity non-pure */
 export function watchChanges(subscription: ChangeWatcher): boolean {
-  const replaced = REGISTRATIONS.has(subscription.watcher)
-  REGISTRATIONS.set(subscription.watcher, { subscription, mark: subscription.since })
+  const replaced = REGISTRATIONS.byWatcher.has(subscription.watcher)
+  REGISTRATIONS.byWatcher.set(subscription.watcher, { subscription, mark: subscription.since })
   return replaced
 }
 
 /** @purity non-pure */
 export function unwatchChanges(watcher: string): boolean {
-  return REGISTRATIONS.delete(watcher)
+  return REGISTRATIONS.byWatcher.delete(watcher)
 }
-
-// WHY: module-scoped, not a parameter -- a parameter would let a subscriber
-// fake this window's edge (uf-24-25 keeps this unit's own arity at 1).
-let delivering = false
 
 // see AG-11, T-233
 /** @purity semi-pure-b */
 export function isDeliveringNotices(): boolean {
-  return delivering
+  return REGISTRATIONS.isDelivering
 }
 
 // see AG-6, WS-7
 /** @purity non-pure */
 export function notifyChangeWatchers(confirmed: ConfirmedChange): NotifyOutcome {
-  delivering = true
+  REGISTRATIONS.isDelivering = true
   try {
     // TRAP: walk a copy: deliver may watch or unwatch, which would change the Map mid-walk.
-    const round = [...REGISTRATIONS.values()]
+    const round = [...REGISTRATIONS.byWatcher.values()]
     const notified: string[] = []
     const failures: DeliveryFailure[] = []
 
@@ -82,14 +83,14 @@ export function notifyChangeWatchers(confirmed: ConfirmedChange): NotifyOutcome 
       }
 
       // TRAP: advance only the registration still held, or an unwatched or re-registered one is overwritten.
-      if (REGISTRATIONS.get(watcher) === held) {
-        REGISTRATIONS.set(watcher, { subscription: held.subscription, mark: notice.mark })
+      if (REGISTRATIONS.byWatcher.get(watcher) === held) {
+        REGISTRATIONS.byWatcher.set(watcher, { subscription: held.subscription, mark: notice.mark })
       }
       notified.push(watcher)
     }
 
     return { notified, failures }
   } finally {
-    delivering = false
+    REGISTRATIONS.isDelivering = false
   }
 }
