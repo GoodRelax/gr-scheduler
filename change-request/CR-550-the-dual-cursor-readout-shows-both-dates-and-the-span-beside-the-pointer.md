@@ -333,3 +333,17 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py DC-1 DC
 #   -> 2 of 2 file edits occur exactly once (tool edits are described, not text edits)
 # E-02 applied to a COPY of display-words.json and loaded with json.loads -> loads, with CR-548 E-19 applied first (2026-09-22); the five DC-3 examples and the reversed pair were recomputed by the rule and match
 ```
+
+---
+
+## 13. 当てたあとに測った数（2026-09-22、`origin/refactor` の `e895456d` の上）
+
+| 数 | 予測（7 節） | 実測 | 備考 |
+|---|--:|--:|---|
+| tables / figures / rows / uids | ±0 | `tables=184 figures=27 rows=2262 uids=162` | この木の値。`DC-3` と `EZ-6` はセルを書き換えただけで、行は増えも減りもしない |
+| 辞書の語 | ±0 の節 | 節 `dualCursorSpan`（1 項）→ `dualCursorReadout`（5 項） | 4.1 節の E-02 |
+| 検査 39（MUST の節で試験が逐語で持たないもの） | — | 1334 → 1343（+9） | ⛔ 赤。`DC-3` の新しい MUST と `EZ-6` の MUST NOT である。仕様だけを読む試験者が試験を書くまで閉じない。基線は動かしていない |
+| check.sh | — | 赤は 39 だけ | 26b・46・55・60 は直して緑（T-064 に 2 つの名、文の区切り、注記の量、関数の大きさ） |
+| vitest | — | display-words の赤が 2 → 1（`dependencyKinds` の節を鍵に持たない既知の赤だけが残る） | t-233 の 2 件と MSPDI の読み込み失敗は既知。`cr-430` の 1 件は全体を回したときだけの時間切れで、単独では緑 |
+
+⭐ 手で確かめた（Playwright、`dist/index.html` を `file://` で開き、`IC-45` を押してから動かした）: 3 行がポインタの右下に出て、右端・下端の近くでは左・上へ返り、`Row Area` の外では消える。A を置いたあと B が追従し、期間は `0/1/23 (54 days)`（8/15 から 10/8）と出た。
