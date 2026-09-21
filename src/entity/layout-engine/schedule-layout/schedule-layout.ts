@@ -405,10 +405,24 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
   return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
 }
 
+export type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>
+
+// see FR-017, DC-3
+// WHY: the axis alone, without laying out a row, for readers that only turn a pointer into a day.
+/** @purity pure */
+export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegions): TimeAxis {
+  const settings = drawnSettingsOf(storedSettings)
+  const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
+  const originDay = dayOf(settings.scrollDate)
+  const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
+  const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
+  return { pxPerDay, originDay, originX }
+}
+
 // see FR-017, T-252, DS-4
 // TRAP: a quotient within an ulp of a whole day IS that day; floor alone answers the day before.
 /** @purity pure */
-export function dateAtX(layout: ScheduleLayout, x: number): CalendarDay | null {
+export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
   if (layout.originDay === null || layout.pxPerDay <= 0) return null
   const span = (x - layout.originX) / layout.pxPerDay
   const whole = Math.round(span)
@@ -791,11 +805,8 @@ export function layoutFromSchedule(
   rowControlsHeightPx?: number,
 ): ScheduleLayout {
   const settings = drawnSettingsOf(storedSettings)
-  const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
-  const originDay = dayOf(settings.scrollDate)
+  const { pxPerDay, originDay, originX } = timeAxisOf(storedSettings, regions)
   const originSerial = originDay === null ? 0 : serialOf(originDay)
-  const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
-  const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const pinnedIds = new Set(settings.pinnedGroupIds)

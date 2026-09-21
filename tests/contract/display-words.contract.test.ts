@@ -357,6 +357,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   weekdays: 'weekday',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
+  // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
+  dualCursorReadout: 'line',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -1590,6 +1592,48 @@ for (const entry of GENERATED['scaleEcho'] ?? []) {
   })
 }
 
+// see DC-3
+// WHY: the mode is on and the pointer stands on the Row Area, the one frame DC-3 shows the readout in.
+const DUAL_CURSOR_READOUT_LINE: Readonly<Record<string, number>> = { a: 0, b: 1, span: 2 }
+// WHY: this frame stores no date and its axis has no day, so DC-3 writes its dash where the word
+// holds {date} or {span}; the mark is put back so the line can be held to the written word.
+const READOUT_DASH = /—$/
+const READOUT_MARKS: readonly string[] = ['{date}', '{date}', '{span}']
+const readoutWordOf = (line: string, index: number): string =>
+  line.replace(READOUT_DASH, READOUT_MARKS[index] ?? '')
+for (const entry of GENERATED['dualCursorReadout'] ?? []) {
+  const line = keyOf('dualCursorReadout', entry)
+  const index = DUAL_CURSOR_READOUT_LINE[line]
+  if (index === undefined) {
+    drop(
+      'dualCursorReadout',
+      line,
+      'DC-3 prints it inside the span line, in place of that line s {span}; a filled span word carries no {span}, so no frame here can show it',
+    )
+    continue
+  }
+  place({
+    section: 'dualCursorReadout',
+    key: line,
+    field: 'text',
+    unit: 'UF-69',
+    what: `line ${line} of the readout DC-3 shows beside the pointer`,
+    frame: frameWith({
+      root: rootWith({ dualCursorModeState: { kind: 'on', child: { kind: 'placingDate1' } } }),
+      readings: sessionWith({
+        pointer: {
+          x: REGIONS.rowArea.x + REGIONS.rowArea.width / 2,
+          y: REGIONS.rowArea.y + REGIONS.rowArea.height / 2,
+        },
+      }),
+    }),
+    read: (view) => {
+      const shown = view.dualCursorReadout?.lines[index]
+      return shown === undefined ? undefined : readoutWordOf(shown, index)
+    },
+  })
+}
+
 /** One case per place per language, so a failure names one cell of the dictionary. */
 interface Case extends Place {
   readonly language: string
@@ -1764,6 +1808,17 @@ const scaleEchoFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) =>
     stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => /^\d+%/.test(text) && text.endsWith(word)),
+  )
+
+// see DC-3, FR-038
+const dualCursorReadoutFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) =>
+    (viewOf(screenViewFromRegions, one.frame, language).dualCursorReadout?.lines ?? []).some(
+      (line, index) => readoutWordOf(line, index) === word,
+    ),
   )
 
 // see FR-036, FR-038
@@ -2266,7 +2321,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)
           : cell.section === 'scaleEcho'
             ? scaleEchoFramesShowing(cell.word, cell.language)
-            : framesShowing(cell.word, cell.language)
+            : cell.section === 'dualCursorReadout'
+              ? dualCursorReadoutFramesShowing(cell.word, cell.language)
+              : framesShowing(cell.word, cell.language)
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +

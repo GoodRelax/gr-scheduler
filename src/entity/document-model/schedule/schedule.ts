@@ -755,6 +755,51 @@ export function calendarDaysBetween(from: CalendarDay, to: CalendarDay): number 
   return serial(to) - serial(from)
 }
 
+export interface CalendarSpan {
+  readonly years: number
+  readonly months: number
+  readonly days: number
+  readonly dayCount: number
+}
+
+const MONTHS_PER_YEAR = 12
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+const FEBRUARY = 2
+
+/** @purity pure */
+function isLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
+}
+
+/** @purity pure */
+function lastDayOfMonth(year: number, month: number): number {
+  return month === FEBRUARY && isLeapYear(year) ? 29 : (DAYS_IN_MONTH[month - 1] ?? 31)
+}
+
+// see DC-3
+/** @purity pure */
+function monthsAfter(day: CalendarDay, months: number): CalendarDay {
+  const index = day.year * MONTHS_PER_YEAR + (day.month - 1) + months
+  const year = Math.floor(index / MONTHS_PER_YEAR)
+  const month = index - year * MONTHS_PER_YEAR + 1
+  return { year, month, day: Math.min(day.day, lastDayOfMonth(year, month)) }
+}
+
+// see DC-3
+// WHY: k is the gap in months or one less; k + 1 months always lands past the later day.
+/** @purity pure */
+export function calendarSpanOf(a: CalendarDay, b: CalendarDay): CalendarSpan {
+  const [early, late] = compareDays(a, b) <= 0 ? [a, b] : [b, a]
+  const gap = (late.year - early.year) * MONTHS_PER_YEAR + (late.month - early.month)
+  const months = compareDays(monthsAfter(early, gap), late) <= 0 ? gap : gap - 1
+  return {
+    years: Math.floor(months / MONTHS_PER_YEAR),
+    months: months % MONTHS_PER_YEAR,
+    days: calendarDaysBetween(monthsAfter(early, months), late),
+    dayCount: calendarDaysBetween(early, late),
+  }
+}
+
 /** @purity pure */
 function dayFromSerial(value: number): CalendarDay {
   const at = new Date(value * 86400000)

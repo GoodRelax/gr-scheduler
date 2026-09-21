@@ -3,7 +3,11 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { Tooltip, TooltipAnchor } from '../../adapter/screen-renderer/screen-renderer'
+import type {
+  ScreenView,
+  Tooltip,
+  TooltipAnchor,
+} from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOT_STORED_HELP_SIZES,
   STYLE,
@@ -77,4 +81,37 @@ export function tooltipAnchorTable(root: HTMLElement) {
   }
 
   return { anchorsOf, anchorFor }
+}
+
+// see DC-3, IN-3
+// WHY: placed after it is in the layer, since only then does it have a size to turn back by.
+// TRAP: the layer carries no data-role, so readScreenPartAt never answers it and a press reaches the chart.
+/** @purity non-pure */
+export function showDualCursorReadout(
+  host: Document,
+  layer: HTMLElement,
+  readout: ScreenView['dualCursorReadout'],
+): void {
+  if (readout === undefined) {
+    if (layer.firstElementChild !== null) layer.replaceChildren()
+    return
+  }
+  const box = made(host, 'div', tooltipStyle())
+  for (const line of readout.lines) {
+    const drawn = made(host, 'div', '')
+    drawn.textContent = line
+    box.append(drawn)
+  }
+  box.setAttribute('style', readoutStyle(readout.at.x, readout.at.y))
+  layer.replaceChildren(box)
+  const room = layer.getBoundingClientRect()
+  const size = box.getBoundingClientRect()
+  const x = readout.at.x + size.width > room.width ? readout.at.x - size.width : readout.at.x
+  const y = readout.at.y + size.height > room.height ? readout.at.y - size.height : readout.at.y
+  if (x !== readout.at.x || y !== readout.at.y) box.setAttribute('style', readoutStyle(x, y))
+}
+
+/** @purity pure */
+function readoutStyle(x: number, y: number): string {
+  return tooltipStyle() + `pointer-events:none;white-space:nowrap;max-width:none;left:${x}px;top:${y}px;`
 }

@@ -3956,12 +3956,40 @@
    }
   }
  ],
- "dualCursorSpan": [
+ "dualCursorReadout": [
   {
-   "rowId": "DC-3",
+   "line": "a",
    "text": {
-    "ja": "{n} 日",
-    "en": "{n} days"
+    "ja": "カーソルAの日付: {date}",
+    "en": "Cursor A: {date}"
+   }
+  },
+  {
+   "line": "b",
+   "text": {
+    "ja": "カーソルBの日付: {date}",
+    "en": "Cursor B: {date}"
+   }
+  },
+  {
+   "line": "span",
+   "text": {
+    "ja": "カーソルA-Bの期間: {span}",
+    "en": "A-B: {span}"
+   }
+  },
+  {
+   "line": "days",
+   "text": {
+    "ja": "{y}/{m}/{d} ({n} days)",
+    "en": "{y}/{m}/{d} ({n} days)"
+   }
+  },
+  {
+   "line": "oneDay",
+   "text": {
+    "ja": "{y}/{m}/{d} ({n} day)",
+    "en": "{y}/{m}/{d} ({n} day)"
    }
   }
  ],
