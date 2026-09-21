@@ -708,6 +708,8 @@ const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
 const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
+const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
+const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 // see FR-100, T-230, T-290
 // WHY: null for the open road's rows, which land as documentOpenLanded with the choice they carry.
 const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], SessionEvent | null>> = {
@@ -1483,6 +1485,7 @@ interface ScreenEffectHands {
   readonly discardIncomingDocument: () => void
   readonly answerOverwriteQuestion: (isProceeding: boolean) => void
   readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
+  readonly bringCreatedRowIntoSight: (groupId: string) => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1521,7 +1524,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     answerOverwriteQuestion: (effect) => hands.answerOverwriteQuestion(effect.isProceeding),
     carryOutOwedAction: (effect, frame) => hands.carryOutOwedAction(effect.owedAction, frame),
 
-    bringCreatedRowIntoSight: unwiredEffect,
+    bringCreatedRowIntoSight: (effect) => hands.bringCreatedRowIntoSight(effect.groupId),
 
     beginInteractionRecord: unwiredEffect,
     handInteractionRecordToClipboard: unwiredEffect,
@@ -1718,6 +1721,17 @@ function isSameGrabbedItem(a: Grabbed['item'], b: Grabbed['item']): boolean {
 /** @purity pure */
 function isChangingDocumentIn(session: ScreenSession): boolean {
   return session.gesture.pointerPressState.kind === 'changingDocument'
+}
+
+/** @purity pure */
+function isNamingCreatedTaskIn(session: ScreenSession): boolean {
+  return session.fieldEntry.createdTaskNamingState.kind === 'namingCreatedTask'
+}
+
+/** @purity pure */
+function fieldFocusWantedIn(session: ScreenSession): string | null {
+  const edit = session.fieldEntry.fieldEditState
+  return edit.kind === 'fieldFocusWanted' ? edit.fieldRow : null
 }
 
 // see HF-15, T-289
@@ -2210,7 +2224,7 @@ export function frameLoop(
       held = next
       const chosenBeforeTheWrite = selection
       selection = selectionWithinSchedule(selection, held.document.schedule)
-      endCreatedNamingIfChosenMoved(chosenBeforeTheWrite)
+      if (selection !== chosenBeforeTheWrite) noteChoiceMoved(null)
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (settled(environment)) ask()
     },
@@ -2247,7 +2261,11 @@ export function frameLoop(
     storeLanguage: (language) => writeBrowserStored('S-99', language),
     askBrowserForFullScreen,
     matchWatermarkUnlock: () => void matchWatermarkUnlock(screen?.readWatermarkUnlockAnswer?.() ?? ''),
-    clearSelection: () => (selection = emptySelection()),
+    clearSelection: () => {
+      const chosenBeforeTheClear = selection
+      selection = emptySelection()
+      if (selection !== chosenBeforeTheClear) noteChoiceMoved(values)
+    },
     writeCarried,
     startScaleMessageTimer,
     startEntryRepeat: beginEntryRepeat,
@@ -2271,6 +2289,7 @@ export function frameLoop(
       settle?.(isProceeding)
     },
     carryOutOwedAction,
+    bringCreatedRowIntoSight: (groupId) => (addedRowOwedSight = groupId),
   })
 
   /** @purity non-pure */
@@ -2588,23 +2607,21 @@ export function frameLoop(
     recordFrame(drawnSvg, layout)
   }
 
-  // see MK-13, IN-5a, IN-5b
-  // TRAP: kept until the focus is in, so keys typed next reach the field rather than table T-036;
-  // dropped when the choice moves or the panel goes; past the retries no frame is asked, or it spins.
+  // see MK-13, IN-5a, IN-5b, T-292
+  // TRAP: kept until the focus is in, so keys typed next reach the field, not table T-036; past the retries no frame is asked.
+  // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here a field not drawn or a missing focus seam withdraws it too (DFC-694)
   /** @purity non-pure */
   function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
-    const wanted = nameFieldWantedRow
+    const wanted = fieldFocusWantedIn(session)
     if (wanted === null) return
-    const under = nameFieldWantedUnder
-    const isChoiceKept = under.selection === selection && under.groupIds === selectedGroupIds
     const isPlaceKept = wanted === DOCUMENT_TITLE_FIELD_ROW || isPropertiesPanelOnScreen()
-    if (isChoiceKept && isPlaceKept && focus?.(wanted) === false) {
-      if (under.retriesLeft <= 0) return
-      nameFieldWantedUnder = { ...under, retriesLeft: under.retriesLeft - 1 }
+    if (isPlaceKept && focus?.(wanted) === false) {
+      if (fieldFocusRetriesLeft <= 0) return
+      fieldFocusRetriesLeft -= 1
       ask()
       return
     }
-    nameFieldWantedRow = null
+    sendToSession(FIELD_FOCUS_WITHDRAWN, values)
   }
 
   // see IN-5a, IN-5b, IN-4, IN-6
@@ -2612,12 +2629,12 @@ export function frameLoop(
   // first, drawing the owed frame now, so a letter typed before that frame lands in the field.
   /** @purity non-pure */
   function tryWantedFieldBeforeInput(input: HumanInput): void {
-    if (nameFieldWantedRow === null) return
+    if (fieldFocusWantedIn(session) === null) return
     const isWithdrawn =
       (input.kind === 'pointer' && input.phase === 'down') ||
       (input.kind === 'key' && FIELD_FOCUS_WITHDRAWING_KEYS.has(input.key))
     if (isWithdrawn) {
-      nameFieldWantedRow = null
+      sendToSession(FIELD_FOCUS_WITHDRAWN, values)
       return
     }
     if (input.kind !== 'key' || screen === undefined) return
@@ -2630,7 +2647,7 @@ export function frameLoop(
   // otherwise hold every single-character key for ever.
   /** @purity semi-pure-b */
   function isFieldFocusWanted(): boolean {
-    return nameFieldWantedRow !== null && screen?.focusPropertyField !== undefined
+    return fieldFocusWantedIn(session) !== null && screen?.focusPropertyField !== undefined
   }
 
   /** @purity non-pure */
@@ -3207,37 +3224,23 @@ export function frameLoop(
     return screen === undefined ? false : screen.surface.hasUnsettledTextEntry()
   }
 
-  let isSettlingFieldCommit = false
+  let fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
 
-  let nameFieldWantedRow: string | null = null
-
-  let nameFieldWantedUnder: {
-    readonly selection: Selection
-    readonly groupIds: readonly string[]
-    readonly retriesLeft: number
-  } = { selection, groupIds: selectedGroupIds, retriesLeft: FIELD_FOCUS_RETRY_FRAMES }
-
-  // see MK-13, HF-14, FR-035
+  // see MK-13, HF-14, FR-035, T-292
   /** @purity non-pure */
   function wantFieldFocused(row: string): void {
-    nameFieldWantedRow = row
-    nameFieldWantedUnder = {
-      selection,
-      groupIds: selectedGroupIds,
-      retriesLeft: FIELD_FOCUS_RETRY_FRAMES,
-    }
+    fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
+    sendToSession({ type: 'fieldFocusAsked', fieldRow: row }, values)
   }
 
-  let namingCreatedTaskUid: number | null = null
-
+  // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here a moved choice withdraws it too (DFC-694)
   /** @purity non-pure */
-  function endCreatedNamingIfChosenMoved(was: Selection): void {
-    if (selection !== was) namingCreatedTaskUid = null
+  function noteChoiceMoved(frame: FrameValues | null): void {
+    sendToSession(CHOICE_MOVED, frame)
+    sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
   }
 
   let addedRowOwedSight: string | null = null
-
-  let didSettleFieldEntry = false
 
   // see FR-016
   // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
@@ -3357,7 +3360,7 @@ export function frameLoop(
 
   // see WS-2, AG-9
   /** @purity semi-pure-b */
-  function collectWriteMoment(): WriteMoment {
+  function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
       gestureInFlight: isChangingDocumentIn(session),
       editingInPlace: !isSettlingFieldCommit && hasUnsettledTextEntry(),
@@ -3367,13 +3370,17 @@ export function frameLoop(
 
   // see WS-6, WS-7
   /** @purity non-pure */
-  function writeDocument(commands: readonly DocumentCommand[], frame: FrameValues): void {
+  function writeDocument(
+    commands: readonly DocumentCommand[],
+    frame: FrameValues,
+    isSettlingFieldCommit = false,
+  ): void {
     const settingsLimits = settingsLimitsOf(frame)
     const outcome = applyDocumentChange(
       {
         commands,
         readStamp: held.document.documentStamp,
-        moment: collectWriteMoment(),
+        moment: collectWriteMoment(isSettlingFieldCommit),
         historyLimits: HISTORY_LIMITS,
         settingsLimits,
         defaultRowName: DEFAULT_ROW_NAME,
@@ -4046,7 +4053,7 @@ export function frameLoop(
   }
 
   // see T-036
-  function carryOutAction(action: InputAction | null, frame: FrameValues): void {
+  function carryOutAction(action: InputAction | null, frame: FrameValues, didSettleFieldEntry = false): void {
     if (action === null) return
     switch (action.kind) {
       case 'changeDocument': {
@@ -4132,7 +4139,7 @@ export function frameLoop(
         // WHY: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).
         return
       case 'settleTextEntry':
-        settleOnScreen(frame)
+        settleOnScreen(frame, didSettleFieldEntry)
         return
       case 'tellEntryHasNothingToDo':
         raiseNotice(
@@ -4210,6 +4217,8 @@ export function frameLoop(
         // STOP: spec does not decide where the chosen rows are held. Looked in FR-085, FR-042, SL-1
         // @provisional PND-142
         showPropertiesOfChoice()
+        // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here chosen rows moving withdraws it too (DFC-694)
+        sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
         return
       }
       case 'chooseResources':
@@ -4259,10 +4268,9 @@ export function frameLoop(
 
   // see SK-19, FR-091, T-280
   /** @purity non-pure */
-  function settleOnScreen(frame: FrameValues): void {
+  function settleOnScreen(frame: FrameValues, didSettleFieldEntry: boolean): void {
     if (openSurfaceNameIn(session) !== null || isQuestionAskedIn(session)) return
-    const isNaming = namingCreatedTaskUid !== null
-    namingCreatedTaskUid = null
+    const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
     const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || hasUnsettledTextEntry())
     if (hasNoUnsettledEntry) notePanelPutAway()
@@ -4322,18 +4330,15 @@ export function frameLoop(
     if (created.kind === 'task') {
       if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
       selection = selectionWith(emptySelection(), { kind: 'task', uid: created.uid })
-      showPropertiesOfChoice()
-      wantFieldFocused(TASK_NAME_FIELD_ROW)
-      namingCreatedTaskUid = created.uid
-      return
+    } else {
+      const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
+      if (madeRow === undefined) return
+      if (madeRow.parentId === null) sendToSession({ type: 'levelZeroOpened', writes: [] }, values)
+      selectedGroupIds = [created.groupId]
     }
-    const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
-    if (madeRow === undefined) return
-    if (madeRow.parentId === null) sendToSession({ type: 'levelZeroOpened', writes: [] }, values)
-    selectedGroupIds = [created.groupId]
     showPropertiesOfChoice()
-    wantFieldFocused(ROW_NAME_FIELD_ROW)
-    addedRowOwedSight = created.groupId
+    fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
+    sendToSession({ type: 'creationLanded', created }, values)
   }
 
   // see FR-048, NFR-010
@@ -4370,21 +4375,14 @@ export function frameLoop(
 
   // see IF-9
   /** @purity non-pure */
-  function spendFieldCommit(frame: FrameValues): void {
-    didSettleFieldEntry = false
-    if (screen === undefined) return
+  function spendFieldCommit(frame: FrameValues): boolean {
+    if (screen === undefined) return false
     const commit = screen.surface.readFieldCommit()
-    if (commit === null) return
-    // TRAP: set on the commit, not the commands; a value naming no row is still a settled edit (SK-19).
-    didSettleFieldEntry = true
+    if (commit === null) return false
     const commands = commandFromFieldCommit(commit, collectInputContext(frame))
-    if (commands.length === 0) return
-    isSettlingFieldCommit = true
-    try {
-      writeDocument(commands, frame)
-    } finally {
-      isSettlingFieldCommit = false
-    }
+    if (commands.length > 0) writeDocument(commands, frame, true)
+    // TRAP: true on the commit, not the commands; a value naming no row is still a settled edit (SK-19).
+    return true
   }
 
   // see FT-1
@@ -4403,7 +4401,7 @@ export function frameLoop(
     const noticesBefore = session.notices
     const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
-    spendFieldCommit(frame)
+    const didSettleFieldEntry = spendFieldCommit(frame)
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
@@ -4453,9 +4451,8 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    const chosenBeforeThisHappening = selection
     selection = selectionFromInput(input, context)
-    endCreatedNamingIfChosenMoved(chosenBeforeThisHappening)
+    if (selection !== context.selection) noteChoiceMoved(frame)
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
@@ -4482,7 +4479,7 @@ export function frameLoop(
         answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
-    if (!spent) carryOutAction(translated.action, frame)
+    if (!spent) carryOutAction(translated.action, frame, didSettleFieldEntry)
     if (!spent && translated.displayScaleShown !== undefined) {
       showDisplayScaleMessage(translated.displayScaleShown)
     }
