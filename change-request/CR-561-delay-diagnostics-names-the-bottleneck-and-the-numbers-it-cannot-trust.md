@@ -1,7 +1,7 @@
 # CR-561 — 遅延診断: 実績の記載漏れと矛盾を数え、ボトルネックとその経路を進捗マーカーで示す
 
 > 起草の状態: **起草（2026-09-24）。11 節の問いに利用者が答えるまで、4 節は案の文である。** 答えを受けたら、当てる体が 4 節を `CR-551` の形（旧・新の塊と、1 回だけ現れることの数え）へ起こす。
-> 読んだ木: `ebc71984`（`refactor`）。`CR-551` 〜 `CR-554` は起草だけで、まだ当たっていない（`S-63` の既定は `true` のまま、`S-326` は無い —— 13 節）。⇒ **本書は `CR-551` 〜 `CR-554` が当たった後の木を前提に書き、当てる順もその後とする**（8 節）。
+> 読んだ木: 起草は `ebc71984`、載せ直して `61bbd572`（`refactor`）で測り直した。⭐ `61bbd572` では `CR-551` が仕様とコードに当たっている（`S-63` の既定は `false`、`S-326` ・ `S-327` と `!` の寸法 `S-328` 〜 `S-331` ・ `S-341` が在る —— 13 節）。`CR-552` 〜 `CR-554` は起草のまま。⇒ **本書は `CR-551` 〜 `CR-554` が当たった後の木を前提に書き、当てる順もその後とする**（8 節）。
 >
 > **閉じるもの**: 利用者の 2026-09-23 の指示（`JDG-470` 〜 `JDG-474`。逐語は下の 0.1 節と `docs/development-records/rulings.md`）、`JDG-371`（`CR-551` の 10 節が本書へ申し送った自動表示）、`CR-551` の 10 節の 2 つ目の申し送り（桃色と赤の行）。
 > **束ねるもの**: 3 本のメモ —— `docs/review/progress-check-2026-09-23.md`（最新。ファイル名は旧名）、`docs/review/inspection-viewpoints-2026-09-20.md`（観点 20 行）、`docs/review/bottleneck-detection-2026-09-20.md`（4 パス）。メモに「利用者の裁定」と書かれた事柄は、逐語が無いまま `JDG-475` 〜 `JDG-485` に写した（12.1 節）。
@@ -28,7 +28,7 @@
 
 | # | 主張 | 所 | 実測 | 本書の扱い |
 |---|---|---|---|---|
-| F-1 | 「黄の地に暗い `!`（`JDG-400`）と色の値（`JDG-401`）は `CR-551` が決めた」 | 依頼文 | `JDG-400` ・ `JDG-401` は `rulings.md` にも木のどこにも無い（`git grep -nE "JDG-40[01]\b" origin/refactor` → 0 件。木の最大は `JDG-440`）。黄の地と暗い `!` は `JDG-368` の読みと `CR-551` の決定 3 ・問い 1、色の値は `CR-551` の問い 4 が持つ | `JDG-368` と `CR-551` を指す |
+| F-1 | 「黄の地に暗い `!`（`JDG-400`）と色の値（`JDG-401`）は `CR-551` が決めた」 | 依頼文 | ⭐ **成り立った。** `ebc71984` では 2 行とも無かった（前に立つ者の依頼文が、まだ push されていない行を指していた）が、`61bbd572` では `rulings.md` に在り、どちらも適用済（`CR-551` の問い 1 ・問い 4 への答え） | `JDG-400` ・ `JDG-401` を指す。⚠️ 反証は測った木の名とともに書くこと —— 同じ主張が 1 回の載せ直しで偽から真に変わった |
 | F-2 | 「桃色は黄の部分集合である —— 子が遅れれば祖先は必ず遅れる」 | 最新メモ 6 節 | 黄（`PM-4`）は表 T-021b の `DL-1` 〜 `DL-3` で決まり、3 行とも「基準日が予定の端を**過ぎている**」ことを要る。祖先の `finish` が基準日より先にあれば、見込みが後ろへずれても祖先は `PM-4` ではない | 部分集合を前提にせず、優先順（表 T-315）で上書きを定める。桃色は黄が無い行にも出る |
 | F-3 | 「マイルストーンの達成を先行から導出すると、`SC-21` は構造的に起きなくなる」 | 最新メモ 5.2 節 | 同じ節が「手で入れた `actualFinish` があればそちらが優先（明記 > 導出）」とする。手で達成を入れたマイルストーンの先行に未完了があれば、矛盾は今までどおり起きる | 矛盾の行（`VC-14`）を残し、条件を「手で入れた `actualFinish`」に絞る |
 | F-4 | 「記載漏れは指摘の種別の 1 つである」と「記載漏れ 3 行の段は疑義」 | 最新メモ 1 節と 4.1 節 | 1 節の木は記載漏れ・矛盾・疑義を並べ、4.1 節の表は記載漏れ 3 行の「段」を疑義とする —— 種別と段が 2 通りに読める | 種別（記載漏れ・矛盾・疑義）を 1 本の軸とし、表を 3 つに分ける（表 T-310 〜 T-312）。記載漏れはマーカーを塗らない |
@@ -123,16 +123,16 @@
 
 ## 2. 新しい識別子
 
-⚠️ 規則 02 の 2.5 節: 下の「空いている」は 2026-09-24 に `ebc71984` で測った主張である。**当てる直前に測り直すこと**（検査 62）。測り方は 13 節。帯（`CR-561`・`JDG-470` 〜 `JDG-499`・`DFC-890` 〜 `DFC-909`・`PND-581` 〜 `PND-600`・`S-385` 〜 `S-399`・`T-310` 〜 `T-319`）は調整役が配った。**帯の外の番号（`FR`・`UC`・`GL`・`CH`・`PLM`・`VK`・`V`・`AM`・`IC`・`UF`）は調整役に宣言してから取る**（12.3 節）。
+⚠️ 規則 02 の 2.5 節: 下の「空いている」は 2026-09-24 に `ebc71984` で測り、載せ直した `61bbd572` で測り直した主張である。**当てる直前に測り直すこと**（検査 62）。測り方は 13 節。帯（`CR-561`・`JDG-470` 〜 `JDG-499`・`DFC-890` 〜 `DFC-909`・`PND-581` 〜 `PND-600`・`S-385` 〜 `S-399`・`T-310` 〜 `T-319`）は調整役が配った。**帯の外の番号（`FR`・`UC`・`GL`・`CH`・`PLM`・`VK`・`V`・`AM`・`IC`・`UF`）は調整役に宣言してから取る**（12.3 節）。
 
-| 種類 | 採ったもの | 測った最大（2026-09-24、`ebc71984`） |
+| 種類 | 採ったもの | 測った最大（2026-09-24、`61bbd572`） |
 |---|---|---|
-| 設定値 | `S-385` 〜 `S-399` は空いている | 仕様 `S-324`、起草中の予約は `CR-551` の `S-338`（`CR-552` ・ `CR-553` は `S-359` までを名に出すが取らない） |
-| 表 | `T-310` 〜 `T-319` は空いている | 仕様が使う最大の表は `T-296`（`CR-551` が `T-297` を予約） |
-| 接頭辞 | `VC` `VS` `VO` `BD` `DQ` `DG` `DW` `DX` `IP` `MP` は空いている（登録簿は 162 件） | `SC` ・ `PV` ・ `DP` ・ `RF` ・ `DM` ・ `MK` ・ `RP` は使用中なので採らない |
+| 設定値 | `S-385` 〜 `S-399` は空いている | 仕様 `S-341`（`CR-551` が当たった）。`CR-552` ・ `CR-553` は `S-359` までを名に出すが取らない |
+| 表 | `T-310` 〜 `T-319` は空いている | 仕様が使う最大の表は `T-297`（`CR-551` が当てた） |
+| 接頭辞 | `VC` `VS` `VO` `BD` `DQ` `DG` `DW` `DX` `IP` `MP` は空いている（登録簿は 163 件） | `SC` ・ `PV` ・ `DP` ・ `RF` ・ `DM` ・ `MK` ・ `RP` は使用中なので採らない |
 | 要求 | `FR-130` 〜 `FR-136` は空いている | 仕様の最大は `FR-111`。`FR-112` は `CR-432` の名残、`FR-120` 以降は状態機械のセッションの帯だった（`handoff-state-machine.md:198`）ので避けた |
 | ユースケース ・ 目標 ・ 課題 ・ 背景 | `UC-015` `GL-009` `CH-7` `PLM-9` `VK-4` は空いている | `UC-014` ・ `GL-008` ・ `CH-6` ・ `PLM-8` ・ `VK-3` |
-| 表の行（既存の表） | `V-14` ・ `AM-19` ・ `IC-107` ・ `IC-108` は空いている（置く表は順に T-011 ・ T-107 ・ T-109） | `V-13a` ・ `AM-18` ・ `IC-105`（`CR-551` が `IC-106` を予約）。⚠️ `V-14` は `docs/review/inventory/` の 2 本が別の意味の局所番号として使っているが、仕様の中では使われていない |
+| 表の行（既存の表） | `V-14` ・ `AM-19` ・ `IC-107` ・ `IC-108` は空いている（置く表は順に T-011 ・ T-107 ・ T-109） | `V-13a` ・ `AM-18` ・ `IC-106`（`CR-551` が当てた。`CR-562` が一度 `IC-107` を名に出したが、調整役が `IC-115` へ移した）。⚠️ `V-14` は `docs/review/inventory/` の 2 本が別の意味の局所番号として使っているが、仕様の中では使われていない |
 | ユニット | 遅延診断の実体のユニット 1 と、ユースケースのユニット 1（番号は当てる時に調整役から受ける） | `CR-554` が `UF-126` 〜 `UF-168` を予約 |
 | 台帳 | `JDG-470` 〜 `JDG-485` | 帯は調整役が配った |
 | 名 | 画面の値 `delayDiagnosticsShown`、`Agent API` のメンバ `readDelayDiagnostics`、型 `DelayDiagnosticsReport` | `git grep` で 0 件 |
@@ -167,7 +167,7 @@
 | `S-63` の備考（切り替える機能の列挙） | `_source/settings.json` の `S-63` | 診断中は `delayDiagnosticsShown` も描く理由になる、を足す | J-01 |
 | 3 本のメモ（`docs/review/`） | 仕様の外 | 本書が当たったら、各メモの頭に「`CR-561` に束ねた。以後の正は仕様」と 1 行を足す（当てる者の仕事。消さない —— 裁定の出どころだから） | — |
 
-⛔ **本書は `CR-551` が当たった後の文を旧とする**（`FR-013` の黄の例外、`S-63` の既定 `false`、`S-326` ・ `S-327`）。当てる前に、`CR-551` の E-03 と J-01 が当たっていることを数えること。
+⛔ **本書は `CR-551` が当たった後の文を旧とする**（`61bbd572` で当たっている）（`FR-013` の黄の例外、`S-63` の既定 `false`、`S-326` ・ `S-327`）。当てる前に、`CR-551` の E-03 と J-01 が当たっていることを数えること。
 
 ---
 
@@ -366,10 +366,10 @@
 
 | 行 ID | 優先順 | 状態 | 条件 | 地 | 記号 | 記号の形 |
 | --- | --: | --- | --- | --- | --- | --- |
-| DG-1 | 1 | 信用できない / unreliable | 表 T-310 の指摘を持つ、または表 T-316 が紫とする | `S-389` | `S-390` | `?`（`S-392` 〜 `S-394`。点は `S-330` ・ `S-331`、線の太さは `S-328`） |
+| DG-1 | 1 | 信用できない / unreliable | 表 T-310 の指摘を持つ、または表 T-316 が紫とする | `S-389` | `S-390` | `?`（`S-392` 〜 `S-394`。点は `S-330` ・ `S-331`、線の太さは `S-328`、長さの単位は `S-341`） |
 | DG-2 | 2 | ボトルネック / bottleneck | `DQ-4` が `S-397` 以上（⚠️ 完了したものを含むかは問い 1） | `S-387` | `S-388` | 炎（`S-395` ・ `S-396`） |
-| DG-3 | 3 | ボトルネック経路 / bottleneckPath | `DG-2` の `Task` の WBS の祖先（`FR-135` で導いた親を含む） | `S-385` | `S-386` | `!!`（`!` を 2 つ、中心の間隔 `S-391`。各 `!` は `S-328` 〜 `S-331`） |
-| DG-4 | 4 | 遅延 / delay | 表 T-021 の `PM-4`（表 T-021b）—— ⭐ 診断の前から付く | `S-326` | `S-327` | `!`（`S-328` 〜 `S-331`） |
+| DG-3 | 3 | ボトルネック経路 / bottleneckPath | `DG-2` の `Task` の WBS の祖先（`FR-135` で導いた親を含む） | `S-385` | `S-386` | `!!`（`!` を 2 つ、中心の間隔 `S-391`。各 `!` は `S-328` 〜 `S-331` ・ `S-341`） |
+| DG-4 | 4 | 遅延 / delay | 表 T-021 の `PM-4`（表 T-021b）—— ⭐ 診断の前から付く | `S-326` | `S-327` | `!`（`S-328` 〜 `S-331` ・ `S-341`） |
 
 ⭐ `DG-4` は `CR-551` が立てる黄そのものであり、本書は優先順の中に置くだけで、条件も色も変えない。`DG-1` 〜 `DG-3` は診断を出しているあいだだけ描く。
 
@@ -488,7 +488,7 @@
 | S-1 | 実体（診断）↔ 呼ぶ側 | `diagnoseDelay(document: Document, calendar: WorkingCalendar): DelayDiagnosticsReport` —— 純粋。`document.project.statusDate` が `null` なら `DX-1` を「診断しなかった」にして返す。文書を書かない |
 | S-2 | 実体 ↔ 遅れの判定 | 黄の条件は `isDelayed` ／ `delayWorkingDays`（`CR-554` の後は `task-delay.ts`、`UF-129`）をそのまま読む。完了は `planActualState`（`plan-actual-state.ts`、`UF-127`）の完了。稼働日は `working-calendar.ts`（`UF-128`）。⛔ 同じ判定を書き写さない |
 | S-3 | 実体 ↔ 配置と形 | 形の選択は `ProgressSymbol` に `'DG-1' \| 'DG-2' \| 'DG-3'` を足し、`DG-4` は今の `'PM-4'` と読む。選ぶ関数は `DelayDiagnosticsReport` の `DX-8` と `delayDiagnosticsShown` を入力に取る |
-| S-4 | 形 ↔ 描き手（`schedule-task-figures.ts`） | `markerSvg` は `DG-1` → 地 `S-389`・記号 `?`、`DG-2` → `S-387`・炎、`DG-3` → `S-385`・`!!`、`PM-4` → `S-326`・`!`。寸法は 4.5 節の行だけを読む |
+| S-4 | 形 ↔ 描き手（`schedule-task-figures.ts`） | `markerSvg` は `DG-1` → 地 `S-389`・記号 `?`、`DG-2` → `S-387`・炎、`DG-3` → `S-385`・`!!`、`PM-4` → `S-326`・`!`。寸法は 4.5 節の行と `S-328` 〜 `S-331` ・ `S-341` だけを読む |
 | S-5 | 画面の値 ↔ 殻 | `delayDiagnosticsShown` は `ScreenSession` の真偽。`IC-107` で反転、文書の置き換えで偽、`IC-40` でマーカーを消すと偽。レポートは値が真のあいだ持つ（問い 2 の答えで「文書が変わるたびに S-1 を呼び直す」か決まる） |
 | S-6 | 実体 ↔ `Agent API` | `readDelayDiagnostics(): DelayDiagnosticsReport` —— 凍結した複製（`AG-4`）。`delayDiagnosticsShown` も `S-63` も書かない |
 | S-7 | レポート ↔ 一覧の面 | 一覧は `DX-3` ・ `DX-4` ・ `DX-6` の行を並べ、行を選ぶと `AM-16` と同じ寄せ方（`FR-055` ／ `S-77` ・ `S-78`）で寄せ、畳んだ行を開く。`IC-108` は `JSON.stringify(report)` をクリップボードへ |
@@ -531,15 +531,15 @@
 
 ---
 
-## 7. 数の予測（`ebc71984` で測った。⚠️ `CR-551` 〜 `CR-554` が当たった後の数を起点に数え直すこと）
+## 7. 数の予測（`61bbd572` で測った。⚠️ `CR-552` 〜 `CR-554` が当たった後の数を起点に数え直すこと）
 
 | 数 | 前 | 後（本書の分） | 内訳 |
 |---|--:|--:|---|
-| tables | 186 | ＋10 | 表 T-310 〜 T-319 |
+| tables | 187 | ＋10 | 表 T-310 〜 T-319 |
 | figures | 27 | ＋0 | — |
-| rows | 2282 | ＋71 | 設定値 15、`VC` 15、`VS` 5、`VO` 4、`BD` 4、`DQ` 4、`DG` 4、`DW` 3、`DX` 8、`IP` 3、`MP` 4、`PLM-9` ・ `CH-7` ・ `VK-4` ・ `V-14` ・ `AM-19` ・ `IC-107` ・ `IC-108`（7）。⚠️ 問い 4 が B なら ＋1（`DX-9`） |
+| rows | 2305 | ＋71 | 設定値 15、`VC` 15、`VS` 5、`VO` 4、`BD` 4、`DQ` 4、`DG` 4、`DW` 3、`DX` 8、`IP` 3、`MP` 4、`PLM-9` ・ `CH-7` ・ `VK-4` ・ `V-14` ・ `AM-19` ・ `IC-107` ・ `IC-108`（7）。⚠️ 問い 4 が B なら ＋1（`DX-9`） |
 | uids | 162 | ＋9 | `FR-130` 〜 `FR-136`、`UC-015`、`GL-009` |
-| 接頭辞 | 162 | ＋10 | 2 節の表 |
+| 接頭辞 | 163 | ＋10 | 2 節の表 |
 
 ---
 
@@ -631,22 +631,24 @@ wave 3  仕様だけを読む試験の体（実装した体ではない）→ �
 
 ```
 # the tree
-git log -1 --format=%h origin/refactor                      # -> ebc71984 (2026-09-24)
-grep -c '"S-326"' docs/spec/_source/settings.json           # -> 0: CR-551 not applied yet
-grep -n '"id": "S-63"' -A8 docs/spec/_source/settings.json  # -> default "true"
+git log -1 --format=%h origin/refactor                      # -> ebc71984 when drafted; 61bbd572 after the rebase (2026-09-24)
+grep -c '"S-326"' docs/spec/_source/settings.json           # -> 0 at ebc71984; 1 at 61bbd572 (CR-551 landed)
+grep -n '"id": "S-63"' -A8 docs/spec/_source/settings.json  # -> default "true" at ebc71984; "false" at 61bbd572
 
 # totals (before)
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/md-checks.py | grep "tables="
 #   -> tables=186  figures=27  rows=2282  uids=162   (ebc71984, 2026-09-24)
+#   -> tables=187  figures=27  rows=2305  uids=162   (61bbd572, 2026-09-24, after CR-551)
 
-# the bands and the new identifiers are unused (2026-09-24, ebc71984)
+# the bands and the new identifiers are unused (2026-09-24, ebc71984; re-measured at 61bbd572: only IC-107 in CR-562,
+#   which the coordinator moved to IC-115, and the history hits below)
 git grep -nE "\bS-3(8[5-9]|9[0-9])\b|\bT-31[0-9]\b|\bJDG-(4[7-9][0-9])\b|\bDFC-(89[0-9]|90[0-9])\b|\bPND-(58[1-9]|59[0-9]|600)\b|\bCR-561\b" origin/refactor -- . ':!previous-project-result'
 #   -> only CR-110:397 (T-301..T-319 of the deleted tbl-datamodel.md) and CR-548:100 (text "T-293")
 git grep -ohE "\bDP-[0-9]+|\bV-14\b|\bVK-4\b|\bAM-19\b|\bIC-10[78]\b|\bUC-015\b|\bGL-009\b|\bCH-7\b|\bPLM-9\b|\bFR-13[0-7]\b|\bVC-[0-9]+|\bVS-[0-9]+|\bVO-[0-9]+|\bBD-[0-9]+|\bDQ-[0-9]+|\bDG-[0-9]+|\bDW-[0-9]+|\bIP-[0-9]+|\bMP-[0-9]+" -- . ':!previous-project-result' | sort | uniq -c
 #   -> DP-1..4 (used -> DX taken instead), V-14 x2 (docs/review/inventory local labels only), nothing else
 for p in VC VS VO BD DQ DG DW DX IP MP; do grep -c "\"prefix\": \"$p\"" docs/spec/_source/row-id-prefixes.json; done   # -> all 0
-python -c "import json;print(len(json.load(open('docs/spec/_source/row-id-prefixes.json',encoding='utf-8'))['prefixes']))"   # -> 162
-git grep -nE "JDG-40[01]\b" origin/refactor -- .             # -> nothing (0.2 F-1)
+python -c "import json;print(len(json.load(open('docs/spec/_source/row-id-prefixes.json',encoding='utf-8'))['prefixes']))"   # -> 162 at ebc71984; 163 at 61bbd572
+git grep -nE "JDG-40[01]\b" origin/refactor -- .             # -> nothing at ebc71984; rulings.md:649-650 at 61bbd572 (0.2 F-1)
 
 # maxima
 grep -ohE "^\*\*UID\*\*: FR-[0-9]+" docs/spec/01-04-requirements.md | sort -t- -k2 -n | tail -1   # -> FR-111
