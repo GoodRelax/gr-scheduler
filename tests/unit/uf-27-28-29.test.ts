@@ -87,6 +87,7 @@ import {
   type SettingsLimits,
 } from '../../src/use-case/apply-document-change/apply-document-change'
 import {
+  emptyChangeWatchers,
   notifyChangeWatchers,
   unwatchChanges,
   type ChangeNotice,
@@ -411,6 +412,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
 
   const wiring: AgentApiWiring = {
     source: { readSnapshot: snapshotOf },
+    changeWatchers: CHANGE_WATCHERS,
     holder: {
       read: () => ({ document: state.document, history: state.history }),
       replace: (next) => {
@@ -429,7 +431,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
         state.isDeliveringNotices = true
         try {
-          notifyChangeWatchers({ document, hasMovedSchedule, dialogue: state.dialogue })
+          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasMovedSchedule, dialogue: state.dialogue })
         } finally {
           state.isDeliveringNotices = false
         }
@@ -446,7 +448,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
         state.dialogue = log
         // `false` for an utterance: AG-11 is not a schedule change, which is
         // what `ConfirmedChange.hasMovedSchedule` states for this very case.
-        notifyChangeWatchers({ document: state.document, hasMovedSchedule: false, dialogue: log })
+        notifyChangeWatchers(CHANGE_WATCHERS, { document: state.document, hasMovedSchedule: false, dialogue: log })
       },
     },
     // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
@@ -545,11 +547,14 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
   return made
 }
 
+// WHY: one registry for every bench, as a single shell holds one (SF-10).
+const CHANGE_WATCHERS = emptyChangeWatchers()
+
 afterEach(() => {
   // PI-15's registry outlives one case, so every subscription this file made is
   // taken back. Without it, a later case's notice would reach an earlier
   // case's receiver.
-  for (const one of openBenches) unwatchChanges(one.writerName)
+  for (const one of openBenches) unwatchChanges(CHANGE_WATCHERS, one.writerName)
   openBenches.length = 0
 })
 

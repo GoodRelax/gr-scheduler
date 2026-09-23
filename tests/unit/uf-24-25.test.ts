@@ -15,6 +15,7 @@ import {
   type WatcherMark,
 } from '../../src/use-case/notify-change-watchers/change-notice'
 import {
+  emptyChangeWatchers,
   notifyChangeWatchers,
   unwatchChanges,
   watchChanges,
@@ -318,17 +319,18 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   })
 })
 
-// WHY: the registry is module-scoped, so a case that leaves a subscription
+// WHY: one registry serves the whole file, so a case that leaves a subscription
 // behind would be heard by the next one.
 const REGISTERED: string[] = []
+const WATCHERS = emptyChangeWatchers()
 
 const subscribe = (watcher: string, since: WatcherMark, taken: ChangeNotice[]): void => {
   REGISTERED.push(watcher)
-  watchChanges({ watcher, since, deliver: (notice) => void taken.push(notice) })
+  watchChanges(WATCHERS, { watcher, since, deliver: (notice) => void taken.push(notice) })
 }
 
 afterEach(() => {
-  while (REGISTERED.length > 0) unwatchChanges(REGISTERED.pop()!)
+  while (REGISTERED.length > 0) unwatchChanges(WATCHERS, REGISTERED.pop()!)
 })
 
 describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, delivering', () => {
@@ -340,7 +342,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(OTHER, markAt(start), heardByOther)
 
     const confirmed = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
-    const outcome = notifyChangeWatchers(confirmed)
+    const outcome = notifyChangeWatchers(WATCHERS, confirmed)
 
     expect([...outcome.notified].sort()).toEqual([SELF])
     expect(heardBySelf).toHaveLength(1)
@@ -358,7 +360,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
       logOf([OTHER, 'なぜそうしたか']),
       false,
     )
-    expect([...notifyChangeWatchers(spoken).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, spoken).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
     expect(heard[0]!.messages.map((message) => message.text)).toEqual(['なぜそうしたか'])
     expect(spoken.document.documentStamp.scheduleUpdatedUtc).toBe(
@@ -377,12 +379,12 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(SELF, markAt(start), heard)
 
     const moved = confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)
-    expect([...notifyChangeWatchers(moved).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, moved).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
     expect(heard[0]!.mark.seenScheduleUpdatedUtc).toBe(T2)
 
     const undone = confirmedOf(start.document, emptyDialogueLog(), false)
-    expect([...notifyChangeWatchers(undone).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, undone).notified]).toEqual([SELF])
     expect(heard).toHaveLength(2)
     expect(heard[1]!.document).toBe(start.document)
     expect(heard[1]!.document?.documentStamp.scheduleUpdatedUtc).toBe(T1)
@@ -402,8 +404,8 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
       second.document.documentStamp.scheduleUpdatedUtc,
     )
 
-    expect([...notifyChangeWatchers(first).notified]).toEqual([SELF])
-    expect([...notifyChangeWatchers(second).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, first).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, second).notified]).toEqual([SELF])
 
     expect(heard).toHaveLength(2)
     expect(heard.at(-1)!.document).toBe(second.document)
@@ -417,11 +419,11 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(SELF, markAt(start), heard)
 
     const confirmed = confirmedOf(documentOf(T1, OTHER), logOf([OTHER, 'a']), true)
-    expect([...notifyChangeWatchers(confirmed).notified]).toEqual([SELF])
+    expect([...notifyChangeWatchers(WATCHERS, confirmed).notified]).toEqual([SELF])
     // WHY: said again as the same write, not a second one, so the second
     // round has nothing left to select and nobody is woken twice.
     const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
-    expect(notifyChangeWatchers(saidAgain).notified).toEqual([])
+    expect(notifyChangeWatchers(WATCHERS, saidAgain).notified).toEqual([])
     expect(heard).toHaveLength(1)
   })
 
@@ -431,19 +433,19 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     subscribe(SELF, markAt(start), heard)
 
     expect(
-      [...notifyChangeWatchers(confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true))
+      [...notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true))
         .notified],
     ).toEqual([SELF])
-    unwatchChanges(REGISTERED.pop()!)
+    unwatchChanges(WATCHERS, REGISTERED.pop()!)
     expect(
-      notifyChangeWatchers(confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)).notified,
+      notifyChangeWatchers(WATCHERS, confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)).notified,
     ).toEqual([])
     expect(heard).toHaveLength(1)
   })
 
   it('Chapter 5.5 keeps the delivering-notices window OUT of this unit (MUST)', () => {
-    // WHY: the delivering-notices flag belongs to the caller (ApplyDocumentChange,
-    // WS-7); this unit only takes the confirmed change, so a subscriber cannot fake it.
-    expect(notifyChangeWatchers.length).toBe(1)
+    // WHY: the delivery flag is not a parameter; the unit takes the shell-held
+    // registrations (SF-10) and the confirmed change, so a subscriber cannot fake it.
+    expect(notifyChangeWatchers.length).toBe(2)
   })
 })

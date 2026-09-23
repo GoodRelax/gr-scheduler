@@ -148,6 +148,8 @@ export interface AgentApiWiring {
   readonly audience: ChangeAudience
   readonly dialogueHolder: PostDialogueMessage.DialogueLogHolder
   readonly dialogueAudience: PostDialogueMessage.DialogueAudience
+  // see SF-10
+  readonly changeWatchers: NotifyChangeWatchers.ChangeWatchers
   // TRAP: required but possibly undefined, never optional (so too appShell and takeInDocument):
   // an optional member lets a wiring forget it silently.
   readonly rasterizer: ImageExporter.Rasterizer | undefined
@@ -345,7 +347,7 @@ function postAgentUtterance(
   snapshot: AgentSnapshot,
   text: string,
 ): AgentUtteranceOutcome {
-  if (NotifyChangeWatchers.isDeliveringNotices()) {
+  if (NotifyChangeWatchers.isDeliveringNotices(wiring.changeWatchers)) {
     return {
       accepted: false,
       refusal: agentRefusal(
@@ -696,7 +698,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity non-pure */
     watchChanges(receive: AgentChangeReceiver): AgentWatch {
       const snapshot = source.readSnapshot()
-      const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges({
+      const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges(wiring.changeWatchers, {
         watcher: wiring.writerName,
         since: {
           seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedUtc,
@@ -709,7 +711,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         hasReplacedEarlierWatch,
         /** @purity non-pure */
         stopWatching(): boolean {
-          return NotifyChangeWatchers.unwatchChanges(wiring.writerName)
+          return NotifyChangeWatchers.unwatchChanges(wiring.changeWatchers, wiring.writerName)
         },
       }
     },

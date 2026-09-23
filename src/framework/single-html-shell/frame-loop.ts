@@ -97,7 +97,7 @@ import {
   importDocument,
   type OpenChoice,
 } from '../../use-case/import-document/import-document'
-import { notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
+import { emptyChangeWatchers, notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
 import {
   validateImportedDocument,
   type ImportBounds,
@@ -2237,6 +2237,7 @@ export function frameLoop(
   let callOffScaleMessage: (() => void) | null = null
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
+  const changeWatchers = emptyChangeWatchers()
 
   const holder: DocumentHolder = {
     /** @purity semi-pure-b */
@@ -2267,7 +2268,7 @@ export function frameLoop(
     deliver(document: Document, hasMovedSchedule: boolean): void {
       sendToSession(DOCUMENT_REPLACED, null)
       try {
-        const outcome = notifyChangeWatchers({ document, hasMovedSchedule, dialogue: dialogueLog })
+        const outcome = notifyChangeWatchers(changeWatchers, { document, hasMovedSchedule, dialogue: dialogueLog })
         sendToSession({ type: 'changeDelivered', silentWatchers: outcome.failures.length }, null)
       } catch (fault) {
         // TRAP: the window must close on a throw too, or WS-2 refuses every later write.
@@ -4658,6 +4659,7 @@ export function frameLoop(
       rasterizer,
       appShell,
       takeInDocument: takeInHandedDocument,
+      changeWatchers,
       ...dialogueSeams,
     }),
     /** @purity non-pure */

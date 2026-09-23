@@ -412,7 +412,7 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
 /** AG-6's 「自分」. Neither ED-1's word nor the word `OPENED_STAMP` carries. */
 const WATCHER = 'agent-under-test'
 
-const REGISTERED: string[] = []
+const REGISTERED: (() => void)[] = []
 
 /**
  * Subscribes from where the document stands right now, which is what AG-6 calls
@@ -421,7 +421,8 @@ const REGISTERED: string[] = []
  */
 function watching(loop: ReturnType<typeof frameLoop>): ChangeNotice[] {
   const taken: ChangeNotice[] = []
-  watchChanges({
+  const watchers = loop.agentApiSeams().changeWatchers
+  watchChanges(watchers, {
     watcher: WATCHER,
     since: {
       seenScheduleUpdatedUtc: stampOf(loop.document()).scheduleUpdatedUtc,
@@ -429,12 +430,12 @@ function watching(loop: ReturnType<typeof frameLoop>): ChangeNotice[] {
     },
     deliver: (notice) => void taken.push(notice),
   })
-  REGISTERED.push(WATCHER)
+  REGISTERED.push(() => unwatchChanges(watchers, WATCHER))
   return taken
 }
 
 afterEach(() => {
-  while (REGISTERED.length > 0) unwatchChanges(REGISTERED.pop()!)
+  while (REGISTERED.length > 0) REGISTERED.pop()!()
   if (realRaf === undefined) delete (globalThis as any).requestAnimationFrame
   else (globalThis as any).requestAnimationFrame = realRaf
   vi.useRealTimers()

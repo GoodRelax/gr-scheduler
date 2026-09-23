@@ -7,6 +7,7 @@ import { documentFromMspdi, mspdiFromDocument } from '../../src/adapter/document
 import type { Document } from '../../src/entity/document-model/document/document'
 import { importDocument, type ImportRequest } from '../../src/use-case/import-document/import-document'
 import {
+  emptyChangeWatchers,
   notifyChangeWatchers,
   unwatchChanges,
   watchChanges,
@@ -109,8 +110,9 @@ describe('OP-6 -- an MSPDI read by replace puts every setting to its default', (
 })
 
 const WATCHER = 'cr-541 watcher'
+const WATCHERS = emptyChangeWatchers()
 afterEach(() => {
-  unwatchChanges(WATCHER)
+  unwatchChanges(WATCHERS, WATCHER)
 })
 
 describe('AG-6 -- the same name subscribed twice', () => {
@@ -119,15 +121,15 @@ describe('AG-6 -- the same name subscribed twice', () => {
     const since = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
     const first: ChangeNotice[] = []
     const second: ChangeNotice[] = []
-    const firstAnswer = watchChanges({ watcher: WATCHER, since, deliver: (notice) => first.push(notice) })
-    const secondAnswer = watchChanges({ watcher: WATCHER, since, deliver: (notice) => second.push(notice) })
+    const firstAnswer = watchChanges(WATCHERS, { watcher: WATCHER, since, deliver: (notice) => first.push(notice) })
+    const secondAnswer = watchChanges(WATCHERS, { watcher: WATCHER, since, deliver: (notice) => second.push(notice) })
     expect(firstAnswer, 'nothing was replaced by the first subscription').toBe(false)
     expect(secondAnswer, 'the second subscription answers that it replaced one').toBe(true)
     const changed = {
       ...document,
       documentStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2026-09-22T00:00:00Z', lastEditedBy: 'someone else' },
     } as Document
-    notifyChangeWatchers({ document: changed, hasMovedSchedule: true, dialogue: emptyDialogueLog() })
+    notifyChangeWatchers(WATCHERS, { document: changed, hasMovedSchedule: true, dialogue: emptyDialogueLog() })
     expect(first, 'the replaced subscription is no longer told').toHaveLength(0)
     expect(second, 'the new subscription is told').toHaveLength(1)
   })
@@ -136,8 +138,6 @@ describe('AG-6 -- the same name subscribed twice', () => {
 const benches: ShellBench[] = []
 afterEach(() => {
   for (const one of benches.splice(0)) one.restore()
-  unwatchChanges('cr-541 agent a')
-  unwatchChanges('cr-541 agent b')
 })
 
 describe('AG-11 -- no utterance while notices are being delivered', () => {

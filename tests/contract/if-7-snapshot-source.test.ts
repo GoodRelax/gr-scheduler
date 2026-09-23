@@ -43,6 +43,7 @@
 // through `frameLoop`, which takes its surfaces as arguments, so no DOM is
 // needed to run either half.
 
+import { emptyChangeWatchers } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { describe, expect, it } from 'vitest'
 
 import { bare, specTable } from './spec-table'
@@ -231,6 +232,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
   const source = { readSnapshot }
 
   const wiring: AgentApiWiring = {
+    changeWatchers: emptyChangeWatchers(),
     source,
     holder: {
       read: () => ({ document: over.loop.document(), history: { done: [], undone: [] } }),

@@ -884,7 +884,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     let told = 0
     let heldInside: number | null = null
     try {
-      watchChanges({
+      watchChanges(built.loop.agentApiSeams().changeWatchers, {
         watcher: SHELL_WATCHER,
         since: LONG_AGO,
         deliver: () => {
@@ -905,7 +905,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       // Exactly one delivery: the outer one. 待ち行列は作らない (FR-028).
       expect(told).toBe(1)
     } finally {
-      unwatchChanges(SHELL_WATCHER)
+      unwatchChanges(built.loop.agentApiSeams().changeWatchers, SHELL_WATCHER)
       built.restore()
     }
   })
@@ -916,7 +916,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     const built = shell(shellDocument(1) as never)
     let told = 0
     try {
-      watchChanges({
+      watchChanges(built.loop.agentApiSeams().changeWatchers, {
         watcher: SHELL_WATCHER,
         since: LONG_AGO,
         deliver: () => {
@@ -932,7 +932,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       built.loop.holdDocument({ row: 'RD-6', document: shellDocument(4) })
       expect(rowsHeld(built)).toBe(4)
     } finally {
-      unwatchChanges(SHELL_WATCHER)
+      unwatchChanges(built.loop.agentApiSeams().changeWatchers, SHELL_WATCHER)
       built.restore()
     }
   })

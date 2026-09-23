@@ -644,7 +644,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       expect(after.accepted, JSON.stringify(after)).toBe(true)
       expect(built.loop.document().schedule.project.title).toBe('D')
     } finally {
-      unwatchChanges('use-case WS-2 subscriber')
+      unwatchChanges(built.loop.agentApiSeams().changeWatchers, 'use-case WS-2 subscriber')
       built.restore()
     }
   })

@@ -1,5 +1,6 @@
 // `FR-028`'s STATEMENT (docs/spec/01-04-requirements.md:3616):
 
+import { emptyChangeWatchers } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
@@ -117,6 +118,7 @@ function bench(): Bench {
   })
 
   const wiring: AgentApiWiring = {
+    changeWatchers: emptyChangeWatchers(),
     source: { readSnapshot },
     holder: {
       read: () => ({ document: state.document, history: state.history }),
