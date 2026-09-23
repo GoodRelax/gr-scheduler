@@ -1,4 +1,4 @@
-// CV-9 / S-324 / P-19: the transparent swatch is a checkerboard, never an ink colour; unset has a dashed edge.
+// CV-9 / S-324 / P-19: the transparent swatch is a checkerboard, never an ink colour; an unset side has a dashed edge.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -47,7 +47,9 @@ const CV_9_SWATCH_IS_WHAT_IS_DRAWN =
   '名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST） —— 見本と描かれる色が食い違わない。'
 const S_324_NOT_DRAWN = '塗りも線も描かない。`null`（選んでいない）とは別物である（`_assets/tbl-glossary.md` の `P-19`）'
 const P_19_NOT_NULL = '`null`（選んでいない）とは別物である'
-const RULING_2026_09_23 = 'user ruling 2026-09-23: transparent = checkerboard swatch, unset = dashed swatch'
+const CV_9_TRANSPARENT_IS_CHECKERED = '透明の側は、値を透明の語とし、見本を市松で示すこと（MUST）'
+const CV_9_UNSET_IS_DASHED =
+  '未定義の側は、値を空け、見本を縁だけの破線で示し、`CV-3` で描く値がどちらの側と同じかを語で添えること（MUST）'
 
 const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
   const out: Record<string, unknown> = {}
@@ -222,14 +224,9 @@ const drawnPanel = (fillColor: string | null, side: Side = 'light'): FakeElement
 const chosenSwatchesOf = (panel: FakeElement): FakeElement[] =>
   selfAndDescendants(panel).filter((one) => one.getAttribute('data-colour-swatch') !== null)
 
-const valueOf = (option: FakeElement): string => option.getAttribute('value') ?? option.value
-
-// WHY: only a list that offers transparent is a colour list; other lists also hold an empty entry.
-const optionsValued = (panel: FakeElement, value: string): FakeElement[] =>
-  selfAndDescendants(panel)
-    .filter((one) => one.tagName === 'SELECT')
-    .filter((list) => selfAndDescendants(list).some((one) => one.tagName === 'OPTION' && valueOf(one) === 'transparent'))
-    .flatMap((list) => selfAndDescendants(list).filter((one) => one.tagName === 'OPTION' && valueOf(one) === value))
+// see CV-9
+const choicesNamed = (panel: FakeElement, name: string): FakeElement[] =>
+  selfAndDescendants(panel).filter((one) => one.getAttribute('data-colour-choice') === name)
 
 const SOLID_COLOUR = /^(#[0-9a-f]{3,8}|(rgb|rgba|hsl|hsla)\([^)]*\)|[a-z]+)$/i
 
@@ -259,6 +256,8 @@ const hasDashedEdge = (element: FakeElement): boolean => {
 describe('CV-9 / S-324 / P-19 -- the manuscript these cases hang on', () => {
   it.each([
     ['CV-9', REQUIREMENTS, CV_9_SWATCH_IS_WHAT_IS_DRAWN],
+    ['CV-9', REQUIREMENTS, CV_9_TRANSPARENT_IS_CHECKERED],
+    ['CV-9', REQUIREMENTS, CV_9_UNSET_IS_DASHED],
     ['S-324', SETTINGS_TABLES, S_324_NOT_DRAWN],
     ['P-19', GLOSSARY, P_19_NOT_NULL],
   ])('%s still says it, word for word', (_row, text, clause) => {
@@ -272,18 +271,18 @@ describe('CV-9 -- the transparent swatch is not drawn as an ink colour', () => {
       const swatches = chosenSwatchesOf(drawnPanel('transparent', side))
       expect(swatches.length, 'premise: the readout shows the light and dark sides').toBeGreaterThanOrEqual(2)
       for (const swatch of swatches) {
-        expect(paintsSolid(swatch), `${S_324_NOT_DRAWN}; ${RULING_2026_09_23}`).toEqual([])
-        expect(isCheckerboard(swatch), RULING_2026_09_23).toBe(true)
+        expect(paintsSolid(swatch), `${S_324_NOT_DRAWN}; ${CV_9_TRANSPARENT_IS_CHECKERED}`).toEqual([])
+        expect(isCheckerboard(swatch), CV_9_TRANSPARENT_IS_CHECKERED).toBe(true)
         expect(hasDashedEdge(swatch), `${P_19_NOT_NULL} -- transparent is not unset`).toBe(false)
       }
     })
 
-    it(`${side}: the transparent entry of the list is a checkerboard, not a solid colour (MUST)`, () => {
-      const options = optionsValued(drawnPanel(null, side), 'transparent')
-      expect(options.length, 'premise: the list offers transparent').toBeGreaterThan(0)
-      for (const option of options) {
-        expect(paintsSolid(option).filter((one) => !one.startsWith('color:')), `${S_324_NOT_DRAWN}; ${RULING_2026_09_23}`).toEqual([])
-        expect(isCheckerboard(option), RULING_2026_09_23).toBe(true)
+    it(`${side}: the transparent entry of the field is a checkerboard, not a solid colour (MUST)`, () => {
+      const choices = choicesNamed(drawnPanel(null, side), 'transparent')
+      expect(choices.length, 'premise: the field offers transparent').toBeGreaterThan(0)
+      for (const choice of choices) {
+        expect(paintsSolid(choice).filter((one) => !one.startsWith('color:')), `${S_324_NOT_DRAWN}; ${CV_9_SWATCH_IS_WHAT_IS_DRAWN}`).toEqual([])
+        expect(isCheckerboard(choice), CV_9_TRANSPARENT_IS_CHECKERED).toBe(true)
       }
     })
   }
@@ -293,9 +292,9 @@ describe('P-19 -- unset is told apart from transparent', () => {
   it('an unset colour shows a dashed swatch, and transparent does not (MUST)', () => {
     const unset = chosenSwatchesOf(drawnPanel(null))
     expect(unset.length, 'premise: the readout shows the sides').toBeGreaterThanOrEqual(2)
-    for (const swatch of unset) expect(hasDashedEdge(swatch), `${P_19_NOT_NULL}; ${RULING_2026_09_23}`).toBe(true)
+    for (const swatch of unset) expect(hasDashedEdge(swatch), `${P_19_NOT_NULL}; ${CV_9_UNSET_IS_DASHED}`).toBe(true)
     for (const swatch of chosenSwatchesOf(drawnPanel('transparent'))) {
-      expect(hasDashedEdge(swatch), `${P_19_NOT_NULL}; ${RULING_2026_09_23}`).toBe(false)
+      expect(hasDashedEdge(swatch), `${P_19_NOT_NULL}; ${CV_9_UNSET_IS_DASHED}`).toBe(false)
     }
   })
 
@@ -304,11 +303,5 @@ describe('P-19 -- unset is told apart from transparent', () => {
       expect(hasDashedEdge(swatch)).toBe(false)
       expect(isCheckerboard(swatch)).toBe(false)
     }
-  })
-
-  it('the unset entry of the list has a dashed edge (MUST)', () => {
-    const options = optionsValued(drawnPanel('red'), '')
-    expect(options.length, 'premise: the list offers unset').toBeGreaterThan(0)
-    for (const option of options) expect(hasDashedEdge(option), `${P_19_NOT_NULL}; ${RULING_2026_09_23}`).toBe(true)
   })
 })

@@ -86,7 +86,8 @@ const floorDayAfter = (start: string): string => {
 
 afterEach(restoreAnimationFrames)
 
-const built = (): Stage => stage(benchDocument())
+// see S-63
+const built = (): Stage => stage(benchDocument({ progressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {
   const frame = frameOf(one.loop)

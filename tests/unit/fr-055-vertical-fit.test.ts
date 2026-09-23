@@ -318,8 +318,10 @@ describe('above the floor, zoomY reaches the occupied WIDTH -- and through it th
       spanning(2, '2026-02-10', 10),
     ])
 
-    const shallow = layoutFromSchedule(schedule, withZoomY(0.5), REGIONS)
-    const deep = layoutFromSchedule(schedule, withZoomY(3), REGIONS)
+    // see S-63, T-273
+    const marked = (zoomY: number): DocumentSettings => settingsOf({ ...withZoomY(zoomY), progressMarkerVisible: true })
+    const shallow = layoutFromSchedule(schedule, marked(0.5), REGIONS)
+    const deep = layoutFromSchedule(schedule, marked(3), REGIONS)
 
     // Both Tasks clear S-86 at zoomX 1 (60px against 24px), so table T-005a's
     // L-2 drops neither and the two layouts hold the same Tasks.

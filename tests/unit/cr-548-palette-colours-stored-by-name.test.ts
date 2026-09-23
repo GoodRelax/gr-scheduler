@@ -48,6 +48,13 @@ import { specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
+// see CV-9, FR-038
+const CUSTOM_WORD_JA = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+    colourField: readonly { part: string; text: { ja: string } }[]
+  }
+).colourField.find((one) => one.part === 'custom')?.text.ja
+
 const FR_007_CUSTOM = '⭐ パレットに無い色は、カスタムカラーとして選ばせること（MUST）'
 const FR_007_T_017B = 'カスタムカラーとして選ばせること（MUST） —— 持ち方と描き方は 表 T-017b に従うこと（MUST）'
 const FR_007_TRANSPARENT = '塗りと輪郭を同時に透明にすることを許してはならない（MUST NOT）'
@@ -71,7 +78,7 @@ const CV_8_NO_CORRECTION = '⛔ カスタムカラーの値を、明暗のどち
 const CV_8_NO_NOTICE = '未定義の側を `CV-3` で描いたことを通知してはならない（MUST NOT）'
 const CV_9_FIELD = 'プロパティパネルの色の欄は、表 T-294 の名とカスタムカラーの入口を並べて選ばせること（MUST）'
 const CV_9_SWATCH = '名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST）'
-const CV_9_BOTH_SIDES = '⭐ 欄には、選んでいる色の明るいテーマと暗いテーマの見本を並べて示すこと（MUST）'
+const CV_9_BOTH_SIDES = '⭐ 欄には、選んでいる色の明るいテーマの側と暗いテーマの側を 1 行に並べ、側ごとに見本と値を示すこと（MUST）'
 const T_017A_ACTUAL = '実績の色は予定と同じ色相から導き、実績を濃く描くこと（MUST）'
 
 const CLAUSES = [
@@ -439,7 +446,7 @@ describe('FR-007 -- a colour not on the palette is chosen as a custom colour', (
   it(FR_007_CUSTOM, () => {
     const control = colourControl(panelOf(scheduleOf(null), 'light', holdingTask()), 'fillColor')
     expect(control.colour, 'the colour field describes a custom entrance').toBeDefined()
-    expect(control.colour!.customWord, 'the entrance is named by the dictionary (FR-038)').toBe('カスタムカラー')
+    expect(control.colour!.customWord, 'the entrance is named by the dictionary (FR-038)').toBe(CUSTOM_WORD_JA)
     expect(fillCommitted(null, PICKED, 'light'), 'a value picked there is written').toBe(`${PICKED}/`)
   })
 
@@ -627,7 +634,7 @@ describe('CV-9 -- the colour field', () => {
     for (const column of ['fillColor', 'strokeColor']) {
       const control = colourControl(task, column)
       expect(spellingsOf(control), `${column}: the names in T-294's order`).toEqual(T_294.map((row) => row.spelling))
-      expect(control.colour?.customWord, `${column}: with the custom entrance`).toBe('カスタムカラー')
+      expect(control.colour?.customWord, `${column}: with the custom entrance`).toBe(CUSTOM_WORD_JA)
     }
     const group = panelOf(scheduleOf(null), 'light', emptySelection(), ['g1'])
     const band = colourControl(group, 'color')

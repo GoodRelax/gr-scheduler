@@ -29,7 +29,7 @@ const T_245_NO_NEW_REFUSALS = '⛔ 本要求は新しい拒み方を立てない
 afterEach(restoreAnimationFrames)
 
 const withoutStop = (): Document => {
-  const document = benchDocument()
+  const document = benchDocument({ progressMarkerVisible: true }) // see S-63
   const tasks = document.schedule.tasks.map((one) => (one.uid === PAUSED_UID ? { ...one, stop: null } : one))
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
@@ -48,7 +48,7 @@ describe('PND-318 premises: the clauses this case is driven by', () => {
   })
 
   it('control: with a stop day the same GA-20 release writes resume', () => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true }))
     dragTo(one, resumeIconOf(one), xOfDay(one.loop, april(22)))
     expect(dayPart(taskIn(one.loop, PAUSED_UID).resume)).toBe('2026-04-22')
   })

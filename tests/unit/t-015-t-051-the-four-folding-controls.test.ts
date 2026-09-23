@@ -1,7 +1,7 @@
-// The four folding controls of a row, the four of the panel's head, and the
+// The four folding controls of a row, the five of the panel's head, and the
 // picture each of them leaves behind -- 表 T-015 の `HR-1a` / `HR-2` / `HR-3` /
 // `HR-4` / `HR-5` / `HR-6` / `HR-7`, 表 T-051 の `HF-2` / `HF-3` / `HF-10` /
-// `HF-11` / `HF-12` / `HF-13` / `HF-16` / `HF-17` / `HF-18` and the two
+// `HF-11` / `HF-12` / `HF-13` / `HF-16` / `HF-17` / `HF-18` / `HF-20` and the two
 // paragraphs printed under that table, all rewritten on 2026-08-31.
 //
 // WRITTEN WITHOUT READING ONE LINE OF `src/` (docs/development-rules/
@@ -154,11 +154,16 @@ const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   })
   .map((one) => one.id)
 
-/** Whether a 正 cell of 表 T-109 names one of those rows. */
+/** Whether a cell of 表 T-109 names one of those rows. */
 const isHeadRule = (authority: string): boolean =>
   T_051_AT_THE_HEAD.some((rule) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
   )
+
+// see HF-20, IC-106
+// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
+const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
+  isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
 /** Every entrance 表 T-109 stands on the `Row Title Panel`, head and rows alike. */
 const T_109_ON_THE_PANEL = T_109.rows.filter(
@@ -166,13 +171,9 @@ const T_109_ON_THE_PANEL = T_109.rows.filter(
 )
 
 /** Those of them the panel's HEAD carries, and those each ROW carries. */
-const AT_THE_HEAD: readonly string[] = T_109_ON_THE_PANEL.filter((one) =>
-  isHeadRule(one.by['正'] ?? ''),
-).map((one) => one.id)
+const AT_THE_HEAD: readonly string[] = T_109_ON_THE_PANEL.filter(namesHeadRule).map((one) => one.id)
 
-const ON_A_ROW: readonly string[] = T_109_ON_THE_PANEL.filter(
-  (one) => !isHeadRule(one.by['正'] ?? ''),
-).map((one) => one.id)
+const ON_A_ROW: readonly string[] = T_109_ON_THE_PANEL.filter((one) => !namesHeadRule(one)).map((one) => one.id)
 
 /**
  * The entrance 表 T-109 gives one row of 表 T-051 or one requirement.
@@ -182,9 +183,10 @@ const ON_A_ROW: readonly string[] = T_109_ON_THE_PANEL.filter(
  * which icon that is, instead of typing `IC-90` and going quiet the day the
  * roster is renumbered.
  */
-function entranceFor(rule: string): string {
-  const found = T_109_ON_THE_PANEL.filter((one) =>
-    new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
+function entranceFor(rule: string, among: readonly string[] = [...AT_THE_HEAD, ...ON_A_ROW]): string {
+  const found = T_109_ON_THE_PANEL.filter(
+    (one) =>
+      among.includes(one.id) && new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(one.by['正'] ?? ''),
   )
   const first = found[0]
   if (found.length !== 1 || first === undefined) {
@@ -199,13 +201,16 @@ const OPEN_ONE_LEVEL = entranceFor('HF-13') // HR-7 -- open one level
 const FOLD_BELOW = entranceFor('HF-11') //  HR-4 -- fold this row
 const OPEN_ALL_BELOW = entranceFor('HF-2') // HR-3 -- open everything below
 
-/** The four the head carries, each of them one of those four done at 段 0. */
+/** The five the head carries, each of them one of a row's entrances done at 段 0. */
 const HEAD_OPEN_ONE_LEVEL = entranceFor('HF-16')
 const HEAD_FOLD_EVERY_ROW = entranceFor('HF-12')
 const HEAD_OPEN_EVERY_ROW = entranceFor('HF-10')
 const HEAD_ADD_ROW = entranceFor('HF-17')
+// see HF-20
+const HEAD_DELETE_EVERY_ROW = entranceFor('FR-032', AT_THE_HEAD)
+const DELETE_THIS_ROW = entranceFor('FR-032', ON_A_ROW)
 
-/** The three a row carries and the head must not (closing paragraph). */
+/** The two a row carries and the head must not (closing paragraph). */
 const ADD_CHILD_ROW = entranceFor('HF-14')
 
 // ===========================================================================
@@ -614,11 +619,18 @@ describe('the manuscript still says what these cases read', () => {
     // AGREE WITH ANYTHING -- rule 04 section 2.
     expect(ROW_TITLE_PANEL).toBe('Row Title Panel')
     expect(ROW_TITLE_TREE).toBe('Row Title Tree')
-    expect(T_051_AT_THE_HEAD.slice().sort()).toEqual(['HF-10', 'HF-12', 'HF-16', 'HF-17'])
+    expect(T_051_AT_THE_HEAD.slice().sort()).toEqual(['HF-10', 'HF-12', 'HF-16', 'HF-17', 'HF-20'])
     expect(new Set([HIDE, OPEN_ONE_LEVEL, FOLD_BELOW, OPEN_ALL_BELOW]).size).toBe(4)
     expect(
-      new Set([HEAD_OPEN_ONE_LEVEL, HEAD_FOLD_EVERY_ROW, HEAD_OPEN_EVERY_ROW, HEAD_ADD_ROW]).size,
-    ).toBe(4)
+      new Set([
+        HEAD_OPEN_ONE_LEVEL,
+        HEAD_FOLD_EVERY_ROW,
+        HEAD_OPEN_EVERY_ROW,
+        HEAD_ADD_ROW,
+        HEAD_DELETE_EVERY_ROW,
+      ]).size,
+    ).toBe(5)
+    expect(HEAD_DELETE_EVERY_ROW, 'the head delete is not the row delete').not.toBe(DELETE_THIS_ROW)
   })
 
   it('⛔ 表 T-015 still says what each of the four folding operations does', () => {
@@ -653,14 +665,16 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain('行が描かれるかどうかを決める状態は 2 つだけとすること（MUST）')
     expect(REQUIREMENTS).toContain('押した行の状態を書き換えずに、その配下の状態だけを書き換えてはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain('パネルの頭は段 0 であり、行ではない。')
+    // see HF-20
     expect(REQUIREMENTS).toContain(
-      '頭が持つ入口が 4 つ、行が持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）',
+      '頭が持つ入口が 5 つ、行が持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）',
     )
     expect(REQUIREMENTS).toContain(
-      '段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、実体が無いので消せず（`FR-032`）、行でないので留められない（`FR-098`）。',
+      '段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、行でないので留められない（`FR-098`）。',
     )
+    expect(REQUIREMENTS).toContain('頭にその 2 つの入口を置いてはならない（MUST NOT）。')
     expect(REQUIREMENTS).toContain(
-      '`HF-16` は `HF-13` を、`HF-12` は `HF-11` を、`HF-10` は `HF-2` を、`HF-17` は `HF-14` を、それぞれ段 0 に対して行うものである。',
+      '`HF-16` は `HF-13` を、`HF-12` は `HF-11` を、`HF-10` は `HF-2` を、`HF-17` は `HF-14` を、それぞれ段 0 に対して行うものである、`HF-20` は行ごとの削除（表 T-109 の `IC-82`）を段 0 に対して行うものである。',
     )
     // The arming rule every case in the last block rests on.
     expect(REQUIREMENTS).toContain(
@@ -1107,13 +1121,11 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
     )
   })
 
-  it('⛔ MUST NOT: the head carries none of the three a row keeps to itself', () => {
-    // 「⭐ **段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、実体が無いので消せず
-    // （`FR-032`）、行でないので留められない（`FR-098`）。**⛔ **頭にその 3 つの入口を
-    // 置いてはならない（MUST NOT）。**」 ⇒ a press that names no row cannot hide,
-    // delete or pin anything, whichever of the three entrances it carries.
+  // see HF-20
+  it('⛔ MUST NOT: the head carries neither of the two a row keeps to itself', () => {
+    // A press that names no row cannot hide or pin anything, whichever of the two entrances it carries.
     const rowsBefore = drawnRows(stage())
-    for (const rule of ['HF-3', 'FR-032', 'FR-098']) {
+    for (const rule of ['HF-3', 'FR-098']) {
       const built = stage()
 
       built.press(entranceFor(rule), null)
@@ -1133,17 +1145,15 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
 // 6. Four entrances at the head, seven on a row -- and why
 // ===========================================================================
 
-describe('表 T-051 の結び -- the head has four entrances and a row has seven', () => {
-  it('⛔ the roster itself splits four and seven, and the three are the difference', () => {
-    // 「⇒ ⭐ **頭が持つ入口が 4 つ、行が持つ入口が 7 つであることは、この 1 つの違いから
-    // 出る（MUST）** —— **段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、実体が無い
-    // ので消せず（`FR-032`）、行でないので留められない（`FR-098`）。**」
-    expect(AT_THE_HEAD).toHaveLength(4)
+// see HF-20
+describe('表 T-051 の結び -- the head has five entrances and a row has seven', () => {
+  it('⛔ the roster itself splits five and seven, and hide and pin stay on the row', () => {
+    expect(AT_THE_HEAD).toHaveLength(5)
     expect(ON_A_ROW).toHaveLength(7)
     // ⭐ AND THE THREE ARE THE NAMED THREE, so the arithmetic is the
     // manuscript's reason and not a coincidence of two counts.
     expect(ON_A_ROW.filter((one) => !AT_THE_HEAD.includes(one))).toHaveLength(7)
-    for (const rule of ['HF-3', 'FR-032', 'FR-098']) {
+    for (const rule of ['HF-3', 'FR-098']) {
       expect(ON_A_ROW, `${rule}'s entrance left the row`).toContain(entranceFor(rule))
       expect(AT_THE_HEAD, `${rule}'s entrance appeared at the head`).not.toContain(
         entranceFor(rule),
@@ -1151,7 +1161,7 @@ describe('表 T-051 の結び -- the head has four entrances and a row has seven
     }
   })
 
-  it('⛔ MUST: the panel draws seven entrances on a row and four at its head', () => {
+  it('⛔ MUST: the panel draws seven entrances on a row and five at its head', () => {
     // ⭐ THE COUNT IS ONLY OBSERVABLE WHERE THEY ARE DRAWN: nothing in
     // `ScreenView` enumerates a row's entrances, so this one case is driven
     // through the DOM surface rather than the loop.

@@ -211,6 +211,7 @@ const SETTINGS = settingsOf({
   stackDirection: 'down', // S-58, pinned so every y reads from the top
   rulerHeight: 48,
   rulerFont: 12,
+  progressMarkerVisible: true, // see S-63; the fixture below is calibrated with the marker drawn
   // ⭐ S-60. OC-2 of table T-038 counts the assignee label ONLY while it is
   // shown (MUST NOT otherwise), so the GR-11 case below cannot be written at
   // the default. Every other case is indifferent to it.

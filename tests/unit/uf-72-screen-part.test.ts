@@ -305,11 +305,16 @@ if (T_051_AT_THE_HEAD.length === 0) {
   throw new Error('表 T-051 no longer places a single control at the panel’s head')
 }
 
-/** Whether a 正 cell of 表 T-109 names one of the rows above. */
+/** Whether a cell of 表 T-109 names one of the rows above. */
 const isHeadRule = (authority: string): boolean =>
   T_051_AT_THE_HEAD.some((rule) =>
     new RegExp(`(^|[^0-9A-Za-z-])${rule}([^0-9-]|$)`).test(authority),
   )
+
+// see HF-20, IC-106
+// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
+const namesHeadRule = (one: { readonly by: Readonly<Record<string, string>> }): boolean =>
+  isHeadRule(one.by['正'] ?? '') || isHeadRule(one.by['何の入口か'] ?? '')
 
 /**
  * Every entry 表 T-109 puts on the `Row Title Panel`, IN THE ORDER THE TABLE
@@ -347,7 +352,7 @@ const T_109_ON_THE_ROW = T_109.rows
   // ⛔ THE PANEL'S HEAD IS NOT A ROW, and which rows stand there is read out of
   // 表 T-051 rather than written here -- see `T_051_AT_THE_HEAD` above for why
   // the list that used to stand in this line could not be kept true.
-  .filter((one) => !isHeadRule(one.by['正'] ?? ''))
+  .filter((one) => !namesHeadRule(one))
   .map((one) => ({ row: one.id, surface: partName('U-22') }))
 
 if (T_109_ON_THE_ROW.length === 0) {
@@ -362,7 +367,7 @@ if (T_109_ON_THE_ROW.length === 0) {
  */
 const T_109_AT_THE_HEAD = T_109.rows
   .filter((one) => bareAll(one.by['面'] ?? '').includes(partName('U-22')))
-  .filter((one) => isHeadRule(one.by['正'] ?? ''))
+  .filter(namesHeadRule)
   .map((one) => ({ row: one.id, rule: one.by['正'] ?? '' }))
 
 if (T_109_AT_THE_HEAD.length === 0) {
@@ -4794,6 +4799,11 @@ const HF10_LEFT_TO_RIGHT = [
   entranceForRule('HF-17'),
 ]
 
+// see HF-20
+const HF20_HEAD_DELETE = T_109.rows.find(
+  (one) => namesHeadRule(one) && /(^|[^0-9A-Za-z-])HF-20([^0-9-]|$)/.test(one.by['何の入口か'] ?? ''),
+)?.id
+
 /** Every node on the page carrying one of these rows of 表 T-109. */
 const nodesFor = (built: Stage, rows: readonly string[]): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => rows.includes(iconOf(one)))
@@ -5263,11 +5273,12 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     // （MUST NOT）** —— **頭も行も、折り畳みの外に立つのは行を増やす入口である**」.
     expect(hf10).toContain('本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）')
 
-    expect([...HF10_LEFT_TO_RIGHT].sort()).toEqual(
+    expect(HF20_HEAD_DELETE, 'table T-109 gives HF-20 an entrance at the head').toBeDefined()
+    expect([...HF10_LEFT_TO_RIGHT, HF20_HEAD_DELETE].sort()).toEqual(
       [...T_109_AT_THE_HEAD.map((one) => one.row)].sort(),
     )
     // ⭐ AND NOT ONE OF THEM IS ALSO A ROW CONTROL.
-    for (const row of HF10_LEFT_TO_RIGHT) {
+    for (const row of [...HF10_LEFT_TO_RIGHT, HF20_HEAD_DELETE]) {
       expect(
         T_109_ON_THE_ROW.map((one) => one.row),
         `${row} is on a row as well`,
@@ -5281,7 +5292,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT))).toEqual(HF10_LEFT_TO_RIGHT)
   })
 
-  it('⭐ GIVEN a panel of TWO rows WHEN the head’s controls are counted THEN each is drawn ONCE for the whole panel, not once per row (HF-10 / HF-12 / HF-16 / HF-17: 1 つ置くこと)', () => {
+  it('⭐ GIVEN a panel of TWO rows WHEN the head’s controls are counted THEN each is drawn ONCE for the whole panel, not once per row (HF-10 / HF-12 / HF-16 / HF-17 / HF-20: 1 つ置くこと)', () => {
     const built = drawn(
       viewWith({
         rowTitlePanel: {
@@ -5312,7 +5323,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect(nodesFor(built, [entranceForRule('HF-3')]).length).toBe(2)
   })
 
-  it('⭐⭐ GIVEN a panel with NO rows at all WHEN the head is read THEN all four are still drawn (HF-17: 行が 1 つも無い文書では押す相手が存在しない)', () => {
+  it('⭐⭐ GIVEN a panel with NO rows at all WHEN the head is read THEN all five are still drawn (HF-17: 行が 1 つも無い文書では押す相手が存在しない)', () => {
     // ⛔ WITHOUT THIS, `HF-17`'s own reason is unreachable: 「**本行が無いと、最も
     // 浅い段の行を作る道が画面から消える** —— `FR-085` は最上位の行を作れることを
     // 求めており、`HR-8` は足す先を配下と定めるので、**行が 1 つも無い文書では押す

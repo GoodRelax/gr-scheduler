@@ -49,6 +49,7 @@ const LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED =
 const SHORT = 'ab'
 const LONG = 'a name that is far too long to stand inside a narrow bar'
 
+// see S-63
 const rectangle = (
   over: Readonly<Record<string, unknown>>,
   settings: Readonly<Record<string, unknown>> = {},
@@ -57,7 +58,7 @@ const rectangle = (
   sceneOf({
     tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],
     shapeKind: 'rectangle',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const lineShape = (
@@ -69,7 +70,7 @@ const lineShape = (
   sceneOf({
     tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],
     shapeKind,
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const milestone = (
@@ -79,7 +80,7 @@ const milestone = (
   sceneOf({
     tasks: [taskOf({ name: SHORT, start: day(6), finish: day(6), milestone: true, ...over })],
     shapeKind: 'milestone',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const mustBe = <T>(value: T | null | undefined, what: string): T => {

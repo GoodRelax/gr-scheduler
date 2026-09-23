@@ -1019,7 +1019,7 @@ describe('FR-098 (MUST) -- a dependency line is cut by which rows its two ends a
 // ===========================================================================
 
 describe('FR-098 (MUST) -- the pinned row’s own figures are still drawn in the band', () => {
-  const SCROLLED = draw({ pinnedGroupIds: [PINNED], scrollGroupId: ANCHOR })
+  const SCROLLED = draw({ pinnedGroupIds: [PINNED], scrollGroupId: ANCHOR, progressMarkerVisible: true })
   const BAND = bandOf(SCROLLED, [PINNED])
   const inBand = (): readonly Figure[] => figuresOf(SCROLLED.svg).filter((one) => inks(one, BAND))
 
@@ -1028,15 +1028,14 @@ describe('FR-098 (MUST) -- the pinned row’s own figures are still drawn in the
   // pinned row's or a violation the previous block has already reported. These
   // cases therefore ask only that the band is NOT EMPTY of each kind.
 
-  it('⛔ MUST: the pinned row’s ground is laid, spanning the `Row Area`', () => {
+  // see FR-051
+  it('⛔ MUST: the pinned row’s ground is laid, spanning the `Row Area` and the canvasPadding up to the vertical Scrollbars', () => {
     // 「⭐⭐ 留めた行そのものにも地を敷くこと（MUST）」.
     // ⭐ HOW IT COULD FAIL: a fix that clipped the whole band away, or one that
     // never drew the pinned row's ground, leaves no full-width rectangle here.
+    const toTheScrollbar = SCROLLED.regions.rowArea.width + SCROLLED.settings.canvasPadding
     const grounds = inBand().filter(
-      (one) =>
-        one.tag === 'rect' &&
-        one.box !== null &&
-        Math.abs(one.box.x1 - one.box.x0 - SCROLLED.regions.rowArea.width) <= 1,
+      (one) => one.tag === 'rect' && one.box !== null && Math.abs(one.box.x1 - one.box.x0 - toTheScrollbar) <= 1,
     )
 
     expect(grounds.length, 'FR-098 (MUST): 留めた行そのものにも地を敷くこと').toBeGreaterThan(0)

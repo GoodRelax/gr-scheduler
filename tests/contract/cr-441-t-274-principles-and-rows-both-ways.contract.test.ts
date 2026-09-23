@@ -22,10 +22,11 @@ const COVERS = '覆う行'
 const FR_104_EACH_NAMES_A_TABLE =
   '⚠️ **逆に、`FR-104` 〜 `FR-110` ／ `FR-043` ／ `FR-009` ／ `FR-044` のどれも、表 T-266 ／ 表 T-267 ／ 表 T-268 ／ 表 T-269 ／ 表 T-270 ／ 表 T-271 ／ 表 T-272 ／ 表 T-273 ／ 表 T-020 のうち少なくとも 1 つを名指すこと（MUST）**'
 
-// WHY: CR-441 section 5 claims these three numbers; the spec is measured below, and this is the claim
-// WHY: it is compared with, so a later row that moves them is a red that names the claim.
-const CLAIMED_ROWS = 86
-const CLAIMED_COVERED = 82
+// WHY: CR-441 section 5 claimed 86/82/4; CR-551 E-40 added PK-10 to PP-6's covered rows, moving the
+// WHY: count to 87/83/4. The spec is measured below, and this is the claim it is compared with, so a
+// WHY: later row that moves them again is a red that names the claim.
+const CLAIMED_ROWS = 87
+const CLAIMED_COVERED = 83
 const CLAIMED_EXCEPTIONS = 4
 
 const ROW_ID = /`([A-Z]+-\d+[a-z]?)`/g

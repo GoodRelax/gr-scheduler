@@ -1749,7 +1749,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         ],
         ['g1'],
         [taskVisual(1)],
-        {},
+        { progressMarkerVisible: true }, // see S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
@@ -1806,7 +1806,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         [task({ uid: 1, name: 'x', start: day(2), finish: day(10) })],
         ['g1'],
         [taskVisual(1)],
-        {},
+        { progressMarkerVisible: true }, // see S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
@@ -1859,7 +1859,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           ],
           ['g1'],
           [taskVisual(1)],
-          {},
+          { progressMarkerVisible: true }, // see S-63
           day(10),
         )
         const marker = geometryOf(drawn, 1).marker

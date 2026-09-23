@@ -37,11 +37,12 @@ const DM_1_THE_DUMMY_STANDS_ON_THE_PLAN_START =
 
 const NAME = 'ab'
 
+// see S-63
 const scene = (over: Readonly<Record<string, unknown>>, settings: Readonly<Record<string, unknown>> = {}): Scene =>
   sceneOf({
     tasks: [taskOf({ name: NAME, start: day(2), finish: day(28), ...over })],
     shapeKind: 'rectangle',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const milestoneScene = (
@@ -51,7 +52,7 @@ const milestoneScene = (
   sceneOf({
     tasks: [taskOf({ name: NAME, start: day(6), finish: day(6), milestone: true, ...over })],
     shapeKind: 'milestone',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const mustBe = <T>(value: T | null | undefined, what: string): T => {

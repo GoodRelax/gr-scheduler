@@ -358,12 +358,14 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
   return out as unknown as DocumentSettings
 }
 
+// see S-63
 const SETTINGS = settingsOf({
   scrollDate: stored('2026-01-01'), // S-77, so the day-to-x map has an origin
   scrollGroupId: 'g1', // S-78, so a row is at the top
   stackDirection: 'down', // S-58, so every y reads from the top of the band
   zoomX: ZOOM_X, // S-75 -- see the note on ZOOM_X
   displayScale: DEFAULT_DISPLAY_SCALE,
+  progressMarkerVisible: true,
 })
 
 const ENV: ScreenEnvironment = {

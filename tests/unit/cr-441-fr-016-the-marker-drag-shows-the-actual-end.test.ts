@@ -85,7 +85,7 @@ describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, () => {
   ] as const
 
   it.each(CASES)('$what: the drawn actual ends on the day under the pointer while the marker is held', ({ uid }) => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true })) // see S-63
     const target = april(17)
     hold(one, uid, target)
     const end = drawnEndOf(one, uid)
@@ -94,7 +94,7 @@ describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, () => {
   })
 
   it.each(CASES)('$what: the drawn end moves with the pointer, day by day', ({ uid }) => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true }))
     hold(one, uid, april(15))
     const first = drawnEndOf(one, uid)
     const from = markerOf(one, uid)
@@ -103,7 +103,7 @@ describe(`FR-016: ${FR_016_THE_MARKER_SHOWS_THE_END}`, () => {
   })
 
   it.each(CASES)('$what: the picture is not the document -- nothing is stored until the release', ({ uid }) => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true }))
     const before = lastActualDayOf(one, uid)
     hold(one, uid, april(17))
     expect(lastActualDayOf(one, uid), FR_016_THE_MARKER_SHOWS_THE_END).toBe(before)

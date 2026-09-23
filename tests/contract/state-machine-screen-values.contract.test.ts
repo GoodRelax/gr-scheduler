@@ -236,6 +236,7 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   isAgentApiEnabled: [true, false],
   hasDaysToPlace: [true, false],
   writes: [[]],
+  guideCursor: ['crosshair'],
 }
 
 const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(

@@ -105,8 +105,9 @@ const MOUSE_DRIVERS = T_023.rows
   .map((row) => ({ row: row.id, icons: entrancesInCell(row.by[H_ENTRANCE] ?? '') }))
   .filter((one) => one.icons.length > 0)
 
+// see HF-10, HF-20
 const ROW_TITLE_PANEL_ORDER = [
-  'IC-92', 'IC-78', 'IC-74', 'IC-93',
+  'IC-92', 'IC-78', 'IC-74', 'IC-106', 'IC-93',
   'IC-59', 'IC-90', 'IC-77', 'IC-58', 'IC-82', 'IC-91', 'IC-60',
 ] as const
 

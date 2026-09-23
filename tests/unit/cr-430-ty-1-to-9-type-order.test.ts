@@ -47,8 +47,9 @@ const kindsIn = (cell: string): readonly string[] => plain(cell).split('・').fi
 const columnKinds = (column: string): readonly string[] =>
   rowsOf('T-268').flatMap((row) => kindsIn(row.by[column] ?? ''))
 
-const SCENE = sceneOf('rectangle')
-const MILESTONE = sceneOf('milestone')
+// see S-63
+const SCENE = sceneOf('rectangle', { progressMarkerVisible: true })
+const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
 
 describe('table T-268 -- the manuscript shape of the nine rows', () => {
   it(`holds exactly TY-1 through TY-9: ${T_268_TOP_FIRST}`, () => {
@@ -124,7 +125,11 @@ describe(`TY-2 / TY-3 -- the marker outside the actual and the resume icon answe
   // WHY: a one-day actual, so table T-273's LP-2 stands the marker just right of the base's end --
   // WHY: on the default actual the label fits, the marker stands at its start and TY-7 applies instead.
   it('gives the marker the pixel it shares with the plan end grab', () => {
-    const SHORT = sceneOf('rectangle', {}, { stop: PLAN_START, resume: null, resumeValid: null })
+    const SHORT = sceneOf(
+      'rectangle',
+      { progressMarkerVisible: true },
+      { stop: PLAN_START, resume: null, resumeValid: null },
+    )
     const marker = markerOf(SHORT.started)
     const plan = boxOf((SHORT.started as unknown as { plan: unknown }).plan)
     expect(marker, 'premise: a marker is drawn').not.toBeNull()

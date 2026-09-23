@@ -67,12 +67,13 @@ const TALL_BASE_PLAN_HEIGHT = 120
 const PLAN_FROM = 2
 const PLAN_TO = 28
 
+// see S-63
 const rectangle = (over: Readonly<Record<string, unknown>> = {}, settings: Readonly<Record<string, unknown>> = {}) =>
   sceneOf({
     tasks: [taskOf({ name: 'ab', start: day(PLAN_FROM), finish: day(PLAN_TO), ...over })],
     shapeKind: 'rectangle',
     assignedTaskUids: [1],
-    settings: { assigneeVisible: true, percentCompleteVisible: true, ...settings },
+    settings: { assigneeVisible: true, percentCompleteVisible: true, progressMarkerVisible: true, ...settings },
   })
 
 const lineShape = (
@@ -84,14 +85,14 @@ const lineShape = (
     tasks: [taskOf({ name: 'ab', start: day(PLAN_FROM), finish: day(PLAN_TO), ...over })],
     shapeKind,
     assignedTaskUids: [1],
-    settings: { assigneeVisible: true, percentCompleteVisible: true, ...settings },
+    settings: { assigneeVisible: true, percentCompleteVisible: true, progressMarkerVisible: true, ...settings },
   })
 
 const milestone = (over: Readonly<Record<string, unknown>> = {}, settings: Readonly<Record<string, unknown>> = {}) =>
   sceneOf({
     tasks: [taskOf({ name: 'ab', start: day(4), finish: day(4), milestone: true, ...over })],
     shapeKind: 'milestone',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 const STARTED = { actualStart: day(PLAN_FROM), stop: day(10), resumeValid: true, percentComplete: 40 }
@@ -348,7 +349,7 @@ describe(`T-271 XS-8 -- ${says('XS-8')}`, () => {
       tasks: [taskOf({ name: 'ab', start: day(4), finish: day(4), milestone: true, actualStart: day(4), percentComplete: 50 })],
       shapeKind: 'milestone',
       assignedTaskUids: [1],
-      settings: { assigneeVisible: true, percentCompleteVisible: true },
+      settings: { assigneeVisible: true, percentCompleteVisible: true, progressMarkerVisible: true },
     })
     const drawn = scene.taskOf(1)
     const plan = bandOf(mustBe(drawn.milestoneFigure ?? drawn.plan, 'a plan diamond'))

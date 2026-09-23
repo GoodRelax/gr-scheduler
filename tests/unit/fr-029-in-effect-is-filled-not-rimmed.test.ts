@@ -362,7 +362,7 @@ describe('the manuscripts still say what these cases read', () => {
     // use, so the cases below cover its picture without knowing it by name;
     // which entrances stand in it is
     // tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts's.
-    expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5', 'EN-6'])
+    expect(T_237_ROWS.map((row) => row.id)).toEqual(['EN-1', 'EN-2', 'EN-3', 'EN-4', 'EN-5', 'EN-6', 'EN-7'])
     for (const preference of THEMES) {
       expect(t236('S-146', preference).length).toBeGreaterThan(0)
       expect(t236('S-183', preference).length).toBeGreaterThan(0)

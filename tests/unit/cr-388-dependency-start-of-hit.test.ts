@@ -73,11 +73,13 @@ const ENV: ScreenEnvironment = {
   scrollbarThickness: 8,
 }
 
+// see S-63
 const SETTINGS = settingsOf({
   scrollDate: '2026-01-01',
   rulerHeight: 48,
   rulerFont: 12,
   stackDirection: 'down',
+  progressMarkerVisible: true,
 })
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)

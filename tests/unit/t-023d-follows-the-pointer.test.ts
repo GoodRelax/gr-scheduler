@@ -522,6 +522,7 @@ function fixtureDocument(): Document {
     documentSettings: {
       ...structuredClone(template.documentSettings),
       pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      progressMarkerVisible: true, // see S-63
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],

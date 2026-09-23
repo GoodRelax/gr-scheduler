@@ -1,4 +1,4 @@
-// CR-430: table T-269 (PK-1..PK-9) -- the pointer shape each grab area shows, and the seam S7 that names it.
+// CR-430: table T-269 (PK-1..PK-10) -- the pointer shape each grab area shows, and the seam S7 that names it.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -250,8 +250,8 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-269 holds the seven rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9', () => {
-    expect(PK_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9'])
+  it('table T-269 holds the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10', () => {
+    expect(PK_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9', 'PK-10'])
   })
 
   it(`the box arrow and the circle each hold the plan and the actual in one row: ${T_269_WHITE_IS_PLAN}`, () => {
@@ -268,8 +268,8 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it('two of the seven take the environment shape, and the five others name an S row', () => {
-    expect(ENVIRONMENT_ROWS).toEqual(['PK-7', 'PK-8'])
+  it('three of the eight take the environment shape, and the five others name an S row', () => {
+    expect(ENVIRONMENT_ROWS).toEqual(['PK-7', 'PK-8', 'PK-10'])
     for (const row of IMAGE_ROWS) expect(sizeNumbersOf(row).length, `${row}: ${cellOf(row, SIZE)}`).toBeGreaterThan(0)
   })
 })

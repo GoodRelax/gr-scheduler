@@ -429,6 +429,7 @@ const draw = (schedule: Schedule, zoomX: number): Drawn => {
     scrollDate: day(1),
     stackDirection: 'down',
     displayScale: DEFAULT_DISPLAY_SCALE,
+    progressMarkerVisible: true, // see S-63
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
@@ -1312,7 +1313,7 @@ interface TwoPictures {
 
 const shellPictures = (schedule: Schedule): TwoPictures => {
   const base = structuredClone(startupTemplate) as unknown as Document
-  const settings = settingsOf({ stackDirection: 'down' })
+  const settings = settingsOf({ stackDirection: 'down', progressMarkerVisible: true })
   const document = {
     ...base,
     schedule,

@@ -66,9 +66,10 @@ const sceneKindOf = (shape: string): ShapeKind => {
   return 'rectangle'
 }
 
-const RECTANGLE = sceneOf('rectangle')
-const ARROW = sceneOf('arrow')
-const MILESTONE = sceneOf('milestone')
+// see S-63
+const RECTANGLE = sceneOf('rectangle', { progressMarkerVisible: true })
+const ARROW = sceneOf('arrow', { progressMarkerVisible: true })
+const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
 
 const sceneFor = (kind: ShapeKind): Scene =>
   kind === 'arrow' ? ARROW : kind === 'milestone' ? MILESTONE : RECTANGLE
@@ -496,7 +497,7 @@ describe('GA-20 -- the resume icon is grabbed on a box that does not shrink', ()
   })
 
   it('keeps the box when the resume date is undecided, although the icon is drawn smaller', () => {
-    const undecided = sceneOf('rectangle', {})
+    const undecided = sceneOf('rectangle', { progressMarkerVisible: true })
     const shown = resumeOf(undecided.started)
     expect(shown, 'no resume icon was drawn').not.toBeNull()
     const box = boxOfRect(shown!.box)

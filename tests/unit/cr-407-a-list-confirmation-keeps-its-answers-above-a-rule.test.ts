@@ -56,8 +56,9 @@ const S_242_CELL = bare(specTable('T-206').rows.find((row) => row.id === 'S-242'
 const S_242 = Number(/\d+(?:\.\d+)?/.exec(S_242_CELL)?.[0] ?? Number.NaN)
 
 describe('CR-407 -- the premises read from the manuscript', () => {
-  it('T-234 names QN-1, QN-2, QN-3 and QN-5 as the questions that list names', () => {
-    expect(NAMING_ROWS).toEqual(['QN-1', 'QN-2', 'QN-3', 'QN-5'])
+  // see QN-10
+  it('T-234 names QN-1, QN-2, QN-3, QN-5 and QN-10 as the questions that list names', () => {
+    expect(NAMING_ROWS).toEqual(['QN-1', 'QN-2', 'QN-3', 'QN-5', 'QN-10'])
     expect(SILENT_ROWS).toEqual(['QN-4', 'QN-9', 'QN-8'])
   })
 

@@ -70,8 +70,10 @@ const ENV: ScreenEnvironment = {
   scrollbarThickness: 8,
 }
 
+// see S-63
 const SETTINGS = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
+  progressMarkerVisible: true,
   actualVisible: false,
   rulerFont: 12, // S-3
   rulerHeight: 42, // S-2

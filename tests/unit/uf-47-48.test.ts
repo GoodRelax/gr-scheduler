@@ -838,7 +838,12 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     // The regions are this frame's...
     expect(after.regions.scheduleCanvas.width).toBe(1400)
     // ...the layout was laid out on THOSE regions...
-    expect(after.layout.originX).toBe(after.regions.rowArea.x)
+    // see S-177, FR-055
+    // WHY: the fit keeps the left edge inside a day (scrollDate plus scrollDayOffset, never snapped to
+    // the day boundary), so the origin stands up to one day left of the Row Area and never right of it.
+    const dayOffset = (after.regions.rowArea.x - after.layout.originX) / after.layout.pxPerDay
+    expect(dayOffset).toBeGreaterThanOrEqual(0)
+    expect(dayOffset).toBeLessThan(1)
     expect(after.layout.contentWidth).not.toBe(before.layout.contentWidth)
     // ...and the geometry was cut from THAT layout.
     const drawnFirst = after.geometry.tasks.find((drawnText) => drawnText.taskUid === 1)!

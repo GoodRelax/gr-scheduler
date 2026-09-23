@@ -97,7 +97,12 @@ const richScene = (): Scene =>
     highlightBoxes: [HIGHLIGHT_BOX],
     statusDate: day(14),
     selectTaskUid: 1,
-    settings: { assigneeVisible: true, percentCompleteVisible: true, dualCursorVisible: true },
+    settings: {
+      assigneeVisible: true,
+      percentCompleteVisible: true,
+      dualCursorVisible: true,
+      progressMarkerVisible: true, // see S-63
+    },
   })
 
 const EVERYTHING: DrawWish = {

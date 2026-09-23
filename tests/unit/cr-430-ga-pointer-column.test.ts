@@ -15,6 +15,8 @@ const T_269_ARMED_TOOL_WINS =
 const EXPECTED_ROW_IDS = Array.from({ length: 22 }, (_one, at) => `GA-${at + 1}`)
 // WHY: not a run of nine -- the white and black of PK-1 and PK-5 are two fills of one row each.
 const EXPECTED_POINTER_IDS = ['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9']
+// see PK-10
+const ALL_POINTER_IDS = [...EXPECTED_POINTER_IDS, 'PK-10']
 
 const frameLoopModule = async (): Promise<Record<string, unknown>> =>
   (await import('../../src/framework/single-html-shell/frame-loop')) as unknown as Record<string, unknown>
@@ -27,8 +29,8 @@ const seam = async (name: string): Promise<(...given: unknown[]) => unknown> => 
 }
 
 describe('table T-269 -- the manuscript shape of the nine pointers', () => {
-  it('holds exactly the seven rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9', () => {
-    expect(rowsOf('T-269').map((row) => row.id)).toEqual(EXPECTED_POINTER_IDS)
+  it('holds exactly the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10', () => {
+    expect(rowsOf('T-269').map((row) => row.id)).toEqual(ALL_POINTER_IDS)
   })
 
   it(`keeps white for the plan and black for the actual: ${T_269_WHITE_IS_PLAN}`, () => {

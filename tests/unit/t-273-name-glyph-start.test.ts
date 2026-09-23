@@ -74,8 +74,13 @@ const WIDE_ACTUAL = { actualStart: day(2), actualFinish: day(26), percentComplet
 const NARROW_ACTUAL = { actualStart: day(4), actualFinish: day(5), percentComplete: 20 }
 const NO_MARKER = { progressMarkerVisible: false }
 
+// see S-63
 const rectangle = (over: Record<string, unknown>, settings: Record<string, unknown> = {}, name = SHORT): Scene =>
-  sceneOf({ tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })], shapeKind: 'rectangle', settings })
+  sceneOf({
+    tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],
+    shapeKind: 'rectangle',
+    settings: { progressMarkerVisible: true, ...settings },
+  })
 
 const milestone = (settings: Record<string, unknown> = {}): Scene =>
   sceneOf({
@@ -91,7 +96,7 @@ const milestone = (settings: Record<string, unknown> = {}): Scene =>
       }),
     ],
     shapeKind: 'milestone',
-    settings,
+    settings: { progressMarkerVisible: true, ...settings },
   })
 
 describe('FR-002 -- the manuscript these cases are driven by', () => {

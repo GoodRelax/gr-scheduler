@@ -199,12 +199,14 @@ const stored = (iso: string): string => `${iso}T00:00:00`
  */
 const ZOOM_X = 6
 
+// see S-63
 const SETTINGS = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
   scrollDate: stored('2026-01-01'), // S-77, so the day-to-x map has an origin
   scrollGroupId: 'g1', // S-78, so a row is at the top
   stackDirection: 'down', // S-58, so every y reads from the top of the band
   zoomX: ZOOM_X,
+  progressMarkerVisible: true,
 })
 
 const ENV: ScreenEnvironment = {

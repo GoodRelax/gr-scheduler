@@ -386,6 +386,14 @@ const UNDO: HumanInput = key('Z', { ctrl: true })
 /** SK-7 of table T-036 -- やり直す. */
 const REDO: HumanInput = key('Y', { ctrl: true })
 
+// see FR-046, UN-8
+// WHY: showing the status line slides the view to centre it, and undo leaves the view where it is;
+// Task 1 spans INSTANT, so its bar stays under the pointer after the one edit.
+function underTheStatusLine(draft: any): void {
+  draft.schedule.tasks[0].start = '2026-08-14'
+  draft.schedule.tasks[0].finish = '2026-08-28'
+}
+
 /** The centre of a Task's plan bar, in the frame of reference a press speaks in. */
 function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: number; y: number } {
   const values = loop.current()
@@ -557,7 +565,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     // not one of them: 「呼び手ごとに違うのは履歴・刻印・取り消しの 1 段の
     // 3 つだけ」.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoRowDocument(underTheStatusLine), SCREEN)
     pane.runAnimationFrames()
 
     loop.receiveInput(THE_ONE_EDIT)
@@ -565,6 +573,9 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     const edited = loop.document()
 
     const centre = planCentre(loop, 1)
+    const rowArea = loop.current()!.regions.rowArea
+    expect(centre.x, 'premise: the bar is still in the Row Area').toBeGreaterThan(rowArea.x)
+    expect(centre.x, 'premise: the bar is still in the Row Area').toBeLessThan(rowArea.x + rowArea.width)
     loop.receiveInput(pointer('down', centre.x, centre.y))
     loop.receiveInput(UNDO)
 
@@ -580,7 +591,7 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     // される（表 T-035 の AG-9）」. An abort writes nothing, so the step the
     // refused undo could not spend is still there to spend.
     const pane = frozenHost()
-    const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
+    const loop = frameLoop(pane.surface, twoRowDocument(underTheStatusLine), SCREEN)
     pane.runAnimationFrames()
 
     loop.receiveInput(THE_ONE_EDIT)
@@ -658,10 +669,9 @@ describe('表 T-078 FT-2 -- the landing owes a frame', () => {
     // rule, and NFR-011 forbids a screen that stays showing what is no longer
     // the current value.
     //
-    // ⭐ The restored document IS the document that was opened, so the picture
-    // the landing owes is the picture the first frame drew: the frame's three
-    // values are computed from the current value at the head of the frame
-    // (ADR-001, CA-2 of table T-071), and nothing else about this session moved.
+    // see UN-8, FR-046
+    // WHY: showing the status line also slid the view, which undo leaves alone, so the picture owed
+    // is the one a fresh loop draws from the restored document (ADR-001, CA-2 of table T-071).
     const pane = frozenHost()
     const loop = frameLoop(pane.surface, twoRowDocument(), SCREEN)
     pane.runAnimationFrames()
@@ -680,7 +690,10 @@ describe('表 T-078 FT-2 -- the landing owes a frame', () => {
 
     expect(pane.drawn.length).toBeGreaterThan(afterEdit)
     expect(pane.drawn[pane.drawn.length - 1]).not.toBe(editPicture)
-    expect(pane.drawn[pane.drawn.length - 1]).toBe(opened)
+    const fresh = frozenHost()
+    frameLoop(fresh.surface, loop.document(), SCREEN)
+    fresh.runAnimationFrames()
+    expect(pane.drawn[pane.drawn.length - 1]).toBe(fresh.drawn[fresh.drawn.length - 1])
   })
 })
 

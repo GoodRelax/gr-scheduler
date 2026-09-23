@@ -858,7 +858,7 @@ const LABEL_PAD_DRAWN = S_31 * DRAWN_RATIO
 
 // see T-272, T-273
 const nameGlyphTextOf = (task: Task): string => {
-  const settings = settingsOf({ assigneeVisible: false, percentCompleteVisible: false })
+  const settings = settingsOf({ progressMarkerVisible: true, assigneeVisible: false, percentCompleteVisible: false })
   const schedule = rowsOf([[task]])
   const layout = layoutFromSchedule(schedule, settings, REGIONS)
   const geometry = geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection())

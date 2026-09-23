@@ -84,6 +84,7 @@ const NESTED_DEFAULTS: Record<string, unknown> = (() => {
   return out
 })()
 
+// see S-63
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
     ...NESTED_DEFAULTS,
@@ -93,6 +94,7 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
     stackDirection: 'down',
     assigneeVisible: false,
     percentCompleteVisible: false,
+    progressMarkerVisible: true,
     ...part,
   }) as unknown as DocumentSettings
 

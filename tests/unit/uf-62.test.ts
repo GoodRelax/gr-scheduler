@@ -189,6 +189,8 @@ const T_109_APP_HEADER_RUNS: readonly {
       'IC-15',
       'IC-104',
       'IC-105',
+      // see FR-041, IC-100
+      'IC-100',
       'IC-16',
       'IC-17',
     ],

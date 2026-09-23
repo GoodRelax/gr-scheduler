@@ -1429,12 +1429,10 @@ describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109
     }
   }
 
-  it('⛔ one entrance does not put two cursors away at once (FR-048 MUST NOT)', () => {
-    // FR-048: 「⛔ **1 つの入口が 2 つを同時に消してはならない（MUST NOT）**」,
-    // which 表 T-029a's DC-4 states for `CU-2` as 「⚠️ **ガイドカーソルの「なし」
-    // （`CU-3`）で出てはならない（MUST NOT）**」. So the re-press that takes
-    // `guideCursorMode` to `'none'` must leave `dualCursor` (`S-65`, `CU-2`)
-    // exactly where it stood.
+  // see DC-9, DC-4
+  // WHY: the exclusive choice acts only while the Dual Cursor mode is on; a re-press of a guide
+  // cursor entrance outside it leaves dualCursor (S-65, CU-2) exactly where it stood.
+  it('⛔ a guide cursor re-press outside the Dual Cursor mode leaves the dual cursor alone (DC-9)', () => {
     const run = standing({ ...CONTRARY, guideCursorMode: 'crosshair' })
     const before = settingsOf(run.loop).dualCursor
 
@@ -1443,7 +1441,7 @@ describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109
     expect(settingsOf(run.loop).guideCursorMode, 'the premise: the re-press landed').toBe(NONE)
     expect(
       settingsOf(run.loop).dualCursor,
-      'FR-048 (MUST NOT): one entrance may not put two cursors away at once',
+      'DC-9: only the Dual Cursor mode is left by a guide cursor entrance',
     ).toEqual(before)
     run.frames.runAnimationFrames()
   })
@@ -1555,9 +1553,10 @@ describe('IC-99 -- FR-039 (MUST) puts the font size on the Command Palette', () 
   }
 })
 
-describe('IC-100 -- FR-041 (MUST) puts monochrome on the Command Palette', () => {
+// see FR-041, IC-100
+describe('IC-100 -- FR-041 (MUST) puts monochrome in the App Header', () => {
   it('table T-109 places it there, and its 正 names CM-64', () => {
-    expect(bare(cellAt('T-109', 'IC-100', T_109_SURFACE))).toBe(COMMAND_PALETTE)
+    expect(bare(cellAt('T-109', 'IC-100', T_109_SURFACE))).toBe(APP_HEADER)
     expect(cellAt('T-109', 'IC-100', T_109_ENTRANCE)).toContain('`S-74`')
     expect(rowOf('T-109', 'IC-100').cells[3] ?? '').toContain('`CM-64`')
   })
@@ -1567,7 +1566,7 @@ describe('IC-100 -- FR-041 (MUST) puts monochrome on the Command Palette', () =>
       const run = standing({ ...CONTRARY, themeMonochrome: from })
       expect(settingsOf(run.loop).themeMonochrome, 'the premise').toBe(from)
 
-      takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-100')
+      takeEntry(run.loop, run.screen, APP_HEADER, 'IC-100')
 
       expect(settingsOf(run.loop).themeMonochrome, 'one entrance, two values').toBe(!from)
       run.frames.runAnimationFrames()

@@ -953,9 +953,10 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
     const schedule = oneRow([spanning(1, '2026-01-01', 20, { name: '' })])
     const layout = layoutFromSchedule(schedule, LAYOUT_SETTINGS, REGIONS)
     const fit = fitZoom(schedule, LAYOUT_SETTINGS, REGIONS, NOT_STORED_ZOOM)
-    // FR-055: 「⭐ 横はこの限りではない —— 横に床は無く、段階は `FR-017` が
-    // 1 日あたりの幅で定める」. Stated as the relation, not as a figure.
-    expect(fit.zoomX).toBeCloseTo(REGIONS.rowArea.width / layout.contentWidth, 6)
+    // see FR-055, S-332
+    const margin = Number(specTable('T-206').rows.find((one) => one.id === 'S-332')?.by['既定'])
+    expect(margin).toBeGreaterThan(0)
+    expect(fit.zoomX).toBeCloseTo((REGIONS.rowArea.width * (1 - 2 * margin)) / layout.contentWidth, 6)
     // ⛔ THE VERTICAL HALF OF THIS CASE WAS RETIRED, not adapted. It asserted
     // `rowArea.height / contentHeight`, and FR-055 now says the opposite:
     // 「縦は、倍率を縮めて合わせるのではなく、表示量（グループ LOD の深さ）を
@@ -983,6 +984,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
       zoomX: 1,
       zoomY: 1,
       scrollDate: LAYOUT_SETTINGS.scrollDate,
+      scrollDayOffset: LAYOUT_SETTINGS.scrollDayOffset,
       scrollGroupId: LAYOUT_SETTINGS.scrollGroupId,
       // The floor is handed out with every answer, this arm included: it is a
       // property of the settings and not of what was drawn, so it stands even
@@ -1060,6 +1062,7 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
 const GEOM_SETTINGS = settingsOf({
   ...(LAYOUT_SETTINGS as unknown as Record<string, unknown>),
   progressLineVisible: true, // S-64
+  progressMarkerVisible: true, // S-63
 })
 
 // ⚠️ `selection` is PI-6's fifth argument and has no default of its own:

@@ -65,6 +65,7 @@ import {
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { specTable } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Settings and screen. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -422,13 +423,14 @@ describe('PI-5 `fitZoom` -- the measurement itself stays a function of the docum
     expect(folded.zoomY).not.toBeCloseTo(plain.zoomY, 6)
   })
 
-  it('divides the Row Area by the drawn width, and leaves the vertical its gap', () => {
-    // FR-055 on the horizontal: 「⭐ 横はこの限りではない —— 横に床は無く、
-    // 段階は `FR-017` が 1 日あたりの幅で定める」. Stated as the relation rather
-    // than as a figure, so re-ruling the screen or the fixture moves it.
+  // see FR-055, S-332
+  it('divides the Row Area less the S-332 margin on each side by the drawn width, and leaves the vertical its gap', () => {
+    // Stated as the relation rather than as a figure, so re-ruling the screen or the fixture moves it.
+    const margin = Number(specTable('T-206').rows.find((one) => one.id === 'S-332')?.by['既定'])
+    expect(margin).toBeGreaterThan(0)
     const fit = fitZoom(PLAIN.schedule, SETTINGS, REGIONS, NOT_STORED_ZOOM)
     expect((fit.zoomX / SETTINGS.zoomX) * PLAIN.layout.contentWidth).toBeCloseTo(
-      REGIONS.rowArea.width,
+      REGIONS.rowArea.width * (1 - 2 * margin),
       6,
     )
     // ⛔ THE VERTICAL HALF OF THIS CASE ASSERTED THE OPPOSITE OF THE REQUIREMENT

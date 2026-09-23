@@ -250,7 +250,8 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
     // Rule 04 section 2: 「原稿から値が届く仕組みの受け入れ試験は『原稿の値を 1 つ
     // 変えると試験が落ちるか』とする」. So the case turns S-24 and watches.
     const turned = 3.7
-    const drawn = markerStrokeWidths(draw(started(), { markerStroke: turned }).svg)
+    // see S-63
+    const drawn = markerStrokeWidths(draw(started(), { markerStroke: turned, progressMarkerVisible: true }).svg)
     expect(drawn.length).toBeGreaterThan(0)
     for (const width of drawn) {
       expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(
@@ -260,7 +261,7 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
   })
 
   it('the same figure follows a second value, so no number of its own is left', () => {
-    const drawn = markerStrokeWidths(draw(started(), { markerStroke: 0.8 }).svg)
+    const drawn = markerStrokeWidths(draw(started(), { markerStroke: 0.8, progressMarkerVisible: true }).svg)
     expect(drawn.length).toBeGreaterThan(0)
     for (const width of drawn) {
       expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(drawnOnTheGrid(0.8))

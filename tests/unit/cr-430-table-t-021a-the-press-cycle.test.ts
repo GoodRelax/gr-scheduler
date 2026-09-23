@@ -356,7 +356,7 @@ describe('ScreenState -- where the remembered actual is kept', () => {
   })
 
   it(`what is remembered never reaches the document: ${CP_36_NOT_SAVED}`, () => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true })) // see S-63
     const marker = (built: Stage, uid: number): Point => {
       const frame = frameOf(built.loop)
       return pointAnswering(scanGrabAreas(frame.geometry, uid, frame.rowArea), 'GA-18')
@@ -384,7 +384,7 @@ describe('ScreenState -- where the remembered actual is kept', () => {
 
 describe('the ring through the product', () => {
   it('PV-1 through the product: a press on an unstarted Task marker starts it', () => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true })) // see S-63
     const frame = frameOf(one.loop)
     pressAndRelease(one, pointAnswering(scanGrabAreas(frame.geometry, FRESH_UID, frame.rowArea), 'GA-18'))
     const task: Task = taskIn(one.loop, FRESH_UID)
@@ -392,7 +392,7 @@ describe('the ring through the product', () => {
   })
 
   it(`two presses on a milestone marker come back to 未着手: ${T_270_MILESTONE_RING}`, () => {
-    const one = stage(benchDocument())
+    const one = stage(benchDocument({ progressMarkerVisible: true })) // see S-63
     const marker = (): Point => {
       const frame = frameOf(one.loop)
       return pointAnswering(scanGrabAreas(frame.geometry, FRESH_MILESTONE_UID, frame.rowArea), 'GA-18')

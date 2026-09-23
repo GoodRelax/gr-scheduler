@@ -207,6 +207,7 @@ const settingsAt = (zoomX: number): DocumentSettings =>
     stackDirection: 'down', // S-58
     zoomX, // S-75
     displayScale: DEFAULT_DISPLAY_SCALE,
+    progressMarkerVisible: true, // see S-63
     shapeHeightOf: {
       rectangle: FLAT['shapeHeightOf.rectangle'],
       chevron: FLAT['shapeHeightOf.chevron'],

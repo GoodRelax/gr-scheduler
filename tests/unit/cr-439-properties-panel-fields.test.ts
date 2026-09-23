@@ -158,7 +158,8 @@ function raise(built: Stage, node: FakeElement, type: string, extra: Record<stri
   }
 }
 
-const ENTRY_TAGS = ['INPUT', 'TEXTAREA', 'SELECT']
+// see CV-9
+const ENTRY_TAGS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON']
 
 function entriesOf(built: Stage, row: string): FakeElement[] {
   const panel = oneByRole(built.root(), PROPERTIES_PANEL)
@@ -239,19 +240,23 @@ describe('FR-006 -- 表 T-016 の項目をプロパティパネルに出し', ()
     expect(offered).toEqual(['circle', 'diamond', 'star'])
   })
 
-  it('FR-007 表 T-017 のパレット色から選ばせ -- the colour field offers the CL-1 palette, and the host picker only as the custom entrance (CV-9)', () => {
+  // see CV-9
+  it('FR-007 表 T-017 のパレット色から選ばせ -- the colour field offers the CL-1 palette, and the host picker only after the custom entrance is pressed (CV-9)', () => {
     const { built } = drawn()
-    const entries = entriesOf(built, 'PR-12')
-    const pickers = entries.filter((one) => one.getAttribute('type') === 'color')
-    expect(pickers).toHaveLength(1)
-    expect(pickers[0]?.getAttribute('data-colour-custom')).toBe('true')
+    const pickersOf = (): FakeElement[] =>
+      entriesOf(built, 'PR-12').filter((one) => one.getAttribute('type') === 'color')
+    expect(pickersOf(), 'no host picker before the custom entrance is pressed').toHaveLength(0)
     const panel = oneByRole(built.root(), PROPERTIES_PANEL)
-    const row = descendants(panel).find(
-      (one) => one.getAttribute('data-field-row') === 'PR-12' && !ENTRY_TAGS.includes(one.tagName),
-    ) as FakeElement
-    const choices = descendants(row).filter(
-      (one) => (one.tagName === 'OPTION' || one.tagName === 'BUTTON') && one.getAttribute('value') !== '',
+    const choices = descendants(panel).filter(
+      (one) => one.getAttribute('data-field-row') === 'PR-12' && one.getAttribute('data-colour-choice') !== null,
     )
     expect(choices).toHaveLength(CL_1_COLOURS.length)
+    const palette = descendants(panel).find((one) => one.getAttribute('data-colour-palette') === 'PR-12') as FakeElement
+    const custom = descendants(palette).filter((one) => one.getAttribute('data-colour-custom-entry') === 'true')
+    expect(custom, 'one custom entrance').toHaveLength(1)
+    raise(built, custom[0] as FakeElement, 'click')
+    const pickers = pickersOf()
+    expect(pickers).toHaveLength(1)
+    expect(pickers[0]?.getAttribute('data-colour-custom')).toBe('true')
   })
 })

@@ -68,6 +68,7 @@ const nestedDefaults = (): Record<string, unknown> => {
   return out
 }
 
+// see S-63
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   ({
     ...nestedDefaults(),
@@ -76,6 +77,7 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
     assigneeVisible: false,
     percentCompleteVisible: false,
     displayScale: DEFAULT_DISPLAY_SCALE,
+    progressMarkerVisible: true,
     ...part,
   }) as unknown as DocumentSettings
 

@@ -602,7 +602,18 @@ describe('FR-031 / S-94 / S-95 -- the bound the REAL shell holds the REAL startu
     const { loop } = drive(START, S_94)
     for (let undone = 1; undone <= S_94; undone += 1) loop.receiveInput(SK_6)
 
-    expect(compactGrsJson(loop.document())).toBe(compactGrsJson(START))
+    // see UN-8, FR-046
+    // WHY: showing the status line also slides the view, and zoom and scroll are no undo target,
+    // so the six view rows (S-75 to S-78, S-176, S-177) are laid back from START before the compare.
+    const VIEW_KEYS = ['zoomX', 'zoomY', 'scrollDate', 'scrollGroupId', 'scrollGroupOffset', 'scrollDayOffset']
+    const startSettings = START.documentSettings as unknown as Record<string, unknown>
+    const viewOfStart = Object.fromEntries(VIEW_KEYS.map((key) => [key, startSettings[key]]))
+    const undone = loop.document()
+    const withStartView = {
+      ...undone,
+      documentSettings: { ...undone.documentSettings, ...viewOfStart },
+    } as unknown as Document
+    expect(compactGrsJson(withStartView)).toBe(compactGrsJson(START))
   })
 
   it('GIVEN the real shell WHEN more changes are written than S-94 THEN exactly S-94 段 are left to undo', () => {

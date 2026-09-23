@@ -280,6 +280,7 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
   return out as unknown as DocumentSettings
 }
 
+// see S-63
 const settingsAt = (zoomX: number): DocumentSettings =>
   settingsOf({
     scrollDate: stored('2026-01-01'), // S-77, so the day-to-x map has an origin
@@ -287,6 +288,7 @@ const settingsAt = (zoomX: number): DocumentSettings =>
     stackDirection: 'down', // S-58, so every y reads from the top of the band
     zoomX,
     displayScale: DEFAULT_DISPLAY_SCALE,
+    progressMarkerVisible: true,
   })
 
 const ENV: ScreenEnvironment = {

@@ -144,12 +144,14 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       storeLanguage: true,
       tellFlowSurfaceClosed: true,
       writeClearDualCursor: true,
+      // see DC-9
+      writeClearDualCursorSettingGuide: true,
       writeDocumentFile: true,
       writeFixDate1: true,
       writeFixDate2: true,
       writeFoldAll: true,
       writeOpenLevel: true,
-      writePlaceDualCursor: true,
+      writePlaceDualCursorClearingGuide: true,
       writeProgressStep: true,
     }
     expect(Object.keys(every).sort()).toEqual(MANUSCRIPT_EFFECTS)

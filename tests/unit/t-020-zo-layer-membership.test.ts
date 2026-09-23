@@ -204,9 +204,9 @@ describe(`${says('ZO-8')} (PND-312, table T-029 CU-2)`, () => {
       })
     const withCursor = sceneOf({
       tasks: [inProgress()],
-      settings: { dualCursor: { date1: day(6), date2: day(14) } },
+      settings: { dualCursor: { date1: day(6), date2: day(14) }, progressMarkerVisible: true },
     })
-    const withoutCursor = sceneOf({ tasks: [inProgress()] })
+    const withoutCursor = sceneOf({ tasks: [inProgress()], settings: { progressMarkerVisible: true } })
     const svg = withCursor.svg()
     const added = onlyIn(svg, withoutCursor.svg())
     expect(added.length, 'table T-029 CU-2: a set dualCursor drew nothing new').toBeGreaterThan(0)

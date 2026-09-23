@@ -88,7 +88,7 @@ const yearOf = (day: string): number => Number(day.slice(0, 4))
 const dayText = (day: string, withYear: boolean): string => {
   const [year, month, date] = day.split('-').map(Number)
   const monthDay = `${month}/${date}`
-  return withYear ? `${year}/${monthDay}` : monthDay
+  return withYear ? `${String(Number(year) % 100).padStart(2, '0')}/${monthDay}` : monthDay
 }
 
 // see ND-5
@@ -115,7 +115,9 @@ describe('the derivation above, read against table T-251 by hand', () => {
     expect(labelText('Beta', oneDay, [oneDay])).toBe('Beta 4/13 - 4/13')
     expect(labelText('Gamma', stone, [stone])).toBe('Gamma 4/15')
     expect(labelText('', plain, [plain])).toBe('4/6 - 4/8')
-    expect(labelText('Alpha', plain, [plain, nextYear])).toBe('Alpha 2026/4/6 - 2026/4/8')
+    expect(labelText('Alpha', plain, [plain, nextYear])).toBe('Alpha 26/4/6 - 26/4/8')
+    const early: Dated = { start: '2005-03-01', finish: '2005-03-01', milestone: true }
+    expect(labelText('Delta', early, [early, nextYear])).toBe('Delta 05/3/1')
   })
 })
 
@@ -433,8 +435,16 @@ describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
   const placementOf = (built: Stage) =>
     built.loop.current()?.layout.placements.find((one) => one.taskUid === NARROW.uid)?.labelPlacement
 
-  // see FR-039
-  const AT_THE_DEFAULT_STEP = { displayScale: DEFAULT_DISPLAY_SCALE }
+  // see FR-039, OP-10
+  // WHY: a view held by the document, not the FR-055 fit -- since S-332 the fit spreads these four weeks
+  // over the Row Area, and at that zoom the name and its dates fit inside the three days together.
+  const AT_THE_DEFAULT_STEP = {
+    displayScale: DEFAULT_DISPLAY_SCALE,
+    zoomX: 2,
+    zoomY: 1,
+    scrollDate: '2026-04-01',
+    scrollGroupId: rowIdOf(ALPHA.uid),
+  }
 
   it('a name that fits inside its shape alone goes outside once the dates are added', () => {
     expect(

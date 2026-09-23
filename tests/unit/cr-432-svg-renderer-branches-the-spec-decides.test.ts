@@ -388,7 +388,13 @@ describe('CR-432 -- branches of svgFromSchedule the specification decides', () =
       rows.map((id, at) => ({ id, taskUids: [at + 1] })),
     )
     const { svg } = drawOf(schedule, {
-      settings: { pinnedGroupIds: ['g1'], scrollGroupId: 'g4', assigneeVisible: true, percentCompleteVisible: true },
+      settings: {
+        pinnedGroupIds: ['g1'],
+        scrollGroupId: 'g4',
+        assigneeVisible: true,
+        percentCompleteVisible: true,
+        progressMarkerVisible: true, // see S-63
+      },
     })
     const elements = painted(elementsOf(svg))
     const band = elements.find((one) => figureOf(one) === 'row-g1-band')

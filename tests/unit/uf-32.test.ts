@@ -1263,7 +1263,7 @@ describe('UF-32 -- FR-013: 未着手のマーカーは薄く描く', () => {
       // says nothing about how many figures may be drawn 薄く.
       const svg = drawn(
         oneRow([spanning(1, '2026-01-05', 5, { name: 'idle' })]),
-        settingsOf({ ...SETTINGS, zoomX }),
+        settingsOf({ ...SETTINGS, zoomX, progressMarkerVisible: true }),
       )
       expect(
         new Set(faintnessOf(svg)),
