@@ -18,6 +18,7 @@ import {
   type Selection,
 } from '../../entity/document-model/selection/selection'
 import {
+  isTaskDrawn,
   itemsInMarquee,
   type Item,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
@@ -63,13 +64,23 @@ function itemRefOf(schedule: Schedule, item: Item): ItemRef | null {
   }
 }
 
+// see SL-2, T-023c
+// WHY: the progress marker of a Task nothing else draws still answers its own act (JDG-187); it picks nothing.
+/** @purity pure */
+function pickableRefOf(context: InputContext, item: Item): ItemRef | null {
+  if (item.kind !== 'task') return itemRefOf(context.document.schedule, item)
+  const isDrawn = context.geometry.tasks.some((task) => task.taskUid === item.taskUid && isTaskDrawn(task))
+  return isDrawn ? itemRefOf(context.document.schedule, item) : null
+}
+
+// see SL-5, T-023c
 /** @purity pure */
 function everythingSelectable(context: InputContext): readonly ItemRef[] {
   const geometry = context.geometry
   const schedule = context.document.schedule
   const all: ItemRef[] = []
   for (const task of geometry.tasks) {
-    all.push({ kind: 'task', uid: task.taskUid })
+    if (isTaskDrawn(task)) all.push({ kind: 'task', uid: task.taskUid })
   }
   for (const line of geometry.dependencies) {
     const ref = itemRefOf(schedule, {
@@ -140,7 +151,7 @@ export function selectionFromInput(input: HumanInput, context: InputContext): Se
   switch (pressRowOf(press, context)) {
     case 'PTD-3': {
       const grab: GrabRow | null = press.hit === null ? null : grabRowOf(press.hit)
-      const ref = press.hit === null ? null : itemRefOf(context.document.schedule, press.hit.item)
+      const ref = press.hit === null ? null : pickableRefOf(context, press.hit.item)
       if (ref === null || grab === null) return held
       if (grab === 'GA-20' && !hasDraggedPastThreshold(press, input)) return held
       if (isAdding) {

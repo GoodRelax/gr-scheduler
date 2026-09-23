@@ -37,6 +37,7 @@ import {
   dependencyStartOfHit,
   grabSizesOf,
   itemAtPointer,
+  selectionWithinDrawn,
   type Hit,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
@@ -631,6 +632,39 @@ function selectionWithinSchedule(selection: Selection, schedule: Schedule): Sele
   // the Properties Panel on every unrelated edit.
   if (items.length === selection.items.length) return selection
   return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
+}
+
+// see T-023c, FR-098, ST-7
+// WHY: a pin the band cannot hold and a row past the stack safety cap are no row T-023c names.
+/** @purity pure */
+function selectionWithinDrawnRows(
+  selection: Selection,
+  geometry: ScheduleGeometry,
+  layout: ScheduleLayout,
+  schedule: Schedule,
+  settings: DocumentSettings,
+  isPreviewed: boolean,
+): Selection {
+  // WHY: none under a preview; it may yet be dropped, and pruning under it ends the drag's selection.
+  if (isPreviewed) return selection
+  const within = selectionWithinDrawn(selection, geometry)
+  if (within === selection) return selection
+  const laidOut = new Set(layout.rows.map((row) => row.groupId))
+  const pinned = new Set(settings.pinnedGroupIds)
+  const inGeometry = new Set(geometry.tasks.map((task) => task.taskUid))
+  const isLeftOutUnnamed = (groupId: string): boolean =>
+    !laidOut.has(groupId) && (layout.stackSafetyCapReached !== null || pinned.has(groupId))
+  const undecided = new Set(
+    schedule.taskGroupMembers
+      .filter((member) => isLeftOutUnnamed(member.groupId) && !inGeometry.has(member.taskUid))
+      .map((member) => member.taskUid),
+  )
+  if (undecided.size === 0) return within
+  const kept = new Set(within.items.flatMap((item) => (item.kind === 'task' ? [item.uid] : [])))
+  const items = selection.items.filter(
+    (item) => item.kind !== 'task' || kept.has(item.uid) || undecided.has(item.uid),
+  )
+  return items.length === selection.items.length ? selection : { items, ordered: selection.ordered }
 }
 
 // see T-023d, PTD-3, FR-009
@@ -2341,12 +2375,7 @@ export function frameLoop(
         watermarkStampedAt = readInstantOfWrite()
       }
       held = next
-      const chosenBeforeTheWrite = selectedObjectsIn(session)
-      const remainingObjects = selectionWithinSchedule(chosenBeforeTheWrite, held.document.schedule)
-      if (remainingObjects !== chosenBeforeTheWrite) {
-        sendToSession({ type: 'selectionPruned', remainingObjects }, null)
-        noteChoiceMoved(null)
-      }
+      pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), held.document.schedule))
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
       if (settled(environment)) ask()
     },
@@ -2645,8 +2674,8 @@ export function frameLoop(
     } else if (capStop === null) {
       stackSafetyCapToldFor = null
     }
-    const chosenObjects = selectedObjectsIn(session)
-    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, chosenObjects)
+    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selectedObjectsIn(session))
+    const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, settings, previewDocument !== null))
     values = {
       regions,
       layout,
@@ -3361,6 +3390,15 @@ export function frameLoop(
   function wantFieldFocused(row: string): void {
     fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
     sendToSession({ type: 'fieldFocusAsked', fieldRow: row }, values)
+  }
+
+  /** @purity non-pure */
+  function pruneChoiceTo(remainingObjects: Selection): Selection {
+    if (remainingObjects !== selectedObjectsIn(session)) {
+      sendToSession({ type: 'selectionPruned', remainingObjects }, null)
+      noteChoiceMoved(null)
+    }
+    return selectedObjectsIn(session)
   }
 
   // see IN-5a
