@@ -153,7 +153,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   const status = geometry.statusLine
   if (status !== null) {
-    const statusWidth = selectedLineWidth(1, selectedStatusLine)
+    const statusWidth = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-333'], selectedStatusLine)
     linkParts.push(
       `<line x1="${rounded(status.x)}" y1="${rounded(status.top)}"` +
         ` x2="${rounded(status.x)}" y2="${rounded(status.bottom)}"` +
@@ -172,8 +172,8 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
       pointer.y >= area.y &&
       pointer.y <= area.y + area.height
     if (inside) {
-      const guideColour = themed('S-148')
-      const guideWidth = 1
+      const guideColour = themed('S-195')
+      const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
       const vertical = (x: number): string =>
         `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +

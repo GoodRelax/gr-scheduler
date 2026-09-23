@@ -13,9 +13,13 @@ import type {
   Point,
   ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  NOT_STORED_LABEL_SIZES,
+  type ScheduleLayout,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
+  NOT_STORED_DELAY_MARK_SIZES,
   NOT_STORED_DEPENDENCY_SIZES,
   NOT_STORED_NAME_LABEL_WEIGHT,
   boxOfPoints,
@@ -140,23 +144,19 @@ function paintOf(
   }
 }
 
-const DELAY_BAR_BOTTOM_OF_HALF = 0.15
-const DELAY_BAR_WIDTH_OF_STROKE = 1.7
-const DELAY_DOT_CENTRE_OF_HALF = 0.8
-const DELAY_DOT_RADIUS_OF_RADIUS = 0.14
-
 // see ZO-3, T-021, FR-013
 /** @purity pure */
 function markerSvg(
   marker: MarkerGeometry,
-  ink: string,
-  backing: string,
+  themed: (rowId: string) => string,
   faintness: number,
   settings: DocumentSettings,
   key: string,
 ): string {
   const { centre, radius } = marker
   const named = figureKey(key)
+  const ink = marker.symbol === 'PM-4' ? themed('S-327') : themed('S-161')
+  const backing = marker.symbol === 'PM-4' ? themed('S-326') : themed('S-162')
   const stroke = rounded(settings.markerStroke)
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
@@ -176,10 +176,10 @@ function markerSvg(
             ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
           : marker.symbol === 'PM-4'
             ? `<line x1="${rounded(centre.x)}" y1="${rounded(centre.y - r)}` +
-              `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * DELAY_BAR_BOTTOM_OF_HALF)}"` +
-              ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * DELAY_BAR_WIDTH_OF_STROKE)}"${named}/>` +
-              `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * DELAY_DOT_CENTRE_OF_HALF)}"` +
-              ` r="${rounded(radius * DELAY_DOT_RADIUS_OF_RADIUS)}" fill="${ink}"${named}/>`
+              `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-329'])}"` +
+              ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
+              `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-330'])}"` +
+              ` r="${rounded(radius * NOT_STORED_DELAY_MARK_SIZES['S-331'])}" fill="${ink}"${named}/>`
             : ''
   const drawn = disc + mark
   // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
@@ -220,11 +220,15 @@ function labelSvg(
   key: string,
   anchor: 'start' | 'end' = 'start',
   weight: number | null = null,
+  dates: string = '',
 ): string {
   // TRAP: box.x is already the first glyph's x (T-273 adds S-31 or S-32 there); adding a pad here doubles it.
   const x = anchor === 'end' ? box.x + box.width : box.x
   const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
   const haloWidth = fontSize * settings.labelHaloOfFont
+  const datesSize = rounded(fontSize * NOT_STORED_LABEL_SIZES['S-325'])
+  const datesSpan =
+    dates === '' ? '' : `<tspan font-size="${datesSize}">${escaped(dates)}</tspan>`
   return (
     `<text x="${rounded(x)}" y="${rounded(y)}" font-size="${rounded(fontSize)}"` +
     typefaceAttribute() +
@@ -232,7 +236,8 @@ function labelSvg(
     (anchor === 'end' ? ' text-anchor="end"' : '') +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
     // TRAP: paint-order="stroke" puts the halo under the glyph; without it the label is painted in its own outline.
-    ` stroke-linejoin="round" paint-order="stroke" xml:space="preserve"${figureKey(key)}>${escaped(text)}</text>`
+    ` stroke-linejoin="round" paint-order="stroke" xml:space="preserve"${figureKey(key)}>` +
+    `${escaped(text)}${datesSpan}</text>`
   )
 }
 
@@ -438,8 +443,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       ;(isPinnedTask ? markerPartsPinned : markerParts).push(
         markerSvg(
           task.marker,
-          themed('S-161'),
-          themed('S-162'),
+          themed,
           handOn(task.taskUid, MARKER_GRAB_ROWS) ? 1 : settings.dummyOpacity,
           settings,
           `${taskKey}-marker`,
@@ -456,7 +460,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       ;(isPinnedTask ? labelPartsPinned : labelParts).push(
         labelSvg(
           task.label,
-          placed.label,
+          placed.label.slice(0, placed.label.length - placed.labelDates.length),
           placed.labelFontSize,
           settings,
           themed('S-168'),
@@ -464,6 +468,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
           `${taskKey}-label`,
           'start',
           NOT_STORED_NAME_LABEL_WEIGHT['S-245'],
+          placed.labelDates,
         ),
       )
     }
