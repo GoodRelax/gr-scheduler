@@ -16,6 +16,8 @@ import {
   made,
 } from './dom-screen-surface'
 
+const anchorRightOf = new WeakMap<Element, number>()
+
 // see EZ-2
 /** @purity pure */
 function tooltipStyle(): string {
@@ -53,7 +55,24 @@ export function tooltipElement(
   }
   const foundAt = anchored.getBoundingClientRect()
   drawn.setAttribute('style', tooltipStyle() + `left:${foundAt.left}px;top:${foundAt.bottom}px;`)
+  anchorRightOf.set(drawn, foundAt.right)
   return drawn
+}
+
+// see EZ-2
+/** @purity non-pure */
+export function keepTooltipsInside(layer: HTMLElement): void {
+  const room = layer.getBoundingClientRect()
+  for (const drawn of Array.from(layer.children)) {
+    const anchorRight = anchorRightOf.get(drawn)
+    if (anchorRight === undefined) continue
+    const size = drawn.getBoundingClientRect()
+    if (size.right <= room.right) continue
+    drawn.setAttribute(
+      'style',
+      tooltipStyle() + `left:${anchorRight - size.width}px;top:${size.top}px;`,
+    )
+  }
 }
 
 /** @purity non-pure */

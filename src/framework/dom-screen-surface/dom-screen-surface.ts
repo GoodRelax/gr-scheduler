@@ -18,7 +18,7 @@ import { appHeaderStyle, fillAppHeader } from './app-header-drawing'
 import { confirmationElement, noticeElement } from './notices-drawing'
 import { paletteElement } from './command-palette-drawing'
 import { fieldEditingOf } from './field-editing'
-import { showDualCursorReadout, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
+import { keepTooltipsInside, showDualCursorReadout, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
 import {
   fillPropertiesPanel,
   growWrappingFields,
@@ -379,7 +379,7 @@ export const STYLE = {
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
   tooltip:
-    `position:absolute;max-width:24em;padding:0.25em 0.5em;background:${PAINT.ground};` +
+    `position:absolute;white-space:nowrap;padding:0.25em 0.5em;background:${PAINT.ground};` +
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
   hidden: 'display:none;',
 } as const
@@ -826,6 +826,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
     if (isHeaderMoved || Object.keys(keys).some(changed)) {
       tooltipLayer.replaceChildren(...view.tooltips.map((one) => tooltipElement(host, one, anchorFor)))
+      keepTooltipsInside(tooltipLayer)
     }
 
     lastKeys = drawnKeys
