@@ -6,6 +6,7 @@
 
 import type {
   CommandItem,
+  ScreenFrame,
   ScreenPart,
   ScreenSurface,
   ScreenView,
@@ -162,7 +163,7 @@ export function entranceOuterWidthPx(gapRow: EntranceGapRow = 'S-141'): number {
   )
 }
 
-// see FR-029, LF-3, HF-19
+// see FR-029, LF-16, HF-19
 /** @purity pure */
 export function entranceOuterHeightPx(gapRow: EntranceGapRow = 'S-141'): number {
   return chromeScaledPx(
@@ -267,6 +268,9 @@ export const STYLE = {
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `font:inherit;color:${PAINT.ink};`,
   layer: 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;',
+  // TRAP: isolate the Row Title Tree, so a hovered row's raise stays inside it; unisolated it
+  // lifts the row over every later layer, the divider band and the modals included.
+  treeIsolation: 'isolation:isolate;',
   appHeader:
     'position:absolute;left:0;top:0;right:0;box-sizing:border-box;display:flex;' +
     'align-items:center;gap:0.75em;padding:0.375em 0.75em;line-height:1.5;' +
@@ -295,9 +299,12 @@ export const STYLE = {
   scrollbarThumb: `position:absolute;background:${PAINT.quiet};border-radius:0.25em;`,
   rowTitlePanel: `position:absolute;background:${PAINT.panel};`,
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
+  // see HF-19
+  // WHY: clip across only; the controls' lattice may hang below a row shorter than it.
   rowTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
-    `overflow:hidden;white-space:nowrap;background:${PAINT.panel};color:${PAINT.ink};` +
+    'overflow-x:clip;overflow-y:visible;white-space:nowrap;' +
+    `background:${PAINT.panel};color:${PAINT.ink};` +
     'pointer-events:auto;',
   rowLabel: 'flex:1;overflow:hidden;',
   // TRAP: in the flex flow each control would take room from the name, so the browser's
@@ -453,7 +460,11 @@ const ROW_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [${ROW_CONTROL_GROUND_MARK}],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${ADD_CHILD_ROW_ENTRY}"],` +
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
-  '{visibility:visible;}'
+  '{visibility:visible;}' +
+  // see HF-6, HF-19
+  // WHY: rows paint in tree order, so a later row covers a hanging group and takes its pointer.
+  `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.rowTitleTree}"] > [data-group-id]:hover` +
+  '{z-index:1;}'
 
 const PALETTE_FAINTNESS = '0.6'
 
@@ -476,6 +487,17 @@ function entranceHoverGroundCss(): string {
 /** @purity pure */
 function hoverCss(): string {
   return ROW_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss()
+}
+
+// see FR-051, HF-19
+// WHY: a hanging group may cross canvasPadding but not the horizontal Scrollbars band; no band
+// lies under the Row Title Panel, so the tree stops where the chart's band starts.
+/** @purity non-pure */
+function markFrame(root: HTMLElement, rowTitleTree: HTMLElement, frame: ScreenFrame): void {
+  root.setAttribute('data-full-screen', String(frame.isFullScreen))
+  const band = frame.scrollbars.find((one) => one.axis === 'horizontal')
+  const clip = band === undefined ? '' : `clip-path:inset(0 0 calc(100% - ${band.track.y}px) 0);`
+  rowTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip)
 }
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg'
@@ -613,7 +635,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const frameLayer = made(host, 'div', STYLE.layer)
   const rowTitlePanel = part(host, 'div', ROLE.rowTitlePanel, STYLE.hidden)
-  const rowTitleTree = part(host, 'div', ROLE.rowTitleTree, STYLE.layer)
+  const rowTitleTree = part(host, 'div', ROLE.rowTitleTree, STYLE.layer + STYLE.treeIsolation)
   const propertiesPanel = part(host, 'div', ROLE.propertiesPanel, STYLE.hidden)
   const dividerBandLayer = made(host, 'div', STYLE.layer)
   const paletteLayer = made(host, 'div', STYLE.layer)
@@ -750,7 +772,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     }
     if (changed('frame')) {
       fillScreenFrame(host, frameLayer, dividerBandLayer, view.frame, anchorsOf('frame'))
-      root.setAttribute('data-full-screen', String(view.frame.isFullScreen))
+      markFrame(root, rowTitleTree, view.frame)
     }
     if (changed('rowTitlePanel')) {
       fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))

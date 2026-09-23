@@ -24,7 +24,7 @@ import {
 import {
   displayRatioOf,
   drawnSettingsOf,
-  rowControlLatticeFloorPx,
+  rowControlLatticeHeightPx,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
 
@@ -798,13 +798,34 @@ export function assigneeAnchorOf(
   return laidBelow(shapeKind) ? reference.x : drawnStartX
 }
 
-// see LF-3, HF-1, HF-19, FR-085, HF-5
+// see LF-3, HF-19, FR-085
 // WHY: the row name's box is a floor too, or a zoomed-down row loses the name that tells it apart.
+// TRAP: never add the row controls' lattice here: it floors no band (HF-19); LF-16 reserves it.
 // TRAP: takes the DRAWN settings; the stored ones would miss the display ratio (FR-039).
 /** @purity pure */
-function bandFloorOf(depth: number, drawn: DocumentSettings, rowControlsHeightPx?: number): number {
-  const nameBox = depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
-  return Math.max(rowControlLatticeFloorPx(), rowControlsHeightPx ?? 0, nameBox)
+function bandFloorOf(depth: number, drawn: DocumentSettings): number {
+  return depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
+}
+
+// see LF-2, VG-2
+// WHY: a row with no Task still stacks one rectangle lane, or placing its first Task shifts every row below.
+/** @purity pure */
+function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGap: number): number {
+  if (laneHeights.length === 0) return emptyLane + laneGap
+  return laneHeights.reduce((sum, h) => sum + h + laneGap, 0)
+}
+
+// see LF-16, HF-19
+// TRAP: the pinned band gets none: LF-16 reserves only below the last scrolling row.
+/** @purity pure */
+function lastRowReserveOf(
+  scrollingRows: readonly RowPlacement[],
+  rowControlsHeightPx: number | undefined,
+): number {
+  const last = scrollingRows[scrollingRows.length - 1]
+  if (last === undefined) return 0
+  const lattice = Math.max(rowControlLatticeHeightPx(), rowControlsHeightPx ?? 0)
+  return Math.max(0, lattice - last.height)
 }
 
 // see T-068
@@ -988,9 +1009,8 @@ export function layoutFromSchedule(
     for (let step = 0; step < laneHeights.length; step++) {
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
-    const packed = laneHeights.reduce((sum, h) => sum + h + laneGap, 0)
-    const bandFloor = bandFloorOf(row.depth, settings, rowControlsHeightPx)
-    const height = Math.max(packed, emptyLane, row.height ?? 0, bandFloor)
+    const packed = packedLanesOf(laneHeights, emptyLane, laneGap)
+    const height = Math.max(packed, emptyLane, row.height ?? 0, bandFloorOf(row.depth, settings))
 
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)
@@ -1055,7 +1075,8 @@ export function layoutFromSchedule(
 
   const scrollingRows = lifted.filter((row) => row.isPinned !== true)
   const scrollOffsetY = scrollOffsetOf(scrollingRows, settings, band.scrollAreaY)
-  const contentHeight = Math.max(0, band.scrollingContentHeight)
+  const contentHeight =
+    Math.max(0, band.scrollingContentHeight) + lastRowReserveOf(scrollingRows, rowControlsHeightPx)
   const nothingPlaced = leftmost === Number.POSITIVE_INFINITY
   const contentWidth = nothingPlaced ? 0 : Math.max(0, widest - leftmost)
   const contentX0 = nothingPlaced ? null : leftmost
@@ -1282,7 +1303,7 @@ interface FitRun {
   readonly run: ScheduleLayout
 }
 
-// see FR-055
+// see FR-055, LF-16
 /** @purity pure */
 function fitsRowArea(run: ScheduleLayout, regions: ScreenRegions): boolean {
   // STOP: spec does not decide whether a run stopped by ST-7 fits; here it never does. Looked in ST-7, FR-055
@@ -1387,7 +1408,7 @@ export function fitZoom(
 ): FitToScreen {
   const floorZoomY = zoomYAtPlanHeightFloor(settings)
   const deepest = deepestDrawnDepth(schedule, settings)
-  // TRAP: pass rowControlsHeightPx on, or bands measure short and a depth that does not fit is chosen.
+  // TRAP: pass rowControlsHeightPx on, or the LF-16 reserve measures short and a depth too deep is chosen.
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
     layoutFromSchedule(
       schedule, { ...settings, zoomX, zoomY }, regions, cap, undefined, rowControlsHeightPx,

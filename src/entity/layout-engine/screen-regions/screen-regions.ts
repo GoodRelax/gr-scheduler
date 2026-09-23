@@ -96,9 +96,9 @@ const ROW_CONTROL_COLUMNS = 4
 
 const ROW_CONTROL_LATTICE_RANKS = 2
 
-// see LF-3, HF-19, FR-029
+// see LF-16, HF-19, FR-029
 /** @purity pure */
-export function rowControlLatticeFloorPx(): number {
+export function rowControlLatticeHeightPx(): number {
   return entranceOuterHeightPx() * NOT_STORED_CHROME_SCALE['S-235'] * ROW_CONTROL_LATTICE_RANKS
 }
 

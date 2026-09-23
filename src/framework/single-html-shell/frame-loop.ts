@@ -1710,7 +1710,7 @@ function viewSettings(
       min: NOT_STORED_ZOOM_BOUNDS['S-97'],
       max: NOT_STORED_ZOOM_BOUNDS['S-98'],
     },
-    // TRAP: omit the LF-3 floor and the fit seats a depth that no longer fits.
+    // TRAP: omit it and the LF-16 reserve measures short; the fit seats a depth that no longer fits.
     rowControlsHeightPx,
   )
   return {

@@ -102,14 +102,26 @@ const ROW_CONTROL_PAIR_CELLS = {
 
 const ROW_CONTROL_LEFTMOST_STEP = ROW_CONTROL_STEPS.foldingGrid + 1
 
-// see HF-6
+// see HF-1, HF-4
+const ROW_CONTROL_RANKS = 2
+
+// see HF-1, LF-16
+/** @purity pure */
+function rowControlLatticePx(): number {
+  return entranceOuterHeightPx('S-243') * ROW_CONTROL_RANKS
+}
+
+// see HF-6, HF-19
+// WHY: hit, so the gaps between controls count as the group; as tall as the lower of the
+// row's bottom and the lattice's, which may hang over the rows below.
 /** @purity pure */
 function rowControlGroundStyle(leftmostStepsFromEdge: number): string {
   const reach = rowControlRightPx(leftmostStepsFromEdge)
   return (
-    'position:absolute;top:0;bottom:0;right:0;' +
+    'position:absolute;top:0;right:0;' +
+    `height:max(100%, ${rowControlLatticePx()}px);` +
     `width:${reach + rowControlBoxPx()}px;` +
-    `background:${PAINT.panel};pointer-events:none;`
+    `background:${PAINT.panel};pointer-events:auto;`
   )
 }
 
@@ -140,15 +152,16 @@ function rowControlGlyphGapStyle(): string {
   return `margin:${entranceGapPx('S-243')}px 0;`
 }
 
-// see HF-1, HF-4, LF-3, HF-19
+// see HF-1, HF-4, LF-16, HF-19
 /** @purity pure */
 function rowControlGridStyle(columns: number, stepsFromEdge: number): string {
   const columnTracks = Array.from({ length: columns }, () => rowControlWidthCss()).join(' ')
   const rowTrack = `${entranceOuterHeightPx('S-243')}px`
+  const rowTracks = Array.from({ length: ROW_CONTROL_RANKS }, () => rowTrack).join(' ')
   return (
     'position:absolute;display:grid;align-items:flex-start;' +
     `grid-template-columns:${columnTracks};` +
-    `grid-template-rows:${rowTrack} ${rowTrack};` +
+    `grid-template-rows:${rowTracks};` +
     `right:${rowControlRightPx(stepsFromEdge)}px;` +
     'pointer-events:none;'
   )
@@ -545,7 +558,7 @@ export function rowControlsHeightReporter(
   let rowControlsMeasuredAgainst: string | null = null
   let rowControlsPanelDrawnAtMs = 0
 
-  // see LF-3, HF-19
+  // see LF-16, HF-19
   /** @purity non-pure */
   function reportRowControlsHeight(measuredAgainst: string): void {
     const drawnAtMs = readClockMs()

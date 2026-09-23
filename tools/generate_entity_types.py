@@ -1222,8 +1222,8 @@ NOT_STORED_TARGETS = {
     # gives: the floor belongs where the drawn settings are made, and that unit
     # imports `document-settings.ts` alone, so no import cycle is opened.
     # S-243 AND NOT S-141 SINCE CR-414: every entrance this unit composes sits
-    # on the Row Title Panel (HF-1's lattice for LF-3's floor, four row
-    # controls for FR-039's), and FR-029 (MUST) gives those the gap S-243.
+    # on the Row Title Panel (HF-1's lattice for LF-16's reserve, four row
+    # controls for FR-039's floor), and FR-029 (MUST) gives those the gap S-243.
     'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-237', 'S-243'],
                                   READ_WHERE_IT_STANDS),
     # ⭐ THE PRODUCT'S OWN NOTCH, AND NOT A DOCUMENT'S. S-236 is the ratio the
@@ -2204,11 +2204,12 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SELECTION_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
-    # ⭐⭐ LF-3's SECOND FLOOR, IN THE UNIT THAT DECIDES THE BAND. Table T-221's
-    # LF-3 (MUST) and table T-051's HF-19 (MUST NOT) hold a row's band at or
-    # above HF-1's 2 x 2 lattice, and this is the unit that settles a band --
-    # so the floor stands here rather than arriving from whoever remembered to
-    # measure one. ⛔ NOT `NOT_STORED_ICON_SIZES` MOVED HERE: that constant is
+    # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
+    # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and
+    # table T-221's LF-16 puts what the last scrolling row lacks of it below
+    # the rows instead. This is the unit that settles both, so it asks
+    # `screen-regions.ts` for the lattice (PI-35) rather than waiting for
+    # whoever remembered to measure one. ⛔ NOT `NOT_STORED_ICON_SIZES` MOVED HERE: that constant is
     # the box `dom-screen-surface.ts` DRAWS an entrance in, and Chapter 5.3
     # keeps a Framework file out of the Entity layer's reach anyway -- what
     # crosses is the number, generated twice from the one manuscript, which is
