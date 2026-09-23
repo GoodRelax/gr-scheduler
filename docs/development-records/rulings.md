@@ -698,6 +698,12 @@
 | JDG-484 | ⛔ **逐語の記録は無い。** `docs/review/progress-check-2026-09-23.md` の 5.3 節が「裁定 2026-09-23」と記す | ⭐ 紫（`?`）は矛盾の色ではなく「この行の数字は信用できない」の色: 矛盾を持つ行、横の壁の下流、縦の壁を配下に持つ祖先、先行を持たないマイルストーン。種別の区別はレポートが持つ | `change-request/CR-561-delay-diagnostics-names-the-bottleneck-and-the-numbers-it-cannot-trust.md` の 表 T-315 の `DG-1` ・ 表 T-316（起草） | 指示 |
 | JDG-485 | ⛔ **逐語の記録は無い。** `docs/review/progress-check-2026-09-23.md` の頭が「利用者の裁定を写したもの」と記す（2026-09-23）。本行は `JDG-482` 〜 `JDG-484` の外の残りを持つ | ⭐ 桃色を塗る経路は WBS の祖先だけ（依存の下流は塗らない）。畳んだ親にも桃色を出す。紫がある `Task` から先は解析しない（「解析不能 n 件」）。出口は 2 つ（画面のマーカーとレポート）。疑義はレポートにしか出ないが容易に到達できること、移動の仕組みは全種別で 1 本。マーカーの規則（紫 `?` ・赤 炎 ・桃色 `!!` ・黄 `!`、色だけで区別させない） | `change-request/CR-561-delay-diagnostics-names-the-bottleneck-and-the-numbers-it-cannot-trust.md` の `FR-133` ・ `FR-134` ・ 表 T-316（起草） | 指示 |
 
+## 2026-09-24 —— CR-552 の基準線（検査 60・37・39・55）
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-424 | **「基準線の変更を許可する。」**（2026-09-24。CR-552 を当てた木で前に立つ者が示した 4 つの基準線の動きへの答え） | ⭐ CR-552 の着地で、前に立つ者が次の 4 つを同じコミットで直す: 検査 60 の `function-size-baseline.txt` の `layoutFromSchedule#9` の鍵を `#8` へ（大きさ 69 行・16 分岐と合計は不変。`keptByLevelOfDetail` の `.filter` の無名関数が消えて番号が繰り上がった）／ 検査 37 の `dictionary-table-pairing.txt` から退けた `T-104 K-55` の行を消す ／ 検査 39 の `must-clause-coverage-baseline.txt` を実測へ下げる ／ 検査 55 の `comment-rules-tests-baseline.txt` を実測へ下げる | `.claude/skills/spec-graph-check/function-size-baseline.txt`（検査 60 `.claude/skills/spec-graph-check/check-function-size.py`）・ `dictionary-table-pairing.txt`（検査 37 `.claude/skills/spec-graph-check/check-dictionary-table-covariance.py`）・ `must-clause-coverage-baseline.txt`（検査 39 `.claude/skills/spec-graph-check/check-must-clause-coverage.py`）・ `comment-rules-tests-baseline.txt`（検査 55 `.claude/skills/spec-graph-check/check-comment-rules.py`）の 4 つの基準線ファイル（CR-552 の着地のコミット） | 適用済 |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は

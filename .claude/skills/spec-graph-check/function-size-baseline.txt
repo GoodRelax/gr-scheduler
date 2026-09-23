@@ -1,4 +1,5 @@
 excess-lines=7254 excess-branches=680
+# RENAMED layoutFromSchedule#9 -> #8 on 2026-09-24 (totals unchanged): CR-552 removed the anonymous .filter of keptByLevelOfDetail above it; the user in chat on 2026-09-24, verbatim: "基準線の変更を許可する。" (JDG-424); CR-552 retired L-2 / S-86 / DS-2 / K-55, measured on bd1b663d.
 # LOWERED 7309/688 -> 7254/680 on 2026-09-24, approved by the user in chat (JDG-404): CR-551 shrank commandFromVisualColumn and fitZoom out of the band, and commandFromEntry, commandFromKey, layoutFromSchedule, domScreenSurface, frameLoop and editTask; measured on 1997822d.
 # LOWERED 7568/751 -> 7309/688 on 2026-09-23, approved by the user in chat (JDG-391: rewrite to measured values until stage 7.5 splits these): fieldEditingOf 417 -> 469 (CR-500 wave B notices + clearing a whole date on Delete/Backspace), runFrame 123/12 -> 124/11, owesFrame left the band; the other drops are the stage 7 wave B wiring and CR-530 decision 6, measured on 73c2bc90.
 # LOWERED 7664/771 -> 7568/751 on 2026-09-22, approved by the user in chat: CR-436 wave B2 wired the screen values into the shell -- sessionOf and screenStateFromInput left the band, openModalFromScreenState renamed openModalFromSession (89/12, unchanged), frameLoop 2605 -> 2599, receiveInput 178/77 -> 170/73, carryOutAction 254/68 -> 239/62, runFrame 135/14 -> 123/12, exportScene 96 -> 85, owesFrame 30 -> 29.
@@ -63,7 +64,7 @@ HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::progressLi
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::routeOf lines=68 branches=11
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::taskGeometryOf lines=58 branches=13
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=269 branches=23
-HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#9 lines=69 branches=16
+HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::pinnedBandOf lines=59 branches=9
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=315 branches=0
