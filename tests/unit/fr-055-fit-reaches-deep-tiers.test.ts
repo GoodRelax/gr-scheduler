@@ -247,9 +247,8 @@ const drawingZoomOf = (depth: number): number =>
 // cannot be moved by the horizontal half of the same press, and every row sits
 // at one lane (ST-2 / ST-3 have nothing to stack) so LF-2 gives every band the
 // same height and the extent really is the row count.
-// ⚠️ The span is long enough that FR-018's task level of detail keeps it: what
-// that rule judges is the duration times one day's px (S-1 at zoomX 1) against
-// S-86.
+// FR-018 draws every Task on a drawn row whatever its width (CR-552), so the
+// span's length only sets the horizontal extent.
 // ---------------------------------------------------------------------------
 
 const MS_PER_DAY = 86400000

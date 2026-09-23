@@ -386,12 +386,10 @@ describe('FR-009 -- 左半分と右半分のどちらに当たったかを返す
     // either side of an end) cover the WHOLE bar, so a reading that used them
     // could not tell the halves apart here at all.
     //
-    // ⭐ HOW A BAR GETS THAT NARROW AT ALL: `S-86` (24px) drops any Task whose
-    // width came from its duration and fell below it, but `FR-021`'s LOD rule
-    // exempts a shape whose width did NOT come from the duration -- 「期間がゼロ
-    // の `Task` は 表 T-201 の `S-49`（`minShapeWidth`）の床で…幅が決まり」. A
-    // Task that starts and finishes the same day is drawn at that 6px floor and
-    // stays drawn, which is the narrowest bar the specification admits.
+    // HOW A BAR GETS THAT NARROW AT ALL: FR-018 draws every Task on a drawn
+    // row, and one whose span is narrower than `S-49` times the drawn ratio
+    // (DS-1) is drawn at that floor. A Task that starts and finishes the same
+    // day is drawn at it, which is the narrowest bar the specification admits.
     const schedule = oneRowOf({
       name: 'T',
       milestone: false,

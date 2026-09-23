@@ -17,6 +17,7 @@ import {
   markerBoxOf,
   numberIn,
   resumeBoxOf,
+  sizePx,
   sizesOrSeam,
   specRow,
   type Box,
@@ -302,7 +303,7 @@ const touches = (a: Box, b: Box): boolean => a.x0 <= b.x1 && b.x0 <= a.x1 && a.y
 const showsInFrame = (scene: Scene, family: string): boolean =>
   scene.drawn !== null && inkOf(scene.drawn, family).some((box) => touches(box, scene.rowArea))
 
-// see FR-104, FR-108, L-2
+// see FR-104, FR-108, FR-018
 const wantedIn = (scene: Scene): readonly string[] => {
   const out: string[] = []
   if (scene.drawn === null) return out
@@ -389,11 +390,16 @@ test('control: a turn that hides everything leaves no grab area allowed', () => 
   ).toBeGreaterThan(0)
 })
 
-// see L-2, FR-108
-test('a Task the task LOD drops answers nowhere at all', () => {
-  const dropped = scenes().filter((scene) => scene.drawn === null)
-  expect(dropped.length, 'L-2 drops narrow Tasks, so the low end of the zoom has some').toBeGreaterThan(0)
-  expect(dropped.length, 'and it does not drop every turn').toBeLessThan(TURNS.length)
-  const answering = dropped.flatMap((scene) => [...answeredIn(scene)].map((row) => `${nameOf(scene.turn)}: ${row}`))
-  expect(answering, 'FR-108 (MUST): LOD で描かないタスク（表 T-005a）').toEqual([])
+// see FR-018, S-49, S-54
+test('FR-018: no turn leaves its Task undrawn, at either end of the zoom', () => {
+  const low = scenes().filter((scene) => scene.turn.zoomX === ZOOM_ENDS[0] && scene.turn.shape === 'rectangle')
+  const floor = (drawingDefault('S-49') * sizePx('S-236') * Number(SETTINGS_DEFAULTS['displayScale'])) / 100
+  const widths = low.map((scene) => barBox(scene.drawn?.plan ?? null)).map((box) => (box === null ? Infinity : box.x1 - box.x0))
+  const narrowest = Math.min(...widths)
+  expect(
+    narrowest,
+    'premise: at S-54 the plan bar is within a few px of the S-49 floor, where a width-based drop would act',
+  ).toBeLessThan(floor * 2)
+  const dropped = scenes().filter((scene) => scene.drawn === null).map((scene) => nameOf(scene.turn))
+  expect(dropped, 'FR-018 (MUST NOT): 形状の幅が狭いことを理由に描かないでおいてはならない').toEqual([])
 })

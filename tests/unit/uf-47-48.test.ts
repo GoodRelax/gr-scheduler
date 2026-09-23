@@ -120,7 +120,7 @@ const FIRST_START = '2026-04-01'
  * An actual that begins after its Task's plan has already finished, which is
  * the half of OC-5 (table T-038) a late start produces; FR-084 is where that
  * overhang is drawn. Long enough that the actual bar ends beyond every plan bar
- * in the document, short enough that no Task drops under the LOD floor (S-86).
+ * in the document, short enough to leave the fit a readable zoom.
  */
 const LATE_ACTUAL_START = '2026-04-20'
 const LATE_ACTUAL_LAST_DAY = '2026-05-15'
@@ -155,8 +155,8 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
    * three-figure `actualDuration`, both Tasks here silently grew an actual bar
    * hundreds of working days long. FR-055 fits the drawn extent and OC-5 of
    * table T-038 counts an actual that runs outside its plan, so the fit shrank
-   * until both Tasks fell under the task LOD floor (S-86) and neither was
-   * drawn -- with nothing in the file saying an actual was ever involved.
+   * until both Tasks were too narrow to read (before CR-552 they were not drawn
+   * at all) -- with nothing in the file saying an actual was ever involved.
    *
    * ⭐ Naming the columns cannot fail that way again, and the check is a
    * machine's: the schema `validateDocument` runs requires all of them and sets
@@ -462,7 +462,7 @@ describe('the document these cases drive', () => {
     // ⛔ A premise, not decoration. FR-055 fits the drawn extent and OC-5 of
     // table T-038 counts an actual bar that runs outside its plan, so an actual
     // nobody asked for moves the zoom every case below is standing on, and a
-    // large enough one takes both Tasks under the task LOD floor (S-86). The
+    // large enough one shrinks both Tasks to the S-49 floor. The
     // case further down that does want an actual says so through `edit`.
     for (const task of (twoRowDocument() as any).schedule.tasks) {
       expect(planActualState(task)).toBe('notStarted')

@@ -319,10 +319,9 @@ describe('FR-039 (MUST) -- the drawn ratio is S-234 / 100 x S-236', () => {
 describe('table T-252 -- the rows that say what the display scale reaches', () => {
   const T_252 = specTable('T-252')
 
-  it('holds DS-1 .. DS-10 and nothing else', () => {
+  it('holds DS-1 and DS-3 .. DS-10 and nothing else', () => {
     expect(T_252.rows.map((row) => row.id)).toEqual([
       'DS-1',
-      'DS-2',
       'DS-3',
       'DS-4',
       'DS-5',
@@ -334,9 +333,9 @@ describe('table T-252 -- the rows that say what the display scale reaches', () =
     ])
   })
 
-  it('multiplies DS-1 .. DS-4 and DS-9, and does not multiply DS-5 .. DS-7 or DS-10', () => {
+  it('multiplies DS-1, DS-3, DS-4 and DS-9, and does not multiply DS-5 .. DS-7 or DS-10', () => {
     const answerOf = (id: string): string => bare(rowOf('T-252', id).by['掛けるか'] ?? '')
-    for (const id of ['DS-1', 'DS-2', 'DS-3', 'DS-4', 'DS-9']) {
+    for (const id of ['DS-1', 'DS-3', 'DS-4', 'DS-9']) {
       expect(answerOf(id), `${id} is multiplied`).toBe('掛ける')
     }
     for (const id of ['DS-5', 'DS-6', 'DS-7', 'DS-10']) {

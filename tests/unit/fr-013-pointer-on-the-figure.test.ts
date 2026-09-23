@@ -686,8 +686,8 @@ describe('FR-013 (MUST) -- the place decides, not the grab priority', () => {
   // whole mark stands INSIDE the slop of GA-1 / GA-2. A drawing that asked which
   // grab row had won would find the plan endpoint there and leave the dummy
   // faint -- at exactly the magnifications a whole document is read at.
-  // ⚠️ FR-018's S-86 still has to admit the task, so the zoom is chosen to keep
-  // the shape wide enough to be drawn at all.
+  // FR-018 draws the task at every zoom (CR-552); the case below still checks
+  // that it is drawn here before it asks anything.
   const ZOOM = 0.25 / DEFAULT_DISPLAY_RATIO
   const LOW = settingsAt(ZOOM)
 

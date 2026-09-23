@@ -323,8 +323,8 @@ describe('above the floor, zoomY reaches the occupied WIDTH -- and through it th
     const shallow = layoutFromSchedule(schedule, marked(0.5), REGIONS)
     const deep = layoutFromSchedule(schedule, marked(3), REGIONS)
 
-    // Both Tasks clear S-86 at zoomX 1 (60px against 24px), so table T-005a's
-    // L-2 drops neither and the two layouts hold the same Tasks.
+    // FR-018 drops no Task for its width (CR-552), so the two layouts hold
+    // the same Tasks.
     expect(shallow.placements).toHaveLength(2)
     expect(deep.placements).toHaveLength(2)
 

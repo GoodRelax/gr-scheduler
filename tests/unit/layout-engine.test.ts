@@ -684,14 +684,14 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
     expect(groupDepthLimit(settingsOf({ ...LAYOUT_SETTINGS, zoomY: 0.001 }))).toBe(1)
   })
 
-  it('CR-163 keeps a shape that clears S-86 and drops one that does not', () => {
-    // 10 days at 6px is 60; 3 days is 18, under the 24px threshold.
+  it('FR-018 (MUST NOT) draws a short Task beside a long one, and drops neither', () => {
+    // see FR-018, CR-552
     const layout = layoutFromSchedule(
       oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 3)]),
       LAYOUT_SETTINGS,
       REGIONS,
     )
-    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
+    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1, 2])
   })
 
   it('FR-018 draws a zero-duration Task at every zoom, because its width is not a duration', () => {
@@ -707,15 +707,14 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
     }
   })
 
-  it('FR-018 still drops a Task that is merely short, so the exemption is not a hole', () => {
-    // 3 days at 6px is 18, under the 24px S-86 states. Its width DID come from
-    // a duration, so the CR-174 exemption must not reach it.
-    const layout = layoutFromSchedule(
-      oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 3)]),
-      LAYOUT_SETTINGS,
-      REGIONS,
-    )
-    expect(layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
+  it('FR-018 (MUST NOT) draws a Task that is merely short at every zoom, not only a zero-duration one', () => {
+    // WHY: its width DID come from a duration; since CR-552 that is no reason to
+    // WHY: drop it either, so the zero-duration case above is no longer an exemption.
+    const schedule = oneRow([spanning(1, '2026-01-01', 10), spanning(2, '2026-02-01', 3)])
+    for (const zoomX of [1, 0.5, 0.1, 0.02]) {
+      const layout = layoutFromSchedule(schedule, settingsOf({ ...LAYOUT_SETTINGS, zoomX }), REGIONS)
+      expect(layout.placements.map((onePoint) => onePoint.taskUid), `zoomX ${zoomX}`).toEqual([1, 2])
+    }
   })
 
   it('never draws more as the zoom falls, which is FR-018 without an argument', () => {
@@ -1119,8 +1118,8 @@ const withVisuals = (tasks: readonly Task[], visuals: readonly Record<string, un
 
 describe('ScheduleGeometry (PI-6) -- the shapes of table T-012', () => {
   it('LF-10 centres a milestone on its day and gives it its own plan height', () => {
-    // A real milestone has start === finish, so its date span is zero. CR-163
-    // measures the SHAPE, which LF-10 makes 28 x S-17 wide, clearing S-86.
+    // A real milestone has start === finish, so its date span is zero; LF-10
+    // makes its SHAPE 28 x S-17 wide whatever the zoom.
     const schedule = oneRow([
       taskOf({ uid: 1, start: '2026-01-11', finish: '2026-01-11', milestone: true }),
     ])
@@ -1450,12 +1449,40 @@ describe('ScheduleGeometry (PI-6) -- LC-10, the routes of table T-222', () => {
     expect(mirrored.points[2]!.x).toBeLessThan(mirrored.points[3]!.x)
   })
 
-  it('RT-4a draws nothing when either end is not on screen', () => {
+  it('RT-4a draws nothing when either end sits on a hidden row, and draws it when the row shows', () => {
+    // see RT-4a, HR-6, FR-018
+    const twoRows = (predecessorHidden: boolean): Schedule =>
+      scheduleOf({
+        tasks: [
+          spanning(2, '2026-01-05', 20),
+          taskOf({ ...(spanning(3, '2026-03-01', 20) as unknown as Record<string, unknown>),
+            dependencies: [{ predecessorUid: 2, linkType: 1 }] }),
+        ],
+        taskGroups: [
+          { id: 'g1', parentId: null, order: 0, height: null, isHidden: predecessorHidden },
+          { id: 'g2', parentId: null, order: 1, height: null },
+        ],
+        taskGroupMembers: [{ groupId: 'g1', taskUid: 2 }, { groupId: 'g2', taskUid: 3 }],
+      })
+    expect(geometryOf(twoRows(false)).dependencies, 'control: both ends drawn').toHaveLength(1)
+    expect(geometryOf(twoRows(true)).dependencies).toHaveLength(0)
+  })
+
+  it('RT-4a draws nothing while the plan is not shown (S-227 false)', () => {
+    const planHidden = settingsOf({
+      ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
+      planVisible: false,
+    })
+    expect(geometryOf(linked(1, 2, 3)).dependencies, 'control: the plan shown').toHaveLength(1)
+    expect(geometryOf(linked(1, 2, 3), planHidden).dependencies).toHaveLength(0)
+  })
+
+  it('FR-018 leaves the line of a zoomed-out pair drawn, because no end is dropped any more', () => {
     const zoomedOut = settingsOf({
       ...(GEOM_SETTINGS as unknown as Record<string, unknown>),
       zoomX: 0.05,
     })
-    expect(geometryOf(linked(1, 2, 3), zoomedOut).dependencies).toHaveLength(0)
+    expect(geometryOf(linked(1, 2, 3), zoomedOut).dependencies).toHaveLength(1)
   })
 
   it('S-62 takes every dependency line away', () => {

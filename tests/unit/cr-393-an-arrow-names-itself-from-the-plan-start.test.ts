@@ -41,14 +41,14 @@ const FR_094_THE_RESUME_ICON_FOLLOWS_THAT_DIAMETER =
 const T_273_THE_NAME_NEVER_LEFT_OF_THE_MARKER =
   '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。'
 
-const FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY =
-  'しきい値は表 T-205 の `S-86` に従うこと（MUST） —— 幅は期間に 1 日あたりの表示幅（`FR-017`）を掛けた値である。'
+const FR_018_NO_TASK_IS_LEFT_UNDRAWN_FOR_ITS_WIDTH =
+  '⛔ 描いている行に載る `Task` を、形状の幅が狭いことを理由に描かないでおいてはならない（MUST NOT）'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-094 (MUST) -- the arrow marker diameter is that task\'s name font', FR_094_THE_ARROW_MARKER_IS_THE_NAME_FONT],
   ['FR-094 (MUST) -- the resume icon is derived from that same diameter', FR_094_THE_RESUME_ICON_FOLLOWS_THAT_DIAMETER],
   ['T-273 (MUST NOT) -- the name never stands left of the marker', T_273_THE_NAME_NEVER_LEFT_OF_THE_MARKER],
-  ['FR-018 (MUST) -- the dropped width is the span times one day\'s drawn width', FR_018_THE_WIDTH_IS_THE_SPAN_TIMES_THE_DAY],
+  ['FR-018 (MUST NOT) -- a Task on a drawn row is never left undrawn for its width', FR_018_NO_TASK_IS_LEFT_UNDRAWN_FOR_ITS_WIDTH],
 ]
 
 describe('CR-393 -- the manuscript these cases are driven by', () => {

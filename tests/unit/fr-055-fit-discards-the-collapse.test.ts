@@ -181,10 +181,8 @@ const scheduleOf = (
   )
 
   // uid 1..3 on the roots, 10.. on the children.
-  // ⚠️ Both spans are wide enough that FR-018's task level of detail keeps
-  // them: the threshold is S-86 of table T-205 and the width it judges is the
-  // duration times one day's px (S-1 at zoomX 1). A shorter root task would be
-  // dropped and the cases below would then be about an empty measurement.
+  // FR-018 draws every Task on a drawn row whatever its width (CR-552), so the
+  // spans only need to be long enough to give the measurement a real extent.
   const rootTasks = PARENT_IDS.map((_id, index) => spanning(index + 1, '2026-01-05', 20))
   const childTasks = PARENT_IDS.flatMap((_id, index) =>
     [0, 1].map((oneNode) => spanning(10 + index * 2 + oneNode, '2026-05-01', 45)),

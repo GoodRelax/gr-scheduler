@@ -31,7 +31,7 @@
 //            measurements below are invariant in `zoomY`
 //   FR-016   the zoom is held inside S-75 / S-76's range (S-54 / S-55)
 //   T-068    LC-1, LC-2, LC-9 and the two-pass rule printed after the table
-//   T-205    S-87 / S-88 (the ladder's first term and ratio), S-86
+//   T-205    S-87 / S-88 (the ladder's first term and ratio)
 //   T-201    S-49, S-54, S-55; T-206 S-96 / S-97 / S-98
 //   T-203    S-75 / S-76 (the two zooms), S-125 (the depth cap)
 //   T-221    LF-2 / LF-3 (the band height and the row pitch)
@@ -216,8 +216,8 @@ const drawingZoomOf = (depth: number): number =>
 // compared below cannot be moved by the horizontal half of the same press, and
 // it keeps every row at one lane (ST-2 / ST-3 have nothing to stack), so LF-2
 // gives every band the same height and the extent really is the row count.
-// ⚠️ The span is long enough that FR-018's task LOD keeps it: the width it
-// judges is the duration times one day's px (S-1 at zoomX 1) against S-86.
+// FR-018 draws every Task on a drawn row whatever its width (CR-552), so the
+// span's length only sets the horizontal extent.
 // ---------------------------------------------------------------------------
 
 const MS_PER_DAY = 86400000

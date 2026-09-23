@@ -935,8 +935,7 @@ describe('table T-038 -- the order counts the dummy HOLD, not the drawn mark', (
   // T-240 DM-3 gives and which once SHRANK to `pxPerDay` at this zoom. A 4-day
   // plan's own right edge then reaches past a hold that thin, so
   // `notStartedScene` is cut to 2 days and the zoom doubled to keep the
-  // Task's width at `taskLevelOfDetailReadablePx` (24px) -- any narrower and
-  // `sceneOf` throws before either case below can press it.
+  // Task's width where it was when these cases were measured.
   const sceneOf = (
     part: Record<string, unknown>,
     display: Record<string, unknown> = {},
