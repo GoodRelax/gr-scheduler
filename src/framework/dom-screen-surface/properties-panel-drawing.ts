@@ -394,7 +394,7 @@ function sideValueText(control: PropertyControl, side: ColourSide): string {
   if (isSideUndefined(control, side)) return ''
   if (paletteNamesOf(control).includes(control.text)) return wordOfName(control, control.text)
   if (side.paint === TRANSPARENT_PAINT) return wordOfName(control, TRANSPARENT_NAME)
-  return side.paint.toUpperCase()
+  return (side.value ?? side.paint).toUpperCase()
 }
 
 /** @purity pure */

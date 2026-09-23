@@ -149,11 +149,14 @@ export type PropertyControlKind =
   | 'choice'
   | 'color'
 
-// see CV-9
+// see CV-9, CV-7
 export interface ColourSide {
   readonly word: string
   readonly paint: string
   readonly note: string
+  // WHY: paint is greyed while monochrome is on, but the side's value still names the chosen colour.
+  // Optional, so a description written before it still draws; absent, the value is read from paint.
+  readonly value?: string
 }
 
 // see CV-9

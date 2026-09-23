@@ -766,12 +766,13 @@ const COLOUR_FIELD_WORDS = new Map(displayWords.colourField.map((entry) => [entr
 interface ColourLook {
   readonly hue: number
   readonly dark: boolean
+  readonly monochrome: boolean
   readonly language: DisplayLanguage
 }
 
 type ColourForm = Parameters<typeof swatchOf>[1]
 
-// see CV-9, CV-3
+// see CV-9, CV-3, CV-7
 /** @purity pure */
 function colourSide(stored: string | null, form: ColourForm, look: ColourLook, dark: boolean): ColourSide {
   const custom = stored === null ? null : customColourOf(stored)
@@ -779,12 +780,13 @@ function colourSide(stored: string | null, form: ColourForm, look: ColourLook, d
   const notePart = dark ? 'sameAsLight' : 'sameAsDark'
   return {
     word: COLOUR_FIELD_WORDS.get(dark ? 'dark' : 'light')?.[look.language] ?? '',
-    paint: swatchOf(stored, form, look.hue, dark).paint,
+    paint: swatchOf(stored, form, look.hue, dark, look.monochrome).paint,
+    value: swatchOf(stored, form, look.hue, dark, false).paint,
     note: isUndefinedSide ? (COLOUR_FIELD_WORDS.get(notePart)?.[look.language] ?? '') : '',
   }
 }
 
-// see CV-9, CV-4, CV-5
+// see CV-9, CV-4, CV-5, CV-7
 /** @purity pure */
 function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
   const form = COLOUR_FORM_OF_COLUMN[control.key.column]
@@ -796,8 +798,12 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   const names = order.filter((name) => name !== leftOut)
   const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
-  const drawn = swatchOf(stored, form, look.hue, look.dark).paint
-  const swatches = values.map((value) => swatchOf(value === '' ? null : value, form, look.hue, look.dark))
+  // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps
+  // the hue while monochrome is on; CV-7 greys only what is painted.
+  const drawn = swatchOf(stored, form, look.hue, look.dark, false).paint
+  const swatches = values.map((value) =>
+    swatchOf(value === '' ? null : value, form, look.hue, look.dark, look.monochrome),
+  )
   return {
     ...control,
     choices: values.map((value) =>
@@ -862,6 +868,7 @@ export function propertiesPanelFromSelection(
   const look = {
     hue: schedule.project.themeHue,
     dark: settings.themePreference === 'dark',
+    monochrome: settings.themeMonochrome,
     language,
   }
   const fields = described === null ? null : withColourFields(described, look)

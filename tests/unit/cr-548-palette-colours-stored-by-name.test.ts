@@ -435,7 +435,7 @@ const paintsOf = (svg: string): readonly string[] =>
   [...svg.matchAll(/\b(?:fill|stroke)="([^"]*)"/g)].map((hit) => hit[1] as string).filter((one) => one !== 'none')
 
 const paint = (stored: string | null, form: Form, side: Side): string =>
-  swatchOf(stored, form, HUE, side === 'dark').paint.toLowerCase()
+  swatchOf(stored, form, HUE, side === 'dark', false).paint.toLowerCase()
 
 const SIDES: readonly Side[] = ['light', 'dark']
 const CUSTOM_LIGHT = '#c0504d'

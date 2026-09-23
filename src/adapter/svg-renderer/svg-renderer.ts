@@ -145,6 +145,13 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
   return monochrome ? achromatic(substituted) : substituted
 }
 
+// see T-236, FR-041, CV-9
+// WHY: one reader of the theme rows for the drawing and the panel's swatches, so the two cannot drift.
+/** @purity pure */
+function themedColours(hue: number, dark: boolean, monochrome: boolean): (rowId: string) => string {
+  return (rowId) => colourOf(rowId, hue, dark, monochrome)
+}
+
 // see CV-6
 export type ColourForm = 'fill' | 'outline' | 'actual' | 'band'
 
@@ -260,16 +267,17 @@ function inkOn(paint: string): string {
   return Number(lightness[1]) < INK_TURNS_AT_LIGHTNESS ? INK_ON_DARK : INK_ON_LIGHT
 }
 
-// see CV-9
+// see CV-9, CV-7, S-74
 /** @purity pure */
 export function swatchOf(
   stored: string | null,
   form: ColourForm,
   hue: number,
   dark: boolean,
+  monochrome: boolean,
 ): { readonly paint: string; readonly ink: string } {
-  const themed = (rowId: string): string => colourOf(rowId, hue, dark, false)
-  const paint = chosenColourOf(stored, form, dark, false, themed) ?? themed(THEME_ROW_OF_FORM[form])
+  const themed = themedColours(hue, dark, monochrome)
+  const paint = chosenColourOf(stored, form, dark, monochrome, themed) ?? themed(THEME_ROW_OF_FORM[form])
   return { paint, ink: inkOn(paint) }
 }
 
@@ -345,7 +353,7 @@ export function svgFromSchedule(
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
   const dark = isDarkTheme(settings)
-  const themed = (rowId: string): string => colourOf(rowId, hue, dark, monochrome)
+  const themed = themedColours(hue, dark, monochrome)
   const chosen: ChosenColour = (stored, form) => chosenColourOf(stored, form, dark, monochrome, themed)
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
