@@ -200,6 +200,17 @@
    }
   },
   {
+   "rowId": "IC-100",
+   "label": {
+    "ja": "モノクロ",
+    "en": "Monochrome"
+   },
+   "hint": {
+    "ja": "モノクロで描く。もう一度押すと色に戻す",
+    "en": "Draw in monochrome; press again to go back to colour"
+   }
+  },
+  {
    "rowId": "IC-16",
    "label": {
     "ja": "明暗テーマ",
@@ -640,17 +651,6 @@
    }
   },
   {
-   "rowId": "IC-100",
-   "label": {
-    "ja": "モノクロ",
-    "en": "Monochrome"
-   },
-   "hint": {
-    "ja": "モノクロで描く。もう一度押すと色に戻す",
-    "en": "Draw in monochrome; press again to go back to colour"
-   }
-  },
-  {
    "rowId": "IC-101",
    "label": {
     "ja": "積む向き",
@@ -857,6 +857,17 @@
    "hint": {
     "ja": "この行と、その配下の行と、載っているタスクを削除する",
     "en": "Delete this row, the rows below it and the tasks they carry"
+   }
+  },
+  {
+   "rowId": "IC-106",
+   "label": {
+    "ja": "すべての行を削除",
+    "en": "Delete All Rows"
+   },
+   "hint": {
+    "ja": "すべての行と、載っているタスクを削除する",
+    "en": "Delete all rows and the tasks they carry"
    }
   },
   {
@@ -1144,20 +1155,6 @@
    }
   },
   {
-   "rowId": "PR-12",
-   "label": {
-    "ja": "線 / 塗り / 太さ",
-    "en": "stroke / fill / weight"
-   }
-  },
-  {
-   "rowId": "PR-13",
-   "label": {
-    "ja": "名称アンカー / 名称の揃え",
-    "en": "nameAnchor / nameAlign"
-   }
-  },
-  {
    "rowId": "PR-14",
    "label": {
     "ja": "フェード日数 前/後",
@@ -1172,6 +1169,13 @@
    }
   },
   {
+   "rowId": "PR-12",
+   "label": {
+    "ja": "線 / 塗り / 太さ",
+    "en": "stroke / fill / weight"
+   }
+  },
+  {
    "rowId": "PR-18",
    "label": {
     "ja": "名称",
@@ -1179,17 +1183,17 @@
    }
   },
   {
-   "rowId": "PR-19",
-   "label": {
-    "ja": "色",
-    "en": "color"
-   }
-  },
-  {
    "rowId": "PR-20",
    "label": {
     "ja": "高さ",
     "en": "height"
+   }
+  },
+  {
+   "rowId": "PR-19",
+   "label": {
+    "ja": "色",
+    "en": "color"
    }
   },
   {
@@ -3593,6 +3597,13 @@
    }
   },
   {
+   "rowId": "QN-10",
+   "text": {
+    "ja": "すべての行と、行に載っているタスクを削除しますか？",
+    "en": "Delete all rows and the tasks on them?"
+   }
+  },
+  {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
@@ -4023,8 +4034,8 @@
   {
    "part": "custom",
    "text": {
-    "ja": "カスタムカラー",
-    "en": "Custom color"
+    "ja": "任意",
+    "en": "Custom"
    }
   },
   {

@@ -136,34 +136,6 @@
    "appliesTo": "Task"
   },
   {
-   "rowId": "PR-12",
-   "columns": [
-    "strokeColor",
-    "fillColor",
-    "lineWeight"
-   ],
-   "inputKinds": [
-    "色",
-    "色",
-    "選択"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task"
-  },
-  {
-   "rowId": "PR-13",
-   "columns": [
-    "nameAnchor",
-    "nameAlign"
-   ],
-   "inputKinds": [
-    "数値",
-    "選択"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "Task"
-  },
-  {
    "rowId": "PR-14",
    "columns": [
     "fadeInDays",
@@ -188,6 +160,21 @@
    "appliesTo": "Task"
   },
   {
+   "rowId": "PR-12",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "lineWeight"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "選択"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "Task"
+  },
+  {
    "rowId": "PR-18",
    "columns": [
     "label"
@@ -199,23 +186,23 @@
    "appliesTo": "TaskGroup"
   },
   {
-   "rowId": "PR-19",
-   "columns": [
-    "color"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "isReadOnly": false,
-   "appliesTo": "TaskGroup"
-  },
-  {
    "rowId": "PR-20",
    "columns": [
     "height"
    ],
    "inputKinds": [
     "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "TaskGroup"
+  },
+  {
+   "rowId": "PR-19",
+   "columns": [
+    "color"
+   ],
+   "inputKinds": [
+    "色"
    ],
    "isReadOnly": false,
    "appliesTo": "TaskGroup"

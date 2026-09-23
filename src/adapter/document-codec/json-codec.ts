@@ -512,19 +512,11 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskVisual: {
     type: ['object'],
-    required: ['taskUid', 'nameAnchor', 'nameAlign', 'shapeKind', 'milestoneGlyph', 'fillColor', 'strokeColor', 'lineWeight'],
+    required: ['taskUid', 'shapeKind', 'milestoneGlyph', 'fillColor', 'strokeColor', 'lineWeight'],
     closed: true,
     properties: {
       taskUid: {
         type: ['integer'],
-      },
-      nameAnchor: {
-        type: ['integer', 'null'],
-        minimum: 0,
-        maximum: 8,
-      },
-      nameAlign: {
-        enum: ['left', 'center', 'right', null],
       },
       shapeKind: {
         enum: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone', null],

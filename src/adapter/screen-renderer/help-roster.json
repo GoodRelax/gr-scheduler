@@ -249,6 +249,21 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
+   "row": "IC-106",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-106"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Row Title Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
    "row": "IC-93",
    "keys": null,
    "press": null,
@@ -834,6 +849,21 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
+   "row": "IC-100",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-100"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
    "row": "IC-16",
    "keys": null,
    "press": null,
@@ -1246,21 +1276,6 @@
    "press": null,
    "glyphs": [
     "IC-99"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-3",
-   "block": "Command Palette",
-   "segment": "IC-39",
-   "indent": false,
-   "table": "T-109",
-   "row": "IC-100",
-   "keys": null,
-   "press": null,
-   "glyphs": [
-    "IC-100"
    ],
    "note": null
   },

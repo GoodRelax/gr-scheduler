@@ -779,6 +779,25 @@
      ]
     },
     {
+     "key": "guideCursorEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-47",
+       "IC-48",
+       "DC-9"
+      ]
+     },
+     "carries": [
+      {
+       "name": "guideCursor",
+       "note": {
+        "ja": "押したガイドカーソルの値（`S-66`）"
+       }
+      }
+     ]
+    },
+    {
      "key": "dualCursorPlaced",
      "source": {
       "kind": "input",
@@ -2115,9 +2134,10 @@
           "name": "hasDaysToPlace"
          }
         ],
-        "effect": "writePlaceDualCursor",
+        "effect": "writePlaceDualCursorClearingGuide",
         "evidence": [
-         "DC-1"
+         "DC-1",
+         "DC-9"
         ]
        },
        "on": {
@@ -2125,6 +2145,17 @@
         "effect": "writeClearDualCursor",
         "evidence": [
          "DC-4"
+        ]
+       }
+      },
+      "guideCursorEntryPressed": {
+       "on": {
+        "to": "off",
+        "effect": "writeClearDualCursorSettingGuide",
+        "evidence": [
+         "DC-4",
+         "DC-7",
+         "DC-9"
         ]
        }
       },

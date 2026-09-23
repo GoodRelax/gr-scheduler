@@ -259,10 +259,6 @@ export interface Assignment {
 export interface TaskVisual {
   /** AT-97 */
   readonly taskUid: number
-  /** AT-98 */
-  readonly nameAnchor: number | null
-  /** AT-99 */
-  readonly nameAlign: 'left' | 'center' | 'right' | null
   /** AT-100 */
   readonly shapeKind: 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone' | null
   /** AT-101 */
@@ -434,8 +430,6 @@ export const COLUMN_SHAPES: {
   },
   TaskVisual: {
     taskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
-    nameAnchor: { kind: 'integer', choices: null, min: 0, max: 8, isNullable: true },
-    nameAlign: { kind: 'enum', choices: ['left', 'center', 'right'], min: null, max: null, isNullable: true },
     shapeKind: { kind: 'enum', choices: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'], min: null, max: null, isNullable: true },
     milestoneGlyph: { kind: 'enum', choices: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug'], min: null, max: null, isNullable: true },
     fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },

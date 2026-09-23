@@ -77,6 +77,7 @@
 | `screen/foldAllPressed` | 入力（`HF-12` の操作子）: `HF-12` ・ `HR-2` | `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `levelZeroFoldStateMachine` |
 | `screen/levelZeroOpened` | 入力: `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` | `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `levelZeroFoldStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
+| `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | `dualCursorModeStateMachine` |
 | `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `dualCursorModeStateMachine` |
 | `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
@@ -360,14 +361,15 @@ stateDiagram-v2
         dualCursorModeStateMachine_on_placingDate1 --> dualCursorModeStateMachine_on_placingDate2 : dualCursorPlaced
         dualCursorModeStateMachine_on_placingDate2 --> dualCursorModeStateMachine_on_placingDate1 : dualCursorPlaced
     }
-    dualCursorModeStateMachine_on --> dualCursorModeStateMachine_off : escapePressed, dualCursorEntryPressed
+    dualCursorModeStateMachine_on --> dualCursorModeStateMachine_off : escapePressed, dualCursorEntryPressed, guideCursorEntryPressed
     dualCursorModeStateMachine_off --> dualCursorModeStateMachine_on : dualCursorEntryPressed
 ```
 
 | 出来事 | `off` | `on.placingDate1` | `on.placingDate2` |
 | --- | --- | --- | --- |
 | `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） |
-| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `writePlaceDualCursor`<br>それ以外 → — | → `off` / `writeClearDualCursor`（親 `on` の升） | → `off` / `writeClearDualCursor`（親 `on` の升） |
+| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `writePlaceDualCursorClearingGuide`<br>それ以外 → — | → `off` / `writeClearDualCursor`（親 `on` の升） | → `off` / `writeClearDualCursor`（親 `on` の升） |
+| `screen/guideCursorEntryPressed` | — | → `off` / `writeClearDualCursorSettingGuide`（親 `on` の升） | → `off` / `writeClearDualCursorSettingGuide`（親 `on` の升） |
 | `screen/dualCursorPlaced` | — | → `on.placingDate2` / `writeFixDate1` | → `on.placingDate1` / `writeFixDate2` |
 
 - `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`

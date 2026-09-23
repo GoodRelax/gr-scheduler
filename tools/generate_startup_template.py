@@ -2418,8 +2418,6 @@ class Builder(object):
         """@purity pure"""
         return {
             'taskUid': uid,
-            'nameAnchor': None,
-            'nameAlign': None,
             'shapeKind': shape,
             'milestoneGlyph': glyph,
             'fillColor': fill,

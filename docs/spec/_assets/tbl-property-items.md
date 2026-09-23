@@ -40,11 +40,10 @@
 | PR-7 | `resume` | 日付 | `Task` | 中断したときだけ入る | `Task/Resume` |
 | PR-8 | `resumeValid` | 真偽 | `Task` | `false` = 再開日未定の中断 | `Task/ResumeValid` |
 | PR-17 | `milestoneGlyph` | 選択 | `Task` | `shapeKind` が `'milestone'` のときだけ有効。<br>置いた後も変えられること（`FR-078`） | 無い（`GRS JSON` のみ） |
-| PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 色 / 色 / 選択 | `Task` | FR-007 | 無い（`GRS JSON` のみ） |
-| PR-13 | `nameAnchor` / `nameAlign` | 数値 / 選択 | `Task` | FR-002 | 無い（`GRS JSON` のみ） |
 | PR-14 | `fadeInDays` / `fadeOutDays` | 数値 / 数値 | `Task` | 日付の曖昧さを端のぼかしで表す。<br>**適用する形状は表 T-012a の `FD-5` が限る** | `Task/ExtendedAttribute`（通常の列は無い。<br>拡張領域を使うのはこの 2 つだけである。<br>枠の選び方は 表 T-033 の `EX-6`） |
 | PR-15 | `wbsParentUid` | 選択 | `Task` | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
+| PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 色 / 色 / 選択 | `Task` | FR-007 | 無い（`GRS JSON` のみ） |
 | PR-18 | `label` | 文字 | `TaskGroup` | 行の名前。<br>⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである | 無い（`GRS JSON` のみ） |
-| PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-20 | `height` | 数値 | `TaskGroup` | 倍率 1 のときの論理の高さ。<br>`null` ＝ 自動 | 無い（`GRS JSON` のみ） |
+| PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |

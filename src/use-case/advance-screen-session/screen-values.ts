@@ -230,6 +230,7 @@ export type ScreenValuesEvent =
   | { readonly type: 'foldAllPressed'; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'levelZeroOpened'; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
   | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
@@ -249,7 +250,8 @@ export type ScreenValuesEffectName =
   | 'writeFoldAll'
   | 'writeOpenLevel'
   | 'writeClearDualCursor'
-  | 'writePlaceDualCursor'
+  | 'writePlaceDualCursorClearingGuide'
+  | 'writeClearDualCursorSettingGuide'
   | 'writeFixDate1'
   | 'writeFixDate2'
   | 'startScaleMessageTimer'
@@ -837,7 +839,7 @@ export const SCREEN_VALUES_TRANSITIONS: readonly ScreenValuesTransition[] = [
     event: 'dualCursorEntryPressed',
     guard: 'hasDaysToPlace',
     to: 'dualCursorModeStateMachine.on',
-    effect: 'writePlaceDualCursor',
+    effect: 'writePlaceDualCursorClearingGuide',
     effectArgument: null,
   },
   {
@@ -846,6 +848,14 @@ export const SCREEN_VALUES_TRANSITIONS: readonly ScreenValuesTransition[] = [
     guard: null,
     to: 'dualCursorModeStateMachine.off',
     effect: 'writeClearDualCursor',
+    effectArgument: null,
+  },
+  {
+    state: 'dualCursorModeStateMachine.on',
+    event: 'guideCursorEntryPressed',
+    guard: null,
+    to: 'dualCursorModeStateMachine.off',
+    effect: 'writeClearDualCursorSettingGuide',
     effectArgument: null,
   },
   {

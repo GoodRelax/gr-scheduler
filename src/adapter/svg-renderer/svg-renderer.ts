@@ -611,14 +611,14 @@ export const SCHEDULE_COLOURS: {
   'S-312': { light: '#b45309', dark: '#b45309', followsHue: false },
   'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-163': { light: '#8b9099', dark: '#767c86', followsHue: false },
+  'S-163': { light: '#eb6101', dark: '#ff8c42', followsHue: false },
   'S-164': { light: 'hsl(H 42% 96%)', dark: 'hsl(H 18% 20%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
   'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },
   'S-167': { light: 'hsl(H 20% 99%)', dark: 'hsl(H 14% 11%)', followsHue: true },
   'S-168': { light: '#000000', dark: '#ffffff', followsHue: false },
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-195': { light: 'hsl(H 59% 32%)', dark: 'hsl(H 62% 68%)', followsHue: true },
+  'S-195': { light: '#c2188f', dark: '#f07ad0', followsHue: false },
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }
 

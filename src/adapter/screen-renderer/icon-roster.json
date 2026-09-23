@@ -208,6 +208,17 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-100",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である。<br>⭐ 本行は明暗テーマの入口（`IC-16`）の左に並べる（`FR-041`）",
+   "authority": "`FR-041`（表 T-108 の `CM-64`）",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-16",
    "surfaces": [
     "App Header"
@@ -648,17 +659,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-100",
-   "surfaces": [
-    "Command Palette"
-   ],
-   "group": "表示",
-   "entryTo": "モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である",
-   "authority": "`FR-041`（表 T-108 の `CM-64`）",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-101",
    "surfaces": [
     "Command Palette"
@@ -868,6 +868,17 @@
    ],
    "group": null,
    "entryTo": "行を削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）",
+   "authority": "`FR-032`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-106",
+   "surfaces": [
+    "Row Title Panel"
+   ],
+   "group": null,
+   "entryTo": "すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
    "authority": "`FR-032`",
    "arms": null,
    "armsShape": null

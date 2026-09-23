@@ -117,12 +117,13 @@ UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 
 # The screen order of the Row Title Panel. HF-10 of table T-051 orders the head
-# (open one level, collapse all, open all, add); HF-1 reads the 2 x 2 grid of a
+# (open one level, collapse all, open all, add), and HF-20 puts delete-all over
+# that add; HF-1 reads the 2 x 2 grid of a
 # row column first (hide, open one level, collapse below, open below), HF-4
 # puts delete over add after it and the pin outermost. The rows are the
 # entrances table T-109 describes in those words. The set is checked against
 # the table every run, so a row added there stops the run instead of vanishing.
-ROW_TITLE_PANEL_ORDER = ('IC-92', 'IC-78', 'IC-74', 'IC-93',
+ROW_TITLE_PANEL_ORDER = ('IC-92', 'IC-78', 'IC-74', 'IC-106', 'IC-93',
                          'IC-59', 'IC-90', 'IC-77', 'IC-58', 'IC-82', 'IC-91',
                          'IC-60')
 

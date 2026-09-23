@@ -981,6 +981,14 @@
    }
   },
   {
+   "prefix": "RK",
+   "words": "Retired Key",
+   "owner": "spec",
+   "means": {
+    "ja": "仕様が落とし、読むときに捨てる列"
+   }
+  },
+  {
    "prefix": "RL",
    "words": "Relation",
    "owner": "spec",
@@ -1001,7 +1009,7 @@
    "words": "Resource Roster",
    "owner": "spec",
    "means": {
-    "ja": "担当者の一覧の字の大きさ・スクロール・罫線"
+    "ja": "担当者の一覧の字の大きさ・スクロール・罫線・閉じる入口"
    }
   },
   {

@@ -194,42 +194,6 @@
    }
   },
   {
-   "id": "PR-12",
-   "columns": [
-    "strokeColor",
-    "fillColor",
-    "lineWeight"
-   ],
-   "inputKinds": [
-    "色",
-    "色",
-    "選択"
-   ],
-   "note": {
-    "ja": "FR-007"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
-   "id": "PR-13",
-   "columns": [
-    "nameAnchor",
-    "nameAlign"
-   ],
-   "inputKinds": [
-    "数値",
-    "選択"
-   ],
-   "note": {
-    "ja": "FR-002"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
    "id": "PR-14",
    "columns": [
     "fadeInDays",
@@ -262,6 +226,25 @@
    }
   },
   {
+   "id": "PR-12",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "lineWeight"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "選択"
+   ],
+   "note": {
+    "ja": "FR-007"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-18",
    "columns": [
     "label"
@@ -278,22 +261,6 @@
    }
   },
   {
-   "id": "PR-19",
-   "columns": [
-    "color"
-   ],
-   "inputKinds": [
-    "色"
-   ],
-   "appliesTo": "TaskGroup",
-   "note": {
-    "ja": "行の帯の色。`null` ＝ テーマから解く"
-   },
-   "mspdi": {
-    "ja": "無い（`GRS JSON` のみ）"
-   }
-  },
-  {
    "id": "PR-20",
    "columns": [
     "height"
@@ -304,6 +271,22 @@
    "appliesTo": "TaskGroup",
    "note": {
     "ja": "倍率 1 のときの論理の高さ。`null` ＝ 自動"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-19",
+   "columns": [
+    "color"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行の帯の色。`null` ＝ テーマから解く"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

@@ -221,7 +221,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'progressLineOverhang': 6,
   'progressLineVisible': false,
   'progressLineWidth': 2,
-  'progressMarkerVisible': true,
+  'progressMarkerVisible': false,
   'propertyPanelWidth': 0,
   'pxPerDayAt1x': 6,
   'resumeArmOfMarker': 0.62,

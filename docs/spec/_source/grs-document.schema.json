@@ -1595,8 +1595,6 @@
    "description": "How a task is drawn: its shape, its colours and where its name sits.",
    "required": [
     "taskUid",
-    "nameAnchor",
-    "nameAlign",
     "shapeKind",
     "milestoneGlyph",
     "fillColor",
@@ -1607,22 +1605,6 @@
    "properties": {
     "taskUid": {
      "type": "integer"
-    },
-    "nameAnchor": {
-     "type": [
-      "integer",
-      "null"
-     ],
-     "minimum": 0,
-     "maximum": 8
-    },
-    "nameAlign": {
-     "enum": [
-      "left",
-      "center",
-      "right",
-      null
-     ]
     },
     "shapeKind": {
      "enum": [

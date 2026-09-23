@@ -2307,45 +2307,6 @@
      }
     },
     {
-     "seat": 98,
-     "name": "nameAnchor",
-     "type": "整数（0〜8）",
-     "nullable": "可",
-     "json": {
-      "kind": "integer",
-      "min": 0,
-      "max": 8,
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": {
-      "ja": "名前を置く位置。**外接矩形の 9 点を読み順に数える** —— `0` 左上 / `1` 上中央 / `2` 右上 / `3` 左中央 / `4` 中央 / `5` 右中央 / `6` 左下 / `7` 下中央 / `8` 右下。⚠️ **指定が無いときの置き方は `FR-109` が決める**（表 T-272 と 表 T-273）—— そちらは自動配置の規則であって、この格子ではない"
-     }
-    },
-    {
-     "seat": 99,
-     "name": "nameAlign",
-     "type": "列挙（3 値）",
-     "nullable": "可",
-     "json": {
-      "kind": "enum",
-      "values": [
-       "left",
-       "center",
-       "right"
-      ],
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": {
-      "ja": "名前の揃え"
-     }
-    },
-    {
      "seat": 100,
      "name": "shapeKind",
      "type": "列挙（5 値）",
