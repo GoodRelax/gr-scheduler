@@ -83,7 +83,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            23, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            24, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -103,7 +103,11 @@ EXEMPT = {
                 'One more row of the same closed enum. '
                 '⭐ 25 -> 23 on 2026-09-24: CR-551 dropped PR-13 '
                 '(nameAnchor / nameAlign, 数値 / 選択); lowered with leave '
-                'from the user (JDG-404).'),
+                'from the user (JDG-404). '
+                '⭐ 23 -> 24 on 2026-09-24: PR-22 (the highlight box '
+                'frame colour, DFC-800) adds one more 色 token of the same '
+                'closed enum; raised with leave from the user (JDG-409, '
+                '「検査 23 の除外数を 24 に上げてよい」).'),
     },
 }
 
