@@ -201,6 +201,14 @@ export function rulerSvg(
   return out
 }
 
+// see FR-051, EP-5
+// WHY: the band runs on through canvasPadding up to the vertical bar's left edge; the export
+// draws it alike, so the two pictures differ only where table T-076 says.
+/** @purity pure */
+function bandWidthOf(input: GridInput): number {
+  return input.area.width + input.settings.canvasPadding
+}
+
 // see FR-089, FR-042
 /** @purity pure */
 export function gridParts(input: GridInput): GridParts {
@@ -224,13 +232,13 @@ export function gridParts(input: GridInput): GridParts {
     const rowKey = `row-${row.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
-        ` width="${rounded(area.width)}" height="${rounded(bottom - top)}"` +
+        ` width="${rounded(bandWidthOf(input))}" height="${rounded(bottom - top)}"` +
         ` fill="${band}"${figureKey(`${rowKey}-band`)}/>`,
     )
     if (!settings.groupGridLinesVisible) continue
     bandParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
-        ` x2="${rounded(area.x + area.width)}" y2="${rounded(bottom)}"` +
+        ` x2="${rounded(area.x + bandWidthOf(input))}" y2="${rounded(bottom)}"` +
         ` stroke="${themed('S-165')}"` +
         ` stroke-width="${rounded(GROUP_GRID_LINE_WIDTH_PX)}"${figureKey(`${rowKey}-rule`)}/>`,
     )

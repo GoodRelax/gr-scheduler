@@ -24,6 +24,7 @@ import type { TextEntryControl } from './field-editing'
 import { fieldElement } from './properties-panel-drawing'
 
 const ROSTER_CHOSEN_ENTRY = 'IC-67'
+const CLOSE_SURFACE_ENTRY = 'IC-52'
 const ROSTER_UNCHOSEN_ENTRY = 'IC-68'
 
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
@@ -313,11 +314,27 @@ function modalTitleRow(
   const legendItem =
     'entries' in modal ? modal.commands.find((item) => item.icon === modal.legend) : undefined
   if (legendItem !== undefined) header.append(helpLegendElement(host, legendItem))
-  for (const item of modal.commands) {
+  for (const item of headingRowCommands(modal)) {
     if ('entries' in modal && item.icon === modal.legend) continue
-    header.append(anchoredEntry(host, item, anchors))
+    const entry = anchoredEntry(host, item, anchors)
+    if ('resources' in modal && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
+    header.append(entry)
   }
   return header
+}
+
+// see FR-036, RR-6
+// WHY: the close entrance last, so it stands at the right end of the heading row on every surface.
+/** @purity pure */
+function headingRowCommands(modal: OpenModal): readonly CommandItem[] {
+  const close = modal.commands.filter((item) => item.icon === CLOSE_SURFACE_ENTRY)
+  return [...modal.commands.filter((item) => item.icon !== CLOSE_SURFACE_ENTRY), ...close]
+}
+
+// see RR-6
+/** @purity non-pure */
+function pushToTheRightEnd(entry: HTMLElement): void {
+  entry.setAttribute('style', `${entry.getAttribute('style') ?? ''}margin-left:auto;`)
 }
 
 /** @purity non-pure */

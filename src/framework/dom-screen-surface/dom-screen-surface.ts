@@ -29,15 +29,13 @@ import {
   ADD_CHILD_ROW_ENTRY,
   DELETE_ROW_ENTRY,
   ROW_CONTROL_GROUND_MARK,
-  addTopRowElement,
-  collapseEveryRowElement,
   fillRowTitleTree,
   foldedRowCountElement,
+  headEntryElements,
   headFoldedRowCountRight,
   markFoldedRowCount,
+  markHeadPair,
   markPanelCornerEntry,
-  openEveryRowElement,
-  openLevelZeroElement,
   rowControlsHeightReporter,
   rowControlsMeasureKey,
   rowsTopPx,
@@ -379,7 +377,8 @@ export const STYLE = {
   dialogueAuthor: `color:${PAINT.quiet};margin-right:0.5em;`,
   dialogueEntry: 'font:inherit;margin-top:0.25em;',
   tooltip:
-    `position:absolute;white-space:nowrap;padding:0.25em 0.5em;background:${PAINT.ground};` +
+    'position:absolute;width:max-content;white-space:normal;' +
+    `padding:0.25em 0.5em;background:${PAINT.ground};` +
     `color:${PAINT.ink};border:1px solid ${PAINT.rule};pointer-events:auto;`,
   hidden: 'display:none;',
 } as const
@@ -627,12 +626,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const confirmationLayer = made(host, 'div', STYLE.layer)
   const tooltipLayer = part(host, 'div', ROLE.tooltips, STYLE.layer)
 
-  const openEveryRow = openEveryRowElement(host)
-  const collapseEveryRow = collapseEveryRowElement(host)
-  const openLevelZero = openLevelZeroElement(host)
-  const addTopRow = addTopRowElement(host)
+  const { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow } =
+    headEntryElements(host)
   const headFoldedRows = foldedRowCountElement(host, 0, headFoldedRowCountRight())
-  rowTitlePanel.append(openEveryRow, collapseEveryRow, openLevelZero, addTopRow, headFoldedRows)
+  const head = [openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow]
+  rowTitlePanel.append(...head, headFoldedRows)
 
   dialogueEntry.setAttribute('type', 'text')
   dialogueEntry.setAttribute('style', STYLE.dialogueEntry)
@@ -758,14 +756,14 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       fillRowTitleTree(host, rowTitleTree, view.rowTitlePanel, anchorsOf('rowTitlePanel'))
       reportRowControlsHeight(rowControlsMeasureKey(view, readTheme(), headerHeightPx))
       const rowsTop = rowsTopPx(view.rowTitlePanel)
-      for (const corner of [openEveryRow, collapseEveryRow, openLevelZero, addTopRow]) {
+      for (const corner of head) {
         if (rowsTop === null) corner.removeAttribute('data-corner-band')
         else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
       }
       markPanelCornerEntry(openEveryRow, 1, view.rowTitlePanel.canOpenEveryRow)
       markPanelCornerEntry(collapseEveryRow, 2, view.rowTitlePanel.canCloseEveryRow)
       markPanelCornerEntry(openLevelZero, 3, view.rowTitlePanel.canOpenLevelZero)
-      markPanelCornerEntry(addTopRow, 0, true)
+      markHeadPair(addTopRow, deleteEveryRow)
       markFoldedRowCount(
         headFoldedRows,
         view.rowTitlePanel.foldedRowCount ?? 0,

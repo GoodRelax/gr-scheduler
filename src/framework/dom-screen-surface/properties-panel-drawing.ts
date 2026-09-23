@@ -13,6 +13,7 @@ import {
   HOST_ENTER,
   NOT_STORED_PROPERTY_FIELD_SIZES,
   PAINT,
+  SCREEN_COLOURS,
   STYLE,
   anchoredEntry,
   made,
@@ -259,7 +260,7 @@ function controlElement(
     const choices = control.choices ?? []
     for (let index = 0; index < choices.length; index += 1) {
       const choice = choices[index] ?? ''
-      drawn.append(optionElement(host, values?.[index] ?? choice, choice, control.colour, index))
+      drawn.append(optionElement(host, values?.[index] ?? choice, choice))
     }
     ;(drawn as HTMLSelectElement).value = control.text
   } else if (control.kind === 'boolean') {
@@ -286,72 +287,160 @@ function controlElement(
   return drawn as HTMLElement
 }
 
-type ColourField = NonNullable<PropertyControl['colour']>
-
-// see T-016, CV-9
+// see T-016
 /** @purity non-pure */
-function optionElement(
-  host: Document,
-  value: string,
-  choice: string,
-  colour: ColourField | undefined,
-  index: number,
-): HTMLElement {
+function optionElement(host: Document, value: string, choice: string): HTMLElement {
   const option = host.createElement('option')
   option.setAttribute('value', value)
   option.textContent = choice
-  if (colour === undefined) return option
-  const paint = colour.swatches[index] ?? ''
-  const ink = colour.inks[index] ?? ''
-  const edge = value === UNSET_COLOUR_VALUE ? UNSET_SWATCH_BORDER : ''
-  option.setAttribute('style', `${swatchPaint(paint)}${edge}${ink === '' ? '' : `color:${ink};`}`)
   return option
 }
 
+type ColourField = NonNullable<PropertyControl['colour']>
+
+type ColourSide = ColourField['light']
+
+// TRAP: the light side only: S-336 and S-337 hold one colour for both themes, and a row that
+// split them would need the theme passed down to this side.
+/** @purity pure */
+function checkerColour(row: 'S-336' | 'S-337'): string {
+  return SCREEN_COLOURS[row]?.light ?? ''
+}
+
+// see T-294, CV-9
+const TRANSPARENT_NAME = 'transparent'
 const UNSET_COLOUR_VALUE = ''
 // TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.
 const TRANSPARENT_PAINT = 'none'
-const CHECKER_LIGHT = '#ffffff'
-const CHECKER_DARK = '#c0c0c0'
-const SWATCH_SIDE_EM = 0.75
-const CHECKER_TILE_EM = SWATCH_SIDE_EM
-const CHECKER_PATTERN =
-  `repeating-conic-gradient(${CHECKER_DARK} 0 25%, ${CHECKER_LIGHT} 0 50%)` +
-  ` 0 0/${CHECKER_TILE_EM}em ${CHECKER_TILE_EM}em`
+const CHECKER_TILE_SPAN = 2
+const SIDE_SWATCH_SIDE_EM = 0.75
 const SWATCH_BORDER_PX = 1
 const UNSET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px dashed currentColor;`
 const SET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px solid transparent;`
-const SWATCH_BOX =
-  `display:inline-block;box-sizing:border-box;width:${SWATCH_SIDE_EM}em;height:${SWATCH_SIDE_EM}em;` +
-  'vertical-align:middle;'
+const SIDE_SEPARATOR = ' / '
+const SIDE_WORD_END = ': '
+const VALUE_GAP = ' '
+const COLOUR_CHOICE_ATTRIBUTE = 'data-colour-choice'
+const HOST_CHANGE = 'change'
+const HOST_CLICK = 'click'
+
+// see CV-9, S-335, S-336, S-337
+/** @purity pure */
+function checkerPattern(side: string): string {
+  const tile = `calc(${side} * ${CHECKER_TILE_SPAN} / ${NOT_STORED_PROPERTY_FIELD_SIZES['S-335']})`
+  return (
+    `repeating-conic-gradient(${checkerColour('S-337')} 0 25%, ${checkerColour('S-336')} 0 50%)` +
+    ` 0 0/${tile} ${tile}`
+  )
+}
+
+/** @purity pure */
+function swatchPaint(paint: string, side: string): string {
+  return paint === TRANSPARENT_PAINT ? `background:${checkerPattern(side)};` : `background:${paint};`
+}
+
+// TRAP: read PAINT at the call; this file is imported by dom-screen-surface.ts, so a
+// module-level read of it sees nothing.
+/** @purity pure */
+function choiceSwatchBorder(): string {
+  return `border:${SWATCH_BORDER_PX}px solid ${PAINT.rule};`
+}
+
+/** @purity pure */
+function swatchBox(side: string): string {
+  return `display:inline-block;box-sizing:border-box;width:${side};height:${side};vertical-align:middle;`
+}
+
+// see CV-9, S-186
+/** @purity pure */
+function choiceSide(): string {
+  return `${fieldSizes().controlMinHeight}px`
+}
+
+/** @purity pure */
+function sideSwatchSide(): string {
+  return `${SIDE_SWATCH_SIDE_EM}em`
+}
+
+// see CV-9, CV-3
+// WHY: a side is undefined when the whole field is unset, or when the adapter names its twin.
+/** @purity pure */
+function isSideUndefined(control: PropertyControl, side: ColourSide): boolean {
+  return control.text === UNSET_COLOUR_VALUE || side.note !== ''
+}
+
+// see CV-9, T-294
+// DEVIATION: spec says an unoffered name keeps its empty place (CV-9); here the names close up,
+// as the description carries only the offered names and not the whole order of table T-294.
+/** @purity pure */
+function paletteNamesOf(control: PropertyControl): readonly string[] {
+  const words = control.choices ?? []
+  const customWord = control.colour?.customWord
+  return (control.choiceValues ?? []).filter(
+    (value, at) => value !== UNSET_COLOUR_VALUE && words[at] !== customWord,
+  )
+}
 
 // see CV-9
 /** @purity pure */
-function swatchPaint(paint: string): string {
-  return paint === TRANSPARENT_PAINT ? `background:${CHECKER_PATTERN};` : `background:${paint};`
+function wordOfName(control: PropertyControl, name: string): string {
+  const at = (control.choiceValues ?? []).indexOf(name)
+  return at < 0 ? '' : (control.choices?.[at] ?? '')
 }
 
-const SIDE_SEPARATOR = ' / '
+/** @purity pure */
+function sideValueText(control: PropertyControl, side: ColourSide): string {
+  if (isSideUndefined(control, side)) return ''
+  if (paletteNamesOf(control).includes(control.text)) return wordOfName(control, control.text)
+  if (side.paint === TRANSPARENT_PAINT) return wordOfName(control, TRANSPARENT_NAME)
+  return side.paint.toUpperCase()
+}
+
+/** @purity pure */
+function sideSwatchStyle(control: PropertyControl, side: ColourSide): string {
+  const box = swatchBox(sideSwatchSide())
+  if (isSideUndefined(control, side)) return box + UNSET_SWATCH_BORDER
+  return box + swatchPaint(side.paint, sideSwatchSide()) + SET_SWATCH_BORDER
+}
+
+/** @purity non-pure */
+function sideElements(host: Document, control: PropertyControl, side: ColourSide): readonly HTMLElement[] {
+  const word = made(host, 'span', '')
+  word.textContent = `${side.word}${SIDE_WORD_END}`
+  const mark = made(host, 'span', sideSwatchStyle(control, side))
+  mark.setAttribute('data-colour-swatch', side.paint)
+  const value = made(host, 'span', '')
+  value.textContent = `${VALUE_GAP}${sideValueText(control, side)}${side.note}`
+  return [word, mark, value]
+}
 
 // see CV-9
 /** @purity non-pure */
-function sideElements(host: Document, side: ColourField['light'], isUnset: boolean): readonly HTMLElement[] {
-  const word = made(host, 'span', '')
-  word.textContent = `${side.word} `
-  const edge = isUnset ? UNSET_SWATCH_BORDER : SET_SWATCH_BORDER
-  const mark = made(host, 'span', SWATCH_BOX + swatchPaint(side.paint) + edge)
-  mark.setAttribute('data-colour-swatch', side.paint)
-  const note = made(host, 'span', '')
-  note.textContent = side.note
-  return [word, mark, note]
+function colourSidesElement(host: Document, control: PropertyControl, colour: ColourField): HTMLElement {
+  const readout = made(host, 'span', 'flex:1 1 100%;')
+  readout.setAttribute('data-colour-sides', 'true')
+  const separator = made(host, 'span', '')
+  separator.textContent = SIDE_SEPARATOR
+  readout.append(
+    ...sideElements(host, control, colour.light),
+    separator,
+    ...sideElements(host, control, colour.dark),
+  )
+  return readout
+}
+
+// WHY: the one field whose host colour input stands; only a press on the custom entrance opens it.
+const openCustomColour: { identity: string | null } = { identity: null }
+
+/** @purity pure */
+function colourFieldIdentity(row: string, control: PropertyControl): string {
+  return `${row}|${JSON.stringify(control.key)}`
 }
 
 // see CV-9, CV-4
 // WHY: the custom entrance commits one #rrggbb; the translator writes it to the side being drawn.
 /** @purity non-pure */
-function colourExtras(host: Document, row: string, control: PropertyControl): readonly HTMLElement[] {
-  const colour = control.colour
-  if (colour === undefined) return []
+function hostColourInput(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
   const custom = made(host, 'input', propertyColorStyle())
   custom.setAttribute('type', 'color')
   custom.setAttribute('title', colour.customWord)
@@ -360,17 +449,113 @@ function colourExtras(host: Document, row: string, control: PropertyControl): re
   custom.setAttribute('data-colour-custom', 'true')
   if (colour.customValue !== '') (custom as HTMLInputElement).value = colour.customValue
   CONTROL_KEYS.set(custom, { row, key: control.key })
-  const readout = made(host, 'span', 'flex:1 1 100%;')
-  readout.setAttribute('data-colour-sides', 'true')
-  const separator = made(host, 'span', '')
-  separator.textContent = SIDE_SEPARATOR
-  const isUnset = control.text === UNSET_COLOUR_VALUE
-  readout.append(
-    ...sideElements(host, colour.light, isUnset),
-    separator,
-    ...sideElements(host, colour.dark, isUnset),
+  return custom
+}
+
+// see CV-9, IF-9
+// WHY: a press reaches the panel's change listener as a choice from the list did, then lets the
+// focus go, which would otherwise hold the panel and leave the readout stale.
+/** @purity non-pure */
+function commitOnPress(entry: HTMLElement): void {
+  if (typeof entry.addEventListener !== 'function') return
+  entry.addEventListener(HOST_CLICK, () => {
+    if (typeof entry.dispatchEvent === 'function') {
+      entry.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
+    }
+    if (typeof entry.blur === 'function') entry.blur()
+  })
+}
+
+// see CV-9, T-294
+/** @purity non-pure */
+function colourChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
+  const at = (control.choiceValues ?? []).indexOf(name)
+  if (at < 0) return made(host, 'span', swatchBox(choiceSide()))
+  const paint = control.colour?.swatches[at] ?? ''
+  const word = control.choices?.[at] ?? name
+  const style = swatchBox(choiceSide()) + swatchPaint(paint, choiceSide()) + choiceSwatchBorder()
+  const choice = made(host, 'button', style)
+  choice.setAttribute('type', 'button')
+  choice.setAttribute('value', name)
+  ;(choice as HTMLButtonElement).value = name
+  choice.setAttribute(COLOUR_CHOICE_ATTRIBUTE, name)
+  choice.setAttribute('data-field-row', row)
+  choice.setAttribute('title', word)
+  choice.setAttribute('aria-label', word)
+  if (control.text === name) choice.setAttribute('aria-pressed', 'true')
+  CONTROL_KEYS.set(choice, { row, key: control.key })
+  commitOnPress(choice)
+  return choice
+}
+
+// see CV-9, S-338
+/** @purity pure */
+function colourGridStyle(): string {
+  return (
+    `display:grid;grid-template-columns:repeat(${NOT_STORED_PROPERTY_FIELD_SIZES['S-338']},max-content);` +
+    `gap:${fieldSizes().rowGap}px;`
   )
-  return [custom, readout]
+}
+
+/** @purity pure */
+function colourLastLineStyle(): string {
+  return `display:flex;align-items:center;gap:${fieldSizes().rowGap}px;margin-top:${fieldSizes().rowGap}px;`
+}
+
+/** @purity non-pure */
+function customEntryElement(
+  host: Document,
+  row: string,
+  control: PropertyControl,
+  colour: ColourField,
+  slot: HTMLElement,
+): HTMLElement {
+  const entry = made(host, 'button', `font:inherit;flex:none;min-height:${choiceSide()};`)
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('data-colour-custom-entry', 'true')
+  entry.textContent = colour.customWord
+  if (typeof entry.addEventListener !== 'function') return entry
+  entry.addEventListener(HOST_CLICK, () => {
+    openCustomColour.identity = colourFieldIdentity(row, control)
+    slot.replaceChildren(hostColourInput(host, row, control, colour))
+    if (typeof entry.blur === 'function') entry.blur()
+  })
+  return entry
+}
+
+// see CV-9, CV-4, S-338
+/** @purity non-pure */
+function colourFieldElements(host: Document, row: string, control: PropertyControl): readonly HTMLElement[] {
+  const colour = control.colour
+  if (colour === undefined) return []
+  const grid = made(host, 'div', colourGridStyle())
+  const named = paletteNamesOf(control).filter((name) => name !== TRANSPARENT_NAME)
+  grid.append(...named.map((name) => colourChoiceElement(host, row, control, name)))
+  const slot = made(host, 'span', '')
+  if (openCustomColour.identity === colourFieldIdentity(row, control)) {
+    slot.append(hostColourInput(host, row, control, colour))
+  }
+  const lastLine = made(host, 'div', colourLastLineStyle())
+  lastLine.append(
+    customEntryElement(host, row, control, colour, slot),
+    colourChoiceElement(host, row, control, TRANSPARENT_NAME),
+    slot,
+  )
+  const palette = made(host, 'div', 'flex:1 1 100%;')
+  palette.setAttribute('data-colour-palette', row)
+  palette.append(grid, lastLine)
+  return [palette, colourSidesElement(host, control, colour)]
+}
+
+// WHY: a field no longer described closes its host colour input, so it stands only after a press.
+/** @purity non-pure */
+function forgetClosedCustomColour(description: PropertiesPanel): void {
+  const standing = description.fields.flatMap((field) =>
+    field.controls.map((control) => colourFieldIdentity(field.row, control)),
+  )
+  if (openCustomColour.identity !== null && !standing.includes(openCustomColour.identity)) {
+    openCustomColour.identity = null
+  }
 }
 
 function rosterId(row: string): string {
@@ -438,8 +623,11 @@ export function fieldElement(
     controls.append(shown)
   }
   for (const control of field.controls) {
+    if (control.colour !== undefined) {
+      controls.append(...colourFieldElements(host, field.row, control))
+      continue
+    }
     controls.append(controlElement(host, field.row, control, typedByRow))
-    controls.append(...colourExtras(host, field.row, control))
     const words = control.searchWords
     if (words !== undefined) {
       controls.append(...searchElements(host, field.row, control, words, typedByRow))
@@ -467,6 +655,7 @@ export function fillPropertiesPanel(
 ): void {
   // TRAP: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
   typedByRow.clear()
+  forgetClosedCustomColour(description)
   const drawn = description.fields.map((field) => fieldElement(host, field, typedByRow))
   const entries = description.commands.map((item) => anchoredEntry(host, item, anchors))
   if (entries.length > 0) {

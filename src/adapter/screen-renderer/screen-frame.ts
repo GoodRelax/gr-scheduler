@@ -79,6 +79,19 @@ function dividersOf(regions: ScreenRegions, session: ScreenSession): readonly Pa
   return [rowTitle, properties]
 }
 
+// see FR-051
+// WHY: on the canvas bottom edge, so canvasPadding lies between the rows and the bar, not under it.
+/** @purity pure */
+function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRect {
+  const canvas = regions.scheduleCanvas
+  return {
+    x: regions.rowArea.x,
+    y: canvas.y + canvas.height - thickness,
+    width: regions.rowArea.width,
+    height: thickness,
+  }
+}
+
 // see FR-051, FR-052, SC-4
 /** @purity pure */
 export function screenFrameFromRegions(
@@ -92,12 +105,7 @@ export function screenFrameFromRegions(
   const gapRightOfRowArea = regions.propertiesPanel.x - (rowArea.x + rowArea.width)
   const scrollbarThickness = Math.max(0, gapRightOfRowArea - settings.canvasPadding)
 
-  const horizontalTrack: ScreenRect = {
-    x: rowArea.x,
-    y: rowArea.y + rowArea.height,
-    width: rowArea.width,
-    height: scrollbarThickness,
-  }
+  const horizontalTrack = horizontalTrackOf(regions, scrollbarThickness)
   // see FR-051
   // TRAP: read the panel's left edge, not rowArea's right: canvasPadding lies between
   // the two, and putting the bar at rowArea's edge leaves that gap against the panel.

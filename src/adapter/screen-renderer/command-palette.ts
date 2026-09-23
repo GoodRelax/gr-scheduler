@@ -118,11 +118,45 @@ const GUIDE_CURSOR_MODE_BY_ROW: Readonly<Record<string, DocumentSettings['guideC
   'IC-48': 'single-vertical',
 }
 
-// see FR-048, T-237
+const DUAL_CURSOR_ROW: IconId = 'IC-45'
+
+const STATUS_DATE_ROW: IconId = 'IC-44'
+
+// see FR-029, T-237
+interface EntranceFacts {
+  readonly settings: DocumentSettings
+  readonly isDualCursorOn: boolean
+  readonly isStatusDateDrawn: boolean
+}
+
+// see FR-048, T-237, DC-9
 /** @purity pure */
-function isExclusiveChoiceChosen(row: IconRosterRow, settings: DocumentSettings): boolean {
+function isExclusiveChoiceChosen(row: IconRosterRow, facts: EntranceFacts): boolean {
+  if (row.rowId === DUAL_CURSOR_ROW) return facts.isDualCursorOn
   const mode = GUIDE_CURSOR_MODE_BY_ROW[row.rowId]
-  return mode !== undefined && settings.guideCursorMode === mode
+  return mode !== undefined && facts.settings.guideCursorMode === mode
+}
+
+// see FR-046, FR-049, T-237
+// WHY: EN-7 and EN-2 paint alike (S-183), so the line being drawn rides on isPressed.
+/** @purity pure */
+function isEntryOn(row: IconRosterRow, facts: EntranceFacts): boolean {
+  if (row.rowId === STATUS_DATE_ROW) return facts.isStatusDateDrawn
+  return isSettingsToggleOn(row, facts.settings)
+}
+
+// see FR-046, FR-048
+/** @purity pure */
+function entranceFactsOf(
+  settings: DocumentSettings,
+  session: ScreenSession,
+  schedule: Schedule | undefined,
+): EntranceFacts {
+  return {
+    settings,
+    isDualCursorOn: session.screen.dualCursorModeState.kind !== 'off',
+    isStatusDateDrawn: (schedule?.project.statusDate ?? null) !== null,
+  }
 }
 
 // see FR-049, FR-053, FR-102
@@ -134,15 +168,14 @@ function commandItemFor(
   language: DisplayLanguage,
   armed: ArmedEntry,
   isRecording: boolean,
-  settings: DocumentSettings,
+  facts: EntranceFacts,
 ): CommandItem {
   return {
     icon: row.rowId,
     isEnabled: isEntryUsable(row, selection, drawnTasks),
-    isPressed:
-      (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isSettingsToggleOn(row, settings),
+    isPressed: (row.rowId === INTERACTION_RECORD_ROW && isRecording) || isEntryOn(row, facts),
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
-    isChosen: isExclusiveChoiceChosen(row, settings),
+    isChosen: isExclusiveChoiceChosen(row, facts),
     label: entryLabel(row.rowId, language),
   }
 }
@@ -167,7 +200,7 @@ function paletteGroups(
   isMilestoneListOpen: boolean,
   armed: ArmedEntry,
   isRecording: boolean,
-  settings: DocumentSettings,
+  facts: EntranceFacts,
 ): readonly PaletteGroup[] {
   const groups: {
     readonly cell: string
@@ -195,7 +228,7 @@ function paletteGroups(
       if (isFoldedMilestoneGlyph(milestoneGlyphsMet) && !isMilestoneListOpen) continue
     }
     group.commands.push(
-      commandItemFor(row, selection, drawnTasks, language, armed, isRecording, settings),
+      commandItemFor(row, selection, drawnTasks, language, armed, isRecording, facts),
     )
   }
 
@@ -274,6 +307,7 @@ export function commandPaletteFromSession(
   const language = displayLanguageOf(session)
   const armed = session.screen.armModeState
   const isMinimised = palette.child.kind === 'minimised'
+  const facts = entranceFactsOf(settings, session, schedule)
 
   return {
     at: readings.commandPaletteAt,
@@ -285,7 +319,7 @@ export function commandPaletteFromSession(
       language,
       armedEntry(armed),
       isRecordingInteractions(readings),
-      settings,
+      facts,
     ),
     isMinimised,
     groups: isMinimised
@@ -297,7 +331,7 @@ export function commandPaletteFromSession(
           session.screen.milestoneListDisplayState.kind === 'open',
           armedEntry(armed),
           isRecordingInteractions(readings),
-          settings,
+          facts,
         ),
     armedText: isMinimised ? null : armedWord(armed, language),
   }

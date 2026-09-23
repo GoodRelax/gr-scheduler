@@ -18,10 +18,15 @@ import {
 
 const anchorRightOf = new WeakMap<Element, number>()
 
-// see EZ-2
+const WINDOW_SIDES = 2
+
+// see EZ-2, IN-7
 /** @purity pure */
 function tooltipStyle(): string {
-  return `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;`
+  return (
+    `${STYLE.tooltip}font-size:${NOT_STORED_HELP_SIZES['S-204']}em;` +
+    `max-width:calc(100vw - ${WINDOW_SIDES * NOT_STORED_HELP_SIZES['S-339']}px);`
+  )
 }
 
 // see IN-3, EZ-2
@@ -59,19 +64,19 @@ export function tooltipElement(
   return drawn
 }
 
-// see EZ-2
+// see EZ-2, IN-7
+// WHY: measured once, when shown; a window resized while it stands is not followed (IN-7).
 /** @purity non-pure */
 export function keepTooltipsInside(layer: HTMLElement): void {
   const room = layer.getBoundingClientRect()
+  const margin = NOT_STORED_HELP_SIZES['S-339']
   for (const drawn of Array.from(layer.children)) {
     const anchorRight = anchorRightOf.get(drawn)
     if (anchorRight === undefined) continue
     const size = drawn.getBoundingClientRect()
-    if (size.right <= room.right) continue
-    drawn.setAttribute(
-      'style',
-      tooltipStyle() + `left:${anchorRight - size.width}px;top:${size.top}px;`,
-    )
+    if (size.right <= room.right - margin) continue
+    const left = Math.max(room.left + margin, anchorRight - size.width)
+    drawn.setAttribute('style', tooltipStyle() + `left:${left}px;top:${size.top}px;`)
   }
 }
 
@@ -115,7 +120,7 @@ export function showDualCursorReadout(
     if (layer.firstElementChild !== null) layer.replaceChildren()
     return
   }
-  const box = made(host, 'div', tooltipStyle())
+  const box = made(host, 'div', readoutStyle(readout.at.x, readout.at.y))
   for (const line of readout.lines) {
     const drawn = made(host, 'div', '')
     drawn.textContent = line
@@ -132,5 +137,9 @@ export function showDualCursorReadout(
 
 /** @purity pure */
 function readoutStyle(x: number, y: number): string {
-  return tooltipStyle() + `pointer-events:none;white-space:nowrap;max-width:none;left:${x}px;top:${y}px;`
+  const size = `max(${NOT_STORED_HELP_SIZES['S-340']}px, ${NOT_STORED_HELP_SIZES['S-334']}em)`
+  return (
+    `${STYLE.tooltip}font-size:${size};` +
+    `pointer-events:none;white-space:nowrap;max-width:none;left:${x}px;top:${y}px;`
+  )
 }
