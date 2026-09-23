@@ -267,8 +267,6 @@ const groupOf = (part: Record<string, unknown> = {}): TaskGroup =>
 
 const visualOf = (part: Record<string, unknown>): Record<string, unknown> => ({
   taskUid: THE_TASK,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,

@@ -157,8 +157,6 @@ const spanning = (
 
 const visualOf = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   taskUid: uid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,

@@ -95,8 +95,7 @@
      - 2 つの色のあいだのグラデーションは、バーの面積の広いほうの色（半々なら中央の色）を塗りにし、「合わせきれなかったこと」に書く。
    - 原本で最も多く使われているバーの色は null にし、代わりに project.themeHue をその色の色相（0〜359 の整数。赤 0、黄 60、緑 120、青 210 前後、紫 280 前後）にする。null の色は themeHue から作られる色になり、実績のバーや印の色もそれに揃う。原本がほぼ無彩色なら themeHue は 214 のままにする。
    - lineWeight は輪郭の太さを、原本の中で比べて "thin" / "medium" / "thick" から選ぶ。違いが見えなければ null。
-   - nameAnchor と nameAlign は null（名前の置き場は GRS が決める）。
-   - 1 件の形: {"taskUid": uid, "nameAnchor": null, "nameAlign": null, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "lineWeight": 太さか null}
+   - 1 件の形: {"taskUid": uid, "shapeKind": 上の値, "milestoneGlyph": 上の値か null, "fillColor": 色か null, "strokeColor": 色か null, "lineWeight": 太さか null}
 9. 担当者（読み取れたときだけ）
    - resources に {"uid": 整数, "name": 担当者名, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}、assignments に {"uid": 整数, "taskUid": uid, "resourceUid": 担当者の uid, "carry": {}, "carryElements": []}。uid はタスクと別に 1 から振ってよい。
 10. project
@@ -196,19 +195,19 @@
   ],
   "taskVisuals": [
     {
-      "taskUid": 1, "nameAnchor": null, "nameAlign": null, "shapeKind": "rectangle",
+      "taskUid": 1, "shapeKind": "rectangle",
       "milestoneGlyph": null, "fillColor": "orange", "strokeColor": "dimgray", "lineWeight": "medium"
     },
     {
-      "taskUid": 2, "nameAnchor": null, "nameAlign": null, "shapeKind": "milestone",
+      "taskUid": 2, "shapeKind": "milestone",
       "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
     },
     {
-      "taskUid": 3, "nameAnchor": null, "nameAlign": null, "shapeKind": "rectangle",
+      "taskUid": 3, "shapeKind": "rectangle",
       "milestoneGlyph": null, "fillColor": "lightgray", "strokeColor": "dimgray", "lineWeight": "thin"
     },
     {
-      "taskUid": 4, "nameAnchor": null, "nameAlign": null, "shapeKind": "milestone",
+      "taskUid": 4, "shapeKind": "milestone",
       "milestoneGlyph": "diamond", "fillColor": "yellow", "strokeColor": "black", "lineWeight": null
     }
   ]

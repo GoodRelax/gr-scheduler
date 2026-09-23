@@ -1406,6 +1406,50 @@ function withSourceFormatOfAnOlderDocument(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, project: { ...project, sourceFormat } } }
 }
 
+// see S-9, T-297
+const RETIRED_COLUMNS: readonly { readonly entity: string; readonly key: string }[] = [
+  { entity: 'TaskVisual', key: 'nameAnchor' },
+  { entity: 'TaskVisual', key: 'nameAlign' },
+]
+
+/** @purity pure */
+function collectionNamesOfEntity(entity: string): readonly string[] {
+  const scheduleNode = GRS_DOCUMENT_SCHEMA.properties?.['schedule']
+  const collections = scheduleNode?.properties ?? {}
+  return Object.entries(collections)
+    .filter(([, node]) => node.items?.ref === entity)
+    .map(([name]) => name)
+}
+
+// see S-9, T-297
+// WHY: an older document still carries these keys, often null; the schema no longer lists them,
+// so validating without this step would refuse every such document.
+/** @purity pure */
+function withoutRetiredColumns(parsed: unknown): unknown {
+  const schedule = isObject(parsed) ? parsed['schedule'] : undefined
+  if (!isObject(parsed) || !isObject(schedule)) return parsed
+  const keysByCollection = new Map<string, Set<string>>()
+  for (const { entity, key } of RETIRED_COLUMNS) {
+    for (const collection of collectionNamesOfEntity(entity)) {
+      const keys = keysByCollection.get(collection) ?? new Set<string>()
+      keys.add(key)
+      keysByCollection.set(collection, keys)
+    }
+  }
+  let changedSchedule = schedule
+  for (const [collection, keys] of keysByCollection) {
+    const rows = schedule[collection]
+    if (!Array.isArray(rows)) continue
+    if (!rows.some((row) => isObject(row) && [...keys].some((key) => key in row))) continue
+    const stripped = rows.map((row: unknown): unknown => {
+      if (!isObject(row)) return row
+      return Object.fromEntries(Object.entries(row).filter(([key]) => !keys.has(key)))
+    })
+    changedSchedule = { ...changedSchedule, [collection]: stripped }
+  }
+  return changedSchedule === schedule ? parsed : { ...parsed, schedule: changedSchedule }
+}
+
 /** @purity pure */
 function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): JsonFault[] {
   const out: JsonFault[] = []
@@ -1448,7 +1492,7 @@ export function documentFromJson(
 ): JsonDecoding {
   let parsed: unknown
   try {
-    parsed = JSON.parse(withoutLeadingByteOrderMark(text))
+    parsed = withoutRetiredColumns(JSON.parse(withoutLeadingByteOrderMark(text)))
   } catch (why) {
     return refusal([
       fault('', `not JSON: ${why instanceof Error ? why.message : String(why)}`),

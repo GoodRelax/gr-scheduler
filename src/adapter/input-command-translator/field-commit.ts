@@ -64,7 +64,6 @@ function settledTruth(text: string): boolean {
 type VisualColumn = keyof Schedule['taskVisuals'][number]
 
 type TaskLineWeight = NonNullable<Schedule['taskVisuals'][number]['lineWeight']>
-type TaskNameAlign = NonNullable<Schedule['taskVisuals'][number]['nameAlign']>
 
 // see T-016
 /** @purity pure */
@@ -219,15 +218,6 @@ function commandFromVisualColumn(
       if (held !== null && !isVisualChoice('lineWeight', held)) return []
       const lineWeight = held as TaskLineWeight | null
       return [{ kind: 'setTaskVisualLineWeight', uid, lineWeight }]
-    }
-    case 'nameAnchor':
-    case 'nameAlign': {
-      const anchor = column === 'nameAnchor' ? settledNumber(text) : (visual?.nameAnchor ?? null)
-      if (anchor === undefined) return []
-      const chosen = column === 'nameAlign' ? settledText(text) : (visual?.nameAlign ?? null)
-      if (chosen !== null && !isVisualChoice('nameAlign', chosen)) return []
-      const nameAlign = chosen as TaskNameAlign | null
-      return [{ kind: 'setTaskVisualNamePlacement', uid, nameAnchor: anchor, nameAlign }]
     }
     default:
       return []

@@ -747,7 +747,7 @@ describe('table T-038 -- a milestone marker stands outside its actual figure too
       ...rowOf([milestoneOf(actualStart)]),
       taskVisuals: [
         {
-          taskUid: 1, nameAnchor: null, nameAlign: null, shapeKind: 'milestone',
+          taskUid: 1, shapeKind: 'milestone',
           milestoneGlyph: 'diamond', fillColor: null, strokeColor: null, lineWeight: null,
         },
       ],

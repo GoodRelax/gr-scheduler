@@ -107,8 +107,6 @@ const scheduleWith = (tasks: readonly Task[]): Schedule =>
     taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: 'g1', stackOrder: null })),
     taskVisuals: tasks.map((one) => ({
       taskUid: one.uid,
-      nameAnchor: null,
-      nameAlign: null,
       shapeKind: 'rectangle',
       milestoneGlyph: null,
       fillColor: null,

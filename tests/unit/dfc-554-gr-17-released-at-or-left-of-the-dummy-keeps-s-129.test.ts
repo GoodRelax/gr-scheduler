@@ -169,8 +169,6 @@ const notStarted = (): Document =>
       taskVisuals: [
         {
           taskUid: 1,
-          nameAnchor: null,
-          nameAlign: null,
           shapeKind: 'rectangle',
           milestoneGlyph: null,
           fillColor: null,

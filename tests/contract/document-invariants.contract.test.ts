@@ -425,8 +425,6 @@ const ASSIGNMENT: Assignment = {
 // row for it to weigh. Both are unchosen, which P-19 says is not transparent.
 const VISUAL: TaskVisual = {
   taskUid: TASK_A_UID,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,

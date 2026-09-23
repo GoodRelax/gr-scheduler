@@ -79,8 +79,6 @@ const memberOf = (taskUid: number, groupId: string): TaskGroupMember => ({
 
 const visualOf = (taskUid: number): TaskVisual => ({
   taskUid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,

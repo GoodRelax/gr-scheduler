@@ -993,8 +993,8 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = []
 # contents -- the name label among them -- INTO the exported picture. ⚠️ Nor is
 # S-194's sentence right: that one turns on the document keeping the two DATES,
 # and a label has no such pair. What table T-206 records here is that the
-# document keeps the label's ANCHOR (PR-13, nameAnchor / nameAlign) and never
-# the gap the shape's own kind implies.
+# document keeps no label position at all -- the gap comes from the shape's
+# own kind instead (T-297 RK-1/RK-2 retired the anchor columns).
 DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE = []
 
 # ⛔ AN EIGHTH GROUND, AND THE THIRD WHOSE PICTURE LEAVES THE TOOL -- but the

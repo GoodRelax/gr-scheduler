@@ -648,8 +648,6 @@ const SCHEDULE = {
   taskVisuals: [
     {
       taskUid: THE_TASK,
-      nameAnchor: null,
-      nameAlign: null,
       shapeKind: null,
       milestoneGlyph: null,
       // WHY: one custom colour with each side left undefined, so the colour field

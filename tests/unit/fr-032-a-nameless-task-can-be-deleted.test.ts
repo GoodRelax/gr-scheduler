@@ -159,8 +159,6 @@ const memberOf = (taskUid: number, groupId: string): TaskGroupMember =>
 
 const visualOf = (taskUid: number): Record<string, unknown> => ({
   taskUid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,

@@ -125,8 +125,6 @@ const taskOf = (part: Record<string, unknown>): Task =>
 const visualOf = (part: Record<string, unknown>): TaskVisual =>
   ({
     taskUid: 1,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: null,
     milestoneGlyph: null,
     fillColor: null,
@@ -1144,10 +1142,10 @@ describe('EditDocument (PI-9) -- CM-18 and CM-19, the two axes of table T-015a',
 })
 
 // ---------------------------------------------------------------------------
-// CM-20 .. CM-25 -- the TaskVisual group
+// CM-20 .. CM-24 -- the TaskVisual group
 // ---------------------------------------------------------------------------
 
-describe('EditDocument (PI-9) -- CM-20 to CM-25, the TaskVisual group', () => {
+describe('EditDocument (PI-9) -- CM-20 to CM-24, the TaskVisual group', () => {
   const shaped = (shapeKind: string, milestone: boolean, visual: Record<string, unknown> = {}) =>
     documentOf({
       tasks: [taskOf({ uid: 1, name: 'Design', start: jan(5), finish: jan(9), milestone })],
@@ -1258,36 +1256,5 @@ describe('EditDocument (PI-9) -- CM-20 to CM-25, the TaskVisual group', () => {
       run(set, { kind: 'setTaskVisualLineWeight', uid: 1, lineWeight: null }),
     )
     expect(visualIn(cleared, 1).lineWeight).toBeNull()
-  })
-
-  it('FR-002 keeps null as the automatic placement, and stores an anchor a person moved', () => {
-    // ⛔ Which of the nine points a given `nameAnchor` names is NOT decided --
-    // FR-002 fixes the count and the three alignments and nothing maps the
-    // numbers, so these cases assert only what the specification settles: the
-    // default is automatic, and an explicit placement is kept.
-    const document = shaped('rectangle', false)
-    const placed = accepted(
-      run(document, { kind: 'setTaskVisualNamePlacement', uid: 1, nameAnchor: 4, nameAlign: 'left' }),
-    )
-    expect(visualIn(placed, 1).nameAnchor).toBe(4)
-    expect(visualIn(placed, 1).nameAlign).toBe('left')
-    const automatic = accepted(
-      run(placed, { kind: 'setTaskVisualNamePlacement', uid: 1, nameAnchor: null, nameAlign: null }),
-    )
-    expect(visualIn(automatic, 1).nameAnchor).toBeNull()
-  })
-
-  it('AT-98 refuses an anchor outside the nine points', () => {
-    // The bound is stated as the column's type (an integer 0 .. 8) rather than
-    // as a MUST NOT of FR-002, so this case asserts the refusal and not which
-    // rule id carries it.
-    expect(
-      run(shaped('rectangle', false), {
-        kind: 'setTaskVisualNamePlacement',
-        uid: 1,
-        nameAnchor: 9,
-        nameAlign: null,
-      }).ok,
-    ).toBe(false)
   })
 })

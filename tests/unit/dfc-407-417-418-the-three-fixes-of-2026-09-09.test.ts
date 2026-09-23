@@ -141,8 +141,6 @@ const taskGroup = (id: string, order: number): TaskGroup =>
 const visualOf = (taskUid: number, shapeKind: string, glyph: string | null): TaskVisual =>
   ({
     taskUid,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind,
     milestoneGlyph: glyph,
     fillColor: null,

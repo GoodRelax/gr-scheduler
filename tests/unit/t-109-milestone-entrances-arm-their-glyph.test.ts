@@ -350,8 +350,6 @@ const milestoneTask = (uid: number, day: string): unknown => ({
  */
 const unchosenVisual = (uid: number): unknown => ({
   taskUid: uid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: 'milestone',
   milestoneGlyph: null,
   fillColor: null,

@@ -1,4 +1,4 @@
-// Rewrites how a Task looks: its shape, figure, colours, line weight, name placement and fades.
+// Rewrites how a Task looks: its shape, figure, colours, line weight and fades.
 // @unit      UF-76   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -158,29 +158,4 @@ export function setTaskVisualLineWeight(
   const schedule = document.schedule
   const visual = visualOf(schedule, command.uid)
   return edited(withVisual(document, { ...visual, lineWeight: command.lineWeight }))
-}
-
-// see CM-25, AT-98
-/** @purity pure */
-export function setTaskVisualNamePlacement(
-  document: Document,
-  command: Extract<TaskCommand, { readonly kind: 'setTaskVisualNamePlacement' }>,
-): EditResult {
-  const schedule = document.schedule
-  if (
-    command.nameAnchor !== null &&
-    (!Number.isInteger(command.nameAnchor) || command.nameAnchor < 0 || command.nameAnchor > 8)
-  ) {
-    return refused([
-      reject('CM-25', 'AT-98', `the name anchor is an integer 0 to 8, not ${command.nameAnchor}`),
-    ])
-  }
-  const visual = visualOf(schedule, command.uid)
-  return edited(
-    withVisual(document, {
-      ...visual,
-      nameAnchor: command.nameAnchor,
-      nameAlign: command.nameAlign,
-    }),
-  )
 }

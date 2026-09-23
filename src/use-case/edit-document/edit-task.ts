@@ -34,7 +34,6 @@ import {
   setTaskVisualColors,
   setTaskVisualLineWeight,
   setTaskVisualMilestoneGlyph,
-  setTaskVisualNamePlacement,
   setTaskVisualShapeKind,
 } from './task-appearance'
 
@@ -46,8 +45,6 @@ export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
 export type TaskLineWeight = NonNullable<TaskVisual['lineWeight']>
-
-export type TaskNameAlign = NonNullable<TaskVisual['nameAlign']>
 
 // see T-019
 export type PlanActualPlacement =
@@ -127,13 +124,6 @@ export type TaskCommand =
       readonly uid: number
       readonly lineWeight: TaskLineWeight | null
     }
-  | {
-      readonly kind: 'setTaskVisualNamePlacement'
-      readonly uid: number
-      readonly nameAnchor: number | null
-      readonly nameAlign: TaskNameAlign | null
-    }
-
 
 /** @purity pure */
 export function withSchedule(document: Document, schedule: Schedule): Document {
@@ -162,8 +152,6 @@ export function withTask(document: Document, next: Task): Document {
 export function blankVisual(taskUid: number): TaskVisual {
   return {
     taskUid,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: null,
     milestoneGlyph: null,
     fillColor: null,
@@ -353,9 +341,6 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
 
     case 'setTaskVisualLineWeight':
       return setTaskVisualLineWeight(document, command)
-
-    case 'setTaskVisualNamePlacement':
-      return setTaskVisualNamePlacement(document, command)
   }
 }
 
@@ -379,5 +364,4 @@ const TABLE_T108_ROWS: Readonly<Record<TaskCommand['kind'], string>> = {
   setTaskVisualColors: 'CM-22',
   resetTaskVisualColors: 'CM-23',
   setTaskVisualLineWeight: 'CM-24',
-  setTaskVisualNamePlacement: 'CM-25',
 }

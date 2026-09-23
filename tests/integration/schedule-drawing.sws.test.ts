@@ -320,8 +320,6 @@ const taskGroup = (id: string, order: number, over: Partial<TaskGroup> = {}): Ta
 
 const taskVisual = (taskUid: number, over: Partial<TaskVisual> = {}): TaskVisual => ({
   taskUid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: 'rectangle',
   milestoneGlyph: null,
   fillColor: null,

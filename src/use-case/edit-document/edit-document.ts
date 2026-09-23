@@ -164,7 +164,6 @@ const TASK_KINDS = [
   'setTaskVisualColors',
   'resetTaskVisualColors',
   'setTaskVisualLineWeight',
-  'setTaskVisualNamePlacement',
 ] as const satisfies readonly TaskCommand['kind'][]
 
 const TASK_GROUP_KINDS = [

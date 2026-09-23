@@ -125,8 +125,6 @@ const notStarted = (): Schedule =>
     taskVisuals: [
       {
         taskUid: UNDER_TEST,
-        nameAnchor: null,
-        nameAlign: null,
         shapeKind: 'rectangle',
         milestoneGlyph: null,
         fillColor: null,

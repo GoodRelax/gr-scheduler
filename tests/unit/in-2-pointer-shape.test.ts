@@ -293,8 +293,6 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task =>
 const milestoneVisual = (taskUid: number): TaskVisual =>
   ({
     taskUid,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: 'milestone',
     milestoneGlyph: 'diamond',
     fillColor: null,

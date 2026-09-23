@@ -194,8 +194,6 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
         .filter((one) => one.milestone)
         .map((one) => ({
           taskUid: one.uid,
-          nameAnchor: null,
-          nameAlign: null,
           shapeKind: 'milestone',
           milestoneGlyph: 'diamond',
           fillColor: null,

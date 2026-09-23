@@ -287,8 +287,6 @@ export const taskOf = (over: Readonly<Record<string, unknown>>): Task =>
 
 const visualOf = (taskUid: number, shapeKind: string): unknown => ({
   taskUid,
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind,
   milestoneGlyph: null,
   fillColor: null,

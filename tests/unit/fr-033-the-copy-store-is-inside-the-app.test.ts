@@ -94,8 +94,6 @@ const taskOf = (part: Record<string, unknown>): Task =>
 const visualOf = (part: Record<string, unknown>): TaskVisual =>
   ({
     taskUid: 1,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: null,
     milestoneGlyph: null,
     fillColor: null,

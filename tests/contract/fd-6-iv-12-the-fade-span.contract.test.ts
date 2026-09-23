@@ -258,8 +258,6 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
     taskVisuals: [
       {
         taskUid: 1,
-        nameAnchor: null,
-        nameAlign: null,
         shapeKind: 'rectangle',
         milestoneGlyph: null,
         fillColor: null,

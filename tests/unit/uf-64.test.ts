@@ -539,8 +539,6 @@ const taskOf = (part: Record<string, unknown>): Task =>
 /** ET-11, likewise. Four rows of table T-016 read their columns from here. */
 const visualOf = (part: Record<string, unknown>): TaskVisual =>
   ({
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: null,
     milestoneGlyph: null,
     fillColor: null,
@@ -1002,11 +1000,6 @@ describe('table T-016 -- every item actually reaches the screen', () => {
       row: 'PR-12',
       a: [{}, { strokeColor: 'red', fillColor: 'blue', lineWeight: 'thin' }, {}],
       b: [{}, { strokeColor: 'green', fillColor: 'blue', lineWeight: 'thin' }, {}],
-    },
-    {
-      row: 'PR-13',
-      a: [{}, { nameAnchor: 1, nameAlign: 'left' }, {}],
-      b: [{}, { nameAnchor: 1, nameAlign: 'right' }, {}],
     },
     {
       row: 'PR-14',

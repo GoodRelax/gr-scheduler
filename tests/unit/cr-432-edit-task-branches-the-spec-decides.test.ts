@@ -35,19 +35,6 @@ const groupRow = (index: number): Record<string, unknown> => ({
   height: null,
 })
 
-const visualRow = (part: Record<string, unknown>): TaskVisual =>
-  ({
-    taskUid: 1,
-    nameAnchor: null,
-    nameAlign: null,
-    shapeKind: null,
-    milestoneGlyph: null,
-    fillColor: null,
-    strokeColor: null,
-    lineWeight: null,
-    ...part,
-  }) as unknown as TaskVisual
-
 function documentOf(tasks: readonly Task[], visuals: readonly TaskVisual[] = []): Document {
   const template = structuredClone(TEMPLATE)
   const calendars = template.schedule.calendars.map((calendar) => ({ ...calendar, exceptions: [] }))
@@ -257,27 +244,6 @@ describe('CR-432 -- editTask branches the specification decides', () => {
     expect(result.ok, FR_012_NO_REVERSED_PLAN).toBe(false)
     expect(before.schedule.tasks).toHaveLength(1)
     expect(before.schedule.project.uidHighWaterMark).toBe(100)
-  })
-
-  it('CM-25 / RL-16 / AT-98: placing the name on a task with no TaskVisual adds one row, the other columns null', () => {
-    const otherVisual = visualRow({ taskUid: 2, lineWeight: 'thick' })
-    const before = documentOf([planned(1, sept(7), sept(10)), planned(2, sept(7), sept(10))], [otherVisual])
-    const after = acceptedDocument(
-      run(before, { kind: 'setTaskVisualNamePlacement', uid: 1, nameAnchor: 4, nameAlign: null }),
-    )
-    const rows = after.schedule.taskVisuals.filter((visual) => visual.taskUid === 1)
-    expect(rows).toEqual([visualRow({ taskUid: 1, nameAnchor: 4 })])
-    expect(after.schedule.taskVisuals.filter((visual) => visual.taskUid === 2)).toEqual([otherVisual])
-    expect(after.schedule.tasks).toEqual(before.schedule.tasks)
-  })
-
-  it('CM-25 / AT-97 / IV-1: a task that already has a TaskVisual keeps one row; only nameAnchor changes', () => {
-    const existing = visualRow({ taskUid: 1, lineWeight: 'thick' })
-    const before = documentOf([planned(1, sept(7), sept(10))], [existing])
-    const after = acceptedDocument(
-      run(before, { kind: 'setTaskVisualNamePlacement', uid: 1, nameAnchor: 4, nameAlign: null }),
-    )
-    expect(after.schedule.taskVisuals).toEqual([{ ...existing, nameAnchor: 4 }])
   })
 
   it('CM-16 / IV-12 / FD-6: fade-in days longer than the plan span is refused and fadeInDays stays', () => {

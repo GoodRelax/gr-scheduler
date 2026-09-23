@@ -151,7 +151,6 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-9': 'task',
   'PR-10': 'task',
   'PR-12': 'taskVisual',
-  'PR-13': 'taskVisual',
   'PR-14': 'task',
   'PR-15': 'task',
   'PR-16': 'assignment',

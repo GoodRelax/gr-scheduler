@@ -123,8 +123,6 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
 })
 
 const visualOf = (part: Partial<TaskVisual> & { readonly taskUid: number }): TaskVisual => ({
-  nameAnchor: null,
-  nameAlign: null,
   shapeKind: null,
   milestoneGlyph: null,
   fillColor: null,
@@ -914,7 +912,7 @@ describe('ImportDocument (UF-19) -- table T-032, the rules of 合流', () => {
     // であり、MSPDI はこれらを持たない」.
     const { document } = accepted(importDocument(requestOf(LOOK_AND_ROW('mspdi'))))
     expect(document.schedule.taskVisuals.find((row) => row.taskUid === 1)).toEqual(
-      visualOf({ taskUid: 1, fillColor: '#111111/', shapeKind: 'rectangle', nameAnchor: 3 }),
+      visualOf({ taskUid: 1, fillColor: '#111111/', shapeKind: 'rectangle' }),
     )
     expect(rowOf(document, 1)).toBe('g1')
     // 置き換えるのは取込元が持つ値だけ -- the columns MSPDI DOES carry did move.
@@ -927,7 +925,7 @@ describe('ImportDocument (UF-19) -- table T-032, the rules of 合流', () => {
     // 置き換える」に含まれる」. Same fixture, one field different.
     const { document } = accepted(importDocument(requestOf(LOOK_AND_ROW('grsJson'))))
     expect(document.schedule.taskVisuals.find((row) => row.taskUid === 1)).toEqual(
-      visualOf({ taskUid: 1, fillColor: '#999999/', shapeKind: 'chevron', nameAnchor: 7 }),
+      visualOf({ taskUid: 1, fillColor: '#999999/', shapeKind: 'chevron' }),
     )
     expect(rowOf(document, 1)).toBe('g2')
   })
@@ -981,7 +979,7 @@ const LOOK_AND_ROW = (format: 'mspdi' | 'grsJson'): Partial<ImportRequest> => ({
       taskGroups: [groupOf({ id: 'g1', label: 'our row', order: 0 })],
       taskGroupMembers: [memberOf(1, 'g1')],
       taskVisuals: [
-        visualOf({ taskUid: 1, fillColor: '#111111/', shapeKind: 'rectangle', nameAnchor: 3 }),
+        visualOf({ taskUid: 1, fillColor: '#111111/', shapeKind: 'rectangle' }),
       ],
       project: projectOf({ uidHighWaterMark: 1 }),
     },
@@ -992,7 +990,7 @@ const LOOK_AND_ROW = (format: 'mspdi' | 'grsJson'): Partial<ImportRequest> => ({
       taskGroups: [groupOf({ id: 'g2', label: 'their row', order: 0 })],
       taskGroupMembers: [memberOf(1, 'g2')],
       taskVisuals: [
-        visualOf({ taskUid: 1, fillColor: '#999999/', shapeKind: 'chevron', nameAnchor: 7 }),
+        visualOf({ taskUid: 1, fillColor: '#999999/', shapeKind: 'chevron' }),
       ],
     },
   }),

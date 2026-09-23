@@ -259,7 +259,7 @@ def ts_node(node, indent):
 
 
 # ⚠️ An enum MEMBER is a value, not a type, and the manuscript writes `null`
-# as one -- `nameAlign` and the four other unspelled enumerations of table
+# as one -- `shapeKind` and the three other unspelled enumerations of table
 # T-058 admit it. Measured rather than assumed, for the reason KIND_ORDER is.
 TS_OF_MEMBER = {
     type(None): 'null',

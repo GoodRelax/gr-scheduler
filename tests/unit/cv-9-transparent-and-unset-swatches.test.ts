@@ -132,8 +132,6 @@ const scheduleOf = (fillColor: string | null): Schedule =>
     taskVisuals: [
       {
         taskUid: THE_TASK,
-        nameAnchor: null,
-        nameAlign: null,
         shapeKind: null,
         milestoneGlyph: null,
         fillColor,

@@ -311,8 +311,6 @@ const taskGroup = (
 const taskVisual = (taskUid: number): TaskVisual =>
   ({
     taskUid,
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: 'rectangle',
     milestoneGlyph: null,
     fillColor: null,

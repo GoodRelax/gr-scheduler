@@ -135,7 +135,7 @@ const ONE_TASK = {
   taskGroupMembers: [],
   taskVisuals: [
     {
-      taskUid: THE_TASK, nameAnchor: null, nameAlign: null, shapeKind: null,
+      taskUid: THE_TASK, shapeKind: null,
       milestoneGlyph: null, fillColor: null, strokeColor: null, lineWeight: null,
     } as unknown as TaskVisual,
   ],

@@ -40532,8 +40532,6 @@
   "taskVisuals": [
    {
     "taskUid": 77,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "triangleDown",
     "fillColor": null,
@@ -40542,8 +40540,6 @@
    },
    {
     "taskUid": 441,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "diamond",
     "fillColor": null,
@@ -40552,8 +40548,6 @@
    },
    {
     "taskUid": 448,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "circle",
     "fillColor": null,
@@ -40562,8 +40556,6 @@
    },
    {
     "taskUid": 644,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "square",
     "fillColor": null,
@@ -40572,8 +40564,6 @@
    },
    {
     "taskUid": 682,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "star",
     "fillColor": null,
@@ -40582,8 +40572,6 @@
    },
    {
     "taskUid": 700,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "hexagon",
     "fillColor": null,
@@ -40592,8 +40580,6 @@
    },
    {
     "taskUid": 883,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "pentagon",
     "fillColor": null,
@@ -40602,8 +40588,6 @@
    },
    {
     "taskUid": 942,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "triangleUp",
     "fillColor": null,
@@ -40612,8 +40596,6 @@
    },
    {
     "taskUid": 1,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40622,8 +40604,6 @@
    },
    {
     "taskUid": 2,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40632,8 +40612,6 @@
    },
    {
     "taskUid": 3,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40642,8 +40620,6 @@
    },
    {
     "taskUid": 4,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40652,8 +40628,6 @@
    },
    {
     "taskUid": 5,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40662,8 +40636,6 @@
    },
    {
     "taskUid": 6,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40672,8 +40644,6 @@
    },
    {
     "taskUid": 7,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40682,8 +40652,6 @@
    },
    {
     "taskUid": 8,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "chevron",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40692,8 +40660,6 @@
    },
    {
     "taskUid": 9,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "circle",
     "fillColor": null,
@@ -40702,8 +40668,6 @@
    },
    {
     "taskUid": 10,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "hexagon",
     "fillColor": null,
@@ -40712,8 +40676,6 @@
    },
    {
     "taskUid": 11,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "pentagon",
     "fillColor": null,
@@ -40722,8 +40684,6 @@
    },
    {
     "taskUid": 12,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "diamond",
     "fillColor": null,
@@ -40732,8 +40692,6 @@
    },
    {
     "taskUid": 13,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "square",
     "fillColor": null,
@@ -40742,8 +40700,6 @@
    },
    {
     "taskUid": 14,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "triangleUp",
     "fillColor": null,
@@ -40752,8 +40708,6 @@
    },
    {
     "taskUid": 15,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "milestone",
     "milestoneGlyph": "star",
     "fillColor": null,
@@ -40762,8 +40716,6 @@
    },
    {
     "taskUid": 35,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "endpointSpan",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40772,8 +40724,6 @@
    },
    {
     "taskUid": 36,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "arrow",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40782,8 +40732,6 @@
    },
    {
     "taskUid": 299,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "endpointSpan",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40792,8 +40740,6 @@
    },
    {
     "taskUid": 300,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "arrow",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40802,8 +40748,6 @@
    },
    {
     "taskUid": 474,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "endpointSpan",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40812,8 +40756,6 @@
    },
    {
     "taskUid": 475,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "arrow",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40822,8 +40764,6 @@
    },
    {
     "taskUid": 606,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "endpointSpan",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40832,8 +40772,6 @@
    },
    {
     "taskUid": 607,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "arrow",
     "milestoneGlyph": null,
     "fillColor": null,
@@ -40842,8 +40780,6 @@
    },
    {
     "taskUid": 30,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "orange",
@@ -40852,8 +40788,6 @@
    },
    {
     "taskUid": 291,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "lightgray",
@@ -40862,8 +40796,6 @@
    },
    {
     "taskUid": 468,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "green",
@@ -40872,8 +40804,6 @@
    },
    {
     "taskUid": 597,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "transparent",
@@ -40882,8 +40812,6 @@
    },
    {
     "taskUid": 715,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "yellow",
@@ -40892,8 +40820,6 @@
    },
    {
     "taskUid": 837,
-    "nameAnchor": null,
-    "nameAlign": null,
     "shapeKind": "rectangle",
     "milestoneGlyph": null,
     "fillColor": "orange",

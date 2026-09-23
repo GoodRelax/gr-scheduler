@@ -33,8 +33,7 @@
 //   - the `isTextEntryUnsettled` and `Esc` branches of the key path, and
 //     `escapeContextOf`, to learn that `EscapeContext` has no member for the
 //     in-place edit;
-//   - `changed`, to learn that an empty bundle still answers 「assigned」;
-//   - `edit-task.ts`'s command union, to learn CM-25's spelling.
+//   - `changed`, to learn that an empty bundle still answers 「assigned」.
 // ⭐ NONE OF THAT SET AN EXPECTED VALUE. It supplied spellings and told the
 // tester where the tree stands, which is what makes the ⛔ notes below able to
 // say WHY a case is red instead of merely that it is.
@@ -127,10 +126,10 @@ import { specTable } from '../contract/spec-table'
  * ⛔ AND IT HAD GONE STALE, TWICE OVER. This copy said 19 rows while the table
  * printed 21: `GR-20`（行見出しパネルの行）joined on 2026-08-30 and `GR-21`
  * （`Scrollbars` のつまみ）on 2026-09-07, and NEITHER reached here -- so the
- * two walks below, which say 「no row of table T-023d」 may reach CM-25 or open
- * the panel, were quietly saying it about 19 of the 21. ⭐ Nothing caught that,
- * because no case compared the copy with the manuscript; one below now does,
- * the way tests/unit/uf-30-31.test.ts does for its own copy.
+ * walk below, which says 「no row of table T-023d」 may open the panel, was
+ * quietly saying it about 19 of the 21. ⭐ Nothing caught that, because no case
+ * compared the copy with the manuscript; one below now does, the way
+ * tests/unit/uf-30-31.test.ts does for its own copy.
  */
 const T_023D = [
   'GR-19', 'GR-22', 'GR-10', 'GR-11', 'GR-14', 'GR-23', 'GR-20', 'GR-16', 'GR-21',
@@ -587,9 +586,6 @@ function oneCommand(answer: TranslatedInput, kind: string): Record<string, unkno
   return found[0] as unknown as Record<string, unknown>
 }
 
-/** CM-25 -- the one command that writes `nameAnchor` / `nameAlign` (AT-98 / AT-99). */
-const CM_25 = 'setTaskVisualNamePlacement'
-
 type Armed = ScreenValues['armModeState']
 
 const ARMED_RECTANGLE: Armed = { kind: 'taskShapeArmed', shapeKind: 'rectangle' }
@@ -718,32 +714,6 @@ describe('表 T-023d closing rule -- a plain press does not land on GR-10', () =
     // corrected against those two rows (2026-08-27).
     expect(write.start).toBe('2026-01-15T00:00:00')
     expect(write.finish).toBe('2026-02-15T00:00:00')
-  })
-
-  it('GR-10 -- even handed the row itself, a plain drag never moves the label', () => {
-    // ⭐ THE OTHER HALF OF THE RULING, and the one that does not depend on
-    // which unit enforces it. GR-10 now reads 「掴んで動かさない（MUST NOT）」 and
-    // sends the only road to the position to PR-13 of table T-016 -- so a plain
-    // drag that begins on a GR-10 hit MUST NOT ask for CM-25.
-    const probe = centreOf(labelOf(1))
-    const from = pointerOf('down', probe.x, probe.y)
-    const to = pointerOf('up', probe.x + 10 * LAYOUT.pxPerDay, probe.y)
-    const answer = afterGesture(from, to, taskHitOn('GR-10'))
-    expect(kindsOf(answer)).not.toContain(CM_25)
-  })
-
-  it('FR-029 -- no pointer gesture anywhere on the table writes nameAnchor', () => {
-    // The example FR-029 keeps of an allowed two-faced edit now reads 「PR-13 と
-    // FR-028」 for `nameAnchor` / `nameAlign`; GR-10 was struck from it on
-    // 2026-08-27 because it stopped being a face that grabs. So no row of table
-    // T-023d may reach CM-25 from a drag.
-    const probe = centreOf(labelOf(1))
-    for (const row of T_023D) {
-      const from = pointerOf('down', probe.x, probe.y)
-      const to = pointerOf('up', probe.x + 4 * LAYOUT.pxPerDay, probe.y + 3)
-      const answer = afterGesture(from, to, taskHitOn(row))
-      expect(kindsOf(answer), `${row} must not reach CM-25`).not.toContain(CM_25)
-    }
   })
 
   it('GR-11 -- a plain press beside the bar does not land on the assignee label', () => {

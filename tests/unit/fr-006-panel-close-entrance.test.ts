@@ -345,8 +345,6 @@ const taskOf = (part: Record<string, unknown>): Task =>
 /** ET-11, likewise. */
 const visualOf = (part: Record<string, unknown>): TaskVisual =>
   ({
-    nameAnchor: null,
-    nameAlign: null,
     shapeKind: null,
     milestoneGlyph: null,
     fillColor: null,
