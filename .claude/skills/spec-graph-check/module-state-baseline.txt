@@ -2,7 +2,7 @@
 # (gate 4, docs/development-records/refactor-stage3-gates-proposal-2026-09-15.md;
 # initial value approved by rulings.md JDG-124).
 #
-# 2 finding(s), measured by check-module-state.py: a column-0 let/var
+# 0 finding(s), measured by check-module-state.py: a column-0 let/var
 # (with or without export) is flagged unconditionally; a column-0 const X =
 # new Map/Set/WeakMap/WeakSet(...), const X = [ or const X = { is flagged
 # only when the same file also mutates X (X.set/add/delete/clear/push/
@@ -13,5 +13,3 @@
 # Delete a line in the same commit that moves its state to the shell
 # (stage 7 / CR-379 decision 7).
 #
-HELD src/use-case/apply-document-change/apply-document-change.ts:deliveringNotices
-HELD src/use-case/notify-change-watchers/notify-change-watchers.ts:REGISTRATIONS

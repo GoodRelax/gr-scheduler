@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>縮小しても消えないタスク</title>
+<style>
+  :root { --ink:#16181d; --ink2:#55606f; --rule:#d7dde7; --ground:#fdfdfd; --panel:#f3f5f8;
+          --plan:#bcd8f5; --plan-edge:#3b6fb5; --min:#7fb0e8; --min-edge:#2d5f9e;
+          --ms:#f0b429; --ms-edge:#946200; --pick:#d0342c; --hitzone:#e8a33d; --lane:#eef2f7; }
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: #fff; color: var(--ink); font-size: 13px;
+         font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 420px; height: 100vh; }
+  .view { overflow: hidden; display: flex; flex-direction: column; }
+  .view > .top { padding: 12px 16px 4px; }
+  .scroller { overflow: auto; margin: 0 16px; border: 1px solid var(--rule); flex: 0 1 auto; }
+  .view > .bottom { padding: 4px 16px 12px; overflow: auto; }
+  .panel { overflow: auto; background: #fafbfc; border-left: 1px solid var(--rule); }
+  .panel > .inner { width: 392px; padding: 10px 14px; }
+  h1 { font-size: 16px; margin: 0 0 2px; }
+  p.note { color: var(--ink2); margin: 0 0 6px; max-width: 930px; line-height: 1.55; }
+  .panel section.sec { background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px 8px; margin: 0 0 10px; }
+  .panel h2 { font-size: 14px; margin: 0 0 2px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
+  label { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+  label span.name { width: 160px; }
+  label input[type=range] { width: 120px; }
+  label output { width: 62px; text-align: right; font-variant-numeric: tabular-nums; }
+  select { font: inherit; max-width: 230px; }
+  .hint { font-size: 11px; color: var(--ink2); margin: 0 0 5px 0; line-height: 1.45; }
+  svg { display: block; background: var(--ground); touch-action: none; user-select: none; -webkit-user-select: none; }
+  #tip { position: fixed; pointer-events: none; background: #16181d; color: #fff; font-size: 12px; padding: 4px 7px;
+         border-radius: 4px; white-space: nowrap; display: none; z-index: 10; line-height: 1.45; }
+  #status { font-weight: 600; min-height: 18px; }
+  table.m { border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  table.m th, table.m td { border-bottom: 1px solid #eef1f6; padding: 2px 8px; text-align: right; font-variant-numeric: tabular-nums; }
+  table.m th { font-weight: 600; border-bottom: 1px solid var(--rule); }
+  table.m td:first-child, table.m th:first-child { text-align: left; }
+  #summary { margin-top: 6px; padding: 6px 8px; background: #f4f6f9; border-radius: 4px; white-space: pre-wrap; font-size: 12px; max-width: 930px; }
+</style>
+</head>
+<body>
+<div class="app">
+<section class="view">
+<div class="top">
+<h1>縮小しても消えないタスク —— 最小幅と、段が増える分</h1>
+<p class="note">
+  1 年を 1 画面に縮めても、行にあるタスクとマイルストーンはすべて描きます。実際の幅が最小幅より細いタスクは、最小幅で描きます（濃い縁）。
+  描いた形（と、数えるときは名前）が重なるタスクは、アプリの段の割り当て（FR-003、表 T-038 の占有幅）のとおり下の段へ積みます。行はその段の数だけ高くなります。
+  <b>ポインタを置くと、そのタスクが赤で囲まれ、名前と日付が出ます。</b>「今のアプリ」を選ぶと、描いた幅が S-86 を割るタスクは描かれず、掴めません。
+</p>
+</div>
+<div class="scroller" id="scroller"><svg id="stage"></svg></div>
+<div class="bottom">
+<div id="status">&nbsp;</div>
+<table class="m" id="rowsTable"></table>
+<div id="summary"></div>
+</div>
+</section>
+<aside class="panel"><div class="inner">
+  <section class="sec"><h2>縮尺と最小幅</h2>
+  <label><span class="name">1 日の幅（px）</span><input id="dayPx" type="range" min="0.25" max="8" step="0.25" value="1"><output id="dayPxOut"></output></label>
+  <label><span class="name">描き方</span><select id="mode">
+    <option value="new" selected>案: 細いタスクも最小幅で描く</option>
+    <option value="now">今のアプリ: 描いた幅が S-86 未満は描かない</option></select></label>
+  <label><span class="name">最小幅（描く、px）</span><input id="minPx" type="range" min="4" max="16" step="1" value="8"><output id="minPxOut"></output></label>
+  <div class="hint">描く幅 ＝ max(実際の幅, 最小幅)。開始日から右へ描く（今のアプリの shapeWidthOf と同じ）。段の割り当てはこの描いた幅で行う。今のアプリの最小幅は S-49 の 6 × 0.625 ＝ 3.75px。</div>
+  <label><input id="countNames" type="checkbox" checked> 名前を占有幅に数える（今のアプリ。表 T-038）</label>
+  <div class="hint">切ると、段は描いた形だけで決まり、名前は隣の形や名前に重なって描かれる。どれだけ段が名前で増えているかを比べるためのスイッチ。</div>
+  <label><input id="showMarker" type="checkbox" checked> 進捗マーカーを出す（名前の書き出しが マーカー ＋ 間 になる）</label>
+  </section>
+  <section class="sec"><h2>掴む</h2>
+  <label><span class="name">掴む幅の下限（px）</span><input id="hitPx" type="range" min="4" max="24" step="1" value="12"><output id="hitPxOut"></output></label>
+  <div class="hint">描いた幅がこれより細いタスクは、描いた形の中心に揃えたこの幅で掴める（掴み代の見本の端の掴み代 12px）。
+    ただし、描いた形の上ではそのタスクだけが応え（HT-1）、形の外で同じ段の 2 つの掴み代が重なったら、中心が近い方が応える（HT-4）—— 隣の掴み代は中点で切れ、隣の形を奪わない。</div>
+  <label><input id="showHit" type="checkbox"> 掴む幅を薄く塗って見せる</label>
+  </section>
+</div></aside>
+</div>
+<div id="tip"></div>
+
+<script>
+'use strict';
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+
+// ---------------------------------------------------------------- values from the specification and the app
+const DRAW_RATIO = 0.625;                 // S-236: drawing ratio at display scale 100
+const PLAN_HEIGHT_DOC = 28;               // S-4 basePlanHeight
+const ACTUAL_OF_PLAN = 0.5715;            // S-5 actualOfPlan
+const FONT_OF_ACTUAL = 0.90;              // S-7 fontOfActual
+const FONT_MIN_DOC = 12;                  // S-8 fontMin
+const PLAN_STROKE_DOC = 1;                // S-39 planStroke
+const STACK_GAP_PX = 1;                   // S-11 stackGap (not scaled)
+const DEP_WIDTH_DOC = 2.4;                // S-18 dependencyWidth
+const LABEL_PAD_DOC = 9.6;                // S-31 labelPad: reference start to name, marker hidden
+const LABEL_GAP_DOC = 9.6;                // S-32 labelGap: marker to name
+const MARKER_SIZE_DOC = 22.4;             // S-22 markerSize
+const FIT_MARGIN_PX = 12;                 // S-260: the name "fits" only with this much room left at the end
+const MS_NAME_START_OF_WIDTH = 0.25;      // S-303 milestoneNameStartOfWidth
+const MS_NAME_MARKER_GAP_DOC = 9.6;       // milestone name after its marker
+const MIN_SHAPE_WIDTH_DOC = 6;            // S-49 minShapeWidth (drawn: x DRAW_RATIO)
+const LOD_READABLE_DOC = 24;              // S-86 taskLevelOfDetailReadablePx (drawn: x DRAW_RATIO)
+const BAND_FLOOR_PX = 24.0012;            // HF-19 row floor: 2 x (16 + 1 x 2) x 0.6667 (rowControlLatticeFloorPx)
+
+// drawing of this sample
+const PICK_STROKE_PX = 1.5;               // outline of the picked task
+const MIN_EDGE_STROKE_PX = 1;             // darker rim of a task drawn at the minimum width
+const TRUE_SPAN_TICK_PX = 3;              // tick that marks the picked task's true span on the header
+const TRUE_SPAN_MIN_PX = 1;               // the tick never gets thinner than this
+const TITLE_W = 120;
+const HEADER_H = 24;
+const CHART_PAD_PX = 60;
+const RULE_PX = 1;
+const YEAR_DAYS = 365;
+const YEAR_START_UTC = Date.UTC(2026, 0, 1);
+const MS_PER_DAY = 86400000;
+const ROW_NAME_FONT_PX = 12;
+const ROW_NAME_LEFT_PX = 8;
+const HEADER_FONT_PX = 10;
+const TEXT_BASELINE_OF_FONT = 0.36;       // baseline below the centre line, as a share of the font size
+const TIP_OFFSET_PX = 14;
+const ROW_INFO_GAP_PX = 2;               // row name to the lane-count line under it
+const HALO_OF_FONT = 0.1;                 // white rim round a name, as a share of the font size
+const MARKER_RING_OF_SIZE = 0.38;         // drawn marker ring radius as a share of the marker size
+const MARKER_STROKE_PX = 1.2;
+const HIT_ZONE_OPACITY = 0.18;
+const MIN_FILL_OPACITY = 0.9;
+const MONTH_STARTS = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+
+const spx = v => v * DRAW_RATIO;
+const planH = () => spx(PLAN_HEIGHT_DOC);
+const planStroke = () => spx(PLAN_STROKE_DOC);
+const laneExtent = () => planH() + planStroke();                      // drawnExtentOf('rectangle')
+const laneGap = () => STACK_GAP_PX + spx(DEP_WIDTH_DOC) + STACK_GAP_PX; // VG-2
+const labelFont = () => Math.max(spx(FONT_MIN_DOC), planH() * ACTUAL_OF_PLAN * FONT_OF_ACTUAL);
+const markerSize = () => spx(MARKER_SIZE_DOC);
+
+// ---------------------------------------------------------------- the rows (fixed data; no two tasks of a row share a day)
+function build() {
+  const rows = [];
+  const weekly = [];
+  const WEEK = 7, WEEKLY_FIRST = 5, WEEKLY_COUNT = 50, WEEKLY_LONG_EVERY = 4;
+  for (let i = 0; i < WEEKLY_COUNT; i++) {
+    weekly.push({ name: '点検 ' + (i + 1), start: WEEKLY_FIRST + i * WEEK, days: i % WEEKLY_LONG_EVERY === 0 ? 2 : 1 });
+  }
+  rows.push({ name: '定例の点検', items: weekly });
+  const bursts = [];
+  const BURSTS = [[20, [1, 1, 2, 1]], [95, [1, 3, 1]], [150, [1, 1, 1, 1, 1, 1]], [230, [2, 1, 4, 1]], [300, [1, 2]]];
+  for (const [first, gaps] of BURSTS) {
+    let d = first;
+    bursts.push({ name: '確認 ' + (bursts.length + 1), start: d, days: 1 });
+    for (const g of gaps) { d += g; bursts.push({ name: '確認 ' + (bursts.length + 1), start: d, days: 1 }); }
+  }
+  const MILESTONES = [[60, '中間の判定'], [183, '半期の締め'], [340, '年度の判定']];
+  for (const [d, n] of MILESTONES) bursts.push({ name: n, start: d, days: 0, ms: true });
+  rows.push({ name: '確認と判定', items: bursts });
+  const mixed = [
+    { name: '基本設計', start: 10, days: 45 }, { name: '設計の承認', start: 55, days: 1 }, { name: '承認の記録', start: 57, days: 1 },
+    { name: '詳細設計', start: 60, days: 60 }, { name: '引き継ぎ', start: 120, days: 1 },
+    { name: '製作', start: 125, days: 90 }, { name: '部分の確認 1', start: 216, days: 1 }, { name: '部分の確認 2', start: 218, days: 2 },
+    { name: '部分の確認 3', start: 221, days: 1 }, { name: '結合', start: 224, days: 70 }, { name: '報告', start: 295, days: 1 },
+  ];
+  rows.push({ name: '開発', items: mixed });
+  let id = 0;
+  for (const r of rows) for (const t of r.items) t.id = 't' + (++id);
+  return rows;
+}
+const ROWS = build();
+const ALL = ROWS.flatMap((r, ri) => r.items.map((t, k) => Object.assign(t, { row: ri, uid: k })));
+
+// ---------------------------------------------------------------- state and layout
+const S = { dayPx: 1, minPx: 8, hitPx: 12, mode: 'new', countNames: true, showMarker: true, showHit: false };
+let shapes = [];     // { t, x, w, cx, min, visible, lane, nameX, text, occ0, occ1, hitX, hitW }
+let rowGeo = [];     // { top, h, lanes }
+let picked = null;
+
+const dayX = d => TITLE_W + d * S.dayPx;
+const measureCtx = document.createElement('canvas').getContext('2d');
+function textWidth(s, size) {
+  measureCtx.font = size + 'px "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif';
+  return measureCtx.measureText(s).width;
+}
+function dateOf(d) {
+  const t = new Date(YEAR_START_UTC + d * MS_PER_DAY);
+  return t.getUTCFullYear() + '-' + String(t.getUTCMonth() + 1).padStart(2, '0') + '-' + String(t.getUTCDate()).padStart(2, '0');
+}
+
+function layout() {
+  const minNow = spx(MIN_SHAPE_WIDTH_DOC), readable = spx(LOD_READABLE_DOC);
+  const font = labelFont(), mk = markerSize();
+  shapes = ALL.map(t => {
+    const text = textWidth(t.name, font);
+    if (t.ms) {
+      const w = planH(), x = dayX(t.start) + S.dayPx / 2 - w / 2;
+      // labelLayoutOf, milestone: the name starts at 25% of the diamond, or after the marker right of it
+      const nameX = S.showMarker ? x + w + mk + spx(MS_NAME_MARKER_GAP_DOC) : x + w * MS_NAME_START_OF_WIDTH;
+      return { t, x, w, min: false, visible: true, ms: true, nameX, text, fits: false };
+    }
+    const span = t.days * S.dayPx;
+    const floorW = S.mode === 'now' ? minNow : S.minPx;
+    const w = Math.max(span, floorW);
+    const x = dayX(t.start);
+    const visible = S.mode === 'now' ? w >= readable : true;
+    // labelLayoutOf, rectangle: inside when lead + text + S-260 fits, else from the shape's end
+    const lead = S.showMarker ? mk + spx(LABEL_GAP_DOC) : spx(LABEL_PAD_DOC);
+    const fits = lead + text + FIT_MARGIN_PX <= w;
+    const nameX = (fits ? x : x + w) + lead;
+    return { t, x, w, min: span < floorW, visible, nameX, text, fits };
+  });
+  // occupied width (T-038): the drawn shape, and the name when counted
+  for (const s of shapes) {
+    s.cx = s.x + s.w / 2;
+    s.occ0 = s.x;
+    s.occ1 = S.countNames ? Math.max(s.x + s.w, s.nameX + s.text) : s.x + s.w;
+    s.hitW = Math.max(s.w, S.hitPx);
+    s.hitX = s.cx - s.hitW / 2;
+  }
+  // lane assignment as schedule-layout.ts: sorted by start, finish (later first), uid; first lane with no
+  // overlapping occupied interval (touching is allowed)
+  rowGeo = [];
+  let y = HEADER_H;
+  ROWS.forEach((r, ri) => {
+    const items = shapes.filter(s => s.t.row === ri && s.visible).sort((a, b) =>
+      a.t.start - b.t.start || (b.t.start + b.t.days) - (a.t.start + a.t.days) || a.t.uid - b.t.uid);
+    const lanes = [];
+    for (const s of items) {
+      let lane = lanes.findIndex(q => q.every(o => s.occ1 <= o.occ0 || s.occ0 >= o.occ1));
+      if (lane < 0) { lane = lanes.length; lanes.push([]); }
+      lanes[lane].push(s);
+      s.lane = lane;
+    }
+    const n = Math.max(1, lanes.length);
+    const packed = n * (laneExtent() + laneGap());
+    const h = Math.max(packed, BAND_FLOOR_PX);
+    rowGeo.push({ top: y, h, lanes: n, packed });
+    y += h;
+  });
+}
+const laneCy = (ri, lane) => rowGeo[ri].top + lane * (laneExtent() + laneGap()) + planStroke() / 2 + planH() / 2;
+
+// ---------------------------------------------------------------- drawing
+function el(parent, name, attrs) {
+  const n = document.createElementNS(NS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  parent.appendChild(n);
+  return n;
+}
+function draw() {
+  const svg = $('stage');
+  const W = TITLE_W + YEAR_DAYS * S.dayPx + CHART_PAD_PX;
+  const H = rowGeo[rowGeo.length - 1].top + rowGeo[rowGeo.length - 1].h + RULE_PX;
+  svg.innerHTML = '';
+  svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  el(svg, 'rect', { x: 0, y: 0, width: W, height: HEADER_H, fill: '#eef2f7' });
+  MONTH_STARTS.forEach((d, m) => {
+    el(svg, 'line', { x1: dayX(d), x2: dayX(d), y1: 0, y2: H, stroke: '#e3e8ef' });
+    const t = el(svg, 'text', { x: dayX(d) + 2, y: HEADER_H - 8, 'font-size': HEADER_FONT_PX, fill: '#55606f' });
+    t.textContent = (m + 1) + ' 月';
+  });
+  el(svg, 'rect', { x: 0, y: HEADER_H, width: TITLE_W, height: H - HEADER_H, fill: 'var(--panel)' });
+  ROWS.forEach((r, ri) => {
+    const g = rowGeo[ri], b = g.top + g.h;
+    el(svg, 'line', { x1: 0, x2: W, y1: b - RULE_PX / 2, y2: b - RULE_PX / 2, stroke: 'var(--rule)', 'stroke-width': RULE_PX });
+    const t = el(svg, 'text', { x: ROW_NAME_LEFT_PX, y: laneCy(ri, 0) + ROW_NAME_FONT_PX * TEXT_BASELINE_OF_FONT, 'font-size': ROW_NAME_FONT_PX, fill: '#16181d' });
+    t.textContent = r.name;
+    const t2 = el(svg, 'text', { x: ROW_NAME_LEFT_PX, y: laneCy(ri, 0) + ROW_NAME_FONT_PX * TEXT_BASELINE_OF_FONT + ROW_NAME_FONT_PX + ROW_INFO_GAP_PX, 'font-size': HEADER_FONT_PX, fill: '#55606f' });
+    t2.textContent = g.lanes + ' 段 ・ ' + g.h.toFixed(1) + 'px';
+  });
+  if (S.showHit) for (const s of shapes) if (s.visible && s.hitW > s.w) {
+    el(svg, 'rect', { x: s.hitX, y: laneCy(s.t.row, s.lane) - planH() / 2, width: s.hitW, height: planH(), fill: 'var(--hitzone)', opacity: HIT_ZONE_OPACITY });
+  }
+  const font = labelFont(), mk = markerSize();
+  for (const s of shapes) {
+    if (!s.visible) continue;
+    const cy = laneCy(s.t.row, s.lane), top = cy - planH() / 2;
+    if (s.ms) {
+      const a = planH() / 2;
+      el(svg, 'path', { d: `M${s.cx} ${cy - a}L${s.cx + a} ${cy}L${s.cx} ${cy + a}L${s.cx - a} ${cy}Z`, fill: 'var(--ms)', stroke: 'var(--ms-edge)', 'stroke-width': planStroke() });
+    } else {
+      el(svg, 'rect', { x: s.x, y: top, width: s.w, height: planH(),
+        fill: s.min ? 'var(--min)' : 'var(--plan)', stroke: s.min ? 'var(--min-edge)' : 'var(--plan-edge)',
+        'stroke-width': s.min ? MIN_EDGE_STROKE_PX : planStroke(), 'fill-opacity': s.min ? MIN_FILL_OPACITY : 1 });
+    }
+    if (S.showMarker) {
+      const mx = s.ms ? s.x + s.w + mk / 2 : s.nameX - spx(LABEL_GAP_DOC) - mk / 2;
+      el(svg, 'circle', { cx: mx, cy, r: mk * MARKER_RING_OF_SIZE, fill: '#fff', stroke: '#0a7a48', 'stroke-width': MARKER_STROKE_PX });
+    }
+    const t = el(svg, 'text', { x: s.nameX, y: cy + font * TEXT_BASELINE_OF_FONT, 'font-size': font, fill: '#16181d',
+      'font-weight': 600, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': font * HALO_OF_FONT });
+    t.textContent = s.t.name;
+  }
+  if (picked) {
+    const s = shapes.find(q => q.t.id === picked);
+    const top = laneCy(s.t.row, s.lane) - planH() / 2;
+    el(svg, 'rect', { x: s.x - PICK_STROKE_PX / 2, y: top - PICK_STROKE_PX / 2, width: s.w + PICK_STROKE_PX, height: planH() + PICK_STROKE_PX,
+      fill: 'none', stroke: 'var(--pick)', 'stroke-width': PICK_STROKE_PX });
+    if (!s.ms) el(svg, 'rect', { x: dayX(s.t.start), y: HEADER_H - TRUE_SPAN_TICK_PX, width: Math.max(TRUE_SPAN_MIN_PX, s.t.days * S.dayPx),
+      height: TRUE_SPAN_TICK_PX, fill: 'var(--pick)' });
+  }
+}
+
+// ---------------------------------------------------------------- picking (HT-1, then HT-4)
+function pickAt(x, y) {
+  let ri = -1, lane = -1;
+  rowGeo.forEach((g, i) => {
+    for (let l = 0; l < g.lanes; l++) if (Math.abs(y - laneCy(i, l)) <= planH() / 2) { ri = i; lane = l; }
+  });
+  if (ri < 0) return null;
+  const cands = shapes.filter(s => s.visible && s.t.row === ri && s.lane === lane);
+  // HT-1: on a drawn shape, only that shape's task answers
+  const on = cands.find(s => x >= s.x && x < s.x + s.w);
+  if (on) return on;
+  // HT-4: among grab areas under the pointer, the nearest centre (so two areas split at their midpoint)
+  let best = null, bestD = Infinity;
+  for (const s of cands) {
+    if (x < s.hitX || x >= s.hitX + s.hitW) continue;
+    const d = Math.abs(x - s.cx);
+    if (d < bestD) { best = s; bestD = d; }
+  }
+  return best;
+}
+function showTip(s, cx, cy) {
+  const tip = $('tip');
+  if (!s) { tip.style.display = 'none'; return; }
+  const t = s.t;
+  tip.innerHTML = '<b>' + t.name + '</b><br>' + (t.ms ? dateOf(t.start) + '（マイルストーン）'
+    : dateOf(t.start) + ' 〜 ' + dateOf(t.start + t.days - 1) + '（' + t.days + ' 日）') +
+    (s.min ? '<br>最小幅で描いている（実際は ' + (t.days * S.dayPx).toFixed(2) + 'px）' : '');
+  tip.style.display = 'block';
+  tip.style.left = (cx + TIP_OFFSET_PX) + 'px';
+  tip.style.top = (cy + TIP_OFFSET_PX) + 'px';
+}
+function onMove(e) {
+  const b = $('stage').getBoundingClientRect();
+  const s = pickAt(e.clientX - b.left, e.clientY - b.top);
+  const id = s ? s.t.id : null;
+  document.body.dataset.picked = id || '';
+  $('status').textContent = s ? '応えた: ' + s.t.name + (s.min ? '（最小幅）' : '') : ' ';
+  showTip(s, e.clientX, e.clientY);
+  if (id !== picked) { picked = id; draw(); }
+}
+$('stage').addEventListener('pointermove', onMove);
+$('stage').addEventListener('pointerleave', () => { picked = null; document.body.dataset.picked = ''; showTip(null); $('status').textContent = ' '; draw(); });
+
+// ---------------------------------------------------------------- panel
+function refresh() {
+  S.dayPx = Number($('dayPx').value); S.minPx = Number($('minPx').value); S.hitPx = Number($('hitPx').value);
+  S.mode = $('mode').value; S.countNames = $('countNames').checked; S.showMarker = $('showMarker').checked; S.showHit = $('showHit').checked;
+  $('dayPxOut').textContent = S.dayPx + 'px'; $('minPxOut').textContent = S.minPx + 'px'; $('hitPxOut').textContent = S.hitPx + 'px';
+  picked = null;
+  layout(); draw(); summary();
+}
+function summary() {
+  const total = rowGeo.reduce((n, g) => n + g.h, 0);
+  $('rowsTable').innerHTML = '<tr><th>行</th><th>段の数</th><th>行の縦幅（px）</th><th>描いたタスク</th></tr>' +
+    ROWS.map((r, i) => `<tr><td>${r.name}</td><td>${rowGeo[i].lanes}</td><td>${rowGeo[i].h.toFixed(2)}</td>` +
+      `<td>${shapes.filter(s => s.t.row === i && s.visible).length} / ${r.items.length}</td></tr>`).join('') +
+    `<tr><th>合計</th><th>${rowGeo.reduce((n, g) => n + g.lanes, 0)}</th><th>${total.toFixed(2)}</th><th></th></tr>`;
+  const tasks = shapes.filter(s => !s.ms);
+  $('summary').textContent =
+    '描き方: ' + (S.mode === 'now' ? '今のアプリ（最小幅 ' + spx(MIN_SHAPE_WIDTH_DOC) + 'px、描いた幅 ' + spx(LOD_READABLE_DOC) + 'px 未満は描かない）'
+      : '案（最小幅 ' + S.minPx + 'px）') + '、名前を占有幅に ' + (S.countNames ? '数える' : '数えない') + '、進捗マーカー ' + (S.showMarker ? 'あり' : 'なし') +
+    '、掴む幅の下限 ' + S.hitPx + 'px\n' +
+    '1 日の幅 ' + S.dayPx + 'px（1 年 ＝ ' + (YEAR_DAYS * S.dayPx).toFixed(0) + 'px）。1 段 ＝ ' + laneExtent().toFixed(3) + ' ＋ 隙間 ' + laneGap().toFixed(3) +
+    ' ＝ ' + (laneExtent() + laneGap()).toFixed(3) + 'px。行の床 ' + BAND_FLOOR_PX + 'px（HF-19）\n' +
+    'タスク ' + tasks.length + ' 件のうち描いたもの ' + tasks.filter(s => s.visible).length + ' 件（最小幅 ' + tasks.filter(s => s.visible && s.min).length + ' 件）。名前の字 ' + labelFont().toFixed(2) + 'px';
+}
+for (const id of ['dayPx', 'minPx', 'hitPx']) $(id).addEventListener('input', refresh);
+for (const id of ['mode', 'countNames', 'showMarker', 'showHit']) $(id).addEventListener('change', refresh);
+
+// for the measuring probe
+window.__lod = {
+  rows: () => rowGeo.map((g, i) => ({ lanes: g.lanes, h: g.h, cys: Array.from({ length: g.lanes }, (_, l) => laneCy(i, l)) })),
+  chart: () => ({ left: TITLE_W, right: TITLE_W + YEAR_DAYS * S.dayPx + CHART_PAD_PX }),
+  tasks: () => shapes.map(s => ({ id: s.t.id, row: s.t.row, lane: s.lane, visible: s.visible, min: s.min, x: s.x, w: s.w, cx: s.cx, cy: s.visible ? laneCy(s.t.row, s.lane) : null })),
+};
+refresh();
+</script>
+</body>
+</html>
