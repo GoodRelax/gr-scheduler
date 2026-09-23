@@ -76,24 +76,23 @@ import {
 import {
   advanceScreenSession,
   emptyScreenSession,
+  type FileFlowImportAnswer,
+  type FileFlowOpenRoute,
+  type FileFlowOwedAction,
+  type FileFlowQuestion,
+  type FileFlowSurfaceName,
+  type FileFlowWriteForm,
+  type FileOperationState,
+  type GrabbedRowAxis,
+  type PressedOn,
   type PropertiesSubject,
   type ScreenSession,
   type ScreenValues,
   type ScreenValuesEvent,
   type SessionEffect,
   type SessionEvent,
+  type StandingNotice,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import type {
-  FileFlowImportAnswer,
-  FileFlowOpenRoute,
-  FileFlowOwedAction,
-  FileFlowQuestion,
-  FileFlowSurfaceName,
-  FileFlowWriteForm,
-  FileOperationState,
-} from '../../use-case/advance-screen-session/file-flow-values'
-import type { GrabbedRowAxis, PressedOn } from '../../use-case/advance-screen-session/gesture-values'
-import type { StandingNotice } from '../../use-case/advance-screen-session/notice-values'
 import {
   importDocument,
   type OpenChoice,
@@ -2262,7 +2261,7 @@ export function frameLoop(
   }
 
   // see WS-6, WS-7, T-286
-  // WHY: the delivery window is the notices region's state (SM-38); RS-23 comes back as TN-63's effect.
+  // WHY: the delivery window is changeDeliveryStateMachine.delivering; RS-23 returns from its exit.
   const audience: ChangeAudience = {
     /** @purity non-pure */
     deliver(document: Document, hasMovedSchedule: boolean): void {
@@ -2833,7 +2832,7 @@ export function frameLoop(
   }
 
   // see FR-076, NT-3, T-233, T-286
-  // WHY: the gathering of a repeated reason (NT-3) lives in TN-55 alone; the shell only sends EV-31.
+  // WHY: gathering a repeated reason (NT-3) lives in noticeDisplayStateMachine; the shell only sends.
   /** @purity non-pure */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
     sendToSession({ type: 'noticeRaised', reason, affectedCount }, null)
@@ -2841,7 +2840,7 @@ export function frameLoop(
   }
 
   // see NT-8, T-286
-  // WHY: the surface names the pressed telling by its dismiss key; the region takes the reason (EV-33).
+  // WHY: the surface names the pressed telling by its dismiss key; the region takes the reason.
   /** @purity non-pure */
   function dismissNoticeByKey(answered: string, frame: FrameValues): void {
     const told = raisedNoticesOf(session).find((one) => dismissKeyOf(one) === answered)
@@ -2849,8 +2848,8 @@ export function frameLoop(
   }
 
   // see NT-8, SK-19, T-283
-  // WHY: EV-32 goes before anything else the input carries (CR-440 decision 6): spendFieldCommit
-  // can raise a telling this key never saw, and the newest as of arrival is the one it dismisses.
+  // WHY: newestNoticeDismissAsked goes before anything else the input carries (CR-440 decision 6):
+  // spendFieldCommit can raise a telling this key never saw, and the newest as of arrival is the one it dismisses.
   /** @purity non-pure */
   function spendNoticeRungFirst(input: HumanInput, frame: FrameValues): boolean {
     const isStanding = standingNoticesIn(session).length > 0

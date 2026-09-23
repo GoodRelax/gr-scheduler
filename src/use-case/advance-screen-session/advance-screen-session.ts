@@ -63,6 +63,17 @@ import {
 import { unchanged, type Step } from './session-step'
 
 export type { ArmKind, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
+export type {
+  FileFlowImportAnswer,
+  FileFlowOpenRoute,
+  FileFlowOwedAction,
+  FileFlowQuestion,
+  FileFlowSurfaceName,
+  FileFlowWriteForm,
+  FileOperationState,
+} from './file-flow-values'
+export type { GrabbedRowAxis, PressedOn } from './gesture-values'
+export type { StandingNotice } from './notice-values'
 
 // see SF-8, PI-39
 export interface ScreenSession {

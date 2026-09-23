@@ -65,7 +65,8 @@ export type ReplaceOutcome =
     }
 
 // see WS-6, WS-7, T-286
-// WHY: the delivery window is the caller's session state (SM-38), handed in on WriteMoment (CR-440).
+// WHY: the delivery window is the caller's session state (changeDeliveryStateMachine.delivering),
+// handed in on WriteMoment (CR-440).
 /** @purity non-pure */
 function replaceThenTell(
   next: HeldDocument,
