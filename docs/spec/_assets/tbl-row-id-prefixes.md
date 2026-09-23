@@ -116,7 +116,7 @@
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
 | `LC` | Layout Calculation | レイアウトを求める計算の段 | 仕様書 | `T-068` | 11 |
-| `LF` | Layout Formula | レイアウトの算式の条 | 仕様書 | `T-221` | 14 |
+| `LF` | Layout Formula | レイアウトの算式の条 | 仕様書 | `T-221` | 15 |
 | `LM` | Limitation | 製品が引き受ける制限事項 | 仕様書 | `T-004` | 20 |
 | `LP` | Label Placement | 札（マーカー・名前・担当と進捗）の配置 | 仕様書 | `T-273` | 8 |
 | `LR` | Layer Rule | 層と層のあいだの依存の規則 | 仕様書 | `T-061` | 6 |
