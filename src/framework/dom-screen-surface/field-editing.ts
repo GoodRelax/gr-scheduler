@@ -13,6 +13,12 @@ const HOST_ESCAPE_KEY = 'Escape'
 
 const HOST_KEY_RELEASE = 'keyup'
 
+const HOST_DELETE_KEY = 'Delete'
+
+const HOST_BACKSPACE_KEY = 'Backspace'
+
+const HOST_DATE_INPUT_TYPE = 'date'
+
 export interface TextEntryControl {
   value: string
   blur?: () => void
@@ -173,6 +179,21 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     // so the ladder would spend a second level on one press.
     held.value = heldTextValueAtFocus
     isHeldTextTakenBack = true
+  })
+
+  // WHY: the host's date entry clears one segment per press, which leaves an invalid date that
+  // commits nothing; one press empties the whole field, which commits as an emptied field does.
+  /** @purity non-pure */
+  propertiesPanel.addEventListener('keydown', (event: Event) => {
+    const held = heldTextControl
+    if (held === null || (held as Partial<HTMLInputElement>).type !== HOST_DATE_INPUT_TYPE) return
+    const key = event as Partial<KeyboardEvent>
+    if (key.key !== HOST_DELETE_KEY && key.key !== HOST_BACKSPACE_KEY) return
+    if (key.ctrlKey === true || key.altKey === true || key.metaKey === true) return
+    if (typeof event.preventDefault === 'function') event.preventDefault()
+    held.value = ''
+    isHeldTextTakenBack = false
+    onFieldChange(event)
   })
 
   /** @purity non-pure */
