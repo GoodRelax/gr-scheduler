@@ -98,7 +98,7 @@ const SELECTION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
 
 const ROWS = ['group1', 'group2']
 const RESOURCES = [1, 2]
-const COPIED = { kind: 'task', uid: 3 }
+const COPIED = { kind: 'task', uids: [3] }
 
 const ROOT_VALUES: readonly Loose[] = [
   { chosenRows: [], chosenResources: [], copiedForPaste: null },

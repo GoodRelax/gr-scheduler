@@ -12,9 +12,10 @@ import {
 } from '../../entity/document-model/selection/selection'
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
+// see FR-033, SL-7b
 export interface SelectionCopiedTask {
   readonly kind: 'task'
-  readonly uid: number
+  readonly uids: readonly number[]
 }
 
 export interface SelectionCopiedRow {
@@ -262,7 +263,7 @@ function isSameList<T>(a: readonly T[], b: readonly T[]): boolean {
 /** @purity pure */
 function isSameCopy(a: SelectionCopied | null, b: SelectionCopied): boolean {
   if (a === null || a.kind !== b.kind) return false
-  if (a.kind === 'task') return a.uid === (b as SelectionCopiedTask).uid
+  if (a.kind === 'task') return isSameList(a.uids, (b as SelectionCopiedTask).uids)
   return a.groupId === (b as SelectionCopiedRow).groupId
 }
 

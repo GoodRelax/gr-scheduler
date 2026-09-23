@@ -114,7 +114,7 @@ const SAMPLE: Record<string, unknown> = {
   chosenRows: ['group1'],
   createdGroupId: 'group1',
   chosenResources: [1],
-  copiedForPaste: { kind: 'task', uid: 3 },
+  copiedForPaste: { kind: 'task', uids: [3] },
 }
 
 function sampleOf(ev: RawEvent): Loose {

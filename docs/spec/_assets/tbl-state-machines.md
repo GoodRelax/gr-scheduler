@@ -889,7 +889,7 @@ stateDiagram-v2
 
 ### 根 `selection` の値
 
-運ぶ値: `chosenRows`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある）。  
+運ぶ値: `chosenRows`（`FR-085`） ／ `chosenResources`（`FR-099` ・ `AS-6`） ／ `copiedForPaste`（`FR-033`。無いこともある。`Task` を写したときは、選ばれていた `Task` をすべて持つ）。  
 根拠: `FR-081` ・ `FR-085` ・ `FR-099` ・ `FR-033` ・ `UN-9`。
 
 | 出来事 | `selection` |

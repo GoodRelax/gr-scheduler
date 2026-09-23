@@ -1882,6 +1882,18 @@ function selectedObjectsIn(session: ScreenSession): Selection {
   return state.kind === 'objectsSelected' ? state.selectedObjects : NO_OBJECTS_SELECTED
 }
 
+type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
+
+// WHY: one chosen row is copied whatever Tasks are also selected; two rows or nothing copy
+// nothing (RS-27). see FR-033, SL-7b
+/** @purity pure */
+export function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied | null {
+  if (chosenRows.length === 1) return { kind: 'row', groupId: chosenRows[0] as string }
+  if (chosenRows.length > 1) return null
+  const uids = selected.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))
+  return uids.length === 0 ? null : { kind: 'task', uids }
+}
+
 /** @purity pure */
 function rowsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
   if (!isExtending) return [groupId]
@@ -4140,22 +4152,12 @@ export function frameLoop(
   // see SK-4, FR-033
   /** @purity non-pure */
   function copyForPaste(): void {
-    // STOP: spec does not decide copy when a row and a Task, or several, are chosen. Looked in FR-033, T-223, SL-1 (PND-449)
-    const chosenRows = session.selection.chosenRows
-    if (chosenRows.length === 1) {
-      const copiedForPaste = { kind: 'row', groupId: chosenRows[0] as string } as const
-      sendToSession({ type: 'copyTaken', copiedForPaste }, values)
+    const copiedForPaste = copiedForPasteOf(session.selection.chosenRows, selectedObjectsIn(session))
+    if (copiedForPaste === null) {
+      raiseNotice(NOTHING_TO_DO_REASON, null)
       return
     }
-    const chosenTaskUids = selectedObjectsIn(session).items.flatMap((one) =>
-      one.kind === 'task' ? [one.uid] : [],
-    )
-    if (chosenRows.length === 0 && chosenTaskUids.length === 1) {
-      const copiedForPaste = { kind: 'task', uid: chosenTaskUids[0] as number } as const
-      sendToSession({ type: 'copyTaken', copiedForPaste }, values)
-      return
-    }
-    raiseNotice(NOTHING_TO_DO_REASON, null)
+    sendToSession({ type: 'copyTaken', copiedForPaste }, values)
   }
 
   // see SK-5, FR-033
@@ -4193,20 +4195,19 @@ export function frameLoop(
   // see FR-033, DU-2
   /** @purity non-pure */
   function pasteCommandFor(
-    copied: { readonly kind: 'task'; readonly uid: number } | { readonly kind: 'row'; readonly groupId: string },
+    copied: SelectionCopied,
     schedule: Schedule,
   ): DocumentCommand | null {
     if (copied.kind === 'task') {
-      return taskByUid(schedule, copied.uid) === null
-        ? null
-        : { kind: 'pasteTaskSubtree', sourceUids: [copied.uid] }
+      const sourceUids = copied.uids.filter((uid) => taskByUid(schedule, uid) !== null)
+      return sourceUids.length === 0 ? null : { kind: 'pasteTaskSubtree', sourceUids }
     }
     const byParent = new Map<string | null, TaskGroup[]>()
     for (const row of schedule.taskGroups) {
       byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
     }
     if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
-    // STOP: spec does not decide a paste with several rows chosen. Looked in FR-033, T-223, CM-28 (PND-449)
+    // see FR-033
     const chosenRows = session.selection.chosenRows
     if (chosenRows.length > 1) return null
     const newGroupIds: Record<string, string> = {}
