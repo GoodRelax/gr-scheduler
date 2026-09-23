@@ -236,6 +236,8 @@ export interface FrameLoop {
   raiseStartupNotice(reason: StartupNoticeReason, affectedCount?: number | null): void
   /** @purity non-pure */
   fullScreenChanged(isFullScreen: boolean): void
+  /** @purity non-pure */
+  keyReleased(): void
 }
 
 // see FR-071, UF-48
@@ -1737,6 +1739,12 @@ function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): bool
   )
 }
 
+// see BO-1
+/** @purity pure */
+function settled(env: FrameEnvironment): boolean {
+  return env.width > 0 && env.height > 0
+}
+
 // see IN-1, IN-1a
 /** @purity pure */
 function hasEndedGesture(input: HumanInput): boolean {
@@ -2901,12 +2909,6 @@ export function frameLoop(
   function endEntryRepeat(): void {
     callOffEntryRepeat?.()
     callOffEntryRepeat = null
-  }
-
-  // see BO-1
-  /** @purity pure */
-  function settled(env: FrameEnvironment): boolean {
-    return env.width > 0 && env.height > 0
   }
 
   // see FR-076, NT-3, T-233, T-286
@@ -4753,6 +4755,10 @@ export function frameLoop(
       const before = session
       sendToSession({ type: 'fullScreenChanged', isFullScreen }, values)
       if (session !== before && settled(environment)) ask()
+    },
+    /** @purity non-pure */
+    keyReleased(): void {
+      if (settled(environment)) ask()
     },
   }
 }

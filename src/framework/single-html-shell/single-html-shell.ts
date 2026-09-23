@@ -93,6 +93,14 @@ function isPageFullScreen(): boolean {
   return (document.fullscreenElement ?? null) !== null
 }
 
+// see FT-6, FT-1, CV-9
+// WHY: Space presses a button on the key's release, so its click and change arrive after the frame keydown asked.
+/** @purity non-pure */
+function watchPageHappenings(loopOf: () => FrameLoop | null): void {
+  document.addEventListener('fullscreenchange', () => loopOf()?.fullScreenChanged(isPageFullScreen()))
+  window.addEventListener('keyup', () => loopOf()?.keyReleased())
+}
+
 /** @purity non-pure */
 function askFullScreenOf(call: (() => Promise<void> | undefined) | undefined): Promise<void> {
   if (typeof call !== 'function') return Promise.reject(new Error('the Fullscreen API is absent'))
@@ -477,8 +485,7 @@ function boot(): void {
 
   window.addEventListener('resize', () => loop?.resize(nowEnvironment()))
 
-  // see FT-6
-  document.addEventListener('fullscreenchange', () => loop?.fullScreenChanged(isPageFullScreen()))
+  watchPageHappenings(() => loop)
 
   // WHY: returnValue too, because older browsers of table T-003 gate the prompt on it.
   window.addEventListener('beforeunload', (event) => {

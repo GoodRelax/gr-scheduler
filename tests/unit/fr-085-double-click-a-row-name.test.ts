@@ -437,8 +437,8 @@ describe('FR-042 (MUST): the row s name is a field of the panel', () => {
     const built = stage()
     doubleClickRowName(built, ALPHA)
     const rows = built.panel()?.fields.map((one) => one.row) ?? []
-    expect(rows).toContain('AT-58')
-    expect(rows).toContain('AT-59')
+    expect(rows).toContain('PR-19')
+    expect(rows).toContain('PR-20')
   })
 })
 

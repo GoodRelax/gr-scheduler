@@ -622,22 +622,14 @@ function controlsOfCommentBoxItem(
 
 type TaskGroup = Schedule['taskGroups'][number]
 
-const ATTRIBUTE_ROW_BY_GROUP_COLUMN: Readonly<Record<string, string>> = {
-  label: 'AT-53',
-  color: 'AT-58',
-  height: 'AT-59',
-}
+const ROW_NAME_COLUMN = 'label'
+const ROW_NAME_FIELD_ROW = 'AT-53'
 
+// see IR-1, FR-085, FR-042
 /** @purity pure */
 function declaredRowOf(item: GroupPropertyItem): string {
   const [first] = item.columns
-  const row = first === undefined ? undefined : ATTRIBUTE_ROW_BY_GROUP_COLUMN[first]
-  if (row === undefined) {
-    throw new Error(
-      `table T-016 holds ${item.row}, and no row of table T-058 is named for what it edits`,
-    )
-  }
-  return row
+  return first === ROW_NAME_COLUMN ? ROW_NAME_FIELD_ROW : item.row
 }
 
 // see FR-042

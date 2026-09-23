@@ -1468,7 +1468,12 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
 
   it("⭐ MUST put every `TaskGroup` row on a picked row's panel, in the table's order", () => {
     const rows = rowPanel().fields.map((field) => field.row)
-    expect(rows).toEqual(T_016_ON_A_ROW.map((item) => attributeRowOf(item.columns)))
+    const noteOf = (row: string): string => specTable('T-016').rows.find((one) => one.id === row)?.by['備考'] ?? ''
+    const declared = (item: (typeof T_016_ON_A_ROW)[number]): string => {
+      const attribute = attributeRowOf(item.columns)
+      return noteOf(item.row).includes(attribute) ? attribute : item.row
+    }
+    expect(rows).toEqual(T_016_ON_A_ROW.map(declared))
   })
 
   it('⭐ carries the name the dictionary holds, not the GRS JSON column (DFC-185)', () => {

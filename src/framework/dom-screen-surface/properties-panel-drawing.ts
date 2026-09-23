@@ -350,7 +350,7 @@ function choiceSwatchBorder(): string {
 
 /** @purity pure */
 function swatchBox(side: string): string {
-  return `display:inline-block;box-sizing:border-box;width:${side};height:${side};vertical-align:middle;`
+  return `display:inline-block;box-sizing:border-box;flex:none;width:${side};height:${side};vertical-align:middle;`
 }
 
 // see CV-9, S-186
@@ -450,7 +450,17 @@ function hostColourInput(host: Document, row: string, control: PropertyControl, 
   custom.setAttribute('data-colour-custom', 'true')
   if (colour.customValue !== '') (custom as HTMLInputElement).value = colour.customValue
   CONTROL_KEYS.set(custom, { row, key: control.key })
+  letGoOnChange(custom)
   return custom
+}
+
+// WHY: the host input keeps the focus after its change; held, it stops the readout's redraw (CV-9).
+/** @purity non-pure */
+function letGoOnChange(entry: HTMLElement): void {
+  if (typeof entry.addEventListener !== 'function') return
+  entry.addEventListener(HOST_CHANGE, () => {
+    if (typeof entry.blur === 'function') entry.blur()
+  })
 }
 
 // see CV-9, IF-9
@@ -460,6 +470,7 @@ function hostColourInput(host: Document, row: string, control: PropertyControl, 
 function commitOnPress(entry: HTMLElement): void {
   if (typeof entry.addEventListener !== 'function') return
   entry.addEventListener(HOST_CLICK, () => {
+    openCustomColour.identity = null
     if (typeof entry.dispatchEvent === 'function') {
       entry.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
     }

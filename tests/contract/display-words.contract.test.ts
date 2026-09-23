@@ -1081,9 +1081,9 @@ const ON_A_COMMENT_BOX = 'CommentBox'
  * `fig-erd-detail.md` の `AT-53` である —— 表 T-023 の `MK-13` が名指すのはそちら
  * であり、本行はその値をパネルに出す項目のほうである」, and FR-085 (MUST) calls
  * the field by AT-53 of fig-erd-detail when it says where the double click puts the
- * focus. ⭐ So the field names the ATTRIBUTE row while the dictionary, the print
- * order and the 対象 are all keyed by the `PR-n` -- and this reads the join out
- * of table T-058 rather than typing the three row ids out here.
+ * focus. ⭐ So the name field names the ATTRIBUTE row (the others carry their
+ * `PR-n`, IR-1 of table T-263) -- and this reads the join out of table T-058
+ * and the 備考 that names it rather than typing the row ids out here.
  */
 const ENTITY_COLUMN = 'エンティティ'
 const COLUMN_COLUMN = '列'
@@ -1100,7 +1100,7 @@ const declaredRowOf = (rowId: string): string => {
   if (attribute === undefined) {
     throw new Error(`table T-058 has no row for ${ON_A_ROW}.${column}, which table T-016 ${rowId} edits`)
   }
-  return attribute.id
+  return (item.by['備考'] ?? '').includes(attribute.id) ? attribute.id : rowId
 }
 
 /**
