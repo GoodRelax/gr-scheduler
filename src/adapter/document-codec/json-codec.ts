@@ -997,7 +997,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['number'],
         },
         minShapeWidth: {
-          type: ['integer'],
+          type: ['number'],
         },
         percentCompleteVisible: {
           type: ['boolean'],
@@ -1158,9 +1158,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         starInnerOfOuter: {
           type: ['number'],
-        },
-        taskLevelOfDetailReadablePx: {
-          type: ['integer'],
         },
         themeMonochrome: {
           type: ['boolean'],

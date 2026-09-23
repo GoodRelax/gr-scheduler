@@ -257,4 +257,12 @@ RETIRED = {'FR-050', 'T-030',
            'PE-2', 'PE-4', 'PE-5', 'PE-9',
            'XS-11', 'XS-13', 'XS-14',
            'RF-2',
+           # CR-552 (2026-09-23, ruling JDG-399): a Task is no longer dropped
+           # for being narrow; it is drawn at max(its span, S-49 x the drawing
+           # ratio) and stacked by the lane assignment. L-2 (the task LOD row
+           # of table T-005a), S-86 (its threshold, taskLevelOfDetailReadablePx),
+           # DS-2 (the display-scale row that multiplied S-86) and K-55 (the
+           # key row of table T-104) left with it. rulings.md (JDG-399) and the
+           # change requests still name them, and the seats stay burnt.
+           'L-2', 'S-86', 'DS-2', 'K-55',
            'T-006'}

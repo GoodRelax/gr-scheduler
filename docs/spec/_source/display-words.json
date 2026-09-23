@@ -1642,13 +1642,6 @@
    }
   },
   {
-   "rowId": "K-55",
-   "label": {
-    "ja": "この幅を割った WBS の深さは描かない",
-    "en": "taskLevelOfDetailReadablePx"
-   }
-  },
-  {
    "rowId": "K-56",
    "label": {
     "ja": "グループ LOD の初項",

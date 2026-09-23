@@ -624,18 +624,6 @@ function shapeWidthOf(
   return Math.max(spanWidth, settings.minShapeWidth)
 }
 
-// see FR-018
-/** @purity pure */
-function keptByLevelOfDetail(
-  shapeKind: ShapeKind,
-  spanWidth: number,
-  shapeWidth: number,
-  settings: DocumentSettings,
-): boolean {
-  if (shapeKind === 'milestone' || spanWidth <= 0) return true
-  return shapeWidth >= settings.taskLevelOfDetailReadablePx
-}
-
 // see RV-1
 /** @purity pure */
 function actualSpanOf(
@@ -877,7 +865,6 @@ export function layoutFromSchedule(
         const oneDay = planEndsStandOnOneDay(task, reader)
         return { task, kind, glyph, span, oneDay, width: shapeWidthOf(span, kind, settings) }
       })
-      .filter(({ kind, span, width }) => keptByLevelOfDetail(kind, span, width, settings))
       .sort(
         (a, b) =>
           (a.task.start ?? '').localeCompare(b.task.start ?? '') ||

@@ -135,7 +135,6 @@ export interface DocumentSettings {
   readonly stackGap: number
   readonly stackSafetyCap: number
   readonly starInnerOfOuter: number
-  readonly taskLevelOfDetailReadablePx: number
   readonly themeMonochrome: boolean
   readonly themePreference: 'light' | 'dark'
   readonly thinArrowHeadHeight: number
@@ -208,7 +207,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'milestoneActualDuration': 0,
   'milestoneNameMarkerGap': 9.6,
   'milestoneNameStartOfWidth': 0.25,
-  'minShapeWidth': 6,
+  'minShapeWidth': 6.4,
   'percentCompleteVisible': false,
   'pinnedGroupIds': [],
   'pinnedRowMax': 5,
@@ -258,7 +257,6 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'stackGap': 1,
   'stackSafetyCap': 255,
   'starInnerOfOuter': 0.45,
-  'taskLevelOfDetailReadablePx': 24,
   'themeMonochrome': false,
   'themePreference': 'light',
   'thinArrowHeadHeight': 5.6,
@@ -404,7 +402,6 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
   'spanDotSize': { min: 0.5, max: 40 },
   'stackGap': { min: 1, max: 1 },
   'starInnerOfOuter': { min: 0.2, max: 0.8 },
-  'taskLevelOfDetailReadablePx': { max: 200, minExpression: [{ key: 'fontMin' }] },
   'thinArrowHeadHeight': { min: 0.5, max: 40 },
   'thinArrowHeadLength': { min: 0.5, max: 40 },
   'thinFontScale': { min: 0.3, max: 1 },

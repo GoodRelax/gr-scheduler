@@ -212,7 +212,6 @@
     "stackGap",
     "stackSafetyCap",
     "starInnerOfOuter",
-    "taskLevelOfDetailReadablePx",
     "themeMonochrome",
     "themePreference",
     "thinArrowHeadHeight",
@@ -536,7 +535,7 @@
      "maximum": 1
     },
     "minShapeWidth": {
-     "type": "integer",
+     "type": "number",
      "minimum": 1,
      "maximum": 20
     },
@@ -775,10 +774,6 @@
      "type": "number",
      "minimum": 0.2,
      "maximum": 0.8
-    },
-    "taskLevelOfDetailReadablePx": {
-     "type": "integer",
-     "maximum": 200
     },
     "themeMonochrome": {
      "type": "boolean"

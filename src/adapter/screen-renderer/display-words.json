@@ -1816,16 +1816,6 @@
    }
   },
   {
-   "rowId": "K-55",
-   "keys": [
-    "taskLevelOfDetailReadablePx"
-   ],
-   "label": {
-    "ja": "この幅を割った WBS の深さは描かない",
-    "en": "taskLevelOfDetailReadablePx"
-   }
-  },
-  {
    "rowId": "K-56",
    "keys": [
     "groupLevelOfDetailBase"

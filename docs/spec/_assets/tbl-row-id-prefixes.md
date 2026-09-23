@@ -71,14 +71,14 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 777 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 778 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |
 | `DN` | — | 作ってはならない依存の形 | 仕様書 | `T-018b` | 3 |
 | `DP` | Dependency | 依存の種別と、線を着ける位置 | 仕様書 | `T-018` | 4 |
 | `DR` | Document Root | 文書ルートに置く群と、その中身の条 | 仕様書 | `T-052` | 5 |
-| `DS` | Display Scale | 表示の倍率を何に掛け、何に掛けないか | 仕様書 | `T-252` | 10 |
+| `DS` | Display Scale | 表示の倍率を何に掛け、何に掛けないか | 仕様書 | `T-252` | 9 |
 | `DU` | Duplicate | 複製したときに一緒に複製されるものの条 | 仕様書 | `T-223` | 2 |
 | `DV` | Derived Value | 書き出すときに作る値（文書は持たず、書き出しで導く） | 仕様書 | `T-059` | 10 |
 | `ED` | — | 最後に編集した者として書く語 | 仕様書 | `T-229` | 3 |
@@ -112,9 +112,9 @@
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
 | `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 383 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
-| `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 123 |
+| `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 122 |
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
-| `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 3 |
+| `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
 | `LC` | Layout Calculation | レイアウトを求める計算の段 | 仕様書 | `T-068` | 11 |
 | `LF` | Layout Formula | レイアウトの算式の条 | 仕様書 | `T-221` | 14 |
 | `LM` | Limitation | 製品が引き受ける制限事項 | 仕様書 | `T-004` | 20 |
@@ -168,7 +168,7 @@
 | `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 57 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 5 |
-| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 329 |
+| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 328 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 4 |
 | `SE` | Scale Echo | 表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方 | 仕様書 | `T-260` | 5 |

@@ -240,7 +240,6 @@
 | K-52 | LOD | `rulerTierPxPerDayMonth` | 目盛が「年」から「年 ＋ 月」に変わる px/day |
 | K-53 | LOD | `rulerTierPxPerDayWeek` | 目盛が「年 ＋ 月」から「年 ＋ 月 ＋ 週」に変わる px/day |
 | K-54 | LOD | `rulerTierPxPerDayDay` | 目盛が「年 ＋ 月 ＋ 週」から「年 ＋ 月 ＋ 日 ＋ 曜日」に変わる px/day |
-| K-55 | LOD | `taskLevelOfDetailReadablePx` | この幅を割った WBS の深さは描かない |
 | K-56 | LOD | `groupLevelOfDetailBase` | グループ LOD の初項 |
 | K-57 | LOD | `groupLevelOfDetailRatio` | グループ LOD の公比 |
 | K-58 | LOD | `stackSafetyCap` | 積み順の安全弁 |

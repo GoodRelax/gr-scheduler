@@ -66,7 +66,7 @@ export function displayRatioOf(settings: DocumentSettings): number {
   return (held / 100) * NOT_STORED_DISPLAY_SCALE_BASE['S-236']
 }
 
-// TRAP: DS-1 to DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.
+// TRAP: DS-1, DS-3, DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.
 const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
@@ -77,7 +77,7 @@ const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
   'rowTitleFont', 'rowTitleIndent', 'planStroke', 'thinStrokeWidth',
   'thinArrowHeadLength', 'thinArrowHeadHeight', 'spanDotSize',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',
-  'taskLevelOfDetailReadablePx', 'rowTitlePanelWidth',
+  'rowTitlePanelWidth',
 ]
 
 // TRAP: S-243, not S-141: every entrance composed here sits on the Row Title Panel.
