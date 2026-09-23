@@ -423,9 +423,7 @@
 
 ⭐ 導いた条項ごとに、届いた行を `rulings.md` で引いた（規則 02 の 1）: 当たるのは `JDG-306`（他人の行には挿入できない。`CY-10`）、`JDG-307`（写しの `UID` は新しい。S-3 のまま）、`JDG-300` の Q16 ②（選んだタスクを全部写す。`CY-3`）、`PND-10`（`Cmd` を `Ctrl` と読む。決定 9）。覆す行は `MK-7` の読みだけで、それを記した `JDG` 行は無い（12 節）。
 
-### 6.2 `induced.py`（3 群）
-
-⚠️ この木には StrictDoc の書き出しが無く、本書の体は `check.sh` を打てない。⇒ `induced.py` を、本の checkout の `scratch/spec-check/sd-out/json/index.json`（2026-09-24 01:57 に刷られたもの）を読ませて走らせた（13 節の包み）。親子の関係は `ebc71984` と同じと見込んだ —— 当てる者は `check.sh` の後に走らせ直すこと。
+### 6.2 `induced.py`（3 群、`cbf5ba1a` で測った。check.sh の書き出し）
 
 | 種 | 解決 | 種の中の辺 | 閉路 | 扱い |
 |---|---|---|---|---|
@@ -588,11 +586,10 @@ done
 
 # graph
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py <ID>     # each ID of 6.1
-# induced.py needs scratch/spec-check/sd-out/json/index.json, which this worktree lacks; a scratchpad
-# wrapper (induced560.py) sets graph.SD_JSON to the main checkout's export and runs induced.py:
-python <scratchpad>/induced560.py MK-7 PTD-1 T-023a MK-8 SL-7 FR-016 FR-036 T-270   # -> 8/8, 11 edges, 0 cycles
-python <scratchpad>/induced560.py FR-033 CM-8 DU-1 T-223                             # -> 4/4, 4 edges, 1 cycle
-python <scratchpad>/induced560.py IN-2 T-269 FR-106 FR-040 S-208                     # -> 5/5, 6 edges, 1 cycle
+# induced.py, cbf5ba1a (check.sh's export, scratch/spec-check/sd-out/json/index.json):
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py MK-7 PTD-1 T-023a MK-8 SL-7 FR-016 FR-036 T-270   # -> 8/8, 11 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-033 CM-8 DU-1 T-223                             # -> 4/4, 4 edges, 1 cycle: CM-8/FR-033
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py IN-2 T-269 FR-106 FR-040 S-208                     # -> 5/5, 6 edges, 1 cycle: FR-106/IN-2
 
 # every old block of section 4 occurs exactly once in its file (J-05 excepted: CR-556 writes its anchor "DA")
 python <scratchpad>/check560.py        # parses the EDIT blocks of this file and counts each old in its file

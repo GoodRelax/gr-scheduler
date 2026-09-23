@@ -2,8 +2,7 @@
 
 > 起草の状態: 起草（2026-09-24 に 11 節の問い 3 つへ利用者が答えた。問い 4 は前に立つ者が決めた（D1）。4 節は PR-22 が着地した木で当てる）
 > 読んだ木: `61bbd572`（`refactor`。起草の途中で本 worktree が `ebc71984` から早送りされた。`CR-551` の仕様とコードは `6f674198` 〜 `7dbd292d` で着地済み。`7dbd292d` → `61bbd572` は変更要求の草案と台帳だけで、`docs/spec/` の原稿と `src/` は同じ）。⭐ 本書は `CR-551` 〜 `CR-554` の後に当たるので、**4 節の旧はすべて `61bbd572` の文で数えた**（`CR-551` が書いた文を旧に含む編集は、その旨を書いた）。9 節の `file:line` も `61bbd572` のものである。測り方は 13 節。
-> ⚠️ `PR-22`（`HighlightBox.strokeColor`、`CR-551` のセッションの `DFC-800` の直し）は `61bbd572` の `property-items.json` に**まだ無い**（項は `PR-1` 〜 `PR-21` の 19 個）。J-05 ・ J-06 ・ J-08 はそれが在る木に当てる（5 節の S-10）。
-> ⛔ **`PR-22` が着地したら（`CR-551` のセッションの続きの push）、本書の旧と行番号と数を測り直すこと。** 本書は `PR-22` を錨にしたままにする。
+> ⭐ `PR-22`（`HighlightBox.strokeColor`、`DFC-800` の直し）は `c32b13d7` で着地した（`property-items.json` の末尾、`appliesTo: "HighlightBox"`。`property-items.schema.json` の `appliesTo` も `HighlightBox` を持つ ⇒ J-08 は当てることが無い）。J-05 ・ J-06 はそれを錨にする。⛔ 当てる直前に、本書の旧と行番号と数を測り直すこと。
 >
 > **閉じるもの**: 利用者の 2026-09-23 の指示 2 通（`JDG-455` ・ `JDG-456`。逐語は 0.1 節）と、2026-09-24 の 11 節の問い 3 つへの答え（`JDG-457` 〜 `JDG-459`）。欠陥 `DFC-866` 〜 `DFC-869`（12 節）。
 > ⛔ **覆すもの**: `FR-019` の RATIONALE の「枠線が唯一の表現なので、透明にすると何も残らない」（理由だけ。枠に透明を選ばせない MUST NOT は残す）。⭐ `JDG-231`（本体は枠線の近くだけ、内側は素通し）・`JDG-248`（枠の掴み代 3px・隅 6px）・`JDG-249` は**覆さない** —— 本書は `JDG-248` の「角が6」を辺の中点へ広げ、枠の掴み代を描いた太さの外側から測るだけである（決定 2 ・ 決定 6）。
@@ -79,11 +78,11 @@
 | 2 枠を引いて動かす | 表 T-246 の `HB-12`（新）、表 T-269 の `PK-11`（新）、`FR-106` の 1 文 | E-08 ・ E-11 ・ E-12 ・ E-13 | ⚠️ 同上 | `HB-12` の 1 行 ／ `PK-11` の 1 行 |
 | 2' ポインタの形 | 表 T-269 の `PK-11` 〜 `PK-15`（新）、表 T-246 の `HB-8` 〜 `HB-12` の「ポインタは」の句 | E-11 ・ E-12 ・ E-13 | ⚠️ 同上 | その行の句 1 つ |
 | 3a 線の太さ | `FR-019` の RATIONALE、`AT-145`（新）、`S-369`（新、表 T-217）、`PR-23`（新）、`CM-77`（新） | E-15 ・ E-17 ・ E-19 ・ J-03 ・ J-04 ・ J-05 ・ J-06 | 触らない | `S-369` の既定・下限・上限 |
-| 3b 塗りと透過率 | `FR-019` の RATIONALE、`CV-1`（`CV-6` は参照だけ —— 凍結、2026-09-24）、表 T-020 の `ZO-14`（新）、`AT-146` ・ `AT-147`（新）、`S-370` ・ `S-371`（新）、`PR-24` ・ `PR-25`（新）、`CM-78` ・ `CM-79`（新）、表 T-274 の `PP-7` | E-02 ・ E-04 ・ E-14 〜 E-16 ・ E-19 ・ J-03 〜 J-06 | 触らない | 塗りの位置: `ZO-14` の順の 1 セル ／ 既定: `S-370` ・ `S-371` の値 |
+| 3b 塗りと透過率 | `FR-019` の RATIONALE、`CV-1`（`CR-564` の後の `CV-6` ・ `CV-10` は参照だけ）、表 T-020 の `ZO-14`（新）、`AT-146` ・ `AT-147`（新）、`S-370` ・ `S-371`（新）、`PR-24` ・ `PR-25`（新）、`CM-78` ・ `CM-79`（新）、表 T-274 の `PP-7` | E-02 ・ E-04 ・ E-14 〜 E-16 ・ E-19 ・ J-03 〜 J-06 | 触らない | 塗りの位置: `ZO-14` の順の 1 セル ／ 既定: `S-370` ・ `S-371` の値 |
 | 3c 古い文書 | `05-07-design.md` の読み込みの段（`T-297` の後）、`FR-006` の 1 文 | E-03 ・ E-18 | 触らない | 1 段 |
 | 3d 線色 | —（`CR-551` の `PR-22`） | なし | — | — |
 
-**数**: 仕様の文の編集 18（E-01 〜 E-19。E-05 は欠番 —— `CV-6` の凍結）、原稿 JSON の編集 8（J-01 〜 J-08。J-08 は条件つき）。
+**数**: 仕様の文の編集 18（E-01 〜 E-19。E-05 は欠番 —— `CV-6` を書かずに E-15 の 1 文が指す形にした）、原稿 JSON の編集 8（J-01 〜 J-08。J-08 は条件つき）。
 
 ---
 
@@ -122,7 +121,7 @@
 
 ⭐ 消す行は 0（表の行を 1 つも退役させない）。
 
-⛔ **参照だけ（凍結、2026-09-24）**: 表 T-017b の `CV-6`（パレット色とカスタムカラーの描く値の選び方）—— 見本を使う別のセッションまで、本書は文を書かず、今の字句にも頼らない。E-15 の 1 文が行 ID で指すだけである。
+⭐ **参照だけ**: 表 T-017b の `CV-3` ・ `CV-6` ・ `CV-10`（`CR-564` の後の文）—— 本書は文を書かない。E-15 の 1 文が行 ID で指す。
 
 ---
 
@@ -176,7 +175,7 @@
 列の形は `_assets/fig-erd-detail.md` の `AT-58` ・ `AT-102` ・ `AT-103` ・ `AT-121` ・ `AT-146` が持つ |
 ```
 
-⛔ E-05 は欠番 —— 表 T-017b の `CV-6` は、見本を使う別のセッションまで凍結されている（調整役、2026-09-24）。`CV-6` の文は書き替えず、塗りの描き方は E-15 の 1 文が `CV-6` を行 ID で指すだけにした。
+⭐ E-05 は欠番 —— 表 T-017b の `CV-6` の文は書き替えず、塗りの描き方は E-15 の 1 文が `CV-6` ・ `CV-10` を行 ID で指すだけにした（`CR-564` が `CV-6` を書き直し、`CV-10` を立てた。番号は前に立つ者が後で詰める）。
 
 <!-- EDIT id=E-06 file=docs/spec/01-04-requirements.md -->
 項目 1。旧
@@ -338,7 +337,7 @@
 ⭐ その固定色は `_assets/tbl-settings.md` の 表 T-236 の `S-312` である。  
 ⭐ ハイライトボックスの線の太さと塗り（色と透過率）も指定できること（MUST） —— 列は `_assets/fig-erd-detail.md` の `AT-145` 〜 `AT-147`、既定と範囲は `_assets/tbl-settings.md` の 表 T-217 の `S-369` 〜 `S-371`、入口は `_assets/tbl-property-items.md` の 表 T-016 の `PR-23` 〜 `PR-25` が持つ。  
 ⭐ 3 つの列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST） —— 既定の 1 行を替えれば、値を置いていない箱がすべて追随する。  
-⭐ `HighlightBox.fillColor`（`AT-146`）は、描いた箱の内側を、選んだ名が `_assets/tbl-settings.md` の 表 T-294 に持つ塗りの値で、不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST） —— 描く値の選び方は 表 T-017b の `CV-6` に従い、`AT-147` は透過率（0 は不透明、100 は透明）である。  
+⭐ `HighlightBox.fillColor`（`AT-146`）は、描いた箱の内側を、パレット色なら `_assets/tbl-settings.md` の 表 T-294 がその名に持つ塗りの値で、カスタムカラーなら 表 T-017b の `CV-3` で決まった値そのもので、不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST） —— 描く値の選び方は同表の `CV-6` に従い、`CV-10` の導出は実績バーの塗りだけに当たるのでここには当てない。`AT-147` は透過率（0 は不透明、100 は透明）である。  
 塗りの色が透明の箱は塗らない（`S-370` の既定は透明である）。  
 ⭐ 塗りは `FR-110` の 表 T-020 の `ZO-14` に描くこと（MUST） —— バーと字より手前に色を重ねると、表 T-017a の `CT-1` 〜 `CT-5` を測った組が崩れる。  
 ⭐ 表 T-217 の数値の列（`AT-122` ・ `AT-145` ・ `AT-147`）が同表の下限と上限の外の値を持つ文書を読んだときは、範囲へ寄せて描き、文書を書き換えないこと（MUST） —— 1 つの見せ方の値のために文書を拒めば、ほかの値まで読めなくなる（`05-07-design.md` が `documentSettings` について述べる寛さと同じである）。  
@@ -658,7 +657,7 @@ J-08（条件つき）`property-items.schema.json` の `appliesTo` の `enum` �
 | 表 T-206 の `GR-14` の値（`S-230` ・ `S-293` ・ `S-291` ・ `S-292`） | `S-230` の名と注（J-01）、`S-293` の直後に `S-372` ・ `S-373`（J-02） | `S-291` ・ `S-292` を書き替えても重ならない。`S-293` の直後に行を足すなら、`S-373` の後に置く |
 | 表 T-269（`PK-`）と `PP-6` | `PK-11` 〜 `PK-15`（E-13）、`PP-6` に 5 つ（E-01） | ⭐ 箱を動かす形が要るなら `PK-11`（`move`）を使い、同じ形の行を足さない。足すなら `PP-6` の末尾（`PK-15` の後）に書き足す |
 | 表 T-020（`ZO-`）と `PP-7` | `ZO-14` を順 2 に入れ、順の欄を 1 つずつ下げる（E-14）。`PP-7` に `ZO-14`（E-01） | 行を足すなら、本書の後の順（1 〜 14）から数える |
-| 表 T-017b の `CV-1`（と、参照だけの `CV-6`） | `CV-1` に `AT-146`（E-04）。⛔ `CV-6` は凍結（2026-09-24）で本書は書かない —— 塗りの描き方は `FR-019` の RATIONALE の 1 文（E-15。下の 5.2 節）が `CV-6` を行 ID で指す | ⚠️ `CR-559` の E-02 は本書の旧 E-05 の句を旧にしていた —— その錨は無くなった。`CV-6` を書かずに、自分の `FR-019` の段で同じ形の 1 文を立てる（5.2 節の逐語） |
+| 表 T-017b の `CV-1`（と、参照だけの `CV-6` ・ `CV-10`） | `CV-1` に `AT-146`（E-04）。`CR-564` の後の `CV-6` は書かない —— 塗りの描き方は `FR-019` の RATIONALE の 1 文（E-15。下の 5.2 節）が `CV-6` ・ `CV-10` を行 ID で指す | ⚠️ `CR-559` の E-02 は本書の旧 E-05 の句を旧にしていた —— その錨は無い。`CV-6` を書かずに、自分の `FR-019` の段で同じ形の 1 文を立てる（5.2 節の逐語） |
 | `FR-019` の RATIONALE | `:4815-4816`（E-15）・ `:4819`（E-16）・ `:4838`（E-17） | コメントボックスの引出し線の色の段（`:4826-4827`「線は注記の色で描くこと」「新しい設定値を立ててはならない」）は本書が触らない |
 | 表 T-016 ・ `property-items.json` ・ `display-words.json` の `properties` | `PR-23` 〜 `PR-25`（`HighlightBox`） | `CommentBox` の行は `PR-21` の後、`PR-23` より前に置くと対象ごとに固まる |
 | `erd.json` | `HighlightBox` の座 145 〜 147 | `CommentBox` の列は `CR-559` の `AT-148` 〜 `AT-152`。本書と重ならない |
@@ -668,7 +667,7 @@ J-08（条件つき）`property-items.schema.json` の `appliesTo` の `enum` �
 | `schedule-overlays.ts` の 2 つの `for`（`:196-240`） | ハイライトボックスの `for`（`:196-211`）と、塗りの `fillParts` | `CR-559` の 1d はコメントボックスの `for`（`:213-240`）。隣り合うので、本書の着地の上で数え直す（`CR-559` の 8 節が既にそう書いている） |
 | `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts:28-30` | `CLAIMED_ROWS` 87 → 93、`CLAIMED_COVERED` 83 → 89 | 本書の後の数から足す |
 
-### 5.2 ⭐ `CR-559` へ渡す逐語（`CV-6` の凍結による、2026-09-24）
+### 5.2 ⭐ `CR-559` へ渡す逐語（塗りの描き方の 1 文）
 
 本書の E-15 は `01-04-requirements.md` の `FR-019` の RATIONALE の 2 行（旧）
 
@@ -681,10 +680,10 @@ J-08（条件つき）`property-items.schema.json` の `appliesTo` の `enum` �
 
 ```text
 ⭐ 3 つの列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST） —— 既定の 1 行を替えれば、値を置いていない箱がすべて追随する。  
-⭐ `HighlightBox.fillColor`（`AT-146`）は、描いた箱の内側を、選んだ名が `_assets/tbl-settings.md` の 表 T-294 に持つ塗りの値で、不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST） —— 描く値の選び方は 表 T-017b の `CV-6` に従い、`AT-147` は透過率（0 は不透明、100 は透明）である。  
+⭐ `HighlightBox.fillColor`（`AT-146`）は、描いた箱の内側を、パレット色なら `_assets/tbl-settings.md` の 表 T-294 がその名に持つ塗りの値で、カスタムカラーなら 表 T-017b の `CV-3` で決まった値そのもので、不透明度を 1 − `AT-147` ÷ 100 として塗ること（MUST） —— 描く値の選び方は同表の `CV-6` に従い、`CV-10` の導出は実績バーの塗りだけに当たるのでここには当てない。`AT-147` は透過率（0 は不透明、100 は透明）である。  
 ```
 
-⛔ `CR-559` は、この文を旧にしない（本書の着地の前後で字句が変わりうる）。コメントボックスの塗りは、`CR-559` 自身の `FR-019` の段（表 T-308 の近く）に、同じ形の 1 文（主語を `CommentBox.fillColor` にし、「描く値の選び方は 表 T-017b の `CV-6` に従い」を含める）を立てる。
+⛔ `CR-559` は、この文を旧にしない（本書の着地の前後で字句が変わりうる）。コメントボックスの塗りは、`CR-559` 自身の `FR-019` の段（表 T-308 の近く）に、同じ形の 1 文（主語を `CommentBox.fillColor` にし、「描く値の選び方は同表の `CV-6` に従い、`CV-10` の導出は実績バーの塗りだけに当たるのでここには当てない」を含める）を立てる。
 
 ---
 
@@ -702,7 +701,7 @@ J-08（条件つき）`property-items.schema.json` の `appliesTo` の `enum` �
 | `FR-106` | 2 / 6 | `FR-040` ・ `FR-046`（`CR-551` が足した基準日線のポインタの文） |
 | `IN-2` | 2 / 3 | `FR-101` ・ `FR-106` —— `IN-2` の「掴み代の上は 表 T-269 の形」は、本書で `GR-14` にも当たるようになる（`DFC-866` の直し）。文は変えない |
 | `FR-019` | 7 / 30 | `FR-001` ・ `FR-007` ・ `FR-016` ・ `FR-033` ・ `FR-041` ・ `FR-076` ・ `UC-008`。`FR-007` の「塗りと輪郭を同時に透明にすることを許してはならない」は、枠が透明を取らないので満たされる |
-| `CV-6`（参照だけ。凍結、2026-09-24） | 1 / 5 | `FR-007`。⛔ 本書は `CV-6` の文を書かず、その今の字句にも頼らない —— E-15 の 1 文が行 ID で指すだけ |
+| `CV-6` ・ `CV-10`（`CR-564` の後。参照だけ） | 1 / 5 ・ — | `FR-007`。本書は 2 つの文を書かない —— E-15 の 1 文が行 ID で指すだけ。⭐ 新しい `CV-6` は、カスタムカラーを実績バーの塗りのほかはすべて `CV-3` の値のまま使い、実績バーの塗りだけを `CV-10` で導くと定める ⇒ E-15 の 1 文と食い違わない |
 | `AT-121` | 1 / 1 | `FR-007` |
 | `FR-006` | 5 / 25 | `FR-011` ・ `FR-029` ・ `FR-040` ・ `FR-043` ・ `FR-099` —— E-03 の例外は `HighlightBox` の 3 列だけに掛かる |
 | `SL-8` | 3 / 12 | `FR-081` ・ `FR-082` ・ `FR-083`。`SL-8` は書き直さない（掴み点は選択の手掛かりではない —— 表 T-023d の結び、E-09） |
@@ -713,16 +712,14 @@ J-08（条件つき）`property-items.schema.json` の `appliesTo` の `enum` �
 
 ⭐ 導いた条項ごとに、届いた行を `rulings.md` で引いた（規則 02 の 1、handoff.md 0.2 の 3 段）: 当たるのは `JDG-231`（本体は枠の近くだけ —— 覆さない。決定 8）、`JDG-248`（線が 3、角が 6 —— 覆さない。辺の中点へ広げる。決定 2）、`JDG-249`（コメントボックス —— 当たらない）、`JDG-382`（色の行は末尾 —— 決定 15）、`JDG-383` ・ `JDG-405`（色の欄の形 —— 決定 10）、`JDG-397`（宿主の色の入力は [任意] のときだけ —— 変えない）、`JDG-399`（掴み代に特別な規則を足さない —— 決定 2 の導き）。「掴み」「ハイライトボックス」「透過」「塗り」の語で `rulings.md` を引き、ほかに当たる行は無かった（13 節）。
 
-### 6.2 `induced.py`（4 群）
+### 6.2 `induced.py`（4 群、`cbf5ba1a` で測った。check.sh の書き出し）
 
 | 種 | 解決 | 種の中の辺 | 閉路 | 扱い |
 |---|---|---|---|---|
 | `FR-016 GR-14 S-230 S-293 T-246 HB-4 HB-5 HB-6 CM-54 HT-1` | 10/10 | 18 | 1: `CM-54` `FR-016` `HB-4` `HB-5` `HB-6` | ⭐ `FR-016` の結び（E-07 〜 E-09）と 表 T-246（E-10 ・ E-11）を 1 つの計画で書いた。`HB-4` 〜 `HB-6` ・ `CM-54` の中身は書き直さない |
 | `FR-106 T-269 IN-2 PP-6 T-274 FR-104` | 6/6 | 6 | 1: `FR-106` `IN-2` | `IN-2` は書き直さない（E-12 は `FR-106` の中の 1 文） |
-| `FR-019 FR-007 CV-6 CV-9 AT-121 S-312 T-217 S-132 FR-006 T-016` | 10/10 | 10 | 1: `FR-019` `S-312` | `S-312` は書き直さない。`CV-6` は参照だけ（凍結）—— 種に残したのは、E-15 の 1 文が指すため |
+| `FR-019 FR-007 CV-6 CV-9 CV-10 CV-3 AT-121 S-312 T-217 S-132 FR-006 T-016` | 12/12 | 15 | 1: `FR-019` `S-312` | `S-312` は書き直さない。`CV-3` ・ `CV-6` ・ `CV-10` は参照だけ（E-15 の 1 文が指す）。⚠️ 本行は `c32b13d7`（`CR-564` の後）で測り直した。`CV-10` ・ `CV-3` を足す前の 10 種では 10/10 ・ 辺 10 ・ 閉路 1（同じ） |
 | `FR-110 T-020 ZO-8 ZO-10 PP-7 SL-8 FR-081` | 7/7 | 5 | 0 | — |
-
-⚠️ `induced.py` は `check.sh` が作る strictdoc の書き出しを読む。本書の体は `check.sh` を打たないので、道具を scratchpad へ写し、木の根（`refactor`、`7dbd292d`）に残っていた書き出しを読ませた（13 節）。書き出しが運ぶのは要求の `Parent` の辺だけで、本書の種の辺は md から読む。
 
 ---
 
@@ -796,7 +793,7 @@ wave 3  tests by a spec-only tester (never the implementer), then check.sh + vit
 ## 10. ⛔ この変更でやらないこと
 
 - **線色の欄** —— `CR-551` のセッションの `PR-22`（`DFC-800`）。
-- **表 T-017b の `CV-6`** —— 触らない（凍結、2026-09-24。カスタムカラーの実績の濃さの式が `#2a9d8f` を黒にする件を、見本を使う別のセッションが扱う）。⚠️ そのセッションが `CV-6` を変えたら、当てる者は E-15 の 1 文（`HighlightBox.fillColor` の塗り方）を読み直し、なお真かを確かめること。
+- **表 T-017b の `CV-6` ・ `CV-10`**（`CR-564` の後の文）—— 書かない。塗りの描き方は E-15 の 1 文が行 ID で指すだけである。
 - **コメントボックスの見た目と掴み方** —— 兄弟の `CR-559`。`schedule-overlays.ts:217` ・ `:223` のコメントボックスの `stroke-width="1"` も同じく `CR-559` の持ち場である（`DFC-867` の後半）。
 - **角の丸みのパネルの行**（決定 19）、**線の種類**（破線など。逐語に無い）。
 - **ダブルクリックでハイライトボックスのパネルを出すこと**（表 T-023 の `MK-13` は今コメントボックスとタスクと行見出しだけを持つ）。
@@ -864,10 +861,15 @@ grep -c '"highlightBoxes": \[\]' sample-schedule/*.json src/framework/single-htm
 
 # graph
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py <ID>          # each ID of 6.1
-# induced.py needs check.sh's strictdoc export; it was copied with graph.py, specindex.py and retired.py
-# to <scratchpad>/sgc558/, graph.py's REPO pointed at this worktree and SD_JSON at the root checkout's
-# scratch/spec-check/sd-out/json/index.json (Parent relations only), then run from the worktree:
-PYTHONIOENCODING=utf-8 python <scratchpad>/sgc558/induced.py <seeds>                  # each row of 6.2
+# induced.py, cbf5ba1a (check.sh's export, scratch/spec-check/sd-out/json/index.json):
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-016 GR-14 S-230 S-293 T-246 HB-4 HB-5 HB-6 CM-54 HT-1
+#   -> 10/10, 18 edges, 1 cycle: CM-54/FR-016/HB-4/HB-5/HB-6
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-106 T-269 IN-2 PP-6 T-274 FR-104
+#   -> 6/6, 6 edges, 1 cycle: FR-106/IN-2
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-019 FR-007 CV-6 CV-9 AT-121 S-312 T-217 S-132 FR-006 T-016
+#   -> 10/10, 10 edges, 1 cycle: FR-019/S-312
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-110 T-020 ZO-8 ZO-10 PP-7 SL-8 FR-081
+#   -> 7/7, 5 edges, 0 cycles
 
 # rulings searched before calling anything "needs a ruling"
 grep -n "ハイライトボックス\|掴み代\|掴み点\|透過\|塗り" docs/development-records/rulings.md
@@ -875,7 +877,7 @@ grep -n "ハイライトボックス\|掴み代\|掴み点\|透過\|塗り" docs
 
 # every old block of section 4.1 occurs exactly once in its file, and all 19 apply in order to a COPY:
 #   <scratchpad>/check558.py (parses the EDIT blocks of this file)
-#   -> on a copy of HEAD b7a3b76f (git archive b7a3b76f docs/spec): problems 0 edits 18 (E-05 is a gap)
+#   -> on a copy of HEAD c32b13d7 (git archive c32b13d7 docs/spec): problems 0 edits 18 (E-05 is a gap)
 # every JSON edit of section 4.2 applied to COPIES of the six manuscripts (a stand-in PR-22 for J-05),
 #   loaded with json.loads and validated with jsonschema against the hand-written schemas:
 #   <scratchpad>/check558json.py

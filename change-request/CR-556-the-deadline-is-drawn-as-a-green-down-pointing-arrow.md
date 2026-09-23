@@ -411,9 +411,7 @@ J-03（接頭辞）`row-id-prefixes.json` —— 字の順の位置、`CV` の�
 
 ⭐ 導いた条項ごとに、届いた行を `rulings.md` で引いた（規則 02 の 1、handoff.md 0.2 の 3 段）: `期限` ・ `deadline` の語で 2 行 —— `JDG-282`（無関係）と `JDG-395`（期限の欄を空で確定すると `null`。本書の `DA-1` の「`null` なら描かない」と噛み合う）。`JDG-370`（マーカーの既定を隠す）が決定 7 の根拠の 1 つ。`JDG-383` ・ `JDG-397` ・ `JDG-405`（色の欄）は決定 14 で当たらないと判じた。緑・矢印・印の語で当たる裁定は、ほかに無い。
 
-### 6.2 `induced.py`（6 群）
-
-⚠️ この作業木では `check.sh` を打てない（共通の依頼文）ので、`induced.py` を、作業木の原稿と、根の checkout が持つ StrictDoc の書き出し（`scratch/spec-check/sd-out/json/index.json`、`7dbd292d`）で走らせた（13 節）。Parent の関係は本書の触る要求で `ebc71984` と変わらない。
+### 6.2 `induced.py`（6 群、`cbf5ba1a` で測った。check.sh の書き出し）
 
 | 種 | 解決 | 種の中の辺 | 閉路 | 扱い |
 |---|---|---|---|---|
@@ -561,9 +559,19 @@ grep -c "<Deadline>" sample-schedule/*.xml
 
 # graph
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py <ID>      # each ID of 6.1
-# induced.py needs the StrictDoc export, which check.sh writes and this worktree may not run;
-# a scratchpad wrapper imports graph.py, points G.SD_JSON at the root checkout's export
-# (scratch/spec-check/sd-out/json/index.json, 7dbd292d) and calls induced.main() per group of 6.2
+# induced.py, cbf5ba1a (check.sh's export, scratch/spec-check/sd-out/json/index.json):
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-045 OC-9 T-038 FR-003 FR-055
+#   -> 5/5, 5 edges, 1 cycle: FR-003/FR-055
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py T-020 ZO-8 ZO-3 FR-110 T-274 PP-7
+#   -> 6/6, 4 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py T-076 EP-5 FR-080 T-041 WY-3
+#   -> 5/5, 5 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py T-023a FR-015 FR-092 EZ-6 T-267
+#   -> 5/5, 0 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-094 S-22 S-34 T-271 XS-3 XS-4 XS-8 FR-109
+#   -> 8/8, 7 edges, 1 cycle: FR-094/S-22
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py T-236 S-146 S-152 FR-041 FR-030
+#   -> 5/5, 1 edge, 0 cycles
 
 # contrast (scratchpad cr556_contrast.py): WCAG 2.1 relative luminance of the #rrggbb / hsl() values,
 # theme hue 214, ratio = (L1 + 0.05) / (L2 + 0.05)

@@ -347,7 +347,7 @@ writing 214 here would copy S-73's value into every row whose hue column says it
 
 ---
 
-## 6. グラフ（6.1 は `61bbd572` で測り直した。6.2 は `ebc71984` のまま）
+## 6. グラフ（6.1 は `61bbd572` で測り直した。6.2 は `cbf5ba1a` で測った）
 
 ### 6.1 `impact.py` —— 触る行ごとの届く先（要求 / 参照。`61bbd572`、2026-09-24）
 
@@ -365,9 +365,7 @@ writing 214 here would copy S-73's value into every row whose hue column says it
 
 ⭐ 導いた条項ごとに、届いた行を `rulings.md` と `pending-decisions.md` で引いた（handoff の 0.2 の 3 段: 台帳を grep → 隣を `impact.py` → ほかの道は無いか）: 当たるのは `PND-434`（本書が置き場を覆す）と `PND-433`（基本情報の面。本書は触らない —— 10 節）、`DFC-350`（入口の無い命令 15 種。本書で `setThemeHue` が 1 つ減る）、`JDG-382`（色の行を末尾へ —— 決定 2 で本面には当てない）、`JDG-383` ・ `JDG-397`（色の欄の並べ方と、宿主の色の入力は [任意] のときだけ —— 本書の欄は [任意] を持たないので宿主の色の入力も出ない）。`JDG-405`（`rulings.md:654`、2026-09-24。色の欄の 2 段目を [任意] [透明] [テーマ] とし、[テーマ] で追随へ戻す。`CV-9` に着地済み —— `01-04-requirements.md:1957`）—— 本書の欄は 3 つとも持たない（E-01 の MUST NOT。色相の欄に「追随へ戻す」先は無い —— 色相そのものがテーマである）。⚠️ 初稿は `ebc71984` で `JDG-405` を見つけられなかった（`CR-551` の着地より前だった）。「テーマの色相」「色相を選」「`themeHue`」を `rulings.md` で引くと 0 件 —— 利用者の裁定は `PND-434` の 1 つだけである。
 
-### 6.2 `induced.py`（4 群）
-
-⚠️ 6.2 は `ebc71984` で測ったまま走らせ直していない —— `induced.py` は `check.sh` の書き出す StrictDoc の JSON を要る。本書は `check.sh` を打たない約束なので、根の checkout の `scratch/spec-check/sd-out/json/index.json`（2026-09-24 01:57 の書き出し）を読むだけの包みで走らせた（13 節）。親子の関係は `ebc71984` と同じ見込みだが、当てる前に `check.sh` の後で走らせ直すこと。
+### 6.2 `induced.py`（4 群、`cbf5ba1a` で測った。check.sh の書き出し）
 
 | 種 | 解決 | 種の中の辺 | 閉路 | 扱い |
 |---|---|---|---|---|
@@ -534,9 +532,15 @@ grep -n "themeHue" src/framework/single-html-shell/frame-loop.ts src/framework/s
 
 # graph
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py <ID>        # each ID of 6.1
-#   induced.py needs scratch/spec-check/sd-out/json/index.json, which only check.sh writes;
-#   run through a read-only wrapper that points graph.SD_JSON at the root checkout's export
-#   (scratchpad cr557/induced_wrap.py) -> the four rows of 6.2, 0 cycles each
+# induced.py, cbf5ba1a (check.sh's export, scratch/spec-check/sd-out/json/index.json):
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-041 FR-072 IC-17 CM-5 K-60 S-73 DR-5 UN-13
+#   -> 8/8, 5 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-041 FR-007 T-017a CT-3 CT-4 LM-18 NFR-007 S-151 T-236
+#   -> 9/9, 10 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-072 FR-006 T-016 T-104 K-60 FR-038
+#   -> 6/6, 4 edges, 0 cycles
+PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/induced.py FR-041 FR-074 PF-1 T-224 FR-072
+#   -> 5/5, 2 edges, 0 cycles
 
 # every old block of section 4 occurs exactly once in its file, and none occurs in CR-551..CR-554
 for s in "明暗テーマ（\`themePreference\`）とは別の値" "人が指定した色は、明暗の値を選んでから" \
