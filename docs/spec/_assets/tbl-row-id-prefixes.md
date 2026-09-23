@@ -148,7 +148,7 @@
 | `PL` | Progress Line | イナズマ線の頂点の打ち方 | 仕様書 | `T-022` | 5 |
 | `PLM` | — | いまの日程表の作り方が抱えている問題 | 仕様書 | `T-001` | 8 |
 | `PM` | Progress Marker | 進捗マーカーの記号 | 仕様書 | `T-021` | 5 |
-| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 269 |
+| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 271 |
 | `PO` | Policy | 単一 HTML の内容セキュリティ方針の指令 | 仕様書 | `T-232` | 6 |
 | `PP` | — | 直接操作の原則（なぜその振る舞いなのかの理由） | 仕様書 | `T-274` | 7 |
 | `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 19 |
