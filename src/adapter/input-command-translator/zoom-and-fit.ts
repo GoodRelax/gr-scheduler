@@ -430,6 +430,15 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
   }
 }
 
+// see FR-055, OP-10
+// WHY: with no stored date the fit has no origin day and places no left edge; any date measures alike.
+/** @purity pure */
+function measuredSettings(context: InputContext): DocumentSettings {
+  const settings = context.document.documentSettings
+  if (dayOf(settings.scrollDate) !== null) return settings
+  return { ...settings, scrollDate: scrolledAnchor(context, 0, 0).scrollDate ?? context.today }
+}
+
 // TRAP: do not move the discard into fitZoom: viewSettings in frame-loop.ts shares fitZoom,
 // and HF-8 forbids the discard at startup.
 // see FR-055, HF-8
@@ -437,7 +446,7 @@ function collapsesDiscarded(schedule: Schedule): Schedule {
 function fittedNow(context: InputContext) {
   return fitZoom(
     collapsesDiscarded(context.document.schedule),
-    context.document.documentSettings,
+    measuredSettings(context),
     context.regions,
     { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },
     context.rowControlsHeightPx,

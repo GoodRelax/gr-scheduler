@@ -24,7 +24,7 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { gridParts, rulerSvg } from './schedule-grid'
+import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
 import { overlayParts, watermarkSvg } from './schedule-overlays'
 import {
   dependencyArrowSvg,
@@ -297,6 +297,30 @@ function pictureId(seed: string): string {
   return (hash >>> 0).toString(36)
 }
 
+// see T-020
+// TRAP: one group per row of table T-020, pinned half first: the seam reads the order off this string.
+/** @purity pure */
+function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
+  const inner = drawn.join('')
+  if (inner === '') return []
+  return [`<g data-zo="${row}">${inner}</g>`]
+}
+
+// see FR-051, EP-5
+// WHY: drawn only on the ground the row bands paint: never in a scrollbar band, nor in the
+// canvasPadding under the rows, where no band runs.
+/** @purity pure */
+function groundClipped(input: GridInput, layers: readonly string[]): readonly string[] {
+  const inner = layers.join('')
+  if (inner === '') return []
+  const { area } = input
+  const box =
+    `x="${rounded(area.x)}" y="${rounded(area.y)}"` +
+    ` width="${rounded(bandWidthOf(input))}" height="${rounded(area.height)}"`
+  const id = `grs-ground-clip-${pictureId(box)}`
+  return [`<clipPath id="${id}"><rect ${box}/></clipPath>`, `<g clip-path="url(#${id})">${inner}</g>`]
+}
+
 // see FR-080, T-020, T-076
 // TRAP: snapshot-source.ts reads Parameters<typeof svgFromSchedule>[3] and [4] by position; insert no parameter ahead of regions.
 /** @purity pure */
@@ -439,15 +463,6 @@ export function svgFromSchedule(
     if (inner === '' || !hasPinnedRows) return inner
     return `<g clip-path="url(#${scrollClipId})">${inner}</g>`
   }
-  // see T-020
-  // TRAP: one group per row of table T-020, pinned half first: the seam reads the order off this string.
-  /** @purity pure */
-  const zoLayer = (row: string, drawn: readonly string[]): readonly string[] => {
-    const inner = drawn.join('')
-    if (inner === '') return []
-    return [`<g data-zo="${row}">${inner}</g>`]
-  }
-
   const watermarkClipId = `grs-watermark-clip-${pictureId(
     `${rounded(area.x)}x${rounded(area.y)}|${rounded(area.width)}x${rounded(area.height)}`,
   )}`
@@ -481,31 +496,33 @@ export function svgFromSchedule(
   // TRAP: the rows run back to front in the order the table prints them, not in row-ID order.
   const parts = [
     ...defsParts,
-    ...zoLayer('ZO-7', grid.bandParts),
-    ...zoLayer('ZO-1', [...figures.planPartsPinned, scrolling(figures.planParts)]),
-    ...zoLayer('ZO-1a', [...figures.guidePartsPinned, scrolling(figures.guideParts)]),
-    ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),
-    ...zoLayer('ZO-4', [...links.depLinkPartsPinned, scrolling(links.depLinkParts)]),
-    ...zoLayer('ZO-8', overlays.linkParts),
-    ...zoLayer('ZO-3', [...figures.markerPartsPinned, scrolling(figures.markerParts)]),
-    ...zoLayer('ZO-5', [...figures.labelPartsPinned, scrolling(figures.labelParts)]),
-    ...zoLayer('ZO-9', overlays.annotationParts),
-    ...zoLayer('ZO-10', [
-      ...figures.selectionParts,
-      ...overlays.selectionParts,
-      ...figures.handleParts,
+    ...groundClipped(drawing, [
+      ...zoLayer('ZO-7', grid.bandParts),
+      ...zoLayer('ZO-1', [...figures.planPartsPinned, scrolling(figures.planParts)]),
+      ...zoLayer('ZO-1a', [...figures.guidePartsPinned, scrolling(figures.guideParts)]),
+      ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),
+      ...zoLayer('ZO-4', [...links.depLinkPartsPinned, scrolling(links.depLinkParts)]),
+      ...zoLayer('ZO-8', overlays.linkParts),
+      ...zoLayer('ZO-3', [...figures.markerPartsPinned, scrolling(figures.markerParts)]),
+      ...zoLayer('ZO-5', [...figures.labelPartsPinned, scrolling(figures.labelParts)]),
+      ...zoLayer('ZO-9', overlays.annotationParts),
+      ...zoLayer('ZO-10', [
+        ...figures.selectionParts,
+        ...overlays.selectionParts,
+        ...figures.handleParts,
+      ]),
+      ...zoLayer('ZO-11', tentativeParts),
+      ...zoLayer(
+        'ZO-12',
+        watermark === null
+          ? []
+          : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
+      ),
+      ...zoLayer(
+        'ZO-6',
+        marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')],
+      ),
     ]),
-    ...zoLayer('ZO-11', tentativeParts),
-    ...zoLayer(
-      'ZO-12',
-      watermark === null
-        ? []
-        : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
-    ),
-    ...zoLayer(
-      'ZO-6',
-      marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')],
-    ),
     // WHY: the ruler draws in its own band, so table T-020 holds no row for it (the table's closing note).
     ...rulerSvg(
       layout,

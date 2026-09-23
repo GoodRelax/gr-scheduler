@@ -138,6 +138,10 @@ export interface PointerPress {
   // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: { readonly fromContentX0: number; readonly width: number }
+  // see GR-21, FR-051
+  // TRAP: the vertical twin, held for the same reason: the last row scrolled to the top runs the view
+  // past the content.
+  readonly verticalWholeAtPress?: { readonly fromContentY0: number; readonly height: number }
 }
 
 export interface InputContext {

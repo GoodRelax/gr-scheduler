@@ -718,7 +718,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       frame: described(view.frame),
       appHeaderItems: described(view.appHeaderItems),
       rowTitlePanel: described(view.rowTitlePanel),
-      propertiesPanel: described(view.propertiesPanel),
+      propertiesPanel: fieldEditing.panelKeyAfterCommits(described(view.propertiesPanel)),
       commandPalette: described(view.commandPalette),
       openModal: described(view.openModal),
       notices: described(view.notices),

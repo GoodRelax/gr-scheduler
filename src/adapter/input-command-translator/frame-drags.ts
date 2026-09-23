@@ -40,7 +40,8 @@ function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
   const area = context.regions.rowArea
   const lane = axis === 'horizontal' ? area.width : area.height
   const heldWidth = context.pressed?.horizontalWholeAtPress?.width ?? context.layout.contentWidth
-  const whole = axis === 'horizontal' ? heldWidth : context.layout.contentHeight
+  const heldHeight = context.pressed?.verticalWholeAtPress?.height ?? context.layout.contentHeight
+  const whole = axis === 'horizontal' ? heldWidth : heldHeight
   if (!(lane > 0) || !(whole > lane)) return 0
   return whole / lane
 }
@@ -53,8 +54,37 @@ function scrollbarTravel(
 ): { readonly dx: number; readonly dy: number } {
   const gearing = scrollGearing(context, axis)
   return axis === 'horizontal'
-    ? { dx: by.dx * gearing, dy: 0 }
-    : { dx: 0, dy: by.dy * gearing }
+    ? { dx: travelInsideHeldWidth(context, by.dx * gearing), dy: 0 }
+    : { dx: 0, dy: travelInsideHeldHeight(context, by.dy * gearing) }
+}
+
+/** @purity pure */
+function travelInside(offset: number, room: number, travel: number): number {
+  return Math.max(-offset, Math.min(room - offset, travel))
+}
+
+// see GR-21, FR-051
+// WHY: the grip is the view's share of the whole held at the press; a view carried past that whole
+// has no place on the lane, so the grip stopped at the lane end and left the pointer.
+/** @purity pure */
+function travelInsideHeldWidth(context: InputContext, dx: number): number {
+  const area = context.regions.rowArea
+  const whole = context.pressed?.horizontalWholeAtPress
+  const contentX0 = context.layout.contentX0
+  if (whole === undefined || contentX0 === null) return dx
+  return travelInside(area.x - (contentX0 - whole.fromContentX0), whole.width - area.width, dx)
+}
+
+// see GR-21, FR-051, FR-098
+/** @purity pure */
+function travelInsideHeldHeight(context: InputContext, dy: number): number {
+  const area = context.regions.rowArea
+  const whole = context.pressed?.verticalWholeAtPress
+  const scrollTop = context.layout.scrollAreaY ?? area.y
+  const first = context.layout.rows.find((row) => row.isPinned !== true)
+  if (whole === undefined || first === undefined) return dy
+  const visible = Math.max(0, area.y + area.height - scrollTop)
+  return travelInside(scrollTop - (first.y - whole.fromContentY0), whole.height - visible, dy)
 }
 
 // see FR-051, GR-21

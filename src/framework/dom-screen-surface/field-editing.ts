@@ -36,31 +36,34 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
   return typeof drawn.value === 'string' ? (target as TextEntryControl) : null
 }
 
+/** @purity pure */
+function rowOf(control: TextEntryControl): string {
+  return CONTROL_KEYS.get(control as unknown as Element)?.row ?? ''
+}
+
+/** @purity pure */
+function fieldCommitOf(target: unknown): FieldCommit | null {
+  if (target === null || typeof target !== 'object') return null
+  const named = CONTROL_KEYS.get(target as Element)
+  if (named === undefined) return null
+  const input = target as HTMLInputElement
+  const text = input.type === 'checkbox' ? String(input.checked) : input.value
+  return { row: named.row, key: named.key, text }
+}
+
+const PANEL_KEY_SEPARATOR = '#'
+
 /** @purity non-pure */
 export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   let watermarkUnlockEntry: TextEntryControl | null = null
   let fieldCommit: FieldCommit | null = null
+  let commitsHandedOut = 0
   const fieldEditNotices: FieldEditNotice[] = []
 
   // see IF-9
   /** @purity non-pure */
   function noteFieldEdit(kind: FieldEditNotice['kind'], row: string): void {
     fieldEditNotices.push({ kind, row })
-  }
-
-  /** @purity pure */
-  function rowOf(control: TextEntryControl): string {
-    return CONTROL_KEYS.get(control as unknown as Element)?.row ?? ''
-  }
-
-  /** @purity pure */
-  function fieldCommitOf(target: unknown): FieldCommit | null {
-    if (target === null || typeof target !== 'object') return null
-    const named = CONTROL_KEYS.get(target as Element)
-    if (named === undefined) return null
-    const input = target as HTMLInputElement
-    const text = input.type === 'checkbox' ? String(input.checked) : input.value
-    return { row: named.row, key: named.key, text }
   }
 
   // see FR-031, UN-3
@@ -149,9 +152,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isFieldHeld = false
     isHeldTextTakenBack = false
   }
+  // TRAP: not a new edit: the date entry raises focusin again when a script sets its value.
   propertiesPanel.addEventListener('focusin', (event: Event) => {
     isFieldHeld = true
-    holdText(textEntryControlOf(event.target))
+    const control = textEntryControlOf(event.target)
+    const isSameEdit = control !== null && control === heldTextControl
+    if (isSameEdit) return
+    holdText(control)
     heldTextValueAtFocus = heldTextControl === null ? '' : heldTextControl.value
     isHeldTextTakenBack = false
   })
@@ -468,6 +475,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   function readFieldCommit(): FieldCommit | null {
     const held = fieldCommit
     fieldCommit = null
+    if (held !== null) commitsHandedOut += 1
     return held
   }
 
@@ -480,6 +488,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   return {
     typedControlsByRow,
     isFieldHeld: (): boolean => isFieldHeld,
+    panelKeyAfterCommits: (described: string): string =>
+      `${described}${PANEL_KEY_SEPARATOR}${commitsHandedOut}`,
     isDocumentTitleOpen: (): boolean => documentTitleEntry !== null,
     holdDocumentTitle: (box: HTMLElement, shown: string): void => {
       documentTitleBox = box

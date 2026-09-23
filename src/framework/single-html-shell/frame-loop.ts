@@ -1255,7 +1255,7 @@ function screenViewReadingsOf(
   held: Document,
   regions: ScreenRegions,
   layout: ScheduleLayout,
-  heldWhole: HorizontalWhole | null,
+  heldWhole: HeldWholes | null,
   taken: ScreenViewReadingsTaken,
 ): ScreenViewReadings {
   const { isAiExportSurfaceOpen, commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
@@ -1266,13 +1266,22 @@ function screenViewReadingsOf(
     themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
-    scrollExtent: scrollExtentOf(layout, regions, heldWhole ?? horizontalWholeOf(layout, regions)),
+    scrollExtent: scrollExtentOf(layout, regions, {
+      horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
+      vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
+    }),
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
   }
 }
 
 type HorizontalWhole = NonNullable<PointerPress['horizontalWholeAtPress']>
+type VerticalWhole = NonNullable<PointerPress['verticalWholeAtPress']>
+
+interface HeldWholes {
+  readonly horizontal: HorizontalWhole | null
+  readonly vertical: VerticalWhole | null
+}
 
 // see GR-21, FR-051
 // WHY: the content and the view together: after a fit the view runs past the content by the margin (S-332).
@@ -1285,22 +1294,46 @@ function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): Hori
   return { fromContentX0: contentX0 - left, width: right - left }
 }
 
+// see GR-21, FR-051
+// WHY: the same union as the horizontal whole: a view scrolled down to the last row runs past the content.
+/** @purity pure */
+function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): VerticalWhole {
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
+  const top = Math.min(contentY0, scrollTop)
+  const bottom = Math.max(contentY0 + layout.contentHeight, scrollTop + visibleHeightOf(layout, regions))
+  return { fromContentY0: contentY0 - top, height: bottom - top }
+}
+
+// see FR-098
+// TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
+// would grow the grip as rows are pinned (FR-098).
+/** @purity pure */
+function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
+  return Math.max(0, regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y))
+}
+
 // see FR-052, GR-21
 /** @purity pure */
 function measuredAtPress(
   frame: FrameValues,
-): Pick<PointerPress, 'propertyPanelWidthAtPress' | 'horizontalWholeAtPress'> {
+): Pick<PointerPress, 'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress'> {
   return {
     propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
     horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
+    verticalWholeAtPress: verticalWholeOf(frame.layout, frame.regions),
   }
 }
 
 // see GR-21
 /** @purity pure */
-function heldWholeOf(press: PointerPress | null): HorizontalWhole | null {
-  if (press?.on?.scrollbarAxis !== 'horizontal') return null
-  return press.horizontalWholeAtPress ?? null
+function heldWholeOf(press: PointerPress | null): HeldWholes | null {
+  const axis = press?.on?.scrollbarAxis
+  if (press === null || axis === undefined) return null
+  return {
+    horizontal: axis === 'horizontal' ? press.horizontalWholeAtPress ?? null : null,
+    vertical: axis === 'vertical' ? press.verticalWholeAtPress ?? null : null,
+  }
 }
 
 // see SC-1, FR-098
@@ -1308,20 +1341,17 @@ function heldWholeOf(press: PointerPress | null): HorizontalWhole | null {
 function scrollExtentOf(
   layout: ScheduleLayout,
   regions: ScreenRegions,
-  whole: HorizontalWhole,
+  whole: { readonly horizontal: HorizontalWhole; readonly vertical: VerticalWhole },
 ): ScreenViewReadings['scrollExtent'] {
   const contentX0 = layout.contentX0 ?? regions.rowArea.x
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
   return {
-    contentWidth: whole.width,
-    contentHeight: layout.contentHeight,
-    // TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
-    // would grow the grip as rows are pinned (FR-098).
-    visibleHeight: Math.max(
-      0,
-      regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
-    ),
-    offsetX: Math.max(0, regions.rowArea.x - (contentX0 - whole.fromContentX0)),
-    offsetY: scrolledPastOf(layout, regions),
+    contentWidth: whole.horizontal.width,
+    contentHeight: whole.vertical.height,
+    visibleHeight: visibleHeightOf(layout, regions),
+    offsetX: Math.max(0, regions.rowArea.x - (contentX0 - whole.horizontal.fromContentX0)),
+    offsetY: Math.max(0, scrollTop - (contentY0 - whole.vertical.fromContentY0)),
   }
 }
 
@@ -1605,14 +1635,6 @@ function drawnRowBoxesOf(
   })
 }
 
-// see GR-21
-/** @purity pure */
-function scrolledPastOf(layout: ScheduleLayout, regions: ScreenRegions): number {
-  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
-  const first = layout.rows.find((row) => row.isPinned !== true)
-  return first === undefined ? 0 : Math.max(0, scrollTop - first.y)
-}
-
 interface ViewSettings {
   readonly settings: DocumentSettings
   readonly isAtStoredZoom: boolean
@@ -1701,6 +1723,18 @@ function viewSettings(
     },
     isAtStoredZoom: false,
   }
+}
+
+// TRAP: a FrameEnvironment member left out here wakes no frame when only that member changes.
+/** @purity pure */
+function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
+  return (
+    one.width === other.width &&
+    one.height === other.height &&
+    one.appHeaderHeight === other.appHeaderHeight &&
+    one.scrollbarThickness === other.scrollbarThickness &&
+    one.rowControlsHeightPx === other.rowControlsHeightPx
+  )
 }
 
 // see IN-1, IN-1a
@@ -2758,8 +2792,15 @@ export function frameLoop(
     if (owed) return
     owed = true
     const raf = globalThis.requestAnimationFrame
-    if (typeof raf === 'function') raf(() => runFrame())
-    else runFrame()
+    if (typeof raf === 'function') raf(() => runAskedFrame())
+    else runAskedFrame()
+  }
+
+  // WHY: the change a press raises (a colour swatch's click, FT-1) comes after the release asked this frame.
+  /** @purity non-pure */
+  function runAskedFrame(): void {
+    if (values !== null) spendFieldCommit(values)
+    runFrame()
   }
 
   /** @purity non-pure */
@@ -2866,18 +2907,6 @@ export function frameLoop(
   /** @purity pure */
   function settled(env: FrameEnvironment): boolean {
     return env.width > 0 && env.height > 0
-  }
-
-  // TRAP: a FrameEnvironment member left out here wakes no frame when only that member changes.
-  /** @purity pure */
-  function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
-    return (
-      one.width === other.width &&
-      one.height === other.height &&
-      one.appHeaderHeight === other.appHeaderHeight &&
-      one.scrollbarThickness === other.scrollbarThickness &&
-      one.rowControlsHeightPx === other.rowControlsHeightPx
-    )
   }
 
   // see FR-076, NT-3, T-233, T-286
