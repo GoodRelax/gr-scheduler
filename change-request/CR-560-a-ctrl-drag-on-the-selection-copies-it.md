@@ -380,7 +380,7 @@
 |---|---|
 | `npm run gen` | 上の原稿から `_assets/tbl-settings.md`（`S-208` の名）・ `tbl-row-id-prefixes.md`（`CY`）・ `tbl-state-machines.md`（2 つの源）と、`src/` の生成物（`display-words.json` の `MK-15`、`help-roster.json`）を刷る |
 | `tools/generate_help_roster.py:115` | ⛔ **波 0 で同時に直すこと** —— `SHOWN_ASSIGNMENTS` に `MK-15` を足す。直さないと、生成器が「表 T-023 の行が 3 つの名簿のどれにも無い」で止まる（`:110-113` の注。`CR-301` が同じ形で 1 度止められた） |
-| `.claude/skills/spec-graph-check/dictionary-table-pairing.txt:39` と新しい行 | `T-023 MK-7` の指紋が変わり、`T-023 MK-15` の行が要る。⛔ **基準線の移動なので、前に立つ者がチャットで利用者の許しを得てから書く**（記録 `baseline-moves-need-user-ok`） |
+| `.claude/skills/spec-graph-check/dictionary-table-pairing.txt` の 2 行 | ① `:40` の `T-023 MK-7 b9a7645e50f9ae49` —— `MK-7` の行の字が変わる（E-02）ので指紋を刷り直す。② 新しい行 `T-023 MK-15 <指紋>` —— 名の順で `:34`（`T-023 MK-13`）と `:35`（`T-023 MK-2`）のあいだに入る。⭐ 利用者が基準線の移動を許した（`JDG-546`、2026-09-24、「基準線は変更してよい。」）。⛔ 移すのは基準線を持つ調整役のセッションであり、`CR-560` を当てるとき、指紋を 2 組とも読み直してから書く（本書と当てる体は基準線のファイルを書かない） |
 
 ---
 
@@ -473,7 +473,8 @@
 wave 0  spec     all of section 4 (E-01..E-08, J-01..J-05) + tools/generate_help_roster.py:115 (MK-15)
                  + npm run gen + gen:check      (ONE body, one worktree, cut after CR-554 landed)
                  -> tests that read the spec verbatim or count table rows go red here, by design (section 9)
-                 -> dictionary-table-pairing.txt: the front session asks the user before moving 2 lines
+                 -> dictionary-table-pairing.txt :40 (MK-7) and a new MK-15 line: approved by the user (JDG-546);
+                    the coordinator session that holds the baselines moves them when CR-560 is applied
 wave 1  (parallel, disjoint folders; cut from wave 0's commit)
   1a use-case/edit-document   task-paste.ts (landing, pastedUidsOf -- S-3), edit-task.ts:79 (command type),
                               edit-document.ts:150 only if the kind list needs it
@@ -487,6 +488,7 @@ wave 3  tests by a spec-only tester (never an implementer), on the MERGED tree; 
         npm run build so the user can try dist/index.html by file://
 ```
 
+- ⭐ **基準線の移動は許された**（`JDG-546`、2026-09-24、「基準線は変更してよい。」）—— `dictionary-table-pairing.txt` の `:40`（`T-023 MK-7 b9a7645e50f9ae49`、指紋の刷り直し）と、`:34` と `:35` のあいだの新しい行（`T-023 MK-15`）の 2 行。⛔ 移すのは基準線を持つ調整役のセッションで、波 0 の `npm run gen` の後に行う（波 0 の体は書かない）。
 - ⚠️ 1a と 1b は命令の形（S-2）を分けて持つ。継ぎ目 S-2 ・ S-3 を両方の依頼文へ逐語で写すこと。
 - ⚠️ 1b の `gesture-values.ts` は `use-case` のフォルダだが、`PressRow` の手の写し（`TRAP` の注）なので翻訳係と同じ波に置いた。
 - ⚠️ 性能: 押しているあいだ、毎フレーム保持中の文書に貼り付けを当てて描く（S-8）。本体の移動と同じ道だが、写す部分木が大きいと重くなる。⛔ 性能の試し（`RISK-001` の門）を走らせる前に、前に立つ者が利用者に声をかける（記録 `perf-test-notify`）。
@@ -548,6 +550,7 @@ wave 3  tests by a spec-only tester (never an implementer), on the MERGED tree; 
 `JDG-467` —— 項目 1（`Ctrl` ドラッグの写しと、背景のパン）。
 `JDG-468` —— 問い 1 の答え（(a) パン）。`JDG-469` —— 問い 2 の答え（(a) タスクだけ）。`JDG-521` —— 問い 3 の答え（(c) 未着手として作る、と添え書き「※他に日程をコピペするのがあれば、実績を空にしろ。」—— 写す道のすべて。E-08）。`JDG-522` —— 問い 4 の答え（(a) `copy` と `crosshair`）。`JDG-523` —— 問い 5 の答え（提案どおり）。番号は 2026-09-24 に前に立つ者が `b7a3b76f` で詰めた（帯の末 `JDG-467` 〜 `JDG-469` と、調整役が足した `JDG-521` 〜 `JDG-523`）。
 状態はすべて「指示」（本書を当てたら「適用済」へ変える。当てる者の仕事）。
+⭐ `JDG-546`（「基準線は変更してよい。」、2026-09-24）は本書の基準線の移動（8 節）への許しである —— 行は別の体が書く。
 ⚠️ `MK-7` を覆すことを利用者が受け入れた 2026-09-23 の振り分けの逐語は、`rulings.md` に行が無い（`MK-7` ・「コピー」・「Ctrl」で引いて 0 件）。
 ⛔ 当てる者が状態を変える古い行: 無い（`MK-7` を記した `JDG` 行が無い）。
 
