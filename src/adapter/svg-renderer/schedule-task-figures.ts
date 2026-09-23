@@ -232,7 +232,7 @@ function labelSvg(
     (anchor === 'end' ? ' text-anchor="end"' : '') +
     ` fill="${ink}" stroke="${halo}" stroke-width="${rounded(haloWidth)}"` +
     // TRAP: paint-order="stroke" puts the halo under the glyph; without it the label is painted in its own outline.
-    ` paint-order="stroke" xml:space="preserve"${figureKey(key)}>${escaped(text)}</text>`
+    ` stroke-linejoin="round" paint-order="stroke" xml:space="preserve"${figureKey(key)}>${escaped(text)}</text>`
   )
 }
 
