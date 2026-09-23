@@ -161,7 +161,8 @@ function markerSvg(
   const disc =
     `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
     ` fill="${backing}" stroke="${ink}" stroke-width="${stroke}"${named}/>`
-  const r = radius * 0.5
+  // see S-341, T-206
+  const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   const mark =
     marker.symbol === 'PM-1a'
       ? `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`

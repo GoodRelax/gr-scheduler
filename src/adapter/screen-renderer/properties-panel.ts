@@ -763,6 +763,8 @@ function colourSide(stored: string | null, form: ColourForm, look: ColourLook, d
 }
 
 // see CV-9, CV-4
+// STOP: spec does not decide where a return-to-theme (null) entrance sits. Looked in FR-007, CV-9
+// @provisional PND-531
 /** @purity pure */
 function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
   const form = COLOUR_FORM_OF_COLUMN[control.key.column]

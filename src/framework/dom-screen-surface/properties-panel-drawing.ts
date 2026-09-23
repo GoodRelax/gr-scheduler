@@ -365,7 +365,8 @@ function sideSwatchSide(): string {
 }
 
 // see CV-9, CV-3
-// WHY: a side is undefined when the whole field is unset, or when the adapter names its twin.
+// WHY: a side is undefined when the whole field is unset (JDG-403 closed PND-532: blank
+// value, dashed edge, no same-as word), or when the adapter names its twin.
 /** @purity pure */
 function isSideUndefined(control: PropertyControl, side: ColourSide): boolean {
   return control.text === UNSET_COLOUR_VALUE || side.note !== ''

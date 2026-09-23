@@ -281,7 +281,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
 
 const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` の行）を編集しているあいだに `Delete` か `Backspace` を押したときは、欄の字をすべて消して空にすること（MUST）'
 const FR_006_EMPTY_COMMIT =
-  '空のまま確定したときは、その列が `null` を許す列（`_source/erd.json` の `nullable`）なら `null` を書き、許さない列（`start` / `finish`）なら何も書かずに欄を元の値へ戻すこと（MUST）'
+  '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
 const FR_006_COLOUR_LAST = '色の行（表 T-016 の入力の型に `色` を含む行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 
 const T_016 = specTable('T-016')
@@ -325,7 +325,7 @@ describe('FR-006 -- the date fields', () => {
     })
   }
 
-  it('FR-006 E-28: 空のまま確定 -- a nullable date column (deadline) is written null', () => {
+  it('FR-006 E-41: それ以外の日付の欄なら null を書く -- deadline is written null', () => {
     // see FR-006, T-016, PR-10
     const document = documentWith([{ id: 'g1', parentId: null }], ['Alpha'])
     document.schedule.tasks[0] = { ...document.schedule.tasks[0], deadline: '2026-05-08T17:00:00' }
@@ -336,10 +336,8 @@ describe('FR-006 -- the date fields', () => {
   })
 
   for (const column of ['start', 'finish'] as const) {
-    it(`FR-006 E-28: 許さない列（${column}）なら何も書かずに欄を元の値へ戻す`, () => {
+    it(`FR-006 E-41: ${column} の欄なら何も書かずに欄を元の値へ戻す`, () => {
       // see FR-006, T-016, PR-3
-      // TRAP: erd.json marks Task.start / finish nullable while FR-006 names them as the columns
-      // that take no null; the case follows FR-006 (reported as a question).
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
       const before = built.loop.document().schedule.tasks[0]?.[column]
       const shownBefore = built.view().propertiesPanel?.fields.find((one) => one.row === 'PR-3')?.text

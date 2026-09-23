@@ -575,11 +575,13 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   readonly 'S-329': number
   readonly 'S-330': number
   readonly 'S-331': number
+  readonly 'S-341': number
 } = {
   'S-328': 1.7,
   'S-329': 0.15,
   'S-330': 0.8,
   'S-331': 0.14,
+  'S-341': 0.5,
 }
 
 // see T-206

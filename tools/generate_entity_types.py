@@ -1340,7 +1340,13 @@ NOT_STORED_TARGETS = {
     # centre and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
     # of svg-renderer.ts: one constant per consuming SUBJECT, and none of the
     # others is the progress marker's glyph. Read by schedule-task-figures.ts.
-    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331'],
+    # ⭐ CR-551 (E-42): S-341 joins them -- the symbol's half-height as a ratio
+    # of the marker circle's radius, that PM-2's check and PM-3's slash also
+    # read (table T-021), not only PM-4's `(!)`. ⛔ No separate marker-size
+    # group exists yet, and this group is already schedule-task-figures.ts's
+    # one constant for the progress marker's glyph, so S-341 lands here rather
+    # than founding a new group of its own.
+    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
