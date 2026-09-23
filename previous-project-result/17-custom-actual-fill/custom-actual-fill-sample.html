@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>カスタムカラーの実績の塗り</title>
+<style>
+  :root { --ink:#16181d; --ink2:#55606f; --rule:#d7dde7; --panel:#fafbfc; --bad:#c62828; --warn:#b26a00; --ok:#1f7a3d; }
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: #fff; color: var(--ink); font-size: 14px; line-height: 1.6;
+         font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif; }
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) 6px var(--side, 400px); height: 100vh; }
+  .view { overflow: auto; }
+  .view > .inner { padding: 12px 16px 24px; }
+  .split { cursor: col-resize; background: var(--rule); }
+  .panel { overflow: auto; background: var(--panel); }
+  .panel > .inner { padding: 10px 14px 24px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 16px 0 4px; }
+  .panel h2 { margin: 0 0 4px; padding-bottom: 3px; border-bottom: 1px solid var(--rule); }
+  .panel section { background: #fff; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; margin: 0 0 10px; }
+  p.note { color: var(--ink2); margin: 0 0 8px; max-width: 1100px; }
+  .hint { font-size: 12px; color: var(--ink2); margin: 2px 0 4px; line-height: 1.5; }
+  label.row { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+  label.row span.name { width: 150px; }
+  label.row input[type=range] { width: 120px; }
+  label.row output { width: 48px; text-align: right; font-variant-numeric: tabular-nums; }
+  table.grid { border-collapse: collapse; }
+  table.grid th, table.grid td { border-bottom: 1px solid #eef1f6; padding: 4px 6px; vertical-align: top; }
+  table.grid th { font-weight: 600; text-align: left; font-size: 13px; position: sticky; top: 0; background: #fff; z-index: 1; }
+  table.grid td.pick { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 12px; }
+  .cell { border-radius: 4px; padding: 2px 4px 4px; }
+  .cell svg { display: block; }
+  .nums { font-size: 11.5px; font-variant-numeric: tabular-nums; line-height: 1.45; white-space: nowrap; }
+  .b { font-weight: 700; }
+  .bad { color: var(--bad); font-weight: 700; }
+  .warn { color: var(--warn); font-weight: 700; }
+  .okc { color: var(--ok); }
+  .swatch { display: inline-block; width: 12px; height: 12px; border: 1px solid #0003; vertical-align: -2px; margin-right: 4px; }
+  button.x { border: none; background: none; color: var(--ink2); cursor: pointer; font-size: 13px; padding: 0 4px; }
+  table.sum { border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+  table.sum th, table.sum td { border-bottom: 1px solid #eef1f6; padding: 2px 8px; text-align: right; font-variant-numeric: tabular-nums; }
+  table.sum th:first-child, table.sum td:first-child { text-align: left; }
+  table.sum th { border-bottom: 1px solid var(--rule); }
+  .maps { display: flex; flex-wrap: wrap; gap: 14px; }
+  .maps figure { margin: 0; }
+  .maps figcaption { font-size: 12px; color: var(--ink2); }
+  .legend span { display: inline-block; margin-right: 12px; font-size: 12px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+  #summary { white-space: pre-wrap; font-size: 12px; background: #f4f6f9; border-radius: 4px; padding: 6px 8px; user-select: all; }
+  code { font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<main class="view"><div class="inner">
+  <h1>カスタムカラーの実績の塗り —— いまの式（CV-6）と別案</h1>
+  <p class="note"><b>裁定（JDG-540、2026-09-24）: 案 D を既定の値で採る。</b>仕様への反映は change-request/CR-564（表 T-017b の CV-10、表 T-206 の S-415 ・ S-416）。</p>
+  <p class="note">
+    予定バー（外の太い帯）はカスタムカラーそのもの、実績バー（中の細い帯）はその色から導いた色で描きます。
+    縁はテーマの縁のまま（予定は S-156、実績は S-158）—— 木 1d5f8867 の dist/index.html で実測した描き方と同じです。
+    高さの比は <code>actualOfPlan</code> = 0.5715（予定 28 に対し実績 16）。
+    <b>数字の見方</b>: 「実/予」は実績と予定の塗りのコントラスト比（表 T-017a の CT-3、3 以上が要る）。
+    「色味」は実績を <code>#rrggbb</code> に丸めた後の各成分の最大 − 最小（0 〜 255。0 は無彩色＝黒・白・灰）。
+  </p>
+  <div id="gridHost"></div>
+
+  <h2>どこで壊れるか —— 選んだ行の色相で、彩度 × 明度を掃いた地図</h2>
+  <p class="note" id="mapNote"></p>
+  <div class="legend">
+    <span><i style="background:#4caf50"></i>満たす</span>
+    <span><i style="background:#e53935"></i>実/予 &lt; 目標（CT-3 割れ）</span>
+    <span><i style="background:#212121"></i>黒か白に潰れる（色味が消える）</span>
+    <span><i style="background:#ab47bc"></i>灰に色が付く</span>
+    <span><i style="background:#ffb300"></i>テーマと逆向き（テーマ自身の予定→実績は、明で暗く・暗で明るくなる。その逆。LM-18 のとおり暗いテーマの向き自体が FR-007 と逆である点に注意）</span>
+  </div>
+  <div class="maps" id="maps"></div>
+
+  <h2>全体の数 —— <code>#rrggbb</code> の各成分を 0, 17, 34, …, 255 の 16 段で掃いた 4096 色</h2>
+  <p class="note">
+    測り方: 実績の値を HSL で導き、各成分を 0 〜 255 の整数に丸めてから WCAG 2.1 の相対輝度
+    （PoC <code>poc-integrated.html</code> <code>:608-620</code> と同じ式、閾値 0.03928）でコントラスト比を求めた。
+    「潰れる」は、選んだ色の色味が 16 以上なのに実績の色味が 16 未満になったもの。
+    「灰に色」は、選んだ色の色味が 4 未満なのに実績の色味が 8 以上になったもの。
+    モノクロの切り替えは本表にも効く（無彩色にしてから測る。CV-7）。
+  </p>
+  <div id="sumHost"></div>
+</div></main>
+<div class="split" id="split" title="ドラッグで設定欄の幅を変える"></div>
+<aside class="panel"><div class="inner">
+  <section>
+    <h2>表示</h2>
+    <label class="row"><span class="name">テーマ</span>
+      <select id="theme"><option value="both">明と暗を並べる</option><option value="light">明るいテーマ</option><option value="dark">暗いテーマ</option></select></label>
+    <label class="row"><input type="checkbox" id="mono"> モノクロ（CV-7: 導いた後に彩度 0、HSL 明度は保つ）</label>
+    <label class="row"><span class="name">テーマの色相 H</span><input type="range" id="hue" min="0" max="359" value="214"><output id="hueOut"></output></label>
+    <p class="hint">色相は地と縁にだけ効く（カスタムカラーはテーマの色相に追随しない）。</p>
+  </section>
+  <section>
+    <h2>色を足す</h2>
+    <label class="row"><input type="color" id="picker" value="#2a9d8f"><input id="hex" value="#2a9d8f" size="9"><button id="add">足す</button></label>
+    <p class="hint"><code>#rrggbb</code> を打って Enter でも足せる。表の行の「×」で消す。行の色見本を押すと、下の地図がその色相になる。</p>
+  </section>
+  <section>
+    <h2>案 B / D / E の帯（実績の明度の床と天井）</h2>
+    <label class="row"><span class="name">床 Lmin</span><input type="range" id="lmin" min="0" max="50" value="15"><output id="lminOut"></output></label>
+    <label class="row"><span class="name">天井 Lmax</span><input type="range" id="lmax" min="50" max="100" value="85"><output id="lmaxOut"></output></label>
+    <label class="row"><input type="checkbox" id="greyGuard" checked> 灰色（3 成分が等しい色）には彩度を足さない（案 B〜E）</label>
+    <p class="hint">案 A（いまの式）は常に 0〜100 に収めるだけで、灰色にも彩度を足す（色相 0 = 赤みになる）。</p>
+  </section>
+  <section>
+    <h2>案 D の目標</h2>
+    <label class="row"><span class="name">実/予の目標</span><input type="range" id="target" min="15" max="60" value="30"><output id="targetOut"></output></label>
+    <p class="hint">CT-3 は 3.0。帯の中で届かなければ、逆向きへ同じ量だけ振る。</p>
+  </section>
+  <section>
+    <h2>案 E のしきい値（選んだ色を実績とみなす明度）</h2>
+    <label class="row"><span class="name">明: L がこれ以下</span><input type="range" id="thL" min="20" max="80" value="55"><output id="thLOut"></output></label>
+    <label class="row"><span class="name">暗: L がこれ以上</span><input type="range" id="thD" min="20" max="80" value="45"><output id="thDOut"></output></label>
+    <p class="hint">しきい値を越えた濃い（暗いテーマでは明るい）色は、そのまま実績に使い、予定は逆向きのずらしで導く。予定バーが選んだ色でなくなる —— CV-6「選んだ値をそのまま」を変える案。</p>
+  </section>
+  <section>
+    <h2>案の中身</h2>
+    <p class="hint">
+      <b>A いまの式</b>: 明 S+16 / L−46、暗 S+30 / L+38、0〜100 に収める（CV-6）。<br>
+      <b>B 床と天井</b>: A と同じずらしを、明度だけ [Lmin, Lmax] に収める。<br>
+      <b>C 比で縮める</b>: 明 L×34/80、暗 L+(100−L)×38/74 —— テーマの予定→実績（S-155→S-157）の比。彩度は A と同じ。<br>
+      <b>D 比を守る</b>: B の結果が目標に届かなければ、逆向きに同じ量だけ振る（帯に収める）。それでも届かなければ比の大きいほうの端。モノクロのときは灰で比を測る。<br>
+      <b>E 役割を明度で決める</b>: 濃い色は実績そのもの、予定は逆向きに導く（予定は 0〜100 に収めるだけ）。薄い色は B と同じ。
+    </p>
+  </section>
+  <section>
+    <h2>いまの値（そのまま貼り返せる）</h2>
+    <div id="summary"></div>
+  </section>
+</div></aside>
+</div>
+
+<script id="math">
+// Colour maths shared by the page and the node sweep. Pure functions only.
+const clamp = (v, lo = 0, hi = 100) => Math.min(hi, Math.max(lo, v))
+function hexToRgb(hex) { return [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16)) }
+function rgbToHsl([r8, g8, b8]) {
+  const [r, g, b] = [r8 / 255, g8 / 255, b8 / 255]
+  const hi = Math.max(r, g, b), lo = Math.min(r, g, b), l = (hi + lo) / 2, c = hi - lo
+  const s = c === 0 ? 0 : c / (1 - Math.abs(2 * l - 1))
+  let h = 0
+  if (c !== 0) h = hi === r ? ((g - b) / c) % 6 : hi === g ? (b - r) / c + 2 : (r - g) / c + 4
+  return { h: (h * 60 + 360) % 360, s: s * 100, l: l * 100 }
+}
+function hslToRgb({ h, s, l }) {
+  const S = s / 100, L = l / 100, k = (n) => (n + h / 30) % 12, a = S * Math.min(L, 1 - L)
+  const f = (n) => L - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255))
+}
+function lum([r, g, b]) {
+  const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+}
+function ratio(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+function chromaOf([r, g, b]) { return Math.max(r, g, b) - Math.min(r, g, b) }
+function greyOf(rgb) { const { l } = rgbToHsl(rgb); return hslToRgb({ h: 0, s: 0, l }) }
+function rgbCss([r, g, b]) { return '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('') }
+
+// Table T-236 at theme hue H (S-146, S-155..S-158, S-168) and CV-6's plan-to-actual shift.
+function themeOf(dark, H) {
+  return dark
+    ? { dark, bg: { h: H, s: 12, l: 9 }, plan: { h: H, s: 32, l: 26 }, planEdge: { h: H, s: 46, l: 66 },
+        actual: { h: H, s: 62, l: 64 }, actualEdge: { h: H, s: 70, l: 80 }, dS: 30, dL: 38 }
+    : { dark, bg: { h: 0, s: 0, l: 100 }, plan: { h: H, s: 46, l: 80 }, planEdge: { h: H, s: 44, l: 46 },
+        actual: { h: H, s: 62, l: 34 }, actualEdge: { h: H, s: 66, l: 22 }, dS: 16, dL: -46 }
+}
+
+// Each option returns the plan and actual fills as HSL for a pick (HSL) in a theme.
+function satOf(pick, t, p, guarded) {
+  if (guarded && p.greyGuard && chromaOf(hslToRgb(pick)) === 0) return 0
+  return clamp(pick.s + t.dS)
+}
+function ratioHsl(a, b, mono) { const f = mono ? (x) => greyOf(hslToRgb(x)) : hslToRgb; return ratio(f(a), f(b)) }
+const OPTIONS = {
+  A: { name: 'A いまの式', fn: (pick, t) => ({ plan: pick, actual: { h: pick.h, s: clamp(pick.s + t.dS), l: clamp(pick.l + t.dL) } }) },
+  B: { name: 'B 床と天井', fn: (pick, t, p) => ({ plan: pick, actual: { h: pick.h, s: satOf(pick, t, p, true), l: clamp(pick.l + t.dL, p.lmin, p.lmax) } }) },
+  C: { name: 'C 比で縮める', fn: (pick, t, p) => {
+    const l = t.dark ? pick.l + (100 - pick.l) * (64 - 26) / (100 - 26) : pick.l * 34 / 80
+    return { plan: pick, actual: { h: pick.h, s: satOf(pick, t, p, true), l: clamp(l) } }
+  } },
+  D: { name: 'D 比を守る', fn: (pick, t, p) => {
+    const s = satOf(pick, t, p, true)
+    const at = (l) => ({ h: pick.h, s, l: clamp(l, p.lmin, p.lmax) })
+    const first = at(pick.l + t.dL)
+    if (ratioHsl(first, pick, p.mono) >= p.target) return { plan: pick, actual: first }
+    const flipped = at(pick.l - t.dL)
+    if (ratioHsl(flipped, pick, p.mono) >= p.target) return { plan: pick, actual: flipped, flipped: true }
+    const lo = at(p.lmin), hi = at(p.lmax)
+    return { plan: pick, actual: ratioHsl(lo, pick, p.mono) >= ratioHsl(hi, pick, p.mono) ? lo : hi, flipped: true }
+  } },
+  E: { name: 'E 役割を明度で', fn: (pick, t, p) => {
+    const strong = t.dark ? pick.l >= p.thD : pick.l <= p.thL
+    const s = satOf(pick, t, p, true)
+    if (!strong) return { plan: pick, actual: { h: pick.h, s, l: clamp(pick.l + t.dL, p.lmin, p.lmax) } }
+    const planS = p.greyGuard && chromaOf(hslToRgb(pick)) === 0 ? 0 : clamp(pick.s - t.dS)
+    return { plan: { h: pick.h, s: planS, l: clamp(pick.l - t.dL) }, actual: pick, swapped: true }
+  } },
+}
+
+// Measure one pick under one option: every number the page shows.
+function measure(pickHex, key, t, p, mono) {
+  const pickRgb = hexToRgb(pickHex), pick = rgbToHsl(pickRgb)
+  const out = OPTIONS[key].fn(pick, t, { ...p, mono })
+  let plan = hslToRgb(out.plan), actual = hslToRgb(out.actual), bg = hslToRgb(t.bg)
+  let planEdge = hslToRgb(t.planEdge), actualEdge = hslToRgb(t.actualEdge)
+  if (mono) [plan, actual, bg, planEdge, actualEdge] = [plan, actual, bg, planEdge, actualEdge].map(greyOf)
+  const rAP = ratio(actual, plan)
+  const pickC = chromaOf(mono ? greyOf(pickRgb) : pickRgb), actC = chromaOf(actual)
+  const lost = pickC >= 16 && actC < 16
+  const tinted = pickC < 4 && actC >= 8
+  const reversed = t.dark ? lum(actual) < lum(plan) : lum(actual) > lum(plan)
+  return { plan, actual, bg, planEdge, actualEdge, rAP, rPB: ratio(plan, bg), rAB: ratio(actual, bg),
+           actC, lost, tinted, reversed, fail: rAP < 3 - 1e-9, flipped: !!out.flipped, swapped: !!out.swapped,
+           planMoved: rgbCss(plan) !== rgbCss(mono ? greyOf(pickRgb) : pickRgb), actualHsl: out.actual }
+}
+</script>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const PRESETS = ['#2a9d8f', '#1d3557', '#264653', '#e63946', '#6a4c93', '#00ff00', '#f4a261', '#e9c46a',
+                 '#a8dadc', '#ffd6e0', '#b5c9e3', '#808080', '#333333', '#cccccc']
+const NOTES = { '#2a9d8f': '報告の色', '#b5c9e3': 'パレットの青の塗り（対照）', '#808080': '灰' }
+let picks = [...PRESETS]
+let focusHex = '#2a9d8f'
+try { const kept = JSON.parse(localStorage.getItem('cv6-picks') || 'null'); if (Array.isArray(kept) && kept.length) picks = kept } catch (e) {}
+
+function params() {
+  return { lmin: +$('lmin').value, lmax: +$('lmax').value, greyGuard: $('greyGuard').checked,
+           target: +$('target').value / 10, thL: +$('thL').value, thD: +$('thD').value }
+}
+function themes() {
+  const H = +$('hue').value, v = $('theme').value
+  return (v === 'both' ? [false, true] : [v === 'dark']).map((d) => themeOf(d, H))
+}
+const css = rgbCss
+const f2 = (x) => x.toFixed(2)
+
+function barSvg(m) {
+  const W = 150, H = 40, py = 6, ph = 28, ah = 16, ay = py + (ph - ah) / 2
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <rect x="6" y="${py}" width="${W - 12}" height="${ph}" fill="${css(m.plan)}" stroke="${css(m.planEdge)}" stroke-width="1"/>
+    <rect x="6" y="${ay}" width="${(W - 12) * 0.6}" height="${ah}" fill="${css(m.actual)}" stroke="${css(m.actualEdge)}" stroke-width="1"/>
+  </svg>`
+}
+
+function cellHtml(m) {
+  const flags = []
+  if (m.fail) flags.push('<span class="bad">CT-3 割れ</span>')
+  if (m.lost) flags.push('<span class="bad">潰れる</span>')
+  if (m.tinted) flags.push('<span class="warn">灰に色</span>')
+  if (m.reversed) flags.push('<span class="warn">テーマと逆向き</span>')
+  if (m.flipped) flags.push('<span class="warn">反転した</span>')
+  if (m.planMoved) flags.push('<span class="warn">予定も変わる</span>')
+  const a = m.actualHsl
+  return `<div class="cell" style="background:${css(m.bg)}">${barSvg(m)}</div>
+    <div class="nums">実/予 <span class="${m.fail ? 'bad' : 'b'}">${f2(m.rAP)}</span>
+      ・予/地 ${f2(m.rPB)}${m.rPB < 1.3 ? '<span class="warn">*</span>' : ''} ・色味 ${m.actC}<br>
+      実績 ${css(m.actual)} (L ${a.l.toFixed(1)})<br>${flags.join(' ') || '<span class="okc">—</span>'}</div>`
+}
+
+function renderGrid() {
+  const p = params(), ts = themes(), mono = $('mono').checked
+  const keys = Object.keys(OPTIONS)
+  let h = '<table class="grid"><thead><tr><th>選んだ色</th>'
+  for (const t of ts) for (const k of keys) h += `<th>${OPTIONS[k].name}<br><span class="hint">${t.dark ? '暗いテーマ' : '明るいテーマ'}</span></th>`
+  h += '</tr></thead><tbody>'
+  for (const hex of picks) {
+    const hsl = rgbToHsl(hexToRgb(hex))
+    h += `<tr><td class="pick"><span class="swatch" data-focus="${hex}" style="background:${hex};cursor:pointer;width:22px;height:22px"></span>
+      <b>${hex}</b><button class="x" data-del="${hex}" title="消す">×</button><br>
+      H ${hsl.h.toFixed(0)} S ${hsl.s.toFixed(0)} L ${hsl.l.toFixed(1)}<br>${NOTES[hex] ?? ''}${hex === focusHex ? ' ◀ 地図' : ''}</td>`
+    for (const t of ts) for (const k of keys) h += `<td>${cellHtml(measure(hex, k, t, p, mono))}</td>`
+    h += '</tr>'
+  }
+  h += '</tbody></table>'
+  $('gridHost').innerHTML = h
+}
+
+// Status of one measurement, most serious first, as a map colour.
+function statusColour(m) {
+  if (m.fail) return '#e53935'
+  if (m.lost) return '#212121'
+  if (m.tinted) return '#ab47bc'
+  if (m.reversed) return '#ffb300'
+  return '#4caf50'
+}
+
+function renderMaps() {
+  const p = params(), ts = themes(), mono = $('mono').checked
+  const H = rgbToHsl(hexToRgb(focusHex)).h
+  $('mapNote').innerHTML = `色相 ${H.toFixed(0)}（<code>${focusHex}</code>）で、横軸に選んだ色の HSL 明度 0 → 100（2 刻み）、縦軸に彩度 100（上）→ 0（下）（5 刻み）。
+    各ますは HSL から <code>#rrggbb</code> に丸めた色を「選んだ色」として測った。白い十字が <code>${focusHex}</code> の位置。`
+  const cw = 4, ch = 6, nx = 51, ny = 21
+  let html = ''
+  for (const t of ts) for (const k of Object.keys(OPTIONS)) {
+    const id = `map-${t.dark ? 'd' : 'l'}-${k}`
+    html += `<figure><canvas id="${id}" width="${nx * cw}" height="${ny * ch}"></canvas>
+      <figcaption>${OPTIONS[k].name} ・ ${t.dark ? '暗' : '明'}</figcaption></figure>`
+  }
+  $('maps').innerHTML = html
+  const focus = rgbToHsl(hexToRgb(focusHex))
+  for (const t of ts) for (const k of Object.keys(OPTIONS)) {
+    const ctx = $(`map-${t.dark ? 'd' : 'l'}-${k}`).getContext('2d')
+    for (let ix = 0; ix < nx; ix++) for (let iy = 0; iy < ny; iy++) {
+      const hex = css(hslToRgb({ h: H, s: 100 - iy * 5, l: ix * 2 }))
+      ctx.fillStyle = statusColour(measure(hex, k, t, p, mono))
+      ctx.fillRect(ix * cw, iy * ch, cw, ch)
+    }
+    const fx = focus.l / 2 * cw + cw / 2, fy = (100 - focus.s) / 5 * ch + ch / 2
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(fx - 6, fy); ctx.lineTo(fx + 6, fy); ctx.moveTo(fx, fy - 6); ctx.lineTo(fx, fy + 6); ctx.stroke()
+  }
+}
+
+function sweep(t, k, p, mono) {
+  const c = { n: 0, fail: 0, lost: 0, tinted: 0, reversed: 0, planMoved: 0, worst: Infinity, worstHex: '' }
+  for (let r = 0; r < 256; r += 17) for (let g = 0; g < 256; g += 17) for (let b = 0; b < 256; b += 17) {
+    const hex = css([r, g, b]), m = measure(hex, k, t, p, mono)
+    c.n++; if (m.fail) c.fail++; if (m.lost) c.lost++; if (m.tinted) c.tinted++; if (m.reversed) c.reversed++; if (m.planMoved) c.planMoved++
+    if (m.rAP < c.worst) { c.worst = m.rAP; c.worstHex = hex }
+  }
+  return c
+}
+
+function renderSummary() {
+  const p = params(), ts = themes(), mono = $('mono').checked
+  let h = '<table class="sum"><tr><th>案 ・ テーマ</th><th>CT-3 割れ</th><th>潰れる</th><th>灰に色</th><th>テーマと逆向き</th><th>予定も変わる</th><th>実/予の最悪</th><th>その色</th></tr>'
+  for (const t of ts) for (const k of Object.keys(OPTIONS)) {
+    const c = sweep(t, k, p, mono)
+    const pc = (x) => `${x} <span class="hint">(${(100 * x / c.n).toFixed(1)}%)</span>`
+    h += `<tr><td>${OPTIONS[k].name} ・ ${t.dark ? '暗' : '明'}</td><td>${pc(c.fail)}</td><td>${pc(c.lost)}</td><td>${pc(c.tinted)}</td>
+      <td>${pc(c.reversed)}</td><td>${pc(c.planMoved)}</td><td>${f2(c.worst)}</td><td><span class="swatch" style="background:${c.worstHex}"></span>${c.worstHex}</td></tr>`
+  }
+  $('sumHost').innerHTML = h + '</table>'
+}
+
+function renderSummaryText() {
+  const p = params()
+  $('summary').textContent =
+`theme=${$('theme').value} mono=${$('mono').checked} hue=${$('hue').value}
+band Lmin=${p.lmin} Lmax=${p.lmax} greyGuard=${p.greyGuard}
+D target=${p.target.toFixed(1)}  E thL=${p.thL} thD=${p.thD}
+focus=${focusHex}`
+}
+
+let pending = 0
+function renderAll() {
+  for (const [id, fmt] of [['hue', (v) => v], ['lmin', (v) => v], ['lmax', (v) => v], ['target', (v) => (v / 10).toFixed(1)], ['thL', (v) => v], ['thD', (v) => v]])
+    $(id + 'Out').textContent = fmt(+$(id).value)
+  renderGrid(); renderSummaryText()
+  clearTimeout(pending)
+  pending = setTimeout(() => { renderMaps(); renderSummary() }, 0)
+  try { localStorage.setItem('cv6-picks', JSON.stringify(picks)) } catch (e) {}
+}
+
+function addHex(raw) {
+  const hex = raw.trim().toLowerCase().replace(/^([0-9a-f]{6})$/, '#$1')
+  if (!/^#[0-9a-f]{6}$/.test(hex)) { $('hex').style.outline = '2px solid #c62828'; return }
+  $('hex').style.outline = ''
+  if (!picks.includes(hex)) picks.unshift(hex)
+  focusHex = hex; renderAll()
+}
+$('add').onclick = () => addHex($('hex').value)
+$('hex').onkeydown = (e) => { if (e.key === 'Enter') addHex($('hex').value) }
+$('picker').oninput = () => { $('hex').value = $('picker').value }
+$('picker').onchange = () => addHex($('picker').value)
+$('gridHost').onclick = (e) => {
+  const del = e.target.closest('[data-del]'), foc = e.target.closest('[data-focus]')
+  if (del) { picks = picks.filter((x) => x !== del.dataset.del); renderAll() }
+  else if (foc) { focusHex = foc.dataset.focus; renderAll() }
+}
+for (const id of ['theme', 'mono', 'hue', 'lmin', 'lmax', 'greyGuard', 'target', 'thL', 'thD']) $(id).addEventListener('input', renderAll)
+
+// Splitter between the picture and the settings pane.
+$('split').onpointerdown = (e) => {
+  $('split').setPointerCapture(e.pointerId)
+  const move = (ev) => { $('app').style.setProperty('--side', Math.max(0, Math.min(900, innerWidth - ev.clientX - 3)) + 'px') }
+  $('split').onpointermove = move
+  $('split').onpointerup = () => { $('split').onpointermove = null }
+}
+renderAll()
+</script>
+</body>
+</html>
