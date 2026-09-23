@@ -252,6 +252,23 @@ function commandFromGroupColumn(
   }
 }
 
+const HIGHLIGHT_BOX_STROKE_COLUMN = 'strokeColor'
+
+type BoxKey = Extract<FieldCommit['key'], { holder: 'commentBox' | 'highlightBox' }>
+
+// see PR-21, PR-22, CM-55, FR-019
+/** @purity pure */
+function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dark: boolean): readonly DocumentCommand[] {
+  const id = key.id
+  if (key.holder === 'commentBox') {
+    const isHeld = schedule.commentBoxes.some((held) => held.id === id)
+    return isHeld ? [{ kind: 'setCommentBoxText', id, text: settledText(text) }] : []
+  }
+  const box = schedule.highlightBoxes.find((held) => held.id === id)
+  if (box === undefined || key.column !== HIGHLIGHT_BOX_STROKE_COLUMN) return []
+  return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+}
+
 // see FR-009, CM-38
 /** @purity pure */
 function commandFromDependencyColumn(
@@ -379,9 +396,8 @@ export function commandFromFieldCommit(
       return group === undefined ? [] : commandFromGroupColumn(group, key.column, commit.text, dark)
     }
     case 'commentBox':
-      return schedule.commentBoxes.some((held) => held.id === key.id)
-        ? [{ kind: 'setCommentBoxText', id: key.id, text: settledText(commit.text) }]
-        : []
+    case 'highlightBox':
+      return commandFromBoxColumn(schedule, key, commit.text, dark)
     case 'dependency': {
       const successor = taskByUid(schedule, key.successorUid)
       const dependency = successor?.dependencies[key.ordinal]

@@ -1202,6 +1202,13 @@
     "ja": "本文",
     "en": "text"
    }
+  },
+  {
+   "rowId": "PR-22",
+   "label": {
+    "ja": "枠の色",
+    "en": "strokeColor"
+   }
   }
  ],
  "settings": [

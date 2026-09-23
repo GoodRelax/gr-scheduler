@@ -1072,6 +1072,7 @@ const ON_A_ROW = 'TaskGroup'
  * MUST NOT is what says so.
  */
 const ON_A_COMMENT_BOX = 'CommentBox'
+const ON_A_HIGHLIGHT_BOX = 'HighlightBox'
 
 /**
  * The row a field of the panel DECLARES for one row of table T-016.
@@ -1161,6 +1162,26 @@ const BOX_PICKED: Frame = frameWith({
   selection: selectionWith(emptySelection(), { kind: 'commentBox', id: THE_BOX }),
 })
 
+const THE_HIGHLIGHT_BOX = 'h1'
+
+const HIGHLIGHT_BOX_PICKED: Frame = frameWith({
+  schedule: {
+    ...SCHEDULE,
+    highlightBoxes: [
+      {
+        id: THE_HIGHLIGHT_BOX,
+        startDate: null,
+        endDate: null,
+        topGroupId: null,
+        bottomGroupId: null,
+        strokeColor: null,
+        cornerRadiusPx: null,
+      },
+    ],
+  } as unknown as Schedule,
+  selection: selectionWith(emptySelection(), { kind: 'highlightBox', id: THE_HIGHLIGHT_BOX }),
+})
+
 /**
  * The frame that puts one row of table T-016 on the panel, by its 対象.
  *
@@ -1174,6 +1195,7 @@ const frameFor = (rowId: string): Frame => {
   if (appliesTo === ON_A_TASK) return PANEL_STATES['selection'] as Frame
   if (appliesTo === ON_A_ROW) return ROW_PICKED
   if (appliesTo === ON_A_COMMENT_BOX) return BOX_PICKED
+  if (appliesTo === ON_A_HIGHLIGHT_BOX) return HIGHLIGHT_BOX_PICKED
   throw new Error(
     `table T-016 ${rowId} carries 対象 ${JSON.stringify(appliesTo)}, which this file can raise no frame for`,
   )

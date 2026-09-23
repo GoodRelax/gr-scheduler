@@ -242,6 +242,7 @@ const ON_A_ROW = 'TaskGroup'
  * that used to say it was are now the row's own claim, keyed by 対象.
  */
 const ON_A_COMMENT_BOX = 'CommentBox'
+const ON_A_HIGHLIGHT_BOX = 'HighlightBox'
 
 /**
  * FR-006 (MUST): 「同表が読み取り専用と記した項目を除いて」編集できること.
@@ -295,6 +296,8 @@ const T_016_ON_A_TASK = T_016.filter((item) => item.appliesTo === ON_A_TASK)
 
 /** The half of table T-016 a selected `CommentBox` puts up, in the table's own order. */
 const T_016_ON_A_COMMENT_BOX = T_016.filter((item) => item.appliesTo === ON_A_COMMENT_BOX)
+
+const T_016_ON_A_HIGHLIGHT_BOX = T_016.filter((item) => item.appliesTo === ON_A_HIGHLIGHT_BOX)
 
 /**
  * Table T-016's 入力の型 column against the members of `PropertyControlKind`.
@@ -1443,8 +1446,12 @@ describe("FR-006 (MUST) -- only the rows whose 対象 matches what is selected",
     // the 対象 column carries no value these cases have not been told about, and
     // dropping it would let a fourth kind reach a panel unwatched.
     expect(T_016_ON_A_COMMENT_BOX.length, '対象 = CommentBox').toBeGreaterThan(0)
+    expect(T_016_ON_A_HIGHLIGHT_BOX.length, '対象 = HighlightBox').toBeGreaterThan(0)
     expect(
-      T_016_ON_A_TASK.length + T_016_ON_A_ROW.length + T_016_ON_A_COMMENT_BOX.length,
+      T_016_ON_A_TASK.length +
+        T_016_ON_A_ROW.length +
+        T_016_ON_A_COMMENT_BOX.length +
+        T_016_ON_A_HIGHLIGHT_BOX.length,
       'table T-016 carries a 対象 these cases do not know',
     ).toBe(T_016.length)
   })
@@ -1516,12 +1523,15 @@ describe('table T-023c -- the other kinds SL-1 admits', () => {
     })
 
   it('stays on the selection and stands no `Task` row against them', () => {
-    // ⛔ Neither table T-016 nor FR-009 carries a row for these two, and
-    // FR-072 forbids falling through to the settings.
+    // ⛔ FR-072 forbids falling through to the settings; FR-006 (MUST NOT) holds out
+    // every row of another object (PR-22 is the highlight box's own row, JDG-408).
+    const ownAppliesTo: Readonly<Record<string, string>> = { highlightBox: ON_A_HIGHLIGHT_BOX }
     for (const item of OTHERS) {
       const panel = panelOf(withBoxes(), holding(item))
       expect(panel.showing, item.kind).toBe('selection')
-      for (const row of T_016) expect(panel.fields.map((f) => f.row), item.kind).not.toContain(row.row)
+      for (const row of T_016.filter((one) => one.appliesTo !== ownAppliesTo[item.kind])) {
+        expect(panel.fields.map((f) => f.row), item.kind).not.toContain(row.row)
+      }
     }
   })
 })

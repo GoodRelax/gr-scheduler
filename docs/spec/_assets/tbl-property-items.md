@@ -47,3 +47,4 @@
 | PR-20 | `height` | 数値 | `TaskGroup` | 倍率 1 のときの論理の高さ。<br>`null` ＝ 自動 | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |
+| PR-22 | `strokeColor` | 色 | `HighlightBox` | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ テーマから解く。<br>⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |

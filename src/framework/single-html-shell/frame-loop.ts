@@ -236,8 +236,9 @@ export interface FrameLoop {
   raiseStartupNotice(reason: StartupNoticeReason, affectedCount?: number | null): void
   /** @purity non-pure */
   fullScreenChanged(isFullScreen: boolean): void
+  // see FT-1
   /** @purity non-pure */
-  keyReleased(): void
+  pressContinued(): void
 }
 
 // see FR-071, UF-48
@@ -2740,7 +2741,6 @@ export function frameLoop(
 
   // see MK-13, IN-5a, IN-5b, T-292
   // TRAP: kept until the focus is in, so keys typed next reach the field, not table T-036; past the retries no frame is asked.
-  // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here a field not drawn or a missing focus seam withdraws it too (DFC-694)
   /** @purity non-pure */
   function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
     const wanted = fieldFocusWantedIn(session)
@@ -3363,7 +3363,7 @@ export function frameLoop(
     sendToSession({ type: 'fieldFocusAsked', fieldRow: row }, values)
   }
 
-  // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here a moved choice withdraws it too (DFC-694)
+  // see IN-5a
   /** @purity non-pure */
   function noteChoiceMoved(frame: FrameValues | null): void {
     sendToSession(CHOICE_MOVED, frame)
@@ -4346,7 +4346,6 @@ export function frameLoop(
         // STOP: spec does not decide where the chosen rows are held. Looked in FR-085, FR-042, SL-1
         // @provisional PND-142
         showPropertiesOfChoice()
-        // DEVIATION: spec withdraws the want for IN-5a's reasons (T-292); here chosen rows moving withdraws it too (DFC-694)
         sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
         return
       }
@@ -4757,7 +4756,7 @@ export function frameLoop(
       if (session !== before && settled(environment)) ask()
     },
     /** @purity non-pure */
-    keyReleased(): void {
+    pressContinued(): void {
       if (settled(environment)) ask()
     },
   }

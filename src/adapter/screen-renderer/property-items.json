@@ -217,6 +217,17 @@
    ],
    "isReadOnly": false,
    "appliesTo": "CommentBox"
+  },
+  {
+   "rowId": "PR-22",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox"
   }
  ]
 }

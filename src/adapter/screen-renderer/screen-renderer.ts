@@ -228,6 +228,11 @@ export type PropertyFieldKey =
       readonly id: string
       readonly column: keyof Schedule['commentBoxes'][number] & string
     }
+  | {
+      readonly holder: 'highlightBox'
+      readonly id: string
+      readonly column: keyof Schedule['highlightBoxes'][number] & string
+    }
 
 export interface CommandPalette {
   readonly at: { readonly x: number; readonly y: number }

@@ -82,7 +82,8 @@
       "enum": [
        "Task",
        "TaskGroup",
-       "CommentBox"
+       "CommentBox",
+       "HighlightBox"
       ]
      },
      "note": {

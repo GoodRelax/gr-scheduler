@@ -98,7 +98,20 @@ function isPageFullScreen(): boolean {
 /** @purity non-pure */
 function watchPageHappenings(loopOf: () => FrameLoop | null): void {
   document.addEventListener('fullscreenchange', () => loopOf()?.fullScreenChanged(isPageFullScreen()))
-  window.addEventListener('keyup', () => loopOf()?.keyReleased())
+  window.addEventListener('keyup', () => loopOf()?.pressContinued())
+  window.addEventListener('change', (event) => {
+    if (isHostPickerValue(event.target)) loopOf()?.pressContinued()
+  })
+}
+
+const HOST_PICKER_INPUT_TYPES: ReadonlySet<string> = new Set(['color', 'date'])
+
+// see FT-1
+// WHY: a value chosen in the host's own picker window arrives with no pointer or key event of the page.
+/** @purity pure */
+function isHostPickerValue(target: EventTarget | null): boolean {
+  const type = (target as { readonly type?: unknown } | null)?.type
+  return typeof type === 'string' && HOST_PICKER_INPUT_TYPES.has(type)
 }
 
 /** @purity non-pure */

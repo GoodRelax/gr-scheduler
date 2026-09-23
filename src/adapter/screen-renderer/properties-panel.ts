@@ -127,17 +127,26 @@ type PropertyItem = { readonly row: string; readonly appliesTo: AppliesTo } & (
   | { readonly heldBy: 'assignment'; readonly columns: readonly ['assignee'] }
   | { readonly heldBy: 'taskGroup'; readonly columns: readonly (keyof TaskGroup)[] }
   | { readonly heldBy: 'commentBox'; readonly columns: readonly (keyof CommentBox)[] }
+  | { readonly heldBy: 'highlightBox'; readonly columns: readonly (keyof HighlightBox)[] }
 )
 
 type TaskPropertyItem = Extract<PropertyItem, { heldBy: 'task' | 'taskVisual' | 'assignment' }>
 type GroupPropertyItem = Extract<PropertyItem, { heldBy: 'taskGroup' }>
 type CommentBoxPropertyItem = Extract<PropertyItem, { heldBy: 'commentBox' }>
+type HighlightBoxPropertyItem = Extract<PropertyItem, { heldBy: 'highlightBox' }>
 
-type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox'
+type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox'
 
 const APPLIES_TO_TASK: AppliesTo = 'Task'
 const APPLIES_TO_TASK_GROUP: AppliesTo = 'TaskGroup'
 const APPLIES_TO_COMMENT_BOX: AppliesTo = 'CommentBox'
+const APPLIES_TO_HIGHLIGHT_BOX: AppliesTo = 'HighlightBox'
+
+const HELD_BY_OF_OBJECT: Readonly<Partial<Record<AppliesTo, PropertyItem['heldBy']>>> = {
+  TaskGroup: 'taskGroup',
+  CommentBox: 'commentBox',
+  HighlightBox: 'highlightBox',
+}
 
 const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
   'PR-1': 'task',
@@ -159,9 +168,7 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
 
 /** @purity pure */
 function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
-  if (appliesTo === APPLIES_TO_TASK_GROUP) return 'taskGroup'
-  if (appliesTo === APPLIES_TO_COMMENT_BOX) return 'commentBox'
-  const heldBy = HELD_BY_ON_A_TASK[row]
+  const heldBy = HELD_BY_OF_OBJECT[appliesTo] ?? HELD_BY_ON_A_TASK[row]
   if (heldBy === undefined) {
     throw new Error(`table T-016 holds ${row}, and nothing says which entity holds its value`)
   }
@@ -189,6 +196,10 @@ const GROUP_ITEMS: readonly GroupPropertyItem[] = PROPERTY_ITEMS.filter(
 
 const COMMENT_BOX_ITEMS: readonly CommentBoxPropertyItem[] = PROPERTY_ITEMS.filter(
   (item): item is CommentBoxPropertyItem => item.appliesTo === APPLIES_TO_COMMENT_BOX,
+)
+
+const HIGHLIGHT_BOX_ITEMS: readonly HighlightBoxPropertyItem[] = PROPERTY_ITEMS.filter(
+  (item): item is HighlightBoxPropertyItem => item.appliesTo === APPLIES_TO_HIGHLIGHT_BOX,
 )
 
 const READ_ONLY_ROWS: readonly string[] = propertyItems.items
@@ -570,54 +581,82 @@ function fieldsOfItem(
       if (successor === null || dependency === undefined) return null
       return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef)
     }
-    case 'commentBox': {
-      const box = schedule.commentBoxes.find((one) => one.id === subject.id)
-      return box === undefined ? null : commentBoxFields(schedule, box, labelCoef, language)
+    case 'commentBox':
+      return fieldsOfFound(schedule, schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
+    case 'highlightBox': {
+      const box = schedule.highlightBoxes.find(withId(subject.id))
+      return fieldsOfFound(schedule, box, highlightBoxRows, labelCoef, language)
     }
-    case 'highlightBox':
     case 'statusLine':
       return []
   }
 }
 
-type CommentBox = Schedule['commentBoxes'][number]
-
-// see T-016, MK-13
 /** @purity pure */
-function commentBoxFields(
-  schedule: Schedule,
-  box: CommentBox,
-  labelCoef: number,
-  language: DisplayLanguage,
-): readonly PropertyField[] {
-  return COMMENT_BOX_ITEMS.map((item) => ({
-    row: item.row,
-    name: itemName(item.row, language),
-    text: item.columns.map((column) => textOfValue(box[column])).join(PART_SEPARATOR),
-    isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: controlsOfCommentBoxItem(schedule, box, item, labelCoef),
-  }))
+function withId(id: string): (one: { readonly id: string }) => boolean {
+  return (one) => one.id === id
 }
 
 /** @purity pure */
-function controlsOfCommentBoxItem(
+function fieldsOfFound<Held>(
   schedule: Schedule,
-  box: CommentBox,
-  item: CommentBoxPropertyItem,
+  found: Held | undefined,
+  rowsOf: (held: Held) => ObjectRows<Held>,
   labelCoef: number,
-): readonly PropertyControl[] {
-  if (READ_ONLY_ROWS.includes(item.row)) return []
-  return item.columns.map((column) =>
-    controlOf(
-      schedule,
-      { holder: 'commentBox', id: box.id, column },
-      'CommentBox',
-      column,
-      textOfValue(box[column]),
-      null,
-      labelCoef,
-    ),
-  )
+  language: DisplayLanguage,
+): readonly PropertyField[] | null {
+  return found === undefined ? null : objectFields(schedule, rowsOf(found), labelCoef, language)
+}
+
+/** @purity pure */
+function commentBoxRows(box: CommentBox): ObjectRows<CommentBox> {
+  const keyOf = (column: keyof CommentBox & string): PropertyFieldKey => ({ holder: 'commentBox', id: box.id, column })
+  return { items: COMMENT_BOX_ITEMS, held: box, keyOf, entity: 'CommentBox' }
+}
+
+// see PR-22
+/** @purity pure */
+function highlightBoxRows(box: HighlightBox): ObjectRows<HighlightBox> {
+  const keyOf = (column: keyof HighlightBox & string): PropertyFieldKey => ({ holder: 'highlightBox', id: box.id, column })
+  return { items: HIGHLIGHT_BOX_ITEMS, held: box, keyOf, entity: 'HighlightBox' }
+}
+
+type CommentBox = Schedule['commentBoxes'][number]
+type HighlightBox = Schedule['highlightBoxes'][number]
+
+interface ItemRows {
+  readonly row: string
+  readonly columns: readonly string[]
+}
+
+interface ObjectRows<Held> {
+  readonly items: readonly { readonly row: string; readonly columns: readonly (keyof Held & string)[] }[]
+  readonly held: Held
+  readonly keyOf: (column: keyof Held & string) => PropertyFieldKey
+  readonly entity: ShapedEntity
+  readonly rowOf?: (item: ItemRows) => string
+}
+
+// see T-016, MK-13, FR-019
+/** @purity pure */
+function objectFields<Held>(
+  schedule: Schedule,
+  rows: ObjectRows<Held>,
+  labelCoef: number,
+  language: DisplayLanguage,
+): readonly PropertyField[] {
+  const { items, held, keyOf, entity } = rows
+  return items.map((item) => ({
+    row: rows.rowOf?.(item) ?? item.row,
+    name: itemName(item.row, language),
+    text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
+    isEditable: !READ_ONLY_ROWS.includes(item.row),
+    controls: READ_ONLY_ROWS.includes(item.row)
+      ? []
+      : item.columns.map((column) =>
+          controlOf(schedule, keyOf(column), entity, column, textOfValue(held[column]), null, labelCoef),
+        ),
+  }))
 }
 
 type TaskGroup = Schedule['taskGroups'][number]
@@ -627,7 +666,7 @@ const ROW_NAME_FIELD_ROW = 'AT-53'
 
 // see IR-1, FR-085, FR-042
 /** @purity pure */
-function declaredRowOf(item: GroupPropertyItem): string {
+function declaredRowOf(item: ItemRows): string {
   const [first] = item.columns
   return first === ROW_NAME_COLUMN ? ROW_NAME_FIELD_ROW : item.row
 }
@@ -640,25 +679,13 @@ function groupFields(
   labelCoef: number,
   language: DisplayLanguage,
 ): readonly PropertyField[] {
-  return GROUP_ITEMS.map((item) => ({
-    row: declaredRowOf(item),
-    name: itemName(item.row, language),
-    text: item.columns.map((column) => textOfValue(group[column])).join(PART_SEPARATOR),
-    isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: READ_ONLY_ROWS.includes(item.row)
-      ? []
-      : item.columns.map((column) =>
-          controlOf(
-            schedule,
-            { holder: 'taskGroup', groupId: group.id, column },
-            'TaskGroup',
-            column,
-            textOfValue(group[column]),
-            null,
-            labelCoef,
-          ),
-        ),
-  }))
+  const keyOf = (column: keyof TaskGroup & string): PropertyFieldKey => ({
+    holder: 'taskGroup',
+    groupId: group.id,
+    column,
+  })
+  const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
+  return objectFields(schedule, rows, labelCoef, language)
 }
 
 /** @purity pure */
@@ -724,8 +751,11 @@ const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>
   color: 'band',
 }
 
-// see CV-9, S-315
-const LEFT_OUT_OF_ROW_COLOUR = 'black'
+// see CV-9, S-315, FR-019
+const LEFT_OUT_NAME_OF_HOLDER: Readonly<Partial<Record<PropertyFieldKey['holder'], string>>> = {
+  taskGroup: 'black',
+  highlightBox: 'transparent',
+}
 
 const HEX_PAINT = /^#[0-9a-f]{6}$/
 
@@ -762,7 +792,8 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   const stored = control.text === '' ? null : control.text
   const custom = stored === null ? null : customColourOf(stored)
   const order = displayWords.colourNames.map((entry) => entry.spelling)
-  const names = order.filter((name) => form !== 'band' || name !== LEFT_OUT_OF_ROW_COLOUR)
+  const leftOut = LEFT_OUT_NAME_OF_HOLDER[control.key.holder]
+  const names = order.filter((name) => name !== leftOut)
   const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   const drawn = swatchOf(stored, form, look.hue, look.dark).paint

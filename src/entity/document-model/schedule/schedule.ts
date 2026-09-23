@@ -404,6 +404,9 @@ export const COLUMN_SHAPES: {
   readonly CommentBox: {
     readonly [column: string]: ColumnShape
   }
+  readonly HighlightBox: {
+    readonly [column: string]: ColumnShape
+  }
 } = {
   Task: {
     uid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
@@ -464,6 +467,15 @@ export const COLUMN_SHAPES: {
     anchorDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     anchorGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     bodyOffsetPx: { kind: 'object', choices: null, min: null, max: null, isNullable: true },
+  },
+  HighlightBox: {
+    id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
+    startDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    endDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    topGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    bottomGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
+    cornerRadiusPx: { kind: 'number', choices: null, min: null, max: null, isNullable: true },
   },
 }
 

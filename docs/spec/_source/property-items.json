@@ -307,6 +307,22 @@
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
    }
+  },
+  {
+   "id": "PR-22",
+   "columns": [
+    "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "ハイライトボックスの枠の色（`CM-55`）。`null` ＝ テーマから解く。⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`）"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
   }
  ]
 }
