@@ -303,22 +303,44 @@ function optionElement(
   if (colour === undefined) return option
   const paint = colour.swatches[index] ?? ''
   const ink = colour.inks[index] ?? ''
-  option.setAttribute('style', `background:${paint};${ink === '' ? '' : `color:${ink};`}`)
+  const edge = value === UNSET_COLOUR_VALUE ? UNSET_SWATCH_BORDER : ''
+  option.setAttribute('style', `${swatchPaint(paint)}${edge}${ink === '' ? '' : `color:${ink};`}`)
   return option
 }
 
-const SWATCH_MARK = '\u25a0'
+const UNSET_COLOUR_VALUE = ''
+// TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.
+const TRANSPARENT_PAINT = 'none'
+const CHECKER_LIGHT = '#ffffff'
+const CHECKER_DARK = '#c0c0c0'
+const CHECKER_TILE_EM = 0.5
+const CHECKER_PATTERN =
+  `repeating-conic-gradient(${CHECKER_DARK} 0 25%, ${CHECKER_LIGHT} 0 50%)` +
+  ` 0 0/${CHECKER_TILE_EM}em ${CHECKER_TILE_EM}em`
+const SWATCH_SIDE_EM = 0.75
+const SWATCH_BORDER_PX = 1
+const UNSET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px dashed currentColor;`
+const SET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px solid transparent;`
+const SWATCH_BOX =
+  `display:inline-block;box-sizing:border-box;width:${SWATCH_SIDE_EM}em;height:${SWATCH_SIDE_EM}em;` +
+  'vertical-align:middle;'
+
+// see CV-9
+/** @purity pure */
+function swatchPaint(paint: string): string {
+  return paint === TRANSPARENT_PAINT ? `background:${CHECKER_PATTERN};` : `background:${paint};`
+}
 
 const SIDE_SEPARATOR = ' / '
 
 // see CV-9
 /** @purity non-pure */
-function sideElements(host: Document, side: ColourField['light']): readonly HTMLElement[] {
+function sideElements(host: Document, side: ColourField['light'], isUnset: boolean): readonly HTMLElement[] {
   const word = made(host, 'span', '')
   word.textContent = `${side.word} `
-  const mark = made(host, 'span', `color:${side.paint};`)
+  const edge = isUnset ? UNSET_SWATCH_BORDER : SET_SWATCH_BORDER
+  const mark = made(host, 'span', SWATCH_BOX + swatchPaint(side.paint) + edge)
   mark.setAttribute('data-colour-swatch', side.paint)
-  mark.textContent = SWATCH_MARK
   const note = made(host, 'span', '')
   note.textContent = side.note
   return [word, mark, note]
@@ -342,7 +364,12 @@ function colourExtras(host: Document, row: string, control: PropertyControl): re
   readout.setAttribute('data-colour-sides', 'true')
   const separator = made(host, 'span', '')
   separator.textContent = SIDE_SEPARATOR
-  readout.append(...sideElements(host, colour.light), separator, ...sideElements(host, colour.dark))
+  const isUnset = control.text === UNSET_COLOUR_VALUE
+  readout.append(
+    ...sideElements(host, colour.light, isUnset),
+    separator,
+    ...sideElements(host, colour.dark, isUnset),
+  )
   return [custom, readout]
 }
 
