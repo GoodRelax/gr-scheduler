@@ -53,7 +53,7 @@
 //   T-023b AR-1.. the six values an arm may take
 //   T-029a DC-1   「入る | パレットの `Dual Cursor` の入口を押す」 -- so the
 //                 press this file makes IS the entrance the clause speaks of
-//   T-029a DC-4   「出る | 同じ入口の再押下、または `Esc`」 -- ⭐ THE SAME
+//   T-029a DC-4   「出る | 同じ入口の再押下、`Esc`、またはガイドカーソルの入口（…）の押下（`DC-9`）」 -- ⭐ THE SAME
 //                 ENTRANCE IS THE WAY OUT, which is why every case below has to
 //                 say which of the two a press is
 //   T-109 IC-45   「`Command Palette` | カーソル | デュアルカーソルの 2 本を
@@ -402,7 +402,7 @@ describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the 
 describe('T-029a DC-4 -- going out leaves the arm alone', () => {
   it.each(ARMS)('keeps $row when IC-45 is pressed while a side is following', ({ armed }) => {
     // 「入るとき」 is what the clause says. DC-4 makes the SAME entrance the exit
-    // (「同じ入口の再押下、または `Esc`」) and says nothing about the arm, so a
+    // (see DC-4, quoted above) and says nothing about the arm, so a
     // build that un-armed on the way out would be adding a rule the manuscript
     // does not carry. `dualCursorFollowing` non-null IS "in the mode": the note
     // on `EscapeContext` states the user ruled that bit into the session on

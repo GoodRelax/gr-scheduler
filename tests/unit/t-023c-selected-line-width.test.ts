@@ -47,7 +47,7 @@
 //   T-206  S-174 / S-175   the outline half: the frame's stroke and its dash
 //   T-206  S-178 「選択された線の太さの倍率」、⭐「絶対値ではなく、その線自身
 //            の太さに掛ける倍率である」
-//   T-206  S-194 「2 連カーソルの線の太さ（表 T-029 の `CU-2`）」、⭐「`S-178`
+//   T-206  S-194 「カーソルの線の太さ（表 T-029 の `CU-2` ・ `CU-3`）」、⭐「`S-178`
 //            を掛ける前の、その線自身の太さである」
 //   T-201  S-18  `dependencyWidth`, the dependency line's own width -- named as
 //            such by S-178's own note:「依存線は `S-18` を持つ」

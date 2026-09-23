@@ -24,9 +24,10 @@
 //
 //   * THE CHEVRON'S HALF OF THE RULE. FD-5 gives the fade to SH-1 and SH-2,
 //     and FD-6b shrinks a chevron's two fades 「同じ比で」 -- but SH-2 also has
-//     「フェード長が切り込みの深さを置き換える」, and no row says where a
-//     chevron's usable width begins once the notch is the fade. Every case
-//     below is a rectangle (SH-1), whose FD-6 is stated in full.
+//     「開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、
+//     端ごとに置き換えること」, and no row says where a chevron's usable width
+//     begins once the notch is the fade. Every case below is a rectangle
+//     (SH-1), whose FD-6 is stated in full.
 //   * WHERE A LABEL PUSHED OUTSIDE BEGINS. T-273's 「入らない」 rows push it right, and the
 //     paragraph's three rules are all about 「形状の中に書くとき」, so nothing
 //     here claims a fadeOut clears an outside label.

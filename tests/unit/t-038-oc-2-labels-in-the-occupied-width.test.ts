@@ -454,7 +454,7 @@ describe('table T-038 heading -- the SAME count drives the lane assignment (FR-0
 //      standing on its own day; the exact edge is pressed in cr-380-381-384-*.
 //
 //   S-63 (_assets/tbl-settings.md, table T-202)
-//     「| S-63 | `progressMarkerVisible` | 真偽 | `true` | 進捗マーカー
+//     「| S-63 | `progressMarkerVisible` | 真偽 | `false` | 進捗マーカー
 //      （`FR-013`）と再開アイコン（`FR-044`）。寸法をズームに追随させない規則は
 //      `FR-094` が持つ |」 -- ONE switch for both, which is what makes "the
 //      label must not move" a single measurement.
