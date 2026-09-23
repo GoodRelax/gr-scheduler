@@ -1265,7 +1265,7 @@ J-17（項目 7）`row-id-prefixes.json` の `RR` —— 旧 `{"ja": "担当者�
 | S-4 | 全体表示 ↔ 殻（`frame-loop.ts:1645-1656`） | `fitZoom` が返す `scrollDayOffset` をそのまま書く（いまの `scrollDayOffset: 0` を置き換える） |
 | S-5 | 仕様 ↔ 状態機械 | 出来事 `guideCursorEntryPressed`（`on` → `off`、効果 `writeClearDualCursorSettingGuide`）。`dualCursorEntryPressed` の `off` → `on` の効果は `writePlaceDualCursorClearingGuide`（`S-66` を `'none'` にする書き込みを含む） |
 | S-6 | 殻 ↔ 入口（`input-command-translator.ts:694` 付近の `IC-47` ・ `IC-48`） | ガイドカーソルの入口を押したとき、`Dual Cursor` のモードにいれば `guideCursorEntryPressed` を先に起こし、そのあと `S-66` を書く |
-| S-7 | 仕様 ↔ 基準日線 | 出す命令のあとに `scrollDate` ／ `scrollDayOffset` を、基準日線の x が `Row Area` の横の中点に来る値へ書く。`zoomX` ・ `zoomY` ・ `scrollGroupId` は書かない。ポインタ: `GR-16` と `GR-22` は `PK-10`（`col-resize`） |
+| S-7 | 仕様 ↔ 基準日線 | 出す命令のあとに `scrollDate` ／ `scrollDayOffset` を、基準日線の x が `Row Area` の横の中点に来る値へ書く。倍率が保存されているときは `zoomX` ・ `zoomY` ・ `scrollGroupId` を書かない。⭐ 全体表示で描かれていて倍率が保存されていないときは、いま描いている `zoomX` ・ `zoomY` と最上行を、値を変えずに同じ束で書く（「倍率はそのまま」—— 値を変えずに書けば倍率は変わらない。波 2 で前に立つ者が継ぎ目を正した）。ポインタ: `GR-16` と `GR-22` は `PK-10`（`col-resize`） |
 | S-8 | 仕様 ↔ パネル（`properties-panel-drawing.ts`） | 1 側の示し方 ＝ 見本 ＋ 値。値は `#RRGGBB`（大文字）／ 名の語 ／ 透明の語 ／ 空。見本は塗り ／ 市松（`S-335` ・ `S-336` ・ `S-337`）／ 破線の縁 |
 | S-9 | 仕様 ↔ 読み込み（`json-codec.ts`） | 検証の前に `TaskVisual` の各項から `nameAnchor` と `nameAlign` の鍵を消す（表 T-297）。通知しない |
 | S-10 | 仕様 ↔ ツールチップ（`tooltips-drawing.ts` ・ `dom-screen-surface.ts` の `STYLE.tooltip`） | 説明の箱は `width:max-content` ・ `max-width:calc(100vw - 2 × S-339 px)` ・ 行は折り返さない書き方で、上限を超える行だけ折り返す。出した瞬間に 1 度だけ測り、窓の右端 − `S-339` を越えるなら右端を対象の右端へ、それでも左端が `S-339` より左なら左端を `S-339` へ。窓の大きさを定期に読まない（`resize` の監視も置かない） |

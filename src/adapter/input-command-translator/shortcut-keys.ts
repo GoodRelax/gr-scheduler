@@ -25,6 +25,7 @@ import {
   fitWrites,
   keyZoomFactor,
   rowZoomAnswer,
+  statusLineWrites,
   zoomTimes,
   zoomWrites,
 } from './zoom-and-fit'
@@ -106,11 +107,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   if (plain && key === KEY.f) return changedInOrder(fitWrites(context))
 
   if (ctrlShift && key === KEY.d) {
-    return changed([
-      context.document.schedule.project.statusDate === null
-        ? { kind: 'setStatusDate', date: context.today }
-        : { kind: 'clearStatusDate' },
-    ])
+    return changed(statusLineWrites(context))
   }
 
   return UNASSIGNED

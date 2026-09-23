@@ -24,6 +24,9 @@ type DisplayLanguage = 'ja' | 'en'
 
 type ScaleEnd = 'max' | 'min' | null
 
+// see DC-9, S-66
+type GuideCursor = Exclude<Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode'], 'none'>
+
 export interface ScreenValuesStateCarried {
   readonly language: DisplayLanguage | null
   readonly rememberedActuals: Readonly<Record<number, RememberedActual>>
@@ -51,6 +54,7 @@ export interface ScreenValuesEventCarried {
   readonly isAgentApiEnabled: boolean
   readonly date: string
   readonly hasDaysToPlace: boolean
+  readonly guideCursor: GuideCursor
   readonly percent: number
   readonly end: ScaleEnd
   readonly language: DisplayLanguage
@@ -71,10 +75,11 @@ interface ScreenValuesEffectPayloads {
   readonly clearSelection: NoPayload
   readonly writeFoldAll: Carried
   readonly writeOpenLevel: Carried
-  readonly writePlaceDualCursor: { readonly date: string } & Carried
+  readonly writePlaceDualCursorClearingGuide: { readonly date: string } & Carried
   readonly writeFixDate1: { readonly date: string } & Carried
   readonly writeFixDate2: { readonly date: string } & Carried
   readonly writeClearDualCursor: NoPayload
+  readonly writeClearDualCursorSettingGuide: { readonly guideCursor: GuideCursor }
   readonly startScaleMessageTimer: NoPayload
   readonly restartScaleMessageTimer: NoPayload
   readonly storeLanguage: { readonly language: DisplayLanguage }
@@ -1245,7 +1250,19 @@ function onDualCursorEntryPressed(
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
   return moved(values, { dualCursorModeState: { kind: 'on', child }, armModeState: armed }, [
-    { type: 'writePlaceDualCursor', date: event.date, writes: event.writes },
+    { type: 'writePlaceDualCursorClearingGuide', date: event.date, writes: event.writes },
+  ])
+}
+
+// see DC-9, T-280
+/** @purity pure */
+function onGuideCursorEntryPressed(
+  values: ScreenValues,
+  event: EventOf<'guideCursorEntryPressed'>,
+): ScreenStep {
+  if (values.dualCursorModeState.kind === 'off') return unchanged(values)
+  return moved(values, { dualCursorModeState: { kind: 'off' } }, [
+    { type: 'writeClearDualCursorSettingGuide', guideCursor: event.guideCursor },
   ])
 }
 
@@ -1347,6 +1364,7 @@ const HANDLERS: {
   foldAllPressed: onFoldAllPressed,
   levelZeroOpened: onLevelZeroOpened,
   dualCursorEntryPressed: onDualCursorEntryPressed,
+  guideCursorEntryPressed: onGuideCursorEntryPressed,
   dualCursorPlaced: onDualCursorPlaced,
   displayScaleStepped: onScaleMessageRaised,
   rowZoomEndReached: onScaleMessageRaised,

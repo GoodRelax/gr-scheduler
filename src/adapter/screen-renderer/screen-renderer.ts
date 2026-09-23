@@ -165,6 +165,14 @@ export interface ColourField {
   readonly customValue: string
   readonly light: ColourSide
   readonly dark: ColourSide
+  // WHY: optional, so a description written before it still draws; absent, only the offered names show.
+  readonly names?: readonly ColourName[]
+}
+
+// see CV-9, T-294
+export interface ColourName {
+  readonly name: string
+  readonly isOffered: boolean
 }
 
 export interface PropertyControl {

@@ -84,6 +84,7 @@ import {
   commandFromRowExpanderCloseAll,
   commandFromRowExpanderOpenAll,
   commandFromRowExpanderOpenLevelZero,
+  everyRowDeleted,
   rowStoodUp,
 } from './row-tree-entrances'
 import { commandFromKey } from './shortcut-keys'
@@ -92,6 +93,7 @@ import {
   fitWrites,
   keyZoomFactor,
   rowZoomAnswer,
+  statusLineWrites,
   zoomTimes,
   zoomWrites,
 } from './zoom-and-fit'
@@ -206,6 +208,8 @@ export type InputAction =
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       readonly created?: CreatedSubject
+      // see HF-20, QN-10
+      readonly question?: 'QN-10'
     }
   | {
       readonly kind: 'setLevelZeroFolded'
@@ -265,6 +269,8 @@ export type InputAction =
       readonly kind: 'setDualCursorFollowing'
       readonly following: DualCursorSide | null
       readonly placed: SetDualCursor | ClearDualCursor | null
+      // see DC-9
+      readonly guideCursor?: PressedGuideCursor
     }
 
 export interface TranslatedInput {
@@ -709,6 +715,7 @@ export const ENTRY = {
   rowAddTopRow: 'IC-93',
   rowPin: 'IC-60',
   rowDelete: 'IC-82',
+  rowDeleteAll: 'IC-106',
   resourceRoster: 'IC-62',
   rosterChooseAll: 'IC-63',
   rosterClearChosen: 'IC-64',
@@ -742,15 +749,17 @@ function visibleElementOfEntry(entry: string): VisibleElement | null {
 
 type GuideCursorMode = Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode']
 
-const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, GuideCursorMode>> = {
+type PressedGuideCursor = Exclude<GuideCursorMode, 'none'>
+
+const GUIDE_CURSOR_MODE_BY_ENTRY: Readonly<Record<string, PressedGuideCursor>> = {
   'IC-47': 'crosshair',
   'IC-48': 'single-vertical',
 }
 
 /** @purity pure */
-function guideCursorModeOfEntry(entry: string): GuideCursorMode | null {
+function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null {
   return Object.prototype.hasOwnProperty.call(GUIDE_CURSOR_MODE_BY_ENTRY, entry)
-    ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as GuideCursorMode)
+    ? (GUIDE_CURSOR_MODE_BY_ENTRY[entry] as PressedGuideCursor)
     : null
 }
 
@@ -1049,11 +1058,7 @@ function commandFromEntry(
       return changed([{ kind: 'setStackDirection', direction: isUpNow ? 'down' : 'up' }])
     }
     case ENTRY.statusLine:
-      return changed([
-        context.document.schedule.project.statusDate === null
-          ? { kind: 'setStatusDate', date: context.today }
-          : { kind: 'clearStatusDate' },
-      ])
+      return changed(statusLineWrites(context))
     case ENTRY.dualCursor:
       return commandFromDualCursorEntry(press, context)
     case ENTRY.guideCursorCrosshair:
@@ -1093,6 +1098,8 @@ function commandFromEntry(
       return commandFromRowExpanderOpenLevelZero(context)
     case ENTRY.rowAddTopRow:
       return rowStoodUp(context, null, 1)
+    case ENTRY.rowDeleteAll:
+      return everyRowDeleted(context)
     case ENTRY.documentSettingsProperties:
       return acted({ kind: 'toggleDocumentSettingsProperties' })
     case ENTRY.agentApi:
@@ -1126,11 +1133,14 @@ function commandFromVisibleElementEntry(entry: string, context: InputContext): T
   return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
 }
 
-// see FR-048, CM-59
+// see FR-048, CM-59, DC-9
 /** @purity pure */
 function commandFromGuideCursorEntry(entry: string, context: InputContext): TranslatedInput {
   const mode = guideCursorModeOfEntry(entry)
   if (mode === null) return CONSUMED_ELSEWHERE
+  if (context.dualCursorFollowing !== null) {
+    return acted({ kind: 'setDualCursorFollowing', following: null, placed: null, guideCursor: mode })
+  }
   const standing = context.document.documentSettings.guideCursorMode
   return changed([{ kind: 'setGuideCursorMode', mode: standing === mode ? 'none' : mode }])
 }

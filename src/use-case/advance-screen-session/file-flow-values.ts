@@ -35,7 +35,7 @@ export type FileFlowWriteForm = { readonly kind: 'save' } | { readonly kind: 'ex
 // see NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
-  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
+  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherRow: boolean }[]
 }
 

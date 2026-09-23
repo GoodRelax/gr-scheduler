@@ -159,6 +159,18 @@ function rowDeleted(context: InputContext, rowGroupId: string): TranslatedInput 
   return changed([{ kind: 'deleteTaskGroup', groupId: rowGroupId, newGroupId: context.newGroupId }])
 }
 
+// see HF-20, CD-6, IC-106
+// WHY: CM-27 once per top row in one bundle: one undo unit, and the row rule of T-050 sees the last go.
+/** @purity pure */
+export function everyRowDeleted(context: InputContext): TranslatedInput {
+  const newGroupId = context.newGroupId
+  const writes: DocumentCommand[] = context.document.schedule.taskGroups
+    .filter((row) => row.parentId === null)
+    .map((row) => ({ kind: 'deleteTaskGroup', groupId: row.id, newGroupId }))
+  if (writes.length === 0) return CONSUMED_ELSEWHERE
+  return acted({ kind: 'changeDocument', writes: [writes], question: 'QN-10' })
+}
+
 // see T-254
 /** @purity pure */
 function withKeptOpenMarks(

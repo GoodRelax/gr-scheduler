@@ -298,6 +298,8 @@ function optionElement(host: Document, value: string, choice: string): HTMLEleme
 
 type ColourField = NonNullable<PropertyControl['colour']>
 
+type ColourName = NonNullable<ColourField['names']>[number]
+
 type ColourSide = ColourField['light']
 
 // TRAP: the light side only: S-336 and S-337 hold one colour for both themes, and a row that
@@ -370,8 +372,6 @@ function isSideUndefined(control: PropertyControl, side: ColourSide): boolean {
 }
 
 // see CV-9, T-294
-// DEVIATION: spec says an unoffered name keeps its empty place (CV-9); here the names close up,
-// as the description carries only the offered names and not the whole order of table T-294.
 /** @purity pure */
 function paletteNamesOf(control: PropertyControl): readonly string[] {
   const words = control.choices ?? []
@@ -488,6 +488,26 @@ function colourChoiceElement(host: Document, row: string, control: PropertyContr
   return choice
 }
 
+// see CV-9, T-294
+/** @purity pure */
+function paletteOrderOf(control: PropertyControl, colour: ColourField): readonly ColourName[] {
+  return colour.names ?? paletteNamesOf(control).map((name) => ({ name, isOffered: true }))
+}
+
+/** @purity pure */
+function transparentOf(control: PropertyControl, colour: ColourField): ColourName {
+  const listed = paletteOrderOf(control, colour).find((one) => one.name === TRANSPARENT_NAME)
+  return listed ?? { name: TRANSPARENT_NAME, isOffered: false }
+}
+
+// see CV-9
+// WHY: an unoffered name keeps its place as an empty slot, so a colour stays where it is learnt.
+/** @purity non-pure */
+function colourSlotElement(host: Document, row: string, control: PropertyControl, one: ColourName): HTMLElement {
+  if (!one.isOffered) return made(host, 'span', swatchBox(choiceSide()))
+  return colourChoiceElement(host, row, control, one.name)
+}
+
 // see CV-9, S-338
 /** @purity pure */
 function colourGridStyle(): string {
@@ -529,8 +549,8 @@ function colourFieldElements(host: Document, row: string, control: PropertyContr
   const colour = control.colour
   if (colour === undefined) return []
   const grid = made(host, 'div', colourGridStyle())
-  const named = paletteNamesOf(control).filter((name) => name !== TRANSPARENT_NAME)
-  grid.append(...named.map((name) => colourChoiceElement(host, row, control, name)))
+  const named = paletteOrderOf(control, colour).filter((one) => one.name !== TRANSPARENT_NAME)
+  grid.append(...named.map((one) => colourSlotElement(host, row, control, one)))
   const slot = made(host, 'span', '')
   if (openCustomColour.identity === colourFieldIdentity(row, control)) {
     slot.append(hostColourInput(host, row, control, colour))
@@ -538,7 +558,7 @@ function colourFieldElements(host: Document, row: string, control: PropertyContr
   const lastLine = made(host, 'div', colourLastLineStyle())
   lastLine.append(
     customEntryElement(host, row, control, colour, slot),
-    colourChoiceElement(host, row, control, TRANSPARENT_NAME),
+    colourSlotElement(host, row, control, transparentOf(control, colour)),
     slot,
   )
   const palette = made(host, 'div', 'flex:1 1 100%;')

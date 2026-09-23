@@ -3,11 +3,12 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import type { Schedule } from '../../entity/document-model/schedule/schedule'
+import { dayOf, type Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   fitZoom,
   groupDepthLimit,
   rowPlacesAtZoomY,
+  xFromDay,
   type RowPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -458,24 +459,53 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
   return { x: fitted.zoomX, y: Math.max(fitted.zoomY, fitted.floorZoomY) }
 }
 
+// see FR-046, IC-44
+/** @purity pure */
+export function statusLineWrites(context: InputContext): readonly DocumentCommand[] {
+  if (context.document.schedule.project.statusDate !== null) return [{ kind: 'clearStatusDate' }]
+  return [{ kind: 'setStatusDate', date: context.today }, ...statusLineCentred(context, context.today)]
+}
+
+// see FR-046, OP-10
+// WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom is written with the place so it stays.
+/** @purity pure */
+function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] {
+  const day = dayOf(date)
+  if (day === null) return []
+  const settings = context.document.documentSettings
+  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+  const area = context.regions.rowArea
+  const onDay = dayAnchorAt(context, xFromDay(context.layout, day) - area.width / 2)
+  const rows = isSeated ? settings : scrolledAnchor(context, 0, 0)
+  const to = {
+    kind: 'setScrollPosition',
+    scrollDate: onDay.scrollDate,
+    scrollDayOffset: onDay.scrollDayOffset,
+    scrollGroupId: rows.scrollGroupId,
+    scrollGroupOffset: rows.scrollGroupOffset,
+  } as const
+  if (!(context.isPictureAtStoredZoom ?? isSeated)) return [zoomCommand(context, null, null), to]
+  return isScrollPositionInForce(context, to) ? [] : [to]
+}
+
 // see SK-18, FR-055
 /** @purity pure */
 function fitCommand(context: InputContext): DocumentCommand {
   const schedule = context.document.schedule
   const fitted = fittedNow(context)
   const at = scrolledAnchor(context, 0, 0)
-  const place = namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId)
-    ? { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
-    : namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
-      ? { scrollDate: at.scrollDate, scrollGroupId: at.scrollGroupId }
-      : { scrollDate: fitted.scrollDate, scrollGroupId: fitted.scrollGroupId }
+  const place =
+    namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId) ||
+    !namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
+      ? fitted
+      : at
   return {
     kind: 'fitScheduleToScreen',
     zoomX: fitted.zoomX,
     zoomY: fitted.zoomY,
     scrollDate: place.scrollDate,
     scrollGroupId: place.scrollGroupId,
-    scrollDayOffset: 0,
+    scrollDayOffset: place.scrollDayOffset,
     scrollGroupOffset: 0,
   }
 }

@@ -271,6 +271,7 @@ export type PointerShape =
   | 'grabbing'
   | 'grab'
   | 'pointer'
+  | 'col-resize'
   | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
@@ -288,6 +289,7 @@ export type PointerRow =
   | 'PK-7'
   | 'PK-8'
   | 'PK-9'
+  | 'PK-10'
 
 // see T-266
 // WHY: table T-269 draws one row two ways (the arrows' two headings, the fade's in and out), and
@@ -331,11 +333,11 @@ const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> =
   'GA-20': { row: 'PK-9', facing: 'start' },
   'GA-21': { row: 'PK-1', facing: 'start', ink: 'filled' },
   'GA-22': { row: 'PK-1', facing: 'end', ink: 'filled' },
-  // WHY: table T-269 draws the shapes of the schedule only; the rest of table T-023d holds no row there.
+  // WHY: table T-269 holds no row for the other rows of table T-023d.
   'GR-10': null,
   'GR-11': null,
   'GR-14': null,
-  'GR-16': null,
+  'GR-16': { row: 'PK-10', facing: 'start' },
 }
 
 // WHY: read by row ID: the map above is exhaustive over the grab rows, and a row outside it has none.
@@ -528,6 +530,8 @@ export function pointerImageOf(
       return 'grab'
     case 'PK-9':
       return resumeArrowPointer()
+    case 'PK-10':
+      return 'col-resize'
   }
 }
 
@@ -725,6 +729,9 @@ const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded'
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
 
+// see DC-9
+const GUIDE_CURSOR_CLEARED: DocumentCommand = { kind: 'setGuideCursorMode', mode: GUIDE_CURSOR_NONE }
+
 // see IN-4, T-283
 // WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
 // by the surface (IF-9), gesture below the translators, selection by selectionFromInput.
@@ -776,7 +783,7 @@ export const FOCUS_ON_DOCUMENT_BODY = 'body'
 // TRAP: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
 const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
-type ConfirmationQuestion = 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5'
+type ConfirmationQuestion = FileFlowQuestion['question']
 
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
@@ -1401,12 +1408,13 @@ function paletteMinimisedForRecordOf(session: ScreenSession, whileHidden: boolea
   return palette.kind === 'hidden' ? whileHidden : palette.child.kind === 'minimised'
 }
 
-// see DC-1, DC-2, DC-4, T-280
+// see DC-1, DC-2, DC-4, DC-9, T-280
 /** @purity pure */
 function dualCursorEventOf(
   action: Extract<InputAction, { readonly kind: 'setDualCursorFollowing' }>,
   session: ScreenSession,
 ): ScreenValuesEvent {
+  if (action.guideCursor !== undefined) return { type: 'guideCursorEntryPressed', guideCursor: action.guideCursor }
   const placed = action.placed
   const writes: readonly DocumentCommand[] =
     placed === null || placed.kind === 'clearDualCursor' ? [] : [placed]
@@ -1505,10 +1513,12 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     clearSelection: () => hands.clearSelection(),
     writeFoldAll: carried,
     writeOpenLevel: carried,
-    writePlaceDualCursor: carried,
+    writePlaceDualCursorClearingGuide: (effect, frame) => hands.writeCarried([...effect.writes, GUIDE_CURSOR_CLEARED], frame),
     writeFixDate1: carried,
     writeFixDate2: carried,
     writeClearDualCursor: (_effect, frame) => hands.writeCarried(CLEAR_DUAL_CURSOR, frame),
+    writeClearDualCursorSettingGuide: (effect, frame) =>
+      hands.writeCarried([...CLEAR_DUAL_CURSOR, { kind: 'setGuideCursorMode', mode: effect.guideCursor }], frame),
     startScaleMessageTimer: () => hands.startScaleMessageTimer(),
     restartScaleMessageTimer: () => hands.startScaleMessageTimer(),
 
@@ -1649,7 +1659,7 @@ function viewSettings(
       zoomY: fitted.zoomY,
       scrollDate: fitted.scrollDate,
       scrollGroupId: fitted.scrollGroupId,
-      scrollDayOffset: 0,
+      scrollDayOffset: fitted.scrollDayOffset,
       scrollGroupOffset: 0,
     },
     isAtStoredZoom: false,
@@ -1964,6 +1974,7 @@ function taskUidsWithAnUnusableDate(
 function confirmationOwedBy(
   commands: readonly DocumentCommand[],
   held: Document,
+  asked: ConfirmationQuestion | undefined,
 ): FileFlowQuestion | null {
   const schedule = held.schedule
   const lostRows = new Set<string>()
@@ -1997,7 +2008,7 @@ function confirmationOwedBy(
       isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
     })
   }
-  const question: ConfirmationQuestion = lostRows.size > 0 ? 'QN-1' : 'QN-2'
+  const question: ConfirmationQuestion = asked ?? (lostRows.size > 0 ? 'QN-1' : 'QN-2')
   return { manner: CONFIRMATION_MANNER, question, items }
 }
 
@@ -4115,7 +4126,7 @@ export function frameLoop(
     switch (action.kind) {
       case 'changeDocument': {
         if (isQuestionAskedIn(session)) return
-        const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document)
+        const owedQuestion = confirmationOwedBy(action.writes.flat(), held.document, action.question)
         if (owedQuestion !== null) {
           const created = action.created ?? null
           const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }

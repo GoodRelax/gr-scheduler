@@ -769,9 +769,8 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   if (control.kind !== 'color' || form === undefined) return control
   const stored = control.text === '' ? null : control.text
   const custom = stored === null ? null : customColourOf(stored)
-  const names = displayWords.colourNames
-    .map((entry) => entry.spelling)
-    .filter((name) => form !== 'band' || name !== LEFT_OUT_OF_ROW_COLOUR)
+  const order = displayWords.colourNames.map((entry) => entry.spelling)
+  const names = order.filter((name) => form !== 'band' || name !== LEFT_OUT_OF_ROW_COLOUR)
   const customWord = COLOUR_FIELD_WORDS.get('custom')?.[look.language] ?? ''
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
   const drawn = swatchOf(stored, form, look.hue, look.dark).paint
@@ -789,6 +788,7 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
       customValue: custom !== null ? customSideOf(custom, look.dark) : HEX_PAINT.test(drawn) ? drawn : '',
       light: colourSide(stored, form, look, false),
       dark: colourSide(stored, form, look, true),
+      names: order.map((name) => ({ name, isOffered: names.includes(name) })),
     },
   }
 }
