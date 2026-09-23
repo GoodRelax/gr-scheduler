@@ -176,9 +176,9 @@ export function shell(
   }
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
-  // IF-9: an unsettled text entry is told to the shell as a begin notice, which
-  // it keeps as `editingField` of table T-292 (CR-500 wave B). PR-1 is the row
-  // the name field names (table T-016).
+  // see IF-9, T-292, T-016
+  // WHY: an unsettled text entry is told to the shell as a begin notice (CR-500
+  // wave B), kept as `editingField`; PR-1 is the row the name field names.
   const pendingEdits: FieldEditNotice[] =
     options.unsettledText === true ? [{ kind: 'began', row: 'PR-1' }] : []
   const surface: ScreenSurface = {

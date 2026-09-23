@@ -861,12 +861,9 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     })
   }
 
-  // ⚠️ THE TWO CASES BELOW GO THROUGH THE SHELL (CR-440 section 5). The
-  // delivery window is the session's state (SM-38 of table T-286) and the
-  // CALLER fills WS-2's `deliveringNotices` from it, so `replaceDocument`
-  // alone, handed a calm moment, cannot refuse -- the refusal is the shell's
-  // moment meeting the UseCase's WS-2. `holdDocument` is the shell's RD-6
-  // road; the watcher is PI-15's own, told by the shell's WS-7.
+  // see CR-440, RD-6, PI-15
+  // WHY: these two cases go through the shell; the delivery window is
+  // changeDeliveryStateMachine.delivering, so only the shell's WS-7 can refuse.
   const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
   const LONG_AGO = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
   const shellDocument = (rows: number): Document =>
@@ -898,8 +895,8 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       built.loop.holdDocument({ row: 'RD-6', document: shellDocument(2) })
 
       expect(told, 'premise: the outer replacement reached WS-7').toBeGreaterThan(0)
-      // The write from inside reached neither WS-6 nor WS-7: the document held
-      // while it was refused, and afterwards, is the outer one.
+      // WHY: the write from inside reached neither WS-6 nor WS-7: the document
+      // held while it was refused, and afterwards, is the outer one.
       expect(heldInside).toBe(2)
       expect(rowsHeld(built)).toBe(2)
       // Exactly one delivery: the outer one. 待ち行列は作らない (FR-028).

@@ -595,11 +595,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   })
 
   it('WS-2 refuses a write made from inside the delivery, and swaps only once -- through the shell', () => {
-    // WHY: Chapter 5.5 refuses a write made during delivery; the subscriber
-    // cannot know it is inside one. Since CR-440 section 5 the window is the
-    // session's state (SM-38 of table T-286) and the CALLER fills WS-2's
-    // moment from it, so the UseCase alone cannot show this any more: the
-    // write is driven through the shell's holder, audience and snapshot.
+    // WHY: the window is changeDeliveryStateMachine.delivering (CR-440 section
+    // 5); the UseCase alone cannot show it, so the write goes through the shell.
     const built = shell(rowDocument([{ id: 'row-1', parentId: null }]))
     const apiFor = (writerName: string): AgentApi =>
       installAgentApi({

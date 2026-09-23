@@ -361,12 +361,8 @@ interface ScreenPane {
   readonly wiring: ScreenWiring
   /** What `readScreenPartAt` answers from now on. The case decides; the fake does not. */
   drawAt(part: ScreenPart | null): void
-  /**
-   * Starts or ends an edit in the name field -- SK-19's own condition. IF-9
-   * tells the shell by a begin or an end notice (readFieldEditNotices), and the
-   * shell keeps the answer as `editingField` of table T-292; it no longer asks
-   * the host (CR-500 wave B).
-   */
+  // WHY: starts or ends an edit in the name field (SK-19's own condition);
+  // IF-9 tells the shell by a begin/end notice, kept as `editingField` (CR-500 wave B).
   leaveAnEditUnsettled(unsettled: boolean): void
   last(): ScreenView
 }
@@ -375,7 +371,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
   let unsettled = false
-  // IF-9: the notices raised since the shell last read them, in order.
+  // WHY: IF-9's notices raised since the shell last read them, in order.
   const pending: FieldEditNotice[] = []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
@@ -384,7 +380,8 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     readDialogueInput: () => null,
     // Nothing here drives a field, so no value is ever committed.
     readFieldCommit: () => null,
-    // ⚠️ Still declared by IF-9's surface, but the shell no longer reads it.
+    // WHY: hasUnsettledTextEntry is still declared by IF-9's surface, but the
+    // shell no longer reads it.
     hasUnsettledTextEntry: () => unsettled,
     readFieldEditNotices: () => pending.splice(0, pending.length),
     readScreenPartAt: () => part,
@@ -397,7 +394,7 @@ function screenPane(language: DisplayLanguage = 'ja'): ScreenPane {
     leaveAnEditUnsettled: (next) => {
       if (next === unsettled) return
       unsettled = next
-      // PR-1 is the row the name field names (table T-016).
+      // WHY: PR-1 is the row the name field names (table T-016).
       pending.push({ kind: next ? 'began' : 'ended', row: 'PR-1' })
     },
     last: () => {

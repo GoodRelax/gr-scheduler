@@ -1813,8 +1813,8 @@ describe('IF-9 of 表 T-065 -- one member per supply the cell names', () => {
       'hasUnsettledTextEntry',
       'readDialogueInput',
       'readFieldCommit',
-      // IF-9's begin/end notices (CR-500 wave B); hasUnsettledTextEntry stays
-      // above while `screen-surface.ts` still declares it.
+      // WHY: IF-9's begin/end notices (CR-500 wave B); hasUnsettledTextEntry
+      // stays above while `screen-surface.ts` still declares it.
       'readFieldEditNotices',
       'readScreenPartAt',
       'showScreenView',
