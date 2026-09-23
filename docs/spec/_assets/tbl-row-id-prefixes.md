@@ -110,7 +110,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 387 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 392 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 122 |
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
@@ -148,7 +148,7 @@
 | `PL` | Progress Line | イナズマ線の頂点の打ち方 | 仕様書 | `T-022` | 5 |
 | `PLM` | — | いまの日程表の作り方が抱えている問題 | 仕様書 | `T-001` | 8 |
 | `PM` | Progress Marker | 進捗マーカーの記号 | 仕様書 | `T-021` | 5 |
-| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 274 |
+| `PND` | Pending Decision | まだ裁定されていない決めごと（⛔ `PD-` は判定順序の段と紛れるので使わない） | 台帳 | `docs/development-records/pending-decisions.md` | 275 |
 | `PO` | Policy | 単一 HTML の内容セキュリティ方針の指令 | 仕様書 | `T-232` | 6 |
 | `PP` | — | 直接操作の原則（なぜその振る舞いなのかの理由） | 仕様書 | `T-274` | 7 |
 | `PR` | Property | プロパティパネルが出す項目 1 つ | 仕様書 | `T-016` | 19 |
