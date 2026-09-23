@@ -240,6 +240,8 @@ export interface FrameLoop {
   // see FT-1
   /** @purity non-pure */
   pressContinued(): void
+  /** @purity non-pure */
+  fileDropped(): void
 }
 
 // see FR-071, UF-48
@@ -1113,8 +1115,9 @@ const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-97': { kind: 'cancelImport' },
 }
 
-// STOP: spec does not decide which T-078 trigger wakes a frame for a dropped file. Looked in T-078, OP-2, PI-28 (PND-446)
-// DEVIATION: spec says a dropped file opens (OP-2); here no route opens one (DFC-569)
+// see FT-1, OP-2
+export const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop'
+
 const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
@@ -4796,6 +4799,12 @@ export function frameLoop(
     },
     /** @purity non-pure */
     pressContinued(): void {
+      if (settled(environment)) ask()
+    },
+    // WHY: the store took the file in its capture listener; a host with no store still wakes (FT-1).
+    /** @purity non-pure */
+    fileDropped(): void {
+      if (files !== undefined) sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_DROP }, values)
       if (settled(environment)) ask()
     },
   }

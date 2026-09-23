@@ -93,7 +93,7 @@ function isPageFullScreen(): boolean {
   return (document.fullscreenElement ?? null) !== null
 }
 
-// see FT-6, FT-1, CV-9
+// see FT-6, FT-1, CV-9, OP-2
 // WHY: Space presses a button on the key's release, so its click and change arrive after the frame keydown asked.
 /** @purity non-pure */
 function watchPageHappenings(loopOf: () => FrameLoop | null): void {
@@ -102,6 +102,15 @@ function watchPageHappenings(loopOf: () => FrameLoop | null): void {
   window.addEventListener('change', (event) => {
     if (isHostPickerValue(event.target)) loopOf()?.pressContinued()
   })
+  window.addEventListener('drop', (event) => {
+    if (isFileDrop(event)) loopOf()?.fileDropped()
+  })
+}
+
+// WHY: bubble phase, so the file store's capture listener has already held the file and stopped navigation.
+/** @purity pure */
+function isFileDrop(event: DragEvent): boolean {
+  return event.dataTransfer?.types.includes('Files') === true
 }
 
 const HOST_PICKER_INPUT_TYPES: ReadonlySet<string> = new Set(['color', 'date'])

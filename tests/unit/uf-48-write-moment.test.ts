@@ -1235,15 +1235,98 @@ describe('FR-018 -- holding a zoom entrance down', () => {
     }
   })
 
-  // ⛔ NOT IMPLEMENTED, AND SKIPPED RATHER THAN LEFT RED. FR-018 (MUST) asks
-  // that holding one of IC-12 .. IC-15 keep stepping the zoom after S-172 at
-  // S-173, and (MUST NOT) forbids the shape that steps once. Nothing in `src/`
-  // repeats a press: `receiveInput` sees a down and an up and nothing between
-  // them, and no clock in this layer counts a hold. ⚠ This case is here so the
-  // gap is named where the entrances are driven, not so it can pass today --
-  // unskip it when the repeat lands.
-  it.skip('FR-018 (MUST): holding IC-13 keeps stepping the zoom after S-172, at S-173', () => {
-    expect.unreachable('FR-018 -- the press that repeats is not implemented')
+  const FR_018_REPEATS =
+    '入口を押し続けたときは、`_assets/tbl-settings.md` の 表 T-206 の `S-172` が定める待ち時間ののち、同表の `S-173` が定める間隔で倍率を刻み続けること（MUST）。'
+  const FR_018_NOT_ONCE = '押し続けても 1 度しか刻まない形にしてはならない（MUST NOT）。'
+  const FR_018_ONLY_FOUR =
+    '繰り返す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-12` 〜 `IC-15` に限ること（MUST）'
+  const FT_4_HOLD = '`FR-018` の押し続け（`S-172` / `S-173`）'
+
+  it('the manuscript still says it, word for word: FR-018 and FT-4 of table T-078', () => {
+    const requirements = unbroken(
+      readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
+    )
+    const design = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+    expect(requirements).toContain(FR_018_REPEATS)
+    expect(requirements).toContain(FR_018_NOT_ONCE)
+    expect(requirements).toContain(FR_018_ONLY_FOUR)
+    expect(design).toContain(FT_4_HOLD)
+  })
+
+  // see FR-018, FT-4, S-172, S-173
+  const holding = async (entry: string, overrides: Record<string, unknown>) => {
+    // WHY: the import line stays untouched; this is the same vitest instance.
+    const { vi } = await import('vitest')
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] })
+    const run = standing(overrides)
+    let asked = 0
+    const pump = (globalThis as any).requestAnimationFrame as (callback: (time: number) => void) => number
+    ;(globalThis as any).requestAnimationFrame = (callback: (time: number) => void): number => {
+      asked += 1
+      return pump(callback)
+    }
+    run.screen.drawAt({ part: APP_HEADER, entry, format: null, rowGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
+    run.loop.receiveInput(pointer('down', 500, 300))
+    run.frames.runAnimationFrames()
+    return {
+      run,
+      asked: () => asked,
+      wait: (ms: number) => vi.advanceTimersByTime(ms),
+      release: () => {
+        run.loop.receiveInput(pointer('up', 500, 300))
+        run.screen.drawAt(null)
+        run.frames.runAnimationFrames()
+      },
+      done: () => vi.useRealTimers(),
+    }
+  }
+
+  it('FR-018 (MUST): holding IC-13 steps after S-172, then at S-173, each step wakes a frame, release stops it', async () => {
+    const held = await holding('IC-13', {})
+    try {
+      const zoom = (): number => settingsOf(held.run.loop).zoomX as number
+      const pressed = zoom()
+      held.wait(msOf('S-172') - 1)
+      held.run.frames.runAnimationFrames()
+      expect(zoom(), 'FR-018: a step before the wait of S-172 is over').toBe(pressed)
+
+      const seen = [pressed]
+      for (const [index, ms] of [1, msOf('S-173'), msOf('S-173')].entries()) {
+        if (index === 2) {
+          held.wait(ms - 1)
+          held.run.frames.runAnimationFrames()
+          expect(zoom(), 'FR-018: a step before the interval of S-173 is over').toBe(seen[seen.length - 1])
+        }
+        const before = held.asked()
+        held.wait(index === 2 ? 1 : ms)
+        expect(held.asked() - before, `FT-4: repeat ${index + 1} woke no frame`).toBeGreaterThanOrEqual(1)
+        held.run.frames.runAnimationFrames()
+        expect(zoom(), `FR-018 (MUST NOT): repeat ${index + 1} did not step`).toBeGreaterThan(seen[seen.length - 1] as number)
+        seen.push(zoom())
+      }
+
+      held.release()
+      const released = zoom()
+      held.wait(msOf('S-172') + 3 * msOf('S-173'))
+      held.run.frames.runAnimationFrames()
+      expect(zoom(), 'FR-018: the zoom kept stepping after the release').toBe(released)
+    } finally {
+      held.done()
+    }
+  })
+
+  it('control (FR-018 MUST): holding IC-16, which is not one of IC-12 .. IC-15, does not repeat', async () => {
+    const held = await holding('IC-16', { ...CONTRARY, themePreference: THEME_VALUES[0] })
+    try {
+      const theme = (): unknown => settingsOf(held.run.loop).themePreference
+      const pressed = theme()
+      held.wait(msOf('S-172') + 3 * msOf('S-173'))
+      held.run.frames.runAnimationFrames()
+      expect(theme(), 'FR-018: an entrance outside IC-12 .. IC-15 repeated').toBe(pressed)
+      held.release()
+    } finally {
+      held.done()
+    }
   })
 })
 
