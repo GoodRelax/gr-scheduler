@@ -1301,7 +1301,13 @@ NOT_STORED_TARGETS = {
     # both the drawing side's to apply: the share is of the window, which is
     # the environment's own measure, and the columns are a layout. ⛔ Not
     # folded into the line above -- one constant per consuming SUBJECT.
-    'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204'],
+    # ⭐ CR-551: S-339 (IN-7's inset of a tooltip from the window edge), and
+    # S-334 / S-340 (DC-3's readout text factor and its px floor) join S-204,
+    # the tooltip's text factor, because the one unit that draws them all is
+    # tooltips-drawing.ts, which reads this constant already -- the readout is
+    # drawn by the tooltip drawer, and S-334 is stated as S-204's half.
+    'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
+                               'S-339', 'S-340'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
     # and the rule width RR-5 reads. Not folded into the help line above -- one
@@ -1324,7 +1330,18 @@ NOT_STORED_TARGETS = {
     # not, and only the ORDER changes when one is selected. ⭐ Like S-178 it is
     # a multiplier on the line's own width (S-18) rather than a length.
     'NOT_STORED_DEPENDENCY_SIZES': (['S-224'], DRAWN_INTO_THE_EXPORTED_PICTURE),
-    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
+    # S-194: both are the width a line of table T-029 is drawn at, both are
+    # drawn by schedule-overlays.ts, which reads this constant already, and
+    # EP-6 of table T-076 carries both into an exported picture.
+    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194', 'S-333'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⭐ CR-551: the four numbers FR-013 (MUST) draws the delay mark `(!)` of
+    # PM-4 with -- the bar's width against S-24, its lower end, the dot's
+    # centre and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
+    # of svg-renderer.ts: one constant per consuming SUBJECT, and none of the
+    # others is the progress marker's glyph. Read by schedule-task-figures.ts.
+    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331'],
+                                    DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
     # two 「縦 2 本」 are different things -- CU-2 measures and the document
@@ -1363,8 +1380,10 @@ NOT_STORED_TARGETS = {
     # shape and S-186 .. S-193 are the property fields', and a shared constant
     # would make one of the two paragraphs a lie.
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
+        # CR-551: S-335 and S-338 are COUNTS of CV-9's colour field (squares
+        # on a checker side, swatches in one row), drawn by the same unit.
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198'],
+         'S-197', 'S-198', 'S-335', 'S-338'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per
@@ -1384,7 +1403,16 @@ NOT_STORED_TARGETS = {
     # T-064 hands both rows over and OC-10 reads both to count the label's
     # height. Its reason for not being kept is its own row's note in table
     # T-206 (the document holds no typeface), not the sixth ground's.
-    'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233'], DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
+    # ⭐ CR-551: S-325 rides the same constant. FR-002 (MUST) measures the
+    # planned dates at the name's size times S-325 for T-273's fit and OC-1,
+    # and this is the unit that measures them; the renderer draws the dates'
+    # <tspan> at the same factor and reads it from this unit's public entry.
+    'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233', 'S-325'],
+                               DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
+    # ⭐ CR-551: FR-055's fit leaves S-332 of the Row Area's width free on each
+    # side. ⛔ A NEW CONSTANT: its subject is the fit, which fitZoom in
+    # schedule-layout.ts carries out, and no line above is the fit's.
+    'NOT_STORED_FIT_MARGIN': (['S-332'], READ_WHERE_IT_STANDS),
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
@@ -1573,8 +1601,12 @@ COLOUR_TARGETS = {
     # grab strip mark (HF-15, GR-20) is drawn by this unit only, and S-149
     # (the rule) no longer stands in for it -- that is the whole point of the
     # change request (`the grip no longer borrows the rule's colour`).
+    # ⭐ CR-551: S-336 / S-337 are CV-9's checker squares, which the property
+    # panel draws on this side (properties-panel-drawing.ts), so they are the
+    # chrome's too.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
-                       'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170'],
+                       'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
+                       'S-336', 'S-337'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
@@ -1599,7 +1631,9 @@ COLOUR_TARGETS = {
     'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-312', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
-                         'S-169', 'S-195', 'S-223'],
+                         'S-169', 'S-195', 'S-223',
+                         # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
+                         'S-326', 'S-327'],
 }
 
 COLOUR_NOTE = [
@@ -2224,7 +2258,8 @@ TARGETS = [
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_LABEL_SIZES'),
+     + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_FIT_MARGIN'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
     # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors
@@ -2341,6 +2376,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
      # ⭐ CR-419: every <text> this unit writes carries S-246's list, and the
      # shape's name label alone carries S-245's weight -- see both entries in
@@ -2462,6 +2498,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ZOOM_STEP',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
+        'NOT_STORED_DELAY_MARK_SIZES',
         'NOT_STORED_DEPENDENCY_SIZES',
         'NOT_STORED_DUAL_CURSOR_SIZES',
         'NOT_STORED_NAME_LABEL_WEIGHT',
@@ -2496,6 +2533,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ROW_BAND_SIZES',
         'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
         'NOT_STORED_ROW_GRAB_STRIP_SIZES',
+        'SCREEN_COLOURS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_SCROLLBAR_SIZES',

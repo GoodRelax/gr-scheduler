@@ -1021,11 +1021,17 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-202': number
   readonly 'S-203': number
   readonly 'S-204': number
+  readonly 'S-334': number
+  readonly 'S-339': number
+  readonly 'S-340': number
 } = {
   'S-201': 0.95,
   'S-202': 3,
   'S-203': 0.80,
   'S-204': 0.875,
+  'S-334': 0.4375,
+  'S-339': 8,
+  'S-340': 10,
 }
 
 // see T-206
@@ -1056,6 +1062,8 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-193': number
   readonly 'S-197': number
   readonly 'S-198': number
+  readonly 'S-335': number
+  readonly 'S-338': number
 } = {
   'S-186': 17,
   'S-187': 16,
@@ -1067,6 +1075,8 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-193': 2,
   'S-197': 0.70,
   'S-198': 0.90,
+  'S-335': 2,
+  'S-338': 5,
 }
 
 // see T-206
@@ -1100,7 +1110,7 @@ const NOT_STORED_TYPEFACES: {
 }
 
 // see T-236, S-73
-const SCREEN_COLOURS: {
+export const SCREEN_COLOURS: {
   readonly [rowId: string]: {
     readonly light: string
     readonly dark: string
@@ -1119,5 +1129,7 @@ const SCREEN_COLOURS: {
   'S-153': { light: '#a8600f', dark: '#e0a353', followsHue: false },
   'S-154': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
   'S-170': { light: 'rgba(0,0,0,0.28)', dark: 'rgba(0,0,0,0.6)', followsHue: false },
+  'S-336': { light: '#ffffff', dark: '#ffffff', followsHue: false },
+  'S-337': { light: '#c0c0c0', dark: '#c0c0c0', followsHue: false },
 }
 // </generated>

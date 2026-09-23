@@ -60,21 +60,23 @@ NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口�
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
 NOT_STORED_DISPLAY_SCALE_BASE        表示の倍率が 100 のときの描く比（`S-236`）
-NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルの線の太さ（`S-194`）
+NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルと基準日線の線の太さ（`S-194` / `S-333`）
+NOT_STORED_DELAY_MARK_SIZES          遅れの記号 `(!)` の縦棒と点の寸法（`S-328` 〜 `S-331`）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
 NOT_STORED_END_POINTER_SIZES         本ツールが描くポインタの画像の大きさと縁（表 T-269。`S-249` / `S-294` 〜 `S-297`）
 NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
-NOT_STORED_HELP_SIZES                ヘルプの取り分と列（`S-201` 〜 `S-204`）
+NOT_STORED_HELP_SIZES                ヘルプの取り分と列、ツールチップと読み出しの字と余白（`S-201` 〜 `S-204` / `S-334` / `S-339` / `S-340`）
 NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、行見出しパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
-NOT_STORED_LABEL_SIZES               ラベルの幅の係数（`S-196`）
+NOT_STORED_LABEL_SIZES               ラベルの幅の係数と予定日の字の係数（`S-196` / `S-233` / `S-325`）
+NOT_STORED_FIT_MARGIN                全体表示で横に残す余白の比（`S-332`）
 NOT_STORED_LIMITS                    取り消しの段数と上限（`S-94` / `S-95`）
 NOT_STORED_PALETTE_GROUP_RULE_SIZES  パレットの群の境目の線（`S-143`）
 NOT_STORED_PANEL_DIVIDER_SIZES       `Panel Divider` の掴み帯（`S-134`）
 NOT_STORED_PROPERTIES_PANEL_SIZES    `Properties Panel` が開く幅（`S-171`）
 NOT_STORED_PROPERTIES_PANEL_FLOOR    `Properties Panel` の幅の下限（`S-248`）
 NOT_STORED_PROPERTY_CONTROL_SIZES    操作子 1 つが値の外に要る場所（`S-199`）
-NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198`）
+NOT_STORED_PROPERTY_FIELD_SIZES      プロパティパネルの欄の寸法（`S-186` 〜 `S-193` / `S-197` / `S-198` / `S-335` / `S-338`）
 NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-173`）
 NOT_STORED_RESOURCE_ROSTER_SIZES     担当者の一覧の字の係数と罫線の太さ（`S-240` / `S-241`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）

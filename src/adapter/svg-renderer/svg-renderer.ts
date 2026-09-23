@@ -563,8 +563,23 @@ export const NOT_STORED_DUMMY_SIZES: {
 // see T-206
 export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
+  readonly 'S-333': number
 } = {
   'S-194': 1,
+  'S-333': 3,
+}
+
+// see T-206
+export const NOT_STORED_DELAY_MARK_SIZES: {
+  readonly 'S-328': number
+  readonly 'S-329': number
+  readonly 'S-330': number
+  readonly 'S-331': number
+} = {
+  'S-328': 1.7,
+  'S-329': 0.15,
+  'S-330': 0.8,
+  'S-331': 0.14,
 }
 
 // see T-206
@@ -620,6 +635,8 @@ export const SCHEDULE_COLOURS: {
   'S-169': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-195': { light: '#c2188f', dark: '#f07ad0', followsHue: false },
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
+  'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
+  'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
 }
 
 // see T-294, T-017b

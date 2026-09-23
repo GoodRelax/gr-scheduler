@@ -65,6 +65,9 @@ export interface TaskPlacement {
   // TRAP: already past the marker and a PA-4 icon; do not add them again.
   readonly labelX: number
   readonly label: string
+  // TRAP: the tail of label drawn at labelFontSize x S-325, its leading space included; label ends with it.
+  readonly labelDates: string
+  // TRAP: the name at labelFontSize plus labelDates at labelFontSize x S-325; T-273 and OC-1 read this sum.
   readonly labelTextWidth: number
   readonly labelFontSize: number
   readonly outsideLabel: string
@@ -260,10 +263,15 @@ function planDatesSpanYears(schedule: Schedule, reader: DayReader): boolean {
   return false
 }
 
+// see ND-5
+const YEAR_DIGITS = 2
+
 // see ND-4, ND-5
 /** @purity pure */
 function planDateText(day: CalendarDay, withYear: boolean): string {
-  return withYear ? `${day.year}/${day.month}/${day.day}` : `${day.month}/${day.day}`
+  if (!withYear) return `${day.month}/${day.day}`
+  const year = String(day.year % 10 ** YEAR_DIGITS).padStart(YEAR_DIGITS, '0')
+  return `${year}/${day.month}/${day.day}`
 }
 
 // see ND-1, ND-2, ND-3
@@ -277,12 +285,29 @@ function planDatesOf(task: Task, reader: DayReader, withYear: boolean): string {
   return `${planDateText(start, withYear)} - ${planDateText(finish, withYear)}`
 }
 
+interface NameLabel {
+  readonly name: string
+  readonly labelDates: string
+}
+
 // see FR-002, S-232
 // TRAP: truncate the name alone; the dates are never cut and never count toward S-35.
+// TRAP: the half-width space before the dates goes with them: FR-002 draws it at the dates' size (S-325).
 /** @purity pure */
-function nameLabelOf(name: string, dates: string): string {
-  if (dates === '') return name
-  return name === '' ? dates : `${name} ${dates}`
+function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean | null,
+                     settings: DocumentSettings): NameLabel {
+  const name = truncate(task.name ?? '', settings.truncateUnits)
+  const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear)
+  if (dates === '') return { name, labelDates: '' }
+  return { name, labelDates: name === '' ? dates : ` ${dates}` }
+}
+
+// see FR-002, LC-5, OC-1, T-273, S-325
+// TRAP: never measure the joined label at one size: a fitted label would cross the reference end (FR-002).
+/** @purity pure */
+function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DocumentSettings): number {
+  return labelWidth(named.name, fontSize, settings) +
+    labelWidth(named.labelDates, fontSize * NOT_STORED_LABEL_SIZES['S-325'], settings)
 }
 
 // see XS-5, XS-6
@@ -868,12 +893,9 @@ export function layoutFromSchedule(
       const from = reader.day(task.start)
       const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
-      const label = nameLabelOf(
-        truncate(task.name ?? '', settings.truncateUnits),
-        datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear),
-      )
+      const named = nameLabelOf(task, reader, datesWithYear, settings)
       const font = labelFontSize(kind, settings)
-      const text = labelWidth(label, font, settings)
+      const text = nameLabelWidthOf(named, font, settings)
       const fade = clampedFade(task, kind, width, pxPerDay)
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
@@ -932,7 +954,7 @@ export function layoutFromSchedule(
       const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
       const occupiedX1 =
         spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
-      return { task, kind, glyph, oneDay, x, width, label, font, placement, actual, labelX,
+      return { task, kind, glyph, oneDay, x, width, named, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
                occupiedX0, occupiedX1, markerAnchorX, text }
     })
@@ -1016,7 +1038,8 @@ export function layoutFromSchedule(
         markerAnchorX: item.markerAnchorX,
         labelPlacement: item.placement,
         labelX: item.labelX,
-        label: item.label,
+        label: item.named.name + item.named.labelDates,
+        labelDates: item.named.labelDates,
         labelTextWidth: item.text,
         labelFontSize: item.font,
         outsideLabel: item.outsideLabel,
@@ -1475,8 +1498,17 @@ export const NOT_STORED_DUMMY_SIZES: {
 export const NOT_STORED_LABEL_SIZES: {
   readonly 'S-196': number
   readonly 'S-233': number
+  readonly 'S-325': number
 } = {
   'S-196': 2,
   'S-233': 1.5,
+  'S-325': 0.85,
+}
+
+// see T-206
+const NOT_STORED_FIT_MARGIN: {
+  readonly 'S-332': number
+} = {
+  'S-332': 0.025,
 }
 // </generated>

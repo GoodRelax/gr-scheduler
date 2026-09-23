@@ -219,18 +219,33 @@ function chevronNotch(width: number, height: number, settings: DocumentSettings)
   return Math.min(width * settings.chevronNotchOfWidth, height * settings.chevronNotchOfHeight)
 }
 
+// see SH-2, FD-5
 /** @purity pure */
-function chevronOutline(x0: number, x1: number, top: number, height: number, notch: number): Path {
+function chevronOutline(x0: number, x1: number, top: number, height: number,
+                        startNotch: number, endTip: number): Path {
   const middle = top + height / 2
   const bottom = top + height
   return [
     point(x0, top),
-    point(x1 - notch, top),
+    point(x1 - endTip, top),
     point(x1, middle),
-    point(x1 - notch, bottom),
+    point(x1 - endTip, bottom),
     point(x0, bottom),
-    point(x0 + notch, middle),
+    point(x0 + startNotch, middle),
   ]
+}
+
+// see FD-5, LF-6
+// TRAP: each end from its own fade; one fade must never reshape the other end (FD-5 MUST NOT).
+/** @purity pure */
+function chevronBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
+                      fade: { readonly fadeIn: number; readonly fadeOut: number },
+                      isActual: boolean, settings: DocumentSettings): BarGeometry {
+  const planNotch = chevronNotch(placed.width, placed.planHeight, settings)
+  const unfaded = isActual ? planNotch * settings.actualOfPlan : planNotch
+  const startNotch = fade.fadeIn > 0 ? fade.fadeIn : unfaded
+  const endTip = fade.fadeOut > 0 ? fade.fadeOut : unfaded
+  return { form: 'outline', points: chevronOutline(x0, x1, top, height, startNotch, endTip) }
 }
 
 /** @purity pure */
@@ -444,12 +459,7 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
   const fade = isActual
     ? { fadeIn: 0, fadeOut: 0 }
     : { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
-  if (kind === 'chevron') {
-    const fadeNotch = Math.max(fade.fadeIn, fade.fadeOut)
-    const planNotch = chevronNotch(placed.width, placed.planHeight, settings)
-    const notch = fadeNotch > 0 ? fadeNotch : isActual ? planNotch * settings.actualOfPlan : planNotch
-    return { form: 'outline', points: chevronOutline(x0, x1, top, height, notch) }
-  }
+  if (kind === 'chevron') return chevronBarOf(placed, x0, x1, top, height, fade, isActual, settings)
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn, fade.fadeOut) }
 }
 
