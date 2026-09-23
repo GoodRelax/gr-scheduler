@@ -552,3 +552,20 @@ PYTHONIOENCODING=utf-8 python <scratchpad>/cr553-edits.py
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py ; echo "exit=$?"
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-identifier-reservation.py ; echo "exit=$?"
 ```
+
+### 13.1 当てた後の整形（2026-09-24）
+
+4 節を当てた木で `npm run check` が 11 ・ 39 ・ 45 ・ 46 ・ 47 で赤になった（当てる前の `a7336de0` では全部緑）。基準値はどれも動かさず、次のとおり直した。仕様の文は形だけを変え、意味は変えていない。
+
+| 直した所 | 元の編集 | 旧 → 新 | 検査 |
+|---|---|---|---|
+| `HF-19` の頭の文 | E-04 | 「（`HF-4` の並び。2 段）」→「（`HF-4` の並び、2 段）」 —— 括弧の中の句点が文末に数えられていた | 46 |
+| `OP-10` の実測の注 | E-08 | 「（そのころは行の操作子の格子を数えていた。表 T-051 の `HF-19`）」→「（そのころは行の操作子の格子（`HF-19`）を数えていた）」 —— 太字の中に文末が 2 つあり、括弧の中の句点も文末に数えられていた | 46 ・ 47 ・ 11 |
+| `VG-7` の注 | E-01 | 「（表 T-051 の `HF-19`）」→「（`HF-19`）」 | 11 |
+| `FR-055` の RATIONALE | E-07 | 「最後の行の操作子（表 T-051 の `HF-19`）」→「最後の行の操作子（`HF-19`）」 | 11 |
+| `tests/system/cr-553-a-shown-control-group-stays-its-row.test.ts` | E-02 | `HF-6` の ⛔「群が下の行に重なっているとき、…数えてはならない（MUST NOT）」を逐語で持ち、表 T-051 の `HF-6` にその文があることと、既にあった押しの判定の説明にその文を当てた | 39 |
+| `src/framework/dom-screen-surface/screen-frame-drawing.ts` | （コード） | 横の `Scrollbars` を探す式が `dom-screen-surface.ts` の `markFrame` と `dialogue-field-drawing.ts` の 2 か所にあった → `horizontalScrollbar` 1 つにまとめ、両方がそれを呼ぶ。振る舞いは変えない | 45 |
+
+⚠️ 11 の 2 群は新しい重複ではなかった。基準値にある 表 T-109 の 4 行の群（`IC-58` ・ `IC-77` ・ `IC-90` ・ `IC-92`）が 2 つに割れたものである。`docs/review/dup-check.py` は 60 を超える単位に現れる 4 文字の並びを捨てる。4 節の編集で「表 T-051 の `HF-n`」を含む単位が差し引き 4 つ増え（`VG-7` ・ `FR-055` ・ `OP-10` ・ `FR-029` ・ `S-243` で 5 つ増え、`S-12` で 1 つ減った）、「1のHF」と「51のH」が 59 から 63 単位になって捨てられ、4 行の似かたが閾値を下回った。同じファイルの中の参照 3 つから「表 T-051 の」を外して 60 に戻した。`tbl-settings.md` の `S-243` の注は別のファイルなので表の名を残した。
+
+⚠️ `HF-19` の文を逐語で持つ試験 3 つ（`tests/unit/cr-414-*` ・ `tests/unit/cr-553-*` ・ `tests/unit/lf-3-hf-19-*`）の引用も同じ整形に合わせた。

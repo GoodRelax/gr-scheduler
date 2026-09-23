@@ -46,7 +46,7 @@ const t201 = (id: string): number => numberOf('T-201', id, '既定値')
 const byDefault = (table: string, id: string): number => numberOf(table, id, '既定')
 
 const HF_19_NOT_A_FLOOR =
-  '`HF-1` の格子（`HF-4` の並び。2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
+  '`HF-1` の格子（`HF-4` の並び、2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
 const HF_19_MAY_OVERLAP = '帯高が格子より低い行では、描いた格子とその地（`HF-6`）が、下の行の帯の上へはみ出して重なってよい'
 const LF_16_THE_AMOUNT =
   'スクロールする行（`LF-14` の帯へ上げた行を除く）のいちばん下の行の下に、行の操作子の格子（`01-04-requirements.md` の 表 T-051 の `HF-1`）が縦に取る高さからその行の帯高を引いた長さの余白を加える'

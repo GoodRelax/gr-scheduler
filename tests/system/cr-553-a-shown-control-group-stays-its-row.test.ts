@@ -22,6 +22,9 @@ const AGENT_API_ENTRANCE = ((): string => {
   return found[0]?.id ?? ''
 })()
 
+const HF_6_NOT_THE_LOWER_ROW =
+  '群が下の行に重なっているとき、群の上にあるポインタを、下の行の名前に乗っていると数えてはならない（MUST NOT）'
+
 const ROW = '[data-depth]'
 const GRID = '[data-row-folding-grid]'
 const SCROLLBARS = '[data-role="Scrollbars"]'
@@ -231,6 +234,7 @@ async function ownerAt(page: Page, at: { x: number; y: number }): Promise<string
 test.describe('HF-6 / JDG-394 (MUST): a shown group stays the row it was drawn for', () => {
   test('the lower rank over the next row still presses the row the group was drawn for', async ({ baseURL }) => {
     test.setTimeout(180_000)
+    expect(rowOf(specTable('T-051'), 'HF-6').cells.join(' '), 'the clause this case presses').toContain(HF_6_NOT_THE_LOWER_ROW)
     const opened = await openWith(baseURL, 30)
     try {
       const { page } = opened
@@ -257,7 +261,7 @@ test.describe('HF-6 / JDG-394 (MUST): a shown group stays the row it was drawn f
       await page.mouse.move(overNext.x, overNext.y, { steps: 4 })
       await page.waitForTimeout(300)
       expect(overNext.y, 'the premise: the pressed point is inside r1 band').toBeGreaterThan(second.box.y)
-      expect(await ownerAt(page, overNext), 'HF-6 (MUST NOT): the pointer over the group is not on r1').toBe('r0')
+      expect(await ownerAt(page, overNext), HF_6_NOT_THE_LOWER_ROW).toBe('r0')
       await pressAt(page, overNext)
       await page.waitForTimeout(800)
 

@@ -37,7 +37,7 @@ const t206 = (id: string): number => numberIn(rowOf('T-206', id).by['既定'], i
 const t201 = (id: string): number => numberIn(rowOf('T-201', id).by['既定値'], id)
 
 const HF_19_NOT_A_FLOOR =
-  '`HF-1` の格子（`HF-4` の並び。2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
+  '`HF-1` の格子（`HF-4` の並び、2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
 const HF_19_NO_SHRINKING = '格子の側を縮めて合わせてはならない（MUST NOT）'
 const HF_19_THE_RESERVE =
   '最後の行の格子が画面の下端（行見出しパネルと `Row Area` の下端）で切れないよう、行の並びの下に余白を置くこと（MUST）'

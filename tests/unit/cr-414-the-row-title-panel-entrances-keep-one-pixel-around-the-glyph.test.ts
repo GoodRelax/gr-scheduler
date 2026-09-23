@@ -40,7 +40,7 @@ const FR_029_THE_OUTER_WIDTH =
 const FR_029_EVERY_SURFACE =
   '⭐ 箱の一辺（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）'
 const HF_19_NOT_A_FLOOR =
-  '`HF-1` の格子（`HF-4` の並び。2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
+  '`HF-1` の格子（`HF-4` の並び、2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
 const HF_19_OUTER_SIZE = '操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである'
 
 describe('CR-414 -- the manuscript these cases are driven by', () => {

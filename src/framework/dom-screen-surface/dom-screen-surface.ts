@@ -14,7 +14,7 @@ import type {
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
-import { fillScreenFrame, panelEdge } from './screen-frame-drawing'
+import { fillScreenFrame, horizontalScrollbar, panelEdge } from './screen-frame-drawing'
 import { appHeaderStyle, fillAppHeader } from './app-header-drawing'
 import { confirmationElement, noticeElement } from './notices-drawing'
 import { paletteElement } from './command-palette-drawing'
@@ -495,7 +495,7 @@ function hoverCss(): string {
 /** @purity non-pure */
 function markFrame(root: HTMLElement, rowTitleTree: HTMLElement, frame: ScreenFrame): void {
   root.setAttribute('data-full-screen', String(frame.isFullScreen))
-  const band = frame.scrollbars.find((one) => one.axis === 'horizontal')
+  const band = horizontalScrollbar(frame)
   const clip = band === undefined ? '' : `clip-path:inset(0 0 calc(100% - ${band.track.y}px) 0);`
   rowTitleTree.setAttribute('style', STYLE.layer + STYLE.treeIsolation + clip)
 }

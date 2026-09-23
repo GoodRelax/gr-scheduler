@@ -34,6 +34,11 @@ export function panelEdge(
   return divider === undefined ? null : divider.line
 }
 
+/** @purity pure */
+export function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] | undefined {
+  return frame.scrollbars.find((one) => one.axis === 'horizontal')
+}
+
 // see U-21, U-24, SC-4, GR-22
 /** @purity non-pure */
 export function fillScreenFrame(

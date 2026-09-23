@@ -9,7 +9,7 @@ import type {
   ScreenView,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { HOST_ENTER, STYLE, made } from './dom-screen-surface'
-import { panelEdge } from './screen-frame-drawing'
+import { horizontalScrollbar, panelEdge } from './screen-frame-drawing'
 
 // see AT-129
 /** @purity pure */
@@ -46,7 +46,7 @@ export function placeDialogueField(dialogueField: HTMLElement, view: ScreenView)
     dialogueField.setAttribute('style', STYLE.hidden)
     return
   }
-  const lane = view.frame.scrollbars.find((one) => one.axis === 'horizontal')
+  const lane = horizontalScrollbar(view.frame)
   const propertiesLine = panelEdge(view.frame, 'propertiesPanel')
   const bottom = lane === undefined ? '100%' : `${lane.track.y}px`
   const right = propertiesLine === null ? '100%' : `${propertiesLine.x}px`
