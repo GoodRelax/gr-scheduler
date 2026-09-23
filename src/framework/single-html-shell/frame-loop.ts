@@ -2270,9 +2270,7 @@ async function sha256HexOf(text: string): Promise<string | null> {
   }
 }
 
-// see FR-020, S-99c, S-101
-// STOP: spec does not decide where the author sets the unlock password S-99c holds.
-// Looked in FR-086, T-109, T-103, WM-6 (PND-181)
+// see FR-020, FR-086, S-99c, S-101
 /** @purity semi-pure-b */
 function watermarkUnlockDigest(): string {
   const set = readBrowserStored('S-99c')
