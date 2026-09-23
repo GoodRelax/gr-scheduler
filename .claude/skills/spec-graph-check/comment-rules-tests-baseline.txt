@@ -28,7 +28,8 @@
 # in the commit. `--write-tests-baseline` rewrites this file; the front
 # session re-counts with it at a merge.
 # LOWERED 40 lines on 2026-09-24 to the measured values (tree density 2710 -> 2285 bp): the user in chat on 2026-09-24, verbatim: "基準線の変更を許可する。" (JDG-424); CR-552 retired L-2 / S-86 / DS-2 / K-55, measured on bd1b663d.
-tree-density-basis-points 2285
+# LOWERED 12 lines on 2026-09-24 to the measured values (tree density 2285 -> 2265 bp) under JDG-520 (the coordinator may tighten without asking); CR-553 rewrote the row-height tests, measured on aa7a9ad9.
+tree-density-basis-points 2265
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -47,7 +48,7 @@ tests/fixtures/display-scale.ts 0
 tests/fixtures/fake-browser.ts 77
 tests/fixtures/grs-document.ts 0
 tests/fixtures/row-name-font.ts 0
-tests/integration/schedule-drawing.sws.test.ts 528
+tests/integration/schedule-drawing.sws.test.ts 452
 tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts 488
 tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts 757
 tests/nfr/nfr-004-single-file.test.ts 0
@@ -106,7 +107,7 @@ tests/unit/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts 0
 tests/unit/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts 257
 tests/unit/dfc-355-the-four-rulings-of-2026-09-07.test.ts 246
 tests/unit/dfc-357-fr-073-a-newer-version-is-opened-not-refused.test.ts 0
-tests/unit/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts 262
+tests/unit/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts 247
 tests/unit/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts 0
 tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts 0
 tests/unit/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts 184
@@ -140,7 +141,7 @@ tests/unit/fr-006-panel-fields-drawn.test.ts 519
 tests/unit/fr-006-panel-typography.test.ts 460
 tests/unit/fr-009-ptd-3-the-two-halves-of-a-bar.test.ts 225
 tests/unit/fr-011-a-the-started-actual-keeps-one-worked-day.test.ts 0
-tests/unit/fr-013-pointer-on-the-figure.test.ts 421
+tests/unit/fr-013-pointer-on-the-figure.test.ts 419
 tests/unit/fr-016-zoom-bounds.test.ts 0
 tests/unit/fr-017-ruler-height-constant.test.ts 477
 tests/unit/fr-019-no-row-for-the-annotation.test.ts 118
@@ -178,9 +179,9 @@ tests/unit/fr-053-the-glyphs-that-do-not-fold.test.ts 0
 tests/unit/fr-053-the-row-the-three-entrances-moved-to.test.ts 0
 tests/unit/fr-053-where-the-band-carries-its-two-marks.test.ts 301
 tests/unit/fr-055-fit-discards-the-collapse.test.ts 193
-tests/unit/fr-055-fit-reaches-deep-tiers.test.ts 419
+tests/unit/fr-055-fit-reaches-deep-tiers.test.ts 387
 tests/unit/fr-055-vertical-fit.test.ts 148
-tests/unit/fr-055-vertical-lod-fit.test.ts 389
+tests/unit/fr-055-vertical-lod-fit.test.ts 338
 tests/unit/fr-066-the-dialogue-field-keeps-its-own-value.test.ts 0
 tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 415
 tests/unit/fr-085-double-click-a-row-name.test.ts 179
@@ -204,9 +205,9 @@ tests/unit/in-2-pointer-shape.test.ts 408
 tests/unit/in-4-escape-closes-the-panel.test.ts 471
 tests/unit/io-7-bt-1-the-exported-file-reopens-itself.test.ts 0
 tests/unit/jdg-28-the-resume-icon-beats-the-plan-bar.test.ts 368
-tests/unit/layout-engine.test.ts 717
+tests/unit/layout-engine.test.ts 651
 tests/unit/lf-11-a-milestone-gets-no-resume-icon.test.ts 106
-tests/unit/lf-3-hf-19-a-row-is-never-shorter-than-its-controls.test.ts 196
+tests/unit/lf-3-hf-19-a-row-is-never-shorter-than-its-controls.test.ts 0
 tests/unit/mk-13-the-name-field-is-armed.test.ts 344
 tests/unit/mk-wheel-scrolling.test.ts 262
 tests/unit/nt-8-enter-keeps-the-telling-its-own-settling-raised.test.ts 129
@@ -231,19 +232,19 @@ tests/unit/t-023d-follows-the-pointer.test.ts 753
 tests/unit/t-023d-gr-5-relays-the-actual-duration.test.ts 0
 tests/unit/t-023d-the-hit-box-starts-at-the-day.test.ts 269
 tests/unit/t-023d-the-plan-start-is-the-boundary.test.ts 905
-tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts 307
+tests/unit/t-024a-op-10-a-chosen-zoom-is-the-place.test.ts 305
 tests/unit/t-024a-op-10-first-day-covered.test.ts 378
 tests/unit/t-024a-op-14-a-handed-document-that-cannot-be-read.test.ts 130
 tests/unit/t-027-outside-the-history.test.ts 0
 tests/unit/t-038-oc-2-labels-in-the-occupied-width.test.ts 534
 tests/unit/t-050-a-document-always-holds-one-row.test.ts 116
 tests/unit/t-051-hf-14-a-raised-row-is-visible.test.ts 337
-tests/unit/t-051-hf-14-the-depth-cap-refuses-a-row.test.ts 264
+tests/unit/t-051-hf-14-the-depth-cap-refuses-a-row.test.ts 262
 tests/unit/t-051-hf-15-grabbing-a-row.test.ts 591
 tests/unit/t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts 250
 tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts 113
 tests/unit/t-051-hf-18-hf-15-the-marks-on-a-row.test.ts 394
-tests/unit/t-051-hf-6-ground-under-the-row-controls.test.ts 440
+tests/unit/t-051-hf-6-ground-under-the-row-controls.test.ts 412
 tests/unit/t-051-hf-6-the-pinned-rows-pin-is-filled.test.ts 204
 tests/unit/t-068-lc-9-tree-order.test.ts 0
 tests/unit/t-076-ep-12-export-drops-the-selection.test.ts 142
@@ -257,7 +258,7 @@ tests/unit/uf-23.test.ts 0
 tests/unit/uf-24-25.test.ts 0
 tests/unit/uf-26.test.ts 0
 tests/unit/uf-27-28-29.test.ts 362
-tests/unit/uf-30-31.test.ts 1092
+tests/unit/uf-30-31.test.ts 1088
 tests/unit/uf-32-ruler-band.test.ts 831
 tests/unit/uf-32.test.ts 731
 tests/unit/uf-34-35.test.ts 0
@@ -289,7 +290,7 @@ tests/unit/uf-68.test.ts 0
 tests/unit/uf-69.test.ts 409
 tests/unit/uf-71-confirmation.test.ts 706
 tests/unit/uf-71.test.ts 1430
-tests/unit/uf-72-screen-part.test.ts 2546
+tests/unit/uf-72-screen-part.test.ts 2542
 tests/unit/uf-8-9-history-depth.test.ts 0
 tests/unit/uf-8-9-replace-document.test.ts 540
 tests/unit/use-case.test.ts 0
