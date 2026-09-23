@@ -191,9 +191,16 @@ function hueSector(red: number, green: number, blue: number, high: number, chrom
   return (red - green) / chroma + 4
 }
 
-// see CV-6
+// see CV-10
+interface Hsl {
+  readonly h: number
+  readonly s: number
+  readonly l: number
+}
+
+// see CV-10
 /** @purity pure */
-export function actualOfCustom(hex: string, dark: boolean): string {
+function hexToHsl(hex: string): Hsl {
   const [red = 0, green = 0, blue = 0] = [1, 3, 5].map(
     (at) => parseInt(hex.slice(at, at + 2), 16) / 255,
   )
@@ -203,10 +210,104 @@ export function actualOfCustom(hex: string, dark: boolean): string {
   const chroma = high - low
   const saturation = chroma === 0 ? 0 : chroma / (1 - Math.abs(2 * lightness - 1))
   const hue = (hueSector(red, green, blue, high, chroma) * 60 + 360) % 360
+  return { h: hue, s: saturation * 100, l: lightness * 100 }
+}
+
+/** @purity pure */
+function hslToRgbChannels(hue: number, saturation: number, lightness: number): readonly [number, number, number] {
+  const s = saturation / 100
+  const l = lightness / 100
+  const k = (n: number): number => (n + hue / 30) % 12
+  const a = s * Math.min(l, 1 - l)
+  const f = (n: number): number => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255)) as [number, number, number]
+}
+
+// see CV-10, CV-7
+/** @purity pure */
+function greyChannelsOf(rgb: readonly [number, number, number]): readonly [number, number, number] {
+  const grey = Math.round(((Math.max(...rgb) + Math.min(...rgb)) / 2 / 255) * 255)
+  return [grey, grey, grey]
+}
+
+// see CV-10
+/** @purity pure */
+function measuredRgbOf(hsl: Hsl, monochrome: boolean): readonly [number, number, number] {
+  const rgb = hslToRgbChannels(hsl.h, hsl.s, hsl.l)
+  return monochrome ? greyChannelsOf(rgb) : rgb
+}
+
+const LUMINANCE_THRESHOLD = 0.03928
+const LUMINANCE_WEIGHTS: readonly [number, number, number] = [0.2126, 0.7152, 0.0722]
+
+// see CV-10
+/** @purity pure */
+function relativeLuminance(rgb: readonly [number, number, number]): number {
+  const channel = (value: number): number => {
+    const v = value / 255
+    return v <= LUMINANCE_THRESHOLD ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+  }
+  return LUMINANCE_WEIGHTS.reduce((sum, weight, index) => sum + weight * channel(rgb[index] as number), 0)
+}
+
+// see CV-10
+/** @purity pure */
+function contrastRatioOf(a: readonly [number, number, number], b: readonly [number, number, number]): number {
+  const lumA = relativeLuminance(a)
+  const lumB = relativeLuminance(b)
+  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05)
+}
+
+const ACTUAL_TO_PICK_CONTRAST_TARGET = 3 // see CT-3
+
+// see CV-10
+/** @purity pure */
+function meetsContrastTarget(candidate: Hsl, pick: Hsl, monochrome: boolean): boolean {
+  const ratio = contrastRatioOf(measuredRgbOf(candidate, monochrome), measuredRgbOf(pick, monochrome))
+  return ratio >= ACTUAL_TO_PICK_CONTRAST_TARGET
+}
+
+// see CV-10
+/** @purity pure */
+function saturationOfActual(pick: Hsl, shift: { readonly s: number }): number {
+  return pick.s === 0 ? 0 : clampedPercent(pick.s + shift.s)
+}
+
+// see CV-10
+/** @purity pure */
+function lightnessCandidateOf(pick: Hsl, delta: number): number {
+  const bounds = NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS
+  return Math.min(bounds['S-416'], Math.max(bounds['S-415'], pick.l + delta))
+}
+
+// see CV-10
+/** @purity pure */
+function lightnessOfActual(
+  pick: Hsl,
+  saturation: number,
+  shift: { readonly l: number },
+  monochrome: boolean,
+): number {
+  const bounds = NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS
+  const forward: Hsl = { h: pick.h, s: saturation, l: lightnessCandidateOf(pick, shift.l) }
+  if (meetsContrastTarget(forward, pick, monochrome)) return forward.l
+  const backward: Hsl = { h: pick.h, s: saturation, l: lightnessCandidateOf(pick, -shift.l) }
+  if (meetsContrastTarget(backward, pick, monochrome)) return backward.l
+  const floor: Hsl = { h: pick.h, s: saturation, l: bounds['S-415'] }
+  const ceiling: Hsl = { h: pick.h, s: saturation, l: bounds['S-416'] }
+  const floorRatio = contrastRatioOf(measuredRgbOf(floor, monochrome), measuredRgbOf(pick, monochrome))
+  const ceilingRatio = contrastRatioOf(measuredRgbOf(ceiling, monochrome), measuredRgbOf(pick, monochrome))
+  return floorRatio >= ceilingRatio ? floor.l : ceiling.l
+}
+
+// see CV-6, CV-10
+/** @purity pure */
+export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string {
+  const pick = hexToHsl(hex)
   const shift = planToActualShift(dark)
-  const s = clampedPercent(saturation * 100 + shift.s)
-  const l = clampedPercent(lightness * 100 + shift.l)
-  return `hsl(${rounded(hue)} ${rounded(s)}% ${rounded(l)}%)`
+  const s = saturationOfActual(pick, shift)
+  const l = lightnessOfActual(pick, s, shift, monochrome)
+  return `hsl(${rounded(pick.h)} ${rounded(s)}% ${rounded(l)}%)`
 }
 
 // see CV-6, CV-3, T-294
@@ -215,6 +316,7 @@ function drawnChoice(
   stored: string,
   form: ColourForm,
   dark: boolean,
+  monochrome: boolean,
   themed: (rowId: string) => string,
 ): string | null {
   const named = COLOUR_NAME_VALUES[stored]
@@ -227,7 +329,7 @@ function drawnChoice(
   const custom = customColourOf(stored)
   if (custom === null) return null
   const side = customSideOf(custom, dark)
-  return form === 'actual' ? actualOfCustom(side, dark) : side
+  return form === 'actual' ? actualOfCustom(side, dark, monochrome) : side
 }
 
 // see CV-6, CV-7, FR-041
@@ -241,7 +343,7 @@ function chosenColourOf(
   themed: (rowId: string) => string,
 ): string | null {
   if (stored === null) return null
-  const drawn = drawnChoice(stored, form, dark, themed)
+  const drawn = drawnChoice(stored, form, dark, monochrome, themed)
   if (drawn === null) return null
   return monochrome ? achromatic(drawn) : drawn
 }
@@ -614,6 +716,15 @@ export const NOT_STORED_RULER_WEEKDAY_SIZES: {
   readonly 'S-219': number
 } = {
   'S-219': 0.6,
+}
+
+// see T-206
+export const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
+  readonly 'S-415': number
+  readonly 'S-416': number
+} = {
+  'S-415': 15,
+  'S-416': 85,
 }
 
 // see T-206

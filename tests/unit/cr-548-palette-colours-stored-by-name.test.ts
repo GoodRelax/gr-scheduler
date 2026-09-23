@@ -69,7 +69,7 @@ const CV_4_OTHER_SIDE = 'もう一方の側は、選ぶ前の色がカスタム�
 const CV_5 = 'カスタムカラーを持つ欄でパレット色（透明を含む）を選んだら、2 つの値を両方捨てること（MUST）'
 const CV_6_NAMED = 'パレット色は、表 T-294 がその名に持つ、いま描いている明暗の値で描くこと（MUST）'
 const CV_6_CUSTOM = 'カスタムカラーは、実績バーの塗りを除くどの所にも、`CV-3` で決まった値をそのまま使うこと（MUST）'
-const CV_6_ACTUAL = 'カスタムカラーの実績バーの塗りは、その値から試作の予定と実績の差で導くこと（MUST）'
+const CV_6_ACTUAL = 'カスタムカラーの実績バーの塗りは、その値から `CV-10` で導くこと（MUST）'
 const CV_7 = '`FR-041` のモノクロは、`CV-6` で決まった値を無彩色にして描くこと（MUST）'
 const CV_8_T_294 =
   '表 T-294 の値は、白（`S-314`）と透明（`S-324`）を除き、表 T-017a の `CT-4` と `CT-5` を地（`_assets/tbl-settings.md` の `S-146`）に対して満たすこと（MUST）'
@@ -543,16 +543,11 @@ describe('CV-6 -- the value drawn', () => {
   })
 
   it(CV_6_ACTUAL, () => {
-    const clamp = (value: number): number => Math.min(100, Math.max(0, value))
     const base = hslOf(CUSTOM_LIGHT)
-    for (const [side, ds, dl] of [
-      ['light', 16, -46],
-      ['dark', 30, 38],
-    ] as const) {
-      const drawn = hslOf(paint(`${CUSTOM_LIGHT}/`, 'actual', side))
-      expect(Math.abs(drawn.h - base.h), `${side} hue`).toBeLessThanOrEqual(2)
-      expect(Math.abs(drawn.s - clamp(base.s + ds)), `${side} saturation`).toBeLessThanOrEqual(1.5)
-      expect(Math.abs(drawn.l - clamp(base.l + dl)), `${side} lightness`).toBeLessThanOrEqual(1.5)
+    for (const side of SIDES) {
+      const drawn = paint(`${CUSTOM_LIGHT}/`, 'actual', side)
+      expect(drawn, `${side}: derived, not the picked value`).not.toBe(CUSTOM_LIGHT)
+      expect(Math.abs(hslOf(drawn).h - base.h), `${side} hue`).toBeLessThanOrEqual(2)
     }
   })
 })

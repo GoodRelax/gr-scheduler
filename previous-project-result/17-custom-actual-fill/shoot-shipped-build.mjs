@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(HERE, '../..')
-const OUT = process.argv[2] ?? path.join(ROOT, 'scratch', 'cv6')
+const OUT = path.resolve(process.argv[2] ?? path.join(ROOT, 'scratch', 'cv6'))
 fs.mkdirSync(OUT, { recursive: true })
 const COLOURS = ['#2a9d8f', '#1d3557', '#e63946', '#f4a261', '#a8dadc', '#808080', '#ffd6e0', '#6a4c93']
 

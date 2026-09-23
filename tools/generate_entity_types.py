@@ -1362,6 +1362,13 @@ NOT_STORED_TARGETS = {
     # document keeps the DATES and never the width their labels take.
     'NOT_STORED_RULER_WEEKDAY_SIZES': (['S-219'],
                                        DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # ⭐ CR-564: the HSL lightness floor and ceiling CV-10 clamps a custom
+    # colour's actual fill to, so that the derived value never crushes into
+    # black or white and loses the hue CV-10 keeps. Read by actualOfCustom,
+    # the one function that derives a custom colour's actual fill, so the
+    # subject is that derivation and not any other svg-renderer.ts drawing.
+    'NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS': (['S-415', 'S-416'],
+                                           DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ DFC-276: the two numbers EP-1 writes the `Document Title` with, in the
     # unit that assembles an exported picture. ⛔ NOT FOLDED INTO ANY LINE
     # ABOVE -- every one of them is read by a unit that draws the schedule,
@@ -2383,6 +2390,9 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
+     # ⭐ CR-564: CV-10's lightness floor and ceiling, beside the rest of this
+     # unit's not-stored rows.
+     + not_stored_block('NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS') + NEWLINE * 2
      # ⭐ CR-419: every <text> this unit writes carries S-246's list, and the
      # shape's name label alone carries S-245's weight -- see both entries in
      # NOT_STORED_TARGETS.
@@ -2566,6 +2576,7 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
         'NOT_STORED_PANEL_DIVIDER_SIZES',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
+        'NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS',
         'NOT_STORED_DUMMY_SIZES',
         'NOT_STORED_SELECTION_SIZES',
         'SCHEDULE_COLOURS',
