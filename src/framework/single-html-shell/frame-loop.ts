@@ -1897,6 +1897,13 @@ export function copiedForPasteOf(chosenRows: readonly string[], selected: Select
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
+// WHY: two or more paste targets refuse any paste, a row copy or a Task copy alike (RS-27).
+// see FR-033
+/** @purity pure */
+export function pasteRefusedFor(chosenRows: readonly string[]): boolean {
+  return chosenRows.length > 1
+}
+
 /** @purity pure */
 function rowsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
   if (!isExtending) return [groupId]
@@ -4165,7 +4172,7 @@ export function frameLoop(
   /** @purity non-pure */
   function pasteWhatWasCopied(frame: FrameValues): void {
     const copied = session.selection.copiedForPaste
-    if (copied === null) {
+    if (copied === null || pasteRefusedFor(session.selection.chosenRows)) {
       raiseNotice(NOTHING_TO_DO_REASON, null)
       return
     }
@@ -4208,9 +4215,7 @@ export function frameLoop(
       byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
     }
     if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
-    // see FR-033
     const chosenRows = session.selection.chosenRows
-    if (chosenRows.length > 1) return null
     const newGroupIds: Record<string, string> = {}
     const walking = [copied.groupId]
     while (walking.length > 0) {
