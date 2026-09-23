@@ -29,7 +29,8 @@
 # session re-counts with it at a merge.
 # LOWERED 40 lines on 2026-09-24 to the measured values (tree density 2710 -> 2285 bp): the user in chat on 2026-09-24, verbatim: "基準線の変更を許可する。" (JDG-424); CR-552 retired L-2 / S-86 / DS-2 / K-55, measured on bd1b663d.
 # LOWERED 12 lines on 2026-09-24 to the measured values (tree density 2285 -> 2265 bp) under JDG-520 (the coordinator may tighten without asking); CR-553 rewrote the row-height tests, measured on aa7a9ad9.
-tree-density-basis-points 2265
+# LOWERED 1 line on 2026-09-24 to the measured values (tree density 2265 -> 2243 bp) under JDG-520; H2..H4 rewrote tests, measured on 0d446d12.
+tree-density-basis-points 2243
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -273,7 +274,7 @@ tests/unit/uf-47-48-history-bytes.test.ts 504
 tests/unit/uf-47-48.test.ts 815
 tests/unit/uf-48-input.test.ts 559
 tests/unit/uf-48-undo-through-the-one-path.test.ts 379
-tests/unit/uf-48-write-moment.test.ts 808
+tests/unit/uf-48-write-moment.test.ts 799
 tests/unit/uf-50.test.ts 326
 tests/unit/uf-51.test.ts 0
 tests/unit/uf-53.test.ts 0

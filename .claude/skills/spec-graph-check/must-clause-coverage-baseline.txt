@@ -1,4 +1,5 @@
-1325
+1315
+# LOWERED 1325 -> 1315 on 2026-09-24 under JDG-520: the H2..H4 spec-only testers quoted ten more MUST clauses; measured on 0d446d12.
 # LOWERED 1329 -> 1325 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking): CR-564 rewrote CV-6 and added CV-10, and its spec-only tester quoted the new clauses; measured on bfefe010.
 # LOWERED 1334 -> 1329 on 2026-09-24: CR-552 removed four FR-018 clauses and its spec-only tester quoted the new ones verbatim; the user in chat on 2026-09-24, verbatim: "基準線の変更を許可する。" (JDG-424); CR-552 retired L-2 / S-86 / DS-2 / K-55, measured on bd1b663d.
 # LOWERED 1337 -> 1334 on 2026-09-22 (user approval of baseline moves): CR-530's spec-only tester quoted 3 more FR-065 clauses verbatim (recounted on the tree merged with the wave-1 landing a131ca8d).
