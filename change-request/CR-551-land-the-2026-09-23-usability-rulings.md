@@ -1,6 +1,6 @@
 # CR-551 — 2026-09-23 の使い勝手の裁定 16 件を仕様へ下ろす
 
-> 起草の状態: 当てる（2026-09-23）。11 節の問い 1 ・ 4 は利用者が推奨どおりと答えた（`JDG-400` ・ `JDG-401`、調整役が中継）。問い 2 は `JDG-398` が答えた。⚠️ 問い 3（英語の語）は利用者が再確認中である（`JDG-402`）—— 提案の語を仮に置き、答えが来たら辞書の 1 行ずつを直す。
+> 起草の状態: 当てる（2026-09-23）。11 節の問い 1 ・ 4 は利用者が推奨どおりと答えた（`JDG-400` ・ `JDG-401`、調整役が中継）。問い 2 は `JDG-398` が答えた。問い 3（英語の語）は「推奨どおり」で「all rows」に揃えた（`JDG-402`、J-12 ・ J-13）。
 > ⭐ 起草の後に下りた裁定 3 件を畳み込んだ: `JDG-396`（ツールチップは 1 行、窓より広いときだけ折り返す。CSS と試験で保証する —— E-13 ・ `S-339`）、`JDG-397`（宿主の色の入力は [任意] を押したときだけ出す —— E-29）、`JDG-398`（読み出しの字は今の 50%、下限 10px —— E-24 ・ `S-340`）。番号 `S-339` ・ `S-340` は前に立つ者の帯（`S-339` 〜 `S-349`）から採った。
 > 読んだ木: `73c2bc90`（`refactor`）。仕様の原稿は `98208692` から表 T-064 のほかは動いていない。行番号・数・参照は、すべてこの木で測った（測り方は 13 節）。
 >
@@ -1118,7 +1118,7 @@ J-12（項目 13）`display-words.json` の節 `icons` —— `IC-82` の項の�
  },
  "hint": {
   "ja": "すべての行と、載っているタスクを削除する",
-  "en": "Delete every row and the tasks they carry"
+  "en": "Delete all rows and the tasks they carry"
  }
 }
 ```
@@ -1129,7 +1129,7 @@ J-13（項目 13）`display-words.json` の節 `questions` —— `QN-9` の項�
  "rowId": "QN-10",
  "text": {
   "ja": "すべての行と、行に載っているタスクを削除しますか？",
-  "en": "Delete every row and the tasks on them?"
+  "en": "Delete all rows and the tasks on them?"
  }
 }
 ```
@@ -1401,7 +1401,7 @@ wave 3  tests by a spec-only tester per wave (never the implementer), then check
 | 3 | 英語の語 —— `IC-106`「Delete All Rows」／「Delete every row and the tasks they carry」、`QN-10`「Delete every row and the tasks on them?」、`colourField` の `custom`「Custom」 | 提案どおり。辞書の `$comment` は体が語を決めることを禁じている（`JDG-324` と同じ扱い） |
 | 4 | 色の値 —— 朱色 `#eb6101` ／ `#ff8c42`、マゼンタ寄り `#c2188f` ／ `#f07ad0`、黄 `#ffd400` ／ `#e6c229` | 提案どおり当て、使い勝手の試しで 1 行ずつ直す |
 
-⭐ **答え（2026-09-23、調整役が中継）**: 問い 1 は「提案通り」（`JDG-400`）。問い 4 は「それでよい。」（`JDG-401`）。問い 2 は `JDG-398`（50%、下限 10px。`S-340` を足した）。⚠️ 問い 3 は「再確認させろ」（`JDG-402`）—— 提案の語を仮に置いて当て、利用者の答えが来たら `display-words.json` の該当の項だけを直す。
+⭐ **答え（2026-09-23、調整役が中継）**: 問い 1 は「提案通り」（`JDG-400`）。問い 4 は「それでよい。」（`JDG-401`）。問い 2 は `JDG-398`（50%、下限 10px。`S-340` を足した）。問い 3 は、利用者が「All Rows」と「every row」の食い違いを問うたあと「推奨どおり」（`JDG-402`）—— 語を「all rows」に揃えた（`IC-106` の説明「Delete all rows and the tasks they carry」、`QN-10`「Delete all rows and the tasks on them?」。`IC-106` の名「Delete All Rows」と `custom`「Custom」は提案のまま）。⭐ `QN-10` の問いは、1 行の規則が作る空の行に触れない（最後の行を消すときと同じ。`NT-7` がそれを数えることを禁じる）。
 
 ---
 
