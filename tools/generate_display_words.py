@@ -233,9 +233,12 @@ DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 
 # The parts of the colour field of the properties panel (CV-9 of table
 # T-017b, CR-548): the entrance to a custom colour, the two theme swatches and
-# the note on an undefined side. HELD HERE, the same move as SCALE_ECHO_ENDS:
+# the note on an undefined side, and the entrance back to the theme with the
+# hint it shows (E-44, JDG-405). HELD HERE, the same move as SCALE_ECHO_ENDS:
 # CV-9 states them in prose and no table holds them as rows. KEYS, not words.
-COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark')
+# The hint is a part of its own: this section's entries carry one word each.
+COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
+                      'theme', 'themeHint')
 
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.

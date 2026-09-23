@@ -3702,6 +3702,20 @@
     "ja": "（ダークと同じ）",
     "en": " (same as dark)"
    }
+  },
+  {
+   "part": "theme",
+   "text": {
+    "ja": "テーマ",
+    "en": "Theme"
+   }
+  },
+  {
+   "part": "themeHint",
+   "text": {
+    "ja": "プロジェクトのテーマの色に従う",
+    "en": "Follow the project theme"
+   }
   }
  ],
  "scaleEcho": [

@@ -167,6 +167,15 @@ export interface ColourField {
   readonly dark: ColourSide
   // WHY: optional, so a description written before it still draws; absent, only the offered names show.
   readonly names?: readonly ColourName[]
+  // see CV-9, CV-5, FR-007
+  // WHY: optional for the same reason; the entrance back to the theme is drawn either way.
+  readonly theme?: ColourThemeEntry
+}
+
+// see CV-9, CV-5
+export interface ColourThemeEntry {
+  readonly word: string
+  readonly hint: string
 }
 
 // see CV-9, T-294

@@ -544,6 +544,25 @@ function customEntryElement(
   return entry
 }
 
+// see CV-9, CV-5, FR-007
+/** @purity non-pure */
+function themeEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
+  const entry = made(host, 'button', `font:inherit;flex:none;min-height:${choiceSide()};`)
+  const hint = colour.theme?.hint ?? ''
+  entry.setAttribute('type', 'button')
+  entry.setAttribute('value', UNSET_COLOUR_VALUE)
+  ;(entry as HTMLButtonElement).value = UNSET_COLOUR_VALUE
+  entry.setAttribute('data-colour-theme-entry', 'true')
+  entry.setAttribute('data-field-row', row)
+  entry.setAttribute('title', hint)
+  entry.setAttribute('aria-label', hint)
+  if (control.text === UNSET_COLOUR_VALUE) entry.setAttribute('aria-pressed', 'true')
+  entry.textContent = colour.theme?.word ?? ''
+  CONTROL_KEYS.set(entry, { row, key: control.key })
+  commitOnPress(entry)
+  return entry
+}
+
 // see CV-9, CV-4, S-338
 /** @purity non-pure */
 function colourFieldElements(host: Document, row: string, control: PropertyControl): readonly HTMLElement[] {
@@ -560,6 +579,7 @@ function colourFieldElements(host: Document, row: string, control: PropertyContr
   lastLine.append(
     customEntryElement(host, row, control, colour, slot),
     colourSlotElement(host, row, control, transparentOf(control, colour)),
+    themeEntryElement(host, row, control, colour),
     slot,
   )
   const palette = made(host, 'div', 'flex:1 1 100%;')
