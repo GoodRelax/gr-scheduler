@@ -140,6 +140,11 @@ function paintOf(
   }
 }
 
+const DELAY_BAR_BOTTOM_OF_HALF = 0.15
+const DELAY_BAR_WIDTH_OF_STROKE = 1.7
+const DELAY_DOT_CENTRE_OF_HALF = 0.8
+const DELAY_DOT_RADIUS_OF_RADIUS = 0.14
+
 // see ZO-3, T-021, FR-013
 /** @purity pure */
 function markerSvg(
@@ -171,10 +176,10 @@ function markerSvg(
             ` stroke="${ink}" stroke-width="${stroke}"${named}/>`
           : marker.symbol === 'PM-4'
             ? `<line x1="${rounded(centre.x)}" y1="${rounded(centre.y - r)}` +
-              `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * 0.35)}"` +
-              ` stroke="${ink}" stroke-width="${stroke}"${named}/>` +
-              `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * 0.8)}"` +
-              ` r="${rounded(radius * 0.12)}" fill="${ink}"${named}/>`
+              `" x2="${rounded(centre.x)}" y2="${rounded(centre.y + r * DELAY_BAR_BOTTOM_OF_HALF)}"` +
+              ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * DELAY_BAR_WIDTH_OF_STROKE)}"${named}/>` +
+              `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y + r * DELAY_DOT_CENTRE_OF_HALF)}"` +
+              ` r="${rounded(radius * DELAY_DOT_RADIUS_OF_RADIUS)}" fill="${ink}"${named}/>`
             : ''
   const drawn = disc + mark
   // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
