@@ -41,13 +41,13 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            130, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            128, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            143, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            141, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
@@ -68,7 +68,10 @@ EXEMPT = {
                  'values already sat in the file; raised with leave from '
                  'the user (JDG-300, triage Q1), who also allowed a CR that '
                  'only adds a column to raise these by one in the same '
-                 'commit.'),
+                 'commit. '
+                 '⭐ 130->128 / 143->141 on 2026-09-24: CR-551 dropped '
+                 'Task.nameAnchor (AT-98) and Task.nameAlign (AT-99); '
+                 'lowered with leave from the user (JDG-404).'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '
@@ -80,7 +83,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            25, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            23, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -97,7 +100,10 @@ EXEMPT = {
                 'exemption widened. '
                 '⭐ 24 -> 25 on 2026-09-06: PR-21 carries the comment '
                 'box body, drawn with the same 複数行 token PR-2 already used. '
-                'One more row of the same closed enum.'),
+                'One more row of the same closed enum. '
+                '⭐ 25 -> 23 on 2026-09-24: CR-551 dropped PR-13 '
+                '(nameAnchor / nameAlign, 数値 / 選択); lowered with leave '
+                'from the user (JDG-404).'),
     },
 }
 
