@@ -39,7 +39,8 @@ export function paletteFollow(input: PointerInput, context: InputContext): Trans
 function scrollGearing(context: InputContext, axis: ScrollbarAxis): number {
   const area = context.regions.rowArea
   const lane = axis === 'horizontal' ? area.width : area.height
-  const whole = axis === 'horizontal' ? context.layout.contentWidth : context.layout.contentHeight
+  const heldWidth = context.pressed?.horizontalWholeAtPress?.width ?? context.layout.contentWidth
+  const whole = axis === 'horizontal' ? heldWidth : context.layout.contentHeight
   if (!(lane > 0) || !(whole > lane)) return 0
   return whole / lane
 }

@@ -134,6 +134,10 @@ export interface PointerPress {
   // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
   readonly propertyPanelWidthAtPress?: number
+  // see GR-21, FR-051
+  // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
+  // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
+  readonly horizontalWholeAtPress?: { readonly fromContentX0: number; readonly width: number }
 }
 
 export interface InputContext {

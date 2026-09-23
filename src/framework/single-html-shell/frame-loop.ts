@@ -1255,6 +1255,7 @@ function screenViewReadingsOf(
   held: Document,
   regions: ScreenRegions,
   layout: ScheduleLayout,
+  heldWhole: HorizontalWhole | null,
   taken: ScreenViewReadingsTaken,
 ): ScreenViewReadings {
   const { isAiExportSurfaceOpen, commandPaletteDraggedTo, canUndo, canRedo, ...carried } = taken
@@ -1265,17 +1266,53 @@ function screenViewReadingsOf(
     themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
-    scrollExtent: scrollExtentOf(layout, regions),
+    scrollExtent: scrollExtentOf(layout, regions, heldWhole ?? horizontalWholeOf(layout, regions)),
     ...(canUndo === undefined ? {} : { canUndo }),
     ...(canRedo === undefined ? {} : { canRedo }),
   }
 }
 
+type HorizontalWhole = NonNullable<PointerPress['horizontalWholeAtPress']>
+
+// see GR-21, FR-051
+// WHY: the content and the view together: after a fit the view runs past the content by the margin (S-332).
+/** @purity pure */
+function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole {
+  const area = regions.rowArea
+  const contentX0 = layout.contentX0 ?? area.x
+  const left = Math.min(contentX0, area.x)
+  const right = Math.max(contentX0 + layout.contentWidth, area.x + area.width)
+  return { fromContentX0: contentX0 - left, width: right - left }
+}
+
+// see FR-052, GR-21
+/** @purity pure */
+function measuredAtPress(
+  frame: FrameValues,
+): Pick<PointerPress, 'propertyPanelWidthAtPress' | 'horizontalWholeAtPress'> {
+  return {
+    propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
+    horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
+  }
+}
+
+// see GR-21
+/** @purity pure */
+function heldWholeOf(press: PointerPress | null): HorizontalWhole | null {
+  if (press?.on?.scrollbarAxis !== 'horizontal') return null
+  return press.horizontalWholeAtPress ?? null
+}
+
 // see SC-1, FR-098
 /** @purity pure */
-function scrollExtentOf(layout: ScheduleLayout, regions: ScreenRegions): ScreenViewReadings['scrollExtent'] {
+function scrollExtentOf(
+  layout: ScheduleLayout,
+  regions: ScreenRegions,
+  whole: HorizontalWhole,
+): ScreenViewReadings['scrollExtent'] {
+  const contentX0 = layout.contentX0 ?? regions.rowArea.x
   return {
-    contentWidth: layout.contentWidth,
+    contentWidth: whole.width,
     contentHeight: layout.contentHeight,
     // TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
     // would grow the grip as rows are pinned (FR-098).
@@ -1283,7 +1320,7 @@ function scrollExtentOf(layout: ScheduleLayout, regions: ScreenRegions): ScreenV
       0,
       regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y),
     ),
-    offsetX: Math.max(0, regions.rowArea.x - (layout.contentX0 ?? regions.rowArea.x)),
+    offsetX: Math.max(0, regions.rowArea.x - (contentX0 - whole.fromContentX0)),
     offsetY: scrolledPastOf(layout, regions),
   }
 }
@@ -2625,7 +2662,7 @@ export function frameLoop(
         chosenObjects,
         session,
         dialogueLog,
-        screenViewReadingsOf(document, regions, layout, {
+        screenViewReadingsOf(document, regions, layout, heldWholeOf(pressed), {
           openedFileName: session.fileFlow.openedFileName,
           fileSavedAt,
           isAgentApiEnabled: isAgentApiEnabledIn(session),
@@ -2975,7 +3012,7 @@ export function frameLoop(
         nothingSelected,
         pictureSessionOf(session),
         dialogueLog,
-        screenViewReadingsOf(document, regions, layout, {
+        screenViewReadingsOf(document, regions, layout, null, {
           openedFileName: null,
           fileSavedAt: null,
           isAgentApiEnabled: false,
@@ -3185,8 +3222,7 @@ export function frameLoop(
       pressRow,
       followedTo: { x: at.x, y: at.y },
       rowGrabAxis: null,
-      // see FR-052
-      propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
+      ...measuredAtPress(frame),
     }
   }
 
