@@ -31,6 +31,9 @@ import type { AgentSnapshot, FrameSnapshot, SnapshotSource } from './snapshot-so
 
 type DocumentStamp = Document['documentStamp']
 
+// see AG-9a, T-233
+type CodecRefusalReason = Extract<DocumentCodec.JsonDecoding, { readonly ok: false }>['reason']
+
 // see AG-9a, FR-028
 export type AgentRefusalReason =
   | 'staleStamp'
@@ -45,6 +48,7 @@ export type AgentRefusalReason =
   | 'embeddedHtmlFailed'
   | 'notAvailable'
   | 'malformedRequest'
+  | CodecRefusalReason
   | InvariantRow
 
 // see AG-9a, AG-2
@@ -225,22 +229,56 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
   return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
 }
 
+// see AM-8, AG-9a
+type HandedReading =
+  | { readonly ok: true; readonly document: Document }
+  | { readonly ok: false; readonly reason: AgentRefusalReason; readonly what: string }
+
+type HandedText =
+  | { readonly ok: true; readonly json: string }
+  | { readonly ok: false; readonly what: string }
+
+const NONE_OF_THE_SHAPES =
+  'AM-8 takes the document, { document } or { text }; none of the three was given'
+
+// WHY: every shape is decoded by the codec, so { document } and the bare document refuse
+// exactly what { text } refuses, with the codec's reason (DFC-911).
 /** @purity pure */
 function handedDocument(
   handed: AgentImportSource,
   greatestKnownSchemaVersion: string,
-): Document | null {
-  if (handed === null || typeof handed !== 'object') return null
+): HandedReading {
+  const given = textOfHanded(handed)
+  if (!given.ok) return { ok: false, reason: 'malformedRequest', what: given.what }
+  const read = DocumentCodec.documentFromJson(given.json, greatestKnownSchemaVersion)
+  if (read.ok) return { ok: true, document: read.document }
+  const faults = read.faults.map((one) => `${one.at} ${one.what}`).join('; ')
+  const what = `the codec refused it (${read.reason}): ${faults}`
+  return { ok: false, reason: read.reason, what }
+}
+
+/** @purity pure */
+function textOfHanded(handed: AgentImportSource): HandedText {
+  if (handed === null || typeof handed !== 'object') return { ok: false, what: NONE_OF_THE_SHAPES }
   const bag = handed as Record<string, unknown>
-  if (typeof bag['text'] === 'string') {
-    const read = DocumentCodec.documentFromJson(bag['text'], greatestKnownSchemaVersion)
-    return read.ok ? read.document : null
-  }
+  if (typeof bag['text'] === 'string') return { ok: true, json: bag['text'] }
   const named = bag['document']
-  if (named !== null && typeof named === 'object') return named as Document
+  if (named !== null && typeof named === 'object') return serialisedDocument(named)
   return typeof bag['schedule'] === 'object' && bag['schedule'] !== null
-    ? (handed as Document)
-    : null
+    ? serialisedDocument(handed)
+    : { ok: false, what: NONE_OF_THE_SHAPES }
+}
+
+// WHY: caught despite ST-7: a handed value may hold a cycle or a bigint, and writing either
+// as JSON throws, which FR-028 forbids passing on.
+/** @purity pure */
+function serialisedDocument(value: object): HandedText {
+  try {
+    return { ok: true, json: jsonFromDocument(value as Document) }
+  } catch (thrown) {
+    const what = `the handed document cannot be written as JSON: ${messageOf(thrown)}`
+    return { ok: false, what }
+  }
 }
 
 /** @purity pure */
@@ -445,20 +483,20 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
       const incoming = handedDocument(handedSource, wiring.schemaVersion)
-      if (incoming === null) {
+      if (!incoming.ok) {
         return {
           accepted: false,
           refusal: agentRefusal(
             'AM-8',
-            'malformedRequest',
+            incoming.reason,
             snapshot,
-            'AM-8 takes the document, { document } or { text }; none of the three was given',
+            incoming.what,
             [],
           ),
         }
       }
       // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
-      const landing = await road(incoming)
+      const landing = await road(incoming.document)
       const after = source.readSnapshot()
       // TRAP: `!landing` compiles but takes a refusal object for a landed import.
       if (landing !== true) {
