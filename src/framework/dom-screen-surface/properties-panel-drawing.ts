@@ -313,11 +313,11 @@ const UNSET_COLOUR_VALUE = ''
 const TRANSPARENT_PAINT = 'none'
 const CHECKER_LIGHT = '#ffffff'
 const CHECKER_DARK = '#c0c0c0'
-const CHECKER_TILE_EM = 0.5
+const SWATCH_SIDE_EM = 0.75
+const CHECKER_TILE_EM = SWATCH_SIDE_EM
 const CHECKER_PATTERN =
   `repeating-conic-gradient(${CHECKER_DARK} 0 25%, ${CHECKER_LIGHT} 0 50%)` +
   ` 0 0/${CHECKER_TILE_EM}em ${CHECKER_TILE_EM}em`
-const SWATCH_SIDE_EM = 0.75
 const SWATCH_BORDER_PX = 1
 const UNSET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px dashed currentColor;`
 const SET_SWATCH_BORDER = `border:${SWATCH_BORDER_PX}px solid transparent;`
