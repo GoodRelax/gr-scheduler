@@ -6,7 +6,6 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import {
   applyDocumentChange,
-  type ApplyOutcome,
   type ChangeAudience,
   type ChangeStep,
   type DocumentCommand,
@@ -23,6 +22,13 @@ import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 import { specTable } from '../contract/spec-table'
+import {
+  installAgentApi,
+  type AgentApi,
+  type AgentWriteOutcome,
+} from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
+import { unwatchChanges } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
+import { rowDocument, shell, TEMPLATE } from './cr-541-stage'
 
 // see S-3, T-201, CR-418
 const RULER_FONT_FACTOR = ((): number => {
@@ -588,64 +594,59 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(seen).toEqual([])
   })
 
-  it('WS-2 refuses a write made from inside the delivery, and swaps only once', () => {
+  it('WS-2 refuses a write made from inside the delivery, and swaps only once -- through the shell', () => {
     // WHY: Chapter 5.5 refuses a write made during delivery; the subscriber
-    // cannot know that, so the refusal must come from WS-7's own site.
-    const document = documentOf()
-    let held: HeldDocument = { document, history: EMPTY_HISTORY }
-    let replaced = 0
-    const holder: DocumentHolder = {
-      read: () => held,
-      replace: (next) => {
-        replaced += 1
-        held = next
-      },
-    }
-    const nested: ApplyOutcome[] = []
-    const audience: ChangeAudience = {
-      deliver: (given) => {
+    // cannot know it is inside one. Since CR-440 section 5 the window is the
+    // session's state (SM-38 of table T-286) and the CALLER fills WS-2's
+    // moment from it, so the UseCase alone cannot show this any more: the
+    // write is driven through the shell's holder, audience and snapshot.
+    const built = shell(rowDocument([{ id: 'row-1', parentId: null }]))
+    const apiFor = (writerName: string): AgentApi =>
+      installAgentApi({
+        ...built.loop.agentApiSeams(),
+        writerName,
+        schemaVersion: TEMPLATE.schemaVersion,
+      } as never)
+    const outside = apiFor('use-case WS-2 writer')
+    const inside = apiFor('use-case WS-2 subscriber')
+    const nested: AgentWriteOutcome[] = []
+    try {
+      inside.watchChanges(() => {
+        if (nested.length > 0) return
         nested.push(
-          applyDocumentChange(
-            {
-              defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
-              readStamp: given.documentStamp,
-              commands: [{ kind: 'setProjectTitle', title: 'C' }],
-              moment: CALM,
-              historyLimits: HISTORY_LIMITS,
-              settingsLimits: LIMITS,
-              editedBy: 'agent',
-              updatedUtc: '2026-08-17T02:00:00Z',
-            },
-            holder,
-            audience,
-          ),
+          inside.applyCommands({
+            readStamp: inside.readStamp(),
+            commands: [{ kind: 'setProjectTitle', title: 'C' }],
+          }),
         )
-      },
-    }
+      })
 
-    const outcome = applyDocumentChange(
-      {
-        defaultRowName: DEFAULT_ROW_NAME_FIXTURE,
-        readStamp: document.documentStamp,
+      const outcome = outside.applyCommands({
+        readStamp: outside.readStamp(),
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
-        moment: CALM,
-        historyLimits: HISTORY_LIMITS,
-        settingsLimits: LIMITS,
-        editedBy: 'user',
-        updatedUtc: '2026-08-17T01:00:00Z',
-      },
-      holder,
-      audience,
-    )
+      })
 
-    expect(outcome.accepted).toBe(true)
-    expect(nested).toEqual([
-      { accepted: false, refusal: { step: 'WS-2', reason: 'deliveringNotices' } },
-    ])
-    // WHY: the nested write reached neither WS-6 nor WS-7, so there is one
-    // swap, and the document still being told about is the current one.
-    expect(replaced).toBe(1)
-    expect(held.document.schedule.project.title).toBe('B')
+      expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+      expect(nested, 'premise: the subscriber was told and wrote back').toHaveLength(1)
+      const inner = nested[0] as AgentWriteOutcome
+      expect(inner.accepted).toBe(false)
+      if (!inner.accepted) expect(inner.refusal.reason).toBe('deliveringNotices')
+      // WHY: the nested write reached neither WS-6 nor WS-7, so the document
+      // held is the outer write's.
+      expect(built.loop.document().schedule.project.title).toBe('B')
+
+      // WHY: the window closes when the delivery ends (table T-286), so one
+      // refusal does not wedge the path shut.
+      const after = inside.applyCommands({
+        readStamp: inside.readStamp(),
+        commands: [{ kind: 'setProjectTitle', title: 'D' }],
+      })
+      expect(after.accepted, JSON.stringify(after)).toBe(true)
+      expect(built.loop.document().schedule.project.title).toBe('D')
+    } finally {
+      unwatchChanges('use-case WS-2 subscriber')
+      built.restore()
+    }
   })
 
   it('opens the window for the delivery only, and closes it when a subscriber throws', () => {

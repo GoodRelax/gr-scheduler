@@ -106,6 +106,11 @@ import { redoEdit } from '../../src/use-case/redo-edit/redo-edit'
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
 import { validateImportedDocument } from '../../src/use-case/validate-imported-document/validate-imported-document'
 import { specTable, unbroken } from '../contract/spec-table'
+import {
+  unwatchChanges,
+  watchChanges,
+} from '../../src/use-case/notify-change-watchers/notify-change-watchers'
+import { rowDocument, shell, type ShellBench } from './cr-541-stage'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -856,46 +861,80 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
     })
   }
 
+  // ⚠️ THE TWO CASES BELOW GO THROUGH THE SHELL (CR-440 section 5). The
+  // delivery window is the session's state (SM-38 of table T-286) and the
+  // CALLER fills WS-2's `deliveringNotices` from it, so `replaceDocument`
+  // alone, handed a calm moment, cannot refuse -- the refusal is the shell's
+  // moment meeting the UseCase's WS-2. `holdDocument` is the shell's RD-6
+  // road; the watcher is PI-15's own, told by the shell's WS-7.
+  const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
+  const LONG_AGO = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
+  const shellDocument = (rows: number): Document =>
+    rowDocument(
+      Array.from({ length: rows }, (_one, index) => ({ id: `row-${index + 1}`, parentId: null })),
+    ) as unknown as Document
+  const rowsHeld = (bench: ShellBench): number => bench.loop.document().schedule.taskGroups.length
+
   it('GIVEN a subscriber inside WS-7 WHEN it writes back THEN it is refused -- 通知を配っているあいだの書き込みは拒否する', () => {
     // 「通知を配っているあいだの書き込みは拒否すること（MUST）」 —— 購読者が
     // 通知を受けてそのまま書き込むと、どの版に対する通知だったのかが決まらなく
-    // なる。⚠️ The re-entering caller says `deliveringNotices: false` in perfect
-    // good faith: it is a subscriber, and it cannot know.
-    let fromInside: ReplaceOutcome | null = null
-    const one = bench(heldWithOneStep(), (self) => {
-      if (fromInside !== null) return
-      fromInside = self.run(
-        { row: 'RD-6', document: SAME_SCHEDULE_STAMP },
-        { readStamp: null, moment: CALM },
-      )
-    })
-    const outer = one.run(driveOf('RD-6').call, { readStamp: null })
+    // なる。⚠️ The subscriber says nothing about the moment: it cannot know, and
+    // the shell is the one that does.
+    const built = shell(shellDocument(1) as never)
+    let told = 0
+    let heldInside: number | null = null
+    try {
+      watchChanges({
+        watcher: SHELL_WATCHER,
+        since: LONG_AGO,
+        deliver: () => {
+          told += 1
+          if (told > 1) return
+          built.loop.holdDocument({ row: 'RD-6', document: shellDocument(3) })
+          heldInside = rowsHeld(built)
+        },
+      })
 
-    expect(outer.accepted, JSON.stringify(outer)).toBe(true)
-    expect(fromInside).not.toBeNull()
-    const inner = fromInside as unknown as ReplaceOutcome
-    expect(inner.accepted, JSON.stringify(inner)).toBe(false)
-    if (!inner.accepted) {
-      expect(inner.refusal.step).toBe('WS-2')
-      expect(inner.refusal.reason).toBe('deliveringNotices')
+      built.loop.holdDocument({ row: 'RD-6', document: shellDocument(2) })
+
+      expect(told, 'premise: the outer replacement reached WS-7').toBeGreaterThan(0)
+      // The write from inside reached neither WS-6 nor WS-7: the document held
+      // while it was refused, and afterwards, is the outer one.
+      expect(heldInside).toBe(2)
+      expect(rowsHeld(built)).toBe(2)
+      // Exactly one delivery: the outer one. 待ち行列は作らない (FR-028).
+      expect(told).toBe(1)
+    } finally {
+      unwatchChanges(SHELL_WATCHER)
+      built.restore()
     }
-    // Exactly one swap: the outer one. 待ち行列は作らない (FR-028).
-    expect(one.swapped).toHaveLength(1)
   })
 
   it('GIVEN the delivery window has closed WHEN the next write comes THEN it is accepted, so one refusal does not wedge the path shut', () => {
     // IN-1a of table T-028 records the same hazard for AG-9: a state that never
     // clears refuses every write for ever after.
-    let fromInside: ReplaceOutcome | null = null
-    const one = bench(heldWithOneStep(), (self) => {
-      if (fromInside !== null) return
-      fromInside = self.run({ row: 'RD-6', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
-    })
-    one.run(driveOf('RD-6').call, { readStamp: null })
-    expect(fromInside).not.toBeNull()
+    const built = shell(shellDocument(1) as never)
+    let told = 0
+    try {
+      watchChanges({
+        watcher: SHELL_WATCHER,
+        since: LONG_AGO,
+        deliver: () => {
+          told += 1
+          if (told > 1) return
+          built.loop.holdDocument({ row: 'RD-6', document: shellDocument(3) })
+        },
+      })
+      built.loop.holdDocument({ row: 'RD-6', document: shellDocument(2) })
+      expect(told, 'premise: the outer replacement reached WS-7').toBeGreaterThan(0)
+      expect(rowsHeld(built), 'premise: the write from inside was refused').toBe(2)
 
-    const after = one.run({ row: 'RD-6', document: SAME_SCHEDULE_STAMP }, { readStamp: null })
-    expect(after.accepted, JSON.stringify(after)).toBe(true)
+      built.loop.holdDocument({ row: 'RD-6', document: shellDocument(4) })
+      expect(rowsHeld(built)).toBe(4)
+    } finally {
+      unwatchChanges(SHELL_WATCHER)
+      built.restore()
+    }
   })
 })
 

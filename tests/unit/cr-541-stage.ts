@@ -7,7 +7,12 @@ import type {
   HumanInput,
   InputModifiers,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import type {
+  FieldEditNotice,
+  ScreenPart,
+  ScreenSurface,
+  ScreenView,
+} from '../../src/adapter/screen-renderer/screen-renderer'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 
@@ -171,13 +176,20 @@ export function shell(
   }
   const views: ScreenView[] = []
   let part: ScreenPart | null = null
+  // IF-9: an unsettled text entry is told to the shell as a begin notice, which
+  // it keeps as `editingField` of table T-292 (CR-500 wave B). PR-1 is the row
+  // the name field names (table T-016).
+  const pendingEdits: FieldEditNotice[] =
+    options.unsettledText === true ? [{ kind: 'began', row: 'PR-1' }] : []
   const surface: ScreenSurface = {
     showScreenView: (view) => {
       views.push(view)
     },
     readDialogueInput: () => null,
     readFieldCommit: () => null,
+    // WHY: still declared by IF-9's surface; the shell no longer reads it.
     hasUnsettledTextEntry: () => options.unsettledText === true,
+    readFieldEditNotices: () => pendingEdits.splice(0, pendingEdits.length),
     readScreenPartAt: () => part,
   } as ScreenSurface
   const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, {

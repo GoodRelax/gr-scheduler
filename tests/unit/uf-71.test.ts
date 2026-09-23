@@ -1305,11 +1305,13 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
   //   put the description on the screen        showScreenView
   //   hand back the settled utterance          readDialogueInput
   //   hand back the settled field value        readFieldCommit
-  //   tell when editing began and ended        hasUnsettledTextEntry
+  //   tell when editing began and ended        readFieldEditNotices
   //   answer what is drawn at a point          readScreenPartAt
   //
-  // ⚠️ hasUnsettledTextEntry still answers the older boolean; wave B of CR-500
-  // replaces it with the begin and end notices, and this roster moves with it.
+  // ⚠️ hasUnsettledTextEntry still answers the older boolean and is still
+  // declared in `screen-surface.ts`; wave B of CR-500 wired the begin and end
+  // notices (readFieldEditNotices) and the shell reads only those now. The
+  // older member leaves this roster the day its declaration does.
   //
   // ⛔ THE LIST IS NAMED AND NOT COUNTED, on purpose. A case that only counted
   // would go green on a member swapped for another, and one that read the keys
@@ -1321,6 +1323,7 @@ describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
     'hasUnsettledTextEntry',
     'readDialogueInput',
     'readFieldCommit',
+    'readFieldEditNotices',
     'readScreenPartAt',
     'showScreenView',
   ] as const

@@ -378,6 +378,10 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     frame: startWithFrame ? frameOf(document) : null,
     isGestureInFlight: false,
     isEditingInPlace: false,
+    // Chapter 5.5 / SM-38 of table T-286: the delivery window is the caller's
+    // session state, open only while WS-7 is telling the watchers (CR-440
+    // section 5). The shell holds it; this bench holds it the same way.
+    isDeliveringNotices: false,
     historyLimits: { ...HISTORY_LIMITS },
     readAt: READ_AT,
     notices: [] as ChangeNotice[],
@@ -398,7 +402,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       exportScene: state.frame === null ? null : exportSceneOf(state.document),
       isGestureInFlight: state.isGestureInFlight,
       isEditingInPlace: state.isEditingInPlace,
-      isDeliveringNotices: false,
+      isDeliveringNotices: state.isDeliveringNotices,
       historyLimits: state.historyLimits,
       settingsLimits: SETTINGS_LIMITS,
       readAt: state.readAt,
@@ -421,7 +425,14 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       // and has to be carried through: AG-6 of table T-035 selects a live
       // watcher by it (MUST), and nothing downstream can work it out again.
       deliver: (document, hasMovedSchedule) => {
-        notifyChangeWatchers({ document, hasMovedSchedule, dialogue: state.dialogue })
+        // As the shell does: open the window at the head, and close it in a
+        // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
+        state.isDeliveringNotices = true
+        try {
+          notifyChangeWatchers({ document, hasMovedSchedule, dialogue: state.dialogue })
+        } finally {
+          state.isDeliveringNotices = false
+        }
       },
     },
     dialogueHolder: {
