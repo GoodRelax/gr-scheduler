@@ -372,7 +372,9 @@ describe('FR-006 E-28 -- the colour rows are last in their object order', () => 
 
 
 const CV_9_ORDER =
-  '並べ方は、透明を除く名を同表の行の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個ずつ並べ、その下の段にカスタムカラーの入口、透明の順に置くこと（MUST）'
+  '並べ方は、透明を除く名を同表の行の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個ずつ並べ、その下の段にカスタムカラーの入口、透明、テーマに戻す入口の順に置くこと（MUST）'
+const CV_9_THEME =
+  'テーマに戻す入口は `CV-5` の「戻す入口」（`FR-007`）であり、押したらその欄の色をテーマ追随（`null`）へ戻すこと（MUST）'
 const CV_9_HOST_INPUT = '閲覧環境の色の入力（`input type=color`）は、カスタムカラーの入口を押したときにだけ出すこと（MUST）'
 const CV_9_EMPTY_SLOT = 'その欄に並べない名（下の 2 つ）の場所は空けたままとし、後ろの名を詰めてはならない（MUST NOT）'
 const CV_9_VALUE = '値は、`#rrggbb` の側は英大文字の 16 進、名の側はその名の語とする。'
@@ -380,6 +382,58 @@ const CV_9_TRANSPARENT = '透明の側は、値を透明の語とし、見本を
 const CV_9_UNSET = '未定義の側は、値を空け、見本を縁だけの破線で示し、`CV-3` で描く値がどちらの側と同じかを語で添えること（MUST）'
 
 const CUSTOM_WORD = wordOf('custom')
+const THEME_WORD = wordOf('theme')
+const THEME_HINT = wordOf('themeHint')
+
+const isThemeEntrance = (one: FakeElement): boolean =>
+  one.children.length === 0 && one.textContent === THEME_WORD && one.getAttribute('data-colour-choice') === null
+
+// WHY: every palette of a field, in the order T-016 lists the field's columns.
+function everyPalette(built: Bench, row: string): FakeElement[] {
+  const field = inField(built, row)[0]
+  if (field === undefined) throw new Error(`the panel drew no field ${row}`)
+  return selfAndDescendants(field).filter(
+    (one) =>
+      /grid/.test(styleMap(one).get('display') ?? '') &&
+      one.children.some((child) => child.getAttribute('data-colour-choice') !== null || child.textContent === ''),
+  )
+}
+
+// see CV-9
+function lastLineOf(grid: FakeElement): string[] {
+  const palette = grid.parentNode as FakeElement
+  const after = palette.children.slice(palette.children.indexOf(grid) + 1).flatMap((one) => selfAndDescendants(one))
+  return after
+    .filter((one) => one.getAttribute('data-colour-custom-entry') !== null || choiceOf(one) === TRANSPARENT || isThemeEntrance(one))
+    .map((one) => (choiceOf(one) === TRANSPARENT ? TRANSPARENT : one.textContent ?? ''))
+}
+
+// WHY: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
+// entrance is raised here after the click, as the host would deliver it.
+function pressEntry(built: Bench, node: FakeElement): void {
+  raise(built.built, node, 'click')
+  raise(built.built, node, 'change')
+}
+
+function themeEntranceOf(grid: FakeElement): FakeElement {
+  const palette = grid.parentNode as FakeElement
+  const found = palette.children
+    .slice(palette.children.indexOf(grid) + 1)
+    .flatMap((one) => selfAndDescendants(one))
+    .find(isThemeEntrance)
+  if (found === undefined) throw new Error('the palette draws no theme entrance')
+  return found
+}
+
+function rowPanel(built: Bench): string {
+  const box = built.view().rowTitlePanel.titles[0]?.box
+  if (box === undefined) throw new Error('the row title is not drawn')
+  built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Row Title Panel', null, 'g1'))
+  const fields = built.view().propertiesPanel?.fields ?? []
+  const found = fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'color'))
+  if (found === undefined) throw new Error('the row panel shows no row colour')
+  return found.row
+}
 
 // WHY: the palette of a field is the element holding the named choices; a slot is one child of the grid of names.
 function paletteOf(built: Bench, row: string, index = 0): { grid: FakeElement; below: FakeElement[] } {
@@ -406,21 +460,72 @@ const sideSwatches = (built: Bench, row: string): FakeElement[] =>
   inField(built, row).flatMap((field) => selfAndDescendants(field).filter((one) => one.getAttribute('data-colour-swatch') !== null))
 
 describe('CV-9 -- the colour field', () => {
-  it('CV-9 still says: S-338 個ずつ / その下の段にカスタムカラーの入口、透明 / 押したときにだけ / 空けたまま / 英大文字 / 市松 / 破線', () => {
-    for (const clause of [CV_9_ORDER, CV_9_HOST_INPUT, CV_9_EMPTY_SLOT, CV_9_VALUE, CV_9_TRANSPARENT, CV_9_UNSET]) {
+  it('CV-9 still says: S-338 個ずつ / カスタムカラーの入口、透明、テーマに戻す入口 / テーマ追随へ戻す / 押したときにだけ / 空けたまま / 英大文字 / 市松 / 破線', () => {
+    for (const clause of [CV_9_ORDER, CV_9_THEME, CV_9_HOST_INPUT, CV_9_EMPTY_SLOT, CV_9_VALUE, CV_9_TRANSPARENT, CV_9_UNSET]) {
       expect(REQUIREMENTS).toContain(clause)
+    }
+    expect([THEME_WORD, THEME_HINT].every((one) => one !== '')).toBe(true)
+  })
+
+  it('CV-9: 透明を除く名を同表の行の順に、1 段に S-338 個ずつ -- then Custom, Transparent and the theme entrance below', () => {
+    // see CV-9, S-338, T-294
+    const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
+    const { grid } = paletteOf(built, 'PR-12')
+    expect((styleMap(grid).get('grid-template-columns') ?? '').replace(/\s/g, '')).toMatch(new RegExp(`^repeat\\(${S_338},`))
+    expect(grid.children.map(choiceOf)).toEqual(NAMED)
+    expect(lastLineOf(grid)).toEqual([CUSTOM_WORD, TRANSPARENT, THEME_WORD])
+  })
+
+  it('CV-9 E-44: テーマに戻す入口 follows Transparent in every colour field (task line, task fill, row colour)', () => {
+    // see CV-9, CV-5, FR-007
+    const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
+    const taskPalettes = everyPalette(task, 'PR-12')
+    expect(taskPalettes.length, 'premise: PR-12 draws the line and the fill palettes').toBe(2)
+    for (const grid of taskPalettes) expect(lastLineOf(grid)).toEqual([CUSTOM_WORD, TRANSPARENT, THEME_WORD])
+    const row = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
+    const rowColour = rowPanel(row)
+    const rowPalettes = everyPalette(row, rowColour)
+    expect(rowPalettes.length, 'premise: the row colour draws one palette').toBe(1)
+    for (const grid of rowPalettes) expect(lastLineOf(grid)).toEqual([CUSTOM_WORD, TRANSPARENT, THEME_WORD])
+  })
+
+  it('CV-9 E-44: the theme entrance speaks the dictionary words (colourField theme / themeHint)', () => {
+    // see CV-9, FR-038
+    const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
+    for (const grid of everyPalette(built, 'PR-12')) {
+      const entrance = themeEntranceOf(grid)
+      expect(entrance.textContent).toBe(THEME_WORD)
+      expect([entrance.getAttribute('title'), entrance.getAttribute('aria-label')]).toContain(THEME_HINT)
     }
   })
 
-  it('CV-9: 透明を除く名を同表の行の順に、1 段に S-338 個ずつ -- then Custom, then Transparent below', () => {
-    // see CV-9, S-338, T-294
-    const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    const { grid, below } = paletteOf(built, 'PR-12')
-    expect((styleMap(grid).get('grid-template-columns') ?? '').replace(/\s/g, '')).toMatch(new RegExp(`^repeat\\(${S_338},`))
-    expect(grid.children.map(choiceOf)).toEqual(NAMED)
-    const next = below.filter((one) => one.getAttribute('data-colour-custom-entry') !== null || choiceOf(one) === TRANSPARENT)
-    expect(next.map((one) => (choiceOf(one) === TRANSPARENT ? TRANSPARENT : one.textContent))).toEqual([CUSTOM_WORD, TRANSPARENT])
+  it('CV-9 control: pressing a named swatch in this harness writes that name (CV-1)', () => {
+    const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { strokeColor: 'red' }))
+    const grid = everyPalette(built, 'PR-12')[0] as FakeElement
+    const blue = grid.children.find((one) => choiceOf(one) === 'blue') as FakeElement
+    pressEntry(built, blue)
+    built.frame()
+    expect(built.loop.document().schedule.taskVisuals.find((one) => one.taskUid === 1)?.strokeColor).toBe('blue')
   })
+
+  for (const [name, column, index, value] of [
+    ['a custom colour', 'fillColor', 1, '#aabbcc/#112233'],
+    ['a palette name', 'strokeColor', 0, 'red'],
+  ] as const) {
+    it(`CV-9 / CV-5 E-44: 押したらその欄の色をテーマ追随（null）へ戻す -- ${name} on ${column}, undone in one step`, () => {
+      // see CV-9, CV-5, SK-6
+      const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { [column]: value }))
+      const visual = (): Record<string, unknown> =>
+        (built.loop.document().schedule.taskVisuals.find((one) => one.taskUid === 1) ?? {}) as Record<string, unknown>
+      expect(visual()[column], 'premise: the colour is set').toBe(value)
+      const grid = everyPalette(built, 'PR-12')[index] as FakeElement
+      pressEntry(built, themeEntranceOf(grid))
+      built.frame()
+      expect(visual()[column] ?? null, CV_9_THEME).toBeNull()
+      built.press('App Header', 'IC-5')
+      expect(visual()[column], 'one undo brings the colour back').toBe(value)
+    })
+  }
 
   it('CV-9: 並べない名の場所は空けたまま -- the row colour field keeps black\'s slot empty (後ろの名を詰めない)', () => {
     // see CV-9, S-315
