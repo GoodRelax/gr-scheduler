@@ -83,14 +83,14 @@ const T_273_FADE_IN_END_IS_THE_BOX_LEFT =
 const T_273_BOTH_FADE_AND_MARKER_WIDTH =
   '⭐ 基準が予定（`RF-3`）のときは、フェードを除いた幅で「入る」を数え、名前は `fadeIn` が終わる位置から書くこと（MUST）。'
 
-const T_013_S_31_IS_INSIDE_THE_BOX =
-  '後者だけで数えるとフェードの上に、名称ラベルが乗る。⭐ `S-31` は名称ラベルの箱の内側の余白であり、字は箱の左端から `S-31` だけ右から書くこと（MUST）'
+const FR_002_WRITE_START_IS_T_273 =
+  '⭐ 字を書き出す位置は `FR-109` の 表 T-273 が持つ（`_assets/tbl-settings.md` の 表 T-201 の `S-31` ／ `S-32` ／ `S-301` のいずれか 1 つを、基準の端か進捗マーカーの右端に足した位置）。'
 
 const T_273_FITS_WITH_S_31 =
   '⭐ 「入る」とは、（マーカーを出すなら マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。'
 
-const T_013_S_31_NOT_TWICE =
-  'までに収まることとすること（MUST）。⛔ `S-31` を 2 回数えてはならない（MUST NOT）'
+const FR_002_S_31_NOT_TWICE =
+  '⛔ その値を 2 回数えてはならない（MUST NOT） —— 同表が与えるのは基準の端から**字そのもの**までの長さであり、箱の内側の余白ではない。'
 
 const FR_049_THE_ACCIDENT_IS_NAME_OCCUPANCY_AND_BAND =
   '⛔ 隠したものを占有から外してはならない（MUST NOT） —— 外すと、予定だけ・実績だけの表示に切り替えるたびに名称ラベルの位置と、`OC-1` を経た占有幅と、行の帯高が動き、段が組み替わる。⚠️ 進捗マーカーを描く位置は本段の対象ではない —— 表示の組で決めるのは `FR-013` であり、予定だけの表示ではマーカーは予定バーの右端の外側へ移る。'
@@ -188,6 +188,8 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['T-023d (MUST) -- S-176 is a fraction of the pitch', T_023D_FRACTION_OF_THE_PITCH],
   ['T-273 (MUST NOT) -- the name never stands left of the marker', T_273_MARKER_BEFORE_NAME],
   ['HT-3 -- the marker stands where table T-273 puts it', T_267_MARKER_STANDS_WHERE_T_273_PUTS_IT],
+  ['FR-002 -- the write start is what table T-273 gives', FR_002_WRITE_START_IS_T_273],
+  ['FR-002 (MUST NOT) -- S-31 is not counted twice, it is not a box padding', FR_002_S_31_NOT_TWICE],
 ]
 
 describe('CR-380 / CR-381 / CR-384 -- the manuscript these cases are driven by', () => {
@@ -868,8 +870,6 @@ const nameGlyphTextOf = (task: Task): string => {
   return x[1] ?? 'NaN'
 }
 
-const nameGlyphXOf = (task: Task): number => Number(nameGlyphTextOf(task))
-
 const halfOfLastWrittenPlaceOf = (written: string): number =>
   0.5 * 10 ** -(written.split('.')[1] ?? '').length
 
@@ -894,7 +894,7 @@ const wideActualNamed = (name: string, fade: { readonly fadeInDays?: number; rea
     ...fade,
   })
 
-describe('T-273 (CR-387) -- the name box, and S-31 counted once inside it', () => {
+describe('T-273 (CR-387, CR-430) -- the name start, and S-31 never counted as a box padding', () => {
   it('the box left edge is the marker right + S-32, the fadeIn end takes over on the RF-3 reference, and LP-2 carries it outside (MUST)', () => {
     const inside = sceneOf(NAME_INSIDE)
     expect(inside.placed.labelPlacement).toBe('inside')
@@ -912,22 +912,29 @@ describe('T-273 (CR-387) -- the name box, and S-31 counted once inside it', () =
     expect(outside.drawn!.label!.x, T_273_LP_2_ROW_AT_THE_REFERENCE_END).toBeCloseTo(outside.placed.actualReach! + MARKER_SIZE_DRAWN + LABEL_GAP_DRAWN, 6)
   })
 
-  it('the glyphs start S-31 right of the box left edge, inside and outside alike, and not 2 x S-31 (MUST, MUST NOT)', () => {
+  it('the glyphs start where T-273 puts the name -- the marker right + S-32 inside and outside alike, with no S-31 on top (MUST, MUST NOT)', () => {
     const inside = sceneOf(NAME_INSIDE)
-    const insideBoxLeft = markerRightOf(inside.drawn) + LABEL_GAP_DRAWN
+    const insideStart = markerRightOf(inside.drawn) + LABEL_GAP_DRAWN
     const insideWritten = nameGlyphTextOf(NAME_INSIDE)
     expect(
-      Math.abs(Number(insideWritten) - (insideBoxLeft + LABEL_PAD_DRAWN)),
-      `drawn x ${insideWritten} against 箱の左端 + S-31 × 描く比 = ${insideBoxLeft + LABEL_PAD_DRAWN}; ${T_013_S_31_IS_INSIDE_THE_BOX}`,
+      Math.abs(Number(insideWritten) - insideStart),
+      `drawn x ${insideWritten} against マーカーの右端 + S-32 × 描く比 = ${insideStart}; ${T_273_LP_1_ROW_AT_THE_REFERENCE_START} ${FR_002_WRITE_START_IS_T_273}`,
     ).toBeLessThanOrEqual(halfOfLastWrittenPlaceOf(insideWritten) + 1e-9)
-    expect(nameGlyphXOf(NAME_INSIDE), T_013_S_31_NOT_TWICE).not.toBeCloseTo(insideBoxLeft + 2 * LABEL_PAD_DRAWN, 6)
+    expect(
+      Math.abs(Number(insideWritten) - (insideStart + LABEL_PAD_DRAWN)),
+      `drawn x ${insideWritten}: S-31 added on top; ${FR_002_S_31_NOT_TWICE}`,
+    ).toBeGreaterThan(halfOfLastWrittenPlaceOf(insideWritten) + 1e-9)
     const outside = sceneOf(IN_PROGRESS)
-    const outsideBoxLeft = outside.placed.actualReach! + MARKER_SIZE_DRAWN + LABEL_GAP_DRAWN
+    const outsideStart = outside.placed.actualReach! + MARKER_SIZE_DRAWN + LABEL_GAP_DRAWN
     const outsideWritten = nameGlyphTextOf(IN_PROGRESS)
     expect(
-      Math.abs(Number(outsideWritten) - (outsideBoxLeft + LABEL_PAD_DRAWN)),
-      `drawn x ${outsideWritten} against 箱の左端 + S-31 × 描く比 = ${outsideBoxLeft + LABEL_PAD_DRAWN}; ${T_013_S_31_IS_INSIDE_THE_BOX}`,
+      Math.abs(Number(outsideWritten) - outsideStart),
+      `drawn x ${outsideWritten} against マーカーの右端 + S-32 × 描く比 = ${outsideStart}; ${T_273_LP_2_ROW_AT_THE_REFERENCE_END} ${FR_002_WRITE_START_IS_T_273}`,
     ).toBeLessThanOrEqual(halfOfLastWrittenPlaceOf(outsideWritten) + 1e-9)
+    expect(
+      Math.abs(Number(outsideWritten) - (outsideStart + LABEL_PAD_DRAWN)),
+      `drawn x ${outsideWritten}: S-31 added on top; ${FR_002_S_31_NOT_TWICE}`,
+    ).toBeGreaterThan(halfOfLastWrittenPlaceOf(outsideWritten) + 1e-9)
   })
 
   it('T-273 judges the fit on the reference width alone, so the plan fades never move it (MUST)', () => {
