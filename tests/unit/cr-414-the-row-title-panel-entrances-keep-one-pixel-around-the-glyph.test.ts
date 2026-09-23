@@ -1,4 +1,4 @@
-// CR-414: an entrance on the Row Title Panel keeps S-243 around its glyph, so the band floor HF-19 falls to about 24px.
+// CR-414: an entrance on the Row Title Panel keeps S-243 around its glyph, so the lattice (LF-16, HF-19) is about 24px.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,7 +20,7 @@ import type { Schedule } from '../../src/entity/document-model/schedule/schedule
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionsFromScreen,
-  rowControlLatticeFloorPx,
+  rowControlLatticeHeightPx,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
@@ -39,7 +39,8 @@ const FR_029_THE_OUTER_WIDTH =
   '⭐ 入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、行見出しパネルでは `S-243`）と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）'
 const FR_029_EVERY_SURFACE =
   '⭐ 箱の一辺（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の 表 T-206 の `S-235` を掛けて描くこと（MUST）'
-const HF_19_THE_FLOOR = '`HF-1` の格子が縦に取る高さは、行の帯高の下限であること（MUST）'
+const HF_19_NOT_A_FLOOR =
+  '`HF-1` の格子（`HF-4` の並び。2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
 const HF_19_OUTER_SIZE = '操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである'
 
 describe('CR-414 -- the manuscript these cases are driven by', () => {
@@ -47,13 +48,13 @@ describe('CR-414 -- the manuscript these cases are driven by', () => {
     ['FR-029 (MUST) -- a Row Title Panel entrance keeps S-243', FR_029_THE_PANEL_GAP],
     ['FR-029 (MUST) -- the outer width reads S-243 on the panel', FR_029_THE_OUTER_WIDTH],
     ['FR-029 (MUST) -- S-235 on every surface, S-243 included', FR_029_EVERY_SURFACE],
-    ['HF-19 (MUST) -- the lattice is the band floor', HF_19_THE_FLOOR],
+    ['HF-19 (MUST NOT) -- the lattice is not the band floor', HF_19_NOT_A_FLOOR],
     ['HF-19 -- one control is S-138 and S-243', HF_19_OUTER_SIZE],
   ])('still says it, word for word: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('LF-3 counts one control from S-138 and S-243', () => {
+  it('LF-16 counts one control from S-138 and S-243', () => {
     expect(DESIGN).toContain(HF_19_OUTER_SIZE)
   })
 })
@@ -73,24 +74,24 @@ const S_235 = px('S-235')
 const S_237 = px('S-237')
 const S_243 = px('S-243')
 
-// see LF-3, HF-19
-const LATTICE_FLOOR = 2 * (S_138 + S_243 * 2) * S_235
+// see LF-16, HF-19
+const LATTICE = 2 * (S_138 + S_243 * 2) * S_235
 
 // see FR-029
 const PANEL_ENTRANCE_OUTER_WIDTH = S_138 + (S_243 + S_237) * 2
 
-describe('S-243 / HF-19 (MUST) -- the band floor is two controls of S-138 + 2 x S-243, at S-235', () => {
+describe('S-243 / LF-16 -- the lattice is two controls of S-138 + 2 x S-243, at S-235, and HF-19 floors no band with it', () => {
   it('works out to the 24.0012px the user asked for', () => {
     expect(S_243).toBe(1)
-    expect(LATTICE_FLOOR).toBeCloseTo(24.0012, 9)
+    expect(LATTICE).toBeCloseTo(24.0012, 9)
   })
 
-  it('answers that floor from rowControlLatticeFloorPx', () => {
-    expect(rowControlLatticeFloorPx(), `${HF_19_OUTER_SIZE} -- ${FR_029_THE_PANEL_GAP}`).toBeCloseTo(LATTICE_FLOOR, 9)
+  it('answers that height from rowControlLatticeHeightPx (PI-35)', () => {
+    expect(rowControlLatticeHeightPx(), `${HF_19_OUTER_SIZE} -- ${FR_029_THE_PANEL_GAP}`).toBeCloseTo(LATTICE, 9)
   })
 
   it.each([DISPLAY_SCALE_STEPS[0]!, DEFAULT_DISPLAY_SCALE])(
-    'lays a row holding no Task on that floor at a low zoomY, at display scale %s',
+    'lays a row holding no Task BELOW the lattice at a low zoomY, at display scale %s',
     (scale) => {
       const settings = {
         ...Object.fromEntries(Object.entries(SETTINGS_DEFAULTS).filter(([key]) => !key.includes('.'))),
@@ -117,7 +118,8 @@ describe('S-243 / HF-19 (MUST) -- the band floor is two controls of S-138 + 2 x 
       const layout = layoutFromSchedule(empty, settings, regionsFromScreen(env, settings))
       const row = layout.rows[0]
       if (row === undefined) throw new Error('the row is not laid out')
-      expect(row.height, `${HF_19_THE_FLOOR} -- does not move with the display scale`).toBeCloseTo(LATTICE_FLOOR, 6)
+      expect(row.height, HF_19_NOT_A_FLOOR).toBeLessThan(LATTICE)
+      expect(layout.contentHeight, 'LF-16: the lattice is reserved under the last row instead').toBeCloseTo(LATTICE, 6)
     },
   )
 })

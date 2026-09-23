@@ -75,8 +75,8 @@
 // ---------------------------------------------------------------------------
 // ⛔⛔ IC-14 IS NOT PRESSED HERE, AND THAT IS DELIBERATE
 // ---------------------------------------------------------------------------
-// OP-10 says so itself: 「⚠️ **`IC-14`（縮小）が動かないのは本行と別である** ——
-// **行が既に `LF-3` の下限に座っており、縮める先が無い。**」 A case that pressed
+// OP-10 says so itself (its note on `IC-14`, now in the past tense since CR-553:
+// the row then sat on `LF-3`'s floor, which counted the lattice). A case that pressed
 // `Alt` ＋ `-` and demanded the picture move would be asserting the opposite of
 // what the manuscript states, and a case that pressed it and demanded the
 // picture NOT move would be this file holding `LF-3`'s floor, which is another

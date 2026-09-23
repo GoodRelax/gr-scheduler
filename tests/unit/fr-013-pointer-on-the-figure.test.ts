@@ -33,8 +33,8 @@
 //   asserts both halves of that, and the closing rule is quoted further down.
 //
 //   T-051 HF-6 (MUST)
-//     「**操作子は、その行の名前にポインタが乗っているあいだだけ描くこと
-//      （MUST）**」
+//     the controls are drawn only while the pointer is on the row's name or
+//     on the group drawn for it (its first MUST, as CR-553 left it)
 //
 //   ⭐ WHAT THOSE TWO TOGETHER SETTLE, and the whole point of this file:
 //   HF-6's condition is a PLACE -- the pointer being on the figure -- and it

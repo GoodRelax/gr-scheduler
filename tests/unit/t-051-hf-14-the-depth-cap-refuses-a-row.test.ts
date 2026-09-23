@@ -279,12 +279,11 @@ const px = (table: string, id: string): number => {
  * The height 表 T-051 の `HF-1`'s 2 x 2 lattice takes, as far as docs/spec pins
  * it down: two entrances stacked, each `S-138 + S-243 × 2` tall.
  *
- * ⭐ COMPOSED FROM 表 T-206 AND NEVER TYPED. `LF-3` and `HF-19` (利用者の裁定
- * 2026-09-03) make it the floor under a row's band, and the host is what
- * measures it -- so a case that drives the loop has to hand one in.
- * ⚠️ Nothing in this file depends on the figure; it is here so the environment
- * is a lawful one, and tests/unit/lf-3-hf-19-a-row-is-never-shorter-than-its-
- * controls.test.ts is where the floor itself is asserted.
+ * COMPOSED FROM 表 T-206 AND NEVER TYPED. Since CR-553 it floors no band
+ * (HF-19 MUST NOT); `LF-16` reserves it under the last row, and the host is
+ * what measures it (UF-105) -- so a case that drives the loop hands one in.
+ * Nothing in this file depends on the figure; tests/unit/cr-553-the-row-
+ * controls-no-longer-set-the-row-height.test.ts asserts the reserve.
  */
 const ROW_CONTROLS_TALL = (px('T-206', 'S-138') + px('T-206', 'S-243') * 2) * 2
 

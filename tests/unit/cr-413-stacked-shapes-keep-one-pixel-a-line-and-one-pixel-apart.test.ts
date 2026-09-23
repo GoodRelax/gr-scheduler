@@ -299,13 +299,23 @@ describe('VG-1 / VG-7 (MUST) -- the gap across two rows', () => {
     )
   })
 
-  it('leaves more than the gap under a one-lane row whose band stands on its floor', () => {
-    const oneLane = scheduleOf([
-      { task: taskOf(A, '2026-01-05', '2026-01-20'), groupId: 'g1' },
+  // see VG-7, LF-3, HF-19
+  // WHY: since CR-553 the only floor above a one-lane sum is LF-3's rectangle, so the row that stands
+  // on a floor is an arrow-only row; a rectangle row is the control and leaves exactly VG-2.
+  const twoRows = (shapeKind?: string) =>
+    scheduleOf([
+      { task: taskOf(A, '2026-01-05', '2026-01-20'), groupId: 'g1', ...(shapeKind === undefined ? {} : { shapeKind }) },
       { task: taskOf(NEXT_ROW, '2026-01-05', '2026-01-25'), groupId: 'g2' },
     ])
-    const scene = sceneOf(oneLane, DEFAULT_DISPLAY_SCALE, { zoomY: 0.2 })
+
+  it('leaves more than the gap under a one-lane row whose band stands on its floor', () => {
+    const scene = sceneOf(twoRows('arrow'), DEFAULT_DISPLAY_SCALE, { zoomY: 0.2 })
     expect(gapBetween(scene, [A], [NEXT_ROW]), VG_7_A_LOWER_BOUND).toBeGreaterThan(gapAt(DEFAULT_DISPLAY_SCALE))
+  })
+
+  it('leaves exactly the gap under a one-lane rectangle row, which the controls no longer floor (HF-19 MUST NOT)', () => {
+    const scene = sceneOf(twoRows(), DEFAULT_DISPLAY_SCALE, { zoomY: 0.2 })
+    expect(gapBetween(scene, [A], [NEXT_ROW]), VG_7_A_LOWER_BOUND).toBeCloseTo(gapAt(DEFAULT_DISPLAY_SCALE), 6)
   })
 })
 

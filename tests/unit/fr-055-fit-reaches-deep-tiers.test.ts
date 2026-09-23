@@ -215,19 +215,8 @@ const settingsTablePx = (id: string): number => {
   return Number(found[0])
 }
 
-/**
- * 表 T-221 の `LF-3` / 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03): the
- * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
- *
- * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
- * … 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである」 -- so one
- * rung is that box plus that gap on each side, and `HF-1` (MUST) stacks two of
- * them. ⛔ `S-237` IS NOT IN IT: `FR-029`'s 26px is the entrance's WIDTH, and that
- * requirement leaves the outer HEIGHT to the side that sets the row pitch.
- * `S-235` multiplies the box and the gap; the display scale does not.
- * `HF-19` keeps this floor off the reader's type size, so it does not climb.
- */
-const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * S_235 * 2
+// see LF-16, HF-1
+const CONTROL_LATTICE = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * S_235 * 2
 
 /**
  * The smallest `zoomY` that draws a given depth, which is what FR-055's MUST
@@ -500,11 +489,8 @@ function depthTheFitOwes(
 // arithmetic, and it grows with the tier twice over: more rows AND a taller
 // rung. That is why a document can fit at tier 4 and overflow at tier 5.
 //
-// ⛔⛔ AND WHY THE DISPLAY SCALE IS PINNED AT ITS TOP STEP (CR-397): the bands
-// carry the display ratio (表 T-252 の `DS-1` / `DS-8`) and `LF-3`'s control
-// floor does not (`DS-7`). At the default step that floor outruns the drawn plan
-// at every rung, so the extent stops moving with `zoomY` and pass 1 of 表 T-068
-// always agrees with pass 2. ⛔ The ANSWERS did not move; the row counts did.
+// WHY: the display scale is pinned at its top step (CR-397) so every tier's band moves with its
+// rung; the answers did not move when CR-553 took the lattice out of the band.
 // ---------------------------------------------------------------------------
 
 /** One chain of five rows -- every tier fits, so the deepest one wins. */
@@ -567,26 +553,23 @@ describe('the premises -- tiers 4 and 5 exist, stand above FR-094 floor, and are
     }
   })
 
-  it('⭐ and LF-3 puts the CONTROLS under every band the low tiers draw', () => {
-    // 表 T-221 の `LF-3` (MUST, 利用者の裁定 2026-09-03): 「**帯高は矩形が縦に取る
-    // 高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
-    // 高さも下回らない**」, restated as a MUST NOT by 表 T-051 の `HF-19`.
+  it('LF-2 alone sizes every band the low tiers draw: HF-19 floors none, and LF-16 adds the rest under the last', () => {
     // WHY: these bands size every fixture above; tier 5's is the tallest, so a document overflows there first.
-    // STEP: since CR-413 / CR-414 the drawn plan band (VG-5 edge plus one VG-2 gap) outruns the lattice at
-    // TOP_STEP, so the premise is the band LF-2 / LF-3 give each tier, measured against the layout.
     const ratio = displayRatioAt(TOP_STEP)
     const gap = SETTINGS.stackGap * 2 + SETTINGS.dependencyWidth * ratio
     const planAt = (depth: number): number =>
       Math.max(PINNED_PLAN_HEIGHT, settingNumber('basePlanHeight') * thresholdOf(depth)) * ratio
     const bandAt = (depth: number): number =>
-      Math.max(planAt(depth) + SETTINGS.planStroke * ratio + gap, CONTROL_LATTICE_FLOOR)
+      planAt(depth) + SETTINGS.planStroke * ratio + gap
     const chain = scheduleOf(FIVE_DEEP_CHAIN)
     for (let depth = 2; depth <= 5; depth++) {
       const drawn = layoutAtDepth(chain, depth)
       for (const row of drawn.rows) {
         expect(row.height, `tier ${depth}`).toBeCloseTo(bandAt(depth), 6)
-        expect(row.height, `tier ${depth} stands on the lattice (HF-19)`).toBeGreaterThanOrEqual(CONTROL_LATTICE_FLOOR)
       }
+      const bands = drawn.rows.reduce((sum, row) => sum + row.height, 0)
+      const last = drawn.rows[drawn.rows.length - 1]!.height
+      expect(drawn.contentHeight, `tier ${depth}: LF-16`).toBeCloseTo(bands + Math.max(0, CONTROL_LATTICE - last), 6)
     }
     expect(bandAt(5), 'tier 5 draws the taller band, which is what makes it overflow').toBeGreaterThan(bandAt(4))
     // ...and the manuscript still says both halves of the rule.
@@ -595,10 +578,8 @@ describe('the premises -- tiers 4 and 5 exist, stand above FR-094 floor, and are
       if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
       return row.cells.join(' ')
     }
-    expect(says('T-221', 'LF-3')).toContain(
-      '帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない',
-    )
-    expect(says('T-051', 'HF-19')).toContain('行の帯がそれを下回ってはならない（MUST NOT）')
+    expect(says('T-221', 'LF-3')).toContain('が縦に取る高さは、帯高の床に数えない')
+    expect(says('T-051', 'HF-19')).toContain('行の帯高の下限にしてはならない（MUST NOT）')
   })
 
   it('the fixtures really exercise the answers 5, 4, 3 and 1', () => {

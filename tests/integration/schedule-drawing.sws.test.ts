@@ -180,30 +180,9 @@ const mentions = (table: SpecTable, id: string, ...terms: readonly string[]): vo
   }
 }
 
-// ---------------------------------------------------------------------------
-// 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the SECOND floor under a band
-// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row DFC-225).
-//
-//   `LF-3`  「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051
-//           の `HF-1` の格子）が縦に取る高さも下回らない**」
-//   `HF-19` 「**`HF-1` の格子が縦に取る高さは、行の帯高の下限であること（MUST）。
-//           行の帯がそれを下回ってはならない（MUST NOT）**」
-//
-// ⛔ NEITHER ROW STATES A NUMBER. Both say 「数は本行に書かない」 and hand the
-// figure to 表 T-206: 「操作子 1 つの外形は … `S-138` と `S-243` が決めており、格子は
-// その 2 段ぶんである」. `FR-029` is what composes those two -- 「図形を描く箱の一辺
-// は … `S-138` に従うこと（MUST）」 and 「図形と入口の枠のあいだに … `S-141` が定める
-// 隙間を最低限あけること（MUST）」, once on each side -- and 表 T-051 の `HF-1`
-// (MUST) stacks them 「並びは 2 × 2 の格子とすること」, so the lattice is two of
-// those, one above the other. ⭐ AND `S-235` IS ON EVERY SURFACE OF IT (CR-397):
-// 表 T-206 の `S-138` 「⚠️ 描くときは、どの面でも `S-235` を掛ける（規則は
-// `FR-029`）。」 ⇒ composed here out of the manuscript; the total is never typed.
-//
-// ⚠️ THE FLOOR DOES NOT MOVE WITH `zoomY`, and the bands it is compared against
-// do. `HF-19`: 「⛔⛔ **この床を閲覧者の文字サイズに追随させてはならない
-// （MUST NOT）**」, and `S-138` 「⛔ **閲覧者の文字サイズに追随させない**」 -- the
-// controls keep one size whatever the schedule is drawn at.
-// ---------------------------------------------------------------------------
+// see LF-3, LF-16, HF-19
+// WHY: CR-553 took the lattice out of LF-3's floors; it is composed here only for the LF-16
+// reserve and for the HF-19 MUST NOT cases, which need to know it stands above a one-lane band.
 
 const T206: SpecTable = specTable('T-206')
 const T051: SpecTable = specTable('T-051')
@@ -218,8 +197,8 @@ const settingPx = (id: string): number => {
 /** One control's outer height: the glyph box, plus FR-029's gap on each side. */
 const ONE_CONTROL_TALL = settingPx('S-138') + settingPx('S-243') * 2
 
-/** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
-const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
+// see LF-16, HF-1
+const CONTROL_LATTICE = ONE_CONTROL_TALL * S_235 * 2
 
 /** Table T-222's own bend count for a row -- the only all-digit cell it has. */
 const bendsOf = (id: string): number => {
@@ -964,14 +943,9 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
     () => {
       // STEP: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
       mentions(T221, 'LF-2', 'VG-5', 'VG-2', '段数と同じ数')
-      // ⭐ AND THE SECOND FLOOR LF-3 PUTS UNDER WHATEVER LF-2 SUMS TO:
-      // 「その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない」,
-      // said again from the controls' side by 表 T-051 の `HF-19`.
-      mentions(T221, 'LF-3', 'HF-1', '格子')
-      mentions(T051, 'HF-19', '行の帯高の下限であること（MUST）')
-      // ⛔ A SUM THE FLOOR ALWAYS SWALLOWS WOULD MAKE THIS CASE SAY NOTHING
-      // ABOUT stackGap, so at least one band has to be decided by LF-2 alone.
-      let decidedByTheSum = 0
+      mentions(T221, 'LF-3', 'HF-1', '帯高の床に数えない')
+      mentions(T051, 'HF-19', '行の帯高の下限にしてはならない（MUST NOT）')
+      let belowTheLattice = 0
       for (const [name, drawn] of bandDocuments()) {
         for (const row of drawn.layout.rows) {
           const lanes = Math.max(row.stackCount, 1)
@@ -982,19 +956,18 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
             )
             // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
-              ? drawn.layout.rectangleHeight
+              ? drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO
               : Math.max(...onLane.map((p) => p.height)) + drawn.settings.planStroke * DISPLAY_RATIO
           }
           const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
           const lf2 = sum + gap * lanes
-          if (lf2 > CONTROL_LATTICE_FLOOR) decidedByTheSum += 1
-          const expected = Math.max(lf2, CONTROL_LATTICE_FLOOR)
-          expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(expected, 6)
+          if (lf2 < CONTROL_LATTICE) belowTheLattice += 1
+          expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(lf2, 6)
         }
       }
       expect(
-        decidedByTheSum,
-        'every band stood on the floor, so this case asserted nothing about the VG-2 gap',
+        belowTheLattice,
+        'no band summed below the lattice, so this case could not tell HF-19 (MUST NOT) from a floor',
       ).toBeGreaterThan(0)
     },
   )
@@ -1006,17 +979,10 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       covers: ['LF-2', 'LF-3'],
       given: 'a row on which no Task is drawn at all',
       when: 'layoutFromSchedule places it',
-      then: 'it still takes the rectangle, and never less than its own controls',
+      then: 'it takes one rectangle lane and one VG-2 gap, and is not raised to its controls',
     }),
     () => {
-      // LF-2's last sentence, and SWS-2's RATIONALE: an empty row keeps its
-      // band so the row heading and the band do not drift apart.
-      // ⭐ AND LF-3's SECOND FLOOR, which is the one that binds here: 表 T-051 の
-      // `HF-19` 「⚠️ **実測（2026-09-03、出荷ビルド）: `Task` を 1 つも持たない行は
-      // 22〜28px、格子は 48px。その行の `IC-90` と `IC-58` の中心は次の行のもので
-      // あり、押しはそちらへ届いた。**」 -- an empty row is EXACTLY the row the
-      // ruling was made about, so the rectangle alone can no longer be the
-      // answer here.
+      // see SWS-2, DFC-840, HF-19
       const drawn = draw(
         [task({ uid: 1, name: 'a', start: day(2), finish: day(20) })],
         ['g1'],
@@ -1027,16 +993,11 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       )
       const empty = rowByIdOf(drawn, 'g2')
       expect(empty.stackCount).toBe(0)
-      expect(empty.height).toBeCloseTo(
-        Math.max(drawn.layout.rectangleHeight, CONTROL_LATTICE_FLOOR),
-        6,
-      )
-      // ⛔ AND THE FLOOR IS WHAT DECIDED IT, not the rectangle -- otherwise the
-      // Math.max above would be a way of agreeing with either answer.
-      expect(
-        drawn.layout.rectangleHeight,
-        'the rectangle no longer stands under the lattice, so this case moved',
-      ).toBeLessThan(CONTROL_LATTICE_FLOOR)
+      const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
+      const oneLane = drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO + gap
+      expect(empty.height, 'LF-2: an empty lane is the rectangle, plus one VG-2 gap').toBeCloseTo(oneLane, 6)
+      expect(empty.height, 'the same band as the one-lane row above it').toBeCloseTo(rowByIdOf(drawn, 'g1').height, 6)
+      expect(empty.height, 'HF-19 (MUST NOT): the lattice is not its floor').toBeLessThan(CONTROL_LATTICE)
       // and the rectangle's own height is FR-094's chain, not a number of its own
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
         drawn.settings.basePlanHeight *
@@ -1088,14 +1049,10 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       covers: ['LF-3'],
       given: 'a row holding only an arrow, which is drawn thinner than a rectangle',
       when: 'layoutFromSchedule places it',
-      then: 'the band falls below neither the rectangle nor the controls',
+      then: 'the band stands on the rectangle floor and not on the controls',
     }),
     () => {
-      // LF-3 states TWO floors, and this case now asserts both of them:
-      // 「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の
-      // `HF-1` の格子）が縦に取る高さも下回らない**」. SH-3 of table T-012 has no
-      // thickness and S-15 halves it, so an arrow is the shape that reaches for
-      // whichever of the two stands higher.
+      // see LF-3, SH-3, HF-19
       const drawn = draw(
         [task({ uid: 1, name: 'arrow', start: day(2), finish: day(4) })],
         ['g1'],
@@ -1111,10 +1068,41 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       const row = rowByIdOf(drawn, 'g1')
       const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
       const lf2 = placed.y - row.y + placed.height + gap
-      expect(row.height).toBeCloseTo(Math.max(lf2, rectangleTall, CONTROL_LATTICE_FLOOR), 6)
-      // ⛔ Both floors are above the arrow, so the band clears the taller one.
-      expect(rowByIdOf(drawn, 'g1').height).toBeGreaterThanOrEqual(CONTROL_LATTICE_FLOOR)
-      expect(rowByIdOf(drawn, 'g1').height).toBeGreaterThanOrEqual(rectangleTall - 1e-9)
+      expect(lf2, 'the premise: the arrow lane sums below the rectangle floor').toBeLessThan(rectangleTall)
+      expect(row.height).toBeCloseTo(Math.max(lf2, rectangleTall), 6)
+      expect(row.height, 'HF-19 (MUST NOT): the controls are no floor').toBeLessThan(CONTROL_LATTICE)
+    },
+  )
+
+  it(
+    swsCase({
+      sws: 'SWS-2',
+      level: 'Integration',
+      covers: ['LF-16'],
+      given: 'a last row lower than the lattice, and a last row taller than it',
+      when: 'layoutFromSchedule places them',
+      then: 'the first reserves the lattice less its band under it, and the second reserves nothing',
+    }),
+    () => {
+      mentions(T221, 'LF-16', 'S-138', 'S-243', 'S-235', '0 とする')
+      const long = (uid: number, from: number, to: number) =>
+        task({ uid, name: `t${uid}`, start: day(from), finish: day(to) })
+      const bandsOf = (drawn: Drawn): number => drawn.layout.rows.reduce((sum, row) => sum + row.height, 0)
+      const lowLast = draw(
+        [long(1, 2, 20), long(2, 3, 21), long(3, 2, 20)],
+        ['g1', 'g1', 'g2'],
+        [taskVisual(1), taskVisual(2), taskVisual(3)],
+      )
+      const last = rowByIdOf(lowLast, 'g2')
+      expect(last.height, 'the premise: the last band is lower than the lattice').toBeLessThan(CONTROL_LATTICE)
+      expect(lowLast.layout.contentHeight).toBeCloseTo(bandsOf(lowLast) + CONTROL_LATTICE - last.height, 6)
+      const tallLast = draw(
+        [long(1, 2, 20), long(2, 2, 20), long(3, 3, 21)],
+        ['g1', 'g2', 'g2'],
+        [taskVisual(1), taskVisual(2), taskVisual(3)],
+      )
+      expect(rowByIdOf(tallLast, 'g2').height, 'the premise: two lanes clear the lattice').toBeGreaterThan(CONTROL_LATTICE)
+      expect(tallLast.layout.contentHeight).toBeCloseTo(bandsOf(tallLast), 6)
     },
   )
 

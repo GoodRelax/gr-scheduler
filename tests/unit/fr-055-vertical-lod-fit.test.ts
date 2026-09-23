@@ -121,11 +121,11 @@ const SETTINGS = settingsOf({
   rulerFont: 12, // S-3
 })
 
-// WHY: 550, not 700: CR-414 lowered the lattice from 32 to 24px, so the Row Area shrinks by the same 3/4
-// and each shape below keeps the row counts it was chosen for.
+// WHY: 500, not 550: CR-553 took the lattice out of the band (24.0012 -> 21.625px a row), so the Row
+// Area shrinks with it and each shape below keeps the row counts it was chosen for.
 const ENV: ScreenEnvironment = {
   width: 1000,
-  height: 550,
+  height: 500,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
 }
@@ -183,19 +183,8 @@ const settingsTablePx = (id: string): number => {
   return Number(found[0])
 }
 
-/**
- * 表 T-221 の `LF-3` / 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03): the
- * floor a row's band may not fall below, which is `HF-1`'s 2 x 2 lattice.
- *
- * ⛔ NEITHER ROW STATES A NUMBER -- 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
- * … 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである」. So it is
- * composed: `FR-029` (MUST) draws the glyph in a box of `S-138` a side and keeps
- * at least `S-243` between that box and the entrance's frame on each side, and
- * `HF-1` (MUST) stacks four of those 「2 × 2 の格子」.
- * ⚠️ A CONSTANT, not a function of the zoom: `HF-19` 「⛔⛔ **この床を閲覧者の文字
- * サイズに追随させてはならない（MUST NOT）**」.
- */
-const CONTROL_LATTICE_FLOOR = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * S_235 * 2
+// see LF-16, HF-1
+const CONTROL_LATTICE = (settingsTablePx('S-138') + settingsTablePx('S-243') * 2) * S_235 * 2
 
 /**
  * The smallest zoom that draws depth `d`, which is what FR-055's ⛔ measures
@@ -435,20 +424,8 @@ function depthTheFitOwes(shape: TreeShape, regions: ScreenRegions = REGIONS): nu
 // (S-6 ÷ S-5) once the zoom is under the floor, and LF-3 adds `rowGap` (S-12)
 // between rows. So `n` rows take `n × h + (n − 1) × rowGap`.
 //
-// ⭐⭐ AND `h` IS NO LONGER THE PLAN HEIGHT (利用者の裁定 2026-09-03, CR-339 +
-// CR-342). 表 T-221 の `LF-3` now reads 「**帯高は矩形が縦に取る高さを下回らず、かつ、
-// その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」, and
-// 表 T-051 の `HF-19` says the same from the controls' side as a MUST NOT. That
-// second floor is `CONTROL_LATTICE_FLOOR` below, composed out of 表 T-206, and
-// it stands ABOVE the pinned plan height -- so `h` is the lattice for every
-// rung whose zoom leaves the plan under FR-094's floor.
-// ⇒ the shapes below were re-chosen when the floor landed: on this file's ENV
-// the Row Area now stops fitting a little past ten rows, where it used to reach
-// nearly twenty. ⛔ The ANSWERS each fixture is named for did not change; only
-// the number of rows it takes to produce them.
-// ⭐ The case `the fixtures really do exercise all three answers` is the guard:
-// re-rule any of those settings, or the screen, and it fails rather than
-// letting the cases below go quietly vacuous.
+// WHY: HF-19 (MUST NOT) no longer lifts h to the lattice, so h is LF-2's one lane and one VG-2 gap,
+// and LF-16 adds the lattice less the last band once, under the last row.
 
 /** Six rows across three depths -- the whole document fits. */
 const ALL_THREE_DEPTHS_FIT: TreeShape = { roots: 2, depths: 3, fanOut: 1 }
@@ -494,30 +471,22 @@ describe('the premise the closed form rests on -- FR-094 pins the picture under 
     expect(thresholdOf(5)).toBeGreaterThan(FLOOR_BINDS_BELOW)
   })
 
-  it('⭐ and LF-3 puts the CONTROLS under the band, above the plan height FR-094 pins', () => {
-    // 表 T-221 の `LF-3` (MUST, 利用者の裁定 2026-09-03): 「**帯高は矩形が縦に取る
-    // 高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
-    // 高さも下回らない**」, and 表 T-051 の `HF-19` states the same as a MUST NOT.
-    // ⛔ THIS IS WHAT SIZES EVERY FIXTURE IN THIS FILE. If the lattice ever
-    // stopped outrunning the pinned plan height, the row counts chosen above
-    // would be the wrong ones and the answers they are named for would move.
+  it('HF-19 (MUST NOT): the band a pinned row draws is its lane and gap, below the lattice; LF-16 reserves the rest', () => {
     // STEP: compared in drawn px -- the pinned plan to its VG-5 edge plus one VG-2 gap, at the default ratio.
     const pinnedBand =
       (PINNED_PLAN_HEIGHT + SETTINGS.planStroke) * DEFAULT_DISPLAY_RATIO +
       SETTINGS.stackGap * 2 + SETTINGS.dependencyWidth * DEFAULT_DISPLAY_RATIO
-    expect(CONTROL_LATTICE_FLOOR).toBeGreaterThan(pinnedBand)
-    const oneRow = layoutFromSchedule(scheduleOf({ roots: 1, depths: 1, fanOut: 1 }), SETTINGS, REGIONS)
-    expect(oneRow.rows[0]!.height, 'the band a pinned row draws is the lattice').toBeCloseTo(CONTROL_LATTICE_FLOOR, 6)
-    // ...and the manuscript still says both halves of it.
+    expect(CONTROL_LATTICE).toBeGreaterThan(pinnedBand)
+    const oneRow = layoutAtDepth(scheduleOf({ roots: 1, depths: 1, fanOut: 1 }), 1)
+    expect(oneRow.rows[0]!.height, 'the band a pinned row draws is its lane').toBeCloseTo(pinnedBand, 6)
+    expect(oneRow.contentHeight, 'LF-16: the lattice less that band is reserved under it').toBeCloseTo(CONTROL_LATTICE, 6)
     const says = (table: string, id: string): string => {
       const row = specTable(table).rows.find((one) => one.id === id)
       if (row === undefined) throw new Error(`table ${table} has no row ${id}`)
       return row.cells.join(' ')
     }
-    expect(says('T-221', 'LF-3')).toContain(
-      '帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない',
-    )
-    expect(says('T-051', 'HF-19')).toContain('行の帯がそれを下回ってはならない（MUST NOT）')
+    expect(says('T-221', 'LF-3')).toContain('が縦に取る高さは、帯高の床に数えない')
+    expect(says('T-051', 'HF-19')).toContain('行の帯高の下限にしてはならない（MUST NOT）')
   })
 
   it('draws the same picture at both ends of a rung, which is why one measurement suffices', () => {
@@ -610,6 +579,33 @@ describe('FR-055 ⭐ -- the fit settles the vertical by choosing the depth', () 
     expect(drawn.contentHeight).toBeLessThan(REGIONS.rowArea.height / 2)
     expect(deepestDrawnDepth(drawn)).toBe(1)
     expect(layoutAtDepth(schedule, 2).contentHeight).toBeGreaterThan(REGIONS.rowArea.height)
+  })
+})
+
+describe('FR-055 (MUST) -- the height the fit checks includes the LF-16 reserve', () => {
+  const schedule = scheduleOf(ALL_THREE_DEPTHS_FIT)
+  const atThree = layoutAtDepth(schedule, 3)
+  const bands = atThree.rows.reduce((sum, row) => sum + row.height, 0)
+  const reserve = atThree.contentHeight - bands
+  const offset = ENV.height - REGIONS.rowArea.height
+  const regionsFor = (rowAreaHeight: number): ScreenRegions =>
+    regionsFromScreen({ ...ENV, height: rowAreaHeight + offset }, SETTINGS)
+  const fittedDepth = (regions: ScreenRegions): number =>
+    deepestDrawnDepth(layoutFromSchedule(schedule, settingsAfterFit(fitWrite(schedule, SETTINGS, regions)), regions))
+
+  it('the premise: depth 3 draws six rows and a reserve above zero', () => {
+    expect(atThree.rows).toHaveLength(6)
+    expect(reserve).toBeGreaterThan(1)
+  })
+
+  it('refuses depth 3 where its bands fit but its bands and the reserve do not', () => {
+    const regions = regionsFor(bands + reserve / 2)
+    expect(regions.rowArea.height).toBeCloseTo(bands + reserve / 2, 6)
+    expect(fittedDepth(regions)).toBe(2)
+  })
+
+  it('the control: takes depth 3 once the Row Area holds the reserve too', () => {
+    expect(fittedDepth(regionsFor(bands + reserve + 0.5))).toBe(3)
   })
 })
 

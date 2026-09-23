@@ -1,67 +1,4 @@
-// 表 T-221 の `LF-3` and 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03,
-// CR-339, ledger row DFC-225): a row's band is never shorter than the lattice of
-// controls that stands on it.
-//
-// ⭐ THE TWO ROWS THIS FILE IS WRITTEN FROM, verbatim.
-//
-// 表 T-221 の `LF-3` (docs/spec/05-07-design.md), 行の縦位置:
-//   「前の行の縦位置に、前の行の帯高と `rowGap` を加える。**帯高は矩形が縦に取る
-//    高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る
-//    高さも下回らない**（利用者の裁定 2026-09-03）—— ⛔ **下回ると、格子の下段が
-//    次の行の帯へ落ち、押しがその行の操作子に取られる。**」
-//
-// 表 T-051 の `HF-19` (docs/spec/01-04-requirements.md):
-//   「**`HF-1` の格子が縦に取る高さは、行の帯高の下限であること（MUST）。行の帯が
-//    それを下回ってはならない（MUST NOT）**（利用者の裁定 2026-09-03）—— ⛔⛔ **下回る
-//    と、格子の下段の 2 つが次の行の帯の上に立ち、`HF-6` が「行の名前の上へ重ねて
-//    描く」と定めた重なりが、自分の行ではなく隣の行に対して起きる。**⚠️ **実測
-//    （2026-09-03、出荷ビルド）: `Task` を 1 つも持たない行は 22〜28px、格子は
-//    48px。その行の `IC-90` と `IC-58` の中心は次の行のものであり、押しはそちら
-//    へ届いた。**⛔ **格子の側を縮めて合わせてはならない（MUST NOT）**」
-//
-// ---------------------------------------------------------------------------
-// ⭐⭐ WHERE THE NUMBER COMES FROM, AND WHY THIS FILE MAY STATE ONE AT ALL
-// ---------------------------------------------------------------------------
-//
-// Both rows say 「数は本行に書かない」 and point at the reader's text size
-// (`FR-039`). ⛔ BUT THE ENTRANCE'S OWN SIZE DOES NOT FOLLOW THAT TEXT SIZE, and
-// 表 T-206 の `S-138` says so itself:
-//
-//   「⛔ **閲覧者の文字サイズに追随させない** —— 大きくしたい人はブラウザの表示倍率
-//    で変える。」
-//
-// ⇒ one entrance is `S-138 + S-243 × 2` tall. ⛔ `S-237` IS NOT IN THAT HEIGHT:
-// `FR-029` puts the frame into the WIDTH and leaves the vertical to the side
-// that sets the row pitch -- and `LF-3` / `HF-19` name only `S-138` and `S-243`,
-// the Row Title Panel gap of `FR-029`.
-//
-// ⭐⭐ AND EVERY SURFACE MULTIPLIES IT BY `S-235` (CR-397, ledger row DFC-618):
-// 表 T-206 の `S-138` 「⚠️ 描くときは、どの面でも `S-235` を掛ける（規則は
-// `FR-029`）。」 ⛔ THE DISPLAY SCALE DOES NOT, which is why this floor stands
-// still while the bands it is compared against move: 表 T-252 の `DS-7` puts the
-// entrance under 「掛けない」.
-//
-// ⇒ one rung is `(S-138 + S-243 × 2) × S-235`, and `HF-1`'s lattice is
-// 「2 × 2 の格子」, so the floor is at least TWO of those, stacked.
-// ⭐ AT LEAST, never exactly: 表 T-051 の `HF-6` records that the gap BETWEEN
-// two controls has no row anywhere -- 「⛔ **操作子どうしの間隔をここに書いては
-// ならない（MUST NOT）** —— **その量を持つ行はどこにも無く、まだ裁定を受けていない。**」
-// ⇒ 「格子はその 2 段ぶんである」 is the tallest thing the specification pins, so
-// every case here asks for at least that and never for exactly it.
-//
-// ---------------------------------------------------------------------------
-// Unit under test: `layoutFromSchedule` -- PI-5 of 表 T-064, the unit
-// `05-07-design.md` names for 表 T-221's `LF-2` and `LF-3`: 「段を割り当てたあと、
-// `GRS` は、行の帯高と縦位置を 表 T-221 の `LF-2` と `LF-3` に従って決めること」.
-//
-// ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
-// the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
-// tests/unit/.
-//
-// ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
-// 04-verification.md section 1). ⛔ NO FUNCTION BODY UNDER src/ WAS OPENED; the
-// fixture shape (`settingsOf` / `scheduleOf` / `oneRow`) is copied from
-// tests/unit/layout-engine.test.ts, which drives this same unit.
+// LF-3 / HF-19 (CR-553): a band is set by its lanes and LF-3's floors, and never raised to the controls' lattice.
 
 import { describe, expect, it } from 'vitest'
 
@@ -73,14 +10,11 @@ import type { Schedule, Task } from '../../src/entity/document-model/schedule/sc
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
   regionsFromScreen,
+  rowControlLatticeHeightPx,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from '../contract/spec-table'
-import { DISPLAY_SCALE_STEPS, S_235, displayRatioAt } from '../fixtures/display-scale'
-
-// ===========================================================================
-// The manuscript, read at run time rather than copied (Chapter 1.9)
-// ===========================================================================
+import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, S_235, displayRatioAt } from '../fixtures/display-scale'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -88,69 +22,66 @@ const rowOf = (table: string, id: string) => {
   return found
 }
 
-/** Everything one row of a table says, as one string. */
 const says = (table: string, id: string): string => rowOf(table, id).cells.join(' ')
 
-/** The px figure one settings row states in its 既定 column. */
-const px = (table: string, id: string): number => {
-  const found = /-?\d+(?:\.\d+)?/.exec(rowOf(table, id).by['既定'] ?? '')
-  if (found === null) throw new Error(`${id} states no number in its 既定 column`)
+const numberIn = (cell: string | undefined, id: string): number => {
+  const found = /-?\d+(?:\.\d+)?/.exec(cell ?? '')
+  if (found === null) throw new Error(`${id} states no number in its default column`)
   return Number(found[0])
 }
 
-/** `S-138` -- 入口の図形を描く箱の一辺. */
-const S_138 = px('T-206', 'S-138')
-/** `S-243` -- the least gap of an entrance on the Row Title Panel. */
-const S_243 = px('T-206', 'S-243')
+// see T-206
+const t206 = (id: string): number => numberIn(rowOf('T-206', id).by['既定'], id)
 
-/** One entrance's outer height, the way `FR-029` composes it out of those two. */
-const ONE_ENTRANCE_TALL = S_138 + S_243 * 2
+// see T-201
+const t201 = (id: string): number => numberIn(rowOf('T-201', id).by['既定値'], id)
 
-/** One rung of the lattice as it is DRAWN: `FR-029` multiplies it by `S-235`. */
-const ONE_RUNG_DRAWN = ONE_ENTRANCE_TALL * S_235
+const HF_19_NOT_A_FLOOR =
+  '`HF-1` の格子（`HF-4` の並び。2 段）が縦に取る高さを、行の帯高の下限にしてはならない（MUST NOT）'
+const HF_19_NO_SHRINKING = '格子の側を縮めて合わせてはならない（MUST NOT）'
+const HF_19_THE_RESERVE =
+  '最後の行の格子が画面の下端（行見出しパネルと `Row Area` の下端）で切れないよう、行の並びの下に余白を置くこと（MUST）'
+const HF_1_TWO_BY_TWO = '並びは 2 × 2 の格子とすること（MUST）'
+const LF_3_NOT_COUNTED =
+  '行の操作子（`01-04-requirements.md` の 表 T-051 の `HF-1` の格子）が縦に取る高さは、帯高の床に数えない'
+const LF_3_RECTANGLE_FLOOR = '帯高は矩形が縦に取る高さを下回らない'
+const LF_2_EMPTY_LANE = '`Task` を 1 つも持たない段は、矩形が縦に取る高さとする'
 
-/**
- * The floor `HF-19` puts under a row's band, as far as docs/spec pins it down.
- *
- * ⭐ `HF-1` (MUST): 「並びは 2 × 2 の格子とすること」 ⇒ two entrances, stacked.
- * ⛔ A LOWER BOUND AND NOT THE FIGURE: the gap between them has no row (see the
- * head of this file), so the real lattice can only be taller than this.
- */
-const LATTICE_FLOOR = ONE_RUNG_DRAWN * 2
-
-// see FR-039, T-202
-const TOP_STEP = DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1] ?? 100
-
-// see VG-2, VG-3, VG-4
-const vgGapAt = (step: number): number => {
-  const t201 = (id: string): number =>
-    Number(/-?\d+(?:\.\d+)?/.exec(rowOf('T-201', id).by['既定値'] ?? '')?.[0])
-  return t201('S-11') * 2 + t201('S-18') * displayRatioAt(step)
-}
-
-// ===========================================================================
-// The fixture. Copied from tests/unit/layout-engine.test.ts.
-// ===========================================================================
+// see LF-16, FR-029
+const LATTICE = 2 * (t206('S-138') + t206('S-243') * 2) * S_235
 
 const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
-const ENV: ScreenEnvironment = {
-  width: 1000,
-  height: 700,
-  appHeaderHeight: 56,
-  scrollbarThickness: 8,
+const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
+
+const settingsAt = (displayScale: number): DocumentSettings =>
+  settingsOf({
+    rulerHeight: 48,
+    scrollDate: '2026-01-01',
+    rulerFont: 12,
+    stackDirection: 'down',
+    shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
+    displayScale,
+  })
+
+const ZOOM_Y = settingsAt(DEFAULT_DISPLAY_SCALE).zoomY
+
+// see FR-094, VG-5
+const rectangleAt = (step: number): number => {
+  const ratio = displayRatioAt(step)
+  const plan = Math.max((t201('S-6') * ratio) / t201('S-5'), t201('S-4') * ratio * ZOOM_Y) * t201('S-13')
+  return plan + t201('S-39') * ratio
 }
 
-const LAYOUT_SETTINGS = settingsOf({
-  rulerHeight: 48,
-  scrollDate: '2026-01-01', // S-77
-  rulerFont: 12, // S-3
-  stackDirection: 'down', // S-58
-  shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
-})
+// see VG-2, VG-3, VG-4
+const gapAt = (step: number): number => t201('S-11') * 2 + t201('S-18') * displayRatioAt(step)
 
-const REGIONS = regionsFromScreen(ENV, LAYOUT_SETTINGS)
+// see LF-3, FR-085
+const nameBoxAt = (step: number): number => t201('S-36') * displayRatioAt(step) * t201('S-38')
+
+// see LF-2
+const oneLaneAt = (step: number): number => rectangleAt(step) + gapAt(step)
 
 const taskOf = (part: Record<string, unknown>): Task =>
   ({
@@ -184,7 +115,6 @@ const scheduleOf = (part: Record<string, unknown>): Schedule =>
     ...part,
   }) as unknown as Schedule
 
-/** One root row holding the tasks given, each a member of it. */
 const oneRow = (tasks: readonly Task[], group: Record<string, unknown> = {}): Schedule =>
   scheduleOf({
     tasks,
@@ -192,77 +122,56 @@ const oneRow = (tasks: readonly Task[], group: Record<string, unknown> = {}): Sc
     taskGroupMembers: tasks.map((one) => ({ groupId: 'g1', taskUid: one.uid })),
   })
 
-/** A task starting on `from` and running `days`. */
 const spanning = (uid: number, from: string, days: number): Task => {
   const finish = new Date(new Date(`${from}T00:00:00Z`).getTime() + days * 86400000)
   return taskOf({ uid, start: from, finish: finish.toISOString().slice(0, 10) })
 }
 
-const heightsOf = (schedule: Schedule, settings = LAYOUT_SETTINGS): readonly number[] =>
-  layoutFromSchedule(schedule, settings, REGIONS).rows.map((one) => one.height)
+const layoutAt = (schedule: Schedule, step = DEFAULT_DISPLAY_SCALE) => {
+  const settings = settingsAt(step)
+  return layoutFromSchedule(schedule, settings, regionsFromScreen(ENV, settings))
+}
 
-// ===========================================================================
-// The premises every case below stands on
-// ===========================================================================
+const heightsOf = (schedule: Schedule, step = DEFAULT_DISPLAY_SCALE): readonly number[] =>
+  layoutAt(schedule, step).rows.map((one) => one.height)
 
-describe('the manuscript still says what these cases read', () => {
-  it('⭐ LF-3 still puts the controls under the band as a second floor', () => {
-    expect(says('T-221', 'LF-3')).toContain(
-      '帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない',
-    )
+describe('the manuscript these cases read', () => {
+  it('HF-19 (MUST NOT): the lattice is not the floor of a band, and the controls are not shrunk instead', () => {
+    expect(says('T-051', 'HF-19')).toContain(HF_19_NOT_A_FLOOR)
+    expect(says('T-051', 'HF-19')).toContain(HF_19_NO_SHRINKING)
+    expect(says('T-051', 'HF-19')).toContain(HF_19_THE_RESERVE)
+    expect(says('T-051', 'HF-1')).toContain(HF_1_TWO_BY_TWO)
   })
 
-  it('⭐ HF-19 still states the same floor from the controls side, and forbids shrinking them', () => {
-    expect(says('T-051', 'HF-19')).toContain(
-      '`HF-1` の格子が縦に取る高さは、行の帯高の下限であること（MUST）。行の帯がそれを下回ってはならない（MUST NOT）',
-    )
-    // ⛔ THE HALF THAT DECIDES WHICH SIDE GIVES WAY. Without it, a build could
-    // meet LF-3 by drawing smaller controls, which HF-5 already forbids.
-    expect(says('T-051', 'HF-19')).toContain('格子の側を縮めて合わせてはならない（MUST NOT）')
-    expect(says('T-051', 'HF-1')).toContain('並びは 2 × 2 の格子とすること（MUST）')
+  it('LF-3 leaves the lattice out of its floors and keeps the rectangle; LF-2 gives an empty lane the rectangle', () => {
+    expect(says('T-221', 'LF-3')).toContain(LF_3_NOT_COUNTED)
+    expect(says('T-221', 'LF-3')).toContain(LF_3_RECTANGLE_FLOOR)
+    expect(says('T-221', 'LF-2')).toContain(LF_2_EMPTY_LANE)
   })
 
-  it('⭐ the floor this file measures against is composed of two rows of the manuscript', () => {
-    // ⛔ WITHOUT THIS, A PARSE THAT LOST THE 既定 COLUMN WOULD MAKE EVERY CASE
-    // BELOW AGREE WITH ANYTHING -- rule 04 section 2.
-    expect(ONE_ENTRANCE_TALL, `S-138=${S_138}, S-243=${S_243}`).toBe(18)
-    expect(S_235, 'the scale FR-029 puts on every surface').toBe(0.6667)
-    expect(LATTICE_FLOOR).toBeCloseTo(24.0012, 9)
-    // The sentence that keeps the outer box out of the row, so FR-029 derives it.
-    expect(says('T-206', 'S-138')).toContain('本行は入口の外形を持たない')
-    // ⛔ AND THE HALF DFC-618 GOT WRONG: the drawn floor carries `S-235`.
-    expect(says('T-206', 'S-138')).toContain('描くときは、どの面でも `S-235` を掛ける')
+  it('LF-16 composes the lattice as two rungs of S-138 + 2 x S-243 at S-235, and PI-35 answers the same', () => {
+    expect(t206('S-138') + t206('S-243') * 2, 'S-138 and S-243 as table T-206 prints them').toBe(18)
+    expect(S_235).toBe(0.6667)
+    expect(LATTICE).toBeCloseTo(24.0012, 9)
+    expect(rowControlLatticeHeightPx(), 'PI-35 rowControlLatticeHeightPx').toBeCloseTo(LATTICE, 9)
   })
 })
 
-// ===========================================================================
-// The rule
-// ===========================================================================
-
-describe('LF-3 / HF-19 (MUST): a row is never shorter than its own controls', () => {
-  it('⛔⛔ a row holding no Task at all is still at least as tall as the lattice', () => {
-    // ⭐ THE ROW HF-19's 実測 IS ABOUT: 「`Task` を 1 つも持たない行は 22〜28px、
-    // 格子は 48px。その行の `IC-90` と `IC-58` の中心は次の行のものであり、押しは
-    // そちらへ届いた。」 ⇒ every control on such a row was unreachable.
-    // ⚠️ `LF-2`'s 「`Task` を 1 つも持たない段は、矩形が縦に取る高さとする」 is what
-    // gives it its old height; LF-3's new clause is a SECOND floor over that, not
-    // a replacement for it.
-    const [height] = heightsOf(oneRow([]))
-    expect(
-      height,
-      `LF-3 (MUST): a row with no Task is ${height}px and HF-1's lattice needs at least ${LATTICE_FLOOR}px`,
-    ).toBeGreaterThanOrEqual(LATTICE_FLOOR)
+describe('HF-19 (MUST NOT) / LF-3: the lattice never floors a band', () => {
+  it('a one-lane rectangle row is its lane and one VG-2 gap, which stands below the lattice', () => {
+    const [height] = heightsOf(oneRow([spanning(1, '2026-01-05', 20)]))
+    expect(oneLaneAt(DEFAULT_DISPLAY_SCALE), 'the premise: one lane is lower than the lattice').toBeLessThan(LATTICE)
+    expect(height, `${HF_19_NOT_A_FLOOR} -- LF-2`).toBeCloseTo(oneLaneAt(DEFAULT_DISPLAY_SCALE), 9)
+    expect(height, 'decision 1 of CR-553, as a cross-check').toBeCloseTo(21.625, 9)
   })
 
-  it('⛔ so is every row of a board built only of rows that hold no Task', () => {
-    // ⭐ CR-339's OTHER MEASUREMENT: 「parity の板（`Task` を 1 つも持たない行だけで
-    // 組んだ木）では 11 行すべてが 22px で、`IC-58` と `IC-90` は 1 行も押せない」.
-    // ⛔ ONE ROW IS NOT ENOUGH TO PROVE THIS: a floor applied to the first row
-    // only would pass the case above.
-    // ⚠️ THE ROWS ARE SIBLINGS AND NOT A CHAIN, deliberately: FR-018's group
-    // level-of-detail drops rows past a depth this zoom can draw, and a chain
-    // of five came back as three -- which would make the sweep quietly shorter
-    // than it reads. Depth is not what this rule is about.
+  it('a row holding no Task is one rectangle lane and one VG-2 gap (LF-2, SWS-2), not the lattice', () => {
+    const [height] = heightsOf(oneRow([]))
+    expect(height, `${LF_2_EMPTY_LANE} -- ${HF_19_NOT_A_FLOOR}`).toBeCloseTo(oneLaneAt(DEFAULT_DISPLAY_SCALE), 9)
+    expect(height).toBeLessThan(LATTICE)
+  })
+
+  it('so is every row of a board built only of rows that hold no Task', () => {
     const many = 5
     const schedule = scheduleOf({
       taskGroups: Array.from({ length: many }, (_unused, index) => ({
@@ -273,62 +182,57 @@ describe('LF-3 / HF-19 (MUST): a row is never shorter than its own controls', ()
       })),
     })
     const heights = heightsOf(schedule)
-    expect(heights, 'the board did not draw every row, so this sweep asked less than it says').toHaveLength(many)
+    expect(heights, 'the board did not draw every row').toHaveLength(many)
     for (const [index, height] of heights.entries()) {
-      expect(height, `row ${index + 1} of ${many} is ${height}px`).toBeGreaterThanOrEqual(
-        LATTICE_FLOOR,
-      )
+      expect(height, `row ${index + 1} of ${many}`).toBeCloseTo(oneLaneAt(DEFAULT_DISPLAY_SCALE), 9)
     }
   })
 
-  it('⛔ a row whose stated height (FR-042) is below the lattice is still raised to it', () => {
-    // `FR-042` (MUST): 「指定した高さは下限として扱うこと」, so a stated height can
-    // only ever ask for MORE room. ⇒ a small stated height cannot be a way round
-    // HF-19's 「行の帯がそれを下回ってはならない（MUST NOT）」.
+  it('a stated height (FR-042) below the lattice is kept as a floor and not raised to the lattice', () => {
     const [height] = heightsOf(oneRow([], { height: 1 }))
-    expect(height, `a row that asked for 1px came back ${height}px`).toBeGreaterThanOrEqual(
-      LATTICE_FLOOR,
+    expect(height, `a row that asked for 1px -- ${HF_19_NOT_A_FLOOR}`).toBeCloseTo(
+      oneLaneAt(DEFAULT_DISPLAY_SCALE),
+      9,
     )
   })
 
-  it('⭐ the control: a row tall enough on its own is NOT pushed up to the floor', () => {
-    // ⚠️ WITHOUT THIS, A UNIT THAT GAVE EVERY ROW A FIXED HEIGHT WOULD PASS
-    // EVERY CASE ABOVE -- and `ST-9` forbids exactly that: 「行の帯高は段数で
-    // 決まる。行高固定を前提にしてはならない（MUST NOT）」.
-    const tall = LATTICE_FLOOR * 3
+  it('the control: a stated height above the lattice is kept (FR-042)', () => {
+    const tall = LATTICE * 3
     const [height] = heightsOf(oneRow([], { height: tall }))
-    expect(height, 'FR-042 (MUST): a stated height above the floor is kept').toBe(tall)
+    expect(height).toBe(tall)
   })
 
-  it('⭐ and a packed row keeps the height its lanes need, which is more than the floor', () => {
-    // `LF-2` still decides the band for a row that has Tasks in it; HF-19 only
-    // ever raises a band, never lowers one.
-    const atTopStep = settingsOf({ ...LAYOUT_SETTINGS, displayScale: TOP_STEP })
-    const packedWith = (many: number): number => {
-      const tasks = Array.from({ length: many }, (_unused, index) =>
-        spanning(index + 1, `2026-01-0${index + 1}`, 20),
-      )
-      const [height] = heightsOf(oneRow(tasks), atTopStep)
-      return height ?? 0
-    }
-    const three = packedWith(3)
-    const four = packedWith(4)
-    expect(three).toBeGreaterThan(LATTICE_FLOOR)
-    expect(four).toBeGreaterThan(three)
+  it.each(DISPLAY_SCALE_STEPS)('at display scale %s a one-lane row is the larger of LF-2 and the LF-3 floors, never the lattice', (step) => {
+    const [height] = heightsOf(oneRow([spanning(1, '2026-01-05', 20)]), step)
+    const expected = Math.max(oneLaneAt(step), rectangleAt(step), nameBoxAt(step))
+    expect(height, `display scale ${step}`).toBeCloseTo(expected, 9)
+    if (expected < LATTICE) expect(height, `${HF_19_NOT_A_FLOOR} at display scale ${step}`).toBeLessThan(LATTICE)
+  })
 
-    // ⛔⛔ ONE LANE IS MEASURED AS A DIFFERENCE, NEVER AS A ROW OF ITS OWN.
-    // ⚠️ This case first read `heightsOf(oneRow([oneTask]))` as "one lane" --
-    // but a row holding a single lane is exactly the row THIS FILE'S RULE
-    // raises to `LATTICE_FLOOR`, so that reading handed back the floor and then
-    // asked a three-lane band to be three floors and two gaps.
-    // ⭐ Both rows below stand clear of the floor, so `LF-2` alone decides them:
-    // 「段ごとに、その段に載る `Task` が縦に取る高さ（…）の最大を採り、それらを合計して、
-    // 段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）」.
-    // One more lane therefore adds exactly one lane and one gap.
-    const gap = vgGapAt(TOP_STEP)
-    const lane = four - three - gap
-    expect(lane, 'a lane with no height makes the sum below say nothing').toBeGreaterThan(0)
-    expect(three, 'LF-2 (MUST): three lanes and three gaps').toBeCloseTo(3 * (lane + gap), 9)
-    expect(four, 'LF-2 (MUST): four lanes and four gaps').toBeCloseTo(4 * (lane + gap), 9)
+  it('HF-19 control: a two-lane row is taller than the lattice anyway, and is exactly two lanes and two gaps', () => {
+    const [height] = heightsOf(oneRow([spanning(1, '2026-01-05', 20), spanning(2, '2026-01-06', 20)]))
+    expect(height).toBeCloseTo(2 * oneLaneAt(DEFAULT_DISPLAY_SCALE), 9)
+    expect(height).toBeGreaterThan(LATTICE)
+  })
+})
+
+describe('LF-16 / HF-19 (MUST): the lattice is room under the last row instead', () => {
+  it('two one-lane rows reserve the lattice minus the last band below them, inside contentHeight', () => {
+    const schedule = scheduleOf({
+      tasks: [spanning(1, '2026-01-05', 20), spanning(2, '2026-01-05', 20)],
+      taskGroups: [
+        { id: 'g1', parentId: null, order: 0, height: null },
+        { id: 'g2', parentId: null, order: 1, height: null },
+      ],
+      taskGroupMembers: [
+        { groupId: 'g1', taskUid: 1 },
+        { groupId: 'g2', taskUid: 2 },
+      ],
+    })
+    const layout = layoutAt(schedule)
+    const bands = layout.rows.reduce((sum, row) => sum + row.height, 0)
+    const reserve = LATTICE - oneLaneAt(DEFAULT_DISPLAY_SCALE)
+    expect(reserve, 'the premise: the last band is lower than the lattice').toBeGreaterThan(0)
+    expect(layout.contentHeight, HF_19_THE_RESERVE).toBeCloseTo(bands + reserve, 9)
   })
 })

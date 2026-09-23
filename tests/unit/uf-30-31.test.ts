@@ -1329,10 +1329,9 @@ describe('MK-1 〜 MK-5 of 表 T-023 -- the wheel', () => {
   // for a schedule whose rows are small.
   // ⚠️ CORRECTED AGAIN 2026-09-03. The list below opened at a typed `36`, which
   // was the pitch of this fixture when a one-lane band was the rectangle alone.
-  // 表 T-221 の `LF-3` and 表 T-051 の `HF-19` (MUST, 利用者の裁定 2026-09-03) put
-  // a second floor under every band -- 「**帯高は矩形が縦に取る高さを下回らず、かつ、
-  // その行の操作子（表 T-051 の `HF-1` の格子）が縦に取る高さも下回らない**」 -- so
-  // the pitch grew and 36 stopped being 「longer than one row」.
+  // 表 T-221 の `LF-3` and 表 T-051 の `HF-19` then put the controls' lattice under
+  // every band (2026-09-03) and CR-553 took it out again, so the pitch moved twice
+  // and a typed figure would have gone stale both times.
   // ⭐ THE SMALLEST DISTANCE THIS CASE MEANS IS THE PITCH ITSELF, so it is now
   // asked for by name. ⛔ Not re-typed: neither row states a figure (「数は本行に
   // 書かない」), and the guard below still fails if the pitch outgrows 100px.

@@ -109,7 +109,8 @@ import {
   type ScreenSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
-import { specTable, unbroken } from '../contract/spec-table'
+import { unbroken } from '../contract/spec-table'
+import { displayRatioAt } from '../fixtures/display-scale'
 
 const REQUIREMENTS = unbroken(readFileSync(
   join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'),
@@ -131,7 +132,7 @@ const FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE =
   '限に達したことを、押しても何も起きない入口で示してはならない（MUST NOT）'
 
 const FR_016_ROW_POSITION_NOT_BY_ARITHMETIC =
-  '` の下限・`LF-3` の第 2 の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
+  '` の下限・`LF-3` の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
 
 const FR_016_ROW_POSITION_MEMBER_IS_PI_5 =
   'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
@@ -517,24 +518,27 @@ const FLOOR_BINDS_BELOW =
 const ZOOM_LOW = FLOOR_BINDS_BELOW * 1.2
 const ZOOM_HIGH = FLOOR_BINDS_BELOW * 3.6 // 3x ZOOM_LOW
 
-const LATTICE_FLOOR = (() => {
-  const px = (id: string): number =>
-    Number(/-?\d+(?:\.\d+)?/.exec(specTable('T-206').rows.find((row) => row.id === id)?.by['既定'] ?? '')?.[0])
-  return (px('S-138') + px('S-243') * 2) * 2
-})()
+// see VG-2, VG-3, VG-4, FR-039
+const VG_2_GAP =
+  settingNumber('stackGap') * 2 + settingNumber('dependencyWidth') * displayRatioAt(LAYOUT_SETTINGS.displayScale)
 
 const placesAt = (zoomY: number) =>
   rowPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
 
 describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
-  it('the premise: both zooms sit above FR-094’s floor, and LF-3’s second floor binds at the low zoom alone', () => {
+  it('the premise: both zooms sit above FR-094’s floor, and each band carries the VG-2 gap zoomY does not scale', () => {
     // Without this the case below could be measuring the floor-pinned band,
     // where every zoom answers the same drawing for a reason FR-016 does not
     // govern.
     expect(ZOOM_LOW).toBeGreaterThan(FLOOR_BINDS_BELOW)
     expect(ZOOM_HIGH).toBeGreaterThan(FLOOR_BINDS_BELOW)
-    expect(settingNumber('basePlanHeight') * ZOOM_LOW).toBeLessThan(LATTICE_FLOOR)
-    expect(settingNumber('basePlanHeight') * ZOOM_HIGH).toBeGreaterThan(LATTICE_FLOOR)
+    const ratio = displayRatioAt(LAYOUT_SETTINGS.displayScale)
+    const planDrawn = (zoomY: number): number =>
+      (settingNumber('basePlanHeight') * zoomY + settingNumber('planStroke')) * ratio
+    expect(VG_2_GAP).toBeGreaterThan(0)
+    for (const zoomY of [ZOOM_LOW, ZOOM_HIGH]) {
+      expect(placesAt(zoomY)[0]!.height, `LF-2 at zoomY ${zoomY}`).toBeCloseTo(planDrawn(zoomY) + VG_2_GAP, 6)
+    }
   })
 
   it('PI-5’s member answers a position for every row, at a zoom nothing has drawn yet', () => {
@@ -548,14 +552,8 @@ describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメン�
 
 describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはならない」', () => {
   it('scaling the low-zoom position by the zoom ratio is NOT what PI-5 answers at the higher zoom', () => {
-    // ⭐⭐ THE CONTRAST THE CLAUSE IS ABOUT. A caller who did "算" (arithmetic)
-    // instead of asking PI-5 would take the last row's position at ZOOM_LOW
-    // and multiply it by the zoom ratio (ZOOM_HIGH / ZOOM_LOW = 3). The real
-    // member does not answer that: LF-3's second floor (the HF-1 lattice)
-    // holds each band at a fixed height at ZOOM_LOW and lets it go at
-    // ZOOM_HIGH, so the offset of the third row from the first is not
-    // proportional to the zoom. S-12 used to supply this contrast; CR-384
-    // fixed it at 0.
+    // WHY: the band is S-4 x zoomY plus the VG-2 gap and the border, which zoomY does not scale
+    // (VG-3), so a position scaled by the zoom ratio lands off the one PI-5 answers.
     const lastIndex = THREE_FLAT_ROWS - 1
     const low = placesAt(ZOOM_LOW)[lastIndex]!.y - placesAt(ZOOM_LOW)[0]!.y
     const high = placesAt(ZOOM_HIGH)[lastIndex]!.y - placesAt(ZOOM_HIGH)[0]!.y
@@ -573,10 +571,6 @@ describe('FR-016 (MUST NOT) -- 「倍率から位置を算で求めてはなら�
     )
   })
 
-  // CONTROL -- what would pass if this MUST NOT were violated the other
-  // way. Had both zooms stood above the lattice, an implementation that DID
-  // scale arithmetically would satisfy the assertion above by accident (an
-  // all-proportional band has no fixed term to expose it), and the case
-  // would be vacuous. The premise above checks the lattice binds at ZOOM_LOW
-  // alone for exactly this reason before this case is trusted.
+  // WHY: the control is the premise above: a band with no fixed term would scale exactly, and the
+  // VG-2 gap is that term.
 })

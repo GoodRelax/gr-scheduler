@@ -36,9 +36,9 @@
 //   表 T-051 HF-6  ⭐ 「描いているあいだ、操作子の下に地を 1 枚敷くこと（MUST）。色は
 //                  `_assets/tbl-settings.md` の 表 T-236 の `S-150` とすること
 //                  （MUST）」／⛔ 「操作子ごとに別々の地を敷いてはならない（MUST
-//                  NOT）—— 操作子のあいだに名前の文字のかけらが残る」／⭐ 「敷く範囲
-//                  は、いちばん左の操作子の左端から行の右端までとし、縦はその行の高
-//                  さとすること（MUST）」／⭐ 「操作子は、行の名前の上へ重ねて描くこ
+//                  NOT）—— 操作子のあいだに名前の文字のかけらが残る」／⭐ the range
+//                  of the ground (to the row's right edge; down to the lower of the
+//                  row's bottom and the lattice's, CR-553)／⭐ 「操作子は、行の名前の上へ重ねて描くこ
 //                  と（MUST）」
 //   `FR-029`       「その入口を押しても、いま文書にも画面にも何も変えられないときは、
 //                  その入口を薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の
@@ -77,8 +77,8 @@
 // ---------------------------------------------------------------------------
 // ⭐ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
-//   1. WHEN the controls are drawn. HF-6 draws them 「その行の名前にポインタが
-//      乗っているあいだだけ」, and where the pointer is is not in `ScreenView` --
+//   1. WHEN the controls are drawn. HF-6 draws them only while the pointer is on
+//      the row's name or on its group, and where the pointer is is not in `ScreenView` --
 //      no member of `RowTitle` carries it. So these cases ask what is drawn for
 //      a described row and never when it appears.
 //   2. THE GAP BETWEEN THE CONTROLS. HF-6 (MUST NOT) forbids that amount to be
@@ -134,6 +134,12 @@ const rowOf = (table: string, id: string) => {
 
 /** Everything HF-6 writes, as one string. */
 const HF_6 = rowOf('T-051', 'HF-6').cells.join(' ')
+
+// see LF-16, HF-1
+const LATTICE = (() => {
+  const px = (id: string): number => Number(/-?\d+(?:\.\d+)?/.exec(bare(rowOf('T-206', id).by['既定'] ?? ''))?.[0])
+  return 2 * (px('S-138') + px('S-243') * 2) * px('S-235')
+})()
 
 /**
  * FR-029's own sentences, read out of the manuscript.
@@ -963,23 +969,24 @@ const bandsIn = (built: Stage, row: FakeElement): FakeElement[] =>
 /** The rows the tree drew, in its own order. */
 const rowsOf = (tree: FakeElement): FakeElement[] => tree.children
 
-/**
- * Whether this node is laid out to cover the whole height of the row it is in.
- *
- * ⚠️ THREE READINGS ACCEPTED, because no row of the specification settles the
- * spelling: HF-6 says 「縦はその行の高さとすること（MUST）」 and a box can say that
- * as the number itself, as a share of its parent, or by being pinned to both
- * edges. ⛔ What is NOT accepted is a height of its own that is anything else --
- * which is the failure the sentence names: 「縦を操作子の高さにすると、`HF-5`
- * が名前の上端に揃えるぶん、名前の大きい行で文字の脚が下からのぞく」.
- */
-function coversTheRowsHeight(node: FakeElement, rowHeightPx: number): boolean {
+// see HF-6, HF-19
+// WHY: the fake lays nothing out, so the ground is read as written: pinned to the row top and as
+// tall as the row box or the lattice, whichever is lower down; a max() of the two counts as both.
+function reachesTheLowerBottom(node: FakeElement, rowHeightPx: number, latticePx: number): boolean {
   const style = styleMap(node)
+  if (!/^0(px)?$/.test((style.get('top') ?? '').replace(/\s+/g, ''))) return false
   const height = (style.get('height') ?? '').replace(/\s+/g, '')
-  if (height === `${rowHeightPx}px` || height === '100%') return true
-  const zero = (value: string | undefined): boolean =>
-    value !== undefined && /^0(px)?$/.test(value.replace(/\s+/g, ''))
-  return zero(style.get('top')) && zero(style.get('bottom'))
+  const want = Math.max(rowHeightPx, latticePx)
+  const pxOf = (term: string): number => {
+    if (term === '100%') return rowHeightPx
+    const found = /^(-?\d+(?:\.\d+)?)px$/.exec(term)
+    return found === null ? Number.NaN : Number(found[1])
+  }
+  const max = /^max\((.+),(.+)\)$/.exec(height)
+  const reached = max === null ? pxOf(height) : Math.max(pxOf(max[1] ?? ''), pxOf(max[2] ?? ''))
+  if (Number.isFinite(reached)) return reached >= want - 1e-3
+  const pinnedToBottom = /^0(px)?$/.test((style.get('bottom') ?? '').replace(/\s+/g, ''))
+  return pinnedToBottom && rowHeightPx >= latticePx - 1e-3
 }
 
 /**
@@ -1017,11 +1024,12 @@ describe('the manuscripts still say what these cases read', () => {
     expect(S_150, '表 T-236: the ground and the rule colour are two colours').not.toBe(S_149)
   })
 
-  it('⛔ HF-6 still asks for ONE ground, in S-150, as tall as the row', () => {
+  it('⛔ HF-6 still asks for ONE ground, in S-150, down to the lower of the row and the lattice, and counts it as the group', () => {
     expect(HF_6).toContain('操作子の下に地を 1 枚敷くこと（MUST）')
     expect(HF_6).toContain('`S-150`')
     expect(HF_6).toContain('操作子ごとに別々の地を敷いてはならない（MUST NOT）')
-    expect(HF_6).toContain('行の右端までとし、縦はその行の高さとすること（MUST）')
+    expect(HF_6).toContain('行の右端までとし、縦はその行の上端から、行の下端と格子（`HF-1`）の下端のうち下にあるほうまでとすること（MUST）')
+    expect(HF_6).toContain('本行の最初の MUST が言う「群」は、この地の範囲である —— 操作子と操作子のあいだの地の上も、群の上に数える')
   })
 
   it('⛔ FR-029 still names S-149 for the faintness, and still forbids disabling', () => {
@@ -1078,20 +1086,42 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
     ).toBe(1)
   })
 
-  it('⛔ MUST: it is as tall as the ROW, not as tall as a control', () => {
-    // 「縦はその行の高さとすること（MUST）—— … 縦を操作子の高さにすると、`HF-5` が
-    //   名前の上端に揃えるぶん、名前の大きい行で文字の脚が下からのぞく」. ⭐ The
-    // height is the one the DESCRIPTION carries: `RowTitle.box` is where 「その行
-    // の高さ」 comes from, and this unit invents no measurement.
+  it('⛔ MUST: it reaches the lower of the ROW bottom and the lattice bottom, not a control', () => {
+    // see HF-6, HF-5
     const built = drawn(oneRow())
     const row = rowElement(built)
     const band = bandsIn(built, row)[0]
     if (band === undefined) throw new Error(`no ground was laid: ${whatWasDrawn(row)}`)
 
     expect(
-      coversTheRowsHeight(band, ROW_BOX.height),
-      `HF-6 (MUST): 縦はその行の高さ (${ROW_BOX.height}px): ${serialize(band)}`,
+      reachesTheLowerBottom(band, ROW_BOX.height, LATTICE),
+      `HF-6 (MUST): the row (${ROW_BOX.height}px) or the lattice, whichever is lower: ${serialize(band)}`,
     ).toBe(true)
+  })
+
+  it('⛔ MUST: on a row lower than the lattice it reaches the lattice bottom, over the row below (HF-19)', () => {
+    const short = rect(0, 40, 170, 21.625)
+    const built = drawn(
+      viewWith({
+        rowTitlePanel: { pinnedTitles: [], titles: [rowTitle({ groupId: 'RowAlpha', expander: EVERY_CONTROL, box: short })] },
+      }),
+    )
+    const row = rowElement(built)
+    const band = bandsIn(built, row)[0]
+    if (band === undefined) throw new Error(`no ground was laid: ${whatWasDrawn(row)}`)
+    expect(short.height, 'the premise: this row is lower than the lattice').toBeLessThan(LATTICE)
+    expect(
+      reachesTheLowerBottom(band, short.height, LATTICE),
+      `HF-6 (MUST): down to the lattice (${LATTICE}px): ${serialize(band)}`,
+    ).toBe(true)
+  })
+
+  it('⭐ the ground is part of the group, so it takes the pointer (HF-6, decision 2 of CR-553)', () => {
+    const built = drawn(oneRow())
+    const row = rowElement(built)
+    const band = bandsIn(built, row)[0]
+    if (band === undefined) throw new Error(`no ground was laid: ${whatWasDrawn(row)}`)
+    expect(styleMap(band).get('pointer-events'), `HF-6: the ground between the controls is the group: ${serialize(band)}`).not.toBe('none')
   })
 
   it('⛔ MUST: it reaches the row’s right edge', () => {
@@ -1118,8 +1148,8 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
     // now carries the same seven and the band has one left edge for all of them.
     //
     // ⛔ THE TWO RULES THAT SAY IT MAY NOT MOVE:
-    //   `HF-6` (MUST): 「**敷く範囲は、いちばん左の操作子の左端から行の右端までとし、
-    //     縦はその行の高さとすること（MUST）**」 -- and `FR-029` draws a spent
+    //   `HF-6` (MUST): the ground runs from the leftmost control to the row's
+    //     right edge -- and `FR-029` draws a spent
     //     control rather than removing it, so 「いちばん左の操作子」 is the same
     //     control on every row.
     //   `FR-085` (MUST NOT): 「**確保する場所を、操作子を描くかどうかで変えては

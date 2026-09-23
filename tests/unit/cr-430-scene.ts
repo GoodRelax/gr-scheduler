@@ -405,6 +405,16 @@ export const probesOf = (scene: Scene): readonly Probe[] => {
   for (let y = top; y <= bottom; y += PROBE_STEP) {
     for (let x = left; x <= right; x += PROBE_STEP) out.push({ x, y })
   }
+  // WHY: a dummy's grab can be thinner than PROBE_STEP once CR-553 shrank the band, so the grid
+  // also runs one row of probes through the middle of every drawn dummy.
+  for (const task of [scene.started, scene.unstarted, scene.downstream]) {
+    for (const dummy of dummiesOf(task)) {
+      const ink = dummy.ink as { readonly y?: number; readonly height?: number }
+      if (!Number.isFinite(ink?.y) || !Number.isFinite(ink?.height)) continue
+      const y = (ink.y as number) + (ink.height as number) / 2
+      for (let x = left; x <= right; x += PROBE_STEP) out.push({ x, y })
+    }
+  }
   return out
 }
 

@@ -3425,9 +3425,9 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 // Until 2026-08-25, 表 T-051 HF-6 read CR-143 「操作子は薄く描き、ポインタが乗っている
 // あいだだけ濃くすること」, and two blocks of this file held the unit to the two
 // halves of that sentence: one read the controls' paint, the other read the
-// sheet for a rule that darkened them. The row now reads 「操作子は、その行の
-// 名前にポインタが乗っているあいだだけ描くこと（MUST）」 and records the change
-// in its own cell (利用者の裁定, 2026-08-25).
+// sheet for a rule that darkened them. The row now draws them only while the
+// pointer is on the row's name or on the group drawn for it (CR-553), and
+// records the change in its own cell (利用者の裁定, 2026-08-25).
 //
 // ⛔ SO 薄く AND 濃く ARE NOT RULES ANY MORE, and cases asserting them were
 // mirroring a sentence the specification no longer holds. They are not weakened
@@ -3918,11 +3918,11 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
 })
 
 // ===========================================================================
-// 表 T-051 HF-6 -- 「その行の名前にポインタが乗っているあいだだけ描くこと」, AND
+// 表 T-051 HF-6 -- drawn only while the pointer is on the row's name or its group, AND
 // THE ROOM THAT MAY NOT MOVE WHILE THEY ARE NOT DRAWN.
 //
-// 表 T-051 HF-6 (docs/spec/01-04-requirements.md:1312, MUST):
-//   「操作子は、その行の名前にポインタが乗っているあいだだけ描くこと（MUST）」
+// 表 T-051 HF-6 (docs/spec/01-04-requirements.md, MUST):
+//   see T_051_HF6_ONLY_WHILE_POINTED below for the sentence, read from the row
 //     —— 常に描くと、日程より操作子が目立ち、行の名前ともぶつかる
 //   「描かないあいだも、確保する場所を変えてはならない（MUST NOT）」
 //     —— 規則と理由は `FR-085` が持つ
@@ -4050,7 +4050,9 @@ function restingDeclaration(
 
 /** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md:1312. */
 const T_051_HF6_ONLY_WHILE_POINTED =
-  '操作子は、その行の名前にポインタが乗っているあいだだけ描くこと（MUST）'
+  '操作子は、その行の名前か、その行のために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）'
+const T_051_HF6_THE_GROUP_STAYS =
+  '一度ある行のために描いた群は、ポインタがその群から外れて群が消えるまで、その行の操作子であり続けること（MUST）'
 const T_051_HF6_ROOM_UNCHANGED = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
 
 /**
@@ -4102,8 +4104,8 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
       const rules = sheetRulesOf(built.root())
       const hiding = hiddenWhileResting(rules, node)
 
-      // ⛔ 表 T-051 HF-6 (MUST): 「操作子は、その行の名前にポインタが乗っている
-      // あいだだけ描くこと」. A control that is drawn with nothing pointing at it
+      // ⛔ 表 T-051 HF-6 (MUST): drawn only while the pointer is on the name or
+      // the group. A control that is drawn with nothing pointing at it
       // is 常に描く, which the row's own reason forbids in as many words.
       expect(
         hiding,
@@ -4298,6 +4300,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     expect(hf6, '表 T-051 no longer holds HF-6').toBeDefined()
     expect(hf6?.cells.join(' ')).toContain(T_051_HF6_ONLY_WHILE_POINTED)
     expect(hf6?.cells.join(' ')).toContain(T_051_HF6_ROOM_UNCHANGED)
+    expect(hf6?.cells.join(' ')).toContain(T_051_HF6_THE_GROUP_STAYS)
     expect(specText('01-04-requirements.md')).toContain(T_051_HF6_ONLY_WHILE_POINTED)
   })
 })

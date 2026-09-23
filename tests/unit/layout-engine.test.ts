@@ -47,29 +47,9 @@ import { NOT_STORED_ZOOM_STEP } from '../../src/adapter/input-command-translator
 import { specTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/display-scale'
 
-// ---------------------------------------------------------------------------
-// 表 T-221 の `LF-3` / 表 T-051 の `HF-19` -- the second floor under a band
-// (MUST, 利用者の裁定 2026-09-03, CR-339 + CR-342, ledger row DFC-225).
-//
-//   `LF-3`  「**帯高は矩形が縦に取る高さを下回らず、かつ、その行の操作子（表 T-051
-//           の `HF-1` の格子）が縦に取る高さも下回らない**」
-//   `HF-19` 「**`HF-1` の格子が縦に取る高さは、行の帯高の下限であること（MUST）。
-//           行の帯がそれを下回ってはならない（MUST NOT）**」
-//
-// ⛔ THE ROWS STATE NO NUMBER: 「⚠️ **床を数で書かない** —— 操作子 1 つの外形は
-// `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子は
-// その 2 段ぶんである。⛔ **同表の値を写してはならない。**」 So it is composed here:
-// `FR-029` (MUST) draws a glyph in a box of `S-138` a side and keeps at least
-// `S-243` between that box and the entrance's frame, once on each side, and
-// 表 T-051 の `HF-1` (MUST) stacks the four controls 「2 × 2 の格子」.
-// ⇒ floor = 2 × (S-138 + S-243 × 2) × S-235, read out of the manuscript at run
-// time. `S-235` is on it because `S-138` says 「描くときは、どの面でも `S-235` を
-// 掛ける」 (CR-397); the DISPLAY scale is not, by 表 T-252 の `DS-7`.
-//
-// ⚠️ AND IT IS A CONSTANT: 「⛔⛔ **この床を閲覧者の文字サイズに追随させてはならない
-// （MUST NOT）**」 (`HF-19`), so it does not move with `zoomY` the way the bands
-// it is compared against do.
-// ---------------------------------------------------------------------------
+// see LF-16, HF-19, LF-3
+// WHY: CR-553 took the lattice out of the band floor; it is the LF-16 reserve under the last
+// row now, so it enters contentHeight and never a band.
 
 /** The px figure one row of 表 T-206 prints in its 既定 column. */
 const settingsTablePx = (id: string): number => {
@@ -83,8 +63,8 @@ const settingsTablePx = (id: string): number => {
 /** One control's outer height: the glyph box, plus FR-029's gap on each side. */
 const ONE_CONTROL_TALL = settingsTablePx('S-138') + settingsTablePx('S-243') * 2
 
-/** `HF-1`'s 2 x 2 lattice -- the floor `LF-3` and `HF-19` put under every band. */
-const CONTROL_LATTICE_FLOOR = ONE_CONTROL_TALL * S_235 * 2
+// see LF-16, HF-1
+const CONTROL_LATTICE = ONE_CONTROL_TALL * S_235 * 2
 
 // A whole DocumentSettings is 97 keys. A case states the ones it deliberately
 // pins -- values chosen to make the sums easy to check -- and every other key
@@ -583,8 +563,7 @@ describe('ScheduleLayout (PI-5) -- FR-080 / OP-10a: 錠が持つ端数', () => {
   it('S-176 is a RATIO of the 送り, so the same fraction moves further once that 送り is longer', () => {
     // ⛔ The half FR-080's MUST NOT is about: a px count would move the picture
     // the same distance at either zoom and point somewhere else on the schedule.
-    // ⚠️ The zoom is high enough that the drawn band clears `LF-3`'s lattice
-    // floor, which does not move with the display scale (table T-252's `DS-7`).
+    // WHY: zoomY 9 lifts the plan off the FR-094 floor, so the band and its pitch really grow.
     const taller = { zoomY: 9, scrollGroupOffset: 0.5 }
     const tallPitch = pitchOf({ zoomY: 9 })
     const plainPitch = pitchOf({})
@@ -757,7 +736,7 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
   })
 
   it('LF-2 puts one VG-2 gap under every lane, the last one included', () => {
-    // WHY: zoomY 3 so the two-lane band clears the LF-3 lattice floor, which the display scale does not move (DS-7).
+    // WHY: zoomY 3 lifts the plan off the FR-094 floor, so the lane is S-4 x zoomY (HF-19 floors nothing).
     const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
     const lane = drawnPx(28 * 3) + drawnBorder()
     const gap = verticalGap()
@@ -767,16 +746,8 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       tall,
       REGIONS,
     )
-    // A rectangle reserves basePlanHeight, 28, at zoomY 1 -- and one lane of
-    // that stands UNDER `LF-3`'s second floor, so the single-lane band is the
-    // lattice and not the lane. ⇒ the row that can say anything about stackGap
-    // is the two-lane one, which clears the floor on its own.
-    expect(one.rows[0]!.height).toBeCloseTo(Math.max(lane + gap, CONTROL_LATTICE_FLOOR), 9)
+    expect(one.rows[0]!.height).toBeCloseTo(lane + gap, 9)
     expect(two.rows[0]!.height).toBeCloseTo(lane + gap + lane + gap, 9)
-    expect(
-      lane + gap + lane + gap,
-      'the two-lane band has to clear the floor, or the sum proves nothing',
-    ).toBeGreaterThan(CONTROL_LATTICE_FLOOR)
   })
 
   it('ST-5 stacks down from the top of the band, and S-58 up reverses only the y', () => {
@@ -788,8 +759,6 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       taskOf({ uid: 2, start: '2026-01-05', finish: '2026-01-05', milestone: true }),
     ])
     const top = REGIONS.rowArea.y
-    // ⚠️ zoomY 3 so the drawn band clears `LF-3`'s lattice floor, which the
-    // display scale does not move (table T-252's `DS-7`).
     const tall = settingsOf({ ...LAYOUT_SETTINGS, zoomY: 3 })
     const lane = drawnPx(28 * 3) + drawnBorder()
     const gap = verticalGap()
@@ -823,26 +792,19 @@ describe('ScheduleLayout (PI-5) -- LC-8 and LC-9', () => {
       taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
     })
     const layout = layoutFromSchedule(schedule, LAYOUT_SETTINGS, REGIONS)
-    // LF-3 is two rules in one row: the pitch is the band above plus `rowGap`,
-    // and that band is 「矩形が縦に取る高さ」 raised to `HF-1`'s lattice. The
-    // first row here holds one rectangle lane, which the lattice outruns.
-    expect(layout.rows[1]!.y - layout.rows[0]!.y).toBe(
-      Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR) + drawnPx(settingNumber('rowGap')),
+    // WHY: the first row holds one rectangle lane, so its band is LF-2's lane and gap; HF-19
+    // no longer lifts it to the lattice.
+    expect(layout.rows[1]!.y - layout.rows[0]!.y).toBeCloseTo(
+      drawnPx(28) + drawnBorder() + verticalGap() + drawnPx(settingNumber('rowGap')),
+      9,
     )
   })
 
-  it('LF-2 gives an empty row one rectangle lane, and LF-3 raises it to the lattice', () => {
-    // 表 T-051 の `HF-19` was ruled about exactly this row: 「⚠️ **実測
-    // （2026-09-03、出荷ビルド）: `Task` を 1 つも持たない行は 22〜28px、格子は
-    // 48px。その行の `IC-90` と `IC-58` の中心は次の行のものであり、押しはそちら
-    // へ届いた。**」 ⇒ LF-2's 「`Task` を 1 つも持たない段は、矩形が縦に取る高さと
-    // する」 still gives the lane, and LF-3's second floor lifts the band off it.
-    expect(layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS).rows[0]!.height).toBe(
-      Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR),
-    )
-    expect(drawnPx(28), 'the rectangle no longer stands under the lattice').toBeLessThan(
-      CONTROL_LATTICE_FLOOR,
-    )
+  it('LF-2 gives an empty row one rectangle lane and one VG-2 gap, and HF-19 does not raise it to the lattice', () => {
+    // see SWS-2, DFC-840
+    const band = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS).rows[0]!.height
+    expect(band).toBeCloseTo(drawnPx(28) + drawnBorder() + verticalGap(), 9)
+    expect(band, 'HF-19 (MUST NOT): the lattice is not the floor').toBeLessThan(CONTROL_LATTICE)
   })
 
   it('FR-042 reads a stated row height as a floor, never as a cap', () => {
@@ -997,10 +959,11 @@ describe('ScheduleLayout (PI-5) -- labels, shapes and fit', () => {
   })
 
   it('still has an extent when a row holds no Task, because the band is drawn', () => {
-    // One row, so the extent IS that row's band -- which `LF-3` keeps at or
-    // above `HF-1`'s lattice as well as at or above the rectangle.
+    // WHY: one row, so the extent is its band plus the LF-16 reserve under it, which is the
+    // lattice less that band.
     const layout = layoutFromSchedule(oneRow([]), LAYOUT_SETTINGS, REGIONS)
-    expect(layout.contentHeight).toBe(Math.max(drawnPx(28), CONTROL_LATTICE_FLOOR))
+    const band = drawnPx(28) + drawnBorder() + verticalGap()
+    expect(layout.contentHeight).toBeCloseTo(band + Math.max(0, CONTROL_LATTICE - band), 9)
   })
 
   it('FR-055 measures to the RIGHTMOST occupied edge, even when every one is negative', () => {
