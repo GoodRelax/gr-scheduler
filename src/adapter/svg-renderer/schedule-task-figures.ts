@@ -217,12 +217,12 @@ function labelSvg(
   settings: DocumentSettings,
   ink: string,
   halo: string,
-  padLeft: number,
   key: string,
   anchor: 'start' | 'end' = 'start',
   weight: number | null = null,
 ): string {
-  const x = anchor === 'end' ? box.x + box.width : box.x + padLeft
+  // TRAP: box.x is already the first glyph's x (T-273 adds S-31 or S-32 there); adding a pad here doubles it.
+  const x = anchor === 'end' ? box.x + box.width : box.x
   const y = box.y + box.height / 2 + fontSize * settings.labelBaseline
   const haloWidth = fontSize * settings.labelHaloOfFont
   return (
@@ -461,7 +461,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
           settings,
           themed('S-168'),
           themed('S-169'),
-          settings.labelPad,
           `${taskKey}-label`,
           'start',
           NOT_STORED_NAME_LABEL_WEIGHT['S-245'],
@@ -477,7 +476,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
           settings,
           themed('S-168'),
           themed('S-169'),
-          0,
           `${taskKey}-oc2-label`,
           'end',
         ),
