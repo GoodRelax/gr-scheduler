@@ -1,6 +1,7 @@
 # CR-551 — 2026-09-23 の使い勝手の裁定 16 件を仕様へ下ろす
 
-> 起草の状態: 起草（2026-09-23）。11 節の問いに前に立つ者が答えてから、4 節の編集を当てる。
+> 起草の状態: 当てる（2026-09-23）。11 節の問い 1 ・ 4 は利用者が推奨どおりと答えた（`JDG-400` ・ `JDG-401`、調整役が中継）。問い 2 は `JDG-398` が答えた。⚠️ 問い 3（英語の語）は利用者が再確認中である（`JDG-402`）—— 提案の語を仮に置き、答えが来たら辞書の 1 行ずつを直す。
+> ⭐ 起草の後に下りた裁定 3 件を畳み込んだ: `JDG-396`（ツールチップは 1 行、窓より広いときだけ折り返す。CSS と試験で保証する —— E-13 ・ `S-339`）、`JDG-397`（宿主の色の入力は [任意] を押したときだけ出す —— E-29）、`JDG-398`（読み出しの字は今の 50%、下限 10px —— E-24 ・ `S-340`）。番号 `S-339` ・ `S-340` は前に立つ者の帯（`S-339` 〜 `S-349`）から採った。
 > 読んだ木: `73c2bc90`（`refactor`）。仕様の原稿は `98208692` から表 T-064 のほかは動いていない。行番号・数・参照は、すべてこの木で測った（測り方は 13 節）。
 >
 > **閉じるもの**: 利用者の 2026-09-23 の指示 16 件（`JDG-367` 〜 `JDG-383`。逐語は `docs/development-records/rulings.md` の同日の節と、下の 0.1 節）。
@@ -71,7 +72,7 @@
 | 決定 13 | 項目 11 のポインタは環境の `col-resize`（`PK-10`）とし、`Panel Divider` の掴み帯にも同じ行を当てる | 逐語「パネルサイズを変更するアイコンと同じ」。いまのコードは境界に `col-resize` を当てている（`dom-screen-surface.ts:294`） | — |
 | 決定 14 | 項目 12 の「カーソル 3 種」は `IC-45`（`Dual Cursor`）・`IC-47`（十字）・`IC-48`（縦 1 本）とし、基準日線（`IC-44`）は排他に入れない | 逐語の「&#124;⇔&#124;を選択した後、他のカーソルに切り替えたとき」。基準日線は項目 11 で別に扱われ、文書のデータである | — |
 | 決定 15 | 項目 12 の色と太さはガイドカーソルにも当てる（`S-195` ・ `S-194` を 2 つに広げる。ガイドカーソルはいま `S-148` と 1 の定数で描いている） | 逐語は 3 種に 1 つの色と太さを求めている | ガイドカーソルの色が控えめの灰からマゼンタ寄りに変わる |
-| 決定 16 | 項目 12 の 50% は `S-334` = 0.4375（`S-204` の 0.875 の半分）を独立に持つ | 逐語「今の50%」。`S-204` から導くと、ツールチップの字を変えたときに読み出しも動く | 宿主の地の文字が 16px のとき 7px になる（11 節の問い 2） |
+| 決定 16 | 項目 12 の 50% は `S-334` = 0.4375（`S-204` の 0.875 の半分）を独立に持つ | 逐語「今の50%」。`S-204` から導くと、ツールチップの字を変えたときに読み出しも動く | 宿主の地の文字が 16px のとき 7px になる（11 節の問い 2）⇒ `JDG-398` が下限 10px（`S-340`）を足して解いた |
 | 決定 17 | 項目 13 の頭の `[x]` は「すべての行を削除」（`IC-106`、`CD-6`）。消したあと空でない規則により深さ `L1` の行が 1 つ作られる | 逐語「全タスクグループの一括削除が可能」と、表 T-050 の後の段（行が 0 になるときの 1 行） | — |
 | 決定 18 | 項目 14 の「クリア」は、`null` を許す列では `null`、`start` / `finish` では何も書かずに戻す | `erd.json` の `nullable`。コード（`95f7c3ed` と `field-commit.ts:148-156`）も同じ | — |
 | 決定 19 | 項目 15 の「一番下」は、同じ対象の行の並びの末尾（`Task` は `PR-12` を `PR-15` の後、`TaskGroup` は `PR-19` を `PR-20` の後）。文書の描画設定（`FR-072`）の面は表 T-016 の外なので触れない | 表 T-016 の並びが印刷順そのもの | — |
@@ -112,7 +113,7 @@
 
 | 種類 | 採ったもの | 測った最大（2026-09-23、`73c2bc90`） |
 |---|---|---|
-| 設定値 | `S-325` `S-326` `S-327` `S-328` `S-329` `S-330` `S-331` `S-332` `S-333` `S-334` `S-335` `S-336` `S-337` `S-338` は空いている | `S-324`（`S-999` は試験の番兵なので除く） |
+| 設定値 | `S-325` `S-326` `S-327` `S-328` `S-329` `S-330` `S-331` `S-332` `S-333` `S-334` `S-335` `S-336` `S-337` `S-338` は空いている。⭐ 畳み込みで `S-339` ・ `S-340` を足した（前に立つ者の帯 `S-339` 〜 `S-349`。2026-09-23 に `a912f4ea` で測り直して空き） | `S-324`（`S-999` は試験の番兵なので除く） |
 | 表 | `T-297` は空いている | 仕様が使う最大の表は `T-296` |
 | 接頭辞 | `RK` は空いている（接頭辞の登録簿は 162 件、`RK-` の行は木のどこにも無い） | — |
 | 行 | `EN-7` `PK-10` `IN-7` `RR-6` `HF-20` `CD-6` `DC-9` `QN-10` `IC-106` `RK-1` `RK-2` は空いている | `EN-6` ・ `PK-9` ・ `IN-6` ・ `RR-5` ・ `HF-19`（`HF-120` は試験の注記の字） ・ `CD-5` ・ `DC-8` ・ `QN-9` ・ `IC-105` |
@@ -307,7 +308,7 @@
 新
 ```text
 | IN-6 | 確定していないその場の編集があるとき、その入力欄の外でポインタを押したら、その編集を確定すること（MUST）。<br>取り消してはならない（MUST NOT）—— ⛔ どちらも起きないと、押しても焦点が欄に留まり、`AG-9` の「入力中」が解けない ⇒ 表 T-067 の `WS-2` が `Agent API` の書き込みを拒み続け、`IN-5a` が `Delete` を飲み続ける。<br>⭐ **取り消さないのは、打った内容が押下 1 つで消えてはならないからである** —— 取り消す道は `IN-4` の `Esc` が既に持つ。<br>⛔ **押下そのものの働きを止めてはならない（MUST NOT）** —— 確定は押下に乗るのであって、押下を置き換えない。<br>**押下が何をするかは 表 T-023a と `IN-1` が決める。<br>**⚠️ **`SK-19` の `Enter` と同じ確定である** —— 引き金が 3 つ目になるだけで、確定の意味は 1 つである。<br>⛔ **始めた値と同じ値を書いてはならない（MUST NOT）** —— **何も変えない書き込みを、そもそも道に乗せないためである。<br>**⭐ **ここで止めれば、命令も束も通知も立たない** —— **下流の規則に飲み込ませるより安い。<br>**⚠️ 「同じ値を 2 度書くと取り消しが 2 段になる」を本行の理由にしてはならない —— `FR-031` は値が動かなければ段を残さないので、その結果は起きない。<br>⛔ **段が積まないことと、無駄な書き込みを送ることは別である。<br>**|
-| IN-7 | ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）。<br>⭐ 対象の左端に揃えて出すと画面の右端に収まらないときは、説明の右端を対象の右端に揃えて出すこと（MUST） —— 画面の右側に在る入口（例: ヘルプの入口、`_assets/tbl-glossary.md` の 表 T-109 の `IC-22`）の説明が、画面の外で切れない。<br>⚠️ ポインタの点に出す説明（`FR-092` の `EZ-6` と、表 T-029a の `DC-3`）の置き方は `IN-3` の例外のままであり、本行の揃え方は当たらない |
+| IN-7 | ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）。<br>⭐ 説明の幅は中身の幅とし、その上限を閲覧環境の窓の幅から両側に `_assets/tbl-settings.md` の 表 T-206 の `S-339` を引いた幅とすること（MUST）。<br>行が上限より広いときだけ、その行を折り返すこと（MUST） —— 窓より長い 1 行は、折り返さなければ窓の外で切れる。<br>⭐ 対象の左端に揃えて出すと窓の右端から `S-339` の内側に収まらないときは、説明の右端を対象の右端に揃えて出すこと（MUST） —— 画面の右側に在る入口（例: ヘルプの入口、`_assets/tbl-glossary.md` の 表 T-109 の `IC-22`）の説明が、画面の外で切れない。<br>それでも左端が窓の左端から `S-339` の内側に収まらないときは、左端を窓の左端から `S-339` の位置に置くこと（MUST）。<br>⭐ 揃え方は、説明を出したときに 1 度だけ測って決めること（MUST）。<br>⛔ 窓の大きさを繰り返し読みに行ってはならない（MUST NOT） —— 幅の上限は窓の幅に従う書き方で描き手に持たせ、測るのは出した瞬間だけで足りる。<br>⚠️ ポインタの点に出す説明（`FR-092` の `EZ-6` と、表 T-029a の `DC-3`）の置き方は `IN-3` の例外のままであり、本行の揃え方は当たらない |
 ```
 
 <!-- EDIT id=E-14 file=docs/spec/01-04-requirements.md -->
@@ -439,7 +440,7 @@
 ```
 新
 ```text
-文字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-334` とする。
+文字の大きさは `_assets/tbl-settings.md` の 表 T-206 の `S-334` とし、同表の `S-340` を下回らせない。
 ```
 
 <!-- EDIT id=E-25 file=docs/spec/01-04-requirements.md -->
@@ -496,7 +497,7 @@
 ```
 新
 ```text
-| CV-9 | 色の欄 | プロパティパネルの色の欄は、表 T-294 の名とカスタムカラーの入口を並べて選ばせること（MUST）。<br>⭐ 並べ方は、透明を除く名を同表の行の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個ずつ並べ、その下の段にカスタムカラーの入口、透明の順に置くこと（MUST）。<br>その欄に並べない名（下の 2 つ）の場所は空けたままとし、後ろの名を詰めてはならない（MUST NOT） —— 欄によって同じ色の場所が変わると、場所で覚えられない。<br>名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST） —— 見本と描かれる色が食い違わない。<br>⭐ 欄には、選んでいる色の明るいテーマの側と暗いテーマの側を 1 行に並べ、側ごとに見本と値を示すこと（MUST）（例: `ライト: ■ #AAAAAA / ダーク: ■ #050505`）。<br>値は、`#rrggbb` の側は英大文字の 16 進、名の側はその名の語とする。<br>⭐ 透明の側は、値を透明の語とし、見本を市松で示すこと（MUST） —— 1 辺を 表 T-206 の `S-335` 個のますに割り、ますを 表 T-236 の `S-336` と `S-337` で交互に塗る。<br>⭐ 未定義の側は、値を空け、見本を縁だけの破線で示し、`CV-3` で描く値がどちらの側と同じかを語で添えること（MUST）。<br>ハイライトボックスの枠の欄には透明を並べない（`FR-019`）。<br>行の色の欄には黒を並べない（表 T-294 の `S-315`）。<br>語は `FR-038` の辞書が持つ |
+| CV-9 | 色の欄 | プロパティパネルの色の欄は、表 T-294 の名とカスタムカラーの入口を並べて選ばせること（MUST）。<br>⭐ 並べ方は、透明を除く名を同表の行の順に、1 段に `_assets/tbl-settings.md` の 表 T-206 の `S-338` 個ずつ並べ、その下の段にカスタムカラーの入口、透明の順に置くこと（MUST）。<br>⭐ 閲覧環境の色の入力（`input type=color`）は、カスタムカラーの入口を押したときにだけ出すこと（MUST） —— 常に出すと、並べた名と入力のどちらで選ぶのかが読めない。<br>その欄に並べない名（下の 2 つ）の場所は空けたままとし、後ろの名を詰めてはならない（MUST NOT） —— 欄によって同じ色の場所が変わると、場所で覚えられない。<br>名の見本は、その欄が描く形（`CV-6`）の、いま描いている明暗の値で塗ること（MUST） —— 見本と描かれる色が食い違わない。<br>⭐ 欄には、選んでいる色の明るいテーマの側と暗いテーマの側を 1 行に並べ、側ごとに見本と値を示すこと（MUST）（例: `ライト: ■ #AAAAAA / ダーク: ■ #050505`）。<br>値は、`#rrggbb` の側は英大文字の 16 進、名の側はその名の語とする。<br>⭐ 透明の側は、値を透明の語とし、見本を市松で示すこと（MUST） —— 1 辺を 表 T-206 の `S-335` 個のますに割り、ますを 表 T-236 の `S-336` と `S-337` で交互に塗る。<br>⭐ 未定義の側は、値を空け、見本を縁だけの破線で示し、`CV-3` で描く値がどちらの側と同じかを語で添えること（MUST）。<br>ハイライトボックスの枠の欄には透明を並べない（`FR-019`）。<br>行の色の欄には黒を並べない（表 T-294 の `S-315`）。<br>語は `FR-038` の辞書が持つ |
 ```
 
 <!-- EDIT id=E-30 file=docs/spec/05-07-design.md -->
@@ -802,7 +803,7 @@ J-06（項目 5）`settings.json` の `S-196` の `note` を置き換える。�
 }
 ```
 
-J-07（項目 1・2・10・11・12・16）`settings.json` —— `S-297`（表 T-206 の末の行）の後ろに、次の 10 行をこの順に足す
+J-07（項目 1・2・8・10・11・12・16）`settings.json` —— `S-297`（表 T-206 の末の行）の後ろに、次の 12 行をこの順に足す（`S-339` ・ `S-340` は `JDG-396` ・ `JDG-398` を畳み込んだもの）
 ```json
 [
  {
@@ -903,7 +904,34 @@ J-07（項目 1・2・10・11・12・16）`settings.json` —— `S-297`（表 T
    "num": "0.4375"
   },
   "note": {
-   "ja": "⛔ **px で持たない理由は `S-204` と同じである。** ⭐ `S-204`（0.875）の半分である —— 読み出しはポインタのそばに出て日程を覆うので、ツールチップより小さくする。⚠️ `S-204` から導かず、本行が値を持つ —— ツールチップの字を変えても読み出しの字は動かない"
+   "ja": "⛔ **px で持たない理由は `S-204` と同じである。** ⭐ `S-204`（0.875）の半分である —— 読み出しはポインタのそばに出て日程を覆うので、ツールチップより小さくする。⚠️ `S-204` から導かず、本行が値を持つ —— ツールチップの字を変えても読み出しの字は動かない。⭐ 下限は `S-340`"
+  }
+ },
+ {
+  "id": "S-339",
+  "value": {
+   "ja": "ツールチップと窓の縁のあいだに残す余白（表 T-028 の `IN-7`）"
+  },
+  "default": {
+   "num": "8",
+   "suffix": "px",
+   "mark": "🔎"
+  },
+  "note": {
+   "ja": "説明の見せ方であり、日程の内容ではないので保存しない。⭐ 説明の幅の上限は、窓の幅から両側に本行を引いた幅である —— 描き手はこれを窓の幅に従う書き方（例: `calc(100vw - 2 × 本行)`）で持ち、窓の大きさを読みに行かない。⛔ **測って決めた値ではない** （🔎）"
+  }
+ },
+ {
+  "id": "S-340",
+  "value": {
+   "ja": "`Dual Cursor` の読み出しの文字の大きさの下限（表 T-029a の `DC-3`）"
+  },
+  "default": {
+   "num": "10",
+   "suffix": "px"
+  },
+  "note": {
+   "ja": "⭐ `S-334` を掛けた大きさが本行を下回るときは、本行の大きさで描く —— 宿主の地の文字が 16px のとき `S-334` だけでは 7px になり読めない（`JDG-398`）。⚠️ px で持つのは、下限は読める字の大きさの絶対の床だからである"
   }
  },
  {
@@ -1231,6 +1259,9 @@ J-17（項目 7）`row-id-prefixes.json` の `RR` —— 旧 `{"ja": "担当者�
 | S-7 | 仕様 ↔ 基準日線 | 出す命令のあとに `scrollDate` ／ `scrollDayOffset` を、基準日線の x が `Row Area` の横の中点に来る値へ書く。`zoomX` ・ `zoomY` ・ `scrollGroupId` は書かない。ポインタ: `GR-16` と `GR-22` は `PK-10`（`col-resize`） |
 | S-8 | 仕様 ↔ パネル（`properties-panel-drawing.ts`） | 1 側の示し方 ＝ 見本 ＋ 値。値は `#RRGGBB`（大文字）／ 名の語 ／ 透明の語 ／ 空。見本は塗り ／ 市松（`S-335` ・ `S-336` ・ `S-337`）／ 破線の縁 |
 | S-9 | 仕様 ↔ 読み込み（`json-codec.ts`） | 検証の前に `TaskVisual` の各項から `nameAnchor` と `nameAlign` の鍵を消す（表 T-297）。通知しない |
+| S-10 | 仕様 ↔ ツールチップ（`tooltips-drawing.ts` ・ `dom-screen-surface.ts` の `STYLE.tooltip`） | 説明の箱は `width:max-content` ・ `max-width:calc(100vw - 2 × S-339 px)` ・ 行は折り返さない書き方で、上限を超える行だけ折り返す。出した瞬間に 1 度だけ測り、窓の右端 − `S-339` を越えるなら右端を対象の右端へ、それでも左端が `S-339` より左なら左端を `S-339` へ。窓の大きさを定期に読まない（`resize` の監視も置かない） |
+| S-11 | 仕様 ↔ パネル（`properties-panel-drawing.ts`） | `input type=color` は、[任意]（`colourField` の `custom`）を押したときにだけ描く。押す前は描かない（`JDG-397`） |
+| S-12 | 仕様 ↔ 読み出し（`tooltips-drawing.ts` の `readoutStyle`） | 字の大きさ ＝ `max(S-340 px, S-334 em)`（`JDG-398`） |
 
 ---
 
@@ -1283,7 +1314,7 @@ J-17（項目 7）`row-id-prefixes.json` の `RR` —— 旧 `{"ja": "担当者�
 |---|--:|--:|---|
 | tables | 186 | 187 | 表 T-297 |
 | figures | 27 | 27 | — |
-| rows | 2282 | 2302 | 足す 25（設定値 14、`EN-7` `PK-10` `IN-7` `RR-6` `HF-20` `CD-6` `DC-9` `QN-10` `IC-106` `RK-1` `RK-2`）、消す 5（`PR-13` `AT-98` `AT-99` `CM-25` `P-20`）。`IC-100` は移すだけ |
+| rows | 2282 | 2304 | 足す 27（設定値 16 —— 畳み込みの `S-339` ・ `S-340` を含む、`EN-7` `PK-10` `IN-7` `RR-6` `HF-20` `CD-6` `DC-9` `QN-10` `IC-106` `RK-1` `RK-2`）、消す 5（`PR-13` `AT-98` `AT-99` `CM-25` `P-20`）。`IC-100` は移すだけ |
 | uids | 162 | 162 | — |
 | 接頭辞 | 162 | 163 | `RK` |
 | 辞書の項 | — | +2 −1 | `IC-106` ・ `QN-10` を足し、`properties` の `PR-13` を消す。`colourField` の `custom` は語を替えるだけ |
@@ -1304,7 +1335,10 @@ wave 1  (parallel, disjoint files; cut from wave 0's commit)
                      schedule-overlays.ts (item 11 S-163/S-333, item 12 S-195/S-194 for the guide)
   1c panel + modals  properties-panel-drawing.ts (item 16), open-modals.ts / open-modals-drawing.ts (item 7),
                      screen-regions.ts / screen-frame.ts / schedule-grid.ts (item 9),
-                     app-header-items.ts / app-header-drawing.ts (item 6)
+                     app-header-items.ts / app-header-drawing.ts (item 6),
+                     tooltips-drawing.ts + STYLE.tooltip in dom-screen-surface.ts (item 8 JDG-396,
+                     item 12 readout S-334/S-340), the host colour input behind [Custom] (JDG-397),
+                     and the e2e tooltip sweep (every icon tooltip, three window widths)
   1d drop the columns (item 5): json-codec.ts, schedule.ts, edit-task.ts, task-appearance.ts,
                      edit-document.ts, field-commit.ts:230, the two templates, the two prompts, ~38 tests
 wave 2  shell (serial, ONE body -- frame-loop.ts is 4760 lines and check 60 holds its functions)
@@ -1317,7 +1351,8 @@ wave 3  tests by a spec-only tester per wave (never the implementer), then check
 - ⚠️ 1d は `field-commit.ts` を触る。項目 14 のコード（`95f7c3ed`）は既に同じファイルに在るので、1d の体に「`:148-160` は触らない」と書くこと。
 - ⚠️ 1a と 2 は `FR-055` を分けて持つ（1a が `fitZoom` の値、2 が殻での書き込み）。継ぎ目は 5 節の S-3 ・ S-4 を両方の依頼文へ逐語で写す。
 - ⚠️ 項目 4（`S-63`）は波 0 の `npm run gen` だけで効く。
-- ⚠️ 項目 8 と 14 のコードは既に在る（`87458f63` ・ `95f7c3ed`）。波 3 の試験だけが要る。
+- ⚠️ 項目 14 のコードは既に在る（`95f7c3ed`）。波 3 の試験だけが要る。
+- ⚠️ 項目 8 は `87458f63` が 1 行にしたが、上限（`S-339`）も左端の床も無い。`JDG-396` の保証は、1c が CSS で持ち、窓の幅を 3 つ変えて全アイコンのツールチップを開く e2e（1 行の箱であること、窓の内側に収まること）で確かめる。
 
 ---
 
@@ -1333,15 +1368,15 @@ wave 3  tests by a spec-only tester per wave (never the implementer), then check
 | 5 | 1d の表 | 列・命令・欄を消し、読み込みで捨てる（表 T-297） | `nameAnchor` を持つ試験 38 本（`tests/unit/edit-task.test.ts` 10、`uf-19.test.ts` 6 ほか）—— 大半は文書の形の見本として 2 列を書いているだけ |
 | 6 | `src/adapter/screen-renderer/app-header-items.ts` ・ `command-palette.ts` | 生成された名簿（`icon-roster.json`）が面を運ぶ。手で並べている所があれば直す | `tests/unit/uf-48-write-moment.test.ts`（`IC-100`） |
 | 7 | `src/adapter/screen-renderer/open-modals.ts` ~`:199` ・ `open-modals-drawing.ts` | 名簿の見出しの行の右端に `IC-52` | `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` ・ `cr-439-open-modals-help-roster-report-export.test.ts` |
-| 8 | 済（`87458f63`） | — | `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` が在る。`IN-7` を逐語で引く試験を足す |
+| 8 | `src/framework/dom-screen-surface/tooltips-drawing.ts`（`tooltipStyle` ・ `keepTooltipsInside`）・ `dom-screen-surface.ts` の `STYLE.tooltip` | 幅を中身に、上限を `calc(100vw - 2 × S-339)` に、右端の返しと左端の床を 1 度だけ測って決める（5 節の S-10、`JDG-396`） | `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` が在る。`IN-7` を逐語で引く試験と、全アイコン × 窓の幅 3 つの e2e を足す |
 | 9 | `src/entity/layout-engine/screen-regions/screen-regions.ts:165` ・ `src/adapter/screen-renderer/screen-frame.ts:92-109` ・ `src/adapter/svg-renderer/schedule-grid.ts:226` | 行の帯を `canvasPadding` の余白へ延ばし、縦の帯の中へは描かない。横の帯を画面の下端に置き、日程の下端をその上に | `canvasPadding` を引く 23 本（`tests/unit/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts` ほか） |
 | 10 | `schedule-layout.ts:1263-1332`（`fitZoom`）・ `src/adapter/input-command-translator/zoom-and-fit.ts:478` ・ `frame-loop.ts:1652` | 12 節の `DFC-791` 〜 `DFC-793` | `tests/unit/fr-055-vertical-lod-fit.test.ts` ・ `fr-055-fit-discards-the-collapse.test.ts` ・ `cr-403-the-row-zoom-ceiling-follows-t-253.test.ts` ・ `layout-engine.test.ts` |
 | 11 | `schedule-overlays.ts:156`（太さ `1`）・ `:160`（`S-163`）・ `frame-loop.ts:339`（`'GR-16': null`）・ `src/framework/dom-screen-surface/dom-screen-surface.ts:294`（境界の `col-resize`）・ 基準日線を出す命令の後 | 太さを `S-333`、ポインタを `PK-10`、出したときに中央へ送る、`IC-44` を `EN-7` で塗る | `tests/unit/t-023c-selected-line-width.test.ts` ・ `tests/unit/fr-029-en-2-a-palette-toggle-that-is-on.test.ts` |
-| 12 | `schedule-overlays.ts:175-176`（`S-148`、`guideWidth = 1`）・ 読み出しの字（`tooltips-drawing.ts` の読み出し）・ `frame-loop.ts:1403-1418` ・ `input-command-translator.ts:694` | 色と太さ、`S-334`、排他 | `tests/unit/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` ・ `cr-550-dual-cursor-readout.test.ts` ・ `duplicate-paste-and-dual-cursor.test.ts` ・ `fr-092-ez-2-tooltip-text-size.test.ts`（`S-204` を読み出しに当てているなら直る） |
+| 12 | `schedule-overlays.ts:175-176`（`S-148`、`guideWidth = 1`）・ 読み出しの字（`tooltips-drawing.ts` の `readoutStyle` —— `max(S-340 px, S-334 em)`、5 節の S-12）・ `frame-loop.ts:1403-1418` ・ `input-command-translator.ts:694` | 色と太さ、`S-334`、排他 | `tests/unit/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` ・ `cr-550-dual-cursor-readout.test.ts` ・ `duplicate-paste-and-dual-cursor.test.ts` ・ `fr-092-ez-2-tooltip-text-size.test.ts`（`S-204` を読み出しに当てているなら直る） |
 | 13 | `src/adapter/input-command-translator/input-command-translator.ts:711` 付近 ・ `src/use-case/edit-document/edit-task-group.ts` ・ 行見出しパネルの頭の描き手 | `IC-106` を頭に置き、`CD-6` を 1 つの取り消しの単位で | `tests/unit/cr-541-row-title-panel-open-all-and-reset.test.ts` ・ `tests/system/pinned-band-and-the-empty-document.test.ts` ・ `CD-2` を引く 11 本 |
 | 14 | 済（`95f7c3ed`、`src/adapter/input-command-translator/field-commit.ts:148-160`） | — | 仕様を逐語で引く試験を足す |
 | 15 | 生成物（`property-items.json`）だけ | — | `tests/unit/fr-006-panel-typography.test.ts` ・ `cr-439-properties-panel-fields.test.ts`（並びを主張していれば直す） |
-| 16 | `src/framework/dom-screen-surface/properties-panel-drawing.ts`（`CHECKER_LIGHT` ・ `CHECKER_DARK` ・ `SWATCH_SIDE_EM` ・ `CHECKER_TILE_EM`、`b359645b` ・ `c45d9065`） | 定数を `S-335` 〜 `S-338` に、並べ方を 2 段 × `S-338` ＋ 任意 ＋ 透明に、値の示し方を S-8 に | `tests/unit/cv-9-transparent-and-unset-swatches.test.ts` ・ `cr-548-palette-colours-stored-by-name.test.ts` ・ `cr-439-properties-panel-fields.test.ts` ・ `tests/contract/display-words.contract.test.ts` |
+| 16 | `src/framework/dom-screen-surface/properties-panel-drawing.ts`（`CHECKER_LIGHT` ・ `CHECKER_DARK` ・ `SWATCH_SIDE_EM` ・ `CHECKER_TILE_EM`、`b359645b` ・ `c45d9065`） | 定数を `S-335` 〜 `S-338` に、並べ方を 2 段 × `S-338` ＋ 任意 ＋ 透明に、値の示し方を S-8 に、`input type=color` を [任意] の押下の後にだけ出す（S-11、`JDG-397`） | `tests/unit/cv-9-transparent-and-unset-swatches.test.ts` ・ `cr-548-palette-colours-stored-by-name.test.ts` ・ `cr-439-properties-panel-fields.test.ts` ・ `tests/contract/display-words.contract.test.ts` |
 
 ⚠️ `frame-loop.ts` を触るのは項目 10 ・ 11 ・ 12（と、測ったうえで 13）である。検査 60 の基準線（`fieldEditingOf` ほか）は段 7.5 の分割を待っており、前に立つ者が扱うので、波 2 の体は関数を太らせず、足す分岐は別の関数に出すこと。
 
@@ -1366,6 +1401,8 @@ wave 3  tests by a spec-only tester per wave (never the implementer), then check
 | 3 | 英語の語 —— `IC-106`「Delete All Rows」／「Delete every row and the tasks they carry」、`QN-10`「Delete every row and the tasks on them?」、`colourField` の `custom`「Custom」 | 提案どおり。辞書の `$comment` は体が語を決めることを禁じている（`JDG-324` と同じ扱い） |
 | 4 | 色の値 —— 朱色 `#eb6101` ／ `#ff8c42`、マゼンタ寄り `#c2188f` ／ `#f07ad0`、黄 `#ffd400` ／ `#e6c229` | 提案どおり当て、使い勝手の試しで 1 行ずつ直す |
 
+⭐ **答え（2026-09-23、調整役が中継）**: 問い 1 は「提案通り」（`JDG-400`）。問い 4 は「それでよい。」（`JDG-401`）。問い 2 は `JDG-398`（50%、下限 10px。`S-340` を足した）。⚠️ 問い 3 は「再確認させろ」（`JDG-402`）—— 提案の語を仮に置いて当て、利用者の答えが来たら `display-words.json` の該当の項だけを直す。
+
 ---
 
 ## 12. 台帳
@@ -1375,6 +1412,8 @@ wave 3  tests by a spec-only tester per wave (never the implementer), then check
 `JDG-367` 〜 `JDG-383` —— 項目 1 〜 16（項目 4 は 2 行、`JDG-370` ・ `JDG-371`）。状態はすべて「指示」（本書を当てたら「適用済」へ変える。当てる者の仕事）。
 
 ⛔ 当てる者が変える古い行: `JDG-30`（モノクロの置き場を覆された、に）、`JDG-326`（② (1) の示し方を覆された、一部、に）。
+
+⭐ 起草の後に下りた行も本書が当てる: `JDG-396`（項目 8 の保証）・ `JDG-397`（項目 16 の宿主の色の入力）・ `JDG-398`（項目 12 の読み出しの字）、11 節の答え `JDG-400` 〜 `JDG-402`。
 
 ### 12.2 欠陥（`docs/development-records/defects.md` に本書と同じ日に書いた）
 
