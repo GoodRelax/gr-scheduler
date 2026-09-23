@@ -9,7 +9,7 @@
 > `JDG-48` により、`src/` に新しいファイルを置くには、先に 表 T-075 がその行を持たねばならない。
 > 本書は、どのファイルを割り、どれを割らないかを証拠つきで決める。割るファイルについては継ぎ目・新しい行 ID・波の順・各波が書き換える検査と基準線を定める。
 >
-> ⛔ **割る作業の入口の条件（MUST）**: `CR-551`（波 0〜3）と、`handoff.md` の 1 通目の 2 の ① の後続 H2〜H10（とくに `frame-loop.ts` を触る H3・H4・H7・H8・H9）が着地してから始める。
+> ⛔ **割る作業の入口の条件（MUST）**: `CR-551`（波 0〜3）・`CR-552`（最小描画幅）・`CR-553`（行の縦幅）と、`handoff.md` の 1 通目の 2 の ① の後続 H2〜H10（とくに `frame-loop.ts` を触る H3・H4・H7・H8・H9）が着地してから始める。
 > **始める時に、本書の数をすべて測り直すこと（MUST）**（6.1）。
 > 本書の行番号は `a912f4ea` のものである。割る体は、範囲を束ねる**関数名**で引き直す。
 >
@@ -588,7 +588,10 @@
 
 ### 6.1 ⛔ 入口の条件（MUST）
 
-1. `CR-551` の波 0〜3 が `refactor` に着地していること。
+1. `CR-551` の波 0〜3、`CR-552`（最小描画幅）、`CR-553`（行の縦幅）が、この順に `refactor` に着地していること。
+   ⭐ 順は調整役が決めた（2026-09-23）: `CR-551` → `CR-552` → `CR-553` → H2〜H10 → 本書の分割。
+   理由: 2 本とも小さな編集であり、先に入れれば分割の照合器の基準が 1 度で定まる。先に割ると、2 本の `file:line` を兄弟のファイル（`UF-132` 〜 `UF-143` ほか）へ引き直させることになる。
+   ⚠️ 本書は起草のとき 2 本を知らなかった（`8552a4a7` は本書の木 `a912f4ea` の後に入った）。触る所は 8 節の表に足した。
 2. `handoff.md` の 1 通目の 2 の ① の後続 H2〜H10 が着地していること。とくに `frame-loop.ts` を触る H3（押し続けとドロップでフレームを起こす）・H4（複数のタスクの貼り付け）・H7（`PND-181` の STOP）・H8（`CR-549` の `@provisional`）・H9（倍率の端で `FR-029` の通知を出さない）。
 3. **着手の時に、本書の数をすべて測り直す**: 行数、関数名で引き直した範囲、共変（13 節の手 1）、`HELD` の値、取り込みの数、`UF-126` 〜 `UF-168` と表 T-063 の番号が空いていること。
    測り直して、4 節の判定が変わる組（とくに縁の 3 組 —— `pointer-shape` 〜 `held-press-preview` 0.50、`task-figures` 〜 `comment-box` 0.50、`label-placement` の検査 55）が出たら、割る前に本書の 15 節（まだ無い）に書き、前に立つ者が判ずる。
@@ -601,7 +604,7 @@
 | 順 | ファイル | 理由 |
 | --- | --- | --- |
 | 1 | `schedule.ts`（4.6、波 S1〜S6） | 生成器の出力先を変える。`CR-551` の波 0（`npm run gen`）と 1d がこのファイルの区画に触るので、その後に置く。`Entity` の中で最も読まれる（213 ファイル）ので、出し直しの形を最初に確かめる |
-| 2 | `schedule-layout.ts`（4.3、波 L1・L2） | `CR-551` の 1a が `planDateText`・ラベルの測り・`fitZoom` に触るので、その後に置く |
+| 2 | `schedule-layout.ts`（4.3、波 L1・L2） | `CR-551` の 1a が `planDateText`・ラベルの測り・`fitZoom` に、`CR-552` が `keptByLevelOfDetail` とその呼び手に、`CR-553` が `bandFloorOf` とその呼び手に触るので、3 本の後に置く |
 | 3 | `schedule-geometry.ts`（4.4、波 G1〜G3）・`item-hit-area.ts`（4.5） | `CR-551` の 1a が `chevronOutline` と `:448-451` に触る。`item-hit-area.ts` は誰も触らない |
 | 4 | `json-codec.ts`（4.7）・`mspdi-codec.ts`（4.8、波 M1〜M4） | `CR-551` の 1d が `json-codec.ts` の区画と `documentFromJson` を変える。`json-codec.ts` の出力先の変更は、1d の後の別のコミットにする（1d が生成器を触るかもしれない —— `CR-551:1217`） |
 | 5 | `frame-loop.ts`（4.1、波 F1〜F4） | `CR-551` の波 2 と H3・H4・H7・H8・H9 が触る。照合器が要る。最後に置く |
@@ -669,6 +672,11 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 | `CR-551` 波 1a（ラベルの幅の測り） | `layoutFromSchedule#9`（`:871-876`）・`nameLabelOf`・`labelWidth` | 入口 ／ `UF-136` ／ `UF-133` |
 | `CR-551` 波 1a（`fitZoom`、`DFC-791`〜`793`） | `schedule-layout.ts:1263-1332` | `fit-zoom.ts`（`UF-143`）。`dateAtX` を変えるなら `time-axis.ts`（`UF-132`） |
 | `CR-551` 波 1a（山形の切り込み `:448-451`・`chevronOutline` `:223`） | `schedule-geometry.ts` | `task-figures.ts`（`UF-144`） |
+| `CR-552`（最小描画幅。`keptByLevelOfDetail`、`schedule-layout.ts:599-612`） | 描く行とタスクを倍率で減らす所 | `level-of-detail.ts`（`UF-139`） |
+| `CR-552`（`keptByLevelOfDetail` の呼び手、`schedule-layout.ts:855` 付近・`:911-913`・`:943-948`） | `layoutFromSchedule` と `#9` | `schedule-layout.ts` の入口 |
+| `CR-553`（行の縦幅。`bandFloorOf`、`schedule-layout.ts:788-796`・`:971-984`） | 帯の床と帯高 | `schedule-layout.ts` の入口（`bandFloorOf` と `layoutFromSchedule`） |
+| `CR-553`（`frame-loop.ts:1642` の注「omit the LF-3 floor」、コメントだけ） | `viewSettings` の中 | `view-place.ts`（`UF-161`） |
+| `CR-552`・`CR-553`（`screen-regions.ts:70-104`・`row-title-panel-drawing.ts:98-106`・`:516` 付近・`dom-screen-surface.ts:452-456`・`:686` 付近） | —— | どれも本書が割らないファイルである（衝突なし） |
 | `CR-551` 波 1d（2 つの列を落とす） | `json-codec.ts` の区画と `documentFromJson`、`schedule.ts` の区画 | `json-codec.ts` の手の側に残る（古い版と同じ種類）。区画は `npm run gen` が書く |
 | `CR-551` 波 2（`input-command-translator.ts:694`・`:711`） | `ENTRY` の表と `commandFromEntry` | 割らない入口のまま |
 | `CR-551` 項目 11（`dom-screen-surface.ts:294`） | `STYLE.dividerBand` | 割らない入口のまま（4.9 の合図） |
