@@ -7,7 +7,7 @@
 import { NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // WHY: the rows asked for focus; an edited field may name any editable row (IF-9), so carried rows are strings.
-export type FieldEntryFieldRow = 'PR-1' | 'AT-53' | 'PR-16' | 'PR-21' | 'U-27'
+export type FieldEntryFieldRow = 'PR-1' | 'AT-53' | 'PR-16' | 'PR-21' | 'PR-22' | 'U-27'
 
 export interface FieldEntryCreatedTask {
   readonly kind: 'task'

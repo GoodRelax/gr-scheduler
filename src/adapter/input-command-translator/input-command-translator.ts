@@ -186,6 +186,7 @@ export type InPlaceTarget =
   | { readonly kind: 'assignee'; readonly uid: number }
   | { readonly kind: 'rowName'; readonly groupId: string }
   | { readonly kind: 'commentBoxText'; readonly id: string }
+  | { readonly kind: 'highlightBoxStroke'; readonly id: string }
 
 export type SetDualCursor = Extract<DocumentCommand, { readonly kind: 'setDualCursor' }>
 

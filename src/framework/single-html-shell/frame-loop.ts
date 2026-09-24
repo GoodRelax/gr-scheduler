@@ -799,7 +799,20 @@ const ASSIGNEE_FIELD_ROW = 'PR-16'
 
 const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
 
+const HIGHLIGHT_BOX_STROKE_FIELD_ROW = 'PR-22'
+
 const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
+
+type InPlaceKind = Extract<InputAction, { readonly kind: 'editInPlace' }>['target']['kind']
+
+const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = {
+  documentTitle: DOCUMENT_TITLE_FIELD_ROW,
+  taskName: TASK_NAME_FIELD_ROW,
+  assignee: ASSIGNEE_FIELD_ROW,
+  rowName: ROW_NAME_FIELD_ROW,
+  commentBoxText: COMMENT_BOX_TEXT_FIELD_ROW,
+  highlightBoxStroke: HIGHLIGHT_BOX_STROKE_FIELD_ROW,
+}
 
 // WHY: counted in frames, not ms: each try needs a drawn frame, and a held control let go lands on
 // the next; 10 bounds the frames asked for, and IN-5b keeps trying on later frames and keys.
@@ -4330,34 +4343,8 @@ export function frameLoop(
         )
         return
       case 'editInPlace':
-        if (action.target.kind === 'taskName') {
-          showPropertiesOfChoice()
-          wantFieldFocused(TASK_NAME_FIELD_ROW)
-          return
-        }
-        if (action.target.kind === 'rowName') {
-          showPropertiesOfChoice()
-          wantFieldFocused(ROW_NAME_FIELD_ROW)
-          return
-        }
-        if (action.target.kind === 'documentTitle') {
-          wantFieldFocused(DOCUMENT_TITLE_FIELD_ROW)
-          return
-        }
-        if (action.target.kind === 'assignee') {
-          showPropertiesOfChoice()
-          wantFieldFocused(ASSIGNEE_FIELD_ROW)
-          return
-        }
-        if (action.target.kind === 'commentBoxText') {
-          showPropertiesOfChoice()
-          wantFieldFocused(COMMENT_BOX_TEXT_FIELD_ROW)
-          return
-        }
-        {
-          const unreached: never = action.target
-          void unreached
-        }
+        if (action.target.kind !== 'documentTitle') showPropertiesOfChoice()
+        wantFieldFocused(FIELD_ROW_OF_IN_PLACE_TARGET[action.target.kind])
         return
       case 'moveCommandPalette': {
         // TRAP: each travel is an increment on the last corner; measuring from the press overshoots.

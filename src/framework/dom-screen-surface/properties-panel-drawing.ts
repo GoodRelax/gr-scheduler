@@ -325,6 +325,9 @@ const VALUE_GAP = ' '
 const COLOUR_CHOICE_ATTRIBUTE = 'data-colour-choice'
 const HOST_CHANGE = 'change'
 const HOST_CLICK = 'click'
+const PRESSED_ATTRIBUTE = 'aria-pressed'
+const PRESSED_VALUE = 'true'
+const FIELD_ROW_ATTRIBUTE = 'data-field-row'
 
 // see CV-9, S-335, S-336, S-337
 /** @purity pure */
@@ -491,10 +494,10 @@ function colourChoiceElement(host: Document, row: string, control: PropertyContr
   choice.setAttribute('value', name)
   ;(choice as HTMLButtonElement).value = name
   choice.setAttribute(COLOUR_CHOICE_ATTRIBUTE, name)
-  choice.setAttribute('data-field-row', row)
+  choice.setAttribute(FIELD_ROW_ATTRIBUTE, row)
   choice.setAttribute('title', word)
   choice.setAttribute('aria-label', word)
-  if (control.text === name) choice.setAttribute('aria-pressed', 'true')
+  if (control.text === name) choice.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
   CONTROL_KEYS.set(choice, { row, key: control.key })
   commitOnPress(choice)
   return choice
@@ -564,35 +567,52 @@ function themeEntryElement(host: Document, row: string, control: PropertyControl
   entry.setAttribute('value', UNSET_COLOUR_VALUE)
   ;(entry as HTMLButtonElement).value = UNSET_COLOUR_VALUE
   entry.setAttribute('data-colour-theme-entry', 'true')
-  entry.setAttribute('data-field-row', row)
+  entry.setAttribute(FIELD_ROW_ATTRIBUTE, row)
   entry.setAttribute('title', hint)
   entry.setAttribute('aria-label', hint)
-  if (control.text === UNSET_COLOUR_VALUE) entry.setAttribute('aria-pressed', 'true')
+  if (control.text === UNSET_COLOUR_VALUE) entry.setAttribute(PRESSED_ATTRIBUTE, PRESSED_VALUE)
   entry.textContent = colour.theme?.word ?? ''
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
   return entry
 }
 
+// WHY: MK-13 focuses a colour field (JDG-410), which takes no text: the value's swatch, else the first.
+/** @purity non-pure */
+function holdColourFocusTarget(
+  focusByRow: Map<string, TextEntryControl> | null,
+  row: string,
+  slots: readonly HTMLElement[],
+): void {
+  const swatches = slots.filter((one) => one.getAttribute(FIELD_ROW_ATTRIBUTE) === row)
+  const target = swatches.find((one) => one.getAttribute(PRESSED_ATTRIBUTE) === PRESSED_VALUE) ?? swatches[0]
+  if (focusByRow === null || target === undefined || focusByRow.has(row)) return
+  focusByRow.set(row, target as unknown as TextEntryControl)
+}
+
 // see CV-9, CV-4, S-338
 /** @purity non-pure */
-function colourFieldElements(host: Document, row: string, control: PropertyControl): readonly HTMLElement[] {
+function colourFieldElements(
+  host: Document,
+  row: string,
+  control: PropertyControl,
+  focusByRow: Map<string, TextEntryControl> | null,
+): readonly HTMLElement[] {
   const colour = control.colour
   if (colour === undefined) return []
   const grid = made(host, 'div', colourGridStyle())
   const named = paletteOrderOf(control, colour).filter((one) => one.name !== TRANSPARENT_NAME)
-  grid.append(...named.map((one) => colourSlotElement(host, row, control, one)))
+  const slots = named.map((one) => colourSlotElement(host, row, control, one))
+  grid.append(...slots)
   const slot = made(host, 'span', '')
   if (openCustomColour.identity === colourFieldIdentity(row, control)) {
     slot.append(hostColourInput(host, row, control, colour))
   }
   const lastLine = made(host, 'div', colourLastLineStyle())
-  lastLine.append(
-    customEntryElement(host, row, control, colour, slot),
-    colourSlotElement(host, row, control, transparentOf(control, colour)),
-    themeEntryElement(host, row, control, colour),
-    slot,
-  )
+  const transparent = colourSlotElement(host, row, control, transparentOf(control, colour))
+  const theme = themeEntryElement(host, row, control, colour)
+  lastLine.append(customEntryElement(host, row, control, colour, slot), transparent, theme, slot)
+  holdColourFocusTarget(focusByRow, row, [...slots, transparent, theme])
   const palette = made(host, 'div', 'flex:1 1 100%;')
   palette.setAttribute('data-colour-palette', row)
   palette.append(grid, lastLine)
@@ -676,7 +696,7 @@ export function fieldElement(
   }
   for (const control of field.controls) {
     if (control.colour !== undefined) {
-      controls.append(...colourFieldElements(host, field.row, control))
+      controls.append(...colourFieldElements(host, field.row, control, typedByRow))
       continue
     }
     controls.append(controlElement(host, field.row, control, typedByRow))

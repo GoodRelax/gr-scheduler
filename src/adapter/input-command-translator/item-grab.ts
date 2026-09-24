@@ -43,6 +43,7 @@ import {
   taskGroupRankById,
   rememberedActualIn,
   type ActualEndHold,
+  type InPlaceTarget,
   type InputContext,
   type PlacedPlanActual,
   type PointerPress,
@@ -82,10 +83,9 @@ export function commandFromGrab(
     return day === null ? CONSUMED_ELSEWHERE : changed([{ kind: 'setStatusDate', date: textOfDay(day) }])
   }
 
-  // TRAP: must stay above GR-14's move below, or a double click and a drag on one place are one press.
-  if (release.clickCount >= 2 && item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    return acted({ kind: 'editInPlace', target: { kind: 'commentBoxText', id: item.id } })
-  }
+  // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
+  const boxTarget = release.clickCount >= 2 && hit.grab === 'GR-14' ? boxFieldTargetOf(item) : null
+  if (boxTarget !== null) return acted({ kind: 'editInPlace', target: boxTarget })
 
   // TRAP: the first release of a double click has `clickCount` 1; without this arm it falls to the
   // switch and reaches a second destination (for GA-6, a 0px actual).
@@ -386,6 +386,14 @@ function nearestDrawnRowBoundary(rows: readonly RowPlacement[], y: number): numb
     }
   }
   return nearest
+}
+
+// see MK-13, PR-21, PR-22
+/** @purity pure */
+function boxFieldTargetOf(item: Hit['item']): InPlaceTarget | null {
+  if (item.kind === 'commentBox') return { kind: 'commentBoxText', id: item.id }
+  if (item.kind === 'highlightBox') return { kind: 'highlightBoxStroke', id: item.id }
+  return null
 }
 
 // see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6
