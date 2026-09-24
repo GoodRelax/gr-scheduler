@@ -1,4 +1,4 @@
-// Schedule: public entry; plan/actual state, working-day arithmetic, stored colours, invariants.
+// Schedule: public entry; working-day arithmetic, task delay, stored colours, invariants.
 // @unit      UF-1   (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -22,6 +22,7 @@ import {
   type TaskGroup,
   type WeekDay,
 } from './schedule-entities'
+import { planActualState } from './plan-actual-state'
 
 export {
   COLUMN_DEFAULTS,
@@ -52,23 +53,8 @@ export type {
   TaskVisual,
   WeekDay,
 } from './schedule-entities'
-
-export type PlanActualState =
-  | 'notStarted'
-  | 'finished'
-  | 'suspendedResumeUnknown'
-  | 'suspendedResumePlanned'
-  | 'inProgress'
-
-// see T-019a
-/** @purity pure */
-export function planActualState(task: Task): PlanActualState {
-  if (task.actualStart === null) return 'notStarted'
-  if (task.actualFinish !== null) return 'finished'
-  if (task.resumeValid === false) return 'suspendedResumeUnknown'
-  if (task.resume !== null) return 'suspendedResumePlanned'
-  return 'inProgress'
-}
+export { planActualState } from './plan-actual-state'
+export type { PlanActualState } from './plan-actual-state'
 
 /** @purity pure */
 export function taskByUid(schedule: Schedule, uid: number): Task | null {
