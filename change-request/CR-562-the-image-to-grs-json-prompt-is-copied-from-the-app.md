@@ -131,7 +131,7 @@
 | 辞書の節 `surfaces` の `AI Export Modal`（「AI 出力」） | 消す | J-14 |
 | 表 T-109 の `IC-18` ・ `IC-19` ・ `IC-20` の 3 行 | `IC-115` ・ `IC-20` ・ `IC-18`（`IC-19` は廃番） | E-13 |
 | 図 F-019 の `IC-19` の図形（顔のある書類） | 同じ升に `IC-115` の図形 | E-14 ・ E-09 |
-| 辞書の `IC-19` の項（「AI 出力」） | `IC-115` の項。`IC-18` ・ `IC-20` は並びだけ替える | J-06 |
+| 辞書の `IC-19` の項（「AI 出力」） | `IC-115` の項。`IC-20` は並びだけ替える。`IC-18` は並びを替え、説明の語に「Agent API が無効なら有効にする」を足す（`JDG-510`） | J-06 |
 | 状態機械の `surfaceEntryPressed` の入力 `IC-19` | 外す（`IC-115` は面を立てない） | J-08 |
 | 表 T-008 の `CHN-9` と `FR-033` の注の「`Agent API` へ渡す文書（`FR-068`）」 | 「日程の画像をデータ化するプロンプト（`FR-068`）」 | E-15 ・ E-16 |
 | `FR-066` の「`Agent API` が無効のあいだ `IC-18` は薄く描かれる」 | 無効のあいだに押されたら欄を表示にし、`Agent API` も有効にする。薄く描かない | E-17 |
@@ -472,7 +472,7 @@ aria-label="GRS icon glyphs IC-1 to IC-106 and IC-115 (IC-19, IC-46 and IC-49 re
 ### 4.4 原稿 JSON（`_source/display-words.json` ・ `_source/state-machines.json`）
 
 <!-- EDIT id=J-06 file=docs/spec/_source/display-words.json -->
-節 `icons` の `IC-18` ・ `IC-19` ・ `IC-20` の 3 項を、`IC-115` ・ `IC-20` ・ `IC-18` にする（節の並びは 表 T-109 の印字順 —— E-13）。`IC-19` の項を消す。`IC-18` ・ `IC-20` の語は 1 字も変えない。⭐ `IC-115` の `label.ja` は `JDG-504`、`hint.ja` は `JDG-508` の利用者の語のまま（製品の名は仕様の背景 `01-04-requirements.md:22` が既に例として書いている）。⛔ `label.en` ・ `hint.en` は案（11 節の問 2。`hint.en` は日本語の文を語順のまま写した）。旧
+節 `icons` の `IC-18` ・ `IC-19` ・ `IC-20` の 3 項を、`IC-115` ・ `IC-20` ・ `IC-18` にする（節の並びは 表 T-109 の印字順 —— E-13）。`IC-19` の項を消す。`IC-20` の語は 1 字も変えない。`IC-18` は `hint` だけを `JDG-510` の語にする（`label` は変えない）。⭐ `IC-115` の `label.ja` は `JDG-504`、`hint.ja` は `JDG-508` の利用者の語のまま（製品の名は仕様の背景 `01-04-requirements.md:22` が既に例として書いている）。⛔ `label.en` ・ `hint.en` は案（11 節の問 2。`hint.en` は日本語の文を語順のまま写した）。旧
 ```text
    "rowId": "IC-18",
    "label": {
@@ -515,7 +515,7 @@ aria-label="GRS icon glyphs IC-1 to IC-106 and IC-115 (IC-19, IC-46 and IC-49 re
    },
    "hint": {
     "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力する",
-    "en": "Output to the clipboard a prompt that has an AI convert a schedule made in PPT, Excel or the like into JSON data GoodRelax Scheduler can process"
+    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process"
    }
   },
   {
@@ -536,8 +536,8 @@ aria-label="GRS icon glyphs IC-1 to IC-106 and IC-115 (IC-19, IC-46 and IC-49 re
     "en": "Dialogue Field"
    },
    "hint": {
-    "ja": "AI との対話欄を表示する。もう一度押すと非表示にする",
-    "en": "Show the Dialogue Field for talking with the AI; press again to hide it"
+    "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
+    "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
    }
 ```
 
@@ -595,7 +595,7 @@ aria-label="GRS icon glyphs IC-1 to IC-106 and IC-115 (IC-19, IC-46 and IC-49 re
    "rowId": "RS-65",
    "text": {
     "ja": "クリップボードに貼り付けたプロンプトをAIに渡してください。",
-    "en": "The prompt is on the clipboard. Hand it to an AI."
+    "en": "Paste the prompt from the clipboard into an AI."
    },
    "nextStep": {
     "ja": "冒頭部分は適宜編集してください。",
@@ -961,10 +961,10 @@ IC-18 の押し（決定 21）: 入力の翻訳が 1 つの押しを screen/dial
 | 問い | 案 | 推奨 |
 |---|---|---|
 | 問 1: 入口をどこに置くか | ✅ 答えがあった —— `JDG-503` で A（面の中身の切替）、それを `JDG-506` が覆してヘッダーの 3 つ目のアイコン | —（決定 12 の取り下げ、決定 17 ・ 18） |
-| 問 2: 辞書の英語の語（J-06 ・ J-13。⛔ 辞書の `$comment` は体が起こした語を禁じている） | ✅ 日本語は決まった（`IC-115` の名 `JDG-504`、説明 `JDG-508`、告げ `JDG-509` —— どれも利用者の文のまま）。⚠️ 残りは英語の 4 つ: `IC-115` の名 "Prompt to Turn a Schedule Image into Data"、説明 "Output to the clipboard a prompt that has an AI convert a schedule made in PPT, Excel or the like into JSON data GoodRelax Scheduler can process"、`RS-65` の text "The prompt is on the clipboard. Hand it to an AI."、nextStep "Edit its opening part as needed." | ⭐ 案のまま —— どれも日本語の文を語順のまま写した。⚠️ `JDG-504` の「なぜ 2 パターンになるのか説明せよ」は、中身が 2 つ（文書とプロンプト）だった形への問いであり、`JDG-505` で中身が 1 つになったので問いの前提が無くなった |
-| 問 3: ヘッダーの AI の群の並び（決定 17） | **A. `IC-115` → `IC-20` → `IC-18`**（本書） ／ B. `IC-18` → `IC-20` → `IC-115`（利用者の逐語 Q5 の順） ／ C. `IC-18` → `IC-115` → `IC-20`（今の並びで `IC-19` の席に置く。差分が最小） | ⭐ **A** —— `Agent API` に依らない `IC-115` を文書の群の隣に置き、「有効にする → 欄を出す」と左から読める。⚠️ 代償: 今の `IC-18` と `IC-20` の位置が入れ替わるので、慣れた人の手が迷う |
+| 問 2: 辞書の英語の語（✅ 2026-09-24、`JDG-510`: 説明と告げは B を当てた。⚠️ 英語の名だけ未決 —— 利用者の案 "Prompt for Schedule Image to JSON" を検討中）（J-06 ・ J-13。⛔ 辞書の `$comment` は体が起こした語を禁じている） | ✅ 日本語は決まった（`IC-115` の名 `JDG-504`、説明 `JDG-508`、告げ `JDG-509` —— どれも利用者の文のまま）。⚠️ 残りは英語の 4 つ: `IC-115` の名 "Prompt to Turn a Schedule Image into Data"、説明 "Output to the clipboard a prompt that has an AI convert a schedule made in PPT, Excel or the like into JSON data GoodRelax Scheduler can process"、`RS-65` の text "The prompt is on the clipboard. Hand it to an AI."、nextStep "Edit its opening part as needed." | ⭐ 案のまま —— どれも日本語の文を語順のまま写した。⚠️ `JDG-504` の「なぜ 2 パターンになるのか説明せよ」は、中身が 2 つ（文書とプロンプト）だった形への問いであり、`JDG-505` で中身が 1 つになったので問いの前提が無くなった |
+| 問 3: ヘッダーの AI の群の並び（決定 17）（✅ 2026-09-24、`JDG-510`: A） | **A. `IC-115` → `IC-20` → `IC-18`**（本書） ／ B. `IC-18` → `IC-20` → `IC-115`（利用者の逐語 Q5 の順） ／ C. `IC-18` → `IC-115` → `IC-20`（今の並びで `IC-19` の席に置く。差分が最小） | ⭐ **A** —— `Agent API` に依らない `IC-115` を文書の群の隣に置き、「有効にする → 欄を出す」と左から読める。⚠️ 代償: 今の `IC-18` と `IC-20` の位置が入れ替わるので、慣れた人の手が迷う |
 | 問 4: 押してすぐ写すか、面で見せてから写すか（決定 2） | ✅ 答えがあった —— `JDG-509` で A（すぐ写し、[OK] 付きで告げる） | — |
-| 問 5: `IC-18` の説明の語 | 「AI との対話欄を表示する。もう一度押すと非表示にする」は、無効のあいだに押すと `Agent API` も有効になることを言わない | ⭐ 今のまま —— 本書は語を 1 字も起こさない。変えるなら利用者の語で辞書の 1 項 |
+| 問 5: `IC-18` の説明の語（✅ 2026-09-24、`JDG-510`: 足す。J-06 に当てた） | 「AI との対話欄を表示する。もう一度押すと非表示にする」は、無効のあいだに押すと `Agent API` も有効になることを言わない | ⭐ 今のまま —— 本書は語を 1 字も起こさない。変えるなら利用者の語で辞書の 1 項 |
 
 ## 12. 台帳
 
