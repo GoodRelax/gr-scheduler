@@ -28,7 +28,10 @@ import {
   type ItemRef,
   type Selection,
 } from '../../entity/document-model/selection/selection'
-import { labelUnits } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  labelUnits,
+  labelledAssigneeUidOf,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   PropertiesSubject,
   ScreenSession,
@@ -409,28 +412,29 @@ function widthOf(text: string, choices: readonly string[] | null, labelCoef: num
   return widest * labelCoef + NOT_STORED_PROPERTY_CONTROL_SIZES['S-199']
 }
 
-// see PR-16, AS-9
-// STOP: spec does not decide which of several assignees the chooser stands on. Looked in T-225, AS-5, AS-7, T-016 (PND-461)
-// WHY: the key's column is uid because no command of table T-108 sets it, so a commit without its row writes nothing.
+// see PR-16, AS-1, AS-5, AS-9
 /** @purity pure */
-function assigneeControl(schedule: Schedule, taskUid: number, labelCoef: number): PropertyControl {
+function assigneeControls(schedule: Schedule, taskUid: number, labelCoef: number): readonly PropertyControl[] {
   const people = assigneeChoices(schedule)
-  const seated = assigneesOf(schedule, taskUid)[0]
-  return {
-    key: { holder: 'task', uid: taskUid, column: 'uid' },
-    kind: 'choice',
-    text: seated === undefined ? '' : String(seated.uid),
-    choices: people.map((person) => person.name),
-    choiceValues: people.map((person) => String(person.uid)),
-    searchWords: [...new Set(people.map((person) => person.name))],
-    min: null,
-    max: null,
-    widthInFontSizes: widthOf(
-      seated === undefined ? '' : String(seated.uid),
-      people.map((person) => person.name),
-      labelCoef,
-    ),
-  }
+  const names = people.map((person) => person.name)
+  const seated = [...new Set(assigneesOf(schedule, taskUid).map((person) => person.uid))]
+  const labelled = labelledAssigneeUidOf(schedule, taskUid)
+  const focused = labelled !== null && seated.includes(labelled) ? labelled : null
+  return [...seated, null].map((resourceUid): PropertyControl => {
+    const text = resourceUid === null ? '' : String(resourceUid)
+    return {
+      key: { holder: 'assignment', taskUid, resourceUid, column: 'resourceUid' },
+      kind: 'choice',
+      text,
+      choices: names,
+      choiceValues: people.map((person) => String(person.uid)),
+      searchWords: [...new Set(names)],
+      min: null,
+      max: null,
+      widthInFontSizes: widthOf(text, names, labelCoef),
+      ...(resourceUid === focused ? { isFocusTarget: true } : {}),
+    }
+  })
 }
 
 /** @purity pure */
@@ -441,7 +445,7 @@ function controlsOfItem(
   labelCoef: number,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row)) return []
-  if (item.heldBy === 'assignment') return [assigneeControl(schedule, task.uid, labelCoef)]
+  if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, labelCoef)
 
   const entity: ShapedEntity = item.heldBy === 'task' ? 'Task' : 'TaskVisual'
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null

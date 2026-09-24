@@ -48,7 +48,7 @@
 | `AG` | Agent API | `Agent API` が満たす規約の条 | 仕様書 | `T-035` | 12 |
 | `AM` | Agent API Member | `Agent API` が公開するメンバ 1 つ | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-107` | 18 |
 | `AR` | Armed shape | パレットで選んでいる構えの種別 | 仕様書 | `T-023b` | 6 |
-| `AS` | — | 担当者を割り当てる入口と規則の条 | 仕様書 | `T-225` | 10 |
+| `AS` | — | 担当者を割り当てる入口と規則の条 | 仕様書 | `T-225` | 11 |
 | `AT` | Attribute | エンティティの列 1 つと、その型・交換相手の対応 | 仕様書 | `T-058` | 141 |
 | `BC` | Band Ceiling | 行の軸の上限（帯の側）を探す手順の段 | 仕様書 | `T-253` | 5 |
 | `BF` | Browser Function | ヘルプに載せる、GRS の割当ではないブラウザの機能 | 仕様書 | `T-255` | 2 |
@@ -71,7 +71,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 799 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 801 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |

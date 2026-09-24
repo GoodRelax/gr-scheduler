@@ -45,7 +45,7 @@
 // is red rather than merely that it is.
 //
 // The rows these cases answer to (rule 03: name the row, never copy its value):
-//   表 T-225  AS-1 to AS-10, the whole table. ⚠️ TEN ROWS, not nine.
+//   表 T-225  AS-1 to AS-10 and AS-12, the whole table. ⚠️ ELEVEN ROWS.
 //   FR-008    the paragraphs above the table: a new 担当者 is a 作業資源 (MUST),
 //             its `uid` follows `Project.uidHighWaterMark` (MUST), and two
 //             assignments of the same Task-and-Resource pair are forbidden
@@ -97,10 +97,8 @@
 //      held by nothing at all. ⚠️ WHETHER THE MATCH IS ON A FRAGMENT IS STILL
 //      NOT ASSERTED and cannot be here: FR-029 「環境の作法に従う」 leaves the
 //      narrowing to the host, and this unit draws nothing.
-//   3. How several assignees on one task are written into one field, and in
-//      what order. FR-059's 「先頭 1 名と残りの人数」 is written for the assignee
-//      LABEL; AS-5 makes the panel a different surface and no row says how it
-//      joins them.
+//   3. CLOSED by CR-547: AS-5 now gives one line per seated person plus one
+//      empty line, in FR-059's order; h10-one-assignee-per-line.test.ts holds it.
 //   4. Any word or spelling shown to a person. FR-038 puts panels in the chosen
 //      language and no table holds a translated string.
 
@@ -407,13 +405,9 @@ const SCHEDULE = scheduleOf({
 })
 
 /**
- * ⭐ THE CONTRAST AS-7's 解除 IS MEASURED AGAINST, and the reason it exists.
- * The row releases 「そのタスクに担当者が 1 人だけ就いていたとき」 and says of
- * everything else 「2 人以上が就いているタスクでどれを解くかは、本表のどの行も
- * 定めていない」. ⛔ WITHOUT THIS SCHEDULE a reading that released EVERYBODY, or
- * released 「the first one found」, would pass every one-person case above and
- * nothing here would notice -- and the road to a task with several assignees
- * (FR-059 counts them, AS-10 guards the pair) would be quietly closed.
+ * THE CONTRAST AS-12's release is measured against: with two people seated, only
+ * the line the name arrived on says who is released. A reading that released
+ * everybody, or the first one found, would pass every one-person case.
  */
 const SCHEDULE_TWO_SEATED = {
   ...SCHEDULE,
@@ -423,9 +417,8 @@ const SCHEDULE_TWO_SEATED = {
 /**
  * ⭐ THE SAME ONE-PERSON TASK, PLUS AN ASSIGNMENT THAT NAMES NOBODY.
  * `Assignment.resourceUid` is nullable, and `CM-45` (表 T-108) names a Task-and-
- * Resource PAIR -- so a row with no `Resource` is neither somebody who can be
- * released nor somebody who makes this task 「2 人以上」. ⛔ A reading that
- * counted it would leave this task un-released, which is what this pins.
+ * Resource PAIR -- so a row with no `Resource` is not a person who can be
+ * released. A reading that drew it as the first line would release nobody.
  */
 const SCHEDULE_ONE_SEATED_PLUS_NULL = {
   ...SCHEDULE,
@@ -553,34 +546,47 @@ const fieldAt = (panel: PropertiesPanel, row: string): PropertyField => {
 const assigneeField = (taskUid: number, schedule: Schedule = SCHEDULE): PropertyField =>
   fieldAt(panelOf(taskUid, schedule), 'PR-16')
 
+/** AS-5 (CR-547): which line of PR-16 a value is settled on -- the first line, or the empty one. */
+const FIRST_LINE = 'first'
+const EMPTY_LINE = 'empty'
+type Line = typeof FIRST_LINE | typeof EMPTY_LINE | number
+
 /**
- * The key a commit on PR-16 carries back.
+ * The key a commit on PR-16 carries back, TAKEN FROM THE PANEL drawn on `drawnOn`,
+ * so the two seams are tested against each other rather than against a shared
+ * guess. A number names the line of that resource uid.
  *
- * ⭐ TAKEN FROM THE PANEL WHEREVER THE PANEL OFFERS ONE, so that this file stops
- * minting its own the moment AS-5's control arrives and the two seams are then
- * tested against each other rather than against a shared guess.
- *
- * ⛔ THE FALLBACK IS MINTED, AND IT HAS TO BE. `PropertyFieldKey` publishes four
- * members -- `task`, `taskVisual`, `taskGroup`, `dependency` -- and NONE of them
- * can name the assignee: 表 T-016's own remark on PR-16 says 「`Task` の列では
- * ない —— 実体は `Assignment` であり」. That missing member IS one of the defects
- * these cases are here to report, so the fallback is spelled from the words the
- * specification already owns (the ERD entity `Assignment`, and 表 T-016's item
- * name `assignee`) and from nothing else.
+ * The fallback is the key shape of CR-547 section 5 (S-1): the empty line has a
+ * null `resourceUid`.
  */
-const assigneeKeyFor = (taskUid: number): PropertyFieldKey => {
-  const offered = assigneeField(taskUid).controls[0]
+const assigneeKeyFor = (
+  taskUid: number,
+  line: Line = FIRST_LINE,
+  drawnOn: Schedule = SCHEDULE,
+): PropertyFieldKey => {
+  const controls = assigneeField(taskUid, drawnOn).controls
+  const lineUid = (control: PropertyControl): number | null | undefined =>
+    (control.key as { resourceUid?: number | null }).resourceUid
+  const offered =
+    line === FIRST_LINE
+      ? controls[0]
+      : line === EMPTY_LINE
+        ? controls.find((control) => lineUid(control) === null)
+        : controls.find((control) => lineUid(control) === line)
   if (offered !== undefined) return offered.key
-  return { holder: 'assignment', taskUid, column: 'assignee' } as unknown as PropertyFieldKey
+  const resourceUid = typeof line === 'number' ? line : null
+  return { holder: 'assignment', taskUid, resourceUid, column: 'resourceUid' }
 }
 
-/** What `commandFromFieldCommit` writes for a value settled on PR-16. */
+/** What `commandFromFieldCommit` writes for a value settled on one line of PR-16. */
 const commandsForAssignee = (
   text: string,
   taskUid: number = TASK_HELD,
   schedule: Schedule = SCHEDULE,
+  line: Line = FIRST_LINE,
+  drawnOn: Schedule = SCHEDULE,
 ): readonly DocumentCommand[] => {
-  const commit: FieldCommit = { row: 'PR-16', key: assigneeKeyFor(taskUid), text }
+  const commit: FieldCommit = { row: 'PR-16', key: assigneeKeyFor(taskUid, line, drawnOn), text }
   return commandFromFieldCommit(commit, contextOf(schedule))
 }
 
@@ -693,7 +699,7 @@ function grabsAlongTheBandOf(
 // ---------------------------------------------------------------------------
 
 describe('the tables and the fixture these cases stand on', () => {
-  it('carries all TEN rows of 表 T-225', () => {
+  it('carries all ELEVEN rows of 表 T-225', () => {
     // ⭐ A walk over a table that lost its rows passes without asserting
     // anything, so the count is pinned before any case leans on it.
     const ids = T_225.rows.map((row) => row.id)
@@ -708,6 +714,7 @@ describe('the tables and the fixture these cases stand on', () => {
       'AS-8',
       'AS-9',
       'AS-10',
+      'AS-12',
     ])
   })
 
@@ -755,9 +762,11 @@ describe('表 T-225 AS-5 -- the form the panel offers for PR-16', () => {
     // offer. So an empty list on PR-16 is the panel saying the assignee cannot
     // be edited here, which is what AS-5 forbids -- and `isEditable` being true
     // does not repair it, because the mark is not a control.
+    // CR-547: AS-5 now draws one line per seated person and one empty line, so
+    // the one-person task shows TWO controls, each of the 選択 form.
     const controls = assigneeField(TASK_HELD).controls
-    expect(controls).toHaveLength(1)
-    expect((controls[0] as PropertyControl).kind).toBe('choice')
+    expect(controls).toHaveLength(2)
+    for (const control of controls) expect(control.kind).toBe('choice')
   })
 
   it('⛔ MUST let the choice be made from the roster (the dropdown half)', () => {
@@ -843,69 +852,81 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
     // こと …… 別々に走らせると、担当者だけができて割当ができていない状態が履歴に
     // 残る」.
     //
-    // ⛔ THE ROW GREW A THIRD COMMAND ON 2026-09-08 AND THE SEAM NOW CARRIES IT.
-    // Ruling JDG-07 (逐語 DFC-413 「差し替えでOK。 担当を変える場合はすでにプロパティー
-    // パネルから切り替え可能。 削除も担当者一覧から削除可能。」) landed on AS-7 as
-    // 「そのうえで、そのタスクに担当者が 1 人だけ就いていたときは、その割当を解く
-    // こと（MUST）」, so this call carries CM-45 as well whenever exactly one
-    // person was seated -- and `TASK_HELD` is such a task.
-    //
-    // ⭐ SO THE ORDER IS PART OF THE RULE, not a preference: 作ってから割り当てる,
-    // and CM-45 「が加わって 3 つである」 -- the paragraph under the table counts
-    // the bundle that way, so the release JOINS the pair rather than opening it.
+    // CR-547: the name is settled on the line of the person seated on
+    // `TASK_HELD`, so AS-12 adds the release: 「就いている担当者の欄で受け取れば
+    // それに `CM-45` が加わって 3 つである」. The order follows the paragraph:
+    // make, seat, then release -- the release joins the pair, never opens it.
     expect(kindsOf(commandsForAssignee(UNKNOWN_NAME))).toEqual([CM_40, CM_44, CM_45])
   })
 
-  it('⛔ MUST release the one person who was seated, and nobody else', () => {
-    // ⛔ AS-7 (MUST): 「そのタスクに担当者が 1 人だけ就いていたときは、その割当を
-    // 解くこと（MUST）」, and the row names 表 T-108 の `CM-45` for it. The pair
-    // that command takes is THIS task and the person who was on it -- not the
-    // person CM-40 has just made, whose uid CM-44 carries.
-    // ⚠️ 「解いても担当者そのものは残る」 (FR-008, MUST): no CM-42 is written,
-    // which is what `kindsOf` above already fixes.
+  it('⛔ MUST release the person of the line the name arrived on, and nobody else', () => {
+    // AS-7: 「就いている担当者の欄ならその人の割当を解き」. The pair CM-45 takes
+    // is THIS task and the person of that line -- not the person CM-40 has just
+    // made. No CM-42 is written: the person is kept (FR-008).
     const commands = commandsForAssignee(UNKNOWN_NAME)
     expect(oneCommand(commands, CM_45)['taskUid']).toBe(TASK_HELD)
     expect(oneCommand(commands, CM_45)['resourceUid']).toBe(SEATED.uid)
   })
 
-  it('⛔ MUST NOT release anybody where TWO are seated -- no row says which', () => {
-    // ⛔ THE CONTRAST, AND IT IS THE POINT OF THE ROW'S OWN LIMIT. AS-7 (MUST)
-    // releases only 「担当者が 1 人だけ就いていたとき」 and reports the rest as a
-    // gap: 「2 人以上が就いているタスクでどれを解くかは、本表のどの行も定めて
-    // いない …… 発明せずに報告した」.
-    // ⚠️ WHAT THIS PROTECTS is the road to a task with several assignees -- a
-    // reading that released everybody, or 「the first one found」, would answer
-    // every case above correctly and only fail here.
-    expect(kindsOf(commandsForAssignee(UNKNOWN_NAME, TASK_HELD, SCHEDULE_TWO_SEATED))).toEqual([
-      CM_40,
-      CM_44,
-    ])
+  it('⛔ where TWO are seated, MUST release only the person of the line the name arrived on', () => {
+    // CR-547 closed the gap this case used to guard: the line names who is
+    // released (AS-12 MUST, AS-3 MUST NOT for the other line). The two
+    // assertions differ only in the line, so a reading that releases the first
+    // one found, or everybody, fails one of them.
+    const onSeated = commandsForAssignee(
+      UNKNOWN_NAME,
+      TASK_HELD,
+      SCHEDULE_TWO_SEATED,
+      SEATED.uid,
+      SCHEDULE_TWO_SEATED,
+    )
+    expect(kindsOf(onSeated)).toEqual([CM_40, CM_44, CM_45])
+    expect(oneCommand(onSeated, CM_45)['resourceUid']).toBe(SEATED.uid)
+    const onRostered = commandsForAssignee(
+      UNKNOWN_NAME,
+      TASK_HELD,
+      SCHEDULE_TWO_SEATED,
+      ROSTERED.uid,
+      SCHEDULE_TWO_SEATED,
+    )
+    expect(kindsOf(onRostered)).toEqual([CM_40, CM_44, CM_45])
+    expect(oneCommand(onRostered, CM_45)['resourceUid']).toBe(ROSTERED.uid)
   })
 
-  it('⛔ MUST NOT release anybody where NOBODY is seated', () => {
-    // ⛔ AS-7 (MUST) 「担当者が 1 人だけ就いていたときは」 -- a task nobody is on
-    // has no 割当 to 解く, and CM-45 would be refused by FR-008 on a pair that
-    // holds none, throwing the whole atomic bundle (AG-3) away.
+  it('⛔ MUST NOT release anybody from the empty line', () => {
+    // AS-7: 「空の欄なら解かない」. A task nobody is on offers the empty line
+    // alone; on `TASK_HELD` the empty line adds beside the seated person.
     expect(kindsOf(commandsForAssignee(UNKNOWN_NAME, TASK_ALONE))).toEqual([CM_40, CM_44])
+    expect(
+      kindsOf(commandsForAssignee(UNKNOWN_NAME, TASK_HELD, SCHEDULE, EMPTY_LINE)),
+    ).toEqual([CM_40, CM_44])
   })
 
   it('⛔ counts a seated person, not an assignment that names nobody', () => {
-    // ⛔ `Assignment.resourceUid` is nullable and CM-45 names a PAIR, so a row
-    // with no `Resource` is neither releasable nor a second person. The task
-    // below still reads as 「1 人だけ」.
-    const commands = commandsForAssignee(UNKNOWN_NAME, TASK_HELD, SCHEDULE_ONE_SEATED_PLUS_NULL)
+    // `Assignment.resourceUid` is nullable and CM-45 names a PAIR, so a row with
+    // no `Resource` is not a person to release. The first line drawn on this
+    // schedule is still the seated person's, and that person is released.
+    const commands = commandsForAssignee(
+      UNKNOWN_NAME,
+      TASK_HELD,
+      SCHEDULE_ONE_SEATED_PLUS_NULL,
+      FIRST_LINE,
+      SCHEDULE_ONE_SEATED_PLUS_NULL,
+    )
     expect(kindsOf(commands)).toEqual([CM_40, CM_44, CM_45])
     expect(oneCommand(commands, CM_45)['resourceUid']).toBe(SEATED.uid)
   })
 
-  it('⛔ MUST NOT release anybody for a name the roster ALREADY holds', () => {
-    // ⛔ THE RELEASE IS AS-7's ALONE. A rostered name travels by AS-8 (uid の
-    // 小さいほう) and a uid by AS-9, and neither row carries the 解除 clause --
-    // the ruling's own next breath names the chooser as the road for changing
-    // who is seated (逐語 DFC-413 「担当を変える場合はすでにプロパティーパネルから切り替え
-    // 可能」), so seating a second rostered person leaves the first standing.
-    expect(kindsOf(commandsForAssignee(ROSTERED.name as string))).toEqual([CM_44])
-    expect(kindsOf(commandsForAssignee(TWIN_NAME))).toEqual([CM_44])
+  it('⛔ AS-12 -- a rostered name seats alone on the empty line and replaces on a seated line', () => {
+    // The paragraph under the table: 「名簿の人を空の欄で受け取れば `CM-44` の
+    // 1 つ、就いている担当者の欄で受け取れば `CM-44` と `CM-45` の 2 つである」.
+    expect(
+      kindsOf(commandsForAssignee(ROSTERED.name as string, TASK_HELD, SCHEDULE, EMPTY_LINE)),
+    ).toEqual([CM_44])
+    const replaced = commandsForAssignee(ROSTERED.name as string)
+    expect(kindsOf(replaced)).toEqual([CM_44, CM_45])
+    expect(oneCommand(replaced, CM_44)['resourceUid']).toBe(ROSTERED.uid)
+    expect(oneCommand(replaced, CM_45)['resourceUid']).toBe(SEATED.uid)
   })
 
   it('⛔ MUST name the new person by the uid FR-008 fixes for them', () => {
@@ -931,7 +952,10 @@ describe('表 T-225 AS-7 -- a name the roster does not hold', () => {
     // (MUST NOT) forbids two assignments of the same Task-and-Resource pair --
     // ⚠️ but the reason a duplicate PERSON must not appear is AS-8, which sends
     // a name the roster already holds to an existing uid instead.
-    expect(kindsOf(commandsForAssignee(ROSTERED.name as string))).toEqual([CM_44])
+    // CR-547: asked on the empty line, where AS-12 seats and releases nobody.
+    expect(
+      kindsOf(commandsForAssignee(ROSTERED.name as string, TASK_HELD, SCHEDULE, EMPTY_LINE)),
+    ).toEqual([CM_44])
   })
 })
 
@@ -946,7 +970,8 @@ describe('表 T-225 AS-8 -- two people of the same name stay two people', () => 
     // first; that NOTHING ELSE is written -- no deletion, no rename, no new
     // person -- is what "not merging" means at this seam, and a reading that
     // quietly folded the twins together would show up as a second command here.
-    const commands = commandsForAssignee(TWIN_NAME)
+    // CR-547: asked on the empty line, so AS-12 adds no release beside it.
+    const commands = commandsForAssignee(TWIN_NAME, TASK_HELD, SCHEDULE, EMPTY_LINE)
     expect(kindsOf(commands)).toEqual([CM_44])
     expect(oneCommand(commands, CM_44)['resourceUid']).toBe(TWIN_LOW.uid)
   })
@@ -956,14 +981,17 @@ describe('表 T-225 AS-10 -- the person is already on this task', () => {
   it('⛔ MUST NOT add a second assignment for a pair the task already holds', () => {
     // AS-10 (MUST): 「割当を増やさないこと」, and FR-008 (MUST NOT) above the
     // table: 「同じ `Task` と同じ `Resource` の組の割当を 2 つ作ってはならない」.
-    expect(kindsOf(commandsForAssignee(SEATED.name as string))).not.toContain(CM_44)
+    // CR-547: AS-12 says 「何も書かない」 on either line, so both are asked.
+    expect(kindsOf(commandsForAssignee(SEATED.name as string))).toEqual([])
+    expect(
+      kindsOf(commandsForAssignee(SEATED.name as string, TASK_HELD, SCHEDULE, EMPTY_LINE)),
+    ).toEqual([])
 
-    // ⛔ EXPECTED RED, and this second half is here so the case cannot pass
-    // vacuously: the tree writes NOTHING for PR-16 at all, so the assertion
-    // above is satisfied today for a reason that has nothing to do with AS-10.
-    // A surface that obeys AS-10 still has to seat somebody who is not yet on
-    // the task, which is what makes the first assertion mean something.
-    expect(kindsOf(commandsForAssignee(ROSTERED.name as string))).toEqual([CM_44])
+    // The guard against a vacuous pass: the same line still seats somebody who
+    // is not yet on the task, which is what makes the assertions above mean something.
+    expect(
+      kindsOf(commandsForAssignee(ROSTERED.name as string, TASK_HELD, SCHEDULE, EMPTY_LINE)),
+    ).toEqual([CM_44])
   })
 })
 
@@ -975,7 +1003,8 @@ describe('表 T-225 AS-3 / AS-4 -- the un-assign token', () => {
   it('⛔ AS-3 -- MUST unassign when `-` is confirmed', () => {
     // ⛔ EXPECTED RED. AS-3 (MUST): 「`-` を確定した …… その割当を解くこと（表
     // T-108 の `CM-45`）」. ⚠️ 「担当者そのものは消えない」 -- CM-42 is FR-099's
-    // and must not appear here, which is the second assertion.
+    // and must not appear here, which is the second assertion. The token is
+    // settled on the seated person's line (CR-547, AS-5).
     const commands = commandsForAssignee(UNASSIGN_TOKEN)
     expect(kindsOf(commands)).toEqual([CM_45])
     const command = oneCommand(commands, CM_45)
@@ -989,10 +1018,9 @@ describe('表 T-225 AS-3 / AS-4 -- the un-assign token', () => {
     //
     // ⚠️ THE TOKEN IS ASKED FOR ON A TASK NOBODY IS ON, which is the case AS-4
     // is really about: with no assignment to unseat, a reading that fell through
-    // to AS-7 would mint the forbidden person. AS-3's answer for that task is
-    // decided nowhere, so nothing is asserted about WHAT it writes -- only that
-    // it does not write this.
-    expect(kindsOf(commandsForAssignee(UNASSIGN_TOKEN, TASK_ALONE))).not.toContain(CM_40)
+    // to AS-7 would mint the forbidden person. Since CR-547 AS-3 decides that
+    // task too: its only line is the empty one, and 「空の欄では何も書かない」.
+    expect(kindsOf(commandsForAssignee(UNASSIGN_TOKEN, TASK_ALONE))).toEqual([])
 
     // ⛔ EXPECTED RED. Again the guard against a vacuous pass: the same surface
     // has to be able to mint a person for a name that is NOT the token (AS-7),

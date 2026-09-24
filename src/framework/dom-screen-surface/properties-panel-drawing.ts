@@ -280,11 +280,23 @@ function controlElement(
   CONTROL_KEYS.set(drawn, { row, key: control.key })
   if (IS_KIND_TYPED_INTO[control.kind]) {
     TYPED_CONTROLS.add(drawn)
-    if (typedByRow !== null && !typedByRow.has(row)) {
-      typedByRow.set(row, drawn as unknown as TextEntryControl)
-    }
+    holdTypedEntry(typedByRow, row, control, drawn)
   }
   return drawn as HTMLElement
+}
+
+// see AS-1, AS-5
+/** @purity non-pure */
+function holdTypedEntry(
+  typedByRow: Map<string, TextEntryControl> | null,
+  row: string,
+  control: PropertyControl,
+  drawn: Element,
+): void {
+  if (typedByRow === null) return
+  if (control.isFocusTarget === true || !typedByRow.has(row)) {
+    typedByRow.set(row, drawn as unknown as TextEntryControl)
+  }
 }
 
 // see T-016
@@ -642,16 +654,9 @@ function searchElements(
   control: PropertyControl,
   words: readonly string[],
   typedByRow: Map<string, TextEntryControl> | null,
+  withRoster: boolean,
 ): readonly HTMLElement[] {
   const id = rosterId(row)
-  const roster = host.createElement('datalist')
-  roster.setAttribute('id', id)
-  for (const word of words) {
-    const option = host.createElement('option')
-    option.setAttribute('value', word)
-    roster.append(option)
-  }
-
   const box = made(host, 'input', propertyControlStyle(control.widthInFontSizes))
   box.setAttribute('type', 'text')
   box.setAttribute('list', id)
@@ -662,8 +667,15 @@ function searchElements(
   CONTROL_KEYS.set(box, { row, key: control.key })
   TYPED_CONTROLS.add(box)
   // TRAP: the only typed entrance into PR-16; without this entry its focus lands nowhere.
-  if (typedByRow !== null && !typedByRow.has(row)) {
-    typedByRow.set(row, box as unknown as TextEntryControl)
+  holdTypedEntry(typedByRow, row, control, box)
+  if (!withRoster) return [box]
+
+  const roster = host.createElement('datalist')
+  roster.setAttribute('id', id)
+  for (const word of words) {
+    const option = host.createElement('option')
+    option.setAttribute('value', word)
+    roster.append(option)
   }
   return [roster as HTMLElement, box]
 }
@@ -694,6 +706,8 @@ export function fieldElement(
     shown.textContent = field.text
     controls.append(shown)
   }
+  // TRAP: one datalist per row: its id is made from the row, and PR-16 draws one line per person.
+  let isRosterDrawn = false
   for (const control of field.controls) {
     if (control.colour !== undefined) {
       controls.append(...colourFieldElements(host, field.row, control, typedByRow))
@@ -702,7 +716,8 @@ export function fieldElement(
     controls.append(controlElement(host, field.row, control, typedByRow))
     const words = control.searchWords
     if (words !== undefined) {
-      controls.append(...searchElements(host, field.row, control, words, typedByRow))
+      controls.append(...searchElements(host, field.row, control, words, typedByRow, !isRosterDrawn))
+      isRosterDrawn = true
     }
   }
   line.append(name, controls)

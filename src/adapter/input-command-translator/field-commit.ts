@@ -290,8 +290,6 @@ function commandFromProjectColumn(column: string, text: string): readonly Docume
   return [{ kind: 'setProjectTitle', title: text }]
 }
 
-const ASSIGNEE_ROW = 'PR-16'
-
 const UNASSIGN_TOKEN = '-'
 
 // see AS-8
@@ -315,38 +313,28 @@ function resourceUidOfChoice(schedule: Schedule, text: string): number | null {
   return schedule.resources.some((one) => one.uid === uid) ? uid : null
 }
 
-// see AS-3, CM-45
+// see AS-3, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
 /** @purity pure */
-function commandsFromUnassign(schedule: Schedule, taskUid: number): readonly DocumentCommand[] {
-  const held = new Set<number>()
-  for (const assignment of schedule.assignments) {
-    if (assignment.taskUid !== taskUid || assignment.resourceUid === null) continue
-    held.add(assignment.resourceUid)
-  }
-  // STOP: spec does not decide which of several assignees AS-3 takes off. Looked in AS-3, AS-5, AS-7, AS-9 (PND-461)
-  if (held.size !== 1) return []
-  const [resourceUid] = [...held]
-  if (resourceUid === undefined) return []
-  return [{ kind: 'unassignResource', taskUid, resourceUid }]
-}
-
-// see AS-7, AS-8, AS-9, AS-10, T-225
-/** @purity pure */
-function commandsFromAssignee(
+function commandsFromAssigneeField(
   schedule: Schedule,
   taskUid: number,
+  seatedUid: number | null,
   text: string,
 ): readonly DocumentCommand[] {
   const settled = settledText(text)
-  if (settled === null) return []
-  if (settled === UNASSIGN_TOKEN) return commandsFromUnassign(schedule, taskUid)
+  const onTask = new Set<number | null>(
+    schedule.assignments.filter((one) => one.taskUid === taskUid).map((one) => one.resourceUid),
+  )
+  // TRAP: a line drawn before its person was taken off (UN-15) must write nothing: CM-45 refuses
+  // a pair not held, and AG-3 then throws the whole bundle away.
+  if (settled === null || (seatedUid !== null && !onTask.has(seatedUid))) return []
+  const unseat: readonly DocumentCommand[] =
+    seatedUid === null ? [] : [{ kind: 'unassignResource', taskUid, resourceUid: seatedUid }]
+  if (settled === UNASSIGN_TOKEN) return unseat
 
   const held = resourceUidOfChoice(schedule, settled) ?? resourceUidOfName(schedule, settled)
   if (held !== null) {
-    const already = schedule.assignments.some(
-      (one) => one.taskUid === taskUid && one.resourceUid === held,
-    )
-    return already ? [] : [{ kind: 'createAssignment', taskUid, resourceUid: held }]
+    return onTask.has(held) ? [] : [{ kind: 'createAssignment', taskUid, resourceUid: held }, ...unseat]
   }
 
   return [
@@ -358,7 +346,7 @@ function commandsFromAssignee(
       // ahead of CM-44 in this bundle but CM-40 issues a uid.
       resourceUid: nextIssuedUid(schedule),
     },
-    ...commandsFromUnassign(schedule, taskUid),
+    ...unseat,
   ]
 }
 
@@ -374,13 +362,6 @@ export function commandFromFieldCommit(
   // WHY: the column is the key the panel drew, not worked out again here: the selection may
   // have changed between drawing and commit.
   const key = commit.key
-
-  // TRAP: before the holder switch: PR-16's key has holder task and would reach the Task columns.
-  if (commit.row === ASSIGNEE_ROW && key.holder === 'task') {
-    return taskByUid(schedule, key.uid) === null
-      ? []
-      : commandsFromAssignee(schedule, key.uid, commit.text)
-  }
 
   switch (key.holder) {
     case 'task': {
@@ -411,5 +392,9 @@ export function commandFromFieldCommit(
     }
     case 'project':
       return commandFromProjectColumn(key.column, commit.text)
+    case 'assignment':
+      return taskByUid(schedule, key.taskUid) === null
+        ? []
+        : commandsFromAssigneeField(schedule, key.taskUid, key.resourceUid, commit.text)
   }
 }

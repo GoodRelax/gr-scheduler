@@ -19,6 +19,8 @@ const HOST_BACKSPACE_KEY = 'Backspace'
 
 const HOST_DATE_INPUT_TYPE = 'date'
 
+const UNASSIGN_TEXT = '-'
+
 export interface TextEntryControl {
   value: string
   blur?: () => void
@@ -34,6 +36,23 @@ function textEntryControlOf(target: unknown): TextEntryControl | null {
   if (!TYPED_CONTROLS.has(target)) return null
   const drawn = target as Partial<TextEntryControl>
   return typeof drawn.value === 'string' ? (target as TextEntryControl) : null
+}
+
+/** @purity pure */
+function isChorded(key: Partial<KeyboardEvent>): boolean {
+  return key.ctrlKey === true || key.altKey === true || key.metaKey === true
+}
+
+// WHY: AS-3; the chooser takes no text, so Del would reach FR-046 and delete the task; it commits '-'.
+/** @purity non-pure */
+function assigneeLineDeleted(event: Event): FieldCommit | null {
+  const key = event as Partial<KeyboardEvent>
+  if (key.key !== HOST_DELETE_KEY || isChorded(key)) return null
+  const drawn = textEntryControlOf(event.target) === null ? CONTROL_KEYS.get(event.target as Element) : undefined
+  if (drawn === undefined || drawn.key.holder !== 'assignment' || key.shiftKey === true) return null
+  if (typeof event.preventDefault === 'function') event.preventDefault()
+  if (typeof event.stopPropagation === 'function') event.stopPropagation()
+  return { row: drawn.row, key: drawn.key, text: UNASSIGN_TEXT }
 }
 
 /** @purity pure */
@@ -192,11 +211,11 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // commits nothing; one press empties the whole field, which commits as an emptied field does.
   /** @purity non-pure */
   propertiesPanel.addEventListener('keydown', (event: Event) => {
+    fieldCommit = assigneeLineDeleted(event) ?? fieldCommit
     const held = heldTextControl
     if (held === null || (held as Partial<HTMLInputElement>).type !== HOST_DATE_INPUT_TYPE) return
     const key = event as Partial<KeyboardEvent>
-    if (key.key !== HOST_DELETE_KEY && key.key !== HOST_BACKSPACE_KEY) return
-    if (key.ctrlKey === true || key.altKey === true || key.metaKey === true) return
+    if ((key.key !== HOST_DELETE_KEY && key.key !== HOST_BACKSPACE_KEY) || isChorded(key)) return
     if (typeof event.preventDefault === 'function') event.preventDefault()
     held.value = ''
     isHeldTextTakenBack = false

@@ -198,6 +198,7 @@ export interface PropertyControl {
   readonly min: number | null
   readonly max: number | null
   readonly widthInFontSizes: number
+  readonly isFocusTarget?: true
 }
 
 export type PropertyFieldKey =
@@ -235,6 +236,12 @@ export type PropertyFieldKey =
       readonly holder: 'highlightBox'
       readonly id: string
       readonly column: keyof Schedule['highlightBoxes'][number] & string
+    }
+  | {
+      readonly holder: 'assignment'
+      readonly taskUid: number
+      readonly resourceUid: number | null
+      readonly column: 'resourceUid'
     }
 
 export interface CommandPalette {
