@@ -1,4 +1,4 @@
-// ScheduleLayout -- the time axis, label widths, row placing, level of detail and the fit.
+// ScheduleLayout: public entry; row placing, labels, the pinned band, scrolling and the fit.
 // @unit      UF-5   (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -22,11 +22,36 @@ import {
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import {
-  displayRatioOf,
   drawnSettingsOf,
   rowControlLatticeHeightPx,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
+import { groupDepthLimit, groupDepthThresholdOf, keptInViewByOpenMarks } from './group-level-of-detail'
+import { labelWidth } from './label-width'
+import {
+  actualPlacementOf,
+  actualReachOf,
+  drawnEdgeOverhangOf,
+  drawnExtentOf,
+  labelFontSize,
+  labelLiftOf,
+  laidBelow,
+  markerDiameterOf,
+  planHeightOf,
+  shapeHeightOf,
+  zoomYAtPlanHeightFloor,
+} from './shape-cross-sections'
+import { dateAtX, rulerTierOf, serialOf, timeAxisOf, xFromDay, xOnTimeAxis } from './time-axis'
+
+export { dateAtX, rulerTierOf, tickStrideOf, timeAxisOf, xFromDay } from './time-axis'
+export type { TimeAxis } from './time-axis'
+export { labelUnits } from './label-width'
+export {
+  markerDiameterOf,
+  thinEndHalfHeightOf,
+  zoomYAtRectangleLabelFont,
+} from './shape-cross-sections'
+export { groupDepthLimit, groupDepthThresholdOf } from './group-level-of-detail'
 
 // see L-1
 export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
@@ -110,13 +135,6 @@ export interface StackSafetyCapStop {
   readonly cap: number
 }
 
-const MS_PER_DAY = 86400000
-
-/** @purity pure */
-function serialOf(day: CalendarDay): number {
-  return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
-}
-
 // TRAP: lives for one layoutFromSchedule run; kept longer it answers from a stale calendar.
 interface DayReader {
   day(text: string | null): CalendarDay | null
@@ -145,20 +163,6 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
       return made
     },
   }
-}
-
-// see FR-093
-/** @purity pure */
-export function labelUnits(text: string): number {
-  let units = 0
-  for (const character of text) units += character.charCodeAt(0) < 0x100 ? 1 : 2
-  return units
-}
-
-// see LC-5, FR-093
-/** @purity pure */
-function labelWidth(text: string, fontSize: number, settings: DocumentSettings): number {
-  return labelUnits(text) * fontSize * settings.labelCoef
 }
 
 const WORK_RESOURCE = 1
@@ -339,163 +343,10 @@ function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: Document
     labelWidth(named.labelDates, fontSize * NOT_STORED_LABEL_SIZES['S-325'], settings)
 }
 
-// see XS-5, XS-6
-/** @purity pure */
-export function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  return (shapeKind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
-}
-
-// see T-012, XS-5, XS-6
-/** @purity pure */
-function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  if (!laidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
-  const stroke = settings.thinStrokeWidth
-  return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
-}
-
-// see OC-10, XS-4
-// TRAP: the tier is the font size, never S-233; that ratio moves every stacked row.
-/** @purity pure */
-function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  if (!laidBelow(shapeKind)) return 0
-  return (
-    labelFontSize(shapeKind, settings) +
-    NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
-  )
-}
-
-/** @purity pure */
-function reservedHeight(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  return labelLiftOf(shapeKind, settings) + shapeHeightOf(shapeKind, settings)
-}
-
-/** @purity pure */
-function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  return laidBelow(shapeKind) ? 0 : settings.planStroke / 2
-}
-
-/** @purity pure */
-function drawnExtentOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  return reservedHeight(shapeKind, settings) + drawnEdgeOverhangOf(shapeKind, settings) * 2
-}
-
 // see VG-2, VG-5, LF-2, DS-10
 /** @purity pure */
 function verticalGapOf(settings: DocumentSettings): number {
   return settings.stackGap + settings.dependencyWidth + settings.stackGap
-}
-
-/** @purity pure */
-function laidBelow(shapeKind: ShapeKind): boolean {
-  return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
-}
-
-/** @purity pure */
-function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways' {
-  if (shapeKind === 'milestone') return 'sideways'
-  return laidBelow(shapeKind) ? 'below' : 'inside'
-}
-
-/** @purity pure */
-function actualReachOf(
-  shapeKind: ShapeKind,
-  actual: { readonly x: number; readonly width: number },
-  settings: DocumentSettings,
-): number {
-  if (actualPlacementOf(shapeKind) !== 'sideways') return actual.x + actual.width
-  return actual.x + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
-}
-
-// TRAP: the one spelling of this floor; a second can land an ulp off the zoom the fit lands on.
-/** @purity pure */
-function planHeightFloor(settings: DocumentSettings): number {
-  return settings.actualMin / settings.actualOfPlan
-}
-
-/** @purity pure */
-function zoomYAtPlanHeightFloor(settings: DocumentSettings): number {
-  return planHeightFloor(settings) / settings.basePlanHeight
-}
-
-// see FR-094
-/** @purity pure */
-function planHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  const ratio = settings.shapeHeightOf[shapeKind]
-  return Math.max(planHeightFloor(settings), settings.basePlanHeight * settings.zoomY) * ratio
-}
-
-// see FR-094
-/** @purity pure */
-export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
-                                 settings: DocumentSettings): number {
-  return laidBelow(shapeKind) ? nameFontSize : settings.markerSize
-}
-
-// see FR-077, FR-094
-/** @purity pure */
-function labelFontSize(shapeKind: ShapeKind, settings: DocumentSettings): number {
-  const actual = planHeightOf(shapeKind, settings) * settings.actualOfPlan
-  const scale = laidBelow(shapeKind) ? settings.thinFontScale : 1
-  return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
-}
-
-// see LC-3, FR-017, T-252, DS-1, DS-4, S-8
-// TRAP: STORED settings with a DRAWN pxPerDay; the ruler font is scaled here, the S-8 divisor is not.
-/** @purity pure */
-export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
-  const settings = drawnSettingsOf(storedSettings)
-  const scaled = pxPerDay / (settings.rulerFont / storedSettings.fontMin)
-  if (scaled >= storedSettings.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
-  if (scaled >= storedSettings.rulerTierPxPerDayWeek) return 'yearMonthWeek'
-  if (scaled >= storedSettings.rulerTierPxPerDayMonth) return 'yearMonth'
-  return 'year'
-}
-
-const DAYS_PER_WEEK = 7
-
-// see LF-1
-/** @purity pure */
-export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings): number {
-  return layout.tier === 'yearMonthWeek' ? DAYS_PER_WEEK : 1
-}
-
-export type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>
-
-// see FR-017, DC-3
-// WHY: the axis alone, without laying out a row, for readers that only turn a pointer into a day.
-/** @purity pure */
-export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegions): TimeAxis {
-  const settings = drawnSettingsOf(storedSettings)
-  const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
-  const originDay = dayOf(settings.scrollDate)
-  const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
-  const originX = regions.rowArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
-  return { pxPerDay, originDay, originX }
-}
-
-// see FR-017, T-252, DS-4
-// TRAP: a quotient within an ulp of a whole day IS that day; floor alone answers the day before.
-/** @purity pure */
-export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
-  if (layout.originDay === null || layout.pxPerDay <= 0) return null
-  const span = (x - layout.originX) / layout.pxPerDay
-  const whole = Math.round(span)
-  const days = Math.abs(span - whole) < 1e-9 ? whole : Math.floor(span)
-  const foundAt = new Date((serialOf(layout.originDay) + days) * MS_PER_DAY)
-  return { year: foundAt.getUTCFullYear(), month: foundAt.getUTCMonth() + 1, day: foundAt.getUTCDate() }
-}
-
-/** @purity pure */
-function xOnTimeAxis(originSerial: number, pxPerDay: number, originX: number,
-                     day: CalendarDay): number {
-  return originX + (serialOf(day) - originSerial) * pxPerDay
-}
-
-/** @purity pure */
-export function xFromDay(layout: ScheduleLayout, day: CalendarDay): number {
-  const origin = layout.originDay
-  if (origin === null) return layout.originX
-  return xOnTimeAxis(serialOf(origin), layout.pxPerDay, layout.originX, day)
 }
 
 // see FD-5, FD-6, FD-6b
@@ -543,26 +394,6 @@ function drawnGroups(
   return inTreeOrder(drawnRows, byId)
 }
 
-// see FR-018, T-254, AT-142
-// WHY: read over rows a person has not folded or hidden, so a mark never beats HF-7 or HR-6.
-/** @purity pure */
-function keptInViewByOpenMarks(unfoldedRows: readonly TaskGroup[]): ReadonlySet<string> {
-  const byId = new Map(unfoldedRows.map((row) => [row.id, row]))
-  const kept = new Set<string>()
-  for (const row of unfoldedRows) {
-    if (!row.isKeptOpen) continue
-    for (let at: TaskGroup | undefined = row; at !== undefined && !kept.has(at.id);) {
-      kept.add(at.id)
-      at = at.parentId === null ? undefined : byId.get(at.parentId)
-    }
-  }
-  for (const row of unfoldedRows) {
-    const parent = row.parentId === null ? undefined : byId.get(row.parentId)
-    if (parent?.isKeptOpen === true) kept.add(row.id)
-  }
-  return kept
-}
-
 // see LC-9
 /** @purity pure */
 function inTreeOrder<T extends TaskGroup & { depth: number }>(
@@ -590,24 +421,6 @@ function inTreeOrder<T extends TaskGroup & { depth: number }>(
   walk(null)
   for (const row of rows) if (!seen.has(row.id)) ordered.push(row)
   return ordered
-}
-
-// see LC-2, FR-018
-/** @purity pure */
-export function groupDepthLimit(settings: DocumentSettings): number {
-  let limit = 1
-  for (let depth = 2; depth <= settings.maxGroupDepth; depth++) {
-    if (settings.zoomY >= groupDepthThresholdOf(depth, settings)) limit = depth
-  }
-  return limit
-}
-
-// see FR-018
-// TRAP: never retype this: the fit lands zoomY on it and groupDepthLimit reads it back,
-// so an ulp apart draws one depth shallower.
-/** @purity pure */
-export function groupDepthThresholdOf(depth: number, settings: DocumentSettings): number {
-  return settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, depth - 2)
 }
 
 // see AT-100
@@ -1470,16 +1283,6 @@ export function fitZoom(
       chosen.rows.find((row) => row.isPinned !== true)?.groupId ?? settings.scrollGroupId,
     floorZoomY,
   }
-}
-
-// see FR-016, FR-077, FR-094, PI-5, T-252, DS-1
-// WHY: the largest of three: below either floor the name does not grow, so the floor's release answers.
-/** @purity pure */
-export function zoomYAtRectangleLabelFont(fontPx: number, storedSettings: DocumentSettings): number {
-  const settings = drawnSettingsOf(storedSettings)
-  const fontPerZoom = settings.basePlanHeight * settings.shapeHeightOf.rectangle *
-    settings.actualOfPlan * settings.fontOfActual
-  return Math.max(fontPx / fontPerZoom, zoomYAtPlanHeightFloor(settings), settings.fontMin / fontPerZoom)
 }
 
 // see FR-016, T-068
