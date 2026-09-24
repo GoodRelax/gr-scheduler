@@ -1,4 +1,5 @@
-excess-lines=7191 excess-branches=676
+excess-lines=7189 excess-branches=674
+# LOWERED 7191/676 -> 7189/674 on 2026-09-24 under JDG-520: H10 shrank controlElement; measured on 3011de43.
 # LOWERED 7244/680 -> 7191/676 on 2026-09-24 under JDG-520: DFC-806 moved the highlight-box double-click out of frameLoop and carryOutAction; measured on 032c2023.
 # LOWERED 7254/680 -> 7244/680 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking): H2..H4, H7 and E-24 shrank layoutFromSchedule, carryOutAction, frameLoop and boot; measured on a42c0cb4.
 # LOWERED 7309/688 -> 7254/680 on 2026-09-24, approved by the user in chat (JDG-404): CR-551 shrank commandFromVisualColumn and fitZoom out of the band, and commandFromEntry, commandFromKey, layoutFromSchedule, domScreenSurface, frameLoop and editTask; measured on 1997822d.
@@ -73,7 +74,7 @@ HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt li
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=123 branches=34
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=162 branches=28
-HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=59 branches=20
+HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
 HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=255 branches=0
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
