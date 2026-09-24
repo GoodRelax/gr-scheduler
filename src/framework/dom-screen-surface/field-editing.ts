@@ -17,6 +17,9 @@ const HOST_DELETE_KEY = 'Delete'
 
 const HOST_BACKSPACE_KEY = 'Backspace'
 
+// see SK-3
+const HOST_DELETE_KEYS: ReadonlySet<unknown> = new Set([HOST_DELETE_KEY, HOST_BACKSPACE_KEY])
+
 const HOST_DATE_INPUT_TYPE = 'date'
 
 const UNASSIGN_TEXT = '-'
@@ -43,11 +46,16 @@ function isChorded(key: Partial<KeyboardEvent>): boolean {
   return key.ctrlKey === true || key.altKey === true || key.metaKey === true
 }
 
-// WHY: AS-3; the chooser takes no text, so Del would reach FR-046 and delete the task; it commits '-'.
+/** @purity pure */
+function isUnchordedDeleteKey(key: Partial<KeyboardEvent>): boolean {
+  return HOST_DELETE_KEYS.has(key.key) && !isChorded(key)
+}
+
+// WHY: AS-3, SK-3; the chooser takes no text, so a delete key would reach FR-046 and delete the task.
 /** @purity non-pure */
 function assigneeLineDeleted(event: Event): FieldCommit | null {
   const key = event as Partial<KeyboardEvent>
-  if (key.key !== HOST_DELETE_KEY || isChorded(key)) return null
+  if (!isUnchordedDeleteKey(key)) return null
   const drawn = textEntryControlOf(event.target) === null ? CONTROL_KEYS.get(event.target as Element) : undefined
   if (drawn === undefined || drawn.key.holder !== 'assignment' || key.shiftKey === true) return null
   if (typeof event.preventDefault === 'function') event.preventDefault()
@@ -215,7 +223,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     const held = heldTextControl
     if (held === null || (held as Partial<HTMLInputElement>).type !== HOST_DATE_INPUT_TYPE) return
     const key = event as Partial<KeyboardEvent>
-    if ((key.key !== HOST_DELETE_KEY && key.key !== HOST_BACKSPACE_KEY) || isChorded(key)) return
+    if (!isUnchordedDeleteKey(key)) return
     if (typeof event.preventDefault === 'function') event.preventDefault()
     held.value = ''
     isHeldTextTakenBack = false

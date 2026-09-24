@@ -664,6 +664,10 @@ describe('S-6 through the real DOM surface -- one roster list for every line', (
 })
 
 const DELETE_KEY = 'Delete'
+const BACKSPACE_KEY = 'Backspace'
+const SK_3_ROW =
+  '| SK-3 | 選択しているものを削除する（対象の全数は表 T-023c の SL-1） | `Delete` ／ `Backspace` | — |'
+const DELETE_KEYS = [DELETE_KEY, BACKSPACE_KEY] as const
 
 interface KeyOutcome {
   readonly commit: FieldCommit | null
@@ -673,12 +677,12 @@ interface KeyOutcome {
 // see AS-3
 // WHY: a keydown bubbles from the target up through its ancestors; the listeners the surface
 // registered on each node run in turn, and stopPropagation ends the walk as a browser would.
-function pressKeyOn(drawn: DrawnField, target: FakeElement, ctrlKey = false): KeyOutcome {
+function pressKeyOn(drawn: DrawnField, target: FakeElement, key: string, ctrlKey = false): KeyOutcome {
   let stopped = false
   const event = {
     type: 'keydown',
-    key: DELETE_KEY,
-    code: DELETE_KEY,
+    key,
+    code: key,
     ctrlKey,
     shiftKey: false,
     altKey: false,
@@ -707,13 +711,19 @@ function pressKeyOn(drawn: DrawnField, target: FakeElement, ctrlKey = false): Ke
   return { commit: drawn.surface.readFieldCommit(), propagated: !stopped }
 }
 
-describe('AS-3 through the real DOM surface -- Del on a line releases that line only', () => {
+describe('SK-3 -- Delete and Backspace are the one delete key', () => {
+  it('01-04 holds the SK-3 row', () => {
+    expect(REQUIREMENTS).toContain(SK_3_ROW)
+  })
+})
+
+describe.each(DELETE_KEYS)('AS-3 / SK-3 through the real DOM surface -- %s on a line releases that line only', (key) => {
   it.each([
     ['Alpha', 0, ALPHA.uid],
     ['Bravo', 1, BRAVO.uid],
-  ] as const)('AS_3_ONLY_THAT_LINE: Del on %s\'s chooser -> "-" on that line, not propagated', (_name, at, uid) => {
+  ] as const)('AS_3_ONLY_THAT_LINE: the key on %s\'s chooser -> "-" on that line, not propagated', (_name, at, uid) => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.selects[at] as FakeElement)
+    const outcome = pressKeyOn(drawn, drawn.selects[at] as FakeElement, key)
     expect(outcome.commit).toEqual({ row: ASSIGNEE_ROW, key: lineKey(T_TWO, uid), text: UNASSIGN_TOKEN })
     expect(outcome.propagated, 'no Task delete may follow the key').toBe(false)
     expect(commandFromFieldCommit(outcome.commit as FieldCommit, CONTEXT).map(shapeOf)).toEqual([
@@ -721,23 +731,23 @@ describe('AS-3 through the real DOM surface -- Del on a line releases that line 
     ])
   })
 
-  it('AS_3_EMPTY_LINE_WRITES_NOTHING: Del on the empty line\'s chooser -> its commit writes nothing', () => {
+  it('AS_3_EMPTY_LINE_WRITES_NOTHING: the key on the empty line\'s chooser -> its commit writes nothing', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.selects[2] as FakeElement)
+    const outcome = pressKeyOn(drawn, drawn.selects[2] as FakeElement, key)
     expect(outcome.commit).toEqual({ row: ASSIGNEE_ROW, key: lineKey(T_TWO, null), text: UNASSIGN_TOKEN })
     expect(outcome.propagated).toBe(false)
     expect(commandFromFieldCommit(outcome.commit as FieldCommit, CONTEXT)).toEqual([])
   })
 
-  it('control: Del in a line\'s search box is text editing -- no commit, and the key goes on', () => {
+  it('control: the key in a line\'s search box is text editing -- no commit, and the key goes on', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    const outcome = pressKeyOn(drawn, drawn.searches[1] as FakeElement)
+    const outcome = pressKeyOn(drawn, drawn.searches[1] as FakeElement, key)
     expect(outcome.commit).toBe(null)
     expect(outcome.propagated).toBe(true)
   })
 
-  it('control: Ctrl+Del on a chooser commits nothing', () => {
+  it('control: Ctrl with the key on a chooser commits nothing', () => {
     const drawn = drawnAssigneeField(T_TWO)
-    expect(pressKeyOn(drawn, drawn.selects[1] as FakeElement, true).commit).toBe(null)
+    expect(pressKeyOn(drawn, drawn.selects[1] as FakeElement, key, true).commit).toBe(null)
   })
 })
