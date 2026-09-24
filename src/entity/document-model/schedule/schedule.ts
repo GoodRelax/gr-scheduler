@@ -1,4 +1,4 @@
-// Schedule: public entry; stored colours and the document invariants.
+// Schedule: public entry; the document invariants of table T-220.
 // @unit      UF-1   (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -10,7 +10,6 @@ import {
   type SettingsBoundToken,
 } from '../document-settings/document-settings'
 import {
-  COLUMN_SHAPES,
   DATE_COLUMNS,
   ENTITY_ROWS,
   type EntityRows,
@@ -29,6 +28,7 @@ import {
   actualLengthOf,
   workingCalendarOf,
 } from './working-calendar'
+import { TRANSPARENT } from './stored-colour'
 
 export {
   COLUMN_DEFAULTS,
@@ -83,6 +83,13 @@ export {
 } from './working-calendar'
 export type { WorkingCalendar } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
+export {
+  customColourChosen,
+  customColourOf,
+  customSideOf,
+  isStoredColour,
+} from './stored-colour'
+export type { CustomColour } from './stored-colour'
 
 /** @purity pure */
 export function taskByUid(schedule: Schedule, uid: number): Task | null {
@@ -120,61 +127,6 @@ interface Invariant {
   readonly row: string
   readonly kind: InvariantKind
   readonly find: (subject: DocumentUnderTest) => readonly Breach[]
-}
-
-const TRANSPARENT = 'transparent'
-
-// see CV-2
-export interface CustomColour {
-  readonly light: string | null
-  readonly dark: string | null
-}
-
-const SIDE_HEX = /^#[0-9a-fA-F]{6}$/
-
-const CUSTOM_SIDES_CUT = '/'
-
-// see CV-1, T-294
-const PALETTE_SPELLINGS: readonly string[] = COLUMN_SHAPES.TaskVisual['fillColor']?.choices ?? []
-
-// see CV-2
-/** @purity pure */
-export function customColourOf(stored: string): CustomColour | null {
-  const sides = stored.split(CUSTOM_SIDES_CUT)
-  if (sides.length !== 2) return null
-  const [light = '', dark = ''] = sides
-  if (light === '' && dark === '') return null
-  if ((light !== '' && !SIDE_HEX.test(light)) || (dark !== '' && !SIDE_HEX.test(dark))) return null
-  return {
-    light: light === '' ? null : light.toLowerCase(),
-    dark: dark === '' ? null : dark.toLowerCase(),
-  }
-}
-
-// see CV-3
-/** @purity pure */
-export function customSideOf(colour: CustomColour, dark: boolean): string {
-  const drawn = dark ? (colour.dark ?? colour.light) : (colour.light ?? colour.dark)
-  return drawn ?? ''
-}
-
-// see CV-1, CV-2, FR-019
-/** @purity pure */
-export function isStoredColour(text: string, allowsTransparent: boolean): boolean {
-  if (PALETTE_SPELLINGS.includes(text)) return allowsTransparent || text !== TRANSPARENT
-  return customColourOf(text) !== null
-}
-
-// see CV-4
-// WHY: null when chosen is not one #rrggbb, i.e. not a pick from the custom entrance.
-/** @purity pure */
-export function customColourChosen(previous: string | null, chosen: string, dark: boolean): string | null {
-  if (!SIDE_HEX.test(chosen)) return null
-  const kept = previous === null ? null : customColourOf(previous)
-  const hex = chosen.toLowerCase()
-  const light = dark ? (kept?.light ?? null) : hex
-  const darkSide = dark ? hex : (kept?.dark ?? null)
-  return `${light ?? ''}${CUSTOM_SIDES_CUT}${darkSide ?? ''}`
 }
 
 interface AcceptedDays {
