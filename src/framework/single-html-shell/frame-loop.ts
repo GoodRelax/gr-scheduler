@@ -1792,7 +1792,7 @@ function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): bool
 
 // see BO-1
 /** @purity pure */
-function settled(env: FrameEnvironment): boolean {
+function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
@@ -2410,7 +2410,7 @@ export function frameLoop(
       held = next
       pruneChoiceTo(selectionWithinSchedule(selectedObjectsIn(session), held.document.schedule))
       // TRAP: Agent API writes reach only this door; without this ask they are never painted.
-      if (settled(environment)) ask()
+      if (isSizeSettled(environment)) ask()
     },
   }
 
@@ -2832,7 +2832,7 @@ export function frameLoop(
       return
     }
     if (input.kind !== 'key' || screen === undefined) return
-    if (owed && settled(environment)) runFrame()
+    if (owed && isSizeSettled(environment)) runFrame()
     else focusWantedField(screen.focusPropertyField)
   }
 
@@ -2848,13 +2848,13 @@ export function frameLoop(
   function endFileOperation(ended: SessionEvent): void {
     sendToSession(ended, null)
     // TRAP: ask even when nothing was raised, or a finished save paints nothing until next input.
-    if (settled(environment)) ask()
+    if (isSizeSettled(environment)) ask()
   }
 
   /** @purity non-pure */
   function sendFromFlow(event: SessionEvent): void {
     sendToSession(event, values)
-    if (settled(environment)) ask()
+    if (isSizeSettled(environment)) ask()
   }
 
   /** @purity non-pure */
@@ -2912,7 +2912,7 @@ export function frameLoop(
     const wake = setTimeout(() => {
       callOffScaleMessage = null
       sendToSession({ type: 'scaleMessageTimeElapsed' }, null)
-      if (settled(environment)) ask()
+      if (isSizeSettled(environment)) ask()
     }, NOT_STORED_SCALE_MESSAGE_TIMES['S-244'])
     callOffScaleMessage = () => clearTimeout(wake)
   }
@@ -2978,7 +2978,7 @@ export function frameLoop(
   /** @purity non-pure */
   function raiseNotice(reason: NoticeReason, affectedCount: number | null): void {
     sendToSession({ type: 'noticeRaised', reason, affectedCount }, null)
-    if (settled(environment)) ask()
+    if (isSizeSettled(environment)) ask()
   }
 
   // see NT-8, T-286
@@ -3048,7 +3048,7 @@ export function frameLoop(
   // WHY: the cap stop rides on the scene (CR-440 decision 9), so an export owes its telling by value.
   /** @purity semi-pure-b */
   function exportScene(): ExportSceneWithCapStop | null {
-    if (!settled(environment)) return null
+    if (!isSizeSettled(environment)) return null
     const document = held.document
     const withPanelsClosed: DocumentSettings = {
       ...document.documentSettings,
@@ -3293,7 +3293,7 @@ export function frameLoop(
       deliver(): void {
         // DEVIATION: spec says writes are refused while notices go out (Chapter 5.5); here not for utterances (DFC-562)
         audience.deliver(held.document, false)
-        if (settled(environment)) ask()
+        if (isSizeSettled(environment)) ask()
       },
     },
   }
@@ -3627,7 +3627,7 @@ export function frameLoop(
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
         fitHeldForNoPlace = null
       }
-      if (settled(environment)) ask()
+      if (isSizeSettled(environment)) ask()
       return true
     }
     raiseWriteRefusal(outcome.refusal)
@@ -4698,7 +4698,7 @@ export function frameLoop(
     if (owesAFrame) ask()
   }
 
-  if (settled(environment)) runFrame()
+  if (isSizeSettled(environment)) runFrame()
 
   return {
     // see FR-100
@@ -4742,9 +4742,9 @@ export function frameLoop(
     /** @purity non-pure */
     resize(next: FrameEnvironment): void {
       if (isSameEnvironment(next, environment)) return
-      const wasSettled = settled(environment)
+      const wasSettled = isSizeSettled(environment)
       environment = next
-      if (!settled(next)) return
+      if (!isSizeSettled(next)) return
       if (!wasSettled) runFrame()
       else ask()
     },
@@ -4752,7 +4752,7 @@ export function frameLoop(
     settleFirstFrameEnvironment(next: FrameEnvironment): void {
       if (isSameEnvironment(next, environment)) return
       environment = next
-      if (!settled(next)) return
+      if (!isSizeSettled(next)) return
       runFrame()
     },
     /** @purity semi-pure-b */
@@ -4785,17 +4785,17 @@ export function frameLoop(
     fullScreenChanged(isFullScreen: boolean): void {
       const before = session
       sendToSession({ type: 'fullScreenChanged', isFullScreen }, values)
-      if (session !== before && settled(environment)) ask()
+      if (session !== before && isSizeSettled(environment)) ask()
     },
     /** @purity non-pure */
     pressContinued(): void {
-      if (settled(environment)) ask()
+      if (isSizeSettled(environment)) ask()
     },
     // WHY: the store took the file in its capture listener; a host with no store still wakes (FT-1).
     /** @purity non-pure */
     fileDropped(): void {
       if (files !== undefined) sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_DROP }, values)
-      if (settled(environment)) ask()
+      if (isSizeSettled(environment)) ask()
     },
   }
 }
