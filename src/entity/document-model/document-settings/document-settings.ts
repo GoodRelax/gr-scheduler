@@ -461,7 +461,7 @@ function replace(value: unknown, path: readonly string[], put: number): unknown 
   return { ...held, [head]: rest.length === 0 ? put : replace(held[head], rest, put) }
 }
 
-// TRAP: repeats boundValueOf of schedule.ts (IV-16); change both together.
+// TRAP: repeats boundValueOf of schedule-invariants.ts (IV-16); change both together.
 /** @purity pure */
 function expressionValueOf(expression: readonly SettingsBoundToken[], held: unknown): number | null {
   const stack: number[] = []

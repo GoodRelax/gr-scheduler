@@ -1257,7 +1257,7 @@ export type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActu
 
 export type ActualEndHold = 'GA-3' | 'GA-4' | 'GA-12' | 'GA-13' | 'GA-16'
 
-// TRAP: schedule.ts holds the same walk under the same name; change both together.
+// TRAP: schedule-invariants.ts holds the same walk under the same name; change both together.
 // see IV-19
 /** @purity pure */
 export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {

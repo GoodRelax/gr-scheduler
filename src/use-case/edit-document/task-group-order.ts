@@ -11,7 +11,7 @@ import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, subtreeOf, withSchedule } from './edit-task-group'
 
 // see HM-9
-// TRAP: schedule.ts and the input translator walk the row tree the same way; change all three.
+// TRAP: schedule-invariants.ts and the input translator walk the row tree the same way; change all three.
 /** @purity pure */
 function rowTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()

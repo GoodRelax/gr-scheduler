@@ -59,8 +59,8 @@ HELD src/adapter/svg-renderer/schedule-task-figures.ts::dependencyLinkParts line
 HELD src/adapter/svg-renderer/schedule-task-figures.ts::taskFigureParts lines=208 branches=45
 HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=221 branches=19
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
-HELD src/entity/document-model/schedule/schedule.ts::find~16 lines=52 branches=10
-HELD src/entity/document-model/schedule/schedule.ts::nestingOf lines=61 branches=14
+HELD src/entity/document-model/schedule/schedule-invariants.ts::find~16 lines=52 branches=10
+HELD src/entity/document-model/schedule/schedule-invariants.ts::nestingOf lines=61 branches=14
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=62 branches=9
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::progressLineOf lines=40 branches=16
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::routeOf lines=68 branches=11
