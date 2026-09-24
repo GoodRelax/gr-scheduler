@@ -276,7 +276,6 @@ function shares(centre: Point, half: number, pairs: readonly (readonly [number, 
   return pairs.map(([u, v]) => share(centre, half, u, v))
 }
 
-/** @purity pure */
 const PICTORIAL: Readonly<Record<string, {
   readonly body: readonly (readonly [number, number])[]
   readonly marks: readonly (readonly (readonly [number, number])[])[]
@@ -335,6 +334,7 @@ function milestoneMarks(centre: Point, side: number, glyph: MilestoneGlyph): rea
   return drawn.marks.map((one) => shares(centre, side / 2, one))
 }
 
+/** @purity pure */
 function milestoneOutline(
   centre: Point,
   side: number,

@@ -2639,7 +2639,7 @@ export function frameLoop(
   }
 
   // see OP-10
-  /** @purity semi-pure-b */
+  /** @purity non-pure */
   function viewSettingsOnce(
     document: Document,
     stored: DocumentSettings,
@@ -3476,7 +3476,7 @@ export function frameLoop(
     return true
   }
 
-  /** @purity semi-pure-b */
+  /** @purity non-pure */
   function bandCeilingFor(context: InputContext, drawnZoomX: number, upTo: number): number {
     const held = bandCeilingFrom
     const schedule = context.document.schedule
