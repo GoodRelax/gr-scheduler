@@ -99,8 +99,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SETTINGS_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
                            'document-settings', 'document-settings.ts')
-SCHEDULE_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
-                           'schedule', 'schedule.ts')
+SCHEDULE_ENTITIES_TS = os.path.join(ROOT, 'src', 'entity', 'document-model',
+                                    'schedule', 'schedule-entities.ts')
 SETTINGS_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
 OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
@@ -1047,7 +1047,7 @@ def manuscript_number(row_id):
 # The calendar the whole document is laid out on
 # ---------------------------------------------------------------------------
 
-CALENDAR_VALUES = generated_object(SCHEDULE_TS, 'DEFAULT_CALENDAR_VALUES')
+CALENDAR_VALUES = generated_object(SCHEDULE_ENTITIES_TS, 'DEFAULT_CALENDAR_VALUES')
 # S-106 is in the `WeekDay.dayType` encoding, where Sunday is 1; Python's
 # `weekday()` has Monday at 0. ⛔ The two do not share a numbering, and the
 # manuscript says so in as many words -- converting between them is the

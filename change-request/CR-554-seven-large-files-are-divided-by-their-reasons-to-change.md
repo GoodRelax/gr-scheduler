@@ -501,7 +501,7 @@
 - **ファイルの中の波**: S1 ＝ `schedule-generated.ts`（⛔ **最初にしないと、S2 以降で TDZ の輪ができる**）→ S2 ＝ `plan-actual-state` → S3 ＝ `working-calendar` → S4 ＝ `task-delay` → S5 ＝ `custom-colour` → S6 ＝ `schedule-invariants`。
 - **S1 の手順（生成器の出力先を変える）**: 表 T-075 に行を足す → `tools/generate_unit_tree.py` が空の雛形を作る → `npm run gen` が区画を足す → 旧 `schedule.ts` の区画は的でなくなるので、同じコミットで消す（`generate_entity_types.py:2652` は的のファイルが無いと `MISSING` で止まる）。
   書き換える所: `tools/generate_entity_types.py:2125-2127`（`TARGETS`）と docstring `:9`、`:2479-2484`（`PUBLISHED_READ_BY_SRC` の鍵を新しいパスへ。中身に `ENTITY_ROWS` を足す）、`tools/generate_startup_template.py:102-103`・`:1050`（ファイルの字を読む道具。直さないと検査 27 の `startup:check` が赤）、`.claude/skills/spec-graph-check/check-provenance.py:65`、`docs/development-rules/09-tools.md:141`。
-  `UF-126` の見出しの純粋性は `@purity    n/a`（前例 `snapshot-source.ts:4`）、表 T-075 の純粋性は `—` とする。
+  `UF-126` の見出しの純粋性は `@purity    pure`、表 T-075 の純粋性も `pure` とする —— 生成した型と不変の定数だけを持ち、関数も副作用も外の読みも無い。`n/a` は表 T-065 の宣言 8 つだけに使う（audit-ch5.py:228-235）。
 - **他のファイルの `TRAP` の文（コメントだけ）**: `input-command-translator.ts:1241`・`document-settings.ts:467`・`task-group-order.ts:14` が `schedule.ts` を名指す ⇒ S6 のコミットで `schedule-invariants.ts` へ直す。
 
 ### 4.7 `json-codec.ts`（`UF-35`）—— ⭐ 割る: 生成器の出力先を変え、兄弟 1
@@ -568,7 +568,7 @@
 
 ## 5. 新しい識別子
 
-- `UF-126` 〜 `UF-168` は `a912f4ea` で空いている（`grep -rhoE "\bUF-[0-9]+" docs change-request src tests tools .claude/skills` の最大は `UF-125`。2026-09-23 に測った）。
+- `UF-126` 〜 `UF-168` は `a912f4ea` では未使用だった（着手の時に 15.2 で測り直し、分割のコミットが使い始めた。`grep -rhoE "\bUF-[0-9]+" docs change-request src tests tools .claude/skills` の最大は `UF-125`。2026-09-23 に測った）。
   帯は調整役（セッション「handoff.md リファクタと不具合修正」）から受けた。最初の帯 `UF-126` 〜 `UF-160` は 35 で足りず、2026-09-23 に `UF-168` まで延ばしてもらった。
   ⛔ 当てる直前に測り直すこと（`02-changing-the-spec.md` の 2.5、検査 62）。
 - 割り当て（表 T-075 の並び順）:
@@ -606,7 +606,7 @@
    ファイルの順（6.2）は変えない。8 本が触る所は 8 節の末の表にある。
    ⭐ 利用者はこの順を認めた（2026-09-24、調整役のセッションで、逐語）: 「順番は提案通りで進めろ。」
 2. `handoff.md` の 1 通目の 2 の ① の後続 H2〜H10 が着地していること。とくに `frame-loop.ts` を触る H3（押し続けとドロップでフレームを起こす）・H4（複数のタスクの貼り付け）・H7（`PND-181` の STOP）・H8（`CR-549` の `@provisional`）・H9（倍率の端で `FR-029` の通知を出さない）。
-3. **着手の時に、本書の数をすべて測り直す**: 行数、関数名で引き直した範囲、共変（13 節の手 1）、`HELD` の値、取り込みの数、`UF-126` 〜 `UF-168` と表 T-063 の番号が空いていること。
+3. **着手の時に、本書の数をすべて測り直す**: 行数、関数名で引き直した範囲、共変（13 節の手 1）、`HELD` の値、取り込みの数、`UF-126` 〜 `UF-168` と表 T-063 の番号がまだ使われていないこと（着手の時に 1 度だけ確かめる —— 15.2）。
    測り直して、4 節の判定が変わる組（とくに縁の 3 組 —— `pointer-shape` 〜 `held-press-preview` 0.50、`task-figures` 〜 `comment-box` 0.50、`label-placement` の検査 55）が出たら、割る前に本書の 15 節（まだ無い）に書き、前に立つ者が判ずる。
 4. 緑の基準: `vitest`・`check.sh`・`npm run gen:check` の赤の集合を、割る前に 1 度記録する（割ったあとに同じであることで判ずる）。
 
@@ -1359,7 +1359,7 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 | UF | ファイル | 責務文（R2.2a の畳み） | 持つ宣言（名で） | @purity | 取り込みと輪 |
 | --- | --- | --- | --- | --- | --- |
 | `UF-1` | `schedule.ts`（入口） | 4.6 のまま。<br>見出しの 1 行目を書き直す（15.6.9 の MUST 10） | `:1-12`、`taskByUid`、出し直しの行 | `pure` | 出し直すだけ |
-| `UF-126` | `schedule-entities.ts`（旧 `schedule-generated.ts`） | 「日程データの群のエンティティ（表 T-056）の型と、列（表 T-058）と既定の暦（表 T-209）の定数を持つ」。<br>手で直さない・`npm run gen` が書くは (c) | 生成の区画（`c48f9736` の `:13-691`） | `—`（見出しは `n/a`） | 葉 |
+| `UF-126` | `schedule-entities.ts`（旧 `schedule-generated.ts`） | 「日程データの群のエンティティ（表 T-056）の型と、列（表 T-058）と既定の暦（表 T-209）の定数を持つ」。<br>手で直さない・`npm run gen` が書くは (c) | 生成の区画（`c48f9736` の `:13-691`） | `pure`（生成した型と不変の定数だけを持ち、関数も副作用も外の読みも無い。`n/a` は表 T-065 の宣言 8 つだけに使う（audit-ch5.py:228-235）） | 葉 |
 | `UF-127` | `plan-actual-state.ts` | 4.6 のまま | `planActualState` | `pure` | → `schedule-entities` |
 | `UF-170` | `calendar-day.ts`（新） | 「暦の日付（`CalendarDay`）を字と相互に変え、比べ、日の番号で数える（`EX-2`・`EX-7`・`FD-6`）」。<br>年月日の隔たり（`DC-3`、`calendarSpanOf`）は (b)。<br>時差で日を動かさない・0〜99 年の扱いは (c) | `CalendarDay` 〜 `dayFromSerial`（`c48f9736` の `:714-813`）。<br>`serial` と `dayFromSerial` に `export` を付ける | `pure` | 葉 |
 | `UF-128` | `working-calendar.ts` | 「文書の暦で稼働日を判じ、数え、進める（`FR-054`）」。<br>実績の長さ（両端を含む）とその逆算（`FR-011`・`IV-21`）は (b)。<br>受け入れる日付の範囲（表 T-214）を越えたら投げる・暦が無ければ既定の暦（`S-106`）は (c) | `WorkingCalendar` 〜 `lastDayForLength`（`c48f9736` の `:814-1014`） | `pure` | → `calendar-day`・`plan-actual-state`・`schedule-entities` |

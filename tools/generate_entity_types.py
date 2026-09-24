@@ -6,10 +6,10 @@ The columns of the document already exist in machine-readable form -- the same
 second time by hand would be 138 chances to drift from it, so they are
 generated into the units that Chapter 5.3 says own them:
 
-  src/entity/document-model/schedule/schedule.ts        the 18 entity types
-                                                        and the Schedule group
-  src/entity/document-model/document-stamp/…            the stamp and the log
-  src/entity/document-model/document-settings/…         the presentation group
+  src/entity/document-model/schedule/schedule-entities.ts  the 18 entity types
+                                                           and the Schedule group
+  src/entity/document-model/document-stamp/…               the stamp and the log
+  src/entity/document-model/document-settings/…            the presentation group
 
 The presentation group is read from grs-document.schema.json rather than from
 tbl-settings.md a second time: check 17 already keeps that artifact in step
@@ -181,8 +181,8 @@ def date_columns_block(erd):
 # ⚠️ READ FROM erd.json AND NOT FROM grs-document.schema.json, although the
 # paragraph names the schema. That file is ITSELF generated from erd.json by
 # erd_json_to_schema.py, so erd.json is the manuscript -- and naming a third
-# source in schedule.ts's banner would push its "Rebuild:" line out of the
-# window check 27 reads a banner in.
+# source in schedule-entities.ts's banner would push its "Rebuild:" line out of
+# the window check 27 reads a banner in.
 SHAPED_ENTITIES = ['Task', 'TaskVisual', 'TaskGroup', 'Dependency', 'CommentBox', 'HighlightBox']
 
 COLUMN_SHAPES_NOTE = [
@@ -2167,7 +2167,7 @@ def flat_keys(node, prefix):
 # settings.json -- sends the next reader to the wrong file, which is the same
 # failure as having none.
 TARGETS = [
-    (os.path.join(MODEL, 'schedule', 'schedule.ts'), schedule_block,
+    (os.path.join(MODEL, 'schedule', 'schedule-entities.ts'), schedule_block,
      ['docs/spec/_source/erd.json',
       'docs/spec/_source/settings.json (table T-209)']),
     (os.path.join(MODEL, 'document-stamp', 'document-stamp.ts'), stamp_block,
@@ -2528,11 +2528,12 @@ PUBLISHED_READ_BY_SRC = {
     'src/entity/document-model/edit-history/edit-history.ts': (
         'NOT_STORED_LIMITS',
     ),
-    'src/entity/document-model/schedule/schedule.ts': (
+    'src/entity/document-model/schedule/schedule-entities.ts': (
         'COLUMN_DEFAULTS',
         'COLUMN_SHAPES',
         'DATE_COLUMNS',
         'DEFAULT_CALENDAR_VALUES',
+        'ENTITY_ROWS',
     ),
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_LABEL_SIZES',
