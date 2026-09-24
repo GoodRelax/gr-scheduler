@@ -1,4 +1,5 @@
-excess-lines=7244 excess-branches=680
+excess-lines=7191 excess-branches=676
+# LOWERED 7244/680 -> 7191/676 on 2026-09-24 under JDG-520: DFC-806 moved the highlight-box double-click out of frameLoop and carryOutAction; measured on 032c2023.
 # LOWERED 7254/680 -> 7244/680 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking): H2..H4, H7 and E-24 shrank layoutFromSchedule, carryOutAction, frameLoop and boot; measured on a42c0cb4.
 # LOWERED 7309/688 -> 7254/680 on 2026-09-24, approved by the user in chat (JDG-404): CR-551 shrank commandFromVisualColumn and fitZoom out of the band, and commandFromEntry, commandFromKey, layoutFromSchedule, domScreenSurface, frameLoop and editTask; measured on 1997822d.
 # LOWERED 7568/751 -> 7309/688 on 2026-09-23, approved by the user in chat (JDG-391: rewrite to measured values until stage 7.5 splits these): fieldEditingOf 417 -> 469 (CR-500 wave B notices + clearing a whole date on Delete/Backspace), runFrame 123/12 -> 124/11, owesFrame left the band; the other drops are the stage 7 wave B wiring and CR-530 decision 6, measured on 73c2bc90.
@@ -37,7 +38,7 @@ HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn
 HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=156 branches=70
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=44 branches=21
-HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=168 branches=69
+HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69
 HELD src/adapter/input-command-translator/item-grab.ts::highlightBoxRangeWrite lines=82 branches=31
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabLandingOf lines=56 branches=7
 HELD src/adapter/input-command-translator/row-grab.ts::rowGrabPlacesInDrawingOrder lines=74 branches=16
@@ -77,9 +78,9 @@ HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElemen
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=255 branches=0
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=84 branches=21
-HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=208 branches=51
+HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=182 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=85 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2512 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2486 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=159 branches=32
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=149 branches=62
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=124 branches=11
