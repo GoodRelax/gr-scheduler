@@ -833,7 +833,7 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 - 範囲は、本書の範囲を束ねる関数名で引き直した。
   `a912f4ea` の後に生まれた宣言の置き場は 15.3 の 3 に書いた。
 - `UD-4` は 7 ファイルすべてでスクリプトが表明した —— 引き直した範囲がファイルのすべての行をちょうど 1 度覆う（重なり 0、漏れ 0、合計 ＝ `wc -l`）。
-  15.3 の 1 で `UF-162` の範囲を `UF-165` へ移しても、覆い方は変わらない。
+  `UF-162` の範囲は 4.1 のままである（15.3 の 1）。
 - 6.1 の 1・2 の入口の条件は満たされていた: `CR-551` の波 0〜3（`6f674198`・`d4d87a08`・`f25fe735`・`14d34791`・`7c195c50`・`e122fd55`・`2753f20f`・`2a407232`）、`CR-552`（`989c7572`）、`CR-553`（`51827071`・`bfc27af9` ほか）、H2・H3・H4・H7・H10（`18db8646`・`0d446d12`・`bd83a718`・`338f39bf`・`121782d5`）と E-24（`a42c0cb4`）。
   H1・H6・H8・H9 は `a912f4ea` より前に着地していた（`b9e6b4e0` の申し送り）。
 
@@ -1019,26 +1019,23 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 
 ### 15.3 前に立つ者の判断
 
-1. ⛔ `confirmation-questions` を割らず、`document-file-flow.ts` に戻す。
-   測った理由: `confirmation-questions` 〜 `document-file-flow` は 0.60（5 件中 3）である。
+1. ⭐ `confirmation-questions.ts`（`UF-162`）は 4.1 のとおり割る。縁の組として前に立つ者が判じた（6.1 の 3）。
+   測った数: `confirmation-questions` 〜 `document-file-flow` は 0.60（5 件中 3）である。
    `a912f4ea` では 4 件中 3 で、小さい側が下限に届かず証拠なしだった。
-   `e122fd55`（`CR-551` の項目 13）が `confirmationOwedBy` に引数 `asked` を足し、小さい側を 5 件にした。
+   `e122fd55`（`CR-551` の項目 13）が `confirmationOwedBy` に引数 `asked` を足し、小さい側をちょうど下限の 5 件にした。
    共に変えた 3 件は `1226da34`・`35bcaafe`・`4b9687e8`（波 B）である。
-   2.1 の S2 の規則（0.5 を超え、小さい側 5 件以上）で、この継ぎ目は拒まれる。
-   感度: 波 B の結線を除くと 4 件中 2 で、証拠なしになる。
-   これは記録にとどめ、判定には使わない（2.3）。
-   ⇒ `UF-162` の範囲（`ConfirmationQuestion` ・ `UNASSIGNMENT_QUESTION` ・ `rowsLostWith` .. `tasksLostWith` ・ `confirmationOwedBy` .. `confirmationOwedByResourceDeletion`）は `document-file-flow.ts`（`UF-165`）へ入る。
-   `UF-165` の責務文は表 T-234 の問い（`QN-3`・`CD-1`・`CD-2`・`CD-5`）を足す。
-   `QN-4`・`QN-5` は既に持っていた。
-   新しい文は 15.4 にある。
-   ⛔ `UF-162` は取り下げ、ほかの意味にも使わない（欠番）。
-   ほかの番号は付け替えない —— `CR-555`・`CR-556`・`CR-558` 〜 `CR-561`・`CR-565` が `UF-126` 〜 `UF-168` を本書のユニットとして引いているからである。
-   ⇒ 使う帯は `UF-126` 〜 `UF-161` と `UF-163` 〜 `UF-168` の 42 ユニットである。
-   連なって変わる数: 5 節の表の `frame-loop.ts` の行は 12 → 11、計 43 → 42 になる。
-   7 節で 表 T-075 に足す行は 42、`SU-3`・`units.contract.test.ts:50-51` は 114 → 156 になる。
-   `05-07-design.md:253` の並びと `changelog.md:47` の文（15.3 の 8）の `SingleHtmlShell` は、15 ではなく 14 である（3 ＋ 兄弟 11）。
-   4.1 の兄弟どうしの取り込み `document-file-flow` → `confirmation-questions` は無くなる。
-   8 節の `CR-551` の項目 13 の置き場は `UF-165` になる。
+   形の上では 2.1 の S2 の規則（0.5 を超え、小さい側 5 件以上）に当たる。
+   それでも割る理由:
+   - 利用者の指示（2026-09-24、本書を当てるセッションで、逐語）「SRP / 命名規則 / 名は体を表す に気を付けて、そのまま進めろ」。
+     戻すと `document-file-flow.ts` が、行の削除（`CD-1`・`CD-2`）と担当の外し（`CD-5`）の問いを持つ。
+     この 2 つは入口の `carryOutAction`（`confirmationOwedBy`）と `answerSettledEntry`（`confirmationOwedByResourceDeletion`）が呼ぶ編集の問いであり、ファイルの流れではない ⇒ 名が体を表さなくなる。
+     ファイルの流れが使うのは `tasksLostWith` だけである（取り込みで落とすタスクを数える、`c48f9736` の `frame-loop.ts:3791`）。
+   - 変更の理由が別である（`UD-1`）—— 書き込みが消すものを数える規則（表 T-234 の `QN-3`・`CD-1`・`CD-2`・`CD-5`）と、開く・保存する・書き出す流れ（表 T-290）。
+   - 証拠は下限ちょうどで、3 件のうち `4b9687e8` は全領域に触った状態機械の結線である。除くと 4 件中 2 で証拠なしになる（2.3 の感度。判定の決め手にはしないが、縁の判じの材料にした）。
+   ⇒ 番号・範囲・兄弟どうしの取り込み（`document-file-flow` → `confirmation-questions`）は 4.1 のままである。`CR-551` の項目 13 の置き場は `UF-162` である。
+   ⚠️ 割ったあとで 2 つが共に変わり続けたら（次の 2 件のうち 1 件でも両方に触れたら）、1 つに戻す別の変更要求を起こす。
+   数: 表 T-075 に足す行は 43、`SU-3`・`units.contract.test.ts:50-51` は 114 → 157、`05-07-design.md:253` の並びと `changelog.md:47` の文（15.3 の 8）の `SingleHtmlShell` は 15（3 ＋ 兄弟 12）である。
+   ⚠️ 本項は最初、規則どおり 2 つを 1 つに戻すと書いた（`bc34b969`）。利用者の上の指示を受けて覆した。
 2. `pointer-shape` 〜 `held-press-preview`（0.50、16 件中 8）と `task-figures` 〜 `comment-box`（0.50、6 件中 3）は、測り直してもまだ 0.5 を超えない。
    `e122fd55` は `pointer-shape` だけに、`d4d87a08` は `task-figures` だけに触った。
    ⇒ どちらも割ったままにする（4.1・4.4 の MUST の条件に当たらない）。
@@ -1161,10 +1158,10 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 | --- | --- | --- |
 | `UF-48` `frame-loop.ts` | ＋ 15.3 の 3 の入口の名（`fileDropped` のメンバを含む） ／ − `scrolledPastOf`。<br>閉包の `settled`・`isSameEnvironment` は頂上へ上がった | 2,769 ＋ 生成 77 |
 | `UF-157` `pointer-shape.ts` | 名は同じ（`CR-551` の項目 11 の `'GR-16'`・`PK-10` の項が入った） | 352 |
-| `UF-162` `confirmation-questions.ts` | ⛔ 取り下げ（15.3 の 1） | —— |
+| `UF-162` `confirmation-questions.ts` | 名は同じ（`CR-551` の項目 13 の `asked` が入った）。割る（15.3 の 1） | 114 |
 | `UF-163` `frame-clock-wakes.ts` | 名は同じ | 66 |
 | `UF-164` `field-focus.ts` | ＋ `HIGHLIGHT_BOX_STROKE_FIELD_ROW`・`InPlaceKind`・`FIELD_ROW_OF_IN_PLACE_TARGET` | 137 |
-| `UF-165` `document-file-flow.ts` | ＋ `UF-162` の範囲すべて、`OPEN_ROUTE_FROM_DROP`、`fileDropped` の本体 | 758（644 ＋ 114） |
+| `UF-165` `document-file-flow.ts` | ＋ `OPEN_ROUTE_FROM_DROP`、`fileDropped` の本体 | 644 |
 | `UF-166` `watermark-unlock.ts` | 名は同じ（`PND-181` の STOP の 3 行が `// see` の 1 行になった） | 56 |
 | `UF-168` `copy-and-paste.ts` | ＋ `SelectionCopied`・`copiedForPasteOf`・`pasteRefusedFor` | 94 |
 
@@ -1174,7 +1171,7 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 
 | 行 ID | ユニット | 責務文（S5、畳んだ句と根拠） |
 | --- | --- | --- |
-| `UF-165` | `document-file-flow.ts` | 「文書のファイルの流れ（表 T-290）—— 開く・保存する・書き出す・渡された文書を取り込む —— をファイルの門を通して運ぶ」。<br>4 つの列挙は 1 つの機械の範囲なので (b)。<br>「開く前に検証し、使えない日付のタスクを落とす（`FR-023`）」「書き込みが消すものを数えて表 T-234 の問いを立てるかを決め（`FR-032`・`FR-099` の `QN-3`、`CD-1`・`CD-2`・`CD-5`）、問いの答えを待つ（`QN-4`・`QN-5`・`OP-3`・表 T-032a）」は (a) —— どの問いも表 T-290 の機械の問い（`FileFlowQuestion`）である。<br>「失敗を表 T-233 の理由で告げる」は (c) |
+| `UF-165` | `document-file-flow.ts` | 「文書のファイルの流れ（表 T-290）—— 開く・保存する・書き出す・渡された文書を取り込む —— をファイルの門を通して運ぶ」。<br>4 つの列挙は 1 つの機械の範囲なので (b)。<br>「開く前に検証し、使えない日付のタスクを落とす（`FR-023`）」「問いの答えを待つ（`QN-4`・`QN-5`・`OP-3`・表 T-032a）」は (a)。<br>「ドロップで渡されたファイルを開く（H3 の `OPEN_ROUTE_FROM_DROP`）」は (b)。<br>「失敗を表 T-233 の理由で告げる」は (c)。<br>書き込みが消すものを数える問い（表 T-234 の `QN-3`・`CD-1`・`CD-2`・`CD-5`）は `UF-162` が持つ（15.3 の 1） |
 
 #### `schedule-layout.ts`（計 1,632）
 
@@ -1238,6 +1235,6 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 | `item-hit-area.ts` | 1 つ（4.5 のまま） |
 | `json-codec.ts` | 1 つ（生成器の出力先の変更と `collectionNamesOfEntity` の移しを同じ波で） |
 | `mspdi-codec.ts` | M1 〜 M4（4.8 のまま） |
-| `frame-loop.ts` | F1 ＝ `browser-stored-values`（`UF-162` は無い）→ F2 ・ F3 は 4.1 のまま → F4 ＝ `document-file-flow`（問いを持つ `UF-165`） |
+| `frame-loop.ts` | F1 〜 F4（4.1 のまま。`UF-162` は F1） |
 
 ファイルの順（6.2）と、1 つのファイルを割る体は同時に 1 体だけという約束は変わらない。
