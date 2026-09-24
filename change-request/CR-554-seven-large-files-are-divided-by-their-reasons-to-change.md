@@ -1,6 +1,12 @@
 # CR-554 — 大きなファイルを調べ、7 本を変更の理由で割る計画（段 7.5）
 
-> ⭐ **状態: 計画（未適用）。2026-09-23 起草。10 節の問い 1 は同じ日に利用者が答えた（案 A）。**
+> ⭐ **状態: 計画（未適用）。**
+> 2026-09-23 起草。
+> 10 節の問い 1 は同じ日に利用者が答えた（案 A）。
+> ⭐ **2026-09-24、当てる前に `c48f9736` で測り直した。**
+> ⛔ **測り直した値と前に立つ者の判断は 15 節にある。**
+> ⛔ **15 節が 1〜9 節と食い違うところは、15 節が勝つ。**
+> 1〜9 節は `a912f4ea` の値のまま、調べた時の記録として残す。
 > **本書は調査と計画だけである。`src/` のファイルを 1 つも割らず、動かさない。**
 > 読んだ木: `a912f4ea`（ブランチ `refactor` の先端）。
 > **行数・範囲・共変の数・読み手の数は、すべてこの木で測った。** 他の変更要求や `handoff.md` の数を引いたときは「引いた」と書く。
@@ -124,7 +130,7 @@
 | --- | --- | --- | --- |
 | `UF-1` `schedule.ts` | 3 | 0 | 3 つとも兄弟へ（4.6） |
 | `UF-5` `schedule-layout.ts` | 10 | 0 | 入口は `FR-003` の 1 つだけ（4.3） |
-| `UF-6` `schedule-geometry.ts` | 10 | 5 | 残る 5 は、コードの無い `FR-020`・`FR-045`（9 節の `DFC-830`）と、継ぎ目を出さない `OW-4` の 3 つ（4.4） |
+| `UF-6` `schedule-geometry.ts` | 10 | 5 | 残る 5 は、コードの無い `FR-020`・`FR-045`（9 節の `DFC-965`）と、継ぎ目を出さない `OW-4` の 3 つ（4.4） |
 | `UF-7` `item-hit-area.ts` | 2 | 2 | 減らない（4.5） |
 | `UF-35` `json-codec.ts` | 2 | 2 | 手書きの側は割らない（4.7） |
 | `UF-36` `mspdi-codec.ts` | 2 | 2 | 往復の写しが 2 つとも持つ（4.8） |
@@ -360,7 +366,7 @@
    - 約束の写しは 3 つの欄に合計 173 行あり、実際に食い違ってきた（`6b329710` の差分の注: パネルの写しで直した欠陥が、透かしの写しには別の欠陥として残っていた）。
    - 各欄の要求（`FR-035`・`FR-020`・`FR-006`）の持ち主は別のユニットである。欄ごとの兄弟は「負う要求 `—`」の、行数を減らすためだけの分割になる（`JDG-284` の ② が退けた物差し）。
 - `CR-439` の 4.1 の S3 の論（`settleOnPressOutside` が 3 つの欄を順に確定させる）は、今のコードでは成り立たない —— 無条件に順に呼ぶだけで、ループや分岐の本体ではない。
-  新しく見つかった結合がある: `fieldCommit` はパネルと文書名が書く 1 つの升で、同じ押しで両方が確定すると後の書き手が勝つ（9 節の `DFC-832` の候補）。
+  新しく見つかった結合がある: `fieldCommit` はパネルと文書名が書く 1 つの升で、同じ押しで両方が確定すると後の書き手が勝つ（9 節の `DFC-967` の候補）。
 - 同じファイルの中で欄ごとの小さな工場に分ける案は、4 つとも帯（50 行）を超える（範囲からの見積もりで 155・116・86・112 行）。`HELD` が 1 行から 4 行に増えるので採らない。
 - `R2.2a` は PASS する（知らせは (a)、日付の消去は (c)）。`R2.2b` でも入れ物ではない —— 1 文で要約でき、長さの源は約束の写しである。
 - ⭐ **工場を本当に縮める道は、約束を 1 つの補助にまとめる書き直しである。** 振る舞いを保つ移動ではなく、`DFC-679`・`DFC-694`・`DFC-702`・`DFC-751` と `JDG-78`（異常系は後）も掛かるので、段 7.5 の外の別の変更要求とする（11 節）。
@@ -415,7 +421,7 @@
 | 証拠の量 | 47 件（誕生 `1d0412b1`・`b1560b0f`） |
 
 ⚠️ **`FR-020`（透かし）と `FR-045`（期限の印）のコードは、このファイルに 0 行である**（`git grep -i -E "watermark|deadline|FR-020|FR-045" -- src/entity/layout-engine` が 0 件。前に立つ者が測り直した）。
-`UD-4` により範囲を書けないので、2 つは入口の行に残す。食い違いは 9 節の `DFC-830` の候補とする（利用者の裁定 2026-09-13「食い違いは defects へ、どちらかを選ばない」）。
+`UD-4` により範囲を書けないので、2 つは入口の行に残す。食い違いは 9 節の `DFC-965` の候補とする（利用者の裁定 2026-09-13「食い違いは defects へ、どちらかを選ばない」）。
 
 **S2 が融かしたもの**: タスクの図の部品どうしである。
 
@@ -579,7 +585,7 @@
 - **表 T-063 の行は、本書では予約しない。** 足すのは 5 行である —— `Schedule`・`ScheduleLayout`・`ScheduleGeometry`・`ItemHitArea` に 1 行ずつと、`DocumentCodec` の第 2 段（`json-codec.ts` と `mspdi-codec.ts` をまとめて、`UT-9` の前例に倣う）。
   番号は、当てる直前に調整役から取る（いまの最大は `UT-12`）。
   `SingleHtmlShell` は `UT-6` の行を書き直す（0 節 ③ の 11）。
-- 欠陥の台帳の候補には `DFC-830` 〜 `DFC-832` を当てる（9 節）。`DFC-833` 〜 `DFC-839` は使わない。
+- 欠陥の台帳の候補には `DFC-965` 〜 `DFC-967` を当てる（9 節）。`DFC-833` 〜 `DFC-839` は使わない。
 - 新しい表・図・接頭辞・裁定の行は 0 である。
 
 ---
@@ -719,9 +725,9 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 
 | 候補 | 何が食い違うか | 測り方 |
 | --- | --- | --- |
-| `DFC-830` | 表 T-075 の `UF-6`（`schedule-geometry.ts`）が `FR-020`（透かし、`OW-2`）と `FR-045`（期限の印、`OW-2`）を負うが、`src/entity/layout-engine` にそのコードが 0 行である | `git grep -n -i -E "watermark|deadline|FR-020|FR-045" -- src/entity/layout-engine` が 0 件（前に立つ者が測り直した） |
-| `DFC-831` | 表 T-075 の `UF-107` の責務の文が古い —— 「入力中かを答え（`IN-5a`）」は改訂後の `IF-9`（知らせ）と合わず、日付の消去（`field-editing.ts:184-197`）の句が無い。その受け手には `// see` も無い | 体が読んだ（`fe-report`）。⚠️ 検査 55 の余裕は 0 行（コード 384 ／ コメント 42、上限 42）⇒ コメントを足すなら `:184-185` の `WHY` 2 行を置き換える形にする |
-| `DFC-832` | `field-editing.ts` の `fieldCommit` は、プロパティパネルと文書名の 2 つの欄が書く 1 つの升である。同じ押しで両方が確定すると、後の書き手が勝つ | 体が読んだ（`fe-report`）。⚠️ 仮説である —— 起こす前に、同じ押しで 2 つが確定する道が実際に在るかを反証すること |
+| `DFC-965` | 表 T-075 の `UF-6`（`schedule-geometry.ts`）が `FR-020`（透かし、`OW-2`）と `FR-045`（期限の印、`OW-2`）を負うが、`src/entity/layout-engine` にそのコードが 0 行である | `git grep -n -i -E "watermark|deadline|FR-020|FR-045" -- src/entity/layout-engine` が 0 件（前に立つ者が測り直した） |
+| `DFC-966` | 表 T-075 の `UF-107` の責務の文が古い —— 「入力中かを答え（`IN-5a`）」は改訂後の `IF-9`（知らせ）と合わず、日付の消去（`field-editing.ts:184-197`）の句が無い。その受け手には `// see` も無い | 体が読んだ（`fe-report`）。⚠️ 検査 55 の余裕は 0 行（コード 384 ／ コメント 42、上限 42）⇒ コメントを足すなら `:184-185` の `WHY` 2 行を置き換える形にする |
+| `DFC-967` | `field-editing.ts` の `fieldCommit` は、プロパティパネルと文書名の 2 つの欄が書く 1 つの升である。同じ押しで両方が確定すると、後の書き手が勝つ | 体が読んだ（`fe-report`）。⚠️ 仮説である —— 起こす前に、同じ押しで 2 つが確定する道が実際に在るかを反証すること |
 
 ⚠️ ほかに、ほかの行の所在の行番号の古びがある: `DFC-651`・`DFC-679`・`DFC-694`・`DFC-702`・`DFC-751` の所在は `006aefbc` の版のままで、いまは +18 ずれている（例: `focusPropertyField` は `:64` → `:82`）。欠陥ではなく台帳の手入れである。
 
@@ -808,3 +814,430 @@ e2e と `parity` は段 7.5 の出口で 1 度だけ走らせる（`JDG-291` の
 6. **コメント密度** —— `.claude/skills/spec-graph-check/check-comment-rules.py` の `measure_text` を、各ユニットの範囲の行に 5 行の見出しを付けた字に掛けた（取り込みの行は足していないので、上限の見積もりである）。
 7. **起点の共有** —— 表 T-075 の行を `grep` し、「負う要求」の欄の要求 ID と区分を数えた。
 8. **識別子** —— `grep -rhoE "\b(UF|UT|DFC)-[0-9]+" docs change-request src tests tools .claude/skills | sort -t- -k2 -n -u | tail`。
+
+---
+
+## 15. 当てる時の測り直し（`c48f9736`、2026-09-24）と前に立つ者の判断
+
+⭐ 6.1 の 3 のとおり、割る前に本書の数をすべて測り直した。  
+測り直しが判定を 1 つ変えたので、前に立つ者が 15.3 で判じた。  
+⛔ **15 節が 1〜9 節と食い違うところは、15 節が勝つ。**  
+1〜9 節は `a912f4ea` の値のまま、調べた時の記録として残す（冒頭の状態の行）。
+
+### 15.1 測り方
+
+- 13 節と同じ手で測った（共変は 2.2 の数え方、関数の大きさは `function-size.mjs`、コメント密度は `check-comment-rules.py` の `measure_text`、生成の区画は 2 つの印の間、読み手は取り込みの文と名前空間の読み）。
+- 4 つの読むだけの体が分けて測った —— `frame-loop.ts`（4.1）／ `schedule-layout.ts`・`schedule-geometry.ts`・`item-hit-area.ts`（4.3〜4.5）／ `schedule.ts`・`json-codec.ts`・`mspdi-codec.ts`（3 節・4.6〜4.8・道具の行番号）／ 横断（1.1・1.2・4.2・4.9・5・7・8・8.1 節）。
+  スクリプトはセッションの一時フォルダに置いたので木には無い（13 節と同じ扱い）。
+- どの体も、同じスクリプトを先に `a912f4ea` に掛けて本書の数を再現し（較正）、それから `c48f9736` を測った。
+- 範囲は、本書の範囲を束ねる関数名で引き直した。
+  `a912f4ea` の後に生まれた宣言の置き場は 15.3 の 3 に書いた。
+- `UD-4` は 7 ファイルすべてでスクリプトが表明した —— 引き直した範囲がファイルのすべての行をちょうど 1 度覆う（重なり 0、漏れ 0、合計 ＝ `wc -l`）。
+  15.3 の 1 で `UF-162` の範囲を `UF-165` へ移しても、覆い方は変わらない。
+- 6.1 の 1・2 の入口の条件は満たされていた: `CR-551` の波 0〜3（`6f674198`・`d4d87a08`・`f25fe735`・`14d34791`・`7c195c50`・`e122fd55`・`2753f20f`・`2a407232`）、`CR-552`（`989c7572`）、`CR-553`（`51827071`・`bfc27af9` ほか）、H2・H3・H4・H7・H10（`18db8646`・`0d446d12`・`bd83a718`・`338f39bf`・`121782d5`）と E-24（`a42c0cb4`）。
+  H1・H6・H8・H9 は `a912f4ea` より前に着地していた（`b9e6b4e0` の申し送り）。
+
+### 15.2 変わった数
+
+#### `frame-loop.ts`（4.1）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 4,760 ／ 4,683 ／ 77（`:4684-4760`） | 4,879 ／ 4,802 ／ 77（`:4803-4879`） |
+| 閉包 `frameLoop` | `:2158-4682`、2,525 行・分岐 4 | `:2316-4801`、2,486 行・分岐 4 |
+| 閉包の直下の関数 | 125 | 127 —— `settled`・`isSameEnvironment` が頂上へ上がり、`runAskedFrame`・`pruneChoiceTo` と、返すオブジェクトの `pressContinued`・`fileDropped` が増えた |
+| 2 字下げの `let` | 37（`:2172`〜`:3300`） | 37（`:2330`〜`:3449`）。<br>名も持ち主も同じで、新しい `let` は 0 |
+| 閉包の上の頂上の宣言 | 254（関数 101・`const` 115・`type` 25・`interface` 13） | 272（関数 110・`const` 119・`type` 29・`interface` 14） |
+| `HELD`（`function-size-baseline.txt`） | `:79-87` —— `frameLoop` 2525/4 ・ `carryOutAction` 209/51 ほか | `:81-89` —— `frameLoop` 2486/4 ・ `carryOutAction` 182/47。<br>ほかの 7 行は同じ値 |
+| 取り込むファイル | 82（`src` 2 ／ `tests` 80）＋ 動的 2 | 93（`src` 2 ／ `tests` 91）＋ 動的 2（同じ `cr-430-*` の 2 本） |
+| `// see` | 異なる ID 162、FR/NFR 33、起点が決まっていない 5 | 164（`DC-9`・`FR-086` が増えた）、FR/NFR 34、起点が決まっていない 6（`FR-086` は `05-07-design.md:526` の「いまは作らない」の 1 件） |
+| 表 T-075 の `UF-48` | `FR-100`・`FR-102`・`NFR-002`・`NFR-003`・`NFR-010` | 行は字まで同じ（`05-07-design.md:448`） |
+| 証拠の量 | 142 | 152 |
+| コメント密度（検査 55） | 10.0%（上限ちょうど） | 10.0%（コメント 417 ／ コード 3,760、上限 417） |
+| 外から読まれて兄弟へ移る名 | 5 | 7（15.3 の 5） |
+| 入口が兄弟のために新たに `export` する名 | 31 ＋ `isSameEnvironment` | 31 ＋ `isSameEnvironment` ＋ `settled`（2 つとも既に頂上にある） |
+| 残る閉包の行 | 1,428（手の束を足しておよそ 1,460） | 1,403（手の束を足しておよそ 1,435〜1,445） |
+| 残る直下の関数 | 72 | 74 |
+| 残る `let` | 20 | 20（同じ名） |
+| 宿主への呼び出しの順 | `:2174` → `:2175` → `:2176` → `effectRunnersOf`（`:2290`）→ `:2329` → `:4592` | `:2332` → `:2333` → `:2334` → `:2443` → `:2481` → `:4701`。<br>順は同じで、工場と手の束は `:2334` の後、`:2443` の前に作る |
+| 入口の中の 3 つの処理の組 | 0.59 ／ 0.55 ／ 0.54 | 関数だけの範囲で数え直して 0.54（48 件中 26）／ 0.53（58 件中 31）／ 0.54（48 件中 26）。<br>どれもまだ拒む（0 節 ③ の 6 は変わらない） |
+| `pointer-shape` 〜 `held-press-preview` | 0.50（16 件中 8） | 0.50（16 件中 8）（15.3 の 2） |
+| `confirmation-questions` 〜 `document-file-flow` | 4 件中 3、小さい側が下限に届かず証拠なし | 0.60（5 件中 3）（15.3 の 1） |
+| ほかの兄弟どうしの組（小さい側 5 件以上） | どれも 0.5 以下 | どれも 0.38 以下 |
+| 入口と兄弟の組（判じない） | 7 つが 1.00、`document-file-flow` 0.97、`frame-clock-wakes` 0.88、`held-press-preview` 0.81、`pointer-shape` 0.75 | 7 つが 1.00、`document-file-flow` 0.97、`held-press-preview` 0.81、`pointer-shape` 0.76、`copy-and-paste` 0.71、`row-band-ceiling` 0.67 |
+
+#### `schedule-layout.ts`（4.3）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 1,482 ／ 1,363 ／ 119（`:1364-1482`） | 1,632 ／ 1,504 ／ 128（`:1505-1632`）。<br>生成の 9 行は `S-325` と `NOT_STORED_FIT_MARGIN`（`S-332`）で、どちらも `d4d87a08` |
+| `HELD` | `:65-68` —— `layoutFromSchedule` 271/23 ・ `layoutFromSchedule#9` 72/18 ・ `pinnedBandOf` 59/9 ・ `fitZoom` 70/12 | `:68-70` —— `layoutFromSchedule` 268/23 ・ `layoutFromSchedule#8` 69/16 ・ `pinnedBandOf` 59/9。<br>`#9` → `#8` は `keptByLevelOfDetail` の `.filter` が消えたため（`JDG-424`）。<br>`fitZoom` は 43/6 で帯の中に入り、行が消えた |
+| 取り込むファイル | `src` 15 ／ `tests` 102（名前空間 3） | `src` 15 ／ `tests` 107（名前空間 3） |
+| 証拠の量 | 52 | 57 |
+| 行のループ（S3） | `:844-1040`、閉包 `#9` | `:907-1099`、閉包 `#8`（`:929-997`）。<br>どちらも入口に残る |
+| 外から読まれて兄弟へ移る名 | 19（`PI-5` の 17 ＋ `rulerTierOf` ＋ `TimeAxis`） | `PI-5` の 18（`labelledAssigneeUidOf` が `PI-5` に入り、`properties-panel.ts` が読む）＋ `rulerTierOf`。<br>`TimeAxis` は外の誰も取り込まない（`a912f4ea` でも 0）が、15.3 の 5 で出し直す |
+| 兄弟どうしの取り込み | `label-placement` → `shape-tiers` ／ `fit-zoom` → `time-axis`・`drawn-rows`・`level-of-detail`・`shape-tiers` | 同じ ＋ `name-label` → `label-width`（`nameLabelWidthOf` が `labelWidth` を読む）。<br>輪 0、評価の順の問題 0 |
+| 兄弟どうしの組 | 最大 0.43（7 件中 3、`shape-tiers` 〜 `label-placement`）、拒み 0 | 同じ最大で、拒み 0。<br>新たに証拠が立った組は `name-label` 〜 `time-axis` 0.40（5 件中 2）と `level-of-detail` 〜 `shape-tiers` 0.40（5 件中 2） |
+| 検査 55 | `label-placement` 超過 1 | `label-placement` 超過 1、`fit-zoom` 超過 6（15.3 の 7） |
+
+#### `schedule-geometry.ts`（4.4）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 1,295 ／ 1,271 ／ 24（`:1272-1295`） | 1,305 ／ 1,281 ／ 24（`:1282-1305`） |
+| `HELD` | `:61-64` | `:64-67`、同じ値 |
+| 取り込むファイル | （書いていない） | `src` 7 ／ `tests` 108 |
+| 証拠の量 | 47 | 48（`d4d87a08` の 1 件、触ったのは `task-figures` の中のバーの外形だけ） |
+| `task-figures` 〜 `comment-box` | 0.50（6 件中 3） | 0.50（6 件中 3）（15.3 の 2） |
+| `task-figures` 〜 `dependency-route` | 0.33 | 0.33（6 件中 2） |
+| 4.4 の融けた組 | 0.75・0.62・0.60・0.57・0.60 | 同じ（バーの外形はどちらの組でも大きい側） |
+| `FR-020`・`FR-045` の `src/entity/layout-engine` のコード（4.4 と同じ `git grep`） | 0 行 | 0 行（9 節の `DFC-965`） |
+| 入口のコメント密度 | （書いていない） | 上限ちょうど（22 ／ 22） |
+
+#### `item-hit-area.ts`（4.5）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 1,150 ／ 1,049 ／ 101（`:1050-1150`） | 1,191 ／ 1,090 ／ 101（`:1091-1191`）。<br>増えた 41 行は H2（`18db8646`）の 4 つの宣言 |
+| 取り込むファイル | （書いていない） | `src` 7 ／ `tests` 38（名前空間 1、`cr-388`） |
+| 証拠の量 | 21 | 22 |
+| 外から読まれて兄弟へ移る名 | 3 | 4（15.3 の 5） |
+| `dependency-end` 〜 `marquee` | 3 件と 2 件、証拠なし | 3 件と 3 件、共に変えたのは 0 |
+| 入口のコメント密度 | （書いていない） | 上限の下（85 まで 83、H2 が `TRAP` を 2 つ足した） |
+
+#### `schedule.ts`（4.6）と 3 節
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 1,847 ／ 1,174 ／ 673（`:13-685`） | 1,853 ／ 1,174 ／ 679（`:13-691`）。<br>後の 2 件（`6f674198`・`049a7ad1`）は区画だけを変えた ⇒ 手の範囲はすべて +6 ずれただけ |
+| 取り込むファイル | 213（`src` 48 ／ `tests` 165） | 218（`src` 48 ／ `tests` 170） |
+| 証拠の量 | 27（手 14・区画 16・両方 3） | 29（手 14・区画 18・両方 3） |
+| 3 節「区画を変えたコミットのうち、原稿か生成器も変えたもの」 | 14/16 | 16/18 |
+| 兄弟が頂上で読む生成の定数 | `:869`・`:1090`・`:1281` | `:875`・`:1096`・`:1287`（同じ 3 つで、ほかに頂上の読みは 0） |
+| 暦 〜 不変条件 | 0.17（6 件中 1） | 同じ |
+| 出し直す名 | 区画 25 ＋ 手 32 | 同じ。<br>うち `taskByUid` は入口が宣言するので、手の出し直しは 31 |
+| 兄弟が新たに `export` を付ける名 | （書いていない） | `schedule-invariants` が関数の中で読む `serial`（`working-calendar`）と `TRANSPARENT`（`custom-colour`）。<br>今は `export` が無い。<br>評価の順の問題は無い |
+| 他のファイルの `TRAP` の文 | `input-command-translator.ts:1241`・`document-settings.ts:467`・`task-group-order.ts:14` | `:1260`・`:464`・`:14`（3 つともまだ `schedule-invariants` の範囲のコードを指す） |
+| `working-calendar` のコメント密度 | 上限ちょうど | 上限ちょうど（コード 224 ／ コメント 24 ／ 上限 24） |
+
+#### `json-codec.ts`（4.7）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 行（全 ／ 手書き ／ 生成） | 1,515 ／ 339 ／ 1,176（`:39-1214`） | 1,548 ／ 383 ／ 1,165（`:39-1203`）。<br>`7c195c50`（`CR-551` の 1d）が手に 44 行を足し、`6f674198`・`989c7572` が区画を 11 行減らした |
+| 取り込むファイル | `document-codec.ts`・`embedded-html-codec.ts`・試験 10 本 | 同じ 2 つ ＋ 試験 13 本 |
+| 証拠の量 | 32（生成だけ 20・手だけ 9・両方 3） | 35（生成だけ 22・手だけ 10・両方 3） |
+| 生成 〜 古い版 | 0.60（5 件中 3）—— 形式の上で拒むが当てない（0 節 ③ の 4） | 本書の古い版の組み方で 0.50（6 件中 3）—— もう拒まない。<br>退いた列を読む新しいコードを古い版に入れ、`formatVersionReading` を外すと 0.60（5 件中 3）。<br>どちらでも判定（validator を出し、古い版を埋める関数は入口）は変わらない |
+| 入口 〜 古い版 | 5 件中 5 | 6 件中 6 |
+| 生成の定数を直に読む手書きの所 | 1（`documentFromJson`、`:1476`） | 2（`documentFromJson` `:1509` と `collectionNamesOfEntity` `:1414`）（15.3 の 3） |
+| 入口のコメント密度 | （書いていない） | 上限の下（コード 204 ／ コメント 21 ／ 上限 22） |
+
+#### `mspdi-codec.ts`（4.8）
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| ファイル | 2,023 行 | 同じ blob（`a912f4ea` の後のコミットは 0）。<br>範囲・`HELD`・読み手・共変（読み 〜 書き 0.83）はすべて同じ |
+| `fault` を使う回数 | 「`readXml`・`readStartTag` が 10 回」 | 20 回（`readXml` 14・`readStartTag` 6）。<br>入口も `documentFromMspdi`（`:788`）で 1 回呼ぶ ⇒ 入口は `mspdi-xml.ts` から `fault` を取り込む（`mspdi-xml.ts` → 入口は型 `MspdiFault` だけ） |
+| 入口が兄弟のために新たに `export` する名 | 8 | 8（`ExportRun`・`PATHS`・`childOf`・`integerColumn`・`leaf`・`notice`・`textColumn`・`wholeNumberOf`） |
+| `mspdi-child-placement` のコメント密度 | 超過 1 | 超過 1（見出しを 4 行と数えれば 2） |
+
+#### 道具と記録の行番号（4.6・4.7・7 節）
+
+| 所 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| `tools/generate_entity_types.py` の `TARGETS`（`schedule.ts`） | `:2125-2127` | `:2170-2172`（並びの頭は `:2169`） |
+| 同じファイルの docstring | `:9` | `:9` |
+| 同じファイルの `PUBLISHED_READ_BY_SRC` | `:2500`（`frame-loop.ts`）・`:2479-2484`（`schedule.ts`） | 辞書の頭 `:2507`、`schedule.ts` の鍵 `:2531-2536`（`ENTITY_ROWS` はまだ無いので足す）、`frame-loop.ts` の鍵 `:2553-2555` |
+| 同じファイルの `PUBLISHED_READ_BY_TESTS_ONLY` | `:2541` | 辞書の頭 `:2562`、`frame-loop.ts` の鍵 `:2595-2598`（`WATERMARK_UNLOCK_DIGEST` は `:2597`） |
+| 同じファイルの `MISSING` で止まる所 | `:2652` | `:2706` |
+| 同じファイルの `refuse_unknown_published_files` | （書いていない） | `:2631-2638`（15.3 の 3） |
+| `tools/generate_startup_template.py` | `:102-103`・`:1050` | 同じ |
+| `.claude/skills/spec-graph-check/check-provenance.py` | `:65` | 同じ |
+| `docs/development-rules/09-tools.md` の `schedule.ts` の行 | `:141` | 同じ |
+| `docs/development-rules/09-tools.md` の validator の出力先の行 | ⚠️ 4.7 が挙げていない | `:147` が出力先を `src/adapter/document-codec/json-codec.ts` と書く ⇒ `json-codec.ts` の出力先を変えるコミットで書き直す |
+| `tools/generate_json_schema_validator.py` | `:15`・`:68`・`:127-133`・`:131`・`:137`・`:401-405` | 同じ（`7c195c50` が変えたのは `:262` の注だけ） |
+| `.claude/skills/spec-graph-check/check-published-members.py` | `:111`・`:147-153`・`:155` | 同じ（ファイルは変わっていない） |
+| 検査 30 の名簿（7 節） | `frame-loop.ts` は 4 つ足して 1 つ移す ／ `schedule-layout.ts` は 1 つ移す ／ `schedule-geometry.ts` は 1 つ足して 1 つ移す | 読み手は `a912f4ea` と同じで、名簿は 7 節のとおり。<br>`schedule-layout.ts` だけ `NOT_STORED_FIT_MARGIN` が 1 つ増える（15.3 の 3） |
+| 検査 60 の 1 行目 | `excess-lines=7309 excess-branches=688` | `excess-lines=7189 excess-branches=674` |
+| `fieldEditingOf`（4.2） | 469/1、`function-size-baseline.txt:73` | 462/1、`:75` |
+
+#### 行番号を引く記録（7 節の最後の行）
+
+`frame-loop.ts:NNN` の形の参照は、本書を除く `.md` の行で数えて `a912f4ea` の 359 から、`c48f9736` で 392 になった（追跡している 63 ファイルに 485 回）。  
+割る 7 ファイルごとの内訳を下に置く。  
+数えたのは `<file>.ts:NNN` の出現の回数で、ファイル名の後の裸の `:NNN` は数えていない（変更要求はこれより多く持つ）。
+
+| ファイル | `defects.md` の開いた行（状態が 実測済・取下げ でない 208 行） | `pending-decisions.md` の開いた行 | 着地していない変更要求 |
+| --- | --- | --- | --- |
+| `frame-loop.ts` | 86 | 2（`PND-250`・`PND-423`） | 28 |
+| `schedule-layout.ts` | 12 | 0 | 7 |
+| `schedule-geometry.ts` | 6 | 0 | 8 |
+| `item-hit-area.ts` | 2 | 0 | 10 |
+| `mspdi-codec.ts` | 5 | 0 | 0 |
+| `json-codec.ts` | 6 | 0 | 13 |
+| `schedule.ts` | 1 | 0 | 0 |
+
+`defects.md` の 実測済 の行（刈り取りを待つ 12 行）には、ほかに `frame-loop.ts` の参照が 4 回ある。
+
+#### 1.1 の大きさ
+
+| ファイル | `a912f4ea`（全 ／ 手書き ／ 生成） | `c48f9736`（全 ／ 手書き ／ 生成） |
+| --- | --- | --- |
+| `frame-loop.ts` | 4,760 ／ 4,683 ／ 77 | 4,879 ／ 4,802 ／ 77 |
+| `mspdi-codec.ts` | 2,023 ／ 2,023 ／ 0 | 同じ |
+| `schedule.ts` | 1,847 ／ 1,174 ／ 673 | 1,853 ／ 1,174 ／ 679 |
+| `json-codec.ts` | 1,515 ／ 339 ／ 1,176 | 1,548 ／ 383 ／ 1,165（順位 5） |
+| `schedule-layout.ts` | 1,482 ／ 1,363 ／ 119 | 1,632 ／ 1,504 ／ 128（順位 4） |
+| `input-command-translator.ts` | 1,366 ／ 1,323 ／ 43 | 1,385 ／ 1,342 ／ 43 |
+| `screen-values.ts` | 1,354 ／ 517 ／ 837 | 1,382 ／ 535 ／ 847 |
+| `schedule-geometry.ts` | 1,295 ／ 1,271 ／ 24 | 1,305 ／ 1,281 ／ 24 |
+| `item-hit-area.ts` | 1,150 ／ 1,049 ／ 101 | 1,191 ／ 1,090 ／ 101 |
+| `dom-screen-surface.ts` | 1,123 ／ 970 ／ 153 | 1,155 ／ 990 ／ 165 |
+| `file-flow-values.ts` | 944 ／ 394 ／ 550 | 同じ |
+| `import-document.ts` | 919 ／ 919 ／ 0 | 同じ |
+| `properties-panel.ts` | 863 ／ 852 ／ 11 | 900 ／ 889 ／ 11 |
+| `agent-api-members.ts` | 724 ／ 724 ／ 0 | 762 ／ 762 ／ 0（順位 15） |
+| `svg-renderer.ts` | 709 ／ 531 ／ 178 | 864 ／ 658 ／ 206（順位 14） |
+| `document-settings.ts` | 536 ／ 113 ／ 423 | 533 ／ 113 ／ 420 |
+| `field-editing.ts` | 508 ／ 508 ／ 0 | 545 ／ 545 ／ 0 |
+| `src/framework/dom-screen-surface/properties-panel-drawing.ts`（`UF-106`） | 482（本書の表に無い） | 758（順位 16、`a912f4ea` の後のコミット 8 件）。<br>⚠️ 本書は調べていない（15.3 の 11） |
+
+`src/` の `.ts` は 114 のままで、表 T-074 の `SU-3`（`05-07-design.md:247`）・`units.contract.test.ts:50-51` とも 114 である。
+
+#### 横断の数
+
+| 項目 | `a912f4ea` | `c48f9736` |
+| --- | --- | --- |
+| 1.2 の起点の共有 | 34（`OW-4` を除いて 29）→ 割ったあと 15（10） | 同じ。<br>7 つの行の要求は `a912f4ea` から 1 つも変わっていない（`05-07-design.md` の差分で動いた UF の行は `UF-105` だけ） |
+| `UF` の最大 | `UF-125` | `change-request/` の外では `UF-125`。<br>`UF-126` 〜 `UF-168` は本書のほかに 7 本（`CR-555`・`CR-556`・`CR-558` 〜 `CR-561`・`CR-565`）が本書の割ったあとのユニットとして引く（別の意味で引くものは 0、`UF-162` を引くものは 0） |
+| 表 T-063 | 12 行、最大 `UT-12` | 同じ（`05-07-design.md:330-341`、`audit-ch5.py:83`） |
+| `field-editing.ts`（4.2・9 節の `DFC-966`） | `let` 14、日付の消去の受け手 `:184-197`、検査 55 の余裕 0（コード 384 ／ コメント 42） | `let` 15（`commitsHandedOut` が増えた）、受け手 `:218-231`（`WHY` は `:218-219`）、余裕 0（コード 409 ／ コメント 45）。<br>後の 3 件（`c5abb35c`・`121782d5`・`e01237a5`）はどれも 3 つの欄が共有する約束に触れた ⇒ 「割らない」を強める |
+| 8.1 の `CR-559` | `frame-loop`・`item-hit-area`・`json-codec`・`schedule-geometry` | 同じ ＋ `schedule.ts`（`CommentBox` の型、8.1 の `grep` はパスの無い名を拾わなかった） |
+| 8.1 の `CR-565` | （表に無い） | `frame-loop.ts`（6 回）・`json-codec.ts`（12 回）、ほかに `import-document.ts` |
+| 10 節の答えの裁定の行 | 調整役が書く | `JDG-440`（`rulings.md:660`）が書いた |
+| 基準線を動かす許し（7 節の検査 60 の行） | 動かすたびに利用者の許し | `JDG-520`（`rulings.md:661`、15.3 の 9） |
+
+### 15.3 前に立つ者の判断
+
+1. ⛔ `confirmation-questions` を割らず、`document-file-flow.ts` に戻す。
+   測った理由: `confirmation-questions` 〜 `document-file-flow` は 0.60（5 件中 3）である。
+   `a912f4ea` では 4 件中 3 で、小さい側が下限に届かず証拠なしだった。
+   `e122fd55`（`CR-551` の項目 13）が `confirmationOwedBy` に引数 `asked` を足し、小さい側を 5 件にした。
+   共に変えた 3 件は `1226da34`・`35bcaafe`・`4b9687e8`（波 B）である。
+   2.1 の S2 の規則（0.5 を超え、小さい側 5 件以上）で、この継ぎ目は拒まれる。
+   感度: 波 B の結線を除くと 4 件中 2 で、証拠なしになる。
+   これは記録にとどめ、判定には使わない（2.3）。
+   ⇒ `UF-162` の範囲（`ConfirmationQuestion` ・ `UNASSIGNMENT_QUESTION` ・ `rowsLostWith` .. `tasksLostWith` ・ `confirmationOwedBy` .. `confirmationOwedByResourceDeletion`）は `document-file-flow.ts`（`UF-165`）へ入る。
+   `UF-165` の責務文は表 T-234 の問い（`QN-3`・`CD-1`・`CD-2`・`CD-5`）を足す。
+   `QN-4`・`QN-5` は既に持っていた。
+   新しい文は 15.4 にある。
+   ⛔ `UF-162` は取り下げ、ほかの意味にも使わない（欠番）。
+   ほかの番号は付け替えない —— `CR-555`・`CR-556`・`CR-558` 〜 `CR-561`・`CR-565` が `UF-126` 〜 `UF-168` を本書のユニットとして引いているからである。
+   ⇒ 使う帯は `UF-126` 〜 `UF-161` と `UF-163` 〜 `UF-168` の 42 ユニットである。
+   連なって変わる数: 5 節の表の `frame-loop.ts` の行は 12 → 11、計 43 → 42 になる。
+   7 節で 表 T-075 に足す行は 42、`SU-3`・`units.contract.test.ts:50-51` は 114 → 156 になる。
+   `05-07-design.md:253` の並びと `changelog.md:47` の文（15.3 の 8）の `SingleHtmlShell` は、15 ではなく 14 である（3 ＋ 兄弟 11）。
+   4.1 の兄弟どうしの取り込み `document-file-flow` → `confirmation-questions` は無くなる。
+   8 節の `CR-551` の項目 13 の置き場は `UF-165` になる。
+2. `pointer-shape` 〜 `held-press-preview`（0.50、16 件中 8）と `task-figures` 〜 `comment-box`（0.50、6 件中 3）は、測り直してもまだ 0.5 を超えない。
+   `e122fd55` は `pointer-shape` だけに、`d4d87a08` は `task-figures` だけに触った。
+   ⇒ どちらも割ったままにする（4.1・4.4 の MUST の条件に当たらない）。
+3. `a912f4ea` の後に生まれた宣言と、その置き場（どれも継ぎ目の判定は変えない）:
+   - `frame-loop.ts`
+     - 入口: `selectionWithinDrawnRows`（H2、`runFrame` だけが呼ぶ）、閉包の `pruneChoiceTo`（H2、残る選択を決めるのが変更の理由で、`noteChoiceMoved` は `field-focus` から取り込む）、`FrameLoop` のメンバ `pressContinued`（H3）、`GUIDE_CURSOR_CLEARED`（`CR-551` の波 2、`effectRunnersOf` だけが読む）、`HorizontalWhole` ・ `VerticalWhole` ・ `HeldWholes` ・ `horizontalWholeOf` ・ `verticalWholeOf` ・ `visibleHeightOf` ・ `measuredAtPress` ・ `heldWholeOf`（`0d9e7424`、`GR-21` のスクロールの幅を読む入口の関数だけが使う、`scrolledPastOf` は消えた）、閉包の `runAskedFrame`（`83fe24da`、フレームの 1 周期）、頂上へ上がった `isSameEnvironment`・`settled`（兄弟のために `export` する）。
+     - `copy-and-paste.ts`（`UF-168`）: `SelectionCopied`・`pasteRefusedFor`・`copiedForPasteOf`（H4 の `bd83a718`、E-24 の `a42c0cb4`）。
+     - `document-file-flow.ts`（`UF-165`）: `OPEN_ROUTE_FROM_DROP` と `fileDropped` の本体（H3 の `0d446d12`）。
+       `fileDropped` は `FrameLoop` の型のメンバなので、返すオブジェクトの項は入口に残り、兄弟の (F) の関数を呼ぶ。
+     - `field-focus.ts`（`UF-164`）: `HIGHLIGHT_BOX_STROKE_FIELD_ROW`・`InPlaceKind`・`FIELD_ROW_OF_IN_PLACE_TARGET`（`DFC-806` の `032c2023`）。
+       表の初期化は同じユニットの `*_FIELD_ROW` だけを読むので、評価の順の問題は無い。
+       入口の `carryOutAction` がこれを取り込む。
+     - ⚠️ 8 節は H3 の押し続けが `frame-clock-wakes.ts` に落ちると書いたが、H3 は `tickEntryRepeat` を変えず、入口に `pressContinued` を足した。
+       `frame-clock-wakes` のコードは `a912f4ea` から変わっていない。
+   - `item-hit-area.ts`: H2 の `isTaskDrawn`・`DrawnChoice`・`ChosenItem`・`selectionWithinDrawn` → 入口。
+     `marquee.ts` と共に変えた証拠は無く、入口に置けば出し直しも増えない。
+   - `schedule-layout.ts`
+     - `name-label.ts`（`UF-136`）: `nameLabelWidthOf`・`YEAR_DIGITS`・`NameLabel`（`d4d87a08`）。
+       `nameLabelWidthOf` は `NameLabel` を割って `S-325` を当てるので、名札の側に置く。
+       `label-width.ts` に置くと、`label-width` → `name-label` の型の辺が要る。
+     - 入口: `packedLanesOf`・`lastRowReserveOf`（`bfc27af9`）。
+       どちらも `LC-9` の帯高で、呼び手は `layoutFromSchedule` だけである（S3）。
+     - `fit-zoom.ts`（`UF-143`）: `e122fd55` の 11 の名 —— `FIT_MARGIN_SIDES` ・ `FIT_SOLVE_STEPS` ・ `FIT_WIDTH_TOLERANCE_PX` ・ `FitRun` ・ `fitsRowArea` ・ `deepestFittingDepth` ・ `nextFitZoomX` ・ `isWidthSettled` ・ `widthFittedRun` ・ `landedFit` ・ `fittedLeftEdge`。
+       `NOT_STORED_FIT_MARGIN`（`S-332`）は `fit-zoom.ts` の `fitZoom` が読む。
+       定数そのものは生成の区画にあるので入口の区画に残り（3 節）、新しいパスの読み手のために `tools/generate_entity_types.py` の `PUBLISHED_READ_BY_SRC` の `schedule-layout.ts` の鍵へ足す。
+     - `assignee-label.ts`（`UF-134`）: H10 の `LabelledAssignee`・`labelledAssigneeOf`・`compareLabelled`・`labelledAssigneeUidOf`（`121782d5`）。
+   - `schedule-geometry.ts`: `chevronBarOf`（`d4d87a08`、呼び手は `barOf` だけ）→ `task-figures.ts`（`UF-144`）。
+   - `json-codec.ts`
+     - `json-schema-validator.ts`（`UF-152`）: `collectionNamesOfEntity`。
+       生成の `GRS_DOCUMENT_SCHEMA` を読むので validator に置き、そこから `export` する。
+       入口に残すには `GRS_DOCUMENT_SCHEMA` に `export` が要るが、検査 30 が `PUBLISHED_READ_BY_*` への登録を求め、生成器の `refuse_unknown_published_files`（`:2631-2638`）が自分の書かないファイルを拒むので、通らない。
+       ⇒ 4.7 の「1 か所だけ形が変わる」は 2 か所になる —— `documentFromJson`（`:1509`）と、入口から `collectionNamesOfEntity` を呼ぶ所である。
+       3 節の例外の理由「区画を読むのは `collectFaults` ほか 121 行だけ」は、この置き方で再び真になる（手 130 行）。
+     - 入口: `RETIRED_COLUMNS`・`withoutRetiredColumns`（`7c195c50`、表 T-297）。
+       古い版の文書を読む理由（`FR-073`）で、ほかの古い版を埋める関数と同じである。
+   - `schedule.ts`・`mspdi-codec.ts`: 新しい宣言は 0。
+4. `keptByLevelOfDetail` は `CR-552`（`989c7572`）が関数ごと消した。
+   ⇒ `UF-139`（`level-of-detail.ts`）の範囲は `keptInViewByOpenMarks`・`groupDepthLimit`・`groupDepthThresholdOf` の 38 行になり、責務文は行の深さだけを言う。
+   新しい文は 15.4 にある。
+   8 節の `CR-552` の 2 つの行（`keptByLevelOfDetail` と、その呼び手）は置く物が無い。
+5. ⭐ 公開の面の不変条件（4.1・4.3・4.5 の数えた名簿に替える）: 各入口がいま `export` しているすべての名は、割ったあとも同じ意味で入口から `export` される。
+   入口の `export` の集合は割る前の集合を含み、増えることはあっても減らない。
+   測った帰結は次のとおり。
+   - `frame-loop.ts`: 外から読まれて兄弟へ移る名は 7 である —— 4.1 の 5 つ（`PointerShape`・`pointerImageOf`・`pointerRowOf`・`FOCUS_ON_DOCUMENT_BODY`・`startupDisplayLanguage`）に、`OPEN_ROUTE_FROM_DROP`（`tests/unit/h3-a-file-drop-wakes-a-frame.test.ts:18`）と `copiedForPasteOf`（`tests/unit/h4-several-copied-tasks-paste-back.test.ts:8`）が加わる。
+   - `item-hit-area.ts`: 4 である —— 4.5 の 3 つに型 `DependencyEnd` が加わる。
+     `tests/unit/cr-388-dependency-start-of-hit.test.ts:27` が名前空間の取り込みを通して読み、無いと `tsc` が落ちる（`a912f4ea` でも読んでいて、4.5 が見落とした）。
+   - `schedule-layout.ts`: `PI-5` の 18 の名 ＋ `rulerTierOf` ＋ `TimeAxis`。
+     不変条件により、いま `export` していて誰も読まない名（`FitToScreen`・`NotStoredZoom`・`standsUndecidedResume`・`thinEndHalfHeightOf`）も出し直す。
+   ⇒ 照合器の「exports」の鍵は、増えることだけが許される。
+   これは設計した違いであり、`CR-439` の 5.5 と同じく、どの波を走らせる前にもここに書いておく（15.3 の 14）。
+6. 工場が持つ 7 つの `let` を、入口が直に読むか書く —— `fileSavedAt`（`runFrame`・`exportScene`）、`settleOverwrite`（`effectRunnersOf` の `answerOverwriteQuestion` の矢印関数）、`fieldFocusRetriesLeft`（`standOnWhatWasCreated`）、`pointerRestingSince`（`runFrame`）、`paletteMinimisedWhileHidden`（`sendScreenEvent`）、`fitHeldForNoPlace`・`fromStartupTemplate`（`replaceHeldDocument`）。
+   `a912f4ea` でも同じだったが、4.1 の表は書いていない。
+   ⇒ その (M) の工場は、4.1 の表のメソッドに加えて、小さな読み手・書き手の関数を出す。
+   形は (M) のままである（4.1 の「形から外れるなら止まる」には当たらない）。
+7. 検査 55 のコメント密度は、次のユニットで上限を超える見込みである。
+   超過の行数は 7 節と同じ数え方で、`frame-loop.ts` のユニットだけは見出しを 4 行と数えたので 1 行多めに出ている。
+   - `pointer-shape` 超過 32（`TRAP` は `:305`・`:317`・`:381`・`:399`）
+   - `held-press-preview` 超過 8（`:3167`・`:3183`）
+   - `view-place` 超過 7（`:1701`・`:1742`・`:1764`・`:2362`・`:2658`）
+   - `interaction-record` 超過 1（`:825`・`:831`・`:2545`、`a912f4ea` でも 1 で、7 節が見落とした）
+   - `fit-zoom` 超過 6（新しい、`:1288`・`:1314`・`:1440`）
+   - `dependency-route` 超過 4（`:585`・`:601`・`:615`・`:694`・`:712`）
+   - `label-placement` 超過 1（`:806`）
+   - `mspdi-child-placement` 超過 1
+   `working-calendar` と `schedule-geometry.ts` の入口は上限ちょうどである（見出しの行を増やすと超える）。
+   ⇒ そのユニットを作る波が、`comment-rules-src.md` の 5 節の手当てを当て、6.3 の MUST 7 のとおり消した文を報告する。
+8. 検査 33（`audit-ch5.py:257-260`）は、`docs/development-records/changelog.md:47` の「2 つより多いユニットを持つのは …」の文を 表 T-075 と字で比べる。
+   7 節はこれを挙げていなかった。
+   ⇒ そのコンポーネントのユニットの数を変えるコミットが、同じコミットでこの文を書き直す。
+   割ったあとは `Schedule` 7・`ScheduleLayout` 13・`ScheduleGeometry` 7・`ItemHitArea` 3・`DocumentCodec` 10・`SingleHtmlShell` 14 が加わるか変わる。
+9. 検査 60 で鍵を書き直す行は、13 ではなく 12 である（`fitZoom` が帯の中に入り、行が消えた）。
+   `frame-loop.ts` の `openDocumentIntoHold`・`tentativeDependencyOf`・`viewSettings`、`schedule-layout.ts` の `pinnedBandOf`、`schedule-geometry.ts` の `routeOf`・`taskGeometryOf`・`progressLineOf`、`mspdi-codec.ts` の `readXml`・`readStartTag`、`json-codec.ts` の `collectFaults`、`schedule.ts` の `nestingOf`・`find~16` の 12 である。
+   いまの値は 15.2 のとおりで（`frameLoop` 2486/4、`carryOutAction` 182/47、`layoutFromSchedule` 268/23、`layoutFromSchedule#8` 69/16）、ほかは 7 節と同じ値である。
+   ⛔ 7 節の「動かす前に利用者の許しを得る」は `JDG-520`（2026-09-24）に替わった —— 下げる・鍵の付け替え・古い行の除去は、調整役が問わずに当てる。
+   新しい `HELD` の行（`view-place` と `frame-clock-wakes` の工場が帯の縁）や、許しを上げるものは、調整役を通して利用者に問う。
+10. 行番号の参照（7 節の最後の行）: 割るコミットが `<file>:NNN` を書き直すのは、`defects.md` の開いた行と `pending-decisions.md` の開いた行だけである。
+    数は 15.2 の表のとおりで、`frame-loop.ts` なら 86 と 2 である。
+    着地していない変更要求（`CR-555` 〜 `CR-563`・`CR-565`、合わせて `frame-loop.ts` 28・`schedule-layout.ts` 7・`schedule-geometry.ts` 8・`item-hit-area.ts` 10・`json-codec.ts` 13）は、分割では書き直さない。
+    8.1 が、それぞれに当てる時に自分の `file:line` を割ったあとの木で測り直させている。
+    `CR-565` も 8.1 の表の下の注のとおり分割の後に並ぶので、同じく当てる時に測り直す。
+    `CR-566` は状態が「当てた（2026-09-24）」なので、着地した変更要求として書き換えない（7 節の方針）。
+11. 4.9 の割らないファイルを、合図に従って調べ直した。
+    - `svg-renderer.ts`: 色の塊は名で引き直すと `:123-384`（262 行）で、変えたコミットが 6 件（`bfefe010`・`0cfd71fa`・`9beab1f3`・`911e3d31`・`02aa21e2`・`b8e041fe`）になり、合図に届いた。
+      調べ直すと、要求の持ち主はやはり継ぎ目を出さない（色の規則は `FR-007`・`FR-041` に属し、その起点は別の行である）。
+      残りとの組 0.67（6 件中 4）は入口との組なので判じない（2.1）。
+      ⇒ 割らない。
+    - `dom-screen-surface.ts`: `CR-551` の項目 11 は `STYLE` を変えなかった（`dividerBand` は既に `col-resize` で、`:294` → `:296` に動いただけ）。
+      `STYLE` だけに触れたコミットはまだ 0 で、`STYLE` 〜 残りは 0.88（40 件中 35）である。
+      ⇒ 変わらない。
+    - `import-document.ts`: `a912f4ea` の後のコミットは 0 である。
+      `CR-565` は `FR-022`（合図の要求）を名指すが、`builtMerge` には触れない。
+      ⇒ `CR-565` を当てる時にもう一度調べる。
+    - `field-editing.ts`: `let` 15、`fieldEditingOf` 462/1。
+      ⇒ 変わらない（4.2）。
+    - ⚠️ 未決: `properties-panel-drawing.ts`（`UF-106`）は 482 → 758 行になったが、本書は調べていない。
+      段 7.5 の後に回し、ここでは決めない。
+12. 台帳の候補の番号を、このセッションの帯へ付け替えた（調整役の指示、2026-09-24）: `DFC-830` → `DFC-965`、`DFC-831` → `DFC-966`、`DFC-832` → `DFC-967`。
+    本書・`CR-556`・`defects.md` の `DFC-861` の行の中の言及を書き換え、どの候補も番号を 1 つだけ持つようにした。
+    台帳の行は足していない（9 節のとおり、本書は台帳を書かない）。
+    `DFC-965` の半分（`FR-045` にコードが無い）は、`CR-556` の起草者が既に `DFC-861` として台帳に起こしている。
+    残る半分（`UF-6` の `FR-020`）は、まだ台帳に無い。
+    `DFC-965` 〜 `DFC-967` は、`c48f9736` の木のどこにも現れていなかった（2026-09-24 に `git grep` で測った）。
+13. 8 節の行のうち、次は既に無いので置く物が無い。
+    - `DEVIATION … (DFC-694)` の 3 か所（`049a7ad1` が消し、`DFC-694` は閉じた）
+    - `frame-loop.ts` の注「omit the LF-3 floor」（`bfc27af9` が消した）
+    - H8 の `@provisional`（`7f4861ac` で `a912f4ea` より前に着地しており、「`CR-549` が足す 5 つは未着地」は古い）
+    - H9（`2a68b95b` で `a912f4ea` より前に着地した）
+14. 照合器の設計した違いは、15.3 の 5 の入口の `export` の集合が増えることだけである。
+    それ以外の違いは、すべて失敗とする。
+
+### 15.4 更新した割り方の表
+
+各ファイルで、範囲の名か行数が変わったユニットだけを書く。  
+行数は本書の数え方（4 節）に揃えた。  
+どのファイルも、合計はファイルの行数に等しい。
+
+#### `frame-loop.ts`（計 4,879）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-48` `frame-loop.ts` | ＋ 15.3 の 3 の入口の名（`fileDropped` のメンバを含む） ／ − `scrolledPastOf`。<br>閉包の `settled`・`isSameEnvironment` は頂上へ上がった | 2,769 ＋ 生成 77 |
+| `UF-157` `pointer-shape.ts` | 名は同じ（`CR-551` の項目 11 の `'GR-16'`・`PK-10` の項が入った） | 352 |
+| `UF-162` `confirmation-questions.ts` | ⛔ 取り下げ（15.3 の 1） | —— |
+| `UF-163` `frame-clock-wakes.ts` | 名は同じ | 66 |
+| `UF-164` `field-focus.ts` | ＋ `HIGHLIGHT_BOX_STROKE_FIELD_ROW`・`InPlaceKind`・`FIELD_ROW_OF_IN_PLACE_TARGET` | 137 |
+| `UF-165` `document-file-flow.ts` | ＋ `UF-162` の範囲すべて、`OPEN_ROUTE_FROM_DROP`、`fileDropped` の本体 | 758（644 ＋ 114） |
+| `UF-166` `watermark-unlock.ts` | 名は同じ（`PND-181` の STOP の 3 行が `// see` の 1 行になった） | 56 |
+| `UF-168` `copy-and-paste.ts` | ＋ `SelectionCopied`・`copiedForPasteOf`・`pasteRefusedFor` | 94 |
+
+変わらないもの: `UF-158` 157、`UF-159` 51、`UF-160` 151、`UF-161` 139、`UF-167` 72。  
+⚠️ 行の数は `fileDropped` を入口に数えている。  
+本体を (F) で兄弟へ出すと、数行が入口から `UF-165` へ移る。
+
+| 行 ID | ユニット | 責務文（S5、畳んだ句と根拠） |
+| --- | --- | --- |
+| `UF-165` | `document-file-flow.ts` | 「文書のファイルの流れ（表 T-290）—— 開く・保存する・書き出す・渡された文書を取り込む —— をファイルの門を通して運ぶ」。<br>4 つの列挙は 1 つの機械の範囲なので (b)。<br>「開く前に検証し、使えない日付のタスクを落とす（`FR-023`）」「書き込みが消すものを数えて表 T-234 の問いを立てるかを決め（`FR-032`・`FR-099` の `QN-3`、`CD-1`・`CD-2`・`CD-5`）、問いの答えを待つ（`QN-4`・`QN-5`・`OP-3`・表 T-032a）」は (a) —— どの問いも表 T-290 の機械の問い（`FileFlowQuestion`）である。<br>「失敗を表 T-233 の理由で告げる」は (c) |
+
+#### `schedule-layout.ts`（計 1,632）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-5` `schedule-layout.ts` | ＋ `packedLanesOf`・`lastRowReserveOf` | 582 ＋ 生成 128 |
+| `UF-134` `assignee-label.ts` | ＋ `LabelledAssignee`・`labelledAssigneeOf`・`compareLabelled`・`labelledAssigneeUidOf` | 70 |
+| `UF-136` `name-label.ts` | ＋ `YEAR_DIGITS`・`NameLabel`・`nameLabelWidthOf` | 86 |
+| `UF-139` `level-of-detail.ts` | − `keptByLevelOfDetail` | 38 |
+| `UF-143` `fit-zoom.ts` | ＋ 15.3 の 3 の 11 の名 | 194 |
+
+変わらないもの: `UF-132` 68、`UF-133` 14、`UF-135` 20、`UF-137` 109、`UF-138` 55、`UF-140` 123、`UF-141` 99、`UF-142` 46。
+
+| 行 ID | ユニット | 責務文（S5） |
+| --- | --- | --- |
+| `UF-139` | `level-of-detail.ts` | 「表示の倍率に応じて描く行の深さを減らす（`FR-018`・`LC-2`・表 T-005a）」。<br>「開いたままの印の行は残す（表 T-254）」「深さごとに要る倍率を 1 つの式で答える」は (c) |
+
+#### `schedule-geometry.ts`（計 1,305）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-144` `task-figures.ts` | ＋ `chevronBarOf` | 598 |
+
+変わらないもの: `UF-6` 252 ＋ 生成 24、`UF-145` 220、`UF-146` 39、`UF-147` 67、`UF-148` 85、`UF-149` 20。
+
+#### `item-hit-area.ts`（計 1,191）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-7` `item-hit-area.ts` | ＋ `isTaskDrawn`・`DrawnChoice`・`ChosenItem`・`selectionWithinDrawn` | 998 ＋ 生成 101 |
+
+変わらないもの: `UF-150` 53、`UF-151` 39。
+
+#### `schedule.ts`（計 1,853）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-126` `schedule-generated.ts` | 区画が 6 行増えた | 679 |
+
+変わらないもの（範囲が +6 ずれただけ）: `UF-1` 17、`UF-127` 17、`UF-128` 301、`UF-129` 34、`UF-130` 54、`UF-131` 751。  
+`UF-128` は `serial` に、`UF-130` は `TRANSPARENT` に `export` を付ける（15.2）。
+
+#### `json-codec.ts`（計 1,548）
+
+| ユニット | 足した名 ／ 消えた名 | 行（`c48f9736`） |
+| --- | --- | --- |
+| `UF-35` `json-codec.ts` | ＋ `RETIRED_COLUMNS`・`withoutRetiredColumns` | 253 |
+| `UF-152` `json-schema-validator.ts` | ＋ `collectionNamesOfEntity`（`export`） | 1,295（生成 1,165 ＋ 手 130） |
+
+#### `mspdi-codec.ts`（計 2,023）
+
+変わらない（`UF-36` 1,262、`UF-153` 268、`UF-154` 178、`UF-155` 243、`UF-156` 72）。
+
+### 15.5 波
+
+| ファイル | ファイルの中の波 |
+| --- | --- |
+| `schedule.ts` | S1 〜 S6（4.6 のまま） |
+| `schedule-layout.ts` | L1 ＝ `name-label`・`label-placement`・`fit-zoom` を除く 9 → L2 ＝ `name-label`・`label-placement`・`fit-zoom`（`name-label` → `label-width` の辺が増えたため） |
+| `schedule-geometry.ts` | G1 〜 G3（4.4 のまま） |
+| `item-hit-area.ts` | 1 つ（4.5 のまま） |
+| `json-codec.ts` | 1 つ（生成器の出力先の変更と `collectionNamesOfEntity` の移しを同じ波で） |
+| `mspdi-codec.ts` | M1 〜 M4（4.8 のまま） |
+| `frame-loop.ts` | F1 ＝ `browser-stored-values`（`UF-162` は無い）→ F2 ・ F3 は 4.1 のまま → F4 ＝ `document-file-flow`（問いを持つ `UF-165`） |
+
+ファイルの順（6.2）と、1 つのファイルを割る体は同時に 1 体だけという約束は変わらない。
