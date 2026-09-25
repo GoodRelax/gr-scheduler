@@ -9,9 +9,9 @@
     --plan:#bcd8f5; --plan-edge:#3b6fb5; --actual:#4a8fe0; --done:#8fc79a; --done-edge:#3d7a48;
     --ms:#f0b429; --ms-edge:#946200; --note:#fff4bf; --note-edge:#c9a227;
     --pick:#d0342c; --accent:#1f6feb; --accent-soft:#dbe8fd; --pin:#fff7e6; --pin-edge:#e8a33d;
-    --flash:#ffe08a; --shadow: 0 6px 24px rgba(20,30,50,.22);
+    --flash:#ffe08a; --bneck:#d32f2f; --shadow: 0 6px 24px rgba(20,30,50,.22);
     /* provisional sizes the sample lets the user touch (CR-571 table T-206 S-423..S-429) */
-    --min-w: 360px; --min-h: 160px; --col-min: 64px; --edge: 6px; --trow: 28px; --tfont: 14px;
+    --min-w: 360px; --min-h: 160px; --col-min: 64px; --edge: 6px; --trow: 28px; --tfont: 16px;
     --title-w: 300px; --lane-h: 26px; --ruler-h: 44px; --ph-h: 38px;
   }
   html, body { height: 100%; }
@@ -84,6 +84,8 @@
   .bar.st2 { background: var(--done); border-color: var(--done-edge); }
   .bar.st2 .act { display: none; }
   .bar.st3, .bar.st4 { border-style: dashed; }
+  .bar.st0 { border: 2px solid var(--bneck); }
+  .ms.st0 { border: 2px solid var(--bneck); }
   .bar.dummy { background: repeating-linear-gradient(45deg, #e8dcef 0 4px, #fff 4px 8px); border-color: #8e44ad; }
   .ms { position: absolute; width: 12px; height: 12px; background: var(--ms); border: 1px solid var(--ms-edge);
         transform: rotate(45deg); cursor: pointer; }
@@ -114,9 +116,11 @@
   .pbtn { width: 30px; height: 28px; border: 1px solid transparent; border-radius: 5px; background: none; cursor: pointer;
           font-family: Consolas, monospace; font-size: 15px; }
   .pbtn:hover { border-color: var(--plan-edge); background: #fff; }
+  .pbtn.ptext { font-family: inherit; font-weight: 700; width: auto; min-width: 30px; padding: 0 4px; }
+  .pbtn.ptext small { font-weight: 400; font-size: 11px; color: var(--ink2); margin-left: 2px; }
   .pbody { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .psearch { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
-  .psearch input { flex: 1; min-width: 0; height: 28px; font: inherit; font-size: 15px; padding: 0 8px; border: 1px solid #9fb3cc; border-radius: 4px; }
+  .psearch input { flex: 1; min-width: 0; height: auto; font: inherit; font-size: var(--tfont); line-height: 1.3; padding: 4px 8px; border: 1px solid #9fb3cc; border-radius: 4px; }
   .psearch input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
   #hitcount { color: var(--ink2); white-space: nowrap; font-size: 13px; }
   .twrap { flex: 1; min-height: 0; overflow: auto; }
@@ -214,6 +218,7 @@
           <svg viewBox="0 0 16 14" width="15" height="13" aria-hidden="true"><path d="M1 1 H15 V9 H7 L3 13 V9 H1 Z" fill="#fff4bf" stroke="#946200" stroke-width="1.2"/></svg>
           <span data-w="tabComments"></span></button>
         <span class="pspace"></span>
+        <button class="pbtn ptext" id="p-font">A<small id="p-font-px"></small></button>
         <button class="pbtn" id="p-min">-</button>
         <button class="pbtn" id="p-max">&#9633;</button>
         <button class="pbtn" id="p-close">X</button>
@@ -248,6 +253,8 @@ const WORDS = {
     blanks: "（空白）", colName: "タスク（マイルストーン）", colWho: "担当者名", colStart: "予定開始", colFinish: "予定終了",
     colState: "状態", colPath: "最上位までの階層", colText: "本文", colRow: "行タイトル", colDate: "日付",
     st1: "未着手", st2: "完了", st3: "中断・再開日未定", st4: "中断・再開予定あり", st5: "進行中",
+    st0: "ボトルネック",                 /* CR-561 DG-2 word (JDG-634) */
+    unnamed: "（名前なし）", restore: "元のサイズに戻す", textSize: "文字の大きさ",   /* JDG-633, JDG-647 */
     rs66: "ピン止め行が多くて検索結果を表示できません。", rs66next: "ピン止めを減らしてください。",
     /* sample-only words below (not in the dictionary draft) */
     from: "いつから", to: "いつまで", hits: "{n} 件 / 全 {m} 件", placeholder: "名前・担当者名・本文の一部",
@@ -256,7 +263,7 @@ const WORDS = {
     undoClean: "未保存の編集なし", undoDirty: "未保存の編集あり（取り消し {n} 段）", sizes: "見本の寸法", about: "この見本について",
     expand: "[v] 1 階層開く", collapse: "[^^] 畳む", hide: "[^] 隠す", pin: "ピン止め", hiddenKids: "隠した子 {n}",
     stage0: "段 0（プロジェクト全体）", selNone: "選択: なし", selTask: "選択中のタスク", selComment: "選択中のコメントボックス",
-    project: "プロジェクト", clearDates: "日付を外す", unnamed: "（名前なし）"
+    project: "プロジェクト", clearDates: "日付を外す"
   },
   en: {
     panelName: "Search panel", tabTasks: "Tasks", tabComments: "Comment Boxes", minimise: "Minimise", maximise: "Maximise",
@@ -264,6 +271,8 @@ const WORDS = {
     clearAll: "Clear All", blanks: "(Blanks)", colName: "Task (Milestone)", colWho: "Assignees", colStart: "Planned Start",
     colFinish: "Planned Finish", colState: "Status", colPath: "Path from Top", colText: "Body", colRow: "Row Title", colDate: "Date",
     st1: "Not started", st2: "Finished", st3: "Paused, no resume date", st4: "Paused, resume date set", st5: "In progress",
+    st0: "Bottleneck",
+    unnamed: "(No name)", restore: "Restore", textSize: "Text size",
     rs66: "Too many pinned rows to show the search result.", rs66next: "Unpin some rows.",
     from: "From", to: "To", hits: "{n} of {m}", placeholder: "Part of a name, an assignee or a text",
     fitTip: "Fit (horizontal only in this sample)", zoom: "Zoom", depth: "Depth drawn by zoom",
@@ -271,7 +280,7 @@ const WORDS = {
     undoClean: "No unsaved edit", undoDirty: "Unsaved edits ({n} undo steps)", sizes: "Sample sizes", about: "About this sample",
     expand: "[v] Expand one level", collapse: "[^^] Collapse", hide: "[^] Hide", pin: "Pin", hiddenKids: "{n} hidden",
     stage0: "Level 0 (whole project)", selNone: "Selected: none", selTask: "Selected task", selComment: "Selected comment box",
-    project: "Project", clearDates: "Clear dates", unnamed: "(unnamed)"
+    project: "Project", clearDates: "Clear dates"
   }
 };
 let LANG = "ja";
@@ -317,7 +326,17 @@ const tasks = DATA.tasks;
   tasks.push({ uid: 9001, name: "", row: sit.uid, start: "2026-11-02", finish: "2026-11-06", ms: false,
                as: null, af: null, resume: null, rv: true, who, dummy: true });
 }
-const stateOf = t => !t.as ? 1 : t.af ? 2 : t.rv === false ? 3 : t.resume ? 4 : 5;   /* table T-019a PS-1..PS-5 */
+/* sample-only fake of CR-561: the real bottleneck judgement (table T-315 DG-2, unfinished tasks only) comes from
+   delay diagnostics. The sample just marks two running tasks and one not-started task by hand. */
+{
+  const open = tasks.filter(t => !t.af && !t.dummy && t.rv !== false && !t.resume);
+  const running = open.filter(t => t.as), notStarted = open.filter(t => !t.as && !t.ms);
+  for (const t of [running[2], running[3], notStarted[0]]) if (t) t.bottleneck = true;
+}
+/* state 0 = bottleneck (JDG-634), else table T-019a PS-1..PS-5 */
+const stateOf = t => (t.bottleneck && !t.af) ? 0 : !t.as ? 1 : t.af ? 2 : t.rv === false ? 3 : t.resume ? 4 : 5;
+/* ascending order (JDG-634): bottleneck, not started, in progress, finished, paused with resume date, paused without */
+const STATE_RANK = { 0: 0, 1: 1, 5: 2, 2: 3, 4: 4, 3: 5 };
 for (const t of tasks) { t.state = stateOf(t); if (t.ms) t.finish = t.start; }
 const taskById = new Map(tasks.map(t => [t.uid, t]));
 
@@ -421,8 +440,8 @@ const COLS = {
       sort: r => r.who.join(", ") },
     { key: "start", w: "colStart", width: 110, type: "date", text: r => fmtDate(r.start), sort: r => r.start },
     { key: "finish", w: "colFinish", width: 110, type: "date", text: r => fmtDate(r.finish), sort: r => r.finish },
-    { key: "state", w: "colState", width: 150, type: "list", keys: r => ["PS-" + r.state], text: r => W("st" + r.state),
-      label: k => W("st" + k.slice(3)), sort: r => r.state },
+    { key: "state", w: "colState", width: 150, type: "list", keys: r => ["s" + r.state], text: r => W("st" + r.state),
+      label: k => W("st" + k.slice(1)), sort: r => STATE_RANK[r.state] },
     { key: "path", w: "colPath", width: 380, type: "list", keys: r => [r.path], text: r => r.path }
   ],
   comment: [
@@ -452,7 +471,16 @@ function passesFilter(c, f, r) {
 /* ================= panel state (S-418..S-420, screen-only) ================= */
 const panel = { state: "hidden", geom: null, tab: "task", word: "",
                 filters: { task: {}, comment: {} }, sort: { task: null, comment: null } };
-const SIZES = { minW: 360, minH: 160, colMin: 64, edge: 6, trow: 28, inset: 24, tfont: 14, wRatio: 0.5, hRatio: 0.5 };
+const SIZES = { minW: 360, minH: 160, colMin: 64, edge: 6, trow: 28, inset: 24, wRatio: 0.5, hRatio: 0.5 };
+/* table T-333 steps; S-429 default is 16 px; screen-only, never saved (JDG-646, JDG-647) */
+const FONT_STEPS = [12, 14, 16, 20];
+let fontStep = 2;
+function applyFont() {
+  document.documentElement.style.setProperty("--tfont", FONT_STEPS[fontStep] + "px");
+  $("p-font-px").textContent = FONT_STEPS[fontStep];
+  const t = `${W("textSize")} (${FONT_STEPS[fontStep]}px)`;
+  $("p-font").title = t; $("p-font").setAttribute("aria-label", t);
+}
 
 function visibleRows(tab, exceptKey) {
   const w = norm(panel.word);
@@ -598,6 +626,11 @@ function placePanel() {
   if (panel.state === "minimised") { y = g.y + g.h - hh; ph = hh + 2; }      /* header only, bottom edge kept */
   Object.assign(p.style, { left: x + "px", top: y + "px", width: pw + "px", height: ph + "px" });
   $("p-max").textContent = panel.state === "maximised" ? "❐" : "□";
+  labelMax();
+}
+function labelMax() {                                    /* JDG-633 point 9: "Restore" while maximised */
+  const t = W(panel.state === "maximised" ? "restore" : "maximise");
+  $("p-max").title = t; $("p-max").setAttribute("aria-label", t);
 }
 function renderTable() {
   const tab = panel.tab, cols = COLS[tab];
@@ -670,7 +703,7 @@ function renderFilter(q) {
     const vals = new Map();
     for (const r of list) for (const k of c.keys(r)) if (!vals.has(k)) vals.set(k, k === "" ? W("blanks") : c.label ? c.label(k) : k);
     let entries = [...vals.entries()];
-    entries.sort((a, b) => (a[0] === "") - (b[0] === "") || (c.key === "state" ? a[0].localeCompare(b[0]) : a[1].localeCompare(b[1], "ja")));
+    entries.sort((a, b) => (a[0] === "") - (b[0] === "") || (c.key === "state" ? STATE_RANK[a[0].slice(1)] - STATE_RANK[b[0].slice(1)] : a[1].localeCompare(b[1], "ja")));
     const nq = norm(q);
     if (nq) entries = entries.filter(e => norm(e[1]).includes(nq));
     html += `<input type="search" data-fsearch="1" value="${esc(q)}" placeholder="${esc(W("search"))}">` +
@@ -785,8 +818,9 @@ function renderWords() {
   $("brand").textContent = DATA.title;
   $("btn-search").title = `${W("search")} (Ctrl+F)`;
   $("btn-fit").title = W("fitTip");
-  $("p-min").title = W("minimise"); $("p-max").title = W("maximise"); $("p-close").title = W("close");
-  $("p-min").setAttribute("aria-label", W("minimise")); $("p-max").setAttribute("aria-label", W("maximise")); $("p-close").setAttribute("aria-label", W("close"));
+  $("p-min").title = W("minimise"); $("p-close").title = W("close");
+  $("p-min").setAttribute("aria-label", W("minimise")); $("p-close").setAttribute("aria-label", W("close"));
+  labelMax(); applyFont();
   $("panel").setAttribute("aria-label", W("panelName"));
   $("word").placeholder = W("placeholder");
   $("about-body").innerHTML = ABOUT[LANG];
@@ -799,7 +833,7 @@ const SIZE_ROWS = [
   ["wRatio", "S-421 既定の幅の比", 0.05, ""], ["hRatio", "S-422 既定の高さの比", 0.05, ""],
   ["minW", "S-423 幅の下限", 10, "px"], ["minH", "S-424 高さの下限", 10, "px"], ["colMin", "S-425 列の幅の下限", 4, "px"],
   ["edge", "S-426 縁を掴める幅（内外それぞれ）", 1, "px"], ["trow", "S-427 表の行の高さ", 1, "px"],
-  ["inset", "S-428 飛んだ先の日付と左端のあいだ", 2, "px"], ["tfont", "S-429 表の字の大きさ（地 16px に対して）", 1, "px"]
+  ["inset", "S-428 飛んだ先の日付と左端のあいだ", 2, "px"]
 ];
 function renderSizes() {
   let html = "";
@@ -814,7 +848,7 @@ $("sizes-body").addEventListener("change", e => {
   SIZES[k] = parseFloat(e.target.value) || SIZES[k];
   const rs = document.documentElement.style;
   rs.setProperty("--min-w", SIZES.minW + "px"); rs.setProperty("--min-h", SIZES.minH + "px");
-  rs.setProperty("--edge", SIZES.edge + "px"); rs.setProperty("--trow", SIZES.trow + "px"); rs.setProperty("--tfont", SIZES.tfont + "px");
+  rs.setProperty("--edge", SIZES.edge + "px"); rs.setProperty("--trow", SIZES.trow + "px");
   if (panel.geom) clampGeom(panel.geom);
   placePanel(); if (panel.state !== "hidden") renderTable();
 });
@@ -830,6 +864,7 @@ function searchEntryPressed() {
 function closePanel() { closeFilter(); panel.state = "hidden"; placePanel(); }
 $("btn-search").addEventListener("click", searchEntryPressed);
 $("p-close").addEventListener("click", closePanel);
+$("p-font").addEventListener("click", () => { fontStep = (fontStep + 1) % FONT_STEPS.length; applyFont(); });   /* IC-127: 20 wraps to 12 */
 $("p-min").addEventListener("click", () => { closeFilter(); panel.state = panel.state === "minimised" ? "normal" : "minimised"; placePanel(); });
 $("p-max").addEventListener("click", () => { closeFilter(); panel.state = panel.state === "maximised" ? "normal" : "maximised"; placePanel(); });
 $("tab-task").addEventListener("click", () => { closeFilter(); panel.tab = "task"; renderTable(); });
@@ -940,7 +975,7 @@ new ResizeObserver(() => { if (panel.geom) clampGeom(panel.geom); placePanel(); 
 window.sampleState = () => ({
   panel: panel.state, geom: panel.geom && { ...panel.geom }, tree: Object.fromEntries([...tree].map(([k, v]) => [rowById.get(k).name, v])),
   undo: undoStack.length, selection, pinned: [...pinned].map(u => rowById.get(u).name),
-  scrollTop: $("sched").scrollTop, scrollLeft: $("sched").scrollLeft, pxPerDay, inset: SIZES.inset, t0: T0
+  scrollTop: $("sched").scrollTop, scrollLeft: $("sched").scrollLeft, pxPerDay, inset: SIZES.inset, t0: T0, fontPx: FONT_STEPS[fontStep]
 });
 
 renderWords();
