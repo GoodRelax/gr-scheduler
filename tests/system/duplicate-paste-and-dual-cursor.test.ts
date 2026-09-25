@@ -606,8 +606,8 @@ async function sweep(): Promise<Measured> {
 
     const guideCursorRuns: Measured['guideCursorRuns'][number][] = []
     for (const armed of GUIDE_CURSOR_ENTRANCES) {
-      // WHY: a Dual Cursor stands throughout -- DC-4 and FR-048 (MUST NOT)
-      // forbid one entrance taking two cursors down.
+      // WHY: a Dual Cursor stands before each press -- DC-9 of table T-029a
+      // has the guide-cursor entrance take it down, and that is what is read.
       if ((await shot()).dualCursor === null) {
         await pressEntrance(page, DUAL_CURSOR_ENTRANCE)
       }
@@ -861,20 +861,24 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
     }
   })
 
-  // WHY: goes red if a guide-cursor entrance takes the measuring pair down
-  // with it -- the MUST NOT DC-4 and FR-048 both state.
-  test('no guide-cursor entrance disturbs a Dual Cursor that is standing', () => {
+  // WHY: goes red if a guide-cursor entrance leaves the pair standing -- DC-9 of
+  // table T-029a (MUST) leaves the mode, DC-7 clears the pair, S-66 takes the press.
+  test('a guide-cursor entrance clears a standing Dual Cursor and takes its own mode', () => {
     const seen = readingsOfTheSweep()
     expect(seen.guideCursorRuns.length, 'the sweep drove no guide-cursor entrance').toBeGreaterThan(0)
     for (const run of seen.guideCursorRuns) {
       expect(
         run.dualCursorAfterFirstPress,
-        `DC-4 of table T-029a (MUST NOT) forbids ${run.icon} clearing the Dual Cursor`,
-      ).not.toBeNull()
+        `DC-9 and DC-7 of table T-029a (MUST) have ${run.icon} leave the mode and clear ${DUAL_CURSOR_SETTING}`,
+      ).toBeNull()
+      expect(
+        run.modeAfterFirstPress,
+        `DC-9 of table T-029a (MUST) writes the value ${run.icon} arms to ${GUIDE_CURSOR_SETTING}`,
+      ).toBe(run.modeWanted)
       expect(
         run.dualCursorAfterSecondPress,
-        `and forbids it just as much when ${run.icon} goes back to ${GUIDE_CURSOR_NONE}`,
-      ).not.toBeNull()
+        `${run.icon} going back to ${GUIDE_CURSOR_NONE} must not bring the cleared pair back`,
+      ).toBeNull()
     }
   })
 })

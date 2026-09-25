@@ -17,7 +17,13 @@
 // invented range hid DFC-225 for a round: a row holding no `Task` is 22..28px,
 // which is smaller than the 48px lattice of `HF-1` standing on it, and a
 // reader who believed the floor was 64 would not look for that case.
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { chromium, openSample, openApp, SAMPLE_TREE } from './sample-and-app.mjs'
+
+const DICTIONARY = path.join(
+  path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'docs', 'spec', '_source', 'display-words.json')
 
 const browser = await chromium.launch()
 const sample = await openSample(browser)
@@ -42,29 +48,47 @@ const app = await openApp(browser)
  * 「the document would not empty」 after 200 presses -- which is the product
  * obeying its specification, not a fault.
  *
- * ⛔⛔ SO IT STOPS AT A FIXED POINT, NOT AT A COUNT. "Stop when one row is
- * drawn" was tried and measured wrong: the drawn set is a SCROLLED WINDOW, and
- * the loop stopped with 「Quality And Release」 -- a row of the SAMPLE, 148px
+ * ⛔⛔ SO IT STOPS ON THE INVARIANT'S OWN ROW, NOT AT A COUNT. "Stop when one
+ * row is drawn" was tried and measured wrong: the drawn set is a SCROLLED
+ * WINDOW, and the loop stopped with 「Quality And Release」 -- a row of the SAMPLE, 148px
  * tall because it carries tasks -- still standing. The board was then built
  * beside it, and the next `pressRow` could not find its own parent.
- * ⭐ The row the invariant makes is the one row a delete cannot remove: press
- * IC-82 on it and a row with the SAME identifier is there again. So the loop
- * presses until a press stops changing the set of `data-group-id` on screen,
- * which hard-codes no identifier and no word.
+ * ⭐ The row the invariant makes is a NEW row: JDG-300 Q14 (PND-488) retired
+ * the fixed identifier, so deleting that row stands another one up under a
+ * new identifier every time (DFC-979, measured 2026-09-25: the id changed on
+ * every press, 200 presses and no fixed point). The loop therefore stops when one
+ * row was drawn, a press left one row drawn again with only its identifier
+ * changed, and that row carries the dictionary's `defaultNames`/`row` word --
+ * the last check keeps a lone tall row, replaced by another lone one when the
+ * drawn window scrolls, from passing for the invariant's row.
  */
-/** The rows on screen right now, as identifiers -- the loop's fixed point. */
+/** The rows on screen right now, as identifiers -- what the loop's stop compares. */
 async function drawnRowIds() {
   return app.tab.evaluate(() =>
     [...document.querySelectorAll('[data-depth]')].map((row) => row.getAttribute('data-group-id')))
 }
 
+/** Every spelling the dictionary gives the name of a row the invariant stands up. */
+function defaultRowNames() {
+  const dictionary = JSON.parse(readFileSync(DICTIONARY, 'utf8'))
+  const found = (dictionary.defaultNames ?? []).find((one) => one.use === 'row')
+  const names = Object.values(found?.text ?? {}).filter((one) => typeof one === 'string' && one !== '')
+  if (names.length === 0) throw new Error(`${DICTIONARY} spells no default row name`)
+  return names
+}
+
 async function emptyTheApp() {
+  const defaultNames = defaultRowNames()
   let before = null
   for (let guard = 0; guard < 200; guard += 1) {
     const ids = await drawnRowIds()
-    // ⛔ The fixed point: one row on screen AND the press before it changed
-    // nothing. Only the invariant's row survives its own deletion.
-    if (ids.length <= 1 && before !== null && before.join() === ids.join()) return true
+    // The stop: one row before the press, one row after it, only the id
+    // changed, and the row left is the invariant's (named by the dictionary).
+    if (ids.length === 1 && before !== null && before.length === 1 && before[0] !== ids[0]) {
+      const [only] = await app.rows()
+      const name = (only ?? '').split(':').slice(1).join(':')
+      if (defaultNames.includes(name)) return true
+    }
     before = ids
     const top = await app.tab.evaluate(() => {
       const row = document.querySelector('[data-depth]')
@@ -92,9 +116,14 @@ async function emptyTheApp() {
   throw new Error('the document would not empty')
 }
 
-/** Name the row HF-14 just stood up with an empty name. */
+/**
+ * Name the row HF-14 just stood up, in the name field of its Properties Panel.
+ *
+ * The field is a textarea, not an input: FR-006 wraps a text field and grows
+ * it downwards, which a one-line input cannot do.
+ */
 async function nameIt(name) {
-  const entry = await app.tab.waitForSelector('input:focus', { timeout: 5000 })
+  const entry = await app.tab.waitForSelector('input:focus, textarea:focus', { timeout: 5000 })
   await entry.fill(name)
   await app.tab.keyboard.press('Enter')
   await app.tab.waitForTimeout(320)
@@ -115,7 +144,7 @@ async function nameIt(name) {
  * the panel builds DOM for a row whose ancestors are above its top edge. ⭐ It
  * reproduces with the T-050 invariant REVERTED (rebuilt from HEAD and measured),
  * so it predates that work and belongs in its own ledger row -- it needs a tall
- * leftover row and is invisible once `emptyTheApp` reaches its fixed point.
+ * leftover row and is invisible once `emptyTheApp` reaches its stop.
  *
  * ⚠️ THE LEFTOVER IS MATCHED BY THE WORD ON SCREEN, which FR-085 may have cut
  * with a `…`. That is what `pressRow` compares against, so a cut name still
@@ -126,6 +155,18 @@ async function theOnlyRowsName() {
   return drawn.length === 0 ? null : drawn[0].split(':').slice(1).join(':')
 }
 
+/** Scroll the Row Title Panel back to its top, the way a reader's wheel does. */
+async function wheelUpOverRows() {
+  const at = await app.tab.evaluate(() => {
+    const box = document.querySelector('[data-role="Row Title Panel"]')?.getBoundingClientRect()
+    return box === undefined ? null : { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  })
+  if (at === null) return
+  await app.tab.mouse.move(at.x, at.y)
+  for (let turn = 0; turn < 10; turn += 1) await app.tab.mouse.wheel(0, -600)
+  await app.tab.waitForTimeout(300)
+}
+
 async function buildTheBoard() {
   await emptyTheApp()
   const leftover = await theOnlyRowsName()
@@ -133,11 +174,18 @@ async function buildTheBoard() {
   // so `pressRow` can find nothing and return quietly -- and the next `nameIt`
   // would then type into whatever field happened to be open, which is how two
   // rows landed under the wrong parent on the first run.
+  const pressAdd = (parent) => (parent === null
+    ? app.pressHead('addRoot')
+    : app.pressRow(parent, 'add'))
   const stand = async (parent, kids) => {
     for (const [name, grandKids] of kids) {
-      const done = parent === null
-        ? await app.pressHead('addRoot')
-        : await app.pressRow(parent, 'add')
+      let done = await pressAdd(parent)
+      // The view can park below the content after a write (the note above
+      // theOnlyRowsName); a wheel-up over the panel brings the parent back.
+      if (done === false) {
+        await wheelUpOverRows()
+        done = await pressAdd(parent)
+      }
       if (done === false) {
         throw new Error(`could not press add for ${name} under ${parent ?? '段 0'} `
           + `-- drawn: ${JSON.stringify(await app.rows())}`)

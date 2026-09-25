@@ -546,6 +546,23 @@ function colourPropertyRows(): readonly string[] {
 }
 
 /**
+ * The custom-colour entrance's word of table T-017b row CV-9, in every language
+ * the dictionary spells it in, as one whole-text pattern.
+ *
+ * @purity semi-pure-b
+ */
+function customColourWords(): RegExp {
+  const held = JSON.parse(readFileSync(DICTIONARY, 'utf8')) as {
+    colourField?: Array<{ part?: string; text?: Record<string, string> }>
+  }
+  const found = (held.colourField ?? []).find((one) => one.part === 'custom')
+  const words = Object.values(found?.text ?? {}).filter((one) => typeof one === 'string' && one !== '')
+  if (words.length === 0) throw new Error(`${DICTIONARY} spells no custom-colour entrance`)
+  const escaped = words.map((one) => one.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  return new RegExp(`^\\s*(?:${escaped.join('|')})\\s*$`)
+}
+
+/**
  * The one row of table T-109 with this text in the column given.
  *
  * ⭐ Used so that no case here spells an `IC-nn` of its own: an entrance is
@@ -1664,88 +1681,92 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
 // DFC-82 -- nothing in front of a colour control
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: anything standing before a colour control in its own field row
-// shows that control's value -- by being painted with it, by carrying a `fill`,
-// or by printing it. `FR-006` (MUST NOT) says 「現在の値を、その値を示す操作子の
-// 手前に重ねて描いてはならない（MUST NOT）」 and adds 「`S-188` が持つのは見本の
-// 寸法であって、何回描いてよいかではない」.
+// GOES RED IF: once the custom-colour entrance of a colour field is pressed,
+// anything drawn over the host colour input it brings up shows that input's
+// value -- painted with it, filled with it, or printing it. FR-006 (MUST NOT)
+// forbids drawing the current value in front of the control that shows it.
+// Table T-017b row CV-9 (MUST) brings the host input up only on that press
+// (JDG-397), so the case presses it first.
 //
-// ⭐ WHICH FIELDS ARE COLOURS IS TAKEN FROM TABLE T-016's OWN INPUT-KIND COLUMN,
-// so a property that becomes a colour is swept without touching this file.
-// ⚠️ The panel is left open by the case above, and this one only reads.
-test('DFC-82: nothing standing before a colour control shows the colour it holds', async () => {
+// WHY: the per-side swatches CV-9 (MUST) asks for are left out, and so is
+// anything merely beside the input: whether a swatch next to the input breaks
+// FR-006 is a question the specification does not settle yet (DFC-979), and
+// this case takes neither side of it.
+test('DFC-82: nothing drawn over a colour control shows the colour it holds', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
+  const customWords = customColourWords()
   const colourRows = colourPropertyRows()
-  const found = await page.evaluate(
-    (asked: { panel: string; rows: readonly string[] }) => {
-      const panel = document.querySelector(asked.panel)
-      if (panel === null) return null
-      const out: Array<{ row: string; before: Array<{ tag: string; background: string; fill: string; text: string }>; value: string }> = []
-      for (const control of Array.from(panel.querySelectorAll('input[type="color"]'))) {
-        // ⚠️ `closest` STARTS AT THE ELEMENT ITSELF, and the control carries the
-        // row's own mark, so it would answer the control. The row is looked for
-        // from the control's parent.
-        const row = control.parentElement?.closest('[data-field-row]') ?? null
-        const rowId = control.getAttribute('data-field-row') ?? row?.getAttribute('data-field-row') ?? ''
-        if (!asked.rows.includes(rowId)) continue
-        if (row === null) continue
-        const before: Array<{ tag: string; background: string; fill: string; text: string }> = []
-        // Everything drawn in this row that stands before the control, in the
-        // order the row draws them.
-        const controls = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'OPTION']
-        for (const node of Array.from(row.querySelectorAll('*'))) {
-          if (node === control) break
-          if (node.contains(control)) continue
-          // ⛔ A CONTROL IS NOT A SWATCH. `FR-006` forbids a second showing of
-          // the value in front of the control that already shows it; the OTHER
-          // controls of the same row (`PR-12` carries two colours and a
-          // thickness) show values of their own, and a colour control painted
-          // with its own colour is the very thing the requirement calls
-          // sufficient. Measured 2026-09-03: leaving them in reports the second
-          // colour control as a swatch in front of itself.
-          if (controls.includes(node.tagName)) continue
-          before.push({
-            tag: node.tagName,
-            background: getComputedStyle(node).backgroundColor,
-            fill: node.getAttribute('fill') ?? '',
-            text: (node.textContent ?? '').trim(),
-          })
-        }
-        out.push({ row: rowId, before, value: (control as HTMLInputElement).value })
-      }
-      return out
-    },
-    { panel: PANEL, rows: colourRows },
-  )
-  expect(found, 'the Properties Panel is not on the screen').not.toBeNull()
-  if (found === null) return
-  expect(
-    found.length,
-    `the panel drew no colour control for any of ${colourRows.join(', ')}, which table T-016 marks ` +
-      'as colours -- so this case would pass on an empty panel',
-  ).toBeGreaterThan(0)
-
-  const showing: string[] = []
-  for (const control of found) {
-    for (const node of control.before) {
-      // A painted swatch: anything with ink of its own behind it.
-      if (node.background !== '' && !/rgba\(0, 0, 0, 0\)|transparent/.test(node.background)) {
-        showing.push(`${control.row}: a ${node.tag} painted ${node.background} stands before the control`)
-      }
-      if (node.fill !== '' && node.fill !== 'none') {
-        showing.push(`${control.row}: a ${node.tag} filled ${node.fill} stands before the control`)
-      }
-      // A printed one: the value written out where the control already shows it.
-      if (/#[0-9a-fA-F]{3,8}/.test(node.text)) {
-        showing.push(`${control.row}: a ${node.tag} prints ${JSON.stringify(node.text)}`)
-      }
+  const judged: Array<{ row: string; value: string; over: string[] }> = []
+  let pressed = 0
+  for (const rowId of colourRows) {
+    const row = page.locator(`${PANEL} div[data-field-row="${rowId}"]`).first()
+    if ((await row.count()) === 0) continue
+    const entrances = row.locator('button').filter({ hasText: customWords })
+    const count = await entrances.count()
+    for (let index = 0; index < count; index += 1) {
+      await entrances.nth(index).click()
+      pressed += 1
+      await expect
+        .poll(async () => row.locator('input[type="color"]').count(), {
+          message: `pressing the custom-colour entrance of ${rowId} brought up no host colour input (CV-9)`,
+          timeout: 5_000,
+        })
+        .toBeGreaterThan(0)
+      judged.push(
+        ...(await row.evaluate((rowElement: Element, asked: { rowName: string; panel: string }) => {
+          const hexOf = (painted: string): string => {
+            const parts = /rgba?\((\d+), (\d+), (\d+)(?:, ([\d.]+))?\)/.exec(painted)
+            if (parts === null || parts[4] === '0') return ''
+            return `#${[parts[1], parts[2], parts[3]]
+              .map((one) => Number(one).toString(16).padStart(2, '0'))
+              .join('')}`
+          }
+          const out: Array<{ row: string; value: string; over: string[] }> = []
+          for (const control of Array.from(rowElement.querySelectorAll('input[type="color"]'))) {
+            const value = (control as HTMLInputElement).value.toLowerCase()
+            const box = control.getBoundingClientRect()
+            const over: string[] = []
+            // WHY: only the panel is searched -- the chart the panel floats over is behind it, not in front.
+            const panel = rowElement.closest(asked.panel) ?? rowElement
+            for (const node of Array.from(panel.querySelectorAll('*'))) {
+              if (node === control || node.contains(control) || control.contains(node)) continue
+              if (node.closest('[data-colour-sides]') !== null) continue
+              const its = node.getBoundingClientRect()
+              if (its.width === 0 || its.height === 0) continue
+              const overlaps =
+                its.left < box.right && box.left < its.right && its.top < box.bottom && box.top < its.bottom
+              if (!overlaps) continue
+              const style = getComputedStyle(node)
+              if (hexOf(style.backgroundColor) === value) {
+                over.push(`a ${node.tagName} painted ${value}`)
+              }
+              const fill = (node.getAttribute('fill') ?? '').toLowerCase()
+              const shape = node instanceof SVGGeometryElement && hexOf(style.fill) === value
+              if (fill === value || shape) {
+                over.push(`a ${node.tagName} filled ${value}`)
+              }
+              if ((node.textContent ?? '').toLowerCase().includes(value)) {
+                over.push(`a ${node.tagName} prints ${value}`)
+              }
+            }
+            out.push({ row: asked.rowName, value, over })
+          }
+          return out
+        }, { rowName: rowId, panel: PANEL })),
+      )
     }
   }
-  expect(showing, 'FR-006 (MUST NOT) forbids showing the value in front of the control that shows it').toEqual(
-    [],
-  )
+
+  expect(
+    pressed,
+    `the panel drew no custom-colour entrance for any of ${colourRows.join(', ')}, which table T-016 marks ` +
+      'as colours -- so this case would pass on an empty panel',
+  ).toBeGreaterThan(0)
+  expect(judged.length, 'no host colour input was there to judge').toBeGreaterThan(0)
+  const showing = judged.flatMap((one) => one.over.map((said) => `${one.row}: ${said} over the control`))
+  expect(showing, 'FR-006 (MUST NOT) forbids drawing the value over the control that shows it').toEqual([])
 })
 
 // ---------------------------------------------------------------------------

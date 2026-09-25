@@ -11,6 +11,7 @@ import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf }
 import { rowOf } from './sws-case'
 
 const T025: SpecTable = specTable('T-025')
+const T016: SpecTable = specTable('T-016')
 const T058: SpecTable = specTable('T-058')
 const T109: SpecTable = specTable('T-109')
 const T206: SpecTable = specTable('T-206')
@@ -52,8 +53,24 @@ function columnRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
+// WHY: IR-1 marks a field by its table T-016 row; the row-name field alone
+// keeps the ERD column (AT-53), so only the name is read from table T-058.
 const ROW_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
-const ROW_HEIGHT_COLUMN = columnRowOf('TaskGroup', 'height')
+
+/** @purity pure */
+function propertyRowOf(entity: string, column: string): string {
+  const found = T016.rows.filter(
+    (row) => (row.cells[0] ?? '').includes(`\`${column}\``) && (row.cells[2] ?? '').includes(entity),
+  )
+  if (found.length !== 1) {
+    throw new Error(
+      `table T-016 has ${found.length} rows for ${entity}.${column}, and this file needs one`,
+    )
+  }
+  return found[0]?.id ?? ''
+}
+
+const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'height')
 
 // WHY: found by what the table says the entrance does, so that no case
 // spells an IC-nn of its own.
@@ -529,8 +546,8 @@ test('DFC-133: confirming the height field moves the panel and the row together'
   try {
     await openPanelOnRow(opened.page, 0)
     const before = (await drawnRows(opened.page))[0] as DrawnRow
-    const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_COLUMN]
-    expect(Number(shownBefore), `the panel shows ${ROW_HEIGHT_COLUMN} to begin with`).toBe(
+    const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
+    expect(Number(shownBefore), `the panel shows ${ROW_HEIGHT_FIELD} to begin with`).toBe(
       before.height,
     )
 
@@ -540,7 +557,7 @@ test('DFC-133: confirming the height field moves the panel and the row together'
     const after = (await drawnRows(opened.page))[0] as DrawnRow
     expect(after.height, 'FR-006: the row takes the confirmed height').toBe(wanted)
     expect(
-      Number((await panelFields(opened.page))[ROW_HEIGHT_COLUMN]),
+      Number((await panelFields(opened.page))[ROW_HEIGHT_FIELD]),
       'FR-006 (MUST): the panel is not left holding the reading it had while the field was held',
     ).toBe(wanted)
   } finally {
