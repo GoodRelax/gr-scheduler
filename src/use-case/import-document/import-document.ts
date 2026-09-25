@@ -212,7 +212,10 @@ function calendarContentKey(calendar: Calendar): string {
 // see OP-6
 /** @purity pure */
 function restoredSettings(fromFile: DocumentSettings, defaults: DocumentSettings): DocumentSettings {
-  return { ...defaults, ...fromFile }
+  const read = fromFile as unknown as Readonly<Record<string, unknown>>
+  const restored = Object.entries(defaults).map(([key, fallback]): [string, unknown] =>
+    [key, Object.hasOwn(read, key) ? read[key] : fallback])
+  return Object.fromEntries(restored) as unknown as DocumentSettings
 }
 
 // see OP-10
