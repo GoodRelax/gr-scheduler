@@ -828,6 +828,15 @@
 | JDG-581 | **「問い1と2は推奨通り」**（2026-09-25。調整役が `change-request/CR-569-the-project-summary-task-is-carried-not-a-row.md` の 11 節の問い 1「`GRS` が作った文書を `MSPDI` へ書き出すとき、要約タスクを作って書き足すか —— ① 書き足さない（推奨）／ ② 書き足す」を利用者に問うた答え。本行は問い 1 への答え） | ⭐ 案 ①: `MSPDI` を取り込まずに作った文書を書き出すとき、プロジェクトの要約タスク（`UID` 0・`OutlineLevel` 0）を作って書き足さない。公式スキーマは `Tasks` にも `Task` にも出現を求めず、ProjectLibre も書かない。今の書き出しも書かないので、コードは変わらない | 表 T-033 の `EX-5` の MUST NOT（`change-request/CR-569-the-project-summary-task-is-carried-not-a-row.md` の E-04） | 適用済 —— `c1c71807`（`EX-5` の MUST NOT。コードは変えない —— 書き出しは今も要約タスクを書き足さない） |
 | JDG-582 | **「問い1と2は推奨通り」**（2026-09-25。本行は `change-request/CR-569-the-project-summary-task-is-carried-not-a-row.md` の 11 節の問い 2「ファイルが要約タスクを指しているとき（`Assignment/TaskUID` が 0、または `PredecessorLink/PredecessorUID` が 0）をどうするか —— ① 原形のまま持ち回る（推奨）／ ② 指す先の無い割当・依存を残す／ ③ 要約タスクを `Task` として読む」への答え） | ⭐ 案 ①: 要約タスクを指す割当は `schedule.project.carryElements` の `Assignment` の行（`UID` の無い割当と同じ器）へ、要約タスクを先行とする依存はその後続の `Task` の `carryElements` へ、原形のまま控え、書き出しで変えずに戻す —— 指す先の無い割当・依存は文書に残らず、表 T-220 の `IV-2` も往復（`FR-021`）も保たれる。⚠️ 当てる体の読み: 後続がほかの依存も持つときは、控えた依存がそれらより前に書き戻る（`EX-10` の置き方）。見本 6 つには該当が 0 件 | 表 T-265 の `MR-4` の 1 文（`change-request/CR-569-the-project-summary-task-is-carried-not-a-row.md` の E-08）＋ `src/adapter/document-codec/mspdi-codec.ts` の `assignmentsFromRoot` と依存の読み | 適用済 —— `c1c71807`（`MR-4` の文、E-08）、`5529a0de`（`assignmentsFromRoot` と `linksOfTask`） |
 
+## 2026-09-25 —— すべて開く入口が、いまの倍率のまま全階層を描く（DFC-983、CR-570）
+
+⭐ 全体表示の絵で頭の [vv] が `RS-31` を返し、深い行が倍率（`FR-018`）で落ちたまま開かないことを、調整役が利用者に問うた。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-590 | **「[vv]で押下した場合でもいったんは全階層を開く。 [v]で開いたタスクはそのあと縮小しても表示継続だろ？ [vv] は縮小したら折りたたむ。」**（2026-09-25。調整役の問いへの答え） | ⭐ すべて開く入口（頭の `IC-74` と行の `IC-58`）は、いまの縦の倍率のまま、その範囲のすべての段を描く（表示量の一時開放）。開いたままの印は立てない —— 縦を縮めれば倍率の絵へ戻る。⭐ 1 階層開く [v]（`IC-90`、`KO-1`）の印は今のまま、縮めても残る。⭐ 一時開放は画面だけの状態であり、文書に保存せず、取り消しの段も作らない | 表 T-051 の `HF-2`・`HF-10`・`HF-13` ＋ 表 T-254 の `KO-2` ＋ `FR-018` の段 ＋ 表 T-206 の `S-351` ＋ 表 T-280 の `lodSuspensionStateMachine` —— `change-request/CR-570-open-all-draws-every-level-until-the-row-zoom-shrinks.md` | 指示 —— `change-request/CR-570-open-all-draws-every-level-until-the-row-zoom-shrinks.md` が当てる（起草のみ。問い 2 つを前に立つ者へ返した） |
+| JDG-591 | **「細部 1〜3 も推奨どおり。 ただし、Fixすると[v]も[vv]も、縮小時も開くモードを解除するのは既存の仕様通りね。」**（2026-09-25。調整役が示した細部 3 つへの答え。「Fix」は全体表示のこと） | ⭐ 一時開放は、行の軸（縦）を縮めた最初の刻みと全体表示で終わる。横のズーム・拡大・スクロールでは終わらない。⭐ 一時開放のあいだに [v] を押せば、今と同じく印が立つ。⭐ 行の [vv] も、その配下について同じ一時の扱いにする。⭐ 全体表示は、開いたままの印（`KO-7`、今のまま）と一時開放の両方を捨てる。⭐ 頭の [vv] は、畳みで隠れた行か倍率で隠れた行が 1 つでもあれば押せる（理由 `RS-31` もそれに合わせる）。⭐ `FR-018` の単調性（縮めて増えない）は保つ | 表 T-051 の `HF-8`・`HF-10` ＋ `FR-055`・`FR-031` の段 ＋ 表 T-233 の `RS-31` とその語 ＋ 表 T-280 の `lodSuspensionStateMachine` —— `change-request/CR-570-open-all-draws-every-level-until-the-row-zoom-shrinks.md` | 指示 —— `change-request/CR-570-open-all-draws-every-level-until-the-row-zoom-shrinks.md` が当てる（起草のみ） |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
