@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { Confirmation, LinkedWords, Notice } from '../../adapter/screen-renderer/screen-renderer'
+import type { Confirmation, Notice } from '../../adapter/screen-renderer/screen-renderer'
 import {
   CONFIRMATION_ANSWER_ATTRIBUTE,
   NOTICE_DISMISS_KEY_ATTRIBUTE,
@@ -17,6 +17,8 @@ import {
 } from './dom-screen-surface'
 
 const CONFIRMATION_PART_ATTRIBUTE = 'data-confirmation-part'
+
+type LinkedWords = Exclude<NonNullable<Notice['nextStepLinks']>[number], null>
 
 const LINK_TARGET = '_blank'
 
@@ -43,9 +45,9 @@ function linkElement(host: Document, address: string): HTMLElement {
 
 // see FR-073
 /** @purity non-pure */
-export function nextStepElement(host: Document, text: string, link: LinkedWords | null): HTMLElement {
+export function nextStepElement(host: Document, text: string, link?: LinkedWords | null): HTMLElement {
   const line = made(host, 'div', STYLE.noticeNextStep)
-  if (link === null) {
+  if (link === undefined || link === null) {
     line.textContent = text
     return line
   }
@@ -69,7 +71,7 @@ export function noticeElement(host: Document, notice: Notice): HTMLElement {
     drawn.setAttribute('data-affected-count', String(notice.affectedCount))
   }
   notice.nextSteps.forEach((step, index) => {
-    drawn.append(nextStepElement(host, step, notice.nextStepLinks?.[index] ?? null))
+    drawn.append(nextStepElement(host, step, notice.nextStepLinks?.[index]))
   })
   const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
   dismiss.setAttribute('type', 'button')

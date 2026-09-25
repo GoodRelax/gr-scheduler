@@ -432,7 +432,7 @@ export function modalElement(
       body.push(said)
     }
     if (modal.unreadNextStep !== '') {
-      body.push(nextStepElement(host, modal.unreadNextStep, modal.unreadNextStepLink ?? null))
+      body.push(nextStepElement(host, modal.unreadNextStep, modal.unreadNextStepLink))
     }
     for (const column of modal.unreadColumns) {
       const line = made(host, 'div', STYLE.field)

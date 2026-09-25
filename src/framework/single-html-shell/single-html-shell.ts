@@ -201,45 +201,74 @@ const STARTUP_NOTICE_REASON: Readonly<Record<StartupNoticeCode, StartupNoticeRea
   handedUnreadable: 'RS-26',
 }
 
+const NEWER_FORMAT_UNREAD_REASON: StartupNoticeReason = 'RS-48'
+
+const NEWER_FORMAT_OPENED_REASON: StartupNoticeReason = 'RS-63'
+
+const NEWER_FORMAT_REFUSED_REASON: StartupNoticeReason = 'RS-64'
+
+// see FR-073, RS-48, RS-63
+/** @purity pure */
+function newerFormatReasonOf(unreadColumns: readonly string[]): StartupNoticeReason {
+  return unreadColumns.length > 0 ? NEWER_FORMAT_UNREAD_REASON : NEWER_FORMAT_OPENED_REASON
+}
+
+interface StartupReadings {
+  readonly clampedCount: number
+  readonly unreadColumns: readonly string[]
+  readonly isNewerFormat: boolean
+  readonly isRefusedAsNewer: boolean
+}
+
+const NOTHING_READ: StartupReadings = { clampedCount: 0, unreadColumns: [], isNewerFormat: false, isRefusedAsNewer: false }
+
+/** @purity pure */
+function startupReadingsOf(read: ReturnType<typeof documentFromJson>): StartupReadings {
+  if (!read.ok) return { ...NOTHING_READ, isRefusedAsNewer: read.reason === NEWER_FORMAT_REFUSED_REASON }
+  return {
+    clampedCount: read.clampedCount,
+    unreadColumns: read.unreadColumns,
+    isNewerFormat: read.formatVersion === 'newerThanKnown',
+    isRefusedAsNewer: false,
+  }
+}
+
+// see FR-073, RS-64
+/** @purity pure */
+function startupNoticeReasonOf(code: StartupNoticeCode, isRefusedAsNewer: boolean): StartupNoticeReason {
+  return code === 'embeddedUnreadable' && isRefusedAsNewer ? NEWER_FORMAT_REFUSED_REASON : STARTUP_NOTICE_REASON[code]
+}
+
 // see BT-1, FR-088, FR-067
 // STOP: spec does not decide running FR-023's validation over BT-1. Looked in FR-023, FR-067, OP-5, T-008 (PND-452)
 /** @purity semi-pure-b */
-function embeddedStartupDocument(): {
+function embeddedStartupDocument(): StartupReadings & {
   readonly candidate: EmbeddedCandidate
   readonly refusal: StartupNoticeReason | null
-  readonly clampedCount: number
-  readonly unreadColumns: readonly string[]
 } {
   // TRAP: CSS.escape, since an id may begin with a digit; querySelectorAll, since FR-067 needs the count.
   const containers = document.querySelectorAll(`#${CSS.escape(EMBEDDED_DOCUMENT_ELEMENT_ID)}`)
   if (containers.length === 0) {
-    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
+    return { candidate: { kind: 'none' }, refusal: null, ...NOTHING_READ }
   }
   if (containers.length > 1) {
     return {
       candidate: { kind: 'entryCountNotOne', entryCount: containers.length },
       refusal: null,
-      clampedCount: 0,
-      unreadColumns: [],
+      ...NOTHING_READ,
     }
   }
   const embedded = containers[0]?.textContent?.trim() ?? ''
   if (embedded === '' || embedded === EMBEDDED_DOCUMENT_ABSENT) {
-    return { candidate: { kind: 'none' }, refusal: null, clampedCount: 0, unreadColumns: [] }
+    return { candidate: { kind: 'none' }, refusal: null, ...NOTHING_READ }
   }
   // TRAP: do not un-escape first: embeddedJson wrote JSON escapes, which the reader gives back.
   const read = documentFromJson(embedded, GREATEST_KNOWN_SCHEMA_VERSION)
-  if (!read.ok) {
-    return { candidate: { kind: 'unreadable' }, refusal: null, clampedCount: 0, unreadColumns: [] }
-  }
+  const readings = startupReadingsOf(read)
+  if (!read.ok) return { candidate: { kind: 'unreadable' }, refusal: null, ...readings }
   const refusal = noWorkingWeekdayReason(read.document)
   if (refusal !== null) {
-    return {
-      candidate: { kind: 'none' },
-      refusal,
-      clampedCount: read.clampedCount,
-      unreadColumns: read.unreadColumns,
-    }
+    return { candidate: { kind: 'none' }, refusal, ...readings }
   }
   return {
     candidate: {
@@ -247,8 +276,7 @@ function embeddedStartupDocument(): {
       document: read.document,
     },
     refusal: null,
-    clampedCount: read.clampedCount,
-    unreadColumns: read.unreadColumns,
+    ...readings,
   }
 }
 
@@ -475,16 +503,14 @@ function boot(): void {
   loop.settleFirstFrameEnvironment(nowEnvironment())
 
   for (const notice of chosen.notices) {
-    running.raiseStartupNotice(STARTUP_NOTICE_REASON[notice.code])
+    running.raiseStartupNotice(startupNoticeReasonOf(notice.code, embedded.isRefusedAsNewer))
   }
   if (embedded.refusal !== null) running.raiseStartupNotice(embedded.refusal)
   if (chosen.row === 'BT-1' && embedded.clampedCount > 0) {
     running.raiseStartupNotice('RS-51', embedded.clampedCount)
   }
   // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here only RS-48 is told (DFC-561)
-  if (chosen.row === 'BT-1' && embedded.unreadColumns.length > 0) {
-    running.raiseStartupNotice('RS-48')
-  }
+  if (chosen.row === 'BT-1' && embedded.isNewerFormat) running.raiseStartupNotice(newerFormatReasonOf(embedded.unreadColumns))
 
   const host = globalThis as unknown as Record<string, unknown>
   running.watchAgentApiEnabling((isEnabled) => {

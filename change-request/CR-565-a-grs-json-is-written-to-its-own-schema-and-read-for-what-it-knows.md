@@ -631,5 +631,6 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-identifier-r
 - **開く道は、`RS-25` の拒みを告げない**（`document-file-flow.ts:194-215` が理由を捨てて `null` を返す —— `DFC-656`）。S-4 の「拒み `RS-64` → `RS-25` と同じ道で告げる」は、この道では「黙る」になる。⭐ `RS-64` だけは告げることにした —— `FR-073`（E-04）が「どの理由を告げるときも案内する」と求め、`JDG-426` の案内は拒む文書にこそ要る。`RS-25` の沈黙（`DFC-656`）は `JDG-78` のとおり異常系の巡に残す。
 - **`U-61` は合流で対応の候補があるときにしか立たない** —— 置き換えと、候補の無い合流では、版が新しく読めなかった列がある文書も問わずに開く（本書の前から）。本書の後は読めなかった列を捨てるので、黙れば `FR-073` の「並べずに捨ててはならない（MUST NOT）」に反する。⭐ その 2 つの道では、開いたあとに `RS-48` を告げる（起動時の `DFC-561` と同じ逸脱）。問う形へ直すのは本書の外（台帳 `DFC-855`）。
 - **S-5 の運び方**: 次の一手の字（`nextSteps`・`unreadNextStep`）は、`{downloadUrl}` を所に置き換えた 1 つの字のまま運び、リンクを置く所だけを「前の字 ・ 所 ・ 後の字」の 3 つで並べて運ぶ（`Notice.nextStepLinks`、`Difference Review` の `unreadNextStepLink`）。字だけを読む側（試験、集めた起動時の通知）の形を変えないためである。
+- **`AM-8`（`importDocument`）の路**: 渡された文書は `agent-api-members.ts` で 1 度読まれ、そこで読めなかった列を捨てる。殻が書き直して読み直しても列は見つからない ⇒ 初めの読みの `unreadColumns` と版の判じを、`takeInDocument` の 2 つ目の引数で殻へ渡す（波 1c）。
 - **`DFC-948` の原因（古い文書に必須の鍵 `documentStamp.fileSavedUtc` ・ `schedule.project.outlineBase` が無い）は本書の範囲の外** —— R2 の寛さは `documentSettings` の群だけであり、日程データと刻印の群の欠けた鍵は、今どおり文書ごと拒む（S-2）。
 - 版が新しい文書を開いて書き出すと、`schemaVersion` はその新しい版のまま書かれる（`jsonFromDocument` は文書の値を書く）。刊行するスキーマは `schemaVersion` を文字列としか縛らないので R1 には反しないが、開き直すたびに `RS-63` を告げる。⛔ どの版を書くかを決める行は仕様に無い —— 本書は決めない。

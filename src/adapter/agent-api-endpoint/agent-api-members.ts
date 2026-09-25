@@ -158,7 +158,9 @@ export interface AgentApiWiring {
   // an optional member lets a wiring forget it silently.
   readonly rasterizer: ImageExporter.Rasterizer | undefined
   readonly appShell: DocumentCodec.AppShellSource | undefined
-  readonly takeInDocument: ((incoming: Document) => Promise<ImportLanding>) | undefined
+  readonly takeInDocument:
+    | ((incoming: Document, reading: HandedFormatReading) => Promise<ImportLanding>)
+    | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -229,9 +231,20 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
   return agentRefusal(target, 'notAvailable', snapshot, `not built yet: ${missing}`, [])
 }
 
+// see FR-073
+interface HandedFormatReading {
+  readonly unreadColumns: readonly string[]
+  readonly isNewerFormat: boolean
+}
+
 // see AM-8, AG-9a
 type HandedReading =
-  | { readonly ok: true; readonly document: Document }
+  | {
+      readonly ok: true
+      readonly document: Document
+      readonly unreadColumns: readonly string[]
+      readonly isNewerFormat: boolean
+    }
   | { readonly ok: false; readonly reason: AgentRefusalReason; readonly what: string }
 
 type HandedText =
@@ -251,7 +264,10 @@ function handedDocument(
   const given = textOfHanded(handed)
   if (!given.ok) return { ok: false, reason: 'malformedRequest', what: given.what }
   const read = DocumentCodec.documentFromJson(given.json, greatestKnownSchemaVersion)
-  if (read.ok) return { ok: true, document: read.document }
+  if (read.ok) {
+    const isNewerFormat = read.formatVersion === 'newerThanKnown'
+    return { ok: true, document: read.document, unreadColumns: read.unreadColumns, isNewerFormat }
+  }
   const faults = read.faults.map((one) => `${one.at} ${one.what}`).join('; ')
   const what = `the codec refused it (${read.reason}): ${faults}`
   return { ok: false, reason: read.reason, what }
@@ -496,7 +512,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
       // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
-      const landing = await road(incoming.document)
+      const landing = await road(incoming.document, incoming)
       const after = source.readSnapshot()
       // TRAP: `!landing` compiles but takes a refusal object for a landed import.
       if (landing !== true) {

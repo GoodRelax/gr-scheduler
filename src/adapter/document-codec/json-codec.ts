@@ -142,6 +142,28 @@ function readSettingsFaults(parsed: unknown, faults: readonly JsonFault[]): Sett
   }
 }
 
+interface SortedFaults {
+  readonly refusing: readonly JsonFault[]
+  readonly shaped: unknown
+  readonly unreadColumns: readonly string[]
+}
+
+// see OP-6, FR-073
+/** @purity pure */
+function sortedFaults(parsed: unknown, faults: readonly JsonFault[], isNewer: boolean): SortedFaults {
+  const settings = readSettingsFaults(parsed, faults)
+  const unreadFaults = isNewer ? settings.rest.filter(isUnknownKeyFault) : []
+  const shaped = unreadFaults.reduce((value, one) => withoutKeyAt(value, segmentsOf(one.at)), settings.shaped)
+  const unreadColumns = isNewer
+    ? [...new Set([
+        ...settings.dropped.map(columnOf),
+        ...settings.defaulted,
+        ...unreadFaults.map((one) => columnOf(one.at)),
+      ])]
+    : []
+  return { refusing: settings.rest.filter((one) => !unreadFaults.includes(one)), shaped, unreadColumns }
+}
+
 /** @purity pure */
 function formatVersionReading(
   schemaVersion: string,
@@ -309,18 +331,8 @@ export function documentFromJson(
   collectSchemaFaults(older.shaped, faults)
   const isNewer = formatVersion === 'newerThanKnown'
   const refusedWith = isNewer ? NEWER_SCHEMA_REFUSAL_REASON : SCHEMA_REFUSAL_REASON
-  const settings = readSettingsFaults(older.shaped, faults)
-  const unreadFaults = isNewer ? settings.rest.filter(isUnknownKeyFault) : []
-  const refusing = settings.rest.filter((one) => !unreadFaults.includes(one))
+  const { refusing, shaped, unreadColumns } = sortedFaults(older.shaped, faults, isNewer)
   if (refusing.length > 0) return refusal(refusing, refusedWith)
-  const shaped = unreadFaults.reduce((value, one) => withoutKeyAt(value, segmentsOf(one.at)), settings.shaped)
-  const unreadColumns = isNewer
-    ? [...new Set([
-        ...settings.dropped.map(columnOf),
-        ...settings.defaulted,
-        ...unreadFaults.map((one) => columnOf(one.at)),
-      ])]
-    : []
 
   let read: Document
   try {

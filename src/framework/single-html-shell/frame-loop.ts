@@ -230,13 +230,14 @@ export interface HandedImport {
   readonly byteLength: number
   readonly choice: OpenChoice
   readonly unreadColumns: readonly string[]
+  readonly isNewerFormat: boolean
 }
 
 export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
 
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64'
 >
 
 // see T-078
@@ -489,6 +490,8 @@ export type NoticeReason =
   | 'RS-58'
   | 'RS-59'
   | 'RS-60'
+  | 'RS-63'
+  | 'RS-64'
 
 // TRAP: not generated; a manner moved in table T-233 must be copied here by hand.
 const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
@@ -544,6 +547,8 @@ const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, string>> = {
   'RS-58': 'NT-1',
   'RS-59': 'NT-3a',
   'RS-60': 'NT-5',
+  'RS-63': 'NT-5',
+  'RS-64': 'NT-1',
 }
 
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
@@ -2725,7 +2730,7 @@ export function frameLoop(
       audience,
       rasterizer,
       appShell,
-      takeInDocument: (incoming) => takeInHandedDocument(hands, documentFileFlow, incoming),
+      takeInDocument: (incoming, reading) => takeInHandedDocument(hands, documentFileFlow, incoming, reading),
       changeWatchers,
       ...dialogueSeams,
     }),

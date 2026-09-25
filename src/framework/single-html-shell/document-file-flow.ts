@@ -71,6 +71,8 @@ import {
 
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
+type JsonRefusalReason = Extract<ReturnType<typeof documentFromJson>, { readonly ok: false }>['reason']
+
 const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeReason>> = {
   extension: 'RS-11',
   firstCharacter: 'RS-12',
@@ -85,6 +87,12 @@ const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
 const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
 
 const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
+
+const NEWER_FORMAT_UNREAD_REASON: NoticeReason = 'RS-48'
+
+const NEWER_FORMAT_OPENED_REASON: NoticeReason = 'RS-63'
+
+const NEWER_FORMAT_REFUSED_REASON: Extract<NoticeReason, JsonRefusalReason> = 'RS-64'
 
 type EmbeddedHtmlFaultReason = Exclude<
   Awaited<ReturnType<typeof exportEmbeddedHtml>>,
@@ -187,6 +195,11 @@ interface DecodedIntake {
   readonly clampedCount: number
   readonly duplicateLeaves: number
   readonly unreadColumns: readonly string[]
+  readonly isNewerFormat: boolean
+}
+
+interface RefusedIntake {
+  readonly refusal: JsonRefusalReason
 }
 
 // see OP-12, FR-073
@@ -195,7 +208,7 @@ function decodedDocument(
   format: ExchangeFormat,
   text: string,
   current: Document,
-): DecodedIntake | null {
+): DecodedIntake | RefusedIntake | null {
   if (format === 'grsJson') {
     // TRAP: omit this argument and OP-7 silently answers notCompared (FR-073).
     const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
@@ -205,14 +218,52 @@ function decodedDocument(
           clampedCount: read.clampedCount,
           duplicateLeaves: 0,
           unreadColumns: read.unreadColumns,
+          isNewerFormat: read.formatVersion === 'newerThanKnown',
         }
-      : null
+      : { refusal: read.reason }
   }
   // DEVIATION: spec says a reading's notices and faults are told (T-233); here they are dropped (DFC-557)
   const read = documentFromMspdi(text, current)
   return read.ok
-    ? { document: read.document, clampedCount: 0, duplicateLeaves: read.duplicateLeaves, unreadColumns: [] }
+    ? {
+        document: read.document,
+        clampedCount: 0,
+        duplicateLeaves: read.duplicateLeaves,
+        unreadColumns: [],
+        isNewerFormat: false,
+      }
     : null
+}
+
+// see FR-073, RS-64
+/** @purity non-pure */
+function acceptedIntake(
+  hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
+  decoded: DecodedIntake | RefusedIntake | null,
+): DecodedIntake | null {
+  if (decoded === null) return null
+  if (!('refusal' in decoded)) return decoded
+  if (decoded.refusal === NEWER_FORMAT_REFUSED_REASON) hands.raiseNotice(NEWER_FORMAT_REFUSED_REASON, null)
+  return null
+}
+
+interface NewerFormatReading {
+  readonly isNewerFormat: boolean
+  readonly couldNotBeRead: readonly string[]
+  readonly isUnreadAsked: boolean
+}
+
+const NOT_NEWER: NewerFormatReading = { isNewerFormat: false, couldNotBeRead: [], isUnreadAsked: false }
+
+// see FR-073, RS-48, RS-63
+/** @purity non-pure */
+function tellNewerFormat(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, reading: NewerFormatReading): void {
+  const { isNewerFormat, couldNotBeRead, isUnreadAsked } = reading
+  if (!isNewerFormat) return
+  if (couldNotBeRead.length === 0) return hands.raiseNotice(NEWER_FORMAT_OPENED_REASON, null)
+  // DEVIATION: spec says unread columns ask whether to go on (FR-073, U-61); here U-61 stands
+  // only for a merge with candidates, so the other opens tell RS-48 after opening (DFC-855)
+  if (!isUnreadAsked) hands.raiseNotice(NEWER_FORMAT_UNREAD_REASON, null)
 }
 
 const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
@@ -395,8 +446,14 @@ export function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenC
 }
 
 /** @purity non-pure */
-function landOpenedDocument(hands: DocumentFileFlowHands, droppedTaskNames: readonly (string | null)[], openChoice: OpenChoice): void {
+function landOpenedDocument(
+  hands: DocumentFileFlowHands,
+  droppedTaskNames: readonly (string | null)[],
+  openChoice: OpenChoice,
+  newer: NewerFormatReading,
+): void {
   hands.sendFromFlow({ type: 'documentOpenLanded', droppedTaskNames, openedFileName: null, openChoice })
+  tellNewerFormat(hands, newer)
 }
 
 // see OP-2, OP-5, OP-12, T-230
@@ -412,11 +469,11 @@ export async function openDocumentIntoHold(
 
   let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
   let incoming: Document
-  let couldNotBeRead: readonly string[] = []
+  let newer = NOT_NEWER
   if (handed !== null) {
     handedIn = { format: handed.format, byteLength: handed.byteLength }
     incoming = handed.incoming
-    couldNotBeRead = handed.unreadColumns
+    newer = { ...NOT_NEWER, isNewerFormat: handed.isNewerFormat, couldNotBeRead: handed.unreadColumns }
   } else if (store === null) {
     return false
   } else {
@@ -435,7 +492,7 @@ export async function openDocumentIntoHold(
       hands.raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
       return false
     }
-    const decoded = decodedDocument(reading.format, file.text, current)
+    const decoded = acceptedIntake(hands, decodedDocument(reading.format, file.text, current))
     if (decoded === null) return false
     handedIn = { format: reading.format, byteLength: file.byteLength }
     incoming = decoded.document
@@ -445,7 +502,7 @@ export async function openDocumentIntoHold(
     if (decoded.duplicateLeaves > 0) {
       hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
     }
-    couldNotBeRead = decoded.unreadColumns
+    newer = { ...NOT_NEWER, isNewerFormat: decoded.isNewerFormat, couldNotBeRead: decoded.unreadColumns }
   }
   const readIn = handedIn
 
@@ -511,7 +568,7 @@ export async function openDocumentIntoHold(
 
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-    if (replaced) landOpenedDocument(hands, droppedNames, choice)
+    if (replaced) landOpenedDocument(hands, droppedNames, choice, newer)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -526,7 +583,7 @@ export async function openDocumentIntoHold(
         currentName: candidate.currentTaskName,
         incomingName: candidate.incomingTaskName,
       })),
-      couldNotBeRead,
+      newer.couldNotBeRead,
     )
     if (mapping === null) return false
     if (mapping.kind === 'cancelImport') return false
@@ -543,7 +600,7 @@ export async function openDocumentIntoHold(
     updatedUtc: readInstantOfWrite(),
   })
 
-  if (landed) landOpenedDocument(hands, droppedNames, choice)
+  if (landed) landOpenedDocument(hands, droppedNames, choice, { ...newer, isUnreadAsked: mergeAnswers !== null })
 
   if (!landed || choice !== 'baseline') return landed
 
@@ -573,12 +630,15 @@ async function reopenDocumentIntoHold(
   await openDocumentIntoHold(hands, flow, store, OPEN_ROUTE_REOPEN)
 }
 
-// see AM-8, FR-022
+// see AM-8, FR-022, FR-073
+// TRAP: the handed document was decoded once already and its unread columns dropped there;
+// reading its text again finds none, so a caller that has the first reading must pass it.
 /** @purity non-pure */
 export async function takeInHandedDocument(
   hands: DocumentFileFlowHands,
   flow: Pick<DocumentFileFlow, 'askHowToOpen' | 'askWhichFileToTakeFrom'>,
   incoming: Document,
+  firstReading?: Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'>,
 ): Promise<boolean> {
   const before = hands.readSession()
   hands.sendToSession(AGENT_DOCUMENT_HANDED, null)
@@ -591,6 +651,8 @@ export async function takeInHandedDocument(
       format: 'grsJson',
       byteLength: new TextEncoder().encode(handedText).length,
       unreadColumns: reread.ok ? reread.unreadColumns : [],
+      isNewerFormat: reread.ok && reread.formatVersion === 'newerThanKnown',
+      ...firstReading,
       choice: 'merge',
     })
   } finally {
