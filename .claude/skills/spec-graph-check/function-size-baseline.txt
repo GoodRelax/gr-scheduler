@@ -1,4 +1,5 @@
-excess-lines=6269 excess-branches=674
+excess-lines=6261 excess-branches=674
+# LOWERED 6269/674 -> 6261/674 on 2026-09-25 under JDG-520: CR-565 shrank documentFromJson, modalElement and boot; measured on f1b93b9b.
 # LOWERED 6644/674 -> 6269/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F4 moved the document file flow out of frameLoop (1872 -> 1440); openDocumentIntoHold -> document-file-flow.ts 159/32. NEW HELD documentFileFlowOf 107/0 (the (M) factory owning the four settle/saved lets and the questions that write them; JDG-565 raise with the reason, for the user to confirm on return).
 # LOWERED 7031/674 -> 6644/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F3 moved ~430 lines out of frameLoop (2302 -> 1872); runFrame 124/11 -> 123/10; tentativeDependencyOf -> held-press-preview.ts 64/19. NEW HELD frameClockWakesOf 69/0 and interactionRecorderOf 75/0 ((M) factories owning their lets; JDG-565 raise with the reason, for the user to confirm on return).
 # LOWERED 7189/674 -> 7031/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 waves F1-F2 moved ~180 lines out of frameLoop (2486 -> 2302); viewSettings moved to view-place.ts (55 -> 54). Two HELD rows are NEW because the (M) factories of CR-554 4.1 own their let and the functions that write it: rowBandCeilingCacheOf 58/0 and heldViewPlaceOf 69/0 (JDG-565: raises allowed with the reason, for the user to confirm on return).
@@ -32,7 +33,7 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::agentApiMembers lines=
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 branches=7
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
-HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=57 branches=11
+HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=53 branches=9
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
 HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
@@ -76,7 +77,7 @@ HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface li
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=123 branches=34
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
-HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=162 branches=28
+HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
 HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
 HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=255 branches=0
@@ -93,7 +94,7 @@ HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=123 branches=
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=64 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
 HELD src/framework/single-html-shell/row-band-ceiling-cache.ts::rowBandCeilingCacheOf lines=58 branches=0
-HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=204 branches=6
+HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=202 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
 HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9

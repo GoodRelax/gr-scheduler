@@ -1,4 +1,5 @@
-1311
+1305
+# LOWERED 1311 -> 1305 on 2026-09-25 under JDG-520: the CR-565 spec-only tester quoted its new clauses and more; measured on f1b93b9b.
 # LOWERED 1314 -> 1311 on 2026-09-24 under JDG-520: the H10 (CR-547) spec-only tester quoted three more MUST clauses; measured on 3011de43.
 # LOWERED 1315 -> 1314 on 2026-09-24 under JDG-520: the E-24 spec-only tester quoted one more MUST clause; measured on a42c0cb4.
 # LOWERED 1325 -> 1315 on 2026-09-24 under JDG-520: the H2..H4 spec-only testers quoted ten more MUST clauses; measured on 0d446d12.
