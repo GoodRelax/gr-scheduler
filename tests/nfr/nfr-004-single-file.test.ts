@@ -4,6 +4,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { DOWNLOAD_ADDRESS } from '../fixtures/download-address'
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const DIST_DIR = join(REPO_ROOT, 'dist')
@@ -29,6 +30,23 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
   'https://json-schema.org/draft/2020-12/schema',
   'https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/grs-document.schema.json',
 ]
+
+// see CN-6, FR-073
+// WHY: not copied as a literal -- FR-073 (MUST NOT) forbids writing S-350
+// into code, and DOWNLOAD_ADDRESS already reads it from the manuscript.
+const LINK_PRESSED_BY_A_PERSON = DOWNLOAD_ADDRESS
+
+// WHY: a minified call sits next to its string argument, so this window
+// catches fetch(...), xhr.open(...), import(...), importScripts(...).
+const LOADER_CALL_WINDOW = 40
+
+function loaderCallsAddress(text: string, address: string): boolean {
+  const escaped = address.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(
+    `(?:\\bfetch|\\.open|\\bimport|\\bimportScripts)\\s*\\([^)]{0,${String(LOADER_CALL_WINDOW)}}['"\`]${escaped}['"\`]`,
+  )
+  return pattern.test(text)
+}
 
 // TRAP: widening this list beyond LM-14's exclusions would hide a real
 // console error as though it were an LM-14 storage complaint.
@@ -145,30 +163,32 @@ test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attrib
     return out
   }, deliverable)
 
-  const offFile = uses.filter(({ value }) => {
+  const offFile = uses.filter(({ where, value }) => {
     if (value.startsWith('#')) return false
     if (IN_FILE_SCHEMES.test(value)) return false
+    if (where === '<a href>' && value === LINK_PRESSED_BY_A_PERSON) return false
     // WHY: a relative path here means a second file, which CN-1 already
     // forbids, so it counts as off-file too.
     return true
   })
   expect(
     offFile.map((u) => `${u.where} ${u.value}`),
-    'CN-6: no reference in the deliverable may fetch a resource from outside it',
+    'CN-6: no reference may fetch a resource from outside the file (an <a href> may only carry the S-350 address a person presses)',
   ).toEqual([])
 })
 
-test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers remain', () => {
+test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350 link target remain', () => {
   const seen = new Set<string>()
   for (const match of deliverable.matchAll(ABSOLUTE_URL)) {
     seen.add(match[0].replace(/[.,;:'")\]]+$/, ''))
   }
   const external = [...seen]
     .filter((url) => !NON_DEREFERENCED_URI_IDENTIFIERS.includes(url))
+    .filter((url) => url !== LINK_PRESSED_BY_A_PERSON)
     .sort()
   expect(
     external,
-    'CN-6: an absolute URL that is not one of the declared identifiers means the deliverable points outside itself',
+    'CN-6: an absolute URL that is not a declared identifier or the S-350 link target means the deliverable points outside itself',
   ).toEqual([])
   // TRAP: if this assertion needs deleting, the namespace exemption above has
   // gone stale and its entries should be reconsidered.
@@ -176,6 +196,10 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
     seen.has('http://www.w3.org/2000/svg'),
     'IF-1 of table T-065 puts an SVG surface on screen, so its namespace name should be present',
   ).toBe(true)
+  expect(
+    loaderCallsAddress(deliverable, LINK_PRESSED_BY_A_PERSON),
+    'CN-6: the S-350 address may sit as a link target only, never as the argument of a fetch/open/import call',
+  ).toBe(false)
 })
 
 test('NFR-004 (judged from file://) / CN-6: given the deliverable opened as file://, when it has finished loading, then no request left the file and none failed', async ({ page }) => {
