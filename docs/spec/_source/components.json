@@ -990,10 +990,38 @@
   },
   {
    "source": "ItemHitArea",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "pinned rows",
+   "description": "reads the pinned rows"
+  },
+  {
+   "source": "ItemHitArea",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "row members",
+   "description": "reads which row each task sits on"
+  },
+  {
+   "source": "ItemHitArea",
+   "target": "ScheduleLayout",
+   "arrow": "dependency",
+   "label": "laid-out rows",
+   "description": "reads which rows the layout left out"
+  },
+  {
+   "source": "ItemHitArea",
    "target": "ScreenRegions",
    "arrow": "dependency",
    "label": "rectangle type",
    "description": "reads the rectangle type a hit is tested inside"
+  },
+  {
+   "source": "ItemHitArea",
+   "target": "Selection",
+   "arrow": "dependency",
+   "label": "selection type",
+   "description": "narrows the selection to what is drawn"
   },
   {
    "source": "NotifyChangeWatchers",
@@ -1064,6 +1092,13 @@
    "arrow": "dependency",
    "label": "session read",
    "description": "reads the screen values it draws from the root session state"
+  },
+  {
+   "source": "Selection",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "schedule data",
+   "description": "asks whether the schedule still holds a selected object"
   },
   {
    "source": "SingleHtmlShell",

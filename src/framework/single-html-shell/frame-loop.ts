@@ -12,8 +12,8 @@ import {
   type DualCursorSide,
   type EscapeTarget,
 } from '../../entity/document-model/screen-state/screen-state'
-import { emptySelection, selectionOfAll } from '../../entity/document-model/selection/selection'
-import type { ItemRef, Selection } from '../../entity/document-model/selection/selection'
+import { emptySelection, selectionWithinSchedule } from '../../entity/document-model/selection/selection'
+import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   emptyHistory,
   NOT_STORED_LIMITS,
@@ -24,13 +24,12 @@ import {
   taskByUid,
   textOfDay,
   type CalendarDay,
-  type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
   grabSizesOf,
   itemAtPointer,
-  selectionWithinDrawn,
+  selectionWithinDrawnRows,
   type Hit,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
@@ -313,68 +312,6 @@ export interface FrameLoopHands {
   raiseFileFault(fault: DocumentFileFault): void
   replaceHeldDocument(call: ReplacementCall): boolean
   exportScene(): ExportSceneWithCapStop | null
-}
-
-// see T-023c
-/** @purity pure */
-function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
-  switch (item.kind) {
-    case 'task':
-      return taskByUid(schedule, item.uid) !== null
-    case 'dependency': {
-      const successor = taskByUid(schedule, item.successorUid)
-      return successor !== null && item.ordinal < successor.dependencies.length
-    }
-    case 'highlightBox':
-      return schedule.highlightBoxes.some((box) => box.id === item.id)
-    case 'commentBox':
-      return schedule.commentBoxes.some((box) => box.id === item.id)
-    case 'statusLine':
-      return schedule.project.statusDate !== null
-  }
-}
-
-// see T-023c
-/** @purity pure */
-function selectionWithinSchedule(selection: Selection, schedule: Schedule): Selection {
-  const items = selection.items.filter((item) => scheduleHolds(schedule, item))
-  // TRAP: the shell compares selections by identity; a fresh object here reopens
-  // the Properties Panel on every unrelated edit.
-  if (items.length === selection.items.length) return selection
-  return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
-}
-
-// see T-023c, FR-098, ST-7
-// WHY: a pin the band cannot hold and a row past the stack safety cap are no row T-023c names.
-/** @purity pure */
-function selectionWithinDrawnRows(
-  selection: Selection,
-  geometry: ScheduleGeometry,
-  layout: ScheduleLayout,
-  schedule: Schedule,
-  settings: DocumentSettings,
-  isPreviewed: boolean,
-): Selection {
-  // WHY: none under a preview; it may yet be dropped, and pruning under it ends the drag's selection.
-  if (isPreviewed) return selection
-  const within = selectionWithinDrawn(selection, geometry)
-  if (within === selection) return selection
-  const laidOut = new Set(layout.rows.map((row) => row.groupId))
-  const pinned = new Set(settings.pinnedGroupIds)
-  const inGeometry = new Set(geometry.tasks.map((task) => task.taskUid))
-  const isLeftOutUnnamed = (groupId: string): boolean =>
-    !laidOut.has(groupId) && (layout.stackSafetyCapReached !== null || pinned.has(groupId))
-  const undecided = new Set(
-    schedule.taskGroupMembers
-      .filter((member) => isLeftOutUnnamed(member.groupId) && !inGeometry.has(member.taskUid))
-      .map((member) => member.taskUid),
-  )
-  if (undecided.size === 0) return within
-  const kept = new Set(within.items.flatMap((item) => (item.kind === 'task' ? [item.uid] : [])))
-  const items = selection.items.filter(
-    (item) => item.kind !== 'task' || kept.has(item.uid) || undecided.has(item.uid),
-  )
-  return items.length === selection.items.length ? selection : { items, ordered: selection.ordered }
 }
 
 const BYTES_PER_MEGABYTE = 1024 * 1024

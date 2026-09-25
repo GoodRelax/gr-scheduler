@@ -155,7 +155,11 @@
 | dependency | InputCommandTranslator | Schedule | tasks + days | reads the schedule types, finds a task by UID and turns a day into the text a command carries |  |
 | dependency | InputCommandTranslator | ScheduleGeometry | bar geometry | reads the bar geometry a pointer position is measured against |  |
 | dependency | InputCommandTranslator | AdvanceScreenSession | events made | reads the event types it makes from an input |  |
+| dependency | ItemHitArea | DocumentSettings | pinned rows | reads the pinned rows |  |
+| dependency | ItemHitArea | Schedule | row members | reads which row each task sits on |  |
+| dependency | ItemHitArea | ScheduleLayout | laid-out rows | reads which rows the layout left out |  |
 | dependency | ItemHitArea | ScreenRegions | rectangle type | reads the rectangle type a hit is tested inside |  |
+| dependency | ItemHitArea | Selection | selection type | narrows the selection to what is drawn |  |
 | dependency | NotifyChangeWatchers | Document | document type | reads the document root type a change notice carries |  |
 | dependency | RedoEdit | Document | document type | reads the document root type a step forward returns |  |
 | dependency | RedoEdit | UndoEdit | one step | reads the step and held-document types stepping back defines |  |
@@ -166,6 +170,7 @@
 | dependency | ScreenRenderer | ScheduleLayout | label units | asks the units a properties panel label is written in |  |
 | dependency | ScreenRenderer | SvgRenderer | grid line width | reads the group grid line width, so the frame and the picture draw the same line |  |
 | dependency | ScreenRenderer | AdvanceScreenSession | session read | reads the screen values it draws from the root session state |  |
+| dependency | Selection | Schedule | schedule data | asks whether the schedule still holds a selected object |  |
 | dependency | SingleHtmlShell | ApplyDocumentChange | one write | hands over each operation, replaces the whole document, and reads the refusal and write-moment types it answers with |  |
 | dependency | SingleHtmlShell | BrowserClipboard | clipboard implementation | wires the browser clipboard in as the Clipboard the adapter declared |  |
 | dependency | SingleHtmlShell | CanvasRasterizer | rasterizer implementation | wires the canvas rasterizer in as the Rasterizer the adapter declared |  |

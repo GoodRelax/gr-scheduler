@@ -22,7 +22,7 @@ import type { ScreenRect } from '../screen-regions/screen-regions'
 
 export { dependencyEndAtPointer, dependencyStartOfHit } from './dependency-end'
 export type { DependencyEnd } from './dependency-end'
-export { isTaskDrawn, selectionWithinDrawn } from './drawn-selection'
+export { isTaskDrawn, selectionWithinDrawn, selectionWithinDrawnRows } from './drawn-selection'
 export type { ChosenItem, DrawnChoice } from './drawn-selection'
 export { itemsInMarquee } from './marquee'
 

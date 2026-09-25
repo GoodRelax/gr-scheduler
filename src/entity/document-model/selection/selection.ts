@@ -4,6 +4,8 @@
 // @purity    pure
 // @publishes table T-064 row PI-32
 
+import { taskByUid, type Schedule } from '../schedule/schedule'
+
 // see SL-1
 export type SelectableKind =
   | 'task'
@@ -77,4 +79,33 @@ export function selectionWithout(selection: Selection, item: ItemRef): Selection
 export function lastPicked(selection: Selection): ItemRef | null {
   if (!selection.ordered || selection.items.length === 0) return null
   return selection.items[selection.items.length - 1] ?? null
+}
+
+// see T-023c
+/** @purity pure */
+function scheduleHolds(schedule: Schedule, item: ItemRef): boolean {
+  switch (item.kind) {
+    case 'task':
+      return taskByUid(schedule, item.uid) !== null
+    case 'dependency': {
+      const successor = taskByUid(schedule, item.successorUid)
+      return successor !== null && item.ordinal < successor.dependencies.length
+    }
+    case 'highlightBox':
+      return schedule.highlightBoxes.some((box) => box.id === item.id)
+    case 'commentBox':
+      return schedule.commentBoxes.some((box) => box.id === item.id)
+    case 'statusLine':
+      return schedule.project.statusDate !== null
+  }
+}
+
+// see T-023c
+/** @purity pure */
+export function selectionWithinSchedule(selection: Selection, schedule: Schedule): Selection {
+  const items = selection.items.filter((item) => scheduleHolds(schedule, item))
+  // TRAP: the shell compares selections by identity; a fresh object here reopens
+  // the Properties Panel on every unrelated edit.
+  if (items.length === selection.items.length) return selection
+  return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
 }

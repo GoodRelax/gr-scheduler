@@ -291,7 +291,7 @@
    "target": "documentModel",
    "arrow": "dependency",
    "label": "reads",
-   "description": "backed by 6 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection; ScreenRegions -> DocumentSettings; ScheduleGeometry -> DocumentSettings"
+   "description": "backed by 9 component edge(s): ScheduleLayout -> Schedule; ScheduleLayout -> DocumentSettings; ScheduleGeometry -> Schedule; ScheduleGeometry -> Selection; ScreenRegions -> DocumentSettings; ItemHitArea -> DocumentSettings; ItemHitArea -> Schedule; ItemHitArea -> Selection; ScheduleGeometry -> DocumentSettings"
   },
   {
    "source": "usecase",
