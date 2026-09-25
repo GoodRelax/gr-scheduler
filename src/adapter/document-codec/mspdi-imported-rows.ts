@@ -17,12 +17,15 @@ export function rowsFromTasks(tasks: readonly Task[], maxGroupDepth: number): Im
   const taskGroups: TaskGroup[] = []
   const taskGroupMembers: TaskGroupMember[] = []
   const rowOfTask = new Map<number, string>()
+  const parentUids = new Set<number>()
+  for (const task of tasks) if (task.wbsParentUid !== null) parentUids.add(task.wbsParentUid)
 
   for (const task of tasks) {
     const parentDepth = task.wbsParentUid === null ? 0 : depths.get(task.wbsParentUid) ?? 0
     const depth = parentDepth + 1
     depths.set(task.uid, depth)
     if (depth > maxGroupDepth) continue
+    if (task.wbsParentUid !== null && !parentUids.has(task.uid)) continue
     const parentRow = task.wbsParentUid === null ? null : rowOfTask.get(task.wbsParentUid) ?? null
     const id = rowIdOfTask(task.uid)
     rowOfTask.set(task.uid, id)
