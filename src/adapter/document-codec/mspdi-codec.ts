@@ -461,22 +461,47 @@ interface TasksReading {
   readonly outlineBase: number
 }
 
+// see MR-4
+// WHY: MS Project writes one project summary task per file; UID and OutlineLevel tell it, never ID (DV-4).
+const PROJECT_SUMMARY_UID = 0
+const PROJECT_SUMMARY_OUTLINE_LEVEL = 0
+
+// see MR-4
+/** @purity pure */
+function isProjectSummary(element: XmlElement): boolean {
+  return integerColumn(element, 'UID') === PROJECT_SUMMARY_UID
+    && integerColumn(element, 'OutlineLevel') === PROJECT_SUMMARY_OUTLINE_LEVEL
+}
+
+type SummaryTarget = (element: XmlElement, column: string) => boolean
+
+// see MR-4, IV-2
+// WHY: the summary is carried, not a Task, so a row whose column points at it would point at nothing; it is carried too.
+/** @purity pure */
+function summaryTargetOf(root: XmlElement): SummaryTarget {
+  const collection = childOf(root, 'Tasks')
+  const hasSummary = collection !== null
+    && collection.children.some((element) => element.name === 'Task' && isProjectSummary(element))
+  return (element, column) => hasSummary && integerColumn(element, column) === PROJECT_SUMMARY_UID
+}
+
 /** @purity pure */
 function outlineBaseOf(collection: XmlElement): number {
   for (const element of collection.children) {
     if (element.name !== 'Task') continue
-    if (isTrue(element, 'IsNull')) continue
+    if (isTrue(element, 'IsNull') || isProjectSummary(element)) continue
     if (integerColumn(element, 'OutlineLevel') === 0) return 0
   }
   return 1
 }
 
-// see DF-3, FR-021
+// see DF-3, FR-021, MR-4
 /** @purity pure */
 function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const collection = childOf(root, 'Tasks')
   if (collection === null) return { tasks: [], carriedRows: [], outlineBase: 1 }
   const fadeColumns = fadeColumnsByFieldId(root)
+  const summaryTarget = summaryTargetOf(root)
   const outlineBase = outlineBaseOf(collection)
   const tasks: Task[] = []
   const carriedRows: CarryElement[] = []
@@ -484,7 +509,8 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
   const uids: number[] = []
   collection.children.forEach((element, ordinal) => {
     if (element.name !== 'Task') return
-    if (isTrue(element, 'IsNull')) {
+    // WHY: the summary is not stacked on levels, so the file's OutlineLevel 1 tasks find no parent.
+    if (isTrue(element, 'IsNull') || isProjectSummary(element)) {
       carriedRows.push(carriedElement(element, ordinal))
       return
     }
@@ -505,7 +531,7 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
     const wbsOrder = countOfChildrenSoFar(levels, uids, parentIndex, depth)
     levels.push(depth)
     uids.push(uid)
-    tasks.push(taskFromElement(element, uid, parentUid, wbsOrder, fadeColumns))
+    tasks.push(taskFromElement(element, uid, parentUid, wbsOrder, { fadeColumns, summaryTarget }))
   })
   return { tasks, carriedRows, outlineBase }
 }
@@ -549,16 +575,22 @@ function countOfChildrenSoFar(
   return counted
 }
 
+interface TaskColumnsOfFile {
+  readonly fadeColumns: ReadonlyMap<number, FadeColumn>
+  readonly summaryTarget: SummaryTarget
+}
+
 /** @purity pure */
 function taskFromElement(
   element: XmlElement,
   uid: number,
   wbsParentUid: number | null,
   wbsOrder: number,
-  fadeColumns: ReadonlyMap<number, FadeColumn>,
+  ofFile: TaskColumnsOfFile,
 ): Task {
   const split = carrySplit(element, TASK_CONSUMED)
-  const fade = fadeOfCarried(split.carryElements, fadeColumns)
+  const fade = fadeOfCarried(split.carryElements, ofFile.fadeColumns)
+  const links = linksOfTask(element, ofFile.summaryTarget)
   return {
     uid,
     wbsParentUid,
@@ -578,9 +610,9 @@ function taskFromElement(
     percentComplete: integerColumn(element, 'PercentComplete'),
     fadeInDays: fade.fadeInDays,
     fadeOutDays: fade.fadeOutDays,
-    dependencies: dependenciesFromTask(element),
+    dependencies: links.dependencies,
     carry: split.carry,
-    carryElements: fade.carryElements,
+    carryElements: [...fade.carryElements, ...links.carried],
   }
 }
 
@@ -629,11 +661,24 @@ function workingDaysOfActualDuration(
   return Math.sign(days) * Math.round(Math.abs(days))
 }
 
+interface LinksReading {
+  readonly dependencies: readonly Dependency[]
+  readonly carried: readonly CarryElement[]
+}
+
+// see MR-4
+// TRAP: a carried link keeps the ordinal among the Task's children, which splicing reads; EX-10 writes it
+// before the Task's written links, so its order among them holds only when it came first.
 /** @purity pure */
-function dependenciesFromTask(element: XmlElement): readonly Dependency[] {
+function linksOfTask(element: XmlElement, summaryTarget: SummaryTarget): LinksReading {
   const links: Dependency[] = []
-  element.children.forEach((child) => {
+  const carried: CarryElement[] = []
+  element.children.forEach((child, ordinal) => {
     if (child.name !== 'PredecessorLink') return
+    if (summaryTarget(child, 'PredecessorUID')) {
+      carried.push(carriedElement(child, ordinal))
+      return
+    }
     const split = carrySplit(child, DEPENDENCY_CONSUMED)
     const predecessorUid = integerColumn(child, 'PredecessorUID')
     const linkType = integerColumn(child, 'Type')
@@ -647,7 +692,7 @@ function dependenciesFromTask(element: XmlElement): readonly Dependency[] {
       carryElements: split.carryElements,
     })
   })
-  return links
+  return { dependencies: links, carried }
 }
 
 interface ResourcesReading {
@@ -699,6 +744,7 @@ interface AssignmentsReading {
 function assignmentsFromRoot(root: XmlElement, run: ImportRun): AssignmentsReading {
   const collection = childOf(root, 'Assignments')
   if (collection === null) return { assignments: [], carriedRows: [] }
+  const summaryTarget = summaryTargetOf(root)
   const assignments: Assignment[] = []
   const carriedRows: CarryElement[] = []
   collection.children.forEach((element, ordinal) => {
@@ -710,6 +756,11 @@ function assignmentsFromRoot(root: XmlElement, run: ImportRun): AssignmentsReadi
         `/Project/Assignments/Assignment[${ordinal + 1}]`,
         'has no UID, so it is carried back unchanged instead of becoming an assignment',
       ))
+      return
+    }
+    // see MR-4
+    if (summaryTarget(element, 'TaskUID')) {
+      carriedRows.push(carriedElement(element, ordinal))
       return
     }
     const split = carrySplit(element, ASSIGNMENT_CONSUMED)
