@@ -36,8 +36,8 @@
 //                         of table T-209; recurring exception days are not
 //                         expanded and the person is told (NT-5 of table T-037)
 //   FR-058                every imported Task lands on a row; one TaskGroup per
-//                         Task down to S-125 and none below it; the cap never
-//                         refuses the import
+//                         Task with children or no parent, down to S-125; a Task
+//                         with no children sits on its parent's row; cap never refuses
 //   FR-023                two of its MUSTs are about the parser and land here:
 //                         XML external entities are disabled and nothing
 //                         reaches innerHTML. The ceilings, the dates, the
@@ -1344,7 +1344,7 @@ describe('FR-058 -- the imported tasks land on rows', () => {
     }
   })
 
-  it('makes one row per Task down to S-125, and none below it', () => {
+  it('makes one row per Task that has children or no parent, down to S-125, and none below it', () => {
     const deeper = MAX_GROUP_DEPTH + 3
     const document = accepted(nestedTasksText(deeper))
     expect(document.schedule.tasks).toHaveLength(deeper)
