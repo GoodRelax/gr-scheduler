@@ -7,6 +7,7 @@ import type {
   Confirmation,
   ConfirmationAnswer,
   DisplayLanguage,
+  LinkedWords,
   Notice,
   RaisedNotice,
   ScreenViewReadings,
@@ -49,6 +50,8 @@ const DISMISS_KEY_NOTICE_SEPARATOR = '+'
 
 const NO_WORDS = ''
 
+const DOWNLOAD_ADDRESS_SLOT = '{downloadUrl}'
+
 /** @purity pure */
 function answerText(answer: string, language: DisplayLanguage): string {
   const word = CONFIRMATION_BY_ANSWER.get(answer)?.text[language]
@@ -70,9 +73,38 @@ function reasonCell(row: string, cell: ReasonCell, language: DisplayLanguage): s
   return word === '' ? undefined : word
 }
 
+// see FR-073
+/** @purity pure */
+function linkedWordsOf(word: string): LinkedWords | null {
+  const at = word.indexOf(DOWNLOAD_ADDRESS_SLOT)
+  if (at < 0) return null
+  return {
+    before: word.slice(0, at),
+    address: NOT_STORED_DOWNLOAD_ADDRESS['S-350'],
+    after: word.slice(at + DOWNLOAD_ADDRESS_SLOT.length),
+  }
+}
+
+/** @purity pure */
+function filledWord(word: string): string {
+  const linked = linkedWordsOf(word)
+  return linked === null ? word : linked.before + linked.address + linked.after
+}
+
 // see FR-076, NT-1
 /** @purity pure */
 function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
+  return filledWord(unfilledReasonWord(reason, cell, language))
+}
+
+// see FR-073
+/** @purity pure */
+export function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords | null {
+  return linkedWordsOf(unfilledReasonWord(reason, 'nextStep', language))
+}
+
+/** @purity pure */
+function unfilledReasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage): string {
   const invariant = INVARIANTS_BY_ROW.get(reason)
   // TRAP: never fall back to RS-15 for a row of table T-220, even while its word is empty.
   if (invariant !== undefined) return invariant[cell][language]
@@ -154,14 +186,25 @@ function isStartupPending(notice: Notice): boolean {
 /** @purity pure */
 function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
   const nextStep = reasonWord(raised.reason, 'nextStep', language)
+  const link = reasonNextStepLink(raised.reason, language)
   return {
     manner: raised.manner,
     mannerText: mannerText(raised.manner, language),
     text: reasonWord(raised.reason, 'text', language),
     nextSteps: nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep],
+    ...(link === null ? {} : { nextStepLinks: [link] }),
     affectedCount: raised.affectedCount,
     dismissText: dismissText(language),
     dismissKey: dismissKeyOf(raised),
+  }
+}
+
+/** @purity pure */
+function gatheredNextStepLinks(pending: readonly Notice[]): Pick<Notice, 'nextStepLinks'> {
+  if (!pending.some((notice) => notice.nextStepLinks !== undefined)) return {}
+  return {
+    nextStepLinks: pending.flatMap((notice) =>
+      notice.nextSteps.map((_step, index) => notice.nextStepLinks?.[index] ?? null)),
   }
 }
 
@@ -172,6 +215,7 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
     mannerText: mannerText(STARTUP_PENDING_MANNER, language),
     text: pending.map((notice) => notice.text).join(GATHERED_TEXT_SEPARATOR),
     nextSteps: pending.flatMap((notice) => notice.nextSteps),
+    ...gatheredNextStepLinks(pending),
     affectedCount: null,
     dismissText: dismissText(language),
     dismissKey: pending.map((notice) => notice.dismissKey).join(DISMISS_KEY_NOTICE_SEPARATOR),
@@ -224,3 +268,15 @@ export function confirmationFromSession(
     shownOnAnotherRowMark: shownOnAnotherRowMark(language),
   }
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_DOWNLOAD_ADDRESS: {
+  readonly 'S-350': string
+} = {
+  'S-350': 'https://goodrelax.github.io/gr-scheduler/download',
+}
+// </generated>

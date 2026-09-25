@@ -360,6 +360,7 @@ export const STYLE = {
     'display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',
   noticeDismiss: 'flex:none;',
   noticeNextStep: `color:${PAINT.quiet};`,
+  noticeLink: `color:${PAINT.ink};text-decoration:underline;`,
   confirmation: STOPPING_BOX + 'display:flex;flex-direction:column;overflow:hidden;',
   confirmationHeader:
     'flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:0.5em;',

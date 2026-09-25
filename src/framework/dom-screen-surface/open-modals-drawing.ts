@@ -18,7 +18,7 @@ import {
   made,
   part,
 } from './dom-screen-surface'
-import { confirmationAnswerElement } from './notices-drawing'
+import { confirmationAnswerElement, nextStepElement } from './notices-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
 import { fieldElement } from './properties-panel-drawing'
@@ -432,9 +432,7 @@ export function modalElement(
       body.push(said)
     }
     if (modal.unreadNextStep !== '') {
-      const step = made(host, 'div', STYLE.noticeNextStep)
-      step.textContent = modal.unreadNextStep
-      body.push(step)
+      body.push(nextStepElement(host, modal.unreadNextStep, modal.unreadNextStepLink ?? null))
     }
     for (const column of modal.unreadColumns) {
       const line = made(host, 'div', STYLE.field)

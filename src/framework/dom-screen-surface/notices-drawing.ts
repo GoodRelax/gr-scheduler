@@ -3,7 +3,7 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { Confirmation, Notice } from '../../adapter/screen-renderer/screen-renderer'
+import type { Confirmation, LinkedWords, Notice } from '../../adapter/screen-renderer/screen-renderer'
 import {
   CONFIRMATION_ANSWER_ATTRIBUTE,
   NOTICE_DISMISS_KEY_ATTRIBUTE,
@@ -17,6 +17,41 @@ import {
 } from './dom-screen-surface'
 
 const CONFIRMATION_PART_ATTRIBUTE = 'data-confirmation-part'
+
+const LINK_TARGET = '_blank'
+
+const LINK_RELATION = 'noopener noreferrer'
+
+const LINK_KEPT_FROM_INPUT: readonly string[] = ['pointerdown', 'pointerup']
+
+const LINK_OPENING_KEY = 'Enter'
+
+// see FR-073, CN-6
+/** @purity non-pure */
+function linkElement(host: Document, address: string): HTMLElement {
+  const link = made(host, 'a', STYLE.noticeLink)
+  link.setAttribute('href', address)
+  link.setAttribute('target', LINK_TARGET)
+  link.setAttribute('rel', LINK_RELATION)
+  link.textContent = address
+  for (const type of LINK_KEPT_FROM_INPUT) link.addEventListener(type, (event) => event.stopPropagation())
+  link.addEventListener('keydown', (event) => {
+    if ((event as KeyboardEvent).key === LINK_OPENING_KEY) event.stopPropagation()
+  })
+  return link
+}
+
+// see FR-073
+/** @purity non-pure */
+export function nextStepElement(host: Document, text: string, link: LinkedWords | null): HTMLElement {
+  const line = made(host, 'div', STYLE.noticeNextStep)
+  if (link === null) {
+    line.textContent = text
+    return line
+  }
+  line.append(host.createTextNode(link.before), linkElement(host, link.address), host.createTextNode(link.after))
+  return line
+}
 
 // see NT-1, NT-3a, NT-8
 /** @purity non-pure */
@@ -33,11 +68,9 @@ export function noticeElement(host: Document, notice: Notice): HTMLElement {
     drawn.append(count)
     drawn.setAttribute('data-affected-count', String(notice.affectedCount))
   }
-  for (const step of notice.nextSteps) {
-    const line = made(host, 'div', STYLE.noticeNextStep)
-    line.textContent = step
-    drawn.append(line)
-  }
+  notice.nextSteps.forEach((step, index) => {
+    drawn.append(nextStepElement(host, step, notice.nextStepLinks?.[index] ?? null))
+  })
   const dismiss = made(host, 'button', entryStyle() + STYLE.noticeDismiss)
   dismiss.setAttribute('type', 'button')
   dismiss.setAttribute(NOTICE_DISMISS_KEY_ATTRIBUTE, notice.dismissKey)

@@ -1424,6 +1424,11 @@ NOT_STORED_TARGETS = {
     # side. ⛔ A NEW CONSTANT: its subject is the fit, which fitZoom in
     # fit-zoom.ts carries out, and no line above is the fit's.
     'NOT_STORED_FIT_MARGIN': (['S-332'], READ_WHERE_IT_STANDS),
+    # ⭐ CR-565: the one place the address of the latest version lives.
+    # FR-073 (MUST NOT) forbids copying it into a word; the words carry
+    # {downloadUrl} and notices.ts, which fills every reason word, puts this
+    # row there. not_stored_cell reads the whole-cell code span as the value.
+    'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS),
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
@@ -2281,6 +2286,11 @@ TARGETS = [
     # (CR-554 15.6.7).
     (os.path.join(LAYOUT, 'schedule-layout', 'fit-zoom.ts'),
      lambda _erd: not_stored_block('NOT_STORED_FIT_MARGIN'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # The address of the latest version stands in the unit that fills the
+    # reason words' {downloadUrl} (CR-565, FR-073).
+    (os.path.join(ADAPTER, 'screen-renderer', 'notices.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DOWNLOAD_ADDRESS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ScheduleLayout's copy of NOT_STORED_SIZES stands in the one unit of the
     # component that reads it: label-placement.ts places the label past the

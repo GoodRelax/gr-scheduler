@@ -350,6 +350,7 @@ export type OpenModal =
       readonly unreadColumns: readonly string[]
       readonly unreadText: string
       readonly unreadNextStep: string
+      readonly unreadNextStepLink?: LinkedWords
     })
   | (OpenSurface & {
       readonly surface: 'Import Report'
@@ -374,11 +375,19 @@ export interface RaisedNotice {
   readonly affectedCount: number | null
 }
 
+// see FR-073
+export interface LinkedWords {
+  readonly before: string
+  readonly address: string
+  readonly after: string
+}
+
 export interface Notice {
   readonly manner: string
   readonly mannerText: string
   readonly text: string
   readonly nextSteps: readonly string[]
+  readonly nextStepLinks?: readonly (LinkedWords | null)[]
   readonly affectedCount: number | null
   readonly dismissText: string
   readonly dismissKey: string

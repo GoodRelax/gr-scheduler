@@ -11,12 +11,13 @@ import type {
   HelpEntry,
   ExportFormatChoice,
   IconId,
+  LinkedWords,
   OpenModal,
   RosterResource,
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
-import { confirmationAnswers, reasonSurfaceWords } from './notices'
+import { confirmationAnswers, reasonNextStepLink, reasonSurfaceWords } from './notices'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -52,12 +53,18 @@ const NEWER_FORMAT_VERSION_REASON = 'RS-48'
 function unreadWords(readings: ScreenViewReadings, language: DisplayLanguage): {
   readonly unreadText: string
   readonly unreadNextStep: string
+  readonly unreadNextStepLink?: LinkedWords
 } {
   if ((readings.unreadColumns ?? []).length === 0) {
     return { unreadText: '', unreadNextStep: '' }
   }
   const said = reasonSurfaceWords(NEWER_FORMAT_VERSION_REASON, language)
-  return { unreadText: said.text, unreadNextStep: said.nextStep }
+  const link = reasonNextStepLink(NEWER_FORMAT_VERSION_REASON, language)
+  return {
+    unreadText: said.text,
+    unreadNextStep: said.nextStep,
+    ...(link === null ? {} : { unreadNextStepLink: link }),
+  }
 }
 
 const WATERMARK_UNLOCK_QUESTION = 'QN-9'
