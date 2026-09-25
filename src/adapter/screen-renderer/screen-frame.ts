@@ -1,10 +1,11 @@
-// ScreenRenderer: the panel dividers and scrollbar lanes of ScreenView's frame.
+// ScreenRenderer: the panel dividers, the scrollbar lanes and the wholes they span (GR-21) of ScreenView's frame.
 // @unit      UF-61   (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 // Generated region at the end: docs/spec/_source/settings.json. Do not edit by hand; npm run gen.
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   ScreenRect,
   ScreenRegions,
@@ -135,6 +136,65 @@ export function screenFrameFromRegions(
         readings.scrollExtent.offsetY ?? 0,
       ),
     ],
+  }
+}
+
+export interface HorizontalWhole {
+  readonly fromContentX0: number
+  readonly width: number
+}
+
+export interface VerticalWhole {
+  readonly fromContentY0: number
+  readonly height: number
+}
+
+// see GR-21, FR-051
+// WHY: the content and the view together: after a fit the view runs past the content by the margin (S-332).
+/** @purity pure */
+export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole {
+  const area = regions.rowArea
+  const contentX0 = layout.contentX0 ?? area.x
+  const left = Math.min(contentX0, area.x)
+  const right = Math.max(contentX0 + layout.contentWidth, area.x + area.width)
+  return { fromContentX0: contentX0 - left, width: right - left }
+}
+
+// see GR-21, FR-051
+// WHY: the same union as the horizontal whole: a view scrolled down to the last row runs past the content.
+/** @purity pure */
+export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): VerticalWhole {
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
+  const top = Math.min(contentY0, scrollTop)
+  const bottom = Math.max(contentY0 + layout.contentHeight, scrollTop + visibleHeightOf(layout, regions))
+  return { fromContentY0: contentY0 - top, height: bottom - top }
+}
+
+// see FR-098
+// TRAP: the scrolling remainder's height, not the Row Area's; the Row Area's
+// would grow the grip as rows are pinned (FR-098).
+/** @purity pure */
+function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
+  return Math.max(0, regions.rowArea.y + regions.rowArea.height - (layout.scrollAreaY ?? regions.rowArea.y))
+}
+
+// see SC-1, FR-098
+/** @purity pure */
+export function scrollExtentOf(
+  layout: ScheduleLayout,
+  regions: ScreenRegions,
+  whole: { readonly horizontal: HorizontalWhole; readonly vertical: VerticalWhole },
+): ScreenViewReadings['scrollExtent'] {
+  const contentX0 = layout.contentX0 ?? regions.rowArea.x
+  const scrollTop = layout.scrollAreaY ?? regions.rowArea.y
+  const contentY0 = layout.rows.find((row) => row.isPinned !== true)?.y ?? scrollTop
+  return {
+    contentWidth: whole.horizontal.width,
+    contentHeight: whole.vertical.height,
+    visibleHeight: visibleHeightOf(layout, regions),
+    offsetX: Math.max(0, regions.rowArea.x - (contentX0 - whole.horizontal.fromContentX0)),
+    offsetY: Math.max(0, scrollTop - (contentY0 - whole.vertical.fromContentY0)),
   }
 }
 

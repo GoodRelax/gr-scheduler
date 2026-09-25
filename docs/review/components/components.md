@@ -167,7 +167,7 @@
 | dependency | ScheduleGeometry | DocumentSettings | settings type | reads the settings type the geometry is computed at |  |
 | dependency | ScheduleGeometry | ScreenRegions | ratio + rectangles | asks the display ratio and the settings actually drawn at, and reads the screen rectangles |  |
 | dependency | ScheduleLayout | ScreenRegions | ratio + lattice floor | asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps |  |
-| dependency | ScreenRenderer | ScheduleLayout | label units | asks the units a properties panel label is written in |  |
+| dependency | ScreenRenderer | ScheduleLayout | label units + content extent | asks the units a properties panel label is written in, and reads the laid-out content the scrollbars span |  |
 | dependency | ScreenRenderer | SvgRenderer | grid line width | reads the group grid line width, so the frame and the picture draw the same line |  |
 | dependency | ScreenRenderer | AdvanceScreenSession | session read | reads the screen values it draws from the root session state |  |
 | dependency | Selection | Schedule | schedule data | asks whether the schedule still holds a selected object |  |

@@ -1076,8 +1076,8 @@
    "source": "ScreenRenderer",
    "target": "ScheduleLayout",
    "arrow": "dependency",
-   "label": "label units",
-   "description": "asks the units a properties panel label is written in"
+   "label": "label units + content extent",
+   "description": "asks the units a properties panel label is written in, and reads the laid-out content the scrollbars span"
   },
   {
    "source": "ScreenRenderer",

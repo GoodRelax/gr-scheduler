@@ -34,6 +34,8 @@ import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
+export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
+export type { HorizontalWhole, VerticalWhole } from './screen-frame'
 import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
 
