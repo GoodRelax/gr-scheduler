@@ -171,8 +171,7 @@
         "label": "Row 1",
         "derivedFromTaskUid": null,
         "order": 0,
-        "isCollapsed": false,
-        "isHidden": false,
+        "treeState": "auto",
         "color": null,
         "height": null
       }
@@ -240,6 +239,7 @@
     "labelGap": 8,
     "labelHaloOfFont": 0.17,
     "labelPad": 6,
+    "levelZeroTreeState": "auto",
     "markerGap": 4,
     "markerSize": 16,
     "markerStroke": 1.3,
