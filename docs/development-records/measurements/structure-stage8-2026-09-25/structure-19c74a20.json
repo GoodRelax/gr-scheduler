@@ -1,0 +1,225 @@
+{
+  "tree": "19c74a20",
+  "files": 160,
+  "codeLines": 30876,
+  "topFilesByCodeLines": [
+    {
+      "file": "src/framework/single-html-shell/frame-loop.ts",
+      "physicalLines": 2796,
+      "codeLines": 2221
+    },
+    {
+      "file": "src/adapter/document-codec/mspdi-codec.ts",
+      "physicalLines": 1273,
+      "codeLines": 1071
+    },
+    {
+      "file": "src/adapter/input-command-translator/input-command-translator.ts",
+      "physicalLines": 1387,
+      "codeLines": 1062
+    },
+    {
+      "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+      "physicalLines": 1156,
+      "codeLines": 791
+    },
+    {
+      "file": "src/use-case/import-document/import-document.ts",
+      "physicalLines": 922,
+      "codeLines": 767
+    },
+    {
+      "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+      "physicalLines": 1064,
+      "codeLines": 747
+    },
+    {
+      "file": "src/adapter/screen-renderer/properties-panel.ts",
+      "physicalLines": 900,
+      "codeLines": 692
+    },
+    {
+      "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+      "physicalLines": 770,
+      "codeLines": 691
+    },
+    {
+      "file": "src/framework/single-html-shell/document-file-flow.ts",
+      "physicalLines": 843,
+      "codeLines": 676
+    },
+    {
+      "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+      "physicalLines": 778,
+      "codeLines": 621
+    },
+    {
+      "file": "src/framework/dom-screen-surface/properties-panel-drawing.ts",
+      "physicalLines": 758,
+      "codeLines": 575
+    },
+    {
+      "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+      "physicalLines": 598,
+      "codeLines": 538
+    }
+  ],
+  "topThreeShareOfCodeLines": 14.1,
+  "functions": 2539,
+  "functionsAtMost50Lines": 2461,
+  "functionsOver50LinesOr15Branches": 87,
+  "functionsOver500Lines": [
+    {
+      "file": "src/framework/single-html-shell/frame-loop.ts",
+      "name": "frameLoop",
+      "lines": 1440,
+      "branches": 4
+    }
+  ],
+  "functionsOver200Lines": 12,
+  "functionsWith100BranchesOrMore": [],
+  "functionsWith50BranchesOrMore": 6,
+  "linesPercentiles": {
+    "p50": 5,
+    "p90": 24,
+    "p99": 123,
+    "max": 1440
+  },
+  "branchesPercentiles": {
+    "p50": 1,
+    "p90": 6,
+    "p99": 22,
+    "max": 70
+  },
+  "largestFunctions": [
+    {
+      "file": "src/framework/single-html-shell/frame-loop.ts",
+      "name": "frameLoop",
+      "lines": 1440,
+      "branches": 4
+    },
+    {
+      "file": "src/framework/dom-screen-surface/field-editing.ts",
+      "name": "fieldEditingOf",
+      "lines": 462,
+      "branches": 1
+    },
+    {
+      "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+      "name": "agentApiMembers",
+      "lines": 345,
+      "branches": 0
+    },
+    {
+      "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+      "name": "domScreenSurface",
+      "lines": 315,
+      "branches": 0
+    },
+    {
+      "file": "src/use-case/import-document/import-document.ts",
+      "name": "builtMerge",
+      "lines": 279,
+      "branches": 56
+    },
+    {
+      "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+      "name": "layoutFromSchedule",
+      "lines": 268,
+      "branches": 23
+    },
+    {
+      "file": "src/framework/file-system-access-file-store/file-system-access-file-store.ts",
+      "name": "fileSystemAccessFileStore",
+      "lines": 255,
+      "branches": 0
+    },
+    {
+      "file": "src/use-case/edit-document/edit-task-group.ts",
+      "name": "editTaskGroup",
+      "lines": 238,
+      "branches": 55
+    },
+    {
+      "file": "src/adapter/svg-renderer/svg-renderer.ts",
+      "name": "svgFromSchedule",
+      "lines": 221,
+      "branches": 19
+    },
+    {
+      "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+      "name": "taskFigureParts",
+      "lines": 208,
+      "branches": 45
+    }
+  ],
+  "mostBranchedFunctions": [
+    {
+      "file": "src/adapter/input-command-translator/input-command-translator.ts",
+      "name": "commandFromEntry",
+      "lines": 156,
+      "branches": 70
+    },
+    {
+      "file": "src/adapter/input-command-translator/item-grab.ts",
+      "name": "commandFromGrab",
+      "lines": 167,
+      "branches": 69
+    },
+    {
+      "file": "src/adapter/input-command-translator/shortcut-keys.ts",
+      "name": "commandFromKey",
+      "lines": 80,
+      "branches": 65
+    },
+    {
+      "file": "src/framework/single-html-shell/frame-loop.ts",
+      "name": "receiveInput",
+      "lines": 149,
+      "branches": 62
+    },
+    {
+      "file": "src/use-case/import-document/import-document.ts",
+      "name": "builtMerge",
+      "lines": 279,
+      "branches": 56
+    },
+    {
+      "file": "src/use-case/edit-document/edit-task-group.ts",
+      "name": "editTaskGroup",
+      "lines": 238,
+      "branches": 55
+    },
+    {
+      "file": "src/framework/single-html-shell/frame-loop.ts",
+      "name": "carryOutAction",
+      "lines": 182,
+      "branches": 47
+    },
+    {
+      "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+      "name": "taskFigureParts",
+      "lines": 208,
+      "branches": 45
+    },
+    {
+      "file": "src/use-case/edit-document/edit-annotation.ts",
+      "name": "editAnnotation",
+      "lines": 146,
+      "branches": 39
+    },
+    {
+      "file": "src/adapter/input-command-translator/selection-input.ts",
+      "name": "selectionFromInput",
+      "lines": 64,
+      "branches": 36
+    }
+  ],
+  "frameLoop": {
+    "file": "src/framework/single-html-shell/frame-loop.ts",
+    "lines": 1440,
+    "branches": 4,
+    "letAtIndentTwo": 20
+  },
+  "readerErrors": []
+}

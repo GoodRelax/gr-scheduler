@@ -96,7 +96,7 @@ flowchart LR
 | 段 5 入力の翻訳係 | `input-command-translator.ts` を入力の種類ごとに割る | 同上 | 公開エントリの名前と署名が不変。試験が無変更で緑 | ✅ `CR-438`、`223a5a5b` |
 | 段 6 画面に描く係 | `dom-screen-surface.ts` を UI パーツごとに割る | 同上 ＋ 裁定待ちの 1 行（DFC-566）が裁定を受けて直っている。`DFC-571` は `JDG-68` で裁定され `d2e9894` で直った | 同上。描いた DOM が割る前と一致 | ✅ `CR-439`、`006aefbc`（入口 ＋ 兄弟 10、`UF-103`〜`UF-112`。照合器でバイト一致。終わりの e2e は既知の 4 件）。`DFC-566` の直しと `CR-500` の波 B は兄弟の側で続く |
 | 段 7 状態機械 | `frame-loop.ts` の状態を、領域ごとに状態機械へ移す。書き直される場所の欠陥は、その領域を移した直後に直す | 段 2b・5・6 ＋ 領域ごとのユニットの変更要求 | `frameLoop` の `let` が芯だけ。UseCase のモジュール状態 0。書き直される場所の欠陥 8 行が閉じた | 🔄 状態機械のセッションが並行して進めている |
-| 段 8 仕上げ | components.json を到達点へ、図の再生成、書き直した試験のコメント、性能・網羅・e2e の再測定、引継ぎの更新 | 段 4・7 | 記録の 3 節の数がすべて目標に届く | ⬜ |
+| 段 8 仕上げ | components.json を到達点へ、図の再生成、書き直した試験のコメント、性能・網羅・e2e の再測定、引継ぎの更新 | 段 4・7 | 記録の 3 節の数がすべて目標に届く | 🔄 性能を除く測り直しは記録の 18 節（2026-09-25、`19c74a20`）。性能は利用者を呼んでから（`RISK-001`） |
 
 **段 0 の出口の条件、満たしたもの（2026-09-14。記録の 16・17 節）:**
 - ✅ 満たした: vitest の失敗 0（②）、性能・e2e・網羅の基準値を記録した（③。記録の 16 節）。
@@ -941,3 +941,111 @@ CPU `12th Gen Intel Core i7-12650H`、`Windows_NT 10.0.26200`、node `v24.12.0`�
 **`NFR-002` / `NFR-003` に照らして:** 1920×400 で上限にいる区間の先端は平均 15.68〜16.94 fps・フレーム時間の p95 66.66〜84.8 ms、空き地の上で依存線を引いている先端は平均 41.44〜41.83 fps・p95 24.5 ms で、どちらも毎秒 60 フレームと p95 16.7 ms に届かない（同じ区間の段 0 は 117.12〜126.5 fps・p95 12.2 ms、98.15〜101.24 fps・p95 16.67 ms）。⚠️ ただしこれは headless の Edge をこの探り針で押した値であり、表 T-025 の `MC-8` の区間ではない —— 門（表 T-043 の試験）の値ではなく、`LM-19` の実測を置き換えない。
 
 **読み（`JDG-50`）:** ⚠️ 「段 0 で測った値より悪くしない」の物差しで読むと、この 2 つの操作 —— 1920×400 で上限を越えるズームと、空き地の上で依存線を引くこと —— では先端が段 0 より悪い。`JDG-50` は基準を「段 0 で LM-19 の手順で測った値」と定めており、lm-19 の probe の外のこの 2 本の探り針の値を合否に数えるかは決まっていない。台帳にはまだ立てていない。
+
+### 18. 段 8 の測り直し —— 性能を除く（2026-09-25）
+
+⭐ 生の数は `docs/development-records/measurements/structure-stage8-2026-09-25/` が持つ（関数と行の数の JSON 3 本と、それを出した `measure-structure.py`）。本節は要約と測り方だけを書く。
+⛔ **性能（記録 16 の ①② と記録 17 の A/B）はまだ測っていない** —— 測る前に利用者を呼ぶ（`RISK-001`）。e2e も性能の門（`tests/nfr/nfr-001-010-011-013-*`・`tests/nfr/nfr-002-003-*`）を外して回した。
+
+**測った木**: `refactor` の `19c74a20`（CR-554・CR-568・CR-565・CR-567 の後、dist を作り直したコミット）。比べる相手は、記録 1 の `8701ccf`（タグ `Before-Refactor`）と、段 0 を閉じた `5c1b915`（記録 16・17）。古い 2 本は `git archive <sha> src` で写し、同じ `measure-structure.py` で測った。
+⭐ 同じ道具で `8701ccf` を測ると、記録 1 の数がそのまま出た（関数 1,679・50 行以下 1,618・`frameLoop` 2,173 行・`let` 60・500 行超 4・分岐 100 以上 3）⇒ 道具は記録 1 と同じものを数えている。ただし実コード行だけは数え方が違う（記録 1 は `parseAst`、本節は検査 55 の字句解析器で、生成の印の間を除く）ので、記録 1 の 25,022 行とは比べない。
+
+**記録の 3 節の数 —— 目標に届いたか**
+
+| 数 | 記録 1（`8701ccf`） | いま（`19c74a20`） | 目標 | 届いたか | 測り方 |
+|---|---:|---:|---|---|---|
+| components.json に無い import の辺 | 51 | 0 | 0 | ✅ | 検査 59 `check-component-edges.py`: コードの辺 137（import の箇所 406、指定子 794 のすべてを読んだ、160 ファイル） |
+| components.json にあってコードが使わない辺 | 11 | 11 | 0。残すなら行ごとに理由 | ❌ 理由は未記入 | 同じ検査の NOT GATED の行（下に 11 本）。`CR-378` 決定 7 は「図 ⊆ コード」を規則にしない |
+| UseCase から Adapter フォルダの JSON への import | 2 | 0 | 0 | ✅ | `src` の `.json` の import 指定子 22 をすべて読んだ —— どれも同じフォルダの `./*.json`。検査 19 も `EG-8` / `JF-1` を含めて緑 |
+| 他コンポーネントの公開エントリ以外の JSON を読む import | 2 | 0 | 0 | ✅ | 同上 |
+| UseCase のモジュールスコープの可変状態 | 2 | 0 | 0 | ✅ | 検査 61 `check-module-state.py`: `entity`・`use-case`・`adapter` の候補 167（`let`/`var` 0、可変の字の `const` 167）から 0 件、基準線の行も 0 |
+| `frameLoop` が直に持つ `let` | 60 | 20 | 状態の値 1 つと環境の値だけ | ⚠️ `JDG-440` が残りを作り変えないとした | `frameLoop` の範囲で、字下げ 2 の `let` で始まる行 |
+| 500 行を超える関数 | 4 | 1（`frameLoop` 1,440 行） | 0 | ❌ | 検査 60 の読み手 `function-size.mjs` |
+| 分岐 100 以上の関数 | 3 | 0（最大は `commandFromEntry` の 70） | 0 | ✅ | 同上 |
+| 関数の行数・分岐数の上限値 | 無い | 下の分布 | 段 8 の実測を見て決める（`JDG-54`） | ⏳ 利用者 | 同上 |
+| 表 T-064 に無い越境名 | 137 | 130（越境する名 311 のうち） | 段 8 で決める | ⏳ 利用者 | 検査 26b `check-published-members.py` |
+| vitest の失敗 | 47 | 1（既知の `display-words` の `dependencyKinds`） | 0 | ❌ | 下の網羅と同じ木で `npx vitest run` —— 27,027 件のうち 1 |
+| 1 フレームの時間 | 段 0 で測る | 未測定 | 段 0 より悪くしない（`JDG-50`） | ⏳ 利用者を呼んでから | 記録 17 の手順 |
+
+使われていない 11 本（検査 59 が刷る順）: `ApplyDocumentChange -> NotifyChangeWatchers`・`ChooseStartupDocument -> DocumentStamp`・`ChooseStartupDocument -> ValidateImportedDocument`・`ClipboardGateway -> DocumentCodec`・`ClipboardGateway -> ImageExporter`・`EditDocument -> ScheduleLayout`・`FileGateway -> ApplyDocumentChange`・`FileGateway -> DocumentCodec`・`ImportDocument -> ValidateImportedDocument`・`InputCommandTranslator -> ApplyDocumentChange`・`PostDialogueMessage -> NotifyChangeWatchers`。⚠️ 記録 1 の 11 本と同じ組かは確かめていない（記録 1 は組を残していない）。
+
+**関数の大きさ（`JDG-54` の上限を決めるための分布）**
+
+| 指標 | `8701ccf` | `5c1b915`（段 0） | `19c74a20`（いま） |
+|---|---:|---:|---:|
+| 関数の数 | 1,679 | 1,681 | 2,539 |
+| 50 行以下 | 1,618 | 1,620 | 2,461 |
+| 帯の中（50 行超 または 分岐 15 超。検査 60 の帯） | 72 | 72 | 87 |
+| 200 行超 | 12 | 12 | 12 |
+| 分岐 50 以上 | 9 | 9 | 6 |
+| 行数 p50 / p90 / p99 / 最大 | 5 / 26 / 160 / 2,173 | 5 / 26 / 160 / 2,173 | 5 / 24 / 123 / 1,440 |
+| 分岐 p50 / p90 / p99 / 最大 | 1 / 6 / 27 / 124 | 1 / 6 / 27 / 124 | 1 / 6 / 22 / 70 |
+
+- いまの大きい順: `frameLoop` 1,440 行 ／ `fieldEditingOf` 462 ／ `agentApiMembers` 345 ／ `domScreenSurface` 315 ／ `builtMerge` 279（分岐 56）。分岐の多い順: `commandFromEntry` 70 ／ `commandFromGrab` 69 ／ `commandFromKey` 65 ／ `receiveInput` 62 ／ `builtMerge` 56 ／ `editTaskGroup` 55。
+- 測り方: 行は関数の始まりの行から終わりの行まで（空行とコメントを含む）。分岐は `if`・三項・ループ・`catch`・条件のある `case`・`&&` `||` `??` を 1 点ずつ、入れ子の関数の分岐はその関数だけに数える（検査 60 と同じ）。百分位は最近順位法。
+
+**ファイルとユニット**
+
+| 指標 | `8701ccf` | `19c74a20` | 測り方 |
+|---|---:|---:|---|
+| `src` の `.ts` | 68 | 160 | ファイルを数えた。表 T-075 の `UF-` 行も 160 |
+| コンポーネント | 36 | 37 | `components.json` の `nodes`。表 T-062 の行も 37 |
+| `components.json` の辺 | 85 | 148 | `edges` の組（重複なし） |
+| 実コード行 | 22,729 | 30,876 | 検査 55 の字句解析器（上の注） |
+| 上位 3 ファイルが占める割合 | 34.9% | 14.1% | 同上 |
+| 上位 3 ファイルの実コード行 | `frame-loop.ts` 2,965 ／ `input-command-translator.ts` 2,837 ／ `dom-screen-surface.ts` 2,128 | `frame-loop.ts` 2,221 ／ `mspdi-codec.ts` 1,071 ／ `input-command-translator.ts` 1,062 | 同上 |
+
+⚠️ 実コード行が増えたのは、分割の入口と兄弟の見出しのほかに、同じ期間に機能の変更要求（`CR-376` 以降）が入ったためである。本節はその 2 つを分けていない。
+
+**網羅**（記録 16 と同じコマンド）
+
+| 項目 | 値 |
+|---|---|
+| 木 | `19c74a20`。⚠️ 追跡されない MSPDI の参照（`docs/reference/mspdi/`）を根の checkout から作業木へ写して回した —— 写さないとそれを読む試験が走らない |
+| コマンド | `npx vitest run --coverage.enabled --coverage.reportOnFailure --coverage.include='src/**'` |
+| 試験 | 364 ファイル・26,980 件緑・2 件赤・27 件は `it.fails` の予期した失敗・18 skip。赤は既知の `display-words` と、網羅を掛けたときだけ 5 秒の上限を越えた `cr-430-table-t-021a-the-press-cycle` の 1 件（網羅なしの走行では緑） |
+
+| 指標 | 段 0（記録 16） | いま |
+|---|---:|---:|
+| 文 | 86.62% | 90.95% |
+| 分岐 | 79.8% | 85.42% |
+| 関数 | 91.54% | 94.32% |
+| 行 | 89.42% | 93.39% |
+
+割った 5 ファイルの分岐。⚠️ 中身は兄弟へ移ったので、入口のファイルだけでは段 0 と比べられない —— フォルダ（コンポーネント）の和も並べる:
+
+| 段 0 のファイル | 段 0（記録 16） | いまの同じ名のファイル | いまのフォルダの和 |
+|---|---:|---:|---:|
+| `frame-loop.ts` | 73.08% | 85.13% | `single-html-shell/` 15 本 78.13% |
+| `input-command-translator.ts` | 78.41% | 82.92% | `input-command-translator/` 15 本 83.45% |
+| `dom-screen-surface.ts` | 62.29% | 92.53% | `dom-screen-surface/` 12 本 76.17% |
+| `edit-task.ts` | 89.6% | 98.8% | `edit-document/` 19 本 91.84% |
+| `svg-renderer.ts` | 92.57% | 94.44% | `svg-renderer/` 5 本 96.12% |
+
+⇒ どの値も段 0 より低くない。
+
+**e2e（性能の門を除く）**
+
+`npx playwright test tests/usecase tests/system tests/nfr/nfr-004-single-file.test.ts`（開発サーバ。性能の門 2 本を外した 156 件）: **153 passed / 3 failed（9.7 分）。**
+
+- 既知の 2 本: `SWS-8`（`tests/system/nfr-004-file-scheme-sweep.sws.test.ts`、file:// で `GR-22` の帯の真ん中に届かない）と `DFC-374`（`tests/system/user-reported-fixes.test.ts`、400px の窓で行の軸の上限が字の上限で止まる）。どちらも段 7.5 の出口（2026-09-25）で既知とされたもの。
+- ⚠️ **新しい 1 本**: `tests/nfr/nfr-004-single-file.test.ts` の `CN-6` —— 出荷物の生の字に、宣言した名前空間の識別子でない絶対 URL が 1 つ在る（ダウンロードのページ、`CR-565` が足した `S-350`）。`CR-565` は表 T-003 の `CN-6` に「人が押すリンクは出荷物自身の通信ではない」と書き足した ⇒ 試験が古い見込み（判断。二分探索はしていない）。台帳の行はまだ無い。
+- 段 7.5 の出口で赤だった guide-cursor・`DFC-82`・`DFC-133` の 3 本は、`DFC-979` の書き直しで緑になった。`DFC-180` はこの走行では緑。
+
+**parity**
+
+`npm run parity`: 盤は組み上がり、75 手を最後まで打った（段 7.5 の出口の「the document would not empty」は `DFC-979` で直った）。**一致 0/75、食い違い 75/75** —— どの手でも GRS の側にだけ `head:` の行の構えの読みが出る。`DFC-979` の閉じ（`4c7087fe`）が「parity はまだ `DFC-670` の探り針の読みで exit 1」と書いたものと同じ形であり、本節は新しい原因を探していない。
+
+**図**
+
+`python docs/spec/_source/build.py`（`npm run gen:components` と同じ。Graphviz と draw.io の実行ファイルがある計算機で）で 図 5 本（`fig-components` と `view-write`・`view-read`・`view-io`・`view-startup`、`.drawio` と `.svg`）と `docs/review/components/components.md` を作り直した。**差分は 0 バイト** —— `CR-568` の W1（`0cddb2ac`）と W2（`c39f4e6e`）が `components.json` を変えた同じコミットで作り直していた。37 ノード・148 辺。
+
+**試験のコメント（段 8 の「書き直した試験のコメント」）**
+
+`frame-loop.ts` を import する試験は 94 本（`tests/` を `from '…frame-loop'` と `import('…frame-loop')` で grep）。そのうち 49 本が検査 55 の `tests` の基準線に行を持ち、和は 17,450 行（`tests` 全体は 59,273）。⇒ 段 8 の仕上げはまだである（`tests/` を触る仕事）。
+
+**段 8 に残るもの**
+
+- 性能（記録 16 の ①② と記録 17 の A/B、`tests/nfr` の性能の門）—— ⛔ 利用者を呼んでから。
+- `main` の早送り —— 利用者に問う（`JDG-61`）。
+- 上の表の ❌ と ⏳: 使われていない辺 11 本の扱い、`frameLoop` の 1,440 行、vitest の既知の赤 1、関数の大きさの上限値と越境名の目標（利用者が本節の分布を見て決める）、書き直した試験のコメント、現状固定の試験の後始末（本節は数えていない）。
