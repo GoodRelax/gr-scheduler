@@ -30,11 +30,8 @@ import {
   type Project,
   type Schedule,
   type Task,
-  type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
 import {
-  dependencyEndAtPointer,
-  dependencyStartOfHit,
   grabSizesOf,
   itemAtPointer,
   selectionWithinDrawn,
@@ -135,7 +132,6 @@ import {
   type Rasterizer,
 } from '../../adapter/image-exporter/image-exporter'
 import {
-  commandFromFieldCommit,
   commandFromInput,
   isCombo,
   pressRowOf,
@@ -156,7 +152,6 @@ import {
   screenViewFromRegions,
   type DisplayLanguage,
   type ExportFormatId,
-  type FieldEditNotice,
   type IconId,
   type RaisedConfirmation,
   type RaisedNotice,
@@ -183,9 +178,29 @@ import {
 import {
   pressedPointerShapeOf,
   type Grabbed,
-  type GrabbedArea,
   type ShowPointerShape,
 } from './pointer-shape'
+import { copyForPaste, pasteWhatWasCopied } from './copy-and-paste'
+import {
+  drainFieldEditNotices,
+  fieldFocusRetriesOf,
+  isEditingField,
+  isFieldFocusWanted,
+  isNamingCreatedTaskIn,
+  noteChoiceMoved,
+  spendFieldCommit,
+  tryWantedFieldBeforeInput,
+  FIELD_ROW_OF_IN_PLACE_TARGET,
+} from './field-entry'
+import { frameClockWakesOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
+import { marqueeRect, previewOfHeldPress, tentativeDependencyOf } from './held-press-preview'
+import {
+  interactionRecorderOf,
+  isRecordingInteractionsIn,
+  recordFrame,
+  recordHappening,
+  recordLine,
+} from './interaction-record'
 import { rowBandCeilingCacheOf } from './row-band-ceiling-cache'
 import startupTemplate from './startup-template.json'
 import { runSessionEffects, type EffectRunners } from './session-effects'
@@ -196,6 +211,8 @@ export { startupAgentApiEnabled, startupDisplayLanguage } from './browser-stored
 export { pointerImageOf, pointerRowOf } from './pointer-shape'
 export type { PointerFacing, PointerRow, PointerShape, ShowPointerShape } from './pointer-shape'
 export { WATERMARK_UNLOCK_DIGEST } from './watermark-unlock'
+export { copiedForPasteOf, pasteRefusedFor } from './copy-and-paste'
+export { FOCUS_ON_DOCUMENT_BODY } from './interaction-record'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
@@ -292,53 +309,17 @@ export interface FrameLoopHands {
   readEnvironment(): FrameEnvironment
   readPressed(): PointerPress | null
   sendToSession(event: SessionEvent, frame: FrameValues | null): void
+  readHeld(): HeldDocument
+  isFrameOwed(): boolean
+  readonly screen: ScreenWiring | undefined
+  readonly clipboard: Clipboard | undefined
   ask(): void
-}
-
-// STOP: spec does not decide which T-023d rows draw while held beyond its two
-// closing rules. Looked in T-023d, FR-052, IN-1
-// @provisional PND-250
-const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
-  'GA-1': true,
-  'GA-2': true,
-  'GA-3': true,
-  'GA-4': true,
-  'GA-5': true,
-  'GA-6': true,
-  'GA-7': true,
-  'GA-8': true,
-  'GA-9': true,
-  'GA-10': true,
-  'GA-11': true,
-  'GA-12': true,
-  'GA-13': true,
-  'GA-14': true,
-  'GA-15': true,
-  'GA-16': true,
-  'GA-17': true,
-  'GA-18': true,
-  'GA-19': false,
-  'GA-20': true,
-  'GA-21': true,
-  'GA-22': true,
-  'GR-10': false,
-  'GR-11': false,
-  'GR-14': true,
-  'GR-16': true,
-}
-
-// see PTD-5
-/** @purity pure */
-function marqueeRect(
-  press: PointerPress | null,
-  at: { readonly x: number; readonly y: number } | null,
-): ScreenRect | null {
-  if (press === null || at === null) return null
-  if (press.on !== null || press.pressRow !== 'PTD-5') return null
-  const width = Math.abs(at.x - press.at.x)
-  const height = Math.abs(at.y - press.at.y)
-  if (width === 0 && height === 0) return null
-  return { x: Math.min(press.at.x, at.x), y: Math.min(press.at.y, at.y), width, height }
+  runFrame(): void
+  raiseNotice(reason: NoticeReason, affectedCount: number | null): void
+  writeDocument(commands: readonly DocumentCommand[], frame: FrameValues, isSettlingFieldCommit?: boolean): void
+  settingsLimitsOf(frame: FrameValues | null): SettingsLimits
+  collectInputContext(frame: FrameValues, isNoticeStanding?: boolean): InputContext
+  isPropertiesPanelOnScreen(): boolean
 }
 
 // see T-023c
@@ -403,20 +384,6 @@ function selectionWithinDrawnRows(
   return items.length === selection.items.length ? selection : { items, ordered: selection.ordered }
 }
 
-// see T-023d, PTD-3, FR-009
-/** @purity pure */
-function isPreviewedPress(press: PointerPress | null, isDependencyArmed: boolean): boolean {
-  if (press === null) return false
-  if (press.on !== null) return press.on.dividerPanel !== null
-  // WHY: an armed dependency applies no T-023d row (PTD-3); the one tentative line
-  // belongs to FR-009, so a previewed createDependency would draw it twice.
-  if (press.pressRow === 'PTD-3' && isDependencyArmed) return false
-  // WHY: PTD-1 is not previewed: scrolledAnchor measures the travel against the
-  // previewed layout, so the picture would run away.
-  if (press.pressRow === 'PTD-4') return true
-  return press.hit !== null && PREVIEWED_GRABS[press.hit.grab]
-}
-
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
 const HISTORY_LIMITS: HistoryLimits = {
@@ -479,10 +446,10 @@ const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAs
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
-const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
+export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
 const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded' }
-const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
-const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
+export const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
+export const FIELD_FOCUS_WITHDRAWN: SessionEvent = { type: 'fieldFocusWithdrawn' }
 const SELECTION_CLEARED: SessionEvent = { type: 'selectionCleared' }
 const INTERACTION_RECORD_TOGGLED: SessionEvent = { type: 'interactionRecordToggled' }
 const AGENT_API_ENTRY_PRESSED: SessionEvent = { type: 'agentApiEntryPressed' }
@@ -525,49 +492,12 @@ const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
 
 export const CONFIRMATION_MANNER = 'NT-7'
 
-const TASK_NAME_FIELD_ROW = 'PR-1'
-
-const ROW_NAME_FIELD_ROW = 'AT-53'
-
-const ASSIGNEE_FIELD_ROW = 'PR-16'
-
-const COMMENT_BOX_TEXT_FIELD_ROW = 'PR-21'
-
-const HIGHLIGHT_BOX_STROKE_FIELD_ROW = 'PR-22'
-
-const DOCUMENT_TITLE_FIELD_ROW = 'U-27'
-
-type InPlaceKind = Extract<InputAction, { readonly kind: 'editInPlace' }>['target']['kind']
-
-const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = {
-  documentTitle: DOCUMENT_TITLE_FIELD_ROW,
-  taskName: TASK_NAME_FIELD_ROW,
-  assignee: ASSIGNEE_FIELD_ROW,
-  rowName: ROW_NAME_FIELD_ROW,
-  commentBoxText: COMMENT_BOX_TEXT_FIELD_ROW,
-  highlightBoxStroke: HIGHLIGHT_BOX_STROKE_FIELD_ROW,
-}
-
-// WHY: counted in frames, not ms: each try needs a drawn frame, and a held control let go lands on
-// the next; 10 bounds the frames asked for, and IN-5b keeps trying on later frames and keys.
-const FIELD_FOCUS_RETRY_FRAMES = 10
-
 // see ZE-5
 const PERCENT_PER_WHOLE = 100
 
-// see FR-102, IR-1, IR-2, IR-3
-// TRAP: the dash the record already writes for an empty value; IR-2's third value of S-99h is none.
-const UNREAD_IN_RECORD = '-'
-
-const PANEL_NOT_SHOWN_IN_RECORD = 'none'
-
-// see IR-1
-// TRAP: single-html-shell.ts answers this when the focus is on no field and no entrance.
-export const FOCUS_ON_DOCUMENT_BODY = 'body'
-
 // see IN-4, IN-5a, IN-5b
 // TRAP: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
-const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
+export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
 export type ConfirmationQuestion = FileFlowQuestion['question']
 
@@ -792,9 +722,9 @@ const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 
 const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
 
-const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
+export const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24'
 
-const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
+export const NOTHING_TO_DO_REASON: NoticeReason = 'RS-27'
 
 const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   Record<SpentEntranceSituation, NoticeReason>
@@ -1166,7 +1096,7 @@ export function openSurfaceNameIn(session: ScreenSession): string | null {
 }
 
 /** @purity pure */
-function isLevelZeroFoldedIn(session: ScreenSession): boolean {
+export function isLevelZeroFoldedIn(session: ScreenSession): boolean {
   return session.screen.levelZeroFoldState.kind === 'folded'
 }
 
@@ -1184,7 +1114,7 @@ function displayLanguageIn(session: ScreenSession): DisplayLanguage {
 }
 
 /** @purity pure */
-function panelShowingIn(session: ScreenSession): PanelShowing {
+export function panelShowingIn(session: ScreenSession): PanelShowing {
   const content = session.screen.propertiesPanelContentState.kind
   if (content === 'hidden') return null
   return content === 'selectionDisplayed' ? 'selection' : 'documentSettings'
@@ -1192,7 +1122,7 @@ function panelShowingIn(session: ScreenSession): PanelShowing {
 
 // see NT-3, T-286
 /** @purity pure */
-function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] {
+export function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] {
   const onScreen = session.notices.noticeDisplayState
   return onScreen.kind === 'shown' ? onScreen.standing : []
 }
@@ -1239,12 +1169,6 @@ function withSurfaceReplaced(
   const open = screen.openSurfaceState
   const isReplacing = opened !== null && open.kind === 'open' && open.surfaceName !== opened
   return isReplacing ? [SURFACE_CLOSE_ASKED, event] : [event]
-}
-
-/** @purity pure */
-function paletteMinimisedForRecordOf(session: ScreenSession, whileHidden: boolean): boolean {
-  const palette = session.screen.paletteDisplayState
-  return palette.kind === 'hidden' ? whileHidden : palette.child.kind === 'minimised'
 }
 
 // see DC-1, DC-2, DC-4, DC-9, T-280
@@ -1421,7 +1345,7 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
 
 // see BO-1
 /** @purity pure */
-function isSizeSettled(env: FrameEnvironment): boolean {
+export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
@@ -1493,27 +1417,6 @@ function isChangingDocumentIn(session: ScreenSession): boolean {
 }
 
 /** @purity pure */
-function isNamingCreatedTaskIn(session: ScreenSession): boolean {
-  return session.fieldEntry.createdTaskNamingState.kind === 'namingCreatedTask'
-}
-
-/** @purity pure */
-function fieldFocusWantedIn(session: ScreenSession): string | null {
-  const edit = session.fieldEntry.fieldEditState
-  return edit.kind === 'fieldFocusWanted' ? edit.fieldRow : null
-}
-
-/** @purity pure */
-function isEditingFieldIn(session: ScreenSession): boolean {
-  return session.fieldEntry.fieldEditState.kind === 'editingField'
-}
-
-/** @purity pure */
-function isRecordingInteractionsIn(session: ScreenSession): boolean {
-  return session.interactionRecord.interactionRecordingState.kind === 'recordingInteractions'
-}
-
-/** @purity pure */
 function isAgentApiEnabledIn(session: ScreenSession): boolean {
   return session.agentApi.agentApiEnablingState.kind === 'enabled'
 }
@@ -1522,40 +1425,15 @@ function isAgentApiEnabledIn(session: ScreenSession): boolean {
 const NO_OBJECTS_SELECTED: Selection = emptySelection()
 
 /** @purity pure */
-function selectedObjectsIn(session: ScreenSession): Selection {
+export function selectedObjectsIn(session: ScreenSession): Selection {
   const state = session.selection.selectionState
   return state.kind === 'objectsSelected' ? state.selectedObjects : NO_OBJECTS_SELECTED
-}
-
-type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
-
-// WHY: one chosen row is copied whatever Tasks are also selected; two rows or nothing copy
-// nothing (RS-27). see FR-033, SL-7b
-/** @purity pure */
-export function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied | null {
-  if (chosenRows.length === 1) return { kind: 'row', groupId: chosenRows[0] as string }
-  if (chosenRows.length > 1) return null
-  const uids = selected.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))
-  return uids.length === 0 ? null : { kind: 'task', uids }
-}
-
-// WHY: two or more paste targets refuse any paste, a row copy or a Task copy alike (RS-27).
-// see FR-033
-/** @purity pure */
-export function pasteRefusedFor(chosenRows: readonly string[]): boolean {
-  return chosenRows.length > 1
 }
 
 /** @purity pure */
 function rowsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
   if (!isExtending) return [groupId]
   return chosen.includes(groupId) ? chosen.filter((one) => one !== groupId) : [...chosen, groupId]
-}
-
-/** @purity pure */
-function fieldEditEventOf(notice: FieldEditNotice): SessionEvent {
-  const type = notice.kind === 'began' ? 'fieldEditBegan' : 'fieldEditEnded'
-  return { type, fieldRow: notice.row }
 }
 
 // see HF-15, T-289
@@ -1607,7 +1485,7 @@ function grabbedRowReadingOf(
 }
 
 /** @purity pure */
-function isQuestionAskedIn(session: ScreenSession): boolean {
+export function isQuestionAskedIn(session: ScreenSession): boolean {
   return session.fileFlow.confirmationState.kind === 'questionAsked'
 }
 
@@ -1741,22 +1619,8 @@ function readInstantOfWrite(): string {
 }
 
 /** @purity semi-pure-b */
-function readMonotonicMs(): number {
+export function readMonotonicMs(): number {
   return performance.now()
-}
-
-interface RepeatTimes {
-  readonly delayMs: number
-  readonly intervalMs: number
-}
-
-// see FR-018, T-206
-/** @purity pure */
-function repeatTimesOfHeldEntry(): RepeatTimes {
-  return {
-    delayMs: NOT_STORED_REPEAT_TIMES['S-172'],
-    intervalMs: NOT_STORED_REPEAT_TIMES['S-173'],
-  }
 }
 
 /** @purity non-pure */
@@ -1797,12 +1661,6 @@ export function frameLoop(
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   let rowGrabbedAt: GrabbedRowPlace | null = null
-  // DEVIATION: spec says a hidden palette has no minimise state (T-280); here the record keeps it (DFC-707)
-  let paletteMinimisedWhileHidden = false
-  const recordedLines: string[] = []
-  let interactionRecordDropped = 0
-  let interactionRecordBeganAt = 0
-  let interactionRecordOffered = 0
   let fileSavedAt: string | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -1823,11 +1681,6 @@ export function frameLoop(
   let partUnderPointer: ScreenPart | null = null
   let grabUnderPointer: Grabbed | null = null
   let isTooltipStanding = false
-  let pointerRestingSince: number | null = null
-  let callOffIconHintWait: (() => void) | null = null
-  let callOffEntryRepeat: (() => void) | null = null
-  // see SE-3, SE-4
-  let callOffScaleMessage: (() => void) | null = null
   // DEVIATION: spec says a person's settled utterance joins the log (AG-11); here none is posted (DFC-558)
   let dialogueLog: DialogueLog = emptyDialogueLog()
   const changeWatchers = emptyChangeWatchers()
@@ -1879,13 +1732,29 @@ export function frameLoop(
     readValues: () => values,
     readEnvironment: () => environment,
     readPressed: () => pressed,
+    readHeld: () => held,
+    isFrameOwed: () => owed,
+    screen,
+    clipboard,
     sendToSession,
     ask,
+    runFrame,
+    raiseNotice,
+    writeDocument,
+    settingsLimitsOf,
+    collectInputContext,
+    isPropertiesPanelOnScreen,
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate } =
     heldViewPlaceOf(hands, startedFromTemplate)
+  const { beginPointerRest, startScaleMessageTimer, beginEntryRepeat, tickEntryRepeat, endEntryRepeat, readPointerRestedMs } =
+    frameClockWakesOf(hands)
+  const interactionRecorder = interactionRecorderOf(hands)
+  const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
+  const fieldFocusRetries = fieldFocusRetriesOf(hands)
+  const { wantFieldFocused, focusWantedField, resetFieldFocusRetries } = fieldFocusRetries
 
   // see SF-6, UF-123
   const effectRunners = effectRunnersOf({
@@ -1896,7 +1765,7 @@ export function frameLoop(
     clearSelection: () => {
       if (selectedObjectsIn(session) === NO_OBJECTS_SELECTED) return
       sendToSession(SELECTION_CLEARED, values)
-      noteChoiceMoved(values)
+      noteChoiceMoved(hands, values)
     },
     writeCarried,
     startScaleMessageTimer,
@@ -1962,136 +1831,11 @@ export function frameLoop(
     }
   }
 
-  // see FR-102, S-207
-  /** @purity non-pure */
-  function recordLine(what: string, detail: string): void {
-    if (!isRecordingInteractionsIn(session)) return
-    appendRecordedLine(what, detail)
-  }
-
-  /** @purity non-pure */
-  function appendRecordedLine(what: string, detail: string): void {
-    interactionRecordOffered += 1
-    const foundAt = Math.round(readMonotonicMs() - interactionRecordBeganAt)
-    recordedLines.push(`${interactionRecordOffered}\t${foundAt}\t${what}\t${detail}`)
-    while (recordedLines.length > NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']) {
-      recordedLines.shift()
-      interactionRecordDropped += 1
-    }
-  }
-
-  /** @purity pure */
-  function recordedModifiers(modifiers: HumanInput['modifiers']): string {
-    const held =
-      (modifiers.ctrl ? 'C' : '') +
-      (modifiers.shift ? 'S' : '') +
-      (modifiers.alt ? 'A' : '') +
-      (modifiers.meta ? 'M' : '')
-    return held === '' ? '-' : held
-  }
-
-  // TRAP: a one-character key is typed text; recording it puts document contents in the record.
-  /** @purity pure */
-  function recordedKey(key: string): string {
-    return key.length <= 1 ? '#' : key
-  }
-
-  /** @purity non-pure */
-  function recordHappening(input: HumanInput): void {
-    if (!isRecordingInteractionsIn(session)) return
-    const mods = `mods=${recordedModifiers(input.modifiers)}`
-    if (input.kind === 'pointer') {
-      recordLine(
-        'in.pointer',
-        `${input.phase} x=${Math.round(input.x)} y=${Math.round(input.y)} ` +
-          `button=${input.button} clicks=${input.clickCount} ${mods}`,
-      )
-      return
-    }
-    if (input.kind === 'wheel') {
-      recordLine(
-        'in.wheel',
-        `x=${Math.round(input.x)} y=${Math.round(input.y)} notches=${input.notches} ${mods}`,
-      )
-      return
-    }
-    recordLine('in.key', `key=${recordedKey(input.key)} ${mods}`)
-  }
-
-  /** @purity non-pure */
-  function recordFrame(svg: string, drawnLayout: ScheduleLayout): void {
-    if (!isRecordingInteractionsIn(session)) return
-    const drawn = new Map<string, number>()
-    for (const found of svg.matchAll(/<([a-z]+)[\s/>]/g)) {
-      const tag = found[1] ?? ''
-      drawn.set(tag, (drawn.get(tag) ?? 0) + 1)
-    }
-    const census = [...drawn.entries()]
-      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
-      .map(([tag, many]) => `${tag}=${many}`)
-      .join(' ')
-    recordLine(
-      'frame',
-      `w=${environment.width} h=${environment.height} ` +
-        `rows=${drawnLayout.rows.length} bars=${drawnLayout.placements.length} ` +
-        `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
-        `minimised=${paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)} ` +
-        `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
-        `notices=${standingNoticesIn(session).length} asking=${isQuestionAskedIn(session)} ` +
-        `focus=${screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +
-        `panel=${panelShowingIn(session) ?? PANEL_NOT_SHOWN_IN_RECORD} ` +
-        `noticeReasons=${recordedNoticeReasons()}`,
-    )
-  }
-
-  // see IR-3
-  /** @purity semi-pure-b */
-  function recordedNoticeReasons(): string {
-    const standing = standingNoticesIn(session)
-    if (standing.length === 0) return UNREAD_IN_RECORD
-    return standing.map((one) => one.reason).join(',')
-  }
-
-  /** @purity semi-pure-b */
-  function interactionRecordText(): string {
-    const head = [
-      'GRS interaction record (FR-102) -- no document contents are recorded',
-      `lines: ${recordedLines.length} kept of ${interactionRecordOffered} offered, ` +
-        `${interactionRecordDropped} dropped from the oldest end ` +
-        `(cap ${NOT_STORED_INTERACTION_RECORD_LIMITS['S-207']}, S-207)`,
-      'seq\tms\twhat\tdetail',
-    ]
-    return [...head, ...recordedLines].join('\n')
-  }
-
-  // see IC-76, FR-102
-  /** @purity non-pure */
-  function beginInteractionRecord(): void {
-    recordedLines.length = 0
-    interactionRecordDropped = 0
-    interactionRecordOffered = 0
-    interactionRecordBeganAt = readMonotonicMs()
-    recordLine('record', 'started entrance=IC-76')
-  }
-
-  /** @purity non-pure */
-  function handInteractionRecordToClipboard(): void {
-    appendRecordedLine('record', 'stopped entrance=IC-76')
-    const text = interactionRecordText()
-    recordedLines.length = 0
-    interactionRecordDropped = 0
-    interactionRecordOffered = 0
-    const seam = clipboard
-    if (seam === undefined) return
-    void writeClipboard(seam, { kind: 'record', text })
-  }
-
   /** @purity non-pure */
   function runFrame(): void {
     owed = false
     const document = previewDocument ?? held.document
-    const pointerRestedMs =
-      pointerRestingSince === null ? 0 : readMonotonicMs() - pointerRestingSince
+    const pointerRestedMs = readPointerRestedMs()
     const withPanelShown = withPropertiesPanelShown(document.documentSettings)
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
@@ -2163,11 +1907,11 @@ export function frameLoop(
         grabUnderPointer,
         marqueeRect(pressed, pointerAt),
         watermarkNow(),
-        tentativeDependencyOf(pressed, pointerAt, document, settings, layout, geometry, regions),
+        tentativeDependencyOf(hands, pressed, pointerAt, document, settings, layout, geometry, regions),
       )
     surface.showSvg(drawnSvg)
     if (screen === undefined) {
-      recordFrame(drawnSvg, layout)
+      recordFrame(hands, interactionRecorder, drawnSvg, layout)
       return
     }
     const screenView =
@@ -2207,52 +1951,9 @@ export function frameLoop(
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
-    drainFieldEditNotices(values)
+    drainFieldEditNotices(hands, values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
-    recordFrame(drawnSvg, layout)
-  }
-
-  // see MK-13, IN-5a, IN-5b, T-292
-  // TRAP: kept until the focus is in, so keys typed next reach the field, not table T-036; past the retries no frame is asked.
-  /** @purity non-pure */
-  function focusWantedField(focus: ScreenWiring['focusPropertyField']): void {
-    const wanted = fieldFocusWantedIn(session)
-    if (wanted === null) return
-    const isPlaceKept = wanted === DOCUMENT_TITLE_FIELD_ROW || isPropertiesPanelOnScreen()
-    if (isPlaceKept && focus?.(wanted) === false) {
-      if (fieldFocusRetriesLeft <= 0) return
-      fieldFocusRetriesLeft -= 1
-      ask()
-      return
-    }
-    drainFieldEditNotices(values)
-    if (fieldFocusWantedIn(session) !== null) sendToSession(FIELD_FOCUS_WITHDRAWN, values)
-  }
-
-  // see IN-5a, IN-5b, IN-4, IN-6
-  // WHY: a press or a focus-moving key withdraws the want; any other key is tried against the field
-  // first, drawing the owed frame now, so a letter typed before that frame lands in the field.
-  /** @purity non-pure */
-  function tryWantedFieldBeforeInput(input: HumanInput): void {
-    if (fieldFocusWantedIn(session) === null) return
-    const isWithdrawn =
-      (input.kind === 'pointer' && input.phase === 'down') ||
-      (input.kind === 'key' && FIELD_FOCUS_WITHDRAWING_KEYS.has(input.key))
-    if (isWithdrawn) {
-      sendToSession(FIELD_FOCUS_WITHDRAWN, values)
-      return
-    }
-    if (input.kind !== 'key' || screen === undefined) return
-    if (owed && isSizeSettled(environment)) runFrame()
-    else focusWantedField(screen.focusPropertyField)
-  }
-
-  // see IN-5a
-  // TRAP: false without the focus seam, whose absence no later frame mends; the want would
-  // otherwise hold every single-character key for ever.
-  /** @purity semi-pure-b */
-  function isFieldFocusWanted(): boolean {
-    return fieldFocusWantedIn(session) !== null && screen?.focusPropertyField !== undefined
+    recordFrame(hands, interactionRecorder, drawnSvg, layout)
   }
 
   /** @purity non-pure */
@@ -2280,21 +1981,8 @@ export function frameLoop(
   // WHY: the change a press raises (a colour swatch's click, FT-1) comes after the release asked this frame.
   /** @purity non-pure */
   function runAskedFrame(): void {
-    if (values !== null) spendFieldCommit(values)
+    if (values !== null) spendFieldCommit(hands, values)
     runFrame()
-  }
-
-  /** @purity non-pure */
-  function beginPointerRest(): void {
-    pointerRestingSince = readMonotonicMs()
-    callOffIconHintWait?.()
-    callOffIconHintWait = null
-    if (screen === undefined) return
-    const wake = setTimeout(() => {
-      callOffIconHintWait = null
-      ask()
-    }, held.document.documentSettings.iconHintDelayMs)
-    callOffIconHintWait = () => clearTimeout(wake)
   }
 
   // see FR-039, SE-1, SE-2, SE-3, SE-4, SE-5
@@ -2314,18 +2002,6 @@ export function frameLoop(
   function showRowZoomEndMessage(shown: { readonly end: 'max' | 'min'; readonly zoomY: number }): void {
     const percent = Math.round(shown.zoomY * PERCENT_PER_WHOLE)
     sendToSession({ type: 'rowZoomEndReached', percent, end: shown.end }, values)
-  }
-
-  // see SE-3, SE-4
-  /** @purity non-pure */
-  function startScaleMessageTimer(): void {
-    callOffScaleMessage?.()
-    const wake = setTimeout(() => {
-      callOffScaleMessage = null
-      sendToSession({ type: 'scaleMessageTimeElapsed' }, null)
-      if (isSizeSettled(environment)) ask()
-    }, NOT_STORED_SCALE_MESSAGE_TIMES['S-244'])
-    callOffScaleMessage = () => clearTimeout(wake)
   }
 
   // see FR-018, S-173, T-289
@@ -2359,29 +2035,6 @@ export function frameLoop(
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
     rowGrabbedAt = null
-  }
-
-  // see FR-018, S-172, T-289
-  /** @purity non-pure */
-  function beginEntryRepeat(): void {
-    endEntryRepeat()
-    tickEntryRepeat(repeatTimesOfHeldEntry().delayMs)
-  }
-
-  // WHY: one wake chained per tick, not setInterval, so a late tick cannot pile onto the next.
-  /** @purity non-pure */
-  function tickEntryRepeat(afterMs: number): void {
-    const wake = setTimeout(() => {
-      callOffEntryRepeat = null
-      sendToSession(ENTRY_REPEAT_TIME_ELAPSED, values)
-    }, afterMs)
-    callOffEntryRepeat = () => clearTimeout(wake)
-  }
-
-  /** @purity non-pure */
-  function endEntryRepeat(): void {
-    callOffEntryRepeat?.()
-    callOffEntryRepeat = null
   }
 
   // see FR-076, NT-3, T-233, T-286
@@ -2540,103 +2193,6 @@ export function frameLoop(
     }
   }
 
-  /** @purity semi-pure-b */
-  function previewOfHeldPress(
-    press: PointerPress | null,
-    at: { readonly x: number; readonly y: number } | null,
-    context: InputContext,
-    frame: FrameValues,
-  ): Document | null {
-    const isDependencyArmed = session.screen.armModeState.kind === 'dependencyArmed'
-    if (press === null || at === null || !isPreviewedPress(press, isDependencyArmed)) return null
-    const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
-    const action = commandFromInput(release, context).action
-    if (action === null || action.kind !== 'changeDocument') return null
-    const limits = settingsLimitsOf(frame)
-    // TRAP: start from held.document, never the last preview, or a travel is applied twice.
-    let drawn = held.document
-    for (const commands of action.writes) {
-      for (const command of commands) {
-        const result = editDocument(drawn, command, limits, DEFAULT_ROW_NAME)
-        // STOP: spec does not decide what a refused drag draws.
-        // Looked in FR-052, WS-3, FD-6, IV-12
-        // @provisional PND-253
-        if (!result.ok) return null
-        drawn = result.document
-      }
-    }
-    return drawn
-  }
-
-  // see FR-009, PTD-3, T-018, T-018a
-  // TRAP: never preview the whole document per move (NFR-002): editDocument and geometryFromLayout
-  // run on a two-Task copy, so T-018's mapping and T-018a's route keep their one owner each.
-  /** @purity semi-pure-b */
-  function tentativeDependencyOf(
-    press: PointerPress | null,
-    at: { readonly x: number; readonly y: number } | null,
-    document: Document,
-    settings: DocumentSettings,
-    layout: ScheduleLayout,
-    geometry: ScheduleGeometry,
-    regions: ScreenRegions,
-  ): ScheduleGeometry['dependencies'][number] | null {
-    if (press === null || at === null || press.on !== null) return null
-    if (press.pressRow !== 'PTD-3' || session.screen.armModeState.kind !== 'dependencyArmed') return null
-    const from = dependencyStartOfHit(geometry, press.at.x, press.at.y, press.hit)
-    if (from === null) return null
-    const schedule = document.schedule
-    const fromTask = taskByUid(schedule, from.taskUid)
-    const fromPlaced = layout.placements.find((one) => one.taskUid === from.taskUid)
-    if (fromTask === null || fromPlaced === undefined) return null
-
-    const into = dependencyEndAtPointer(geometry, at.x, at.y, null)
-    // WHY: the Task drawn from is no partner (DN-1), so over itself the line still enters from the pointer's left.
-    const intoTask = into === null || into.taskUid === from.taskUid ? null : taskByUid(schedule, into.taskUid)
-    const intoPlaced =
-      intoTask === null ? undefined : layout.placements.find((one) => one.taskUid === intoTask.uid)
-    const partner = into !== null && intoTask !== null && intoPlaced !== undefined
-      ? { task: intoTask, placed: intoPlaced, edge: into.edge }
-      : null
-    const pointerUid = fromTask.uid + 1
-    const successor = partner === null ? { ...fromTask, uid: pointerUid } : partner.task
-    const successorPlaced =
-      partner === null
-        ? { ...fromPlaced, taskUid: pointerUid, x: at.x, width: 0, y: at.y, planHeight: 0,
-            actualX: null, actualWidth: 0 }
-        : partner.placed
-
-    const pair: Document = {
-      ...document,
-      schedule: {
-        ...schedule,
-        tasks: [{ ...fromTask, dependencies: [] }, { ...successor, dependencies: [] }],
-      },
-    }
-    const made = editDocument(
-      pair,
-      {
-        kind: 'createDependency',
-        predecessorUid: fromTask.uid,
-        successorUid: successor.uid,
-        predecessorEdge: from.edge,
-        successorEdge: partner === null ? 'start' : partner.edge,
-      },
-      settingsLimitsOf(values),
-      DEFAULT_ROW_NAME,
-    )
-    if (!made.ok) return null
-    // WHY: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
-    const drawn = geometryFromLayout(
-      { ...made.document.schedule, highlightBoxes: [], commentBoxes: [] },
-      { ...settings, dependencyVisible: true },
-      { ...layout, placements: [fromPlaced, successorPlaced] },
-      regions,
-      emptySelection(),
-    )
-    return drawn.dependencies[0] ?? null
-  }
-
   // see FR-065, S-99b
   /** @purity non-pure */
   function storeAgentApiEnabling(): void {
@@ -2658,7 +2214,7 @@ export function frameLoop(
         frame,
         exportScene: exportScene(),
         isGestureInFlight: isChangingDocumentIn(session),
-        isEditingInPlace: isEditingField(),
+        isEditingInPlace: isEditingField(hands),
         isDeliveringNotices: isDeliveringNoticesIn(session),
         historyLimits: HISTORY_LIMITS,
         settingsLimits: settingsLimitsOf(frame),
@@ -2734,45 +2290,13 @@ export function frameLoop(
     return itemAtPointer(frame.geometry, x, y, grabSizesOf())
   }
 
-  // see IF-9, T-292
-  // TRAP: drained before every reading of the edit state; the surface's listeners run before the shell's.
-  /** @purity non-pure */
-  function drainFieldEditNotices(frame: FrameValues | null): void {
-    if (screen === undefined) return
-    for (const notice of screen.surface.readFieldEditNotices?.() ?? []) {
-      sendToSession(fieldEditEventOf(notice), frame)
-    }
-  }
-
-  /** @purity non-pure */
-  function isEditingField(): boolean {
-    drainFieldEditNotices(values)
-    return isEditingFieldIn(session)
-  }
-
-  let fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
-
-  // see MK-13, HF-14, FR-035, T-292
-  /** @purity non-pure */
-  function wantFieldFocused(row: string): void {
-    fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
-    sendToSession({ type: 'fieldFocusAsked', fieldRow: row }, values)
-  }
-
   /** @purity non-pure */
   function pruneChoiceTo(remainingObjects: Selection): Selection {
     if (remainingObjects !== selectedObjectsIn(session)) {
       sendToSession({ type: 'selectionPruned', remainingObjects }, null)
-      noteChoiceMoved(null)
+      noteChoiceMoved(hands, null)
     }
     return selectedObjectsIn(session)
-  }
-
-  // see IN-5a
-  /** @purity non-pure */
-  function noteChoiceMoved(frame: FrameValues | null): void {
-    sendToSession(CHOICE_MOVED, frame)
-    sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
   }
 
   let addedRowOwedSight: string | null = null
@@ -2798,8 +2322,8 @@ export function frameLoop(
         ? {}
         : { rowControlsHeightPx: environment.rowControlsHeightPx }),
       pressed,
-      isTextEntryUnsettled: isEditingField(),
-      isTextFieldFocusWanted: isFieldFocusWanted(),
+      isTextEntryUnsettled: isEditingField(hands),
+      isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -2826,7 +2350,7 @@ export function frameLoop(
   function collectWriteMoment(isSettlingFieldCommit = false): WriteMoment {
     return {
       gestureInFlight: isChangingDocumentIn(session),
-      editingInPlace: !isSettlingFieldCommit && isEditingField(),
+      editingInPlace: !isSettlingFieldCommit && isEditingField(hands),
       deliveringNotices: isDeliveringNoticesIn(session),
     }
   }
@@ -3432,81 +2956,6 @@ export function frameLoop(
     return true
   }
 
-  // see SK-4, FR-033
-  /** @purity non-pure */
-  function copyForPaste(): void {
-    const copiedForPaste = copiedForPasteOf(session.selection.chosenRows, selectedObjectsIn(session))
-    if (copiedForPaste === null) {
-      raiseNotice(NOTHING_TO_DO_REASON, null)
-      return
-    }
-    sendToSession({ type: 'copyTaken', copiedForPaste }, values)
-  }
-
-  // see SK-5, FR-033
-  /** @purity non-pure */
-  function pasteWhatWasCopied(frame: FrameValues): void {
-    const copied = session.selection.copiedForPaste
-    if (copied === null || pasteRefusedFor(session.selection.chosenRows)) {
-      raiseNotice(NOTHING_TO_DO_REASON, null)
-      return
-    }
-    const schedule = held.document.schedule
-    const command = pasteCommandFor(copied, schedule)
-    if (command === null) {
-      raiseNotice(NOTHING_TO_DO_REASON, null)
-      return
-    }
-    const folded = editDocument(held.document, command, settingsLimitsOf(frame), DEFAULT_ROW_NAME)
-    if (folded.ok) {
-      const wouldDraw = layoutFromSchedule(
-        folded.document.schedule,
-        frame.settingsMeasuredWith,
-        frame.regions,
-        undefined,
-        isLevelZeroFoldedIn(session),
-        environment.rowControlsHeightPx,
-      )
-      if (wouldDraw.stackSafetyCapReached !== null) {
-        raiseNotice(STACK_SAFETY_CAP_REASON, null)
-        return
-      }
-    }
-    writeDocument([command], frame)
-  }
-
-  // see FR-033, DU-2
-  /** @purity non-pure */
-  function pasteCommandFor(
-    copied: SelectionCopied,
-    schedule: Schedule,
-  ): DocumentCommand | null {
-    if (copied.kind === 'task') {
-      const sourceUids = copied.uids.filter((uid) => taskByUid(schedule, uid) !== null)
-      return sourceUids.length === 0 ? null : { kind: 'pasteTaskSubtree', sourceUids }
-    }
-    const byParent = new Map<string | null, TaskGroup[]>()
-    for (const row of schedule.taskGroups) {
-      byParent.set(row.parentId, [...(byParent.get(row.parentId) ?? []), row])
-    }
-    if (!schedule.taskGroups.some((one) => one.id === copied.groupId)) return null
-    const chosenRows = session.selection.chosenRows
-    const newGroupIds: Record<string, string> = {}
-    const walking = [copied.groupId]
-    while (walking.length > 0) {
-      const id = walking.pop() as string
-      if (newGroupIds[id] !== undefined) continue
-      newGroupIds[id] = crypto.randomUUID()
-      for (const child of byParent.get(id) ?? []) walking.push(child.id)
-    }
-    return {
-      kind: 'pasteTaskGroupSubtree',
-      sourceGroupId: copied.groupId,
-      targetGroupId: chosenRows.length === 1 ? (chosenRows[0] as string) : null,
-      newGroupIds,
-    }
-  }
-
   // see T-036
   /** @purity non-pure */
   function carryOutAction(action: InputAction | null, frame: FrameValues, didSettleFieldEntry = false): void {
@@ -3540,10 +2989,10 @@ export function frameLoop(
         replaceHeldDocument({ row: 'RD-2' })
         return
       case 'copySelection':
-        copyForPaste()
+        copyForPaste(hands)
         return
       case 'pasteClipboard':
-        pasteWhatWasCopied(frame)
+        pasteWhatWasCopied(hands, frame)
         return
       case 'openDocumentFile':
         if (files === undefined) return
@@ -3698,7 +3147,7 @@ export function frameLoop(
     if (openSurfaceNameIn(session) !== null || isQuestionAskedIn(session)) return
     const isNaming = isNamingCreatedTaskIn(session)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
-    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField())
+    const hasNoUnsettledEntry = isNaming || !(didSettleFieldEntry || isEditingField(hands))
     if (hasNoUnsettledEntry) notePanelPutAway()
     const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
     sendToSession(isNaming ? { type: 'createdNameSettled' } : settleKey, frame)
@@ -3706,10 +3155,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function sendScreenEvent(event: ScreenValuesEvent, frame: FrameValues | null): void {
-    if (event.type === 'paletteToggled') {
-      paletteMinimisedWhileHidden = paletteMinimisedForRecordOf(session, paletteMinimisedWhileHidden)
-    }
-    if (event.type === 'paletteMinimiseToggled') paletteMinimisedWhileHidden = !paletteMinimisedWhileHidden
+    interactionRecorder.notePaletteEvent(event)
     for (const one of withSurfaceReplaced(event, session.screen)) sendToSession(one, frame)
   }
 
@@ -3763,7 +3209,7 @@ export function frameLoop(
       sendToSession({ type: 'createdRowSelected', createdGroupId: created.groupId }, values)
     }
     showPropertiesOfChoice()
-    fieldFocusRetriesLeft = FIELD_FOCUS_RETRY_FRAMES
+    resetFieldFocusRetries()
     sendToSession({ type: 'creationLanded', created }, values)
   }
 
@@ -3797,29 +3243,17 @@ export function frameLoop(
     return !isSameGrab(grabUnderPointer, grabBefore)
   }
 
-  // see IF-9
-  /** @purity non-pure */
-  function spendFieldCommit(frame: FrameValues): boolean {
-    if (screen === undefined) return false
-    const commit = screen.surface.readFieldCommit()
-    if (commit === null) return false
-    const commands = commandFromFieldCommit(commit, collectInputContext(frame))
-    if (commands.length > 0) writeDocument(commands, frame, true)
-    // TRAP: true on the commit, not the commands; a value naming no row is still a settled edit (SK-19).
-    return true
-  }
-
   // see FT-1
   /** @purity non-pure */
   function receiveInput(input: HumanInput): void {
-    recordHappening(input)
+    recordHappening(hands, interactionRecorder, input)
     // TRAP: before values is read; the frame it may draw replaces them.
-    tryWantedFieldBeforeInput(input)
+    tryWantedFieldBeforeInput(hands, fieldFocusRetries, input)
     // TRAP: before sessionBefore is taken; a notice drained later would owe a frame on its own.
-    drainFieldEditNotices(values)
+    drainFieldEditNotices(hands, values)
     const frame = values
     if (frame === null) {
-      recordLine('dropped', 'reason=noFrameHasRunYet')
+      recordLine(hands, interactionRecorder, 'dropped', 'reason=noFrameHasRunYet')
       return
     }
 
@@ -3827,7 +3261,7 @@ export function frameLoop(
     const noticesBefore = session.notices
     const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
-    const didSettleFieldEntry = spendFieldCommit(frame)
+    const didSettleFieldEntry = spendFieldCommit(hands, frame)
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
@@ -3853,7 +3287,7 @@ export function frameLoop(
       if (input.phase === 'up' && partUnderPointer?.noticeDismissKey != null) {
         dismissNoticeByKey(partUnderPointer.noticeDismissKey, frame)
         ask()
-        recordLine('done', 'spent=noticeDismiss frame=yes')
+        recordLine(hands, interactionRecorder, 'done', 'spent=noticeDismiss frame=yes')
         return
       }
     }
@@ -3861,7 +3295,7 @@ export function frameLoop(
     if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) {
       answerConfirmation(input.key === CONFIRMATION_PROCEED_KEY, frame)
       ask()
-      recordLine('done', `spent=confirmation=${input.key} frame=yes`)
+      recordLine(hands, interactionRecorder, 'done', `spent=confirmation=${input.key} frame=yes`)
       return
     }
 
@@ -3881,7 +3315,7 @@ export function frameLoop(
     const hasChoiceMoved = pickedObjects !== context.selection
     if (hasChoiceMoved) {
       sendToSession({ type: 'objectsPicked', pickedObjects }, frame)
-      noteChoiceMoved(frame)
+      noteChoiceMoved(hands, frame)
     }
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
@@ -3940,7 +3374,7 @@ export function frameLoop(
       )
     }
 
-    previewDocument = previewOfHeldPress(pressed, pointerAt, context, frame)
+    previewDocument = previewOfHeldPress(hands, pressed, pointerAt, context, frame)
 
     const hasKeyActed =
       spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
@@ -3950,7 +3384,7 @@ export function frameLoop(
       owesFrame(input, context, sessionBefore, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
       isRowZoomEndShown
     recordLine(
-      'done',
+      hands, interactionRecorder, 'done',
       `on=${partUnderPointer?.entry ?? '-'} grab=${grabUnderPointer?.grab ?? '-'} ` +
         `esc=${escapeLevel ?? '-'} act=${translated.action?.kind ?? '-'} ` +
         `assigned=${translated.isBrowserDefaultStopped} spentByShell=${spent} ` +
@@ -4082,33 +3516,10 @@ const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
 }
 
 // see T-206
-const NOT_STORED_REPEAT_TIMES: {
-  readonly 'S-172': number
-  readonly 'S-173': number
-} = {
-  'S-172': 1000,
-  'S-173': 120,
-}
-
-// see T-206
-const NOT_STORED_SCALE_MESSAGE_TIMES: {
-  readonly 'S-244': number
-} = {
-  'S-244': 1500,
-}
-
-// see T-206
 export const NOT_STORED_SCROLLBAR_SIZES: {
   readonly 'S-205': number
 } = {
   'S-205': 8,
-}
-
-// see T-206
-const NOT_STORED_INTERACTION_RECORD_LIMITS: {
-  readonly 'S-207': number
-} = {
-  'S-207': 2000,
 }
 
 // see T-206

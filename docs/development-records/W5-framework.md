@@ -1163,11 +1163,16 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-47 | `single-html-shell.ts` | **公開エントリ** | non-pure | PI-25 | 🔧 実装済 |
 | UF-48 | `frame-loop.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-157 | `pointer-shape.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-158 | `held-press-preview.ts` | 内部 | semi-pure-b |  | 🔧 実装済 |
 | UF-159 | `browser-stored-values.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-160 | `interaction-record.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-161 | `view-place.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-162 | `deletion-confirmations.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-163 | `frame-clock-wakes.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-164 | `field-entry.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-166 | `watermark-unlock.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-167 | `row-band-ceiling-cache.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-168 | `copy-and-paste.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
 ---

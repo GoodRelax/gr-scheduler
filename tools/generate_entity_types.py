@@ -2443,24 +2443,32 @@ TARGETS = [
     # there, so the open width has to be laid over the settings for the frame
     # that draws the panel and nowhere else. ⛔ It is not a document setting and
     # must not become one -- FR-052's drag is what writes S-80.
-    # ⭐ The two lengths FR-018 measures a held entrance with land beside it,
-    # in their own constant rather than in that one: they are times and it is a
-    # width, and the seam differs -- S-171 is laid over the settings of the
-    # frame being drawn, while S-172 and S-173 are counted off the clock FT-4
-    # of table T-078 gives the shell. ⛔ One shared constant would say the two
-    # arrive the same way, and the paragraph above each is what says how.
     (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-loop.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
      # names. ⛔ Not folded into the digest watermark-unlock.ts holds -- that one
      # is a row of table T-207 baked into the artifact, and this is a row of
      # table T-206 the environment may hold a different value for.
      + not_stored_block('NOT_STORED_WATERMARK_NAME'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ The two lengths FR-018 measures a held entrance with, in their own
+    # constant rather than beside the panel width in frame-loop.ts: they are
+    # times and it is a width, and the seam differs -- S-171 is laid over the
+    # settings of the frame being drawn, while S-172 and S-173 are counted off
+    # the clock FT-4 of table T-078 gives the shell. ⛔ One shared constant
+    # would say the two arrive the same way, and the paragraph above each is
+    # what says how. They stand, with S-244, in frame-clock-wakes.ts, the one
+    # unit that counts them (CR-554 15.6.7).
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'frame-clock-wakes.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_REPEAT_TIMES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # The record's cap stands in the one unit that keeps the record,
+    # interaction-record.ts (CR-554 15.6.7).
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'interaction-record.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The end pointers' sizes stand in the one unit that draws the pointer
     # pictures, pointer-shape.ts (CR-554 15.6.7).
