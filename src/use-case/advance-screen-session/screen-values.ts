@@ -119,8 +119,6 @@ export type ScreenValuesKey =
   | 'propertiesPanelContentStateMachine.documentSettingsDisplayed'
   | 'dialogueFieldDisplayStateMachine.shown'
   | 'dialogueFieldDisplayStateMachine.hidden'
-  | 'levelZeroFoldStateMachine.unfolded'
-  | 'levelZeroFoldStateMachine.folded'
   | 'dualCursorModeStateMachine.off'
   | 'dualCursorModeStateMachine.on'
   | 'dualCursorModeStateMachine.on.placingDate1'
@@ -175,10 +173,6 @@ export type DialogueFieldDisplayState =
   | { readonly kind: 'shown' }
   | { readonly kind: 'hidden' }
 
-export type LevelZeroFoldState =
-  | { readonly kind: 'unfolded' }
-  | { readonly kind: 'folded' }
-
 export type DualCursorModeState =
   | { readonly kind: 'off' }
   | { readonly kind: 'on'; readonly child: DualCursorModeOnState }
@@ -202,7 +196,6 @@ export interface ScreenValues {
   readonly watermarkDisplayState: WatermarkDisplayState
   readonly propertiesPanelContentState: PropertiesPanelContentState
   readonly dialogueFieldDisplayState: DialogueFieldDisplayState
-  readonly levelZeroFoldState: LevelZeroFoldState
   readonly dualCursorModeState: DualCursorModeState
   readonly scaleMessageDisplayState: ScaleMessageDisplayState
   readonly tooltipDisplayState: TooltipDisplayState
@@ -232,8 +225,6 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'foldAllPressed'; readonly writes: ScreenValuesEventCarried['writes'] }
-  | { readonly type: 'levelZeroOpened'; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
   | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date']; readonly writes: ScreenValuesEventCarried['writes'] }
@@ -252,8 +243,6 @@ export type ScreenValuesEffectName =
   | 'matchWatermarkUnlock'
   | 'raiseNotice'
   | 'clearSelection'
-  | 'writeFoldAll'
-  | 'writeOpenLevel'
   | 'writeClearDualCursor'
   | 'writePlaceDualCursorClearingGuide'
   | 'writeClearDualCursorSettingGuide'
@@ -288,7 +277,6 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   watermarkDisplayState: { kind: 'shown' },
   propertiesPanelContentState: { kind: 'hidden' },
   dialogueFieldDisplayState: { kind: 'shown' },
-  levelZeroFoldState: { kind: 'unfolded' },
   dualCursorModeState: { kind: 'off' },
   scaleMessageDisplayState: { kind: 'hidden' },
   tooltipDisplayState: { kind: 'allowed' },
@@ -814,22 +802,6 @@ export const SCREEN_VALUES_TRANSITIONS: readonly ScreenValuesTransition[] = [
     to: 'dialogueFieldDisplayStateMachine.hidden',
     effect: 'raiseNotice',
     effectArgument: 'RS-35',
-  },
-  {
-    state: 'levelZeroFoldStateMachine.unfolded',
-    event: 'foldAllPressed',
-    guard: null,
-    to: 'levelZeroFoldStateMachine.folded',
-    effect: 'writeFoldAll',
-    effectArgument: null,
-  },
-  {
-    state: 'levelZeroFoldStateMachine.folded',
-    event: 'levelZeroOpened',
-    guard: null,
-    to: 'levelZeroFoldStateMachine.unfolded',
-    effect: 'writeOpenLevel',
-    effectArgument: null,
   },
   {
     state: 'dualCursorModeStateMachine.on',

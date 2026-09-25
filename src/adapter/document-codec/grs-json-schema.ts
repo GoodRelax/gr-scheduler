@@ -252,7 +252,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroup: {
     type: ['object'],
-    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'isCollapsed', 'isHidden', 'isKeptOpen', 'editGroup', 'color', 'height'],
+    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'height'],
     closed: true,
     properties: {
       id: {
@@ -270,14 +270,8 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       order: {
         type: ['integer'],
       },
-      isCollapsed: {
-        type: ['boolean', 'null'],
-      },
-      isHidden: {
-        type: ['boolean', 'null'],
-      },
-      isKeptOpen: {
-        type: ['boolean'],
+      treeState: {
+        enum: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'],
       },
       editGroup: {
         type: ['string', 'null'],
@@ -771,7 +765,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualGap', 'actualInitialDuration', 'actualMin', 'actualOfPlan', 'actualVisible', 'appHeaderMaxHeight', 'arrowHeadOfSpan', 'assigneeLabelGap', 'assigneeVisible', 'basePlanHeight', 'baselineVisible', 'canvasPadding', 'carryMaxDepth', 'chevronNotchOfHeight', 'chevronNotchOfWidth', 'commentBoxPad', 'commentBoxWrapUnits', 'dateGridLinesVisible', 'dependencyArrowLength', 'dependencyArrowWidth', 'dependencyLagDefault', 'dependencyLeadIn', 'dependencyLeadOut', 'dependencyVisible', 'dependencyWidth', 'displayScale', 'dualCursor', 'dummyOpacity', 'exportCanvas', 'exportCanvasHeightCap', 'fadeHandleHalfPx', 'fadeHandleStrokePx', 'fontMin', 'fontOfActual', 'fontScale', 'fontScaleSizes', 'groupGridLinesVisible', 'groupLevelOfDetailBase', 'groupLevelOfDetailRatio', 'guideCursorMode', 'iconHintDelayMs', 'importMaxBytes', 'importMaxDate', 'importMaxDepth', 'importMaxItems', 'importMinDate', 'labelBaseline', 'labelCoef', 'labelGap', 'labelHaloOfFont', 'labelPad', 'markerSize', 'markerStroke', 'maxGroupDepth', 'milestoneActualDuration', 'milestoneNameMarkerGap', 'milestoneNameStartOfWidth', 'minShapeWidth', 'percentCompleteVisible', 'pinnedGroupIds', 'pinnedRowMax', 'planActualGuidePattern', 'planActualGuideWeight', 'planDatesVisible', 'planStroke', 'planVisible', 'progressLineOverhang', 'progressLineVisible', 'progressLineWidth', 'progressMarkerVisible', 'propertyPanelWidth', 'pxPerDayAt1x', 'resumeArmOfMarker', 'resumeDashOff', 'resumeDashOn', 'resumeDashWidth', 'resumeHeadOfMarker', 'resumeOpacityInvalid', 'resumeScaleInvalid', 'rowGap', 'rowTitleFont', 'rowTitleIndent', 'rowTitlePanelWidth', 'rowTitleTopScale', 'rulerFont', 'rulerHeight', 'rulerLabelBottomPad', 'rulerLabelGap', 'rulerLabelPad', 'rulerTierPxPerDayDay', 'rulerTierPxPerDayMonth', 'rulerTierPxPerDayWeek', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'shapeHeightOf', 'spanDotSize', 'stackDirection', 'stackGap', 'stackSafetyCap', 'starInnerOfOuter', 'themeMonochrome', 'themePreference', 'thinArrowHeadHeight', 'thinArrowHeadLength', 'thinFontScale', 'thinStrokeWidth', 'truncateUnits', 'zoomX', 'zoomY'],
+      required: ['actualGap', 'actualInitialDuration', 'actualMin', 'actualOfPlan', 'actualVisible', 'appHeaderMaxHeight', 'arrowHeadOfSpan', 'assigneeLabelGap', 'assigneeVisible', 'basePlanHeight', 'baselineVisible', 'canvasPadding', 'carryMaxDepth', 'chevronNotchOfHeight', 'chevronNotchOfWidth', 'commentBoxPad', 'commentBoxWrapUnits', 'dateGridLinesVisible', 'dependencyArrowLength', 'dependencyArrowWidth', 'dependencyLagDefault', 'dependencyLeadIn', 'dependencyLeadOut', 'dependencyVisible', 'dependencyWidth', 'displayScale', 'dualCursor', 'dummyOpacity', 'exportCanvas', 'exportCanvasHeightCap', 'fadeHandleHalfPx', 'fadeHandleStrokePx', 'fontMin', 'fontOfActual', 'fontScale', 'fontScaleSizes', 'groupGridLinesVisible', 'groupLevelOfDetailBase', 'groupLevelOfDetailRatio', 'guideCursorMode', 'iconHintDelayMs', 'importMaxBytes', 'importMaxDate', 'importMaxDepth', 'importMaxItems', 'importMinDate', 'labelBaseline', 'labelCoef', 'labelGap', 'labelHaloOfFont', 'labelPad', 'levelZeroTreeState', 'markerSize', 'markerStroke', 'maxGroupDepth', 'milestoneActualDuration', 'milestoneNameMarkerGap', 'milestoneNameStartOfWidth', 'minShapeWidth', 'percentCompleteVisible', 'pinnedGroupIds', 'pinnedRowMax', 'planActualGuidePattern', 'planActualGuideWeight', 'planDatesVisible', 'planStroke', 'planVisible', 'progressLineOverhang', 'progressLineVisible', 'progressLineWidth', 'progressMarkerVisible', 'propertyPanelWidth', 'pxPerDayAt1x', 'resumeArmOfMarker', 'resumeDashOff', 'resumeDashOn', 'resumeDashWidth', 'resumeHeadOfMarker', 'resumeOpacityInvalid', 'resumeScaleInvalid', 'rowGap', 'rowTitleFont', 'rowTitleIndent', 'rowTitlePanelWidth', 'rowTitleTopScale', 'rulerFont', 'rulerHeight', 'rulerLabelBottomPad', 'rulerLabelGap', 'rulerLabelPad', 'rulerTierPxPerDayDay', 'rulerTierPxPerDayMonth', 'rulerTierPxPerDayWeek', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'shapeHeightOf', 'spanDotSize', 'stackDirection', 'stackGap', 'stackSafetyCap', 'starInnerOfOuter', 'themeMonochrome', 'themePreference', 'thinArrowHeadHeight', 'thinArrowHeadLength', 'thinFontScale', 'thinStrokeWidth', 'truncateUnits', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualGap: {
@@ -959,6 +953,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         labelPad: {
           type: ['number'],
+        },
+        levelZeroTreeState: {
+          enum: ['auto', 'collapsed'],
         },
         markerSize: {
           type: ['number'],

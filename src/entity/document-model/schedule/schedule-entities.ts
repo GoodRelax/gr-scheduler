@@ -136,12 +136,8 @@ export interface TaskGroup {
   readonly derivedFromTaskUid: number | null
   /** AT-55 */
   readonly order: number
-  /** AT-56 */
-  readonly isCollapsed: boolean | null
-  /** AT-57 */
-  readonly isHidden: boolean | null
-  /** AT-142 */
-  readonly isKeptOpen: boolean
+  /** AT-153 */
+  readonly treeState: 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
   /** AT-144 */
   readonly editGroup: string | null
   /** AT-58 */
@@ -438,9 +434,7 @@ export const COLUMN_SHAPES: {
     label: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     derivedFromTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
-    isCollapsed: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
-    isHidden: { kind: 'boolean', choices: null, min: null, max: null, isNullable: true },
-    isKeptOpen: { kind: 'boolean', choices: null, min: null, max: null, isNullable: false },
+    treeState: { kind: 'enum', choices: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'], min: null, max: null, isNullable: false },
     editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     color: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
@@ -654,14 +648,14 @@ export const COLUMN_DEFAULTS: {
     readonly outlineBase: NonNullable<Project['outlineBase']>
   }
   readonly TaskGroup: {
-    readonly isKeptOpen: NonNullable<TaskGroup['isKeptOpen']>
+    readonly treeState: NonNullable<TaskGroup['treeState']>
   }
   readonly TaskVisual: {
     readonly milestoneGlyph: NonNullable<TaskVisual['milestoneGlyph']>
   }
 } = {
   Project: { outlineBase: 1 },
-  TaskGroup: { isKeptOpen: false },
+  TaskGroup: { treeState: 'auto' },
   TaskVisual: { milestoneGlyph: 'diamond' },
 }
 

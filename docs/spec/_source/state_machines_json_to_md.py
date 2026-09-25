@@ -51,7 +51,11 @@ What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
   - an event key two regions both hold (decision 12 of CR-440): the root
     finds the region an event touches by its `type` (SS-5 of table T-284),
     so one key in two regions leaves that lookup without one answer. An
-    effect name may repeat across regions -- the shell only runs it.
+    effect name may repeat across regions -- the shell only runs it;
+  - a region that holds documentData (SD-5 of table T-250, the row tree)
+    without the erd.json column it names, or whose machine's state keys are
+    not that column's enum values in the same order -- the state type is the
+    column's, so the two lists may not drift apart.
 
 Run with PYTHONIOENCODING=utf-8.
 """
@@ -66,6 +70,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SPEC = os.path.dirname(HERE)
 ASSETS = os.path.join(SPEC, '_assets')
 SRC = os.path.join(HERE, 'state-machines.json')
+ERD = os.path.join(HERE, 'erd.json')
+DOCUMENT_DATA = 'documentData'
 SCHEMA = os.path.join(HERE, 'state-machines.schema.json')
 OUT_NAME = 'tbl-state-machines.md'
 OUT = os.path.join(ASSETS, OUT_NAME)
@@ -255,6 +261,9 @@ class Region(object):
     def __init__(self, raw):
         self.raw = raw
         self.name = raw['region']
+        # SD-5: a region that holds a saved value of the document (the row
+        # tree). Its state type is an erd.json column, never printed here.
+        self.holds_document_data = raw.get('holds') == DOCUMENT_DATA
         self.stem = raw['typeStem']
         self.root = raw['root']
         self.events = raw['events']
@@ -400,6 +409,38 @@ def shared_event_keys(regions):
             for key, names in owners.items() if len(names) > 1]
 
 
+def enum_of_column(seat_id):
+    """The enum values of the erd.json column whose seat is `AT-<n>`, or None."""
+    erd = json.load(io.open(ERD, encoding='utf-8'))
+    seat = int(seat_id.split('-')[1])
+    for entity in erd['entities']:
+        for column in entity.get('columns', []):
+            if column.get('seat') == seat:
+                return column.get('json', {}).get('values')
+    return None
+
+
+def document_data_problems(region):
+    """SD-5: the state keys of a documentData region are its column's enum."""
+    raw = region.raw
+    if not region.holds_document_data:
+        if 'column' in raw:
+            return ['%s: names a column but does not hold documentData' % region.name]
+        return []
+    if 'column' not in raw:
+        return ['%s: holds documentData and names no erd.json column' % region.name]
+    values = enum_of_column(raw['column'])
+    if values is None:
+        return ['%s: %s is not an enum column of erd.json' % (region.name, raw['column'])]
+    found = []
+    for machine in region.machines:
+        keys = [s['key'] for s in machine.states]
+        if keys != list(values):
+            found.append('%s: states %s are not the values of %s %s, in that order'
+                         % (machine.name, keys, raw['column'], list(values)))
+    return found
+
+
 def load():
     """(regions, problems) -- the validated model, or the reasons it is not."""
     doc = json.load(io.open(SRC, encoding='utf-8'),
@@ -434,6 +475,7 @@ def load():
             machine.classify(found)
             machine.check_initials(found)
         region.check_tables(found)
+        found.extend(document_data_problems(region))
         for where, cited in region.evidence():
             for one in cited:
                 if one not in known:
@@ -893,6 +935,7 @@ HEADER = [
     u'> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
     u'',
     u'本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  ',
+    u'⚠️ 例外は行の木（`rowTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  ',
     u'原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  ',
     u'名前の読み方は `05-07-design.md` の 5.5 が持つ。',
 ]
@@ -910,6 +953,12 @@ def region_lines(region):
     lines.append(u'升の「%s」は変化なし（同じ参照）を表す。  ' % NONE_CELL)
     lines.append(u'ガードの付いた枝がすべての場合を覆わない升には「それ以外 → %s」を添え、どの場合に何が起きるかを升ごとに言い切る。  ' % NONE_CELL)
     lines.append(u'親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。')
+    if region.holds_document_data:
+        lines.append(u'')
+        lines.append(u'⭐ 本領域の状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`） —— '
+                     u'状態の型は `_assets/fig-erd-detail.md` の %s の列挙が持ち、状態のキーはその値と同じ並びである。  '
+                     % code(region.raw['column']))
+        lines.append(u'値が変われば、起こしたものによらず未保存の編集であり、取り消しの 1 段である（`01-04-requirements.md` の `FR-018`）。')
     name = text(region.raw['name'])
     # A name that ends in code (`Agent API`) takes a space before the particle, as the prose does.
     lines += [u'', u'### %s%sの出来事' % (name, u' ' if name.endswith(u'`') else u''), u'']

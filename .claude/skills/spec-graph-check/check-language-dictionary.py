@@ -41,13 +41,13 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            128, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            126, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            141, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            139, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
@@ -71,7 +71,11 @@ EXEMPT = {
                  'commit. '
                  '⭐ 130->128 / 143->141 on 2026-09-24: CR-551 dropped '
                  'Task.nameAnchor (AT-98) and Task.nameAlign (AT-99); '
-                 'lowered with leave from the user (JDG-404).'),
+                 'lowered with leave from the user (JDG-404). '
+                 '⭐ 128->126 / 141->139 on 2026-09-26: CR-570 folds '
+                 'TaskGroup.isCollapsed, isHidden and isKeptOpen (AT-56, '
+                 'AT-57, AT-142) into one treeState column (AT-153); a '
+                 'lowering, written by the coordinator (JDG-520).'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '

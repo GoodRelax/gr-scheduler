@@ -112,6 +112,7 @@ SELECTION_VALUES_TRANSITIONS         選択の状態遷移表の升を 1 つず�
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
+TREE_STATE_TRANSITIONS               行の木の状態遷移表の升を 1 つずつ並べたもの（表 T-328。`tools/generate_state_machine_types.py` が `task-group-folding.ts` に刷る）
 WATERMARK_UNLOCK_DIGEST              既定の透かし解除パスワードの SHA-256（表 T-207 の `S-101`）
 WATERMARK_MARKS                      透かしを描く 4 値のうち色でないもの（表 T-207 の `S-220` / `S-221` / `S-222` / `S-102`）
 NOT_STORED_RULER_WEEKDAY_SIZES       目盛の曜日の段の文字の大きさの係数（表 T-206 の `S-219`）

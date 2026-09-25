@@ -132,6 +132,14 @@
     "name": {"$ref": "#/$defs/text"},
     "unit": {"type": "string", "pattern": "^src/.+\\.ts$"},
     "typeStem": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$"},
+    "holds": {
+     "description": "SD-5 of table T-250: the region holds a SAVED value of the document (the row tree), not an unsaved screen or session value. Its generated region carries only the events and the transition-table constant; the state type is the enum of the erd.json column named in `column`.",
+     "enum": ["documentData"]
+    },
+    "column": {
+     "description": "With `holds`: the erd.json column (its AT- seat) whose enum values are this region's state keys, in the same order. The generators refuse a mismatch.",
+     "$ref": "#/$defs/rowId"
+    },
     "table": {"$ref": "#/$defs/caption"},
     "figure": {"$ref": "#/$defs/caption"},
     "root": {"$ref": "#/$defs/root"},

@@ -10,6 +10,7 @@
 > **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。
 
 本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  
+⚠️ 例外は行の木（`rowTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  
 原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  
 名前の読み方は `05-07-design.md` の 5.5 が持つ。
 
@@ -74,8 +75,6 @@
 | `screen/createdNameSettled` | 入力（作った直後の名前の `Enter`）: `FR-091` | — | `propertiesPanelContentStateMachine` |
 | `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
-| `screen/foldAllPressed` | 入力（`HF-12` の操作子）: `HF-12` ・ `HR-2` | `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `levelZeroFoldStateMachine` |
-| `screen/levelZeroOpened` | 入力: `HF-16` ・ `HF-10` ・ `HF-17` ・ `S-211` | `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `levelZeroFoldStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | `dualCursorModeStateMachine` |
 | `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `dualCursorModeStateMachine` |
@@ -323,28 +322,6 @@ stateDiagram-v2
 - `dialogueFieldDisplayStateMachine.hidden` —— 根拠 `S-99i` ・ `FR-066`
 
 表に無い出来事は `dialogueFieldDisplayStateMachine` を変えない（同じ参照）。
-
-### 状態機械 `levelZeroFoldStateMachine`
-
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> levelZeroFoldStateMachine_unfolded
-    levelZeroFoldStateMachine_unfolded : unfolded
-    levelZeroFoldStateMachine_folded : folded
-    levelZeroFoldStateMachine_unfolded --> levelZeroFoldStateMachine_folded : foldAllPressed
-    levelZeroFoldStateMachine_folded --> levelZeroFoldStateMachine_unfolded : levelZeroOpened
-```
-
-| 出来事 | `unfolded` | `folded` |
-| --- | --- | --- |
-| `screen/foldAllPressed` | → `folded` / `writeFoldAll` | — |
-| `screen/levelZeroOpened` | — | → `unfolded` / `writeOpenLevel` |
-
-- `levelZeroFoldStateMachine.unfolded` —— 初期。根拠 `S-211`
-- `levelZeroFoldStateMachine.folded` —— 根拠 `HR-2` ・ `S-211`
-
-表に無い出来事は `levelZeroFoldStateMachine` を変えない（同じ参照）。
 
 ### 状態機械 `dualCursorModeStateMachine`
 
@@ -1039,3 +1016,103 @@ stateDiagram-v2
 - `agentApiEnablingStateMachine.enabled` —— 根拠 `FR-065` ・ `FR-066` ・ `S-99b`
 
 表に無い出来事は `agentApiEnablingStateMachine` を変えない（同じ参照）。
+
+## 行の木（`rowTree`）
+
+**表 T-328 — 行の木の状態機械**
+
+本表は、出来事の定義・根の値・状態機械ごとの状態遷移表と状態の一覧からなる。  
+状態遷移表の行はその状態機械を動かす出来事、列はその状態機械の葉の状態、升は「→ 次の状態 [ガード] / 副作用」である。  
+升の「—」は変化なし（同じ参照）を表す。  
+ガードの付いた枝がすべての場合を覆わない升には「それ以外 → —」を添え、どの場合に何が起きるかを升ごとに言い切る。  
+親の状態に置いた升は、その子のすべての列に同じ升を刷り、「親 … の升」と書き添える。
+
+⭐ 本領域の状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`） —— 状態の型は `_assets/fig-erd-detail.md` の `AT-153` の列挙が持ち、状態のキーはその値と同じ並びである。  
+値が変われば、起こしたものによらず未保存の編集であり、取り消しの 1 段である（`01-04-requirements.md` の `FR-018`）。
+
+### 行の木の出来事
+
+| 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
+| --- | --- | --- | --- |
+| `rowTree/oneLevelOpenPressed` | 入力（行の 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`））: `IC-90` ・ `HF-13` ・ `HR-7` | `pressedRowId`（押した行の id） | `treeStateMachine` |
+| `rowTree/allBelowOpenPressed` | 入力（行の配下をすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-58` ・ `HF-2` ・ `HR-3` | `pressedRowId`（押した行の id） | `treeStateMachine` |
+| `rowTree/hidePressed` | 入力（行の隠す操作子を押した）: `IC-59` ・ `HF-3` ・ `HR-6` | `pressedRowId`（押した行の id） | `treeStateMachine` |
+| `rowTree/allBelowFoldPressed` | 入力（行の配下をすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-77` ・ `HF-11` ・ `HR-4` | `pressedRowId`（押した行の id） | `treeStateMachine` |
+| `rowTree/everyRowOpenPressed` | 入力（頭のすべて開く操作子を押した。押しが何かを行うときだけ）: `IC-74` ・ `HF-10` ・ `HR-1` | — | 根 ・ `treeStateMachine` |
+| `rowTree/everyRowFoldPressed` | 入力（頭のすべて畳む操作子を押した。押しが何かを行うときだけ）: `IC-78` ・ `HF-12` ・ `HR-2` | — | 根 ・ `treeStateMachine` |
+| `rowTree/topLevelOpenPressed` | 入力（頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ）: `IC-92` ・ `HF-16` | — | 根 ・ `treeStateMachine` |
+| `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
+| `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
+| `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
+
+### 根 `rowTree` の値
+
+運ぶ値: —。  
+根拠: `AT-153` ・ `S-418`。
+
+| 出来事 | `rowTree` |
+| --- | --- |
+| `rowTree/everyRowFoldPressed` | → 自己 / `writeLevelZeroCollapsed`（段 0 を畳む（`S-418` を `'collapsed'` に）。行の値と同じ束に入れる） |
+| `rowTree/everyRowOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
+| `rowTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `rowTree/childRowAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、行の値は変えない（`HF-17`））<br>それ以外 → — |
+| `rowTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+
+**図 F-043 — 行の木の状態遷移**
+
+状態機械ごとに 1 つの図に分け、その状態機械の節に置く。状態機械どうしは直交する。  
+矢印のラベルは出来事のキーだけであり、ガード・副作用は同じ節の状態遷移表が持つ。  
+⚠️ 図は畳んである —— 同じ出来事・ガード・先・副作用の升が 3 つ以上の兄弟の種類のどの 2 つの間も結ぶか、それらのどれからも同じ 1 つの種類へ出るか、同じ 1 つの種類から入るときは、兄弟を 1 つの箱に囲み、その遷移を箱から 1 本だけ描く（どの 2 つの間も結ぶ遷移は、箱の注に出来事のキーを書く）。  
+⭐ 遷移の全数は 表 T-328 の状態遷移表が持つ。
+
+### 状態機械 `treeStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> treeStateMachine_auto
+    treeStateMachine_auto : auto
+    treeStateMachine_collapsed : collapsed
+    treeStateMachine_expanded : expanded
+    treeStateMachine_temporarilyExpanded : temporarilyExpanded
+    treeStateMachine_hidden : hidden
+    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed
+    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed
+    treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
+    treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
+    treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
+    treeStateMachine_collapsed --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed, childRowAddPressed, fitPressed
+    treeStateMachine_hidden --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
+    treeStateMachine_hidden --> treeStateMachine_auto : allBelowOpenPressed, everyRowOpenPressed
+    treeStateMachine_auto --> treeStateMachine_hidden : hidePressed
+    treeStateMachine_auto --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_collapsed --> treeStateMachine_hidden : hidePressed
+    treeStateMachine_expanded --> treeStateMachine_hidden : hidePressed
+    treeStateMachine_expanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_hidden : hidePressed
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
+    treeStateMachine_expanded --> treeStateMachine_auto : fitPressed
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_auto : fitPressed, rowZoomShrinkPressed
+```
+
+| 出来事 | `auto` | `collapsed` | `expanded` | `temporarilyExpanded` | `hidden` |
+| --- | --- | --- | --- | --- | --- |
+| `rowTree/oneLevelOpenPressed` | → `expanded` [`isPressedRow`]<br>それ以外 → — | → `expanded` [`isPressedRow`]<br>それ以外 → — | — | → `expanded` [`isPressedRow`]<br>それ以外 → — | → `collapsed` [`isChildOfPressedRow`]<br>それ以外 → — |
+| `rowTree/allBelowOpenPressed` | → `temporarilyExpanded` [`isPressedRow`]<br>→ `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [`isPressedRow`]<br>→ `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>→ `auto` [`isBelowPressedRow` & `isLeafRow`]<br>それ以外 → — | — | — | → `temporarilyExpanded` [`isBelowPressedRow` & not `isLeafRow`]<br>→ `auto` [`isBelowPressedRow` & `isLeafRow`]<br>それ以外 → — |
+| `rowTree/hidePressed` | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `hidden` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — |
+| `rowTree/allBelowFoldPressed` | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | → `collapsed` [`isPressedRow`]<br>→ `collapsed` [`isBelowPressedRow`]<br>それ以外 → — | — |
+| `rowTree/everyRowOpenPressed` | → `temporarilyExpanded` [not `isLeafRow`]<br>それ以外 → — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] | — | — | → `temporarilyExpanded` [not `isLeafRow`]<br>→ `auto` [`isLeafRow`] |
+| `rowTree/everyRowFoldPressed` | → `collapsed` | — | → `collapsed` | → `collapsed` | — |
+| `rowTree/topLevelOpenPressed` | — | — | — | — | → `collapsed` [`isTopLevelRow`]<br>それ以外 → — |
+| `rowTree/childRowAddPressed` | — | → `auto` [`isPressedRow`]<br>それ以外 → — | — | — | — |
+| `rowTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
+| `rowTree/rowZoomShrinkPressed` | — | — | — | → `auto` | — |
+
+- `treeStateMachine.auto` —— 初期。根拠 `AT-153` ・ `FR-018`
+- `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`
+- `treeStateMachine.expanded` —— 根拠 `HR-7` ・ `FR-018`
+- `treeStateMachine.temporarilyExpanded` —— 根拠 `HR-3` ・ `HR-1` ・ `FR-018`
+- `treeStateMachine.hidden` —— 根拠 `HR-6`
+
+表に無い出来事は `treeStateMachine` を変えない（同じ参照）。
