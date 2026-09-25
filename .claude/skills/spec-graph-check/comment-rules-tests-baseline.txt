@@ -32,7 +32,8 @@
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2265 -> 2243 bp) under JDG-520; H2..H4 rewrote tests, measured on 0d446d12.
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2243 -> 2232 bp) under JDG-520; H10 rewrote the T-225 tests, measured on 3011de43.
 # LOWERED on 2026-09-25 to the measured value (tree density 2232 -> 2231 bp) under JDG-520 / JDG-547: CR-554 wave G1 rewrote stale file names in test comments.
-tree-density-basis-points 2231
+# LOWERED 4 lines on 2026-09-25 to the measured values (tree density -> 2221 bp) under JDG-520; CR-565 and CR-567 tests, measured on f7687f2a.
+tree-density-basis-points 2221
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -45,7 +46,7 @@ tests/contract/if-7-snapshot-source.test.ts 181
 tests/contract/seams.contract.test.ts 77
 tests/contract/spec-table-reads-the-whole-cell.contract.test.ts 67
 tests/contract/spec-table.ts 199
-tests/contract/t-233-reason-words-tell-the-row.contract.test.ts 560
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts 554
 tests/contract/units.contract.test.ts 0
 tests/fixtures/display-scale.ts 0
 tests/fixtures/fake-browser.ts 77
@@ -63,10 +64,10 @@ tests/system/drawn-svg-normalization.sws.test.ts 0
 tests/system/duplicate-paste-and-dual-cursor.test.ts 0
 tests/system/first-frame-is-the-settled-frame.test.ts 0
 tests/system/fr-019-hm-9-the-row-tree-decides-what-is-below.test.ts 95
-tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 349
+tests/system/fr-073-fr-022-the-difference-review-that-is-not-there.test.ts 344
 tests/system/global-warm-dev-server.ts 0
 tests/system/live-app.ts 0
-tests/system/measured-sweep.test.ts 1640
+tests/system/measured-sweep.test.ts 1624
 tests/system/mspdi-normalization.sws.test.ts 0
 tests/system/nfr-004-file-scheme-sweep.sws.test.ts 235
 tests/system/open-defect-pins.test.ts 0
@@ -254,7 +255,7 @@ tests/unit/t-076-ep-12-export-drops-the-selection.test.ts 142
 tests/unit/t-109-milestone-entrances-arm-their-glyph.test.ts 376
 tests/unit/t-225-choosing-who-is-on-a-task.test.ts 607
 tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts 142
-tests/unit/uf-19.test.ts 284
+tests/unit/uf-19.test.ts 280
 tests/unit/uf-20-21.test.ts 0
 tests/unit/uf-22.test.ts 235
 tests/unit/uf-23.test.ts 0
