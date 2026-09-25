@@ -421,7 +421,7 @@ export function beginTaskActual(
     return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
   }
   if (DUMMY_FINISH_HOLDS.includes(command.grabbed)) {
-    // TRAP: the plan start day itself, where schedule-layout.ts and schedule-geometry.ts stand the dummy (DM-1);
+    // TRAP: the plan start day itself, where schedule-layout.ts and task-figures.ts stand the dummy (DM-1);
     // change all three together.
     const planStart = dayOf(task.start)
     if (planStart === null) {

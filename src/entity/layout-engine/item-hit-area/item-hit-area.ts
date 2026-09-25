@@ -272,7 +272,7 @@ function midlineOf(plan: ScreenRect | null, below: ScreenRect | null): number | 
   return (centreOf(plan).y + centreOf(below).y) / 2
 }
 
-// TRAP: reads the first dummy's ink only; schedule-geometry.ts gives every dummy of a Task the same one.
+// TRAP: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
 /** @purity pure */
 function shapeOf(task: TaskGeometry): TaskShape {
   const family = familyOf(task.shapeKind)
@@ -597,7 +597,7 @@ function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | 
 }
 
 // see GA-7, GA-8
-// TRAP: never test the selection here; schedule-geometry.ts already empties an unselected Task.
+// TRAP: never test the selection here; task-figures.ts already empties an unselected Task.
 /** @purity pure */
 function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | null)[] {
   const uid = shape.task.taskUid
@@ -1048,7 +1048,7 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
 }
 
 // see T-023c, FR-049, T-240
-// TRAP: never milestoneFigure: schedule-geometry.ts builds it with the plan hidden too.
+// TRAP: never milestoneFigure: task-figures.ts builds it with the plan hidden too.
 /** @purity pure */
 export function isTaskDrawn(task: TaskGeometry): boolean {
   return task.plan !== null || task.actual !== null || task.dummies.length > 0

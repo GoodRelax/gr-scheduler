@@ -1,7 +1,7 @@
 // FR-043 -- a milestone's not-started dummy is drawn in the SAME SQUARE its
 // actual figure would use, not in the bar-shape dummies' box.
 //
-// The unit driven is UF-6 `schedule-geometry.ts` (`ScheduleGeometry`, CP-6 of
+// The unit driven is UF-144 `task-figures.ts` (`ScheduleGeometry`, CP-6 of
 // table T-062, published as PI-6 of table T-064), function `dummiesOf`.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so this case has no node in

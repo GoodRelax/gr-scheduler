@@ -902,7 +902,7 @@ describe('table T-023 MK-9a: a press on each point answers a different row', () 
 
   it('leaves neither dummy past its own ink, so nothing answers GA-5 or GA-6 beyond it', () => {
     // The same warning under table T-023d, measured. ⚠️ `GA-6.at.x` is NOT
-    // where the ink sits (`schedule-geometry.ts`'s `dummiesOf`: `GA-6.at`
+    // where the ink sits (`task-figures.ts`'s `dummiesOf`: `GA-6.at`
     // names its OWN day, `S-129` worked days past GA-5's, while the shared
     // `ink` this pair draws sits at GA-5's day), so a press anchored on `.at`
     // would measure the wrong point.
@@ -949,7 +949,7 @@ describe('FR-043 (MUST): grabbing GA-5 places the day it was let go on, S-129 an
   it('pins the start at GA-5 の日 from GA-6, and counts the length out to the release', () => {
     // ⛔ WHY THE PRESS IS NOT `grabOn(built, dummyNamed(..., 'GA-6'))`.
     // `grabOn` presses `dummy.at.x` / `.at.y`, and GA-6's OWN `.at.x` is
-    // `S-129` worked days PAST GA-5's day (`schedule-geometry.ts`'s
+    // `S-129` worked days PAST GA-5's day (`task-figures.ts`'s
     // `dummiesOf`) -- a different day from the one the shared `ink` is drawn
     // on. The hold IS the ink (表 T-023d の結び), so nothing stands at GA-6's
     // own `.at.x` at all. The press below lands in the RIGHT half of the one
@@ -1190,7 +1190,7 @@ describe('table T-023d GA-18: the not-started marker hangs off GA-6, not off the
     expect(grabOn(built, dummyNamed(task, 'GA-5'))).not.toBe('GA-18')
     // ⛔⛔ `grabOn(built, dummyNamed(task, 'GA-6'))` STOOD ON THIS LINE UNTIL
     // 2026-09-10. GA-6's own `.at.x` sits `S-129` worked days past GA-5's day
-    // (`schedule-geometry.ts`'s `dummiesOf`), off the shared `ink` the closing
+    // (`task-figures.ts`'s `dummiesOf`), off the shared `ink` the closing
     // rule now makes the whole hold (利用者の裁定 2026-09-10) -- so that point
     // now answers GA-18's marker instead. The press below is GA-6's own half of
     // the drawn mark, which is where the ruling of 2026-09-09 put it.

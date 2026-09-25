@@ -950,7 +950,7 @@ SUBTRACTED_WHERE_IT_STANDS = []
 #
 # ⛔⛔ AND THE DRAWING UNIT IS NOT THE ONLY READER. Table T-023d's closing
 # rule (MUST) sends 「描かれたダミーの印の画素」 to GR-17, which makes the drawn
-# rectangle a fact the HIT TEST needs -- so `schedule-geometry.ts` solves
+# rectangle a fact the HIT TEST needs -- so `task-figures.ts` solves
 # DM-3's width (the marker's diameter times S-247, at most S-180, CR-421) once
 # onto `DummyGeometry.ink` and both sides read that. ⭐ The paragraph below claims only why the document does
 # not keep the row.
@@ -2194,6 +2194,11 @@ TARGETS = [
     # rectangle (`schedule-layout.ts` counts the same width into its reach, and
     # may not import this unit, which imports it). ⛔ Solving it in the renderer and
     # again in the hit test is the copied-value defect rule 03 section 1 names.
+    # It stands in task-figures.ts, the one unit of ScheduleGeometry that reads
+    # it (CR-554 15.6.7); the public entry re-exports it for the tests.
+    (os.path.join(LAYOUT, 'schedule-geometry', 'task-figures.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
     # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
     # drawn line on a drawn plan or actual shape, and DS-7 of table T-252 puts
@@ -2206,8 +2211,7 @@ TARGETS = [
     # line it draws from the same rows by itself; the TRAP lines in
     # `schedule-geometry.ts` name that pairing until the renderer reads these.
     (os.path.join(LAYOUT, 'schedule-geometry', 'schedule-geometry.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SELECTION_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
     # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and
@@ -2228,19 +2232,19 @@ TARGETS = [
     # from there would be the cycle LR-3 forbids. ⇒ The number is generated
     # twice from the one manuscript, which is what `NOT_STORED_SCROLLBAR_SIZES`
     # already does.
-    # ⭐ S-180 STANDS HERE AS WELL AS IN `schedule-geometry.ts` AND THE RENDERER,
+    # ⭐ S-180 STANDS HERE AS WELL AS IN `task-figures.ts` AND THE RENDERER,
     # on the same bargain the entry above states: it is one manuscript row
     # printed into each unit that consumes it, not a duplicated value. This unit
     # needs it because table T-038's order counts 「掴みシロの幅」 and the closing
     # rule of table T-023d made that width the ink's -- DM-3 of table T-240
     # (CR-421) puts it at the marker's diameter times S-247, at most S-180 -- so
-    # `dummyReachOf` can no longer read a fixed 30. `schedule-geometry.ts` solves
+    # `dummyReachOf` can no longer read a fixed 30. `task-figures.ts` solves
     # the same width from its own copy; a TRAP line there names this pairing.
     # ⛔ IT MAY NOT REACH ScheduleGeometry FOR IT: that unit imports this one, and
     # LR-3 forbids the cycle.
     # S-196 is generated here and ONLY here (CR-380 decision 7, table T-064
     # row PI-5): table T-038's OC-10 counts the lifted label in the band, and
-    # this is the unit that settles a band. `schedule-geometry.ts` places the
+    # this is the unit that settles a band. `task-figures.ts` places the
     # label with the same gap and reads it from this unit's public entry -- it
     # imports this file already, so the edge runs the way LR-3 allows. A second
     # printing there is the copy PI-5's MUST NOT forbids.
@@ -2384,7 +2388,7 @@ TARGETS = [
     # grab handles are drawn by this unit and by no other, and S-180 is the only
     # row that gives U-52 a drawn dimension (S-129 and S-130 are durations,
     # and S-131 is the faintness).
-    # ⚠️ S-180 LANDS IN `schedule-geometry.ts` AS WELL, for the reason that
+    # ⚠️ S-180 LANDS IN `task-figures.ts` AS WELL, for the reason that
     # entry states: table T-023d's closing rule made the drawn rectangle a fact
     # the hit test needs, so the geometry solves it once and this unit reads the
     # answer off `DummyGeometry.ink` instead of the row.
@@ -2545,6 +2549,9 @@ PUBLISHED_READ_BY_SRC = {
         'DEFAULT_CALENDAR_VALUES',
         'ENTITY_ROWS',
     ),
+    'src/entity/layout-engine/schedule-geometry/task-figures.ts': (
+        'NOT_STORED_DUMMY_SIZES',
+    ),
     'src/entity/layout-engine/schedule-layout/label-placement.ts': (
         'NOT_STORED_SIZES',
     ),
@@ -2598,9 +2605,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
     'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (
         'NOT_STORED_SIZES',
-    ),
-    'src/entity/layout-engine/schedule-geometry/schedule-geometry.ts': (
-        'NOT_STORED_DUMMY_SIZES',
     ),
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_DUMMY_SIZES',

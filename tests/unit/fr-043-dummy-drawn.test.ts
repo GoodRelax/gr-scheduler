@@ -401,7 +401,7 @@ const DUMMY_OPACITY = ((): number => {
  * ⭐⭐ THE SAME RATIO GA-17'S SQUARE NOW USES. FR-043's third milestone
  * exception (利用者の裁定 2026-09-10): 「マイルストーンのダミーを描く箱は、
  * そのマイルストーンの実績の図形と同じ正方形とすること（MUST）」, and
- * `schedule-geometry.ts`'s `taskGeometryOf` names that square's side
+ * `task-figures.ts`'s `taskGeometryOf` names that square's side
  * `actualHeight` = `placed.planHeight * settings.actualOfPlan` -- the very
  * product this constant and `gr18SquareSideOf` below compose, read from the
  * settings rather than a pixel this file typed in.
@@ -854,7 +854,7 @@ const gr18InkBoxOf = (fresh: Drawn): Box => {
 /**
  * The side of GA-17's square dummy box (利用者の裁定 2026-09-10): the
  * milestone's own plan height times `S-5` (`ACTUAL_OF_PLAN`) -- the same
- * product `schedule-geometry.ts`'s `taskGeometryOf` names `actualHeight` and,
+ * product `task-figures.ts`'s `taskGeometryOf` names `actualHeight` and,
  * since that ruling, hands to both the milestone's own actual figure (LF-10)
  * and GA-17's dummy box.
  *
@@ -1227,7 +1227,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       // actual BAR (table T-023d, GA-16), but its dummy box is no longer
       // bounded by S-180's bar-shaped rule either -- it is a SQUARE the size
       // of the milestone's own actual figure (`actualHeight` in
-      // `schedule-geometry.ts`, read here off the plan figure's own box via
+      // `task-figures.ts`, read here off the plan figure's own box via
       // `gr18SquareSideOf` rather than retyped as a pixel).
       // ⛔ THE COUNT WAS 2 UNTIL 2026-09-08 and this citation still said so.
       const fresh = draw(milestoneSchedule(), zoomX)

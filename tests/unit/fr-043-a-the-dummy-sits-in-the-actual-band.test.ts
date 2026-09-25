@@ -1,7 +1,7 @@
 // FR-043 / 表 T-012 -- the not-started dummy's ink follows the actual bar's
 // OWN band, not the plan's centre line.
 //
-// The unit driven is UF-6 `schedule-geometry.ts` (`ScheduleGeometry`, CP-6 of
+// The unit driven is UF-144 `task-figures.ts` (`ScheduleGeometry`, CP-6 of
 // table T-062, published as PI-6 of table T-064), function `dummiesOf`.
 //
 // ⚠️ Chapter 9 does not admit Unit as a TEST_LEVEL, so this case has no node in
