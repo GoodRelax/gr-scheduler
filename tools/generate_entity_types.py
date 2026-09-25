@@ -1422,7 +1422,7 @@ NOT_STORED_TARGETS = {
                                DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
     # ⭐ CR-551: FR-055's fit leaves S-332 of the Row Area's width free on each
     # side. ⛔ A NEW CONSTANT: its subject is the fit, which fitZoom in
-    # schedule-layout.ts carries out, and no line above is the fit's.
+    # fit-zoom.ts carries out, and no line above is the fit's.
     'NOT_STORED_FIT_MARGIN': (['S-332'], READ_WHERE_IT_STANDS),
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
@@ -2269,8 +2269,12 @@ TARGETS = [
     # reads at all is refused by noUnusedLocals, so it is no longer generated.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_FIT_MARGIN'),
+     + not_stored_block('NOT_STORED_LABEL_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # The fit's margin stands in the one unit that reads it, fit-zoom.ts
+    # (CR-554 15.6.7).
+    (os.path.join(LAYOUT, 'schedule-layout', 'fit-zoom.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_FIT_MARGIN'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ScheduleLayout's copy of NOT_STORED_SIZES stands in the one unit of the
     # component that reads it: label-placement.ts places the label past the
