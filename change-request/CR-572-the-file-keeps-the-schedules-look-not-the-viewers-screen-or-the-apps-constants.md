@@ -26,7 +26,7 @@
 
 ### 0.2 調べた結果
 
-**測り方**（13 節に再現の手順）: 文書スキーマ `grs-document.schema.json` の `properties.documentSettings.properties` の鍵を全部並べた。それぞれを `settings.json` の行と、鍵の欄の綴りで突き合わせた（入れ子の 2 鍵 `fontScaleSizes`・`shapeHeightOf` は行を手で当てた）。画面から書き換わるかどうかは、`documentSettings` を書く唯一の場所 `src/use-case/edit-document/edit-document-settings.ts` の命令 15 種が書く鍵で決めた（設定パネルは読むだけ —— `properties-panel.ts` の `isEditable: false`、`FR-072`）。
+**測り方**（13 節に再現の手順）: 文書スキーマ `grs-document.schema.json` の `properties.documentSettings.properties` の鍵を全部並べた。それぞれを `settings.json` の行と、鍵の欄の綴りで突き合わせた（入れ子の 2 鍵 `fontScaleSizes`・`shapeHeightOf` は行を手で当てた）。画面から書き換わるかどうかは、人の操作で新しい値を書く唯一の場所 `src/use-case/edit-document/edit-document-settings.ts` の命令 15 種が書く鍵で決めた（設定パネルは読むだけ —— `properties-panel.ts` の `isEditable: false`、`FR-072`）。⚠️ `documentSettings` を書く所はほかに 3 つある（`e1b8bab2` で測り直した体が見つけた）—— 取り消し・やり直しで 20 鍵を今の値のまま運ぶ `columnsOutsideHistory`（`document-change-plan.ts`）、行を消したときにピン止めとスクロールの行 id を掃除する `editTaskGroup` の `deleteTaskGroup`（`edit-task-group.ts`）、取り込みで `documentSettings` を丸ごと差し替える・合わせる `replacedDocument`・`mergedDocument`（`import-document.ts`）。どれも値を運ぶか消すだけで、人の選択から新しい値を作らないので、分類は変わらない。⚠️ 取り込みの差し替えこそが、古いファイルの凍った値が入ってくる道である。
 
 1. **111 鍵のうち、画面の操作で書き換わるのは 29 鍵だけである。** 残りの 82 鍵は、どの命令も書かない。ファイルに入る値は、そのファイルを最初に書いた `GRS` の既定値そのものである。
    - 例: 利用者が `JDG-602` で `S-124` を 150 にした。その前に保存した `.json` を同僚に渡すと、同僚の `GRS` が新しくても 1000ms で出る。値の正は 1 行なのに、ファイルの数だけ写しがある。
@@ -237,6 +237,9 @@ SEAM (verbatim in every brief of waves 2a..2d and 3)
   undoable, an unsaved edit, exactly as today.
 - CM-59, CM-60, CM-61, CM-63 move to screen commands; CM-64 stays; CM-67 writes
   rowTitlePanelWidth only.
+- columnsOutsideHistory (document-change-plan.ts) carries 20 keys across
+  undo/redo; drop propertyPanelWidth and dualCursor from it (they leave
+  DocumentSettings). Keep the other 18.
 - No reading conversion (JDG-601): OP-6 already drops unknown keys.
 ```
 
