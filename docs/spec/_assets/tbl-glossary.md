@@ -40,7 +40,7 @@
 | N-12 | `Dependency` | 依存。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である |
 | N-13 | `TaskVisual` | タスクの見せ方。<br>形・色・名前の置き方 |
 | N-14 | `TaskOrigin` | 取り込み元の記録 |
-| N-15 | `isKeptOpen` | 開いたままの印。<br>人が開いた行（表 T-254）を持ち、その行の中を倍率によらず描かせる（`FR-018`）。<br>⚠️ `isCollapsed` の否定ではない —— 畳んでいない行の多くは印を持たず、倍率で配下が落ちる |
+| N-26 | `treeState` | 行の木の状態。<br>`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden` の 5 つの値（`01-04-requirements.md` の `FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）。<br>⚠️ `auto` は「開いている」ではない —— 人が何も決めていない行であり、何段描くかは倍率が決める |
 
 ## 2. プロパティ
 
@@ -300,6 +300,7 @@
 | K-119 | 出力 | `exportCanvasHeightCap` | 書き出す絵の高さの上限 |
 | K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指す行のどこにあるか |
 | K-121 | 画面の状態 | `scrollDayOffset` | 表示の左端が指す日のどこにあるか |
+| K-138 | 画面の状態 | `levelZeroTreeState` | 段 0 の木の状態 |
 | K-90 | 保存しないもの（別枠） | `language` ⛔ | 表示言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99` |
 
 **キーに関する規約:**
@@ -433,8 +434,6 @@
 | CM-30 | `TaskGroup` | `setTaskGroupColor` | — | 行の色を置く | `FR-042` |
 | CM-31 | `TaskGroup` | `resetTaskGroupColor` | — | 行の色をテーマ追随へ戻す | `FR-007` |
 | CM-32 | `TaskGroup` | `setTaskGroupHeight` | — | 行の高さを置く | `FR-042` |
-| CM-33 | `TaskGroup` | `setTaskGroupCollapsed` | — | 行を畳む・開く | `FR-004` |
-| CM-34 | `TaskGroup` | `setTaskGroupHidden` | — | 行を隠す・戻す | `FR-004` |
 | CM-35 | `TaskGroup` | `reorderTaskGroupSiblings` | ⭐ | 兄弟の並びを変える | `FR-005` |
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
@@ -470,10 +469,11 @@
 | CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
 | CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
 | CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体が収まる倍率と表示位置を置く | `FR-055` |
-| CM-72 | `TaskGroup` | `expandAllTaskGroups` | ⭐ | 畳んだ行をすべて開き、開いたままの印をすべて外す | `FR-055`（表 T-051 の `HF-8`、`FR-018` の 表 T-254 の `KO-7`）|
+| CM-72 | `TaskGroup` | `resetTaskGroupTreeStates` | ⭐ | 隠した行を除くすべての行の木の状態を `auto` へ戻す | `FR-055`（表 T-051 の `HF-8`、`_assets/tbl-state-machines.md` の 表 T-328）|
 | CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | 行の親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|
 | CM-74 | 見せ方の群 | `setDisplayScale` | — | 表示の倍率の段を変える | `FR-039` |
-| CM-75 | `TaskGroup` | `setTaskGroupKeptOpen` | — | 行の開いたままの印を立てる・外す | `FR-018`（表 T-254）|
+| CM-85 | `TaskGroup` | `setTaskGroupTreeState` | — | 行の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）|
+| CM-86 | 見せ方の群 | `setLevelZeroTreeState` | — | 段 0 の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328 の根の升）|
 
 ⚠️ `群` は対象の確定名（表 T-058 のエンティティ）と、どのエンティティにも属さない見せ方の群である。
 

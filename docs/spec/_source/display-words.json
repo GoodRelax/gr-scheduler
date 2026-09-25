@@ -2069,6 +2069,13 @@
    }
   },
   {
+   "rowId": "K-138",
+   "label": {
+    "ja": "段 0 の木の状態",
+    "en": "levelZeroTreeState"
+   }
+  },
+  {
    "rowId": "K-90",
    "label": {
     "ja": "表示言語（ja / en）。置き場と規則は表 T-206 の S-99",
@@ -2530,12 +2537,12 @@
   {
    "rowId": "RS-31",
    "text": {
-    "ja": "畳まれている行が 1 つもありません",
-    "en": "No row is folded"
+    "ja": "すべての行が、もう開いて描かれています",
+    "en": "Every row is already open and drawn"
    },
    "nextStep": {
-    "ja": "どれかの行を畳んでから、もう一度押してください",
-    "en": "Fold a row first, then press again"
+    "ja": "どれかの行を畳むか、縦に縮小してから、もう一度押してください",
+    "en": "Fold a row or zoom out vertically, then press again"
    }
   },
   {

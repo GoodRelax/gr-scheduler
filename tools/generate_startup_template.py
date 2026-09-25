@@ -2548,9 +2548,8 @@ class Builder(object):
                 # row with neither.
                 'derivedFromTaskUid': None,
                 'order': row['order'],
-                'isCollapsed': False,
-                'isHidden': False,
-                'isKeptOpen': False,
+                # AT-153: a row is born with no tree state a person chose.
+                'treeState': 'auto',
                 # GP-1: null is "anyone may edit", which is what a template
                 # that has never met a server must say.
                 'editGroup': None,

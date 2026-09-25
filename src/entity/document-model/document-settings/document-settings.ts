@@ -75,6 +75,7 @@ export interface DocumentSettings {
   readonly labelGap: number
   readonly labelHaloOfFont: number
   readonly labelPad: number
+  readonly levelZeroTreeState: 'auto' | 'collapsed'
   readonly markerSize: number
   readonly markerStroke: number
   readonly maxGroupDepth: number
@@ -201,6 +202,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'labelGap': 9.6,
   'labelHaloOfFont': 0.10,
   'labelPad': 9.6,
+  'levelZeroTreeState': 'auto',
   'markerSize': 22.4,
   'markerStroke': 1.3,
   'maxGroupDepth': 5,

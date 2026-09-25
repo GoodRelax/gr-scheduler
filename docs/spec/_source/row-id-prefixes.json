@@ -585,14 +585,6 @@
    }
   },
   {
-   "prefix": "KO",
-   "words": "Kept Open",
-   "owner": "spec",
-   "means": {
-    "ja": "開いたままの印を立てる入口と外す入口"
-   }
-  },
-  {
    "prefix": "L",
    "words": "Level of Detail",
    "owner": "spec",
@@ -1146,6 +1138,14 @@
    "owner": "spec",
    "means": {
     "ja": "タスクを作る手つきの規則の条"
+   }
+  },
+  {
+   "prefix": "TD",
+   "words": "Tree Drawn",
+   "owner": "spec",
+   "means": {
+    "ja": "行の木の状態によって行を描くかの条件"
    }
   },
   {

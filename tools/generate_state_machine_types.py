@@ -35,8 +35,16 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             table T-292 for `fieldEntry`, table T-293 for
                             `selection`, table T-295 for
                             `interactionRecord`, table T-296 for
-                            `agentApi`), the root's first, then each
-                            machine's in manuscript order
+                            `agentApi`, table T-328 for `rowTree`), the
+                            root's first, then each machine's in manuscript
+                            order
+
+A region that holds documentData (SD-5 of table T-250 -- the row tree, whose
+unit is src/use-case/edit-document/task-group-folding.ts) is a SAVED value of
+the document, so it gets no state unions, no root type and no initial values:
+its state type is the erd.json enum column the region names. Only <Stem>Key,
+<Stem>Event, <Stem>EffectName, <Stem>Transition and <STEM>_TRANSITIONS are
+printed for it (table T-328).
 
 Everything else in the unit -- the carried-value types, the transition
 functions, the guards and the effect payloads -- is hand written (table T-250,
@@ -259,13 +267,18 @@ class Printer(object):
                  '// Rebuild: npm run gen (tools/generate_state_machine_types.py).',
                  '']
         lines += self.keys()
-        lines += self.unions()
-        lines += self.root_type()
+        # WHY: SD-5 -- a documentData region's state type is an erd.json
+        # column, and it has no unsaved root to hold or initialise.
+        saved = self.region.holds_document_data
+        if not saved:
+            lines += self.unions()
+            lines += self.root_type()
         lines += self.events()
         lines += self.effect_names()
         lines += self.transition_type()
-        lines += self.initial_children()
-        lines += self.initial_axes()
+        if not saved:
+            lines += self.initial_children()
+            lines += self.initial_axes()
         lines += self.transitions()
         lines.append(CLOSE)
         return '\n'.join(lines)

@@ -84,9 +84,7 @@ erDiagram
         文字列 label "GRS"
         整数 **derivedFromTaskUid** FK "GRS"
         整数 order "GRS"
-        真偽 isCollapsed "GRS"
-        真偽 isHidden "GRS"
-        真偽 isKeptOpen "GRS"
+        列挙 treeState "GRS・5 値"
         文字列 editGroup "GRS"
         文字列 color "GRS"
         整数 height "GRS"
@@ -360,9 +358,7 @@ erDiagram
 | AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
-| AT-56 | `TaskGroup` | `isCollapsed` | 真偽 | 可 | — | GRS | — | 畳んでいるか |
-| AT-57 | `TaskGroup` | `isHidden` | 真偽 | 可 | — | GRS | — | 隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ |
-| AT-142 | `TaskGroup` | `isKeptOpen` | 真偽 | 否 | — | GRS | — | 開いたままの印。真の行は、その行と祖先と直下の子を倍率によらず描かせる（`FR-018`）。立てる入口と外す入口は 表 T-254 が持つ。**既定は `false`** |
+| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。行を作るときは `auto`。**既定は `'auto'`** |
 | AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。規則は表 T-017b |
 | AT-59 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |

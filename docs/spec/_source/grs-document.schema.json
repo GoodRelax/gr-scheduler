@@ -161,6 +161,7 @@
     "labelGap",
     "labelHaloOfFont",
     "labelPad",
+    "levelZeroTreeState",
     "markerSize",
     "markerStroke",
     "maxGroupDepth",
@@ -505,6 +506,12 @@
      "type": "number",
      "minimum": 0,
      "maximum": 30
+    },
+    "levelZeroTreeState": {
+     "enum": [
+      "auto",
+      "collapsed"
+     ]
     },
     "markerSize": {
      "type": "number"
@@ -1219,9 +1226,7 @@
     "label",
     "derivedFromTaskUid",
     "order",
-    "isCollapsed",
-    "isHidden",
-    "isKeptOpen",
+    "treeState",
     "editGroup",
     "color",
     "height"
@@ -1254,21 +1259,15 @@
     "order": {
      "type": "integer"
     },
-    "isCollapsed": {
-     "type": [
-      "boolean",
-      "null"
-     ]
-    },
-    "isHidden": {
-     "type": [
-      "boolean",
-      "null"
-     ]
-    },
-    "isKeptOpen": {
-     "type": "boolean",
-     "default": false
+    "treeState": {
+     "enum": [
+      "auto",
+      "collapsed",
+      "expanded",
+      "temporarilyExpanded",
+      "hidden"
+     ],
+     "default": "auto"
     },
     "editGroup": {
      "type": [

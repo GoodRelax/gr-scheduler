@@ -2,10 +2,10 @@
  "$schema": "./state-machines.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
+  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the row tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
   "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingDate1), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
   "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is a name the code holds, or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
-  "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and the discriminated unions and the transition-table constant in the generated region of each region unit under src/use-case/advance-screen-session/ (tools/generate_state_machine_types.py).",
+  "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and the discriminated unions and the transition-table constant in the generated region of each region unit under src/use-case/advance-screen-session/ (tools/generate_state_machine_types.py). A region that holds documentData (SD-5) gets only its events and its transition-table constant, and its state keys must be the enum values of the erd.json column it names, in the same order.",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "Validated by _source/state-machines.schema.json before a byte is written. Both generators also refuse: an evidence id docs/spec does not define, a cell whose state or target is not a state of its machine, an event a table uses that its region does not define, a union without exactly one initial state, a machine name or event key used twice, a machine name that does not end in StateMachine.",
   "Guard expressions and effect bodies are NOT here -- the code holds them (SD-3). Every string that is printed prose is a language dictionary.",
@@ -706,47 +706,6 @@
      "carries": [
       {
        "name": "isAgentApiEnabled"
-      }
-     ]
-    },
-    {
-     "key": "foldAllPressed",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "HF-12",
-       "HR-2"
-      ],
-      "note": {
-       "ja": "`HF-12` の操作子"
-      }
-     },
-     "carries": [
-      {
-       "name": "writes",
-       "note": {
-        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
-       }
-      }
-     ]
-    },
-    {
-     "key": "levelZeroOpened",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "HF-16",
-       "HF-10",
-       "HF-17",
-       "S-211"
-      ]
-     },
-     "carries": [
-      {
-       "name": "writes",
-       "note": {
-        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
-       }
       }
      ]
     },
@@ -2017,54 +1976,6 @@
          ]
         }
        ]
-      }
-     }
-    },
-    {
-     "name": "levelZeroFoldStateMachine",
-     "states": [
-      {
-       "key": "unfolded",
-       "parent": null,
-       "initial": true,
-       "carries": [],
-       "evidence": [
-        "S-211"
-       ]
-      },
-      {
-       "key": "folded",
-       "parent": null,
-       "initial": false,
-       "carries": [],
-       "evidence": [
-        "HR-2",
-        "S-211"
-       ]
-      }
-     ],
-     "transitions": {
-      "foldAllPressed": {
-       "unfolded": {
-        "to": "folded",
-        "effect": "writeFoldAll",
-        "evidence": [
-         "HR-2",
-         "HF-12"
-        ]
-       }
-      },
-      "levelZeroOpened": {
-       "folded": {
-        "to": "unfolded",
-        "effect": "writeOpenLevel",
-        "evidence": [
-         "HF-16",
-         "HF-10",
-         "HF-17",
-         "S-211"
-        ]
-       }
       }
      }
     },
@@ -5728,6 +5639,870 @@
         "evidence": [
          "FR-065",
          "S-99b"
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "region": "rowTree",
+   "name": {
+    "ja": "行の木"
+   },
+   "unit": "src/use-case/edit-document/task-group-folding.ts",
+   "typeStem": "TreeState",
+   "holds": "documentData",
+   "column": "AT-153",
+   "table": {
+    "id": "T-328",
+    "caption": {
+     "ja": "行の木の状態機械"
+    }
+   },
+   "figure": {
+    "id": "F-043",
+    "caption": {
+     "ja": "行の木の状態遷移"
+    }
+   },
+   "root": {
+    "carries": [],
+    "evidence": [
+     "AT-153",
+     "S-418"
+    ],
+    "transitions": {
+     "everyRowFoldPressed": {
+      "effect": "writeLevelZeroCollapsed",
+      "evidence": [
+       "HR-2",
+       "HF-12",
+       "S-418"
+      ],
+      "note": {
+       "ja": "段 0 を畳む（`S-418` を `'collapsed'` に）。行の値と同じ束に入れる"
+      }
+     },
+     "everyRowOpenPressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "HF-10",
+       "HR-1",
+       "S-418"
+      ],
+      "note": {
+       "ja": "段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる"
+      }
+     },
+     "topLevelOpenPressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "HF-16",
+       "HR-2",
+       "S-418"
+      ],
+      "note": {
+       "ja": "同上"
+      }
+     },
+     "childRowAddPressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "HF-17",
+       "S-418"
+      ],
+      "note": {
+       "ja": "同上。1 階層だけ開き、行の値は変えない（`HF-17`）"
+      }
+     },
+     "fitPressed": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "FR-055",
+       "HF-8",
+       "S-418"
+      ],
+      "note": {
+       "ja": "同上"
+      }
+     }
+    }
+   },
+   "events": [
+    {
+     "key": "oneLevelOpenPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-90",
+       "HF-13",
+       "HR-7"
+      ],
+      "note": {
+       "ja": "行の 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`）"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressedRowId",
+       "note": {
+        "ja": "押した行の id"
+       }
+      }
+     ]
+    },
+    {
+     "key": "allBelowOpenPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-58",
+       "HF-2",
+       "HR-3"
+      ],
+      "note": {
+       "ja": "行の配下をすべて開く操作子を押した。押しが何かを行うときだけ"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressedRowId",
+       "note": {
+        "ja": "押した行の id"
+       }
+      }
+     ]
+    },
+    {
+     "key": "hidePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-59",
+       "HF-3",
+       "HR-6"
+      ],
+      "note": {
+       "ja": "行の隠す操作子を押した"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressedRowId",
+       "note": {
+        "ja": "押した行の id"
+       }
+      }
+     ]
+    },
+    {
+     "key": "allBelowFoldPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-77",
+       "HF-11",
+       "HR-4"
+      ],
+      "note": {
+       "ja": "行の配下をすべて畳む操作子を押した。押しが何かを行うときだけ"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressedRowId",
+       "note": {
+        "ja": "押した行の id"
+       }
+      }
+     ]
+    },
+    {
+     "key": "everyRowOpenPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-74",
+       "HF-10",
+       "HR-1"
+      ],
+      "note": {
+       "ja": "頭のすべて開く操作子を押した。押しが何かを行うときだけ"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "everyRowFoldPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-78",
+       "HF-12",
+       "HR-2"
+      ],
+      "note": {
+       "ja": "頭のすべて畳む操作子を押した。押しが何かを行うときだけ"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "topLevelOpenPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-92",
+       "HF-16"
+      ],
+      "note": {
+       "ja": "頭の最も浅い段を 1 階層開く操作子を押した。押しが何かを行うときだけ"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "childRowAddPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-91",
+       "HF-14",
+       "HR-8",
+       "IC-93",
+       "HF-17"
+      ],
+      "note": {
+       "ja": "行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した"
+      }
+     },
+     "carries": [
+      {
+       "name": "pressedRowId",
+       "note": {
+        "ja": "押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない"
+       }
+      }
+     ]
+    },
+    {
+     "key": "fitPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-10",
+       "SK-18",
+       "FR-055",
+       "HF-8"
+      ],
+      "note": {
+       "ja": "全体表示を求めた"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "rowZoomShrinkPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "MK-2",
+       "MK-4",
+       "IC-14",
+       "SK-16c",
+       "ZE-2"
+      ],
+      "note": {
+       "ja": "縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない"
+      }
+     },
+     "carries": []
+    }
+   ],
+   "machines": [
+    {
+     "name": "treeStateMachine",
+     "states": [
+      {
+       "key": "auto",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "AT-153",
+        "FR-018"
+       ]
+      },
+      {
+       "key": "collapsed",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HR-4",
+        "HR-1a"
+       ]
+      },
+      {
+       "key": "expanded",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HR-7",
+        "FR-018"
+       ]
+      },
+      {
+       "key": "temporarilyExpanded",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HR-3",
+        "HR-1",
+        "FR-018"
+       ]
+      },
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "HR-6"
+       ]
+      }
+     ],
+     "transitions": {
+      "oneLevelOpenPressed": {
+       "auto": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-13",
+         "HR-7"
+        ]
+       },
+       "collapsed": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-13",
+         "HR-7"
+        ]
+       },
+       "temporarilyExpanded": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-13",
+         "HR-7"
+        ]
+       },
+       "hidden": {
+        "to": "collapsed",
+        "guard": [
+         {
+          "name": "isChildOfPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-13",
+         "HR-6"
+        ]
+       }
+      },
+      "allBelowOpenPressed": {
+       "auto": [
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          },
+          {
+           "name": "isLeafRow",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "FR-018"
+         ]
+        }
+       ],
+       "collapsed": [
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          },
+          {
+           "name": "isLeafRow",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "auto",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          },
+          {
+           "name": "isLeafRow"
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "TD-6"
+         ]
+        }
+       ],
+       "hidden": [
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          },
+          {
+           "name": "isLeafRow",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "auto",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          },
+          {
+           "name": "isLeafRow"
+          }
+         ],
+         "evidence": [
+          "HF-2",
+          "HR-3",
+          "TD-6"
+         ]
+        }
+       ]
+      },
+      "hidePressed": {
+       "auto": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6",
+          "HR-1a"
+         ]
+        }
+       ],
+       "collapsed": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-3",
+         "HR-6"
+        ]
+       },
+       "expanded": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6",
+          "HR-1a"
+         ]
+        }
+       ],
+       "temporarilyExpanded": [
+        {
+         "to": "hidden",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-3",
+          "HR-6",
+          "HR-1a"
+         ]
+        }
+       ]
+      },
+      "allBelowFoldPressed": {
+       "auto": [
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        }
+       ],
+       "expanded": [
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        }
+       ],
+       "temporarilyExpanded": [
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        },
+        {
+         "to": "collapsed",
+         "guard": [
+          {
+           "name": "isBelowPressedRow"
+          }
+         ],
+         "evidence": [
+          "HF-11",
+          "HR-4",
+          "HR-1a"
+         ]
+        }
+       ]
+      },
+      "everyRowOpenPressed": {
+       "auto": {
+        "to": "temporarilyExpanded",
+        "guard": [
+         {
+          "name": "isLeafRow",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "HF-10",
+         "HR-1",
+         "FR-018"
+        ]
+       },
+       "collapsed": [
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isLeafRow",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-10",
+          "HR-1",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "auto",
+         "guard": [
+          {
+           "name": "isLeafRow"
+          }
+         ],
+         "evidence": [
+          "HF-10",
+          "HR-1",
+          "TD-6"
+         ]
+        }
+       ],
+       "hidden": [
+        {
+         "to": "temporarilyExpanded",
+         "guard": [
+          {
+           "name": "isLeafRow",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "HF-10",
+          "HR-1",
+          "FR-018"
+         ]
+        },
+        {
+         "to": "auto",
+         "guard": [
+          {
+           "name": "isLeafRow"
+          }
+         ],
+         "evidence": [
+          "HF-10",
+          "HR-1",
+          "TD-6"
+         ]
+        }
+       ]
+      },
+      "everyRowFoldPressed": {
+       "auto": {
+        "to": "collapsed",
+        "evidence": [
+         "HF-12",
+         "HR-2",
+         "HR-1a"
+        ]
+       },
+       "expanded": {
+        "to": "collapsed",
+        "evidence": [
+         "HF-12",
+         "HR-2",
+         "HR-1a"
+        ]
+       },
+       "temporarilyExpanded": {
+        "to": "collapsed",
+        "evidence": [
+         "HF-12",
+         "HR-2",
+         "HR-1a"
+        ]
+       }
+      },
+      "topLevelOpenPressed": {
+       "hidden": {
+        "to": "collapsed",
+        "guard": [
+         {
+          "name": "isTopLevelRow"
+         }
+        ],
+        "evidence": [
+         "HF-16",
+         "HR-6"
+        ]
+       }
+      },
+      "childRowAddPressed": {
+       "collapsed": {
+        "to": "auto",
+        "guard": [
+         {
+          "name": "isPressedRow"
+         }
+        ],
+        "evidence": [
+         "HF-14",
+         "HR-8"
+        ]
+       }
+      },
+      "fitPressed": {
+       "collapsed": {
+        "to": "auto",
+        "evidence": [
+         "FR-055",
+         "HF-8"
+        ]
+       },
+       "expanded": {
+        "to": "auto",
+        "evidence": [
+         "FR-055",
+         "HF-8"
+        ]
+       },
+       "temporarilyExpanded": {
+        "to": "auto",
+        "evidence": [
+         "FR-055",
+         "HF-8"
+        ]
+       }
+      },
+      "rowZoomShrinkPressed": {
+       "temporarilyExpanded": {
+        "to": "auto",
+        "evidence": [
+         "FR-018",
+         "FR-031",
+         "ZE-2"
         ]
        }
       }

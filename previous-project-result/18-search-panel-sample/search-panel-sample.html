@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>検索パネルを触って確かめる</title>
+<style>
+  :root {
+    --ink:#16181d; --ink2:#55606f; --rule:#d7dde7; --ground:#ffffff; --panel:#f3f5f8; --head:#eef2f7;
+    --plan:#bcd8f5; --plan-edge:#3b6fb5; --actual:#4a8fe0; --done:#8fc79a; --done-edge:#3d7a48;
+    --ms:#f0b429; --ms-edge:#946200; --note:#fff4bf; --note-edge:#c9a227;
+    --pick:#d0342c; --accent:#1f6feb; --accent-soft:#dbe8fd; --pin:#fff7e6; --pin-edge:#e8a33d;
+    --flash:#ffe08a; --bneck:#d32f2f; --shadow: 0 6px 24px rgba(20,30,50,.22);
+    /* provisional sizes the sample lets the user touch (CR-571 table T-206 S-423..S-429) */
+    --min-w: 360px; --min-h: 160px; --col-min: 64px; --edge: 6px; --trow: 28px; --tfont: 16px;
+    --title-w: 300px; --lane-h: 26px; --ruler-h: 44px; --ph-h: 38px;
+  }
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: var(--ground); color: var(--ink); font-size: 14px;
+         font-family: "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", "Meiryo", sans-serif; }
+  button { font: inherit; }
+  .app { display: flex; flex-direction: column; height: 100vh; }
+  /* ---- app header ---- */
+  #app-header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 12px;
+                border-bottom: 1px solid var(--rule); background: var(--panel); }
+  #app-header .brand { font-weight: 700; margin-right: 6px; font-size: 15px; }
+  .hbtn { height: 30px; min-width: 30px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 5px;
+          background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+  .hbtn:hover { border-color: var(--plan-edge); }
+  .hbtn[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+  .hsep { width: 1px; height: 22px; background: var(--rule); }
+  .demo { color: var(--ink2); font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+  .demo select { font: inherit; height: 28px; }
+  #undo-ind { min-width: 17em; text-align: center; font-size: 13px; padding: 2px 8px; border-radius: 10px; background: #fff; border: 1px solid var(--rule); }
+  #undo-ind.dirty { background: #fff1e0; border-color: var(--pin-edge); }
+  details.pop { position: relative; }
+  details.pop > summary { list-style: none; cursor: pointer; }
+  details.pop > summary::-webkit-details-marker { display: none; }
+  details.pop .popbody { position: absolute; right: 0; top: 36px; z-index: 40; background: #fff; border: 1px solid var(--rule);
+                         border-radius: 6px; box-shadow: var(--shadow); padding: 10px 14px; width: 560px;
+                         font-size: 16px; line-height: 1.7; max-height: 70vh; overflow: auto; }
+  details.pop .popbody.sizes { width: 420px; font-size: 14px; line-height: 1.5; }
+  .popbody p, .popbody li { margin: 0 0 6px; }
+  .popbody ul { padding-left: 20px; margin: 0 0 6px; }
+  .sizes label { display: grid; grid-template-columns: 1fr 90px 40px; align-items: center; gap: 6px; margin: 4px 0; }
+  .sizes input { width: 80px; font: inherit; }
+  #selbar { font-size: 13px; color: var(--ink2); padding: 3px 12px; border-bottom: 1px solid var(--rule); min-height: 22px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #selbar b { color: var(--ink); }
+  /* ---- schedule ---- */
+  #stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+  #sched { position: absolute; inset: 0; overflow: auto; }
+  #content { position: relative; }
+  .ruler { position: sticky; top: 0; z-index: 5; display: flex; height: var(--ruler-h); background: var(--head);
+           border-bottom: 1px solid var(--rule); }
+  .ruler .ticks { position: relative; flex: none; }
+  .tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid var(--rule); font-size: 12px; color: var(--ink2);
+          padding-left: 3px; white-space: nowrap; overflow: hidden; }
+  .tick.year { height: 22px; font-weight: 700; color: var(--ink); border-left-color: #9fb3cc; }
+  .tick.month { top: 22px; }
+  .rt { position: sticky; left: 0; z-index: 3; flex: none; width: var(--title-w); box-sizing: border-box; background: #fff;
+        border-right: 1px solid var(--rule); display: flex; align-items: flex-start; gap: 2px; padding: 2px 4px;
+        font-size: 13px; overflow: hidden; }
+  .ruler .rt.corner { background: var(--head); z-index: 6; align-items: center; font-weight: 700; }
+  #pinband { position: sticky; z-index: 4; top: var(--ruler-h); background: var(--pin); box-shadow: 0 2px 4px rgba(0,0,0,.12); }
+  #pinband .rt { background: var(--pin); }
+  #pinband .srow { border-bottom-color: var(--pin-edge); }
+  .srow { display: flex; border-bottom: 1px solid var(--rule); box-sizing: border-box; }
+  .srow.flash .rt { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: var(--flash); } to { background: #fff; } }
+  .lanes { position: relative; flex: none; }
+  .rname { padding: 3px 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .lvl2 .rname { color: #2f3a48; }
+  .tc { flex: none; width: 24px; height: 22px; border: 1px solid transparent; border-radius: 4px; background: none; cursor: pointer;
+        font-size: 12px; font-family: Consolas, monospace; padding: 0; color: var(--ink2); }
+  .tc:hover { border-color: var(--plan-edge); background: #fff; }
+  .tc.ph { visibility: hidden; }
+  .tc.pin[aria-pressed=true] { color: var(--pin-edge); }
+  .tc svg { width: 14px; height: 14px; vertical-align: -2px; }
+  .badge { flex: none; font-size: 12px; color: #8a5a00; padding-top: 3px; }
+  .ts { font-size: 12px; color: var(--ink2); flex: none; padding-top: 4px; }
+  .bar { position: absolute; height: 18px; border: 1px solid var(--plan-edge); background: var(--plan); box-sizing: border-box;
+         border-radius: 3px; cursor: pointer; }
+  .bar .act { position: absolute; left: 0; top: 4px; bottom: 4px; background: var(--actual); }
+  .bar.st2 { background: var(--done); border-color: var(--done-edge); }
+  .bar.st2 .act { display: none; }
+  .bar.st3, .bar.st4 { border-style: dashed; }
+  .bar.st0 { border: 2px solid var(--bneck); }
+  .ms.st0 { border: 2px solid var(--bneck); }
+  .bar.dummy { background: repeating-linear-gradient(45deg, #e8dcef 0 4px, #fff 4px 8px); border-color: #8e44ad; }
+  .ms { position: absolute; width: 12px; height: 12px; background: var(--ms); border: 1px solid var(--ms-edge);
+        transform: rotate(45deg); cursor: pointer; }
+  .ms.st2 { background: var(--done); border-color: var(--done-edge); }
+  .blabel { position: absolute; font-size: 12px; white-space: nowrap; color: var(--ink); pointer-events: none; line-height: 18px; }
+  .cbox { position: absolute; height: 20px; max-width: 200px; background: var(--note); border: 1px solid var(--note-edge);
+          font-size: 12px; line-height: 18px; padding: 0 6px; box-sizing: border-box; white-space: nowrap; overflow: hidden;
+          text-overflow: ellipsis; cursor: pointer; border-radius: 2px 8px 2px 2px; }
+  .sel { outline: 3px solid var(--pick); outline-offset: 1px; z-index: 2; }
+  .today { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed #d07a2c; pointer-events: none; }
+  /* ---- search panel ---- */
+  #panel { position: absolute; z-index: 10; display: flex; flex-direction: column; background: #fff;
+           border: 1px solid #8fa3bd; border-radius: 6px; box-shadow: var(--shadow); box-sizing: border-box; }
+  #panel[hidden] { display: none; }
+  #panel:focus, .twrap:focus { outline: none; }
+  #panel.minimised .pbody { display: none; }
+  .phead { flex: none; height: var(--ph-h); display: flex; align-items: center; gap: 4px; padding: 0 6px 0 10px;
+           background: var(--head); border-bottom: 1px solid var(--rule); border-radius: 6px 6px 0 0; cursor: grab;
+           user-select: none; touch-action: none; }
+  #panel.maximised .phead { cursor: default; }
+  .phead.dragging { cursor: grabbing; }
+  .ptitle { font-weight: 700; margin-right: 8px; white-space: nowrap; }
+  .ptab { height: 28px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 5px; background: #fff; cursor: pointer;
+          display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .ptab[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  .ptab .gl { font-family: Consolas, monospace; letter-spacing: -1px; }
+  .pspace { flex: 1; }
+  .pbtn { width: 30px; height: 28px; border: 1px solid transparent; border-radius: 5px; background: none; cursor: pointer;
+          font-family: Consolas, monospace; font-size: 15px; }
+  .pbtn:hover { border-color: var(--plan-edge); background: #fff; }
+  .pbtn.ptext { font-family: inherit; font-weight: 700; width: auto; min-width: 30px; padding: 0 4px; }
+  .pbtn.ptext small { font-weight: 400; font-size: 11px; color: var(--ink2); margin-left: 2px; }
+  .pbody { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .psearch { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
+  .psearch input { flex: 1; min-width: 0; height: auto; font: inherit; font-size: var(--tfont); line-height: 1.3; padding: 4px 8px; border: 1px solid #9fb3cc; border-radius: 4px; }
+  .psearch input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  #hitcount { color: var(--ink2); white-space: nowrap; font-size: 13px; }
+  .twrap { flex: 1; min-height: 0; overflow: auto; }
+  table.st { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: var(--tfont); }
+  table.st th, table.st td { height: var(--trow); box-sizing: border-box; padding: 0 6px; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: #fff; }
+  table.st th { position: sticky; top: 0; z-index: 2; background: var(--head); text-align: left; font-weight: 700; padding-right: 2px; }
+  table.st .fz { position: sticky; z-index: 1; }
+  table.st th.fz { z-index: 3; }
+  table.st .fzlast { box-shadow: 2px 0 0 #9fb3cc; }
+  table.st tr:hover td { background: #f5f8fc; }
+  table.st td.jump { color: var(--accent); cursor: pointer; }
+  table.st td.jump:hover { text-decoration: underline; }
+  table.st td.jump.empty { color: var(--ink2); font-style: italic; }
+  table.st tr.cur td { background: #fdecea; }
+  .thin { display: flex; align-items: center; gap: 2px; }
+  .thin .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .fbtn { flex: none; width: 22px; height: 22px; border: 1px solid var(--rule); border-radius: 3px; background: #fff; cursor: pointer; padding: 0;
+          font-size: 11px; color: var(--ink2); }
+  .fbtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .sorti { flex: none; font-size: 12px; color: var(--accent); }
+  .rz { position: absolute; z-index: 11; touch-action: none; }
+  #panel:not(.normal) .rz { display: none; }
+  .rz.n, .rz.s { left: 0; right: 0; height: calc(var(--edge) * 2); cursor: ns-resize; }
+  .rz.n { top: calc(var(--edge) * -1); } .rz.s { bottom: calc(var(--edge) * -1); }
+  .rz.e, .rz.w { top: 0; bottom: 0; width: calc(var(--edge) * 2); cursor: ew-resize; }
+  .rz.e { right: calc(var(--edge) * -1); } .rz.w { left: calc(var(--edge) * -1); }
+  .rz.ne, .rz.nw, .rz.se, .rz.sw { width: calc(var(--edge) * 3); height: calc(var(--edge) * 3); z-index: 12; }
+  .rz.ne { top: calc(var(--edge) * -1); right: calc(var(--edge) * -1); cursor: nesw-resize; }
+  .rz.sw { bottom: calc(var(--edge) * -1); left: calc(var(--edge) * -1); cursor: nesw-resize; }
+  .rz.nw { top: calc(var(--edge) * -1); left: calc(var(--edge) * -1); cursor: nwse-resize; }
+  .rz.se { bottom: calc(var(--edge) * -1); right: calc(var(--edge) * -1); cursor: nwse-resize; }
+  body.show-edges .rz { background: rgba(232,163,61,.35); }
+  /* ---- filter popup ---- */
+  #fpop { position: fixed; z-index: 30; width: 280px; background: #fff; border: 1px solid #8fa3bd; border-radius: 6px;
+          box-shadow: var(--shadow); padding: 8px; font-size: 14px; }
+  #fpop[hidden] { display: none; }
+  #fpop .row2 { display: flex; gap: 6px; margin-bottom: 6px; }
+  #fpop .row2 button { flex: 1; height: 28px; border: 1px solid var(--rule); border-radius: 4px; background: #fff; cursor: pointer; }
+  #fpop .row2 button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+  #fpop input[type=search] { width: 100%; box-sizing: border-box; height: 28px; font: inherit; margin-bottom: 6px; padding: 0 6px; }
+  #fpop .list { max-height: 240px; overflow: auto; border: 1px solid var(--rule); border-radius: 4px; padding: 4px; }
+  #fpop .list label { display: flex; gap: 6px; align-items: center; padding: 1px 2px; white-space: nowrap; }
+  #fpop .list label span { overflow: hidden; text-overflow: ellipsis; }
+  #fpop .dates label { display: grid; grid-template-columns: 80px 1fr; gap: 6px; align-items: center; margin: 4px 0; }
+  #fpop .dates input { font: inherit; height: 28px; }
+  #fpop .ftitle { font-weight: 700; margin-bottom: 6px; }
+  /* ---- notification dialog ---- */
+  #modal { position: fixed; inset: 0; z-index: 50; background: rgba(20,30,50,.35); display: flex; align-items: center; justify-content: center; }
+  #modal[hidden] { display: none; }
+  #modal .dlg { background: #fff; border-radius: 8px; box-shadow: var(--shadow); padding: 18px 22px; max-width: 520px;
+                font-size: 16px; line-height: 1.7; }
+  #modal .dlg .acts { text-align: right; margin-top: 12px; }
+  #modal .dlg button { min-width: 88px; height: 32px; font: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header id="app-header">
+    <span class="brand" id="brand"></span>
+    <button class="hbtn" id="btn-fit" data-tip="fitTip">Fit</button>
+    <button class="hbtn" id="btn-search" aria-label="search">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 10 L14.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <span class="hsep"></span>
+    <span class="demo"><span data-w="zoom"></span>
+      <button class="hbtn" id="btn-zout">-</button><button class="hbtn" id="btn-zin">+</button></span>
+    <label class="demo"><span data-w="depth"></span>
+      <select id="sel-depth"><option value="1">1</option><option value="2" selected>2</option></select></label>
+    <button class="hbtn" id="btn-pinmany" data-w="pinMany"></button>
+    <button class="hbtn" id="btn-pinreset" data-w="pinReset"></button>
+    <span class="hsep"></span>
+    <span id="undo-ind"></span>
+    <button class="hbtn" id="btn-undo" data-w="undo"></button>
+    <span class="pspace"></span>
+    <details class="pop" id="sizes"><summary class="hbtn" data-w="sizes"></summary>
+      <div class="popbody sizes" id="sizes-body"></div></details>
+    <details class="pop"><summary class="hbtn" data-w="about"></summary>
+      <div class="popbody" id="about-body"></div></details>
+    <button class="hbtn" id="btn-lang">ja / en</button>
+  </header>
+  <div id="selbar"></div>
+  <main id="stage">
+    <div id="sched"><div id="content">
+      <div class="ruler" id="ruler"></div>
+      <div id="pinband"></div>
+      <div id="body"></div>
+      <div id="spacer"></div>
+    </div></div>
+    <section id="panel" hidden role="dialog" aria-modal="false" tabindex="-1">
+      <div class="phead" id="phead">
+        <span class="ptitle" data-w="panelName"></span>
+        <button class="ptab" id="tab-task" aria-pressed="true"><span class="gl">===</span><span data-w="tabTasks"></span></button>
+        <button class="ptab" id="tab-comment" aria-pressed="false">
+          <svg viewBox="0 0 16 14" width="15" height="13" aria-hidden="true"><path d="M1 1 H15 V9 H7 L3 13 V9 H1 Z" fill="#fff4bf" stroke="#946200" stroke-width="1.2"/></svg>
+          <span data-w="tabComments"></span></button>
+        <span class="pspace"></span>
+        <button class="pbtn ptext" id="p-font">A<small id="p-font-px"></small></button>
+        <button class="pbtn" id="p-min">-</button>
+        <button class="pbtn" id="p-max">&#9633;</button>
+        <button class="pbtn" id="p-close">X</button>
+      </div>
+      <div class="pbody">
+        <div class="psearch">
+          <input type="search" id="word" autocomplete="off" spellcheck="false">
+          <span id="hitcount"></span>
+        </div>
+        <div class="twrap" id="twrap" tabindex="-1"></div>
+      </div>
+      <div class="rz n" data-d="n"></div><div class="rz s" data-d="s"></div><div class="rz e" data-d="e"></div><div class="rz w" data-d="w"></div>
+      <div class="rz ne" data-d="ne"></div><div class="rz nw" data-d="nw"></div><div class="rz se" data-d="se"></div><div class="rz sw" data-d="sw"></div>
+    </section>
+  </main>
+</div>
+<div id="fpop" hidden></div>
+<div id="modal" hidden><div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="modal-msg">
+  <div id="modal-msg"></div><div class="acts"><button id="modal-ok">OK</button></div></div></div>
+
+<script>
+/* Embedded data: extracted from sample-schedule/sample-large-erp-program.ja.xml (MSPDI) by a script. */
+const DATA = {"title":"基幹システム(ERP)刷新プログラム","start":"2025-10-01","finish":"2028-02-02","status":"2026-08-26","rows":[{"uid":1,"name":"1. プログラム管理","parent":0,"level":1},{"uid":6,"name":"1.5 ステアリングコミッティ","parent":1,"level":2},{"uid":16,"name":"2. プログラム構想・立ち上げ","parent":0,"level":1},{"uid":28,"name":"3. 技術基盤・インフラ","parent":0,"level":1},{"uid":46,"name":"4. 業務設計(ブループリント)","parent":0,"level":1},{"uid":48,"name":"業務設計 - 財務・管理会計","parent":46,"level":2},{"uid":55,"name":"業務設計 - 購買・在庫管理","parent":46,"level":2},{"uid":62,"name":"業務設計 - 生産管理","parent":46,"level":2},{"uid":69,"name":"業務設計 - 販売・物流","parent":46,"level":2},{"uid":78,"name":"5. 構築(リアライゼーション)","parent":0,"level":1},{"uid":79,"name":"構築 - 財務・管理会計","parent":78,"level":2},{"uid":90,"name":"構築 - 購買・在庫管理","parent":78,"level":2},{"uid":101,"name":"構築 - 生産管理","parent":78,"level":2},{"uid":112,"name":"構築 - 販売・物流","parent":78,"level":2},{"uid":123,"name":"6. インターフェース・連携","parent":0,"level":1},{"uid":125,"name":"銀行決済 連携","parent":123,"level":2},{"uid":129,"name":"仕入先 EDI 連携","parent":123,"level":2},{"uid":133,"name":"倉庫管理(WMS) 連携","parent":123,"level":2},{"uid":137,"name":"製造実行(MES) 連携","parent":123,"level":2},{"uid":141,"name":"CRM 連携","parent":123,"level":2},{"uid":145,"name":"BI・連結会計 連携","parent":123,"level":2},{"uid":150,"name":"7. データ移行","parent":0,"level":1},{"uid":153,"name":"移行対象 - 得意先マスタ","parent":150,"level":2},{"uid":156,"name":"移行対象 - 仕入先マスタ","parent":150,"level":2},{"uid":159,"name":"移行対象 - 品目マスタ","parent":150,"level":2},{"uid":162,"name":"移行対象 - 部品表・工順","parent":150,"level":2},{"uid":165,"name":"移行対象 - 未処理 受発注データ","parent":150,"level":2},{"uid":168,"name":"移行対象 - 総勘定元帳 残高","parent":150,"level":2},{"uid":171,"name":"移行対象 - 固定資産","parent":150,"level":2},{"uid":181,"name":"8. 統合テスト","parent":0,"level":1},{"uid":182,"name":"8.1 システム統合テスト(SIT)","parent":181,"level":2},{"uid":192,"name":"8.2 性能・セキュリティテスト","parent":181,"level":2},{"uid":200,"name":"8.3 受入テスト(UAT)","parent":181,"level":2},{"uid":208,"name":"9. 組織変革・教育","parent":0,"level":1},{"uid":227,"name":"10. 移行・稼働 第 1 波(財務・購買)","parent":0,"level":1},{"uid":238,"name":"11. 移行・稼働 第 2 波(生産・販売)","parent":0,"level":1},{"uid":248,"name":"12. プログラム完了","parent":0,"level":1}],"tasks":[{"uid":2,"name":"PMO 立ち上げ・ガバナンス定義","row":1,"start":"2025-10-01","finish":"2025-10-15","ms":false,"as":"2025-10-01","af":"2025-10-15","resume":null,"rv":true,"who":["天野 茂","菊池 理恵","横田 圭"]},{"uid":3,"name":"プログラム マスタスケジュール策定","row":1,"start":"2025-10-16","finish":"2025-11-06","ms":false,"as":"2025-10-16","af":"2025-11-06","resume":null,"rv":true,"who":["天野 茂","菊池 理恵"]},{"uid":4,"name":"リスク・課題管理 整備","row":1,"start":"2025-10-16","finish":"2025-10-27","ms":false,"as":"2025-10-16","af":"2025-10-27","resume":null,"rv":true,"who":["菊池 理恵","横田 圭"]},{"uid":5,"name":"品質管理計画 策定","row":1,"start":"2025-10-16","finish":"2025-10-27","ms":false,"as":"2025-10-16","af":"2025-10-27","resume":null,"rv":true,"who":["菊池 理恵","永井 千秋"]},{"uid":7,"name":"ステアリングコミッティ 第 1 回","row":6,"start":"2025-11-14","finish":"2025-11-14","ms":false,"as":"2025-11-14","af":"2025-11-14","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":8,"name":"ステアリングコミッティ 第 2 回","row":6,"start":"2026-02-13","finish":"2026-02-13","ms":false,"as":"2026-02-13","af":"2026-02-13","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":9,"name":"ステアリングコミッティ 第 3 回","row":6,"start":"2026-05-15","finish":"2026-05-15","ms":false,"as":"2026-05-15","af":"2026-05-15","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":10,"name":"ステアリングコミッティ 第 4 回","row":6,"start":"2026-08-17","finish":"2026-08-17","ms":false,"as":"2026-08-17","af":"2026-08-17","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":11,"name":"ステアリングコミッティ 第 5 回","row":6,"start":"2026-11-13","finish":"2026-11-13","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":12,"name":"ステアリングコミッティ 第 6 回","row":6,"start":"2027-02-12","finish":"2027-02-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":13,"name":"ステアリングコミッティ 第 7 回","row":6,"start":"2027-05-14","finish":"2027-05-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":14,"name":"ステアリングコミッティ 第 8 回","row":6,"start":"2027-08-16","finish":"2027-08-16","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":15,"name":"ステアリングコミッティ 第 9 回","row":6,"start":"2027-11-12","finish":"2027-11-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹"]},{"uid":17,"name":"投資対効果(ビジネスケース) 検証","row":16,"start":"2025-10-01","finish":"2025-10-22","ms":false,"as":"2025-10-01","af":"2025-10-22","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹"]},{"uid":18,"name":"プログラム スコープ定義","row":16,"start":"2025-10-23","finish":"2025-11-06","ms":false,"as":"2025-10-23","af":"2025-11-06","resume":null,"rv":true,"who":["天野 茂","杉山 徹"]},{"uid":19,"name":"パッケージ適合性評価","row":16,"start":"2025-11-07","finish":"2025-11-28","ms":false,"as":"2025-11-07","af":"2025-11-28","resume":null,"rv":true,"who":["杉山 徹","小野寺 正樹"]},{"uid":20,"name":"RFP 作成・発行","row":16,"start":"2025-12-01","finish":"2025-12-19","ms":false,"as":"2025-12-01","af":"2025-12-19","resume":null,"rv":true,"who":["天野 茂","杉山 徹","菊池 理恵"]},{"uid":21,"name":"提案評価・ベンダー選定","row":16,"start":"2025-12-22","finish":"2026-01-26","ms":false,"as":"2025-12-22","af":"2026-01-26","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹","小野寺 正樹"]},{"uid":22,"name":"契約交渉","row":16,"start":"2026-01-27","finish":"2026-02-26","ms":false,"as":"2026-01-27","af":"2026-02-26","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂"]},{"uid":23,"name":"契約 締結","row":16,"start":"2026-02-26","finish":"2026-02-26","ms":true,"as":"2026-02-26","af":"2026-02-26","resume":null,"rv":true,"who":["SI パートナー 一括請負費"]},{"uid":24,"name":"ERP ライセンス調達","row":16,"start":"2026-02-27","finish":"2026-03-12","ms":false,"as":"2026-02-27","af":"2026-03-12","resume":null,"rv":true,"who":["杉山 徹","ERP ソフトウェア ライセンス費"]},{"uid":25,"name":"体制立ち上げ・要員確保","row":16,"start":"2026-02-27","finish":"2026-03-19","ms":false,"as":"2026-02-27","af":"2026-03-19","resume":null,"rv":true,"who":["天野 茂","菊池 理恵","杉山 徹"]},{"uid":26,"name":"プログラム キックオフ","row":16,"start":"2026-03-23","finish":"2026-03-24","ms":false,"as":"2026-03-23","af":"2026-03-24","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","杉山 徹","小野寺 正樹","岡崎 蓮 (SI パートナー)","出張・旅費"]},{"uid":27,"name":"プログラム開始","row":16,"start":"2026-03-24","finish":"2026-03-24","ms":true,"as":"2026-03-24","af":"2026-03-24","resume":null,"rv":true,"who":[]},{"uid":29,"name":"技術方式設計","row":28,"start":"2026-03-25","finish":"2026-04-21","ms":false,"as":"2026-03-25","af":"2026-04-21","resume":null,"rv":true,"who":["小野寺 正樹","岡崎 蓮 (SI パートナー)","杉山 徹"]},{"uid":30,"name":"サイジング・容量設計","row":28,"start":"2026-04-22","finish":"2026-05-11","ms":false,"as":"2026-04-22","af":"2026-05-11","resume":null,"rv":true,"who":["小野寺 正樹","谷川 治"]},{"uid":31,"name":"ネットワーク・WAN 設計","row":28,"start":"2026-04-22","finish":"2026-05-13","ms":false,"as":"2026-04-22","af":"2026-05-13","resume":null,"rv":true,"who":["瀬川 俊樹"]},{"uid":32,"name":"セキュリティ・権限方針策定","row":28,"start":"2026-04-22","finish":"2026-05-18","ms":false,"as":"2026-04-22","af":"2026-05-18","resume":null,"rv":true,"who":["冨田 塁","金子 陽菜","小野寺 正樹"]},{"uid":33,"name":"ハードウェア・クラウド調達","row":28,"start":"2026-05-12","finish":"2026-06-15","ms":false,"as":"2026-05-12","af":"2026-06-15","resume":null,"rv":true,"who":["谷川 治","杉山 徹","ハードウェア・クラウド基盤費"]},{"uid":34,"name":"サンドボックス環境構築","row":28,"start":"2026-04-22","finish":"2026-05-11","ms":false,"as":"2026-04-22","af":"2026-05-11","resume":null,"rv":true,"who":["谷川 治","福井 奏"]},{"uid":35,"name":"開発環境 構築","row":28,"start":"2026-06-16","finish":"2026-07-01","ms":false,"as":"2026-06-16","af":"2026-07-01","resume":null,"rv":true,"who":["谷川 治","福井 奏"]},{"uid":36,"name":"品質保証(QA)環境 構築","row":28,"start":"2026-07-02","finish":"2026-07-17","ms":false,"as":"2026-07-02","af":"2026-07-17","resume":null,"rv":true,"who":["福井 奏","岡崎 蓮 (SI パートナー)"]},{"uid":37,"name":"本番環境 構築","row":28,"start":"2026-07-21","finish":"2026-08-18","ms":false,"as":"2026-07-21","af":"2026-08-18","resume":null,"rv":true,"who":["谷川 治","福井 奏","岡崎 蓮 (SI パートナー)"]},{"uid":38,"name":"DR サイト構築","row":28,"start":"2026-08-19","finish":"2026-09-08","ms":false,"as":"2026-08-19","af":null,"resume":null,"rv":true,"who":["谷川 治","瀬川 俊樹"]},{"uid":39,"name":"移送経路・変更管理 設定","row":28,"start":"2026-07-21","finish":"2026-07-28","ms":false,"as":"2026-07-21","af":"2026-07-28","resume":null,"rv":true,"who":["福井 奏"]},{"uid":40,"name":"バックアップ・リストア設計","row":28,"start":"2026-07-28","finish":"2026-08-06","ms":false,"as":"2026-07-28","af":"2026-08-06","resume":null,"rv":true,"who":["谷川 治"]},{"uid":41,"name":"システム監視 設定","row":28,"start":"2026-08-19","finish":"2026-08-28","ms":false,"as":"2026-08-19","af":null,"resume":null,"rv":true,"who":["福井 奏","瀬川 俊樹"]},{"uid":42,"name":"ID 管理基盤 連携","row":28,"start":"2026-07-21","finish":"2026-08-03","ms":false,"as":"2026-07-21","af":"2026-08-03","resume":null,"rv":true,"who":["金子 陽菜","福井 奏"]},{"uid":43,"name":"セキュリティ ハードニング","row":28,"start":"2026-08-19","finish":"2026-09-01","ms":false,"as":"2026-08-19","af":null,"resume":null,"rv":true,"who":["冨田 塁","谷川 治"]},{"uid":44,"name":"性能ベースライン測定","row":28,"start":"2026-09-02","finish":"2026-09-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["谷川 治","岡崎 蓮 (SI パートナー)"]},{"uid":45,"name":"技術基盤 準備完了","row":28,"start":"2026-09-09","finish":"2026-09-09","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":47,"name":"ブループリント準備・ワークショップ計画","row":46,"start":"2026-03-25","finish":"2026-04-03","ms":false,"as":"2026-03-25","af":"2026-04-03","resume":null,"rv":true,"who":["天野 茂","岡崎 蓮 (SI パートナー)","横田 圭"]},{"uid":49,"name":"現行業務の可視化 - 財務・管理会計","row":48,"start":"2026-04-06","finish":"2026-04-21","ms":false,"as":"2026-04-06","af":"2026-04-21","resume":null,"rv":true,"who":["伊藤 直子","経理部 キーユーザー","馬場 敏夫 (SI パートナー)"]},{"uid":50,"name":"Fit&Gap ワークショップ - 財務・管理会計","row":48,"start":"2026-04-22","finish":"2026-05-18","ms":false,"as":"2026-04-22","af":"2026-05-18","resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","伊藤 直子","経理部 キーユーザー","出張・旅費"]},{"uid":51,"name":"To-Be 業務設計 - 財務・管理会計","row":48,"start":"2026-05-19","finish":"2026-06-08","ms":false,"as":"2026-05-19","af":"2026-06-08","resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","伊藤 直子","経理部 キーユーザー"]},{"uid":52,"name":"ギャップ対応方針 決定 - 財務・管理会計","row":48,"start":"2026-06-09","finish":"2026-06-16","ms":false,"as":"2026-06-09","af":"2026-06-16","resume":null,"rv":true,"who":["伊藤 直子","小野寺 正樹","杉山 徹"]},{"uid":53,"name":"ブループリント文書化 - 財務・管理会計","row":48,"start":"2026-06-17","finish":"2026-06-30","ms":false,"as":"2026-06-17","af":"2026-06-30","resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","伊藤 直子","横田 圭"]},{"uid":54,"name":"ブループリント承認 - 財務・管理会計","row":48,"start":"2026-06-30","finish":"2026-06-30","ms":true,"as":"2026-06-30","af":"2026-06-30","resume":null,"rv":true,"who":[]},{"uid":56,"name":"現行業務の可視化 - 購買・在庫管理","row":55,"start":"2026-04-06","finish":"2026-04-21","ms":false,"as":"2026-04-06","af":"2026-04-21","resume":null,"rv":true,"who":["村上 仁","調達部 キーユーザー","栗原 芽衣 (SI パートナー)"]},{"uid":57,"name":"Fit&Gap ワークショップ - 購買・在庫管理","row":55,"start":"2026-04-22","finish":"2026-05-18","ms":false,"as":"2026-04-22","af":"2026-05-18","resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","村上 仁","調達部 キーユーザー","出張・旅費"]},{"uid":58,"name":"To-Be 業務設計 - 購買・在庫管理","row":55,"start":"2026-05-19","finish":"2026-06-08","ms":false,"as":"2026-05-19","af":"2026-06-08","resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","村上 仁","調達部 キーユーザー"]},{"uid":59,"name":"ギャップ対応方針 決定 - 購買・在庫管理","row":55,"start":"2026-06-09","finish":"2026-06-16","ms":false,"as":"2026-06-09","af":"2026-06-16","resume":null,"rv":true,"who":["村上 仁","小野寺 正樹","杉山 徹"]},{"uid":60,"name":"ブループリント文書化 - 購買・在庫管理","row":55,"start":"2026-06-17","finish":"2026-06-30","ms":false,"as":"2026-06-17","af":"2026-06-30","resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","村上 仁","横田 圭"]},{"uid":61,"name":"ブループリント承認 - 購買・在庫管理","row":55,"start":"2026-06-30","finish":"2026-06-30","ms":true,"as":"2026-06-30","af":"2026-06-30","resume":null,"rv":true,"who":[]},{"uid":63,"name":"現行業務の可視化 - 生産管理","row":62,"start":"2026-04-06","finish":"2026-04-21","ms":false,"as":"2026-04-06","af":"2026-04-21","resume":null,"rv":true,"who":["神田 翔平","生産管理部 キーユーザー","園田 匠 (SI パートナー)"]},{"uid":64,"name":"Fit&Gap ワークショップ - 生産管理","row":62,"start":"2026-04-22","finish":"2026-05-18","ms":false,"as":"2026-04-22","af":"2026-05-18","resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","神田 翔平","生産管理部 キーユーザー","出張・旅費"]},{"uid":65,"name":"To-Be 業務設計 - 生産管理","row":62,"start":"2026-05-19","finish":"2026-06-08","ms":false,"as":"2026-05-19","af":"2026-06-08","resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","神田 翔平","生産管理部 キーユーザー"]},{"uid":66,"name":"ギャップ対応方針 決定 - 生産管理","row":62,"start":"2026-06-09","finish":"2026-06-16","ms":false,"as":"2026-06-09","af":"2026-06-16","resume":null,"rv":true,"who":["神田 翔平","小野寺 正樹","杉山 徹"]},{"uid":67,"name":"ブループリント文書化 - 生産管理","row":62,"start":"2026-06-17","finish":"2026-07-03","ms":false,"as":"2026-06-17","af":"2026-07-03","resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","神田 翔平","横田 圭"]},{"uid":68,"name":"ブループリント承認 - 生産管理","row":62,"start":"2026-07-03","finish":"2026-07-03","ms":true,"as":"2026-07-03","af":"2026-07-03","resume":null,"rv":true,"who":[]},{"uid":70,"name":"現行業務の可視化 - 販売・物流","row":69,"start":"2026-04-06","finish":"2026-04-21","ms":false,"as":"2026-04-06","af":"2026-04-21","resume":null,"rv":true,"who":["山下 亜紀","営業部 キーユーザー","半田 有里 (SI パートナー)"]},{"uid":71,"name":"Fit&Gap ワークショップ - 販売・物流","row":69,"start":"2026-04-22","finish":"2026-05-18","ms":false,"as":"2026-04-22","af":"2026-05-18","resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","山下 亜紀","営業部 キーユーザー","出張・旅費"]},{"uid":72,"name":"To-Be 業務設計 - 販売・物流","row":69,"start":"2026-05-19","finish":"2026-06-08","ms":false,"as":"2026-05-19","af":"2026-06-08","resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","山下 亜紀","営業部 キーユーザー"]},{"uid":73,"name":"ギャップ対応方針 決定 - 販売・物流","row":69,"start":"2026-06-09","finish":"2026-06-16","ms":false,"as":"2026-06-09","af":"2026-06-16","resume":null,"rv":true,"who":["山下 亜紀","小野寺 正樹","杉山 徹"]},{"uid":74,"name":"ブループリント文書化 - 販売・物流","row":69,"start":"2026-06-17","finish":"2026-07-03","ms":false,"as":"2026-06-17","af":"2026-07-03","resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","山下 亜紀","横田 圭"]},{"uid":75,"name":"ブループリント承認 - 販売・物流","row":69,"start":"2026-07-03","finish":"2026-07-03","ms":true,"as":"2026-07-03","af":"2026-07-03","resume":null,"rv":true,"who":[]},{"uid":76,"name":"ブループリント 品質ゲート","row":46,"start":"2026-07-03","finish":"2026-07-10","ms":false,"as":"2026-07-03","af":"2026-07-10","resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","菊池 理恵","小野寺 正樹"]},{"uid":77,"name":"業務設計フェーズ 完了","row":46,"start":"2026-07-10","finish":"2026-07-10","ms":true,"as":"2026-07-10","af":"2026-07-10","resume":null,"rv":true,"who":[]},{"uid":80,"name":"ベースライン設定 - 財務・管理会計","row":79,"start":"2026-09-10","finish":"2026-10-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","伊藤 直子"]},{"uid":81,"name":"マスタデータ設計 - 財務・管理会計","row":79,"start":"2026-09-17","finish":"2026-10-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["伊藤 直子","経理部 キーユーザー","星野 香織"]},{"uid":82,"name":"権限ロール設計 - 財務・管理会計","row":79,"start":"2026-10-13","finish":"2026-10-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["金子 陽菜","伊藤 直子","馬場 敏夫 (SI パートナー)"]},{"uid":83,"name":"詳細設定(コンフィグ) - 財務・管理会計","row":79,"start":"2026-10-13","finish":"2026-11-25","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","伊藤 直子","経理部 キーユーザー"]},{"uid":84,"name":"アドオン仕様書 作成 - 財務・管理会計","row":79,"start":"2026-07-01","finish":"2026-07-22","ms":false,"as":"2026-07-01","af":"2026-07-22","resume":null,"rv":true,"who":["馬場 敏夫 (SI パートナー)","青木 颯太","伊藤 直子"]},{"uid":85,"name":"アドオン開発 - 財務・管理会計","row":79,"start":"2026-07-23","finish":"2026-09-15","ms":false,"as":"2026-07-23","af":null,"resume":null,"rv":true,"who":["青木 颯太","池田 七海"]},{"uid":86,"name":"単体テスト - 財務・管理会計","row":79,"start":"2026-08-25","finish":"2026-09-09","ms":false,"as":"2026-08-25","af":null,"resume":null,"rv":true,"who":["池田 七海","寺田 悠真"]},{"uid":87,"name":"プレイバック(業務確認会) - 財務・管理会計","row":79,"start":"2026-11-26","finish":"2026-12-01","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["伊藤 直子","経理部 キーユーザー","馬場 敏夫 (SI パートナー)"]},{"uid":88,"name":"モジュール結合テスト - 財務・管理会計","row":79,"start":"2026-12-02","finish":"2026-12-22","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["寺田 悠真","伊藤 直子","馬場 敏夫 (SI パートナー)"]},{"uid":89,"name":"モジュール構築完了 - 財務・管理会計","row":79,"start":"2026-12-22","finish":"2026-12-22","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":91,"name":"ベースライン設定 - 購買・在庫管理","row":90,"start":"2026-09-10","finish":"2026-10-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","村上 仁"]},{"uid":92,"name":"マスタデータ設計 - 購買・在庫管理","row":90,"start":"2026-09-17","finish":"2026-10-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["村上 仁","調達部 キーユーザー","星野 香織"]},{"uid":93,"name":"権限ロール設計 - 購買・在庫管理","row":90,"start":"2026-10-13","finish":"2026-10-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["金子 陽菜","村上 仁","栗原 芽衣 (SI パートナー)"]},{"uid":94,"name":"詳細設定(コンフィグ) - 購買・在庫管理","row":90,"start":"2026-10-13","finish":"2026-11-17","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","村上 仁","調達部 キーユーザー"]},{"uid":95,"name":"アドオン仕様書 作成 - 購買・在庫管理","row":90,"start":"2026-07-01","finish":"2026-07-22","ms":false,"as":"2026-07-01","af":"2026-07-22","resume":null,"rv":true,"who":["栗原 芽衣 (SI パートナー)","内田 康平","村上 仁"]},{"uid":96,"name":"アドオン開発 - 購買・在庫管理","row":90,"start":"2026-07-23","finish":"2026-09-07","ms":false,"as":"2026-07-23","af":null,"resume":null,"rv":true,"who":["内田 康平","榎本 澪"]},{"uid":97,"name":"単体テスト - 購買・在庫管理","row":90,"start":"2026-08-25","finish":"2026-09-09","ms":false,"as":"2026-08-25","af":null,"resume":null,"rv":true,"who":["榎本 澪","寺田 悠真"]},{"uid":98,"name":"プレイバック(業務確認会) - 購買・在庫管理","row":90,"start":"2026-11-18","finish":"2026-11-24","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["村上 仁","調達部 キーユーザー","栗原 芽衣 (SI パートナー)"]},{"uid":99,"name":"モジュール結合テスト - 購買・在庫管理","row":90,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["寺田 悠真","村上 仁","栗原 芽衣 (SI パートナー)"]},{"uid":100,"name":"モジュール構築完了 - 購買・在庫管理","row":90,"start":"2026-12-15","finish":"2026-12-15","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":102,"name":"ベースライン設定 - 生産管理","row":101,"start":"2026-09-10","finish":"2026-10-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","神田 翔平"]},{"uid":103,"name":"マスタデータ設計 - 生産管理","row":101,"start":"2026-09-17","finish":"2026-10-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["神田 翔平","生産管理部 キーユーザー","星野 香織"]},{"uid":104,"name":"権限ロール設計 - 生産管理","row":101,"start":"2026-10-13","finish":"2026-10-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["金子 陽菜","神田 翔平","園田 匠 (SI パートナー)"]},{"uid":105,"name":"詳細設定(コンフィグ) - 生産管理","row":101,"start":"2026-10-13","finish":"2026-11-17","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","神田 翔平","生産管理部 キーユーザー"]},{"uid":106,"name":"アドオン仕様書 作成 - 生産管理","row":101,"start":"2026-07-03","finish":"2026-07-27","ms":false,"as":"2026-07-03","af":"2026-07-27","resume":null,"rv":true,"who":["園田 匠 (SI パートナー)","岡本 陸","神田 翔平"]},{"uid":107,"name":"アドオン開発 - 生産管理","row":101,"start":"2026-07-27","finish":"2026-09-10","ms":false,"as":"2026-07-27","af":null,"resume":null,"rv":true,"who":["岡本 陸","柏木 冴"]},{"uid":108,"name":"単体テスト - 生産管理","row":101,"start":"2026-08-27","finish":"2026-09-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["柏木 冴","寺田 悠真"]},{"uid":109,"name":"プレイバック(業務確認会) - 生産管理","row":101,"start":"2026-11-18","finish":"2026-11-24","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["神田 翔平","生産管理部 キーユーザー","園田 匠 (SI パートナー)"]},{"uid":110,"name":"モジュール結合テスト - 生産管理","row":101,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["寺田 悠真","神田 翔平","園田 匠 (SI パートナー)"]},{"uid":111,"name":"モジュール構築完了 - 生産管理","row":101,"start":"2026-12-15","finish":"2026-12-15","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":113,"name":"ベースライン設定 - 販売・物流","row":112,"start":"2026-09-10","finish":"2026-10-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","山下 亜紀"]},{"uid":114,"name":"マスタデータ設計 - 販売・物流","row":112,"start":"2026-09-17","finish":"2026-10-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["山下 亜紀","営業部 キーユーザー","星野 香織"]},{"uid":115,"name":"権限ロール設計 - 販売・物流","row":112,"start":"2026-10-13","finish":"2026-10-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["金子 陽菜","山下 亜紀","半田 有里 (SI パートナー)"]},{"uid":116,"name":"詳細設定(コンフィグ) - 販売・物流","row":112,"start":"2026-10-13","finish":"2026-11-17","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","山下 亜紀","営業部 キーユーザー"]},{"uid":117,"name":"アドオン仕様書 作成 - 販売・物流","row":112,"start":"2026-07-03","finish":"2026-07-27","ms":false,"as":"2026-07-03","af":"2026-07-27","resume":null,"rv":true,"who":["半田 有里 (SI パートナー)","黒田 大和","山下 亜紀"]},{"uid":118,"name":"アドオン開発 - 販売・物流","row":112,"start":"2026-07-27","finish":"2026-09-10","ms":false,"as":"2026-07-27","af":null,"resume":null,"rv":true,"who":["黒田 大和","佐々木 陽菜"]},{"uid":119,"name":"単体テスト - 販売・物流","row":112,"start":"2026-08-27","finish":"2026-09-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["佐々木 陽菜","寺田 悠真"]},{"uid":120,"name":"プレイバック(業務確認会) - 販売・物流","row":112,"start":"2026-11-18","finish":"2026-11-24","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["山下 亜紀","営業部 キーユーザー","半田 有里 (SI パートナー)"]},{"uid":121,"name":"モジュール結合テスト - 販売・物流","row":112,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["寺田 悠真","山下 亜紀","半田 有里 (SI パートナー)"]},{"uid":122,"name":"モジュール構築完了 - 販売・物流","row":112,"start":"2026-12-15","finish":"2026-12-15","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":124,"name":"連携一覧・方式整理","row":123,"start":"2026-04-22","finish":"2026-05-11","ms":false,"as":"2026-04-22","af":"2026-05-11","resume":null,"rv":true,"who":["小野寺 正樹","岡崎 蓮 (SI パートナー)"]},{"uid":126,"name":"連携仕様設計 - 銀行決済 連携","row":125,"start":"2026-07-01","finish":"2026-07-10","ms":false,"as":"2026-07-01","af":"2026-07-10","resume":null,"rv":true,"who":["小野寺 正樹","青木 颯太","伊藤 直子"]},{"uid":127,"name":"連携開発 - 銀行決済 連携","row":125,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["青木 颯太","岡崎 蓮 (SI パートナー)"]},{"uid":128,"name":"連携疎通テスト - 銀行決済 連携","row":125,"start":"2026-11-26","finish":"2026-12-07","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["青木 颯太","寺田 悠真"]},{"uid":130,"name":"連携仕様設計 - 仕入先 EDI 連携","row":129,"start":"2026-07-01","finish":"2026-07-10","ms":false,"as":"2026-07-01","af":"2026-07-10","resume":null,"rv":true,"who":["小野寺 正樹","内田 康平","村上 仁"]},{"uid":131,"name":"連携開発 - 仕入先 EDI 連携","row":129,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["内田 康平","岡崎 蓮 (SI パートナー)"]},{"uid":132,"name":"連携疎通テスト - 仕入先 EDI 連携","row":129,"start":"2026-11-18","finish":"2026-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["内田 康平","野村 茜"]},{"uid":134,"name":"連携仕様設計 - 倉庫管理(WMS) 連携","row":133,"start":"2026-07-01","finish":"2026-07-10","ms":false,"as":"2026-07-01","af":"2026-07-10","resume":null,"rv":true,"who":["小野寺 正樹","榎本 澪","村上 仁"]},{"uid":135,"name":"連携開発 - 倉庫管理(WMS) 連携","row":133,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["榎本 澪","岡崎 蓮 (SI パートナー)"]},{"uid":136,"name":"連携疎通テスト - 倉庫管理(WMS) 連携","row":133,"start":"2026-11-18","finish":"2026-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["榎本 澪","平井 翼"]},{"uid":138,"name":"連携仕様設計 - 製造実行(MES) 連携","row":137,"start":"2026-07-03","finish":"2026-07-15","ms":false,"as":"2026-07-03","af":"2026-07-15","resume":null,"rv":true,"who":["小野寺 正樹","柏木 冴","神田 翔平"]},{"uid":139,"name":"連携開発 - 製造実行(MES) 連携","row":137,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["柏木 冴","岡崎 蓮 (SI パートナー)"]},{"uid":140,"name":"連携疎通テスト - 製造実行(MES) 連携","row":137,"start":"2026-11-18","finish":"2026-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["柏木 冴","寺田 悠真"]},{"uid":142,"name":"連携仕様設計 - CRM 連携","row":141,"start":"2026-07-03","finish":"2026-07-15","ms":false,"as":"2026-07-03","af":"2026-07-15","resume":null,"rv":true,"who":["小野寺 正樹","黒田 大和","山下 亜紀"]},{"uid":143,"name":"連携開発 - CRM 連携","row":141,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["黒田 大和","岡崎 蓮 (SI パートナー)"]},{"uid":144,"name":"連携疎通テスト - CRM 連携","row":141,"start":"2026-11-18","finish":"2026-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["黒田 大和","野村 茜"]},{"uid":146,"name":"連携仕様設計 - BI・連結会計 連携","row":145,"start":"2026-07-01","finish":"2026-07-10","ms":false,"as":"2026-07-01","af":"2026-07-10","resume":null,"rv":true,"who":["小野寺 正樹","池田 七海","伊藤 直子"]},{"uid":147,"name":"連携開発 - BI・連結会計 連携","row":145,"start":"2026-10-13","finish":"2026-11-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["池田 七海","岡崎 蓮 (SI パートナー)"]},{"uid":148,"name":"連携疎通テスト - BI・連結会計 連携","row":145,"start":"2026-11-26","finish":"2026-12-07","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["池田 七海","平井 翼"]},{"uid":149,"name":"連携 構築完了","row":123,"start":"2026-12-07","finish":"2026-12-07","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":151,"name":"データ移行方針策定","row":150,"start":"2026-03-25","finish":"2026-04-09","ms":false,"as":"2026-03-25","af":"2026-04-09","resume":null,"rv":true,"who":["星野 香織","小野寺 正樹","杉山 徹"]},{"uid":152,"name":"移行ツール・基盤 構築","row":150,"start":"2026-07-02","finish":"2026-07-30","ms":false,"as":"2026-07-02","af":"2026-07-30","resume":null,"rv":true,"who":["真鍋 徹","若林 翔"]},{"uid":154,"name":"マッピング・抽出 - 得意先マスタ","row":153,"start":"2026-04-10","finish":"2026-04-23","ms":false,"as":"2026-04-10","af":"2026-04-23","resume":null,"rv":true,"who":["真鍋 徹","営業部 キーユーザー"]},{"uid":155,"name":"投入・検証 - 得意先マスタ","row":153,"start":"2026-07-31","finish":"2026-08-12","ms":false,"as":"2026-07-31","af":"2026-08-12","resume":null,"rv":true,"who":["真鍋 徹","星野 香織"]},{"uid":157,"name":"マッピング・抽出 - 仕入先マスタ","row":156,"start":"2026-04-10","finish":"2026-04-23","ms":false,"as":"2026-04-10","af":"2026-04-23","resume":null,"rv":true,"who":["八木 望","調達部 キーユーザー"]},{"uid":158,"name":"投入・検証 - 仕入先マスタ","row":156,"start":"2026-07-31","finish":"2026-08-12","ms":false,"as":"2026-07-31","af":"2026-08-12","resume":null,"rv":true,"who":["八木 望","星野 香織"]},{"uid":160,"name":"マッピング・抽出 - 品目マスタ","row":159,"start":"2026-04-10","finish":"2026-04-23","ms":false,"as":"2026-04-10","af":"2026-04-23","resume":null,"rv":true,"who":["若林 翔","生産管理部 キーユーザー"]},{"uid":161,"name":"投入・検証 - 品目マスタ","row":159,"start":"2026-07-31","finish":"2026-08-12","ms":false,"as":"2026-07-31","af":"2026-08-12","resume":null,"rv":true,"who":["若林 翔","星野 香織"]},{"uid":163,"name":"マッピング・抽出 - 部品表・工順","row":162,"start":"2026-08-17","finish":"2026-08-28","ms":false,"as":"2026-08-17","af":null,"resume":null,"rv":true,"who":["真鍋 徹","生産管理部 キーユーザー"]},{"uid":164,"name":"投入・検証 - 部品表・工順","row":162,"start":"2026-08-31","finish":"2026-09-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["真鍋 徹","星野 香織"]},{"uid":166,"name":"マッピング・抽出 - 未処理 受発注データ","row":165,"start":"2026-08-17","finish":"2026-08-28","ms":false,"as":"2026-08-17","af":null,"resume":null,"rv":true,"who":["八木 望","営業部 キーユーザー"]},{"uid":167,"name":"投入・検証 - 未処理 受発注データ","row":165,"start":"2026-08-31","finish":"2026-09-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["八木 望","星野 香織"]},{"uid":169,"name":"マッピング・抽出 - 総勘定元帳 残高","row":168,"start":"2026-08-17","finish":"2026-08-28","ms":false,"as":"2026-08-17","af":null,"resume":null,"rv":true,"who":["若林 翔","経理部 キーユーザー"]},{"uid":170,"name":"投入・検証 - 総勘定元帳 残高","row":168,"start":"2026-08-31","finish":"2026-09-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["若林 翔","星野 香織"]},{"uid":172,"name":"マッピング・抽出 - 固定資産","row":171,"start":"2026-09-10","finish":"2026-09-25","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["真鍋 徹","経理部 キーユーザー"]},{"uid":173,"name":"投入・検証 - 固定資産","row":171,"start":"2026-09-28","finish":"2026-10-07","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["真鍋 徹","星野 香織"]},{"uid":174,"name":"マスタデータ クレンジング","row":150,"start":"2026-04-24","finish":"2026-07-10","ms":false,"as":"2026-04-24","af":"2026-07-10","resume":null,"rv":true,"who":["八木 望","営業部 キーユーザー","調達部 キーユーザー","生産管理部 キーユーザー"]},{"uid":175,"name":"突合(照合)ルール設計","row":150,"start":"2026-04-10","finish":"2026-04-23","ms":false,"as":"2026-04-10","af":"2026-04-23","resume":null,"rv":true,"who":["星野 香織","経理部 キーユーザー"]},{"uid":176,"name":"移行リハーサル 1 回目","row":150,"start":"2026-10-08","finish":"2026-10-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","八木 望","若林 翔"]},{"uid":177,"name":"移行リハーサル 2 回目","row":150,"start":"2027-01-27","finish":"2027-02-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","八木 望","若林 翔"]},{"uid":178,"name":"移行リハーサル 3 回目(本番相当)","row":150,"start":"2027-06-29","finish":"2027-07-08","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","八木 望","若林 翔","谷川 治"]},{"uid":179,"name":"移行データ品質検証","row":150,"start":"2027-07-09","finish":"2027-07-27","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","経理部 キーユーザー","営業部 キーユーザー","野村 茜"]},{"uid":180,"name":"データ移行 準備完了","row":150,"start":"2027-07-27","finish":"2027-07-27","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":183,"name":"SIT 計画策定","row":182,"start":"2026-07-10","finish":"2026-07-29","ms":false,"as":"2026-07-10","af":"2026-07-29","resume":null,"rv":true,"who":["永井 千秋","菊池 理恵"]},{"uid":184,"name":"SIT シナリオ・ケース作成","row":182,"start":"2026-07-29","finish":"2026-09-14","ms":false,"as":"2026-07-29","af":null,"resume":null,"rv":true,"who":["永井 千秋","寺田 悠真","野村 茜","平井 翼"]},{"uid":185,"name":"SIT 環境・データ準備","row":182,"start":"2026-10-27","finish":"2026-11-10","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["福井 奏","若林 翔"]},{"uid":186,"name":"SIT 1 巡目","row":182,"start":"2026-12-23","finish":"2027-01-26","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["永井 千秋","寺田 悠真","野村 茜","平井 翼","経理部 キーユーザー","調達部 キーユーザー"]},{"uid":187,"name":"不具合対応 - 1 巡目","row":182,"start":"2027-01-05","finish":"2027-02-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["青木 颯太","内田 康平","岡本 陸","黒田 大和","馬場 敏夫 (SI パートナー)","半田 有里 (SI パートナー)"]},{"uid":188,"name":"SIT 2 巡目","row":182,"start":"2027-02-10","finish":"2027-03-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["永井 千秋","寺田 悠真","野村 茜","平井 翼","生産管理部 キーユーザー","営業部 キーユーザー"]},{"uid":189,"name":"不具合対応 - 2 巡目","row":182,"start":"2027-02-18","finish":"2027-03-11","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["池田 七海","榎本 澪","柏木 冴","佐々木 陽菜"]},{"uid":190,"name":"SIT 3 巡目(業務横断)","row":182,"start":"2027-03-12","finish":"2027-04-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["永井 千秋","寺田 悠真","野村 茜","経理部 キーユーザー","調達部 キーユーザー","生産管理部 キーユーザー","営業部 キーユーザー"]},{"uid":191,"name":"SIT 完了","row":182,"start":"2027-04-02","finish":"2027-04-02","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":193,"name":"性能試験シナリオ設計","row":192,"start":"2027-01-27","finish":"2027-02-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["小野寺 正樹","岡崎 蓮 (SI パートナー)","平井 翼"]},{"uid":194,"name":"性能・大量データ試験","row":192,"start":"2027-04-05","finish":"2027-04-23","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["岡崎 蓮 (SI パートナー)","谷川 治","平井 翼"]},{"uid":195,"name":"性能チューニング","row":192,"start":"2027-04-12","finish":"2027-05-13","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["小野寺 正樹","谷川 治","岡崎 蓮 (SI パートナー)"]},{"uid":196,"name":"脆弱性診断","row":192,"start":"2027-04-05","finish":"2027-04-20","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["冨田 塁","金子 陽菜"]},{"uid":197,"name":"ペネトレーションテスト","row":192,"start":"2027-04-21","finish":"2027-05-10","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["冨田 塁"]},{"uid":198,"name":"セキュリティ是正対応","row":192,"start":"2027-05-11","finish":"2027-05-31","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["金子 陽菜","福井 奏","池田 七海"]},{"uid":199,"name":"非機能テスト 完了","row":192,"start":"2027-05-31","finish":"2027-05-31","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":201,"name":"UAT 計画策定","row":200,"start":"2026-07-29","finish":"2026-08-17","ms":false,"as":"2026-07-29","af":"2026-08-17","resume":null,"rv":true,"who":["永井 千秋","松田 佳奈子","菊池 理恵"]},{"uid":202,"name":"UAT データ・環境準備","row":200,"start":"2027-04-05","finish":"2027-04-20","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["福井 奏","若林 翔","野村 茜"]},{"uid":203,"name":"UAT 向け キーユーザー研修","row":200,"start":"2027-04-21","finish":"2027-05-10","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","中井 岳","経理部 キーユーザー","調達部 キーユーザー","生産管理部 キーユーザー","営業部 キーユーザー"]},{"uid":204,"name":"UAT 第 1 波(財務・購買)","row":200,"start":"2027-06-01","finish":"2027-06-28","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["経理部 キーユーザー","調達部 キーユーザー","永井 千秋","伊藤 直子","村上 仁"]},{"uid":205,"name":"UAT 指摘事項 対応","row":200,"start":"2027-06-08","finish":"2027-07-01","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["青木 颯太","内田 康平","馬場 敏夫 (SI パートナー)","栗原 芽衣 (SI パートナー)"]},{"uid":206,"name":"UAT 第 2 波(生産・販売)","row":200,"start":"2027-07-02","finish":"2027-07-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["生産管理部 キーユーザー","営業部 キーユーザー","永井 千秋","神田 翔平","山下 亜紀"]},{"uid":207,"name":"UAT 承認","row":200,"start":"2027-07-30","finish":"2027-07-30","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":209,"name":"変革インパクト分析","row":208,"start":"2026-06-09","finish":"2026-07-06","ms":false,"as":"2026-06-09","af":"2026-07-06","resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":210,"name":"ステークホルダー分析","row":208,"start":"2026-03-25","finish":"2026-04-07","ms":false,"as":"2026-03-25","af":"2026-04-07","resume":null,"rv":true,"who":["松田 佳奈子"]},{"uid":211,"name":"コミュニケーション計画","row":208,"start":"2026-04-08","finish":"2026-04-21","ms":false,"as":"2026-04-08","af":"2026-04-21","resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":212,"name":"変革コミュニケーション実施 - 2026 年度 上期","row":208,"start":"2026-04-22","finish":"2026-05-25","ms":false,"as":"2026-04-22","af":"2026-05-25","resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":213,"name":"変革コミュニケーション実施 - 2026 年度 下期","row":208,"start":"2026-07-22","finish":"2026-08-21","ms":false,"as":"2026-07-22","af":"2026-08-21","resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":214,"name":"変革コミュニケーション実施 - 2027 年度 上期","row":208,"start":"2026-10-22","finish":"2026-11-19","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":215,"name":"変革コミュニケーション実施 - 2027 年度 下期","row":208,"start":"2027-01-25","finish":"2027-02-22","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["松田 佳奈子","横田 圭"]},{"uid":216,"name":"教育方針・カリキュラム策定","row":208,"start":"2026-07-07","finish":"2026-07-23","ms":false,"as":"2026-07-07","af":"2026-07-23","resume":null,"rv":true,"who":["坂本 柚","松田 佳奈子"]},{"uid":217,"name":"研修教材 作成 - 財務・管理会計","row":208,"start":"2026-12-02","finish":"2026-12-22","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","伊藤 直子"]},{"uid":218,"name":"研修教材 作成 - 購買・在庫管理","row":208,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","村上 仁"]},{"uid":219,"name":"研修教材 作成 - 生産管理","row":208,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["中井 岳","神田 翔平"]},{"uid":220,"name":"研修教材 作成 - 販売・物流","row":208,"start":"2026-11-25","finish":"2026-12-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["中井 岳","山下 亜紀"]},{"uid":221,"name":"トレーナー育成","row":208,"start":"2026-12-23","finish":"2027-01-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","中井 岳","経理部 キーユーザー","調達部 キーユーザー","生産管理部 キーユーザー","営業部 キーユーザー"]},{"uid":222,"name":"エンドユーザー研修 - 本社","row":208,"start":"2027-01-15","finish":"2027-01-28","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","中井 岳","研修会場・教材費","出張・旅費"]},{"uid":223,"name":"エンドユーザー研修 - 関東工場","row":208,"start":"2027-01-29","finish":"2027-02-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","中井 岳","研修会場・教材費","出張・旅費"]},{"uid":224,"name":"エンドユーザー研修 - 関西工場","row":208,"start":"2027-02-15","finish":"2027-03-01","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","中井 岳","研修会場・教材費","出張・旅費"]},{"uid":225,"name":"教育効果 測定・フォロー","row":208,"start":"2027-03-02","finish":"2027-03-11","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["坂本 柚","松田 佳奈子"]},{"uid":226,"name":"組織受入 準備完了","row":208,"start":"2027-03-11","finish":"2027-03-11","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":228,"name":"移行計画 - 第 1 波","row":227,"start":"2027-04-05","finish":"2027-05-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["天野 茂","菊池 理恵","星野 香織","谷川 治"]},{"uid":229,"name":"移行リハーサル(通し) 1 回目 - 第 1 波","row":227,"start":"2027-07-08","finish":"2027-07-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","谷川 治","伊藤 直子"]},{"uid":230,"name":"移行リハーサル(通し) 2 回目 - 第 1 波","row":227,"start":"2027-07-30","finish":"2027-08-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","谷川 治","村上 仁"]},{"uid":231,"name":"移行判定会(準備状況確認) - 第 1 波","row":227,"start":"2027-08-03","finish":"2027-08-05","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹","菊池 理恵"]},{"uid":232,"name":"業務データ 締め - 第 1 波","row":227,"start":"2027-08-06","finish":"2027-08-09","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["経理部 キーユーザー","調達部 キーユーザー","伊藤 直子"]},{"uid":233,"name":"本番データ移行 - 第 1 波","row":227,"start":"2027-08-09","finish":"2027-08-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","真鍋 徹","八木 望","谷川 治"]},{"uid":234,"name":"移行後 検証 - 第 1 波","row":227,"start":"2027-08-12","finish":"2027-08-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["経理部 キーユーザー","伊藤 直子","永井 千秋"]},{"uid":235,"name":"Go/No-Go 判定 - 第 1 波","row":227,"start":"2027-08-16","finish":"2027-08-16","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹"]},{"uid":236,"name":"本番稼働 第 1 波","row":227,"start":"2027-08-16","finish":"2027-08-16","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":237,"name":"稼働支援(ハイパーケア) - 第 1 波","row":227,"start":"2027-08-17","finish":"2027-09-29","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["伊藤 直子","村上 仁","馬場 敏夫 (SI パートナー)","青木 颯太","横田 圭"]},{"uid":239,"name":"移行計画 - 第 2 波","row":238,"start":"2027-08-17","finish":"2027-09-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["菊池 理恵","星野 香織","福井 奏"]},{"uid":240,"name":"移行リハーサル(通し) - 第 2 波","row":238,"start":"2027-09-29","finish":"2027-10-03","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","八木 望","福井 奏","神田 翔平"]},{"uid":241,"name":"移行判定会(準備状況確認) - 第 2 波","row":238,"start":"2027-10-04","finish":"2027-10-06","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹"]},{"uid":242,"name":"業務データ 締め - 第 2 波","row":238,"start":"2027-10-07","finish":"2027-10-08","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["生産管理部 キーユーザー","営業部 キーユーザー","山下 亜紀"]},{"uid":243,"name":"本番データ移行 - 第 2 波","row":238,"start":"2027-10-08","finish":"2027-10-12","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["星野 香織","八木 望","若林 翔","福井 奏"]},{"uid":244,"name":"移行後 検証 - 第 2 波","row":238,"start":"2027-10-12","finish":"2027-10-14","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["生産管理部 キーユーザー","営業部 キーユーザー","山下 亜紀"]},{"uid":245,"name":"Go/No-Go 判定 - 第 2 波","row":238,"start":"2027-10-15","finish":"2027-10-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹"]},{"uid":246,"name":"本番稼働 第 2 波","row":238,"start":"2027-10-15","finish":"2027-10-15","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]},{"uid":247,"name":"稼働支援(ハイパーケア) - 第 2 波","row":238,"start":"2027-10-18","finish":"2027-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["神田 翔平","山下 亜紀","半田 有里 (SI パートナー)","黒田 大和","横田 圭"]},{"uid":249,"name":"安定稼働 評価","row":248,"start":"2027-12-01","finish":"2027-12-21","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["杉山 徹","菊池 理恵","永井 千秋"]},{"uid":250,"name":"効果測定(ベネフィット)","row":248,"start":"2027-12-22","finish":"2028-01-25","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["天野 茂","松田 佳奈子","経理部 キーユーザー"]},{"uid":251,"name":"保守運用への引き継ぎ","row":248,"start":"2027-11-01","finish":"2027-11-30","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["杉山 徹","伊藤 直子","山下 亜紀","岡崎 蓮 (SI パートナー)"]},{"uid":252,"name":"旧システム 並行稼働","row":248,"start":"2027-08-18","finish":"2027-10-15","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["杉山 徹","福井 奏","経理部 キーユーザー"]},{"uid":253,"name":"旧システム 停止・撤去","row":248,"start":"2027-12-01","finish":"2028-01-11","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["谷川 治","杉山 徹","ハードウェア・クラウド基盤費"]},{"uid":254,"name":"教訓の整理(振り返り)","row":248,"start":"2028-01-26","finish":"2028-02-01","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["天野 茂","菊池 理恵","横田 圭","松田 佳奈子"]},{"uid":255,"name":"最終ステアリングコミッティ","row":248,"start":"2028-02-02","finish":"2028-02-02","ms":false,"as":null,"af":null,"resume":null,"rv":true,"who":["長谷川 邦男","天野 茂","杉山 徹","菊池 理恵"]},{"uid":256,"name":"プログラム 完了","row":248,"start":"2028-02-02","finish":"2028-02-02","ms":true,"as":null,"af":null,"resume":null,"rv":true,"who":[]}]};
+</script>
+<script>
+"use strict";
+/* ================= words (CR-571 section 11 question 1; sample-only words are marked) ================= */
+const WORDS = {
+  ja: {
+    panelName: "検索パネル", tabTasks: "タスク", tabComments: "コメントボックス", minimise: "最小化", maximise: "最大化",
+    close: "閉じる", search: "検索", filter: "絞り込み", asc: "昇順", desc: "降順", showAll: "すべて表示", clearAll: "すべて外す",
+    blanks: "（空白）", colName: "タスク（マイルストーン）", colWho: "担当者名", colStart: "予定開始", colFinish: "予定終了",
+    colState: "状態", colPath: "最上位までの階層", colText: "本文", colRow: "行タイトル", colDate: "日付",
+    st1: "未着手", st2: "完了", st3: "中断・再開日未定", st4: "中断・再開予定あり", st5: "進行中",
+    st0: "ボトルネック",                 /* CR-561 DG-2 word (JDG-634) */
+    unnamed: "（名前なし）", restore: "元のサイズに戻す", textSize: "文字の大きさ",   /* JDG-633, JDG-647 */
+    rs66: "ピン止め行が多くて検索結果を表示できません。", rs66next: "ピン止めを減らしてください。",
+    /* sample-only words below (not in the dictionary draft) */
+    from: "いつから", to: "いつまで", hits: "{n} 件 / 全 {m} 件", placeholder: "名前・担当者名・本文の一部",
+    fitTip: "全体表示（横だけ。見本では行の木を戻さない）", zoom: "横の倍率", depth: "倍率で描く深さ",
+    pinMany: "ピン止めを増やす", pinReset: "ピン止めを 2 行に戻す", undo: "取り消す (Ctrl+Z)",
+    undoClean: "未保存の編集なし", undoDirty: "未保存の編集あり（取り消し {n} 段）", sizes: "見本の寸法", about: "この見本について",
+    expand: "[v] 1 階層開く", collapse: "[^^] 畳む", hide: "[^] 隠す", pin: "ピン止め", hiddenKids: "隠した子 {n}",
+    stage0: "段 0（プロジェクト全体）", selNone: "選択: なし", selTask: "選択中のタスク", selComment: "選択中のコメントボックス",
+    project: "プロジェクト", clearDates: "日付を外す"
+  },
+  en: {
+    panelName: "Search panel", tabTasks: "Tasks", tabComments: "Comment Boxes", minimise: "Minimise", maximise: "Maximise",
+    close: "Close", search: "Search", filter: "Filter", asc: "Sort Ascending", desc: "Sort Descending", showAll: "Show All",
+    clearAll: "Clear All", blanks: "(Blanks)", colName: "Task (Milestone)", colWho: "Assignees", colStart: "Planned Start",
+    colFinish: "Planned Finish", colState: "Status", colPath: "Path from Top", colText: "Body", colRow: "Row Title", colDate: "Date",
+    st1: "Not started", st2: "Finished", st3: "Paused, no resume date", st4: "Paused, resume date set", st5: "In progress",
+    st0: "Bottleneck",
+    unnamed: "(No name)", restore: "Restore", textSize: "Text size",
+    rs66: "Too many pinned rows to show the search result.", rs66next: "Unpin some rows.",
+    from: "From", to: "To", hits: "{n} of {m}", placeholder: "Part of a name, an assignee or a text",
+    fitTip: "Fit (horizontal only in this sample)", zoom: "Zoom", depth: "Depth drawn by zoom",
+    pinMany: "Pin many rows", pinReset: "Back to 2 pinned rows", undo: "Undo (Ctrl+Z)",
+    undoClean: "No unsaved edit", undoDirty: "Unsaved edits ({n} undo steps)", sizes: "Sample sizes", about: "About this sample",
+    expand: "[v] Expand one level", collapse: "[^^] Collapse", hide: "[^] Hide", pin: "Pin", hiddenKids: "{n} hidden",
+    stage0: "Level 0 (whole project)", selNone: "Selected: none", selTask: "Selected task", selComment: "Selected comment box",
+    project: "Project", clearDates: "Clear dates"
+  }
+};
+let LANG = "ja";
+const W = (k, vars) => { let s = (WORDS[LANG][k] ?? k); if (vars) for (const v in vars) s = s.replace("{" + v + "}", vars[v]); return s; };
+
+const ABOUT = {
+  ja: `<p><b>何の見本か</b> —— CR-571 が仕様に足す「検索パネル」を、仕様に当てる前に触って確かめるための 1 ファイルの見本である。日程は <code>sample-large-erp-program.ja.xml</code> の実データ（行 37・タスク 219）。</p>
+<ul><li><b>Ctrl+F</b> か虫眼鏡で開く。語を打つと、タスク名・担当者名・コメントボックスの本文に部分一致する行が並ぶ（全角と半角、大文字と小文字は区別しない。ひらがなとカタカナは区別する）。</li>
+<li>青い名前（本文）のセルを押すと飛ぶ —— 載っている行と祖先を <code>expanded</code> にし（隠した行も）、ピン止めの帯のすぐ下へ寄せ、開始日を左端の少し内側へ置く。行の開きは取り消しの 1 段（Ctrl+Z）。</li>
+<li>見出しの帯を掴んで動かす。縁と角を掴んで大きさを変える。「見本の寸法」で仮の寸法を変えられる。</li>
+<li>始めの状態: 「4.」「7.」の行は畳んである（<code>collapsed</code>）、「CRM 連携」は隠してある（<code>hidden</code>）、「1.5」「12.」はピン止め。「ピン止めを増やす」で、飛べないときの通知を出せる。</li></ul>
+<p><b>見本だけのこと</b> —— コメントボックス 6 つ、中断のタスク 2 つ、名前の無いダミーのタスク 1 つは、見本のために足した。倍率は「倍率で描く深さ」で代えた。</p>`,
+  en: `<p><b>What this is</b> — a one-file sample of the Search panel that CR-571 adds, to be touched before the specification is changed. The schedule is the real data of <code>sample-large-erp-program.ja.xml</code> (37 rows, 219 tasks).</p>
+<ul><li>Open with <b>Ctrl+F</b> or the magnifier. Typing lists the tasks and comment boxes whose name, assignee or text contains the word (width and case folded, hiragana and katakana kept apart).</li>
+<li>Click a blue name (text) cell to jump: the row and its ancestors become <code>expanded</code> (hidden ones too), the row goes right below the pinned rows, the start date slightly inside the left edge. Opening is one undo step (Ctrl+Z).</li>
+<li>Drag the header to move, edges and corners to resize. "Sample sizes" changes the provisional sizes.</li>
+<li>Start state: rows "4." and "7." are collapsed, "CRM 連携" is hidden, "1.5" and "12." are pinned. "Pin many rows" triggers the no-room notice.</li></ul>
+<p><b>Sample-only</b> — six comment boxes, two paused tasks and one unnamed dummy task were added for the sample. The vertical zoom is imitated by "Depth drawn by zoom".</p>`
+};
+
+/* ================= model ================= */
+const DAY = 86400000;
+const toDay = s => s ? Math.round(Date.parse(s + "T00:00:00Z") / DAY) : null;
+const fmtDate = s => { if (!s) return ""; const [y, m, d] = s.split("-"); return `${+y}/${+m}/${+d}`; };
+const T0 = toDay(DATA.start) - 14, T1 = toDay(DATA.finish) + 30;
+const STATUS_DAY = toDay(DATA.status);
+
+const rows = DATA.rows;                                   // tree order (outline order)
+const rowById = new Map(rows.map((r, i) => (r.order = i, r.kids = [], [r.uid, r])));
+for (const r of rows) if (r.parent && rowById.has(r.parent)) rowById.get(r.parent).kids.push(r);
+const ancestors = r => { const a = []; let p = rowById.get(r.parent); while (p) { a.push(p); p = rowById.get(p.parent); } return a; };
+const pathOf = r => [...ancestors(r).reverse(), r].map(x => x.name).join(" → ");
+const rowByName = n => rows.find(r => r.name === n);
+
+const tasks = DATA.tasks;
+/* sample-only additions: two paused tasks (the file has no Resume) and one unnamed dummy task */
+{
+  const running = tasks.filter(t => t.as && !t.af);
+  if (running[0]) running[0].rv = false;
+  if (running[1]) { running[1].resume = "2026-09-14"; running[1].rv = true; }
+  const sit = rowByName("8.1 システム統合テスト(SIT)");
+  const who = (tasks.find(t => t.row === sit.uid && t.who.length) || { who: [] }).who.slice(0, 1);
+  tasks.push({ uid: 9001, name: "", row: sit.uid, start: "2026-11-02", finish: "2026-11-06", ms: false,
+               as: null, af: null, resume: null, rv: true, who, dummy: true });
+}
+/* sample-only fake of CR-561: the real bottleneck judgement (table T-315 DG-2, unfinished tasks only) comes from
+   delay diagnostics. The sample just marks two running tasks and one not-started task by hand. */
+{
+  const open = tasks.filter(t => !t.af && !t.dummy && t.rv !== false && !t.resume);
+  const running = open.filter(t => t.as), notStarted = open.filter(t => !t.as && !t.ms);
+  for (const t of [running[2], running[3], notStarted[0]]) if (t) t.bottleneck = true;
+}
+/* state 0 = bottleneck (JDG-634), else table T-019a PS-1..PS-5 */
+const stateOf = t => (t.bottleneck && !t.af) ? 0 : !t.as ? 1 : t.af ? 2 : t.rv === false ? 3 : t.resume ? 4 : 5;
+/* ascending order (JDG-634): bottleneck, not started, in progress, finished, paused with resume date, paused without */
+const STATE_RANK = { 0: 0, 1: 1, 5: 2, 2: 3, 4: 4, 3: 5 };
+for (const t of tasks) { t.state = stateOf(t); if (t.ms) t.finish = t.start; }
+const taskById = new Map(tasks.map(t => [t.uid, t]));
+
+const COMMENTS = [
+  { id: 1, text: "ベンダーの回答待ち", row: "CRM 連携", date: "2026-07-10" },
+  { id: 2, text: "移行リハーサルの日程を再確認する", row: "移行対象 - 品目マスタ", date: "2026-10-01" },
+  { id: 3, text: "要件の追加が 2 件あり、影響を確認中", row: "業務設計 - 生産管理", date: "2026-05-20" },
+  { id: 4, text: "承認は次回の会議で判断", row: "1.5 ステアリングコミッティ", date: "2026-09-15" },
+  { id: 5, text: "検証環境の準備が前倒しで完了", row: "3. 技術基盤・インフラ", date: "2026-02-10" },
+  { id: 6, text: "第 2 波の開始日は仮置き\n正式な日付は後日", row: "11. 移行・稼働 第 2 波(生産・販売)", date: "2027-06-01" }
+].map(c => ({ ...c, rowUid: rowByName(c.row).uid }));
+const commentById = new Map(COMMENTS.map(c => [c.id, c]));
+
+/* tree state (CR-570 treeState; temporarilyExpanded is not imitated) */
+const tree = new Map(rows.map(r => [r.uid, "auto"]));
+let stage0Folded = false;
+tree.set(rowByName("4. 業務設計(ブループリント)").uid, "collapsed");
+tree.set(rowByName("7. データ移行").uid, "collapsed");
+tree.set(rowByName("CRM 連携").uid, "hidden");
+const DEFAULT_PINS = [rowByName("1.5 ステアリングコミッティ").uid, rowByName("12. プログラム完了").uid];
+let pinned = new Set(DEFAULT_PINS);
+let drawDepth = 2;
+let pxPerDay = 4;
+const ZOOMS = [1, 1.5, 2, 3, 4, 6, 8, 12];
+let selection = null;                                     // {kind, id}
+const undoStack = [];
+
+/* table T-329: TD-1..TD-3 all required, TD-4..TD-7 any one */
+function isDrawn(r) {
+  if (stage0Folded) return false;                                              // TD-1
+  const st = tree.get(r.uid);
+  if (st === "hidden") return false;                                           // TD-2
+  const anc = ancestors(r);
+  if (anc.some(a => ["collapsed", "hidden"].includes(tree.get(a.uid)))) return false;  // TD-3
+  if (r.level <= drawDepth) return true;                                       // TD-4
+  if (pinned.has(r.uid)) return true;                                          // TD-5
+  const p = rowById.get(r.parent);
+  if (p && tree.get(p.uid) === "expanded") return true;                        // TD-6
+  return selfOrDescendantExpanded(r);                                          // TD-7
+}
+function selfOrDescendantExpanded(r) {
+  const st = tree.get(r.uid);
+  if (st === "hidden") return false;
+  if (st === "expanded") return true;
+  if (st === "collapsed") return false;       /* descendants of a collapsed row fail TD-3 */
+  return r.kids.some(selfOrDescendantExpanded);
+}
+
+function snapshot() { return { tree: new Map(tree), stage0Folded }; }
+function commitIfChanged(before) {
+  const changed = before.stage0Folded !== stage0Folded || rows.some(r => before.tree.get(r.uid) !== tree.get(r.uid));
+  if (changed) undoStack.push(before);          /* a write that changes nothing leaves no undo step (JDG-21) */
+  return changed;
+}
+function undo() {
+  const s = undoStack.pop(); if (!s) return;
+  for (const [k, v] of s.tree) tree.set(k, v);
+  stage0Folded = s.stage0Folded;
+  renderAll();
+}
+function treeAct(act, uid) {
+  const before = snapshot();
+  const r = rowById.get(uid);
+  if (act === "expand") {                       /* A1/A2: row -> expanded, hidden direct children -> collapsed */
+    tree.set(uid, "expanded");
+    for (const k of r.kids) if (tree.get(k.uid) === "hidden") tree.set(k.uid, "collapsed");
+  } else if (act === "collapse") tree.set(uid, "collapsed");
+  else if (act === "hide") tree.set(uid, "hidden");
+  else if (act === "s0expand") { stage0Folded = false; for (const r1 of rows) if (r1.level === 1 && tree.get(r1.uid) === "hidden") tree.set(r1.uid, "collapsed"); }
+  else if (act === "s0collapse") stage0Folded = true;
+  commitIfChanged(before);
+  renderAll();
+}
+/* rowRevealAsked: the row and every ancestor -> expanded, level 0 opened (CR-571 SJ-2) */
+function revealRow(uid) {
+  const before = snapshot();
+  const r = rowById.get(uid);
+  for (const x of [r, ...ancestors(r)]) tree.set(x.uid, "expanded");
+  stage0Folded = false;
+  return commitIfChanged(before);
+}
+
+/* ================= search rows (tables T-331) ================= */
+const norm = s => (s || "").normalize("NFKC").toLowerCase();
+const flat = s => (s || "").replace(/\s*\n\s*/g, " ");
+function taskRows() {
+  return tasks.map(t => {
+    const r = rowById.get(t.row);
+    return { kind: "task", id: t.uid, name: t.name, who: t.who, start: t.start, finish: t.finish, state: t.state,
+             path: pathOf(r), rowUid: t.row, o1: r.order, o2: toDay(t.start) ?? 1e9, o3: t.uid };
+  });
+}
+function commentRows() {
+  return COMMENTS.map(c => ({ kind: "comment", id: c.id, text: flat(c.text), rowName: rowById.get(c.rowUid).name,
+                              date: c.date, rowUid: c.rowUid, o1: rowById.get(c.rowUid).order, o2: toDay(c.date), o3: c.id }));
+}
+const COLS = {
+  task: [
+    { key: "name", w: "colName", width: 250, jump: true, freeze: true, type: "list", keys: r => [r.name], text: r => r.name },
+    { key: "who", w: "colWho", width: 190, freeze: true, type: "list", keys: r => r.who.length ? r.who : [""], text: r => r.who.join(", "),
+      sort: r => r.who.join(", ") },
+    { key: "start", w: "colStart", width: 110, type: "date", text: r => fmtDate(r.start), sort: r => r.start },
+    { key: "finish", w: "colFinish", width: 110, type: "date", text: r => fmtDate(r.finish), sort: r => r.finish },
+    { key: "state", w: "colState", width: 150, type: "list", keys: r => ["s" + r.state], text: r => W("st" + r.state),
+      label: k => W("st" + k.slice(1)), sort: r => STATE_RANK[r.state] },
+    { key: "path", w: "colPath", width: 380, type: "list", keys: r => [r.path], text: r => r.path }
+  ],
+  comment: [
+    { key: "text", w: "colText", width: 300, jump: true, freeze: true, type: "list", keys: r => [r.text], text: r => r.text },
+    { key: "row", w: "colRow", width: 240, type: "list", keys: r => [r.rowName], text: r => r.rowName },
+    { key: "date", w: "colDate", width: 110, type: "date", text: r => fmtDate(r.date), sort: r => r.date }
+  ]
+};
+const colVal = (c, r) => c.sort ? c.sort(r) : c.text(r);
+function matchesWord(r, w) {
+  if (!w) return true;
+  if (r.kind === "task") return (r.name !== "" && norm(r.name).includes(w)) || r.who.some(n => norm(n).includes(w));
+  return norm(r.text).includes(w);
+}
+function passesFilter(c, f, r) {
+  if (!f) return true;
+  if (c.type === "date") {
+    const v = r[c.key === "date" ? "date" : c.key];
+    if (!v) return false;
+    if (f.from && v < f.from) return false;
+    if (f.to && v > f.to) return false;
+    return true;
+  }
+  return c.keys(r).some(k => f.allowed.has(k));
+}
+
+/* ================= panel state (S-418..S-420, screen-only) ================= */
+const panel = { state: "hidden", geom: null, tab: "task", word: "",
+                filters: { task: {}, comment: {} }, sort: { task: null, comment: null } };
+const SIZES = { minW: 360, minH: 160, colMin: 64, edge: 6, trow: 28, inset: 24, wRatio: 0.5, hRatio: 0.5 };
+/* table T-333 steps; S-429 default is 16 px; screen-only, never saved (JDG-646, JDG-647) */
+const FONT_STEPS = [12, 14, 16, 20];
+let fontStep = 2;
+function applyFont() {
+  document.documentElement.style.setProperty("--tfont", FONT_STEPS[fontStep] + "px");
+  $("p-font-px").textContent = FONT_STEPS[fontStep];
+  const t = `${W("textSize")} (${FONT_STEPS[fontStep]}px)`;
+  $("p-font").title = t; $("p-font").setAttribute("aria-label", t);
+}
+
+function visibleRows(tab, exceptKey) {
+  const w = norm(panel.word);
+  const cols = COLS[tab], fs = panel.filters[tab];
+  let list = (tab === "task" ? taskRows() : commentRows()).filter(r => matchesWord(r, w));
+  const all = list.length;
+  list = list.filter(r => cols.every(c => c.key === exceptKey || passesFilter(c, fs[c.key], r)));
+  list.sort((a, b) => a.o1 - b.o1 || a.o2 - b.o2 || a.o3 - b.o3);           /* default order (SV-8) */
+  const s = panel.sort[tab];
+  if (s) {
+    const c = cols.find(x => x.key === s.key);
+    list = list.map((r, i) => [r, i]).sort((A, B) => {
+      const a = colVal(c, A[0]), b = colVal(c, B[0]);
+      const ea = a === "" || a == null, eb = b === "" || b == null;
+      if (ea || eb) return ea === eb ? A[1] - B[1] : ea ? 1 : -1;               /* blanks last in both directions */
+      let d = typeof a === "number" ? a - b : String(a).localeCompare(String(b), "ja");
+      if (s.dir === "desc") d = -d;
+      return d || A[1] - B[1];
+    }).map(x => x[0]);
+  }
+  return { list, all };
+}
+
+/* ================= schedule drawing ================= */
+const dx = day => (day - T0) * pxPerDay;
+const textW = s => { let w = 0; for (const ch of s) w += ch.charCodeAt(0) < 256 ? 7 : 12; return w; };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+const PIN_SVG = '<svg viewBox="0 0 16 16"><path d="M5 1h6l-1 5 3 3H9l-1 6-1-6H3l3-3z" fill="currentColor"/></svg>';
+const PIN_OFF = '<svg viewBox="0 0 16 16"><path d="M5 1h6l-1 5 3 3H9l-1 6-1-6H3l3-3z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
+
+function layoutRow(r) {
+  const items = [];
+  for (const t of tasks) if (t.row === r.uid) {
+    const x0 = dx(toDay(t.start)), x1 = t.ms ? x0 + 7 : dx(toDay(t.finish) + 1);
+    items.push({ kind: "task", t, x0, x1, end: x1 + 6 + textW(t.name || "") });
+  }
+  for (const c of COMMENTS) if (c.rowUid === r.uid) {
+    const x0 = dx(toDay(c.date)), wdt = Math.min(200, textW(flat(c.text)) + 14);
+    items.push({ kind: "comment", c, x0, x1: x0 + wdt, end: x0 + wdt });
+  }
+  items.sort((a, b) => a.x0 - b.x0);
+  const ends = [];
+  for (const it of items) {
+    let lane = ends.findIndex(e => e <= it.x0 - 4);
+    if (lane < 0) { lane = ends.length; ends.push(0); }
+    ends[lane] = it.end; it.lane = lane;
+  }
+  return { items, lanes: Math.max(1, ends.length) };
+}
+function rowHtml(r, laneH, widthPx) {
+  const { items, lanes } = layoutRow(r);
+  const h = lanes * laneH + 4;
+  const st = tree.get(r.uid);
+  const hiddenKids = r.kids.filter(k => tree.get(k.uid) === "hidden").length;
+  const hasKids = r.kids.length > 0;
+  const canExpand = (hasKids && st !== "expanded") || hiddenKids > 0 || (!hasKids && st !== "expanded");
+  const ctl = (act, label, tip, show) =>
+    `<button class="tc${show ? "" : " ph"}" data-act="${act}" data-row="${r.uid}" title="${esc(tip)}" tabindex="${show ? 0 : -1}">${label}</button>`;
+  const isPin = pinned.has(r.uid);
+  let html = `<div class="srow lvl${r.level}" data-row="${r.uid}" style="height:${h}px">` +
+    `<div class="rt" style="padding-left:${4 + (r.level - 1) * 16}px">` +
+    ctl("expand", "v", W("expand"), canExpand) + ctl("collapse", "^^", W("collapse"), hasKids && st !== "collapsed") +
+    ctl("hide", "^", W("hide"), true) +
+    `<button class="tc pin" data-act="pin" data-row="${r.uid}" aria-pressed="${isPin}" title="${esc(W("pin"))}">${isPin ? PIN_SVG : PIN_OFF}</button>` +
+    `<span class="rname" title="${esc(r.name)}">${esc(r.name)}</span>` +
+    (hiddenKids ? `<span class="badge">${esc(W("hiddenKids", { n: hiddenKids }))}</span>` : "") +
+    `<span class="ts">${st}</span></div>` +
+    `<div class="lanes" style="width:${widthPx}px;height:${h}px">`;
+  for (const it of items) {
+    const top = 2 + it.lane * laneH + 3;
+    if (it.kind === "task") {
+      const t = it.t, sel = selection && selection.kind === "task" && selection.id === t.uid ? " sel" : "";
+      if (t.ms) {
+        html += `<div class="ms st${t.state}${sel}" data-task="${t.uid}" style="left:${it.x0 - 6}px;top:${top + 3}px" title="${esc(t.name)}"></div>`;
+      } else {
+        let act = "";
+        if (t.as) {
+          const a0 = toDay(t.as), a1 = t.af ? toDay(t.af) + 1 : Math.min(STATUS_DAY + 1, toDay(t.finish) + 1);
+          act = `<div class="act" style="left:${dx(a0) - it.x0}px;width:${Math.max(0, dx(a1) - dx(a0))}px"></div>`;
+        }
+        html += `<div class="bar st${t.state}${t.dummy ? " dummy" : ""}${sel}" data-task="${t.uid}" style="left:${it.x0}px;top:${top}px;width:${Math.max(3, it.x1 - it.x0)}px" title="${esc(t.name || W("unnamed"))}">${act}</div>`;
+      }
+      if (t.name) html += `<div class="blabel" style="left:${it.x1 + 5}px;top:${top}px">${esc(t.name)}</div>`;
+    } else {
+      const c = it.c, sel = selection && selection.kind === "comment" && selection.id === c.id ? " sel" : "";
+      html += `<div class="cbox${sel}" data-comment="${c.id}" style="left:${it.x0}px;top:${top - 1}px;width:${it.x1 - it.x0}px" title="${esc(c.text)}">${esc(flat(c.text))}</div>`;
+    }
+  }
+  html += `<div class="today" style="left:${dx(STATUS_DAY)}px"></div></div></div>`;
+  return html;
+}
+function renderSchedule() {
+  const laneH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--lane-h"));
+  const titleW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--title-w"));
+  const widthPx = Math.ceil(dx(T1)) + 400;
+  $("content").style.width = (titleW + widthPx) + "px";
+  let rul = `<div class="rt corner"><button class="tc" data-act="s0expand" title="${esc(W("stage0"))} ${esc(W("expand"))}">v</button>` +
+    `<button class="tc" data-act="s0collapse" title="${esc(W("stage0"))} ${esc(W("collapse"))}">^^</button>` +
+    `<span class="rname" title="${esc(DATA.title)}">${esc(DATA.title)}${stage0Folded ? " (collapsed)" : ""}</span></div>` +
+    `<div class="ticks" style="width:${widthPx}px">`;
+  const d0 = new Date(T0 * DAY), d1 = new Date(T1 * DAY);
+  for (let y = d0.getUTCFullYear(), m = d0.getUTCMonth(); Date.UTC(y, m, 1) <= d1.getTime(); m++) {
+    if (m > 11) { m = 0; y++; }
+    const day = Math.round(Date.UTC(y, m, 1) / DAY), next = Math.round(Date.UTC(y, m + 1, 1) / DAY);
+    const x = Math.max(0, dx(day)), w = dx(next) - x;
+    if (m === 0 || day <= T0) rul += `<div class="tick year" style="left:${x}px;width:${dx(Math.round(Date.UTC(y + 1, 0, 1) / DAY)) - x}px">${y}</div>`;
+    rul += `<div class="tick month" style="left:${x}px;width:${w}px">${w > 40 ? y + "/" : ""}${m + 1}</div>`;
+  }
+  rul += `<div class="today" style="left:${dx(STATUS_DAY)}px"></div></div>`;
+  $("ruler").innerHTML = rul;
+  let pin = "", body = "";
+  for (const r of rows) {
+    if (!isDrawn(r)) continue;
+    if (pinned.has(r.uid)) pin += rowHtml(r, laneH, widthPx); else body += rowHtml(r, laneH, widthPx);
+  }
+  $("pinband").innerHTML = pin;
+  $("body").innerHTML = body;
+  $("spacer").style.height = $("sched").clientHeight + "px";
+}
+
+/* ================= panel drawing ================= */
+function stageRect() { const s = $("stage"); return { w: s.clientWidth, h: s.clientHeight }; }
+function defaultGeom() {                                  /* SV-9: half x half, bottom-left */
+  const { w, h } = stageRect();
+  const pw = Math.max(SIZES.minW, Math.round(w * SIZES.wRatio)), ph = Math.max(SIZES.minH, Math.round(h * SIZES.hRatio));
+  return { x: 0, y: h - ph, w: pw, h: ph };
+}
+function clampGeom(g) {                                   /* SV-11: never outside the schedule area */
+  const { w, h } = stageRect();
+  g.w = Math.min(Math.max(g.w, SIZES.minW), w); g.h = Math.min(Math.max(g.h, SIZES.minH), h);
+  g.x = Math.min(Math.max(g.x, 0), w - g.w); g.y = Math.min(Math.max(g.y, 0), h - g.h);
+  return g;
+}
+function placePanel() {
+  const p = $("panel");
+  p.hidden = panel.state === "hidden";
+  p.className = panel.state;
+  if (panel.state === "hidden") return;
+  const { w, h } = stageRect(), g = panel.geom, hh = $("phead").offsetHeight || 38;
+  let x = g.x, y = g.y, pw = g.w, ph = g.h;
+  if (panel.state === "maximised") { x = 0; y = 0; pw = w; ph = h; }
+  if (panel.state === "minimised") { y = g.y + g.h - hh; ph = hh + 2; }      /* header only, bottom edge kept */
+  Object.assign(p.style, { left: x + "px", top: y + "px", width: pw + "px", height: ph + "px" });
+  $("p-max").textContent = panel.state === "maximised" ? "❐" : "□";
+  labelMax();
+}
+function labelMax() {                                    /* JDG-633 point 9: "Restore" while maximised */
+  const t = W(panel.state === "maximised" ? "restore" : "maximise");
+  $("p-max").title = t; $("p-max").setAttribute("aria-label", t);
+}
+function renderTable() {
+  const tab = panel.tab, cols = COLS[tab];
+  const { list, all } = visibleRows(tab);
+  $("hitcount").textContent = W("hits", { n: list.length, m: tab === "task" ? tasks.length : COMMENTS.length });
+  const widths = cols.map(c => Math.max(SIZES.colMin, c.width));
+  let left = 0, html = `<table class="st" id="stable" style="width:${widths.reduce((a, b) => a + b, 0)}px"><colgroup>` +
+    widths.map(w => `<col style="width:${w}px">`).join("") + `</colgroup><thead><tr>`;
+  const lefts = [];
+  const lastFz = cols.map(c => !!c.freeze).lastIndexOf(true);
+  cols.forEach((c, i) => { lefts.push(left); left += widths[i]; });
+  const fzAttr = i => cols[i].freeze ? ` class="fz${i === lastFz ? " fzlast" : ""}" style="left:${lefts[i]}px"` : "";
+  const fzCls = (i, extra) => {
+    const cls = [extra, cols[i].freeze ? "fz" : "", cols[i].freeze && i === lastFz ? "fzlast" : ""].filter(Boolean).join(" ");
+    return ` class="${cls}"${cols[i].freeze ? ` style="left:${lefts[i]}px"` : ""}`;
+  };
+  const s = panel.sort[tab];
+  cols.forEach((c, i) => {
+    const on = !!panel.filters[tab][c.key];
+    const sortMark = s && s.key === c.key ? `<span class="sorti">${s.dir === "asc" ? "▲" : "▼"}</span>` : "";
+    html += `<th${fzAttr(i)} data-col="${c.key}"><div class="thin"><span class="lbl" title="${esc(W(c.w))}">${esc(W(c.w))}</span>${sortMark}` +
+      `<button class="fbtn${on ? " on" : ""}" data-filter="${c.key}" title="${esc(W("filter"))}" aria-label="${esc(W("filter"))}">${on ? "◉" : "▾"}</button></div></th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  for (const r of list) {
+    const cur = selection && selection.kind === r.kind && selection.id === r.id ? ` class="cur"` : "";
+    html += `<tr${cur} data-kind="${r.kind}" data-id="${r.id}">`;
+    cols.forEach((c, i) => {
+      const txt = c.text(r);
+      const shown = c.jump && txt === "" ? W("unnamed") : txt;
+      html += `<td${fzCls(i, c.jump ? "jump" + (txt === "" ? " empty" : "") : "")} title="${esc(txt)}"${c.jump ? ` data-jump="1"` : ""}>${esc(shown)}</td>`;
+    });
+    html += `</tr>`;
+  }
+  html += `</tbody></table>`;
+  const tw = $("twrap"), sl = tw.scrollLeft, st = tw.scrollTop;
+  tw.innerHTML = html;
+  tw.scrollLeft = sl; tw.scrollTop = st;
+  $("tab-task").setAttribute("aria-pressed", tab === "task");
+  $("tab-comment").setAttribute("aria-pressed", tab === "comment");
+  void all;
+}
+
+/* ================= filter popup (SV-7) ================= */
+let fpopCol = null;
+function openFilter(key, btn) {
+  fpopCol = key;
+  renderFilter("");
+  const pop = $("fpop"), r = btn.getBoundingClientRect();
+  pop.hidden = false;
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let x = Math.min(r.right - pw, window.innerWidth - pw - 8); x = Math.max(8, x);
+  let y = r.bottom + 4; if (y + ph > window.innerHeight - 8) y = Math.max(8, r.top - ph - 4);
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+  const q = pop.querySelector("input"); if (q) q.focus();
+}
+function closeFilter() { $("fpop").hidden = true; fpopCol = null; }
+function renderFilter(q) {
+  const tab = panel.tab, c = COLS[tab].find(x => x.key === fpopCol), f = panel.filters[tab][c.key];
+  const s = panel.sort[tab];
+  let html = `<div class="ftitle">${esc(W(c.w))}</div><div class="row2">` +
+    `<button data-fact="asc" aria-pressed="${!!(s && s.key === c.key && s.dir === "asc")}">↑ ${esc(W("asc"))}</button>` +
+    `<button data-fact="desc" aria-pressed="${!!(s && s.key === c.key && s.dir === "desc")}">↓ ${esc(W("desc"))}</button></div>`;
+  if (c.type === "date") {
+    html += `<div class="dates"><label>${esc(W("from"))}<input type="date" data-fdate="from" value="${f && f.from || ""}"></label>` +
+      `<label>${esc(W("to"))}<input type="date" data-fdate="to" value="${f && f.to || ""}"></label></div>` +
+      `<div class="row2"><button data-fact="cleardates">${esc(W("clearDates"))}</button></div>`;
+  } else {
+    const { list } = visibleRows(tab, c.key);
+    const vals = new Map();
+    for (const r of list) for (const k of c.keys(r)) if (!vals.has(k)) vals.set(k, k === "" ? W("blanks") : c.label ? c.label(k) : k);
+    let entries = [...vals.entries()];
+    entries.sort((a, b) => (a[0] === "") - (b[0] === "") || (c.key === "state" ? STATE_RANK[a[0].slice(1)] - STATE_RANK[b[0].slice(1)] : a[1].localeCompare(b[1], "ja")));
+    const nq = norm(q);
+    if (nq) entries = entries.filter(e => norm(e[1]).includes(nq));
+    html += `<input type="search" data-fsearch="1" value="${esc(q)}" placeholder="${esc(W("search"))}">` +
+      `<div class="row2"><button data-fact="all">${esc(W("showAll"))}</button><button data-fact="none">${esc(W("clearAll"))}</button></div><div class="list">`;
+    for (const [k, label] of entries) {
+      const on = !f || f.allowed.has(k);
+      html += `<label><input type="checkbox" data-fval="${esc(k)}"${on ? " checked" : ""}><span title="${esc(label)}">${esc(label)}</span></label>`;
+    }
+    html += `</div>`;
+    $("fpop").dataset.keys = JSON.stringify(entries.map(e => e[0]));
+    $("fpop").dataset.allkeys = JSON.stringify([...vals.keys()]);
+  }
+  $("fpop").innerHTML = html;
+}
+function allKeysOf(c) {
+  const set = new Set();
+  for (const r of (panel.tab === "task" ? taskRows() : commentRows())) for (const k of c.keys(r)) set.add(k);
+  return set;
+}
+function setAllowed(c, fn) {
+  const fs = panel.filters[panel.tab];
+  const allowed = fs[c.key] ? new Set(fs[c.key].allowed) : allKeysOf(c);
+  fn(allowed);
+  const every = [...allKeysOf(c)].every(k => allowed.has(k));
+  if (every) delete fs[c.key]; else fs[c.key] = { allowed };
+}
+$("fpop").addEventListener("click", e => {
+  const b = e.target.closest("[data-fact]"); if (!b) return;
+  const tab = panel.tab, c = COLS[tab].find(x => x.key === fpopCol), act = b.dataset.fact;
+  if (act === "asc" || act === "desc") {
+    const s = panel.sort[tab];
+    panel.sort[tab] = s && s.key === c.key && s.dir === act ? null : { key: c.key, dir: act };
+  } else if (act === "cleardates") delete panel.filters[tab][c.key];
+  else {
+    const keys = JSON.parse($("fpop").dataset.keys || "[]");
+    setAllowed(c, a => keys.forEach(k => act === "all" ? a.add(k) : a.delete(k)));
+  }
+  const q = ($("fpop").querySelector("[data-fsearch]") || {}).value || "";
+  renderTable(); renderFilter(q);
+});
+$("fpop").addEventListener("change", e => {
+  const tab = panel.tab, c = COLS[tab].find(x => x.key === fpopCol);
+  if (e.target.dataset.fval !== undefined) {
+    const k = e.target.dataset.fval, on = e.target.checked;
+    setAllowed(c, a => on ? a.add(k) : a.delete(k));
+  } else if (e.target.dataset.fdate) {
+    const f = panel.filters[tab][c.key] || {};
+    f[e.target.dataset.fdate] = e.target.value || null;
+    if (f.from || f.to) panel.filters[tab][c.key] = f; else delete panel.filters[tab][c.key];
+  }
+  renderTable();
+});
+$("fpop").addEventListener("input", e => {
+  if (e.target.dataset.fsearch) {
+    const q = e.target.value, pos = e.target.selectionStart;
+    renderFilter(q);
+    const inp = $("fpop").querySelector("[data-fsearch]"); inp.focus(); inp.setSelectionRange(pos, pos);
+  }
+});
+
+/* ================= jump (table T-332) ================= */
+function showNotice() {
+  $("modal-msg").innerHTML = `${esc(W("rs66"))}<br>${esc(W("rs66next"))}`;
+  $("modal").hidden = false;
+  $("modal-ok").focus();
+}
+function closeNotice() { $("modal").hidden = true; }
+function jump(kind, id) {
+  if (panel.state === "maximised") { panel.state = "normal"; placePanel(); }      /* SJ-3 */
+  const target = kind === "task" ? taskById.get(id) : commentById.get(id);
+  const rowUid = kind === "task" ? target.row : target.rowUid;
+  const date = kind === "task" ? target.start : target.date;
+  revealRow(rowUid);                                                              /* SJ-2 */
+  selection = { kind, id };                                                       /* SJ-4 */
+  renderAll();
+  const sched = $("sched");
+  const rowEl = document.querySelector(`#pinband .srow[data-row="${rowUid}"], #body .srow[data-row="${rowUid}"]`);
+  if (!rowEl) return;
+  const isPinned = pinned.has(rowUid);
+  const rulerH = $("ruler").offsetHeight, pinH = $("pinband").offsetHeight;
+  if (!isPinned) {
+    const room = sched.clientHeight - rulerH - pinH;
+    if (room < rowEl.offsetHeight) { showNotice(); return; }                      /* SJ-8 */
+    sched.scrollTop = rowEl.offsetTop - $("body").offsetTop;                      /* SJ-5 */
+  }
+  if (date) sched.scrollLeft = Math.max(0, dx(toDay(date)) - SIZES.inset);        /* SJ-6, SJ-7 */
+  rowEl.classList.add("flash");
+}
+
+/* ================= selection readout ================= */
+function renderSel() {
+  const el = $("selbar");
+  if (!selection) { el.textContent = W("selNone"); return; }
+  if (selection.kind === "task") {
+    const t = taskById.get(selection.id), r = rowById.get(t.row);
+    el.innerHTML = `${esc(W("selTask"))}: <b>${esc(t.name || W("unnamed"))}</b> · ${esc(W("colStart"))} ${fmtDate(t.start)} · ${esc(W("colFinish"))} ${fmtDate(t.finish)}` +
+      ` · ${esc(W("colWho"))} ${esc(t.who.join(", ") || "-")} · ${esc(W("colState"))} ${esc(W("st" + t.state))} · ${esc(pathOf(r))}`;
+  } else {
+    const c = commentById.get(selection.id);
+    el.innerHTML = `${esc(W("selComment"))}: <b>${esc(flat(c.text))}</b> · ${esc(W("colRow"))} ${esc(rowById.get(c.rowUid).name)} · ${esc(W("colDate"))} ${fmtDate(c.date)}`;
+  }
+}
+function renderUndo() {
+  const n = undoStack.length, ind = $("undo-ind");
+  ind.textContent = n ? W("undoDirty", { n }) : W("undoClean");
+  ind.classList.toggle("dirty", n > 0);
+  $("btn-undo").disabled = n === 0;
+}
+function renderWords() {
+  document.documentElement.lang = LANG;
+  for (const el of document.querySelectorAll("[data-w]")) el.textContent = W(el.dataset.w);
+  $("brand").textContent = DATA.title;
+  $("btn-search").title = `${W("search")} (Ctrl+F)`;
+  $("btn-fit").title = W("fitTip");
+  $("p-min").title = W("minimise"); $("p-close").title = W("close");
+  $("p-min").setAttribute("aria-label", W("minimise")); $("p-close").setAttribute("aria-label", W("close"));
+  labelMax(); applyFont();
+  $("panel").setAttribute("aria-label", W("panelName"));
+  $("word").placeholder = W("placeholder");
+  $("about-body").innerHTML = ABOUT[LANG];
+  renderSizes();
+}
+function renderAll() { renderSchedule(); renderSel(); renderUndo(); if (panel.state !== "hidden") renderTable(); }
+
+/* ================= sizes the user can touch ================= */
+const SIZE_ROWS = [
+  ["wRatio", "S-421 既定の幅の比", 0.05, ""], ["hRatio", "S-422 既定の高さの比", 0.05, ""],
+  ["minW", "S-423 幅の下限", 10, "px"], ["minH", "S-424 高さの下限", 10, "px"], ["colMin", "S-425 列の幅の下限", 4, "px"],
+  ["edge", "S-426 縁を掴める幅（内外それぞれ）", 1, "px"], ["trow", "S-427 表の行の高さ", 1, "px"],
+  ["inset", "S-428 飛んだ先の日付と左端のあいだ", 2, "px"]
+];
+function renderSizes() {
+  let html = "";
+  for (const [k, label, step, unit] of SIZE_ROWS)
+    html += `<label><span>${esc(label)}</span><input type="number" step="${step}" data-size="${k}" value="${SIZES[k]}"><span>${unit}</span></label>`;
+  html += `<label><span>縁を色で見せる</span><input type="checkbox" id="show-edges"${document.body.classList.contains("show-edges") ? " checked" : ""}><span></span></label>`;
+  $("sizes-body").innerHTML = html;
+}
+$("sizes-body").addEventListener("change", e => {
+  if (e.target.id === "show-edges") { document.body.classList.toggle("show-edges", e.target.checked); return; }
+  const k = e.target.dataset.size; if (!k) return;
+  SIZES[k] = parseFloat(e.target.value) || SIZES[k];
+  const rs = document.documentElement.style;
+  rs.setProperty("--min-w", SIZES.minW + "px"); rs.setProperty("--min-h", SIZES.minH + "px");
+  rs.setProperty("--edge", SIZES.edge + "px"); rs.setProperty("--trow", SIZES.trow + "px");
+  if (panel.geom) clampGeom(panel.geom);
+  placePanel(); if (panel.state !== "hidden") renderTable();
+});
+
+/* ================= panel actions (searchPanelDisplayStateMachine) ================= */
+function searchEntryPressed() {
+  if (!panel.geom) panel.geom = defaultGeom();
+  if (panel.state === "hidden" || panel.state === "minimised") panel.state = "normal";
+  clampGeom(panel.geom);
+  placePanel(); renderTable();
+  const w = $("word"); w.value = panel.word; w.focus(); w.select();              /* focusSearchWord */
+}
+function closePanel() { closeFilter(); panel.state = "hidden"; placePanel(); }
+$("btn-search").addEventListener("click", searchEntryPressed);
+$("p-close").addEventListener("click", closePanel);
+$("p-font").addEventListener("click", () => { fontStep = (fontStep + 1) % FONT_STEPS.length; applyFont(); });   /* IC-127: 20 wraps to 12 */
+$("p-min").addEventListener("click", () => { closeFilter(); panel.state = panel.state === "minimised" ? "normal" : "minimised"; placePanel(); });
+$("p-max").addEventListener("click", () => { closeFilter(); panel.state = panel.state === "maximised" ? "normal" : "maximised"; placePanel(); });
+$("tab-task").addEventListener("click", () => { closeFilter(); panel.tab = "task"; renderTable(); });
+$("tab-comment").addEventListener("click", () => { closeFilter(); panel.tab = "comment"; renderTable(); });
+$("word").addEventListener("input", e => { panel.word = e.target.value; renderTable(); });   /* SV-5: every keystroke */
+$("twrap").addEventListener("click", e => {
+  const fb = e.target.closest("[data-filter]");
+  if (fb) { if (fpopCol === fb.dataset.filter && !$("fpop").hidden) closeFilter(); else openFilter(fb.dataset.filter, fb); return; }
+  const td = e.target.closest("td[data-jump]"); if (!td) return;                 /* SJ-1 */
+  const tr = td.parentElement;
+  jump(tr.dataset.kind, +tr.dataset.id);
+});
+
+/* drag by the header (SV-10) and resize by edges and corners (SV-11) */
+let drag = null;
+$("phead").addEventListener("pointerdown", e => {
+  if (e.button !== 0 || e.target.closest("button") || panel.state === "maximised") return;
+  closeFilter();
+  drag = { kind: "move", sx: e.clientX, sy: e.clientY, g0: { ...panel.geom } };
+  $("phead").setPointerCapture(e.pointerId); $("phead").classList.add("dragging");
+});
+for (const h of document.querySelectorAll(".rz")) h.addEventListener("pointerdown", e => {
+  if (e.button !== 0) return;
+  closeFilter();
+  drag = { kind: "resize", d: h.dataset.d, sx: e.clientX, sy: e.clientY, g0: { ...panel.geom } };
+  h.setPointerCapture(e.pointerId); e.preventDefault();
+});
+function onDragMove(e) {
+  if (!drag) return;
+  const ddx = e.clientX - drag.sx, ddy = e.clientY - drag.sy, g0 = drag.g0, { w, h } = stageRect();
+  const g = { ...g0 };
+  if (drag.kind === "move") { g.x = g0.x + ddx; g.y = g0.y + ddy; panel.geom = clampGeom(g); }
+  else {
+    const d = drag.d;
+    if (d.includes("e")) g.w = Math.min(Math.max(SIZES.minW, g0.w + ddx), w - g0.x);
+    if (d.includes("s")) g.h = Math.min(Math.max(SIZES.minH, g0.h + ddy), h - g0.y);
+    if (d.includes("w")) { const nx = Math.min(Math.max(0, g0.x + ddx), g0.x + g0.w - SIZES.minW); g.w = g0.w + (g0.x - nx); g.x = nx; }
+    if (d.includes("n")) { const ny = Math.min(Math.max(0, g0.y + ddy), g0.y + g0.h - SIZES.minH); g.h = g0.h + (g0.y - ny); g.y = ny; }
+    panel.geom = g;
+  }
+  placePanel();
+}
+function endDrag() { if (!drag) return; drag = null; $("phead").classList.remove("dragging"); }
+window.addEventListener("pointermove", onDragMove);
+window.addEventListener("pointerup", endDrag);
+window.addEventListener("pointercancel", () => { if (drag) { panel.geom = drag.g0; placePanel(); } endDrag(); });
+
+/* ================= keys ================= */
+const isTextField = el => el && (el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && !["checkbox", "button"].includes(el.type)));
+window.addEventListener("keydown", e => {
+  if (!$("modal").hidden) {                                                     /* the notice comes first */
+    if (e.key === "Escape" || e.key === "Enter") { e.preventDefault(); closeNotice(); }
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "f") {  /* SK-24 */
+    e.preventDefault(); closeFilter(); searchEntryPressed(); return;
+  }
+  if (e.key === "Escape") {
+    if (drag) { panel.geom = drag.g0; endDrag(); placePanel(); e.preventDefault(); return; }   /* IN-1: cancel restores */
+    if (!$("fpop").hidden) { const b = document.querySelector(`[data-filter="${fpopCol}"]`); closeFilter(); if (b) b.focus(); e.preventDefault(); return; }
+    if (panel.state !== "hidden" && $("panel").contains(document.activeElement)) { e.preventDefault(); closePanel(); return; }  /* SV-14 */
+  }
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "z" && !isTextField(document.activeElement)) {
+    e.preventDefault(); undo();
+  }
+}, true);
+document.addEventListener("pointerdown", e => {
+  if (!$("fpop").hidden && !e.target.closest("#fpop") && !e.target.closest("[data-filter]")) closeFilter();
+  for (const d of document.querySelectorAll("details.pop[open]")) if (!d.contains(e.target)) d.open = false;
+});
+$("modal-ok").addEventListener("click", closeNotice);
+
+/* ================= schedule actions ================= */
+$("content").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]");
+  if (b) {
+    const act = b.dataset.act, uid = +b.dataset.row;
+    if (act === "pin") { pinned.has(uid) ? pinned.delete(uid) : pinned.add(uid); renderAll(); }
+    else treeAct(act, uid);
+    return;
+  }
+  const t = e.target.closest("[data-task]"), c = e.target.closest("[data-comment]");
+  if (t) { selection = { kind: "task", id: +t.dataset.task }; renderAll(); }
+  else if (c) { selection = { kind: "comment", id: +c.dataset.comment }; renderAll(); }
+});
+function setZoom(z) {
+  const sched = $("sched"), titleW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--title-w"));
+  const centerDay = T0 + (sched.scrollLeft + (sched.clientWidth - titleW) / 2) / pxPerDay;
+  pxPerDay = z; renderSchedule();
+  sched.scrollLeft = Math.max(0, (centerDay - T0) * pxPerDay - (sched.clientWidth - titleW) / 2);
+}
+$("btn-zin").addEventListener("click", () => { const i = ZOOMS.indexOf(pxPerDay); if (i < ZOOMS.length - 1) setZoom(ZOOMS[i + 1]); });
+$("btn-zout").addEventListener("click", () => { const i = ZOOMS.indexOf(pxPerDay); if (i > 0) setZoom(ZOOMS[i - 1]); });
+$("btn-fit").addEventListener("click", () => {
+  const sched = $("sched"), titleW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--title-w"));
+  pxPerDay = Math.max(0.5, (sched.clientWidth - titleW - 20) / (T1 - T0));
+  if (!ZOOMS.includes(pxPerDay)) ZOOMS.push(pxPerDay), ZOOMS.sort((a, b) => a - b);
+  renderSchedule(); sched.scrollLeft = 0;
+});
+$("sel-depth").addEventListener("change", e => { drawDepth = +e.target.value; renderAll(); });
+$("btn-pinmany").addEventListener("click", () => { for (const r of rows) if (r.level === 1) pinned.add(r.uid); renderAll(); });
+$("btn-pinreset").addEventListener("click", () => { pinned = new Set(DEFAULT_PINS); renderAll(); });
+$("btn-undo").addEventListener("click", undo);
+$("btn-lang").addEventListener("click", () => { LANG = LANG === "ja" ? "en" : "ja"; renderWords(); renderAll(); if (!$("fpop").hidden) renderFilter(""); });
+new ResizeObserver(() => { if (panel.geom) clampGeom(panel.geom); placePanel(); $("spacer").style.height = $("sched").clientHeight + "px"; }).observe($("stage"));
+
+/* probe hook: read-only view of the state for the Playwright check */
+window.sampleState = () => ({
+  panel: panel.state, geom: panel.geom && { ...panel.geom }, tree: Object.fromEntries([...tree].map(([k, v]) => [rowById.get(k).name, v])),
+  undo: undoStack.length, selection, pinned: [...pinned].map(u => rowById.get(u).name),
+  scrollTop: $("sched").scrollTop, scrollLeft: $("sched").scrollLeft, pxPerDay, inset: SIZES.inset, t0: T0, fontPx: FONT_STEPS[fontStep]
+});
+
+renderWords();
+renderAll();
+</script>
+</body>
+</html>

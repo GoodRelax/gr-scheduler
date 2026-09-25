@@ -1454,52 +1454,27 @@
      }
     },
     {
-     "seat": 56,
-     "name": "isCollapsed",
-     "type": "真偽",
-     "nullable": "可",
-     "json": {
-      "kind": "boolean",
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": {
-      "ja": "畳んでいるか"
-     }
-    },
-    {
-     "seat": 57,
-     "name": "isHidden",
-     "type": "真偽",
-     "nullable": "可",
-     "json": {
-      "kind": "boolean",
-      "null": true
-     },
-     "key": "",
-     "origin": "GRS",
-     "exchange": "",
-     "meaning": {
-      "ja": "隠しているか。戻す入口は 表 T-015 の `HR-6` が持つ"
-     }
-    },
-    {
-     "seat": 142,
-     "name": "isKeptOpen",
-     "type": "真偽",
+     "seat": 153,
+     "name": "treeState",
+     "type": "列挙（5 値）",
      "nullable": "否",
      "json": {
-      "kind": "boolean",
+      "kind": "enum",
+      "values": [
+       "auto",
+       "collapsed",
+       "expanded",
+       "temporarilyExpanded",
+       "hidden"
+      ],
       "null": false,
-      "default": false
+      "default": "auto"
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "開いたままの印。真の行は、その行と祖先と直下の子を倍率によらず描かせる（`FR-018`）。立てる入口と外す入口は 表 T-254 が持つ"
+      "ja": "行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。行を作るときは `auto`"
      }
     },
     {

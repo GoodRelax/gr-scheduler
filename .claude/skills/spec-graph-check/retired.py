@@ -265,4 +265,21 @@ RETIRED = {'FR-050', 'T-030',
            # key row of table T-104) left with it. rulings.md (JDG-399) and the
            # change requests still name them, and the seats stay burnt.
            'L-2', 'S-86', 'DS-2', 'K-55',
+           # CR-570 (2026-09-26, ruling JDG-596): a row's three booleans --
+           # AT-56 isCollapsed, AT-57 isHidden, AT-142 isKeptOpen -- became one
+           # column of five values, AT-153 treeState. Table T-254 (KO-1 .. KO-7,
+           # the entrances that set and cleared the kept-open mark) left with
+           # them, because the generated table T-328 now says what every
+           # entrance writes; the KO prefix is gone from the registry. N-15
+           # (the isKeptOpen glossary row) became N-26, and the commands CM-33
+           # setTaskGroupCollapsed, CM-34 setTaskGroupHidden and CM-75
+           # setTaskGroupKeptOpen became CM-85 setTaskGroupTreeState.
+           # S-211 (the unsaved level-zero fold of table T-206) left on ruling
+           # JDG-600: level zero's fold is now saved, as S-418 of table T-203.
+           # CR-570 and rulings.md still name all of them, and the seats stay
+           # burnt.
+           'AT-56', 'AT-57', 'AT-142',
+           'T-254', 'KO-1', 'KO-2', 'KO-3', 'KO-4', 'KO-5', 'KO-6', 'KO-7',
+           'N-15', 'CM-33', 'CM-34', 'CM-75',
+           'S-211',
            'T-006'}
