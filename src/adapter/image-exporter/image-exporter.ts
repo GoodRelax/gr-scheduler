@@ -240,7 +240,7 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
 } = {
-  'S-225': 16,
+  'S-225': 20,
   'S-226': 12,
 }
 

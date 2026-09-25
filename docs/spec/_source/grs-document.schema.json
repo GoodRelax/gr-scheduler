@@ -455,7 +455,7 @@
     },
     "iconHintDelayMs": {
      "type": "integer",
-     "minimum": 500,
+     "minimum": 100,
      "maximum": 10000
     },
     "importMaxBytes": {

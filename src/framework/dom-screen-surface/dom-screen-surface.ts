@@ -279,7 +279,7 @@ export const STYLE = {
   // see FR-039
   // TRAP: every text here stays at the normal weight, the h2 heading included; S-245 is the OC-1 name
   // labels' alone, and NT-7's answer initial is the one bold.
-  documentTitle: 'overflow:hidden;text-overflow:ellipsis;',
+  documentTitle: 'overflow:hidden;text-overflow:ellipsis;line-height:1.2;',
   documentTitleEntry:
     'box-sizing:border-box;width:100%;min-width:0;font:inherit;color:inherit;' +
     'background:transparent;border:0;padding:0;margin:0;',
@@ -1112,7 +1112,7 @@ export const NOT_STORED_DOCUMENT_TITLE_SIZES: {
   readonly 'S-225': number
   readonly 'S-226': number
 } = {
-  'S-225': 16,
+  'S-225': 20,
   'S-226': 12,
 }
 
