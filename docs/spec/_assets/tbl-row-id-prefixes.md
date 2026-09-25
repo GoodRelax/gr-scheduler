@@ -110,7 +110,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 458 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/handoff-state-machine.md` ／ `docs/development-records/rulings.md` | 460 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 122 |
 | `KO` | Kept Open | 開いたままの印を立てる入口と外す入口 | 仕様書 | `T-254` | 7 |
@@ -126,7 +126,7 @@
 | `MK` | — | ポインタとキーボードの割当 1 つ | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-023` | 14 |
 | `MM` | — | 合流のときに示す対応付けの選択肢 | 仕様書 | `T-032a` | 4 |
 | `MN` | Minimum | 最小構成に対して増やしたものと、その理由 | 仕様書 | `T-070` | 9 |
-| `MR` | MSPDI Read | MSPDI を読むときの規約 | 仕様書 | `T-265` | 3 |
+| `MR` | MSPDI Read | MSPDI を読むときの規約 | 仕様書 | `T-265` | 4 |
 | `MS` | Milestone | 開発の節目 | 仕様書 | `T-042` | 6 |
 | `N` | — | データの語 —— エンティティと列の日本語の呼び名 | 仕様書 | `T-101` | 16 |
 | `ND` | Name-label Dates | 名称ラベルに添える予定日の文字の書き方 | 仕様書 | `T-251` | 5 |
