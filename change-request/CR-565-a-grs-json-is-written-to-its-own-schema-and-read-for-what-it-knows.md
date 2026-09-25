@@ -2,6 +2,7 @@
 
 > 起草の状態: 起草（2026-09-24）。未着地。問い 3 つには同じ日に答えが出た —— 問 1 は利用者（`JDG-427`、逐語は 0.1 節）、問 2 ・ 問 3 は前に立つ者（0 節 ③ の決定 14 ・ 15）。11 節に残る問いは無い。12 節の台帳の文は提案であり、本書を書いた体は `rulings.md` ・ `defects.md` に 1 字も書いていない（別の体が同じ日に `JDG-425` 〜 `JDG-427` ・ `DFC-841` を書いている）。
 > 読んだ木: `c835276e`（`refactor` の内容）。行番号・数・参照は、すべてこの木で測った（測り方は 13 節）。
+> ⚠️ **当てる体が `db8f8ec4`（`CR-554` の分割と `CR-568` の後）で測り直した（2026-09-25）** —— 3 節 ・ 5 節 ・ 8 節 ・ 9 節の `file:line` はその木の値に直し、4 節の旧の塊のうち `c835276e` の後で動いた 2 つ（E-06 の末行、J-01 の錨）を直し、`CR-554` の句を書き換える E-08 を足した。直した所と理由は 14 節。
 > ⚠️ **当てる順**（調整役の指定）: `CR-554`（7 つの大きなファイルを割る。`json-codec.ts` を割る）が着地した後、`CR-562`（案内のプロンプトに刊行するスキーマを埋める）の前。本書が「刊行するスキーマが何を約束するか」を決め、`CR-562` はそれを埋める。**`CR-554` の着地後に、4 節の旧の塊を当てる木で数え直してから当てること**（8 節）。
 >
 > **閉じるもの**: `DFC-841`（刷ったスキーマは `documentSettings` を閉じ、読む路と仕様の本文は開けたまま）。利用者の 2026-09-24 の裁定 `JDG-425` 〜 `JDG-427`（逐語は下の 0.1 節）。
@@ -116,18 +117,18 @@ B（押せるリンク）とせよ。
 
 ## 3. ⛔ 消すものを先に列挙する（旧 → 新）
 
-| 消すもの | 所（`c835276e`） | 置き換わる先 | 編集 |
+| 消すもの | 所（`db8f8ec4` で測り直した） | 置き換わる先 | 編集 |
 |---|---|---|---|
-| `OP-6` の「**欠けている設定値は既定値で補い、知らないキーは捨てずに保つ**（往復で失わないため）」 | `01-04-requirements.md:5646` | 解釈できるものだけを読む: 欠けた鍵は既定値、知らない鍵は捨てる、型か列挙が合わない値はその鍵だけ既定値、範囲の外は収める。捨てた鍵は書き戻さない。版が新しくない文書では告げない | E-03 |
-| `IX-3` の全体「退役した鍵も保つ」「⛔ 保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）」 | `01-04-requirements.md:5587` | 「退役した鍵は読むときに捨てる」「書き戻してはならない（MUST NOT）」「告げない」 | E-01 |
-| `FR-073` の「⛔ 拒んではならない（MUST NOT）」（条件の無い言い方） | `01-04-requirements.md:5790` | 版が新しいことを理由に拒んではならない。拒むのは日程データの群が合わない場合だけ | E-04 |
-| `FR-073` の「⛔ 読めなかった列は、解釈せずに持ち回ること（MUST）」「落としてはならない（MUST NOT） —— 見せて確認を取っても、保存で落ちるなら結局失う」 | `01-04-requirements.md:5793-5794` | 続けたときは捨てて開く（MUST）。書き戻してはならない（MUST NOT）。失うことは続ける前の一覧が告げる | E-04 |
-| `FR-073` の「⭐ 持ち回る器は 出自 `Carry` として既に在る」 | `01-04-requirements.md:5795` | —（指し先を外す。`Carry` の 4 区分は変えない） | E-04 |
-| Chapter 6.1 の「⛔ `documentSettings` の群に、知らないキーを拒む条件と、欠けているキーを拒む条件を当ててはならない（MUST NOT） —— … **当てると、同じ文書を一方が受け入れ他方が拒む。**」 | `05-07-design.md:1241` | 刊行するスキーマは厳しいまま（MUST）＋ 読む路は同群の鍵を理由に拒まない（MUST NOT）＋ 食い違う向きは「スキーマが拒み、読む路が開く」の 1 つだけ | E-06 |
-| Chapter 6.1 の「⭐ 同群に当てるのは鍵ごとの型と、原稿が値を綴った列挙だけとする（MUST）」 | `05-07-design.md:1242` | 「読む路が同群の値について見るのは、鍵ごとの型と列挙だけ」（合わなければ既定値。拒まない） | E-06 |
-| 辞書の `RS-48` の次の一手「読めなかった項目はそのまま保たれ、保存し直しても失われません」／「What could not be read is kept, and survives saving again」 | `_source/display-words.json:2694-2697` | 「続けると失われる。失いたくないときは最新版を `{downloadUrl}` から」 | J-02 |
-| 生成器の注「`OP-6` … orders the reading side … to KEEP an unknown key」 | `tools/generate_json_schema_validator.py:28-33` ・ `:109-116` | 9 節（⛔ 本書は直さない） | 実装する者 |
-| コード（⛔ 本書は直さない。9 節） | `json-codec.ts:1510-1514`（版が新しいときの知らない鍵を拒まず文書に残す）、`import-document.ts:214`（`{ ...defaults, ...fromFile }`）、`open-modals.ts:48-61`、`single-html-shell.ts:462-465` | 9 節 | 実装する者 |
+| `OP-6` の「**欠けている設定値は既定値で補い、知らないキーは捨てずに保つ**（往復で失わないため）」 | `01-04-requirements.md:5650` | 解釈できるものだけを読む: 欠けた鍵は既定値、知らない鍵は捨てる、型か列挙が合わない値はその鍵だけ既定値、範囲の外は収める。捨てた鍵は書き戻さない。版が新しくない文書では告げない | E-03 |
+| `IX-3` の全体「退役した鍵も保つ」「⛔ 保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）」 | `01-04-requirements.md:5591` | 「退役した鍵は読むときに捨てる」「書き戻してはならない（MUST NOT）」「告げない」 | E-01 |
+| `FR-073` の「⛔ 拒んではならない（MUST NOT）」（条件の無い言い方） | `01-04-requirements.md:5794` | 版が新しいことを理由に拒んではならない。拒むのは日程データの群が合わない場合だけ | E-04 |
+| `FR-073` の「⛔ 読めなかった列は、解釈せずに持ち回ること（MUST）」「落としてはならない（MUST NOT） —— 見せて確認を取っても、保存で落ちるなら結局失う」 | `01-04-requirements.md:5797-5798` | 続けたときは捨てて開く（MUST）。書き戻してはならない（MUST NOT）。失うことは続ける前の一覧が告げる | E-04 |
+| `FR-073` の「⭐ 持ち回る器は 出自 `Carry` として既に在る」 | `01-04-requirements.md:5799` | —（指し先を外す。`Carry` の 4 区分は変えない） | E-04 |
+| Chapter 6.1 の「⛔ `documentSettings` の群に、知らないキーを拒む条件と、欠けているキーを拒む条件を当ててはならない（MUST NOT） —— … **当てると、同じ文書を一方が受け入れ他方が拒む。**」 | `05-07-design.md:1293` | 刊行するスキーマは厳しいまま（MUST）＋ 読む路は同群の鍵を理由に拒まない（MUST NOT）＋ 食い違う向きは「スキーマが拒み、読む路が開く」の 1 つだけ | E-06 |
+| Chapter 6.1 の「⭐ 同群に当てるのは鍵ごとの型と、原稿が値を綴った列挙だけとする（MUST）」 | `05-07-design.md:1294` | 「読む路が同群の値について見るのは、鍵ごとの型と列挙だけ」（合わなければ既定値。拒まない） | E-06 |
+| 辞書の `RS-48` の次の一手「読めなかった項目はそのまま保たれ、保存し直しても失われません」／「What could not be read is kept, and survives saving again」 | `_source/display-words.json:2701-2704` | 「続けると失われる。失いたくないときは最新版を `{downloadUrl}` から」 | J-02 |
+| 生成器の注「`OP-6` … orders the reading side … to KEEP an unknown key」 | `tools/generate_json_schema_validator.py:26-33` ・ `:107-116` | 9 節（⛔ 本書は直さない） | 実装する者 |
+| コード（⛔ 本書は直さない。9 節） | `json-codec.ts:217-224`（版が新しいときの知らない鍵を拒まず文書に残す）、`import-document.ts:214-216`（`{ ...defaults, ...fromFile }`）、`open-modals.ts:48-61`、`single-html-shell.ts:484-487` | 9 節 | 実装する者 |
 
 ⭐ **消さないもの**: `OP-6` の合流（`MG-12`）と MSPDI（すべて既定値）の 2 段は一字も変えない。Chapter 6.1 の「スキーマを走らせる前に、表 T-297 の列を捨てて読む」「捨てた列を通知してはならず、書き戻してもならない」と 表 T-297 は変えない（R2 はこの扱いを `documentSettings` へ広げたものである）。下限・上限の MUST NOT と「拒めば、見せ方の 1 鍵が…」の ⚠️ と「`MSPDI` の路には当てない」は、E-06 の新の中にそのまま残した。
 
@@ -221,7 +222,7 @@ R1 R2。Chapter 6.1 の表 T-297 の後の段（`documentSettings` の群の MUS
 ⭐ 同群に当てるのは鍵ごとの型と、原稿が値を綴った列挙だけとする（MUST）。  
 下限・上限に反することを拒む条件を当ててはならない（MUST NOT） —— ⛔ 範囲は 表 T-064 の `PI-2` が持つ `clampedSettings` の仕事であり、それは範囲外の値を拒まずに動かして収める。  
 ⚠️ **拒めば、見せ方の 1 鍵が範囲を外れただけで文書全体が開けなくなる** —— `OP-6` が読む側に求めている寛さと逆になる。  
-⚠️ **`MSPDI` の路には当てない**
+⚠️ **`MSPDI` の路には当てない** —— あちらは文書を自分で組み立てるので、**当てても自作物の自己点検にしかならない。**
 ```
 新
 ```text
@@ -234,20 +235,20 @@ R1 R2。Chapter 6.1 の表 T-297 の後の段（`documentSettings` の群の MUS
 ⛔ 日程データの群にこの寛さを当ててはならない（MUST NOT） —— 日程データの群がスキーマに合わない文書は、文書ごと拒む。  
 一部を黙って落とすと、欠けたことが見えないまま日程が読まれる。  
 ⚠️ 形式の版がこの造りの知る最大の版より新しい文書の、知らない列だけは拒まずに並べて見せ、続けたときに捨てる（`01-04-requirements.md` の `FR-073`）。  
-⚠️ **`MSPDI` の路には当てない**
+⚠️ **`MSPDI` の路には当てない** —— あちらは文書を自分で組み立てるので、**当てても自作物の自己点検にしかならない。**
 ```
 
 <!-- EDIT id=J-01 file=docs/spec/_source/settings.json -->
-R3。表 T-206 の最後の行（`S-341`）の後ろに `S-350` を足す。旧
+R3。表 T-206 の最後の行（`db8f8ec4` では `CR-564` が足した `S-416`。起草時は `S-341`）の後ろに `S-350` を足す。旧
 ```text
-      "ja": "見せ方の比であり、日程の内容ではないので保存しない。⭐ `S-329` と `S-330` は、この長さに対する比である"
+      "ja": "`S-415` に同じ。⭐ 上回ると白に潰れる"
      }
     }
    ]
 ```
 新
 ```text
-      "ja": "見せ方の比であり、日程の内容ではないので保存しない。⭐ `S-329` と `S-330` は、この長さに対する比である"
+      "ja": "`S-415` に同じ。⭐ 上回ると白に潰れる"
      }
     },
     {
@@ -327,6 +328,16 @@ Q1 の答え（`JDG-427`）。表 T-003 の `CN-6` の行に、読み方を 1 �
 | CN-6 | 外部通信 | 実行時に外部へ通信しない。<br>外部から取得する資源を持たない。<br>⚠️ 人が押したリンクで、閲覧環境が別の頁を新しいタブに開くことは、本行の通信に当たらない —— 開くのは閲覧環境であり、成果物は何も送らず、何も取得しない（`FR-073`） |
 ```
 
+<!-- EDIT id=E-08 file=docs/spec/05-07-design.md -->
+8 節の指示（`CR-554` が `UF-35` の責務文に書いた「新しい版の知らない鍵を通し」を書き換える）。当てる体が `db8f8ec4` で足した。旧
+```text
+形式の版を判じて新しい版の知らない鍵を通し（`OP-7`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、スキーマの外れで拒み（`RS-25`）、設定値を範囲へ寄せて数える（`OP-6`・`PI-2`）。
+```
+新
+```text
+形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数える（`OP-6`・`PI-2`）。
+```
+
 ---
 
 ## 5. 継ぎ目 —— 両側の依頼文にこのまま写すこと
@@ -336,10 +347,10 @@ Q1 の答え（`JDG-427`）。表 T-003 の `CN-6` の行に、読み方を 1 �
 | S-1 | 仕様 ↔ 読む路（`json-codec.ts` の `documentFromJson`） | 返す文書は、刊行するスキーマに無い鍵を 1 つも持たない。`/documentSettings/<key>` の下の外れは拒みに数えない: 知らない鍵（入れ子の中も）→ その鍵を消す。型・列挙の外れ、または入れ子の中の「欠けている」→ 頭の `<key>` を `SETTINGS_DEFAULTS[<key>]` に替える（決定 6）。頭の `<key>` そのものが欠けている → 何もしない（置き換えのときに `restoredSettings` が補う。決定 11）。下限・上限 → 何もしない（`clampedSettings`） |
 | S-2 | 仕様 ↔ 読む路（日程データ） | `/documentSettings` の外の外れ: 版が新しい（`newerThanKnown`）かつ「知らない鍵」→ その鍵を消し、名を `unreadColumns` に足す。それ以外の外れ → 拒む。理由は版が新しければ `'RS-64'`、そうでなければ今どおり `'RS-25'`（`JsonRefusalReason = 'RS-25' \| 'RS-64'`）。⚠️ 表 T-297 の列は今どおり先に捨て、並べない |
 | S-3 | 読む路 ↔ `unreadColumns`（版が新しいときだけ） | `columnOf(pointer)` の名を、S-1 で消した鍵・既定値に戻した頭の鍵、S-2 で消した鍵の順に、重なりを除いて並べる。版が新しくない文書では常に `[]` |
-| S-4 | 読む路 ↔ 殻（`frame-loop.ts` ・ `single-html-shell.ts`） | 版が新しく `unreadColumns` が空 → 開いたあとに `RS-63`（`NT-5`）を 1 つ告げる。空でない → 今どおり `U-61` で問う（語は `RS-48`）。拒み `RS-64` → `RS-25` と同じ道で告げる（外れの並びも同じ）。`NoticeReason` の和に `'RS-63'` と `'RS-64'` を足し、作法の対応表に `'RS-63': 'NT-5'`、`'RS-64': 'NT-1'` |
+| S-4 | 読む路 ↔ 殻（`frame-loop.ts` ・ `document-file-flow.ts` ・ `single-html-shell.ts`） | 版が新しく `unreadColumns` が空 → 開いたあとに `RS-63`（`NT-5`）を 1 つ告げる。空でない → 今どおり `U-61` で問う（語は `RS-48`）。拒み `RS-64` → `RS-25` と同じ道で告げる（外れの並びも同じ）。`NoticeReason` の和に `'RS-63'` と `'RS-64'` を足し、作法の対応表に `'RS-63': 'NT-5'`、`'RS-64': 'NT-1'` |
 | S-5 | 辞書 ↔ 画面（`src/adapter/screen-renderer/notices.ts` の `reasonSurfaceWords` と、描く側 `src/framework/dom-screen-surface/notices-drawing.ts` ・ `open-modals-drawing.ts`） | 語の中の `{downloadUrl}` の場所に、押せるリンクを 1 つ置く。リンクの字と `href` はどちらも `NOT_STORED_DOWNLOAD_ADDRESS['S-350']`。この定数は `tools/generate_entity_types.py` の `NOT_STORED_TARGETS` に足す 1 項（`'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS)`）が刷る。画面の値は語を「前の字 ・ 所 ・ 後の字」の 3 つに割って運び、描く側は `document.createElement('a')` に `href`、`target="_blank"`、`rel="noopener noreferrer"` を与え、字は `textContent` で入れる（⛔ `innerHTML` を使わない —— `FR-023`）。⚠️ リンクの押しは通知を閉じる押し（`NT-8`）にも、日程の上の押しにも数えない（入力の翻訳へ渡さない）。⛔ URL の字を `src/` ・ `tests/` に書かない（試験は `docs/spec/_source/settings.json` の `S-350` を読む） |
-| S-6 | 書く路（`jsonFromDocument`） | 変えない。R1 は S-1 〜 S-3 と `restoredSettings`（決定 12）から従う。⭐ 試験は、書いた文字列を刊行するスキーマで厳しく（`/documentSettings` の緩めを外して）歩き、外れが 0 であることで確かめる |
-| S-7 | 生成器 ↔ 検証の表（`tools/generate_json_schema_validator.py`、`CR-554` の後は `json-schema-validator.ts`） | `RELAXED_OFF` を `('minimum', 'maximum', 'maxLength', 'pattern')` にする（`required` と `closed` は `/documentSettings` にも残る —— 決定 13）。外れの意味（捨てる／既定値）は S-1 が決める。⭐ 歩く者に「緩めない」歩き方を 1 つ持たせ、S-6 の試験が使う（例: `collectSchemaFaults(value, out, { relaxed: false })`。名は実装する者が決める） |
+| S-6 | 書く路（`jsonFromDocument`） | 変えない。R1 は S-1 〜 S-3 と `restoredSettings`（決定 12）から従う。⭐ 試験は、書いた文字列を刊行するスキーマで厳しく（`/documentSettings` の緩めを外して）歩き、外れが 0 であることで確かめる。⚠️ 厳しく歩く者は木に既に在る —— `tests/fixtures/grs-document.ts` の `validateDocument`（ajv、開発の依存だけ）が刊行するスキーマをそのまま読む（14 節） |
+| S-7 | 生成器 ↔ 検証の表（`tools/generate_json_schema_validator.py`、`CR-554` の後は `grs-json-schema.ts`（`UF-152`）） | `RELAXED_OFF` を `('minimum', 'maximum', 'maxLength', 'pattern')` にする（`required` と `closed` は `/documentSettings` にも残る —— 決定 13）。外れの意味（捨てる／既定値）は S-1 が決める。⚠️ 歩く者に「緩めない」歩き方は足さない —— S-6 の試験は `tests/fixtures/grs-document.ts` の `validateDocument` で歩く（14 節） |
 | S-8 | 置き換え（`import-document.ts` の `restoredSettings`） | 既定値の鍵ごとに、文書の値があればそれ、無ければ既定値。既定値に無い鍵は採らない（決定 12） |
 
 ---
@@ -422,14 +433,14 @@ wave 0  spec     re-count section 4's old blocks on the tree after CR-554 (count
                     check-quoted-source (+1), the verbatim tests of section 9
 wave 1  (parallel, disjoint files; cut from wave 0's commit)
   1a adapter/document-codec   json-codec.ts (S-1, S-2, S-3; JsonRefusalReason gains 'RS-64'),
-                              json-schema-validator.ts after CR-554 (the strict walk of S-7),
+                              grs-json-schema.ts after CR-554 (the regenerated table of S-7),
                               tools/generate_json_schema_validator.py (RELAXED_OFF, head note)
   1b words and the address    tools/generate_entity_types.py (NOT_STORED_TARGETS gains S-350),
                               src/adapter/screen-renderer/notices.ts ({downloadUrl}, S-5),
                               src/adapter/screen-renderer/open-modals.ts (RS-48 words via notices)
                               src/framework/dom-screen-surface/notices-drawing.ts and
                               open-modals-drawing.ts (the link of S-5: createElement, target, rel)
-  1c shell                    src/framework/single-html-shell/frame-loop.ts and single-html-shell.ts
+  1c shell                    src/framework/single-html-shell/frame-loop.ts, document-file-flow.ts and single-html-shell.ts
                               (RS-63 after a newer open with nothing unread; RS-64 on the refusal
                                path; NoticeReason and the manner map, S-4)
   1d use-case                 src/use-case/import-document/import-document.ts (restoredSettings, S-8)
@@ -447,16 +458,16 @@ wave 2  tests by a spec-only tester (never an implementer), on the MERGED tree;
 
 | 所 | 何をする |
 |---|---|
-| `src/adapter/document-codec/json-codec.ts:1505-1514`（`collectFaults` の後、`isNewer` のときだけ知らない鍵を拒みから外し、文書に残す） | S-1 〜 S-3。知らない鍵は文書から消す。`/documentSettings` の外れは消す／既定値。版が新しい拒みは `'RS-64'` |
-| 同 `:24`（`JsonRefusalReason = 'RS-25'`） | `'RS-25' \| 'RS-64'`（S-2） |
-| 同 `:1519`（TRAP「a reader before OP-6 may find documentSettings keys missing」） | 頭の鍵が欠けうることは変わらない（決定 11）。注は残してよい |
-| `tools/generate_json_schema_validator.py:28-33`（頭の注「`OP-6` … to KEEP an unknown key」）・ `:109-116`（`RELAXED_OFF`） | S-7。注の理由を「`OP-6` は知らない鍵を捨て、欠けた鍵を補う。それを決めるのは `json-codec.ts` であり、歩く者は外れを並べる」に書き直す |
-| `tools/generate_entity_types.py:1102`〜（`NOT_STORED_TARGETS`） | `'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS)` を足し、`src/adapter/screen-renderer/notices.ts` へ刷る（S-5）。`not_stored_cell` はコード 1 つだけのセルを文字列として読むので、生成器の本体は変えない |
-| `src/adapter/screen-renderer/notices.ts:133`（`reasonSurfaceWords`） | `{downloadUrl}` を置き換える（S-5） |
+| `src/adapter/document-codec/json-codec.ts:217-224`（`collectSchemaFaults` の後、`isNewer` のときだけ知らない鍵を拒みから外し、文書に残す） | S-1 〜 S-3。知らない鍵は文書から消す。`/documentSettings` の外れは消す／既定値。版が新しい拒みは `'RS-64'` |
+| 同 `:25`（`JsonRefusalReason = 'RS-25'`） | `'RS-25' \| 'RS-64'`（S-2） |
+| 同 `:228`（TRAP「a reader before OP-6 may find documentSettings keys missing」） | 頭の鍵が欠けうることは変わらない（決定 11）。注は残してよい |
+| `tools/generate_json_schema_validator.py:26-33`（頭の注「`OP-6` … to KEEP an unknown key」）・ `:107-116`（`RELAXED_OFF`） | S-7。注の理由を「`OP-6` は知らない鍵を捨て、欠けた鍵を補う。それを決めるのは `json-codec.ts` であり、歩く者は外れを並べる」に書き直す |
+| `tools/generate_entity_types.py:1100`〜（`NOT_STORED_TARGETS`）と書き先の並び（`:2283` の `fit-zoom.ts` の項の後） | `'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS)` を足し、`src/adapter/screen-renderer/notices.ts` へ刷る（S-5）。`not_stored_cell` はコード 1 つだけのセルを文字列として読むので、生成器の本体は変えない |
+| `src/adapter/screen-renderer/notices.ts:133-143`（`reasonSurfaceWords`）・ `:159-171`（`toldNotice`） | `{downloadUrl}` を置き換える（S-5） |
 | `src/adapter/screen-renderer/open-modals.ts:48-61`（`unreadWords`） | 変えない（語は辞書から来る）。⚠️ `reasonSurfaceWords` を通ることだけ確かめる |
-| `src/framework/dom-screen-surface/notices-drawing.ts:36`（`nextSteps` を字で描く）・ `open-modals-drawing.ts:434-436` ・ `:512-514`（`unreadNextStep` ・ `nextStep` を `textContent` で描く） | 次の一手が所を持つときは、字の間に `<a href target="_blank" rel="noopener noreferrer">` を組んで置く（S-5）。⚠️ いまは `textContent` 1 つなので、画面の値の形（字 1 つ → 3 つ）が変わる |
-| `src/framework/single-html-shell/frame-loop.ts:212` ・ `:838` ・ `:893`（`NoticeReason` と作法の対応）、`:3675` ・ `:3704`（開く道の `unreadColumns`） | S-4 |
-| `src/framework/single-html-shell/single-html-shell.ts:462-465`（起動時に渡された文書。`DFC-561` の逸脱で `RS-48` だけを告げる） | 版が新しく読めなかった列が無いときの `RS-63` を同じ所に足す。`DFC-561` の逸脱（問わずに告げるだけ）は本書では直さない（10 節） |
+| `src/framework/dom-screen-surface/notices-drawing.ts:36-40`（`nextSteps` を字で描く）・ `open-modals-drawing.ts:434-438` ・ `:516-520`（`unreadNextStep` ・ `nextStep` を `textContent` で描く） | 次の一手が所を持つときは、字の間に `<a href target="_blank" rel="noopener noreferrer">` を組んで置く（S-5）。⚠️ いまは `textContent` 1 つなので、画面の値の形（字 1 つ → 3 つ）が変わる |
+| `src/framework/single-html-shell/frame-loop.ts:237-240`（`StartupNoticeReason`）・ `:439` ・ `:494`（`NoticeReason` と作法の対応）、`document-file-flow.ts:194-215`（`decodedDocument`、拒みを `null` にする）・ `:404-448`（開く道の `unreadColumns`） | S-4 |
+| `src/framework/single-html-shell/single-html-shell.ts:484-487`（起動時に渡された文書。`DFC-561` の逸脱で `RS-48` だけを告げる） | 版が新しく読めなかった列が無いときの `RS-63` を同じ所に足す。`DFC-561` の逸脱（問わずに告げるだけ）は本書では直さない（10 節） |
 | `src/use-case/import-document/import-document.ts:212-216`（`restoredSettings`） | S-8（決定 12） |
 
 **試験**（いまの主張と本書の後。前に立つ者の体が `c835276e` で全数を読んだ。仕様だけを読む試験の体が書き直す）:
@@ -597,3 +608,27 @@ PYTHONIOENCODING=utf-8 python <scratchpad>/cr565-assemble.py   # asserts the quo
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-cr-discipline.py ; echo "exit=$?"
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-identifier-reservation.py ; echo "exit=$?"
 ```
+
+---
+
+## 14. 当てる前の測り直し（2026-09-25、`db8f8ec4`）
+
+⭐ 当てる体が、`CR-554`（7 つの大きなファイルを割る）と `CR-568` の後の木で測り直した。4 節の旧の塊は、下の 2 つを除いて 1 回ずつ現れた（`cr565-edits.py` の数え、写しの外で当てる前）。
+⚠️ 塊は末尾の改行を外して数え、当てた —— E-06 の末行と E-08 は行の途中で終わるので、改行ごと数えると 0 回になる。外しても 10 の塊はどれも 1 回である。
+
+| 所 | 起草時（`c835276e`） | 測り直し（`db8f8ec4`） | 直したこと |
+|---|---|---|---|
+| E-06 の旧の末行 | 「⚠️ **`MSPDI` の路には当てない**」で行が終わるとして塊を切っていた | 同じ行が「 —— あちらは文書を自分で組み立てるので、…」と続く（`05-07-design.md:1297`）ので、旧は 0 回 | 旧 ・ 新の末行に行の残りを足した（新の文は変えない） |
+| J-01 の錨 | 表 T-206 の最後の行は `S-341` | `CR-564` が `S-415` ・ `S-416` を後ろに足した（`settings.json:4385`）ので、旧は 0 回 | 錨を `S-416` の注の末尾にした |
+| `UF-35` の責務文 | 8 節は「知らない鍵を通す」を探せと言う | `05-07-design.md:472` に「新しい版の知らない鍵を通し（`OP-7`）」 | E-08 を足した。あわせて同じ文に `documentSettings` の捨て方（`OP-6`）と `RS-64` を足した |
+| 読む路 | `json-codec.ts:1505-1514`（1 つのファイル） | 歩く者と生成した表は `grs-json-schema.ts`（`UF-152`）、捨てる ・ 既定値の判じは `json-codec.ts:217-224` | 3 ・ 5 ・ 8 ・ 9 節の所を直した |
+| 開く道 | `frame-loop.ts:3675` ・ `:3704` | `document-file-flow.ts:194-215`（`decodedDocument`）・ `:404-448`（`openDocumentIntoHold`）。起動時は `single-html-shell.ts:484-487` | 同上 |
+| S-6 ・ S-7 の厳しい歩き | 歩く者に「緩めない」歩き方を足す | `tests/fixtures/grs-document.ts` の `validateDocument`（ajv、`devDependencies` だけ）が刊行するスキーマをそのまま厳しく読む | 歩く者には足さない（同じ務めを 2 つ持たない） |
+
+⚠️ **測って分かった、本書の範囲に掛かる事実**（当てる体の判じ。あとから覆せる）:
+
+- **開く道は、`RS-25` の拒みを告げない**（`document-file-flow.ts:194-215` が理由を捨てて `null` を返す —— `DFC-656`）。S-4 の「拒み `RS-64` → `RS-25` と同じ道で告げる」は、この道では「黙る」になる。⭐ `RS-64` だけは告げることにした —— `FR-073`（E-04）が「どの理由を告げるときも案内する」と求め、`JDG-426` の案内は拒む文書にこそ要る。`RS-25` の沈黙（`DFC-656`）は `JDG-78` のとおり異常系の巡に残す。
+- **`U-61` は合流で対応の候補があるときにしか立たない** —— 置き換えと、候補の無い合流では、版が新しく読めなかった列がある文書も問わずに開く（本書の前から）。本書の後は読めなかった列を捨てるので、黙れば `FR-073` の「並べずに捨ててはならない（MUST NOT）」に反する。⭐ その 2 つの道では、開いたあとに `RS-48` を告げる（起動時の `DFC-561` と同じ逸脱）。問う形へ直すのは本書の外（台帳 `DFC-855`）。
+- **S-5 の運び方**: 次の一手の字（`nextSteps`・`unreadNextStep`）は、`{downloadUrl}` を所に置き換えた 1 つの字のまま運び、リンクを置く所だけを「前の字 ・ 所 ・ 後の字」の 3 つで並べて運ぶ（`Notice.nextStepLinks`、`Difference Review` の `unreadNextStepLink`）。字だけを読む側（試験、集めた起動時の通知）の形を変えないためである。
+- **`DFC-948` の原因（古い文書に必須の鍵 `documentStamp.fileSavedUtc` ・ `schedule.project.outlineBase` が無い）は本書の範囲の外** —— R2 の寛さは `documentSettings` の群だけであり、日程データと刻印の群の欠けた鍵は、今どおり文書ごと拒む（S-2）。
+- 版が新しい文書を開いて書き出すと、`schemaVersion` はその新しい版のまま書かれる（`jsonFromDocument` は文書の値を書く）。刊行するスキーマは `schemaVersion` を文字列としか縛らないので R1 には反しないが、開き直すたびに `RS-63` を告げる。⛔ どの版を書くかを決める行は仕様に無い —— 本書は決めない。
