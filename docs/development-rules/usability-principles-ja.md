@@ -1,4 +1,3 @@
-``````markdown
 # ユーザビリティの体系 —— 良いソフトとは何か、出典つき
 
 - 作成日: 2026-09-25
@@ -323,4 +322,3 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | [S24] | MacKenzie, I. S. (1992). Fitts' law as a research and design tool in human-computer interaction. Human-Computer Interaction, 7(1). |
 | [S25] | Hick, W. E. (1952). On the rate of gain of information. Quarterly Journal of Experimental Psychology, 4(1). |
 | [S26] | Hyman, R. (1953). Stimulus information as a determinant of reaction time. Journal of Experimental Psychology, 45(3). |
-``````
