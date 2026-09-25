@@ -67,7 +67,7 @@ HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::routeOf li
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::taskGeometryOf lines=58 branches=13
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=268 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
-HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::pinnedBandOf lines=59 branches=9
+HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines=59 branches=9
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=315 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
