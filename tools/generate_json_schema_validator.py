@@ -12,7 +12,7 @@ The same preamble now says the schema MUST actually run on the road that reads
 `CP-20` of table T-062, which is src/adapter/document-codec. So the schema is
 turned into TypeScript and planted inside that unit:
 
-  src/adapter/document-codec/json-codec.ts    the node table the walker reads
+  src/adapter/document-codec/grs-json-schema.ts    the node table, beside the walker that reads it
 
 ⛔ ajv is NOT bundled. `PO-4` of table
 T-232 allows script-src exactly one sha256, and ajv's ordinary compile builds
@@ -65,7 +65,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SCHEMA = os.path.join(ROOT, 'docs', 'spec', '_source', 'grs-document.schema.json')
-TARGET = os.path.join(ROOT, 'src', 'adapter', 'document-codec', 'json-codec.ts')
+TARGET = os.path.join(ROOT, 'src', 'adapter', 'document-codec', 'grs-json-schema.ts')
 
 # ⚠️ The marker carries NO path, for the reason generate_entity_types.py
 # records: a marker that names the manuscript stops matching when the
@@ -128,13 +128,13 @@ def unknown_keyword(keyword, at):
         'generate_json_schema_validator: the schema uses %r at %r, which this\n'
         '  generator neither expresses nor deliberately drops.\n'
         '  ⛔ Do not ignore it: a rule nobody runs is the state the preamble of\n'
-        '  table T-220 was written to end. Teach the walker in json-codec.ts to\n'
+        '  table T-220 was written to end. Teach the walker in grs-json-schema.ts to\n'
         '  obey it and add it to EXPRESSED, or add it to DROPPED with the reason.'
         % (keyword, at or '/'))
 
 
 def reduce_node(node, at, formats):
-    """One schema node, cut down to what the walker in json-codec.ts obeys."""
+    """One schema node, cut down to what the walker in grs-json-schema.ts obeys."""
     if not isinstance(node, dict):
         raise SystemExit('generate_json_schema_validator: %r is not a schema '
                          'node' % (at,))

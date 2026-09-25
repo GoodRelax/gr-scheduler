@@ -724,6 +724,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-38 | `app-shell-source.ts` | 内部 | n/a |  | ✅ 受入済 |
 | UF-37 | `embedded-html-codec.ts` | 内部 | semi-pure-b |  | ✅ 受入済 |
 | UF-35 | `json-codec.ts` | 内部 | pure |  | ✅ 受入済 |
+| UF-152 | `grs-json-schema.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-36 | `mspdi-codec.ts` | 内部 | pure |  | ✅ 受入済 |
 
 ### `file-gateway` —— FileGateway（PI-22）

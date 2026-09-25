@@ -28,7 +28,7 @@ excess-lines=7189 excess-branches=674
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::agentApiMembers lines=345 branches=0
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 branches=7
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
-HELD src/adapter/document-codec/json-codec.ts::collectFaults lines=55 branches=22
+HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=57 branches=11
 HELD src/adapter/document-codec/mspdi-codec.ts::readStartTag lines=49 branches=27
 HELD src/adapter/document-codec/mspdi-codec.ts::readXml lines=105 branches=27
