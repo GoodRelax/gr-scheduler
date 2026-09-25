@@ -26,7 +26,7 @@
 
 ### 0.2 調べた結果
 
-**測り方**（13 節に再現の手順）: 文書スキーマ `grs-document.schema.json` の `properties.documentSettings.properties` の鍵を全部並べた。それぞれを `settings.json` の行と、鍵の欄の綴りで突き合わせた（入れ子の 2 鍵 `fontScaleSizes`・`shapeHeightOf` は行を手で当てた）。画面から書き換わるかどうかは、`documentSettings` を書く唯一の場所 `src/use-case/edit-document/edit-document-settings.ts` の命令 15 種が書く鍵で決めた（設定パネルは読むだけ —— `properties-panel.ts` の `isEditable: false`、`FR-072`）。
+**測り方**（13 節に再現の手順）: 文書スキーマ `grs-document.schema.json` の `properties.documentSettings.properties` の鍵を全部並べた。それぞれを `settings.json` の行と、鍵の欄の綴りで突き合わせた（入れ子の 2 鍵 `fontScaleSizes`・`shapeHeightOf` は行を手で当てた）。画面から書き換わるかどうかは、人の操作で新しい値を書く唯一の場所 `src/use-case/edit-document/edit-document-settings.ts` の命令 15 種が書く鍵で決めた（設定パネルは読むだけ —— `properties-panel.ts` の `isEditable: false`、`FR-072`）。⚠️ `documentSettings` を書く所はほかに 3 つある（`e1b8bab2` で測り直した体が見つけた）—— 取り消し・やり直しで 20 鍵を今の値のまま運ぶ `columnsOutsideHistory`（`document-change-plan.ts`）、行を消したときにピン止めとスクロールの行 id を掃除する `editTaskGroup` の `deleteTaskGroup`（`edit-task-group.ts`）、取り込みで `documentSettings` を丸ごと差し替える・合わせる `replacedDocument`・`mergedDocument`（`import-document.ts`）。どれも値を運ぶか消すだけで、人の選択から新しい値を作らないので、分類は変わらない。⚠️ 取り込みの差し替えこそが、古いファイルの凍った値が入ってくる道である。
 
 1. **111 鍵のうち、画面の操作で書き換わるのは 29 鍵だけである。** 残りの 82 鍵は、どの命令も書かない。ファイルに入る値は、そのファイルを最初に書いた `GRS` の既定値そのものである。
    - 例: 利用者が `JDG-602` で `S-124` を 150 にした。その前に保存した `.json` を同僚に渡すと、同僚の `GRS` が新しくても 1000ms で出る。値の正は 1 行なのに、ファイルの数だけ写しがある。
@@ -231,10 +231,15 @@ SEAM (verbatim in every brief of waves 2a..2d and 3)
   dualCursor, propertyPanelWidth, same spellings.
   themePreference starts from prefers-color-scheme (light when unread);
   the other three start from table T-206.
-  themeMonochrome stays a stored key (JDG-626). None is written to a file,
-  localStorage, the undo history, the unsaved mark or the stamp.
+  None of these four is written to a file, localStorage, the undo
+  history, the unsaved mark or the stamp.
+- themeMonochrome stays a stored key of DocumentSettings (JDG-626): saved,
+  undoable, an unsaved edit, exactly as today.
 - CM-59, CM-60, CM-61, CM-63 move to screen commands; CM-64 stays; CM-67 writes
   rowTitlePanelWidth only.
+- columnsOutsideHistory (document-change-plan.ts) carries 20 keys across
+  undo/redo; drop propertyPanelWidth and dualCursor from it (they leave
+  DocumentSettings). Keep the other 18.
 - No reading conversion (JDG-601): OP-6 already drops unknown keys.
 ```
 
@@ -443,3 +448,88 @@ python .claude/skills/spec-graph-check/impact.py S-2 S-3 S-65 S-66 S-72 S-74 S-8
 | 109 | `truncateUnits` | `S-35`（T-201） | 定数 | 表 T-201 ごと定数へ（保存しない） | 1 | 17 |
 | 110 | `zoomX` | `S-75`（T-203） | 内容 | 表 T-203 に残る（保存する） | 47 | 395 |
 | 111 | `zoomY` | `S-76`（T-203） | 内容 | 表 T-203 に残る（保存する） | 59 | 488 |
+
+---
+
+## 15. 波 3 —— 仕様だけの試験の体への依頼文（下書き。2026-09-26、`e1b8bab2` の時点）
+
+⭐ 調整役の指示（2026-09-26）で、`CR-570` の着地を待つ間に下書きした。⛔ 渡す前に、起点の sha と、波 1（仕様）が実際に書いた行 ID・文をこの依頼文へ入れ直すこと —— 依頼文が挙げる振る舞いは本書の計画であり、試験の正は波 1 の後の `docs/spec` である。
+
+```
+BRIEF -- CR-572 wave 3: spec-only tester
+
+ROLE
+You write tests for CR-572 from the specification alone. You did not write
+the code and must not read its bodies: under src/ you may read only a
+file's header comment, its exported types and its signatures. Everything
+you expect comes from docs/spec (and this brief's SEAM, which the
+implementers were given word for word). If the spec is unclear or silent
+on a point, do NOT test it: report "no clause" with what you looked for.
+Never change an expected value to match the code; a red test is a finding.
+Quote the spec sentence (file:line) a test enforces in the test's name or
+first comment.
+
+BASE
+<sha given by the coordinator: the merged tree after CR-572 waves 1..2d>
+
+WRITE ONLY
+New files tests/unit/cr-572-*.test.ts and tests/system/cr-572-*.test.ts.
+Do not edit other tests, src/, docs/, baselines. No worktrees, no
+node_modules junctions, no git stash, no commits (the coordinator commits).
+Run vitest with the root's copy by relative path, never npx:
+  node ../../../node_modules/vitest/vitest.mjs run <files>
+(from a session worktree; from the root use node_modules/vitest/vitest.mjs)
+
+SEAM (copied verbatim from CR-572 section 5)
+<paste section 5 of the CR here, unchanged>
+
+WHAT TO LOOK FOR IN THE SPEC, AND TEST IF A CLAUSE EXISTS
+1. Stored keys. The saved GRS JSON's documentSettings holds exactly the
+   keys of the settings tables the spec says are stored (after wave 1:
+   tables T-202 and T-203), no more, no fewer. Drive the test from a
+   fixture copied from docs/spec/_assets/tbl-settings.md, not from src.
+2. Constants are not in the file. No key of the tables the spec marks
+   "not stored" (T-201, T-204, T-205, T-208, T-210..T-215, T-206, T-207)
+   appears in a saved file.
+3. An old file still opens and the constants win (OP-6, DFC-995). Open a
+   GRS JSON whose documentSettings also carries iconHintDelayMs: 1000,
+   basePlanHeight, themePreference: "dark", guideCursorMode,
+   dualCursor, propertyPanelWidth. It opens; those keys are dropped; the
+   next save does not write them; the tooltip delay in effect is the
+   spec's S-124 value, not 1000.
+4. Light/dark theme (FR-039 after wave 1, JDG-624). At start it follows
+   the browser's prefers-color-scheme (dark -> dark, light -> light,
+   unreadable -> light). Switching it: is not an unsaved edit (FR-100),
+   is not an undo step (table T-027), does not move either stamp
+   (FR-063), is not written to the file nor to localStorage, and is gone
+   after a reload.
+5. Monochrome stays in the file (JDG-626). Switching it IS saved, IS an
+   undo step (UN-13) and IS an unsaved edit; a saved file reopens
+   monochrome (WY-1).
+6. Guide cursor and property panel width (JDG-625). Not in the file; after
+   a reload they are table T-206's initial values (guide none, width
+   S-171).
+7. Dual cursor (JDG-622, DC-1, DC-7). Its two dates are never in the file;
+   leaving the mode clears them.
+8. Font size stays in the file (JDG-621). fontScale and the two ruler keys
+   S-2 / S-3 are saved and follow a font size change (FR-039).
+9. Agent API (table T-108). CM-59, CM-60, CM-61, CM-63 are no longer
+   document commands an Agent can send; CM-64 still is.
+10. Export (FR-080). The exported picture uses the exporter's current
+   light/dark and the document's monochrome.
+
+PROVE EACH TEST BITES (docs/development-rules/04-verification.md section 2)
+On a scratch COPY of the merged tree (never the tree itself), break the
+behaviour the test guards (for 1-3: add one constant key back to the
+stored set, or change the S-124 value in docs/spec/_source/settings.json
+and regenerate; for 4: persist the theme into the document), run the
+test, see it go red, then discard the copy. A test that stays green
+under its break is reported as not biting.
+
+REPORT (under 60 lines)
+- each test: file, name, spec clause it quotes, green/red on BASE,
+  red under its break (yes/no)
+- every red on BASE: the spec sentence, what the app did instead
+- every point above with no clause in the spec ("no clause"), and what
+  you searched for
+```
