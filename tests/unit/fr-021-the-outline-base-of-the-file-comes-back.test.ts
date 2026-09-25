@@ -159,11 +159,25 @@ const BASE_ONE_ROWS: readonly Row[] = [
   },
 ]
 
-const BASE_ZERO_ROWS: readonly Row[] = [
+const MS_PROJECT_ROWS: readonly Row[] = [
   {
     uid: 0,
     id: 0,
     name: 'Base fixture',
+    level: 0,
+    outlineNumber: '0',
+    summary: 1,
+    start: '2026-04-06T08:00:00',
+    finish: '2026-04-24T17:00:00',
+  },
+  ...BASE_ONE_ROWS,
+]
+
+const BASE_ZERO_ROWS: readonly Row[] = [
+  {
+    uid: 4,
+    id: 0,
+    name: 'Delta',
     level: 0,
     outlineNumber: '0',
     summary: 1,
@@ -227,11 +241,28 @@ describe('FR-021 -- the manuscript this file is driven by', () => {
   it('drives two fixtures that really are the two shapes FR-021 describes', () => {
     const zeros = (rows: readonly Row[]) => rows.filter((row) => row.level === 0).length
     expect(zeros(BASE_ONE_ROWS), 'ProjectLibre writes none').toBe(0)
-    expect(zeros(BASE_ZERO_ROWS), 'MS Project writes exactly one').toBe(1)
+    expect(zeros(MS_PROJECT_ROWS), 'MS Project writes exactly one').toBe(1)
     expect(Math.min(...BASE_ONE_ROWS.map((row) => row.uid))).toBe(1)
-    expect(BASE_ZERO_ROWS[0]?.uid).toBe(0)
-    expect(BASE_ZERO_ROWS[0]?.id).toBe(0)
-    expect(BASE_ZERO_ROWS[0]?.outlineNumber).toBe('0')
+    expect(MS_PROJECT_ROWS[0]?.uid).toBe(0)
+    expect(MS_PROJECT_ROWS[0]?.id).toBe(0)
+    expect(MS_PROJECT_ROWS[0]?.outlineNumber).toBe('0')
+    expect(MS_PROJECT_ROWS.slice(1)).toEqual(BASE_ONE_ROWS)
+  })
+
+  it('still reads the project summary task out of the count, so the MS Project shape starts at 1', () => {
+    expect(FR_021).toContain(
+      '⭐ **プロジェクトの要約タスクは `Task` にせず、原形のまま持ち回る** —— 読み方は 表 T-265 の `MR-4`、書き戻し方は 表 T-033 の `EX-5` が持つ。',
+    )
+    expect(FR_021).toContain('⇒ 要約タスクを起点に数えないので、見本の 7 つはどれも起点が 1 になる。')
+    expect(columnRow('Project', 'outlineBase').cells.join(' ')).toContain(
+      'プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`',
+    )
+  })
+
+  it('drives a base-0 fixture whose OutlineLevel 0 row is a Task, not the project summary task', () => {
+    const zeros = BASE_ZERO_ROWS.filter((row) => row.level === 0)
+    expect(zeros).toHaveLength(1)
+    expect(zeros[0]?.uid, 'UID 0 with OutlineLevel 0 would be the project summary task (MR-4)').not.toBe(0)
     expect(BASE_ZERO_ROWS.slice(1)).toEqual(BASE_ONE_ROWS)
   })
 })
@@ -242,7 +273,11 @@ describe('FR-021 (MUST) -- the outline base of the file that came in is kept', (
     expect(baseOf(imported(fileOf(BASE_ONE_ROWS)))).toBe(1)
   })
 
-  it('remembers 0 for a file that carries an OutlineLevel 0 row', () => {
+  it('remembers 1 for an MS Project file: its OutlineLevel 0 row is the project summary task, not counted (AT-139)', () => {
+    expect(baseOf(imported(fileOf(MS_PROJECT_ROWS)))).toBe(1)
+  })
+
+  it('remembers 0 for a file whose OutlineLevel 0 row is a Task', () => {
     expect(baseOf(imported(fileOf(BASE_ZERO_ROWS)))).toBe(0)
   })
 
@@ -258,6 +293,15 @@ describe('FR-021 (MUST) -- the outline base of the file that came in is kept', (
   it('brings a base-0 file back unchanged in the four columns', () => {
     const before = tasksOf(fileOf(BASE_ZERO_ROWS))
     const after = tasksOf(roundTripped(fileOf(BASE_ZERO_ROWS)))
+    expect([...after.keys()].sort()).toEqual([...before.keys()].sort())
+    for (const [uid, fields] of before) {
+      expect(fourOf(after.get(uid) ?? {}), `Task UID ${uid}`).toEqual(fourOf(fields))
+    }
+  })
+
+  it('brings an MS Project file back unchanged in the four columns, its summary task included', () => {
+    const before = tasksOf(fileOf(MS_PROJECT_ROWS))
+    const after = tasksOf(roundTripped(fileOf(MS_PROJECT_ROWS)))
     expect([...after.keys()].sort()).toEqual([...before.keys()].sort())
     for (const [uid, fields] of before) {
       expect(fourOf(after.get(uid) ?? {}), `Task UID ${uid}`).toEqual(fourOf(fields))
@@ -283,7 +327,7 @@ describe('FR-021 (MUST) -- the outline base of the file that came in is kept', (
   })
 
   it('keeps the base itself across the round trip, not only the first read', () => {
-    for (const rows of [BASE_ONE_ROWS, BASE_ZERO_ROWS]) {
+    for (const rows of [BASE_ONE_ROWS, BASE_ZERO_ROWS, MS_PROJECT_ROWS]) {
       const once = imported(fileOf(rows))
       const twice = imported(mspdiFromDocument(once).text)
       expect(baseOf(twice), 'the base changed on the second pass').toBe(baseOf(once))

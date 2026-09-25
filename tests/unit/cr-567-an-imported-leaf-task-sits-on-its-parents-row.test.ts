@@ -356,19 +356,32 @@ describe('CR-567 -- FR-058 below and at the S-125 cap', () => {
 
 describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', () => {
   const text = readFileSync(join(process.cwd(), 'sample-schedule', 'sample-large-erp-program.ja.xml'), 'utf8')
-  const fileTasks = tasksInFile(text)
+  const everyFileTask = tasksInFile(text)
+  const fileTasks = everyFileTask.filter((each) => !(each.uid === 0 && each.level === 0))
   const parents = parentsInFile(fileTasks)
   const expected = expectedRows(parents, MAX_GROUP_DEPTH)
   const document = accepted(text)
 
-  it('reads the 257 tasks JDG-560 counted', () => {
-    expect(fileTasks).toHaveLength(257)
-    expect(document.schedule.tasks).toHaveLength(257)
+  it('reads 256 of the 257 Task elements: the project summary task is no Task (MR-4, JDG-580)', () => {
+    expect(everyFileTask).toHaveLength(257)
+    expect(everyFileTask.filter((each) => each.uid === 0 && each.level === 0)).toHaveLength(1)
+    expect(fileTasks).toHaveLength(256)
+    expect(document.schedule.tasks).toHaveLength(256)
+    expect(document.schedule.tasks.some((each) => each.uid === 0)).toBe(false)
   })
 
-  it('makes 38 rows, one per Task with children or with no parent (JDG-560)', () => {
+  it('makes 37 rows, one per Task with children or with no parent (JDG-560, JDG-580)', () => {
     checkRows(document, expected)
-    expect(document.schedule.taskGroups).toHaveLength(38)
+    expect(document.schedule.taskGroups).toHaveLength(37)
+  })
+
+  it('gives the OutlineLevel 1 tasks of the file no WBS parent (MR-4)', () => {
+    const topLevel = fileTasks.filter((each) => each.level === 1).map((each) => each.uid)
+    expect(topLevel).toHaveLength(12)
+    for (const uid of topLevel) {
+      expect(document.schedule.tasks.find((each) => each.uid === uid)?.wbsParentUid, `task ${uid}`).toBeNull()
+    }
+    expect(siblingOrder(document, null), 'the import alone keeps the file order').toEqual(topLevel)
   })
 
   it('puts more than one Task on a row, up to the 19 CR-567 counted', () => {
