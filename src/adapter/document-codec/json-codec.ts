@@ -4,7 +4,10 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import { clampedSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_DEFAULTS,
+  clampedSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   dayOf,
   lastDayForLength,
@@ -15,6 +18,7 @@ import {
   collectSchemaFaults,
   collectionNamesOfEntity,
   fault,
+  isMissingKeyFault,
   isUnknownKeyFault,
   type JsonFault,
 } from './grs-json-schema'
@@ -22,9 +26,15 @@ import { isObject, mspdiVersionOfCarried, withoutLeadingByteOrderMark } from './
 
 export type { JsonFault } from './grs-json-schema'
 
-export type JsonRefusalReason = 'RS-25'
+export type JsonRefusalReason = 'RS-25' | 'RS-64'
 
 export type FormatVersionReading = 'notCompared' | 'known' | 'newerThanKnown'
+
+const SCHEMA_REFUSAL_REASON: JsonRefusalReason = 'RS-25'
+
+const NEWER_SCHEMA_REFUSAL_REASON: JsonRefusalReason = 'RS-64'
+
+const SETTINGS_GROUP = 'documentSettings'
 
 export type JsonDecoding =
   | {
@@ -41,14 +51,95 @@ export type JsonDecoding =
     }
 
 /** @purity pure */
-function columnOf(at: string): string {
-  const last = at.slice(at.lastIndexOf('/') + 1)
-  return last.replace(/~1/g, '/').replace(/~0/g, '~')
+function unescapedSegment(segment: string): string {
+  return segment.replace(/~1/g, '/').replace(/~0/g, '~')
 }
 
 /** @purity pure */
-function refusal(faults: readonly JsonFault[]): JsonDecoding {
-  return { ok: false, reason: 'RS-25', faults }
+function segmentsOf(at: string): readonly string[] {
+  return at.split('/').slice(1).map(unescapedSegment)
+}
+
+/** @purity pure */
+function columnOf(at: string): string {
+  return unescapedSegment(at.slice(at.lastIndexOf('/') + 1))
+}
+
+/** @purity pure */
+function refusal(faults: readonly JsonFault[], reason: JsonRefusalReason = SCHEMA_REFUSAL_REASON): JsonDecoding {
+  return { ok: false, reason, faults }
+}
+
+/** @purity pure */
+function withoutKeyAt(value: unknown, segments: readonly string[]): unknown {
+  const [head, ...rest] = segments
+  if (head === undefined) return value
+  if (Array.isArray(value)) {
+    const index = Number(head)
+    if (!Number.isInteger(index) || index < 0 || index >= value.length || rest.length === 0) return value
+    return value.map((element, at) => (at === index ? withoutKeyAt(element, rest) : element))
+  }
+  if (!isObject(value) || !Object.hasOwn(value, head)) return value
+  if (rest.length === 0) return Object.fromEntries(Object.entries(value).filter(([key]) => key !== head))
+  return { ...value, [head]: withoutKeyAt(value[head], rest) }
+}
+
+/** @purity pure */
+function settingDefaultOf(key: string): unknown {
+  if (Object.hasOwn(SETTINGS_DEFAULTS, key)) return SETTINGS_DEFAULTS[key]
+  const prefix = `${key}.`
+  const members = Object.entries(SETTINGS_DEFAULTS).filter(([dotted]) => dotted.startsWith(prefix))
+  if (members.length === 0) return undefined
+  return Object.fromEntries(members.map(([dotted, value]) => [dotted.slice(prefix.length), value]))
+}
+
+/** @purity pure */
+function withSettingsReplaced(parsed: unknown, defaultsByKey: ReadonlyMap<string, unknown>): unknown {
+  if (defaultsByKey.size === 0 || !isObject(parsed)) return parsed
+  const settings = parsed[SETTINGS_GROUP]
+  if (!isObject(settings)) return parsed
+  return { ...parsed, [SETTINGS_GROUP]: { ...settings, ...Object.fromEntries(defaultsByKey) } }
+}
+
+interface SettingsReading {
+  readonly shaped: unknown
+  readonly dropped: readonly string[]
+  readonly defaulted: readonly string[]
+  readonly rest: readonly JsonFault[]
+}
+
+// see OP-6, T-220
+// WHY: a nested key has one default only, so any fault inside it sets the whole top key back;
+// a missing top key is left for restoredSettings, which fills it on replace and not on merge.
+/** @purity pure */
+function readSettingsFaults(parsed: unknown, faults: readonly JsonFault[]): SettingsReading {
+  const prefix = `/${SETTINGS_GROUP}/`
+  const rest: JsonFault[] = []
+  const dropped: string[] = []
+  const defaults = new Map<string, unknown>()
+  let shaped = parsed
+  for (const one of faults) {
+    if (!one.at.startsWith(prefix)) {
+      rest.push(one)
+      continue
+    }
+    const segments = segmentsOf(one.at)
+    const key = segments[1] ?? ''
+    if (isUnknownKeyFault(one)) {
+      shaped = withoutKeyAt(shaped, segments)
+      dropped.push(one.at)
+      continue
+    }
+    if (segments.length === 2 && isMissingKeyFault(one)) continue
+    const fallback = settingDefaultOf(key)
+    if (fallback !== undefined) defaults.set(key, fallback)
+  }
+  return {
+    shaped: withSettingsReplaced(shaped, defaults),
+    dropped,
+    defaulted: [...defaults.keys()],
+    rest,
+  }
 }
 
 /** @purity pure */
@@ -217,21 +308,29 @@ export function documentFromJson(
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectSchemaFaults(older.shaped, faults)
   const isNewer = formatVersion === 'newerThanKnown'
-  const refusing = isNewer ? faults.filter((one) => !isUnknownKeyFault(one)) : faults
-  if (refusing.length > 0) return refusal(refusing)
+  const refusedWith = isNewer ? NEWER_SCHEMA_REFUSAL_REASON : SCHEMA_REFUSAL_REASON
+  const settings = readSettingsFaults(older.shaped, faults)
+  const unreadFaults = isNewer ? settings.rest.filter(isUnknownKeyFault) : []
+  const refusing = settings.rest.filter((one) => !unreadFaults.includes(one))
+  if (refusing.length > 0) return refusal(refusing, refusedWith)
+  const shaped = unreadFaults.reduce((value, one) => withoutKeyAt(value, segmentsOf(one.at)), settings.shaped)
   const unreadColumns = isNewer
-    ? [...new Set(faults.filter(isUnknownKeyFault).map((one) => columnOf(one.at)))]
+    ? [...new Set([
+        ...settings.dropped.map(columnOf),
+        ...settings.defaulted,
+        ...unreadFaults.map((one) => columnOf(one.at)),
+      ])]
     : []
 
   let read: Document
   try {
     // TRAP: a reader before OP-6 may find documentSettings keys missing despite this cast.
-    read = withStopsFromOlderLengths(older.shaped as unknown as Document, older.lengthByTaskIndex)
+    read = withStopsFromOlderLengths(shaped as unknown as Document, older.lengthByTaskIndex)
   } catch (why) {
     return refusal([
       fault('/schedule/tasks', `an actual length could not be placed as a day: ${
         why instanceof Error ? why.message : String(why)}`),
-    ])
+    ], refusedWith)
   }
 
   const clamp = clampedSettings(read.documentSettings)

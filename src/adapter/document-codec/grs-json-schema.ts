@@ -771,6 +771,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
+      required: ['actualGap', 'actualInitialDuration', 'actualMin', 'actualOfPlan', 'actualVisible', 'appHeaderMaxHeight', 'arrowHeadOfSpan', 'assigneeLabelGap', 'assigneeVisible', 'basePlanHeight', 'baselineVisible', 'canvasPadding', 'carryMaxDepth', 'chevronNotchOfHeight', 'chevronNotchOfWidth', 'commentBoxPad', 'commentBoxWrapUnits', 'dateGridLinesVisible', 'dependencyArrowLength', 'dependencyArrowWidth', 'dependencyLagDefault', 'dependencyLeadIn', 'dependencyLeadOut', 'dependencyVisible', 'dependencyWidth', 'displayScale', 'dualCursor', 'dummyOpacity', 'exportCanvas', 'exportCanvasHeightCap', 'fadeHandleHalfPx', 'fadeHandleStrokePx', 'fontMin', 'fontOfActual', 'fontScale', 'fontScaleSizes', 'groupGridLinesVisible', 'groupLevelOfDetailBase', 'groupLevelOfDetailRatio', 'guideCursorMode', 'iconHintDelayMs', 'importMaxBytes', 'importMaxDate', 'importMaxDepth', 'importMaxItems', 'importMinDate', 'labelBaseline', 'labelCoef', 'labelGap', 'labelHaloOfFont', 'labelPad', 'markerSize', 'markerStroke', 'maxGroupDepth', 'milestoneActualDuration', 'milestoneNameMarkerGap', 'milestoneNameStartOfWidth', 'minShapeWidth', 'percentCompleteVisible', 'pinnedGroupIds', 'pinnedRowMax', 'planActualGuidePattern', 'planActualGuideWeight', 'planDatesVisible', 'planStroke', 'planVisible', 'progressLineOverhang', 'progressLineVisible', 'progressLineWidth', 'progressMarkerVisible', 'propertyPanelWidth', 'pxPerDayAt1x', 'resumeArmOfMarker', 'resumeDashOff', 'resumeDashOn', 'resumeDashWidth', 'resumeHeadOfMarker', 'resumeOpacityInvalid', 'resumeScaleInvalid', 'rowGap', 'rowTitleFont', 'rowTitleIndent', 'rowTitlePanelWidth', 'rowTitleTopScale', 'rulerFont', 'rulerHeight', 'rulerLabelBottomPad', 'rulerLabelGap', 'rulerLabelPad', 'rulerTierPxPerDayDay', 'rulerTierPxPerDayMonth', 'rulerTierPxPerDayWeek', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'shapeHeightOf', 'spanDotSize', 'stackDirection', 'stackGap', 'stackSafetyCap', 'starInnerOfOuter', 'themeMonochrome', 'themePreference', 'thinArrowHeadHeight', 'thinArrowHeadLength', 'thinFontScale', 'thinStrokeWidth', 'truncateUnits', 'zoomX', 'zoomY'],
+      closed: true,
       properties: {
         actualGap: {
           type: ['integer'],
@@ -852,6 +854,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         dualCursor: {
           type: ['object', 'null'],
+          required: ['date1', 'date2'],
+          closed: true,
           properties: {
             date1: {
               type: ['string'],
@@ -866,6 +870,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         exportCanvas: {
           type: ['object'],
+          required: ['width', 'height'],
+          closed: true,
           properties: {
             width: {
               type: ['integer'],
@@ -895,6 +901,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         fontScaleSizes: {
           type: ['object'],
+          required: ['L', 'M', 'S'],
+          closed: true,
           properties: {
             L: {
               type: ['integer'],
@@ -987,6 +995,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         planActualGuidePattern: {
           type: ['object'],
+          required: ['off', 'on'],
+          closed: true,
           properties: {
             off: {
               type: ['number'],
@@ -1100,6 +1110,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         shapeHeightOf: {
           type: ['object'],
+          required: ['arrow', 'chevron', 'endpointSpan', 'milestone', 'rectangle'],
+          closed: true,
           properties: {
             arrow: {
               type: ['number'],
@@ -1178,6 +1190,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
 
 const NOT_A_KEY_THIS_SHAPE_CARRIES = 'is not a key this shape carries'
 
+const A_KEY_THIS_SHAPE_LACKS = 'is missing'
+
 /** @purity pure */
 export function fault(at: string, what: string): JsonFault {
   return { at, what }
@@ -1186,6 +1200,11 @@ export function fault(at: string, what: string): JsonFault {
 /** @purity pure */
 export function isUnknownKeyFault(one: JsonFault): boolean {
   return one.what === NOT_A_KEY_THIS_SHAPE_CARRIES
+}
+
+/** @purity pure */
+export function isMissingKeyFault(one: JsonFault): boolean {
+  return one.what === A_KEY_THIS_SHAPE_LACKS
 }
 
 /** @purity pure */
@@ -1278,7 +1297,7 @@ function collectFaults(
 
   if (isObject(value)) {
     for (const key of node.required ?? []) {
-      if (!(key in value)) out.push(fault(pointer(at, key), 'is missing'))
+      if (!(key in value)) out.push(fault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
     }
     for (const [key, inner] of Object.entries(value)) {
       const child = node.properties?.[key] ?? node.values

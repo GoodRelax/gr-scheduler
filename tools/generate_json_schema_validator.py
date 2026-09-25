@@ -25,20 +25,19 @@ would silently ignore.
 
 Two departures from the manuscript, both required rather than chosen:
 
-⛔ The `documentSettings` group loses `required` and `additionalProperties:
-false`, through its whole subtree. The preamble forbids applying either to that
-group (MUST NOT) because `OP-6` of table T-024a orders the reading side to fill
-a missing setting with its default and to KEEP an unknown key; a schema that
-refused those would have one half of the build reject what the other half
-accepts.
+⛔ The `documentSettings` group loses every bound -- `minimum`, `maximum`,
+`maxLength`, `pattern` -- through its whole subtree. Chapter 6.1 lets the
+reading path look at the type and the enumeration of each key of that group
+and nothing more (MUST), and forbids refusing a value for being out of bounds
+(MUST NOT), because that job belongs to `clampedSettings` of `PI-2` (table
+T-064), which moves an out-of-bounds value into range instead of rejecting it.
 
-⛔ The same group also loses every bound -- `minimum`, `maximum`, `maxLength`.
-The preamble of table T-220 names `type`
-and `enum` as the ONLY conditions that group may carry (MUST), and forbids
-refusing a value for being out of bounds (MUST NOT), because that job belongs
-to `clampedSettings` of `PI-2` (table T-064), which moves an out-of-bounds
-value into range instead of rejecting it. ⭐ What survives
-there is exactly the type and the enumeration of each key.
+⭐ The same group KEEPS `required` and `additionalProperties: false` (CR-565).
+`OP-6` of table T-024a drops an unknown key, fills a missing one and sets a key
+of the wrong type or choice back to its default -- and dropping a key needs to
+know which key is unknown. So the walker lists those faults like any other,
+and json-codec.ts (the side that assembles the document, `CP-20`) decides what
+each one means there: none of them refuses the document.
 
 ⛔ `format` is dropped. Its 15 uses are 2 dates, 3
 datetimes and 10 uuids. The dates and datetimes are already held as a condition
@@ -107,13 +106,14 @@ DROPPED = {
 RELAXED_ROOT = '/documentSettings'
 
 # ⛔ Everything the relaxed group must NOT carry, by the name the walker reads
-# it under. `required` and `closed` are here for `OP-6` of table T-024a; the
-# three bounds are here because the preamble of table T-220 leaves the range to
+# it under: the bounds, because Chapter 6.1 leaves the range to
 # `clampedSettings` (`PI-2` of table T-064) -- see the head of this file.
-# ⭐ Listed rather than written out at each site, so that "only the type and
-# the enumeration survive there" is one line a reader can check.
-RELAXED_OFF = frozenset(('required', 'closed', 'minimum', 'maximum',
-                         'maxLength', 'pattern'))
+# ⚠️ `required` and `closed` are NOT here since CR-565: the walker reports a
+# missing or an unknown key of the group, and json-codec.ts turns the fault
+# into a fill, a drop or a default (`OP-6` of table T-024a) instead of a refusal.
+# ⭐ Listed rather than written out at each site, so that "no bound survives
+# there" is one line a reader can check.
+RELAXED_OFF = frozenset(('minimum', 'maximum', 'maxLength', 'pattern'))
 
 say = lambda m: sys.stdout.write(m + '\n')
 
