@@ -1,4 +1,3 @@
-``````markdown
 # ユーザビリティの体系 —— 良いソフトとは何か、出典つき
 
 - 作成日: 2026-09-25
@@ -172,7 +171,7 @@ Top 10 の 7「覚えさせない」—— 見えるところに置けば記憶�
 | 数値 | 意味 | 出典 |
 |---|---|---|
 | 5 人 | 1 回の利用者テストで、問題のおよそ 85% が見つかる（問題 1 件を 1 人が見つける確率を 31% とした場合） | [S16] [S17] |
-| 68 点 | SUS（System Usability Scale）の平均点。100 点満点だが百分率ではない | [S18] |
+| 68 点 | SUS（System Usability Scale）の平均点。100 点満点だが百分率ではない（第 6.3 節） | [S18] [S32] |
 
 **5 人で見つかる問題の割合:**
 
@@ -244,6 +243,101 @@ ISO 9241-210 は、利用状況の把握・要求の明確化・設計・評価�
 **大事な点:** 質問紙の点数だけ見ても、何を直せばよいかは分からない。
 **発見には利用者テスト、比較には数値と質問紙** —— と使い分ける。
 
+### 6.3 SUS（System Usability Scale）
+
+**SUS は、使いやすさを利用者の主観で 0 〜 100 点にする 10 問の質問紙である。**
+
+#### 生まれと位置づけ
+
+- John Brooke が 1986 年に Digital Equipment Corporation（英国）の社内で作り、1996 年に書籍の 1 章として公開した [S18]。
+- **規格ではない。** 標準化団体が定めたものではなく、研究者が作った質問紙が事実上の定番になったものである。無償で使える [S18] [S33]。
+- 規格との関係は次のとおり。
+
+**SUS と規格の関係:**
+
+| 規格 | SUS との関係 | 出典 |
+|---|---|---|
+| ISO 9241-11:2018 | 使いやすさを有効さ・効率・**満足** で定義する。SUS はこのうち満足を測る道具として広く使われる | [S1] |
+| ISO/IEC 25062:2006（CIF） | 利用者テストの結果の報告書式を定める。有効さ・効率・満足を報告に含めることを求める。**SUS を名指ししているかは本文を読んでいないため未確認** | [S31] |
+| ISO 25062:2025 | 上の改訂版。書名が「使いやすさの評価の報告」に広がった。SUS との関係は同じく未確認 | [S31] |
+
+#### 設問
+
+5 段階（1 = 全くそう思わない 〜 5 = 強くそう思う）で答える文が 10 個あり、**肯定の文（奇数番）と否定の文（偶数番）が交互に並ぶ** [S18]。
+下の「趣旨」は作者による要約の訳で、原文そのものではない。
+
+**SUS の 10 問:**
+
+| 番 | 向き | 趣旨 |
+|---|---|---|
+| 1 | 肯定 | このシステムを頻繁に使いたい |
+| 2 | 否定 | 不必要に複雑だ |
+| 3 | 肯定 | 使いやすい |
+| 4 | 否定 | 使うには詳しい人の助けが要りそうだ |
+| 5 | 肯定 | 機能がうまくまとまっている |
+| 6 | 否定 | 一貫性が無さすぎる |
+| 7 | 肯定 | たいていの人はすぐ使い方を覚えるだろう |
+| 8 | 否定 | 操作が非常に面倒だ |
+| 9 | 肯定 | 自信を持って使えた |
+| 10 | 否定 | 使い始める前に覚えることが多かった |
+
+#### 点数の出し方
+
+**SUS の点数:**
+
+$$
+\mathrm{SUS} = 2.5 \times \left( \sum_{i \in \mathrm{odd}} (x_i - 1) + \sum_{i \in \mathrm{even}} (5 - x_i) \right)
+$$
+
+$x_i$ は第 $i$ 問の回答（1 〜 5）である。奇数番は $x_i - 1$ 、偶数番は $5 - x_i$ で、どちらも 0 〜 4 点に揃えてから合計し、2.5 倍して 0 〜 100 点にする [S18]。
+**100 点満点だが百分率ではない。** 68 点は「68% の出来」という意味ではない。
+
+#### 点数の読み方
+
+**SUS の点数の目安:**
+
+| 目安 | 値 | 求め方 | 出典 |
+|---|---|---|---|
+| 平均 | 約 68 点 | Sauro と Lewis が集めた約 500 件の調査（5,000 件を超える回答）の平均。68 点が百分位で 50% に当たる | [S32] |
+| 形容詞との対応 | 下の表 | 964 人に、SUS の 11 問目として「最悪 〜 最高」の 7 段階の評価を足して答えてもらい、形容詞ごとに SUS の平均を取った。SUS と形容詞評価の相関は $r = 0.822$ | [S30] |
+
+**形容詞ごとの SUS の平均（Bangor ら 2009）:**
+
+| 形容詞 | SUS の平均 |
+|---|---|
+| Worst Imaginable（考えうる最悪） | 12.5 |
+| Awful（ひどい） | 20.3 |
+| Poor（悪い） | 35.7 |
+| OK（まあまあ） | 50.9 |
+| Good（良い） | 71.4 |
+| Excellent（とても良い） | 85.5 |
+| Best Imaginable（考えうる最高） | 90.9 |
+
+上の値は、その形容詞を選んだ人の SUS の **平均** であって、区間の境目ではない [S30]。
+「50.9 以上 71.4 未満なら Good」のような読み替えは二次資料に見られるが、原論文の表が示すのは平均である。
+
+#### 長所と限界
+
+**SUS の長所と限界:**
+
+| | 内容 | 出典 |
+|---|---|---|
+| 長所 | 短い（10 問）、無償、製品の種類を問わない、比較できる蓄積が多い | [S18] [S32] [S33] |
+| 限界 1 | **どこが悪いかは分からない。** 全体の印象を点数にするだけである。問題の発見は利用者テストに任せ、SUS は版と版、製品と製品の比較に使う | [S33] |
+| 限界 2 | 課題を実際にやってもらった **後に** 答えてもらう。触る前や説明を聞いただけの回答には意味が無い | [S18] |
+| 限界 3 | 作者が公認した日本語訳は、本資料の調査では見つからなかった。訳し方で点数が揺れうるので、比べるときは同じ訳を使い続ける | —— |
+
+#### 関連する質問紙
+
+**SUS の周辺の質問紙:**
+
+| 名前 | 特徴 | 出典 |
+|---|---|---|
+| UMUX | ISO 9241-11 の定義に沿って作った 4 問の質問紙 | [S34] |
+| UMUX-LITE | UMUX を 2 問に縮めたもの | [S35] |
+| SEQ（Single Ease Question） | 課題 1 つを終えるたびに「どれだけ易しかったか」を 1 問で聞く | [S36] |
+| SUMI | 50 問の質問紙。利用は有償 | [S37] |
+
 ---
 
 ## 7. 本プロジェクトで読むときの注意
@@ -275,6 +369,9 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | Doherty & Thadani（1982）の原文 | 未照合。0.4 秒という数値は二次資料による |
 | ISO 規格の本文 | 有料のため本文は読んでいない。原則の名前と定義は規格のサンプル頁と二次資料で確かめた |
 | 第 3 節の対照表の対応づけ | 作者の解釈。特に Norman の列は、Norman が「規則の一覧」の形で書いていないため、解釈の幅が大きい |
+| ISO/IEC 25062 が SUS を名指ししているか | 未確認。本文が有料のため |
+| SUS の日本語訳 | 作者公認の訳は見つからなかった。第 6.3 節の設問の趣旨は作者の要約訳 |
+| Bangor ら（2009）の形容詞ごとの平均値 | 論文 PDF の本体は取得できなかった（404）。値は検索エンジンに載った同 PDF の表の抜粋と一致することを 2026-09-25 に確かめた |
 
 ---
 
@@ -289,6 +386,7 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | [S3] | ISO 9241-110:2020, Ergonomics of human-system interaction — Part 110: Interaction principles. ISO. サンプル頁: https://cdn.standards.iteh.ai/samples/75258/1d33833551994efeb4c4896a3c22bab4/ISO-9241-110-2020.pdf ／ 解説: https://www.dialogdesign.dk/isos-dialogue-principles-2019/ |
 | [S4] | ISO 9241-210:2019, Ergonomics of human-system interaction — Part 210: Human-centred design for interactive systems. ISO. |
 | [S28] | W3C (2023). Web Content Accessibility Guidelines (WCAG) 2.2. W3C Recommendation. |
+| [S31] | ISO/IEC 25062:2006, Software engineering — Software product Quality Requirements and Evaluation (SQuaRE) — Common Industry Format (CIF) for usability test reports. https://www.iso.org/standard/43046.html ／ 改訂版 ISO 25062:2025, Common Industry Format (CIF) for reporting usability evaluations. https://www.iso.org/standard/84255.html |
 
 **書籍・記事:**
 
@@ -307,6 +405,8 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | [S18] | Brooke, J. (1996). SUS: A "quick and dirty" usability scale. In Usability Evaluation in Industry. Taylor & Francis. ／ Sauro, J. (2011). A Practical Guide to the System Usability Scale. Measuring Usability LLC. —— 平均 68 点 |
 | [S27] | Nielsen, J., Molich, R. (1990). Heuristic evaluation of user interfaces. Proceedings of CHI '90. |
 | [S29] | Krug, S. (2014). Don't Make Me Think, Revisited, 3rd ed. New Riders. —— 「見れば分かる」の入門書 |
+| [S32] | Sauro, J. Measuring Usability with the System Usability Scale (SUS). MeasuringU. https://measuringu.com/sus/ —— 約 500 件の調査の平均 68 点 |
+| [S33] | Brooke, J. (2013). SUS: A Retrospective. Journal of Usability Studies, 8(2). —— 作者自身による振り返り |
 
 **研究論文:**
 
@@ -323,4 +423,8 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | [S24] | MacKenzie, I. S. (1992). Fitts' law as a research and design tool in human-computer interaction. Human-Computer Interaction, 7(1). |
 | [S25] | Hick, W. E. (1952). On the rate of gain of information. Quarterly Journal of Experimental Psychology, 4(1). |
 | [S26] | Hyman, R. (1953). Stimulus information as a determinant of reaction time. Journal of Experimental Psychology, 45(3). |
-``````
+| [S30] | Bangor, A., Kortum, P., Miller, J. (2009). Determining What Individual SUS Scores Mean: Adding an Adjective Rating Scale. Journal of Usability Studies, 4(3), 114-123. https://uxpajournal.org/wp-content/uploads/sites/7/pdf/JUS_Bangor_May2009.pdf |
+| [S34] | Finstad, K. (2010). The Usability Metric for User Experience. Interacting with Computers, 22(5). |
+| [S35] | Lewis, J. R., Utesch, B. S., Maher, D. E. (2013). UMUX-LITE: When There's No Time for the SUS. Proceedings of CHI '13. |
+| [S36] | Sauro, J., Dumas, J. S. (2009). Comparison of Three One-Question, Post-Task Usability Questionnaires. Proceedings of CHI '09. |
+| [S37] | Kirakowski, J., Corbett, M. (1993). SUMI: the Software Usability Measurement Inventory. British Journal of Educational Technology, 24(3). |
