@@ -152,7 +152,6 @@ ScreenRenderer | AppHeaderItems
 ScreenRenderer | CommandItem
 ScreenRenderer | CommandPalette
 ScreenRenderer | Confirmation
-ScreenRenderer | ConfirmationItem
 ScreenRenderer | DialogueField
 ScreenRenderer | DialogueInput
 ScreenRenderer | DisplayLanguage
