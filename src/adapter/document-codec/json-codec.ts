@@ -173,6 +173,13 @@ function formatVersionReading(
   return schemaVersion > greatestKnownSchemaVersion ? 'newerThanKnown' : 'known'
 }
 
+// see FR-024
+/** @purity pure */
+function withOwnSchemaVersion(parsed: unknown, greatestKnownSchemaVersion: string | undefined): unknown {
+  if (greatestKnownSchemaVersion === undefined || !isObject(parsed)) return parsed
+  return { ...parsed, schemaVersion: greatestKnownSchemaVersion }
+}
+
 interface OlderActualShape {
   readonly shaped: unknown
   readonly lengthByTaskIndex: ReadonlyMap<number, unknown>
@@ -318,14 +325,12 @@ export function documentFromJson(
     ])
   }
 
-  const declared = isObject(parsed) ? parsed['schemaVersion'] : undefined
-  const formatVersion = formatVersionReading(
-    typeof declared === 'string' ? declared : '',
-    greatestKnownSchemaVersion,
-  )
+  const declaredValue = isObject(parsed) ? parsed['schemaVersion'] : undefined
+  const declared = typeof declaredValue === 'string' ? declaredValue : ''
+  const formatVersion = formatVersionReading(declared, greatestKnownSchemaVersion)
 
   const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(
-    withTaskGroupColumnsOfAnOlderVersion(parsed, typeof declared === 'string' ? declared : ''),
+    withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(parsed, greatestKnownSchemaVersion), declared),
   ))
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectSchemaFaults(older.shaped, faults)
