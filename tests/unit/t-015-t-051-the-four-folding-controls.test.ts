@@ -51,7 +51,7 @@
 // (A) THE FRAME LOOP (`frameLoop`, UF-48). A press arrives the way the shell
 //     receives one -- the surface answers which entrance the point is on, and
 //     the loop does the rest -- so a case can read BOTH answers the rewritten
-//     rows are about: the document's `AT-56` / `AT-57` columns, and the rows the
+//     rows are about: the document's `AT-153` column (treeState), and the rows the
 //     panel drew afterwards. ⭐ The picture is the half no purer seam can show,
 //     and it is the half 「サンプルと同じ動作にしろ」 was about.
 // (B) THE DOM SURFACE (`domScreenSurface`, UF-71) for ONE case: how many
@@ -269,9 +269,9 @@ const nameOf = (groupId: string): string =>
   ROWS.find((one) => one.id === groupId)?.name ?? groupId
 
 interface Fixture {
-  /** Rows standing folded (`AT-56`). */
+  /** Rows standing `collapsed` (AT-153). */
   readonly folded?: readonly string[]
-  /** Rows standing hidden (`AT-57`). */
+  /** Rows standing `hidden` (AT-153); hidden wins over folded, as one row holds one value. */
   readonly hidden?: readonly string[]
   // WHY: OP-10 keeps the stored zoom 1, where FR-018 draws every depth; JDG-302 needs that.
   readonly atStoredZoom?: boolean
@@ -325,9 +325,7 @@ function documentWith(part: Fixture = {}): Document {
         label: one.name,
         derivedFromTaskUid: null,
         order: index,
-        isCollapsed: folded.has(one.id),
-        isHidden: hidden.has(one.id),
-        isKeptOpen: false,
+        treeState: hidden.has(one.id) ? 'hidden' : folded.has(one.id) ? 'collapsed' : 'auto',
         editGroup: null,
         color: null,
         height: null,
@@ -500,7 +498,7 @@ function titleOf(built: Stage, groupId: string): RowTitle {
   return found
 }
 
-/** The row as the DOCUMENT holds it -- `AT-56` and `AT-57` of _assets/fig-erd-detail.md. */
+/** The row as the DOCUMENT holds it -- `AT-153` of _assets/fig-erd-detail.md. */
 function storedRow(built: Stage, groupId: string): TaskGroup {
   const found = (built.loop.document().schedule as any).taskGroups.find(
     (one: any) => one.id === groupId,
@@ -509,13 +507,13 @@ function storedRow(built: Stage, groupId: string): TaskGroup {
   return found as TaskGroup
 }
 
-/** `AT-56` -- 「畳んでいるか」. `null` and `false` are one answer here: not folded. */
-const isFolded = (built: Stage, groupId: string): boolean =>
-  (storedRow(built, groupId) as any).isCollapsed === true
+// see AT-153
+const treeOf = (built: Stage, groupId: string): TaskGroup['treeState'] =>
+  storedRow(built, groupId).treeState
 
-/** `AT-57` -- 「隠しているか」. */
-const isHidden = (built: Stage, groupId: string): boolean =>
-  (storedRow(built, groupId) as any).isHidden === true
+const isFolded = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'collapsed'
+
+const isHiddenRow = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'hidden'
 
 /** `HF-18`'s number, as the panel drew it. */
 const foldedCountOf = (built: Stage, groupId: string): number =>
@@ -662,7 +660,15 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).toContain(
       '折り畳みの 4 つの操作子は、どれも押した行そのものの状態を書き換える',
     )
-    expect(REQUIREMENTS).toContain('行が描かれるかどうかを決める状態は 2 つだけとすること（MUST）')
+    expect(REQUIREMENTS).toContain('描かない向きへ働く値は 2 つだけとすること（MUST）')
+    expect(REQUIREMENTS).toContain(
+      '段 0 は `collapsed` に当たるものを `_assets/tbl-settings.md` の 表 T-203 の `S-418` に持ち、`hidden` に当たるものを持たない（MUST）',
+    )
+    expect(REQUIREMENTS).toContain('段 0 のために `TaskGroup` の列を足してはならない（MUST NOT）')
+    expect(REQUIREMENTS).toContain(
+      '行見出しパネルの最上部の右寄せに、すべての行を開く操作子を 1 つ置くこと（MUST）',
+    )
+    expect(REQUIREMENTS).toContain('本行を `HF-3`（隠す）と同じ働きにしてはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain('押した行の状態を書き換えずに、その配下の状態だけを書き換えてはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain('パネルの頭は段 0 であり、行ではない。')
     // see HF-20
@@ -685,18 +691,16 @@ describe('the manuscript still says what these cases read', () => {
     )
   })
 
-  it('⛔ the two columns that decide whether a row is drawn are still AT-56 and AT-57', () => {
-    // The closing paragraph names them: 「**その行自身が描かれないこと**（`AT-57`）
-    // と、**その行の配下が描かれないこと**（`AT-56`）」.
+  it('⛔ the one column that decides whether a row is drawn is AT-153, and 段 0 holds S-418', () => {
+    // see FR-004, AT-153, S-418
     const detail = unbroken(readFileSync(
       join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
       'utf8',
     ))
-    expect(detail).toContain('| AT-56 | `TaskGroup` | `isCollapsed` |')
-    expect(detail).toContain('| AT-57 | `TaskGroup` | `isHidden` |')
-    // 段 0 has the first and not the second -- 表 T-206 の `S-211`.
-    expect(says('T-206', 'S-211')).toContain('段 0（行見出しパネルの頭）が畳まれているか')
-    expect(says('T-206', 'S-211')).toContain('保存しない')
+    expect(detail).toContain('| AT-153 | `TaskGroup` | `treeState` |')
+    expect(REQUIREMENTS).toContain('**その行自身も描かない `hidden`** と、**その行の配下を描かない `collapsed`**')
+    expect(says('T-203', 'S-418')).toContain('`levelZeroTreeState`')
+    expect(says('T-203', 'S-418')).toContain('段 0（行見出しパネルの頭）の木の状態')
   })
 
   it('the document these cases drive is a valid GRS JSON document', () => {
@@ -735,14 +739,14 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
   it('⛔ MUST NOT: HF-11 does not hide the row it was pressed on (HR-4)', () => {
     // `HR-4`: 「⛔ **その行自身を隠してはならない（MUST NOT）** —— 隠すのは `HR-6`
-    // である」. ⭐ The two columns are the whole of 「行が描かれるかどうかを決める
-    // 状態は 2 つだけ」, so a press that wrote the wrong one would still move the
+    // である」. ⭐ The two values are the whole of 「描かない向きへ働く値は
+    // 2 つだけ」, so a press that wrote the wrong one would still move the
     // picture and be invisible to a case that only counted rows.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
 
-    expect(isHidden(built, BETA), 'HR-4 (MUST NOT): the fold hid the row instead').toBe(false)
+    expect(isHiddenRow(built, BETA), 'HR-4 (MUST NOT): the fold hid the row instead').toBe(false)
   })
 
   it('⛔ MUST: HF-3 hides the row it was pressed on and NOT its children (HR-6)', () => {
@@ -753,22 +757,17 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
     built.press(HIDE, BETA)
 
-    expect(isHidden(built, BETA), 'HR-6 (MUST): the pressed row was not hidden').toBe(true)
-    expect(isHidden(built, GAMMA), 'the child was hidden as well as the row').toBe(false)
-    expect(isHidden(built, DELTA), 'the grandchild was hidden as well as the row').toBe(false)
-    // ⭐⭐ AND THE PRESSED ROW IS FOLDED AS WELL AS HIDDEN, which `HR-6` (MUST)
-    // states since 2026-08-31: 「**あわせて、その行と、その配下を畳んだ状態にする
-    // こと**」. ⛔ 「**配下だけを畳んで、その行自身を畳まずに隠してはならない
-    // （MUST NOT）**」 —— 「**それでは戻したときに直下の子が付いてきて、戻るのが
-    // 1 行にならない**」.
-    // ⚠️ THE TWO COLUMNS SAY DIFFERENT THINGS ABOUT THE SAME ROW: `AT-57` takes
-    // this row out of the picture, `AT-56` keeps its children out when it comes
-    // back through the parent's 「1 階層開く」.
-    expect(isFolded(built, BETA), 'HR-6 (MUST): the hidden row was not folded').toBe(true)
+    expect(isHiddenRow(built, BETA), 'HR-6 (MUST): the pressed row was not hidden').toBe(true)
+    expect(isHiddenRow(built, GAMMA), 'the child was hidden as well as the row').toBe(false)
+    expect(isHiddenRow(built, DELTA), 'the grandchild was hidden as well as the row').toBe(false)
+    // WHY: HR-6 folds the hidden row too; T-328 holds that as the one value hidden, which the
+    // parent's HF-13 turns into collapsed (oneLevelOpenPressed), so the row comes back folded.
+    built.press(OPEN_ONE_LEVEL, ALPHA)
+    expect(treeOf(built, BETA), 'HR-6 (MUST): the hidden row came back unfolded').toBe('collapsed')
   })
 
   it('⛔ MUST: HF-3 folds every row under the row it hid (HR-6)', () => {
-    // `HR-6` since 2026-08-31: 「**あわせて、その行の配下を畳んだ状態にすること
+    // `HR-6` since 2026-08-31: 「**あわせて、その行と、その配下を畳んだ状態にすること
     // （MUST）**」（利用者の指示「サンプルと同じ動作にしろ」）—— ⛔ 「**配下をその
     // ままにして隠してはならない（MUST NOT）**」.
     //
@@ -790,7 +789,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
     expect(isFolded(built, GAMMA), 'the row beneath the hidden one was left open').toBe(true)
     expect(isFolded(built, DELTA), 'a row two levels beneath was left open').toBe(true)
     // ⛔ AND NOT BEYOND. Only what the hiding took out of the picture is folded.
-    expect(isHidden(built, GAMMA), 'the hide wrote AT-57 below the row it hid').toBe(false)
+    expect(isHiddenRow(built, GAMMA), 'the hide wrote hidden below the row it hid').toBe(false)
   })
 
   it('⛔ MUST: HF-13 unfolds the row it was pressed on (HR-7)', () => {
@@ -805,7 +804,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
   it('⛔ MUST NOT: HF-13 does not touch the fold of anything below the direct children (HR-7)', () => {
     // `HR-7`: 「⛔ **孫より下の畳みに触れてはならない（MUST NOT）** —— **触れると
-    // 本行と `HR-3` の違いが消える**」. ⚠️ 実測: 「`HF-13` は孫を開いた」.
+    // 本行と `HR-3` の違いが消える**」. Measured: HF-13 opened the grandchild.
     const built = stage({ folded: [ALPHA, BETA, GAMMA] })
 
     built.press(OPEN_ONE_LEVEL, ALPHA)
@@ -871,7 +870,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   it('⭐ HF-11 on a middle row takes its whole subtree off the picture and leaves the row (HR-4)', () => {
     // `HR-4`: ⇒ 「**その直下の子から下が描かれなくなる**」, and `HR-1a` (MUST NOT)
     // 「**畳んだ `TaskGroup` の配下の行と、その行に載っている `Task` を描いては
-    // ならない**」. ⚠️ 実測: 「**押しても直下の子が描かれたまま残り、見本では消えた**」.
+    // ならない**」. ⚠️ 実測: 「押しても直下の子が描かれたまま残り、見本と違う絵になる」.
     const built = stage()
 
     built.press(FOLD_BELOW, BETA)
@@ -938,9 +937,9 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
     expect(drawnRows(built), 'HR-3 did not undo what HR-4 did on the same row').toEqual(before)
   })
 
-  it('⭐ and the document is back where it started, row for row', () => {
-    // ⛔ A PICTURE THAT MATCHED WITH A COLUMN STILL SET would come apart at the
-    // next press; `AT-56` is what the next press reads.
+  it('⭐ and no row of the document is left collapsed or hidden', () => {
+    // ⛔ A PICTURE THAT MATCHED WITH A VALUE STILL SET would come apart at the
+    // next press; treeState (AT-153) is what the next press reads.
     const built = stage()
 
     built.press(FOLD_BELOW, ALPHA)
@@ -948,7 +947,7 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
 
     for (const row of ROWS) {
       expect(isFolded(built, row.id), `${row.name} is still folded`).toBe(false)
-      expect(isHidden(built, row.id), `${row.name} is hidden`).toBe(false)
+      expect(isHiddenRow(built, row.id), `${row.name} is hidden`).toBe(false)
     }
   })
 
@@ -990,7 +989,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
     built.press(OPEN_ONE_LEVEL, ALPHA)
 
     expect(drawnRows(built), 'HR-6 (MUST): the hidden child did not come back').toContain('Beta')
-    expect(isHidden(built, BETA)).toBe(false)
+    expect(isHiddenRow(built, BETA)).toBe(false)
   })
 
   it('⭐⭐ MUST: and it brings that row ALONE, not its subtree (「1 本は直下の子だけ」)', () => {
@@ -1021,7 +1020,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
     built.press(OPEN_ALL_BELOW, ALPHA)
 
-    expect(isHidden(built, DELTA), 'HR-3 (MUST): a hidden great-grandchild was left hidden').toBe(
+    expect(isHiddenRow(built, DELTA), 'HR-3 (MUST): a hidden great-grandchild was left hidden').toBe(
       false,
     )
     expect(drawnRows(built)).toEqual(EVERY_ROW)
@@ -1050,16 +1049,17 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
 
 describe('表 T-051 の結び -- the head does at 段 0 what the paired control does on a row', () => {
   it('⭐⭐ HF-12 is HF-11 at 段 0: pressing it can leave no row drawn at all (HR-2)', () => {
-    // `HR-2`: 「⛔⛔ **最も浅い段の行も畳むこと（MUST）**…⇒ **押すと行が 1 つも描かれ
-    // ない状態になりうる。**⛔ **最も浅い段を残す読みを採ってはならない（MUST NOT）**」,
-    // and the state that carries it is 表 T-206 の `S-211`, never a row's column:
-    // 「**行の畳みでは本行を満たせない** —— **最も浅い段の行は親を持たないので誰にも
-    // 隠されない**」.
+    // see HR-2, S-418, TD-1
+    // WHY: a row's fold hides only its descendants, so only the head's own value S-418 can empty the panel.
     const built = stage()
 
     built.press(HEAD_FOLD_EVERY_ROW, null)
 
     expect(drawnRows(built), 'HR-2 (MUST NOT): the shallowest level was kept').toEqual([])
+    expect(
+      built.loop.document().documentSettings.levelZeroTreeState,
+      'HR-2: 段 0 was not folded in the document (S-418)',
+    ).toBe('collapsed')
   })
 
   it('⭐⭐ HF-16 is HF-13 at 段 0: it brings the shallowest level back and nothing deeper', () => {
@@ -1135,7 +1135,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
         `the head answered ${rule}'s entrance and the picture moved`,
       ).toEqual(rowsBefore)
       for (const row of ROWS) {
-        expect(isHidden(built, row.id), `${rule} at the head hid ${row.name}`).toBe(false)
+        expect(isHiddenRow(built, row.id), `${rule} at the head hid ${row.name}`).toBe(false)
       }
     }
   })
@@ -1197,7 +1197,10 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
       '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-2')).toContain(
-      '押しが何かを変えるのは、押した行かその配下に畳みか隠しがあるとき、配下に開いたままの印があるとき',
+      '押しが何かを変えるのは、押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである',
+    )
+    expect(says('T-051', 'HF-10')).toContain(
+      '描かれていない行（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-3')).toContain(
       '描かれている行はいつでも隠せるので、本操作子を薄く描く場面は無い',
@@ -1230,10 +1233,8 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     }
   })
 
-  it('⛔ MUST: HF-2 is armed exactly when the row is holding something folded away', () => {
-    // 「**その行が抱えている畳み込みが 0 のときは薄く描くこと（MUST）**」 and the
-    // closing rule 「**その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも
-    // 無いものとして扱うこと（MUST）**」.
+  it('⛔ MUST: HF-2 is armed exactly when some row below it is not drawn', () => {
+    // see HF-2, RS-28, T-329
     const open = stage()
     expect(
       (titleOf(open, ALPHA).expander as any).canOpen,
@@ -1306,9 +1307,8 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: the head’s すべて開く and すべて畳む follow the same rule (RS-31 / RS-32)', () => {
-    // 表 T-233: `RS-31` 「畳まれた行が 1 つも無い」（`HF-10`）, `RS-32` 「開いている行が
-    // 1 つも無い」（`HF-12`）. ⭐ `HR-2` makes the second one reach 段 0 as well, so an
-    // open panel always has something left to fold.
+    // see HF-10, HF-12, RS-31, RS-32, S-418
+    // WHY: head open is armed iff some row is not drawn; head fold iff S-418 is still auto.
     const open = stage()
     expect(
       (open.screen.last().rowTitlePanel as any).canOpenEveryRow ?? false,
@@ -1323,6 +1323,17 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
     expect(
       (folded.screen.last().rowTitlePanel as any).canOpenEveryRow,
       'a row is folded and the head’s opener is faint',
+    ).toBe(true)
+
+    const headFolded = stage()
+    headFolded.press(HEAD_FOLD_EVERY_ROW, null)
+    expect(
+      (headFolded.screen.last().rowTitlePanel as any).canCloseEveryRow ?? false,
+      'RS-32: 段 0 is already collapsed and the head’s fold is armed',
+    ).toBe(false)
+    expect(
+      (headFolded.screen.last().rowTitlePanel as any).canOpenEveryRow,
+      'RS-31: no row is drawn and the head’s opener is faint',
     ).toBe(true)
   })
 
@@ -1354,7 +1365,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
 // ===========================================================================
 
 describe('表 T-051 の HF-18 -- the number a row shows is the number that arms its opener', () => {
-  it('⛔ the manuscript ties the count to the arming only where no mark and no zoom take part', () => {
+  it('⛔ the manuscript ties the count to the arming only where no zoom takes part', () => {
     expect(says('T-051', 'HF-18')).toContain(
       '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）',
     )
@@ -1363,7 +1374,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     )
     expect(says('T-051', 'HF-2')).toContain('構えの条件は `HF-18` の数と同じではない')
     expect(says('T-051', 'HF-2')).toContain(
-      '`HF-18` は人が畳んだ分だけを数え、倍率が落とした行も開いたままの印も数えない',
+      '`HF-18` は人が畳んだ分だけを数え、倍率が落とした行を数えない',
     )
   })
 
@@ -1377,9 +1388,9 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
     )
   })
 
-  it('⛔ MUST: with no kept-open mark and every row drawn, the number shown and the arming of HF-2 agree', () => {
-    // 「構えの条件は `HF-18` の数と同じではない」 only through marks and zoom, so with
-    // neither the two agree -- walked over several shapes so a split shows.
+  it('⛔ MUST: with every row drawn by the zoom, the number shown and the arming of HF-2 agree', () => {
+    // 「構えの条件は `HF-18` の数と同じではない」 only through the zoom, so without
+    // it the two agree -- walked over several shapes so a split shows.
     const shapes: readonly Fixture[] = [
       {},
       { folded: [BETA] },

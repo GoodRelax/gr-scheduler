@@ -381,10 +381,7 @@ const GROUP_ONE: TaskGroup = {
   label: 'row one',
   derivedFromTaskUid: null,
   order: 1,
-  isCollapsed: null,
-  isHidden: null,
-  isKeptOpen: false,
-  editGroup: null,
+  treeState: 'auto', editGroup: null,
   color: null,
   height: null,
 }

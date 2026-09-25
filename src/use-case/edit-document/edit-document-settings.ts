@@ -70,10 +70,68 @@ export type DocumentSettingsCommand =
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
+  | {
+      readonly kind: 'setLevelZeroTreeState'
+      readonly levelZeroTreeState: DocumentSettings['levelZeroTreeState']
+    }
+
+// WHY: a Record over the type, so a value added to S-418 fails to compile here.
+const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
+  auto: true,
+  collapsed: true,
+}
 
 /** @purity pure */
 function withSettings(document: Document, settings: DocumentSettings): Document {
   return { ...document, documentSettings: settings }
+}
+
+type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
+
+// see CM-67, FR-052
+/** @purity pure */
+function panelWidthsEdited(
+  settings: DocumentSettings,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setPanelWidths' }>,
+  limits: SettingsLimits,
+  put: SettingsPut,
+): EditResult {
+  // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
+  if (!(command.rowTitlePanelWidth > 0)) {
+    // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
+    return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
+  }
+  if (!(command.propertyPanelWidth >= 0)) {
+    return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
+  }
+  // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be
+  // scaled to meet it; S-80 is not scaled, because table T-252 does not name it.
+  const rowArea =
+    limits.rowAreaWidthWithoutPanels -
+    command.rowTitlePanelWidth * displayRatioOf(settings) -
+    command.propertyPanelWidth
+  if (!(rowArea > 0)) {
+    return refused([reject('CM-67', 'FR-052', 'the pair would leave the Row Area at or below zero')])
+  }
+  return put({
+    rowTitlePanelWidth: command.rowTitlePanelWidth,
+    propertyPanelWidth: command.propertyPanelWidth,
+  })
+}
+
+// see CM-86, S-418, T-328
+/** @purity pure */
+function levelZeroTreeStateEdited(
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setLevelZeroTreeState' }>,
+  put: SettingsPut,
+): EditResult {
+  // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+  if (!Object.prototype.hasOwnProperty.call(LEVEL_ZERO_TREE_STATES, command.levelZeroTreeState)) {
+    return refused([
+      reject('CM-86', 'FR-004', `not a level zero tree state S-418 names: ${command.levelZeroTreeState}`),
+    ])
+  }
+  return put({ levelZeroTreeState: command.levelZeroTreeState })
 }
 
 // see T-108, FR-063
@@ -85,7 +143,7 @@ export function editDocumentSettings(
 ): EditResult {
   const settings = document.documentSettings
   // TRAP: put compares by reference, so an object-valued key (dualCursor) needs its own test first.
-  const put = (part: Partial<DocumentSettings>): EditResult => {
+  const put: SettingsPut = (part) => {
     const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
     if (keys.every((key) => settings[key] === part[key])) return edited(document)
     return edited(withSettings(document, { ...settings, ...part }))
@@ -162,29 +220,8 @@ export function editDocumentSettings(
       })
     }
 
-    case 'setPanelWidths': {
-      // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
-      if (!(command.rowTitlePanelWidth > 0)) {
-        // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
-        return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
-      }
-      if (!(command.propertyPanelWidth >= 0)) {
-        return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
-      }
-      // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be
-      // scaled to meet it; S-80 is not scaled, because table T-252 does not name it.
-      const rowArea =
-        limits.rowAreaWidthWithoutPanels -
-        command.rowTitlePanelWidth * displayRatioOf(settings) -
-        command.propertyPanelWidth
-      if (!(rowArea > 0)) {
-        return refused([reject('CM-67', 'FR-052', 'the pair would leave the Row Area at or below zero')])
-      }
-      return put({
-        rowTitlePanelWidth: command.rowTitlePanelWidth,
-        propertyPanelWidth: command.propertyPanelWidth,
-      })
-    }
+    case 'setPanelWidths':
+      return panelWidthsEdited(settings, command, limits, put)
 
     case 'pinTaskGroup': {
       const held = settings.pinnedGroupIds
@@ -217,5 +254,8 @@ export function editDocumentSettings(
         scrollGroupOffset: command.scrollGroupOffset,
       })
     }
+
+    case 'setLevelZeroTreeState':
+      return levelZeroTreeStateEdited(command, put)
   }
 }

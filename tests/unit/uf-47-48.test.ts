@@ -199,10 +199,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     label,
     derivedFromTaskUid: null,
     order: 0,
-    isCollapsed: false,
-    isHidden: false,
-    isKeptOpen: false,
-    editGroup: null,
+    treeState: 'auto', editGroup: null,
     color: null,
     height: null,
   })
@@ -691,7 +688,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
 describe('HF-8 of table T-051 -- what boot must not do', () => {
   const collapsed = () =>
     twoRowDocument((draft) => {
-      draft.schedule.taskGroups[0].isCollapsed = true
+      draft.schedule.taskGroups[0].treeState = 'collapsed'
     })
 
   it('keeps the collapse the person saved', () => {
@@ -704,7 +701,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     const pane = host()
     const loop = frameLoop(pane.surface, document, SCREEN)
 
-    expect(rowsOf(loop.document()).map((oneRect) => oneRect.isCollapsed)).toEqual([true, false])
+    expect(rowsOf(loop.document()).map((oneRect) => oneRect.treeState)).toEqual(['collapsed', 'auto'])
   })
 
   it('and draws the picture that collapse means -- the row under it stays undrawn', () => {
@@ -1171,7 +1168,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     const loop = frameLoop(
       pane.surface,
       twoRowDocument((draft) => {
-        draft.schedule.taskGroups[0].isCollapsed = true
+        draft.schedule.taskGroups[0].treeState = 'collapsed'
       }),
       SCREEN,
       screen.wiring,
@@ -1235,10 +1232,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
           label: `Row ${index}`,
           derivedFromTaskUid: null,
           order: index,
-          isCollapsed: false,
-          isHidden: false,
-          isKeptOpen: false,
-          editGroup: null,
+          treeState: 'auto', editGroup: null,
           color: null,
           height: null,
         })

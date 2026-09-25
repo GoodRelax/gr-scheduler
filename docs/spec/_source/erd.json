@@ -1474,7 +1474,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。行を作るときは `auto`"
+      "ja": "行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。新しく作る行は `auto`。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う"
      }
     },
     {

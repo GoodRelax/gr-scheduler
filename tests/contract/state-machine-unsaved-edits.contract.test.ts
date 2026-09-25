@@ -25,13 +25,14 @@ type RawMachine = {
   readonly transitions: Readonly<Record<string, Readonly<Record<string, RawCell>>>>
 }
 type RawEvent = { readonly key: string; readonly carries: readonly { readonly name: string }[] }
-type RawRegion = { readonly region: string; readonly events: readonly RawEvent[]; readonly machines: readonly RawMachine[] }
+type RawRegion = { readonly region: string; readonly holds?: string; readonly events: readonly RawEvent[]; readonly machines: readonly RawMachine[] }
 
+// see SD-5
 const REGIONS = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
     readonly regions: readonly RawRegion[]
   }
-).regions
+).regions.filter((r) => r.holds !== 'documentData')
 
 function regionNamed(name: string): RawRegion {
   const region = REGIONS.find((r) => r.region === name)

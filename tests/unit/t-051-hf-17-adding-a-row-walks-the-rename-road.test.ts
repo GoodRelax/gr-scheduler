@@ -264,9 +264,9 @@ function threeRowDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, isCollapsed: false, isHidden: false, color: null, height: null },
-        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, isCollapsed: false, isHidden: false, color: null, height: null },
-        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, isCollapsed: false, isHidden: false, color: null, height: null },
+        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
+        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
+        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
       ],
       taskGroupMembers: [],
       taskVisuals: [],

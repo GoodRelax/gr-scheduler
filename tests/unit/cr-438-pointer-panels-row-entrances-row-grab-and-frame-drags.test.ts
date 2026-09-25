@@ -1,4 +1,7 @@
-// CR-438 stage-5 spec-only cases for pointer input on the panels: UF-94, UF-96, UF-97 (T-015, T-051, T-254, HF-15, FR-052, FR-053).
+// see CR-438, CR-570, UF-94, UF-96, UF-97, T-015, T-051, T-328, HF-15, FR-052, FR-053
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -31,7 +34,7 @@ import {
   type PointerPress,
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import { bare, specTable } from '../contract/spec-table'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 const nestedFrom = (flat: Readonly<Record<string, unknown>>): Record<string, unknown> => {
@@ -89,7 +92,8 @@ const ROWS = [
   { id: 'n2a', parentId: 'n2', order: 4 },
 ] as const
 
-type RowState = { readonly collapsed?: readonly string[]; readonly keptOpen?: readonly string[] }
+type TreeState = 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
+type RowState = Readonly<Record<string, TreeState>>
 
 const scheduleOf = (state: RowState): Schedule =>
   ({
@@ -104,9 +108,7 @@ const scheduleOf = (state: RowState): Schedule =>
       label: one.id,
       derivedFromTaskUid: null,
       order: one.order,
-      isCollapsed: (state.collapsed ?? []).includes(one.id),
-      isHidden: null,
-      isKeptOpen: (state.keptOpen ?? []).includes(one.id),
+      treeState: state[one.id] ?? 'auto',
       color: null,
       height: null,
     })),
@@ -194,7 +196,6 @@ function commandsOf(answer: TranslatedInput): readonly DocumentCommand[] {
   const action = answer.action
   if (action === null) return []
   if (action.kind === 'changeDocument') return action.writes.flat()
-  if (action.kind === 'setLevelZeroFolded') return action.writes
   return []
 }
 
@@ -203,11 +204,25 @@ const ofKind = (answer: TranslatedInput, kind: string): readonly Record<string, 
     .filter((one) => one.kind === kind)
     .map((one) => one as unknown as Record<string, unknown>)
 
-const groupsWhere = (answer: TranslatedInput, kind: string, column: string, value: boolean): readonly string[] =>
-  ofKind(answer, kind)
-    .filter((one) => one[column] === value)
-    .map((one) => String(one['groupId']))
-    .sort()
+// WHY: the command shape of a press is not the spec's; what T-328 decides is the value each
+// row is left with, so the writes are replayed onto the starting values (CM-85, CM-72).
+function statesAfter(answer: TranslatedInput, state: RowState): Record<string, TreeState> {
+  const states: Record<string, TreeState> = Object.fromEntries(ROWS.map((one) => [one.id, state[one.id] ?? 'auto']))
+  for (const one of commandsOf(answer) as readonly Record<string, any>[]) {
+    if (one['kind'] === 'setTaskGroupTreeState') states[String(one['taskGroupId'])] = one['treeState']
+    if (one['kind'] === 'resetTaskGroupTreeStates') {
+      for (const id of Object.keys(states)) if (states[id] !== 'hidden') states[id] = 'auto'
+    }
+  }
+  return states
+}
+
+const HF_13_BY_T_328 = '⭐ 押した行と隠した直下の子が取る値は 表 T-328 の `oneLevelOpenPressed` の行に従うこと（MUST）'
+const HF_11_BY_T_328 = '⭐ 畳むときに行が取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
+const HF_10_BY_T_328 = '⭐ 押したときに行と段 0 が取る値は 表 T-328 の `everyRowOpenPressed` の行と根の升に従うこと（MUST）'
+const HF_2_BY_T_328 = '⭐ 押したときに行が取る値は、`_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従うこと（MUST）'
+const UN_14_ONE_PRESS_ONE_STEP = '⭐ 1 回の押下が書き換える行の木の状態は、行がいくつでも同じ 1 段に入れること（MUST）'
+const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 function pressRowEntry(entry: string, rowGroupId: string | null, context: InputContext): TranslatedInput {
   const panel = context.regions.rowTitlePanel
@@ -219,47 +234,36 @@ function pressRowEntry(entry: string, rowGroupId: string | null, context: InputC
   )
 }
 
-describe('UF-96 tables T-015 / T-051 / T-254 (FR-004, FR-018) -- the row entrances', () => {
-  it('HF-13 / HR-7 / KO-1: IC-90 unfolds only the pressed row and marks only it kept open, in one write', () => {
-    const answer = pressRowEntry('IC-90', 'n1', contextOf({ collapsed: ['n1', 'n1a'] }))
-    expect(groupsWhere(answer, 'setTaskGroupCollapsed', 'collapsed', false)).toEqual(['n1'])
-    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', true)).toEqual(['n1'])
+describe('UF-96 tables T-015 / T-051 / T-328 (FR-004, FR-018) -- the row entrances', () => {
+  it.each([HF_13_BY_T_328, HF_11_BY_T_328, HF_10_BY_T_328, HF_2_BY_T_328, UN_14_ONE_PRESS_ONE_STEP])('the manuscript holds %s', (clause) => {
+    expect(REQUIREMENTS).toContain(clause)
+  })
+
+  it(`HF-13 / HR-7: IC-90 makes only the pressed row expanded and leaves the folded child alone, in one write -- ${HF_13_BY_T_328}`, () => {
+    const state: RowState = { n1: 'collapsed', n1a: 'collapsed' }
+    const answer = pressRowEntry('IC-90', 'n1', contextOf(state))
+    expect(statesAfter(answer, state)).toEqual({ n1: 'expanded', n1a: 'collapsed', n1a1: 'auto', n2: 'auto', n2a: 'auto' })
     const action = answer.action
     if (action === null || action.kind !== 'changeDocument') throw new Error('no write')
-    expect(action.writes).toHaveLength(1)
+    expect(action.writes, UN_14_ONE_PRESS_ONE_STEP).toHaveLength(1)
   })
 
-  it('HF-11 / HR-4 / KO-5: IC-77 folds the pressed row with its subtree and clears their marks, not the other root', () => {
-    const answer = pressRowEntry('IC-77', 'n1', contextOf({ keptOpen: ['n1', 'n1a', 'n1a1', 'n2'] }))
-    expect(groupsWhere(answer, 'setTaskGroupCollapsed', 'collapsed', true)).toContain('n1')
-    expect(groupsWhere(answer, 'setTaskGroupCollapsed', 'collapsed', true)).not.toContain('n2')
-    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', false)).toEqual(['n1', 'n1a', 'n1a1'])
-    expect(ofKind(answer, 'setTaskGroupHidden')).toEqual([])
+  it(`HF-11 / HR-4: IC-77 folds the pressed row with its subtree, not the other root -- ${HF_11_BY_T_328}`, () => {
+    const state: RowState = { n1: 'expanded', n1a: 'temporarilyExpanded', n1a1: 'auto', n2: 'expanded' }
+    const answer = pressRowEntry('IC-77', 'n1', contextOf(state))
+    expect(statesAfter(answer, state)).toEqual({ n1: 'collapsed', n1a: 'collapsed', n1a1: 'collapsed', n2: 'expanded', n2a: 'auto' })
   })
 
-  it('HF-10 / HR-1 / KO-3: IC-74 at the head opens what was folded and leaves no row marked kept open', () => {
-    const answer = pressRowEntry('IC-74', null, contextOf({ collapsed: ['n2'], keptOpen: ['n1'] }))
-    const writes = commandsOf(answer)
-    const opensN2 = writes.some(
-      (one) =>
-        one.kind === 'expandAllTaskGroups' ||
-        (one.kind === 'setTaskGroupCollapsed' && one.groupId === 'n2' && !one.collapsed),
-    )
-    expect(opensN2).toBe(true)
-    // WHY: CM-72 takes every mark off, so what counts is the last mark each row is left with.
-    const lastMark = new Map<string, boolean>(ROWS.map((one) => [one.id, one.id === 'n1']))
-    for (const one of writes) {
-      if (one.kind === 'expandAllTaskGroups') for (const id of lastMark.keys()) lastMark.set(id, false)
-      if (one.kind === 'setTaskGroupKeptOpen') lastMark.set(one.groupId, one.keptOpen)
-    }
-    expect([...lastMark.values()].every((kept) => !kept)).toBe(true)
+  it(`HF-10 / HR-1: IC-74 at the head opens what was folded and leaves expanded alone -- ${HF_10_BY_T_328}`, () => {
+    const state: RowState = { n2: 'collapsed', n1: 'expanded' }
+    const answer = pressRowEntry('IC-74', null, contextOf(state))
+    expect(statesAfter(answer, state)).toEqual({ n1: 'expanded', n1a: 'temporarilyExpanded', n1a1: 'auto', n2: 'temporarilyExpanded', n2a: 'auto' })
   })
 
-  it('HF-2 / HR-3 / KO-2: IC-58 marks the pressed row and takes the marks off every row under it', () => {
-    const answer = pressRowEntry('IC-58', 'n1', contextOf({ collapsed: ['n1'], keptOpen: ['n1a', 'n2'] }))
-    expect(groupsWhere(answer, 'setTaskGroupCollapsed', 'collapsed', false)).toEqual(['n1'])
-    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', true)).toEqual(['n1'])
-    expect(groupsWhere(answer, 'setTaskGroupKeptOpen', 'keptOpen', false)).toEqual(['n1a'])
+  it(`HF-2 / HR-3: IC-58 gives the pressed row and the non-leaf rows under it temporarilyExpanded -- ${HF_2_BY_T_328}`, () => {
+    const state: RowState = { n1: 'collapsed', n1a: 'expanded', n1a1: 'collapsed', n2: 'expanded' }
+    const answer = pressRowEntry('IC-58', 'n1', contextOf(state))
+    expect(statesAfter(answer, state)).toEqual({ n1: 'temporarilyExpanded', n1a: 'expanded', n1a1: 'auto', n2: 'expanded', n2a: 'auto' })
   })
 })
 

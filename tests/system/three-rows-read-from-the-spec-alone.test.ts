@@ -900,13 +900,9 @@ test('IN-4: with a face up and a holding armed, one Esc closes the face and leav
 // its order, on the user's own instruction, and table T-037 row `NT-8` (MUST)
 // has that clearing happen ahead of every tier of `Enter` and `Esc`.
 //
-// ⭐ THE NOTICE IS RAISED BY THE SPECIFICATION'S OWN ROUTE, and by one that
-// changes no value of the document: `IC-74` of table T-109 is the entrance
-// table T-051 row `HF-10` puts at the head of the Row Title Panel, and when
-// nothing is folded it has nothing to do -- at which point `FR-029` (MUST) has
-// the entrance tell the reason it cannot act, and table T-233 row `RS-31` is
-// that reason. Pressing it more than once is what makes a later press find
-// nothing folded, whatever the build opened with.
+// see HF-10, IC-74, RS-31, FR-029, T-328, T-329
+// WHY: HF-10 is dim only while no row is undrawn (the zoom counts too), so one press
+// first draws every row (T-328 everyRowOpenPressed); the press under test must then tell RS-31.
 test('IN-4: with a notice up and a holding armed, one Esc clears the notice only', async () => {
   test.setTimeout(180_000)
   expect(
@@ -917,20 +913,30 @@ test('IN-4: with a notice up and a holding armed, one Esc clears the notice only
   const opened = await openTheApp()
   const page = opened.page
   try {
-    await arm(page, COMMENT_BOX_ENTRANCE)
-
-    let notices: string[] = []
-    for (let tries = 0; notices.length === 0 && tries < 3; tries += 1) {
-      expect(
-        await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
-        `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,
-      ).toBe(true)
-      notices = await readNotices(page)
+    // STEP: set up a picture in which every row is drawn, then clear any notice it raised
+    expect(
+      await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
+      `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,
+    ).toBe(true)
+    if ((await readNotices(page)).length > 0) {
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(900)
     }
+    expect(
+      (await readNotices(page)).length,
+      'NT-8: the notice the set-up press may have raised is still standing',
+    ).toBe(0)
+
+    await arm(page, COMMENT_BOX_ENTRANCE)
+    expect(
+      await pressEntrance(page, UNFOLD_ALL_ENTRANCE),
+      `the entrance ${UNFOLD_ALL_ENTRANCE} is on the screen`,
+    ).toBe(true)
+    const notices = await readNotices(page)
 
     expect(
       notices.length,
-      `FR-029 / RS-31: ${UNFOLD_ALL_ENTRANCE} with nothing folded told the reason`,
+      `FR-029 / RS-31: ${UNFOLD_ALL_ENTRANCE} with every row already drawn told no reason`,
     ).toBeGreaterThan(0)
     expect(
       await armingOf(page, COMMENT_BOX_ENTRANCE),

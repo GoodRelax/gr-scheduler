@@ -4,7 +4,7 @@
 // the specification. Table T-218 of Chapter 7 gives them their place: TS-6,
 // tests/unit/, written by whoever implemented the unit.
 //
-// Every expectation below is read off docs/spec -- CM-26 to CM-35 of table
+// Every expectation below is read off docs/spec -- CM-26 to CM-35 and CM-85 of table
 // T-108 and the requirements those rows point at (FR-085, FR-032 with table
 // T-050, FR-033 with table T-223, FR-042, FR-058, FR-004 with table T-015,
 // FR-005 with table T-015a) -- never off the implementation.
@@ -38,9 +38,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   label: 'row',
   derivedFromTaskUid: null,
   order: 0,
-  isCollapsed: null,
-  isHidden: null,
-  isKeptOpen: false,
+  treeState: 'auto',
   editGroup: null,
   color: null,
   height: null,
@@ -752,7 +750,7 @@ describe('EditTaskGroup (UF-12) -- CM-32 setTaskGroupHeight', () => {
   })
 })
 
-describe('EditTaskGroup (UF-12) -- CM-33 / CM-34, collapse and hidden', () => {
+describe('EditTaskGroup (UF-12) -- CM-85, the tree state (AT-153)', () => {
   const nested = () =>
     documentOf({
       schedule: {
@@ -761,46 +759,62 @@ describe('EditTaskGroup (UF-12) -- CM-33 / CM-34, collapse and hidden', () => {
         taskGroupMembers: [memberOf(1, 'g1'), memberOf(2, 'g2')],
       },
     })
+  const setTreeState = (taskGroupId: string, treeState: TaskGroup['treeState']): TaskGroupCommand =>
+    ({ kind: 'setTaskGroupTreeState', taskGroupId, treeState }) as TaskGroupCommand
 
+  // see HR-1a
   it('HR-1a collapses a row without moving the Tasks beneath it onto it', () => {
-    const closed = run(nested(), { kind: 'setTaskGroupCollapsed', groupId: 'g1', collapsed: true })
+    const closed = run(nested(), setTreeState('g1', 'collapsed'))
     expect(closed.ok).toBe(true)
     if (!closed.ok) return
-    expect(groupById(closed.document.schedule, 'g1')?.isCollapsed).toBe(true)
-    // HR-1a (MUST NOT): 配下の Task を親の行に載せ替えて描いてはならない -- the
-    // row beneath and its member are untouched, since collapsing is a drawing
-    // state and not a move.
+    expect(groupById(closed.document.schedule, 'g1')?.treeState).toBe('collapsed')
+    expect(groupById(closed.document.schedule, 'g2')?.treeState).toBe('auto')
     expect(idsOf(closed.document.schedule.taskGroups).sort()).toEqual(['g1', 'g2'])
     expect(closed.document.schedule.taskGroupMembers.find((one) => one.taskUid === 2)?.groupId)
       .toBe('g2')
 
-    const opened = run(closed.document, { kind: 'setTaskGroupCollapsed', groupId: 'g1',
-      collapsed: false })
+    const opened = run(closed.document, setTreeState('g1', 'auto'))
     expect(opened.ok).toBe(true)
-    if (opened.ok) expect(groupById(opened.document.schedule, 'g1')?.isCollapsed).toBe(false)
+    if (opened.ok) expect(groupById(opened.document.schedule, 'g1')?.treeState).toBe('auto')
   })
 
+  // see HR-6, HR-1a, WY-1
   it('HR-6 saves the hidden state in the document and re-homes nothing', () => {
-    // HR-6 (MUST): 隠した状態を文書に保存すること -- 保存しないと、書き出して
-    // 読み直したときに隠した行が戻り、WY-1 が成立しない。
-    const hidden = run(nested(), { kind: 'setTaskGroupHidden', groupId: 'g1', hidden: true })
+    const hidden = run(nested(), setTreeState('g1', 'hidden'))
     expect(hidden.ok).toBe(true)
     if (!hidden.ok) return
-    expect(groupById(hidden.document.schedule, 'g1')?.isHidden).toBe(true)
-    // HR-1a (MUST NOT): 「配下の `Task` を親の行に載せ替えて描いてはならない」 --
-    // HR-6 folded its own copy of this on 2026-09-12 and now points here;
-    // it still reaches a hidden row because HR-6 requires the collapsed state.
+    expect(groupById(hidden.document.schedule, 'g1')?.treeState).toBe('hidden')
     expect(idsOf(hidden.document.schedule.taskGroups).sort()).toEqual(['g1', 'g2'])
     expect(hidden.document.schedule.taskGroupMembers.find((one) => one.taskUid === 2)?.groupId)
       .toBe('g2')
-    // Hiding is not collapsing: table T-015 keeps HR-1a and HR-6 apart, and
-    // the note under HR-6 says the two do not even agree on group LOD.
-    expect(groupById(hidden.document.schedule, 'g1')?.isCollapsed).toBeNull()
+    expect(groupById(hidden.document.schedule, 'g2')?.treeState).toBe('auto')
 
-    const shown = run(hidden.document, { kind: 'setTaskGroupHidden', groupId: 'g1',
-      hidden: false })
+    const shown = run(hidden.document, setTreeState('g1', 'auto'))
     expect(shown.ok).toBe(true)
-    if (shown.ok) expect(groupById(shown.document.schedule, 'g1')?.isHidden).toBe(false)
+    if (shown.ok) expect(groupById(shown.document.schedule, 'g1')?.treeState).toBe('auto')
+  })
+
+  // see CM-72, HF-8
+  it('CM-72 returns every row but a hidden one to auto', () => {
+    const document = documentOf({
+      schedule: {
+        taskGroups: [
+          groupOf({ id: 'g1', treeState: 'expanded' }),
+          groupOf({ id: 'g2', parentId: 'g1', treeState: 'temporarilyExpanded' }),
+          groupOf({ id: 'g3', parentId: 'g2', treeState: 'collapsed' }),
+          groupOf({ id: 'g4', parentId: 'g1', treeState: 'hidden' }),
+        ],
+      },
+    })
+    const result = run(document, { kind: 'resetTaskGroupTreeStates' } as TaskGroupCommand)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.document.schedule.taskGroups.map((one) => [one.id, one.treeState])).toEqual([
+      ['g1', 'auto'],
+      ['g2', 'auto'],
+      ['g3', 'auto'],
+      ['g4', 'hidden'],
+    ])
   })
 })
 
@@ -812,7 +826,7 @@ describe('EditTaskGroup (UF-12) -- CM-35 reorderTaskGroupSiblings', () => {
           groupOf({ id: 'p', order: 0 }),
           groupOf({ id: 'z', order: 1 }),
           groupOf({ id: 'a', parentId: 'p', order: 0, label: 'A', color: 'transparent',
-            height: 40, isCollapsed: true }),
+            height: 40, treeState: 'collapsed' }),
           groupOf({ id: 'b', parentId: 'p', order: 1 }),
           groupOf({ id: 'c', parentId: 'p', order: 2 }),
         ],
@@ -848,7 +862,7 @@ describe('EditTaskGroup (UF-12) -- CM-35 reorderTaskGroupSiblings', () => {
     expect(moved?.label).toBe('A')
     expect(moved?.color).toBe('transparent')
     expect(moved?.height).toBe(40)
-    expect(moved?.isCollapsed).toBe(true)
+    expect(moved?.treeState).toBe('collapsed')
     expect(moved?.parentId).toBe('p')
   })
 

@@ -335,10 +335,7 @@ function twoRowDocument(): Document {
     label,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: false,
-    isHidden: false,
-    isKeptOpen: false,
-    editGroup: null,
+    treeState: 'auto', editGroup: null,
     color: null,
     height: null,
   })

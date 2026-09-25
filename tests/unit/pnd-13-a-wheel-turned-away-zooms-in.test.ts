@@ -47,8 +47,8 @@ const SCHEDULE = {
   resources: [],
   assignments: [],
   taskGroups: [
-    { id: 'g1', parentId: null, label: 'one', order: 0, height: null, isKeptOpen: false },
-    { id: 'g2', parentId: null, label: 'two', order: 1, height: null, isKeptOpen: false },
+    { id: 'g1', parentId: null, label: 'one', order: 0, height: null, treeState: 'auto' },
+    { id: 'g2', parentId: null, label: 'two', order: 1, height: null, treeState: 'auto' },
   ],
   taskGroupMembers: [],
   taskVisuals: [],

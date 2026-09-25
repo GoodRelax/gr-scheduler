@@ -1,4 +1,4 @@
-// CR-423: a row-axis zoom input at an end of table T-262 writes nothing, raises no unsaved edit and shows the end message.
+// see CR-423, CR-570, T-262, T-328, FR-031
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -41,6 +41,9 @@ const ZE_5_ONE_MESSAGE =
   '⭐ 消えるとき・続けて押したとき・通知との違いは同表の `SE-3`〜`SE-5` のとおりとし、表示の倍率を示すメッセージと同じ 1 つのメッセージとして扱うこと（MUST）'
 const T_262_NOT_FOR_MK_2 = '⚠️ 本表は `MK-2`（両軸のズーム）に当てない'
 const UN_8_ZOOM_IS_NO_STEP = '⚠️ 行の軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）'
+const FR_031_SHRINK_TWO_WRITES = '⭐ 縦（行の軸）を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
+const FR_031_AT_THE_END_ONLY_THE_TREE = '⚠️ 縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）は ① を書かず、② だけを書く'
+const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
 
 describe('CR-423 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -55,6 +58,9 @@ describe('CR-423 -- the manuscript these cases are driven by', () => {
     ['ZE-5 (MUST) -- one message with the display scale message', ZE_5_ONE_MESSAGE],
     ['T-262 -- not applied to MK-2', T_262_NOT_FOR_MK_2],
     ['ZE-4 -- the row zoom is no undo step (UN-8)', UN_8_ZOOM_IS_NO_STEP],
+    ['FR-031 (MUST) -- a shrink is two writes', FR_031_SHRINK_TWO_WRITES],
+    ['FR-031 -- at the ZE-2 end only the tree write', FR_031_AT_THE_END_ONLY_THE_TREE],
+    ['FR-018 (MUST NOT) -- only table T-328 writes a tree value', FR_018_ONLY_T_328],
   ])('still says it, word for word: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
@@ -171,7 +177,7 @@ const TEMPLATE = JSON.parse(
 interface RowSpec {
   readonly id: string
   readonly parentId: string | null
-  readonly isKeptOpen?: boolean
+  readonly treeState?: 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
 }
 
 const A = 'bbbbbbbb-0000-4000-8000-000000000001'
@@ -191,12 +197,14 @@ const FLAT: readonly RowSpec[] = [
   { id: Z, parentId: null },
 ]
 
-const KEPT_OPEN: readonly RowSpec[] = [
+const OPENED_BY = (treeState: NonNullable<RowSpec['treeState']>): readonly RowSpec[] => [
   { id: A, parentId: null },
-  { id: B, parentId: A, isKeptOpen: true },
+  { id: B, parentId: A, treeState },
   { id: C, parentId: B },
   { id: Z, parentId: null },
 ]
+const EXPANDED = OPENED_BY('expanded')
+const TEMPORARILY_EXPANDED = OPENED_BY('temporarilyExpanded')
 
 // see ZE-1, FR-094, FR-018, FR-016
 function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
@@ -237,9 +245,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
         label: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
-        isCollapsed: false,
-        isHidden: false,
-        isKeptOpen: one.isKeptOpen === true,
+        treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
         height: null,
@@ -269,6 +275,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
       scrollGroupId: A,
       zoomX: 1,
       zoomY,
+      levelZeroTreeState: 'auto',
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),
     changeLog: [],
@@ -512,13 +519,49 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(built.zoomY(), ZE_1_THE_LOWER_END).toBeCloseTo(expected, 12)
   })
 
-  it('a depth-2 row held open by hand (table T-254) at zoomY 0.5: a zoom-out writes nothing', () => {
-    const kept = bench(documentOf(KEPT_OPEN, 0.5))
-    const lowest = bench(documentOf(KEPT_OPEN, S_54))
-    expect(kept.drawnRows(), 'premise: ZE-1 (2), the mark draws the same rows at S-54').toEqual(lowest.drawnRows())
+  it('a depth-2 row expanded by hand (table T-328) at zoomY 0.5: a zoom-out writes nothing', () => {
+    const kept = bench(documentOf(EXPANDED, 0.5))
+    const lowest = bench(documentOf(EXPANDED, S_54))
+    expect(kept.drawnRows(), 'premise: ZE-1 (2), TD-6 / TD-7 draw the same rows at S-54').toEqual(lowest.drawnRows())
     kept.send(SK_16C)
     expect(kept.zoomY(), ZE_1_THE_LOWER_END).toBe(0.5)
     expect(kept.loop.hasUnsavedEdits(), ZE_4_NO_UNSAVED_EDIT).toBe(false)
+    expect(treeStateOf(kept, B), 'T-328: a shrink leaves expanded alone').toBe('expanded')
+  })
+
+  it(`${FR_031_AT_THE_END_ONLY_THE_TREE} -- a temporarilyExpanded row at the end: the zoom stays, the row returns to auto, and one undo gives it back`, () => {
+    const opened = bench(documentOf(TEMPORARILY_EXPANDED, 0.5))
+    const lowest = bench(documentOf(TEMPORARILY_EXPANDED, S_54))
+    expect(opened.drawnRows(), 'premise: ZE-1 (2) holds with the value as it stands').toEqual(lowest.drawnRows())
+    opened.send(SK_16C)
+    expect(opened.zoomY(), ZE_2_NO_WRITE_AT_THE_END).toBe(0.5)
+    expect(treeStateOf(opened, B), FR_031_SHRINK_TWO_WRITES).toBe('auto')
+    expect(opened.loop.hasUnsavedEdits(), 'ZE-4: the tree write is outside ZE-4 and is an unsaved edit').toBe(true)
+    opened.send(SK_6)
+    expect(treeStateOf(opened, B), 'UN-14: the tree write is one step').toBe('temporarilyExpanded')
+    expect(opened.zoomY()).toBe(0.5)
+  })
+
+  it(`${FR_031_SHRINK_TWO_WRITES} -- off the end, the zoom is written, the row returns to auto, and one undo gives back the row only`, () => {
+    const opened = bench(documentOf(TEMPORARILY_EXPANDED, 1.2))
+    opened.send(SK_16C)
+    const shrunk = opened.zoomY()
+    expect(shrunk).toBeCloseTo(1.2 / S_53, 12)
+    expect(treeStateOf(opened, B)).toBe('auto')
+    opened.send(SK_6)
+    expect(treeStateOf(opened, B), 'UN-14').toBe('temporarilyExpanded')
+    expect(opened.zoomY(), UN_8_ZOOM_IS_NO_STEP).toBe(shrunk)
+  })
+
+  it('with no temporarilyExpanded row, a shrink writes no tree value and an enlarge never does', () => {
+    const plain = bench(documentOf(EXPANDED, 1.2))
+    const before = JSON.stringify(plain.loop.document().schedule.taskGroups)
+    plain.send(SK_16C)
+    plain.send(SK_16A)
+    expect(JSON.stringify(plain.loop.document().schedule.taskGroups), FR_018_ONLY_T_328).toBe(before)
+    const opened = bench(documentOf(TEMPORARILY_EXPANDED, 0.8))
+    opened.send(SK_16A)
+    expect(treeStateOf(opened, B), FR_018_ONLY_T_328).toBe('temporarilyExpanded')
   })
 
   it('control: the same rows without the mark at 0.5 are off the end, and SK-16c writes', () => {
@@ -527,6 +570,10 @@ describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
     expect(plain.zoomY()).toBeCloseTo(0.5 / S_53, 12)
   })
 })
+
+function treeStateOf(built: Bench, id: string): unknown {
+  return (built.loop.document().schedule.taskGroups as readonly { id: string; treeState?: unknown }[]).find((one) => one.id === id)?.treeState
+}
 
 // see FR-016, ZE-3
 function ceilingReachedBySk16a(): number {

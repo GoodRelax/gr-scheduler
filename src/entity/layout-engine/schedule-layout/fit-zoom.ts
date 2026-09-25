@@ -37,7 +37,7 @@ function landingZoomY(depth: number, settings: DocumentSettings, step: number): 
 /** @purity pure */
 function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): number {
   let deepest = 0
-  for (const row of drawnGroups(schedule, settings, false)) {
+  for (const row of drawnGroups(schedule, { ...settings, levelZeroTreeState: 'auto' })) {
     if (row.depth > deepest) deepest = row.depth
   }
   return Math.min(deepest, settings.maxGroupDepth)
@@ -169,7 +169,7 @@ export function fitZoom(
   const deepest = deepestDrawnDepth(schedule, settings)
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
     layoutFromSchedule(
-      schedule, { ...settings, zoomX, zoomY }, regions, cap, undefined, rowControlsHeightPx,
+      schedule, { ...settings, zoomX, zoomY }, regions, cap, rowControlsHeightPx,
     )
 
   const atUnity = runAt(1, floorZoomY, deepest)

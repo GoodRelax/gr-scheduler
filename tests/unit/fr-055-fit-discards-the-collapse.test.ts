@@ -23,7 +23,7 @@
 //            forbids HF-8 there
 //   T-038    what the drawn extent counts
 //   FR-031   one press, two writes, in an order that MUST NOT be swapped
-//   T-108    CM-71 `fitScheduleToScreen` / CM-72 `expandAllTaskGroups`
+//   T-108    CM-71 `fitScheduleToScreen` / CM-72 `resetTaskGroupTreeStates` / CM-86
 //   T-036    SK-18 (`F`) -- the entrance these cases press
 //
 // ⭐ THE TWO `FINDING` CASES NOW PASS. They were left failing because the fit
@@ -32,6 +32,9 @@
 // discards the fold (HF-8) before it measures. The word FINDING is kept in
 // their names only so the history reads straight -- ⚠️ they are ordinary green
 // cases now, and the next hand may rename them.
+
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
@@ -65,7 +68,7 @@ import {
   type TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
-import { specTable } from '../contract/spec-table'
+import { specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Settings and screen. Every key not pinned here comes from SETTINGS_DEFAULTS,
@@ -141,8 +144,7 @@ const groupOf = (part: Record<string, unknown>): Record<string, unknown> => ({
   parentId: null,
   label: null,
   derivedFromTaskUid: null,
-  isCollapsed: null,
-  isHidden: null,
+  treeState: 'auto',
   color: null,
   height: null,
   ...part,
@@ -172,8 +174,7 @@ const scheduleOf = (
     groupOf({
       id,
       order: index,
-      isCollapsed: collapsed.has(id) ? true : null,
-      isHidden: hidden.has(id) ? true : null,
+      treeState: hidden.has(id) ? 'hidden' : collapsed.has(id) ? 'collapsed' : 'auto',
     }),
   )
   const children = PARENT_IDS.flatMap((id, index) =>
@@ -215,11 +216,11 @@ const scheduleOf = (
   } as unknown as Schedule
 }
 
-const documentOf = (schedule: Schedule): Document =>
+const documentOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): Document =>
   ({
     schemaVersion: '1',
     schedule,
-    documentSettings: SETTINGS,
+    documentSettings: settings,
     documentStamp: {
       scheduleUpdatedUtc: '2026-08-26T00:00:00Z',
       lastEditedBy: 'test',
@@ -243,15 +244,15 @@ type Frame = {
   readonly schedule: Schedule
 }
 
-const frameOf = (schedule: Schedule): Frame => {
-  const layout = layoutFromSchedule(schedule, SETTINGS, REGIONS)
+const frameOf = (schedule: Schedule, settings: DocumentSettings = SETTINGS): Frame => {
+  const layout = layoutFromSchedule(schedule, settings, REGIONS)
   return {
     layout,
     schedule,
     context: {
-      document: documentOf(schedule),
+      document: documentOf(schedule, settings),
       layout,
-      geometry: geometryFromLayout(schedule, SETTINGS, layout, REGIONS, emptySelection()),
+      geometry: geometryFromLayout(schedule, settings, layout, REGIONS, emptySelection()),
       regions: REGIONS,
       screen: emptyScreenSession.screen,
       selection: emptySelection(),
@@ -302,6 +303,19 @@ const HIDDEN = frameOf(scheduleOf({ hidden: ['p2'] }))
 const HIDDEN_AND_FOLDED = frameOf(
   scheduleOf({ hidden: ['p2'], collapsed: [...PARENT_IDS] }),
 )
+const LEVEL_ZERO_FOLDED = frameOf(scheduleOf(), settingsOf({ ...SETTINGS, levelZeroTreeState: 'collapsed' }))
+
+const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
+const HF_8_BY_T_328 = '人が全体表示（`FR-055`）を求めたとき、行と段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと（MUST）'
+const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
+const FR_031_FIT_TWO_WRITES = '全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）。順序を入れ替えてはならない（MUST NOT）'
+const UN_14_LEVEL_ZERO_SAME_STEP = '⭐ 段 0 の畳み（`S-418`）は見せ方の群の鍵だが、同じ押下が書く行の木の状態と同じ段に入れること（MUST）'
+
+describe('the manuscript these cases are driven by', () => {
+  it.each([HF_8_BY_T_328, FR_018_ONLY_T_328, FR_031_FIT_TWO_WRITES, UN_14_LEVEL_ZERO_SAME_STEP])('%s', (clause) => {
+    expect(REQUIREMENTS).toContain(clause)
+  })
+})
 
 describe('the fixture these cases are driven by', () => {
   it('draws every row when nothing is folded, so LC-2 is not what removes them', () => {
@@ -330,19 +344,9 @@ describe('the fixture these cases are driven by', () => {
 })
 
 describe('FR-055 -- what the fit measures', () => {
-  // ⛔ FINDING (DFC-25). FR-055's own RATIONALE: 「本要求は、人が畳んだ状態を
-  // すべて捨てる（表 T-051 の `HF-8`）—— 捨てないと、畳まれた行のぶんだけ
-  // 「全体」が縮み、収める対象が人の操作で変わってしまう」. The rule printed
-  // after table T-068 says the same thing as an order of work -- pass 1 is
-  // 「人が畳んだ状態をすべて捨て（表 T-051 の `HF-8`）、現在の表示量で `LC-1`
-  // 〜 `LC-9` を通し、表 T-038 の実寸から候補の倍率を出す」.
-  //
-  // ⭐ So the collapse is discarded BEFORE the measurement, not after the zoom
-  // has been written. Two documents that differ only in what the author folded
-  // are the same 全体, and one press of SK-18 must answer the same zoom on
-  // both. ⚠️ Asserted on the WRITE, not on the drawing: the drawing after
-  // CM-71 still holds the collapse, because opening the rows is CM-72's half of
-  // the press (FR-031).
+  // see FR-055, HF-8, T-068, DFC-25
+  // WHY: the fold is discarded BEFORE the measurement, so two documents that differ only in
+  // what the author folded are one whole; asserted on the CM-71 write, not on the drawing.
   it('FINDING: a folded document and an unfolded one are fitted to the same zoom', () => {
     const plain = fittedZoom(PLAIN)
     const folded = fittedZoom(FOLDED)
@@ -350,40 +354,41 @@ describe('FR-055 -- what the fit measures', () => {
     expect(folded.zoomX).toBeCloseTo(plain.zoomX, 10)
   })
 
-  it('FINDING: HF-8 discards the fold and not the hiding, so a hidden branch stays out of both measurements', () => {
-    // ⛔ HF-8's closing clause: 「捨てるのは畳みだけであり、隠した状態は残す」,
-    // and HR-6 of table T-015 makes the hidden state a saved column (MUST) so
-    // that WY-1 holds. A fit that opened everything would erase it.
+  // see HF-8, HR-6, WY-1
+  it('FINDING: HF-8 returns every value but hidden to auto, so a hidden branch stays out of both measurements', () => {
     const hidden = fittedZoom(HIDDEN)
     expect(fittedZoom(HIDDEN_AND_FOLDED).zoomY).toBeCloseTo(hidden.zoomY, 10)
     expect(fittedZoom(HIDDEN_AND_FOLDED).zoomX).toBeCloseTo(hidden.zoomX, 10)
-
-    // ...and hiding a branch DOES change the whole being fitted, which is what
-    // makes the equality above a statement about the fold alone.
-    //
-    // ⛔ WITNESSED ON THE EXTENT, NOT ON THE ZOOM, since CR-264. This read
-    // 「hidden.zoomY is not plain.zoomY」 and FR-055 now forbids that reading:
-    // 「縦は、倍率を縮めて合わせるのではなく、表示量（グループ LOD の深さ）を
-    // 選んで合わせること（MUST）」. `HIDDEN` and `PLAIN` both settle on the same
-    // depth, so they MUST settle on the same `zoomY` however much each of them
-    // draws -- that equality is asserted as a requirement in
-    // tests/unit/fr-055-vertical-lod-fit.test.ts, `both land on depth 2, so
-    // both are fitted to the same zoomY`. What HR-6 still moves is the 全体
-    // table T-038 measures, and that is what this guard now names.
+    // WHY: hiding moves the whole table T-038 measures, which makes the equality above a
+    // statement about the fold alone; the zoom itself may land on one depth (CR-264).
     expect(HIDDEN.layout.rows.length).toBeLessThan(PLAIN.layout.rows.length)
     expect(HIDDEN.layout.contentHeight).toBeLessThan(PLAIN.layout.contentHeight)
   })
 
-  it('FR-031 keeps the press two writes, CM-71 first, so the fix above cannot be made by reordering them', () => {
-    // ⛔ 「全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）。
-    // 順序を入れ替えてはならない（MUST NOT）」 —— ① CM-71 places the zoom and
-    // the position (UN-8: no step), ② CM-72 opens every folded row (UN-17: one
-    // step). Discarding the fold before MEASURING is not the same act as
-    // WRITING the expansion first, and this case keeps the two apart.
-    const writes = writesOf(commandFromInput(keyOf('F'), FOLDED.context))
-    expect(writes).toHaveLength(2)
-    expect(writes[0]!.map((one) => one.kind)).toEqual(['fitScheduleToScreen'])
-    expect(writes[1]!.map((one) => one.kind)).toEqual(['expandAllTaskGroups'])
+  // see FR-055, T-328, S-418
+  it(`${HF_8_BY_T_328} -- a folded level zero is opened before the measurement, so it fits like the plain one`, () => {
+    expect(LEVEL_ZERO_FOLDED.layout.rows, 'premise: TD-1 draws nothing').toHaveLength(0)
+    const plain = fittedZoom(PLAIN)
+    const folded = fittedZoom(LEVEL_ZERO_FOLDED)
+    expect(folded.zoomY).toBeCloseTo(plain.zoomY, 10)
+    expect(folded.zoomX).toBeCloseTo(plain.zoomX, 10)
+  })
+
+  // see FR-031, CM-71, CM-72, CM-86, UN-8, UN-17
+  it(`${FR_031_FIT_TWO_WRITES} -- CM-71 first, then the tree values`, () => {
+    const allowed = ['resetTaskGroupTreeStates', 'setLevelZeroTreeState']
+    for (const frame of [FOLDED, LEVEL_ZERO_FOLDED]) {
+      const writes = writesOf(commandFromInput(keyOf('F'), frame.context))
+      expect(writes).toHaveLength(2)
+      expect(writes[0]!.map((one) => one.kind)).toEqual(['fitScheduleToScreen'])
+      const second = writes[1]!.map((one) => one as unknown as Record<string, unknown>)
+      expect(second.map((one) => one['kind'])).toContain('resetTaskGroupTreeStates')
+      for (const one of second) expect(allowed, FR_018_ONLY_T_328).toContain(one['kind'])
+    }
+    const levelZero = writesOf(commandFromInput(keyOf('F'), LEVEL_ZERO_FOLDED.context))[1]!
+      .map((one) => one as unknown as Record<string, unknown>)
+      .find((one) => one['kind'] === 'setLevelZeroTreeState')
+    expect(levelZero?.['levelZeroTreeState'], UN_14_LEVEL_ZERO_SAME_STEP).toBe('auto')
   })
 })
 

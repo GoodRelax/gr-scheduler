@@ -1,7 +1,7 @@
 // 表 T-051 の `HF-17` (MUST / MUST NOT, 利用者の裁定 2026-09-06「(a) ただし、1
 // 階層だけ開くこと」, CR-368): pressing HF-17's own entrance (adding a row at
 // 段 0, the panel's head) must open 段 0 by exactly one level when it stands
-// folded (`S-211`) -- never every fold below it.
+// folded (`S-418`) -- never every fold below it.
 //
 // ⚠️ Chapter 9 admits no Unit as a TEST_LEVEL, so these cases have no node in
 // the specification. 表 T-218 of Chapter 7 gives them their place: TS-6,
@@ -11,7 +11,7 @@
 // ⭐⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-051 の `HF-17`)
 // ---------------------------------------------------------------------------
 //
-//   「⚠️ 本行で行を足すとき、段 0 が畳まれていれば（`S-211`）1 階層だけ開くこと
+//   「⚠️ 本行で行を足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと
 //    （MUST）。すべて開いてはならない（MUST NOT）」（利用者の裁定 2026-09-06
 //    「(a) ただし、1 階層だけ開くこと」） —— 「開かなければ、本行の MUST NOT
 //    （打ち込み口だけを送ってはならない）が破れる。」「すべて開けば `HF-10` と
@@ -20,11 +20,11 @@
 // and 表 T-015 の `HR-2` (全畳み), which is how a fixture folds 段 0 at all:
 //
 //   「最も浅い段の行も畳むこと（MUST）」…「段 0 が畳まれているかは
-//    `_assets/tbl-settings.md` の 表 T-206 の `S-211` が持つ」
+//    `_assets/tbl-settings.md` の 表 T-203 の `S-418` が持つ」
 //
 // ---------------------------------------------------------------------------
 // Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, `CP-25` of 表 T-062) --
-// the layer holding S-211 (LY-5 of 表 T-060 leaves it the only one that may).
+// the loop whose document holds S-418 (a saved, undoable document value).
 //
 // ⛔ WRITTEN FROM docs/spec, AND WHAT WAS READ OF `src/` IS NAMED HERE (docs/
 // development-rules/04-verification.md §1: only the head, published types and
@@ -38,7 +38,7 @@
 // ---------------------------------------------------------------------------
 //  1. THE NAME FIELD / RENAME-ROAD HALF OF HF-17 (DFC-243). tests/unit/
 //     t-051-hf-17-adding-a-row-walks-the-rename-road.test.ts already asks that;
-//     this file's one question is the fold, S-211 alone.
+//     this file's one question is the fold, S-418 alone.
 //  2. HF-14's OWN "open the pressed ancestor" MUST. That is a different fold
 //     (a single named parent), not 段 0, and it is not this row's to restate.
 //  3. WHETHER HEAD_OPEN_ONE_LEVEL (HF-16) ITSELF unfolds 段 0 -- that is
@@ -86,7 +86,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⭐⭐ THE CLAUSE CR-368 ADDED TO HF-17 ON 2026-09-06, verbatim. */
 const HF_17_OPENS_ONE_LEVEL =
-  '本行で行を足すとき、段 0 が畳まれていれば（`S-211`）1 階層だけ開くこと（MUST）。すべて開いてはならない（MUST NOT）'
+  '本行で行を足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと（MUST）。すべて開いてはならない（MUST NOT）'
 
 /** 表 T-015 の `HR-2` -- the rule that lets a fixture fold 段 0 in the first place. */
 const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段の行も畳むこと（MUST）'
@@ -200,8 +200,7 @@ function documentWith(): Document {
         label: one.name,
         derivedFromTaskUid: null,
         order: index,
-        isCollapsed: false,
-        isHidden: false,
+        treeState: 'auto',
         color: null,
         height: null,
       })),
@@ -342,9 +341,13 @@ function drawnRows(built: Stage): readonly string[] {
   return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
 }
 
-/** `S-211`, read the only way a screen-level test can: HF-16's own arming. */
+/** HF-16's own arming, as the panel drew it. */
 const canOpenLevelZero = (built: Stage): boolean | undefined =>
   (built.screen.last().rowTitlePanel as any).canOpenLevelZero
+
+/** `S-418`, read from the document that holds it. */
+const levelZeroOf = (built: Stage): string =>
+  built.loop.document().documentSettings.levelZeroTreeState
 
 // ===========================================================================
 // 4. The premise: HR-2 at 段 0 folds every row away, including the roots
@@ -368,6 +371,7 @@ describe('premise -- HEAD_FOLD_EVERY_ROW (HR-2) folds 段 0 itself', () => {
     expect(canOpenLevelZero(built), 'HF-16 should now be armed to open the fold this made').toBe(
       true,
     )
+    expect(levelZeroOf(built), 'HR-2: S-418 should now hold the fold').toBe('collapsed')
   })
 })
 
@@ -398,8 +402,8 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
   it('⛔⛔ MUST NOT: Beta and Gamma stay folded away -- only 段 0 opened, not everything (not HF-10’s shape)', () => {
     // ⛔ THE WHOLE OF THE MUST NOT: 「すべて開いてはならない」 -- 「すべて開けば
     // `HF-10` と同じになり、人が畳んだ意思を捨てることになる」. Alpha's own fold
-    // (its `isCollapsed`) is untouched by HF-17 -- only 段 0's separate S-211
-    // flag is -- so Beta (Alpha's child) must stay hidden.
+    // (its treeState, collapsed by HF-12) is untouched by HF-17 -- only 段 0's S-418
+    // is -- so Beta (Alpha's child) must stay hidden.
     const built = stage()
     built.press(HEAD_FOLD_EVERY_ROW, null)
 
@@ -414,7 +418,7 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
     expect(after).not.toContain('Gamma')
   })
 
-  it('⭐ S-211 itself is cleared: HF-16 is no longer armed once HF-17 opened it', () => {
+  it('⭐ S-418 itself is cleared: HF-16 is no longer armed once HF-17 opened it', () => {
     const built = stage()
     built.press(HEAD_FOLD_EVERY_ROW, null)
     expect(canOpenLevelZero(built)).toBe(true)
@@ -423,18 +427,21 @@ describe('HF-17 (MUST) -- adding a row at 段 0 opens the fold by exactly one le
 
     expect(
       canOpenLevelZero(built),
-      'S-211 should have come off the fold HF-17 just opened, so HF-16 has nothing left to do',
+      'S-418 should have come off the fold HF-17 just opened, so HF-16 has nothing left to do',
     ).not.toBe(true)
+    expect(levelZeroOf(built), 'HF-17 (MUST): S-418 still holds the fold').toBe('auto')
   })
 
   it('control: pressing HF-17 while 段 0 is NOT folded changes nothing about the fold', () => {
     const built = stage()
     expect(canOpenLevelZero(built)).not.toBe(true)
+    expect(levelZeroOf(built)).toBe('auto')
 
     built.press(HEAD_ADD_ROW, null)
 
     const after = drawnRows(built)
     expect(after).toEqual(expect.arrayContaining(['Alpha', 'Beta', 'Gamma', 'Zeta']))
     expect(after.length).toBe(5)
+    expect(levelZeroOf(built)).toBe('auto')
   })
 })

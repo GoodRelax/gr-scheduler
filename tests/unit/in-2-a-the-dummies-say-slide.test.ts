@@ -135,9 +135,7 @@ const rowOfSchedule = (id: string, order: number) => ({
   label: `row ${order}`,
   derivedFromTaskUid: null,
   order,
-  isCollapsed: false,
-  isHidden: false,
-  color: null,
+  treeState: 'auto', color: null,
   height: null,
 })
 

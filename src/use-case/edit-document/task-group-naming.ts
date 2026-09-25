@@ -4,8 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
-import { taskByUid } from '../../entity/document-model/schedule/schedule'
+import { COLUMN_DEFAULTS, taskByUid, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
@@ -63,9 +62,7 @@ export function createTaskGroup(
     label: command.label,
     derivedFromTaskUid: command.derivedFromTaskUid,
     order: command.order,
-    isCollapsed: null,
-    isHidden: null,
-    isKeptOpen: false,
+    treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
     editGroup: null,
     color: null,
     height: null,

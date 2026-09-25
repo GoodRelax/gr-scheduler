@@ -135,9 +135,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
     label: null,
     derivedFromTaskUid: null,
     order: 0,
-    isCollapsed: null,
-    isHidden: null,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
     ...part,
   }) as unknown as TaskGroup

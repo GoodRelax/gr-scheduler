@@ -495,6 +495,7 @@ export interface ScreenViewReadings {
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
   readonly rowBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  readonly placedRowGroupIds?: readonly string[]
   // TRAP: not on ScreenState: a per-frame change there fails the loop's identity test and redraws every frame.
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean

@@ -38,7 +38,6 @@ export function rowBandCeilingCacheOf() {
     readonly settings: DocumentSettings
     readonly drawnZoomX: number
     readonly rowArea: ScreenRect
-    readonly isLevelZeroFolded: boolean | undefined
     readonly rowControlsHeightPx: number | undefined
     readonly zoomMin: number
     readonly zoomMax: number
@@ -62,7 +61,6 @@ export function rowBandCeilingCacheOf() {
       held.rowArea.y === rowArea.y &&
       held.rowArea.width === rowArea.width &&
       held.rowArea.height === rowArea.height &&
-      held.isLevelZeroFolded === context.isLevelZeroFolded &&
       held.rowControlsHeightPx === context.rowControlsHeightPx &&
       held.zoomMin === context.zoomMin &&
       held.zoomMax === context.zoomMax
@@ -75,7 +73,6 @@ export function rowBandCeilingCacheOf() {
       settings,
       drawnZoomX,
       rowArea,
-      isLevelZeroFolded: context.isLevelZeroFolded,
       rowControlsHeightPx: context.rowControlsHeightPx,
       zoomMin: context.zoomMin,
       zoomMax: context.zoomMax,

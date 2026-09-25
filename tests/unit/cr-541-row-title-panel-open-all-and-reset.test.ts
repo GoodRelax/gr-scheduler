@@ -1,4 +1,4 @@
-// CR-541: the [vv] entrances of the Row Title Panel and the gap of its row controls.
+// see CR-541, CR-570, HF-2, HF-10, HF-4
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -8,11 +8,12 @@ import { bare, bareAll, specTable } from '../contract/spec-table'
 import { selfAndDescendants, stage, styleMap, wiringOf, type FakeElement } from '../fixtures/fake-browser'
 import { REQUIREMENTS, rowDocument, rowOf, shell, type RowSeed, type ShellBench } from './cr-541-stage'
 
-const Q02 = '⭐ 押したときは、押した行に開いたままの印を立て、その配下の行はすべて人の指定の無い状態へ戻すこと（MUST）'
+const Q02 = '⭐ 押したときに行が取る値は、`_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従うこと（MUST）'
 const Q03 = '⭐ 押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
 const Q04 = '⭐ 並びのいちばん右の操作子の外形と、行見出しパネルの右端とのあいだを、`_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
-const Q05 = '⭐ 押したときは、すべての行を人の指定の無い状態へ戻すこと（MUST）'
-const Q06 = '⭐ 畳み・隠し・開いたままの印のどれも 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）'
+const Q05 = '⭐ 押したときに行と段 0 が取る値は 表 T-328 の `everyRowOpenPressed` の行と根の升に従うこと（MUST）'
+const Q06 = '⭐ 描かれていない行（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）'
+const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
 
 const ROW_TITLE_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 const ON_THE_PANEL = specTable('T-109').rows.filter((one) =>
@@ -47,12 +48,13 @@ const TREE: readonly RowSeed[] = [
 const below = (id: string): string[] =>
   TREE.filter((one) => one.parentId === id).flatMap((one) => [one.id, ...below(one.id)])
 
-const withMarks = (marks: Record<string, Partial<RowSeed>>): RowSeed[] =>
-  TREE.map((one) => ({ ...one, ...(marks[one.id] ?? {}) }))
+type TreeState = NonNullable<RowSeed['treeState']>
+const withStates = (states: Record<string, TreeState>): RowSeed[] =>
+  TREE.map((one) => ({ ...one, treeState: states[one.id] ?? 'auto' }))
 
 const opened: ShellBench[] = []
-const bench = (rows: readonly RowSeed[], zoomY = 1.2): ShellBench => {
-  const built = shell(rowDocument(rows, { zoomY }))
+const bench = (rows: readonly RowSeed[], zoomY = 1.2, levelZeroTreeState: 'auto' | 'collapsed' = 'auto'): ShellBench => {
+  const built = shell(rowDocument(rows, { zoomY, levelZeroTreeState }))
   opened.push(built)
   return built
 }
@@ -60,40 +62,44 @@ afterEach(() => {
   for (const one of opened.splice(0)) one.restore()
 })
 
-const neutral = (row: any): boolean =>
-  row.isCollapsed !== true && row.isHidden !== true && row.isKeptOpen !== true
+const statesOf = (built: ShellBench): Record<string, unknown> =>
+  Object.fromEntries(built.groups().map((one: any) => [one.id, one.treeState]))
 
 const titleOf = (built: ShellBench, id: string): RowTitle | undefined => {
   const panel = built.last().rowTitlePanel
   return [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === id)
 }
 
-describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q02, Q03, Q04, Q05, Q06])('%s', (clause) => {
+describe('CR-541 / CR-570 -- the clauses still stand in the manuscript', () => {
+  it.each([Q02, Q03, Q04, Q05, Q06, FR_018_ONLY_T_328])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
 
-describe('HF-2 [vv] on one row (KO-2)', () => {
+describe('HF-2 [vv] on one row (T-328 allBelowOpenPressed)', () => {
   it(Q02, () => {
-    const built = bench(
-      withMarks({ [C1]: { isCollapsed: true }, [G1]: { isHidden: true }, [C2]: { isKeptOpen: true } }),
-    )
+    const built = bench(withStates({ [C1]: 'collapsed', [G1]: 'hidden', [C2]: 'expanded' }))
     built.press(ROW_TITLE_PANEL, OPEN_ALL_BELOW, B)
-    const byId = new Map(built.groups().map((one: any) => [one.id, one]))
-    expect(byId.get(B)?.isKeptOpen, 'KO-2: the pressed row carries the kept-open mark').toBe(true)
-    for (const id of below(B)) expect(neutral(byId.get(id)), `KO-2: ${id} below the pressed row is neutral`).toBe(true)
-    expect(byId.get(A)?.isKeptOpen, 'rows above the pressed row are not written').toBe(false)
+    expect(statesOf(built)).toEqual({
+      [A]: 'auto',
+      [B]: 'temporarilyExpanded',
+      [C1]: 'temporarilyExpanded',
+      [G1]: 'auto',
+      [C2]: 'expanded',
+      [Z]: 'auto',
+      [Z1]: 'auto',
+    })
   })
 
   it(`${Q03} -- drawn faint exactly when the press changes nothing`, () => {
     const fixtures: { readonly rows: RowSeed[]; readonly zoomY: number }[] = [
-      { rows: withMarks({}), zoomY: 1.2 },
-      { rows: withMarks({ [B]: { isKeptOpen: true } }), zoomY: 1.2 },
-      { rows: withMarks({ [C1]: { isCollapsed: true } }), zoomY: 1.2 },
-      { rows: withMarks({ [G1]: { isHidden: true } }), zoomY: 1.2 },
-      { rows: withMarks({ [C2]: { isKeptOpen: true } }), zoomY: 1.2 },
-      { rows: withMarks({}), zoomY: 0.25 },
+      { rows: withStates({}), zoomY: 1.2 },
+      { rows: withStates({ [B]: 'expanded' }), zoomY: 1.2 },
+      { rows: withStates({ [C1]: 'collapsed' }), zoomY: 1.2 },
+      { rows: withStates({ [G1]: 'hidden' }), zoomY: 1.2 },
+      { rows: withStates({ [C2]: 'expanded' }), zoomY: 1.2 },
+      { rows: withStates({}), zoomY: 0.25 },
+      { rows: withStates({ [C1]: 'temporarilyExpanded' }), zoomY: 0.25 },
     ]
     const disagree: string[] = []
     for (const fixture of fixtures) {
@@ -111,8 +117,8 @@ describe('HF-2 [vv] on one row (KO-2)', () => {
     expect(disagree).toEqual([])
   })
 
-  it(`${Q03} -- a row with no mark whose direct children are all drawn is faint`, () => {
-    const built = bench(withMarks({}), 1.2)
+  it(`${Q03} -- a row whose descendants are all drawn is faint`, () => {
+    const built = bench(withStates({}), 1.2)
     const title = titleOf(built, Z)
     expect(title, 'premise: Z is drawn').toBeDefined()
     expect(titleOf(built, Z1), 'premise: its child is drawn').toBeDefined()
@@ -120,22 +126,36 @@ describe('HF-2 [vv] on one row (KO-2)', () => {
   })
 })
 
-describe('HF-10 [vv] at the head of the panel (KO-3)', () => {
+describe('HF-10 [vv] at the head of the panel (T-328 everyRowOpenPressed)', () => {
   it(Q05, () => {
-    const built = bench(
-      withMarks({ [B]: { isKeptOpen: true }, [C1]: { isCollapsed: true }, [G1]: { isHidden: true }, [Z]: { isCollapsed: true } }),
-    )
+    const built = bench(withStates({ [B]: 'expanded', [C1]: 'collapsed', [G1]: 'hidden', [Z]: 'collapsed' }))
     built.press(ROW_TITLE_PANEL, HEAD_OPEN_EVERY_ROW, null)
-    for (const row of built.groups()) expect(neutral(row), `KO-3: ${row.id} is neutral`).toBe(true)
+    expect(statesOf(built)).toEqual({
+      [A]: 'temporarilyExpanded',
+      [B]: 'expanded',
+      [C1]: 'temporarilyExpanded',
+      [G1]: 'auto',
+      [C2]: 'auto',
+      [Z]: 'temporarilyExpanded',
+      [Z1]: 'auto',
+    })
+  })
+
+  it(`${Q05} -- a folded level zero is opened by the same press`, () => {
+    const built = bench(withStates({}), 1.2, 'collapsed')
+    built.press(ROW_TITLE_PANEL, HEAD_OPEN_EVERY_ROW, null)
+    expect((built.loop.document().documentSettings as any).levelZeroTreeState).toBe('auto')
   })
 
   it.each([
-    ['no fold, no hide, no mark', {}, false],
-    ['one kept-open mark only', { [B]: { isKeptOpen: true } }, true],
-    ['one fold', { [C1]: { isCollapsed: true } }, true],
-    ['one hide', { [G1]: { isHidden: true } }, true],
-  ] as const)(`${Q06} -- %s`, (_name, marks, armed) => {
-    const built = bench(withMarks(marks as Record<string, Partial<RowSeed>>))
+    ['nothing folded, hidden or dropped', {}, 1.2, 'auto', false],
+    ['one expanded row only', { [B]: 'expanded' }, 1.2, 'auto', false],
+    ['one fold', { [C1]: 'collapsed' }, 1.2, 'auto', true],
+    ['one hide', { [G1]: 'hidden' }, 1.2, 'auto', true],
+    ['rows dropped by the zoom', {}, 0.25, 'auto', true],
+    ['level zero folded', {}, 1.2, 'collapsed', true],
+  ] as const)(`${Q06} -- %s`, (_name, states, zoomY, levelZero, armed) => {
+    const built = bench(withStates(states as Record<string, TreeState>), zoomY, levelZero)
     expect(built.last().rowTitlePanel.canOpenEveryRow).toBe(armed)
   })
 })

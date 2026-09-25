@@ -306,9 +306,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   label,
   derivedFromTaskUid: null,
   order,
-  isCollapsed: false,
-  isHidden: false,
-  color: null,
+  treeState: 'auto', color: null,
   height: null,
 })
 

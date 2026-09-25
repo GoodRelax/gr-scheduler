@@ -23,6 +23,7 @@ const T285_LEAD = '状態機械に領域を 1 つ足す手順を 表 T-285 に�
 type Loose = Record<string, unknown>
 type Region = {
   readonly region: string
+  readonly holds?: string
   readonly unit: string
   readonly events: readonly unknown[]
   readonly machines: readonly {
@@ -31,11 +32,12 @@ type Region = {
   }[]
 }
 
+// see SD-5
 const REGIONS = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8')) as {
     readonly regions: readonly Region[]
   }
-).regions
+).regions.filter((r) => r.holds !== 'documentData')
 
 function regionsOf(session: ScreenSession): Loose {
   return session as unknown as Loose

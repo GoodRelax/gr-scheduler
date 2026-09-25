@@ -145,7 +145,7 @@ const laid = (
   settings: DocumentSettings = SETTINGS,
   regions: ScreenRegions = REGIONS,
   measured?: number,
-): ScheduleLayout => layoutFromSchedule(schedule, settings, regions, undefined, undefined, measured)
+): ScheduleLayout => layoutFromSchedule(schedule, settings, regions, undefined, measured)
 
 const bandsOf = (layout: ScheduleLayout): number =>
   layout.rows.filter((row) => row.isPinned !== true).reduce((sum, row) => sum + row.height, 0)

@@ -132,9 +132,7 @@ const taskGroup = (id: string, order: number): TaskGroup =>
     label: id,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: false,
-    isHidden: false,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
   }) as unknown as TaskGroup
 

@@ -92,7 +92,7 @@ const documentObject = (tasks: readonly Record<string, unknown>[], minutesPerDay
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, isCollapsed: false, isHidden: false, color: null, height: null },
+        { id: ROW, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, height: null },
       ],
       taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: ROW, stackOrder: null })),
       taskVisuals: [],

@@ -42,7 +42,7 @@
 //              NOT）」（利用者の裁定 2026-08-30「薄く描け。押下した場合のみ理由を
 //              説明するポップアップを出せ」）
 //   表 T-233   RS-28 「配下に、開ける行が 1 つも無い」（正: 表 T-051 の `HF-2`）
-//              RS-29 「配下に、畳める行が 1 つも無い」（`HF-11`）
+//              RS-29 「その行は、描かれている子を 1 つも持たない」（`HF-11`）
 //              RS-30 「直下に、画面へ戻せる子が 1 つも無い」（`HF-13`）
 //                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
 //                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
@@ -51,7 +51,7 @@
 //                    which that row states itself 「開ける直下の子が 1 つも無い
 //                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
 //                    roster below carries it again, on `IC-90`.
-//              RS-31 「畳まれた行が 1 つも無い」（`HF-10`）
+//              RS-31 「描かれていない行が 1 つも無い」（`HF-10`）
 //              RS-32 「開いている行が 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
 //              RS-34 「揃える相手の `Task` が選ばれていない」（`FR-034`）
@@ -258,7 +258,7 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const GAMMA = '33333333-3333-4333-8333-333333333333'
 
 interface Fixture {
-  /** Rows the person folded (AT-56). */
+  /** Rows the person folded: treeState `collapsed` (AT-153). */
   readonly folded?: readonly string[]
   /**
    * S-227 / S-228 -- FR-049's two independent booleans since 2026-09-07.
@@ -311,9 +311,7 @@ function documentWith(part: Fixture = {}): Document {
     label,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: folded.has(id),
-    isHidden: false,
-    isKeptOpen: false,
+    treeState: folded.has(id) ? 'collapsed' : 'auto',
     editGroup: null,
     color: null,
     height: null,
@@ -527,11 +525,9 @@ interface Spent {
    * Presses that put the SCREEN into the state this row's 場面 describes, run
    * before the one that is measured.
    *
-   * ⭐⭐ WHY A PRESS AND NOT A FIXTURE. Some of these 場面 are screen states and
-   * not document ones, and the manuscript says so: `S-211` of 表 T-206 (段 0 が
-   * 畳まれているか) carries 「⛔ **保存しない** —— `S-99g` と同じ立場であり、画面
-   * の状態であって日程の内容ではない」. ⇒ there is no column of the document to
-   * set, and the only way in is the entrance that writes it.
+   * WHY A PRESS AND NOT A FIXTURE: the level-zero fold (S-418, a document
+   * setting and not a row column) is reached here through the entrance that
+   * writes it, exactly as a person reaches it.
    */
   readonly primedBy?: readonly { readonly entry: string; readonly onRow: string | null }[]
 }
@@ -584,7 +580,7 @@ const SPENT: readonly Spent[] = [
     reason: 'RS-31',
     fixture: {},
     onRow: null,
-    because: 'no row anywhere is folded, so HF-10 has nothing to open',
+    because: 'every row is drawn, so HF-10 has nothing to open',
   },
   {
     icon: 'IC-78',
@@ -592,8 +588,8 @@ const SPENT: readonly Spent[] = [
     fixture: {},
     onRow: null,
     // ⛔⛔ ONE FOLD OF EVERY ROW IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
-    // 表 T-015's `HR-2` IS WHY: 「⛔⛔ **最も浅い段の行も畳むこと（MUST）** ——
-    // ⭐ **パネルの頭は最も浅い段のさらに上、すなわち段 0 として扱う**」, and
+    // 表 T-015's `HR-2` IS WHY: 「**最も浅い段の行も畳むこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
+    // すなわち段 0 として扱う」, and
     // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
     // fold, and the press acts. ⭐ The 場面 「開いている行が 1 つも無い」 is
     // reached only once 段 0 itself is down, which is the state a first press

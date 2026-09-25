@@ -66,9 +66,7 @@ export const pointerOf = (
 export interface RowSeed {
   readonly id: string
   readonly parentId: string | null
-  readonly isCollapsed?: boolean
-  readonly isHidden?: boolean
-  readonly isKeptOpen?: boolean
+  readonly treeState?: 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
 }
 
 export function taskOf(uid: number, part: Record<string, unknown> = {}): Record<string, unknown> {
@@ -117,9 +115,7 @@ export function rowDocument(
         label: `row ${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
-        isCollapsed: one.isCollapsed ?? false,
-        isHidden: one.isHidden ?? false,
-        isKeptOpen: one.isKeptOpen ?? false,
+        treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
         height: null,
@@ -138,6 +134,7 @@ export function rowDocument(
       scrollGroupId: rows[0]?.id ?? null,
       scrollGroupOffset: 0,
       zoomY: 1,
+      levelZeroTreeState: 'auto',
       ...settings,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),

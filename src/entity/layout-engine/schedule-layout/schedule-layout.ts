@@ -26,7 +26,7 @@ import {
 } from '../screen-regions/screen-regions'
 import { assigneeLabelsOf } from './assignee-label'
 import { drawnGroups } from './drawn-rows'
-import { groupDepthLimit, keptInViewByOpenMarks } from './group-level-of-detail'
+import { groupDepthLimit, keptInViewByTreeState } from './group-level-of-detail'
 import {
   assigneeAnchorOf,
   dummyBandOf,
@@ -62,7 +62,7 @@ export {
   thinEndHalfHeightOf,
   zoomYAtRectangleLabelFont,
 } from './shape-cross-sections'
-export { groupDepthLimit, groupDepthThresholdOf } from './group-level-of-detail'
+export { groupDepthLimit, groupDepthThresholdOf, keptInViewByTreeState } from './group-level-of-detail'
 export {
   NOT_STORED_SIZES,
   assigneeAnchorOf,
@@ -346,7 +346,6 @@ export function layoutFromSchedule(
   storedSettings: DocumentSettings,
   regions: ScreenRegions,
   groupDepthCap?: number,
-  isLevelZeroFolded?: boolean,
   rowControlsHeightPx?: number,
 ): ScheduleLayout {
   const settings = drawnSettingsOf(storedSettings)
@@ -355,8 +354,8 @@ export function layoutFromSchedule(
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
   const pinnedIds = new Set(settings.pinnedGroupIds)
-  const unfoldedRows = drawnGroups(schedule, settings, isLevelZeroFolded === true)
-  const keptOpenIds = keptInViewByOpenMarks(unfoldedRows)
+  const unfoldedRows = drawnGroups(schedule, settings)
+  const keptOpenIds = keptInViewByTreeState(unfoldedRows, 'expandedAndTemporary')
   const rows = unfoldedRows.filter(
     (glyph) => glyph.depth <= depthLimit || pinnedIds.has(glyph.id) || keptOpenIds.has(glyph.id),
   )
@@ -622,7 +621,6 @@ export function rowPlacesAtZoomY(
   settings: DocumentSettings,
   regions: ScreenRegions,
   zoomY: number,
-  isLevelZeroFolded?: boolean,
   rowControlsHeightPx?: number,
 ): readonly RowPlacement[] {
   return layoutFromSchedule(
@@ -630,7 +628,6 @@ export function rowPlacesAtZoomY(
     { ...settings, zoomY },
     regions,
     undefined,
-    isLevelZeroFolded,
     rowControlsHeightPx,
   ).rows
 }

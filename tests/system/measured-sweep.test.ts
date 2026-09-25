@@ -2242,27 +2242,11 @@ test('DFC-91: the weekday tier of the ruler is ticked exactly where the day tier
 // DFC-24 -- what a fit throws away, and what it lands on
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: a fit leaves a row folded that a person had folded, or the rows
-// it lands on run off the bottom of the drawing. The first run of table T-068's
-// two says 「人が畳んだ状態をすべて捨て（表 T-051 の `HF-8`）...」 and `FR-055`
-// gives the same in its own words 「本要求は、人が畳んだ状態をすべて捨てる ——
-// 捨てないと、畳まれた行のぶんだけ「全体」が縮み、収める対象が人の操作で変わって
-// しまう」; the STATEMENT has the zoom and the position brought to where the whole
-// is in.
-//
-// ⛔ HOW MANY TIMES THE TABLE RAN CANNOT BE MEASURED HERE, and that is the row's
-// own finding rather than this case's gap. The two runs of table T-068 differ in
-// nothing a reader can see -- the second exists to retreat one depth when the
-// first picked one that needs a zoom above `FR-094`'s floor -- and the shipped
-// build publishes no count. The ledger's own 実物確認 column says the same of
-// the seam: 「継ぎ目が回数を公開しておらず」. What is pressed here is the pair of
-// things the two runs are FOR, both of which are MUSTs and both of which a
-// reader can see.
-//
-// ⚠️ THE ESCAPE CLAUSE IS READ AS WELL. `FR-055` (STATEMENT) says in as many
-// words 「ただし必ず収まることを保証しない。収まらない軸にはスクロールを残す
-// こと」, and the depth it may not go below is one -- so what is asserted is that
-// the rows fit OR that the drawing is already at depth 1.
+// see DFC-24, FR-055, HF-8, T-068, T-328
+// WHY: fitPressed returns every collapsed row to auto (table T-328), so the first row reads
+// as before the fold; the rows landed on must fit, or the drawing is already at depth 1.
+// TRAP: how many runs table T-068 took is not published by the build, so only its two
+// outcomes are pressed here; FR-055 does not promise a fit, hence the depth-1 escape.
 test('DFC-24: a fit throws away what a person folded, and the rows it lands on fit', async () => {
   test.setTimeout(240_000)
   const page = shared()
@@ -3113,7 +3097,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
 // picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
 // the number out for itself. `FR-085` (MUST) names one indent for both:
-// 「その行の深さぶんのインデント（`rowTitleIndent`。表 T-201 の `S-37`）」, and
+// 「その行の深さぶんのインデント」 (`rowTitleIndent`, `S-37`), and
 // `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
 //
 // ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.

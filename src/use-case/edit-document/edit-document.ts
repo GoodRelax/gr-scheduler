@@ -20,6 +20,8 @@ export type {
 export { cycleTaskPlanActualState } from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export { wbsSubtreesOf } from './edit-task-group'
+export { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
+export type { TreeStateEvent } from './task-group-folding'
 export { confirmationOwedBy, confirmationOwedByResourceDeletion } from './deletion-confirmations'
 export type { DeletionQuestion } from './deletion-confirmations'
 export type { DependencyCommand, DependencyEdge } from './edit-dependency'
@@ -177,11 +179,9 @@ const TASK_GROUP_KINDS = [
   'setTaskGroupColor',
   'resetTaskGroupColor',
   'setTaskGroupHeight',
-  'setTaskGroupCollapsed',
-  'setTaskGroupHidden',
-  'setTaskGroupKeptOpen',
+  'setTaskGroupTreeState',
   'reorderTaskGroupSiblings',
-  'expandAllTaskGroups',
+  'resetTaskGroupTreeStates',
   'moveTaskGroup',
 ] as const satisfies readonly TaskGroupCommand['kind'][]
 
@@ -239,6 +239,7 @@ const SETTINGS_KINDS = [
   'pinTaskGroup',
   'unpinTaskGroup',
   'fitScheduleToScreen',
+  'setLevelZeroTreeState',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {

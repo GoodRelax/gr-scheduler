@@ -105,7 +105,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
     taskGroups: [
       {
         id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0,
-        isCollapsed: false, isHidden: false, color: null, height: null,
+        treeState: 'auto', color: null, height: null,
       } as unknown as TaskGroup,
     ],
     taskGroupMembers: [

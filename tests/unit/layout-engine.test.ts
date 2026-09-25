@@ -642,13 +642,13 @@ describe('ScheduleLayout (PI-5) -- LC-1 and LC-2', () => {
     })
 
   it('HR-6 drops a hidden row and everything under it', () => {
-    const layout = layoutFromSchedule(hierarchy({ isHidden: true }), LAYOUT_SETTINGS, REGIONS)
+    const layout = layoutFromSchedule(hierarchy({ treeState: 'hidden' }), LAYOUT_SETTINGS, REGIONS)
     expect(layout.rows).toHaveLength(0)
     expect(layout.placements).toHaveLength(0)
   })
 
   it('HR-1a drops what a collapsed row holds, without re-parenting it', () => {
-    const layout = layoutFromSchedule(hierarchy({ isCollapsed: true }), LAYOUT_SETTINGS, REGIONS)
+    const layout = layoutFromSchedule(hierarchy({ treeState: 'collapsed' }), LAYOUT_SETTINGS, REGIONS)
     expect(layout.rows.map((oneRect) => oneRect.groupId)).toEqual(['g1'])
     // The task sat on g2, so it must not reappear on g1.
     expect(layout.placements).toHaveLength(0)
@@ -1422,7 +1422,7 @@ describe('ScheduleGeometry (PI-6) -- LC-10, the routes of table T-222', () => {
             dependencies: [{ predecessorUid: 2, linkType: 1 }] }),
         ],
         taskGroups: [
-          { id: 'g1', parentId: null, order: 0, height: null, isHidden: predecessorHidden },
+          { id: 'g1', parentId: null, order: 0, height: null, treeState: predecessorHidden ? 'hidden' : 'auto' },
           { id: 'g2', parentId: null, order: 1, height: null },
         ],
         taskGroupMembers: [{ groupId: 'g1', taskUid: 2 }, { groupId: 'g2', taskUid: 3 }],

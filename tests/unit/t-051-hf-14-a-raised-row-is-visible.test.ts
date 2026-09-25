@@ -76,12 +76,12 @@
 //      —— 同じ MUST が 2 か所に載ると必ず離れていく」.
 //   2. HF-17's OWN HALF (見える位置まで表示位置を送ること). HF-14 borrows it
 //      ("`HF-14`（配下に足す）も同じとすること（MUST）"), but the task that
-//      asked for this file draws the line itself: 「HF-17（行が見える位置ま
-//      で送る）とは別の約束である。送っても、落とされた行は現れない。」ここで
+//      asked for this file draws the line itself: "HF-17（行が見える位置ま
+//      で送る）とは別の約束である。送っても、落とされた行は現れない。" ここで
 //      問うのは詳しさの段と畳みだけであり、表示位置（scrollDate 等）そのもの
 //      は問わない。
 //   3. WHETHER THE ADD AND THE OPEN SHARE ONE UNDO STEP OR TWO. 表 T-027's
-//      `UN-1` / `UN-14` put 「行（`TaskGroup`）の追加」and「畳みと非表示の変更」
+//      `UN-1` / `UN-14` put 「行（`TaskGroup`）の追加」and「行の木の状態（`treeState`）」
 //      in the SAME target family (both count), while `UN-8` puts
 //      「ズーム・スクロール・パン」in the EXCLUDED family (never counts).
 //      `FR-018`'s own rationale keeps `zoomY` inside `documentSettings`
@@ -228,7 +228,7 @@ interface GroupSpec {
   readonly id: string
   readonly parentId: string | null
   readonly label: string
-  readonly isCollapsed: boolean
+  readonly treeState: 'auto' | 'collapsed'
 }
 
 /** A document holding exactly the `TaskGroup`s given, at the stated `zoomY`. */
@@ -252,8 +252,7 @@ function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
         label: one.label,
         derivedFromTaskUid: null,
         order: index,
-        isCollapsed: one.isCollapsed,
-        isHidden: false,
+        treeState: one.treeState,
         color: null,
         height: null,
       })),
@@ -273,11 +272,11 @@ function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
 /** All `TaskGroup`s a document holds, as the loose shape this file reads. */
 const taskGroupsOf = (
   document: Document,
-): readonly { id: string; parentId: string | null; isCollapsed: boolean }[] =>
+): readonly { id: string; parentId: string | null; treeState: string }[] =>
   (document.schedule as any).taskGroups
 
 /** One `TaskGroup`, found by id. */
-function groupIn(document: Document, id: string): { id: string; parentId: string | null; isCollapsed: boolean } {
+function groupIn(document: Document, id: string): { id: string; parentId: string | null; treeState: string } {
   const found = taskGroupsOf(document).find((one) => one.id === id)
   if (found === undefined) throw new Error(`the document holds no TaskGroup ${id}`)
   return found
@@ -514,7 +513,7 @@ describe('the manuscript still says what these cases read', () => {
     // 表 T-027: the ADD (`UN-1` / `UN-14`) and the FOLD-OPEN (`UN-14`) are both
     // counted targets; `zoomY` (`UN-8`) never is.
     expect(says('T-027', 'UN-14')).toContain(
-      '行（`TaskGroup`）の追加・削除・名前の変更、行の色と高さの変更、畳みと非表示の変更、およびピン止め',
+      '行（`TaskGroup`）の追加・削除・名前の変更、行の色と高さの変更、行の木の状態（`treeState`）と段 0 の畳み',
     )
     expect(says('T-027', 'UN-8')).toContain('ズーム・スクロール・パン')
     // FR-055 shows the split the codebase already uses for a gesture that
@@ -547,8 +546,8 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
     const pressed = uuidOf(2)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'depth 1', isCollapsed: false },
-        { id: pressed, parentId: root, label: 'depth 2', isCollapsed: false },
+        { id: root, parentId: null, label: 'depth 1', treeState: 'auto' },
+        { id: pressed, parentId: root, label: 'depth 2', treeState: 'auto' },
       ],
       GROUP_LOD_BASE, // exactly S-87 -- clears depth 2, misses depth 3.
     )
@@ -592,7 +591,7 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
     // inside the same `GROUP_LOD_BASE` tier that excluded depth 3 above.
     const root = uuidOf(3)
     const before = documentWith(
-      [{ id: root, parentId: null, label: 'depth 1', isCollapsed: false }],
+      [{ id: root, parentId: null, label: 'depth 1', treeState: 'auto' }],
       GROUP_LOD_BASE,
     )
     expect(groupDepthLimit(before.documentSettings)).toBe(2)
@@ -637,21 +636,21 @@ describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed
     const elsewhere = uuidOf(6)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'root', isCollapsed: false },
+        { id: root, parentId: null, label: 'root', treeState: 'auto' },
         // 表 T-015 HR-4/HR-6 language: a human folded this row already.
-        { id: pressed, parentId: root, label: 'pressed, folded by a person', isCollapsed: true },
+        { id: pressed, parentId: root, label: 'pressed, folded by a person', treeState: 'collapsed' },
         // An unrelated sibling branch, also folded by a person, untouched by
         // anything this case does to `pressed`.
-        { id: elsewhere, parentId: root, label: 'elsewhere, also folded', isCollapsed: true },
+        { id: elsewhere, parentId: root, label: 'elsewhere, also folded', treeState: 'collapsed' },
       ],
       SETTINGS_DEFAULTS['zoomY'] as number, // default zoomY: no LOD obstacle in this half.
     )
     expect(groupDepthLimit(before.documentSettings), 'depth 3 must clear the tier in this half').toBeGreaterThanOrEqual(
       3,
     )
-    expect(groupIn(before, pressed).isCollapsed, 'fixture sanity: the pressed row starts folded').toBe(true)
-    expect(groupIn(before, elsewhere).isCollapsed, 'fixture sanity: the other row starts folded too').toBe(
-      true,
+    expect(groupIn(before, pressed).treeState, 'fixture sanity: the pressed row starts folded').toBe('collapsed')
+    expect(groupIn(before, elsewhere).treeState, 'fixture sanity: the other row starts folded too').toBe(
+      'collapsed',
     )
 
     const built = stage(before)
@@ -665,14 +664,14 @@ describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed
     const raised = raisedRowId(before, after)
     expect(groupIn(after, raised).parentId).toBe(pressed)
 
-    // ⭐⭐ THE MUST: the one pressed parent opened.
-    expect(groupIn(after, pressed).isCollapsed, 'HF-14 (MUST): the pressed parent must open').toBe(false)
+    // see T-328, HF-14
+    expect(groupIn(after, pressed).treeState, 'HF-14 (MUST): the pressed parent must open').toBe('auto')
     // ⭐⭐ THE MUST NOT: nothing else did.
     expect(
-      groupIn(after, elsewhere).isCollapsed,
+      groupIn(after, elsewhere).treeState,
       'HF-14 (MUST NOT): opening reaches no further than the pressed parent',
-    ).toBe(true)
-    expect(groupIn(after, root).isCollapsed, 'the untouched root stays exactly as it was').toBe(false)
+    ).toBe('collapsed')
+    expect(groupIn(after, root).treeState, 'the untouched root stays exactly as it was').toBe('auto')
 
     // ⭐⭐ THE PROMISE ITSELF: the raised row is drawn now that its one parent opened.
     expect(built.titleFor(raised), 'HF-14 (MUST): the raised row must be drawn once its parent opens').not.toBeUndefined()
@@ -697,13 +696,13 @@ describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end 
     const pressed = uuidOf(8)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'root', isCollapsed: false },
-        { id: pressed, parentId: root, label: 'pressed, folded AND past the tier', isCollapsed: true },
+        { id: root, parentId: null, label: 'root', treeState: 'auto' },
+        { id: pressed, parentId: root, label: 'pressed, folded AND past the tier', treeState: 'collapsed' },
       ],
       GROUP_LOD_BASE, // depth 2 clears, depth 3 (the new child) would not.
     )
     expect(groupDepthLimit(before.documentSettings)).toBe(2)
-    expect(groupIn(before, pressed).isCollapsed).toBe(true)
+    expect(groupIn(before, pressed).treeState).toBe('collapsed')
 
     const built = stage(before)
     expect(built.titleFor(pressed), 'the pressed row is inside the tier, so it can be pressed').not.toBeUndefined()
@@ -714,7 +713,7 @@ describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end 
     const raised = raisedRowId(before, after)
     expect(groupIn(after, raised).parentId).toBe(pressed)
 
-    expect(groupIn(after, pressed).isCollapsed, 'half 2: the folded parent opened').toBe(false)
+    expect(groupIn(after, pressed).treeState, 'half 2: the folded parent opened').toBe('auto')
     expect(groupDepthLimit(after.documentSettings), 'half 1: the tier widened to depth 3').toBeGreaterThanOrEqual(
       3,
     )

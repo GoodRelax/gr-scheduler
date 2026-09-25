@@ -41,9 +41,7 @@ const ROWS = [1, 2, 3, 4, 5, 6].map((n, index) => ({
   label: `row ${n}`,
   derivedFromTaskUid: null,
   order: index,
-  isCollapsed: false,
-  isHidden: false,
-  color: null,
+  treeState: 'auto', color: null,
   height: null,
 }))
 

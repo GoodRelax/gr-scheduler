@@ -389,8 +389,8 @@ describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
     // The premise of section 3. HR-1a of table T-015 takes a collapsed row's
     // children out of the drawing and HR-6 takes a hidden branch out, so either
     // one would remove rows the level of detail had nothing to do with.
-    expect(GROUPS.filter((row) => row['isCollapsed'] === true)).toHaveLength(0)
-    expect(GROUPS.filter((row) => row['isHidden'] === true)).toHaveLength(0)
+    expect(GROUPS.filter((row) => row['treeState'] === 'collapsed')).toHaveLength(0)
+    expect(GROUPS.filter((row) => row['treeState'] === 'hidden')).toHaveLength(0)
   })
 })
 

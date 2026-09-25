@@ -35,6 +35,7 @@ import {
   type ChosenFileSaveRequest,
   type DocumentFileSaving,
   type FileStore,
+  type OpenedFileState,
   type OpenRoute,
   type ProjectIdentity,
   type SaveFileForm,
@@ -660,6 +661,14 @@ export async function takeInHandedDocument(
   }
 }
 
+// see FR-096, FR-060
+// WHY: a file opened as MSPDI is not written over with GRS JSON; its first save asks for a file.
+// OP-12 opens a file only when its extension names its format, so the extension tells MSPDI.
+/** @purity pure */
+function isOverwritableOpenedFile(openedFile: OpenedFileState): boolean {
+  return openedFile.kind !== 'none' && !openedFile.fileName.endsWith(extensionOfForm('mspdi'))
+}
+
 // see SK-11, FR-060, FR-096
 /** @purity non-pure */
 async function saveHeldDocumentToFile(
@@ -674,7 +683,7 @@ async function saveHeldDocumentToFile(
 
   const openedFile = await store.readOpenedFileState()
   const saving: DocumentFileSaving =
-    openedFile.kind === 'none'
+    !isOverwritableOpenedFile(openedFile)
       ? await saveDocumentFile(store, chosenFileSave(flow, { text }, project, SAVE_FORM))
       : await saveDocumentFile(store, {
           destination: 'openedFile',

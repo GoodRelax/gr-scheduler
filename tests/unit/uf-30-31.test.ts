@@ -2783,7 +2783,19 @@ const NEST_ROWS = [
   { id: 'n2a', parentId: 'n2' as string | null, order: 4 },
 ] as const
 
-const nestedScheduleOf = (collapsed: Readonly<Record<string, boolean>>): Schedule =>
+// see AT-153
+type TreeState = 'auto' | 'collapsed' | 'expanded' | 'temporarilyExpanded' | 'hidden'
+
+// WHY: true stands for collapsed; any row not named starts at auto.
+type RowStates = Readonly<Record<string, boolean | TreeState>>
+
+const stateOf = (states: RowStates, id: string): TreeState => {
+  const given = states[id]
+  if (given === undefined || given === false) return 'auto'
+  return given === true ? 'collapsed' : given
+}
+
+const nestedScheduleOf = (states: RowStates): Schedule =>
   scheduleOf({
     tasks: [TASK_1],
     taskGroups: NEST_ROWS.map((one) => ({
@@ -2792,8 +2804,7 @@ const nestedScheduleOf = (collapsed: Readonly<Record<string, boolean>>): Schedul
       label: one.id,
       derivedFromTaskUid: null,
       order: one.order,
-      isCollapsed: collapsed[one.id] ?? false,
-      isHidden: null,
+      treeState: stateOf(states, one.id),
       color: null,
       height: null,
     })),
@@ -2811,11 +2822,8 @@ const nestedSettingsOf = (pinned: readonly string[]): DocumentSettings =>
     pinnedGroupIds: pinned,
   })
 
-function panelContextOf(
-  collapsed: Readonly<Record<string, boolean>> = {},
-  pinned: readonly string[] = [],
-): InputContext {
-  const schedule = nestedScheduleOf(collapsed)
+function panelContextOf(states: RowStates = {}, pinned: readonly string[] = []): InputContext {
+  const schedule = nestedScheduleOf(states)
   const settings = nestedSettingsOf(pinned)
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
@@ -2858,16 +2866,25 @@ function pressPanelEntry(
   )
 }
 
-type FoldCommand = Extract<DocumentCommand, { kind: 'setTaskGroupCollapsed' }>
+// see CM-85
+type TreeCommand = Extract<DocumentCommand, { kind: 'setTaskGroupTreeState' }>
 
-const foldsOf = (answer: TranslatedInput): readonly FoldCommand[] =>
-  commandsOf(answer).filter((one): one is FoldCommand => one.kind === 'setTaskGroupCollapsed')
+const treeWritesOf = (answer: TranslatedInput): readonly TreeCommand[] =>
+  commandsOf(answer).filter((one): one is TreeCommand => one.kind === 'setTaskGroupTreeState')
 
-/** The rows one press asks to be folded the given way. */
-const rowsFolded = (answer: TranslatedInput, collapsed: boolean): readonly string[] =>
-  foldsOf(answer)
-    .filter((one) => one.collapsed === collapsed)
-    .map((one) => one.groupId)
+const rowsSetTo = (answer: TranslatedInput, value: TreeState): readonly string[] =>
+  treeWritesOf(answer)
+    .filter((one) => one.treeState === value)
+    .map((one) => one.taskGroupId)
+
+// WHY: undefined when the press leaves the row alone.
+const writtenTo = (answer: TranslatedInput, id: string): TreeState | undefined =>
+  treeWritesOf(answer).find((one) => one.taskGroupId === id)?.treeState
+
+const rowsOpened = (answer: TranslatedInput): readonly string[] =>
+  treeWritesOf(answer)
+    .filter((one) => one.treeState !== 'collapsed' && one.treeState !== 'hidden')
+    .map((one) => one.taskGroupId)
 
 describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel entrances', () => {
   it('walks the rows these cases are driven by, with no repeats', () => {
@@ -2878,130 +2895,89 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     expect(NEST_ROWS).toHaveLength(5)
   })
 
+  it('⛔ the manuscript still sends the values these presses write to table T-328', () => {
+    const hf = (id: string): string =>
+      (specTable('T-051').rows.find((one) => one.id === id)?.cells ?? []).join(' ')
+    expect(hf('HF-2')).toContain(
+      '押したときに行が取る値は、`_assets/tbl-state-machines.md` の 表 T-328 の `allBelowOpenPressed` の行に従うこと（MUST）',
+    )
+    expect(hf('HF-3')).toContain(
+      '隠すときに行が取る値は `_assets/tbl-state-machines.md` の 表 T-328 の `hidePressed` の行に従うこと（MUST）',
+    )
+  })
+
   it('HF-1: the opening side and the hiding side are two controls, not one in two states', () => {
-    // Same row, same document, two entrances: the answers differ. One control
-    // in two states could only ever give one answer here.
+    // WHY: same row, same document, two entrances -- the answers differ. One control in two
+    // states could only ever give one answer here.
     const open = panelContextOf()
-    expect(commandsOf(pressPanelEntry('IC-58', 'n1', open))).not.toEqual(
-      commandsOf(pressPanelEntry('IC-59', 'n1', open)),
+    const shut = panelContextOf({ n1: true, n1a: true })
+    expect(commandsOf(pressPanelEntry('IC-58', 'n1', shut))).not.toEqual(
+      commandsOf(pressPanelEntry('IC-59', 'n1', shut)),
     )
 
-    // ⛔⛔ THE TWO POINT IN OPPOSITE DIRECTIONS AND ONLY ONE OF THEM WRITES THE
-    // HIDING COLUMN, which is what keeps them off one axis. ⚠️ THE CASE USED TO
-    // SAY THE CLOSING SIDE WROTE NO FOLD AT ALL, and 利用者の指示 2026-08-31
-    // 「サンプルと同じ動作にしろ」 gave `HR-6` a second MUST: 「**あわせて、その行
-    // の配下を畳んだ状態にすること（MUST）**」／⛔ 「**配下をそのままにして隠して
-    // はならない（MUST NOT）**」.
-    // ⭐ SO THE DIVIDING LINE IS THE DIRECTION, NOT THE PRESENCE, OF A FOLD:
-    // `HR-3` only 取り除く (`collapsed: false`) and `HR-6` only 畳んだ状態にする
-    // (`collapsed: true`). ⇒ neither can ever be read as the other's state.
-    const shut = panelContextOf({ n1: true, n1a: true })
+    // see HR-3, HR-6, T-328
+    // WHY: the direction divides them -- HF-2 writes only opening values, HF-3 only collapsed and hidden.
     for (const context of [open, shut]) {
-      expect(rowsFolded(pressPanelEntry('IC-58', 'n1', context), true)).toEqual([])
-      expect(rowsFolded(pressPanelEntry('IC-59', 'n1', context), false)).toEqual([])
-      // ⛔ AND THE HIDING COLUMN IS THE HIDE'S ALONE. `HR-4` (MUST NOT) 「**その
-      // 行自身を隠してはならない** —— 隠すのは `HR-6` である」, and `HR-3` takes
-      // hiding OFF rather than putting it on.
-      expect(kindsOf(pressPanelEntry('IC-58', 'n1', context))).not.toContain('setTaskGroupHidden')
-      expect(kindsOf(pressPanelEntry('IC-59', 'n1', context))).toContain('setTaskGroupHidden')
+      expect(rowsSetTo(pressPanelEntry('IC-58', 'n1', context), 'collapsed')).toEqual([])
+      expect(rowsSetTo(pressPanelEntry('IC-58', 'n1', context), 'hidden')).toEqual([])
+      expect(rowsOpened(pressPanelEntry('IC-59', 'n1', context))).toEqual([])
+      expect(rowsSetTo(pressPanelEntry('IC-59', 'n1', context), 'hidden')).toEqual(['n1'])
     }
 
-    // ONE MAY BE SPENT WHILE THE OTHER IS NOT. On a subtree already open the
-    // opener has nothing to unfold; the hide has work on every DRAWN row,
-    // because the row it takes off the screen is itself.
-    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', open), false)).toEqual([])
-    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(0)
-    expect(oneCommand(pressPanelEntry('IC-59', 'n1', open), 'setTaskGroupHidden')['groupId']).toBe(
-      'n1',
-    )
-    expect(oneCommand(pressPanelEntry('IC-59', 'n1', shut), 'setTaskGroupHidden')['groupId']).toBe(
-      'n1',
-    )
+    // WHY: one may be spent while the other is not -- with every row drawn HF-2 has nothing to
+    // show (RS-28), and HF-3 always has the drawn row itself to take away.
+    expect(treeWritesOf(pressPanelEntry('IC-58', 'n1', open))).toEqual([])
+    expect(rowsOpened(pressPanelEntry('IC-58', 'n1', shut)).length).toBeGreaterThan(0)
   })
 
   it('HF-2: the opening side opens the pressed row AND its WHOLE subtree -- HR-3 of table T-015', () => {
-    // HF-2 (MUST): 「**開く操作子の職務は 表 T-015 の `HR-3` である（MUST）**」，
-    // `HR-3`: 「**選択した `TaskGroup` と、その配下のすべてから、畳みと隠しを取り
-    // 除くこと（MUST）**」。
-    // ⚠️ 「1 段だけ開く」 was the rule until 2026-08-25; HF-2 itself records
-    // that it was retired because nothing then re-opened what HF-3 folded.
+    // see HF-2, HR-3, T-328
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
     const answer = pressPanelEntry('IC-58', 'n1', shut)
 
-    // 配下 is every row under it, however deep -- not one level.
-    expect(rowsFolded(answer, false)).toContain('n1a')
-    expect(rowsFolded(answer, false)).toContain('n1a1')
-    // ⛔⛔ REVERSED BY 利用者の指示 2026-08-31「サンプルと同じ動作にしろ」. This
-    // line read `not.toContain('n1')` and cited a sentence of `HF-3` that the
-    // same rewrite removed. `HR-3` now says the opposite outright: 「⭐⭐ **その行
-    // 自身の畳みも解くこと（MUST）** —— **`HR-4` が畳むのはその行自身なので、解く
-    // 側が同じ行を解かなければ対にならない。**」 ⇒ `HF-11` (which is now `HR-4`)
-    // folds the pressed row, so the opener must open the pressed row or the two
-    // are not a pair. ⚠️ `HF-10` still exists for the reason it always did: a
-    // row's opener reaches its own subtree, never 段 0 above it.
-    expect(rowsFolded(answer, false)).toContain('n1')
-    // A second root is under no part of the pressed row.
-    expect(rowsFolded(answer, false)).not.toContain('n2')
-    expect(rowsFolded(answer, false)).not.toContain('n2a')
+    // STEP: the pressed row and each row below that has a child show everything (T-328)
+    expect(writtenTo(answer, 'n1'), 'the pressed row').toBe('temporarilyExpanded')
+    expect(writtenTo(answer, 'n1a'), 'a row below with a child').toBe('temporarilyExpanded')
+    // STEP: a collapsed leaf below goes back to auto, as it has nothing to show
+    expect(writtenTo(answer, 'n1a1'), 'a collapsed leaf below').toBe('auto')
+    // WHY: a second root is under no part of the pressed row.
+    expect(writtenTo(answer, 'n2')).toBeUndefined()
+    expect(writtenTo(answer, 'n2a')).toBeUndefined()
+  })
+
+  it('HF-2: a row below that a person opened one level (expanded) stays expanded', () => {
+    // see T-328
+    const answer = pressPanelEntry('IC-58', 'n1', panelContextOf({ n1: true, n1a: 'expanded' }))
+
+    expect(writtenTo(answer, 'n1')).toBe('temporarilyExpanded')
+    expect(writtenTo(answer, 'n1a'), 'HF-2 rewrote an expanded row below').toBeUndefined()
   })
 
   it('HF-3: the hiding side HIDES THIS row and FOLDS its 配下 -- HR-6 of table T-015', () => {
-    // ⛔⛔ HF-3 (MUST): 「**隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）**」
-    // （利用者の裁定 2026-08-30）. ⚠️ It was `HR-5` (その行自身を畳む) until that
-    // day, and `HR-5` stays in 表 T-015 with no entrance: 「**`HR-5` は表に残る**
-    // —— **入口を持たないだけであり、`HR-4` を 1 度押せば同じ絵になる**」.
+    // see HF-3, HR-6, T-328
     const open = panelContextOf()
     const answer = pressPanelEntry('IC-59', 'n1', open)
 
-    // ⭐ THE HIDING COLUMN NAMES THE PRESSED ROW AND NOTHING ELSE. `HR-6`:
-    // 「**隠した行の配下の行と、その行に載っている `Task` を描いてはならない
-    // （MUST NOT）**」 is a rule about what is DRAWN under a hidden row, exactly
-    // as `HR-1a` is for a folded one -- so one write of `AT-57` is the whole of
-    // it, and 「**隠した状態を文書に保存すること（MUST）**」 is why it is a write.
-    const hidden = oneCommand(answer, 'setTaskGroupHidden')
-    expect(hidden['groupId']).toBe('n1')
-    expect(hidden['hidden']).toBe(true)
+    // STEP: the pressed row takes hidden, which also keeps its subtree off the picture (T-328)
+    expect(writtenTo(answer, 'n1')).toBe('hidden')
+    // STEP: every row below is collapsed in the same press, so the way back brings one row only
+    expect(rowsSetTo(answer, 'collapsed')).toEqual(['n1a', 'n1a1'])
+    // WHY: and never in the other direction -- the hide writes no opening value.
+    expect(rowsOpened(answer)).toEqual([])
 
-    // ⛔⛔ AND THE 配下 IS FOLDED IN THE SAME PRESS, which is the MUST 利用者の指示
-    // 2026-08-31「サンプルと同じ動作にしろ」 added: 「**あわせて、その行の配下を
-    // 畳んだ状態にすること（MUST）**」／⛔ 「**配下をそのままにして隠してはなら
-    // ない（MUST NOT）** —— **戻した瞬間に配下が一度に開き、`HR-1a` が退けた「畳む
-    // 前の形を覚えて戻す」と同じ絵になる**」.
-    // ⚠️ THIS CASE ASSERTED `[]` FOR THESE UNTIL THAT DAY.
-    expect(rowsFolded(answer, true)).toEqual(['n1', 'n1a', 'n1a1'])
-    // ⛔ AND NEVER IN THE OTHER DIRECTION: the hide only ever puts 畳み ON.
-    expect(rowsFolded(answer, false)).toEqual([])
+    // WHY: one row holds one value, so the pressed row is named once and nothing outside its
+    // subtree is named at all.
+    const named = treeWritesOf(answer).map((one) => one.taskGroupId)
+    expect([...named].sort()).toEqual(['n1', 'n1a', 'n1a1'])
 
-    // ⭐⭐ THE PRESSED ROW IS FOLDED TOO, which is what makes 「戻るのはこの行
-    // だけになる」 true. `HR-6` (MUST) since 2026-08-31: 「**あわせて、その行と、
-    // その配下を畳んだ状態にすること**」, and (MUST NOT) 「**配下だけを畳んで、
-    // その行自身を畳まずに隠してはならない**」.
-    // ⚠️ THIS CASE ASSERTED THE OPPOSITE FOR PART OF THAT DAY, because the row
-    // read 「その行の配下を」 and its own next sentence could not then hold.
-    expect(rowsFolded(answer, true)).toContain('n1')
-
-    // ⛔ NOTHING OUTSIDE THE PRESSED ROW'S SUBTREE IS TOUCHED. The second root
-    // is under no part of `n1`.
-    // ⚠️ `n1` IS NAMED TWICE, AND BY TWO DIFFERENT COMMANDS: `HR-6` writes both
-    // of that row's columns, `AT-57` to take it out of the picture and `AT-56`
-    // so that only it comes back. What this case holds is the REACH, so the
-    // names are read as a set.
-    const named = commandsOf(answer).map((one) => (one as unknown as { groupId?: string }).groupId)
-    expect([...new Set(named)]).toEqual(['n1', 'n1a', 'n1a1'])
-    expect(named.filter((one) => one === 'n1')).toHaveLength(2)
-
-    // THE TWO SIDES CANNOT BE TOLD APART BY DIRECTION ALONE. HF-3 hides one row
-    // and HF-2 opens the whole depth, so the counts must differ too -- and it
-    // is now the OPENING side that carries the larger list.
+    // WHY: HF-3 hides one row while HF-2 opens the whole depth, so the opening side carries the
+    // larger list.
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
-    expect(rowsFolded(pressPanelEntry('IC-58', 'n1', shut), false).length).toBeGreaterThan(1)
+    expect(rowsOpened(pressPanelEntry('IC-58', 'n1', shut)).length).toBeGreaterThan(1)
   })
 
   it('FR-031: what HF-2 asks for arrives as ONE undo step, not one per row', () => {
-    // ⚠️ THE MANY-ROW SIDE IS NOW HF-2. Until 2026-08-25 the closing control
-    // was HR-4 and this case pressed IC-59; HF-3 is HR-5 and writes exactly one
-    // row, so it can no longer tell one step from one step per row. HF-2 is
-    // HR-3 and reaches the whole subtree, so the question lives here.
+    // see UN-14, WS-4
     const shut = panelContextOf({ n1: true, n1a: true, n1a1: true })
     const answer = pressPanelEntry('IC-58', 'n1', shut)
     const action = answer.action
@@ -3041,10 +3017,7 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
     // Each of the three is assigned here -- the row is named and the document
     // says which way it goes -- so the browser's own behaviour is stopped.
     const cases = [
-      // ⚠️ THE ROW ITSELF IS NOT WHAT IC-58 OPENS -- HF-2 is HR-3 and reaches
-      // 配下 only, so the state that gives it work is a folded DESCENDANT.
-      // `{ n1: true }` left it nothing to do and the press stopped being one
-      // this tool answered.
+      // WHY: HF-2 is armed only while some row below is not drawn (RS-28), so a descendant is folded.
       pressPanelEntry('IC-58', 'n1', panelContextOf({ n1a: true })),
       pressPanelEntry('IC-59', 'n1', panelContextOf()),
       pressPanelEntry('IC-60', 'n1', panelContextOf({}, [])),
@@ -3066,26 +3039,7 @@ describe('HF-1 / HF-2 / HF-3 of table T-051 and FR-098 -- the Row Title Panel en
   })
 })
 
-// ---------------------------------------------------------------------------
-// THE WAY BACK FROM A HIDE, AND 段 0 -- 表 T-015 の `HR-6` / `HR-2`, 表 T-051 の
-// `HF-13` / `HF-16` / `HF-12`, all ruled 2026-08-30.
-//
-// ⛔⛔ THE RULING REPLACED A RETURN PATH THAT DID NOT EXIST. `HR-6`: 「⛔⛔ **戻す
-// ための専用の面や札を設けてはならない（MUST NOT）** —— **`HR-2` が頭を段 0 と定めた
-// 以上、隠すことは親へ 1 歩畳み込むことであり、戻すのは親を 1 階層開くことである。**
-// ⚠️ **2026-08-30 まで、戻す先は非表示グループタブであった** —— **そのタブは実装に
-// 1 つも無く、入口の無い戻り道であった。**」
-//
-// ⭐ SO THE PRESS IS WHAT THESE CASES READ, and each of the two doors the row
-// names has one:
-//   `HF-13` / `IC-90`  「**隠した行は、親の行の「配下を 1 階層開く」操作子で戻せる
-//                      こと（MUST）**」
-//   `HF-16` / `IC-92`  「**親を持たない最上位の行は、段 0 の同じ操作子で戻せること
-//                      （MUST）**」
-//   `HF-12` / `IC-78`  「⛔ **同行に従い、最も浅い段の行も畳むこと（MUST）**」, whose
-//                      state is `S-211` of 表 T-206 and never a column of a row
-//                      -- 「⛔ **保存しない**」.
-// ---------------------------------------------------------------------------
+// see HR-6, HR-2, HF-13, HF-16, HF-12, S-418
 
 /** Two roots, one of them with a child and a grandchild, so a level can be opened. */
 const WAY_BACK_ROWS = [
@@ -3095,7 +3049,8 @@ const WAY_BACK_ROWS = [
   { id: 'w2', parentId: null as string | null, order: 3 },
 ] as const
 
-const wayBackScheduleOf = (hidden: readonly string[]): Schedule =>
+// WHY: hidden wins over collapsed, as one row holds one value.
+const wayBackScheduleOf = (hidden: readonly string[], collapsed: readonly string[] = []): Schedule =>
   scheduleOf({
     tasks: [TASK_1],
     taskGroups: WAY_BACK_ROWS.map((one) => ({
@@ -3104,28 +3059,25 @@ const wayBackScheduleOf = (hidden: readonly string[]): Schedule =>
       label: one.id,
       derivedFromTaskUid: null,
       order: one.order,
-      isCollapsed: false,
-      isHidden: hidden.includes(one.id) ? true : null,
+      treeState: hidden.includes(one.id) ? 'hidden' : collapsed.includes(one.id) ? 'collapsed' : 'auto',
       color: null,
       height: null,
     })),
     taskGroupMembers: [{ groupId: 'w1a1', taskUid: 1 }],
   })
 
-/**
- * A context whose rows are as given, with `S-211` set on the SESSION side.
- *
- * ⚠️ `isLevelZeroFolded` IS NOT A COLUMN OF THE DOCUMENT and cannot be one:
- * `S-211` (MUST) 「⛔ **保存しない** —— `S-99g` と同じ立場であり、画面の状態であって
- * 日程の内容ではない」, and `HR-2` says why no row can hold it -- 「**最も浅い段の行
- * は親を持たないので誰にも隠されない**」.
- */
+// WHY: the level-zero fold is S-418, a saved document setting (levelZeroTreeState), so a case
+// sets it in the document and never on the screen side.
 function wayBackContextOf(
   hidden: readonly string[] = [],
-  isLevelZeroFolded = false,
+  isLevelZeroCollapsed = false,
+  collapsed: readonly string[] = [],
 ): InputContext {
-  const schedule = wayBackScheduleOf(hidden)
-  const settings = nestedSettingsOf([])
+  const schedule = wayBackScheduleOf(hidden, collapsed)
+  const settings = {
+    ...nestedSettingsOf([]),
+    levelZeroTreeState: isLevelZeroCollapsed ? 'collapsed' : 'auto',
+  } as DocumentSettings
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
   return contextOf({
@@ -3133,34 +3085,36 @@ function wayBackContextOf(
     layout,
     geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
     regions,
-    isLevelZeroFolded,
   })
 }
 
-/** The rows one press asks to be hidden or unhidden. */
-type HideCommand = Extract<DocumentCommand, { kind: 'setTaskGroupHidden' }>
-
-/**
- * EVERY write one answer carries, whatever kind of action carries it.
- *
- * ⚠️ `commandsOf` ABOVE READS ONLY `changeDocument`, and one of the presses
- * below cannot be that: `S-211` of 表 T-206 (MUST) 「⛔ **保存しない**」, so a
- * press that moves 段 0 moves a screen state AND, when a row was hidden at that
- * level, the document with it -- `HR-6` (MUST) 「隠した状態を文書に保存すること」.
- * ⛔ WHICH ACTION KIND CARRIES WHICH IS THE SEAM'S AND NOT THE MANUSCRIPT'S, so
- * this reads the writes wherever they ride rather than naming a kind.
- */
+// WHY: which action kind carries the writes is the seam's and not the manuscript's, so this
+// reads the writes wherever they ride.
 const allWritesOf = (answer: TranslatedInput): readonly DocumentCommand[] => {
   const carried = (answer.action as unknown as { writes?: readonly (readonly DocumentCommand[])[] })
     ?.writes
   return carried === undefined ? [] : carried.flat()
 }
 
-const hidesOf = (answer: TranslatedInput, hidden: boolean): readonly string[] =>
+const anyWrittenTo = (answer: TranslatedInput, id: string): TreeState | undefined =>
   allWritesOf(answer)
-    .filter((one): one is HideCommand => one.kind === 'setTaskGroupHidden')
-    .filter((one) => one.hidden === hidden)
-    .map((one) => one.groupId)
+    .filter((one): one is TreeCommand => one.kind === 'setTaskGroupTreeState')
+    .find((one) => one.taskGroupId === id)?.treeState
+
+const anyHiddenBy = (answer: TranslatedInput): readonly string[] =>
+  allWritesOf(answer)
+    .filter((one): one is TreeCommand => one.kind === 'setTaskGroupTreeState')
+    .filter((one) => one.treeState === 'hidden')
+    .map((one) => one.taskGroupId)
+
+// see CM-86
+type LevelZeroCommand = Extract<DocumentCommand, { kind: 'setLevelZeroTreeState' }>
+
+// WHY: undefined when the press leaves S-418 alone.
+const levelZeroWrittenBy = (answer: TranslatedInput): string | undefined =>
+  allWritesOf(answer)
+    .filter((one): one is LevelZeroCommand => one.kind === 'setLevelZeroTreeState')
+    .map((one) => one.levelZeroTreeState)[0]
 
 describe('HR-6 / HF-13 / HF-16 of tables T-015 and T-051 -- the way back from a hide', () => {
   it('⛔ the manuscript still routes the way back through the two opening controls', () => {
@@ -3176,41 +3130,34 @@ describe('HR-6 / HF-13 / HF-16 of tables T-015 and T-051 -- the way back from a 
   })
 
   it('⭐ MUST: a press on the PARENT’s 「配下を 1 階層開く」 brings a hidden child back (HR-6 through HF-13)', () => {
-    const context = wayBackContextOf(['w1a'])
-    const answer = pressPanelEntry('IC-90', 'w1', context)
+    // see T-328, HF-13
+    const answer = pressPanelEntry('IC-90', 'w1', wayBackContextOf(['w1a']))
 
-    // ⛔ THE HIDE IS UNDONE, and by the very entrance the row names -- not by a
-    // surface of its own, which the same row forbids.
-    expect(hidesOf(answer, false), 'the hidden child did not come back').toContain('w1a')
-    // ⛔ AND NOTHING ELSE IS UNHIDDEN. `w2` is a root and was never hidden.
-    expect(hidesOf(answer, false)).not.toContain('w2')
-    // ⛔ NOR IS ANYTHING HIDDEN BY THE PRESS THAT UNDOES A HIDE.
-    expect(hidesOf(answer, true)).toEqual([])
+    // STEP: the pressed row is opened one level, and its hidden child comes back collapsed
+    expect(anyWrittenTo(answer, 'w1'), 'the pressed row').toBe('expanded')
+    expect(anyWrittenTo(answer, 'w1a'), 'the hidden child did not come back').toBe('collapsed')
+    // WHY: nothing else moves -- w2 is a root and was never hidden -- and nothing is hidden.
+    expect(anyWrittenTo(answer, 'w2')).toBeUndefined()
+    expect(anyHiddenBy(answer)).toEqual([])
   })
 
   it('⭐⭐ MUST: a press on 段 0’s own 「1 階層開く」 brings a hidden TOP-LEVEL row back (HR-6 through HF-16)', () => {
-    // 「`FR-085` が最上位の行を許しているためである」 -- a row with no parent has
-    // no parent's control to come back through, so without this the hide is a
-    // one-way door.
-    const context = wayBackContextOf(['w2'])
-    const answer = pressPanelEntry('IC-92', null, context)
+    // WHY: a row with no parent has no parent's control to come back through, so without this the
+    // hide is a one-way door (FR-085 allows top-level rows).
+    const answer = pressPanelEntry('IC-92', null, wayBackContextOf(['w2']))
 
-    expect(hidesOf(answer, false), 'the hidden top-level row did not come back').toContain('w2')
-    expect(hidesOf(answer, true)).toEqual([])
+    expect(anyWrittenTo(answer, 'w2'), 'the hidden top-level row did not come back').toBe('collapsed')
+    expect(anyHiddenBy(answer)).toEqual([])
   })
 
   it('⛔ MUST NOT: 段 0’s control is NOT the head’s 「すべて開く」 under a second name (HF-16)', () => {
-    // 「**`HF-10`（すべて開く）に兼ねさせてはならない（MUST NOT）** —— **理由は
-    // `HF-13` が行について述べたものと同じである**」 —— 「押すたびに違う量が開く入口
-    // は、何が起きるかを押す前に読めない」.
+    // see HF-16, HF-13
     const context = wayBackContextOf(['w2'])
 
     const atLevelZero = pressPanelEntry('IC-92', null, context)
     const everyRow = pressPanelEntry('IC-74', null, context)
     const said = (answer: TranslatedInput): string =>
-      `${answer.action?.kind ?? 'nothing'}:${allWritesOf(answer)
-        .map((one) => one.kind)
-        .join(',')}`
+      `${answer.action?.kind ?? 'nothing'}:${JSON.stringify(allWritesOf(answer))}`
 
     expect(said(atLevelZero), 'the two entrances answer alike').not.toBe(said(everyRow))
   })
@@ -3224,132 +3171,46 @@ describe('HR-2 / HF-12 of tables T-015 and T-051 -- 段 0 folds, and the panel c
     expect(hr2).toContain('押すと行が 1 つも描かれない状態になりうる')
     expect(hr2).toContain('`HR-7`（子を 1 階層展開）を頭で押せば最も浅い段が戻る')
     expect(hr2).toContain('最も浅い段を残す読みを採ってはならない（MUST NOT）')
+    expect(hr2).toContain('段 0 のために `TaskGroup` の列を足してはならない（MUST NOT）')
   })
 
-  it('⭐⭐ MUST: the head’s 「すべて畳む」 folds 段 0 itself, which is what empties the panel', () => {
-    // ⛔ A FOLD OF EVERY ROW IS NOT ENOUGH, AND HR-2 SAYS WHY: 「⛔⛔ **行の畳みで
-    // は本行を満たせない** —— **行の畳みが隠すのはその配下であり、最も浅い段の行は
-    // 親を持たないので誰にも隠されない。**⇒ **段 0 そのものが畳まれてはじめて、行が
-    // 1 つも描かれない状態になりうる。**」
+  it('⭐⭐ MUST: the head’s 「すべて畳む」 folds 段 0 itself, in the same write as every row', () => {
+    // see HR-2, T-328, UN-14
+    // WHY: a row's fold hides only its descendants, so only the level-zero value S-418 can empty the panel.
     const answer = pressPanelEntry('IC-78', null, wayBackContextOf())
-    const action = answer.action
 
-    expect(action?.kind, JSON.stringify(kindsOf(answer))).toBe('setLevelZeroFolded')
-    expect((action as unknown as { isFolded?: boolean }).isFolded).toBe(true)
+    expect(levelZeroWrittenBy(answer), JSON.stringify(allWritesOf(answer))).toBe('collapsed')
+    for (const row of WAY_BACK_ROWS) {
+      expect(anyWrittenTo(answer, row.id), `${row.id} was not folded`).toBe('collapsed')
+    }
+    // WHY: one press is one undo step, so level zero and the rows ride one write.
+    const writes = (answer.action as unknown as { writes?: readonly unknown[] })?.writes ?? []
+    expect(writes).toHaveLength(1)
   })
 
   it('⭐ MUST: 段 0’s 「1 階層開く」 is the way back from that fold (HR-2: HR-7 を頭で押せば最も浅い段が戻る)', () => {
+    // see T-328, HF-16
     const answer = pressPanelEntry('IC-92', null, wayBackContextOf([], true))
-    const action = answer.action
 
-    expect(action?.kind, JSON.stringify(kindsOf(answer))).toBe('setLevelZeroFolded')
-    expect((action as unknown as { isFolded?: boolean }).isFolded).toBe(false)
+    expect(levelZeroWrittenBy(answer), JSON.stringify(allWritesOf(answer))).toBe('auto')
+    // WHY: no top-level row is hidden, so no row value moves.
+    expect(allWritesOf(answer).filter((one) => one.kind === 'setTaskGroupTreeState')).toEqual([])
   })
 
-  it('⛔ MUST: pressing 「すべて畳む」 twice does nothing the second time, so the entrance is spent (表 T-051 の結び)', () => {
-    // 「⛔ **その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いもの
-    // として扱うこと（MUST）**」 -- with 段 0 already down there is no drawn row to
-    // fold and no level left to fold either.
-    expect(pressPanelEntry('IC-78', null, wayBackContextOf([], true)).action?.kind).not.toBe(
-      'setLevelZeroFolded',
-    )
+  it('⛔ MUST: pressing 「すべて畳む」 twice does nothing the second time, so the entrance is spent (RS-32)', () => {
+    // see HF-12, RS-32
+    // WHY: head fold is armed only while S-418 is auto; with level zero already collapsed nothing is written.
+    expect(levelZeroWrittenBy(pressPanelEntry('IC-78', null, wayBackContextOf([], true)))).toBeUndefined()
   })
 })
 
-// ---------------------------------------------------------------------------
-// THE WIDER RANGES OF THE SAME WAY BACK -- 表 T-015 の `HR-3` と `HR-1`
-// (利用者の裁定 2026-08-31)
-//
-// ⭐⭐ THE RULING, IN THE THREE ROWS THAT CARRY IT:
-//
-//   `HR-3`（子を全展開）「⭐⭐ **`HR-6` が隠した行も、配下のどこにあろうともすべて
-//   戻すこと（MUST）**（利用者の裁定 2026-08-31）—— **隠すことは親へ 1 歩畳み込む
-//   ことであり、「配下をすべて開く」はその畳みも解く。**⛔ **畳みだけを解いて隠しを
-//   残してはならない（MUST NOT）**」
-//
-//   `HR-1`（全展開）「⭐ **`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと
-//   （MUST）** —— **本行は `HR-3` の段 0 である**（`HR-2`）」
-//
-//   `HR-6`（非表示）「⭐⭐ **「配下をすべて開く」操作子でも戻せること（MUST）**
-//   （利用者の裁定 2026-08-31）—— 同表の `HF-2` であり、**違いは範囲だけである**
-//   —— **1 本は直下の子だけ、2 本は配下のすべて。**」
-//
-// ⛔⛔ WHAT WAS MEASURED BEFORE THE RULING, in HR-3's own words: 「**実測で、隠した
-// 行が `HR-7`（1 階層）では戻るのに `HR-3`（すべて）では戻らないという、範囲が広い
-// ほうが少なく戻る状態になった。**」 The cases above hold the narrow door; these hold
-// the wide one, and the LAST of them is the pairing itself -- 「違いは範囲だけ」 is a
-// claim about two entrances at once and cannot be tested on either alone.
-// ---------------------------------------------------------------------------
+// see HR-3, HR-1, HR-6
 
-/**
- * A chain three deep beside a second root, with the fold and the hide set per
- * row, so that a press can be asked to undo BOTH.
- *
- * ⚠️ SHAPED LIKE `wayBackScheduleOf` AND NOT REUSING IT, because that one fixes
- * `isCollapsed: false` on every row and 「畳みだけを解いて隠しを残してはならない」
- * needs a row that carries both states at once.
- */
-const wideOpenScheduleOf = (
-  hidden: readonly string[],
-  collapsed: readonly string[] = [],
-): Schedule =>
-  scheduleOf({
-    tasks: [TASK_1],
-    taskGroups: WAY_BACK_ROWS.map((one) => ({
-      id: one.id,
-      parentId: one.parentId,
-      label: one.id,
-      derivedFromTaskUid: null,
-      order: one.order,
-      isCollapsed: collapsed.includes(one.id),
-      isHidden: hidden.includes(one.id) ? true : null,
-      color: null,
-      height: null,
-    })),
-    taskGroupMembers: [{ groupId: 'w1a1', taskUid: 1 }],
-  })
-
-function wideOpenContextOf(
-  hidden: readonly string[],
-  collapsed: readonly string[] = [],
-): InputContext {
-  const schedule = wideOpenScheduleOf(hidden, collapsed)
-  const settings = nestedSettingsOf([])
-  const regions = regionsFromScreen(ENV, settings)
-  const layout = layoutFromSchedule(schedule, settings, regions)
-  return contextOf({
-    document: documentOf(schedule, settings),
-    layout,
-    geometry: geometryFromLayout(schedule, settings, layout, regions, emptySelection()),
-    regions,
-  })
-}
-
-/**
- * Every write one press asks for, whichever kind of action carries it.
- *
- * ⛔ WHICH KIND CARRIES WHICH IS THE SEAM'S AND NOT THE MANUSCRIPT'S -- the same
- * reason `allWritesOf` gives above -- so this reads both roads rather than
- * naming one, and a case below is red only when the WRITE is missing.
- */
-const everyWriteOf = (answer: TranslatedInput): readonly DocumentCommand[] => [
-  ...commandsOf(answer),
-  ...allWritesOf(answer),
-]
-
-/** The rows one press asks to be unhidden, on either road. */
-const broughtBackBy = (answer: TranslatedInput): readonly string[] =>
-  everyWriteOf(answer)
-    .filter((one): one is HideCommand => one.kind === 'setTaskGroupHidden')
-    .filter((one) => one.hidden === false)
-    .map((one) => one.groupId)
-
-/** The rows one press asks to be unfolded, on either road. */
-const unfoldedBy = (answer: TranslatedInput): readonly string[] =>
-  everyWriteOf(answer)
-    .filter((one): one is FoldCommand => one.kind === 'setTaskGroupCollapsed')
-    .filter((one) => one.collapsed === false)
-    .map((one) => one.groupId)
+const openedBy = (answer: TranslatedInput): readonly string[] =>
+  [...commandsOf(answer), ...allWritesOf(answer)]
+    .filter((one): one is TreeCommand => one.kind === 'setTaskGroupTreeState')
+    .filter((one) => one.treeState !== 'collapsed' && one.treeState !== 'hidden')
+    .map((one) => one.taskGroupId)
 
 describe('HR-3 / HR-1 of table T-015 -- 「配下をすべて開く」 undoes the hide as well (裁定 2026-08-31)', () => {
   it('⛔ the manuscript still asks the wide ranges to bring a hidden row back', () => {
@@ -3367,73 +3228,60 @@ describe('HR-3 / HR-1 of table T-015 -- 「配下をすべて開く」 undoes th
   })
 
   it('⭐⭐ MUST: 「配下をすべて開く」 on the parent brings a hidden CHILD back (HR-3 through HF-2)', () => {
-    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a']))
+    const answer = pressPanelEntry('IC-58', 'w1', wayBackContextOf(['w1a']))
 
     expect(
-      broughtBackBy(answer),
-      `the hidden child did not come back: ${JSON.stringify(kindsOf(answer))}`,
+      openedBy(answer),
+      `the hidden child did not come back: ${JSON.stringify(allWritesOf(answer))}`,
     ).toContain('w1a')
     // ⛔ AND NOTHING OUTSIDE THE 配下. `w2` is a second root and is not below `w1`.
-    expect(broughtBackBy(answer)).not.toContain('w2')
+    expect(openedBy(answer)).not.toContain('w2')
   })
 
   it('⭐⭐ MUST: 「配下のどこにあろうとも」 -- a hidden GRANDCHILD comes back too', () => {
-    // ⭐ THE WORDS THAT MAKE THIS A SECOND CASE AND NOT A REPEAT: 「配下のどこに
-    // あろうとも」. `w1a1` is two levels under the pressed row, and `HR-3` reaches
-    // 「選択した `TaskGroup` の配下」 entire.
-    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a1']))
+    // WHY: w1a1 is two levels under the pressed row, and HR-3 reaches the whole subtree.
+    const answer = pressPanelEntry('IC-58', 'w1', wayBackContextOf(['w1a1']))
 
     expect(
-      broughtBackBy(answer),
-      `the hidden grandchild did not come back: ${JSON.stringify(kindsOf(answer))}`,
+      openedBy(answer),
+      `the hidden grandchild did not come back: ${JSON.stringify(allWritesOf(answer))}`,
     ).toContain('w1a1')
   })
 
   it('⛔ MUST NOT: 「畳みだけを解いて隠しを残してはならない」 -- one press does both', () => {
-    // `w1a` is FOLDED over `w1a1`, and `w1a1` is HIDDEN. ⛔ A press that wrote the
-    // unfold alone would leave `w1a1` off the screen although the row it was
-    // folded under is now open -- which is the state the MUST NOT names.
-    const answer = pressPanelEntry('IC-58', 'w1', wideOpenContextOf(['w1a1'], ['w1a']))
+    // WHY: w1a is collapsed over w1a1, which is hidden. A press that wrote the unfold alone would
+    // leave w1a1 off the screen although the row it was folded under is now open.
+    const answer = pressPanelEntry('IC-58', 'w1', wayBackContextOf(['w1a1'], false, ['w1a']))
 
-    expect(unfoldedBy(answer), 'the fold was not undone').toContain('w1a')
+    expect(openedBy(answer), 'the fold was not undone').toContain('w1a')
     expect(
-      broughtBackBy(answer),
+      openedBy(answer),
       'HR-3 (MUST NOT): the fold was undone and the hide was left standing',
     ).toContain('w1a1')
   })
 
   it('⭐⭐ MUST: 段 0 -- 「すべて展開」 brings back every hidden row, a TOP-LEVEL one included (HR-1)', () => {
-    // 「**本行は `HR-3` の段 0 である**」, and `HR-6` (MUST) gives a row with no
-    // parent 段 0 as its way back. ⛔ So the head's opener reaches `w2`, which no
-    // row's own opener can reach.
-    const answer = pressPanelEntry('IC-74', null, wideOpenContextOf(['w2', 'w1a1']))
+    // WHY: HR-1 is HR-3 at level zero, so the head's opener reaches w2, which no row's own opener can.
+    const answer = pressPanelEntry('IC-74', null, wayBackContextOf(['w2', 'w1a1']))
 
     expect(
-      broughtBackBy(answer),
-      `HR-1 (MUST): a hidden row was left hidden: ${JSON.stringify(kindsOf(answer))}`,
+      openedBy(answer),
+      `HR-1 (MUST): a hidden row was left hidden: ${JSON.stringify(allWritesOf(answer))}`,
     ).toEqual(expect.arrayContaining(['w2', 'w1a1']))
   })
 
   it('⭐ MUST: 「違いは範囲だけである」 -- one bar reaches the direct children, two bars everything below', () => {
-    // ⭐ THE PAIRING ITSELF, WHICH NEITHER ENTRANCE CAN BE ASKED ABOUT ALONE.
-    // `HR-6`: 「同表の `HF-2` であり、**違いは範囲だけである** —— **1 本は直下の子
-    // だけ、2 本は配下のすべて。**」 With the hidden row two levels down and the
-    // press on `w1`:
-    //   the ONE-level opener (HF-13 / IC-90) does not reach it -- `HR-7` (MUST)
-    //   「**直下の子だけ**を開き、**孫より下は畳んだままにすること**」, and `HR-6`
-    //   sends a hidden row back through ITS OWN PARENT's control, which is `w1a`;
-    //   the ALL-below opener (HF-2 / IC-58) does.
-    // ⛔ WITHOUT THIS CASE THE FOUR ABOVE WOULD ALL PASS ON A UNIT THAT MADE THE
-    // TWO ENTRANCES ONE, which `HF-13` (MUST NOT) forbids: 「同じ入口に兼ねさせて
-    // はならない」.
-    const context = wideOpenContextOf(['w1a1'])
+    // see HR-6, HR-7, HF-13
+    // WHY: with the hidden row two levels down, only the all-below opener reaches it; a unit that
+    // made the two entrances one would pass every case above and fail this one.
+    const context = wayBackContextOf(['w1a1'])
 
     expect(
-      broughtBackBy(pressPanelEntry('IC-90', 'w1', context)),
+      openedBy(pressPanelEntry('IC-90', 'w1', context)),
       'HR-7 (MUST): the one-level opener reached past the direct children',
     ).not.toContain('w1a1')
     expect(
-      broughtBackBy(pressPanelEntry('IC-58', 'w1', context)),
+      openedBy(pressPanelEntry('IC-58', 'w1', context)),
       'HR-3 (MUST): the all-below opener did not reach the grandchild',
     ).toContain('w1a1')
   })

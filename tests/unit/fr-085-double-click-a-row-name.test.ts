@@ -168,9 +168,7 @@ function twoRowDocument(): Document {
     label,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: false,
-    isHidden: false,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
   })
   return {

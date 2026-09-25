@@ -223,9 +223,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
     label: null,
     derivedFromTaskUid: null,
     order: 0,
-    isCollapsed: null,
-    isHidden: null,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
     ...part,
   }) as unknown as TaskGroup
@@ -551,14 +549,14 @@ describe('FR-098 (MUST) -- only HR-1a and HR-6 keep a pinned row off the screen'
     // 「ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015 の
     //   `HR-1a`）と、隠した行の配下にあるとき（同表の `HR-6`）に限ること（MUST）」
     //   -- HR-1a (MUST NOT): 「畳んだ `TaskGroup` の配下の行 … を描いてはならない」.
-    const drawn = draw(under({ isCollapsed: true }), { pinnedGroupIds: ['c1'] })
+    const drawn = draw(under({ treeState: 'collapsed' }), { pinnedGroupIds: ['c1'] })
 
     expect(idsOf(rowsOf(drawn))).not.toContain('c1')
   })
 
   it('⛔ MUST: a pinned row under a hidden row is not drawn (HR-6)', () => {
     // HR-6 (MUST NOT): 「隠した行の配下の行 … を描いてはならない」.
-    const drawn = draw(under({ isHidden: true }), { pinnedGroupIds: ['c1'] })
+    const drawn = draw(under({ treeState: 'hidden' }), { pinnedGroupIds: ['c1'] })
 
     expect(idsOf(rowsOf(drawn))).not.toContain('c1')
   })

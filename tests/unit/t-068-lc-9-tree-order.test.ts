@@ -151,10 +151,10 @@ describe('table T-068 LC-9 -- the rows come out in TREE order', () => {
     // their relative order unchanged.
     const hidden = FOREST.map((row) => ({ ...row }))
     const schedule = scheduleOf(hidden) as unknown as {
-      taskGroups: { id: string; isHidden?: boolean | null }[]
+      taskGroups: { id: string; treeState?: string | null }[]
     }
     for (const group of schedule.taskGroups) {
-      if (group.id === 'b1') group.isHidden = true
+      if (group.id === 'b1') group.treeState = 'hidden'
     }
 
     const order = layoutFromSchedule(

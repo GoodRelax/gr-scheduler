@@ -215,9 +215,7 @@ const group = (id: string, order: number, part: Record<string, unknown> = {}): R
   label: `row ${id.slice(-2)}`,
   derivedFromTaskUid: null,
   order,
-  isCollapsed: false,
-  isHidden: false,
-  color: null,
+  treeState: 'auto', color: null,
   height: null,
   ...part,
 })
@@ -227,7 +225,7 @@ const FLAT_ROWS = [ROW_A, ROW_B, ROW_C, ROW_D, ROW_E, ROW_F].map((id, index) => 
 const FOLDED_ROWS = [
   group(ROW_A, 0),
   group(ROW_B, 1),
-  group(ROW_C, 2, { isCollapsed: true }),
+  group(ROW_C, 2, { treeState: 'collapsed' }),
   group(ROW_C1, 0, { parentId: ROW_C }),
   group(ROW_C2, 1, { parentId: ROW_C }),
   group(ROW_D, 3),

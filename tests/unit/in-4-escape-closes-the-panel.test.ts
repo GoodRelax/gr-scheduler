@@ -269,10 +269,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
     label,
     derivedFromTaskUid: null,
     order: 0,
-    isCollapsed: false,
-    isHidden: false,
-    isKeptOpen: false,
-    editGroup: null,
+    treeState: 'auto', editGroup: null,
     color: null,
     height: null,
   })

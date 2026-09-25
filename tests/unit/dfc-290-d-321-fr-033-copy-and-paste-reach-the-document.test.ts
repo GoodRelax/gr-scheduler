@@ -253,9 +253,7 @@ function group(id: string, parentId: string | null, order: number): Record<strin
     label: id === PARENT_ROW ? 'Parent row' : 'Child row',
     derivedFromTaskUid: null,
     order,
-    isCollapsed: false,
-    isHidden: false,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
   }
 }

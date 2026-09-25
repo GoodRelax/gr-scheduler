@@ -497,7 +497,7 @@ describe('表 T-018 -- 引く向きで依存の種別が決まる', () => {
         resources: [],
         assignments: [],
         taskGroups: [{ id: 'g1', parentId: null, label: 'row', derivedFromTaskUid: null, order: 0,
-          isCollapsed: null, isHidden: null, color: null, height: null }],
+          treeState: 'auto', color: null, height: null }],
         taskGroupMembers: [1, 2].map((taskUid) => ({ taskUid, groupId: 'g1', stackOrder: null })),
         taskVisuals: [],
         commentBoxes: [],

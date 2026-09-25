@@ -1,4 +1,5 @@
-353
+324
+# LOWERED 353 -> 324 on 2026-09-26 under JDG-520: CR-570 rewrote the row-fold tests against the new rows; measured on 31313b06 plus the CR-570 waves 2-3.
 # LOWERED 354 -> 353 on 2026-09-25 under JDG-520: the CR-565 tester dropped a stale RS-48 quotation; measured on f1b93b9b.
 # LOWERED 358 -> 354 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking); CR-553 removed quotations, measured on aa7a9ad9.
 # LOWERED 384 -> 358 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): comments that

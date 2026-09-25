@@ -181,7 +181,7 @@ const T_109_ARMING = [
  * ⛔⛔ THE `Row Title Panel` ENTRIES USED TO BE COPIED HERE BY HAND, and the
  * copy is what went stale on 2026-08-30: `HF-13` and `HF-14` gave 表 T-109 two
  * more rows on that surface (`IC-90` / `IC-91`), and six cases went on asking
- * for 「表 T-109's five entries」 by a list typed into this file. ⭐ That roster
+ * for T-109's five entries by a list typed into this file. ⭐ That roster
  * is now READ OUT OF THE TABLE at load time (`T_109_ON_THE_ROW` below), so the
  * next entrance the specification puts on a row arrives here on its own.
  * ⚠️ WHAT IS LEFT HERE is the `App Header`, which no case reads as an ordered
@@ -412,9 +412,8 @@ function entranceForRule(rule: string): string {
  * its own -- 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」 -- and
  * on 2026-08-30 `HF-1` was rewritten to 「**隠す操作子と、配下を 1 階層開く操作子
  * と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ**」. ⇒ FOUR,
- * and the order below is the one that row states outright: 「⭐⭐ **並びは 2 × 2
- * の格子とすること（MUST）** —— **左から 隠す・1 階層開く・配下をすべて畳む・
- * 配下をすべて開く**」.
+ * and the order below is the one that row states outright: 「並びは 2 × 2 の格子と
+ * すること（MUST）」, read column first (see HF-1).
  *
  * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
  * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
@@ -540,8 +539,8 @@ const T_051_EXPANDER = [
 /**
  * 表 T-103's U-47 — the part, and WHO holds how many controls it has.
  *
- * ⛔ IT USED TO CARRY THE COUNT ITSELF -- 「開く側と、その行を閉じる側と、配下
- * をすべて閉じる側の 3 つで 1 組」 -- and 表 T-051's `HF-1` enumerated the same
+ * ⛔ IT USED TO CARRY THE COUNT ITSELF -- three controls to one part, in words
+ * since retired -- and 表 T-051's `HF-1` enumerated the same
  * three. ⚠️ Two places, one number: when `HF-13` and `HF-14` made it five, the
  * copy in U-47 was the one that went stale. ⭐ The count now lives only at its
  * owner, and this case is what keeps it from coming back.
@@ -2467,8 +2466,8 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
   it('GIVEN a row whose description carries an expander WHEN the panel is drawn THEN the row holds one IC-58 and one IC-59 (HF-1, U-47)', () => {
     const built = drawn(withExpander({ canOpen: true, canClose: false, canCloseBelow: false }))
 
-    // ⭐ 表 T-103 U-47: 「開く側と閉じる側の 2 つで 1 組」 -- one part, two
-    // controls, so the count is two and the rows are the roster's two.
+    // WHY: U-47 holds no count of its own (it points at HF-1), so the count is
+    // the roster's, read from table T-109.
     expect(expanderIcons(built).sort()).toEqual(EXPANDER_ROWS)
   })
 
@@ -2590,8 +2589,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
 //     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
 //
 // ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
-// 表 T-015's `HR-7` 「**直下の子だけ**を開き、**孫より下は畳んだままにすること
-// （MUST）**」 and `HF-14`'s 「**足した行は末子とすること（MUST）**」 and
+// 表 T-015's `HR-7` 「孫より下の畳みに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足した行は末子とすること（MUST）**」 and
 // 「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネル
 // を出し、名前の欄で名づけさせること（MUST）**」 are all
 // rules about what is WRITTEN when the entrance is pressed. This unit draws and
@@ -2700,11 +2698,11 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 �
     // ⛔ FR-029: 「**薄く描いた入口を、宿主の意味で無効にしてはならない
     // （MUST NOT）** —— 無効にすると押下そのものが届かず、下の理由を告げる引き金
     // が消える。**押されたときに限り、行えない理由を通知すること（MUST）**」.
-    // ⭐ 表 T-233's `RS-28`「配下に、開ける行が 1 つも無い」 is the reason waiting
+    // ⭐ 表 T-233's `RS-30`「直下に、画面へ戻せる子が 1 つも無い」 is the reason waiting
     // on that press, and a `disabled` attribute is what would swallow it.
     expect(
       spentOne.hasAttribute('disabled'),
-      `${IC_OPEN_ONE_LEVEL} is disabled in the host's sense, so the press RS-28 waits on never lands`,
+      `${IC_OPEN_ONE_LEVEL} is disabled in the host's sense, so the press RS-30 waits on never lands`,
     ).toBe(false)
     expect(ask(built, AT.rowOpenOneLevel.x, AT.rowOpenOneLevel.y)?.entry).toBe(IC_OPEN_ONE_LEVEL)
   })
@@ -3069,8 +3067,8 @@ describe('the Row Expander at the edges -- R3.4, the bare panel, and a redraw', 
 //   表 T-109        IC-58 / IC-59 / IC-60 are entries ON the `Row Title Panel`
 //   表 T-065 IF-9   「画面上の点がどの UI パーツのどの入口の上か」 -- an entry
 //                   that covers no point is an entry no point can be on
-//   表 T-051 HF-1   「行見出しパネルの各行に、開く操作子と閉じる操作子を 1 つずつ
-//                   置く」 -- a 操作子 that cannot be operated is not placed
+//   表 T-051 HF-1   places the folding controls on every row (see HF-1)
+//                   -- a 操作子 that cannot be operated is not placed
 //   表 T-051 HF-5   「行の名前の文字サイズにかかわらず、操作子を同じ大きさで描く
 //                   こと（MUST）」 -- it has A SIZE, and the row's name is not
 //                   what decides it
@@ -3403,8 +3401,8 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
       // ⛔ FR-098 (docs/spec/01-04-requirements.md:2594, MUST):
       //   「ピン止めの操作子（`Row Pin`）を、行見出しパネルの各行に 1 つ置くこと
       //    （MUST）」…「その操作子で同じようにピン止めを外せること（MUST）」
-      // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander:
-      //   「行見出しパネルの各行に、開く操作子と閉じる操作子を 1 つずつ置く」
+      // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander,
+      //   whose controls it places on every row (see HF-1)
       // ⚠️ `pointer-events` INHERITS. A control inside a subtree that declared
       // `pointer-events:none` is not a hit target, so a real
       // `document.elementFromPoint` answers whatever is BEHIND it and IF-9 can
@@ -3456,7 +3454,7 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 //   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
 // FR-085 (:1272) is what makes DEPTH the second variable. The room a name gets
-// is the panel width less 「その行の深さぶんのインデント（`rowTitleIndent`）」
+// is the panel width less 「その行の深さぶんのインデント」 (`rowTitleIndent`)
 // less the room kept for the controls -- so the indent is spent on the NAME's
 // side. An indent that moved the controls would make the right edge depend on
 // the depth, which is the same defect HF-4 names for the name's length.
@@ -3897,8 +3895,8 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
 
     // ⚠️ Without this, the case above would be satisfied by a unit that ignored
     // the depth altogether: nothing differs, so nothing differs on the right.
-    // FR-085 (:1272) counts on the indent being there -- 「その行の深さぶんの
-    // インデント（`rowTitleIndent`）…を引いた残り」.
+    // FR-085 counts on the indent being there -- the room is what is left after
+    // 「その行の深さぶんのインデント」 (`rowTitleIndent`).
     expect(
       differingProperties(theRowOf(root), theRowOf(deepest)),
       `depth ${MAX_GROUP_DEPTH} is drawn exactly like depth 1 -- the indent is missing`,
@@ -4708,12 +4706,12 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
 // fix the order: `HF-4` said 「⚠️ **本行が定めるのはこの 1 つだけであり、ほかの
 // 操作子の前後は定めない**」 and the blocks above say so in as many words. Three
 // rulings on that day settled every place:
-//   `HF-1`  ⭐⭐ 「**並びは 2 × 2 の格子とすること（MUST）** —— **左から 隠す・
-//           1 階層開く・配下をすべて畳む・配下をすべて開く**」, with ⛔ 「**1 本と
+//   `HF-1`  ⭐⭐ 「並びは 2 × 2 の格子とすること（MUST）」, read column first
+//           (see HF-1), with ⛔ 「**1 本と
 //           2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば動作、
 //           左右に読めば範囲、という格子が崩れる**」
-//   `HF-4`  ⭐⭐ 「**折り畳みの 4 つ（`HF-1` の格子）、足す、消す、ピン止めの順に、
-//           左から右へ置くこと（MUST）**」, with ⛔ 「**足すと消すのあいだに他の
+//   `HF-4`  ⭐⭐ the lattice, the add/delete pair, then the pin, left to right
+//           (see HF-4), with ⛔ 「**足すと消すのあいだに他の
 //           操作子を挟んではならない（MUST NOT）**」 and 「**ピン止めの操作子
 //           （表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）**」
 //   `HF-10` ⭐⭐ 「**頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの
@@ -5009,8 +5007,8 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
 
   it('⭐ GIVEN a row is drawn WHEN its four folding controls are read as a lattice THEN the left column then the right gives HF-1’s order (MUST: 左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く)', () => {
     // ⭐⭐ 表 T-051 `HF-1` (MUST), the whole of what is asserted here:
-    //   「⭐⭐ **並びは 2 × 2 の格子とすること（MUST）**（利用者の裁定 2026-08-30）
-    //    —— **左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く**。
+    //   「並びは 2 × 2 の格子とすること（MUST）」 -- the left column top to bottom,
+    //    then the right column (see HF-1).
     //    ⛔ **1 本と 2 本を混ぜて並べてはならない（MUST NOT）** —— **上下に読めば
     //    動作、左右に読めば範囲、という格子が崩れる。**」
     //
@@ -5350,8 +5348,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 //      **上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の
 //      上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236 の `S-151`
 //      （上下）と `S-152`（左右）とする。**」
-//   ⭐ 「**掴んでいる行には地を敷くこと（MUST）** —— **どれを持っているかが読め
-//      なくなる。**」
+//   ⭐ 「掴んでいる行には地を敷くこと（MUST）」 (see HF-15)
 //   ⭐ 「**掴み代は常に描くこと（MUST）** —— ⛔ **`HF-6`（操作子はポインタが乗って
 //      いるあいだだけ）の対象ではない** —— **掴めることが読めなければ、掴もうと
 //      する手が動かない。**」
@@ -5529,7 +5526,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
  */
 /**
  * The counts a row shows, each without the mark HF-18 (MUST) puts in front of
- * it: 「数の前に、畳み込みを表す印を 1 つ置くこと。印は下向きの三角（`▾` U+25BE）」.
+ * it: 「数の前に、畳み込みを表す印を 1 つ置くこと（MUST）」, a down triangle (U+25BE).
  *
  * ⛔ THE MARK IS REQUIRED AND NOT MERELY TOLERATED. A node whose text is the
  * bare number does not match, so an implementation that drops the mark is red

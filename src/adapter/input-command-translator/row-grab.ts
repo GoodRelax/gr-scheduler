@@ -189,11 +189,11 @@ function rowGrabPlacesInDrawingOrder(
       continue
     }
     closeRun()
-    // TRAP: the one place `isCollapsed` must be read; a folded group has no drawn child to hide it.
+    // TRAP: the one place `treeState` must be read; a collapsed group has no drawn child to hide it.
     if (
       depth > 1 &&
       rowDepth === depth - 1 &&
-      row.isCollapsed !== true &&
+      row.treeState !== 'collapsed' &&
       !parentsWithADrawnChild.has(row.id)
     ) {
       put({ parentId: row.id, order: 0, atY: entry.box.y + entry.box.height, isOwn: false })

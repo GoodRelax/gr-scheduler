@@ -83,8 +83,8 @@ async function documentWithRows(baseURL: string, roots: number, offset: number):
       const members: Bag[] = []
       let uid = 1
       for (let index = 0; index < asked.count; index += 1) {
-        groups.push({ ...group0, id: `r${index}`, parentId: null, order: index, label: `Row ${index}`, isCollapsed: true, isHidden: null, height: null })
-        groups.push({ ...group0, id: `r${index}c`, parentId: `r${index}`, order: 0, label: `Child ${index}`, isCollapsed: null, isHidden: null, height: null })
+        groups.push({ ...group0, id: `r${index}`, parentId: null, order: index, label: `Row ${index}`, treeState: 'collapsed', height: null })
+        groups.push({ ...group0, id: `r${index}c`, parentId: `r${index}`, order: 0, label: `Child ${index}`, treeState: 'auto', height: null })
         for (const groupId of [`r${index}`, `r${index}c`]) {
           const over: Bag = {
             uid, name: `T${uid}`, start: '2026-01-05T08:00:00', finish: '2026-01-20T17:00:00', dependencies: [],

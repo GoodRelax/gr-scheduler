@@ -301,9 +301,7 @@ const taskGroup = (
     parentId: null,
     label: over.id,
     derivedFromTaskUid: null,
-    isCollapsed: false,
-    isHidden: false,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
     ...over,
   }) as unknown as TaskGroup
@@ -935,7 +933,7 @@ describe('SL-8 -- a selected comment box wears a dashed frame', () => {
 
 describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn', () => {
   it('hides the box when the row it points at is hidden', () => {
-    const rows = [taskGroup({ id: 'g1', order: 0, isHidden: true }), taskGroup({ id: 'g2', order: 1 })]
+    const rows = [taskGroup({ id: 'g1', order: 0, treeState: 'hidden' }), taskGroup({ id: 'g2', order: 1 })]
     const drawn = draw(scheduleOf(rows, [commentBox({ id: 'c1', text: 'hello world' })]))
     expect(drawn.geometry.commentBoxes).toEqual([])
     expect(onlyIn(drawn.svg, draw(scheduleOf(rows, [])).svg)).toEqual([])
@@ -943,7 +941,7 @@ describe('UC-008 extension 2a -- a box on a row that is not drawn is not drawn',
 
   it('hides the box when the row it points at is folded away under a collapsed row', () => {
     const rows = [
-      taskGroup({ id: 'g1', order: 0, isCollapsed: true }),
+      taskGroup({ id: 'g1', order: 0, treeState: 'collapsed' }),
       taskGroup({ id: 'g2', order: 1, parentId: 'g1' }),
     ]
     const drawn = draw(

@@ -73,8 +73,6 @@ interface ScreenValuesEffectPayloads {
   readonly matchWatermarkUnlock: NoPayload
   readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-35' }
   readonly clearSelection: NoPayload
-  readonly writeFoldAll: Carried
-  readonly writeOpenLevel: Carried
   readonly writePlaceDualCursorClearingGuide: { readonly date: string } & Carried
   readonly writeFixDate1: { readonly date: string } & Carried
   readonly writeFixDate2: { readonly date: string } & Carried
@@ -1193,24 +1191,6 @@ function onDialogueFieldEntryPressed(
   return moved(values, { dialogueFieldDisplayState: { kind } })
 }
 
-// see T-280
-/** @purity pure */
-function onFoldAllPressed(values: ScreenValues, event: EventOf<'foldAllPressed'>): ScreenStep {
-  if (values.levelZeroFoldState.kind === 'folded') return unchanged(values)
-  return moved(values, { levelZeroFoldState: { kind: 'folded' } }, [
-    { type: 'writeFoldAll', writes: event.writes },
-  ])
-}
-
-// see T-280
-/** @purity pure */
-function onLevelZeroOpened(values: ScreenValues, event: EventOf<'levelZeroOpened'>): ScreenStep {
-  if (values.levelZeroFoldState.kind === 'unfolded') return unchanged(values)
-  return moved(values, { levelZeroFoldState: { kind: 'unfolded' } }, [
-    { type: 'writeOpenLevel', writes: event.writes },
-  ])
-}
-
 // see T-280, FR-016
 /** @purity pure */
 function onDualCursorEntryPressed(
@@ -1333,8 +1313,6 @@ const HANDLERS: {
   createdNameSettled: onCreatedNameSettled,
   settleKeyPressed: onSettleKeyPressed,
   dialogueFieldEntryPressed: onDialogueFieldEntryPressed,
-  foldAllPressed: onFoldAllPressed,
-  levelZeroOpened: onLevelZeroOpened,
   dualCursorEntryPressed: onDualCursorEntryPressed,
   guideCursorEntryPressed: onGuideCursorEntryPressed,
   dualCursorPlaced: onDualCursorPlaced,

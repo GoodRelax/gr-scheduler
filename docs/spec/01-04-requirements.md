@@ -2442,7 +2442,7 @@ px で足すと、読む人が文字を 2 倍にしたとき要る幅が 2 倍�
 | 行 ID | 複製するもの | 一緒に複製されるもの |
 | --- | --- | --- |
 | DU-1 | `Task` | **その `Task` の WBS の子孫**、`TaskVisual`、`TaskGroupMember`、**部分木の内側で閉じた依存**、**その `Task` を指す割当**（`Assignment`）。<br>⛔ **`TaskOrigin` は複製してはならない（MUST NOT）** |
-| DU-2 | 行（`TaskGroup`） | **配下の行**、**その行に載っているすべての `Task`**（`DU-1` が各 `Task` に連鎖する）。<br>⚠️ **複製した `Task` は複製した行に載せる。<br>** ⛔ **その行を指す注記とピン止めは複製してはならない（MUST NOT）** |
+| DU-2 | 行（`TaskGroup`） | **配下の行**、**その行に載っているすべての `Task`**（`DU-1` が各 `Task` に連鎖する）。<br>⚠️ **複製した `Task` は複製した行に載せる。<br>** ⛔ **その行を指す注記とピン止めは複製してはならない（MUST NOT）**<br>⭐ 複製した各行の `treeState`（`FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）は、複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST） —— 畳みと隠しは行の中身だが、開いた印は人がその場所で決めたことである。 |
 
 `DU-1` が複製するものは、表 T-050 の `CD-1` が消すものと、`TaskOrigin` を除いて一致すること（MUST） —— **複製してすぐ消したときに、元と違う文書が残ってはならない。**  
 `TaskOrigin` だけが外れる理由は本要求が上で述べている。

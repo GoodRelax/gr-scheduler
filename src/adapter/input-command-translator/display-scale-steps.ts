@@ -105,7 +105,6 @@ function displayScaleWrites(
     },
     afterRegions,
     zoomOnScreen(context).y,
-    context.isLevelZeroFolded,
     context.rowControlsHeightPx,
   ).filter((row) => row.isPinned !== true)
   const landed = rowPointIn(afterRows, held)

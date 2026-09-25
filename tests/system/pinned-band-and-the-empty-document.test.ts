@@ -14,7 +14,7 @@ const T051: SpecTable = specTable('T-051')
 const T058: SpecTable = specTable('T-058')
 const T103: SpecTable = specTable('T-103')
 const T109: SpecTable = specTable('T-109')
-const T206: SpecTable = specTable('T-206')
+const T203: SpecTable = specTable('T-203')
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
 
@@ -270,16 +270,16 @@ async function pressTheUnlockField(page: Page): Promise<boolean> {
   return true
 }
 
-// WHY: goes red if HF-17, S-211 and U-60 stop cross-referencing each other
+// WHY: goes red if HF-17, S-418 and U-60 stop cross-referencing each other
 // the way the cases below assume.
 test('the rows these cases are read from are still the rows that carry them', () => {
   const hf17 = wholeRow(T051, 'HF-17')
-  expect(hf17, 'table T-051 row HF-17 still names the setting the fold lives in').toContain('S-211')
+  expect(hf17, 'table T-051 row HF-17 still names the setting the fold lives in').toContain('S-418')
   expect(hf17, 'table T-051 row HF-17 still sends the naming to HF-14').toContain('HF-14')
 
   expect(
-    wholeRow(T206, 'S-211'),
-    'table T-206 row S-211 still names HF-17 as a way out of the fold',
+    wholeRow(T203, 'S-418'),
+    'table T-203 row S-418 still names HF-17 as the row that says how many tiers open',
   ).toContain('HF-17')
 
   expect(
@@ -301,7 +301,7 @@ test('the rows these cases are read from are still the rows that carry them', ()
 })
 
 // WHY: goes red if HF-17 adds a row and draws nothing, sends the field
-// alone, or leaves the shallowest tier's fold (S-211) closed.
+// alone, or leaves the shallowest tier's fold (S-418) closed.
 test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it raises`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()
@@ -352,7 +352,7 @@ test(`HF-17: with no row drawn at all, ${ADD_AT_SHALLOWEST} draws the row it rai
   }
 })
 
-// WHY: goes red if adding a row opens every tier of S-211, not the one tier
+// WHY: goes red if adding a row opens every tier under S-418, not the one tier
 // HF-17 (MUST NOT) allows. The Esc that follows is not part of the judgement.
 test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not every tier`, async () => {
   test.setTimeout(180_000)

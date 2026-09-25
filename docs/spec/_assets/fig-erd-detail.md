@@ -358,7 +358,7 @@ erDiagram
 | AT-53 | `TaskGroup` | `label` | 文字列 | 可（`null` = 導出） | — | GRS | — | 行の名前 |
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`label` と同時に `null` にできない |
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
-| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。行を作るときは `auto`。**既定は `'auto'`** |
+| AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。新しく作る行は `auto`。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
 | AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。規則は表 T-017b |
 | AT-59 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |

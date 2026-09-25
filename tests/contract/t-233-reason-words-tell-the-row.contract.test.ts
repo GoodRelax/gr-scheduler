@@ -206,7 +206,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-28': '80b3e0d70b0abd46',
   'RS-29': '9141302ce077d9d5',
   'RS-30': 'd1ed25fff3db71c6',
-  'RS-31': '5b41d6369c8ea593',
+  // WHY: CR-570 rewrote the scene to 'no row is left undrawn'; read against the words (every row open
+  // and drawn; fold a row or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
+  'RS-31': '1c57dc01e08c32c8',
   'RS-32': '0cbf2fbeaf9801bb',
   'RS-33': '140b0a58e73b1f52',
   'RS-34': '89ad57e7d522bc58',

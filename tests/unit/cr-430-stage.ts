@@ -85,10 +85,7 @@ function group(id: string, order: number): unknown {
     label: `row ${String(order)}`,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: false,
-    isHidden: false,
-    isKeptOpen: false,
-    editGroup: null,
+    treeState: 'auto', editGroup: null,
     color: null,
     height: null,
   }

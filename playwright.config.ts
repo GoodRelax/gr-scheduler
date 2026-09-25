@@ -50,11 +50,21 @@ const portForThisCheckout = (): number => {
 }
 
 const port = portForThisCheckout()
+
+// The two performance gates of table T-043 drive 1,000 tasks for minutes and
+// are measured only on purpose (RISK-001, JDG-605): set GRS_PERF=1 to run them.
+// nfr-004 is not a performance case and stays in every run.
+const PERFORMANCE_GATES = [
+  'nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts',
+  'nfr/nfr-002-003-frame-time-is-the-interval.test.ts',
+]
+const measuresPerformance = process.env['GRS_PERF'] === '1'
 const origin = `http://localhost:${String(port)}`
 
 export default defineConfig({
   testDir: 'tests',
   testMatch: ['usecase/**/*.test.ts', 'system/**/*.test.ts', 'nfr/**/*.test.ts'],
+  testIgnore: measuresPerformance ? [] : PERFORMANCE_GATES,
   use: {
     baseURL: origin,
   },

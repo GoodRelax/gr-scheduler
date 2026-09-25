@@ -58,7 +58,7 @@ const UNDRAWN_DEFINITION =
   '描かれていないタスクとは、表 T-202 の表示の可否（`FR-049`）によって、予定・実績・実績のダミー（表 T-240）のどれも描かれていないタスクと、描かれていない行に載るタスクである'
 
 const UNDRAWN_ROWS =
-  '描かれていない行とは、人が畳んだ行・隠した行の配下（表 T-015 の `HR-1a` / `HR-6`）と、行の軸の倍率（`FR-018`）で描かれていない行である。'
+  '描かれていない行とは、`FR-018` の 表 T-329 が描かない行である。'
 
 const NO_WAY_OF_PICKING =
   'そのタスクは、`SL-2` 〜 `SL-5` のどの選び方でも取らない —— 全選択（`SL-5`）も範囲選択（`SL-3`）も取らない。'
@@ -342,11 +342,10 @@ const taskOf = (uid: number, start: string, finish: string, part: Record<string,
   }) as unknown as Task
 
 interface RowState {
-  readonly isCollapsed: boolean
-  readonly isHidden: boolean
+  readonly treeState: 'auto' | 'collapsed' | 'hidden'
 }
 
-const OPEN: RowState = { isCollapsed: false, isHidden: false }
+const OPEN: RowState = { treeState: 'auto' }
 
 const scheduleOf = (g1: RowState = OPEN, g1a: RowState = OPEN, g2: RowState = OPEN): Schedule =>
   ({
@@ -360,9 +359,9 @@ const scheduleOf = (g1: RowState = OPEN, g1a: RowState = OPEN, g2: RowState = OP
     resources: [],
     assignments: [],
     taskGroups: [
-      { id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0, isKeptOpen: false, editGroup: null, color: null, height: null, ...g1 },
-      { id: 'g1a', parentId: 'g1', label: 'g1a', derivedFromTaskUid: null, order: 0, isKeptOpen: false, editGroup: null, color: null, height: null, ...g1a },
-      { id: 'g2', parentId: null, label: 'g2', derivedFromTaskUid: null, order: 1, isKeptOpen: false, editGroup: null, color: null, height: null, ...g2 },
+      { id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0, editGroup: null, color: null, height: null, ...g1 },
+      { id: 'g1a', parentId: 'g1', label: 'g1a', derivedFromTaskUid: null, order: 0, editGroup: null, color: null, height: null, ...g1a },
+      { id: 'g2', parentId: null, label: 'g2', derivedFromTaskUid: null, order: 1, editGroup: null, color: null, height: null, ...g2 },
     ],
     taskGroupMembers: [
       { groupId: 'g1', taskUid: 1 },
@@ -386,7 +385,7 @@ const oneTaskSchedule = (task: Task, shapeKind: string): Schedule =>
     resources: [],
     assignments: [],
     taskGroups: [
-      { id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0, isKeptOpen: false, editGroup: null, color: null, height: null, ...OPEN },
+      { id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0, editGroup: null, color: null, height: null, ...OPEN },
     ],
     taskGroupMembers: [{ groupId: 'g1', taskUid: task.uid }],
     taskVisuals: [{ taskUid: task.uid, shapeKind }],
@@ -466,8 +465,8 @@ const selectedTaskUids = (context: InputContext): readonly number[] =>
     .slice()
     .sort((a, b) => a - b)
 
-const FOLDED: RowState = { isCollapsed: true, isHidden: false }
-const HIDDEN: RowState = { isCollapsed: true, isHidden: true }
+const FOLDED: RowState = { treeState: 'collapsed' }
+const HIDDEN: RowState = { treeState: 'hidden' }
 
 describe('FR-081 T-023c closing / SL-5 -- select-all never takes an undrawn task', () => {
   it('SL-5 control: every row open and every shape shown -> all three tasks', () => {

@@ -249,9 +249,7 @@ const groupOf = (id: string, parentId: string | null, order: number): TaskGroup 
     label: null,
     derivedFromTaskUid: null,
     order,
-    isCollapsed: null,
-    isHidden: null,
-    color: null,
+    treeState: 'auto', color: null,
     height: null,
   }) as unknown as TaskGroup
 

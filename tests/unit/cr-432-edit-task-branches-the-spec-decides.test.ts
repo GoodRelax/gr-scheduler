@@ -27,10 +27,7 @@ const groupRow = (index: number): Record<string, unknown> => ({
   label: `row ${index + 1}`,
   derivedFromTaskUid: null,
   order: index,
-  isCollapsed: false,
-  isHidden: false,
-  isKeptOpen: false,
-  editGroup: null,
+  treeState: 'auto', editGroup: null,
   color: null,
   height: null,
 })

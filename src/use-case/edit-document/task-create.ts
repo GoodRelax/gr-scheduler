@@ -5,6 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
+  COLUMN_DEFAULTS,
   compareDays,
   type Task,
   type TaskGroup,
@@ -78,9 +79,7 @@ export function createTask(
       label: null,
       derivedFromTaskUid: uid,
       order,
-      isCollapsed: null,
-      isHidden: null,
-      isKeptOpen: false,
+      treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
       editGroup: null,
       color: null,
       height: null,

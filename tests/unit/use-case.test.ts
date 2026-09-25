@@ -68,7 +68,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       // WHY: not an empty array -- table T-050 requires at least one
       // TaskGroup, and an empty fixture is not a document the spec admits.
       taskGroups: [{ id: 'g0', parentId: null, label: 'row 1', derivedFromTaskUid: null,
-                     order: 0, isCollapsed: null, isHidden: null, color: null, height: null }],
+                     order: 0, treeState: 'auto', color: null, height: null }],
       tasks: [],
       ...((part.schedule as Record<string, unknown>) ?? {}),
     },
@@ -410,7 +410,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: CM-71 places the whole-view zoom and scroll only -- the collapse
     // half of the press is CM-72's, so a collapsed row stays collapsed here.
     const document = documentOf({
-      schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
+      schedule: { taskGroups: [{ id: 'g1', treeState: 'collapsed' }] },
     })
     const plan = planOf(document, [
       {
@@ -432,7 +432,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.document.documentSettings.zoomY).toBe(2)
     expect(plan.document.documentSettings.scrollDate).toBe('2026-03-01')
     expect(plan.document.documentSettings.scrollGroupId).toBe('g1')
-    expect(plan.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
+    expect(plan.document.schedule.taskGroups[0]!.treeState).toBe('collapsed')
 
     // WHY: UN-8 files zoom/scroll/pan as out of scope, so WS-4 (MUST NOT)
     // must not push an undo step for it.
@@ -453,29 +453,28 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const document = documentOf({
       schedule: {
         taskGroups: [
-          { id: 'g1', isCollapsed: true, isHidden: false },
-          { id: 'g2', isCollapsed: true, isHidden: true },
-          { id: 'g3', isCollapsed: false, isHidden: false },
+          { id: 'g1', treeState: 'collapsed' },
+          { id: 'g2', treeState: 'hidden' },
+          { id: 'g3', treeState: 'auto' },
         ],
       },
     })
-    const plan = planOf(document, [{ kind: 'expandAllTaskGroups' }])
+    const plan = planOf(document, [{ kind: 'resetTaskGroupTreeStates' }])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
 
-    // WHY: whether "discarded" lands on false or null is unsettled, so this
-    // checks only that it is not collapsed, never a missing key (FR-024).
+    // WHY: the reset never leaves a row collapsed (FR-024).
     for (const group of plan.document.schedule.taskGroups) {
-      expect([false, null]).toContain(group.isCollapsed)
+      expect(group.treeState).not.toBe('collapsed')
     }
     // WHY: HF-8 discards the collapse only -- the hidden state stays.
-    expect(plan.document.schedule.taskGroups[1]!.isHidden).toBe(true)
+    expect(plan.document.schedule.taskGroups[1]!.treeState).toBe('hidden')
 
     // WHY: FR-031 folds one whole-view-display press into one step, so
     // opening two rows must not cost two steps.
     expect(plan.history.done).toHaveLength(1)
 
-    // WHY: UN-17 files this as in scope, and isCollapsed is a schedule-data
+    // WHY: UN-17 files this as in scope, and treeState is a schedule-data
     // column, so FR-063 (MUST) moves the schedule-data instant.
     expect(plan.hasMovedSchedule).toBe(true)
     expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
@@ -485,7 +484,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: WS-4 pushes the document as it stood BEFORE the second write, so
     // undoing after both restores only the collapse, never the older zoom.
     const start = documentOf({
-      schedule: { taskGroups: [{ id: 'g1', isCollapsed: true, isHidden: false }] },
+      schedule: { taskGroups: [{ id: 'g1', treeState: 'collapsed' }] },
     })
 
     // STEP: CM-71 -- place zoom and scroll (UN-8: no step)
@@ -505,7 +504,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(first.history.done).toHaveLength(0)
 
     // STEP: CM-72 -- expand all, as a second write against what step 1 left
-    const second = planOf(first.document, [{ kind: 'expandAllTaskGroups' }], {
+    const second = planOf(first.document, [{ kind: 'resetTaskGroupTreeStates' }], {
       history: first.history,
       updatedUtc: '2026-08-17T02:00:00Z',
     })
@@ -520,7 +519,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // STEP: undo once
     const undone = undoEdit({ document: second.document, history: second.history })
     expect(undone.undone).toBe(true)
-    expect(undone.next.document.schedule.taskGroups[0]!.isCollapsed).toBe(true)
+    expect(undone.next.document.schedule.taskGroups[0]!.treeState).toBe('collapsed')
     // WHY: UN-17 files the collapse as in scope but zoom/scroll stay out of
     // scope (UN-8), so the zoom stays where step 1 put it.
     expect(undone.next.document.documentSettings.zoomX).toBe(4)

@@ -325,7 +325,7 @@ const nameOf = (groupId: string): string => NAME_OF.get(groupId) ?? groupId
 
 interface Fixture {
   readonly rows?: readonly { readonly id: string; readonly parent: string | null; readonly order: number }[]
-  /** Rows the person folded (AT-56). */
+  /** Rows the person folded (AT-153 `collapsed`). */
   readonly folded?: readonly string[]
   /** S-126 `pinnedGroupIds` -- the rows FR-098 lifts to the head of the panel. */
   readonly pinned?: readonly string[]
@@ -377,8 +377,7 @@ function documentWith(part: Fixture = {}): Document {
         label: nameOf(one.id),
         derivedFromTaskUid: null,
         order: one.order,
-        isCollapsed: folded.has(one.id),
-        isHidden: false,
+        treeState: folded.has(one.id) ? 'collapsed' : 'auto',
         color: null,
         height: null,
       })),
@@ -1353,8 +1352,7 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
           label: one.label,
           color: one.color,
           height: one.height,
-          isCollapsed: one.isCollapsed,
-          isHidden: one.isHidden,
+          treeState: one.treeState,
           derivedFromTaskUid: one.derivedFromTaskUid,
         }))
         .sort((a, b) => (a.id < b.id ? -1 : 1))

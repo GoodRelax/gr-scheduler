@@ -178,7 +178,6 @@ export interface InputContext {
   readonly isNoticeStanding?: boolean
   readonly drawnRowGroupIds?: readonly string[]
   readonly drawnRowBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
-  readonly isLevelZeroFolded?: boolean
 }
 
 
@@ -221,11 +220,6 @@ export type InputAction =
       readonly created?: CreatedSubject
       // see HF-20, QN-10
       readonly question?: 'QN-10'
-    }
-  | {
-      readonly kind: 'setLevelZeroFolded'
-      readonly isFolded: boolean
-      readonly writes: readonly DocumentCommand[]
     }
   | { readonly kind: 'undoEdit' }
   | { readonly kind: 'redoEdit' }
@@ -292,7 +286,8 @@ export interface TranslatedInput {
   // step after the press is an end one, on the press that arrives there as well.
   readonly displayScaleShown?: { readonly end: 'max' | 'min' | null }
   // see ZE-2, ZE-3, ZE-5
-  // TRAP: present only on a row-axis input that wrote nothing at an end; zoomY is the one drawn.
+  // TRAP: present only on a row-axis input that wrote no zoom at an end; zoomY is the one drawn.
+  // At the shrinking end (ZE-2) the action may still end temporarilyExpanded (FR-031).
   readonly rowZoomEndShown?: { readonly end: 'max' | 'min'; readonly zoomY: number }
 }
 
@@ -1322,7 +1317,6 @@ export function rowsAtZoomY(
     measuredWith,
     context.regions,
     zoomY,
-    context.isLevelZeroFolded,
     context.rowControlsHeightPx,
   )
 }

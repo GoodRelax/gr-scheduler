@@ -13,12 +13,17 @@ import {
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
+import {
+  levelZeroWritesFor,
+  treeStateWritesFor,
+  type DocumentCommand,
+} from '../../use-case/edit-document/edit-document'
 import {
   CONSUMED_ELSEWHERE,
   NOT_STORED_ROW_BAND_CEILING_SEARCH,
   NOT_STORED_VISIBLE_DAY_FLOOR,
   changed,
+  changedInOrder,
   dayAnchorAt,
   isScrollPositionInForce,
   rowAnchorIn,
@@ -31,9 +36,38 @@ import {
   type TranslatedInput,
 } from './input-command-translator'
 
+// see FR-031, FR-055, HF-8, CM-72, CM-86, T-328
 /** @purity pure */
 export function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] {
-  return [[fitCommand(context)], [{ kind: 'expandAllTaskGroups' }]]
+  const levelZeroTreeState = context.document.documentSettings.levelZeroTreeState
+  return [
+    [fitCommand(context)],
+    [
+      { kind: 'resetTaskGroupTreeStates' },
+      ...levelZeroWritesFor(levelZeroTreeState, { type: 'fitPressed' }),
+    ],
+  ]
+}
+
+// see FR-031, FR-018, T-328, ZE-2, ZE-4
+/** @purity pure */
+function rowShrinkWrites(
+  context: InputContext,
+  zoom: readonly DocumentCommand[],
+): TranslatedInput {
+  return changedInOrder([
+    zoom,
+    treeStateWritesFor(context.document.schedule, { type: 'rowZoomShrinkPressed' }),
+  ])
+}
+
+/** @purity pure */
+export function zoomStepAnswer(
+  context: InputContext,
+  factor: number,
+  zoom: readonly DocumentCommand[],
+): TranslatedInput {
+  return factor < 1 ? rowShrinkWrites(context, zoom) : changed(zoom)
 }
 
 // see S-53, FR-016
@@ -96,7 +130,7 @@ function isRowZoomAtLowerEnd(context: InputContext): boolean {
     drawnNow.every((row, at) => row.groupId === drawnLowest[at]?.groupId)
 }
 
-// see FR-016, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, SK-16a, SK-16c
+// see FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
 // TRAP: never for MK-2; the date axis still moves there, so that input changes the picture.
 /** @purity pure */
 export function rowZoomAnswer(
@@ -107,13 +141,14 @@ export function rowZoomAnswer(
 ): TranslatedInput {
   const drawnZoomY = zoomOnScreen(context).y
   if (factor < 1 && isRowZoomAtLowerEnd(context)) {
-    return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
+    const ended = rowShrinkWrites(context, [])
+    return { ...ended, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
   }
   const stepped = zoomWithinBounds(context, zoomTimes(context, factor, 'y'))
   if (factor > 1 && stepped === drawnZoomY) {
     return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
   }
-  return changed(zoomWrites(context, null, stepped, pointerX, pointerY))
+  return zoomStepAnswer(context, factor, zoomWrites(context, null, stepped, pointerX, pointerY))
 }
 
 // see ST-7
@@ -358,7 +393,6 @@ function rowHeldStill(
     },
     context.regions,
     willBe,
-    context.isLevelZeroFolded,
     context.rowControlsHeightPx,
   ).filter((row) => row.isPinned !== true)
   const landed = rowPointIn(after, held)
@@ -416,25 +450,23 @@ export function zoomWrites(
   ]
 }
 
-// TRAP: CM-72 (expandAllTaskGroups) writes the same predicate; change both together.
-// see HF-8
+// TRAP: CM-72 (resetTaskGroupTreeStates) writes the same predicate; change both together.
+// see HF-8, CM-72
 /** @purity pure */
-function collapsesDiscarded(schedule: Schedule): Schedule {
+function treeStatesReset(schedule: Schedule): Schedule {
   return {
     ...schedule,
     taskGroups: schedule.taskGroups.map((one) =>
-      one.isCollapsed === true || one.isKeptOpen
-        ? { ...one, isCollapsed: one.isCollapsed === true ? false : one.isCollapsed, isKeptOpen: false }
-        : one,
+      one.treeState === 'hidden' || one.treeState === 'auto' ? one : { ...one, treeState: 'auto' },
     ),
   }
 }
 
-// see FR-055, OP-10
+// see FR-055, OP-10, S-418
 // WHY: with no stored date the fit has no origin day and places no left edge; any date measures alike.
 /** @purity pure */
 function measuredSettings(context: InputContext): DocumentSettings {
-  const settings = context.document.documentSettings
+  const settings = { ...context.document.documentSettings, levelZeroTreeState: 'auto' as const }
   if (dayOf(settings.scrollDate) !== null) return settings
   return { ...settings, scrollDate: scrolledAnchor(context, 0, 0).scrollDate ?? context.today }
 }
@@ -445,7 +477,7 @@ function measuredSettings(context: InputContext): DocumentSettings {
 /** @purity pure */
 function fittedNow(context: InputContext) {
   return fitZoom(
-    collapsesDiscarded(context.document.schedule),
+    treeStatesReset(context.document.schedule),
     measuredSettings(context),
     context.regions,
     { step: context.zoomStep, min: context.zoomMin, max: context.zoomMax },

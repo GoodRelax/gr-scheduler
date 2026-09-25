@@ -20,7 +20,7 @@ const UF_123_EVERY_KIND = '`EffectRunners` —— 副作用の種類の全数を
 const UF_123_UNWIRED = '（`unwiredEffect` —— 呼ばれたら投げる。'
 const SF_6 = '副作用（書き込み・ファイル・クリップボード・問い）は値として返し、`SingleHtmlShell` が実行する。'
 
-// see T-280, T-286, T-289, T-290, T-292, T-293
+// see T-280, T-286, T-289, T-290, T-292, T-293, SD-5
 const MANUSCRIPT_EFFECTS: readonly string[] = (() => {
   const found = new Set<string>()
   const walk = (value: unknown): void => {
@@ -36,8 +36,8 @@ const MANUSCRIPT_EFFECTS: readonly string[] = (() => {
   }
   const raw = JSON.parse(
     readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'state-machines.json'), 'utf8'),
-  ) as { readonly regions: unknown }
-  walk(raw.regions)
+  ) as { readonly regions: readonly { readonly holds?: string }[] }
+  walk(raw.regions.filter((region) => region.holds !== 'documentData'))
   return [...found].sort()
 })()
 
@@ -149,8 +149,6 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       writeDocumentFile: true,
       writeFixDate1: true,
       writeFixDate2: true,
-      writeFoldAll: true,
-      writeOpenLevel: true,
       writePlaceDualCursorClearingGuide: true,
       writeProgressStep: true,
     }

@@ -10,27 +10,27 @@ import {
   drawnSettingsOf,
   type ScreenRect,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
+import { groupDepthLimit, keptInViewByTreeState } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { RowExpander, RowTitle, RowTitlePanel, ScreenViewReadings } from './screen-renderer'
 
-interface PanelIndex extends OpenAllMarks {
+interface PanelIndex extends OpenArming {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
   readonly groupIdsWithDrawnChildren: ReadonlySet<string>
   readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
-  readonly groupIdsWithHiddenChild: ReadonlySet<string>
-  readonly groupIdsWithAChildOutOfThePicture: ReadonlySet<string>
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   readonly foldedRowCountAtLevelZero: number
   readonly rootGroups: readonly TaskGroup[]
   readonly taskNameByUid: ReadonlyMap<number, string | null>
 }
 
-type IndexCore = Omit<PanelIndex, keyof OpenAllMarks>
+type IndexCore = Omit<PanelIndex, keyof OpenArming>
 
-interface OpenAllMarks {
-  readonly groupIdsWithAFoldAtOrBelow: ReadonlySet<string>
-  readonly groupIdsWithAKeptOpenMarkBelow: ReadonlySet<string>
-  readonly isAnyRowMarkedOrFolded: boolean
+// see T-329, RS-28, RS-30, RS-31
+interface OpenArming {
+  readonly groupIdsWithAnUnplacedRowBelow: ReadonlySet<string>
+  readonly groupIdsWithAChildToOpen: ReadonlySet<string>
+  readonly isAnyRowUnplaced: boolean
 }
 
 const TRUNCATION_MARK = '\u2026'
@@ -115,13 +115,11 @@ function rowDepth(
   return depth
 }
 
-// see HF-2, KO-2
+// see HF-2, RS-28, T-329
 // TRAP: row-tree-entrances.ts arms IC-58 by this same test (isOpenAllBelowArmed); change both together.
 /** @purity pure */
 function isOpenAllBelowOn(group: TaskGroup, index: PanelIndex): boolean {
-  if (index.groupIdsWithAFoldAtOrBelow.has(group.id)) return true
-  if (index.groupIdsWithAKeptOpenMarkBelow.has(group.id)) return true
-  return !group.isKeptOpen && index.groupIdsWithAChildOutOfThePicture.has(group.id)
+  return index.groupIdsWithAnUnplacedRowBelow.has(group.id)
 }
 
 // see HF-1
@@ -176,7 +174,7 @@ function rowTitleOf(
     wholeLabel,
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,
     expander: expanderOf(group, index),
-    canOpenOneLevel: index.groupIdsWithAChildOutOfThePicture.has(group.id),
+    canOpenOneLevel: index.groupIdsWithAChildToOpen.has(group.id),
     canAddChildRow: depth < settings.maxGroupDepth,
     isPinned,
     // STOP: spec does not decide where the panel's chosen rows are held. Looked in SL-1, FR-085
@@ -195,64 +193,92 @@ function heldBox(box: ScreenRect, held: HeldRow | null): ScreenRect {
     : { ...box, y: y + held.resistedPx }
 }
 
-// see HF-2, HF-10, KO-2, KO-3
+// see T-329
+// WHY: the rows the picture places, off-screen ones included: a row only scrolled away is drawn
+// (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
-function openAllMarksOf(schedule: Schedule): OpenAllMarks {
-  const childrenOf = new Map<string, TaskGroup[]>()
+function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
+  const placed = readings.placedRowGroupIds ?? readings.rowBoxes.map((one) => one.groupId)
+  return new Set(placed)
+}
+
+// see HF-2, HF-10, HF-13, RS-28, RS-30, RS-31, T-329
+// TRAP: row-tree-entrances.ts arms IC-58, IC-74 and IC-90 by these same tests
+// (isOpenAllBelowArmed, isEveryRowOpenArmed, isOpenOneLevelArmed); change both together.
+// WHY: a child drawn only because of a temporarilyExpanded row still counts for the one-level open
+// (decision 5 of CR-570). Every row TD-6 / TD-7 keeps is placed, so the placed rows are enough.
+/** @purity pure */
+function openArmingOf(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  readings: ScreenViewReadings,
+): OpenArming {
+  const placed = placedRowIdsOf(readings)
+  const groupsById = new Map(schedule.taskGroups.map((group) => [group.id, group]))
+  const groupIdsWithAnUnplacedRowBelow = new Set<string>()
   for (const group of schedule.taskGroups) {
-    if (group.parentId !== null) childrenOf.set(group.parentId, [...(childrenOf.get(group.parentId) ?? []), group])
-  }
-  const folds = new Set<string>()
-  const marks = new Set<string>()
-  // TRAP: visited guards a parentId ring; without it the walk never returns.
-  const visited = new Set<string>()
-  const walk = (group: TaskGroup): void => {
-    if (visited.has(group.id)) return
-    visited.add(group.id)
-    if (group.isCollapsed === true || group.isHidden === true) folds.add(group.id)
-    for (const child of childrenOf.get(group.id) ?? []) {
-      walk(child)
-      if (folds.has(child.id)) folds.add(group.id)
-      if (child.isKeptOpen || marks.has(child.id)) marks.add(group.id)
+    if (placed.has(group.id)) continue
+    // TRAP: climbed guards a parentId ring; without it the climb never returns.
+    const climbed = new Set<string>()
+    for (let at = group.parentId; at !== null && !climbed.has(at);) {
+      climbed.add(at)
+      groupIdsWithAnUnplacedRowBelow.add(at)
+      at = groupsById.get(at)?.parentId ?? null
     }
   }
-  for (const group of schedule.taskGroups) walk(group)
+
+  const depthLimit = groupDepthLimit(settings)
+  const pinned = new Set(settings.pinnedGroupIds)
+  const placedGroups = [...placed].flatMap((id) => groupsById.get(id) ?? [])
+  const keptByExpanded = keptInViewByTreeState(placedGroups, 'expandedOnly')
+  const groupIdsWithAChildToOpen = new Set<string>()
+  for (const child of schedule.taskGroups) {
+    if (child.parentId === null) continue
+    const isDrawnWithoutTemporary =
+      placed.has(child.id) &&
+      (rowDepth(child, groupsById, settings) <= depthLimit ||
+        pinned.has(child.id) ||
+        keptByExpanded.has(child.id))
+    if (!isDrawnWithoutTemporary) groupIdsWithAChildToOpen.add(child.parentId)
+  }
+
   return {
-    groupIdsWithAFoldAtOrBelow: folds,
-    groupIdsWithAKeptOpenMarkBelow: marks,
-    isAnyRowMarkedOrFolded: schedule.taskGroups.some(
-      (one) => one.isCollapsed === true || one.isHidden === true || one.isKeptOpen,
-    ),
+    groupIdsWithAnUnplacedRowBelow,
+    groupIdsWithAChildToOpen,
+    isAnyRowUnplaced: schedule.taskGroups.some((group) => !placed.has(group.id)),
+  }
+}
+
+// see S-418, T-329
+/** @purity pure */
+function panelIndexWithArmingOf(
+  schedule: Schedule,
+  settings: DocumentSettings,
+  readings: ScreenViewReadings,
+  isLevelZeroCollapsed: boolean,
+): PanelIndex {
+  return {
+    ...panelIndexOf(schedule, readings, isLevelZeroCollapsed),
+    ...openArmingOf(schedule, settings, readings),
   }
 }
 
 // see HF-12, HF-13, HF-18
 /** @purity pure */
-function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroFolded: boolean): IndexCore {
+function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZeroCollapsed: boolean): IndexCore {
   const groupsById = new Map<string, TaskGroup>()
-  const groupIdsWithHiddenChild = new Set<string>()
-  const groupIdsWithAChildOutOfThePicture = new Set<string>()
   const childrenByParentId = new Map<string | null, TaskGroup[]>()
   for (const group of schedule.taskGroups) {
     groupsById.set(group.id, group)
     const siblings = childrenByParentId.get(group.parentId)
     if (siblings === undefined) childrenByParentId.set(group.parentId, [group])
     else siblings.push(group)
-    if (group.parentId === null) continue
-    if (group.isHidden === true) groupIdsWithHiddenChild.add(group.parentId)
   }
 
   const boxByGroupId = new Map<string, ScreenRect>()
   for (const placed of readings.rowBoxes) {
     if (boxByGroupId.has(placed.groupId)) continue
     boxByGroupId.set(placed.groupId, placed.box)
-  }
-
-  for (const [parentId, children] of childrenByParentId) {
-    if (parentId === null) continue
-    if (children.some((child) => !boxByGroupId.has(child.id))) {
-      groupIdsWithAChildOutOfThePicture.add(parentId)
-    }
   }
 
   const groupIdsWithDrawnChildren = new Set<string>()
@@ -289,7 +315,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
       const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
       folded +=
-        group.isCollapsed === true || child.isHidden === true
+        group.treeState === 'collapsed' || child.treeState === 'hidden'
           ? childSubtree
           : (foldedRowCountByGroupId.get(child.id) ?? 0)
     }
@@ -302,7 +328,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   for (const root of rootGroups) {
     const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
     foldedRowCountAtLevelZero +=
-      isLevelZeroFolded || root.isHidden === true
+      isLevelZeroCollapsed || root.treeState === 'hidden'
         ? subtreeSize
         : (foldedRowCountByGroupId.get(root.id) ?? 0)
   }
@@ -310,8 +336,6 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
   return {
     groupsById,
     groupIdsWithDrawnChildren,
-    groupIdsWithHiddenChild,
-    groupIdsWithAChildOutOfThePicture,
     boxByGroupId,
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,
@@ -326,13 +350,13 @@ export function rowTitlePanelFromSchedule(
   schedule: Schedule,
   storedSettings: DocumentSettings,
   _selection: Selection,
-  session: ScreenSession,
+  _session: ScreenSession,
   readings: ScreenViewReadings,
 ): RowTitlePanel {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
-  const isLevelZeroFolded = session.screen.levelZeroFoldState.kind === 'folded'
-  const index = { ...panelIndexOf(schedule, readings, isLevelZeroFolded), ...openAllMarksOf(schedule) }
+  const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
+  const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
   const pinnedGroupIds = new Set(settings.pinnedGroupIds)
   const chosenGroupIds: ReadonlySet<string> = new Set(readings.selectedGroupIds)
   const grabbed = readings.rowGrabbedAt ?? null
@@ -374,19 +398,19 @@ export function rowTitlePanelFromSchedule(
     )
   }
 
-  if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroFolded) {
+  if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroCollapsed) {
     return { pinnedTitles, titles }
   }
 
   return {
     pinnedTitles,
     titles,
-    canOpenEveryRow: index.isAnyRowMarkedOrFolded,
+    canOpenEveryRow: index.isAnyRowUnplaced,
     canCloseEveryRow:
-      !isLevelZeroFolded && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),
-    canOpenLevelZero: isLevelZeroFolded
+      !isLevelZeroCollapsed && index.rootGroups.some((row) => index.boxByGroupId.has(row.id)),
+    canOpenLevelZero: isLevelZeroCollapsed
       ? index.rootGroups.length > 0
-      : index.rootGroups.some((row) => row.isHidden === true),
+      : index.rootGroups.some((row) => row.treeState === 'hidden'),
     foldedRowCount: index.foldedRowCountAtLevelZero,
   }
 }

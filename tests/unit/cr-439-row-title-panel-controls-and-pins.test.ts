@@ -46,6 +46,7 @@ const HF_10_ORDER = '頭の並びは、左から 1 階層開く・すべて畳�
 const HF_12_COUNT = 'そのときは、頭にいま何行を畳み込んでいるかを示すこと（MUST）'
 const HF_18_COUNT = '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
 const HF_2_FAINT = '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
+const HF_2_ARMED = '押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである'
 const HF_6_KEEP_PLACE = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
 const HF_6_PIN = 'ピン止めしている行の `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）'
 const HF_15_MARK = '印は縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること（MUST）'
@@ -135,6 +136,7 @@ describe('CR-439 Row Title Panel -- the clauses still stand', () => {
     expect(rowText('T-051', 'HF-12')).toContain(HF_12_COUNT)
     expect(rowText('T-051', 'HF-18')).toContain(HF_18_COUNT)
     expect(rowText('T-051', 'HF-2')).toContain(HF_2_FAINT)
+    expect(rowText('T-051', 'HF-2')).toContain(HF_2_ARMED)
     expect(rowText('T-051', 'HF-6')).toContain(HF_6_KEEP_PLACE)
     expect(rowText('T-051', 'HF-6')).toContain(HF_6_PIN)
     expect(rowText('T-051', 'HF-15')).toContain(HF_15_MARK)
@@ -173,7 +175,7 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     expect(row?.textContent ?? '').toMatch(/(^|\D)4(\D|$)/)
   })
 
-  it('HF-2 薄く描くこと / FR-029 -- the open-all control of a row with nothing folded is faint, yet not host-disabled', () => {
+  it('HF-2 薄く描くこと / FR-029 -- the open-all control of a row with no undrawn descendant (table T-329) is faint, yet not host-disabled', () => {
     const built = drawn({ pinnedTitles: [], titles: [PLAIN, title('g-live', 100)] })
     const openAll = iconFor('HF-2')
     const faint = iconEntry(rowNode(built, 'g-plain')[0] as FakeElement, openAll)

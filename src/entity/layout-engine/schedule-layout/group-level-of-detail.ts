@@ -6,14 +6,27 @@
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../document-model/schedule/schedule'
 
-// see FR-018, T-254, AT-142
-// WHY: read over rows a person has not folded or hidden, so a mark never beats HF-7 or HR-6.
+// see T-329
+const OPENING_TREE_STATES: Readonly<
+  Record<'expandedAndTemporary' | 'expandedOnly', ReadonlySet<TaskGroup['treeState']>>
+> = {
+  expandedAndTemporary: new Set(['expanded', 'temporarilyExpanded']),
+  // WHY: the [v] arming (IC-90) asks which children only temporarilyExpanded keeps drawn.
+  expandedOnly: new Set(['expanded']),
+}
+
+// see FR-018, T-329, AT-153
+// WHY: read over rows TD-1 to TD-3 let through, so an opened row never beats HF-7 or HR-6.
 /** @purity pure */
-export function keptInViewByOpenMarks(unfoldedRows: readonly TaskGroup[]): ReadonlySet<string> {
+export function keptInViewByTreeState(
+  unfoldedRows: readonly TaskGroup[],
+  counts: 'expandedAndTemporary' | 'expandedOnly',
+): ReadonlySet<string> {
+  const opening = OPENING_TREE_STATES[counts]
   const byId = new Map(unfoldedRows.map((row) => [row.id, row]))
   const kept = new Set<string>()
   for (const row of unfoldedRows) {
-    if (!row.isKeptOpen) continue
+    if (!opening.has(row.treeState)) continue
     for (let at: TaskGroup | undefined = row; at !== undefined && !kept.has(at.id);) {
       kept.add(at.id)
       at = at.parentId === null ? undefined : byId.get(at.parentId)
@@ -21,7 +34,7 @@ export function keptInViewByOpenMarks(unfoldedRows: readonly TaskGroup[]): Reado
   }
   for (const row of unfoldedRows) {
     const parent = row.parentId === null ? undefined : byId.get(row.parentId)
-    if (parent?.isKeptOpen === true) kept.add(row.id)
+    if (parent !== undefined && opening.has(parent.treeState)) kept.add(row.id)
   }
   return kept
 }

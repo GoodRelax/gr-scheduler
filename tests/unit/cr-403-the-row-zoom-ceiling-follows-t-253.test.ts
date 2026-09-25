@@ -207,7 +207,7 @@ function bandFunctionOf(built: Built, zoomX: number = built.drawnZoomX): (zoomY:
   const measuredWith = { ...built.settings, zoomX } as Settings
   const regions = built.context.regions
   return (zoomY: number): number =>
-    Math.max(...rowPlacesAtZoomY(built.schedule, measuredWith, regions, zoomY, false).map((row) => row.height))
+    Math.max(...rowPlacesAtZoomY(built.schedule, measuredWith, regions, zoomY).map((row) => row.height))
 }
 
 const oracleOf = (built: Built, zoomX?: number): number =>

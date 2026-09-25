@@ -102,7 +102,7 @@ const scheduleWith = (tasks: readonly Task[]): Schedule =>
     resources: [],
     assignments: [],
     taskGroups: [
-      { id: 'g1', parentId: null, label: 'row', derivedFromTaskUid: null, order: 0, isCollapsed: null, isHidden: null, color: null, height: null },
+      { id: 'g1', parentId: null, label: 'row', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, height: null },
     ],
     taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: 'g1', stackOrder: null })),
     taskVisuals: tasks.map((one) => ({

@@ -22,6 +22,7 @@ import {
 } from './input-command-translator'
 import {
   rowZoomAnswer,
+  zoomStepAnswer,
   zoomTimes,
   zoomWrites,
 } from './zoom-and-fit'
@@ -77,15 +78,14 @@ export function commandFromWheel(input: WheelInput, context: InputContext): Tran
   const factor = Math.pow(context.zoomStep, -input.notches)
 
   if (ctrl) {
-    return changed(
-      zoomWrites(
-        context,
-        zoomTimes(context, factor, 'x'),
-        zoomTimes(context, factor, 'y'),
-        input.x,
-        input.y,
-      ),
+    const zoom = zoomWrites(
+      context,
+      zoomTimes(context, factor, 'x'),
+      zoomTimes(context, factor, 'y'),
+      input.x,
+      input.y,
     )
+    return zoomStepAnswer(context, factor, zoom)
   }
   if (shiftOnly) {
     return changed(zoomWrites(context, zoomTimes(context, factor, 'x'), null, input.x, input.y))

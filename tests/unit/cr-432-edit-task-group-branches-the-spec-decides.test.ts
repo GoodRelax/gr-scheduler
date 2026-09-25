@@ -27,9 +27,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   label: 'row',
   derivedFromTaskUid: null,
   order: 0,
-  isCollapsed: null,
-  isHidden: null,
-  isKeptOpen: false,
+  treeState: 'auto',
   editGroup: null,
   color: null,
   height: null,
@@ -350,19 +348,22 @@ describe('CR-432 TaskGroup branches the specification decides', () => {
     expect(accepted(run(auto, { kind: 'setTaskGroupHeight', groupId: 'r', height: null }))).toEqual(auto)
   })
 
-  it('CM-33 / AT-56: setTaskGroupCollapsed with the current value on a childless row changes nothing', () => {
-    const input = oneRow({ isCollapsed: true })
-    expect(accepted(run(input, { kind: 'setTaskGroupCollapsed', groupId: 'r', collapsed: true }))).toEqual(input)
+  it.each(['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'] as const)(
+    'CM-85 / AT-153: setTaskGroupTreeState with the current value %s on a childless row changes nothing',
+    (treeState) => {
+      const input = oneRow({ treeState })
+      expect(accepted(run(input, { kind: 'setTaskGroupTreeState', taskGroupId: 'r', treeState } as TaskGroupCommand))).toEqual(input)
+    },
+  )
+
+  it('CM-72 / AT-153: resetTaskGroupTreeStates on a row that is already auto changes nothing', () => {
+    const input = oneRow({ treeState: 'auto' })
+    expect(accepted(run(input, { kind: 'resetTaskGroupTreeStates' } as TaskGroupCommand))).toEqual(input)
   })
 
-  it('CM-34 / AT-57: setTaskGroupHidden with the current value on a childless row changes nothing', () => {
-    const input = oneRow({ isHidden: true })
-    expect(accepted(run(input, { kind: 'setTaskGroupHidden', groupId: 'r', hidden: true }))).toEqual(input)
-  })
-
-  it('CM-75 / AT-142: setTaskGroupKeptOpen with the current value on a childless row changes nothing', () => {
-    const input = oneRow({ isKeptOpen: true })
-    expect(accepted(run(input, { kind: 'setTaskGroupKeptOpen', groupId: 'r', keptOpen: true }))).toEqual(input)
+  it('CM-72 / AT-153: resetTaskGroupTreeStates leaves a hidden row hidden, so nothing changes', () => {
+    const input = oneRow({ treeState: 'hidden' })
+    expect(accepted(run(input, { kind: 'resetTaskGroupTreeStates' } as TaskGroupCommand))).toEqual(input)
   })
 
   it('HM-9 / ST-2 / AT-26: a real reorder carries into wbsOrder, and siblings on one row follow ST-2', () => {

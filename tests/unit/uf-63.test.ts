@@ -87,10 +87,8 @@ const ROOT: ScreenSession = {
   screen: { ...emptyScreenSession.screen, language: 'ja' },
 }
 
-const LEVEL_ZERO_FOLDED: ScreenSession = {
-  ...ROOT,
-  screen: { ...ROOT.screen, levelZeroFoldState: { kind: 'folded' } },
-}
+// see S-418, K-138
+const LEVEL_ZERO_FOLDED: DocumentSettings = panelWith({ levelZeroTreeState: 'collapsed' })
 
 const groupOf = (part: Record<string, unknown>): TaskGroup =>
   ({
@@ -98,8 +96,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
     label: null,
     derivedFromTaskUid: null,
     order: 0,
-    isCollapsed: null,
-    isHidden: null,
+    treeState: 'auto',
     color: null,
     height: null,
     ...part,
@@ -313,7 +310,7 @@ describe('UF-63 -- FR-098: the pinned rows are lifted out', () => {
     // WHY: only FR-018 is ruled out as a reason a pinned row goes undrawn;
     // this fixture is HR-1a's -- g2 sits under folded g1.
     const folded = scheduleOf([
-      groupOf({ id: 'g1', label: 'a', isCollapsed: true }),
+      groupOf({ id: 'g1', label: 'a', treeState: 'collapsed' }),
       groupOf({ id: 'g2', parentId: 'g1', label: 'b' }),
       groupOf({ id: 'g3', label: 'c', order: 1 }),
     ])
@@ -466,7 +463,7 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // children leaving the picture is what the closing rule under T-051 counts.
     expect(
       parentTitle(
-        [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
+        [kid('c1', { treeState: 'auto' }), kid('c2', { treeState: 'auto' })],
         ['p', 'c1', 'c2'],
       ).expander,
     ).toEqual({
@@ -481,18 +478,18 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // under it, per HR-1a -- is what leaves the picture and arms the control.
     expect(
       parentTitle(
-        [kid('c1', { isCollapsed: false }), under('c1', 'g1')],
+        [kid('c1', { treeState: 'auto' }), under('c1', 'g1')],
         ['p', 'c1', 'g1'],
       ).expander,
     ).toEqual({ canOpen: false, canClose: true, canCloseBelow: true })
   })
 
-  it('arms the opener when the zoom leaves an unmarked row\'s children undrawn (HF-2, seam S-2)', () => {
-    // WHY: HF-2 arms the opener when the pressed row carries no mark and a direct child is not
-    // drawn at the FR-018 scale; nothing is folded, so HF-11 still has nothing to fold below.
+  it('arms the opener when the zoom leaves a row\'s children undrawn (HF-2, table T-329)', () => {
+    // WHY: HF-2 is armed when any descendant is undrawn (table T-329), the zoom
+    // included; no child is drawn, so HF-11 has nothing to fold below (RS-29).
     expect(
       parentTitle(
-        [kid('c1', { isCollapsed: false }), kid('c2', { isCollapsed: false })],
+        [kid('c1', { treeState: 'auto' }), kid('c2', { treeState: 'auto' })],
         ['p'],
       ).expander,
     ).toEqual({ canOpen: true, canClose: true, canCloseBelow: false })
@@ -503,9 +500,9 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // row, each spendable independently -- here all three have work to do.
     expect(
       parentTitle(
-        [kid('c1', { isCollapsed: true }), under('c1', 'g1')],
+        [kid('c1', { treeState: 'collapsed' }), under('c1', 'g1')],
         ['p', 'c1'],
-        { isCollapsed: false },
+        { treeState: 'auto' },
       ).expander,
     ).toEqual({
       canOpen: true,
@@ -520,12 +517,12 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     expect(
       parentTitle(
         [
-          kid('c1', { isCollapsed: false }),
-          under('c1', 'g1', { isCollapsed: true }),
+          kid('c1', { treeState: 'auto' }),
+          under('c1', 'g1', { treeState: 'collapsed' }),
           under('g1', 'g1a'),
         ],
         ['p', 'c1', 'g1'],
-        { isCollapsed: false },
+        { treeState: 'auto' },
       ).expander,
     ).toEqual({
       canOpen: true,
@@ -539,7 +536,7 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // WHY: HR-3 (MUST) now also clears the row's own fold, not only its
     // subtree; HF-3 (HR-6) still hides `p` since a self-folded row is on screen.
     expect(
-      parentTitle([kid('c1', { isCollapsed: false })], ['p'], { isCollapsed: true }).expander,
+      parentTitle([kid('c1', { treeState: 'auto' })], ['p'], { treeState: 'collapsed' }).expander,
     ).toEqual({
       canOpen: true,
       canClose: true,
@@ -552,9 +549,9 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // hidden descendant back, not only the one-level opener -- so it is armed.
     expect(
       parentTitle(
-        [kid('c1', { isHidden: true, isCollapsed: true }), under('c1', 'g1')],
+        [kid('c1', { treeState: 'hidden' }), under('c1', 'g1')],
         ['p'],
-        { isCollapsed: false },
+        { treeState: 'auto' },
       ).expander,
     ).toEqual({
       canOpen: true,
@@ -566,12 +563,12 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
 
   it('arms it for the same child once the shell draws it', () => {
     // WHY: HR-6 (MUST NOT) forbids drawing a hidden row, so the drawn set
-    // must move with `isHidden` or the fixture asks about an impossible screen.
+    // must move with `treeState` or the fixture asks about an impossible screen.
     expect(
       parentTitle(
-        [kid('c1', { isHidden: false, isCollapsed: true }), under('c1', 'g1')],
+        [kid('c1', { treeState: 'collapsed' }), under('c1', 'g1')],
         ['p', 'c1'],
-        { isCollapsed: false },
+        { treeState: 'auto' },
       ).expander,
     ).toEqual({
       canOpen: true,
@@ -586,10 +583,17 @@ describe('UF-63 -- table T-051: the three controls of the expander', () => {
     // (MUST) now folds `p` itself, taking its drawn child `c1` off screen.
     expect(
       parentTitle(
-        [kid('c1', { isCollapsed: false }), kid('c2', { isHidden: true, isCollapsed: false })],
+        [kid('c1', { treeState: 'auto' }), kid('c2', { treeState: 'hidden' })],
         ['p', 'c1'],
       ).expander,
     ).toEqual({ canOpen: true, canClose: true, canCloseBelow: true })
+  })
+
+  it('⛔ the manuscript still arms HF-2 on an undrawn descendant, whatever left it undrawn', () => {
+    const hf2 = (specTable('T-051').rows.find((one) => one.id === 'HF-2')?.cells ?? []).join(' ')
+
+    expect(hf2).toContain('押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）')
+    expect(hf2).toContain('押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである')
   })
 
   it('⛔ the manuscript still sends a hidden row back through HF-2 as well as HF-13', () => {
@@ -1091,7 +1095,7 @@ describe('UF-63 -- FR-085 (c): choosing rows disturbs nothing else', () => {
     groupOf({ id: 'g2', parentId: 'g1', label: 'second', order: 1 }),
     groupOf({ id: 'g3', parentId: 'g2', label: 'third', order: 2 }),
     groupOf({ id: 'g4', label: 'fourth', order: 3 }),
-    groupOf({ id: 'g5', parentId: 'g4', label: 'hidden', order: 4, isHidden: true }),
+    groupOf({ id: 'g5', parentId: 'g4', label: 'hidden', order: 4, treeState: 'hidden' }),
   ])
   const session = drawn('g1', 'g2', 'g3', 'g4')
   const settings = panelWith({ pinnedGroupIds: ['g3'] })
@@ -1144,7 +1148,7 @@ describe('UF-63 -- FR-085 (c): choosing rows disturbs nothing else', () => {
 })
 
 // WHY: HR-2 also folds the shallowest row, which no row's own column can
-// carry (S-211 is unsaved screen state, not schedule content).
+// carry (S-418 is a document setting beside the rows, not a row column).
 
 // see HF-12, HF-18
 const T_051_HF12_THE_HEAD_COUNT = '頭にいま何行を畳み込んでいるかを示すこと（MUST）'
@@ -1176,7 +1180,7 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST): how many rows a row is holding folded
   it('⭐ MUST: a folded row shows every row it is holding away, however deep (配下)', () => {
     // WHY: HR-1a (MUST) folds the whole subtree, not just direct children,
     // so folding `p` takes `c1`, `c2` and `g1` off screen -- three held away.
-    const panel = panelOf(scheduleOf(FAMILY({ isCollapsed: true })), drawn('p'))
+    const panel = panelOf(scheduleOf(FAMILY({ treeState: 'collapsed' })), drawn('p'))
 
     expect(titleOf(panel, 'p').foldedRowCount).toBe(3)
   })
@@ -1197,7 +1201,7 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST): how many rows a row is holding folded
     const panel = panelOf(
       scheduleOf([
         groupOf({ id: 'p', label: 'parent' }),
-        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, isCollapsed: true }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, treeState: 'collapsed' }),
         groupOf({ id: 'g1', parentId: 'c1', label: 'g1', order: 2 }),
         groupOf({ id: 'q', label: 'q', order: 3 }),
         groupOf({ id: 'q1', parentId: 'q', label: 'q1', order: 4 }),
@@ -1211,7 +1215,7 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST): how many rows a row is holding folded
 })
 
 // WHY: HF-18 (MUST NOT) counts only a person's own fold, never rows the
-// display amount (FR-018) dropped -- AT-56 is the only column that is one.
+// display amount (FR-018) dropped -- only AT-153's collapsed / hidden are one.
 
 const T_051_HF18_ONLY_THE_PERSONS_FOLD = '数えるのは人が畳んだ分だけとすること（MUST）'
 const T_051_HF18_NOT_THE_DISPLAY_AMOUNT =
@@ -1241,8 +1245,8 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST NOT): the display amount’s rows are n
 
   it('⭐ the pair that makes it a test: the same three rows, folded by the person, ARE counted', () => {
     // WHY: without this pair, a unit that counts nothing would also pass --
-    // only `AT-56` on `p` moved from the fixture above.
-    const panel = panelOf(scheduleOf(FAMILY({ isCollapsed: true })), drawn('p'))
+    // only `treeState` (AT-153) on `p` moved from the fixture above.
+    const panel = panelOf(scheduleOf(FAMILY({ treeState: 'collapsed' })), drawn('p'))
 
     expect(titleOf(panel, 'p').foldedRowCount).toBe(3)
   })
@@ -1264,7 +1268,7 @@ describe('UF-63 -- 表 T-051 HF-18 (MUST NOT): the display amount’s rows are n
     const panel = panelOf(
       scheduleOf([
         groupOf({ id: 'p', label: 'parent' }),
-        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, isCollapsed: true }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, treeState: 'collapsed' }),
         groupOf({ id: 'c2', parentId: 'p', label: 'c2', order: 2 }),
         groupOf({ id: 'g1', parentId: 'c1', label: 'g1', order: 3 }),
       ]),
@@ -1290,19 +1294,18 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
     expect(hf12).toContain('最も浅い段の行も畳むこと（MUST）')
     expect(hr2).toContain('最も浅い段の行も畳むこと（MUST）')
     expect(hr2).toContain(T_015_HR2_MAY_EMPTY_THE_PANEL)
-    // see S-211
-    expect(hr2).toContain('`S-211`')
-    const s211 = (specTable('T-206').rows.find((one) => one.id === 'S-211')?.cells ?? []).join(' ')
-    expect(s211).toContain('段 0（行見出しパネルの頭）が畳まれているか')
-    expect(s211).toContain('保存しない')
+    // see S-418, UN-14
+    expect(hr2).toContain('`S-418`')
+    const s418 = (specTable('T-203').rows.find((one) => one.id === 'S-418')?.cells ?? []).join(' ')
+    expect(s418).toContain('段 0（行見出しパネルの頭）の木の状態')
+    expect(s418).toContain('のとき段 0 が畳まれ、行が 1 つも描かれない')
+    expect(s418).toContain('取り消しの段は同じ押下が書く行の木の状態と同じである')
   })
 
   it('⭐⭐ MUST: with 段 0 folded the panel describes NO row at all (HR-2: 押すと行が 1 つも描かれない状態になりうる)', () => {
     const panel = panelOf(
       scheduleOf(FAMILY()),
       readingsWith({ rowBoxes: [] }),
-      PANEL,
-      emptySelection(),
       LEVEL_ZERO_FOLDED,
     )
 
@@ -1314,8 +1317,6 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
     const panel = panelOf(
       scheduleOf(FAMILY()),
       readingsWith({ rowBoxes: [] }),
-      PANEL,
-      emptySelection(),
       LEVEL_ZERO_FOLDED,
     )
 
@@ -1331,12 +1332,10 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
     expect(idsOf(panel.titles)).toEqual(['p', 'c1', 'c2', 'g1'])
   })
 
-  it('⭐ MUST: with 段 0 folded, the head’s 「すべて畳む」 has nothing left to do (HF-12 reads S-211)', () => {
+  it('⭐ MUST: with 段 0 folded, the head’s 「すべて畳む」 has nothing left to do (HF-12 reads S-418)', () => {
     const folded = panelOf(
       scheduleOf(FAMILY()),
       readingsWith({ rowBoxes: [] }),
-      PANEL,
-      emptySelection(),
       LEVEL_ZERO_FOLDED,
     )
     const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
@@ -1344,6 +1343,32 @@ describe('UF-63 -- 表 T-051 HF-12 / HR-2 (MUST): 段 0 folds, the panel can emp
     expect(folded.canCloseEveryRow, 'a folded 段 0 can be folded again').toBe(false)
     // WHY: with the head open there is always level 0 itself left to fold.
     expect(open.canCloseEveryRow, 'an open panel has nothing to fold').toBe(true)
+  })
+
+  it('⛔ the manuscript still dims the head 「すべて開く」 only when no row is left undrawn (RS-31)', () => {
+    const rs31 = (specTable('T-233').rows.find((one) => one.id === 'RS-31')?.cells ?? []).join(' ')
+    const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
+
+    expect(rs31).toContain('描かれていない行が 1 つも無い')
+    expect(hf10).toContain('描かれていない行（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）')
+  })
+
+  it('⭐ MUST: the head 「すべて開く」 is armed whenever any row is undrawn -- the zoom counts (HF-10)', () => {
+    // WHY: nothing is folded or hidden here, yet the frame drew `p` alone, so
+    // the head open-every-row entrance still has rows to bring back.
+    const zoomedOut = panelOf(scheduleOf(FAMILY()), drawn('p'))
+    const folded = panelOf(scheduleOf(FAMILY()), readingsWith({ rowBoxes: [] }), LEVEL_ZERO_FOLDED)
+    const collapsed = panelOf(scheduleOf(FAMILY({ treeState: 'collapsed' })), drawn('p'))
+
+    expect(zoomedOut.canOpenEveryRow, 'rows the zoom dropped left the entrance dim').toBe(true)
+    expect(folded.canOpenEveryRow, 'a folded level zero left the entrance dim').toBe(true)
+    expect(collapsed.canOpenEveryRow, 'a collapsed row left the entrance dim').toBe(true)
+  })
+
+  it('⛔ the pair: with every row drawn, the head 「すべて開く」 has nothing to do (RS-31)', () => {
+    const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))
+
+    expect(open.canOpenEveryRow, 'every row is drawn, yet the entrance is armed').toBe(false)
   })
 })
 
@@ -1366,7 +1391,7 @@ describe('UF-63 -- 表 T-015 HR-6 (MUST): the way back from a hide is an opening
     const panel = panelOf(
       scheduleOf([
         groupOf({ id: 'p', label: 'parent' }),
-        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, isHidden: true }),
+        groupOf({ id: 'c1', parentId: 'p', label: 'c1', order: 1, treeState: 'hidden' }),
       ]),
       drawn('p'),
     )
@@ -1391,7 +1416,7 @@ describe('UF-63 -- 表 T-015 HR-6 (MUST): the way back from a hide is an opening
     // head's own control, since it has no parent's control to come back through.
     const panel = panelOf(
       scheduleOf([
-        groupOf({ id: 'r1', label: 'r1', isHidden: true }),
+        groupOf({ id: 'r1', label: 'r1', treeState: 'hidden' }),
         groupOf({ id: 'r2', label: 'r2', order: 1 }),
       ]),
       drawn('r2'),
@@ -1404,8 +1429,6 @@ describe('UF-63 -- 表 T-015 HR-6 (MUST): the way back from a hide is an opening
     const folded = panelOf(
       scheduleOf(FAMILY()),
       readingsWith({ rowBoxes: [] }),
-      PANEL,
-      emptySelection(),
       LEVEL_ZERO_FOLDED,
     )
     const open = panelOf(scheduleOf(FAMILY()), drawn('p', 'c1', 'c2', 'g1'))

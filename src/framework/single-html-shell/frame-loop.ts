@@ -759,6 +759,7 @@ function screenViewReadingsOf(
     themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
+    placedRowGroupIds: layout.rows.map((row) => row.groupId),
     scrollExtent: scrollExtentOf(layout, regions, {
       horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
       vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
@@ -805,14 +806,12 @@ function startingSession(language: DisplayLanguage): ScreenSession {
 }
 
 // see FR-080, EP-11, EP-12
-// TRAP: the fold the layout was built with, or half of one picture is folded.
 /** @purity pure */
 function pictureSessionOf(session: ScreenSession): ScreenSession {
   const now = session.screen
   const screen: ScreenValues = {
     ...emptyScreenSession.screen,
     language: now.language,
-    levelZeroFoldState: now.levelZeroFoldState,
     paletteDisplayState: { kind: 'hidden' },
     dialogueFieldDisplayState: { kind: 'hidden' },
   }
@@ -832,11 +831,6 @@ function dualCursorDrawnOf(
 export function openSurfaceNameIn(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
   return open.kind === 'open' ? open.surfaceName : null
-}
-
-/** @purity pure */
-export function isLevelZeroFoldedIn(session: ScreenSession): boolean {
-  return session.screen.levelZeroFoldState.kind === 'folded'
 }
 
 /** @purity pure */
@@ -929,17 +923,6 @@ function dualCursorEventOf(
   return { type: 'dualCursorPlaced', date: following === 'date1' ? placed.date1 : placed.date2, writes }
 }
 
-// see T-051, T-280
-// WHY: null with level zero open, where the fold is no screen value's to change; the writes stand alone.
-/** @purity pure */
-function foldEventOf(
-  action: Extract<InputAction, { readonly kind: 'setLevelZeroFolded' }>,
-  session: ScreenSession,
-): ScreenValuesEvent | null {
-  if (action.isFolded) return { type: 'foldAllPressed', writes: action.writes }
-  return isLevelZeroFoldedIn(session) ? { type: 'levelZeroOpened', writes: action.writes } : null
-}
-
 // see FR-072, IC-17, EN-4, S-99h
 // DEVIATION: spec says a hidden panel keeps no subject (T-280, JDG-283); here the settings go back to the last one (DFC-677)
 /** @purity pure */
@@ -1013,8 +996,6 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     tellFlowSurfaceClosed: (effect, frame) => hands.tellFlowSurfaceClosed(effect.surfaceName, frame),
     matchWatermarkUnlock: () => hands.matchWatermarkUnlock(),
     clearSelection: () => hands.clearSelection(),
-    writeFoldAll: carried,
-    writeOpenLevel: carried,
     writePlaceDualCursorClearingGuide: (effect, frame) => hands.writeCarried([...effect.writes, GUIDE_CURSOR_CLEARED], frame),
     writeFixDate1: carried,
     writeFixDate2: carried,
@@ -1555,7 +1536,6 @@ export function frameLoop(
       settings,
       regions,
       undefined,
-      isLevelZeroFoldedIn(session),
       environment.rowControlsHeightPx,
     )
     const capStop = layout.stackSafetyCapReached
@@ -1814,7 +1794,6 @@ export function frameLoop(
       settings,
       regions,
       undefined,
-      isLevelZeroFoldedIn(session),
       environment.rowControlsHeightPx,
     )
     const nothingSelected = emptySelection()
@@ -2031,7 +2010,6 @@ export function frameLoop(
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
       drawnRowBoxes,
-      isLevelZeroFolded: isLevelZeroFoldedIn(session),
       isSurfaceStanding: openSurfaceNameIn(session) !== null || isQuestionAskedIn(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
@@ -2384,12 +2362,6 @@ export function frameLoop(
         // WHY: not changeDocument's road, which asks FR-032's question; no row of T-234 asks one here.
         sendToSession(dualCursorEventOf(action, session), frame)
         return
-      case 'setLevelZeroFolded': {
-        const fold = foldEventOf(action, session)
-        if (fold === null) writeCarried(action.writes, frame)
-        else sendToSession(fold, frame)
-        return
-      }
       case 'toggleAgentApi':
         sendToSession(AGENT_API_ENTRY_PRESSED, frame)
         return
@@ -2471,7 +2443,6 @@ export function frameLoop(
     } else {
       const madeRow = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
       if (madeRow === undefined) return
-      if (madeRow.parentId === null) sendToSession({ type: 'levelZeroOpened', writes: [] }, values)
       sendToSession({ type: 'createdRowSelected', createdGroupId: created.groupId }, values)
     }
     showPropertiesOfChoice()

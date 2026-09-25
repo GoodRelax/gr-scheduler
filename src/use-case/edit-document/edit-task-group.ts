@@ -17,12 +17,7 @@ import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupHeight } from './task-group-look'
-import {
-  expandAllTaskGroups,
-  setTaskGroupCollapsed,
-  setTaskGroupHidden,
-  setTaskGroupKeptOpen,
-} from './task-group-folding'
+import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
 
 export { tasksRankedByTheRowTree } from './task-group-order'
@@ -47,9 +42,11 @@ export type TaskGroupCommand =
   | { readonly kind: 'setTaskGroupColor'; readonly groupId: string; readonly color: string }
   | { readonly kind: 'resetTaskGroupColor'; readonly groupId: string }
   | { readonly kind: 'setTaskGroupHeight'; readonly groupId: string; readonly height: number | null }
-  | { readonly kind: 'setTaskGroupCollapsed'; readonly groupId: string; readonly collapsed: boolean }
-  | { readonly kind: 'setTaskGroupHidden'; readonly groupId: string; readonly hidden: boolean }
-  | { readonly kind: 'setTaskGroupKeptOpen'; readonly groupId: string; readonly keptOpen: boolean }
+  | {
+      readonly kind: 'setTaskGroupTreeState'
+      readonly taskGroupId: string
+      readonly treeState: TaskGroup['treeState']
+    }
   | {
       readonly kind: 'reorderTaskGroupSiblings'
       readonly parentId: string | null
@@ -61,7 +58,7 @@ export type TaskGroupCommand =
       readonly parentId: string | null
       readonly order: number
     }
-  | { readonly kind: 'expandAllTaskGroups' }
+  | { readonly kind: 'resetTaskGroupTreeStates' }
 
 export type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract<
   TaskGroupCommand,
@@ -135,7 +132,13 @@ export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): 
   return held
 }
 
-// see CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-33, CM-34, CM-35, CM-72, CM-73
+// see DU-2
+/** @purity pure */
+function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] {
+  return state === 'expanded' || state === 'temporarilyExpanded' ? 'auto' : state
+}
+
+// see CM-26, CM-27, CM-28, CM-29, CM-30, CM-31, CM-32, CM-35, CM-72, CM-73, CM-85
 // TRAP: a command that changes nothing returns the same document object; a write is detected
 // by the schedule reference.
 /** @purity pure */
@@ -297,8 +300,7 @@ export function editTaskGroup(
             : row.parentId === null
               ? null
               : (idOf.get(row.parentId) ?? row.parentId)
-        // WHY: a copy is a row made now, so FR-018 has its kept-open mark start false.
-        newRows.push({ ...row, id: fresh, parentId, isKeptOpen: false })
+        newRows.push({ ...row, id: fresh, parentId, treeState: pastedTreeState(row.treeState) })
       }
 
       const newTasks: Task[] = []
@@ -363,17 +365,13 @@ export function editTaskGroup(
       return resetTaskGroupColor(document, command, byId)
     case 'setTaskGroupHeight':
       return setTaskGroupHeight(document, command, byId)
-    case 'setTaskGroupCollapsed':
-      return setTaskGroupCollapsed(document, command, byId)
-    case 'setTaskGroupHidden':
-      return setTaskGroupHidden(document, command, byId)
-    case 'setTaskGroupKeptOpen':
-      return setTaskGroupKeptOpen(document, command, byId)
+    case 'setTaskGroupTreeState':
+      return setTaskGroupTreeState(document, command, byId)
     case 'reorderTaskGroupSiblings':
       return reorderTaskGroupSiblings(document, command, byId)
     case 'moveTaskGroup':
       return moveTaskGroup(document, command, byId)
-    case 'expandAllTaskGroups':
-      return expandAllTaskGroups(document)
+    case 'resetTaskGroupTreeStates':
+      return resetTaskGroupTreeStates(document)
   }
 }

@@ -204,25 +204,18 @@ function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
   return { shaped: { ...parsed, schedule: { ...schedule, tasks: shapedTasks } }, lengthByTaskIndex }
 }
 
-const FIRST_SCHEMA_VERSION_WITH_KEPT_OPEN_MARK = '2026-09-17'
-
-// see FR-018, FR-073, AT-142, GP-1
-// WHY: only a version older than AT-142 has its kept-open mark filled; a current one without the key
-// stays refused by the schema. GP-1's edit group is ungated, so any row without it is open to anyone.
+// see FR-073, GP-1
+// WHY: GP-1's edit group is ungated, so any row without it is open to anyone. The row's tree
+// state (AT-153) is never filled: an older document is not read over (JDG-601).
 /** @purity pure */
-function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown, declared: string): unknown {
-  const fillsKeptOpenMark = declared < FIRST_SCHEMA_VERSION_WITH_KEPT_OPEN_MARK
+function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   const schedule = isObject(parsed) ? parsed['schedule'] : undefined
   const rows = isObject(schedule) ? schedule['taskGroups'] : undefined
   if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(rows)) return parsed
-  const wants = (row: unknown): boolean =>
-    isObject(row) && ((fillsKeptOpenMark && !('isKeptOpen' in row)) || !('editGroup' in row))
+  const wants = (row: unknown): boolean => isObject(row) && !('editGroup' in row)
   if (!rows.some(wants)) return parsed
-  const shapedRows = rows.map((row: unknown): unknown => {
-    if (!isObject(row)) return row
-    const withMark = fillsKeptOpenMark && !('isKeptOpen' in row) ? { ...row, isKeptOpen: false } : row
-    return 'editGroup' in withMark ? withMark : { ...withMark, editGroup: null }
-  })
+  const shapedRows = rows.map((row: unknown): unknown =>
+    !isObject(row) || 'editGroup' in row ? row : { ...row, editGroup: null })
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedRows } }
 }
 
@@ -330,7 +323,7 @@ export function documentFromJson(
   const formatVersion = formatVersionReading(declared, greatestKnownSchemaVersion)
 
   const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(
-    withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(parsed, greatestKnownSchemaVersion), declared),
+    withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(parsed, greatestKnownSchemaVersion)),
   ))
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectSchemaFaults(older.shaped, faults)

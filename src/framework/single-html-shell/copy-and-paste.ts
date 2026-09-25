@@ -13,7 +13,6 @@ import { DEFAULT_ROW_NAME } from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOTHING_TO_DO_REASON,
   STACK_SAFETY_CAP_REASON,
-  isLevelZeroFoldedIn,
   selectedObjectsIn,
   type FrameLoopHands,
   type FrameValues,
@@ -77,7 +76,6 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
       frame.settingsMeasuredWith,
       frame.regions,
       undefined,
-      isLevelZeroFoldedIn(hands.readSession()),
       hands.readEnvironment().rowControlsHeightPx,
     )
     if (wouldDraw.stackSafetyCapReached !== null) {
