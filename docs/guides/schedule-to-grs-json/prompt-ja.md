@@ -49,7 +49,7 @@
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
    - label に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
-   - order は同じ親の下での上からの並び（0 から）。isCollapsed と isHidden は false、height は null。
+   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、行が GRS の中で畳まれていたか・1 階層だけ開かれていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ開いたままにする "expanded"、縮小するまで配下をすべて開いたままにする "temporarilyExpanded"、行自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。height は null。
    - color は原本の行の帯（背景）の色。「色の合わせ方」に従って選ぶ。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
@@ -180,11 +180,11 @@
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": "lightgray", "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "height": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": null, "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "height": null
     }
   ],
   "taskGroupMembers": [

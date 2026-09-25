@@ -49,7 +49,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
    - Put the heading's text in label. derivedFromTaskUid is null.
    - For nested headings, set parentId to the parent's id.
-   - order is the position from the top among rows with the same parent (from 0). isCollapsed and isHidden are false, height is null.
+   - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). height is null.
    - color is the row band (background) colour of the original, chosen by the colour mode. null if the band has no colour.
    - Always have at least one TaskGroup.
 4. Keep horizontal lines (important)
@@ -180,11 +180,11 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": "lightgray", "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "height": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "isCollapsed": false, "isHidden": false, "color": null, "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "height": null
     }
   ],
   "taskGroupMembers": [
