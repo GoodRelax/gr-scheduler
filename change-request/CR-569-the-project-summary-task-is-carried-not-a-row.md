@@ -1,8 +1,9 @@
 # CR-569 — MS Project のプロジェクトの要約タスクは行にならず、ファイルの最上位のタスクが最上位の行になる
 
 > 起草の状態: 起草（2026-09-25）。未着地。本書を書いた体は `docs/spec/`・`src/`・`tests/` に 1 字も書いていない（書いたのは本書と台帳の 2 行だけ）。
+> 問いの状態: 11 節の問い 2 つに答えが下りた（2026-09-25、`JDG-581`・`JDG-582`）—— どちらも案 ①（推奨）。問い 2 の案 ① が足す文は E-08、継ぎ目は 5 節の「問い 2」の 2 行である。
 > 読んだ木: `7a106ad1`（`origin/refactor`）。行番号・数・参照は、すべてこの木で測った（測り方は 13 節）。
-> ID の帯: 調整役から `CR-569`・`JDG-580` 〜 `JDG-589`・`DFC-982` 〜 `DFC-989` を受けた（`DFC-981` は使用済み）。測った: 帯の中の ID は `CR-567` と `CR-568` の「帯」の文に現れるだけで、台帳の行としては 0。本書が使うのは `JDG-580`・`DFC-982` と、表 T-265 の新しい行 `MR-4` だけである。
+> ID の帯: 調整役から `CR-569`・`JDG-580` 〜 `JDG-589`・`DFC-982` 〜 `DFC-989` を受けた（`DFC-981` は使用済み）。測った: 帯の中の ID は `CR-567` と `CR-568` の「帯」の文に現れるだけで、台帳の行としては 0。本書が使うのは `JDG-580`・`DFC-982` と、表 T-265 の新しい行 `MR-4` だけである。問いの答えで `JDG-581`・`JDG-582` を足した。
 > 当てる順: ⛔ 段 8 の性能の測定（RISK-001）の**前**。`sample-small-website-renewal.en.xml` を開く性能の試験（`tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts:456`）の行が 7 → 6 に変わるので、測ってから当てると測り直しになる。`CR-567`（着地済み）の後。
 > ⛔ `src/adapter/document-codec/mspdi-codec.ts` を触るほかの CR と同じ波に入れない。当てる直前に `file:line` を測り直すこと。
 >
@@ -62,8 +63,9 @@
 | R5 行の要求が、要約タスクは行にならず直下が最上位になることを名指す | `FR-058` の RATIONALE | E-05 |
 | R6 ユニットの責務の文が R1 を名指す | `05-07-design.md` の 表 T-075 の `UF-36` | E-06 |
 | R7 起点の列の意味から要約タスクを外す | `_source/erd.json` の `AT-139`（`npm run gen` が `_assets/fig-erd-detail.md` を刷り直す） | E-07 |
+| R8 要約タスクを指す割当と依存も原形のまま控える（問い 2 の答え `JDG-582`） | 表 T-265 の `MR-4`（E-02 が足した行） | E-08 |
 
-数: 仕様の文の編集 6（E-01 〜 E-06）。原稿 JSON の編集 1（E-07）。生成し直すもの 2（`_assets/fig-erd-detail.md` の `AT-139` の行、`_assets/tbl-row-id-prefixes.md` の `MR` の行数 3 → 4）。
+数: 仕様の文の編集 7（E-01 〜 E-06、E-08）。原稿 JSON の編集 1（E-07）。生成し直すもの 2（`_assets/fig-erd-detail.md` の `AT-139` の行、`_assets/tbl-row-id-prefixes.md` の `MR` の行数 3 → 4）。
 
 ---
 
@@ -187,6 +189,19 @@
 "ja": "取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く"
 ```
 
+<!-- EDIT id=E-08 file=docs/spec/01-04-requirements.md -->
+
+問い 2 の答え（`JDG-582`、案 ①）で足した。E-02 の後に当てる（旧は E-02 が書いた `MR-4` の行の中の 1 句）。
+
+旧（表 T-265 の MR-4 の行の、⚠️ の文の直前）
+```text
+—— 最上位の行になる（`FR-058`）。<br>⚠️ `UID` と `OutlineLevel` の 2 つで見分ける
+```
+新
+```text
+—— 最上位の行になる（`FR-058`）。<br>⭐ 要約タスクを指す割当（`Assignment/TaskUID` が要約タスクの `UID`）と依存（`PredecessorLink/PredecessorUID` が要約タスクの `UID`）も、割当や依存にせず原形のまま控えること（MUST）—— 割当は `DF-3` の置き場へ、依存はその後続の `Task` の `carryElements` へ置き、書き出しで元の形のまま戻す（`EX-5`）。指す先の `Task` が無い割当や依存を文書に残すと、表 T-220 の `IV-2` に外れる。<br>⚠️ 後続がほかの依存も持つとき、控えた依存は書き出しでそれらより前に並ぶ —— `EX-10` の置き方では、同じ名前の子のうち持ち回るものが先に来る。<br>⚠️ `UID` と `OutlineLevel` の 2 つで見分ける
+```
+
 ---
 
 ## 5. 継ぎ目 —— 両側の依頼文にこのまま写すこと
@@ -197,6 +212,8 @@
 | 見分け方 | 新しい非公開の述語 `isProjectSummary(element: XmlElement): boolean` ＝ `integerColumn(element, 'UID') === 0 && integerColumn(element, 'OutlineLevel') === 0`。注は `// see MR-4` |
 | 起点 | `outlineBaseOf` は、`IsNull` の行を飛ばす条件に足す —— `if (isTrue(element, 'IsNull') \|\| isProjectSummary(element)) continue` |
 | 読み | `tasksFromRoot` の `forEach` の中、`IsNull` の行を控える分岐の条件に足す —— `if (isTrue(element, 'IsNull') \|\| isProjectSummary(element)) { carriedRows.push(carriedElement(element, ordinal)); return }`。`levels` と `uids` に積まない。⇒ `OutlineLevel` 1 のタスクは `lastIndexShallowerThan` が親を見つけず、`wbsParentUid` が `null` になる。⛔ 別の `if` に分けて同じ 2 文を書くと、検査 45 が 83 → 84 で赤になる（試作で実測） |
+| 問い 2: 割当（`JDG-582`） | `assignmentsFromRoot` は、`TaskUID` がファイルの要約タスクの `UID` である `Assignment` を、`UID` の無い割当と同じく `carriedRows` へ原形で控える（告げない。決定 7）。要約タスクの有無は `Tasks` を 1 度見て決める（`isProjectSummary` を使う）。署名は変えない |
+| 問い 2: 依存（`JDG-582`） | `PredecessorUID` がファイルの要約タスクの `UID` である `PredecessorLink` は、`Dependency` にせず、その `Task` の `carryElements` へ原形で控える（`ordinal` は `Task` の子の位置）。書き出しは `writtenChildren` がそのまま戻す |
 | 書き出し（変えない） | `splicedCarriedRows`（`:992`、呼ぶのは `:949`）が `ordinal` 0 の位置へ要約タスクを原形のまま戻す。`ID` は `index + base`（`:1064`）なので、起点 1 で 1 から振られ、元のファイルと同じになる。`OutlineNumber` は起点 1 で道すじをそのまま書く（`:1028` の `outlineNumbers`） |
 | 変えない値 | 行の `id`（`AT-51`）、`parentId`、`derivedFromTaskUid`、`order`、通知（告げない。決定 7） |
 | 試作の結果（13 節） | 上の 3 か所（8 行を足し 2 行を替えた）を当てた写しの木で: ① 見本 7 つの往復で、ファイルのすべての `Task`（要約タスクを含む）の葉の値が 1 つも変わらない ② ERP の見本は `Task` 256・行 37・最上位の行 12、SFA は 134・16・11、Website は 45・6・6、ProjectLibre は 2・2・2 ③ 全単体試験で赤は 8 件 —— うち本書が原因は 6 件（9 節の 2 ファイル）、残る 2 件は写しの木の環境（`change-request/` の欠け、負荷による時間切れ）で、`7a106ad1` でも同じ環境なら同じく赤 ④ 公式スキーマを root から写すと `uf-36.test.ts` と `cr-429-*.test.ts` の 12 ファイル 337 件がすべて緑 |
@@ -282,11 +299,14 @@
    - 案 ① 書き足さない（推奨）—— 公式スキーマ（`docs/reference/mspdi/pj12/mspdi_pj12.xsd:1598`・`:1604`）は `Tasks` にも `Task` にも出現を求めない。`learn-docs` の `tasks-element.md:68` が求めるのは「`Tasks` があればタスクが 1 つ以上」だけで、`UID` 0 は「プロジェクトの要約タスク」と呼ばれるだけである（`elemtype-element.md:94`・`formula-element.md:57`）。ProjectLibre のファイルも持たない。今の書き出しも書かない（振る舞いを変えない）。
    - 案 ② 書き足す —— `UID` 0・`ID` 0・`OutlineLevel` 0・名前は `Project.title`・日付は全タスクの最早と最遅。表 T-059 に行が要り、`FR-021` の「`GRS` が自分で作った文書は 1 から書き、ProjectLibre と同じ形になる」を変える別の変更になる。
    ⚠️ どちらでも、MS Project が開けるかは確かめていない（`FR-021` の「相手が読めるかは確かめていない」と同じ）。
+   ⭐ **答え（`JDG-581`、2026-09-25、調整役が利用者に問うた）: 案 ①（書き足さない）。** 逐語は `rulings.md` の `JDG-581` が持つ。E-04 の MUST NOT がこれを書く。コードは変えない（今の書き出しも書かない）。
 2. **ファイルが要約タスクを指しているとき（`Assignment/TaskUID` が 0、または `PredecessorLink/PredecessorUID` が 0）をどうするか。** 見本 6 つにはどちらも 0 件。
    - 実測（試作の木で、Website の見本の割当 1 つと依存 1 つを 0 へ書き換えて読んだ）: どちらも受け付けられ（拒まれない）、`Task` の無い `UID` 0 を指す割当・依存が文書に残る。書き出すとそのまま戻るので往復は保たれるが、不変条件 `IV-2`（`src/entity/document-model/schedule/schedule-invariants.ts:326-361`、外部キーの先が在ること）には外れる。
    - 案 ① 要約タスクを指すものも原形のまま持ち回る（推奨）—— 割当は `schedule.project.carryElements` の `Assignment` の行（`UID` の無い割当と同じ器）、依存はその後続の `Task` の `carryElements` へ。`IV-2` も往復も保たれる。`MR-4` に 1 文と、継ぎ目に 2 か所が増える。
    - 案 ② 今の試作のまま（指す先の無い割当・依存を残す）—— 追加の作業は 0。`IV-2` を読む道ができたとき（`DFC-922`）に、その文書が開けなくなるおそれがある。
    - 案 ③ 要約タスクを指すファイルは、要約タスクを `Task` として読む（今の振る舞いに戻す）—— 最上位が 1 行になるファイルが残る。
+   ⭐ **答え（`JDG-582`、2026-09-25、調整役が利用者に問うた）: 案 ①（原形のまま持ち回る）。** 逐語は `rulings.md` の `JDG-582` が持つ。`MR-4` に足す文は E-08、継ぎ目は 5 節の「問い 2」の 2 行である。
+   ⚠️ 当てる体が見つけた帰結: 表 T-265 の `MR-2` は `PredecessorLink` の並びに意味を認める。控えた依存は、書き出しで同じ後続のほかの依存より前に並ぶ（`EX-10` の置き方では、同じ名前の子のうち持ち回るものが先に来る）—— 後続がほかの依存を持ち、控えた依存がその先頭でなかったときだけ、並びが元と変わる。見本 6 つにはどれも 0 件。E-08 はこれを ⚠️ として書く。
 
 ---
 
@@ -295,7 +315,7 @@
 | 台帳 | 行 |
 |---|---|
 | `docs/development-records/defects.md` | `DFC-982`（状態 `仕様待ち`。本書と同じコミットで記入） |
-| `docs/development-records/rulings.md` | `JDG-580`（状態「指示 —— 本書が当てる（起草のみ）」。本書と同じコミットで記入） |
+| `docs/development-records/rulings.md` | `JDG-580`（状態「指示 —— 本書が当てる（起草のみ）」。本書と同じコミットで記入）。`JDG-581`（問い 1 の答え）・`JDG-582`（問い 2 の答え）—— 答えが下りたコミットで記入 |
 
 ---
 
