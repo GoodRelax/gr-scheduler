@@ -1,4 +1,4 @@
-// Unit test: FR-025 forbids a PNG export scale and keeps a retired settings key.
+// Unit test: FR-025 forbids a PNG export scale and drops a retired settings key on reading.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -41,13 +41,13 @@ const REQUIREMENTS = unbroken(readFileSync(
 const FR_025_NO_SCALE =
   '出力サイズは表 T-204 の `S-81` に固定し、書き出しのたびに選ばせてはならない（MUST NOT）。 ⛔ **倍率を持ってはならない（MUST NOT）'
 
-const FR_025_KEEP_RETIRED_KEY =
-  '⛔ 保存済みの文書がその鍵を持っていても、捨てずに保つこと（MUST）'
+const FR_025_DROP_RETIRED_KEY =
+  '⛔ 保存済みの文書がその鍵を持っていても、読むときに捨て、書き戻してはならない（MUST NOT）'
 
 describe('FR-025 -- the manuscript this file is driven by', () => {
-  it('still forbids a scale, and still asks a retired key be kept', () => {
+  it('still forbids a scale, and still asks a retired key be dropped on reading', () => {
     expect(REQUIREMENTS).toContain(FR_025_NO_SCALE)
-    expect(REQUIREMENTS).toContain(FR_025_KEEP_RETIRED_KEY)
+    expect(REQUIREMENTS).toContain(FR_025_DROP_RETIRED_KEY)
   })
 })
 
@@ -222,8 +222,8 @@ describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
   })
 
   it('⭐⭐ a settings group carrying the RETIRED key (exportPngScale) paints the same size as one without it', async () => {
-    // WHY: OP-6 keeps a key this build no longer declares, so a real
-    // DocumentSettings value can legitimately still carry the field at runtime.
+    // WHY: a settings value built outside the read path can still carry the
+    // field at runtime, and the picture must not read it even then.
     const withRetiredKey = { ...SETTINGS, exportPngScale: 1 } as unknown as DocumentSettings
     const withADifferentValue = { ...SETTINGS, exportPngScale: 8 } as unknown as DocumentSettings
 
@@ -280,8 +280,8 @@ function documentWithRetiredKey(value: number): Document {
   } as Document
 }
 
-describe('FR-025 (MUST) -- OP-6 keeps the retired exportPngScale key rather than drop it', () => {
-  it('⭐⭐ documentFromJson keeps the key, unmoved, on a document that still carries it', () => {
+describe('FR-025 IX-3 (MUST NOT) -- the retired exportPngScale key is dropped on reading and never written back', () => {
+  it('⭐⭐ documentFromJson opens a document that still carries the key, and drops it', () => {
     const text = JSON.stringify(documentWithRetiredKey(3))
 
     const decoded = documentFromJson(text)
@@ -289,23 +289,24 @@ describe('FR-025 (MUST) -- OP-6 keeps the retired exportPngScale key rather than
     expect(decoded.ok, decoded.ok ? '' : JSON.stringify((decoded as any).faults)).toBe(true)
     if (!decoded.ok) return
     expect(
-      (decoded.document.documentSettings as unknown as Record<string, unknown>)['exportPngScale'],
-      'FR-025 (MUST): 保存済みの文書がその鍵を持っていても、捨てずに保つこと -- ' +
-        'reading the file dropped a key OP-6 says to keep',
-    ).toBe(3)
+      'exportPngScale' in (decoded.document.documentSettings as unknown as Record<string, unknown>),
+      'IX-3 (MUST NOT): reading kept a retired key',
+    ).toBe(false)
+    expect(decoded.unreadColumns, 'IX-3: the drop is not told').toEqual([])
   })
 
-  it('⭐⭐ the key survives a full write-then-read cycle unchanged', () => {
-    const original = documentWithRetiredKey(5)
-
-    const text = jsonFromDocument(original)
-    const decoded = documentFromJson(text)
-
+  it('⭐⭐ a document read with the key writes without it, and reads back without it', () => {
+    const decoded = documentFromJson(JSON.stringify(documentWithRetiredKey(5)))
     expect(decoded.ok).toBe(true)
     if (!decoded.ok) return
-    expect(
-      (decoded.document.documentSettings as unknown as Record<string, unknown>)['exportPngScale'],
-    ).toBe(5)
+
+    const text = jsonFromDocument(decoded.document)
+    expect(text.includes('exportPngScale'), 'IX-3 (MUST NOT): written back').toBe(false)
+    const again = documentFromJson(text)
+
+    expect(again.ok).toBe(true)
+    if (!again.ok) return
+    expect('exportPngScale' in (again.document.documentSettings as unknown as Record<string, unknown>)).toBe(false)
   })
 
   it('control: a document with no such key round-trips with none either', () => {

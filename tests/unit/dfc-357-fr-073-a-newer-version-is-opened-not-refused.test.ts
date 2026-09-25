@@ -47,13 +47,13 @@ describe('DFC-357 / FR-073 -- a version newer than this build is opened, not ref
     expect(read.unreadColumns).toEqual([COLUMN_FROM_THE_FUTURE])
   })
 
-  it('carries the unread column through, rather than dropping it (MUST NOT)', () => {
+  it('drops the unread column from the document it opens, rather than carrying it (MUST)', () => {
     const read = documentFromJson(handed(NEWER_THAN_KNOWN), GREATEST_KNOWN)
     expect(read.ok).toBe(true)
     if (!read.ok) return
     const tasks = (read.document as unknown as { schedule: { tasks: Record<string, unknown>[] } })
       .schedule.tasks
-    expect(tasks[0]?.[COLUMN_FROM_THE_FUTURE]).toBe('carried, not dropped')
+    expect(tasks[0] !== undefined && Object.hasOwn(tasks[0], COLUMN_FROM_THE_FUTURE)).toBe(false)
   })
 
   // WHY: the contrast rule 04 section 2 asks for -- if the repair had gone
@@ -78,6 +78,7 @@ describe('DFC-357 / FR-073 -- a version newer than this build is opened, not ref
     const read = documentFromJson(JSON.stringify(root), GREATEST_KNOWN)
     expect(read.ok).toBe(false)
     if (read.ok) return
+    expect(read.reason, 'FR-073: a newer document refused carries RS-64').toBe('RS-64')
     expect(read.faults.some((one) => one.at.endsWith('/uid'))).toBe(true)
   })
 

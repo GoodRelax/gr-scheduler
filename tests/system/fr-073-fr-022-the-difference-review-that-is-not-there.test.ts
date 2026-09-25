@@ -3,8 +3,8 @@
 // `Difference Review` of table T-103 -- and both must show what differs before
 // anyone is asked to choose. This file presses that surface on the shipped
 // build and measures whether it stands, whether it lists what could not be
-// read, and -- the part that matters most -- whether what could not be read is
-// still there after the document is written out again.
+// read, and -- since CR-565 -- whether what could not be read is gone from the
+// document written out again, and the way to the latest version is a link.
 //
 // ⛔⛔ THIS FILE IS EXPECTED TO GO RED, and that is its purpose. Measured
 // 2026-09-05 on the shipped build: `[data-role]` names 21 parts and
@@ -44,6 +44,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { bare, specTable, type SpecTable } from '../contract/spec-table'
+import { DOWNLOAD_ADDRESS, DOWNLOAD_URL_SEAT } from '../fixtures/download-address'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
 import { rowOf } from './sws-case'
 
@@ -133,6 +134,13 @@ const AM_3 = bare(rowOf(T107, 'AM-3').cells[1] ?? '')
 const AM_8 = bare(rowOf(T107, 'AM-8').cells[1] ?? '')
 const AM_11 = bare(rowOf(T107, 'AM-11').cells[1] ?? '')
 
+const FR_073_DROP_ON_GOING_ON = 'FR-073 (MUST) drops the unread columns on going on, never writes them back'
+const FR_024_OWN_VERSION = 'FR-024 (MUST) states this build s own format version'
+const FR_073_LEAD_TO_THE_LATEST = 'FR-073 (MUST) leads to the place of the latest version'
+const FR_073_A_LINK = 'FR-073 (MUST) shows that place as a link that opens a new tab'
+const FR_073_NO_REFERENCE_PASSED = 'FR-073 (MUST NOT) passes the opened page no reference and no referrer'
+const FR_073_NOT_COPIED_INTO_WORDS = 'FR-073 (MUST NOT) leaves no seat unfilled'
+
 // ---------------------------------------------------------------------------
 // The fixture's two inventions
 // ---------------------------------------------------------------------------
@@ -141,11 +149,10 @@ const AM_11 = bare(rowOf(T107, 'AM-11').cells[1] ?? '')
  * A column no build of this tool can read, planted on a `Task` and on the
  * `Project` of the handed document.
  *
- * ⭐ THIS IS THE WHOLE EXPERIMENT. `FR-073` (MUST) has an unreadable column
- * carried, not interpreted and not dropped, and names `Carry` as the vessel
- * that already exists for it. A name no schema of this build mentions is the
- * only way to ask whether the vessel was used: if it survives a write of the
- * document, the column was carried; if it does not, it was dropped.
+ * ⭐ THIS IS THE WHOLE EXPERIMENT. `FR-073` (MUST, CR-565) has an unreadable
+ * column listed before going on, and dropped when the person goes on -- never
+ * written back. A name no schema of this build mentions is the only way to ask
+ * whether it was: if it is absent from a write of the document, it was dropped.
  */
 const COLUMN_FROM_THE_FUTURE = 'aColumnNoBuildOfThisToolCanRead'
 
@@ -220,6 +227,12 @@ interface Measured {
   readonly reasonNamed: boolean
   /** Whether `AM-11`'s written document still carries the unreadable column. */
   readonly columnSurvivedTheWrite: boolean
+  /** Whether `AM-11`'s written document states the build's version, and not the handed one. */
+  readonly writtenAtBuildVersion: boolean
+  /** Every link on the page whose href is `S-350`, as text, target and rel. */
+  readonly downloadLinks: readonly { readonly text: string; readonly target: string; readonly rel: string }[]
+  /** Whether the seat `{downloadUrl}` was left standing anywhere on the page. */
+  readonly seatLeftOnThePage: boolean
   /** The beginning of `AM-11`'s answer, for the message when it wrote nothing. */
   readonly writeAnswer: string
 }
@@ -337,6 +350,8 @@ interface OnScreen {
   readonly strangersOnTheSurface: number
   readonly noticeText: string
   readonly reasonNamed: boolean
+  readonly downloadLinks: readonly { readonly text: string; readonly target: string; readonly rel: string }[]
+  readonly seatLeftOnThePage: boolean
 }
 
 /** What the last visit measured, after the answer was given. */
@@ -344,6 +359,7 @@ interface Finished {
   readonly tasksAfter: number
   readonly heldBackSurvived: boolean
   readonly columnSurvivedTheWrite: boolean
+  readonly writtenAtBuildVersion: boolean
   readonly writeAnswer: string
   /** `AM-8`'s answer, once it came -- or `null` while nothing was waiting. */
   readonly awaited: { readonly settled: boolean; readonly accepted: boolean; readonly answer: string } | null
@@ -516,6 +532,8 @@ async function sweep(page: Page): Promise<Measured> {
       notices: string
       reasonWords: string[]
       uidsInBoth: number[]
+      address: string
+      seat: string
     }) => {
       const textOf = (role: string): string =>
         Array.from(document.querySelectorAll(`[data-role="${role}"]`))
@@ -558,6 +576,14 @@ async function sweep(page: Page): Promise<Measured> {
         strangersOnTheSurface: printed.filter((n) => !shared.has(n)).length,
         noticeText: textOf(given.notices),
         reasonNamed: given.reasonWords.some((said) => onPage.includes(said)),
+        downloadLinks: Array.from(document.querySelectorAll('a'))
+          .filter((link) => link.getAttribute('href') === given.address)
+          .map((link) => ({
+            text: (link.textContent ?? '').trim(),
+            target: link.getAttribute('target') ?? '',
+            rel: link.getAttribute('rel') ?? '',
+          })),
+        seatLeftOnThePage: onPage.includes(given.seat),
       }
     },
     {
@@ -565,6 +591,8 @@ async function sweep(page: Page): Promise<Measured> {
       notices: NOTIFICATION_AREA,
       reasonWords: [...REASON_WORDS],
       uidsInBoth: [...begun.uidsInBoth],
+      address: DOWNLOAD_ADDRESS,
+      seat: DOWNLOAD_URL_SEAT,
     },
   )
 
@@ -595,6 +623,8 @@ async function sweep(page: Page): Promise<Measured> {
       column: string
       uidHeldBack: number
       patienceMs: number
+      buildVersion: string
+      handedVersion: string
     }) => {
       type Bag = Record<string, unknown>
       const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
@@ -643,6 +673,7 @@ async function sweep(page: Page): Promise<Measured> {
         tasksAfter: after.length,
         heldBackSurvived: after.some((task) => Number(task.uid) === given.uidHeldBack),
         columnSurvivedTheWrite: written.includes(given.column),
+        writtenAtBuildVersion: written.includes(given.buildVersion) && !written.includes(given.handedVersion),
         writeAnswer: written.slice(0, 300),
         awaited,
       }
@@ -652,6 +683,8 @@ async function sweep(page: Page): Promise<Measured> {
       column: COLUMN_FROM_THE_FUTURE,
       uidHeldBack: begun.uidHeldBack,
       patienceMs: args.patienceMs,
+      buildVersion,
+      handedVersion,
     },
   )
 
@@ -689,6 +722,9 @@ async function sweep(page: Page): Promise<Measured> {
     noticeText: onScreen.noticeText,
     reasonNamed: onScreen.reasonNamed,
     columnSurvivedTheWrite: finished.columnSurvivedTheWrite,
+    writtenAtBuildVersion: finished.writtenAtBuildVersion,
+    downloadLinks: onScreen.downloadLinks,
+    seatLeftOnThePage: onScreen.seatLeftOnThePage,
     writeAnswer: finished.writeAnswer,
   }
 }
@@ -729,7 +765,7 @@ test('FR-073 -- the format version is a date, to the minute at finest, with no s
 // The one case that can go red -- every unmet clause is gathered into it
 // ---------------------------------------------------------------------------
 
-test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and carried', () => {
+test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and dropped on going on', () => {
   const m = taken()
   const unmet: string[] = []
 
@@ -782,15 +818,35 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and carr
     )
   }
 
-  // ⛔⛔ THE ONE THAT MATTERS MOST. Showing the person what could not be read
-  // and then losing it at the write is still losing it:
-  // 1`、運ぶ理由は 表 T-233 の `RS-48`。**⛔⛔ **読めなかった列は、解釈せずに持ち回ること（MUST）
-  // RS-48`。**⛔⛔ **読めなかった列は、解釈せずに持ち回ること（MUST）。落としてはならない（MUST NOT）
-  if (!m.columnSurvivedTheWrite) {
+  if (m.columnSurvivedTheWrite) {
     unmet.push(
-      `the column that could not be read did not survive ${AM_11}: the written document does ` +
-        `not carry ${COLUMN_FROM_THE_FUTURE} (answer began ${JSON.stringify(m.writeAnswer)})`,
+      `${FR_073_DROP_ON_GOING_ON} -- the column that could not be read was written back by ${AM_11}: ` +
+        `the written document carries ${COLUMN_FROM_THE_FUTURE} (answer began ${JSON.stringify(m.writeAnswer)})`,
     )
+  }
+  if (!m.writtenAtBuildVersion) {
+    unmet.push(
+      `${FR_024_OWN_VERSION} -- ${AM_11} did not state the build's version ${m.buildVersion} ` +
+        `(answer began ${JSON.stringify(m.writeAnswer)})`,
+    )
+  }
+  const link = m.downloadLinks[0]
+  if (m.downloadLinks.length === 0 || link === undefined) {
+    unmet.push(`${FR_073_LEAD_TO_THE_LATEST} -- no link on the page has S-350 as its href`)
+  } else {
+    if (link.text !== DOWNLOAD_ADDRESS) {
+      unmet.push(`${FR_073_A_LINK} -- the link reads ${JSON.stringify(link.text)}, not S-350`)
+    }
+    if (link.target !== '_blank') {
+      unmet.push(`${FR_073_A_LINK} -- the link opens in ${JSON.stringify(link.target)}, not a new tab`)
+    }
+    const rel = link.rel.split(/\s+/)
+    if (!rel.includes('noopener') || !rel.includes('noreferrer')) {
+      unmet.push(`${FR_073_NO_REFERENCE_PASSED} -- the link's rel is ${JSON.stringify(link.rel)}`)
+    }
+  }
+  if (m.seatLeftOnThePage) {
+    unmet.push(`${FR_073_NOT_COPIED_INTO_WORDS} -- the seat ${DOWNLOAD_URL_SEAT} is printed on the page`)
   }
 
   // 05）—— **選ばせる面は 表 T-103 の `U-61`（`Difference Review`）とすること（MUST）。

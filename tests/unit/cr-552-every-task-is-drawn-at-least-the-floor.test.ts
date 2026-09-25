@@ -29,6 +29,7 @@ import {
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { unbroken } from '../contract/spec-table'
+import { validateDocument } from '../fixtures/grs-document'
 import { DEFAULT_DISPLAY_SCALE, DISPLAY_SCALE_STEPS, displayRatioAt } from '../fixtures/display-scale'
 import { boxOfBar, drawingDefault, midY, sizePx, type Box } from './cr-430-bench'
 
@@ -44,7 +45,8 @@ const FR_018_OVERLAPS_STACK =
   '⭐ 描いた幅が重なる `Task` は、段割当（`FR-003`、表 T-014）が下の段へ積む'
 const FR_018_NO_SPECIAL_GRAB =
   '⛔ 床の幅で描いた `Task` のために、掴み代の値や応える順を別に置いてはならない（MUST NOT）'
-const OP_6_UNKNOWN_KEYS_ARE_KEPT = '知らないキーは捨てずに保つ'
+const OP_6_READS_ONLY_WHAT_THE_SCHEMA_KNOWS =
+  '`documentSettings` は、この造りのスキーマ（`05-07-design.md` の Chapter 6.1）が解釈できるものだけを読むこと（MUST）'
 const S_49_IS_4PX_AT_100 = '既定の 6.4 は、表示の倍率 100（描く比 0.625、`S-236`）で 4px（6.4 × 0.625）に描く値である'
 
 describe('CR-552 -- the manuscript these cases are driven by', () => {
@@ -53,7 +55,7 @@ describe('CR-552 -- the manuscript these cases are driven by', () => {
     ['FR-018 (MUST) the drawn width is the greater of the span and the floor', FR_018_THE_WIDTH_IS_THE_GREATER],
     ['FR-018 overlapping drawn widths are stacked by FR-003', FR_018_OVERLAPS_STACK],
     ['FR-018 (MUST NOT) no grab rule of its own for a floored Task', FR_018_NO_SPECIAL_GRAB],
-    ['OP-6 keeps a key it does not know', OP_6_UNKNOWN_KEYS_ARE_KEPT],
+    ['OP-6 (MUST) reads only what this build s schema knows', OP_6_READS_ONLY_WHAT_THE_SCHEMA_KNOWS],
   ])('01-04-requirements.md still says it: %s', (_name, clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
@@ -341,7 +343,7 @@ const TEMPLATE = JSON.parse(
 ) as Record<string, unknown>
 
 // see OP-6, CR-552
-describe('OP-6 -- a saved document that still carries the retired task-LOD key opens and keeps it', () => {
+describe('OP-6 / IX-3 -- a saved document that still carries the retired task-LOD key opens and drops it', () => {
   const RETIRED_KEY = 'taskLevelOfDetailReadablePx'
   const withKey = (): Document => {
     const template = structuredClone(TEMPLATE) as { documentSettings: Record<string, unknown> }
@@ -352,22 +354,25 @@ describe('OP-6 -- a saved document that still carries the retired task-LOD key o
     expect((TEMPLATE['documentSettings'] as Record<string, unknown>)[RETIRED_KEY]).toBeUndefined()
   })
 
-  it('opens without refusal and keeps the key and its value', () => {
+  it('opens without refusal and drops the key', () => {
     const decoded = documentFromJson(JSON.stringify(withKey()))
     expect(decoded.ok, decoded.ok ? '' : JSON.stringify(decoded)).toBe(true)
     if (!decoded.ok) return
-    expect((decoded.document.documentSettings as unknown as Record<string, unknown>)[RETIRED_KEY]).toBe(24)
+    expect(RETIRED_KEY in (decoded.document.documentSettings as unknown as Record<string, unknown>)).toBe(false)
+    expect(decoded.unreadColumns, 'OP-6: a document not newer is not told what was dropped').toEqual([])
   })
 
-  it('writes the key back unchanged, and every other setting with it', () => {
+  it('does not write the key back, and writes every other setting unchanged', () => {
     const original = withKey()
     const decoded = documentFromJson(JSON.stringify(original))
     expect(decoded.ok).toBe(true)
     if (!decoded.ok) return
-    const written = JSON.parse(jsonFromDocument(decoded.document)) as { documentSettings: Record<string, unknown> }
-    expect(written.documentSettings[RETIRED_KEY]).toBe(24)
-    expect(written.documentSettings).toEqual(
-      JSON.parse(JSON.stringify((original as unknown as { documentSettings: unknown }).documentSettings)),
-    )
+    const text = jsonFromDocument(decoded.document)
+    const written = JSON.parse(text) as { documentSettings: Record<string, unknown> }
+    expect(text.includes(RETIRED_KEY), 'IX-3 (MUST NOT): never written back').toBe(false)
+    const { [RETIRED_KEY]: _dropped, ...rest } = (original as unknown as { documentSettings: Record<string, unknown> })
+      .documentSettings
+    expect(written.documentSettings).toEqual(JSON.parse(JSON.stringify(rest)))
+    expect(validateDocument(written).errors, 'FR-024 (MUST): the written text fits the published schema').toEqual([])
   })
 })

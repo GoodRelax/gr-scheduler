@@ -112,11 +112,15 @@ describe('FR-039 (MUST) -- a document opens at the step it stored', () => {
   })
 })
 
-describe('FR-039 (MUST NOT) -- a value off the steps is refused with RS-25, not read as a near step', () => {
-  it.each([33, 66, 85])('refuses a stored %s', (scale) => {
+describe('FR-039 (MUST NOT) with OP-6 -- a value off the steps opens at the default, not at a near step', () => {
+  // WHY: OP-6 (CR-565) reads an enum miss as that key alone at its default; the trailing
+  // clause of FR-039 still says refused with RS-25, reported as a spec mismatch, not pinned.
+  it.each([33, 66, 85])('reads a stored %s as the default step', (scale) => {
     const read = documentFromJson(textWith({ displayScale: scale }))
-    expect(read.ok, `${FR_039_NO_ROUNDING_TO_A_STEP} -- ${scale}`).toBe(false)
-    if (!read.ok) expect(read.reason).toBe('RS-25')
+    if (!read.ok) throw new Error(`OP-6 -- ${scale} refused: ${JSON.stringify(read.faults)}`)
+    expect(read.document.documentSettings.displayScale, `${FR_039_NO_ROUNDING_TO_A_STEP} -- ${scale}`).toBe(
+      DEFAULT_DISPLAY_SCALE,
+    )
   })
 })
 

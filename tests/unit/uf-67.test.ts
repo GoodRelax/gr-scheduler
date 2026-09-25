@@ -110,6 +110,7 @@ import {
   type ScreenSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { bare, specTable } from '../contract/spec-table'
+import { withDownloadAddress } from '../fixtures/download-address'
 
 // ---------------------------------------------------------------------------
 // The one dictionary FR-038 (MUST) keeps every printed word in, read as DATA.
@@ -744,7 +745,7 @@ describe('UF-67 -- FR-076 and 表 T-233: the words a reason carries are READ, ro
 
         expect(told.text, `${entry.row} in ${language}`).toBe(words.text)
         expect(told.nextSteps, `${entry.row} in ${language}: ONE step per row`).toEqual([
-          words.nextStep,
+          withDownloadAddress(words.nextStep),
         ])
       }
     }

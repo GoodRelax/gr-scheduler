@@ -18,6 +18,7 @@ import {
   SETTINGS_DEFAULTS,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import { documentSchema, validateDocument } from '../fixtures/grs-document'
+import { settingDefaultOf } from '../fixtures/setting-default'
 
 
 const T_052_ROOT = [
@@ -346,18 +347,20 @@ describe('FR-024 -- every key of the presentation group is written', () => {
     }
   })
 
-  it('accepts a presentation key it does not know (OP-6: 知らないキーは捨てずに保つ)', () => {
+  it('accepts a presentation key it does not know (OP-6)', () => {
     const withUnknown: Group = { ...templateSettings, keyFromALaterVersion: 7 }
     const text = rootWith(SMALL, 'documentSettings', withUnknown)
     expect(documentFromJson(text).ok).toBe(true)
   })
 
-  it('carries an unknown presentation key through the round trip (OP-6: 往復で失わない)', () => {
+  it('drops an unknown presentation key and does not write it back (OP-6, MUST NOT)', () => {
     const withUnknown: Group = { ...templateSettings, keyFromALaterVersion: 7 }
     const document = accepted(rootWith(SMALL, 'documentSettings', withUnknown))
+    expect(Object.hasOwn(document.documentSettings, 'keyFromALaterVersion')).toBe(false)
     const written = JSON.parse(jsonFromDocument(document)) as Root
     const settings = written['documentSettings'] as Group
-    expect(settings['keyFromALaterVersion']).toBe(7)
+    expect(Object.hasOwn(settings, 'keyFromALaterVersion')).toBe(false)
+    expect(validateDocument(written).errors).toEqual([])
   })
 
   it('writes a null column of the schedule-data group key and all (MUST NOT drop it)', () => {
@@ -435,25 +438,33 @@ describe('表 T-220 の前文 -- the schema runs on the `GRS JSON` road, in CP-2
     }
   })
 
-  it('refuses a presentation value whose type is wrong (鍵ごとの型を当てる)', () => {
+  it('opens a presentation value whose type is wrong, with that key alone at its default (OP-6)', () => {
     let walked = 0
     for (const key of Object.keys(SETTINGS_SCHEMA?.properties ?? {})) {
       const wrong = ofTheWrongType(SETTINGS_SCHEMA?.properties?.[key])
       if (wrong === undefined) continue
       walked += 1
-      const faults = refused(settingsWith(key, wrong))
-      expect(faults.map((f) => f.at), `${key} of another type`).toContain(`/documentSettings/${key}`)
+      const read = documentFromJson(settingsWith(key, wrong))
+      expect(read.ok, `${key} of another type`).toBe(true)
+      if (!read.ok) continue
+      const settings = read.document.documentSettings as unknown as Group
+      expect(settings[key], `${key} falls back to its default`).toEqual(
+        settingDefaultOf(key),
+      )
+      expect(read.unreadColumns, `${key}: not told on a document that is not newer`).toEqual([])
     }
     expect(walked).toBeGreaterThan(0)
   })
 
-  it('refuses a presentation value no row of the manuscript enum spells (列挙を当てる)', () => {
+  it('opens a presentation value no row of the manuscript enum spells, with that key alone at its default (OP-6)', () => {
     for (const key of SETTINGS_ENUM_KEYS) {
       const stranger = outsideTheEnum(SETTINGS_SCHEMA?.properties?.[key])
       expect(stranger, `a well-typed stranger for ${key}`).toBeDefined()
-      const faults = refused(settingsWith(key, stranger))
-      expect(faults.map((f) => f.at), `${key} outside its enum`).toContain(
-        `/documentSettings/${key}`,
+      const read = documentFromJson(settingsWith(key, stranger))
+      expect(read.ok, `${key} outside its enum`).toBe(true)
+      if (!read.ok) continue
+      expect((read.document.documentSettings as unknown as Group)[key], `${key} falls back`).toEqual(
+        settingDefaultOf(key),
       )
     }
   })

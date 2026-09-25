@@ -181,6 +181,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { bare, specTable } from './spec-table'
 import { DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
+import { withDownloadAddress } from '../fixtures/download-address'
 
 import {
   SETTINGS_DEFAULTS,
@@ -2342,6 +2343,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       // ⭐ The arrival itself: one of the frames prints exactly this word.
       // STEP: a helpNotes word rides on its own row's entry text (FR-036).
       // STEP: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
+      // STEP: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
+      const printed = withDownloadAddress(cell.word)
       const on =
         cell.section === 'helpNotes'
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)
@@ -2349,7 +2352,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
             ? scaleEchoFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
-              : framesShowing(cell.word, cell.language)
+              : framesShowing(printed, cell.language)
       expect(
         on.length,
         `FR-038 (MUST): ${at} is written in ${cell.language}, and none of the ${FRAMES.length} frames this ` +
@@ -2387,7 +2390,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
         if (twin === undefined || twin.word === '' || twin.word === cell.word) continue
         for (const one of on) {
           expect(
-            stringsIn(viewOf(screenViewFromRegions, one.frame, other)).includes(cell.word),
+            stringsIn(viewOf(screenViewFromRegions, one.frame, other)).includes(printed),
             `FR-038 (MUST): ${at} holds a word of its own per language, so ${one.what} must not print the ` +
               `${cell.language} one when the view is asked for in ${other}`,
           ).toBe(false)
@@ -2410,8 +2413,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
   // third shape DFC-255 takes: not a torn read and not an empty one, just a
   // read that does not finish in time. ⭐ The budget is four times the
   // measured solo cost now, which is room for a loaded machine rather than
-  // a wish that the machine will be idle.
-  40_000,
+  // a wish that the machine will be idle (re-measured 2026-09-25: 18s solo).
+  80_000,
   )
 })
 

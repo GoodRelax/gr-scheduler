@@ -403,9 +403,7 @@ describe('ImportDocument (UF-19) -- OP-3 置き換え', () => {
     expect(report.discardsHistory).toBe(false)
   })
 
-  it('OP-6 fills a missing setting from the default and keeps a key it does not know', () => {
-    // 「文書のデータと `documentSettings` を復元すること。欠けている設定値は
-    // 既定値で補い、知らないキーは捨てずに保つ（往復で失わないため）」.
+  it('OP-6 fills a missing setting from the default and drops a key it does not know', () => {
     const fromFile = settingsOf({ rowGap: 21, futureKeyNobodyKnows: 'kept' }) as unknown as Record<
       string,
       unknown
@@ -431,8 +429,8 @@ describe('ImportDocument (UF-19) -- OP-3 置き換え', () => {
     expect(settings['rowGap']).toBe(21)
     // the default fills the one the file was missing,
     expect(settings['fontScale']).toBe('L')
-    // and the key nobody knows survives the round trip.
-    expect(settings['futureKeyNobodyKnows']).toBe('kept')
+    // and the key nobody knows is dropped (OP-6, CR-565 decision 12).
+    expect('futureKeyNobodyKnows' in settings).toBe(false)
   })
 })
 

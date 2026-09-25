@@ -245,16 +245,16 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   ⛔ THE FIRST DRAFT TOLD ONLY HALF THE SCENE and was corrected before this
   //   fingerprint was taken: it said the format was newer and never said that
   //   anything had failed to read -- which is the half the ruling is about.
-  //   ⭐ The next step 「読めなかった項目はそのまま保たれ、保存し直しても失われ
-  //   ません」 is the one FR-073 leaves open, and it is the reassurance that
-  //   makes accepting the document safe: the ruling turned on not losing what
-  //   could not be read.
   //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBOURS, and the distinction is WHY the
   //   item could not be read. `RS-25` docs/development-records/pending-decisions.md 「列が決められた形に合わない」 is a value
   //   that is malformed; this row is a value that is well formed and UNKNOWN.
   //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
   //   at all; here it opens. ⇒ the words tell the scene.
-  'RS-48': '6e26ad7870b49da2',
+  // WHY: re-read with CR-565; the next step now tells the loss on going on and leads
+  // to the latest version, as FR-073 asks of RS-48, RS-63 and RS-64 alike.
+  'RS-48': '1b131ac1abadb976',
+  'RS-63': '71a39b0898223b1c',
+  'RS-64': '8bea60cf828c6dcc',
   // ⭐ ADDED 2026-09-06 (CR-364, the ruling that renaming an assignee must
   // carry the count). The row is FR-008's, and the pairing was read the way
   // this file asks: the 場面 against the three dictionary fields, before
