@@ -61,6 +61,8 @@ import {
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
+  confirmationOwedBy,
+  confirmationOwedByResourceDeletion,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
@@ -150,10 +152,6 @@ import {
   startupDisplayLanguage,
   writeBrowserStored,
 } from './browser-stored-values'
-import {
-  confirmationOwedBy,
-  confirmationOwedByResourceDeletion,
-} from './deletion-confirmations'
 import {
   pressedPointerShapeOf,
   type Grabbed,
@@ -2200,7 +2198,7 @@ export function frameLoop(
         return true
       }
       const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: [writes], created: null }
-      sendToSession({ type: 'changeQuestionRaised', question: owedQuestion, owedAction }, frame)
+      sendToSession({ type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...owedQuestion }, owedAction }, frame)
       return true
     }
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
@@ -2230,7 +2228,7 @@ export function frameLoop(
         if (owedQuestion !== null) {
           const created = action.created ?? null
           const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: action.writes, created }
-          sendToSession({ type: 'changeQuestionRaised', question: owedQuestion, owedAction }, frame)
+          sendToSession({ type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...owedQuestion }, owedAction }, frame)
           return
         }
         for (const bundle of action.writes) writeDocument(bundle, frame)

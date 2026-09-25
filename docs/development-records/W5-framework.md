@@ -1167,7 +1167,6 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-159 | `browser-stored-values.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-160 | `interaction-record.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-161 | `view-place.ts` | 内部 | non-pure |  | 🔧 実装済 |
-| UF-162 | `deletion-confirmations.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-163 | `frame-clock-wakes.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-164 | `field-entry.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-165 | `document-file-flow.ts` | 内部 | non-pure |  | 🔧 実装済 |

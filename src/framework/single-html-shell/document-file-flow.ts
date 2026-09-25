@@ -9,7 +9,7 @@ import {
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import type { Project, Task } from '../../entity/document-model/schedule/schedule'
-import { editDocument } from '../../use-case/edit-document/edit-document'
+import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
 import type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,
@@ -41,7 +41,6 @@ import {
 } from '../../adapter/file-gateway/file-gateway'
 import { exportPng, exportSvg, type ExportScene } from '../../adapter/image-exporter/image-exporter'
 import { DEFAULT_ROW_NAME, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
-import { tasksLostWith } from './deletion-confirmations'
 import {
   AGENT_DOCUMENT_HANDED,
   CONFIRMATION_MANNER,
@@ -462,7 +461,7 @@ export async function openDocumentIntoHold(
     ? NO_DROPPED_SEEDS
     : taskUidsWithAnUnusableDate(verdict.refusals, incoming.schedule.tasks)
   const droppedNames: (string | null)[] = []
-  const lost = tasksLostWith(incoming.schedule.tasks, droppedSeeds)
+  const lost = wbsSubtreesOf(incoming.schedule.tasks, droppedSeeds)
   for (const task of incoming.schedule.tasks) {
     if (lost.has(task.uid)) droppedNames.push(task.name)
   }

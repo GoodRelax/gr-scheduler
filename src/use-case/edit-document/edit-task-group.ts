@@ -120,7 +120,7 @@ export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree
 
 // see CD-1, DU-1
 /** @purity pure */
-function withWbsDescendants(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
+export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
   const held = new Set<number>(seeds)
   for (let grew = true; grew; ) {
     grew = false
@@ -162,7 +162,7 @@ export function editTaskGroup(
       const seeds = schedule.taskGroupMembers
         .filter((member) => doomedRows.has(member.groupId))
         .map((member) => member.taskUid)
-      const doomedTasks = withWbsDescendants(schedule.tasks, seeds)
+      const doomedTasks = wbsSubtreesOf(schedule.tasks, seeds)
 
       const kept: TaskGroup[] = []
       for (const row of groups) {
@@ -265,7 +265,7 @@ export function editTaskGroup(
       const seeds = schedule.taskGroupMembers
         .filter((member) => copiedRows.has(member.groupId))
         .map((member) => member.taskUid)
-      const copiedTasks = withWbsDescendants(schedule.tasks, seeds)
+      const copiedTasks = wbsSubtreesOf(schedule.tasks, seeds)
       const homeless = [...copiedTasks].filter((uid) => {
         const row = rowOf.get(uid)
         return row === undefined || !copiedRows.has(row)
