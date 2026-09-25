@@ -1,4 +1,5 @@
-0
+6
+# RAISED 0 -> 6 on 2026-09-25 under JDG-565 (the user away: raises allowed with the reason; to confirm on return): CR-554 wave F2 moved pointer-shape.ts (UF-157) out of frame-loop.ts, where its comments were diluted by the closure. After its restatements of tables T-269/T-266 were cut and its two unguarded TRAPs moved to DFC-973/974, 35 comment lines remain against 264 code lines (limit 29): WHYs the specification does not state, see anchors, the header and the DFC-556 DEVIATION. All 6 are in that one file.
 #
 # Check 55 -- the comments of src/ against ruling 17
 # (docs/review/comment-rules-src.md). Held by check-comment-rules.py; line 1 is

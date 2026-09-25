@@ -240,7 +240,7 @@ function zoomCommand(
   }
 }
 
-// TRAP: viewSettings in frame-loop.ts writes the same base half of OP-10's condition;
+// TRAP: viewSettings in view-place.ts writes the same base half of OP-10's condition;
 // change both together.
 // see OP-10
 /** @purity pure */
@@ -439,7 +439,7 @@ function measuredSettings(context: InputContext): DocumentSettings {
   return { ...settings, scrollDate: scrolledAnchor(context, 0, 0).scrollDate ?? context.today }
 }
 
-// TRAP: do not move the discard into fitZoom: viewSettings in frame-loop.ts shares fitZoom,
+// TRAP: do not move the discard into fitZoom: viewSettings in view-place.ts shares fitZoom,
 // and HF-8 forbids the discard at startup.
 // see FR-055, HF-8
 /** @purity pure */

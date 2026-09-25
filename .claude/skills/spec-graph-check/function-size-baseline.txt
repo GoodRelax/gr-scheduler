@@ -1,4 +1,5 @@
-excess-lines=7189 excess-branches=674
+excess-lines=7031 excess-branches=674
+# LOWERED 7189/674 -> 7031/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 waves F1-F2 moved ~180 lines out of frameLoop (2486 -> 2302); viewSettings moved to view-place.ts (55 -> 54). Two HELD rows are NEW because the (M) factories of CR-554 4.1 own their let and the functions that write it: rowBandCeilingCacheOf 58/0 and heldViewPlaceOf 69/0 (JDG-565: raises allowed with the reason, for the user to confirm on return).
 # LOWERED 7191/676 -> 7189/674 on 2026-09-24 under JDG-520: H10 shrank controlElement; measured on 3011de43.
 # LOWERED 7244/680 -> 7191/676 on 2026-09-24 under JDG-520: DFC-806 moved the highlight-box double-click out of frameLoop and carryOutAction; measured on 032c2023.
 # LOWERED 7254/680 -> 7244/680 on 2026-09-24 under JDG-520 (the coordinator may tighten without asking): H2..H4, H7 and E-24 shrank layoutFromSchedule, carryOutAction, frameLoop and boot; measured on a42c0cb4.
@@ -30,10 +31,10 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 bra
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=57 branches=11
-HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
-HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
+HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
+HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
 HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn lines=47 branches=20
 HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
@@ -61,13 +62,13 @@ HELD src/adapter/svg-renderer/svg-renderer.ts::svgFromSchedule lines=221 branche
 HELD src/entity/document-model/document-settings/document-settings.ts::clampedSettings lines=40 branches=20
 HELD src/entity/document-model/schedule/schedule-invariants.ts::find~16 lines=52 branches=10
 HELD src/entity/document-model/schedule/schedule-invariants.ts::nestingOf lines=61 branches=14
-HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=62 branches=9
-HELD src/entity/layout-engine/schedule-geometry/progress-line.ts::progressLineOf lines=40 branches=16
 HELD src/entity/layout-engine/schedule-geometry/dependency-route.ts::routeOf lines=68 branches=11
+HELD src/entity/layout-engine/schedule-geometry/progress-line.ts::progressLineOf lines=40 branches=16
+HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=62 branches=9
 HELD src/entity/layout-engine/schedule-geometry/task-figures.ts::taskGeometryOf lines=58 branches=13
+HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines=59 branches=9
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=268 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
-HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines=59 branches=9
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=315 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
@@ -81,13 +82,15 @@ HELD src/framework/file-system-access-file-store/file-system-access-file-store.t
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=84 branches=21
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=182 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=85 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2486 branches=4
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=2302 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=159 branches=32
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=149 branches=62
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=124 branches=11
 HELD src/framework/single-html-shell/frame-loop.ts::tentativeDependencyOf lines=64 branches=19
-HELD src/framework/single-html-shell/frame-loop.ts::viewSettings lines=55 branches=6
+HELD src/framework/single-html-shell/row-band-ceiling-cache.ts::rowBandCeilingCacheOf lines=58 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=204 branches=6
+HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
+HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentReplacement lines=80 branches=13
 HELD src/use-case/edit-document/edit-annotation.ts::editAnnotation lines=146 branches=39

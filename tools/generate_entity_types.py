@@ -2456,19 +2456,27 @@ TARGETS = [
      + not_stored_block('NOT_STORED_SCALE_MESSAGE_TIMES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_INTERACTION_RECORD_LIMITS') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_END_POINTER_SIZES') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
-     # names. ⛔ Not folded into the digest below -- that one is a row of table
-     # T-207 baked into the artifact, and this is a row of table T-206 the
-     # environment may hold a different value for.
-     + not_stored_block('NOT_STORED_WATERMARK_NAME') + NEWLINE * 2
-     # ⭐ FR-020's digest, in the one unit that compares against it: the answer
-     # is read off a field this layer drew and hashed with the browser's own
-     # SHA-256, which LR-6 keeps out of every other layer. ⛔ Not folded into
-     # the three above -- they are rows of table T-206 and this is a row of
-     # table T-207, and the two tables say different things about their rows.
-     + watermark_block('WATERMARK_UNLOCK_DIGEST'),
-     ['docs/spec/_source/settings.json (tables T-206 and T-207)']),
+     # names. ⛔ Not folded into the digest watermark-unlock.ts holds -- that one
+     # is a row of table T-207 baked into the artifact, and this is a row of
+     # table T-206 the environment may hold a different value for.
+     + not_stored_block('NOT_STORED_WATERMARK_NAME'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # The end pointers' sizes stand in the one unit that draws the pointer
+    # pictures, pointer-shape.ts (CR-554 15.6.7).
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'pointer-shape.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_END_POINTER_SIZES'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ⭐ FR-020's digest, in the one unit that compares against it: the answer
+    # is read off a field this layer drew and hashed with the browser's own
+    # SHA-256, which LR-6 keeps out of every other layer. ⛔ Not folded into
+    # the rows frame-loop.ts holds -- they are rows of table T-206 and this is
+    # a row of table T-207, and the two tables say different things about their
+    # rows. It stands in watermark-unlock.ts (CR-554 15.6.7); the entry
+    # re-exports it for the tests.
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'watermark-unlock.ts'),
+     lambda _erd: watermark_block('WATERMARK_UNLOCK_DIGEST'),
+     ['docs/spec/_source/settings.json (table T-207)']),
     # ⭐ FR-006's room, resolved on the side that can resolve it. S-199 is a
     # MULTIPLE of the control's own font size rather than a px, so what it is
     # multiplied by is not known here -- what IS known here is `labelCoef`
@@ -2576,6 +2584,9 @@ PUBLISHED_READ_BY_SRC = {
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_SCROLLBAR_SIZES',
     ),
+    'src/framework/single-html-shell/watermark-unlock.ts': (
+        'WATERMARK_UNLOCK_DIGEST',
+    ),
     'src/use-case/edit-document/edit-document.ts': (
         'NOT_STORED_ZOOM_BOUNDS',
     ),
@@ -2613,7 +2624,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_PROPERTIES_PANEL_SIZES',
-        'WATERMARK_UNLOCK_DIGEST',
     ),
 }
 

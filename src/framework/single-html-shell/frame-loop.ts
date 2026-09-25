@@ -45,7 +45,6 @@ import {
   type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
-  fitZoom,
   layoutFromSchedule,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -140,7 +139,6 @@ import {
   commandFromInput,
   isCombo,
   pressRowOf,
-  rowBandCeilingOf,
   screenEventFromInput,
   selectionFromInput,
   NOT_STORED_ZOOM_STEP,
@@ -156,7 +154,6 @@ import {
   dismissKeyOf,
   rulerWeekdayWords,
   screenViewFromRegions,
-  type ConfirmationItem,
   type DisplayLanguage,
   type ExportFormatId,
   type FieldEditNotice,
@@ -172,8 +169,33 @@ import {
   writeClipboard,
   type Clipboard,
 } from '../../adapter/clipboard-gateway/clipboard-gateway'
+import {
+  readBrowserStored,
+  startupAgentApiEnabled,
+  startupDisplayLanguage,
+  writeBrowserStored,
+} from './browser-stored-values'
+import {
+  confirmationOwedBy,
+  confirmationOwedByResourceDeletion,
+  tasksLostWith,
+} from './deletion-confirmations'
+import {
+  pressedPointerShapeOf,
+  type Grabbed,
+  type GrabbedArea,
+  type ShowPointerShape,
+} from './pointer-shape'
+import { rowBandCeilingCacheOf } from './row-band-ceiling-cache'
 import startupTemplate from './startup-template.json'
 import { runSessionEffects, type EffectRunners } from './session-effects'
+import { heldViewPlaceOf } from './view-place'
+import { answerWatermarkUnlock, matchWatermarkUnlock } from './watermark-unlock'
+
+export { startupAgentApiEnabled, startupDisplayLanguage } from './browser-stored-values'
+export { pointerImageOf, pointerRowOf } from './pointer-shape'
+export type { PointerFacing, PointerRow, PointerShape, ShowPointerShape } from './pointer-shape'
+export { WATERMARK_UNLOCK_DIGEST } from './watermark-unlock'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
@@ -264,301 +286,13 @@ export interface ScreenWiring {
   readonly readFocusPosition?: () => string
 }
 
-// see T-269
-// WHY: the table's closing rule: a viewer that cannot take the drawn image is given a spelling that
-// still says which way the thing moves.
-type PointerFallback = 'ew-resize' | 'move' | 'pointer' | 'grab'
-
-type DrawnPointer = `url(data:image/svg+xml,${string}) ${number} ${number}, ${PointerFallback}`
-
-export type PointerShape =
-  | 'default'
-  | 'copy'
-  | 'grabbing'
-  | 'grab'
-  | 'pointer'
-  | 'col-resize'
-  | DrawnPointer
-
-export type ShowPointerShape = (shape: PointerShape | null) => void
-
-type Grabbed = NonNullable<ReturnType<typeof itemAtPointer>>
-
-type GrabbedArea = Grabbed['grab']
-
-// see T-269
-export type PointerRow =
-  | 'PK-1'
-  | 'PK-3'
-  | 'PK-4'
-  | 'PK-5'
-  | 'PK-7'
-  | 'PK-8'
-  | 'PK-9'
-  | 'PK-10'
-
-// see T-266
-// WHY: table T-269 draws one row two ways (the arrows' two headings, the fade's in and out), and
-// table T-266's pointer column is what says which way a grab margin takes.
-export type PointerFacing = 'start' | 'end'
-
-// TRAP: the grab type itself, not a spelling of its own: a row that leaves it must break here, not pass.
-type PointerGrabArea = GrabbedArea
-
-// WHY: PK-1 and PK-5 are drawn white for the plan and black for the actual and the dummy
-// (table T-269); an entry without an ink is the plan.
-interface PointerOfGrab {
-  readonly row: PointerRow
-  readonly facing: PointerFacing
-  readonly ink?: PointerInk
-}
-
-// see T-266, T-269
-// TRAP: read the pointer column of table T-266, never the drawn order: which shape shows is a
-// property of the grab margin, not of what is painted over it.
-const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> = {
-  'GA-1': { row: 'PK-1', facing: 'start' },
-  'GA-2': { row: 'PK-1', facing: 'end' },
-  'GA-3': { row: 'PK-1', facing: 'start', ink: 'filled' },
-  'GA-4': { row: 'PK-1', facing: 'end', ink: 'filled' },
-  'GA-5': { row: 'PK-1', facing: 'start', ink: 'filled' },
-  'GA-6': { row: 'PK-1', facing: 'end', ink: 'filled' },
-  'GA-7': { row: 'PK-3', facing: 'start' },
-  'GA-8': { row: 'PK-3', facing: 'end' },
-  'GA-9': { row: 'PK-8', facing: 'start' },
-  'GA-10': { row: 'PK-1', facing: 'start' },
-  'GA-11': { row: 'PK-1', facing: 'end' },
-  'GA-12': { row: 'PK-1', facing: 'start', ink: 'filled' },
-  'GA-13': { row: 'PK-1', facing: 'end', ink: 'filled' },
-  'GA-14': { row: 'PK-8', facing: 'start' },
-  'GA-15': { row: 'PK-5', facing: 'start' },
-  'GA-16': { row: 'PK-5', facing: 'start', ink: 'filled' },
-  'GA-17': { row: 'PK-5', facing: 'start', ink: 'filled' },
-  'GA-18': { row: 'PK-7', facing: 'start' },
-  'GA-19': { row: 'PK-4', facing: 'end' },
-  'GA-20': { row: 'PK-9', facing: 'start' },
-  'GA-21': { row: 'PK-1', facing: 'start', ink: 'filled' },
-  'GA-22': { row: 'PK-1', facing: 'end', ink: 'filled' },
-  // WHY: table T-269 holds no row for the other rows of table T-023d.
-  'GR-10': null,
-  'GR-11': null,
-  'GR-14': null,
-  'GR-16': { row: 'PK-10', facing: 'start' },
-}
-
-// WHY: read by row ID: the map above is exhaustive over the grab rows, and a row outside it has none.
-const POINTER_BY_ROW_ID: Readonly<Record<string, PointerOfGrab | null | undefined>> =
-  POINTER_BY_GRAB
-
-type PointerInk = 'hollow' | 'filled'
-
-// see T-269
-// WHY: white is the plan, black the actual and the dummy -- the table asks the box arrows and the
-// circles to keep that promise together.
-const POINTER_INKS: Readonly<
-  Record<PointerInk, { readonly fill: string; readonly outline: string }>
-> = {
-  hollow: { fill: '#ffffff', outline: '#000000' },
-  filled: { fill: '#000000', outline: '#ffffff' },
-}
-
-// WHY: the square shapes are drawn on this one grid and stretched to their row's side, so a changed
-// side keeps the drawing.
-const POINTER_GRID = 24
-
-// WHY: the head's point and the shaft's far end sit inside the grid by more than the outline's half width.
-const BOX_ARROW_START_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
-
-// WHY: a thin shaft and a thin triangular head, traced as one outline so the edge runs all the way round.
-const LINE_ARROW_END_PATH = 'M2 11 H13 V6 L22 12 L13 18 V13 H2 Z'
-
-// WHY: the bar, the arm and the head of the resume icon, traced as one outline; the bend is where the
-// bar's own line crosses the arm.
-const RESUME_ARROW_PATH = 'M2 3 H6 V10 H15 V6 L22 12 L15 18 V14 H6 V21 H2 Z'
-
-const RESUME_ARROW_BEND = { x: 4, y: 12 }
-
-// TRAP: an unquoted url() ends at a bare quote or parenthesis, which encodeURIComponent leaves as they are.
-const URL_UNSAFE_LEFT_BY_ENCODING = /['()]/g
-
-/** @purity pure */
-function pointerCursor(
-  picture: string,
-  hotspotX: number,
-  hotspotY: number,
-  fallback: PointerFallback,
-): DrawnPointer {
-  const encoded = encodeURIComponent(picture).replace(
-    URL_UNSAFE_LEFT_BY_ENCODING,
-    (one) => `%${one.charCodeAt(0).toString(16).toUpperCase()}`,
-  )
-  return `url(data:image/svg+xml,${encoded}) ${hotspotX} ${hotspotY}, ${fallback}`
-}
-
-// see T-269
-// TRAP: the side comes from S-249 or S-296 alone, never the display scale; the table's closing rule
-// keeps the pointer off FR-039.
-/** @purity pure */
-function squarePointer(
-  side: number,
-  path: string,
-  ink: PointerInk,
-  join: 'round' | 'miter',
-  mirrored: boolean,
-  hotspot: { readonly x: number; readonly y: number },
-  fallback: PointerFallback,
-): DrawnPointer {
-  const { fill, outline } = POINTER_INKS[ink]
-  // WHY: the outline is one width for every shape (S-297), measured in the image's own pixels, so the
-  // grid's own units carry it back up by the same ratio the grid is stretched down by.
-  const edge = (NOT_STORED_END_POINTER_SIZES['S-297'] * POINTER_GRID) / side
-  const mirror = mirrored ? ` transform='matrix(-1 0 0 1 ${POINTER_GRID} 0)'` : ''
-  const picture =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='${side}' height='${side}' ` +
-    `viewBox='0 0 ${POINTER_GRID} ${POINTER_GRID}'>` +
-    `<path d='${path}'${mirror} fill='${fill}' stroke='${outline}' ` +
-    `stroke-width='${edge}' stroke-linejoin='${join}'/></svg>`
-  const across = (mirrored ? POINTER_GRID - hotspot.x : hotspot.x) * (side / POINTER_GRID)
-  const down = hotspot.y * (side / POINTER_GRID)
-  return pointerCursor(picture, across, down, fallback)
-}
-
-// see PK-1
-/** @purity pure */
-function boxArrowPointer(ink: PointerInk, facing: PointerFacing): DrawnPointer {
-  const side = NOT_STORED_END_POINTER_SIZES['S-249']
-  const middle = POINTER_GRID / 2
-  return squarePointer(
-    side,
-    BOX_ARROW_START_PATH,
-    ink,
-    'round',
-    facing === 'end',
-    { x: middle, y: middle },
-    'ew-resize',
-  )
-}
-
-// see PK-4
-/** @purity pure */
-function lineArrowPointer(): DrawnPointer {
-  const side = NOT_STORED_END_POINTER_SIZES['S-249']
-  const middle = POINTER_GRID / 2
-  // WHY: pointer, not a resize: a dependency line is pressed to choose it, never dragged by an end.
-  return squarePointer(
-    side,
-    LINE_ARROW_END_PATH,
-    'hollow',
-    'miter',
-    false,
-    { x: middle, y: middle },
-    'pointer',
-  )
-}
-
-// see PK-9
-/** @purity pure */
-function resumeArrowPointer(): DrawnPointer {
-  return squarePointer(
-    NOT_STORED_END_POINTER_SIZES['S-296'],
-    RESUME_ARROW_PATH,
-    'filled',
-    'miter',
-    false,
-    RESUME_ARROW_BEND,
-    'ew-resize',
-  )
-}
-
-// see PK-3
-// WHY: the image is S-294 exactly, and the triangle is set in by half the outline, so the whole
-// edge stands inside the size the table names instead of the image growing past it.
-/** @purity pure */
-function fadeTrianglePointer(facing: PointerFacing): DrawnPointer {
-  const [across, down] = NOT_STORED_END_POINTER_SIZES['S-294']
-  const half = NOT_STORED_END_POINTER_SIZES['S-297'] / 2
-  const right = across - half
-  const bottom = down - half
-  const { fill, outline } = POINTER_INKS.hollow
-  // WHY: the in side spreads to the upper left and the out side to the lower right (PK-3), so the
-  // right angle stands at the far corner for one and at the near corner for the other.
-  const corner = facing === 'start' ? { x: right, y: bottom } : { x: half, y: half }
-  const points =
-    facing === 'start'
-      ? `${right},${bottom} ${half},${bottom} ${right},${half}`
-      : `${half},${half} ${right},${half} ${half},${bottom}`
-  const picture =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='${across}' height='${down}' ` +
-    `viewBox='0 0 ${across} ${down}'>` +
-    `<polygon points='${points}' fill='${fill}' stroke='${outline}' ` +
-    `stroke-width='${NOT_STORED_END_POINTER_SIZES['S-297']}' stroke-linejoin='round'/></svg>`
-  return pointerCursor(picture, corner.x, corner.y, 'ew-resize')
-}
-
-// see PK-5
-// WHY: S-295 is the circle across, outline and all, so the radius gives the outline back its half.
-/** @purity pure */
-function discPointer(ink: PointerInk, fallback: PointerFallback): DrawnPointer {
-  const [hollowAcross, filledAcross] = NOT_STORED_END_POINTER_SIZES['S-295']
-  const across = ink === 'hollow' ? hollowAcross : filledAcross
-  const edge = NOT_STORED_END_POINTER_SIZES['S-297']
-  const middle = across / 2
-  const { fill, outline } = POINTER_INKS[ink]
-  const picture =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='${across}' height='${across}' ` +
-    `viewBox='0 0 ${across} ${across}'>` +
-    `<circle cx='${middle}' cy='${middle}' r='${middle - edge / 2}' fill='${fill}' ` +
-    `stroke='${outline}' stroke-width='${edge}'/></svg>`
-  return pointerCursor(picture, middle, middle, fallback)
-}
-
-// see T-269
-// WHY: PK-7 and PK-8 are the viewer's own finger and palm, so this tool draws no image for them.
-/** @purity pure */
-export function pointerImageOf(
-  row: PointerRow,
-  facing: PointerFacing = 'start',
-  ink: PointerInk = 'hollow',
-): PointerShape {
-  switch (row) {
-    case 'PK-1':
-      return boxArrowPointer(ink, facing)
-    case 'PK-3':
-      return fadeTrianglePointer(facing)
-    case 'PK-4':
-      return lineArrowPointer()
-    // WHY: move, not a resize: the plan of a milestone travels sideways and across rows alike.
-    case 'PK-5':
-      return discPointer(ink, ink === 'hollow' ? 'move' : 'ew-resize')
-    case 'PK-7':
-      return 'pointer'
-    case 'PK-8':
-      return 'grab'
-    case 'PK-9':
-      return resumeArrowPointer()
-    case 'PK-10':
-      return 'col-resize'
-  }
-}
-
-// see IN-2, FR-106
-// WHY: an armed dependency takes none of them -- IN-2 asks for the drawing sign while the tool is armed.
-/** @purity pure */
-export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
-  if (armed || hit === null) return null
-  return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
-}
-
-// see T-266
-/** @purity pure */
-function pointerFacingOf(hit: Grabbed): PointerFacing {
-  return POINTER_BY_ROW_ID[hit.grab]?.facing ?? 'start'
-}
-
-// see T-266, T-269
-/** @purity pure */
-function pointerInkOf(hit: Grabbed): PointerInk {
-  return POINTER_BY_ROW_ID[hit.grab]?.ink ?? 'hollow'
+export interface FrameLoopHands {
+  readSession(): ScreenSession
+  readValues(): FrameValues | null
+  readEnvironment(): FrameEnvironment
+  readPressed(): PointerPress | null
+  sendToSession(event: SessionEvent, frame: FrameValues | null): void
+  ask(): void
 }
 
 // STOP: spec does not decide which T-023d rows draw while held beyond its two
@@ -732,7 +466,7 @@ const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
 
 // see U-60, T-280
-const WATERMARK_UNLOCK_ROW = 'U-60'
+export const WATERMARK_UNLOCK_ROW = 'U-60'
 
 const ESCAPE_SURFACE: ScreenValuesEvent = { type: 'escapePressed', rung: 'surface' }
 const ESCAPE_ARMED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
@@ -789,7 +523,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
 
 const FULL_SCREEN_REFUSED_REASON: NoticeReason = 'RS-59'
 
-const CONFIRMATION_MANNER = 'NT-7'
+export const CONFIRMATION_MANNER = 'NT-7'
 
 const TASK_NAME_FIELD_ROW = 'PR-1'
 
@@ -835,13 +569,11 @@ export const FOCUS_ON_DOCUMENT_BODY = 'body'
 // TRAP: spelled as dom-input-source.ts delivers them; Tab moves the focus the person's way.
 const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE_KEY, 'Tab'])
 
-type ConfirmationQuestion = FileFlowQuestion['question']
+export type ConfirmationQuestion = FileFlowQuestion['question']
 
 const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
 
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
-
-const UNASSIGNMENT_QUESTION: ConfirmationQuestion = 'QN-3'
 
 type NoticeReason =
   | 'RS-1'
@@ -1162,19 +894,6 @@ function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
   return null
 }
 
-const WEB_STORAGE_KEY_PREFIX = 'grsched.'
-
-const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
-  'S-99': `${WEB_STORAGE_KEY_PREFIX}language`,
-  'S-99a': `${WEB_STORAGE_KEY_PREFIX}openedBy`,
-  'S-99b': `${WEB_STORAGE_KEY_PREFIX}agentApiEnabled`,
-  'S-99c': `${WEB_STORAGE_KEY_PREFIX}unlockPasswordSha256`,
-}
-
-type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
-
-const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
-
 // see OP-6
 /** @purity pure */
 function defaultDocumentSettings(): DocumentSettings {
@@ -1441,7 +1160,7 @@ function dualCursorDrawnOf(
 }
 
 /** @purity pure */
-function openSurfaceNameIn(session: ScreenSession): string | null {
+export function openSurfaceNameIn(session: ScreenSession): string | null {
   const open = session.screen.openSurfaceState
   return open.kind === 'open' ? open.surfaceName : null
 }
@@ -1452,7 +1171,7 @@ function isLevelZeroFoldedIn(session: ScreenSession): boolean {
 }
 
 /** @purity pure */
-function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | null {
+export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | null {
   const mode = session.screen.dualCursorModeState
   if (mode.kind === 'off') return null
   return mode.child.kind === 'placingDate1' ? 'date1' : 'date2'
@@ -1688,99 +1407,9 @@ function drawnRowBoxesOf(
   })
 }
 
-interface ViewSettings {
-  readonly settings: DocumentSettings
-  readonly isAtStoredZoom: boolean
-}
-
-type ViewPlace = Pick<
-  DocumentSettings,
-  'zoomX' | 'zoomY' | 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'
->
-
-// TRAP: input-command-translator.ts names the same half of OP-10's condition in
-// namesAPlace; change both together.
-// see OP-10
-/** @purity pure */
-function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
-  if (stored.scrollDate === null) return false
-  return held.schedule.taskGroups.some((one) => one.id === stored.scrollGroupId)
-}
-
-// see OP-10
-/** @purity pure */
-function viewPlaceOf(settings: DocumentSettings): ViewPlace {
-  return {
-    zoomX: settings.zoomX,
-    zoomY: settings.zoomY,
-    scrollDate: settings.scrollDate,
-    scrollGroupId: settings.scrollGroupId,
-    scrollDayOffset: settings.scrollDayOffset,
-    scrollGroupOffset: settings.scrollGroupOffset,
-  }
-}
-
-// see OP-10, FR-055
-/** @purity pure */
-function viewSettings(
-  held: Document,
-  stored: DocumentSettings,
-  regions: ScreenRegions,
-  fromTemplate: boolean,
-  runDay: string,
-  rowControlsHeightPx: number | undefined,
-): ViewSettings {
-  if (storedNamesAPlace(held, stored)) return { settings: stored, isAtStoredZoom: true }
-
-  const covered = held.schedule.tasks
-    .flatMap((one) => [one.start, one.actualStart])
-    .filter((one): one is string => one !== null)
-    .sort()
-  const firstRow = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
-  const pinned: DocumentSettings = {
-    ...stored,
-    // TRAP: never null; dateAtX answers null without an origin day and OP-10 would
-    // ask again forever.
-    scrollDate: covered[0] ?? stored.scrollDate ?? runDay,
-    scrollGroupId: firstRow === undefined ? stored.scrollGroupId : firstRow.id,
-  }
-
-  if (fromTemplate && covered.length > 0) {
-    return {
-      settings: { ...pinned, scrollDayOffset: 0, scrollGroupOffset: 0 },
-      isAtStoredZoom: true,
-    }
-  }
-
-  const fitted = fitZoom(
-    held.schedule,
-    pinned,
-    regions,
-    {
-      step: NOT_STORED_ZOOM_STEP['S-96'],
-      min: NOT_STORED_ZOOM_BOUNDS['S-97'],
-      max: NOT_STORED_ZOOM_BOUNDS['S-98'],
-    },
-    // TRAP: omit it and the LF-16 reserve measures short; the fit seats a depth that no longer fits.
-    rowControlsHeightPx,
-  )
-  return {
-    settings: {
-      ...pinned,
-      zoomX: fitted.zoomX,
-      zoomY: fitted.zoomY,
-      scrollDate: fitted.scrollDate,
-      scrollGroupId: fitted.scrollGroupId,
-      scrollDayOffset: fitted.scrollDayOffset,
-      scrollGroupOffset: 0,
-    },
-    isAtStoredZoom: false,
-  }
-}
-
 // TRAP: a FrameEnvironment member left out here wakes no frame when only that member changes.
 /** @purity pure */
-function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
+export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean {
   return (
     one.width === other.width &&
     one.height === other.height &&
@@ -2050,42 +1679,6 @@ function formatSettledOnRelease(
   return press.on.format
 }
 
-// see CD-2
-// TRAP: a second reading of table T-050 beside editTaskGroup; change both together.
-/** @purity pure */
-function rowsLostWith(groups: readonly TaskGroup[], rootId: string): ReadonlySet<string> | null {
-  if (!groups.some((one) => one.id === rootId)) return null
-  const seen = new Set<string>([rootId])
-  for (let grew = true; grew; ) {
-    grew = false
-    for (const one of groups) {
-      if (seen.has(one.id) || one.parentId === null) continue
-      if (seen.has(one.parentId)) {
-        seen.add(one.id)
-        grew = true
-      }
-    }
-  }
-  return seen
-}
-
-// see CD-1
-/** @purity pure */
-function tasksLostWith(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
-  const held = new Set<number>(seeds)
-  for (let grew = true; grew; ) {
-    grew = false
-    for (const task of tasks) {
-      if (task.wbsParentUid === null || held.has(task.uid)) continue
-      if (held.has(task.wbsParentUid)) {
-        held.add(task.uid)
-        grew = true
-      }
-    }
-  }
-  return held
-}
-
 const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
 
 const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
@@ -2118,86 +1711,6 @@ function taskUidsWithAnUnusableDate(
   return seeds
 }
 
-// see FR-032, T-234
-/** @purity pure */
-function confirmationOwedBy(
-  commands: readonly DocumentCommand[],
-  held: Document,
-  asked: ConfirmationQuestion | undefined,
-): FileFlowQuestion | null {
-  const schedule = held.schedule
-  const lostRows = new Set<string>()
-  const seeds = new Set<number>()
-  let owed = false
-  for (const command of commands) {
-    if (command.kind === 'deleteTaskGroup') {
-      const rows = rowsLostWith(schedule.taskGroups, command.groupId)
-      if (rows === null) continue
-      for (const id of rows) lostRows.add(id)
-      owed = true
-      continue
-    }
-    if (command.kind !== 'deleteTask') continue
-    if (!schedule.tasks.some((one) => one.wbsParentUid === command.uid)) continue
-    seeds.add(command.uid)
-    owed = true
-  }
-  if (!owed) return null
-  for (const member of schedule.taskGroupMembers) {
-    if (lostRows.has(member.groupId)) seeds.add(member.taskUid)
-  }
-  const lostTasks = tasksLostWith(schedule.tasks, seeds)
-  const rowOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
-  const items: ConfirmationItem[] = []
-  for (const task of schedule.tasks) {
-    if (!lostTasks.has(task.uid)) continue
-    const drawnOn = rowOfTask.get(task.uid)
-    items.push({
-      name: task.name,
-      isShownOnAnotherRow: drawnOn !== undefined && lostRows.size > 0 && !lostRows.has(drawnOn),
-    })
-  }
-  const question: ConfirmationQuestion = asked ?? (lostRows.size > 0 ? 'QN-1' : 'QN-2')
-  return { manner: CONFIRMATION_MANNER, question, items }
-}
-
-// see FR-099, QN-3, CD-5
-/** @purity pure */
-function confirmationOwedByResourceDeletion(
-  uids: readonly number[],
-  held: Document,
-): FileFlowQuestion | null {
-  const schedule = held.schedule
-  const going = new Set(uids)
-  const reached: number[] = []
-  const seen = new Set<number>()
-  let isFreeingAny = false
-  for (const assignment of schedule.assignments) {
-    const resourceUid = assignment.resourceUid
-    if (resourceUid === null || !going.has(resourceUid)) continue
-    isFreeingAny = true
-    const taskUid = assignment.taskUid
-    if (taskUid === null || seen.has(taskUid)) continue
-    seen.add(taskUid)
-    reached.push(taskUid)
-  }
-  if (!isFreeingAny) return null
-  const taskOfUid = new Map(schedule.tasks.map((one) => [one.uid, one]))
-  const items: ConfirmationItem[] = []
-  for (const taskUid of reached) {
-    const task = taskOfUid.get(taskUid)
-    if (task === undefined) continue
-    items.push({ name: task.name, isShownOnAnotherRow: false })
-  }
-  return { manner: CONFIRMATION_MANNER, question: UNASSIGNMENT_QUESTION, items }
-}
-
-// see FR-038
-/** @purity pure */
-function isDisplayLanguage(value: string): value is DisplayLanguage {
-  return Object.prototype.hasOwnProperty.call(DISPLAY_LANGUAGES, value)
-}
-
 // see DI-3
 /** @purity pure */
 function projectIdentityFromText(text: string): ProjectIdentity | null {
@@ -2211,7 +1724,7 @@ function projectIdentityFromText(text: string): ProjectIdentity | null {
 
 // TRAP: toISOString here would move the zoneless statusDate by the UTC offset.
 /** @purity semi-pure-b */
-function readToday(): string {
+export function readToday(): string {
   const now = new Date()
   const day: CalendarDay = {
     year: now.getFullYear(),
@@ -2244,72 +1757,6 @@ function repeatTimesOfHeldEntry(): RepeatTimes {
     delayMs: NOT_STORED_REPEAT_TIMES['S-172'],
     intervalMs: NOT_STORED_REPEAT_TIMES['S-173'],
   }
-}
-
-/** @purity semi-pure-b */
-function readBrowserStored(row: BrowserStoredRow): string | null {
-  try {
-    // TRAP: a refusing host throws on the property itself; keep the access inside the try.
-    return globalThis.localStorage?.getItem(BROWSER_STORED_KEY[row]) ?? null
-  } catch {
-    return null
-  }
-}
-
-/** @purity non-pure */
-function writeBrowserStored(row: BrowserStoredRow, value: string): void {
-  try {
-    globalThis.localStorage?.setItem(BROWSER_STORED_KEY[row], value)
-  } catch {
-  }
-}
-
-const HEX_DIGIT_BITS = 4
-const HEX_DIGIT_MASK = 0xf
-const HEX_DIGITS = '0123456789abcdef'
-
-/** @purity pure */
-function hexOfByte(value: number): string {
-  const high = HEX_DIGITS[(value >> HEX_DIGIT_BITS) & HEX_DIGIT_MASK] ?? ''
-  const low = HEX_DIGITS[value & HEX_DIGIT_MASK] ?? ''
-  return high + low
-}
-
-// see FR-020, S-101
-/** @purity semi-pure-b */
-async function sha256HexOf(text: string): Promise<string | null> {
-  const digester = globalThis.crypto?.subtle
-  if (digester === undefined) return null
-  try {
-    const digest = await digester.digest('SHA-256', new TextEncoder().encode(text))
-    let spelled = ''
-    for (const byte of new Uint8Array(digest)) spelled += hexOfByte(byte)
-    return spelled
-  } catch {
-    return null
-  }
-}
-
-// see FR-020, FR-086, S-99c, S-101
-/** @purity semi-pure-b */
-function watermarkUnlockDigest(): string {
-  const set = readBrowserStored('S-99c')
-  // TRAP: an empty stored digest must count as unset, or the empty password opens the gate.
-  return set === null || set === '' ? WATERMARK_UNLOCK_DIGEST['S-101'] : set
-}
-
-// see FR-038, S-99
-/** @purity semi-pure-b */
-export function startupDisplayLanguage(): DisplayLanguage {
-  const stored = readBrowserStored('S-99')
-  if (stored !== null && isDisplayLanguage(stored)) return stored
-  return globalThis.navigator?.language?.toLowerCase().startsWith('ja') === true ? 'ja' : 'en'
-}
-
-// see FR-065, S-99b
-/** @purity semi-pure-b */
-export function startupAgentApiEnabled(): boolean {
-  return readBrowserStored('S-99b') === String(true)
 }
 
 /** @purity non-pure */
@@ -2356,18 +1803,6 @@ export function frameLoop(
   let interactionRecordDropped = 0
   let interactionRecordBeganAt = 0
   let interactionRecordOffered = 0
-  // WHY: not read off the document's template stamp, which the first write turns into
-  // user, so the view would jump to the fit on typing.
-  let fromStartupTemplate = startedFromTemplate === true
-  // TRAP: taken afresh each frame, the Row Area the properties panel narrows and the extent a
-  // drawn task widens both re-derive this fit, and the picture slides as a task is created.
-  let fitHeldForNoPlace:
-    | {
-        readonly environment: FrameEnvironment
-        readonly place: ViewPlace
-        readonly isAtStoredZoom: boolean
-      }
-    | null = null
   let fileSavedAt: string | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -2439,12 +1874,25 @@ export function frameLoop(
     runSessionEffects(step.effects, effectRunners, frame)
   }
 
+  const hands: FrameLoopHands = {
+    readSession: () => session,
+    readValues: () => values,
+    readEnvironment: () => environment,
+    readPressed: () => pressed,
+    sendToSession,
+    ask,
+  }
+  const { pointerShapeAt } = pressedPointerShapeOf(hands)
+  const { bandCeilingFor } = rowBandCeilingCacheOf()
+  const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate, returnToStartupTemplate } =
+    heldViewPlaceOf(hands, startedFromTemplate)
+
   // see SF-6, UF-123
   const effectRunners = effectRunnersOf({
     raiseNotice: (reason) => raiseNotice(reason, null),
     storeLanguage: (language) => writeBrowserStored('S-99', language),
     askBrowserForFullScreen,
-    matchWatermarkUnlock: () => void matchWatermarkUnlock(screen?.readWatermarkUnlockAnswer?.() ?? ''),
+    matchWatermarkUnlock: () => void matchWatermarkUnlock(hands, screen?.readWatermarkUnlockAnswer?.() ?? ''),
     clearSelection: () => {
       if (selectedObjectsIn(session) === NO_OBJECTS_SELECTED) return
       sendToSession(SELECTION_CLEARED, values)
@@ -2636,43 +2084,6 @@ export function frameLoop(
     const seam = clipboard
     if (seam === undefined) return
     void writeClipboard(seam, { kind: 'record', text })
-  }
-
-  // see OP-10
-  /** @purity non-pure */
-  function viewSettingsOnce(
-    document: Document,
-    stored: DocumentSettings,
-    regions: ScreenRegions,
-  ): ViewSettings {
-    if (storedNamesAPlace(document, stored)) {
-      fitHeldForNoPlace = null
-      return { settings: stored, isAtStoredZoom: true }
-    }
-    const taken = fitHeldForNoPlace
-    if (
-      taken !== null &&
-      isSameEnvironment(taken.environment, environment) &&
-      storedNamesAPlace(document, taken.place)
-    ) {
-      // TRAP: the place alone is laid over; the whole held object would freeze every other
-      // setting the author switches while no place is seated.
-      return { settings: { ...stored, ...taken.place }, isAtStoredZoom: taken.isAtStoredZoom }
-    }
-    const view = viewSettings(
-      document,
-      stored,
-      regions,
-      fromStartupTemplate,
-      readToday(),
-      environment.rowControlsHeightPx,
-    )
-    fitHeldForNoPlace = {
-      environment,
-      place: viewPlaceOf(view.settings),
-      isAtStoredZoom: view.isAtStoredZoom,
-    }
-    return view
   }
 
   /** @purity non-pure */
@@ -3007,28 +2418,6 @@ export function frameLoop(
     return true
   }
 
-  // see FR-020, U-60
-  /** @purity non-pure */
-  function answerWatermarkUnlock(isProceeding: boolean): boolean {
-    if (openSurfaceNameIn(session) !== WATERMARK_UNLOCK_ROW) return false
-    sendToSession({ type: 'watermarkUnlockAnswered', isProceeding }, values)
-    if (!isProceeding) ask()
-    return true
-  }
-
-  // see FR-020, RS-41
-  /** @purity non-pure */
-  async function matchWatermarkUnlock(answer: string): Promise<void> {
-    const given = await sha256HexOf(answer)
-    // DEVIATION: spec says a reason with no row is RS-15 (T-233); here no SHA-256 reads as RS-41 (DFC-559)
-    if (given === null || given !== watermarkUnlockDigest()) {
-      sendToSession({ type: 'watermarkUnlockMismatched' }, null)
-      return
-    }
-    sendToSession({ type: 'watermarkUnlockMatched' }, null)
-    ask()
-  }
-
   // see FR-076, T-233
   /** @purity non-pure */
   function raiseFileFault(fault: DocumentFileFault): void {
@@ -3345,61 +2734,6 @@ export function frameLoop(
     return itemAtPointer(frame.geometry, x, y, grabSizesOf())
   }
 
-  let pointerShapeOfPress: {
-    readonly at: PointerPress['at']
-    readonly shape: PointerShape | null
-  } | null = null
-
-  // see FR-106
-  // WHY: keyed on the press's own point, which every rebuild of the press carries over unchanged.
-  // WHY: read off what the press grabbed, so a press whose happening returned early still keeps its shape.
-  /** @purity non-pure */
-  function pointerShapeAt(
-    frame: FrameValues,
-    x: number,
-    y: number,
-    on: ScreenPart | null,
-    hit: Grabbed | null,
-  ): PointerShape | null {
-    if (pressed === null) {
-      pointerShapeOfPress = null
-      return pointerShapeUnder(frame, { x, y }, on, hit)
-    }
-    if (pointerShapeOfPress === null || pointerShapeOfPress.at !== pressed.at) {
-      const { at } = pressed
-      pointerShapeOfPress = { at, shape: pointerShapeUnder(frame, at, pressed.on, pressed.hit) }
-    }
-    return pointerShapeOfPress.shape
-  }
-
-  // see IN-2
-  /** @purity semi-pure-b */
-  function pointerShapeUnder(
-    frame: FrameValues,
-    point: { readonly x: number; readonly y: number },
-    on: ScreenPart | null,
-    hit: Grabbed | null,
-  ): PointerShape | null {
-    if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
-    if (on !== null) return null
-    if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
-    if (dualCursorFollowingIn(session) !== null) return null
-    const armed = session.screen.armModeState
-    const isArmedDependency = armed.kind === 'dependencyArmed'
-    const row = pointerRowOf(hit, isArmedDependency)
-    if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
-    if (isArmedDependency) {
-      // WHY: an armed dependency applies no T-023d row (PTD-3), so an end, a dummy,
-      // a body or a figure must not promise a move; IN-2 asks for the plain arrow.
-      if (hit !== null) return 'default'
-      // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
-      return null
-    }
-    if (hit !== null) return null
-    if (armed.kind === 'notArmed') return 'default'
-    return 'copy'
-  }
-
   // see IF-9, T-292
   // TRAP: drained before every reading of the edit state; the surface's listeners run before the shell's.
   /** @purity non-pure */
@@ -3442,78 +2776,6 @@ export function frameLoop(
   }
 
   let addedRowOwedSight: string | null = null
-
-  // see FR-016
-  // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
-  // the one the translator measures at, never the stored zoomX, which OP-10 may not draw.
-  let bandCeilingFrom: {
-    readonly schedule: Document['schedule']
-    readonly settings: DocumentSettings
-    readonly drawnZoomX: number
-    readonly rowArea: ScreenRect
-    readonly isLevelZeroFolded: boolean | undefined
-    readonly rowControlsHeightPx: number | undefined
-    readonly zoomMin: number
-    readonly zoomMax: number
-    readonly upTo: number
-    readonly ceiling: number
-  } | null = null
-
-  /** @purity pure */
-  function isSameBandSettings(a: DocumentSettings, b: DocumentSettings): boolean {
-    if (a === b) return true
-    // WHY: the scroll place moves every row and every x alike, so no band changes height; a zoom
-    // at the pointer rewrites scrollDayOffset in its last digits on every notch.
-    const moveWithoutBand = new Set<string>([
-      'zoomY', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
-    ])
-    const keys = new Set<string>([...Object.keys(a), ...Object.keys(b)])
-    for (const key of keys) {
-      if (moveWithoutBand.has(key)) continue
-      if ((a as unknown as Record<string, unknown>)[key] !==
-          (b as unknown as Record<string, unknown>)[key]) return false
-    }
-    return true
-  }
-
-  /** @purity non-pure */
-  function bandCeilingFor(context: InputContext, drawnZoomX: number, upTo: number): number {
-    const held = bandCeilingFrom
-    const schedule = context.document.schedule
-    const settings = context.document.documentSettings
-    const rowArea = context.regions.rowArea
-    if (
-      held !== null &&
-      held.upTo >= upTo &&
-      held.schedule === schedule &&
-      isSameBandSettings(held.settings, settings) &&
-      held.drawnZoomX === drawnZoomX &&
-      held.rowArea.x === rowArea.x &&
-      held.rowArea.y === rowArea.y &&
-      held.rowArea.width === rowArea.width &&
-      held.rowArea.height === rowArea.height &&
-      held.isLevelZeroFolded === context.isLevelZeroFolded &&
-      held.rowControlsHeightPx === context.rowControlsHeightPx &&
-      held.zoomMin === context.zoomMin &&
-      held.zoomMax === context.zoomMax
-    ) {
-      return held.ceiling
-    }
-    const ceiling = rowBandCeilingOf(context, upTo)
-    bandCeilingFrom = {
-      schedule,
-      settings,
-      drawnZoomX,
-      rowArea,
-      isLevelZeroFolded: context.isLevelZeroFolded,
-      rowControlsHeightPx: context.rowControlsHeightPx,
-      zoomMin: context.zoomMin,
-      zoomMax: context.zoomMax,
-      upTo,
-      ceiling,
-    }
-    return ceiling
-  }
 
   /** @purity semi-pure-b */
   function collectInputContext(
@@ -3620,12 +2882,12 @@ export function frameLoop(
       previewDocument = null
       const landing = LANDING_OF_REPLACEMENT_ROW[call.row]
       if (landing !== null) sendToSession(landing, values)
-      if (call.row === 'RD-4') fromStartupTemplate = false
-      if (call.row === 'RD-7') fromStartupTemplate = true
+      if (call.row === 'RD-4') leaveStartupTemplate()
+      if (call.row === 'RD-7') returnToStartupTemplate()
       // TRAP: the rows that make it another document, or an arriving document is drawn at the
       // fit the one before it was given.
       if (call.row === 'RD-4' || call.row === 'RD-6' || call.row === 'RD-7') {
-        fitHeldForNoPlace = null
+        forgetFitForNoPlace()
       }
       if (isSizeSettled(environment)) ask()
       return true
@@ -4246,6 +3508,7 @@ export function frameLoop(
   }
 
   // see T-036
+  /** @purity non-pure */
   function carryOutAction(action: InputAction | null, frame: FrameValues, didSettleFieldEntry = false): void {
     if (action === null) return
     switch (action.kind) {
@@ -4643,7 +3906,7 @@ export function frameLoop(
       (settledFormat !== null && answerSettledFormat(settledFormat)) ||
       // TRAP: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
       (settledAnswer !== null &&
-        answerWatermarkUnlock(settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
+        answerWatermarkUnlock(hands, settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
     if (!spent) carryOutAction(translated.action, frame, didSettleFieldEntry)
@@ -4802,7 +4065,7 @@ export function frameLoop(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (tables T-206 and T-207)
+//   docs/spec/_source/settings.json (table T-206)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_PROPERTIES_PANEL_SIZES: {
@@ -4849,31 +4112,9 @@ const NOT_STORED_INTERACTION_RECORD_LIMITS: {
 }
 
 // see T-206
-const NOT_STORED_END_POINTER_SIZES: {
-  readonly 'S-249': number
-  readonly 'S-294': readonly [number, number]
-  readonly 'S-295': readonly [number, number]
-  readonly 'S-296': number
-  readonly 'S-297': number
-} = {
-  'S-249': 16,
-  'S-294': [10, 7.5],
-  'S-295': [12, 8],
-  'S-296': 12,
-  'S-297': 0.47,
-}
-
-// see T-206
 const NOT_STORED_WATERMARK_NAME: {
   readonly 'S-99a': 'user'
 } = {
   'S-99a': 'user',
-}
-
-// see T-207, FR-020
-export const WATERMARK_UNLOCK_DIGEST: {
-  readonly 'S-101': string
-} = {
-  'S-101': 'e2b7f98dfe8145444b33263989fe5e47f9150fe1ef6460713268af974e6df134',
 }
 // </generated>
