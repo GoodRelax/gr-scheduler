@@ -16,7 +16,6 @@ import {
   type CalendarDay,
   type Schedule,
   type Task,
-  type TaskGroup,
   type TaskGroupMember,
   type TaskVisual,
   type WorkingCalendar,
@@ -26,8 +25,11 @@ import {
   rowControlLatticeHeightPx,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
+import { assigneeLabelsOf } from './assignee-label'
+import { drawnGroups } from './drawn-rows'
 import { groupDepthLimit, groupDepthThresholdOf, keptInViewByOpenMarks } from './group-level-of-detail'
 import { labelWidth } from './label-width'
+import { outsideLabelOf, percentLabelOf } from './percent-label'
 import {
   actualPlacementOf,
   actualReachOf,
@@ -46,6 +48,7 @@ import { dateAtX, rulerTierOf, serialOf, timeAxisOf, xFromDay, xOnTimeAxis } fro
 export { dateAtX, rulerTierOf, tickStrideOf, timeAxisOf, xFromDay } from './time-axis'
 export type { TimeAxis } from './time-axis'
 export { labelUnits } from './label-width'
+export { labelledAssigneeUidOf } from './assignee-label'
 export {
   markerDiameterOf,
   thinEndHalfHeightOf,
@@ -165,97 +168,7 @@ function dayReaderFor(within: WorkingCalendar): DayReader {
   }
 }
 
-const WORK_RESOURCE = 1
-
 const NO_ASSIGNEE_MARK = '-'
-
-const MORE_ASSIGNEES_MARK = '+'
-
-const PERCENT_MARK = '%'
-
-interface LabelledAssignee {
-  readonly name: string
-  readonly uid: number
-}
-
-// see FR-059
-/** @purity pure */
-function labelledAssigneeOf(resource: Schedule['resources'][number] | undefined): LabelledAssignee | null {
-  if (resource === undefined) return null
-  // TRAP: test both AT-87 and AT-88; either alone draws some cost resources as people.
-  if (resource.resourceKind !== WORK_RESOURCE) return null
-  if (resource.isCostResource === true) return null
-  const name = resource.name ?? ''
-  return name === '' ? null : { name, uid: resource.uid }
-}
-
-// see FR-059
-// WHY: not localeCompare: a host-dependent collation shows another first name elsewhere.
-/** @purity pure */
-function compareLabelled(a: LabelledAssignee, b: LabelledAssignee): number {
-  return a.name < b.name ? -1 : a.name > b.name ? 1 : a.uid - b.uid
-}
-
-// see FR-059, AS-1
-/** @purity pure */
-export function labelledAssigneeUidOf(schedule: Schedule, taskUid: number): number | null {
-  const onTask = new Set(schedule.assignments.filter((one) => one.taskUid === taskUid).map((one) => one.resourceUid))
-  let first: LabelledAssignee | null = null
-  for (const resource of schedule.resources) {
-    const one = onTask.has(resource.uid) ? labelledAssigneeOf(resource) : null
-    if (one !== null && (first === null || compareLabelled(one, first) < 0)) first = one
-  }
-  return first === null ? null : first.uid
-}
-
-// see FR-059
-/** @purity pure */
-function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> {
-  const resourceByUid = new Map<number, Schedule['resources'][number]>()
-  for (const resource of schedule.resources) resourceByUid.set(resource.uid, resource)
-
-  const onTask = new Map<number, LabelledAssignee[]>()
-  for (const assignment of schedule.assignments) {
-    const taskUid = assignment.taskUid
-    if (taskUid === null || assignment.resourceUid === null) continue
-    const one = labelledAssigneeOf(resourceByUid.get(assignment.resourceUid))
-    if (one === null) continue
-    const held = onTask.get(taskUid) ?? []
-    held.push(one)
-    onTask.set(taskUid, held)
-  }
-
-  const labels = new Map<number, string>()
-  for (const [taskUid, held] of onTask) {
-    held.sort(compareLabelled)
-    const first = held[0]!
-    labels.set(
-      taskUid,
-      held.length === 1
-        ? first.name
-        : `${first.name} ${MORE_ASSIGNEES_MARK}${held.length - 1}`,
-    )
-  }
-  return labels
-}
-
-// see FR-090
-/** @purity pure */
-function percentLabelOf(task: Task): string {
-  if (planActualState(task) === 'notStarted') return ''
-  const percent = task.percentComplete
-  return percent === null ? '' : `${percent}${PERCENT_MARK}`
-}
-
-const OC2_SEPARATOR = ' : '
-
-// see OC-2, FR-090
-/** @purity pure */
-function outsideLabelOf(assignee: string, percent: string): string {
-  if (assignee === '') return percent
-  if (percent === '') return assignee
-  return `${assignee}${OC2_SEPARATOR}${percent}`
-}
 
 const TRUNCATION_MARK = '…'
 const TRUNCATION_MARK_UNITS = 2
@@ -366,61 +279,6 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
   }
   const fadeIn = Math.min(rawIn, span)
   return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
-}
-
-// see LC-1, HR-2
-/** @purity pure */
-function drawnGroups(
-  schedule: Schedule,
-  settings: DocumentSettings,
-  isLevelZeroFolded: boolean,
-): readonly (TaskGroup & { depth: number })[] {
-  if (isLevelZeroFolded) return []
-  const byId = new Map(schedule.taskGroups.map((glyph) => [glyph.id, glyph]))
-  const drawnRows: (TaskGroup & { depth: number })[] = []
-
-  for (const group of schedule.taskGroups) {
-    let depth = 1
-    let dropped = group.isHidden === true
-    for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= settings.maxGroupDepth; guard++) {
-      const parent = byId.get(foundAt)
-      if (parent === undefined) break
-      depth += 1
-      if (parent.isHidden === true || parent.isCollapsed === true) dropped = true
-      foundAt = parent.parentId
-    }
-    if (!dropped) drawnRows.push({ ...group, depth })
-  }
-  return inTreeOrder(drawnRows, byId)
-}
-
-// see LC-9
-/** @purity pure */
-function inTreeOrder<T extends TaskGroup & { depth: number }>(
-  rows: readonly T[], byId: ReadonlyMap<string, TaskGroup>,
-): readonly T[] {
-  const childrenOf = new Map<string | null, T[]>()
-  for (const row of rows) {
-    const parent = row.parentId !== null && byId.has(row.parentId) ? row.parentId : null
-    const siblings = childrenOf.get(parent)
-    if (siblings === undefined) childrenOf.set(parent, [row])
-    else siblings.push(row)
-  }
-  for (const siblings of childrenOf.values()) siblings.sort((a, b) => a.order - b.order)
-
-  const ordered: T[] = []
-  const seen = new Set<string>()
-  const walk = (parent: string | null): void => {
-    for (const row of childrenOf.get(parent) ?? []) {
-      if (seen.has(row.id)) continue
-      seen.add(row.id)
-      ordered.push(row)
-      walk(row.id)
-    }
-  }
-  walk(null)
-  for (const row of rows) if (!seen.has(row.id)) ordered.push(row)
-  return ordered
 }
 
 // see AT-100
