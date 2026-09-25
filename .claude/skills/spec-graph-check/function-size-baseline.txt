@@ -30,8 +30,8 @@ HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 bra
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/json-codec.ts::documentFromJson lines=57 branches=11
-HELD src/adapter/document-codec/mspdi-codec.ts::readStartTag lines=49 branches=27
-HELD src/adapter/document-codec/mspdi-codec.ts::readXml lines=105 branches=27
+HELD src/adapter/document-codec/mspdi-xml.ts::readStartTag lines=49 branches=27
+HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-codec.ts::writtenProjectChildren lines=56 branches=7
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
