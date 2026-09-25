@@ -2219,8 +2219,8 @@ TARGETS = [
     # keeps a Framework file out of the Entity layer's reach anyway -- what
     # crosses is the number, generated twice from the one manuscript, which is
     # the same bargain S-218 already stands on in two units.
-    # ⭐⭐ NOT_STORED_SIZES (the grab margins S-90 .. S-92) STANDS HERE AS WELL AS
-    # IN `item-hit-area.ts`, on the bargain the note above states: table T-038's
+    # ⭐⭐ NOT_STORED_SIZES (the grab margins S-90 .. S-92) STANDS IN THIS
+    # COMPONENT'S `label-placement.ts` AS WELL AS IN `item-hit-area.ts`, on the bargain the note above states: table T-038's
     # closing rule (MUST) counts
     # 「掴みシロを持つものについてはその掴みシロの幅」, and
     # this is the unit that measures that order -- but `item-hit-area.ts`
@@ -2268,10 +2268,16 @@ TARGETS = [
     # outside its file reads as a plain `const`, and a plain `const` nobody
     # reads at all is refused by noUnusedLocals, so it is no longer generated.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_FIT_MARGIN'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # ScheduleLayout's copy of NOT_STORED_SIZES stands in the one unit of the
+    # component that reads it: label-placement.ts places the label past the
+    # undecided resume icon (S-286) and keeps S-260 free inside the shape
+    # (CR-554 15.6.7). The public entry re-exports it for the tests.
+    (os.path.join(LAYOUT, 'schedule-layout', 'label-placement.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ S-205 STANDS HERE AS WELL AS IN `frame-loop.ts`, and the entry for
     # NOT_STORED_SCROLLBAR_SIZES above says why: GR-21 of table T-023d floors
@@ -2535,6 +2541,9 @@ PUBLISHED_READ_BY_SRC = {
         'DEFAULT_CALENDAR_VALUES',
         'ENTITY_ROWS',
     ),
+    'src/entity/layout-engine/schedule-layout/label-placement.ts': (
+        'NOT_STORED_SIZES',
+    ),
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_LABEL_SIZES',
     ),
@@ -2591,7 +2600,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     ),
     'src/entity/layout-engine/schedule-layout/schedule-layout.ts': (
         'NOT_STORED_DUMMY_SIZES',
-        'NOT_STORED_SIZES',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
         'NOT_STORED_PROPERTIES_PANEL_SIZES',

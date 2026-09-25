@@ -47,8 +47,8 @@ const purityTagsIn = (text: string): readonly string[] =>
   [...text.matchAll(/@purity\s+([a-z/-]+)/g)].map((hit) => hit[1] ?? '')
 
 describe('table T-075 -- the unit inventory', () => {
-  it('counts the 131 units table T-075 states', () => {
-    expect(units).toHaveLength(131)
+  it('counts the 132 units table T-075 states', () => {
+    expect(units).toHaveLength(132)
   })
 
   it('names one public entry per component, and 37 of them', () => {
