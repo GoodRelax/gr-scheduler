@@ -20,6 +20,12 @@ import {
 } from '../schedule-geometry/schedule-geometry'
 import type { ScreenRect } from '../screen-regions/screen-regions'
 
+export { dependencyEndAtPointer, dependencyStartOfHit } from './dependency-end'
+export type { DependencyEnd } from './dependency-end'
+export { isTaskDrawn, selectionWithinDrawn } from './drawn-selection'
+export type { ChosenItem, DrawnChoice } from './drawn-selection'
+export { itemsInMarquee } from './marquee'
+
 // see SL-1
 export type Item =
   | { readonly kind: 'task'; readonly taskUid: number }
@@ -68,7 +74,7 @@ export function grabSizesOf(): GrabSizes {
 type Span = { readonly from: number; readonly to: number }
 
 /** @purity pure */
-function isInsideRect(x: number, y: number, box: ScreenRect): boolean {
+export function isInsideRect(x: number, y: number, box: ScreenRect): boolean {
   return x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height
 }
 
@@ -78,12 +84,12 @@ function isNearPoint(x: number, y: number, at: Point, halfWidth: number, halfHei
 }
 
 /** @purity pure */
-function rightOf(box: ScreenRect): number {
+export function rightOf(box: ScreenRect): number {
   return box.x + box.width
 }
 
 /** @purity pure */
-function bottomOf(box: ScreenRect): number {
+export function bottomOf(box: ScreenRect): number {
   return box.y + box.height
 }
 
@@ -114,7 +120,7 @@ function rectOfSpans(across: Span, down: Span): ScreenRect | null {
 }
 
 /** @purity pure */
-function boxOfPath(points: Path): ScreenRect | null {
+export function boxOfPath(points: Path): ScreenRect | null {
   if (points.length === 0) return null
   const xs = points.map((one) => one.x)
   const ys = points.map((one) => one.y)
@@ -124,7 +130,7 @@ function boxOfPath(points: Path): ScreenRect | null {
 }
 
 /** @purity pure */
-function merged(a: ScreenRect | null, b: ScreenRect | null): ScreenRect | null {
+export function merged(a: ScreenRect | null, b: ScreenRect | null): ScreenRect | null {
   if (a === null) return b
   if (b === null) return a
   const x = Math.min(a.x, b.x)
@@ -252,7 +258,7 @@ function drawnOfRect(box: ScreenRect | null): Drawn | null {
   return { band: box, covers: (x, y) => isInsideRect(x, y, box) }
 }
 
-type TaskShape = {
+export type TaskShape = {
   readonly task: TaskGeometry
   readonly family: ShapeFamily
   readonly planBand: ScreenRect | null
@@ -274,7 +280,7 @@ function midlineOf(plan: ScreenRect | null, below: ScreenRect | null): number | 
 
 // TRAP: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
 /** @purity pure */
-function shapeOf(task: TaskGeometry): TaskShape {
+export function shapeOf(task: TaskGeometry): TaskShape {
   const family = familyOf(task.shapeKind)
   const planBand = bandOfBar(task.plan)
   const actualBand = bandOfBar(task.actual)
@@ -302,7 +308,7 @@ function shapeOf(task: TaskGeometry): TaskShape {
 }
 
 /** @purity pure */
-function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean {
+export function isOnTheDrawnShape(shape: TaskShape, x: number, y: number): boolean {
   return shape.drawn.some((one) => one.covers(x, y))
 }
 
@@ -953,139 +959,6 @@ export function itemAtPointer(
   const shape = scheduleShapeHitOf(geometry, shapes, x, y, sizes)
   if (shape !== null) return shape
   return statusLineHitOf(geometry, x, y, sizes)
-}
-
-export interface DependencyEnd {
-  readonly taskUid: number
-  readonly edge: 'start' | 'finish'
-}
-
-// see FR-009
-// WHY: the labels count as well as the drawn shapes, since the tool that draws a line may land
-// anywhere on the Task.
-/** @purity pure */
-function isOnTheTask(shape: TaskShape, x: number, y: number): boolean {
-  if (isOnTheDrawnShape(shape, x, y)) return true
-  const label = shape.task.label
-  const assignee = shape.task.assigneeLabel
-  return (label !== null && isInsideRect(x, y, label)) ||
-    (assignee !== null && isInsideRect(x, y, assignee))
-}
-
-// see FR-009, PTD-3
-// TRAP: a given uid tests no containment: the press may have reached the Task through ink outside its bar.
-/** @purity pure */
-export function dependencyEndAtPointer(
-  geometry: ScheduleGeometry,
-  x: number,
-  y: number,
-  onTaskUid: number | null,
-): DependencyEnd | null {
-  for (const task of geometry.tasks) {
-    if (onTaskUid !== null && task.taskUid !== onTaskUid) continue
-    if (task.hasPlanDates === false) continue
-    const shape = shapeOf(task)
-    // TRAP: never `?? shape.actualBand` here: FR-009 (MUST NOT) forbids a
-    // plan-less endpoint from falling to the actual band (DFC-658).
-    const band = shape.planBand
-    if (band === null) continue
-    if (onTaskUid === null && !isOnTheTask(shape, x, y)) continue
-    // TRAP: the middle belongs to the finish (<, not <=), which also keeps a zero-width bar answering one side.
-    return { taskUid: task.taskUid, edge: x < band.x + band.width / 2 ? 'start' : 'finish' }
-  }
-  return null
-}
-
-// see PI-7, FR-009
-/** @purity pure */
-export function dependencyStartOfHit(
-  geometry: ScheduleGeometry,
-  x: number,
-  y: number,
-  hit: Hit | null,
-): DependencyEnd | null {
-  if (hit === null || hit.item.kind !== 'task') return null
-  return dependencyEndAtPointer(geometry, x, y, hit.item.taskUid)
-}
-
-/** @purity pure */
-function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boolean {
-  if (box === null) return false
-  return (
-    box.x >= marquee.x &&
-    box.y >= marquee.y &&
-    rightOf(box) <= rightOf(marquee) &&
-    bottomOf(box) <= bottomOf(marquee)
-  )
-}
-
-// see SL-3, SL-7b
-/** @purity pure */
-export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
-  const out: Item[] = []
-  for (const task of geometry.tasks) {
-    const shape = shapeOf(task)
-    if (isEnclosedInclusive(merged(shape.planBand, shape.actualBand) ?? shape.dummyInk, marquee)) {
-      out.push({ kind: 'task', taskUid: task.taskUid })
-    }
-  }
-  for (const line of geometry.dependencies) {
-    if (isEnclosedInclusive(boxOfPath(line.points), marquee)) {
-      out.push({
-        kind: 'dependency',
-        predecessorUid: line.predecessorUid,
-        successorUid: line.successorUid,
-      })
-    }
-  }
-  for (const box of geometry.commentBoxes) {
-    if (isEnclosedInclusive(box.body, marquee)) out.push({ kind: 'commentBox', id: box.id })
-  }
-  for (const box of geometry.highlightBoxes) {
-    if (isEnclosedInclusive(box.box, marquee)) out.push({ kind: 'highlightBox', id: box.id })
-  }
-  return out
-}
-
-// see T-023c, FR-049, T-240
-// TRAP: never milestoneFigure: task-figures.ts builds it with the plan hidden too.
-/** @purity pure */
-export function isTaskDrawn(task: TaskGeometry): boolean {
-  return task.plan !== null || task.actual !== null || task.dummies.length > 0
-}
-
-// WHY: structural, not the Selection type: components.json declares no ItemHitArea -> Selection edge.
-export interface DrawnChoice<T extends ChosenItem> {
-  readonly items: readonly T[]
-  readonly ordered: boolean
-}
-
-export interface ChosenItem {
-  readonly kind: string
-  readonly uid?: number
-}
-
-// see T-023c, SL-7b
-// TRAP: the same object when nothing leaves; the shell compares selections by identity.
-/** @purity pure */
-export function selectionWithinDrawn<T extends ChosenItem>(
-  selection: DrawnChoice<T>,
-  geometry: ScheduleGeometry,
-): DrawnChoice<T> {
-  const chosenTaskUids = new Set<number>()
-  for (const item of selection.items) {
-    if (item.kind === 'task' && item.uid !== undefined) chosenTaskUids.add(item.uid)
-  }
-  if (chosenTaskUids.size === 0) return selection
-  const drawnTaskUids = new Set<number>()
-  for (const task of geometry.tasks) {
-    if (chosenTaskUids.has(task.taskUid) && isTaskDrawn(task)) drawnTaskUids.add(task.taskUid)
-  }
-  if (drawnTaskUids.size === chosenTaskUids.size) return selection
-  const items = selection.items.filter(
-    (item) => item.kind !== 'task' || item.uid === undefined || drawnTaskUids.has(item.uid),
-  )
-  return { items, ordered: selection.ordered }
 }
 
 // <generated -- do not edit by hand>
