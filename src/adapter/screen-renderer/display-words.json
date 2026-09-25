@@ -3158,8 +3158,30 @@
     "en": "This document is in a newer format, and some items could not be read"
    },
    "nextStep": {
-    "ja": "読めなかった項目はそのまま保たれ、保存し直しても失われません",
-    "en": "What could not be read is kept, and survives saving again"
+    "ja": "続けると、読めなかった項目は保存したときに失われます。失いたくないときは、最新版を {downloadUrl} からダウンロードして開いてください",
+    "en": "If you go on, what could not be read is lost when you save. To keep it, download the latest version from {downloadUrl} and open the document there"
+   }
+  },
+  {
+   "rowId": "RS-63",
+   "text": {
+    "ja": "この文書は、この版より新しい形式で書かれています",
+    "en": "This document is in a newer format than this version"
+   },
+   "nextStep": {
+    "ja": "最新版を {downloadUrl} からダウンロードして使ってください",
+    "en": "Download the latest version from {downloadUrl} and use it"
+   }
+  },
+  {
+   "rowId": "RS-64",
+   "text": {
+    "ja": "この文書は新しい形式で書かれており、この版では開けません",
+    "en": "This document is in a newer format, and this version cannot open it"
+   },
+   "nextStep": {
+    "ja": "最新版を {downloadUrl} からダウンロードして開いてください",
+    "en": "Download the latest version from {downloadUrl} and open the document there"
    }
   },
   {
