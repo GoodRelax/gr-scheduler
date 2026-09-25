@@ -88,7 +88,7 @@
 //     `FieldCommit`), `input-command-translator.ts` (`InputContext`,
 //     `commandFromFieldCommit`), `edit-document.ts` (`editTask`, `EditResult`,
 //     `TaskCommand`, `DocumentCommand`, `NOT_STORED_ZOOM_BOUNDS`),
-//     `schedule.ts` (`scheduleViolations`, `ScheduleViolation`), the three
+//     `schedule-invariants.ts` (`scheduleViolations`, `ScheduleViolation`), the three
 //     layout entries the fixture is built from, and the entity types;
 //   - ⚠️ TWO PIECES OF BODY, named here so a reader can weigh the cases against
 //     that: `choicesOf` in `properties-panel.ts` and the `setTaskWbsParent` arm

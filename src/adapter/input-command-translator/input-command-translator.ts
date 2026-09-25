@@ -556,7 +556,7 @@ export function rowAnchorIn(
   const row = rows[at]
   const below = rows[at + 1]
   if (row === undefined) return held
-  // TRAP: scrollOffsetOf (schedule-layout.ts) inverts this; both must divide by the slab.
+  // TRAP: scrollOffsetOf (row-scroll.ts) inverts this; both must divide by the slab.
   const slab = below === undefined ? row.height : below.y - row.y
   if (slab <= 0) return held
   const into = y - row.y

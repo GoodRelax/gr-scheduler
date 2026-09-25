@@ -31,7 +31,8 @@
 # LOWERED 12 lines on 2026-09-24 to the measured values (tree density 2285 -> 2265 bp) under JDG-520 (the coordinator may tighten without asking); CR-553 rewrote the row-height tests, measured on aa7a9ad9.
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2265 -> 2243 bp) under JDG-520; H2..H4 rewrote tests, measured on 0d446d12.
 # LOWERED 1 line on 2026-09-24 to the measured values (tree density 2243 -> 2232 bp) under JDG-520; H10 rewrote the T-225 tests, measured on 3011de43.
-tree-density-basis-points 2232
+# LOWERED on 2026-09-25 to the measured value (tree density 2232 -> 2231 bp) under JDG-520 / JDG-547: CR-554 wave G1 rewrote stale file names in test comments.
+tree-density-basis-points 2231
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 366
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0

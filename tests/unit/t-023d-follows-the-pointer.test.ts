@@ -37,7 +37,7 @@
 //                        ⭐ `GrabArea` -- 「Which row of table T-023d claimed
 //                        the point」 -- spells GA-7 .. GA-17 and no more, which
 //                        is one half of why GR-21 is measured and not driven.
-//   schedule.ts          the entity types this fixture writes out
+//   schedule-entities.ts          the entity types this fixture writes out
 //   edit-task.ts /       the `kind` spellings of table T-108, to learn WHICH
 //   edit-document.ts     command could carry each release
 //

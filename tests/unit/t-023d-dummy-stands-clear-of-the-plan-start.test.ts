@@ -262,7 +262,7 @@ const dayAfter = (iso: string): string => {
  * `count` worked days on from `iso`, through the default calendar.
  *
  * ⚠️ THE TEST'S OWN ARITHMETIC, not the tree's. `dateFromWorkingDays` exists in
- * `schedule.ts` and is deliberately not called: a test that walked the calendar
+ * `working-calendar.ts` and is deliberately not called: a test that walked the calendar
  * with the same member the unit walks it with would agree with the unit even
  * when both disagree with S-106.
  */

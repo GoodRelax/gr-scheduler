@@ -56,7 +56,7 @@
 //                       `ScreenSurface`, `ScreenView`
 //   input-command-translator.ts  `HumanInput`, `InputModifiers`, `KeyInput`,
 //                       `PointerButton`, `PointerInput`, `PointerPhase`
-//   schedule.ts         `Resource`, `Assignment`, `Task`, `TaskGroup`
+//   schedule-entities.ts         `Resource`, `Assignment`, `Task`, `TaskGroup`
 // ⛔ NO FUNCTION BODY WAS READ.
 // ⭐ THE HOST, THE FAKE SURFACE AND THE WAY A PRESS IS AIMED ARE COPIED, NOT
 // INVENTED: tests/unit/fr-029-the-reason-a-press-carries.test.ts drives this same

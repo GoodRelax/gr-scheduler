@@ -47,7 +47,7 @@
 //                        `ScreenView`
 //   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
 //   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rows`)
-//   schedule.ts          the entity types this fixture writes out
+//   schedule-entities.ts          the entity types this fixture writes out
 //
 // ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. Every expected value is
 // either read out of the manuscript at run time (`specTable`, the two sentences

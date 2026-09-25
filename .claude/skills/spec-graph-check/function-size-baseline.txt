@@ -62,7 +62,7 @@ HELD src/entity/document-model/document-settings/document-settings.ts::clampedSe
 HELD src/entity/document-model/schedule/schedule-invariants.ts::find~16 lines=52 branches=10
 HELD src/entity/document-model/schedule/schedule-invariants.ts::nestingOf lines=61 branches=14
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=62 branches=9
-HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::progressLineOf lines=40 branches=16
+HELD src/entity/layout-engine/schedule-geometry/progress-line.ts::progressLineOf lines=40 branches=16
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::routeOf lines=68 branches=11
 HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::taskGeometryOf lines=58 branches=13
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=268 branches=23

@@ -6,7 +6,6 @@
 
 import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
 import {
-  compareDays,
   dayOf,
   isDelayed,
   lastDayForLength,
@@ -41,6 +40,13 @@ import {
   type ScreenRect,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
+import { commentGeometry } from './comment-box'
+import { dualCursorGeometry } from './dual-cursor'
+import { highlightGeometry } from './highlight-box'
+import { guidesOf } from './plan-actual-guides'
+import { progressLineOf } from './progress-line'
+
+export { leaderOf } from './comment-box'
 
 export interface Point {
   readonly x: number
@@ -147,12 +153,6 @@ export interface CommentGeometry {
   readonly fontSize: number
 }
 
-// see GR-14
-/** @purity pure */
-export function leaderOf(comment: CommentGeometry): Path {
-  return [comment.anchor, point(comment.body.x, comment.body.y + comment.body.height)]
-}
-
 // see CU-2
 export interface DualCursorGeometry {
   readonly date1X: number
@@ -172,11 +172,11 @@ export interface ScheduleGeometry {
 }
 
 /** @purity pure */
-function point(x: number, y: number): Point {
+export function point(x: number, y: number): Point {
   return { x, y }
 }
 
-interface GeometryInputs {
+export interface GeometryInputs {
   readonly settings: DocumentSettings
   readonly layout: ScheduleLayout
   readonly within: WorkingCalendar
@@ -424,7 +424,7 @@ function isThinShape(shapeKind: ShapeKind): boolean {
 }
 
 // see XS-4, XS-5, XS-6, XS-7
-// TRAP: schedule-layout.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
+// TRAP: shape-cross-sections.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
 /** @purity pure */
 function thinTierMiddle(placed: TaskPlacement, settings: DocumentSettings,
                         isActual: boolean): number {
@@ -582,7 +582,7 @@ function sameSide(linkType: number): boolean {
 }
 
 // see VG-5
-// TRAP: schedule-layout.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
+// TRAP: shape-cross-sections.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
 /** @purity pure */
 function drawnOverhangOf(placed: TaskPlacement, settings: DocumentSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
@@ -774,45 +774,6 @@ function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskP
   }
 }
 
-// see T-020a
-/** @purity pure */
-function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
-                  actualHeight: number): readonly Path[] {
-  const settings = inputs.settings
-  if (!settings.planVisible || !settings.actualVisible || placed.actualX === null) return []
-  const middle = placed.y + placed.planHeight / 2
-
-  // TRAP: judge GD-4 before GD-1's overlap: milestone figures a day apart overlap in pixels, so GD-4 would never fire.
-  if (placed.actualPlacement === 'sideways') {
-    const planDay = dayOf(task.start)
-    const actualDay = dayOf(task.actualStart)
-    if (planDay === null || actualDay === null) return []
-    if (compareDays(planDay, actualDay) === 0) return []
-    return [[point(placed.actualX, middle), point(placed.x + placed.width / 2, middle)]]
-  }
-
-  const planX0 = placed.x
-  const planX1 = placed.x + placed.width
-  const actualX0 = placed.actualX
-  const actualX1 = placed.actualX + placed.actualWidth
-  if (actualX1 >= planX0 && actualX0 <= planX1) return []
-
-  const rightwards = actualX0 > planX1
-  const from = rightwards ? actualX0 : actualX1
-  const toDay = rightwards ? planX1 : planX0
-
-  if (placed.actualPlacement === 'below') {
-    const below = placed.y + placed.planHeight + settings.actualGap + actualHeight / 2
-    return [[point(from, below), point(toDay, below)]]
-  }
-  const top = middle - actualHeight / 2
-  const bottom = middle + actualHeight / 2
-  return [
-    [point(from, top), point(toDay, top)],
-    [point(from, bottom), point(toDay, bottom)],
-  ]
-}
-
 /** @purity pure */
 function dummyFromOf(inputs: GeometryInputs, startText: string | null): CalendarDay | null {
   const key = startText ?? ''
@@ -1002,215 +963,6 @@ function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacemen
         : [],
     label: labelBoxOf(inputs, task, placed),
     assigneeLabel: outsideLabel,
-  }
-}
-
-// see T-022
-/** @purity pure */
-function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
-                   statusDate: CalendarDay): number | null {
-  /** @purity pure */
-  const before = (text: string | null): number | null => {
-    const day = dayOf(text)
-    if (day === null || compareDays(day, statusDate) >= 0) return null
-    return xFromDay(inputs.layout, day)
-  }
-  switch (planActualState(task)) {
-    case 'finished':
-      return null
-    case 'suspendedResumeUnknown':
-      return null
-    case 'suspendedResumePlanned':
-      return before(task.resume)
-    case 'notStarted':
-      return before(task.start)
-    case 'inProgress':
-      return placed.actualX === null ? null : placed.actualX + placed.actualWidth
-  }
-}
-
-// see FR-014, LF-12
-/** @purity pure */
-function progressLineOf(inputs: GeometryInputs): Path {
-  const { layout, settings, statusDate } = inputs
-  if (!settings.progressLineVisible || statusDate === null) return []
-  const first = layout.rows[0]
-  const last = layout.rows[layout.rows.length - 1]
-  if (first === undefined || last === undefined) return []
-
-  const baseX = xFromDay(layout, statusDate)
-  const half = layout.rectangleHeight / 2
-  // WHY: bucketed by row and lane: by row alone each lane rescans its row, quadratic once Tasks overlap (NFR-013).
-  const byLane = new Map<string, TaskPlacement[][]>()
-  for (const placed of layout.placements) {
-    const lanes = byLane.get(placed.groupId) ?? []
-    const held = lanes[placed.stack] ?? []
-    held.push(placed)
-    lanes[placed.stack] = held
-    byLane.set(placed.groupId, lanes)
-  }
-
-  const points: Point[] = [point(baseX, first.y - settings.progressLineOverhang)]
-  for (const row of layout.rows) {
-    const lanes = byLane.get(row.groupId)
-    // TRAP: sort by top, not lane index: with S-58 'up' the index descends in y and the line zig-zags.
-    const lanesByTop = row.stackTops
-      .map((top, lane) => ({ top, lane }))
-      .sort((a, b) => a.top - b.top)
-    for (const { top, lane } of lanesByTop) {
-      let x: number | null = null
-      for (const placed of lanes?.[lane] ?? []) {
-        const task = inputs.taskByUid.get(placed.taskUid)
-        if (task === undefined) continue
-        const vertex = vertexXOf(inputs, task, placed, statusDate)
-        if (vertex !== null && (x === null || vertex < x)) x = vertex
-      }
-      points.push(point(x ?? baseX, top + half))
-    }
-  }
-  points.push(point(baseX, last.y + last.height + settings.progressLineOverhang))
-  return points
-}
-
-// see FR-019
-// WHY: the one place a highlight box's end day is counted inclusive; its right edge is where the next day begins.
-/** @purity pure */
-function rightEdgeOfDay(layout: ScheduleLayout, day: CalendarDay): number {
-  return xFromDay(layout, day) + layout.pxPerDay
-}
-
-// see FR-019
-/** @purity pure */
-function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
-  const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
-  const out: HighlightGeometry[] = []
-  for (const box of schedule.highlightBoxes) {
-    const from = dayOf(box.startDate)
-    const toDay = dayOf(box.endDate)
-    if (from === null || toDay === null) continue
-    const top =
-      (box.topGroupId === null ? undefined : rowById.get(box.topGroupId)) ?? layout.rows[0]
-    const bottom =
-      (box.bottomGroupId === null ? undefined : rowById.get(box.bottomGroupId)) ??
-      layout.rows[layout.rows.length - 1]
-    if (top === undefined || bottom === undefined) continue
-    // TRAP: both edges through min / max: rows are stored in tree order but drawn in screen order, and pinning inverts them.
-    const early = compareDays(from, toDay) <= 0 ? from : toDay
-    const late = compareDays(from, toDay) <= 0 ? toDay : from
-    const x0 = xFromDay(layout, early)
-    const x1 = rightEdgeOfDay(layout, late)
-    const y = Math.min(top.y, bottom.y)
-    out.push({
-      id: box.id,
-      box: {
-        x: x0,
-        y,
-        width: x1 - x0,
-        height: Math.max(top.y + top.height, bottom.y + bottom.height) - y,
-      },
-      // WHY: not defaulted to S-132: CM-52 gives that to a new box, and a box that states none draws none.
-      cornerRadiusPx: box.cornerRadiusPx,
-    })
-  }
-  return out
-}
-
-// see FR-093
-// TRAP: repeats labelUnits in schedule-layout.ts; change them together.
-/** @purity pure */
-function charUnits(ch: string): number {
-  return ch.charCodeAt(0) < 0x100 ? 1 : 2
-}
-
-/** @purity pure */
-function labelUnits(text: string): number {
-  let units = 0
-  for (const character of text) units += charUnits(character)
-  return units
-}
-
-// see FR-097, S-182
-/** @purity pure */
-function wrappedLines(text: string, limit: number): readonly string[] {
-  const out: string[] = []
-  for (const paragraph of text.replace(/\r\n?/g, '\n').split('\n')) {
-    let line = ''
-    let units = 0
-    for (const character of paragraph) {
-      const width = charUnits(character)
-      if (units + width > limit && line !== '') {
-        out.push(line)
-        line = ''
-        units = 0
-      }
-      line += character
-      units += width
-    }
-    out.push(line)
-  }
-  return out
-}
-
-// see FR-019, FR-097
-/** @purity pure */
-function commentGeometry(
-  schedule: Schedule,
-  settings: DocumentSettings,
-  layout: ScheduleLayout,
-): readonly CommentGeometry[] {
-  const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
-  const out: CommentGeometry[] = []
-  // TRAP: read no setting before the loop: fontScaleSizes[fontScale] throws for a document with no comment box.
-  for (const box of schedule.commentBoxes) {
-    // see FR-019, UC-008, AT-12
-    // WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
-    const day = dayOf(box.anchorDate) ?? dayOf(schedule.project.startDate)
-    const row = box.anchorGroupId === null ? undefined : rowById.get(box.anchorGroupId)
-    if (day === null || row === undefined) continue
-    const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
-    let widest = 0
-    for (const line of lines) widest = Math.max(widest, labelUnits(line))
-    // DEVIATION: spec says the floor is T-215's font size, not one full-width char (FR-097); here it is (DFC-722)
-    if (widest === 0) widest = 2
-    const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    const anchor = point(xFromDay(layout, day) + layout.pxPerDay / 2, row.y + row.height / 2)
-    const fontSize = settings.fontScaleSizes[settings.fontScale]
-    const pad = settings.commentBoxPad
-    const width = widest * fontSize * settings.labelCoef + 2 * pad
-    const height = lines.length * fontSize + 2 * pad
-    out.push({
-      id: box.id,
-      anchor,
-      body: {
-        x: anchor.x + offset.dx,
-        y: anchor.y + offset.dy - height,
-        width,
-        height,
-      },
-      lines,
-      fontSize,
-    })
-  }
-  return out
-}
-
-// see CU-2, IV-13
-/** @purity pure */
-function dualCursorGeometry(
-  settings: DocumentSettings,
-  layout: ScheduleLayout,
-  regions: ScreenRegions,
-): DualCursorGeometry | null {
-  const placed = settings.dualCursor
-  if (placed === null) return null
-  const first = dayOf(placed.date1)
-  const second = dayOf(placed.date2)
-  if (first === null || second === null) return null
-  return {
-    date1X: xFromDay(layout, first),
-    date2X: xFromDay(layout, second),
-    top: regions.rowArea.y,
-    bottom: regions.rowArea.y + regions.rowArea.height,
   }
 }
 

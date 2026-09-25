@@ -18,7 +18,7 @@
 // exported types of `schedule-geometry.ts` (`BarGeometry`, `Point`,
 // `TaskGeometry`), of `screen-regions.ts` (`ScreenRect`), of
 // `screen-renderer.ts` / `screen-surface.ts` (`ScreenPart`, `ScreenSurface`,
-// `IconId`, `DisplayLanguage`) and of `schedule.ts` (`Task`,
+// `IconId`, `DisplayLanguage`) and of `schedule-entities.ts` (`Task`,
 // `TaskVisual`). NO FUNCTION BODY WAS READ.
 //
 // ⛔ AND NOT ONE EXPECTED SHAPE IS SPELLED HERE. IN-2 closes with 「⚠️ 形の綴り

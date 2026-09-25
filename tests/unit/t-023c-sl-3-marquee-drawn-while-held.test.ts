@@ -49,7 +49,7 @@
 //                        `ScreenView`
 //   schedule-geometry.ts `Point`, `BarGeometry`, `TaskGeometry`
 //   schedule-layout.ts   `ScheduleLayout` (`pxPerDay`, `rows`)
-//   schedule.ts          the entity types this fixture writes out
+//   schedule-entities.ts          the entity types this fixture writes out
 //
 // ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. `S-174` and `S-175` are read
 // out of 表 T-206 at run time; the colour is not written down at all but taken

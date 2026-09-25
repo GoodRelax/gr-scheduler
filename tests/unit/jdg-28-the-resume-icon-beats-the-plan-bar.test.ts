@@ -128,7 +128,7 @@
 // `schedule-geometry.ts` (`ResumeGeometry`, `TaskGeometry`, `BarGeometry`,
 // `Point`, `ScheduleGeometry`, `geometryFromLayout`), `schedule-layout.ts`
 // (`layoutFromSchedule`), `screen-regions.ts` (`regionsFromScreen`,
-// `ScreenEnvironment`), `schedule.ts` (`planActualState`'s five rows, to learn
+// `ScreenEnvironment`), `plan-actual-state.ts` (`planActualState`'s five rows, to learn
 // which columns put a Task in PS-4) and `selection.ts` (`emptySelection`).
 // ⛔ NONE OF THAT SET AN EXPECTED VALUE: the expectations below are the row's,
 // and the geometry supplies only where the picture put its own vertices.
