@@ -1170,6 +1170,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-162 | `deletion-confirmations.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-163 | `frame-clock-wakes.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-164 | `field-entry.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-165 | `document-file-flow.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-166 | `watermark-unlock.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-167 | `row-band-ceiling-cache.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-168 | `copy-and-paste.ts` | 内部 | non-pure |  | 🔧 実装済 |

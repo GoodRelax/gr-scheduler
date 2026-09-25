@@ -1,4 +1,5 @@
-82
+83
+# RAISED 82 -> 83 on 2026-09-25 under JDG-565 (the user away: raises allowed with the reason; to confirm on return): CR-554 wave F4 moved rasteredContent and embeddedHtmlContent to document-file-flow.ts, where both open with "if (seam === undefined) { hands.raiseNotice(SEAM_ABSENT_REASON, null); return null }". The two copies already stood in frame-loop.ts at 17 tokens, under the 20-token floor; the hands. prefix of the (F) form lifted them over it. Joining them is a code change, not a move, so it waits for a later change request.
 # LOWERED 86 -> 85 on 2026-09-22, with the user's approval (asked in chat, answered "4 つとも
 # 下げる（推奨）"): measured 85 by check 45 after the CR-441 code wave (frame-loop.ts, item-grab.ts,
 # schedule-geometry.ts, schedule-layout.ts); which group went was not attributed.

@@ -1,4 +1,5 @@
-excess-lines=6644 excess-branches=674
+excess-lines=6269 excess-branches=674
+# LOWERED 6644/674 -> 6269/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F4 moved the document file flow out of frameLoop (1872 -> 1440); openDocumentIntoHold -> document-file-flow.ts 159/32. NEW HELD documentFileFlowOf 107/0 (the (M) factory owning the four settle/saved lets and the questions that write them; JDG-565 raise with the reason, for the user to confirm on return).
 # LOWERED 7031/674 -> 6644/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F3 moved ~430 lines out of frameLoop (2302 -> 1872); runFrame 124/11 -> 123/10; tentativeDependencyOf -> held-press-preview.ts 64/19. NEW HELD frameClockWakesOf 69/0 and interactionRecorderOf 75/0 ((M) factories owning their lets; JDG-565 raise with the reason, for the user to confirm on return).
 # LOWERED 7189/674 -> 7031/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 waves F1-F2 moved ~180 lines out of frameLoop (2486 -> 2302); viewSettings moved to view-place.ts (55 -> 54). Two HELD rows are NEW because the (M) factories of CR-554 4.1 own their let and the functions that write it: rowBandCeilingCacheOf 58/0 and heldViewPlaceOf 69/0 (JDG-565: raises allowed with the reason, for the user to confirm on return).
 # LOWERED 7191/676 -> 7189/674 on 2026-09-24 under JDG-520: H10 shrank controlElement; measured on 3011de43.
@@ -80,12 +81,13 @@ HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElemen
 HELD src/framework/dom-screen-surface/row-title-panel-drawing.ts::rowTitleElement lines=148 branches=16
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::fileSystemAccessFileStore lines=255 branches=0
 HELD src/framework/file-system-access-file-store/file-system-access-file-store.ts::writeChosenFile lines=54 branches=7
+HELD src/framework/single-html-shell/document-file-flow.ts::documentFileFlowOf lines=107 branches=0
+HELD src/framework/single-html-shell/document-file-flow.ts::openDocumentIntoHold lines=159 branches=32
 HELD src/framework/single-html-shell/frame-clock-wakes.ts::frameClockWakesOf lines=69 branches=0
 HELD src/framework/single-html-shell/frame-loop.ts::answerSettledEntry lines=84 branches=21
 HELD src/framework/single-html-shell/frame-loop.ts::carryOutAction lines=182 branches=47
 HELD src/framework/single-html-shell/frame-loop.ts::exportScene lines=85 branches=2
-HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1872 branches=4
-HELD src/framework/single-html-shell/frame-loop.ts::openDocumentIntoHold lines=159 branches=32
+HELD src/framework/single-html-shell/frame-loop.ts::frameLoop lines=1440 branches=4
 HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=149 branches=62
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=123 branches=10
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=64 branches=19

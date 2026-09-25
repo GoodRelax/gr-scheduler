@@ -4,10 +4,7 @@
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import {
-  SETTINGS_DEFAULTS,
-  type DocumentSettings,
-} from '../../entity/document-model/document-settings/document-settings'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import type { DialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
@@ -27,7 +24,6 @@ import {
   taskByUid,
   textOfDay,
   type CalendarDay,
-  type Project,
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
@@ -66,7 +62,6 @@ import {
   type WriteMoment,
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
-  editDocument,
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
@@ -95,38 +90,19 @@ import {
   type OpenChoice,
 } from '../../use-case/import-document/import-document'
 import { emptyChangeWatchers, notifyChangeWatchers } from '../../use-case/notify-change-watchers/notify-change-watchers'
-import {
-  validateImportedDocument,
-  type ImportBounds,
-} from '../../use-case/validate-imported-document/validate-imported-document'
 import type { installAgentApi } from '../../adapter/agent-api-endpoint/agent-api-endpoint'
 import {
-  documentFromJson,
-  documentFromMspdi,
-  exportEmbeddedHtml,
-  extensionOfFormat,
-  formatFromFile,
   jsonFromDocument,
-  mspdiFromDocument,
   type AppShellSource,
   type ExchangeFormat,
-  type FormatMismatch,
 } from '../../adapter/document-codec/document-codec'
 import {
-  openDocumentFile,
-  saveDocumentFile,
-  type ChosenFileSaveRequest,
   type DocumentFileFault,
   type DocumentFileFaultReason,
-  type DocumentFileSaving,
   type FileStore,
-  type OpenRoute,
-  type ProjectIdentity,
-  type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
 import {
   exportPng,
-  exportSvg,
   type ExportScene,
   type RasterFaultReason,
   type Rasterizer,
@@ -173,7 +149,6 @@ import {
 import {
   confirmationOwedBy,
   confirmationOwedByResourceDeletion,
-  tasksLostWith,
 } from './deletion-confirmations'
 import {
   pressedPointerShapeOf,
@@ -181,6 +156,15 @@ import {
   type ShowPointerShape,
 } from './pointer-shape'
 import { copyForPaste, pasteWhatWasCopied } from './copy-and-paste'
+import {
+  answerOpenChoice,
+  answerSettledFormat,
+  askToOpenDroppedFile,
+  documentFileFlowOf,
+  takeInHandedDocument,
+  OPEN_ROUTE_FROM_CHOOSER,
+  OPEN_ROUTE_REOPEN,
+} from './document-file-flow'
 import {
   drainFieldEditNotices,
   fieldFocusRetriesOf,
@@ -213,6 +197,7 @@ export type { PointerFacing, PointerRow, PointerShape, ShowPointerShape } from '
 export { WATERMARK_UNLOCK_DIGEST } from './watermark-unlock'
 export { copiedForPasteOf, pasteRefusedFor } from './copy-and-paste'
 export { FOCUS_ON_DOCUMENT_BODY } from './interaction-record'
+export { OPEN_ROUTE_FROM_DROP } from './document-file-flow'
 
 export const GREATEST_KNOWN_SCHEMA_VERSION: string = startupTemplate.schemaVersion
 
@@ -237,7 +222,7 @@ export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }
 
 type AgentApiWiring = Parameters<typeof installAgentApi>[0]
 
-interface HandedImport {
+export interface HandedImport {
   readonly incoming: Document
   readonly format: ExchangeFormat
   readonly byteLength: number
@@ -320,6 +305,14 @@ export interface FrameLoopHands {
   settingsLimitsOf(frame: FrameValues | null): SettingsLimits
   collectInputContext(frame: FrameValues, isNoticeStanding?: boolean): InputContext
   isPropertiesPanelOnScreen(): boolean
+  readonly files: FileStore | undefined
+  readonly rasterizer: Rasterizer | undefined
+  readonly appShell: AppShellSource | undefined
+  sendFromFlow(event: SessionEvent): void
+  endFileOperation(ended: SessionEvent): void
+  raiseFileFault(fault: DocumentFileFault): void
+  replaceHeldDocument(call: ReplacementCall): boolean
+  exportScene(): ExportSceneWithCapStop | null
 }
 
 // see T-023c
@@ -386,7 +379,7 @@ function selectionWithinDrawnRows(
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-const HISTORY_LIMITS: HistoryLimits = {
+export const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
   // TRAP: S-95 is in megabytes; read as bytes, every write collapses the history to one step.
   maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * BYTES_PER_MEGABYTE,
@@ -398,7 +391,7 @@ const ENTER_KEY = 'Enter'
 const GUIDE_CURSOR_NONE = 'none'
 
 // TRAP: not generated; a change to ED-1 of table T-229 must be copied here by hand.
-const EDITED_BY_SCREEN = 'user'
+export const EDITED_BY_SCREEN = 'user'
 
 const DISPLAY_LANGUAGE_ENTRY: IconId = 'IC-21'
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
@@ -430,7 +423,7 @@ const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
 // TRAP: also spelled in screen-state-input.ts and open-modals.ts; a misspelling raises a surface
 // nothing describes.
-const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
+export const EXPORT_CHOOSER_SURFACE = 'Export Chooser'
 
 // see U-60, T-280
 export const WATERMARK_UNLOCK_ROW = 'U-60'
@@ -463,9 +456,9 @@ const LANDING_OF_REPLACEMENT_ROW: Readonly<Record<ReplacementCall['row'], Sessio
   'RD-6': { type: 'startupDocumentHeld' },
   'RD-7': { type: 'newDocumentLanded' },
 }
-const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
-const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
-const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
+export const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded' }
+export const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
+export const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
 const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
 
@@ -501,11 +494,9 @@ export const FIELD_FOCUS_WITHDRAWING_KEYS: ReadonlySet<string> = new Set([ESCAPE
 
 export type ConfirmationQuestion = FileFlowQuestion['question']
 
-const OVERWRITE_QUESTION: ConfirmationQuestion = 'QN-4'
-
 const DISCARD_QUESTION: ConfirmationQuestion = 'QN-5'
 
-type NoticeReason =
+export type NoticeReason =
   | 'RS-1'
   | 'RS-2'
   | 'RS-3'
@@ -678,47 +669,18 @@ function reasonOfWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): Notice
   return NOTICE_REASON_OF_WRITE_REFUSAL[refusal.reason]
 }
 
-const NOTICE_REASON_OF_FORMAT_MISMATCH: Readonly<Record<FormatMismatch, NoticeReason>> = {
-  extension: 'RS-11',
-  firstCharacter: 'RS-12',
-  both: 'RS-13',
-}
-
-const IGNORED_FILES_REASON: NoticeReason = 'RS-14'
-
-const SETTINGS_CLAMPED_REASON: NoticeReason = 'RS-51'
-
-// see MR-3
-const DUPLICATE_LEAVES_REASON: NoticeReason = 'RS-60'
-
-
 const RECOUNTED_PERCENT_COMPLETE_REASON: NoticeReason = 'RS-52'
 
-const OVERLAY_NOT_DRAWN_REASON: NoticeReason = 'RS-16'
-
-const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
+export const HEIGHT_CEILING_REASON: NoticeReason = 'RS-43'
 
 
-const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
+export const NOTICE_REASON_OF_RASTER_FAULT: Readonly<Record<RasterFaultReason, NoticeReason>> = {
   unsupported: 'RS-42',
   tooLarge: 'RS-43',
   rasterFailed: 'RS-42',
 }
 
-type EmbeddedHtmlFaultReason = Exclude<
-  Awaited<ReturnType<typeof exportEmbeddedHtml>>,
-  { readonly ok: true }
->['fault']['reason']
-
-const NOTICE_REASON_OF_EMBEDDED_HTML_FAULT: Readonly<
-  Record<EmbeddedHtmlFaultReason, NoticeReason>
-> = {
-  appShellUnavailable: 'RS-15',
-  unusableElementId: 'RS-42',
-  moreThanOneEntry: 'RS-42',
-}
-
-const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
+export const SEAM_ABSENT_REASON: NoticeReason = 'RS-3'
 
 const NO_WORKING_WEEKDAY_REASON: Extract<NoticeReason, 'RS-21'> = 'RS-21'
 
@@ -758,7 +720,7 @@ export function noWorkingWeekdayReason(document: Document): StartupNoticeReason 
 
 // TRAP: ScreenState.surface, icon-roster.json and readScreenPartAt must spell it
 // the same; a misspelling raises a surface nothing describes.
-const OPEN_CHOOSER_SURFACE = 'Open Chooser'
+export const OPEN_CHOOSER_SURFACE = 'Open Chooser'
 
 // TRAP: dom-screen-surface.ts's ROLE.dialogueField must spell it the same; a mismatch
 // silently leaves the Dialogue Field's press stopped like any other rowArea press.
@@ -782,126 +744,10 @@ const SURFACE_NAME_OF_FLOW: Readonly<Record<FileFlowSurfaceName, string>> = {
   'U-62': IMPORT_REPORT_SURFACE,
 }
 
-const NO_DROPPED_SEEDS: ReadonlySet<number> = new Set<number>()
-
 const MERGE_MAPPING_OF_ENTRY: Readonly<Record<IconId, MergeMapping>> = {
   'IC-95': { kind: 'allSame' },
   'IC-96': { kind: 'allDifferent' },
   'IC-97': { kind: 'cancelImport' },
-}
-
-// see FT-1, OP-2
-export const OPEN_ROUTE_FROM_DROP: OpenRoute = 'drop'
-
-const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
-
-const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
-
-const SAVE_FORM: SaveFileForm = 'grsJson'
-
-// TRAP: document-codec.ts holds a similar private map for decoding (OP-12);
-// change both together.
-const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
-  mspdi: 'IO-1',
-  grsJson: 'IO-2',
-  svg: 'IO-3',
-  png: 'IO-4',
-  singleHtml: 'IO-7',
-}
-
-// see FR-096, T-024
-/** @purity pure */
-function extensionOfForm(form: SaveFileForm): string {
-  return extensionOfFormat(TABLE_ROW_OF_SAVE_FORM[form])
-}
-
-// see T-024
-/** @purity pure */
-function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
-  for (const form of Object.keys(TABLE_ROW_OF_SAVE_FORM) as readonly SaveFileForm[]) {
-    if (TABLE_ROW_OF_SAVE_FORM[form] === format) return form
-  }
-  return null
-}
-
-// see OP-6
-/** @purity pure */
-function defaultDocumentSettings(): DocumentSettings {
-  const built: Record<string, unknown> = {}
-  for (const [dotted, value] of Object.entries(SETTINGS_DEFAULTS)) {
-    const path = dotted.split('.')
-    const leaf = path.pop()
-    if (leaf === undefined) continue
-    let foundAt = built
-    for (const step of path) {
-      const standing = foundAt[step]
-      const group =
-        typeof standing === 'object' && standing !== null
-          ? (standing as Record<string, unknown>)
-          : {}
-      foundAt[step] = group
-      foundAt = group
-    }
-    foundAt[leaf] = value
-  }
-  return built as unknown as DocumentSettings
-}
-
-const DEFAULT_DOCUMENT_SETTINGS: DocumentSettings = defaultDocumentSettings()
-
-// see FR-096
-/** @purity pure */
-function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
-  return `${project.title ?? ''}${extensionOfForm(form)}`
-}
-
-// see FR-096
-/** @purity pure */
-function exportedText(form: SaveFileForm, document: Document): string | null {
-  switch (form) {
-    case 'grsJson':
-      return jsonFromDocument(document)
-    case 'mspdi':
-      // DEVIATION: spec says export notices are told (EX-3, EX-6); here they are dropped (DFC-557)
-      return mspdiFromDocument(document).text
-    case 'svg':
-    case 'png':
-    case 'singleHtml':
-      return null
-  }
-}
-
-interface DecodedIntake {
-  readonly document: Document
-  readonly clampedCount: number
-  readonly duplicateLeaves: number
-  readonly unreadColumns: readonly string[]
-}
-
-// see OP-12, FR-073
-/** @purity pure */
-function decodedDocument(
-  format: ExchangeFormat,
-  text: string,
-  current: Document,
-): DecodedIntake | null {
-  if (format === 'grsJson') {
-    // TRAP: omit this argument and OP-7 silently answers notCompared (FR-073).
-    const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
-    return read.ok
-      ? {
-          document: read.document,
-          clampedCount: read.clampedCount,
-          duplicateLeaves: 0,
-          unreadColumns: read.unreadColumns,
-        }
-      : null
-  }
-  // DEVIATION: spec says a reading's notices and faults are told (T-233); here they are dropped (DFC-557)
-  const read = documentFromMspdi(text, current)
-  return read.ok
-    ? { document: read.document, clampedCount: 0, duplicateLeaves: read.duplicateLeaves, unreadColumns: [] }
-    : null
 }
 
 // see FR-053
@@ -915,9 +761,9 @@ function paletteCornerOf(
 
 type PanelShowing = 'selection' | 'documentSettings' | null
 
-type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number]
-type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']>
-type MergeMapping = NonNullable<MergeChoices['mapping']>
+export type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number]
+export type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']>
+export type MergeMapping = NonNullable<MergeChoices['mapping']>
 
 interface ScreenViewReadingsTaken {
   readonly openedFileName: string | null
@@ -1514,7 +1360,7 @@ function flowSurfaceOf(surfaceName: string): FileFlowSurfaceName | null {
 }
 
 /** @purity pure */
-function discardQuestionOf(discarded: Document): FileFlowQuestion {
+export function discardQuestionOf(discarded: Document): FileFlowQuestion {
   return {
     manner: CONFIRMATION_MANNER,
     question: DISCARD_QUESTION,
@@ -1557,48 +1403,6 @@ function formatSettledOnRelease(
   return press.on.format
 }
 
-const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
-
-const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
-
-/** @purity pure */
-function taskIndexOfRefusal(at: string): number | null {
-  if (!at.startsWith(TASK_REFUSAL_PREFIX)) return null
-  const rest = at.slice(TASK_REFUSAL_PREFIX.length)
-  const cut = rest.indexOf('/')
-  if (cut <= 0) return null
-  const index = Number(rest.slice(0, cut))
-  return Number.isInteger(index) && index >= 0 ? index : null
-}
-
-// see FR-023, CD-1
-/** @purity pure */
-function taskUidsWithAnUnusableDate(
-  refusals: readonly { readonly rule: string; readonly at: string }[],
-  tasks: readonly Task[],
-): ReadonlySet<number> {
-  const seeds = new Set<number>()
-  for (const refusal of refusals) {
-    if (!UNUSABLE_DATE_RULES.has(refusal.rule)) continue
-    const index = taskIndexOfRefusal(refusal.at)
-    if (index === null) continue
-    const task = tasks[index]
-    if (task === undefined) continue
-    seeds.add(task.uid)
-  }
-  return seeds
-}
-
-// see DI-3
-/** @purity pure */
-function projectIdentityFromText(text: string): ProjectIdentity | null {
-  // TRAP: omit the version and documentFromJson silently answers notCompared.
-  const read = documentFromJson(text, GREATEST_KNOWN_SCHEMA_VERSION)
-  if (!read.ok) return null
-  const project = read.document.schedule.project
-  return { projectName: project.name, projectId: project.id }
-}
-
 
 // TRAP: toISOString here would move the zoneless statusDate by the UTC offset.
 /** @purity semi-pure-b */
@@ -1614,7 +1418,7 @@ export function readToday(): string {
 
 // see FR-063
 /** @purity semi-pure-b */
-function readInstantOfWrite(): string {
+export function readInstantOfWrite(): string {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z')
 }
 
@@ -1661,7 +1465,6 @@ export function frameLoop(
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   let rowGrabbedAt: GrabbedRowPlace | null = null
-  let fileSavedAt: string | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
@@ -1672,11 +1475,6 @@ export function frameLoop(
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
   // WHY: a frame value, not a region state (CR-440 decision 8): the cap is the frame's layout result.
   let stackSafetyCapToldFor: string | null = null
-  // WHY: continuations, not states: the machine's effects settle them (CR-460 decision 5).
-  let settleOpenChoice: ((choice: OpenChoice | null) => void) | null = null
-  // TRAP: kept apart from settleOpenChoice; one shared holder settles whichever was waiting.
-  let settleMergeMapping: ((mapping: MergeMapping | null) => void) | null = null
-  let settleOverwrite: ((isProceeding: boolean) => void) | null = null
   let pointerAt: { readonly x: number; readonly y: number } | null = null
   let partUnderPointer: ScreenPart | null = null
   let grabUnderPointer: Grabbed | null = null
@@ -1744,6 +1542,14 @@ export function frameLoop(
     settingsLimitsOf,
     collectInputContext,
     isPropertiesPanelOnScreen,
+    files,
+    rasterizer,
+    appShell,
+    sendFromFlow,
+    endFileOperation,
+    raiseFileFault,
+    replaceHeldDocument,
+    exportScene,
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const { bandCeilingFor } = rowBandCeilingCacheOf()
@@ -1755,6 +1561,14 @@ export function frameLoop(
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
   const { wantFieldFocused, focusWantedField, resetFieldFocusRetries } = fieldFocusRetries
+  const documentFileFlow = documentFileFlowOf(hands)
+  const {
+    beginReadingDocumentFile,
+    beginWritingDocumentFile,
+    settleIncomingDocument,
+    answerOverwriteQuestion,
+    readFileSavedAt,
+  } = documentFileFlow
 
   // see SF-6, UF-123
   const effectRunners = effectRunnersOf({
@@ -1784,11 +1598,7 @@ export function frameLoop(
     writeDocumentFile: beginWritingDocumentFile,
     importIncomingDocument: settleIncomingDocument,
     discardIncomingDocument: () => settleIncomingDocument(null),
-    answerOverwriteQuestion: (isProceeding) => {
-      const settle = settleOverwrite
-      settleOverwrite = null
-      settle?.(isProceeding)
-    },
+    answerOverwriteQuestion,
     carryOutOwedAction,
     bringCreatedRowIntoSight: (groupId) => (addedRowOwedSight = groupId),
     beginInteractionRecord,
@@ -1924,7 +1734,7 @@ export function frameLoop(
         dialogueLog,
         screenViewReadingsOf(document, regions, layout, heldWholeOf(pressed), {
           openedFileName: session.fileFlow.openedFileName,
-          fileSavedAt,
+          fileSavedAt: readFileSavedAt(),
           isAgentApiEnabled: isAgentApiEnabledIn(session),
           isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
           pointer: pointerAt,
@@ -2420,86 +2230,6 @@ export function frameLoop(
     return false
   }
 
-  // see DI-4, QN-4, T-290
-  /** @purity non-pure */
-  function askToWriteOverDestination(): Promise<boolean> {
-    return new Promise<boolean>((answer) => {
-      settleOverwrite = answer
-      const question: FileFlowQuestion = { manner: CONFIRMATION_MANNER, question: OVERWRITE_QUESTION, items: [] }
-      sendFromFlow({ type: 'overwriteQuestionRaised', question })
-    })
-  }
-
-  // see OP-3, OP-4, OP-13, T-290
-  // WHY: replace only once the discard is confirmed, null when discarded or closed; effects settle it.
-  /** @purity non-pure */
-  function askHowToOpen(discarded: Document, handedChoice: OpenChoice | null): Promise<OpenChoice | null> {
-    return new Promise<OpenChoice | null>((answer) => {
-      settleOpenChoice = answer
-      sendFromFlow({ type: 'documentFileRead', question: discardQuestionOf(discarded) })
-      // DEVIATION: spec says OP-3 is asked for a handed document too (JDG-130); here the hand-over answers merge (DFC-614)
-      if (handedChoice !== null) answerOpenChoice(handedChoice, values)
-    })
-  }
-
-  /** @purity non-pure */
-  function answerOpenChoice(openChoice: OpenChoice, frame: FrameValues | null): void {
-    sendToSession({ type: 'flowSurfaceAnswered', surfaceName: OPEN_CHOOSER_SURFACE }, frame)
-    sendToSession({ type: 'openChoiceAnswered', openChoice, question: discardQuestionOf(held.document) }, frame)
-  }
-
-  // see FR-022, T-032a, T-290
-  /** @purity non-pure */
-  function askWhichFileToTakeFrom(
-    mergeCandidates: readonly MergeCandidateLine[],
-    unreadColumns: readonly string[],
-  ): Promise<MergeMapping | null> {
-    return new Promise<MergeMapping | null>((answer) => {
-      settleMergeMapping = answer
-      sendFromFlow({ type: 'mergeMappingAsked', mergeCandidates, unreadColumns })
-    })
-  }
-
-  /** @purity non-pure */
-  function landOpenedDocument(droppedTaskNames: readonly (string | null)[], openChoice: OpenChoice): void {
-    sendFromFlow({ type: 'documentOpenLanded', droppedTaskNames, openedFileName: null, openChoice })
-  }
-
-  /** @purity non-pure */
-  function beginReadingDocumentFile(openRoute: FileFlowOpenRoute): void {
-    const store = files
-    if (openRoute === 'handed') return
-    if (store === undefined) return endFileOperation(DOCUMENT_OPEN_FAILED)
-    const opening = openRoute === 'reopen' ? reopenDocumentIntoHold(store) : openDocumentIntoHold(store, openRoute)
-    void opening.finally(() => endFileOperation(DOCUMENT_OPEN_FAILED))
-  }
-
-  /** @purity non-pure */
-  function beginWritingDocumentFile(writeForm: FileFlowWriteForm): void {
-    const store = files
-    if (store === undefined) return endFileOperation(DOCUMENT_FILE_WRITE_ENDED)
-    const writing =
-      writeForm.kind === 'save'
-        ? saveHeldDocumentToFile(store)
-        : exportHeldDocumentToFile(store, writeForm.format as ExportFormatId)
-    void writing.finally(() => endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
-  }
-
-  /** @purity non-pure */
-  function settleIncomingDocument(answer: FileFlowImportAnswer | null): void {
-    const forChoice = settleOpenChoice
-    const forMapping = settleMergeMapping
-    settleOpenChoice = null
-    settleMergeMapping = null
-    if (answer === null) {
-      forChoice?.(null)
-      forMapping?.(null)
-      return
-    }
-    if (answer.kind === 'openChoice') forChoice?.(answer.openChoice)
-    else forMapping?.(answer.mergeMapping)
-  }
-
   /** @purity non-pure */
   function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
     if (owedAction.kind === 'startNewDocument') {
@@ -2510,348 +2240,6 @@ export function frameLoop(
     if (frame === null) return
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
-  }
-
-  // see OP-2, OP-5, OP-12, T-230
-  /** @purity non-pure */
-  async function openDocumentIntoHold(
-    store: FileStore | null,
-    route: OpenRoute,
-    handed: HandedImport | null = null,
-  ): Promise<boolean> {
-    const current = held.document
-    // TRAP: the bounds in force, never the file's, or a file raises its own ceiling.
-    const bounds: ImportBounds = current.documentSettings
-
-    let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
-    let incoming: Document
-    let couldNotBeRead: readonly string[] = []
-    if (handed !== null) {
-      handedIn = { format: handed.format, byteLength: handed.byteLength }
-      incoming = handed.incoming
-      couldNotBeRead = handed.unreadColumns
-    } else if (store === null) {
-      return false
-    } else {
-      const opening = await openDocumentFile(store, route)
-      if (!opening.ok) {
-        raiseFileFault(opening.fault)
-        return false
-      }
-      if (opening.ignoredFileCount > 0) {
-        raiseNotice(IGNORED_FILES_REASON, opening.ignoredFileCount)
-      }
-      const file = opening.file
-
-      const reading = formatFromFile(file.fileName, file.text)
-      if (!reading.ok) {
-        raiseNotice(NOTICE_REASON_OF_FORMAT_MISMATCH[reading.mismatch], null)
-        return false
-      }
-      const decoded = decodedDocument(reading.format, file.text, current)
-      if (decoded === null) return false
-      handedIn = { format: reading.format, byteLength: file.byteLength }
-      incoming = decoded.document
-      if (decoded.clampedCount > 0) {
-        raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
-      }
-      if (decoded.duplicateLeaves > 0) {
-        raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
-      }
-      couldNotBeRead = decoded.unreadColumns
-    }
-    const readIn = handedIn
-
-    const verdict = validateImportedDocument(
-      {
-        document: incoming,
-        byteLength: readIn.byteLength,
-        emptyRowTaskUids: [],
-      },
-      bounds,
-    )
-    const droppedSeeds = verdict.ok
-      ? NO_DROPPED_SEEDS
-      : taskUidsWithAnUnusableDate(verdict.refusals, incoming.schedule.tasks)
-    const droppedNames: (string | null)[] = []
-    const lost = tasksLostWith(incoming.schedule.tasks, droppedSeeds)
-    for (const task of incoming.schedule.tasks) {
-      if (lost.has(task.uid)) droppedNames.push(task.name)
-    }
-    for (const uid of droppedSeeds) {
-      if (!incoming.schedule.tasks.some((one) => one.uid === uid)) continue
-      const result = editDocument(
-        incoming,
-        { kind: 'deleteTask', uid },
-        settingsLimitsOf(null),
-        DEFAULT_ROW_NAME,
-      )
-      if (!result.ok) continue
-      incoming = result.document
-    }
-    const afterDropping =
-      droppedNames.length === 0
-        ? verdict
-        : validateImportedDocument(
-            { document: incoming, byteLength: readIn.byteLength, emptyRowTaskUids: [] },
-            bounds,
-          )
-    if (!afterDropping.ok) {
-      return false
-    }
-
-    // TRAP: refuse before the input becomes current; drawing such a calendar throws.
-    const noWorkingWeekday = noWorkingWeekdayReason(incoming)
-    if (noWorkingWeekday !== null) {
-      raiseNotice(noWorkingWeekday, null)
-      return false
-    }
-
-    const choice = await askHowToOpen(current, handed?.choice ?? null)
-    if (choice === null) return false
-    const isDiscardConfirmed = choice === 'replace'
-
-    const importing = {
-      incoming,
-      format: readIn.format,
-      validationPassed: true,
-      anotherOpenInProgress: false,
-      unsavedEditsDiscardConfirmed: isDiscardConfirmed,
-      merge: null,
-      defaultSettings: DEFAULT_DOCUMENT_SETTINGS,
-      importSessionId: crypto.randomUUID(),
-    }
-
-    if (choice === 'replace') {
-      const replaced = replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
-      if (replaced) landOpenedDocument(droppedNames, choice)
-      return replaced
-    }
-    // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
-    let mergeAnswers: MergeChoices | null = null
-    const asked =
-      choice === 'merge' ? importDocument({ ...importing, choice, current: held.document }) : null
-    if (asked !== null && !asked.ok && asked.refusal.reason === 'mappingNotChosen') {
-      const mapping = await askWhichFileToTakeFrom(
-        asked.refusal.candidates.map((candidate) => ({
-          currentUid: candidate.currentTaskUid,
-          incomingUid: candidate.incomingTaskUid,
-          currentName: candidate.currentTaskName,
-          incomingName: candidate.incomingTaskName,
-        })),
-        couldNotBeRead,
-      )
-      if (mapping === null) return false
-      if (mapping.kind === 'cancelImport') return false
-      mergeAnswers = { mapping, profileConflict: null, settingsConflict: null }
-    }
-
-    // TRAP: read again here, not current, which predates the waits.
-    const importedAgainst = held.document
-    const landed = replaceHeldDocument({
-      row: 'RD-3',
-      importing: { ...importing, choice, merge: mergeAnswers },
-      historyLimits: HISTORY_LIMITS,
-      editedBy: EDITED_BY_SCREEN,
-      updatedUtc: readInstantOfWrite(),
-    })
-
-    if (landed) landOpenedDocument(droppedNames, choice)
-
-    if (!landed || choice !== 'baseline') return landed
-
-    // WHY: asked a second time because ReplaceOutcome carries no ImportReport.
-    const overlaid = importDocument({
-      ...importing,
-      choice,
-      merge: mergeAnswers,
-      current: importedAgainst,
-    })
-    if (!overlaid.ok) return landed
-
-    const notDrawn = overlaid.report.baselineTaskUidsNotDrawn.length
-    if (notDrawn > 0) raiseNotice(OVERLAY_NOT_DRAWN_REASON, notDrawn)
-    return landed
-  }
-
-  // see OP-13
-  /** @purity non-pure */
-  async function reopenDocumentIntoHold(store: FileStore): Promise<void> {
-    const openedFile = await store.readOpenedFileState()
-    if (openedFile.kind === 'none') return
-    await openDocumentIntoHold(store, OPEN_ROUTE_REOPEN)
-  }
-
-  // see AM-8, FR-022
-  /** @purity non-pure */
-  async function takeInHandedDocument(incoming: Document): Promise<boolean> {
-    const before = session
-    sendToSession(AGENT_DOCUMENT_HANDED, null)
-    if (session === before) return false
-    try {
-      const handedText = jsonFromDocument(incoming)
-      const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
-      return await openDocumentIntoHold(null, OPEN_ROUTE_FROM_CHOOSER, {
-        incoming,
-        format: 'grsJson',
-        byteLength: new TextEncoder().encode(handedText).length,
-        unreadColumns: reread.ok ? reread.unreadColumns : [],
-        choice: 'merge',
-      })
-    } finally {
-      endFileOperation(DOCUMENT_OPEN_FAILED)
-    }
-  }
-
-  // see SK-11, FR-060, FR-096
-  /** @purity non-pure */
-  async function saveHeldDocumentToFile(store: FileStore): Promise<void> {
-    // TRAP: read before the first await; a later read saves a document nobody asked to save (CS-4).
-    const saved = held.document
-    const text = jsonFromDocument(saved)
-    const project = saved.schedule.project
-
-    const openedFile = await store.readOpenedFileState()
-    const saving: DocumentFileSaving =
-      openedFile.kind === 'none'
-        ? await saveDocumentFile(store, chosenFileSave({ text }, project, SAVE_FORM))
-        : await saveDocumentFile(store, {
-            destination: 'openedFile',
-            content: { text },
-            form: SAVE_FORM,
-          })
-
-    if (saving.ok) {
-      const openedFileName = saving.openedFile.kind === 'none' ? null : saving.openedFile.fileName
-      sendFromFlow({ type: 'documentFileSaved', openedFileName })
-      fileSavedAt = readInstantOfWrite()
-      return
-    }
-    raiseFileFault(saving.fault)
-  }
-
-  // see FR-096, SK-12
-  /** @purity non-pure */
-  async function exportHeldDocumentToFile(
-    store: FileStore,
-    format: ExportFormatId,
-  ): Promise<void> {
-    const form = saveFormOfExportFormat(format)
-    if (form === null) return
-    const written = held.document
-    const text = exportedText(form, written)
-    // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
-    const picture =
-      text === null ? await exportPictureContent(form, written) : { content: { text }, capStopGroupId: null }
-    if (picture === null) return
-
-    const saving = await saveDocumentFile(
-      store,
-      chosenFileSave(picture.content, written.schedule.project, form),
-    )
-    if (saving.ok) {
-      // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
-      if (picture.capStopGroupId !== null) raiseNotice(STACK_SAFETY_CAP_REASON, null)
-      return
-    }
-    raiseFileFault(saving.fault)
-  }
-
-  // see IO-3, IO-4, IO-7, ST-7
-  /** @purity non-pure */
-  async function exportPictureContent(
-    form: SaveFileForm,
-    written: Document,
-  ): Promise<{
-    readonly content: ChosenFileSaveRequest['content']
-    readonly capStopGroupId: string | null
-  } | null> {
-    switch (form) {
-      case 'grsJson':
-      case 'mspdi':
-        return null
-      case 'singleHtml': {
-        const content = await embeddedHtmlContent(written)
-        return content === null ? null : { content, capStopGroupId: null }
-      }
-      case 'svg':
-      case 'png': {
-        const scene = exportScene()
-        if (scene === null) return null
-        const capStopGroupId = scene.capStopGroupId
-        if (form === 'svg') {
-          const picture = exportSvg(scene)
-          if (!picture.ok) {
-            raiseNotice(HEIGHT_CEILING_REASON, null)
-            return null
-          }
-          return { content: { text: picture.svg }, capStopGroupId }
-        }
-        const rastered = await rasteredContent(scene)
-        return rastered === null ? null : { content: rastered, capStopGroupId }
-      }
-    }
-  }
-
-  // see IO-4
-  /** @purity non-pure */
-  async function rasteredContent(
-    scene: ExportScene,
-  ): Promise<ChosenFileSaveRequest['content'] | null> {
-    const seam = rasterizer
-    if (seam === undefined) {
-      raiseNotice(SEAM_ABSENT_REASON, null)
-      return null
-    }
-    const painted = await exportPng(seam, scene)
-    if (!painted.ok) {
-      raiseNotice(HEIGHT_CEILING_REASON, null)
-      return null
-    }
-    if (!painted.png.ok) {
-      raiseNotice(NOTICE_REASON_OF_RASTER_FAULT[painted.png.fault.reason], null)
-      return null
-    }
-    return { bytes: painted.png.pngBytes }
-  }
-
-  // see IO-7
-  /** @purity non-pure */
-  async function embeddedHtmlContent(
-    written: Document,
-  ): Promise<ChosenFileSaveRequest['content'] | null> {
-    const seam = appShell
-    if (seam === undefined) {
-      raiseNotice(SEAM_ABSENT_REASON, null)
-      return null
-    }
-    const made = await exportEmbeddedHtml(seam, written)
-    if (!made.ok) {
-      raiseNotice(NOTICE_REASON_OF_EMBEDDED_HTML_FAULT[made.fault.reason], null)
-      return null
-    }
-    return { text: made.html }
-  }
-
-  // see FR-096, DI-1
-  /** @purity pure */
-  function chosenFileSave(
-    content: ChosenFileSaveRequest['content'],
-    project: Project,
-    form: SaveFileForm,
-  ): ChosenFileSaveRequest {
-    return {
-      destination: 'chosenFile',
-      content,
-      form,
-      suggestedFileName: suggestedFileNameOf(project, form),
-      extension: extensionOfForm(form),
-      // WHY: fileName is null rather than asked of the store, which would be a second outside read
-      // (R7.4); a null name matches no destination, so DI-4 asks before every existing file.
-      identity: { fileName: null, projectName: project.name, projectId: project.id },
-      projectIdentityFromText,
-      confirmOverwrite: askToWriteOverDestination,
-    }
   }
 
   // see T-109
@@ -2928,7 +2316,7 @@ export function frameLoop(
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
     if (openChoice !== undefined) {
       if (fileOperationKindIn(session) !== 'awaitingOpenChoice') return false
-      answerOpenChoice(openChoice, frame)
+      answerOpenChoice(hands, openChoice, frame)
       return true
     }
     const mergeMapping = MERGE_MAPPING_OF_ENTRY[entry]
@@ -2939,21 +2327,6 @@ export function frameLoop(
       return true
     }
     return false
-  }
-
-  // see FR-096, SK-12
-  /** @purity non-pure */
-  function answerSettledFormat(format: ExportFormatId): boolean {
-    // TRAP: taken down before both gates, so each gate must raise a notice; a silent return
-    // closes the chooser with nothing written and nothing said (FR-029).
-    sendToSession({ type: 'flowSurfaceAnswered', surfaceName: EXPORT_CHOOSER_SURFACE }, values)
-    const store = files
-    if (store === undefined) {
-      raiseNotice(SEAM_ABSENT_REASON, null)
-      return true
-    }
-    sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: 'export', format } }, values)
-    return true
   }
 
   // see T-036
@@ -3337,7 +2710,7 @@ export function frameLoop(
     const spent =
       (settledEntry !== null &&
         answerSettledEntry(settledEntry, surfaceSettledOnRelease(input, context), frame)) ||
-      (settledFormat !== null && answerSettledFormat(settledFormat)) ||
+      (settledFormat !== null && answerSettledFormat(hands, settledFormat)) ||
       // TRAP: U-60 is offered the answer before answerConfirmation; it answers false unless standing.
       (settledAnswer !== null &&
         answerWatermarkUnlock(hands, settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
@@ -3464,7 +2837,7 @@ export function frameLoop(
       audience,
       rasterizer,
       appShell,
-      takeInDocument: takeInHandedDocument,
+      takeInDocument: (incoming) => takeInHandedDocument(hands, documentFileFlow, incoming),
       changeWatchers,
       ...dialogueSeams,
     }),
@@ -3491,8 +2864,7 @@ export function frameLoop(
     // WHY: the store took the file in its capture listener; a host with no store still wakes (FT-1).
     /** @purity non-pure */
     fileDropped(): void {
-      if (files !== undefined) sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_DROP }, values)
-      if (isSizeSettled(environment)) ask()
+      askToOpenDroppedFile(hands)
     },
   }
 }
