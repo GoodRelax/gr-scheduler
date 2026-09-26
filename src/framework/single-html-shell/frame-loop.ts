@@ -2252,7 +2252,7 @@ export function frameLoop(
         return
       case 'openDocumentFile':
         if (files === undefined) return
-        sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_CHOOSER }, frame)
+        sendToSession({ type: 'documentOpenAsked', openRoute: action.openRoute ?? OPEN_ROUTE_FROM_CHOOSER }, frame)
         return
       case 'copyPictureToClipboard': {
         const seam = clipboard

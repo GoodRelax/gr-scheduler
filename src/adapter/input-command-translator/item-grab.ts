@@ -21,7 +21,7 @@ import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area
 import {
   commentAnchorPointOf,
   type BarGeometry,
-  type FarEndGeometry,
+  type DependencyGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   groupDepthThresholdOf,
@@ -66,6 +66,8 @@ import {
   type PointerPress,
   type TranslatedInput,
 } from './input-command-translator'
+
+type FarEndGeometry = NonNullable<DependencyGeometry['continuation']>['far']
 
 const MK_13_GRAB_ROWS: ReadonlySet<string> = new Set([
   'GA-3', 'GA-4', 'GA-5', 'GA-6', 'GA-9', 'GA-12', 'GA-13', 'GA-14',

@@ -386,6 +386,8 @@ export function fileSystemAccessFileStore(
       handleReadToOpen = null
       try {
         if (route === 'chooser') return await readChosenFile(environment.openFilePicker, proposeHandle)
+        // WHY: OP-9 / OP-15 read a second file for the overlay; it is never a candidate to adopt, so the opened file stays the FR-060 save target.
+        if (route === 'baseline') return await readChosenFile(environment.openFilePicker, () => undefined)
         if (route === 'reopen') return await readOpenedFileAgain()
         return await readDroppedFile()
       } finally {

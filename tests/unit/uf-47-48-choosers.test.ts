@@ -1613,7 +1613,9 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 
     expect(uidsOf(loop.document())).toEqual([1, 2])
     expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
-    expect((loop.document() as any).documentSettings).toEqual(written)
+    // WHY: FR-015 (MUST) sets S-69 of table T-202 true when an overlay is read -- so the landing turns
+    // baselineVisible on and keeps every other value written in the wait.
+    expect((loop.document() as any).documentSettings).toEqual({ ...written, baselineVisible: true })
   })
 })
 
