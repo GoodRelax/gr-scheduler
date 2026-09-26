@@ -1,4 +1,5 @@
-excess-lines=6158 excess-branches=638
+excess-lines=6160 excess-branches=639
+# RAISED 6158/638 -> 6160/639 on 2026-09-27 under JDG-778 (lane-l3, CR-582 MH-4): showScreenView 123/33 -> 124/34 and domScreenSurface 315 -> 316 -- the readout text is rewritten in place each frame instead of rebuilding the panel; the coordinator re-measures at merge.
 # RAISED pointerAssignment 44/21->45/22, carryOutAction 172/44->173/45, frameLoop 1428->1429 on 2026-09-27 under JDG-778 (lane L2, CR-560): PTD-7 is one more row of table T-023a to dispatch, and a copy drag lands through landCopyDrag (T-308 CY-8, CY-10); the work itself is in item-grab.ts copyDragWrite and copy-and-paste.ts.
 # RAISED svgFromSchedule 223->224 on 2026-09-27 under JDG-778 (lane L2, CR-558): the ZO-14 layer of table T-020 is one more zoLayer line in the back-to-front list; editAnnotation, highlightBoxRangeWrite and overlayParts shrank below their held sizes in the same wave (totals 6157/638 -> 6124/626, left for the coordinator to lower).
 # RAISED 6157/638 -> 6158/638 on 2026-09-27 under JDG-778 (lane-l3, CR-585): heldTheme inside boot carries themeMonochrome to the screen theme, boot 205 -> 206; the coordinator re-measures at merge.
@@ -79,9 +80,9 @@ HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=267 branches=23
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule#8 lines=69 branches=16
 HELD src/framework/dom-input-source/dom-input-source.ts::domInputSource lines=205 branches=0
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=315 branches=0
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::domScreenSurface lines=316 branches=0
 HELD src/framework/dom-screen-surface/dom-screen-surface.ts::readScreenPartAt lines=58 branches=31
-HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=123 branches=33
+HELD src/framework/dom-screen-surface/dom-screen-surface.ts::showScreenView lines=124 branches=34
 HELD src/framework/dom-screen-surface/field-editing.ts::fieldEditingOf lines=462 branches=1
 HELD src/framework/dom-screen-surface/open-modals-drawing.ts::modalElement lines=160 branches=28
 HELD src/framework/dom-screen-surface/properties-panel-drawing.ts::controlElement lines=57 branches=18
