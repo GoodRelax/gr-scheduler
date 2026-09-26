@@ -105,8 +105,11 @@ export interface TaskPlacement {
   // TRAP: not actualX + actualWidth: a milestone's figure is centred on a zero-width span.
   readonly actualReach: number | null
   readonly dummyReach: number | null
+  // TRAP: an unset (null) fade reads 0 here; a chevron end tells unset from 0 only by fadeInUnset / fadeOutUnset.
   readonly fadeInPx: number
   readonly fadeOutPx: number
+  readonly fadeInUnset: boolean
+  readonly fadeOutUnset: boolean
   // TRAP: the lane marker, whatever is shown; the drawn one follows RF-1 and reads the toggles itself.
   readonly markerAnchorX: number | null
   readonly labelPlacement: LabelPlacement
@@ -215,6 +218,18 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
   }
   const fadeIn = Math.min(rawIn, span)
   return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
+}
+
+// see FD-4, FD-5, FD-6a
+/** @purity pure */
+function placedFadeOf(task: Task, fade: { readonly fadeIn: number; readonly fadeOut: number }):
+  Pick<TaskPlacement, 'fadeInPx' | 'fadeOutPx' | 'fadeInUnset' | 'fadeOutUnset'> {
+  return {
+    fadeInPx: fade.fadeIn,
+    fadeOutPx: fade.fadeOut,
+    fadeInUnset: task.fadeInDays === null,
+    fadeOutUnset: task.fadeOutDays === null,
+  }
 }
 
 // see AT-100
@@ -578,8 +593,7 @@ export function layoutFromSchedule(
         x: item.x,
         width: item.width,
         planEndsStandOnOneDay: item.oneDay,
-        fadeInPx: item.fade.fadeIn,
-        fadeOutPx: item.fade.fadeOut,
+        ...placedFadeOf(item.task, item.fade),
         y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings) + labelLiftOf(item.kind, settings),
         height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),

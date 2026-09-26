@@ -314,7 +314,9 @@ describe('FR-013 -- the delay mark', () => {
 
 const FD_5_PER_END = '矢羽根では、開始側の切り込みの深さを `fadeIn` に、終了側の先端の深さを `fadeOut` に、端ごとに置き換えること（MUST）'
 const FD_5_MUST_NOT = '一方の端のフェード長で、もう一方の端の形を変えてはならない（MUST NOT）'
-const FD_5_ZERO_END = 'フェード長が 0 の端は、フェードの無い矢羽根と同じ深さのままとする'
+const FD_5_UNSET_END =
+  'フェード長が未設定（`null`）の端は、フェードの無い矢羽根と同じ深さ（`_assets/tbl-settings.md` の 表 T-201 の `S-43` ／ `S-44`）のままとすること（MUST）'
+const FD_5_ZERO_FLAT = 'フェード長が 0 の端は、平ら（深さ 0）に描くこと（MUST）'
 
 interface Ends {
   readonly startNotch: number
@@ -352,10 +354,11 @@ function chevronEnds(fadeInDays: number | null, fadeOutDays: number | null): End
 }
 
 describe('FD-5 (table T-012a) -- the chevron ends', () => {
-  it('FD-5 still says: 端ごとに置き換える / もう一方の端の形を変えてはならない / 0 の端は ... 同じ深さ', () => {
+  it('FD-5 still says: 端ごとに置き換える / もう一方の端の形を変えてはならない / 未設定の端は同じ深さ / 0 の端は平ら', () => {
     expect(REQUIREMENTS).toContain(FD_5_PER_END)
     expect(REQUIREMENTS).toContain(FD_5_MUST_NOT)
-    expect(REQUIREMENTS).toContain(FD_5_ZERO_END)
+    expect(REQUIREMENTS).toContain(FD_5_UNSET_END)
+    expect(REQUIREMENTS).toContain(FD_5_ZERO_FLAT)
   })
 
   it('FD-5: 開始側の切り込みの深さを fadeIn に -- and the end tip keeps the plain depth', () => {
@@ -364,7 +367,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
     const faded = chevronEnds(4, null)
     expect(faded.fadeInPx, 'premise: the fade is wider than the plain notch').not.toBeCloseTo(plain.startNotch, 1)
     expect(faded.startNotch).toBeCloseTo(faded.fadeInPx, 2)
-    expect(faded.endTip, `${FD_5_MUST_NOT} / ${FD_5_ZERO_END}`).toBeCloseTo(plain.endTip, 2)
+    expect(faded.endTip, `${FD_5_MUST_NOT} / ${FD_5_UNSET_END}`).toBeCloseTo(plain.endTip, 2)
   })
 
   it('FD-5: 終了側の先端の深さを fadeOut に -- and the start notch keeps the plain depth', () => {
@@ -372,7 +375,7 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
     const plain = chevronEnds(null, null)
     const faded = chevronEnds(null, 4)
     expect(faded.endTip).toBeCloseTo(faded.fadeOutPx, 2)
-    expect(faded.startNotch, `${FD_5_MUST_NOT} / ${FD_5_ZERO_END}`).toBeCloseTo(plain.startNotch, 2)
+    expect(faded.startNotch, `${FD_5_MUST_NOT} / ${FD_5_UNSET_END}`).toBeCloseTo(plain.startNotch, 2)
   })
 
   it('FD-5: 2 つの端は別々 -- both fades set, each end takes its own length', () => {
