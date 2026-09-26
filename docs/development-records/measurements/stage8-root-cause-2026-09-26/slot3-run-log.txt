@@ -1,0 +1,18 @@
+17:09:55 b-a68f9fda r1 18s MK-1 24.25 /in 17.05 MK-2 24.4 sha be18585c
+17:10:33 b-c5abb35c r1 38s MK-1 68.17 /in 17.4 MK-2 66.7 sha 02df10d4
+17:10:52 v-c5-revG1 r1 19s MK-1 24.4 /in 17.5 MK-2 30.4 sha 6925733a
+17:11:31 v-c5-revG2 r1 39s MK-1 66.8 /in 17.4 MK-2 72.5 sha c49811c4
+17:12:12 v-c5-revG3 r1 41s MK-1 72.77 /in 18.75 MK-2 75.54 sha 32630624
+17:12:56 v-a68-plusG1 r1 44s MK-1 72.12 /in 18 MK-2 72.8 sha aef6c102
+17:13:15 v-c5-revG1 r2 19s MK-1 24.4 /in 17.5 MK-2 30.3 sha 6925733a
+17:13:51 v-c5-revG2 r2 36s MK-1 66.7 /in 16.9 MK-2 66.66 sha c49811c4
+17:14:28 v-c5-revG3 r2 37s MK-1 72.54 /in 17.5 MK-2 66.66 sha 32630624
+17:15:08 v-a68-plusG1 r2 40s MK-1 72.7 /in 17.8 MK-2 71.35 sha aef6c102
+17:16:03 fix none r1 55s MK-1 93.9 MK-2 90.8 seen {'calls': 499, 'before': 178017, 'after': 178017}
+17:16:51 fix cullmask r1 47s MK-1 90.9 MK-2 84.8 seen {'calls': 507, 'before': 185500, 'after': 169389}
+17:17:40 fix none r2 49s MK-1 90.9 MK-2 90.8 seen {'calls': 506, 'before': 289443, 'after': 289443}
+17:18:30 fix cullmask r2 50s MK-1 93.9 MK-2 84.9 seen {'calls': 501, 'before': 225602, 'after': 204556}
+17:19:30 fix unwrap r1 20s MK-1 33.33 MK-2 33.33 seen {'calls': 537, 'before': 301762, 'after': 301607}
+17:19:49 fix layerclip r1 19s MK-1 30.2 MK-2 27.27 seen {'calls': 536, 'before': 266539, 'after': 266819}
+17:20:10 fix unwrap r2 21s MK-1 33.32 MK-2 30.35 seen {'calls': 551, 'before': 222256, 'after': 222101}
+17:20:30 fix layerclip r2 20s MK-1 30.2 MK-2 31.12 seen {'calls': 537, 'before': 316661, 'after': 316941}

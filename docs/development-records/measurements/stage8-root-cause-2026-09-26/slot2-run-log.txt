@@ -1,0 +1,9 @@
+16:50:14 b-c5abb35c noground 45s MK-1 79 MK-2 90.8 seen 41
+16:50:52 b-c5abb35c none 38s MK-1 66.7 MK-2 72.5 seen 0
+16:51:10 b-a68f9fda none 18s MK-1 24.3 MK-2 30.3 seen 0
+16:51:52 b-39f5a8bb noground 42s MK-1 78.8 MK-2 78.8 seen 41
+16:52:43 b-989c7572 noground 51s MK-1 100.67 MK-2 91.1 seen 41
+16:53:37 b-d99cb255 noground 54s MK-1 101.47 MK-2 102.95 seen 41
+16:54:30 b-2878e502 noground 53s MK-1 102.95 MK-2 96.9 seen 41
+16:55:29 fix noground 59s MK-1 100 MK-2 100 seen 41
+16:56:11 b-c5abb35c noground 42s MK-1 78.7 MK-2 78.8 seen 41
