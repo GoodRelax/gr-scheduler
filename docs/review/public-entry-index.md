@@ -674,7 +674,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
 | `typefaceAttribute` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#typefaceAttribute` | -- | function typefaceAttribute(): string |
-| `ViewerValues` | entry | interface | `src/adapter/svg-renderer/schedule-overlays.ts#ViewerValues` | -- | interface ViewerValues |
+| `ViewerValues` | entry | interface | `src/adapter/svg-renderer/schedule-overlays.ts#ViewerValues` | PI-19 | CR-572 |
 | `Watermark` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#Watermark` | -- | interface Watermark |
 | `WATERMARK_MARKS` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#WATERMARK_MARKS` | -- | const WATERMARK_MARKS: |
 | `bandWidthOf` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#bandWidthOf` | -- | function bandWidthOf(input: GridInput): number |
@@ -1375,4 +1375,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 675 name(s) leave through a public entry (206 of them published by table T-064), 500 more are exported by a file and not by its entry.
+Totals: 675 name(s) leave through a public entry (207 of them published by table T-064), 500 more are exported by a file and not by its entry.
