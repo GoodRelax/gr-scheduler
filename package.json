@@ -61,6 +61,7 @@
     "machines:types": "python tools/generate_state_machine_types.py",
     "machines:types:check": "python tools/generate_state_machine_types.py --check",
     "marks:check": "python .claude/skills/spec-graph-check/check-marks.py",
+    "merge:branch": "python tools/merge_branch.py",
     "mspdi": "python tools/generate_mspdi_custom_fields.py",
     "mspdi:check": "python tools/generate_mspdi_custom_fields.py --check",
     "mspdi:order": "python tools/generate_mspdi_child_order.py",
