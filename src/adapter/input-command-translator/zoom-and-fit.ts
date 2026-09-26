@@ -207,23 +207,33 @@ function tallestBandAtZoomY(
 /** @purity pure */
 function zoomYWithinBand(context: InputContext, drawnZoomX: number, wanted: number, upTo: number): number {
   if (!(context.regions.rowArea.height > 0) || !Number.isFinite(wanted)) return wanted
-  const remembered = context.rowBandCeiling?.(drawnZoomX, upTo)
+  const remembered = context.rowBandCeiling?.(drawnZoomX, upTo, wanted)
   const ceiling =
     remembered !== undefined && Number.isFinite(remembered)
       ? remembered
-      : bandCeilingUpTo(context, drawnZoomX, upTo)
+      : bandCeilingUpTo(context, drawnZoomX, upTo, wanted)
   return Math.min(wanted, ceiling)
 }
 
 // see FR-016, T-253, PI-18
 /** @purity pure */
-export function rowBandCeilingOf(context: InputContext, upTo: number = Number.POSITIVE_INFINITY): number {
-  return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo)
+export function rowBandCeilingOf(
+  context: InputContext,
+  upTo: number = Number.POSITIVE_INFINITY,
+  enough: number = Number.POSITIVE_INFINITY,
+): number {
+  return bandCeilingUpTo(context, zoomOnScreen(context).x, upTo, enough)
 }
 
 // see FR-016, T-253, OC-10, PI-5, PI-18
+// WHY: no answer is below the last probe short of the band, so min(enough, ceiling) is settled there.
 /** @purity pure */
-function bandCeilingUpTo(context: InputContext, drawnZoomX: number, upTo: number): number {
+function bandCeilingUpTo(
+  context: InputContext,
+  drawnZoomX: number,
+  upTo: number,
+  enough: number = Number.POSITIVE_INFINITY,
+): number {
   const height = context.regions.rowArea.height
   if (!(height > 0)) return context.zoomMax
   const search = NOT_STORED_ROW_BAND_CEILING_SEARCH
@@ -232,6 +242,7 @@ function bandCeilingUpTo(context: InputContext, drawnZoomX: number, upTo: number
   if (reaches(upper)) return upper
   let lower = upper
   for (;;) {
+    if (upper >= enough) return upper
     if (upper >= context.zoomMax) return context.zoomMax
     if (upper >= upTo) return upper
     lower = upper
@@ -240,7 +251,7 @@ function bandCeilingUpTo(context: InputContext, drawnZoomX: number, upTo: number
     if (reaches(upper)) break
   }
   while (upper - lower > search['S-239']) {
-    if (lower >= upTo) return lower
+    if (lower >= upTo || lower >= enough) return lower
     const middle = (lower + upper) / 2
     if (middle <= lower || middle >= upper) break
     if (reaches(middle)) upper = middle
