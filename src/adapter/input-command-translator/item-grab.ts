@@ -550,19 +550,28 @@ function commentBoxMoveWrite(
   id: string,
   isAnchor: boolean,
 ): TranslatedInput {
-  const drawn = context.geometry.commentBoxes.find((one) => one.id === id)
-  if (drawn === undefined || boxById(context.document.schedule.commentBoxes, id) === undefined) {
-    return CONSUMED_ELSEWHERE
-  }
+  const box = boxById(context.document.schedule.commentBoxes, id)
+  // TRAP: from the document and the rows at the press, never context.geometry: a held drag draws the box already
+  // moved, so the pull would be counted twice.
+  const atPress = press.layoutRowsAtPress
+  const layout = atPress === undefined ? context.layout : { ...context.layout, rows: atPress }
+  // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).
+  const stoodDay = dayOf(box?.anchorDate ?? null) ?? dayOf(context.document.schedule.project.startDate)
+  const stood =
+    box === undefined || stoodDay === null || box.anchorGroupId === null
+      ? null
+      : commentAnchorPointOf(layout, stoodDay, box.anchorGroupId)
+  if (box === undefined || stood === null) return CONSUMED_ELSEWHERE
   const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
-  const aim = isAnchor ? release : { x: drawn.anchor.x + pull.dx, y: drawn.anchor.y + pull.dy }
-  const anchor = commentAnchorAt(context.layout, aim.x, aim.y)
+  const aim = isAnchor ? release : { x: stood.x + pull.dx, y: stood.y + pull.dy }
+  const anchor = commentAnchorAt(layout, aim.x, aim.y)
   if (!('groupId' in anchor)) return anchor
   const day = dayOf(anchor.date)
-  const at = day === null ? null : commentAnchorPointOf(context.layout, day, anchor.groupId)
+  const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.groupId)
   if (at === null) return nothingToDo('noRowToPutTheAnnotationOn')
-  const left = drawn.body.x + pull.dx
-  const bottom = drawn.body.y + drawn.body.height + pull.dy
+  const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+  const left = stood.x + offset.dx + pull.dx
+  const bottom = stood.y + offset.dy + pull.dy
   return changed([
     { kind: 'setCommentBoxAnchor', id, anchor },
     { kind: 'setCommentBoxBodyOffsetPx', id, dx: left - at.x, dy: bottom - at.y },
