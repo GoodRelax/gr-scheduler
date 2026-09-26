@@ -342,6 +342,14 @@ function clampedRowShift(
   return shiftWithinRows(rows, held, asked)
 }
 
+// see CY-6
+// WHY: a held drag draws its result into the rows, so a release is measured on the rows the press saw.
+/** @purity pure */
+function layoutAtPressOf(context: InputContext, press: PointerPress): InputContext['layout'] {
+  const rows = press.layoutRowsAtPress
+  return rows === undefined ? context.layout : { ...context.layout, rows }
+}
+
 // see PE-1, CY-6
 /** @purity pure */
 function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
@@ -360,8 +368,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
-  const atPress = press.layoutRowsAtPress
-  const rows = drawnRowsOf(atPress === undefined ? context.layout : { ...context.layout, rows: atPress })
+  const rows = drawnRowsOf(layoutAtPressOf(context, press))
   const dayCount = dayShift(context, press.at.x, release.x)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
   const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
@@ -553,8 +560,7 @@ function commentBoxMoveWrite(
   const box = boxById(context.document.schedule.commentBoxes, id)
   // TRAP: from the document and the rows at the press, never context.geometry: a held drag draws the box already
   // moved, so the pull would be counted twice.
-  const atPress = press.layoutRowsAtPress
-  const layout = atPress === undefined ? context.layout : { ...context.layout, rows: atPress }
+  const layout = layoutAtPressOf(context, press)
   // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).
   const stoodDay = dayOf(box?.anchorDate ?? null) ?? dayOf(context.document.schedule.project.startDate)
   const stood =

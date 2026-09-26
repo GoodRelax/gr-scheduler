@@ -359,9 +359,7 @@ function editHighlightBoxLook(document: Document, command: HighlightBoxLookComma
   const { commandRow, refusal, look } = highlightBoxLookChange(command)
   const box = highlightBoxOf(document, command.id)
   if (box === null) return refused([reject(commandRow, 'AT-116', `no highlight box with id ${command.id}`)])
-  if (refusal !== null) return refused([refusal])
-  if (isSameLook(box, look)) return edited(document)
-  return edited(putHighlightBox(document, { ...box, ...look }))
+  return lookEdited(document, box, refusal, look, putHighlightBox)
 }
 
 type CommentBoxLookCommand = Extract<
@@ -451,9 +449,21 @@ function editCommentBoxLook(document: Document, command: CommentBoxLookCommand):
   const { commandRow, refusal, look } = commentBoxLookChange(command)
   const box = commentBoxOf(document, command.id)
   if (box === null) return refused([reject(commandRow, 'AT-110', `no comment box with id ${command.id}`)])
+  return lookEdited(document, box, refusal, look, putCommentBox)
+}
+
+// see UN-5
+/** @purity pure */
+function lookEdited<Box extends object>(
+  document: Document,
+  box: Box,
+  refusal: Refusal | null,
+  look: Partial<Box>,
+  put: (held: Document, placed: Box) => Document,
+): EditResult {
   if (refusal !== null) return refused([refusal])
   if (isSameLook(box, look)) return edited(document)
-  return edited(putCommentBox(document, { ...box, ...look }))
+  return edited(put(document, { ...box, ...look }))
 }
 
 /** @purity pure */
