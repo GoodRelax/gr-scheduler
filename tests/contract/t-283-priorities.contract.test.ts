@@ -29,8 +29,12 @@ const SK_19_NOTICE = '⭐ **出ている通知があるときは、それを 1 �
 const SK_19_PANEL =
   '確定していないその場の編集が 1 つも無いときは、プロパティパネルを出しているならば出すのをやめること（MUST）'
 const SK_19_SELECTION = '⭐ プロパティパネルも出していないときは、選ばれているものがあればその選択を解くこと（MUST）'
-const PI_36_ESCAPE_TARGET =
-  '`escapeTarget`（`EscapeContext` だけから、`Esc` が次に消費する段を答える。消費するものが無ければ `null`）'
+const PI_36_ESCAPE_TARGET = [
+  '`escapeTarget`',
+  '`EscapeContext` だけから、`Esc` が次に消費する段を答える。',
+  '消費するものが無ければ `null`',
+]
+const UNDER_THE_NAME = String.fromCharCode(0x3000).repeat(2)
 
 interface StateRef {
   readonly in?: string
@@ -220,9 +224,9 @@ describe(`table T-283, y / n (RG-13) -- NT-7 (MUST): ${NT_7_ORDER}`, () => {
   })
 })
 
-describe(`PI-36 -- ${PI_36_ESCAPE_TARGET}`, () => {
+describe(`PI-36 -- ${PI_36_ESCAPE_TARGET.join(' ')}`, () => {
   it('the design still says it, word for word', () => {
-    expect(PUBLISHED).toContain(PI_36_ESCAPE_TARGET)
+    expect(PUBLISHED).toContain(PI_36_ESCAPE_TARGET.join(UNDER_THE_NAME))
   })
 })
 

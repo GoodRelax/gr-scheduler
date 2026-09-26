@@ -325,9 +325,11 @@ def main():
                             % (rid, ' | '.join(cells)[:80]))
             continue
         component = cells[2].strip('`* ')
-        # A line break in the cell is layout, not a word: the generator starts
-        # every member on a line of its own (CR-581), so it is dropped here.
-        pieces = [p.replace('<br>', ' ').strip()
+        # A piece is read by its FIRST line. The generator (CR-581) starts
+        # every member on a line of its own, `name` or `name`（note）, and
+        # prints a longer note on indented lines under it, so what follows
+        # the first line break is about the name, never another name.
+        pieces = [p.split('<br>')[0].strip()
                   for p in cells[3].split(SOLIDUS) if p.strip()]
         members = [MEMBER.match(p) for p in pieces]
         # ⛔ Gathered before the entry is resolved: the reverse direction below
