@@ -17,29 +17,36 @@ hand-written table in the specification, which meant a change request. With
 the table printed from here, publishing a name is one entry in this file and
 `npm run gen`.
 
-⭐ THE CELL IS PRINTED AS WRITTEN. A member is `name` plus an optional `note`
-printed right after it; a text piece is printed as it stands; pieces are
-joined by the full-width slash and one space, or by the joint `sepAfter`
-names (`spaced`: a space on both sides, `bare`: none) -- the two other
-joints the hand-written table carried. The joint is a word, not the
-character, because a full-width slash in the manuscript would read as prose
-to check 23.
-Nothing is rewrapped or normalised, so the table this prints was
-byte-identical to the hand-written one it replaced (measured when CR-581 was
-drafted: the caption line, the heading, the rule and all 37 rows).
+⭐ ONE STRING IS ONE PRINTED LINE (the user's report, 2026-09-26). The
+hand-written table broke a cell only after a full stop, so one printed line
+held the end of one member's note and the start of the next, and the
+parentheses of a note never closed on the line that opened them. So:
+
+    - every member after the first starts a line of its own, opened by the
+      full-width slash -- a line that does not open with one continues the
+      member above it;
+    - a member's `note` lines are printed inside ONE pair of full-width
+      parentheses right after the name; the manuscript never writes those
+      parentheses, nor a line-break tag -- each string is one line;
+    - its `after` lines (why it was published) follow the closing
+      parenthesis on a line of their own, except an `after` opening with a
+      lone full stop, which stays on the parenthesis (PI-17);
+    - a text piece (a piece that publishes no name) is printed as its lines.
+
+The words are the ones the hand-written table held; only where the lines
+break changed (CR-581 moved the table byte-identical first, then this).
 
 ⛔ REFUSED BEFORE A BYTE IS WRITTEN:
 
     a row id or a component written twice
     a member name written twice in one row
-    a note that does not open with a full-width parenthesis
+    an empty line, or a line that holds a line-break tag
     a text piece that check 26b would read as a published name
-    a joint on the last piece
     whatever published-entries.schema.json refuses (when jsonschema is installed)
 
-The two middle rules keep this file and check 26b reading the same members:
-26b counts a piece as a published name exactly when it opens with one
-back-quoted identifier followed by nothing or a full-width parenthesis.
+Check 26b counts a piece as a published name exactly when, line-break tags
+dropped, it opens with one back-quoted identifier followed by nothing or a
+full-width parenthesis -- which is what every member printed here opens with.
 
 ⛔ NO RULE IS PRINTED HERE. The MUST clauses about this table stand in
 Chapter 5.3 of 05-07-design.md; this document prints the rows and says where
@@ -60,10 +67,11 @@ SCHEMA = os.path.join(HERE, 'published-entries.schema.json')
 OUT = os.path.join(ASSETS, 'tbl-published-entries.md')
 
 LANG = 'ja'
-SLASH = chr(0xFF0F)          # the full-width slash the cell joins with
-OPEN = chr(0xFF08)           # the full-width parenthesis a note opens with
-DEFAULT_SEP = SLASH + u' '
-JOINTS = {'spaced': u' ' + SLASH + u' ', 'bare': SLASH}
+SLASH = chr(0xFF0F)          # opens every member after the first
+OPEN = chr(0xFF08)           # the parentheses a note is printed inside
+CLOSE = chr(0xFF09)
+STOP = chr(0x3002)           # the lone full stop an `after` may open with
+BR = '<br>'
 # The same reading check 26b makes of one piece of the member cell.
 PUBLISHED_NAME = re.compile(u'^`[A-Za-z_$][A-Za-z0-9_$]*`(?:$|' + OPEN + u')')
 
@@ -77,23 +85,27 @@ def say(message):
 
 
 def prose(cell):
-    """One printed cell, in this document's language."""
-    return cell.get(LANG, '')
+    """The printed lines of one cell part, in this document's language."""
+    return cell.get(LANG, [])
 
 
 def piece_text(one):
-    if 'name' in one:
-        return u'`%s`%s' % (one['name'], prose(one.get('note', {})))
-    return prose(one['text'])
+    if 'text' in one:
+        return BR.join(prose(one['text']))
+    out = u'`%s`' % one['name']
+    if 'note' in one:
+        note = prose(one['note'])
+        # A sentence ends a line (check 46), so a note whose last line ends
+        # with a full stop closes its parenthesis on the next line.
+        out += OPEN + BR.join(note) + (BR if note[-1].endswith(STOP) else u'') + CLOSE
+    after = prose(one.get('after', {}))
+    if after:
+        out += (u'' if after[0] == STOP else BR) + BR.join(after)
+    return out
 
 
 def member_cell(members):
-    out = []
-    for n, one in enumerate(members):
-        out.append(piece_text(one))
-        if n + 1 < len(members):
-            out.append(JOINTS.get(one.get('sepAfter'), DEFAULT_SEP))
-    return u''.join(out)
+    return (BR + SLASH + u' ').join(piece_text(one) for one in members)
 
 
 def schema_problems(doc):
@@ -122,25 +134,21 @@ def problems(doc):
             found.append('%s: component %s already has a row' % (rid, row['component']))
         seen_components.add(row['component'])
         names = set()
-        members = row['members']
-        for n, one in enumerate(members):
+        for one in row['members']:
+            for part in ('note', 'after', 'text'):
+                for line in prose(one.get(part, {})):
+                    if not line.strip() or BR in line:
+                        found.append('%s: %s has an empty line or a line-break '
+                                     'tag in its %s -- one string is one line'
+                                     % (rid, one.get('name', 'a text piece'), part))
             if 'name' in one:
                 if one['name'] in names:
                     found.append('%s publishes %s twice' % (rid, one['name']))
                 names.add(one['name'])
-                note = prose(one.get('note', {}))
-                if note and not note.startswith(OPEN):
-                    found.append('%s: the note of %s does not open with a '
-                                 'full-width parenthesis, so check 26b would '
-                                 'not read %s as published -- open it with one, '
-                                 'or make the whole piece a text piece'
-                                 % (rid, one['name'], one['name']))
-            elif PUBLISHED_NAME.match(prose(one['text'])):
+            elif PUBLISHED_NAME.match(piece_text(one)):
                 found.append('%s: the text piece %r reads as a published name '
                              '-- write it as a member (name + note)'
-                             % (rid, prose(one['text'])[:40]))
-            if 'sepAfter' in one and n + 1 == len(members):
-                found.append('%s: the last piece carries sepAfter' % rid)
+                             % (rid, piece_text(one)[:40]))
     return found
 
 

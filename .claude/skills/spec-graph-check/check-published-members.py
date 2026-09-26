@@ -325,7 +325,10 @@ def main():
                             % (rid, ' | '.join(cells)[:80]))
             continue
         component = cells[2].strip('`* ')
-        pieces = [p.strip() for p in cells[3].split(SOLIDUS) if p.strip()]
+        # A line break in the cell is layout, not a word: the generator starts
+        # every member on a line of its own (CR-581), so it is dropped here.
+        pieces = [p.replace('<br>', ' ').strip()
+                  for p in cells[3].split(SOLIDUS) if p.strip()]
         members = [MEMBER.match(p) for p in pieces]
         # ⛔ Gathered before the entry is resolved: the reverse direction below
         # asks what the TABLE names, which does not depend on src/ answering.

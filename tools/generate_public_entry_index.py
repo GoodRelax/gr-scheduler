@@ -54,8 +54,6 @@ LAYER_FOLDER = {
     'Adapter': 'adapter',
     'Framework': 'framework',
 }
-PAREN_OPEN = chr(0xFF08)      # full-width left parenthesis
-PAREN_CLOSE = chr(0xFF09)     # full-width right parenthesis
 STOP = chr(0x3002)            # ideographic full stop
 LIMIT = 160
 
@@ -218,12 +216,9 @@ class Tree(object):
         return None
 
 
-def purpose_of(note):
-    """A T-064 note as one line: breaks dropped, outer parentheses removed."""
-    text = re.sub(r'<br\s*/?>', ' ', note)
-    text = re.sub(r'\s+', ' ', text).strip()
-    if text.startswith(PAREN_OPEN) and text.endswith(PAREN_CLOSE):
-        text = text[1:-1]
+def purpose_of(lines):
+    """A T-064 note as one line: its first sentence, lines joined."""
+    text = re.sub(r'\s+', ' ', ' '.join(lines)).strip()
     # One line: the first sentence, or the first LIMIT characters of it.
     stop = text.find(STOP)
     if 0 <= stop < LIMIT:
@@ -272,7 +267,7 @@ def build():
         notes = {}
         for one in row['members']:
             if 'name' in one:
-                notes[one['name']] = purpose_of(one.get('note', {}).get('ja', ''))
+                notes[one['name']] = purpose_of(one.get('note', {}).get('ja', []))
         out.append('## %s (%s, `%s`)' % (comp, row['id'], rel(entry)))
         out.append('')
         out.append('| name | reach | kind | declared in | T-064 | what it is for / its declaration |')
