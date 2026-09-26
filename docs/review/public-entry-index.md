@@ -633,7 +633,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
-| `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | -- | function achromatic(colour: string): string |
+| `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-19 | 色を、明度を保ったまま無彩色にした色。 |
 | `actualOfCustom` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#actualOfCustom` | -- | function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
 | `ChosenColour` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColour` | -- | type ChosenColour = (stored: string \| null, form: ColourForm) => string \| null |
@@ -1039,6 +1039,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-37 | `SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。 |
 | `AiExportModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AiExportModal` | -- | interface AiExportModal extends OpenSurface |
 | `AppHeaderItems` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AppHeaderItems` | -- | interface AppHeaderItems |
 | `ColourField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourField` | -- | interface ColourField |
@@ -1354,4 +1355,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 663 name(s) leave through a public entry (203 of them published by table T-064), 491 more are exported by a file and not by its entry.
+Totals: 664 name(s) leave through a public entry (205 of them published by table T-064), 491 more are exported by a file and not by its entry.
