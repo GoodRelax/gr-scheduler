@@ -196,11 +196,20 @@ function refusalOfStamp(declared: DocumentStamp | null, current: DocumentStamp):
   return isStampMatched(declared, current) ? null : { step: 'WS-1', reason: 'staleStamp' }
 }
 
-// see AG-9
+// see WS-2, UN-8
+const VIEW_ONLY_KINDS: readonly DocumentCommand['kind'][] = ['setZoom', 'setScrollPosition', 'fitScheduleToScreen']
+
+// see WS-2, UN-8, MH-4
 /** @purity pure */
-function refusalOfMoment(moment: WriteMoment): MomentRefusal | null {
+function isViewOnly(commands: readonly DocumentCommand[]): boolean {
+  return commands.length > 0 && commands.every((command) => VIEW_ONLY_KINDS.includes(command.kind))
+}
+
+// see AG-9, WS-2
+/** @purity pure */
+function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand[] = []): MomentRefusal | null {
   if (moment.gestureInFlight) return { step: 'WS-2', reason: 'gestureInFlight' }
-  if (moment.editingInPlace) return { step: 'WS-2', reason: 'editingInPlace' }
+  if (moment.editingInPlace && !isViewOnly(commands)) return { step: 'WS-2', reason: 'editingInPlace' }
   if (moment.deliveringNotices) return { step: 'WS-2', reason: 'deliveringNotices' }
   return null
 }
@@ -211,7 +220,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   const stale = refusalOfStamp(input.readStamp, input.document.documentStamp)
   if (stale !== null) return { ok: false, refusal: stale }
 
-  const untimely = refusalOfMoment(input.moment)
+  const untimely = refusalOfMoment(input.moment, input.commands)
   if (untimely !== null) return { ok: false, refusal: untimely }
 
   let held = input.document

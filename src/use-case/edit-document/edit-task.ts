@@ -176,10 +176,10 @@ export function visualOf(schedule: Schedule, taskUid: number): TaskVisual {
   return schedule.taskVisuals.find((one) => one.taskUid === taskUid) ?? blankVisual(taskUid)
 }
 
-// see AT-100, FR-083
+// see G-1, IV-22
 /** @purity pure */
-export function isMilestone(task: Task, visual: TaskVisual): boolean {
-  return visual.shapeKind === null ? task.milestone === true : visual.shapeKind === 'milestone'
+export function isMilestone(task: Task): boolean {
+  return task.milestone === true
 }
 
 type DayCheck =

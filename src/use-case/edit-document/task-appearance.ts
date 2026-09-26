@@ -87,7 +87,7 @@ export function setTaskVisualShapeKind(
   const schedule = document.schedule
   const visual = visualOf(schedule, command.uid)
   const wanted = command.shapeKind === 'milestone'
-  if (isMilestone(task, visual) !== wanted) {
+  if (isMilestone(task) !== wanted) {
     return refused([
       reject('CM-20', 'FR-083', 'a milestone and a task with a duration are not interchangeable'),
     ])

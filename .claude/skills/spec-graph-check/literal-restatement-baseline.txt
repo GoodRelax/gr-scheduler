@@ -88,9 +88,6 @@ why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subse
 COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys
 why: coincidental: maps the colour columns to the form each is drawn in; the forms are its values, typed against ColourForm, not a list of the forms.
 
-COLOUR_FORM_OF_COLUMN | keys | property-items.json $.items[].columns
-why: coincidental (JDG-778, lane L2, CR-559): its keys are the colour columns whose drawn form differs (FR-019, CV-6) -- fillColor, strokeColor, textColor and color -- not the list of property items; a colour column with no form falls back to no form rather than being missing.
-
 KEY | values | help-roster.json $.entries[].keys~words
 why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.
 

@@ -707,6 +707,12 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
     withSchedule({
       tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-02' }, TASK_B],
     }),
+
+  // A milestone shape drawn for a Task whose `milestone` is not true.
+  'IV-22': () =>
+    withSchedule({
+      taskVisuals: [{ ...VISUAL, shapeKind: 'milestone' }],
+    }),
 }
 
 const IV_21_OUTSIDE: Readonly<Record<string, () => DocumentUnderTest>> = {
