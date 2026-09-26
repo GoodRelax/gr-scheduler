@@ -12,7 +12,6 @@ import { rowOf } from './sws-case'
 const T025: SpecTable = specTable('T-025')
 const T109: SpecTable = specTable('T-109')
 const T201: SpecTable = specTable('T-201')
-const T202: SpecTable = specTable('T-202')
 const T206: SpecTable = specTable('T-206')
 const T212: SpecTable = specTable('T-212')
 
@@ -425,11 +424,13 @@ test('DFC-45: resting on a task bar tells the task name and its two dates, and m
 })
 
 
-const GUIDE_MODE_CELL = cellOf(T202, 'S-66', 1, 4)
+// WHY: CR-572 moved S-66 from table T-202 to table T-206 (not saved), whose name cell
+// WHY: now carries the three modes in brackets after the name.
+const GUIDE_MODE_CELL = cellOf(T206, 'S-66', 0, 3)
 
 function guideMode(name: string): string {
   if (!GUIDE_MODE_CELL.includes(`'${name}'`)) {
-    throw new Error(`table T-202 row S-66 does not offer a guide cursor mode called ${name}`)
+    throw new Error(`table T-206 row S-66 does not offer a guide cursor mode called ${name}`)
   }
   return name
 }
