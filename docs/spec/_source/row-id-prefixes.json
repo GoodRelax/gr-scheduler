@@ -451,6 +451,14 @@
    }
   },
   {
+   "prefix": "GT",
+   "words": "Gate",
+   "owner": "rules",
+   "means": {
+    "ja": "関門 1 つ —— commit・`refactor` への push・`main` の早送りの前に打つものと、その口"
+   }
+  },
+  {
    "prefix": "HB",
    "words": "Highlight box",
    "owner": "spec",
@@ -925,6 +933,14 @@
    }
   },
   {
+   "prefix": "PW",
+   "words": "Performance Watch",
+   "owner": "rules",
+   "means": {
+    "ja": "性能の試験を測る時期・測り方・利用者を呼ぶ場面の決まり 1 つ"
+   }
+  },
+  {
    "prefix": "QN",
    "words": "Question",
    "owner": "spec",
@@ -1232,6 +1248,14 @@
    }
   },
   {
+   "prefix": "UO",
+   "words": "Unit-test Omission",
+   "owner": "rules",
+   "means": {
+    "ja": "単体試験を省略してよい場合 1 つ。どの行にも当たらない関数には単体試験を書く"
+   }
+  },
+  {
    "prefix": "UT",
    "words": "",
    "owner": "spec",
@@ -1261,6 +1285,14 @@
    "owner": "spec",
    "means": {
     "ja": "価値のことば —— 目標が述べる状態を 1 語で指すことば"
+   }
+  },
+  {
+   "prefix": "VT",
+   "words": "Verification Target",
+   "owner": "spec",
+   "means": {
+    "ja": "確かめるもの 1 つ —— 全数を持つ所と、それを受ける試験の系統"
    }
   },
   {
