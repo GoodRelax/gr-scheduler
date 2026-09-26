@@ -42,7 +42,11 @@ function rowOf(table: string, id: string) {
 const rowText = (table: string, id: string): string => unbroken(rowOf(table, id).cells.join(' '))
 const englishName = (id: string): string => bare(rowOf('T-103', id).by['確定名（英）'] ?? '')
 
-const HF_10_ORDER = '頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの順とすること（MUST）'
+const HF_10_ORDER =
+  '頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順に、1 行に並べること（MUST）'
+const HF_10_NOT_TWO_TIERS =
+  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
+const HF_20_LAST = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 const HF_12_COUNT = 'そのときは、頭にいま何行を畳み込んでいるかを示すこと（MUST）'
 const HF_18_COUNT = '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
 const HF_2_FAINT = '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
@@ -57,15 +61,29 @@ const ROW_TITLE_PANEL = englishName('U-22')
 const ROW_EXPANDER = englishName('U-47')
 const ROW_PIN = englishName('U-48')
 
+// see T-109, HF-20
+// WHY: IC-106 shares its authority column (FR-032) with IC-82; only its entrance column names HF-20.
 function iconFor(hfRow: string): string {
-  const found = specTable('T-109').rows.find(
-    (one) => (one.by['面'] ?? '').includes('Row Title Panel') && (one.by['正'] ?? '').includes(`\`${hfRow}\``),
-  )
-  if (found === undefined) throw new Error(`table T-109 has no Row Title Panel entrance for ${hfRow}`)
-  return found.id
+  const onPanel = specTable('T-109').rows.filter((one) => (one.by['面'] ?? '').includes('Row Title Panel'))
+  const byAuthority = onPanel.filter((one) => (one.by['正'] ?? '').includes(`\`${hfRow}\``))
+  const found =
+    byAuthority.length > 0
+      ? byAuthority
+      : onPanel.filter((one) => (one.by['何の入口か'] ?? '').includes(`\`${hfRow}\``))
+  if (found.length !== 1) {
+    throw new Error(`table T-109 has ${found.length} Row Title Panel entrances for ${hfRow}, not one`)
+  }
+  return (found[0] as { id: string }).id
 }
 
-const THEME: ScreenTheme = { preference: 'light', hue: 214 }
+const HEAD_RULES = ['HF-12', 'HF-16', 'HF-10', 'HF-17', 'HF-20'] as const
+
+const headEntrances = (built: Stage, icons: readonly string[]): FakeElement[] =>
+  descendants(oneByRole(built.root(), ROW_TITLE_PANEL)).filter((one) =>
+    icons.includes(one.getAttribute('data-icon') ?? ''),
+  )
+
+const THEME: ScreenTheme ={ preference: 'light', hue: 214 }
 const S_149_LIGHT = bare(rowOf('T-236', 'S-149').by['明るいテーマ'] ?? '')
   .replace('H', String(THEME.hue))
   .replace(/\s+/g, '')
@@ -133,6 +151,8 @@ const PLAIN = title('g-plain', 70, {
 describe('CR-439 Row Title Panel -- the clauses still stand', () => {
   it('T-051, FR-098 and FR-029 still say what these cases test', () => {
     expect(rowText('T-051', 'HF-10')).toContain(HF_10_ORDER)
+    expect(rowText('T-051', 'HF-10')).toContain(HF_10_NOT_TWO_TIERS)
+    expect(rowText('T-051', 'HF-20')).toContain(HF_20_LAST)
     expect(rowText('T-051', 'HF-12')).toContain(HF_12_COUNT)
     expect(rowText('T-051', 'HF-18')).toContain(HF_18_COUNT)
     expect(rowText('T-051', 'HF-2')).toContain(HF_2_FAINT)
@@ -146,19 +166,31 @@ describe('CR-439 Row Title Panel -- the clauses still stand', () => {
 })
 
 describe('the head of the panel (HF-10, HF-12)', () => {
-  it('HF-10 左から 1 階層開く・すべて畳む・すべて開く・足すの順 -- the four head entrances stand in that order', () => {
+  it('HF-10 左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順 -- the five head entrances stand in that order', () => {
     const built = drawn({ pinnedTitles: [], titles: [PLAIN] })
-    const wanted = ['HF-16', 'HF-12', 'HF-10', 'HF-17'].map(iconFor)
-    const panel = oneByRole(built.root(), ROW_TITLE_PANEL)
-    const head = descendants(panel).filter((one) => wanted.includes(one.getAttribute('data-icon') ?? ''))
-    expect(head.map((one) => one.getAttribute('data-icon')).sort()).toEqual([...wanted].sort())
+    const wanted = HEAD_RULES.map(iconFor)
+    const head = headEntrances(built, wanted)
+    expect(head.map((one) => one.getAttribute('data-icon')).sort(), HF_10_ORDER).toEqual([...wanted].sort())
     const leftToRight = [...head].sort((a, b) => {
       const ra = Number.parseFloat(styleMap(a).get('right') ?? 'NaN')
       const rb = Number.parseFloat(styleMap(b).get('right') ?? 'NaN')
       if (Number.isNaN(ra) || Number.isNaN(rb)) return head.indexOf(a) - head.indexOf(b)
       return rb - ra
     })
-    expect(leftToRight.map((one) => one.getAttribute('data-icon'))).toEqual(wanted)
+    expect(leftToRight.map((one) => one.getAttribute('data-icon')), HF_10_ORDER).toEqual(wanted)
+    expect(leftToRight.at(-1)?.getAttribute('data-icon'), HF_20_LAST).toBe(iconFor('HF-20'))
+  })
+
+  it.each([
+    ['with a row drawn', [PLAIN]],
+    ['with no row drawn', []],
+  ] as const)('HF-10 1 行に並べること -- the five head entrances share one top, %s', (_name, titles) => {
+    const built = drawn({ pinnedTitles: [], titles: [...titles], foldedRowCount: 3 })
+    const head = headEntrances(built, HEAD_RULES.map(iconFor))
+    expect(head, `premise: ${HF_10_ORDER}`).toHaveLength(HEAD_RULES.length)
+    expect(new Set(head.map((one) => one.parentNode)).size, `premise, one box holds the run: ${HF_10_ORDER}`).toBe(1)
+    const tops = head.map((one) => `top:${styleMap(one).get('top') ?? '(none)'} bottom:${styleMap(one).get('bottom') ?? '(none)'}`)
+    expect(new Set(tops).size, `${HF_10_ORDER} / ${HF_10_NOT_TWO_TIERS} -- ${tops.join(', ')}`).toBe(1)
   })
 
   it('HF-12 頭にいま何行を畳み込んでいるかを示すこと -- the head shows the folded count even with no row drawn', () => {

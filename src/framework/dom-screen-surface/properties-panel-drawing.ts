@@ -498,7 +498,7 @@ function commitOnPress(entry: HTMLElement): void {
 function colourChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
   const at = (control.choiceValues ?? []).indexOf(name)
   if (at < 0) return made(host, 'span', swatchBox(choiceSide()))
-  const paint = control.colour?.swatches[at] ?? ''
+  const paint = (control.colour?.swatches ?? control.swatches)?.[at] ?? ''
   const word = control.choices?.[at] ?? name
   const style = swatchBox(choiceSide()) + swatchPaint(paint, choiceSide()) + choiceSwatchBorder()
   const choice = made(host, 'button', style)
@@ -535,11 +535,11 @@ function colourSlotElement(host: Document, row: string, control: PropertyControl
   return colourChoiceElement(host, row, control, one.name)
 }
 
-// see CV-9, S-338
+// see CV-9, S-338, S-368
 /** @purity pure */
-function colourGridStyle(): string {
+function colourGridStyle(perLine: number): string {
   return (
-    `display:grid;grid-template-columns:repeat(${NOT_STORED_PROPERTY_FIELD_SIZES['S-338']},max-content);` +
+    `display:grid;grid-template-columns:repeat(${perLine},max-content);` +
     `gap:${fieldSizes().rowGap}px;`
   )
 }
@@ -612,7 +612,7 @@ function colourFieldElements(
 ): readonly HTMLElement[] {
   const colour = control.colour
   if (colour === undefined) return []
-  const grid = made(host, 'div', colourGridStyle())
+  const grid = made(host, 'div', colourGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-338']))
   const named = paletteOrderOf(control, colour).filter((one) => one.name !== TRANSPARENT_NAME)
   const slots = named.map((one) => colourSlotElement(host, row, control, one))
   grid.append(...slots)
@@ -629,6 +629,26 @@ function colourFieldElements(
   palette.setAttribute('data-colour-palette', row)
   palette.append(grid, lastLine)
   return [palette, colourSidesElement(host, control, colour)]
+}
+
+// see FR-041, S-368
+/** @purity non-pure */
+function swatchFieldElements(
+  host: Document,
+  field: PropertyField,
+  control: PropertyControl,
+  focusByRow: Map<string, TextEntryControl> | null,
+): readonly HTMLElement[] {
+  const grid = made(host, 'div', colourGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-368']))
+  const slots = (control.choiceValues ?? []).map((value) => colourChoiceElement(host, field.row, control, value))
+  grid.append(...slots)
+  holdColourFocusTarget(focusByRow, field.row, slots)
+  const palette = made(host, 'div', 'flex:1 1 100%;')
+  palette.setAttribute('data-colour-palette', field.row)
+  palette.append(grid)
+  const shown = made(host, 'span', 'flex:1 1 100%;')
+  shown.textContent = field.text
+  return [palette, shown]
 }
 
 // WHY: a field no longer described closes its host colour input, so it stands only after a press.
@@ -711,6 +731,10 @@ export function fieldElement(
   for (const control of field.controls) {
     if (control.colour !== undefined) {
       controls.append(...colourFieldElements(host, field.row, control, typedByRow))
+      continue
+    }
+    if (control.swatches !== undefined) {
+      controls.append(...swatchFieldElements(host, field, control, typedByRow))
       continue
     }
     controls.append(controlElement(host, field.row, control, typedByRow))

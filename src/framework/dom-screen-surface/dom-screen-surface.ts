@@ -35,8 +35,7 @@ import {
   headEntryElements,
   headFoldedRowCountRight,
   markFoldedRowCount,
-  markHeadPair,
-  markPanelCornerEntry,
+  markHeadEntries,
   rowControlsHeightReporter,
   rowControlsMeasureKey,
   rowsTopPx,
@@ -783,10 +782,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         if (rowsTop === null) corner.removeAttribute('data-corner-band')
         else corner.setAttribute('data-corner-band', String(rowsTop - headerHeightPx))
       }
-      markPanelCornerEntry(openEveryRow, 1, view.rowTitlePanel.canOpenEveryRow)
-      markPanelCornerEntry(collapseEveryRow, 2, view.rowTitlePanel.canCloseEveryRow)
-      markPanelCornerEntry(openLevelZero, 3, view.rowTitlePanel.canOpenLevelZero)
-      markHeadPair(addTopRow, deleteEveryRow)
+      markHeadEntries(
+        { openEveryRow, collapseEveryRow, openLevelZero, addTopRow, deleteEveryRow },
+        view.rowTitlePanel,
+      )
       markFoldedRowCount(
         headFoldedRows,
         view.rowTitlePanel.foldedRowCount ?? 0,

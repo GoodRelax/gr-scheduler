@@ -342,9 +342,25 @@ function commandFromDependencyColumn(
   return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lag }]
 }
 
-// see FR-035, CM-1
+// TRAP: change with setThemeHue's range check in edit-project.ts; no generated bound of S-73 reaches here.
+const LOWEST_HUE = 0
+const HIGHEST_HUE = 359
+
+const DECIMAL_DIGITS = /^[0-9]+$/
+
+// see FR-041, CM-5, S-73
+/** @purity pure */
+function commandFromThemeHue(text: string): readonly DocumentCommand[] {
+  if (!DECIMAL_DIGITS.test(text)) return []
+  const hue = Number(text)
+  if (hue < LOWEST_HUE || hue > HIGHEST_HUE) return []
+  return [{ kind: 'setThemeHue', hue }]
+}
+
+// see FR-035, CM-1, FR-041
 /** @purity pure */
 function commandFromProjectColumn(column: string, text: string): readonly DocumentCommand[] {
+  if (column === 'themeHue') return commandFromThemeHue(text)
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
 }
