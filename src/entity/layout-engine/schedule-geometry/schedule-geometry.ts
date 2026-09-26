@@ -8,25 +8,37 @@ import type { DocumentSettings, DrawnSettings } from '../../document-model/docum
 import {
   dayOf,
   workingCalendarOf,
+  type BaselineTask,
   type CalendarDay,
   type Schedule,
   type Task,
+  type TaskGroup,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
-import { xFromDay, type ScheduleLayout, type TaskPlacement } from '../schedule-layout/schedule-layout'
+import {
+  thinEndHalfHeightOf,
+  xFromDay,
+  type RowPlacement,
+  type ScheduleLayout,
+  type TaskPlacement,
+} from '../schedule-layout/schedule-layout'
 import { drawnSettingsOf, type ScreenRect, type ScreenRegions } from '../screen-regions/screen-regions'
 import { commentGeometry } from './comment-box'
 import {
   hasPlanDates,
+  placedEndOf,
   plannedPlacementsOf,
   routedDependency,
   selectedLinksOf,
+  standingEndOf,
+  type LinkEnd,
+  type SightedEnd,
 } from './dependency-route'
 import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
-import { taskGeometryOf } from './task-figures'
+import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 
 export { commentAnchorPointOf, leaderOf } from './comment-box'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
@@ -87,6 +99,12 @@ export interface DummyGeometry {
   readonly figure?: BarGeometry
 }
 
+// see DA-2, DA-3
+export interface DeadlineGeometry {
+  readonly outline: Path
+  readonly haloWidth: number
+}
+
 export interface TaskGeometry {
   readonly taskUid: number
   readonly shapeKind: TaskPlacement['shapeKind']
@@ -104,15 +122,41 @@ export interface TaskGeometry {
   // see FR-009, RT-4a
   // WHY: optional, read as true when absent: a hand-built geometry may not say.
   readonly hasPlanDates?: boolean
+  // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
+  readonly deadline?: DeadlineGeometry | null
 }
 
-// see LC-10, T-222
+// see EL-1, EL-2, EL-10, EL-11, EL-12
+// WHY: decided here once, where EL-1 and EL-2 are judged, so the double click (EL-10 .. EL-12) never judges them again.
+export interface FarEndGeometry {
+  readonly isAcrossInRowArea: boolean
+  readonly isDownInRowPlace: boolean
+  readonly groupId: string
+  readonly middleX: number
+  readonly undrawnRowDepth: number | null
+}
+
+// see EL-9, GA-24
+export interface ContinuationGeometry {
+  readonly dots: readonly Point[]
+  readonly radius: number
+  readonly farUid: number
+  readonly far: FarEndGeometry
+}
+
+// see T-303
+export type Elision = 'EL-3' | 'EL-4' | 'EL-5' | 'EL-6'
+
+// see LC-10, T-222, T-303
 export interface DependencyGeometry {
   readonly predecessorUid: number
   readonly successorUid: number
   readonly linkType: number
   readonly pattern: 'RP-1' | 'RP-2' | 'RP-3' | 'RP-4' | 'RP-5' | 'RP-6' | 'RP-7' | 'RP-8'
   readonly points: Path
+  readonly elision: Elision
+  readonly drawnPoints: Path
+  readonly continuation: ContinuationGeometry | null
   // see S-18, S-178, S-19, GA-19
   // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
@@ -153,8 +197,17 @@ export interface DualCursorGeometry {
   readonly bottom: number
 }
 
+// see FR-015, T-339
+export interface BaselineOutline {
+  readonly taskUid: number
+  readonly kind: 'rectangle' | 'diamond'
+  readonly box: ScreenRect
+  readonly isPinned: boolean
+}
+
 export interface ScheduleGeometry {
   readonly tasks: readonly TaskGeometry[]
+  readonly baselineOutlines: readonly BaselineOutline[]
   readonly dependencies: readonly DependencyGeometry[]
   readonly progressLine: Path
   readonly statusLine: { readonly x: number; readonly top: number; readonly bottom: number } | null
@@ -181,6 +234,192 @@ export interface GeometryInputs {
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
   readonly dummyFromByStart: Map<string, CalendarDay | null>
   readonly dummyEndByFrom: Map<string, CalendarDay>
+}
+
+interface EndReading {
+  readonly inputs: GeometryInputs
+  readonly regions: ScreenRegions
+  readonly placedByUid: ReadonlyMap<number, TaskPlacement>
+  readonly rowById: ReadonlyMap<string, RowPlacement>
+  readonly groupById: ReadonlyMap<string, TaskGroup>
+  readonly groupOfTask: ReadonlyMap<number, string>
+  readonly pinnedIds: ReadonlySet<string>
+}
+
+/** @purity pure */
+function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): EndReading {
+  const groupOfTask = new Map<number, string>()
+  for (const member of schedule.taskGroupMembers) {
+    if (!groupOfTask.has(member.taskUid)) groupOfTask.set(member.taskUid, member.groupId)
+  }
+  return {
+    inputs,
+    regions,
+    placedByUid: new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one])),
+    rowById: new Map(inputs.layout.rows.map((row) => [row.groupId, row])),
+    groupById: new Map(schedule.taskGroups.map((group) => [group.id, group])),
+    groupOfTask,
+    pinnedIds: new Set(inputs.settings.pinnedGroupIds),
+  }
+}
+
+/** @purity pure */
+function planSpanWidthOf(layout: ScheduleLayout, x: number, finish: CalendarDay, settings: DrawnSettings): number {
+  return Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
+}
+
+/** @purity pure */
+function overlapOf(from: number, to: number, lower: number, upper: number): number {
+  return Math.min(to, upper) - Math.max(from, lower)
+}
+
+// see EL-1, EL-2, FR-098, LF-14
+// WHY: an EL-2 end stands on a zero-height line, so it is never inside its row's place down.
+/** @purity pure */
+function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null, reading: EndReading): FarEndGeometry {
+  const area = reading.regions.rowArea
+  const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
+  const isPinned = reading.rowById.get(groupId)?.isPinned === true
+  const top = isPinned ? area.y : bandFloor
+  const bottom = isPinned ? bandFloor : area.y + area.height
+  return {
+    isAcrossInRowArea: overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0,
+    isDownInRowPlace: overlapOf(end.top, end.bottom, top, bottom) > 0,
+    groupId,
+    middleX: (end.x + (end.x + end.width)) / 2,
+    undrawnRowDepth,
+  }
+}
+
+// see EL-1
+/** @purity pure */
+function isSeen(far: FarEndGeometry): boolean {
+  return far.isAcrossInRowArea && far.isDownInRowPlace
+}
+
+// see EL-2
+/** @purity pure */
+function standingYOf(row: RowPlacement, reading: EndReading): number {
+  if (row.isPinned !== true) return row.y + row.height
+  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.rowArea.y
+  for (const one of reading.inputs.layout.rows) {
+    if (one.groupId === row.groupId) break
+    if (one.isPinned !== true) floor = one.y + one.height
+  }
+  return floor
+}
+
+// see EL-2, EL-10, RT-4a, LC-1
+// WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
+/** @purity pure */
+function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
+  const { layout, settings } = reading.inputs
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  const groupId = reading.groupOfTask.get(task.uid)
+  const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
+  if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
+  if (own.treeState === 'hidden' || reading.rowById.has(own.id) || reading.pinnedIds.has(own.id)) return null
+  let group: TaskGroup = own
+  for (let step = 0; step < settings.maxGroupDepth; step += 1) {
+    const parent: TaskGroup | undefined =
+      group.parentId === null ? undefined : reading.groupById.get(group.parentId)
+    if (parent === undefined || parent.treeState === 'hidden' || parent.treeState === 'collapsed') return null
+    const row = reading.rowById.get(parent.id)
+    if (row !== undefined) {
+      const x = xFromDay(layout, start)
+      const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
+      // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
+      return { end, far: farEndOf(end, own.id, row.depth + step + 1, reading) }
+    }
+    group = parent
+  }
+  return null
+}
+
+/** @purity pure */
+function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
+  const placed = reading.placedByUid.get(uid)
+  if (placed !== undefined) {
+    const end = placedEndOf(placed, reading.inputs.settings)
+    return { end, far: farEndOf(end, placed.groupId, null, reading) }
+  }
+  const task = reading.inputs.taskByUid.get(uid)
+  return task === undefined ? null : lodEndOf(task, reading)
+}
+
+// see T-303
+/** @purity pure */
+function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
+  if (predecessorSeen) return successorSeen ? 'EL-3' : 'EL-4'
+  return successorSeen ? 'EL-5' : 'EL-6'
+}
+
+// see RT-4a, FR-009, T-303
+/** @purity pure */
+function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
+  if (!inputs.settings.dependencyVisible || !inputs.settings.planVisible) return []
+  const reading = readingOf(schedule, inputs, regions)
+  const out: DependencyGeometry[] = []
+  for (const successor of schedule.tasks) {
+    if (successor.dependencies.length === 0) continue
+    const to = sightedEndOf(successor.uid, reading)
+    if (to === null) continue
+    for (const link of successor.dependencies) {
+      const from = sightedEndOf(link.predecessorUid, reading)
+      if (from === null) continue
+      out.push(routedDependency(inputs, from, to, link.linkType, elisionOf(isSeen(from.far), isSeen(to.far))))
+    }
+  }
+  return out
+}
+
+// see BL-2, XS-5, XS-6
+/** @purity pure */
+function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonly top: number; readonly height: number } {
+  if (!isThinShape(placed.shapeKind)) return { top: placed.y, height: placed.planHeight }
+  const half = thinEndHalfHeightOf(placed.shapeKind, settings)
+  return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
+}
+
+// see BL-1, BL-2
+/** @purity pure */
+function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinned: boolean,
+                           inputs: GeometryInputs): BaselineOutline | null {
+  const start = dayOf(baseline.start)
+  const finish = dayOf(baseline.finish)
+  if (start === null || finish === null) return null
+  const { top, height } = planExtentOf(placed, inputs.settings)
+  const x = xFromDay(inputs.layout, start)
+  const taskUid = baseline.uid
+  if (baseline.milestone === true) {
+    return { taskUid, kind: 'diamond', box: { x: x - height / 2, y: top, width: height, height }, isPinned }
+  }
+  const width = planSpanWidthOf(inputs.layout, x, finish, inputs.settings)
+  return { taskUid, kind: 'rectangle', box: { x, y: top, width, height }, isPinned }
+}
+
+// see FR-015, BL-1, BL-4
+// TRAP: never gate on planVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
+/** @purity pure */
+function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): BaselineOutline[] {
+  if (!inputs.settings.baselineVisible || schedule.baselineTasks.length === 0) return []
+  const placedByUid = new Map<number, TaskPlacement>()
+  for (const placed of inputs.layout.placements) {
+    if (!placedByUid.has(placed.taskUid)) placedByUid.set(placed.taskUid, placed)
+  }
+  const pinnedIds = new Set<string>()
+  for (const row of inputs.layout.rows) {
+    if (row.isPinned === true) pinnedIds.add(row.groupId)
+  }
+  const out: BaselineOutline[] = []
+  for (const baseline of schedule.baselineTasks) {
+    const placed = placedByUid.get(baseline.uid)
+    if (placed === undefined) continue
+    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.groupId), inputs)
+    if (outline !== null) out.push(outline)
+  }
+  return out
 }
 
 // see CP-6, LC-10, LC-11, RV-5
@@ -217,23 +456,10 @@ export function geometryFromLayout(
     if (task !== undefined) tasks.push({ ...taskGeometryOf(inputs, task, placed), hasPlanDates: hasPlanDates(task) })
   }
 
-  const placedByUid = new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one]))
-  const dependencies: DependencyGeometry[] = []
-  // see RT-4a, FR-009
-  if (settings.dependencyVisible && settings.planVisible) {
-    for (const successor of schedule.tasks) {
-      const toDay = placedByUid.get(successor.uid)
-      if (toDay === undefined) continue
-      for (const link of successor.dependencies) {
-        const from = placedByUid.get(link.predecessorUid)
-        if (from !== undefined) dependencies.push(routedDependency(inputs, from, toDay, link.linkType))
-      }
-    }
-  }
-
   return {
     tasks,
-    dependencies,
+    baselineOutlines: baselineOutlinesOf(schedule, inputs),
+    dependencies: dependenciesOf(schedule, inputs, regions),
     progressLine: progressLineOf(inputs),
     statusLine:
       inputs.statusDate === null

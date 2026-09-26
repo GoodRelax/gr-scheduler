@@ -2,8 +2,22 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { specTable } from './spec-table'
-import { cellOf, day, sceneOf, taskOf, type DrawWish, type Scene } from '../unit/cr-430-cross-section-scene'
+import { specTable, unbroken } from './spec-table'
+import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
+import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
+import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { regionsFromScreen } from '../../src/entity/layout-engine/screen-regions/screen-regions'
+import {
+  SCREEN,
+  cellOf,
+  day,
+  scheduleOf,
+  sceneOf,
+  taskOf,
+  type DrawWish,
+  type SceneWish,
+} from '../unit/cr-430-cross-section-scene'
 
 const RANK = '順'
 const ELEMENT = '要素'
@@ -20,6 +34,7 @@ const FR_110_THE_THREE_IN_FRONT =
 const ZO_THE_ACTUAL_NEVER_COVERS_THE_NAME = '**実績バーが名称ラベルを覆ってはならない（MUST NOT）。**'
 const ZO_6_ONLY_WHILE_HELD =
   '⛔ **握っているあいだだけ描き、離したら消すこと（MUST）** —— **離した時点で残るのは選択そのものであり、矩形ではない**'
+const ZO_15_PLACE = '予定バーと実績バーより手前、依存線（`ZO-4`）より奥とする'
 const ZO_THE_ROW_ORDER_IS_NOT_THE_ID_ORDER =
   '本表の並び順と行 ID の順は一致しない —— ほかの行から名指されている行 ID を変えないためである。'
 
@@ -68,8 +83,11 @@ const TENTATIVE_LINK = {
   ],
 }
 
-const richScene = (): Scene =>
-  sceneOf({
+const BASELINE_VISIBLE = cellOf('T-202', 'S-69', 'キー')
+
+const BASELINE = { uid: 1, name: null, start: day(4), finish: day(12), milestone: false }
+
+const RICH: SceneWish = {
     tasks: [
       taskOf({
         uid: 1,
@@ -81,6 +99,7 @@ const richScene = (): Scene =>
         resume: day(22),
         resumeValid: true,
         percentComplete: 40,
+        deadline: day(6),
       }),
       taskOf({
         uid: 2,
@@ -106,8 +125,37 @@ const richScene = (): Scene =>
       percentCompleteVisible: true,
       dualCursorVisible: true,
       progressMarkerVisible: true, // see S-63
+      [BASELINE_VISIBLE]: true,
     },
-  })
+}
+
+const richScene = (): { readonly svg: (draw?: DrawWish) => string } => {
+  const scene = sceneOf(RICH)
+  const schedule = { ...scheduleOf(RICH), baselineTasks: [BASELINE] } as unknown as Schedule
+  const regions = regionsFromScreen(SCREEN, scene.settings)
+  const layout = layoutFromSchedule(schedule, scene.settings, regions)
+  const geometry = geometryFromLayout(schedule, scene.settings, layout, regions, scene.selection, null)
+  return {
+    svg: (draw: DrawWish = {}): string =>
+      svgFromSchedule(
+        schedule,
+        scene.settings,
+        layout,
+        geometry,
+        regions,
+        scene.selection,
+        'screen',
+        { themePreference: 'light', guideCursorMode: 'none' },
+        (draw.follow ?? null) as never,
+        [],
+        (draw.pointer ?? null) as never,
+        null,
+        (draw.marquee ?? null) as never,
+        (draw.watermark ?? null) as never,
+        (draw.tentativeLink ?? null) as never,
+      ),
+  }
+}
 
 const EVERYTHING: DrawWish = {
   pointer: { x: 500, y: 120 },
@@ -191,6 +239,18 @@ describe('T-020 -- the rules FR-110 states in words', () => {
       )
       expect(rankOf(front), FR_110_THE_THREE_IN_FRONT).toBeGreaterThan(rankOf('ZO-5'))
     }
+  })
+
+  it(`ZO-15 「${ZO_15_PLACE}」: the outline is drawn after ZO-1 and ZO-2 and before ZO-4`, () => {
+    const row = specTable('T-020').rows.find((one) => one.id === 'ZO-15')
+    expect(unbroken(row?.by[ELEMENT] ?? ''), ZO_15_PLACE).toContain(ZO_15_PLACE)
+    const order = drawnOrder()
+    expect(order, ZO_15_PLACE).toContain('ZO-15')
+    for (const behind of ['ZO-1', 'ZO-2']) {
+      expect(firstIndexOf(order, behind), `${behind}: ${ZO_15_PLACE}`).toBeGreaterThanOrEqual(0)
+      expect(firstIndexOf(order, 'ZO-15'), `${behind}: ${ZO_15_PLACE}`).toBeGreaterThan(firstIndexOf(order, behind))
+    }
+    expect(firstIndexOf(order, 'ZO-4'), ZO_15_PLACE).toBeGreaterThan(firstIndexOf(order, 'ZO-15'))
   })
 
   it(ZO_6_ONLY_WHILE_HELD, () => {

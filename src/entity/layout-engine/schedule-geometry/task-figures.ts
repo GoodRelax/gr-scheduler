@@ -16,6 +16,7 @@ import {
 import {
   NOT_STORED_LABEL_SIZES,
   assigneeAnchorOf,
+  deadlineHeadHalfWidthOf,
   dummyBandOf,
   labelLayoutOf,
   labelReferenceOf,
@@ -33,6 +34,7 @@ import { guidesOf } from './plan-actual-guides'
 import {
   point,
   type BarGeometry,
+  type DeadlineGeometry,
   type DummyGeometry,
   type GeometryInputs,
   type MarkerGeometry,
@@ -87,16 +89,24 @@ function chevronOutline(x0: number, x1: number, top: number, height: number,
   ]
 }
 
+interface FadeEnds {
+  readonly fadeIn: number | null
+  readonly fadeOut: number | null
+}
+
+// see FD-6a
+const UNSET_FADE: FadeEnds = { fadeIn: null, fadeOut: null }
+
 // see FD-5, LF-6
 // TRAP: each end from its own fade; one fade must never reshape the other end (FD-5 MUST NOT).
 /** @purity pure */
 function chevronBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
-                      fade: { readonly fadeIn: number; readonly fadeOut: number },
-                      isActual: boolean, settings: DrawnSettings): BarGeometry {
+                      fade: FadeEnds, isActual: boolean, settings: DrawnSettings): BarGeometry {
   const planNotch = chevronNotch(placed.width, placed.planHeight, settings)
   const unfaded = isActual ? planNotch * settings.actualOfPlan : planNotch
-  const startNotch = fade.fadeIn > 0 ? fade.fadeIn : unfaded
-  const endTip = fade.fadeOut > 0 ? fade.fadeOut : unfaded
+  // TRAP: null, never 0, takes the plain depth: a 0 end is drawn flat (FD-5).
+  const startNotch = fade.fadeIn ?? unfaded
+  const endTip = fade.fadeOut ?? unfaded
   return { form: 'outline', points: chevronOutline(x0, x1, top, height, startNotch, endTip) }
 }
 
@@ -308,11 +318,14 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
     return lineBar(kind, x0, x1, thinTierMiddle(placed, settings, isActual), settings)
   }
   // TRAP: read the plan's fades off the placement, never clamp again: LC-6 judged the fit with these numbers.
-  const fade = isActual
-    ? { fadeIn: 0, fadeOut: 0 }
-    : { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
+  const fade: FadeEnds = isActual
+    ? UNSET_FADE
+    : {
+        fadeIn: placed.fadeInUnset ? null : placed.fadeInPx,
+        fadeOut: placed.fadeOutUnset ? null : placed.fadeOutPx,
+      }
   if (kind === 'chevron') return chevronBarOf(placed, x0, x1, top, height, fade, isActual, settings)
-  return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn, fade.fadeOut) }
+  return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn ?? 0, fade.fadeOut ?? 0) }
 }
 
 // see RV-5
@@ -386,6 +399,32 @@ function markerOf(inputs: GeometryInputs, task: Task,
     symbol: progressSymbolOf(task, inputs.statusDate),
     centre: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
+  }
+}
+
+// see DA-1, DA-2, DA-3, DA-4, DA-5
+// TRAP: gate on no toggle, unlike markerOf: hiding the plan or the markers must not hide the deadline (DA-1).
+/** @purity pure */
+function deadlineOf(placed: TaskPlacement, settings: DrawnSettings): DeadlineGeometry | null {
+  const x = placed.deadlineX
+  if (x === null) return null
+  const d = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
+  const top = labelTierMiddleOf(placed, settings) - d / 2
+  const tipY = top + d
+  const headY = tipY - d * NOT_STORED_DEADLINE_MARK_SIZES['S-366']
+  const head = deadlineHeadHalfWidthOf(d)
+  const shaft = (d * NOT_STORED_DEADLINE_MARK_SIZES['S-367']) / 2
+  return {
+    outline: [
+      point(x - shaft, top),
+      point(x - shaft, headY),
+      point(x - head, headY),
+      point(x, tipY),
+      point(x + head, headY),
+      point(x + shaft, headY),
+      point(x + shaft, top),
+    ],
+    haloWidth: d * settings.labelHaloOfFont,
   }
 }
 
@@ -565,7 +604,6 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
 
   const dummies = dummiesOf(inputs, task, placed, actualHeight)
   const marker = markerOf(inputs, task, placed)
-  const outsideLabel = outsideLabelBoxOf(inputs, placed)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'
 
@@ -594,7 +632,8 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
         ? fadeHandlePoints(placed, planTop)
         : [],
     label: labelBoxOf(inputs, task, placed),
-    assigneeLabel: outsideLabel,
+    assigneeLabel: outsideLabelBoxOf(inputs, placed),
+    deadline: deadlineOf(placed, settings),
   }
 }
 

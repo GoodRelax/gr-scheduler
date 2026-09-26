@@ -24,6 +24,8 @@ const T_268_FADE_BEFORE_LINE =
   '⭐ 形の外でもフェードの掴み点を依存線より先にするのは、掴み点が選んだタスクにだけ出る（`FR-075`）小さな 1 か所の的であり、線は長くてほかのどこでも選べるからである。'
 const T_268_MARKER_IN_ACTUAL =
   '⭐ 実績の中に立つ進捗マーカーを実績の端より後に置くので、マーカーの左半分は実績の開始が、右半分はマーカーが応える。'
+const T_268_MARK_BEFORE_LINE =
+  '⭐ 依存線の続きの印を同じ依存線の線より先にするのも同じ理由である —— 印は短い線の先の 1 か所であり、線を選ぶだけならほかの所でもできる。'
 const T_268_RESUME_WITH_MARKER =
   '⭐ 再開アイコンを、実績の外に立つ進捗マーカーと同じ順に入れるのは、拡大すれば予定は編集できるが、拡大しても再開はできないからである。'
 
@@ -34,6 +36,10 @@ const COLUMN_OFF_SHAPE = '形の外（隙間・外側の帯）'
 const EXPECTED_ROW_IDS = Array.from({ length: 9 }, (_one, at) => `TY-${at + 1}`)
 
 const DEPENDENCY = '依存線'
+const CONTINUATION_MARK = '依存線の続きの印'
+// WHY: since CR-555 the dependency line travels with its continuation mark, mark first, in both columns
+// WHY: (TY-2 off a shape, TY-5 on one) -- the pair is what "where the dependency line sits" moves.
+const DEPENDENCY_KINDS: readonly string[] = [CONTINUATION_MARK, DEPENDENCY]
 
 const plain = (cell: string): string =>
   cell
@@ -70,14 +76,22 @@ describe('table T-268 -- the manuscript shape of the nine rows', () => {
   })
 
   it(`differs between the two columns only in where the dependency line sits: ${T_268_ONE_DIFFERENCE}`, () => {
-    const onShape = columnKinds(COLUMN_ON_SHAPE).filter((one) => one !== DEPENDENCY)
-    const offShape = columnKinds(COLUMN_OFF_SHAPE).filter((one) => one !== DEPENDENCY)
+    const onShape = columnKinds(COLUMN_ON_SHAPE).filter((one) => !DEPENDENCY_KINDS.includes(one))
+    const offShape = columnKinds(COLUMN_OFF_SHAPE).filter((one) => !DEPENDENCY_KINDS.includes(one))
     expect(onShape, T_268_ONE_DIFFERENCE).toEqual(offShape)
   })
 
   it(`moves the dependency line from fifth on a shape to second off it: ${T_268_ONE_DIFFERENCE}`, () => {
-    expect(kindsIn(cellOf('T-268', 'TY-5', COLUMN_ON_SHAPE)), T_268_ONE_DIFFERENCE).toEqual([DEPENDENCY])
-    expect(kindsIn(cellOf('T-268', 'TY-2', COLUMN_OFF_SHAPE)), T_268_ONE_DIFFERENCE).toEqual([DEPENDENCY])
+    expect(kindsIn(cellOf('T-268', 'TY-5', COLUMN_ON_SHAPE)), T_268_ONE_DIFFERENCE).toEqual(DEPENDENCY_KINDS)
+    expect(kindsIn(cellOf('T-268', 'TY-2', COLUMN_OFF_SHAPE)), T_268_ONE_DIFFERENCE).toEqual(DEPENDENCY_KINDS)
+  })
+
+  it(`puts the continuation mark ahead of its line in both columns: ${T_268_MARK_BEFORE_LINE}`, () => {
+    for (const column of [COLUMN_ON_SHAPE, COLUMN_OFF_SHAPE]) {
+      const kinds = columnKinds(column)
+      expect(kinds.indexOf(CONTINUATION_MARK), `${column}: ${T_268_MARK_BEFORE_LINE}`).toBeGreaterThanOrEqual(0)
+      expect(kinds.indexOf(CONTINUATION_MARK), `${column}: ${T_268_MARK_BEFORE_LINE}`).toBeLessThan(kinds.indexOf(DEPENDENCY))
+    }
   })
 
   it(`keeps the fade grab point ahead of the dependency line in both columns: ${T_268_FADE_BEFORE_LINE}`, () => {

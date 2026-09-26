@@ -56,6 +56,8 @@ const PREVIEWED_GRABS: Readonly<Record<GrabbedArea, boolean>> = {
   'GA-20': true,
   'GA-21': true,
   'GA-22': true,
+  // WHY: no T-023d row drags GA-24; a press only selects its line (PE-12), so nothing moves while held.
+  'GA-24': false,
   'GR-10': false,
   'GR-11': false,
   'GR-14': true,

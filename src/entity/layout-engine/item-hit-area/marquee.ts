@@ -5,7 +5,7 @@
 
 import type { ScheduleGeometry } from '../schedule-geometry/schedule-geometry'
 import type { ScreenRect } from '../screen-regions/screen-regions'
-import { bottomOf, boxOfPath, merged, rightOf, shapeOf, type Item } from './item-hit-area'
+import { bottomOf, boxOfPath, dependencyItemOf, grown, merged, rightOf, shapeOf, type Item } from './item-hit-area'
 
 /** @purity pure */
 function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boolean {
@@ -18,7 +18,7 @@ function isEnclosedInclusive(box: ScreenRect | null, marquee: ScreenRect): boole
   )
 }
 
-// see SL-3, SL-7b
+// see SL-3, SL-7b, EL-14
 /** @purity pure */
 export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect): readonly Item[] {
   const out: Item[] = []
@@ -29,12 +29,12 @@ export function itemsInMarquee(geometry: ScheduleGeometry, marquee: ScreenRect):
     }
   }
   for (const line of geometry.dependencies) {
-    if (isEnclosedInclusive(boxOfPath(line.points), marquee)) {
-      out.push({
-        kind: 'dependency',
-        predecessorUid: line.predecessorUid,
-        successorUid: line.successorUid,
-      })
+    // WHY: the continuation mark is part of its line (T-303), so the dots must be enclosed too.
+    const mark = line.continuation
+    const dotsBox = mark === null ? null : boxOfPath(mark.dots)
+    const dots = mark === null || dotsBox === null ? null : grown(dotsBox, mark.radius, mark.radius)
+    if (isEnclosedInclusive(merged(boxOfPath(line.drawnPoints), dots), marquee)) {
+      out.push(dependencyItemOf(line))
     }
   }
   for (const box of geometry.commentBoxes) {

@@ -349,7 +349,7 @@ function zoomCommand(
 // change both together.
 // see OP-10
 /** @purity pure */
-function namesAPlace(
+export function namesAPlace(
   schedule: Schedule,
   scrollDate: string | null,
   scrollGroupId: string | null,

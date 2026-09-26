@@ -2,6 +2,7 @@ excess-lines=6158 excess-branches=638
 # RAISED pointerAssignment 44/21->45/22, carryOutAction 172/44->173/45, frameLoop 1428->1429 on 2026-09-27 under JDG-778 (lane L2, CR-560): PTD-7 is one more row of table T-023a to dispatch, and a copy drag lands through landCopyDrag (T-308 CY-8, CY-10); the work itself is in item-grab.ts copyDragWrite and copy-and-paste.ts.
 # RAISED svgFromSchedule 223->224 on 2026-09-27 under JDG-778 (lane L2, CR-558): the ZO-14 layer of table T-020 is one more zoLayer line in the back-to-front list; editAnnotation, highlightBoxRangeWrite and overlayParts shrank below their held sizes in the same wave (totals 6157/638 -> 6124/626, left for the coordinator to lower).
 # RAISED 6157/638 -> 6158/638 on 2026-09-27 under JDG-778 (lane-l3, CR-585): heldTheme inside boot carries themeMonochrome to the screen theme, boot 205 -> 206; the coordinator re-measures at merge.
+# LOWERED on 2026-09-27 under JDG-778 / JDG-520: CR-555 (lane L1) moved the dependency block of geometryFromLayout into dependenciesOf, so geometryFromLayout left the band and its HELD line is removed.
 # RAISED/LOWERED 6261/674 -> 6157/638 on 2026-09-27 under JDG-760 (raise, the user) and JDG-520 (lowers): CR-572 waves 2b-2d grew runFrame 123->132, editAnnotation 146->154, boot 202->205, svgFromSchedule 221->223, overlayParts, geometryFromLayout, exportScene, receiveInput, tentativeDependencyOf by one, frameLoop to 5 branches; NEW HELD screenEventFromEntry 39/17 (the viewer-value entries leave as screen events); the same waves shrank commandFromEntry, panelIndexOf, editDocumentSettings, carryOutAction and others.
 # PRUNED schedule-invariants.ts::find~16 (held 52/10) and task-plan-actual.ts::beginTaskActual (held 51/5) on 2026-09-27 under JDG-520: CR-572 wave 2b dropped the IV-13 case and the constant reads, and both fell below the band.
 # PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
@@ -73,7 +74,6 @@ HELD src/entity/document-model/document-settings/document-settings.ts::clampedSe
 HELD src/entity/document-model/schedule/schedule-invariants.ts::nestingOf lines=61 branches=14
 HELD src/entity/layout-engine/schedule-geometry/dependency-route.ts::routeOf lines=68 branches=11
 HELD src/entity/layout-engine/schedule-geometry/progress-line.ts::progressLineOf lines=40 branches=16
-HELD src/entity/layout-engine/schedule-geometry/schedule-geometry.ts::geometryFromLayout lines=63 branches=9
 HELD src/entity/layout-engine/schedule-geometry/task-figures.ts::taskGeometryOf lines=58 branches=13
 HELD src/entity/layout-engine/schedule-layout/pinned-band.ts::pinnedBandOf lines=59 branches=9
 HELD src/entity/layout-engine/schedule-layout/schedule-layout.ts::layoutFromSchedule lines=267 branches=23
