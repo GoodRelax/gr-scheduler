@@ -516,14 +516,16 @@ describe('OP-10 の答えを取り直す出来事', () => {
     }
   })
 
-  // WHY: the fit may land inside the shrinking end (ZE-1), where a wider zoom need not move the
-  // picture; OP-10 and FR-055 fix the zoom stepped from, the spec is silent on the picture there.
+  // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
+  // step; OP-10 and FR-055 fix the zoom stepped from, so one step is the floor of what is written.
   it('人が行軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
     const built = bench(documentWithNoViewPlace())
     const fitted = built.exportedViewPlace().zoomY
     built.press(WIDEN_THE_ROW_AXIS)
     const chosen = built.storedViewPlace()
-    expect(chosen.zoomY, 'FR-055 / OP-10: the step is taken from the zoom the fit chose').toBeCloseTo(fitted * ZOOM_STEP, 9)
+    expect(chosen.zoomY, 'FR-055 / OP-10 / ZE-6: the step is taken from the zoom the fit chose').toBeGreaterThanOrEqual(
+      fitted * ZOOM_STEP * (1 - Number.EPSILON),
+    )
     expect(chosen.scrollDate, 'OP-10: the choice becomes the place').not.toBeNull()
     built.oneMoreFrame()
     expect(built.storedViewPlace().zoomY).toBe(chosen.zoomY)

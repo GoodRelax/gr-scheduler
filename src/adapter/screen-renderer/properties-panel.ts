@@ -37,7 +37,7 @@ import type {
   PropertiesSubject,
   ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { swatchOf } from '../svg-renderer/svg-renderer'
+import { colourOf, swatchOf } from '../svg-renderer/svg-renderer'
 import type {
   ColourSide,
   CommandItem,
@@ -54,6 +54,7 @@ import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
+import themeHueRoster from './theme-hue-roster.json'
 
 const PART_SEPARATOR = ' / '
 
@@ -400,10 +401,18 @@ function controlOf(
     text,
     choices: candidates === null ? null : candidates.words,
     ...(values === null ? {} : { choiceValues: values }),
-    min: kind === 'number' ? (shape?.min ?? null) : null,
-    max: kind === 'number' ? (shape?.max ?? null) : null,
+    min: kind === 'number' ? (shape?.min ?? annotationBoundsOf(entity, column)?.min ?? null) : null,
+    max: kind === 'number' ? (shape?.max ?? annotationBoundsOf(entity, column)?.max ?? null) : null,
     widthInFontSizes: widthOf(text, candidates === null ? null : candidates.words, labelCoef),
   }
+}
+
+// see FR-006, T-217
+// WHY: the schema leaves these columns unbounded on purpose; table T-217 holds their range (FR-006).
+/** @purity pure */
+function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly min: number; readonly max: number } | null {
+  const key = `${entity}.${column}`
+  return Object.values(NOT_STORED_ANNOTATION_BOUNDS).find((row) => row.key === key) ?? null
 }
 
 // see FR-006, FR-093, S-199
@@ -733,26 +742,63 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
     )
 }
 
-// see IC-17, T-104
+const THEME_HUE_WORDS = new Map(displayWords.themeHues.map((entry) => [entry.rowId, entry.text]))
+
+const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
+
+const THEME_HUE_SWATCH_ROW = 'S-151'
+
+// see FR-041, T-305, K-60
+/** @purity pure */
+function themeHueField(hue: number, dark: boolean, language: DisplayLanguage): PropertyField {
+  const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
+  const chosen = themeHueRoster.findIndex((one) => one.hue === hue)
+  const text = String(hue)
+  return {
+    row: settingsWordOf(THEME_HUE_KEY.column)?.rowId ?? THEME_HUE_KEY.column,
+    name: settingsName(THEME_HUE_KEY.column, language),
+    text: words[chosen] ?? text,
+    isEditable: true,
+    controls: [
+      {
+        key: THEME_HUE_KEY,
+        kind: 'choice',
+        text,
+        choices: words,
+        choiceValues: themeHueRoster.map((one) => String(one.hue)),
+        swatches: themeHueRoster.map((one) => colourOf(THEME_HUE_SWATCH_ROW, one.hue, dark, false)),
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(text, words, SETTINGS_CONSTANTS.labelCoef),
+      },
+    ],
+  }
+}
+
+// see IC-17, T-104, FR-072
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
+  schedule: Schedule,
+  dark: boolean,
   language: DisplayLanguage,
 ): readonly PropertyField[] {
-  return Object.keys(SETTINGS_DEFAULTS).map((key) => ({
+  const readOnly = Object.keys(SETTINGS_DEFAULTS).map((key) => ({
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
-    // see FR-072
     isEditable: false,
     controls: [],
   }))
+  return [themeHueField(schedule.project.themeHue, dark, language), ...readOnly]
 }
 
 // see CV-6, CV-9
 const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>[1]>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
+  // see FR-019: a comment box's text takes the name's outline value, as its line does
+  textColor: 'outline',
   color: 'band',
 }
 
@@ -856,11 +902,12 @@ export function propertiesPanelFromSelection(
   if (content.kind === 'hidden') return null
   const language = displayLanguageOf(session)
 
+  const dark = session.screen.themePreference === 'dark'
   if (content.kind === 'documentSettingsDisplayed') {
     return {
       showing: 'documentSettings',
       isSubjectGone: false,
-      fields: settingsFields(settings, language),
+      fields: settingsFields(settings, schedule, dark, language),
       commands: panelCommands(language),
     }
   }
@@ -872,7 +919,7 @@ export function propertiesPanelFromSelection(
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language)
   const look = {
     hue: schedule.project.themeHue,
-    dark: session.screen.themePreference === 'dark',
+    dark,
     monochrome: settings.themeMonochrome,
     language,
   }
@@ -890,12 +937,27 @@ export function propertiesPanelFromSelection(
 
 // <generated -- do not edit by hand>
 // Single source of truth:
-//   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/_source/settings.json (tables T-206 and T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   readonly 'S-199': number
 } = {
   'S-199': 2.19,
+}
+
+// see T-217, FR-006, FR-019
+const NOT_STORED_ANNOTATION_BOUNDS: {
+  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
+} = {
+  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 8 },
+  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 8 },
+  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
 }
 // </generated>

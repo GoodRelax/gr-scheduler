@@ -69,21 +69,53 @@ export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues)
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
     return
   }
-  const folded = editDocument(hands.readHeld().document, command, hands.settingsLimitsOf(frame), DEFAULT_ROW_NAME)
-  if (folded.ok) {
-    const wouldDraw = layoutFromSchedule(
-      folded.document.schedule,
-      frame.settingsMeasuredWith,
-      frame.regions,
-      undefined,
-      hands.readEnvironment().rowControlsHeightPx,
-    )
-    if (wouldDraw.stackSafetyCapReached !== null) {
-      hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
-      return
-    }
+  if (isStackSafetyCapReachedBy(hands, [command], frame)) {
+    hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
+    return
   }
   hands.writeDocument([command], frame)
+}
+
+// see FR-033, ST-7, CY-10
+// WHY: one test for both roads that copy -- a cap that held the paste but not the drag would work in one place only.
+/** @purity semi-pure-b */
+function isStackSafetyCapReachedBy(
+  hands: CopyAndPasteHands,
+  bundle: readonly DocumentCommand[],
+  frame: FrameValues,
+): boolean {
+  let document = hands.readHeld().document
+  for (const command of bundle) {
+    const folded = editDocument(document, command, hands.settingsLimitsOf(frame), DEFAULT_ROW_NAME)
+    if (!folded.ok) return false
+    document = folded.document
+  }
+  const wouldDraw = layoutFromSchedule(
+    document.schedule,
+    frame.settingsMeasuredWith,
+    frame.regions,
+    undefined,
+    hands.readEnvironment().rowControlsHeightPx,
+  )
+  return wouldDraw.stackSafetyCapReached !== null
+}
+
+// see PTD-7, CY-8, CY-10
+/** @purity non-pure */
+export function landCopyDrag(
+  hands: CopyAndPasteHands,
+  bundle: readonly DocumentCommand[],
+  picked: Selection,
+  frame: FrameValues,
+): void {
+  if (isStackSafetyCapReachedBy(hands, bundle, frame)) {
+    hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
+    return
+  }
+  hands.writeDocument(bundle, frame)
+  const schedule = hands.readHeld().document.schedule
+  const isLanded = picked.items.every((one) => one.kind !== 'task' || taskByUid(schedule, one.uid) !== null)
+  if (isLanded) hands.sendToSession({ type: 'objectsPicked', pickedObjects: picked }, frame)
 }
 
 // see FR-033, DU-2

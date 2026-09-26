@@ -84,7 +84,9 @@ NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / 
 NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
 NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
-NOT_STORED_ANNOTATION_SIZES          ハイライトボックスの角の丸み（`S-132`）
+NOT_STORED_ANNOTATION_SIZES          注記の見せ方の既定（表 T-217 の全行。`S-132` ・ `S-369` 〜 `S-371` ・ `S-374` ・ `S-375`）
+NOT_STORED_HIGHLIGHT_HANDLE_SIZES    ハイライトボックスの辺が中点の掴み点を持つ長さの下限（表 T-206 の `S-373`、`CR-558`）
+NOT_STORED_ANNOTATION_BOUNDS         その数値の行の下限・上限と鍵（表 T-217。`FR-006` ・ `FR-019`、`CR-558` ・ `CR-559`）
 NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの明度の下限・上限（`S-415` / `S-416`）
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）

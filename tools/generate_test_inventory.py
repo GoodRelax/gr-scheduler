@@ -37,6 +37,7 @@ changes only when the tests or the specification change.
 Usage:
     python tools/generate_test_inventory.py           write the inventory
     python tools/generate_test_inventory.py --check   exit 1 when it differs
+    python tools/generate_test_inventory.py --help    print this, write nothing
 """
 import collections
 import io
@@ -669,7 +670,31 @@ def build():
         requirements=len(spec.requirements))
 
 
+KNOWN_ARGUMENTS = ('--check',)
+
+
+def refused_arguments(argv):
+    """None when the arguments may run; else the exit code, after printing why.
+
+    `--help` used to fall through to the default branch and REWRITE the
+    inventory. Help and any unknown argument now return before a file is read,
+    as tools/ledger_metrics.py does.
+    """
+    if '-h' in argv or '--help' in argv:
+        say(__doc__.rstrip())
+        return 0
+    unknown = [one for one in argv if one not in KNOWN_ARGUMENTS]
+    if unknown:
+        say('unknown argument(s): %s -- nothing was written. Known: %s, --help'
+            % (' '.join(unknown), ', '.join(KNOWN_ARGUMENTS)))
+        return 2
+    return None
+
+
 def main(argv):
+    refused = refused_arguments(argv)
+    if refused is not None:
+        return refused
     text, counts = build()
     path = os.path.join(ROOT, *OUT_REL.split('/'))
     if '--check' in argv:

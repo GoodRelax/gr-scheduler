@@ -106,7 +106,7 @@ const DRAWN_PX_ROUNDING = 1e-6
 // TRAP: the spec's at-least is exact; this absorbs rounding only. A gap is a difference of two absolute edges, so once
 // S-236 makes a day non-dyadic an equal run falls short by an ulp and RP-1 turned into RP-4 (DFC-616).
 /** @purity pure */
-function isAtLeastDrawnPx(value: number, bound: number): boolean {
+export function isAtLeastDrawnPx(value: number, bound: number): boolean {
   return value >= bound - DRAWN_PX_ROUNDING
 }
 

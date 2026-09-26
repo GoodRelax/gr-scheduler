@@ -65,8 +65,9 @@ describe('CR-423 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-262 holds ZE-1 .. ZE-5', () => {
-    expect(specTable('T-262').rows.map((row) => row.id)).toEqual(['ZE-1', 'ZE-2', 'ZE-3', 'ZE-4', 'ZE-5'])
+  // WHY: ZE-6 (CR-577) is the widening past the floor; this file holds the shrinking end only.
+  it('table T-262 holds ZE-1 .. ZE-5 ahead of ZE-6', () => {
+    expect(specTable('T-262').rows.map((row) => row.id)).toEqual(['ZE-1', 'ZE-2', 'ZE-3', 'ZE-4', 'ZE-5', 'ZE-6'])
   })
 })
 

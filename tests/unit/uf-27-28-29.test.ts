@@ -1663,7 +1663,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
 // from "table T-024's IO-3 / FR-080". Table T-024 row IO-3
 // (01-04-requirements.md :2838) then fixes the one measurable thing about that
 // picture: "SVG | write only | the screen's output | the output size is S-81 of
-// table T-204", and S-81 is `exportCanvas`, 1600 x 900.
+// table T-204", and S-81 is `exportCanvas`, whose size table T-204 holds.
 //
 // ⭐ FR-080's own words for the picture AM-13 owes: "the WHOLE of the screen GRS
 // occupies, shrunk by the ratio of `exportCanvas`'s width to the screen's

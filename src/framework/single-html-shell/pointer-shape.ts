@@ -21,6 +21,12 @@ export type PointerShape =
   | 'grab'
   | 'pointer'
   | 'col-resize'
+  | 'move'
+  | 'ew-resize'
+  | 'ns-resize'
+  | 'nwse-resize'
+  | 'nesw-resize'
+  | 'crosshair'
   | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
@@ -39,6 +45,12 @@ export type PointerRow =
   | 'PK-8'
   | 'PK-9'
   | 'PK-10'
+  | 'PK-11'
+  | 'PK-12'
+  | 'PK-13'
+  | 'PK-14'
+  | 'PK-15'
+  | 'PK-16'
 
 // see T-266, T-269
 export type PointerFacing = 'start' | 'end'
@@ -97,8 +109,7 @@ const POINTER_INKS: Readonly<
   filled: { fill: '#000000', outline: '#ffffff' },
 }
 
-// WHY: the square shapes are drawn on this one grid and stretched to their row's side, so a changed
-// side keeps the drawing.
+// WHY: square shapes are drawn on one grid and stretched to their row's side, so a changed side keeps the drawing.
 const POINTER_GRID = 24
 
 // WHY: the head's point and the shaft's far end sit inside the grid by more than the outline's half width.
@@ -107,7 +118,6 @@ const BOX_ARROW_START_PATH = 'M2 12 L11 3 V8 H22 V16 H11 V21 Z'
 // WHY: a thin shaft and a thin triangular head, traced as one outline so the edge runs all the way round.
 const LINE_ARROW_END_PATH = 'M2 11 H13 V6 L22 12 L13 18 V13 H2 Z'
 
-// WHY: traced as one outline, so the edge runs all the way round.
 const RESUME_ARROW_PATH = 'M2 3 H6 V10 H15 V6 L22 12 L15 18 V14 H6 V21 H2 Z'
 
 const RESUME_ARROW_BEND = { x: 4, y: 12 }
@@ -262,6 +272,37 @@ export function pointerImageOf(
       return resumeArrowPointer()
     case 'PK-10':
       return 'col-resize'
+    case 'PK-11':
+      return 'move'
+    case 'PK-12':
+      return 'ew-resize'
+    case 'PK-13':
+      return 'ns-resize'
+    case 'PK-14':
+      return 'nwse-resize'
+    case 'PK-15':
+      return 'nesw-resize'
+    case 'PK-16':
+      return 'copy'
+  }
+}
+
+type HighlightBoxPart = NonNullable<Grabbed['boxPart']>
+
+// see HB-8, HB-9, HB-10, HB-11, HB-12, FR-106
+// WHY: GR-14 names one grab row for the whole box, so the row of table T-269 is read off the part the press found.
+/** @purity pure */
+function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRow | null {
+  if (part === undefined) return 'PK-11'
+  switch (part.kind) {
+    case 'body':
+      return 'PK-11'
+    case 'corner':
+      return (part.horizontal === 'left') === (part.vertical === 'top') ? 'PK-14' : 'PK-15'
+    case 'edge':
+      return part.side === 'left' || part.side === 'right' ? 'PK-12' : 'PK-13'
+    default:
+      return null
   }
 }
 
@@ -269,6 +310,8 @@ export function pointerImageOf(
 /** @purity pure */
 export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
   if (armed || hit === null) return null
+  if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
+  if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : null
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 
@@ -294,8 +337,7 @@ export function pressedPointerShapeOf(hands: PointerShapeHands) {
   } | null = null
 
   // see FR-106
-  // WHY: keyed on the press's own point, which every rebuild of the press carries over unchanged.
-  // WHY: read off what the press grabbed, so a press whose happening returned early still keeps its shape.
+  // WHY: keyed on the press's own point and read off what it grabbed, so every rebuild keeps the shape.
   /** @purity non-pure */
   function pointerShapeAt(
     frame: FrameValues,
@@ -333,6 +375,7 @@ function pointerShapeUnder(
   const pressed = hands.readPressed()
   const session = hands.readSession()
   if (pressed !== null && pressed.pressRow === 'PTD-1') return 'grabbing'
+  if (pressed !== null && pressed.pressRow === 'PTD-7') return pointerImageOf('PK-16')
   if (on !== null) return null
   if (regionAtPointer(frame.regions, point.x, point.y) !== 'rowArea') return null
   if (dualCursorFollowingIn(session) !== null) return null
@@ -341,15 +384,14 @@ function pointerShapeUnder(
   const row = pointerRowOf(hit, isArmedDependency)
   if (row !== null && hit !== null) return pointerImageOf(row, pointerFacingOf(hit), pointerInkOf(hit))
   if (isArmedDependency) {
-    // WHY: an armed dependency applies no T-023d row (PTD-3), so an end, a dummy,
-    // a body or a figure must not promise a move; IN-2 asks for the plain arrow.
+    // WHY: an armed dependency applies no T-023d row (PTD-3), so nothing it hits may promise a move (IN-2).
     if (hit !== null) return 'default'
     // DEVIATION: spec says an armed pointer shows drawing (IN-2); here an armed dependency shows none (DFC-556)
     return null
   }
   if (hit !== null) return null
   if (armed.kind === 'notArmed') return 'default'
-  return 'copy'
+  return 'crosshair'
 }
 
 // <generated -- do not edit by hand>

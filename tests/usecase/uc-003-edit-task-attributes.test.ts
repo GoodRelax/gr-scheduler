@@ -28,7 +28,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await settle(page)
   })
 
-  await test.step('UC-003 step 2: the Properties Panel shows its attributes under English item names (FR-072, T-016, FR-038)', async () => {
+  await test.step('UC-003 step 2: the Properties Panel shows its attributes under display-language item names, English here as the locale is en-US (FR-072, T-016, FR-038)', async () => {
     await expect(page.locator('[data-role="Properties Panel"]')).toHaveAttribute('data-showing', 'selection')
     const names = await page.locator(PANEL + '[data-field-row] > span:first-child').allTextContents()
     expect(names.length).toBeGreaterThan(5)

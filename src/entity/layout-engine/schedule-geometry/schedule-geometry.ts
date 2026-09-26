@@ -40,7 +40,7 @@ import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
 import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 
-export { leaderOf } from './comment-box'
+export { commentAnchorPointOf, leaderOf } from './comment-box'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 
 export interface Point {
@@ -168,6 +168,12 @@ export interface HighlightGeometry {
   readonly id: string
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
+  // see S-369, S-370, S-371 (T-217): already defaulted and clamped, so the renderer draws them as they stand
+  readonly strokeWidthPx: number
+  readonly fillColor: string
+  readonly fillOpacity: number
+  // see T-246 HB-10, HB-11
+  readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }
 
 // see FR-019, FR-097
@@ -177,6 +183,12 @@ export interface CommentGeometry {
   readonly body: ScreenRect
   readonly lines: readonly string[]
   readonly fontSize: number
+  // see AT-148..AT-152, S-374, S-375 (T-217): the numbers already defaulted and clamped; the colours as stored
+  readonly strokeWidthPx: number
+  readonly fillOpacity: number
+  readonly strokeColor: string | null
+  readonly fillColor: string | null
+  readonly textColor: string | null
 }
 
 // see CU-2

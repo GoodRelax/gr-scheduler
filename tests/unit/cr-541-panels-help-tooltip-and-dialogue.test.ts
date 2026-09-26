@@ -35,6 +35,9 @@ import { REQUIREMENTS, rowDocument, rowOf, taskOf } from './cr-541-stage'
 
 const Q07 = '⭐ パネルが文書の設定を出しているあいだ、その欄は読むだけとすること（MUST）'
 const Q08 = 'だけとすること（MUST）。⛔ 編集できると示してはならない（MUST NOT）'
+const Q08A = '⭐ ただし、別の要求がその入口を本面の欄として置いたときは、その欄だけは、その要求に従って選ばせること（MUST） —— `FR-041` のテーマの色相の欄がこれである。'
+const Q08B = '⛔ 本要求がそうした欄を数え上げてはならない（MUST NOT）'
+const THEME_HUE_FIELD = 'K-60'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
 const Q18 = '（MUST）。⛔ 保存した数（`linkType`）をそのまま出してはならない（MUST NOT）'
 const Q21 = '⭐ 焦点が対話欄（`FR-066`）にあるときは、打った発話を確定して送ること（MUST）'
@@ -42,7 +45,7 @@ const Q34 = '⭐ 本文を下へ送っても、題の行をヘルプの上端に
 const Q38 = '説明をポインタの点に出し、ポインタを受け取らせないこと（MUST）'
 
 describe('CR-541 -- the clauses still stand in the manuscript', () => {
-  it.each([Q07, Q08, Q17, Q18, Q21, Q34, Q38])('%s', (clause) => {
+  it.each([Q07, Q08, Q08A, Q08B, Q17, Q18, Q21, Q34, Q38])('%s', (clause) => {
     expect(REQUIREMENTS).toContain(clause)
   })
 })
@@ -103,7 +106,7 @@ const dependencyDocument = (linkType: number) =>
     ],
   })
 
-describe('FR-072 -- the document settings are read only in the panel', () => {
+describe('FR-072 -- the document settings are read only in the panel, but for the field FR-041 places there', () => {
   const panel = () => {
     const document = rowDocument([{ id: 'row-1', parentId: null }])
     return propertiesPanelFromSelection(
@@ -120,13 +123,22 @@ describe('FR-072 -- the document settings are read only in the panel', () => {
     expect(described?.showing, 'premise: the panel shows the document settings').toBe('documentSettings')
     expect(described!.fields.length, 'premise: it shows some settings').toBeGreaterThan(0)
     const editable = described!.fields.filter((one) => one.isEditable).map((one) => one.row)
-    expect(editable, 'no field is editable').toEqual([])
+    expect(editable, 'no field is editable but the theme hue field of FR-041').toEqual([THEME_HUE_FIELD])
   })
 
   it(Q08, () => {
     const described = panel()
     const withControls = described!.fields.filter((one) => one.controls.length > 0).map((one) => one.row)
-    expect(withControls, 'no field offers a control to change it').toEqual([])
+    expect(withControls, 'no field offers a control to change it but the theme hue field').toEqual([THEME_HUE_FIELD])
+  })
+
+  it(Q08A, () => {
+    const described = panel()
+    const hue = described!.fields.find((one) => one.row === THEME_HUE_FIELD)
+    expect(hue?.isEditable, 'the excepted field is the one FR-041 places').toBe(true)
+    expect(hue?.controls.map((one) => one.key), 'and it writes the theme hue').toEqual([
+      { holder: 'project', column: 'themeHue' },
+    ])
   })
 })
 

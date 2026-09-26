@@ -1141,9 +1141,10 @@ NOT_STORED_TARGETS = {
     # CR-555: S-363 is GA-24's margin, the grab area of the dots that end a
     # dependency line whose far end is not in view (table T-303's EL-9); it
     # is a row of table T-266 like the rest, so it rides the same constant.
-    # CR-558: S-373 is the shortest side of a highlight box that still has a
-    # midpoint grab point (table T-246's HB-10 / HB-11); the unit that answers
-    # which grab point a press falls in reads it beside S-230 and S-293.
+    # CR-558: S-373 (the shortest side of a highlight box that still has a
+    # midpoint grab point, HB-10 / HB-11) is NOT here: the geometry decides it
+    # once, onto HighlightGeometry.hasSideHandles, and the hit test and the
+    # renderer both read that answer (NOT_STORED_HIGHLIGHT_HANDLE_SIZES).
     'NOT_STORED_SIZES': (['S-250', 'S-251', 'S-252', 'S-253', 'S-254', 'S-255',
                           'S-256', 'S-257', 'S-258', 'S-259', 'S-260', 'S-261',
                           'S-262', 'S-263', 'S-264', 'S-265', 'S-266', 'S-267',
@@ -1152,8 +1153,9 @@ NOT_STORED_TARGETS = {
                           'S-280', 'S-281', 'S-282', 'S-283', 'S-284', 'S-285',
                           'S-286', 'S-287', 'S-288', 'S-289', 'S-290',
                           'S-137', 'S-230', 'S-293', 'S-291', 'S-292',
-                          'S-363', 'S-373'],
+                          'S-363'],
                          ARRIVES_AS_ARGUMENT),
+    'NOT_STORED_HIGHLIGHT_HANDLE_SIZES': (['S-373'], DRAWN_WITH_WHERE_IT_STANDS),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ S-135a ALONE, AND S-143 IS NOT WITH IT ANY MORE. Both rows are the
@@ -2010,6 +2012,45 @@ def annotation_defaults_block():
     out.append('} = {')
     for literal, _ts, row_id in got:
         out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
+    return '\n'.join(out)
+
+
+def annotation_bounds_block():
+    """The numeric rows of table T-217 with their lower and upper bounds.
+
+    ⭐ FR-006 hands the bounds of these columns to table T-217 rather than to
+    the schema (CR-558 decision 9), and FR-019 (MUST) clamps a read value into
+    them and refuses a command outside them. The key cell rides along so the
+    Properties Panel can find a column's row without a second hand-typed map.
+    ⛔ A colour row (S-370) states no bounds and is left out, not printed as
+    null -- a caller asking for its bounds has asked the wrong question.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-217']
+    if not block:
+        raise SystemExit('settings.json holds no table T-217')
+    got = []
+    for row in block[0]['rows']:
+        low, high = row.get('min'), row.get('max')
+        if not (isinstance(low, dict) and 'num' in low):
+            continue
+        if not (isinstance(high, dict) and 'num' in high):
+            raise SystemExit('table T-217 row %s states a lower bound and no upper '
+                             'bound' % row['id'])
+        key = re.sub(r'^`|`$', '', row.get('key', ''))
+        if not key:
+            raise SystemExit('table T-217 row %s holds no key' % row['id'])
+        got.append((row['id'], key, low['num'], high['num']))
+    if not got:
+        raise SystemExit('table T-217 holds no row with bounds')
+    out = ['// see T-217, FR-006, FR-019', 'export const NOT_STORED_ANNOTATION_BOUNDS: {']
+    for row_id, _key, _low, _high in got:
+        out.append("  readonly '%s': { readonly key: string; readonly min: number; "
+                   "readonly max: number }" % row_id)
+    out.append('} = {')
+    for row_id, key, low, high in got:
+        out.append("  '%s': { key: '%s', min: %s, max: %s }," % (row_id, key, low, high))
     out.append('}')
     return '\n'.join(out)
 
@@ -2922,15 +2963,26 @@ TARGETS = [
     # MULTIPLE of the control's own font size rather than a px, so what it is
     # multiplied by is not known here -- what IS known here is `labelCoef`
     # (S-30), which FR-093's estimate needs and which does not cross IF-9.
+    # CR-558 S-8: the number fields of the two annotation boxes take their
+    # min / max from table T-217, which the column shapes do not carry.
     (os.path.join(ADAPTER, 'screen-renderer', 'properties-panel.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES') + NEWLINE * 2
+     + annotation_bounds_block(),
+     ['docs/spec/_source/settings.json (tables T-206 and T-217)']),
     # ⭐ DFC-314: the one call site FR-019 gives a fixed radius, reading table
     # T-217's own default rather than a copy typed at the use-case that
-    # creates a `HighlightBox`.
+    # creates a `HighlightBox`. CR-558 / CR-559: its bounds refuse a command
+    # outside them (FR-019).
     (os.path.join(USECASE, 'edit-document', 'edit-annotation.ts'),
-     lambda _erd: annotation_defaults_block(),
+     lambda _erd: annotation_defaults_block() + NEWLINE * 2 + annotation_bounds_block(),
      ['docs/spec/_source/settings.json (table T-217)']),
+    # CR-558 S-3 / CR-559 S-3: a `null` look column is drawn with table T-217's
+    # default, and a stored value outside the bounds is drawn clamped (FR-019).
+    # Resolved once here, in the geometry, so the renderer draws numbers only.
+    (os.path.join(LAYOUT, 'schedule-geometry', 'highlight-box.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_HIGHLIGHT_HANDLE_SIZES') + NEWLINE * 2
+     + annotation_defaults_block() + NEWLINE * 2 + annotation_bounds_block(),
+     ['docs/spec/_source/settings.json (tables T-206 and T-217)']),
 ]
 
 
@@ -2983,6 +3035,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_DUAL_CURSOR_SIZES',
         'NOT_STORED_NAME_LABEL_WEIGHT',
         'NOT_STORED_RULER_WEEKDAY_SIZES',
+        'NOT_STORED_SELECTION_SIZES',
         'WATERMARK_MARKS',
     ),
     'src/entity/document-model/document-settings/document-settings.ts': (
@@ -3056,7 +3109,6 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     # still reads both, so they are plain `const`s of this file.
     'src/adapter/svg-renderer/svg-renderer.ts': (
         'NOT_STORED_DUMMY_SIZES',
-        'NOT_STORED_SELECTION_SIZES',
     ),
     # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
     'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (

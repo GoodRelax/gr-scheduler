@@ -7,6 +7,7 @@ import { dayOf, type Schedule } from '../../entity/document-model/schedule/sched
 import {
   fitZoom,
   groupDepthLimit,
+  groupDepthThresholdOf,
   rowPlacesAtZoomY,
   xFromDay,
   type RowPlacement,
@@ -118,19 +119,55 @@ function rowAxisReadingOf(
   }
 }
 
+// see ZE-1, ZE-6
+/** @purity pure */
+function measuredAtScreenZoomX(
+  context: InputContext,
+  on: { readonly x: number; readonly y: number },
+): DocumentSettings {
+  return { ...context.document.documentSettings, zoomX: on.x }
+}
+
 // see ZE-1, FR-094, FR-018, S-76
 /** @purity pure */
 function isRowZoomAtLowerEnd(context: InputContext): boolean {
   const on = zoomOnScreen(context)
-  const measuredWith = { ...context.document.documentSettings, zoomX: on.x }
+  const measuredWith = measuredAtScreenZoomX(context, on)
   const now = rowAxisReadingOf(measuredWith, on.y)
   const lowest = rowAxisReadingOf(measuredWith, context.zoomMin)
   if (now.planHeight !== lowest.planHeight) return false
   if (now.depthLimit === lowest.depthLimit) return true
-  const drawnNow = rowsAtZoomY(context, measuredWith, on.y)
-  const drawnLowest = rowsAtZoomY(context, measuredWith, context.zoomMin)
-  return drawnNow.length === drawnLowest.length &&
-    drawnNow.every((row, at) => row.groupId === drawnLowest[at]?.groupId)
+  return drawsSameRows(
+    rowsAtZoomY(context, measuredWith, on.y),
+    rowsAtZoomY(context, measuredWith, context.zoomMin),
+  )
+}
+
+// see ZE-1, ZE-6, FR-018
+/** @purity pure */
+function drawsSameRows(one: readonly RowPlacement[], other: readonly RowPlacement[]): boolean {
+  return one.length === other.length && one.every((row, at) => row.groupId === other[at]?.groupId)
+}
+
+// see ZE-6, ZE-1, FR-018, FR-094
+/** @purity pure */
+function nextRowPictureZoomYOf(
+  context: InputContext,
+  on: { readonly x: number; readonly y: number },
+  stepped: number,
+): number {
+  const measuredWith = measuredAtScreenZoomX(context, on)
+  const floorZoomY = floorZoomYOf(measuredWith)
+  if (floorZoomY === null || !(on.y <= floorZoomY)) return stepped
+  const drawn = drawnSettingsOf(measuredWith)
+  const rowsNow = rowsAtZoomY(context, measuredWith, on.y)
+  let target = floorZoomY * context.zoomStep
+  for (let depth = 2; depth <= drawn.maxGroupDepth; depth++) {
+    const threshold = groupDepthThresholdOf(depth, drawn)
+    if (!(threshold > on.y) || !(threshold < target)) continue
+    if (!drawsSameRows(rowsNow, rowsAtZoomY(context, measuredWith, threshold))) target = threshold
+  }
+  return Math.max(stepped, target)
 }
 
 // see FR-016, FR-031, T-262, ZE-2, ZE-3, ZE-4, ZE-5, MK-4, IC-14, IC-15, SK-16a, SK-16c
@@ -142,12 +179,17 @@ export function rowZoomAnswer(
   pointerX: number | null,
   pointerY: number | null,
 ): TranslatedInput {
-  const drawnZoomY = zoomOnScreen(context).y
+  const on = zoomOnScreen(context)
+  const drawnZoomY = on.y
   if (factor < 1 && isRowZoomAtLowerEnd(context)) {
     const ended = rowShrinkWrites(context, [])
     return { ...ended, rowZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
   }
-  const stepped = zoomWithinBounds(context, zoomTimes(context, factor, 'y'))
+  const wanted =
+    factor > 1
+      ? zoomYWithinCeiling(context, on.x, nextRowPictureZoomYOf(context, on, drawnZoomY * factor))
+      : zoomTimes(context, factor, 'y')
+  const stepped = zoomWithinBounds(context, wanted)
   if (factor > 1 && stepped === drawnZoomY) {
     return { ...CONSUMED_ELSEWHERE, rowZoomEndShown: { end: 'max', zoomY: drawnZoomY } }
   }
@@ -170,11 +212,18 @@ function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
 // TRAP: void when ST-7 may cut the rows, or once one row's height reads another row.
 /** @purity pure */
 function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
+  const top = floorZoomYOf(measuredWith)
+  if (top === null || mayStopAtStackCap(context.document.schedule, drawnSettingsOf(measuredWith))) return null
+  return top
+}
+
+// see FR-094, ZE-1
+/** @purity pure */
+function floorZoomYOf(measuredWith: DocumentSettings): number | null {
   const drawn = drawnSettingsOf(measuredWith)
   const floor = drawn.actualMin / drawn.actualOfPlan
   const top = floor / drawn.basePlanHeight
   if (!Number.isFinite(top) || !(top > 0) || drawn.basePlanHeight * top > floor) return null
-  if (mayStopAtStackCap(context.document.schedule, drawn)) return null
   return top
 }
 
@@ -268,11 +317,18 @@ function bandCeilingUpTo(
 /** @purity pure */
 export function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
   const on = zoomOnScreen(context)
-  const stepped = (axis === 'x' ? on.x : on.y) * factor
-  const ceiling = axis === 'x' ? zoomXCeiling(context) : zoomYCeiling(context)
+  if (axis === 'y') return zoomYWithinCeiling(context, on.x, on.y * factor)
+  const stepped = on.x * factor
+  const ceiling = zoomXCeiling(context)
+  return ceiling === null ? stepped : Math.min(stepped, ceiling)
+}
+
+// see FR-016, ZE-3
+/** @purity pure */
+function zoomYWithinCeiling(context: InputContext, drawnZoomX: number, stepped: number): number {
+  const ceiling = zoomYCeiling(context)
   const wanted = ceiling === null ? stepped : Math.min(stepped, ceiling)
-  if (axis === 'x') return wanted
-  return zoomYWithinBand(context, on.x, wanted, ceiling === null ? Number.POSITIVE_INFINITY : ceiling)
+  return zoomYWithinBand(context, drawnZoomX, wanted, ceiling === null ? Number.POSITIVE_INFINITY : ceiling)
 }
 
 /** @purity pure */
