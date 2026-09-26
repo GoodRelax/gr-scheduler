@@ -76,6 +76,7 @@ const POINTER_BY_GRAB: Readonly<Record<PointerGrabArea, PointerOfGrab | null>> =
   'GA-20': { row: 'PK-9', facing: 'start' },
   'GA-21': { row: 'PK-1', facing: 'start', ink: 'filled' },
   'GA-22': { row: 'PK-1', facing: 'end', ink: 'filled' },
+  'GA-24': { row: 'PK-7', facing: 'start' },
   'GR-10': null,
   'GR-11': null,
   'GR-14': null,
