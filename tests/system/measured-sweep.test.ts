@@ -3803,9 +3803,9 @@ async function pressRowEntrance(page: Page, rowTop: number, entrance: string): P
 // GOES RED IF: the surface that shows the document's drawing settings prints an
 // item name the dictionary does not hold, or prints an identifier as it is held
 // inside. Chapter 1's paragraph under table T-006a (MUST) reads 「⛔ **プロパティ
-// パネルの項目名は `W-2` に従うこと（MUST）** …… ⛔⛔ **同じ面が文書の設定を出す
-// ときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
-// （MUST NOT）**」, and the preamble of table T-016 says where the names live:
+// パネルの項目名の英語の綴りは `W-2` に従うこと（MUST）** …… ⛔ 同じ面が文書の設定を
+// 出すときも、これに従うこと（MUST）。内部の綴りや識別子をそのまま出してはならない
+// （MUST NOT）」, and the preamble of table T-016 says where the names live:
 // 「⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語
 // ごとの辞書として 1 か所に持つこと（MUST）」と定めるので、表示名は `_source/display-words.json` の
 // `properties` 節が同じ行 ID で持つ」.
