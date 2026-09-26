@@ -8,6 +8,8 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
+  BaselineOutline,
+  DeadlineGeometry,
   MarkerGeometry,
   Path,
   Point,
@@ -67,9 +69,16 @@ export interface TaskFigureParts {
   readonly actualPartsPinned: readonly string[]
   readonly markerPartsPinned: readonly string[]
   readonly labelPartsPinned: readonly string[]
+  readonly deadlineParts: readonly string[]
+  readonly deadlinePartsPinned: readonly string[]
   readonly barMaskParts: readonly string[]
   readonly handleParts: readonly string[]
   readonly selectionParts: readonly string[]
+}
+
+export interface BaselineOutlineParts {
+  readonly baselineParts: readonly string[]
+  readonly baselinePartsPinned: readonly string[]
 }
 
 export interface DependencyLinksInput {
@@ -142,6 +151,38 @@ function paintOf(
     fill: chosenFill ?? themedFill,
     strokeWidth,
   }
+}
+
+// see ZO-13, DA-2, DA-3
+/** @purity pure */
+function deadlineSvg(deadline: DeadlineGeometry, themed: (rowId: string) => string, key: string): string {
+  return (
+    `<polygon points="${pointsOf(deadline.outline)}" fill="${themed('S-364')}"` +
+    ` stroke="${themed('S-146')}" stroke-width="${rounded(deadline.haloWidth)}"` +
+    ` paint-order="stroke"${figureKey(key)}/>`
+  )
+}
+
+/** @purity pure */
+function barBoxOf(placed: Placed): ScreenRect {
+  const left = placed.actualX === null ? placed.x : Math.min(placed.x, placed.actualX)
+  const right =
+    placed.actualX === null
+      ? placed.x + placed.width
+      : Math.max(placed.x + placed.width, placed.actualX + placed.actualWidth)
+  return { x: left, y: placed.y, width: right - left, height: placed.height }
+}
+
+// see DA-7
+/** @purity pure */
+function isCulled(box: ScreenRect | null, input: TaskFiguresInput): boolean {
+  if (!input.skipsOffScreen || box === null) return false
+  return (
+    box.y + box.height < input.drawnFrom ||
+    box.y > input.drawnTo ||
+    box.x + box.width < input.drawnLeftOf ||
+    box.x > input.drawnRightOf
+  )
 }
 
 // see ZO-3, T-021, FR-013
@@ -309,11 +350,6 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     selected,
     hover,
     hand,
-    skipsOffScreen,
-    drawnFrom,
-    drawnTo,
-    drawnLeftOf,
-    drawnRightOf,
   } = input
   /** @purity pure */
   const handOn = (taskUid: number, rows: readonly Hit['grab'][]): boolean =>
@@ -337,6 +373,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   const actualPartsPinned: string[] = []
   const markerPartsPinned: string[] = []
   const labelPartsPinned: string[] = []
+  const deadlineParts: string[] = []
+  const deadlinePartsPinned: string[] = []
   const barMaskParts: string[] = []
   const handleParts: string[] = []
   const selectionParts: string[] = []
@@ -345,23 +383,13 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     const visual = visualOf.get(task.taskUid)
     const placed = placedOf.get(task.taskUid)
     const isPinnedTask = placed !== undefined && pinnedGroupIds.has(placed.groupId)
-    if (skipsOffScreen && placed !== undefined) {
-      const barLeft =
-        placed.actualX === null ? placed.x : Math.min(placed.x, placed.actualX)
-      const barRight =
-        placed.actualX === null
-          ? placed.x + placed.width
-          : Math.max(placed.x + placed.width, placed.actualX + placed.actualWidth)
-      if (
-        placed.y + placed.height < drawnFrom ||
-        placed.y > drawnTo ||
-        barRight < drawnLeftOf ||
-        barLeft > drawnRightOf
-      ) {
-        continue
-      }
-    }
     const taskKey = `task-${task.taskUid}`
+    const deadline = task.deadline ?? null
+    // TRAP: before the bar's cull, and culled by its own box: a far deadline stays on screen when its bar leaves (DA-7).
+    if (deadline !== null && !isCulled(boxOfPoints(deadline.outline), input)) {
+      ;(isPinnedTask ? deadlinePartsPinned : deadlineParts).push(deadlineSvg(deadline, themed, `${taskKey}-deadline`))
+    }
+    if (placed !== undefined && isCulled(barBoxOf(placed), input)) continue
     const outline = chosen(visual?.strokeColor ?? null, 'outline')
     const plan = paintOf(
       outline,
@@ -499,10 +527,48 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     actualPartsPinned,
     markerPartsPinned,
     labelPartsPinned,
+    deadlineParts,
+    deadlinePartsPinned,
     barMaskParts,
     handleParts,
     selectionParts,
   }
+}
+
+/** @purity pure */
+function baselineOutlineSvg(outline: BaselineOutline, ink: string): string {
+  const { box } = outline
+  const key = figureKey(`task-${outline.taskUid}-baseline`)
+  if (outline.kind === 'rectangle') {
+    return (
+      `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
+      ` width="${rounded(box.width)}" height="${rounded(box.height)}"${ink}${key}/>`
+    )
+  }
+  const middleX = box.x + box.width / 2
+  const middleY = box.y + box.height / 2
+  const corners = [
+    { x: middleX, y: box.y },
+    { x: box.x + box.width, y: middleY },
+    { x: middleX, y: box.y + box.height },
+    { x: box.x, y: middleY },
+  ]
+  return `<polygon points="${pointsOf(corners)}"${ink}${key}/>`
+}
+
+// see FR-015, T-339, ZO-15
+/** @purity pure */
+export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts {
+  const baselineParts: string[] = []
+  const baselinePartsPinned: string[] = []
+  const ink =
+    ` fill="none" stroke="${input.themed('S-443')}" stroke-width="${rounded(input.settings.planStroke)}"` +
+    ` stroke-dasharray="${rounded(dash[0])} ${rounded(dash[1])}"`
+  for (const outline of input.geometry.baselineOutlines) {
+    if (isCulled(outline.box, input)) continue
+    ;(outline.isPinned ? baselinePartsPinned : baselineParts).push(baselineOutlineSvg(outline, ink))
+  }
+  return { baselineParts, baselinePartsPinned }
 }
 
 // see GD-6
@@ -556,42 +622,66 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
       }
     }
     // TRAP: cull after minting: the <marker> must exist even when the first line is culled.
+    const drawnBox = boxOfPoints(link.drawnPoints)
+    if (drawnBox === null) continue
     if (skipsOffScreen) {
-      let linkTop = Number.POSITIVE_INFINITY
-      let linkBottom = Number.NEGATIVE_INFINITY
-      let linkLeft = Number.POSITIVE_INFINITY
-      let linkRight = Number.NEGATIVE_INFINITY
-      for (const at of link.points) {
-        if (at.y < linkTop) linkTop = at.y
-        if (at.y > linkBottom) linkBottom = at.y
-        if (at.x < linkLeft) linkLeft = at.x
-        if (at.x > linkRight) linkRight = at.x
-      }
-      if (linkBottom < drawnFrom || linkTop > drawnTo) continue
-      if (linkRight < drawnLeftOf || linkLeft > drawnRightOf) continue
+      if (drawnBox.y + drawnBox.height < drawnFrom || drawnBox.y > drawnTo) continue
+      if (drawnBox.x + drawnBox.width < drawnLeftOf || drawnBox.x > drawnRightOf) continue
     }
-    const linkWidth = selectedLineWidth(
-      settings.dependencyWidth,
-      selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
-    )
-    const predecessorPlaced = placedOf.get(link.predecessorUid)
-    const successorPlaced = placedOf.get(link.successorUid)
-    const predecessorPinned =
-      predecessorPlaced !== undefined && pinnedGroupIds.has(predecessorPlaced.groupId)
-    const successorPinned =
-      successorPlaced !== undefined && pinnedGroupIds.has(successorPlaced.groupId)
-    const points = pointsOf(link.points)
+    /** @purity pure */
+    const isPinned = (uid: number): boolean => {
+      const placed = placedOf.get(uid)
+      return placed !== undefined && pinnedGroupIds.has(placed.groupId)
+    }
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
-    const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
-    ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
-      `<polyline points="${points}" fill="none" stroke="${themed('S-146')}"` +
-        ` stroke-width="${rounded(haloWidth)}"${haloMask}${linkKey}/>` +
-        `<polyline points="${points}" fill="none"` +
-        ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
-        ` marker-end="url(#${arrowId})"${linkKey}/>`,
+    ;(isInTheBand(link, isPinned) ? depLinkPartsPinned : depLinkParts).push(
+      dependencyLinkSvg(link, {
+        halo: `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`,
+        colour: themed('S-159'),
+        width: selectedLineWidth(
+          settings.dependencyWidth,
+          selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
+        ),
+        arrowId,
+      }),
     )
   }
   return { defsParts, depLinkParts, depLinkPartsPinned }
+}
+
+type DependencyLink = ScheduleGeometry['dependencies'][number]
+
+// see FR-098, T-303
+/** @purity pure */
+function isInTheBand(link: DependencyLink, isPinned: (uid: number) => boolean): boolean {
+  if (link.elision === 'EL-4') return isPinned(link.predecessorUid)
+  if (link.elision === 'EL-5') return isPinned(link.successorUid)
+  return isPinned(link.predecessorUid) && isPinned(link.successorUid)
+}
+
+// see GD-6, EL-9
+/** @purity pure */
+function dependencyLinkSvg(link: DependencyLink, ink: {
+  readonly halo: string
+  readonly colour: string
+  readonly width: number
+  readonly arrowId: string
+}): string {
+  const points = pointsOf(link.drawnPoints)
+  const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
+  const head = link.head === undefined ? '' : ` marker-end="url(#${ink.arrowId})"`
+  const mark = link.continuation
+  const dots = mark === null ? [] : mark.dots.map(
+    (dot) =>
+      `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}"` +
+      ` r="${rounded(mark.radius)}" fill="${ink.colour}"${linkKey}/>`,
+  )
+  return (
+    `<polyline points="${points}" fill="none" ${ink.halo}${linkKey}/>` +
+    `<polyline points="${points}" fill="none"` +
+    ` stroke="${ink.colour}" stroke-width="${rounded(ink.width)}"${head}${linkKey}/>` +
+    dots.join('')
+  )
 }
 
 // see T-266

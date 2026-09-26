@@ -38,7 +38,7 @@ export type Item =
 export type GrabArea =
   | 'GA-1' | 'GA-2' | 'GA-3' | 'GA-4' | 'GA-5' | 'GA-6' | 'GA-7' | 'GA-8'
   | 'GA-9' | 'GA-10' | 'GA-11' | 'GA-12' | 'GA-13' | 'GA-14' | 'GA-15' | 'GA-16'
-  | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20' | 'GA-21' | 'GA-22'
+  | 'GA-17' | 'GA-18' | 'GA-19' | 'GA-20' | 'GA-21' | 'GA-22' | 'GA-24'
   | 'GR-10' | 'GR-11' | 'GR-14' | 'GR-16'
 
 // see GR-14
@@ -100,7 +100,7 @@ function centreOf(box: ScreenRect): Point {
 }
 
 /** @purity pure */
-function grown(box: ScreenRect, across: number, down: number): ScreenRect {
+export function grown(box: ScreenRect, across: number, down: number): ScreenRect {
   return {
     x: box.x - across,
     y: box.y - down,
@@ -331,6 +331,7 @@ type TypeName =
   | 'resume'
   | 'dummy'
   | 'actualEnd'
+  | 'dependencyContinuation'
   | 'dependency'
   | 'planEnd'
   | 'markerInside'
@@ -341,12 +342,12 @@ type TypeName =
 // TRAP: the two columns part in one place only, where the dependency line stands.
 const ON_SHAPE_ORDER: readonly TypeName[] = [
   'fade', 'markerOutside', 'resume', 'dummy', 'actualEnd',
-  'dependency', 'planEnd', 'markerInside', 'milestonePlan', 'body',
+  'dependencyContinuation', 'dependency', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
 // see T-268
 const OFF_SHAPE_ORDER: readonly TypeName[] = [
-  'fade', 'dependency', 'markerOutside', 'resume', 'dummy',
+  'fade', 'dependencyContinuation', 'dependency', 'markerOutside', 'resume', 'dummy',
   'actualEnd', 'planEnd', 'markerInside', 'milestonePlan', 'body',
 ]
 
@@ -354,7 +355,7 @@ const OFF_SHAPE_ORDER: readonly TypeName[] = [
 // WHY: a list of its own, not a swap: every other type falls behind both of these two.
 const ON_MARKER_BOX_ORDER: readonly TypeName[] = [
   'dummy', 'actualEnd', 'markerOutside', 'markerInside', 'resume',
-  'fade', 'dependency', 'planEnd', 'milestonePlan', 'body',
+  'fade', 'dependencyContinuation', 'dependency', 'planEnd', 'milestonePlan', 'body',
 ]
 
 type RegionSeed = {
@@ -373,6 +374,7 @@ type Region = {
   readonly anchorX: number
   readonly finishSide: boolean
   readonly taskUid: number | null
+  readonly nearness?: readonly number[]
   /** @purity pure */
   readonly covers: (x: number, y: number) => boolean
 }
@@ -701,25 +703,66 @@ function dependencyRegionOf(
   sizes: GrabSizes,
   onShape: boolean,
 ): Region | null {
-  const box = boxOfPath(line.points)
+  const box = boxOfPath(line.drawnPoints)
   if (box === null) return null
   const half = (line.strokeWidth ?? 0) / 2
   const reach = onShape ? half : half + sizes['S-285']
   const head = line.head ?? []
+  return lineRegionOf(line, box, 'GA-19', 'dependency',
+    (x, y) => isInsideOutline(x, y, head) || isOnTheStroke(x, y, line.drawnPoints, reach))
+}
+
+// WHY: the line and its continuation mark are one item (T-303), so both regions name it the same way.
+/** @purity pure */
+export function dependencyItemOf(line: DependencyGeometry): Item {
+  return { kind: 'dependency', predecessorUid: line.predecessorUid, successorUid: line.successorUid }
+}
+
+/** @purity pure */
+function lineRegionOf(
+  line: DependencyGeometry,
+  box: ScreenRect,
+  grab: GrabArea,
+  type: TypeName,
+  covers: (x: number, y: number) => boolean,
+): Region {
   return {
-    grab: 'GA-19',
-    type: 'dependency',
-    item: {
-      kind: 'dependency',
-      predecessorUid: line.predecessorUid,
-      successorUid: line.successorUid,
-    },
-    centre: centreOf(box),
-    anchorX: rightOf(box),
-    finishSide: false,
-    taskUid: null,
-    covers: (x, y) => isInsideOutline(x, y, head) || isOnTheStroke(x, y, line.points, reach),
+    grab, type, item: dependencyItemOf(line), centre: centreOf(box), anchorX: rightOf(box),
+    finishSide: false, taskUid: null, covers,
   }
+}
+
+// see EL-13
+/** @purity pure */
+function nearnessOf(line: DependencyGeometry, farUid: number, shapes: readonly TaskShape[], index: number): number[] {
+  const first = line.points[0]
+  const last = line.points[line.points.length - 1]
+  if (first === undefined || last === undefined) return [index]
+  const far = farUid === line.successorUid ? last : first
+  const farStart = shapes.find((one) => one.task.taskUid === farUid)?.planBand?.x ?? far.x
+  return [Math.hypot(last.x - first.x, last.y - first.y), -farStart, -index]
+}
+
+// see GA-24, HT-1, EL-13
+/** @purity pure */
+function continuationRegionOf(
+  line: DependencyGeometry,
+  sizes: GrabSizes,
+  onShape: boolean,
+): Region | null {
+  const mark = line.continuation
+  const box = mark === null ? null : boxOfPath(mark.dots)
+  if (mark === null || box === null) return null
+  const reach = grown(box, mark.radius + sizes['S-363'], mark.radius + sizes['S-363'])
+  return lineRegionOf(line, box, 'GA-24', 'dependencyContinuation', (x, y) =>
+    onShape
+      ? mark.dots.some((dot) => Math.hypot(x - dot.x, y - dot.y) <= mark.radius)
+      : isInsideRect(x, y, reach))
+}
+
+/** @purity pure */
+function isCovering(region: Region | null, x: number, y: number): region is Region {
+  return region !== null && region.covers(x, y)
 }
 
 /** @purity pure */
@@ -733,13 +776,15 @@ function claimingRegions(
 ): readonly Region[] {
   const out: Region[] = []
   for (const shape of shapes) {
-    for (const region of regionsOfTask(shape, sizes)) {
-      if (region !== null && region.covers(x, y)) out.push(region)
-    }
+    out.push(...regionsOfTask(shape, sizes).filter((region) => isCovering(region, x, y)))
   }
-  for (const line of geometry.dependencies) {
+  for (const [index, line] of geometry.dependencies.entries()) {
     const region = dependencyRegionOf(line, sizes, onShape)
-    if (region !== null && region.covers(x, y)) out.push(region)
+    if (isCovering(region, x, y)) out.push(region)
+    const mark = continuationRegionOf(line, sizes, onShape)
+    if (mark !== null && line.continuation !== null && mark.covers(x, y)) {
+      out.push({ ...mark, nearness: nearnessOf(line, line.continuation.farUid, shapes, index) })
+    }
   }
   return out
 }
@@ -781,6 +826,17 @@ function orderFor(onShape: boolean, onMarkerBox: boolean): readonly TypeName[] {
   return onShape ? ON_SHAPE_ORDER : OFF_SHAPE_ORDER
 }
 
+// see EL-13
+/** @purity pure */
+function nearnessOrder(one: readonly number[] | undefined, held: readonly number[] | undefined): number {
+  if (one === undefined || held === undefined) return 0
+  for (let index = 0; index < one.length; index += 1) {
+    const step = (one[index] ?? 0) - (held[index] ?? 0)
+    if (step !== 0) return step
+  }
+  return 0
+}
+
 // see HT-4
 // TRAP: never the painting order; FR-110 owns that, and this step is forbidden to read it.
 /** @purity pure */
@@ -791,6 +847,8 @@ function beats(one: Region, held: Region, order: readonly TypeName[], x: number,
   const near = Math.hypot(x - one.centre.x, y - one.centre.y)
   const far = Math.hypot(x - held.centre.x, y - held.centre.y)
   if (near !== far) return near < far
+  const rank = nearnessOrder(one.nearness, held.nearness)
+  if (rank !== 0) return rank < 0
   if (one.anchorX !== held.anchorX) return one.anchorX > held.anchorX
   return one.finishSide && !held.finishSide
 }
@@ -847,7 +905,7 @@ function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | nul
   return null
 }
 
-// see T-246 HB-8..HB-11
+// see HB-8, HB-9, HB-10, HB-11
 // TRAP: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
 /** @purity pure */
 function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; readonly part: BoxPart }[] {
@@ -875,7 +933,7 @@ function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; re
   return points
 }
 
-// see GR-14, T-246 HB-8..HB-11
+// see GR-14, HB-8, HB-9, HB-10, HB-11
 // WHY: the nearest point, not the first: on a one-day, one-row box at low zoom the eight reaches overlap.
 /** @purity pure */
 function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
@@ -937,7 +995,7 @@ function noteHitOf(
     if (isInsideRect(x, y, box.body)) return commentHit(box, { kind: 'body' })
   }
   for (const box of geometry.commentBoxes) {
-    // see T-221 LF-17: a box whose anchor sits inside it draws no leader, so none answers
+    // WHY: a box whose anchor sits inside it draws no leader (LF-17), so none answers.
     const leader = leaderOf(box)
     if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
@@ -946,7 +1004,7 @@ function noteHitOf(
     if (grabPoint !== null) return highlightHit(box, grabPoint)
   }
   for (const box of geometry.highlightBoxes) {
-    // see T-246 HB-12: the reach is measured from the drawn line's edge, so it starts at half the drawn width
+    // WHY: HB-12 measures the reach from the drawn line's edge, so it starts at half the drawn width.
     const half = box.strokeWidthPx / 2
     if (isOnTheFrame(x, y, box.box, onShape ? half : half + sizes['S-293'])) {
       return highlightHit(box, { kind: 'body' })

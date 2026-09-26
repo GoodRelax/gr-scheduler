@@ -86,9 +86,10 @@ const PRESSED_ON: Record<string, Loose> = {
   scrollbarThumb: { kind: 'scrollbarThumb', axis: 'vertical' },
 }
 
-// WHY: PTD-3 is the only row that hit something, so only it carries a pressedOn;
+// WHY: PTD-7 and PTD-3 are the rows that hit something, so only they carry a pressedOn;
 // PTD-1 pans whatever is under it and PTD-2 does no hit test (T-023a).
 const PRESSES: readonly { label: string; pressRow: string; pressedOn: Loose | null }[] = [
+  { label: 'PTD-7', pressRow: 'PTD-7', pressedOn: PRESSED_ON['scheduleShape'] as Loose },
   { label: 'PTD-1', pressRow: 'PTD-1', pressedOn: null },
   { label: 'PTD-2', pressRow: 'PTD-2', pressedOn: null },
   ...Object.entries(PRESSED_ON).map(([label, on]) => ({ label: `PTD-3 ${label}`, pressRow: 'PTD-3', pressedOn: on })),
@@ -100,6 +101,7 @@ const PRESSES: readonly { label: string; pressRow: string; pressedOn: Loose | nu
 // WHY: AG-9 limits the refusal to drags that change the document, matched to the undo
 // rows of T-027: UN-1 / UN-2 / UN-4 / UN-5 are in; UN-8 / UN-9 / UN-16 are out.
 const DOCUMENT_CHANGING: Readonly<Record<string, boolean>> = {
+  'PTD-7': true,
   'PTD-1': false,
   'PTD-2': false,
   'PTD-3 scheduleShape': true,

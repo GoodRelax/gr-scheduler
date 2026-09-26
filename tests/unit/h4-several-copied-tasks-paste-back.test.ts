@@ -27,7 +27,8 @@ const ROOT_IS_A_SIBLING =
   '⭐ 複製の根（選ばれた `Task` の複製）は、複製元と同じ WBS の親の下に兄弟として置き、部分木の内側の親子は複製どうしへ付け替えること（MUST）'
 const SAME_ROW = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
-const CM_8_ROW = '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ） | `FR-033` |'
+const CM_8_ROW =
+  '| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ）。`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
 const COPY_TAKEN_ROW =
   '| `selection/copyTaken` | 入力（写せる選び方のときだけ呼び手が送る。写せないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'

@@ -21,14 +21,20 @@ import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area
 import {
   commentAnchorPointOf,
   type BarGeometry,
+  type FarEndGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
-import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import {
+  groupDepthThresholdOf,
+  type RowPlacement,
+} from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   pastedUidsOf,
   wbsSubtreesOf,
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
+import { namesAPlace, zoomOnScreen } from './zoom-and-fit'
 import {
   CONSUMED_ELSEWHERE,
   acted,
@@ -36,6 +42,7 @@ import {
   changed,
   commentAnchorAt,
   compareDay,
+  dayAnchorAt,
   dayAtX,
   dayFromSerial,
   dayShift,
@@ -44,9 +51,11 @@ import {
   drawnRowsOf,
   grabRowOf,
   hasDraggedPastThreshold,
+  isScrollPositionInForce,
   nothingToDo,
   placementAt,
   pointerDaySerial,
+  scrolledAnchor,
   serialOfDay,
   taskGroupRankById,
   rememberedActualIn,
@@ -76,15 +85,8 @@ export function commandFromGrab(
 
   // TRAP: MK-13 must be read before the switch; the actual ends stand above the body in T-267,
   // so the switch would rewrite the same day instead of opening the name.
-  if (release.clickCount >= 2 && item.kind === 'task') {
-    const isNameEntrance = hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)
-    if (isNameEntrance) {
-      return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
-    }
-    if (hit.grab === 'GR-11') {
-      return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
-    }
-  }
+  const opened = release.clickCount >= 2 ? doubleClickOf(context, hit) : null
+  if (opened !== null) return opened
 
   if (item.kind === 'statusLine' && hit.grab === 'GR-16') {
     const day = dayAtX(context.layout, release.x)
@@ -199,6 +201,90 @@ export function commandFromGrab(
     default:
       return CONSUMED_ELSEWHERE
   }
+}
+
+// see MK-13, PE-12
+/** @purity pure */
+function doubleClickOf(context: InputContext, hit: Hit): TranslatedInput | null {
+  const item = hit.item
+  // TRAP: keyed on the second release only; GA-24 stays out of MK_13_GRAB_ROWS, whose single-click
+  // arm would swallow the first release that selects the line.
+  if (hit.grab === 'GA-24') return continuationSend(context, item)
+  if (item.kind !== 'task') return null
+  if (hit.grab === 'GR-10' || MK_13_GRAB_ROWS.has(hit.grab)) {
+    return acted({ kind: 'editInPlace', target: { kind: 'taskName', uid: item.taskUid } })
+  }
+  if (hit.grab === 'GR-11') {
+    return acted({ kind: 'editInPlace', target: { kind: 'assignee', uid: item.taskUid } })
+  }
+  return null
+}
+
+// see MK-13, EL-10, EL-11, EL-12
+// WHY: the geometry judged EL-1 and EL-2 when it drew the mark; the far end is read off it, never judged again.
+/** @purity pure */
+function continuationSend(context: InputContext, item: Hit['item']): TranslatedInput {
+  if (item.kind !== 'dependency') return CONSUMED_ELSEWHERE
+  const line = context.geometry.dependencies.find(
+    (one) =>
+      one.predecessorUid === item.predecessorUid &&
+      one.successorUid === item.successorUid &&
+      one.continuation !== null,
+  )
+  const far = line === undefined || line.continuation === null ? null : line.continuation.far
+  if (far === null) return CONSUMED_ELSEWHERE
+  const isDownOut = far.undrawnRowDepth !== null || !far.isDownInRowPlace
+  if (far.isAcrossInRowArea && !isDownOut) return CONSUMED_ELSEWHERE
+  const writes = farEndSendWrites(context, far, isDownOut)
+  return writes.length === 0 ? CONSUMED_ELSEWHERE : changed(writes)
+}
+
+// see EL-11, EL-12, FR-046, AM-16, OP-10
+/** @purity pure */
+function farEndSendWrites(
+  context: InputContext,
+  far: FarEndGeometry,
+  isDownOut: boolean,
+): readonly DocumentCommand[] {
+  const settings = context.document.documentSettings
+  const area = context.regions.rowArea
+  const isSeated =
+    context.isPictureAtStoredZoom ??
+    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+  const kept = isSeated ? settings : scrolledAnchor(context, 0, 0)
+  const across = far.isAcrossInRowArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
+  const to = {
+    kind: 'setScrollPosition',
+    scrollDate: across.scrollDate,
+    scrollDayOffset: across.scrollDayOffset,
+    scrollGroupId: isDownOut ? far.groupId : kept.scrollGroupId,
+    scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
+  } as const
+  const zoom = farEndZoomWrites(context, far.undrawnRowDepth, isSeated)
+  return isScrollPositionInForce(context, to) ? zoom : [...zoom, to]
+}
+
+// see EL-10, UN-8, OP-10
+/** @purity pure */
+function farEndZoomWrites(
+  context: InputContext,
+  undrawnRowDepth: number | null,
+  isSeated: boolean,
+): readonly DocumentCommand[] {
+  // WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom goes with the place so it stays.
+  if (undrawnRowDepth === null && isSeated) return []
+  const drawnZoom = zoomOnScreen(context)
+  return [
+    {
+      kind: 'setZoom',
+      zoomX: drawnZoom.x,
+      // TRAP: only groupDepthThresholdOf; any other route can differ by one ulp from groupDepthLimit.
+      zoomY:
+        undrawnRowDepth === null
+          ? drawnZoom.y
+          : groupDepthThresholdOf(undrawnRowDepth, drawnSettingsOf(context.document.documentSettings)),
+    },
+  ]
 }
 
 // see PE-8, PE-10
@@ -342,6 +428,14 @@ function clampedRowShift(
   return shiftWithinRows(rows, held, asked)
 }
 
+// see CY-6
+// WHY: a held drag draws its result into the rows, so a release is measured on the rows the press saw.
+/** @purity pure */
+function layoutAtPressOf(context: InputContext, press: PointerPress): InputContext['layout'] {
+  const rows = press.layoutRowsAtPress
+  return rows === undefined ? context.layout : { ...context.layout, rows }
+}
+
 // see PE-1, CY-6
 /** @purity pure */
 function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
@@ -360,8 +454,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
-  const atPress = press.layoutRowsAtPress
-  const rows = drawnRowsOf(atPress === undefined ? context.layout : { ...context.layout, rows: atPress })
+  const rows = drawnRowsOf(layoutAtPressOf(context, press))
   const dayCount = dayShift(context, press.at.x, release.x)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
   const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
@@ -550,19 +643,27 @@ function commentBoxMoveWrite(
   id: string,
   isAnchor: boolean,
 ): TranslatedInput {
-  const drawn = context.geometry.commentBoxes.find((one) => one.id === id)
-  if (drawn === undefined || boxById(context.document.schedule.commentBoxes, id) === undefined) {
-    return CONSUMED_ELSEWHERE
-  }
+  const box = boxById(context.document.schedule.commentBoxes, id)
+  // TRAP: from the document and the rows at the press, never context.geometry: a held drag draws the box already
+  // moved, so the pull would be counted twice.
+  const layout = layoutAtPressOf(context, press)
+  // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).
+  const stoodDay = dayOf(box?.anchorDate ?? null) ?? dayOf(context.document.schedule.project.startDate)
+  const stood =
+    box === undefined || stoodDay === null || box.anchorGroupId === null
+      ? null
+      : commentAnchorPointOf(layout, stoodDay, box.anchorGroupId)
+  if (box === undefined || stood === null) return CONSUMED_ELSEWHERE
   const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
-  const aim = isAnchor ? release : { x: drawn.anchor.x + pull.dx, y: drawn.anchor.y + pull.dy }
-  const anchor = commentAnchorAt(context.layout, aim.x, aim.y)
+  const aim = isAnchor ? release : { x: stood.x + pull.dx, y: stood.y + pull.dy }
+  const anchor = commentAnchorAt(layout, aim.x, aim.y)
   if (!('groupId' in anchor)) return anchor
   const day = dayOf(anchor.date)
-  const at = day === null ? null : commentAnchorPointOf(context.layout, day, anchor.groupId)
+  const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.groupId)
   if (at === null) return nothingToDo('noRowToPutTheAnnotationOn')
-  const left = drawn.body.x + pull.dx
-  const bottom = drawn.body.y + drawn.body.height + pull.dy
+  const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+  const left = stood.x + offset.dx + pull.dx
+  const bottom = stood.y + offset.dy + pull.dy
   return changed([
     { kind: 'setCommentBoxAnchor', id, anchor },
     { kind: 'setCommentBoxBodyOffsetPx', id, dx: left - at.x, dy: bottom - at.y },

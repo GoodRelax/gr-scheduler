@@ -106,8 +106,11 @@ export interface TaskPlacement {
   // TRAP: not actualX + actualWidth: a milestone's figure is centred on a zero-width span.
   readonly actualReach: number | null
   readonly dummyReach: number | null
+  // TRAP: an unset (null) fade reads 0 here; a chevron end tells unset from 0 only by fadeInUnset / fadeOutUnset.
   readonly fadeInPx: number
   readonly fadeOutPx: number
+  readonly fadeInUnset: boolean
+  readonly fadeOutUnset: boolean
   // TRAP: the lane marker, whatever is shown; the drawn one follows RF-1 and reads the toggles itself.
   readonly markerAnchorX: number | null
   readonly labelPlacement: LabelPlacement
@@ -123,6 +126,8 @@ export interface TaskPlacement {
   readonly outsideLabelWidth: number
   readonly occupiedX0: number
   readonly occupiedX1: number
+  // see DA-4
+  readonly deadlineX: number | null
 }
 
 export interface RowPlacement {
@@ -216,6 +221,18 @@ function clampedFade(task: Task, kind: ShapeKind, span: number, pxPerDay: number
   return { fadeIn, fadeOut: Math.min(rawOut, span - fadeIn) }
 }
 
+// see FD-4, FD-5, FD-6a
+/** @purity pure */
+function placedFadeOf(task: Task, fade: { readonly fadeIn: number; readonly fadeOut: number }):
+  Pick<TaskPlacement, 'fadeInPx' | 'fadeOutPx' | 'fadeInUnset' | 'fadeOutUnset'> {
+  return {
+    fadeInPx: fade.fadeIn,
+    fadeOutPx: fade.fadeOut,
+    fadeInUnset: task.fadeInDays === null,
+    fadeOutUnset: task.fadeOutDays === null,
+  }
+}
+
 // see AT-100
 /** @purity pure */
 function shapeKindOf(visualByUid: ReadonlyMap<number, TaskVisual>, task: Task): ShapeKind {
@@ -276,6 +293,41 @@ function actualSpanOf(
     x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
     width: Math.max(0, columnsCovered) * pxPerDay,
   }
+}
+
+// see DA-4
+/** @purity pure */
+function deadlineXOf(
+  task: Task,
+  reader: DayReader,
+  originSerial: number,
+  pxPerDay: number,
+  originX: number,
+): number | null {
+  const day = reader.day(task.deadline)
+  return day === null ? null : xOnTimeAxis(originSerial, pxPerDay, originX, day)
+}
+
+// see DA-2, OC-9
+// WHY: one width for the drawn head and the room OC-9 counts, so the two cannot drift apart.
+/** @purity pure */
+export function deadlineHeadHalfWidthOf(markerDiameter: number): number {
+  return (markerDiameter * NOT_STORED_DEADLINE_MARK_SIZES['S-365']) / 2
+}
+
+// see OC-9, DA-2
+/** @purity pure */
+function occupiedSpanOf(
+  labelled: { readonly x0: number; readonly x1: number },
+  spread: { readonly x: number; readonly width: number } | null,
+  deadlineX: number | null,
+  markerDiameter: number,
+): { readonly x0: number; readonly x1: number } {
+  const x0 = spread === null ? labelled.x0 : Math.min(labelled.x0, spread.x)
+  const x1 = spread === null ? labelled.x1 : Math.max(labelled.x1, spread.x + spread.width)
+  if (deadlineX === null) return { x0, x1 }
+  const half = deadlineHeadHalfWidthOf(markerDiameter)
+  return { x0: Math.min(x0, deadlineX - half), x1: Math.max(x1, deadlineX + half) }
 }
 
 // see DM-3
@@ -468,14 +520,13 @@ export function layoutFromSchedule(
         actual === null ? x : Math.min(x, actual.x),
         settings,
       )
-      const labelledX0 = assigneeAnchor - outsideWidth
-      // WHY: OC-8 and OC-9 are not counted yet: their marks are not drawn (MS-4).
-      const occupiedX0 = spread === null ? labelledX0 : Math.min(labelledX0, spread.x)
-      const occupiedX1 =
-        spread === null ? labelledX1 : Math.max(labelledX1, spread.x + spread.width)
+      const deadlineX = deadlineXOf(task, reader, originSerial, pxPerDay, originX)
+      const labelled = { x0: assigneeAnchor - outsideWidth, x1: labelledX1 }
+      // WHY: OC-8 is not counted yet: its mark is not drawn (MS-4).
+      const occupied = occupiedSpanOf(labelled, spread, deadlineX, markerDiameter)
       return { task, kind, glyph, oneDay, x, width, named, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
-               occupiedX0, occupiedX1, markerAnchorX, text }
+               occupiedX0: occupied.x0, occupiedX1: occupied.x1, markerAnchorX, text, deadlineX }
     })
 
     for (const item of measured) {
@@ -543,8 +594,7 @@ export function layoutFromSchedule(
         x: item.x,
         width: item.width,
         planEndsStandOnOneDay: item.oneDay,
-        fadeInPx: item.fade.fadeIn,
-        fadeOutPx: item.fade.fadeOut,
+        ...placedFadeOf(item.task, item.fade),
         y: tops[lane]! + drawnEdgeOverhangOf(item.kind, settings) + labelLiftOf(item.kind, settings),
         height: shapeHeightOf(item.kind, settings),
         planHeight: planHeightOf(item.kind, settings),
@@ -564,6 +614,7 @@ export function layoutFromSchedule(
         outsideLabelWidth: item.outsideLabelWidth,
         occupiedX0: item.occupiedX0,
         occupiedX1: item.occupiedX1,
+        deadlineX: item.deadlineX,
       })
       widest = Math.max(widest, item.occupiedX1)
       leftmost = Math.min(leftmost, item.occupiedX0)

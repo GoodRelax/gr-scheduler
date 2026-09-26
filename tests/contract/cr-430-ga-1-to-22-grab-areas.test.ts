@@ -1,4 +1,4 @@
-// CR-430: table T-266 gives each of the 22 targets a grab area of its own, out of 41 values.
+// CR-430: table T-266 gives each of its targets a grab area of its own (CR-555 added GA-24).
 
 import { describe, expect, it } from 'vitest'
 
@@ -56,7 +56,22 @@ const T_266_FADE_ONLY_SELECTED = '⚠️ フェードの掴み点（`GA-7` / `GA
 const T_266_NO_DISPLAY_RATIO =
   '⚠️ 掴み代に表示の倍率の描く比を掛けないこと（MUST NOT） —— 規則は 表 T-252 の `DS-7` が持つ。'
 
-const EXPECTED_ROW_IDS = Array.from({ length: 22 }, (_one, at) => `GA-${at + 1}`)
+const T_303_MARK_IS_PART_OF_THE_LINE =
+  '⭐ 続きの印はその依存線の一部である —— 押して離せばその依存線を選び（表 T-270 の `PE-12`）、掴み代は `FR-104` の 表 T-266 の `GA-24`、応える順は `FR-105` の 表 T-268 が持つ。'
+
+// WHY: the rows the table holds as it stands: CR-555 added GA-24, and the id before it was never
+// WHY: written (CR-431 used it as its example of an id that does not exist).
+const EXPECTED_ROW_IDS = [...Array.from({ length: 22 }, (_one, at) => `GA-${at + 1}`), 'GA-24']
+const EXPECTED_VALUE_COUNT = 42
+
+// WHY: the continuation mark exists only on a line one of whose ends is not visible (table T-303),
+// WHY: which the three shared scenes never draw, so its row is read on a scene of its own.
+type SceneKind = ShapeKind | 'elided'
+
+const ELIDED_MARK = 'EL-9'
+
+const sceneKindOfRow = (row: { readonly shape: string; readonly anchor?: string }): SceneKind =>
+  (row.anchor ?? '').includes(ELIDED_MARK) ? 'elided' : sceneKindOf(row.shape)
 
 const sceneKindOf = (shape: string): ShapeKind => {
   if (shape.includes('共通')) return 'rectangle'
@@ -70,14 +85,18 @@ const sceneKindOf = (shape: string): ShapeKind => {
 const RECTANGLE = sceneOf('rectangle', { progressMarkerVisible: true })
 const ARROW = sceneOf('arrow', { progressMarkerVisible: true })
 const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
+// WHY: the same three Tasks drawn wider, so the line's successor lies wholly right of the Row Area
+// WHY: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
+const ELIDED = sceneOf('rectangle', { progressMarkerVisible: true, zoomX: 16 })
 
-const sceneFor = (kind: ShapeKind): Scene =>
-  kind === 'arrow' ? ARROW : kind === 'milestone' ? MILESTONE : RECTANGLE
+const sceneFor = (kind: SceneKind): Scene =>
+  kind === 'arrow' ? ARROW : kind === 'milestone' ? MILESTONE : kind === 'elided' ? ELIDED : RECTANGLE
 
 const PROBES: Readonly<Record<string, readonly Probe[]>> = {
   rectangle: probesOf(RECTANGLE),
   arrow: probesOf(ARROW),
   milestone: probesOf(MILESTONE),
+  elided: probesOf(ELIDED),
 }
 
 const answersIn = (scene: Scene, probes: readonly Probe[]): ReadonlySet<string> => {
@@ -91,7 +110,7 @@ const answersIn = (scene: Scene, probes: readonly Probe[]): ReadonlySet<string> 
 
 const cachedAnswers = new Map<string, ReadonlySet<string>>()
 
-const answersOf = (kind: ShapeKind): ReadonlySet<string> => {
+const answersOf = (kind: SceneKind): ReadonlySet<string> => {
   const held = cachedAnswers.get(kind)
   if (held !== undefined) return held
   const made = answersIn(sceneFor(kind), PROBES[kind]!)
@@ -99,24 +118,29 @@ const answersOf = (kind: ShapeKind): ReadonlySet<string> => {
   return made
 }
 
-describe('table T-266 -- the manuscript shape the 22 rows and the 41 values make', () => {
-  it(`holds one row per target, GA-1 through GA-22: ${T_266_ONE_TARGET_A_ROW}`, () => {
+describe('table T-266 -- the manuscript shape the 23 rows and the 42 values make', () => {
+  it(`holds one row per target, GA-1 through GA-22 and GA-24: ${T_266_ONE_TARGET_A_ROW}`, () => {
     expect(grabRows().map((row) => row.id)).toEqual(EXPECTED_ROW_IDS)
   })
 
-  it(`names 41 values across the 横 and 縦 columns: ${T_266_VALUES_LIVE_IN_T_206}`, () => {
-    expect(grabSettingIds()).toHaveLength(41)
-    expect(new Set(grabSettingIds()).size).toBe(41)
+  it(`names 42 values across the 横 and 縦 columns: ${T_266_VALUES_LIVE_IN_T_206}`, () => {
+    expect(grabSettingIds()).toHaveLength(EXPECTED_VALUE_COUNT)
+    expect(new Set(grabSettingIds()).size).toBe(EXPECTED_VALUE_COUNT)
   })
 
-  it(`gives every one of the 41 exactly one owning row: ${T_266_NO_OTHER_ROW}`, () => {
+  it(`gives the continuation mark its own value, S-363: ${T_303_MARK_IS_PART_OF_THE_LINE}`, () => {
+    expect(grabRow('GA-24').settingIds, T_303_MARK_IS_PART_OF_THE_LINE).toEqual(['S-363'])
+    expect(grabRow('GA-24').anchor, T_303_MARK_IS_PART_OF_THE_LINE).toContain(ELIDED_MARK)
+  })
+
+  it(`gives every one of the 42 exactly one owning row: ${T_266_NO_OTHER_ROW}`, () => {
     for (const settingId of grabSettingIds()) {
       const owners = grabRows().filter((row) => row.settingIds.includes(settingId))
       expect(owners.map((one) => one.id), `${settingId}: ${T_266_NO_OTHER_ROW}`).toHaveLength(1)
     }
   })
 
-  it(`puts every one of the 41 in table T-206: ${T_266_VALUES_LIVE_IN_T_206}`, () => {
+  it(`puts every one of the 42 in table T-206: ${T_266_VALUES_LIVE_IN_T_206}`, () => {
     for (const settingId of grabSettingIds()) {
       expect(Number.isFinite(defaultOf(settingId)), `${settingId} is missing from table T-206`).toBe(true)
     }
@@ -129,7 +153,7 @@ describe('table T-266 -- the manuscript shape the 22 rows and the 41 values make
   })
 })
 
-describe('grabSizesOf -- the 41 values reach the hit test unchanged', () => {
+describe('grabSizesOf -- the 42 values reach the hit test unchanged', () => {
   it.each(grabSettingIds())(`carries %s at the default table T-206 prints: ${T_266_VALUES_LIVE_IN_T_206}`, (settingId) => {
     expect(sizeIn(RECTANGLE.sizes, settingId), `${settingId} is not a key of GrabSizes`).toBeDefined()
     expect(sizeIn(RECTANGLE.sizes, settingId), `${settingId}: ${T_266_VALUES_LIVE_IN_T_206}`).toBeCloseTo(
@@ -150,8 +174,13 @@ describe('grabSizesOf -- the 41 values reach the hit test unchanged', () => {
 })
 
 describe(`table T-266 -- every row is reachable with a pointer: ${FR_104_EVERY_TARGET}`, () => {
+  it('premise: the elided scene draws the line short with its mark (EL-4, EL-9)', () => {
+    const lines = ELIDED.geometry.dependencies as unknown as readonly { readonly continuation?: unknown }[]
+    expect(lines.some((one) => one.continuation !== null && one.continuation !== undefined)).toBe(true)
+  })
+
   it.each(EXPECTED_ROW_IDS)('%s answers somewhere over the shape it belongs to', (id) => {
-    const kind = sceneKindOf(grabRow(id).shape)
+    const kind = sceneKindOfRow(grabRow(id))
     expect([...answersOf(kind)].sort(), `${id} (${kind}): ${FR_104_OWN_MARGIN}`).toContain(id)
   })
 })
@@ -161,7 +190,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
 
   const sweepOf = (settingId: string) => {
     const owner = ownerOf(settingId)
-    const kind = sceneKindOf(owner.shape)
+    const kind = sceneKindOfRow(owner)
     const scene = sceneFor(kind)
     const moved = sizesWith(scene.sizes, settingId, defaultOf(settingId) + BUMP)
     return { owner, kind, scene, changes: changesUnder(scene, PROBES[kind]!, moved) }
@@ -240,7 +269,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   // WHY: neighbouring row shadowed at every earlier height, and that is reach gained, not reach moved.
   it.each(oneWay)(`%s moves its target in one direction only: ${T_266_ONE_TARGET_A_ROW}`, (settingId) => {
     const owner = ownerOf(settingId)
-    const kind = sceneKindOf(owner.shape)
+    const kind = sceneKindOfRow(owner)
     const scene = sceneFor(kind)
     const probes = PROBES[kind]!
     const moved = sizesWith(scene.sizes, settingId, defaultOf(settingId) + BUMP)
@@ -529,7 +558,7 @@ describe('GA-21 / GA-22 -- the dummy of a line-only shape splits at the centre o
 })
 
 describe('the columns table T-266 writes stay the columns the tests read', () => {
-  it('keeps the 横 and 縦 columns, which is where the 41 values are named', () => {
+  it('keeps the 横 and 縦 columns, which is where the 42 values are named', () => {
     for (const id of EXPECTED_ROW_IDS) {
       expect(grabRow(id).across, `${id} has no ${COLUMN_ACROSS} cell`).not.toBe('')
       expect(typeof grabRow(id).down, `${id} has no ${COLUMN_DOWN} cell`).toBe('string')

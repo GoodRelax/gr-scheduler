@@ -588,7 +588,7 @@ function gesture(options: {
     on,
     pressRow: pressRowOf(
       { at: down, hit: null },
-      { screen: options.screen, dualCursorFollowing: null },
+      { screen: options.screen, dualCursorFollowing: null, selection },
     ),
   }
   const atPress: InputContext = {

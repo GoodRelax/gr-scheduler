@@ -7,8 +7,37 @@ import type { DrawnSettings } from '../../document-model/document-settings/docum
 import type { Schedule, Task } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
 import type { TaskPlacement } from '../schedule-layout/schedule-layout'
-import { point, type DependencyGeometry, type GeometryInputs, type Path } from './schedule-geometry'
+import { displayRatioOf } from '../screen-regions/screen-regions'
+import {
+  point,
+  type ContinuationGeometry,
+  type DependencyGeometry,
+  type Elision,
+  type FarEndGeometry,
+  type GeometryInputs,
+  type Path,
+  type Point,
+} from './schedule-geometry'
 import { isThinShape, thinTierMiddle } from './task-figures'
+
+export interface LinkEnd {
+  readonly taskUid: number
+  readonly x: number
+  readonly width: number
+  readonly top: number
+  readonly bottom: number
+  readonly middle: number
+  readonly drawnBottom: number
+}
+
+// see EL-1, EL-2, EL-9
+export interface SightedEnd {
+  readonly end: LinkEnd
+  readonly far: FarEndGeometry
+}
+
+// see EL-9
+const CONTINUATION_DOT_COUNT = 3
 
 // see DP-1, DP-3
 /** @purity pure */
@@ -28,6 +57,28 @@ function sameSide(linkType: number): boolean {
 function drawnOverhangOf(placed: TaskPlacement, settings: DrawnSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
   return isLine ? 0 : settings.planStroke / 2
+}
+
+// see FR-009, EL-1
+/** @purity pure */
+export function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd {
+  const thin = isThinShape(placed.shapeKind)
+  const band = thin ? placed.height : placed.planHeight
+  return {
+    taskUid: placed.taskUid,
+    x: placed.x,
+    width: placed.width,
+    top: placed.y,
+    bottom: placed.y + band,
+    middle: thin ? thinTierMiddle(placed, settings, false) : placed.y + placed.planHeight / 2,
+    drawnBottom: placed.y + band + drawnOverhangOf(placed, settings),
+  }
+}
+
+// see EL-2
+/** @purity pure */
+export function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd {
+  return { taskUid, x, width, top: y, bottom: y, middle: y, drawnBottom: y }
 }
 
 interface Anchored {
@@ -149,49 +200,116 @@ export function selectedLinksOf(schedule: Schedule, selection: Selection): Reado
 
 // see S-19, S-300, GA-19
 /** @purity pure */
-function arrowHeadOf(points: Path, length: number, base: number): Path {
-  const tip = points[points.length - 1]
-  if (tip === undefined) return []
-  let alongX = 1
-  let alongY = 0
+function headingOf(points: Path): Point {
   for (let index = points.length - 1; index > 0; index -= 1) {
     const before = points[index - 1]!
     const run = Math.hypot(points[index]!.x - before.x, points[index]!.y - before.y)
-    if (run === 0) continue
-    alongX = (points[index]!.x - before.x) / run
-    alongY = (points[index]!.y - before.y) / run
-    break
+    if (run !== 0) return point((points[index]!.x - before.x) / run, (points[index]!.y - before.y) / run)
   }
-  const baseX = tip.x - alongX * length
-  const baseY = tip.y - alongY * length
+  return point(1, 0)
+}
+
+/** @purity pure */
+function arrowHeadOf(points: Path, length: number, base: number): Path {
+  const tip = points[points.length - 1]
+  if (tip === undefined) return []
+  const along = headingOf(points)
+  const baseX = tip.x - along.x * length
+  const baseY = tip.y - along.y * length
   const half = base / 2
   return [
     tip,
-    point(baseX - alongY * half, baseY + alongX * half),
-    point(baseX + alongY * half, baseY - alongX * half),
+    point(baseX - along.y * half, baseY + along.x * half),
+    point(baseX + along.y * half, baseY - along.x * half),
   ]
 }
 
 /** @purity pure */
-export function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement,
-                          linkType: number): DependencyGeometry {
+function firstRiseOf(route: Path): number {
+  for (let index = 1; index < route.length; index += 1) {
+    const rise = route[index]!.y - route[index - 1]!.y
+    if (rise !== 0) return Math.sign(rise)
+  }
+  return 0
+}
+
+// see EL-7, EL-8
+// WHY: route starts at the seen end; outward is the side its run leaves by, never read off the route (S-298 may be 0).
+/** @purity pure */
+function shortLineOf(route: Path, isLevel: boolean, outward: number, run: number, ratio: number): Path {
+  const start = route[0]
+  if (start === undefined) return []
+  const rise = firstRiseOf(route)
+  if (isLevel || rise === 0) {
+    return [start, point(start.x + outward * NOT_STORED_DEPENDENCY_SIZES['S-361'] * ratio, start.y)]
+  }
+  const bend = point(start.x + outward * run, start.y)
+  return [start, bend, point(bend.x, bend.y + rise * NOT_STORED_DEPENDENCY_SIZES['S-360'] * ratio)]
+}
+
+// see EL-9, EL-10, EL-11, EL-12
+/** @purity pure */
+function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
+  const diameter = NOT_STORED_DEPENDENCY_SIZES['S-362'] * ratio
+  const tip = line[line.length - 1]
+  const along = headingOf(line)
+  const dots: Point[] = []
+  const mark = { radius: diameter / 2, farUid: farEnd.end.taskUid, far: farEnd.far }
+  if (tip === undefined) return { dots, ...mark }
+  for (let index = 0; index < CONTINUATION_DOT_COUNT; index += 1) {
+    const reach = diameter + diameter / 2 + index * (diameter + diameter)
+    dots.push(point(tip.x + along.x * reach, tip.y + along.y * reach))
+  }
+  return { dots, ...mark }
+}
+
+type ElidedParts = Pick<DependencyGeometry, 'drawnPoints' | 'continuation' | 'head'>
+
+// see EL-3, EL-4, EL-5, EL-6
+/** @purity pure */
+function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, ends: {
+  readonly elision: Elision
+  readonly exitOutward: number
+  readonly entryOutward: number
+  readonly predecessor: SightedEnd
+  readonly successor: SightedEnd
+}): ElidedParts {
+  const settings = inputs.settings
+  const ratio = displayRatioOf(settings)
+  /** @purity pure */
+  const headOf = (drawn: Path): Path =>
+    arrowHeadOf(drawn, settings.dependencyArrowLength, settings.dependencyArrowWidth)
+  if (ends.elision === 'EL-3') return { drawnPoints: points, continuation: null, head: headOf(points) }
+  if (ends.elision === 'EL-6') return { drawnPoints: [], continuation: null }
+  if (ends.elision === 'EL-4') {
+    const line = shortLineOf(points, isLevel, ends.exitOutward, settings.dependencyLeadOut, ratio)
+    return { drawnPoints: line, continuation: continuationOf(line, ends.successor, ratio) }
+  }
+  const backward = shortLineOf([...points].reverse(), isLevel, ends.entryOutward, settings.dependencyLeadIn, ratio)
+  const line = [...backward].reverse()
+  return {
+    drawnPoints: line,
+    continuation: continuationOf(backward, ends.predecessor, ratio),
+    head: headOf(line),
+  }
+}
+
+/** @purity pure */
+export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd,
+                          linkType: number, elision: Elision): DependencyGeometry {
+  const from = predecessor.end
+  const to = successor.end
   const right = exitsRight(linkType)
   const sign = right ? 1 : -1
   const entryRight = sameSide(linkType) ? right : !right
   /** @purity pure */
-  const anchor = (placed: TaskPlacement, edgeRight: boolean): Anchored => {
-    const thin = isThinShape(placed.shapeKind)
-    const band = thin ? placed.height : placed.planHeight
-    return {
-      edge: sign * (edgeRight ? placed.x + placed.width : placed.x),
-      middle: thin
-        ? thinTierMiddle(placed, inputs.settings, false)
-        : placed.y + placed.planHeight / 2,
-      top: placed.y,
-      bottom: placed.y + band,
-      drawnBottom: placed.y + band + drawnOverhangOf(placed, inputs.settings),
-    }
-  }
+  const anchor = (end: LinkEnd, edgeRight: boolean): Anchored => ({
+    edge: sign * (edgeRight ? end.x + end.width : end.x),
+    middle: end.middle,
+    top: end.top,
+    bottom: end.bottom,
+    drawnBottom: end.drawnBottom,
+  })
   const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
   const points = route.points.map((vertex) => point(sign * vertex.x, vertex.y))
   const isSelected = inputs.selectedLinks.has(`${from.taskUid}>${to.taskUid}`)
@@ -202,12 +320,15 @@ export function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to
     linkType,
     pattern: route.pattern,
     points,
+    elision,
     strokeWidth: isSelected ? ownWidth * NOT_STORED_SELECTION_SIZES['S-178'] : ownWidth,
-    head: arrowHeadOf(
-      points,
-      inputs.settings.dependencyArrowLength,
-      inputs.settings.dependencyArrowWidth,
-    ),
+    ...elidedPartsOf(inputs, points, route.pattern === 'RP-1', {
+      elision,
+      exitOutward: sign,
+      entryOutward: entryRight ? 1 : -1,
+      predecessor,
+      successor,
+    }),
   }
 }
 
@@ -243,5 +364,18 @@ const NOT_STORED_SELECTION_SIZES: {
   'S-178': 2,
   'S-372': 6,
   'S-376': 8,
+}
+
+// see T-206
+const NOT_STORED_DEPENDENCY_SIZES: {
+  readonly 'S-224': number
+  readonly 'S-360': number
+  readonly 'S-361': number
+  readonly 'S-362': number
+} = {
+  'S-224': 3,
+  'S-360': 9.6,
+  'S-361': 19.2,
+  'S-362': 3.2,
 }
 // </generated>

@@ -737,8 +737,9 @@ describe('the manuscript still states the two rules this file is about', () => {
   it('leaves the range selection to a plain drag on empty ground (PTD-5)', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
     expect(rows[0], 'table T-023a: 上から評価し、最初に成立した行で確定すること（MUST）').toBe(
-      'PTD-1',
+      'PTD-7',
     )
+    expect(rows[rows.length - 1], 'table T-023a: PTD-5 is the last row, reached only when nothing above held').toBe('PTD-5')
     const found = specTable('T-023a').rows.find((one) => one.id === 'PTD-5')
     expect(found?.by['結果'], 'table T-023a PTD-5: 範囲選択').toContain('範囲選択')
   })

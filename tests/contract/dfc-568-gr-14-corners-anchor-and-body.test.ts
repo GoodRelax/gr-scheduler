@@ -1,4 +1,4 @@
-// DFC-568: GR-14 splits by box kind; highlight corners and body write CM-54 per T-246, comment body CM-51 and anchor CM-50.
+// DFC-568: GR-14 splits by box kind; highlight boxes write CM-54 per T-246, comment boxes CM-50 with CM-51 in one bundle.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -66,8 +66,13 @@ const HIGHLIGHT_CM_54 =
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
 const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
-const COMMENT_COMMANDS =
-  '本体（本文の箱の全体）と引出し線（線から左右へ同表の `S-291`）を掴めば `CM-51` で、線先（線先から同表の `S-292`）を掴めば `CM-50` で書くこと（MUST）。'
+// WHY: CR-559 rewrote the comment box clauses: body, leader and anchor each write CM-50 and CM-51 as one bundle.
+const COMMENT_BODY_MOVES_BOTH =
+  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱と線先を一緒に動かすこと（MUST） —— 本文の箱は引いた量だけ動かし、線先は、押したときに描いていた線先の点を引いた量だけずらした点で読む（読み方は下の「線先は離した位置で読む」と同じ）。'
+const COMMENT_ONE_BUNDLE =
+  'その 2 つは、`_assets/tbl-glossary.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
+const COMMENT_ANCHOR_ALONE =
+  '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
 const COMMENT_NO_CORNERS =
   '⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは `FR-097` が本文に合わせて決めており、文書は大きさの列を持たない（`AT-110` 〜 `AT-115`）。'
 const INSIDE_PASSES_THROUGH =
@@ -87,10 +92,11 @@ const ANCHOR_HORIZONTAL =
 const FR_019_BODY_OFFSET =
   '⛔ コメントボックスの本文の箱は、留めた点からのずれで置き、その基準隅を左下とすること（MUST） —— **ずれ（`bodyOffsetPx`）は、留めた点から本文の**左下隅**へのものである。**'
 const FR_019_POINT_IS_LF_15 = '⭐ 留めた点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
-const FR_019_LEADER = '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の左下隅とを、1 本の線で結ぶこと。'
+const FR_019_LEADER =
+  '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const LF_15 =
   '横は `anchorDate` の日の列の中央、縦は `anchorGroupId` の行が描かれた帯（`LF-2` / `LF-3`、ピン止めした行は `LF-14`）の中央とする。'
-const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、アンカーと共に動く'
+const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、ずれを書かずにアンカーだけを書くと、箱もアンカーと共に動く'
 
 const IV_19 ='ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。'
 
@@ -183,6 +189,14 @@ const S_293 =((): number => {
   const cell = t206Default('S-293')
   const numbers = cell.match(/\d+(?:\.\d+)?/g) ?? []
   if (numbers.length !== 1) throw new Error(`S-293 does not resolve to one number: ${cell}`)
+  return Number(numbers[0])
+})()
+
+// WHY: `S-292` is the comment anchor's own reach; `S-230` belongs to the highlight box's grab points.
+const S_292 = ((): number => {
+  const cell = t206Default('S-292')
+  const numbers = cell.match(/\d+(?:\.\d+)?/g) ?? []
+  if (numbers.length !== 1) throw new Error(`S-292 does not resolve to one number: ${cell}`)
   return Number(numbers[0])
 })()
 
@@ -554,10 +568,12 @@ const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly
 const WIDTH_SLACK = 0.05
 
 describe('DFC-568 premises: the clauses and the fixture still read this way', () => {
-  // WHY: COMMENT_COMMANDS is the comment box's clause CR-559 rewrote; it stands in its own case so a red
-  // WHY: there names CR-559 and does not hide the highlight box clauses CR-558 rewrote.
+  // WHY: the comment box clauses CR-559 rewrote stand in their own case so a red there names CR-559
+  // WHY: and does not hide the highlight box clauses CR-558 rewrote.
   it('CR-559: the comment box body and anchor commands clause still reads verbatim', () => {
-    expect(REQUIREMENTS).toContain(COMMENT_COMMANDS)
+    for (const clause of [COMMENT_BODY_MOVES_BOTH, COMMENT_ONE_BUNDLE, COMMENT_ANCHOR_ALONE]) {
+      expect(REQUIREMENTS).toContain(clause)
+    }
   })
 
   it('T-023d, T-108, AT-117..120 and IV-19 still hold the clauses verbatim', () => {
@@ -972,7 +988,7 @@ describe('DFC-568 FR-019: the box is drawn by whole day columns', () => {
   })
 })
 
-describe('DFC-568 comment box: no corners, body CM-51, anchor CM-50', () => {
+describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51 in one bundle', () => {
   for (const corner of CORNERS) {
     it(`⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは \`FR-097\` が本文に合わせて決めており、文書は大きさの列を持たない（\`AT-110\` 〜 \`AT-115\`）。 -- the ${corner.name} corner of the body resizes nothing`, () => {
       const built = stage()
@@ -990,24 +1006,34 @@ describe('DFC-568 comment box: no corners, body CM-51, anchor CM-50', () => {
     })
   }
 
-  it('本体を掴めば `CM-51` で、アンカーを掴めば `CM-50` で書くこと（MUST）。 -- the body writes bodyOffsetPx and leaves the anchor', () => {
+  it(`${COMMENT_BODY_MOVES_BOTH} -- the body moves the box by the pull and pins the anchor three days on, in one bundle`, () => {
     const built = stage()
     const drawn = commentDrawn(built.loop)
     const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
-    dragBy(built, { x: drawn.body.x + drawn.body.width / 2, y: drawn.body.y + drawn.body.height / 2 }, TRAVEL_DAYS * pxPerDay(built.loop))
+    const travel = TRAVEL_DAYS * pxPerDay(built.loop)
+    dragBy(built, { x: drawn.body.x + drawn.body.width / 2, y: drawn.body.y + drawn.body.height / 2 }, travel)
     const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
-    expect(changedColumns(before, after)).toEqual([...CM_51_COLUMNS])
+    for (const column of changedColumns(before, after)) {
+      expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} is not a column CM-50 or CM-51 writes`).toContain(column)
+    }
+    expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: ROW_F }, 'body pull')
+    expect(commentDrawn(built.loop).body.x - drawn.body.x, 'the box did not move by the pull').toBeCloseTo(travel, 1)
+    expect(commentDrawn(built.loop).body.y, 'the box moved up or down').toBeCloseTo(drawn.body.y, 1)
   })
 
-  for (const [label, shift] of [['on the anchor', 0], ['within S-230 of the anchor', -S_230 / 2]] as const) {
-    it(`本体を掴めば \`CM-51\` で、アンカーを掴めば \`CM-50\` で書くこと（MUST）。 -- a press ${label} writes the anchor with CM-50 alone`, () => {
+  for (const [label, shift] of [['on the anchor', 0], ['within S-292 of the anchor', -S_292 / 2]] as const) {
+    it(`${COMMENT_ANCHOR_ALONE} -- a press ${label} pins the anchor three days on and keeps the box still`, () => {
       const built = stage()
       const drawn = commentDrawn(built.loop)
       const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
       dragBy(built, { x: drawn.anchor.x + shift, y: drawn.anchor.y }, TRAVEL_DAYS * pxPerDay(built.loop))
       const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
-      expect(changedColumns(before, after), 'the anchor press wrote something other than CM-50').toEqual(['anchorDate'])
+      for (const column of changedColumns(before, after)) {
+        expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} is not a column CM-50 or CM-51 writes`).toContain(column)
+      }
       expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: ROW_F }, `press ${label}`)
+      expect(commentDrawn(built.loop).body.x, 'the box moved with the anchor').toBeCloseTo(drawn.body.x, 1)
+      expect(commentDrawn(built.loop).body.y, 'the box moved with the anchor').toBeCloseTo(drawn.body.y, 1)
     })
   }
 })
@@ -1029,21 +1055,32 @@ const expectAnchor = (loop: FrameLoop, expected: { day: number; row: string }, w
   )
 }
 
-function moveAnchor(built: Stage, pressFromAnchor: Point, release: Point): { before: Record<string, unknown>; after: Record<string, unknown> } {
-  const anchor = commentDrawn(built.loop).anchor
+function moveAnchor(
+  built: Stage,
+  pressFromAnchor: Point,
+  release: Point,
+): { before: Record<string, unknown>; after: Record<string, unknown>; body: ScreenRect } {
+  const { anchor, body } = commentDrawn(built.loop)
   const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
   releaseAt(built, { x: anchor.x + pressFromAnchor.x, y: anchor.y + pressFromAnchor.y }, release)
-  return { before, after: storedOf(built.loop, 'commentBoxes', COMMENT_ID) }
+  return { before, after: storedOf(built.loop, 'commentBoxes', COMMENT_ID), body }
 }
 
-function expectOnlyCm50(moved: { before: Record<string, unknown>; after: Record<string, unknown> }, what: string): void {
+// see T-023d, CM-50, CM-51
+function expectBundleKeepsTheBox(
+  built: Stage,
+  moved: { before: Record<string, unknown>; after: Record<string, unknown>; body: ScreenRect },
+  what: string,
+): void {
   for (const column of changedColumns(moved.before, moved.after)) {
-    expect(CM_50_COLUMNS as readonly string[], `${what}: ${column} is not a column CM-50 writes`).toContain(column)
+    expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${what}: ${column} is not a column CM-50 or CM-51 writes`).toContain(column)
   }
+  expect(commentDrawn(built.loop).body.x, `${what}: the box moved with the anchor`).toBeCloseTo(moved.body.x, 1)
+  expect(commentDrawn(built.loop).body.y, `${what}: the box moved with the anchor`).toBeCloseTo(moved.body.y, 1)
 }
 
-const NEAR_RIGHT: Point = { x: 0.9 * S_230, y: 0 }
-const NEAR_LEFT: Point = { x: -0.9 * S_230, y: 0 }
+const NEAR_RIGHT: Point = { x: 0.9 * S_292, y: 0 }
+const NEAR_LEFT: Point = { x: -0.9 * S_292, y: 0 }
 const DEAD_ON: Point = { x: 0, y: 0 }
 
 function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
@@ -1123,16 +1160,20 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
     expect(drawn.body.y + drawn.body.height).toBeCloseTo(drawn.anchor.y - 60, 1)
   })
 
-  it(`${LF_15_BODY_FOLLOWS} -- after the anchor moves, the body keeps the same offset from the new anchor`, () => {
+  it(`${COMMENT_ANCHOR_ALONE} -- after the anchor moves, the offset is re-written from the new anchor to the unmoved box`, () => {
     const built = stage()
     const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCentre(built.loop, ROW_C) })
-    expect(moved.after['bodyOffsetPx']).toEqual(moved.before['bodyOffsetPx'])
     const drawn = commentDrawn(built.loop)
     expect(drawn.anchor.x).toBeCloseTo(dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, 1)
-    expect(drawn.body.x).toBeCloseTo(drawn.anchor.x + 60, 1)
-    expect(drawn.body.y + drawn.body.height).toBeCloseTo(drawn.anchor.y - 60, 1)
+    expect(drawn.anchor.y).toBeCloseTo(bandCentre(built.loop, ROW_C), 1)
+    expect(drawn.body.x, 'the box moved with the anchor').toBeCloseTo(moved.body.x, 1)
+    expect(drawn.body.y, 'the box moved with the anchor').toBeCloseTo(moved.body.y, 1)
+    const offset = moved.after['bodyOffsetPx'] as { dx: number; dy: number }
+    expect(offset.dx).toBeCloseTo(drawn.body.x - drawn.anchor.x, 1)
+    expect(offset.dy).toBeCloseTo(drawn.body.y + drawn.body.height - drawn.anchor.y, 1)
   })
 
+  // WHY: the fixture's body stands up-right of the anchor, so LF-17 picks the bottom-left corner here.
   it(`${FR_019_LEADER} -- one line from the pinned point to the body's bottom-left, in the drawn picture`, () => {
     const built = stage()
     const svg = built.lastSvg()
@@ -1162,7 +1203,7 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
     const built = stage()
     const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
     expectAnchor(built.loop, { day: 25, row: ROW_F }, 'left third of day 25')
-    expectOnlyCm50(moved, 'left third of day 25')
+    expectBundleKeepsTheBox(built, moved, 'left third of day 25')
     expectNoRs44(built, 'left third of day 25')
   })
 
@@ -1170,10 +1211,10 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
     const built = stage()
     const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCentre(built.loop, ROW_F) })
     expectAnchor(built.loop, { day: 25, row: ROW_F }, 'right side of day 25')
-    expectOnlyCm50(moved, 'right side of day 25')
+    expectBundleKeepsTheBox(built, moved, 'right side of day 25')
   })
 
-  it(`${ANCHOR_NOT_NEAREST} -- pressed left of the drawn anchor within S-230 and released without moving keeps day 22`, () => {
+  it(`${ANCHOR_NOT_NEAREST} -- pressed left of the drawn anchor within S-292 and released without moving keeps day 22`, () => {
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
     const press = { x: anchor.x + NEAR_LEFT.x, y: anchor.y }
@@ -1188,13 +1229,13 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
     const anchor = commentDrawn(built.loop).anchor
     const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, ROW_C) })
     expectAnchor(built.loop, { day: ANCHOR_DAY, row: ROW_C }, 'row C')
-    expectOnlyCm50(moved, 'row C')
+    expectBundleKeepsTheBox(built, moved, 'row C')
     expectNoRs44(built, 'row C')
   })
 
-  it(`${ANCHOR_HORIZONTAL} -- pressed below the anchor within S-230 and moved only sideways keeps row F`, () => {
+  it(`${ANCHOR_HORIZONTAL} -- pressed below the anchor within S-292 and moved only sideways keeps row F`, () => {
     const built = stage()
-    const press: Point = { x: 0, y: 0.9 * S_230 }
+    const press: Point = { x: 0, y: 0.9 * S_292 }
     const anchor = commentDrawn(built.loop).anchor
     releaseAt(built, { x: anchor.x, y: anchor.y + press.y }, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: anchor.y + press.y })
     expectAnchor(built.loop, { day: 25, row: ROW_F }, 'sideways only')

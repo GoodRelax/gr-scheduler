@@ -219,7 +219,7 @@ export type InputAction =
       readonly created?: CreatedSubject
       // see HF-20, QN-10
       readonly question?: 'QN-10'
-      // see T-308 CY-8: the copies a PTD-7 drag makes, picked once the bundle lands
+      // WHY: the copies a PTD-7 drag makes, picked once the bundle lands (CY-8).
       readonly picked?: Selection
     }
   | { readonly kind: 'undoEdit' }
@@ -591,7 +591,7 @@ export function isOnRowArea(context: InputContext, x: number, y: number): boolea
   return regionAtPointer(context.regions, x, y) === 'rowArea'
 }
 
-// see T-023a PTD-7, T-308 CY-1, CY-2
+// see PTD-7, CY-1, CY-2
 const COPY_DRAG_GRABS: readonly string[] = ['GA-9', 'GA-14', 'GA-15']
 
 /** @purity pure */

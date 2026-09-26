@@ -27,6 +27,7 @@ import {
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
 import { overlayParts, watermarkSvg, type ViewerValues } from './schedule-overlays'
 import {
+  baselineOutlineParts,
   dependencyArrowSvg,
   dependencyLinkParts,
   taskFigureParts,
@@ -532,6 +533,7 @@ export function svgFromSchedule(
   }
   const grid = gridParts(drawing)
   const figures = taskFigureParts(drawing)
+  const baselines = baselineOutlineParts(drawing, NOT_STORED_BASELINE_OUTLINE_SIZES['S-444'])
 
   const width = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const height = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
@@ -613,16 +615,14 @@ export function svgFromSchedule(
       ...zoLayer('ZO-1', [...figures.planPartsPinned, scrolling(figures.planParts)]),
       ...zoLayer('ZO-1a', [...figures.guidePartsPinned, scrolling(figures.guideParts)]),
       ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),
+      ...zoLayer('ZO-15', [...baselines.baselinePartsPinned, scrolling(baselines.baselineParts)]),
       ...zoLayer('ZO-4', [...links.depLinkPartsPinned, scrolling(links.depLinkParts)]),
+      ...zoLayer('ZO-13', [...figures.deadlinePartsPinned, scrolling(figures.deadlineParts)]),
       ...zoLayer('ZO-8', overlays.linkParts),
       ...zoLayer('ZO-3', [...figures.markerPartsPinned, scrolling(figures.markerParts)]),
       ...zoLayer('ZO-5', [...figures.labelPartsPinned, scrolling(figures.labelParts)]),
       ...zoLayer('ZO-9', overlays.annotationParts),
-      ...zoLayer('ZO-10', [
-        ...figures.selectionParts,
-        ...overlays.selectionParts,
-        ...figures.handleParts,
-      ]),
+      ...zoLayer('ZO-10', [...figures.selectionParts, ...overlays.selectionParts, ...figures.handleParts]),
       ...zoLayer('ZO-11', tentativeParts),
       ...zoLayer(
         'ZO-12',
