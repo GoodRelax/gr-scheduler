@@ -34,6 +34,9 @@ import helpRoster from './help-roster.json'
 
 const HINTS_BY_ROW = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const ASSIGNMENTS_BY_ROW = new Map(displayWords.assignments.map((entry) => [entry.rowId, entry]))
+const DEADLINE_ROW = 'PR-10'
+const DEADLINE_WORDS = displayWords.properties.find((entry) => entry.rowId === DEADLINE_ROW)?.label
+const LINE_BREAK = '\n'
 
 const FASTER_SCROLL_ASSIGNMENT_ROWS: Readonly<Record<'horizontal' | 'vertical', string>> = {
   horizontal: 'MK-5',
@@ -83,10 +86,13 @@ function dateText(stored: string | null): string {
   return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
 }
 
+// see EZ-6
 /** @purity pure */
-function taskHint(task: Task): string {
+function taskHint(task: Task, language: DisplayLanguage): string {
   const name = task.name ?? ''
-  return `${name} ${dateText(task.start)} / ${dateText(task.finish)}`
+  const planned = `${name} ${dateText(task.start)} / ${dateText(task.finish)}`
+  if ((task.deadline ?? null) === null) return planned
+  return `${planned}${LINE_BREAK}${DEADLINE_WORDS?.[language] ?? DEADLINE_ROW} ${dateText(task.deadline)}`
 }
 
 /** @purity pure */
@@ -134,7 +140,7 @@ export function tooltipsFromScreenView(
   if (task !== null) {
     tooltips.push({
       anchor: { kind: 'task', taskUid: task.uid },
-      text: taskHint(task),
+      text: taskHint(task, language),
       assignment: null,
       at: pointer,
     })
