@@ -937,7 +937,9 @@ function noteHitOf(
     if (isInsideRect(x, y, box.body)) return commentHit(box, { kind: 'body' })
   }
   for (const box of geometry.commentBoxes) {
-    if (isOnPolyline(x, y, leaderOf(box), sizes['S-291'])) return commentHit(box, { kind: 'leader' })
+    // see T-221 LF-17: a box whose anchor sits inside it draws no leader, so none answers
+    const leader = leaderOf(box)
+    if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
   for (const box of geometry.highlightBoxes) {
     const grabPoint = nearestGrabPointOf(box, x, y, sizes['S-230'])
