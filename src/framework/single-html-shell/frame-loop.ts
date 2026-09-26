@@ -767,6 +767,7 @@ function screenViewReadingsOf(
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
     placedRowGroupIds: layout.rows.map((row) => row.groupId),
+    placedRows: layout.rows,
     scrollExtent: scrollExtentOf(layout, regions, {
       horizontal: heldWhole?.horizontal ?? horizontalWholeOf(layout, regions),
       vertical: heldWhole?.vertical ?? verticalWholeOf(layout, regions),
