@@ -11,7 +11,7 @@
     python tools/renumber_ids.py --check
         exit 1 when a tracked file still holds a provisional id (check 68)
 
-THE CONVENTION (docs/development-rules/09-tools.md, section 10):
+THE CONVENTION (docs/development-rules/09-tools.md, section 12.1):
 
   * While drafting, a NEW id is PROVISIONAL: its real prefix and a five-digit
     number that starts with 9 -- `DFC-90001`, `JDG-90002`, `T-90001`,
@@ -66,9 +66,9 @@ NEAR = 50
 
 AN_ID = re.compile(r'(?<![A-Za-z0-9-])([A-Z]{1,4})-([0-9]+)(?![0-9])')
 PROVISIONAL = re.compile(r'^9[0-9]{4}$')
-RANGE_AFTER = re.compile(u'^\\s*(?:\\.\\.|〜|~|–)\\s*[0-9]+')
+RANGE_AFTER = re.compile(u'^\\s*(?:\\.\\.|\u301c|~|\u2013)\\s*[0-9]+')
 ROW_START = re.compile(r'^\|\s*`?([A-Z]{1,4})-([0-9]+)[a-z]?`?\s*\|')
-TABLE_HEADING = re.compile(u'^\\*\\*表 (T)-([0-9]+)[a-z]?')
+TABLE_HEADING = re.compile(u'^\\*\\*\u8868 (T)-([0-9]+)[a-z]?')
 CR_FILE = re.compile(r'^change-request/(CR)-([0-9]+)-')
 
 
@@ -131,7 +131,7 @@ def measure(ref):
         match = ROW_START.match(line)
         if match:
             defined.setdefault(match.group(1), set()).add(int(match.group(2)))
-    for line in grep_lines(ref, u'^\\*\\*表 T-[0-9]+', ['--', '*.md']):
+    for line in grep_lines(ref, u'^\\*\\*\u8868 T-[0-9]+', ['--', '*.md']):
         match = TABLE_HEADING.match(line)
         if match:
             defined.setdefault('T', set()).add(int(match.group(2)))
