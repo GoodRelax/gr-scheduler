@@ -28,7 +28,7 @@ import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
 import { taskGeometryOf } from './task-figures'
 
-export { leaderOf } from './comment-box'
+export { commentAnchorPointOf, leaderOf } from './comment-box'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 
 export interface Point {
@@ -139,6 +139,12 @@ export interface CommentGeometry {
   readonly body: ScreenRect
   readonly lines: readonly string[]
   readonly fontSize: number
+  // see AT-148..AT-152, S-374, S-375 (T-217): the numbers already defaulted and clamped; the colours as stored
+  readonly strokeWidthPx: number
+  readonly fillOpacity: number
+  readonly strokeColor: string | null
+  readonly fillColor: string | null
+  readonly textColor: string | null
 }
 
 // see CU-2
