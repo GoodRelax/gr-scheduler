@@ -1289,6 +1289,15 @@
      }
     },
     {
+     "name": "achromatic",
+     "note": {
+      "ja": [
+       "色を、明度を保ったまま無彩色にした色。",
+       "`FR-041` のモノクロの段落が、画面の枠と日程の図と書き出しとで同じ行を同じ値で塗れと定めるので、画面の側（`DomScreenSurface`）も描く側と同じ 1 本で灰にする"
+      ]
+     }
+    },
+    {
      "name": "GROUP_GRID_LINE_WIDTH_PX",
      "note": {
       "ja": [
@@ -1912,6 +1921,15 @@
       "ja": [
        "配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。",
        "縦の見えている高さはピン止めの帯の下の残り（`FR-098`）"
+      ]
+     }
+    },
+    {
+     "name": "achromatic",
+     "note": {
+      "ja": [
+       "`SvgRenderer` の `achromatic` を、`DomScreenSurface` へ渡すために写さずに公開し直したもの。",
+       "`DomScreenSurface` から `SvgRenderer` への辺は無いので、画面の主題を灰にする 1 本はこの入口を通る"
       ]
      }
     }

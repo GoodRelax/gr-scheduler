@@ -36,6 +36,7 @@ export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
+export { achromatic } from '../svg-renderer/svg-renderer'
 import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, tooltipsFromScreenView } from './tooltips'
 

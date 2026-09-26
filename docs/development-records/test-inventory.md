@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 100 | 1190 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 102 | 1203 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 135 | 3007 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 284 | 4471 | 12 | 17 | 9 | 1 |
+| **all** | | | 286 | 4484 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -243,6 +243,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-557-the-theme-hue-roster-is-table-t-305.test.ts` | 7 | FR-041 | - | T-216, T-305 | S-1, S-73, TH-1 | - | - | - | - |
 | `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | - | - | - | - | - |
 | `tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts` | 17 | FR-003, FR-016, FR-018, FR-055, FR-094 | - | T-036, T-262, T-329 | IC-10, IC-15, MK-2, MK-4, OP-10, S-4, S-5, S-6, S-53, S-54, S-172, S-173, ZE-1, ZE-3, ZE-5, ZE-6 | - | - | - | - |
+| `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
+| `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts` | 8 | FR-006 | - | T-016, T-034, T-036, T-062, T-065, T-067, T-078, T-103, T-218 | BT-4, CP-25, CP-38, FT-1, IF-1, IF-9, PR-1, PR-2, PR-9, PR-12, SK-19, TS-6, U-25, UF-48, UF-71, WS-1, WS-3, WS-6, WS-7 | - | - | - | - |
 | `tests/contract/dfc-152-in-6-the-same-value-writes-nothing.test.ts` | 13 | FR-031 | - | T-016, T-027, T-028, T-036, T-062, T-065, T-103, T-218 | CP-38, FT-1, IF-1, IF-9, IN-5a, IN-6, PR-1, PR-2, SK-19, TS-6, U-25, UF-8, UF-9, UF-71, UN-3 | - | - | - | - |
