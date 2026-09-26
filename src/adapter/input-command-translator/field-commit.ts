@@ -281,15 +281,48 @@ function commandFromHighlightBoxColumn(
   }
 }
 
+type CommentBox = Schedule['commentBoxes'][number]
+
+// see PR-21, PR-26, PR-27, PR-28, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84
+// WHY: dispatched by column: one field per column, and PR-28's three colours must not land in the text (S-7).
+/** @purity pure */
+function commandFromCommentBoxColumn(
+  box: CommentBox,
+  column: string,
+  text: string,
+  dark: boolean,
+): readonly DocumentCommand[] {
+  const id = box.id
+  const number = settledNumber(text)
+  switch (column) {
+    case 'text':
+      return [{ kind: 'setCommentBoxText', id, text: settledText(text) }]
+    case 'strokeColor':
+      return [{ kind: 'setCommentBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+    case 'fillColor':
+      return [{ kind: 'setCommentBoxFillColor', id, fillColor: settledColour(text, box.fillColor, dark) }]
+    case 'textColor':
+      return [{ kind: 'setCommentBoxTextColor', id, textColor: settledColour(text, box.textColor, dark) }]
+    case 'strokeWidthPx':
+      return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidth', id, strokeWidthPx: number }]
+    case 'fillTransparencyPercent':
+      return number === undefined
+        ? []
+        : [{ kind: 'setCommentBoxFillTransparency', id, fillTransparencyPercent: number }]
+    default:
+      return []
+  }
+}
+
 type BoxKey = Extract<FieldCommit['key'], { holder: 'commentBox' | 'highlightBox' }>
 
-// see PR-21, PR-22, PR-23, PR-24, PR-25, FR-019
+// see PR-21, PR-22..PR-28, FR-019
 /** @purity pure */
 function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dark: boolean): readonly DocumentCommand[] {
   const id = key.id
   if (key.holder === 'commentBox') {
-    const isHeld = schedule.commentBoxes.some((held) => held.id === id)
-    return isHeld ? [{ kind: 'setCommentBoxText', id, text: settledText(text) }] : []
+    const held = schedule.commentBoxes.find((one) => one.id === id)
+    return held === undefined ? [] : commandFromCommentBoxColumn(held, key.column, text, dark)
   }
   const box = schedule.highlightBoxes.find((held) => held.id === id)
   return box === undefined ? [] : commandFromHighlightBoxColumn(box, key.column, text, dark)
