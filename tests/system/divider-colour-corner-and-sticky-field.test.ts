@@ -572,7 +572,9 @@ async function panelFields(page: Page): Promise<Field[]> {
     const shown = document.querySelector(panel)
     if (shown === null) return []
     const out: Field[] = []
-    for (const field of Array.from(shown.querySelectorAll('[data-field-row]'))) {
+    // WHY: a field's line is the element marked editable or not (FR-072); a colour swatch also
+    // names its row so MK-13 can focus it, and read as a field it repeated PR-28 once per swatch.
+    for (const field of Array.from(shown.querySelectorAll('[data-field-row][data-editable]'))) {
       if (field.hasAttribute('data-field-kind')) continue
       out.push({
         row: field.getAttribute('data-field-row') ?? '',

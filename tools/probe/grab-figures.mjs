@@ -453,12 +453,12 @@ async function buildLabelPlacementFigure(page) {
   }
 }
 
-/** Figure 6 (fig-pointer-shapes.svg): the 7 rows of table PK, actual size and a true 4x optical zoom
+/** Figure 6 (fig-pointer-shapes.svg): every row of table PK, actual size and a true 4x optical zoom
  *  (same generated markup, width/height scaled -- NOT re-invoked at 4x the px argument, because
  *  several glyph functions hold their rim to a constant PHYSICAL width via rimUnits(px), so a fresh
  *  call at a larger px would change the shape's proportions rather than just magnify it). Rows 7/8
- *  (finger / open hand) have no drawn glyph in the sample -- they are the environment's native cursor
- *  -- so this figure says so in words instead of inventing artwork for them. */
+ *  and 10..16 have no drawn glyph in the sample -- they are the environment's native cursor -- so this
+ *  figure says so in words instead of inventing artwork for them. */
 function scaleGlyph(svg, factor) {
   return svg.replace(/width="([\d.]+)" height="([\d.]+)"/, (_, w, h) =>
     `width="${Number(w) * factor}" height="${Number(h) * factor}"`)
@@ -475,11 +475,23 @@ async function buildPointerShapesFigure(page) {
     'PK-5b': { label: '円 ●', svg: discGlyph(true, S.msActCur) },
     'PK-9': { label: '再開の折れ矢印', svg: resumeGlyph(S.resumeCur) },
   }))
-  const NATIVE = { 'PK-7': '指（環境の既定カーソル。描いた図形を持たない）', 'PK-8': 'てのひら（環境の既定カーソル。描いた図形を持たない）' }
+  // The environment's own cursors (table T-269): named in words with their CSS keyword, never drawn.
+  const NATIVE = {
+    'PK-7': '指（環境の既定カーソル。描いた図形を持たない）',
+    'PK-8': 'てのひら（環境の既定カーソル。描いた図形を持たない）',
+    'PK-10': '左右の境目（環境の col-resize）',
+    'PK-11': '上下左右（環境の move）',
+    'PK-12': '左右の辺（環境の ew-resize）',
+    'PK-13': '上下の辺（環境の ns-resize）',
+    'PK-14': '左上と右下の隅（環境の nwse-resize）',
+    'PK-15': '右上と左下の隅（環境の nesw-resize）',
+    'PK-16': '写し（環境の copy）',
+  }
 
   const rowH = 84, labelW = 220, cellW = 140, pad = 8, headerH = 16
   const glyphRows = Object.entries(glyphs)
   const totalRows = glyphRows.length + Object.keys(NATIVE).length
+  const kinds = new Set([...glyphRows.map(([id]) => id.replace(/[ab]$/, '')), ...Object.keys(NATIVE)]).size
   const width = pad * 3 + labelW + cellW * 2
   const height = headerH + pad * (totalRows + 1) + rowH * totalRows
   let body = `  <text x="${labelW + pad}" y="${headerH - 4}" font-size="10" fill="var(--ink2)">実寸</text>
@@ -503,9 +515,9 @@ async function buildPointerShapesFigure(page) {
   return {
     file: 'fig-pointer-shapes.svg',
     svg: svgDocument({
-      file: 'fig-pointer-shapes.svg', title: '図 F-025 -- 表 PK（ポインタの形）7 種、実寸と 4 倍',
+      file: 'fig-pointer-shapes.svg', title: `図 F-025 -- 表 PK（ポインタの形）${kinds} 種、実寸と 4 倍`,
       width, height, viewBox: `0 0 ${width} ${height}`,
-      ariaLabel: '7 pointer kinds (10 glyphs) at actual size and 4x magnification',
+      ariaLabel: `${kinds} pointer kinds (${glyphRows.length} glyphs) at actual size and 4x magnification`,
       body,
     }),
     note: `glyph rows: ${glyphRows.length} drawn + ${Object.keys(NATIVE).length} native`,

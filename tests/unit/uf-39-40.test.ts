@@ -88,6 +88,7 @@ import type {
   ScreenView,
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
+import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
@@ -720,6 +721,7 @@ interface Assembled {
   /** Everything the component itself wrote: the received picture is taken out first. */
   readonly own: readonly Drawn[]
   readonly rects: readonly Drawn[]
+  readonly ground: Drawn | null
   readonly texts: readonly DrawnText[]
   /**
    * A `clipPath` the picture is drawn under, or `null` if there is none.
@@ -735,6 +737,16 @@ interface Assembled {
 
 const CLIP_BLOCK = /<clipPath((?:[^<>"]|"[^"]*")*)>([\s\S]*?)<\/clipPath>/
 
+// see IX-10, S-146
+const isGroundOf = (scene: ExportScene, root: Drawn | undefined) => (drawn: Drawn): boolean =>
+  root !== undefined &&
+  drawn.tag === 'rect' &&
+  num(drawn.attrs, 'x') === 0 &&
+  num(drawn.attrs, 'y') === 0 &&
+  num(drawn.attrs, 'width') === num(root.attrs, 'width') &&
+  num(drawn.attrs, 'height') === num(root.attrs, 'height') &&
+  drawn.attrs['fill'] === colourOf('S-146', scene.themeHue, scene.themePreference === 'dark', false)
+
 const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
   const parts = result.svg.split(scene.svg)
   const withoutPicture = parts.join('')
@@ -744,13 +756,16 @@ const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
   const body = clipHit === null ? withoutPicture : withoutPicture.replace(CLIP_BLOCK, '')
   const own = elementsOf(body)
   const screenWidth = scene.regions.scheduleCanvas.x + scene.regions.scheduleCanvas.width
+  const allRects = own.filter((drawn) => drawn.tag === 'rect')
+  const groundAt = allRects.findIndex(isGroundOf(scene, own[0]))
   return {
     result,
     scene,
     ratio: SETTINGS_CONSTANTS.exportCanvas.width / screenWidth,
     pictureCount: parts.length - 1,
     own,
-    rects: own.filter((drawn) => drawn.tag === 'rect'),
+    rects: allRects.filter((_drawn, index) => index !== groundAt),
+    ground: allRects[groundAt] ?? null,
     texts: textsOf(body),
     clip: clipRects[0] !== undefined && clipRects.length === 1 ? rectOf(clipRects[0]) : null,
     root: own[0] ?? { tag: 'nothing was assembled', attrs: {} },
@@ -1415,6 +1430,14 @@ describe('FR-025 -- the frame the picture is written into', () => {
     const screenBottom = shortScreen.height * RATIO
     expect(screenBottom).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
     expect(assembled.result.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvas.height)
+    expect(
+      assembled.ground,
+      'IX-10 (MUST) "paint the blanks in S-146" and (MUST NOT) "leave them transparent": the remainder is painted by one rect 0 0 width height, and it is the only full-canvas rect',
+    ).not.toBeNull()
+    expect(
+      assembled.rects.filter(isGroundOf(assembled.scene, assembled.root)),
+      'IX-10 (MUST NOT) "add rows to fill it": beside the one ground, nothing else covers the remainder',
+    ).toHaveLength(0)
     for (const element of assembled.rects) {
       const rect = rectOf(element)
       expect(rect.y + rect.height, JSON.stringify(rect)).toBeLessThanOrEqual(

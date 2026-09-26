@@ -20,6 +20,7 @@ export type {
 export { cycleTaskPlanActualState } from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export { wbsSubtreesOf } from './edit-task-group'
+export { pastedUidsOf } from './task-paste'
 export { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 export type { TreeStateEvent } from './task-group-folding'
 export { searchJumpWrites } from './search-jump'
@@ -200,10 +201,18 @@ const ANNOTATION_KINDS = [
   'setCommentBoxLeaderShapeKind',
   'setCommentBoxAnchor',
   'setCommentBoxBodyOffsetPx',
+  'setCommentBoxStrokeColor',
+  'setCommentBoxStrokeWidth',
+  'setCommentBoxFillColor',
+  'setCommentBoxFillTransparency',
+  'setCommentBoxTextColor',
   'createHighlightBox',
   'deleteHighlightBox',
   'setHighlightBoxRange',
   'setHighlightBoxStrokeColor',
+  'setHighlightBoxStrokeWidth',
+  'setHighlightBoxFillColor',
+  'setHighlightBoxFillTransparency',
 ] as const satisfies readonly AnnotationCommand['kind'][]
 
 const RESOURCE_KINDS = [

@@ -67,6 +67,13 @@ export type PlanActualPlacement =
 export type ActualGrabHold = 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
 
 // see T-108
+// see T-308 CY-5, CY-6
+// WHY: a plain record, not a Map, so the command survives the Agent API's JSON unchanged.
+export interface PasteLanding {
+  readonly dayShift: number
+  readonly groupIdOf: Readonly<Record<number, string>>
+}
+
 export type TaskCommand =
   | {
       readonly kind: 'createTask'
@@ -76,7 +83,11 @@ export type TaskCommand =
       readonly groupId: string
     }
   | { readonly kind: 'deleteTask'; readonly uid: number }
-  | { readonly kind: 'pasteTaskSubtree'; readonly sourceUids: readonly number[] }
+  | {
+      readonly kind: 'pasteTaskSubtree'
+      readonly sourceUids: readonly number[]
+      readonly landing?: PasteLanding
+    }
   | { readonly kind: 'setTaskName'; readonly uid: number; readonly name: string | null }
   | { readonly kind: 'setTaskNotes'; readonly uid: number; readonly notes: string | null }
   | {

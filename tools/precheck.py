@@ -294,8 +294,8 @@ def trap_generated_edit(relative, lines, dirty=()):
         # adding one pending decision fires this trap on a correct
         # `npm run gen`. A directory counts only when written in backticks.
         parts = other.split('/')
-        # ⚠️ A directory may be written with its trailing slash (`src/`).
         for depth in range(1, len(parts)):
+            # ⚠️ Both spellings: public-entry-index.md names its tree as `src/`.
             folder = '/'.join(parts[:depth])
             if '`%s`' % folder in declaration or '`%s/`' % folder in declaration:
                 return []

@@ -142,9 +142,8 @@ export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: 
   const row = SCHEDULE_COLOURS[rowId]
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
   const written = dark ? row.dark : row.light
-  if (!row.followsHue) return written
-  const substituted = written.replace(/\bH\b/g, rounded(hue))
-  return monochrome ? achromatic(substituted) : substituted
+  const coloured = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
+  return monochrome ? achromatic(coloured) : coloured
 }
 
 // see T-236, FR-041, CV-9
@@ -610,6 +609,7 @@ export function svgFromSchedule(
     ...defsParts,
     ...groundClipped(drawing, [
       ...zoLayer('ZO-7', grid.bandParts),
+      ...zoLayer('ZO-14', overlays.fillParts),
       ...zoLayer('ZO-1', [...figures.planPartsPinned, scrolling(figures.planParts)]),
       ...zoLayer('ZO-1a', [...figures.guidePartsPinned, scrolling(figures.guideParts)]),
       ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),

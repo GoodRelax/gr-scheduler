@@ -41,7 +41,9 @@ export {
   calendarDaysBetween,
   calendarSpanOf,
   compareDays,
+  dayFromSerial,
   dayOf,
+  serial,
   textOfDay,
 } from './calendar-day'
 export type { CalendarDay, CalendarSpan } from './calendar-day'

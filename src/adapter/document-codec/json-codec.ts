@@ -219,6 +219,34 @@ function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedRows } }
 }
 
+// see AT-145..AT-147, AT-148..AT-152
+const ANNOTATION_LOOK_COLUMNS: readonly { readonly collection: string; readonly keys: readonly string[] }[] = [
+  { collection: 'highlightBoxes', keys: ['strokeWidthPx', 'fillColor', 'fillTransparencyPercent'] },
+  {
+    collection: 'commentBoxes',
+    keys: ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+  },
+]
+
+// see FR-019, CP-20
+// WHY: not gated by schemaVersion and not told: null draws what a box drew before the columns existed, so no
+// document of any version looks different and the reader has nothing to correct.
+/** @purity pure */
+function withAnnotationLookColumns(parsed: unknown): unknown {
+  const schedule = isObject(parsed) ? parsed['schedule'] : undefined
+  if (!isObject(parsed) || !isObject(schedule)) return parsed
+  let changedSchedule = schedule
+  for (const { collection, keys } of ANNOTATION_LOOK_COLUMNS) {
+    const rows = schedule[collection]
+    const lacks = (row: unknown): boolean => isObject(row) && keys.some((key) => !(key in row))
+    if (!Array.isArray(rows) || !rows.some(lacks)) continue
+    const filled = rows.map((row: unknown): unknown =>
+      lacks(row) && isObject(row) ? { ...Object.fromEntries(keys.map((key) => [key, null])), ...row } : row)
+    changedSchedule = { ...changedSchedule, [collection]: filled }
+  }
+  return changedSchedule === schedule ? parsed : { ...parsed, schedule: changedSchedule }
+}
+
 // see AT-143
 // WHY: not gated by schemaVersion (AT-143 reads any document without the column), and not in the
 // generated schema, which can state a default but not one read from the document's own carry.
@@ -322,9 +350,9 @@ export function documentFromJson(
   const declared = typeof declaredValue === 'string' ? declaredValue : ''
   const formatVersion = formatVersionReading(declared, greatestKnownSchemaVersion)
 
-  const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(
+  const older = withStopInPlaceOfActualDuration(withSourceFormatOfAnOlderDocument(withAnnotationLookColumns(
     withTaskGroupColumnsOfAnOlderVersion(withOwnSchemaVersion(parsed, greatestKnownSchemaVersion)),
-  ))
+  )))
   const faults: JsonFault[] = olderLengthFaults(older.lengthByTaskIndex)
   collectSchemaFaults(older.shaped, faults)
   const isNewer = formatVersion === 'newerThanKnown'

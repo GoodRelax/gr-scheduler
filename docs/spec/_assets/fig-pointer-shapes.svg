@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 524 944" width="524" height="944" role="img" aria-label="7 pointer kinds (10 glyphs) at actual size and 4x magnification">
-  <title>図 F-025 -- 表 PK（ポインタの形）7 種、実寸と 4 倍</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 524 1588" width="524" height="1588" role="img" aria-label="14 pointer kinds (8 glyphs) at actual size and 4x magnification">
+  <title>図 F-025 -- 表 PK（ポインタの形）14 種、実寸と 4 倍</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
      source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
@@ -64,6 +64,27 @@
   </g>
   <g transform="translate(8 852)">
     <text x="0" y="42" font-size="11">PK-8 てのひら（環境の既定カーソル。描いた図形を持たない）</text>
+  </g>
+  <g transform="translate(8 944)">
+    <text x="0" y="42" font-size="11">PK-10 左右の境目（環境の col-resize）</text>
+  </g>
+  <g transform="translate(8 1036)">
+    <text x="0" y="42" font-size="11">PK-11 上下左右（環境の move）</text>
+  </g>
+  <g transform="translate(8 1128)">
+    <text x="0" y="42" font-size="11">PK-12 左右の辺（環境の ew-resize）</text>
+  </g>
+  <g transform="translate(8 1220)">
+    <text x="0" y="42" font-size="11">PK-13 上下の辺（環境の ns-resize）</text>
+  </g>
+  <g transform="translate(8 1312)">
+    <text x="0" y="42" font-size="11">PK-14 左上と右下の隅（環境の nwse-resize）</text>
+  </g>
+  <g transform="translate(8 1404)">
+    <text x="0" y="42" font-size="11">PK-15 右上と左下の隅（環境の nesw-resize）</text>
+  </g>
+  <g transform="translate(8 1496)">
+    <text x="0" y="42" font-size="11">PK-16 写し（環境の copy）</text>
   </g>
 
 </svg>

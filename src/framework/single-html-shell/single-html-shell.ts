@@ -378,6 +378,7 @@ function boot(): void {
     return {
       preference: loop === null ? startupTheme : loop.themePreference(),
       hue: held.schedule.project.themeHue,
+      monochrome: held.documentSettings.themeMonochrome,
     }
   }
 
