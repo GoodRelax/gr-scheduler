@@ -1,0 +1,20 @@
+18:09:06 run 1 s0 scan 14s MK-1 18.2 / 30.2 MK-2 21.27 / 30.4 in 10.45 seen 66961 -> 66961
+18:09:25 run 1 merged scan 18s MK-1 27.27 / 36.5 MK-2 27.27 / 36.5 in 13.1 seen 262704 -> 262704
+18:09:45 run 1 merged maskregion 20s MK-1 30.2 / 42.4 MK-2 27.37 / 36.5 in 13.65 seen 223443 -> 223482
+18:10:06 run 1 merged permask 21s MK-1 30.45 / 42.2 MK-2 33.37 / 48.4 in 15.9 seen 264841 -> 459629
+18:10:23 run 1 merged nomask 17s MK-1 24.2 / 30.4 MK-2 24.35 / 36.4 in 12.5 seen 231269 -> 226634
+18:10:40 run 1 merged nohalo 16s MK-1 24.2 / 33.33 MK-2 24.2 / 33.33 in 12.2 seen 209051 -> 189859
+18:11:01 run 2 merged permask 21s MK-1 31.83 / 42.5 MK-2 33.33 / 50 in 16.1 seen 278742 -> 457296
+18:11:18 run 2 merged nomask 17s MK-1 24.2 / 34.87 MK-2 24.3 / 36.4 in 12.6 seen 222598 -> 218323
+18:11:35 run 2 merged nohalo 17s MK-1 24.2 / 30.4 MK-2 24.2 / 33.33 in 12 seen 209051 -> 189859
+18:11:50 run 2 s0 scan 15s MK-1 18.2 / 30.4 MK-2 24.15 / 33.33 in 11 seen 74891 -> 74891
+18:12:11 run 2 merged scan 21s MK-1 30.4 / 42.5 MK-2 30.3 / 39.17 in 13.6 seen 205151 -> 205151
+18:12:31 run 2 merged maskregion 20s MK-1 30.3 / 42.4 MK-2 30.2 / 42.5 in 13.3 seen 228016 -> 228055
+18:13:50 vol run 1 presses 4 scan 21s ok True [] MK-1 18.3 / 30.3 MK-2 20.92 / 33.33 census 504 94910 31
+18:14:10 vol run 1 presses 2 scan 20s ok True [] MK-1 24.3 / 36.4 MK-2 24.3 / 34.97 census 760 143858 47
+18:14:31 vol run 1 presses 4 nohalo 20s ok True [] MK-1 18.2 / 24.4 MK-2 18.27 / 33.33 census 443 82114 0
+18:14:52 vol run 1 presses 0 scan 21s ok True [] MK-1 31.88 / 48.5 MK-2 33.33 / 42.4 census 1612 305231 129
+18:15:12 vol run 2 presses 4 scan 20s ok True [] MK-1 18.2 / 30.3 MK-2 22.65 / 33.33 census 543 102477 35
+18:15:33 vol run 2 presses 2 scan 20s ok True [] MK-1 24.2 / 36.3 MK-2 24.3 / 33.37 census 691 131108 45
+18:15:53 vol run 2 presses 4 nohalo 20s ok True [] MK-1 18.1 / 30.2 MK-2 18.2 / 30.1 census 309 55343 0
+18:16:14 vol run 2 presses 0 scan 21s ok True [] MK-1 31.88 / 48.3 MK-2 33.33 / 42.44 census 1294 242452 103

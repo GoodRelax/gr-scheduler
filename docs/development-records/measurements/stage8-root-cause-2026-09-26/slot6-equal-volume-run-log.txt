@@ -1,0 +1,6 @@
+19:07:31 run 1 stage0 ok True nm [] sha 8460eaa9 scale None all 12.35 / 30.1 MK-1 18.2 / 30.3 MK-2 18.35 / 30.3 MK-7 12.1 / 24.3 MK-6 12 / 12.3 dispatch 15.25
+19:08:18 run 1 build@175 ok True nm [] sha bf503c5b scale 175 all 16.67 / 24.3 MK-1 17.35 / 24.3 MK-2 18.1 / 24.4 MK-7 18.1 / 24.3 MK-6 7.63 / 16.67 dispatch 15.8
+19:09:03 run 2 build@175 ok True nm [] sha bf503c5b scale 175 all 16.67 / 24.2 MK-1 16.67 / 24.3 MK-2 18.1 / 24.3 MK-7 17.23 / 19.63 MK-6 7.53 / 16.67 dispatch 20.25
+19:09:46 run 2 stage0 ok True nm [] sha 8460eaa9 scale None all 16.67 / 24.4 MK-1 18.2 / 30.2 MK-2 18.3 / 30.3 MK-7 12.1 / 24.4 MK-6 12.1 / 16.67 dispatch 13.2
+19:10:29 run 3 stage0 ok True nm [] sha 8460eaa9 scale None all 16.67 / 24.4 MK-1 18.2 / 30.3 MK-2 18.3 / 24.4 MK-7 12.1 / 24.3 MK-6 12.05 / 16.67 dispatch 13.65
+19:11:15 run 3 build@175 ok True nm [] sha bf503c5b scale 175 all 16.67 / 24.3 MK-1 16.67 / 24.4 MK-2 18.2 / 24.3 MK-7 18.1 / 24.3 MK-6 7.63 / 16.67 dispatch 12.1

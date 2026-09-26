@@ -1,4 +1,5 @@
 excess-lines=6261 excess-branches=674
+# PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
 # PRUNED row-tree-entrances.ts::wouldMoveARow (held 52/23) on 2026-09-26 under JDG-520: CR-570 moved its writes to treeStateWritesFor and it fell below the band.
 # LOWERED 6269/674 -> 6261/674 on 2026-09-25 under JDG-520: CR-565 shrank documentFromJson, modalElement and boot; measured on f1b93b9b.
 # LOWERED 6644/674 -> 6269/674 on 2026-09-25 under JDG-520 / JDG-547 / JDG-565: CR-554 wave F4 moved the document file flow out of frameLoop (1872 -> 1440); openDocumentIntoHold -> document-file-flow.ts 159/32. NEW HELD documentFileFlowOf 107/0 (the (M) factory owning the four settle/saved lets and the questions that write them; JDG-565 raise with the reason, for the user to confirm on return).
@@ -93,7 +94,6 @@ HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=149 branc
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=123 branches=10
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=64 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
-HELD src/framework/single-html-shell/row-band-ceiling-cache.ts::rowBandCeilingCacheOf lines=58 branches=0
 HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=202 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
 HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6

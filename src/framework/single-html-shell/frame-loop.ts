@@ -2021,8 +2021,8 @@ export function frameLoop(
     // reading of one input and every later notch reuse the walk (DFC-610).
     return {
       ...withoutCeiling,
-      rowBandCeiling: (drawnZoomX: number, upTo: number): number =>
-        bandCeilingFor(withoutCeiling, drawnZoomX, upTo),
+      rowBandCeiling: (drawnZoomX: number, upTo: number, enough?: number): number =>
+        bandCeilingFor(withoutCeiling, drawnZoomX, upTo, enough),
     }
   }
 

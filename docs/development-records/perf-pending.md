@@ -6,6 +6,7 @@
 ⭐ **測って緑なら、その行を消す** —— 消すのは、`measurements/performance-runs.md` に走行の 1 行を足したのと同じ commit である（`PW-4`）。
 ⛔ **赤なら消さない。** 利用者を呼ぶ（`PW-4` の ①）。
 ⚠️ 行を求める機械検査は `CR-573` の 5 節が足す（波 3b）。それまでは、着地させる者が手で足す。
+⭐ 合否は `JDG-726` の同じ量の絵での段 0 との比べである（04 の `PW-3` の ①）。`tests/nfr` の絶対値の門は記録であって合否ではない（`PND-443`）。
 
 ## 一覧
 
@@ -38,3 +39,4 @@
 | 23 | `CR-582`（行の最小高さ。仕様の波 W5 —— 生成器が大きさの群と表示語を書き換えた。描く手順はコードの段 A と持ち場 L3） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
 | 24 | `CR-586`（取り込んだマイルストーンと行の色。仕様の波 W5） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
 | 25 | `CR-583`（マイルストーンの形。仕様の波 W5 —— 生成器が `milestone-shapes.json` を刷った。描く手順はコードの持ち場 L1） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/milestone-shapes.json` |
+| 26 | `DFC-1130`（`IN-7` に合わせる、`JDG-728`。変更要求ではない） | ブランチ `dfc-1130-in7`（合流の sha は調整役が書く） | `src/framework/dom-screen-surface/dom-screen-surface.ts` —— 描き直しの呼び出しの中で、ツールチップの層を作り直す条件を狭めた（描画。調整役の読み）。次の束で `PW-3` の ① を測る |

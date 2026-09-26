@@ -1,0 +1,58 @@
+16:07:46 slot start
+16:08:27 A run 1 s0 exit 0 41s ok True sha 8460eaa9 MK-1 18.2 /in 10.3 MK-2 18.4 /in 9.8 MK-7 12.1 MK-6 6.2 dispatch 10.2 nm 0 
+16:09:46 A run 1 pre exit 0 79s ok True sha 675f1711 MK-1 90.9 /in 14.25 MK-2 84.9 /in 12.85 MK-7 24.1 MK-6 12 dispatch 18.1 nm 0 
+16:11:21 A run 1 fix exit 0 95s ok True sha 835aa023 MK-1 90.8 /in 13.3 MK-2 89.18 /in 12.2 MK-7 103.05 MK-6 12 dispatch 14.1 nm 0 
+16:12:38 A run 2 fix exit 0 77s ok True sha 835aa023 MK-1 90.7 /in 14.4 MK-2 84.9 /in 12.25 MK-7 18.2 MK-6 12.1 dispatch 15.65 nm 0 
+16:13:19 A run 2 s0 exit 0 41s ok True sha 8460eaa9 MK-1 18.2 /in 10.2 MK-2 21.17 /in 9.8 MK-7 12.1 MK-6 12 dispatch 8.25 nm 0 
+16:14:34 A run 2 pre exit 0 75s ok True sha 675f1711 MK-1 90.85 /in 13.95 MK-2 84.7 /in 12.1 MK-7 18 MK-6 12 dispatch 21.4 nm 0 
+16:16:23 A run 3 pre exit 0 108s ok True sha 675f1711 MK-1 100 /in 13.8 MK-2 96.9 /in 12.9 MK-7 144.6 MK-6 12.1 dispatch 20.55 nm 0 
+16:17:51 A run 3 fix exit 0 88s ok True sha 835aa023 MK-1 90.8 /in 13.7 MK-2 90.9 /in 12.4 MK-7 42.5 MK-6 12.2 dispatch 9.55 nm 0 
+16:18:37 A run 3 s0 exit 0 46s ok True sha 8460eaa9 MK-1 30.2 /in 13.95 MK-2 24.1 /in 10.3 MK-7 18.3 MK-6 12 dispatch 10.15 nm 0 
+16:18:54 B run 1 s0 scan exit 0 16s ok True sha 8460eaa9 MK-1 19.68 /in 11.7 MK-2 24.2 /in 11.4 MK-7 None MK-6 None dispatch None nm 0 
+16:19:44 B run 1 fix scan exit 0 50s ok True sha 835aa023 MK-1 96.9 /in 15.95 MK-2 94.54 /in 13.6 MK-7 None MK-6 None dispatch None nm 0 
+16:20:03 B run 1 fix nomask exit 0 19s ok True sha 835aa023 MK-1 30.2 /in 14.5 MK-2 30.17 /in 12.6 MK-7 None MK-6 None dispatch None nm 0 
+16:20:54 B run 1 fix nofont exit 0 51s ok True sha 835aa023 MK-1 96.8 /in 14.4 MK-2 100 /in 14.65 MK-7 None MK-6 None dispatch None nm 0 
+16:21:44 B run 1 fix nohalo exit 0 50s ok True sha 835aa023 MK-1 90.9 /in 14.9 MK-2 96.9 /in 14.1 MK-7 None MK-6 None dispatch None nm 0 
+16:22:03 B run 1 fix nomask+nofont+nohalo exit 0 19s ok True sha 835aa023 MK-1 24.35 /in 13.55 MK-2 27.27 /in 12.4 MK-7 None MK-6 None dispatch None nm 0 
+16:22:21 B run 2 fix nomask exit 0 18s ok True sha 835aa023 MK-1 24.3 /in 13.45 MK-2 30.2 /in 12.5 MK-7 None MK-6 None dispatch None nm 0 
+16:23:11 B run 2 fix nofont exit 0 49s ok True sha 835aa023 MK-1 90.8 /in 14.3 MK-2 90.9 /in 12.2 MK-7 None MK-6 None dispatch None nm 0 
+16:24:01 B run 2 fix nohalo exit 0 50s ok True sha 835aa023 MK-1 94.05 /in 17.15 MK-2 86.45 /in 12.1 MK-7 None MK-6 None dispatch None nm 0 
+16:24:18 B run 2 fix nomask+nofont+nohalo exit 0 17s ok True sha 835aa023 MK-1 24.2 /in 12.5 MK-2 24.3 /in 11.6 MK-7 None MK-6 None dispatch None nm 0 
+16:24:33 B run 2 s0 scan exit 0 15s ok True sha 8460eaa9 MK-1 18.17 /in 10.5 MK-2 24.1 /in 10.2 MK-7 None MK-6 None dispatch None nm 0 
+16:25:24 B run 2 fix scan exit 0 51s ok True sha 835aa023 MK-1 96.85 /in 12.8 MK-2 91.64 /in 12.7 MK-7 None MK-6 None dispatch None nm 0 
+16:26:13 B run 3 fix nohalo exit 0 48s ok True sha 835aa023 MK-1 90.7 /in 13.9 MK-2 84.95 /in 12.85 MK-7 None MK-6 None dispatch None nm 0 
+16:26:29 B run 3 fix nomask+nofont+nohalo exit 0 16s ok True sha 835aa023 MK-1 24.2 /in 12 MK-2 24.2 /in 11.25 MK-7 None MK-6 None dispatch None nm 0 
+16:26:44 B run 3 s0 scan exit 0 15s ok True sha 8460eaa9 MK-1 18.2 /in 10.4 MK-2 19.63 /in 9.9 MK-7 None MK-6 None dispatch None nm 0 
+16:27:34 B run 3 fix scan exit 0 50s ok True sha 835aa023 MK-1 90.9 /in 13.8 MK-2 90.9 /in 12.35 MK-7 None MK-6 None dispatch None nm 0 
+16:27:50 B run 3 fix nomask exit 0 16s ok True sha 835aa023 MK-1 24.2 /in 11.8 MK-2 24.3 /in 11.3 MK-7 None MK-6 None dispatch None nm 0 
+16:28:41 B run 3 fix nofont exit 0 49s ok True sha 835aa023 MK-1 90.8 /in 13.4 MK-2 100 /in 12.25 MK-7 None MK-6 None dispatch None nm 0 
+16:29:10 D bisect cdca63ac exit 0 29s ok True sha 016a898a MK-1 54.5 /in 13.5 MK-2 52.9 /in 13.15 MK-7 None MK-6 None dispatch None nm 0  census 2025 297306 74 0
+16:29:28 D bisect 1403ee62 exit 0 18s ok True sha 600db619 MK-1 24.25 /in 10.9 MK-2 24.4 /in 10.4 MK-7 None MK-6 None dispatch None nm 0  census 1477 247131 62 235
+16:29:47 D bisect fde16e62 exit 0 18s ok True sha 72f0a754 MK-1 24.3 /in 11.7 MK-2 27.24 /in 10.6 MK-7 None MK-6 None dispatch None nm 0  census 1321 223712 55 213
+16:30:05 D bisect 006aefbc exit 0 18s ok True sha 69168197 MK-1 24.3 /in 11.6 MK-2 30.15 /in 10.9 MK-7 None MK-6 None dispatch None nm 0  census 1590 265051 65 245
+16:30:24 D bisect 888185ef exit 0 19s ok True sha 67c656ab MK-1 24.3 /in 12.45 MK-2 28.83 /in 11.6 MK-7 None MK-6 None dispatch None nm 0  census 1609 270578 78 241
+16:30:43 D bisect 59eac991 exit 0 19s ok True sha 372f686a MK-1 24.3 /in 13 MK-2 30.2 /in 11.9 MK-7 None MK-6 None dispatch None nm 0  census 1450 252456 75 223
+16:31:29 D bisect 989c7572 exit 0 45s ok True sha 275e24fa MK-1 90.8 /in 19.05 MK-2 84.75 /in 17.5 MK-7 None MK-6 None dispatch None nm 0  census 819 153829 55 177
+16:32:15 D bisect d99cb255 exit 0 46s ok True sha 32683467 MK-1 85 /in 19.2 MK-2 84.8 /in 17.2 MK-7 None MK-6 None dispatch None nm 0  census 1630 309598 126 311
+16:33:04 D bisect 2878e502 exit 0 49s ok True sha 97ee9405 MK-1 91.1 /in 27.55 MK-2 83.33 /in 30.6 MK-7 None MK-6 None dispatch None nm 0  census 832 158874 51 205
+16:33:15 C trace s0 scan exit 0 10s ok True sha 8460eaa9 MK-1 18.2 /in 10.55 MK-2 35.6 /in 15.7 MK-7 None MK-6 None dispatch None nm 0 
+16:33:32 C trace fix scan exit 0 17s ok True sha 835aa023 MK-1 92.3 /in 21.7 MK-2 54.5 /in 19.6 MK-7 None MK-6 None dispatch None nm 0 
+16:33:44 C trace fix nomask exit 0 11s ok True sha 835aa023 MK-1 24.3 /in 12.35 MK-2 42.4 /in 17.6 MK-7 None MK-6 None dispatch None nm 0 
+16:33:44 slot end
+s0 ok True MK-1 24.3 /in 16.2 MK-2 36.2 MK-7 24.4 MK-6 12.2 dispatch 10.6
+pre ok True MK-1 95.46 /in 14.4 MK-2 92.39 MK-7 24.2 MK-6 7.48 dispatch 21.15
+fix ok True MK-1 93.8 /in 14.95 MK-2 90.7 MK-7 16.67 MK-6 12.1 dispatch 13.75
+7c195c50 MK-1 36.05 MK-2 24.4 census 1096 69 284 1
+0d9e7424 MK-1 24.3 MK-2 29.4 census 1270 88 323 1
+a68f9fda MK-1 24.2 MK-2 25.88 census 1287 80 311 1
+39f5a8bb MK-1 72.5 MK-2 72.6 census 1166 78 300 1
+d4d87a08 MK-1 27.27 MK-2 30.4 census 888 46 252 1
+c5abb35c none MK-1 72.64 MK-2 71.17 census 1186 79 305
+a68f9fda none MK-1 24.3 MK-2 24.4 census 1005 66 267
+39f5a8bb none MK-1 66.7 MK-2 66.7 census 1042 68 279
+c5abb35c none MK-1 66.7 MK-2 66.66 census 1114 70 281
+39f5a8bb nomask MK-1 24.4 MK-2 33.33 census 1199 0 303
+F1 fix noground MK-1 107.54 MK-2 102.8 seen {'calls': 509, 'before': 240700, 'after': 240659}
+F1 fix scan MK-1 96.95 MK-2 100 seen {'calls': 494, 'before': 306205, 'after': 306205}
+F2 fix noground MK-1 103 MK-2 100 seen {'calls': 494, 'before': 226242, 'after': 226201}
+F2 fix scan MK-1 91 MK-2 91.1 seen {'calls': 505, 'before': 248053, 'after': 248053}

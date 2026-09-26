@@ -2,7 +2,6 @@
 // Run from the repository root after `npm run build`:
 //   node tools/probe/examples/lm-19-frame-time-baseline.mjs                      (production defaults)
 //   node tools/probe/examples/lm-19-frame-time-baseline.mjs --tasks 50 --samples 30   (smoke test only)
-//   node tools/probe/examples/lm-19-frame-time-baseline.mjs --display-scale 175       (JDG-726: equal volume)
 // Prints one JSON object on stdout. Exit 0 = measured, 1 = could not be measured, 2 = bad arguments or environment.
 
 // ---------------------------------------------------------------------------
@@ -42,12 +41,11 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
-const ROOT = path.resolve(HERE, '../../..')
+const ROOT = path.resolve(process.env.TREE)
 const BUILD = path.join(ROOT, 'dist', 'index.html')
 const NFR_TEST = path.join(ROOT, 'tests', 'nfr', 'nfr-002-003-frame-time-is-the-interval.test.ts')
 const DRAWN_SVG = '[data-role="Schedule Canvas"] svg'
 const AGENT_API_ENTRANCE = 'IC-20'
-const DISPLAY_SCALE_UP = 'IC-105'
 
 // ------------------------------------------------------------------ arguments
 
@@ -59,7 +57,6 @@ const DEFAULTS = {
   height: 1080,
   channel: 'msedge', // MC-5, as tests/system/live-app.ts launches it
   stretchTimeoutMs: 120000,
-  'display-scale': 100, // JDG-726: the build is compared at 175, stage 0 at its default
 }
 
 function fail(code, reason, extra = {}) {
@@ -177,18 +174,6 @@ async function pressEntrance(page, icon) {
   return true
 }
 
-// JDG-726: raise the display scale with IC-105 until its message reads the step asked for.
-async function raiseDisplayScale(page, wanted) {
-  for (let press = 0; press < 12; press += 1) {
-    if (!(await pressEntrance(page, DISPLAY_SCALE_UP))) throw new Error(`${DISPLAY_SCALE_UP} is not there`)
-    const shown = await page.evaluate(() => document.querySelector('[data-scale-message]')?.textContent ?? '')
-    const step = Number(/\d+/.exec(shown)?.[0])
-    if (step === wanted) return step
-    if (step > wanted) break
-  }
-  throw new Error(`the display scale never read ${wanted}%`)
-}
-
 async function openAgentApi(page) {
   if (!(await pressEntrance(page, AGENT_API_ENTRANCE))) return false
   return (await page.evaluate(() => typeof window.grSchedulerAgentApi)) === 'object'
@@ -264,7 +249,6 @@ const conditions = {
   buildSha256: sha256(BUILD),
   screen: { width: args.width, height: args.height },
   tasksRequested: args.tasks,
-  displayScale: args['display-scale'],
   samplesPerStretch: args.samples,
   channel: args.channel,
   cpu: os.cpus()[0]?.model?.trim() ?? null,
@@ -288,6 +272,59 @@ try {
   const context = await browser.newContext({ viewport: { width: args.width, height: args.height } })
   const page = await context.newPage()
   await page.addInitScript(probeSource)
+  const SWAP = process.env.SWAP ?? 'none'
+  await page.addInitScript((variant) => {
+    const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML')
+    const onText = (svg, f) => svg.replace(/<text[^>]*>/g, f)
+    const unwrapGround = (v, perLayer) => {
+      const def = /<clipPath id="(grs-ground-clip-[^"]*)"><rect[^>]*\/><\/clipPath>/.exec(v)
+      if (!def) return v
+      const open = `<g clip-path="url(#${def[1]})">`
+      const at = v.indexOf(open)
+      if (at < 0) return v
+      const tags = /<g\b|<\/g>/g
+      tags.lastIndex = at + open.length
+      let depth = 1; let close = -1; let m
+      while ((m = tags.exec(v))) { depth += m[0] === '</g>' ? -1 : 1; if (depth === 0) { close = m.index; break } }
+      if (close < 0) return v
+      let inner = v.slice(at + open.length, close)
+      if (perLayer) inner = inner.replace(/<g data-zo="/g, `<g clip-path="url(#${def[1]})" data-zo="`)
+      const head = perLayer ? v.slice(0, at) : v.slice(0, def.index) + v.slice(def.index + def[0].length, at)
+      return head + inner + v.slice(close + 4)
+    }
+    const swaps = {
+      none: (v) => v,
+      unwrap: (v) => unwrapGround(v, false),
+      layerclip: (v) => unwrapGround(v, true),
+      cullmask: (v) => {
+        const size = /^<svg[^>]* width="([\d.]+)" height="([\d.]+)"/.exec(v)
+        const W = Number(size[1]); const H = Number(size[2])
+        return v.replace(/<rect x="(-?[\d.]+)" y="(-?[\d.]+)" width="([\d.]+)" height="([\d.]+)" fill="black"[^>]*\/>/g,
+          (all, x, y, w, h) => (+x + +w <= 0 || +x >= W || +y + +h <= 0 || +y >= H ? '' : all))
+      },
+      noground: (v) => v.replace(/ clip-path="url\(#grs-ground-clip-[^)]*\)"/g, ''),
+      scan: (v) => onText(v.replace(/ mask="url\(#NEVER[^)]*\)"/g, ''), (t) => t.replace(/ font-family="NEVER[^"]*"/, '')),
+      nomask: (v) => v.replace(/ mask="url\(#[^)]*\)"/g, ''),
+      nofont: (v) => onText(v, (t) => t.replace(/ font-family="[^"]*"/, '')),
+      nohalo: (v) => onText(v, (t) => t.replace(/ stroke="[^"]*" stroke-width="[^"]*"/, '').replace(' stroke-linejoin="round" paint-order="stroke"', '')),
+      nomaskdefs: (v) => v.replace(/ mask="url\(#[^)]*\)"/g, '').replace(/<mask[\s\S]*?<\/mask>/g, ''),
+    }
+    const chain = variant.split('+').map((k) => swaps[k])
+    window.__swapSeen = { calls: 0, before: 0, after: 0 }
+    Object.defineProperty(Element.prototype, 'innerHTML', {
+      configurable: true,
+      get() { return d.get.call(this) },
+      set(v) {
+        if (typeof v === 'string' && v.startsWith('<svg')) {
+          window.__swapSeen.calls += 1
+          window.__swapSeen.before = v.length
+          for (const f of chain) v = f(v)
+          window.__swapSeen.after = v.length
+        }
+        d.set.call(this, v)
+      },
+    })
+  }, SWAP)
   await page.goto(pathToFileURL(BUILD).href)
   await settle(page)
 
@@ -303,12 +340,6 @@ try {
       throw new Error(`could not bring the document to ${args.tasks} Task (holds ${trimmed.tasks}) ${trimmed.note}`)
     }
     await page.waitForTimeout(900)
-    await settle(page)
-  }
-
-  if (args['display-scale'] !== DEFAULTS['display-scale']) {
-    await raiseDisplayScale(page, args['display-scale'])
-    await page.mouse.move(0, 0)
     await settle(page)
   }
 
@@ -345,11 +376,15 @@ try {
   await page.waitForTimeout(500)
 
   const rounds = {}
+  if (process.env.TRACE) await browser.startTracing(page, { path: process.env.TRACE, categories: ['toplevel', 'devtools.timeline', 'disabled-by-default-devtools.timeline', 'cc', 'gpu', 'viz', 'benchmark', 'input', 'blink', 'skia'] })
   rounds['MK-1 scroll'] = await driveStretch(page, 'MK-1 scroll',
     (r) => burst(cdp, wheels(r, 12, 90, 0)), args.samples)
+  if (process.env.TRACE) await browser.stopTracing()
   rounds['MK-2 zoom'] = await driveStretch(page, 'MK-2 zoom',
     (r) => burst(cdp, wheels(r, 8, 80, CTRL)), args.samples)
 
+  const QUICK = process.env.QUICK === '1'
+  if (!QUICK) {
   await burst(cdp, [
     { type: 'mouseMoved', x: box.x, y: box.y, modifiers: CTRL },
     { type: 'mousePressed', x: box.x, y: box.y, button: 'left', buttons: 1, clickCount: 1, modifiers: CTRL },
@@ -365,6 +400,7 @@ try {
   rounds['MK-6 range select'] = await driveStretch(page, 'MK-6 range select',
     (r) => burst(cdp, path_(r, 0)), args.samples)
   await burst(cdp, [{ type: 'mouseReleased', x: box.x, y: box.y, button: 'left', buttons: 0, clickCount: 1 }])
+  }
   await page.waitForTimeout(300)
 
   // ---- write cost: single Ctrl+wheel notches into a quiet page -------------
@@ -377,7 +413,7 @@ try {
   const writeInside = []
   const writeDispatch = []
   let writesWithoutFrame = 0
-  for (let i = 0; i < args.writes; i += 1) {
+  for (let i = 0; i < (QUICK ? 0 : args.writes); i += 1) {
     await page.waitForTimeout(400)
     const before = await page.evaluate(() => window.__lm19Writes.capture.length)
     await burst(cdp, [{ type: 'mouseWheel', x: box.x, y: box.y, deltaX: 0,
@@ -463,13 +499,21 @@ try {
       writesWithoutFrame,
     },
     notMeasured: [],
+    swap: { variant: SWAP, seen: await page.evaluate(() => window.__swapSeen) },
+    census: await page.evaluate(() => {
+      const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
+      const tags = {}
+      for (const e of svg.querySelectorAll('*')) tags[e.tagName] = (tags[e.tagName] ?? 0) + 1
+      return { total: svg.querySelectorAll('*').length, chars: svg.outerHTML.length, masked: svg.querySelectorAll('[mask]').length,
+        textWithFont: svg.querySelectorAll('text[font-family]').length, textWithHalo: svg.querySelectorAll('text[paint-order]').length, tags }
+    }),
   }
 
   // ---- the run refuses to report a number it did not measure ---------------
   if (tasksMeasured <= 0) result.notMeasured.push(`the document held ${tasksMeasured} Task; nothing of MC-7 was loaded`)
   if (tasksMeasured !== args.tasks) result.notMeasured.push(`asked for ${args.tasks} Task, measured ${tasksMeasured}`)
   for (const s of short) result.notMeasured.push(`stretch too short (MC-8 had no redraws to measure?) -- ${s}`)
-  if (writeInputToRedrawEnd.length === 0 && args.writes > 0) result.notMeasured.push('no write produced a frame')
+  if (!QUICK && writeInputToRedrawEnd.length === 0 && args.writes > 0) result.notMeasured.push('no write produced a frame')
   await context.close()
 } catch (thrown) {
   result = { conditions, notMeasured: [`the run broke: ${String(thrown?.message ?? thrown).slice(0, 400)}`] }
