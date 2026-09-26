@@ -2530,14 +2530,15 @@ class Builder(object):
         """@purity semi-pure-a"""
         out = []
         for row in self.rows:
-            # ⭐ A couple of rows carry a colour and a height of their own, so
-            # FR-042's overrides are exercised. The rest are resolved from the
-            # theme and the number of stacked levels.
+            # ⭐ A couple of rows carry a colour of their own (ROW_PAINT), and
+            # one row carries a height of its own, so FR-042's overrides are
+            # exercised. The rest are resolved from the theme and the number
+            # of stacked levels. DFC-1002: OVERVIEW_ROW used to force height
+            # 64 here for no reason T-226 asks for, drawing it taller than
+            # its natural one-lane height (21.6px) -- removed.
             color = dict(ROW_PAINT).get(row['label'])
             height = None
-            if row['label'] == OVERVIEW_ROW:
-                height = 64
-            elif row['label'] == PHASE_GATE_ROW:
+            if row['label'] == PHASE_GATE_ROW:
                 height = 40
             out.append({
                 'id': row['id'],
