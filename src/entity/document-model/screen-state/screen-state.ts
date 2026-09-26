@@ -56,3 +56,21 @@ export function escapeTarget(context: EscapeContext): EscapeTarget | null {
   if (context.isTooltipStanding === true) return 'tooltip'
   return null
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-333)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-333, FR-151
+export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
+  readonly 'S-430': number
+  readonly 'S-431': number
+  readonly 'S-432': number
+  readonly 'S-433': number
+} = {
+  'S-430': 12,
+  'S-431': 14,
+  'S-432': 16,
+  'S-433': 20,
+}
+// </generated>

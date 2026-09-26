@@ -563,6 +563,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isOnRowArea` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isOnRowArea` | -- | function isOnRowArea(context: InputContext, x: number, y: number): boolean |
 | `isScrollPositionInForce` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isScrollPositionInForce` | -- | function isScrollPositionInForce( context: InputContext, to: Extract<DocumentCommand, { kind: 'setScrollPosition' }>, ): boolean |
 | `isSingleCharacterKey` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isSingleCharacterKey` | -- | function isSingleCharacterKey(key: string): boolean |
+| `isTypedIntoSearchWord` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isTypedIntoSearchWord` | PI-18 | 焦点が `Search Panel` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。 |
 | `KEY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#KEY` | -- | const KEY = |
 | `KeyInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#KeyInput` | -- | interface KeyInput |
 | `milestoneGlyphOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#milestoneGlyphOf` | -- | function milestoneGlyphOf(name: string): TaskMilestoneGlyph \| null |
@@ -1047,6 +1048,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `EscapeContext` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#EscapeContext` | PI-36 | 型。 |
 | `EscapeTarget` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#EscapeTarget` | PI-36 | 型。 |
 | `escapeTarget` | entry | function | `src/entity/document-model/screen-state/screen-state.ts#escapeTarget` | PI-36 | `EscapeContext` だけから、`Esc` が次に消費する段を答える。 |
+| `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/entity/document-model/screen-state/screen-state.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | PI-36 | `Search Panel` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。 |
 | `RememberedActual` | entry | interface | `src/entity/document-model/screen-state/screen-state.ts#RememberedActual` | PI-36 | 型。 |
 
 ## ScreenRenderer (PI-37, `src/adapter/screen-renderer/screen-renderer.ts`)
@@ -1085,7 +1087,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
-| `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | -- | function nextSearchPanelTextSizeStep(step: number): number |
+| `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | PI-37 | `IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`） |
 | `Notice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Notice` | -- | interface Notice |
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| AiExportModal \| ResourceRoster \| ExportChooser \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
@@ -1175,6 +1177,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ROW_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_BAND_SIZES` | -- | const NOT_STORED_ROW_BAND_SIZES: |
 | `NOT_STORED_ROW_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_ROW_CONTROL_EDGE_SIZES: |
 | `NOT_STORED_ROW_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_GRAB_STRIP_SIZES` | -- | const NOT_STORED_ROW_GRAB_STRIP_SIZES: |
+| `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
+| `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOTICE_DISMISS_KEY_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_DISMISS_KEY_ATTRIBUTE` | -- | const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice' |
 | `pageGroundStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#pageGroundStyle` | PI-38 | 地の色の宣言 |
 | `PAINT` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#PAINT` | -- | const PAINT = |
@@ -1230,14 +1234,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillScreenFrame` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#fillScreenFrame` | -- | function fillScreenFrame( host: Document, layer: HTMLElement, bandLayer: HTMLElement, frame: ScreenFrame, anchors: Map<string, HTMLElement>, ): void |
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
 | `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'rowTitlePanel' \| 'propertiesPanel', ): ScreenRect \| null |
-| `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): void |
+| `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): boolean |
+| `pinFixedColumns` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#pinFixedColumns` | -- | function pinFixedColumns(tableBox: Element): void |
 | `SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | -- | const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box' |
 | `SEARCH_JUMP_TASK_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_TASK_ATTRIBUTE` | -- | const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task' |
 | `SEARCH_PANEL_GRAB_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_PANEL_GRAB_ATTRIBUTE` | -- | const SEARCH_PANEL_GRAB_ATTRIBUTE = 'data-search-panel-grab' |
 | `SEARCH_WORD_FIELD_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_FIELD_ATTRIBUTE` | -- | const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word' |
+| `SEARCH_WORD_ROW` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_ROW` | -- | const SEARCH_WORD_ROW = 'SV-2' |
 | `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf( view: SearchPanelView, defaultRatio: { readonly width: number; readonly height: number }, ): ScreenRect |
 | `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: SearchPanelView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
 | `searchPanelFontPxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelFontPxOf` | -- | function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number |
+| `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement) |
 | `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: SearchPanelView, fontPx: number): HTMLElement |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
 | `showDualCursorReadout` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showDualCursorReadout` | -- | function showDualCursorReadout( host: Document, layer: HTMLElement, readout: ScreenView['dualCursorReadout'], ): void |
@@ -1251,7 +1258,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `advanceScreenSession` | entry | function | `src/use-case/advance-screen-session/advance-screen-session.ts#advanceScreenSession` | PI-39 | 1 段進める。 |
 | `ArmKind` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmKind` | PI-39 | 型。 |
 | `emptyScreenSession` | entry | const | `src/use-case/advance-screen-session/advance-screen-session.ts#emptyScreenSession` | PI-39 | 初期の状態。 |
-| `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | -- | const emptySearchPanelSession: SearchPanelSession = |
+| `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | PI-39 | `SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定 |
 | `FileFlowImportAnswer` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowImportAnswer` | PI-39 | 型。 |
 | `FileFlowOpenRoute` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenRoute` | PI-39 | 型。 |
 | `FileFlowOwedAction` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOwedAction` | PI-39 | 型。 |
@@ -1265,11 +1272,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
 | `ScreenValues` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValues` | PI-39 | 型。 |
 | `ScreenValuesEvent` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEvent` | PI-39 | 型。 |
-| `SEARCH_PANEL_TEXT_SIZE_ROWS` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#SEARCH_PANEL_TEXT_SIZE_ROWS` | -- | const SEARCH_PANEL_TEXT_SIZE_ROWS = ['S-430', 'S-431', 'S-432', 'S-433'] as const |
+| `SEARCH_PANEL_TEXT_SIZE_ROWS` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#SEARCH_PANEL_TEXT_SIZE_ROWS` | PI-39 | 表 T-333 の行 ID を表の上からの順に並べたもの。 |
 | `SearchColumn` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchColumn` | -- | type SearchColumn = string |
 | `SearchColumnFilter` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchColumnFilter` | -- | interface SearchColumnFilter |
 | `SearchPanelSession` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelSession` | PI-39 | 型。 |
-| `SearchPanelTextSizeRow` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelTextSizeRow` | -- | type SearchPanelTextSizeRow = (typeof SEARCH_PANEL_TEXT_SIZE_ROWS)[number] |
+| `SearchPanelTextSizeRow` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelTextSizeRow` | -- | type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES |
 | `SearchSort` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchSort` | -- | interface SearchSort |
 | `SearchTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchTable` | -- | type SearchTable = 'tasks' \| 'commentBoxes' |
 | `SessionEffect` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEffect` | PI-39 | 型。 |
@@ -1395,4 +1402,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 688 name(s) leave through a public entry (217 of them published by table T-064), 507 more are exported by a file and not by its entry.
+Totals: 692 name(s) leave through a public entry (222 of them published by table T-064), 510 more are exported by a file and not by its entry.

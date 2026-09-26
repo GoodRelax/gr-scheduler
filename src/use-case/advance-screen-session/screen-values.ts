@@ -4,9 +4,10 @@
 // @purity    pure
 // Generated region below the carried-value types: docs/spec/_source/state-machines.json. Do not edit by hand; npm run gen.
 
-import type {
-  EscapeTarget,
-  RememberedActual,
+import {
+  NOT_STORED_SEARCH_PANEL_FONT_SIZES,
+  type EscapeTarget,
+  type RememberedActual,
 } from '../../entity/document-model/screen-state/screen-state'
 import { emptySelection, type Selection } from '../../entity/document-model/selection/selection'
 import type { DocumentCommand } from '../edit-document/edit-document'
@@ -67,11 +68,13 @@ export interface SearchPanelSession {
   readonly textSizeStep: number
 }
 
-// see T-333, S-429
-// TRAP: table T-333 top down, by hand; a row added there reaches no step here until it is added.
-export const SEARCH_PANEL_TEXT_SIZE_ROWS = ['S-430', 'S-431', 'S-432', 'S-433'] as const
+export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
 
-export type SearchPanelTextSizeRow = (typeof SEARCH_PANEL_TEXT_SIZE_ROWS)[number]
+// see T-333, S-429
+// WHY: a step is a row's place in table T-333, so the rows are read in the table's order.
+export const SEARCH_PANEL_TEXT_SIZE_ROWS = Object.keys(
+  NOT_STORED_SEARCH_PANEL_FONT_SIZES,
+) as readonly SearchPanelTextSizeRow[]
 
 const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
 

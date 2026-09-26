@@ -1349,8 +1349,8 @@ NOT_STORED_TARGETS = {
     # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
     # the roster's, its sibling floating surface. S-423 .. S-428 hold no value
     # yet (the table says so), so they join a group only when a later change
-    # request gives them one. WARNING: until the code wave imports it, check
-    # 30 reports an exported copy nobody imports.
+    # request gives them one. `dom-screen-surface.ts` reads it where it places
+    # the panel (searchPanelBoxOf).
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
@@ -1968,6 +1968,9 @@ def search_panel_font_sizes_block():
     The four text sizes the search panel's step (S-429) chooses among. Their
     names (`searchPanelFontSizes[0]` ..) are not English keys, so
     SETTINGS_CONSTANTS passes them over; this constant carries them instead.
+    Printed into two units: `dom-screen-surface.ts` reads the px it draws,
+    `screen-state.ts` hands the rows' order to the use case (a step is a
+    row's place in it).
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-333']
@@ -2627,6 +2630,15 @@ TARGETS = [
     (os.path.join(MODEL, 'edit-history', 'edit-history.ts'),
      lambda _erd: not_stored_block('NOT_STORED_LIMITS'),
      ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-571: table T-333 a second time, in the unit of the values the screen
+    # uses and the document does not keep. The search panel's step (S-429) is
+    # the place of a row in this table, and the use case that seats the step
+    # can reach this unit and not `dom-screen-surface.ts`, which draws the px.
+    # ⛔ Not a region of `screen-values.ts`: that unit's one region belongs to
+    # tools/generate_state_machine_types.py, and both use the same markers.
+    (os.path.join(MODEL, 'screen-state', 'screen-state.ts'),
+     lambda _erd: search_panel_font_sizes_block(),
+     ['docs/spec/_source/settings.json (table T-333)']),
     # ⭐ The name label's lift, in the unit that decides where the label goes.
     # The label column of table T-012 is what chooses whether the gap applies.
     # ⭐⭐ AND S-180 BESIDE IT, BECAUSE THE DRAWN MARK IS READ TWICE. Table
@@ -3046,6 +3058,9 @@ PUBLISHED_READ_BY_SRC = {
     'src/entity/document-model/edit-history/edit-history.ts': (
         'NOT_STORED_LIMITS',
     ),
+    'src/entity/document-model/screen-state/screen-state.ts': (
+        'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
+    ),
     'src/entity/document-model/schedule/schedule-entities.ts': (
         'COLUMN_DEFAULTS',
         'COLUMN_SHAPES',
@@ -3073,6 +3088,8 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ROW_BAND_SIZES',
         'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
         'NOT_STORED_ROW_GRAB_STRIP_SIZES',
+        'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
+        'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (

@@ -69,6 +69,7 @@ import {
 import {
   advanceScreenSession,
   emptyScreenSession,
+  emptySearchPanelSession,
   type FileFlowImportAnswer,
   type FileFlowOpenRoute,
   type FileFlowOwedAction,
@@ -82,6 +83,7 @@ import {
   type ScreenSession,
   type ScreenValues,
   type ScreenValuesEvent,
+  type SearchPanelSession,
   type SessionEffect,
   type SessionEvent,
   type StandingNotice,
@@ -111,6 +113,7 @@ import {
 import {
   commandFromInput,
   isCombo,
+  isTypedIntoSearchWord,
   pressRowOf,
   screenEventFromInput,
   selectionFromInput,
@@ -126,6 +129,7 @@ import {
   DEFAULT_ROW_NAME,
   dismissKeyOf,
   horizontalWholeOf,
+  nextSearchPanelTextSizeStep,
   rulerWeekdayWords,
   screenViewFromRegions,
   scrollExtentOf,
@@ -372,6 +376,16 @@ const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
 
 const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
+
+// see U-64, FR-151
+const SEARCH_PANEL_SURFACE = 'Search Panel'
+
+// see SV-2
+const SEARCH_WORD_ROW = 'SV-2'
+
+const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
+const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
+const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
 
 const AI_EXPORT_MODAL_SURFACE = 'AI Export Modal'
 
@@ -778,6 +792,7 @@ interface ScreenViewReadingsTaken {
   readonly notices: readonly RaisedNotice[]
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  readonly searchPanel?: SearchPanelSession
 }
 
 // see PI-37, SF-5, SF-10
@@ -1019,6 +1034,7 @@ interface ScreenEffectHands {
   readonly beginInteractionRecord: () => void
   readonly handInteractionRecordToClipboard: () => void
   readonly storeAgentApiEnabling: () => void
+  readonly focusSearchWord: () => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1038,7 +1054,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     storeFixedDate2: () => undefined,
     storeClearedDualCursor: () => undefined,
     seedHelpLanguage: () => undefined,
-    focusSearchWord: () => undefined,
+    focusSearchWord: () => hands.focusSearchWord(),
     // DEVIATION: spec says this effect writes the step (T-280); here GA-18's action does, after the press drops (DFC-708)
     writeProgressStep: () => undefined,
     askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
@@ -1112,6 +1128,29 @@ export function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment
 /** @purity pure */
 export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
+}
+
+// see SV-3, SV-16, IC-127
+/** @purity pure */
+function searchPanelAfterEntry(held: SearchPanelSession, entry: IconId): SearchPanelSession | null {
+  if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
+  if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
+  if (entry !== SEARCH_TEXT_SIZE_ENTRY) return null
+  return { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }
+}
+
+// see SV-15, MK-10
+/** @purity semi-pure-b */
+function isOnSearchPanelBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+  if (input.kind === 'key' || surface === undefined) return false
+  const on = surface.readScreenPartAt(input.x, input.y)
+  return on?.part === SEARCH_PANEL_SURFACE && (input.kind === 'wheel' || on.entry === null)
+}
+
+// see IN-5a, SV-5
+/** @purity pure */
+function pickedObjectsOf(input: HumanInput, context: InputContext): Selection {
+  return isTypedIntoSearchWord(input, context) ? context.selection : selectionFromInput(input, context)
 }
 
 // see IN-1, IN-1a
@@ -1408,6 +1447,10 @@ export function frameLoop(
   let heldPropertyPanelWidth: number | null = null
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
+  // see S-419, S-420, S-429
+  // WHY: a frame value like the palette's corner; the panel's values are never saved (FR-151).
+  let searchPanelHeld: SearchPanelSession = emptySearchPanelSession
+  let isSearchWordFocusOwed = false
   let rowGrabbedAt: GrabbedRowPlace | null = null
   // STOP: spec does not decide where the chosen row set is held. Looked in FR-085, FR-042, SL-1
   // @provisional PND-142
@@ -1548,6 +1591,7 @@ export function frameLoop(
     beginInteractionRecord,
     handInteractionRecordToClipboard,
     storeAgentApiEnabling,
+    focusSearchWord: () => (isSearchWordFocusOwed = true),
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
@@ -1692,12 +1736,17 @@ export function frameLoop(
           notices: raisedNoticesOf(session),
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
+          searchPanel: searchPanelHeld,
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
     screen.surface.showScreenView(screenView)
     // TRAP: only after showScreenView; the field it focuses does not exist before the draw.
     focusWantedField(screen.focusPropertyField)
+    if (isSearchWordFocusOwed) {
+      isSearchWordFocusOwed = false
+      screen.focusPropertyField?.(SEARCH_WORD_ROW)
+    }
     drainFieldEditNotices(hands, values)
     // WHY: recorded once the focus is placed, so IR-1 reads where this frame left it.
     recordFrame(hands, interactionRecorder, drawnSvg, layout)
@@ -2082,6 +2131,7 @@ export function frameLoop(
       pressed,
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
+      isSearchWordFocused: screen?.readFocusPosition?.() === SEARCH_WORD_ROW,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnRowGroupIds: drawnRowBoxes.map((one) => one.groupId),
@@ -2211,6 +2261,11 @@ export function frameLoop(
       }
       // TRAP: must stay false so the press still closes the surface (IN-4).
       return false
+    }
+    const panelAfter = searchPanelAfterEntry(searchPanelHeld, entry)
+    if (panelAfter !== null) {
+      searchPanelHeld = panelAfter
+      return true
     }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
       const language = displayLanguageIn(session) === 'ja' ? 'en' : 'ja'
@@ -2576,6 +2631,11 @@ export function frameLoop(
     const isNoticeStandingOnArrival = spendNoticeRungFirst(input, frame)
 
     const didSettleFieldEntry = spendFieldCommit(hands, frame)
+    // WHY: the wheel scrolls the panel's table and leaves the chart still (SV-15).
+    if (input.kind === 'wheel' && isOnSearchPanelBody(input, screen?.surface)) {
+      recordLine(hands, interactionRecorder, 'done', 'spent=searchPanelWheel')
+      return
+    }
 
     const partBefore = partUnderPointer
     const grabBefore = grabUnderPointer
@@ -2627,7 +2687,7 @@ export function frameLoop(
       isPropertiesPanelOnScreen(),
       isTooltipStanding,
     )
-    const pickedObjects = selectionFromInput(input, context)
+    const pickedObjects = pickedObjectsOf(input, context)
     const hasChoiceMoved = pickedObjects !== context.selection
     if (hasChoiceMoved) {
       sendToSession({ type: 'objectsPicked', pickedObjects }, frame)
@@ -2749,6 +2809,7 @@ export function frameLoop(
       ) {
         return false
       }
+      if (isOnSearchPanelBody(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
       return commandFromInput(input, context).isBrowserDefaultStopped
     },

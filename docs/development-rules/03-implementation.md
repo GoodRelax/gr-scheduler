@@ -91,7 +91,7 @@ NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの�
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさ（`S-421` / `S-422`、`CR-571`）
-NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）
+NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白（`S-225` / `S-226`）
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）

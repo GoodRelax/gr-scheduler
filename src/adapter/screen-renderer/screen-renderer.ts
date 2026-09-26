@@ -14,7 +14,11 @@ import type {
   ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  emptySearchPanelSession,
+  type ScreenSession,
+  type SearchPanelSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
 import { commandPaletteFromSession } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
@@ -31,6 +35,7 @@ export const DEFAULT_ROW_NAME: string =
 import { openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
+import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 export { nextSearchPanelTextSizeStep, searchPanelFromSession } from './search-panel'
 export type { SearchPanelShown, SearchPanelView } from './search-panel'
 
@@ -450,6 +455,8 @@ export interface ScreenView {
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
+  // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
+  readonly searchPanel?: SearchPanelView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
@@ -505,6 +512,8 @@ export interface ScreenViewReadings {
   readonly scrollExtent: ScrollExtent
   readonly canUndo?: boolean
   readonly canRedo?: boolean
+  // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
+  readonly searchPanel?: SearchPanelSession
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built
@@ -547,6 +556,12 @@ export function screenViewFromRegions(
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings),
+    searchPanel: searchPanelFromSession(
+      session,
+      readings.searchPanel ?? emptySearchPanelSession,
+      schedule,
+      regions.scheduleCanvas,
+    ),
   }
 
   const echo = session.screen.scaleMessageDisplayState

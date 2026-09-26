@@ -26,6 +26,7 @@ import {
   isCombo,
   isOnRowArea,
   isSingleCharacterKey,
+  isTypedIntoSearchWord,
   pressRowOf,
   rememberedActualIn,
   type InputContext,
@@ -40,6 +41,12 @@ const EXPORT_CHOOSER = 'Export Chooser'
 
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
 const PROPERTIES_PANEL = 'Properties Panel'
+
+// see U-64, S-99g
+// WHY: not an open surface either (FR-151): IC-52 on it closes the panel, never the surface.
+const SEARCH_PANEL = 'Search Panel'
+
+const SEARCH_ENTRY_PRESSED: ScreenValuesEvent = { type: 'searchEntryPressed' }
 
 const PALETTE_TOGGLED: ScreenValuesEvent = { type: 'paletteToggled' }
 
@@ -94,6 +101,16 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
     shapeKind: armed.kind === 'taskShapeArmed' ? armed.shapeKind : null,
     glyph: armed.kind === 'milestoneShapeArmed' ? armed.glyph : null,
   }
+}
+
+// see IC-117, IC-120, IC-121, IC-52, SV-14
+/** @purity pure */
+function searchPanelEventOf(entry: string, part: string): ScreenValuesEvent | null {
+  if (entry === ENTRY.search) return SEARCH_ENTRY_PRESSED
+  if (entry === ENTRY.searchPanelMinimise) return { type: 'searchPanelMinimiseToggled' }
+  if (entry === ENTRY.searchPanelMaximise) return { type: 'searchPanelMaximiseToggled' }
+  const isPanelClose = entry === ENTRY.closeSurface && part === SEARCH_PANEL
+  return isPanelClose ? { type: 'searchPanelClosePressed' } : null
 }
 
 // see FR-039, IC-16, T-280
@@ -151,12 +168,14 @@ function isDrawnAsMilestone(context: InputContext, uid: number): boolean {
   return task !== null && task.milestone === true
 }
 
-// see SK-12, IN-5a, T-280
+// see SK-12, SK-24, IN-5a, T-280
 /** @purity pure */
 function screenEventFromKey(input: KeyInput, context: InputContext): ScreenValuesEvent | null {
   if (isCombo(input.modifiers, true, true, false) && input.key === KEY.e) {
     return surfaceEntered(EXPORT_CHOOSER)
   }
+  const isCtrlOnly = isCombo(input.modifiers, true, false, false)
+  if (isCtrlOnly && input.key === KEY.f) return SEARCH_ENTRY_PRESSED
   if (!isCombo(input.modifiers, false, false, false)) return null
   const isFieldTaking = context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true
   if (isFieldTaking && isSingleCharacterKey(input.key)) return null
@@ -171,6 +190,7 @@ export function screenEventFromInput(
   input: HumanInput,
   context: InputContext,
 ): ScreenValuesEvent | null {
+  if (isTypedIntoSearchWord(input, context)) return null
   if (input.kind === 'key') return screenEventFromKey(input, context)
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   const on = context.pressed === null ? null : context.pressed.on
@@ -180,5 +200,6 @@ export function screenEventFromInput(
   if (on.dividerPanel === 'propertiesPanel' && press !== null) {
     return screenEventFromPanelDivider(input, press, context)
   }
-  return on.entry === null ? null : screenEventFromEntry(on.entry, context)
+  if (on.entry === null) return null
+  return searchPanelEventOf(on.entry, on.part) ?? screenEventFromEntry(on.entry, context)
 }

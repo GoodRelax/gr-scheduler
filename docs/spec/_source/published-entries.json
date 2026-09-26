@@ -1274,6 +1274,15 @@
      }
     },
     {
+     "name": "isTypedIntoSearchWord",
+     "note": {
+      "ja": [
+       "焦点が `Search Panel` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。",
+       "真のキーは、操作にも画面の値の出来事にも選択にもしない"
+      ]
+     }
+    },
+    {
      "name": "SpentEntranceSituation",
      "note": {
       "ja": [
@@ -1841,6 +1850,15 @@
        "覚えるのは画面の値の根（表 T-280）である"
       ]
      }
+    },
+    {
+     "name": "NOT_STORED_SEARCH_PANEL_FONT_SIZES",
+     "note": {
+      "ja": [
+       "`Search Panel` の字の大きさの段（`_assets/tbl-settings.md` の 表 T-333）を行 ID ごとに持つ。",
+       "段（`S-429`）は行の並びの中の位置である —— 並びは表の上からの順"
+      ]
+     }
     }
    ]
   },
@@ -1987,6 +2005,14 @@
        "型。",
        "`Search Panel` の絵の記述（`FR-151` の 表 T-330）。",
        "`DomScreenSurface` が描く"
+      ]
+     }
+    },
+    {
+     "name": "nextSearchPanelTextSizeStep",
+     "note": {
+      "ja": [
+       "`IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`）"
       ]
      }
     },
@@ -2223,6 +2249,23 @@
       "ja": [
        "型。",
        "`Search Panel` の値 —— 語・表・絞り込み・並べ替え・位置・大きさ・字の大きさの段（`FR-151` の 表 T-330、`S-429`）"
+      ]
+     }
+    },
+    {
+     "name": "emptySearchPanelSession",
+     "note": {
+      "ja": [
+       "`SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定"
+      ]
+     }
+    },
+    {
+     "name": "SEARCH_PANEL_TEXT_SIZE_ROWS",
+     "note": {
+      "ja": [
+       "表 T-333 の行 ID を表の上からの順に並べたもの。",
+       "`SearchPanelSession` の字の大きさの段は、この並びの中の位置である"
       ]
      }
     }

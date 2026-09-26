@@ -47,6 +47,7 @@ import {
   placeDialogueField,
 } from './dialogue-field-drawing'
 import { ROSTER_SCROLLER, keepRosterScroll, modalElement } from './open-modals-drawing'
+import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
 
 const UNIT_ROW = 'UF-71'
 
@@ -462,14 +463,14 @@ export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
 
 // see T-337
-// WHY: front to back, exactly the table's row ids; 'UZ-6' waits for the Search Panel (CR-571),
-// so this owner never writes it. z-index comes only from a row's place here (R2.7).
+// WHY: front to back, exactly the table's row ids; z-index comes only from a row's place here (R2.7).
 export const SCREEN_Z_ORDER: readonly string[] = [
   'UZ-1',
   'UZ-2',
   'UZ-3',
   'UZ-4',
   'UZ-5',
+  'UZ-6',
   'UZ-13',
   'UZ-7',
   'UZ-8',
@@ -692,6 +693,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const propertiesPanel = part(host, 'div', ROLE.propertiesPanel, STYLE.hidden)
   const dividerBandLayer = made(host, 'div', STYLE.layer)
   const paletteLayer = made(host, 'div', STYLE.layer)
+  const searchPanelLayer = made(host, 'div', STYLE.layer)
   const dialogueField = part(host, 'div', ROLE.dialogueField, STYLE.hidden)
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
   const dialogueEntry = host.createElement('input')
@@ -708,6 +710,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   markZOrder(confirmationLayer, 'UZ-3')
   markZOrder(noticeLayer, 'UZ-4')
   markZOrder(paletteLayer, 'UZ-5')
+  markZOrder(searchPanelLayer, 'UZ-6')
   markZOrder(modalLayer, 'UZ-13')
   markZOrder(helpLayer, 'UZ-7')
   markZOrder(appHeader, 'UZ-8')
@@ -738,6 +741,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     propertiesPanel,
     dividerBandLayer,
     paletteLayer,
+    searchPanelLayer,
     dialogueField,
     appHeader,
     modalLayer,
@@ -795,6 +799,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const dialogue = dialogueSettlement(dialogueEntry, readAuthor, readClockMs)
 
+  const searchPanel = searchPanelPainter(host, searchPanelLayer)
+
   /** @purity non-pure */
   function placePanels(view: ScreenView): void {
     const titleEdge = panelEdge(view.frame, 'rowTitlePanel')
@@ -834,6 +840,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       notices: described(view.notices),
       confirmation: described(view.confirmation),
       dialogueField: described(view.dialogueField),
+      searchPanel: described(view.searchPanel),
       tooltips: described(view.tooltips),
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
@@ -915,6 +922,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       keepRosterScroll(scrolledBefore, modalLayer.querySelector(ROSTER_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
+    searchPanel.draw(view.searchPanel, changed('searchPanel'), () => anchorsOf('searchPanel'))
     if (changed('notices')) {
       noticeLayer.replaceChildren(...view.notices.map((one) => noticeElement(host, one)))
     }
@@ -1022,7 +1030,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
 
-  wiring.holdFocusPropertyField?.(fieldEditing.focusPropertyField)
+  // see SV-2
+  wiring.holdFocusPropertyField?.((row) =>
+    row === SEARCH_WORD_ROW ? searchPanel.focusWord() : fieldEditing.focusPropertyField(row),
+  )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
 
@@ -1165,7 +1176,7 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 }
 
 // see T-206
-const NOT_STORED_SEARCH_PANEL_SIZES: {
+export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
 } = {
@@ -1174,7 +1185,7 @@ const NOT_STORED_SEARCH_PANEL_SIZES: {
 }
 
 // see T-333, FR-151
-const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
+export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   readonly 'S-430': number
   readonly 'S-431': number
   readonly 'S-432': number

@@ -1,5 +1,5 @@
 // Unit tests for UF-27 `agent-api-endpoint.ts` (the public entry), UF-28
-// `agent-api-members.ts` (the eighteen members) and UF-29 `snapshot-source.ts`
+// `agent-api-members.ts` (the members) and UF-29 `snapshot-source.ts`
 // (the seam declaration) -- table T-075 of docs/spec/05-07-design.md, component
 // `AgentApiEndpoint` (CP-17 of table T-062), published as PI-17 of table T-064.
 //
@@ -14,7 +14,7 @@
 // requirement or a table row, never from the implementation.
 //
 // The rows these cases answer to:
-//   table T-107   the eighteen members: the names, the order, the groups, and
+//   table T-107   the members: the names, the order, the groups, and
 //                 the part-of-speech column that says which two are properties
 //   table T-035   AG-1 the version, AG-2 the optimistic lock, AG-3 atomicity,
 //                 AG-4 the frozen copy, AG-6 which writers wake a watcher,
@@ -101,6 +101,7 @@ import { postDialogueMessage } from '../../src/use-case/post-dialogue-message/po
 // one instead of deciding "closed" a second time. See `exportSceneOf`.
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-renderer'
+import { bare, specTable, unbroken } from '../contract/spec-table'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -108,8 +109,8 @@ import { DEFAULT_ROW_NAME } from '../../src/adapter/screen-renderer/screen-rende
 
 /**
  * Table T-107 of `_assets/tbl-glossary.md`, in the table's own order. `isProperty`
- * is the part-of-speech column: the first two rows are properties, the other
- * sixteen are verb-plus-object calls.
+ * is the part-of-speech column: the first two rows are properties, the others
+ * are verb-plus-object calls.
  */
 const T_107 = [
   { row: 'AM-1', name: 'agentApiVersion', isProperty: true },
@@ -118,6 +119,7 @@ const T_107 = [
   { row: 'AM-4', name: 'readStamp', isProperty: false },
   { row: 'AM-5', name: 'readSelection', isProperty: false },
   { row: 'AM-6', name: 'readDialogueMessages', isProperty: false },
+  { row: 'AM-25', name: 'readSearchRows', isProperty: false },
   { row: 'AM-7', name: 'applyCommands', isProperty: false },
   { row: 'AM-8', name: 'importDocument', isProperty: false },
   { row: 'AM-9', name: 'undoEdit', isProperty: false },
@@ -156,6 +158,11 @@ const T_107 = [
  * absent seam is answered with a value -- and the two rows are exercised
  * against a REAL seam by the shipped-build probe instead.
  */
+// WHY: AM-19 has no member on the surface yet; leaving it out keeps the other rows checked.
+const SURFACE_LACKS: readonly string[] = ['AM-19']
+const PROPERTY = 'プロパティ'
+const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
+
 const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-14', 'AM-15'] as const
 
 /**
@@ -258,6 +265,16 @@ const STARTING_STAMP = {
   settingsUpdatedUtc: '2026-08-19T10:00:00Z',
   fileSavedUtc: null,
 } as const
+
+const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
+
+const OPEN_SCHEDULE: Loose = {
+  ...SMALL_SCHEDULE,
+  taskGroups: [
+    { ...FIRST_GROUP, treeState: 'expanded' },
+    { ...SECOND_GROUP, treeState: 'expanded' },
+  ],
+}
 
 /** The same root with nothing in the schedule: the empty boundary. */
 const EMPTY_SCHEDULE: Loose = {
@@ -622,6 +639,7 @@ function callEveryMember(api: AgentApi): void {
   api.readStamp()
   api.readSelection()
   api.readDialogueMessages()
+  api.readSearchRows('')
   api.applyCommands({ readStamp: api.readStamp(), commands: [RENAME] })
   api.importDocument({ text: '{}' })
   api.undoEdit()
@@ -680,7 +698,7 @@ describe('UF-27 installAgentApi -- FR-065 / PI-17', () => {
 // UF-28 -- the roster. Table T-107.
 // ---------------------------------------------------------------------------
 
-describe('table T-107 -- the roster of eighteen', () => {
+describe('table T-107 -- the roster', () => {
   const api = () => bench().api
 
   it('carries every row of table T-107, spelled as the table spells it', () => {
@@ -698,7 +716,19 @@ describe('table T-107 -- the roster of eighteen', () => {
     }
   })
 
-  it('carries no nineteenth member (PI-17 publishes the roster and nothing beside it)', () => {
+  it('the copy is table T-107 in its own order, names and parts of speech, less AM-19', () => {
+    const table = specTable('T-107').rows.filter((row) => !SURFACE_LACKS.includes(row.id))
+    expect(T_107.map((row) => row.row)).toEqual(table.map((row) => row.id))
+    expect(T_107.map((row) => row.name)).toEqual(table.map((row) => bare(row.by['確定名'] ?? '')))
+    expect(T_107.map((row) => row.isProperty)).toEqual(
+      table.map((row) => (row.by['品詞と純粋性'] ?? '').startsWith(PROPERTY)),
+    )
+    expect(unbroken(specTable('T-107').rows.find((row) => row.id === 'AM-25')?.by['何を担うか'] ?? '')).toContain(
+      AM_25_RETURNS,
+    )
+  })
+
+  it('carries no member table T-107 does not list (PI-17 publishes the roster and nothing beside it)', () => {
     const names = Object.keys(api())
     expect(names).toHaveLength(T_107.length)
     expect([...names].sort()).toEqual([...T_107.map((row) => row.name)].sort())
@@ -1171,14 +1201,15 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     expect(one.document.schedule.taskGroups.map((group) => group.id)).toContain(written)
   })
 
-  it('leaves no undo step: UN-8 puts scrolling outside table T-027 (AG-10, MUST)', () => {
-    const one = bench()
+  it(`leaves no undo step when no row opens: SJ-2 ${SJ_2_NO_STEP}, and UN-8 keeps scrolling out`, () => {
+    expect(unbroken(specTable('T-332').rows.find((row) => row.id === 'SJ-2')?.by['定め'] ?? '')).toContain(SJ_2_NO_STEP)
+    const one = bench(true, OPEN_SCHEDULE)
     accepted(one.api.focusTask(FIRST_UID))
     expect(one.history.done).toHaveLength(0)
   })
 
-  it('does not move the schedule instant, and still refreshes the writer and the time (FR-063)', () => {
-    const one = bench()
+  it('does not move the schedule instant when no row opens, and still refreshes the writer and the time (FR-063)', () => {
+    const one = bench(true, OPEN_SCHEDULE)
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 
     expect(outcome.hasMovedSchedule).toBe(false)
@@ -1419,7 +1450,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     expect(one.notices[0]?.messages.map((message) => message.text)).toEqual(['said after'])
   })
 
-  it('hands back a way to stop, since table T-107 has no nineteenth member for it', () => {
+  it('hands back a way to stop, since table T-107 has no member for it', () => {
     const one = bench()
     const watch = one.api.watchChanges((notice) => one.notices.push(notice))
 
