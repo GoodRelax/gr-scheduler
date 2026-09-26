@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 71 (provisional) -- the registry of copy comments in src/ does not grow.
+"""Check 70 -- the registry of copy comments in src/ does not grow.
 
 WHAT IT CATCHES
 
@@ -333,7 +333,7 @@ def load_registry(path):
     """
     held, malformed = {}, []
     if not os.path.exists(path):
-        return held, ['it does not exist -- check 71 holds the known copy '
+        return held, ['it does not exist -- check 70 holds the known copy '
                       'comments there, so without it every one reads as new']
     record = None
 
@@ -525,10 +525,10 @@ export function deliverAll(watchers: Map<string, Watcher>): void {
                                   'zoom and fit ts change both together #2'))
     failures = [one for one in results if one]
     for failure in failures:
-        say('FAIL     check 71 self-test: %s' % failure)
+        say('FAIL     check 70 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 71 self-test: 3 break(s) went red, the non-claims and '
+    say('OK       check 70 self-test: 3 break(s) went red, the non-claims and '
         'the moved file stayed green, and the clean tree held in memory is green')
     return 0
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 70 (provisional): a hand-written value set in src/ does not restate a generated set.
+"""Check 69: a hand-written value set in src/ does not restate a generated set.
 
 CR-581 (duplicate prevention). A generated set -- a union, a roster, a column
 of a table -- is printed into src/ from its manuscript by `npm run gen`, and
@@ -940,10 +940,10 @@ def self_test():
     ]
     failures = [r for r in results if r]
     for failure in failures:
-        say('FAIL     check 70 self-test: %s' % failure)
+        say('FAIL     check 69 self-test: %s' % failure)
     if failures:
         return 1
-    say('OK       check 70 self-test: 4 break(s) went red and the clean, guarded, '
+    say('OK       check 69 self-test: 4 break(s) went red and the clean, guarded, '
         'held and moved trees held in memory are green')
     return 0
 

@@ -11,8 +11,8 @@
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
 # The ranges today are 1 + 4 + 8 + 4 + 53. (Recounted 2026-09-26 at the
-# merge of the provisional checks 67-68 (parallel tools), 70-71 (CR-581),
-# 74 (test inventory) and 76-77 (rules): 46 + 2 + 2 + 1 + 2. Before that,
+# merge of checks 67-68 (parallel tools), 69-70 (CR-581),
+# 71 (test inventory) and 72-73 (rules): 46 + 2 + 2 + 1 + 2. Before that,
 # recounted 2026-09-26 when
 # checks 64-66 went in: the single-number headings were 43, not 42, before
 # them -- check 63 had gone in without a recount.)
@@ -309,27 +309,27 @@
 #   68     tools/renumber_ids.py --check : no tracked file holds a
 #          provisional id (PREFIX-9NNNN) or a provisional change-request
 #          file name. No baseline: 0
-#   70     check-literal-restatement.py (provisional number, CR-581) : a
+#   69     check-literal-restatement.py (CR-581) : a
 #          module-level value set written by hand in src/ that restates a
 #          generated set (Jaccard >= 0.7, 3+ shared members), unless a
 #          Record / mapped type over the generated union makes drift a
 #          compile error. Held against literal-restatement-baseline.txt,
 #          keyed by name so a file split does not move the key
-#   71     check-twin-comments.py (provisional number, CR-581) : a comment
+#   70     check-twin-comments.py (CR-581) : a comment
 #          in src/ that says the code is a copy of code elsewhere. The
 #          registry twin-comments-baseline.txt may only shrink: a new copy
 #          is published and imported instead (table T-064 is one manuscript
 #          entry away since CR-581), not registered
-#   74     tools/generate_test_inventory.py --check : the test inventory
+#   71     tools/generate_test_inventory.py --check : the test inventory
 #          (docs/development-records/test-inventory.md, one row per test
 #          file with the spec rows it names) is what the tests and the
 #          specification give today. No baseline: stale is red
-#   76     check-handoff-holds-state.py : docs/development-records/handoff.md
+#   72     check-handoff-holds-state.py : docs/development-records/handoff.md
 #          keeps a lesson only in its newest dated section, and no heading
 #          of lessons waiting to be lowered. Rule 05 section 1: a lesson left
 #          in the handoff is gone a round later, so the round's end lowers it
 #          into docs/development-rules/. No baseline: 0
-#   77     check-rules-name-real-things.py : every backticked path, every
+#   73     check-rules-name-real-things.py : every backticked path, every
 #          `npm run` script and every 検査 number that a rule of
 #          docs/development-rules/ names still exists. Check 0 keeps the
 #          links; this keeps the names. No baseline: 0
@@ -875,8 +875,8 @@ section "68  no tracked file holds a provisional id (PREFIX-9NNNN)"
 PYTHONIOENCODING=utf-8 python "$REPO/tools/renumber_ids.py" --check || failed
 
 echo ""
-section "70  a hand-written value set in src/ does not restate a generated set"
-# CR-581 (provisional number; the coordinator renumbers at merge). The
+section "69  a hand-written value set in src/ does not restate a generated set"
+# CR-581. The
 # survey of 2026-09-26 (docs/review/duplicate-survey-2026-09-26.md, method H)
 # found hand sets that restate a generated roster and drift in silence.
 # MEASURED 2026-09-26 on 0ad572f6: 181 module-level hand sets against 869
@@ -890,8 +890,8 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-literal-restatement.py" --self-test |
 PYTHONIOENCODING=utf-8 python "$HERE/check-literal-restatement.py" || failed
 
 echo ""
-section "71  the registry of copy comments in src/ does not grow"
-# CR-581 (provisional number). The registry may only shrink without the
+section "70  the registry of copy comments in src/ does not grow"
+# CR-581. The registry may only shrink without the
 # user's OK: a new copy is published through its public entry and imported.
 # MEASURED 2026-09-26 on 0ad572f6: 50 claims held (36 copy, 2 hand copies of
 # a spec table, 12 couplings), 5 of them naming a twin that moved or is gone.
@@ -903,14 +903,14 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-twin-comments.py" --self-test || fail
 PYTHONIOENCODING=utf-8 python "$HERE/check-twin-comments.py" || failed
 
 echo ""
-section "74  the test inventory is what the tests and the specification give"
+section "71  the test inventory is what the tests and the specification give"
 # ⭐ A gen:check target like those of check 27, kept in its own section so the
 # count there stays eighteen. Any edit to a test file, known-red.txt or a spec
 # row a test names makes it stale: run `npm run gen:tests` and commit the file.
 PYTHONIOENCODING=utf-8 python tools/generate_test_inventory.py --check || failed
 
 echo ""
-section "76  the handoff holds state; last round's lessons went down into the rules"
+section "72  the handoff holds state; last round's lessons went down into the rules"
 # ⛔ Rule 05 section 1. MEASURED 2026-09-26 on 0ad572f6: 15 -- 8 lesson lines
 # outside the newest section and 7 headings of lessons "not yet lowered",
 # the oldest from 2026-09-14. The P1 chip of the process-first round lowered
@@ -921,7 +921,7 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-handoff-holds-state.py" --self-test |
 PYTHONIOENCODING=utf-8 python "$HERE/check-handoff-holds-state.py" || failed
 
 echo ""
-section "77  a rule names only files, npm scripts and checks that exist"
+section "73  a rule names only files, npm scripts and checks that exist"
 # ⛔ The rules' README section 2: a rule that points at nothing teaches the
 # reader to stop reading the rules. MEASURED 2026-09-26 on 0ad572f6: 5 names
 # in 3 files -- check 26 cited for the job of check 0 (README, 07), rule 03's

@@ -55,9 +55,6 @@ FILES = [
     ('change-request/CR-440-notices-move-into-the-state-machine.md',
      u'the change request that numbered the notices rows; kept as history, '
      u'with a revision row pointing at the names'),
-    ('docs/development-records/handoff-state-machine.md',
-     u'the handover of the state-machine rounds, recording what wave A of '
-     u'CR-440 landed under the numbers of that day'),
     ('.claude/skills/spec-graph-check/check-sm-ev-tn-prefix-gone.py',
      u'this check. Its docstring names the spellings it forbids'),
 ]

@@ -11,7 +11,7 @@
     python tools/renumber_ids.py --check
         exit 1 when a tracked file still holds a provisional id (check 68)
 
-THE CONVENTION (docs/development-rules/09-tools.md, section 12.1):
+THE CONVENTION (docs/development-rules/09-tools.md, section 14.1):
 
   * While drafting, a NEW id is PROVISIONAL: its real prefix and a five-digit
     number that starts with 9 -- `DFC-90001`, `JDG-90002`, `T-90001`,

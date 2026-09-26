@@ -1,4 +1,4 @@
-# Known restatements of check 70 (provisional) -- hand-written value sets in
+# Known restatements of check 69 -- hand-written value sets in
 # src/ that repeat a set the tree already holds in generated form. Held by
 # check-literal-restatement.py.
 #

@@ -70,24 +70,24 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 3. 数（2026-09-13 実測。第 4〜8 節の表の行を、置き場は git が追うファイルの名で数えた）
+## 3. 数（2026-09-26 実測。第 4〜8 節の表の行を、置き場は git が追うファイルの名で数えた）
 
 | 種別 | 本数 | 置き場の内訳 |
 |---|---|---|
-| 門 | **38** | `.claude/skills/spec-graph-check/` に 34、`tools/` に 2、`docs/review/` に 1、`tools/parity/` に 1 |
-| 生成器 | **20** | `tools/` に 14、`docs/spec/_source/` に 6 |
+| 門 | **44** | `.claude/skills/spec-graph-check/` に 38、`tools/` に 4、`docs/review/` に 1、`tools/parity/` に 1 |
+| 生成器 | **27** | `tools/` に 17、`docs/spec/_source/` に 9、`tools/probe/` に 1 |
 | 修理 | **4** | `tools/` に 4 |
-| 調査 | **18** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 7、`tools/` に 1、`tools/probe/` に 1、`tools/parity/` に 1 |
-| 部品・走者 | **6** | `.claude/skills/spec-graph-check/` に 5、`tools/` に 1 |
-| **合計** | **86** | `.mjs` 11 ＋ `.py` 74 ＋ `.sh` 1 |
+| 調査 | **21** | `.claude/skills/spec-graph-check/` に 8、`tools/probe/examples/` に 8、`tools/` に 3、`tools/probe/` に 1、`tools/parity/` に 1 |
+| 部品・走者 | **8** | `.claude/skills/spec-graph-check/` に 6、`tools/` に 2 |
+| **合計** | **104** | `.mjs` 14 ＋ `.py` 89 ＋ `.sh` 1 |
 
-⚠️ 2026-09-26 に門 3 本（検査 64〜66）と部品 1 本（`purity-calls.mjs`）を足して数え直した（`CR-573` の波 3b）。それ以外の行は 2026-09-13 の実測のままである。
+⚠️ 2026-09-26 に門 3 本（検査 64〜66）と部品 1 本（`purity-calls.mjs`）を足して数え直した（`CR-573` の波 3b）。同じ 2026-09-26 のうちに、CR-581 の並行の道具（第 12〜14 節）と `CR-581` の検査 67〜73 を本節へ合流し、次の 17 本を新たに数えた —— 門 6（`merge_driver.py`・`renumber_ids.py`・`check-literal-restatement.py`・`check-twin-comments.py`・`check-handoff-holds-state.py`・`check-rules-name-real-things.py`、検査 67/68/69/70/72/73）、生成器 6（`published_entries_json_to_md.py`・`generate_public_entry_index.py`・`generate_state_machine_types.py`・`state_machines_json_to_md.py`・`generate_test_inventory.py`・`grab-figures.mjs`）、調査 3（`body_brief.py`・`privacy_count.py`・`lm-19-frame-time-baseline.mjs`）、部品 2（`function-size.mjs`・`merge_branch.py`）。⛔ **この 104 本にはまだ入っていない門が 7 本ある** —— 検査 56・57・59・60・61・62・63（`check-grab-table-parents.py`・`check-decision-tables.py`・`check-component-edges.py`・`check-function-size.py`・`check-module-state.py`・`check-identifier-reservation.py`・`check-sm-ev-tn-prefix-gone.py`）は check.sh に既に在るが、第 4 節の表にまだ行を持たない（第 9 節に載せた）。それ以外の行は 2026-09-13 の実測のままである。
 
 ⛔ **目録は拡張子で数えるな。** 名指しではなく `import` で呼ばれる部品も、`.mjs` の走者も、道具である。
 
 ---
 
-## 4. 門 —— 赤にする道具（38 本）
+## 4. 門 —— 赤にする道具（44 本）
 
 | 検査 | 道具 | 何を赤にするか | ⛔ 何が見えないか | 呼ぶ人 | 基準 |
 |---|---|---|---|---|---|
@@ -128,11 +128,17 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 64 | `check-purity-honesty.py`（＋ `purity-calls.mjs`） | src/（生成ブロックを除く）で `@purity pure`／`semi-pure-a` の札を持つ関数が、① `semi-pure-b`／`non-pure` の札を持つ関数を呼ぶ（TypeScript 7 の型検査器 `typescript/unstable/sync` で import と再 export を解き、呼び先の宣言の札を読む）、② ブラウザと言語の `document`・`window`・`Date.now`・`Math.random` に触れる（`document` という名の局所変数は数えない）、③ `await`・`for await`・`async` を持つ —— そういう関数の数が purity-honesty-baseline.txt を超えると赤（`CR-573` の 5 節。表 UO の `UO-1` が単体試験を省かせる根拠は札なので、札の嘘は試験の無い関数である）。 | 引数で渡された関数の呼び出し（宣言が引数なので札が無い）、`new Date()`・`performance.now()`（裁定が名指していない）、引数の書き換え（`R7.1`）、札の無い型のメソッドの呼び出しは見ない —— 毎回 NOT COVERED と刷る。入れ子の関数が自分の札を持てば、その中身は外の関数に数えない。型検査器の API は包み自身が「unstable」と名乗るもので、形が変われば PROBLEM で赤になる。 | `check.sh` | `purity-honesty-baseline.txt` |
 | 65 | `check-unit-test-or-omission.py` | src/ の export された関数（`export function`・`export const f = () =>`・`export { … }` が名指す局所の関数）のうち、表 UO の省略の行（`UO-1` の札・`UO-2` の生成ブロック・`UO-3` の枝 0・`UO-4` の網羅・`UO-8` の生成物を引き `??` 以外の枝が無いこと・札 `@unit-test-omitted UO-n`）のどれにも当たらず、tests/unit のどのファイルも import で名指さないものと、`@external-contract` を持つのに tests/unit にも tests/contract にも import が無いものの数が、unit-test-or-omission-baseline.txt を超えると赤。表 UO に無い `UO-n` を名乗る札も数える（`CR-573` の 5 節）。 | `coverage/coverage-final.json` が無いと `UO-4` を測らず、行頭が OK ではなく UNMEASURED になる（数は上限である）。その網羅を何の試験で取ったかは見ない。export されたクラスのメソッドとオブジェクトの項は読まない。import せずに上位の関数から届く試験・`vi.mock` 越しの呼び出しは見えない。単体試験がその関数について何かを確かめているかは見ない。枝の数は検査 60 の function-size.mjs の定義を TypeScript の構文木で数え直したもの。 | `check.sh` | `unit-test-or-omission-baseline.txt` |
 | 66 | `check-perf-gate.py` | ① playwright.config.ts の `testIgnore` が `<旗> ? [] : <一覧>` の形でない、旗が `process.env['GRS_PERF'] === '1'` でない、tests/nfr で `performance.now(` を読むファイルが一覧に無い、一覧が在りもしないファイルを名指す。② `docs/development-records/perf-pending.md` を足した commit より後で、件名が CR を名指し、差分が規則 04 の 5 節の毎フレームの経路（表の `src/…` を毎回そこから読む）に触れた commit の CR が、`perf-pending.md` にも `measurements/performance-runs.md` にも表の行として無い —— どれか 1 つで赤（`CR-573` の 5 節・6 節、`PW-2`）。 | 時間を `performance.now` 以外（`Date.now`・フレームの数）で測るファイルは性能の試験と見なさない。`test.setTimeout` を伸ばすだけで時計を読まないファイル（nfr-004）は NOTE で刷るだけで門にしない。件名に CR の無い commit は門にしない。表に無い経路の変更は見えない。`--since <sha>` で起点を替えられる（壊して確かめた手）。 | `check.sh` | —（0 で持つ） |
+| 67 | `merge_driver.py`（--check） | .gitattributes がパスごとに名指す 2 つの合流ドライバ（`grs-generated`／`grs-ledger`）が git config に入っているかを赤にする —— 入っていないパスは、何も言わずに素の text 合流へ落ちる。⭐ 壊して確かめた実測: `defects.md` に `merge=grs-ledgr` と誤記すると 2 件、`tbl-row-id-prefixes.md` の行を改名しても 2 件を報告した。 | 見えないのは、両方の枝が同じ新しい ID を取った衝突だけである —— それは検査 68（`renumber_ids.py`）の持ち分。ドライバ自身は生成物を作り直さない（作り直すと、git がまだ書き終えていない作業木を読むことになる）ので、直した後の再生成は検査 24 と 27 に任せる。 | `check.sh` | — |
+| 68 | `renumber_ids.py`（--check） | 追跡ファイルが暫定 ID（本物の接頭辞＋9 から始まる 5 桁、例 `DFC-9NNNN`）を 1 つでも持てば赤。⭐ 壊して確かめた実測: 足した台帳ファイルに `DFC-9NNNN` の行を 1 つ置くと 1 件を報告した。 | 1 つの接頭辞で書いた範囲（`JDG-600..609` の形）は直さず、場所を刷るだけで赤にしない。`dist/` とバイナリファイル、そして自分自身（docstring の例が暫定番号を持つ）は読まない。 | `check.sh` | — |
+| 69 | `check-literal-restatement.py` | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上・共通 3 以上）が `literal-restatement-baseline.txt` を超えると赤。`Record` や写像型が生成の和で守るものは外す。⭐ `CR-581`。実測 2026-09-26（`0ad572f6`）: 手書き集合 181 対生成集合 869、J≥0.7 が 35（19 件 held：言い直し 14・偶然 5、16 件は機械的に除外〔`Record`／写像型 14、型の構築 2〕）。壊して確かめた実測: `LINE_WEIGHTS = ['thin','medium','thick']` を植えると新規 1、`NoticeReason` を別ファイルへ移しても緑のまま、`ShapeKind` をその集合と切り離さずに残すと払った債務を報告した。 | 関数の中の集合、複数ファイルに散った 1 語ずつの語彙、言い換えた集合は見ない。 | `check.sh` | `literal-restatement-baseline.txt` |
+| 70 | `check-twin-comments.py` | 「写しである」と述べる新しいコメントと、登録が残っているのにその主張のコメントが消えたことを赤にする（鍵は宣言の名と主張の頭 10 語）。⭐ `CR-581`。実測 2026-09-26（`0ad572f6`）: 50 件の主張が held（コピー 36・表の手書き写し 2・結合 12）、うち 5 件は写し先が移ったか消えていた。検査 55（`check-comment-rules.py`）の字句解析器を読み込む。 | 誰もコメントしなかった写しは見ない。 | `check.sh` | `twin-comments-baseline.txt` |
+| 72 | `check-handoff-holds-state.py` | `docs/development-records/handoff.md` の中で、最新の日付節（`> 🆕` で始まる区切り）より外にある学びの行（『**学び**』『学び:』『学び：』を持つ行）と、『規則へ下ろす』『規則へまだ下りていない』『下ろす前の控え』を述べる見出しを赤にする。実測 2026-09-26（`0ad572f6`）: 15 件（学び行 8・見出し 7、最古は 2026-09-14、当時 1,087 行の handoff）。`--self-test` は記憶の中の handoff に古い節の学びと待ちの見出しを 1 つずつ残し、両方を報告し、それらを外した handoff は緑になることを確かめる。 | 通した文が本当に状態であって語の無い規則でないかは見ない。学びが正しく下ろされたか、それとも単に消されただけかは見ない。handoff.md 以外のファイルは読まない。 | `check.sh` | — |
+| 73 | `check-rules-name-real-things.py` | `docs/development-rules/` 直下の各 .md（08 フォルダは検査 0 と同じく対象外）で、バッククォート付きの相対パスが実在のファイル/フォルダに当たらない、`npm run <script>` の script が package.json に無い、「検査 N」の N が check.sh の節番号でない、のいずれかを赤にする。『⚠️ 実測（YYYY-MM-DD）』を持つ行は履歴の記録として飛ばす。⚠️ 実測（2026-09-26、`0ad572f6`）: 3 ファイルに 5 個の名指しが、当時、実在しない先を指していた（README.md と 07 が検査 0 の仕事を存在しない番号に帰していた、規則 03 と 07 がそれぞれ実在しないファイル名を名指していた——いずれも同じコミットで直した）。`--self-test` は死んだパス・死んだ npm script・死んだ検査番号を 1 つずつ持つ規則を与え、3 つとも報告しなければ赤。 | 名指した物が今も規則の言う通りに動くかは見ない。git が無視するツリーの中の綴り違いは実在すると数える。ワイルドカードや `<name>` を含むパス、バッククォートの無い名、裸の拡張子（`.html`）、08 フォルダは見ない。 | `check.sh` | — |
 | — | `check.mjs` | サンプル(previous-project-result/11-row-controls/row-controls-sample.html)と dist/index.html の両方に同じ 75 手を打ち、1 手ごとに rows / counts / arming / pinned の 4 読みを比べて、KNOWN_DIVERGENCES(仕様が勝つ差)にも KNOWN_DEFECTS(開いている不具合)にも載っていない食い違い、押せなかった手、盤が組み上がらないこと、名前が省略されたまま比べられないこと、そして『もう落ちなくなった KNOWN_DEFECTS の行』を赤にする。 | 問えるのは行操作の 4 読みだけで、サンプルが持たないもの —— タスクバー、スケジュール画布、透かし —— は原理的に比べられず、S-127(pinnedRowMax=5)のピン上限も『読み単位でしか効かない除外では表せない』として意図的に問わない(最大 4 本まで)。さらに比べる相手は `file://` で開いた dist/index.html なので、ビルドし直していなければ古い成果物を測る。 | `npm run parity` | — |
 
 ---
 
-## 5. 生成器 —— 書き出す道具（21 本）
+## 5. 生成器 —— 書き出す道具（27 本）
 
 ⭐ **生成器の `--check` は、書き出し先を作り直して比べるだけである。**
 ⛔ **入力の表が間違っていても緑になる。** 表そのものを見るのは門の側の仕事である。
@@ -160,6 +166,12 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 27 | `row_id_prefixes_json_to_md.py` | docs/spec/_source/row-id-prefixes.json（接頭辞の意味）を読み、docs/spec・docs/development-records・docs/development-rules の 3 つの木で表の行の最初のセルとその表題を毎回歩いて、接頭辞ごとの定義場所と行数を組み合わせ、docs/spec/_assets/tbl-row-id-prefixes.md を書く。登録の無い接頭辞・どの木も使わない登録・届け出の無い衝突・写しと称しながら持ち主の定義しない ID を持つ接頭辞は、どれも exit 1。--check は書き出し先を作り直して比べる。 | docs/spec/output/ は歩かない。行 ID と認めるのは表の行の最初のセルだけなので、散文や表の途中のセルで名乗られた ID は数えない。接頭辞の意味が正しいかは読まない —— JSON の `means` をそのまま刷る。⛔ 台帳（docs/development-records）に `JDG` などの行を足すと検査 27 が赤くなるので、同じ変更でこれを走らせ直せ。⚠️ 実測（2026-09-14）: 体はその赤を「前からあるずれ」と誤診した。⚠️ `--help` を無視して生成物を書き直す。 | `npm run gen:prefixes`／`npm run gen:check`／`check.sh` |
 | 27 | `generate_comment_rules_card.py` | docs/review/comment-rules-src.md（裁定 17・18 と JDG-62 の `STEP`）を読み、体への指示に貼る 30 行以下の規則カード docs/review/comment-rules-card.md を書く（JDG-59）。前書きは ⛔ の行だけ、各節は表の外の行をすべて、4 列以上の表は 1 行 1 行、それより狭い表は 1 行に繋ぐ。30 行を超えると書かずに exit 1。--check は作り直して比べる。 | 語は照合せず形だけで縮めるので、カードが原典と同じ意味を保つかは見ない。前書きの ⛔ でない散文と、繋いだ表の列見出しは落ちる。カードだけで書けるかは誰も確かめない。 | `npm run gen:card`／`npm run gen:check`／`check.sh` |
 | 27 | `build.py` | docs/spec/_source/components.json を読み、辺をラベル付きのクラスタへ畳んで overview.json と docs/review/components/components.md（外部の drawio-uml スキルの table.py で）を書き、Graphviz と draw.io で fig-components と 4 つの view-* の図（.drawio と .svg）を書く。`--no-figures` は図を飛ばす。`--check` は overview.json と、table.py が在れば components.md を作り直して比べ、食い違えば exit 1。 | `--check` は図（.drawio 5 本と .svg 5 本）を作り直さないので、古い図は緑のまま通る —— 実行のたびに NOT CHECKED と刷る。components.md は利用者の環境に在る table.py が作るので、それが無い計算機では NOT CHECKED になり比べない。 | `npm run gen:components`／`npm run gen:components:check`／`check.sh` |
+| 27 | `state_machines_json_to_md.py` | docs/spec/_source/state-machines.json（未保存の状態機械、表 T-250・ADR-002）を読み、先頭の表 T-283（`priorities` が与える領域順、SD-4）に続けて、領域ごとの事象定義・ルートの既定値・機械ごとの状態図/状態遷移表/状態一覧を docs/spec/_assets/tbl-state-machines.md へ書く。`--check` はディスク上のファイルとビルド結果を比較する。 | 原稿の唯一の読み手でもある —— `generate_state_machine_types.py` はここの `load()` を import するので 2 つの生成物は同じ検証済みモデルから刷られ食い違いようがないが、その外で原稿の意味を確かめるものは無い。 | `npm run machines`／`npm run machines:check`／`check.sh` |
+| 27 | `generate_state_machine_types.py` | docs/spec/_source/state-machines.json を（`state_machines_json_to_md.py` の `load()` 経由で）読み、領域ごとに名指された src/ 配下のユニットの `<generated>`〜`</generated>` マーカー間へ、キー・状態の判別共用体・ルート型・事象型などを書く。`--check` は対象ユニット全部でマーカー間の中身をビルド結果と比較する。 | マーカーの外側（人が書いた実装）は一切見ないので、生成した型を実装が正しく使っているか（コンパイルが通るか）は別途 `npm run typecheck` が要る。 | `npm run machines:types`／`npm run machines:types:check`／`check.sh` |
+| 27 | `published_entries_json_to_md.py`（`docs/spec/_source`） | `_source/published-entries.json` から表 T-064 を `_assets/tbl-published-entries.md` へ刷る。原稿の破れ（行・コンポーネントの二重、名の二重、全角の括弧で始まらない注記、名に読める散文の片）は 1 バイトも書かずに拒む。`--check` は刷った表の手の編集を赤にする。 | 名が入口から本当に出ているか（検査 26b が見る）。 | `npm run gen:entries`／`npm run gen:entries:check`／`check.sh` |
+| 27 | `generate_public_entry_index.py`（`tools`） | `src/` と原稿から `docs/review/public-entry-index.md` を刷る。入口が出す名（表 T-064 の行か `--`）と、ファイルは出すが入口が出さない名（`file only`）を、`ファイル#名前` と目的か宣言の頭で並べる。 | 非公開の関数。言い換えた名。 | `npm run gen:index`／`npm run gen:index:check`／`check.sh` |
+| 71 | `generate_test_inventory.py` | 試験ファイル 1 つにつき 1 行、置き場（表 T-218）・名指す仕様の行/UC/表・表 T-334 の行・既知の赤（`tests/known-red.txt`）・赤で固定した印（`it.fails`／`test.fail`／`specMismatch`）とその台帳の行・MSPDI の XSD が要るかを `docs/development-records/test-inventory.md` へ書く。`--check` は書き出し先を作り直して比べる。⭐ 詳しくは第 12 節。 | ID を読むのはコメント・`describe`／`test`／`it`／`step` の題・`specTable(...)` の表の 3 か所だけで、コードの中の ID（`press(page, 'IC-93')`）は押すものとして読まない。`it.each` が走らせてから作る題は文字どおりにしか読めず、単体試験の相手は import だけで読むので `vi.mock` 越しの呼び出しは見えない。 | `npm run gen:tests`／`npm run gen:tests:check`／`check.sh`（71） |
+| — | `grab-figures.mjs` | CR-430 4.4 節が言う 6 図を previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html から描き、docs/spec/_assets/ へ単体の SVG として書く。描く前に settings.json の該当行がサンプルの既定値と一致するかを確かめ、1 つでも違う（または行が無い）と何も書かずに拒む。 | `--check` を持たないので、書いた後に原稿とずれても検査は気づかない（第 9 節と同種の欠け）。playwright を repo 直下の node_modules から解決するので、リポジトリの外では動かない。 | 人が手で（`node tools/probe/grab-figures.mjs`） |
 
 ---
 
@@ -177,7 +189,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ---
 
-## 7. 調査 —— 人が読む道具（18 本）
+## 7. 調査 —— 人が読む道具（21 本）
 
 ⭐ **門にしないことが決まっている道具が 2 本ある。**
 `list-asserted-claims.py` は 30 件の標本で 19 件が本物（精度 63%）、
@@ -204,31 +216,37 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `pan-vertical-sweep.mjs` | 縦のパンが等倍で動くか、行の境目にだけ止まるかを、図形の上端の位置を読みながら人に見せる。 | 期待値を持たない。読むのは幅 20px・高さ 4px を超える多角形の最も上だけなので、それに合う図形が無い画面では何も返さない。 ⚠️ 測る相手は `harness.mjs` が `file://` で開く dist/index.html であり、`npm run build` をしていなければ古い成果物を測る。 | 人が手で |
 | `row-controls-press-all.mjs` | 行見出しパネルの入口を 1 つずつ、毎回新しいページで押し、何も動かさなかった入口を人に見せる。 | 期待値を持たない。1 入口につき 1 ページを開くので、畳みや隠しを重ねた後にしか効かない入口は、効かないものとして出る。 ⚠️ 測る相手は `harness.mjs` が `file://` で開く dist/index.html であり、`npm run build` をしていなければ古い成果物を測る。 | 人が手で |
 | `selection-after-delete.mjs` | すべて選んで削除し確定した後に図形の入口を構え、消えたタスクを指したままの選択から告げが出ないかを人に見せる。 | 期待値を持たない。告げは `data-role` に `Notification` を含む要素の文字だけで読むので、別の形で出る告げは見えない。 ⚠️ 測る相手は `harness.mjs` が `file://` で開く dist/index.html であり、`npm run build` をしていなければ古い成果物を測る。 | 人が手で |
+| `body_brief.py` | 体（subagent）に渡す 10 行のブリーフを、基準の sha・持ち場・ほかの体の持ち場・禁止事項（作業木・junction・stash・commit・push・dist/・npx）・壊す試験・報告の上限で埋めて刷る。持ち場が重なれば刷らずに exit 1 で止める。 | 持ち場が正しいか、課題の 1 行が明確かは見ない。決まった行を書き忘れられなくするだけである。体は走っている間に届いたメッセージを指示として読まない（実測 2026-09-26）ので、この一枚に無いものは無い扱いになる。 | 人が手で（体を出す前） |
+| `privacy_count.py` | commit や合流が公開してしまう物を 1 行で数える —— 利用者名・絶対パス・メール・秘密の件数、私的な置き場（`MUST_BE_IGNORED`）を `.gitignore` が覆っているか、`MUST_NOT_BE_TRACKED` の下で追跡されている禁止ファイル数。件数が 1 つでも非 0 なら exit 1 になる。 | 検出の型は `precheck.py` から import しているので両者は食い違わないが、綴りの違う名前・precheck の型に無い秘密・ここに挙げていない私的な置き場は見えない。check.sh にも package.json にも組み込まれておらず、`merge_branch.py` と人の手が呼ぶだけである。 | `merge_branch.py`／人が手で（`--staged`／`--range A..B`） |
+| `lm-19-frame-time-baseline.mjs` | 本番条件（msedge・1920x1080・Task 1000・240 区間）で dist/index.html のフレーム時間を測り、1 つの JSON を stdout に刷る。測る定義は tests/nfr の `FRAME_PROBE` を実行時に読むので、試験と同じコードで数える。 | 期待値を持たない —— 判定はせず数を人に見せるだけである。測る相手は `npm run build` 済みの dist/index.html に固定され、dev サーバの木は測れない。 | 人が手で |
 
 ---
 
-## 8. 部品と走者（6 本）
+## 8. 部品と走者（8 本）
 
 ⛔ **部品を「誰も呼んでいない」と読むな。** 名指しではなく `import` で呼ばれている。
 
 | 道具 | 何を提供するか | ⛔ 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
-| `check.sh` | 番号付き検査 63 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 / 55 —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 終端に赤くなった検査の番号を刷り、`scratch/spec-check/last-run.txt` に終了符号とその番号を残すが、各検査の出力そのものは残さない（stdout だけ。ほかに残るのは scratch/spec-check/dup-report.txt と sd-out の export 木）。番号付き 52 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
+| `check.sh` | 番号付き検査 70 本を 1 本ずつ束ねて走らせる —— 規則索引(検査 0)→ precheck(41)→ StrictDoc の JSON export と jq 4 問(1-4)→ md-checks(5-10, 15, 48)→ style-checks(12-14, 32)→ dup-check(11)→ 生成物 17 本の --check(16 / 17 / 18 / 20 / 27)→ check_layer_rules(19)→ 台帳系(24 の ledger_metrics --check / 25 / 28 / 29 / 31 / 40 / 43)→ 逐語系(39 / 42)→ 49（刊行された HTML）→ 23 / 21 / 22 / 26b / 30 / 33 / 37 / 38 / 44 / 45 / 46 / 47 / 50 / 51 / 52 / 53 / 54 / 55 → 56 / 57 / 58（tests/system の掃引、Playwright）/ 59 / 60 / 61 / 62 / 63 → 64 / 65 / 66（純度・網羅・性能）→ 67 / 68（合流ドライバ・仮番号の --check）→ 69 / 70（`CR-581`）→ 71（試験目録）→ 72 / 73（体制の点検） —— 各行を `\|\| fail=1` で拾い、最後に ALL GREEN か FAILURES ABOVE を印字して同じ値で exit する。 | 終端に赤くなった検査の番号を刷り、`scratch/spec-check/last-run.txt` に終了符号とその番号を残すが、各検査の出力そのものは残さない（stdout だけ。ほかに残るのは scratch/spec-check/dup-report.txt と sd-out の export 木）。番号付き 52 本のうち検査 1（node 数）と 4（UID の欠番）は印字するだけで fail を立てない。 | `npm run check`／人が手で |
 | `ledger_quotes.py` | 台帳の 1 セルから引用（「」『』とコードスパン）と「⚠️ 実測（日付）…」で始まる記録の文を取り除き、そのセルが今日について自分の声で言っていることだけを返す（outside_quotation / outside_record / spoken_now / asserts_any）。 | 引用かどうかの判断は区切り記号だけなので、括弧を閉じ忘れたセルは丸ごと素通りし、括弧を使わない引用は引用と見なされない。記録の印は「⚠️ 実測（YYYY-MM-DD」という 1 つの綴りに固定で、全角括弧の無い「実測 2026-09-07」も、⭐ や ⛔ で始まる記録も記録として扱わない。文の切れ目は 。と ⭐ ⛔ ⇒ ⚠️ の 4 つだけなので、1 文の中に記録と現在の主張が混ざっているとどちらか一方しか正しく扱えない。 | 2 本が import |
 | `purity-calls.mjs` | 検査 64・65 のために、TypeScript 7 の型検査器（`typescript/unstable/sync`）で src/ を読み、`honesty`（札が嘘をつく関数）と `inventory`（export された関数の札・注記・枝の数と、tests/unit・tests/contract の import が名指す関数）を JSON で刷る。判断も基準線も持たない。 | 枝の数は function-size.mjs（検査 60）の定義を TypeScript の構文木の上で数え直したもので、oxc の数と食い違っても気づかない。`--root DIR` は別の木（壊して確かめる写し）を読む。 | 検査 64・65 |
 | `retired.py` | 意図して退役させた仕様 ID の集合 RETIRED（1 つの set リテラル）と、各エントリの「何が・いつ・誰の裁定で抜け、どの文書がまだ名指しているか」の理由を提供する。 | ただの set リテラルなので、中の ID が本当に退役済みかを検証するものは何も無い —— 席を 1 つ足せば、その ID への参照は検査 7 でも list-asserted-claims でも永久に黙る。表を booking しても表の中の行は booking しない（T-006 は在るが E-1..E-6 は意図的に不在）ので、退役した表の行への参照は「未定義」として出続ける。「まだ何かが名指している ID」だけを持つ設計なので、退役の全数ではない。 | 4 本が import |
 | `spec_tables.py` | docs/spec下のMarkdown表を、キャプション（**表 T-nnn —**）から次のキャプション・章見出し・ファイル末尾までの範囲として解析し、行を見出し名でセルアクセスできるRow/Tableオブジェクトとして返す共有リーダーを提供する。generate_display_words.py・generate_exchange_formats.py・generate_help_roster.py・generate_icon_glyphs.py・generate_icon_roster.py・generate_unit_tree.pyの6本がimportしている。 | 見出し形状が最初のpipeブロックと異なる2番目以降のブロックは『aside』として数えるだけで、本来ロスターに含まれるべき行がasideに誤分類されても、このリーダー自身は『本当はロスターの一部だったのに漏れている』ことまでは判定しない（コード自身が『counted, not dropped in silence』とだけ述べ、正誤の判定はしないと認めている）。 | 6 本が import |
 | `specindex.py` | docs/spec と docs/spec/_assets の .md を 1 度だけ読み、表 T-nnn とその行 ID、UID、行→所有者の対応（owner_at）、列数の食い違い、references_to(対象) の逆引き、そして known（行＋UID＋表＋RETIRED）を提供する。 | 索引に入る形は「`**表 T-nnn —` 見出し」「`**UID**:` 行」「`#` 見出し」「`\|` で始まる行」の 4 つだけ —— 図の見出し `**図 F-nnn —` は 1 つも索引されないので、known を通す道具にとって図は存在しない（実測 2026-09-11、F-019 が「未定義」の最頻トークン）。discover() は 2 階層しか走査しないので docs/spec/<下位>/<下位>.md は不可視、references_to は 1 行に閉じた文字列一致なので行をまたぐ参照は 0 件。 | 9 本が import |
+| `function-size.mjs` | 検査 60（`check-function-size.py`）のために、rolldown/parseAst で src/ の TypeScript を構文木に解析し、関数ごとの行数・枝の数・開始/終了行と、名前の衝突・構文エラーを JSON で刷る。判断も基準線も持たない。 | 関数と数えるのは本体を持つ FunctionDeclaration／FunctionExpression／ArrowFunctionExpression だけで、オーバーロード宣言（本体 null）は数えない。1 ファイルの構文エラーは `errors` に記録して落とすだけで、その回全体は止めない。 | 検査 60 |
+| `merge_branch.py` | 受け取る枝のチェックアウトで、指定の枝を合流する —— 合流ドライバを入れ直す → 両側が同じ新 ID を取っていれば入ってくる側を付け替えた写しを合流する → 衝突したファイルは、塊ごとに「こちら側」と「向こう側」で解いた版をそれぞれ再生成し、同じバイトになれば生成物として解く → 再生成・仮番号の詰め・`--band` → `check.sh` と `gen:check` → `privacy_count.py --staged` → すべて緑のときだけコミットし、関門（既定は GT-2）を列に積む。 | 両側が**同じことを言っているか**は見ない —— 手書きの文書どうしが衝突なく合流しても、食い違いは検査と読み手が拾う。手書きの衝突は解かずに、ファイルの一覧を出して合流を途中のまま残す。⛔ push はしない。 | `npm run merge:branch -- <枝>`（調整役） |
 
 ---
 
-## 9. ⛔ 目録の残る欠け（1 件）
+## 9. ⛔ 目録の残る欠け（2 件）
 
 | | 何が欠けているか | どこで確かめたか |
 |---|---|---|
 | 1 | ⛔ **部品図（fig-components と view-* の .drawio と .svg）を比べる検査が無い。** `build.py --check` は overview.json と components.md だけを比べるので、図が古くなっても検査は全部緑のままである | `build.py --check` が実行のたびに NOT CHECKED と刷る |
+| 2 | ⛔ **検査 56・57・59・60・61・62・63（`check-grab-table-parents.py`・`check-decision-tables.py`・`check-component-edges.py`・`check-function-size.py`・`check-module-state.py`・`check-identifier-reservation.py`・`check-sm-ev-tn-prefix-gone.py`）が check.sh に在るのに、第 4 節の表に行を持たず、第 3 節の門の本数（44）にも入っていない。** 2026-09-26 の合流（`CR-581` の後始末）で手が回らなかった | `grep -n 'section "5[6-9]\|section "6[0-3]' check.sh` と第 4 節を突き合わせると 7 本が抜けている |
 
-⛔ **直していない** —— `.drawio` は Graphviz、`.svg` は draw.io の実行ファイルが要り、どちらも検査を走らせる計算機に在るとは限らない。
+⛔ **直していない** —— `.drawio` は Graphviz、`.svg` は draw.io の実行ファイルが要り、どちらも検査を走らせる計算機に在るとは限らない。項目 2 は次の合流で第 4 節に行を足すこと。
 
 ---
 
@@ -266,26 +284,26 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 呼び口 | 何をするか |
 |---|---|
 | `npm run gen:tests` | `docs/development-records/test-inventory.md` を書く（`npm run gen` にも入っている） |
-| `npm run gen:tests:check` | 古ければ赤（`npm run gen:check` と検査 74 が呼ぶ） |
+| `npm run gen:tests:check` | 古ければ赤（`npm run gen:check` と検査 71 が呼ぶ） |
 
 - ⛔ **試験ファイル・`known-red.txt`・試験が名指す仕様の行のどれかを変えたら、目録は古くなる。** `npm run gen:tests` を走らせ、目録も同じコミットに入れよ。日付も時刻も書かないので、中身が同じなら差分は出ない。
 - ⭐ **ID を読むのは 3 か所だけ** —— コメント、`describe` ／ `test` ／ `it` ／ `step` ／ `specMismatch` の題、`specTable(...)` の表。そのうえで、仕様が定義している ID だけを結ぶ。コードの中の ID（`press(page, 'IC-93')`）は、試験が押すものであって、確かめると名乗るものではないので読まない。
 - ⚠️ **見えないもの**: 走らせてから作る題（表の行を回す `it.each`）はリテラルの部分しか読めない。だから「case sites」は書かれた呼び出しの数であり、走る件数ではない。単体試験の相手は `src/` からの名前つき import で読み、札は宣言の真上の doc コメントだけから読む。呼び手を通して届く関数や `vi.mock` は見えない。試験が名指したものを本当に確かめているかも読まない。
 - ⭐ 6 節の「UO-1 would omit」は、import した関数がすべて `pure` ／ `semi-pure-a` の単体ファイルの印である（規則 04 の表 `UO`）。**一覧を出すだけで、振り分け直しは CR の整理の後に行う。**
-- ⚠️ 本書 5 節の「生成器 21 本」は、この道具を数えていない（本節を足した P4 は 12 節だけを持つ）。
+- ⭐ 2026-09-26 に本書 5 節の表へ本道具の行（検査 71）を足し、第 3・5 節の数はこの 1 本を数えている。
 
 ## 13. 重複の予防の道具（`CR-581` の前半、チップ P3、2026-09-26）
 
-⚠️ **検査の番号 70・71 は仮である** —— 合流で調整役が詰める。第 3〜5 節の数（門 38 本・生成器 21 本）には、まだ本節の 4 本を数えていない。
+⭐ 2026-09-26 に本書第 4 節の表へ下 2 本（検査 69・70）の行を足し、第 3〜5 節の数は本節の 4 本（合流で検査の番号は 69・70 に詰まっている）をすべて数えている。
 
 | 番号 | 道具 | 何を赤にするか ／ 何を書くか | ⛔ 何が見えないか |
 |---|---|---|---|
 | 27 | `published_entries_json_to_md.py`（`docs/spec/_source`） | `_source/published-entries.json` から表 T-064 を `_assets/tbl-published-entries.md` へ刷る。原稿の破れ（行・コンポーネントの二重、名の二重、全角の括弧で始まらない注記、名に読める散文の片）は 1 バイトも書かずに拒む。`--check` は刷った表の手の編集を赤にする | 名が入口から本当に出ているか（検査 26b が見る） |
 | 27 | `generate_public_entry_index.py`（`tools`） | `src/` と原稿から `docs/review/public-entry-index.md` を刷る。入口が出す名（表 T-064 の行か `--`）と、ファイルは出すが入口が出さない名（`file only`）を、`ファイル#名前` と目的か宣言の頭で並べる | 非公開の関数。言い換えた名 |
-| 70 | `check-literal-restatement.py`（`.claude/skills/spec-graph-check`） | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上・共通 3 以上）。`Record` や写像型が生成の和で守るものは外す。`literal-restatement-baseline.txt` に対して、鍵は名前 | 関数の中の集合。複数のファイルに散った 1 語ずつの語彙。言い換えた集合 |
-| 71 | `check-twin-comments.py`（同） | 写しだと述べる新しいコメント。登録が残っているのにコメントが消えたこと。`twin-comments-baseline.txt` に対して、鍵は宣言の名と主張の頭 10 語 | 誰もコメントしなかった写し |
+| 69 | `check-literal-restatement.py`（`.claude/skills/spec-graph-check`） | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上・共通 3 以上）。`Record` や写像型が生成の和で守るものは外す。`literal-restatement-baseline.txt` に対して、鍵は名前 | 関数の中の集合。複数のファイルに散った 1 語ずつの語彙。言い換えた集合 |
+| 70 | `check-twin-comments.py`（同） | 写しだと述べる新しいコメント。登録が残っているのにコメントが消えたこと。`twin-comments-baseline.txt` に対して、鍵は宣言の名と主張の頭 10 語 | 誰もコメントしなかった写し |
 
-⛔ **70 と 71 の基準線は、利用者の OK なしには増やさない**（`JDG-520` の上げ）。
+⛔ **69 と 70 の基準線は、利用者の OK なしには増やさない**（`JDG-520` の上げ）。
 ⭐ 赤になったら、登録ではなく**元を公開して import する** —— 下の手順である。
 
 ### ⭐ 補助関数を書く前に
@@ -301,6 +319,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 
 ⭐ **並行で動くセッションと体が、互いの仕事を壊さずに 1 本の枝へ合流するための道具である。**
 ⚠️ **作った理由は実測である** —— 2026-09-26 の巡は、合流のたびに生成された数の表がぶつかり、2 つのセッションが同じ新しい ID を取り、関門が重なって時間の赤を出した。
+⭐ 同じ 2026-09-26 のうちに、`merge_driver.py`／`renumber_ids.py`（検査 67・68）は本書第 4 節へ、`merge_branch.py` は第 8 節へ、`privacy_count.py`／`body_brief.py` は第 7 節へも行を持たせ、第 3 節の数へ合流した。本節は道具どうしの並びと呼び口をまとめる場として残す。
 
 | 道具 | 何をするか | 何が見えないか | 呼ぶ人 |
 |---|---|---|---|
@@ -312,7 +331,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `tools/privacy_count.py` | 公開の前に数える 1 行: 利用者名・絶対パス・メール・秘密の件数、私的な置き場 8 つを `.gitignore` が覆う数、MSPDI の置き場で追跡されている README 以外のファイル数。型は `tools/precheck.py` のものを import する | 綴りの違う名前、`precheck.py` の型に無い秘密、ここに挙げていない私的な置き場は見えない | `merge_branch.py` ／ 人が手で（`--staged` ／ `--range A..B`） |
 | `tools/body_brief.py` | 体に渡す 10 行のブリーフを、基準の sha・持ち場・ほかの体の持ち場・禁止事項（作業木・junction・stash・commit・push・`dist/`・npx）・壊す試験・報告の上限で埋めて刷る。持ち場が重なれば刷らずに止まる | 持ち場が正しいか、課題の 1 行が明確かは見ない。決まった行を書き忘れられなくするだけである | 人が手で（体を出す前） |
 
-### 12.1 ⭐ 仮番号の作法
+### 14.1 ⭐ 仮番号の作法
 
 - 下書きの**新しい** ID は、本物の接頭辞と 9 から始まる 5 桁で書く —— `DFC-9NNNN` ／ `JDG-9NNNN` ／ 表 `T-9NNNN` ／ `change-request/CR-9NNNN-<slug>.md`。
   ⭐ 接頭辞は本物のままなので、見まがう新しい接頭辞は生まれない。⚠️ 実測（2026-09-26）: 定義された番号の最大は `DFC` の 1086 で、9 万台に届く接頭辞は無い。
@@ -320,7 +339,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 - 2 つのセッションが同時に詰めれば、同じ番号を取る。⭐ それは合流で `merge_branch.py` が入ってくる側を付け替える —— 詰めた番号は「その枝の上での最大＋1」でしかない。
 - ⚠️ 調整役が本物に見える帯を配っている間は、`--band` で詰める。帯は最大の上に置くので、最大が帯に追いつくと帯の番号が本物と区別できなくなる —— 仮番号の形に移る理由である。
 
-### 12.2 ⭐ 合流ドライバを入れる・外す
+### 14.2 ⭐ 合流ドライバを入れる・外す
 
 - 入れる: `python tools/merge_driver.py install`（`merge_branch.py` は毎回これを打つ）。
 - ⛔ 外すときは節ごと消す（`git config --remove-section merge.grs-generated`）。`driver` の行だけを消すと `name` が残り、git は「lacks command line」で合流そのものを止める（2026-09-26 実測）。

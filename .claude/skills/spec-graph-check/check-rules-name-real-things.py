@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 77 -- a rule names only files, npm scripts and checks that exist.
+"""Check 73 -- a rule names only files, npm scripts and checks that exist.
 
 WHY THIS EXISTS. A rule that tells the reader to run a tool that was deleted,
 or to read a check that was renumbered, teaches the reader that the rules are
@@ -62,7 +62,7 @@ PATH_ROOTS = ('tools/', 'docs/', 'src/', 'tests/', '.claude/', 'change-request/'
 FILE_EXT = re.compile(r'\.(py|mjs|js|ts|md|json|txt|sh|bat|jsonl|html|tsv|ya?ml|drawio|svg)$')
 NOT_A_PATH = re.compile(r'[\s*<>{}$|…?]|\.\.\.')
 SECTION = re.compile(r'^section "([^"]*)"', re.M)
-PROBE_CHILD = 'check-77-probe.file'
+PROBE_CHILD = 'check-73-probe.file'
 
 
 def tracked_files():

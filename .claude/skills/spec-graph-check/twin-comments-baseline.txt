@@ -1,5 +1,5 @@
 # The registry of copy comments in src/ -- held by check-twin-comments.py
-# (check 71, provisional).
+# (check 70).
 #
 # One record per comment in src/**/*.ts that claims the code below it is a
 # copy of code elsewhere, or must be kept equal to it ("a copy of X",

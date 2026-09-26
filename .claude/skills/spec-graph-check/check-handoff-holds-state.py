@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Check 76 -- the handoff holds state, and last round's lessons have gone down into the rules.
+"""Check 72 -- the handoff holds state, and last round's lessons have gone down into the rules.
 
 WHY THIS EXISTS. docs/development-records/handoff.md is rewritten every round.
 A lesson left in it is a rule on the highest rung of the ladder in

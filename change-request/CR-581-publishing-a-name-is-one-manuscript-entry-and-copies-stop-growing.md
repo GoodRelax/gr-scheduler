@@ -3,7 +3,7 @@
 > 起草の状態: 起草し、同じ枝で当てた（2026-09-26、枝 `p3/cr-581-duplicate-prevention`、`0ad572f6` の上）。段取りの改善の巡のチップ P3（`docs/development-records/handoff.md` の「2026-09-26 の巡（調整役）」の 1.）である。
 > 範囲: `CR-581` の**前半だけ** —— 表 T-064 の原稿化・公開の入口の索引・値の集合の言い直しの検査・写しのコメントの登録簿。⛔ 後半（名前を正規化した写しの差分の関門）は、割る 3 本（`CR-578`〜`580`）の後の別の波である（11 節）。
 > 読んだ木: `0ad572f6`（`refactor` の先端、2026-09-26）。数はどれもこの木で測った（14 節）。
-> ID の帯: `CR-581` は調整役が予約した。検査の番号 70・71 と台帳 `DFC-1110`〜`1119` は仮で、合流のときに調整役が詰める。台帳の帯は使わなかった（13 節）。
+> ID の帯: `CR-581` は調整役が予約した。検査の番号は合流で調整役が 69・70 に詰めた。台帳 `DFC-1110`〜`1119` の帯は使わなかった（13 節）。
 
 ---
 
@@ -14,7 +14,7 @@
 | 裁定 | 逐語（`docs/development-records/rulings.md` から。抜粋） | 決めること | 本書での扱い |
 |---|---|---|---|
 | `JDG-607` | 「JSON化しない？ そっちの方がこの後楽でしょ？_assets に生成して 本文は参照すれば、人間も見やすいし。」 | 表 T-334 を `_source` の JSON から `_assets` へ生成し、本文は参照するだけにする | ⭐ 表 T-064 に同じ形を当てる先例（3 節）。本文には「全行は `_assets` の文書が持つ」とだけ書く |
-| `JDG-520` | （基準線）調整役は下げ・名の付け替え・刈り込み・登録を問わずにしてよい。上げは利用者の OK | 新しい検査の基準線を今日の数で登録してよい。上げは問う | 検査 70・71 の基準線は今日の当たりの登録（上げではない）。検査 46 の基準線に新しい文書を 0 で登録した |
+| `JDG-520` | （基準線）調整役は下げ・名の付け替え・刈り込み・登録を問わずにしてよい。上げは利用者の OK | 新しい検査の基準線を今日の数で登録してよい。上げは問う | 検査 69・70 の基準線は今日の当たりの登録（上げではない）。検査 46 の基準線に新しい文書を 0 で登録した |
 | 利用者と合意した順（2026-09-26、`handoff.md` の「次にやること」1.） | 「P3 重複の予防 = `CR-581` の前半」 | 表 T-064 を原稿から生成 ／ 公開の入口の索引 ／ 手書きの値の集合の検査 ／ 双子のコメントの登録簿を増やさない基準線 | 本書の範囲そのもの |
 
 ### 0.2 調べた結果（`0ad572f6`）
@@ -51,8 +51,8 @@
 6. **索引は `docs/review/` に置く**（`comment-rules-card.md` と同じ、開発者が読む生成物の置き場）。行番号は持たない —— 上の行を 1 行直すたびに索引が赤くなり、並行のセッションの合流でぶつかる。`ファイル#名前` で引く。
 7. **索引は、公開の入口が出す名と、フォルダのファイルが出すが入口が出さない名の 2 つを載せる。** 非公開の関数は載せない（載せると 1,500 を超え、毎回の編集で動く）。⚠️ 既知の写し 8 組の元のうち、索引に載るのは 4（入口 3・ファイルだけ 1）。載らない 4 は非公開の関数である（14 節）。
 8. **索引の「何のためか」は、表 T-064 の注記の最初の文。** 表が公開していない名には書かれた目的が無いので、宣言の頭（引数と戻り値の型）を載せる。
-9. **検査 70・71 の鍵は名前であって、ファイルと行ではない** —— 割る 3 本（`CR-578`〜`580`）がファイルを割っても鍵は動かない（体が割る形を試して緑を確かめた）。
-10. **検査 70・71 の当たりに台帳の行を立てない。** 負債は基準線のファイルが 1 件 1 記録で持ち、`why:` 行で理由と行き先を書く —— 検査 26b の基準線と同じ扱いである。同じ事実を台帳にも書けば、それ自体が写しになる。
+9. **検査 69・70 の鍵は名前であって、ファイルと行ではない** —— 割る 3 本（`CR-578`〜`580`）がファイルを割っても鍵は動かない（体が割る形を試して緑を確かめた）。
+10. **検査 69・70 の当たりに台帳の行を立てない。** 負債は基準線のファイルが 1 件 1 記録で持ち、`why:` 行で理由と行き先を書く —— 検査 26b の基準線と同じ扱いである。同じ事実を台帳にも書けば、それ自体が写しになる。
 11. **名を公開するだけの変更に変更要求を要さないという規則は、規則 02 の持ち主（チップ P1）へ渡す**（6 節に文案）。本書は仕様にその規則を書かない —— 作り方の規則は仕様ではない（`docs/development-rules/README.md` の冒頭）。
 
 ---
@@ -68,13 +68,13 @@
 | `docs/spec/05-07-design.md` | 5.3 の表 T-064 の塊（見出し・列見出し・罫・37 行）を 2 文に替え、「本表は」を「表 T-064 は」にした（4 節） |
 | `tools/generate_public_entry_index.py`（新） | `src/` と原稿 → `docs/review/public-entry-index.md`。`--check` |
 | `docs/review/public-entry-index.md`（新、生成物） | 公開の入口の索引 |
-| `.claude/skills/spec-graph-check/check-literal-restatement.py`・`literal-restatement-baseline.txt`（新） | 検査 70（仮） |
-| `.claude/skills/spec-graph-check/check-twin-comments.py`・`twin-comments-baseline.txt`（新） | 検査 71（仮） |
+| `.claude/skills/spec-graph-check/check-literal-restatement.py`・`literal-restatement-baseline.txt`（新） | 検査 69 |
+| `.claude/skills/spec-graph-check/check-twin-comments.py`・`twin-comments-baseline.txt`（新） | 検査 70 |
 | `.claude/skills/spec-graph-check/audit-ch5.py`・`tools/generate_unit_tree.py` | 表 T-064 を刷った文書から読む |
 | 検査 46・47・39・37 の一覧、`tools/follow_the_manuscript.py`、`tests/contract/spec-table.ts` | 原稿の一覧に新しい文書を足した |
 | `.claude/skills/spec-graph-check/line-break-baseline.txt` | 新しい文書を 0 で登録した |
 | `.claude/skills/spec-graph-check/check-provenance.py` | 生成物の行を足した（検査 21） |
-| `.claude/skills/spec-graph-check/check.sh` | 検査 27 に生成器 2 本、検査 70・71 の節、数 63 → 65 |
+| `.claude/skills/spec-graph-check/check.sh` | 検査 27 に生成器 2 本、検査 69・70 の節、数 63 → 65 |
 | `package.json` | `gen:entries`・`gen:index`（と `:check`）を `gen`・`gen:check` の列に足した。既存の並びは変えていない |
 | `docs/development-rules/09-tools.md` | 末尾に本書の節（12 節）を足した |
 | `.claude/skills/spec-graph-check/SKILL.md` | T-064 の行を手で直すときの罠の段落に、原稿を直して刷ることを 1 文足した |
@@ -86,7 +86,7 @@
 ## 2. 新しい識別子
 
 - 文書 UID `DOC-TBL-PUBLISHED-ENTRIES` —— 2026-09-26、`git grep` で 0 件だった。
-- 検査の番号 70・71 —— 仮。`check.sh` の 66 の次が空いていたのは 2026-09-26 の `0ad572f6` での話で、P2・P4 も同じ帯（仮 70〜73 を P3 に）を受けている。合流で調整役が詰める。
+- 検査の番号 69・70 —— `check.sh` の 66 の次が空いていたのは 2026-09-26 の `0ad572f6` での話で、P2・P4 も同じ帯（仮 70〜73 を P3 に）を受けていた。合流で調整役が 69〜73 に詰めた。
 - `package.json` の名 `gen:entries`・`gen:entries:check`・`gen:index`・`gen:index:check`。
 - 表・行 ID・接頭辞・要求 ID は 1 つも作らない。
 
@@ -123,10 +123,10 @@
 |---|---|---|---|
 | 27 に足した `published_entries_json_to_md.py --check` | 刷った表の手の編集、原稿を直して刷り直していないこと。原稿の形の破れ（行・コンポーネントの二重、名の二重、括弧で始まらない注記、名に読める片、最後の片のつなぎ）は書く前に拒む | メンバが入口から本当に出ているか —— それは検査 26b が見る | 無し |
 | 27 に足した `generate_public_entry_index.py --check` | `src/` の公開した名か、原稿の注記が変わったのに索引を刷り直していないこと | 非公開の関数。言い換えた名（名が違えば、探す者の語が当たらない） | 無し |
-| 70 `check-literal-restatement.py` | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上、共通 3 以上）。型が生成の和で守るものは外す | 関数の中の集合。複数のファイルに散った 1 語ずつの語彙（アイコンの面の名など）。言い換えた集合 | 19（言い直し 14・偶然 5）。増やすのは利用者の OK |
-| 71 `check-twin-comments.py` | 写しだと述べる新しいコメント。登録した写しのコメントが消えたのに登録が残っていること | 誰もコメントしなかった写し（例: 調査の `compareDay` / `compareDays`） | 50（写し 36・仕様の表の手写し 2・結びつき 12）。増やすのは利用者の OK |
+| 69 `check-literal-restatement.py` | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上、共通 3 以上）。型が生成の和で守るものは外す | 関数の中の集合。複数のファイルに散った 1 語ずつの語彙（アイコンの面の名など）。言い換えた集合 | 19（言い直し 14・偶然 5）。増やすのは利用者の OK |
+| 70 `check-twin-comments.py` | 写しだと述べる新しいコメント。登録した写しのコメントが消えたのに登録が残っていること | 誰もコメントしなかった写し（例: 調査の `compareDay` / `compareDays`） | 50（写し 36・仕様の表の手写し 2・結びつき 12）。増やすのは利用者の OK |
 
-⭐ **壊して確かめた。** 生成器は原稿の破れ 5 通りをすべて拒み、刷った表の手の編集を `DRIFTED` で捕まえた。検査 70 は、植えた言い直しで `new 1`、`NoticeReason` を別のファイルへ移しても緑、`ShapeKind` を生成から引いたのに記録を残すと赤。検査 71 は `src/` の写しで、新しい「a copy of rectHoldsPoint in screen-regions.ts」で `new 1`、登録したコメントを消すと赤、`frame-loop.ts` を別の道へ移して行をずらしても緑（14 節）。
+⭐ **壊して確かめた。** 生成器は原稿の破れ 5 通りをすべて拒み、刷った表の手の編集を `DRIFTED` で捕まえた。検査 69 は、植えた言い直しで `new 1`、`NoticeReason` を別のファイルへ移しても緑、`ShapeKind` を生成から引いたのに記録を残すと赤。検査 70 は `src/` の写しで、新しい「a copy of rectHoldsPoint in screen-regions.ts」で `new 1`、登録したコメントを消すと赤、`frame-loop.ts` を別の道へ移して行をずらしても緑（14 節）。
 
 ---
 
@@ -185,7 +185,7 @@
 ## 11. この変更でやらないこと
 
 - **後半: 名前を正規化した写しの差分の関門**（試作 A。関数単位、局所名をならした字面の似かたで、新しい群を赤にする）。割る 3 本（`CR-578`〜`580`）が `src/` のトークンの 22.7% を動かすので、その後に基準線を引く。
-- 写しを畳む `src/` の直し。検査 70・71 の基準線と調査の群は、それをする CR の入力である。
+- 写しを畳む `src/` の直し。検査 69・70 の基準線と調査の群は、それをする CR の入力である。
 - 原稿の一覧が 6 か所に写されていること（検査 46・47・39・37、`follow_the_manuscript.py`、`spec-table.ts`）を 1 か所にまとめること。
 - 検査 26b の説明文の古い数（`SKILL.md` の「97 members and skips 9 pieces」と、Framework の行がインターフェースを名指すという記述 —— 今は 197 で、`PI-26`〜`PI-31` はメンバとして読まれる）。
 - 名の近さで写しを推す門（試作 E）。精度 5/10・再現 1/8 で、うるさい門になる（`SKILL.md` の「a noisy gate is worse than no gate」）。
@@ -195,7 +195,7 @@
 ## 12. 前に立つ者へ返す問い
 
 1. 6 節の規則 02 の文案を P1 が当てるか、調整役が合流で当てるか。
-2. 検査 70・71 の番号（仮）と、P2・P4 の足す検査の番号の詰め方。
+2. ⭐ 解決済み: 検査 70・71（仮）は合流で 69・70 に、P2・P4 の足した仮番号は 71〜73 に詰めた。
 
 ---
 
@@ -227,11 +227,11 @@ PYTHONIOENCODING=utf-8 python tools/generate_public_entry_index.py --check
 #   calendarDaysBetween (entry), serial (file only), isSameItem (entry), labelUnits (entry)  -> 4
 #   rectHoldsPoint, taskGroupRankById (schedule-invariants.ts), reach, boundValueOf     -> private, 0
 
-# check 70
+# check 69
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-literal-restatement.py --list
 #   181 hand sets, 869 generated sets, 35 at J >= 0.7: 19 held (14 R, 5 C), 16 exempt (14 RG, 2 typed)
 
-# check 71
+# check 70
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-twin-comments.py --list
 #   50 claim(s): 36 copy, 2 spec-copy, 12 coupling; 5 named twins stale; 0.25 s
 
