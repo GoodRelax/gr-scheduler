@@ -34,3 +34,7 @@
 | 19 | `CR-561`（遅延診断。仕様の波 W4b —— 生成器が色と印の大きさの群とユニットの雛形を作った。描く手順はコードの持ち場 L1） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/schedule-geometry/task-figures.ts` |
 | 20 | `CR-563`（MCP と読むだけの行の削除。仕様の波 W4b —— 生成器がパレットの区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts` |
 | 21 | `CR-589`（表 T-109 の切り替える設定値の列。仕様の波 W4b —— 生成器がパレットと頭の帯の区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/screen-renderer/app-header-items.ts` |
+| 22 | `CR-577`（床より下の行の軸の拡大。仕様の波 W5。行ズームの入力だけ —— コードの持ち場 L3） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
+| 23 | `CR-582`（行の最小高さ。仕様の波 W5 —— 生成器が大きさの群と表示語を書き換えた。描く手順はコードの段 A と持ち場 L3） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
+| 24 | `CR-586`（取り込んだマイルストーンと行の色。仕様の波 W5） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
+| 25 | `CR-583`（マイルストーンの形。仕様の波 W5 —— 生成器が `milestone-shapes.json` を刷った。描く手順はコードの持ち場 L1） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/milestone-shapes.json` |
