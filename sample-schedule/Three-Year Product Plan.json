@@ -40759,8 +40759,8 @@
   "dualCursor": null,
   "dummyOpacity": 0.2,
   "exportCanvas": {
-   "height": 900,
-   "width": 1600
+   "height": 1080,
+   "width": 1920
   },
   "exportPngScale": 1,
   "fadeHandleHalfPx": 4.5,
@@ -40827,8 +40827,8 @@
   "rulerLabelGap": 8,
   "rulerLabelPad": 2,
   "rulerTierPxPerDayDay": 26,
-  "rulerTierPxPerDayMonth": 1.4,
-  "rulerTierPxPerDayWeek": 4.3,
+  "rulerTierPxPerDayMonth": 0.5,
+  "rulerTierPxPerDayWeek": 2,
   "scrollDate": null,
   "scrollDayOffset": 0,
   "scrollGroupId": null,

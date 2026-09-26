@@ -1118,6 +1118,9 @@ NOT_STORED_TARGETS = {
     # falls in answers for those too (CR-430 section 6.3). S-293 is the
     # highlight box's frame, S-291 the comment box's leader line and S-292 its
     # line end -- the three GR-14 rows the older editions had no value for.
+    # CR-555: S-363 is GA-24's margin, the grab area of the dots that end a
+    # dependency line whose far end is not in view (table T-303's EL-9); it
+    # is a row of table T-266 like the rest, so it rides the same constant.
     'NOT_STORED_SIZES': (['S-250', 'S-251', 'S-252', 'S-253', 'S-254', 'S-255',
                           'S-256', 'S-257', 'S-258', 'S-259', 'S-260', 'S-261',
                           'S-262', 'S-263', 'S-264', 'S-265', 'S-266', 'S-267',
@@ -1125,7 +1128,8 @@ NOT_STORED_TARGETS = {
                           'S-274', 'S-275', 'S-276', 'S-277', 'S-278', 'S-279',
                           'S-280', 'S-281', 'S-282', 'S-283', 'S-284', 'S-285',
                           'S-286', 'S-287', 'S-288', 'S-289', 'S-290',
-                          'S-137', 'S-230', 'S-293', 'S-291', 'S-292'],
+                          'S-137', 'S-230', 'S-293', 'S-291', 'S-292',
+                          'S-363'],
                          ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
@@ -1327,7 +1331,18 @@ NOT_STORED_TARGETS = {
     # not the selection sign -- the halo is drawn on every line, selected or
     # not, and only the ORDER changes when one is selected. ⭐ Like S-178 it is
     # a multiplier on the line's own width (S-18) rather than a length.
-    'NOT_STORED_DEPENDENCY_SIZES': (['S-224'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-555: S-360 .. S-362 join S-224 -- the short line and the three dots
+    # table T-303 (EL-7 .. EL-9) draws for a dependency line whose far end is
+    # not in view. Their subject is the dependency line too, and EL-15 draws
+    # them into an exported picture. They are LENGTHS multiplied by the
+    # drawing ratio (DS-3 of table T-252), unlike S-224.
+    # WARNING: this constant is printed into svg-renderer.ts only. The
+    # geometry builds the short line and the dots (CR-555 seam S-1), so the
+    # code wave that first reads these rows there prints this constant into
+    # dependency-route.ts as well; printing it there before any reader exists
+    # would be an unused const that noUnusedLocals refuses.
+    'NOT_STORED_DEPENDENCY_SIZES': (['S-224', 'S-360', 'S-361', 'S-362'],
+                                    DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
     # drawn by schedule-overlays.ts, which reads this constant already, and

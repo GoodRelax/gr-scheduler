@@ -1091,7 +1091,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['number'],
         },
         rulerTierPxPerDayWeek: {
-          type: ['number'],
+          type: ['integer'],
         },
         scrollDate: {
           type: ['string', 'null'],

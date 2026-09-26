@@ -71,7 +71,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 5 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 895 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 899 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
 | `DM` | Dummy | 実績のダミーの規則の条 | 仕様書 | `T-240` | 9 |
@@ -83,6 +83,7 @@
 | `DV` | Derived Value | 書き出すときに作る値（文書は持たず、書き出しで導く） | 仕様書 | `T-059` | 10 |
 | `ED` | — | 最後に編集した者として書く語 | 仕様書 | `T-229` | 3 |
 | `EG` | — | コンポーネントの辺 | 仕様書 | `T-247` | 8 |
+| `EL` | Elision | 端点が見えていない依存線の描き方 | 仕様書 | `T-303` | 15 |
 | `EN` | — | 入口を塗って示す状態 | 仕様書 | `T-237` | 7 |
 | `EP` | Export Part | 書き出す絵に描く UI パーツと、描かない UI パーツ | 仕様書 | `T-076` | 22 |
 | `ET` | Entity | エンティティ 1 つ | 仕様書 | `T-056` | 18 |
@@ -92,7 +93,7 @@
 | `FT` | Frame Trigger | フレームが走る契機 | 仕様書 | `T-078` | 6 |
 | `FU` | Future | いま作らないが、後から足せるようにしておくもの | 仕様書 | `T-039` | 5 |
 | `G` | Glossary | 本書を読むための語 | 仕様書 | `T-005` | 14 |
-| `GA` | Grab Area | 操作対象ごとの掴み代の幾何 | 仕様書 | `T-266` | 22 |
+| `GA` | Grab Area | 操作対象ごとの掴み代の幾何 | 仕様書 | `T-266` | 23 |
 | `GD` | Guide | 予実の補助線の条 | 仕様書 | `T-020a` | 7 |
 | `GO` | Grab outcome | 掴んだ端を離したときに置く値と据え置く値の行 | 仕様書 | `T-245` | 11 |
 | `GP` | Group Permission | 行の編集グループの規則の条 | 仕様書 | `T-275` | 6 |
@@ -111,7 +112,7 @@
 | `IR` | Interaction Record | 人の操作と画面の描画の記録に、描いたフレームごとに書く画面の状態 | 仕様書 | `T-263` | 3 |
 | `IV` | Invariant | 文書が満たす不変条件 | 仕様書（台帳にも 1 行。写しとして申告済み） | `T-220` | 21 |
 | `IX` | Image eXport | 画像の書き出しの規則の条 | 仕様書 | `T-241` | 10 |
-| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 569 |
+| `JDG` | Judgement | 利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。<br>`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった） | 台帳 | `docs/development-records/rulings.md` | 575 |
 | `JF` | — | `src/` の `.json` の置き場 | 仕様書 | `T-248` | 4 |
 | `K` | Key | 設定値のキー 1 つ | 仕様書 | `T-104` | 123 |
 | `L` | Level of Detail | 表示量の増減（LOD）の種別 | 仕様書 | `T-005a` | 2 |
@@ -169,7 +170,7 @@
 | `RS` | — | 通知が運ぶ理由 | 仕様書 | `T-233` | 59 |
 | `RT` | — | 依存線の経路が満たす規則 | 仕様書 | `T-018a` | 7 |
 | `RV` | — | 描くときに求める値（文書は持たず、描くたびに導く） | 仕様書 | `T-069` | 5 |
-| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 331 |
+| `S` | Setting | 設定値 1 つ。<br>一連の通し番号を主題ごとに複数の表へ割っているだけであり、同じ綴りが別のものを指しているのではない | 仕様書 | `T-201` ／ `T-202` ／ `T-203` ／ `T-216` ／ `T-204` ／ `T-205` ／ `T-206` ／ `T-207` ／ `T-236` ／ `T-294` ／ `T-212` ／ `T-211` ／ `T-213` ／ `T-214` ／ `T-215` ／ `T-210` ／ `T-209` ／ `T-208` ／ `T-217` | 335 |
 | `SC` | Scroll | 何がスクロールし、何がしないか | 仕様書 | `T-031` | 6 |
 | `SD` | State-machine Definition | 状態機械の原稿が持つものの条 | 仕様書 | `T-250` | 5 |
 | `SE` | Scale Echo | 表示の倍率を変えたときに出す、いまの倍率を示すメッセージの出し方と消え方 | 仕様書 | `T-260` | 5 |

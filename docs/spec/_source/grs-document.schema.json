@@ -701,7 +701,7 @@
      "minimum": 0.1
     },
     "rulerTierPxPerDayWeek": {
-     "type": "number"
+     "type": "integer"
     },
     "scrollDate": {
      "type": [

@@ -339,6 +339,14 @@
    }
   },
   {
+   "prefix": "EL",
+   "words": "Elision",
+   "owner": "spec",
+   "means": {
+    "ja": "端点が見えていない依存線の描き方"
+   }
+  },
+  {
    "prefix": "EN",
    "words": "",
    "owner": "spec",

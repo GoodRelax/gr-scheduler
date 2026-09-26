@@ -674,8 +674,14 @@ export const NOT_STORED_SELECTION_SIZES: {
 // see T-206
 export const NOT_STORED_DEPENDENCY_SIZES: {
   readonly 'S-224': number
+  readonly 'S-360': number
+  readonly 'S-361': number
+  readonly 'S-362': number
 } = {
   'S-224': 3,
+  'S-360': 9.6,
+  'S-361': 19.2,
+  'S-362': 3.2,
 }
 
 // see T-206

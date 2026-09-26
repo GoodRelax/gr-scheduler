@@ -1,7 +1,7 @@
 # CR-584 — 月のラベルが入れば月まで刷り、書き出す絵は 1920 × 1080 で空白を地の色で塗る
 
 > 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W1。`JDG-740`）。当てた木は `87d98a47` に `CR-555` を当てた作業木（未コミット）。4 節の 20 塊を書いたとおりに当てた —— どの旧も当てる直前に 1 回だけ現れ、E-01 の旧は `CR-555` の E-20 の新のままだった（旧を今の文へ合わせた塊は無い）。
-> 11 節の問い 1 は調整役が A と決めた（2026-09-26）: `S-84` ＝ 2（導いた値）。`JDG-720` の「約 2.3」はトリアージのセッションの見積もりであり、利用者の逐語は「月まで表示できるときは月まで表示しろ。」である。⇒ J-03・J-09・D-02・D-04・D-06 は 4 節の文のまま。
+> 11 節の問い 1 は調整役が A と決めた（2026-09-26）: `S-84` ＝ 2（導いた値）。`JDG-720` の「約 2.3」はトリアージのセッションの見積もりであり、利用者の逐語は「月まで表示できるときは月まで表示しろ。」である。⇒ J-03・J-09・E-12・E-14・E-16 は 4 節の文のまま。
 > 起草の元: 利用者の指示 `JDG-720`・`JDG-723`・`JDG-724`（逐語は 0.1 節）と、調整役が見つけた仕様の穴 2 つ（書き出す絵の高さの整数化・書き出す題の縦の位置。コードは `999f9f10` が既に直した）。コード（9 節）と試験はまだ変えていない。
 > 読んだ木: `cr-organise` の `87d98a47`。⚠️ 起草のあいだに、同じ作業木で調整役が `CR-555` を当て始めた（未コミット。`01-04-requirements.md` の 表 T-241 の `IX-1`・`IX-4` が `CR-555` の新になっていた）。旧の塊の数え方は 13 節（`87d98a47` に `CR-555` の E-19・E-20 を当てた写しと、起草の終わりの作業木の 2 つで数えた）。
 > コードの木: 書き出す絵の高さと題の位置は、この木に無いコミット `999f9f10`（`src/adapter/image-exporter/image-exporter.ts`）を `git show` で読んだ。
@@ -17,9 +17,9 @@
 
 | 裁定 | 逐語 | 決めること（`rulings.md` の欄のまま） | 本書での扱い |
 |---|---|---|---|
-| `JDG-720` | 「カレンダーで月まで表示できるのに年しか表示されない倍率がある。月まで表示できるときは月まで表示しろ。」 | 月の段のラベルが入る幅があれば、年だけでなく月まで刷る。⇒ 表 T-205 の `S-83` を今の `TM-2` のラベル `m` から導き直す（1.4 → 0.5）。同じ導出の古さを持つ `S-84` も導き直す（4.3 → 約 2.3）。`FR-017`（01-04:4292）の「しきい値がその境目である」がすでに言っていることを値に戻す | J-02・J-03・J-07 〜 J-10 と D-02・D-04・D-06。⚠️ `S-84` は導くと 2 になる（0.2 節の 2、11 節の問い 1） |
+| `JDG-720` | 「カレンダーで月まで表示できるのに年しか表示されない倍率がある。月まで表示できるときは月まで表示しろ。」 | 月の段のラベルが入る幅があれば、年だけでなく月まで刷る。⇒ 表 T-205 の `S-83` を今の `TM-2` のラベル `m` から導き直す（1.4 → 0.5）。同じ導出の古さを持つ `S-84` も導き直す（4.3 → 約 2.3）。`FR-017`（01-04:4292）の「しきい値がその境目である」がすでに言っていることを値に戻す | J-02・J-03・J-07 〜 J-10 と E-12・E-14・E-16。⚠️ `S-84` は導くと 2 になる（0.2 節の 2、11 節の問い 1） |
 | `JDG-723` | 「透過色は要らない。背景色で統一しろ」 | 書き出す絵の空白は地の色（`S-146`）で塗り、透過にしない。⇒ `IX-10` の「余りを空白のまま」に 1 文足す | E-02 |
-| `JDG-724` | 「.pngと.svgとクリップボードの画像サイズを1600x900じゃなくて、1920x1080にしろ。」 | `S-81` `exportCanvas` の既定値を 1920x1080 にする。保存された起動テンプレートと見本も書き換える（運用前なので古い形の読み替えは要らない） | J-01・J-04 〜 J-06・J-11 と D-01・D-03・D-05、`npm run gen` |
+| `JDG-724` | 「.pngと.svgとクリップボードの画像サイズを1600x900じゃなくて、1920x1080にしろ。」 | `S-81` `exportCanvas` の既定値を 1920x1080 にする。保存された起動テンプレートと見本も書き換える（運用前なので古い形の読み替えは要らない） | J-01・J-04 〜 J-06・J-11 と E-11・E-13・E-15、`npm run gen` |
 
 調整役の依頼（利用者の言葉ではない）: 書き出す絵の高さが整数の px であること（今は `PND-133` と `IX-4` が暗に言うだけ）と、書き出す `Document Title` の縦の位置（コードは帯の中点 ＋ 字の大きさ × `labelBaseline`。`S-33` を `U-27` に結ぶ行が無い）を、`999f9f10` のコードのとおりに仕様へ書く。
 
@@ -76,18 +76,18 @@
 | 空白の塗り（`JDG-723`） | `01-04-requirements.md` の 表 T-241 の `IX-10` | E-02 |
 | 高さは整数の px（調整役） | 表 T-241 の `IX-4`（`CR-555` の新） | E-01 |
 | 書き出す題の縦の位置（調整役） | `01-04-requirements.md` の 表 T-076 の `EP-1` | E-03 |
-| 保存された値 | `sample-schedule/No Name.json`・`sample-schedule/Three-Year Product Plan.json`・`docs/guides/schedule-to-grs-json/grs-skeleton.json` | D-01 〜 D-06 |
+| 保存された値 | `sample-schedule/No Name.json`・`sample-schedule/Three-Year Product Plan.json`・`docs/guides/schedule-to-grs-json/grs-skeleton.json` | E-11 〜 E-16 |
 | 生成物 | `_assets/tbl-settings.md`・`src/entity/document-model/document-settings/document-settings.ts`・`src/framework/single-html-shell/startup-template.json` | `npm run gen`（手で直さない） |
 
-**数**: 仕様の文の編集 3（E-01 〜 E-03、どれも `01-04-requirements.md`）、原稿 JSON の編集 11（J-01 〜 J-11、どれも `_source/settings.json`）、データの編集 6（D-01 〜 D-06）。
+**数**: 仕様の文の編集 3（E-01 〜 E-03、どれも `01-04-requirements.md`）、原稿 JSON の編集 11（J-01 〜 J-11、どれも `_source/settings.json`）、データの編集 6（E-11 〜 E-16）。
 
 ### 1.1 同じ形の所（書く前に数えた。`87d98a47`）
 
 | 形 | 数 | 本書で直す | 直さない（理由） |
 |---|--:|---|---|
 | 表 T-205 の値の導き方が古いラベル・古い隙間で書かれている | 導出表 3 行 ＋ 注の 1 文 ＋ `S-135` の欄 1 文 ＝ 5 | 月・週の 2 行、注、`S-135` の欄（J-07 〜 J-10） | 日の段の行（決定 3） |
-| `S-83`・`S-84` の値を持つもの | 原稿 1 ＋ 生成 2（`document-settings.ts`・`startup-template.json`）＋ 手書き 3（見本 2・骨組み 1）＝ 6 | 原稿と手書き 3（J-02・J-03、D-02・D-04・D-06）。生成 2 は `npm run gen` | — |
-| `S-81` の値を持つもの・その数を写した文 | 原稿 1 ＋ 生成 2 ＋ 手書き 3 ＋ 仕様の文 2 行（`S-85`・`S-221`）＝ 8 | 原稿、手書き 3、仕様の文 2 行（J-01・J-04 〜 J-06・J-11、D-01・D-03・D-05） | `S-221` の「参考の 18px を書き出す絵の幅 1600 で割って割合にした」は係数の導き方として真（0.2 節の 5） |
+| `S-83`・`S-84` の値を持つもの | 原稿 1 ＋ 生成 2（`document-settings.ts`・`startup-template.json`）＋ 手書き 3（見本 2・骨組み 1）＝ 6 | 原稿と手書き 3（J-02・J-03、E-12・E-14・E-16）。生成 2 は `npm run gen` | — |
+| `S-81` の値を持つもの・その数を写した文 | 原稿 1 ＋ 生成 2 ＋ 手書き 3 ＋ 仕様の文 2 行（`S-85`・`S-221`）＝ 8 | 原稿、手書き 3、仕様の文 2 行（J-01・J-04 〜 J-06・J-11、E-11・E-13・E-15） | `S-221` の「参考の 18px を書き出す絵の幅 1600 で割って割合にした」は係数の導き方として真（0.2 節の 5） |
 | 試験の中の `1600` と `900` | `exportCanvas: { width: 1600, height: 900 }` を自分で組む設定 5 ファイル、1600 × 900 の画面 3 ファイル、注の文 5 か所（`uf-27-28-29.test.ts:1662` ほか） | — | 9 節。どれも表を読まずに自分の設定を組むか、過去の裁定を引く注である。`S-81` を表から読む試験（`uf-47-48-choosers.test.ts:2989`）は値に付いてくる |
 | 書き出す絵の空白 | `IX-10` の余り ＋ `FR-080` の描かない UI パーツの場所 ＝ 2 | どちらも E-02 の 1 文で | `FR-080` の文は書かない（`R1.3` の ②） |
 | 字の縦の位置を「中点 ＋ 字の大きさ × `labelBaseline`」で求めるコード | 2（`labelSvg`、`999f9f10` の `appHeaderSvg`）。別の式が 1（`image-exporter.ts` の `rowTitleSvg` は `box.y + fontSizePx`） | 仕様は `EP-1` の 1 文（E-03） | コードは直さない（9 節の `R2.21`）。`rowTitleSvg` の式は 10 節 |
@@ -115,7 +115,7 @@
 | 導出表の週の行（`01-05`、30px、`7 × ppd ≧ 30`、4.3） | `_source/settings.json` の次の行（`tbl-settings.md:275`） | `d` の 2 桁、12px ＋ `S-135`、`7 × ppd ≧ 14`、2 | J-09 |
 | `S-135` の欄「足して導くのは … `S-85` だけ」 | `_source/settings.json:266`（`tbl-settings.md:73`） | 目盛のしきい値（`S-83` 〜 `S-85`）のどれにも足す | J-10 |
 | `S-221` の欄の実測の条件（`S-81` の幅を書いていない） | `_source/settings.json:4508`（`tbl-settings.md:447`） | 「`S-81` の幅 1600」を足し、1920 のときの字の大きさを 1 文 | J-11 |
-| 見本・骨組みの `exportCanvas` 1600 × 900、`rulerTierPxPerDayMonth` 1.4、`rulerTierPxPerDayWeek` 4.3 | 13 節の表 | 1920 × 1080、0.5、2 | D-01 〜 D-06 |
+| 見本・骨組みの `exportCanvas` 1600 × 900、`rulerTierPxPerDayMonth` 1.4、`rulerTierPxPerDayWeek` 4.3 | 13 節の表 | 1920 × 1080、0.5、2 | E-11 〜 E-16 |
 
 ⭐ **消さないもの**: `IX-10` の「余りを空白のままとすること（MUST）」（試験 `tests/unit/uf-39-40.test.ts:844`・`:1952` が引く —— 文はそのまま残し、段の終わりに 1 文足す）。`FR-080` の「描かない UI パーツは、その場所を空白として残すこと（MUST）」（場所を残す規則であり、塗る色は E-02）。`S-217` の欄「`S-81` の高さは伸ばす前の下限であって、上限ではない」。`S-221` の「参考の 18px を書き出す絵の幅 1600 で割って割合にした」。`EP-1` の既存の文すべて。
 
@@ -349,7 +349,7 @@
 
 ### 4.3 保存された値（見本と案内の骨組み。運用前なので古い形の読み替えは足さない —— `JDG-724`）
 
-<!-- EDIT id=D-01 file=sample-schedule/No Name.json -->
+<!-- EDIT id=E-11 file=sample-schedule/No Name.json -->
 旧
 ```text
   "exportCanvas": {
@@ -365,7 +365,7 @@
   },
 ```
 
-<!-- EDIT id=D-02 file=sample-schedule/No Name.json -->
+<!-- EDIT id=E-12 file=sample-schedule/No Name.json -->
 旧
 ```text
   "rulerTierPxPerDayMonth": 1.4,
@@ -377,7 +377,7 @@
   "rulerTierPxPerDayWeek": 2,
 ```
 
-<!-- EDIT id=D-03 file=sample-schedule/Three-Year Product Plan.json -->
+<!-- EDIT id=E-13 file=sample-schedule/Three-Year Product Plan.json -->
 旧
 ```text
   "exportCanvas": {
@@ -393,7 +393,7 @@
   },
 ```
 
-<!-- EDIT id=D-04 file=sample-schedule/Three-Year Product Plan.json -->
+<!-- EDIT id=E-14 file=sample-schedule/Three-Year Product Plan.json -->
 旧
 ```text
   "rulerTierPxPerDayMonth": 1.4,
@@ -405,7 +405,7 @@
   "rulerTierPxPerDayWeek": 2,
 ```
 
-<!-- EDIT id=D-05 file=docs/guides/schedule-to-grs-json/grs-skeleton.json -->
+<!-- EDIT id=E-15 file=docs/guides/schedule-to-grs-json/grs-skeleton.json -->
 旧
 ```text
     "exportCanvas": {
@@ -421,7 +421,7 @@
     },
 ```
 
-<!-- EDIT id=D-06 file=docs/guides/schedule-to-grs-json/grs-skeleton.json -->
+<!-- EDIT id=E-16 file=docs/guides/schedule-to-grs-json/grs-skeleton.json -->
 旧
 ```text
     "rulerTierPxPerDayMonth": 1.4,
@@ -456,7 +456,7 @@ SEAM (verbatim in every brief of this CR's waves)
   already the code at 999f9f10; this CR only writes them into the spec.
 ```
 
-⭐ **`CR-572` への申し送り**（`CR-572` の 3 節の表の行 29 `exportCanvas`・行 91 `rulerTierPxPerDayMonth`・行 92 `rulerTierPxPerDayWeek`）: `CR-572` は表 T-204・T-205 を定数へ移し、値を `tools/generate_entity_types.py` が `settings.json` から `SETTINGS_CONSTANTS` へ刷る。`CR-572` の本文は値を写していない（`1600` と `1.4` の字は 0 回、`4.3` は節の番号「4.3 節」としてだけ現れる。13 節）。⇒ 本書を先に当てれば、`CR-572` は新しい値（1920 × 1080・0.5・2）を運ぶ。⛔ **`CR-572` を当てる体は、刷った定数がこの 3 つの値であることを確かめること。** `CR-572` が見本と骨組みから外す 78 鍵には `exportCanvas` と 2 つのしきい値が入る —— 本書の D-01 〜 D-06 は、その間だけ効く書き換えである。
+⭐ **`CR-572` への申し送り**（`CR-572` の 3 節の表の行 29 `exportCanvas`・行 91 `rulerTierPxPerDayMonth`・行 92 `rulerTierPxPerDayWeek`）: `CR-572` は表 T-204・T-205 を定数へ移し、値を `tools/generate_entity_types.py` が `settings.json` から `SETTINGS_CONSTANTS` へ刷る。`CR-572` の本文は値を写していない（`1600` と `1.4` の字は 0 回、`4.3` は節の番号「4.3 節」としてだけ現れる。13 節）。⇒ 本書を先に当てれば、`CR-572` は新しい値（1920 × 1080・0.5・2）を運ぶ。⛔ **`CR-572` を当てる体は、刷った定数がこの 3 つの値であることを確かめること。** `CR-572` が見本と骨組みから外す 78 鍵には `exportCanvas` と 2 つのしきい値が入る —— 本書の E-11 〜 E-16 は、その間だけ効く書き換えである。
 
 ---
 
@@ -513,7 +513,7 @@ SEAM (verbatim in every brief of this CR's waves)
 
 | 波 | 持ち場 | 中身 | 体 |
 |---|---|---|---|
-| 0 | ― | 11 節の問い 1 の答えを J-03・J-09・D-02・D-04・D-06 に当てる。4 節の旧 20 塊をその時点の木で数え直す（13 節） | 調整役 |
+| 0 | ― | 11 節の問い 1 の答えを J-03・J-09・E-12・E-14・E-16 に当てる。4 節の旧 20 塊をその時点の木で数え直す（13 節） | 調整役 |
 | 1 | `docs/spec/_source/settings.json`・`docs/spec/01-04-requirements.md`・`sample-schedule/` の 2 つ・`docs/guides/schedule-to-grs-json/grs-skeleton.json`（と生成物） | 4 節を当て、`npm run gen` と `npm run gen:check`。閉路 3 つは同じ手 | 仕様の体 |
 | 2 | `src/adapter/image-exporter/image-exporter.ts` とその試験 | 9 節の地の色の矩形 | 実装の体（Sonnet） |
 | 2t | `tests/`（新しいファイル `cr-584-*.test.ts` だけ） | 下の試験 | ⭐ 仕様だけを読む試験の体。実装の体と別 |
@@ -573,7 +573,7 @@ SEAM (verbatim in every brief of this CR's waves)
 | B | 2.3 | （画面で測った `12` の幅 14.2 ＋ 2）÷ 7 ＝ 2.31 —— 14px の目盛で測った幅を、12px の基準に直さずに使った値 | 週の段が出始めるのが少し遅くなる（1 刻み 1.121 倍でおよそ 1 刻み）。`S-83` の 0.5 と導き方が揃わず、欄に書ける式が無い（測った値として 🔎 を付けることになる） |
 
 推す理由: `rulerTierOf` は px/日 を 14 ÷ 12 で割ってからしきい値と比べる（`FR-017` の判定式）ので、しきい値は 12px の基準で導くものである。B は 14px の幅をそのまま使うので、字の大きさの補正を 2 度掛けることになる。`JDG-720` の「約 2.3」は `DFC-1140` の見積もりから写した数で、`S-83` の 0.5 は同じ見積もりが 12px の基準で出した値である。代償: A は `JDG-720` の欄の数と違う値を書く。
-⇒ **A なら 4 節のまま当てる。B なら J-03・J-09 の新の数を 2.3 に、J-03 の欄を「2.3 ＝（画面で測った `12` の幅 14.2px ＋ `S-135` 2px）÷ 7 日 🔎」に、D-02・D-04・D-06 の 2 を 2.3 にする。**
+⇒ **A なら 4 節のまま当てる。B なら J-03・J-09 の新の数を 2.3 に、J-03 の欄を「2.3 ＝（画面で測った `12` の幅 14.2px ＋ `S-135` 2px）÷ 7 日 🔎」に、E-12・E-14・E-16 の 2 を 2.3 にする。**
 
 ほかに残っている問いは無い。
 
@@ -622,7 +622,7 @@ grep -c "1600" change-request/CR-572-*.md                     # 0 ; "1.4" 0 ; "4
 #   scratchpad: draft/584-verify.py <repo> <this CR> <CR-555> <scratch>   (2026-09-26, HEAD 87d98a47)
 #   tree A = the working tree (87d98a47 + CR-555 being applied, uncommitted)
 #   tree B = 87d98a47 with CR-555's E-19 and E-20 applied to 01-04-requirements.md
-#   edits parsed: 20 E-01 .. D-06
+#   edits parsed: 20 E-01 .. E-16
 #   A-worktree: problems 0, applied 20 of 20, json ok      (every old block counted 1 before its edit)
 #   B-base+CR555: problems 0, applied 20 of 20, json ok
 #   then, on a copy of the working tree's docs/spec with the edits applied:
