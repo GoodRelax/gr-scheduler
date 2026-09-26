@@ -65,7 +65,7 @@ export function tooltipElement(
 }
 
 // see EZ-2, IN-7
-// WHY: measured once, when shown; a window resized while it stands is not followed (IN-7).
+// WHY: measured once, when shown: the surface places again only for a changed set, never for a resize (IN-7, JDG-728).
 /** @purity non-pure */
 export function keepTooltipsInside(layer: HTMLElement): void {
   const tooltips = Array.from(layer.children)

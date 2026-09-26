@@ -845,7 +845,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeLayer.setAttribute('style', STYLE.notices + `top:${headerHeightPx}px;`)
     }
 
-    if (isHeaderMoved || Object.keys(keys).some(changed)) {
+    if (changed('tooltips')) {
       tooltipLayer.replaceChildren(...view.tooltips.map((one) => tooltipElement(host, one, anchorFor)))
       keepTooltipsInside(tooltipLayer)
     }

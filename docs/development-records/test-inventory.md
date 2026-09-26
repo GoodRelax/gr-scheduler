@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 1 | 31 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
-| `unit` | TS-6 | - | 133 | 3008 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 134 | 3015 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 275 | 4386 | 12 | 17 | 9 | 1 |
+| **all** | | | 276 | 4393 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -70,12 +70,12 @@ named either way: 1 of 12.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (133) -- listing only
+## 6. The unit files kept for now (134) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 9 of 133.
+`semi-pure-a` (rule 04 table UO, row UO-1): 9 of 134.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -126,6 +126,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-024, FR-073, T-036, T-103, T-220, T-233 |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editTask (pure), editTaskGroup (pure) | yes | FR-058 |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021 |
+| `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | domScreenSurface (non-pure) | - | 2 rows |
 | `tests/unit/document-model.test.ts` | DaySpanTooWide (class), NoWorkingDayReached (class), advanceScreenSession (pure), advancedStamp (pure), clampedSettings (pure), compareDays (pure), dateFromWorkingDays (pure), dayOf (pure), delayWorkingDays (pure), documentViolations (pure), emptyDialogueLog (pure), emptyHistory (pure), emptySelection (pure), escapeContextOf (pure), escapeTarget (pure), historyWithStep (pure), isDelayed (pure), isSelected (pure), isStampMatched (pure), isWorkingDay (pure), lastPicked (pure), latestSequence (pure), logWithMessage (pure), messagesSince (pure), nextStep (pure), planActualState (pure), previousStep (pure), selectionOfAll (pure), selectionWith (pure), selectionWithout (pure), stepCount (pure), textOfDay (pure), workingCalendarOf (pure), workingDaysBetween (pure) | - | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101, T-019a, T-021b, T-052, T-201, T-209, T-214, T-280 |
 | `tests/unit/edit-calendar.test.ts` | editCalendar (pure), planDocumentChange (pure), undoEdit (pure) | yes | FR-012, FR-054, FR-063, FR-088, T-027, T-033, T-037, T-058, T-067, T-108, T-209, T-218, T-220 |
 | `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` | keepTooltipsInside (non-pure), tooltipElement (non-pure) | - | FR-092, T-206 |
@@ -392,6 +393,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | 20 | FR-024, FR-073 | - | T-036, T-103, T-220, T-233 | AM-2, OP-6, RS-25, RS-63, RS-64, S-350 | - | - | - | - |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | 19 | FR-058 | - | - | HM-9, IV-6, MR-4, S-125, ST-2 | - | - | - | - |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | 19 | FR-021 | - | - | AT-139, EX-5, IV-2, MR-4 | - | - | - | - |
+| `tests/unit/dfc-1130-in7-tooltip-measured-once.test.ts` | 7 | - | - | - | IN-7, S-339 | - | - | - | - |
 | `tests/unit/document-model.test.ts` | 63 | FR-023, FR-031, FR-046, FR-054, FR-063, FR-101 | - | T-019a, T-021b, T-052, T-201, T-209, T-214, T-280 | AG-2, AG-6, AG-11, AT-73, AT-140, DR-1, DR-4, DR-5, EX-7, IN-4, IN-4a, PI-1, PI-2, PI-3, PI-4, PI-13, PI-18, PI-32, PI-33, PI-34, PI-36, S-1, S-99e, S-99g, S-106, S-121, S-129, SL-7b, U-55 | - | - | - | - |
 | `tests/unit/edit-calendar.test.ts` | 22 | FR-012, FR-054, FR-063, FR-088 | - | T-027, T-033, T-037, T-058, T-067, T-108, T-209, T-218, T-220 | AG-9a, AT-17, AT-18, AT-73, AT-82, AT-83, CM-39, EX-5, IV-17, NT-3, S-106, S-107, S-108, TS-6, UF-16, UN-13, WS-1, WS-3, WS-5, WS-7 | - | - | - | - |
 | `tests/unit/ez-2-tooltip-one-line-inside-the-window.test.ts` | 4 | FR-092 | - | T-206 | EZ-2, IN-7, S-339 | - | - | - | - |
