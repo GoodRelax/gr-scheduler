@@ -39,6 +39,7 @@ docs/development-records/
   src-comment-cleanup-report-2026-09-13.md  src/ のコメント整理（裁定 17・18）の状況報告（2026-09-13 時点の写し）
   refactor-plan-report-2026-09-13.md  リファクタ計画（神ファイルの解体と、自前の状態機械への移行。段ごと）
   refactor-stage1-state-inventory-2026-09-13.md  リファクタ段 1 の棚卸し（保存しない状態 1 つにつき 1 行と、その依存）
+  cr-plan-2026-09-26.md  保留の CR の整理と仕様の一括の通し（波・持ち場・毎フレームの印。JDG-740）
 ```
 
 ⛔⛔ **`defects.md` と `fixed-defects.md` は 1 つの台帳の 2 つの半分である。**
