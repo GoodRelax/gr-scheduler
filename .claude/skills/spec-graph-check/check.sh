@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 63 mechanical checks for the gr-scheduler specification.
+# All 64 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,9 +10,10 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 46. (Recounted 2026-09-26 when
+# The ranges today are 1 + 4 + 8 + 4 + 47. (Recounted 2026-09-26 when
 # checks 64-66 went in: the single-number headings were 43, not 42, before
-# them -- check 63 had gone in without a recount.)
+# them -- check 63 had gone in without a recount. Recounted again when
+# check 74 went in: 46 single-number headings before it.)
 # ⚠️ `26b` is written with ONE space after the number, so a recount that
 # splits the heading on two spaces reads it as no number at all and lands one
 # short. Counted by hand it is one check like any other.
@@ -297,6 +298,10 @@
 #          change request landed since perf-pending.md began that touched a
 #          per-frame path of rule 04 section 5 is in perf-pending.md or
 #          measurements/performance-runs.md (PW-2). No baseline: 0
+#   74     tools/generate_test_inventory.py --check : the test inventory
+#          (docs/development-records/test-inventory.md, one row per test
+#          file with the spec rows it names) is what the tests and the
+#          specification give today. No baseline: stale is red
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -817,6 +822,13 @@ section "66  the performance gate still gates, and per-frame landings wait to be
 # reports the 8 landings of CR-565 / CR-568 / CR-570 that touched per-frame
 # paths, and one CR-568 row in perf-pending.md takes that to 5.
 PYTHONIOENCODING=utf-8 python "$HERE/check-perf-gate.py" || failed
+
+echo ""
+section "74  the test inventory is what the tests and the specification give"
+# ⭐ A gen:check target like those of check 27, kept in its own section so the
+# count there stays eighteen. Any edit to a test file, known-red.txt or a spec
+# row a test names makes it stale: run `npm run gen:tests` and commit the file.
+PYTHONIOENCODING=utf-8 python tools/generate_test_inventory.py --check || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

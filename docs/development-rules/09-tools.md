@@ -256,3 +256,20 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `package.json` | ⭐ **束が何を走らせるか**（唯一の写し）|
 | `.claude/skills/spec-graph-check/SKILL.md` | 検査の散文。⚠️ **数は古い。コードを正とせよ** |
 | `check.sh` の `NOT COVERED` 節 | ⭐ **走行のたびに「この巡が見なかったもの」を刷る。** 本書の「何が見えないか」の、検査一式ぶんの版 |
+
+---
+
+## 12. 試験の目録 —— `tools/generate_test_inventory.py`（P4、2026-09-26）
+
+⭐ **試験ファイル 1 つにつき 1 行。** 置き場（表 T-218）、名指す仕様の行・UC・表、表 T-334 の行、既知の赤（`tests/known-red.txt`）、赤で固定した印（`it.fails` ／ `test.fail` ／ `specMismatch`）とその台帳の行、MSPDI の XSD が要るか（`tests/fixtures/mspdi-xsd.json`）を並べる。
+
+| 呼び口 | 何をするか |
+|---|---|
+| `npm run gen:tests` | `docs/development-records/test-inventory.md` を書く（`npm run gen` にも入っている） |
+| `npm run gen:tests:check` | 古ければ赤（`npm run gen:check` と検査 74 が呼ぶ） |
+
+- ⛔ **試験ファイル・`known-red.txt`・試験が名指す仕様の行のどれかを変えたら、目録は古くなる。** `npm run gen:tests` を走らせ、目録も同じコミットに入れよ。日付も時刻も書かないので、中身が同じなら差分は出ない。
+- ⭐ **ID を読むのは 3 か所だけ** —— コメント、`describe` ／ `test` ／ `it` ／ `step` ／ `specMismatch` の題、`specTable(...)` の表。そのうえで、仕様が定義している ID だけを結ぶ。コードの中の ID（`press(page, 'IC-93')`）は、試験が押すものであって、確かめると名乗るものではないので読まない。
+- ⚠️ **見えないもの**: 走らせてから作る題（表の行を回す `it.each`）はリテラルの部分しか読めない。だから「case sites」は書かれた呼び出しの数であり、走る件数ではない。単体試験の相手は `src/` からの名前つき import で読み、札は宣言の真上の doc コメントだけから読む。呼び手を通して届く関数や `vi.mock` は見えない。試験が名指したものを本当に確かめているかも読まない。
+- ⭐ 6 節の「UO-1 would omit」は、import した関数がすべて `pure` ／ `semi-pure-a` の単体ファイルの印である（規則 04 の表 `UO`）。**一覧を出すだけで、振り分け直しは CR の整理の後に行う。**
+- ⚠️ 本書 5 節の「生成器 21 本」は、この道具を数えていない（本節を足した P4 は 12 節だけを持つ）。
