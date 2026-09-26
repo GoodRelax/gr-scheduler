@@ -2530,16 +2530,15 @@ class Builder(object):
         """@purity semi-pure-a"""
         out = []
         for row in self.rows:
-            # ⭐ A couple of rows carry a colour of their own (ROW_PAINT), and
-            # one row carries a height of its own, so FR-042's overrides are
-            # exercised. The rest are resolved from the theme and the number
-            # of stacked levels. DFC-1002: OVERVIEW_ROW used to force height
-            # 64 here for no reason T-226 asks for, drawing it taller than
-            # its natural one-lane height (21.6px) -- removed.
+            # ⭐ A couple of rows carry a colour of their own (ROW_PAINT), so
+            # FR-042's colour override is exercised. The rest are resolved
+            # from the theme and the number of stacked levels. DFC-1002:
+            # OVERVIEW_ROW used to force height 64 here for no reason T-226
+            # asks for, drawing it taller than its natural one-lane height
+            # (21.6px) -- removed. DFC-1086: no row of the startup template
+            # carries a stated height (min-height override left unused here).
             color = dict(ROW_PAINT).get(row['label'])
             height = None
-            if row['label'] == PHASE_GATE_ROW:
-                height = 40
             out.append({
                 'id': row['id'],
                 'parentId': row['parent']['id'] if row['parent'] else None,
@@ -2995,9 +2994,8 @@ def check_dead_data(built, status_at):
                'A12: %s fades and is drawn as %s, which FD-5 forbids'
                % (task['name'], drawn_as.get(task['uid'])))
     coloured = [one for one in built.task_groups() if one['color'] is not None]
-    sized = [one for one in built.task_groups() if one['height'] is not None]
-    insist(coloured and sized,
-           'A12: no row carries a colour or a height of its own (FR-042)')
+    insist(coloured,
+           'A12: no row carries a colour of its own (FR-042)')
     # ⛔ A band of the first tree is not one person's task. B7 of the second
     # audit: "Implementation phase" was a 395-day leaf owned solely by
     # Developer B, and it was the longest task in the plan.

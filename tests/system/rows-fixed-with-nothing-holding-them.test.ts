@@ -544,23 +544,17 @@ test('DFC-133: confirming the height field moves the panel and the row together'
 }) => {
   const opened = await openTheApp(baseURL)
   try {
-    // WHY: DFC-1002 cleared row 0's stated height (PR-20: null = blank field),
-    // so this case needs Phase Gates, the template's one row that still has one.
-    const before0 = await drawnRows(opened.page)
-    const index = before0.findIndex((row) => row.label === 'Phase Gates')
-    expect(index, 'the template draws a Phase Gates row').toBeGreaterThanOrEqual(0)
-
-    await openPanelOnRow(opened.page, index)
-    const before = (await drawnRows(opened.page))[index] as DrawnRow
+    // WHY: DFC-1086: the template carries no stated row height, so this case
+    // starts from the blank field on row 0, the first drawn row.
+    await openPanelOnRow(opened.page, 0)
+    const before = (await drawnRows(opened.page))[0] as DrawnRow
     const shownBefore = (await panelFields(opened.page))[ROW_HEIGHT_FIELD]
-    expect(Number(shownBefore), `the panel shows ${ROW_HEIGHT_FIELD} to begin with`).toBe(
-      before.height,
-    )
+    expect(shownBefore, `the panel shows ${ROW_HEIGHT_FIELD} blank to begin with`).toBe('')
 
     const wanted = before.height + 56
     await commitField(opened.page, 'number', String(wanted))
 
-    const after = (await drawnRows(opened.page))[index] as DrawnRow
+    const after = (await drawnRows(opened.page))[0] as DrawnRow
     expect(after.height, 'FR-006: the row takes the confirmed height').toBe(wanted)
     expect(
       Number((await panelFields(opened.page))[ROW_HEIGHT_FIELD]),
