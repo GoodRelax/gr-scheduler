@@ -139,25 +139,8 @@ export function commandFromGrab(
             },
           ])
     case 'GA-7':
-    case 'GA-8': {
-      const task = taskByUid(context.document.schedule, uid)
-      const start = dayOf(task === null ? null : task.start)
-      const finish = dayOf(task === null ? null : task.finish)
-      const atPointer = pointerDaySerial(context.layout, release.x)
-      if (task === null || start === null || finish === null || atPointer === null) {
-        return CONSUMED_ELSEWHERE
-      }
-      const pulled =
-        grab === 'GA-7'
-          ? Math.round(atPointer - serialOfDay(start))
-          : Math.round(serialOfDay(finish) - atPointer)
-      const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
-      return changed([
-        grab === 'GA-7'
-          ? { kind: 'setTaskFadeInDays', uid, days }
-          : { kind: 'setTaskFadeOutDays', uid, days },
-      ])
-    }
+    case 'GA-8':
+      return fadeEndWrite(context, release, uid, grab)
     case 'GA-1':
     case 'GA-10':
     case 'GA-2':
@@ -579,6 +562,26 @@ function commentBoxAnchorWrite(
   const anchor = commentAnchorAt(context.layout, release.x, release.y)
   if (!('groupId' in anchor)) return anchor
   return changed([{ kind: 'setCommentBoxAnchor', id, anchor }])
+}
+
+// see FR-016 (T-023d closing), FD-5, JDG-659
+// WHY: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
+// stood on stays unset instead of turning into an explicit 0, which draws flat.
+/** @purity pure */
+function fadeEndWrite(context: InputContext, release: PointerInput, uid: number, grab: 'GA-7' | 'GA-8'): TranslatedInput {
+  const task = taskByUid(context.document.schedule, uid)
+  const start = dayOf(task === null ? null : task.start)
+  const finish = dayOf(task === null ? null : task.finish)
+  const atPointer = pointerDaySerial(context.layout, release.x)
+  if (task === null || start === null || finish === null || atPointer === null) return CONSUMED_ELSEWHERE
+  const pulled =
+    grab === 'GA-7' ? Math.round(atPointer - serialOfDay(start)) : Math.round(serialOfDay(finish) - atPointer)
+  const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
+  const stood = (grab === 'GA-7' ? task.fadeInDays : task.fadeOutDays) ?? 0
+  if (days === stood) return CONSUMED_ELSEWHERE
+  return changed([
+    grab === 'GA-7' ? { kind: 'setTaskFadeInDays', uid, days } : { kind: 'setTaskFadeOutDays', uid, days },
+  ])
 }
 
 // see FD-6
