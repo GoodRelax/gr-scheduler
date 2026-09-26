@@ -152,6 +152,7 @@ function storeThat(answers: StoreAnswers = {}): StandIn {
       record('readFileToOpen', route)
       return answers.reading ?? { ok: false, fault: UNCONFIGURED }
     },
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       record('readOpenedFileState', undefined)
       return answers.openedState ?? { kind: 'none' }
@@ -977,6 +978,7 @@ function storeAt(
       calls.push({ member: 'readFileToOpen', argument: route })
       return { ok: false, fault: UNCONFIGURED }
     },
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async (): Promise<OpenedFileState> => {
       calls.push({ member: 'readOpenedFileState', argument: undefined })
       return { kind: 'none' }

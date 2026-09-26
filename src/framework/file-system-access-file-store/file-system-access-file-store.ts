@@ -222,12 +222,50 @@ async function writeBytesToFile(
   }
 }
 
+/** @purity non-pure */
+async function readChosenFile(
+  picker: OpenFilePicker | undefined,
+  proposeHandle: (handle: FileHandle) => void,
+): Promise<FileReading> {
+  if (picker === undefined) {
+    return {
+      ok: false,
+      fault: fault('unavailable', 'this browser has no file chooser (CN-2 / LM-14)'),
+    }
+  }
+
+  let chosen: readonly FileHandle[]
+  try {
+    chosen = await picker({ multiple: false })
+  } catch (thrown) {
+    if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
+    return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
+  }
+
+  const handle = chosen[0]
+  if (handle === undefined) {
+    return { ok: false, fault: fault('cancelled', 'the chooser named no file') }
+  }
+
+  try {
+    const file = await handle.getFile()
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    // TRAP: propose the handle only after the bytes are read, so an unreadable choice proposes nothing.
+    proposeHandle(handle)
+    return { ok: true, file: { bytes, fileName: file.name } }
+  } catch (thrown) {
+    return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
+  }
+}
+
 // see PI-28, IF-3, FR-060
 /** @purity non-pure */
 export function fileSystemAccessFileStore(
   environment: FileSystemAccessEnvironment,
 ): FileStore {
   let openedHandle: FileHandle | null = null
+  // TRAP: a read only proposes its handle; adopting it on read let a merge save over the file it read (DFC-1224).
+  let handleReadToOpen: { readonly handle: FileHandle | null } | null = null
 
   let droppedFile: {
     readonly file: ReadableFile | null
@@ -235,7 +273,7 @@ export function fileSystemAccessFileStore(
     readonly ignoredFileCount: number
   } | null = null
 
-  // TRAP: two concurrent reads would both set openedHandle, and the loser could land last.
+  // TRAP: two concurrent reads would both set handleReadToOpen, and the loser could land last.
   let isBusy = false
 
   // TRAP: without preventDefault the drop never arrives and the browser navigates away, losing edits.
@@ -268,39 +306,9 @@ export function fileSystemAccessFileStore(
   environment.dropSurface.addEventListener('dragover', allowFileDrag, { capture: true })
   environment.dropSurface.addEventListener('drop', takeDroppedFile, { capture: true })
 
-  // WHY: the OP-15 overlay route reads a second file; the opened file stays the FR-060 save target.
   /** @purity non-pure */
-  async function readChosenFile(adoptsHandle: boolean): Promise<FileReading> {
-    const picker = environment.openFilePicker
-    if (picker === undefined) {
-      return {
-        ok: false,
-        fault: fault('unavailable', 'this browser has no file chooser (CN-2 / LM-14)'),
-      }
-    }
-
-    let chosen: readonly FileHandle[]
-    try {
-      chosen = await picker({ multiple: false })
-    } catch (thrown) {
-      if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
-      return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
-    }
-
-    const handle = chosen[0]
-    if (handle === undefined) {
-      return { ok: false, fault: fault('cancelled', 'the chooser named no file') }
-    }
-
-    try {
-      const file = await handle.getFile()
-      const bytes = new Uint8Array(await file.arrayBuffer())
-      // TRAP: adopt the handle only after the bytes are read, so an unreadable choice keeps the old file.
-      if (adoptsHandle) openedHandle = handle
-      return { ok: true, file: { bytes, fileName: file.name } }
-    } catch (thrown) {
-      return { ok: false, fault: fault('unavailable', `${handle.name}: ${whyOf(thrown)}`) }
-    }
+  function proposeHandle(handle: FileHandle | null): void {
+    handleReadToOpen = { handle }
   }
 
   // see OP-13
@@ -336,8 +344,8 @@ export function fileSystemAccessFileStore(
         return { ok: false, fault: fault('unavailable', 'the drop carried no readable file') }
       }
       const bytes = new Uint8Array(await file.arrayBuffer())
-      // TRAP: replace the handle even when the drop brought none, or one file's document saves over another.
-      openedHandle = handle
+      // TRAP: propose the handle even when the drop brought none, or one file's document saves over another.
+      proposeHandle(handle)
       const opened = { bytes, fileName: file.name }
       if (drop.ignoredFileCount === 0) return { ok: true, file: opened }
       return { ok: true, file: opened, ignoredFileCount: drop.ignoredFileCount }
@@ -375,15 +383,21 @@ export function fileSystemAccessFileStore(
     async readFileToOpen(route: OpenRoute): Promise<FileReading> {
       if (isBusy) return { ok: false, fault: busyFault() }
       isBusy = true
+      handleReadToOpen = null
       try {
-        if (route === 'chooser') return await readChosenFile(true)
-        // see OP-9, OP-15
-        if (route === 'baseline') return await readChosenFile(false)
+        if (route === 'chooser') return await readChosenFile(environment.openFilePicker, proposeHandle)
+        // WHY: OP-9 / OP-15 read a second file for the overlay; it is never a candidate to adopt, so the opened file stays the FR-060 save target.
+        if (route === 'baseline') return await readChosenFile(environment.openFilePicker, () => undefined)
         if (route === 'reopen') return await readOpenedFileAgain()
         return await readDroppedFile()
       } finally {
         isBusy = false
       }
+    },
+
+    /** @purity non-pure */
+    adoptFileReadToOpen(): void {
+      if (handleReadToOpen !== null) openedHandle = handleReadToOpen.handle
     },
 
     /** @purity semi-pure-b */
@@ -401,7 +415,7 @@ export function fileSystemAccessFileStore(
     // WHY: permission is requested here because the save click is the gesture.
     /** @purity non-pure */
     async overwriteOpenedFile(bytes: Uint8Array): Promise<FileWriting> {
-      // TRAP: check isBusy before the handle; a running read is about to decide the opened file.
+      // TRAP: check isBusy before the handle; a running write is about to decide the opened file.
       if (isBusy) return { ok: false, fault: busyFault() }
       const handle = openedHandle
       if (handle === null) {

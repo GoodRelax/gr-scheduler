@@ -908,7 +908,7 @@ function labelHitOf(geometry: ScheduleGeometry, x: number, y: number): Hit | nul
   return null
 }
 
-// see T-246 HB-8..HB-11
+// see HB-8, HB-9, HB-10, HB-11
 // TRAP: keep T-246's printed order, the upper (or left) point first in a row: a tie keeps the first point met.
 /** @purity pure */
 function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; readonly part: BoxPart }[] {
@@ -936,7 +936,7 @@ function grabPointsOf(box: HighlightGeometry): readonly { readonly at: Point; re
   return points
 }
 
-// see GR-14, T-246 HB-8..HB-11
+// see GR-14, HB-8, HB-9, HB-10, HB-11
 // WHY: the nearest point, not the first: on a one-day, one-row box at low zoom the eight reaches overlap.
 /** @purity pure */
 function nearestGrabPointOf(box: HighlightGeometry, x: number, y: number, reach: number): BoxPart | null {
@@ -998,7 +998,7 @@ function noteHitOf(
     if (isInsideRect(x, y, box.body)) return commentHit(box, { kind: 'body' })
   }
   for (const box of geometry.commentBoxes) {
-    // see T-221 LF-17: a box whose anchor sits inside it draws no leader, so none answers
+    // WHY: a box whose anchor sits inside it draws no leader (LF-17), so none answers.
     const leader = leaderOf(box)
     if (leader !== null && isOnPolyline(x, y, leader, sizes['S-291'])) return commentHit(box, { kind: 'leader' })
   }
@@ -1007,7 +1007,7 @@ function noteHitOf(
     if (grabPoint !== null) return highlightHit(box, grabPoint)
   }
   for (const box of geometry.highlightBoxes) {
-    // see T-246 HB-12: the reach is measured from the drawn line's edge, so it starts at half the drawn width
+    // WHY: HB-12 measures the reach from the drawn line's edge, so it starts at half the drawn width.
     const half = box.strokeWidthPx / 2
     if (isOnTheFrame(x, y, box.box, onShape ? half : half + sizes['S-293'])) {
       return highlightHit(box, { kind: 'body' })

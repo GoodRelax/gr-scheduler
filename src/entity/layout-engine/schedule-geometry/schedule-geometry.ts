@@ -187,27 +187,25 @@ export interface DependencyGeometry {
   readonly head?: Path
 }
 
-// see FR-019
+// see FR-019, S-369, S-370, S-371, HB-10, HB-11
+// WHY: the look is already defaulted and clamped, so the renderer draws it as it stands.
 export interface HighlightGeometry {
   readonly id: string
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
-  // see S-369, S-370, S-371 (T-217): already defaulted and clamped, so the renderer draws them as they stand
   readonly strokeWidthPx: number
   readonly fillColor: string
   readonly fillOpacity: number
-  // see T-246 HB-10, HB-11
   readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }
 
-// see FR-019, FR-097
+// see FR-019, FR-097, S-374, S-375
 export interface CommentGeometry {
   readonly id: string
   readonly anchor: Point
   readonly body: ScreenRect
   readonly lines: readonly string[]
   readonly fontSize: number
-  // see AT-148..AT-152, S-374, S-375 (T-217): the numbers already defaulted and clamped; the colours as stored
   readonly strokeWidthPx: number
   readonly fillOpacity: number
   readonly strokeColor: string | null

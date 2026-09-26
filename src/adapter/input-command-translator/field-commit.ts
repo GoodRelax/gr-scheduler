@@ -316,7 +316,7 @@ function commandFromCommentBoxColumn(
 
 type BoxKey = Extract<FieldCommit['key'], { holder: 'commentBox' | 'highlightBox' }>
 
-// see PR-21, PR-22..PR-28, FR-019
+// see PR-21, PR-22, PR-23, PR-24, PR-25, PR-26, PR-27, PR-28, FR-019
 /** @purity pure */
 function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dark: boolean): readonly DocumentCommand[] {
   const id = key.id

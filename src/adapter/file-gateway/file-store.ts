@@ -60,6 +60,9 @@ export interface ChosenFileWrite {
 export interface FileStore {
   readFileToOpen(route: OpenRoute): Promise<FileReading>
 
+  // see FR-060, T-290
+  adoptFileReadToOpen(): void
+
   readOpenedFileState(): Promise<OpenedFileState>
 
   restoreOpenedFilePermission(): Promise<OpenedFileState>
