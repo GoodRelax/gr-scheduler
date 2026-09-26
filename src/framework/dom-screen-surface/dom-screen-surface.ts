@@ -4,13 +4,14 @@
 // @purity    non-pure
 // @publishes table T-064 row PI-38
 
-import type {
-  CommandItem,
-  ScreenFrame,
-  ScreenPart,
-  ScreenSurface,
-  ScreenView,
-  TooltipAnchor,
+import {
+  achromatic,
+  type CommandItem,
+  type ScreenFrame,
+  type ScreenPart,
+  type ScreenSurface,
+  type ScreenView,
+  type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import iconGlyphs from './icon-glyphs.json'
@@ -405,11 +406,18 @@ function glyphStyle(): string {
 export interface ScreenTheme {
   readonly preference: 'light' | 'dark'
   readonly hue: number
+  // see S-74
+  // WHY: optional, so a theme read before monochrome reached the screen still paints in colour.
+  readonly monochrome?: boolean
 }
 
+// see FR-041, S-74
+// TRAP: every H, not the first (DFC-754); and the one greying of SvgRenderer, so screen and export agree.
 /** @purity pure */
-function hued(written: string, followsHue: boolean, hue: number): string {
-  return followsHue ? written.replace('H', String(hue)) : written
+function hued(written: string, followsHue: boolean, theme: ScreenTheme): string {
+  if (!followsHue) return written
+  const coloured = written.replace(/\bH\b/g, String(theme.hue))
+  return theme.monochrome === true ? achromatic(coloured) : coloured
 }
 
 // see FR-041
@@ -420,7 +428,7 @@ export function themeStyle(theme: ScreenTheme): string {
     const row = SCREEN_COLOURS[rowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `--gr-${name}:${hued(chosen, row.followsHue, theme.hue)};`
+    written += `--gr-${name}:${hued(chosen, row.followsHue, theme)};`
   }
   return written
 }
@@ -441,7 +449,7 @@ export function pageGroundStyle(theme: ScreenTheme): string {
   const chosen = theme.preference === 'dark' ? ground.dark : ground.light
   return (
     `color-scheme:${theme.preference};` +
-    `background:${hued(chosen, ground.followsHue, theme.hue)};`
+    `background:${hued(chosen, ground.followsHue, theme)};`
   )
 }
 
