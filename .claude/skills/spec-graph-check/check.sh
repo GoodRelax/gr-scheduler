@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 63 mechanical checks for the gr-scheduler specification.
+# All 65 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 46. (Recounted 2026-09-26 when
+# The ranges today are 1 + 4 + 8 + 4 + 48. (Recounted 2026-09-26 when
+# checks 67-68 went in, and before that when
 # checks 64-66 went in: the single-number headings were 43, not 42, before
 # them -- check 63 had gone in without a recount.)
 # ⚠️ `26b` is written with ONE space after the number, so a recount that
@@ -297,6 +298,13 @@
 #          change request landed since perf-pending.md began that touched a
 #          per-frame path of rule 04 section 5 is in perf-pending.md or
 #          measurements/performance-runs.md (PW-2). No baseline: 0
+#   67     tools/merge_driver.py --check : .gitattributes still routes the
+#          files that collided on every merge (the row-id prefix register,
+#          the ledger) to a driver tools/merge_driver.py defines, and every
+#          path it names is tracked. No baseline: 0
+#   68     tools/renumber_ids.py --check : no tracked file holds a
+#          provisional id (PREFIX-9NNNN) or a provisional change-request
+#          file name. No baseline: 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -817,6 +825,22 @@ section "66  the performance gate still gates, and per-frame landings wait to be
 # reports the 8 landings of CR-565 / CR-568 / CR-570 that touched per-frame
 # paths, and one CR-568 row in perf-pending.md takes that to 5.
 PYTHONIOENCODING=utf-8 python "$HERE/check-perf-gate.py" || failed
+
+echo ""
+section "67  the files that collided on every merge still go to their merge driver"
+# The drivers are tools/merge_driver.py; .gitattributes routes paths to them
+# by name, and a renamed path or a misspelt driver falls back to the plain
+# text merge IN SILENCE. MEASURED by breaking it: `merge=grs-ledgr` on
+# defects.md reports 2; renaming the tbl-row-id-prefixes.md line reports 2.
+PYTHONIOENCODING=utf-8 python "$REPO/tools/merge_driver.py" --check || failed
+
+echo ""
+section "68  no tracked file holds a provisional id (PREFIX-9NNNN)"
+# The convention of tools/renumber_ids.py: a new id is drafted as its prefix
+# and a five-digit number starting with 9, and `compact` renumbers it before
+# the commit. MEASURED by breaking it: one `DFC-9NNNN` row in an added ledger
+# file reports 1.
+PYTHONIOENCODING=utf-8 python "$REPO/tools/renumber_ids.py" --check || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

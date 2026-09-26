@@ -2,6 +2,7 @@
 """Git merge drivers for the files that collided on every merge.
 
     python tools/merge_driver.py install            write the drivers into git config
+    python tools/merge_driver.py --check            check 67: the routing still holds
     python tools/merge_driver.py generated %O %A %B %P
     python tools/merge_driver.py ledger    %O %A %B %P
 
@@ -233,6 +234,58 @@ def driver_ledger(base, ours, theirs, path):
     return 0
 
 
+# The paths that collided on every merge before the drivers existed, and the
+# driver each must keep. Check 67 holds .gitattributes to this list.
+REQUIRED = {
+    'docs/spec/_assets/tbl-row-id-prefixes.md': 'grs-generated',
+    'docs/development-records/defects.md': 'grs-ledger',
+}
+
+
+def check():
+    """Check 67: .gitattributes still routes the colliding files to a driver
+    this file defines, every path it names is tracked, and every generated
+    block the ledger driver neutralises is still where it looks for it."""
+    faults = []
+    attributes = io.open(os.path.join(ROOT, '.gitattributes'), encoding='utf-8').read()
+    for number, line in enumerate(attributes.split('\n'), start=1):
+        fields = line.split()
+        if len(fields) < 2 or line.startswith('#'):
+            continue
+        drivers = [one[len('merge='):] for one in fields[1:] if one.startswith('merge=')]
+        for driver in drivers:
+            if driver.startswith('grs-') and driver not in DRIVERS:
+                faults.append('.gitattributes:%d  merge=%s is not a driver of '
+                              'tools/merge_driver.py' % (number, driver))
+            listed = subprocess.run(['git', 'ls-files', '--error-unmatch', fields[0]],
+                                    cwd=ROOT, capture_output=True)
+            if listed.returncode != 0:
+                faults.append('.gitattributes:%d  %s is not a tracked file -- '
+                              'renamed?' % (number, fields[0]))
+    for path, driver in sorted(REQUIRED.items()):
+        said = subprocess.run(['git', 'check-attr', 'merge', '--', path], cwd=ROOT,
+                              capture_output=True, text=True).stdout.strip()
+        if not said.endswith(': merge: %s' % driver):
+            faults.append('%s  must merge with %s, and .gitattributes says: %s'
+                          % (path, driver, said.split(': ')[-1]))
+    for path, driver in sorted(REQUIRED.items()):
+        if driver != 'grs-ledger':
+            continue
+        text = io.open(os.path.join(ROOT, path), encoding='utf-8').read()
+        for begin, end in BLOCKS:
+            if block_span(text, begin, end) is None:
+                faults.append('%s  has no block between %r and %r -- the ledger '
+                              'driver would merge the counts as text' % (path, begin, end))
+    for one in faults:
+        print('  ' + one)
+    if faults:
+        print('DRIFTED  %d fault(s) in the merge-driver routing' % len(faults))
+        return 1
+    print('OK       .gitattributes routes %d colliding file(s) to %s'
+          % (len(REQUIRED), ', '.join(sorted(DRIVERS))))
+    return 0
+
+
 def install(cwd=ROOT):
     """Write both drivers into the repository's git config. Idempotent."""
     script = 'tools/merge_driver.py'
@@ -251,6 +304,8 @@ def main(argv):
         encoding = sys.stdout.encoding or 'utf-8'
         sys.stdout.write(__doc__.encode(encoding, 'replace').decode(encoding))
         return 0 if argv else 2
+    if argv[0] == '--check' and len(argv) == 1:
+        return check()
     if argv[0] == 'install' and len(argv) == 1:
         install()
         print('installed merge drivers: %s' % ', '.join(sorted(DRIVERS)))
