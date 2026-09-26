@@ -45,9 +45,6 @@ copy | rounded :: rounds as svg renderer ts does change both together
 twin: src/adapter/svg-renderer/svg-renderer.ts#rounded
 why: published by SvgRenderer's entry and ImageExporter->SvgRenderer is declared; nothing stops the fold -- import it.
 
-twin: src/framework/single-html-shell/frame-loop.ts#CLEAR_DUAL_CURSOR (the Esc effect writeClearDualCursor)
-why: the shell now clears through the screen-values state machine (ESCAPE_DUAL_CURSOR); same clearing in another form, no one symbol to import (SingleHtmlShell->InputCommandTranslator declared).
-
 coupling | hasDraggedPastThreshold :: keep this per axis as rowgrabaxisat reads it a diagonal
 twin: src/adapter/input-command-translator/row-grab.ts#rowGrabAxisAt
 why: one component (InputCommandTranslator): the threshold stays per axis because rowGrabAxisAt reads it so; a shared per-axis helper in the component folds it.
