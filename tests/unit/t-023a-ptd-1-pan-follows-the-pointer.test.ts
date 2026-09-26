@@ -600,10 +600,14 @@ const ONE_TO_ONE_PX = 0.5
 // ===========================================================================
 
 describe('the manuscript still states the rule this file is about', () => {
-  it('makes PTD-1 the first row of table T-023a, evaluated from the top', () => {
+  it('puts PTD-7 first and PTD-1 second in table T-023a, evaluated from the top', () => {
     const rows = specTable('T-023a').rows.map((one) => one.id)
     expect(rows[0], 'table T-023a: 上から評価し、最初に成立した行で確定すること（MUST）').toBe(
-      'PTD-1',
+      'PTD-7',
+    )
+    expect(rows[1], 'table T-023a: PTD-1 follows PTD-7').toBe('PTD-1')
+    expect(resultOf('PTD-1'), 'table T-023a PTD-1: ただし上の `PTD-7` ... が先に立つ').toContain(
+      'が先に立つ',
     )
   })
 

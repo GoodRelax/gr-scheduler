@@ -698,11 +698,11 @@ function arm(built: Stage): void {
 // ===========================================================================
 
 describe('the fixture draws what IN-2 names', () => {
-  it('reads four places out of IN-2, one per meaning it gives', () => {
+  it('reads five places out of IN-2, one per meaning it gives', () => {
     expect(
       placesNamedByIn2(),
-      'T-028 IN-2: 何にも当たらない場所 / パン中 / 構えているとき / 掴み代の上',
-    ).toHaveLength(4)
+      'T-028 IN-2: 何にも当たらない場所 / パン中 / 選択を写して引いているあいだ / 構えているとき / 掴み代の上',
+    ).toHaveLength(5)
   })
 
   it('draws the bar Task with both a plan bar and an actual bar', () => {
