@@ -396,7 +396,70 @@ function boxFieldTargetOf(item: Hit['item']): InPlaceTarget | null {
   return null
 }
 
-// see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6
+interface DraggedSides {
+  readonly horizontal: 'left' | 'right' | null
+  readonly vertical: 'top' | 'bottom' | null
+}
+
+// see T-246 HB-7, HB-8..HB-11
+// WHY: a corner moves one side each way; a midpoint moves its one side and keeps the other direction (HB-7).
+/** @purity pure */
+function draggedSidesOf(part: Extract<NonNullable<Hit['boxPart']>, { kind: 'corner' | 'edge' }>): DraggedSides {
+  if (part.kind === 'corner') return { horizontal: part.horizontal, vertical: part.vertical }
+  if (part.side === 'left' || part.side === 'right') return { horizontal: part.side, vertical: null }
+  return { horizontal: null, vertical: part.side }
+}
+
+interface HeldRange {
+  readonly rows: readonly RowPlacement[]
+  readonly upperAt: number
+  readonly lowerAt: number
+  readonly early: CalendarDay
+  readonly late: CalendarDay
+}
+
+// see T-246 HB-4, HB-5, HB-6, HB-7
+/** @purity pure */
+function grabPointRange(
+  held: HeldRange,
+  sides: DraggedSides,
+  atPointer: number,
+  releaseY: number,
+): {
+  readonly upper: RowPlacement | undefined
+  readonly lower: RowPlacement | undefined
+  readonly left: CalendarDay
+  readonly right: CalendarDay
+} {
+  const { rows, upperAt, lowerAt, early, late } = held
+  // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
+  const dayBoundary = Math.round(atPointer)
+  const rowBoundary = nearestDrawnRowBoundary(rows, releaseY)
+  const earlySerial = serialOfDay(early)
+  const lateSerial = serialOfDay(late)
+  let left = early
+  let right = late
+  let upper = rows[upperAt]
+  let lower = rows[lowerAt]
+  // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
+  if (sides.horizontal === 'left') {
+    left = dayFromSerial(Math.min(dayBoundary, lateSerial))
+    right = dayBoundary > lateSerial ? dayFromSerial(dayBoundary - 1) : late
+  } else if (sides.horizontal === 'right') {
+    left = dayBoundary <= earlySerial ? dayFromSerial(dayBoundary) : early
+    right = dayFromSerial(Math.max(dayBoundary - 1, earlySerial))
+  }
+  if (sides.vertical === 'top') {
+    upper = rowBoundary > lowerAt ? rows[lowerAt] : rows[rowBoundary]
+    lower = rowBoundary > lowerAt ? rows[rowBoundary - 1] : rows[lowerAt]
+  } else if (sides.vertical === 'bottom') {
+    upper = rowBoundary <= upperAt ? rows[rowBoundary] : rows[upperAt]
+    lower = rowBoundary <= upperAt ? rows[upperAt] : rows[rowBoundary - 1]
+  }
+  return { upper, lower, left, right }
+}
+
+// see GR-14, CM-54, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-7
 /** @purity pure */
 function highlightBoxRangeWrite(
   context: InputContext,
@@ -414,7 +477,7 @@ function highlightBoxRangeWrite(
   if (box === undefined || start === null || end === null || firstRow === undefined || lastRow === undefined) {
     return CONSUMED_ELSEWHERE
   }
-  // WHY: a highlight box holds a frame and four corners only; the anchor and the leader
+  // WHY: a highlight box holds a frame and eight grab points only; the anchor and the leader
   // belong to a comment box, and CM-54 has no value to write for either.
   if (part.kind === 'anchor' || part.kind === 'leader') return CONSUMED_ELSEWHERE
 
@@ -440,26 +503,8 @@ function highlightBoxRangeWrite(
   } else {
     const atPointer = pointerDaySerial(context.layout, release.x)
     if (atPointer === null) return CONSUMED_ELSEWHERE
-    // TRAP: Math.round sends a tie to the later day's boundary; Math.trunc or toFixed would not.
-    const dayBoundary = Math.round(atPointer)
-    const rowBoundary = nearestDrawnRowBoundary(rows, release.y)
-    const earlySerial = serialOfDay(early)
-    const lateSerial = serialOfDay(late)
-    // WHY: no one-day special case on the opposite edge; it would skip the two-day width.
-    if (part.horizontal === 'left') {
-      left = dayFromSerial(Math.min(dayBoundary, lateSerial))
-      right = dayBoundary > lateSerial ? dayFromSerial(dayBoundary - 1) : late
-    } else {
-      left = dayBoundary <= earlySerial ? dayFromSerial(dayBoundary) : early
-      right = dayFromSerial(Math.max(dayBoundary - 1, earlySerial))
-    }
-    if (part.vertical === 'top') {
-      upper = rowBoundary > lowerAt ? rows[lowerAt] : rows[rowBoundary]
-      lower = rowBoundary > lowerAt ? rows[rowBoundary - 1] : rows[lowerAt]
-    } else {
-      upper = rowBoundary <= upperAt ? rows[rowBoundary] : rows[upperAt]
-      lower = rowBoundary <= upperAt ? rows[upperAt] : rows[rowBoundary - 1]
-    }
+    const held = { rows, upperAt, lowerAt, early, late }
+    ;({ upper, lower, left, right } = grabPointRange(held, draggedSidesOf(part), atPointer, release.y))
   }
   if (upper === undefined || lower === undefined) return nothingToDo('noRowToPutTheAnnotationOn')
 

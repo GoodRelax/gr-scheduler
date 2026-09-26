@@ -21,6 +21,11 @@ export type PointerShape =
   | 'grab'
   | 'pointer'
   | 'col-resize'
+  | 'move'
+  | 'ew-resize'
+  | 'ns-resize'
+  | 'nwse-resize'
+  | 'nesw-resize'
   | DrawnPointer
 
 export type ShowPointerShape = (shape: PointerShape | null) => void
@@ -39,6 +44,11 @@ export type PointerRow =
   | 'PK-8'
   | 'PK-9'
   | 'PK-10'
+  | 'PK-11'
+  | 'PK-12'
+  | 'PK-13'
+  | 'PK-14'
+  | 'PK-15'
 
 // see T-266, T-269
 export type PointerFacing = 'start' | 'end'
@@ -261,6 +271,35 @@ export function pointerImageOf(
       return resumeArrowPointer()
     case 'PK-10':
       return 'col-resize'
+    case 'PK-11':
+      return 'move'
+    case 'PK-12':
+      return 'ew-resize'
+    case 'PK-13':
+      return 'ns-resize'
+    case 'PK-14':
+      return 'nwse-resize'
+    case 'PK-15':
+      return 'nesw-resize'
+  }
+}
+
+type HighlightBoxPart = NonNullable<Grabbed['boxPart']>
+
+// see T-246 HB-8..HB-12, FR-106
+// WHY: GR-14 names one grab row for the whole box, so the row of table T-269 is read off the part the press found.
+/** @purity pure */
+function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRow | null {
+  if (part === undefined) return 'PK-11'
+  switch (part.kind) {
+    case 'body':
+      return 'PK-11'
+    case 'corner':
+      return (part.horizontal === 'left') === (part.vertical === 'top') ? 'PK-14' : 'PK-15'
+    case 'edge':
+      return part.side === 'left' || part.side === 'right' ? 'PK-12' : 'PK-13'
+    default:
+      return null
   }
 }
 
@@ -268,6 +307,7 @@ export function pointerImageOf(
 /** @purity pure */
 export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
   if (armed || hit === null) return null
+  if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 

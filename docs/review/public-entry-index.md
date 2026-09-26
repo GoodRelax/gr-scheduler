@@ -218,11 +218,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
+| `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
 | `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement, linkType: number): DependencyGeometry |
 | `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
 | `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
+| `drawnAnnotationNumber` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnAnnotationNumber` | -- | function drawnAnnotationNumber(held: number \| null, row: AnnotationNumberRow): number |
 | `highlightGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry` | -- | function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
@@ -874,9 +876,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `panelShowingIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#panelShowingIn` | -- | function panelShowingIn(session: ScreenSession): PanelShowing |
 | `PointerFacing` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerFacing` | -- | type PointerFacing = 'start' \| 'end' |
 | `pointerImageOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerImageOf` | -- | function pointerImageOf( row: PointerRow, facing: PointerFacing = 'start', |
-| `PointerRow` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerRow` | -- | type PointerRow = \| 'PK-1' \| 'PK-3' \| 'PK-4' \| 'PK-5' \| 'PK-7' \| 'PK-8' \| 'PK-9' \| 'PK-10' // see T-266, T-269 export type PointerFacing = 'start' \| 'end' |
+| `PointerRow` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerRow` | -- | type PointerRow = \| 'PK-1' \| 'PK-3' \| 'PK-4' \| 'PK-5' \| 'PK-7' \| 'PK-8' \| 'PK-9' \| 'PK-10' \| 'PK-11' \| 'PK-12' \| 'PK-13' |
 | `pointerRowOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerRowOf` | -- | function pointerRowOf(hit: Grabbed \| null, armed: boolean): PointerRow \| null |
-| `PointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShape` | -- | type PointerShape = \| 'default' \| 'copy' \| 'grabbing' \| 'grab' \| 'pointer' \| 'col-resize' \| DrawnPointer export type ShowPointerShape = (shape: PointerShape ... |
+| `PointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShape` | -- | type PointerShape = \| 'default' \| 'copy' \| 'grabbing' \| 'grab' \| 'pointer' \| 'col-resize' \| 'move' \| 'ew-resize' \| 'ns-resize' \| 'nwse-resize' \| 'nesw-resize' |
 | `readInstantOfWrite` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readInstantOfWrite` | -- | function readInstantOfWrite(): string |
 | `readMonotonicMs` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readMonotonicMs` | -- | function readMonotonicMs(): number |
 | `readToday` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readToday` | -- | function readToday(): string |
@@ -1346,4 +1348,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 487 more are exported by a file and not by its entry.
+Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 489 more are exported by a file and not by its entry.

@@ -202,6 +202,9 @@ const ANNOTATION_KINDS = [
   'deleteHighlightBox',
   'setHighlightBoxRange',
   'setHighlightBoxStrokeColor',
+  'setHighlightBoxStrokeWidth',
+  'setHighlightBoxFillColor',
+  'setHighlightBoxFillTransparency',
 ] as const satisfies readonly AnnotationCommand['kind'][]
 
 const RESOURCE_KINDS = [

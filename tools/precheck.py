@@ -295,7 +295,9 @@ def trap_generated_edit(relative, lines, dirty=()):
         # `npm run gen`. A directory counts only when written in backticks.
         parts = other.split('/')
         for depth in range(1, len(parts)):
-            if '`%s`' % '/'.join(parts[:depth]) in declaration:
+            # ⚠️ Both spellings: public-entry-index.md names its tree as `src/`.
+            folder = '/'.join(parts[:depth])
+            if '`%s`' % folder in declaration or '`%s/`' % folder in declaration:
                 return []
     return ['%s  is a generated artifact -- edit its manuscript and rerun '
             '`npm run gen`, or the next run erases this' % relative]
