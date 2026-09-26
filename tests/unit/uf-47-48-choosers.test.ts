@@ -697,6 +697,7 @@ function fileStore(behaviour: StoreBehaviour = {}): StoreProbe {
       new Promise<FileReading>((resolve) => {
         waiting.push(resolve)
       }),
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({

@@ -375,6 +375,7 @@ async function opened(spec: HandleSpec): Promise<{ store: FileStore; fake: Handl
   )
   const reading = await store.readFileToOpen('chooser')
   expect(reading.ok, 'the ordinary open must succeed before a case builds on it').toBe(true)
+  store.adoptFileReadToOpen()
   return { store, fake }
 }
 
@@ -512,6 +513,7 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
       dropSurface: browser({ opens: 'noApi', saves: 'noApi' }).environment.dropSurface,
     })
     await store.readFileToOpen('chooser')
+    store.adoptFileReadToOpen()
     answers = 'fail'
     await expect(store.readFileToOpen('chooser')).resolves.toMatchObject({ ok: false })
     await expect(store.readOpenedFileState()).resolves.toEqual({
@@ -891,6 +893,7 @@ describe('writeChosenFile -- a file the person points at', () => {
         .environment,
     )
     await store.readFileToOpen('chooser')
+    store.adoptFileReadToOpen()
     const writing = await store.writeChosenFile(
       request({ suggestedFileName: 'picture.svg', shouldBecomeOpenedFile: false }),
     )
@@ -1057,6 +1060,7 @@ describe('writeChosenFile -- a file the person points at', () => {
         .environment,
     )
     await store.readFileToOpen('chooser')
+    store.adoptFileReadToOpen()
 
     await store.writeChosenFile(asking(false).write)
 
@@ -1141,6 +1145,7 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     )
     await settled()
     await store.readFileToOpen('drop')
+    store.adoptFileReadToOpen()
     await expect(store.readOpenedFileState()).resolves.toEqual({
       kind: 'writable',
       fileName: 'plan.json',
@@ -1349,6 +1354,7 @@ describe('表 T-024a OP-2 -- one entry, and both routes end in the same place', 
         ok: true,
         file: { bytes: GRS_JSON_BYTES, fileName: 'plan.json' },
       })
+      store.adoptFileReadToOpen()
       await expect(store.readOpenedFileState()).resolves.toEqual({
         kind: 'writable',
         fileName: 'plan.json',
@@ -1512,5 +1518,75 @@ describe('boundaries', () => {
     expect(openCalls, 'and it may not open a second chooser either').toHaveLength(1)
     release([handle.handle])
     await expect(first).resolves.toMatchObject({ ok: true })
+  })
+})
+
+describe('adoptFileReadToOpen -- only a replace makes the file read the opened file (DFC-1224, T-290)', () => {
+  it('a chooser read alone leaves the opened file as it was', async () => {
+    const first = fileHandle({ name: 'plan.json' })
+    const second = fileHandle({ name: 'merged-in.json' })
+    let answers: readonly FileHandle[] = [first.handle]
+    const picker: OpenFilePicker = (options) => {
+      openCalls.push(options)
+      return Promise.resolve(answers)
+    }
+    const store = fileSystemAccessFileStore({
+      openFilePicker: picker,
+      saveFilePicker: undefined,
+      dropSurface: browser({ opens: 'noApi', saves: 'noApi' }).environment.dropSurface,
+    })
+    await store.readFileToOpen('chooser')
+    store.adoptFileReadToOpen()
+    answers = [second.handle]
+    await expect(store.readFileToOpen('chooser')).resolves.toMatchObject({ ok: true })
+
+    const writing = await store.overwriteOpenedFile(MSPDI_BYTES)
+
+    expect(writing.ok).toBe(true)
+    expect(second.written, 'a file only read was written over').toEqual([])
+    expect(first.written.at(-1)).toEqual(MSPDI_BYTES)
+  })
+
+  it('a drop read alone leaves the opened file as it was, and adopting it moves the target', async () => {
+    const fake = browser({ opens: 'noApi', saves: 'noApi' })
+    const store = fileSystemAccessFileStore(fake.environment)
+    const first = fileHandle({ name: 'plan.json' })
+    const second = fileHandle({ name: 'merged-in.json' })
+    fake.drop(dropData([droppedItem({ file: readableFile({ name: 'plan.json' }), handle: first.handle })]))
+    await settled()
+    await store.readFileToOpen('drop')
+    store.adoptFileReadToOpen()
+    fake.drop(dropData([droppedItem({ file: readableFile({ name: 'merged-in.json' }), handle: second.handle })]))
+    await settled()
+    await store.readFileToOpen('drop')
+
+    const writing = await store.overwriteOpenedFile(MSPDI_BYTES)
+
+    expect(writing.ok).toBe(true)
+    expect(second.written, 'a file only read was written over').toEqual([])
+    expect(first.written.at(-1)).toEqual(MSPDI_BYTES)
+    store.adoptFileReadToOpen()
+    await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'writable', fileName: 'merged-in.json' })
+  })
+
+  it('a failed read proposes nothing, so adopting keeps the earlier file', async () => {
+    const first = fileHandle({ name: 'plan.json' })
+    let answers: readonly FileHandle[] | 'fail' = [first.handle]
+    const picker: OpenFilePicker = (options) => {
+      openCalls.push(options)
+      if (answers === 'fail') return Promise.reject(new Error('the browser gave up'))
+      return Promise.resolve(answers)
+    }
+    const store = fileSystemAccessFileStore({
+      openFilePicker: picker,
+      saveFilePicker: undefined,
+      dropSurface: browser({ opens: 'noApi', saves: 'noApi' }).environment.dropSurface,
+    })
+    await store.readFileToOpen('chooser')
+    store.adoptFileReadToOpen()
+    answers = 'fail'
+    await expect(store.readFileToOpen('chooser')).resolves.toMatchObject({ ok: false })
+    store.adoptFileReadToOpen()
+    await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'writable', fileName: 'plan.json' })
   })
 })

@@ -240,6 +240,7 @@ function bench(document: Document = templateDocument()): Bench {
   }
   const store: FileStore = {
     readFileToOpen: () => new Promise<FileReading>(() => {}),
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async () => ({ kind: 'none' }),
     restoreOpenedFilePermission: async () => ({ kind: 'none' }),
     overwriteOpenedFile: async () => ({ ok: false, fault: { reason: 'noOpenedFile', what: 'never in a file' } }),

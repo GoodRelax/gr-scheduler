@@ -321,6 +321,7 @@ function bench(): Bench {
   const file = { kind: 'writable', fileName: 'incoming.json' } as const
   const store: FileStore = {
     readFileToOpen: () => new Promise<FileReading>((resolve) => void answers.push(resolve)),
+    adoptFileReadToOpen: () => undefined,
     readOpenedFileState: async () => file,
     restoreOpenedFilePermission: async () => file,
     overwriteOpenedFile: async (bytes: Uint8Array) => {
