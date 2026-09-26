@@ -1,9 +1,9 @@
 // The size a row name is drawn at, for the cases that build a RowTitle by hand.
 
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
-const DEFAULT_ROW_TITLE_FONT = SETTINGS_DEFAULTS['rowTitleFont'] as number
-const DEFAULT_ROW_TITLE_TOP_SCALE = SETTINGS_DEFAULTS['rowTitleTopScale'] as number
+const DEFAULT_ROW_TITLE_FONT = SETTINGS_CONSTANTS.rowTitleFont
+const DEFAULT_ROW_TITLE_TOP_SCALE = SETTINGS_CONSTANTS.rowTitleTopScale
 
 // see FR-094, T-201
 /** @purity pure */

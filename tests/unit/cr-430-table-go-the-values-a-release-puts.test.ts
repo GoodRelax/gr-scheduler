@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   dayOf,
   isWorkingDay,
@@ -57,8 +57,8 @@ const cellOf = (row: string, heading: string): string => {
   return cell
 }
 
-const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
-const S_130 = SETTINGS_DEFAULTS['milestoneActualDuration'] as number
+const S_129 = SETTINGS_CONSTANTS.actualInitialDuration
+const S_130 = SETTINGS_CONSTANTS.milestoneActualDuration
 
 const CALENDAR = workingCalendarOf(benchDocument().schedule)
 

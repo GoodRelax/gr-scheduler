@@ -95,6 +95,7 @@ import { describe, expect, it } from 'vitest'
 
 import { specTable, unbroken } from '../contract/spec-table'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -191,7 +192,7 @@ const DUMMY_WIDTH_UPPER_BOUND = ((): number => {
 
 /** `S-1`, 表 T-201 -- 1 日あたりの表示幅 at `zoomX` = 1 (FR-017). */
 const PX_PER_DAY_AT_1X = ((): number => {
-  const value = SETTINGS_DEFAULTS['pxPerDayAt1x']
+  const value = SETTINGS_CONSTANTS['pxPerDayAt1x']
   if (typeof value !== 'number' || value <= 0) throw new Error('S-1 is not a positive number')
   return value
 })()
@@ -209,7 +210,7 @@ const S_247 = ((): number => {
 
 // see T-240, FR-039
 const MARKER_DIAMETER = ((): number => {
-  const value = SETTINGS_DEFAULTS['markerSize']
+  const value = SETTINGS_CONSTANTS['markerSize']
   if (typeof value !== 'number' || value <= 0) throw new Error('S-22 is not a positive number')
   return value * DEFAULT_DISPLAY_RATIO
 })()
@@ -304,7 +305,7 @@ const taskGroup = (id: string, order: number): TaskGroup =>
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }) as unknown as TaskGroup
 
 const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
@@ -370,7 +371,7 @@ const scheduleOf = (
 }
 
 /** BO-1 of table T-077: what the environment settles, not the document. */
-const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8 }
+const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
@@ -380,14 +381,14 @@ const UNDER_TEST = 1
 
 // see FR-043, S-129
 const ACTUAL_INITIAL_DURATION = ((): number => {
-  const value = SETTINGS_DEFAULTS['actualInitialDuration']
+  const value = SETTINGS_CONSTANTS['actualInitialDuration']
   if (typeof value !== 'number') throw new Error('S-129 is not a number')
   return value
 })()
 
 /** `S-131`, the degree FR-013 names for the faint dummy and the faint marker. */
 const DUMMY_OPACITY = ((): number => {
-  const value = SETTINGS_DEFAULTS['dummyOpacity']
+  const value = SETTINGS_CONSTANTS['dummyOpacity']
   if (typeof value !== 'number') throw new Error('S-131 is not a number')
   return value
 })()
@@ -405,7 +406,7 @@ const DUMMY_OPACITY = ((): number => {
  * settings rather than a pixel this file typed in.
  */
 const ACTUAL_OF_PLAN = ((): number => {
-  const value = SETTINGS_DEFAULTS['actualOfPlan']
+  const value = SETTINGS_CONSTANTS['actualOfPlan']
   if (typeof value !== 'number') throw new Error('S-5 is not a number')
   return value
 })()
@@ -431,14 +432,14 @@ const draw = (schedule: Schedule, zoomX: number): Drawn => {
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   return {
     regions,
     layout,
     geometry,
     // EP-14's other arm. Every picture this helper builds is the SCREEN's;
     // the export cases go through `exportScene` / `exportSvg` instead.
-    svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen'),
+    svg: svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen', { themePreference: 'light', guideCursorMode: 'none' }),
   }
 }
 
@@ -1317,13 +1318,6 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
     schedule,
     documentSettings: settings,
   } as unknown as Document
-  // ⭐ S-80's default is 0, and 0 IS what closed means -- so FR-080's export
-  // environment (「プロパティパネルとコマンドパレットを閉じた状態」) is the very
-  // environment the screen is already in, and the two pictures are comparable
-  // figure for figure. A document with the panel open would be a different
-  // run of table T-068 and this file could say nothing about the difference.
-  expect(document.documentSettings.propertyPanelWidth).toBe(0)
-
   const painted: string[] = []
   const loop = frameLoop({ showSvg: (one: string) => painted.push(one) }, document, SCREEN)
   const screen = painted[painted.length - 1]
@@ -1332,6 +1326,12 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
   if (screen === undefined || scene === null || frame === null) {
     throw new Error('BO-1 has settled no size, so there is no picture to compare')
   }
+  // ⭐ The panel starts hidden (S-99h) and a hidden panel is 0 wide -- so FR-080's export
+  // environment (「プロパティパネルとコマンドパレットを閉じた状態」) is the very
+  // environment the screen is already in, and the two pictures are comparable
+  // figure for figure. A screen with the panel open would be a different
+  // run of table T-068 and this file could say nothing about the difference.
+  expect(frame.regions.propertiesPanel.width).toBe(0)
   // CR-337: `exportSvg` now answers `{ ok: false }` past S-217's ceiling; this
   // fixture's screen is nowhere near it, so a refusal here is a fixture bug,
   // not FR-025's own MUST NOT.
@@ -1344,7 +1344,7 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
     exportInner: scene.svg,
     exportWhole: whole.svg,
     geometry: frame.geometry,
-    ratio: scene.settings.exportCanvas.width / SCREEN.width,
+    ratio: SETTINGS_CONSTANTS.exportCanvas.width / SCREEN.width,
   }
 }
 

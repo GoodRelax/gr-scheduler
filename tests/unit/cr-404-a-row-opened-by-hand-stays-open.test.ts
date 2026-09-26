@@ -20,6 +20,7 @@ import { emptyScreenSession } from '../../src/use-case/advance-screen-session/ad
 import { editTaskGroup } from '../../src/use-case/edit-document/edit-task-group'
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument, validateEntity } from '../fixtures/grs-document'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -106,8 +107,9 @@ type TreeState = (typeof TREE_STATES)[number]
 const withTreeState = (group: Record<string, any>, treeState: TreeState): Record<string, any> => ({ ...group, treeState })
 const TEMPLATE_SETTINGS = { ...TEMPLATE.documentSettings, levelZeroTreeState: 'auto' }
 
-const thresholdOf = (depth: number, settings: Record<string, any> = TEMPLATE_SETTINGS): number =>
-  settings.groupLevelOfDetailBase * settings.groupLevelOfDetailRatio ** (depth - 2)
+// WHY: S-87 and S-88 are constants since CR-572; the document no longer carries them.
+const thresholdOf = (depth: number): number =>
+  SETTINGS_CONSTANTS.groupLevelOfDetailBase * SETTINGS_CONSTANTS.groupLevelOfDetailRatio ** (depth - 2)
 
 describe('CR-404 / CR-570 -- the manuscript these cases are driven by', () => {
   it.each([
@@ -246,7 +248,7 @@ function smallDocument(part: Fixture): Record<string, any> {
         treeState: stateIn(part, one.id),
         editGroup: null,
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: TREE.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
       taskVisuals: [],
@@ -379,7 +381,7 @@ function stage(document: Record<string, any>): Stage {
 const stateAmong = (groups: readonly any[], id: string): unknown => groups.find((one) => one.id === id)?.treeState
 
 function layoutOf(doc: Record<string, any>, env = SCREEN): string[] {
-  const regions = regionsFromScreen(env as any, doc.documentSettings)
+  const regions = regionsFromScreen({ ...(env as any), propertyPanelWidth: 0 }, doc.documentSettings)
   return layoutFromSchedule(doc.schedule, doc.documentSettings, regions).rows.map((one) => one.groupId)
 }
 
@@ -767,12 +769,12 @@ describe('HF-3 / HF-11 / HF-12 -- [^], [^^] and head [^^] fold what is below', (
 
 describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in its second write', () => {
   function contextOf(doc: Record<string, any>): any {
-    const regions = regionsFromScreen(SCREEN as any, doc.documentSettings)
+    const regions = regionsFromScreen({ ...(SCREEN as any), propertyPanelWidth: 0 }, doc.documentSettings)
     const layout = layoutFromSchedule(doc.schedule, doc.documentSettings, regions)
     return {
       document: doc,
       layout,
-      geometry: geometryFromLayout(doc.schedule, doc.documentSettings, layout, regions, emptySelection()),
+      geometry: geometryFromLayout(doc.schedule, doc.documentSettings, layout, regions, emptySelection(), null),
       regions,
       screen: emptyScreenSession.screen,
       selection: emptySelection(),
@@ -1004,12 +1006,12 @@ describe(`FR-016 -- ${FR_016_TALLEST_AMONG_DRAWN}`, () => {
 
   function ceilingOf(doc: Record<string, any>): number {
     const settings = doc.documentSettings
-    const regions = regionsFromScreen(FULL_HD as any, settings)
+    const regions = regionsFromScreen({ ...FULL_HD, propertyPanelWidth: 0 }, settings)
     const layout = layoutFromSchedule(doc.schedule, settings, regions)
     return rowBandCeilingOf({
       document: doc,
       layout,
-      geometry: geometryFromLayout(doc.schedule, settings, layout, regions, emptySelection()),
+      geometry: geometryFromLayout(doc.schedule, settings, layout, regions, emptySelection(), null),
       regions,
       screen: emptyScreenSession.screen,
       selection: emptySelection(),

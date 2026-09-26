@@ -89,6 +89,7 @@ import { validateDocument } from '../fixtures/grs-document'
 // table).
 import { specTable } from '../contract/spec-table'
 import { displayRatioAt } from '../fixtures/display-scale'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // ---------------------------------------------------------------------------
 // The document under test
@@ -201,7 +202,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   const draft = {
     schemaVersion: template.schemaVersion,
@@ -678,7 +679,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
       values.layout.pxPerDay,
       'FR-039 の 表 T-252 の DS-4: 描く 1 日の幅は S-1 x zoomX に描く比を掛けた値',
     ).toBe(
-      settingsOf(placed).pxPerDayAt1x *
+      SETTINGS_CONSTANTS.pxPerDayAt1x *
         settingsOf(placed).zoomX *
         displayRatioAt(settingsOf(placed).displayScale),
     )
@@ -1234,7 +1235,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME rows', () 
           order: index,
           treeState: 'auto', editGroup: null,
           color: null,
-          height: null,
+          minHeight: null,
         })
         members.push({ taskUid: 1, groupId: id, stackOrder: null })
       }

@@ -24,12 +24,30 @@ type DisplayLanguage = 'ja' | 'en'
 
 type ScaleEnd = 'max' | 'min' | null
 
+// see S-72, FR-039
+type ThemePreference = 'light' | 'dark'
+
+// see S-66, FR-048
+type GuideCursorMode = 'none' | 'crosshair' | 'single-vertical'
+
 // see DC-9, S-66
-type GuideCursor = Exclude<Extract<DocumentCommand, { kind: 'setGuideCursorMode' }>['mode'], 'none'>
+type GuideCursor = Exclude<GuideCursorMode, 'none'>
+
+// see S-65, DC-6
+interface DualCursorDates {
+  readonly date1: string
+  readonly date2: string
+}
 
 export interface ScreenValuesStateCarried {
-  readonly language: DisplayLanguage | null
+  readonly screenLanguage: DisplayLanguage | null
+  readonly helpLanguage: DisplayLanguage | null
   readonly rememberedActuals: Readonly<Record<number, RememberedActual>>
+  readonly themePreference: ThemePreference
+  readonly guideCursorMode: GuideCursorMode
+  readonly dualCursor: DualCursorDates | null
+  // WHY: null until the shell seats S-171 at startup, as it seats the language; the value is generated there.
+  readonly propertyPanelWidth: number | null
   readonly shapeKind: string
   readonly glyph: string
   readonly surfaceName: string
@@ -57,7 +75,10 @@ export interface ScreenValuesEventCarried {
   readonly guideCursor: GuideCursor
   readonly percent: number
   readonly end: ScaleEnd
-  readonly language: DisplayLanguage
+  readonly screenLanguage: DisplayLanguage
+  readonly helpLanguage: DisplayLanguage
+  readonly themePreference: ThemePreference
+  readonly propertyPanelWidth: number
   readonly taskUid: number
   readonly rememberedActual: RememberedActual | null
   readonly writes: readonly DocumentCommand[]
@@ -73,14 +94,19 @@ interface ScreenValuesEffectPayloads {
   readonly matchWatermarkUnlock: NoPayload
   readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-35' }
   readonly clearSelection: NoPayload
-  readonly writePlaceDualCursorClearingGuide: { readonly date: string } & Carried
-  readonly writeFixDate1: { readonly date: string } & Carried
-  readonly writeFixDate2: { readonly date: string } & Carried
-  readonly writeClearDualCursor: NoPayload
-  readonly writeClearDualCursorSettingGuide: { readonly guideCursor: GuideCursor }
+  readonly storePlacedDualCursorClearingGuide: { readonly date: string }
+  readonly storeFixedDate1: { readonly date: string }
+  readonly storeFixedDate2: { readonly date: string }
+  readonly storeClearedDualCursor: NoPayload
+  readonly storeGuideCursorMode: { readonly guideCursorMode: GuideCursorMode }
+  readonly storeThemePreference: { readonly themePreference: ThemePreference }
+  readonly storePropertyPanelWidth: { readonly propertyPanelWidth: number }
   readonly startScaleMessageTimer: NoPayload
   readonly restartScaleMessageTimer: NoPayload
-  readonly storeLanguage: { readonly language: DisplayLanguage }
+  readonly storeScreenLanguage: { readonly screenLanguage: DisplayLanguage }
+  readonly writeHelpLanguage: { readonly helpLanguage: DisplayLanguage }
+  readonly seedHelpLanguage: NoPayload
+  readonly focusSearchWord: NoPayload
   readonly writeProgressStep: { readonly taskUid: number } & Carried
 }
 
@@ -125,6 +151,16 @@ export type ScreenValuesKey =
   | 'scaleMessageDisplayStateMachine.shown'
   | 'tooltipDisplayStateMachine.allowed'
   | 'tooltipDisplayStateMachine.dismissed'
+  | 'searchPanelDisplayStateMachine.hidden'
+  | 'searchPanelDisplayStateMachine.shown'
+  | 'searchPanelDisplayStateMachine.shown.normal'
+  | 'searchPanelDisplayStateMachine.shown.minimised'
+  | 'searchPanelDisplayStateMachine.shown.maximised'
+  | 'helpDisplayStateMachine.hidden'
+  | 'helpDisplayStateMachine.shown'
+  | 'helpDisplayStateMachine.shown.normal'
+  | 'helpDisplayStateMachine.shown.minimised'
+  | 'helpDisplayStateMachine.shown.maximised'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -133,6 +169,16 @@ export type PaletteDisplayShownState =
 export type DualCursorModeOnState =
   | { readonly kind: 'placingDate1' }
   | { readonly kind: 'placingDate2' }
+
+export type SearchPanelDisplayShownState =
+  | { readonly kind: 'normal' }
+  | { readonly kind: 'minimised' }
+  | { readonly kind: 'maximised' }
+
+export type HelpDisplayShownState =
+  | { readonly kind: 'normal' }
+  | { readonly kind: 'minimised' }
+  | { readonly kind: 'maximised' }
 
 export type ArmModeState =
   | { readonly kind: 'notArmed' }
@@ -183,9 +229,22 @@ export type TooltipDisplayState =
   | { readonly kind: 'allowed' }
   | { readonly kind: 'dismissed' }
 
+export type SearchPanelDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly child: SearchPanelDisplayShownState }
+
+export type HelpDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly child: HelpDisplayShownState }
+
 export interface ScreenValues {
-  readonly language: ScreenValuesStateCarried['language']
+  readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
+  readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
   readonly rememberedActuals: ScreenValuesStateCarried['rememberedActuals']
+  readonly themePreference: ScreenValuesStateCarried['themePreference']
+  readonly guideCursorMode: ScreenValuesStateCarried['guideCursorMode']
+  readonly dualCursor: ScreenValuesStateCarried['dualCursor']
+  readonly propertyPanelWidth: ScreenValuesStateCarried['propertyPanelWidth']
   readonly armModeState: ArmModeState
   readonly paletteDisplayState: PaletteDisplayState
   readonly milestoneListDisplayState: MilestoneListDisplayState
@@ -197,9 +256,11 @@ export interface ScreenValues {
   readonly dualCursorModeState: DualCursorModeState
   readonly scaleMessageDisplayState: ScaleMessageDisplayState
   readonly tooltipDisplayState: TooltipDisplayState
+  readonly searchPanelDisplayState: SearchPanelDisplayState
+  readonly helpDisplayState: HelpDisplayState
 }
 
-export type ScreenValuesAxes = Omit<ScreenValues, 'language' | 'rememberedActuals'>
+export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
 
 export type ScreenValuesEvent =
   | { readonly type: 'paletteToggled' }
@@ -223,38 +284,58 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
-  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'scaleMessageTimeElapsed' }
-  | { readonly type: 'displayLanguageChosen'; readonly language: ScreenValuesEventCarried['language'] }
+  | { readonly type: 'screenLanguageChosen'; readonly screenLanguage: ScreenValuesEventCarried['screenLanguage'] }
+  | { readonly type: 'helpLanguageChosen'; readonly helpLanguage: ScreenValuesEventCarried['helpLanguage'] }
+  | { readonly type: 'themePreferenceChosen'; readonly themePreference: ScreenValuesEventCarried['themePreference'] }
+  | { readonly type: 'propertyPanelWidthSettled'; readonly propertyPanelWidth: ScreenValuesEventCarried['propertyPanelWidth'] }
   | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual']; readonly writes: ScreenValuesEventCarried['writes'] }
-  | { readonly type: 'pointerRestElapsed' }
+  | { readonly type: 'hintTargetChanged' }
+  | { readonly type: 'searchEntryPressed' }
+  | { readonly type: 'searchPanelMinimiseToggled' }
+  | { readonly type: 'searchPanelMaximiseToggled' }
+  | { readonly type: 'searchPanelClosePressed' }
+  | { readonly type: 'searchHitJumped' }
+  | { readonly type: 'helpEntryPressed' }
+  | { readonly type: 'helpMinimiseToggled' }
+  | { readonly type: 'helpMaximiseToggled' }
 
 export type ScreenValuesEffectName =
-  | 'storeLanguage'
+  | 'storeScreenLanguage'
+  | 'writeHelpLanguage'
   | 'writeProgressStep'
+  | 'storeThemePreference'
+  | 'storeGuideCursorMode'
+  | 'storePropertyPanelWidth'
   | 'askBrowserForFullScreen'
   | 'tellFlowSurfaceClosed'
   | 'matchWatermarkUnlock'
   | 'raiseNotice'
   | 'clearSelection'
-  | 'writeClearDualCursor'
-  | 'writePlaceDualCursorClearingGuide'
-  | 'writeClearDualCursorSettingGuide'
-  | 'writeFixDate1'
-  | 'writeFixDate2'
+  | 'storeClearedDualCursor'
+  | 'storePlacedDualCursorClearingGuide'
+  | 'storeFixedDate1'
+  | 'storeFixedDate2'
   | 'startScaleMessageTimer'
   | 'restartScaleMessageTimer'
+  | 'focusSearchWord'
+  | 'seedHelpLanguage'
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
   readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
+  readonly 'searchPanelDisplayStateMachine.shown': SearchPanelDisplayShownState
+  readonly 'helpDisplayStateMachine.shown': HelpDisplayShownState
 } = {
   'paletteDisplayStateMachine.shown': { kind: 'expanded' },
   'dualCursorModeStateMachine.on': { kind: 'placingDate1' },
+  'searchPanelDisplayStateMachine.shown': { kind: 'normal' },
+  'helpDisplayStateMachine.shown': { kind: 'normal' },
 }
 
 const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
@@ -269,6 +350,8 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   dualCursorModeState: { kind: 'off' },
   scaleMessageDisplayState: { kind: 'hidden' },
   tooltipDisplayState: { kind: 'allowed' },
+  searchPanelDisplayState: { kind: 'hidden' },
+  helpDisplayState: { kind: 'hidden' },
 }
 // </generated>
 
@@ -280,10 +363,16 @@ const WATERMARK_UNLOCK_SURFACE = 'U-60'
 
 const NO_REMEMBERED_ACTUALS: Readonly<Record<number, RememberedActual>> = Object.freeze({})
 
+// see T-280, T-206, S-72
 export const emptyScreenValues: ScreenValues = {
   ...SCREEN_VALUES_INITIAL_AXES,
-  language: null,
+  screenLanguage: null,
+  helpLanguage: null,
   rememberedActuals: NO_REMEMBERED_ACTUALS,
+  themePreference: 'light',
+  guideCursorMode: 'none',
+  dualCursor: null,
+  propertyPanelWidth: null,
 }
 
 /** @purity pure */
@@ -396,7 +485,7 @@ function disarmed(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function dualCursorCleared(values: ScreenValues): ScreenStep {
   if (values.dualCursorModeState.kind === 'off') return unchanged(values)
-  return moved(values, { dualCursorModeState: { kind: 'off' } }, [{ type: 'writeClearDualCursor' }])
+  return moved(values, { dualCursorModeState: { kind: 'off' }, dualCursor: null }, [{ type: 'storeClearedDualCursor' }])
 }
 
 /** @purity pure */
@@ -565,37 +654,45 @@ function onDualCursorEntryPressed(
   if (!event.hasDaysToPlace) return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
-  return moved(values, { dualCursorModeState: { kind: 'on', child }, armModeState: armed }, [
-    { type: 'writePlaceDualCursorClearingGuide', date: event.date, writes: event.writes },
-  ])
+  // WHY: the event carries the one date DC-1 places; date1 follows the pointer until DC-2 fixes it.
+  const dualCursor = { date1: event.date, date2: event.date }
+  return moved(
+    values,
+    { dualCursorModeState: { kind: 'on', child }, armModeState: armed, dualCursor, guideCursorMode: 'none' },
+    [{ type: 'storePlacedDualCursorClearingGuide', date: event.date }],
+  )
 }
 
-// see DC-9, T-280
+// see DC-9, FR-048, T-280
 /** @purity pure */
 function onGuideCursorEntryPressed(
   values: ScreenValues,
   event: EventOf<'guideCursorEntryPressed'>,
 ): ScreenStep {
-  if (values.dualCursorModeState.kind === 'off') return unchanged(values)
-  return moved(values, { dualCursorModeState: { kind: 'off' } }, [
-    { type: 'writeClearDualCursorSettingGuide', guideCursor: event.guideCursor },
+  const guideCursorMode = values.guideCursorMode === event.guideCursor ? 'none' : event.guideCursor
+  const stored: ScreenValuesEffect = { type: 'storeGuideCursorMode', guideCursorMode }
+  if (values.dualCursorModeState.kind === 'off') return moved(values, { guideCursorMode }, [stored])
+  return moved(values, { dualCursorModeState: { kind: 'off' }, dualCursor: null, guideCursorMode }, [
+    { type: 'storeClearedDualCursor' },
+    stored,
   ])
 }
 
-// see T-280
+// see DC-2, T-280
 /** @purity pure */
 function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlaced'>): ScreenStep {
-  const dualCursor = values.dualCursorModeState
-  if (dualCursor.kind === 'off') return unchanged(values)
-  if (dualCursor.child.kind === 'placingDate1') {
+  const mode = values.dualCursorModeState
+  if (mode.kind === 'off') return unchanged(values)
+  const held = values.dualCursor ?? { date1: event.date, date2: event.date }
+  if (mode.child.kind === 'placingDate1') {
     const child = { kind: 'placingDate2' } as const
-    return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
-      { type: 'writeFixDate1', date: event.date, writes: event.writes },
+    return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, date1: event.date } }, [
+      { type: 'storeFixedDate1', date: event.date },
     ])
   }
   const child = { kind: 'placingDate1' } as const
-  return moved(values, { dualCursorModeState: { kind: 'on', child } }, [
-    { type: 'writeFixDate2', date: event.date, writes: event.writes },
+  return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, date2: event.date } }, [
+    { type: 'storeFixedDate2', date: event.date },
   ])
 }
 
@@ -619,13 +716,34 @@ function onScaleMessageTimeElapsed(values: ScreenValues): ScreenStep {
 
 // see T-280
 /** @purity pure */
-function onDisplayLanguageChosen(
+function onScreenLanguageChosen(
   values: ScreenValues,
-  event: EventOf<'displayLanguageChosen'>,
+  event: EventOf<'screenLanguageChosen'>,
 ): ScreenStep {
-  return moved(values, { language: event.language }, [
-    { type: 'storeLanguage', language: event.language },
+  const language = event.screenLanguage
+  return moved(values, { screenLanguage: language, helpLanguage: language }, [
+    { type: 'storeScreenLanguage', screenLanguage: language },
   ])
+}
+
+// see S-72, FR-039, T-280
+/** @purity pure */
+function onThemePreferenceChosen(
+  values: ScreenValues,
+  event: EventOf<'themePreferenceChosen'>,
+): ScreenStep {
+  const themePreference = event.themePreference
+  return moved(values, { themePreference }, [{ type: 'storeThemePreference', themePreference }])
+}
+
+// see S-171, FR-052, T-280
+/** @purity pure */
+function onPropertyPanelWidthSettled(
+  values: ScreenValues,
+  event: EventOf<'propertyPanelWidthSettled'>,
+): ScreenStep {
+  const propertyPanelWidth = event.propertyPanelWidth
+  return moved(values, { propertyPanelWidth }, [{ type: 'storePropertyPanelWidth', propertyPanelWidth }])
 }
 
 // see T-280, PV-4
@@ -646,7 +764,7 @@ function onProgressMarkerPressed(
 
 // see T-280
 /** @purity pure */
-function onPointerRestElapsed(values: ScreenValues): ScreenStep {
+function onHintTargetChanged(values: ScreenValues): ScreenStep {
   if (values.tooltipDisplayState.kind === 'allowed') return unchanged(values)
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
@@ -683,9 +801,20 @@ const HANDLERS: {
   displayScaleStepped: onScaleMessageRaised,
   rowZoomEndReached: onScaleMessageRaised,
   scaleMessageTimeElapsed: onScaleMessageTimeElapsed,
-  displayLanguageChosen: onDisplayLanguageChosen,
+  screenLanguageChosen: onScreenLanguageChosen,
+  helpLanguageChosen: unchanged,
+  themePreferenceChosen: onThemePreferenceChosen,
+  propertyPanelWidthSettled: onPropertyPanelWidthSettled,
   progressMarkerPressed: onProgressMarkerPressed,
-  pointerRestElapsed: onPointerRestElapsed,
+  hintTargetChanged: onHintTargetChanged,
+  searchEntryPressed: unchanged,
+  searchPanelMinimiseToggled: unchanged,
+  searchPanelMaximiseToggled: unchanged,
+  searchPanelClosePressed: unchanged,
+  searchHitJumped: unchanged,
+  helpEntryPressed: unchanged,
+  helpMinimiseToggled: unchanged,
+  helpMaximiseToggled: unchanged,
 }
 
 // see SF-2, SF-8, T-280

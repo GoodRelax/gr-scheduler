@@ -5,8 +5,10 @@
 // @publishes table T-064 row PI-35
 
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
+  type DrawnSettings,
 } from '../../document-model/document-settings/document-settings'
 
 export interface ScreenRect {
@@ -21,6 +23,7 @@ export interface ScreenEnvironment {
   readonly height: number
   readonly appHeaderHeight: number
   readonly scrollbarThickness: number
+  readonly propertyPanelWidth: number
 }
 
 export interface ScreenRegions {
@@ -67,7 +70,7 @@ export function displayRatioOf(settings: DocumentSettings): number {
 }
 
 // TRAP: DS-1, DS-3, DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.
-const SCALED_BY_THE_DISPLAY: readonly (keyof DocumentSettings)[] = [
+const SCALED_BY_THE_DISPLAY: readonly (keyof DrawnSettings)[] = [
   'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
   'rowGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
@@ -105,35 +108,34 @@ export function rowControlLatticeHeightPx(): number {
 // see FR-039, T-252
 /** @purity pure */
 function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): number {
-  const indents = settings.rowTitleIndent * ratio * settings.maxGroupDepth
+  const indents = SETTINGS_CONSTANTS.rowTitleIndent * ratio * SETTINGS_CONSTANTS.maxGroupDepth
   const grabStrip = NOT_STORED_ENTRANCE_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235']
   const rowControls =
     ROW_CONTROL_COLUMNS * entranceOuterWidthPx() * NOT_STORED_CHROME_SCALE['S-235']
   return Math.max(settings.rowTitlePanelWidth * ratio, indents + grabStrip + rowControls)
 }
 
-// see FR-039, T-252
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
 
 // TRAP: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
 // multiplies the STORED settings once on its way in; none of them scales a scaled value.
 /** @purity pure */
-export function drawnSettingsOf(settings: DocumentSettings): DocumentSettings {
+export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
+  if (Object.prototype.hasOwnProperty.call(settings, DRAWN_AT_RATIO)) return settings as DrawnSettings
   const ratio = displayRatioOf(settings)
-  if (!(ratio > 0)) return settings
-  if ((settings as unknown as Record<string, unknown>)[DRAWN_AT_RATIO] === ratio) return settings
-  const panelWidth = drawnRowTitlePanelWidthPx(settings, ratio)
-  if (ratio === 1 && panelWidth === settings.rowTitlePanelWidth) return settings
-  const drawn: Record<string, unknown> = { ...settings }
-  if (ratio !== 1) {
-    for (const key of SCALED_BY_THE_DISPLAY) {
-      const value = settings[key]
-      if (typeof value === 'number') drawn[key] = value * ratio
+  // WHY: constants last, so a same-named key the input carries never outvotes them.
+  const merged: Record<string, unknown> = { ...settings, ...SETTINGS_CONSTANTS }
+  if (ratio > 0) {
+    if (ratio !== 1) {
+      for (const key of SCALED_BY_THE_DISPLAY) {
+        const value = merged[key]
+        if (typeof value === 'number') merged[key] = value * ratio
+      }
     }
+    merged['rowTitlePanelWidth'] = drawnRowTitlePanelWidthPx(settings, ratio)
   }
-  drawn['rowTitlePanelWidth'] = panelWidth
-  Object.defineProperty(drawn, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
-  return drawn as unknown as DocumentSettings
+  Object.defineProperty(merged, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
+  return merged as unknown as DrawnSettings
 }
 
 /** @purity pure */
@@ -148,7 +150,7 @@ export function regionsFromScreen(
   const canvas = rect(0, headerHeight, env.width, env.height - headerHeight)
 
   const titleWidth = drawn.rowTitlePanelWidth
-  const propsWidth = drawn.propertyPanelWidth
+  const propsWidth = env.propertyPanelWidth
   const bandHeight = drawn.rulerHeight
   const bar = env.scrollbarThickness
 
@@ -162,8 +164,8 @@ export function regionsFromScreen(
 
   const rowAreaX = canvas.x + titleWidth
   const rowAreaY = canvas.y + bandHeight
-  const rowAreaWidth = canvas.width - settings.canvasPadding - titleWidth - propsWidth - bar
-  const rowAreaHeight = canvas.height - bandHeight - settings.canvasPadding - bar
+  const rowAreaWidth = canvas.width - drawn.canvasPadding - titleWidth - propsWidth - bar
+  const rowAreaHeight = canvas.height - bandHeight - drawn.canvasPadding - bar
 
   return {
     appHeader,
@@ -183,16 +185,16 @@ export function regionsAtDisplayScale(
   displayScale: DocumentSettings['displayScale'],
 ): ScreenRegions {
   const canvas = regions.scheduleCanvas
-  const bandHeight = drawnSettingsOf(settings).rulerHeight
+  const drawn = drawnSettingsOf(settings)
   const env: ScreenEnvironment = {
     width: regions.appHeader.width,
     height: canvas.y + canvas.height,
     appHeaderHeight: regions.appHeader.height,
     scrollbarThickness:
-      canvas.height - bandHeight - settings.canvasPadding - regions.rowArea.height,
+      canvas.height - drawn.rulerHeight - drawn.canvasPadding - regions.rowArea.height,
+    propertyPanelWidth: regions.propertiesPanel.width,
   }
-  const propertyPanelWidth = regions.propertiesPanel.width
-  return regionsFromScreen(env, { ...settings, displayScale, propertyPanelWidth })
+  return regionsFromScreen(env, { ...settings, displayScale })
 }
 
 /** @purity pure */

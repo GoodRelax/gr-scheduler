@@ -3,7 +3,10 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   calendarSpanOf,
   dayOf,
@@ -103,7 +106,7 @@ function rectHoldsPoint(area: ScreenRect, x: number, y: number): boolean {
 /** @purity pure */
 export function tooltipsFromScreenView(
   shown: Omit<ScreenView, 'tooltips'>,
-  settings: DocumentSettings,
+  _settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): readonly Tooltip[] {
@@ -111,7 +114,7 @@ export function tooltipsFromScreenView(
 
   const pointer = readings.pointer
   const language = displayLanguageOf(session)
-  const isHintDue = pointer !== null && readings.pointerRestedMs >= settings.iconHintDelayMs
+  const isHintDue = pointer !== null && readings.pointerRestedMs >= SETTINGS_CONSTANTS.iconHintDelayMs
 
   const tooltips: Tooltip[] = []
 
@@ -194,7 +197,7 @@ function readoutDays(
   const mode = session.screen.dualCursorModeState
   const following = mode.kind !== 'off' && mode.child.kind === 'placingDate2' ? 'date2' : 'date1'
   const followed = dateAtX(timeAxisOf(settings, regions), pointerX)
-  const standing = settings.dualCursor
+  const standing = session.screen.dualCursor
   return {
     date1: following === 'date1' ? followed : dayOf(standing?.date1 ?? null),
     date2: following === 'date2' ? followed : dayOf(standing?.date2 ?? null),

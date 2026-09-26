@@ -23,7 +23,7 @@ THE LAYOUT IS FR-036'S OWN:
   - blocks in the columns and the order table T-256 names them: the
     assignments with no entrance (`basics`) and the browser functions
     (`browser`) -- the only two blocks with a heading -- then `Row Title Panel`
-    and `Resource Roster` in HC-1, `App Header` in HC-2, `Command Palette` in
+    and `Resource Roster` and `Search Panel` (CR-571) in HC-1, `App Header` in HC-2, `Command Palette` in
     HC-3. Every entry carries the row id of its column, and the count of those
     rows must equal S-202 (MUST);
   - inside a block the order the screen shows, not the print order of table
@@ -103,16 +103,19 @@ BASICS = 'basics'
 BROWSER = 'browser'
 ROW_TITLE_PANEL = 'Row Title Panel'
 RESOURCE_ROSTER = 'Resource Roster'
+# CR-571: the search panel's own entrances, the last block of HC-1 (table T-256).
+SEARCH_PANEL = 'Search Panel'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
-BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, APP_HEADER,
-          COMMAND_PALETTE)
+BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, SEARCH_PANEL,
+          APP_HEADER, COMMAND_PALETTE)
 
 # FR-036 names these by id: shown, and the rest of table T-023 split into the
 # rows with an entrance and the rows it keeps off the help. A row of that table
 # in none of the three stops the run -- FR-036 (MUST) has the requirement decide
 # a new row, and this script must not decide it.
-SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7')
+# CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
+SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 
@@ -137,6 +140,10 @@ ALWAYS_SHOWN_GLYPHS = 'S-216'
 HELP_COLUMN_COUNT = 'S-202'
 ARMED_NOTE_ROW = 'IC-54'
 LEGEND_ROW = 'IC-102'
+# CR-574: FR-036 (MUST) keeps the rows of table T-109 whose surface is the
+# Help Modal alone off the columns -- the legend and the title row's own
+# entrances stand in front of the reader already.
+HELP_MODAL = 'Help Modal'
 
 BANNER = (
     'GENERATED from %s and the icon roster by %s -- do not edit by hand. '
@@ -375,6 +382,7 @@ def build():
     panel = [icon_item(ROW_TITLE_PANEL, None, rid) for rid in ROW_TITLE_PANEL_ORDER]
 
     roster = [icon_item(RESOURCE_ROSTER, None, rid) for rid in on(RESOURCE_ROSTER)]
+    search = [icon_item(SEARCH_PANEL, None, rid) for rid in on(SEARCH_PANEL)]
 
     header = []
     for rid in on(APP_HEADER):
@@ -420,7 +428,7 @@ def build():
             palette.append(icon_item(COMMAND_PALETTE, first, rid))
 
     by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
-                RESOURCE_ROSTER: roster, APP_HEADER: header,
+                RESOURCE_ROSTER: roster, SEARCH_PANEL: search, APP_HEADER: header,
                 COMMAND_PALETTE: palette}
     entries = []
     for column, blocks in column_layout():
@@ -431,6 +439,7 @@ def build():
 
     # The one merged item stands for every row armed with AR-3 (FR-036).
     carried = set([LEGEND_ROW] + milestones)
+    carried.update(i['rowId'] for i in icons if i['surfaces'] == [HELP_MODAL])
     for one in entries:
         if one['table'] == ICON_TABLE:
             carried.add(one['row'])

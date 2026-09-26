@@ -8,11 +8,13 @@ import {
   drawnSettingsOf,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { ScreenValuesEvent } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { ScreenPart } from '../screen-renderer/screen-renderer'
 import type { PointerInput } from './input-source'
 import {
   ENTRY,
   NOT_STORED_PROPERTIES_PANEL_FLOOR,
+  CONSUMED_ELSEWHERE,
   UNASSIGNED,
   acted,
   changed,
@@ -106,34 +108,26 @@ export function commandFromPanelDivider(
   press: PointerPress,
   context: InputContext,
 ): TranslatedInput {
+  if (panel !== 'rowTitlePanel') return CONSUMED_ELSEWHERE
   const settings = context.document.documentSettings
   const travelled = release.x - press.at.x
   return changed([
-    {
-      kind: 'setPanelWidths',
-      rowTitlePanelWidth:
-        panel === 'rowTitlePanel'
-          ? rowTitlePanelWidthAfterDrag(settings, travelled)
-          : settings.rowTitlePanelWidth,
-      propertyPanelWidth:
-        panel === 'propertiesPanel'
-          ? propertyPanelWidthAfterDrag(settings, press, context, travelled)
-          : settings.propertyPanelWidth,
-    },
+    { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: rowTitlePanelWidthAfterDrag(settings, travelled) },
   ])
 }
 
-// see FR-052, S-80, S-171, S-248
+// see FR-052, GR-22, S-171, S-248, T-280
 /** @purity pure */
-function propertyPanelWidthAfterDrag(
-  settings: DocumentSettings,
+export function screenEventFromPanelDivider(
+  release: PointerInput,
   press: PointerPress,
   context: InputContext,
-  travelled: number,
-): number {
-  if (travelled === 0) return settings.propertyPanelWidth
+): ScreenValuesEvent | null {
+  const travelled = release.x - press.at.x
+  if (travelled === 0) return null
   const drawnAtPress = press.propertyPanelWidthAtPress ?? context.regions.propertiesPanel.width
-  return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - travelled)
+  const propertyPanelWidth = Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - travelled)
+  return { type: 'propertyPanelWidthSettled', propertyPanelWidth }
 }
 
 // see FR-052, FR-039, T-252

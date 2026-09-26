@@ -137,8 +137,6 @@ const SETTINGS = settingsOf({
   rulerFont: 12, // S-3
   scrollDate: '2026-01-01', // S-77
   stackDirection: 'down', // S-58
-  shapeHeightOf: { rectangle: 1, chevron: 1, arrow: 0.5, endpointSpan: 0.5, milestone: 1.5 },
-  fontScaleSizes: { S: 12, M: 14, L: 16 }, // S-121 .. S-123
 })
 
 const ENV: ScreenEnvironment = {
@@ -146,6 +144,7 @@ const ENV: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
@@ -246,7 +245,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
         derivedFromTaskUid: null,
         order: 1,
         treeState: 'auto', color: null,
-        height: null,
+        minHeight: null,
       },
     ],
     // IV-6 asks for exactly one of these per `Task`.

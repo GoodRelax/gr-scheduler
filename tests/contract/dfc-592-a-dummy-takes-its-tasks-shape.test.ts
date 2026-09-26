@@ -105,7 +105,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
     taskGroups: [
       {
         id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0,
-        treeState: 'auto', color: null, height: null,
+        treeState: 'auto', color: null, minHeight: null,
       } as unknown as TaskGroup,
     ],
     taskGroupMembers: [
@@ -118,7 +118,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
     baselineTasks: [],
   }) as unknown as Schedule
 
-const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8 }
+const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
 
@@ -126,8 +126,8 @@ const draw = (schedule: Schedule): string => {
   const settings = settingsOf({ zoomX: 3, scrollDate: day(1), stackDirection: 'down' })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
-  return svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen')
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
+  return svgFromSchedule(schedule, settings, layout, geometry, regions, emptySelection(), 'screen', { themePreference: 'light', guideCursorMode: 'none' })
 }
 
 const notStarted = (shapeKind: string): string =>

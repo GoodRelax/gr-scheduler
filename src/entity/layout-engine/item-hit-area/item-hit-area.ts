@@ -1013,6 +1013,8 @@ export const NOT_STORED_SIZES: {
   readonly 'S-293': number
   readonly 'S-291': number
   readonly 'S-292': number
+  readonly 'S-363': number
+  readonly 'S-373': number
 } = {
   'S-250': 12,
   'S-251': 0,
@@ -1060,5 +1062,7 @@ export const NOT_STORED_SIZES: {
   'S-293': 3,
   'S-291': 3,
   'S-292': 6,
+  'S-363': 4,
+  'S-373': 36,
 }
 // </generated>

@@ -314,7 +314,7 @@ function documentWith(part: Fixture = {}): Document {
     treeState: folded.has(id) ? 'collapsed' : 'auto',
     editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   return {
     schemaVersion: template.schemaVersion,

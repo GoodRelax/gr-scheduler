@@ -13,12 +13,12 @@
 本書は全数と、各行の列・入力の型・対象・備考・交換相手の対応を印字する。
 
 ⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** —— `FR-006` が「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）」と定める。  
-⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が`Task` のパネルにも出る**。
+⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が`Task` のパネルにも出る**。
 
 ⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」と定めるので、表示名は `_source/display-words.json` の `properties` 節が同じ行 ID で持つ。  
 ⚠️ **本表の `列` は GRS JSON の列名であって、画面に出す名ではない。**
 
-⛔ **画面に出す名は表示言語に従う（`FR-038`）。**  
+⛔ **画面に出す名は画面の言語に従う（`FR-038`）。**  
 ⭐ **交換形式の列名は本表の `列` の欄が持つ** —— **往復の手がかりはそこに在り、画面に出す名が担うものではない。**
 
 ⛔ **選択の候補・数値の下限と上限・日付である列を本表へ写してはならない（MUST NOT）** —— `_source/grs-document.schema.json` と `DATE_COLUMNS` が既に持つ。  
@@ -44,7 +44,14 @@
 | PR-15 | `wbsParentUid` | 選択 | `Task` | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
 | PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 色 / 色 / 選択 | `Task` | FR-007 | 無い（`GRS JSON` のみ） |
 | PR-18 | `label` | 文字 | `TaskGroup` | 行の名前。<br>⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである | 無い（`GRS JSON` のみ） |
-| PR-20 | `height` | 数値 | `TaskGroup` | 倍率 1 のときの論理の高さ。<br>`null` ＝ 自動 | 無い（`GRS JSON` のみ） |
+| PR-20 | `minHeight` | 数値 | `TaskGroup` | 行の最小の高さ（縦のズーム 100% のときの画面の px）。<br>`null` ＝ 下限なし。<br>欄の出し方は `FR-042` の 表 T-338 が持つ | 無い（`GRS JSON` のみ） |
+| PR-33 | `editGroup` | 文字 | `TaskGroup` | 行を編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。<br>空の欄は `null` ＝ 誰でも編集できる。<br>⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でない行でも編集でき、`Agent API` からは書けない。<br>規則は `FR-111` の 表 T-275 の `GP-1` が持つ | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |
+| PR-26 | `strokeWidthPx` | 数値 | `CommentBox` | 本文の箱の枠と引出し線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374` | 無い（`GRS JSON` のみ） |
+| PR-27 | `fillTransparencyPercent` | 数値 | `CommentBox` | 本文の箱の塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-375` | 無い（`GRS JSON` のみ） |
+| PR-28 | `strokeColor` / `fillColor` / `textColor` | 色 / 色 / 色 | `CommentBox` | 枠と引出し線・本文の箱の塗り・本文の字の色。<br>`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。<br>⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`） | 無い（`GRS JSON` のみ） |
+| PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
+| PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-371` | 無い（`GRS JSON` のみ） |
 | PR-22 | `strokeColor` | 色 | `HighlightBox` | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ テーマから解く。<br>⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
+| PR-25 | `fillColor` | 色 | `HighlightBox` | 塗りの色。<br>`null` ＝ 同表の `S-370` の色（既定は透明 ＝ 塗らない）。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |

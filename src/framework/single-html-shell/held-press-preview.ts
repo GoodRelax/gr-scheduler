@@ -21,6 +21,7 @@ import type { ScreenRect, ScreenRegions } from '../../entity/layout-engine/scree
 import { editDocument } from '../../use-case/edit-document/edit-document'
 import {
   commandFromInput,
+  screenEventFromInput,
   type InputContext,
   type PointerInput,
   type PointerPress,
@@ -118,6 +119,26 @@ export function previewOfHeldPress(
   return drawn
 }
 
+// see FR-052, U-50
+/** @purity pure */
+export function leavesRowArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
+  return regions.rowArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
+}
+
+// see FR-052, S-248, T-280
+/** @purity pure */
+export function heldPropertyPanelWidthOf(
+  press: PointerPress | null,
+  at: Point | null,
+  context: InputContext,
+): number | null {
+  if (press === null || at === null || press.on?.dividerPanel !== 'propertiesPanel') return null
+  const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
+  const settled = screenEventFromInput(release, context)
+  if (settled?.type !== 'propertyPanelWidthSettled') return null
+  return leavesRowArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
+}
+
 // see FR-009, PTD-3, T-018, T-018a
 /** @purity semi-pure-b */
 export function tentativeDependencyOf(
@@ -181,6 +202,7 @@ export function tentativeDependencyOf(
     { ...layout, placements: [fromPlaced, successorPlaced] },
     regions,
     emptySelection(),
+    null,
   )
   return drawn.dependencies[0] ?? null
 }

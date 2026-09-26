@@ -16,6 +16,8 @@ const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
 
 type BrowserStoredRow = 'S-99' | 'S-99a' | 'S-99b' | 'S-99c'
 
+const PREFERS_DARK_QUERY = '(prefers-color-scheme: dark)'
+
 const DISPLAY_LANGUAGES: Readonly<Record<DisplayLanguage, true>> = { ja: true, en: true }
 
 // see FR-038
@@ -48,6 +50,17 @@ export function startupDisplayLanguage(): DisplayLanguage {
   const stored = readBrowserStored('S-99')
   if (stored !== null && isDisplayLanguage(stored)) return stored
   return globalThis.navigator?.language?.toLowerCase().startsWith('ja') === true ? 'ja' : 'en'
+}
+
+// see FR-039, S-72
+// WHY: read once per start and never written back; the page follows the browser on the next start.
+/** @purity semi-pure-b */
+export function startupThemePreference(): 'light' | 'dark' {
+  try {
+    return globalThis.matchMedia?.(PREFERS_DARK_QUERY)?.matches === true ? 'dark' : 'light'
+  } catch {
+    return 'light'
+  }
 }
 
 // see FR-065, S-99b

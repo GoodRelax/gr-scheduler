@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -91,7 +92,7 @@ const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
   nested({ ...SETTINGS_DEFAULTS, scrollDate: '2026-03-25', scrollGroupId: 'g1', ...part }) as unknown as DocumentSettings
 
-const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
+const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const TASK = {
   uid: 1,
@@ -143,7 +144,7 @@ const SCHEDULE = {
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
-      height: null,
+      minHeight: null,
     },
   ],
   taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],
@@ -156,12 +157,17 @@ const SCHEDULE = {
 
 type Mode = 'off' | 'placingDate1' | 'placingDate2'
 
-const sessionIn = (mode: Mode): ScreenSession => ({
+type Placed = { readonly date1: string; readonly date2: string } | null
+
+// WHY: DC-1 holds the two dates in the screen values (CR-572), no longer in the document.
+const sessionIn = (mode: Mode, placed: Placed = null): ScreenSession => ({
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: 'ja',
+    screenLanguage: 'ja',
+    helpLanguage: 'ja',
     dualCursorModeState: mode === 'off' ? { kind: 'off' } : { kind: 'on', child: { kind: mode } },
+    dualCursor: mode === 'off' ? null : placed,
   },
 })
 
@@ -185,8 +191,8 @@ const readingsAt = (pointer: { x: number; y: number } | null, part: Record<strin
     ...part,
   }) as unknown as ScreenViewReadings
 
-const stageOf = (stored: { date1: string; date2: string } | null) => {
-  const settings = settingsOf({ dualCursor: stored })
+const stageOf = (stored: Placed) => {
+  const settings = settingsOf()
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(SCHEDULE, settings, regions)
   const axis = timeAxisOf(settings, regions)
@@ -197,7 +203,7 @@ const stageOf = (stored: { date1: string; date2: string } | null) => {
     return { x, y: middleY }
   }
   const readout = (mode: Mode, pointer: { x: number; y: number } | null) =>
-    dualCursorReadoutOf(regions, settings, sessionIn(mode), readingsAt(pointer))
+    dualCursorReadoutOf(regions, settings, sessionIn(mode, stored), readingsAt(pointer))
   return { settings, regions, layout, axis, pointOn, readout, middleY }
 }
 
@@ -341,10 +347,10 @@ const taskTooltips = (mode: Mode): number => {
   const settings = stage.settings
   const readings = readingsAt(
     { x: stage.pointOn(2026, 4, 3).x, y: stage.middleY },
-    { pointerRestedMs: settings.iconHintDelayMs, taskUnderPointer: TASK },
+    { pointerRestedMs: SETTINGS_CONSTANTS.iconHintDelayMs, taskUnderPointer: TASK },
   )
   const shown = { frame: { scrollbars: [] } } as unknown as Omit<ScreenView, 'tooltips'>
-  return tooltipsFromScreenView(shown, settings, sessionIn(mode), readings).filter(
+  return tooltipsFromScreenView(shown, settings, sessionIn(mode, STORED), readings).filter(
     (one) => one.anchor.kind === 'task',
   ).length
 }
@@ -364,7 +370,7 @@ describe('EZ-6 -- not while the Dual Cursor mode stands', () => {
 describe('DC-3 -- the export', () => {
   it(DC_3_NOT_EXPORTED, () => {
     const stage = stageOf(STORED)
-    const geometry = geometryFromLayout(SCHEDULE, stage.settings, stage.layout, stage.regions, emptySelection())
+    const geometry = geometryFromLayout(SCHEDULE, stage.settings, stage.layout, stage.regions, emptySelection(), STORED)
     const svg = svgFromSchedule(
       SCHEDULE,
       stage.settings,
@@ -373,6 +379,7 @@ describe('DC-3 -- the export', () => {
       stage.regions,
       emptySelection(),
       'export',
+      sessionIn('placingDate2', STORED).screen,
     )
     for (const word of [A_WORD, B_WORD, SPAN_WORD, '2026/4/1', '(14 days)']) expect(svg).not.toContain(word)
   })

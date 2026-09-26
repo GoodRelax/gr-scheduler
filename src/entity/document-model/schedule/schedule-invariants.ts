@@ -5,6 +5,7 @@
 
 import {
   SETTINGS_BOUNDS,
+  SETTINGS_CONSTANTS,
   type DocumentSettings,
   type SettingsBoundToken,
 } from '../document-settings/document-settings'
@@ -399,7 +400,7 @@ const INVARIANTS: readonly Invariant[] = [
     row: 'IV-5',
     kind: 'structure',
     /** @purity pure */
-    find: ({ schedule, settings }) => {
+    find: ({ schedule }) => {
       const nesting = nestingOf(
         schedule.taskGroups,
         (group) => group.id,
@@ -408,11 +409,11 @@ const INVARIANTS: readonly Invariant[] = [
       const found: Breach[] = []
       for (const [index, group] of schedule.taskGroups.entries()) {
         const depth = nesting.depthByKey.get(group.id)
-        if (depth !== undefined && depth > settings.maxGroupDepth) {
+        if (depth !== undefined && depth > SETTINGS_CONSTANTS.maxGroupDepth) {
           found.push({
             at: `/schedule/taskGroups/${index}`,
             what: `row ${group.id} sits at depth ${depth}, past maxGroupDepth `
-              + `(${settings.maxGroupDepth})`,
+              + `(${SETTINGS_CONSTANTS.maxGroupDepth})`,
           })
         }
       }
@@ -568,51 +569,16 @@ const INVARIANTS: readonly Invariant[] = [
     },
   },
   {
-    row: 'IV-13',
-    kind: 'combination',
-    /** @purity pure */
-    find: ({ settings }) => {
-      const cursor = settings.dualCursor
-      if (cursor === null) return NONE
-      const found: Breach[] = []
-      for (const column of ['date1', 'date2'] as const) {
-        const held: string | null | undefined = cursor[column]
-        // TRAP: the type rules out undefined, but a document from outside may lack the key; keep the check.
-        if (held === null || held === undefined) {
-          found.push({
-            at: `/documentSettings/dualCursor/${column}`,
-            what: 'is absent while the dual cursor is set',
-          })
-        }
-      }
-      return found
-    },
-  },
-  {
     row: 'IV-14',
     kind: 'range',
     /** @purity pure */
-    find: ({ schedule, settings }) => {
-      const min = dayOf(settings.importMinDate)
-      const max = dayOf(settings.importMaxDate)
+    find: ({ schedule }) => {
+      const min = dayOf(SETTINGS_CONSTANTS.importMinDate)
+      const max = dayOf(SETTINGS_CONSTANTS.importMaxDate)
       const accepted: AcceptedDays | null =
         min !== null && max !== null ? { min, max } : null
 
       const found: Breach[] = []
-      if (min === null) {
-        found.push({
-          at: '/documentSettings/importMinDate',
-          what: `${JSON.stringify(settings.importMinDate)} names no day, `
-            + 'so the accepted range cannot be applied',
-        })
-      }
-      if (max === null) {
-        found.push({
-          at: '/documentSettings/importMaxDate',
-          what: `${JSON.stringify(settings.importMaxDate)} names no day, `
-            + 'so the accepted range cannot be applied',
-        })
-      }
 
       found.push(...dateBreaches(
         schedule.project, DATE_COLUMNS.Project, '/schedule/project', accepted))

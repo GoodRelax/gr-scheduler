@@ -1,4 +1,4 @@
-// EditDocument -- a row's colour and height are rewritten.
+// EditDocument -- a row's colour and min height are rewritten.
 // @unit      UF-78  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -45,19 +45,19 @@ export function resetTaskGroupColor(
 
 // see CM-32, FR-042
 /** @purity pure */
-export function setTaskGroupHeight(
+export function setTaskGroupMinHeight(
   document: Document,
-  command: TaskGroupCommandOf<'setTaskGroupHeight'>,
+  command: TaskGroupCommandOf<'setTaskGroupMinHeight'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
   const row = byId.get(command.groupId)
   if (row === undefined) {
     return refused([reject('CM-32', 'FR-042', `no such row: ${command.groupId}`)])
   }
-  if (command.height !== null && !Number.isInteger(command.height)) {
-    return refused([reject('CM-32', 'AT-59', `height is not an integer: ${command.height}`)])
+  if (command.minHeight !== null && !Number.isInteger(command.minHeight)) {
+    return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeight}`)])
   }
   // WHY: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
-  if (row.height === command.height) return edited(document)
-  return edited(withRow(document, { ...row, height: command.height }))
+  if (row.minHeight === command.minHeight) return edited(document)
+  return edited(withRow(document, { ...row, minHeight: command.minHeight }))
 }

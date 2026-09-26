@@ -29,7 +29,7 @@ const PLAN_START = '2026-04-06T00:00:00'
 const PLAN_FINISH = '2026-04-24T00:00:00'
 const LONG_NAME = 'a name far too long to sit inside the figure it belongs to'
 const SHORT_NAME = 'A'
-const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 0, scrollbarThickness: 0 }
+const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 0, scrollbarThickness: 0, propertyPanelWidth: 0 }
 const X_SAMPLES = 300
 const Y_SAMPLES = 12
 
@@ -113,7 +113,6 @@ const settingsOf = (turn: Turn): DocumentSettings =>
     scrollGroupId: ROW_ID,
     scrollDayOffset: 0,
     scrollGroupOffset: 0,
-    pxPerDayAt1x: 20,
     stackDirection: 'down',
     assigneeVisible: true,
     percentCompleteVisible: true,
@@ -163,7 +162,7 @@ const scheduleOf = (turn: Turn): Schedule =>
     highlightBoxes: [],
     commentBoxes: [],
     tasks: [taskOf(turn)],
-    taskGroups: [{ id: ROW_ID, parentId: null, order: 0, height: null }],
+    taskGroups: [{ id: ROW_ID, parentId: null, order: 0, minHeight: null }],
     taskGroupMembers: [{ groupId: ROW_ID, taskUid: TASK_UID }],
     taskVisuals: [{ taskUid: TASK_UID, shapeKind: turn.shape === 'dummy' ? 'rectangle' : turn.shape }],
     taskOrigins: [],
@@ -182,7 +181,7 @@ const sceneOf = (turn: Turn): Scene => {
   const regions = regionsFromScreen(ENV, settings)
   const schedule = scheduleOf(turn)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   const drawn = geometry.tasks.find((one) => one.taskUid === TASK_UID) ?? null
   const area = regions.rowArea
   return {
@@ -242,7 +241,8 @@ const bandOf = (scene: Scene): Box | null => {
   if (parts.length === 0) return null
   const margin = 16
   return {
-    x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.rowArea.x0 + 1),
+    // WHY: from the row area's own edge: at S-54 with the constant S-1 an early actual is under 1 px wide there.
+    x0: Math.max(Math.min(...parts.map((one) => one.x0)) - margin, scene.rowArea.x0),
     x1: Math.min(Math.max(...parts.map((one) => one.x1)) + margin, scene.rowArea.x1 - 1),
     y0: Math.max(Math.min(...parts.map((one) => one.y0)) - margin, scene.rowArea.y0 + 1),
     y1: Math.min(Math.max(...parts.map((one) => one.y1)) + margin, scene.rowArea.y1 - 1),
@@ -254,7 +254,8 @@ const answeredIn = (scene: Scene): ReadonlySet<string> => {
   const answered = new Set<string>()
   if (band === null || band.x1 <= band.x0 || band.y1 <= band.y0) return answered
   const sizes = sizesOrSeam()
-  const stepX = Math.max((band.x1 - band.x0) / X_SAMPLES, 1)
+  // WHY: no 1 px floor on x: S-1 is a constant, and at S-54 a figure can be narrower than 1 px.
+  const stepX = (band.x1 - band.x0) / X_SAMPLES
   const stepY = Math.max((band.y1 - band.y0) / Y_SAMPLES, 1)
   for (let y = band.y0; y <= band.y1; y += stepY) {
     for (let x = band.x0; x <= band.x1; x += stepX) {

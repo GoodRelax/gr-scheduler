@@ -15,6 +15,7 @@ import {
   type ScreenSession,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -25,7 +26,7 @@ import type {
   ScreenRegions,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { specTable } from './spec-table'
-import { rowNameFont } from '../fixtures/row-name-font'
+import { rowNameFont, rowNameFontPx } from '../fixtures/row-name-font'
 import {
   DEFAULT_DISPLAY_RATIO,
   DEFAULT_DISPLAY_SCALE,
@@ -65,20 +66,12 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 const PANEL = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
   rowTitlePanelWidth: 400, // see S-79
-  rowTitleFont: 20, // see S-36
-  rowTitleTopScale: 1, // see S-38
-  labelCoef: 0.5, // see S-30
-  maxGroupDepth: 5, // see S-125
-  truncateUnits: 120, // see S-35
   pinnedGroupIds: [], // see S-126
-  pinnedRowMax: 5, // see S-127
 })
 
-const panelWith = (part: Record<string, unknown>): DocumentSettings =>
-  settingsOf({ ...(PANEL as unknown as Record<string, unknown>), ...part })
-
+// WHY: S-30, S-36, S-37, S-38 and S-125 are constants now; a document cannot carry them.
 const keyOf = (settings: DocumentSettings, key: string): number =>
-  (settings as unknown as Record<string, number>)[key] as number
+  (Object.hasOwn(SETTINGS_CONSTANTS, key) ? SETTINGS_CONSTANTS : settings)[key as never] as number
 
 // see FR-039, T-252
 const drawnPanelOf = (settings: DocumentSettings): number =>
@@ -90,15 +83,15 @@ const drawnPanelOf = (settings: DocumentSettings): number =>
   )
 
 // see FR-093, FR-039
-const drawnPerCharacterOf = (settings: DocumentSettings): number =>
-  keyOf(settings, 'rowTitleFont') * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
+const drawnPerCharacterOf = (settings: DocumentSettings, depth: number): number =>
+  rowNameFontPx(depth) * keyOf(settings, 'labelCoef') * DEFAULT_DISPLAY_RATIO
 
 // see FR-029, T-252
 const DRAWN_GRAB_STRIP = S_138 * S_235 + S_218
 
 const ROOT: ScreenSession = {
   ...emptyScreenSession,
-  screen: { ...emptyScreenSession.screen, language: 'ja' },
+  screen: { ...emptyScreenSession.screen, screenLanguage: 'ja', helpLanguage: 'ja' },
 }
 
 const READINGS: ScreenViewReadings = {
@@ -126,7 +119,7 @@ const groupOf = (part: Record<string, unknown>): TaskGroup =>
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
     ...part,
   }) as unknown as TaskGroup
 
@@ -219,7 +212,7 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
   it.each(DEPTHS)(
     'cuts a depth %i name at the room `indentPx`, `S-140`, `S-138` and `S-218` leave',
     (depth) => {
-      const perCharacter = drawnPerCharacterOf(PANEL)
+      const perCharacter = drawnPerCharacterOf(PANEL, depth)
       const room =
         drawnPanelOf(PANEL) -
         deepestTitle(depth, 'a row', PANEL).indentPx -
@@ -231,19 +224,6 @@ describe('DFC-49 / FR-085 -- the row title panel works the indent out once', () 
       ).toBe(Math.floor(room / perCharacter))
     },
   )
-
-  it.each(DEPTHS)('moves the push and the cut together when `S-37` moves, at depth %i', (depth) => {
-    const perCharacter = keyOf(PANEL, 'rowTitleFont') * keyOf(PANEL, 'labelCoef')
-    const wider = panelWith({ rowTitleIndent: keyOf(PANEL, 'rowTitleIndent') + perCharacter })
-
-    expect(
-      deepestTitle(depth, 'a row', wider).indentPx - deepestTitle(depth, 'a row', PANEL).indentPx,
-    ).toBe(
-      depth * ((keyOf(PANEL, 'rowTitleIndent') + perCharacter) * DEFAULT_DISPLAY_RATIO) -
-        depth * (keyOf(PANEL, 'rowTitleIndent') * DEFAULT_DISPLAY_RATIO),
-    )
-    expect(keptOf(wider, depth) - keptOf(PANEL, depth)).toBe(-depth)
-  })
 })
 
 
@@ -274,7 +254,7 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
   const rowAreaWidth =
-    EXPORT_SCREEN.width - EXPORT_SETTINGS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.rowTitlePanelWidth
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -305,7 +285,7 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       x: EXPORT_SETTINGS.rowTitlePanelWidth,
       y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
       width: rowAreaWidth,
-      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - EXPORT_SETTINGS.canvasPadding,
+      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
@@ -360,6 +340,7 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
     regions: EXPORT_REGIONS,
     screenView: view,
     settings: EXPORT_SETTINGS,
+    themePreference: 'light',
     themeHue: THEME_HUE,
   }
 }
@@ -384,22 +365,10 @@ const pictureOf = (scene: ExportScene): string => {
 }
 
 describe('DFC-49 -- the picture sets a row in by the `indentPx` it was handed', () => {
-  const PICTURE_SCALE = EXPORT_SETTINGS.exportCanvas.width / EXPORT_SCREEN.width
+  const PICTURE_SCALE = SETTINGS_CONSTANTS.exportCanvas.width / EXPORT_SCREEN.width
 
   it.each([8, 40])('moves the drawn name by the `indentPx` it is given (+%i)', (extra) => {
     const base = nameDrawnAt(pictureOf(sceneIndentedBy(0)))
     expect(nameDrawnAt(pictureOf(sceneIndentedBy(extra))) - base).toBeCloseTo(extra * PICTURE_SCALE)
-  })
-
-  it('does not move when `S-37` moves in the settings but the `indentPx` does not', () => {
-    const scene = sceneIndentedBy(0)
-    const moved: ExportScene = {
-      ...scene,
-      settings: {
-        ...(scene.settings as unknown as Record<string, unknown>),
-        rowTitleIndent: keyOf(scene.settings, 'rowTitleIndent') + 24,
-      } as unknown as DocumentSettings,
-    }
-    expect(nameDrawnAt(pictureOf(moved))).toBe(nameDrawnAt(pictureOf(scene)))
   })
 })

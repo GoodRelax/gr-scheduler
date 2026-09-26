@@ -4,6 +4,7 @@
 // @purity    pure
 
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
@@ -868,10 +869,10 @@ export function propertiesPanelFromSelection(
   const subject = isNothingPicked
     ? content.subject
     : { selection, groupIds: readings.selectedGroupIds }
-  const described = fieldsOfSubject(schedule, subject, settings.labelCoef, language)
+  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language)
   const look = {
     hue: schedule.project.themeHue,
-    dark: settings.themePreference === 'dark',
+    dark: session.screen.themePreference === 'dark',
     monochrome: settings.themeMonochrome,
     language,
   }

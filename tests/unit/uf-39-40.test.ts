@@ -89,6 +89,7 @@ import type {
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -271,6 +272,8 @@ const SCREEN: MeasuredScreen = {
   scrollbarThickness: 8,
 }
 
+const PROPERTIES_PANEL_WIDTH = 0
+
 const regionsOf = (
   screen: MeasuredScreen = SCREEN,
   settings: DocumentSettings = SETTINGS,
@@ -287,12 +290,12 @@ const regionsOf = (
   // the ruler band and the padding off its height, and FR-051's bar after it.
   const rowAreaWidth =
     canvas.width -
-    settings.canvasPadding -
+    SETTINGS_CONSTANTS.canvasPadding -
     settings.rowTitlePanelWidth -
-    settings.propertyPanelWidth -
+    PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
   const rowAreaHeight =
-    canvas.height - settings.rulerHeight - settings.canvasPadding - screen.scrollbarThickness
+    canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
@@ -309,9 +312,9 @@ const regionsOf = (
       height: settings.rulerHeight,
     },
     propertiesPanel: {
-      x: canvas.x + canvas.width - settings.propertyPanelWidth,
+      x: canvas.x + canvas.width - PROPERTIES_PANEL_WIDTH,
       y: canvas.y,
-      width: settings.propertyPanelWidth,
+      width: PROPERTIES_PANEL_WIDTH,
       height: canvas.height,
     },
     rowArea: {
@@ -455,7 +458,7 @@ const rowOf = (
   label,
   // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
   // takes 「その行の深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
-  indentPx: depth * SETTINGS.rowTitleIndent * DISPLAY_RATIO,
+  indentPx: depth * SETTINGS_CONSTANTS.rowTitleIndent * DISPLAY_RATIO,
   ...rowNameFont(depth),
   // Nothing is cut here, and the `RowTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
@@ -744,7 +747,7 @@ const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
   return {
     result,
     scene,
-    ratio: scene.settings.exportCanvas.width / screenWidth,
+    ratio: SETTINGS_CONSTANTS.exportCanvas.width / screenWidth,
     pictureCount: parts.length - 1,
     own,
     rects: own.filter((drawn) => drawn.tag === 'rect'),
@@ -771,6 +774,7 @@ const sceneOf = (
   // tall, which fits, and the scenes that do NOT fit are built on purpose in
   // the last two describes.
   settings: SETTINGS,
+  themePreference: 'light',
   themeHue: THEME_HUE,
   ...part,
 })
@@ -837,7 +841,7 @@ const saysAnyOf = (assembled: Assembled, words: readonly string[]): boolean =>
 // mean, and every one of the six now reaches the picture.
 // ---------------------------------------------------------------------------
 
-const RATIO = SETTINGS.exportCanvas.width / SCREEN.width
+const RATIO = SETTINGS_CONSTANTS.exportCanvas.width / SCREEN.width
 
 /**
  * The height the picture of `SCREEN` grows to: the screen times the ratio,
@@ -845,7 +849,7 @@ const RATIO = SETTINGS.exportCanvas.width / SCREEN.width
  * まとすること（MUST）」). ⛔ Derived, never typed: S-81 and the screen are the
  * only two numbers it may be made of.
  */
-const GROWN_HEIGHT = Math.max(SETTINGS.exportCanvas.height, SCREEN.height * RATIO)
+const GROWN_HEIGHT = Math.max(SETTINGS_CONSTANTS.exportCanvas.height, SCREEN.height * RATIO)
 
 /** Six rows, spread down a screen 800 tall. Every one of them is drawn. */
 const TALL_ROWS: readonly RowTitle[] = [
@@ -871,13 +875,13 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     // るところまで伸ばすこと（MUST）」 -- so the width is S-81's and the height
     // is the grown one.
     expect(assembled.root.tag).toBe('svg')
-    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num(assembled.root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
     // FR-080 (MUST NOT): no margin is added at the edge, because a margin
     // would take the ratio off S-81's width over the screen's width. The box
     // starts at the origin, so nothing was inset.
     expect(assembled.root.attrs['viewBox']).toBe(
-      `0 0 ${SETTINGS.exportCanvas.width} ${GROWN_HEIGHT}`,
+      `0 0 ${SETTINGS_CONSTANTS.exportCanvas.width} ${GROWN_HEIGHT}`,
     )
   })
 
@@ -912,28 +916,10 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
     const assembled = await exportedOf(TALL_SCENE)
     const screenWidth = REGIONS.scheduleCanvas.x + REGIONS.scheduleCanvas.width
     expect(screenWidth).toBe(SCREEN.width)
-    expect(assembled.ratio).toBeCloseTo(SETTINGS.exportCanvas.width / screenWidth, 6)
+    expect(assembled.ratio).toBeCloseTo(SETTINGS_CONSTANTS.exportCanvas.width / screenWidth, 6)
     const band = assembled.rects.find((drawn) => near(rectOf(drawn).x, 0) && near(rectOf(drawn).y, 0))
     expect(band, 'the band starts at the screen origin').toBeDefined()
-    expect(num((band as Drawn).attrs, 'width')).toBeCloseTo(SETTINGS.exportCanvas.width, 1)
-  })
-
-  it('changes with `exportCanvas`, which is the only thing that sets the size', async () => {
-    // ⭐ Rule 04, section 2: the acceptance test of a value that travels from
-    // manuscript is "change one value and the test fails". Halving S-81's width
-    // has to halve the ratio, and with it every rectangle drawn.
-    const narrow = settingsOf({
-      exportCanvas: {
-        width: SETTINGS.exportCanvas.width / 2,
-        height: SETTINGS.exportCanvas.height,
-      },
-    })
-    const assembled = await exportedOf(sceneOf(viewOf(TALL_ROWS), { settings: narrow }))
-    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width / 2)
-    expect(
-      hasRect(assembled, REGIONS.appHeader),
-      'the band follows the halved ratio',
-    ).toBe(true)
+    expect(num((band as Drawn).attrs, 'width')).toBeCloseTo(SETTINGS_CONSTANTS.exportCanvas.width, 1)
   })
 })
 
@@ -1321,7 +1307,7 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'x')
     }
-    const step = SETTINGS.rowTitleIndent * DISPLAY_RATIO * RATIO
+    const step = SETTINGS_CONSTANTS.rowTitleIndent * DISPLAY_RATIO * RATIO
     expect(xOf('g2') - xOf('g1')).toBeCloseTo(step, 1)
     expect(xOf('g3') - xOf('g1')).toBeCloseTo(step * 2, 1)
     expect(xOf('g4')).toBeCloseTo(xOf('g1'), 1)
@@ -1338,10 +1324,10 @@ describe('table T-076 EP-3 -- the Row Title Panel and its names', () => {
       expect(found, id).toBeDefined()
       return num((found as DrawnText).attrs, 'font-size')
     }
-    expect(sizeOf('g2')).toBeCloseTo(SETTINGS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
-    expect(sizeOf('g3')).toBeCloseTo(SETTINGS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
+    expect(sizeOf('g2')).toBeCloseTo(SETTINGS_CONSTANTS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
+    expect(sizeOf('g3')).toBeCloseTo(SETTINGS_CONSTANTS.rowTitleFont * DISPLAY_RATIO * RATIO, 1)
     expect(sizeOf('g1')).toBeCloseTo(
-      SETTINGS.rowTitleFont * SETTINGS.rowTitleTopScale * DISPLAY_RATIO * RATIO,
+      SETTINGS_CONSTANTS.rowTitleFont * SETTINGS_CONSTANTS.rowTitleTopScale * DISPLAY_RATIO * RATIO,
       1,
     )
   })
@@ -1427,8 +1413,8 @@ describe('FR-025 -- the frame the picture is written into', () => {
       sceneOf(viewOf(rows, { frame: frameOf(shortRegions) }), {}, shortRegions),
     )
     const screenBottom = shortScreen.height * RATIO
-    expect(screenBottom).toBeLessThan(SETTINGS.exportCanvas.height)
-    expect(assembled.result.heightPx).toBe(SETTINGS.exportCanvas.height)
+    expect(screenBottom).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
+    expect(assembled.result.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvas.height)
     for (const element of assembled.rects) {
       const rect = rectOf(element)
       expect(rect.y + rect.height, JSON.stringify(rect)).toBeLessThanOrEqual(
@@ -1467,12 +1453,12 @@ describe('table T-024 -- the SVG and the PNG come out of one assembly', () => {
     const scene = sceneOf(viewOf(TALL_ROWS), { settings: SETTINGS })
     const result = await pngOf(rasterizer, scene)
     expect(calls[0]?.sizePx).toEqual({
-      widthPx: SETTINGS.exportCanvas.width,
+      widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
       heightPx: GROWN_HEIGHT,
     })
     // ⚠️ The SVG carries the same size the raster is asked for.
     const root = assembledOf(result, scene).root
-    expect(num(root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num(root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num(root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
   })
 
@@ -1765,10 +1751,10 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
     // size is S-81 of table T-204." FR-025 (MUST) fixes only the WIDTH there.
     const assembled = svgOnlyOf(TALL_SCENE)
     expect(assembled.root.tag).toBe('svg')
-    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num(assembled.root.attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num(assembled.root.attrs, 'height')).toBeCloseTo(GROWN_HEIGHT, 6)
     expect(assembled.root.attrs['viewBox']).toBe(
-      `0 0 ${SETTINGS.exportCanvas.width} ${GROWN_HEIGHT}`,
+      `0 0 ${SETTINGS_CONSTANTS.exportCanvas.width} ${GROWN_HEIGHT}`,
     )
   })
 
@@ -1971,12 +1957,12 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // GOES RED IF: the height goes back to being read off `exportCanvas`.
     const picture = fitOrThrow(grownFor(800))
     expect(picture.heightPx).toBeCloseTo(800 * RATIO, 6)
-    expect(picture.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
+    expect(picture.heightPx).toBeGreaterThan(SETTINGS_CONSTANTS.exportCanvas.height)
     const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
-    expect(num((root as Drawn).attrs, 'width')).toBe(SETTINGS.exportCanvas.width)
+    expect(num((root as Drawn).attrs, 'width')).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
     expect(num((root as Drawn).attrs, 'height')).toBeCloseTo(picture.heightPx, 6)
     expect((root as Drawn).attrs['viewBox']).toBe(
-      `0 0 ${SETTINGS.exportCanvas.width} ${picture.heightPx}`,
+      `0 0 ${SETTINGS_CONSTANTS.exportCanvas.width} ${picture.heightPx}`,
     )
   })
 
@@ -1987,7 +1973,7 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
       const picture = fitOrThrow(grownFor(height))
       const root = elementsOf(picture.svg.split(PICTURE).join(''))[0]
       expect(num((root as Drawn).attrs, 'width'), `screen ${height} tall`).toBe(
-        SETTINGS.exportCanvas.width,
+        SETTINGS_CONSTANTS.exportCanvas.width,
       )
     }
   })
@@ -1999,8 +1985,8 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     // ⚠️ Only the rows that fit ON a screen 400 tall: a row drawn below the
     // screen's own bottom edge is not a case about the picture's height.
     const picture = fitOrThrow(grownFor(400, TALL_ROWS.slice(0, 3)))
-    expect(400 * RATIO).toBeLessThan(SETTINGS.exportCanvas.height)
-    expect(picture.heightPx).toBe(SETTINGS.exportCanvas.height)
+    expect(400 * RATIO).toBeLessThan(SETTINGS_CONSTANTS.exportCanvas.height)
+    expect(picture.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvas.height)
   })
 
   it('writes the whole scene while the picture still fits under the ceiling (MUST)', () => {
@@ -2012,23 +1998,10 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     const answer = grownFor(800)
     expect(answer.ok).toBe(true)
     const picture = fitOrThrow(answer)
-    expect(picture.heightPx).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
+    expect(picture.heightPx).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
     for (const id of DRAWN_ROW_IDS) {
       expect(picture.svg, id).toContain(`name of ${id}`)
     }
-  })
-
-  it('follows S-217 when the manuscript moves it (rule 04, section 2)', () => {
-    // ⭐ The acceptance test of a value that travels from the manuscript is
-    // 「change one value and the test fails」. A screen that fits under the
-    // shipped ceiling has to stop fitting once the ceiling is halved.
-    // GOES RED IF: the ceiling is read from anywhere but the settings.
-    const halved = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2 })
-    const tallScreen = Math.ceil(SETTINGS.exportCanvasHeightCap / RATIO) - 1
-    expect(tallScreen * RATIO).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
-    expect(tallScreen * RATIO).toBeGreaterThan(SETTINGS.exportCanvasHeightCap / 2)
-    expect(grownFor(tallScreen, TALL_ROWS).ok, 'under the shipped ceiling').toBe(true)
-    expect(grownFor(tallScreen, TALL_ROWS, halved).ok, 'over the halved one').toBe(false)
   })
 
   it('asks the rasterizer for the GROWN height (MUST)', async () => {
@@ -2040,10 +2013,10 @@ describe('FR-025 -- the height grows to fit and stops at S-217', () => {
     const result = await pngOf(rasterizer, scene)
     expect(calls).toHaveLength(1)
     expect(calls[0]?.sizePx).toEqual({
-      widthPx: SETTINGS.exportCanvas.width,
+      widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
       heightPx: result.heightPx,
     })
-    expect(result.heightPx).toBeGreaterThan(SETTINGS.exportCanvas.height)
+    expect(result.heightPx).toBeGreaterThan(SETTINGS_CONSTANTS.exportCanvas.height)
   })
 })
 
@@ -2077,14 +2050,14 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
    * ratio is S-81's width over the screen's width (FR-080), so the picture
    * reaches the ceiling where the screen reaches `S-217 / ratio`.
    */
-  const SCREEN_AT_CEILING = SETTINGS.exportCanvasHeightCap / RATIO
+  const SCREEN_AT_CEILING = SETTINGS_CONSTANTS.exportCanvasHeightCap / RATIO
   const SCREEN_OVER_CEILING = SCREEN_AT_CEILING + 1
 
   it('refuses IO-3 and writes nothing when the grown picture passes S-217 (MUST NOT: draw part of it)', () => {
     // GOES RED IF: `exportSvg` answers with a picture -- whole or cut -- for a
     // scene whose growth passes the ceiling.
     expect(SCREEN_OVER_CEILING * RATIO, 'the fixture is past the ceiling').toBeGreaterThan(
-      SETTINGS.exportCanvasHeightCap,
+      SETTINGS_CONSTANTS.exportCanvasHeightCap,
     )
     const answer = exportSvg(answerFor(SCREEN_OVER_CEILING))
     expect(answer.ok).toBe(false)
@@ -2137,7 +2110,7 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
     const answer = exportSvg(answerFor(SCREEN_AT_CEILING - 1))
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
-    expect(answer.heightPx).toBeLessThanOrEqual(SETTINGS.exportCanvasHeightCap)
+    expect(answer.heightPx).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
     for (const id of DRAWN_ROW_IDS) {
       expect(answer.svg, id).toContain(`name of ${id}`)
     }
@@ -2152,11 +2125,11 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
     // rests on those two words. If a reader means the edge to be refused, this
     // is the case to overturn.
     // GOES RED IF: the ceiling is compared with `>=` instead of `>`.
-    expect(SCREEN_AT_CEILING * RATIO).toBe(SETTINGS.exportCanvasHeightCap)
+    expect(SCREEN_AT_CEILING * RATIO).toBe(SETTINGS_CONSTANTS.exportCanvasHeightCap)
     const answer = exportSvg(answerFor(SCREEN_AT_CEILING))
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
-    expect(answer.heightPx).toBe(SETTINGS.exportCanvasHeightCap)
+    expect(answer.heightPx).toBe(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
   it('refuses on the SAME scene through both entries (WY-2 of table T-041)', async () => {
@@ -2170,26 +2143,6 @@ describe('FR-025 -- a scene that will not fit is refused outright (CR-337)', () 
       const byPng = await exportPng(rasterizer, scene)
       expect(byPng.ok, `screen ${height} tall`).toBe(bySvg.ok)
     }
-  })
-
-  it('follows the ceiling the settings hold, not a number of its own (rule 03)', () => {
-    // ⭐ Rule 04, section 2: a value that travels from the manuscript is proved
-    // by moving it. A screen that is written at the shipped S-217 has to be
-    // refused once S-217 is halved, and written once it is doubled.
-    // ⛔ `exportCanvasHeightCap` and `exportCanvas` are read from
-    // SETTINGS_DEFAULTS, which `npm run gen` writes out of the manuscript --
-    // no number in this file is typed from the table.
-    // GOES RED IF: the ceiling is a literal in the unit.
-    const scene = (settings: DocumentSettings): ExportScene =>
-      sceneOf(
-        viewOf(TALL_ROWS),
-        { settings },
-        regionsOf(screenOf(SCREEN_AT_CEILING), settings),
-      )
-    const halved = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap / 2 })
-    const doubled = settingsOf({ exportCanvasHeightCap: SETTINGS.exportCanvasHeightCap * 2 })
-    expect(exportSvg(scene(halved)).ok, 'halved ceiling').toBe(false)
-    expect(exportSvg(scene(doubled)).ok, 'doubled ceiling').toBe(true)
   })
 })
 

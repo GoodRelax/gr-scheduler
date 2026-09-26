@@ -17,7 +17,7 @@ import type {
   FileFlowWriteForm,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { importDocument, type OpenChoice } from '../../use-case/import-document/import-document'
-import { validateImportedDocument, type ImportBounds } from '../../use-case/validate-imported-document/validate-imported-document'
+import { validateImportedDocument } from '../../use-case/validate-imported-document/validate-imported-document'
 import {
   documentFromJson,
   documentFromMspdi,
@@ -465,8 +465,6 @@ export async function openDocumentIntoHold(
   handed: HandedImport | null = null,
 ): Promise<boolean> {
   const current = hands.readHeld().document
-  // TRAP: the bounds in force, never the file's, or a file raises its own ceiling.
-  const bounds: ImportBounds = current.documentSettings
 
   let handedIn: { readonly format: ExchangeFormat; readonly byteLength: number } | null = null
   let incoming: Document
@@ -513,7 +511,6 @@ export async function openDocumentIntoHold(
       byteLength: readIn.byteLength,
       emptyRowTaskUids: [],
     },
-    bounds,
   )
   const droppedSeeds = verdict.ok
     ? NO_DROPPED_SEEDS
@@ -539,7 +536,6 @@ export async function openDocumentIntoHold(
       ? verdict
       : validateImportedDocument(
           { document: incoming, byteLength: readIn.byteLength, emptyRowTaskUids: [] },
-          bounds,
         )
   if (!afterDropping.ok) {
     return false

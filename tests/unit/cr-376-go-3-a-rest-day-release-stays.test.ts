@@ -31,6 +31,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable } from '../contract/spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -79,7 +80,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -108,7 +109,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...template.documentSettings,
-      pxPerDayAt1x: 20,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

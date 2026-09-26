@@ -15,6 +15,7 @@ import { commandPaletteFromSession } from '../../src/adapter/screen-renderer/com
 import type { ScreenPart, ScreenSurface, ScreenViewReadings } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -187,7 +188,7 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
         derivedFromTaskUid: null,
         order,
         treeState: 'auto', color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: planned.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid), stackOrder: null })),
       taskVisuals: planned
@@ -205,7 +206,12 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...template.documentSettings, pxPerDayAt1x: PX_PER_DAY_AT_1X, ...settings },
+    // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+    documentSettings: {
+      ...template.documentSettings,
+      ...settings,
+      zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * ((settings['zoomX'] as number | undefined) ?? 1),
+    },
     documentStamp: template.documentStamp,
     changeLog: [],
   } as unknown as Document
@@ -329,7 +335,8 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
       ...emptyScreenSession,
       screen: {
         ...emptyScreenSession.screen,
-        language: 'ja',
+        screenLanguage: 'ja',
+        helpLanguage: 'ja',
         dialogueFieldDisplayState: { kind: 'hidden' },
         milestoneListDisplayState: { kind: 'open' },
       },

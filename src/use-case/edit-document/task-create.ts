@@ -25,9 +25,8 @@ export function createTask(
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
-  const start = checkDay(settings, command.start)
-  const finish = checkDay(settings, command.finish)
+  const start = checkDay(command.start)
+  const finish = checkDay(command.finish)
   if (!start.ok || !finish.ok) {
     const faults: Refusal[] = []
     if (!start.ok) faults.push(reject('CM-6', 'IV-14', `start ${start.what}`))
@@ -82,7 +81,7 @@ export function createTask(
       treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
       editGroup: null,
       color: null,
-      height: null,
+      minHeight: null,
     }
     taskGroups = [...schedule.taskGroups, made]
   }

@@ -9,7 +9,6 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { Project, Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   validateImportedDocument,
-  type ImportBounds,
   type ImportCandidate,
   type ImportVerdict,
 } from '../../src/use-case/validate-imported-document/validate-imported-document'
@@ -52,14 +51,6 @@ describe('DFC-577 premise -- the clauses this test is built from', () => {
     expect(REQUIREMENTS).toContain(FR_023_STATEMENT)
   })
 })
-
-const BOUNDS: ImportBounds = {
-  importMaxBytes: 32,
-  importMaxItems: 20000,
-  importMaxDepth: 64,
-  importMinDate: '1970-01-01',
-  importMaxDate: '2200-12-31',
-}
 
 const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
   wbsParentUid: null,
@@ -131,13 +122,7 @@ const documentOf = (tasks: readonly Task[]): Document =>
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: {
-      importMaxBytes: BOUNDS.importMaxBytes,
-      importMaxItems: BOUNDS.importMaxItems,
-      importMaxDepth: BOUNDS.importMaxDepth,
-      importMinDate: BOUNDS.importMinDate,
-      importMaxDate: BOUNDS.importMaxDate,
-    },
+    documentSettings: {},
     documentStamp: {
       scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
       lastEditedBy: 'user',
@@ -155,7 +140,7 @@ const candidateOf = (document: Document): ImportCandidate => ({
 })
 
 const verdictOf = (document: Document): ImportVerdict =>
-  validateImportedDocument(candidateOf(document), BOUNDS)
+  validateImportedDocument(candidateOf(document))
 
 const refusalsOf = (verdict: ImportVerdict) => (verdict.ok ? [] : verdict.refusals)
 

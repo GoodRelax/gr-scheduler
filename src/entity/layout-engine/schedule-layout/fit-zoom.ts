@@ -3,9 +3,13 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+  type DrawnSettings,
+} from '../../document-model/document-settings/document-settings'
 import { textOfDay, type CalendarDay, type Schedule } from '../../document-model/schedule/schedule'
-import type { ScreenRegions } from '../screen-regions/screen-regions'
+import { drawnSettingsOf, type ScreenRegions } from '../screen-regions/screen-regions'
 import { drawnGroups } from './drawn-rows'
 import { groupDepthThresholdOf } from './group-level-of-detail'
 import { layoutFromSchedule, type ScheduleLayout } from './schedule-layout'
@@ -29,7 +33,7 @@ export interface NotStoredZoom {
 }
 
 /** @purity pure */
-function landingZoomY(depth: number, settings: DocumentSettings, step: number): number {
+function landingZoomY(depth: number, settings: DrawnSettings, step: number): number {
   if (depth <= 1) return groupDepthThresholdOf(2, settings) / step
   return groupDepthThresholdOf(depth, settings)
 }
@@ -40,7 +44,7 @@ function deepestDrawnDepth(schedule: Schedule, settings: DocumentSettings): numb
   for (const row of drawnGroups(schedule, { ...settings, levelZeroTreeState: 'auto' })) {
     if (row.depth > deepest) deepest = row.depth
   }
-  return Math.min(deepest, settings.maxGroupDepth)
+  return Math.min(deepest, SETTINGS_CONSTANTS.maxGroupDepth)
 }
 
 // see FR-016, FR-055, T-068
@@ -165,7 +169,8 @@ export function fitZoom(
   zoom: NotStoredZoom,
   rowControlsHeightPx?: number,
 ): FitToScreen {
-  const floorZoomY = zoomYAtPlanHeightFloor(settings)
+  const drawn = drawnSettingsOf(settings)
+  const floorZoomY = zoomYAtPlanHeightFloor(drawn)
   const deepest = deepestDrawnDepth(schedule, settings)
   const runAt = (zoomX: number, zoomY: number, cap: number): ScheduleLayout =>
     layoutFromSchedule(
@@ -183,7 +188,7 @@ export function fitZoom(
   const fits = (run: ScheduleLayout): boolean => fitsRowArea(run, regions)
   const landed = landedFit(
     deepestFittingDepth(deepest, (cap) => runAt(from, floorZoomY, cap), fits),
-    (depth) => landingZoomY(depth, settings, zoom.step),
+    (depth) => landingZoomY(depth, drawn, zoom.step),
     (depth, zoomY) =>
       widthFittedRun((zoomX) => runAt(zoomX, Math.max(zoomY, floorZoomY), depth), from, room, zoom),
     fits,

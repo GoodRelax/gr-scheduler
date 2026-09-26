@@ -144,7 +144,6 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import {
   frameLoop,
-  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
   type ScreenWiring,
@@ -212,8 +211,6 @@ const FR_072_KEEPS_THE_SELECTION =
   'パネルを出すのをやめても、選択を解いてはならない（MUST NOT）'
 const T_036_NOT_WHILE_A_SURFACE_STANDS = '`SK-19` の 2 段目を当ててはならない（MUST NOT）'
 
-/** `S-171` -- the width the panel opens to. ⭐ Taken from the generated constant. */
-const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from
@@ -271,7 +268,7 @@ function twoTaskDocument(): Document {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   return {
     schemaVersion: template.schemaVersion,
@@ -299,13 +296,10 @@ function twoTaskDocument(): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    // ⭐ THE PANEL'S WIDTH IS ALREADY S-171, so that a panel put up by an
-    // entrance has a width to be drawn at and no case has to invent one. What
-    // width an OPENING writes is FR-052's road and not this file's.
-    documentSettings: {
-      ...structuredClone(template.documentSettings),
-      propertyPanelWidth: S_171,
-    },
+    // ⭐ THE PANEL'S WIDTH IS A SCREEN VALUE THAT STARTS AT S-171 (CR-572), so a
+    // panel put up by an entrance has a width to be drawn at without the
+    // document carrying one. What width a drag settles is FR-052's road.
+    documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document
@@ -536,7 +530,9 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   }
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
-  const right = Math.max(...xs)
+  // WHY: only the part the Row Area shows can be pressed; a shown panel (S-171 wide, CR-572) covers the rest.
+  const area = values.regions.rowArea
+  const right = Math.min(Math.max(...xs), area.x + area.width - 1)
   const marker = drawn.marker
   const left =
     marker === null

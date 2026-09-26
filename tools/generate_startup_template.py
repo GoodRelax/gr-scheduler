@@ -109,7 +109,7 @@ OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
 # documents from several versions tells them apart by nothing else.
-SCHEMA_VERSION = '2026-09-17'
+SCHEMA_VERSION = '2026-09-27'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third
@@ -1004,6 +1004,42 @@ def settings_defaults():
         else:
             out[key] = value
     return out
+
+
+def settings_constants():
+    """The constants baked into the artifact, read from what the manuscript generated.
+
+    ⭐ CR-572 moved every key no in-app command writes out of
+    `documentSettings` and into SETTINGS_CONSTANTS, so the template no longer
+    carries them. The checks below that need one of them (the import date
+    range, the depth cap, the first actual length) read it here instead.
+    ⛔ Never merged into the document's settings: a key read from here and
+    written into the file is the frozen copy CR-572 removed.
+
+    @purity semi-pure-b
+    """
+    return generated_object(SETTINGS_TS, 'SETTINGS_CONSTANTS')
+
+
+CONSTANTS_READ = []
+
+
+def constant(name):
+    """One key of SETTINGS_CONSTANTS, refused rather than guessed when absent.
+
+    The block is read once per run; the depth check asks for its cap once per
+    row.
+
+    @purity semi-pure-b
+    """
+    if not CONSTANTS_READ:
+        CONSTANTS_READ.append(settings_constants())
+    held = CONSTANTS_READ[0]
+    insist(name in held,
+           'SETTINGS_CONSTANTS holds no %s -- the settings table that stated it '
+           'no longer does, or no longer says it is not stored in the document'
+           % name)
+    return held[name]
 
 
 def manuscript_number(row_id):
@@ -2037,7 +2073,8 @@ class Builder(object):
         task['actualFinish'] = None
         task['resumeValid'] = True
         if span == 0:
-            task['actualLength'] = max(1, self.settings['actualInitialDuration'])
+            task['actualLength'] = max(
+                1, constant('actualInitialDuration'))
             # FR-012: no division at span 0, and no finish means 0.
             task['percentComplete'] = 0
             return
@@ -2536,9 +2573,9 @@ class Builder(object):
             # OVERVIEW_ROW used to force height 64 here for no reason T-226
             # asks for, drawing it taller than its natural one-lane height
             # (21.6px) -- removed. DFC-1086: no row of the startup template
-            # carries a stated height (min-height override left unused here).
+            # carries a min height (the FR-042 override is left unused here).
             color = dict(ROW_PAINT).get(row['label'])
-            height = None
+            min_height = None
             out.append({
                 'id': row['id'],
                 'parentId': row['parent']['id'] if row['parent'] else None,
@@ -2554,7 +2591,7 @@ class Builder(object):
                 # that has never met a server must say.
                 'editGroup': None,
                 'color': color,
-                'height': height,
+                'minHeight': min_height,
             })
         return out
 
@@ -3432,10 +3469,10 @@ ENTITIES = dict((one['name'], one) for one in ERD['entities'])
 BACKTICKED = re.compile(r'`([^`]+)`')
 
 # Table T-214's two ends (S-119 and S-120), which IV-14 measures against.
-# ⛔ Not typed here: they arrive through the same generated block the rest of
-# the presentation values do.
-ACCEPTED_FIRST_DAY = settings_defaults()['importMinDate']
-ACCEPTED_LAST_DAY = settings_defaults()['importMaxDate']
+# ⛔ Not typed here: they arrive through SETTINGS_CONSTANTS, the generated
+# block of the constants the document no longer carries (CR-572).
+ACCEPTED_FIRST_DAY = constant('importMinDate')
+ACCEPTED_LAST_DAY = constant('importMaxDate')
 
 
 def columns_keyed(entity, mark):
@@ -3893,9 +3930,10 @@ def check_invariants(document, settings):
             seen.add(at)
             depth += 1
             at = above[at]
-        insist(depth <= settings['maxGroupDepth'],
+        cap = constant('maxGroupDepth')
+        insist(depth <= cap,
                'IV-5: the row %s sits %d deep, over the cap of %d'
-               % (group['label'], depth, settings['maxGroupDepth']))
+               % (group['label'], depth, cap))
 
     held = {}
     for member in schedule['taskGroupMembers']:

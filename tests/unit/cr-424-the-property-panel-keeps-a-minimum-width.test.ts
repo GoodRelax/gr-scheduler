@@ -1,4 +1,4 @@
-// CR-424: the property panel width never goes under S-248 by a drag, a saved width under it opens at S-171, and IC-17 after a close shows the settings.
+// CR-424: the property panel width never goes under S-248 by a drag, starts at S-171 as a screen value (CR-572), and IC-17 after a close shows the settings.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -23,14 +23,13 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
-const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH =
-  '描かれていた幅とは、`_assets/tbl-settings.md` の `S-80` が同書の 表 T-206 の `S-248` を下回るとき（0 を含む）は、`FR-072` が面を出すときに置く `S-171` の幅である。'
+const FR_052_STARTS_AT_S_171 =
+  '⭐ プロパティパネルの幅は画面の値とし、起動のたびに `_assets/tbl-settings.md` の 表 T-206 の `S-171` から始めること（MUST）。'
+const FR_052_COUNTED_FROM_THE_DRAWN_WIDTH = '境界を押した時点に描かれていた幅から、ポインタが動いたぶんだけ変えること（MUST）。'
 const FR_052_STOPS_AT_S_248 =
   '⭐ プロパティパネルの幅は、ポインタ位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST）'
-const FR_052_STORES_THE_STOPPED_WIDTH = '離したときに保存する `S-80` は、止めて描いた幅とすること（MUST）'
-const FR_052_OPENS_AT_S_171 =
-  '⭐ 面を出すとき（`FR-072`）、保存された `S-80` が `S-248` を下回る文書（0 を含む）では、パネルを `S-171` の幅で描くこと（MUST）'
-const FR_052_KEEPS_S_80 = '⛔ そのとき `S-80` を書き換えてはならない（MUST NOT）'
+const FR_052_KEEPS_THE_STOPPED_WIDTH = '離したときの幅は止めて描いた幅とし、それを画面の値とすること（MUST）'
+const FR_052_WRITES_NOTHING = '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
 const FR_072_BACK_WHILE_SHOWN = '設定を開いても選択を解除せず、もう一度同じ入口を押したら直前の選択物へ戻すこと。'
 const FR_072_ONLY_WHILE_SHOWN =
   '「もう一度同じ入口を押したら直前の選択物へ戻す」は、パネルが設定を出しているあいだの押しに限る。'
@@ -41,11 +40,11 @@ const FR_072_THE_PRESSED_STATE = 'いま何を出しているかを、入口の�
 
 describe('CR-424 -- the manuscript these cases are driven by', () => {
   it.each([
-    ['FR-052 -- the drawn width a press counts from', FR_052_COUNTED_FROM_THE_DRAWN_WIDTH],
+    ['FR-052 (MUST) -- the width is a screen value that starts at S-171', FR_052_STARTS_AT_S_171],
+    ['FR-052 (MUST) -- a press counts from the drawn width', FR_052_COUNTED_FROM_THE_DRAWN_WIDTH],
     ['FR-052 (MUST) -- the held width stops at S-248', FR_052_STOPS_AT_S_248],
-    ['FR-052 (MUST) -- the release stores the stopped width', FR_052_STORES_THE_STOPPED_WIDTH],
-    ['FR-052 (MUST) -- a saved width under S-248 is drawn at S-171', FR_052_OPENS_AT_S_171],
-    ['FR-052 (MUST NOT) -- and S-80 is not rewritten', FR_052_KEEPS_S_80],
+    ['FR-052 (MUST) -- the release keeps the stopped width', FR_052_KEEPS_THE_STOPPED_WIDTH],
+    ['FR-052 (MUST NOT) -- the width is written nowhere', FR_052_WRITES_NOTHING],
     ['FR-072 -- a second press goes back to the selection', FR_072_BACK_WHILE_SHOWN],
     ['FR-072 -- only while the settings are shown', FR_072_ONLY_WHILE_SHOWN],
     ['FR-072 (MUST) -- after a close the entrance shows the settings', FR_072_SETTINGS_AFTER_A_CLOSE],
@@ -96,7 +95,7 @@ const TEMPLATE = JSON.parse(
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 const TASK_UID = 1
 
-function documentWithPanelWidth(propertyPanelWidth: number): Document {
+function oneTaskDocument(): Document {
   return {
     schemaVersion: TEMPLATE.schemaVersion,
     schedule: {
@@ -113,7 +112,7 @@ function documentWithPanelWidth(propertyPanelWidth: number): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, height: null },
+        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeight: null },
       ],
       taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID, stackOrder: null }],
       taskVisuals: [],
@@ -122,7 +121,7 @@ function documentWithPanelWidth(propertyPanelWidth: number): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...structuredClone(TEMPLATE.documentSettings), propertyPanelWidth },
+    documentSettings: structuredClone(TEMPLATE.documentSettings),
     documentStamp: structuredClone(TEMPLATE.documentStamp),
     changeLog: [],
   } as unknown as Document
@@ -154,11 +153,12 @@ interface Bench {
   openBySelectingTheTask(): void
   panel(): PropertiesPanel | null
   isIc17Pressed(): boolean | undefined
-  storedWidth(): number
+  // WHY: CR-572 -- the document never carries a properties panel width; this says whether it does.
+  isWidthStored(): boolean
   drawnWidth(): number
 }
 
-function bench(propertyPanelWidth: number): Bench {
+function bench(): Bench {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
   const drain = (): void => {
@@ -188,7 +188,7 @@ function bench(propertyPanelWidth: number): Bench {
   }
   const loop = frameLoop(
     { showSvg: () => undefined } as unknown as Parameters<typeof frameLoop>[0],
-    documentWithPanelWidth(propertyPanelWidth),
+    oneTaskDocument(),
     SCREEN,
     { surface, language: 'ja' },
   )
@@ -231,8 +231,7 @@ function bench(propertyPanelWidth: number): Bench {
     },
     panel: () => view().propertiesPanel,
     isIc17Pressed: () => view().appHeaderItems.commands.find((one) => one.icon === IC_17)?.isPressed,
-    storedWidth: () =>
-      (loop.document() as unknown as { documentSettings: { propertyPanelWidth: number } }).documentSettings.propertyPanelWidth,
+    isWidthStored: () => Object.prototype.hasOwnProperty.call(loop.document().documentSettings, 'propertyPanelWidth'),
     drawnWidth: () => frame().regions.propertiesPanel.width,
   }
 }
@@ -244,13 +243,13 @@ function boundaryOf(built: Bench): { x: number; y: number } {
 }
 
 // see FR-052, IN-1
-function dragTo(built: Bench, x: number): { readonly held: number; readonly storedWhileHeld: number } {
+function dragTo(built: Bench, x: number): { readonly held: number; readonly storedWhileHeld: boolean } {
   const at = boundaryOf(built)
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('move', (at.x + x) / 2, at.y))
   built.send(pointer('move', x, at.y))
   const held = built.drawnWidth()
-  const storedWhileHeld = built.storedWidth()
+  const storedWhileHeld = built.isWidthStored()
   built.send(pointer('up', x, at.y))
   return { held, storedWhileHeld }
 }
@@ -262,80 +261,72 @@ const OPENINGS: readonly (readonly [string, (built: Bench) => void])[] = [
 
 describe('FR-052 -- a drag stops the property panel at S-248', () => {
   it('⭐ プロパティパネルの幅は、ポインタ位置が決める幅が `S-248` を下回るとき、`S-248` で止めて描くこと（MUST） -- the boundary pulled to the right edge of the window', () => {
-    const built = bench(0)
+    const built = bench()
     built.openBySelectingTheTask()
     expect(built.drawnWidth(), 'premise: the panel opens at S-171').toBeCloseTo(S_171, 6)
     const { held, storedWhileHeld } = dragTo(built, SCREEN.width - 1)
     expect(held, FR_052_STOPS_AT_S_248).toBeCloseTo(S_248, 6)
-    expect(storedWhileHeld, 'FR-052 (MUST NOT): nothing is written while held').toBe(0)
+    expect(storedWhileHeld, FR_052_WRITES_NOTHING).toBe(false)
   })
 
-  it('離したときに保存する `S-80` は、止めて描いた幅とすること（MUST） -- released at the right edge, and past it, S-80 is S-248', () => {
+  it('離したときの幅は止めて描いた幅とし、それを画面の値とすること（MUST） -- released at the right edge, and past it, the panel stays S-248 wide', () => {
     for (const x of [SCREEN.width - 1, SCREEN.width + 200]) {
-      const built = bench(0)
+      const built = bench()
       built.openBySelectingTheTask()
       dragTo(built, x)
-      expect(built.storedWidth(), `${FR_052_STORES_THE_STOPPED_WIDTH} -- released at x ${x}`).toBeCloseTo(S_248, 6)
-      expect(built.drawnWidth(), 'the picture after the release is the stopped width').toBeCloseTo(S_248, 6)
+      expect(built.drawnWidth(), `${FR_052_KEEPS_THE_STOPPED_WIDTH} -- released at x ${x}`).toBeCloseTo(S_248, 6)
+      expect(built.isWidthStored(), FR_052_WRITES_NOTHING).toBe(false)
+      expect(built.loop.hasUnsavedEdits(), `${FR_052_WRITES_NOTHING} -- FR-100`).toBe(false)
     }
   })
 
-  it('a pointer naming 10 px under S-248 draws and stores S-248, and one naming 10 px over it follows the pointer', () => {
-    const under = bench(0)
+  it('a pointer naming 10 px under S-248 draws and keeps S-248, and one naming 10 px over it follows the pointer', () => {
+    const under = bench()
     under.openBySelectingTheTask()
     const underAt = boundaryOf(under)
     const underDrag = dragTo(under, underAt.x + (S_171 - (S_248 - 10)))
     expect(underDrag.held, FR_052_STOPS_AT_S_248).toBeCloseTo(S_248, 6)
-    expect(under.storedWidth(), FR_052_STORES_THE_STOPPED_WIDTH).toBeCloseTo(S_248, 6)
+    expect(under.drawnWidth(), FR_052_KEEPS_THE_STOPPED_WIDTH).toBeCloseTo(S_248, 6)
 
-    const over = bench(0)
+    const over = bench()
     over.openBySelectingTheTask()
     const overAt = boundaryOf(over)
     const overDrag = dragTo(over, overAt.x + (S_171 - (S_248 + 10)))
     expect(overDrag.held, 'FR-052 (MUST): the held width follows the pointer above S-248').toBeCloseTo(S_248 + 10, 6)
-    expect(over.storedWidth()).toBeCloseTo(S_248 + 10, 6)
+    expect(over.drawnWidth()).toBeCloseTo(S_248 + 10, 6)
   })
 })
 
-describe('FR-052 -- a saved width under S-248 opens at S-171 and stays saved', () => {
+describe('FR-052 -- the width is a screen value that starts at S-171 (CR-572)', () => {
   it.each(OPENINGS)(
-    '⭐ 面を出すとき（`FR-072`）、保存された `S-80` が `S-248` を下回る文書（0 を含む）では、パネルを `S-171` の幅で描くこと（MUST） -- S-80 12, opened by %s',
+    '⭐ プロパティパネルの幅は画面の値とし、起動のたびに S-171 から始めること（MUST） -- opened by %s',
     (_name, open) => {
-      const built = bench(12)
+      const built = bench()
       open(built)
-      expect(built.drawnWidth(), FR_052_OPENS_AT_S_171).toBeCloseTo(S_171, 6)
+      expect(built.drawnWidth(), FR_052_STARTS_AT_S_171).toBeCloseTo(S_171, 6)
+      expect(built.isWidthStored(), FR_052_WRITES_NOTHING).toBe(false)
+      expect(built.loop.hasUnsavedEdits(), `${FR_052_WRITES_NOTHING} -- FR-100`).toBe(false)
     },
   )
 
-  it.each(OPENINGS)(
-    '⛔ そのとき `S-80` を書き換えてはならない（MUST NOT） -- S-80 12 stays 12 and no unsaved edit stands, opened by %s',
-    (_name, open) => {
-      const built = bench(12)
-      open(built)
-      expect(built.storedWidth(), FR_052_KEEPS_S_80).toBe(12)
-      expect(built.loop.hasUnsavedEdits(), `${FR_052_KEEPS_S_80} -- FR-100`).toBe(false)
-    },
-  )
-
-  it.each([
-    [0, S_171],
-    [S_248 - 1, S_171],
-    [S_248, S_248],
-    [S_248 + 1, S_248 + 1],
-  ])('S-80 %d opens at %d', (stored, drawn) => {
-    const built = bench(stored)
-    built.pressIc17()
-    expect(built.drawnWidth(), FR_052_OPENS_AT_S_171).toBeCloseTo(drawn, 6)
-    expect(built.storedWidth(), FR_052_KEEPS_S_80).toBe(stored)
-  })
-
-  it('S-80 12, pulled left by 10 px, is drawn and stored at S-171 + 10 (counted from the drawn width)', () => {
-    const built = bench(12)
+  it('pulled left by 10 px, the panel is drawn and kept at S-171 + 10 (counted from the drawn width)', () => {
+    const built = bench()
     built.openBySelectingTheTask()
     const at = boundaryOf(built)
     const { held } = dragTo(built, at.x - 10)
     expect(held, FR_052_COUNTED_FROM_THE_DRAWN_WIDTH).toBeCloseTo(S_171 + 10, 6)
-    expect(built.storedWidth(), FR_052_COUNTED_FROM_THE_DRAWN_WIDTH).toBeCloseTo(S_171 + 10, 6)
+    expect(built.drawnWidth(), FR_052_KEEPS_THE_STOPPED_WIDTH).toBeCloseTo(S_171 + 10, 6)
+  })
+
+  it('a settled width is the screen value: closed by Esc and opened again by IC-17, the panel keeps it', () => {
+    const built = bench()
+    built.openBySelectingTheTask()
+    dragTo(built, boundaryOf(built).x - 10)
+    built.send(key('Esc'))
+    expect(built.panel(), 'premise: the panel is closed').toBeNull()
+    expect(built.drawnWidth(), 'S-99h: a panel that is not shown takes no room').toBe(0)
+    built.pressIc17()
+    expect(built.drawnWidth(), FR_052_KEEPS_THE_STOPPED_WIDTH).toBeCloseTo(S_171 + 10, 6)
   })
 })
 
@@ -348,7 +339,7 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
   it.each(CLOSINGS)(
     '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST） -- the settings shown, closed by %s, IC-17 pressed again',
     (_name, close) => {
-      const built = bench(S_171)
+      const built = bench()
       built.pressIc17()
       expect(built.panel()?.showing, 'premise: IC-17 shows the settings').toBe('documentSettings')
       built.send(close)
@@ -362,7 +353,7 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
   it.each(CLOSINGS)(
     '⛔ 閉じたあとの押しで、中身を直前の選択物へ切り替えてはならない（MUST NOT） -- a Task shown by MK-13, then the settings, closed by %s, IC-17 pressed again',
     (_name, close) => {
-      const built = bench(S_171)
+      const built = bench()
       built.openBySelectingTheTask()
       expect(built.panel()?.showing, 'premise: MK-13 shows the Task').toBe('selection')
       built.pressIc17()
@@ -376,7 +367,7 @@ describe('FR-072 -- the settings entrance after a close shows the settings', () 
   )
 
   it('IC-17 pressed while the settings are shown goes back to the Task shown before', () => {
-    const built = bench(S_171)
+    const built = bench()
     built.openBySelectingTheTask()
     built.pressIc17()
     expect(built.panel()?.showing, 'premise: IC-17 shows the settings').toBe('documentSettings')

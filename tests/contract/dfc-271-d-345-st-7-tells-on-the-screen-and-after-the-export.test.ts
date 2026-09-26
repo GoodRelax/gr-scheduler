@@ -125,6 +125,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -274,15 +275,13 @@ const TEMPLATE = JSON.parse(
 ) as Document
 
 /**
- * The valve these cases are driven at.
+ * The valve these cases are driven at: `S-89`, read from the generated constants.
  *
- * ⛔ NOT `S-89`'s own 255. That row's remark says the figure 「測って決めた値では
- * ない」 and 「これだけの本数が 1 つの行で同時に重なるのは実務では起きない」, so a
- * fixture of 256 overlapping tasks would be measuring the fixture. `ST-7` states
- * the BEHAVIOUR at the cap and puts the NUMBER in `S-89`, and the sibling file
- * (`st-7-rs-24-...`) is where the number itself is held to the manuscript.
+ * ⭐ A TOOL CONSTANT SINCE CR-572, so no document can lower it and the fixture
+ * has to stack that many Tasks. `ST-7` states the BEHAVIOUR at the cap; the
+ * sibling file (`st-7-rs-24-...`) holds the number to the manuscript.
  */
-const CAP = 3
+const CAP = SETTINGS_CONSTANTS.stackSafetyCap
 
 const ROW_ID = '11111111-2222-3333-4444-555555555555'
 
@@ -319,7 +318,7 @@ function task(uid: number): Record<string, unknown> {
  * outright, so `ST-3`'s greedy assignment has to open one stack per task and the
  * row's stack count IS `howMany`.
  */
-function documentOfOverlaps(howMany: number, cap: number = CAP): Document {
+function documentOfOverlaps(howMany: number): Document {
   const template = structuredClone(TEMPLATE) as any
   const uids = Array.from({ length: howMany }, (_, index) => index + 1)
   return {
@@ -342,7 +341,7 @@ function documentOfOverlaps(howMany: number, cap: number = CAP): Document {
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          height: null,
+          minHeight: null,
         },
       ],
       taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: ROW_ID, stackOrder: null })),
@@ -352,7 +351,7 @@ function documentOfOverlaps(howMany: number, cap: number = CAP): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...structuredClone(template.documentSettings), stackSafetyCap: cap },
+    documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document

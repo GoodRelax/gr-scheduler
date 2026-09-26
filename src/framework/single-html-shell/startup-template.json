@@ -1,5 +1,5 @@
 {
- "schemaVersion": "2026-09-17",
+ "schemaVersion": "2026-09-27",
  "schedule": {
   "project": {
    "id": null,
@@ -34437,7 +34437,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "caea43bc-4818-5af8-9a99-c63fa278f662",
@@ -34448,7 +34448,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "49b5210f-0a17-58d2-bb62-4899e9ad40a2",
@@ -34459,7 +34459,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "7dea57be-33ea-5937-aaff-76dd71c30c38",
@@ -34470,7 +34470,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": "orange",
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3fe45fe8-7457-54f2-bc46-c241e7406093",
@@ -34481,7 +34481,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ae57da6e-d332-53ea-aa6f-68dadf1394ff",
@@ -34492,7 +34492,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "edb8efaf-ed12-5827-af75-75c3f3851fc9",
@@ -34503,7 +34503,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a81d7aae-eba4-5e3f-82c0-fad5426a68e8",
@@ -34514,7 +34514,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bb2e2c12-56fe-521d-a7dc-05e3e92e65ce",
@@ -34525,7 +34525,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1ea9dd91-33b2-568c-8e71-0f94b0896855",
@@ -34536,7 +34536,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "2f4547d3-2623-5c4a-860d-d5433aaa7802",
@@ -34547,7 +34547,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "5ccc1589-3583-5590-89c4-325dfeb097bc",
@@ -34558,7 +34558,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c628dfb1-fab9-5369-8990-692553689f88",
@@ -34569,7 +34569,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3040fb51-194e-5f3d-b8c0-06d2d07c7f58",
@@ -34580,7 +34580,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4fb86bdf-78d5-5921-913b-b86c276acf05",
@@ -34591,7 +34591,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bcce0f23-3681-5612-814f-e65f61c55c2c",
@@ -34602,7 +34602,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "15d7f130-0eb5-5112-88d2-8b1e20602990",
@@ -34613,7 +34613,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "261400ea-99c4-5912-8019-5ae705703093",
@@ -34624,7 +34624,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a124b329-6c82-54a7-a89b-38f7db67318c",
@@ -34635,7 +34635,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e3286219-63ca-5eec-9e06-d2c5cbdbee71",
@@ -34646,7 +34646,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "271c6267-84a6-5518-ad57-9f71d2c0a2c9",
@@ -34657,7 +34657,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4622f67e-a01a-5399-a319-153c53f141e4",
@@ -34668,7 +34668,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "2b95bd84-ed90-5f98-922a-304910d32a5f",
@@ -34679,7 +34679,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "fab9e6f1-713b-5d72-a425-3acfa9141135",
@@ -34690,7 +34690,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "89e9522a-0221-5a0f-80dd-7e4759bb4e2a",
@@ -34701,7 +34701,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "50241820-e816-5889-974c-ea67184a0d12",
@@ -34712,7 +34712,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f7677d71-93bd-5153-8bd5-b41a4c0ae5c4",
@@ -34723,7 +34723,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9450d450-4f3c-52bb-bb5f-b3a8c2debe71",
@@ -34734,7 +34734,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bc4fb088-4f75-5d09-95f5-f50926ab289b",
@@ -34745,7 +34745,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0811580c-8f5d-5014-acab-05ed26b4e89d",
@@ -34756,7 +34756,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "097eeac6-8a49-5d9e-af37-4da0b2503d5f",
@@ -34767,7 +34767,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "df51e3e6-7e67-516f-a4fd-1c21d881aa44",
@@ -34778,7 +34778,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3b3d3f4b-806a-5945-b197-bc97541df41d",
@@ -34789,7 +34789,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "083c705f-a87b-56c4-aa91-c20f5a434c76",
@@ -34800,7 +34800,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ad793b0a-daf5-5c2d-a2a4-7efb0a747f3a",
@@ -34811,7 +34811,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c3053d35-609d-553a-92c4-74d0122de72f",
@@ -34822,7 +34822,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "15f626aa-118f-5002-b879-06eed07a9976",
@@ -34833,7 +34833,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "66107d91-d7f5-587a-91ab-e764319288d1",
@@ -34844,7 +34844,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "44292938-e104-5a91-81f9-469ea8e2f640",
@@ -34855,7 +34855,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "6091030c-f99a-5e68-b942-99151d39c045",
@@ -34866,7 +34866,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1cd6e050-2a46-5a50-9d47-86da0fd5348a",
@@ -34877,7 +34877,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8741b098-e249-51ec-bbd5-bcc85282a06a",
@@ -34888,7 +34888,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9641cc4f-a5c5-5e36-b72f-30a6046e1dc8",
@@ -34899,7 +34899,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0bf89c8f-fa1e-5c67-af8a-17939de920c6",
@@ -34910,7 +34910,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "88b5e6d8-a5e7-50d3-85bb-7fd548daab7d",
@@ -34921,7 +34921,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "58fdbc1b-81de-54cc-8bff-9a42ac35d365",
@@ -34932,7 +34932,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "19fc0f34-6b8c-5d1a-a697-e0d84bb2f935",
@@ -34943,7 +34943,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bc10a4b4-3db8-5354-a3f0-297f2017c1be",
@@ -34954,7 +34954,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "981ec975-655c-55f6-ba8f-820fbf356b81",
@@ -34965,7 +34965,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1cc4f285-31f6-5ca7-98df-303f58bcfc89",
@@ -34976,7 +34976,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "cd734b34-db3e-52e6-83f5-a1d800986918",
@@ -34987,7 +34987,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a57ac588-d673-5e49-a3d0-99d983fe61d0",
@@ -34998,7 +34998,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e05c32ff-e186-5b12-9c3e-ad144f167b02",
@@ -35009,7 +35009,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8cf0c0c7-92ab-52f6-b9a9-ea18e71f275b",
@@ -35020,7 +35020,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "218b8f93-2e89-5672-bac2-be7b72327444",
@@ -35031,7 +35031,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d6aacb57-c159-549c-a325-a45f9350da91",
@@ -35042,7 +35042,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0fd61037-c7f5-58e8-8ff8-f2665746b3ed",
@@ -35053,7 +35053,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "b701b2b2-baf9-51c6-a190-33960a2c6d33",
@@ -35064,7 +35064,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c95165f0-68e4-5a49-b9cc-a02e3c9a582f",
@@ -35075,7 +35075,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "816a4737-1cfb-5fe3-b96f-d0d1124dd888",
@@ -35086,7 +35086,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "eecc8c6d-2696-5337-a206-78d845eefcae",
@@ -35097,7 +35097,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ed6ea7b5-5051-5df9-b1ce-8b49e22a05e1",
@@ -35108,7 +35108,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "895e0dcf-8963-5d7c-becb-895bba8c87af",
@@ -35119,7 +35119,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e8c05960-330c-5fbc-ba18-11eee5ecfae3",
@@ -35130,7 +35130,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "308f2088-33c4-5b9e-adb8-c58cb6d5d780",
@@ -35141,7 +35141,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ade47a07-93d3-5882-9df2-a0bd58e15acc",
@@ -35152,7 +35152,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c6687d9b-6776-582c-bd8a-2bf635c15a15",
@@ -35163,7 +35163,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f3e757d7-c5f6-5d24-a546-fc49bef5b860",
@@ -35174,7 +35174,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "7d168013-8523-5a77-a182-d26b56f4c7f8",
@@ -35185,7 +35185,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "704f6615-a6d1-5940-9ad3-2c34f7ee6a9a",
@@ -35196,7 +35196,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "88ed5737-bfcb-5b5e-952d-98fa2bbf22f7",
@@ -35207,7 +35207,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f9257d46-e656-54f6-9f03-ac804806a0c0",
@@ -35218,7 +35218,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d4d3d502-c74f-5414-8ad3-f053f9d932af",
@@ -35229,7 +35229,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e2099cad-a875-5f5d-bc48-9d4e9c09d600",
@@ -35240,7 +35240,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3ef58790-ce05-5be6-984a-8b7f4161720a",
@@ -35251,7 +35251,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ef5a900c-6eeb-596c-a669-f835cb233223",
@@ -35262,7 +35262,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e2318d7d-93a9-51a5-ba26-8f50f5fb2f35",
@@ -35273,7 +35273,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "45bd6bd8-367f-5135-bbed-0376325d2a1a",
@@ -35284,7 +35284,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c44b64e7-b3e6-5eb4-938f-94eb0a941605",
@@ -35295,7 +35295,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d0bab101-a2c9-5f89-be84-cf1f50ab2129",
@@ -35306,7 +35306,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d3760ec1-86b6-5ecd-9521-b7851090ed8b",
@@ -35317,7 +35317,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "89f247d1-8a4a-5d3b-b9c3-03531aa23431",
@@ -35328,7 +35328,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "08efbc72-805d-57f6-838c-2328fe3fe91a",
@@ -35339,7 +35339,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3d927511-1b31-519c-a8de-fd0ddec4abd5",
@@ -35350,7 +35350,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3bc32663-2d71-54d4-affb-52c3a1bfbc19",
@@ -35361,7 +35361,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c0c38bf6-3cfb-5bca-9e6b-fcb64184ca50",
@@ -35372,7 +35372,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8810e3c4-bb3e-5dc6-9cec-b4d071c91c8b",
@@ -35383,7 +35383,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4987fcf8-b577-5a52-98fa-fa905ea72ca2",
@@ -35394,7 +35394,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "5edf4ff2-79a0-5ecd-b70a-d6afddbe81b9",
@@ -35405,7 +35405,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": "lightgray",
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d08a79c9-0c55-5e6d-b86b-c13bb68785b0",
@@ -35416,7 +35416,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f9be7e39-9063-590f-be3c-d76a8500279a",
@@ -35427,7 +35427,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ebc56088-bdc2-56fd-abbb-da61baf3530e",
@@ -35438,7 +35438,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f7bbf101-ae8b-5403-8fad-884a50c367ec",
@@ -35449,7 +35449,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a89f8c2e-f3ea-57af-9130-f97035bf5e7f",
@@ -35460,7 +35460,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a308dba3-ba6b-57d8-b2ab-0a0b022e895c",
@@ -35471,7 +35471,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "09dd408b-0184-57b0-b379-99c3e950ab0a",
@@ -35482,7 +35482,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9ad17279-fe05-51b9-9c8a-0d7fadc4161a",
@@ -35493,7 +35493,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1a2c91b4-9cc4-5809-9df0-126c82080793",
@@ -35504,7 +35504,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d7b7d4dd-c3e9-5289-a78d-b0aaae26ab92",
@@ -35515,7 +35515,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "6f4d266c-1ac8-5124-8222-5e854951aa4f",
@@ -35526,7 +35526,7 @@
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "height": null
+    "minHeight": null
    }
   ],
   "taskGroupMembers": [
@@ -40835,132 +40835,30 @@
   "baselineTasks": []
  },
  "documentSettings": {
-  "actualGap": 2,
-  "actualInitialDuration": 1,
-  "actualMin": 16,
-  "actualOfPlan": 0.5715,
   "actualVisible": true,
-  "appHeaderMaxHeight": 56,
-  "arrowHeadOfSpan": 0.4,
-  "assigneeLabelGap": 6.4,
   "assigneeVisible": false,
-  "basePlanHeight": 28,
   "baselineVisible": false,
-  "canvasPadding": 10,
-  "carryMaxDepth": 16,
-  "chevronNotchOfHeight": 0.45,
-  "chevronNotchOfWidth": 0.35,
-  "commentBoxPad": 3,
-  "commentBoxWrapUnits": 128,
   "dateGridLinesVisible": false,
-  "dependencyArrowLength": 9.6,
-  "dependencyArrowWidth": 8,
-  "dependencyLagDefault": 0,
-  "dependencyLeadIn": 16,
-  "dependencyLeadOut": 9.6,
   "dependencyVisible": true,
-  "dependencyWidth": 2.4,
   "displayScale": 100,
-  "dualCursor": null,
-  "dummyOpacity": 0.2,
-  "exportCanvas": {
-   "height": 900,
-   "width": 1600
-  },
-  "exportCanvasHeightCap": 4096,
-  "fadeHandleHalfPx": 2.5,
-  "fadeHandleStrokePx": 1.0,
-  "fontMin": 12,
-  "fontOfActual": 0.9,
   "fontScale": "M",
-  "fontScaleSizes": {
-   "L": 16,
-   "M": 14,
-   "S": 12
-  },
   "groupGridLinesVisible": true,
-  "groupLevelOfDetailBase": 0.32,
-  "groupLevelOfDetailRatio": 1.5,
-  "guideCursorMode": "none",
-  "iconHintDelayMs": 150,
-  "importMaxBytes": 32,
-  "importMaxDate": "2200-12-31",
-  "importMaxDepth": 64,
-  "importMaxItems": 20000,
-  "importMinDate": "1970-01-01",
-  "labelBaseline": 0.35,
-  "labelCoef": 0.5,
-  "labelGap": 9.6,
-  "labelHaloOfFont": 0.1,
-  "labelPad": 9.6,
   "levelZeroTreeState": "auto",
-  "markerSize": 22.4,
-  "markerStroke": 1.3,
-  "maxGroupDepth": 5,
-  "milestoneActualDuration": 0,
-  "milestoneNameMarkerGap": 9.6,
-  "milestoneNameStartOfWidth": 0.25,
-  "minShapeWidth": 6.4,
   "percentCompleteVisible": false,
   "pinnedGroupIds": [],
-  "pinnedRowMax": 5,
-  "planActualGuidePattern": {
-   "off": 2,
-   "on": 2
-  },
-  "planActualGuideWeight": 1,
   "planDatesVisible": false,
-  "planStroke": 1,
   "planVisible": true,
-  "progressLineOverhang": 6,
   "progressLineVisible": false,
-  "progressLineWidth": 2,
   "progressMarkerVisible": false,
-  "propertyPanelWidth": 0,
-  "pxPerDayAt1x": 6,
-  "resumeArmOfMarker": 0.62,
-  "resumeDashOff": 2,
-  "resumeDashOn": 3,
-  "resumeDashWidth": 1.92,
-  "resumeHeadOfMarker": 0.22,
-  "resumeOpacityInvalid": 0.55,
-  "resumeScaleInvalid": 0.7,
-  "rowGap": 0,
-  "rowTitleFont": 19.5,
-  "rowTitleIndent": 16,
   "rowTitlePanelWidth": 300,
-  "rowTitleTopScale": 1.3,
   "rulerFont": 21,
   "rulerHeight": 69,
-  "rulerLabelBottomPad": 3,
-  "rulerLabelGap": 2,
-  "rulerLabelPad": 2,
-  "rulerTierPxPerDayDay": 17.5,
-  "rulerTierPxPerDayMonth": 1.4,
-  "rulerTierPxPerDayWeek": 4.3,
   "scrollDate": null,
   "scrollDayOffset": 0,
   "scrollGroupId": null,
   "scrollGroupOffset": 0,
-  "shapeHeightOf": {
-   "arrow": 0.5,
-   "chevron": 1.0,
-   "endpointSpan": 0.5,
-   "milestone": 1.0,
-   "rectangle": 1.0
-  },
-  "spanDotSize": 6.4,
   "stackDirection": "up",
-  "stackGap": 1,
-  "stackSafetyCap": 255,
-  "starInnerOfOuter": 0.45,
   "themeMonochrome": false,
-  "themePreference": "light",
-  "thinArrowHeadHeight": 5.6,
-  "thinArrowHeadLength": 5.6,
-  "thinFontScale": 0.85,
-  "thinStrokeWidth": 2.8,
-  "truncateUnits": 48,
   "zoomX": 1,
   "zoomY": 1
  },

@@ -33,8 +33,8 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const CLAUSES: readonly (readonly [string, string])[] = [
-  ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '⭐ プロパティパネルの幅は、境界を押した時点に描かれていた幅から、ポインタが動いたぶんだけ変えること（MUST）'],
-  ['FR-052 (MUST NOT) -- not from the stored S-80', '⛔ 保存された `S-80` から数えてはならない（MUST NOT）'],
+  ['FR-052 (MUST) -- the property panel counts from the width drawn at the press', '境界を押した時点に描かれていた幅から、ポインタが動いたぶんだけ変えること（MUST）'],
+  ['FR-052 (MUST NOT) -- the width is written nowhere (CR-572)', '⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'],
   ['FR-052 (MUST) -- the held boundary is drawn where the pointer names', '境界を掴んでいるあいだ、その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）'],
   ['FR-052 (MUST NOT) -- no pair leaving Row Area at 0 or less', 'これが 0 以下になる組を受け付けてはならない（MUST NOT）'],
   ['T-023d GR-22 (MUST NOT) -- no part of the band misses the band', '⛔ 帯の幅のうち、押しても帯に届かない所を残してはならない（MUST NOT）'],
@@ -96,7 +96,7 @@ const TEMPLATE = JSON.parse(
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 const TASK_UID = 1
 
-function documentWithPanelWidth(propertyPanelWidth: number): Document {
+function oneTaskDocument(): Document {
   const template = structuredClone(TEMPLATE) as {
     schemaVersion: unknown
     schedule: Record<string, unknown>
@@ -119,7 +119,7 @@ function documentWithPanelWidth(propertyPanelWidth: number): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, height: null },
+        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeight: null },
       ],
       taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID, stackOrder: null }],
       taskVisuals: [],
@@ -128,7 +128,7 @@ function documentWithPanelWidth(propertyPanelWidth: number): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...template.documentSettings, propertyPanelWidth },
+    documentSettings: template.documentSettings,
     documentStamp: template.documentStamp,
     changeLog: [],
   } as unknown as Document
@@ -154,7 +154,7 @@ interface LoopStage {
   view(): ScreenView
 }
 
-function loopStage(propertyPanelWidth: number): LoopStage {
+function loopStage(): LoopStage {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
   const drain = (): void => {
@@ -180,7 +180,7 @@ function loopStage(propertyPanelWidth: number): LoopStage {
       } as unknown as ScreenPart
     },
   }
-  const loop = frameLoop({ showSvg: () => undefined } as unknown as Parameters<typeof frameLoop>[0], documentWithPanelWidth(propertyPanelWidth), SCREEN, { surface, language: 'en' })
+  const loop = frameLoop({ showSvg: () => undefined } as unknown as Parameters<typeof frameLoop>[0], oneTaskDocument(), SCREEN, { surface, language: 'en' })
   drain()
   return {
     loop,
@@ -198,14 +198,15 @@ const frameOf = (loop: FrameLoop) => {
   return values
 }
 
-const storedWidth = (loop: FrameLoop): number =>
-  (loop.document() as unknown as { documentSettings: { propertyPanelWidth: number } }).documentSettings.propertyPanelWidth
+// WHY: CR-572 -- the width is a screen value, so the document never carries one.
+const isWidthStored = (loop: FrameLoop): boolean =>
+  Object.prototype.hasOwnProperty.call(loop.document().documentSettings, 'propertyPanelWidth')
 
 const drawnWidth = (loop: FrameLoop): number => frameOf(loop).regions.propertiesPanel.width
 
 // see MK-13, FR-072
-function withThePanelOpen(propertyPanelWidth: number): LoopStage {
-  const built = loopStage(propertyPanelWidth)
+function withThePanelOpen(): LoopStage {
+  const built = loopStage()
   const task = frameOf(built.loop).geometry.tasks.find((one) => one.taskUid === TASK_UID)
   if (task === undefined || task.plan === null || task.plan.form !== 'outline') throw new Error('the task bar is not drawn')
   const xs = task.plan.points.map((one) => one.x)
@@ -223,13 +224,13 @@ function boundary(built: LoopStage): { x: number; y: number } {
   return { x: band.x + band.width / 2, y: band.y + band.height / 2 }
 }
 
-function drag(built: LoopStage, travel: number): { held: number; storedWhileHeld: number } {
+function drag(built: LoopStage, travel: number): { held: number; storedWhileHeld: boolean } {
   const at = boundary(built)
   built.send(pointer('down', at.x, at.y))
   built.send(pointer('move', at.x + travel / 2, at.y))
   built.send(pointer('move', at.x + travel, at.y))
   const held = drawnWidth(built.loop)
-  const storedWhileHeld = storedWidth(built.loop)
+  const storedWhileHeld = isWidthStored(built.loop)
   built.send(pointer('up', at.x + travel, at.y))
   return { held, storedWhileHeld }
 }
@@ -237,51 +238,52 @@ function drag(built: LoopStage, travel: number): { held: number; storedWhileHeld
 const TRAVEL = 40
 
 describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the width drawn at the press', () => {
-  it('premise: with S-80 at 0 the opened panel is drawn at S-171', () => {
-    const built = withThePanelOpen(0)
-    expect(storedWidth(built.loop)).toBe(0)
+  it('premise: the opened panel is drawn at S-171, and the document carries no width', () => {
+    const built = withThePanelOpen()
+    expect(isWidthStored(built.loop)).toBe(false)
     expect(drawnWidth(built.loop)).toBeCloseTo(S_171, 6)
   })
 
-  it('pulled right by d from S-171, the panel is drawn and stored at S-171 - d', () => {
-    const built = withThePanelOpen(0)
+  it('pulled right by d from S-171, the panel is drawn and kept at S-171 - d', () => {
+    const built = withThePanelOpen()
     const { held, storedWhileHeld } = drag(built, TRAVEL)
     expect(held, 'the held picture').toBeCloseTo(S_171 - TRAVEL, 6)
-    expect(storedWhileHeld, 'nothing is written while held').toBe(0)
-    expect(storedWidth(built.loop), 'the release').toBeCloseTo(S_171 - TRAVEL, 6)
-    expect(drawnWidth(built.loop)).toBeCloseTo(S_171 - TRAVEL, 6)
+    expect(storedWhileHeld, 'nothing is written while held').toBe(false)
+    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_171 - TRAVEL, 6)
+    expect(isWidthStored(built.loop), 'nothing is written by the release either').toBe(false)
   })
 
-  it('pulled left by d from S-171, the panel is drawn and stored at S-171 + d, not at d', () => {
-    const built = withThePanelOpen(0)
+  it('pulled left by d from S-171, the panel is drawn and kept at S-171 + d, not at d', () => {
+    const built = withThePanelOpen()
     const { held } = drag(built, -TRAVEL)
     expect(held, 'the held picture').toBeCloseTo(S_171 + TRAVEL, 6)
-    expect(storedWidth(built.loop), 'the release').toBeCloseTo(S_171 + TRAVEL, 6)
+    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_171 + TRAVEL, 6)
   })
 
-  it('with S-80 at 300, a press released where it began leaves 300', () => {
-    const built = withThePanelOpen(300)
-    expect(drawnWidth(built.loop)).toBeCloseTo(300, 6)
-    drag(built, 0)
-    expect(storedWidth(built.loop)).toBeCloseTo(300, 6)
-    expect(drawnWidth(built.loop)).toBeCloseTo(300, 6)
-  })
-
-  it('with S-80 at 300, a pull left by d stores 300 + d', () => {
-    const built = withThePanelOpen(300)
+  it('from a settled width, a press released where it began leaves that width', () => {
+    const built = withThePanelOpen()
     drag(built, -TRAVEL)
-    expect(storedWidth(built.loop)).toBeCloseTo(300 + TRAVEL, 6)
+    const settled = S_171 + TRAVEL
+    expect(drawnWidth(built.loop)).toBeCloseTo(settled, 6)
+    drag(built, 0)
+    expect(drawnWidth(built.loop)).toBeCloseTo(settled, 6)
   })
 
-  it('a pull right past the whole drawn width never stores a negative width', () => {
-    const built = withThePanelOpen(0)
+  it('from a settled width, a pull left by d counts from that width', () => {
+    const built = withThePanelOpen()
+    drag(built, -TRAVEL)
+    drag(built, -TRAVEL)
+    expect(drawnWidth(built.loop)).toBeCloseTo(S_171 + 2 * TRAVEL, 6)
+  })
+
+  it('a pull right past the whole drawn width never draws a negative width', () => {
+    const built = withThePanelOpen()
     drag(built, S_171 + 100)
-    expect(storedWidth(built.loop)).toBeGreaterThanOrEqual(0)
     expect(drawnWidth(built.loop)).toBeGreaterThanOrEqual(0)
   })
 
   it('a pull left past the Row Area never leaves the Row Area at 0 or less', () => {
-    const built = withThePanelOpen(0)
+    const built = withThePanelOpen()
     drag(built, -SCREEN.width)
     expect(frameOf(built.loop).regions.rowArea.width).toBeGreaterThan(0)
   })

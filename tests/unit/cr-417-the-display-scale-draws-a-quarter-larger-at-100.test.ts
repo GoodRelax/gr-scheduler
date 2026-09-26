@@ -15,8 +15,10 @@ import {
 import type { Document } from '../../src/entity/document-model/document/document'
 import { dayOf, type Schedule, type Task } from '../../src/entity/document-model/schedule/schedule'
 import { layoutFromSchedule, taskPlacement, xFromDay } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { labelFontSize } from '../../src/entity/layout-engine/schedule-layout/shape-cross-sections'
 import {
   displayRatioOf,
+  drawnSettingsOf,
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -52,7 +54,6 @@ const firstNumber = (table: string, id: string, column: string): number => {
 }
 
 const S_1 = firstNumber('T-201', 'S-1', '既定値')
-const S_7 = firstNumber('T-201', 'S-7', '既定値')
 const S_8 = firstNumber('T-201', 'S-8', '既定値')
 const S_54 = firstNumber('T-201', 'S-54', '既定値')
 const S_138 = firstNumber('T-206', 'S-138', '既定')
@@ -103,7 +104,7 @@ const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
     ...part,
   }) as unknown as DocumentSettings
 
-const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 56, scrollbarThickness: 8 }
+const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const ONE_TASK: Schedule = {
   project: { calendarUid: null, statusDate: null, title: null, themeHue: 214 },
@@ -130,7 +131,7 @@ const ONE_TASK: Schedule = {
       dependencies: [],
     } as unknown as Task,
   ],
-  taskGroups: [{ id: 'g1', parentId: null, order: 0, height: null }],
+  taskGroups: [{ id: 'g1', parentId: null, order: 0, minHeight: null }],
   taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
   taskVisuals: [],
   taskOrigins: [],
@@ -161,9 +162,12 @@ describe(`FR-077 (MUST) -- ${FR_077_THE_FLOOR}`, () => {
       S_8 * S_236,
       9,
     )
-    const settings = settingsOf({ actualMin: S_8 / S_7, zoomY: S_54 })
+    // WHY: S-7 is a constant since CR-572, so no document squeezes the name onto the floor; the drawn view is squeezed here.
+    const drawn = drawnSettingsOf(settingsOf({ zoomY: S_54 }))
+    expect(labelFontSize('rectangle', { ...drawn, actualMin: 0, basePlanHeight: 0 }), FR_077_THE_FLOOR).toBeCloseTo(S_8 * S_236, 6)
+    const settings = settingsOf({ zoomY: S_54 })
     const layout = layoutFromSchedule(ONE_TASK, settings, regionsFromScreen(ENV, settings))
-    expect(taskPlacement(layout, 1)!.labelFontSize, FR_077_THE_FLOOR).toBeCloseTo(S_8 * S_236, 6)
+    expect(taskPlacement(layout, 1)!.labelFontSize, FR_077_THE_FLOOR).toBeGreaterThanOrEqual(S_8 * S_236)
   })
 })
 

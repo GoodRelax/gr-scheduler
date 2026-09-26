@@ -379,7 +379,7 @@ function documentWith(part: Fixture = {}): Document {
         order: one.order,
         treeState: folded.has(one.id) ? 'collapsed' : 'auto',
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: rows.map((one, at) => ({
         taskUid: at + 1,
@@ -1351,7 +1351,7 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
           id: one.id,
           label: one.label,
           color: one.color,
-          height: one.height,
+          minHeight: one.minHeight,
           treeState: one.treeState,
           derivedFromTaskUid: one.derivedFromTaskUid,
         }))

@@ -85,13 +85,13 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { bare, specTable } from '../contract/spec-table'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -583,7 +583,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 

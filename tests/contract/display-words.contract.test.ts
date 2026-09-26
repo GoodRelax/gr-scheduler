@@ -184,6 +184,7 @@ import { DISPLAY_SCALE_STEPS } from '../fixtures/display-scale'
 import { withDownloadAddress } from '../fixtures/download-address'
 
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -545,7 +546,7 @@ const assignmentForAxis = (axis: 'horizontal' | 'vertical'): string | undefined 
   T023.rows.find((row) => row.by['動作']?.includes(axis === 'vertical' ? '縦スクロール' : '横スクロール'))?.id
 
 /** `iconHintDelayMs` (S-124), read from the generated defaults, never typed. */
-const ICON_HINT_MS = SETTINGS_DEFAULTS['iconHintDelayMs'] as number
+const ICON_HINT_MS = SETTINGS_CONSTANTS.iconHintDelayMs
 
 // ---------------------------------------------------------------------------
 // One frame of input. ⚠️ Nothing here is asserted -- these are the conditions a
@@ -566,16 +567,16 @@ const centreOf = (region: ScreenRect): { readonly x: number; readonly y: number 
 })
 
 /**
- * ⚠️ BOTH PANEL WIDTHS ARE STATED HERE, not inherited from the generated
- * defaults. S-80's default is the CLOSED properties panel, and a panel of no
- * width is a part of table T-103 that no printed word can stand on -- so this
- * frame opens it, the way a person who is editing has it open.
+ * ⚠️ BOTH PANEL WIDTHS ARE STATED HERE. A panel of no width is a part of table
+ * T-103 that no printed word can stand on -- so this frame opens the properties
+ * panel, the way a person who is editing has it open (a screen value, S-171).
  */
 const SETTINGS = {
   ...SETTINGS_DEFAULTS,
   rowTitlePanelWidth: 400,
-  propertyPanelWidth: 300,
 } as unknown as DocumentSettings
+
+const PROPERTIES_PANEL_WIDTH = 300
 
 /** The screen cut into table T-103's parts by FR-052's own expression. */
 const REGIONS: ScreenRegions = (() => {
@@ -586,8 +587,8 @@ const REGIONS: ScreenRegions = (() => {
   // ⛔ Read off the settings above rather than re-typed: the cut and the
   // settings the same frame carries have to be the same screen.
   const titleWidth = SETTINGS.rowTitlePanelWidth
-  const propertiesWidth = SETTINGS.propertyPanelWidth
-  const padding = SETTINGS_DEFAULTS['canvasPadding'] as number
+  const propertiesWidth = PROPERTIES_PANEL_WIDTH
+  const padding = SETTINGS_CONSTANTS.canvasPadding
   const barThickness = 8
   const canvas = rect(0, headerHeight, width, height - headerHeight)
   const rowAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
@@ -697,7 +698,8 @@ const SCREEN_ROOT: ScreenSession = {
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: 'ja',
+    screenLanguage: 'ja',
+    helpLanguage: 'ja',
     propertiesPanelContentState: {
       kind: 'selectionDisplayed',
       subject: { selection: emptySelection(), groupIds: [] },
@@ -784,7 +786,7 @@ const viewOf = (build: Build, frame: Frame, language: string): ScreenView =>
     frame.schedule,
     frame.settings,
     frame.selection,
-    withScreen(frame.root, { language: language as DisplayLanguage }),
+    withScreen(frame.root, { screenLanguage: language as DisplayLanguage, helpLanguage: language as DisplayLanguage }),
     frame.dialogueLog,
     frame.readings,
   )
@@ -1121,7 +1123,7 @@ const SCHEDULE_WITH_A_ROW = {
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
-      height: null,
+      minHeight: null,
     },
   ],
 } as unknown as Schedule

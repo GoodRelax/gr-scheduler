@@ -4,6 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, Task, TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
@@ -126,7 +127,6 @@ export function moveTaskGroup(
   command: TaskGroupCommandOf<'moveTaskGroup'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const settings = document.documentSettings
   const groups = document.schedule.taskGroups
   const moved = byId.get(command.groupId)
   if (moved === undefined) {
@@ -147,13 +147,13 @@ export function moveTaskGroup(
     )
   }
   const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
-  if (under + carried.height > settings.maxGroupDepth) {
+  if (under + carried.height > SETTINGS_CONSTANTS.maxGroupDepth) {
     refusals.push(
       reject(
         'CM-73',
         'HM-3a',
         `the move would reach depth ${under + carried.height}, ` +
-          `past S-125's ${settings.maxGroupDepth}`,
+          `past S-125's ${SETTINGS_CONSTANTS.maxGroupDepth}`,
       ),
     )
   }

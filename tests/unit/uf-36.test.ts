@@ -67,6 +67,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   MSPDI_NAMESPACE,
   documentFromMspdi,
@@ -1317,7 +1318,7 @@ function nestedTasksText(depth: number): string {
   )
 }
 
-const MAX_GROUP_DEPTH = CURRENT.documentSettings.maxGroupDepth
+const MAX_GROUP_DEPTH = SETTINGS_CONSTANTS.maxGroupDepth
 
 function rowDepth(document: Document, id: string): number {
   const byId = new Map(document.schedule.taskGroups.map((each) => [each.id, each]))

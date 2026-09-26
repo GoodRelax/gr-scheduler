@@ -1,11 +1,13 @@
 # CR-572 — ファイルは日程表の見せ方だけを持つ —— 見る人の画面の値と道具の定数を `documentSettings` から外す
 
-> 起草の状態: 起草した（2026-09-26）。利用者の裁定 `JDG-603`（仕分けの変更要求を起こす）と、本書のために問うた `JDG-620` 〜 `JDG-626`（逐語は 0.1 節）を受けた。⭐ `JDG-626` がモノクロを文書の中身へ戻した（`JDG-621`・`JDG-625` の一部を覆した）。⛔ 仕様・コード・見本はまだ 1 文字も変えていない。
+> 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W2。`JDG-740`）—— 波 1（仕様）と波 2a（生成器）まで。当てた木は `58fb54ae` に波 1（`34f4236c`）を摘み取った作業木（未コミット）。波 2b 〜 2d・3・4（手で書く `src` ・試験・見本・基準線）は、コードの道 L3 に残る。利用者の裁定 `JDG-603`（仕分けの変更要求を起こす）と、本書のために問うた `JDG-620` 〜 `JDG-626`（逐語は 0.1 節）を受けた。⭐ `JDG-626` がモノクロを文書の中身へ戻した（`JDG-621`・`JDG-625` の一部を覆した）。
 > 読んだ木: `refactor` 70be9db6 を `git archive` でスクラッチへ写した木で測った（13 節）。起草したワークツリーは別の起点で切られていたので、測った数はどれも `refactor` の先端のものである。⛔ 当てる前に、その時点の `refactor` の先端で測り直すこと。
 > 測り直し（2026-09-26、`CR-570` の着地後の `refactor` b6292bb0）: 16 節の旧の塊はすべて同じ行番号のまま逐語で在った。鍵は 112（内容 26・好み 3・画面だけ 1・定数 82）、`edit-document-settings.ts` の命令は 16 種・書く鍵は 30（`CR-570` の `CM-86` `setLevelZeroTreeState` が 1 つ足した）、書き手はほかに増えていない。3.4 節の数は 2 つを直した（下の注）。数は 2 通りの数え方で突き合わせた。
 > ID の帯: 調整役から `CR-572`・`JDG-620` 〜 `JDG-629`・`DFC-995` 〜 `DFC-997` を受けた。新しい名はどれも仮である（2 節）。
 > ⛔ 当てる順: `CR-570` の後。`CR-570` は `documentSettings` に鍵を 1 つ足し（`JDG-600`。本書は `CR-570` が付ける仮の名で呼ぶ）、`settings.json`・文書スキーマ・`src`・見本を書き換えている最中である。同じファイルを同時に触らない。`CR-570` が足す鍵は「内容」に分ける（3.1 節）。
 > 閉じるもの: `DFC-995`（仮。12 節）—— `S-124` を 1000 → 150 に変えても（`JDG-602`）、その前に保存した `GRS JSON` を開くとツールチップは 1000ms のまま出る。
+> 波 1 で当てた（2026-09-26、`refactor` 81b07680 の上）: 16.1 〜 16.10 と 3.2・3.3・4.1 〜 4.8。16 節の旧の塊は逐語で在った —— `DC-1` だけは末尾の `<br>**` の位置が違い、同じ 4 文を消した。`--report` の `documentSettings` の鍵は 26。当てなかったもの: `display-words.json` の設定の語（4.8） —— 語の名簿は表 T-104 の行であり、表 T-104 は定数の名を持ち続けるので、語だけを消すと生成器が拒む（`tools/generate_display_words.py`、波 2a）。仕様の文には JDG の番号を書かなかった（`01-04-requirements.md` と `settings.json` は裁定の番号を 1 つも引いていない）。本書の塊の外へ及んだもの: 表 T-202 に 下限・上限 の列を足した（`S-2`・`S-3` の範囲を保つため）、`S-2` に `json` を足した（スキーマの上限 150 を保つため）、表 T-220 の `IV-13` を退かせた（2 本の日付が文書に無くなった）、`CM-67` の確定名を `setRowTitlePanelWidth` へ改めた（書く幅が 1 つになった。R2.1）、画面の値の出来事 `themePreferenceChosen`・`propertyPanelWidthSettled` と 3 つの `store*` 効果を足し、`dualCursorModeStateMachine` の効果を `write*` から `store*` へ改めた（`write` は文書へ書く効果の接頭辞）。
+> 波 2a で当てた（2026-09-26、`cr-organise` 58fb54ae の上、波 W2）: `tools/generate_entity_types.py` に `constants_block` を足し、`document-settings.ts` の生成の区画へ `SETTINGS_CONSTANTS` と型 `DrawnSettings`（`DocumentSettings` と定数を合わせた型）を刷る。刷る行は表 T-064 の `PI-2` の文のとおり —— 見出しに「文書には保存しない」とある表のうち、英語の名前で引き、機械の値を持つ行。範囲は刷らない。刷った鍵は、当てた時点で 86 —— 3.1 節の 82 に、同じ文が拾う 4 つが加わる: 表 T-201 の `S-53` 〜 `S-55`（`zoomStep` ・ `zoomMin` ・ `zoomMax`。もとから文書に入らない行）と、表 T-207 の `S-102`（`watermarkOpacity`）。`tools/generate_startup_template.py` は、文書から消えた 4 鍵（`importMinDate` ・ `importMaxDate` ・ `actualInitialDuration` ・ `maxGroupDepth`）を `SETTINGS_CONSTANTS` から読み、無ければ拒む。起動テンプレートの `documentSettings` は 26 鍵になった。当てなかったもの: `schemaVersion` を上げること（③ の 2） —— 新しい版の値を定める文が無いので、コードの道に残す。
 
 ---
 
@@ -225,9 +227,16 @@ SEAM (verbatim in every brief of waves 2a..2d and 3)
 - SETTINGS_CONSTANTS (provisional name) is generated into
   src/entity/document-model/document-settings/document-settings.ts and holds
   the 82 constant keys with today's spellings and today's defaults.
-  A reader of one of those keys reads SETTINGS_CONSTANTS.<key> directly.
-  Never merge the constants into a settings object, and never read them
-  from a document.
+  A reader outside the drawing view reads SETTINGS_CONSTANTS.<key>
+  directly. Never read a constant from a document.
+- AMENDED 2026-09-26 at apply time (81b07680): drawnSettingsOf
+  (src/entity/layout-engine/screen-regions/screen-regions.ts) already builds
+  the ONE drawing view, scaling the SCALED_BY_THE_DISPLAY keys (most of
+  them constants: basePlanHeight, actualMin, pxPerDayAt1x ...). It becomes
+  the ONLY place that merges: it returns a DrawnSettings view =
+  DocumentSettings + SETTINGS_CONSTANTS, scaled as today. Every existing
+  reader of a drawn view keeps reading drawn.<key>. No other function may
+  build a merged object.
 - ScreenSession (PI-39) gains themePreference, guideCursorMode,
   dualCursor, propertyPanelWidth, same spellings.
   themePreference starts from prefers-color-scheme (light when unread);

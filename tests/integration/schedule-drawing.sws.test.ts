@@ -74,7 +74,7 @@ import { describe, expect, it } from 'vitest'
 import { specTable, type SpecTable } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_SCALE, S_235, displayRatioAt } from '../fixtures/display-scale'
 import {
-  SETTINGS_BOUNDS,
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -91,7 +91,6 @@ import type {
 import {
   dateAtX,
   layoutFromSchedule,
-  tickStrideOf,
   xFromDay,
   NOT_STORED_DUMMY_SIZES,
   NOT_STORED_SIZES,
@@ -290,7 +289,7 @@ const taskGroup = (id: string, order: number, over: Partial<TaskGroup> = {}): Ta
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
   ...over,
 })
 
@@ -361,7 +360,10 @@ const scheduleOf = (
 })
 
 /** BO-1 of table T-077: what the environment settles, not the document. */
-const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8 }
+const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
+
+// see FR-039, FR-048
+const LIGHT_VIEWER = { themePreference: 'light', guideCursorMode: 'none' } as const
 
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
@@ -413,7 +415,7 @@ const draw = (
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   return { schedule, settings, regions, layout, geometry }
 }
 
@@ -601,19 +603,12 @@ const sameTicks = (
   }
 }
 
-const PX_PER_DAY_AT_1X = SETTINGS_DEFAULTS['pxPerDayAt1x'] as number
-const FONT_MIN = SETTINGS_DEFAULTS['fontMin'] as number
+const PX_PER_DAY_AT_1X = SETTINGS_CONSTANTS.pxPerDayAt1x
+const FONT_MIN = SETTINGS_CONSTANTS.fontMin
 const RULER_FONT = SETTINGS_DEFAULTS['rulerFont'] as number
 
 /** S-108: the day the week starts on when the document names none (FR-054). */
 const WEEK_START_DEFAULT = DEFAULT_CALENDAR_VALUES['S-108']
-
-/** A ceiling the settings manuscript states. ⛔ Never a number typed in here. */
-const boundMax = (key: string): number => {
-  const max = SETTINGS_BOUNDS[key]?.max
-  if (max === undefined) throw new Error(`the settings table states no plain ceiling for ${key}`)
-  return max
-}
 
 /**
  * FR-017's own test, run backwards: the narrowest day that reaches `threshold`.
@@ -627,15 +622,15 @@ const pxPerDayReaching = (threshold: number, rulerFont: number): number =>
   threshold * ((rulerFont * DISPLAY_RATIO) / FONT_MIN)
 
 const TIER_MONTH_PX = pxPerDayReaching(
-  SETTINGS_DEFAULTS['rulerTierPxPerDayMonth'] as number,
+  SETTINGS_CONSTANTS.rulerTierPxPerDayMonth,
   RULER_FONT,
 )
 const TIER_WEEK_PX = pxPerDayReaching(
-  SETTINGS_DEFAULTS['rulerTierPxPerDayWeek'] as number,
+  SETTINGS_CONSTANTS.rulerTierPxPerDayWeek,
   RULER_FONT,
 )
 const TIER_DAY_PX = pxPerDayReaching(
-  SETTINGS_DEFAULTS['rulerTierPxPerDayDay'] as number,
+  SETTINGS_CONSTANTS.rulerTierPxPerDayDay,
   RULER_FONT,
 )
 
@@ -680,7 +675,7 @@ const rulerAt = (
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   const svg = svgFromSchedule(
     schedule,
     settings,
@@ -690,6 +685,7 @@ const rulerAt = (
     emptySelection(),
     // EP-14's other arm. These cases are about the picture a reader sees.
     'screen',
+    LIGHT_VIEWER,
   )
   expect(layout.pxPerDay, 'the sample missed the day width it names').toBeCloseTo(pxPerDay, 9)
   return { svg, band: regions.timeRuler, rowArea: regions.rowArea, layout, settings }
@@ -741,47 +737,6 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
         expect(drawn.length, `${where}: the band drew no ticks to judge`).toBeGreaterThanOrEqual(1)
         sameTicks(drawn, expectedTicksOf(frame.layout, frame.band, row, WEEK_START_DEFAULT), where)
       }
-    },
-  )
-
-  it(
-    swsCase({
-      sws: 'SWS-1',
-      level: 'Integration',
-      covers: ['LF-1'],
-      given: 'the widest ruler label the settings table allows, on the day row',
-      when: 'the band is drawn and PI-5 is asked for the same interval',
-      then: 'a tick still stands on every day, and the label costs it nothing',
-    }),
-    () => {
-      // FINDING (left failing). LF-1 fixes the day row at one day and forbids
-      // any other interval (MUST NOT); FR-017 adds that "⛔ no row may be
-      // thinned (MUST NOT)" and that a zoom at which the label will not fit is
-      // answered by "⭐ putting the STEP one coarser (MUST)" -- never by
-      // spacing the ticks out. So no label, at any size the settings table
-      // allows, may move a tick.
-      //
-      // ⛔ S-135's row says where the gap does reach: "this gap is added in
-      // deriving table T-205's `S-85`, and nowhere else -- only on the step
-      // whose interval is one day do neighbouring labels touch". It is a term
-      // of a DEFAULT's derivation. Reaching a drawn tick with it is what the
-      // rewrite of LF-1 took away, and the frame has not followed yet: at the
-      // ceilings of S-30 and S-135 the day row comes out two days apart.
-      mentions(T221, 'LF-1', 'MUST NOT')
-      const widest = { labelCoef: boundMax('labelCoef'), rulerLabelGap: boundMax('rulerLabelGap') }
-      const plain = rulerAt(TIER_DAY_PX * 1.001)
-      const loaded = rulerAt(TIER_DAY_PX * 1.001, widest)
-      expect(loaded.layout.tier).toBe('yearMonthDayWeekday')
-      const expected = expectedTicksOf(loaded.layout, loaded.band, 'day', WEEK_START_DEFAULT)
-      sameTicks(finestRowTicksOf(plain.svg, plain.band), expected, 'at the settings defaults')
-      sameTicks(finestRowTicksOf(loaded.svg, loaded.band), expected, 'with the widest label allowed')
-      // ⚠️ PI-5's cell still calls `tickStrideOf` "the thinning of the ticks"
-      // and points it at LF-1, which no longer thins anything. Whatever the
-      // name, LF-1 leaves the day row one number: one day.
-      expect(
-        tickStrideOf(loaded.layout, loaded.settings),
-        'PI-5 answers LF-1 for the day row',
-      ).toBe(1)
     },
   )
 
@@ -896,15 +851,6 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
       ),
     ],
     [
-      'three lanes, the dependency line widened',
-      draw(
-        [long(1, 2, 20), long(2, 3, 21), long(3, 4, 22)],
-        ['g1', 'g1', 'g1'],
-        [taskVisual(1), taskVisual(2), taskVisual(3)],
-        { dependencyWidth: 3 },
-      ),
-    ],
-    [
       'one lane holding a rectangle and a taller milestone, then an empty row',
       draw(
         [long(1, 2, 4), task({ uid: 2, name: 'm', start: day(10), finish: day(10), milestone: true })],
@@ -953,10 +899,10 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
             )
             // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
-              ? drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO
-              : Math.max(...onLane.map((p) => p.height)) + drawn.settings.planStroke * DISPLAY_RATIO
+              ? drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
+              : Math.max(...onLane.map((p) => p.height)) + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
           }
-          const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
+          const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
           const lf2 = sum + gap * lanes
           if (lf2 < CONTROL_LATTICE) belowTheLattice += 1
           expect(row.height, `${name}: row ${row.groupId}`).toBeCloseTo(lf2, 6)
@@ -990,16 +936,16 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       )
       const empty = rowByIdOf(drawn, 'g2')
       expect(empty.stackCount).toBe(0)
-      const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
-      const oneLane = drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO + gap
+      const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
+      const oneLane = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO + gap
       expect(empty.height, 'LF-2: an empty lane is the rectangle, plus one VG-2 gap').toBeCloseTo(oneLane, 6)
       expect(empty.height, 'the same band as the one-lane row above it').toBeCloseTo(rowByIdOf(drawn, 'g1').height, 6)
       expect(empty.height, 'HF-19 (MUST NOT): the lattice is not its floor').toBeLessThan(CONTROL_LATTICE)
       // and the rectangle's own height is FR-094's chain, not a number of its own
       expect(drawn.layout.rectangleHeight).toBeCloseTo(
-        drawn.settings.basePlanHeight *
+        SETTINGS_CONSTANTS.basePlanHeight *
           drawn.settings.zoomY *
-          drawn.settings.shapeHeightOf.rectangle *
+          SETTINGS_CONSTANTS.shapeHeightOf.rectangle *
           DISPLAY_RATIO,
         6,
       )
@@ -1031,7 +977,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
           const here = rows[i]
           if (above === undefined || here === undefined) throw new Error('unreachable')
           expect(here.y, `${name}: row ${here.groupId}`).toBeCloseTo(
-            above.y + above.height + drawn.settings.rowGap,
+            above.y + above.height + SETTINGS_CONSTANTS.rowGap,
             6,
           )
         }
@@ -1060,10 +1006,10 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
         drawn.layout.rectangleHeight,
       )
       // STEP: LF-3's rectangle height reaches VG-5's drawn edge -- the border's outer rim, half a stroke each side.
-      const rectangleTall = drawn.layout.rectangleHeight + drawn.settings.planStroke * DISPLAY_RATIO
+      const rectangleTall = drawn.layout.rectangleHeight + SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO
       // STEP: LF-2's own sum for the arrow's one lane: its lifted name (OC-10) and line, then one VG-2 gap.
       const row = rowByIdOf(drawn, 'g1')
-      const gap = drawn.settings.stackGap * 2 + drawn.settings.dependencyWidth * DISPLAY_RATIO
+      const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
       const lf2 = placed.y - row.y + placed.height + gap
       expect(lf2, 'the premise: the arrow lane sums below the rectangle floor').toBeLessThan(rectangleTall)
       expect(row.height).toBeCloseTo(Math.max(lf2, rectangleTall), 6)
@@ -1158,14 +1104,14 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       expect(
         scrolling[0]?.y,
         'LF-14: the remainder begins below the band by one rowGap',
-      ).toBeCloseTo(drawn.regions.rowArea.y + band + drawn.settings.rowGap, 6)
+      ).toBeCloseTo(drawn.regions.rowArea.y + band + SETTINGS_CONSTANTS.rowGap, 6)
 
       for (let index = 1; index < scrolling.length; index += 1) {
         const above = scrolling[index - 1]
         const here = scrolling[index]
         if (above === undefined || here === undefined) throw new Error('unreachable')
         expect(here.y, `LF-14: the hole g3 left is closed up at ${here.groupId}`).toBeCloseTo(
-          above.y + above.height + drawn.settings.rowGap,
+          above.y + above.height + SETTINGS_CONSTANTS.rowGap,
           6,
         )
       }
@@ -1319,8 +1265,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         throw new Error('the predecessor draws no outlined plan')
       }
       const drawnBottom =
-        Math.max(...outline.points.map((point) => point.y)) + (same.settings.planStroke * DISPLAY_RATIO) / 2
-      const gap = same.settings.stackGap * 2 + same.settings.dependencyWidth * DISPLAY_RATIO
+        Math.max(...outline.points.map((point) => point.y)) + (SETTINGS_CONSTANTS.planStroke * DISPLAY_RATIO) / 2
+      const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
       expect(corridorOf(same), 'inside one lane').toBeCloseTo(drawnBottom + gap / 2, 6)
     },
   )
@@ -1339,7 +1285,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // apart". "At least" is the boundary, and RP-4 catches "one lane, RP-1
       // not met". At a day of exactly the entry run wide, one day of clear air
       // between the two bars is exactly the threshold.
-      const entryRun = SETTINGS_DEFAULTS['dependencyLeadIn'] as number
+      const entryRun = SETTINGS_CONSTANTS.dependencyLeadIn
       const at = (pxPerDay: number): string => {
         const drawn = draw(
           [
@@ -1350,7 +1296,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
           ],
           ['g1', 'g1'],
           [taskVisual(1), taskVisual(2)],
-          { pxPerDayAt1x: pxPerDay, zoomX: 1 },
+          { zoomX: pxPerDay / PX_PER_DAY_AT_1X },
         )
         const p = placementOf(drawn, 1)
         const s = placementOf(drawn, 2)
@@ -1394,7 +1340,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         ],
         ['g1', 'g2'],
         [taskVisual(1), taskVisual(2)],
-        { pxPerDayAt1x: 26, zoomX: 1 },
+        { zoomX: 26 / PX_PER_DAY_AT_1X },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-2')
@@ -1402,8 +1348,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const successor = placementOf(drawn, 2)
       const exitEdge = predecessor.x + predecessor.width
       const entryEdge = successor.x
-      const entryRun = (drawn.settings.dependencyLeadIn as number) * DISPLAY_RATIO
-      const exitRun = (drawn.settings.dependencyLeadOut as number) * DISPLAY_RATIO
+      const entryRun = (SETTINGS_CONSTANTS.dependencyLeadIn as number) * DISPLAY_RATIO
+      const exitRun = (SETTINGS_CONSTANTS.dependencyLeadOut as number) * DISPLAY_RATIO
       const x1 = exitEdge + exitRun
       const x2 = entryEdge - entryRun
       const plain = (exitEdge + entryEdge) / 2
@@ -1430,23 +1376,17 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // plus the exit run -- two vertical lines on top of each other cannot be
       // told apart, there and back." The successor ends just to the left of the
       // predecessor, which is what brings the two together.
-      const arrowLength = 40
-      const leadIn = 80
-      const leadOut = 40
+      // WHY: the runs are constants now; the day width is what brings the two verticals together.
+      const leadIn = SETTINGS_CONSTANTS.dependencyLeadIn
+      const leadOut = SETTINGS_CONSTANTS.dependencyLeadOut
       const drawn = draw(
         [
-          task({ uid: 1, name: 'p', start: day(9), finish: day(11) }),
+          task({ uid: 1, name: 'p', start: day(9), finish: day(9) }),
           task({ uid: 2, name: 's', start: day(2), finish: day(8), dependencies: [dependency(1, 0)] }),
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
-        {
-          pxPerDayAt1x: 12,
-          zoomX: 1,
-          dependencyArrowLength: arrowLength,
-          dependencyLeadIn: leadIn,
-          dependencyLeadOut: leadOut,
-        },
+        { zoomX: 1 },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-8')
@@ -1520,15 +1460,15 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         const placed = placementOf(drawn, 1)
         const geometry = geometryOf(drawn, 1)
         const planNotch = Math.min(
-          placed.width * drawn.settings.chevronNotchOfWidth,
-          placed.planHeight * drawn.settings.chevronNotchOfHeight,
+          placed.width * SETTINGS_CONSTANTS.chevronNotchOfWidth,
+          placed.planHeight * SETTINGS_CONSTANTS.chevronNotchOfHeight,
         )
         expect(notchOf(outlineOf(geometry.plan)), `${name}: the plan notch`).toBeCloseTo(
           planNotch,
           6,
         )
         expect(notchOf(outlineOf(geometry.actual)), `${name}: the actual notch`).toBeCloseTo(
-          planNotch * drawn.settings.actualOfPlan,
+          planNotch * SETTINGS_CONSTANTS.actualOfPlan,
           6,
         )
       }
@@ -1559,7 +1499,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         )
         const placed = placementOf(drawn, 1)
         const line = lineOf(geometryOf(drawn, 1).plan)
-        const stroke = drawn.settings.thinStrokeWidth * DISPLAY_RATIO
+        const stroke = SETTINGS_CONSTANTS.thinStrokeWidth * DISPLAY_RATIO
         expect(line.strokeWidth).toBeCloseTo(stroke, 6)
 
         const head = line.head
@@ -1570,8 +1510,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           if (tip === undefined || base === undefined) throw new Error('not a head')
           expect(tip.x - base.x, 'head length').toBeCloseTo(
             Math.min(
-              drawn.settings.thinArrowHeadLength * DISPLAY_RATIO,
-              placed.width * drawn.settings.arrowHeadOfSpan,
+              SETTINGS_CONSTANTS.thinArrowHeadLength * DISPLAY_RATIO,
+              placed.width * SETTINGS_CONSTANTS.arrowHeadOfSpan,
             ),
             6,
           )
@@ -1587,7 +1527,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(spanLine.head, 'SH-4 has no head').toBeNull()
       expect(spanLine.dots.length, 'SH-4 has two ends').toBe(2)
       for (const dot of spanLine.dots) {
-        expect(dot.radius).toBeCloseTo((span.settings.spanDotSize * DISPLAY_RATIO) / 2, 6)
+        expect(dot.radius).toBeCloseTo((SETTINGS_CONSTANTS.spanDotSize * DISPLAY_RATIO) / 2, 6)
       }
     },
   )
@@ -1639,9 +1579,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // band, so the two bands' tops are the two centres less half of each.
       // XS-6: 線の上の縁を、予定の線の下の縁から `S-10` 下に置く -- the drop is
       // one stroke plus the gap, measured edge to edge and not from a strip.
-      const stroke = (below.settings.thinStrokeWidth as number) * DISPLAY_RATIO
+      const stroke = (SETTINGS_CONSTANTS.thinStrokeWidth as number) * DISPLAY_RATIO
       expect(actualLine.from.y - planLine.from.y).toBeCloseTo(
-        stroke + (below.settings.actualGap as number) * DISPLAY_RATIO,
+        stroke + (SETTINGS_CONSTANTS.actualGap as number) * DISPLAY_RATIO,
         6,
       )
     },
@@ -1694,7 +1634,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         6,
       )
       expect(actual.right - actual.left, 'the actual side').toBeCloseTo(
-        side * drawn.settings.actualOfPlan,
+        side * SETTINGS_CONSTANTS.actualOfPlan,
         6,
       )
       expect((actual.left + actual.right) / 2, 'centred on the actual day').toBeCloseTo(
@@ -1748,7 +1688,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker, 'a Task under way carries a marker').not.toBeNull()
       if (marker === null) return
       expect(marker.radius * 2, 'a square of side markerSize').toBeCloseTo(
-        drawn.settings.markerSize * DISPLAY_RATIO,
+        SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO,
         6,
       )
       expect(marker.centre.y, 'the middle of the plan bar').toBeCloseTo(
@@ -1770,7 +1710,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(
         marker.centre.x + marker.radius,
         '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。',
-      ).toBeCloseTo(label.x - drawn.settings.labelGap * DISPLAY_RATIO, 6)
+      ).toBeCloseTo(label.x - SETTINGS_CONSTANTS.labelGap * DISPLAY_RATIO, 6)
     },
   )
 
@@ -1802,7 +1742,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       expect(marker.centre.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
       const holdRight =
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
-        Math.min(drawn.settings.markerSize * DISPLAY_RATIO * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
+        Math.min(SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * S_247, NOT_STORED_DUMMY_SIZES['S-180'])
       expect(
         marker.centre.x - marker.radius - holdRight,
         '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',
@@ -1855,8 +1795,8 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 
         expect(resume.valid).toBe(resumeValid)
         const side = resumeValid
-          ? drawn.settings.markerSize * DISPLAY_RATIO
-          : drawn.settings.markerSize * DISPLAY_RATIO * drawn.settings.resumeScaleInvalid
+          ? SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO
+          : SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * SETTINGS_CONSTANTS.resumeScaleInvalid
 
         const foot = resume.arm[0]
         const corner = resume.arm[1]
@@ -1885,7 +1825,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         expect(corner.y, 'turning at the middle of the marker').toBeCloseTo(marker.centre.y, 6)
         expect(armEnd.y).toBeCloseTo(marker.centre.y, 6)
         expect(armEnd.x - corner.x, 'the arm').toBeCloseTo(
-          side * drawn.settings.resumeArmOfMarker,
+          side * SETTINGS_CONSTANTS.resumeArmOfMarker,
           6,
         )
 
@@ -1893,7 +1833,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         const point = resume.head[1]
         if (back === undefined || point === undefined) throw new Error('a head has three points')
         expect(point.x - back.x, 'the head').toBeCloseTo(
-          side * drawn.settings.resumeHeadOfMarker,
+          side * SETTINGS_CONSTANTS.resumeHeadOfMarker,
           6,
         )
         expect(point.y, 'the point at the middle of the marker').toBeCloseTo(marker.centre.y, 6)
@@ -1932,6 +1872,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         emptySelection(),
         // EP-14's other arm. This case is about the shape a reader sees.
         'screen',
+        LIGHT_VIEWER,
       )
       const drawnPoints = points.map((p) => `${twoPlaces(p.x)},${twoPlaces(p.y)}`).join(' ')
       expect(svg).toContain(`points="${drawnPoints}"`)
@@ -2012,7 +1953,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       sws: 'SWS-5',
       level: 'Integration',
       covers: ['LF-12'],
-      given: 'a status date, and progressLineOverhang at two values',
+      given: 'a status date, and progressLineOverhang at its value',
       when: 'geometryFromLayout puts the ends of the line',
       then: 'both ends sit on the status date and run past the first and last row by that much',
     }),
@@ -2021,8 +1962,9 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       // they run progressLineOverhang past the top of the first row and the
       // bottom of the last."
       mentions(T221, 'LF-12', 'progressLineOverhang')
-      for (const overhang of [6, 25]) {
-        const drawn = progressDocument({ progressLineOverhang: overhang })
+      // WHY: S-39 is a constant now; a document cannot move it, so the one value is driven.
+      for (const overhang of [SETTINGS_CONSTANTS.progressLineOverhang]) {
+        const drawn = progressDocument({})
         const line = drawn.geometry.progressLine
         const top = line[0]
         const bottom = line[line.length - 1]
@@ -2134,7 +2076,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
           ],
         } as unknown as Schedule
         const layout = layoutFromSchedule(schedule, bare.settings, bare.regions)
-        const geometry = geometryFromLayout(schedule, bare.settings, layout, bare.regions, emptySelection())
+        const geometry = geometryFromLayout(schedule, bare.settings, layout, bare.regions, emptySelection(), null)
         const drawn = { ...bare, schedule, layout, geometry }
         const anchor = geometry.commentBoxes.find((one) => one.id === 'c1')?.anchor
         if (anchor === undefined) throw new Error(`pinned ${pinned.length}: the geometry placed no comment box`)

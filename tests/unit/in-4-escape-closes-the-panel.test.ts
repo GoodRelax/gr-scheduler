@@ -78,12 +78,10 @@
 //   表 T-023 MK-13 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを
 //                   出し、名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置
 //                   き…」 -- the one entrance a pointer can reach in this loop.
-//   `S-80`         表 T-203 `propertyPanelWidth`: 「⭐ `0` であることが「閉じてい
-//                   る」であり、既定がそれである」.
-//   `S-171`        表 T-206: 「プロパティパネルが開いたときに取る幅」 -- 「`S-80`
-//                   は文書が保つ幅であり、`0` であることが「閉じている」である ——
-//                   本値はそこへ開くときに置く幅である」. ⭐ Used as the width the
-//                   fixture's document is SAVED with, so no case invents one.
+//   `S-171`        表 T-206: the properties panel width is a screen value that
+//                   starts at this row on every start (CR-572).
+//   `S-99h`        表 T-206: whether the panel is shown is held apart from its
+//                   width -- a panel that is not shown takes no room.
 //   `FR-052`       「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの
 //                   幅と縦のスクロールバーの太さを引いた残りが `Row Area` の幅であ
 //                   り（`U-50`）」 -- the arithmetic the last describe reads.
@@ -135,7 +133,6 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
 import {
@@ -198,12 +195,12 @@ const S_99G = rowOf('T-206', 'S-99g').cells.join(' ')
 const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 /**
- * `S-80`'s own default -- the width that IS 「閉じている」.
+ * The room a panel that is not shown takes (`S-99h`): none.
  *
- * ⚠️ Read from the generated defaults for the same reason, and pinned against
- * the manuscript's own cell by a premise below.
+ * ⚠️ Not a row of its own since CR-572; the width is a screen
+ * value apart from whether the panel is shown, and a premise below pins that.
  */
-const CLOSED_WIDTH = Number(SETTINGS_DEFAULTS['propertyPanelWidth'])
+const CLOSED_WIDTH = 0
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from tests/unit/uf-48-input.test.ts.
@@ -228,14 +225,11 @@ const BETA = '22222222-2222-4222-8222-222222222222'
 const THE_TASK = 1
 
 /**
- * Two rows, one Task on each, and a document whose panel is ALREADY OPEN.
+ * Two rows, one Task on each.
  *
- * ⭐ WHY THE WIDTH IS SET IN THE FIXTURE. S-80's default is 「閉じている」 and
- * nothing in the manuscript names the operation that writes a width -- that is
- * the hole tests/unit/fr-006-panel-close-entrance.test.ts reports. So these
- * cases start from a document that already carries one, which FR-052 makes
- * lawful (a person may drag the boundary to any width that leaves the `Row
- * Area` wider than 0), and ask only what `Esc` does to it.
+ * ⭐ THE DOCUMENT CARRIES NO PANEL WIDTH (CR-572): the width is a screen value
+ * that starts at `S-171`, so the panel MK-13 puts up is `S-171` wide and these
+ * cases ask only what `Esc` does to it.
  */
 function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
   const template = structuredClone(TEMPLATE) as any
@@ -271,7 +265,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   const draft = {
     schemaVersion: template.schemaVersion,
@@ -299,10 +293,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: {
-      ...structuredClone(template.documentSettings),
-      propertyPanelWidth: S_171,
-    },
+    documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   }
@@ -608,24 +599,20 @@ describe('the manuscript still says what these cases read', () => {
     expect(entrance?.by[ENTRY_COLUMN] ?? '').toContain('閉じる')
   })
 
-  it('S-80 still spells 「閉じている」 as a width of zero, and S-171 is not that width', () => {
-    // S-80: 「⭐ `0` であることが「閉じている」であり、既定がそれである」. S-171:
-    // 「本値はそこへ開くときに置く幅である」.
-    const s80 = specTable('T-203').rows.find(
-      (one) => bare(one.by['キー'] ?? '') === 'propertyPanelWidth',
-    )
-    expect(s80, 'table T-203 still has a row for `propertyPanelWidth`').not.toBe(undefined)
-    expect(Number(bare(s80?.by['既定'] ?? ''))).toBe(CLOSED_WIDTH)
-    expect(CLOSED_WIDTH).toBe(0)
+  it('S-171 holds the width a shown panel starts at, and S-99h keeps being shown apart from it', () => {
+    // CR-572: the width is a screen value that starts at S-171 on every start;
+    // S-99h: 「幅（画面の値、初期値は `S-171`）とは別に持つこと」.
+    expect(rowOf('T-206', 'S-171').cells.join(' ')).toContain('`propertyPanelWidth`')
+    expect(rowOf('T-206', 'S-99h').cells.join(' ')).toContain('幅（画面の値、初期値は `S-171`）とは別に持つこと')
     expect(S_171, 'S-171 is the width the panel OPENS to').toBeGreaterThan(CLOSED_WIDTH)
   })
 
-  it('the document these cases drive is a valid GRS JSON document, with its panel open', () => {
+  it('the document these cases drive is a valid GRS JSON document that carries no panel width', () => {
     const made = openPanelDocument()
     const report = validateDocument(made)
     expect(report.errors).toEqual([])
     expect(report.valid).toBe(true)
-    expect((made as any).documentSettings.propertyPanelWidth).toBe(S_171)
+    expect((made as any).documentSettings).not.toHaveProperty('propertyPanelWidth')
   })
 
   it('FR-052: the width chosen leaves the `Row Area` wider than zero', () => {
@@ -806,13 +793,12 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
 // (c) FR-052 -- the closed panel gives its width back to the `Row Area`
 // ===========================================================================
 
-describe('FR-052 and S-80 -- a closed panel leaves no gap at the right edge', () => {
-  it("⛔ MUST: the panel keeps S-80's closed width once `Esc` has taken it", () => {
-    // S-80: 「⭐ `0` であることが「閉じている」であり」. There is no third reading
-    // of it -- a panel that is off the screen while the document still carries a
-    // width is the state version 1.08 of the specification records being
-    // measured in the running app: a strip at the window's right edge with
-    // nothing drawn into it.
+describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', () => {
+  it('⛔ MUST: the panel takes no room once `Esc` has taken it', () => {
+    // S-99h: a panel that is not shown takes no room. A panel that is off the
+    // screen while its width still holds room is the state version 1.08 of the
+    // specification records being measured in the running app: a strip at the
+    // window's right edge with nothing drawn into it.
     const built = withThePanelUp()
     expect(built.panelWidth(), 'the panel has a width before the press').toBe(S_171)
 

@@ -11,7 +11,7 @@ import type {
   FileStoreFaultReason,
   OpenRoute,
 } from '../../src/adapter/file-gateway/file-gateway'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   fileSystemAccessFileStore,
   type DropData,
@@ -521,7 +521,7 @@ describe("readFileToOpen('chooser') -- the ordinary path", () => {
   })
 
   it('does not gate on size -- S-113 is the ceiling FR-023 owns, not this unit', async () => {
-    expect(ABOVE_ANY_CEILING).toBeGreaterThan(Number(SETTINGS_DEFAULTS['importMaxBytes']))
+    expect(ABOVE_ANY_CEILING).toBeGreaterThan(Number(SETTINGS_CONSTANTS['importMaxBytes']))
     const fake = fileHandle({ name: 'huge.json', size: ABOVE_ANY_CEILING })
     const store = fileSystemAccessFileStore(
       browser({ opens: { handles: [fake.handle] }, saves: 'noApi' }).environment,

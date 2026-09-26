@@ -3,7 +3,7 @@
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
   isDelayed,
@@ -67,7 +67,7 @@ function fadeHandlePoints(placed: TaskPlacement, planTop: number): readonly Poin
 
 // see LF-6
 /** @purity pure */
-function chevronNotch(width: number, height: number, settings: DocumentSettings): number {
+function chevronNotch(width: number, height: number, settings: DrawnSettings): number {
   return Math.min(width * settings.chevronNotchOfWidth, height * settings.chevronNotchOfHeight)
 }
 
@@ -92,7 +92,7 @@ function chevronOutline(x0: number, x1: number, top: number, height: number,
 /** @purity pure */
 function chevronBarOf(placed: TaskPlacement, x0: number, x1: number, top: number, height: number,
                       fade: { readonly fadeIn: number; readonly fadeOut: number },
-                      isActual: boolean, settings: DocumentSettings): BarGeometry {
+                      isActual: boolean, settings: DrawnSettings): BarGeometry {
   const planNotch = chevronNotch(placed.width, placed.planHeight, settings)
   const unfaded = isActual ? planNotch * settings.actualOfPlan : planNotch
   const startNotch = fade.fadeIn > 0 ? fade.fadeIn : unfaded
@@ -232,14 +232,14 @@ function milestoneOutline(
 // see XS-5, XS-6
 // TRAP: repeats lineBar's XS-5 head height and XS-5 dot size; change both together.
 /** @purity pure */
-function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DocumentSettings): number {
+function lineEndHalfHeight(kind: 'arrow' | 'endpointSpan', settings: DrawnSettings): number {
   return (kind === 'arrow' ? settings.thinArrowHeadHeight : settings.spanDotSize) / 2
 }
 
 // see LF-7, LF-8, XS-5
 /** @purity pure */
 function lineBar(kind: ShapeKind, x0: number, x1: number, middle: number,
-                 settings: DocumentSettings): BarGeometry {
+                 settings: DrawnSettings): BarGeometry {
   const stroke = settings.thinStrokeWidth
   if (kind === 'arrow') {
     // TRAP: the head's length is capped by the span, its height never is: XS-5 holds the tiers still.
@@ -278,7 +278,7 @@ export function isThinShape(shapeKind: ShapeKind): boolean {
 // see XS-4, XS-5, XS-6, XS-7
 // TRAP: shape-cross-sections.ts reserves the same three tiers (shapeHeightOf, labelLiftOf); change them together.
 /** @purity pure */
-export function thinTierMiddle(placed: TaskPlacement, settings: DocumentSettings,
+export function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings,
                         isActual: boolean): number {
   const stroke = settings.thinStrokeWidth
   const planMiddle = placed.y + stroke / 2
@@ -366,7 +366,7 @@ function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
 
 // see XS-3, XS-4
 /** @purity pure */
-function labelTierMiddleOf(placed: TaskPlacement, settings: DocumentSettings): number {
+function labelTierMiddleOf(placed: TaskPlacement, settings: DrawnSettings): number {
   if (placed.shapeKind !== 'arrow' && placed.shapeKind !== 'endpointSpan') {
     return placed.y + placed.planHeight / 2
   }
@@ -392,7 +392,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
 // see LF-13, XS-10, XS-12, S-25
 /** @purity pure */
 function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
-                  settings: DocumentSettings): ResumeGeometry {
+                  settings: DrawnSettings): ResumeGeometry {
   const valid = task.resumeValid !== false
   const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
   const resumeDay = dayOf(task.resume)
@@ -493,7 +493,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 
 // see T-012, OC-10, XS-4
 /** @purity pure */
-function labelTopOf(settings: DocumentSettings, placed: TaskPlacement, height: number): number {
+function labelTopOf(settings: DrawnSettings, placed: TaskPlacement, height: number): number {
   if (!isThinShape(placed.shapeKind)) return placed.y + (placed.height - height) / 2
   // see DS-3
   const lift = NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
@@ -609,5 +609,16 @@ export const NOT_STORED_DUMMY_SIZES: {
 } = {
   'S-180': 30,
   'S-247': 0.5,
+}
+
+// see T-206
+const NOT_STORED_DEADLINE_MARK_SIZES: {
+  readonly 'S-365': number
+  readonly 'S-366': number
+  readonly 'S-367': number
+} = {
+  'S-365': 0.75,
+  'S-366': 0.5,
+  'S-367': 0.25,
 }
 // </generated>

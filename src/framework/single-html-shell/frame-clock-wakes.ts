@@ -3,6 +3,7 @@
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
   ENTRY_REPEAT_TIME_ELAPSED,
   isSizeSettled,
@@ -26,7 +27,7 @@ export function repeatTimesOfHeldEntry(): RepeatTimes {
 
 export type FrameClockWakesHands = Pick<
   FrameLoopHands,
-  'readHeld' | 'readValues' | 'readEnvironment' | 'screen' | 'sendToSession' | 'ask'
+  'readValues' | 'readEnvironment' | 'screen' | 'sendToSession' | 'ask'
 >
 
 /** @purity non-pure */
@@ -46,7 +47,7 @@ export function frameClockWakesOf(hands: FrameClockWakesHands) {
     const wake = setTimeout(() => {
       callOffIconHintWait = null
       hands.ask()
-    }, hands.readHeld().document.documentSettings.iconHintDelayMs)
+    }, SETTINGS_CONSTANTS.iconHintDelayMs)
     callOffIconHintWait = () => clearTimeout(wake)
   }
 

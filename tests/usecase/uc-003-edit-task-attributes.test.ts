@@ -76,10 +76,16 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect(page.locator('[data-role="Properties Panel"]')).toHaveAttribute('data-showing', 'documentSettings')
     const before = (await readDocument(page)).documentSettings
     await press(page, 'IC-42')
-    await press(page, 'IC-16')
     const after = (await readDocument(page)).documentSettings
     expect(after.dateGridLinesVisible).toBe(!before.dateGridLinesVisible)
-    expect(after.themePreference).not.toBe(before.themePreference)
+    // WHY: FR-039 keeps the light/dark theme (S-72, table T-206) out of the document,
+    // so IC-16 repaints the screen and leaves every saved setting as it was.
+    const ground = await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')
+    await press(page, 'IC-16')
+    const themed = (await readDocument(page)).documentSettings
+    expect(await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')).not.toBe(ground)
+    expect(themed).toEqual(after)
+    expect(Object.keys(themed)).not.toContain('themePreference')
   })
 
   await test.step('UC-003 step 6: the schedule is drawn again as set (FR-089, FR-039)', async () => {

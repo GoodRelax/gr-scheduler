@@ -16,7 +16,7 @@ import type {
   ScreenPart,
   ScreenSurface,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   compareDays,
@@ -94,7 +94,7 @@ const MILESTONE_DAY = day(13)
 const MILESTONE_ACTUAL_START = day(17)
 
 const MILESTONE_ACTUAL_DURATION = ((): number => {
-  const value = SETTINGS_DEFAULTS['milestoneActualDuration']
+  const value = SETTINGS_CONSTANTS['milestoneActualDuration']
   if (typeof value !== 'number') throw new Error('S-130 is not a number')
   return value
 })()
@@ -135,7 +135,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -186,7 +186,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

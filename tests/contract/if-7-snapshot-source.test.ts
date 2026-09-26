@@ -59,8 +59,10 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { NOT_STORED_LIMITS } from '../../src/entity/document-model/edit-history/edit-history'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   frameLoop,
+  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
@@ -123,30 +125,11 @@ const NO_WINDOW: FrameEnvironment = { ...WINDOW, width: 0, height: 0 }
 const documentOf = (): Document => structuredClone(startupTemplate) as unknown as Document
 
 /**
- * How wide the one case below holds the properties panel OPEN.
- *
- * ⛔ NOT A VALUE OF THE SPECIFICATION. S-80 of table T-204 states that no row
- * fixes what an open panel takes, so this number is this file's own and nothing
- * asserts it is anyone else's. What the case claims is the DIFFERENCE it makes,
- * which FR-080 does fix.
+ * How wide the one case below holds the properties panel OPEN: the screen
+ * value `S-171` a shown panel starts at (CR-572). What the case claims is the
+ * DIFFERENCE it makes, which FR-080 fixes.
  */
-const PROPERTY_PANEL_OPEN = 300
-
-/**
- * The starting document with the properties panel open.
- *
- * ⚠️ S-80's default is the CLOSED panel -- `0` is what closed means -- so the
- * document this file starts from has nothing for FR-080 to close. A document
- * that carries an open one is a real one to be handed: FR-024 writes every
- * setting out, so a file read back in can carry any width S-80's range admits.
- */
-const documentWithPanelOpen = (): Document => {
-  const one = documentOf()
-  return {
-    ...one,
-    documentSettings: { ...one.documentSettings, propertyPanelWidth: PROPERTY_PANEL_OPEN },
-  }
-}
+const PROPERTY_PANEL_OPEN = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 /** The Framework side, with the one surface it paints through recorded. */
 interface Shell {
@@ -159,6 +142,24 @@ function shell(env: FrameEnvironment = WINDOW, document: Document = documentOf()
   const painted: string[] = []
   const loop = frameLoop({ showSvg: (svg) => painted.push(svg) }, document, env)
   return { loop, painted }
+}
+
+/**
+ * Put the properties panel up the way MK-13 does: a double click on a drawn
+ * Task. ⭐ Needed since CR-572: the panel width is a screen value, so no
+ * document can hand the shell an open panel.
+ */
+function openThePanel(one: Shell): void {
+  const frame = one.loop.current()
+  const task = frame?.geometry.tasks.find((each) => each.plan !== null && each.plan.form === 'outline')
+  if (task === undefined || task.plan === null || task.plan.form !== 'outline') throw new Error('no Task bar is drawn')
+  const xs = task.plan.points.map((each) => each.x)
+  const ys = task.plan.points.map((each) => each.y)
+  const at = { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+  const modifiers = { ctrl: false, shift: false, alt: false, meta: false }
+  for (const phase of ['down', 'up'] as const) {
+    one.loop.receiveInput({ kind: 'pointer', phase, button: 'left', x: at.x, y: at.y, modifiers, clickCount: 2 })
+  }
 }
 
 /** The Adapter side, over one shell. `reads` counts what crosses IF-7. */
@@ -217,7 +218,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
             ? 0
             : frame.regions.rowArea.width +
               document.documentSettings.rowTitlePanelWidth +
-              document.documentSettings.propertyPanelWidth,
+              frame.regions.propertiesPanel.width,
       },
       readAt: '2026-08-20T08:30:00Z',
     }
@@ -295,17 +296,16 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
     const size = rootSizeOf(svg)
     expect(size.width).toBe(EXPORT_CANVAS.width)
     expect(size.height).toBeGreaterThanOrEqual(EXPORT_CANVAS.height)
-    expect(size.height).toBeLessThanOrEqual(
-      one.shell.loop.document().documentSettings.exportCanvasHeightCap,
-    )
+    expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
-  it('the size it takes is the one the running document carries, not one chosen at the call', () => {
+  it('the size it takes is the tool constant S-81, not one chosen at the call', () => {
     // FR-025 (MUST NOT) forbids asking at each export and fixes the size at
-    // S-81, and FR-063 keeps the value in the presentation group -- so the
-    // number the picture takes has to be the document's own.
+    // S-81, which CR-572 made a tool constant -- so the number the picture
+    // takes is the build's own, whatever the document carries.
     const one = endpoint()
-    expect(one.shell.loop.document().documentSettings.exportCanvas).toEqual(EXPORT_CANVAS)
+    expect(SETTINGS_CONSTANTS.exportCanvas).toEqual(EXPORT_CANVAS)
+    expect(one.shell.loop.document().documentSettings).not.toHaveProperty('exportCanvas')
     // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
     // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
     // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
@@ -313,9 +313,7 @@ describe(`IF-7 ${bare(IF_7['インターフェース'] ?? '')} -- the picture th
     const size = rootSizeOf(exported(one.api.exportSvg()))
     expect(size.width).toBe(EXPORT_CANVAS.width)
     expect(size.height).toBeGreaterThanOrEqual(EXPORT_CANVAS.height)
-    expect(size.height).toBeLessThanOrEqual(
-      one.shell.loop.document().documentSettings.exportCanvasHeightCap,
-    )
+    expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
   it('what comes back is one SVG document, not a fragment', () => {
@@ -336,12 +334,12 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
     // (MUST NOT) leaves its place blank: 「閉じたぶんの場所は日程に使う —— 画面で
     // 閉じたときと同じ絵になる」.
     //
-    // ⚠️ ASKED OF A DOCUMENT THAT HAS THE PANEL OPEN, WHICH THE DEFAULT NO
-    // LONGER IS. S-80 now defaults to the closed panel, so a shell built from
-    // the starting document has a screen that already agrees with the export --
+    // ⚠️ ASKED OF A SCREEN THAT HAS THE PANEL OPEN. A shell starts with the
+    // panel not shown (S-99h), so its screen already agrees with the export --
     // and a screen that agrees says nothing about whether the export ran the
     // second environment at all. The claim only has teeth where the two differ.
-    const one = shell(WINDOW, documentWithPanelOpen())
+    const one = shell()
+    openThePanel(one)
     const frame = one.loop.current()
     const scene = one.loop.exportScene()
 
@@ -358,7 +356,7 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
   })
 
   it('leaves the schedule alone when the screen already has the panel closed', () => {
-    // The other side of the same MUST, at S-80's own default. FR-080 closes the
+    // The other side of the same MUST, with the panel not shown (S-99h). FR-080 closes the
     // panel for the export; closing what is already closed may not move the
     // schedule, or the picture would stop being the screen's own.
     const one = shell()
@@ -369,7 +367,7 @@ describe('IF-7 -- the environment the picture is built in is not the one on the 
     expect(scene).not.toBeNull()
     if (frame === null || scene === null) return
 
-    expect(one.loop.document().documentSettings.propertyPanelWidth).toBe(0)
+    expect(frame.regions.propertiesPanel.width).toBe(0)
     expect(scene.regions.rowArea.width).toBe(frame.regions.rowArea.width)
   })
 

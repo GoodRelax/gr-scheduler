@@ -3,7 +3,7 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { CalendarDay, Schedule, Task } from '../../document-model/schedule/schedule'
 import { labelWidth } from './label-width'
 import { NOT_STORED_LABEL_SIZES, type DayReader } from './schedule-layout'
@@ -79,7 +79,7 @@ interface NameLabel {
 // TRAP: the half-width space before the dates goes with them: FR-002 draws it at the dates' size (S-325).
 /** @purity pure */
 export function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean | null,
-                     settings: DocumentSettings): NameLabel {
+                     settings: DrawnSettings): NameLabel {
   const name = truncate(task.name ?? '', settings.truncateUnits)
   const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear)
   if (dates === '') return { name, labelDates: '' }
@@ -89,7 +89,7 @@ export function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolea
 // see FR-002, LC-5, OC-1, T-273, S-325
 // TRAP: never measure the joined label at one size: a fitted label would cross the reference end (FR-002).
 /** @purity pure */
-export function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DocumentSettings): number {
+export function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DrawnSettings): number {
   return labelWidth(named.name, fontSize, settings) +
     labelWidth(named.labelDates, fontSize * NOT_STORED_LABEL_SIZES['S-325'], settings)
 }

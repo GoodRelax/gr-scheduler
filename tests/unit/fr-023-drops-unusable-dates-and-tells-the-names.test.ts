@@ -229,7 +229,7 @@ function row(id: string, label: string): Record<string, unknown> {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   }
 }
 

@@ -149,7 +149,6 @@ import type {
   ScreenView,
   ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
@@ -1294,7 +1293,7 @@ const THEME_HUE = Number(bare(S_73.by['既定'] ?? ''))
  * goes stale the moment it is copied.
  */
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: THEME_HUE,
 }
 
@@ -1302,7 +1301,8 @@ const rootAsking: ScreenSession = {
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: LANGUAGE,
+    screenLanguage: LANGUAGE,
+    helpLanguage: LANGUAGE,
     dialogueFieldDisplayState: { kind: 'shown' },
     milestoneListDisplayState: { kind: 'closed' },
     paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },

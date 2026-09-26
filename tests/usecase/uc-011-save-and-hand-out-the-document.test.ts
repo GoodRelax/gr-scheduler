@@ -1,5 +1,6 @@
 // Use-case test for UC-011 (save the document and hand it out), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { VIEWPORT, answerConfirmation, drag, enableAgentApi, launch, openByDrop, press, readDocument, savedFiles, settle, specMismatch } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
@@ -62,9 +63,9 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(png.text.slice(1, 4)).toBe('PNG')
   })
 
-  await test.step('UC-011 step 4: output size and font size live in the document, and the same document gives the same output (S-81, S-70, NS-5)', async () => {
+  await test.step('UC-011 step 4: the output size is a constant of the tool, the font size lives in the document, and the same document gives the same output (S-81, S-70, NS-5)', async () => {
     const settings = (await readDocument(page)).documentSettings
-    const size = settings.exportCanvas
+    const size = SETTINGS_CONSTANTS.exportCanvas
     const first = await saveAs(page, 'IO-3')
     const second = await saveAs(page, 'IO-3')
     expect(normalisedSvg(second.text)).toBe(normalisedSvg(first.text))
@@ -72,7 +73,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(first.text).toContain('height="' + size.height + '"')
     expect(settings.fontScale).toBeTruthy()
     const reopened = JSON.parse(saved.text)
-    expect(reopened.documentSettings.exportCanvas).toEqual(size)
+    expect(Object.keys(reopened.documentSettings)).not.toContain('exportCanvas')
     expect(reopened.documentSettings.fontScale).toBe(settings.fontScale)
   })
 

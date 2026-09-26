@@ -24,6 +24,7 @@ import {
   type FrameLoop,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -115,7 +116,7 @@ const oneTaskDocument = (): Document =>
           order: 0,
           treeState: 'auto', editGroup: null,
           color: null,
-          height: null,
+          minHeight: null,
         },
       ],
       taskGroupMembers: [{ taskUid: TASK_UID, groupId: 'g1', stackOrder: null }],
@@ -127,10 +128,10 @@ const oneTaskDocument = (): Document =>
     },
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
-      pxPerDayAt1x: 20,
       scrollDate: '2026-04-01T00:00:00',
       scrollGroupId: 'g1',
-      zoomX: 1,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),
     changeLog: [],

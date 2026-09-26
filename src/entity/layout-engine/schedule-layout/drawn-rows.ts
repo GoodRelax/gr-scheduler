@@ -3,7 +3,10 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+} from '../../document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../document-model/schedule/schedule'
 
 // see LC-1, HR-2, T-329
@@ -19,7 +22,7 @@ export function drawnGroups(
   for (const group of schedule.taskGroups) {
     let depth = 1
     let dropped = group.treeState === 'hidden'
-    for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= settings.maxGroupDepth; guard++) {
+    for (let foundAt = group.parentId, guard = 0; foundAt !== null && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
       const parent = byId.get(foundAt)
       if (parent === undefined) break
       depth += 1

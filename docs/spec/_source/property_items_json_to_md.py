@@ -204,7 +204,7 @@ def applies_to_cell(item):
 
     ⭐ IT IS A COLUMN AND NOT A NOTE. The array's order IS the print order
     FR-006 (MUST) requires, so every row of the manuscript reaches the panel;
-    without a machine-readable answer to 「whose panel」 a TaskGroup's height
+    without a machine-readable answer to 「whose panel」 a TaskGroup's minHeight
     would be drawn on a Task's. ⚠️ Absent means `Task`.
     """
     return item.get('appliesTo', 'Task')
@@ -227,14 +227,14 @@ def build(doc):
         '',
         '⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** ——'
         ' `FR-006` が「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）」と定める。'
-        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が'
+        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が'
         '`Task` のパネルにも出る**。',
         '',
         '⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」'
         'と定めるので、表示名は `_source/display-words.json` の `properties` 節が同じ行 ID で持つ。'
         '⚠️ **本表の `列` は GRS JSON の列名であって、画面に出す名ではない。**',
         '',
-        '⛔ **画面に出す名は表示言語に従う（`FR-038`）。**⭐ **交換形式の列名は本表の `列` の欄が持つ** —— **往復の手がかりはそこに在り、画面に出す名が担うものではない。**',
+        '⛔ **画面に出す名は画面の言語に従う（`FR-038`）。**⭐ **交換形式の列名は本表の `列` の欄が持つ** —— **往復の手がかりはそこに在り、画面に出す名が担うものではない。**',
         '',
         '⛔ **選択の候補・数値の下限と上限・日付である列を本表へ写してはならない（MUST NOT）** ——'
         ' `_source/grs-document.schema.json` と `DATE_COLUMNS` が既に持つ。写すと正が 2 か所になる。',

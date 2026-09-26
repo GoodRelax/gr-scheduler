@@ -123,6 +123,7 @@ import {
 import { specTable } from '../contract/spec-table'
 import { displayRatioAt } from '../fixtures/display-scale'
 import { validateDocument } from '../fixtures/grs-document'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // ===========================================================================
 // The row, read out of the manuscript rather than copied
@@ -258,7 +259,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 /**
@@ -665,7 +666,7 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     expect(
       drawn.pxPerDay,
       '等倍に戻した 1 日の幅に、FR-039 の 表 T-252 の DS-4 が描く比を掛ける',
-    ).toBe(settings.pxPerDayAt1x * displayRatioAt(settings.displayScale))
+    ).toBe(SETTINGS_CONSTANTS.pxPerDayAt1x * displayRatioAt(settings.displayScale))
   })
 
   it('leaves the stored zoom alone while doing it -- OP-10 is on the reading side (FR-051)', () => {

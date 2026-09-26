@@ -98,7 +98,7 @@ const settingsOf = (): DocumentSettings =>
     percentCompleteVisible: true,
   }) as unknown as DocumentSettings
 
-const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 56, scrollbarThickness: 8 }
+const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
 const taskOf = (uid: number, name: string, start: string, finish: string, milestone: boolean | null): Task =>
   ({
@@ -140,7 +140,7 @@ const SCHEDULE: Schedule = {
     order: index,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })),
   taskGroupMembers: SHAPES.map((_shape, index) => ({ groupId: `g${index + 1}`, taskUid: index + 1 })),
   taskVisuals: SHAPES.map((shapeKind, index) => ({ taskUid: index + 1, shapeKind })),
@@ -152,8 +152,8 @@ const pictureOf = (picture: SchedulePicture): string => {
   const settings = settingsOf()
   const regions = regionsFromScreen(ENV, settings)
   const layout = layoutFromSchedule(SCHEDULE, settings, regions)
-  const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection())
-  return svgFromSchedule(SCHEDULE, settings, layout, geometry, regions, emptySelection(), picture)
+  const geometry = geometryFromLayout(SCHEDULE, settings, layout, regions, emptySelection(), null)
+  return svgFromSchedule(SCHEDULE, settings, layout, geometry, regions, emptySelection(), picture, { themePreference: 'light', guideCursorMode: 'none' })
 }
 
 interface SvgText {

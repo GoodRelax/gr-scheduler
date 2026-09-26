@@ -12,13 +12,21 @@ import type {
   PointerInput,
 } from './input-source'
 import {
+  screenEventFromDualCursorEntry,
+  screenEventFromDualCursorPress,
+} from './dual-cursor-input'
+import { screenEventFromPanelDivider } from './frame-drags'
+import {
   ENTRY,
   KEY,
   armedByEntry,
   grabRowOf,
+  guideCursorModeOfEntry,
   hasDraggedPastThreshold,
   isCombo,
+  isOnRowArea,
   isSingleCharacterKey,
+  pressRowOf,
   rememberedActualIn,
   type InputContext,
 } from './input-command-translator'
@@ -58,9 +66,14 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       return surfaceEntered(AI_EXPORT_MODAL)
     case ENTRY.resourceRoster:
       return surfaceEntered(RESOURCE_ROSTER)
-    case ENTRY.dualCursor:
+    case ENTRY.dualCursor: {
+      const entered = screenEventFromDualCursorEntry(context)
+      const isPlacingNothing = entered.type === 'dualCursorEntryPressed' && !entered.hasDaysToPlace
       // DEVIATION: spec says only a raised mode drops the arm (T-280); here any press with the mode off does, PND-313 too (DFC-704)
-      return context.dualCursorFollowing === null ? ARM_DROPPED : null
+      return isPlacingNothing && context.dualCursorFollowing === null ? ARM_DROPPED : entered
+    }
+    case ENTRY.themePreference:
+      return themeTurned(context)
     case ENTRY.watermark:
       return WATERMARK_ENTRY_PRESSED
     case ENTRY.exportChooser:
@@ -71,6 +84,8 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       break
   }
 
+  const guideCursor = guideCursorModeOfEntry(entry)
+  if (guideCursor !== null) return { type: 'guideCursorEntryPressed', guideCursor }
   const armed = armedByEntry(entry)
   if (armed === null) return null
   return {
@@ -79,6 +94,26 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
     shapeKind: armed.kind === 'taskShapeArmed' ? armed.shapeKind : null,
     glyph: armed.kind === 'milestoneShapeArmed' ? armed.glyph : null,
   }
+}
+
+// see FR-039, IC-16, T-280
+/** @purity pure */
+function themeTurned(context: InputContext): ScreenValuesEvent {
+  const isDarkNow = context.screen.themePreference === 'dark'
+  return { type: 'themePreferenceChosen', themePreference: isDarkNow ? 'light' : 'dark' }
+}
+
+// see PTD-2, DC-2, T-280
+// TRAP: judge PTD-2 as pointerAssignment does; a looser test places a date from a press it leaves unassigned.
+/** @purity pure */
+function screenEventAfterChartPress(input: PointerInput, context: InputContext): ScreenValuesEvent | null {
+  const press = context.pressed
+  if (press === null) return null
+  const isChartPress = press.hit !== null || isOnRowArea(context, press.at.x, press.at.y)
+  if (isChartPress && pressRowOf(press, context) === 'PTD-2') {
+    return screenEventFromDualCursorPress(press, context)
+  }
+  return screenEventAfterMarkerPress(input, context)
 }
 
 // see PV-4, PV-5, T-280
@@ -140,6 +175,10 @@ export function screenEventFromInput(
   if (input.kind !== 'pointer' || input.phase !== 'up') return null
   const on = context.pressed === null ? null : context.pressed.on
   if (on?.isImportReportDismiss === true) return SURFACE_CLOSE_ASKED
-  if (on === null) return screenEventAfterMarkerPress(input, context)
+  if (on === null) return screenEventAfterChartPress(input, context)
+  const press = context.pressed
+  if (on.dividerPanel === 'propertiesPanel' && press !== null) {
+    return screenEventFromPanelDivider(input, press, context)
+  }
   return on.entry === null ? null : screenEventFromEntry(on.entry, context)
 }

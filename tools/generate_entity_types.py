@@ -167,7 +167,7 @@ def date_columns_block(erd):
 # has to DERIVE them, and nothing carried the manuscript's enumerations and
 # bounds into src/ at all. ⛔ Six entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
-# adds a row's colour and height (`TaskGroup`), FR-009 adds the dependency
+# adds a row's colour and min height (`TaskGroup`), FR-009 adds the dependency
 # line, PR-21 of table T-016 (対象 `CommentBox`) adds the comment box, and
 # PR-22 (対象 `HighlightBox`, JDG-408) adds a highlight box's outline colour. A
 # roster of every entity would state a shape for columns no surface offers.
@@ -199,10 +199,30 @@ def column_shape(node):
     """
     values = node.get('values')
     if node.get('kind') == 'color':
+        # CR-586: a column flagged "band" (AT-58) drops the names whose row
+        # band is a dash in table T-294 (black, S-315; CV-9).
+        refused = bandless_spellings() if node.get('band') else []
         values = [n for n in palette_spellings()
-                  if node.get('transparent', True) or n != 'transparent']
+                  if (node.get('transparent', True) or n != 'transparent')
+                  and n not in refused]
     return (node.get('kind'), values, node.get('min'),
             node.get('max'), bool(node.get('null')))
+
+
+def bandless_spellings():
+    """The stored spellings of table T-294 whose row band is a dash.
+
+    The dash is read by is_palette_dash, the one reading palette_cell uses
+    too. ⚠️ docs/spec/_source/erd_json_to_schema.py's bandless_colour_names
+    reads it the same way for the schema; a change to one is a change to both.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    for block in doc['blocks']:
+        if block.get('id') == 'T-294':
+            return [row['key'].strip('`') for row in block['rows']
+                    if any(is_palette_dash(row.get(field))
+                           for field in ('lightBand', 'darkBand'))]
+    raise SystemExit('settings.json holds no table T-294')
 
 
 def palette_spellings():
@@ -1118,6 +1138,12 @@ NOT_STORED_TARGETS = {
     # falls in answers for those too (CR-430 section 6.3). S-293 is the
     # highlight box's frame, S-291 the comment box's leader line and S-292 its
     # line end -- the three GR-14 rows the older editions had no value for.
+    # CR-555: S-363 is GA-24's margin, the grab area of the dots that end a
+    # dependency line whose far end is not in view (table T-303's EL-9); it
+    # is a row of table T-266 like the rest, so it rides the same constant.
+    # CR-558: S-373 is the shortest side of a highlight box that still has a
+    # midpoint grab point (table T-246's HB-10 / HB-11); the unit that answers
+    # which grab point a press falls in reads it beside S-230 and S-293.
     'NOT_STORED_SIZES': (['S-250', 'S-251', 'S-252', 'S-253', 'S-254', 'S-255',
                           'S-256', 'S-257', 'S-258', 'S-259', 'S-260', 'S-261',
                           'S-262', 'S-263', 'S-264', 'S-265', 'S-266', 'S-267',
@@ -1125,7 +1151,8 @@ NOT_STORED_TARGETS = {
                           'S-274', 'S-275', 'S-276', 'S-277', 'S-278', 'S-279',
                           'S-280', 'S-281', 'S-282', 'S-283', 'S-284', 'S-285',
                           'S-286', 'S-287', 'S-288', 'S-289', 'S-290',
-                          'S-137', 'S-230', 'S-293', 'S-291', 'S-292'],
+                          'S-137', 'S-230', 'S-293', 'S-291', 'S-292',
+                          'S-363', 'S-373'],
                          ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
@@ -1304,8 +1331,11 @@ NOT_STORED_TARGETS = {
     # the tooltip's text factor, because the one unit that draws them all is
     # tooltips-drawing.ts, which reads this constant already -- the readout is
     # drawn by the tooltip drawer, and S-334 is stated as S-204's half.
+    # CR-574: S-436 is the gap between an entry's text and its assignment (an
+    # em ratio, FR-036) and S-437 the rule between the help's title row and its
+    # body; both are drawn by the help's own drawing unit beside S-201 .. S-204.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
-                               'S-339', 'S-340'],
+                               'S-339', 'S-340', 'S-436', 'S-437'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
     # and the rule width RR-5 reads. Not folded into the help line above -- one
@@ -1313,7 +1343,25 @@ NOT_STORED_TARGETS = {
     # three are 1px: the row's own note forbids sharing them.
     'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
-    'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-571: the search panel's default width and height as ratios of the
+    # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
+    # the roster's, its sibling floating surface. S-423 .. S-428 hold no value
+    # yet (the table says so), so they join a group only when a later change
+    # request gives them one. WARNING: until the code wave imports it, check
+    # 30 reports an exported copy nobody imports.
+    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422'],
+                                      DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-558: S-372 is the side of the square a selected highlight box's grab
+    # points are drawn as. They are drawn in ZO-10 beside the selection frame,
+    # bordered at S-174 (FR-016's closing rules of table T-023d), by
+    # schedule-overlays.ts, which imports this constant from svg-renderer.ts;
+    # a new constant would stand unread until the code wave draws the points,
+    # and noUnusedLocals refuses an unread one.
+    # CR-559: S-376 is the side of the square drawn on a selected comment
+    # box's leader end -- the same kind of mark, drawn by the same unit in the
+    # same order (ZO-10) and bordered at the same S-174, so it rides here too.
+    'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178', 'S-372', 'S-376'],
+                                   DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, which is the split the notes around
     # this table state. S-174 .. S-178 are the SELECTION's sign and S-194 is
@@ -1327,12 +1375,27 @@ NOT_STORED_TARGETS = {
     # not the selection sign -- the halo is drawn on every line, selected or
     # not, and only the ORDER changes when one is selected. ⭐ Like S-178 it is
     # a multiplier on the line's own width (S-18) rather than a length.
-    'NOT_STORED_DEPENDENCY_SIZES': (['S-224'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-555: S-360 .. S-362 join S-224 -- the short line and the three dots
+    # table T-303 (EL-7 .. EL-9) draws for a dependency line whose far end is
+    # not in view. Their subject is the dependency line too, and EL-15 draws
+    # them into an exported picture. They are LENGTHS multiplied by the
+    # drawing ratio (DS-3 of table T-252), unlike S-224.
+    # WARNING: this constant is printed into svg-renderer.ts only. The
+    # geometry builds the short line and the dots (CR-555 seam S-1), so the
+    # code wave that first reads these rows there prints this constant into
+    # dependency-route.ts as well; printing it there before any reader exists
+    # would be an unused const that noUnusedLocals refuses.
+    'NOT_STORED_DEPENDENCY_SIZES': (['S-224', 'S-360', 'S-361', 'S-362'],
+                                    DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
     # drawn by schedule-overlays.ts, which reads this constant already, and
     # EP-6 of table T-076 carries both into an exported picture.
-    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194', 'S-333'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-576: S-438 (the selected base date line's own width, SL-8) joins
+    # S-333 -- the same line, drawn by the same unit, in pixels of its own
+    # rather than S-333 times S-178.
+    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194', 'S-333', 'S-438'],
+                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: the four numbers FR-013 (MUST) draws the delay mark `(!)` of
     # PM-4 with -- the bar's width against S-24, its lower end, the dot's
     # centre and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
@@ -1344,7 +1407,14 @@ NOT_STORED_TARGETS = {
     # group exists yet, and this group is already schedule-task-figures.ts's
     # one constant for the progress marker's glyph, so S-341 lands here rather
     # than founding a new group of its own.
-    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341'],
+    # CR-561: the Delay Diagnostics marker glyphs (S-391 .. S-396, table T-315),
+    # the bottleneck threshold S-397 and the parent label's weight S-399 join
+    # their sibling rows of table T-206 here; the threshold's reader is the
+    # Schedule unit delay-diagnostics.ts, which cannot import this adapter
+    # constant and takes the value as an argument.
+    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341',
+                                     'S-391', 'S-392', 'S-393', 'S-394', 'S-395',
+                                     'S-396', 'S-397', 'S-399'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
@@ -1393,8 +1463,14 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
         # CR-551: S-335 and S-338 are COUNTS of CV-9's colour field (squares
         # on a checker side, swatches in one row), drawn by the same unit.
+        # CR-557: S-368 is the same count for the theme-hue field of FR-041
+        # (table T-305), drawn in the same swatch box; its own note forbids
+        # reading S-338 for it, so it is a key of its own.
+        # CR-582: S-440 and S-441 are the rule between the unit and the
+        # current height of the min height field (MH-5 of table T-338), drawn
+        # by the same unit; their own notes forbid sharing S-190 / S-241.
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198', 'S-335', 'S-338'],
+         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-440', 'S-441'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per
@@ -1433,6 +1509,27 @@ NOT_STORED_TARGETS = {
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
     'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-556: the deadline mark's three ratios to the marker's diameter
+    # (DA-2 of table T-304, FR-045) -- the arrowhead's width and height and
+    # the shaft's width. A NEW CONSTANT: one constant per consuming SUBJECT,
+    # and none of the others is the deadline mark. EP-5 of table T-076 draws
+    # the mark into an exported picture. Printed into schedule-layout.ts (OC-9
+    # counts the arrowhead's width) and task-figures.ts (the outline).
+    # WARNING: until the code wave reads it there, each copy is an unread
+    # const that noUnusedLocals refuses -- the reader lands in the same code
+    # wave as the mark (CR-556 section 8).
+    'NOT_STORED_DEADLINE_MARK_SIZES': (['S-365', 'S-366', 'S-367'],
+                                       DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-588: the dash pattern of the pre-change plan's outline (BL-3 of table
+    # T-339, FR-015) -- a pair, drawn length and gap, not scaled by the zoom.
+    # A NEW CONSTANT: one constant per consuming SUBJECT, and none of the
+    # others is the pre-change outline. FR-080 carries the overlay into an
+    # exported picture. Printed into svg-renderer.ts beside the delay mark and
+    # published for schedule-task-figures.ts, which draws the outline parts
+    # (CR-588 section 5, S-2). WARNING: until the code wave imports it, check
+    # 30 reports an exported copy nobody imports.
+    'NOT_STORED_BASELINE_OUTLINE_SIZES': (['S-444'],
+                                          DRAWN_INTO_THE_EXPORTED_PICTURE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     # ⭐ How long SE-3 of table T-260 keeps the display scale message. ⚠️ Not
     # folded into NOT_STORED_REPEAT_TIMES though both are times counted off
@@ -1649,7 +1746,15 @@ COLOUR_TARGETS = {
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
                          'S-169', 'S-195', 'S-223',
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
-                         'S-326', 'S-327'],
+                         'S-326', 'S-327',
+                         # CR-561: the Delay Diagnostics markers' grounds and symbols
+                         # (table T-315) and the parent label's colour (FR-135).
+                         'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390', 'S-398',
+                         # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
+                         'S-364',
+                         # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
+                         # FR-015); it inherits S-148 through sameAs.
+                         'S-443'],
 }
 
 COLOUR_NOTE = [
@@ -1721,6 +1826,11 @@ def colour_block(name):
 PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
 
 
+def is_palette_dash(cell):
+    """A cell of table T-294 holding a dash (—): no value for that form."""
+    return isinstance(cell, dict) and cell.get('ja', '').startswith('—')
+
+
 def palette_cell(cell, row_id, field):
     if isinstance(cell, dict) and 'colour' in cell:
         return "'%s'" % cell['colour']
@@ -1728,7 +1838,7 @@ def palette_cell(cell, row_id, field):
         return "{ sameAs: '%s' }" % cell['sameAs']
     if isinstance(cell, dict) and cell.get('ja') == '描かない':
         return 'null'
-    if isinstance(cell, dict) and cell.get('ja', '').startswith('—'):
+    if is_palette_dash(cell):
         return 'false'
     raise SystemExit('table T-294 row %s states nothing readable in %s'
                      % (row_id, field))
@@ -1835,27 +1945,74 @@ def not_stored_block(name):
 # never a place to keep it; it was the STARTING number a newly created box is
 # given, which is table T-217's own default cell and answers to no row of
 # table T-206.
+# CR-558: EVERY ROW OF THE TABLE, NOT S-132 ALONE. S-369 .. S-371 give the
+# highlight box's stroke width, fill colour and fill transparency the value a
+# `null` column is drawn with (FR-019), and a newly created box starts from
+# `null`, so the drawing side reads these defaults. The key stays the row ID,
+# as in every other not-stored constant; the `HighlightBox.` head of the key
+# column is not printed. WARNING: only the DEFAULT cell is carried: the bounds of
+# table T-217 are not printed here, because no unit reads them yet and an
+# unread constant is one noUnusedLocals refuses.
+def annotation_cell(cell):
+    """One default cell of table T-217, as a TypeScript literal and type."""
+    if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
+        return (cell['lit'], 'string')
+    return not_stored_cell(cell)
+
+
+def search_panel_font_sizes_block():
+    """Every row of table T-333, by its row ID (CR-571, FR-151 SV-16).
+
+    The four text sizes the search panel's step (S-429) chooses among. Their
+    names (`searchPanelFontSizes[0]` ..) are not English keys, so
+    SETTINGS_CONSTANTS passes them over; this constant carries them instead.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-333']
+    if not block:
+        raise SystemExit('settings.json holds no table T-333')
+    got = []
+    for row in block[0]['rows']:
+        cell = not_stored_cell(row.get('value'))
+        if cell is None:
+            raise SystemExit('table T-333 row %s holds no machine value, so '
+                             'NOT_STORED_SEARCH_PANEL_FONT_SIZES cannot be generated'
+                             % row['id'])
+        got.append((cell[0], cell[1], row['id']))
+    out = ['// see T-333, FR-151', 'export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {']
+    for _literal, ts, row_id in got:
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for literal, _ts, row_id in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
+    return '\n'.join(out)
+
+
 def annotation_defaults_block():
-    """The one row of table T-217, by its own key column."""
+    """Every row of table T-217, by its row ID."""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-217']
     if not block:
         raise SystemExit('settings.json holds no table T-217')
     rows = block[0]['rows']
-    if len(rows) != 1 or rows[0]['id'] != 'S-132':
-        raise SystemExit(
-            'table T-217 no longer holds exactly one row named S-132 -- '
-            'annotation_defaults_block assumed that shape and has to be reread')
-    row = rows[0]
-    cell = not_stored_cell(row.get('default'))
-    if cell is None:
-        raise SystemExit('table T-217 row S-132 holds no machine value, so '
-                         'NOT_STORED_ANNOTATION_SIZES cannot be generated')
-    out = ['// see T-217, FR-019',
-           "export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': %s } = {"
-           % cell[1],
-           "  'S-132': %s," % cell[0],
-           '}']
+    if not rows:
+        raise SystemExit('table T-217 holds no row')
+    got = []
+    for row in rows:
+        cell = annotation_cell(row.get('default'))
+        if cell is None:
+            raise SystemExit('table T-217 row %s holds no machine value, so '
+                             'NOT_STORED_ANNOTATION_SIZES cannot be generated'
+                             % row['id'])
+        got.append((cell[0], cell[1], row['id']))
+    out = ['// see T-217, FR-019', 'export const NOT_STORED_ANNOTATION_SIZES: {']
+    for _literal, ts, row_id in got:
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for literal, _ts, row_id in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
     return '\n'.join(out)
 
 
@@ -2003,6 +2160,150 @@ def derived_rules(manuscript):
     return out
 
 
+# ---- SETTINGS_CONSTANTS: the constants baked into the artifact (CR-572) -----
+#
+# Table T-064 row PI-2 publishes SETTINGS_CONSTANTS as the keys and values of
+# every settings table whose caption says 文書には保存しない (not stored in the
+# document), read by an English name. ⭐ The tables are picked by that caption,
+# not by a list typed here: the caption is what the specification says, and
+# erd_json_to_schema.py keys its own not-stored tables to the same words.
+# ⛔ NO BOUNDS ARE PRINTED FOR THEM. No in-app command writes a constant, so
+# nothing clamps one; the range cells stay in the table as the guide for the
+# next person who chooses a value (CR-572 section 4.1).
+# ⛔ A key held by BOTH this group and DocumentSettings stops the build:
+# DrawnSettings is the two joined, and one name with two sources is the
+# split CR-572 exists to remove.
+# Written with code points so this file's code stays ASCII: 文書には保存しない.
+CONSTANT_CAPTION = ''.join(chr(c) for c in (
+    0x6587, 0x66F8, 0x306B, 0x306F, 0x4FDD, 0x5B58, 0x3057, 0x306A, 0x3044))
+ENGLISH_KEY = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$')
+
+CONSTANTS_NOTE = [
+    '// see FR-063, table T-064 PI-2',
+    '// TRAP: never read one of these from a document; a file does not carry them.',
+]
+
+
+def constant_rows():
+    """Every (row id, key, cell) the not-stored tables state by an English name.
+
+    @purity semi-pure-b
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    out, tables = [], []
+    for block in doc['blocks']:
+        if block['kind'] != 'table':
+            continue
+        caption = block.get('caption', {})
+        caption = caption.get('ja', '') if isinstance(caption, dict) else str(caption)
+        if CONSTANT_CAPTION not in caption:
+            continue
+        tables.append(block['id'])
+        for row in block['rows']:
+            named = row.get('key', row.get('name'))
+            if not isinstance(named, str):
+                continue                      # a row named in prose
+            key = named.strip().strip('`').split('`')[0].strip()
+            if not ENGLISH_KEY.match(key):
+                continue
+            cell = row.get('default', row.get('value'))
+            if cell is None:
+                # A key with no value column at all: table T-294 names each
+                # palette colour and keeps its drawn values in eight columns
+                # of their own, which SCHEDULE_COLOURS prints.
+                continue
+            out.append((row['id'], key, cell))
+    if not tables:
+        raise SystemExit(
+            'generate_entity_types: no settings table says it is not stored in '
+            'the document, so SETTINGS_CONSTANTS would be empty')
+    return out
+
+
+def constant_type(cell, row_id, key):
+    """The TypeScript type of one constant, from its machine cell, or None."""
+    if not isinstance(cell, dict):
+        return None
+    if 'pair' in cell and 'parts' in cell:
+        return 'pair'
+    if 'num' in cell:
+        return 'number'
+    if 'lit' in cell:
+        text = cell['lit']
+        if cell.get('quote') or text.startswith("'"):
+            return 'string'
+        if text in ('true', 'false'):
+            return 'boolean'
+        if text == 'null':
+            return 'null'
+        raise SystemExit(
+            'generate_entity_types: %s (%s) states the literal %s, and this '
+            'generator cannot say what type it is' % (key, row_id, text))
+    return None
+
+
+def constants_block(stored, literals):
+    """SETTINGS_CONSTANTS and DrawnSettings, for the not-stored tables."""
+    shape, values, unstated, seen = collections.OrderedDict(), {}, [], {}
+    for row_id, key, cell in constant_rows():
+        if key in seen:
+            raise SystemExit(
+                'generate_entity_types: %s is named by both %s and %s'
+                % (key, seen[key], row_id))
+        seen[key] = row_id
+        head = key.split('.')[0]
+        if head in stored:
+            raise SystemExit(
+                'generate_entity_types: %s (%s) sits in a table that says it is '
+                'not stored, and DocumentSettings holds %s too' % (key, row_id, head))
+        kind = constant_type(cell, row_id, key)
+        if kind is None and key in literals:
+            kind = 'number'                   # a rule worked out from other keys
+        if kind is None:
+            unstated.append((key, row_id))
+            continue
+        if kind == 'pair':
+            members = shape.setdefault(head, collections.OrderedDict())
+            for name, number in zip(cell['parts'], cell['pair']):
+                members[name] = 'number'
+                values['%s.%s' % (key, name)] = number
+            continue
+        literal = literals.get(key)
+        if literal is None:
+            literal = literal_of(cell)
+        if '.' in key:
+            shape.setdefault(head, collections.OrderedDict())[key.split('.')[1]] = kind
+        else:
+            shape[key] = kind
+        values[key] = literal
+
+    kinds = ['export const SETTINGS_CONSTANTS: {']
+    rows = []
+    for name in sorted(shape):
+        kind = shape[name]
+        if isinstance(kind, dict):
+            kinds.append('  readonly %s: {' % name)
+            kinds.extend('    readonly %s: %s' % (member, kind[member])
+                         for member in kind)
+            kinds.append('  }')
+            rows.append('  %s: {' % name)
+            rows.extend('    %s: %s,' % (member, values['%s.%s' % (name, member)])
+                        for member in kind)
+            rows.append('  },')
+        else:
+            kinds.append('  readonly %s: %s' % (name, kind))
+            rows.append('  %s: %s,' % (name, values[name]))
+    kinds.append('} = {')
+    if unstated:
+        rows.append('  // TRAP: these keys state no machine value, so none is generated:')
+        for key, row_id in unstated:
+            rows.append('  //   %s (%s)' % (key, row_id))
+    drawn = ['// see table T-064 PI-2, PI-35',
+             '// TRAP: only drawnSettingsOf builds one; nothing else joins the two.',
+             'export type DrawnSettings = DocumentSettings & typeof SETTINGS_CONSTANTS']
+    return '\n'.join(CONSTANTS_NOTE + kinds + rows + ['}', ''] + drawn)
+
+
 def settings_block(_erd):
     schema = json.load(io.open(SCHEMA, encoding='utf-8'),
                        object_pairs_hook=collections.OrderedDict)
@@ -2017,6 +2318,31 @@ def settings_block(_erd):
     stored = set(flat_keys(node, ''))
     schema_bounds = dict((path, (low, high))
                          for path, low, high in bounds_of(node, '', []))
+    # The defaults, for every stored key the schema names. A key the schema
+    # holds but the manuscript cannot state a machine value for is reported
+    # rather than guessed -- those are the rows stage 3b promotes.
+    # What each key states outright, before anything is derived. A pair
+    # carries two numbers under the names its `parts` gives, which is how a
+    # stored key holding an object reaches the code at all.
+    direct, literals = {}, {}
+    for key, said in manuscript.items():
+        cell = said['default']
+        if not isinstance(cell, dict):
+            continue
+        if 'pair' in cell and 'parts' in cell:
+            for name, number in zip(cell['parts'], cell['pair']):
+                literals['%s.%s' % (key, name)] = number
+                direct['%s.%s' % (key, name)] = float(number)
+            continue
+        literal = literal_of(cell)
+        if literal is None:
+            continue
+        literals[key] = literal
+        direct[key] = float(cell['num']) if 'num' in cell else cell.get('lit')
+
+    for key, value in derived_defaults(manuscript, direct).items():
+        literals[key] = repr(value)
+
     rows, unreachable = [], []
     for path in flat_keys(node, ''):
         low, high = schema_bounds.get(path, (None, None))
@@ -2064,6 +2390,12 @@ def settings_block(_erd):
                 # and the prose fields land here.
                 continue
             outside = [one for one in named if one not in stored]
+            # WHY: a key the presentation group does not hold is a constant
+            # of SETTINGS_CONSTANTS (CR-572); its value is fixed by the
+            # artifact, so the bound is judged with that value written in.
+            folded = dict((one, literals[one]) for one in outside
+                          if isinstance(direct.get(one), float) and one in literals)
+            outside = [one for one in outside if one not in folded]
             if outside:
                 # ⛔ Left out, and said so below rather than dropped in silence.
                 # IV-16 is judged over a document at rest, and a key the
@@ -2078,6 +2410,8 @@ def settings_block(_erd):
                     'settings key but is not arithmetic this generator reads, '
                     'so IV-16 would stop judging that row without saying so'
                     % (edge, path, said['row']))
+            expression = [('num', folded[held]) if kind == 'key' and held in folded
+                          else (kind, held) for kind, held in expression]
             parts.append('%s: %s' % (field, ts_bound_expression(expression)))
         if not parts:
             continue
@@ -2096,31 +2430,6 @@ def settings_block(_erd):
         for path, row_id, edge, outside in unreachable:
             rows.append('  //   %s (%s) %s names %s'
                         % (path, row_id, edge, ', '.join(outside)))
-
-    # The defaults, for every stored key the schema names. A key the schema
-    # holds but the manuscript cannot state a machine value for is reported
-    # rather than guessed -- those are the rows stage 3b promotes.
-    # What each key states outright, before anything is derived. A pair
-    # carries two numbers under the names its `parts` gives, which is how a
-    # stored key holding an object reaches the code at all.
-    direct, literals = {}, {}
-    for key, said in manuscript.items():
-        cell = said['default']
-        if not isinstance(cell, dict):
-            continue
-        if 'pair' in cell and 'parts' in cell:
-            for name, number in zip(cell['parts'], cell['pair']):
-                literals['%s.%s' % (key, name)] = number
-                direct['%s.%s' % (key, name)] = float(number)
-            continue
-        literal = literal_of(cell)
-        if literal is None:
-            continue
-        literals[key] = literal
-        direct[key] = float(cell['num']) if 'num' in cell else cell.get('lit')
-
-    for key, value in derived_defaults(manuscript, direct).items():
-        literals[key] = repr(value)
 
     defaults, unstated = [], []
     for path in sorted(flat_keys(node, '')):
@@ -2153,6 +2462,7 @@ def settings_block(_erd):
     body.append('\n'.join(BOUNDS_NOTE + rows + ['}']))
     body.append('\n'.join(DERIVED_NOTE + derived_rules(manuscript)
                           + ['} as const']))
+    body.append(constants_block(set(node['properties']), literals))
     return '\n\n'.join(body)
 
 
@@ -2165,6 +2475,95 @@ def flat_keys(node, prefix):
                 yield k
         else:
             yield path
+
+
+# ---- table T-109's settings-row column: which setting an entry rewrites -------
+#
+# ⭐ CR-589 (JDG-691). Table T-109 names, for the entries of FR-049 and FR-048,
+# the settings row each one rewrites; tools/generate_icon_roster.py reads that
+# column (`entry_switches`, one reader for the one column) and this prints it,
+# under the names the hand-written maps carry today, into every unit that
+# reads the join: the translator, the palette and the header.
+# ⛔ NEVER PRINTED BESIDE A HAND-WRITTEN COPY. Until the code lane (CR-589's
+# L4) removes a unit's hand-written map, printing the same name again would
+# declare it twice and the unit would not compile. So a name is printed into a
+# unit only when the unit's own code reads it and does not declare it; while a
+# unit still declares it by hand, the hand-written map is instead compared with
+# the table, and a difference stops the run -- the join the TRAP comment of
+# command-palette.ts says nothing checks is checked from here on. A unit that
+# neither reads nor declares the name gets nothing: a constant nobody reads is
+# refused by noUnusedLocals (JDG-139).
+import generate_icon_roster  # noqa: E402  (tools/ is the script's own folder)
+
+ENTRY_SWITCH_NAMES = ('VISIBLE_ELEMENT_BY_ENTRY', 'GUIDE_CURSOR_MODE_BY_ENTRY')
+LINE_COMMENT = re.compile(r'//[^\n]*')
+BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.S)
+PAIR = re.compile(r"'(IC-\d+[a-z]?)'\s*:\s*'([^']+)'")
+
+
+def entry_switch_maps():
+    """The two maps table T-109 states, each as [(entry, value)] in table order."""
+    flips, chooses = [], []
+    for entry, key, value in generate_icon_roster.entry_switches():
+        if value is None:
+            flips.append((entry, key))
+        else:
+            chooses.append((entry, value))
+    return {'VISIBLE_ELEMENT_BY_ENTRY': (flips, 'FR-049'),
+            'GUIDE_CURSOR_MODE_BY_ENTRY': (chooses, 'FR-048')}
+
+
+def hand_written(text):
+    """The part of a unit a person writes: outside the region, comments gone."""
+    if OPEN in text:
+        head, rest = text.split(OPEN, 1)
+        text = head + rest.split(CLOSE, 1)[1]
+    return LINE_COMMENT.sub('', BLOCK_COMMENT.sub('', text))
+
+
+def entry_switch_block(path, names):
+    """The maps of `names` this unit reads and does not declare by hand."""
+    rel = os.path.relpath(path, ROOT).replace('\\', '/')
+    own = hand_written(io.open(path, encoding='utf-8', newline='').read())
+    maps = entry_switch_maps()
+    out = []
+    for name in names:
+        pairs, requirement = maps[name]
+        declared = re.search(r'\b(?:const|let|var)\s+%s\b' % name, own)
+        if declared:
+            literal = own[declared.end():].split('}', 1)[0]
+            if PAIR.findall(literal) != pairs:
+                raise SystemExit(
+                    'generate_entity_types: %s in %s is written by hand and no '
+                    'longer matches the settings-row column of table T-109 '
+                    '(CR-589). Correct one of the two, or remove the hand-written '
+                    'map so that this generator prints it.' % (name, rel))
+            continue
+        if not re.search(r'\b%s\b' % name, own):
+            continue
+        values = []
+        for _entry, value in pairs:
+            if value not in values:
+                values.append(value)
+        union = ' | '.join("'%s'" % value for value in values)
+        lines = ['// see T-109, %s' % requirement,
+                 'const %s: Readonly<Record<string, %s>> = {' % (name, union)]
+        lines.extend("  '%s': '%s'," % pair for pair in pairs)
+        lines.append('}')
+        out.append('\n'.join(lines))
+    return (NEWLINE * 2).join(out)
+
+
+def with_entry_switches(path, build, names):
+    """A target's builder with the entry-switch maps appended to what it prints."""
+    def built(erd):
+        head = build(erd) if build is not None else ''
+        tail = entry_switch_block(path, names)
+        if build is None and not tail:
+            # nothing to print, and the unit holds no region yet: leave it
+            return None
+        return head + (NEWLINE * 2 if head and tail else '') + tail
+    return built
 
 
 # Each target names EVERY manuscript it is built from. ⚠️ A back-pointer that
@@ -2202,7 +2601,8 @@ TARGETS = [
     # It stands in task-figures.ts, the one unit of ScheduleGeometry that reads
     # it (CR-554 15.6.7); the public entry re-exports it for the tests.
     (os.path.join(LAYOUT, 'schedule-geometry', 'task-figures.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
@@ -2280,7 +2680,8 @@ TARGETS = [
     # reads at all is refused by noUnusedLocals, so it is no longer generated.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_LABEL_SIZES'),
+     + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The fit's margin stands in the one unit that reads it, fit-zoom.ts
     # (CR-554 15.6.7).
@@ -2316,8 +2717,20 @@ TARGETS = [
     # and stands here. One shared constant would hand each unit the other's
     # value.
     (os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
+         lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
+         ENTRY_SWITCH_NAMES),
+     ['docs/spec/_source/settings.json (table T-206)',
+      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
+    # CR-589: the header paints EN-2 for the entries whose settings row it
+    # reads; the map lands here once the unit reads it instead of its own arms.
+    (os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
+         None, ('VISIBLE_ELEMENT_BY_ENTRY',)),
+     ['docs/spec/_assets/tbl-glossary.md (table T-109)',
+      'docs/spec/_source/settings.json (table T-202)']),
     # ⭐ HF-5's room, resolved on the side that can resolve it. S-140 is the
     # room the row controls keep, and what it is subtracted from is the row's
     # own name width, which only this side knows -- `DocumentSettings` does not
@@ -2344,12 +2757,16 @@ TARGETS = [
     # distance a grab's axis is settled at, and this unit is the one that
     # settles it. ⛔ Not folded into the zoom step -- see NOT_STORED_TARGETS.
     (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
-     ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
+         lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
+         ENTRY_SWITCH_NAMES),
+     ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
+      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
@@ -2383,6 +2800,9 @@ TARGETS = [
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
+     # CR-571: the search panel's default size and its four text sizes.
+     + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
+     + search_panel_font_sizes_block() + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CONFIRMATION_RULE_SIZES') + NEWLINE * 2
@@ -2415,6 +2835,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
+     # CR-588: the pre-change plan's outline dash (BL-3 of table T-339).
+     + not_stored_block('NOT_STORED_BASELINE_OUTLINE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
      # ⭐ CR-564: CV-10's lightness floor and ceiling, beside the rest of this
      # unit's not-stored rows.
@@ -2564,6 +2986,7 @@ PUBLISHED_READ_BY_SRC = {
     ),
     'src/entity/document-model/document-settings/document-settings.ts': (
         'SETTINGS_BOUNDS',
+        'SETTINGS_CONSTANTS',
         'SETTINGS_DEFAULTS',
         'SETTINGS_DERIVED',
     ),
@@ -2759,7 +3182,14 @@ def main():
         # is rewritten every run, so moving the manuscript can never make the
         # region undiscoverable (see the note on OPEN).
         rel = os.path.relpath(path, ROOT).replace('\\', '/')
-        body = publish_only_listed(rel, provenance(sources) + build(erd))
+        printed = build(erd)
+        if printed is None:
+            # CR-589: a unit that holds no region and has nothing to print yet
+            if OPEN in current:
+                raise SystemExit('generate_entity_types: %s holds a region and '
+                                 'its builder printed nothing for it' % rel)
+            continue
+        body = publish_only_listed(rel, provenance(sources) + printed)
         refuse_non_ascii_comments(rel, body)
         wanted = region(current, body)
         if checking:

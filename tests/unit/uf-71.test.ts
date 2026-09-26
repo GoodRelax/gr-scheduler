@@ -138,7 +138,9 @@ import {
   type ScreenView,
   type Tooltip,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
@@ -151,6 +153,7 @@ import {
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
 import { S_235 } from '../fixtures/display-scale'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -780,8 +783,8 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  * The rendering and hue every case below wires the surface with.
  *
  * ⛔ NEITHER VALUE IS TYPED HERE. Rule 03 section 1 keeps a value the manuscript
- * holds in one place: S-72's default arrives through the generated
- * `SETTINGS_DEFAULTS`, and S-73's is read out of table T-216 at load time,
+ * holds in one place: S-72's start arrives through the screen values
+ * (`emptyScreenSession`, CR-572), and S-73's is read out of table T-216 at load time,
  * because DR-5 of table T-052 keeps the hue on `Project` rather than in the
  * settings and no generated constant carries it.
  *
@@ -794,7 +797,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 
@@ -1096,7 +1099,7 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   ...patch,
 })
 
-const ROW_TITLE_INDENT = SETTINGS_DEFAULTS['rowTitleIndent'] as number
+const ROW_TITLE_INDENT = SETTINGS_CONSTANTS['rowTitleIndent'] as number
 
 const rowTitle = (patch: Partial<RowTitle> & { groupId: string }): RowTitle => ({
   depth: patch.depth ?? 1,

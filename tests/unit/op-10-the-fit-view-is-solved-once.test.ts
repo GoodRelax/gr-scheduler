@@ -167,7 +167,7 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
         order: index,
         treeState: 'auto', editGroup: null,
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: GROUPS.map((one, index) => ({
         taskUid: index + 1,
@@ -402,9 +402,9 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     expect(REQUIREMENTS).toContain(FR_080_SAME_AS_THE_SCREEN)
   })
 
-  it('パネルが開いたときに取る幅は 表 T-206 の S-171 が持つ', () => {
+  it('パネルの幅は画面の値であり、起動したときの値を 表 T-206 の S-171 が持つ', () => {
     expect(String(rowOf('T-206', 'S-171').by['値'] ?? '')).toContain(
-      'プロパティパネルが開いたときに取る幅',
+      'プロパティパネルの幅。起動したときの値',
     )
     expect(PANEL_WIDTH_WHEN_OPENED).toBeGreaterThan(0)
   })

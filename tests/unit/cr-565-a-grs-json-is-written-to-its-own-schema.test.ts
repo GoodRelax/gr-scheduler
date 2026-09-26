@@ -84,7 +84,8 @@ const NEWER = `9${THIS_BUILD.slice(1)}`
 const OLDER = '2000-01-01'
 const UNKNOWN_KEY = 'keyFromALaterVersion'
 const UNKNOWN_COLUMN = 'aColumnNoBuildOfThisToolCanRead'
-const NESTED_KEY = 'exportCanvas'
+// WHY: a nested item the document held until CR-572 made it a tool constant (S-81); no stored item is nested now.
+const RETIRED_NESTED_KEY = 'exportCanvas'
 
 const templateCopy = (): Group => structuredClone(startupTemplate) as unknown as Group
 const settingsOf = (root: Group): Group => root['documentSettings'] as Group
@@ -140,14 +141,14 @@ describe('FR-024 (MUST) -- what is written fits this build s own schema, at this
       const settings = settingsOf(root)
       settings[UNKNOWN_KEY] = 7
       settings['exportPngScale'] = 2
-      settings[NESTED_KEY] = { ...(settings[NESTED_KEY] as Group), laterWidth: 3 }
+      settings[RETIRED_NESTED_KEY] = { width: 1200, height: 800, laterWidth: 3 }
       settings['displayScale'] = 'not a step'
       firstTaskOf(root)[UNKNOWN_COLUMN] = 'from a later build'
     })
     const out = jsonFromDocument(opened(text).document)
     const written = JSON.parse(out) as Group
     expect(validateDocument(written).errors, FR_024_FITS_THE_SCHEMA).toEqual([])
-    for (const key of [UNKNOWN_KEY, 'exportPngScale', 'laterWidth', UNKNOWN_COLUMN]) {
+    for (const key of [UNKNOWN_KEY, 'exportPngScale', RETIRED_NESTED_KEY, 'laterWidth', UNKNOWN_COLUMN]) {
       expect(out.includes(key), `${FR_024_NO_KEY_WRITTEN_BACK} -- ${key}`).toBe(false)
     }
   })
@@ -174,21 +175,14 @@ describe('OP-6 (MUST) -- documentSettings is read for what this build s schema k
     expect(read.unreadColumns, 'OP-6: not told on a document that is not newer').toEqual([])
   })
 
-  it('an unknown key inside a nested item is dropped, and the rest of that item is kept', () => {
+  it('a nested item that became a tool constant (CR-572) is dropped whole, like any unknown key', () => {
     const read = opened(
       handed(THIS_BUILD, (root) => {
-        settingsOf(root)[NESTED_KEY] = { width: 1200, height: 800, laterWidth: 3 }
+        settingsOf(root)[RETIRED_NESTED_KEY] = { width: 1200, height: 800, laterWidth: 3 }
       }),
     )
-    expect((read.document.documentSettings as unknown as Group)[NESTED_KEY]).toEqual({ width: 1200, height: 800 })
-  })
-
-  it.each([
-    ['of the wrong type inside', { width: 'wide', height: 800 }],
-    ['missing a key inside', { width: 1200 }],
-  ])('a nested item %s falls back to its whole default', (_name, value) => {
-    const read = opened(handed(THIS_BUILD, (root) => void (settingsOf(root)[NESTED_KEY] = value)))
-    expect((read.document.documentSettings as unknown as Group)[NESTED_KEY]).toEqual(settingDefaultOf(NESTED_KEY))
+    expect(Object.hasOwn(read.document.documentSettings, RETIRED_NESTED_KEY)).toBe(false)
+    expect(read.unreadColumns, 'OP-6: not told on a document that is not newer').toEqual([])
   })
 
   it('on a newer document, a dropped key and a key put back to its default are listed as unread (OP-6, FR-073)', () => {

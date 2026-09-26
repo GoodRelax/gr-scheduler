@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 const T025: SpecTable = specTable('T-025')
 const T036: SpecTable = specTable('T-036')
 const T109: SpecTable = specTable('T-109')
-const T202: SpecTable = specTable('T-202')
+const T206: SpecTable = specTable('T-206')
 const T211: SpecTable = specTable('T-211')
 
 const BASE_SCREEN = screenOf(rowOf(T025, 'MC-6'))
@@ -69,9 +69,9 @@ const COPY_KEY = keyOf('SK-4')
 // see SK-5
 const PASTE_KEY = keyOf('SK-5')
 
-// WHY: table T-109 holds five cells after the row ID -- the surface, the
-// group, what the entrance is for, the requirement it answers to, and a note.
-const T109_COLUMNS = 5
+// WHY: table T-109 holds six cells after the row ID -- the surface, the group,
+// the purpose, the requirement, the setting it toggles, and the holding it arms.
+const T109_COLUMNS = 6
 const T109_PURPOSE = 2
 const T109_SOURCE = 3
 
@@ -103,37 +103,66 @@ const AGENT_API_ENTRANCE = theEntranceServing('FR-065')
 // see FR-082
 const DUAL_CURSOR_ENTRANCE = theEntranceServing('FR-082')
 
-// WHY: table T-202 holds four cells after the row ID -- the key, the type,
-// the default, and what it means.
-const T202_COLUMNS = 4
-const T202_KEY = 0
-const T202_TYPE = 1
+// WHY: table T-206 holds three cells after the row ID -- the value, the
+// default, and why it is not saved.
+const T206_COLUMNS = 3
+const T206_VALUE = 0
 
 /** @purity pure */
-function settingKeyOf(id: string): string {
-  const found = /`([A-Za-z][A-Za-z0-9]*)`/.exec(cellOf(T202, id, T202_KEY, T202_COLUMNS))
-  if (found === null) throw new Error(`table T-202 row ${id} names no key this file can read`)
+function screenValueKeyOf(id: string): string {
+  const found = /`([A-Za-z][A-Za-z0-9]*)`/.exec(cellOf(T206, id, T206_VALUE, T206_COLUMNS))
+  if (found === null) throw new Error(`table T-206 row ${id} names no key this file can read`)
   return found[1] ?? ''
 }
 
 // see S-65
-const DUAL_CURSOR_SETTING = settingKeyOf('S-65')
+const DUAL_CURSOR_SETTING = screenValueKeyOf('S-65')
 // see S-66
-const GUIDE_CURSOR_SETTING = settingKeyOf('S-66')
+const GUIDE_CURSOR_SETTING = screenValueKeyOf('S-66')
 
-// WHY: read out of the type cell so a value retired there leaves this file
+// WHY: read out of the value cell so a value retired there leaves this file
 // without being edited.
 /** @purity pure */
 const GUIDE_CURSOR_VALUES: readonly string[] = (() => {
-  const said = cellOf(T202, 'S-66', T202_TYPE, T202_COLUMNS)
+  const said = cellOf(T206, 'S-66', T206_VALUE, T206_COLUMNS)
   const found = [...said.matchAll(/`'([a-z-]+)'`/g)].map((one) => one[1] ?? '')
   if (found.length < 2) {
-    throw new Error(`table T-202 row S-66 names ${found.length} modes, and this file needs two`)
+    throw new Error(`table T-206 row S-66 names ${found.length} modes, and this file needs two`)
   }
   return found
 })()
 
 const GUIDE_CURSOR_NONE = GUIDE_CURSOR_VALUES[0] ?? ''
+
+interface GuideLines {
+  readonly vertical: number
+  readonly horizontal: number
+}
+
+// see CU-3
+// WHY: S-66 is a screen value no reader hands back, so the mode is read off
+// the lines CU-3 draws at the pointer: none, a cross, or one vertical line.
+const GUIDE_LINES_OF_MODE: Readonly<Record<string, GuideLines>> = (() => {
+  const known: Readonly<Record<string, GuideLines>> = {
+    none: { vertical: 0, horizontal: 0 },
+    crosshair: { vertical: 1, horizontal: 1 },
+    'single-vertical': { vertical: 1, horizontal: 0 },
+  }
+  const unread = GUIDE_CURSOR_VALUES.filter((mode) => known[mode] === undefined)
+  if (unread.length > 0) {
+    throw new Error(`table T-206 row S-66 names modes whose lines CU-3 this file cannot read: ${unread.join(', ')}`)
+  }
+  return known
+})()
+
+/** @purity pure */
+function guideModeDrawn(lines: GuideLines): string {
+  const found = GUIDE_CURSOR_VALUES.find((mode) => {
+    const wanted = GUIDE_LINES_OF_MODE[mode]
+    return wanted?.vertical === lines.vertical && wanted.horizontal === lines.horizontal
+  })
+  return found ?? `unreadable (${String(lines.vertical)} vertical, ${String(lines.horizontal)} horizontal)`
+}
 
 // WHY: not written out here -- table T-109's purpose column is the one home
 // of the pairing, so a retired entrance drops out without this file changing.
@@ -147,7 +176,7 @@ const GUIDE_CURSOR_ENTRANCES: readonly { readonly icon: string; readonly mode: s
   })
   if (found.length !== armed.length) {
     throw new Error(
-      `table T-202 row S-66 has ${armed.length} modes to arm and table T-109 names ` +
+      `table T-206 row S-66 has ${armed.length} modes to arm and table T-109 names ` +
         `${found.length} entrances arming one`,
     )
   }
@@ -196,7 +225,12 @@ interface DocShot {
   readonly names: Readonly<Record<string, string>>
   readonly groups: readonly DocGroup[]
   readonly members: ReadonlyArray<{ readonly taskUid: number; readonly groupId: string }>
-  readonly dualCursor: unknown
+}
+
+// WHY: S-65 and S-66 are screen values (table T-206) that AM-3 no longer
+// hands back, so both are read off what the Schedule Canvas draws.
+interface CursorShot {
+  readonly dualCursorLines: number
   readonly guideCursorMode: string
 }
 
@@ -217,16 +251,16 @@ interface Measured {
   readonly pastTheDepthCeiling: RowPaste
   readonly depthThatWasRefused: number
   readonly clipboardReads: number
-  readonly dualCursorWhileDown: unknown
-  readonly dualCursorAfterFirstPress: unknown
-  readonly dualCursorAfterSecondPress: unknown
+  readonly dualCursorWhileDown: number
+  readonly dualCursorAfterFirstPress: number
+  readonly dualCursorAfterSecondPress: number
   readonly guideCursorRuns: ReadonlyArray<{
     readonly icon: string
     readonly modeWanted: string
     readonly modeAfterFirstPress: string
     readonly modeAfterSecondPress: string
-    readonly dualCursorAfterFirstPress: unknown
-    readonly dualCursorAfterSecondPress: unknown
+    readonly dualCursorAfterFirstPress: number
+    readonly dualCursorAfterSecondPress: number
   }>
   readonly beforeEmptyPaste: DocShot
   readonly afterEmptyPaste: DocShot
@@ -325,9 +359,9 @@ async function pressEntrance(page: Page, icon: string): Promise<void> {
 
 // see AM-3
 /** @purity semi-pure-b */
-async function readShot(page: Page, dual: string, guide: string): Promise<DocShot> {
+async function readShot(page: Page): Promise<DocShot> {
   return page.evaluate(
-    (keys: { dual: string; guide: string }) => {
+    () => {
       const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): unknown } })
         .grSchedulerAgentApi
       const held = api.readDocument() as {
@@ -336,7 +370,6 @@ async function readShot(page: Page, dual: string, guide: string): Promise<DocSho
           taskGroups: { id: string; parentId: string | null; label: string | null }[]
           taskGroupMembers: { taskUid: number; groupId: string }[]
         }
-        documentSettings: Record<string, unknown>
       }
       const names: Record<string, string> = {}
       for (const task of held.schedule.tasks) names[String(task.uid)] = task.name ?? ''
@@ -356,12 +389,44 @@ async function readShot(page: Page, dual: string, guide: string): Promise<DocSho
           taskUid: one.taskUid,
           groupId: one.groupId,
         })),
-        dualCursor: held.documentSettings[keys.dual] ?? null,
-        guideCursorMode: String(held.documentSettings[keys.guide] ?? ''),
       }
     },
-    { dual, guide },
   )
+}
+
+// see CU-2, CU-3
+// WHY: the guide lines are drawn only while the pointer is over the Row
+// Area, so the pointer is first put on a point of the canvas's lower half.
+/** @purity non-pure */
+async function readCursors(page: Page): Promise<CursorShot> {
+  const at = await page.evaluate((canvas: string) => {
+    const part = document.querySelector(canvas)
+    if (part === null) return null
+    const box = part.getBoundingClientRect()
+    for (let y = Math.round(box.y + box.height * 0.6); y < box.bottom - 20; y += 7) {
+      for (let x = Math.round(box.x + box.width * 0.3); x < box.right - 20; x += 11) {
+        if (document.elementFromPoint(x, y)?.closest(canvas) != null) return { x, y }
+      }
+    }
+    return null
+  }, CANVAS_PART)
+  if (at === null) throw new Error('no point of the Schedule Canvas is left uncovered to put the pointer on')
+  await page.mouse.move(at.x, at.y)
+  const svg = await readSettledDrawnSvg(page)
+  const figures = (prefix: string): string[] =>
+    [...svg.matchAll(/<line\b[^>]*>/g)]
+      .map((one) => one[0])
+      .filter((tag) => tag.includes(`data-figure="${prefix}`))
+  const coordinate = (tag: string, name: string): string =>
+    new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1] ?? ''
+  const guides = figures('guide-cursor-')
+  return {
+    dualCursorLines: figures('dual-cursor-').length,
+    guideCursorMode: guideModeDrawn({
+      vertical: guides.filter((tag) => coordinate(tag, 'x1') === coordinate(tag, 'x2')).length,
+      horizontal: guides.filter((tag) => coordinate(tag, 'y1') === coordinate(tag, 'y2')).length,
+    }),
+  }
 }
 
 // see AM-5
@@ -494,7 +559,8 @@ function spanOf(groups: readonly DocGroup[], id: string): number {
 async function sweep(): Promise<Measured> {
   const { context, page } = await openTheApp()
   try {
-    const shot = (): Promise<DocShot> => readShot(page, DUAL_CURSOR_SETTING, GUIDE_CURSOR_SETTING)
+    const shot = (): Promise<DocShot> => readShot(page)
+    const cursors = (): Promise<CursorShot> => readCursors(page)
 
     const atStart = await shot()
     // WHY: only a Task with no WBS descendants will do, so DU-1 has exactly
@@ -598,30 +664,30 @@ async function sweep(): Promise<Measured> {
       () => (window as unknown as { grsClipboardReads?: number }).grsClipboardReads ?? -1,
     )
 
-    const dualCursorWhileDown = (await shot()).dualCursor
+    const dualCursorWhileDown = (await cursors()).dualCursorLines
     await pressEntrance(page, DUAL_CURSOR_ENTRANCE)
-    const dualCursorAfterFirstPress = (await shot()).dualCursor
+    const dualCursorAfterFirstPress = (await cursors()).dualCursorLines
     await pressEntrance(page, DUAL_CURSOR_ENTRANCE)
-    const dualCursorAfterSecondPress = (await shot()).dualCursor
+    const dualCursorAfterSecondPress = (await cursors()).dualCursorLines
 
     const guideCursorRuns: Measured['guideCursorRuns'][number][] = []
     for (const armed of GUIDE_CURSOR_ENTRANCES) {
       // WHY: a Dual Cursor stands before each press -- DC-9 of table T-029a
       // has the guide-cursor entrance take it down, and that is what is read.
-      if ((await shot()).dualCursor === null) {
+      if ((await cursors()).dualCursorLines === 0) {
         await pressEntrance(page, DUAL_CURSOR_ENTRANCE)
       }
       await pressEntrance(page, armed.icon)
-      const first = await shot()
+      const first = await cursors()
       await pressEntrance(page, armed.icon)
-      const second = await shot()
+      const second = await cursors()
       guideCursorRuns.push({
         icon: armed.icon,
         modeWanted: armed.mode,
         modeAfterFirstPress: first.guideCursorMode,
         modeAfterSecondPress: second.guideCursorMode,
-        dualCursorAfterFirstPress: first.dualCursor,
-        dualCursorAfterSecondPress: second.dualCursor,
+        dualCursorAfterFirstPress: first.dualCursorLines,
+        dualCursorAfterSecondPress: second.dualCursorLines,
       })
     }
 
@@ -629,10 +695,10 @@ async function sweep(): Promise<Measured> {
     // page that has never been asked to copy can be in.
     const fresh = await openTheApp()
     try {
-      const beforeEmptyPaste = await readShot(fresh.page, DUAL_CURSOR_SETTING, GUIDE_CURSOR_SETTING)
+      const beforeEmptyPaste = await readShot(fresh.page)
       await fresh.page.keyboard.press(PASTE_KEY)
       await fresh.page.waitForTimeout(1500)
-      const afterEmptyPaste = await readShot(fresh.page, DUAL_CURSOR_SETTING, GUIDE_CURSOR_SETTING)
+      const afterEmptyPaste = await readShot(fresh.page)
       return {
         pickedTaskUid,
         pickedTaskRowId,
@@ -819,16 +885,14 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
 test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of table T-109`, () => {
   // WHY: goes red if the entrance puts up no pair, or half of one -- DC-1
-  // places both dates and IV-13 admits no half-placed pair.
+  // places both dates, and S-65 holds the pair as one screen value.
   test(`${DUAL_CURSOR_ENTRANCE} places both dates of ${DUAL_CURSOR_SETTING}`, () => {
     const seen = readingsOfTheSweep()
-    expect(seen.dualCursorWhileDown, 'the run should begin with no pair placed').toBeNull()
-    const placed = seen.dualCursorAfterFirstPress as Record<string, unknown> | null
-    expect(placed, `${DUAL_CURSOR_ENTRANCE} should place a pair in ${DUAL_CURSOR_SETTING}`).not.toBeNull()
+    expect(seen.dualCursorWhileDown, 'the run should begin with no pair drawn').toBe(0)
     expect(
-      Object.values(placed ?? {}).filter((one) => typeof one === 'string' && one.length > 0),
-      'DC-1 of table T-029a puts BOTH dates down on the way in',
-    ).toHaveLength(2)
+      seen.dualCursorAfterFirstPress,
+      'DC-1 of table T-029a puts BOTH dates down on the way in, and CU-2 draws each as a vertical line',
+    ).toBe(2)
   })
 
   // WHY: goes red if the pair outlives the mode -- FR-048 has the entrance
@@ -838,7 +902,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
     expect(
       seen.dualCursorAfterSecondPress,
       'FR-048 (MUST) and DC-7 of table T-029a take the pair down with the mode',
-    ).toBeNull()
+    ).toBe(0)
   })
 
   // WHY: goes red if a guide-cursor entrance does not come back to its own
@@ -870,7 +934,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
       expect(
         run.dualCursorAfterFirstPress,
         `DC-9 and DC-7 of table T-029a (MUST) have ${run.icon} leave the mode and clear ${DUAL_CURSOR_SETTING}`,
-      ).toBeNull()
+      ).toBe(0)
       expect(
         run.modeAfterFirstPress,
         `DC-9 of table T-029a (MUST) writes the value ${run.icon} arms to ${GUIDE_CURSOR_SETTING}`,
@@ -878,7 +942,7 @@ test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of tab
       expect(
         run.dualCursorAfterSecondPress,
         `${run.icon} going back to ${GUIDE_CURSOR_NONE} must not bring the cleared pair back`,
-      ).toBeNull()
+      ).toBe(0)
     }
   })
 })

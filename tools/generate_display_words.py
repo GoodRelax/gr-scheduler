@@ -65,6 +65,7 @@ ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
 REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
+THEME_HUE_ROW = re.compile(r'^\| (TH-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
 SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
@@ -146,6 +147,10 @@ REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
 QUESTION_TABLE = 'T-234'
+# The theme hues the document settings surface offers (FR-041, CR-557). The
+# rows hold a hue and no word, so the word is this dictionary's, keyed by the
+# row id exactly as a reason is.
+THEME_HUE_TABLE = 'T-305'
 
 # The surface whose entry closes an open surface. Its 面 column is the roster of
 # surfaces table T-103 has settled a name for -- CR-191 and CR-193 both added a
@@ -239,6 +244,26 @@ DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 # The hint is a part of its own: this section's entries carry one word each.
 COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
                       'theme', 'themeHint')
+
+# CR-582: the parts of a row's min height field (table T-338): the unit beside
+# the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
+# empty field shows (MH-2), and the word that replaces the current height while
+# the row is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
+# table T-338 states them in prose and no table holds them as rows. KEYS, not
+# words.
+ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
+
+# CR-571: the search panel (FR-151). The column headings are READ from table
+# T-331 and the state words from table T-019a, the move `reasons` makes with
+# table T-233. The three words no table holds as rows -- the value list's
+# blank entry (SV-7), the name of a nameless task (SQ-1) and the label IC-121
+# carries while maximised (SV-13) -- are HELD HERE, the same move as
+# COLOUR_FIELD_PARTS. KEYS, not words.
+SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
+SEARCH_COLUMN_TABLE = 'T-331'
+PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
+PLAN_ACTUAL_STATE_TABLE = 'T-019a'
+SEARCH_PANEL_PARTS = ('blank', 'noName', 'restore')
 
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.
@@ -422,8 +447,16 @@ def roster():
         'weekdays': list(WEEKDAYS),
         'colourNames': colour_spellings(),
         'colourField': list(COLOUR_FIELD_PARTS),
+        'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
+        'searchColumns': [row[0] for row in
+                          table_rows(REL_REQUIREMENTS, SEARCH_COLUMN_ROW,
+                                     SEARCH_COLUMN_TABLE)],
+        'planActualStates': [row[0] for row in
+                             table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
+                                        PLAN_ACTUAL_STATE_TABLE)],
+        'searchPanel': list(SEARCH_PANEL_PARTS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -446,6 +479,9 @@ def roster():
         'questions': [row[0] for row in
                       table_rows(REL_REQUIREMENTS, QUESTION_ROW,
                                  QUESTION_TABLE)],
+        'themeHues': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, THEME_HUE_ROW,
+                                 THEME_HUE_TABLE)],
     }
 
 
@@ -479,8 +515,13 @@ SHAPE = {
     'weekdays': ('weekday', ('text',)),
     'colourNames': ('spelling', ('text',)),
     'colourField': ('part', ('text',)),
+    'rowMinHeightField': ('part', ('text',)),
+    'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
+    'searchColumns': ('rowId', ('text',)),
+    'planActualStates': ('rowId', ('text',)),
+    'searchPanel': ('part', ('text',)),
 }
 
 
@@ -564,8 +605,10 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'colourNames', 'colourField',
-                    'scaleEcho', 'dualCursorReadout'):
+                    'colourNames', 'colourField', 'rowMinHeightField',
+                    'themeHues',
+                    'scaleEcho', 'dualCursorReadout', 'searchColumns',
+                    'planActualStates', 'searchPanel'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

@@ -96,6 +96,10 @@ ARTIFACTS = [
     # startup template beside it may NOT have: that one is validated by the GRS
     # JSON schema, and this one is not.
     ('src/adapter/screen-renderer/icon-roster.json', 'tbl-glossary.md'),
+    # The chart's milestone shapes (CR-583): printed from figure F-044 after the
+    # generator holds every element against figure F-019 (LF-18 allows two
+    # differences), so the figure, not a table, is the manuscript.
+    ('src/entity/layout-engine/schedule-geometry/milestone-shapes.json', 'fig-milestone-shapes.svg'),
     # The shapes themselves (figure F-019), which UF-71 draws instead of
     # printing the row id where a glyph belongs. ⚠️ Its manuscript is a FIGURE,
     # and the only one of these artifacts whose manuscript is not a table or a

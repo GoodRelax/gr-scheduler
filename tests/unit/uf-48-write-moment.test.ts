@@ -125,6 +125,7 @@ import type {
   DisplayLanguage,
   ScreenPart,
   ScreenSurface,
+  ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
@@ -230,7 +231,7 @@ function twoRowDocument(): Document {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   const draft = {
     schemaVersion: template.schemaVersion,
@@ -847,9 +848,9 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 //                     値として残るが自分の入口を持たない -- which is why the
 //                     third value has no row in table T-109 and the entrances
 //                     are two, not three.
-//   FR-039 (MUST NOT) a value saved in the document may not force the reader's
-//                     choice, so IC-16 has to be able to leave a document saved
-//                     as `dark` as well as one saved as `light`.
+//   FR-039 (MUST)     the theme starts from the browser and is never written
+//                     anywhere (CR-572): IC-16 flips the screen value S-72 and
+//                     leaves the document as it stood.
 //   T-109 IC-4        S-69, on the `App Header`.
 //   T-109 IC-8/IC-9   S-227 and S-228, on the `App Header` -- show and hide the
 //                     plan, and the actual. ⭐ Since 2026-09-07 each entrance
@@ -962,10 +963,18 @@ const EXPECTED_BOOLEAN_KEYS = [
   'planDatesVisible',
 ]
 
-/** S-66's three, read out of its type cell -- FR-048 makes them exclusive. */
-const GUIDE_VALUES = enumeratedValues(cellAt('T-202', 'S-66', SETTING_TYPE))
-/** S-72's two, read out of its type cell in table T-203. */
-const THEME_VALUES = enumeratedValues(cellAt('T-203', 'S-72', SETTING_TYPE))
+const T_206_VALUE = 0
+
+// WHY: table T-206 has no key column; its value cell spells the key first.
+const keyOfRow = (table: string, id: string): string =>
+  table === 'T-206'
+    ? (/`([A-Za-z]+)`/.exec(cellAt(table, id, T_206_VALUE))?.[1] ?? '')
+    : bare(cellAt(table, id, SETTING_KEY))
+
+/** S-66's three, read out of its value cell in table T-206 -- FR-048 makes them exclusive. */
+const GUIDE_VALUES = enumeratedValues(cellAt('T-206', 'S-66', T_206_VALUE))
+/** S-72's two, read out of its value cell in table T-206. */
+const THEME_VALUES = enumeratedValues(cellAt('T-206', 'S-72', T_206_VALUE))
 
 /** The two surfaces of table T-103 these ten stand on. */
 const APP_HEADER = bare(cellAt('T-103', 'U-31', T_103_NAME))
@@ -993,7 +1002,7 @@ const ENTRANCES: readonly Entrance[] = [
   { entry: 'IC-4', part: APP_HEADER, table: 'T-202', row: 'S-69', key: 'baselineVisible' },
   { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-227', key: 'planVisible' },
   { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-228', key: 'actualVisible' },
-  { entry: 'IC-16', part: APP_HEADER, table: 'T-203', row: 'S-72', key: 'themePreference' },
+  { entry: 'IC-16', part: APP_HEADER, table: 'T-206', row: 'S-72', key: 'themePreference' },
   {
     entry: 'IC-39',
     part: COMMAND_PALETTE,
@@ -1025,8 +1034,8 @@ const ENTRANCES: readonly Entrance[] = [
   // ⛔ IC-46 STOOD HERE and IC-49 after IC-48, until CR-369 retired both on
   // 2026-09-06. The seats are left empty in the manuscript and they are left
   // empty here.
-  { entry: 'IC-47', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
-  { entry: 'IC-48', part: COMMAND_PALETTE, table: 'T-202', row: 'S-66', key: 'guideCursorMode' },
+  { entry: 'IC-47', part: COMMAND_PALETTE, table: 'T-206', row: 'S-66', key: 'guideCursorMode' },
+  { entry: 'IC-48', part: COMMAND_PALETTE, table: 'T-206', row: 'S-66', key: 'guideCursorMode' },
 ]
 
 /**
@@ -1102,15 +1111,14 @@ function documentWithSettings(overrides: Record<string, unknown>): Document {
 const CONTRARY: Record<string, unknown> = {
   ...Object.fromEntries(BOOLEAN_KEYS.map((key) => [key, DEFAULT_OF.get(key) !== 'true'])),
   stackDirection: 'down',
-  guideCursorMode: GUIDE_VALUES[1] ?? '',
   fontScale: 'L',
-  themePreference: THEME_VALUES[1] ?? '',
 }
 
 interface Pane {
   readonly wiring: ScreenWiring
   /** What `readScreenPartAt` answers from now on. The case decides; the fake does not. */
   drawAt(part: ScreenPart | null): void
+  shown(): ScreenView | null
 }
 
 /**
@@ -1123,10 +1131,13 @@ interface Pane {
  *
  * @purity non-pure
  */
-function screenPane(language: DisplayLanguage = 'ja'): Pane {
+function screenPane(language: DisplayLanguage = 'ja', themePreference: 'light' | 'dark' = 'light'): Pane {
   let part: ScreenPart | null = null
+  let last: ScreenView | null = null
   const surface: ScreenSurface = {
-    showScreenView: () => undefined,
+    showScreenView: (view) => {
+      last = view
+    },
     readDialogueInput: () => null,
     // IF-9 also returns what a properties-panel field settled at.
     // Nothing here drives one, so there is never a commit to take.
@@ -1136,10 +1147,11 @@ function screenPane(language: DisplayLanguage = 'ja'): Pane {
     readScreenPartAt: () => part,
   }
   return {
-    wiring: { surface, language },
+    wiring: { surface, language, themePreference },
     drawAt: (next) => {
       part = next
     },
+    shown: () => last,
   }
 }
 
@@ -1166,12 +1178,26 @@ interface Standing {
 }
 
 /** @purity non-pure */
-function standing(overrides: Record<string, unknown>): Standing {
+function standing(overrides: Record<string, unknown>, themePreference: 'light' | 'dark' = 'light'): Standing {
   const frames = host()
-  const screen = screenPane()
+  const screen = screenPane('ja', themePreference)
   const loop = frameLoop(frames.surface, documentWithSettings(overrides), SCREEN, screen.wiring)
   frames.runAnimationFrames()
   return { frames, screen, loop }
+}
+
+// WHY: S-66 is a screen value (CR-572); the palette's chosen mark is where the screen shows it.
+const guideShown = (run: Standing): string => {
+  run.frames.runAnimationFrames()
+  const commands = (run.screen.shown()?.commandPalette?.groups ?? []).flatMap((group) => group.commands)
+  const chosen = GUIDE_ENTRANCES.filter((one) => commands.find((item) => item.icon === one.entry)?.isChosen === true)
+  if (chosen.length > 1) throw new Error('FR-048: two guide cursor values are marked at once')
+  return chosen[0]?.value ?? (GUIDE_VALUES[0] as string)
+}
+
+const guideAt = (run: Standing, value: string): void => {
+  const entrance = GUIDE_ENTRANCES.find((one) => one.value === value)
+  if (entrance !== undefined) takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
 }
 
 const settingsOf = (loop: FrameLoop): any => (loop.document() as any).documentSettings
@@ -1313,9 +1339,9 @@ describe('FR-018 -- holding a zoom entrance down', () => {
   })
 
   it('control (FR-018 MUST): holding IC-16, which is not one of IC-12 .. IC-15, does not repeat', async () => {
-    const held = await holding('IC-16', { ...CONTRARY, themePreference: THEME_VALUES[0] })
+    const held = await holding('IC-16', CONTRARY)
     try {
-      const theme = (): unknown => settingsOf(held.run.loop).themePreference
+      const theme = (): unknown => held.run.loop.themePreference()
       const pressed = theme()
       held.wait(msOf('S-172') + 3 * msOf('S-173'))
       held.run.frames.runAnimationFrames()
@@ -1329,17 +1355,17 @@ describe('FR-018 -- holding a zoom entrance down', () => {
 
 describe('the tables these ten entrances are driven by', () => {
   it('the four tables print the columns this file reads by position', () => {
-    expect(specTable('T-202').headings.length).toBe(5)
+    expect(specTable('T-202').headings.length).toBe(7)
     expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
-    expect(specTable('T-203').headings.length).toBe(7)
-    expect(bare(cellAt('T-203', 'S-72', SETTING_KEY))).toBe('themePreference')
+    expect(specTable('T-206').headings.length).toBe(4)
+    expect(keyOfRow('T-206', 'S-72')).toBe('themePreference')
     // ⚠️ SIX, NOT FIVE, SINCE 構え WAS APPENDED AFTER 正. Table T-109's preamble
     // states the new column and why it stands in the table at all:
     // 「⭐ **`構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行
     // である。**」 ⛔ The count alone would sleep through a column inserted in
     // the middle while another is dropped -- which is the one shift `cellAt`
     // read by position cannot survive -- so both positions this file reads are
-    // pinned by what stands in them, the way T-202 and T-203 are above.
+    // pinned by what stands in them, the way T-202 and T-206 are above.
     expect(specTable('T-109').headings.length).toBe(6)
     expect(bare(cellAt('T-109', 'IC-16', T_109_SURFACE))).toBe(APP_HEADER)
     expect(cellAt('T-109', 'IC-16', T_109_ENTRANCE)).toContain('`S-72`')
@@ -1352,7 +1378,7 @@ describe('the tables these ten entrances are driven by', () => {
     // arrived on 2026-08-25, taking the booleans 8 -> 9 and the table 13 -> 14,
     // and LEFT on 2026-09-02 for table T-206, taking both back down -- see the
     // note over EXPECTED_BOOLEAN_KEYS for why that is the point rather than an
-    // accident. The four that are not booleans are S-58, S-65, S-66 and S-70;
+    // accident. The five that are not booleans are S-2, S-3, S-58, S-70 and S-234 (CR-572);
     // ⭐ S-59 left the four on 2026-09-07 by splitting into the booleans S-227
     // and S-228 (the user's ruling).
     // ⭐ S-234 (`displayScale`, CR-394) JOINED THE TABLE ON 2026-09-16 AND IS NOT
@@ -1394,7 +1420,7 @@ describe('the tables these ten entrances are driven by', () => {
           `${one.entry} now names a settings row of its own, so this file may not infer it`,
         ).toBe(false)
       }
-      expect(bare(cellAt(one.table, one.row, SETTING_KEY)), one.row).toBe(one.key)
+      expect(keyOfRow(one.table, one.row), one.row).toBe(one.key)
     }
   })
 
@@ -1461,8 +1487,6 @@ describe('the tables these ten entrances are driven by', () => {
     for (const key of BOOLEAN_KEYS) {
       expect(String(settings[key]), key).not.toBe(DEFAULT_OF.get(key))
     }
-    expect(settings.guideCursorMode).not.toBe(GUIDE_VALUES[0])
-    expect(settings.themePreference).not.toBe(THEME_VALUES[0])
     run.frames.runAnimationFrames()
   })
 })
@@ -1498,13 +1522,14 @@ describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109
         ? `FR-048 (MUST): a re-press of ${entrance.entry} puts the cursor away`
         : `table T-109 ${entrance.entry}: this entrance sets ${entrance.value}`
       it(`${entrance.entry} puts guideCursorMode at ${lands}, starting from ${from}`, () => {
-        const run = standing({ ...CONTRARY, guideCursorMode: from })
-        expect(settingsOf(run.loop).guideCursorMode, 'the premise').toBe(from)
+        const run = standing(CONTRARY)
+        guideAt(run, from)
+        expect(guideShown(run), 'the premise').toBe(from)
 
         takeEntry(run.loop, run.screen, entrance.part, entrance.entry)
 
-        expect(settingsOf(run.loop).guideCursorMode, what).toBe(lands)
-        run.frames.runAnimationFrames()
+        expect(guideShown(run), what).toBe(lands)
+        expect(settingsOf(run.loop), 'CR-572: S-66 is never written to the document').not.toHaveProperty('guideCursorMode')
       })
     }
   }
@@ -1513,17 +1538,16 @@ describe('IC-47 / IC-48 -- each guide-cursor entrance sets the value table T-109
   // WHY: the exclusive choice acts only while the Dual Cursor mode is on; a re-press of a guide
   // cursor entrance outside it leaves dualCursor (S-65, CU-2) exactly where it stood.
   it('⛔ a guide cursor re-press outside the Dual Cursor mode leaves the dual cursor alone (DC-9)', () => {
-    const run = standing({ ...CONTRARY, guideCursorMode: 'crosshair' })
-    const before = settingsOf(run.loop).dualCursor
+    const run = standing(CONTRARY)
+    guideAt(run, 'crosshair')
+    const dualOf = (): boolean | undefined =>
+      (run.screen.shown()?.commandPalette?.groups ?? []).flatMap((group) => group.commands).find((one) => one.icon === 'IC-45')?.isChosen
+    const before = dualOf()
 
     takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-47')
 
-    expect(settingsOf(run.loop).guideCursorMode, 'the premise: the re-press landed').toBe(NONE)
-    expect(
-      settingsOf(run.loop).dualCursor,
-      'DC-9: only the Dual Cursor mode is left by a guide cursor entrance',
-    ).toEqual(before)
-    run.frames.runAnimationFrames()
+    expect(guideShown(run), 'the premise: the re-press landed').toBe(NONE)
+    expect(dualOf(), 'DC-9: only the Dual Cursor mode is left by a guide cursor entrance').toBe(before)
   })
 })
 
@@ -1562,24 +1586,21 @@ describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the
   }
 })
 
-describe('IC-16 -- the theme entrance leaves a document saved either way (FR-039)', () => {
-  // FR-039 (MUST NOT): a value saved in the document may not force the reader's
-  // choice. S-72 has two values, table T-109 gives it ONE entrance, and no
-  // surface of table T-103 offers a choice between them -- so a document saved
-  // as `dark` whose one entrance could not reach `light` would be exactly the
-  // saved value forcing the reader's that the MUST NOT forbids.
+describe('IC-16 -- the theme entrance flips the screen value and writes nothing (FR-039)', () => {
+  // WHY: CR-572 -- S-72 starts from the browser and a press is written nowhere; its one entrance
+  // (table T-109) has to reach either value from the other.
   for (const [index, from] of THEME_VALUES.entries()) {
-    const to = THEME_VALUES[1 - index] as string
-    it(`takes a document saved as ${from} to ${to}`, () => {
-      const run = standing({ ...CONTRARY, themePreference: from })
-      expect(settingsOf(run.loop).themePreference, 'the premise').toBe(from)
+    const to = THEME_VALUES[1 - index] as 'light' | 'dark'
+    it(`takes a screen that started ${from} to ${to}, and leaves the document untouched`, () => {
+      const run = standing(CONTRARY, from as 'light' | 'dark')
+      expect(run.loop.themePreference(), 'the premise: the start the browser gave').toBe(from)
+      const before = settingsOf(run.loop)
 
       takeEntry(run.loop, run.screen, APP_HEADER, 'IC-16')
 
-      expect(
-        settingsOf(run.loop).themePreference,
-        'FR-039 (MUST NOT): the saved value is the starting value, not a cage',
-      ).toBe(to)
+      expect(run.loop.themePreference(), 'IC-16 turns S-72').toBe(to)
+      expect(settingsOf(run.loop), 'CR-572: S-72 is never written to the document').toBe(before)
+      expect(run.loop.hasUnsavedEdits(), 'CR-572: S-72 raises no unsaved mark').toBe(false)
       run.frames.runAnimationFrames()
     })
   }

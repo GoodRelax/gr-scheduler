@@ -54,7 +54,8 @@ const ENTRANCE_FRAME_PX = numberIn(cellOf(T206, 'S-237', 1, 3), 'table T-206 row
 const NARROWEST_ROW_PANEL_ENTRANCE_PX =
   (ENTRANCE_SHAPE_PX + (ROW_PANEL_ENTRANCE_CLEAR_PX + ENTRANCE_FRAME_PX) * 2) * S_235
 
-const T109_COLUMNS = 5
+// WHY: table T-109 holds six cells after the row ID since CR-589 added the setting column.
+const T109_COLUMNS = 6
 const SURFACE_COLUMN = 0
 const PURPOSE_COLUMN = 2
 const SOURCE_COLUMN = 3

@@ -25,7 +25,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
-import { overlayParts, watermarkSvg } from './schedule-overlays'
+import { overlayParts, watermarkSvg, type ViewerValues } from './schedule-overlays'
 import {
   dependencyArrowSvg,
   dependencyLinkParts,
@@ -35,6 +35,8 @@ import {
 export type { SvgSurface } from './svg-surface'
 
 export type SchedulePicture = 'screen' | 'export'
+
+export type { ViewerValues }
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
@@ -385,11 +387,6 @@ export function swatchOf(
 
 export const GROUP_GRID_LINE_WIDTH_PX = 1
 
-/** @purity pure */
-function isDarkTheme(settings: DocumentSettings): boolean {
-  return settings.themePreference === 'dark'
-}
-
 // see FR-039, S-246
 /** @purity pure */
 export function typefaceAttribute(): string {
@@ -446,6 +443,7 @@ export function svgFromSchedule(
   selection: Selection,
   // TRAP: no default: a forgotten export would draw FR-043's dummies into a reader's file (EP-14).
   picture: SchedulePicture,
+  viewer: ViewerValues,
   follow: DualCursorFollow | null = null,
   weekdayWords: readonly string[] = [],
   pointer: Point | null = null,
@@ -457,7 +455,7 @@ export function svgFromSchedule(
   const settings = drawnSettingsOf(storedSettings)
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
-  const dark = isDarkTheme(settings)
+  const dark = viewer.themePreference === 'dark'
   const themed = themedColours(hue, dark, monochrome)
   const chosen: ChosenColour = (stored, form) => chosenColourOf(stored, form, dark, monochrome, themed)
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
@@ -510,6 +508,7 @@ export function svgFromSchedule(
     areaBottom,
     scrollTop,
     settings,
+    guideCursorMode: viewer.guideCursorMode,
     picture,
     drawsOperationState,
     monochrome,
@@ -668,17 +667,27 @@ export const NOT_STORED_SELECTION_SIZES: {
   readonly 'S-174': number
   readonly 'S-175': readonly [number, number]
   readonly 'S-178': number
+  readonly 'S-372': number
+  readonly 'S-376': number
 } = {
   'S-174': 1,
   'S-175': [2, 1],
   'S-178': 2,
+  'S-372': 6,
+  'S-376': 8,
 }
 
 // see T-206
 export const NOT_STORED_DEPENDENCY_SIZES: {
   readonly 'S-224': number
+  readonly 'S-360': number
+  readonly 'S-361': number
+  readonly 'S-362': number
 } = {
   'S-224': 3,
+  'S-360': 9.6,
+  'S-361': 19.2,
+  'S-362': 3.2,
 }
 
 // see T-206
@@ -694,9 +703,11 @@ export const NOT_STORED_DUMMY_SIZES: {
 export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
   readonly 'S-333': number
+  readonly 'S-438': number
 } = {
   'S-194': 1,
-  'S-333': 3,
+  'S-333': 2,
+  'S-438': 4,
 }
 
 // see T-206
@@ -706,12 +717,35 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   readonly 'S-330': number
   readonly 'S-331': number
   readonly 'S-341': number
+  readonly 'S-391': number
+  readonly 'S-392': number
+  readonly 'S-393': number
+  readonly 'S-394': number
+  readonly 'S-395': string
+  readonly 'S-396': number
+  readonly 'S-397': number
+  readonly 'S-399': number
 } = {
   'S-328': 1.7,
   'S-329': 0.15,
   'S-330': 0.8,
   'S-331': 0.14,
   'S-341': 0.5,
+  'S-391': 0.30,
+  'S-392': 0.36,
+  'S-393': 0.18,
+  'S-394': 0.62,
+  'S-395': 'M0.5 0.05 C0.62 0.28 0.86 0.42 0.86 0.66 C0.86 0.86 0.7 1 0.5 1 C0.3 1 0.14 0.86 0.14 0.66 C0.14 0.5 0.26 0.38 0.34 0.3 C0.36 0.44 0.42 0.52 0.5 0.54 C0.46 0.36 0.46 0.2 0.5 0.05 Z',
+  'S-396': 0.70,
+  'S-397': 1,
+  'S-399': 700,
+}
+
+// see T-206
+const NOT_STORED_BASELINE_OUTLINE_SIZES: {
+  readonly 'S-444': readonly [number, number]
+} = {
+  'S-444': [4, 2],
 }
 
 // see T-206
@@ -767,7 +801,7 @@ const SCHEDULE_COLOURS: {
   'S-312': { light: '#b45309', dark: '#b45309', followsHue: false },
   'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-163': { light: '#eb6101', dark: '#ff8c42', followsHue: false },
+  'S-163': { light: '#d9381e', dark: '#ff5a3a', followsHue: false },
   'S-164': { light: 'hsl(H 42% 96%)', dark: 'hsl(H 18% 20%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
   'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },
@@ -778,6 +812,15 @@ const SCHEDULE_COLOURS: {
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
   'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-385': { light: '#f09199', dark: '#f4a7b9', followsHue: false },
+  'S-386': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-387': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
+  'S-388': { light: '#ffffff', dark: '#16181d', followsHue: false },
+  'S-389': { light: '#7e57c2', dark: '#b39ddb', followsHue: false },
+  'S-390': { light: '#ffffff', dark: '#16181d', followsHue: false },
+  'S-398': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
+  'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
+  'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }
 
 // see T-294, T-017b

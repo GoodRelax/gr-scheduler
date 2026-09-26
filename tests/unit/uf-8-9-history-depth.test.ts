@@ -196,7 +196,7 @@ function writeNames(one: Bench, nth: number): void {
 // WHY: each value differs from the bundled document's own, so a command
 // that changed nothing could not hide behind table T-027 for a different reason.
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
-  setPanelWidths: { kind: 'setPanelWidths', rowTitlePanelWidth: 200, propertyPanelWidth: 300 },
+  setRowTitlePanelWidth: { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 200 },
   pinTaskGroup: { kind: 'pinTaskGroup', groupId: FIRST_GROUP_ID },
   unpinTaskGroup: { kind: 'unpinTaskGroup', groupId: FIRST_GROUP_ID },
 }
@@ -343,7 +343,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     const one = bench()
     writeNames(one, 1)
     expect(one.depth()).toBe(1)
-    one.write([PAYLOAD['setPanelWidths'] as DocumentCommand])
+    one.write([PAYLOAD['setRowTitlePanelWidth'] as DocumentCommand])
     expect(one.depth()).toBe(1)
 
     const back = undoEdit(one.held)

@@ -3,7 +3,7 @@
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
@@ -39,7 +39,7 @@ type PinnedGroupId = ScheduleLayout['rows'][number]['groupId']
 
 export interface TaskFiguresInput {
   readonly geometry: ScheduleGeometry
-  readonly settings: DocumentSettings
+  readonly settings: DrawnSettings
   readonly picture: SchedulePicture
   readonly themed: (rowId: string) => string
   readonly chosen: ChosenColour
@@ -74,7 +74,7 @@ export interface TaskFigureParts {
 
 export interface DependencyLinksInput {
   readonly geometry: ScheduleGeometry
-  readonly settings: DocumentSettings
+  readonly settings: DrawnSettings
   readonly themed: (rowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
   readonly placedOf: ReadonlyMap<number, Placed>
@@ -150,7 +150,7 @@ function markerSvg(
   marker: MarkerGeometry,
   themed: (rowId: string) => string,
   faintness: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   key: string,
 ): string {
   const { centre, radius } = marker
@@ -196,7 +196,7 @@ function resumeSvg(
   arm: Path,
   head: Path,
   ink: string,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   key: string,
 ): string {
   const named = figureKey(key)
@@ -215,7 +215,7 @@ function labelSvg(
   box: ScreenRect,
   text: string,
   fontSize: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   ink: string,
   halo: string,
   key: string,

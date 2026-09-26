@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { MSPDI_NAMESPACE, documentFromMspdi } from '../../src/adapter/document-codec/mspdi-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-document/edit-document'
@@ -31,7 +32,7 @@ function currentDocument(): Document {
 }
 
 const CURRENT = currentDocument()
-const MAX_GROUP_DEPTH = CURRENT.documentSettings.maxGroupDepth
+const MAX_GROUP_DEPTH = SETTINGS_CONSTANTS.maxGroupDepth
 const DEFAULT_ROW_NAME = 'Row'
 
 function accepted(text: string): Document {

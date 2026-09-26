@@ -111,7 +111,7 @@ describe(`table T-284: ${T284_LEAD}`, () => {
   })
 
   it('SS-5: when no region changes and nothing is effected, the root reference comes back', () => {
-    const result = advanceScreenSession(emptyScreenSession, { type: 'pointerRestElapsed' } as SessionEvent)
+    const result = advanceScreenSession(emptyScreenSession, { type: 'hintTargetChanged' } as SessionEvent)
     expect(result.state).toBe(emptyScreenSession)
     expect(result.effects).toBe(NO_EFFECTS)
   })

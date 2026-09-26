@@ -21,6 +21,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -107,6 +108,8 @@ const SCREEN: MeasuredScreen = {
   scrollbarThickness: 8,
 }
 
+const PROPERTIES_PANEL_WIDTH = 0
+
 const regionsOf = (
   screen: MeasuredScreen = SCREEN,
   settings: DocumentSettings = SETTINGS,
@@ -120,12 +123,12 @@ const regionsOf = (
   }
   const rowAreaWidth =
     canvas.width -
-    settings.canvasPadding -
+    SETTINGS_CONSTANTS.canvasPadding -
     settings.rowTitlePanelWidth -
-    settings.propertyPanelWidth -
+    PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
   const rowAreaHeight =
-    canvas.height - settings.rulerHeight - settings.canvasPadding - screen.scrollbarThickness
+    canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
@@ -137,9 +140,9 @@ const regionsOf = (
       height: settings.rulerHeight,
     },
     propertiesPanel: {
-      x: canvas.x + canvas.width - settings.propertyPanelWidth,
+      x: canvas.x + canvas.width - PROPERTIES_PANEL_WIDTH,
       y: canvas.y,
-      width: settings.propertyPanelWidth,
+      width: PROPERTIES_PANEL_WIDTH,
       height: canvas.height,
     },
     rowArea: {
@@ -182,6 +185,7 @@ const sceneOf = (settings: DocumentSettings): ExportScene => ({
   regions: REGIONS,
   screenView: VIEW,
   settings,
+  themePreference: 'light',
   themeHue: THEME_HUE,
 })
 
@@ -250,18 +254,7 @@ describe('FR-025 (MUST NOT) -- exportPng carries no scale', () => {
       watched.calls[0]?.sizePx.widthPx,
       'FR-025 (MUST): 幅は S-81 の幅に固定すること -- a scale field could only ' +
         'show up here as a width that is not exportCanvas.width',
-    ).toBe(SETTINGS.exportCanvas.width)
-  })
-
-  it('control: exportCanvas is what DOES change the painted width', async () => {
-    // TRAP: a rasterizer stub that ignores its size argument would make the
-    // case above pass for nothing without this control.
-    const narrower = settingsOf({ exportCanvas: { width: 800, height: 900 } })
-    const watched = watchedRasterizer()
-
-    await exportPng(watched.rasterizer, sceneOf(narrower))
-
-    expect(watched.calls[0]?.sizePx.widthPx).toBe(800)
+    ).toBe(SETTINGS_CONSTANTS.exportCanvas.width)
   })
 })
 

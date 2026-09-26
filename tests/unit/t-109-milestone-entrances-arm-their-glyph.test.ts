@@ -284,7 +284,7 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          height: null,
+          minHeight: null,
         },
       ],
       taskGroupMembers: tasks.map((one) => ({

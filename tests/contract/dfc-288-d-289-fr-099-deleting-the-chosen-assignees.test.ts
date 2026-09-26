@@ -346,7 +346,7 @@ function documentWithRoster(): Document {
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          height: null,
+          minHeight: null,
         },
       ],
       taskGroupMembers: [ALPHA, BETA, GAMMA].map((taskUid) => ({

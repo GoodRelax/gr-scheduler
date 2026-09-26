@@ -98,7 +98,7 @@ const PRESSES: readonly { label: string; pressRow: string; pressedOn: Loose | nu
 ]
 
 // WHY: AG-9 limits the refusal to drags that change the document, matched to the undo
-// rows of T-027: UN-1 / UN-2 / UN-4 / UN-5 are in; UN-8 / UN-9 / UN-12 / UN-16 are out.
+// rows of T-027: UN-1 / UN-2 / UN-4 / UN-5 are in; UN-8 / UN-9 / UN-16 are out.
 const DOCUMENT_CHANGING: Readonly<Record<string, boolean>> = {
   'PTD-1': false,
   'PTD-2': false,

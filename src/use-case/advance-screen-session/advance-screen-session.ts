@@ -188,6 +188,7 @@ const IS_INTERACTION_RECORD_EVENT: { readonly [T in InteractionRecordValuesEvent
 
 const IS_AGENT_API_EVENT: { readonly [T in AgentApiValuesEvent['type']]: true } = {
   agentApiEntryPressed: true,
+  enablingAskedByDialogueField: true,
   rememberedEnablingLoaded: true,
 }
 

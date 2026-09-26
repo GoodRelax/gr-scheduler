@@ -89,6 +89,7 @@ import {
   type WeekDay,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -238,31 +239,6 @@ const settingsOf = (over: Readonly<Record<string, unknown>> = {}): DocumentSetti
 
 const SETTINGS = settingsOf()
 
-/** One number of the settings group, read as the number it is. @purity pure */
-const settingNumber = (key: keyof DocumentSettings): number => {
-  const value = SETTINGS[key]
-  if (typeof value !== 'number') throw new Error(`the settings group has no number ${key}`)
-  return value
-}
-
-/**
- * The same, for a key the manuscript writes with a dot in it.
- *
- * The dotted spelling is the one `SETTINGS_DEFAULTS` and the settings tables
- * both use, so a case can name the row the way the manuscript does instead of
- * walking into the nested shape by hand.
- *
- * @purity pure
- */
-const settingNumberAt = (key: string): number => {
-  let here: unknown = SETTINGS
-  for (const step of key.split('.')) {
-    here = (here as Record<string, unknown>)[step]
-  }
-  if (typeof here !== 'number') throw new Error(`the settings group has no number ${key}`)
-  return here
-}
-
 /**
  * The weekdays of the document's calendar, worked on the days table T-209 says.
  *
@@ -383,7 +359,7 @@ const GROUP_ONE: TaskGroup = {
   order: 1,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 }
 
 const GROUP_TWO: TaskGroup = {
@@ -478,7 +454,7 @@ const withSettings = (part: Readonly<Record<string, unknown>>): DocumentUnderTes
  * @purity pure
  */
 const beforeAcceptedDates = (): string =>
-  `${Number(SETTINGS.importMinDate.slice(0, 4)) - 1}-01-01`
+  `${Number(SETTINGS_CONSTANTS.importMinDate.slice(0, 4)) - 1}-01-01`
 
 /**
  * A chain of rows nested one level deeper than S-125 allows.
@@ -492,7 +468,7 @@ const beforeAcceptedDates = (): string =>
  */
 const overDeepGroups = (): readonly TaskGroup[] => {
   const links: TaskGroup[] = []
-  for (let depth = 1; depth <= settingNumber('maxGroupDepth') + 1; depth += 1) {
+  for (let depth = 1; depth <= SETTINGS_CONSTANTS.maxGroupDepth + 1; depth += 1) {
     links.push({
       ...GROUP_ONE,
       id: uuidOf(100 + depth),
@@ -530,6 +506,11 @@ const COMMENT_BOX_ONE: CommentBox = {
   anchorDate: null,
   anchorGroupId: null,
   bodyOffsetPx: null,
+  strokeColor: null,
+  strokeWidthPx: null,
+  fillColor: null,
+  fillTransparencyPercent: null,
+  textColor: null,
 }
 
 const HIGHLIGHT_BOX_ONE: HighlightBox = {
@@ -540,6 +521,9 @@ const HIGHLIGHT_BOX_ONE: HighlightBox = {
   bottomGroupId: null,
   strokeColor: null,
   cornerRadiusPx: null,
+  strokeWidthPx: null,
+  fillColor: null,
+  fillTransparencyPercent: null,
 }
 
 // ⛔ W-9 keeps the exchange partner's spelling inside `carryElements`, so the
@@ -655,9 +639,6 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       tasks: [{ ...TASK_A, fadeInDays: 100, fadeOutDays: 100 }, TASK_B],
     }),
 
-  // A dual cursor (S-65) holding one of its two days.
-  'IV-13': () => withSettings({ dualCursor: { date1: TASK_A.start, date2: null } }),
-
   // A date column outside table T-214.
   'IV-14': () => withSchedule({ tasks: [{ ...TASK_A, start: beforeAcceptedDates() }, TASK_B] }),
 
@@ -696,10 +677,10 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       ],
     }),
 
-  // A setting whose upper bound names another setting, put above it. S-83's
-  // ceiling names S-84, so the value below breaks the bound whichever way it
-  // is read -- inclusive or not.
-  'IV-16': () => withSettings({ rulerTierPxPerDayMonth: settingNumber('rulerTierPxPerDayWeek') + 1 }),
+  // A stored setting whose floor names another setting, put one whole unit
+  // under it: S-3's floor names fontMin, so the value breaks the bound whichever
+  // way it is read -- inclusive or not.
+  'IV-16': () => withSettings({ rulerFont: SETTINGS_CONSTANTS.fontMin - 1 }),
 
   // A document holding no row at all -- the state IV-20 forbids, whose origin
   // the row names as the sentence under table T-050 of Chapter 1.4.
@@ -905,30 +886,6 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
 }
 
 /**
- * Settings rows whose bound is one other settings key and nothing else, each
- * put on the wrong side of that key.
- *
- * ⛔ Not a sweep of the bound columns: the head of this file records what is
- * missing before one can be written. These are the rows whose bound cell holds
- * a single key, so no reading of an expression is involved -- the four pairs
- * are S-121 / S-122, S-83 / S-84, S-22 with S-6, and the S-304 line width the
- * case in BREACH already carries.
- *
- * ⚠️ Each is moved one whole unit past the key it is bounded by, so the case
- * breaks whether the bound is read as open or as closed. If the manuscript ever
- * writes one of these bounds as exclusive, the case still breaks it.
- */
-const OFF_BOUND: Readonly<Record<string, () => DocumentUnderTest>> = {
-  'fontScaleSizes.S': () =>
-    withSettings({ 'fontScaleSizes.S': settingNumberAt('fontScaleSizes.M') + 1 }),
-
-  'rulerTierPxPerDayMonth': () =>
-    withSettings({ rulerTierPxPerDayMonth: settingNumber('rulerTierPxPerDayWeek') + 1 }),
-
-  'markerSize': () => withSettings({ markerSize: settingNumber('fontMin') - 1 }),
-}
-
-/**
  * The OTHER half of IV-19 -- the two group columns, put the wrong way up.
  *
  * ⭐ IV-19 states two conditions over four columns and the case in BREACH breaks
@@ -965,7 +922,6 @@ const probesOf = (
 const PROBES: readonly Probe[] = [
   ...probesOf('IV-1', REPEATED),
   ...probesOf('IV-2', DANGLING),
-  ...probesOf('IV-16', OFF_BOUND),
   ...probesOf('IV-19', REVERSED),
 ]
 

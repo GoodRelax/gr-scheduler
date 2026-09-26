@@ -542,6 +542,7 @@ describe('Schedule (PI-1) -- table T-021b', () => {
 import {
   clampedSettings,
   SETTINGS_BOUNDS,
+  SETTINGS_CONSTANTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 
@@ -574,37 +575,30 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 
 describe('DocumentSettings (PI-2)', () => {
   it('reads its bounds from the sources, not from a second copy', () => {
-    // S-1 pxPerDayAt1x: 0.5 to 60 in table T-201.
-    expect(SETTINGS_BOUNDS['pxPerDayAt1x']).toEqual({ min: 0.5, max: 60 })
+    // S-2 rulerHeight: at most 150 in table T-202.
+    expect(SETTINGS_BOUNDS['rulerHeight']?.max).toBe(150)
   })
 
   it('pulls a value up to the lower bound and says it moved', () => {
-    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 0.1 }))
-    expect(result.settings.pxPerDayAt1x).toBe(0.5)
-    expect(result.clamped).toEqual([{ key: 'pxPerDayAt1x', was: 0.1, now: 0.5 }])
+    // S-75 zoomX: from zoomMin (S-54) to zoomMax (S-55).
+    const result = clampedSettings(settingsOf({ zoomX: 0.001 }))
+    expect(result.settings.zoomX).toBe(SETTINGS_CONSTANTS.zoomMin)
+    expect(result.clamped).toEqual([{ key: 'zoomX', was: 0.001, now: SETTINGS_CONSTANTS.zoomMin }])
   })
 
   it('pushes a value down to the upper bound', () => {
-    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 999 }))
-    expect(result.settings.pxPerDayAt1x).toBe(60)
+    const result = clampedSettings(settingsOf({ zoomX: 999 }))
+    expect(result.settings.zoomX).toBe(SETTINGS_CONSTANTS.zoomMax)
   })
 
   it('leaves a value that is already inside alone, and reports nothing', () => {
-    const result = clampedSettings(settingsOf({ pxPerDayAt1x: 6 }))
-    expect(result.settings.pxPerDayAt1x).toBe(6)
+    const result = clampedSettings(settingsOf({ zoomX: 6 }))
+    expect(result.settings.zoomX).toBe(6)
     expect(result.clamped).toEqual([])
   })
 
-  it('reaches a nested key the way tbl-settings.md writes it', () => {
-    // S-121: fontScaleSizes.S is bounded above by fontScaleSizes.M, which is
-    // not a number, so only the numeric side of the row can be clamped.
-    const result = clampedSettings(settingsOf({ fontScaleSizes: { S: 1, M: 14, L: 999 } }))
-    expect(result.settings.fontScaleSizes.L).toBe(40)
-    expect(result.clamped.map((one) => one.key)).toContain('fontScaleSizes.L')
-  })
-
   it('does not touch what is not a number', () => {
-    const result = clampedSettings(settingsOf({ stackDirection: 'up', pxPerDayAt1x: 6 }))
+    const result = clampedSettings(settingsOf({ stackDirection: 'up', zoomX: 6 }))
     expect(result.settings.stackDirection).toBe('up')
     expect(result.clamped).toEqual([])
   })

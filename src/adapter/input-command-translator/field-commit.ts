@@ -243,9 +243,9 @@ function commandFromGroupColumn(
         ? [{ kind: 'resetTaskGroupColor', groupId }]
         : [{ kind: 'setTaskGroupColor', groupId, color }]
     }
-    case 'height': {
-      const height = settledNumber(text)
-      return height === undefined ? [] : [{ kind: 'setTaskGroupHeight', groupId, height }]
+    case 'minHeight': {
+      const minHeight = settledNumber(text)
+      return minHeight === undefined ? [] : [{ kind: 'setTaskGroupMinHeight', groupId, minHeight }]
     }
     default:
       return []
@@ -358,7 +358,7 @@ export function commandFromFieldCommit(
 ): readonly DocumentCommand[] {
   const schedule = context.document.schedule
   // see CV-4
-  const dark = context.document.documentSettings.themePreference === 'dark'
+  const dark = context.screen.themePreference === 'dark'
   // WHY: the column is the key the panel drew, not worked out again here: the selection may
   // have changed between drawing and commit.
   const key = commit.key

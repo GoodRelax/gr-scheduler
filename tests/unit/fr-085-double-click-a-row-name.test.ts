@@ -76,7 +76,6 @@ import type {
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   frameLoop,
-  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
   type ScreenWiring,
@@ -140,7 +139,6 @@ const ROW_NAME_FIELD = ((): string => {
   return id
 })()
 
-const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 // ---------------------------------------------------------------------------
 // The document these cases drive. Copied from
@@ -169,7 +167,7 @@ function twoRowDocument(): Document {
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   })
   return {
     schemaVersion: template.schemaVersion,
@@ -191,10 +189,7 @@ function twoRowDocument(): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: {
-      ...structuredClone(template.documentSettings),
-      propertyPanelWidth: S_171,
-    },
+    documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document

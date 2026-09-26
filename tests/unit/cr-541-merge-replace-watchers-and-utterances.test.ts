@@ -55,7 +55,7 @@ const documentWith = (label: string, note: string, settings: Record<string, unkn
         order: 0,
         treeState: 'auto', editGroup: null,
         color: null,
-        height: null,
+        minHeight: null,
       },
     ],
     commentBoxes: [

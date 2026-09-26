@@ -198,7 +198,7 @@ const SCHEDULE = {
   tasks: [],
   resources: [],
   assignments: [],
-  taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, height: null }],
+  taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, minHeight: null }],
   taskGroupMembers: [],
   taskVisuals: [],
   commentBoxes: [],
@@ -212,11 +212,12 @@ const ENV: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
-const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection())
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection(), null)
 
 const DOCUMENT = {
   schemaVersion: '2026-01-01',
@@ -301,9 +302,11 @@ const BASE: InputContext = {
  */
 const pressing = (
   entry: string,
-  screen: ScreenValues,
+  given: ScreenValues,
   dualCursorFollowing: DualCursorSide | null = null,
 ): ScreenValues => {
+  // WHY: the mode lives in the screen values (T-280); the following side the shell hands in is read off it.
+  const screen = inTheMode(given, dualCursorFollowing)
   const event = screenEventFromInput(pointerOf('up'), {
     ...BASE,
     screen,
@@ -313,6 +316,15 @@ const pressing = (
   if (event === null) return screen
   return advanceScreenSession({ ...emptyScreenSession, screen }, event).state.screen
 }
+
+const inTheMode = (screen: ScreenValues, side: DualCursorSide | null): ScreenValues =>
+  side === null
+    ? screen
+    : {
+        ...screen,
+        dualCursorModeState: { kind: 'on', child: { kind: side === 'date1' ? 'placingDate1' : 'placingDate2' } },
+        dualCursor: { date1: '2026-03-02', date2: '2026-03-05' },
+      }
 
 /** The six values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenSession.screen` holds. */
 const ARMS: ReadonlyArray<{ readonly row: string; readonly armed: Armed }> = [
@@ -387,7 +399,10 @@ describe('T-023b closing paragraph (MUST) -- entering the Dual Cursor drops the 
     }
     const after = pressing(IC_45, before, null)
     expect(after.armModeState).toEqual({ kind: 'notArmed' })
-    expect({ ...after, armModeState: null }).toEqual({ ...before, armModeState: null })
+    // WHY: entering is itself a move of the mode and its two dates (DC-1, T-280); nothing else may move.
+    const rest = (one: ScreenValues) => ({ ...one, armModeState: null, dualCursorModeState: null, dualCursor: null })
+    expect(after.dualCursorModeState.kind, 'IC-45 entered the mode').toBe('on')
+    expect(rest(after)).toEqual(rest(before))
   })
 
   it('is idempotent: pressing IC-45 with nothing armed still answers AR-1', () => {

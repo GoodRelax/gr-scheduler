@@ -1045,6 +1045,8 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-334': number
   readonly 'S-339': number
   readonly 'S-340': number
+  readonly 'S-436': number
+  readonly 'S-437': number
 } = {
   'S-201': 0.95,
   'S-202': 3,
@@ -1053,6 +1055,8 @@ export const NOT_STORED_HELP_SIZES: {
   'S-334': 0.4375,
   'S-339': 8,
   'S-340': 10,
+  'S-436': 1.0,
+  'S-437': 1,
 }
 
 // see T-206
@@ -1062,6 +1066,28 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 } = {
   'S-240': 0.75,
   'S-241': 1,
+}
+
+// see T-206
+const NOT_STORED_SEARCH_PANEL_SIZES: {
+  readonly 'S-421': number
+  readonly 'S-422': number
+} = {
+  'S-421': 0.5,
+  'S-422': 0.5,
+}
+
+// see T-333, FR-151
+const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
+  readonly 'S-430': number
+  readonly 'S-431': number
+  readonly 'S-432': number
+  readonly 'S-433': number
+} = {
+  'S-430': 12,
+  'S-431': 14,
+  'S-432': 16,
+  'S-433': 20,
 }
 
 // see T-206
@@ -1085,6 +1111,9 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-198': number
   readonly 'S-335': number
   readonly 'S-338': number
+  readonly 'S-368': number
+  readonly 'S-440': number
+  readonly 'S-441': number
 } = {
   'S-186': 17,
   'S-187': 16,
@@ -1098,6 +1127,9 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-198': 0.90,
   'S-335': 2,
   'S-338': 5,
+  'S-368': 5,
+  'S-440': 1,
+  'S-441': 6,
 }
 
 // see T-206

@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019. The `columns` map names the SIX columns of that table; `armsShape` is a seventh field and no column of it -- it is derived from table T-012 of docs/spec/01-04-requirements.md and from docs/spec/_source/erd.json, and it exists because the arm column names a KIND of arm that stands against several entries at once.",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019. The `columns` map names SIX of the seven columns of that table; the settings-row column is not carried here, because tools/generate_entity_types.py prints it into src/. `armsShape` is a seventh field and no column of it -- it is derived from table T-012 of docs/spec/01-04-requirements.md and from docs/spec/_source/erd.json, and it exists because the arm column names a KIND of arm that stands against several entries at once.",
  "columns": {
   "rowId": "行 ID",
   "surfaces": "面",
@@ -70,7 +70,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "変更前の予定の重ねを表示する・非表示にする（`S-69`）。<br>⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
+   "entryTo": "変更前の予定の重ねを表示する・非表示にする。<br>⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`） —— 押しても何も描かれない入口にしない。<br>⚠️ **重ねる予定が在るときはファイルを読む入口ではない** —— 読む入口は `IC-1` であり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
    "authority": "`FR-049`（`FR-015`）",
    "arms": null,
    "armsShape": null
@@ -103,7 +103,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "予定を表示する・非表示にする（`S-227`。<br>実績とは独立）",
+   "entryTo": "予定を表示する・非表示にする（実績とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -114,7 +114,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "実績を表示する・非表示にする（`S-228`。<br>予定とは独立）",
+   "entryTo": "実績を表示する・非表示にする（予定とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -127,6 +127,28 @@
    "group": "表示",
    "entryTo": "全体を 1 画面に収める",
    "authority": "`FR-055`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-117",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-107",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
+   "authority": "`FR-130`",
    "arms": null,
    "armsShape": null
   },
@@ -235,29 +257,18 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
    "authority": "`FR-072`",
    "arms": null,
    "armsShape": null
   },
   {
-   "rowId": "IC-18",
+   "rowId": "IC-115",
    "surfaces": [
     "App Header"
    ],
    "group": "AI",
-   "entryTo": "AI との対話欄を表示する・非表示にする",
-   "authority": "`FR-066`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-19",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "AI",
-   "entryTo": "AI へ渡す文書を画面で確かめて写す",
+   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへ写す",
    "authority": "`FR-068`",
    "arms": null,
    "armsShape": null
@@ -274,12 +285,23 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-18",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "AI",
+   "entryTo": "AI との対話欄を表示する・非表示にする",
+   "authority": "`FR-066`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-21",
    "surfaces": [
     "App Header"
    ],
    "group": "補助",
-   "entryTo": "表示言語を選ぶ（`S-99`）。<br>⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）",
+   "entryTo": "画面の言語を選ぶ（`S-99`）。<br>ヘルプの中の言語は変えない —— ヘルプの言語は `IC-128`",
    "authority": "`FR-038`",
    "arms": null,
    "armsShape": null
@@ -565,7 +587,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "イナズマ線を表示する・非表示にする（`S-64`）",
+   "entryTo": "イナズマ線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-014`）",
    "arms": null,
    "armsShape": null
@@ -576,7 +598,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "進捗マーカーを表示する・非表示にする（`S-63`）",
+   "entryTo": "進捗マーカーを表示する・非表示にする",
    "authority": "`FR-049`（`FR-013`）",
    "arms": null,
    "armsShape": null
@@ -598,7 +620,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "日付罫線を表示する・非表示にする（`S-67`）",
+   "entryTo": "日付罫線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-089`）",
    "arms": null,
    "armsShape": null
@@ -609,7 +631,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "グループ罫線を表示する・非表示にする（`S-68`）",
+   "entryTo": "グループ罫線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-042`）",
    "arms": null,
    "armsShape": null
@@ -620,7 +642,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当ラベルを表示する・非表示にする（`S-60`）",
+   "entryTo": "担当ラベルを表示する・非表示にする",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -631,7 +653,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "完了率ラベルを表示する・非表示にする（`S-61`）",
+   "entryTo": "完了率ラベルを表示する・非表示にする",
    "authority": "`FR-049`（`FR-090`）",
    "arms": null,
    "armsShape": null
@@ -642,7 +664,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "依存線を表示する・非表示にする（`S-62`）。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ",
+   "entryTo": "依存線を表示する・非表示にする。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ",
    "authority": "`FR-049`（`FR-009`）",
    "arms": null,
    "armsShape": null
@@ -675,7 +697,7 @@
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "名称ラベルに予定日を添える・外す（`S-232`。<br>書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並びを決めるのは本表の `群` の欄だけであり（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない",
+   "entryTo": "名称ラベルに予定日を添える・外す（書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並びを決めるのは本表の `群` の欄だけであり（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない",
    "authority": "`FR-049`（`FR-002`）",
    "arms": null,
    "armsShape": null
@@ -697,7 +719,7 @@
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "ガイドカーソルを `'crosshair'` にする（`S-66`。<br>3 値排他）。<br>⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）",
+   "entryTo": "ガイドカーソルを `'crosshair'` にする（3 値排他）。<br>⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）",
    "authority": "`FR-048`",
    "arms": null,
    "armsShape": null
@@ -739,14 +761,14 @@
    "rowId": "IC-52",
    "surfaces": [
     "Help Modal",
-    "AI Export Modal",
     "Resource Roster",
     "Export Chooser",
     "Open Chooser",
-    "Properties Panel"
+    "Properties Panel",
+    "Search Panel"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルを閉じる",
+   "entryTo": "開いている面とプロパティパネルと検索パネルを閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -792,6 +814,50 @@
    "group": null,
    "entryTo": "マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す",
    "authority": "`FR-036`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-128",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである",
+   "authority": "`FR-038`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-129",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ウインドウを最小化し、同じ入口で戻す（`S-435`）。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-130",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ウインドウを最大化する（`S-435`）",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-131",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
@@ -880,6 +946,116 @@
    "group": null,
    "entryTo": "すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
    "authority": "`FR-032`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-118",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "タスクとマイルストーンの表を出す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-119",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "コメントボックスの表を出す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-120",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-121",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-122",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ）",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-123",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "その列で昇順に並べる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-124",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "その列で降順に並べる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-125",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "値の一覧のすべてを表示に入れる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-126",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "値の一覧のすべてを表示から外す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-127",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルの表と入力欄の字の大きさの段を変える（`S-429`、4 値排他）。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "authority": "`FR-151` の 表 T-330 の `SV-16`",
    "arms": null,
    "armsShape": null
   },

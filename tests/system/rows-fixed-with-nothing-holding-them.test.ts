@@ -70,7 +70,7 @@ function propertyRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
-const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'height')
+const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'minHeight')
 
 // WHY: found by what the table says the entrance does, so that no case
 // spells an IC-nn of its own.

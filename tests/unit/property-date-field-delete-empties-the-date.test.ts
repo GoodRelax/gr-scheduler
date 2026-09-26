@@ -219,7 +219,7 @@ const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown
 }
 
 const SETTINGS = nested({ ...SETTINGS_DEFAULTS, scrollDate: '2026-01-01', scrollGroupId: 'g1' }) as unknown as DocumentSettings
-const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
+const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 const THE_TASK = 1
 
 const taskOf = (part: Record<string, unknown>): Task =>
@@ -256,7 +256,7 @@ const groupOf = (): TaskGroup =>
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }) as unknown as TaskGroup
 
 const scheduleWith = (task: Task): Schedule =>
@@ -302,7 +302,7 @@ const documentOf = (schedule: Schedule): Document =>
 const contextFor = (schedule: Schedule): InputContext => {
   const regions = regionsFromScreen(ENV, SETTINGS)
   const layout = layoutFromSchedule(schedule, SETTINGS, regions)
-  const geometry = geometryFromLayout(schedule, SETTINGS, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, SETTINGS, layout, regions, emptySelection(), null)
   return {
     document: documentOf(schedule),
     layout,

@@ -1,5 +1,6 @@
 // Use-case test for UC-004 (show dependencies between tasks), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { VIEWPORT, answerConfirmation, drag, enableAgentApi, figureBox, icon, launch, press, readDocument, settle, specMismatch, type Box } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
@@ -50,7 +51,9 @@ test('UC-004 show dependencies between tasks (FR-009 T-018 DP-1 DP-3, T-018a, T-
     expect(links).toHaveLength(1)
     expect(links[0].predecessorUid).toBe(a)
     expect(links[0].linkType).toBe(1)
-    expect(links[0].lag).toBe(doc.documentSettings.dependencyLagDefault)
+    // WHY: the default lag is a constant of the tool (T-213), which a file never carries.
+    expect(links[0].lag).toBe(SETTINGS_CONSTANTS.dependencyLagDefault)
+    expect(Object.keys(doc.documentSettings)).not.toContain('dependencyLagDefault')
   })
 
   await test.step('UC-004 step 4: the anchors follow the kind, and drawing can go on (T-018, T-018a)', async () => {

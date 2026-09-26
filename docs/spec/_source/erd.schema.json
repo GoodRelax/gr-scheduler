@@ -500,6 +500,10 @@
      "const": false,
      "description": "Only with kind \"color\": this column may not hold the transparent name (FR-019 forbids it for a highlight box). Absent means it may."
     },
+    "band": {
+     "const": true,
+     "description": "Only with kind \"color\": this column is drawn as a row band (CV-6 of table T-017b), so it takes only the names of table T-294 whose row-band cells are not a dash. Black (S-315) holds a dash there, and CV-9 leaves it off the row colour field. The generators read the dash from table T-294, so the refused names are not repeated here. Absent means the column takes every name."
+    },
     "null": {
      "type": "boolean",
      "description": "Must agree with the \"nullable\" prose: 可 is true, 否 is false."

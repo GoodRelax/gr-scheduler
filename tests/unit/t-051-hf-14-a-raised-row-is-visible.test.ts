@@ -126,10 +126,12 @@ import type {
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
 import { groupDepthLimit } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
+import { drawnSettingsOf } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -194,8 +196,8 @@ const px = (table: string, id: string): number => {
 
 /** S-125 -- `maxGroupDepth`, the cap `FR-085` states and 表 T-211 carries. */
 const MAX_GROUP_DEPTH = ((): number => {
-  const value = SETTINGS_DEFAULTS['maxGroupDepth']
-  if (typeof value !== 'number') throw new Error('SETTINGS_DEFAULTS.maxGroupDepth is not a number')
+  const value = SETTINGS_CONSTANTS['maxGroupDepth']
+  if (typeof value !== 'number') throw new Error('SETTINGS_CONSTANTS.maxGroupDepth is not a number')
   return value
 })()
 
@@ -254,7 +256,7 @@ function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
         order: index,
         treeState: one.treeState,
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: [],
       taskVisuals: [],
@@ -489,7 +491,7 @@ describe('the manuscript still says what these cases read', () => {
     // narrowed before it can be spread.
     const stored = TEMPLATE['documentSettings'] as Record<string, unknown>
     const settings = { ...stored, zoomY: GROUP_LOD_BASE } as unknown as DocumentSettings
-    expect(groupDepthLimit(settings)).toBe(2)
+    expect(groupDepthLimit(drawnSettingsOf(settings))).toBe(2)
   })
 
   it('⛔ written down, not asserted: HR-1a makes a literal collapsed ANCESTOR unreachable here', () => {
@@ -555,7 +557,7 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
     // ⛔ THE CONTROL THAT MAKES THIS A TEST: without HF-14, a depth-3 child of
     // `pressed` would not clear this tier, and the case below would be
     // asserting nothing.
-    expect(groupDepthLimit(before.documentSettings), 'the fixture must start below depth 3').toBe(2)
+    expect(groupDepthLimit(drawnSettingsOf(before.documentSettings)), 'the fixture must start below depth 3').toBe(2)
 
     const built = stage(before)
     // Sanity: the row being pressed is itself inside the tier -- a real
@@ -572,7 +574,7 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
 
     // ⭐⭐ THE MUST: the detail tier now reaches the raised row's own depth.
     expect(
-      groupDepthLimit(after.documentSettings),
+      groupDepthLimit(drawnSettingsOf(after.documentSettings)),
       'HF-14 (MUST): the detail tier must open until depth 3 is drawn',
     ).toBeGreaterThanOrEqual(3)
 
@@ -594,7 +596,7 @@ describe('表 T-051 HF-14 half 1 (詳しさの段, MUST): the tier widens until 
       [{ id: root, parentId: null, label: 'depth 1', treeState: 'auto' }],
       GROUP_LOD_BASE,
     )
-    expect(groupDepthLimit(before.documentSettings)).toBe(2)
+    expect(groupDepthLimit(drawnSettingsOf(before.documentSettings))).toBe(2)
 
     const built = stage(before)
     built.press(ADD_CHILD_ROW, root)
@@ -645,7 +647,7 @@ describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed
       ],
       SETTINGS_DEFAULTS['zoomY'] as number, // default zoomY: no LOD obstacle in this half.
     )
-    expect(groupDepthLimit(before.documentSettings), 'depth 3 must clear the tier in this half').toBeGreaterThanOrEqual(
+    expect(groupDepthLimit(drawnSettingsOf(before.documentSettings)), 'depth 3 must clear the tier in this half').toBeGreaterThanOrEqual(
       3,
     )
     expect(groupIn(before, pressed).treeState, 'fixture sanity: the pressed row starts folded').toBe('collapsed')
@@ -701,7 +703,7 @@ describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end 
       ],
       GROUP_LOD_BASE, // depth 2 clears, depth 3 (the new child) would not.
     )
-    expect(groupDepthLimit(before.documentSettings)).toBe(2)
+    expect(groupDepthLimit(drawnSettingsOf(before.documentSettings))).toBe(2)
     expect(groupIn(before, pressed).treeState).toBe('collapsed')
 
     const built = stage(before)
@@ -714,7 +716,7 @@ describe('表 T-051 HF-14: 約束は 1 つ -- both obstacles together still end 
     expect(groupIn(after, raised).parentId).toBe(pressed)
 
     expect(groupIn(after, pressed).treeState, 'half 2: the folded parent opened').toBe('auto')
-    expect(groupDepthLimit(after.documentSettings), 'half 1: the tier widened to depth 3').toBeGreaterThanOrEqual(
+    expect(groupDepthLimit(drawnSettingsOf(after.documentSettings)), 'half 1: the tier widened to depth 3').toBeGreaterThanOrEqual(
       3,
     )
     expect(built.titleFor(raised), '立てた行は見える -- both obstacles resolved, the row is drawn').not.toBeUndefined()

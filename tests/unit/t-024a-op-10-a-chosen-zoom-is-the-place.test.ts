@@ -290,7 +290,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 /**

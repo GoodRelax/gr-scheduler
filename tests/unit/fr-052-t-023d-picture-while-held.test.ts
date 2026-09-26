@@ -93,7 +93,7 @@
 //             why the case is not judged on that half.
 //   S-79      `rowTitlePanelWidth`, 下限 `rowTitleIndent` × `maxGroupDepth`,
 //             上限 「`Row Area` の幅 > 0 に従う」.
-//   S-80      `propertyPanelWidth`, 既定 `0`（＝閉じている）.
+//   S-171     `propertyPanelWidth`, the screen value the panel starts at (CR-572).
 //   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
 //             band is ON the boundary, which is why every divider case below
 //             presses its CENTRE (see `boundaryOf`).
@@ -149,6 +149,7 @@ import {
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // ---------------------------------------------------------------------------
 // What the manuscript says, read at read time rather than copied
@@ -310,7 +311,7 @@ function fixtureDocument(): Document {
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          height: null,
+          minHeight: null,
         },
       ],
       taskGroupMembers: [{ taskUid: FADED_UID, groupId: ROW_ID, stackOrder: null }],
@@ -322,7 +323,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       rowTitlePanelWidth: ROW_TITLE_PANEL_WIDTH_ON_THE_FLOOR,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -1225,13 +1227,12 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     expect(storedPanelWidth(built.loop)).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })
 
-  it('changes the OTHER panel from its own boundary (S-80 wins after a drag)', () => {
+  it('changes the OTHER panel from its own boundary (a screen value, CR-572)', () => {
     const built = stage()
-    // STEP: MK-13 puts the property panel up; S-80 is 0, under S-248, so FR-052 draws it at S-171
+    // STEP: MK-13 puts the property panel up at the screen value S-171
     openThePanelOnTheTask(built)
     const at = boundaryOf(built, 'propertiesPanel')
     const drawn = frameOf(built.loop).regions.propertiesPanel.width
-    const stored = settingsOf(built.loop).propertyPanelWidth
     expect(drawn, 'premise: the panel is up and wider than zero').toBeGreaterThan(0)
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x - 120, at.y))
@@ -1239,15 +1240,15 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
       frameOf(built.loop).regions.propertiesPanel.width,
       'FR-052: その時点のポインタ位置が決める 2 つの幅で画面を描いて示すこと（MUST）',
     ).toBeCloseTo(drawn + 120, 6)
-    expect(
-      settingsOf(built.loop).propertyPanelWidth,
-      'FR-052: ⛔ 掴んでいるあいだ、その幅を文書へ書いてはならない（MUST NOT）',
-    ).toBe(stored)
     built.send(pointer('up', at.x - 120, at.y))
-    expect(settingsOf(built.loop).propertyPanelWidth, 'FR-052: 確定は IN-1 に従う').toBeCloseTo(
+    expect(frameOf(built.loop).regions.propertiesPanel.width, 'FR-052: 確定は IN-1 に従う').toBeCloseTo(
       drawn + 120,
       6,
     )
+    expect(
+      settingsOf(built.loop),
+      'FR-052: ⛔ プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）',
+    ).not.toHaveProperty('propertyPanelWidth')
   })
 
   it('abandons the drag when the pointer is lost (IN-1a)', () => {

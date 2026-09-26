@@ -159,6 +159,19 @@
    "note": null
   },
   {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "basics",
+   "segment": null,
+   "indent": false,
+   "table": "T-023",
+   "row": "MK-15",
+   "keys": null,
+   "press": "MK-15",
+   "glyphs": [],
+   "note": null
+  },
+  {
    "kind": "heading",
    "column": "HC-1",
    "block": "browser",
@@ -484,6 +497,156 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-118",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-118"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-119",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-119"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-120",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-120"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-121",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-121"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-122",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-122"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-123",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-123"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-124",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-124"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-125",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-125"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-126",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-126"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-127",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-127"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
    "column": "HC-2",
    "block": "App Header",
    "segment": null,
@@ -744,6 +907,36 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
+   "row": "IC-117",
+   "keys": "Ctrl ＋ F",
+   "press": null,
+   "glyphs": [
+    "IC-117"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-107",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-107"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
    "row": "IC-11",
    "keys": "F11",
    "press": null,
@@ -894,26 +1087,11 @@
    "segment": null,
    "indent": false,
    "table": "T-109",
-   "row": "IC-18",
+   "row": "IC-115",
    "keys": null,
    "press": null,
    "glyphs": [
-    "IC-18"
-   ],
-   "note": null
-  },
-  {
-   "kind": "item",
-   "column": "HC-2",
-   "block": "App Header",
-   "segment": null,
-   "indent": false,
-   "table": "T-109",
-   "row": "IC-19",
-   "keys": null,
-   "press": null,
-   "glyphs": [
-    "IC-19"
+    "IC-115"
    ],
    "note": null
   },
@@ -929,6 +1107,21 @@
    "press": null,
    "glyphs": [
     "IC-20"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-18",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-18"
    ],
    "note": null
   },

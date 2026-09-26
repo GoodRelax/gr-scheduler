@@ -89,7 +89,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   frameLoop,
   type FrameEnvironment,
@@ -184,8 +184,8 @@ function wordsFor(rowId: string): ReasonWords {
 
 /** S-125 -- `maxGroupDepth`, the cap `FR-085` states and 表 T-211 carries. */
 const MAX_GROUP_DEPTH = ((): number => {
-  const value = SETTINGS_DEFAULTS['maxGroupDepth']
-  if (typeof value !== 'number') throw new Error('SETTINGS_DEFAULTS.maxGroupDepth is not a number')
+  const value = SETTINGS_CONSTANTS['maxGroupDepth']
+  if (typeof value !== 'number') throw new Error('SETTINGS_CONSTANTS.maxGroupDepth is not a number')
   return value
 })()
 
@@ -248,7 +248,7 @@ function chainDocument(): Document {
         order: index,
         treeState: 'auto',
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: [],
       taskVisuals: [],

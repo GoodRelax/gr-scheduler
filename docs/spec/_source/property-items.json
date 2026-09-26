@@ -263,14 +263,30 @@
   {
    "id": "PR-20",
    "columns": [
-    "height"
+    "minHeight"
    ],
    "inputKinds": [
     "数値"
    ],
    "appliesTo": "TaskGroup",
    "note": {
-    "ja": "倍率 1 のときの論理の高さ。`null` ＝ 自動"
+    "ja": "行の最小の高さ（縦のズーム 100% のときの画面の px）。`null` ＝ 下限なし。欄の出し方は `FR-042` の 表 T-338 が持つ"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-33",
+   "columns": [
+    "editGroup"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行を編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。空の欄は `null` ＝ 誰でも編集できる。⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でない行でも編集でき、`Agent API` からは書けない。規則は `FR-111` の 表 T-275 の `GP-1` が持つ"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"
@@ -309,6 +325,90 @@
    }
   },
   {
+   "id": "PR-26",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の枠と引出し線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-27",
+   "columns": [
+    "fillTransparencyPercent"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "本文の箱の塗りの透過率。0 は不透明、100 は透明。既定と範囲は同表の `S-375`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-28",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "textColor"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "色"
+   ],
+   "appliesTo": "CommentBox",
+   "note": {
+    "ja": "枠と引出し線・本文の箱の塗り・本文の字の色。`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`）"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-23",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "枠の線の太さ（px）。既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-24",
+   "columns": [
+    "fillTransparencyPercent"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "塗りの透過率。0 は不透明、100 は透明。既定と範囲は同表の `S-371`"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-22",
    "columns": [
     "strokeColor"
@@ -319,6 +419,22 @@
    "appliesTo": "HighlightBox",
    "note": {
     "ja": "ハイライトボックスの枠の色（`CM-55`）。`null` ＝ テーマから解く。⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`）"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
+   "id": "PR-25",
+   "columns": [
+    "fillColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "appliesTo": "HighlightBox",
+   "note": {
+    "ja": "塗りの色。`null` ＝ 同表の `S-370` の色（既定は透明 ＝ 塗らない）。規則は `FR-019`"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

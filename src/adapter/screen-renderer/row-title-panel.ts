@@ -3,7 +3,10 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type {
+  DocumentSettings,
+  DrawnSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import {
@@ -49,12 +52,12 @@ function labelUnits(text: string): number {
 }
 
 /** @purity pure */
-function labelWidthPx(text: string, fontSizePx: number, settings: DocumentSettings): number {
+function labelWidthPx(text: string, fontSizePx: number, settings: DrawnSettings): number {
   return labelUnits(text) * fontSizePx * settings.labelCoef
 }
 
 /** @purity pure */
-function availableLabelWidthPx(depth: number, settings: DocumentSettings): number {
+function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
   const roomForControlsPx = NOT_STORED_ROW_CONTROL_SIZES['S-140']
   // see FR-029
   const roomForGrabStripPx =
@@ -80,7 +83,7 @@ function labelCutToFit(
   text: string,
   availableWidthPx: number,
   fontSizePx: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): string {
   if (labelWidthPx(text, fontSizePx, settings) <= availableWidthPx) return text
 
@@ -102,7 +105,7 @@ function labelCutToFit(
 function rowDepth(
   group: TaskGroup,
   groupsById: ReadonlyMap<string, TaskGroup>,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): number {
   let depth = 1
   let parentId = group.parentId
@@ -152,7 +155,7 @@ function rowTitleOf(
   box: ScreenRect,
   isPinned: boolean,
   index: PanelIndex,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   chosenGroupIds: ReadonlySet<string>,
   held: HeldRow | null,
 ): RowTitle {
@@ -210,7 +213,7 @@ function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
 /** @purity pure */
 function openArmingOf(
   schedule: Schedule,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   readings: ScreenViewReadings,
 ): OpenArming {
   const placed = placedRowIdsOf(readings)
@@ -253,7 +256,7 @@ function openArmingOf(
 /** @purity pure */
 function panelIndexWithArmingOf(
   schedule: Schedule,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   readings: ScreenViewReadings,
   isLevelZeroCollapsed: boolean,
 ): PanelIndex {

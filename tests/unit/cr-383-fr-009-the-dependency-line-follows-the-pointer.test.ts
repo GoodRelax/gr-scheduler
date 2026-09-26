@@ -18,6 +18,7 @@ import type { BarGeometry, Point } from '../../src/entity/layout-engine/schedule
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
@@ -151,7 +152,7 @@ const groupRow = (id: string, order: number) => ({
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -180,7 +181,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...template.documentSettings,
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       dependencyVisible: true,
       progressLineVisible: false,
     },

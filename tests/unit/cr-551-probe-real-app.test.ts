@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { HumanInput } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { frameLoop, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable } from '../contract/spec-table'
 import {
@@ -505,7 +506,7 @@ describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its row ban
     const frame = built.loop.current()
     if (frame === undefined || frame === null) throw new Error('no frame')
     const area = frame.regions.rowArea
-    const padding = Number(built.loop.document().documentSettings.canvasPadding)
+    const padding = SETTINGS_CONSTANTS.canvasPadding
     const clip = /<clipPath id="(grs-ground-clip-[^"]+)"><rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"\/>/.exec(svg)
     expect(clip, 'a ground clip is drawn').not.toBeNull()
     const [, id, x, y, width, height] = clip as RegExpExecArray

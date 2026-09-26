@@ -337,7 +337,7 @@ function twoRowDocument(): Document {
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   return {
     schemaVersion: template.schemaVersion,

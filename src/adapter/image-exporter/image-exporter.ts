@@ -4,14 +4,18 @@
 // @purity    semi-pure-b
 // @publishes table T-064 row PI-21
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+  type DrawnSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   drawnSettingsOf,
   type ScreenRect,
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { rowTitleFontPxOf, type RowTitle, type ScreenView } from '../screen-renderer/screen-renderer'
-import { colourOf } from '../svg-renderer/svg-renderer'
+import { colourOf, type ViewerValues } from '../svg-renderer/svg-renderer'
 import type { Rastering, Rasterizer } from './rasterizer'
 
 export type {
@@ -27,6 +31,7 @@ export interface ExportScene {
   readonly regions: ScreenRegions
   readonly screenView: ScreenView
   readonly settings: DocumentSettings
+  readonly themePreference: ViewerValues['themePreference']
   readonly themeHue: number
 }
 
@@ -47,18 +52,21 @@ export type ImageExport =
   | ({ readonly ok: true } & SvgPicture & { readonly png: Rastering })
   | { readonly ok: false; readonly fault: ImageExportFault }
 
-// see EP-1, EP-3
 /** @purity pure */
-function chromeGround(settings: DocumentSettings, themeHue: number): string {
-  const dark = settings.themePreference === 'dark'
-  return colourOf('S-150', themeHue, dark, settings.themeMonochrome)
+function isDarkIn(scene: ExportScene): boolean {
+  return scene.themePreference === 'dark'
 }
 
 // see EP-1, EP-3
 /** @purity pure */
-function chromeInk(settings: DocumentSettings, themeHue: number): string {
-  const dark = settings.themePreference === 'dark'
-  return colourOf('S-147', themeHue, dark, settings.themeMonochrome)
+function chromeGround(scene: ExportScene): string {
+  return colourOf('S-150', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+}
+
+// see EP-1, EP-3
+/** @purity pure */
+function chromeInk(scene: ExportScene): string {
+  return colourOf('S-147', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
 }
 
 // TRAP: must not collide with an id inside the received picture it clips.
@@ -117,18 +125,17 @@ function textSvg(x: number, y: number, fontSizePx: number, text: string, ink: st
 function appHeaderSvg(
   band: ScreenRect,
   documentTitle: string | null,
-  settings: DocumentSettings,
-  themeHue: number,
+  scene: ExportScene,
   ratio: number,
 ): string {
-  const ground = rectSvg(scaledRect(band, ratio), chromeGround(settings, themeHue))
+  const ground = rectSvg(scaledRect(band, ratio), chromeGround(scene))
   if (documentTitle === null || documentTitle === '') return ground
   // see FR-051, EP-1
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
   const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
   const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
-  const y = (band.y + band.height / 2 + titlePx * settings.labelBaseline) * ratio
-  return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(settings, themeHue))
+  const y = (band.y + band.height / 2 + titlePx * SETTINGS_CONSTANTS.labelBaseline) * ratio
+  return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(scene))
 }
 
 // see EP-3
@@ -136,7 +143,7 @@ function appHeaderSvg(
 function rowTitleSvg(
   title: RowTitle,
   panel: ScreenRect,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   ink: string,
   ratio: number,
 ): string {
@@ -149,14 +156,8 @@ function rowTitleSvg(
 
 // see EP-9
 /** @purity pure */
-function dividerLinesSvg(
-  view: ScreenView,
-  settings: DocumentSettings,
-  themeHue: number,
-  ratio: number,
-): string {
-  const dark = settings.themePreference === 'dark'
-  const ink = colourOf('S-149', themeHue, dark, settings.themeMonochrome)
+function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
+  const ink = colourOf('S-149', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
   return view.frame.dividers
     .map((divider) => rectSvg(scaledRect(divider.line, ratio), ink))
     .join('')
@@ -167,12 +168,13 @@ function dividerLinesSvg(
 export function exportSvg(scene: ExportScene): SvgExport {
   const { regions, screenView, settings } = scene
   const screenWidth = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
-  const ratio = settings.exportCanvas.width / screenWidth
+  const canvas = SETTINGS_CONSTANTS.exportCanvas
+  const ratio = canvas.width / screenWidth
   const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
   // TRAP: ceil the 0.01-rounded height; a raw ceil turns float noise into one more pixel row.
   const grownHeight = Math.ceil(Number(rounded(screenHeight * ratio)))
-  const height = Math.max(settings.exportCanvas.height, grownHeight)
-  if (height > settings.exportCanvasHeightCap) {
+  const height = Math.max(canvas.height, grownHeight)
+  if (height > SETTINGS_CONSTANTS.exportCanvasHeightCap) {
     return { ok: false, fault: { reason: 'tooTall' } }
   }
 
@@ -181,16 +183,15 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const pinned = screenView.rowTitlePanel.pinnedTitles
   // see FR-039, T-252
   const drawn = drawnSettingsOf(settings)
-  const hue = scene.themeHue
-  const ink = chromeInk(settings, hue)
+  const ink = chromeInk(scene)
   const drawnHere =
-    appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, settings, hue, ratio) +
-    rectSvg(scaledRect(panel, ratio), chromeGround(settings, hue)) +
+    appHeaderSvg(regions.appHeader, screenView.appHeaderItems.documentTitle, scene, ratio) +
+    rectSvg(scaledRect(panel, ratio), chromeGround(scene)) +
     pinned.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     titles.map((title) => rowTitleSvg(title, panel, drawn, ink, ratio)).join('') +
-    dividerLinesSvg(screenView, settings, scene.themeHue, ratio)
+    dividerLinesSvg(screenView, scene, ratio)
 
-  const width = settings.exportCanvas.width
+  const width = canvas.width
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
     ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}">` +
@@ -215,7 +216,7 @@ export async function exportPng(
   if (!picture.ok) return picture
   // TRAP: paint at the picture's own height, not the export canvas setting's.
   const sizePx = {
-    widthPx: scene.settings.exportCanvas.width,
+    widthPx: SETTINGS_CONSTANTS.exportCanvas.width,
     heightPx: picture.heightPx,
   }
   try {

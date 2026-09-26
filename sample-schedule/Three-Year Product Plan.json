@@ -1,5 +1,5 @@
 {
- "schemaVersion": "2026-08-20",
+ "schemaVersion": "2026-09-27",
  "schedule": {
   "project": {
    "id": null,
@@ -34435,7 +34435,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": 64
+    "minHeight": 64
    },
    {
     "id": "caea43bc-4818-5af8-9a99-c63fa278f662",
@@ -34445,7 +34445,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "49b5210f-0a17-58d2-bb62-4899e9ad40a2",
@@ -34455,7 +34455,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": 40
+    "minHeight": 40
    },
    {
     "id": "7dea57be-33ea-5937-aaff-76dd71c30c38",
@@ -34465,7 +34465,7 @@
     "order": 1,
     "treeState": "auto",
     "color": "orange",
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3fe45fe8-7457-54f2-bc46-c241e7406093",
@@ -34475,7 +34475,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ae57da6e-d332-53ea-aa6f-68dadf1394ff",
@@ -34485,7 +34485,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "edb8efaf-ed12-5827-af75-75c3f3851fc9",
@@ -34495,7 +34495,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a81d7aae-eba4-5e3f-82c0-fad5426a68e8",
@@ -34505,7 +34505,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bb2e2c12-56fe-521d-a7dc-05e3e92e65ce",
@@ -34515,7 +34515,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1ea9dd91-33b2-568c-8e71-0f94b0896855",
@@ -34525,7 +34525,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "2f4547d3-2623-5c4a-860d-d5433aaa7802",
@@ -34535,7 +34535,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "5ccc1589-3583-5590-89c4-325dfeb097bc",
@@ -34545,7 +34545,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c628dfb1-fab9-5369-8990-692553689f88",
@@ -34555,7 +34555,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3040fb51-194e-5f3d-b8c0-06d2d07c7f58",
@@ -34565,7 +34565,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4fb86bdf-78d5-5921-913b-b86c276acf05",
@@ -34575,7 +34575,7 @@
     "order": 3,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bcce0f23-3681-5612-814f-e65f61c55c2c",
@@ -34585,7 +34585,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "15d7f130-0eb5-5112-88d2-8b1e20602990",
@@ -34595,7 +34595,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "261400ea-99c4-5912-8019-5ae705703093",
@@ -34605,7 +34605,7 @@
     "order": 4,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a124b329-6c82-54a7-a89b-38f7db67318c",
@@ -34615,7 +34615,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e3286219-63ca-5eec-9e06-d2c5cbdbee71",
@@ -34625,7 +34625,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "271c6267-84a6-5518-ad57-9f71d2c0a2c9",
@@ -34635,7 +34635,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4622f67e-a01a-5399-a319-153c53f141e4",
@@ -34645,7 +34645,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "2b95bd84-ed90-5f98-922a-304910d32a5f",
@@ -34655,7 +34655,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "fab9e6f1-713b-5d72-a425-3acfa9141135",
@@ -34665,7 +34665,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "89e9522a-0221-5a0f-80dd-7e4759bb4e2a",
@@ -34675,7 +34675,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "50241820-e816-5889-974c-ea67184a0d12",
@@ -34685,7 +34685,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f7677d71-93bd-5153-8bd5-b41a4c0ae5c4",
@@ -34695,7 +34695,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9450d450-4f3c-52bb-bb5f-b3a8c2debe71",
@@ -34705,7 +34705,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bc4fb088-4f75-5d09-95f5-f50926ab289b",
@@ -34715,7 +34715,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0811580c-8f5d-5014-acab-05ed26b4e89d",
@@ -34725,7 +34725,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "097eeac6-8a49-5d9e-af37-4da0b2503d5f",
@@ -34735,7 +34735,7 @@
     "order": 3,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "df51e3e6-7e67-516f-a4fd-1c21d881aa44",
@@ -34745,7 +34745,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3b3d3f4b-806a-5945-b197-bc97541df41d",
@@ -34755,7 +34755,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "083c705f-a87b-56c4-aa91-c20f5a434c76",
@@ -34765,7 +34765,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ad793b0a-daf5-5c2d-a2a4-7efb0a747f3a",
@@ -34775,7 +34775,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c3053d35-609d-553a-92c4-74d0122de72f",
@@ -34785,7 +34785,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "15f626aa-118f-5002-b879-06eed07a9976",
@@ -34795,7 +34795,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "66107d91-d7f5-587a-91ab-e764319288d1",
@@ -34805,7 +34805,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "44292938-e104-5a91-81f9-469ea8e2f640",
@@ -34815,7 +34815,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "6091030c-f99a-5e68-b942-99151d39c045",
@@ -34825,7 +34825,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1cd6e050-2a46-5a50-9d47-86da0fd5348a",
@@ -34835,7 +34835,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8741b098-e249-51ec-bbd5-bcc85282a06a",
@@ -34845,7 +34845,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9641cc4f-a5c5-5e36-b72f-30a6046e1dc8",
@@ -34855,7 +34855,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0bf89c8f-fa1e-5c67-af8a-17939de920c6",
@@ -34865,7 +34865,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "88b5e6d8-a5e7-50d3-85bb-7fd548daab7d",
@@ -34875,7 +34875,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "58fdbc1b-81de-54cc-8bff-9a42ac35d365",
@@ -34885,7 +34885,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "19fc0f34-6b8c-5d1a-a697-e0d84bb2f935",
@@ -34895,7 +34895,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "bc10a4b4-3db8-5354-a3f0-297f2017c1be",
@@ -34905,7 +34905,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "981ec975-655c-55f6-ba8f-820fbf356b81",
@@ -34915,7 +34915,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1cc4f285-31f6-5ca7-98df-303f58bcfc89",
@@ -34925,7 +34925,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "cd734b34-db3e-52e6-83f5-a1d800986918",
@@ -34935,7 +34935,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a57ac588-d673-5e49-a3d0-99d983fe61d0",
@@ -34945,7 +34945,7 @@
     "order": 3,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e05c32ff-e186-5b12-9c3e-ad144f167b02",
@@ -34955,7 +34955,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8cf0c0c7-92ab-52f6-b9a9-ea18e71f275b",
@@ -34965,7 +34965,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "218b8f93-2e89-5672-bac2-be7b72327444",
@@ -34975,7 +34975,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d6aacb57-c159-549c-a325-a45f9350da91",
@@ -34985,7 +34985,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "0fd61037-c7f5-58e8-8ff8-f2665746b3ed",
@@ -34995,7 +34995,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "b701b2b2-baf9-51c6-a190-33960a2c6d33",
@@ -35005,7 +35005,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c95165f0-68e4-5a49-b9cc-a02e3c9a582f",
@@ -35015,7 +35015,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "816a4737-1cfb-5fe3-b96f-d0d1124dd888",
@@ -35025,7 +35025,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "eecc8c6d-2696-5337-a206-78d845eefcae",
@@ -35035,7 +35035,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ed6ea7b5-5051-5df9-b1ce-8b49e22a05e1",
@@ -35045,7 +35045,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "895e0dcf-8963-5d7c-becb-895bba8c87af",
@@ -35055,7 +35055,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e8c05960-330c-5fbc-ba18-11eee5ecfae3",
@@ -35065,7 +35065,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "308f2088-33c4-5b9e-adb8-c58cb6d5d780",
@@ -35075,7 +35075,7 @@
     "order": 4,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ade47a07-93d3-5882-9df2-a0bd58e15acc",
@@ -35085,7 +35085,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c6687d9b-6776-582c-bd8a-2bf635c15a15",
@@ -35095,7 +35095,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f3e757d7-c5f6-5d24-a546-fc49bef5b860",
@@ -35105,7 +35105,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "7d168013-8523-5a77-a182-d26b56f4c7f8",
@@ -35115,7 +35115,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "704f6615-a6d1-5940-9ad3-2c34f7ee6a9a",
@@ -35125,7 +35125,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "88ed5737-bfcb-5b5e-952d-98fa2bbf22f7",
@@ -35135,7 +35135,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f9257d46-e656-54f6-9f03-ac804806a0c0",
@@ -35145,7 +35145,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d4d3d502-c74f-5414-8ad3-f053f9d932af",
@@ -35155,7 +35155,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e2099cad-a875-5f5d-bc48-9d4e9c09d600",
@@ -35165,7 +35165,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3ef58790-ce05-5be6-984a-8b7f4161720a",
@@ -35175,7 +35175,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ef5a900c-6eeb-596c-a669-f835cb233223",
@@ -35185,7 +35185,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "e2318d7d-93a9-51a5-ba26-8f50f5fb2f35",
@@ -35195,7 +35195,7 @@
     "order": 5,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "45bd6bd8-367f-5135-bbed-0376325d2a1a",
@@ -35205,7 +35205,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c44b64e7-b3e6-5eb4-938f-94eb0a941605",
@@ -35215,7 +35215,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d0bab101-a2c9-5f89-be84-cf1f50ab2129",
@@ -35225,7 +35225,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d3760ec1-86b6-5ecd-9521-b7851090ed8b",
@@ -35235,7 +35235,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "89f247d1-8a4a-5d3b-b9c3-03531aa23431",
@@ -35245,7 +35245,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "08efbc72-805d-57f6-838c-2328fe3fe91a",
@@ -35255,7 +35255,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3d927511-1b31-519c-a8de-fd0ddec4abd5",
@@ -35265,7 +35265,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "3bc32663-2d71-54d4-affb-52c3a1bfbc19",
@@ -35275,7 +35275,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "c0c38bf6-3cfb-5bca-9e6b-fcb64184ca50",
@@ -35285,7 +35285,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "8810e3c4-bb3e-5dc6-9cec-b4d071c91c8b",
@@ -35295,7 +35295,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "4987fcf8-b577-5a52-98fa-fa905ea72ca2",
@@ -35305,7 +35305,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "5edf4ff2-79a0-5ecd-b70a-d6afddbe81b9",
@@ -35315,7 +35315,7 @@
     "order": 6,
     "treeState": "auto",
     "color": "lightgray",
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d08a79c9-0c55-5e6d-b86b-c13bb68785b0",
@@ -35325,7 +35325,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f9be7e39-9063-590f-be3c-d76a8500279a",
@@ -35335,7 +35335,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "ebc56088-bdc2-56fd-abbb-da61baf3530e",
@@ -35345,7 +35345,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "f7bbf101-ae8b-5403-8fad-884a50c367ec",
@@ -35355,7 +35355,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a89f8c2e-f3ea-57af-9130-f97035bf5e7f",
@@ -35365,7 +35365,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "a308dba3-ba6b-57d8-b2ab-0a0b022e895c",
@@ -35375,7 +35375,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "09dd408b-0184-57b0-b379-99c3e950ab0a",
@@ -35385,7 +35385,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "9ad17279-fe05-51b9-9c8a-0d7fadc4161a",
@@ -35395,7 +35395,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "1a2c91b4-9cc4-5809-9df0-126c82080793",
@@ -35405,7 +35405,7 @@
     "order": 0,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "d7b7d4dd-c3e9-5289-a78d-b0aaae26ab92",
@@ -35415,7 +35415,7 @@
     "order": 1,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    },
    {
     "id": "6f4d266c-1ac8-5124-8222-5e854951aa4f",
@@ -35425,7 +35425,7 @@
     "order": 2,
     "treeState": "auto",
     "color": null,
-    "height": null
+    "minHeight": null
    }
   ],
   "taskGroupMembers": [
@@ -40734,125 +40734,30 @@
   "baselineTasks": []
  },
  "documentSettings": {
-  "actualGap": 2,
-  "actualInitialDuration": 1,
-  "actualMin": 16,
-  "actualOfPlan": 0.73,
-  "appHeaderMaxHeight": 56,
-  "arrowHeadOfSpan": 0.4,
-  "arrowHeadOfStroke": 3.2,
+  "actualVisible": true,
   "assigneeVisible": false,
-  "basePlanHeight": 28,
   "baselineVisible": false,
-  "canvasPadding": 10,
-  "carryMaxDepth": 16,
-  "chevronNotchOfHeight": 0.45,
-  "chevronNotchOfWidth": 0.35,
-  "commentBoxPad": 3,
-  "commentBoxWrapUnits": 128,
   "dateGridLinesVisible": false,
-  "dependencyArrowLength": 7,
-  "dependencyLagDefault": 0,
-  "dependencyRunOfArrow": 2,
   "dependencyVisible": true,
-  "dependencyWidth": 1.5,
-  "dualCursor": null,
-  "dummyOpacity": 0.2,
-  "exportCanvas": {
-   "height": 900,
-   "width": 1600
-  },
-  "exportPngScale": 1,
-  "fadeHandleHalfPx": 4.5,
-  "fadeHandleStrokePx": 1.5,
-  "fontMin": 12,
-  "fontOfActual": 0.8,
+  "displayScale": 100,
   "fontScale": "M",
-  "fontScaleSizes": {
-   "L": 16,
-   "M": 14,
-   "S": 12
-  },
   "groupGridLinesVisible": true,
-  "groupLevelOfDetailBase": 0.32,
-  "groupLevelOfDetailRatio": 1.875,
-  "guideCursorMode": "none",
-  "iconHintDelayMs": 150,
-  "importMaxBytes": 32,
-  "importMaxDate": "2200-12-31",
-  "importMaxDepth": 64,
-  "importMaxItems": 20000,
-  "importMinDate": "1970-01-01",
-  "labelBaseline": 0.35,
-  "labelCoef": 0.5,
-  "labelGap": 8,
-  "labelHaloOfFont": 0.17,
-  "labelPad": 6,
   "levelZeroTreeState": "auto",
-  "markerGap": 4,
-  "markerSize": 16,
-  "markerStroke": 1.3,
-  "maxGroupDepth": 5,
-  "milestoneActualDuration": 0,
-  "minShapeWidth": 6.4,
   "percentCompleteVisible": false,
   "pinnedGroupIds": [],
-  "pinnedRowMax": 5,
-  "planActualDisplay": "both",
-  "planActualGuidePattern": {
-   "off": 2,
-   "on": 2
-  },
-  "planActualGuideWeight": 1,
-  "planStroke": 1,
-  "progressLineOverhang": 6,
+  "planDatesVisible": false,
+  "planVisible": true,
   "progressLineVisible": false,
-  "progressLineWidth": 2,
   "progressMarkerVisible": true,
-  "propertyPanelWidth": 0,
-  "pxPerDayAt1x": 6,
-  "resumeArmOfMarker": 0.62,
-  "resumeDashOff": 2,
-  "resumeDashOn": 3,
-  "resumeHeadOfMarker": 0.22,
-  "resumeScaleInvalid": 0.7,
-  "rowGap": 0,
-  "rowTitleFont": 13,
-  "rowTitleIndent": 12,
   "rowTitlePanelWidth": 170,
-  "rowTitleTopScale": 1.3,
   "rulerFont": 14,
   "rulerHeight": 48,
-  "rulerLabelBottomPad": 3,
-  "rulerLabelGap": 8,
-  "rulerLabelPad": 2,
-  "rulerTierPxPerDayDay": 26,
-  "rulerTierPxPerDayMonth": 1.4,
-  "rulerTierPxPerDayWeek": 4.3,
   "scrollDate": null,
   "scrollDayOffset": 0,
   "scrollGroupId": null,
   "scrollGroupOffset": 0,
-  "shapeHeightOf": {
-   "arrow": 0.5,
-   "chevron": 1,
-   "endpointSpan": 0.5,
-   "milestone": 1,
-   "rectangle": 1
-  },
-  "spanDotOfStroke": 1.15,
   "stackDirection": "up",
-  "stackGap": 1,
-  "stackSafetyCap": 255,
-  "starInnerOfOuter": 0.45,
   "themeMonochrome": false,
-  "themePreference": "light",
-  "thinFontScale": 0.85,
-  "thinStrokeMax": 4,
-  "thinStrokeMin": 1.2,
-  "thinStrokeOfPlan": 0.2,
-  "truncateUnits": 48,
-  "watermarkVisible": true,
   "zoomX": 1,
   "zoomY": 1
  },

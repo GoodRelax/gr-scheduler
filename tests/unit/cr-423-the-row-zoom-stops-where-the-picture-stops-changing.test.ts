@@ -248,7 +248,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number): Document {
         treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id, stackOrder: null })),
       taskVisuals: [],

@@ -86,6 +86,10 @@ NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-2
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
 NOT_STORED_ANNOTATION_SIZES          ハイライトボックスの角の丸み（`S-132`）
 NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの明度の下限・上限（`S-415` / `S-416`）
+NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
+NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
+NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさ（`S-421` / `S-422`、`CR-571`）
+NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白（`S-225` / `S-226`）
 NOT_STORED_SELECTION_SIZES           選択の印の太さ・刻み・倍率（`S-174` / `S-175` / `S-178`）
@@ -101,6 +105,7 @@ SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `D
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
 SELECTION_VALUES_INITIAL_AXES        選択の状態機械の初期の種類（表 T-293 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+SETTINGS_CONSTANTS                   文書に保存しない設定の値（`_assets/tbl-settings.md` の見出しに「文書には保存しない」とある表。表 T-064 の `PI-2`、`CR-572`）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）

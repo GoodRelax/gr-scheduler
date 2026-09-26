@@ -143,7 +143,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   order: 0,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
   ...part,
 })
 

@@ -1,7 +1,7 @@
 {
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233 and for every row of table T-220 an import refusal carries (FR-076), the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers, and the word for every arm of table T-023b that FR-053 lets the palette put the pointer in, and the seven weekdays the fourth ruler tier prints (FR-017).",
+  "The words the screen prints: every entry of table T-109 and the explanation EZ-2 shows beside it, the group names of the command palette, the headings of the surfaces table T-103 has named, the manner of every row of table T-037, the words and the next step for every reason of table T-233 and for every row of table T-220 an import refusal carries (FR-076), the sentence every question of table T-234 shows, the two answers NT-7 asks for, the three headings FR-072 asks for, and the assignments of table T-023 that FR-037 offers, and the word for every arm of table T-023b that FR-053 lets the palette put the pointer in, and the seven weekdays the fourth ruler tier prints (FR-017), and the four parts of a row's min height field that table T-338 asks for (FR-042).",
   "Generated FROM this file: src/adapter/screen-renderer/display-words.json (tools/generate_display_words.py).",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
   "EVERY ENTRY IS WRITTEN BY THE USER AND AN AGENT MUST NOT INVENT ONE. Table T-109 refuses an English column in as many words, and a word invented by an agent would settle the very names that refusal protects. Fill ja and en here for anything added; nothing else has to change for a word to appear, and the generator counts the written cells on every run.",
@@ -72,8 +72,8 @@
     "en": "Baseline"
    },
    "hint": {
-    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする",
-    "en": "Overlay the baseline; press again to hide it"
+    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする。重ねる予定が無いときは、そのファイルを選ぶ",
+    "en": "Overlay the baseline; press again to hide it. With no baseline yet, choose its file"
    }
   },
   {
@@ -129,6 +129,28 @@
    "hint": {
     "ja": "日程の全体が 1 画面に収まる倍率と位置にする",
     "en": "Set the zoom and position that fit the whole schedule on one screen"
+   }
+  },
+  {
+   "rowId": "IC-117",
+   "label": {
+    "ja": "検索",
+    "en": "Search"
+   },
+   "hint": {
+    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
+    "en": "Open the search panel; if it is open, return to its search box"
+   }
+  },
+  {
+   "rowId": "IC-107",
+   "label": {
+    "ja": "遅延診断",
+    "en": "Delay Diagnostics"
+   },
+   "hint": {
+    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
+    "en": "Run the Delay Diagnostics; press again to end its display"
    }
   },
   {
@@ -237,30 +259,19 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する",
-    "en": "Show the document's drawing settings in the Properties Panel"
+    "ja": "文書の描画設定をプロパティパネルに表示する。テーマの色相もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen"
    }
   },
   {
-   "rowId": "IC-18",
+   "rowId": "IC-115",
    "label": {
-    "ja": "対話欄",
-    "en": "Dialogue Field"
+    "ja": "日程の画像をデータ化するプロンプト",
+    "en": "Schedule Image-to-JSON Prompt"
    },
    "hint": {
-    "ja": "AI との対話欄を表示する。もう一度押すと非表示にする",
-    "en": "Show the Dialogue Field for talking with the AI; press again to hide it"
-   }
-  },
-  {
-   "rowId": "IC-19",
-   "label": {
-    "ja": "AI 出力",
-    "en": "AI Export"
-   },
-   "hint": {
-    "ja": "AI へ渡す文書を画面で確かめて写す",
-    "en": "Check the document to hand to the AI on screen, then copy it"
+    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力する",
+    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process"
    }
   },
   {
@@ -275,14 +286,25 @@
    }
   },
   {
-   "rowId": "IC-21",
+   "rowId": "IC-18",
    "label": {
-    "ja": "表示言語",
-    "en": "Language"
+    "ja": "対話欄",
+    "en": "Dialogue Field"
    },
    "hint": {
-    "ja": "画面とヘルプの表示言語を選ぶ。いまの言語は入口に出る",
-    "en": "Choose the display language for the screen and the help; the current one shows on the entry"
+    "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
+    "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
+   }
+  },
+  {
+   "rowId": "IC-21",
+   "label": {
+    "ja": "画面の言語",
+    "en": "Screen language"
+   },
+   "hint": {
+    "ja": "画面の言語を選ぶ。ヘルプの中は変えない。いまの言語は入口に出る",
+    "en": "Choose the screen language; the help keeps its own. The current one shows on the entry"
    }
   },
   {
@@ -792,6 +814,50 @@
    }
   },
   {
+   "rowId": "IC-128",
+   "label": {
+    "ja": "ヘルプの言語",
+    "en": "Help language"
+   },
+   "hint": {
+    "ja": "ヘルプの中の言語だけを選ぶ。いまの言語は入口に出る",
+    "en": "Choose the language of the help only; the current one shows on the entry"
+   }
+  },
+  {
+   "rowId": "IC-129",
+   "label": {
+    "ja": "最小化",
+    "en": "Minimise"
+   },
+   "hint": {
+    "ja": "ウインドウを最小化する。もう一度押すと戻る",
+    "en": "Minimise the window; press again to restore"
+   }
+  },
+  {
+   "rowId": "IC-130",
+   "label": {
+    "ja": "最大化",
+    "en": "Maximise"
+   },
+   "hint": {
+    "ja": "ウインドウを最大化する",
+    "en": "Maximise the window"
+   }
+  },
+  {
+   "rowId": "IC-131",
+   "label": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
+   },
+   "hint": {
+    "ja": "最大化したウインドウを元のサイズに戻す",
+    "en": "Restore the window to its size"
+   }
+  },
+  {
    "rowId": "IC-58",
    "label": {
     "ja": "すべて開く",
@@ -877,6 +943,116 @@
    "hint": {
     "ja": "すべての行と、載っているタスクを削除する",
     "en": "Delete all rows and the tasks they carry"
+   }
+  },
+  {
+   "rowId": "IC-118",
+   "label": {
+    "ja": "タスク",
+    "en": "Tasks"
+   },
+   "hint": {
+    "ja": "タスクとマイルストーンの表を出す",
+    "en": "Show the table of tasks and milestones"
+   }
+  },
+  {
+   "rowId": "IC-119",
+   "label": {
+    "ja": "コメントボックス",
+    "en": "Comment Boxes"
+   },
+   "hint": {
+    "ja": "コメントボックスの表を出す",
+    "en": "Show the table of comment boxes"
+   }
+  },
+  {
+   "rowId": "IC-120",
+   "label": {
+    "ja": "最小化",
+    "en": "Minimise"
+   },
+   "hint": {
+    "ja": "検索パネルを最小化する。もう一度押すと戻る",
+    "en": "Minimise the search panel; press again to restore it"
+   }
+  },
+  {
+   "rowId": "IC-121",
+   "label": {
+    "ja": "最大化",
+    "en": "Maximise"
+   },
+   "hint": {
+    "ja": "検索パネルを最大化する。もう一度押すと元のサイズに戻る",
+    "en": "Maximise the search panel; press again to restore its size"
+   }
+  },
+  {
+   "rowId": "IC-122",
+   "label": {
+    "ja": "絞り込み",
+    "en": "Filter"
+   },
+   "hint": {
+    "ja": "この列の絞り込みと並べ替えを開く",
+    "en": "Open this column's filter and sort"
+   }
+  },
+  {
+   "rowId": "IC-123",
+   "label": {
+    "ja": "昇順",
+    "en": "Sort Ascending"
+   },
+   "hint": {
+    "ja": "この列で昇順に並べる",
+    "en": "Sort by this column, ascending"
+   }
+  },
+  {
+   "rowId": "IC-124",
+   "label": {
+    "ja": "降順",
+    "en": "Sort Descending"
+   },
+   "hint": {
+    "ja": "この列で降順に並べる",
+    "en": "Sort by this column, descending"
+   }
+  },
+  {
+   "rowId": "IC-125",
+   "label": {
+    "ja": "すべて表示",
+    "en": "Show All"
+   },
+   "hint": {
+    "ja": "値の一覧のすべてを表示に入れる",
+    "en": "Show every value in the list"
+   }
+  },
+  {
+   "rowId": "IC-126",
+   "label": {
+    "ja": "すべて外す",
+    "en": "Clear All"
+   },
+   "hint": {
+    "ja": "値の一覧のすべてを表示から外す",
+    "en": "Hide every value in the list"
+   }
+  },
+  {
+   "rowId": "IC-127",
+   "label": {
+    "ja": "文字の大きさ",
+    "en": "Text size"
+   },
+   "hint": {
+    "ja": "検索パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
+    "en": "Change the text size of the search panel's table and search box (cycles through 12, 14, 16 and 20 px)"
    }
   },
   {
@@ -1194,8 +1370,15 @@
   {
    "rowId": "PR-20",
    "label": {
-    "ja": "高さ",
-    "en": "height"
+    "ja": "最小高さ（ズーム 100% 時）",
+    "en": "min height (at 100% zoom)"
+   }
+  },
+  {
+   "rowId": "PR-33",
+   "label": {
+    "ja": "編集権限",
+    "en": "Edit permission"
    }
   },
   {
@@ -1213,10 +1396,52 @@
    }
   },
   {
+   "rowId": "PR-26",
+   "label": {
+    "ja": "線の太さ",
+    "en": "stroke width"
+   }
+  },
+  {
+   "rowId": "PR-27",
+   "label": {
+    "ja": "塗りの透過率（%）",
+    "en": "fill transparency (%)"
+   }
+  },
+  {
+   "rowId": "PR-28",
+   "label": {
+    "ja": "線 / 塗り / 文字",
+    "en": "stroke / fill / text"
+   }
+  },
+  {
+   "rowId": "PR-23",
+   "label": {
+    "ja": "線の太さ",
+    "en": "stroke width"
+   }
+  },
+  {
+   "rowId": "PR-24",
+   "label": {
+    "ja": "塗りの透過率（%）",
+    "en": "fill transparency (%)"
+   }
+  },
+  {
    "rowId": "PR-22",
    "label": {
     "ja": "枠の色",
     "en": "strokeColor"
+   }
+  },
+  {
+   "rowId": "PR-25",
+   "label": {
+    "ja": "塗り",
+    "en": "fill"
    }
   }
  ],
@@ -2078,8 +2303,15 @@
   {
    "rowId": "K-90",
    "label": {
-    "ja": "表示言語（ja / en）。置き場と規則は表 T-206 の S-99",
-    "en": "language"
+    "ja": "画面の言語（ja / en）。置き場と規則は表 T-206 の S-99",
+    "en": "screenLanguage"
+   }
+  },
+  {
+   "rowId": "K-139",
+   "label": {
+    "ja": "ヘルプの言語（ja / en）。置き場と規則は表 T-206 の S-434",
+    "en": "helpLanguage"
    }
   }
  ],
@@ -2129,13 +2361,6 @@
    }
   },
   {
-   "name": "AI Export Modal",
-   "heading": {
-    "ja": "AI 出力",
-    "en": "AI Export Modal"
-   }
-  },
-  {
    "name": "Resource Roster",
    "heading": {
     "ja": "名簿",
@@ -2161,6 +2386,13 @@
    "heading": {
     "ja": "プロパティパネル",
     "en": "Properties Panel"
+   }
+  },
+  {
+   "name": "Search Panel",
+   "heading": {
+    "ja": "検索パネル",
+    "en": "Search panel"
    }
   }
  ],
@@ -2579,17 +2811,6 @@
    }
   },
   {
-   "rowId": "RS-35",
-   "text": {
-    "ja": "対話欄は Agent API が入っているあいだだけ出せます",
-    "en": "The dialogue field is only available while the Agent API is on"
-   },
-   "nextStep": {
-    "ja": "Agent API を入れてから、もう一度押してください",
-    "en": "Turn the Agent API on first, then press again"
-   }
-  },
-  {
    "rowId": "RS-36",
    "text": {
     "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせません",
@@ -2876,6 +3097,39 @@
    }
   },
   {
+   "rowId": "RS-62",
+   "text": {
+    "ja": "編集権限は人だけが変えられます",
+    "en": "Only a person can change the edit permission"
+   },
+   "nextStep": {
+    "ja": "プロパティパネルで、人に入れてもらってください",
+    "en": "Ask a person to set it in the properties panel"
+   }
+  },
+  {
+   "rowId": "RS-66",
+   "text": {
+    "ja": "ピン止め行が多くて検索結果を表示できません。",
+    "en": "Too many pinned rows to show the search result."
+   },
+   "nextStep": {
+    "ja": "ピン止めを減らしてください。",
+    "en": "Unpin some rows."
+   }
+  },
+  {
+   "rowId": "RS-65",
+   "text": {
+    "ja": "クリップボードに貼り付けたプロンプトをAIに渡してください。",
+    "en": "Paste the prompt from the clipboard into an AI."
+   },
+   "nextStep": {
+    "ja": "冒頭部分は適宜編集してください。",
+    "en": "Edit its opening part as needed."
+   }
+  },
+  {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
@@ -3090,17 +3344,6 @@
    }
   },
   {
-   "rowId": "IV-13",
-   "text": {
-    "ja": "",
-    "en": ""
-   },
-   "nextStep": {
-    "ja": "",
-    "en": ""
-   }
-  },
-  {
    "rowId": "IV-14",
    "text": {
     "ja": "",
@@ -3168,6 +3411,17 @@
   },
   {
    "rowId": "IV-21",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IV-22",
    "text": {
     "ja": "",
     "en": ""
@@ -3557,12 +3811,23 @@
   {
    "rowId": "MK-13",
    "text": {
-    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、行見出し＝行名",
-    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; row title: the row name"
+    "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当者を編集、タスクと実績＝プロパティパネルを開いて名前を編集、行見出し＝行名、依存線の続きの印（…）＝その先のタスクが見える所まで表示を送る",
+    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; row title: the row name; the dots that end a dependency line: brings the task at its far end into view"
    },
    "press": {
     "ja": "ダブルクリック",
     "en": "Double click"
+   }
+  },
+  {
+   "rowId": "MK-15",
+   "text": {
+    "ja": "選んでいるものを写して、離した所に置く",
+    "en": "Copy the Selection and put the copy where you release"
+   },
+   "press": {
+    "ja": "選んでいるものの上で Ctrl ＋ ドラッグ",
+    "en": "Ctrl + drag on the Selection"
    }
   }
  ],
@@ -3747,6 +4012,48 @@
    }
   }
  ],
+ "rowMinHeightField": [
+  {
+   "part": "unit",
+   "text": {
+    "ja": "px",
+    "en": "px"
+   }
+  },
+  {
+   "part": "current",
+   "text": {
+    "ja": "現在の高さ {px}px",
+    "en": "current: {px} px"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "なし",
+    "en": "none"
+   }
+  },
+  {
+   "part": "currentlyHidden",
+   "text": {
+    "ja": "現在非表示",
+    "en": "currently hidden"
+   }
+  }
+ ],
+ "themeHues": [
+  {"rowId": "TH-1", "text": {"ja": "青", "en": "Blue"}},
+  {"rowId": "TH-2", "text": {"ja": "青緑", "en": "Blue-green"}},
+  {"rowId": "TH-3", "text": {"ja": "緑", "en": "Green"}},
+  {"rowId": "TH-4", "text": {"ja": "黄緑", "en": "Yellow-green"}},
+  {"rowId": "TH-5", "text": {"ja": "黄", "en": "Yellow"}},
+  {"rowId": "TH-6", "text": {"ja": "オレンジ", "en": "Orange"}},
+  {"rowId": "TH-7", "text": {"ja": "赤", "en": "Red"}},
+  {"rowId": "TH-8", "text": {"ja": "赤紫", "en": "Red-purple"}},
+  {"rowId": "TH-9", "text": {"ja": "紫", "en": "Purple"}},
+  {"rowId": "TH-10", "text": {"ja": "藍", "en": "Indigo"}}
+ ],
  "scaleEcho": [
   {
    "end": "max",
@@ -3797,6 +4104,131 @@
    "text": {
     "ja": "{y}/{m}/{d} ({n} day)",
     "en": "{y}/{m}/{d} ({n} day)"
+   }
+  }
+ ],
+ "searchColumns": [
+  {
+   "rowId": "SQ-1",
+   "text": {
+    "ja": "タスク（マイルストーン）",
+    "en": "Task (Milestone)"
+   }
+  },
+  {
+   "rowId": "SQ-2",
+   "text": {
+    "ja": "担当者名",
+    "en": "Assignees"
+   }
+  },
+  {
+   "rowId": "SQ-3",
+   "text": {
+    "ja": "予定開始",
+    "en": "Planned Start"
+   }
+  },
+  {
+   "rowId": "SQ-4",
+   "text": {
+    "ja": "予定終了",
+    "en": "Planned Finish"
+   }
+  },
+  {
+   "rowId": "SQ-5",
+   "text": {
+    "ja": "状態",
+    "en": "Status"
+   }
+  },
+  {
+   "rowId": "SQ-6",
+   "text": {
+    "ja": "最上位までの階層",
+    "en": "Path from Top"
+   }
+  },
+  {
+   "rowId": "SQ-7",
+   "text": {
+    "ja": "本文",
+    "en": "Body"
+   }
+  },
+  {
+   "rowId": "SQ-8",
+   "text": {
+    "ja": "行タイトル",
+    "en": "Row Title"
+   }
+  },
+  {
+   "rowId": "SQ-9",
+   "text": {
+    "ja": "日付",
+    "en": "Date"
+   }
+  }
+ ],
+ "planActualStates": [
+  {
+   "rowId": "PS-1",
+   "text": {
+    "ja": "未着手",
+    "en": "Not started"
+   }
+  },
+  {
+   "rowId": "PS-2",
+   "text": {
+    "ja": "完了",
+    "en": "Finished"
+   }
+  },
+  {
+   "rowId": "PS-3",
+   "text": {
+    "ja": "中断・再開日未定",
+    "en": "Paused, no resume date"
+   }
+  },
+  {
+   "rowId": "PS-4",
+   "text": {
+    "ja": "中断・再開予定あり",
+    "en": "Paused, resume date set"
+   }
+  },
+  {
+   "rowId": "PS-5",
+   "text": {
+    "ja": "進行中",
+    "en": "In progress"
+   }
+  }
+ ],
+ "searchPanel": [
+  {
+   "part": "blank",
+   "text": {
+    "ja": "（空白）",
+    "en": "(Blanks)"
+   }
+  },
+  {
+   "part": "noName",
+   "text": {
+    "ja": "（名前なし）",
+    "en": "(No name)"
+   }
+  },
+  {
+   "part": "restore",
+   "text": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
    }
   }
  ]

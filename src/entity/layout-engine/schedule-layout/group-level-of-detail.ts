@@ -3,7 +3,7 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../document-model/schedule/schedule'
 
 // see T-329
@@ -41,7 +41,7 @@ export function keptInViewByTreeState(
 
 // see LC-2, FR-018
 /** @purity pure */
-export function groupDepthLimit(settings: DocumentSettings): number {
+export function groupDepthLimit(settings: DrawnSettings): number {
   let limit = 1
   for (let depth = 2; depth <= settings.maxGroupDepth; depth++) {
     if (settings.zoomY >= groupDepthThresholdOf(depth, settings)) limit = depth
@@ -53,6 +53,6 @@ export function groupDepthLimit(settings: DocumentSettings): number {
 // TRAP: never retype this: the fit lands zoomY on it and groupDepthLimit reads it back,
 // so an ulp apart draws one depth shallower.
 /** @purity pure */
-export function groupDepthThresholdOf(depth: number, settings: DocumentSettings): number {
+export function groupDepthThresholdOf(depth: number, settings: DrawnSettings): number {
   return settings.groupLevelOfDetailBase * Math.pow(settings.groupLevelOfDetailRatio, depth - 2)
 }

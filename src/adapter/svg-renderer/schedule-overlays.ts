@@ -3,7 +3,7 @@
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type {
   Point,
@@ -33,9 +33,18 @@ import {
   type Watermark,
 } from './svg-renderer'
 
+// see S-72, S-66
+// WHY: the two screen values the picture reads, spelled here so the renderer
+// depends on no use case; ScreenValues satisfies it as it stands.
+export interface ViewerValues {
+  readonly themePreference: 'light' | 'dark'
+  readonly guideCursorMode: 'none' | 'crosshair' | 'single-vertical'
+}
+
 export interface OverlaysInput {
   readonly geometry: ScheduleGeometry
-  readonly settings: DocumentSettings
+  readonly settings: DrawnSettings
+  readonly guideCursorMode: ViewerValues['guideCursorMode']
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
   readonly themed: (rowId: string) => string
@@ -128,6 +137,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const {
     geometry,
     settings,
+    guideCursorMode,
     regions,
     themed,
     chosen,
@@ -164,7 +174,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   linkParts.push(...dualCursorLines(input))
 
-  if (drawsOperationState && settings.guideCursorMode !== 'none' && pointer !== null) {
+  if (drawsOperationState && guideCursorMode !== 'none' && pointer !== null) {
     const area = regions.rowArea
     const inside =
       pointer.x >= area.x &&
@@ -179,7 +189,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
         ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
         `${figureKey('guide-cursor-vertical')}/>`
-      if (settings.guideCursorMode === 'crosshair') {
+      if (guideCursorMode === 'crosshair') {
         linkParts.push(vertical(pointer.x))
         linkParts.push(
           `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
@@ -187,7 +197,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
             ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
             `${figureKey('guide-cursor-horizontal')}/>`,
         )
-      } else if (settings.guideCursorMode === 'single-vertical') {
+      } else if (guideCursorMode === 'single-vertical') {
         linkParts.push(vertical(pointer.x))
       }
     }
