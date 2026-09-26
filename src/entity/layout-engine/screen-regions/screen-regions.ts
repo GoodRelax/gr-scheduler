@@ -115,7 +115,6 @@ function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): n
   return Math.max(settings.rowTitlePanelWidth * ratio, indents + grabStrip + rowControls)
 }
 
-// see FR-039, T-252
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
 
 // TRAP: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
