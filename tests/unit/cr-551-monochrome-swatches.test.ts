@@ -89,7 +89,12 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
     readFieldEditNotices: () => (drawn as unknown as { readFieldEditNotices?: () => unknown[] }).readFieldEditNotices?.() ?? [],
     readScreenPartAt: () => aimed,
   } as unknown as ScreenSurface
-  const loop = frameLoop({ showSvg: (svg: string) => svgs.push(svg) } as never, document as never, SCREEN, { surface, language: 'ja' })
+  // WHY: S-72 is a screen value since CR-572; the side is the one the browser hands the start.
+  const loop = frameLoop({ showSvg: (svg: string) => svgs.push(svg) } as never, document as never, SCREEN, {
+    surface,
+    language: 'ja',
+    themePreference: side,
+  })
   drain()
   const send = (input: Parameters<FrameLoop['receiveInput']>[0]): void => {
     loop.receiveInput(input)
@@ -117,9 +122,9 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
 
 // WHY: one task per palette name, each drawn in that name for its fill and its line, so the drawing itself
 // says what each name is painted as; task 1 carries the colour the field shows.
-function documentOf(side: Side, mono: boolean, first: Record<string, unknown> = {}) {
+function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
   const rows = NAMED.map((_name, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = rowDocument(rows, { progressMarkerVisible: false, themePreference: side, [MONO_KEY]: mono })
+  const document = rowDocument(rows, { progressMarkerVisible: false, [MONO_KEY]: mono })
   document.schedule.tasks = NAMED.map((_name, index) =>
     taskOf(index + 1, { name: `T${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
@@ -234,15 +239,15 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
 
   it('CV-9 / CV-7: with S-74 on, every name swatch is painted as the drawing paints that name in monochrome', () => {
     // see CV-9, CV-7, S-74
-    const built = panelOnTask(documentOf('light', true), 'light')
+    const built = panelOnTask(documentOf(true), 'light')
     expect(isGrey(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is monochrome').toBe(true)
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })
 
   it('CV-9 / CV-7: with S-74 on, both side swatches are the drawing monochrome value of that side, and the words stay the stored name', () => {
     // see CV-9, CV-7, S-74
-    const light = panelOnTask(documentOf('light', true), 'light')
-    const dark = bench(documentOf('dark', true), 'dark')
+    const light = panelOnTask(documentOf(true), 'light')
+    const dark = bench(documentOf(true), 'dark')
     const [lightSide, darkSide] = sideSwatches(light).slice(2, 4)
     expect(sameColour(groundOf(lightSide as FakeElement), drawnPaint(light, 1, 'fill')), 'the light side').toBe(true)
     expect(sameColour(groundOf(darkSide as FakeElement), drawnPaint(dark, 1, 'fill')), 'the dark side').toBe(true)
@@ -251,7 +256,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
 
   it('CV-9: with S-74 on, a custom colour keeps its uppercase hex in the words while its swatch turns grey', () => {
     // see CV-9, CV-7
-    const built = panelOnTask(documentOf('light', true, { fillColor: '#c0504d/' }), 'light')
+    const built = panelOnTask(documentOf(true, { fillColor: '#c0504d/' }), 'light')
     expect(sidesText(built)).toContain('#C0504D')
     const fillLight = sideSwatches(built)[2] as FakeElement
     expect(isGrey(groundOf(fillLight)), groundOf(fillLight)).toBe(true)
@@ -260,7 +265,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
 
   it('CV-9: turning S-74 off (IC-100) restores the colours the drawing paints', () => {
     // see CV-9, S-74, IC-100
-    const built = panelOnTask(documentOf('light', true), 'light')
+    const built = panelOnTask(documentOf(true), 'light')
     built.press('App Header', 'IC-100')
     expect(built.loop.document().documentSettings[MONO_KEY as 'themeMonochrome'], 'premise: IC-100 turned S-74 off').toBe(false)
     expect(isGrey(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is in colour').toBe(false)
@@ -270,7 +275,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
   it('CV-9: 透明の市松と未定義の破線はそのまま -- the same with S-74 on as off', () => {
     // see CV-9
     const style = (mono: boolean): string[] => {
-      const built = panelOnTask(documentOf('light', mono, { fillColor: '#c0504d/', strokeColor: TRANSPARENT }), 'light')
+      const built = panelOnTask(documentOf(mono, { fillColor: '#c0504d/', strokeColor: TRANSPARENT }), 'light')
       return sideSwatches(built).map((one) => {
         const held = styleMap(one)
         return `${held.get('background') ?? ''}|${held.get('border') ?? ''}`

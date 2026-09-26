@@ -270,7 +270,7 @@ const groupOf = (): TaskGroup =>
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }) as unknown as TaskGroup
 
 const scheduleWith = (task: Task): Schedule =>

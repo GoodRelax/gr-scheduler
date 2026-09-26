@@ -1123,7 +1123,7 @@ const SCHEDULE_WITH_A_ROW = {
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
-      height: null,
+      minHeight: null,
     },
   ],
 } as unknown as Schedule

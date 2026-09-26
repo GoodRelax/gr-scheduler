@@ -263,9 +263,9 @@ describe('IR-1 -- the row fields carry their T-016 row IDs', () => {
     const rowOf = (column: string): string | undefined =>
       fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === column))?.row
     expect(rowOf('color')).toBe(t016RowOf('TaskGroup', 'color'))
-    expect(rowOf('height')).toBe(t016RowOf('TaskGroup', 'height'))
+    expect(rowOf('minHeight')).toBe(t016RowOf('TaskGroup', 'minHeight'))
     expect(rowOf('label')).toBe('AT-53')
-    for (const row of [t016RowOf('TaskGroup', 'color'), t016RowOf('TaskGroup', 'height'), 'AT-53']) {
+    for (const row of [t016RowOf('TaskGroup', 'color'), t016RowOf('TaskGroup', 'minHeight'), 'AT-53']) {
       expect(fieldNodes(built, row).length, `the drawn field carries ${row}`).toBeGreaterThan(0)
     }
   })

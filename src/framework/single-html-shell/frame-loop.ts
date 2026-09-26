@@ -150,6 +150,7 @@ import {
   readBrowserStored,
   startupAgentApiEnabled,
   startupDisplayLanguage,
+  startupThemePreference,
   writeBrowserStored,
 } from './browser-stored-values'
 import {
@@ -179,7 +180,13 @@ import {
   FIELD_ROW_OF_IN_PLACE_TARGET,
 } from './field-entry'
 import { frameClockWakesOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
-import { marqueeRect, previewOfHeldPress, tentativeDependencyOf } from './held-press-preview'
+import {
+  heldPropertyPanelWidthOf,
+  leavesRowArea,
+  marqueeRect,
+  previewOfHeldPress,
+  tentativeDependencyOf,
+} from './held-press-preview'
 import {
   interactionRecorderOf,
   isRecordingInteractionsIn,
@@ -193,7 +200,7 @@ import { runSessionEffects, type EffectRunners } from './session-effects'
 import { heldViewPlaceOf } from './view-place'
 import { answerWatermarkUnlock, matchWatermarkUnlock } from './watermark-unlock'
 
-export { startupAgentApiEnabled, startupDisplayLanguage } from './browser-stored-values'
+export { startupAgentApiEnabled, startupDisplayLanguage, startupThemePreference } from './browser-stored-values'
 export { pointerImageOf, pointerRowOf } from './pointer-shape'
 export type { PointerFacing, PointerRow, PointerShape, ShowPointerShape } from './pointer-shape'
 export { WATERMARK_UNLOCK_DIGEST } from './watermark-unlock'
@@ -254,6 +261,8 @@ export interface FrameLoop {
   receiveInput(input: HumanInput): void
   current(): FrameValues | null
   document(): Document
+  // see FR-039, S-72
+  themePreference(): ScreenValues['themePreference']
   /** @purity semi-pure-b */
   exportScene(): ExportScene | null
   /** @purity semi-pure-b */
@@ -281,6 +290,8 @@ export interface FullScreenHost {
 export interface ScreenWiring {
   readonly surface: ScreenSurface
   readonly language: DisplayLanguage
+  // see FR-039, S-72
+  readonly themePreference?: ScreenValues['themePreference']
   // TRAP: optional, so a host that omits it leaves MK-13 half done with nothing
   // to say so.
   // WHY: only false (the focus did not enter) asks again; a host that cannot tell answers otherwise.
@@ -375,7 +386,7 @@ const ESCAPE_DUAL_CURSOR: ScreenValuesEvent = { type: 'escapePressed', rung: 'du
 const ESCAPE_TOOLTIP: ScreenValuesEvent = { type: 'escapePressed', rung: 'tooltip' }
 const SURFACE_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'surface' }
 const PANEL_CLOSE_ASKED: ScreenValuesEvent = { type: 'surfaceCloseAsked', target: 'panel' }
-const POINTER_RESTED: ScreenValuesEvent = { type: 'pointerRestElapsed' }
+const POINTER_RESTED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
@@ -401,10 +412,6 @@ export const AGENT_DOCUMENT_HANDED: SessionEvent = { type: 'agentDocumentHanded'
 export const DOCUMENT_OPEN_FAILED: SessionEvent = { type: 'documentOpenFailed' }
 export const DOCUMENT_FILE_WRITE_ENDED: SessionEvent = { type: 'documentFileWriteEnded' }
 const SAVE_WRITE_FORM: FileFlowWriteForm = { kind: 'save' }
-const CLEAR_DUAL_CURSOR: readonly DocumentCommand[] = [{ kind: 'clearDualCursor' }]
-
-// see DC-9
-const GUIDE_CURSOR_CLEARED: DocumentCommand = { kind: 'setGuideCursorMode', mode: GUIDE_CURSOR_NONE }
 
 // see IN-4, T-283
 // WHY: null where today's call spends the rung -- notice and confirmation in receiveInput, textEntry
@@ -715,6 +722,7 @@ interface ScreenViewReadingsTaken {
   readonly fileSavedAt: string | null
   readonly isAgentApiEnabled: boolean
   readonly isAiExportSurfaceOpen: boolean
+  readonly themePreference: ScreenValues['themePreference']
   readonly pointer: { readonly x: number; readonly y: number } | null
   readonly pointerRestedMs: number
   readonly iconUnderPointer: IconId | null
@@ -756,7 +764,6 @@ function screenViewReadingsOf(
     ...carried,
     ...(isAiExportSurfaceOpen ? { aiExportDocument: jsonFromDocument(held) } : {}),
     commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions),
-    themePreference: held.documentSettings.themePreference,
     themeHue: held.schedule.project.themeHue,
     rowBoxes: drawnRowBoxesOf(layout, regions),
     placedRowGroupIds: layout.rows.map((row) => row.groupId),
@@ -797,12 +804,19 @@ function heldWholeOf(press: PointerPress | null): HeldWholes | null {
   }
 }
 
-// see T-280, SS-6
-// WHY: the startup language seats the initial value; sent as an event it would store S-99 on
+// see T-280, SS-6, S-72, S-171
+// WHY: the startup values seat the initial screen; sent as events they would store S-99 on
 // every start, which today's start never writes (FR-038).
 /** @purity pure */
-function startingSession(language: DisplayLanguage): ScreenSession {
-  return { ...emptyScreenSession, screen: { ...emptyScreenSession.screen, language } }
+function startingSession(language: DisplayLanguage, themePreference: ScreenValues['themePreference']): ScreenSession {
+  const screen: ScreenValues = {
+    ...emptyScreenSession.screen,
+    screenLanguage: language,
+    helpLanguage: language,
+    themePreference,
+    propertyPanelWidth: NOT_STORED_PROPERTIES_PANEL_SIZES['S-171'],
+  }
+  return { ...emptyScreenSession, screen }
 }
 
 // see FR-080, EP-11, EP-12
@@ -811,7 +825,9 @@ function pictureSessionOf(session: ScreenSession): ScreenSession {
   const now = session.screen
   const screen: ScreenValues = {
     ...emptyScreenSession.screen,
-    language: now.language,
+    screenLanguage: now.screenLanguage,
+    helpLanguage: now.helpLanguage,
+    themePreference: now.themePreference,
     paletteDisplayState: { kind: 'hidden' },
     dialogueFieldDisplayState: { kind: 'hidden' },
   }
@@ -843,7 +859,7 @@ export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | 
 // WHY: never null here; startingSession seats the language before the first frame.
 /** @purity pure */
 function displayLanguageIn(session: ScreenSession): DisplayLanguage {
-  return session.screen.language ?? 'en'
+  return session.screen.screenLanguage ?? 'en'
 }
 
 /** @purity pure */
@@ -904,23 +920,11 @@ function withSurfaceReplaced(
   return isReplacing ? [SURFACE_CLOSE_ASKED, event] : [event]
 }
 
-// see DC-1, DC-2, DC-4, DC-9, T-280
+// see FR-052, U-50
+// WHY: a width that leaves the Row Area at 0 or less is not taken (MUST NOT); the screen keeps its width.
 /** @purity pure */
-function dualCursorEventOf(
-  action: Extract<InputAction, { readonly kind: 'setDualCursorFollowing' }>,
-  session: ScreenSession,
-): ScreenValuesEvent {
-  if (action.guideCursor !== undefined) return { type: 'guideCursorEntryPressed', guideCursor: action.guideCursor }
-  const placed = action.placed
-  const writes: readonly DocumentCommand[] =
-    placed === null || placed.kind === 'clearDualCursor' ? [] : [placed]
-  const following = dualCursorFollowingIn(session)
-  if (following === null || action.following === null) {
-    const date = placed?.kind === 'setDualCursor' ? placed.date1 : ''
-    return { type: 'dualCursorEntryPressed', date, hasDaysToPlace: true, writes }
-  }
-  if (placed?.kind !== 'setDualCursor') return { type: 'dualCursorPlaced', date: '', writes }
-  return { type: 'dualCursorPlaced', date: following === 'date1' ? placed.date1 : placed.date2, writes }
+function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): boolean {
+  return event.type === 'propertyPanelWidthSettled' && !leavesRowArea(event.propertyPanelWidth, frame.regions)
 }
 
 // see FR-072, IC-17, EN-4, S-99h
@@ -962,7 +966,6 @@ interface ScreenEffectHands {
   readonly askBrowserForFullScreen: () => void
   readonly matchWatermarkUnlock: () => void
   readonly clearSelection: () => void
-  readonly writeCarried: (writes: readonly DocumentCommand[], frame: FrameValues | null) => void
   readonly startScaleMessageTimer: () => void
   readonly startEntryRepeat: () => void
   readonly repeatHeldEntry: () => void
@@ -984,24 +987,27 @@ interface ScreenEffectHands {
 // see SF-6, UF-123, T-280
 /** @purity pure */
 function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect> {
-  const carried = (effect: { readonly writes: readonly DocumentCommand[] }, frame: FrameValues | null): void =>
-    hands.writeCarried(effect.writes, frame)
   return {
     raiseNotice: (effect) => hands.raiseNotice(effect.reason),
 
-    storeLanguage: (effect) => hands.storeLanguage(effect.language),
+    storeScreenLanguage: (effect) => hands.storeLanguage(effect.screenLanguage),
+    // WHY: the step already holds these in the screen values; FR-039, FR-048, FR-052 and DC-1 keep them nowhere else.
+    writeHelpLanguage: () => undefined,
+    storeThemePreference: () => undefined,
+    storeGuideCursorMode: () => undefined,
+    storePropertyPanelWidth: () => undefined,
+    storePlacedDualCursorClearingGuide: () => undefined,
+    storeFixedDate1: () => undefined,
+    storeFixedDate2: () => undefined,
+    storeClearedDualCursor: () => undefined,
+    seedHelpLanguage: () => undefined,
+    focusSearchWord: () => undefined,
     // DEVIATION: spec says this effect writes the step (T-280); here GA-18's action does, after the press drops (DFC-708)
     writeProgressStep: () => undefined,
     askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
     tellFlowSurfaceClosed: (effect, frame) => hands.tellFlowSurfaceClosed(effect.surfaceName, frame),
     matchWatermarkUnlock: () => hands.matchWatermarkUnlock(),
     clearSelection: () => hands.clearSelection(),
-    writePlaceDualCursorClearingGuide: (effect, frame) => hands.writeCarried([...effect.writes, GUIDE_CURSOR_CLEARED], frame),
-    writeFixDate1: carried,
-    writeFixDate2: carried,
-    writeClearDualCursor: (_effect, frame) => hands.writeCarried(CLEAR_DUAL_CURSOR, frame),
-    writeClearDualCursorSettingGuide: (effect, frame) =>
-      hands.writeCarried([...CLEAR_DUAL_CURSOR, { kind: 'setGuideCursorMode', mode: effect.guideCursor }], frame),
     startScaleMessageTimer: () => hands.startScaleMessageTimer(),
     restartScaleMessageTimer: () => hands.startScaleMessageTimer(),
 
@@ -1318,7 +1324,10 @@ export function frameLoop(
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
   let environment = env
-  let session: ScreenSession = startingSession(screen?.language ?? startupDisplayLanguage())
+  let session: ScreenSession = startingSession(
+    screen?.language ?? startupDisplayLanguage(),
+    screen?.themePreference ?? startupThemePreference(),
+  )
   let watermarkStampedAt = readInstantOfWrite()
   const watermarkStoredName = readBrowserStored('S-99a')
   const watermarkOpenedBy =
@@ -1336,6 +1345,7 @@ export function frameLoop(
   let owed = false
   let pressed: PointerPress | null = null
   let previewDocument: Document | null = null
+  let heldPropertyPanelWidth: number | null = null
   let commandPaletteDraggedTo: { readonly x: number; readonly y: number } | null = null
   let commandPaletteCornerAtPress: { readonly x: number; readonly y: number } | null = null
   let rowGrabbedAt: GrabbedRowPlace | null = null
@@ -1343,7 +1353,7 @@ export function frameLoop(
   // @provisional PND-142
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
-  // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-80, T-206
+  // STOP: spec does not decide where a closed panel is kept. Looked in FR-052, S-171, T-206
   // @provisional PND-338
   let propertiesPanelKept: { readonly subject: PropertiesSubject | null } | null = null
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
@@ -1455,7 +1465,6 @@ export function frameLoop(
       sendToSession(SELECTION_CLEARED, values)
       noteChoiceMoved(hands, values)
     },
-    writeCarried,
     startScaleMessageTimer,
     startEntryRepeat: beginEntryRepeat,
     repeatHeldEntry,
@@ -1481,11 +1490,6 @@ export function frameLoop(
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
-  /** @purity non-pure */
-  function writeCarried(writes: readonly DocumentCommand[], frame: FrameValues | null): void {
-    if (frame !== null && writes.length > 0) writeDocument(writes, frame)
-  }
-
   /** @purity semi-pure-b */
   function isPropertiesPanelOnScreen(): boolean {
     return screen !== undefined && panelShowingIn(session) !== null
@@ -1497,22 +1501,11 @@ export function frameLoop(
   }
 
   // see FR-052, FR-072, S-171, S-248
-  // TRAP: laid over the frame's settings only; S-80 below S-248 is never written back here, or
-  // opening the panel alone would leave the document with an unsaved edit (FR-100).
   /** @purity semi-pure-b */
-  function withPropertiesPanelShown(stored: DocumentSettings): DocumentSettings {
-    const isHidden = panelShowingIn(session) === null
-    // TRAP: before the stored-width test, or a dragged width leaves an empty strip at the edge.
-    if (isHidden && propertiesPanelKept !== null) {
-      if (stored.propertyPanelWidth === 0) return stored
-      return { ...stored, propertyPanelWidth: 0 }
-    }
-    if (isHidden) return stored
-    if (stored.propertyPanelWidth >= NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248']) return stored
-    return {
-      ...stored,
-      propertyPanelWidth: NOT_STORED_PROPERTIES_PANEL_SIZES['S-171'],
-    }
+  function propertiesPanelWidthOnScreen(): number {
+    if (panelShowingIn(session) === null) return 0
+    const width = heldPropertyPanelWidth ?? session.screen.propertyPanelWidth ?? NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
+    return Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], width)
   }
 
   /** @purity non-pure */
@@ -1520,16 +1513,17 @@ export function frameLoop(
     owed = false
     const document = previewDocument ?? held.document
     const pointerRestedMs = readPointerRestedMs()
-    const withPanelShown = withPropertiesPanelShown(document.documentSettings)
+    const stored = document.documentSettings
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
       height: environment.height,
       appHeaderHeight: environment.appHeaderHeight,
       scrollbarThickness: environment.scrollbarThickness,
+      propertyPanelWidth: propertiesPanelWidthOnScreen(),
     }
-    const regions = regionsFromScreen(environmentForRegions, withPanelShown)
+    const regions = regionsFromScreen(environmentForRegions, stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
-    const view = viewSettingsOnce(held.document, withPanelShown, regions)
+    const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
     const layout = layoutFromSchedule(
       document.schedule,
@@ -1545,13 +1539,20 @@ export function frameLoop(
     } else if (capStop === null) {
       stackSafetyCapToldFor = null
     }
-    const geometry = geometryFromLayout(document.schedule, settings, layout, regions, selectedObjectsIn(session))
+    const geometry = geometryFromLayout(
+      document.schedule,
+      settings,
+      layout,
+      regions,
+      selectedObjectsIn(session),
+      session.screen.dualCursor,
+    )
     const chosenObjects = pruneChoiceTo(selectionWithinDrawnRows(selectedObjectsIn(session), geometry, layout, document.schedule, settings, previewDocument !== null))
     values = {
       regions,
       layout,
       geometry,
-      settingsMeasuredWith: withPanelShown,
+      settingsMeasuredWith: stored,
       isPictureAtStoredZoom: view.isAtStoredZoom,
     }
     if (addedRowOwedSight !== null) {
@@ -1584,6 +1585,7 @@ export function frameLoop(
         regions,
         chosenObjects,
         'screen',
+        session.screen,
         dualCursorDrawnOf(session, pointerAt),
         rulerWeekdayWords(displayLanguageIn(session)),
         pointerAt,
@@ -1610,6 +1612,7 @@ export function frameLoop(
           fileSavedAt: readFileSavedAt(),
           isAgentApiEnabled: isAgentApiEnabledIn(session),
           isAiExportSurfaceOpen: openSurfaceNameIn(session) === AI_EXPORT_MODAL_SURFACE,
+          themePreference: session.screen.themePreference,
           pointer: pointerAt,
           pointerRestedMs,
           iconUnderPointer: partUnderPointer?.entry ?? null,
@@ -1775,20 +1778,18 @@ export function frameLoop(
   function exportScene(): ExportSceneWithCapStop | null {
     if (!isSizeSettled(environment)) return null
     const document = held.document
-    const withPanelsClosed: DocumentSettings = {
-      ...document.documentSettings,
-      propertyPanelWidth: 0,
-    }
+    const stored = document.documentSettings
     const environmentForRegions: ScreenEnvironment = {
       width: environment.width,
       height: environment.height,
       appHeaderHeight: environment.appHeaderHeight,
       scrollbarThickness: environment.scrollbarThickness,
+      propertyPanelWidth: 0,
     }
-    const regions = regionsFromScreen(environmentForRegions, withPanelsClosed)
+    const regions = regionsFromScreen(environmentForRegions, stored)
     // TRAP: the held answer, not a fresh fit, or the export is laid out at a zoom the screen
     // is not showing.
-    const settings = viewSettingsOnce(document, withPanelsClosed, regions).settings
+    const settings = viewSettingsOnce(document, stored, regions).settings
     const layout = layoutFromSchedule(
       document.schedule,
       settings,
@@ -1803,6 +1804,7 @@ export function frameLoop(
       layout,
       regions,
       nothingSelected,
+      session.screen.dualCursor,
     )
     return {
       svg: svgFromSchedule(
@@ -1813,6 +1815,7 @@ export function frameLoop(
         regions,
         nothingSelected,
         'export',
+        session.screen,
         null,
         rulerWeekdayWords(displayLanguageIn(session)),
         null,
@@ -1834,6 +1837,7 @@ export function frameLoop(
           fileSavedAt: null,
           isAgentApiEnabled: false,
           isAiExportSurfaceOpen: false,
+          themePreference: session.screen.themePreference,
           pointer: null,
           pointerRestedMs: 0,
           iconUnderPointer: null,
@@ -1852,6 +1856,7 @@ export function frameLoop(
         }),
       ),
       settings,
+      themePreference: session.screen.themePreference,
       themeHue: document.schedule.project.themeHue,
       capStopGroupId: layout.stackSafetyCapReached?.groupId ?? null,
     }
@@ -2085,6 +2090,7 @@ export function frameLoop(
     if (outcome.accepted) {
       // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
       previewDocument = null
+      heldPropertyPanelWidth = null
       const landing = LANDING_OF_REPLACEMENT_ROW[call.row]
       if (landing !== null) sendToSession(landing, values)
       if (call.row === 'RD-4') leaveStartupTemplate()
@@ -2137,7 +2143,7 @@ export function frameLoop(
     }
     if (entry === DISPLAY_LANGUAGE_ENTRY) {
       const language = displayLanguageIn(session) === 'ja' ? 'en' : 'ja'
-      sendToSession({ type: 'displayLanguageChosen', language }, frame)
+      sendToSession({ type: 'screenLanguageChosen', screenLanguage: language }, frame)
       return true
     }
     if (entry === PALETTE_MINIMISE_ENTRY) {
@@ -2358,10 +2364,6 @@ export function frameLoop(
         for (const event of settingsEntryEventsOf(session, kept)) sendToSession(event, frame)
         return
       }
-      case 'setDualCursorFollowing':
-        // WHY: not changeDocument's road, which asks FR-032's question; no row of T-234 asks one here.
-        sendToSession(dualCursorEventOf(action, session), frame)
-        return
       case 'toggleAgentApi':
         sendToSession(AGENT_API_ENTRY_PRESSED, frame)
         return
@@ -2471,8 +2473,7 @@ export function frameLoop(
     }
     if (input.phase !== 'move') return true
     if (pressed !== null) return true
-    const guideMode = before.document.documentSettings.guideCursorMode
-    if (guideMode !== GUIDE_CURSOR_NONE) return true
+    if (sessionBefore.screen.guideCursorMode !== GUIDE_CURSOR_NONE) return true
     if (dualCursorFollowingIn(session) !== null) return true
     if (session !== sessionBefore || held.document !== before.document) return true
     if (!isSameScreenPart(partUnderPointer, partBefore)) return true
@@ -2555,7 +2556,7 @@ export function frameLoop(
       noteChoiceMoved(hands, frame)
     }
     const screenEvent = screenEventFromInput(input, context)
-    if (screenEvent !== null) sendScreenEvent(screenEvent, frame)
+    if (screenEvent !== null && !isRefusedPanelWidth(screenEvent, frame)) sendScreenEvent(screenEvent, frame)
     const translated = commandFromInput(input, context)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     const rungEvent = escapeLevel === null ? null : ESCAPE_RUNG_EVENTS[escapeLevel]
@@ -2612,6 +2613,7 @@ export function frameLoop(
     }
 
     previewDocument = previewOfHeldPress(hands, pressed, pointerAt, context, frame)
+    heldPropertyPanelWidth = heldPropertyPanelWidthOf(pressed, pointerAt, context)
 
     const hasKeyActed =
       spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
@@ -2693,6 +2695,8 @@ export function frameLoop(
     current: () => values,
     /** @purity semi-pure-b */
     document: () => held.document,
+    /** @purity semi-pure-b */
+    themePreference: () => session.screen.themePreference,
     exportScene,
     /** @purity semi-pure-b */
     agentApiSeams: () => ({

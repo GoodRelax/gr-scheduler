@@ -455,6 +455,7 @@ const ENV: ScreenEnvironment = {
   height: 800,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 /**
@@ -497,7 +498,7 @@ const DOCUMENT = {
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
-const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection())
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection(), null)
 
 const NEW_GROUP_ID = 'row-minted-outside'
 

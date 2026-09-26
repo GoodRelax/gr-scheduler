@@ -27,6 +27,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable } from '../contract/spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // see IN-2
 const IN_2_GRAB_MARGIN_MUST = '掴み代の上は `FR-106` の 表 T-269 の形'
@@ -136,7 +137,7 @@ const rowOfSchedule = (id: string, order: number) => ({
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -191,7 +192,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],

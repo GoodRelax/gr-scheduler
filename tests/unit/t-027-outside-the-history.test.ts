@@ -263,29 +263,17 @@ const KEYED_CASES: readonly OutsideCase[] = [
     } as unknown as DocumentCommand,
     before: [],
   },
-  {
-    undoRow: 'UN-12',
-    commandRow: 'CM-60',
-    settingRows: ['S-65'],
-    keys: ['dualCursor'],
-    expected: [{ date1: '2026-05-01', date2: '2026-06-01' }],
-    command: {
-      kind: commandKindOf('CM-60'),
-      date1: '2026-05-01',
-      date2: '2026-06-01',
-    } as unknown as DocumentCommand,
-    before: [],
-  },
+  // WHY: CR-572 took the dual cursor (S-65) and the properties panel width out of the document,
+  // so table T-027 no longer has a row for the dual cursor and CM-67 writes the row title panel width alone.
   {
     undoRow: 'UN-16',
     commandRow: 'CM-67',
-    settingRows: ['S-79', 'S-80'],
-    keys: ['rowTitlePanelWidth', 'propertyPanelWidth'],
-    expected: [200, 300],
+    settingRows: ['S-79'],
+    keys: ['rowTitlePanelWidth'],
+    expected: [200],
     command: {
       kind: commandKindOf('CM-67'),
       rowTitlePanelWidth: 200,
-      propertyPanelWidth: 300,
     } as unknown as DocumentCommand,
     before: [],
   },
@@ -308,10 +296,11 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
     expect(T_027_INSIDE_ROWS).toContain('UN-3')
   })
 
-  it('UN-7 covers exactly the 真偽 rows of 表 T-202, and 多値 rows are left to UN-13 and UN-12', () => {
+  it('UN-7 covers exactly the 真偽 rows of 表 T-202, and the other rows are left to UN-13', () => {
+    // WHY: CR-572 moved S-65 and S-66 to table T-206 and the ruler rows S-2 and S-3 in beside S-70.
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
-    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-234', 'S-58', 'S-65', 'S-66', 'S-70'])
+    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-2', 'S-234', 'S-3', 'S-58', 'S-70'])
   })
 })
 
@@ -417,13 +406,6 @@ const UN_13_CASES: readonly InsideCase[] = [
     key: 'stackDirection',
     wanted: 'down',
     command: { kind: commandKindOf('CM-56'), direction: 'down' } as unknown as DocumentCommand,
-  },
-  {
-    commandRow: 'CM-59',
-    settingRow: 'S-66',
-    key: 'guideCursorMode',
-    wanted: 'crosshair',
-    command: { kind: commandKindOf('CM-59'), mode: 'crosshair' } as unknown as DocumentCommand,
   },
   {
     commandRow: 'CM-62',

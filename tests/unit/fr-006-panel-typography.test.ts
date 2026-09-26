@@ -42,8 +42,8 @@
 //               ではない」. ⚠️ Its own note separates it from S-189: 「あちらは
 //               幅、本行は文字の大きさ」.
 //   S-189       table T-206, 「項目名の欄が取る割合」 -- ⭐ 「px ではなく割合で
-//               ある —— パネルの幅は `S-80` で人が動かすので、絶対値で持つと
-//               広げたときに入力欄だけが伸びる」.
+//               ある —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
+//               ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
 //   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
 //               ではなく「下限」である —— 読む人がブラウザで文字を大きくした
 //               とき、固定の高さは文字を切り落とす（`NFR-007`）」. ⭐ Read here
@@ -146,7 +146,6 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
@@ -156,6 +155,7 @@ import {
 // its copy from the .md at read time, so a ratio that moves in table T-206
 // moves here too instead of going stale.
 import { bare, specTable } from '../contract/spec-table'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
@@ -640,7 +640,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 
@@ -1203,8 +1203,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ S-189 is a share of the width and not a length', () => {
-    // ⭐ 「px ではなく割合である —— パネルの幅は `S-80` で人が動かすので、絶対値
-    // で持つと広げたときに入力欄だけが伸びる」.
+    // ⭐ 「px ではなく割合である —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
+    // ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
     expect(S_189_CELL).toContain('%')
     expect(S_189_CELL).not.toContain('px')
   })

@@ -74,7 +74,8 @@ const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSessio
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: 'ja',
+    screenLanguage: 'ja',
+    helpLanguage: 'ja',
     propertiesPanelContentState:
       showing === 'documentSettings'
         ? { kind: 'documentSettingsDisplayed', returnSubject: null }

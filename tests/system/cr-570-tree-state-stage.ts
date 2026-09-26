@@ -418,7 +418,7 @@ export function documentOf(arranged: Arrangement): string {
     label: `Row ${row.id}`,
     order,
     treeState: arranged.states?.[row.id] ?? 'auto',
-    height: null,
+    minHeight: null,
   }))
   const built = {
     ...TEMPLATE,

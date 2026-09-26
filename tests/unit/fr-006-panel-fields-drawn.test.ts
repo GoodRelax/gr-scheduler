@@ -33,12 +33,12 @@
 //   S-197       table T-206, 「プロパティパネルの文字の大きさの係数」 -- ⭐ 「px で
 //               はなく係数である」.
 //   S-189       table T-206, 「項目名の欄が取る割合」 -- ⭐ 「px ではなく割合であ
-//               る —— パネルの幅は `S-80` で人が動かすので、絶対値で持つと広げた
-//               ときに入力欄だけが伸びる」. ⭐ READ HERE FOR ITS REASON rather
-//               than for its number: it says in as many words that the panel's
-//               width is the READER'S, dragged through S-80.
-//   S-80        table T-203, `propertyPanelWidth` -- the width a person drags,
-//               saved with the document. ⭐ Together with S-189 this is why a
+//               る —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）ので、
+//               絶対値で持つと広げたときに入力欄だけが伸びる」. ⭐ READ HERE FOR
+//               ITS REASON rather than for its number: it says in as many words
+//               that the panel's width is the READER'S, dragged by the boundary.
+//   S-171       table T-206, `propertyPanelWidth` -- the screen value a person
+//               drags (FR-052, CR-572). ⭐ Together with S-189 this is why a
 //               share cannot answer the question below; see THE ARGUABLE CASE.
 //   S-186       table T-206, the LOWER BOUND on a field's height -- ⛔ 「「高さ」
 //               ではなく「下限」である —— 読む人がブラウザで文字を大きくしたと
@@ -106,8 +106,8 @@
 // ⛔ THE ARGUABLE CASE, AND IT IS THE ONE THAT MATTERS. "Every digit fits" is
 // asked as 「the control states room for at least the units its text carries」,
 // with the room resolved at two host bases, and a room stated as a PERCENTAGE is
-// deliberately NOT accepted. The ground is that S-189's own note and S-80 say
-// the panel's width belongs to the reader -- 「パネルの幅は `S-80` で人が動かす」
+// deliberately NOT accepted. The ground is that S-189's own note and FR-052 say
+// the panel's width belongs to the reader -- 「パネルの幅は人が境界をドラッグして動かす」
 // -- so a share of it settles nothing about whether ten digits fit; and this
 // seam never learns that width, so a share cannot even be resolved here. ⚠️ IF
 // THE RULING IS THAT A SHARE SUFFICES, this case is wrong and the manuscript
@@ -149,13 +149,13 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { bare, specTable } from '../contract/spec-table'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at run time rather than copied here (Chapter 1.9 :275).
@@ -654,7 +654,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 
@@ -825,7 +825,7 @@ function expandVariables(element: FakeElement, value: string, depth = 0): string
  *
  * ⛔ A PERCENTAGE COMES BACK `null` HERE, unlike the typography file's resolver
  * which reads one against the inherited size. A share of a width is a share of
- * the width a person dragged (S-80), which this seam never learns -- see THE
+ * the width a person dragged (FR-052), which this seam never learns -- see THE
  * ARGUABLE CASE in the head comment.
  */
 function lengthPx(expression: string, emPx: number, basePx: number): number | null {
@@ -876,7 +876,7 @@ interface Room {
  * controls is credited to each of them, which OVER-states rather than
  * under-states it -- deliberate, so that a panel which did give the room is
  * never failed for where it said so. ⛔ THE PANEL ITSELF IS EXCLUDED: its own
- * width is what S-80 lets a person drag, and reading it here would credit a
+ * width is what FR-052 lets a person drag, and reading it here would credit a
  * control with the whole surface it sits on.
  *
  * ⚠️ `em` is resolved against the size FR-006 REQUIRES of the panel (S-197 x the
@@ -1116,8 +1116,8 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔ S-189 is a share of the width, which is why a share cannot answer this file', () => {
-    // ⭐ 「px ではなく割合である —— パネルの幅は `S-80` で人が動かすので、絶対値で
-    // 持つと広げたときに入力欄だけが伸びる」.
+    // ⭐ 「px ではなく割合である —— パネルの幅は人が境界をドラッグして動かす（`FR-052`）
+    // ので、絶対値で持つと広げたときに入力欄だけが伸びる」.
     expect(S_189_CELL).toContain('%')
     expect(S_189_CELL).not.toContain('px')
   })
@@ -1171,8 +1171,8 @@ describe('FR-006 / FR-093 -- PR-3 gives each date the room its digits need', () 
         expect(
           room,
           `FR-093 (MUST): nothing this seam can read gives ${JSON.stringify(shown)} a room. ` +
-            `A share of the panel is not one -- S-189's note says the width is dragged through ` +
-            `S-80. What was stated: ${whatWasStated(panel, control)}`,
+            `A share of the panel is not one -- S-189's note says the width is dragged by the ` +
+            `boundary (FR-052). What was stated: ${whatWasStated(panel, control)}`,
         ).not.toBe(null)
         expect(
           (room as Room).px,

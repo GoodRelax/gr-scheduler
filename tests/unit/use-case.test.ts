@@ -19,7 +19,7 @@ import { editDocumentSettings, editProject } from '../../src/use-case/edit-docum
 // WHY: RD-1 puts UndoEdit in WS-3's position, so one press of undo is
 // undoEdit over the held pair. The pair-of-writes case below needs it.
 import { undoEdit } from '../../src/use-case/undo-edit/undo-edit'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 import { specTable } from '../contract/spec-table'
 import {
@@ -30,9 +30,9 @@ import {
 import { unwatchChanges } from '../../src/use-case/notify-change-watchers/notify-change-watchers'
 import { rowDocument, shell, TEMPLATE } from './cr-541-stage'
 
-// see S-3, T-201, CR-418
+// see S-3, T-202, CR-418
 const RULER_FONT_FACTOR = ((): number => {
-  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['既定値'] ?? ''
+  const cell = specTable('T-202').rows.find((one) => one.id === 'S-3')?.by['既定'] ?? ''
   const found = /`fontScaleSizes\[fontScale\]`\s*×\s*(\d+(?:\.\d+)?)/.exec(cell)
   if (found === null) throw new Error(`S-3 states no factor on the text size: ${cell}`)
   return Number(found[1])
@@ -68,7 +68,7 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       // WHY: not an empty array -- table T-050 requires at least one
       // TaskGroup, and an empty fixture is not a document the spec admits.
       taskGroups: [{ id: 'g0', parentId: null, label: 'row 1', derivedFromTaskUid: null,
-                     order: 0, treeState: 'auto', color: null, height: null }],
+                     order: 0, treeState: 'auto', color: null, minHeight: null }],
       tasks: [],
       ...((part.schedule as Record<string, unknown>) ?? {}),
     },
@@ -198,22 +198,17 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     expect(settingsOf(result.document).zoomY).toBe(0.02)
   })
 
-  it('FR-052 judges the two panel widths together, not one at a time', () => {
+  it('FR-052 refuses a row title panel width that leaves the Row Area at or below zero', () => {
     const ok = editDocumentSettings(
       documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 280 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 170 },
       LIMITS,
     )
     expect(ok.ok).toBe(true)
-    // WHY: 982 - 600 - 400 leaves the Row Area at or below zero; the pair
-    // passes one at a time but fails together, which is the MUST NOT.
+    // WHY: CM-67 writes the row title panel width alone; 982 drawn px wide leaves the Row Area at zero.
     const tooWide = editDocumentSettings(
       documentOf(),
-      {
-        kind: 'setPanelWidths',
-        rowTitlePanelWidth: 600 / DEFAULT_DISPLAY_RATIO,
-        propertyPanelWidth: 400,
-      },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 982 / DEFAULT_DISPLAY_RATIO },
       LIMITS,
     )
     expect(tooWide.ok).toBe(false)
@@ -221,98 +216,40 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   })
 
   it('FR-052 refuses a row title panel of zero, which SC-3 forbids', () => {
-    // WHY: the scrollbar term is already in rowAreaWidthWithoutPanels, so a
-    // pair that only fits when the scrollbar is forgotten is refused.
-    const grazing = editDocumentSettings(
-      documentOf(),
-      {
-        kind: 'setPanelWidths',
-        rowTitlePanelWidth: 972 / DEFAULT_DISPLAY_RATIO,
-        propertyPanelWidth: 10,
-      },
-      LIMITS,
-    )
-    expect(grazing.ok).toBe(false)
     // WHY: width 0 breaks SC-3's "showing at every zoom" (MUST NOT), so it
     // is refused even though the Row Area would be at its widest.
     const flat = editDocumentSettings(
       documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 0, propertyPanelWidth: 280 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 0 },
       LIMITS,
     )
     expect(flat.ok).toBe(false)
     if (!flat.ok) expect(flat.refusals[0]!.rule).toBe('FR-052')
-    // WHY: S-80 keeps its lower bound 0 (S-248 stops only a divider drag, FR-052); zero is legitimate.
-    const collapsed = editDocumentSettings(
-      documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 0 },
-      LIMITS,
-    )
-    expect(collapsed.ok).toBe(true)
   })
 
   it('FR-098 refuses a pin at the cap and leaves the ones already placed alone', () => {
-    const full = documentOf({
-      documentSettings: { pinnedGroupIds: ['a', 'b', 'c', 'd', 'e'], pinnedRowMax: 5 },
-    })
+    // WHY: S-127 is a constant (CR-572); the document holds as many pins as it allows.
+    const held = Array.from({ length: SETTINGS_CONSTANTS.pinnedRowMax }, (_, at) => `g${at}`)
+    const full = documentOf({ documentSettings: { pinnedGroupIds: held } })
     const result = editDocumentSettings(full, { kind: 'pinTaskGroup', groupId: 'f' }, LIMITS)
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.refusals[0]!.rule).toBe('FR-098')
     // WHY: the oldest pin is NOT pushed out to make room (MUST NOT).
-    expect(settingsOf(full).pinnedGroupIds).toEqual(['a', 'b', 'c', 'd', 'e'])
-  })
-
-  it('DC-7 is the only way the two measuring lines go away', () => {
-    const placed = editDocumentSettings(
-      documentOf(),
-      { kind: 'setDualCursor', date1: '2026-01-01', date2: '2026-02-01' },
-      LIMITS,
-    )
-    expect(placed.ok).toBe(true)
-    if (!placed.ok) return
-    // WHY: DC-4 says choosing the guide cursor's "none" must not take the
-    // Dual Cursor down with it -- FR-048 keeps the three kinds independent.
-    const guide = editDocumentSettings(
-      placed.document,
-      { kind: 'setGuideCursorMode', mode: 'none' },
-      LIMITS,
-    )
-    expect(guide.ok && settingsOf(guide.document).dualCursor).not.toBeNull()
-    const cleared = editDocumentSettings(placed.document, { kind: 'clearDualCursor' }, LIMITS)
-    expect(cleared.ok && settingsOf(cleared.document).dualCursor).toBeNull()
-  })
-
-  it('IV-13 refuses a dual cursor unless both dates are dates', () => {
-    const result = editDocumentSettings(
-      documentOf(),
-      { kind: 'setDualCursor', date1: '2026-01-01', date2: 'later' },
-      LIMITS,
-    )
-    expect(result.ok).toBe(false)
+    expect(settingsOf(full).pinnedGroupIds).toEqual(held)
   })
 
   it('FR-039 drags the ruler type and band along with the font scale', () => {
     // WHY: FR-039 (S-2, S-3) has the font scale carry ruler type and band
     // height with it; only the two 3s are literal, every size is read.
     // WHY: CR-418 section 7.2 -- S-3 is fontScaleSizes[fontScale] x the T-201 factor, so L writes 16 x 1.5.
-    const sizeL = (SETTINGS_DEFAULTS['fontScaleSizes.L'] as number) * RULER_FONT_FACTOR
-    const pad = SETTINGS_DEFAULTS['rulerLabelPad'] as number
+    // WHY: S-121..S-123 and S-136 are constants (CR-572); a document can no longer move them.
+    const sizeL = SETTINGS_CONSTANTS.fontScaleSizes.L * RULER_FONT_FACTOR
+    const pad = SETTINGS_CONSTANTS.rulerLabelPad
     const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(settingsOf(result.document).rulerFont).toBe(sizeL)
     expect(settingsOf(result.document).rulerHeight).toBe(sizeL * 3 + pad * 3)
-
-    // WHY: a value read from the manuscript is only shown to arrive when
-    // moving it moves the answer -- a wider rulerLabelPad here does.
-    const padded = editDocumentSettings(
-      documentOf({ documentSettings: { rulerLabelPad: pad + 2 } }),
-      { kind: 'setFontScale', scale: 'L' },
-      LIMITS,
-    )
-    expect(padded.ok).toBe(true)
-    if (!padded.ok) return
-    expect(settingsOf(padded.document).rulerHeight).toBe(sizeL * 3 + (pad + 2) * 3)
   })
 })
 
@@ -373,7 +310,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     for (const command of [
       { kind: 'setElementVisible', element: 'dependencyVisible', visible: false },
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 210, propertyPanelWidth: 310 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 210 },
       { kind: 'setZoom', zoomX: 2, zoomY: 2 },
     ] as const) {
       const plan = planOf(document, [command as DocumentCommand])

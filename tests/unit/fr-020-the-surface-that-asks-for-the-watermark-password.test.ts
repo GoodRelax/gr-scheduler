@@ -50,7 +50,6 @@ import {
   type ScreenTheme,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { WATERMARK_UNLOCK_DIGEST } from '../../src/framework/single-html-shell/frame-loop'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { descendants, stage, type FakeElement } from '../fixtures/fake-browser'
 import { bare, specTable } from '../contract/spec-table'
 
@@ -146,7 +145,8 @@ const rootOn = (language: DisplayLanguage, surface: string | null): ScreenSessio
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language,
+    screenLanguage: language,
+    helpLanguage: language,
     openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
   },
 })
@@ -293,7 +293,7 @@ if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
  * manuscript holds goes stale the moment it is copied.
  */
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 

@@ -245,7 +245,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
         derivedFromTaskUid: null,
         order: 1,
         treeState: 'auto', color: null,
-        height: null,
+        minHeight: null,
       },
     ],
     // IV-6 asks for exactly one of these per `Task`.

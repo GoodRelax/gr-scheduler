@@ -240,7 +240,7 @@ function twoRowDocument(edit: (draft: any) => void = () => {}): Document {
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   const draft = {
     schemaVersion: template.schemaVersion,

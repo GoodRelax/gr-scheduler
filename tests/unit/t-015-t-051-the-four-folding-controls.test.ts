@@ -89,7 +89,7 @@ import type {
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import type { Task, TaskGroup } from '../../src/entity/document-model/schedule/schedule'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
   frameLoop,
@@ -108,6 +108,7 @@ import {
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { rowNameFont } from '../fixtures/row-name-font'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -328,7 +329,7 @@ function documentWith(part: Fixture = {}): Document {
         treeState: hidden.has(one.id) ? 'hidden' : folded.has(one.id) ? 'collapsed' : 'auto',
         editGroup: null,
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: ROWS.map((one, index) => ({
         taskUid: index + 1,
@@ -559,7 +560,7 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 
 /** S-73's default hue, read out of 表 T-216 rather than written here (rule 03 section 1). */
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? '')),
 }
 
@@ -568,7 +569,7 @@ const ONE_DRAWN_ROW: RowTitle = {
   groupId: 'RowAlpha',
   depth: 1,
   ...rowNameFont(1),
-  indentPx: SETTINGS_DEFAULTS['rowTitleIndent'] as number,
+  indentPx: SETTINGS_CONSTANTS['rowTitleIndent'] as number,
   box: rect(0, 40, 220, 64),
   label: 'RowAlpha',
   wholeLabel: 'RowAlpha',

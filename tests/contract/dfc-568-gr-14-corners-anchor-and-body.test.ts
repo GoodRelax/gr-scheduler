@@ -25,7 +25,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
 import {
@@ -216,7 +216,7 @@ const group = (id: string, order: number, part: Record<string, unknown> = {}): R
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  height: null,
+  minHeight: null,
   ...part,
 })
 
@@ -285,7 +285,8 @@ function fixtureDocument(fixture: Fixture = {}): Document {
     },
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
       scrollGroupId: ROW_A,
@@ -536,9 +537,9 @@ const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly
   const document = fixtureDocument({ range })
   const schedule = document.schedule as Schedule
   const settings = document.documentSettings as DocumentSettings
-  const regions = regionsFromScreen(SCREEN, settings)
+  const regions = regionsFromScreen({ ...SCREEN, propertyPanelWidth: 0 }, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   const found = geometry.highlightBoxes.find((one) => one.id === HIGHLIGHT_ID)
   if (found === undefined) throw new Error('the geometry drew no highlight box')
   return { box: found.box, pxPerDay: layout.pxPerDay }

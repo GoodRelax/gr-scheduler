@@ -161,7 +161,7 @@ const notStarted = (): Document =>
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          height: null,
+          minHeight: null,
         } as unknown as TaskGroup,
       ],
       taskGroupMembers: [{ taskUid: 1, groupId: 'g1', stackOrder: null }],

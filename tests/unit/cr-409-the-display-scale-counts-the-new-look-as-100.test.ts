@@ -96,7 +96,7 @@ describe('FR-039 (MUST) -- the drawn ratio', () => {
     const layout = layoutFromSchedule(
       TEMPLATE.schedule as Document['schedule'],
       settings,
-      regionsFromScreen(ENV, settings),
+      regionsFromScreen({ ...ENV, propertyPanelWidth: 0 }, settings),
     )
     const s1 = Number(bare(specTable('T-201').rows.find((one) => one.id === 'S-1')?.by['既定値'] ?? '').replace(/[^\d.]/g, ''))
     expect(layout.pxPerDay, FR_077_FIVE_EIGHTHS_OF_THE_SHIPPED_BUILD).toBeCloseTo(s1 * displayRatioAt(DEFAULT_DISPLAY_SCALE), 9)

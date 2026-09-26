@@ -106,6 +106,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, type SpecRow, type SpecTable, unbroken } from './spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -219,6 +220,8 @@ const CHILD_ROW = 'aaaaaaaa-0000-4000-8000-000000000002'
 /** The `Task` a case presses, and the WBS child that has to travel with it. */
 const PARENT_TASK = 1
 const CHILD_TASK = 2
+/** The first uid of the Tasks that only stand on the parent row to bring it near the valve. */
+const FIRST_FILLER = 100
 
 function task(uid: number, parentUid: number | null): Record<string, unknown> {
   return {
@@ -254,7 +257,7 @@ function group(id: string, parentId: string | null, order: number): Record<strin
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }
 }
 
@@ -265,10 +268,11 @@ function group(id: string, parentId: string | null, order: number): Record<strin
  * 子孫を部分木ごと」 needs a Task WITH a descendant, and 「選ばれた `TaskGroup` を
  * 部分木ごと」 needs a row WITH a row under it.
  */
-function documentOfTwoRows(cap?: number): Document {
+// WHY: S-89 is a constant since CR-572, so a fixture reaches the valve by overlapping Tasks, never by a document cap.
+function documentOfTwoRows(fillers = 0): Document {
   const template = structuredClone(TEMPLATE) as any
   const settings = { ...structuredClone(template.documentSettings) }
-  if (cap !== undefined) settings.stackSafetyCap = cap
+  const filled = Array.from({ length: fillers }, (_, index) => FIRST_FILLER + index)
   return {
     schemaVersion: template.schemaVersion,
     schedule: {
@@ -278,13 +282,14 @@ function documentOfTwoRows(cap?: number): Document {
         uidHighWaterMark: 1000,
       },
       calendars: structuredClone(template.schedule.calendars),
-      tasks: [task(PARENT_TASK, null), task(CHILD_TASK, PARENT_TASK)],
+      tasks: [task(PARENT_TASK, null), task(CHILD_TASK, PARENT_TASK), ...filled.map((uid) => task(uid, null))],
       resources: [],
       assignments: [],
       taskGroups: [group(PARENT_ROW, null, 0), group(CHILD_ROW, PARENT_ROW, 0)],
       taskGroupMembers: [
         { taskUid: PARENT_TASK, groupId: PARENT_ROW, stackOrder: null },
         { taskUid: CHILD_TASK, groupId: CHILD_ROW, stackOrder: null },
+        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_ROW, stackOrder: null })),
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -395,10 +400,10 @@ interface Stage {
   documentText(): string
 }
 
-function stage(document: Document): Stage {
+function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
   const pen = host()
   const screen = screenPane()
-  const loop = frameLoop(pen.surface, document, SCREEN, screen.wiring)
+  const loop = frameLoop(pen.surface, document, env, screen.wiring)
   pen.runAnimationFrames()
   const send = (input: HumanInput): void => {
     loop.receiveInput(input)
@@ -634,29 +639,30 @@ describe('FR-033 -- what does NOT change the document', () => {
 //  こと（MUST）」 —— 貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効か
 //  なかったりする。
 //
-// ⭐ THE CAP IS SET BY THE DOCUMENT, NOT TYPED INTO THE LOOP. `S-89`'s own remark
-// says its 255 「測って決めた値ではない」, so a fixture of 256 overlapping Tasks
-// would be measuring the fixture; the sibling file `st-7-rs-24-...` is where the
-// number itself is held to the manuscript.
+// ⭐ THE CAP IS `S-89`, A TOOL CONSTANT SINCE CR-572: no document can lower it,
+// so the fixture stacks the parent row up to one under it and reads the number
+// from the generated constants rather than typing it.
 
 describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused AND told', () => {
-  /** A cap of 2, so the row's own two Tasks stand exactly at it. */
-  const AT_THE_CAP = 2
+  /** Tasks added to the parent row, so it holds one Task under the cap and one paste stands exactly at it. */
+  const AT_THE_CAP = SETTINGS_CONSTANTS.stackSafetyCap - 2
+  // WHY: a window tall enough that the whole stacked row is drawn, so the parent Task can be pressed.
+  const TALL: FrameEnvironment = { ...SCREEN, height: 40000 }
 
-  it('the premise: with the cap at 2, the fixture stands AT the valve and is not yet past it', () => {
+  it('the premise: the parent row stands one under the valve and is not yet past it', () => {
     // 「安全弁の値（`S-89`）は「許される段数の上限」であること（MUST）」 -- the row
-    // this case pastes onto holds one Task, so the paste is what would pass it.
-    const built = stage(documentOfTwoRows(AT_THE_CAP))
+    // this case pastes onto holds one Task under the cap, so a paste is what reaches it.
+    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
     expect(built.notices()).toEqual([])
-    expect(built.taskUids().length).toBe(2)
+    expect(built.taskUids().length).toBe(2 + AT_THE_CAP)
   })
 
   it('⭐⭐ the paste that would make a third stack on one row is not taken', async () => {
-    // The document's parent row holds one Task; two pastes of that Task's
-    // subtree would put three overlapping Tasks on it, which is one past a cap
-    // of 2. ⛔ The FIRST paste is lawful and is asserted so, precisely so that
-    // a loop which refuses every paste cannot pass this case.
-    const built = stage(documentOfTwoRows(AT_THE_CAP))
+    // The document's parent row holds one Task under the cap; two pastes of that
+    // Task's subtree would put one Task past it. ⛔ The FIRST paste is lawful and
+    // is asserted so, precisely so that a loop which refuses every paste cannot
+    // pass this case.
+    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
     built.send(COPY)
 
@@ -665,7 +671,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     expect(
       afterTheLawfulOne,
       'the first paste, which stacks exactly TO the cap, was refused -- ST-7 allows it',
-    ).toBe(4)
+    ).toBe(2 + AT_THE_CAP + 2)
 
     built.send(PASTE)
 
@@ -682,7 +688,7 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     // んではならない（MUST NOT）」.
     // ⛔ WHICH row is not asserted: FR-033 names none (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
-    const built = stage(documentOfTwoRows(AT_THE_CAP))
+    const built = stage(documentOfTwoRows(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
     built.send(COPY)
     built.send(PASTE)

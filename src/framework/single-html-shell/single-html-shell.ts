@@ -37,6 +37,7 @@ import {
   frameLoop,
   noWorkingWeekdayReason,
   startupDisplayLanguage,
+  startupThemePreference,
   GREATEST_KNOWN_SCHEMA_VERSION,
   FOCUS_ON_DOCUMENT_BODY,
   type FrameEnvironment,
@@ -366,11 +367,13 @@ function boot(): void {
 
   let themeDocument: Document = template
 
+  const startupTheme = startupThemePreference()
+
   /** @purity semi-pure-b */
   function heldTheme(): ScreenTheme {
     const held = loop === null ? themeDocument : loop.document()
     return {
-      preference: held.documentSettings.themePreference,
+      preference: loop === null ? startupTheme : loop.themePreference(),
       hue: held.schedule.project.themeHue,
     }
   }
@@ -479,6 +482,7 @@ function boot(): void {
     {
       surface: painting,
       language: displayLanguage(),
+      themePreference: startupTheme,
       // TRAP: both members are optional on both sides, so a dropped line fails silently (FR-020's watermark never hides).
       /** @purity non-pure */
       focusPropertyField: (row) => focusPropertyFieldHeld?.(row),

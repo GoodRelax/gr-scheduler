@@ -193,7 +193,7 @@ const scheduleWithTitle = (title: string | null): Schedule =>
     tasks: [],
     resources: [],
     assignments: [],
-    taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, height: null }],
+    taskGroups: [{ id: ROW_ID, parentId: null, label: 'row', order: 0, minHeight: null }],
     taskGroupMembers: [],
     taskVisuals: [],
     commentBoxes: [],

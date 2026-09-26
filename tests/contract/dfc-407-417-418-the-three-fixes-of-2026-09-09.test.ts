@@ -134,7 +134,7 @@ const taskGroup = (id: string, order: number): TaskGroup =>
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }) as unknown as TaskGroup
 
 const visualOf = (taskUid: number, shapeKind: string, glyph: string | null): TaskVisual =>

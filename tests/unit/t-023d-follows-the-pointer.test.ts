@@ -205,6 +205,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { specTable, unbroken } from '../contract/spec-table'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 // ===========================================================================
 // What the manuscript says, read at read time rather than copied
@@ -423,7 +424,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -519,7 +520,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       progressMarkerVisible: true, // see S-63
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -1531,7 +1533,7 @@ const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String
  * (`NOT_STORED_ZOOM_BOUNDS`, `edit-document.ts`) stops that fit at
  * `zoomX = 0.02`, so a span wide enough to ask for less than that -- more than
  * `rowArea.width / (pxPerDayAt1x * 0.02)` days, comfortably past by using
- * thirty years -- is fit at the FLOOR instead and spills over the lane for
+ * sixty years -- is fit at the FLOOR instead and spills over the lane for
  * real. ⛔ The forty extra rows need no such floor: they are flat, so nothing
  * about the fit can collapse them away, and `contentHeight` simply outgrows
  * `SCREEN.height` on its own.
@@ -1556,7 +1558,8 @@ function wideFixtureDocument(): Document {
       uid: OVERFLOW_UID,
       name: 'Overflow',
       start: '2026-04-01T00:00:00',
-      finish: '2056-04-01T00:00:00',
+      // WHY: sixty years, since S-1 is the constant 6 (CR-572): thirty no longer outgrow the Row Area at the S-97 floor.
+      finish: '2086-04-01T00:00:00',
     }),
   )
   for (let extra = 0; extra < 40; extra += 1) {

@@ -200,7 +200,7 @@ const THEME_HUE = Number(bare(rowOf(specTable('T-216'), 'S-73').by[H_DEFAULT] ??
 
 const rootOf = (language: DisplayLanguage): ScreenSession => ({
   ...emptyScreenSession,
-  screen: { ...emptyScreenSession.screen, language },
+  screen: { ...emptyScreenSession.screen, screenLanguage: language, helpLanguage: language },
 })
 
 const READINGS: ScreenViewReadings = {

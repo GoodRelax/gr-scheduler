@@ -202,7 +202,7 @@ function documentWith(): Document {
         order: index,
         treeState: 'auto',
         color: null,
-        height: null,
+        minHeight: null,
       })),
       taskGroupMembers: ROWS.map((one, index) => ({
         taskUid: index + 1,

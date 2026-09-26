@@ -440,7 +440,7 @@ const groupOf = (id: string, order: number): TaskGroup =>
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    height: null,
+    minHeight: null,
   }) as unknown as TaskGroup
 
 /** Three flat root rows -- FR-018's ladder domain starts at depth 2, so all

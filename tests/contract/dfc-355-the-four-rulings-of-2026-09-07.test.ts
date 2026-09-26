@@ -115,6 +115,7 @@ import {
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -490,7 +491,9 @@ const TITLE = 'DFC-355 fixture title'
  *        either number from being derived from.
  */
 function regionsOf(appHeaderHeight: number): ScreenRegions {
-  const width = SETTINGS.exportCanvas.width
+  const width = SETTINGS_CONSTANTS.exportCanvas.width
+  // WHY: FR-080 draws the export with the properties panel closed; CR-572 keeps its width off the document.
+  const panelWidth = 0
   const height = 800
   const header: ScreenRect = { x: 0, y: 0, width, height: appHeaderHeight }
   const canvas: ScreenRect = { x: 0, y: appHeaderHeight, width, height: height - appHeaderHeight }
@@ -510,15 +513,15 @@ function regionsOf(appHeaderHeight: number): ScreenRegions {
       height: SETTINGS.rulerHeight,
     },
     propertiesPanel: {
-      x: canvas.x + canvas.width - SETTINGS.propertyPanelWidth,
+      x: canvas.x + canvas.width - panelWidth,
       y: canvas.y,
-      width: SETTINGS.propertyPanelWidth,
+      width: panelWidth,
       height: canvas.height,
     },
     rowArea: {
       x: canvas.x + SETTINGS.rowTitlePanelWidth,
       y: canvas.y + SETTINGS.rulerHeight,
-      width: canvas.width - SETTINGS.rowTitlePanelWidth - SETTINGS.propertyPanelWidth,
+      width: canvas.width - SETTINGS.rowTitlePanelWidth - panelWidth,
       height: canvas.height - SETTINGS.rulerHeight,
     },
   } as ScreenRegions
@@ -550,6 +553,7 @@ const sceneWithBand = (appHeaderHeight: number): ExportScene => ({
   regions: regionsOf(appHeaderHeight),
   screenView: VIEW_WITH_TITLE,
   settings: SETTINGS,
+  themePreference: 'light',
   themeHue: 214,
 })
 
@@ -669,7 +673,8 @@ const rootOn = (surface: string, language: DisplayLanguage): ScreenSession => ({
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language,
+    screenLanguage: language,
+    helpLanguage: language,
     openSurfaceState: { kind: 'open', surfaceName: surface },
   },
 })

@@ -819,7 +819,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
 
 test.describe(`FR-048 and table T-029a, driven by ${DUAL_CURSOR_ENTRANCE} of table T-109`, () => {
   // WHY: goes red if the entrance puts up no pair, or half of one -- DC-1
-  // places both dates and IV-13 admits no half-placed pair.
+  // places both dates, and S-65 holds the pair as one screen value.
   test(`${DUAL_CURSOR_ENTRANCE} places both dates of ${DUAL_CURSOR_SETTING}`, () => {
     const seen = readingsOfTheSweep()
     expect(seen.dualCursorWhileDown, 'the run should begin with no pair placed').toBeNull()

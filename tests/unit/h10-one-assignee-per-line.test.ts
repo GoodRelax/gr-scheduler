@@ -145,7 +145,7 @@ const SETTINGS = {
   assigneeVisible: true,
 } as unknown as DocumentSettings
 
-const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }
+const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 const ZOOM_STEP = 3
 const TODAY = '2026-03-01T00:00:00'
 
@@ -242,7 +242,7 @@ const SCHEDULE = {
     parentId: null,
     label: `row ${index + 1}`,
     order: index,
-    height: null,
+    minHeight: null,
   })),
   taskGroupMembers: TASK_UIDS.map((taskUid, index) => ({ groupId: `g${index + 1}`, taskUid })),
   taskVisuals: [],
@@ -254,7 +254,7 @@ const SCHEDULE = {
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
-const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection())
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection(), null)
 
 const CONTEXT: InputContext = {
   document: {
@@ -290,7 +290,8 @@ const SESSION: ScreenSession = {
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language: 'ja',
+    screenLanguage: 'ja',
+    helpLanguage: 'ja',
     dialogueFieldDisplayState: { kind: 'shown' },
     milestoneListDisplayState: { kind: 'closed' },
     paletteDisplayState: { kind: 'shown', child: { kind: 'expanded' } },

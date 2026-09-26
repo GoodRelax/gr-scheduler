@@ -60,7 +60,7 @@ const S_183 = lightOf('S-183')
 // see S-30, LC-5
 const LABEL_COEF = numberOf(rowIn('T-201', 'S-30').by['既定値'] ?? '')
 // see S-66
-const GUIDE_VALUES = [...(rowIn('T-202', 'S-66').by['型'] ?? '').matchAll(/'([a-z-]+)'/g)].map((one) => one[1] as string)
+const GUIDE_VALUES = [...(rowIn('T-206', 'S-66').by['値'] ?? '').matchAll(/'([a-z-]+)'/g)].map((one) => one[1] as string)
 const [GUIDE_NONE, GUIDE_CROSSHAIR, GUIDE_SINGLE] = GUIDE_VALUES as [string, string, string]
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -380,12 +380,14 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
 
   it("DC-9: 本モードに入るときは、S-66 を 'none' にする", () => {
     // see DC-9, S-66
+    // WHY: S-66 is a screen value (CR-572); the palette's chosen mark is where it shows.
     const built = bench(documentOf(SEEDS))
     built.press('Command Palette', IC_CROSSHAIR)
-    expect(built.settings()['guideCursorMode'], 'premise: IC-47 armed the crosshair').toBe(GUIDE_CROSSHAIR)
+    expect(paletteItem(built.view(), IC_CROSSHAIR)?.isChosen, 'premise: IC-47 armed the crosshair').toBe(true)
     built.press('Command Palette', IC_DUAL)
     expect(paletteItem(built.view(), IC_DUAL)?.isChosen, 'premise: the Dual Cursor mode is on').toBe(true)
-    expect(built.settings()['guideCursorMode']).toBe(GUIDE_NONE)
+    expect(paletteItem(built.view(), IC_CROSSHAIR)?.isChosen, `S-66 is '${GUIDE_NONE}'`).toBe(false)
+    expect(paletteItem(built.view(), IC_SINGLE)?.isChosen, `S-66 is '${GUIDE_NONE}'`).toBe(false)
   })
 
   for (const [icon, value] of [
@@ -401,11 +403,13 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
       built.click(area.x + 200, area.y + 40)
       built.move(area.x + 400, area.y + 40)
       built.click(area.x + 400, area.y + 40)
-      expect(built.settings()['dualCursor'], 'premise: the two lines were placed').not.toBeNull()
+      // WHY: S-65 and S-66 are screen values (CR-572); the drawn lines and the palette's chosen mark show them.
+      expect(built.svg(), 'premise: the two lines were placed').toContain('dual-cursor-date1')
       built.press('Command Palette', icon)
       expect(paletteItem(built.view(), IC_DUAL)?.isChosen, 'DC-9: 本モードを出て').toBe(false)
-      expect(built.settings()['dualCursor'], 'DC-7: the two lines are cleared').toBeNull()
-      expect(built.settings()['guideCursorMode'], 'DC-9: 押した値を S-66 に書く').toBe(value)
+      expect(built.svg(), 'DC-7: the two lines are cleared').not.toContain('dual-cursor-date')
+      expect(paletteItem(built.view(), icon)?.isChosen, 'DC-9: 押した値を S-66 に書く').toBe(true)
+      expect(built.settings(), 'CR-572: S-66 is never written to the document').not.toHaveProperty('guideCursorMode')
       expect(cursorLines(built.svg()).length <= 2, 'the two measuring lines are gone').toBe(true)
     })
   }

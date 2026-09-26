@@ -12,7 +12,7 @@ import type {
   PointerPhase,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { ScreenPart, ScreenSurface } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   dayOf,
@@ -94,7 +94,7 @@ const dayPart = (value: string | null | undefined): string => {
   return value.slice(0, 10)
 }
 
-const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
+const S_129 = SETTINGS_CONSTANTS['actualInitialDuration'] as number
 const S_91 = NOT_STORED_SIZES['S-257']
 
 function task(over: Partial<Task> & { readonly uid: number }): Task {
@@ -131,7 +131,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -178,7 +178,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: 20 / DEFAULT_DISPLAY_RATIO,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

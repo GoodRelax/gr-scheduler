@@ -198,7 +198,7 @@ const scheduleOf = (tasks: readonly Loose[], shapeKind: ShapeKind, groups: reado
     highlightBoxes: [],
     commentBoxes: [],
     tasks,
-    taskGroups: [...new Set(groups)].map((id, order) => ({ id, parentId: null, order, height: null })),
+    taskGroups: [...new Set(groups)].map((id, order) => ({ id, parentId: null, order, minHeight: null })),
     taskGroupMembers: tasks.map((task, at) => ({ groupId: groups[at], taskUid: task['uid'] })),
     taskVisuals: tasks.map((task) => ({ taskUid: task['uid'], shapeKind })),
     taskOrigins: [],

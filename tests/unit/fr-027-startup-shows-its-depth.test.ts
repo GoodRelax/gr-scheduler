@@ -78,7 +78,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable } from '../contract/spec-table'
-import type { DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, type DocumentSettings } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import { dayOf, type Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { emptySelection } from '../../src/entity/document-model/selection/selection'
@@ -89,6 +89,7 @@ import {
   type ScheduleLayout,
 } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  drawnSettingsOf,
   regionsFromScreen,
   type ScreenEnvironment,
   type ScreenRegions,
@@ -206,6 +207,7 @@ const SCREEN: ScreenEnvironment = {
   height: 1080,
   appHeaderHeight: 48,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const REGIONS: ScreenRegions = regionsFromScreen(SCREEN, SETTINGS)
@@ -309,7 +311,7 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
   const context = {
     document: { ...TEMPLATE, documentSettings: settings },
     layout,
-    geometry: geometryFromLayout(SCHEDULE, settings, layout, REGIONS, emptySelection()),
+    geometry: geometryFromLayout(SCHEDULE, settings, layout, REGIONS, emptySelection(), null),
     regions: REGIONS,
     screen: emptyScreenSession.screen,
     selection: emptySelection(),
@@ -349,11 +351,11 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
 function rungOf(depth: number, settings: DocumentSettings): number {
   let below = NOT_STORED_ZOOM_BOUNDS['S-97']
   let above = NOT_STORED_ZOOM_BOUNDS['S-98']
-  expect(groupDepthLimit({ ...settings, zoomY: above }), 'S-98 must admit the depth').toBeGreaterThanOrEqual(depth)
-  expect(groupDepthLimit({ ...settings, zoomY: below }), 'S-97 must not').toBeLessThan(depth)
+  expect(groupDepthLimit(drawnSettingsOf({ ...settings, zoomY: above })), 'S-98 must admit the depth').toBeGreaterThanOrEqual(depth)
+  expect(groupDepthLimit(drawnSettingsOf({ ...settings, zoomY: below })), 'S-97 must not').toBeLessThan(depth)
   for (let step = 0; step < 60; step++) {
     const middle = (below + above) / 2
-    if (groupDepthLimit({ ...settings, zoomY: middle }) >= depth) above = middle
+    if (groupDepthLimit(drawnSettingsOf({ ...settings, zoomY: middle })) >= depth) above = middle
     else below = middle
   }
   return above
@@ -490,7 +492,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // `fr-055-vertical-fit.test.ts`; what this case adds is that the SHIPPED
     // document is drawn under them rather than under a zoom something else
     // chose.
-    const admitted = groupDepthLimit(SETTINGS)
+    const admitted = groupDepthLimit(drawnSettingsOf(SETTINGS))
     expect(admitted, 'the ladder admits more than the first level at the stored zoom').toBeGreaterThan(1)
 
     const owed: number[] = []
@@ -509,7 +511,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     expect(
       bootFrame.values.layout.pxPerDay,
       'FR-039 の 表 T-252 の DS-4: S-1 x S-75 に、その文書の表示の倍率の描く比を掛けた幅',
-    ).toBe(SETTINGS.pxPerDayAt1x * SETTINGS.zoomX * displayRatioAt(SETTINGS.displayScale))
+    ).toBe(SETTINGS_CONSTANTS.pxPerDayAt1x * SETTINGS.zoomX * displayRatioAt(SETTINGS.displayScale))
   })
 
   it('HF-8 (MUST NOT): boot discards nothing -- the shipped settings still say what they said', () => {

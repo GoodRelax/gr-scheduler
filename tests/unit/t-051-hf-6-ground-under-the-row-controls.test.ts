@@ -110,7 +110,9 @@ import type {
 // of it -- so it is taken from where it is declared, which is the unit table
 // T-064 gives it.
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import {
   domScreenSurface,
   type ScreenSurfaceWiring,
@@ -121,6 +123,7 @@ import {
 // here too instead of going stale.
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // The manuscripts, read at run time rather than copied here (Chapter 1.9 :275).
@@ -583,7 +586,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 
@@ -848,7 +851,7 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
   ...patch,
 })
 
-const ROW_TITLE_INDENT = SETTINGS_DEFAULTS['rowTitleIndent'] as number
+const ROW_TITLE_INDENT = SETTINGS_CONSTANTS['rowTitleIndent'] as number
 
 /** The row's own box, which HF-6 measures the ground's height against. */
 const ROW_BOX = rect(0, 40, 170, 29)

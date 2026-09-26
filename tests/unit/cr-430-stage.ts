@@ -22,6 +22,7 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { boxOfBar, midY, type Box } from './cr-430-bench'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -87,7 +88,7 @@ function group(id: string, order: number): unknown {
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   }
 }
 
@@ -142,12 +143,13 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
     },
     documentSettings: {
       ...structuredClone(template['documentSettings']),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
       scrollDate: april(1),
       scrollGroupId: rows[0],
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
       ...settings,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this bench draws at.
+      zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * ((settings['zoomX'] as number | undefined) ?? 1),
     },
     documentStamp: structuredClone(template['documentStamp']),
     changeLog: [],

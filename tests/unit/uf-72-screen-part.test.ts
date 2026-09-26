@@ -130,7 +130,6 @@ import type {
   ScreenSurface,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
   domScreenSurface,
@@ -142,6 +141,7 @@ import {
 // falling behind a row.
 import { bare, bareAll, specTable, unbroken } from '../contract/spec-table'
 import { rowNameFont } from '../fixtures/row-name-font'
+import { emptyScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 // ---------------------------------------------------------------------------
 // Fixed copies of the tables these cases are driven by.
@@ -1147,8 +1147,8 @@ function stage(layout: Map<string, ScreenRect>): Stage {
 /**
  * The rendering and hue every case below wires the surface with.
  *
- * ⛔ NEITHER VALUE IS TYPED HERE. S-72's default arrives through the generated
- * `SETTINGS_DEFAULTS`, and S-73's is read out of table T-216 at load time --
+ * ⛔ NEITHER VALUE IS TYPED HERE. S-72's start arrives through the screen values
+ * (`emptyScreenSession`, CR-572), and S-73's is read out of table T-216 at load time --
  * DR-5 of table T-052 keeps the hue on `Project` rather than in the settings, so
  * no generated constant carries it. Rule 03 section 1 forbids re-typing either.
  *
@@ -1161,7 +1161,7 @@ function stage(layout: Map<string, ScreenRect>): Stage {
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')
 const THEME: ScreenTheme = {
-  preference: SETTINGS_DEFAULTS['themePreference'] as ScreenTheme['preference'],
+  preference: emptyScreenSession.screen.themePreference,
   hue: Number(bare(S_73.by['既定'] ?? '')),
 }
 

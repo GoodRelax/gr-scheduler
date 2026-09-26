@@ -368,7 +368,7 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
         derivedFromTaskUid: null,
         order: 0,
         treeState: 'auto', color: null,
-        height: null,
+        minHeight: null,
       },
     ],
     taskGroupMembers: wish.tasks.map((one) => ({

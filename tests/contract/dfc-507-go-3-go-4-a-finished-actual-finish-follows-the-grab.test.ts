@@ -44,6 +44,7 @@ import {
 import { bare, specTable, unbroken } from './spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
@@ -138,7 +139,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 function fixtureDocument(): Document {
@@ -197,7 +198,8 @@ function fixtureDocument(): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: 20 / DEFAULT_DISPLAY_RATIO,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: 20 / DEFAULT_DISPLAY_RATIO / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
       scrollGroupId: ROW_A,
       scrollDayOffset: 0,

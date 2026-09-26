@@ -263,7 +263,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   })
   const successor = task(SUCCESSOR, '2026-05-06T00:00:00', '2026-05-20T00:00:00', 'Two') as any
   successor.dependencies = [

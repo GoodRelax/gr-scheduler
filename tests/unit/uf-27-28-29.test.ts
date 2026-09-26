@@ -65,6 +65,7 @@ import {
   type DialogueLog,
 } from '../../src/entity/document-model/dialogue-log/dialogue-log'
 import type { Document } from '../../src/entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   NOT_STORED_LIMITS,
   type EditHistory,
@@ -77,6 +78,7 @@ import {
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import {
+  displayRatioOf,
   regionsFromScreen,
   type ScreenEnvironment,
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
@@ -295,6 +297,7 @@ const SCREEN: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 /** CS-1 of table T-066 keeps the clock on the Framework's side; it arrives as a value. */
@@ -305,7 +308,7 @@ function frameOf(document: Document): FrameSnapshot {
   const settings = document.documentSettings
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(document.schedule, settings, regions)
-  const geometry = geometryFromLayout(document.schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(document.schedule, settings, layout, regions, emptySelection(), null)
   return { layout, geometry, regions }
 }
 
@@ -1010,16 +1013,17 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
   it('hands the write path the zoom and Row Area bounds it was given (S-97 / S-98 / FR-052)', () => {
     const one = bench()
     // FR-052 is judged against `rowAreaWidthWithoutPanels`, which only the
-    // snapshot carries. A pair that overruns it can be refused only if the
+    // snapshot carries. A width that overruns it can be refused only if the
     // bound travelled, so the refusal IS the evidence that it did.
     const { refusal } = refused(
       one.api.applyCommands({
         readStamp: one.api.readStamp(),
         commands: [
           {
-            kind: 'setPanelWidths',
-            rowTitlePanelWidth: SETTINGS_LIMITS.rowAreaWidthWithoutPanels,
-            propertyPanelWidth: SETTINGS_LIMITS.rowAreaWidthWithoutPanels,
+            kind: 'setRowTitlePanelWidth',
+            // WHY: the bound is drawn px and CM-67 writes a stored width, which FR-039 scales on the way in.
+            rowTitlePanelWidth:
+              SETTINGS_LIMITS.rowAreaWidthWithoutPanels / displayRatioOf(one.document.documentSettings),
           },
         ],
       }),
@@ -1540,12 +1544,12 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
 
   it('AM-7 runs a command table T-027 excludes and leaves no step (AG-10, MUST)', () => {
     const one = bench()
-    // UN-16 of table T-027: the panel widths are where you look, not what the
+    // UN-16 of table T-027: the row title panel width is where you look, not what the
     // schedule says. The call is not refused, and it leaves nothing to undo.
     const outcome = accepted(
       one.api.applyCommands({
         readStamp: one.api.readStamp(),
-        commands: [{ kind: 'setPanelWidths', rowTitlePanelWidth: 200, propertyPanelWidth: 300 }],
+        commands: [{ kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 200 }],
       }),
     )
 
@@ -1695,7 +1699,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
   it('GIVEN a settled frame WHEN AM-13 answers THEN the picture is exportCanvas wide and tall (IO-3, S-81 of table T-204)', () => {
     const one = bench()
     const svg = exported(one.api.exportSvg())
-    const canvas = one.document.documentSettings.exportCanvas
+    const canvas = SETTINGS_CONSTANTS.exportCanvas
 
     expect(T_024_IO_3.sizeRow).toBe('S-81')
     // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
@@ -1705,9 +1709,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
     const size = rootSizeOf(svg)
     expect(size.width).toBe(canvas.width)
     expect(size.height).toBeGreaterThanOrEqual(canvas.height)
-    expect(size.height).toBeLessThanOrEqual(
-      one.document.documentSettings.exportCanvasHeightCap,
-    )
+    expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
   it('GIVEN a settled frame WHEN AM-13 answers THEN what comes back is one SVG document, not a fragment', () => {
@@ -1733,7 +1735,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
 
     expect(answer.ok).toBe(true)
     if (!answer.ok) return
-    const canvas = one.document.documentSettings.exportCanvas
+    const canvas = SETTINGS_CONSTANTS.exportCanvas
     // ⭐⭐ THE WIDTH IS S-81's AND THE HEIGHT IS NOT, SINCE CR-333. FR-025 reads
     // 「幅は `S-81` の幅に固定すること（MUST）。高さは、絵が収まるところまで伸ば
     // すこと（MUST）」 and 「伸ばしてよいのはその `S-217` までとすること
@@ -1741,9 +1743,7 @@ describe('AM-13 exportSvg -- the picture is the EXPORT (IO-3 of table T-024, S-8
     const size = rootSizeOf(answer.value)
     expect(size.width).toBe(canvas.width)
     expect(size.height).toBeGreaterThanOrEqual(canvas.height)
-    expect(size.height).toBeLessThanOrEqual(
-      one.document.documentSettings.exportCanvasHeightCap,
-    )
+    expect(size.height).toBeLessThanOrEqual(SETTINGS_CONSTANTS.exportCanvasHeightCap)
   })
 
   it('GIVEN no frame has settled WHEN AM-13 answers THEN the refusal is a value naming its own row (FR-028, AG-9a)', () => {

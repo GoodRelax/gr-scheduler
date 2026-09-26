@@ -93,7 +93,8 @@ const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): Scree
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language,
+    screenLanguage: language,
+    helpLanguage: language,
     openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
   },
 })

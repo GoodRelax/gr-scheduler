@@ -12,7 +12,7 @@ import type {
   PointerPhase,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import type { ScreenPart, ScreenSurface } from '../../src/adapter/screen-renderer/screen-renderer'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   dayOf,
@@ -99,8 +99,8 @@ const dayPart = (value: string | null | undefined): string => {
   return value.slice(0, 10)
 }
 
-const S_129 = SETTINGS_DEFAULTS['actualInitialDuration'] as number
-const S_130 = SETTINGS_DEFAULTS['milestoneActualDuration'] as number
+const S_129 = SETTINGS_CONSTANTS['actualInitialDuration'] as number
+const S_130 = SETTINGS_CONSTANTS['milestoneActualDuration'] as number
 const S_90 = NOT_STORED_SIZES['S-250']
 const S_91 = NOT_STORED_SIZES['S-257']
 
@@ -140,7 +140,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
 })
 
 function documentWith(
@@ -175,7 +175,8 @@ function documentWith(
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      pxPerDayAt1x: PX_PER_DAY_AT_1X,
+      // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
+      zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate,
       scrollGroupId: rows[0],
       scrollDayOffset: 0,

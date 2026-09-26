@@ -25,7 +25,7 @@ import {
   type SaveFileContent,
   type SaveFileForm,
 } from '../../src/adapter/file-gateway/file-gateway'
-import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 
 
 const T_024_FILE_ROWS = [
@@ -112,7 +112,7 @@ const BYTE_ORDER_MARK = [0xef, 0xbb, 0xbf] as const
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
-const S_113_CEILING_BYTES = Number(SETTINGS_DEFAULTS['importMaxBytes']) * BYTES_PER_MEGABYTE
+const S_113_CEILING_BYTES = Number(SETTINGS_CONSTANTS['importMaxBytes']) * BYTES_PER_MEGABYTE
 
 
 interface StoreCall {

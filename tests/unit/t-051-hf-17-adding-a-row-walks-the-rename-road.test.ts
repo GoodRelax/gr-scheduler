@@ -108,7 +108,6 @@ import type {
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
   frameLoop,
-  NOT_STORED_PROPERTIES_PANEL_SIZES,
   type FrameEnvironment,
   type FrameLoop,
   type ScreenWiring,
@@ -205,7 +204,6 @@ const DEFAULT_ROW_NAME_WORD: DefaultRowName = ((): DefaultRowName => {
   return found
 })()
 
-const S_171 = NOT_STORED_PROPERTIES_PANEL_SIZES['S-171']
 
 // ===========================================================================
 // The document these cases drive: two roots, one of them already a parent, so
@@ -264,9 +262,9 @@ function threeRowDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
-        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
-        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, treeState: 'auto', color: null, height: null },
+        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
+        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
+        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
       ],
       taskGroupMembers: [],
       taskVisuals: [],
@@ -275,10 +273,7 @@ function threeRowDocument(): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: {
-      ...structuredClone(template.documentSettings),
-      propertyPanelWidth: S_171,
-    },
+    documentSettings: structuredClone(template.documentSettings),
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
   } as unknown as Document

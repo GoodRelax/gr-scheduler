@@ -193,11 +193,12 @@ const ENV: ScreenEnvironment = {
   height: 700,
   appHeaderHeight: 56,
   scrollbarThickness: 8,
+  propertyPanelWidth: 0,
 }
 
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 const LAYOUT = layoutFromSchedule(SCHEDULE, SETTINGS, REGIONS)
-const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection())
+const GEOMETRY = geometryFromLayout(SCHEDULE, SETTINGS, LAYOUT, REGIONS, emptySelection(), null)
 
 const DOCUMENT: Document = {
   schemaVersion: '2026-01-01',
@@ -218,7 +219,8 @@ const rootOn = (surface: string | null, language: DisplayLanguage = 'ja'): Scree
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    language,
+    screenLanguage: language,
+    helpLanguage: language,
     openSurfaceState: surface === null ? { kind: 'closed' } : { kind: 'open', surfaceName: surface },
   },
 })
