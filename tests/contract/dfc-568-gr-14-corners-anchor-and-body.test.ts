@@ -58,9 +58,11 @@ const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8')
 const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること（MUST）。'
-const HIGHLIGHT_PARTS = 'ハイライトボックスは枠と四隅を持つ。'
+// WHY: CR-558 gave the highlight box eight grab points and a frame; these are the clauses as they read now.
+const HIGHLIGHT_PARTS =
+  'ハイライトボックスは、8 つの掴み点（四隅と 4 辺の中点）と枠を持つ —— 場所・掴み代・引いたときに変わるもの・ポインタの形は 表 T-246 の `HB-8` 〜 `HB-12` に、応える順は本結びの後の段に従うこと（MUST）。'
 const HIGHLIGHT_CM_54 =
-  '枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。'
+  'どれを掴んで離しても、`_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST） —— 掴み点を掴めば囲む範囲の大きさを変え、枠を掴めば大きさを変えずに動かす。'
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
 const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
@@ -70,7 +72,7 @@ const COMMENT_NO_CORNERS =
   '⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは `FR-097` が本文に合わせて決めており、文書は大きさの列を持たない（`AT-110` 〜 `AT-115`）。'
 const INSIDE_PASSES_THROUGH =
   '⛔ 囲んだ内側を掴み代にしてはならない（MUST NOT） —— 内側の押下は下のタスクへ素通しにすること（MUST）。'
-const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの本体と四隅を離したときに置く値は 表 T-246 が持つ。**'
+const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの掴み点と枠の場所・掴み代・ポインタの形と、離したときに置く値は 表 T-246 が持つ。**'
 const T_246_NO_NEW_REFUSAL =
   '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、告げる作法は `FR-029` に従う。'
 const ANCHOR_READ =
@@ -134,6 +136,9 @@ const HB_6_NORMALISE = '離した時点で `HB-2` と同じく木の順位で持
 const HB_6_EXAMPLE =
   '例: 箱の日が 5 日 〜 7 日のとき、右の隅を 9 日の左の境目で離すと 5 日 〜 8 日、8 日の左で 5 日 〜 7 日、6 日の左で 5 日 〜 5 日、5 日の左で 5 日 〜 5 日、4 日の左で 4 日 〜 5 日、3 日の左で 3 日 〜 5 日となる。'
 const HB_6_WIDTHS = '幅は順に 4・3・1・1・2・3 日であり、どの幅にも届く位置が在る'
+const HB_12_HEAD = '| HB-12 | 枠（掴み点を除く枠線） |'
+const HB_12_REACH =
+  '掴み代は、描いた線の縁から内と外へ 表 T-206 の `S-293`（線の中心から、描いた太さ `_assets/fig-erd-detail.md` の `AT-145` の半分に `S-293` を足した距離）。'
 
 const specRowLine = (head: string): string => {
   const found = REQUIREMENTS_RAW.split(/\r?\n/).filter((line) => line.startsWith(head))
@@ -465,8 +470,9 @@ const offsetFrom = (point: Point, direction: Point, by: number): Point => ({
   y: point.y + direction.y * by,
 })
 
-// WHY: the middle of the top frame line is on the frame and clear of both corners.
-const onTheFrame =(box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: box.y })
+// WHY: a quarter along the top frame line is on the frame and clear of every grab point -- the middle
+// WHY: of the line is the HB-11 midpoint since CR-558, so a press there resizes instead of moving.
+const onTheFrame =(box: ScreenRect): Point => ({ x: box.x + box.width / 4, y: box.y })
 
 // WHY: the left frame line at a chosen height lets a move start in a named row.
 const onTheLeftFrame =(box: ScreenRect, y: number): Point => ({ x: box.x, y })
@@ -548,8 +554,14 @@ const drawnWidth = (range: HighlightRange): { readonly box: ScreenRect; readonly
 const WIDTH_SLACK = 0.05
 
 describe('DFC-568 premises: the clauses and the fixture still read this way', () => {
+  // WHY: COMMENT_COMMANDS is the comment box's clause CR-559 rewrote; it stands in its own case so a red
+  // WHY: there names CR-559 and does not hide the highlight box clauses CR-558 rewrote.
+  it('CR-559: the comment box body and anchor commands clause still reads verbatim', () => {
+    expect(REQUIREMENTS).toContain(COMMENT_COMMANDS)
+  })
+
   it('T-023d, T-108, AT-117..120 and IV-19 still hold the clauses verbatim', () => {
-    for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_COMMANDS, COMMENT_NO_CORNERS, INSIDE_PASSES_THROUGH]) {
+    for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_NO_CORNERS, INSIDE_PASSES_THROUGH]) {
       expect(REQUIREMENTS).toContain(clause)
     }
     expect(GLOSSARY).toContain(CM_54_ROW)
@@ -574,11 +586,12 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     expect(RS_44_WORDS.length).toBeGreaterThan(0)
   })
 
-  it('T-246 HB-4..HB-6 still read verbatim, each clause on its own row', () => {
+  it('T-246 HB-4..HB-6 and HB-12 still read verbatim, each clause on its own row', () => {
     const rows: readonly (readonly [string, readonly string[]])[] = [
       [HB_4_HEAD, [HB_4_NEAREST, HB_4_TIE, HB_4_DAYS, HB_4_KEEP, HB_4_REACH]],
       [HB_5_HEAD, [HB_5_GAP, HB_5_DISTANCE, HB_5_ENDS, HB_5_TIE, HB_5_ROWS, HB_5_HORIZONTAL, HB_5_NO_REFUSAL, HB_4_REACH]],
       [HB_6_HEAD, [HB_6_RIGHT, HB_6_LEFT, HB_6_BOTTOM_UP, HB_6_TOP_DOWN, HB_6_NORMALISE, HB_6_EXAMPLE, HB_6_WIDTHS]],
+      [HB_12_HEAD, [HB_12_REACH]],
     ]
     for (const [head, clauses] of rows) {
       const line = specRowLine(head)
@@ -651,7 +664,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
 
 describe('DFC-568 highlight box: the four corners resize with CM-54', () => {
   for (const corner of CORNERS) {
-    it(`本体を掴めば囲む範囲を大きさを変えずに動かし、四隅を掴めば囲む範囲の大きさを変える —— どちらも \`_assets/tbl-glossary.md\` の 表 T-108 の \`CM-54\` で書くこと（MUST）。 -- the ${corner.name} corner moves only itself`, () => {
+    it(`${HIGHLIGHT_CM_54} -- the ${corner.name} corner moves only itself`, () => {
       const built = stage()
       const box = highlightRect(built.loop)
       expectCornerResize(built, corner, offsetFrom(corner.at(box), corner.inward, S_230 / 2))
@@ -660,15 +673,15 @@ describe('DFC-568 highlight box: the four corners resize with CM-54', () => {
 })
 
 describe('DFC-568 highlight box: the frame moves the range with CM-54 and keeps its size', () => {
-  it('枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- the frame moves and the span is kept', () => {
+  it(`${HIGHLIGHT_CM_54} -- the frame moves and the span is kept`, () => {
     const built = stage()
     expectBodyMove(built, onTheFrame(highlightRect(built.loop)), 'the top frame line')
   })
 
-  it('枠（枠線から内と外へ `_assets/tbl-settings.md` の 表 T-206 の `S-293`）を掴めば囲む範囲を大きさを変えずに動かし、四隅（隅から同表の `S-230`）を掴めば囲む範囲の大きさを変える —— どちらも `_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST）。 -- S-293 inside the frame line still moves it', () => {
+  it(`${HB_12_REACH} -- S-293 inside the frame line still moves it`, () => {
     const built = stage()
     const box = highlightRect(built.loop)
-    expectBodyMove(built, { x: box.x + box.width / 2, y: box.y + S_293 / 2 }, 'inside the top frame line')
+    expectBodyMove(built, { x: onTheFrame(box).x, y: box.y + S_293 / 2 }, 'inside the top frame line')
   })
 })
 

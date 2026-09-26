@@ -51,6 +51,10 @@ const HIGHLIGHT_BOX = {
   bottomGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
+  // WHY: FR-019 draws the fill at ZO-14 only when it is not transparent, and S-370's default is transparent.
+  strokeWidthPx: null,
+  fillColor: 'blue',
+  fillTransparencyPercent: null,
 }
 
 const TENTATIVE_LINK = {
@@ -136,9 +140,10 @@ const isBackToFront = (order: readonly string[], ranked: readonly { id: string; 
 
 describe('T-020 -- every row of the table is a drawn layer, in the order the table gives', () => {
   it(`premise: ${FR_110_ONE_TABLE_DECIDES}`, () => {
-    expect(ROWS.length, FR_110_ONE_TABLE_DECIDES).toBe(13)
+    // WHY: the table grows (ZO-13..ZO-15 came since), so the ranks are read against the rows it holds.
+    expect(new Set(ROWS.map((one) => one.id)).size, FR_110_ONE_TABLE_DECIDES).toBe(ROWS.length)
     expect([...ROWS].map((one) => one.rank).sort((a, b) => a - b), FR_110_ONE_TABLE_DECIDES).toEqual(
-      Array.from({ length: 13 }, (_, index) => index + 1),
+      Array.from({ length: ROWS.length }, (_, index) => index + 1),
     )
   })
 

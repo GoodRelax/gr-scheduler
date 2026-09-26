@@ -29,8 +29,20 @@ const seam = async (name: string): Promise<(...given: unknown[]) => unknown> => 
 }
 
 describe('table T-269 -- the manuscript shape of the nine pointers', () => {
-  it('holds exactly the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10', () => {
-    expect(rowsOf('T-269').map((row) => row.id)).toEqual(ALL_POINTER_IDS)
+  // WHY: the table grows (PK-11..PK-15 came with CR-558), so its rows are read, not counted here.
+  it('holds the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 in its own order, each row ID once', () => {
+    const ids = rowsOf('T-269').map((row) => row.id)
+    expect(new Set(ids).size, 'a row ID of table T-269 repeats').toBe(ids.length)
+    expect(ids.filter((id) => ALL_POINTER_IDS.includes(id))).toEqual(ALL_POINTER_IDS)
+  })
+
+  it('every row the eight do not cover takes the environment shape, the way PK-10 does', () => {
+    const rest = rowsOf('T-269').filter((row) => !ALL_POINTER_IDS.includes(row.id))
+    expect(rest.length, 'table T-269 holds no row past the eight').toBeGreaterThan(0)
+    for (const row of rest) {
+      expect(row.by['形'], `${row.id}: 形`).toContain('閲覧環境')
+      expect(row.by['大きさ'], `${row.id}: 大きさ`).toBe('環境のまま')
+    }
   })
 
   it(`keeps white for the plan and black for the actual: ${T_269_WHITE_IS_PLAN}`, () => {
