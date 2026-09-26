@@ -2318,6 +2318,31 @@ def settings_block(_erd):
     stored = set(flat_keys(node, ''))
     schema_bounds = dict((path, (low, high))
                          for path, low, high in bounds_of(node, '', []))
+    # The defaults, for every stored key the schema names. A key the schema
+    # holds but the manuscript cannot state a machine value for is reported
+    # rather than guessed -- those are the rows stage 3b promotes.
+    # What each key states outright, before anything is derived. A pair
+    # carries two numbers under the names its `parts` gives, which is how a
+    # stored key holding an object reaches the code at all.
+    direct, literals = {}, {}
+    for key, said in manuscript.items():
+        cell = said['default']
+        if not isinstance(cell, dict):
+            continue
+        if 'pair' in cell and 'parts' in cell:
+            for name, number in zip(cell['parts'], cell['pair']):
+                literals['%s.%s' % (key, name)] = number
+                direct['%s.%s' % (key, name)] = float(number)
+            continue
+        literal = literal_of(cell)
+        if literal is None:
+            continue
+        literals[key] = literal
+        direct[key] = float(cell['num']) if 'num' in cell else cell.get('lit')
+
+    for key, value in derived_defaults(manuscript, direct).items():
+        literals[key] = repr(value)
+
     rows, unreachable = [], []
     for path in flat_keys(node, ''):
         low, high = schema_bounds.get(path, (None, None))
@@ -2365,6 +2390,12 @@ def settings_block(_erd):
                 # and the prose fields land here.
                 continue
             outside = [one for one in named if one not in stored]
+            # WHY: a key the presentation group does not hold is a constant
+            # of SETTINGS_CONSTANTS (CR-572); its value is fixed by the
+            # artifact, so the bound is judged with that value written in.
+            folded = dict((one, literals[one]) for one in outside
+                          if isinstance(direct.get(one), float) and one in literals)
+            outside = [one for one in outside if one not in folded]
             if outside:
                 # ⛔ Left out, and said so below rather than dropped in silence.
                 # IV-16 is judged over a document at rest, and a key the
@@ -2379,6 +2410,8 @@ def settings_block(_erd):
                     'settings key but is not arithmetic this generator reads, '
                     'so IV-16 would stop judging that row without saying so'
                     % (edge, path, said['row']))
+            expression = [('num', folded[held]) if kind == 'key' and held in folded
+                          else (kind, held) for kind, held in expression]
             parts.append('%s: %s' % (field, ts_bound_expression(expression)))
         if not parts:
             continue
@@ -2397,31 +2430,6 @@ def settings_block(_erd):
         for path, row_id, edge, outside in unreachable:
             rows.append('  //   %s (%s) %s names %s'
                         % (path, row_id, edge, ', '.join(outside)))
-
-    # The defaults, for every stored key the schema names. A key the schema
-    # holds but the manuscript cannot state a machine value for is reported
-    # rather than guessed -- those are the rows stage 3b promotes.
-    # What each key states outright, before anything is derived. A pair
-    # carries two numbers under the names its `parts` gives, which is how a
-    # stored key holding an object reaches the code at all.
-    direct, literals = {}, {}
-    for key, said in manuscript.items():
-        cell = said['default']
-        if not isinstance(cell, dict):
-            continue
-        if 'pair' in cell and 'parts' in cell:
-            for name, number in zip(cell['parts'], cell['pair']):
-                literals['%s.%s' % (key, name)] = number
-                direct['%s.%s' % (key, name)] = float(number)
-            continue
-        literal = literal_of(cell)
-        if literal is None:
-            continue
-        literals[key] = literal
-        direct[key] = float(cell['num']) if 'num' in cell else cell.get('lit')
-
-    for key, value in derived_defaults(manuscript, direct).items():
-        literals[key] = repr(value)
 
     defaults, unstated = [], []
     for path in sorted(flat_keys(node, '')):

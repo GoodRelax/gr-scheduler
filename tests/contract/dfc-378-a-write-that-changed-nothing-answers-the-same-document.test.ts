@@ -3,6 +3,10 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
+import {
+  SETTINGS_CONSTANTS,
+  SETTINGS_DERIVED,
+} from '../../src/entity/document-model/document-settings/document-settings'
 import type { EditHistory } from '../../src/entity/document-model/edit-history/edit-history'
 import type {
   ChangeStep,
@@ -17,17 +21,13 @@ import {
   type DocumentSettingsCommand,
   type ProjectCommand,
 } from '../../src/use-case/edit-document/edit-document'
-import { specTable } from './spec-table'
 
 const DEFAULT_ROW_NAME_FIXTURE = 'fixture default row name'
 
-// see S-3, T-201
-const RULER_FONT_FACTOR = ((): number => {
-  const cell = specTable('T-201').rows.find((one) => one.id === 'S-3')?.by['既定値'] ?? ''
-  const found = /×\s*(\d+(?:\.\d+)?)/.exec(cell)
-  if (found === null) throw new Error(`S-3 states no factor: ${cell}`)
-  return Number(found[1])
-})()
+// see S-3
+const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFont.times
+const RULER_LABEL_PAD = SETTINGS_CONSTANTS.rulerLabelPad
+const SIZE_M = SETTINGS_CONSTANTS.fontScaleSizes.M
 
 const documentOf = (part: Record<string, unknown> = {}): Document =>
   ({
@@ -64,26 +64,18 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     },
     documentSettings: {
       stackDirection: 'up',
-      guideCursorMode: 'none',
-      dualCursor: null,
       fontScale: 'M',
-      fontScaleSizes: { S: 12, M: 14, L: 16 },
-      // WHY: the pair agrees with fontScale M (S-3 x the T-201 factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
-      rulerFont: 14 * RULER_FONT_FACTOR,
-      rulerLabelPad: 2,
-      rulerHeight: 14 * RULER_FONT_FACTOR * 3 + 2 * 3,
-      canvasPadding: 10,
+      // WHY: the pair agrees with fontScale M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
+      rulerFont: SIZE_M * RULER_FONT_FACTOR,
+      rulerHeight: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
       rowTitlePanelWidth: 170,
-      propertyPanelWidth: 280,
       pinnedGroupIds: [],
-      pinnedRowMax: 5,
       zoomX: 1,
       zoomY: 1,
       scrollDate: null,
       scrollGroupId: null,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
-      themePreference: 'light',
       themeMonochrome: false,
       dependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
@@ -221,42 +213,6 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     )
   })
 
-  it('CM-59 setGuideCursorMode', () => {
-    bothWays(
-      settings as never,
-      { kind: 'setGuideCursorMode', mode: 'none' },
-      { kind: 'setGuideCursorMode', mode: 'crosshair' },
-    )
-  })
-
-  it('CM-60 setDualCursor -- the pair is compared by its two DATES, not by the object', () => {
-    // WHY: bothWays cannot reach this arm -- the value written is built fresh,
-    // so a plain reference compare would call every write a change.
-    const placed = documentOf({
-      documentSettings: { dualCursor: { date1: '2026-03-01', date2: '2026-03-05' } },
-    })
-    bothWays(
-      settings as never,
-      { kind: 'setDualCursor', date1: '2026-03-01', date2: '2026-03-05' },
-      { kind: 'setDualCursor', date1: '2026-03-01', date2: '2026-03-06' },
-      placed,
-    )
-  })
-
-  it('CM-61 clearDualCursor -- clearing a pair that is not there', () => {
-    const empty = documentOf()
-    const already = editDocumentSettings(empty, { kind: 'clearDualCursor' }, LIMITS)
-    expect(already.ok && already.document === empty).toBe(true)
-    const placed = documentOf({
-      documentSettings: { dualCursor: { date1: '2026-03-01', date2: '2026-03-05' } },
-    })
-    const cleared = editDocumentSettings(placed, { kind: 'clearDualCursor' }, LIMITS)
-    expect(cleared.ok).toBe(true)
-    if (!cleared.ok) return
-    expect(cleared.document).not.toBe(placed)
-    expect(cleared.document.documentSettings.dualCursor).toBe(null)
-  })
-
   it('CM-62 setFontScale -- the three keys it writes are judged together', () => {
     // WHY: fontScale drives rulerFont and rulerHeight too (FR-039), so a
     // drifted derived pair must be repaired -- tested as a whole, not one key.
@@ -275,17 +231,8 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document).not.toBe(drifted)
-    const sizeM = (drifted.documentSettings.fontScaleSizes as unknown as Record<string, number>)['M']!
-    expect(result.document.documentSettings.rulerFont, 'S-3: fontScaleSizes[fontScale] x the T-201 factor').toBe(
-      sizeM * RULER_FONT_FACTOR,
-    )
-  })
-
-  it('CM-63 setThemePreference', () => {
-    bothWays(
-      settings as never,
-      { kind: 'setThemePreference', preference: 'light' },
-      { kind: 'setThemePreference', preference: 'dark' },
+    expect(result.document.documentSettings.rulerFont, 'S-3: fontScaleSizes[fontScale] x its factor').toBe(
+      SIZE_M * RULER_FONT_FACTOR,
     )
   })
 
@@ -334,20 +281,20 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     )
   })
 
-  it('CM-67 setPanelWidths -- the two widths the document already stands at', () => {
+  it('CM-67 setRowTitlePanelWidth -- the width the document already stands at', () => {
     bothWays(
       settings as never,
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 170, propertyPanelWidth: 280 },
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 171, propertyPanelWidth: 280 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 170 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 171 },
     )
   })
 
-  it('CM-67 still REFUSES a pair that would take the Row Area to zero', () => {
+  it('CM-67 still REFUSES a width of zero', () => {
     // WHY: the refusal check runs before the no-op rule, so FR-052's MUST NOT
     // still applies no matter what the document already holds.
     const result = editDocumentSettings(
       documentOf(),
-      { kind: 'setPanelWidths', rowTitlePanelWidth: 0, propertyPanelWidth: 280 },
+      { kind: 'setRowTitlePanelWidth', rowTitlePanelWidth: 0 },
       LIMITS,
     )
     expect(result.ok).toBe(false)
@@ -407,7 +354,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     // adds is the DOCUMENT reference, which is what FR-020's trail reads.
     const document = documentOf()
     const plan = planOf(document, [
-      { kind: 'setThemePreference', preference: 'light' } as DocumentCommand,
+      { kind: 'setThemeMonochrome', monochrome: false } as DocumentCommand,
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return

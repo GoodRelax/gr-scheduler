@@ -3,7 +3,7 @@
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
 import type { TaskPlacement } from '../schedule-layout/schedule-layout'
@@ -25,7 +25,7 @@ function sameSide(linkType: number): boolean {
 // see VG-5
 // TRAP: shape-cross-sections.ts lays the tier by the same overhang (drawnEdgeOverhangOf); change both together.
 /** @purity pure */
-function drawnOverhangOf(placed: TaskPlacement, settings: DocumentSettings): number {
+function drawnOverhangOf(placed: TaskPlacement, settings: DrawnSettings): number {
   const isLine = placed.shapeKind === 'arrow' || placed.shapeKind === 'endpointSpan'
   return isLine ? 0 : settings.planStroke / 2
 }
@@ -40,7 +40,7 @@ interface Anchored {
 
 // see LF-5, VG-2, VG-5
 /** @purity pure */
-function corridorY(from: Anchored, to: Anchored, settings: DocumentSettings): number {
+function corridorY(from: Anchored, to: Anchored, settings: DrawnSettings): number {
   const gap = settings.stackGap + settings.dependencyWidth + settings.stackGap
   if (Math.abs(from.top - to.top) < 0.5) return from.drawnBottom + gap / 2
   return to.top > from.top ? (from.bottom + to.top) / 2 : (to.bottom + from.top) / 2
@@ -61,7 +61,7 @@ function isAtLeastDrawnPx(value: number, bound: number): boolean {
 
 // see T-222
 /** @purity pure */
-function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DocumentSettings): {
+function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings): {
   readonly pattern: DependencyGeometry['pattern']
   readonly points: Path
 } {

@@ -15,6 +15,7 @@ import type { DocumentSettingsCommand } from './edit-document-settings'
 export interface TreeStateEventCarried {
   // WHY: the head's add (IC-93) presses level zero, which is no row, so its event carries null.
   readonly pressedRowId: string | null
+  readonly revealedRowId: string
 }
 
 type TreeState = TaskGroup['treeState']

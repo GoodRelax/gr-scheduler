@@ -88,18 +88,18 @@ export interface SettingsBound {
 
 // see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
-  'rulerHeight': { max: 150 },
-  // TRAP: IV-16 cannot judge these bounds on a document alone; each
-  // names a key this group does not hold:
-  //   pinnedGroupIds (S-126) max names pinnedRowMax
-  //   rowTitlePanelWidth (S-79) min names maxGroupDepth, rowTitleIndent
-  //   rulerFont (S-3) min names fontMin
-  //   rulerFont (S-3) max names rulerLabelPad
-  //   rulerHeight (S-2) min names rulerLabelPad
-  //   zoomX (S-75) min names zoomMin
-  //   zoomX (S-75) max names zoomMax
-  //   zoomY (S-76) min names zoomMin
-  //   zoomY (S-76) max names zoomMax
+  'pinnedGroupIds': { maxExpression: [{ num: 5 }] },
+  'rowTitlePanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
+  'rulerFont': {
+    minExpression: [{ num: 12 }],
+    maxExpression: [{ key: 'rulerHeight' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
+  },
+  'rulerHeight': {
+    max: 150,
+    minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
+  },
+  'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
+  'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
 }
 
 // see FR-039

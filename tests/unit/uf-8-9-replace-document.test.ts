@@ -224,7 +224,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   order: 0,
   treeState: 'auto', editGroup: null,
   color: null,
-  height: null,
+  minHeight: null,
   ...part,
 })
 
@@ -1153,18 +1153,11 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
       [taskOf({ uid: 3, name: 'written long ago', start: '1801-05-04', finish: '1801-05-08' })],
       stampOf({ scheduleUpdatedUtc: FROM_A_FILE, settingsUpdatedUtc: FROM_A_FILE }),
     )
-    // ⚠️ The bounds are the case's own preconditions, not an expectation about
-    // the unit: they only have to make the fixture one FR-023 turns away, and
-    // the next line asserts that they did.
+    // ⚠️ The bounds are the tool's constants (table T-214), not an expectation
+    // about the unit: the fixture only has to be one FR-023 turns away, and the
+    // next line asserts that it is.
     const verdict = validateImportedDocument(
       { document: outOfRange, byteLength: 1024, emptyRowTaskUids: [] },
-      {
-        importMaxBytes: 32,
-        importMaxItems: 20000,
-        importMaxDepth: 64,
-        importMinDate: '1970-01-01',
-        importMaxDate: '2200-12-31',
-      },
     )
     expect(verdict.ok, 'the fixture is meant to be one FR-023 turns away').toBe(false)
 

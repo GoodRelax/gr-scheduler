@@ -4,6 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { Dependency, Task } from '../../entity/document-model/schedule/schedule'
 import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
@@ -98,7 +99,7 @@ export function editDependency(document: Document, command: DependencyCommand): 
       const dependency: Dependency = {
         predecessorUid: command.predecessorUid,
         linkType,
-        lag: document.documentSettings.dependencyLagDefault,
+        lag: SETTINGS_CONSTANTS.dependencyLagDefault,
         lagFormat: null,
         carry: {},
         carryElements: [],

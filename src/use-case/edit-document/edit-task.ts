@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
   compareDays,
@@ -177,16 +177,16 @@ type DayCheck =
 
 // see IV-14, T-214
 /** @purity pure */
-export function checkDay(settings: DocumentSettings, text: string): DayCheck {
+export function checkDay(text: string): DayCheck {
   const day = dayOf(text)
   if (day === null) return { ok: false, what: `is not a date: ${text}` }
-  const min = dayOf(settings.importMinDate)
-  const max = dayOf(settings.importMaxDate)
+  const min = dayOf(SETTINGS_CONSTANTS.importMinDate)
+  const max = dayOf(SETTINGS_CONSTANTS.importMaxDate)
   if (min !== null && compareDays(day, min) < 0) {
-    return { ok: false, what: `is before ${settings.importMinDate}: ${text}` }
+    return { ok: false, what: `is before ${SETTINGS_CONSTANTS.importMinDate}: ${text}` }
   }
   if (max !== null && compareDays(day, max) > 0) {
-    return { ok: false, what: `is after ${settings.importMaxDate}: ${text}` }
+    return { ok: false, what: `is after ${SETTINGS_CONSTANTS.importMaxDate}: ${text}` }
   }
   return { ok: true, day }
 }
@@ -212,7 +212,6 @@ export function wbsSubtreeOf(schedule: Schedule, root: number): ReadonlySet<numb
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultRowName: string): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
   const within = workingCalendarOf(schedule)
   if (command.kind === 'pasteTaskSubtree') return pasteTaskSubtree(document, command, within)
 
@@ -278,7 +277,7 @@ export function editTask(document: Document, command: TaskCommand, defaultRowNam
 
     case 'setTaskDeadline': {
       if (command.deadline !== null) {
-        const checked = checkDay(settings, command.deadline)
+        const checked = checkDay(command.deadline)
         if (!checked.ok) return refused([reject('CM-12', 'IV-14', `deadline ${checked.what}`)])
       }
       return edited(withTask(document, { ...task, deadline: command.deadline }))

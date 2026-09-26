@@ -109,7 +109,7 @@ OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
 # FR-073: the format version is a date, compared as a plain string. ⭐ Bumped
 # with the rewrite of the document's contents, because a reader that keeps
 # documents from several versions tells them apart by nothing else.
-SCHEMA_VERSION = '2026-09-17'
+SCHEMA_VERSION = '2026-09-27'
 STAMPED_AT = '2026-08-20T00:00:00Z'
 
 # TP-2. Three years. The window ends on the last working day of the third

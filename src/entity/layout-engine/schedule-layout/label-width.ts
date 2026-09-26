@@ -3,7 +3,7 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 
 // see FR-093
 /** @purity pure */
@@ -15,6 +15,6 @@ export function labelUnits(text: string): number {
 
 // see LC-5, FR-093
 /** @purity pure */
-export function labelWidth(text: string, fontSize: number, settings: DocumentSettings): number {
+export function labelWidth(text: string, fontSize: number, settings: DrawnSettings): number {
   return labelUnits(text) * fontSize * settings.labelCoef
 }

@@ -144,6 +144,11 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         anchorDate: command.anchor.date,
         anchorGroupId: command.anchor.groupId,
         bodyOffsetPx: null,
+        strokeColor: null,
+        strokeWidthPx: null,
+        fillColor: null,
+        fillTransparencyPercent: null,
+        textColor: null,
       }
       return edited(withSchedule(document, { commentBoxes: [...schedule.commentBoxes, box] }))
     }
@@ -225,6 +230,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         bottomGroupId: command.range.bottomGroupId,
         strokeColor: null,
         cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
+        strokeWidthPx: null,
+        fillColor: null,
+        fillTransparencyPercent: null,
       }
       return edited(withSchedule(document, { highlightBoxes: [...schedule.highlightBoxes, box] }))
     }

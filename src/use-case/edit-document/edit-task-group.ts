@@ -4,6 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type {
   Assignment,
   Schedule,
@@ -16,7 +17,7 @@ import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
-import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupHeight } from './task-group-look'
+import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from './task-group-look'
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
 
@@ -41,7 +42,7 @@ export type TaskGroupCommand =
   | { readonly kind: 'setTaskGroupLabel'; readonly groupId: string; readonly label: string | null }
   | { readonly kind: 'setTaskGroupColor'; readonly groupId: string; readonly color: string }
   | { readonly kind: 'resetTaskGroupColor'; readonly groupId: string }
-  | { readonly kind: 'setTaskGroupHeight'; readonly groupId: string; readonly height: number | null }
+  | { readonly kind: 'setTaskGroupMinHeight'; readonly groupId: string; readonly minHeight: number | null }
   | {
       readonly kind: 'setTaskGroupTreeState'
       readonly taskGroupId: string
@@ -239,12 +240,12 @@ export function editTaskGroup(
       const refusals: Refusal[] = []
 
       const under = target === undefined || target === null ? 0 : depthOf(byId, target)
-      if (under + copied.height > settings.maxGroupDepth) {
+      if (under + copied.height > SETTINGS_CONSTANTS.maxGroupDepth) {
         refusals.push(
           reject(
             'CM-28',
             'FR-033',
-            `the copy would reach depth ${under + copied.height}, past S-125's ${settings.maxGroupDepth}`,
+            `the copy would reach depth ${under + copied.height}, past S-125's ${SETTINGS_CONSTANTS.maxGroupDepth}`,
           ),
         )
       }
@@ -363,8 +364,8 @@ export function editTaskGroup(
       return setTaskGroupColor(document, command, byId)
     case 'resetTaskGroupColor':
       return resetTaskGroupColor(document, command, byId)
-    case 'setTaskGroupHeight':
-      return setTaskGroupHeight(document, command, byId)
+    case 'setTaskGroupMinHeight':
+      return setTaskGroupMinHeight(document, command, byId)
     case 'setTaskGroupTreeState':
       return setTaskGroupTreeState(document, command, byId)
     case 'reorderTaskGroupSiblings':

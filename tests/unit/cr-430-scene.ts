@@ -105,7 +105,7 @@ type Settings = Parameters<typeof layoutFromSchedule>[1]
 type Schedule = Parameters<typeof layoutFromSchedule>[0]
 type Environment = Parameters<typeof regionsFromScreen>[0]
 
-export const ENVIRONMENT = { width: 2400, height: 900, appHeaderHeight: 56, scrollbarThickness: 8 } as Environment
+export const ENVIRONMENT = { width: 2400, height: 900, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 } as Environment
 
 export const settingsOf = (part: Loose = {}): Settings =>
   ({
@@ -256,7 +256,7 @@ const built = (shapeKind: ShapeKind, groups: readonly string[], part: Loose, sta
   )
   const layout = layoutFromSchedule(schedule, settings, regions)
   const selection = selectionWith(emptySelection(), { kind: 'task', uid: STARTED_UID } as never)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, selection)
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, selection, null)
   return {
     shapeKind,
     geometry,

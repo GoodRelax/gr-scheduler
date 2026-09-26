@@ -3,7 +3,10 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+} from '../../document-model/document-settings/document-settings'
 import { dayOf, type CalendarDay } from '../../document-model/schedule/schedule'
 import { drawnSettingsOf, type ScreenRegions } from '../screen-regions/screen-regions'
 import type { RulerTier, ScheduleLayout } from './schedule-layout'
@@ -20,10 +23,10 @@ export function serialOf(day: CalendarDay): number {
 /** @purity pure */
 export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
   const settings = drawnSettingsOf(storedSettings)
-  const scaled = pxPerDay / (settings.rulerFont / storedSettings.fontMin)
-  if (scaled >= storedSettings.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
-  if (scaled >= storedSettings.rulerTierPxPerDayWeek) return 'yearMonthWeek'
-  if (scaled >= storedSettings.rulerTierPxPerDayMonth) return 'yearMonth'
+  const scaled = pxPerDay / (settings.rulerFont / SETTINGS_CONSTANTS.fontMin)
+  if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
+  if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayWeek) return 'yearMonthWeek'
+  if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayMonth) return 'yearMonth'
   return 'year'
 }
 

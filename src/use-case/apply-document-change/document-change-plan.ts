@@ -78,7 +78,7 @@ function isUndoable(command: DocumentCommand): boolean {
   switch (command.kind) {
     case 'setElementVisible':
       return false
-    case 'setPanelWidths':
+    case 'setRowTitlePanelWidth':
       return false
     // TRAP: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
     // them makes an undo rewind the zoom against UN-8.
@@ -86,15 +86,12 @@ function isUndoable(command: DocumentCommand): boolean {
     case 'setScrollPosition':
     case 'fitScheduleToScreen':
       return false
-    case 'setDualCursor':
-    case 'clearDualCursor':
-      return false
     default:
       return true
   }
 }
 
-// see T-027, UN-7, UN-8, UN-12, UN-16
+// see T-027, UN-7, UN-8, UN-16
 // TRAP: never list a column the history owns; keeping it would silently undo the undo.
 /** @purity pure */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
@@ -112,7 +109,6 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     planDatesVisible: current.planDatesVisible,
 
     rowTitlePanelWidth: current.rowTitlePanelWidth,
-    propertyPanelWidth: current.propertyPanelWidth,
 
     zoomX: current.zoomX,
     zoomY: current.zoomY,
@@ -120,8 +116,6 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     scrollGroupId: current.scrollGroupId,
     scrollDayOffset: current.scrollDayOffset,
     scrollGroupOffset: current.scrollGroupOffset,
-
-    dualCursor: current.dualCursor,
   }
 }
 
@@ -183,7 +177,7 @@ function documentHoldingOneRow(
     treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
     editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   }
   return { ...document, schedule: { ...document.schedule, taskGroups: [row] } }
 }

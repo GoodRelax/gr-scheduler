@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../src/entity/document-model/document-settings/document-settings'
@@ -197,9 +198,9 @@ const taskOf = (document: Document): Task => {
   return found
 }
 
-const numberSetting = (key: string): number => {
-  const value = SETTINGS_DEFAULTS[key]
-  if (typeof value !== 'number') throw new Error(`SETTINGS_DEFAULTS.${key} is not a number`)
+const numberSetting = (key: keyof typeof SETTINGS_CONSTANTS): number => {
+  const value = SETTINGS_CONSTANTS[key]
+  if (typeof value !== 'number') throw new Error(`SETTINGS_CONSTANTS.${key} is not a number`)
   return value
 }
 

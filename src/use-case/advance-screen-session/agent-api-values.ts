@@ -84,6 +84,7 @@ const HANDLERS: {
   readonly [T in AgentApiValuesEvent['type']]: (values: AgentApiValues, event: EventOf<T>) => AgentApiStep
 } = {
   agentApiEntryPressed: onAgentApiEntryPressed,
+  enablingAskedByDialogueField: unchanged,
   rememberedEnablingLoaded: onRememberedEnablingLoaded,
 }
 

@@ -3,7 +3,7 @@
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import { dayOf, type Schedule } from '../../document-model/schedule/schedule'
 import { xFromDay, type ScheduleLayout } from '../schedule-layout/schedule-layout'
 import { point, type CommentGeometry, type Path } from './schedule-geometry'
@@ -54,12 +54,11 @@ function wrappedLines(text: string, limit: number): readonly string[] {
 /** @purity pure */
 export function commentGeometry(
   schedule: Schedule,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   layout: ScheduleLayout,
 ): readonly CommentGeometry[] {
   const rowById = new Map(layout.rows.map((row) => [row.groupId, row]))
   const out: CommentGeometry[] = []
-  // TRAP: read no setting before the loop: fontScaleSizes[fontScale] throws for a document with no comment box.
   for (const box of schedule.commentBoxes) {
     // see FR-019, UC-008, AT-12
     // WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.

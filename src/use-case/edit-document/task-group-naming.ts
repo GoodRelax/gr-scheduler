@@ -4,6 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { COLUMN_DEFAULTS, taskByUid, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
@@ -18,7 +19,6 @@ export function createTaskGroup(
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
   const groups = schedule.taskGroups
   const refusals: Refusal[] = []
   if (byId.has(command.id)) {
@@ -44,12 +44,12 @@ export function createTaskGroup(
     const parent = byId.get(command.parentId)
     if (parent === undefined) {
       refusals.push(reject('CM-26', 'FR-085', `no such parent row: ${command.parentId}`))
-    } else if (depthOf(byId, parent) >= settings.maxGroupDepth) {
+    } else if (depthOf(byId, parent) >= SETTINGS_CONSTANTS.maxGroupDepth) {
       refusals.push(
         reject(
           'CM-26',
           'FR-085',
-          `the parent is already at the depth S-125 allows (${settings.maxGroupDepth})`,
+          `the parent is already at the depth S-125 allows (${SETTINGS_CONSTANTS.maxGroupDepth})`,
         ),
       )
     }
@@ -65,7 +65,7 @@ export function createTaskGroup(
     treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
     editGroup: null,
     color: null,
-    height: null,
+    minHeight: null,
   }
   return edited(withSchedule(document, { taskGroups: [...groups, row] }))
 }

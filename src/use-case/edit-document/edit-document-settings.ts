@@ -5,6 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
+  SETTINGS_CONSTANTS,
   SETTINGS_DERIVED,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
@@ -40,15 +41,8 @@ export type VisibleElement =
 export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly direction: 'up' | 'down' }
   | { readonly kind: 'setElementVisible'; readonly element: VisibleElement; readonly visible: boolean }
-  | {
-      readonly kind: 'setGuideCursorMode'
-      readonly mode: 'none' | 'crosshair' | 'single-vertical'
-    }
-  | { readonly kind: 'setDualCursor'; readonly date1: string; readonly date2: string }
-  | { readonly kind: 'clearDualCursor' }
   | { readonly kind: 'setFontScale'; readonly scale: 'S' | 'M' | 'L' }
   | { readonly kind: 'setDisplayScale'; readonly scale: DocumentSettings['displayScale'] }
-  | { readonly kind: 'setThemePreference'; readonly preference: 'light' | 'dark' }
   | { readonly kind: 'setThemeMonochrome'; readonly monochrome: boolean }
   | { readonly kind: 'setZoom'; readonly zoomX: number; readonly zoomY: number }
   | {
@@ -58,7 +52,7 @@ export type DocumentSettingsCommand =
       readonly scrollDayOffset: number
       readonly scrollGroupOffset: number
     }
-  | { readonly kind: 'setPanelWidths'; readonly rowTitlePanelWidth: number; readonly propertyPanelWidth: number }
+  | { readonly kind: 'setRowTitlePanelWidth'; readonly rowTitlePanelWidth: number }
   | { readonly kind: 'pinTaskGroup'; readonly groupId: string }
   | { readonly kind: 'unpinTaskGroup'; readonly groupId: string }
   | {
@@ -90,9 +84,9 @@ type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
 
 // see CM-67, FR-052
 /** @purity pure */
-function panelWidthsEdited(
+function rowTitlePanelWidthEdited(
   settings: DocumentSettings,
-  command: Extract<DocumentSettingsCommand, { readonly kind: 'setPanelWidths' }>,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setRowTitlePanelWidth' }>,
   limits: SettingsLimits,
   put: SettingsPut,
 ): EditResult {
@@ -101,22 +95,12 @@ function panelWidthsEdited(
     // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
     return refused([reject('CM-67', 'FR-052', 'the row title panel must be wider than zero')])
   }
-  if (!(command.propertyPanelWidth >= 0)) {
-    return refused([reject('CM-67', 'S-80', 'a panel width may not be negative')])
-  }
-  // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be
-  // scaled to meet it; S-80 is not scaled, because table T-252 does not name it.
-  const rowArea =
-    limits.rowAreaWidthWithoutPanels -
-    command.rowTitlePanelWidth * displayRatioOf(settings) -
-    command.propertyPanelWidth
+  // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
+  const rowArea = limits.rowAreaWidthWithoutPanels - command.rowTitlePanelWidth * displayRatioOf(settings)
   if (!(rowArea > 0)) {
-    return refused([reject('CM-67', 'FR-052', 'the pair would leave the Row Area at or below zero')])
+    return refused([reject('CM-67', 'FR-052', 'the width would leave the Row Area at or below zero')])
   }
-  return put({
-    rowTitlePanelWidth: command.rowTitlePanelWidth,
-    propertyPanelWidth: command.propertyPanelWidth,
-  })
+  return put({ rowTitlePanelWidth: command.rowTitlePanelWidth })
 }
 
 // see CM-86, S-418, T-328
@@ -142,7 +126,6 @@ export function editDocumentSettings(
   limits: SettingsLimits,
 ): EditResult {
   const settings = document.documentSettings
-  // TRAP: put compares by reference, so an object-valued key (dualCursor) needs its own test first.
   const put: SettingsPut = (part) => {
     const keys = Object.keys(part) as readonly (keyof DocumentSettings)[]
     if (keys.every((key) => settings[key] === part[key])) return edited(document)
@@ -158,26 +141,9 @@ export function editDocumentSettings(
     case 'setElementVisible':
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
 
-    case 'setGuideCursorMode':
-      return put({ guideCursorMode: command.mode })
-
-    case 'setDualCursor': {
-      if (dayOf(command.date1) === null || dayOf(command.date2) === null) {
-        return refused([reject('CM-60', 'IV-13', 'both cursor dates must be dates')])
-      }
-      const held = settings.dualCursor
-      if (held !== null && held.date1 === command.date1 && held.date2 === command.date2) {
-        return edited(document)
-      }
-      return put({ dualCursor: { date1: command.date1, date2: command.date2 } })
-    }
-
-    case 'clearDualCursor':
-      return put({ dualCursor: null })
-
     case 'setFontScale': {
       const ruler = SETTINGS_DERIVED.rulerFont
-      const rulerFont = settings[ruler.index][command.scale] * ruler.times
+      const rulerFont = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
       const band = SETTINGS_DERIVED.rulerHeight
       const padded = { ...settings, rulerFont }
       return put({
@@ -186,16 +152,13 @@ export function editDocumentSettings(
         rulerHeight:
           padded[band.from] * band.times +
           band.plus +
-          padded[band.plusFrom] * band.plusTimes,
+          SETTINGS_CONSTANTS[band.plusFrom] * band.plusTimes,
       })
     }
 
     // see CM-74, FR-039
     case 'setDisplayScale':
       return put({ displayScale: command.scale })
-
-    case 'setThemePreference':
-      return put({ themePreference: command.preference })
 
     case 'setThemeMonochrome':
       return put({ themeMonochrome: command.monochrome })
@@ -220,15 +183,15 @@ export function editDocumentSettings(
       })
     }
 
-    case 'setPanelWidths':
-      return panelWidthsEdited(settings, command, limits, put)
+    case 'setRowTitlePanelWidth':
+      return rowTitlePanelWidthEdited(settings, command, limits, put)
 
     case 'pinTaskGroup': {
       const held = settings.pinnedGroupIds
       if (held.includes(command.groupId)) return edited(document)
-      if (held.length >= settings.pinnedRowMax) {
+      if (held.length >= SETTINGS_CONSTANTS.pinnedRowMax) {
         return refused([
-          reject('CM-68', 'FR-098', `already holding ${settings.pinnedRowMax} pinned rows`),
+          reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedRowMax} pinned rows`),
         ])
       }
       return put({ pinnedGroupIds: [...held, command.groupId] })

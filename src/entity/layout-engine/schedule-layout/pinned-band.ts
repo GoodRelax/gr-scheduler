@@ -3,7 +3,7 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { ScreenRegions } from '../screen-regions/screen-regions'
 import type { RowPlacement, TaskPlacement } from './schedule-layout'
 
@@ -11,7 +11,7 @@ import type { RowPlacement, TaskPlacement } from './schedule-layout'
 /** @purity pure */
 export function pinnedBandOf(
   rowPlacements: readonly RowPlacement[],
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   regions: ScreenRegions,
 ): {
   readonly height: number

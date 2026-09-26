@@ -180,11 +180,11 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": "lightgray", "minHeight": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "height": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "color": null, "minHeight": null
     }
   ],
   "taskGroupMembers": [

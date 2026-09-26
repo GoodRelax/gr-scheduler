@@ -4,7 +4,7 @@
 // @purity    pure
 // @publishes table T-064 row PI-5
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   COLUMN_DEFAULTS,
   actualLastDay,
@@ -192,7 +192,7 @@ const NO_ASSIGNEE_MARK = '-'
 
 // see VG-2, VG-5, LF-2, DS-10
 /** @purity pure */
-function verticalGapOf(settings: DocumentSettings): number {
+function verticalGapOf(settings: DrawnSettings): number {
   return settings.stackGap + settings.dependencyWidth + settings.stackGap
 }
 
@@ -252,7 +252,7 @@ function planEndsStandOnOneDay(task: Task, reader: DayReader): boolean {
 function shapeWidthOf(
   spanWidth: number,
   shapeKind: ShapeKind,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): number {
   if (shapeKind === 'milestone') return planHeightOf(shapeKind, settings)
   return Math.max(spanWidth, settings.minShapeWidth)
@@ -297,7 +297,7 @@ function dummyReachOf(
   originSerial: number,
   pxPerDay: number,
   originX: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
   markerDiameter: number,
 ): number {
   const start = reader.day(task.start)
@@ -314,7 +314,7 @@ function dummyReachOf(
 // TRAP: never add the row controls' lattice here: it floors no band (HF-19); LF-16 reserves it.
 // TRAP: takes the DRAWN settings; the stored ones would miss the display ratio (FR-039).
 /** @purity pure */
-function bandFloorOf(depth: number, drawn: DocumentSettings): number {
+function bandFloorOf(depth: number, drawn: DrawnSettings): number {
   return depth === 1 ? drawn.rowTitleFont * drawn.rowTitleTopScale : drawn.rowTitleFont
 }
 
@@ -520,7 +520,7 @@ export function layoutFromSchedule(
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
     const packed = packedLanesOf(laneHeights, emptyLane, laneGap)
-    const height = Math.max(packed, emptyLane, row.height ?? 0, bandFloorOf(row.depth, settings))
+    const height = Math.max(packed, emptyLane, row.minHeight ?? 0, bandFloorOf(row.depth, settings))
 
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)

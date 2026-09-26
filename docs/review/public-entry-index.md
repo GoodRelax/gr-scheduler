@@ -160,7 +160,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `standsUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#standsUndecidedResume` | -- | function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
 | `TaskPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskPlacement` | -- | interface TaskPlacement |
 | `taskPlacement` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskPlacement` | PI-5 | どこに載るか |
-| `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | -- | function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
+| `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | -- | function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `tickStrideOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#tickStrideOf` | PI-5 | 目盛の間引き。 |
 | `TimeAxis` | entry | type | `src/entity/layout-engine/schedule-layout/time-axis.ts#TimeAxis` | -- | type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' \| 'originDay' \| 'originX'> |
 | `timeAxisOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#timeAxisOf` | PI-5 | 行を割り付けずに、時間軸の対応だけを求める。 |
@@ -168,28 +168,28 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `zoomYAtRectangleLabelFont` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtRectangleLabelFont` | PI-5 | 与えた字の大きさに、矩形（表 T-201 の `S-13`）の名称ラベルの字が等しくなる `zoomY`。 |
 | `assigneeLabelsOf` | file only | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#assigneeLabelsOf` | -- | function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> |
 | `drawnGroups` | file only | function | `src/entity/layout-engine/schedule-layout/drawn-rows.ts#drawnGroups` | -- | function drawnGroups( schedule: Schedule, settings: DocumentSettings, ): readonly (TaskGroup & { depth: number })[] |
-| `labelWidth` | file only | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelWidth` | -- | function labelWidth(text: string, fontSize: number, settings: DocumentSettings): number |
-| `nameLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelOf` | -- | function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean \| null, settings: DocumentSettings): NameLabel |
-| `nameLabelWidthOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelWidthOf` | -- | function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DocumentSettings): number |
+| `labelWidth` | file only | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelWidth` | -- | function labelWidth(text: string, fontSize: number, settings: DrawnSettings): number |
+| `nameLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelOf` | -- | function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean \| null, settings: DrawnSettings): NameLabel |
+| `nameLabelWidthOf` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#nameLabelWidthOf` | -- | function nameLabelWidthOf(named: NameLabel, fontSize: number, settings: DrawnSettings): number |
 | `planDatesSpanYears` | file only | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | -- | function planDatesSpanYears(schedule: Schedule, reader: DayReader): boolean |
 | `outsideLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#outsideLabelOf` | -- | function outsideLabelOf(assignee: string, percent: string): string |
 | `percentLabelOf` | file only | function | `src/entity/layout-engine/schedule-layout/percent-label.ts#percentLabelOf` | -- | function percentLabelOf(task: Task): string |
 | `liftedRows` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#liftedRows` | -- | function liftedRows( rowPlacements: readonly RowPlacement[], band: |
-| `pinnedBandOf` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#pinnedBandOf` | -- | function pinnedBandOf( rowPlacements: readonly RowPlacement[], settings: DocumentSettings, regions: ScreenRegions, ): |
+| `pinnedBandOf` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#pinnedBandOf` | -- | function pinnedBandOf( rowPlacements: readonly RowPlacement[], settings: DrawnSettings, regions: ScreenRegions, ): |
 | `shiftedPlacements` | file only | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#shiftedPlacements` | -- | function shiftedPlacements( placements: readonly TaskPlacement[], shiftByGroupId: ReadonlyMap<string, number>, droppedPinnedIds: ReadonlySet<string>, ): read... |
 | `scrolledPlacements` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrolledPlacements` | -- | function scrolledPlacements( placements: readonly TaskPlacement[], offsetY: number, pinnedIdsPlaced: ReadonlySet<string>, ): readonly TaskPlacement[] |
 | `scrolledRows` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrolledRows` | -- | function scrolledRows(rows: readonly RowPlacement[], offsetY: number): readonly RowPlacement[] |
 | `scrollOffsetOf` | file only | function | `src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf` | -- | function scrollOffsetOf( rows: readonly RowPlacement[], settings: DocumentSettings, rowAreaY: number, ): number |
 | `actualPlacementOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualPlacementOf` | -- | function actualPlacementOf(shapeKind: ShapeKind): 'inside' \| 'below' \| 'sideways' |
-| `actualReachOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualReachOf` | -- | function actualReachOf( shapeKind: ShapeKind, actual: { readonly x: number; readonly width: number }, settings: DocumentSettings, ): number |
-| `drawnEdgeOverhangOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf` | -- | function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
-| `drawnExtentOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnExtentOf` | -- | function drawnExtentOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
-| `labelFontSize` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelFontSize` | -- | function labelFontSize(shapeKind: ShapeKind, settings: DocumentSettings): number |
-| `labelLiftOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelLiftOf` | -- | function labelLiftOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
+| `actualReachOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#actualReachOf` | -- | function actualReachOf( shapeKind: ShapeKind, actual: { readonly x: number; readonly width: number }, settings: DrawnSettings, ): number |
+| `drawnEdgeOverhangOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf` | -- | function drawnEdgeOverhangOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `drawnExtentOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnExtentOf` | -- | function drawnExtentOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `labelFontSize` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelFontSize` | -- | function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `labelLiftOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#labelLiftOf` | -- | function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
 | `laidBelow` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#laidBelow` | -- | function laidBelow(shapeKind: ShapeKind): boolean |
-| `planHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#planHeightOf` | -- | function planHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
-| `shapeHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#shapeHeightOf` | -- | function shapeHeightOf(shapeKind: ShapeKind, settings: DocumentSettings): number |
-| `zoomYAtPlanHeightFloor` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtPlanHeightFloor` | -- | function zoomYAtPlanHeightFloor(settings: DocumentSettings): number |
+| `planHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#planHeightOf` | -- | function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `shapeHeightOf` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#shapeHeightOf` | -- | function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number |
+| `zoomYAtPlanHeightFloor` | file only | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtPlanHeightFloor` | -- | function zoomYAtPlanHeightFloor(settings: DrawnSettings): number |
 | `serialOf` | file only | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#serialOf` | -- | function serialOf(day: CalendarDay): number |
 | `xOnTimeAxis` | file only | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#xOnTimeAxis` | -- | function xOnTimeAxis(originSerial: number, pxPerDay: number, originX: number, day: CalendarDay): number |
 
@@ -202,7 +202,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DependencyGeometry` | PI-6 | 型。 |
 | `DualCursorGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DualCursorGeometry` | -- | interface DualCursorGeometry |
 | `DummyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DummyGeometry` | -- | interface DummyGeometry |
-| `geometryFromLayout` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#geometryFromLayout` | PI-6 | function geometryFromLayout( schedule: Schedule, storedSettings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, selection: Selection, ): S... |
+| `geometryFromLayout` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#geometryFromLayout` | PI-6 | function geometryFromLayout( schedule: Schedule, storedSettings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, selection: Selection, dual... |
 | `GeometryInputs` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#GeometryInputs` | -- | interface GeometryInputs |
 | `HighlightGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#HighlightGeometry` | PI-6 | 型。 |
 | `leaderOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#leaderOf` | PI-6 | そのコメントボックスの引出し線。 |
@@ -216,18 +216,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
-| `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DocumentSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
+| `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
 | `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement, linkType: number): DependencyGeometry |
 | `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
-| `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( settings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
+| `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
+| `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
 | `highlightGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry` | -- | function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
 | `isThinShape` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#isThinShape` | -- | function isThinShape(shapeKind: ShapeKind): boolean |
 | `taskGeometryOf` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf` | -- | function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement): TaskGeometry |
-| `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DocumentSettings, isActual: boolean): number |
+| `thinTierMiddle` | file only | function | `src/entity/layout-engine/schedule-geometry/task-figures.ts#thinTierMiddle` | -- | function thinTierMiddle(placed: TaskPlacement, settings: DrawnSettings, isActual: boolean): number |
 
 ## ItemHitArea (PI-7, `src/entity/layout-engine/item-hit-area/item-hit-area.ts`)
 
@@ -353,7 +354,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `withRow` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withRow` | -- | function withRow(document: Document, row: TaskGroup): Document |
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task-group.ts#withSchedule` | -- | function withSchedule(document: Document, part: Partial<Schedule>): Document |
 | `blankVisual` | file only | function | `src/use-case/edit-document/edit-task.ts#blankVisual` | -- | function blankVisual(taskUid: number): TaskVisual |
-| `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(settings: DocumentSettings, text: string): DayCheck |
+| `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
 | `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task, visual: TaskVisual): boolean |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
@@ -378,7 +379,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TreeStateTransition` | file only | interface | `src/use-case/edit-document/task-group-folding.ts#TreeStateTransition` | -- | interface TreeStateTransition |
 | `resetTaskGroupColor` | file only | function | `src/use-case/edit-document/task-group-look.ts#resetTaskGroupColor` | -- | function resetTaskGroupColor( document: Document, command: TaskGroupCommandOf<'resetTaskGroupColor'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `setTaskGroupColor` | file only | function | `src/use-case/edit-document/task-group-look.ts#setTaskGroupColor` | -- | function setTaskGroupColor( document: Document, command: TaskGroupCommandOf<'setTaskGroupColor'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
-| `setTaskGroupHeight` | file only | function | `src/use-case/edit-document/task-group-look.ts#setTaskGroupHeight` | -- | function setTaskGroupHeight( document: Document, command: TaskGroupCommandOf<'setTaskGroupHeight'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
+| `setTaskGroupMinHeight` | file only | function | `src/use-case/edit-document/task-group-look.ts#setTaskGroupMinHeight` | -- | function setTaskGroupMinHeight( document: Document, command: TaskGroupCommandOf<'setTaskGroupMinHeight'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `createTaskGroup` | file only | function | `src/use-case/edit-document/task-group-naming.ts#createTaskGroup` | -- | function createTaskGroup( document: Document, command: TaskGroupCommandOf<'createTaskGroup'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `setTaskGroupLabel` | file only | function | `src/use-case/edit-document/task-group-naming.ts#setTaskGroupLabel` | -- | function setTaskGroupLabel( document: Document, command: TaskGroupCommandOf<'setTaskGroupLabel'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
 | `moveTaskGroup` | file only | function | `src/use-case/edit-document/task-group-order.ts#moveTaskGroup` | -- | function moveTaskGroup( document: Document, command: TaskGroupCommandOf<'moveTaskGroup'>, byId: ReadonlyMap<string, TaskGroup>, ): EditResult |
@@ -432,7 +433,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
-| `ImportBounds` | entry | type | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportBounds` | -- | type ImportBounds = Pick< |
 | `ImportCandidate` | entry | interface | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportCandidate` | -- | interface ImportCandidate |
 | `ImportRefusal` | entry | interface | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportRefusal` | -- | interface ImportRefusal |
 | `ImportVerdict` | entry | type | `src/use-case/validate-imported-document/validate-imported-document.ts#ImportVerdict` | -- | type ImportVerdict = \| { readonly ok: true } \| { readonly ok: false; readonly refusals: readonly ImportRefusal[] } const BYTES_PER_MEGABYTE = 1024 * 1024 |
@@ -635,7 +635,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
-| `NOT_STORED_BASELINE_OUTLINE_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_BASELINE_OUTLINE_SIZES` | -- | const NOT_STORED_BASELINE_OUTLINE_SIZES: |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
 | `NOT_STORED_DUAL_CURSOR_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUAL_CURSOR_SIZES` | -- | const NOT_STORED_DUAL_CURSOR_SIZES: |
@@ -1142,8 +1141,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ROW_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_BAND_SIZES` | -- | const NOT_STORED_ROW_BAND_SIZES: |
 | `NOT_STORED_ROW_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_ROW_CONTROL_EDGE_SIZES: |
 | `NOT_STORED_ROW_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ROW_GRAB_STRIP_SIZES` | -- | const NOT_STORED_ROW_GRAB_STRIP_SIZES: |
-| `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
-| `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOTICE_DISMISS_KEY_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_DISMISS_KEY_ATTRIBUTE` | -- | const NOTICE_DISMISS_KEY_ATTRIBUTE = 'data-notice' |
 | `pageGroundStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#pageGroundStyle` | PI-38 | 地の色の宣言 |
 | `PAINT` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#PAINT` | -- | const PAINT = |
@@ -1344,4 +1341,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 662 name(s) leave through a public entry (199 of them published by table T-064), 482 more are exported by a file and not by its entry.
+Totals: 658 name(s) leave through a public entry (199 of them published by table T-064), 483 more are exported by a file and not by its entry.

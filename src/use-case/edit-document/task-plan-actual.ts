@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { RememberedActual } from '../../entity/document-model/screen-state/screen-state'
 import {
   DEFAULT_CALENDAR_VALUES,
@@ -39,9 +39,8 @@ const DUMMY_FINISH_HOLDS: readonly ActualGrabHold[] = ['GA-6', 'GA-22']
 // see FR-011, S-129, S-130, PV-1
 // WHY: a milestone's floor day is its actualStart itself, so no length is counted for it.
 /** @purity pure */
-function floorDayOf(within: WorkingCalendar, settings: DocumentSettings, start: CalendarDay,
-                    milestone: boolean): CalendarDay {
-  return milestone ? start : lastDayForLength(within, start, settings.actualInitialDuration)
+function floorDayOf(within: WorkingCalendar, start: CalendarDay, milestone: boolean): CalendarDay {
+  return milestone ? start : lastDayForLength(within, start, SETTINGS_CONSTANTS.actualInitialDuration)
 }
 
 type LastDayCheck =
@@ -166,8 +165,7 @@ function cycledMilestone(task: Task, remembered: RememberedActual | null,
 }
 
 // see CM-15, T-021a
-// TRAP: `around` left out reads S-129 as 1 and S-130 as the plan start; a document that raised
-// S-129 must hand the floor day in, or PV-1 puts a one-day actual where the floor is longer.
+// TRAP: `around` left out reads S-129 as 1; hand the floor day in, or PV-1 puts a one-day actual where it is longer.
 /** @purity pure */
 export function cycleTaskPlanActualState(
   task: Task,
@@ -288,9 +286,8 @@ export function setTaskPlanDates(
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
-  const start = checkDay(settings, command.start)
-  const finish = checkDay(settings, command.finish)
+  const start = checkDay(command.start)
+  const finish = checkDay(command.finish)
   if (!start.ok || !finish.ok) {
     const faults: Refusal[] = []
     if (!start.ok) faults.push(reject('CM-11', 'IV-14', `start ${start.what}`))
@@ -320,7 +317,6 @@ export function setTaskPlanActualState(
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
   const place = command.place
   const faults: Refusal[] = []
   const dates: readonly (readonly [string, string])[] =
@@ -332,7 +328,7 @@ export function setTaskPlanActualState(
           ? [['actualStart', place.actualStart], ['actualFinish', place.actualFinish]]
           : [['actualStart', place.actualStart], ['stop', place.stop]]
   for (const [label, text] of dates) {
-    const checked = checkDay(settings, text)
+    const checked = checkDay(text)
     if (!checked.ok) faults.push(reject('CM-13', 'IV-14', `${label} ${checked.what}`))
   }
   if (faults.length > 0) return refused(faults)
@@ -348,7 +344,7 @@ export function setTaskPlanActualState(
   const from = dayOf(place.actualStart) as CalendarDay
   const asked = dayOf(askedText) as CalendarDay
   const milestone = isMilestone(task, visualOf(schedule, task.uid))
-  const settled = settledLastDay(within, from, asked, floorDayOf(within, settings, from, milestone))
+  const settled = settledLastDay(within, from, asked, floorDayOf(within, from, milestone))
   if (!settled.ok) {
     return refused([
       reject('CM-13', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
@@ -411,12 +407,11 @@ export function beginTaskActual(
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
   if (planActualState(task) !== 'notStarted') {
     return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
   }
   const isDrawnAsMilestone = isMilestone(task, visualOf(schedule, task.uid))
-  const dropped = checkDay(settings, command.droppedDay)
+  const dropped = checkDay(command.droppedDay)
   if (!dropped.ok) {
     return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
   }
@@ -432,7 +427,7 @@ export function beginTaskActual(
     const pinned = planStart
     // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
     const settled = settledLastDay(
-      within, pinned, dropped.day, floorDayOf(within, settings, pinned, isDrawnAsMilestone),
+      within, pinned, dropped.day, floorDayOf(within, pinned, isDrawnAsMilestone),
     )
     if (!settled.ok) {
       return refused([
@@ -450,7 +445,7 @@ export function beginTaskActual(
   const begun: Task = {
     ...task,
     actualStart: textOfDay(dropped.day),
-    stop: textOfDay(floorDayOf(within, settings, dropped.day, isDrawnAsMilestone)),
+    stop: textOfDay(floorDayOf(within, dropped.day, isDrawnAsMilestone)),
     resumeValid: true,
   }
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -465,7 +460,6 @@ export function cycleTaskPlanActualStateInDocument(
   within: WorkingCalendar,
 ): EditResult {
   const schedule = document.schedule
-  const settings = document.documentSettings
   const state = planActualState(task)
   const milestone = isMilestone(task, visualOf(schedule, task.uid))
   const from = dayOf(task.start)
@@ -475,7 +469,7 @@ export function cycleTaskPlanActualStateInDocument(
   if (state === 'inProgress' && task.stop === null) {
     return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
   }
-  const floorDay = from === null ? null : textOfDay(floorDayOf(within, settings, from, milestone))
+  const floorDay = from === null ? null : textOfDay(floorDayOf(within, from, milestone))
   const turned = cycleTaskPlanActualState(task, command.remembered, { floorDay, milestone })
   return edited(withTask(document, repriced(within, turned.task)))
 }

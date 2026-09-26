@@ -5,7 +5,7 @@
 // @publishes table T-064 row PI-13
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
   DATE_COLUMNS,
   actualLastDay,
@@ -16,11 +16,6 @@ import {
   type CalendarDay,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
-
-export type ImportBounds = Pick<
-  DocumentSettings,
-  'importMaxBytes' | 'importMaxItems' | 'importMaxDepth' | 'importMinDate' | 'importMaxDate'
->
 
 export interface ImportCandidate {
   readonly document: Document
@@ -159,8 +154,8 @@ function deepestOf(depthByUid: ReadonlyMap<number, number>):
 /** @purity pure */
 export function validateImportedDocument(
   candidate: ImportCandidate,
-  bounds: ImportBounds,
 ): ImportVerdict {
+  const bounds = SETTINGS_CONSTANTS
   // TRAP: keep these two returns ahead of every walk below, which relies on the count being bounded.
   if (candidate.byteLength > bounds.importMaxBytes * BYTES_PER_MEGABYTE) {
     return {

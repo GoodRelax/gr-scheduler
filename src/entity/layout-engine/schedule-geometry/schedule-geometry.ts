@@ -4,7 +4,7 @@
 // @purity    pure
 // @publishes table T-064 row PI-6
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
   workingCalendarOf,
@@ -23,7 +23,7 @@ import {
   routedDependency,
   selectedLinksOf,
 } from './dependency-route'
-import { dualCursorGeometry } from './dual-cursor'
+import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
 import { taskGeometryOf } from './task-figures'
@@ -159,7 +159,7 @@ export function point(x: number, y: number): Point {
 }
 
 export interface GeometryInputs {
-  readonly settings: DocumentSettings
+  readonly settings: DrawnSettings
   readonly layout: ScheduleLayout
   readonly within: WorkingCalendar
   readonly taskByUid: ReadonlyMap<number, Task>
@@ -181,6 +181,7 @@ export function geometryFromLayout(
   layout: ScheduleLayout,
   regions: ScreenRegions,
   selection: Selection,
+  dualCursor: DualCursorDates | null,
 ): ScheduleGeometry {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
@@ -232,7 +233,7 @@ export function geometryFromLayout(
             top: regions.rowArea.y,
             bottom: regions.rowArea.y + regions.rowArea.height,
           },
-    dualCursor: dualCursorGeometry(settings, layout, regions),
+    dualCursor: dualCursorGeometry(dualCursor, layout, regions),
     highlightBoxes: highlightGeometry(schedule, layout),
     commentBoxes: commentGeometry(schedule, settings, layout),
   }

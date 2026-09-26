@@ -29,7 +29,7 @@ const PLAN_START = '2026-04-06T00:00:00'
 const PLAN_FINISH = '2026-04-24T00:00:00'
 const LONG_NAME = 'a name far too long to sit inside the figure it belongs to'
 const SHORT_NAME = 'A'
-const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 0, scrollbarThickness: 0 }
+const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 0, scrollbarThickness: 0, propertyPanelWidth: 0 }
 const X_SAMPLES = 300
 const Y_SAMPLES = 12
 
@@ -182,7 +182,7 @@ const sceneOf = (turn: Turn): Scene => {
   const regions = regionsFromScreen(ENV, settings)
   const schedule = scheduleOf(turn)
   const layout = layoutFromSchedule(schedule, settings, regions)
-  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection())
+  const geometry = geometryFromLayout(schedule, settings, layout, regions, emptySelection(), null)
   const drawn = geometry.tasks.find((one) => one.taskUid === TASK_UID) ?? null
   const area = regions.rowArea
   return {

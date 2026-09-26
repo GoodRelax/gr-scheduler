@@ -3,7 +3,7 @@
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
 
-import type { DocumentSettings } from '../../document-model/document-settings/document-settings'
+import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import { planActualState, type Task } from '../../document-model/schedule/schedule'
 import { dummyInkWidthOf, type ShapeKind } from './schedule-layout'
 import { actualPlacementOf, laidBelow, planHeightOf } from './shape-cross-sections'
@@ -40,7 +40,7 @@ export function labelReferenceOf(
   plan: { readonly x: number; readonly width: number },
   fade: { readonly fadeIn: number; readonly fadeOut: number },
   actual: { readonly x: number; readonly width: number } | null,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): LabelReference {
   const sideways = actualPlacementOf(shapeKind) === 'sideways'
   const side = planHeightOf(shapeKind, settings) * settings.actualOfPlan
@@ -89,7 +89,7 @@ export function labelLayoutOf(
   markerDiameter: number,
   marksShown: boolean,
   outwardStart: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): LabelLayout {
   if (shapeKind === 'milestone') {
     const markerLeft = marksShown ? reference.x + reference.width : null
@@ -122,7 +122,7 @@ export function assigneeAnchorOf(
   shapeKind: ShapeKind,
   reference: LabelReference,
   drawnStartX: number,
-  settings: DocumentSettings,
+  settings: DrawnSettings,
 ): number {
   if (shapeKind === 'milestone') {
     return reference.x + reference.width * settings.milestoneNameStartOfWidth
