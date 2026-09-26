@@ -2573,9 +2573,9 @@ class Builder(object):
             # OVERVIEW_ROW used to force height 64 here for no reason T-226
             # asks for, drawing it taller than its natural one-lane height
             # (21.6px) -- removed. DFC-1086: no row of the startup template
-            # carries a stated height (min-height override left unused here).
+            # carries a min height (the FR-042 override is left unused here).
             color = dict(ROW_PAINT).get(row['label'])
-            height = None
+            min_height = None
             out.append({
                 'id': row['id'],
                 'parentId': row['parent']['id'] if row['parent'] else None,
@@ -2591,7 +2591,7 @@ class Builder(object):
                 # that has never met a server must say.
                 'editGroup': None,
                 'color': color,
-                'height': height,
+                'minHeight': min_height,
             })
         return out
 

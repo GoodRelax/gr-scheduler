@@ -13,7 +13,7 @@
 本書は全数と、各行の列・入力の型・対象・備考・交換相手の対応を印字する。
 
 ⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** —— `FR-006` が「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）」と定める。  
-⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が`Task` のパネルにも出る**。
+⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が`Task` のパネルにも出る**。
 
 ⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」と定めるので、表示名は `_source/display-words.json` の `properties` 節が同じ行 ID で持つ。  
 ⚠️ **本表の `列` は GRS JSON の列名であって、画面に出す名ではない。**
@@ -44,7 +44,7 @@
 | PR-15 | `wbsParentUid` | 選択 | `Task` | 階層の深さはここから導出する | `Task/OutlineLevel` へ導出 |
 | PR-12 | `strokeColor` / `fillColor` / `lineWeight` | 色 / 色 / 選択 | `Task` | FR-007 | 無い（`GRS JSON` のみ） |
 | PR-18 | `label` | 文字 | `TaskGroup` | 行の名前。<br>⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである | 無い（`GRS JSON` のみ） |
-| PR-20 | `height` | 数値 | `TaskGroup` | 倍率 1 のときの論理の高さ。<br>`null` ＝ 自動 | 無い（`GRS JSON` のみ） |
+| PR-20 | `minHeight` | 数値 | `TaskGroup` | 行の最小の高さ（縦のズーム 100% のときの画面の px）。<br>`null` ＝ 下限なし。<br>欄の出し方は `FR-042` の 表 T-338 が持つ | 無い（`GRS JSON` のみ） |
 | PR-33 | `editGroup` | 文字 | `TaskGroup` | 行を編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。<br>空の欄は `null` ＝ 誰でも編集できる。<br>⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でない行でも編集でき、`Agent API` からは書けない。<br>規則は `FR-111` の 表 T-275 の `GP-1` が持つ | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |

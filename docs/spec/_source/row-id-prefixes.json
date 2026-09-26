@@ -756,6 +756,14 @@
    }
   },
   {
+   "prefix": "MH",
+   "words": "Min Height",
+   "owner": "spec",
+   "means": {
+    "ja": "行の最小の高さの欄の規則（表 T-338）"
+   }
+  },
+  {
    "prefix": "MK",
    "words": "",
    "owner": "spec",

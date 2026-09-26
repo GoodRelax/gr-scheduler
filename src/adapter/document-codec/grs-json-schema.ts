@@ -252,7 +252,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroup: {
     type: ['object'],
-    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'height'],
+    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'minHeight'],
     closed: true,
     properties: {
       id: {
@@ -278,9 +278,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       color: {
         type: ['string', 'null'],
-        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+        pattern: '^(?:white|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
-      height: {
+      minHeight: {
         type: ['integer', 'null'],
       },
     },

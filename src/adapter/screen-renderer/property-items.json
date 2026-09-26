@@ -188,7 +188,7 @@
   {
    "rowId": "PR-20",
    "columns": [
-    "height"
+    "minHeight"
    ],
    "inputKinds": [
     "数値"

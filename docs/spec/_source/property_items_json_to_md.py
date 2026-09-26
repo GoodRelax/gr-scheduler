@@ -204,7 +204,7 @@ def applies_to_cell(item):
 
     ⭐ IT IS A COLUMN AND NOT A NOTE. The array's order IS the print order
     FR-006 (MUST) requires, so every row of the manuscript reaches the panel;
-    without a machine-readable answer to 「whose panel」 a TaskGroup's height
+    without a machine-readable answer to 「whose panel」 a TaskGroup's minHeight
     would be drawn on a Task's. ⚠️ Absent means `Task`.
     """
     return item.get('appliesTo', 'Task')
@@ -227,7 +227,7 @@ def build(doc):
         '',
         '⛔ **`対象` の欄は、その行を出すのがどちらの選択のときかを言う（MUST）** ——'
         ' `FR-006` が「いま選ばれているものと同じ「対象」を持つ行だけを出すこと（MUST）」と定める。'
-        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が'
+        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が'
         '`Task` のパネルにも出る**。',
         '',
         '⛔ **画面に出す名は本表に無い（MUST NOT）** —— `FR-038` が「画面に刷る語は、言語ごとの辞書として 1 か所に持つこと（MUST）」'

@@ -263,14 +263,14 @@
   {
    "id": "PR-20",
    "columns": [
-    "height"
+    "minHeight"
    ],
    "inputKinds": [
     "数値"
    ],
    "appliesTo": "TaskGroup",
    "note": {
-    "ja": "倍率 1 のときの論理の高さ。`null` ＝ 自動"
+    "ja": "行の最小の高さ（縦のズーム 100% のときの画面の px）。`null` ＝ 下限なし。欄の出し方は `FR-042` の 表 T-338 が持つ"
    },
    "mspdi": {
     "ja": "無い（`GRS JSON` のみ）"

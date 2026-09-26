@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 270" width="360" height="270" role="img" aria-label="GRS milestone chart shapes: the 15 shapes of SH-5, each in the unit square with the centre of its bounding box at the origin">
+  <title>図 F-044 — マイルストーンの図形（チャート）</title>
+  <style>
+    svg { color: #1f2328; }
+    .guide { fill: none; stroke: #8c959f; stroke-width: 0.75; stroke-dasharray: 3 3; }
+    .body { fill: #dbe7f7; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round;
+            vector-effect: non-scaling-stroke; }
+    .inner { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round;
+             stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .dot { fill: currentColor; stroke: none; }
+    .shade { fill: currentColor; fill-opacity: 0.35; stroke: currentColor; stroke-width: 1.5;
+             stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .lbl { fill: currentColor; opacity: 0.6; text-anchor: middle;
+           font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+           font-size: 9px; }
+    @media (prefers-color-scheme: dark) { svg { color: #e6e8ea; } .body { fill: #2a323c; } }
+  </style>
+  <rect class="guide" x="10" y="14" width="52" height="52"/>
+  <g transform="translate(36 40) scale(26)">
+    <circle class="body" cx="0" cy="0" r="1"/>
+  </g>
+  <text class="lbl" x="36" y="80">circle</text>
+  <rect class="guide" x="82" y="14" width="52" height="52"/>
+  <g transform="translate(108 40) scale(26)">
+    <path class="body" d="M0 -1 L0.866 -0.5 L0.866 0.5 L0 1 L-0.866 0.5 L-0.866 -0.5 Z"/>
+  </g>
+  <text class="lbl" x="108" y="80">hexagon</text>
+  <rect class="guide" x="154" y="14" width="52" height="52"/>
+  <g transform="translate(180 40) scale(26)">
+    <path class="body" d="M0 -0.9045 L0.9511 -0.2135 L0.5878 0.9045 L-0.5878 0.9045 L-0.9511 -0.2135 Z"/>
+  </g>
+  <text class="lbl" x="180" y="80">pentagon</text>
+  <rect class="guide" x="226" y="14" width="52" height="52"/>
+  <g transform="translate(252 40) scale(26)">
+    <path class="body" d="M0 -1 L1 0 L0 1 L-1 0 Z"/>
+  </g>
+  <text class="lbl" x="252" y="80">diamond</text>
+  <rect class="guide" x="298" y="14" width="52" height="52"/>
+  <g transform="translate(324 40) scale(26)">
+    <rect class="body" x="-0.7071" y="-0.7071" width="1.4142" height="1.4142"/>
+  </g>
+  <text class="lbl" x="324" y="80">square</text>
+  <rect class="guide" x="10" y="100" width="52" height="52"/>
+  <g transform="translate(36 126) scale(26)">
+    <path class="body" d="M0 -0.9045 L0.2645 -0.2686 L0.9511 -0.2135 L0.428 0.2345 L0.5878 0.9045 L0 0.5455 L-0.5878 0.9045 L-0.428 0.2345 L-0.9511 -0.2135 L-0.2645 -0.2686 Z"/>
+  </g>
+  <text class="lbl" x="36" y="166">star</text>
+  <rect class="guide" x="82" y="100" width="52" height="52"/>
+  <g transform="translate(108 126) scale(26)">
+    <path class="body" d="M0 -0.75 L0.866 0.75 L-0.866 0.75 Z"/>
+  </g>
+  <text class="lbl" x="108" y="166">triangleUp</text>
+  <rect class="guide" x="154" y="100" width="52" height="52"/>
+  <g transform="translate(180 126) scale(26)">
+    <path class="body" d="M0 0.75 L-0.866 -0.75 L0.866 -0.75 Z"/>
+  </g>
+  <text class="lbl" x="180" y="166">triangleDown</text>
+  <rect class="guide" x="226" y="100" width="52" height="52"/>
+  <g transform="translate(252 126) scale(26)">
+    <path class="body" d="M-0.665 -0.85 H0.665 V0.47 L0.285 0.85 H-0.665 Z"/>
+    <path class="shade" d="M0.285 0.85 L0.375 0.56 L0.665 0.47 Z"/>
+  </g>
+  <text class="lbl" x="252" y="166">file</text>
+  <rect class="guide" x="298" y="100" width="52" height="52"/>
+  <g transform="translate(324 126) scale(26)">
+    <path class="body" d="M-1 -0.205 L-0.4 -0.625 L1 -0.625 L1 0.205 L0.4 0.625 L-1 0.625 Z"/>
+    <path class="inner" d="M-1 -0.205 L0.4 -0.205 L1 -0.625 M0.4 -0.205 L0.4 0.625"/>
+  </g>
+  <text class="lbl" x="324" y="166">box</text>
+  <rect class="guide" x="10" y="186" width="52" height="52"/>
+  <g transform="translate(36 212) scale(26)">
+    <path class="body" d="M-0.85 -0.85 H0.55 L0.85 -0.55 V0.85 H-0.85 Z"/>
+    <rect class="inner" x="-0.35" y="-0.85" width="0.6" height="0.55"/>
+    <rect class="inner" x="-0.55" y="0.2" width="1.1" height="0.65"/>
+  </g>
+  <text class="lbl" x="36" y="252">floppyDisk</text>
+  <rect class="guide" x="82" y="186" width="52" height="52"/>
+  <g transform="translate(108 212) scale(26)">
+    <path class="body" d="M-0.75 -0.72 A0.75 0.22 0 0 1 0.75 -0.72 V0.72 A0.75 0.22 0 0 1 -0.75 0.72 Z"/>
+    <path class="inner" d="M-0.75 -0.72 A0.75 0.22 0 0 0 0.75 -0.72"/>
+  </g>
+  <text class="lbl" x="108" y="252">cylinder</text>
+  <rect class="guide" x="154" y="186" width="52" height="52"/>
+  <g transform="translate(180 212) scale(26)">
+    <path class="body" d="M-0.8 0.935 V0.235 A0.8 0.6 0 0 1 0.8 0.235 V0.935 Z"/>
+    <circle class="body" cx="0" cy="-0.515" r="0.42"/>
+  </g>
+  <text class="lbl" x="180" y="252">person</text>
+  <rect class="guide" x="226" y="186" width="52" height="52"/>
+  <g transform="translate(252 212) scale(26)">
+    <circle class="body" cx="0" cy="0" r="1"/>
+    <circle class="dot" cx="-0.34" cy="-0.26" r="0.11"/>
+    <circle class="dot" cx="0.34" cy="-0.26" r="0.11"/>
+    <path class="inner" d="M-0.5 0.28 Q0 0.72 0.5 0.28"/>
+  </g>
+  <text class="lbl" x="252" y="252">smile</text>
+  <rect class="guide" x="298" y="186" width="52" height="52"/>
+  <g transform="translate(324 212) scale(26)">
+    <path class="body" d="M0.18 -0.4 H0.82 V0.42 H0.18 Z M0.18 -0.24 H0.64 V0.26 H0.18 Z" fill-rule="evenodd"/>
+    <path class="body" d="M-0.82 -0.76 A0.56 0.17 0 0 1 0.3 -0.76 V0.76 A0.56 0.17 0 0 1 -0.82 0.76 Z"/>
+    <path class="inner" d="M-0.82 -0.76 A0.56 0.17 0 0 0 0.3 -0.76"/>
+  </g>
+  <text class="lbl" x="324" y="252">beerMug</text>
+</svg>

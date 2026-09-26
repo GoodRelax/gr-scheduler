@@ -441,7 +441,7 @@
 | CM-29 | `TaskGroup` | `setTaskGroupLabel` | — | 行の名前を変える | `FR-085` |
 | CM-30 | `TaskGroup` | `setTaskGroupColor` | — | 行の色を置く | `FR-042` |
 | CM-31 | `TaskGroup` | `resetTaskGroupColor` | — | 行の色をテーマ追随へ戻す | `FR-007` |
-| CM-32 | `TaskGroup` | `setTaskGroupHeight` | — | 行の高さを置く | `FR-042` |
+| CM-32 | `TaskGroup` | `setTaskGroupMinHeight` | — | 行の最小の高さを置く | `FR-042` |
 | CM-35 | `TaskGroup` | `reorderTaskGroupSiblings` | ⭐ | 兄弟の並びを変える | `FR-005` |
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
@@ -644,7 +644,8 @@
 
 ⭐ **本図は本仕様書が持つ原稿であり、生成物ではない** —— `source/build.py` が読むのは `components.json` と `overview.json` だけで、本図に触れない。  
 **5.2 と 6.2 が生成物へ課す禁止は、本図に掛からない。**  
-⭐ **図形は本プロジェクトが起こしたものであり、第三者の素材ではない** —— 幾何のマイルストーンの図形 8 つは 1 つの外接円に内接し、☆ の内外比は `tbl-settings.md` の `S-48` である。  
+⭐ **図形は本プロジェクトが起こしたものであり、第三者の素材ではない** —— 幾何のマイルストーンの図形 8 つは同じ半径の円に頂点を置いて起こし、外接枠の中心を箱の中心に揃えた（`05-07-design.md` の 表 T-221 の `LF-10`）。  
+☆ の内外比は `tbl-settings.md` の `S-48` である。  
 **本プロジェクトの設定値と一致する図形が第三者の素材であることはない。**  
 ⭐ あとの 7 つ（`IC-83` 〜 `IC-89`）も、同じ格子の上に同じ線の太さで本プロジェクトが起こした—— 外から持ち込んだ素材は 1 つも無い。  
 これが 表 T-003 の `CN-7` に対する判断の根拠である。  

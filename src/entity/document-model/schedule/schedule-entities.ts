@@ -143,7 +143,7 @@ export interface TaskGroup {
   /** AT-58 */
   readonly color: string | null
   /** AT-59 */
-  readonly height: number | null
+  readonly minHeight: number | null
 }
 
 /** ET-5 of table T-056. */
@@ -452,8 +452,8 @@ export const COLUMN_SHAPES: {
     order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
     treeState: { kind: 'enum', choices: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'], min: null, max: null, isNullable: false },
     editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    color: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
-    height: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    color: { kind: 'color', choices: ['white', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
+    minHeight: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
   Dependency: {
     predecessorUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },

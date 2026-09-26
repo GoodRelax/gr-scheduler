@@ -1500,20 +1500,21 @@
      "nullable": "可（`null` = テーマから解く）",
      "json": {
       "kind": "color",
-      "null": true
+      "null": true,
+      "band": true
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の帯の色。形は `AT-102` と同じ。規則は表 T-017b"
+      "ja": "行の帯の色。形は `AT-102` と同じ。ただし行の帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b"
      }
     },
     {
      "seat": 59,
-     "name": "height",
+     "name": "minHeight",
      "type": "整数",
-     "nullable": "可（`null` = 自動）",
+     "nullable": "可（`null` = 下限なし）",
      "json": {
       "kind": "integer",
       "null": true
@@ -1522,7 +1523,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "倍率 1 のときの論理の高さ"
+      "ja": "行の最小の高さ。縦のズーム 100%・表示の倍率 100 のときの画面の px。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ"
      }
     }
    ]
@@ -2301,7 +2302,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "描画の形だけを決める。`Task.milestone` を変えない（表 T-012）"
+      "ja": "描画の形だけを決める。`Task.milestone` を変えない（表 T-012）。`'milestone'` であるかどうかは `Task.milestone` が真であるかどうかと食い違えない（`05-07-design.md` の表 T-220 の `IV-22`）"
      }
     },
     {

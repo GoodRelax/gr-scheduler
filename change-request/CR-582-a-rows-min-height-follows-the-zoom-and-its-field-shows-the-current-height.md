@@ -1,6 +1,7 @@
 # CR-582 — 行の最小高さは倍率に従い、画面上の px（縦のズーム 100% 時）で持つ —— 欄に単位と現在の高さを添える
 
-> 起草の状態: 起草した（2026-09-26）。利用者の裁定 `JDG-710`・`JDG-712` 〜 `JDG-717`（逐語は 0.1 節）を当てる本文の案である。⛔ 仕様・コード・試験・見本はまだ 1 文字も変えていない。
+> 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W5。`JDG-740`）。当てた木は `c891b6ca` に `CR-577` を当てた作業木（枝 `cr-organise`、未コミット）。3 節・4 節の案の文を 4.11 節の旧・新の塊 20 へ起こし（原稿 9、仕様の文 11）、どの旧も 1 度だけ現れることを数えてから当てた。当てるときに旧を今の文へ合わせた所は無い —— 案が引いた行番号は動いていた（`FR-042` は `:2139` 〜）が、どの旧の文も起草の日のままだった。当てるときに新を直した: `DS-13` の欄の指し先と括弧の中の句点（E-17）、`MH-5` の縦棒（E-14）、重複の検出器が書き写しと読んだ 3 文（E-08・E-14）、`05-07-design.md` の注の括弧の中の句点（E-20）—— どれも 4.11 節の頭に理由を書いた。生成器の群: `S-440`・`S-441` は `tools/generate_entity_types.py` の `NOT_STORED_PROPERTY_FIELD_SIZES`（兄弟の行 `S-186` 〜 `S-199` と同じ群）へ足し、`tools/generate_display_words.py` に `ROW_MIN_HEIGHT_FIELD_PARTS` を、`tools/generate_startup_template.py` の鍵を `minHeight` へ直した（起動テンプレートは生成したスキーマで検められるので、同じ波に要る）。見本・案内・試験・手書きの `src` は 3.3 節・3.4 節の波 2 〜 3 に残る。
+> （起草の記: 起草した（2026-09-26）。）利用者の裁定 `JDG-710`・`JDG-712` 〜 `JDG-717`（逐語は 0.1 節）を当てる本文の案である。⛔ 仕様・コード・試験・見本はまだ 1 文字も変えていない。
 > 読んだ木: 起草は `refactor` の先端 `1781a77e` のワークツリー（`DFC-1086` の書きかけを含む）で測った。土台は `origin/refactor` の `39955062` —— `DFC-1086`（`JDG-711`）と `JDG-710` 〜 `JDG-715` の行が着地した木である。`1781a77e` から `39955062` までに `src`・`tools`・`tests`・`docs/spec` で動いたのは `DFC-1086` の 4 ファイルだけで、本書が引く行番号はどれも `39955062` で同じであることを確かめた。仮の番号と裁定の逐語は `39955062` で測り直した（2 節・0.1 節）。⛔ 当てる前に、その時点の `refactor` の先端で測り直すこと。
 > ID の帯: 調整役から `CR-582`・`JDG-710` 〜 `JDG-717` を受けた。台帳（`DFC`）の帯は受けていない —— 本書は既存の `DFC-1003` を閉じ、新しい `DFC` を起こさない。新しい番号・名はどれも仮である（2 節）。
 > ⭐ 11 節の問い 2 つは答えを受けた（2026-09-26）。問い 1 は説明を付けない（`JDG-716`）—— 最小高さの欄に説明（ツールチップ）の行を置かず、`IN-3` にも `CR-575`・`CR-576` の説明の対象にも触れない。`JDG-715` の説明の文は使わない。問い 2 は案 B を簡素な語で（`JDG-717`）—— 選んだ行が描かれていないときは、読み出しを丸ごと「現在非表示」／ "currently hidden" に置き換える（表 T-338 の `MH-6`）。本書の本文はこの 2 つを計画として書く。
@@ -97,13 +98,13 @@
 
 ## 2. 新しい識別子（どれも仮 —— 調整役がコミットの前に詰める）
 
-| 種類 | 仮の番号・名 | 何か | 測った（2026-09-26、`origin/refactor` の `39955062` と `change-request/CR-571` 〜 `CR-580`） |
+| 種類 | 仮の番号・名 | 何か | 測った（2026-09-26、`origin/refactor` の `39955062` と `change-request/CR-571` 〜 `CR-580`。当てる直前の 2026-09-26 に、`c891b6ca` に `CR-577` を当てた作業木で測り直した） |
 |---|---|---|---|
-| 表 | `T-338` | `FR-042` の「行の最小の高さの欄」 | `docs/spec` の表の最大は `T-334`。草案が `T-335`・`T-336`（`CR-574`）、`T-337`（`CR-575`）を取る ⇒ その次。⛔ 当てる日に測り直す（規則 02 の 2.5 節） |
-| 行 ID の接頭辞 | `MH`（Min Height） | 表 T-338 の行 `MH-1` 〜 `MH-6` | `docs/spec`・`change-request/`・`retired.py`・`git grep` の全体で `MH-` は 0 件。草案が名乗る新しい接頭辞（`SJ`・`SQ`・`SV`・`VT`・`HN`・`WB`・`LY`・`ZO`）とも違う。`row-id-prefixes.json` の登録は 167 件（当てる日に測り直す） |
-| 行 | `DS-13` | 表 T-252「`AT-59`（行の最小の高さ）」 | `docs/spec` の `DS-` は `DS-1`・`DS-3` 〜 `DS-10`（`DS-2` は `retired.py:264`〜`:267` で退いた）。⚠️ `DS-11`・`DS-12` は使わない —— `docs/review/inventory/A04-decided-discarded.md:282`〜`:283` がその字を自分の行に使っている（同書は `DS-01` 〜 `DS-12`）。`DS-13` は `git grep` で 0 件 |
-| 行 | `S-440` | 表 T-206「最小高さの欄の罫の太さ」1px | `docs/spec` の最大は `S-418`。草案が `S-419` 〜 `S-439` を名乗る（`CR-571`・`CR-574`・`CR-576`）⇒ その次 |
-| 行 | `S-441` | 表 T-206「同じ罫の両脇の隔たり」6px | `S-440` の次。`git grep` で 0 件 |
+| 表 | `T-338` | `FR-042` の「行の最小の高さの欄」 | 当てる直前（2026-09-26、`c891b6ca` ＋ `CR-577`）に測り直した: `docs/spec` の表の最大は `T-339`（`CR-588`）で、`T-338` はどの表も使っていなかった —— `CR-574`・`CR-575` が `T-335` 〜 `T-337` を取り、`CR-588` が本書のために `T-338` を残して `T-339` を取った |
+| 行 ID の接頭辞 | `MH`（Min Height） | 表 T-338 の行 `MH-1` 〜 `MH-6` | `docs/spec`・`change-request/`・`retired.py`・`git grep` の全体で `MH-` は 0 件。草案が名乗る新しい接頭辞（`SJ`・`SQ`・`SV`・`VT`・`HN`・`WB`・`LY`・`ZO`）とも違う。`row-id-prefixes.json` の登録は、当てる直前（2026-09-26、`c891b6ca` ＋ `CR-577`）に測り直して 188 件で `MH` は無く、本書の後に 189 件 |
+| 行 | `DS-13` | 表 T-252「`AT-59`（行の最小の高さ）」 | `docs/spec` の `DS-` は `DS-1`・`DS-3` 〜 `DS-10`（`DS-2` は `retired.py:264`〜`:267` で退いた）。⚠️ `DS-11`・`DS-12` は使わない —— `docs/review/inventory/A04-decided-discarded.md:282`〜`:283` がその字を自分の行に使っている（同書は `DS-01` 〜 `DS-12`）。`DS-13` は `git grep` で 0 件（当てる直前の 2026-09-26、`c891b6ca` ＋ `CR-577` でも 0 件） |
+| 行 | `S-440` | 表 T-206「最小高さの欄の罫の太さ」1px | 当てる直前（2026-09-26、`c891b6ca` ＋ `CR-577`）に測り直した: 設定値の行の最大は `S-445` で、`S-440`・`S-441` は `docs/spec`・`src`・`tests`・`tools` に 0 件だった —— `S-442` 〜 `S-445` はほかの変更要求（`CR-571`・`CR-588`・`CR-561`）が取った |
+| 行 | `S-441` | 表 T-206「同じ罫の両脇の隔たり」6px | `S-440` の次。`git grep` で 0 件（当てる直前の 2026-09-26、`c891b6ca` ＋ `CR-577` でも 0 件） |
 | 列の名 | `minHeight`（`AT-59`） | 旧 `height` | 列の名としては 0 件（`git grep -w minHeight` の 3 件は、`tests/unit/cr-408-*.test.ts:528`・`tools/probe/harness.mjs:390` の局所の変数と `rulings.md`） |
 | 命令の名 | `setTaskGroupMinHeight`（`CM-32`） | 旧 `setTaskGroupHeight` | 0 件 |
 | 辞書の節 | `rowMinHeightField` と部品 `unit`・`current`・`none`・`currentlyHidden` | 4.3 節 | どちらの名も `git grep` で 0 件 |
@@ -296,6 +297,415 @@ RATIONALE の末（**Relations** の前）に:
 
 ```json
 { "prefix": "MH", "words": "Min Height", "owner": "spec", "means": { "ja": "行の最小の高さの欄の規則（表 T-338）" } }
+```
+
+### 4.11 旧・新の塊（当てるときに 3 節・4 節の案から起こした）
+
+⭐ 3.1 節・3.2 節と 4 節の案の文を、旧・新の塊 20 へ起こした（原稿 9、仕様の文 11）。
+変えたのは形と指し先の書き方だけである —— `DS-13` の「掛けるか」の欄は最初の文書が `_assets/fig-erd-detail.md` なので、「同書」が `_assets/tbl-settings.md` を指すよう、その欄の頭で文書を名指した。
+`DS-13` の理由の欄の「60 を打って 37.5px」は、`S-236` の値を写さずに言える形へ直した。
+`05-07-design.md` の注と `DS-13` の「何に」の欄の括弧の中の句点は読点にした（括弧の中で文を切らない）。
+`MH-5` の「字（`\|` など）」は「字（縦棒など）」とした —— 表の中の `\|` を表の検査が列の区切りと数える。
+重複の検出器が既にある文の書き写しと読んだ 3 文を、持ち主を指す形へ直した —— `MH-3` の帯高の文（`HF-19` と同じ文）、`S-440`・`S-441` の値の出どころの文（`S-242` と同じ文）。
+生成器（`tools/generate_entity_types.py`・`tools/generate_display_words.py`・`tools/generate_startup_template.py`）は 3.3 節の波 1 のとおり同じ手で直し、塊には起こしていない。
+
+<!-- EDIT id=E-01 file=docs/spec/_source/erd.json -->
+
+4.1 節 —— 座席 59。
+
+```text
+     "seat": 59,
+     "name": "height",
+     "type": "整数",
+     "nullable": "可（`null` = 自動）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "倍率 1 のときの論理の高さ"
+     }
+```
+
+```text
+     "seat": 59,
+     "name": "minHeight",
+     "type": "整数",
+     "nullable": "可（`null` = 下限なし）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "行の最小の高さ。縦のズーム 100%・表示の倍率 100 のときの画面の px。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ"
+     }
+```
+
+<!-- EDIT id=E-02 file=docs/spec/_source/property-items.json -->
+
+4.2 節 —— `PR-20`。
+
+```text
+   "id": "PR-20",
+   "columns": [
+    "height"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "倍率 1 のときの論理の高さ。`null` ＝ 自動"
+   },
+```
+
+```text
+   "id": "PR-20",
+   "columns": [
+    "minHeight"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行の最小の高さ（縦のズーム 100% のときの画面の px）。`null` ＝ 下限なし。欄の出し方は `FR-042` の 表 T-338 が持つ"
+   },
+```
+
+<!-- EDIT id=E-03 file=docs/spec/_source/property_items_json_to_md.py -->
+
+3.1 節 —— 生成器の前書き（刷り物 `tbl-property-items.md` の 1 文）。
+
+```text
+        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `height` が'
+```
+
+```text
+        '⚠️ **本表の並びは印刷順そのものなので、対象を持たないと `TaskGroup` の `minHeight` が'
+```
+
+<!-- EDIT id=E-04 file=docs/spec/_source/property_items_json_to_md.py -->
+
+3.1 節 —— 同じ生成器の注。
+
+```text
+    without a machine-readable answer to 「whose panel」 a TaskGroup's height
+    would be drawn on a Task's. ⚠️ Absent means `Task`.
+```
+
+```text
+    without a machine-readable answer to 「whose panel」 a TaskGroup's minHeight
+    would be drawn on a Task's. ⚠️ Absent means `Task`.
+```
+
+<!-- EDIT id=E-05 file=docs/spec/_source/display-words.json -->
+
+4.3 節 —— `PR-20` の名。
+
+```text
+   "rowId": "PR-20",
+   "label": {
+    "ja": "高さ",
+    "en": "height"
+   }
+```
+
+```text
+   "rowId": "PR-20",
+   "label": {
+    "ja": "最小高さ（ズーム 100% 時）",
+    "en": "min height (at 100% zoom)"
+   }
+```
+
+<!-- EDIT id=E-06 file=docs/spec/_source/display-words.json -->
+
+4.3 節 —— 新しい節 `rowMinHeightField`（`colourField` の後）。
+
+```text
+   "part": "themeHint",
+   "text": {
+    "ja": "プロジェクトのテーマの色に従う",
+    "en": "Follow the project theme"
+   }
+  }
+ ],
+```
+
+```text
+   "part": "themeHint",
+   "text": {
+    "ja": "プロジェクトのテーマの色に従う",
+    "en": "Follow the project theme"
+   }
+  }
+ ],
+ "rowMinHeightField": [
+  {
+   "part": "unit",
+   "text": {
+    "ja": "px",
+    "en": "px"
+   }
+  },
+  {
+   "part": "current",
+   "text": {
+    "ja": "現在の高さ {px}px",
+    "en": "current: {px} px"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "なし",
+    "en": "none"
+   }
+  },
+  {
+   "part": "currentlyHidden",
+   "text": {
+    "ja": "現在非表示",
+    "en": "currently hidden"
+   }
+  }
+ ],
+```
+
+<!-- EDIT id=E-07 file=docs/spec/_source/display-words.json -->
+
+3.1 節 —— `$comment` の 2 つ目の段の「何を持つか」の列挙に 1 句。
+
+```text
+and the seven weekdays the fourth ruler tier prints (FR-017).",
+```
+
+```text
+and the seven weekdays the fourth ruler tier prints (FR-017), and the four parts of a row's min height field that table T-338 asks for (FR-042).",
+```
+
+<!-- EDIT id=E-08 file=docs/spec/_source/settings.json -->
+
+4.7 節 —— 表 T-206 の `S-199` の後（プロパティパネルの欄の行の群の終わり）。
+
+```text
+    {
+     "id": "S-137",
+```
+
+```text
+    {
+     "id": "S-440",
+     "value": {
+      "ja": "プロパティパネルの最小の高さの欄で、単位と現在の高さを隔てる罫の太さ（`FR-042` の 表 T-338 の `MH-5`）"
+     },
+     "default": {
+      "num": "1",
+      "suffix": "px",
+      "mark": "🔎"
+     },
+     "note": {
+      "ja": "⭐ 画面の px である —— 表示の倍率（表 T-202 の `S-234`）も `S-235` も掛けない（プロパティパネルは日程表の絵ではない）。⛔ `S-241`・`S-242` と兼ねてはならない —— 数が同じだけで、あちらは担当者の一覧の欄の罫と、確認の見出しの境目である。⛔ 1px は `S-242` と同じ決め方で揃えた罫の太さである。`S-138` と同じ理由で保存しない"
+     }
+    },
+    {
+     "id": "S-441",
+     "value": {
+      "ja": "同じ罫の両脇に空ける隔たり（`FR-042` の 表 T-338 の `MH-5`）"
+     },
+     "default": {
+      "num": "6",
+      "suffix": "px",
+      "mark": "🔎"
+     },
+     "note": {
+      "ja": "⭐ 画面の px である（`S-440` と同じ）。⛔ `S-190` と兼ねてはならない —— 数が同じだけで、あちらは項目名と入力欄のあいだである。⛔ 6px は `S-190` に揃えた隔たりであり、決め方は `S-440` と同じである。`S-138` と同じ理由で保存しない"
+     }
+    },
+    {
+     "id": "S-137",
+```
+
+<!-- EDIT id=E-09 file=docs/spec/_source/row-id-prefixes.json -->
+
+4.10 節 —— 接頭辞 `MH`（`MG` と `MK` のあいだ）。
+
+```text
+  {
+   "prefix": "MK",
+```
+
+```text
+  {
+   "prefix": "MH",
+   "words": "Min Height",
+   "owner": "spec",
+   "means": {
+    "ja": "行の最小の高さの欄の規則（表 T-338）"
+   }
+  },
+  {
+   "prefix": "MK",
+```
+
+<!-- EDIT id=E-10 file=docs/spec/01-04-requirements.md -->
+
+3.2 節 —— `FR-042` の STATEMENT の 1 行目。
+
+```text
+その行の色と高さをプロパティパネルに出して編集できるようにし、
+```
+
+```text
+その行の色と最小の高さをプロパティパネルに出して編集できるようにし、
+```
+
+<!-- EDIT id=E-11 file=docs/spec/01-04-requirements.md -->
+
+3.2 節・4.4 節 —— `FR-042` の下限の 3 文と、欄の表を指す 1 文。
+
+```text
+指定した高さは下限として扱うこと（MUST）。  
+段数がそれより高い帯を要するときは、指定を超えて広げること（MUST）。  
+段を落として指定に収めてはならない（MUST NOT）。  
+```
+
+```text
+指定した最小の高さは下限として扱うこと（MUST）。  
+段数がそれより高い帯を要するときは、指定を超えて広げること（MUST）。  
+段を落として指定に収めてはならない（MUST NOT）。  
+欄は 表 T-338 に従って出すこと（MUST）。  
+```
+
+<!-- EDIT id=E-12 file=docs/spec/01-04-requirements.md -->
+
+3.2 節 —— `FR-042` の STATEMENT の終わり。
+
+```text
+**高さ**の指定が無い行は、段数から自動で決めること（`FR-003` の ST-9）。
+```
+
+```text
+**最小の高さ**の指定が無い行は、段数から自動で決めること（`FR-003` の ST-9）。
+```
+
+<!-- EDIT id=E-13 file=docs/spec/01-04-requirements.md -->
+
+4.4 節 —— `FR-042` の RATIONALE の段。
+
+```text
+指定した高さは、ズーム等倍を基準とした論理的な値として持ち、ズームに比例して伸縮させること（MUST） —— 画面上の画素で持つと、ズームした瞬間に指定の意味が変わる。
+```
+
+```text
+指定した最小の高さは、縦のズームが 100%（`_assets/tbl-settings.md` の 表 T-203 の `S-76` が 1）で表示の倍率（表 T-202 の `S-234`）が 100 のときの画面の px として持ち、描くときは `FR-039` の 表 T-252 の `DS-13` のとおり、縦のズームと表示の倍率に比例して伸縮させること（MUST） —— 伸縮させないと、絵を縮めてもその行だけが縮まず、ズームした瞬間に指定の意味が変わる。  
+基準を画面の px に置くのは、作成者が欄の横の現在の高さ（表 T-338 の `MH-3`）で読んだ数と同じ単位で打てるようにするためである。
+```
+
+<!-- EDIT id=E-14 file=docs/spec/01-04-requirements.md -->
+
+4.4 節 —— `FR-042` の RATIONALE の末（**Relations** の前）に表 T-338。
+
+```text
+上書きの有無で数えてはならない（MUST NOT） —— 指定の無い行だけで数えると、**1 行に色を付けた瞬間にその下の全行の縞が反転し**、操作と結果が対応しなくなる。
+```
+
+```text
+上書きの有無で数えてはならない（MUST NOT） —— 指定の無い行だけで数えると、**1 行に色を付けた瞬間にその下の全行の縞が反転し**、操作と結果が対応しなくなる。
+
+**表 T-338 — 行の最小の高さの欄**
+
+| 行 ID | 何について | 規則 |
+| --- | --- | --- |
+| MH-1 | 値と単位 | 欄の値は、縦のズームが 100% で表示の倍率が 100 のときの画面の px の整数とすること（MUST）。<br>値の入力の右に単位の語を置き、欄の名に基準のズームを含めること（MUST） —— 数だけでは、いまの倍率で描かれた px か基準の px かが読めない。<br>描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13` が持つ |
+| MH-2 | 空の欄 | 値が `null` のときは入力を空にし、下限の無いことを示す語を入力の中に薄く示すこと（MUST）。<br>⛔ `0` と示してはならない（MUST NOT） —— `0` は人が打った値に見え、下限の無いことと見分けられない。<br>空にして確定したら `null` を書くこと（MUST） |
+| MH-3 | 現在の高さ | 単位の右に、その行のいまの帯高を単位を添えて示すこと（MUST）。<br>示す値は行の帯高（`05-07-design.md` の 表 T-221 の `LF-2`・`LF-3`）であり、行と行のあいだ（`rowGap`）を含めない。<br>px の整数へ四捨五入して示すこと（MUST）。<br>欄が空のときも、帯高が指定より高いときも示すこと（MUST） —— いまの帯高が読めないと、いくつを打てば行が高くなるかが分からない。<br>⭐ ズームの百分率ではなく高さを示す —— 作成者が比べるのは、打つ数と描かれた高さである |
+| MH-4 | 追随 | 縦のズーム・表示の倍率・行の中身のどれかで帯高が変わったら、次に描く絵で現在の高さを書き換えること（MUST）。<br>欄を編集しているあいだも書き換えること（MUST）。<br>⛔ 編集している入力の字と焦点を動かしてはならない（MUST NOT） —— 打ちかけの数が消えると、倍率を変えながら数を選べない |
+| MH-5 | 区切り | 単位と現在の高さのあいだを縦の罫 1 本で隔てること（MUST）。<br>罫の太さは `_assets/tbl-settings.md` の 表 T-206 の `S-440`、罫の両脇の隔たりは同表の `S-441`、色は同書の 表 T-236 の `S-149` とする。<br>⛔ 区切りを字（縦棒など）で書いてはならない（MUST NOT） —— 字は辞書の語になり、言語ごとに選び直すものが増える |
+| MH-6 | 行が描かれていないとき | 選んだ行が、いまの倍率で描かれていないとき（`FR-018` のグループ LOD で絵から外れたとき）は、現在の高さの語と数の代わりに、描かれていないことを示す語だけを示すこと（MUST）。<br>⛔ 数を示してはならない（MUST NOT） —— 描いた帯が無く、読める帯高が無い。<br>欄の形と位置は変えず、行がまた描かれたら、次に描く絵で現在の高さに戻すこと（MUST） —— 倍率を戻すと同じ場所に数が戻るので、どこを読めばよいかが変わらない |
+
+欄の名・単位・現在の高さ・空の欄・行が描かれていないときの語は `FR-038` の辞書が持つ。
+```
+
+<!-- EDIT id=E-15 file=docs/spec/01-04-requirements.md -->
+
+3.2 節 —— `FR-006`。
+
+```text
+対象を見ないと `TaskGroup` の `height` が `Task` のパネルにも出る。
+```
+
+```text
+対象を見ないと `TaskGroup` の `minHeight` が `Task` のパネルにも出る。
+```
+
+<!-- EDIT id=E-16 file=docs/spec/01-04-requirements.md -->
+
+4.6 節 —— `FR-016`。
+
+```text
+帯の高さを作る縦の寸法には描く比が掛かる（表 T-252 の `DS-1` / `DS-8`）が、
+```
+
+```text
+帯の高さを作る縦の寸法には表示の倍率が掛かる（表 T-252 の `DS-1` / `DS-8` / `DS-13`）が、
+```
+
+<!-- EDIT id=E-17 file=docs/spec/01-04-requirements.md -->
+
+4.5 節 —— 表 T-252 の `DS-10` の後（表の最後の行）に `DS-13`。
+
+```text
+隙間のうち依存線の太さには、`DS-1` の `S-18` として描く比が掛かる |
+```
+
+```text
+隙間のうち依存線の太さには、`DS-1` の `S-18` として描く比が掛かる |
+| DS-13 | `_assets/fig-erd-detail.md` の `AT-59`（行の最小の高さ、`FR-042`） | `_assets/tbl-settings.md` の 表 T-202 の `S-234` を 100 で割った値と、縦のズーム（同書の 表 T-203 の `S-76`）を掛ける。<br>⛔ 同書の 表 T-206 の `S-236` を掛けてはならない（MUST NOT） | 値は、表示の倍率 100・縦のズーム 100% のときの画面の px として人が打つ（`FR-042` の 表 T-338 の `MH-1`）—— 欄の横の現在の高さ（同表の `MH-3`）と同じ単位で読み書きするためである。<br>本表のほかの行の寸法は `S-236` を含む描く比で画面の px へ直すが、本行の値は既に画面の px なので、`S-236` を掛けると、倍率がどちらも 100 のときに打った数と描かれる帯高が食い違う（60 を打つと、帯高は 60 × `S-236` になる）。<br>表示の倍率と縦のズームを掛けるのは、ほかの寸法と一緒に縮め・拡げるためである —— 掛けないと、絵を縮めてもその行だけが縮まない |
+```
+
+<!-- EDIT id=E-18 file=docs/spec/_assets/tbl-glossary.md -->
+
+4.8 節 —— 表 T-108 の `CM-32`。
+
+```text
+| CM-32 | `TaskGroup` | `setTaskGroupHeight` | — | 行の高さを置く | `FR-042` |
+```
+
+```text
+| CM-32 | `TaskGroup` | `setTaskGroupMinHeight` | — | 行の最小の高さを置く | `FR-042` |
+```
+
+<!-- EDIT id=E-19 file=docs/spec/05-07-design.md -->
+
+4.9 節 —— 表 T-075 の `UF-78` の責務。
+
+```text
+| 行の色と高さを書き換える |
+```
+
+```text
+| 行の色と最小の高さを書き換える |
+```
+
+<!-- EDIT id=E-20 file=docs/spec/05-07-design.md -->
+
+4.9 節 —— 表 T-221 の後の注。
+
+```text
+⚠️ `TaskGroup.height` の指定があるときは `FR-042` が優先する —— 指定は下限であり、段数がそれより高い帯を要するときは超えて広げる。  
+```
+
+```text
+⚠️ `TaskGroup.minHeight` の指定があるときは `FR-042` が優先する —— 指定は下限であり、段数がそれより高い帯を要するときは超えて広げる。  
+描くときに指定へ掛ける比は `01-04-requirements.md` の `FR-039` の 表 T-252 の `DS-13` が持つ（表示の倍率の段と縦のズーム、`S-236` は掛けない）。  
 ```
 
 ---

@@ -30,3 +30,7 @@
 | 15 | `CR-588`（変更前の予定の輪郭。仕様の波 W4a —— 生成器が色と輪郭の大きさの群を刷った。描く手順はコードの持ち場 L1） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts` |
 | 16 | `CR-571`（検索パネル。仕様の波 W4a —— 生成器がパネルの大きさの群とユニットの雛形を作った。描く手順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts`・`src/framework/dom-screen-surface/search-panel-drawing.ts` |
 | 17 | `CR-574`（ヘルプを普通の窓に。仕様の波 W4a。描く手順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
+| 18 | `CR-562`（画像から GRS JSON を作るプロンプト。仕様の波 W4b —— 生成器が表示語とパレットの区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/screen-renderer/display-words.json` |
+| 19 | `CR-561`（遅延診断。仕様の波 W4b —— 生成器が色と印の大きさの群とユニットの雛形を作った。描く手順はコードの持ち場 L1） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/schedule-geometry/task-figures.ts` |
+| 20 | `CR-563`（MCP と読むだけの行の削除。仕様の波 W4b —— 生成器がパレットの区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts` |
+| 21 | `CR-589`（表 T-109 の切り替える設定値の列。仕様の波 W4b —— 生成器がパレットと頭の帯の区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/screen-renderer/app-header-items.ts` |

@@ -1112,6 +1112,8 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   readonly 'S-335': number
   readonly 'S-338': number
   readonly 'S-368': number
+  readonly 'S-440': number
+  readonly 'S-441': number
 } = {
   'S-186': 17,
   'S-187': 16,
@@ -1126,6 +1128,8 @@ export const NOT_STORED_PROPERTY_FIELD_SIZES: {
   'S-335': 2,
   'S-338': 5,
   'S-368': 5,
+  'S-440': 1,
+  'S-441': 6,
 }
 
 // see T-206

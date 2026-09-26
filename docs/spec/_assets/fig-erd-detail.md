@@ -87,7 +87,7 @@ erDiagram
         列挙 treeState "GRS・5 値"
         文字列 editGroup "GRS"
         文字列 color "GRS"
-        整数 height "GRS"
+        整数 minHeight "GRS"
     }
     TaskGroupMember {
         整数 **taskUid** PK,FK "GRS"
@@ -368,8 +368,8 @@ erDiagram
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
 | AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | 行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。新しく作る行は `auto`。貼り付けた写しは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
 | AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
-| AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。規則は表 T-017b |
-| AT-59 | `TaskGroup` | `height` | 整数 | 可（`null` = 自動） | — | GRS | — | 倍率 1 のときの論理の高さ |
+| AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 行の帯の色。形は `AT-102` と同じ。ただし行の帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b |
+| AT-59 | `TaskGroup` | `minHeight` | 整数 | 可（`null` = 下限なし） | — | GRS | — | 行の最小の高さ。縦のズーム 100%・表示の倍率 100 のときの画面の px。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
 | AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である |
 | AT-61 | `TaskGroupMember` | `groupId` | 文字列（UUID） | 否 | FK | GRS | — | 載せる行 |
 | AT-62 | `TaskGroupMember` | `stackOrder` | 整数 | 可（`null` = 自動） | — | GRS | — | 段。人が指定できるかは表 T-014 の `ST-6` |
@@ -408,7 +408,7 @@ erDiagram
 | AT-95 | `Assignment` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー 58 |
 | AT-96 | `Assignment` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 3 |
 | AT-97 | `TaskVisual` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク |
-| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | 描画の形だけを決める。`Task.milestone` を変えない（表 T-012） |
+| AT-100 | `TaskVisual` | `shapeKind` | 列挙（5 値） | 可（`null` = `Task.milestone` から解く） | — | GRS | — | 描画の形だけを決める。`Task.milestone` を変えない（表 T-012）。`'milestone'` であるかどうかは `Task.milestone` が真であるかどうかと食い違えない（`05-07-design.md` の表 T-220 の `IV-22`） |
 | AT-101 | `TaskVisual` | `milestoneGlyph` | 列挙（15 値） | 可 | — | GRS | — | `shapeKind` が `'milestone'` のときだけ見る。**既定は `'diamond'`** |
 | AT-102 | `TaskVisual` | `fillColor` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | 塗り。`_assets/tbl-settings.md` の表 T-294 の保存する綴り（例: `red`）か、カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）。規則は表 T-017b。輪郭と同時に透明にできない（`FR-007`、`05-07-design.md` の表 T-220 の `IV-9`） |
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |

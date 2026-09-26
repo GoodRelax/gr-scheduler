@@ -167,7 +167,7 @@ def date_columns_block(erd):
 # has to DERIVE them, and nothing carried the manuscript's enumerations and
 # bounds into src/ at all. ⛔ Six entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
-# adds a row's colour and height (`TaskGroup`), FR-009 adds the dependency
+# adds a row's colour and min height (`TaskGroup`), FR-009 adds the dependency
 # line, PR-21 of table T-016 (対象 `CommentBox`) adds the comment box, and
 # PR-22 (対象 `HighlightBox`, JDG-408) adds a highlight box's outline colour. A
 # roster of every entity would state a shape for columns no surface offers.
@@ -199,10 +199,30 @@ def column_shape(node):
     """
     values = node.get('values')
     if node.get('kind') == 'color':
+        # CR-586: a column flagged "band" (AT-58) drops the names whose row
+        # band is a dash in table T-294 (black, S-315; CV-9).
+        refused = bandless_spellings() if node.get('band') else []
         values = [n for n in palette_spellings()
-                  if node.get('transparent', True) or n != 'transparent']
+                  if (node.get('transparent', True) or n != 'transparent')
+                  and n not in refused]
     return (node.get('kind'), values, node.get('min'),
             node.get('max'), bool(node.get('null')))
+
+
+def bandless_spellings():
+    """The stored spellings of table T-294 whose row band is a dash.
+
+    The dash is read by is_palette_dash, the one reading palette_cell uses
+    too. ⚠️ docs/spec/_source/erd_json_to_schema.py's bandless_colour_names
+    reads it the same way for the schema; a change to one is a change to both.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    for block in doc['blocks']:
+        if block.get('id') == 'T-294':
+            return [row['key'].strip('`') for row in block['rows']
+                    if any(is_palette_dash(row.get(field))
+                           for field in ('lightBand', 'darkBand'))]
+    raise SystemExit('settings.json holds no table T-294')
 
 
 def palette_spellings():
@@ -1446,8 +1466,11 @@ NOT_STORED_TARGETS = {
         # CR-557: S-368 is the same count for the theme-hue field of FR-041
         # (table T-305), drawn in the same swatch box; its own note forbids
         # reading S-338 for it, so it is a key of its own.
+        # CR-582: S-440 and S-441 are the rule between the unit and the
+        # current height of the min height field (MH-5 of table T-338), drawn
+        # by the same unit; their own notes forbid sharing S-190 / S-241.
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198', 'S-335', 'S-338', 'S-368'],
+         'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-440', 'S-441'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per
@@ -1803,6 +1826,11 @@ def colour_block(name):
 PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
 
 
+def is_palette_dash(cell):
+    """A cell of table T-294 holding a dash (—): no value for that form."""
+    return isinstance(cell, dict) and cell.get('ja', '').startswith('—')
+
+
 def palette_cell(cell, row_id, field):
     if isinstance(cell, dict) and 'colour' in cell:
         return "'%s'" % cell['colour']
@@ -1810,7 +1838,7 @@ def palette_cell(cell, row_id, field):
         return "{ sameAs: '%s' }" % cell['sameAs']
     if isinstance(cell, dict) and cell.get('ja') == '描かない':
         return 'null'
-    if isinstance(cell, dict) and cell.get('ja', '').startswith('—'):
+    if is_palette_dash(cell):
         return 'false'
     raise SystemExit('table T-294 row %s states nothing readable in %s'
                      % (row_id, field))

@@ -1,0 +1,200 @@
+{
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-milestone-shapes.svg, figure F-044 (the authority for the chart's milestone shapes, LF-10 and LF-18 of table T-221), after checking every shape against the glyph figure F-019 draws for the same spelling. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_milestone_shapes.py. Each shape is in the unit square with the centre of its bounding box at the origin; each layer is SVG path data with its role (body, inner, dot, shade).",
+ "shapes": [
+  {
+   "glyph": "circle",
+   "iconRowId": "IC-27",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-1 0 A1 1 0 1 0 1 0 A1 1 0 1 0 -1 0 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "hexagon",
+   "iconRowId": "IC-28",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 -1 L0.866 -0.5 L0.866 0.5 L0 1 L-0.866 0.5 L-0.866 -0.5 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "pentagon",
+   "iconRowId": "IC-29",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 -0.9045 L0.9511 -0.2135 L0.5878 0.9045 L-0.5878 0.9045 L-0.9511 -0.2135 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "diamond",
+   "iconRowId": "IC-30",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 -1 L1 0 L0 1 L-1 0 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "square",
+   "iconRowId": "IC-31",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-0.7071 -0.7071 H0.7071 V0.7071 H-0.7071 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "star",
+   "iconRowId": "IC-32",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 -0.9045 L0.2645 -0.2686 L0.9511 -0.2135 L0.428 0.2345 L0.5878 0.9045 L0 0.5455 L-0.5878 0.9045 L-0.428 0.2345 L-0.9511 -0.2135 L-0.2645 -0.2686 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "triangleUp",
+   "iconRowId": "IC-33",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 -0.75 L0.866 0.75 L-0.866 0.75 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "triangleDown",
+   "iconRowId": "IC-34",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0 0.75 L-0.866 -0.75 L0.866 -0.75 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "file",
+   "iconRowId": "IC-83",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-0.665 -0.85 H0.665 V0.47 L0.285 0.85 H-0.665 Z"
+    },
+    {
+     "role": "shade",
+     "d": "M0.285 0.85 L0.375 0.56 L0.665 0.47 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "box",
+   "iconRowId": "IC-84",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-1 -0.205 L-0.4 -0.625 L1 -0.625 L1 0.205 L0.4 0.625 L-1 0.625 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-1 -0.205 L0.4 -0.205 L1 -0.625 M0.4 -0.205 L0.4 0.625"
+    }
+   ]
+  },
+  {
+   "glyph": "floppyDisk",
+   "iconRowId": "IC-85",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-0.85 -0.85 H0.55 L0.85 -0.55 V0.85 H-0.85 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-0.35 -0.85 H0.25 V-0.3 H-0.35 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-0.55 0.2 H0.55 V0.85 H-0.55 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "cylinder",
+   "iconRowId": "IC-86",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-0.75 -0.72 A0.75 0.22 0 0 1 0.75 -0.72 V0.72 A0.75 0.22 0 0 1 -0.75 0.72 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-0.75 -0.72 A0.75 0.22 0 0 0 0.75 -0.72"
+    }
+   ]
+  },
+  {
+   "glyph": "person",
+   "iconRowId": "IC-87",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-0.8 0.935 V0.235 A0.8 0.6 0 0 1 0.8 0.235 V0.935 Z"
+    },
+    {
+     "role": "body",
+     "d": "M-0.42 -0.515 A0.42 0.42 0 1 0 0.42 -0.515 A0.42 0.42 0 1 0 -0.42 -0.515 Z"
+    }
+   ]
+  },
+  {
+   "glyph": "smile",
+   "iconRowId": "IC-88",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M-1 0 A1 1 0 1 0 1 0 A1 1 0 1 0 -1 0 Z"
+    },
+    {
+     "role": "dot",
+     "d": "M-0.45 -0.26 A0.11 0.11 0 1 0 -0.23 -0.26 A0.11 0.11 0 1 0 -0.45 -0.26 Z"
+    },
+    {
+     "role": "dot",
+     "d": "M0.23 -0.26 A0.11 0.11 0 1 0 0.45 -0.26 A0.11 0.11 0 1 0 0.23 -0.26 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-0.5 0.28 Q0 0.72 0.5 0.28"
+    }
+   ]
+  },
+  {
+   "glyph": "beerMug",
+   "iconRowId": "IC-89",
+   "layers": [
+    {
+     "role": "body",
+     "d": "M0.18 -0.4 H0.82 V0.42 H0.18 Z M0.18 -0.24 H0.64 V0.26 H0.18 Z",
+     "rule": "evenodd"
+    },
+    {
+     "role": "body",
+     "d": "M-0.82 -0.76 A0.56 0.17 0 0 1 0.3 -0.76 V0.76 A0.56 0.17 0 0 1 -0.82 0.76 Z"
+    },
+    {
+     "role": "inner",
+     "d": "M-0.82 -0.76 A0.56 0.17 0 0 0 0.3 -0.76"
+    }
+   ]
+  }
+ ]
+}

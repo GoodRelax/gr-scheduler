@@ -245,6 +245,14 @@ DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
                       'theme', 'themeHint')
 
+# CR-582: the parts of a row's min height field (table T-338): the unit beside
+# the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
+# empty field shows (MH-2), and the word that replaces the current height while
+# the row is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
+# table T-338 states them in prose and no table holds them as rows. KEYS, not
+# words.
+ROW_MIN_HEIGHT_FIELD_PARTS = ('unit', 'current', 'none', 'currentlyHidden')
+
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
 # table T-233. The three words no table holds as rows -- the value list's
@@ -439,6 +447,7 @@ def roster():
         'weekdays': list(WEEKDAYS),
         'colourNames': colour_spellings(),
         'colourField': list(COLOUR_FIELD_PARTS),
+        'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'searchColumns': [row[0] for row in
@@ -506,6 +515,7 @@ SHAPE = {
     'weekdays': ('weekday', ('text',)),
     'colourNames': ('spelling', ('text',)),
     'colourField': ('part', ('text',)),
+    'rowMinHeightField': ('part', ('text',)),
     'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
@@ -595,7 +605,8 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'colourNames', 'colourField', 'themeHues',
+                    'colourNames', 'colourField', 'rowMinHeightField',
+                    'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel'):
         if section == 'settings':

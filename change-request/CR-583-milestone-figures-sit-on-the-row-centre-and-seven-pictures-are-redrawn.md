@@ -1,6 +1,7 @@
 # CR-583 — マイルストーンの図形は外接枠の中心で行に揃え、絵の 7 形を描き直す
 
-> 起草の状態: **起草だけ**（2026-09-26、枝 `milestone-glyphs`、`29ccf623` の上）。利用者の指示「OK、この形でCRを起草しろ。 終わったら司令塔に伝えて、完了宣言しろ。 仕様書や実装の修正はここでは不要。」により、仕様にもコードにも当てていない。
+> 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W5。`JDG-740`）。当てた木は `c891b6ca` に `CR-577`・`CR-582`・`CR-586` を当てた作業木（枝 `cr-organise`、未コミット）。4 節・5 節の案と 11 節の答え（問い 1 は (a)、問い 2 は線 —— `JDG-729`・`JDG-741`・`JDG-742`）を 4.1 節の旧・新の塊 17 へ起こし（文 4、図 F-019 の 13）、どの旧も 1 度だけ現れることを数えてから当てた。当てるときに旧を今の文へ合わせた所は無い。当てるときに新を直した所と、その理由は 4.1 節の頭の ① 〜 ⑤ に書いた —— とくに ④ 図 F-019 の `IC-28`（六角形）と `IC-85`（フロッピー）もチャートの形へ直した（5 節は「変えない」としたが、問い 1 の (a) は 2 つの違いのほかを許さず、今のグリフとチャートは違う形である）、⑤ 杯をまるごと左へ 0.02 動かした（5 節の頭の「外接枠の中心を (0, 0) に置く」に合わせた）。新しい図 `docs/spec/_assets/fig-milestone-shapes.svg`（図 F-044）と、生成器 `tools/generate_milestone_shapes.py`（図 F-044 を 図 F-019 と照らしてから、チャートの形の表 `src/entity/layout-engine/schedule-geometry/milestone-shapes.json` を刷る。`npm run milestones` ／ `milestones:check` として `gen` ／ `gen:check` に入れた）を足した。E-05（変更履歴）は調整役が足す。E-06（コード）は波 2 に残る。
+> （起草の記: **起草だけ**（2026-09-26、枝 `milestone-glyphs`、`29ccf623` の上）。）利用者の指示「OK、この形でCRを起草しろ。 終わったら司令塔に伝えて、完了宣言しろ。 仕様書や実装の修正はここでは不要。」により、仕様にもコードにも当てていない。
 > 範囲: マイルストーン（表 T-012 の `SH-5`）の 15 形のうち、縦の位置（4 形）と絵の形（7 形のうち 6 形。フロッピーは変えない）。対象は **パレットのグリフ（図 F-019）・予定・実績** の 3 つ。ダミーは実績の形を描くので、一緒に変わる。
 > 触れる見本: `previous-project-result/19-milestone-glyphs/milestone-glyphs-sample.html`（形の正は本書の 5 節。見本はその描き出し）。
 > 読んだ木: `29ccf623`（`refactor`、2026-09-26）。数はどれもこの木で測った（13 節）。
@@ -80,8 +81,8 @@
 
 ## 2. 新しい識別子
 
-- 表 T-221 の行 `LF-18`（2026-09-26 に `29ccf623` で詰めた番号。⛔ 当てる日に、定義されていないことを測り直す —— 規則 02 の 2.5）。
-- 11 節の問い 1 が (a) なら新しい図の番号 1 つ —— 当てる日に取る（規則 02 の 2.5）。
+- 表 T-221 の行 `LF-18`（2026-09-26 に `29ccf623` で詰めた番号。当てる直前の 2026-09-26 に、`c891b6ca` に `CR-577`・`CR-582`・`CR-586` を当てた作業木で測り直した —— `docs/spec`・`src`・`tests`・`tools` のどこにも定義されていなかった。表 T-221 の行は 16（`LF-1` 〜 `LF-17`、`LF-4` は退いた）で、本書の後に 17）。
+- 11 節の問い 1 は (a) なので新しい図の番号を 1 つ取った —— `F-044`（同じ作業木で測り直した: 仕様が見出しを持つ図の番号は `F-043` までで、`F-044` は `change-request/` を含めてどこにも書かれていなかった）。
 - 表・接頭辞・要求 ID は作らない。
 
 ---
@@ -145,6 +146,298 @@
 - ⭐ `points` は **外形を平らにした点の列として残す**（曲線は十分に細かく刻む）—— 当たり判定・選択の枠・覆いは今のまま読める（0.2 の 5）。
 - `marks` は退ける（読む側は `schedule-task-figures.ts` の `barSvg` だけ）。
 - 形の式は 1 か所（ジオメトリ）に置き、描く側は層を写すだけにする（`PI-5` の今の作法のまま）。
+
+### 4.1 旧・新の塊（当てるときに 4 節・5 節の案と 11 節の答えから起こした）
+
+⭐ 4 節の案の文と 5 節の座標と 11 節の答え（問い 1 は (a)、問い 2 は線）を、旧・新の塊へ起こした —— 文の塊 4（E-01 〜 E-03、E-07）、図 F-019 の塊 13（E-04、E-04a 〜 E-04l）。
+新しい図 F-044 は新しいファイル `docs/spec/_assets/fig-milestone-shapes.svg` であり、旧を持たない。
+形は 5 節の数を正とし、見本の式は読むだけにした（5 節の数は見本の式と同じ値になることを、同じ式を刷り直して確かめた）。
+変えたのは次のとおりである。
+① 文の中の裁定の番号を外し、理由の文だけを残した（E-02・E-03）。
+② 1 行に 2 文あった所を改行で割った（E-01）。
+③ 表 T-221 の列の名は `求めるもの` ／ `算式` なので、E-03 の「項目」「内容」をその 2 列へ入れ、形の正が 図 F-044 であることを 1 文足した。
+④ 11 節の問い 1 の (a) は、チャートの形と 図 F-019 のグリフが `LF-18` の 2 つのほかは同じであることを求める。5 節は 図 F-019 の六角形とフロッピーを「変えない」とし、チャートの六角形とフロッピーも変えないとするが、今の 2 つは同じ形ではない —— グリフの六角形は頂点が左右、チャートの六角形は頂点が上下であり、フロッピーの窓も位置が違う。見本の提案の段（利用者が「提案のとおりで OK」と答えた絵）は、グリフにもチャートと同じ式の形を描いている。⇒ チャートの 2 形は変えず、図 F-019 の `IC-28` と `IC-85` をチャートの形を線で描いたものへ直した（E-04a・E-04h）。
+⑤ 5 節の頭は「どの形も外接枠の中心を (0, 0) に置く」と言い、③ の 1 は「杯は取っ手を含めた枠の中心が日付に来る」と言うが、5 節の杯の数は取っ手を含めた枠が右へ 0.02 ずれる（胴の左端 −0.8、取っ手の右端 0.84。見本は縦だけを動かしていた）。⇒ 杯をまるごと左へ 0.02 動かした（図 F-044 の杯、図 F-019 の `IC-89` は同じだけ左へ）。
+
+<!-- EDIT id=E-01 file=docs/spec/_assets/tbl-glossary.md -->
+
+4 節の E-01 —— 図 F-019 の注。
+
+```text
+⭐ **図形は本プロジェクトが起こしたものであり、第三者の素材ではない** —— 幾何のマイルストーンの図形 8 つは 1 つの外接円に内接し、☆ の内外比は `tbl-settings.md` の `S-48` である。  
+```
+
+```text
+⭐ **図形は本プロジェクトが起こしたものであり、第三者の素材ではない** —— 幾何のマイルストーンの図形 8 つは同じ半径の円に頂点を置いて起こし、外接枠の中心を箱の中心に揃えた（`05-07-design.md` の 表 T-221 の `LF-10`）。  
+☆ の内外比は `tbl-settings.md` の `S-48` である。  
+```
+
+<!-- EDIT id=E-02 file=docs/spec/05-07-design.md -->
+
+4 節の E-02 —— 表 T-221 の `LF-10` の欄の末尾。
+
+```text
+実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。<br>**上下の中心は予定と同じとする** |
+```
+
+```text
+実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。<br>**上下の中心は予定と同じとする**。<br>⭐ **図形の中心は、その図形の外接枠の中心とする（上下も左右も）**。<br>⛔ 頂点を置いた円の中心を中心としてはならない —— △ ▽ 五角形 ☆ が上下にずれ、横に並べたとき揃って見えない |
+```
+
+<!-- EDIT id=E-03 file=docs/spec/05-07-design.md -->
+
+4 節の E-03 —— 表 T-221 の最後の行 `LF-16` の後に `LF-18`。
+
+```text
+<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ |
+```
+
+```text
+<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ |
+| LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・書類の折り返し・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>⭐ 中の線と点の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） |
+```
+
+<!-- EDIT id=E-07 file=docs/spec/05-07-design.md -->
+
+11 節の問い 1 の (a) —— 表 T-221 の後の注の段の後、表 T-222 を指す段の前に 図 F-044 を置く。
+
+```text
+⚠️ `LF-12` が矩形の縦幅を使うのは、段に載る `Task` の形状によらず同じ高さに頂点を打つためである —— 形状で高さが変わると、同じ行の段どうしで頂点の高さが揃わない。
+```
+
+```text
+⚠️ `LF-12` が矩形の縦幅を使うのは、段に載る `Task` の形状によらず同じ高さに頂点を打つためである —— 形状で高さが変わると、同じ行の段どうしで頂点の高さが揃わない。
+
+**図 F-044 — マイルストーンの図形（チャート）**
+
+[![図 F-044 — マイルストーンの図形（チャート）](_assets/fig-milestone-shapes.svg)](_assets/fig-milestone-shapes.svg)
+
+⭐ 本図はチャートのマイルストーンの形の正であり、`01-04-requirements.md` の 表 T-012 の `SH-5` の順に 15 形を並べる。  
+各形は一辺 2 の単位の正方形の中に在り（y は下向き）、外接枠の中心を原点に置く（表 T-221 の `LF-10`）。  
+予定と実績は、単位の正方形の一辺を `LF-10` の大きさへ写して描く。  
+要素の class は描き方の役である —— `body` は塗りと縁、`inner` は塗りの上の線、`dot` は塗った点、`shade` は薄く塗った面である（`LF-18`）。  
+⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフとの違いは `LF-18` の 2 つだけとする —— ほかの違いがあれば、`npm run gen` がチャートの形の表を刷らずに止まる。
+```
+
+<!-- EDIT id=E-04 file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の描き方の表に、薄く塗った面の class `h` を足す（書類の折り返し）。
+```text
+    .f { fill: currentColor; stroke: none; }
+```
+```text
+    .f { fill: currentColor; stroke: none; }
+    .h { fill: currentColor; fill-opacity: 0.35; stroke: currentColor; stroke-width: 2;
+         stroke-linecap: round; stroke-linejoin: round; }
+```
+
+<!-- EDIT id=E-04a file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-28`（`hexagon`）。
+```text
+  <g transform="translate(124 100)">
+    <path class="s" d="M19.5 12 L15.75 18.49 L8.25 18.49 L4.5 12 L8.25 5.51 L15.75 5.51 Z"/>
+  </g>
+  <text class="lbl" x="136" y="134">IC-28</text>
+```
+```text
+  <g transform="translate(124 100)">
+    <path class="s" d="M12 4.5 L18.5 8.25 L18.5 15.75 L12 19.5 L5.5 15.75 L5.5 8.25 Z"/>
+  </g>
+  <text class="lbl" x="136" y="134">IC-28</text>
+```
+
+<!-- EDIT id=E-04b file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-29`（`pentagon`）。
+```text
+  <g transform="translate(160 100)">
+    <path class="s" d="M12 4.5 L19.13 9.68 L16.41 18.07 L7.59 18.07 L4.87 9.68 Z"/>
+  </g>
+  <text class="lbl" x="172" y="134">IC-29</text>
+```
+```text
+  <g transform="translate(160 100)">
+    <path class="s" d="M12 5.22 L19.13 10.4 L16.41 18.78 L7.59 18.78 L4.87 10.4 Z"/>
+  </g>
+  <text class="lbl" x="172" y="134">IC-29</text>
+```
+
+<!-- EDIT id=E-04c file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-32`（`star`）。
+```text
+  <g transform="translate(268 100)">
+    <path class="s" d="M12 4.5 L13.98 9.27 L19.13 9.68 L15.21 13.04 L16.41 18.07 L12 15.38 L7.59 18.07 L8.79 13.04 L4.87 9.68 L10.02 9.27 Z"/>
+  </g>
+  <text class="lbl" x="280" y="134">IC-32</text>
+```
+```text
+  <g transform="translate(268 100)">
+    <path class="s" d="M12 5.22 L13.98 9.99 L19.13 10.4 L15.21 13.76 L16.41 18.78 L12 16.09 L7.59 18.78 L8.79 13.76 L4.87 10.4 L10.02 9.99 Z"/>
+  </g>
+  <text class="lbl" x="280" y="134">IC-32</text>
+```
+
+<!-- EDIT id=E-04d file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-33`（`triangleUp`）。
+```text
+  <g transform="translate(304 100)">
+    <path class="s" d="M12 4.5 L18.5 15.75 L5.5 15.75 Z"/>
+  </g>
+  <text class="lbl" x="316" y="134">IC-33</text>
+```
+```text
+  <g transform="translate(304 100)">
+    <path class="s" d="M12 6.37 L18.5 17.62 L5.5 17.62 Z"/>
+  </g>
+  <text class="lbl" x="316" y="134">IC-33</text>
+```
+
+<!-- EDIT id=E-04e file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-34`（`triangleDown`）。
+```text
+  <g transform="translate(340 100)">
+    <path class="s" d="M12 19.5 L18.5 8.25 L5.5 8.25 Z"/>
+  </g>
+  <text class="lbl" x="352" y="134">IC-34</text>
+```
+```text
+  <g transform="translate(340 100)">
+    <path class="s" d="M12 17.63 L5.5 6.38 L18.5 6.37 Z"/>
+  </g>
+  <text class="lbl" x="352" y="134">IC-34</text>
+```
+
+<!-- EDIT id=E-04f file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-83`（`file`）。
+```text
+  <g transform="translate(232 276)">
+    <path class="s" d="M5 3 H14 L19 8 V21 H5 Z"/>
+    <path class="s" d="M14 3 V8 H19"/>
+  </g>
+  <text class="lbl" x="244" y="310">IC-83</text>
+```
+```text
+  <g transform="translate(232 276)">
+    <path class="s" d="M5.74 4 H18.26 V16.42 L14.68 20 H5.74 Z"/>
+    <path class="h" d="M14.68 20 L15.53 17.27 L18.26 16.42 Z"/>
+  </g>
+  <text class="lbl" x="244" y="310">IC-83</text>
+```
+
+<!-- EDIT id=E-04g file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-84`（`box`）。
+```text
+  <g transform="translate(268 276)">
+    <path class="s" d="M3 8.5 L12 4 L21 8.5 V17 L12 21.5 L3 17 Z"/>
+    <path class="s" d="M3 8.5 L12 13 L21 8.5"/>
+    <path class="s" d="M12 13 V21.5"/>
+  </g>
+  <text class="lbl" x="280" y="310">IC-84</text>
+```
+```text
+  <g transform="translate(268 276)">
+    <path class="s" d="M2.59 10.07 L8.24 6.12 L21.41 6.12 L21.41 13.93 L15.76 17.88 L2.59 17.88 Z"/>
+    <path class="s" d="M2.59 10.07 L15.76 10.07 L21.41 6.12 M15.76 10.07 L15.76 17.88"/>
+  </g>
+  <text class="lbl" x="280" y="310">IC-84</text>
+```
+
+<!-- EDIT id=E-04h file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-85`（`floppyDisk`）。
+```text
+  <g transform="translate(304 276)">
+    <path class="s" d="M4 4 H17 L20 7 V20 H4 Z"/>
+    <rect class="s" x="8" y="4" width="7" height="5"/>
+    <rect class="s" x="7" y="13" width="10" height="7"/>
+  </g>
+  <text class="lbl" x="316" y="310">IC-85</text>
+```
+```text
+  <g transform="translate(304 276)">
+    <path class="s" d="M4 4 H17.18 L20 6.82 V20 H4 Z"/>
+    <rect class="s" x="8.71" y="4" width="5.65" height="5.18"/>
+    <rect class="s" x="6.82" y="13.88" width="10.35" height="6.12"/>
+  </g>
+  <text class="lbl" x="316" y="310">IC-85</text>
+```
+
+<!-- EDIT id=E-04i file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-86`（`cylinder`）。
+```text
+  <g transform="translate(340 276)">
+    <ellipse class="s" cx="12" cy="6.5" rx="7.5" ry="3"/>
+    <path class="s" d="M4.5 6.5 V17.5"/>
+    <path class="s" d="M19.5 6.5 V17.5"/>
+    <ellipse class="s" cx="12" cy="12" rx="7.5" ry="3"/>
+    <ellipse class="s" cx="12" cy="17.5" rx="7.5" ry="3"/>
+  </g>
+  <text class="lbl" x="352" y="310">IC-86</text>
+```
+```text
+  <g transform="translate(340 276)">
+    <path class="s" d="M4.94 5.22 A7.06 2.07 0 0 1 19.06 5.22 V18.78 A7.06 2.07 0 0 1 4.94 18.78 Z"/>
+    <path class="s" d="M4.94 5.22 A7.06 2.07 0 0 0 19.06 5.22"/>
+  </g>
+  <text class="lbl" x="352" y="310">IC-86</text>
+```
+
+<!-- EDIT id=E-04j file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-87`（`person`）。
+```text
+  <g transform="translate(376 276)">
+    <circle class="s" cx="9" cy="8.5" r="3.2"/>
+    <path class="s" d="M3 19.5 a6 6 0 0 1 12 0"/>
+    <circle class="s" cx="17" cy="9.5" r="2.4"/>
+    <path class="s" d="M14.2 19.5 a4.6 4.6 0 0 1 6.8-4"/>
+  </g>
+  <text class="lbl" x="388" y="310">IC-87</text>
+```
+```text
+  <g transform="translate(376 276)">
+    <path class="s" d="M15.4 9.17 A7.53 5.65 0 0 1 19.53 14.21 V20.8 H4.47 V14.21 A7.53 5.65 0 0 1 8.6 9.17"/>
+    <circle class="s" cx="12" cy="7.15" r="3.95"/>
+  </g>
+  <text class="lbl" x="388" y="310">IC-87</text>
+```
+
+<!-- EDIT id=E-04k file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-88`（`smile`）。
+```text
+  <g transform="translate(412 276)">
+    <circle class="s" cx="12" cy="12" r="8.5"/>
+    <circle class="f" cx="9" cy="10" r="1"/>
+    <circle class="f" cx="15" cy="10" r="1"/>
+    <path class="s" d="M7.8 14 a5 5 0 0 0 8.4 0"/>
+  </g>
+  <text class="lbl" x="424" y="310">IC-88</text>
+```
+```text
+  <g transform="translate(412 276)">
+    <circle class="s" cx="12" cy="12" r="9.41"/>
+    <circle class="f" cx="8.8" cy="9.55" r="1.04"/>
+    <circle class="f" cx="15.2" cy="9.55" r="1.04"/>
+    <path class="s" d="M7.29 14.64 Q12 18.78 16.71 14.64"/>
+  </g>
+  <text class="lbl" x="424" y="310">IC-88</text>
+```
+
+<!-- EDIT id=E-04l file=docs/spec/_assets/fig-icons.svg -->
+図 F-019 の `IC-89`（`beerMug`）。
+```text
+  <g transform="translate(16 320)">
+    <path class="s" d="M5 8 H15 V20 H5 Z"/>
+    <path class="s" d="M15 10 H19 a2 2 0 0 1 0 6 H15"/>
+    <path class="s" d="M5 11 H15"/>
+    <path class="s" d="M5 8 a2 2 0 0 1 2.5-2 a2.2 2.2 0 0 1 4 0 a2 2 0 0 1 3.5 2"/>
+  </g>
+  <text class="lbl" x="28" y="354">IC-89</text>
+```
+```text
+  <g transform="translate(16 320)">
+    <path class="s" d="M14.82 8.99 H18.96 V15.2 H14.82"/>
+    <path class="s" d="M4.28 4.85 A5.27 1.6 0 0 1 14.82 4.85 V19.15 A5.27 1.6 0 0 1 4.28 19.15 Z"/>
+    <path class="s" d="M4.28 4.85 A5.27 1.6 0 0 0 14.82 4.85"/>
+  </g>
+  <text class="lbl" x="28" y="354">IC-89</text>
+```
 
 ---
 

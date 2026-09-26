@@ -114,6 +114,26 @@ def colour_names():
     raise SystemExit('settings.json holds no table T-294 (the palette colours)')
 
 
+def bandless_colour_names():
+    """The palette names that offer no row band: table T-294's band cells.
+
+    CR-586: a colour column flagged "band" (AT-58, TaskGroup.color) takes only
+    the names whose row-band cells (lightBand, darkBand) are not a dash; the
+    dash (black, S-315) is what CV-9 leaves off the row colour field. The dash
+    is read the way tools/generate_entity_types.py's palette_cell reads it --
+    a cell whose `ja` starts with it -- so the two generators agree; a change
+    to one reading is a change to both.
+    """
+    doc = json.load(io.open(os.path.join(HERE, 'settings.json'), encoding='utf-8'))
+    for block in doc['blocks']:
+        if block['kind'] == 'table' and block.get('id') == 'T-294':
+            return [row['key'].strip('`') for row in block['rows']
+                    if any(isinstance(row.get(field), dict)
+                           and row[field].get('ja', '').startswith('—')
+                           for field in ('lightBand', 'darkBand'))]
+    raise SystemExit('settings.json holds no table T-294 (the palette colours)')
+
+
 # A custom colour: <light>/<dark>, each #rrggbb or empty, never both empty
 # (table T-017b CV-2 of 01-04).
 CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
@@ -176,8 +196,10 @@ def frag_body(spec, open_enums, where):
         return typed('string', extra)
 
     if kind == 'color':
+        refused = bandless_colour_names() if spec.get('band') else []
         names = [n for n in colour_names()
-                 if spec.get('transparent', True) or n != 'transparent']
+                 if (spec.get('transparent', True) or n != 'transparent')
+                 and n not in refused]
         return typed('string', [('pattern', '^(?:%s|%s)$'
                                  % ('|'.join(names), CUSTOM_COLOUR))])
 

@@ -1361,8 +1361,8 @@
   {
    "rowId": "PR-20",
    "label": {
-    "ja": "高さ",
-    "en": "height"
+    "ja": "最小高さ（ズーム 100% 時）",
+    "en": "min height (at 100% zoom)"
    }
   },
   {
@@ -3826,6 +3826,17 @@
     "ja": "",
     "en": ""
    }
+  },
+  {
+   "rowId": "IV-22",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
   }
  ],
  "questions": [
@@ -4364,6 +4375,36 @@
    "text": {
     "ja": "プロジェクトのテーマの色に従う",
     "en": "Follow the project theme"
+   }
+  }
+ ],
+ "rowMinHeightField": [
+  {
+   "part": "unit",
+   "text": {
+    "ja": "px",
+    "en": "px"
+   }
+  },
+  {
+   "part": "current",
+   "text": {
+    "ja": "現在の高さ {px}px",
+    "en": "current: {px} px"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "なし",
+    "en": "none"
+   }
+  },
+  {
+   "part": "currentlyHidden",
+   "text": {
+    "ja": "現在非表示",
+    "en": "currently hidden"
    }
   }
  ],
