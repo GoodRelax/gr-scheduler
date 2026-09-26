@@ -20,6 +20,7 @@ import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from './task-group-look'
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
+import { unstartedCopyOf } from './task-plan-actual'
 
 export { tasksRankedByTheRowTree } from './task-group-order'
 
@@ -308,7 +309,7 @@ export function editTaskGroup(
       for (const task of schedule.tasks) {
         const fresh = uidOf.get(task.uid)
         if (fresh === undefined) continue
-        newTasks.push({
+        newTasks.push(unstartedCopyOf({
           ...task,
           uid: fresh,
           wbsParentUid:
@@ -321,7 +322,7 @@ export function editTaskGroup(
               ...one,
               predecessorUid: uidOf.get(one.predecessorUid) ?? one.predecessorUid,
             })),
-        })
+        }))
       }
 
       const newMembers: TaskGroupMember[] = []
