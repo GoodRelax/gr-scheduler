@@ -26,8 +26,8 @@
 // ---------------------------------------------------------------------------
 // WHERE 表 T-218 PUTS THIS FILE
 // ---------------------------------------------------------------------------
-// `TS-6`, tests/unit/ -- 「単体テスト | 持たない | —— | Unit | `tests/unit/` |
-// Vitest」. ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for a parent,
+// `TS-6` of table T-218 (tests/unit/, Vitest; generated into
+// docs/spec/_assets/tbl-verification.md). ⛔ NOT tests/integration/: `TS-2` takes 「`SWS-xxx`」 for a parent,
 // Chapter 9 holds no node for FR-044, and this body owns tests/ only -- it may
 // not write one into docs/spec to give itself a parent.
 //

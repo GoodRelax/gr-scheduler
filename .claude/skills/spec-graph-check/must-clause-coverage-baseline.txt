@@ -1,4 +1,5 @@
-1286
+1282
+# LOWERED 1286 -> 1282 on 2026-09-26 under JDG-520: CR-573 wave 0 retired four test-chapter MUST clauses; measured on 42d1e51c merged into refactor.
 # LOWERED 1305 -> 1286 on 2026-09-26 under JDG-520: the CR-570 spec-only tester quoted the new treeState clauses verbatim; measured on 31313b06 plus the CR-570 waves 2-3.
 # LOWERED 1311 -> 1305 on 2026-09-25 under JDG-520: the CR-565 spec-only tester quoted its new clauses and more; measured on f1b93b9b.
 # LOWERED 1314 -> 1311 on 2026-09-24 under JDG-520: the H10 (CR-547) spec-only tester quoted three more MUST clauses; measured on 3011de43.

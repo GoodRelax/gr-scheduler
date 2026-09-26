@@ -21,11 +21,10 @@
 //   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
 //   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
 //
-// ⛔ A node was NOT invented for it. `TS-6` has no receptacle in the
-// specification either (「文法が `TEST_LEVEL` を `SW_SPEC_TEST` にしか置いて
-// おらず、そこでも `Unit` は選べない」), and Chapter 7 says in as many words
-// that having no receptacle does not mean the case need not be written --
-// 「⚠️ 受け皿が無いことは、書かなくてよいという意味ではない」. So the case is
+// ⛔ A node was NOT invented for it. `TS-6` of table T-218 carries no
+// test node (JDG-606), and whether a unit case is written is decided by
+// the omission rows of rule 04 (table UO), not by a receptacle in the
+// specification. So the case is
 // written here, where it can be measured honestly: what `PTD-1` requires is that
 // the drawing move while the button is held, and `FrameLoop.current()` answers
 // the drawing this loop just made.

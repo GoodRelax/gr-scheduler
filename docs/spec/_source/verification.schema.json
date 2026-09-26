@@ -1,0 +1,197 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/verification.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/verification.json, which is the single source of truth for tables T-334 and T-218 of Chapter 7.",
+  "Same role as _source/property-items.schema.json and _source/state-machines.schema.json.",
+  "The schema sees the SHAPE. The cross-table join -- every TS id a T-334 row names is one table T-218 defines -- is refused by verification_json_to_md.py, because JSON Schema cannot reach from one array into another."
+ ],
+ "title": "The verification manuscript",
+ "description": "What the tests verify (table T-334) and where each kind of test lives (table T-218), in print order.",
+ "type": "object",
+ "required": [
+  "targets",
+  "places"
+ ],
+ "additionalProperties": false,
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript. JSON carries no comments, so the role declaration goes here -- one line per note, the same shape settings.json uses. Check 21 reads the first of them. Not rendered.",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "targets": {
+   "description": "Table T-334: what is verified, where its full count is held, and which rows of table T-218 verify it.",
+   "type": "object",
+   "required": [
+    "table",
+    "rows"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "table": {
+     "$ref": "#/$defs/table"
+    },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "required": [
+       "id",
+       "what",
+       "population",
+       "unit",
+       "verifiedBy",
+       "howRun"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "id": {
+        "description": "The row id of table T-334.",
+        "type": "string",
+        "pattern": "^VT-[0-9]+$"
+       },
+       "what": {
+        "$ref": "#/$defs/prose"
+       },
+       "population": {
+        "description": "Where the full count is held. No count is written here, so adding a member there changes nothing in this file.",
+        "$ref": "#/$defs/prose"
+       },
+       "unit": {
+        "description": "What one test covers.",
+        "$ref": "#/$defs/prose"
+       },
+       "verifiedBy": {
+        "description": "The rows of table T-218 that verify this row. The generator refuses an id table T-218 does not define, and derives table T-218's 確かめるもの column from these links.",
+        "type": "array",
+        "minItems": 1,
+        "items": {
+         "type": "string",
+         "pattern": "^TS-[0-9]+$"
+        }
+       },
+       "howRun": {
+        "$ref": "#/$defs/prose"
+       }
+      }
+     }
+    }
+   }
+  },
+  "places": {
+   "description": "Table T-218: each kind of test, its parent, its level, its folder and its tool.",
+   "type": "object",
+   "required": [
+    "table",
+    "rows"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "table": {
+     "$ref": "#/$defs/table"
+    },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "required": [
+       "id",
+       "kind",
+       "parent",
+       "level",
+       "folder",
+       "tool"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "id": {
+        "description": "The row id of table T-218. A seat number: never renumbered.",
+        "type": "string",
+        "pattern": "^TS-[0-9]+$"
+       },
+       "kind": {
+        "$ref": "#/$defs/prose"
+       },
+       "alsoVerifies": {
+        "description": "What this place verifies that no row of table T-334 states. Printed after the links the generator derives.",
+        "$ref": "#/$defs/prose"
+       },
+       "parent": {
+        "description": "The requirement kind a test of this place takes as its parent, or null when it takes none.",
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^[A-Z]+-xxx$"
+       },
+       "level": {
+        "description": "The test level, a note for the reader: the specification holds no test node to write it into (table T-219).",
+        "enum": [
+         "Unit",
+         "Integration",
+         "System",
+         null
+        ]
+       },
+       "folder": {
+        "type": "string",
+        "pattern": "^tests/[a-z]+/$"
+       },
+       "tool": {
+        "enum": [
+         "Vitest",
+         "Playwright"
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "$defs": {
+  "table": {
+   "description": "The table's number and caption, as the printed heading spells them.",
+   "type": "object",
+   "required": [
+    "id",
+    "caption"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^T-[0-9]+$"
+    },
+    "caption": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  },
+  "prose": {
+   "description": "A cell of the printed document, per language. The manuscript belongs to no language, so the ja/en split is data entry rather than a second copy.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string"
+    },
+    "en": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}

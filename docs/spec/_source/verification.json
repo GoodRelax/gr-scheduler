@@ -1,0 +1,153 @@
+{
+ "$schema": "./verification.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "Tables T-334 (what is verified) and T-218 (the test places) of Chapter 7 of docs/spec/05-07-design.md, in one manuscript because each row of the first names rows of the second (JDG-607, CR-573).",
+  "Generated FROM this file: _assets/tbl-verification.md (verification_json_to_md.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/verification.schema.json. The generator also refuses a T-334 row whose verifiedBy names a TS id table T-218 does not define, and a TS id defined twice.",
+  "THE LINK IS WRITTEN ONCE. A T-334 row names the T-218 rows that verify it (`verifiedBy`); the T-218 column that says what a place verifies is derived from those links on every run, so the two tables cannot disagree. `alsoVerifies` carries only what no T-334 row states (the seams, the functions the omission table leaves).",
+  "NO COUNT LIVES HERE. Each T-334 row names where its full count is held (the use cases of Chapter 3.2, the regions of state-machines.json, the gate rows of table T-043), so adding a use case or a region changes nothing in this file.",
+  "The rules about these tables are NOT here -- Chapter 7 holds them. The omission table and the gate table of docs/development-rules/04-verification.md are not specification and stay in that file (JDG-607, JDG-639)."
+ ],
+ "targets": {
+  "table": {
+   "id": "T-334",
+   "caption": {
+    "ja": "確かめるもの"
+   }
+  },
+  "rows": [
+   {
+    "id": "VT-1",
+    "what": {
+     "ja": "利用者の手順"
+    },
+    "population": {
+     "ja": "Chapter 3.2 の `USE_CASE` のすべて"
+    },
+    "unit": {
+     "ja": "`UC-xxx` 1 つにつき 1 本。その `SCENARIO` の手順を頭から終わりまで押す"
+    },
+    "verifiedBy": [
+     "TS-1"
+    ],
+    "howRun": {
+     "ja": "出荷ビルドの `dist/index.html` を file:// で開く"
+    }
+   },
+   {
+    "id": "VT-2",
+    "what": {
+     "ja": "状態表の全行"
+    },
+    "population": {
+     "ja": "`_source/state-machines.json` の領域のすべて（表 T-250 の `SD-3`）"
+    },
+    "unit": {
+     "ja": "領域 1 つにつき 1 本。出来事 × いまの状態 のすべての組（表 T-285 の `RA-6`）"
+    },
+    "verifiedBy": [
+     "TS-5"
+    ],
+    "howRun": {
+     "ja": "値だけで決まるので Vitest"
+    }
+   },
+   {
+    "id": "VT-3",
+    "what": {
+     "ja": "性能"
+    },
+    "population": {
+     "ja": "表 T-043 の、合否が「ゲート」の行"
+    },
+    "unit": {
+     "ja": "行 1 つにつき 1 件以上"
+    },
+    "verifiedBy": [
+     "TS-4"
+    ],
+    "howRun": {
+     "ja": "測定条件は 表 T-025。合否は 表 T-043 の「正」の欄の要求"
+    }
+   }
+  ]
+ },
+ "places": {
+  "table": {
+   "id": "T-218",
+   "caption": {
+    "ja": "テストの系統"
+   }
+  },
+  "rows": [
+   {
+    "id": "TS-1",
+    "kind": {
+     "ja": "ユースケーステスト"
+    },
+    "parent": "UC-xxx",
+    "level": "System",
+    "folder": "tests/usecase/",
+    "tool": "Playwright"
+   },
+   {
+    "id": "TS-2",
+    "kind": {
+     "ja": "ソフトウェア仕様テスト"
+    },
+    "parent": "SWS-xxx",
+    "level": "Integration",
+    "folder": "tests/integration/",
+    "tool": "Vitest"
+   },
+   {
+    "id": "TS-3",
+    "kind": {
+     "ja": "ソフトウェア仕様テスト"
+    },
+    "parent": "SWS-xxx",
+    "level": "System",
+    "folder": "tests/system/",
+    "tool": "Playwright"
+   },
+   {
+    "id": "TS-4",
+    "kind": {
+     "ja": "非機能テスト"
+    },
+    "parent": "NFR-xxx",
+    "level": null,
+    "folder": "tests/nfr/",
+    "tool": "Playwright"
+   },
+   {
+    "id": "TS-5",
+    "kind": {
+     "ja": "契約テスト"
+    },
+    "alsoVerifies": {
+     "ja": "継ぎ目"
+    },
+    "parent": null,
+    "level": "Unit",
+    "folder": "tests/contract/",
+    "tool": "Vitest"
+   },
+   {
+    "id": "TS-6",
+    "kind": {
+     "ja": "単体テスト"
+    },
+    "alsoVerifies": {
+     "ja": "省略の表が覆わない関数（Chapter 7 の本文）"
+    },
+    "parent": null,
+    "level": "Unit",
+    "folder": "tests/unit/",
+    "tool": "Vitest"
+   }
+  ]
+ }
+}
