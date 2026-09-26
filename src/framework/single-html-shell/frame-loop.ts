@@ -158,7 +158,7 @@ import {
   type Grabbed,
   type ShowPointerShape,
 } from './pointer-shape'
-import { copyForPaste, pasteWhatWasCopied } from './copy-and-paste'
+import { copyForPaste, landCopyDrag, pasteWhatWasCopied } from './copy-and-paste'
 import {
   answerOpenChoice,
   answerSettledFormat,
@@ -1939,7 +1939,7 @@ export function frameLoop(
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'rowArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
         : null
-    const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session) })
+    const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
     return {
       at,
       hit,
@@ -2220,6 +2220,7 @@ export function frameLoop(
           sendToSession({ type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...owedQuestion }, owedAction }, frame)
           return
         }
+        if (action.picked !== undefined) return landCopyDrag(hands, action.writes.flat(), action.picked, frame)
         for (const bundle of action.writes) writeDocument(bundle, frame)
         if (action.created !== undefined) standOnWhatWasCreated(action.created)
         return

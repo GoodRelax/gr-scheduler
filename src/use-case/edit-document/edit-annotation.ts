@@ -47,6 +47,21 @@ export type AnnotationCommand =
       readonly id: string
       readonly strokeColor: string | null
     }
+  | {
+      readonly kind: 'setHighlightBoxStrokeWidth'
+      readonly id: string
+      readonly strokeWidthPx: number | null
+    }
+  | {
+      readonly kind: 'setHighlightBoxFillColor'
+      readonly id: string
+      readonly fillColor: string | null
+    }
+  | {
+      readonly kind: 'setHighlightBoxFillTransparency'
+      readonly id: string
+      readonly fillTransparencyPercent: number | null
+    }
 
 const TRANSPARENT = 'transparent'
 
@@ -58,6 +73,25 @@ function boxStrokeRefusal(strokeColor: string | null): Refusal | null {
   }
   if (strokeColor === null || isStoredColour(strokeColor, false)) return null
   return reject('CM-55', 'CV-1', `not a palette name or a custom colour: ${strokeColor}`)
+}
+
+// see CV-1, CV-9
+/** @purity pure */
+function lookColourRefusal(command: string, colour: string | null, allowsTransparent: boolean): Refusal | null {
+  if (colour === null || isStoredColour(colour, allowsTransparent)) return null
+  return reject(command, 'CV-1', `not a palette name or a custom colour: ${colour}`)
+}
+
+type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
+
+// see T-217, FR-019
+// WHY: refused, not clamped: a clamped write would store a value other than the one the command placed.
+/** @purity pure */
+function lookNumberRefusal(command: string, row: AnnotationNumberRow, value: number | null): Refusal | null {
+  if (value === null) return null
+  const { min, max } = NOT_STORED_ANNOTATION_BOUNDS[row]
+  if (Number.isInteger(value) && value >= min && value <= max) return null
+  return reject(command, row, `not a whole number from ${min} to ${max}: ${value}`)
 }
 
 /** @purity pure */
@@ -268,17 +302,72 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       return edited(putHighlightBox(document, { ...box, startDate, endDate, topGroupId, bottomGroupId }))
     }
 
-    case 'setHighlightBoxStrokeColor': {
-      const box = highlightBoxOf(document, command.id)
-      if (box === null) {
-        return refused([reject('CM-55', 'AT-116', `no highlight box with id ${command.id}`)])
-      }
-      const wrongStroke = boxStrokeRefusal(command.strokeColor)
-      if (wrongStroke !== null) return refused([wrongStroke])
-      if (box.strokeColor === command.strokeColor) return edited(document)
-      return edited(putHighlightBox(document, { ...box, strokeColor: command.strokeColor }))
-    }
+    case 'setHighlightBoxStrokeColor':
+    case 'setHighlightBoxStrokeWidth':
+    case 'setHighlightBoxFillColor':
+    case 'setHighlightBoxFillTransparency':
+      return editHighlightBoxLook(document, command)
   }
+}
+
+type HighlightBoxLookCommand = Extract<
+  AnnotationCommand,
+  {
+    readonly kind:
+      | 'setHighlightBoxStrokeColor'
+      | 'setHighlightBoxStrokeWidth'
+      | 'setHighlightBoxFillColor'
+      | 'setHighlightBoxFillTransparency'
+  }
+>
+
+// see CM-55, CM-77, CM-78, CM-79, FR-019
+/** @purity pure */
+function highlightBoxLookChange(
+  command: HighlightBoxLookCommand,
+): { readonly commandRow: string; readonly refusal: Refusal | null; readonly look: Partial<HighlightBox> } {
+  switch (command.kind) {
+    case 'setHighlightBoxStrokeColor':
+      return {
+        commandRow: 'CM-55',
+        refusal: boxStrokeRefusal(command.strokeColor),
+        look: { strokeColor: command.strokeColor },
+      }
+    case 'setHighlightBoxStrokeWidth':
+      return {
+        commandRow: 'CM-77',
+        refusal: lookNumberRefusal('CM-77', 'S-369', command.strokeWidthPx),
+        look: { strokeWidthPx: command.strokeWidthPx },
+      }
+    case 'setHighlightBoxFillColor':
+      return {
+        commandRow: 'CM-78',
+        refusal: lookColourRefusal('CM-78', command.fillColor, true),
+        look: { fillColor: command.fillColor },
+      }
+    case 'setHighlightBoxFillTransparency':
+      return {
+        commandRow: 'CM-79',
+        refusal: lookNumberRefusal('CM-79', 'S-371', command.fillTransparencyPercent),
+        look: { fillTransparencyPercent: command.fillTransparencyPercent },
+      }
+  }
+}
+
+// see CM-55, CM-77, CM-78, CM-79, UN-5
+/** @purity pure */
+function editHighlightBoxLook(document: Document, command: HighlightBoxLookCommand): EditResult {
+  const { commandRow, refusal, look } = highlightBoxLookChange(command)
+  const box = highlightBoxOf(document, command.id)
+  if (box === null) return refused([reject(commandRow, 'AT-116', `no highlight box with id ${command.id}`)])
+  if (refusal !== null) return refused([refusal])
+  if (isSameLook(box, look)) return edited(document)
+  return edited(putHighlightBox(document, { ...box, ...look }))
+}
+
+/** @purity pure */
+function isSameLook<Box extends object>(held: Box, look: Partial<Box>): boolean {
+  return (Object.keys(look) as (keyof Box)[]).every((column) => held[column] === look[column])
 }
 
 // <generated -- do not edit by hand>
@@ -300,5 +389,20 @@ const NOT_STORED_ANNOTATION_SIZES: {
   'S-371': 50,
   'S-374': 1,
   'S-375': 0,
+}
+
+// see T-217, FR-006, FR-019
+const NOT_STORED_ANNOTATION_BOUNDS: {
+  readonly 'S-132': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-369': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-371': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-374': { readonly key: string; readonly min: number; readonly max: number }
+  readonly 'S-375': { readonly key: string; readonly min: number; readonly max: number }
+} = {
+  'S-132': { key: 'cornerRadiusPx', min: 0, max: 24 },
+  'S-369': { key: 'HighlightBox.strokeWidthPx', min: 1, max: 8 },
+  'S-371': { key: 'HighlightBox.fillTransparencyPercent', min: 0, max: 100 },
+  'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 8 },
+  'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
 }
 // </generated>

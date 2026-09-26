@@ -218,11 +218,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
+| `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
 | `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, from: TaskPlacement, to: TaskPlacement, linkType: number): DependencyGeometry |
 | `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
 | `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
+| `drawnAnnotationNumber` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#drawnAnnotationNumber` | -- | function drawnAnnotationNumber(held: number \| null, row: AnnotationNumberRow): number |
 | `highlightGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry` | -- | function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] |
 | `guidesOf` | file only | function | `src/entity/layout-engine/schedule-geometry/plan-actual-guides.ts#guidesOf` | -- | function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement, actualHeight: number): readonly Path[] |
 | `progressLineOf` | file only | function | `src/entity/layout-engine/schedule-geometry/progress-line.ts#progressLineOf` | -- | function progressLineOf(inputs: GeometryInputs): Path |
@@ -328,6 +330,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `InvariantRow` | entry | type | `src/use-case/edit-document/edit-document.ts#InvariantRow` | PI-9 | 型。 |
 | `levelZeroWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#levelZeroWritesFor` | PI-9 | 同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める |
 | `NOT_STORED_ZOOM_BOUNDS` | entry | const | `src/use-case/edit-document/edit-document.ts#NOT_STORED_ZOOM_BOUNDS` | -- | const NOT_STORED_ZOOM_BOUNDS: |
+| `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | 写し元の `UID` から、`CM-8` がその写しに払い出す `UID` への対応 —— `FR-033`。 |
 | `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string } \| |
 | `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: string \| null } \| { readonly kind: 'setProjectProfile'; readonly fields: ProjectP... |
 | `ProjectProfileFields` | entry | interface | `src/use-case/edit-document/edit-project.ts#ProjectProfileFields` | -- | interface ProjectProfileFields |
@@ -356,6 +359,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `blankVisual` | file only | function | `src/use-case/edit-document/edit-task.ts#blankVisual` | -- | function blankVisual(taskUid: number): TaskVisual |
 | `checkDay` | file only | function | `src/use-case/edit-document/edit-task.ts#checkDay` | -- | function checkDay(text: string): DayCheck |
 | `isMilestone` | file only | function | `src/use-case/edit-document/edit-task.ts#isMilestone` | -- | function isMilestone(task: Task, visual: TaskVisual): boolean |
+| `PasteLanding` | file only | interface | `src/use-case/edit-document/edit-task.ts#PasteLanding` | -- | interface PasteLanding |
 | `repriced` | file only | function | `src/use-case/edit-document/percent-complete.ts#repriced` | -- | function repriced(within: WorkingCalendar, task: Task): Task |
 | `sameRow` | file only | function | `src/use-case/edit-document/edit-task.ts#sameRow` | -- | function sameRow<T extends object>(a: T, b: T): boolean |
 | `TaskLineWeight` | file only | type | `src/use-case/edit-document/edit-task.ts#TaskLineWeight` | -- | type TaskLineWeight = NonNullable<TaskVisual['lineWeight']> |
@@ -390,6 +394,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planDatesEdited` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#planDatesEdited` | -- | function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `setTaskPlanActualState` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanActualState` | -- | function setTaskPlanActualState( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanActualState' }>, task: Task, within: WorkingC... |
 | `setTaskPlanDates` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanDates` | -- | function setTaskPlanDates( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanDates' }>, task: Task, within: WorkingCalendar, ): ... |
+| `unstartedCopyOf` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#unstartedCopyOf` | -- | function unstartedCopyOf(task: Task): Task |
 
 ## ImportDocument (PI-10, `src/use-case/import-document/import-document.ts`)
 
@@ -600,6 +605,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `screenEventFromPanelDivider` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#screenEventFromPanelDivider` | -- | function screenEventFromPanelDivider( release: PointerInput, press: PointerPress, context: InputContext, ): ScreenValuesEvent \| null |
 | `scrollbarFollow` | file only | function | `src/adapter/input-command-translator/frame-drags.ts#scrollbarFollow` | -- | function scrollbarFollow(input: PointerInput, context: InputContext): TranslatedInput |
 | `commandFromGrab` | file only | function | `src/adapter/input-command-translator/item-grab.ts#commandFromGrab` | -- | function commandFromGrab( release: PointerInput, press: PointerPress, context: InputContext, ): TranslatedInput |
+| `copyDragWrite` | file only | function | `src/adapter/input-command-translator/item-grab.ts#copyDragWrite` | -- | function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput |
 | `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/row-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldGroupId: string, ): TranslatedInput |
 | `grabbedRowGroupId` | file only | function | `src/adapter/input-command-translator/row-grab.ts#grabbedRowGroupId` | -- | function grabbedRowGroupId(press: PointerPress): string \| null |
 | `rowGrabFollow` | file only | function | `src/adapter/input-command-translator/row-grab.ts#rowGrabFollow` | -- | function rowGrabFollow(input: PointerInput, context: InputContext): TranslatedInput |
@@ -803,6 +809,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `copiedForPasteOf` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#copiedForPasteOf` | -- | function copiedForPasteOf(chosenRows: readonly string[], selected: Selection): SelectionCopied \| null |
 | `CopyAndPasteHands` | file only | type | `src/framework/single-html-shell/copy-and-paste.ts#CopyAndPasteHands` | -- | type CopyAndPasteHands = Pick< |
 | `copyForPaste` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#copyForPaste` | -- | function copyForPaste(hands: CopyAndPasteHands): void |
+| `landCopyDrag` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#landCopyDrag` | -- | function landCopyDrag( hands: CopyAndPasteHands, bundle: readonly DocumentCommand[], picked: Selection, frame: FrameValues, ): void |
 | `pasteRefusedFor` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteRefusedFor` | -- | function pasteRefusedFor(chosenRows: readonly string[]): boolean |
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
 | `answerOpenChoice` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerOpenChoice` | -- | function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues \| null): void |
@@ -874,9 +881,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `panelShowingIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#panelShowingIn` | -- | function panelShowingIn(session: ScreenSession): PanelShowing |
 | `PointerFacing` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerFacing` | -- | type PointerFacing = 'start' \| 'end' |
 | `pointerImageOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerImageOf` | -- | function pointerImageOf( row: PointerRow, facing: PointerFacing = 'start', |
-| `PointerRow` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerRow` | -- | type PointerRow = \| 'PK-1' \| 'PK-3' \| 'PK-4' \| 'PK-5' \| 'PK-7' \| 'PK-8' \| 'PK-9' \| 'PK-10' // see T-266, T-269 export type PointerFacing = 'start' \| 'end' |
+| `PointerRow` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerRow` | -- | type PointerRow = \| 'PK-1' \| 'PK-3' \| 'PK-4' \| 'PK-5' \| 'PK-7' \| 'PK-8' \| 'PK-9' \| 'PK-10' \| 'PK-11' \| 'PK-12' \| 'PK-13' |
 | `pointerRowOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerRowOf` | -- | function pointerRowOf(hit: Grabbed \| null, armed: boolean): PointerRow \| null |
-| `PointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShape` | -- | type PointerShape = \| 'default' \| 'copy' \| 'grabbing' \| 'grab' \| 'pointer' \| 'col-resize' \| DrawnPointer export type ShowPointerShape = (shape: PointerShape ... |
+| `PointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShape` | -- | type PointerShape = \| 'default' \| 'copy' \| 'grabbing' \| 'grab' \| 'pointer' \| 'col-resize' \| 'move' \| 'ew-resize' \| 'ns-resize' \| 'nwse-resize' \| 'nesw-resize' |
 | `readInstantOfWrite` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readInstantOfWrite` | -- | function readInstantOfWrite(): string |
 | `readMonotonicMs` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readMonotonicMs` | -- | function readMonotonicMs(): number |
 | `readToday` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readToday` | -- | function readToday(): string |
@@ -1269,7 +1276,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `stepFileFlowValues` | file only | function | `src/use-case/advance-screen-session/file-flow-values.ts#stepFileFlowValues` | -- | function stepFileFlowValues(values: FileFlowValues, event: FileFlowValuesEvent): FileFlowStep |
 | `UnsavedEditsState` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#UnsavedEditsState` | -- | type UnsavedEditsState = \| { readonly kind: 'nothingUnsaved' } \| { readonly kind: 'editsUnsaved' } export interface FileFlowValues |
 | `emptyGestureValues` | file only | const | `src/use-case/advance-screen-session/gesture-values.ts#emptyGestureValues` | -- | const emptyGestureValues: GestureValues = { ...GESTURE_VALUES_INITIAL_AXES } |
-| `GesturePressRow` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GesturePressRow` | -- | type GesturePressRow = 'PTD-1' \| 'PTD-2' \| 'PTD-3' \| 'PTD-4' \| 'PTD-4a' \| 'PTD-5' |
+| `GesturePressRow` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GesturePressRow` | -- | type GesturePressRow = 'PTD-7' \| 'PTD-1' \| 'PTD-2' \| 'PTD-3' \| 'PTD-4' \| 'PTD-4a' \| 'PTD-5' |
 | `GestureValues` | file only | interface | `src/use-case/advance-screen-session/gesture-values.ts#GestureValues` | -- | interface GestureValues |
 | `GestureValuesAxes` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesAxes` | -- | type GestureValuesAxes = Omit<GestureValues, never> |
 | `GestureValuesEffect` | file only | type | `src/use-case/advance-screen-session/gesture-values.ts#GestureValuesEffect` | -- | type GestureValuesEffect = { readonly type: GestureValuesEffectName } |
@@ -1346,4 +1353,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 487 more are exported by a file and not by its entry.
+Totals: 660 name(s) leave through a public entry (200 of them published by table T-064), 493 more are exported by a file and not by its entry.

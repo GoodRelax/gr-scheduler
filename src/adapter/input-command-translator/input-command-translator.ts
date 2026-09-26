@@ -22,7 +22,7 @@ import {
   type Task,
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
-import type { Selection } from '../../entity/document-model/selection/selection'
+import { isSelected, type Selection } from '../../entity/document-model/selection/selection'
 import type {
   GrabArea,
   Hit,
@@ -71,7 +71,7 @@ import {
   paletteFollow,
   scrollbarFollow,
 } from './frame-drags'
-import { commandFromGrab } from './item-grab'
+import { commandFromGrab, copyDragWrite } from './item-grab'
 import {
   commandFromRowGrab,
   grabbedRowGroupId,
@@ -113,7 +113,7 @@ export { selectionFromInput } from './selection-input'
 export { rowBandCeilingOf } from './zoom-and-fit'
 
 
-export type PressRow = 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
+export type PressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
 export type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
@@ -212,6 +212,8 @@ export type InputAction =
       readonly created?: CreatedSubject
       // see HF-20, QN-10
       readonly question?: 'QN-10'
+      // see T-308 CY-8: the copies a PTD-7 drag makes, picked once the bundle lands
+      readonly picked?: Selection
     }
   | { readonly kind: 'undoEdit' }
   | { readonly kind: 'redoEdit' }
@@ -582,14 +584,29 @@ export function isOnRowArea(context: InputContext, x: number, y: number): boolea
   return regionAtPointer(context.regions, x, y) === 'rowArea'
 }
 
+// see T-023a PTD-7, T-308 CY-1, CY-2
+const COPY_DRAG_GRABS: readonly string[] = ['GA-9', 'GA-14', 'GA-15']
+
+/** @purity pure */
+function isCopyDragPress(
+  press: Pick<PointerPress, 'at' | 'hit'>,
+  context: Pick<InputContext, 'dualCursorFollowing' | 'selection'>,
+): boolean {
+  const { at, hit } = press
+  if (at.button !== 'left' || !isCombo(at.modifiers, true, false, false)) return false
+  if (context.dualCursorFollowing !== null || hit === null || hit.item.kind !== 'task') return false
+  return COPY_DRAG_GRABS.includes(hit.grab) && isSelected(context.selection, { kind: 'task', uid: hit.item.taskUid })
+}
+
 // see T-023a
 /** @purity pure */
 export function pressRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
-  context: Pick<InputContext, 'screen' | 'dualCursorFollowing'>,
+  context: Pick<InputContext, 'screen' | 'dualCursorFollowing' | 'selection'>,
 ): PressRow {
   const modifiers = press.at.modifiers
   if (press.at.button === 'middle') return 'PTD-1'
+  if (isCopyDragPress(press, context)) return 'PTD-7'
   if (press.at.button === 'left' && isCombo(modifiers, true, false, false)) return 'PTD-1'
   if (context.dualCursorFollowing !== null) return 'PTD-2'
   if (press.hit !== null) return 'PTD-3'
@@ -909,6 +926,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   if (press.hit === null && !isOnRowArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
   switch (pressRowOf(press, context)) {
+    case 'PTD-7': return copyDragWrite(context, press, input)
     case 'PTD-1': {
       const by = followingTravel(input, press)
       return panTo(context, -by.dx, -by.dy)
