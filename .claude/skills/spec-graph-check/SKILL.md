@@ -252,7 +252,10 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
   `DocumentSettings` became an "edge target with no declared member".
   **Every check stayed green** — only the Chapter 5 self-audit saw it, and
   only because it parses the published-entries cell. Run `audit-ch5.py` after
-  touching any cell of T-064, T-065 or T-075.
+  touching any cell of T-064, T-065 or T-075. Since CR-581, table T-064 is
+  printed from `docs/spec/_source/published-entries.json` into
+  `_assets/tbl-published-entries.md`: edit the manuscript and `npm run gen`,
+  never the printed row.
 - When resolving a contradiction, the reflex is to write the same explanation
   into both places. That is the single most common way new duplication is
   created. Decide one owner; the other side points.

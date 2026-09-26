@@ -9,6 +9,11 @@ import re
 import sys
 
 DESIGN = "docs/spec/05-07-design.md"
+# ⭐ Table T-064 is printed into its own document from
+# docs/spec/_source/published-entries.json (CR-581), the road table T-334 took.
+# Its rows are read from there and joined to the chapter below, so every count
+# here reads the table wherever it lives.
+PUBLISHED = "docs/spec/_assets/tbl-published-entries.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
 MODEL = "docs/spec/_source/components.json"
 # ⭐ THE RECORD THIS FILE READS TWICE. The A.3 Changelog is kept in
@@ -24,6 +29,8 @@ CHANGELOG = "docs/development-records/changelog.md"
 _BREAK = re.compile(u"<br[ ]*/?>", re.I)
 _HARD = re.compile(u"  " + chr(10) + u"(?:[ ]*>[ ]?)?")
 design = _HARD.sub(u"", _BREAK.sub(u"", open(DESIGN, encoding="utf-8").read()))
+published = _HARD.sub(u"", _BREAK.sub(u"", open(PUBLISHED, encoding="utf-8").read()))
+tables = design + chr(10) * 2 + published
 glossary = open(GLOSSARY, encoding="utf-8").read()
 model = json.load(open(MODEL, encoding="utf-8"))
 nodes = [n["name"] for n in model["nodes"]]
@@ -40,8 +47,8 @@ def check(name, got, want):
 
 def rows_of(table_id):
     """Row-ID cells of the table with this caption, in order."""
-    start = design.index("**表 %s —" % table_id)
-    block = design[start:]
+    start = tables.index("**表 %s —" % table_id)
+    block = tables[start:]
     end = block.find("\n\n**表 ", 10)
     block = block[:end] if end > 0 else block
     return re.findall(r"^\| ([A-Z]{2,3}-\d+[a-z]?) \|", block, re.M)
@@ -129,7 +136,7 @@ print("== landing: every edge target declares a member ==")
 # its row sits in table T-064 (the ledger's DFC-227). ⭐ The manuscript is
 # right; a reader that depends on trailing whitespace is not.
 member_cells = re.findall(
-    r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+?)\s*\|$", design, re.M)
+    r"^\| PI-\d+ \| `[^`]+` \| `([^`]+)` \| (.+?)\s*\|$", published, re.M)
 members = {name: re.findall(r"`([A-Za-z][A-Za-z0-9]*)`", cell)
            for name, cell in member_cells}
 check("T-064 covers every component", sorted(members), sorted(nodes))

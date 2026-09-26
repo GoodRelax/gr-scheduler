@@ -256,3 +256,28 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | `package.json` | ⭐ **束が何を走らせるか**（唯一の写し）|
 | `.claude/skills/spec-graph-check/SKILL.md` | 検査の散文。⚠️ **数は古い。コードを正とせよ** |
 | `check.sh` の `NOT COVERED` 節 | ⭐ **走行のたびに「この巡が見なかったもの」を刷る。** 本書の「何が見えないか」の、検査一式ぶんの版 |
+
+---
+
+## 12. 重複の予防の道具（`CR-581` の前半、チップ P3、2026-09-26）
+
+⚠️ **検査の番号 70・71 は仮である** —— 合流で調整役が詰める。第 3〜5 節の数（門 38 本・生成器 21 本）には、まだ本節の 4 本を数えていない。
+
+| 番号 | 道具 | 何を赤にするか ／ 何を書くか | ⛔ 何が見えないか |
+|---|---|---|---|
+| 27 | `published_entries_json_to_md.py`（`docs/spec/_source`） | `_source/published-entries.json` から表 T-064 を `_assets/tbl-published-entries.md` へ刷る。原稿の破れ（行・コンポーネントの二重、名の二重、全角の括弧で始まらない注記、名に読める散文の片）は 1 バイトも書かずに拒む。`--check` は刷った表の手の編集を赤にする | 名が入口から本当に出ているか（検査 26b が見る） |
+| 27 | `generate_public_entry_index.py`（`tools`） | `src/` と原稿から `docs/review/public-entry-index.md` を刷る。入口が出す名（表 T-064 の行か `--`）と、ファイルは出すが入口が出さない名（`file only`）を、`ファイル#名前` と目的か宣言の頭で並べる | 非公開の関数。言い換えた名 |
+| 70 | `check-literal-restatement.py`（`.claude/skills/spec-graph-check`） | `src/` のモジュールの頂に手で書いた値の集合が、生成された集合を言い直していること（Jaccard 0.7 以上・共通 3 以上）。`Record` や写像型が生成の和で守るものは外す。`literal-restatement-baseline.txt` に対して、鍵は名前 | 関数の中の集合。複数のファイルに散った 1 語ずつの語彙。言い換えた集合 |
+| 71 | `check-twin-comments.py`（同） | 写しだと述べる新しいコメント。登録が残っているのにコメントが消えたこと。`twin-comments-baseline.txt` に対して、鍵は宣言の名と主張の頭 10 語 | 誰もコメントしなかった写し |
+
+⛔ **70 と 71 の基準線は、利用者の OK なしには増やさない**（`JDG-520` の上げ）。
+⭐ 赤になったら、登録ではなく**元を公開して import する** —— 下の手順である。
+
+### ⭐ 補助関数を書く前に
+
+1. `docs/review/public-entry-index.md` を、仕事の語と型で探す（Ctrl-F で足りる）。
+2. 在れば import する。`file only` なら、そのコンポーネントの公開エントリから出し直す。非公開なら `export` して出し直す。
+3. `docs/spec/_source/published-entries.json` の、そのコンポーネントの行に 1 項足す（名と、全角の括弧で始まる 1 文の注記）。
+4. `npm run gen`。検査 26b が、表が名指す名が入口から出ていることを確かめる。
+
+⚠️ 索引に載らない元もある —— 既知の写し 8 組の元のうち 4 つは非公開の関数だった（`CR-581` の 14 節）。見つからなければ、同じフォルダを grep してから書け。

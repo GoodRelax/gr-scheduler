@@ -49,6 +49,7 @@ const FILES = [
   // files stopped finding it in the same commit, which is what this list is
   // for: one place says where a table may live.
   join('_assets', 'tbl-property-items.md'),
+  join('_assets', 'tbl-published-entries.md'),
   join('_assets', 'fig-erd-detail.md'),
   join('_assets', 'fig-erd-overview.md'),
   join('_assets', 'tbl-state-machines.md'),

@@ -130,6 +130,7 @@ FILES = (
     os.path.join('_assets', 'tbl-glossary.md'),
     os.path.join('_assets', 'tbl-settings.md'),
     os.path.join('_assets', 'tbl-property-items.md'),
+    os.path.join('_assets', 'tbl-published-entries.md'),
     os.path.join('_assets', 'fig-erd-detail.md'),
     os.path.join('_assets', 'fig-erd-overview.md'),
 )
