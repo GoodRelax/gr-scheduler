@@ -76,6 +76,16 @@ async function openArranged(arranged: Arrangement): Promise<Stage> {
   return stage
 }
 
+// WHY: the picture OP-10 draws on opening, with no fit pressed -- the zoom the fit chose is the
+// current one (FR-055), which the cases below start from.
+/** @purity non-pure */
+async function openTheSampleAsOpened(): Promise<Stage> {
+  if (browser === null) throw new Error('the reference browser was not opened')
+  const stage = await openStage(browser)
+  await openDocument(stage.page, 'sample-large-erp-program.ja.xml', ERP_SAMPLE)
+  return stage
+}
+
 /** @purity non-pure */
 async function openTheSample(): Promise<Stage> {
   if (browser === null) throw new Error('the reference browser was not opened')
@@ -386,6 +396,46 @@ test.describe('CR-570 section 9 on sample-large-erp-program.ja.xml', () => {
       const reopened = await readTree(page)
       expect(reopened.rows.map((row) => row.treeState), 'T-328 A27: the file values').toEqual(held.rows.map((row) => row.treeState))
       expect(await drawnRowIds(page), 'T-329: the same picture').toEqual(drawn)
+    } finally {
+      await stage.close()
+    }
+  })
+
+  // WHY: red if the shrink right after opening steps from any zoom but the fit's (OP-10, FR-055,
+  // ZE-1), so that the picture widens instead.
+  test('opening: one row shrink right after opening adds no row', async () => {
+    const stage = await openTheSampleAsOpened()
+    try {
+      const { page } = stage
+      const opened = await drawnRowIds(page)
+      // STEP: one shrink with no fit pressed
+      await pressEntrance(page, ROW_ZOOM_SHRINK)
+      const added = (await drawnRowIds(page)).filter((id) => !opened.includes(id))
+      expect(added, 'FR-018 / ZE-1: a shrink never draws more rows').toEqual([])
+    } finally {
+      await stage.close()
+    }
+  })
+
+  // WHY: red if, from the opening picture, the expanded row loses its child to the shrink (TD-6).
+  test('claim 6 from the opening picture: [vv], then [v] on the program row, then a shrink keeps its child', async () => {
+    const stage = await openTheSampleAsOpened()
+    try {
+      const { page } = stage
+      const start = await readTree(page)
+      const program = rowNamed(start, ERP_PROGRAM_ROW)
+      const children = childrenOf(start, program.id)
+      expect(children.length, 'premise: the program row has a child').toBeGreaterThan(0)
+      await pressEntrance(page, HEAD_OPEN_EVERY_ROW)
+      // STEP: [v] on the program row
+      await pressRowEntrance(page, program.id, ROW_OPEN_ONE_LEVEL)
+      expect(stateOf(await readTree(page), program.id), 'T-328: [v] gives expanded').toBe('expanded')
+      // STEP: one shrink
+      await pressEntrance(page, ROW_ZOOM_SHRINK)
+      const drawn = await drawnRowIds(page)
+      for (const child of children) {
+        expect(drawn, `TD-6: ${child.label} is still drawn`).toContain(child.id)
+      }
     } finally {
       await stage.close()
     }

@@ -69,6 +69,8 @@ const numberIn = (cell: string): number => {
   if (!Number.isFinite(value)) throw new Error(`no number in ${JSON.stringify(cell)}`)
   return value
 }
+// see S-53
+const ZOOM_STEP = numberIn(rowOf('T-201', 'S-53').by['既定値'] ?? '')
 
 const FIT = 'IC-10'
 const NARROW_THE_TIME_AXIS = 'IC-12'
@@ -514,14 +516,17 @@ describe('OP-10 の答えを取り直す出来事', () => {
     }
   })
 
-  it('人が行軸の倍率を選んだとき -- 帯が動き、次のフレームがそれを上書きしない', () => {
+  // WHY: the fit may land inside the shrinking end (ZE-1), where a wider zoom need not move the
+  // picture; OP-10 and FR-055 fix the zoom stepped from, the spec is silent on the picture there.
+  it('人が行軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
     const built = bench(documentWithNoViewPlace())
-    const before = built.picture()
+    const fitted = built.exportedViewPlace().zoomY
     built.press(WIDEN_THE_ROW_AXIS)
-    const chosen = built.picture()
-    expect(chosen.rectangleHeight).not.toBe(before.rectangleHeight)
+    const chosen = built.storedViewPlace()
+    expect(chosen.zoomY, 'FR-055 / OP-10: the step is taken from the zoom the fit chose').toBeCloseTo(fitted * ZOOM_STEP, 9)
+    expect(chosen.scrollDate, 'OP-10: the choice becomes the place').not.toBeNull()
     built.oneMoreFrame()
-    expect(built.picture().rectangleHeight).toBe(chosen.rectangleHeight)
+    expect(built.storedViewPlace().zoomY).toBe(chosen.zoomY)
   })
 
   it('人が全体表示を押したとき -- 選ばれた表示位置が文書へ着き、次のフレームが消さない', () => {
