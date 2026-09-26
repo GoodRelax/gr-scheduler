@@ -1,4 +1,5 @@
-excess-lines=6157 excess-branches=638
+excess-lines=6158 excess-branches=638
+# RAISED 6157/638 -> 6158/638 on 2026-09-27 under JDG-778 (lane-l3, CR-585): heldTheme inside boot carries themeMonochrome to the screen theme, boot 205 -> 206; the coordinator re-measures at merge.
 # RAISED/LOWERED 6261/674 -> 6157/638 on 2026-09-27 under JDG-760 (raise, the user) and JDG-520 (lowers): CR-572 waves 2b-2d grew runFrame 123->132, editAnnotation 146->154, boot 202->205, svgFromSchedule 221->223, overlayParts, geometryFromLayout, exportScene, receiveInput, tentativeDependencyOf by one, frameLoop to 5 branches; NEW HELD screenEventFromEntry 39/17 (the viewer-value entries leave as screen events); the same waves shrank commandFromEntry, panelIndexOf, editDocumentSettings, carryOutAction and others.
 # PRUNED schedule-invariants.ts::find~16 (held 52/10) and task-plan-actual.ts::beginTaskActual (held 51/5) on 2026-09-27 under JDG-520: CR-572 wave 2b dropped the IV-13 case and the constant reads, and both fell below the band.
 # PRUNED row-band-ceiling-cache.ts::rowBandCeilingCacheOf (held 58/0) on 2026-09-26 under JDG-520: the stage-8 perf fix moved its key comparison into isSameBand and it fell below the band.
@@ -96,7 +97,7 @@ HELD src/framework/single-html-shell/frame-loop.ts::receiveInput lines=150 branc
 HELD src/framework/single-html-shell/frame-loop.ts::runFrame lines=132 branches=10
 HELD src/framework/single-html-shell/held-press-preview.ts::tentativeDependencyOf lines=65 branches=19
 HELD src/framework/single-html-shell/interaction-record.ts::interactionRecorderOf lines=75 branches=0
-HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=205 branches=6
+HELD src/framework/single-html-shell/single-html-shell.ts::boot lines=206 branches=6
 HELD src/framework/single-html-shell/view-place.ts::heldViewPlaceOf lines=69 branches=0
 HELD src/framework/single-html-shell/view-place.ts::viewSettings lines=54 branches=6
 HELD src/use-case/apply-document-change/document-change-plan.ts::planDocumentChange lines=62 branches=9
