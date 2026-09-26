@@ -415,8 +415,7 @@ export interface ScreenTheme {
 // TRAP: every H, not the first (DFC-754); and the one greying of SvgRenderer, so screen and export agree.
 /** @purity pure */
 function hued(written: string, followsHue: boolean, theme: ScreenTheme): string {
-  if (!followsHue) return written
-  const coloured = written.replace(/\bH\b/g, String(theme.hue))
+  const coloured = followsHue ? written.replace(/\bH\b/g, String(theme.hue)) : written
   return theme.monochrome === true ? achromatic(coloured) : coloured
 }
 
