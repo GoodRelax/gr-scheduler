@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019. The `columns` map names the SIX columns of that table; `armsShape` is a seventh field and no column of it -- it is derived from table T-012 of docs/spec/01-04-requirements.md and from docs/spec/_source/erd.json, and it exists because the arm column names a KIND of arm that stands against several entries at once.",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/tbl-glossary.md, table T-109 (the whole of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_roster.py. An icon is carried by its row id alone: table T-109 deliberately has no English column and no shape column, and the shapes are figure F-019. The `columns` map names SIX of the seven columns of that table; the settings-row column is not carried here, because tools/generate_entity_types.py prints it into src/. `armsShape` is a seventh field and no column of it -- it is derived from table T-012 of docs/spec/01-04-requirements.md and from docs/spec/_source/erd.json, and it exists because the arm column names a KIND of arm that stands against several entries at once.",
  "columns": {
   "rowId": "行 ID",
   "surfaces": "面",
@@ -70,7 +70,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "変更前の予定の重ねを表示する・非表示にする（`S-69`）。<br>⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`） —— 押しても何も描かれない入口にしない。<br>⚠️ **重ねる予定が在るときはファイルを読む入口ではない** —— 読む入口は `IC-1` であり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
+   "entryTo": "変更前の予定の重ねを表示する・非表示にする。<br>⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`） —— 押しても何も描かれない入口にしない。<br>⚠️ **重ねる予定が在るときはファイルを読む入口ではない** —— 読む入口は `IC-1` であり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
    "authority": "`FR-049`（`FR-015`）",
    "arms": null,
    "armsShape": null
@@ -103,7 +103,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "予定を表示する・非表示にする（`S-227`。<br>実績とは独立）",
+   "entryTo": "予定を表示する・非表示にする（実績とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -114,7 +114,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "実績を表示する・非表示にする（`S-228`。<br>予定とは独立）",
+   "entryTo": "実績を表示する・非表示にする（予定とは独立）",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -138,6 +138,17 @@
    "group": "表示",
    "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
    "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-107",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
+   "authority": "`FR-130`",
    "arms": null,
    "armsShape": null
   },
@@ -252,23 +263,12 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-18",
+   "rowId": "IC-115",
    "surfaces": [
     "App Header"
    ],
    "group": "AI",
-   "entryTo": "AI との対話欄を表示する・非表示にする",
-   "authority": "`FR-066`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
-   "rowId": "IC-19",
-   "surfaces": [
-    "App Header"
-   ],
-   "group": "AI",
-   "entryTo": "AI へ渡す文書を画面で確かめて写す",
+   "entryTo": "日程の画像をデータ化するプロンプトをクリップボードへ写す",
    "authority": "`FR-068`",
    "arms": null,
    "armsShape": null
@@ -281,6 +281,17 @@
    "group": "AI",
    "entryTo": "`Agent API` を有効にする・無効にする",
    "authority": "`FR-065`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-18",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "AI",
+   "entryTo": "AI との対話欄を表示する・非表示にする",
+   "authority": "`FR-066`",
    "arms": null,
    "armsShape": null
   },
@@ -576,7 +587,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "イナズマ線を表示する・非表示にする（`S-64`）",
+   "entryTo": "イナズマ線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-014`）",
    "arms": null,
    "armsShape": null
@@ -587,7 +598,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "進捗マーカーを表示する・非表示にする（`S-63`）",
+   "entryTo": "進捗マーカーを表示する・非表示にする",
    "authority": "`FR-049`（`FR-013`）",
    "arms": null,
    "armsShape": null
@@ -609,7 +620,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "日付罫線を表示する・非表示にする（`S-67`）",
+   "entryTo": "日付罫線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-089`）",
    "arms": null,
    "armsShape": null
@@ -620,7 +631,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "グループ罫線を表示する・非表示にする（`S-68`）",
+   "entryTo": "グループ罫線を表示する・非表示にする",
    "authority": "`FR-049`（`FR-042`）",
    "arms": null,
    "armsShape": null
@@ -631,7 +642,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当ラベルを表示する・非表示にする（`S-60`）",
+   "entryTo": "担当ラベルを表示する・非表示にする",
    "authority": "`FR-049`",
    "arms": null,
    "armsShape": null
@@ -642,7 +653,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "完了率ラベルを表示する・非表示にする（`S-61`）",
+   "entryTo": "完了率ラベルを表示する・非表示にする",
    "authority": "`FR-049`（`FR-090`）",
    "arms": null,
    "armsShape": null
@@ -653,7 +664,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "依存線を表示する・非表示にする（`S-62`）。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ",
+   "entryTo": "依存線を表示する・非表示にする。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ",
    "authority": "`FR-049`（`FR-009`）",
    "arms": null,
    "armsShape": null
@@ -686,7 +697,7 @@
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "名称ラベルに予定日を添える・外す（`S-232`。<br>書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並びを決めるのは本表の `群` の欄だけであり（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない",
+   "entryTo": "名称ラベルに予定日を添える・外す（書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並びを決めるのは本表の `群` の欄だけであり（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない",
    "authority": "`FR-049`（`FR-002`）",
    "arms": null,
    "armsShape": null
@@ -708,7 +719,7 @@
     "Command Palette"
    ],
    "group": "カーソル",
-   "entryTo": "ガイドカーソルを `'crosshair'` にする（`S-66`。<br>3 値排他）。<br>⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）",
+   "entryTo": "ガイドカーソルを `'crosshair'` にする（3 値排他）。<br>⛔ **取り消す入口は置かない** —— **本行をもう一度押せば `'none'` に戻る**（`FR-048`）",
    "authority": "`FR-048`",
    "arms": null,
    "armsShape": null
@@ -750,7 +761,6 @@
    "rowId": "IC-52",
    "surfaces": [
     "Help Modal",
-    "AI Export Modal",
     "Resource Roster",
     "Export Chooser",
     "Open Chooser",

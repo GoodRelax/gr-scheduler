@@ -1387,7 +1387,14 @@ NOT_STORED_TARGETS = {
     # group exists yet, and this group is already schedule-task-figures.ts's
     # one constant for the progress marker's glyph, so S-341 lands here rather
     # than founding a new group of its own.
-    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341'],
+    # CR-561: the Delay Diagnostics marker glyphs (S-391 .. S-396, table T-315),
+    # the bottleneck threshold S-397 and the parent label's weight S-399 join
+    # their sibling rows of table T-206 here; the threshold's reader is the
+    # Schedule unit delay-diagnostics.ts, which cannot import this adapter
+    # constant and takes the value as an argument.
+    'NOT_STORED_DELAY_MARK_SIZES': (['S-328', 'S-329', 'S-330', 'S-331', 'S-341',
+                                     'S-391', 'S-392', 'S-393', 'S-394', 'S-395',
+                                     'S-396', 'S-397', 'S-399'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both are a cursor's and both
     # land in svg-renderer.ts. FR-048 (MUST) states in as many words that the
@@ -1717,6 +1724,9 @@ COLOUR_TARGETS = {
                          'S-169', 'S-195', 'S-223',
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
                          'S-326', 'S-327',
+                         # CR-561: the Delay Diagnostics markers' grounds and symbols
+                         # (table T-315) and the parent label's colour (FR-135).
+                         'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390', 'S-398',
                          # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
                          'S-364',
                          # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
@@ -2431,6 +2441,95 @@ def flat_keys(node, prefix):
             yield path
 
 
+# ---- table T-109's settings-row column: which setting an entry rewrites -------
+#
+# ⭐ CR-589 (JDG-691). Table T-109 names, for the entries of FR-049 and FR-048,
+# the settings row each one rewrites; tools/generate_icon_roster.py reads that
+# column (`entry_switches`, one reader for the one column) and this prints it,
+# under the names the hand-written maps carry today, into every unit that
+# reads the join: the translator, the palette and the header.
+# ⛔ NEVER PRINTED BESIDE A HAND-WRITTEN COPY. Until the code lane (CR-589's
+# L4) removes a unit's hand-written map, printing the same name again would
+# declare it twice and the unit would not compile. So a name is printed into a
+# unit only when the unit's own code reads it and does not declare it; while a
+# unit still declares it by hand, the hand-written map is instead compared with
+# the table, and a difference stops the run -- the join the TRAP comment of
+# command-palette.ts says nothing checks is checked from here on. A unit that
+# neither reads nor declares the name gets nothing: a constant nobody reads is
+# refused by noUnusedLocals (JDG-139).
+import generate_icon_roster  # noqa: E402  (tools/ is the script's own folder)
+
+ENTRY_SWITCH_NAMES = ('VISIBLE_ELEMENT_BY_ENTRY', 'GUIDE_CURSOR_MODE_BY_ENTRY')
+LINE_COMMENT = re.compile(r'//[^\n]*')
+BLOCK_COMMENT = re.compile(r'/\*.*?\*/', re.S)
+PAIR = re.compile(r"'(IC-\d+[a-z]?)'\s*:\s*'([^']+)'")
+
+
+def entry_switch_maps():
+    """The two maps table T-109 states, each as [(entry, value)] in table order."""
+    flips, chooses = [], []
+    for entry, key, value in generate_icon_roster.entry_switches():
+        if value is None:
+            flips.append((entry, key))
+        else:
+            chooses.append((entry, value))
+    return {'VISIBLE_ELEMENT_BY_ENTRY': (flips, 'FR-049'),
+            'GUIDE_CURSOR_MODE_BY_ENTRY': (chooses, 'FR-048')}
+
+
+def hand_written(text):
+    """The part of a unit a person writes: outside the region, comments gone."""
+    if OPEN in text:
+        head, rest = text.split(OPEN, 1)
+        text = head + rest.split(CLOSE, 1)[1]
+    return LINE_COMMENT.sub('', BLOCK_COMMENT.sub('', text))
+
+
+def entry_switch_block(path, names):
+    """The maps of `names` this unit reads and does not declare by hand."""
+    rel = os.path.relpath(path, ROOT).replace('\\', '/')
+    own = hand_written(io.open(path, encoding='utf-8', newline='').read())
+    maps = entry_switch_maps()
+    out = []
+    for name in names:
+        pairs, requirement = maps[name]
+        declared = re.search(r'\b(?:const|let|var)\s+%s\b' % name, own)
+        if declared:
+            literal = own[declared.end():].split('}', 1)[0]
+            if PAIR.findall(literal) != pairs:
+                raise SystemExit(
+                    'generate_entity_types: %s in %s is written by hand and no '
+                    'longer matches the settings-row column of table T-109 '
+                    '(CR-589). Correct one of the two, or remove the hand-written '
+                    'map so that this generator prints it.' % (name, rel))
+            continue
+        if not re.search(r'\b%s\b' % name, own):
+            continue
+        values = []
+        for _entry, value in pairs:
+            if value not in values:
+                values.append(value)
+        union = ' | '.join("'%s'" % value for value in values)
+        lines = ['// see T-109, %s' % requirement,
+                 'const %s: Readonly<Record<string, %s>> = {' % (name, union)]
+        lines.extend("  '%s': '%s'," % pair for pair in pairs)
+        lines.append('}')
+        out.append('\n'.join(lines))
+    return (NEWLINE * 2).join(out)
+
+
+def with_entry_switches(path, build, names):
+    """A target's builder with the entry-switch maps appended to what it prints."""
+    def built(erd):
+        head = build(erd) if build is not None else ''
+        tail = entry_switch_block(path, names)
+        if build is None and not tail:
+            # nothing to print, and the unit holds no region yet: leave it
+            return None
+        return head + (NEWLINE * 2 if head and tail else '') + tail
+    return built
+
+
 # Each target names EVERY manuscript it is built from. ⚠️ A back-pointer that
 # is incomplete -- naming only erd.json for a unit whose defaults come from
 # settings.json -- sends the next reader to the wrong file, which is the same
@@ -2582,8 +2681,20 @@ TARGETS = [
     # and stands here. One shared constant would hand each unit the other's
     # value.
     (os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'screen-renderer', 'command-palette.ts'),
+         lambda _erd: not_stored_block('NOT_STORED_COMMAND_PALETTE_SIZES'),
+         ENTRY_SWITCH_NAMES),
+     ['docs/spec/_source/settings.json (table T-206)',
+      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
+    # CR-589: the header paints EN-2 for the entries whose settings row it
+    # reads; the map lands here once the unit reads it instead of its own arms.
+    (os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'screen-renderer', 'app-header-items.ts'),
+         None, ('VISIBLE_ELEMENT_BY_ENTRY',)),
+     ['docs/spec/_assets/tbl-glossary.md (table T-109)',
+      'docs/spec/_source/settings.json (table T-202)']),
     # ⭐ HF-5's room, resolved on the side that can resolve it. S-140 is the
     # room the row controls keep, and what it is subtracted from is the row's
     # own name width, which only this side knows -- `DocumentSettings` does not
@@ -2610,12 +2721,16 @@ TARGETS = [
     # distance a grab's axis is settled at, and this unit is the one that
     # settles it. ⛔ Not folded into the zoom step -- see NOT_STORED_TARGETS.
     (os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
-     ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
+     with_entry_switches(
+         os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
+         lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
+         ENTRY_SWITCH_NAMES),
+     ['docs/spec/_source/settings.json (table T-206, which names table T-201)',
+      'docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
@@ -3034,7 +3149,14 @@ def main():
         # is rewritten every run, so moving the manuscript can never make the
         # region undiscoverable (see the note on OPEN).
         rel = os.path.relpath(path, ROOT).replace('\\', '/')
-        body = publish_only_listed(rel, provenance(sources) + build(erd))
+        printed = build(erd)
+        if printed is None:
+            # CR-589: a unit that holds no region and has nothing to print yet
+            if OPEN in current:
+                raise SystemExit('generate_entity_types: %s holds a region and '
+                                 'its builder printed nothing for it' % rel)
+            continue
+        body = publish_only_listed(rel, provenance(sources) + printed)
         refuse_non_ascii_comments(rel, body)
         wanted = region(current, body)
         if checking:

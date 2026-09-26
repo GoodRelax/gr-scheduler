@@ -715,12 +715,28 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
   readonly 'S-330': number
   readonly 'S-331': number
   readonly 'S-341': number
+  readonly 'S-391': number
+  readonly 'S-392': number
+  readonly 'S-393': number
+  readonly 'S-394': number
+  readonly 'S-395': string
+  readonly 'S-396': number
+  readonly 'S-397': number
+  readonly 'S-399': number
 } = {
   'S-328': 1.7,
   'S-329': 0.15,
   'S-330': 0.8,
   'S-331': 0.14,
   'S-341': 0.5,
+  'S-391': 0.30,
+  'S-392': 0.36,
+  'S-393': 0.18,
+  'S-394': 0.62,
+  'S-395': 'M0.5 0.05 C0.62 0.28 0.86 0.42 0.86 0.66 C0.86 0.86 0.7 1 0.5 1 C0.3 1 0.14 0.86 0.14 0.66 C0.14 0.5 0.26 0.38 0.34 0.3 C0.36 0.44 0.42 0.52 0.5 0.54 C0.46 0.36 0.46 0.2 0.5 0.05 Z',
+  'S-396': 0.70,
+  'S-397': 1,
+  'S-399': 700,
 }
 
 // see T-206
@@ -794,6 +810,13 @@ const SCHEDULE_COLOURS: {
   'S-223': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
   'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
   'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-385': { light: '#f09199', dark: '#f4a7b9', followsHue: false },
+  'S-386': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-387': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
+  'S-388': { light: '#ffffff', dark: '#16181d', followsHue: false },
+  'S-389': { light: '#7e57c2', dark: '#b39ddb', followsHue: false },
+  'S-390': { light: '#ffffff', dark: '#16181d', followsHue: false },
+  'S-398': { light: '#d32f2f', dark: '#ff5c5c', followsHue: false },
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
   'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }

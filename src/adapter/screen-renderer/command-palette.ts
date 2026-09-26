@@ -340,6 +340,7 @@ export function commandPaletteFromSession(
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/_assets/tbl-glossary.md (table T-109, the maps of CR-589 once this unit reads them)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 export const NOT_STORED_COMMAND_PALETTE_SIZES: {

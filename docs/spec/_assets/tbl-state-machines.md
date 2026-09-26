@@ -60,7 +60,7 @@
 | `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
 | `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
 | `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
-| `screen/surfaceEntryPressed` | 入力: `IC-19` ・ `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
+| `screen/surfaceEntryPressed` | 入力: `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルかヘルプか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` |
@@ -255,7 +255,7 @@ stateDiagram-v2
 | `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
 
 - `openSurfaceStateMachine.closed` —— 初期。根拠 `S-99g`
-- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-30` ・ `U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`。`U-30` は `AI Export Modal` だけを指す —— ヘルプはこの機械で開かない（`FR-036`））。根拠 `S-99g` ・ `IC-52`
+- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`）。根拠 `S-99g` ・ `IC-52`
 
 表に無い出来事は `openSurfaceStateMachine` を変えない（同じ参照）。
 
@@ -327,12 +327,11 @@ stateDiagram-v2
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
     dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown : dialogueFieldEntryPressed
-    dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed
 ```
 
 | 出来事 | `shown` | `hidden` |
 | --- | --- | --- |
-| `screen/dialogueFieldEntryPressed` | → `hidden` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`] / `raiseNotice`（`RS-35`） | → `shown` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`] / `raiseNotice`（`RS-35`） |
+| `screen/dialogueFieldEntryPressed` | → `hidden` [`isAgentApiEnabled`]<br>→ 自己 [not `isAgentApiEnabled`]（欄は表示のまま。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）） | → `shown`（`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）） |
 
 - `dialogueFieldDisplayStateMachine.shown` —— 初期。根拠 `S-99i`
 - `dialogueFieldDisplayStateMachine.hidden` —— 根拠 `S-99i` ・ `FR-066`
@@ -1079,6 +1078,7 @@ stateDiagram-v2
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
 | `agentApi/agentApiEntryPressed` | 入力（`IC-20` を押した。無効のときは有効にし、有効のときは無効にする —— 有効にするのと無効にするのは同じ 1 つの入口である）: `IC-20` ・ `FR-065` | — | 根 ・ `agentApiEnablingStateMachine` |
+| `agentApi/enablingAskedByDialogueField` | 入力（`IC-18` を押した。`Agent API` が無効なら有効にする —— 対話欄の入口は `Agent API` を無効にしない）: `IC-18` ・ `FR-066` | — | `agentApiEnablingStateMachine` |
 | `agentApi/rememberedEnablingLoaded` | 副作用の結果（起動のとき、シェルがブラウザ（オリジン）の記憶を読んだ結果）: `FR-065` ・ `S-99b` | `isRememberedEnabled`（`S-99b`。記憶が有効を指すか） | `agentApiEnablingStateMachine` |
 
 ### 根 `agentApi` の値
@@ -1105,16 +1105,17 @@ stateDiagram-v2
     [*] --> agentApiEnablingStateMachine_disabled
     agentApiEnablingStateMachine_disabled : disabled
     agentApiEnablingStateMachine_enabled : enabled
-    agentApiEnablingStateMachine_disabled --> agentApiEnablingStateMachine_enabled : agentApiEntryPressed, rememberedEnablingLoaded
+    agentApiEnablingStateMachine_disabled --> agentApiEnablingStateMachine_enabled : agentApiEntryPressed, enablingAskedByDialogueField, rememberedEnablingLoaded
     agentApiEnablingStateMachine_enabled --> agentApiEnablingStateMachine_disabled : agentApiEntryPressed
 ```
 
 | 出来事 | `disabled` | `enabled` |
 | --- | --- | --- |
 | `agentApi/agentApiEntryPressed` | → `enabled` | → `disabled` / `raiseNotice`（`RS-20`） |
+| `agentApi/enablingAskedByDialogueField` | → `enabled` / `storeAgentApiEnabling`（有効をブラウザ（オリジン）の記憶に書く） | — |
 | `agentApi/rememberedEnablingLoaded` | → `enabled` [`isRememberedEnabled`]<br>それ以外 → — | — |
 
-- `agentApiEnablingStateMachine.disabled` —— 初期。根拠 `FR-065` ・ `CP-17` ・ `RS-35`
+- `agentApiEnablingStateMachine.disabled` —— 初期。根拠 `FR-065` ・ `CP-17`
 - `agentApiEnablingStateMachine.enabled` —— 根拠 `FR-065` ・ `FR-066` ・ `S-99b`
 
 表に無い出来事は `agentApiEnablingStateMachine` を変えない（同じ参照）。

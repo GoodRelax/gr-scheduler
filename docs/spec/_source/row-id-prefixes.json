@@ -83,6 +83,14 @@
    }
   },
   {
+   "prefix": "BD",
+   "words": "Bottleneck Detection",
+   "owner": "spec",
+   "means": {
+    "ja": "ボトルネック検出の手順の段"
+   }
+  },
+  {
    "prefix": "BF",
    "words": "Browser Function",
    "owner": "spec",
@@ -275,6 +283,14 @@
    }
   },
   {
+   "prefix": "DG",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断が進捗マーカーに与える状態"
+   }
+  },
+  {
    "prefix": "DI",
    "words": "Document Identity",
    "owner": "spec",
@@ -315,6 +331,14 @@
    }
   },
   {
+   "prefix": "DQ",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断が数える遅れの量"
+   }
+  },
+  {
    "prefix": "DR",
    "words": "Document Root",
    "owner": "spec",
@@ -344,6 +368,22 @@
    "owner": "spec",
    "means": {
     "ja": "書き出すときに作る値（文書は持たず、書き出しで導く）"
+   }
+  },
+  {
+   "prefix": "DW",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断の解析を止める壁の種類"
+   }
+  },
+  {
+   "prefix": "DX",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断のレポートの欄"
    }
   },
   {
@@ -582,6 +622,14 @@
    }
   },
   {
+   "prefix": "IP",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "明記されていない WBS の親の導き方"
+   }
+  },
+  {
    "prefix": "IR",
    "words": "Interaction Record",
    "owner": "spec",
@@ -732,6 +780,14 @@
    "owner": "spec",
    "means": {
     "ja": "最小構成に対して増やしたものと、その理由"
+   }
+  },
+  {
+   "prefix": "MP",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "マイルストーンの先行と達成の導き方"
    }
   },
   {
@@ -1352,6 +1408,14 @@
    }
   },
   {
+   "prefix": "VC",
+   "words": "Validation Contradiction",
+   "owner": "spec",
+   "means": {
+    "ja": "進捗妥当性検査の矛盾の観点"
+   }
+  },
+  {
    "prefix": "VG",
    "words": "Vertical Gap",
    "owner": "spec",
@@ -1365,6 +1429,22 @@
    "owner": "spec",
    "means": {
     "ja": "価値のことば —— 目標が述べる状態を 1 語で指すことば"
+   }
+  },
+  {
+   "prefix": "VO",
+   "words": "Validation Omission",
+   "owner": "spec",
+   "means": {
+    "ja": "進捗妥当性検査の記載漏れの観点"
+   }
+  },
+  {
+   "prefix": "VS",
+   "words": "Validation Suspicion",
+   "owner": "spec",
+   "means": {
+    "ja": "進捗妥当性検査の疑義の観点"
    }
   },
   {

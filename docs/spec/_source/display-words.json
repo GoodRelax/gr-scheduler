@@ -143,6 +143,17 @@
    }
   },
   {
+   "rowId": "IC-107",
+   "label": {
+    "ja": "遅延診断",
+    "en": "Delay Diagnostics"
+   },
+   "hint": {
+    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
+    "en": "Run the Delay Diagnostics; press again to end its display"
+   }
+  },
+  {
    "rowId": "IC-11",
    "label": {
     "ja": "全画面表示",
@@ -253,25 +264,14 @@
    }
   },
   {
-   "rowId": "IC-18",
+   "rowId": "IC-115",
    "label": {
-    "ja": "対話欄",
-    "en": "Dialogue Field"
+    "ja": "日程の画像をデータ化するプロンプト",
+    "en": "Schedule Image-to-JSON Prompt"
    },
    "hint": {
-    "ja": "AI との対話欄を表示する。もう一度押すと非表示にする",
-    "en": "Show the Dialogue Field for talking with the AI; press again to hide it"
-   }
-  },
-  {
-   "rowId": "IC-19",
-   "label": {
-    "ja": "AI 出力",
-    "en": "AI Export"
-   },
-   "hint": {
-    "ja": "AI へ渡す文書を画面で確かめて写す",
-    "en": "Check the document to hand to the AI on screen, then copy it"
+    "ja": "AIにPPTやExcelなどで作った日程をGoodRelax Schedulerで処理できるJSONデータに変換させるプロンプトをクリップボードに出力する",
+    "en": "Copy to the clipboard a prompt that has an AI convert a schedule made in PowerPoint, Excel, etc. into JSON data GoodRelax Scheduler can process"
    }
   },
   {
@@ -283,6 +283,17 @@
    "hint": {
     "ja": "Agent API を有効にする。もう一度押すと無効にする",
     "en": "Enable the Agent API; press again to disable it"
+   }
+  },
+  {
+   "rowId": "IC-18",
+   "label": {
+    "ja": "対話欄",
+    "en": "Dialogue Field"
+   },
+   "hint": {
+    "ja": "AI との対話欄を表示する（Agent API が無効なら有効にする）。もう一度押すと非表示にする",
+    "en": "Show the Dialogue Field for talking with the AI (turns the Agent API on if it is off); press again to hide it"
    }
   },
   {
@@ -1364,6 +1375,13 @@
    }
   },
   {
+   "rowId": "PR-33",
+   "label": {
+    "ja": "編集権限",
+    "en": "Edit permission"
+   }
+  },
+  {
    "rowId": "PR-19",
    "label": {
     "ja": "色",
@@ -2343,13 +2361,6 @@
    }
   },
   {
-   "name": "AI Export Modal",
-   "heading": {
-    "ja": "AI 出力",
-    "en": "AI Export Modal"
-   }
-  },
-  {
    "name": "Resource Roster",
    "heading": {
     "ja": "名簿",
@@ -2800,17 +2811,6 @@
    }
   },
   {
-   "rowId": "RS-35",
-   "text": {
-    "ja": "対話欄は Agent API が入っているあいだだけ出せます",
-    "en": "The dialogue field is only available while the Agent API is on"
-   },
-   "nextStep": {
-    "ja": "Agent API を入れてから、もう一度押してください",
-    "en": "Turn the Agent API on first, then press again"
-   }
-  },
-  {
    "rowId": "RS-36",
    "text": {
     "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせません",
@@ -3097,6 +3097,17 @@
    }
   },
   {
+   "rowId": "RS-62",
+   "text": {
+    "ja": "編集権限は人だけが変えられます",
+    "en": "Only a person can change the edit permission"
+   },
+   "nextStep": {
+    "ja": "プロパティパネルで、人に入れてもらってください",
+    "en": "Ask a person to set it in the properties panel"
+   }
+  },
+  {
    "rowId": "RS-66",
    "text": {
     "ja": "ピン止め行が多くて検索結果を表示できません。",
@@ -3105,6 +3116,17 @@
    "nextStep": {
     "ja": "ピン止めを減らしてください。",
     "en": "Unpin some rows."
+   }
+  },
+  {
+   "rowId": "RS-65",
+   "text": {
+    "ja": "クリップボードに貼り付けたプロンプトをAIに渡してください。",
+    "en": "Paste the prompt from the clipboard into an AI."
+   },
+   "nextStep": {
+    "ja": "冒頭部分は適宜編集してください。",
+    "en": "Edit its opening part as needed."
    }
   },
   {

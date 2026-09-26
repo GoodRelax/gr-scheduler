@@ -277,6 +277,22 @@
    }
   },
   {
+   "id": "PR-33",
+   "columns": [
+    "editGroup"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "appliesTo": "TaskGroup",
+   "note": {
+    "ja": "行を編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。空の欄は `null` ＝ 誰でも編集できる。⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でない行でも編集でき、`Agent API` からは書けない。規則は `FR-111` の 表 T-275 の `GP-1` が持つ"
+   },
+   "mspdi": {
+    "ja": "無い（`GRS JSON` のみ）"
+   }
+  },
+  {
    "id": "PR-19",
    "columns": [
     "color"

@@ -1,6 +1,6 @@
 {
  "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-icons.svg, figure F-019 (the authority for every icon shape, FR-029), cross-checked against table T-109 of docs/spec/_assets/tbl-glossary.md so that neither can move without the other. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_icon_glyphs.py. Each shape is carried as it was drawn: the figure paints through a stylesheet, so each element leaves with the declarations its own classes held, and the colour is currentColor because the app has a theme of its own (FR-041). The coordinate system is the frame the shapes themselves circumscribe, measured from their geometry and their own stroke widths, and it is one system for all of them: FR-029 requires the figure tightened to that frame (MUST) and forbids a coordinate system per shape (MUST NOT), because a coordinate system with margin in it does not let a bigger box draw a bigger shape.",
- "viewBox": "0.8 1.5 22.2 21",
+ "viewBox": "0.8 1.5 22.7 21",
  "glyphs": [
   {
    "rowId": "IC-7",
@@ -577,6 +577,79 @@
       {
        "name": "style",
        "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-107",
+   "elements": [
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "10"
+      },
+      {
+       "name": "cy",
+       "value": "10"
+      },
+      {
+       "name": "r",
+       "value": "6.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M14.8 14.8 L20 20"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M10 6.6 V10.4"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "10"
+      },
+      {
+       "name": "cy",
+       "value": "13.2"
+      },
+      {
+       "name": "r",
+       "value": "0.95"
+      },
+      {
+       "name": "style",
+       "value": "fill: currentColor; stroke: none"
       }
      ]
     }
@@ -1217,87 +1290,30 @@
    ]
   },
   {
-   "rowId": "IC-18",
+   "rowId": "IC-115",
    "elements": [
     {
-     "tag": "path",
+     "tag": "rect",
      "attributes": [
       {
-       "name": "d",
-       "value": "M4.5 7 a2.5 2.5 0 0 1 2.5 -2.5 h10 a2.5 2.5 0 0 1 2.5 2.5 v6 a2.5 2.5 0 0 1 -2.5 2.5 H10.5 L6.5 19.5 V15.5 H7 A2.5 2.5 0 0 1 4.5 13 Z"
+       "name": "x",
+       "value": "2.5"
       },
       {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "9.8"
+       "name": "y",
+       "value": "3.5"
       },
       {
-       "name": "cy",
-       "value": "9.8"
+       "name": "width",
+       "value": "10"
       },
       {
-       "name": "r",
-       "value": "1"
+       "name": "height",
+       "value": "8.5"
       },
       {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "14.2"
-      },
-      {
-       "name": "cy",
-       "value": "9.8"
-      },
-      {
-       "name": "r",
-       "value": "1"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    },
-    {
-     "tag": "path",
-     "attributes": [
-      {
-       "name": "d",
-       "value": "M9.6 12.4 q2.4 2.2 4.8 0"
-      },
-      {
-       "name": "style",
-       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "rowId": "IC-19",
-   "elements": [
-    {
-     "tag": "path",
-     "attributes": [
-      {
-       "name": "d",
-       "value": "M6 3.5 h7.5 L19 9 v9.5 a1.5 1.5 0 0 1 -1.5 1.5 H6 a1.5 1.5 0 0 1 -1.5 -1.5 V5 A1.5 1.5 0 0 1 6 3.5 Z"
+       "name": "rx",
+       "value": "1.5"
       },
       {
        "name": "style",
@@ -1310,7 +1326,7 @@
      "attributes": [
       {
        "name": "d",
-       "value": "M13.5 3.5 V9 H19"
+       "value": "M4.5 10 L7 7.5 L8.8 9.3 L10.2 8 L11 8.8"
       },
       {
        "name": "style",
@@ -1319,44 +1335,15 @@
      ]
     },
     {
-     "tag": "circle",
+     "tag": "path",
      "attributes": [
       {
-       "name": "cx",
-       "value": "9.6"
-      },
-      {
-       "name": "cy",
-       "value": "13.6"
-      },
-      {
-       "name": "r",
-       "value": "0.95"
+       "name": "d",
+       "value": "M7.5 14.5 V17.5 A1.5 1.5 0 0 0 9 19 H13"
       },
       {
        "name": "style",
-       "value": "fill: currentColor; stroke: none"
-      }
-     ]
-    },
-    {
-     "tag": "circle",
-     "attributes": [
-      {
-       "name": "cx",
-       "value": "14"
-      },
-      {
-       "name": "cy",
-       "value": "13.6"
-      },
-      {
-       "name": "r",
-       "value": "0.95"
-      },
-      {
-       "name": "style",
-       "value": "fill: currentColor; stroke: none"
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
       }
      ]
     },
@@ -1365,7 +1352,33 @@
      "attributes": [
       {
        "name": "d",
-       "value": "M9.4 16.1 q2.2 2 4.4 0"
+       "value": "M11 17 L13 19 L11 21"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M17.5 12.5 Q16 12.5 16 14 V15.8 Q16 17 15 17 Q16 17 16 18.2 V20 Q16 21.5 17.5 21.5"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M20 12.5 Q21.5 12.5 21.5 14 V15.8 Q21.5 17 22.5 17 Q21.5 17 21.5 18.2 V20 Q21.5 21.5 20 21.5"
       },
       {
        "name": "style",
@@ -1455,6 +1468,79 @@
       {
        "name": "d",
        "value": "M8 13.8 q4 3 8 0"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "rowId": "IC-18",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M4.5 7 a2.5 2.5 0 0 1 2.5 -2.5 h10 a2.5 2.5 0 0 1 2.5 2.5 v6 a2.5 2.5 0 0 1 -2.5 2.5 H10.5 L6.5 19.5 V15.5 H7 A2.5 2.5 0 0 1 4.5 13 Z"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "9.8"
+      },
+      {
+       "name": "cy",
+       "value": "9.8"
+      },
+      {
+       "name": "r",
+       "value": "1"
+      },
+      {
+       "name": "style",
+       "value": "fill: currentColor; stroke: none"
+      }
+     ]
+    },
+    {
+     "tag": "circle",
+     "attributes": [
+      {
+       "name": "cx",
+       "value": "14.2"
+      },
+      {
+       "name": "cy",
+       "value": "9.8"
+      },
+      {
+       "name": "r",
+       "value": "1"
+      },
+      {
+       "name": "style",
+       "value": "fill: currentColor; stroke: none"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M9.6 12.4 q2.4 2.2 4.8 0"
       },
       {
        "name": "style",

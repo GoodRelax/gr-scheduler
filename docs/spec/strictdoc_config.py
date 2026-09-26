@@ -29,6 +29,11 @@ def create_config() -> ProjectConfig:
         # setting in server.config.json -- use change-color-mode.bat to change it.
         # The path must stay relative: strictdoc asserts on an absolute one.
         custom_css_path="strictdoc-theme.css",
+        # _source/ holds manuscripts, not documents of the specification. Since
+        # CR-562 (2026-09-26) two of them are Markdown prompts
+        # (image-to-grs-json-prompt.ja.md / .en.md) that open with their role
+        # line, not an H1, and the export refused the whole folder on them.
+        exclude_doc_paths=["_source/**"],
         project_features=[
             "TABLE_SCREEN",
             "TRACEABILITY_SCREEN",

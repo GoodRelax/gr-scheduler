@@ -524,7 +524,6 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-19",
        "IC-62",
        "IC-2",
        "SK-12"
@@ -1667,17 +1666,13 @@
         {
          "name": "surfaceName",
          "rows": [
-          "U-30",
           "U-49",
           "U-54",
           "U-56",
           "U-60",
           "U-61",
           "U-62"
-         ],
-         "note": {
-          "ja": "`U-30` は `AI Export Modal` だけを指す —— ヘルプはこの機械で開かない（`FR-036`）"
-         }
+         ]
         }
        ],
        "evidence": [
@@ -2161,43 +2156,26 @@
            "not": true
           }
          ],
-         "effect": "raiseNotice",
-         "effectArgument": "RS-35",
          "evidence": [
           "FR-066",
-          "RS-35"
-         ]
+          "IC-18"
+         ],
+         "note": {
+          "ja": "欄は表示のまま。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`）"
+         }
         }
        ],
-       "hidden": [
-        {
-         "to": "shown",
-         "guard": [
-          {
-           "name": "isAgentApiEnabled"
-          }
-         ],
-         "evidence": [
-          "S-99i",
-          "IC-18"
-         ]
-        },
-        {
-         "to": "hidden",
-         "guard": [
-          {
-           "name": "isAgentApiEnabled",
-           "not": true
-          }
-         ],
-         "effect": "raiseNotice",
-         "effectArgument": "RS-35",
-         "evidence": [
-          "FR-066",
-          "RS-35"
-         ]
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "S-99i",
+         "IC-18",
+         "FR-066"
+        ],
+        "note": {
+         "ja": "`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）"
         }
-       ]
+       }
       }
      }
     },
@@ -6135,6 +6113,20 @@
      "carries": []
     },
     {
+     "key": "enablingAskedByDialogueField",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-18",
+       "FR-066"
+      ],
+      "note": {
+       "ja": "`IC-18` を押した。`Agent API` が無効なら有効にする —— 対話欄の入口は `Agent API` を無効にしない"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "rememberedEnablingLoaded",
      "source": {
       "kind": "effectResult",
@@ -6170,8 +6162,7 @@
        "carries": [],
        "evidence": [
         "FR-065",
-        "CP-17",
-        "RS-35"
+        "CP-17"
        ]
       },
       {
@@ -6204,6 +6195,20 @@
          "RS-20",
          "NT-5"
         ]
+       }
+      },
+      "enablingAskedByDialogueField": {
+       "disabled": {
+        "to": "enabled",
+        "effect": "storeAgentApiEnabling",
+        "evidence": [
+         "FR-065",
+         "FR-066",
+         "IC-18"
+        ],
+        "note": {
+         "ja": "有効をブラウザ（オリジン）の記憶に書く"
+        }
        }
       },
       "rememberedEnablingLoaded": {

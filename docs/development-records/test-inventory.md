@@ -27,7 +27,7 @@ what this reading does not see.
 
 | population | T-334 row | counted | with a test | without a test |
 | --- | --- | --: | --: | --- |
-| the use cases (`UC-xxx`), named by a `tests/usecase` file | VT-1 | 14 | 14 | - |
+| the use cases (`UC-xxx`), named by a `tests/usecase` file | VT-1 | 15 | 14 | UC-015 |
 | the regions of `state-machines.json`, their table named by a `tests/contract` file | VT-2 | 9 | 9 | - |
 | the gate rows of table T-043, named by a `tests/nfr` file | VT-3 | 11 | 11 | - |
 
@@ -37,9 +37,9 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 110 | 102 | FR-010, FR-040, FR-045, FR-079, FR-081, FR-105, FR-151, FR-152 |
+| FR | 118 | 102 | FR-010, FR-040, FR-045, FR-079, FR-081, FR-105, FR-130, FR-131, FR-132, FR-133, FR-134, FR-135, FR-136, FR-150, FR-151, FR-152 |
 | NFR | 13 | 8 | NFR-005, NFR-006, NFR-008, NFR-009, NFR-012 |
-| UC | 14 | 14 | - |
+| UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
 
 ## 4. Test files tied to no spec row (1)
@@ -406,7 +406,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-025-no-png-scale-and-retained-key.test.ts` | 8 | FR-025 | - | T-216 | IX-3, S-81 | - | - | - | - |
 | `tests/unit/fr-027-startup-shows-its-depth.test.ts` | 17 | FR-018, FR-027, FR-051, FR-055, FR-094 | - | T-015, T-024a, T-025, T-034, T-036, T-051, T-068, T-077, T-201, T-203, T-206, T-218, T-226 | AT-55, BO-1, BO-3, BO-4, BO-5, BT-1, BT-2, BT-4, CM-71, HF-8, HR-1a, HR-6, IV-2, LC-9, MC-7, OP-10, S-1, S-53, S-75, S-77, S-78, S-87, S-88, S-96, S-97, S-98, SK-18, TP-5, TP-8, TS-6, WY-1 | - | - | - | - |
 | `tests/unit/fr-029-palette-grab-marker.test.ts` | 8 | FR-023, FR-029, FR-038, FR-053 | - | T-023b, T-023d, T-062, T-075, T-103, T-109, T-206, T-216, T-218 | BO-1, CP-38, GR-19, IC-53, IF-9, S-135a, S-138, TS-6, U-26, UF-65, UF-71 | - | - | - | - |
-| `tests/unit/fr-029-the-reason-a-press-carries.test.ts` | 21 | FR-029, FR-034, FR-038, FR-049, FR-066, FR-076, FR-092 | - | T-015, T-037, T-051, T-060, T-062, T-075, T-103, T-109, T-218, T-233 | AT-153, CP-25, CS-2, EZ-2, HF-2, HF-3, HF-10, HF-11, HF-12, HF-13, HF-16, HR-2, HR-3, HR-4, HR-6, HR-7, IC-8, IC-9, IC-18, IC-37, IC-38, IC-58, IC-59, IC-74, IC-77, IC-78, IC-90, LY-5, NT-1, NT-3a, RS-27, RS-28, RS-29, RS-30, RS-31, RS-32, RS-33, RS-34, RS-35, S-227, S-228, S-418, TS-6, U-22, UF-48 | - | - | - | - |
+| `tests/unit/fr-029-the-reason-a-press-carries.test.ts` | 21 | FR-029, FR-034, FR-038, FR-049, FR-066, FR-076, FR-092 | - | T-015, T-037, T-051, T-060, T-062, T-075, T-103, T-109, T-218, T-233 | AT-153, CP-25, CS-2, EZ-2, HF-2, HF-3, HF-10, HF-11, HF-12, HF-13, HF-16, HR-2, HR-3, HR-4, HR-6, HR-7, IC-8, IC-9, IC-18, IC-37, IC-38, IC-58, IC-59, IC-74, IC-77, IC-78, IC-90, LY-5, NT-1, NT-3a, RS-27, RS-28, RS-29, RS-30, RS-31, RS-32, RS-33, RS-34, S-227, S-228, S-418, TS-6, U-22, UF-48 | - | - | - | - |
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | 10 | FR-031, FR-052, FR-063 | - | T-027, T-060, T-108, T-206 | CM-9, CM-67, LY-5, S-94, S-95, UN-3, UN-16 | - | - | - | - |
 | `tests/unit/fr-036-help-item-order-and-size.test.ts` | 13 | FR-029, FR-036, NFR-007 | - | T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 | BO-1, CP-38, IC-52, IC-102, IF-9, S-121, S-122, S-123, S-138, S-197, S-201, S-202, S-203, S-205, TS-6, U-30, UF-66, UF-71 | - | - | - | - |
 | `tests/unit/fr-038-panel-date-language.test.ts` | 5 | FR-006, FR-023, FR-038, FR-072 | - | T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-216, T-218 | CP-38, IF-9, PI-38, PR-3, S-72, S-73, S-99, S-186, S-189, TS-6, U-25, UF-64, UF-71, W-4 | - | - | - | - |

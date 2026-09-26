@@ -197,6 +197,17 @@
    "appliesTo": "TaskGroup"
   },
   {
+   "rowId": "PR-33",
+   "columns": [
+    "editGroup"
+   ],
+   "inputKinds": [
+    "文字"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "TaskGroup"
+  },
+  {
    "rowId": "PR-19",
    "columns": [
     "color"

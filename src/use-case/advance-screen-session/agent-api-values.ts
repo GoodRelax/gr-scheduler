@@ -35,6 +35,7 @@ export type AgentApiValuesAxes = Omit<AgentApiValues, never>
 
 export type AgentApiValuesEvent =
   | { readonly type: 'agentApiEntryPressed' }
+  | { readonly type: 'enablingAskedByDialogueField' }
   | { readonly type: 'rememberedEnablingLoaded'; readonly isRememberedEnabled: AgentApiValuesEventCarried['isRememberedEnabled'] }
 
 export type AgentApiValuesEffectName =

@@ -89,11 +89,31 @@ CODE_SPAN = re.compile(r'`([^`]+)`')
 # ⛔ Writing the number here instead is the drift this script exists to stop.
 STATED_COUNT = re.compile(r'(\d+)\s*行ある')
 
-# The keys this file gives the six columns, in the manuscript's own order.
-# ⭐ Their Japanese headings travel with the artifact (see `columns` below),
-# read from the table rather than typed out, so no key here has to explain
-# itself in a second language.
+# The keys this file gives the six columns it carries, in the manuscript's own
+# order. ⭐ Their Japanese headings travel with the artifact (see `columns`
+# below), read from the table rather than typed out, so no key here has to
+# explain itself in a second language.
 FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
+
+# ⭐ THE SEVENTH COLUMN, AND THE ROSTER DOES NOT CARRY IT (CR-589). It names,
+# for the entries of FR-049 and FR-048 only, the settings row the entry
+# rewrites. Its one reader is `entry_switches` below, which
+# tools/generate_entity_types.py imports to print the two maps into src/; a
+# copy in this roster would put the same join into a generated file twice.
+# ⚠️ A Japanese needle, allowed by rule 03 section 5 for the reason given at
+# STATED_COUNT: the heading is the manuscript's own word and is found by it,
+# so the column is read by name and never by position.
+SWITCH_HEADING = u'切り替える設定値'
+SWITCH_AFTER = 4  # the column sits right after `authority` (index 4)
+SWITCH_PLAIN = re.compile(r'^`(S-\d+[a-z]?)`$')
+SWITCH_VALUE = re.compile(u"^`(S-\\d+[a-z]?)`（`'([^`']+)'`）$")
+# The requirement whose entries write a boolean row of table T-202, and the one
+# whose entries write a value of the guide cursor row.
+FLIP_REQUIREMENT = 'FR-049'
+CHOOSE_REQUIREMENT = 'FR-048'
+GUIDE_CURSOR_ROW = 'S-66'
+BOOLEAN_TABLE = 'T-202'
+SETTINGS = os.path.join(ROOT, 'docs', 'spec', '_source', 'settings.json')
 
 # ⛔ THE ARM COLUMN EXISTS FOR LR-3. Which entry arms which row of table
 # T-023b is stated in the glossary and nowhere the renderer may import: the
@@ -103,9 +123,10 @@ FIELDS = ('rowId', 'surfaces', 'group', 'entryTo', 'authority', 'arms')
 # what is armed at all. ⚠️ An entry that arms nothing writes the em dash,
 # and becomes None here the way `group` already does.
 
-# ⭐ `armsShape` IS THE SEVENTH FIELD AND IS NOT A COLUMN, which is why it is
-# absent from FIELDS: table T-109 has six columns and `columns` below is that
-# header. It is DERIVED, by `fill_arms_shape`, and it exists because the arm
+# ⭐ `armsShape` IS A SEVENTH FIELD AND IS NOT A COLUMN, which is why it is
+# absent from FIELDS: `columns` below is the header of the six columns of
+# table T-109 this roster carries (the seventh column, SWITCH_HEADING, is not
+# carried). It is DERIVED, by `fill_arms_shape`, and it exists because the arm
 # column names a KIND of arm rather than an entrance -- AR-2 stands against
 # four rows and AR-3 against eight, so a join on the column alone marks four
 # entrances (or eight) as armed where FR-053 (MUST) asks for the armed
@@ -122,7 +143,9 @@ BANNER = (
     'of the icons, FR-029). Rebuild: npm run gen -- npm run gen:check fails on '
     'drift. The generator is %s. An icon is carried by its row id alone: table '
     '%s deliberately has no English column and no shape column, and the shapes '
-    'are figure F-019. The `columns` map names the SIX columns of that table; '
+    'are figure F-019. The `columns` map names SIX of the seven columns of '
+    'that table; the settings-row column is not carried here, because '
+    'tools/generate_entity_types.py prints it into src/. '
     '`%s` is a seventh field and no column of it -- it is derived from table '
     '%s of %s and from %s, and it exists because the arm column names a KIND '
     'of arm that stands against several entries at once.'
@@ -343,11 +366,9 @@ def build():
     lines = read_lines(GLOSSARY)
     surfaces = settled_surfaces(lines)
     table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
-    rows = [row.cells for row in table]
-    if len(table.headings) != len(FIELDS):
-        sys.exit('generate_icon_roster: table %s now has %d column(s) and this '
-                 'script names %d'
-                 % (ICON_TABLE, len(table.headings), len(FIELDS)))
+    switch = switch_column(table)
+    rows = [without(row.cells, switch) for row in table]
+    headings = without(table.headings, switch)
     # the caption line is 1-based; the list below it is 0-based
     wanted = stated_row_count(lines, table.caption_line - 1)
     if len(rows) != wanted:
@@ -360,11 +381,113 @@ def build():
         sys.exit('generate_icon_roster: table %s uses %d row id(s) for %d row(s)'
                  % (ICON_TABLE, len(seen), len(icons)))
     fill_arms_shape(icons, read_lines(REQUIREMENTS))
+    # The roster does not carry the settings-row column, but it is the table's
+    # one reader, so a broken cell stops this run as well as the printer's.
+    entry_switches()
     return {
         '$comment': BANNER,
-        'columns': dict(zip(FIELDS, table.headings)),
+        'columns': dict(zip(FIELDS, headings)),
         'icons': icons,
     }
+
+
+def switch_column(table):
+    """Where the settings-row column stands; refuse any other header shape."""
+    # @purity pure
+    headings = list(table.headings)
+    if (len(headings) != len(FIELDS) + 1
+            or headings.count(SWITCH_HEADING) != 1
+            or headings.index(SWITCH_HEADING) != SWITCH_AFTER + 1):
+        sys.exit('generate_icon_roster: table %s must have %d columns, the '
+                 'settings-row column right after column %d; it has %d '
+                 'column(s)' % (ICON_TABLE, len(FIELDS) + 1, SWITCH_AFTER + 1,
+                                len(headings)))
+    return headings.index(SWITCH_HEADING)
+
+
+def without(cells, index):
+    """A row or a header with one column taken out."""
+    # @purity pure
+    return list(cells[:index]) + list(cells[index + 1:])
+
+
+def settings_rows():
+    """Every row of _source/settings.json by id, with the table it stands in."""
+    # @purity semi-pure-b
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    found = {}
+    for block in doc['blocks']:
+        for row in block.get('rows') or []:
+            found[row['id']] = (block.get('id'), row)
+    return found
+
+
+def entry_switches():
+    """The settings row each entry of FR-049 and FR-048 rewrites (CR-589).
+
+    Returns [(entry row id, settings key, value or None)] in table order. The
+    key is the spelling a T-202 row gives in settings.json for a FR-049 entry,
+    and the guide cursor row's id for a FR-048 entry, whose value is the one
+    the entry writes. Refuses, naming the row and writing nothing, when the
+    column holds anything else, names a row that is not there or is not of
+    the right kind, leaves a FR-049 / FR-048 entry blank, or lets two entries
+    rewrite the same row (or write the same value) -- FR-029 (MUST NOT) keeps
+    one entrance per function.
+    """
+    # @purity semi-pure-b
+    table = spec_tables.read(REL_GLOSSARY, ICON_TABLE)
+    switch = switch_column(table)
+    rows = settings_rows()
+    out = []
+    seen = {}
+    for row in table:
+        cells = row.cells
+        entry, authority, cell = cells[0], cells[4], cells[switch]
+        flips = authority.startswith('`%s`' % FLIP_REQUIREMENT)
+        chooses = authority.startswith('`%s`' % CHOOSE_REQUIREMENT)
+        if cell == EM_DASH:
+            if flips or chooses:
+                sys.exit('generate_icon_roster: %s is an entry of %s and leaves '
+                         'the settings-row column of table %s blank'
+                         % (entry, FLIP_REQUIREMENT if flips
+                            else CHOOSE_REQUIREMENT, ICON_TABLE))
+            continue
+        plain, valued = SWITCH_PLAIN.match(cell), SWITCH_VALUE.match(cell)
+        if not plain and not valued:
+            sys.exit('generate_icon_roster: %s writes a settings-row cell that '
+                     'is neither an em dash, `S-n`, nor `S-n` with a quoted '
+                     'value' % entry)
+        target = (plain or valued).group(1)
+        if target not in rows:
+            sys.exit('generate_icon_roster: %s names %s, which settings.json '
+                     'does not hold' % (entry, target))
+        table_id, settings_row = rows[target]
+        if plain:
+            spelled = settings_row.get('type')
+            if isinstance(spelled, dict):
+                spelled = spelled.get('ja')
+            if not flips or table_id != BOOLEAN_TABLE or spelled != u'真偽':
+                sys.exit('generate_icon_roster: %s names %s, but a plain cell '
+                         'must name a boolean row of table %s from an entry '
+                         'of %s' % (entry, target, BOOLEAN_TABLE,
+                                    FLIP_REQUIREMENT))
+            key = (settings_row.get('key') or '').strip('`')
+            value = None
+            twin_key = target
+        else:
+            if not chooses or target != GUIDE_CURSOR_ROW:
+                sys.exit('generate_icon_roster: %s names %s with a value, but '
+                         'only an entry of %s may, and only for %s'
+                         % (entry, target, CHOOSE_REQUIREMENT, GUIDE_CURSOR_ROW))
+            key, value = target, valued.group(2)
+            twin_key = (target, value)
+        if twin_key in seen:
+            sys.exit('generate_icon_roster: %s and %s rewrite the same setting '
+                     '(%s); FR-029 keeps one entrance per function'
+                     % (seen[twin_key], entry, target))
+        seen[twin_key] = entry
+        out.append((entry, key, value))
+    return out
 
 
 def main():

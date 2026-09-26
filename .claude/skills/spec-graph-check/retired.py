@@ -282,4 +282,14 @@ RETIRED = {'FR-050', 'T-030',
            'T-254', 'KO-1', 'KO-2', 'KO-3', 'KO-4', 'KO-5', 'KO-6', 'KO-7',
            'N-15', 'CM-33', 'CM-34', 'CM-75',
            'S-211',
+           # CR-562 (2026-09-24, rulings JDG-505 .. JDG-507): IC-19 (the
+           # header entrance that showed and copied the open document for an
+           # AI) left table T-109 when the user chose to hand a schedule to an
+           # AI as the saved .json file; the header's AI group became IC-115,
+           # IC-20 and IC-18. RS-35 (the dialogue field cannot be shown while
+           # the Agent API is off) left table T-233 when pressing IC-18 while
+           # the Agent API is off began to turn it on, which leaves the reason
+           # no scene. CR-562, CR-563 and the ledgers name both, so the seats
+           # stay burnt.
+           'IC-19', 'RS-35',
            'T-006'}

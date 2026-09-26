@@ -154,7 +154,7 @@ graph RL
 > `FR-028` が「受理したか否かを値で返すこと」を、`AG-9a` が拒否の値の中身を、それぞれ MUST で定めているためである。  
 > 状態変更とその結果通知を分けると、2 回の呼び出しの間に別の書き込みが入り、`AG-3` の原子性が保てない。
 
-> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 19 のメンバを 1 つの面に載せ、用途別に分けない。  
+> **`R2.5`（ISP・SHOULD）** —— `Agent API` は 20 のメンバを 1 つの面に載せ、用途別に分けない。  
 > **`FR-028` が入口を 1 つと定めているためである。**  
 > 呼ぶ側が複数の面を持つと「人間向け UI と同格」が崩れる。  
 > 同条項が禁じているのは「使わないメソッドを実装させられること」であり、実装は 1 つなのでその害は生じない。
@@ -244,7 +244,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **37。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **166。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **167。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -330,7 +330,7 @@ src/
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
 | UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— 行の木と表示の位置をまたいで書くので、どの集約のファイルにも置かない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
-| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>設置は `FR-065`（既定で公開しない）が、19 メンバは 表 T-107 が縛るので、変更の理由が別である |
+| UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` | **純粋性ではない** —— 表 T-075 のとおり どちらも同じである。<br>設置は `FR-065`（既定で公開しない）が、20 メンバは 表 T-107 が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
 | UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `row-band-ceiling-cache.ts` ／ `copy-and-paste.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、行ズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、写しと貼り付けは `FR-033` が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 11 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない。<br>検索パネルは、中身（`search-panel.ts`）と、列の絞り込みと並べ替え（`search-table-filters.ts`）の 2 つに割った —— 絞り込みの規則（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）が変わっても、パネルの中身の組み立ては変わらない |
@@ -339,7 +339,7 @@ src/
 | UT-10 | `InputCommandTranslator` | `input-command-translator.ts` と、入力の種類と答える表ごとの 13 ファイル | **純粋性ではない** —— 表 T-075 のとおり 14 とも同じである。<br>**入力の種類ごとに、答える表が別なので割った**（表 T-276 の `UD-1`）—— 打鍵の割当（表 T-036）が変わってもホイールの割当（表 T-023 の `MK-1` 〜 `MK-5`）は変わらず、プロパティパネルの入力の型（表 T-016）が変わっても行の掴み（表 T-051 の `HF-15`）は変わらない。<br>14 とも `pure` であることは、割らない理由にならない（`UD-3`）。<br>兄弟が共有する語彙と補助、入口の振り分け（表 T-023a・表 T-109）は公開エントリに置いた |
 | UT-11 | `AdvanceScreenSession` | `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts` ／ `notice-values.ts` ／ `gesture-values.ts` ／ `file-flow-values.ts` ／ `field-entry-values.ts` ／ `selection-values.ts` ／ `interaction-record-values.ts` ／ `agent-api-values.ts`） | **変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の出来事と状態機械の表を負う（画面の値は 表 T-280、通知は 表 T-286、身振りは 表 T-289、ファイル操作と問いは 表 T-290、名前付けと入力欄は 表 T-292、選択は 表 T-293、操作の記録は 表 T-295、`Agent API` は 表 T-296）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない |
 | UT-12 | `DomScreenSurface` | `dom-screen-surface.ts` と、描く UI パーツごとの 10 ファイルと、欄の編集の 1 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである（表 T-060 の `LY-5` は `Framework` に `semi-pure-b` と `non-pure` しか与えない）。<br>**UI パーツごとに縛る要求が別なので割った**（表 T-276 の `UD-1`、`UT-7` と同じ形である）—— 通知の作法（表 T-037）が変わってもプロパティパネルの入力の型（表 T-016）は変わらない。<br>欄の編集は UI パーツではなく、表 T-028 の `IN-4`・`IN-5a`・`IN-6` が縛るので別のユニットにした。<br>兄弟が共有する語彙（色・入口の寸法と見た目・UI パーツの名）と層の重ね方は公開エントリに置いた |
-| UT-13 | `Schedule` | `schedule.ts` ／ `schedule-entities.ts` ／ `plan-actual-state.ts` ／ `calendar-day.ts` ／ `working-calendar.ts` ／ `task-delay.ts` ／ `stored-colour.ts` ／ `schedule-invariants.ts` ／ `row-names.ts` ／ `schedule-search.ts` | **純粋性ではない** —— 表 T-075 のとおり 10 とも `pure` である（`UD-3`）。<br>**変更の理由が別なので割った**（表 T-276 の `UD-1`）—— エンティティの型と列と既定の暦は `erd.json` と 表 T-209 が変わったときに `npm run gen` が書き直し、予実の状態の判別は 表 T-019a が、暦の日付の算術は 表 T-033 の `EX-` の行と 表 T-029a の `DC-` の行が、稼働日の数えは `FR-054` と 表 T-214 が、遅れの判別は 表 T-021b が、色の保存の綴りは 表 T-017b が、文書の不変条件は 表 T-220 が、行の名前の導きは `AT-53`・`AT-54` の規則が、検索の当たりは `FR-151` の 表 T-330 の `SV-4` と 表 T-331 が変わったときに人が書き直す。<br>生成の区画を公開エントリではなく兄弟に置いたのは、`working-calendar.ts` がモジュールの頂上で既定の暦を読むからである —— 区画が公開エントリにあると、兄弟が公開エントリから取り込み、公開エントリが兄弟を出し直す輪ができ、読み込みの順によっては読む時に定数がまだ無い。<br>`taskByUid` と、兄弟の名の出し直しは公開エントリに置いた |
+| UT-13 | `Schedule` | `schedule.ts` ／ `schedule-entities.ts` ／ `plan-actual-state.ts` ／ `calendar-day.ts` ／ `working-calendar.ts` ／ `task-delay.ts` ／ `stored-colour.ts` ／ `schedule-invariants.ts` ／ `row-names.ts` ／ `schedule-search.ts` ／ `delay-diagnostics.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも `pure` である（`UD-3`）。<br>**変更の理由が別なので割った**（表 T-276 の `UD-1`）—— エンティティの型と列と既定の暦は `erd.json` と 表 T-209 が変わったときに `npm run gen` が書き直し、予実の状態の判別は 表 T-019a が、暦の日付の算術は 表 T-033 の `EX-` の行と 表 T-029a の `DC-` の行が、稼働日の数えは `FR-054` と 表 T-214 が、遅れの判別は 表 T-021b が、色の保存の綴りは 表 T-017b が、文書の不変条件は 表 T-220 が、行の名前の導きは `AT-53`・`AT-54` の規則が、検索の当たりは `FR-151` の 表 T-330 の `SV-4` と 表 T-331 が、遅延診断の判じ方は 表 T-310 〜 T-319 が変わったときに人が書き直す。<br>生成の区画を公開エントリではなく兄弟に置いたのは、`working-calendar.ts` がモジュールの頂上で既定の暦を読むからである —— 区画が公開エントリにあると、兄弟が公開エントリから取り込み、公開エントリが兄弟を出し直す輪ができ、読み込みの順によっては読む時に定数がまだ無い。<br>`taskByUid` と、兄弟の名の出し直しは公開エントリに置いた |
 | UT-14 | `ScheduleLayout` | `schedule-layout.ts` ／ `time-axis.ts` ／ `label-width.ts` ／ `assignee-label.ts` ／ `percent-label.ts` ／ `name-label.ts` ／ `shape-cross-sections.ts` ／ `drawn-rows.ts` ／ `group-level-of-detail.ts` ／ `label-placement.ts` ／ `pinned-band.ts` ／ `row-scroll.ts` ／ `fit-zoom.ts` | **純粋性ではない** —— 表 T-075 のとおり 13 とも `pure` である（`UD-3`）。<br>**段ごとに正が別なので割った**（表 T-276 の `UD-1`）—— 表 T-068 の `LC-1` 〜 `LC-9` は `layoutFromSchedule` の 1 回の通り道で、時間軸は `FR-017` と 表 T-252 が、ラベル幅の概算は `FR-093` が、担当の札は `FR-059` が、完了率の札は `FR-090` と `OC-2` が、名称ラベルの字は `FR-002` と `ND-1` 〜 `ND-5` が、形の縦の断面は 表 T-271 と `FR-077` が、描く行の選びは `LC-1` と `HR-2` が、描く行の深さは `FR-018` と 表 T-005a の `L-3` が、札の置き場は `FR-109` と 表 T-272・表 T-273 が、ピン止めの帯は `FR-098` と `LF-14` が、縦の表示位置からのずらしは `OP-10a` が、全体を収める表示は `FR-055` が変わったときに書き直す。<br>行のループ —— 段の割当（`FR-003`・表 T-014）・占有幅の合算（`LC-7`）・帯高（`LC-9`）—— は公開エントリに置き、兄弟へ出したのはループが呼ぶ関数だけである。<br>兄弟が共有する語彙（形の種類・置き場の型・生成の定数）と、兄弟の名の出し直しは公開エントリに置いた |
 | UT-15 | `ScheduleGeometry` | `schedule-geometry.ts` ／ `task-figures.ts` ／ `highlight-box.ts` ／ `dependency-route.ts` ／ `plan-actual-guides.ts` ／ `progress-line.ts` ／ `comment-box.ts` ／ `dual-cursor.ts` | **純粋性ではない** —— 表 T-075 のとおり 8 つとも `pure` である（`UD-3`）。<br>**描くものごとに正が別なので割った**（表 T-276 の `UD-1`）—— タスクの図は `FR-043` と 表 T-012・表 T-021・表 T-240 が、ハイライトボックスの箱は `FR-019` と `CM-52` が、依存線の経路と矢じりは `FR-009` と 表 T-222 が、予実の補助線は `FR-084` と 表 T-020a が、イナズマ線は `FR-014` と 表 T-022 が、コメントボックスは `FR-097` と `S-182` が、`Dual Cursor` は `FR-082` と `CU-2` が変わったときに書き直す。<br>ハイライトボックスはタスクの図と共に変わってきたが、共に変えた変更はどれも多くのファイルに一斉に触れた手直しだったので、名が体を表すように別のユニットにした —— 割ったあと、どちらかに触れる次の 2 件の変更のうち 1 件でも `task-figures.ts` と `highlight-box.ts` の両方に触れたら、1 つに戻す。<br>頂点を 1 度に組み立てる通り道（`LC-10`・`LC-11`）と、兄弟が共有する語彙（頂点の型・1 回の入力 `GeometryInputs`・`point`）と、兄弟の名の出し直しは公開エントリに置いた |
 | UT-16 | `ItemHitArea` | `item-hit-area.ts` ／ `dependency-end.ts` ／ `marquee.ts` ／ `drawn-selection.ts` | **純粋性ではない** —— 表 T-075 のとおり 4 つとも `pure` である（`UD-3`）。<br>**答える問いごとに正が別なので割った**（表 T-276 の `UD-1`）—— ポインタの下の対象と掴み代は `FR-104` と 表 T-023d・表 T-266・表 T-267・表 T-268 が、依存線の端は `FR-009` と `PTD-3` が、範囲選択で囲まれた対象は `SL-3` が、描いているタスクへの選択の絞り込みは `FR-049` と 表 T-023c が変わったときに書き直す。<br>描いた形を掴みの側から読み直す通り道（`shapeOf`）と、兄弟が共有する語彙（対象と当たりの型・図形の算）と、兄弟の名の出し直しは公開エントリに置いた |
@@ -390,6 +390,7 @@ src/
 | UF-131 | `Schedule` | `schedule-invariants.ts` | `pure` | 文書の不変条件を表 T-220 の行ごとに判じ、違反の箇所を返す | — |
 | UF-177 | `Schedule` | `row-names.ts` | `pure` | 行の名前を `AT-53` と `AT-54` から導き、最上位までの名前の並びを返す | — |
 | UF-178 | `Schedule` | `schedule-search.ts` | `pure` | 語に当たるタスクとコメントボックスの行を、表 T-331 の列の値とともに返す（表 T-330 の `SV-4`） | — |
+| UF-184 | `Schedule` | `delay-diagnostics.ts` | `pure` | 遅延診断のレポート（表 T-317）を、進捗妥当性検査（表 T-310 〜 T-312）・ボトルネック検出（表 T-313 ・ 表 T-314 ・ 表 T-316）・明記されていない親（表 T-318）・マイルストーンの先行と達成（表 T-319）から作る | `FR-131`（`OW-1`）・`FR-132`（`OW-1`）・`FR-134`（`OW-2`）・`FR-135`（`OW-1`）・`FR-136`（`OW-1`） |
 | UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
 | UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
 | UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
@@ -449,7 +450,7 @@ src/
 | UF-25 | `NotifyChangeWatchers` | `change-notice.ts` | `pure` | まだ受け取っていない変更と発話を選ぶ | — |
 | UF-26 | `PostDialogueMessage` | `post-dialogue-message.ts` | `non-pure` | `CP-16` | — |
 | UF-27 | `AgentApiEndpoint` | `agent-api-endpoint.ts` | `non-pure` | 設置と公開点の管理 | `FR-064`（`OW-3`）・`FR-065`（`OW-2`） |
-| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 19 メンバの結線 | `FR-028`（`OW-2`） |
+| UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 20 メンバの結線 | `FR-028`（`OW-2`） |
 | UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
 | UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り —— 入力の種類と押した所から、答える兄弟を選ぶ（表 T-023a・表 T-109）。<br>兄弟が共有する語彙と補助 —— 出力の型、日と行の座標、スクロールの錨 —— を持つ。<br>行の軸の上限の字と帯を、写さずに `PI-5`・`PI-37` へ問う | `FR-016`（`OW-3`）・`FR-040`（`OW-4`）・`FR-070`（`OW-3`） |
 | UF-90 | `InputCommandTranslator` | `shortcut-keys.ts` | `pure` | 打鍵を、表 T-036 の割当に従って操作へ変える | — |
@@ -488,7 +489,7 @@ src/
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り | — |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） | — |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 | `NFR-011`（`OW-2`） |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、行ズームの天井の使い回しは `row-band-ceiling-cache.ts` に、写しと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、行ズームの天井の使い回しは `row-band-ceiling-cache.ts` に、写しと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
 | UF-157 | `SingleHtmlShell` | `pointer-shape.ts` | `non-pure` | 指している掴み代に応じて、表 T-269 のポインタの形を描いて返す（`IN-2`・`FR-106`） —— 形の選び方は 表 T-266 の欄から読み、押している間は押した点の形を保ち、依存線を構えているあいだは形を出さない | — |
 | UF-158 | `SingleHtmlShell` | `held-press-preview.ts` | `semi-pure-b` | 掴んで動かす間、離したときの結果を先に描く文書と依存線を作る（表 T-023d・`PTD-3`・`PTD-5`・`FR-009`） —— 先に描く掴みの行を持ち、範囲選択の矩形を求め、保持中の文書から 1 度だけ当てる。<br>拒まれた引きは描かない | — |
 | UF-159 | `SingleHtmlShell` | `browser-stored-values.ts` | `non-pure` | ブラウザに残す値（表 T-206 の `S-99`〜`S-99c`）を読み書きする —— 起動時の画面の言語と `Agent API` の記憶を読む（`FR-038`・`FR-065`）。<br>鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない | — |
@@ -517,7 +518,7 @@ src/
 | UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
-| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` / `FR-068` | `FR-036`（`OW-2`）・`FR-068`（`OW-2`）・`FR-074`（`OW-2`）・`FR-099`（`OW-2`） |
+| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` | `FR-036`（`OW-2`）・`FR-074`（`OW-2`）・`FR-099`（`OW-2`） |
 | UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 通知と確認（`FR-076`。<br>作法は 表 T-037） | `FR-076`（`OW-2`） |
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。<br>順序は 表 T-035 の `AG-11`） | `FR-066`（`OW-2`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
@@ -553,8 +554,8 @@ src/
 
 **「負う要求」の欄の結び。**
 
-`01-04-requirements.md` が持つ要求は 121 件である（`FR` が 108 件、`NFR` が 13 件）。  
-そのうち 99 件は、上の欄が起点のユニットを名指している。
+`01-04-requirements.md` が持つ要求は 131 件である（`FR` が 118 件、`NFR` が 13 件）。  
+そのうち 105 件は、上の欄が起点のユニットを名指している。
 
 ⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。
@@ -567,11 +568,11 @@ src/
 - `FR-030`（色だけで伝えない）—— `tests/usecase/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
 - `FR-069`（ライセンス全文を成果物の中に持つ）—— 検査 27 が走らせる `tools/generate_licence.py --check`。
 
-⚠️ **起点をまだ書いていない要求が 17 件ある。**  
+⚠️ **起点をまだ書いていない要求が 21 件ある。**  
 ⛔ これは「持ち主が無い」ではなく「まだ決めていない」である。  
 理由は 3 つに分かれる。
 
-- **仕様が起点のユニットを決めていない（12 件）** —— `FR-027` ・ `FR-032` ・ `FR-034` ・ `FR-044` ・ `FR-048` ・ `FR-051` ・ `FR-091` ・ `FR-095` ・ `FR-097` ・ `FR-105` ・ `FR-106` ・ `FR-110`。
+- **仕様が起点のユニットを決めていない（16 件）** —— `FR-027` ・ `FR-032` ・ `FR-034` ・ `FR-044` ・ `FR-048` ・ `FR-051` ・ `FR-091` ・ `FR-095` ・ `FR-097` ・ `FR-105` ・ `FR-106` ・ `FR-110` ・ `FR-130` ・ `FR-133` ・ `FR-150` ・ `FR-152`。
   ⚠️ どの行も起点を名指していないか、表 T-062 の `CP-n` と 表 T-075 の `UF-n` が別のファイルを指している。
   ⛔ どちらが正かは、本節では決めない。
 - **1 つのユニットの性質ではなく、木の全体の性質であり、確かめる手立てもまだ無い（4 件）** —— `NFR-005` ・ `NFR-006` ・ `NFR-008` ・ `NFR-012`。
@@ -1210,7 +1211,7 @@ flowchart TB
 | --- | --- | --- |
 | NF-1 | Chapter 5.3（ファイル構成）の図 | **ディレクトリ木はコードブロックで足りる。<br>** 図にすると生成物が 1 つ増え、原稿と食い違う余地が生まれる |
 | NF-2 | Chapter 5.5 の相互作用のシーケンス図 | **表 T-067 と 表 T-077 が順序を持つ。<br>** どちらも順ごとに担い手を書いているので、**図にしても表以上の情報が出ない** |
-| NF-3 | `Agent API` の 19 メンバの図 | **表 T-107 が全数を持つ。<br>** 図に書き写すと 2 か所で管理することになる（表 T-064 の `PI-17` が MUST NOT で禁じている） |
+| NF-3 | `Agent API` の 20 メンバの図 | **表 T-107 が全数を持つ。<br>** 図に書き写すと 2 か所で管理することになる（表 T-064 の `PI-17` が MUST NOT で禁じている） |
 | NF-4 | 図の席番号 F-008 と F-009 | ⚠️ **欠番のままとする。<br>** 使われないまま残った席番号であり、**別のものに割り当て直してはならない（MUST NOT）** —— F-002 〜 F-007 の封印と同じ扱いである |
 
 **意図して払う代償の全数を 表 T-073 に示す。**
@@ -1646,6 +1647,13 @@ flowchart TB
 ⚠️ **本原稿は `GRS JSON` のスキーマを起こさない** —— 上の「起こす原稿は 2 つ」はスキーマの原稿の数であり、本原稿はそこに数えない。  
 ⛔ **語を仕様書の表へ刷ってはならない（MUST NOT）** —— 空の欄が並ぶだけで、規則を 1 つも述べない表になる。  
 **語が届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
+
+⭐ 日程の画像をデータ化するプロンプト（`01-04-requirements.md` の `FR-068`）の原稿は、`_source/image-to-grs-json-prompt.ja.md` と `_source/image-to-grs-json-prompt.en.md` の 2 つとする（MUST） —— 言語ごとに 1 つであり、言語を足す作業は原稿を 1 つ足す記入で済む。  
+⛔ 原稿に `GRS JSON` のスキーマと土台の文書を写してはならない（MUST NOT） —— どちらも生成器が原稿の後ろへ連ねる（`FR-068`）。  
+写せば、スキーマの原稿（上の「起こす原稿は 2 つ」）と初期テンプレート（`FR-027`）から離れる。  
+⚠️ 原稿は 1 行目で、唯一の正であることと、起こす生成物と、作り直し方を名乗る。  
+その 1 行はプロンプトに入れない。  
+**プロンプトが届く先は `src/` の生成物 1 本とし（MUST）**、その素性は下の道標の規則に従う。
 
 日程データの群の原稿は、生成に要る型と、値の範囲と、空を許すかどうかを、機械が読める形で持つこと（MUST） ⚠️ **どの鍵をどう足すかは原稿の作りであり、本節は定めない**。
 
