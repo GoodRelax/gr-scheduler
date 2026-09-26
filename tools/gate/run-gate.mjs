@@ -4,6 +4,12 @@
 //   node tools/gate/run-gate.mjs GT-1   commit:  precheck, typecheck, gen:check, vitest, check.sh
 //   node tools/gate/run-gate.mjs GT-2   push:    precheck --unpushed, GT-1, vite build,
 //                                                use-case tests (file://) and e2e, parity
+//   GRS_PERF=1 node tools/gate/run-gate.mjs PERF   performance: vite build, the two clock-reading
+//                                                files of tests/nfr with GRS_PERF=1 (JDG-605)
+//
+// Every gate holds the machine-wide lock of tools/gate/gate-queue.mjs while it runs, so two
+// sessions never run two gates at once; a second gate waits in line (rule 04 section 6.8). PERF
+// runs only when it is named AND GRS_PERF=1 is set by the caller -- GT-1 and GT-2 never measure.
 //
 // The gate stops on the first step that fails, on a red that no line of tests/known-red.txt names,
 // and on a line whose case came out green (unless the line says flaky). It runs in the root checkout
@@ -16,6 +22,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { acquire } from './gate-queue.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const KNOWN_RED = 'tests/known-red.txt'
@@ -23,6 +30,10 @@ const MSPDI_XSD_LIST = 'tests/fixtures/mspdi-xsd.json'
 const PLAYWRIGHT_PLACES = ['tests/usecase/', 'tests/system/', 'tests/nfr/']
 const RED_STATES = new Set(['failed', 'timedOut', 'interrupted'])
 const NEVER_PASSED_ON = ['GRS_PERF', 'GRS_UC_SHOW_MISMATCH']
+const PERFORMANCE_FILES = [
+  'tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts',
+  'tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts',
+]
 
 const posix = (path) => path.split('\\').join('/')
 
@@ -191,9 +202,12 @@ function readReport(path, label) {
 }
 
 function main(gate) {
-  if (gate !== 'GT-1' && gate !== 'GT-2') {
-    console.log('usage: node tools/gate/run-gate.mjs GT-1|GT-2')
+  if (gate !== 'GT-1' && gate !== 'GT-2' && gate !== 'PERF') {
+    console.log('usage: node tools/gate/run-gate.mjs GT-1|GT-2|PERF')
     process.exit(2)
+  }
+  if (gate === 'PERF' && process.env.GRS_PERF !== '1') {
+    stop('PERF measures only on explicit request: set GRS_PERF=1 for this command (JDG-605)')
   }
   const { schemas } = JSON.parse(readFileSync(join(ROOT, MSPDI_XSD_LIST), 'utf8'))
   const missing = schemas.filter((path) => !existsSync(join(ROOT, path)))
@@ -207,8 +221,19 @@ function main(gate) {
   const inPlaywright = listed.lines.filter((line) => PLAYWRIGHT_PLACES.some((place) => line.file.startsWith(place)))
 
   const env = childEnvironment()
+  const release = acquire(`gate ${gate}`)
   const scratch = mkdtempSync(join(tmpdir(), 'grs-gate-'))
   try {
+    if (gate === 'PERF') {
+      mustPass('vite build', 'npm run build', env)
+      const status = run('performance (GRS_PERF=1)', process.execPath, [
+        findInNodeModules(join('@playwright', 'test', 'cli.js')), 'test', '--reporter=list', ...PERFORMANCE_FILES,
+      ], env, { extraEnv: { GRS_PERF: '1' } })
+      if (status !== 0) stop(`performance exited ${status}`)
+      console.log(`
+✅ gate PERF passed`)
+      return
+    }
     if (gate === 'GT-2') mustPass('precheck of the unpushed commits', 'python tools/precheck.py --unpushed', env)
     mustPass('precheck', 'npm run precheck', env)
     mustPass('typecheck', 'npm run typecheck', env)
@@ -238,6 +263,7 @@ function main(gate) {
     console.log(`\n✅ gate GT-2 passed`)
   } finally {
     rmSync(scratch, { recursive: true, force: true })
+    release()
   }
 }
 
