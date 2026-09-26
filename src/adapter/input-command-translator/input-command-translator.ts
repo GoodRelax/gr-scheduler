@@ -159,9 +159,9 @@ export interface InputContext {
   readonly isPictureAtStoredZoom?: boolean
   readonly rowControlsHeightPx?: number
   // see FR-016
-  // TRAP: the caller's remembered rowBandCeilingOf(context, upTo) at drawnZoomX, asked again
+  // TRAP: the caller's remembered rowBandCeilingOf(context, upTo, enough) at drawnZoomX, asked again
   // once upTo grows past what it holds; absent, every notch walks T-253 again (DFC-610).
-  readonly rowBandCeiling?: (drawnZoomX: number, upTo: number) => number
+  readonly rowBandCeiling?: (drawnZoomX: number, upTo: number, enough?: number) => number
   // TRAP: on a down this must already be that press; left null, every drawn entry reads unassigned.
   readonly pressed: PointerPress | null
   readonly isTextEntryUnsettled: boolean

@@ -417,8 +417,8 @@ function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
 }
 
 // see FR-051, EP-5
-// WHY: drawn only on the ground the row bands paint: never in a scrollbar band, nor in the
-// canvasPadding under the rows, where no band runs.
+// WHY: drawn only on the ground the row bands paint (no scrollbar band, no canvasPadding under rows).
+// TRAP: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
 /** @purity pure */
 function groundClipped(input: GridInput, layers: readonly string[]): readonly string[] {
   const inner = layers.join('')
@@ -428,7 +428,10 @@ function groundClipped(input: GridInput, layers: readonly string[]): readonly st
     `x="${rounded(area.x)}" y="${rounded(area.y)}"` +
     ` width="${rounded(bandWidthOf(input))}" height="${rounded(area.height)}"`
   const id = `grs-ground-clip-${pictureId(box)}`
-  return [`<clipPath id="${id}"><rect ${box}/></clipPath>`, `<g clip-path="url(#${id})">${inner}</g>`]
+  return [
+    `<clipPath id="${id}"><rect ${box}/></clipPath>`,
+    ...layers.map((layer) => `<g clip-path="url(#${id})">${layer}</g>`),
+  ]
 }
 
 // see FR-080, T-020, T-076
