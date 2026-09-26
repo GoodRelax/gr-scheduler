@@ -94,8 +94,8 @@ export type BarGeometry =
       readonly dots: readonly SpanDot[]
     }
 
-// see RV-5, T-021
-export type ProgressSymbol = 'PM-1' | 'PM-1a' | 'PM-2' | 'PM-3' | 'PM-4'
+// see RV-5, T-021, T-315
+export type ProgressSymbol = 'PM-1' | 'PM-1a' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
 
 export interface MarkerGeometry {
   readonly symbol: ProgressSymbol
@@ -260,6 +260,10 @@ export interface GeometryInputs {
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
   readonly dummyFromByStart: Map<string, CalendarDay | null>
   readonly dummyEndByFrom: Map<string, CalendarDay>
+  readonly delayDiagnostics?: {
+    readonly shown: boolean
+    readonly symbolByUid: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>
+  }
 }
 
 interface EndReading {
@@ -457,6 +461,7 @@ export function geometryFromLayout(
   regions: ScreenRegions,
   selection: Selection,
   dualCursor: DualCursorDates | null,
+  delayDiagnostics?: GeometryInputs['delayDiagnostics'],
 ): ScheduleGeometry {
   // see FR-039, T-252
   const settings = drawnSettingsOf(storedSettings)
@@ -468,12 +473,11 @@ export function geometryFromLayout(
     statusDate: dayOf(schedule.project.statusDate),
     showPlan: settings.planVisible,
     showActual: settings.actualVisible,
-    selectedTaskUids: new Set(
-      selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : [])),
-    ),
+    selectedTaskUids: new Set(selection.items.flatMap((one) => (one.kind === 'task' ? [one.uid] : []))),
     selectedLinks: selectedLinksOf(schedule, selection),
     dummyFromByStart: new Map<string, CalendarDay | null>(),
     dummyEndByFrom: new Map<string, CalendarDay>(),
+    ...(delayDiagnostics === undefined ? {} : { delayDiagnostics }),
   }
 
   const tasks: TaskGeometry[] = []

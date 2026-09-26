@@ -528,6 +528,14 @@ function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressS
   }
 }
 
+// see FR-133, T-315
+/** @purity pure */
+function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): ProgressSymbol | undefined {
+  const diagnostics = inputs.delayDiagnostics
+  if (diagnostics === undefined || !diagnostics.shown) return undefined
+  return diagnostics.symbolByUid.get(taskUid)
+}
+
 // see RF-1, RF-3
 /** @purity pure */
 function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelReference {
@@ -579,7 +587,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
   if (markerLeft === null) return null
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
   return {
-    symbol: progressSymbolOf(task, inputs.statusDate),
+    symbol: diagnosedSymbolOf(inputs, task.uid) ?? progressSymbolOf(task, inputs.statusDate),
     centre: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
   }

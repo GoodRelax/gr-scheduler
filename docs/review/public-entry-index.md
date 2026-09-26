@@ -220,7 +220,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PathSegment` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#PathSegment` | -- | type PathSegment = \| { readonly command: 'M' \| 'L'; readonly to: Point } \| { readonly command: 'Q'; readonly control: Point; readonly to: Point } \| |
 | `Point` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Point` | -- | interface Point |
 | `point` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#point` | -- | function point(x: number, y: number): Point |
-| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' |
+| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
 | `ResumeGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ResumeGeometry` | -- | interface ResumeGeometry |
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |

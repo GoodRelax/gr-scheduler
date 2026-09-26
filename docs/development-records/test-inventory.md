@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 108 | 1313 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 110 | 1346 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 139 | 3159 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 296 | 4746 | 12 | 18 | 9 | 1 |
+| **all** | | | 298 | 4779 | 12 | 18 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 118 | 103 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-130, FR-131, FR-132, FR-133, FR-134, FR-135, FR-136, FR-150, FR-151, FR-152 |
+| FR | 118 | 104 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-130, FR-131, FR-132, FR-134, FR-135, FR-136, FR-150, FR-151, FR-152 |
 | NFR | 13 | 8 | NFR-005, NFR-006, NFR-008, NFR-009, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
@@ -245,6 +245,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-557-a-pressed-hue-swatch-is-one-undoable-step.test.ts` | 9 | FR-031, FR-041 | - | T-027, T-103, T-108, T-216, T-305 | CM-5, S-3, S-4, S-73, U-25, UN-13 | - | - | - | - |
 | `tests/contract/cr-557-the-theme-hue-field-heads-the-settings-panel.test.ts` | 15 | FR-041, FR-072 | - | T-103, T-104, T-206, T-216, T-236, T-305 | K-60, S-2, S-4, S-73, S-74, S-151, S-368, U-25 | - | - | - | - |
 | `tests/contract/cr-557-the-theme-hue-roster-is-table-t-305.test.ts` | 7 | FR-041 | - | T-216, T-305 | S-1, S-73, TH-1 | - | - | - | - |
+| `tests/contract/cr-561-the-delay-diagnostics-marks.contract.test.ts` | 21 | FR-013, FR-133 | - | T-021, T-315 | DG-1, DG-2, DG-3, DG-4, PM-1a, PM-4, S-24, S-326, S-328, S-330, S-331, S-341, S-388, S-391, S-392, S-393, S-394, S-395, S-396 | - | - | - | - |
 | `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | - | - | - | - | - |
 | `tests/contract/cr-576-zero-fade-ends-are-flat.contract.test.ts` | 8 | FR-016 | - | T-012a | FD-1, FD-2, FD-4, FD-5, FD-6a, FD-6b, LF-6, S-5, S-43, S-44 | - | - | - | - |
 | `tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts` | 17 | FR-003, FR-016, FR-018, FR-055, FR-094 | - | T-036, T-262, T-329 | IC-10, IC-15, MK-2, MK-4, OP-10, S-4, S-5, S-6, S-53, S-54, S-172, S-173, ZE-1, ZE-3, ZE-5, ZE-6 | - | - | - | - |
@@ -253,6 +254,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
 | `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |
 | `tests/contract/cr-588-no-pre-change-plan-asks-for-the-file.contract.test.ts` | 23 | FR-015 | - | T-024a, T-027, T-109, T-202 | IC-4, OP-2, OP-3, OP-4, OP-13, OP-15, QN-5, RD-3, S-5, S-6, S-69, U-56, UN-7, UN-18 | - | - | - | - |
+| `tests/contract/cr-588-the-baseline-route-keeps-the-save-target.contract.test.ts` | 12 | FR-060 | - | T-024a, T-109 | IC-4, OP-2, OP-9, OP-15 | - | - | - | - |
 | `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 28 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339 | BL-1, BL-2, BL-3, BL-4, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
 | `tests/contract/cr-592-monochrome-greys-every-t-236-row.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-147, S-159, S-162, S-163, S-169, S-183, S-311 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
