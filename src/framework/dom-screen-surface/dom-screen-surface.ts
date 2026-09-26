@@ -459,7 +459,6 @@ export const ROW_GRAB_STRIP_MARK = 'data-row-grab'
 
 export const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis'
 
-// see T-337
 export const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz'
 
 // see T-337
@@ -697,8 +696,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const dialogueMessages = made(host, 'div', STYLE.dialogueMessages)
   const dialogueEntry = host.createElement('input')
   const appHeader = part(host, 'div', ROLE.appHeader, appHeaderStyle())
-  // see T-337
-  // WHY: every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
+  // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
   const modalLayer = made(host, 'div', STYLE.layer)
   const helpLayer = made(host, 'div', STYLE.layer)
   const noticeLayer = part(host, 'div', ROLE.notices, STYLE.layer)
@@ -909,9 +907,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       const modal = view.openModal
       const anchors = anchorsOf('openModal')
       const drawnModal = modal === null ? null : modalElement(host, modal, anchors)
-      // see T-337
-      // WHY: JDG-666 routes Help to its own layer by surface name; open-modals-drawing.ts still
-      // draws the one element either way.
+      // WHY: (T-337, JDG-666) Help goes to its own layer by surface name; the drawing is one element.
       const isHelp = modal !== null && modal.surface === HELP_MODAL_SURFACE
       const scrolledBefore = modalLayer.querySelector(ROSTER_SCROLLER)
       modalLayer.replaceChildren(...(drawnModal !== null && !isHelp ? [drawnModal.element] : []))

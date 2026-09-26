@@ -28,7 +28,7 @@ import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
-import { hasRoomBelowPinsIn } from '../screen-renderer/screen-renderer'
+import { hasRoomBelowPinsIn } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { AgentSnapshot, SnapshotSource } from './snapshot-source'
 
 type DocumentStamp = Document['documentStamp']

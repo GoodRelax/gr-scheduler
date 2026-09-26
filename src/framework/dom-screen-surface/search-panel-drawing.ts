@@ -3,16 +3,8 @@
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type {
-  SearchColumnView,
-  SearchPanelView,
-  SearchRowView,
-} from '../../adapter/screen-renderer/screen-renderer'
+import type { SearchPanelView } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import {
-  SEARCH_PANEL_TEXT_SIZE_ROWS,
-  type SearchPanelTextSizeRow,
-} from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   PAINT,
   anchoredEntry,
@@ -21,6 +13,10 @@ import {
   made,
   part,
 } from './dom-screen-surface'
+
+type SearchColumnView = SearchPanelView['columns'][number]
+
+type SearchRowView = SearchPanelView['rows'][number]
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
 
@@ -74,14 +70,12 @@ export function searchPanelBoxOf(
 }
 
 // see SV-16, T-333
+// TRAP: a step is a key's place in sizes; sizes not written in table T-333's order pick the wrong size.
 /** @purity pure */
-export function searchPanelFontPxOf(
-  textSizeStep: number,
-  sizes: { readonly [R in SearchPanelTextSizeRow]: number },
-): number {
-  const row = SEARCH_PANEL_TEXT_SIZE_ROWS[textSizeStep]
-  if (row === undefined) throw new RangeError(`table T-333 holds no step ${textSizeStep}`)
-  return sizes[row]
+export function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number {
+  const fontPx = Object.values(sizes)[textSizeStep]
+  if (fontPx === undefined) throw new RangeError(`table T-333 holds no step ${textSizeStep}`)
+  return fontPx
 }
 
 // see SV-1

@@ -7,20 +7,15 @@ import {
   dayOf,
   searchRowsOf,
   type CommentBoxSearchRow,
-  type PlanActualState,
   type Schedule,
   type TaskSearchRow,
 } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type { ScheduleLayout } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   SEARCH_PANEL_TEXT_SIZE_ROWS,
   type ScreenSession,
-  type SearchColumn,
   type SearchPanelSession,
-  type SearchTable,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import type { SearchJumpTarget } from '../../use-case/edit-document/edit-document'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
@@ -40,6 +35,12 @@ const DATE_SEPARATOR = '/'
 const LINE_BREAKS = /\r\n|\r|\n/g
 const LINE_BREAK_SPACE = ' '
 
+type SearchTable = SearchPanelSession['table']
+
+type SearchColumn = (typeof displayWords.searchColumns)[number]['rowId']
+
+type PlanActualState = TaskSearchRow['planActualState']
+
 const TASK_COLUMNS: readonly SearchColumn[] = ['SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-5', 'SQ-6']
 const COMMENT_BOX_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9']
 
@@ -50,19 +51,20 @@ const LAST_FIXED_COLUMN: { readonly [T in SearchTable]: SearchColumn } = {
 }
 
 // see T-019a
-const STATE_ROW: { readonly [S in PlanActualState]: string } = {
-  notStarted: 'PS-1',
-  finished: 'PS-2',
-  suspendedResumeUnknown: 'PS-3',
-  suspendedResumePlanned: 'PS-4',
-  inProgress: 'PS-5',
-}
+// TRAP: the PS rows top down, which is the order of their words; a state out of that order shows another's words.
+const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
+  'notStarted',
+  'finished',
+  'suspendedResumeUnknown',
+  'suspendedResumePlanned',
+  'inProgress',
+]
 
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry]))
-const STATE_WORDS = new Map(displayWords.planActualStates.map((entry) => [entry.rowId, entry]))
+const STATE_WORDS = new Map(displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]))
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry]))
-const SURFACE_WORDS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry]))
+const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARCH_PANEL)?.heading
 
 export type SearchPanelShown = 'normal' | 'minimised' | 'maximised'
 
@@ -72,9 +74,12 @@ export interface SearchColumnView {
   readonly isFixed: boolean
 }
 
+// see SJ-1
 export interface SearchRowView {
   readonly cells: readonly string[]
-  readonly target: SearchJumpTarget
+  readonly target:
+    | { readonly kind: 'task'; readonly taskUid: TaskSearchRow['taskUid'] }
+    | { readonly kind: 'commentBox'; readonly commentBoxId: CommentBoxSearchRow['commentBoxId'] }
 }
 
 export interface SearchPanelView {
@@ -133,7 +138,7 @@ function taskCells(row: TaskSearchRow, language: DisplayLanguage): readonly stri
     row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     dateText(row.plannedStart),
     dateText(row.plannedFinish),
-    wordOf(STATE_WORDS.get(STATE_ROW[row.planActualState])?.text, language),
+    wordOf(STATE_WORDS.get(row.planActualState)?.text, language),
     row.rowPath.join(ROW_PATH_SEPARATOR),
   ]
 }
@@ -184,7 +189,7 @@ export function searchPanelFromSession(
   const language = displayLanguageOf(session)
   const shown = display.child.kind
   return {
-    heading: wordOf(SURFACE_WORDS.get(SEARCH_PANEL)?.heading, language),
+    heading: wordOf(PANEL_HEADING, language),
     shown,
     canvas,
     at: panel.at,
@@ -206,13 +211,4 @@ export function searchPanelFromSession(
 /** @purity pure */
 export function nextSearchPanelTextSizeStep(step: number): number {
   return (step + 1) % SEARCH_PANEL_TEXT_SIZE_ROWS.length
-}
-
-// see SJ-8
-// WHY: a row the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
-/** @purity pure */
-export function hasRoomBelowPinsIn(layout: ScheduleLayout, rowArea: ScreenRect, groupId: string | null): boolean {
-  const room = rowArea.height - (layout.pinnedBandHeight ?? 0)
-  const drawn = groupId === null ? undefined : layout.rows.find((row) => row.groupId === groupId)
-  return drawn === undefined ? room > 0 : room >= drawn.height
 }

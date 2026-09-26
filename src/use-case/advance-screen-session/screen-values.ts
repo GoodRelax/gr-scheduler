@@ -42,7 +42,7 @@ interface DualCursorDates {
 export type SearchTable = 'tasks' | 'commentBoxes'
 
 // see T-331
-export type SearchColumn = 'SQ-1' | 'SQ-2' | 'SQ-3' | 'SQ-4' | 'SQ-5' | 'SQ-6' | 'SQ-7' | 'SQ-8' | 'SQ-9'
+export type SearchColumn = string
 
 export interface SearchColumnFilter {
   readonly column: SearchColumn

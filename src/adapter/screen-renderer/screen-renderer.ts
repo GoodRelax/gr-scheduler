@@ -31,8 +31,8 @@ export const DEFAULT_ROW_NAME: string =
 import { openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { rowTitlePanelFromSchedule, rowTitleFontPxOf } from './row-title-panel'
-export { hasRoomBelowPinsIn, nextSearchPanelTextSizeStep, searchPanelFromSession } from './search-panel'
-export type { SearchColumnView, SearchPanelShown, SearchPanelView, SearchRowView } from './search-panel'
+export { nextSearchPanelTextSizeStep, searchPanelFromSession } from './search-panel'
+export type { SearchPanelShown, SearchPanelView } from './search-panel'
 
 export { rowTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
