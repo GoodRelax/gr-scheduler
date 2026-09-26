@@ -1,6 +1,7 @@
-39
+40
 # Check 65 -- exported functions of src/ with no omission row of table UO and no unit test,
 # plus @external-contract functions with neither a unit nor a contract test. Line 1 is the count.
 # Seeded by check-unit-test-or-omission.py --write-baseline from its own first run (CR-573 section 5),
 # UO-4 NOT MEASURED (no coverage file).
+# RAISED 39 -> 40 on 2026-09-27 under JDG-778 (lane-l3, CR-582 MH-4): rewritePanelReadouts (properties-panel-drawing.ts) is reached by tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts through the DOM surface; JDG-635 bars a new tests/unit file.
 # The coordinator lowers it (JDG-520); raising it is the user's call.

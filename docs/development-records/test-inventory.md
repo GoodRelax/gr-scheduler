@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 104 | 1223 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 106 | 1251 | 3 | 4 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 3 | 0 | 0 |
 | `unit` | TS-6 | - | 135 | 3009 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 288 | 4506 | 12 | 18 | 9 | 1 |
+| **all** | | | 290 | 4534 | 12 | 19 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -243,6 +243,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-557-the-theme-hue-roster-is-table-t-305.test.ts` | 7 | FR-041 | - | T-216, T-305 | S-1, S-73, TH-1 | - | - | - | - |
 | `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | - | - | - | - | - |
 | `tests/contract/cr-577-a-row-zoom-in-below-the-floor-always-changes-the-picture.test.ts` | 17 | FR-003, FR-016, FR-018, FR-055, FR-094 | - | T-036, T-262, T-329 | IC-10, IC-15, MK-2, MK-4, OP-10, S-4, S-5, S-6, S-53, S-54, S-172, S-173, ZE-1, ZE-3, ZE-5, ZE-6 | - | - | - | - |
+| `tests/contract/cr-582-the-drawn-floor-of-a-row-follows-the-zoom.test.ts` | 10 | FR-016, FR-039, FR-042 | - | T-252 | DS-13, LF-2, LF-3, MH-3, S-53, S-76, S-234, S-236 | - | - | - | - |
+| `tests/contract/cr-582-the-min-height-field-reads-the-current-height.test.ts` | 18 | FR-042 | - | T-016, T-036, T-103, T-236, T-338 | IC-10, MH-1, MH-2, MH-3, MH-4, MH-5, MH-6, MK-4, MK-13, PR-20, S-87, S-149, S-440, S-441, U-25 | - | DFC-1260 | - | - |
 | `tests/contract/cr-584-the-picture-is-painted-on-the-ground-colour.test.ts` | 8 | FR-017, FR-093 | - | T-076, T-201, T-204, T-205, T-206, T-236, T-238 | DS-1, EP-1, IX-10, S-8, S-30, S-33, S-73, S-81, S-83, S-84, S-135, S-146, S-225, S-235, TM-1, TM-2, TM-3 | - | - | - | - |
 | `tests/contract/cr-585-hue-swatches-stay-in-colour.test.ts` | 2 | FR-041 | - | T-103, T-216, T-236, T-305 | S-74, U-25 | - | - | - | - |
 | `tests/contract/cr-585-monochrome-greys-the-chrome-and-ground.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294 | S-146, S-162, S-169, S-231, S-311 | - | - | - | - |

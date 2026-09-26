@@ -1014,6 +1014,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `displayRatioOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayRatioOf` | PI-35 | 表示の倍率から描く比を出す。 |
+| `displayScaleFractionOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayScaleFractionOf` | -- | function displayScaleFractionOf(settings: DocumentSettings): number |
 | `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値と `SETTINGS_CONSTANTS` を合わせた 1 つの見方（`PI-2` の `DrawnSettings`）を作り、描く比を 1 度だけ掛けて返す。 |
 | `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインタがどの領域にあるか |
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
@@ -1189,7 +1190,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillPropertiesPanel` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#fillPropertiesPanel` | -- | function fillPropertiesPanel( host: Document, panel: HTMLElement, description: PropertiesPanel, anchors: Map<string, HTMLElement>, typedByRow: Map<string, Te... |
 | `growWrappingFields` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#growWrappingFields` | -- | function growWrappingFields(panel: HTMLElement): void |
 | `markPropertiesPanel` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#markPropertiesPanel` | -- | function markPropertiesPanel(panel: HTMLElement, description: PropertiesPanel): void |
+| `propertiesPanelKeyOf` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelKeyOf` | -- | function propertiesPanelKeyOf(description: PropertiesPanel \| null): string |
 | `propertiesPanelStyle` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelStyle` | -- | function propertiesPanelStyle(): string |
+| `rewritePanelReadouts` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#rewritePanelReadouts` | -- | function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void |
 | `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
 | `DELETE_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#DELETE_ROW_ENTRY` | -- | const DELETE_ROW_ENTRY = 'IC-82' |
 | `fillRowTitleTree` | file only | function | `src/framework/dom-screen-surface/row-title-panel-drawing.ts#fillRowTitleTree` | -- | function fillRowTitleTree( host: Document, tree: HTMLElement, panel: RowTitlePanel, anchors: Map<string, HTMLElement>, ): void |
@@ -1354,4 +1357,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 661 name(s) leave through a public entry (202 of them published by table T-064), 493 more are exported by a file and not by its entry.
+Totals: 662 name(s) leave through a public entry (202 of them published by table T-064), 495 more are exported by a file and not by its entry.
