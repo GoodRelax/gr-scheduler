@@ -8,3 +8,18 @@
 # touched anything -- measured 2026-08-23. Nothing in this repository is a
 # script that needs CRLF to run.
 * text=auto eol=lf
+
+# Merge drivers (tools/merge_driver.py; `python tools/merge_driver.py install`
+# writes them into git config, and tools/merge_branch.py runs that on every
+# merge). A path whose driver is not installed falls back to the ordinary text
+# merge, so a fresh clone costs a conflict, never a wrong file.
+#   grs-generated  rebuilt after the merge; keep a clean merge or ours
+#   grs-ledger     generated blocks keep ours; hunks that only APPEND rows with
+#                  disjoint ids are joined; anything else stays a conflict
+#   union          one measurement per line, appended by the SessionStart hook
+docs/spec/_assets/tbl-row-id-prefixes.md merge=grs-generated
+docs/development-records/defects.md merge=grs-ledger
+docs/development-records/fixed-defects.md merge=grs-ledger
+docs/development-records/rulings.md merge=grs-ledger
+docs/development-records/pending-decisions.md merge=grs-ledger
+docs/development-records/measurements/stats.jsonl merge=union

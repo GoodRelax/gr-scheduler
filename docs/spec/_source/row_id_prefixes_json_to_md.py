@@ -601,7 +601,28 @@ def problems(doc, rosters, suppressed):
     return found
 
 
+def refused_arguments(argv):
+    """None when the arguments may run; else the exit code, after printing why.
+
+    `--help` used to fall through to the default branch and REWRITE the
+    document. Help and any unknown argument now return before anything is read.
+    """
+    if '-h' in argv or '--help' in argv:
+        encoding = sys.stdout.encoding or 'utf-8'
+        sys.stdout.write(__doc__.encode(encoding, 'replace').decode(encoding))
+        return 0
+    unknown = [one for one in argv if one != '--check']
+    if unknown:
+        say('unknown argument(s): %s -- nothing was written. Known: --check, '
+            '--help' % ' '.join(unknown))
+        return 2
+    return None
+
+
 def main():
+    refused = refused_arguments(sys.argv[1:])
+    if refused is not None:
+        return refused
     doc = json.load(io.open(SRC, encoding='utf-8'))
     rosters = walk_all()
     suppressed = dict((item['prefix'], item)
