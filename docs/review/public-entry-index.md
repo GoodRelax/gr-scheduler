@@ -198,6 +198,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
+| `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、行の帯の中央）。 |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
 | `DependencyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DependencyGeometry` | PI-6 | 型。 |
 | `DualCursorGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DualCursorGeometry` | -- | interface DualCursorGeometry |
@@ -1353,4 +1354,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 660 name(s) leave through a public entry (200 of them published by table T-064), 493 more are exported by a file and not by its entry.
+Totals: 661 name(s) leave through a public entry (201 of them published by table T-064), 493 more are exported by a file and not by its entry.

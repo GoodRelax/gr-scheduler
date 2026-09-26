@@ -5,10 +5,12 @@
 
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
-import type {
-  HighlightGeometry,
-  Point,
-  ScheduleGeometry,
+import {
+  leaderOf,
+  type CommentGeometry,
+  type HighlightGeometry,
+  type Point,
+  type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
@@ -181,6 +183,54 @@ function highlightBoxSvg(
   return { fill: highlightFillSvg(box, chosen, rounding), frame, selection }
 }
 
+// see FR-019 (T-017b CV-6), LF-17, AT-148..AT-152
+// WHY: one colour and one width for the frame and the leader, which read as one line from the note to its point;
+// transparency is laid on the fill alone.
+/** @purity pure */
+function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationColour: string): readonly string[] {
+  const { chosen, themed, settings } = input
+  const stroke = chosen(box.strokeColor, 'outline') ?? annotationColour
+  const fill = chosen(box.fillColor, 'fill') ?? themed('S-146')
+  const ink = chosen(box.textColor, 'outline') ?? themed('S-147')
+  const width = rounded(box.strokeWidthPx)
+  const [from, to] = leaderOf(box) ?? []
+  const parts: string[] = []
+  if (from !== undefined && to !== undefined) {
+    parts.push(
+      `<line x1="${rounded(from.x)}" y1="${rounded(from.y)}" x2="${rounded(to.x)}" y2="${rounded(to.y)}"` +
+        ` stroke="${stroke}" stroke-width="${width}"${figureKey(`comment-${box.id}-leader`)}/>`,
+    )
+  }
+  parts.push(
+    `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
+      ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
+      ` fill="${fill}" fill-opacity="${rounded(box.fillOpacity)}" stroke="${stroke}" stroke-width="${width}"` +
+      `${figureKey(`comment-${box.id}`)}/>`,
+  )
+  for (const [index, line] of box.lines.entries()) {
+    parts.push(
+      `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
+        ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
+        ` font-size="${rounded(box.fontSize)}"${typefaceAttribute()} fill="${ink}"` +
+        ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
+        `${escaped(line)}</text>`,
+    )
+  }
+  return parts
+}
+
+// see FR-016 (T-023d closing), S-376, S-146, S-151, S-174
+// WHY: a fixed screen size, never scaled: the reach it shows (S-292) is in screen px too.
+/** @purity pure */
+function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): string {
+  const side = NOT_STORED_SELECTION_SIZES['S-376']
+  return (
+    `<rect x="${rounded(box.anchor.x - side / 2)}" y="${rounded(box.anchor.y - side / 2)}"` +
+    ` width="${rounded(side)}" height="${rounded(side)}" fill="${ground}" stroke="${edge}"` +
+    ` stroke-width="${rounded(NOT_STORED_SELECTION_SIZES['S-174'])}"${figureKey(`comment-${box.id}-handle`)}/>`
+  )
+}
+
 // see CU-2, DC-2, DC-8
 /** @purity pure */
 function dualCursorLines(input: OverlaysInput): readonly string[] {
@@ -285,30 +335,11 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   }
 
   for (const box of geometry.commentBoxes) {
-    annotationParts.push(
-      `<line x1="${rounded(box.anchor.x)}" y1="${rounded(box.anchor.y)}"` +
-        ` x2="${rounded(box.body.x)}" y2="${rounded(box.body.y + box.body.height)}"` +
-        ` stroke="${annotationColour}" stroke-width="1"` +
-        `${figureKey(`comment-${box.id}-leader`)}/>`,
-    )
-    annotationParts.push(
-      `<rect x="${rounded(box.body.x)}" y="${rounded(box.body.y)}"` +
-        ` width="${rounded(box.body.width)}" height="${rounded(box.body.height)}"` +
-        ` fill="${themed('S-146')}" stroke="${annotationColour}" stroke-width="1"` +
-        `${figureKey(`comment-${box.id}`)}/>`,
-    )
-    for (const [index, line] of box.lines.entries()) {
-      annotationParts.push(
-        `<text x="${rounded(box.body.x + settings.commentBoxPad)}"` +
-          ` y="${rounded(box.body.y + settings.commentBoxPad + (index + 1) * box.fontSize)}"` +
-          ` font-size="${rounded(box.fontSize)}"${typefaceAttribute()} fill="${themed('S-147')}"` +
-          ` xml:space="preserve"${figureKey(`comment-${box.id}-line-${index}`)}>` +
-          `${escaped(line)}</text>`,
-      )
-    }
+    annotationParts.push(...commentBoxSvg(box, input, annotationColour))
     if (selectedComments.has(box.id)) {
       selectionParts.push(
         selectionFrameSvg(box.body, themed('S-151'), `comment-${box.id}-frame`),
+        commentHandleSvg(box, themed('S-146'), themed('S-151')),
       )
     }
   }

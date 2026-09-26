@@ -308,6 +308,8 @@ function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRo
 export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
   if (armed || hit === null) return null
   if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
+  // see FR-106: the anchor handle moves both ways; the comment box body and leader keep no shape
+  if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : null
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }
 

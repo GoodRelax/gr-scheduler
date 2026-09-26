@@ -18,7 +18,10 @@ import {
   type ItemRef,
 } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type { BarGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  commentAnchorPointOf,
+  type BarGeometry,
+} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   pastedUidsOf,
@@ -98,29 +101,14 @@ export function commandFromGrab(
     return CONSUMED_ELSEWHERE
   }
 
-  // see GR-14, CM-50
-  if (item.kind === 'commentBox' && hit.grab === 'GR-14' && hit.boxPart?.kind === 'anchor') {
-    return commentBoxAnchorWrite(context, release, item.id)
-  }
-
   // see GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
     return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
   }
 
-  // see GR-14, CM-51
+  // see GR-14, CM-50, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    const box = boxById(context.document.schedule.commentBoxes, item.id)
-    if (box === undefined) return CONSUMED_ELSEWHERE
-    const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    return changed([
-      {
-        kind: 'setCommentBoxBodyOffsetPx',
-        id: item.id,
-        dx: stood.dx + (release.x - press.at.x),
-        dy: stood.dy + (release.y - press.at.y),
-      },
-    ])
+    return commentBoxMoveWrite(context, press, release, item.id, hit.boxPart?.kind === 'anchor')
   }
 
   if (item.kind !== 'task') return CONSUMED_ELSEWHERE
@@ -550,18 +538,35 @@ function highlightBoxRangeWrite(
   ])
 }
 
-// see GR-14, CM-50, FR-019, RS-44
-// WHY: a released anchor is placed again, and FR-019 refuses a place with no row by RS-44.
+// see GR-14 (T-023d closing), CM-50, CM-51, FR-019, RS-44
+// WHY: one bundle of both writes, so one undo takes back both (FR-031): the body drag moves the box by the pull and
+// reads the anchor at its old point moved as far; the anchor drag reads the anchor where it is let go and keeps
+// the box where it stood on the screen. The box stands off its anchor, so CM-50 alone would carry it along.
 /** @purity pure */
-function commentBoxAnchorWrite(
+function commentBoxMoveWrite(
   context: InputContext,
+  press: PointerPress,
   release: PointerInput,
   id: string,
+  isAnchor: boolean,
 ): TranslatedInput {
-  if (boxById(context.document.schedule.commentBoxes, id) === undefined) return CONSUMED_ELSEWHERE
-  const anchor = commentAnchorAt(context.layout, release.x, release.y)
+  const drawn = context.geometry.commentBoxes.find((one) => one.id === id)
+  if (drawn === undefined || boxById(context.document.schedule.commentBoxes, id) === undefined) {
+    return CONSUMED_ELSEWHERE
+  }
+  const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
+  const aim = isAnchor ? release : { x: drawn.anchor.x + pull.dx, y: drawn.anchor.y + pull.dy }
+  const anchor = commentAnchorAt(context.layout, aim.x, aim.y)
   if (!('groupId' in anchor)) return anchor
-  return changed([{ kind: 'setCommentBoxAnchor', id, anchor }])
+  const day = dayOf(anchor.date)
+  const at = day === null ? null : commentAnchorPointOf(context.layout, day, anchor.groupId)
+  if (at === null) return nothingToDo('noRowToPutTheAnnotationOn')
+  const left = drawn.body.x + pull.dx
+  const bottom = drawn.body.y + drawn.body.height + pull.dy
+  return changed([
+    { kind: 'setCommentBoxAnchor', id, anchor },
+    { kind: 'setCommentBoxBodyOffsetPx', id, dx: left - at.x, dy: bottom - at.y },
+  ])
 }
 
 // see FR-016 (T-023d closing), FD-5, JDG-659
