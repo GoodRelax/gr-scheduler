@@ -131,7 +131,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FitToScreen` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#FitToScreen` | -- | interface FitToScreen |
 | `fitZoom` | entry | function | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#fitZoom` | PI-5 | `FR-055` |
 | `groupDepthLimit` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthLimit` | PI-5 | いまの詳しさの段が描く最も深い段。 |
-| `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | （その段を描くのに要る倍率。 |
+| `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | その段を描くのに要る倍率。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせる行。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
@@ -149,7 +149,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NotStoredZoom` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#NotStoredZoom` | -- | interface NotStoredZoom |
 | `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へ札を並べ始める位置。 |
 | `RowPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RowPlacement` | -- | interface RowPlacement |
-| `rowPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#rowPlacesAtZoomY` | PI-5 | （その倍率での行の位置。 |
+| `rowPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#rowPlacesAtZoomY` | PI-5 | その倍率での行の位置。 |
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' |
 | `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | -- | function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
@@ -494,7 +494,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentWriteRequest` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteRequest` | -- | interface AgentWriteRequest |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
 | `installAgentApi` | entry | function | `src/adapter/agent-api-endpoint/agent-api-endpoint.ts#installAgentApi` | PI-17 | `non-pure`。 |
-| `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065）。 |
+| `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065 |
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
 
@@ -1147,7 +1147,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ROW_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROW_GRAB_STRIP_MARK` | -- | const ROW_GRAB_STRIP_MARK = 'data-row-grab' |
 | `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
 | `ScreenSurfaceWiring` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenSurfaceWiring` | -- | interface ScreenSurfaceWiring |
-| `ScreenTheme` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenTheme` | PI-38 | （型） —— ⭐ **地を塗るのはシェルである** —— 本コンポーネントの根は日程の上に重なって敷かれており、そこに地を塗ると日程が隠れる。 |
+| `ScreenTheme` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenTheme` | PI-38 | 型 |
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthRow: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |

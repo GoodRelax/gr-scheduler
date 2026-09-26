@@ -17,7 +17,7 @@
  "additionalProperties": false,
  "$defs": {
   "prose": {
-   "description": "Printed prose, one string per language (check 23).",
+   "description": "Printed prose, one string per language (check 23). Used by the caption.",
    "type": "object",
    "required": [
     "ja"
@@ -34,15 +34,34 @@
     }
    }
   },
-  "sepAfter": {
-   "description": "The joint printed between this piece and the next. Omitted means the full-width slash followed by one space; spaced adds a space before it, bare prints the slash alone.",
-   "enum": [
-    "spaced",
-    "bare"
-   ]
+  "lines": {
+   "description": "Printed lines, one list per language (check 23). One string is one printed line; the generator puts the line breaks in.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "en": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
   },
   "member": {
-   "description": "A name the component's public entry exports. The note is printed right after the back-quoted name.",
+   "description": "A name the component's public entry exports. `note` is printed inside one pair of full-width parentheses right after the name; `after` (why it was published) follows the closing parenthesis on a line of its own.",
    "type": "object",
    "required": [
     "name"
@@ -54,10 +73,10 @@
      "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$"
     },
     "note": {
-     "$ref": "#/$defs/prose"
+     "$ref": "#/$defs/lines"
     },
-    "sepAfter": {
-     "$ref": "#/$defs/sepAfter"
+    "after": {
+     "$ref": "#/$defs/lines"
     }
    }
   },
@@ -70,10 +89,7 @@
    "additionalProperties": false,
    "properties": {
     "text": {
-     "$ref": "#/$defs/prose"
-    },
-    "sepAfter": {
-     "$ref": "#/$defs/sepAfter"
+     "$ref": "#/$defs/lines"
     }
    }
   }
