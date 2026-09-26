@@ -283,7 +283,7 @@ const T_051 = specTable('T-051')
  * ⭐ WHAT THE MANUSCRIPT ITSELF SAYS, and therefore what is matched:
  *   `HF-10` 「**行見出しパネルの最上部の右寄せに**、すべての行を開く操作子を 1 つ
  *           置くこと（MUST）」 -- the only row that names the place outright.
- *   `HF-12` 「**`HF-10` の操作子の隣に**、すべての行を畳む操作子を 1 つ置くこと
+ *   `HF-12` 「**`HF-10` の操作子の並びに**、すべての行を畳む操作子を 1 つ置くこと
  *           （MUST）」
  *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ開く操作子を
  *           1 つ置くこと（MUST）」
@@ -464,9 +464,16 @@ const T_051_HF4_THE_WHOLE_RUN =
 /** 表 T-051 `HF-4` — which of the pair stands on top, ruled the same day. */
 const T_051_HF4_DELETE_ABOVE_ADD = '消すを上、足すを下に置くこと（MUST）'
 
-/** 表 T-051 `HF-10` — the run at the panel's head, ruled the same day. */
+/** 表 T-051 `HF-10` — the run at the panel's head, all five on one line (CR-587). */
 const T_051_HF10_THE_HEAD_RUN =
-  '頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの順とすること（MUST）'
+  '頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順に、1 行に並べること（MUST）'
+
+/** 表 T-051 `HF-10` — why the head is one line and not two tiers. */
+const T_051_HF10_NOT_TWO_TIERS =
+  '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
+
+/** 表 T-051 `HF-20` — where the head's delete stands in that run. */
+const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 
 /** 表 T-051 `HF-15` — the four MUSTs of that row that reach a drawing unit. */
 const T_051_HF15_THE_AXIS_MARK =
@@ -4714,8 +4721,8 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
 //           (see HF-4), with ⛔ 「**足すと消すのあいだに他の
 //           操作子を挟んではならない（MUST NOT）**」 and 「**ピン止めの操作子
 //           （表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）**」
-//   `HF-10` ⭐⭐ 「**頭の並びは、左から 1 階層開く・すべて畳む・すべて開く・足すの
-//           順とすること（MUST）**」
+//   `HF-10` ⭐⭐ 「頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・
+//           すべて消すの順に、1 行に並べること（MUST）」 (CR-587, 2026-09-26)
 //
 // ⛔ WHAT IS READ, AND WHY IT IS NOT THE CHILD ORDER. Nothing in docs/spec fixes
 // how a row is built, and a control placed out of flow sits where its own inset
@@ -4792,18 +4799,19 @@ const HF1_LEFT_TO_RIGHT = T_051_HF1_LATTICE.map((one) => entranceForRule(one.rul
  */
 const HF4_LEFT_TO_RIGHT = [...HF1_LEFT_TO_RIGHT, 'IC-82', entranceForRule('HF-14'), 'IC-60']
 
-/** `HF-10`'s head run, left to right: 1 階層開く・すべて畳む・すべて開く・足す. */
-const HF10_LEFT_TO_RIGHT = [
-  entranceForRule('HF-16'),
-  entranceForRule('HF-12'),
-  entranceForRule('HF-10'),
-  entranceForRule('HF-17'),
-]
-
 // see HF-20
 const HF20_HEAD_DELETE = T_109.rows.find(
   (one) => namesHeadRule(one) && /(^|[^0-9A-Za-z-])HF-20([^0-9-]|$)/.test(one.by['何の入口か'] ?? ''),
 )?.id
+
+/** `HF-10`'s head run, left to right: すべて畳む・1 階層開く・すべて開く・足す・すべて消す. */
+const HF10_LEFT_TO_RIGHT = [
+  entranceForRule('HF-12'),
+  entranceForRule('HF-16'),
+  entranceForRule('HF-10'),
+  entranceForRule('HF-17'),
+  HF20_HEAD_DELETE ?? '(table T-109 names no head entrance for HF-20)',
+]
 
 /** Every node on the page carrying one of these rows of 表 T-109. */
 const nodesFor = (built: Stage, rows: readonly string[]): FakeElement[] =>
@@ -5271,15 +5279,19 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
     // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて開く」, which that row says
     // itself: 「**本行の「すべて開く」を並びのいちばん外へ置いてはならない
-    // （MUST NOT）** —— **頭も行も、折り畳みの外に立つのは行を増やす入口である**」.
+    // （MUST NOT）** —— **頭も行も、折り畳みの外に立つのは行を足す入口と消す入口である。**」.
     expect(hf10).toContain('本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）')
 
+    expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
+    const hf20 = (specTable('T-051').rows.find((one) => one.id === 'HF-20')?.cells ?? []).join(' ')
+    expect(hf20, 'HF-20 places its entrance last in HF-10’s run').toContain(T_051_HF20_LAST_IN_THE_RUN)
+
     expect(HF20_HEAD_DELETE, 'table T-109 gives HF-20 an entrance at the head').toBeDefined()
-    expect([...HF10_LEFT_TO_RIGHT, HF20_HEAD_DELETE].sort()).toEqual(
+    expect([...HF10_LEFT_TO_RIGHT].sort()).toEqual(
       [...T_109_AT_THE_HEAD.map((one) => one.row)].sort(),
     )
     // ⭐ AND NOT ONE OF THEM IS ALSO A ROW CONTROL.
-    for (const row of [...HF10_LEFT_TO_RIGHT, HF20_HEAD_DELETE]) {
+    for (const row of HF10_LEFT_TO_RIGHT) {
       expect(
         T_109_ON_THE_ROW.map((one) => one.row),
         `${row} is on a row as well`,
@@ -5287,10 +5299,23 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     }
   })
 
-  it('⭐ GIVEN the panel is drawn WHEN the head’s controls are read from the left THEN they stand in HF-10’s order (MUST: 1 階層開く・すべて畳む・すべて開く・足す)', () => {
+  it('⭐ GIVEN the panel is drawn WHEN the head’s controls are read from the left THEN they stand in HF-10’s order (MUST: すべて畳む・1 階層開く・すべて開く・足す・すべて消す)', () => {
     const built = drawn(oneLiveRow())
 
-    expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT))).toEqual(HF10_LEFT_TO_RIGHT)
+    expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT)), T_051_HF10_THE_HEAD_RUN).toEqual(HF10_LEFT_TO_RIGHT)
+  })
+
+  it('⭐ GIVEN the panel is drawn WHEN the head’s five controls are read THEN they share one top, with no second tier (HF-10: 1 行に並べること)', () => {
+    for (const view of [oneLiveRow(), viewWith({ rowTitlePanel: { pinnedTitles: [], titles: [] } })]) {
+      const head = nodesFor(drawn(view), HF10_LEFT_TO_RIGHT)
+      expect(head.map(iconOf).sort(), `premise: ${T_051_HF10_THE_HEAD_RUN}`).toEqual([...HF10_LEFT_TO_RIGHT].sort())
+      expect(new Set(head.map((one) => one.parentNode)).size, `premise, one box holds the run: ${T_051_HF10_THE_HEAD_RUN}`).toBe(1)
+      const tops = head.map((one) => `${iconOf(one)} top:${styleMap(one).get('top') ?? '(none)'} bottom:${styleMap(one).get('bottom') ?? '(none)'}`)
+      expect(
+        new Set(tops.map((one) => one.slice(one.indexOf(' ') + 1))).size,
+        `${T_051_HF10_THE_HEAD_RUN} / ${T_051_HF10_NOT_TWO_TIERS} -- ${tops.join(', ')}`,
+      ).toBe(1)
+    }
   })
 
   it('⭐ GIVEN a panel of TWO rows WHEN the head’s controls are counted THEN each is drawn ONCE for the whole panel, not once per row (HF-10 / HF-12 / HF-16 / HF-17 / HF-20: 1 つ置くこと)', () => {

@@ -29,3 +29,4 @@ DFC-1021 | tests/usecase/uc-014-merge-schedules-into-one.test.ts | UC-014 | - | 
 DFC-1024 | tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts | FR-016 | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
 DFC-1024 | tests/unit/uf-47-48-history-bytes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
+DFC-1300 | tests/system/user-reported-fixes.test.ts | DFC-160: the entrances at the head of the row title panel stand apart, in order | - | - | PANEL_HEAD_ORDER still holds the head order from before CR-587 (HF-10); deferred under JDG-778
