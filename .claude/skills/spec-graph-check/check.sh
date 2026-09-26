@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 59 mechanical checks for the gr-scheduler specification.
+# All 63 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 42.
+# The ranges today are 1 + 4 + 8 + 4 + 46. (Recounted 2026-09-26 when
+# checks 64-66 went in: the single-number headings were 43, not 42, before
+# them -- check 63 had gone in without a recount.)
 # ⚠️ `26b` is written with ONE space after the number, so a recount that
 # splits the heading on two spaces reads it as no number at all and lands one
 # short. Counted by hand it is one check like any other.
@@ -132,7 +134,9 @@
 #          `（MUST NOT）` marker in the nine manuscript files (the same set
 #          check 37 reads), and holds a clause verbatim-tied only if a trailing
 #          slice of its own text (>=28 characters, ending at the marker) is
-#          quoted somewhere under tests/, WITH THAT FILE'S COMMENT LINES STRUCK
+#          quoted somewhere under tests/contract, tests/system or
+#          tests/usecase (CR-573, JDG-637 -- not tests/unit, integration or
+#          nfr), WITH THAT FILE'S COMMENT LINES STRUCK
 #          OUT -- a comment cannot go red when the clause it quotes is
 #          rewritten. Held against must-clause-coverage-baseline.txt, the
 #          unheld count. ⛔ IT IS A BOLT, NOT A DEBT: it fails the round that
@@ -163,7 +167,8 @@
 #          is a change request: a CR routinely cites the row that RAISED it,
 #          so gating there would be mostly noise
 #   42     check-quoted-source.py : a 「…」 quotation inside a comment of
-#          src/ or tests/ that NO manuscript under docs/spec contains -- a
+#          src/ or of tests/contract, tests/system, tests/usecase (CR-573,
+#          JDG-637) that NO manuscript under docs/spec contains -- a
 #          paraphrase hardened into a citation, which reads as a rule the
 #          specification does not have. Held against
 #          quoted-source-baseline.txt; `--list` prints them
@@ -273,6 +278,25 @@
 #          check 51 form for them. The change requests that built the rows
 #          keep the old numbers as history and are excluded BY NAME, with
 #          their reasons printed on every run
+#   64     check-purity-honesty.py (+ purity-calls.mjs) : a function tagged
+#          `@purity pure` / `semi-pure-a` that calls a `semi-pure-b` /
+#          `non-pure` function, touches `document` / `window` / `Date.now` /
+#          `Math.random`, or awaits (CR-573 section 5). The tag is what
+#          excuses it from a unit test (rule 04 table UO, UO-1), so a lying
+#          tag is an untested function. Callees are resolved by the
+#          TypeScript 7 checker through its `typescript/unstable/sync` API.
+#          Held against purity-honesty-baseline.txt
+#   65     check-unit-test-or-omission.py : an exported function of src/ that
+#          no omission row of table UO covers and no tests/unit file imports,
+#          and an `@external-contract` function no unit or contract test
+#          imports (CR-573 section 5). ⚠️ Without coverage/coverage-final.json
+#          UO-4 is not measured, and the line says UNMEASURED instead of OK.
+#          Held against unit-test-or-omission-baseline.txt
+#   66     check-perf-gate.py : playwright.config.ts keeps the clock-reading
+#          files of tests/nfr out of every run without GRS_PERF=1, and a
+#          change request landed since perf-pending.md began that touched a
+#          per-frame path of rule 04 section 5 is in perf-pending.md or
+#          measurements/performance-runs.md (PW-2). No baseline: 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -757,6 +781,42 @@ section "63  the SM- / EV- / TN- prefixes, followed by a number, are gone"
 # ⭐ MEASURED by breaking it: a see line naming the old number of the first
 # palette transition, put back into screen-values.ts, reports 1.
 PYTHONIOENCODING=utf-8 python "$HERE/check-sm-ev-tn-prefix-gone.py" "$REPO" || failed
+
+echo ""
+section "64  a function tagged pure / semi-pure-a does what its tag says"
+# ⛔ CR-573 section 5 (JDG-635 / JDG-636): table UO's row UO-1 excuses a pure
+# function from a unit test, so the tag has to be true. MEASURED 2026-09-26 on
+# the CR-573 working tree: 1392 tagged functions, 1 lies -- builtMerge
+# (src/use-case/import-document/import-document.ts) calls its own nested
+# non-pure nextUid. The first run's count seeded the baseline.
+# ⭐ MEASURED by breaking it on a scratch copy (--root): `void Date.now();
+# void window.innerWidth; void globalThis.document` in the pure
+# clampedSettings, a call to the non-pure applyDocumentChange from the pure
+# isUndoable, and `void (async () => { await 0 })()` in the pure
+# columnsOutsideHistory each reported, 1 -> 4.
+PYTHONIOENCODING=utf-8 python "$HERE/check-purity-honesty.py" || failed
+
+echo ""
+section "65  an exported function no omission row covers has a unit test"
+# ⛔ CR-573 section 5: table UO of rule 04 falls towards writing, and this is
+# the count of what falls through it. MEASURED 2026-09-26 on the CR-573
+# working tree: 496 exported functions, 39 with no row and no tests/unit
+# import, all under src/framework; UO-4 unmeasured (no coverage file).
+# ⭐ MEASURED by breaking it on a scratch copy: deleting the writeClipboard
+# import from tests/unit/uf-45-46.test.ts and putting `@external-contract` on
+# the untested pure `serial` reported 39 -> 41; a coverage file taking every
+# branch of writeClipboard took it back to 40.
+PYTHONIOENCODING=utf-8 python "$HERE/check-unit-test-or-omission.py" || failed
+
+echo ""
+section "66  the performance gate still gates, and per-frame landings wait to be measured"
+# ⛔ CR-573 sections 5 and 6, JDG-605 / JDG-643: the gate is one line of
+# playwright.config.ts and could be deleted or bypassed in silence. Held at 0.
+# ⭐ MEASURED by breaking it: dropping nfr-002 from PERFORMANCE_GATES reports
+# 1; `testIgnore: []` reports 1; `--since 0cddb2ac^` (before the rule began)
+# reports the 8 landings of CR-565 / CR-568 / CR-570 that touched per-frame
+# paths, and one CR-568 row in perf-pending.md takes that to 5.
+PYTHONIOENCODING=utf-8 python "$HERE/check-perf-gate.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

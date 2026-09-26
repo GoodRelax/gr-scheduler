@@ -25,11 +25,13 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
   <Stem>EffectName          every effect name the tables use (`never` when
                             they use none)
   <Stem>Transition          the row shape of the table below: one branch of
-                            one cell (state x event)
+                            one cell (state x event); printed only with it
   <STEM>_INITIAL_CHILDREN   the kind entered below a composite state (not
                             printed for a region that nests no composite)
   <STEM>_INITIAL_AXES       the initial value of every machine
-  <STEM>_TRANSITIONS        every branch of the region's tables (table T-280
+  <STEM>_TRANSITIONS        printed only for a unit TRANSITIONS_READ names
+                            (JDG-139, below);
+                            every branch of the region's tables (table T-280
                             for `screen`, table T-286 for `notices`, table
                             T-289 for `gesture`, table T-290 for `fileFlow`,
                             table T-292 for `fieldEntry`, table T-293 for
@@ -74,6 +76,50 @@ import state_machines_json_to_md as manuscript  # noqa: E402
 OPEN = '// <generated -- do not edit by hand>'
 CLOSE = '// </generated>'
 REGION = re.compile(re.escape(OPEN) + r'\n.*?' + re.escape(CLOSE), re.S)
+
+
+# ---- JDG-139: which transition tables are printed, and which leave their file
+#
+# The user's ruling of 2026-09-16 (tools/generate_entity_types.py holds the
+# full reasoning): a generated constant is EXPORTED ONLY WHEN ANOTHER FILE
+# READS IT, and is otherwise a plain `const`. A plain `const` that nothing
+# reads at all -- not even its own file -- is refused by noUnusedLocals, so
+# it is not generated (the precedent is NOT_STORED_ROW_CONTROL_OUTER_SIZES).
+#
+# The hand-written `step` of a region answers from its own code and never
+# reads the region's <STEM>_TRANSITIONS; the per-region contract test holds it
+# against the manuscript directly (table T-250, SD-3). Only the tests that
+# checked the printed table against the manuscript read it, and CR-573 (rule
+# R3 of table UO, docs/development-rules/04-verification.md) removed them.
+# A region unit not named below therefore gets neither the table nor its row
+# type <Stem>Transition.
+#
+# Per unit, with the path relative to the repository root:
+#   'export'  another file of src/ or tests/ reads the table
+#   'const'   only the unit itself reads it
+# Check 30 (.claude/skills/spec-graph-check/check-generated-constants.py)
+# refuses an exported copy nobody imports and a read copy that is not
+# exported; this generator refuses an entry that names no region's unit.
+TRANSITIONS_READ = {
+    # task-group-folding.ts looks its cells up; the contract test counts rows.
+    'src/use-case/edit-document/task-group-folding.ts': 'export',
+}
+
+
+def refuse_unknown_transition_units(regions):
+    """Stop when TRANSITIONS_READ names a unit no region writes, or a bad mode."""
+    units = set(region.raw['unit'] for region in regions)
+    stray = sorted(set(TRANSITIONS_READ) - units)
+    if stray:
+        raise SystemExit(
+            'generate_state_machine_types: TRANSITIONS_READ names %s, which no '
+            'region of state-machines.json names as its unit.' % ', '.join(stray))
+    bad = sorted(rel for rel, mode in TRANSITIONS_READ.items()
+                 if mode not in ('export', 'const'))
+    if bad:
+        raise SystemExit(
+            'generate_state_machine_types: TRANSITIONS_READ gives %s a mode '
+            'other than export / const.' % ', '.join(bad))
 
 
 def say(message):
@@ -235,9 +281,10 @@ class Printer(object):
             '',
         ]
 
-    def transitions(self):
-        lines = ['export const %s_TRANSITIONS: readonly %sTransition[] = ['
-                 % (self.upper, self.stem)]
+    def transitions(self, mode):
+        keyword = 'export const' if mode == 'export' else 'const'
+        lines = ['%s %s_TRANSITIONS: readonly %sTransition[] = ['
+                 % (keyword, self.upper, self.stem)]
         for state, event, branch, target in self.rows():
             guard = manuscript.guard_words(branch.get('guard'))
             effect = branch.get('effect')
@@ -275,11 +322,17 @@ class Printer(object):
             lines += self.root_type()
         lines += self.events()
         lines += self.effect_names()
-        lines += self.transition_type()
+        # JDG-139: the table and its row type only where something reads it.
+        mode = TRANSITIONS_READ.get(self.region.raw['unit'])
+        if mode:
+            lines += self.transition_type()
         if not saved:
             lines += self.initial_children()
             lines += self.initial_axes()
-        lines += self.transitions()
+        if mode:
+            lines += self.transitions(mode)
+        while lines[-1] == '':
+            lines.pop()
         lines.append(CLOSE)
         return '\n'.join(lines)
 
@@ -303,6 +356,7 @@ def main(argv):
             say('PROBLEM  %s' % one.encode('ascii', 'backslashreplace').decode('ascii'))
         say('FAIL     state-machines.json: %d problem(s); nothing written' % len(found))
         return 1
+    refuse_unknown_transition_units(regions)
     failed = 0
     for region in regions:
         rel = region.raw['unit']

@@ -40,7 +40,6 @@ tools/generate_entity_types.py  公開する写しの一覧（`PUBLISHED_READ_BY
 **`not_stored_block` は 表 T-206 専用である**（`S-132` は 表 T-217 なので `annotation_defaults_block` を足した）。
 ```
 AGENT_API_VALUES_INITIAL_AXES        `Agent API` の状態機械の初期の種類（表 T-296 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-AGENT_API_VALUES_TRANSITIONS         `Agent API` の状態遷移表の升を 1 つずつ並べたもの（表 T-296。同じ生成器）
 COLOUR_NAME_VALUES                   パレット色の名ごとの描く値（表 T-294。`SvgRenderer` が塗る）
 COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
 COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
@@ -48,14 +47,10 @@ DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
 ENTITY_ROWS                          実体の行（`erd.json`）
 FIELD_ENTRY_VALUES_INITIAL_AXES      名前付けと入力欄の各状態機械の初期の種類（表 T-292 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-FIELD_ENTRY_VALUES_TRANSITIONS       名前付けと入力欄の状態遷移表の升を 1 つずつ並べたもの（表 T-292。同じ生成器）
 FILE_FLOW_VALUES_INITIAL_AXES        ファイル操作と問いの各状態機械の初期の種類（表 T-290 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-FILE_FLOW_VALUES_TRANSITIONS         ファイル操作と問いの状態遷移表の升を 1 つずつ並べたもの（表 T-290。同じ生成器）
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-GESTURE_VALUES_TRANSITIONS           身振りの状態遷移表の升を 1 つずつ並べたもの（表 T-289。同じ生成器）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 INTERACTION_RECORD_VALUES_INITIAL_AXES 操作の記録の状態機械の初期の種類（表 T-295 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-INTERACTION_RECORD_VALUES_TRANSITIONS 操作の記録の状態遷移表の升を 1 つずつ並べたもの（表 T-295。同じ生成器）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
@@ -100,15 +95,12 @@ NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下�
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-NOTICE_VALUES_TRANSITIONS            通知の状態遷移表の升を 1 つずつ並べたもの（表 T-286。同じ生成器）
 SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
-SCREEN_VALUES_TRANSITIONS            画面の値の状態遷移表の升を 1 つずつ並べたもの（表 T-280。同じ生成器）
 SELECTION_VALUES_INITIAL_AXES        選択の状態機械の初期の種類（表 T-293 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-SELECTION_VALUES_TRANSITIONS         選択の状態遷移表の升を 1 つずつ並べたもの（表 T-293。同じ生成器）
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）

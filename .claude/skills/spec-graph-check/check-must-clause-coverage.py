@@ -60,8 +60,10 @@ marker, the LAST 120 characters of manuscript text ending at (and including)
 the marker's own closing parenthesis are taken as its trailing window. Five
 suffix lengths of that window -- 120, 90, 60, 40, 28 characters -- are tried
 longest first against a single corpus built by concatenating every file under
-tests/ (unit, contract, integration, system alike, each file's text joined
-with a NUL separator so a match can never straddle two files). The clause
+the three test trees COUNTED_TREES names below -- tests/contract, tests/system
+and tests/usecase, and no other (see "WHICH TESTS ARE READ" below) -- each
+file's text joined with a NUL separator so a match can never straddle two
+files. The clause
 counts as HELD the moment the longest of those five lengths that is actually
 present in the manuscript is ALSO found verbatim, in full, inside that corpus
 -- e.g. an 83-character clause is tried at 60 first, and held if that 60-
@@ -122,6 +124,18 @@ written, not about the direction the number moves.
 were written while the number was read as a debt, and several of them tell a
 later round to pay something back. ⛔ Do not obey them.
 
+⛔ WHICH TESTS ARE READ (CR-573 section 5, JDG-637, 2026-09-26). Only
+tests/contract, tests/system and tests/usecase. tests/unit is not read: a unit
+test is written only where no omission row (table UO of rule 04, section 3.5)
+applies, so what it quotes says nothing about whether the product was pressed
+against a clause. tests/integration and tests/nfr are not read either -- the
+ruling names the three trees and no more.
+⚠️ MEASURED 2026-09-26 on the CR-573 working tree (d65097b9 plus waves 2a, 2b
+and 3a, uncommitted), 2133 clauses: reading all of tests/ gave 660 held and
+1473 unheld; reading the three trees gives 247 held and 1886 unheld. The
+unheld count ROSE with the re-pointing, so the baseline is a user decision
+(wave 4).
+
     python .claude/skills/spec-graph-check/check-must-clause-coverage.py
 
 Run with PYTHONIOENCODING=utf-8 (the FAIL/PROBLEM lines below quote manuscript
@@ -136,6 +150,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 SPEC = os.path.join(ROOT, 'docs', 'spec')
 TESTS = os.path.join(ROOT, 'tests')
+# ⛔ The trees a clause may be held by (CR-573 section 5, JDG-637). The module
+# docstring says why tests/unit, tests/integration and tests/nfr are not here.
+COUNTED_TREES = ('contract', 'system', 'usecase')
 BASELINE = os.path.join(HERE, 'must-clause-coverage-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/must-clause-coverage-baseline.txt'
 
@@ -204,7 +221,7 @@ def unbroken(text):
 
 
 def load_test_corpus():
-    """Every file under tests/ with its COMMENT LINES REMOVED, concatenated
+    """Every file under COUNTED_TREES with its COMMENT LINES REMOVED, concatenated
     with a NUL separator so a match can never straddle two files (source text
     never contains a raw NUL).
 
@@ -228,14 +245,19 @@ def load_test_corpus():
     parts = []
     if not os.path.isdir(TESTS):
         return ''
-    for dirpath, _dirnames, filenames in os.walk(TESTS):
-        for name in sorted(filenames):
-            path = os.path.join(dirpath, name)
-            try:
-                with io.open(path, encoding='utf-8', errors='ignore') as handle:
-                    parts.append(strip_comments(handle.read()))
-            except OSError:
-                continue
+    for tree in COUNTED_TREES:
+        top = os.path.join(TESTS, tree)
+        if not os.path.isdir(top):
+            continue
+        for dirpath, _dirnames, filenames in os.walk(top):
+            for name in sorted(filenames):
+                path = os.path.join(dirpath, name)
+                try:
+                    with io.open(path, encoding='utf-8',
+                                 errors='ignore') as handle:
+                        parts.append(strip_comments(handle.read()))
+                except OSError:
+                    continue
     return chr(0).join(parts)
 
 
@@ -350,14 +372,14 @@ def main():
 
     if held_baseline is None:
         print('NOTE     docs/spec/: %d MUST/MUST-NOT clause(s), %d held '
-              'verbatim by some file under tests/, %d not; no baseline held '
+              'verbatim by tests/{contract,system,usecase}, %d not; no baseline held '
               'yet -- see %s' % (total, held, unheld, REL_BASELINE))
         return 0
 
     if unheld > held_baseline:
         sample = unheld_sample[:12]
         print('FAIL     docs/spec/: clauses with no verbatim tie under '
-              'tests/ went %d -> %d. ⛔ A NEW MUST/MUST NOT clause may not be '
+              'tests/{contract,system,usecase} went %d -> %d. ⛔ A NEW MUST/MUST NOT clause may not be '
               'written bare. ⛔ Do not close an OLD one to make room -- raise '
               '%s deliberately and say why in the commit.' % (held_baseline, unheld, REL_BASELINE))
         for line in sample:
@@ -373,7 +395,7 @@ def main():
         return 0
 
     print('OK       docs/spec/: %d MUST/MUST-NOT clause(s), %d held verbatim '
-          'by some file under tests/, %d not, which is the baseline' %
+          'by tests/{contract,system,usecase}, %d not, which is the baseline' %
           (total, held, unheld))
     return 0
 

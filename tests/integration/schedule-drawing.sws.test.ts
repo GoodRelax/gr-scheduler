@@ -39,12 +39,12 @@
 // not executable. Every expected value is built out of the settings keys the
 // formula names -- never out of a number read off the implementation.
 //
-// THE SHAPE A GENERATOR CAN READ. Table T-219, TW-2: Chapter 9's cases are
-// GENERATED from this code, so the facts a generator needs are declared, not
-// narrated. Every case is introduced by exactly one `swsCase({...})` literal
-// with these six keys and no others:
+// THE SHAPE A MACHINE CAN READ. Table T-219, TW-2 raises no Chapter 9 node:
+// the case is judged by the gate run, so the facts a reader needs are declared
+// here, not narrated. Every case is introduced by exactly one `swsCase({...})`
+// literal with these six keys and no others:
 //
-//   sws     the SW_SPEC node the case hangs from  -> the generated node's parent
+//   sws     the SW_SPEC node the case hangs from
 //   level   the TEST_LEVEL of table T-218         -> always 'Integration' here
 //   covers  the table rows verified               -> LF-n of T-221, RP-n of T-222
 //   given   the state the document is in
@@ -118,7 +118,7 @@ const S_247 = Number.parseFloat(specTable('T-206').rows.find((one) => one.id ===
 const twoPlaces = (value: number): number => Math.round(value * 100) / 100
 
 // ---------------------------------------------------------------------------
-// The declaration every case carries (table T-219, TW-2)
+// The declaration every case carries (the SWS node it answers to)
 // ---------------------------------------------------------------------------
 
 type SwsId = 'SWS-1' | 'SWS-2' | 'SWS-3' | 'SWS-4' | 'SWS-5'
@@ -1115,8 +1115,8 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
   // owns. ⛔ REPORTED AS A HOLE: either SWS-2's STATEMENT gains the row, or
   // Chapter 6.1 gains a node for FR-098's band.
   //
-  // ⭐ THE REST OF `LF-14` AND OF FR-098 IS WATCHED IN
-  // tests/unit/fr-098-the-pinned-band.test.ts, which drives the same entry.
+  // ⭐ THE REST OF `LF-14` AND OF FR-098 HAD A UNIT TEST, removed by CR-573
+  // under the omission table of rule 04 (the entry it drove is pure).
   // -------------------------------------------------------------------------
 
   it(
@@ -2149,8 +2149,8 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
 
 // ===========================================================================
 // The file checking itself: every row of the two tables has a case, and every
-// declaration is well formed. Table T-219 TW-2 makes Chapter 9's case list a
-// generated artifact, and it can only be generated from what is declared here.
+// declaration is well formed. Table T-219 TW-2 raises no Chapter 9 node, so
+// what each case answers to is known only from what is declared here.
 // ===========================================================================
 
 describe('coverage of the tables the five SW_SPEC nodes point at', () => {

@@ -9,9 +9,11 @@ import { defineConfig } from '@playwright/test'
 //   TS-4  tests/nfr/      Chapter 10, parent NFR-xxx. The performance gates of
 //                         table T-043 are run from here
 //
-// TS-3 and TS-4 hold cases; TS-1 holds none yet, which is why `npm run e2e`
-// carries --pass-with-no-tests. The other three places of table T-218 are
-// Vitest's; see vitest.config.ts.
+// All three hold cases: TS-1 has one per UC-xxx of Chapter 3.2 (table T-334,
+// VT-1), opened from the built dist/index.html over file://, so `npm run e2e`
+// no longer carries --pass-with-no-tests. A use case the app does not yet meet
+// is marked test.fail and listed in tests/known-red.txt. The other three
+// places of table T-218 are Vitest's; see vitest.config.ts.
 //
 // ⚠️ NO BROWSER IS CHOSEN HERE. A case under tests/system/ opens its own, and
 // says which one and which row of the specification chose it

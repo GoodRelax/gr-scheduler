@@ -1,0 +1,5 @@
+1
+# Check 64 -- functions tagged pure / semi-pure-a whose body calls a semi-pure-b / non-pure function,
+# touches document / window / Date.now / Math.random, or awaits. Line 1 is the count.
+# Seeded by check-purity-honesty.py --write-baseline from its own first run (CR-573 section 5).
+# The coordinator lowers it (JDG-520); raising it is the user's call.

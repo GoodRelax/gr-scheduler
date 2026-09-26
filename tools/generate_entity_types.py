@@ -2627,11 +2627,12 @@ PUBLISHED_READ_BY_TESTS_ONLY = {
     'src/adapter/screen-renderer/screen-frame.ts': (
         'NOT_STORED_PANEL_DIVIDER_SIZES',
     ),
+    # CR-573 (rule R3 of table UO) removed the tests that read
+    # NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS and SCHEDULE_COLOURS; the renderer
+    # still reads both, so they are plain `const`s of this file.
     'src/adapter/svg-renderer/svg-renderer.ts': (
-        'NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS',
         'NOT_STORED_DUMMY_SIZES',
         'NOT_STORED_SELECTION_SIZES',
-        'SCHEDULE_COLOURS',
     ),
     # JDG-151: frame-loop.ts calls grabSizesOf() and no longer reads this copy.
     'src/entity/layout-engine/item-hit-area/item-hit-area.ts': (

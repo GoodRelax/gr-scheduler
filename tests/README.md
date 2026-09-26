@@ -9,22 +9,21 @@ below (MUST), and no seventh place may be made (MUST NOT).
 | place | row | receiver in the specification | who writes it | what it protects |
 | --- | --- | --- | --- | --- |
 | `usecase/` | `TS-1` | Chapter 8, parent `UC-xxx` | by hand | the user's own steps, through the UI |
-| `integration/` | `TS-2` | Chapter 9, parent `SWS-xxx` | by hand; the case list is generated from it | units wired together |
+| `integration/` | `TS-2` | Chapter 9, parent `SWS-xxx` | by hand | units wired together |
 | `system/` | `TS-3` | Chapter 9, parent `SWS-xxx` | the same | the whole product, through the UI |
 | `nfr/` | `TS-4` | Chapter 10, parent `NFR-xxx` | by hand | the performance gates of table T-043 |
 | **`contract/`** | **`TS-5`** | **none -- the grammar refuses `Unit`** | **neither side of the seam, once, from a table** | **the seam** |
-| `unit/` | `TS-6` | none, for the same reason | whoever implemented the unit | the inside of one unit |
+| `unit/` | `TS-6` | none, for the same reason | a body that reads only the specification, never the unit's author | a function no row of the omission table (rule 04 section 3.5, table `UO`) covers |
 
 **Having no receiver does not mean it need not be written.** The last two rows
 carry no node in the specification only because `SW_SPEC_TEST` admits
 `Integration` and `System` and nothing else. Both still stop the milestone when
 they fail.
 
-**Chapter 9's case list is a generated artifact (MUST) and must not be written
-by hand (MUST NOT).** Writing it by hand would put the same claim in two places,
-and the copy in the specification is the one that cannot fail. So a test under
-`integration/` or `system/` carries, in a form a machine can read, the `SWS-xxx`
-it hangs from and its GIVEN / WHEN / THEN.
+**Chapters 8 to 10 raise no test nodes** (table T-219, `TW-1` to `TW-3`): what
+is verified is table T-334 of Chapter 7, and the result is the output of the
+gate run. A test under `integration/` or `system/` still carries, in a form a
+machine can read, the `SWS-xxx` it hangs from and its GIVEN / WHEN / THEN.
 
 The contract row is the reason this directory exists. Seventy-one units can each
 be green on their own while the application does not run, and the place that
@@ -55,16 +54,22 @@ later can tell why" is made of; more prose does not make it.
 tests/
   contract/     Vitest.      *.contract.test.ts, driven by a specification table
   integration/  Vitest.      *.sws.test.ts, one case per SWS node of Chapter 6.1
-  unit/         Vitest.      the inside of one unit
-  usecase/      Playwright.  not written yet
-  system/       Playwright.  not written yet
-  nfr/          Playwright.  not written yet
+  unit/         Vitest.      only where no omission rule applies
+  usecase/      Playwright.  one per UC-xxx, on the built dist/index.html over file://
+  system/       Playwright.  *.sws.test.ts and the rest, through the UI
+  nfr/          Playwright.  the performance gates run only with GRS_PERF=1
   fixtures/     what every test shares -- not a kind of its own
 ```
 
-**Four of those directories do not exist yet**, because no case has been written
-for them. They appear in `vitest.config.ts` and `playwright.config.ts` so that
-the first test written lands in the right place rather than inventing one.
+The MSPDI schema under `docs/reference/mspdi/` is local-only (JDG-644), so a
+worktree has none. The files that read it are listed in `fixtures/mspdi-xsd.json`;
+where the schema is absent `vitest.config.ts` leaves them out and
+`contract/mspdi-xsd-local-only.test.ts` reports each as a skipped case that
+names the reason.
+
+`known-red.txt` lists every known red, one line per DFC (rule 04 section 3.9).
+The gates read it: a red it does not name stops them, and so does a line whose
+case has turned green.
 
 `fixtures/grs-document.ts` holds the shared document shape: the generated
 `GRS JSON` schema and validators over it. It deliberately carries **no sample
@@ -76,7 +81,9 @@ nobody took.
 
 ```bash
 npm test          # vitest: contract/, integration/, unit/
-npm run e2e       # playwright: usecase/, system/, nfr/
+npm run e2e       # playwright: usecase/, system/, nfr/ (build dist first for usecase/)
+npm run guard:commit   # gate GT-1, held against known-red.txt (root checkout only)
+npm run guard:publish  # gate GT-2: GT-1 + build + usecase/e2e + parity
 npm run typecheck # tsc, both projects: the root one and the DOM-free Entity one
 npm run layers    # table T-061: dependency direction and acyclicity
 npm run tree:check

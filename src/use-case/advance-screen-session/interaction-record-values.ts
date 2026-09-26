@@ -34,37 +34,9 @@ export type InteractionRecordValuesEffectName =
   | 'beginInteractionRecord'
   | 'handInteractionRecordToClipboard'
 
-export interface InteractionRecordValuesTransition {
-  readonly state: InteractionRecordValuesKey
-  readonly event: InteractionRecordValuesEvent['type']
-  readonly guard: string | null
-  readonly to: string
-  readonly effect: InteractionRecordValuesEffectName | null
-  readonly effectArgument: string | null
-}
-
 const INTERACTION_RECORD_VALUES_INITIAL_AXES: InteractionRecordValuesAxes = {
   interactionRecordingState: { kind: 'notRecording' },
 }
-
-export const INTERACTION_RECORD_VALUES_TRANSITIONS: readonly InteractionRecordValuesTransition[] = [
-  {
-    state: 'interactionRecordingStateMachine.notRecording',
-    event: 'interactionRecordToggled',
-    guard: null,
-    to: 'interactionRecordingStateMachine.recordingInteractions',
-    effect: 'beginInteractionRecord',
-    effectArgument: null,
-  },
-  {
-    state: 'interactionRecordingStateMachine.recordingInteractions',
-    event: 'interactionRecordToggled',
-    guard: null,
-    to: 'interactionRecordingStateMachine.notRecording',
-    effect: 'handInteractionRecordToClipboard',
-    effectArgument: null,
-  },
-]
 // </generated>
 
 type InteractionRecordStep = Step<InteractionRecordValues, InteractionRecordValuesEffect>

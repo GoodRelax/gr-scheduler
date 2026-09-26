@@ -13,7 +13,8 @@ and it kept `DFC-318` open -- a row a person could add and never see.
 reliability ladder). This is the measurement.
 
 WHAT COUNTS AS A HIT. A 「…」 or 『…』 quotation, inside a comment of `src/` or
-`tests/`, long enough to be a sentence rather than a name, whose text is not
+`tests/contract`, `tests/system` or `tests/usecase` (TREES below), long enough
+to be a sentence rather than a name, whose text is not
 found in any manuscript under `docs/spec/`.
 
 ⛔⛔ THE FALSE POSITIVES ARE THE WHOLE JOB, and a naive sweep is unusable --
@@ -58,7 +59,18 @@ CHANGELOG = os.path.join(ROOT, 'docs', 'development-records', 'changelog.md')
 BASELINE = os.path.join(HERE, 'quoted-source-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/quoted-source-baseline.txt'
 
-TREES = ('src', 'tests')
+# ⛔ src/ whole, and of tests/ only the three trees check 39 reads (CR-573
+# section 5, JDG-637). tests/unit is written only where no omission row of
+# table UO (rule 04, section 3.5) applies, and tests/integration and tests/nfr
+# are outside the ruling's three. MEASURED 2026-09-26 on the CR-573 working
+# tree (d65097b9 plus waves 2a, 2b and 3a, uncommitted): 152 hits reading src/
+# and all of tests/, 26 reading src/ and the three trees (`--list`).
+TREES = (
+    'src',
+    os.path.join('tests', 'contract'),
+    os.path.join('tests', 'system'),
+    os.path.join('tests', 'usecase'),
+)
 
 # ⭐ A quotation shorter than this is a NAME, not a sentence -- 「未定」,
 # 「行 ID」, 「置く」. Measured: the count is flat either side of
@@ -95,7 +107,7 @@ OTHER_BOOKS = re.compile(
 # one line, so a wrapped cell carries <br> where a paragraph would have a
 # newline). tests/contract/spec-table.ts drops it for the same reason.
 # Without this, wrapping a cell would fault every comment that quotes it.
-BREAK = re.compile(u'<br\s*/?>', re.I)
+BREAK = re.compile(u'<br\\s*/?>', re.I)
 
 
 def flatten(text):

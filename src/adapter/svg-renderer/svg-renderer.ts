@@ -719,7 +719,7 @@ export const NOT_STORED_RULER_WEEKDAY_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
+const NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS: {
   readonly 'S-415': number
   readonly 'S-416': number
 } = {
@@ -742,7 +742,7 @@ export const NOT_STORED_NAME_LABEL_WEIGHT: {
 }
 
 // see T-236, S-73
-export const SCHEDULE_COLOURS: {
+const SCHEDULE_COLOURS: {
   readonly [rowId: string]: {
     readonly light: string
     readonly dark: string

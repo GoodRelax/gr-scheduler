@@ -532,14 +532,14 @@ src/
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |
 | UF-84 | `AdvanceScreenSession` | `advance-screen-session.ts` | `pure` | 領域ごとのファイルを束ねて公開し、根の状態を持って 1 段進める。<br>ほかの領域や文書の値を出来事へ詰める | — |
 | UF-85 | `AdvanceScreenSession` | `session-step.ts` | `pure` | 全領域が共有する 1 段の形（`Step` ・ `unchanged` ・ 共有の空の副作用の列 ・ `assertNever`） | — |
-| UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と遷移表の定数の区画 | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
-| UF-87 | `AdvanceScreenSession` | `notice-values.ts` | `pure` | 通知の領域の遷移（表 T-286）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-88 | `AdvanceScreenSession` | `gesture-values.ts` | `pure` | 身振りの領域の遷移（表 T-289）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-89 | `AdvanceScreenSession` | `file-flow-values.ts` | `pure` | ファイル操作と問いの領域の遷移（表 T-290）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-121 | `AdvanceScreenSession` | `field-entry-values.ts` | `pure` | 名前付けと入力欄の領域の遷移（表 T-292）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-122 | `AdvanceScreenSession` | `selection-values.ts` | `pure` | 選択の領域の遷移（表 T-293）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-124 | `AdvanceScreenSession` | `interaction-record-values.ts` | `pure` | 操作の記録の領域の遷移（表 T-295）と、そこから生成した型と遷移表の定数の区画 | — |
-| UF-125 | `AdvanceScreenSession` | `agent-api-values.ts` | `pure` | `Agent API` の領域の遷移（表 T-296）と、そこから生成した型と遷移表の定数の区画 | — |
+| UF-86 | `AdvanceScreenSession` | `screen-values.ts` | `pure` | 画面の値の領域の遷移（表 T-280）と、そこから生成した型と初期値の区画 | `FR-053`（`OW-2`）・`FR-071`（`OW-2`）・`FR-107`（`OW-2`） |
+| UF-87 | `AdvanceScreenSession` | `notice-values.ts` | `pure` | 通知の領域の遷移（表 T-286）と、そこから生成した型と初期値の区画 | — |
+| UF-88 | `AdvanceScreenSession` | `gesture-values.ts` | `pure` | 身振りの領域の遷移（表 T-289）と、そこから生成した型と初期値の区画 | — |
+| UF-89 | `AdvanceScreenSession` | `file-flow-values.ts` | `pure` | ファイル操作と問いの領域の遷移（表 T-290）と、そこから生成した型と初期値の区画 | — |
+| UF-121 | `AdvanceScreenSession` | `field-entry-values.ts` | `pure` | 名前付けと入力欄の領域の遷移（表 T-292）と、そこから生成した型と初期値の区画 | — |
+| UF-122 | `AdvanceScreenSession` | `selection-values.ts` | `pure` | 選択の領域の遷移（表 T-293）と、そこから生成した型と初期値の区画 | — |
+| UF-124 | `AdvanceScreenSession` | `interaction-record-values.ts` | `pure` | 操作の記録の領域の遷移（表 T-295）と、そこから生成した型と初期値の区画 | — |
+| UF-125 | `AdvanceScreenSession` | `agent-api-values.ts` | `pure` | `Agent API` の領域の遷移（表 T-296）と、そこから生成した型と初期値の区画 | — |
 
 ⚠️ `semi-pure-b` と `non-pure` が同じユニットに載ることは `R7.9` に反しない。  
 同条項が別ファイルへ分けよと求めるのは**純粋な側と非純粋な側**であり、`semi-pure-b` は非純粋な側だからである。  
@@ -558,7 +558,7 @@ src/
 - `NFR-001`（初期描画の上限）—— `tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts`。
 - `NFR-004`（単一ファイル・オフライン）—— `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`。
   同要求が求めるとおり、`file://` で開いた状態と `http://` で開いた状態の両方で同じ母数を掃く。
-- `FR-030`（色だけで伝えない）—— `tests/unit/uf-32.test.ts`。
+- `FR-030`（色だけで伝えない）—— `tests/usecase/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
 - `FR-069`（ライセンス全文を成果物の中に持つ）—— 検査 27 が走らせる `tools/generate_licence.py --check`。
 
 ⚠️ **起点をまだ書いていない要求が 17 件ある。**  
@@ -807,7 +807,8 @@ src/
 等値で判定するのは `FR-063` の定めに従う。
 
 保存しない状態の状態機械（5.6 の ADR-002）の原稿は `_source/state-machines.json` である。  
-原稿から、領域ごとの出来事の定義・優先順の表と、状態機械ごとの状態遷移図・状態遷移表・状態の一覧を生成し、TypeScript の判別共用体・遷移表の定数を生成する。  
+原稿から、領域ごとの出来事の定義・優先順の表と、状態機械ごとの状態遷移図・状態遷移表・状態の一覧を生成し、TypeScript の判別共用体と初期値を生成する。  
+遷移表の定数は、それを読むコードがあるユニットにだけ生成する（いまは行の木の `task-group-folding.ts` だけ）—— ほかの領域の遷移の関数はその定数を読まず、表との一致は領域ごとの契約試験が確かめる（表 T-250 の `SD-3`、表 T-285 の `RA-6`）。  
 手で書くのは各領域の遷移の関数だけである。  
 原稿に載せるのは、要求が名指す状態・出来事・遷移だけとする（MUST）。  
 実装の都合の細部は状態の種類を増やさず、状態が運ぶ値としてコードが持つ。  
@@ -1270,7 +1271,8 @@ flowchart TB
 **文書の不変条件の全数を 表 T-220 に示す** —— 表 T-060 の `LY-1` が、その全数を本節が持つと定めている。  
 `scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること（MUST）。  
 ⭐ 本表の行は、操作が終わった文書について判ずること（MUST） —— 操作の途中の文書を数え上げると、偽の違反が出る。  
-⚠️ ユースケースの層は行が 0 の文書を返す（`tests/unit/edit-task-group.test.ts`）—— 1 行が戻るのはその外側である。  
+⚠️ ユースケースの層は行が 0 の文書を返す —— 1 行が戻るのはその外側であり、`tests/unit/t-050-a-document-always-holds-one-row.test.ts` が押さえる。  
+ユースケースの層の側に単体試験は置かない —— `edit-task-group.ts` は `pure` であり、`docs/development-rules/04-verification.md` の省略の表が `pure` の関数の単体試験を省く。  
 ⭐ 何をもって 1 つの操作とするかは `01-04-requirements.md` の 表 T-050 の直下が持つ。  
 ⚠️ この時点は本表のすべての行に掛かる。  
 `IV-20` だけの断りにしない —— ほかの行が今まで黙っていられたのは、静止した文書についての条件しか述べておらず、操作の途中の状態を持たなかったからである。  

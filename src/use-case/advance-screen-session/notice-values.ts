@@ -66,102 +66,10 @@ export type NoticeValuesEvent =
 export type NoticeValuesEffectName =
   | 'raiseNotice'
 
-export interface NoticeValuesTransition {
-  readonly state: NoticeValuesKey
-  readonly event: NoticeValuesEvent['type']
-  readonly guard: string | null
-  readonly to: string
-  readonly effect: NoticeValuesEffectName | null
-  readonly effectArgument: string | null
-}
-
 const NOTICE_VALUES_INITIAL_AXES: NoticeValuesAxes = {
   noticeDisplayState: { kind: 'hidden' },
   changeDeliveryState: { kind: 'idle' },
 }
-
-export const NOTICE_VALUES_TRANSITIONS: readonly NoticeValuesTransition[] = [
-  {
-    state: 'noticeDisplayStateMachine.hidden',
-    event: 'noticeRaised',
-    guard: null,
-    to: 'noticeDisplayStateMachine.shown',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'noticeRaised',
-    guard: 'isSameReasonStanding',
-    to: 'noticeDisplayStateMachine.shown',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'noticeRaised',
-    guard: 'not isSameReasonStanding',
-    to: 'noticeDisplayStateMachine.shown',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'newestNoticeDismissAsked',
-    guard: 'isOnlyOneStanding',
-    to: 'noticeDisplayStateMachine.hidden',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'newestNoticeDismissAsked',
-    guard: 'not isOnlyOneStanding',
-    to: 'noticeDisplayStateMachine.shown',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'noticeDismissPressed',
-    guard: 'isLeavingNone',
-    to: 'noticeDisplayStateMachine.hidden',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'noticeDisplayStateMachine.shown',
-    event: 'noticeDismissPressed',
-    guard: 'isLeavingSome',
-    to: 'noticeDisplayStateMachine.shown',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'changeDeliveryStateMachine.idle',
-    event: 'documentReplaced',
-    guard: null,
-    to: 'changeDeliveryStateMachine.delivering',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'changeDeliveryStateMachine.delivering',
-    event: 'changeDelivered',
-    guard: 'not hasSilentWatcher',
-    to: 'changeDeliveryStateMachine.idle',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'changeDeliveryStateMachine.delivering',
-    event: 'changeDelivered',
-    guard: 'hasSilentWatcher',
-    to: 'changeDeliveryStateMachine.idle',
-    effect: 'raiseNotice',
-    effectArgument: 'RS-23',
-  },
-]
 // </generated>
 
 type NoticeStep = Step<NoticeValues, NoticeValuesEffect>

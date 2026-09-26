@@ -1,0 +1,6 @@
+39
+# Check 65 -- exported functions of src/ with no omission row of table UO and no unit test,
+# plus @external-contract functions with neither a unit nor a contract test. Line 1 is the count.
+# Seeded by check-unit-test-or-omission.py --write-baseline from its own first run (CR-573 section 5),
+# UO-4 NOT MEASURED (no coverage file).
+# The coordinator lowers it (JDG-520); raising it is the user's call.

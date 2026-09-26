@@ -1,4 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { configDefaults, defineConfig } from 'vitest/config'
 
 // Chapter 1.4 puts the layers that are decided by values alone under Vitest.
 // Table T-218 of Chapter 7 settles which places those are: the directory a test
@@ -10,8 +14,10 @@ import { defineConfig } from 'vitest/config'
 //                             driven by a specification table (Chapter 1.9,
 //                             :275). No node in the specification: the grammar
 //                             does not admit Unit as a TEST_LEVEL
-//   TS-6  tests/unit/         the inside of one unit, written by whoever
-//                             implemented it. No node, for the same reason
+//   TS-6  tests/unit/         only the functions no row of the omission
+//                             table (rule 04 section 3.5, table UO) covers,
+//                             written by a body that reads only the
+//                             specification. No node, for the same reason
 //
 // tests/fixtures/ holds what every test shares and is not a kind of its own.
 // The other three places of table T-218 are Playwright's; see
@@ -50,6 +56,26 @@ import { defineConfig } from 'vitest/config'
 // off in this file either -- it was never on. ⭐ AND THE MODE BUYS NOTHING:
 // MEASURED 2026-09-07 on the same tree, 19.15s by file alone against 20.03s and
 // 20.09s with `--sequence.concurrent`. See `DFC-352`.
+//
+// ---------------------------------------------------------------------------
+// THE MSPDI SCHEMA IS LOCAL-ONLY (JDG-644)
+// ---------------------------------------------------------------------------
+//
+// docs/reference/mspdi/ is gitignored and never enters the repository, so a git
+// worktree has no copy. The files that read it are listed once in
+// tests/fixtures/mspdi-xsd.json; where the schema is absent they are left out of
+// the run, and tests/contract/mspdi-xsd-local-only.test.ts reports each of them
+// as a skipped case that names the reason and the missing paths. Where the
+// schema is present they run as usual. The gates run in the root checkout, and
+// tools/gate/run-gate.mjs stops before anything else when the schema is missing.
+const here = dirname(fileURLToPath(import.meta.url))
+const mspdi = JSON.parse(readFileSync(join(here, 'tests', 'fixtures', 'mspdi-xsd.json'), 'utf8')) as {
+  readonly schemas: readonly string[]
+  readonly readers: readonly string[]
+}
+const schemaIsAbsent = mspdi.schemas.some((path) => !existsSync(join(here, path)))
+const skippedWithoutTheSchema = schemaIsAbsent ? mspdi.readers : []
+
 export default defineConfig({
   test: {
     environment: 'node',
@@ -58,5 +84,6 @@ export default defineConfig({
       'tests/integration/**/*.test.ts',
       'tests/unit/**/*.test.ts',
     ],
+    exclude: [...configDefaults.exclude, ...skippedWithoutTheSchema],
   },
 })

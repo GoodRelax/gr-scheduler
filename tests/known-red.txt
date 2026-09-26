@@ -1,0 +1,31 @@
+# Known reds (docs/development-rules/04-verification.md section 3.9, JDG-641, JDG-642).
+# tools/gate/run-gate.mjs stops on a red that no line names, and on a line whose case is green
+# (unless the line is flaky). The coordinator removes lines; adding one needs the user's OK.
+#
+# One line per DFC, six fields separated by " | ":
+#   DFC      the ledger row (DFC-nnn while the coordinator has not given it a number yet)
+#   file     the test file, from the repository root
+#   case     text the case's full title contains (describe titles and the case title)
+#   message  text its failure contains, or - for any failure
+#   flaky    flaky, or -
+#   note     what is red, for the reader
+# A tests/usecase case marked with specMismatch() (test.fail) is red by design until the app
+# matches the specification; when the app is fixed it turns green and its line must go.
+
+DFC-627 | tests/system/nfr-004-file-scheme-sweep.sws.test.ts | SWS-8 [ | GR-22 | - | GR-22: the Panel Divider band does not answer the sweep under file://
+DFC-374 | tests/system/user-reported-fixes.test.ts | DFC-374: magnifying the row axis stops before one row fills the Row Area | - | - | the row-axis magnification has no ceiling
+DFC-1023 | tests/contract/display-words.contract.test.ts | every section is one this file can key and every entry is a place here or a stated omission | - | - | the generated dictionary holds dependencyKinds, a section this file cannot key
+DFC-1011 | tests/usecase/uc-002-build-rows-as-a-hierarchy.test.ts | UC-002 | - | - | UC-002 step 3 / T-015a HM-1: moving a derived row leaves Task.wbsParentUid unchanged
+DFC-1012 | tests/usecase/uc-004-show-dependencies-between-tasks.test.ts | UC-004 | - | - | UC-004 step 5 / FR-009 T-018: linkType is offered as a number, not FS/SF/FF/SS
+DFC-1013 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 4 / FR-047: no delay count in days is drawn
+DFC-1014 | tests/usecase/uc-006-find-delays.test.ts | UC-006 | - | - | UC-006 step 5 / FR-015: the overlaid pre-change plan loads but IC-4 draws nothing
+DFC-1015 | tests/usecase/uc-008-tell-by-annotations.test.ts | UC-008 | - | - | UC-008 extension 4a / FR-019: hiding the bottom row of a highlight box grows its frame
+DFC-1016 | tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 extension 2a / FR-023 OP-5: a truncated MSPDI file is dropped with no notice
+DFC-1017 | tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts | UC-010 | - | - | UC-010 step 6 / FR-021 T-228 NR-3: the namespace is rewritten and a Stop is added
+DFC-1018 | tests/usecase/uc-011-save-and-hand-out-the-document.test.ts | UC-011 | - | - | UC-011 step 2 / FR-024 OP-10: the template is drawn unfitted, its saved JSON fitted
+DFC-1019 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 2 / FR-066 AG-11: a sent Dialogue Field line is not returned by readDialogueMessages
+DFC-1020 | tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts | UC-013 | - | - | UC-013 step 4 / FR-066 DR-4: no change reason reaches changeLog
+DFC-1021 | tests/usecase/uc-014-merge-schedules-into-one.test.ts | UC-014 | - | - | UC-014 step 5 / FR-022: no notice tells what a merge overwrote, kept or dropped
+DFC-1024 | tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
+DFC-1024 | tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts | FR-016 | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone
+DFC-1024 | tests/unit/uf-47-48-history-bytes.test.ts | -- | Test timed out | flaky | the 5 s timeout under a loaded machine; green alone

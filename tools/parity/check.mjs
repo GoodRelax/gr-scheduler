@@ -485,16 +485,34 @@ const KNOWN_DIVERGENCES = [
     reading: 'pinned',
     why: 'FR-098: pinned rows stack in the order they were fixed, not tree order',
   },
+  // ⭐ AN ENTRANCE ONLY GRS HAS, NAMED ONE BY ONE (DFC-1006, JDG-672). An entry
+  // with `onlyInGrs` excuses exactly the items that start with it and nothing
+  // else of the reading -- any other difference in `arming` still fails.
+  {
+    reading: 'arming',
+    onlyInGrs: 'head:IC-106=',
+    why: 'HF-20: the head of the Row Title Panel holds an entrance that deletes every row (IC-106); '
+      + 'the sample has no such entrance, so GRS alone draws it',
+  },
 ]
 
-/** Is this an ordering difference the specification has already settled? */
-const isKnown = (what, onlySample, onlyApp) =>
-  onlySample.length === 0 &&
-  onlyApp.length === 0 &&
-  KNOWN_DIVERGENCES.some((one) => one.reading === what)
+/** An item only GRS holds, excused by name for this reading? */
+const excusedInGrs = (what, item) =>
+  KNOWN_DIVERGENCES.some((one) =>
+    one.reading === what && one.onlyInGrs !== undefined && item.startsWith(one.onlyInGrs))
+
+/**
+ * Is this a difference the specification has already settled -- an ordering
+ * the whole reading is excused for, or only items GRS alone is meant to hold?
+ */
+const isKnown = (what, onlySample, onlyApp) => {
+  if (onlySample.length > 0) return false
+  if (onlyApp.length > 0) return onlyApp.every((item) => excusedInGrs(what, item))
+  return KNOWN_DIVERGENCES.some((one) => one.reading === what && one.onlyInGrs === undefined)
+}
 
 const whyKnown = (what) =>
-  KNOWN_DIVERGENCES.find((one) => one.reading === what)?.why ?? ''
+  KNOWN_DIVERGENCES.filter((one) => one.reading === what).map((one) => one.why).join('; ')
 
 // ------------------------------ the second list, and it is not the first ----
 
@@ -651,7 +669,7 @@ function theDefectListIsUsable() {
       complaints.push(`${who} names the reading ${JSON.stringify(one.reading)}, `
         + `which is not one of ${JSON.stringify(READINGS)}`)
     }
-    if (KNOWN_DIVERGENCES.some((other) => other.reading === one.reading)) {
+    if (KNOWN_DIVERGENCES.some((other) => other.reading === one.reading && other.onlyInGrs === undefined)) {
       complaints.push(`${who} pins a reading KNOWN_DIVERGENCES already excuses, `
         + 'so the pin can never be reached')
     }

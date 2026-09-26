@@ -1,0 +1,23 @@
+{
+  "$comment": [
+    "JDG-644: the MSPDI schemas are local-only (docs/reference/ is gitignored), so a worktree has none.",
+    "Where one is absent, vitest.config.ts leaves the readers out of the run and",
+    "tests/contract/mspdi-xsd-local-only.test.ts reports each as a skipped case naming the reason;",
+    "tools/gate/run-gate.mjs stops instead. The same test fails when a reader is missing from this list."
+  ],
+  "schemas": [
+    "docs/reference/mspdi/pj12/mspdi_pj12.xsd",
+    "docs/reference/mspdi/pj15/mspdi_pj15.xsd"
+  ],
+  "readers": [
+    "tests/contract/cr-429-ex-1-dv-2-a-document-grs-made.test.ts",
+    "tests/contract/cr-429-ex-11-ex-12-a-dated-task-is-pinned.test.ts",
+    "tests/contract/cr-429-fr-021-both-versions-come-back.test.ts",
+    "tests/contract/cr-429-mr-1-mr-2-ex-10-child-order.test.ts",
+    "tests/contract/cr-429-mr-3-the-first-of-a-repeated-leaf.test.ts",
+    "tests/contract/cr-429-the-two-schemas.test.ts",
+    "tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts",
+    "tests/unit/cr-429-rs-60-the-notice-is-raised.test.ts",
+    "tests/unit/uf-36.test.ts"
+  ]
+}

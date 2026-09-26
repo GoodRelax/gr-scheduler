@@ -281,16 +281,20 @@ async function openApp(browser) {
       const edge = await panelRight()
       return tab.evaluate(([actOf, rightEdge]) => {
         const spent = (entry) => entry.getAttribute('aria-disabled') === 'true' ? 'faint' : 'armed'
+        // WHY: an entrance the sample has no act for is keyed by its own IC id, so
+        // KNOWN_DIVERGENCES in check.mjs can name it instead of an empty act.
+        const keyOf = (one) => actOf[one.getAttribute('data-icon') ?? ''] ?? one.getAttribute('data-icon') ?? ''
+        // DFC-1006: a row's own controls also stand above y 85 since the display
+        // scale changed (dca48b79), so the head is only what no row holds.
         const head = [...document.querySelectorAll('[data-icon]')]
           .filter((one) => {
             const box = one.getBoundingClientRect()
-            return box.x < rightEdge && box.y < 85
+            return box.x < rightEdge && box.y < 85 && one.closest('[data-depth]') === null
           })
-          .map((one) => `head:${actOf[one.getAttribute('data-icon') ?? ''] ?? ''}=${spent(one)}`)
+          .map((one) => `head:${keyOf(one)}=${spent(one)}`)
         const rows = [...document.querySelectorAll('[data-depth]')].flatMap((row) =>
           [...row.querySelectorAll('[data-icon]')].map((one) =>
-            `${(row.querySelector('span')?.textContent ?? '').trim()}:${
-              actOf[one.getAttribute('data-icon') ?? ''] ?? ''}=${spent(one)}`))
+            `${(row.querySelector('span')?.textContent ?? '').trim()}:${keyOf(one)}=${spent(one)}`))
         return [...head, ...rows]
       }, [byAct, edge])
     },

@@ -2,6 +2,7 @@
 
 > 起草の状態: 起草した（2026-09-26）。利用者の裁定 `JDG-635` 〜 `JDG-645` と、起草の途中で下りた `JDG-605`（性能の試験を測る時期・測り方・利用者を呼ぶ場面）（逐語は 0.1 節）を当てる本文の案である。本書は裁定を決め直さない —— 裁定が決めていないことだけを 12 節で問う。
 > ⭐ 当てた状態（2026-09-26、`95f162e8` の上）: **波 0 を当てた** —— `JDG-606`（12 節の問い 1 は案 A）と `JDG-607`（表 T-334 と 表 T-218 を 1 つの JSON の原稿にする）を合わせて当てた（9 節）。⛔ コード・試験・基準線はまだ 1 文字も変えていない —— それは波 1 〜 4 である。
+> ⭐ 波 1 〜 3 を当てた記録（2026-09-26）: 振り分け表からの逸脱 2 つ・生成器の変更・それに追随した仕様と規則の書き換えは 15 節。
 > 読んだ木: `b6292bb0`（`CR-570` 着地後、`e1b8bab2` を測り直した木。測り方は 14 節）。⚠️ 先の草案は `e1b8bab2` で測っていた —— 本節と 8・10・14 節の数はこの再測定で置き換えた。旧い数は各節に「旧」として残す。
 > ID の帯: `CR-573` と `JDG-635` 〜 `JDG-645` は調整役が予約した（`rulings.md` の同日の節）。波 0 が作った名（表 T-334、接頭辞 `VT`・`UO`・`GT`・`PW`、原稿と生成器と記録のファイル）は当てるときに詰めた（2 節）。検査の番号・札・`tests/` と `tools/gate/` のファイル名は仮のまま —— 当てる波が詰める。台帳の番号の帯は受けていない。
 > ⛔ 当てる順: `CR-570` の着地の後（`JDG-645` の問 G）。`CR-570` は `tests/` と `src/` を大きく書き換えている最中であり、振り分け表（10 節）はその後の木でしか測れない。
@@ -556,3 +557,26 @@ check.sh section numbers                       -> largest 63
 python .claude/skills/spec-graph-check/induced.py <the 25 objects of section 7>  -> 25/25, 4 edges, 0 cycles
 python .claude/skills/spec-graph-check/impact.py TS-1 .. TS-6 TW-1 .. TW-3 T-218 T-219 RA-6 SD-3 T-042 T-043 T-060
 ```
+
+---
+
+## 15. 波 1 〜 3 を当てた記録 —— 振り分け表からの逸脱と、仕様の追随（2026-09-26、未コミットの作業木）
+
+⭐ 数え方: `git status --short`（`^R` が移したもの、`--no-renames` の `D` から移したものを除いたものが消したもの）、`md-checks.py`、検査 30。
+
+- **試験の置き場**: `tests/unit` から 139 ファイルを消し、66 ファイルを `tests/contract` へ移した（`dfc-*` 37 ＋ ほか 29）。`tests/usecase/` に UC 1 件につき 1 本の 14 本と `uc-harness.ts` を置いた。
+- ⚠️ **逸脱 1 —— `dfc-*` の移し先。** 振り分け表（利用者が見たもの）は `dfc-*` のうち 30 ファイルを「system へ移す」としたが、37 ファイルとも `tests/contract` へ入れた。
+  `tests/system` は Playwright だけが走らせる置き場（表 T-218 の `TS-3`）であり、この 30 本は Vitest のケースである —— `tests/system` に置けば、どちらの走らせ手にも拾われない。中身の主張は変えていない。利用者へは調整役が伝える。
+- ⚠️ **逸脱 2 —— `tests/unit/cr-378-an-import-is-an-edge-and-json-sits-with-its-owner.test.ts` は残した。** 走るときに `src` を import する試験である。
+- **生成器の変更（表 `UO` の `UO-8`、裁定の札 R3）**: `tools/generate_state_machine_types.py` は、8 つの遷移表の定数（`AGENT_API` ／ `FIELD_ENTRY` ／ `FILE_FLOW` ／ `GESTURE` ／ `INTERACTION_RECORD` ／ `NOTICE` ／ `SCREEN` ／ `SELECTION` の `_VALUES_TRANSITIONS`）と、その行の型を刷らなくなった。
+  読んでいたのは消した単体試験だけで、各領域の遷移の関数は読まない。刷るのは、読むコードの在る `task-group-folding.ts` の `TREE_STATE_TRANSITIONS` だけである（生成器の `TRANSITIONS_READ`、`JDG-139`）。
+- **それに追随した書き換え**（1 つずつ当て、機械で測り直した）:
+  - `docs/development-rules/03-implementation.md` の生成される定数の一覧から、その 8 行を消した。検査 30 は緑に戻った（72 名・84 写し）。
+  - `docs/spec/_source/state-machines.json` の `$comment` の「Generated FROM this file」の段は、遷移表の定数を `src/use-case/advance-screen-session/` の各ユニットへ刷ると言っていた。これを、生成器がいますること（型と初期値は各領域が名指すユニットへ、遷移表の定数は読むコードの在るユニットだけへ）に直した。`$comment` は刷られないので刷り物は動かない（`npm run gen:check` 緑）。
+  - `docs/spec/05-07-design.md` の 表 T-075 の `UF-86` ・ `UF-87` ・ `UF-88` ・ `UF-89` ・ `UF-121` ・ `UF-122` ・ `UF-124` ・ `UF-125` の欄「生成した型と遷移表の定数の区画」を「生成した型と初期値の区画」へ。5.5 の原稿の段「判別共用体・遷移表の定数を生成する」を、判別共用体と初期値を生成し、遷移表の定数は読むコードの在るユニットにだけ生成する、の 2 文へ。
+- **消した試験を名指していた仕様の条項**:
+  - `FR-030`（5.3 の「負う要求」の結び、表 T-277 の `OW-5` の確かめる手立て）: `tests/unit/uf-32.test.ts` → `tests/usecase/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（`SL-8`、選択を破線の枠でも示す）。これで `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` が緑に戻る。
+  - 6.1 の 表 T-220 の前の ⚠️ の段: `tests/unit/edit-task-group.test.ts` → 1 行が戻る外側は `tests/unit/t-050-a-document-always-holds-one-row.test.ts`（残した）が押さえ、ユースケースの層の側は `UO-1` で単体試験を置かない（`edit-task-group.ts` は `pure`）、と書いた。
+  - `docs/development-rules/` に、消した・移した試験のパスを名指す所は無かった。
+- **触らなかったもの**: `docs/review/` の 11 ファイル（`dr-sites.jsonl` ・ `pd-sites.jsonl` を含む）が消した試験のパスを名指す。どれも日付と commit を名乗る測りの記録か当時の依頼文であり、書き換えると測りが偽になる —— そのまま残す。
+- **数**（`md-checks.py`）: tables 189 ・ figures 28 ・ rows 2364 ・ uids 163 —— 波 0 の後と同じ（セルと段の書き換えだけで、行も表も足していない）。

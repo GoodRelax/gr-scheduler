@@ -41,53 +41,9 @@ export type AgentApiValuesEffectName =
   | 'storeAgentApiEnabling'
   | 'raiseNotice'
 
-export interface AgentApiValuesTransition {
-  readonly state: AgentApiValuesKey
-  readonly event: AgentApiValuesEvent['type']
-  readonly guard: string | null
-  readonly to: string
-  readonly effect: AgentApiValuesEffectName | null
-  readonly effectArgument: string | null
-}
-
 const AGENT_API_VALUES_INITIAL_AXES: AgentApiValuesAxes = {
   agentApiEnablingState: { kind: 'disabled' },
 }
-
-export const AGENT_API_VALUES_TRANSITIONS: readonly AgentApiValuesTransition[] = [
-  {
-    state: 'agentApi',
-    event: 'agentApiEntryPressed',
-    guard: null,
-    to: 'agentApi',
-    effect: 'storeAgentApiEnabling',
-    effectArgument: null,
-  },
-  {
-    state: 'agentApiEnablingStateMachine.disabled',
-    event: 'agentApiEntryPressed',
-    guard: null,
-    to: 'agentApiEnablingStateMachine.enabled',
-    effect: null,
-    effectArgument: null,
-  },
-  {
-    state: 'agentApiEnablingStateMachine.enabled',
-    event: 'agentApiEntryPressed',
-    guard: null,
-    to: 'agentApiEnablingStateMachine.disabled',
-    effect: 'raiseNotice',
-    effectArgument: 'RS-20',
-  },
-  {
-    state: 'agentApiEnablingStateMachine.disabled',
-    event: 'rememberedEnablingLoaded',
-    guard: 'isRememberedEnabled',
-    to: 'agentApiEnablingStateMachine.enabled',
-    effect: null,
-    effectArgument: null,
-  },
-]
 // </generated>
 
 type AgentApiStep = Step<AgentApiValues, AgentApiValuesEffect>
