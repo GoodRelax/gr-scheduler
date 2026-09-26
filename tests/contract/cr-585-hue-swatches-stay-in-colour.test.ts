@@ -36,7 +36,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const CLAUSE_MONOCHROME =
-  '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 の、色相の欄が ○ の行を、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`）にも、無彩色にして描くこと（MUST）'
+  '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
 const CLAUSE_EXCEPTION =
   '⚠️ 例外は、上の段落のテーマの色相の欄の見本だけである —— 見本は 表 T-305 の各行の色相で解いた `S-151` で塗り、モノクロを効かせない（上の段落の MUST NOT）。'
 const CLAUSE_NO_MONOCHROME = '⛔ 見本にモノクロ（`S-74`）を効かせてはならない（MUST NOT）'

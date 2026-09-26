@@ -40,3 +40,4 @@
 | 24 | `CR-586`（取り込んだマイルストーンと行の色。仕様の波 W5） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
 | 25 | `CR-583`（マイルストーンの形。仕様の波 W5 —— 生成器が `milestone-shapes.json` を刷った。描く手順はコードの持ち場 L1） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/milestone-shapes.json` |
 | 26 | `DFC-1130`（`IN-7` に合わせる、`JDG-728`。変更要求ではない） | ブランチ `dfc-1130-in7`（合流の sha は調整役が書く） | `src/framework/dom-screen-surface/dom-screen-surface.ts` —— 描き直しの呼び出しの中で、ツールチップの層を作り直す条件を狭めた（描画。調整役の読み）。次の束で `PW-3` の ① を測る |
+| 27 | `CR-592`（モノクロで表 T-236 のすべての行を灰にする。仕様とコードは枝 `lane-l3` —— モノクロのあいだだけ、— の行も色 1 つごとに `achromatic` を 1 回） | `lane-l3` の `CR-592` のコミット | `src/adapter/svg-renderer/svg-renderer.ts`（`colourOf`）・`src/framework/dom-screen-surface/dom-screen-surface.ts`（`themeStyle`・`pageGroundStyle`） |

@@ -1,4 +1,4 @@
-// CR-585 spec-only tests: monochrome greys the hue rows of table T-236 on chrome, ground and export alike.
+// CR-585 spec-only tests: monochrome greys the rows of table T-236 on chrome, ground and export alike.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,9 +20,10 @@ const SETTINGS_MD = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md
 const CLAUSE_FOLLOW_T236 = '画面の色は `_assets/tbl-settings.md` の 表 T-236 に従うこと（MUST）'
 const CLAUSE_GROUND = '地の色を自分で塗ること（MUST）。'
 const CLAUSE_MONOCHROME =
-  '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 の、色相の欄が ○ の行を、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`）にも、無彩色にして描くこと（MUST）'
+  '⭐ モノクロ（`_assets/tbl-settings.md` の 表 T-203 の `S-74`）が入っているあいだは、同書の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）、日程の図の中にも画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
 const CLAUSE_SAME_VALUE = '⭐ 画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
-const CLAUSE_ONLY_HUE_ROWS = '⚠️ 本段落が灰にするのは、色相の欄が ○ の行だけである'
+const CLAUSE_ANY_HUE_COLUMN =
+  '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマの色相に追随するかだけである。'
 // WHY: no MUST states how the grey is chosen; table T-294's preamble is the one sentence that
 // names the method the specification measures monochrome by, so case (7) rests on it.
 const CLAUSE_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'
@@ -32,7 +33,7 @@ const CLAUSES_IN_REQUIREMENTS = [
   CLAUSE_GROUND,
   CLAUSE_MONOCHROME,
   CLAUSE_SAME_VALUE,
-  CLAUSE_ONLY_HUE_ROWS,
+  CLAUSE_ANY_HUE_COLUMN,
 ]
 
 const PREFERENCES = ['light', 'dark'] as const
@@ -264,14 +265,17 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
   }
 })
 
-describe(`CR-585 (2) FR-041 "${CLAUSE_ONLY_HUE_ROWS}"`, () => {
+describe(`CR-585 (2) FR-041 "${CLAUSE_ANY_HUE_COLUMN}" / T-294 "${CLAUSE_KEEP_LIGHTNESS}"`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
-      it(`${preference}, hue ${hue}: every "-" row's --gr-<name> is the same with monochrome on and off`, () => {
+      it(`${preference}, hue ${hue}: every "-" row's --gr-<name> is achromatic and keeps the HSL lightness`, () => {
         for (const name of FIXED_NAMES) {
-          expect(propertyOf(theme(preference, hue, true), name), `${name} (${NAME_TO_ROW[name]})`).toBe(
-            propertyOf(theme(preference, hue, false), name),
-          )
+          const rowId = NAME_TO_ROW[name] ?? ''
+          const written = propertyOf(theme(preference, hue, true), name)
+          const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
+          const coloured = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
+          expect(isGrey(drawn), `${name} (${rowId}) is not grey: ${written}`).toBe(true)
+          expect(samePaint(drawn, greyOf(coloured)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
         }
       })
     }
@@ -346,7 +350,7 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
 describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIGHTNESS}" -- the schedule picture (export colours)`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
-      it(`${preference}, hue ${hue}: every "o" row the picture draws is grey with its lightness; "-" rows unchanged`, () => {
+      it(`${preference}, hue ${hue}: every row the picture draws ("o" and "-") is grey with its lightness`, () => {
         let drawnRows = 0
         for (const row of T236.rows) {
           const on = exportColourOf(row.id, hue, preference, true)
@@ -359,13 +363,11 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
           if (inherited !== null) {
             expect(on, `${row.id} inherits ${inherited}`).toBe(exportColourOf(inherited, hue, preference, true))
             expect(off, `${row.id} inherits ${inherited}`).toBe(exportColourOf(inherited, hue, preference, false))
-          } else if (spec.followsHue) {
+          } else {
             const drawn = mustPaint(on, `export ${row.id}`)
             expect(isGrey(drawn), `${row.id} is not grey: ${on}`).toBe(true)
             expect(samePaint(drawn, greyOf(coloured)), `${row.id}: ${on}`).toBe(true)
             expect(samePaint(mustPaint(off, row.id), coloured), `${row.id} off: ${off}`).toBe(true)
-          } else {
-            expect(on, `${row.id} ("-") changed under monochrome`).toBe(off)
           }
         }
         expect(drawnRows, 'premise: the export draws T-236 rows').toBeGreaterThan(0)
