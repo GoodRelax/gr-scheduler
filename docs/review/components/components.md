@@ -123,7 +123,7 @@
 | dependency | SingleHtmlShell | ScheduleGeometry | geometry once per frame | computes the frame's geometry from that layout, once (ADR-001) |  |
 | dependency | SingleHtmlShell | ScreenRegions | regions once per frame | computes the frame's screen rectangles once, before the layout (ADR-001) |  |
 | dependency | SingleHtmlShell | ItemHitArea | item under pointer | asks which item is under the pointer for its shape (IN-2), and where a dependency line being drawn starts (FR-009) |  |
-| dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved panel widths (S-79 / S-80) |  |
+| dependency | ScreenRegions | DocumentSettings | panel widths | reads the saved row title panel width (S-79); the property panel width is a screen value handed in by the caller (S-171) |  |
 | dependency | InputCommandTranslator | ScreenRegions | region under pointer | asks which region the pointer is in |  |
 | dependency | InputCommandTranslator | ScreenState | Esc rung + remembered actual | reads the Esc rung and the remembered-actual type the screen values carry |  |
 | dependency | InputCommandTranslator | ScreenRenderer | entry under pointer | asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016) |  |

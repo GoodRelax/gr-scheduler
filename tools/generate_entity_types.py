@@ -1347,7 +1347,11 @@ NOT_STORED_TARGETS = {
     # S-194: both are the width a line of table T-029 is drawn at, both are
     # drawn by schedule-overlays.ts, which reads this constant already, and
     # EP-6 of table T-076 carries both into an exported picture.
-    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194', 'S-333'], DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-576: S-438 (the selected base date line's own width, SL-8) joins
+    # S-333 -- the same line, drawn by the same unit, in pixels of its own
+    # rather than S-333 times S-178.
+    'NOT_STORED_DUAL_CURSOR_SIZES': (['S-194', 'S-333', 'S-438'],
+                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: the four numbers FR-013 (MUST) draws the delay mark `(!)` of
     # PM-4 with -- the bar's width against S-24, its lower end, the dot's
     # centre and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
@@ -1408,8 +1412,11 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
         # CR-551: S-335 and S-338 are COUNTS of CV-9's colour field (squares
         # on a checker side, swatches in one row), drawn by the same unit.
+        # CR-557: S-368 is the same count for the theme-hue field of FR-041
+        # (table T-305), drawn in the same swatch box; its own note forbids
+        # reading S-338 for it, so it is a key of its own.
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
-         'S-197', 'S-198', 'S-335', 'S-338'],
+         'S-197', 'S-198', 'S-335', 'S-338', 'S-368'],
         DRAWN_WITH_WHERE_IT_STANDS),
     # NOT FOLDED INTO NOT_STORED_PALETTE_GROUP_RULE_SIZES though both are one
     # rule's thickness drawn by dom-screen-surface.ts: one constant per
@@ -2018,6 +2025,150 @@ def derived_rules(manuscript):
     return out
 
 
+# ---- SETTINGS_CONSTANTS: the constants baked into the artifact (CR-572) -----
+#
+# Table T-064 row PI-2 publishes SETTINGS_CONSTANTS as the keys and values of
+# every settings table whose caption says 文書には保存しない (not stored in the
+# document), read by an English name. ⭐ The tables are picked by that caption,
+# not by a list typed here: the caption is what the specification says, and
+# erd_json_to_schema.py keys its own not-stored tables to the same words.
+# ⛔ NO BOUNDS ARE PRINTED FOR THEM. No in-app command writes a constant, so
+# nothing clamps one; the range cells stay in the table as the guide for the
+# next person who chooses a value (CR-572 section 4.1).
+# ⛔ A key held by BOTH this group and DocumentSettings stops the build:
+# DrawnSettings is the two joined, and one name with two sources is the
+# split CR-572 exists to remove.
+# Written with code points so this file's code stays ASCII: 文書には保存しない.
+CONSTANT_CAPTION = ''.join(chr(c) for c in (
+    0x6587, 0x66F8, 0x306B, 0x306F, 0x4FDD, 0x5B58, 0x3057, 0x306A, 0x3044))
+ENGLISH_KEY = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$')
+
+CONSTANTS_NOTE = [
+    '// see FR-063, table T-064 PI-2',
+    '// TRAP: never read one of these from a document; a file does not carry them.',
+]
+
+
+def constant_rows():
+    """Every (row id, key, cell) the not-stored tables state by an English name.
+
+    @purity semi-pure-b
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    out, tables = [], []
+    for block in doc['blocks']:
+        if block['kind'] != 'table':
+            continue
+        caption = block.get('caption', {})
+        caption = caption.get('ja', '') if isinstance(caption, dict) else str(caption)
+        if CONSTANT_CAPTION not in caption:
+            continue
+        tables.append(block['id'])
+        for row in block['rows']:
+            named = row.get('key', row.get('name'))
+            if not isinstance(named, str):
+                continue                      # a row named in prose
+            key = named.strip().strip('`').split('`')[0].strip()
+            if not ENGLISH_KEY.match(key):
+                continue
+            cell = row.get('default', row.get('value'))
+            if cell is None:
+                # A key with no value column at all: table T-294 names each
+                # palette colour and keeps its drawn values in eight columns
+                # of their own, which SCHEDULE_COLOURS prints.
+                continue
+            out.append((row['id'], key, cell))
+    if not tables:
+        raise SystemExit(
+            'generate_entity_types: no settings table says it is not stored in '
+            'the document, so SETTINGS_CONSTANTS would be empty')
+    return out
+
+
+def constant_type(cell, row_id, key):
+    """The TypeScript type of one constant, from its machine cell, or None."""
+    if not isinstance(cell, dict):
+        return None
+    if 'pair' in cell and 'parts' in cell:
+        return 'pair'
+    if 'num' in cell:
+        return 'number'
+    if 'lit' in cell:
+        text = cell['lit']
+        if cell.get('quote') or text.startswith("'"):
+            return 'string'
+        if text in ('true', 'false'):
+            return 'boolean'
+        if text == 'null':
+            return 'null'
+        raise SystemExit(
+            'generate_entity_types: %s (%s) states the literal %s, and this '
+            'generator cannot say what type it is' % (key, row_id, text))
+    return None
+
+
+def constants_block(stored, literals):
+    """SETTINGS_CONSTANTS and DrawnSettings, for the not-stored tables."""
+    shape, values, unstated, seen = collections.OrderedDict(), {}, [], {}
+    for row_id, key, cell in constant_rows():
+        if key in seen:
+            raise SystemExit(
+                'generate_entity_types: %s is named by both %s and %s'
+                % (key, seen[key], row_id))
+        seen[key] = row_id
+        head = key.split('.')[0]
+        if head in stored:
+            raise SystemExit(
+                'generate_entity_types: %s (%s) sits in a table that says it is '
+                'not stored, and DocumentSettings holds %s too' % (key, row_id, head))
+        kind = constant_type(cell, row_id, key)
+        if kind is None and key in literals:
+            kind = 'number'                   # a rule worked out from other keys
+        if kind is None:
+            unstated.append((key, row_id))
+            continue
+        if kind == 'pair':
+            members = shape.setdefault(head, collections.OrderedDict())
+            for name, number in zip(cell['parts'], cell['pair']):
+                members[name] = 'number'
+                values['%s.%s' % (key, name)] = number
+            continue
+        literal = literals.get(key)
+        if literal is None:
+            literal = literal_of(cell)
+        if '.' in key:
+            shape.setdefault(head, collections.OrderedDict())[key.split('.')[1]] = kind
+        else:
+            shape[key] = kind
+        values[key] = literal
+
+    kinds = ['export const SETTINGS_CONSTANTS: {']
+    rows = []
+    for name in sorted(shape):
+        kind = shape[name]
+        if isinstance(kind, dict):
+            kinds.append('  readonly %s: {' % name)
+            kinds.extend('    readonly %s: %s' % (member, kind[member])
+                         for member in kind)
+            kinds.append('  }')
+            rows.append('  %s: {' % name)
+            rows.extend('    %s: %s,' % (member, values['%s.%s' % (name, member)])
+                        for member in kind)
+            rows.append('  },')
+        else:
+            kinds.append('  readonly %s: %s' % (name, kind))
+            rows.append('  %s: %s,' % (name, values[name]))
+    kinds.append('} = {')
+    if unstated:
+        rows.append('  // TRAP: these keys state no machine value, so none is generated:')
+        for key, row_id in unstated:
+            rows.append('  //   %s (%s)' % (key, row_id))
+    drawn = ['// see table T-064 PI-2, PI-35',
+             '// TRAP: only drawnSettingsOf builds one; nothing else joins the two.',
+             'export type DrawnSettings = DocumentSettings & typeof SETTINGS_CONSTANTS']
+    return '\n'.join(CONSTANTS_NOTE + kinds + rows + ['}', ''] + drawn)
+
+
 def settings_block(_erd):
     schema = json.load(io.open(SCHEMA, encoding='utf-8'),
                        object_pairs_hook=collections.OrderedDict)
@@ -2168,6 +2319,7 @@ def settings_block(_erd):
     body.append('\n'.join(BOUNDS_NOTE + rows + ['}']))
     body.append('\n'.join(DERIVED_NOTE + derived_rules(manuscript)
                           + ['} as const']))
+    body.append(constants_block(set(node['properties']), literals))
     return '\n\n'.join(body)
 
 
@@ -2579,6 +2731,7 @@ PUBLISHED_READ_BY_SRC = {
     ),
     'src/entity/document-model/document-settings/document-settings.ts': (
         'SETTINGS_BOUNDS',
+        'SETTINGS_CONSTANTS',
         'SETTINGS_DEFAULTS',
         'SETTINGS_DERIVED',
     ),

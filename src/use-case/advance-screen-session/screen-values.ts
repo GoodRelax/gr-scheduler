@@ -186,6 +186,10 @@ export type TooltipDisplayState =
 export interface ScreenValues {
   readonly language: ScreenValuesStateCarried['language']
   readonly rememberedActuals: ScreenValuesStateCarried['rememberedActuals']
+  readonly themePreference: ScreenValuesStateCarried['themePreference']
+  readonly guideCursorMode: ScreenValuesStateCarried['guideCursorMode']
+  readonly dualCursor: ScreenValuesStateCarried['dualCursor']
+  readonly propertyPanelWidth: ScreenValuesStateCarried['propertyPanelWidth']
   readonly armModeState: ArmModeState
   readonly paletteDisplayState: PaletteDisplayState
   readonly milestoneListDisplayState: MilestoneListDisplayState
@@ -199,7 +203,7 @@ export interface ScreenValues {
   readonly tooltipDisplayState: TooltipDisplayState
 }
 
-export type ScreenValuesAxes = Omit<ScreenValues, 'language' | 'rememberedActuals'>
+export type ScreenValuesAxes = Omit<ScreenValues, 'language' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
 
 export type ScreenValuesEvent =
   | { readonly type: 'paletteToggled' }
@@ -223,29 +227,33 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
-  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date']; readonly writes: ScreenValuesEventCarried['writes'] }
+  | { readonly type: 'dualCursorPlaced'; readonly date: ScreenValuesEventCarried['date'] }
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'scaleMessageTimeElapsed' }
   | { readonly type: 'displayLanguageChosen'; readonly language: ScreenValuesEventCarried['language'] }
+  | { readonly type: 'themePreferenceChosen'; readonly themePreference: ScreenValuesEventCarried['themePreference'] }
+  | { readonly type: 'propertyPanelWidthSettled'; readonly propertyPanelWidth: ScreenValuesEventCarried['propertyPanelWidth'] }
   | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual']; readonly writes: ScreenValuesEventCarried['writes'] }
-  | { readonly type: 'pointerRestElapsed' }
+  | { readonly type: 'hintTargetChanged' }
 
 export type ScreenValuesEffectName =
   | 'storeLanguage'
   | 'writeProgressStep'
+  | 'storeThemePreference'
+  | 'storeGuideCursorMode'
+  | 'storePropertyPanelWidth'
   | 'askBrowserForFullScreen'
   | 'tellFlowSurfaceClosed'
   | 'matchWatermarkUnlock'
   | 'raiseNotice'
   | 'clearSelection'
-  | 'writeClearDualCursor'
-  | 'writePlaceDualCursorClearingGuide'
-  | 'writeClearDualCursorSettingGuide'
-  | 'writeFixDate1'
-  | 'writeFixDate2'
+  | 'storeClearedDualCursor'
+  | 'storePlacedDualCursorClearingGuide'
+  | 'storeFixedDate1'
+  | 'storeFixedDate2'
   | 'startScaleMessageTimer'
   | 'restartScaleMessageTimer'
 

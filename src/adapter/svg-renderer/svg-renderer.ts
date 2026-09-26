@@ -697,9 +697,11 @@ export const NOT_STORED_DUMMY_SIZES: {
 export const NOT_STORED_DUAL_CURSOR_SIZES: {
   readonly 'S-194': number
   readonly 'S-333': number
+  readonly 'S-438': number
 } = {
   'S-194': 1,
-  'S-333': 3,
+  'S-333': 2,
+  'S-438': 4,
 }
 
 // see T-206
@@ -770,7 +772,7 @@ const SCHEDULE_COLOURS: {
   'S-312': { light: '#b45309', dark: '#b45309', followsHue: false },
   'S-161': { light: '#16181d', dark: '#e8eaee', followsHue: false },
   'S-162': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
-  'S-163': { light: '#eb6101', dark: '#ff8c42', followsHue: false },
+  'S-163': { light: '#d9381e', dark: '#ff5a3a', followsHue: false },
   'S-164': { light: 'hsl(H 42% 96%)', dark: 'hsl(H 18% 20%)', followsHue: true },
   'S-165': { light: 'hsl(H 34% 88%)', dark: 'hsl(H 16% 28%)', followsHue: true },
   'S-166': { light: 'hsl(H 40% 97%)', dark: 'hsl(H 20% 17%)', followsHue: true },

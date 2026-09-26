@@ -1,4 +1,5 @@
-1911
+1935
+# RAISED 1911 -> 1935 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W2 of cr-organise applied CR-572 waves 1 and 2a, CR-557, CR-585 and CR-576; the code lane L3 writes the tests that quote them.
 # RAISED 1886 -> 1911 on 2026-09-26 under JDG-743 (the user approved): wave W1 of cr-organise applied CR-555 (+21), CR-584 (+5) and CR-587 (-1); the code lanes L1 and L5 write the tests that quote them.
 # RAISED 1282 -> 1886 on 2026-09-26 under JDG-672 (the user approved the re-measured value): CR-573 deleted the omissible unit tests and check 39 now reads tests/contract, tests/system and tests/usecase only.
 # LOWERED 1286 -> 1282 on 2026-09-26 under JDG-520: CR-573 wave 0 retired four test-chapter MUST clauses; measured on 42d1e51c merged into refactor.

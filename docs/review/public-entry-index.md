@@ -90,7 +90,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ClampResult` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#ClampResult` | -- | interface ClampResult |
 | `DISPLAY_SCALE_STEPS` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#DISPLAY_SCALE_STEPS` | PI-2 | 表示の倍率の段の並び。 |
 | `DocumentSettings` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#DocumentSettings` | PI-2 | 型。 |
+| `DrawnSettings` | entry | type | `src/entity/document-model/document-settings/document-settings.ts#DrawnSettings` | PI-2 | 型。 |
 | `SETTINGS_BOUNDS` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#SETTINGS_BOUNDS` | -- | const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = |
+| `SETTINGS_CONSTANTS` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#SETTINGS_CONSTANTS` | PI-2 | 成果物に埋め込む定数。 |
 | `SETTINGS_DEFAULTS` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#SETTINGS_DEFAULTS` | -- | const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = |
 | `SETTINGS_DERIVED` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#SETTINGS_DERIVED` | -- | const SETTINGS_DERIVED = |
 | `SettingsBound` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#SettingsBound` | -- | interface SettingsBound |
@@ -1000,7 +1002,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `displayRatioOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#displayRatioOf` | PI-35 | 表示の倍率から描く比を出す。 |
-| `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値に描く比を 1 度だけ掛けた設定値を返す。 |
+| `drawnSettingsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#drawnSettingsOf` | PI-35 | 保存値と `SETTINGS_CONSTANTS` を合わせた 1 つの見方（`PI-2` の `DrawnSettings`）を作り、描く比を 1 度だけ掛けて返す。 |
 | `regionAtPointer` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionAtPointer` | PI-35 | ポインタがどの領域にあるか |
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
 | `regionsAtDisplayScale` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsAtDisplayScale` | PI-35 | 与えた表示の倍率で描いたときの各部の矩形。 |
@@ -1307,9 +1309,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PaletteDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayState` | -- | type PaletteDisplayState = \| { readonly kind: 'shown'; readonly child: PaletteDisplayShownState } \| { readonly kind: 'hidden' } export type MilestoneListDisp... |
 | `PropertiesPanelContentState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PropertiesPanelContentState` | -- | type PropertiesPanelContentState = \| { readonly kind: 'hidden' } \| { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject... |
 | `ScaleMessageDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScaleMessageDisplayState` | -- | type ScaleMessageDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly percent: ScreenValuesStateCarried['percent']; readonly end... |
-| `ScreenValuesAxes` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesAxes` | -- | type ScreenValuesAxes = Omit<ScreenValues, 'language' \| 'rememberedActuals'> |
+| `ScreenValuesAxes` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesAxes` | -- | type ScreenValuesAxes = Omit<ScreenValues, 'language' \| 'rememberedActuals' \| 'themePreference' \| 'guideCursorMode' \| 'dualCursor' \| 'propertyPanelWidth'> |
 | `ScreenValuesEffect` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEffect` | -- | type ScreenValuesEffect = |
-| `ScreenValuesEffectName` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEffectName` | -- | type ScreenValuesEffectName = \| 'storeLanguage' \| 'writeProgressStep' \| 'askBrowserForFullScreen' \| 'tellFlowSurfaceClosed' \| 'matchWatermarkUnlock' \| 'raise... |
+| `ScreenValuesEffectName` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEffectName` | -- | type ScreenValuesEffectName = \| 'storeLanguage' \| 'writeProgressStep' \| 'storeThemePreference' \| 'storeGuideCursorMode' \| 'storePropertyPanelWidth' \| 'askBro... |
 | `ScreenValuesEventCarried` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEventCarried` | -- | interface ScreenValuesEventCarried |
 | `ScreenValuesKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesKey` | -- | type ScreenValuesKey = \| 'screen' \| 'armModeStateMachine.notArmed' \| 'armModeStateMachine.taskShapeArmed' \| 'armModeStateMachine.milestoneShapeArmed' \| 'armM... |
 | `ScreenValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesStateCarried` | -- | interface ScreenValuesStateCarried |
@@ -1335,4 +1337,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 657 name(s) leave through a public entry (197 of them published by table T-064), 478 more are exported by a file and not by its entry.
+Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 478 more are exported by a file and not by its entry.

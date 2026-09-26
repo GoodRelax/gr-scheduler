@@ -131,7 +131,7 @@
 | U-49 | `Resource Roster` | 名簿。<br>文書が持つ担当者の一覧。<br>出し方と消し方は `FR-099` |
 | U-50 | `Row Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Rows` が並ぶ領域。<br> 左右は `Row Title Panel` と `Properties Panel` の内側 |
 | U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`） |
-| U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の `K-67` 〜 `K-72` / `K-110` / `K-111` が既に使っており、あちらは文書に保存する値である |
+| U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の群（`K-67` 〜 `K-72` / `K-110` / `K-111`）が既に使っている |
 | U-53 | `Tooltip` | ツールチップ。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切った行名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`） |
 | U-54 | `Export Chooser` | 書き出しの形式を選ぶ面。<br>開く規則は `FR-096`、入口は表 T-109 の `IC-2`、鍵は表 T-036 の `SK-12` が持つ |
 | U-55 | `Confirmation` | 続けてよいかを問う面。<br>問い方は表 T-037 の `NT-7`、2 択の入口の語は `FR-038` の辞書の `confirmation` が持つ。<br>⛔ **語のボタンであり、図形の入口ではない**—— **本表 T-109 にも 図 F-019 にも行を持たない。<br>**⚠️ **通知（`Notice`）ではない** —— 通知は答えを求めない |
@@ -162,11 +162,13 @@
 **Type**: SECTION
 
 `documentSettings` が持つ設定値の**名前**の正はここである。  
+成果物に埋め込む定数（`tbl-settings.md` で見出しに「文書には保存しない」とある表の鍵）の名前の正もここである。  
 値（既定値・下限・上限・範囲の理由）は `tbl-settings.md`（`DOC-TBL-SETTINGS`）が持つ。  
 ⛔ を付けたものは文書に保存しない（読む人の環境である）。  
+成果物に埋め込む定数も文書に保存しない —— ⛔ は付けず、`tbl-settings.md` の表の見出しが示す。  
 名前としては本書に載せる。
 
-⛔ 本表と `tbl-settings.md` の役割の境目はこうである（MUST） —— `tbl-settings.md` の表に在る行のうち、`documentSettings` の鍵であるものは、すべて本表に行を持つこと。  
+⛔ 本表と `tbl-settings.md` の役割の境目はこうである（MUST） —— `tbl-settings.md` の表に在る行のうち、`documentSettings` の鍵と、成果物に埋め込む定数（`05-07-design.md` の 表 T-064 の `PI-2` の `SETTINGS_CONSTANTS`）の鍵であるものは、すべて本表に行を持つこと。  
 ⛔ **鍵でないものを本表に載せてはならない（MUST NOT）。**  
 ⚠️ **「`src/` が英語の名前で引くもの」では広すぎる** —— **それは文書の列にも当てはまる。**  
 ⭐ **実例**: `cornerRadiusPx` は `_assets/tbl-settings.md` の 表 T-217 に既定値を持つが、`documentSettings` の鍵ではなく `HighlightBox` の列である（`AT-122`）。  
@@ -243,7 +245,7 @@
 | K-56 | LOD | `groupLevelOfDetailBase` | グループ LOD の初項 |
 | K-57 | LOD | `groupLevelOfDetailRatio` | グループ LOD の公比 |
 | K-58 | LOD | `stackSafetyCap` | 積み順の安全弁 |
-| K-59 | テーマ | `themePreference` | 明暗テーマ（**ダークモード**はこの値の `'dark'` を指す通称） |
+| K-59 | テーマ | `themePreference` ⛔ | 明暗テーマ（**ダークモード**はこの値の `'dark'` を指す通称） |
 | K-60 | テーマ | `themeHue` | テーマの色相 |
 | K-61 | テーマ | `themeMonochrome` | モノクロにするか |
 | K-62 | ズーム | `zoomStep` ⛔ | 1 ノッチの倍率 |
@@ -255,7 +257,7 @@
 | K-69 | 画面の状態 | `scrollDate` | 表示の左端が指す日付 |
 | K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指す行 |
 | K-71 | 画面の状態 | `rowTitlePanelWidth` | `Row Title Panel` の幅 |
-| K-72 | 画面の状態 | `propertyPanelWidth` | `Properties Panel` の幅 |
+| K-72 | 画面の状態 | `propertyPanelWidth` ⛔ | `Properties Panel` の幅 |
 | K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
 | K-111 | 画面の状態 | `pinnedRowMax` | ピン止めの件数の上限 |
 | K-73 | 表示の切り替え | `stackDirection` | 積む向き |
@@ -267,8 +269,8 @@
 | K-77 | 表示の切り替え | `dependencyVisible` | 依存線 |
 | K-78 | 表示の切り替え | `progressMarkerVisible` | 進捗マーカー |
 | K-79 | 表示の切り替え | `progressLineVisible` | イナズマ線 |
-| K-80 | 表示の切り替え | `dualCursor` | デュアルカーソル |
-| K-81 | 表示の切り替え | `guideCursorMode` | ガイドカーソル |
+| K-80 | 表示の切り替え | `dualCursor` ⛔ | デュアルカーソル |
+| K-81 | 表示の切り替え | `guideCursorMode` ⛔ | ガイドカーソル |
 | K-82 | 表示の切り替え | `dateGridLinesVisible` | 日付罫線（日付ごとの縦線） |
 | K-83 | 表示の切り替え | `groupGridLinesVisible` | グループ罫線（`TaskGroup` 境界の横線） |
 | K-84 | 表示の切り替え | `baselineVisible` | 変更前の予定を重ねるか |
@@ -457,15 +459,11 @@
 | CM-55 | `HighlightBox` | `setHighlightBoxStrokeColor` | — | 枠の色を置く | `FR-019` |
 | CM-56 | 見せ方の群 | `setStackDirection` | — | 積む向きを選ぶ | `FR-003` |
 | CM-58 | 見せ方の群 | `setElementVisible` | — | 要素の表示を切り替える | `FR-049` |
-| CM-59 | 見せ方の群 | `setGuideCursorMode` | — | ガイドカーソルを選ぶ | `FR-048` |
-| CM-60 | 見せ方の群 | `setDualCursor` | ⭐ | 2 本のカーソルを置く | `FR-082` |
-| CM-61 | 見せ方の群 | `clearDualCursor` | — | 2 本のカーソルを解く | `FR-082` |
 | CM-62 | 見せ方の群 | `setFontScale` | ⭐ | 文字サイズの段を変える | `FR-039` |
-| CM-63 | 見せ方の群 | `setThemePreference` | — | 明暗テーマを選ぶ | `FR-039` |
 | CM-64 | 見せ方の群 | `setThemeMonochrome` | — | モノクロを選ぶ | `FR-041` |
 | CM-65 | 見せ方の群 | `setZoom` | ⭐ | 表示倍率を変える | `FR-016` |
 | CM-66 | 見せ方の群 | `setScrollPosition` | — | 表示位置を変える | `FR-051` |
-| CM-67 | 見せ方の群 | `setPanelWidths` | ⭐ | パネル幅を変える | `FR-052` |
+| CM-67 | 見せ方の群 | `setRowTitlePanelWidth` | — | 行見出しパネルの幅を変える | `FR-052` |
 | CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
 | CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
 | CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体が収まる倍率と表示位置を置く | `FR-055` |
@@ -525,7 +523,7 @@
 | IC-105 | `App Header` | 表示 | 表示の倍率を上げる（`S-234`）| `FR-039` | — |
 | IC-100 | `App Header` | 表示 | モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である。<br>⭐ 本行は明暗テーマの入口（`IC-16`）の左に並べる（`FR-041`） | `FR-041`（表 T-108 の `CM-64`）| — |
 | IC-16 | `App Header` | 表示 | 明暗テーマを選ぶ（`S-72`）| `FR-039` | — |
-| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する | `FR-072` | — |
+| IC-17 | `App Header` | 表示 | 文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305） | `FR-072` | — |
 | IC-18 | `App Header` | AI | AI との対話欄を表示する・非表示にする | `FR-066` | — |
 | IC-19 | `App Header` | AI | AI へ渡す文書を画面で確かめて写す | `FR-068` | — |
 | IC-20 | `App Header` | AI | `Agent API` を有効にする・無効にする | `FR-065` | — |

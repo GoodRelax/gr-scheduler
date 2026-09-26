@@ -1006,6 +1006,42 @@ def settings_defaults():
     return out
 
 
+def settings_constants():
+    """The constants baked into the artifact, read from what the manuscript generated.
+
+    ⭐ CR-572 moved every key no in-app command writes out of
+    `documentSettings` and into SETTINGS_CONSTANTS, so the template no longer
+    carries them. The checks below that need one of them (the import date
+    range, the depth cap, the first actual length) read it here instead.
+    ⛔ Never merged into the document's settings: a key read from here and
+    written into the file is the frozen copy CR-572 removed.
+
+    @purity semi-pure-b
+    """
+    return generated_object(SETTINGS_TS, 'SETTINGS_CONSTANTS')
+
+
+CONSTANTS_READ = []
+
+
+def constant(name):
+    """One key of SETTINGS_CONSTANTS, refused rather than guessed when absent.
+
+    The block is read once per run; the depth check asks for its cap once per
+    row.
+
+    @purity semi-pure-b
+    """
+    if not CONSTANTS_READ:
+        CONSTANTS_READ.append(settings_constants())
+    held = CONSTANTS_READ[0]
+    insist(name in held,
+           'SETTINGS_CONSTANTS holds no %s -- the settings table that stated it '
+           'no longer does, or no longer says it is not stored in the document'
+           % name)
+    return held[name]
+
+
 def manuscript_number(row_id):
     """The number a settings row states, straight from the manuscript.
 
@@ -2037,7 +2073,8 @@ class Builder(object):
         task['actualFinish'] = None
         task['resumeValid'] = True
         if span == 0:
-            task['actualLength'] = max(1, self.settings['actualInitialDuration'])
+            task['actualLength'] = max(
+                1, constant('actualInitialDuration'))
             # FR-012: no division at span 0, and no finish means 0.
             task['percentComplete'] = 0
             return
@@ -3432,10 +3469,10 @@ ENTITIES = dict((one['name'], one) for one in ERD['entities'])
 BACKTICKED = re.compile(r'`([^`]+)`')
 
 # Table T-214's two ends (S-119 and S-120), which IV-14 measures against.
-# ⛔ Not typed here: they arrive through the same generated block the rest of
-# the presentation values do.
-ACCEPTED_FIRST_DAY = settings_defaults()['importMinDate']
-ACCEPTED_LAST_DAY = settings_defaults()['importMaxDate']
+# ⛔ Not typed here: they arrive through SETTINGS_CONSTANTS, the generated
+# block of the constants the document no longer carries (CR-572).
+ACCEPTED_FIRST_DAY = constant('importMinDate')
+ACCEPTED_LAST_DAY = constant('importMaxDate')
 
 
 def columns_keyed(entity, mark):
@@ -3893,9 +3930,10 @@ def check_invariants(document, settings):
             seen.add(at)
             depth += 1
             at = above[at]
-        insist(depth <= settings['maxGroupDepth'],
+        cap = constant('maxGroupDepth')
+        insist(depth <= cap,
                'IV-5: the row %s sits %d deep, over the cap of %d'
-               % (group['label'], depth, settings['maxGroupDepth']))
+               % (group['label'], depth, cap))
 
     held = {}
     for member in schedule['taskGroupMembers']:

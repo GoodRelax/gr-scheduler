@@ -765,218 +765,35 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualGap', 'actualInitialDuration', 'actualMin', 'actualOfPlan', 'actualVisible', 'appHeaderMaxHeight', 'arrowHeadOfSpan', 'assigneeLabelGap', 'assigneeVisible', 'basePlanHeight', 'baselineVisible', 'canvasPadding', 'carryMaxDepth', 'chevronNotchOfHeight', 'chevronNotchOfWidth', 'commentBoxPad', 'commentBoxWrapUnits', 'dateGridLinesVisible', 'dependencyArrowLength', 'dependencyArrowWidth', 'dependencyLagDefault', 'dependencyLeadIn', 'dependencyLeadOut', 'dependencyVisible', 'dependencyWidth', 'displayScale', 'dualCursor', 'dummyOpacity', 'exportCanvas', 'exportCanvasHeightCap', 'fadeHandleHalfPx', 'fadeHandleStrokePx', 'fontMin', 'fontOfActual', 'fontScale', 'fontScaleSizes', 'groupGridLinesVisible', 'groupLevelOfDetailBase', 'groupLevelOfDetailRatio', 'guideCursorMode', 'iconHintDelayMs', 'importMaxBytes', 'importMaxDate', 'importMaxDepth', 'importMaxItems', 'importMinDate', 'labelBaseline', 'labelCoef', 'labelGap', 'labelHaloOfFont', 'labelPad', 'levelZeroTreeState', 'markerSize', 'markerStroke', 'maxGroupDepth', 'milestoneActualDuration', 'milestoneNameMarkerGap', 'milestoneNameStartOfWidth', 'minShapeWidth', 'percentCompleteVisible', 'pinnedGroupIds', 'pinnedRowMax', 'planActualGuidePattern', 'planActualGuideWeight', 'planDatesVisible', 'planStroke', 'planVisible', 'progressLineOverhang', 'progressLineVisible', 'progressLineWidth', 'progressMarkerVisible', 'propertyPanelWidth', 'pxPerDayAt1x', 'resumeArmOfMarker', 'resumeDashOff', 'resumeDashOn', 'resumeDashWidth', 'resumeHeadOfMarker', 'resumeOpacityInvalid', 'resumeScaleInvalid', 'rowGap', 'rowTitleFont', 'rowTitleIndent', 'rowTitlePanelWidth', 'rowTitleTopScale', 'rulerFont', 'rulerHeight', 'rulerLabelBottomPad', 'rulerLabelGap', 'rulerLabelPad', 'rulerTierPxPerDayDay', 'rulerTierPxPerDayMonth', 'rulerTierPxPerDayWeek', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'shapeHeightOf', 'spanDotSize', 'stackDirection', 'stackGap', 'stackSafetyCap', 'starInnerOfOuter', 'themeMonochrome', 'themePreference', 'thinArrowHeadHeight', 'thinArrowHeadLength', 'thinFontScale', 'thinStrokeWidth', 'truncateUnits', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rowTitlePanelWidth', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'themeMonochrome', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
-        actualGap: {
-          type: ['integer'],
-        },
-        actualInitialDuration: {
-          type: ['integer'],
-        },
-        actualMin: {
-          type: ['integer'],
-        },
-        actualOfPlan: {
-          type: ['number'],
-        },
         actualVisible: {
           type: ['boolean'],
-        },
-        appHeaderMaxHeight: {
-          type: ['integer'],
-        },
-        arrowHeadOfSpan: {
-          type: ['number'],
-        },
-        assigneeLabelGap: {
-          type: ['number'],
         },
         assigneeVisible: {
           type: ['boolean'],
         },
-        basePlanHeight: {
-          type: ['integer'],
-        },
         baselineVisible: {
           type: ['boolean'],
-        },
-        canvasPadding: {
-          type: ['integer'],
-        },
-        carryMaxDepth: {
-          type: ['integer'],
-        },
-        chevronNotchOfHeight: {
-          type: ['number'],
-        },
-        chevronNotchOfWidth: {
-          type: ['number'],
-        },
-        commentBoxPad: {
-          type: ['integer'],
-        },
-        commentBoxWrapUnits: {
-          type: ['integer'],
         },
         dateGridLinesVisible: {
           type: ['boolean'],
         },
-        dependencyArrowLength: {
-          type: ['number'],
-        },
-        dependencyArrowWidth: {
-          type: ['integer'],
-        },
-        dependencyLagDefault: {
-          type: ['integer'],
-        },
-        dependencyLeadIn: {
-          type: ['integer'],
-        },
-        dependencyLeadOut: {
-          type: ['number'],
-        },
         dependencyVisible: {
           type: ['boolean'],
-        },
-        dependencyWidth: {
-          type: ['number'],
         },
         displayScale: {
           enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
         },
-        dualCursor: {
-          type: ['object', 'null'],
-          required: ['date1', 'date2'],
-          closed: true,
-          properties: {
-            date1: {
-              type: ['string'],
-            },
-            date2: {
-              type: ['string'],
-            },
-          },
-        },
-        dummyOpacity: {
-          type: ['number'],
-        },
-        exportCanvas: {
-          type: ['object'],
-          required: ['width', 'height'],
-          closed: true,
-          properties: {
-            width: {
-              type: ['integer'],
-            },
-            height: {
-              type: ['integer'],
-            },
-          },
-        },
-        exportCanvasHeightCap: {
-          type: ['number'],
-        },
-        fadeHandleHalfPx: {
-          type: ['number'],
-        },
-        fadeHandleStrokePx: {
-          type: ['number'],
-        },
-        fontMin: {
-          type: ['integer'],
-        },
-        fontOfActual: {
-          type: ['number'],
-        },
         fontScale: {
           enum: ['S', 'M', 'L'],
-        },
-        fontScaleSizes: {
-          type: ['object'],
-          required: ['L', 'M', 'S'],
-          closed: true,
-          properties: {
-            L: {
-              type: ['integer'],
-            },
-            M: {
-              type: ['integer'],
-            },
-            S: {
-              type: ['integer'],
-            },
-          },
         },
         groupGridLinesVisible: {
           type: ['boolean'],
         },
-        groupLevelOfDetailBase: {
-          type: ['number'],
-        },
-        groupLevelOfDetailRatio: {
-          type: ['number'],
-        },
-        guideCursorMode: {
-          enum: ['none', 'crosshair', 'single-vertical'],
-        },
-        iconHintDelayMs: {
-          type: ['integer'],
-        },
-        importMaxBytes: {
-          type: ['integer'],
-        },
-        importMaxDate: {
-          type: ['string'],
-        },
-        importMaxDepth: {
-          type: ['integer'],
-        },
-        importMaxItems: {
-          type: ['integer'],
-        },
-        importMinDate: {
-          type: ['string'],
-        },
-        labelBaseline: {
-          type: ['number'],
-        },
-        labelCoef: {
-          type: ['number'],
-        },
-        labelGap: {
-          type: ['number'],
-        },
-        labelHaloOfFont: {
-          type: ['number'],
-        },
-        labelPad: {
-          type: ['number'],
-        },
         levelZeroTreeState: {
           enum: ['auto', 'collapsed'],
-        },
-        markerSize: {
-          type: ['number'],
-        },
-        markerStroke: {
-          type: ['number'],
-        },
-        maxGroupDepth: {
-          type: ['integer'],
-        },
-        milestoneActualDuration: {
-          type: ['integer'],
-        },
-        milestoneNameMarkerGap: {
-          type: ['number'],
-        },
-        milestoneNameStartOfWidth: {
-          type: ['number'],
-        },
-        minShapeWidth: {
-          type: ['number'],
         },
         percentCompleteVisible: {
           type: ['boolean'],
@@ -987,86 +804,19 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             type: ['string'],
           },
         },
-        pinnedRowMax: {
-          type: ['integer'],
-        },
-        planActualGuidePattern: {
-          type: ['object'],
-          required: ['off', 'on'],
-          closed: true,
-          properties: {
-            off: {
-              type: ['number'],
-            },
-            on: {
-              type: ['number'],
-            },
-          },
-        },
-        planActualGuideWeight: {
-          type: ['number'],
-        },
         planDatesVisible: {
           type: ['boolean'],
-        },
-        planStroke: {
-          type: ['integer'],
         },
         planVisible: {
           type: ['boolean'],
         },
-        progressLineOverhang: {
-          type: ['integer'],
-        },
         progressLineVisible: {
           type: ['boolean'],
-        },
-        progressLineWidth: {
-          type: ['number'],
         },
         progressMarkerVisible: {
           type: ['boolean'],
         },
-        propertyPanelWidth: {
-          type: ['number'],
-        },
-        pxPerDayAt1x: {
-          type: ['number'],
-        },
-        resumeArmOfMarker: {
-          type: ['number'],
-        },
-        resumeDashOff: {
-          type: ['integer'],
-        },
-        resumeDashOn: {
-          type: ['integer'],
-        },
-        resumeDashWidth: {
-          type: ['number'],
-        },
-        resumeHeadOfMarker: {
-          type: ['number'],
-        },
-        resumeOpacityInvalid: {
-          type: ['number'],
-        },
-        resumeScaleInvalid: {
-          type: ['number'],
-        },
-        rowGap: {
-          type: ['integer'],
-        },
-        rowTitleFont: {
-          type: ['number'],
-        },
-        rowTitleIndent: {
-          type: ['integer'],
-        },
         rowTitlePanelWidth: {
-          type: ['number'],
-        },
-        rowTitleTopScale: {
           type: ['number'],
         },
         rulerFont: {
@@ -1074,24 +824,6 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         rulerHeight: {
           type: ['number'],
-        },
-        rulerLabelBottomPad: {
-          type: ['integer'],
-        },
-        rulerLabelGap: {
-          type: ['integer'],
-        },
-        rulerLabelPad: {
-          type: ['integer'],
-        },
-        rulerTierPxPerDayDay: {
-          type: ['number'],
-        },
-        rulerTierPxPerDayMonth: {
-          type: ['number'],
-        },
-        rulerTierPxPerDayWeek: {
-          type: ['integer'],
         },
         scrollDate: {
           type: ['string', 'null'],
@@ -1105,63 +837,11 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         scrollGroupOffset: {
           type: ['number'],
         },
-        shapeHeightOf: {
-          type: ['object'],
-          required: ['arrow', 'chevron', 'endpointSpan', 'milestone', 'rectangle'],
-          closed: true,
-          properties: {
-            arrow: {
-              type: ['number'],
-            },
-            chevron: {
-              type: ['number'],
-            },
-            endpointSpan: {
-              type: ['number'],
-            },
-            milestone: {
-              type: ['number'],
-            },
-            rectangle: {
-              type: ['number'],
-            },
-          },
-        },
-        spanDotSize: {
-          type: ['number'],
-        },
         stackDirection: {
           enum: ['up', 'down'],
         },
-        stackGap: {
-          type: ['integer'],
-        },
-        stackSafetyCap: {
-          type: ['integer'],
-        },
-        starInnerOfOuter: {
-          type: ['number'],
-        },
         themeMonochrome: {
           type: ['boolean'],
-        },
-        themePreference: {
-          enum: ['light', 'dark'],
-        },
-        thinArrowHeadHeight: {
-          type: ['number'],
-        },
-        thinArrowHeadLength: {
-          type: ['number'],
-        },
-        thinFontScale: {
-          type: ['number'],
-        },
-        thinStrokeWidth: {
-          type: ['number'],
-        },
-        truncateUnits: {
-          type: ['integer'],
         },
         zoomX: {
           type: ['number'],

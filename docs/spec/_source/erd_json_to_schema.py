@@ -44,18 +44,21 @@ SCHEMA_ID = ('https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/'
 # that says so.  A table missing from this map stops the build: a new table
 # must be classified by a person, not guessed by this script.
 TABLE_GROUP = {
-    'T-201': ('documentSettings', None),
     'T-202': ('documentSettings', None),
     'T-203': ('documentSettings', None),
-    'T-204': ('documentSettings', None),
-    'T-205': ('documentSettings', None),
-    'T-208': ('documentSettings', None),
-    'T-210': ('documentSettings', None),
-    'T-211': ('documentSettings', None),
-    'T-212': ('documentSettings', None),
-    'T-213': ('documentSettings', None),
-    'T-214': ('documentSettings', None),
-    'T-215': ('documentSettings', None),
+    # ⭐ Constants baked into the artifact (CR-572): no in-app command
+    # rewrites them, so a copy in a file would keep the value of the build
+    # that wrote it and a repair of the tool would never reach that file.
+    'T-201': ('notStored', '文書には保存しない'),
+    'T-204': ('notStored', '文書には保存しない'),
+    'T-205': ('notStored', '文書には保存しない'),
+    'T-208': ('notStored', '文書には保存しない'),
+    'T-210': ('notStored', '文書には保存しない'),
+    'T-211': ('notStored', '文書には保存しない'),
+    'T-212': ('notStored', '文書には保存しない'),
+    'T-213': ('notStored', '文書には保存しない'),
+    'T-214': ('notStored', '文書には保存しない'),
+    'T-215': ('notStored', '文書には保存しない'),
     'T-216': ('schedule', '日程データに属する値'),
     'T-209': ('schedule', '本表の値は日程データの群に入る'),
     'T-217': ('schedule', '本表の値は日程データの群に入る'),

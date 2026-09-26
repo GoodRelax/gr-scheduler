@@ -65,6 +65,7 @@ ASSIGNMENT_ROW = re.compile(r'^\| (MK-\d+[a-z]?) \|')
 REASON_ROW = re.compile(r'^\| (RS-\d+[a-z]?) \|')
 QUESTION_ROW = re.compile(r'^\| (QN-\d+[a-z]?) \|')
 ARM_ROW = re.compile(r'^\| (AR-\d+[a-z]?) \|')
+THEME_HUE_ROW = re.compile(r'^\| (TH-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
 SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
@@ -146,6 +147,10 @@ REASON_TABLE = 'T-233'
 # ⛔ The sentence a question shows. Table T-234 is the whole count of the
 # places NT-7 lets GRS ask, so a question with no row here cannot be raised.
 QUESTION_TABLE = 'T-234'
+# The theme hues the document settings surface offers (FR-041, CR-557). The
+# rows hold a hue and no word, so the word is this dictionary's, keyed by the
+# row id exactly as a reason is.
+THEME_HUE_TABLE = 'T-305'
 
 # The surface whose entry closes an open surface. Its 面 column is the roster of
 # surfaces table T-103 has settled a name for -- CR-191 and CR-193 both added a
@@ -446,6 +451,9 @@ def roster():
         'questions': [row[0] for row in
                       table_rows(REL_REQUIREMENTS, QUESTION_ROW,
                                  QUESTION_TABLE)],
+        'themeHues': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, THEME_HUE_ROW,
+                                 THEME_HUE_TABLE)],
     }
 
 
@@ -479,6 +487,7 @@ SHAPE = {
     'weekdays': ('weekday', ('text',)),
     'colourNames': ('spelling', ('text',)),
     'colourField': ('part', ('text',)),
+    'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
 }
@@ -564,7 +573,7 @@ def build(doc, keys_by_row):
                     'noticeDismiss',
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
-                    'colourNames', 'colourField',
+                    'colourNames', 'colourField', 'themeHues',
                     'scaleEcho', 'dualCursorReadout'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],

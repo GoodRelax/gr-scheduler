@@ -237,8 +237,8 @@
     "en": "Document settings"
    },
    "hint": {
-    "ja": "文書の描画設定をプロパティパネルに表示する",
-    "en": "Show the document's drawing settings in the Properties Panel"
+    "ja": "文書の描画設定をプロパティパネルに表示する。テーマの色相もここで選ぶ",
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme hue is chosen"
    }
   },
   {
@@ -3090,17 +3090,6 @@
    }
   },
   {
-   "rowId": "IV-13",
-   "text": {
-    "ja": "",
-    "en": ""
-   },
-   "nextStep": {
-    "ja": "",
-    "en": ""
-   }
-  },
-  {
    "rowId": "IV-14",
    "text": {
     "ja": "",
@@ -3746,6 +3735,18 @@
     "en": "Follow the project theme"
    }
   }
+ ],
+ "themeHues": [
+  {"rowId": "TH-1", "text": {"ja": "青", "en": "Blue"}},
+  {"rowId": "TH-2", "text": {"ja": "青緑", "en": "Blue-green"}},
+  {"rowId": "TH-3", "text": {"ja": "緑", "en": "Green"}},
+  {"rowId": "TH-4", "text": {"ja": "黄緑", "en": "Yellow-green"}},
+  {"rowId": "TH-5", "text": {"ja": "黄", "en": "Yellow"}},
+  {"rowId": "TH-6", "text": {"ja": "オレンジ", "en": "Orange"}},
+  {"rowId": "TH-7", "text": {"ja": "赤", "en": "Red"}},
+  {"rowId": "TH-8", "text": {"ja": "赤紫", "en": "Red-purple"}},
+  {"rowId": "TH-9", "text": {"ja": "紫", "en": "Purple"}},
+  {"rowId": "TH-10", "text": {"ja": "藍", "en": "Indigo"}}
  ],
  "scaleEcho": [
   {

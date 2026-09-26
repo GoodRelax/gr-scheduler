@@ -75,25 +75,30 @@
 | `screen/createdNameSettled` | 入力（作った直後の名前の `Enter`）: `FR-091` | — | `propertiesPanelContentStateMachine` |
 | `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
-| `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
-| `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | `dualCursorModeStateMachine` |
-| `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | `dualCursorModeStateMachine` |
+| `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
+| `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | 根 ・ `dualCursorModeStateMachine` |
+| `screen/dualCursorPlaced` | 入力（`Row Area` のクリック）: `DC-2` ・ `PTD-2` | `date`（置く日付） | `dualCursorModeStateMachine` |
 | `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
 | `screen/displayLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `language` | 根 |
+| `screen/themePreferenceChosen` | 入力: `IC-16` ・ `FR-039` | `themePreference` | 根 |
+| `screen/propertyPanelWidthSettled` | 入力（プロパティパネルの境界を離した）: `GR-22` ・ `IN-1` ・ `FR-052` | `propertyPanelWidth` | 根 |
 | `screen/progressMarkerPressed` | 入力（進捗マーカーの押下）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
-| `screen/pointerRestElapsed` | 時間: `EZ-2` | — | `tooltipDisplayStateMachine` |
+| `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |
 
 ### 根 `screen` の値
 
-運ぶ値: `language` ／ `rememberedActuals`。  
-根拠: `CP-36` ・ `S-99` ・ `PV-4`。
+運ぶ値: `language` ／ `rememberedActuals` ／ `themePreference` ／ `guideCursorMode` ／ `dualCursor` ／ `propertyPanelWidth`。  
+根拠: `CP-36` ・ `S-99` ・ `PV-4` ・ `S-72` ・ `S-66` ・ `S-65` ・ `S-171`。
 
 | 出来事 | `screen` |
 | --- | --- |
 | `screen/displayLanguageChosen` | → 自己 / `storeLanguage`（`language` を書き換える） |
 | `screen/progressMarkerPressed` | → 自己 / `writeProgressStep`（`rememberedActuals` を書き換える） |
+| `screen/themePreferenceChosen` | → 自己 / `storeThemePreference`（`themePreference` を書き換える） |
+| `screen/guideCursorEntryPressed` | → 自己 / `storeGuideCursorMode`（`guideCursorMode` を書き換える） |
+| `screen/propertyPanelWidthSettled` | → 自己 / `storePropertyPanelWidth`（`propertyPanelWidth` を書き換える） |
 
 **図 F-026 — 画面の値の状態遷移**
 
@@ -344,10 +349,10 @@ stateDiagram-v2
 
 | 出来事 | `off` | `on.placingDate1` | `on.placingDate2` |
 | --- | --- | --- | --- |
-| `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `writeClearDualCursor`<br>それ以外 → —（親 `on` の升） |
-| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `writePlaceDualCursorClearingGuide`<br>それ以外 → — | → `off` / `writeClearDualCursor`（親 `on` の升） | → `off` / `writeClearDualCursor`（親 `on` の升） |
-| `screen/guideCursorEntryPressed` | — | → `off` / `writeClearDualCursorSettingGuide`（親 `on` の升） | → `off` / `writeClearDualCursorSettingGuide`（親 `on` の升） |
-| `screen/dualCursorPlaced` | — | → `on.placingDate2` / `writeFixDate1` | → `on.placingDate1` / `writeFixDate2` |
+| `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） |
+| `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
+| `screen/guideCursorEntryPressed` | — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
+| `screen/dualCursorPlaced` | — | → `on.placingDate2` / `storeFixedDate1` | → `on.placingDate1` / `storeFixedDate2` |
 
 - `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`
 - `dualCursorModeStateMachine.on` —— 根拠 `DC-1` ・ `PTD-2`
@@ -389,13 +394,13 @@ stateDiagram-v2
     tooltipDisplayStateMachine_allowed : allowed
     tooltipDisplayStateMachine_dismissed : dismissed
     tooltipDisplayStateMachine_allowed --> tooltipDisplayStateMachine_dismissed : escapePressed
-    tooltipDisplayStateMachine_dismissed --> tooltipDisplayStateMachine_allowed : pointerRestElapsed
+    tooltipDisplayStateMachine_dismissed --> tooltipDisplayStateMachine_allowed : hintTargetChanged
 ```
 
 | 出来事 | `allowed` | `dismissed` |
 | --- | --- | --- |
 | `screen/escapePressed` | → `dismissed` [`isRungTooltip`]<br>それ以外 → — | — |
-| `screen/pointerRestElapsed` | — | → `allowed` |
+| `screen/hintTargetChanged` | — | → `allowed` |
 
 - `tooltipDisplayStateMachine.allowed` —— 初期。根拠 `IN-3`
 - `tooltipDisplayStateMachine.dismissed` —— 根拠 `IN-3` ・ `IN-4`

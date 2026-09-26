@@ -235,7 +235,7 @@
     "App Header"
    ],
    "group": "表示",
-   "entryTo": "文書の描画設定をプロパティパネルに表示する",
+   "entryTo": "文書の描画設定をプロパティパネルに表示する。<br>⭐ テーマの色相は、その面の先頭の欄で選ぶ（`FR-041` の 表 T-305）",
    "authority": "`FR-072`",
    "arms": null,
    "armsShape": null

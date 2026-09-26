@@ -337,12 +337,28 @@
      },
      {
       "name": "rememberedActuals"
+     },
+     {
+      "name": "themePreference"
+     },
+     {
+      "name": "guideCursorMode"
+     },
+     {
+      "name": "dualCursor"
+     },
+     {
+      "name": "propertyPanelWidth"
      }
     ],
     "evidence": [
      "CP-36",
      "S-99",
-     "PV-4"
+     "PV-4",
+     "S-72",
+     "S-66",
+     "S-65",
+     "S-171"
     ],
     "transitions": {
      "displayLanguageChosen": {
@@ -363,6 +379,37 @@
       ],
       "note": {
        "ja": "`rememberedActuals` を書き換える"
+      }
+     },
+     "themePreferenceChosen": {
+      "effect": "storeThemePreference",
+      "evidence": [
+       "S-72",
+       "FR-039"
+      ],
+      "note": {
+       "ja": "`themePreference` を書き換える"
+      }
+     },
+     "guideCursorEntryPressed": {
+      "effect": "storeGuideCursorMode",
+      "evidence": [
+       "S-66",
+       "FR-048",
+       "DC-9"
+      ],
+      "note": {
+       "ja": "`guideCursorMode` を書き換える"
+      }
+     },
+     "propertyPanelWidthSettled": {
+      "effect": "storePropertyPanelWidth",
+      "evidence": [
+       "S-171",
+       "FR-052"
+      ],
+      "note": {
+       "ja": "`propertyPanelWidth` を書き換える"
       }
      }
     }
@@ -728,12 +775,6 @@
       },
       {
        "name": "hasDaysToPlace"
-      },
-      {
-       "name": "writes",
-       "note": {
-        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
-       }
       }
      ]
     },
@@ -773,12 +814,6 @@
        "name": "date",
        "note": {
         "ja": "置く日付"
-       }
-      },
-      {
-       "name": "writes",
-       "note": {
-        "ja": "文書に書く命令。入力の翻訳係が作る。書くものが無ければ空"
        }
       }
      ]
@@ -851,6 +886,40 @@
      ]
     },
     {
+     "key": "themePreferenceChosen",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-16",
+       "FR-039"
+      ]
+     },
+     "carries": [
+      {
+       "name": "themePreference"
+      }
+     ]
+    },
+    {
+     "key": "propertyPanelWidthSettled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "GR-22",
+       "IN-1",
+       "FR-052"
+      ],
+      "note": {
+       "ja": "プロパティパネルの境界を離した"
+      }
+     },
+     "carries": [
+      {
+       "name": "propertyPanelWidth"
+      }
+     ]
+    },
+    {
      "key": "progressMarkerPressed",
      "source": {
       "kind": "input",
@@ -882,11 +951,14 @@
      ]
     },
     {
-     "key": "pointerRestElapsed",
+     "key": "hintTargetChanged",
      "source": {
-      "kind": "time",
+      "kind": "input",
       "rows": [
-       "EZ-2"
+       "EZ-2",
+       "EZ-6",
+       "FR-037",
+       "IN-3"
       ]
      },
      "carries": []
@@ -2030,7 +2102,7 @@
           "name": "isRungDualCursor"
          }
         ],
-        "effect": "writeClearDualCursor",
+        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-7",
          "IN-4"
@@ -2045,7 +2117,7 @@
           "name": "hasDaysToPlace"
          }
         ],
-        "effect": "writePlaceDualCursorClearingGuide",
+        "effect": "storePlacedDualCursorClearingGuide",
         "evidence": [
          "DC-1",
          "DC-9"
@@ -2053,7 +2125,7 @@
        },
        "on": {
         "to": "off",
-        "effect": "writeClearDualCursor",
+        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-4"
         ]
@@ -2062,7 +2134,7 @@
       "guideCursorEntryPressed": {
        "on": {
         "to": "off",
-        "effect": "writeClearDualCursorSettingGuide",
+        "effect": "storeClearedDualCursor",
         "evidence": [
          "DC-4",
          "DC-7",
@@ -2073,7 +2145,7 @@
       "dualCursorPlaced": {
        "on.placingDate1": {
         "to": "on.placingDate2",
-        "effect": "writeFixDate1",
+        "effect": "storeFixedDate1",
         "evidence": [
          "DC-2",
          "DC-6"
@@ -2081,7 +2153,7 @@
        },
        "on.placingDate2": {
         "to": "on.placingDate1",
-        "effect": "writeFixDate2",
+        "effect": "storeFixedDate2",
         "evidence": [
          "DC-2",
          "DC-6"
@@ -2214,7 +2286,7 @@
         ]
        }
       },
-      "pointerRestElapsed": {
+      "hintTargetChanged": {
        "dismissed": {
         "to": "allowed",
         "evidence": [

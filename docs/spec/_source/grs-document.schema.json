@@ -110,226 +110,49 @@
    "type": "object",
    "description": "The presentation group (DR-3 of table T-052). FR-063 fixes what is in it.",
    "required": [
-    "actualGap",
-    "actualInitialDuration",
-    "actualMin",
-    "actualOfPlan",
     "actualVisible",
-    "appHeaderMaxHeight",
-    "arrowHeadOfSpan",
-    "assigneeLabelGap",
     "assigneeVisible",
-    "basePlanHeight",
     "baselineVisible",
-    "canvasPadding",
-    "carryMaxDepth",
-    "chevronNotchOfHeight",
-    "chevronNotchOfWidth",
-    "commentBoxPad",
-    "commentBoxWrapUnits",
     "dateGridLinesVisible",
-    "dependencyArrowLength",
-    "dependencyArrowWidth",
-    "dependencyLagDefault",
-    "dependencyLeadIn",
-    "dependencyLeadOut",
     "dependencyVisible",
-    "dependencyWidth",
     "displayScale",
-    "dualCursor",
-    "dummyOpacity",
-    "exportCanvas",
-    "exportCanvasHeightCap",
-    "fadeHandleHalfPx",
-    "fadeHandleStrokePx",
-    "fontMin",
-    "fontOfActual",
     "fontScale",
-    "fontScaleSizes",
     "groupGridLinesVisible",
-    "groupLevelOfDetailBase",
-    "groupLevelOfDetailRatio",
-    "guideCursorMode",
-    "iconHintDelayMs",
-    "importMaxBytes",
-    "importMaxDate",
-    "importMaxDepth",
-    "importMaxItems",
-    "importMinDate",
-    "labelBaseline",
-    "labelCoef",
-    "labelGap",
-    "labelHaloOfFont",
-    "labelPad",
     "levelZeroTreeState",
-    "markerSize",
-    "markerStroke",
-    "maxGroupDepth",
-    "milestoneActualDuration",
-    "milestoneNameMarkerGap",
-    "milestoneNameStartOfWidth",
-    "minShapeWidth",
     "percentCompleteVisible",
     "pinnedGroupIds",
-    "pinnedRowMax",
-    "planActualGuidePattern",
-    "planActualGuideWeight",
     "planDatesVisible",
-    "planStroke",
     "planVisible",
-    "progressLineOverhang",
     "progressLineVisible",
-    "progressLineWidth",
     "progressMarkerVisible",
-    "propertyPanelWidth",
-    "pxPerDayAt1x",
-    "resumeArmOfMarker",
-    "resumeDashOff",
-    "resumeDashOn",
-    "resumeDashWidth",
-    "resumeHeadOfMarker",
-    "resumeOpacityInvalid",
-    "resumeScaleInvalid",
-    "rowGap",
-    "rowTitleFont",
-    "rowTitleIndent",
     "rowTitlePanelWidth",
-    "rowTitleTopScale",
     "rulerFont",
     "rulerHeight",
-    "rulerLabelBottomPad",
-    "rulerLabelGap",
-    "rulerLabelPad",
-    "rulerTierPxPerDayDay",
-    "rulerTierPxPerDayMonth",
-    "rulerTierPxPerDayWeek",
     "scrollDate",
     "scrollDayOffset",
     "scrollGroupId",
     "scrollGroupOffset",
-    "shapeHeightOf",
-    "spanDotSize",
     "stackDirection",
-    "stackGap",
-    "stackSafetyCap",
-    "starInnerOfOuter",
     "themeMonochrome",
-    "themePreference",
-    "thinArrowHeadHeight",
-    "thinArrowHeadLength",
-    "thinFontScale",
-    "thinStrokeWidth",
-    "truncateUnits",
     "zoomX",
     "zoomY"
    ],
    "additionalProperties": false,
    "properties": {
-    "actualGap": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 20
-    },
-    "actualInitialDuration": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 1
-    },
-    "actualMin": {
-     "type": "integer",
-     "maximum": 80
-    },
-    "actualOfPlan": {
-     "type": "number",
-     "minimum": 0.05
-    },
     "actualVisible": {
      "type": "boolean"
-    },
-    "appHeaderMaxHeight": {
-     "type": "integer",
-     "minimum": 32,
-     "maximum": 96
-    },
-    "arrowHeadOfSpan": {
-     "type": "number",
-     "minimum": 0.1,
-     "maximum": 1
-    },
-    "assigneeLabelGap": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 30
     },
     "assigneeVisible": {
      "type": "boolean"
     },
-    "basePlanHeight": {
-     "type": "integer",
-     "maximum": 200
-    },
     "baselineVisible": {
      "type": "boolean"
-    },
-    "canvasPadding": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 60
-    },
-    "carryMaxDepth": {
-     "type": "integer",
-     "minimum": 4,
-     "maximum": 64
-    },
-    "chevronNotchOfHeight": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 1
-    },
-    "chevronNotchOfWidth": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 0.5
-    },
-    "commentBoxPad": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 30
-    },
-    "commentBoxWrapUnits": {
-     "type": "integer",
-     "minimum": 4,
-     "maximum": 240
     },
     "dateGridLinesVisible": {
      "type": "boolean"
     },
-    "dependencyArrowLength": {
-     "type": "number",
-     "maximum": 40
-    },
-    "dependencyArrowWidth": {
-     "type": "integer",
-     "maximum": 40
-    },
-    "dependencyLagDefault": {
-     "type": "integer"
-    },
-    "dependencyLeadIn": {
-     "type": "integer",
-     "maximum": 40
-    },
-    "dependencyLeadOut": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 40
-    },
     "dependencyVisible": {
      "type": "boolean"
-    },
-    "dependencyWidth": {
-     "type": "number",
-     "minimum": 0.5
     },
     "displayScale": {
      "enum": [
@@ -345,68 +168,6 @@
       200
      ]
     },
-    "dualCursor": {
-     "type": [
-      "object",
-      "null"
-     ],
-     "required": [
-      "date1",
-      "date2"
-     ],
-     "additionalProperties": false,
-     "properties": {
-      "date1": {
-       "type": "string"
-      },
-      "date2": {
-       "type": "string"
-      }
-     }
-    },
-    "dummyOpacity": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 0.5
-    },
-    "exportCanvas": {
-     "type": "object",
-     "required": [
-      "width",
-      "height"
-     ],
-     "additionalProperties": false,
-     "properties": {
-      "width": {
-       "type": "integer"
-      },
-      "height": {
-       "type": "integer"
-      }
-     }
-    },
-    "exportCanvasHeightCap": {
-     "type": "number"
-    },
-    "fadeHandleHalfPx": {
-     "type": "number",
-     "minimum": 2.5,
-     "maximum": 8
-    },
-    "fadeHandleStrokePx": {
-     "type": "number",
-     "minimum": 1,
-     "maximum": 3
-    },
-    "fontMin": {
-     "type": "integer",
-     "minimum": 12,
-     "maximum": 40
-    },
-    "fontOfActual": {
-     "type": "number",
-     "minimum": 0.05
-    },
     "fontScale": {
      "enum": [
       "S",
@@ -414,137 +175,14 @@
       "L"
      ]
     },
-    "fontScaleSizes": {
-     "type": "object",
-     "required": [
-      "L",
-      "M",
-      "S"
-     ],
-     "additionalProperties": false,
-     "properties": {
-      "L": {
-       "type": "integer",
-       "maximum": 40
-      },
-      "M": {
-       "type": "integer"
-      },
-      "S": {
-       "type": "integer"
-      }
-     }
-    },
     "groupGridLinesVisible": {
      "type": "boolean"
-    },
-    "groupLevelOfDetailBase": {
-     "type": "number",
-     "minimum": 0.01,
-     "maximum": 2
-    },
-    "groupLevelOfDetailRatio": {
-     "type": "number",
-     "maximum": 4
-    },
-    "guideCursorMode": {
-     "enum": [
-      "none",
-      "crosshair",
-      "single-vertical"
-     ]
-    },
-    "iconHintDelayMs": {
-     "type": "integer",
-     "minimum": 100,
-     "maximum": 10000
-    },
-    "importMaxBytes": {
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 256
-    },
-    "importMaxDate": {
-     "type": "string",
-     "format": "date"
-    },
-    "importMaxDepth": {
-     "type": "integer",
-     "minimum": 8,
-     "maximum": 256
-    },
-    "importMaxItems": {
-     "type": "integer",
-     "minimum": 1000,
-     "maximum": 200000
-    },
-    "importMinDate": {
-     "type": "string",
-     "format": "date"
-    },
-    "labelBaseline": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 0.8
-    },
-    "labelCoef": {
-     "type": "number",
-     "minimum": 0.3,
-     "maximum": 1
-    },
-    "labelGap": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 30
-    },
-    "labelHaloOfFont": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 0.3
-    },
-    "labelPad": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 30
     },
     "levelZeroTreeState": {
      "enum": [
       "auto",
       "collapsed"
      ]
-    },
-    "markerSize": {
-     "type": "number"
-    },
-    "markerStroke": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 4
-    },
-    "maxGroupDepth": {
-     "type": "integer",
-     "minimum": 3,
-     "maximum": 8
-    },
-    "milestoneActualDuration": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 0
-    },
-    "milestoneNameMarkerGap": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 30
-    },
-    "milestoneNameStartOfWidth": {
-     "type": "number",
-     "minimum": 0,
-     "maximum": 1
-    },
-    "minShapeWidth": {
-     "type": "number",
-     "minimum": 1,
-     "maximum": 20
     },
     "percentCompleteVisible": {
      "type": "boolean"
@@ -556,120 +194,20 @@
       "format": "uuid"
      }
     },
-    "pinnedRowMax": {
-     "type": "integer"
-    },
-    "planActualGuidePattern": {
-     "type": "object",
-     "required": [
-      "off",
-      "on"
-     ],
-     "additionalProperties": false,
-     "properties": {
-      "off": {
-       "type": "number"
-      },
-      "on": {
-       "type": "number"
-      }
-     }
-    },
-    "planActualGuideWeight": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 2
-    },
     "planDatesVisible": {
      "type": "boolean"
-    },
-    "planStroke": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 4
     },
     "planVisible": {
      "type": "boolean"
     },
-    "progressLineOverhang": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 40
-    },
     "progressLineVisible": {
      "type": "boolean"
-    },
-    "progressLineWidth": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 8
     },
     "progressMarkerVisible": {
      "type": "boolean"
     },
-    "propertyPanelWidth": {
-     "type": "number"
-    },
-    "pxPerDayAt1x": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 60
-    },
-    "resumeArmOfMarker": {
-     "type": "number",
-     "minimum": 0.2
-    },
-    "resumeDashOff": {
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 12
-    },
-    "resumeDashOn": {
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 12
-    },
-    "resumeDashWidth": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 20
-    },
-    "resumeHeadOfMarker": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 0.5
-    },
-    "resumeOpacityInvalid": {
-     "type": "number",
-     "minimum": 0.05,
-     "maximum": 1
-    },
-    "resumeScaleInvalid": {
-     "type": "number",
-     "minimum": 0.3,
-     "maximum": 1
-    },
-    "rowGap": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 0
-    },
-    "rowTitleFont": {
-     "type": "number",
-     "maximum": 40
-    },
-    "rowTitleIndent": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 60
-    },
     "rowTitlePanelWidth": {
      "type": "number"
-    },
-    "rowTitleTopScale": {
-     "type": "number",
-     "minimum": 1,
-     "maximum": 2
     },
     "rulerFont": {
      "type": "number"
@@ -677,31 +215,6 @@
     "rulerHeight": {
      "type": "number",
      "maximum": 150
-    },
-    "rulerLabelBottomPad": {
-     "type": "integer",
-     "minimum": 0
-    },
-    "rulerLabelGap": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 30
-    },
-    "rulerLabelPad": {
-     "type": "integer",
-     "minimum": 0,
-     "maximum": 20
-    },
-    "rulerTierPxPerDayDay": {
-     "type": "number",
-     "maximum": 60
-    },
-    "rulerTierPxPerDayMonth": {
-     "type": "number",
-     "minimum": 0.1
-    },
-    "rulerTierPxPerDayWeek": {
-     "type": "integer"
     },
     "scrollDate": {
      "type": [
@@ -722,99 +235,14 @@
     "scrollGroupOffset": {
      "type": "number"
     },
-    "shapeHeightOf": {
-     "type": "object",
-     "required": [
-      "arrow",
-      "chevron",
-      "endpointSpan",
-      "milestone",
-      "rectangle"
-     ],
-     "additionalProperties": false,
-     "properties": {
-      "arrow": {
-       "type": "number",
-       "minimum": 0.1
-      },
-      "chevron": {
-       "type": "number",
-       "minimum": 0.2,
-       "maximum": 3
-      },
-      "endpointSpan": {
-       "type": "number",
-       "minimum": 0.1
-      },
-      "milestone": {
-       "type": "number",
-       "minimum": 0.1,
-       "maximum": 1
-      },
-      "rectangle": {
-       "type": "number",
-       "minimum": 1,
-       "maximum": 1
-      }
-     }
-    },
-    "spanDotSize": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 40
-    },
     "stackDirection": {
      "enum": [
       "up",
       "down"
      ]
     },
-    "stackGap": {
-     "type": "integer",
-     "minimum": 1,
-     "maximum": 1
-    },
-    "stackSafetyCap": {
-     "type": "integer"
-    },
-    "starInnerOfOuter": {
-     "type": "number",
-     "minimum": 0.2,
-     "maximum": 0.8
-    },
     "themeMonochrome": {
      "type": "boolean"
-    },
-    "themePreference": {
-     "enum": [
-      "light",
-      "dark"
-     ]
-    },
-    "thinArrowHeadHeight": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 40
-    },
-    "thinArrowHeadLength": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 40
-    },
-    "thinFontScale": {
-     "type": "number",
-     "minimum": 0.3,
-     "maximum": 1
-    },
-    "thinStrokeWidth": {
-     "type": "number",
-     "minimum": 0.5,
-     "maximum": 20
-    },
-    "truncateUnits": {
-     "type": "integer",
-     "minimum": 4,
-     "maximum": 120
     },
     "zoomX": {
      "type": "number"

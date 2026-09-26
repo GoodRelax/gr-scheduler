@@ -1173,6 +1173,14 @@
    }
   },
   {
+   "prefix": "TH",
+   "words": "Theme Hue",
+   "owner": "spec",
+   "means": {
+    "ja": "画面で選べるテーマの色相"
+   }
+  },
+  {
    "prefix": "TM",
    "words": "",
    "owner": "spec",
