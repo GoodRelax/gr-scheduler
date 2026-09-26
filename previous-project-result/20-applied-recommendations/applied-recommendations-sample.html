@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>推奨で当てた 5 件の見本</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #ffffff; --ink: #1f2328; --muted: #57606a; --line: #d0d7de;
+    --panel: #f6f8fa; --hdr: #f3f6fa; --now: #b35900;
+  }
+  :root[data-theme="dark"] {
+    --bg: #16191d; --ink: #e6e8ea; --muted: #9aa4ae; --line: #3a4148;
+    --panel: #1f2328; --hdr: #1c2127; --now: #ffb366;
+  }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { margin: 0; padding: 16px 24px 48px; font: 16px/1.7 system-ui, sans-serif; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 30px 0 6px; border-bottom: 1px solid var(--line); }
+  p.note { color: var(--muted); margin: 4px 0 8px; font-size: 0.9rem; }
+  .controls { position: sticky; top: 0; z-index: 2; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px;
+    display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; font-size: 0.9rem; }
+  .grid { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+  .card { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--bg); }
+  .card h3 { font-size: 0.95rem; margin: 0 0 6px; font-weight: 600; }
+  .card h3 .tag { font-size: 0.75rem; font-weight: 600; color: var(--now); margin-left: 6px; }
+  .strip { display: inline-flex; gap: 4px; padding: 4px 6px; background: var(--hdr);
+    border: 1px solid var(--line); border-radius: 4px; }
+  .strip .b { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center;
+    border-radius: 4px; }
+  .strip .b.cand { outline: 1px dashed var(--muted); outline-offset: -1px; }
+  .cap { font-size: 0.75rem; color: var(--muted); text-align: center; }
+  table.w { border-collapse: collapse; font-size: 0.9rem; margin-top: 6px; }
+  table.w th, table.w td { border: 1px solid var(--line); padding: 3px 8px; vertical-align: top; text-align: left; }
+  table.w th { background: var(--panel); }
+  code { font-size: 0.85em; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<h1>推奨で当てた 5 件の見本（2026-09-27）</h1>
+<p class="note">仕様の整理（枝 <code>cr-organise</code>、<code>f953dc90</code>）が、利用者に問わずに推奨で当てた 5 件を、目で見て選べるように並べました。
+色・寸法は仕様の設定値（<code>docs/spec/_assets/tbl-settings.md</code>）から写しています。テーマの色相は既定の 214 です。
+「今」の印が付いたものが、いま仕様に入っている形です。</p>
+
+<div class="controls">
+  <label><input id="dark" type="checkbox"> 暗いテーマ</label>
+  <label><input id="mono" type="checkbox"> モノクロ（1〜3 の段。今の規則: 色相の欄が ○ の行だけ灰）</label>
+</div>
+
+<h2>1. 遅延診断の入口のグリフ（<code>IC-107</code>、<code>CR-561</code>）</h2>
+<p class="note">ヘッダーの並びは 全体表示 <code>IC-10</code> → 検索 <code>IC-117</code> → 遅延診断 <code>IC-107</code> → 全画面 <code>IC-11</code> です（表 T-109 の順）。
+点線の枠が <code>IC-107</code> の候補です。上が画面の大きさ（24 単位の図形を 20px）、下が 3 倍です。</p>
+<div class="grid" id="glyphs"></div>
+
+<h2>2. ボトルネックの印の炎の形（<code>S-395</code>、<code>CR-561</code>）</h2>
+<p class="note">赤い印（<code>DG-2</code>、地 <code>S-387</code>・記号 <code>S-388</code>）の中の炎です。印の径は 14px（表示の倍率 100。<code>S-22</code>）、炎の箱は径の 0.70 倍（<code>S-396</code>）です。
+左から 実物の大きさ・4 倍。右に並ぶ桃色の <code>!!</code>（<code>DG-3</code>）と紫の <code>?</code>（<code>DG-1</code>）は比べるための隣の印で、記号は字で代用しました。
+下の段は参考で、炎の大きさ（<code>S-396</code>）を 0.60・0.70・0.80 で並べます。</p>
+<div class="grid" id="flames"></div>
+
+<h2>3. 変更前の予定の輪郭の破線の刻み（<code>S-444</code>、<code>CR-588</code>）</h2>
+<p class="note">変更前の予定を、灰色（<code>S-443</code> ＝ <code>S-148</code>）の 1px の破線の輪郭で重ねます。実績のバーの手前、依存線の奥です（<code>ZO-15</code>）。
+1 行目は予定が後ろへずれたタスク、2 行目は変わっていないタスク（輪郭が予定の縁に重なる）、3 行目はマイルストーンです。
+比べるために、選択の枠（<code>S-175</code> 2×1）を 2 行目に、依存線を 1→3 行目に描きました。</p>
+<div class="grid" id="dashes"></div>
+
+<h2>4. モノクロで灰にする範囲（<code>CR-585</code>）</h2>
+<p class="note">同じ小さな日程を 3 枚並べます。左はカラー（比べるため）、中は今の規則（色相の欄が ○ の行だけ灰。— の行は色のまま）、右は — の行も灰にした案です。
+— の行: 依存線 <code>S-159</code>・イナズマ線 <code>S-160</code>・基準日線 <code>S-163</code>・良／注意／不良 <code>S-152</code>〜<code>S-154</code>・カーソル <code>S-195</code>・注記 <code>S-312</code>・遅延診断の印 <code>S-385</code>〜<code>S-390</code> ほか。
+灰にする方法は、今の ○ の行と同じ（HSL の明度を保ち、彩度を 0）です。</p>
+<div class="grid" id="mono4"></div>
+
+<h2>5. 入口の説明（ツールチップ）の文 12 件（<code>CR-571</code> の 11 件 ＋ <code>IC-107</code>）</h2>
+<p class="note">入口に指を載せたときに出る説明です。札（名前）は既に裁定済み（<code>JDG-630</code>・<code>JDG-647</code>・<code>JDG-490</code>）で、ここで見るのは説明の文だけです。</p>
+<table class="w" id="hints"></table>
+
+<script>
+'use strict';
+const H = 214;
+const $ = (s) => document.querySelector(s);
+const state = { dark: false, mono: false };
+
+// ---- colour helpers ----
+function hexToRgb(h) { h = h.replace('#', ''); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255); }
+function rgbToHsl([r, g, b]) {
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b); const l = (mx + mn) / 2; let h = 0, s = 0;
+  if (mx !== mn) {
+    const d = mx - mn; s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) h = (g - b) / d + (g < b ? 6 : 0); else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return [h, s * 100, l * 100];
+}
+function parse(c) {
+  const m = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/.exec(c);
+  if (m) return [+m[1], +m[2], +m[3]];
+  return rgbToHsl(hexToRgb(c));
+}
+const css = ([h, s, l]) => `hsl(${h.toFixed(1)} ${s.toFixed(1)}% ${l.toFixed(1)}%)`;
+const grey = (c) => { const [, , l] = parse(c); return css([0, 0, l]); };
+
+// Table T-236 rows used here: [light, dark, followsHue]
+const ROWS = {
+  S146: ['#ffffff', `hsl(${H} 12% 9%)`, true], S147: ['#16181d', '#e8eaee', false],
+  S148: ['#5b6068', '#9aa1ab', false], S149: [`hsl(${H} 14% 87%)`, `hsl(${H} 12% 23%)`, true],
+  S150: [`hsl(${H} 20% 97%)`, `hsl(${H} 14% 13%)`, true], S151: [`hsl(${H} 59% 32%)`, `hsl(${H} 62% 68%)`, true],
+  S152: ['#1f7a3d', '#6fc98d', false], S153: ['#a8600f', '#e0a353', false], S154: ['#a02b2b', '#e07a7a', false],
+  S155: [`hsl(${H} 46% 80%)`, `hsl(${H} 32% 26%)`, true], S156: [`hsl(${H} 44% 46%)`, `hsl(${H} 46% 66%)`, true],
+  S157: [`hsl(${H} 62% 34%)`, `hsl(${H} 62% 64%)`, true], S158: [`hsl(${H} 66% 22%)`, `hsl(${H} 70% 80%)`, true],
+  S159: ['hsl(26 88% 44%)', 'hsl(30 92% 60%)', false], S160: ['hsl(354 62% 42%)', 'hsl(354 70% 64%)', false],
+  S163: ['#d9381e', '#ff5a3a', false], S166: [`hsl(${H} 40% 97%)`, `hsl(${H} 20% 17%)`, true],
+  S167: [`hsl(${H} 20% 99%)`, `hsl(${H} 14% 11%)`, true], S195: ['#c2188f', '#f07ad0', false],
+  S312: ['#b45309', '#b45309', false],
+  S385: ['#f09199', '#f4a7b9', false], S386: ['#16181d', '#16181d', false],
+  S387: ['#d32f2f', '#ff5c5c', false], S388: ['#ffffff', '#16181d', false],
+  S389: ['#7e57c2', '#b39ddb', false], S390: ['#ffffff', '#16181d', false],
+};
+// mode: 'colour' | 'monoA' (only hue-following rows grey: the applied rule) | 'monoB' (every row grey)
+function col(id, dark, mode) {
+  const [l, d, follows] = ROWS[id]; const c = dark ? d : l;
+  if (mode === 'monoB' || (mode === 'monoA' && follows)) return grey(c);
+  return c;
+}
+const modeNow = () => (state.mono ? 'monoA' : 'colour');
+const C = (id) => col(id, state.dark, modeNow());
+
+// ---- flame paths in the unit square ----
+const FLAMES = {
+  A: { name: 'A 今の道（二枚の舌）', now: true,
+    d: 'M0.5 0.05 C0.62 0.28 0.86 0.42 0.86 0.66 C0.86 0.86 0.7 1 0.5 1 C0.3 1 0.14 0.86 0.14 0.66 C0.14 0.5 0.26 0.38 0.34 0.3 C0.36 0.44 0.42 0.52 0.5 0.54 C0.46 0.36 0.46 0.2 0.5 0.05 Z' },
+  B: { name: 'B 一枚の滴',
+    d: 'M0.5 0.02 C0.64 0.26 0.86 0.44 0.86 0.67 C0.86 0.87 0.7 1 0.5 1 C0.3 1 0.14 0.87 0.14 0.67 C0.14 0.44 0.36 0.26 0.5 0.02 Z' },
+  C: { name: 'C 滴に芯の穴',
+    d: 'M0.5 0.02 C0.64 0.26 0.86 0.44 0.86 0.67 C0.86 0.87 0.7 1 0.5 1 C0.3 1 0.14 0.87 0.14 0.67 C0.14 0.44 0.36 0.26 0.5 0.02 Z M0.5 0.5 C0.44 0.62 0.36 0.7 0.36 0.8 C0.36 0.88 0.42 0.93 0.5 0.93 C0.58 0.93 0.64 0.88 0.64 0.8 C0.64 0.7 0.56 0.62 0.5 0.5 Z' },
+};
+// scale a unit-square path into a box at (x, y) of side s
+function scalePath(d, x, y, s) {
+  return d.replace(/(-?[\d.]+) (-?[\d.]+)/g, (_, a, b) => `${(x + a * s).toFixed(3)} ${(y + b * s).toFixed(3)}`);
+}
+
+// ---- 1. IC-107 glyph candidates (24-unit cell, stroke 2, like fig-icons.svg) ----
+const G = {
+  IC10: '<path class="s" d="M3.5 8 V4.5 H7"/><path class="s" d="M17 4.5 H20.5 V8"/><path class="s" d="M20.5 16 V19.5 H17"/><path class="s" d="M7 19.5 H3.5 V16"/><path class="s" d="M7.5 10.5 H16.5"/><path class="s" d="M7.5 14 H13"/>',
+  IC117: '<circle class="s" cx="10" cy="10" r="6.5"/><path class="s" d="M14.8 14.8 L21 21"/>',
+  IC11: '<path class="s" d="M10.5 13.5 L4.5 19.5"/><path class="s" d="M4.5 14.5 V19.5 H9.5"/><path class="s" d="M13.5 10.5 L19.5 4.5"/><path class="s" d="M14.5 4.5 H19.5 V9.5"/>',
+};
+const CAND = [
+  { key: 'A', name: 'A 虫眼鏡に「!」', now: true,
+    g: '<circle class="s" cx="10" cy="10" r="6.5"/><path class="s" d="M14.8 14.8 L20 20"/><path class="s" d="M10 6.6 V10.4"/><circle class="f" cx="10" cy="13.2" r="0.95"/>' },
+  { key: 'B', name: 'B 炎（印の炎を線で）',
+    g: `<path class="s" d="${scalePath(FLAMES.A.d, 2.5, 2, 19.5)}"/>` },
+  { key: 'C', name: 'C 砂時計に「!」',
+    g: '<path class="s" d="M6 3.5 H18 M6 20.5 H18"/><path class="s" d="M7.5 3.5 C7.5 8 12 10 12 12 C12 14 7.5 16 7.5 20.5 M16.5 3.5 C16.5 8 12 10 12 12 C12 14 16.5 16 16.5 20.5"/><path class="s" d="M21 8 V13.5"/><circle class="f" cx="21" cy="17" r="1"/>' },
+  { key: 'D', name: 'D 脈の線',
+    g: '<path class="s" d="M2.5 13 H7 L9.5 6 L13.5 19 L16 11 L17.5 13 H21.5"/>' },
+];
+function glyphSvg(inner, px, ink) {
+  return `<svg width="${px}" height="${px}" viewBox="0 0 24 24" style="color:${ink}">
+    <style>.s{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.f{fill:currentColor}</style>${inner}</svg>`;
+}
+function drawGlyphs() {
+  const ink = C('S147');
+  $('#glyphs').innerHTML = CAND.map((c) => {
+    const strip = (px, box) => `<div class="strip">${[G.IC10, G.IC117, null, G.IC11].map((g) =>
+      `<span class="b${g ? '' : ' cand'}" style="width:${box}px;height:${box}px">${glyphSvg(g || c.g, px, ink)}</span>`).join('')}</div>`;
+    return `<div class="card" data-cand="${c.key}"><h3>${c.name}${c.now ? '<span class="tag">今</span>' : ''}</h3>
+      ${strip(20, 28)}<div class="cap">IC-10 ・ IC-117 ・ <b>IC-107</b> ・ IC-11</div>
+      <div style="margin-top:6px">${strip(60, 72)}</div></div>`;
+  }).join('');
+}
+
+// ---- 2. flame on the DG-2 marker ----
+function marker(cx, cy, dia, ground, inner) {
+  return `<circle cx="${cx}" cy="${cy}" r="${dia / 2}" fill="${ground}"/>${inner}`;
+}
+function flameMarker(cx, cy, dia, d, ratio) {
+  const s = dia * ratio; const x = cx - s / 2; const y = cy - s / 2;
+  return marker(cx, cy, dia, C('S387'), `<path d="${scalePath(d, x, y, s)}" fill="${C('S388')}" fill-rule="evenodd"/>`);
+}
+function textMarker(cx, cy, dia, ground, ink, t) {
+  return marker(cx, cy, dia, ground,
+    `<text x="${cx}" y="${cy}" fill="${ink}" font-size="${dia * 0.62}" font-weight="700" text-anchor="middle" dominant-baseline="central" font-family="system-ui">${t}</text>`);
+}
+function flameCard(f, ratios, title, tag) {
+  const w = ratios.length > 1 ? 330 : 250;
+  let body = '';
+  ratios.forEach((r, i) => {
+    const ox = i * 110;
+    body += flameMarker(ox + 14, 36, 14, f.d, r) + flameMarker(ox + 62, 36, 56, f.d, r);
+    if (ratios.length > 1) body += `<text x="${ox + 40}" y="80" font-size="11" fill="${C('S148')}" text-anchor="middle">${r.toFixed(2)}</text>`;
+  });
+  if (ratios.length === 1) {
+    body += textMarker(130, 36, 14, C('S385'), C('S386'), '!!') + textMarker(152, 36, 14, C('S389'), C('S390'), '?');
+    body += `<rect x="176" y="29" width="60" height="14" rx="2" fill="${C('S157')}"/>` + flameMarker(206, 36, 14, f.d, r0(ratios));
+  }
+  return `<div class="card" data-flame="${f.key || ''}"><h3>${title}${tag ? '<span class="tag">今</span>' : ''}</h3>
+    <svg width="${w}" height="${ratios.length > 1 ? 86 : 72}" style="background:${C('S146')}">${body}</svg></div>`;
+}
+const r0 = (a) => a[0];
+function drawFlames() {
+  let html = Object.entries(FLAMES).map(([k, f]) => flameCard({ ...f, key: k }, [0.7], f.name, f.now)).join('');
+  html += flameCard({ ...FLAMES.A, key: 'sizeA' }, [0.6, 0.7, 0.8], '参考: A の大きさ 0.60 / 0.70 / 0.80（今は 0.70）', false);
+  html += flameCard({ ...FLAMES.B, key: 'sizeB' }, [0.6, 0.7, 0.8], '参考: B の大きさ 0.60 / 0.70 / 0.80', false);
+  $('#flames').innerHTML = html;
+}
+
+// ---- 3. dash pattern of the pre-change outline ----
+const DASHES = [['3 2', '3 × 2'], ['4 2', '4 × 2', true], ['6 3', '6 × 3']];
+function dashCard([dash, label, now]) {
+  const W = 360, rowH = 40, planH = 28, actH = 16; const top = (i) => 8 + i * rowH;
+  let s = `<rect width="${W}" height="${rowH * 3 + 16}" fill="${C('S146')}"/>`;
+  for (let i = 0; i < 4; i++) s += `<line x1="0" x2="${W}" y1="${top(i) - 4}" y2="${top(i) - 4}" stroke="${C('S149')}"/>`;
+  const bar = (i, x, w) => {
+    const y = top(i);
+    return `<rect x="${x + 0.5}" y="${y + 0.5}" width="${w}" height="${planH - 1}" fill="${C('S155')}" stroke="${C('S156')}"/>`
+      + `<rect x="${x + 0.5}" y="${y + (planH - actH) / 2 + 0.5}" width="${w * 0.45}" height="${actH - 1}" fill="${C('S157')}" stroke="${C('S158')}"/>`;
+  };
+  const outline = (x, y, w, h) => `<rect x="${x + 0.5}" y="${y + 0.5}" width="${w}" height="${h - 1}" fill="none" stroke="${C('S148')}" stroke-dasharray="${dash}"/>`;
+  // row 0: plan moved later; outline sits earlier
+  s += bar(0, 150, 150) + outline(40, top(0), 150, planH);
+  // row 1: unchanged; outline on the plan edge, plus the selection frame
+  s += bar(1, 90, 170) + outline(90, top(1), 170, planH)
+    + `<rect x="${87.5}" y="${top(1) - 2.5}" width="176" height="${planH + 4}" fill="none" stroke="${C('S151')}" stroke-dasharray="2 1"/>`;
+  // row 2: milestone moved; rhombus outline
+  const my = top(2) + planH / 2; const r = 9;
+  const dia = (cx, fill, stroke, da) => `<path d="M${cx} ${my - r} L${cx + r} ${my} L${cx} ${my + r} L${cx - r} ${my} Z" fill="${fill}" stroke="${stroke}"${da ? ` stroke-dasharray="${da}"` : ''}/>`;
+  s += dia(250, C('S155'), C('S156')) + dia(200, 'none', C('S148'), dash);
+  // dependency line row 0 end -> milestone
+  s += `<path d="M300 ${top(0) + planH / 2} H318 V${my} H${250 - r - 3}" fill="none" stroke="${C('S159')}" stroke-width="1.5"/>`
+    + `<path d="M${250 - r - 3} ${my} l-5 -3.5 v7 Z" fill="${C('S159')}"/>`;
+  return `<div class="card" data-dash="${label}"><h3>${label}px${now ? '<span class="tag">今</span>' : ''}</h3><svg width="${W}" height="${rowH * 3 + 16}">${s}</svg></div>`;
+}
+function drawDashes() { $('#dashes').innerHTML = DASHES.map(dashCard).join(''); }
+
+// ---- 4. monochrome scope ----
+function miniChart(mode) {
+  const dk = state.dark; const c = (id) => col(id, dk, mode);
+  const W = 330, Ht = 190; let s = `<rect width="${W}" height="${Ht}" fill="${c('S146')}"/>`;
+  s += `<rect x="0" y="0" width="${W}" height="22" fill="${c('S150')}"/><line x1="0" x2="${W}" y1="22.5" y2="22.5" stroke="${c('S149')}"/>`;
+  for (let d = 0; d < 11; d++) s += `<text x="${14 + d * 30}" y="15" font-size="10" fill="${c('S148')}" text-anchor="middle">${d + 1}</text>`;
+  const rowsY = [30, 70, 110, 150];
+  rowsY.forEach((y, i) => {
+    s += `<rect x="0" y="${y - 6}" width="${W}" height="40" fill="${c(i % 2 ? 'S167' : 'S166')}"/><line x1="0" x2="${W}" y1="${y + 33.5}" y2="${y + 33.5}" stroke="${c('S149')}"/>`;
+  });
+  const bar = (x, y, w, pa) => `<rect x="${x + .5}" y="${y + .5}" width="${w}" height="27" fill="${c('S155')}" stroke="${c('S156')}"/>`
+    + `<rect x="${x + .5}" y="${y + 6.5}" width="${w * pa}" height="15" fill="${c('S157')}" stroke="${c('S158')}"/>`;
+  s += bar(20, 30, 110, 0.9) + bar(140, 70, 120, 0.4) + bar(60, 110, 90, 0.2) + bar(180, 150, 110, 0);
+  // progress markers good / caution / bad
+  const pm = (x, y, id) => `<circle cx="${x}" cy="${y}" r="5" fill="${c('S146')}" stroke="${c(id)}" stroke-width="2"/><circle cx="${x}" cy="${y}" r="2" fill="${c(id)}"/>`;
+  s += pm(125, 44, 'S152') + pm(194, 84, 'S153') + pm(78, 124, 'S154');
+  // dependency line
+  s += `<path d="M131 44 H136 V84 H140" fill="none" stroke="${c('S159')}" stroke-width="1.5"/><path d="M140 84 l-5 -3.5 v7 Z" fill="${c('S159')}"/>`;
+  // base-date line and lightning line
+  s += `<line x1="160.5" x2="160.5" y1="23" y2="${Ht}" stroke="${c('S163')}" stroke-width="1.5"/>`;
+  s += `<path d="M160 30 L${125} 44 L160 58 L160 70 L${194} 84 L160 98 L160 110 L${78} 124 L160 138 L160 190" fill="none" stroke="${c('S160')}" stroke-width="1.5"/>`;
+  // cursor
+  s += `<line x1="290.5" x2="290.5" y1="23" y2="${Ht}" stroke="${c('S195')}" stroke-width="1.5"/>`;
+  // selection frame on row 2
+  s += `<rect x="57.5" y="107.5" width="96" height="33" fill="none" stroke="${c('S151')}" stroke-dasharray="2 1"/>`;
+  // annotation box
+  s += `<rect x="232.5" y="104.5" width="86" height="24" fill="${c('S146')}" stroke="${c('S312')}"/><text x="275" y="120" font-size="10" text-anchor="middle" fill="${c('S147')}">注記</text>`;
+  // delay diagnostics markers
+  const fm = (cx, cy) => { const s2 = 14 * 0.7; return `<circle cx="${cx}" cy="${cy}" r="7" fill="${c('S387')}"/><path d="${scalePath(FLAMES.A.d, cx - s2 / 2, cy - s2 / 2, s2)}" fill="${c('S388')}"/>`; };
+  const tm = (cx, cy, g, i, t) => `<circle cx="${cx}" cy="${cy}" r="7" fill="${c(g)}"/><text x="${cx}" y="${cy}" font-size="9" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="${c(i)}">${t}</text>`;
+  s += fm(172, 164) + tm(10, 84, 'S385', 'S386', '!!') + tm(10, 124, 'S389', 'S390', '?');
+  return `<svg width="${W}" height="${Ht}">${s}</svg>`;
+}
+function drawMono() {
+  const cards = [['colour', 'カラー（比べるため）', false], ['monoA', 'モノクロ A: — の行は色のまま', true], ['monoB', 'モノクロ B: — の行も灰', false]];
+  $('#mono4').innerHTML = cards.map(([m, t, now]) => `<div class="card" data-mono="${m}"><h3>${t}${now ? '<span class="tag">今</span>' : ''}</h3>${miniChart(m)}</div>`).join('');
+}
+
+// ---- 5. hints ----
+const HINTS = [
+  ['IC-117', '検索 / Search', '検索パネルを出す。出ていれば入力欄へ戻る', 'Open the search panel; if it is open, return to its search box'],
+  ['IC-118', 'タスク / Tasks', 'タスクとマイルストーンの表を出す', 'Show the table of tasks and milestones'],
+  ['IC-119', 'コメントボックス / Comment Boxes', 'コメントボックスの表を出す', 'Show the table of comment boxes'],
+  ['IC-120', '最小化 / Minimise', '検索パネルを最小化する。もう一度押すと戻る', 'Minimise the search panel; press again to restore it'],
+  ['IC-121', '最大化 / Maximise', '検索パネルを最大化する。もう一度押すと元のサイズに戻る', 'Maximise the search panel; press again to restore its size'],
+  ['IC-122', '絞り込み / Filter', 'この列の絞り込みと並べ替えを開く', "Open this column's filter and sort"],
+  ['IC-123', '昇順 / Sort Ascending', 'この列で昇順に並べる', 'Sort by this column, ascending'],
+  ['IC-124', '降順 / Sort Descending', 'この列で降順に並べる', 'Sort by this column, descending'],
+  ['IC-125', 'すべて表示 / Show All', '値の一覧のすべてを表示に入れる', 'Show every value in the list'],
+  ['IC-126', 'すべて外す / Clear All', '値の一覧のすべてを表示から外す', 'Hide every value in the list'],
+  ['IC-127', '文字の大きさ / Text size', '検索パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）', "Change the text size of the search panel's table and search box (cycles through 12, 14, 16 and 20 px)"],
+  ['IC-107', '遅延診断 / Delay Diagnostics', '遅延診断を行う。もう一度押すと診断の表示を終える', 'Run the Delay Diagnostics; press again to end its display'],
+];
+function drawHints() {
+  $('#hints').innerHTML = '<tr><th>#</th><th>入口</th><th>札（裁定済み）</th><th>説明（日本語）</th><th>説明（英語）</th></tr>'
+    + HINTS.map((h, i) => `<tr><td>${i + 1}</td><td><code>${h[0]}</code></td><td>${h[1]}</td><td>${h[2]}</td><td>${h[3]}</td></tr>`).join('');
+}
+
+function render() {
+  document.documentElement.dataset.theme = state.dark ? 'dark' : 'light';
+  drawGlyphs(); drawFlames(); drawDashes(); drawMono(); drawHints();
+}
+$('#dark').addEventListener('change', (e) => { state.dark = e.target.checked; render(); });
+$('#mono').addEventListener('change', (e) => { state.mono = e.target.checked; render(); });
+render();
+</script>
+</body>
+</html>
