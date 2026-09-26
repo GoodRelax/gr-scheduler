@@ -37,7 +37,7 @@ import type {
   PropertiesSubject,
   ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { swatchOf } from '../svg-renderer/svg-renderer'
+import { colourOf, swatchOf } from '../svg-renderer/svg-renderer'
 import type {
   ColourSide,
   CommandItem,
@@ -54,6 +54,7 @@ import { displayLanguageOf } from './screen-renderer'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
+import themeHueRoster from './theme-hue-roster.json'
 
 const PART_SEPARATOR = ' / '
 
@@ -741,20 +742,55 @@ function valueAt(settings: DocumentSettings, key: string): unknown {
     )
 }
 
-// see IC-17, T-104
+const THEME_HUE_WORDS = new Map(displayWords.themeHues.map((entry) => [entry.rowId, entry.text]))
+
+const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
+
+const THEME_HUE_SWATCH_ROW = 'S-151'
+
+// see FR-041, T-305, K-60
+/** @purity pure */
+function themeHueField(hue: number, dark: boolean, language: DisplayLanguage): PropertyField {
+  const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
+  const chosen = themeHueRoster.findIndex((one) => one.hue === hue)
+  const text = String(hue)
+  return {
+    row: settingsWordOf(THEME_HUE_KEY.column)?.rowId ?? THEME_HUE_KEY.column,
+    name: settingsName(THEME_HUE_KEY.column, language),
+    text: words[chosen] ?? text,
+    isEditable: true,
+    controls: [
+      {
+        key: THEME_HUE_KEY,
+        kind: 'choice',
+        text,
+        choices: words,
+        choiceValues: themeHueRoster.map((one) => String(one.hue)),
+        swatches: themeHueRoster.map((one) => colourOf(THEME_HUE_SWATCH_ROW, one.hue, dark, false)),
+        min: null,
+        max: null,
+        widthInFontSizes: widthOf(text, words, SETTINGS_CONSTANTS.labelCoef),
+      },
+    ],
+  }
+}
+
+// see IC-17, T-104, FR-072
 /** @purity pure */
 function settingsFields(
   settings: DocumentSettings,
+  schedule: Schedule,
+  dark: boolean,
   language: DisplayLanguage,
 ): readonly PropertyField[] {
-  return Object.keys(SETTINGS_DEFAULTS).map((key) => ({
+  const readOnly = Object.keys(SETTINGS_DEFAULTS).map((key) => ({
     row: settingsWordOf(key)?.rowId ?? key,
     name: settingsName(key, language),
     text: textOfSettingsValue(valueAt(settings, key)),
-    // see FR-072
     isEditable: false,
     controls: [],
   }))
+  return [themeHueField(schedule.project.themeHue, dark, language), ...readOnly]
 }
 
 // see CV-6, CV-9
@@ -864,11 +900,12 @@ export function propertiesPanelFromSelection(
   if (content.kind === 'hidden') return null
   const language = displayLanguageOf(session)
 
+  const dark = session.screen.themePreference === 'dark'
   if (content.kind === 'documentSettingsDisplayed') {
     return {
       showing: 'documentSettings',
       isSubjectGone: false,
-      fields: settingsFields(settings, language),
+      fields: settingsFields(settings, schedule, dark, language),
       commands: panelCommands(language),
     }
   }
@@ -880,7 +917,7 @@ export function propertiesPanelFromSelection(
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language)
   const look = {
     hue: schedule.project.themeHue,
-    dark: session.screen.themePreference === 'dark',
+    dark,
     monochrome: settings.themeMonochrome,
     language,
   }

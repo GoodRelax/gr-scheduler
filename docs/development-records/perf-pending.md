@@ -20,7 +20,7 @@
 | 4 | `CR-584`（目盛のしきい値・書き出しの既定。仕様の波 W1 —— 生成器が既定値と表示語を書き換えた） | `58fb54ae` | `src/adapter/screen-renderer/display-words.json`・`src/entity/document-model/document-settings/document-settings.ts` |
 | 5 | `CR-587`（行見出しの頭の操作子を 1 行に。仕様の波 W1 —— 生成器が表示語を書き換えた。並びはコードの持ち場 L5 で変わる） | `58fb54ae`・L5 の `71cca017`・`1c5722a8` | `src/adapter/screen-renderer/display-words.json`／L5: `src/framework/dom-screen-surface/row-title-panel-drawing.ts`・`dom-screen-surface.ts`（`changed('rowTitlePanel')` の枝。頭の 5 つの `style` の書き込みは 5 つのまま、2 段目の `top` が消えただけ） |
 | 6 | `CR-572`（設定を文書の中身と見る人の好みに分ける。仕様の波 W2 —— 生成器が `SETTINGS_CONSTANTS`・`DrawnSettings` と表示語を刷った。`drawnSettingsOf` は毎フレーム。読み先の直しはコードの持ち場 L3） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/entity/document-model/document-settings/document-settings.ts`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/use-case/advance-screen-session/screen-values.ts` |
-| 7 | `CR-557`（テーマの色相を文書の設定から選ぶ。仕様の波 W2 —— 生成器が表示語と大きさの群を書き換えた） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
+| 7 | `CR-557`（テーマの色相を文書の設定から選ぶ。仕様の波 W2 —— 生成器が表示語と大きさの群を書き換えた。コードは枝 `lane-l3` —— 文書の設定の面を出しているフレームだけ、色相の升 10 個の塗りを解く） | `34261746`・`lane-l3` の `CR-557` のコミット | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts`・`src/adapter/screen-renderer/properties-panel.ts`・`src/framework/dom-screen-surface/properties-panel-drawing.ts` |
 | 8 | `CR-585`（白黒で画面の罫線・パネルの地・強調色も灰色。仕様の波 W2。画面の主題は `showScreenView` ごとに作る —— コードの持ち場 L3） | `34261746` | `src/adapter/screen-renderer/display-words.json` |
 | 9 | `CR-576`（基準日線を朱色、アイコンの説明、フェード 0 の端。仕様の波 W2 —— 生成器が色と大きさを書き換えた） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts` |
 | 10 | `CR-558`（ハイライトボックスの掴み点・線の太さ・塗り。仕様の波 W3 —— 生成器が表示語と大きさの群を書き換えた。描く手順はコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/item-hit-area/item-hit-area.ts` |
@@ -35,7 +35,7 @@
 | 19 | `CR-561`（遅延診断。仕様の波 W4b —— 生成器が色と印の大きさの群とユニットの雛形を作った。描く手順はコードの持ち場 L1） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/schedule-geometry/task-figures.ts` |
 | 20 | `CR-563`（MCP と読むだけの行の削除。仕様の波 W4b —— 生成器がパレットの区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts` |
 | 21 | `CR-589`（表 T-109 の切り替える設定値の列。仕様の波 W4b —— 生成器がパレットと頭の帯の区画を書き換えた） | `c891b6ca` | `src/adapter/screen-renderer/command-palette.ts`・`src/adapter/screen-renderer/app-header-items.ts` |
-| 22 | `CR-577`（床より下の行の軸の拡大。仕様の波 W5。行ズームの入力だけ —— コードの持ち場 L3） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
+| 22 | `CR-577`（床より下の行の軸の拡大。仕様の波 W5。行ズームの入力だけ —— コードの持ち場 L3） | `99ac819c`・`lane-l3` の `CR-577` のコミット | `src/adapter/screen-renderer/display-words.json`・`src/adapter/input-command-translator/zoom-and-fit.ts`（押したときだけ。毎フレームではない） |
 | 23 | `CR-582`（行の最小高さ。仕様の波 W5 —— 生成器が大きさの群と表示語を書き換えた。描く手順はコードの段 A と持ち場 L3） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
 | 24 | `CR-586`（取り込んだマイルストーンと行の色。仕様の波 W5） | `99ac819c` | `src/adapter/screen-renderer/display-words.json` |
 | 25 | `CR-583`（マイルストーンの形。仕様の波 W5 —— 生成器が `milestone-shapes.json` を刷った。描く手順はコードの持ち場 L1） | `99ac819c` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/milestone-shapes.json` |

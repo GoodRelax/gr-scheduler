@@ -516,16 +516,18 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     expect(one.picture().pxPerDay).toBeLessThan(before.pxPerDay)
   })
 
-  // WHY: the fit may land inside the shrinking end (ZE-1), where a wider zoom need not move the
-  // picture; the spec fixes the zoom written (a step of S-53 from the fit's zoom), not the picture.
-  it('IC-15: a press of the row-axis zoom-in writes one S-53 step up from the fit zoom, and keeps it', () => {
+  // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
+  // step; OP-10 fixes only that the zoom is taken from the fit's zoom, so the step is a floor here.
+  it('IC-15: a press of the row-axis zoom-in writes at least one S-53 step up from the fit zoom, and keeps it', () => {
     const one = boot()
     const scene = one.loop.exportScene() as unknown as { settings: { zoomY: number } } | null
     if (scene === null) throw new Error('the loop had no scene to export')
     const fitted = scene.settings.zoomY
     one.send(ALT_PLUS)
     const chosen = (settingsOf(one.loop.document()) as unknown as { zoomY: number }).zoomY
-    expect(chosen, 'FR-055 / OP-10: the step is taken from the zoom the fit chose').toBeCloseTo(fitted * ZOOM_STEP, 9)
+    expect(chosen, 'FR-055 / OP-10 / ZE-6: the step is taken from the zoom the fit chose').toBeGreaterThanOrEqual(
+      fitted * ZOOM_STEP * (1 - Number.EPSILON),
+    )
     one.idle()
     expect((settingsOf(one.loop.document()) as unknown as { zoomY: number }).zoomY, 'OP-10 (MUST NOT): no later frame redoes the fit').toBe(chosen)
   })
