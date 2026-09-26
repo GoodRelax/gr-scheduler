@@ -235,9 +235,13 @@ const NOT_STORED_SELECTION_SIZES: {
   readonly 'S-174': number
   readonly 'S-175': readonly [number, number]
   readonly 'S-178': number
+  readonly 'S-372': number
+  readonly 'S-376': number
 } = {
   'S-174': 1,
   'S-175': [2, 1],
   'S-178': 2,
+  'S-372': 6,
+  'S-376': 8,
 }
 // </generated>

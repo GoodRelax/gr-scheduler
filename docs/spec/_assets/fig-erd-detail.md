@@ -160,6 +160,11 @@ erDiagram
         日時 anchorDate "GRS"
         文字列 **anchorGroupId** FK "GRS・UUID"
         オブジェクト bodyOffsetPx "GRS・{ dx, dy }"
+        文字列 strokeColor "GRS"
+        整数 strokeWidthPx "GRS・px"
+        文字列 fillColor "GRS"
+        整数 fillTransparencyPercent "GRS・0〜100"
+        文字列 textColor "GRS"
     }
     HighlightBox {
         文字列 **id** PK "GRS・UUID"
@@ -169,6 +174,9 @@ erDiagram
         文字列 **bottomGroupId** FK "GRS・UUID"
         文字列 strokeColor "GRS"
         数値 cornerRadiusPx "GRS"
+        整数 strokeWidthPx "GRS・px"
+        文字列 fillColor "GRS"
+        整数 fillTransparencyPercent "GRS・0〜100"
     }
     CarryElement {
         整数 **ordinal** PK "GRS"
@@ -416,6 +424,11 @@ erDiagram
 | AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
 | AT-114 | `CommentBox` | `anchorGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留める行 |
 | AT-115 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文の左下隅までのずれ（`FR-019`） |
+| AT-148 | `CommentBox` | `strokeColor` | 文字列 | 可（`null` = 注記の色 `S-312`） | — | GRS | — | 本文の箱の枠と引出し線の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
+| AT-149 | `CommentBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠と引出し線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`。ズームによらず一定に描く（`FR-019`） |
+| AT-150 | `CommentBox` | `fillColor` | 文字列 | 可（`null` = 地の色 `S-146`） | — | GRS | — | 本文の箱の塗りの色。形は `AT-102` と同じ。透明も取る（`FR-019`） |
+| AT-151 | `CommentBox` | `fillTransparencyPercent` | 整数（0〜100） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 本文の箱の塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375`（`FR-019`） |
+| AT-152 | `CommentBox` | `textColor` | 文字列 | 可（`null` = 文字の色 `S-147`） | — | GRS | — | 本文の字の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
 | AT-116 | `HighlightBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
 | AT-117 | `HighlightBox` | `startDate` | 日時 | 可 | — | GRS | — | 囲む範囲の左端 |
 | AT-118 | `HighlightBox` | `endDate` | 日時 | 可 | — | GRS | — | 囲む範囲の右端 |
@@ -423,6 +436,9 @@ erDiagram
 | AT-120 | `HighlightBox` | `bottomGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 囲む範囲の下端の行 |
 | AT-121 | `HighlightBox` | `strokeColor` | 文字列 | 可 | — | GRS | — | 枠の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
 | AT-122 | `HighlightBox` | `cornerRadiusPx` | 数値 | 可 | — | GRS | — | 角の丸み |
+| AT-145 | `HighlightBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠の線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`。ズームによらず一定に描く（`FR-019`） |
+| AT-146 | `HighlightBox` | `fillColor` | 文字列 | 可（`null` = 表 T-217 の既定） | — | GRS | — | 塗りの色。形は `AT-102` と同じ。透明も取る。`null` は `_assets/tbl-settings.md` の表 T-217 の `S-370` の色で描く（既定は透明 ＝ 塗らない。`FR-019`） |
+| AT-147 | `HighlightBox` | `fillTransparencyPercent` | 整数（0〜100） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`（`FR-019`） |
 | AT-123 | `CarryElement` | `ordinal` | 整数 | 否 | PK | GRS | — | 所有者の中での出現順。所有者とこれで一意になる。これで元の位置に戻す |
 | AT-124 | `CarryElement` | `name` | 文字列 | 否 | — | Carry | — | 交換相手での要素名。**綴りを変えない**（`W-9`） |
 | AT-125 | `CarryElement` | `fields` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | その要素が持つ葉 |

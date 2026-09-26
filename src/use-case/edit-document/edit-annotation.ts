@@ -278,7 +278,19 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
 //   docs/spec/_source/settings.json (table T-217)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-217, FR-019
-const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': number } = {
+const NOT_STORED_ANNOTATION_SIZES: {
+  readonly 'S-132': number
+  readonly 'S-369': number
+  readonly 'S-370': string
+  readonly 'S-371': number
+  readonly 'S-374': number
+  readonly 'S-375': number
+} = {
   'S-132': 4,
+  'S-369': 1,
+  'S-370': 'transparent',
+  'S-371': 50,
+  'S-374': 1,
+  'S-375': 0,
 }
 // </generated>

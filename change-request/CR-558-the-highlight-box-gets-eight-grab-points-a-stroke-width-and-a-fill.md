@@ -1,6 +1,6 @@
 # CR-558 — ハイライトボックスに 8 つの掴み点と、線の太さと、透過率つきの塗りを持たせる
 
-> 起草の状態: 起草（2026-09-24 に 11 節の問い 3 つへ利用者が答えた。問い 4 は前に立つ者が決めた（D1）。4 節は PR-22 が着地した木で当てる）
+> 起草の状態: 当てた（2026-09-26、枝 `cr-organise`、波 W3。`JDG-740`）。当てた木は `34261746`。4 節の旧 18 塊はどれもその木で 1 回だけ現れ、書いたとおりに当てた（旧を今の文へ合わせた塊は無い）。当てるときに新を直した: J-06（辞書の `properties` は 表 T-016 の刷る順と同じ並びでなければ生成器が拒むので、`PR-23` → `PR-24` → `PR-22` → `PR-25` の順に置いた）、E-11 の `HB-8` ・ `HB-10` ・ `HB-12` の理由と J-01 の `S-230` の注（仕様の文は台帳の番号を引かないので、裁定の番号を平たい理由に書き替えた）、E-15 と E-16（1 行に 2 つの文を置かない・括弧の中の句点は読点にする、という行の検査に合わせた）。J-08 は当てることが無かった（`appliesTo` の列挙は既に `HighlightBox` を持つ）。`S-373` は `tools/generate_entity_types.py` の `NOT_STORED_SIZES` に、`S-372` は `NOT_STORED_SELECTION_SIZES`（縁の太さ `S-174` と同じ群。描く側 `schedule-overlays.ts` が `svg-renderer.ts` から読む）に入れ、`annotation_defaults_block` を 表 T-217 の全行を刷る形に直した。⛔ 当てなかったもの: 4.3 節の `SCHEMA_VERSION`（`tools/generate_startup_template.py`）と 図 F-025（`fig-pointer-shapes.svg`）—— 仕様の波の持ち場に無いので、コードの波に残す。（起草の記: 2026-09-24 に 11 節の問い 3 つへ利用者が答えた。問い 4 は前に立つ者が決めた（D1）。）
 > 読んだ木: `61bbd572`（`refactor`。起草の途中で本 worktree が `ebc71984` から早送りされた。`CR-551` の仕様とコードは `6f674198` 〜 `7dbd292d` で着地済み。`7dbd292d` → `61bbd572` は変更要求の草案と台帳だけで、`docs/spec/` の原稿と `src/` は同じ）。⭐ 本書は `CR-551` 〜 `CR-554` の後に当たるので、**4 節の旧はすべて `61bbd572` の文で数えた**（`CR-551` が書いた文を旧に含む編集は、その旨を書いた）。9 節の `file:line` も `61bbd572` のものである。測り方は 13 節。
 > ⭐ `PR-22`（`HighlightBox.strokeColor`、`DFC-800` の直し）は `c32b13d7` で着地した（`property-items.json` の末尾、`appliesTo: "HighlightBox"`。`property-items.schema.json` の `appliesTo` も `HighlightBox` を持つ ⇒ J-08 は当てることが無い）。J-05 ・ J-06 はそれを錨にする。⛔ 当てる直前に、本書の旧と行番号と数を測り直すこと。
 >
@@ -101,6 +101,7 @@
 | 名 | 列 `strokeWidthPx` ・ `fillColor` ・ `fillTransparencyPercent`（`HighlightBox`）、表 T-217 の鍵 `HighlightBox.strokeWidthPx` ・ `HighlightBox.fillColor` ・ `HighlightBox.fillTransparencyPercent`、命令 `setHighlightBoxStrokeWidth` ・ `setHighlightBoxFillColor` ・ `setHighlightBoxFillTransparency`、関数 `withHighlightBoxLookColumns` ・ `nearestGrabPointOf`、`BoxPart` の種 `'edge'` | `HighlightBox` の列の名は木に 0 件。`fillColor` は `TaskVisual`（`AT-102`）にも在る —— `strokeColor` が 2 つの実体に在るのと同じ |
 
 - 本書が取らないもの: 保留の行（12 節）。
+- ⭐ 当てる直前（2026-09-26、`34261746`）に測り直した: 本書の新しい識別子は `docs/spec` ・ `src` ・ `tools` のどこにも使われていなかった（0 件）。木の最大の番号は S-439 ・ PK-10 ・ HB-6 ・ CM-86 ・ ZO-12 ・ AT-153 ・ PR-22 —— S ・ CM ・ AT の最大は後に起草した変更要求の番号であり、本書の番号は配られた帯の中の席である。
 - 6 本を詰めた後に返った帯: `S-377` 〜 `S-384`、`T-309`（`T-306` ・ `T-307` は古い文書が引くので飛ばした）、`DFC-874` 〜 `DFC-889`、`PND-561` 〜 `PND-580`（6 本とも保留の行を起こさない）、`PR-29` 〜 `PR-32`、`FR-137` 〜 `FR-148`、`IC-109` 〜 `IC-114`、`AM-20` 〜 `AM-24`（6 本とも使わない）。
 
 ---

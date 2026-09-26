@@ -219,6 +219,22 @@
    }
   },
   {
+   "prefix": "CY",
+   "words": "Copy drag",
+   "owner": "spec",
+   "means": {
+    "ja": "選択を `Ctrl` で引いて写すときの、写すものと写しの置き場の条"
+   }
+  },
+  {
+   "prefix": "DA",
+   "words": "Deadline Arrow",
+   "owner": "spec",
+   "means": {
+    "ja": "期限の印の描き方（描く条件・形・色・置き場・当たり）"
+   }
+  },
+  {
    "prefix": "DC",
    "words": "Dual Cursor",
    "owner": "spec",
@@ -471,7 +487,7 @@
    "words": "Highlight box",
    "owner": "spec",
    "means": {
-    "ja": "ハイライトボックスの本体と四隅を離したときに置く値の行"
+    "ja": "ハイライトボックスの掴み点と枠の場所・掴み代・ポインタと、離したときに置く値の行"
    }
   },
   {

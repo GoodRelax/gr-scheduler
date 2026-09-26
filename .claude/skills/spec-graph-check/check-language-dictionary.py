@@ -41,13 +41,13 @@ MANUSCRIPT = 'SINGLE SOURCE OF TRUTH'
 EXEMPT = {
     'erd.json': {
         '/entities[]/columns[]/type': (
-            126, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
+            134, 'a CLASSIFICATION, not prose: 「文字列（16 字以下）」 is a type '
                  'and a range, and the Japanese wording of it is a display '
                  'decision. Wrapping it would fix the wording in the '
                  'manuscript. CR-176 left it for the change that decides how '
                  'the classification is spelled.'),
         '/entities[]/columns[]/nullable': (
-            139, 'the same: 9 distinct values of which 108 are 可 / 否 / '
+            147, 'the same: 9 distinct values of which 108 are 可 / 否 / '
                  '否（空可）. A classification plus a note, not prose.'
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
@@ -75,7 +75,12 @@ EXEMPT = {
                  '⭐ 128->126 / 141->139 on 2026-09-26: CR-570 folds '
                  'TaskGroup.isCollapsed, isHidden and isKeptOpen (AT-56, '
                  'AT-57, AT-142) into one treeState column (AT-153); a '
-                 'lowering, written by the coordinator (JDG-520).'),
+                 'lowering, written by the coordinator (JDG-520). '
+                 '⭐ 126->134 / 139->147 on 2026-09-26: wave W3 of '
+                 'cr-organise -- CR-558 and CR-559 add eight columns to '
+                 'HighlightBox and CommentBox (AT-145..AT-152), each one '
+                 'more type and nullable token of the same classification; '
+                 'raised with leave from the user (JDG-745).'),
         '/container/boxes[]/rows[][]': (
             7, 'the TYPE TOKEN cell of a plain attribute row -- the same '
                'classification the type column holds. The comment cell of the '
@@ -87,7 +92,7 @@ EXEMPT = {
     },
     'property-items.json': {
         '/items[]/inputKinds[]': (
-            24, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
+            32, 'a CLASSIFICATION, not prose: the seven tokens 文字 / 複数行 / '
                 '日付 / 数値 / 真偽 / 選択 / 色 that table T-016 has always '
                 'printed in its 入力の型 column, one per GRS JSON column. The '
                 'schema of this manuscript states them as an enum, which is '
@@ -111,7 +116,11 @@ EXEMPT = {
                 '⭐ 23 -> 24 on 2026-09-24: PR-22 (the highlight box '
                 'frame colour, DFC-800) adds one more 色 token of the same '
                 'closed enum; raised with leave from the user (JDG-409, '
-                '「検査 23 の除外数を 24 に上げてよい」).'),
+                '「検査 23 の除外数を 24 に上げてよい」). '
+                '⭐ 24 -> 32 on 2026-09-26: wave W3 of cr-organise -- '
+                'CR-558 (PR-23..PR-25) and CR-559 (PR-26..PR-28) add six '
+                'rows of the same closed enum, eight tokens; raised with '
+                'leave from the user (JDG-745).'),
     },
 }
 

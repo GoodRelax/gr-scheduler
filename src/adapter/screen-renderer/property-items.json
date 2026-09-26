@@ -219,9 +219,79 @@
    "appliesTo": "CommentBox"
   },
   {
+   "rowId": "PR-26",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox"
+  },
+  {
+   "rowId": "PR-27",
+   "columns": [
+    "fillTransparencyPercent"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox"
+  },
+  {
+   "rowId": "PR-28",
+   "columns": [
+    "strokeColor",
+    "fillColor",
+    "textColor"
+   ],
+   "inputKinds": [
+    "色",
+    "色",
+    "色"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox"
+  },
+  {
+   "rowId": "PR-23",
+   "columns": [
+    "strokeWidthPx"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox"
+  },
+  {
+   "rowId": "PR-24",
+   "columns": [
+    "fillTransparencyPercent"
+   ],
+   "inputKinds": [
+    "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox"
+  },
+  {
    "rowId": "PR-22",
    "columns": [
     "strokeColor"
+   ],
+   "inputKinds": [
+    "色"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox"
+  },
+  {
+   "rowId": "PR-25",
+   "columns": [
+    "fillColor"
    ],
    "inputKinds": [
     "色"

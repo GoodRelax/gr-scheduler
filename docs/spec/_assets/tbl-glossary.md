@@ -142,6 +142,7 @@
 | U-61 | `Difference Review` | 差分の確認。<br>合流で対応するかもしれないタスクを並べ、重複しているものをどちらのファイルから取るかを選ばせる面。<br>立てる規則は `FR-022`、合流の規則は表 T-032 が持つ。<br>⭐ **この面は開く道（表 T-024a の `OP-3`）から立つ** —— 独立したアイコンの入口は持たない（`FR-022`）。<br>⚠️ 面の上の入口は表 T-109 の `IC-95` 〜 `IC-97` であり、表 T-032a の `MM-1`・`MM-2`・`MM-4` に当たる —— `MM-3`（1 件ずつ決める）は置かない —— 択を増やして面を複雑にしない。<br>⛔ 合流（`FR-022`）で立つときは `Confirmation`（`U-55`）ではない —— 答えが 2 択ではない（上の 3 つの入口である）。<br>⭐ **読めなかった列を問うとき（`FR-073`）は 2 択（続ける／やめる）である**—— **面と作法は差分の確認に従うが、択の数だけが用途で変わる。<br>**⭐ **同じ面を、版が新しい文書を開くときにも使う**（`FR-073`）|
 | U-62 | `Import Report` | 取り込みが落とした `Task` の名前を並べて告げる面。<br>立てる規則は `FR-023`、運ぶ理由は表 T-233 の `RS-50`、閉じる入口の語は表 T-037 の `NT-8` が持つ。<br>⛔ **`Confirmation`（`U-55`）ではない** —— 答えを求めない。<br>入口は `OK` の 1 つだけである。<br>⛔ **`Notification Area`（`U-57`）でもない** —— 表 T-037 の `NT-9` が通知を 1 行に限っており、落とした名前の列挙が入らない。<br>⚠️ **名前は文書の値であるので訳さない**（`FR-023`） |
 | U-57 | `Notification Area` | 通知が立つ場所。<br>作法は表 T-037 が、運ぶ理由は表 T-233 が持つ。<br>⚠️ **`Confirmation` ではない** —— 通知は答えを求めない。<br>⛔ **`S-99g` が持つ「面」ではない** —— **重ねて開くものではない。<br>**⚠️ **`Esc` では 表 T-028 の `IN-4` の第 1 階層が本行を消す**（表 T-037 の `NT-8`）—— **面より先であって、面として閉じるのではない** —— 重ねて開くものではなく、`NT-4` が起動時の用件を 1 枚に集約させるのもここである。<br>⚠️ **値の型は `Notice` のままである** —— 本行が名づけるのは場所であって、立つものではない |
+| U-63 | `Deadline Mark` | 期限の印。<br>`Task` の `deadline` を日程表の上に示す印。<br>描き方は `01-04-requirements.md` の `FR-045` の 表 T-304 が持つ。<br>⚠️ 「マーカー」と呼ばない（表 T-006b の `A-5`） |
 
 > 呼び名は `Agent API` とする。  
 > 日本語でも `Agent API` と書く。
@@ -412,7 +413,7 @@
 | CM-5 | `Project` | `setThemeHue` | — | テーマの色相を変える | `FR-041` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
-| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ） | `FR-033` |
+| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 部分木を複製する（複製元の `Task` を 1 つ以上運ぶ）。<br>`Ctrl` ドラッグの写しは、ずらす日数と、写しを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
 | CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
 | CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
 | CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |
@@ -453,10 +454,18 @@
 | CM-49 | `CommentBox` | `setCommentBoxLeaderShapeKind` | — | 引出し線の形を選ぶ | `FR-019` |
 | CM-50 | `CommentBox` | `setCommentBoxAnchor` | — | 留め先を変える | `FR-016` |
 | CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` | — | 本文のずれを変える | `FR-016` |
+| CM-80 | `CommentBox` | `setCommentBoxStrokeColor` | — | 枠と引出し線の色を置く | `FR-019` |
+| CM-81 | `CommentBox` | `setCommentBoxStrokeWidth` | — | 枠と引出し線の太さを置く | `FR-019` |
+| CM-82 | `CommentBox` | `setCommentBoxFillColor` | — | 本文の箱の塗りの色を置く | `FR-019` |
+| CM-83 | `CommentBox` | `setCommentBoxFillTransparency` | — | 本文の箱の塗りの透過率を置く | `FR-019` |
+| CM-84 | `CommentBox` | `setCommentBoxTextColor` | — | 本文の字の色を置く | `FR-019` |
 | CM-52 | `HighlightBox` | `createHighlightBox` | — | ハイライトボックスを置く | `FR-019` |
 | CM-53 | `HighlightBox` | `deleteHighlightBox` | — | ハイライトボックスを消す | `FR-032` |
 | CM-54 | `HighlightBox` | `setHighlightBoxRange` | — | 囲む範囲を変える | `FR-016` |
 | CM-55 | `HighlightBox` | `setHighlightBoxStrokeColor` | — | 枠の色を置く | `FR-019` |
+| CM-77 | `HighlightBox` | `setHighlightBoxStrokeWidth` | — | 枠の線の太さを置く | `FR-019` |
+| CM-78 | `HighlightBox` | `setHighlightBoxFillColor` | — | 塗りの色を置く | `FR-019` |
+| CM-79 | `HighlightBox` | `setHighlightBoxFillTransparency` | — | 塗りの透過率を置く | `FR-019` |
 | CM-56 | 見せ方の群 | `setStackDirection` | — | 積む向きを選ぶ | `FR-003` |
 | CM-58 | 見せ方の群 | `setElementVisible` | — | 要素の表示を切り替える | `FR-049` |
 | CM-62 | 見せ方の群 | `setFontScale` | ⭐ | 文字サイズの段を変える | `FR-039` |

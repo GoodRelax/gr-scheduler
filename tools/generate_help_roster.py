@@ -112,7 +112,8 @@ BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, RESOURCE_ROSTER, APP_HEADER,
 # rows with an entrance and the rows it keeps off the help. A row of that table
 # in none of the three stops the run -- FR-036 (MUST) has the requirement decide
 # a new row, and this script must not decide it.
-SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7')
+# CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
+SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 

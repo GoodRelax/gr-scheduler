@@ -529,7 +529,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   CommentBox: {
     type: ['object'],
-    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorGroupId', 'bodyOffsetPx'],
+    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorGroupId', 'bodyOffsetPx', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
     closed: true,
     properties: {
       id: {
@@ -560,11 +560,29 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
           },
         },
       },
+      strokeColor: {
+        type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+      },
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+      },
+      fillColor: {
+        type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+      },
+      fillTransparencyPercent: {
+        type: ['integer', 'null'],
+      },
+      textColor: {
+        type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+      },
     },
   },
   HighlightBox: {
     type: ['object'],
-    required: ['id', 'startDate', 'endDate', 'topGroupId', 'bottomGroupId', 'strokeColor', 'cornerRadiusPx'],
+    required: ['id', 'startDate', 'endDate', 'topGroupId', 'bottomGroupId', 'strokeColor', 'cornerRadiusPx', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent'],
     closed: true,
     properties: {
       id: {
@@ -588,6 +606,16 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       cornerRadiusPx: {
         type: ['number', 'null'],
+      },
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+      },
+      fillColor: {
+        type: ['string', 'null'],
+        pattern: '^(?:white|black|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
+      },
+      fillTransparencyPercent: {
+        type: ['integer', 'null'],
       },
     },
   },

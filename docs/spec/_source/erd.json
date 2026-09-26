@@ -2605,6 +2605,88 @@
      "meaning": {
       "ja": "留めた点から本文の左下隅までのずれ（`FR-019`）"
      }
+    },
+    {
+     "seat": 148,
+     "name": "strokeColor",
+     "type": "文字列",
+     "nullable": "可（`null` = 注記の色 `S-312`）",
+     "json": {
+      "kind": "color",
+      "null": true,
+      "transparent": false
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "本文の箱の枠と引出し線の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`）"
+     }
+    },
+    {
+     "seat": 149,
+     "name": "strokeWidthPx",
+     "type": "整数（px）",
+     "nullable": "可（`null` = 表 T-217 の既定）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "枠と引出し線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`。ズームによらず一定に描く（`FR-019`）"
+     }
+    },
+    {
+     "seat": 150,
+     "name": "fillColor",
+     "type": "文字列",
+     "nullable": "可（`null` = 地の色 `S-146`）",
+     "json": {
+      "kind": "color",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "本文の箱の塗りの色。形は `AT-102` と同じ。透明も取る（`FR-019`）"
+     }
+    },
+    {
+     "seat": 151,
+     "name": "fillTransparencyPercent",
+     "type": "整数（0〜100）",
+     "nullable": "可（`null` = 表 T-217 の既定）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "本文の箱の塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-375`（`FR-019`）"
+     }
+    },
+    {
+     "seat": 152,
+     "name": "textColor",
+     "type": "文字列",
+     "nullable": "可（`null` = 文字の色 `S-147`）",
+     "json": {
+      "kind": "color",
+      "null": true,
+      "transparent": false
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "本文の字の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`）"
+     }
     }
    ]
   },
@@ -2734,6 +2816,54 @@
      "exchange": "",
      "meaning": {
       "ja": "角の丸み"
+     }
+    },
+    {
+     "seat": 145,
+     "name": "strokeWidthPx",
+     "type": "整数（px）",
+     "nullable": "可（`null` = 表 T-217 の既定）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "枠の線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369`。ズームによらず一定に描く（`FR-019`）"
+     }
+    },
+    {
+     "seat": 146,
+     "name": "fillColor",
+     "type": "文字列",
+     "nullable": "可（`null` = 表 T-217 の既定）",
+     "json": {
+      "kind": "color",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "塗りの色。形は `AT-102` と同じ。透明も取る。`null` は `_assets/tbl-settings.md` の表 T-217 の `S-370` の色で描く（既定は透明 ＝ 塗らない。`FR-019`）"
+     }
+    },
+    {
+     "seat": 147,
+     "name": "fillTransparencyPercent",
+     "type": "整数（0〜100）",
+     "nullable": "可（`null` = 表 T-217 の既定）",
+     "json": {
+      "kind": "integer",
+      "null": true
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "塗りの透過率。**0 は不透明、100 は透明**。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371`（`FR-019`）"
      }
     }
    ]

@@ -288,6 +288,16 @@ export interface CommentBox {
   readonly anchorGroupId: string | null
   /** AT-115 */
   readonly bodyOffsetPx: { readonly dx: number, readonly dy: number } | null
+  /** AT-148 */
+  readonly strokeColor: string | null
+  /** AT-149 */
+  readonly strokeWidthPx: number | null
+  /** AT-150 */
+  readonly fillColor: string | null
+  /** AT-151 */
+  readonly fillTransparencyPercent: number | null
+  /** AT-152 */
+  readonly textColor: string | null
 }
 
 /** ET-14 of table T-056. */
@@ -306,6 +316,12 @@ export interface HighlightBox {
   readonly strokeColor: string | null
   /** AT-122 */
   readonly cornerRadiusPx: number | null
+  /** AT-145 */
+  readonly strokeWidthPx: number | null
+  /** AT-146 */
+  readonly fillColor: string | null
+  /** AT-147 */
+  readonly fillTransparencyPercent: number | null
 }
 
 /** ET-15 of table T-056. */
@@ -454,6 +470,11 @@ export const COLUMN_SHAPES: {
     anchorDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     anchorGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     bodyOffsetPx: { kind: 'object', choices: null, min: null, max: null, isNullable: true },
+    strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
+    strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
+    fillTransparencyPercent: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    textColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
   },
   HighlightBox: {
     id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
@@ -463,6 +484,9 @@ export const COLUMN_SHAPES: {
     bottomGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
     cornerRadiusPx: { kind: 'number', choices: null, min: null, max: null, isNullable: true },
+    strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
+    fillTransparencyPercent: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
 }
 

@@ -18,3 +18,7 @@
 | 3 | `CR-555`（端の見えない依存線を「…」で省く。仕様の波 W1 —— 生成器が `svg-renderer.ts` の生成の区画と表示語を書き換えた。描く手順はコードの持ち場 L1 で変わる） | `58fb54ae` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/item-hit-area/item-hit-area.ts`・`src/entity/layout-engine/schedule-layout/label-placement.ts` |
 | 4 | `CR-584`（目盛のしきい値・書き出しの既定。仕様の波 W1 —— 生成器が既定値と表示語を書き換えた） | `58fb54ae` | `src/adapter/screen-renderer/display-words.json`・`src/entity/document-model/document-settings/document-settings.ts` |
 | 5 | `CR-587`（行見出しの頭の操作子を 1 行に。仕様の波 W1 —— 生成器が表示語を書き換えた。並びはコードの持ち場 L5 で変わる） | `58fb54ae` | `src/adapter/screen-renderer/display-words.json` |
+| 6 | `CR-572`（設定を文書の中身と見る人の好みに分ける。仕様の波 W2 —— 生成器が `SETTINGS_CONSTANTS`・`DrawnSettings` と表示語を刷った。`drawnSettingsOf` は毎フレーム。読み先の直しはコードの持ち場 L3） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/entity/document-model/document-settings/document-settings.ts`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/use-case/advance-screen-session/screen-values.ts` |
+| 7 | `CR-557`（テーマの色相を文書の設定から選ぶ。仕様の波 W2 —— 生成器が表示語と大きさの群を書き換えた） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/framework/dom-screen-surface/dom-screen-surface.ts` |
+| 8 | `CR-585`（白黒で画面の罫線・パネルの地・強調色も灰色。仕様の波 W2。画面の主題は `showScreenView` ごとに作る —— コードの持ち場 L3） | `34261746` | `src/adapter/screen-renderer/display-words.json` |
+| 9 | `CR-576`（基準日線を朱色、アイコンの説明、フェード 0 の端。仕様の波 W2 —— 生成器が色と大きさを書き換えた） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts` |

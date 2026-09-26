@@ -47,4 +47,10 @@
 | PR-20 | `height` | 数値 | `TaskGroup` | 倍率 1 のときの論理の高さ。<br>`null` ＝ 自動 | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | 行の帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |
+| PR-26 | `strokeWidthPx` | 数値 | `CommentBox` | 本文の箱の枠と引出し線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374` | 無い（`GRS JSON` のみ） |
+| PR-27 | `fillTransparencyPercent` | 数値 | `CommentBox` | 本文の箱の塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-375` | 無い（`GRS JSON` のみ） |
+| PR-28 | `strokeColor` / `fillColor` / `textColor` | 色 / 色 / 色 | `CommentBox` | 枠と引出し線・本文の箱の塗り・本文の字の色。<br>`null` ＝ `FR-019` が名指す色（`S-312` ・ `S-146` ・ `S-147`）。<br>⭐ 色の行なので、同じ対象の行の並びの末尾に置く（`FR-006`） | 無い（`GRS JSON` のみ） |
+| PR-23 | `strokeWidthPx` | 数値 | `HighlightBox` | 枠の線の太さ（px）。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-369` | 無い（`GRS JSON` のみ） |
+| PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は同表の `S-371` | 無い（`GRS JSON` のみ） |
 | PR-22 | `strokeColor` | 色 | `HighlightBox` | ハイライトボックスの枠の色（`CM-55`）。<br>`null` ＝ テーマから解く。<br>⚠️ **透明は取らない**（`FR-019`、表 T-017b の `CV-9`） | 無い（`GRS JSON` のみ） |
+| PR-25 | `fillColor` | 色 | `HighlightBox` | 塗りの色。<br>`null` ＝ 同表の `S-370` の色（既定は透明 ＝ 塗らない）。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |

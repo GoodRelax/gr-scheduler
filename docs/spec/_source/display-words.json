@@ -1213,10 +1213,52 @@
    }
   },
   {
+   "rowId": "PR-26",
+   "label": {
+    "ja": "線の太さ",
+    "en": "stroke width"
+   }
+  },
+  {
+   "rowId": "PR-27",
+   "label": {
+    "ja": "塗りの透過率（%）",
+    "en": "fill transparency (%)"
+   }
+  },
+  {
+   "rowId": "PR-28",
+   "label": {
+    "ja": "線 / 塗り / 文字",
+    "en": "stroke / fill / text"
+   }
+  },
+  {
+   "rowId": "PR-23",
+   "label": {
+    "ja": "線の太さ",
+    "en": "stroke width"
+   }
+  },
+  {
+   "rowId": "PR-24",
+   "label": {
+    "ja": "塗りの透過率（%）",
+    "en": "fill transparency (%)"
+   }
+  },
+  {
    "rowId": "PR-22",
    "label": {
     "ja": "枠の色",
     "en": "strokeColor"
+   }
+  },
+  {
+   "rowId": "PR-25",
+   "label": {
+    "ja": "塗り",
+    "en": "fill"
    }
   }
  ],
@@ -3552,6 +3594,17 @@
    "press": {
     "ja": "ダブルクリック",
     "en": "Double click"
+   }
+  },
+  {
+   "rowId": "MK-15",
+   "text": {
+    "ja": "選んでいるものを写して、離した所に置く",
+    "en": "Copy the Selection and put the copy where you release"
+   },
+   "press": {
+    "ja": "選んでいるものの上で Ctrl ＋ ドラッグ",
+    "en": "Ctrl + drag on the Selection"
    }
   }
  ],

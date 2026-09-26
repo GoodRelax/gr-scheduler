@@ -655,4 +655,15 @@ export const NOT_STORED_LABEL_SIZES: {
   'S-233': 1.5,
   'S-325': 0.85,
 }
+
+// see T-206
+const NOT_STORED_DEADLINE_MARK_SIZES: {
+  readonly 'S-365': number
+  readonly 'S-366': number
+  readonly 'S-367': number
+} = {
+  'S-365': 0.75,
+  'S-366': 0.5,
+  'S-367': 0.25,
+}
 // </generated>

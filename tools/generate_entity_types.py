@@ -1121,6 +1121,9 @@ NOT_STORED_TARGETS = {
     # CR-555: S-363 is GA-24's margin, the grab area of the dots that end a
     # dependency line whose far end is not in view (table T-303's EL-9); it
     # is a row of table T-266 like the rest, so it rides the same constant.
+    # CR-558: S-373 is the shortest side of a highlight box that still has a
+    # midpoint grab point (table T-246's HB-10 / HB-11); the unit that answers
+    # which grab point a press falls in reads it beside S-230 and S-293.
     'NOT_STORED_SIZES': (['S-250', 'S-251', 'S-252', 'S-253', 'S-254', 'S-255',
                           'S-256', 'S-257', 'S-258', 'S-259', 'S-260', 'S-261',
                           'S-262', 'S-263', 'S-264', 'S-265', 'S-266', 'S-267',
@@ -1129,7 +1132,7 @@ NOT_STORED_TARGETS = {
                           'S-280', 'S-281', 'S-282', 'S-283', 'S-284', 'S-285',
                           'S-286', 'S-287', 'S-288', 'S-289', 'S-290',
                           'S-137', 'S-230', 'S-293', 'S-291', 'S-292',
-                          'S-363'],
+                          'S-363', 'S-373'],
                          ARRIVES_AS_ARGUMENT),
     'NOT_STORED_LIMITS': (['S-94', 'S-95'], ARRIVES_AS_ARGUMENT),
     'NOT_STORED_PANEL_DIVIDER_SIZES': (['S-134'], READ_WHERE_THE_FRAME_STANDS),
@@ -1317,7 +1320,17 @@ NOT_STORED_TARGETS = {
     # three are 1px: the row's own note forbids sharing them.
     'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
-    'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-558: S-372 is the side of the square a selected highlight box's grab
+    # points are drawn as. They are drawn in ZO-10 beside the selection frame,
+    # bordered at S-174 (FR-016's closing rules of table T-023d), by
+    # schedule-overlays.ts, which imports this constant from svg-renderer.ts;
+    # a new constant would stand unread until the code wave draws the points,
+    # and noUnusedLocals refuses an unread one.
+    # CR-559: S-376 is the side of the square drawn on a selected comment
+    # box's leader end -- the same kind of mark, drawn by the same unit in the
+    # same order (ZO-10) and bordered at the same S-174, so it rides here too.
+    'NOT_STORED_SELECTION_SIZES': (['S-174', 'S-175', 'S-178', 'S-372', 'S-376'],
+                                   DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in svg-renderer.ts:
     # one constant per consuming SUBJECT, which is the split the notes around
     # this table state. S-174 .. S-178 are the SELECTION's sign and S-194 is
@@ -1455,6 +1468,17 @@ NOT_STORED_TARGETS = {
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
     'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-556: the deadline mark's three ratios to the marker's diameter
+    # (DA-2 of table T-304, FR-045) -- the arrowhead's width and height and
+    # the shaft's width. A NEW CONSTANT: one constant per consuming SUBJECT,
+    # and none of the others is the deadline mark. EP-5 of table T-076 draws
+    # the mark into an exported picture. Printed into schedule-layout.ts (OC-9
+    # counts the arrowhead's width) and task-figures.ts (the outline).
+    # WARNING: until the code wave reads it there, each copy is an unread
+    # const that noUnusedLocals refuses -- the reader lands in the same code
+    # wave as the mark (CR-556 section 8).
+    'NOT_STORED_DEADLINE_MARK_SIZES': (['S-365', 'S-366', 'S-367'],
+                                       DRAWN_INTO_THE_EXPORTED_PICTURE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     # ⭐ How long SE-3 of table T-260 keeps the display scale message. ⚠️ Not
     # folded into NOT_STORED_REPEAT_TIMES though both are times counted off
@@ -1671,7 +1695,9 @@ COLOUR_TARGETS = {
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
                          'S-169', 'S-195', 'S-223',
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
-                         'S-326', 'S-327'],
+                         'S-326', 'S-327',
+                         # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
+                         'S-364'],
 }
 
 COLOUR_NOTE = [
@@ -1857,27 +1883,45 @@ def not_stored_block(name):
 # never a place to keep it; it was the STARTING number a newly created box is
 # given, which is table T-217's own default cell and answers to no row of
 # table T-206.
+# CR-558: EVERY ROW OF THE TABLE, NOT S-132 ALONE. S-369 .. S-371 give the
+# highlight box's stroke width, fill colour and fill transparency the value a
+# `null` column is drawn with (FR-019), and a newly created box starts from
+# `null`, so the drawing side reads these defaults. The key stays the row ID,
+# as in every other not-stored constant; the `HighlightBox.` head of the key
+# column is not printed. WARNING: only the DEFAULT cell is carried: the bounds of
+# table T-217 are not printed here, because no unit reads them yet and an
+# unread constant is one noUnusedLocals refuses.
+def annotation_cell(cell):
+    """One default cell of table T-217, as a TypeScript literal and type."""
+    if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
+        return (cell['lit'], 'string')
+    return not_stored_cell(cell)
+
+
 def annotation_defaults_block():
-    """The one row of table T-217, by its own key column."""
+    """Every row of table T-217, by its row ID."""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-217']
     if not block:
         raise SystemExit('settings.json holds no table T-217')
     rows = block[0]['rows']
-    if len(rows) != 1 or rows[0]['id'] != 'S-132':
-        raise SystemExit(
-            'table T-217 no longer holds exactly one row named S-132 -- '
-            'annotation_defaults_block assumed that shape and has to be reread')
-    row = rows[0]
-    cell = not_stored_cell(row.get('default'))
-    if cell is None:
-        raise SystemExit('table T-217 row S-132 holds no machine value, so '
-                         'NOT_STORED_ANNOTATION_SIZES cannot be generated')
-    out = ['// see T-217, FR-019',
-           "export const NOT_STORED_ANNOTATION_SIZES: { readonly 'S-132': %s } = {"
-           % cell[1],
-           "  'S-132': %s," % cell[0],
-           '}']
+    if not rows:
+        raise SystemExit('table T-217 holds no row')
+    got = []
+    for row in rows:
+        cell = annotation_cell(row.get('default'))
+        if cell is None:
+            raise SystemExit('table T-217 row %s holds no machine value, so '
+                             'NOT_STORED_ANNOTATION_SIZES cannot be generated'
+                             % row['id'])
+        got.append((cell[0], cell[1], row['id']))
+    out = ['// see T-217, FR-019', 'export const NOT_STORED_ANNOTATION_SIZES: {']
+    for _literal, ts, row_id in got:
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for literal, _ts, row_id in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
     return '\n'.join(out)
 
 
@@ -2369,7 +2413,8 @@ TARGETS = [
     # It stands in task-figures.ts, the one unit of ScheduleGeometry that reads
     # it (CR-554 15.6.7); the public entry re-exports it for the tests.
     (os.path.join(LAYOUT, 'schedule-geometry', 'task-figures.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # S-178 STANDS HERE AS WELL AS IN `svg-renderer.ts`, for the same reason
     # (CR-399). Table T-023d's closing rule (MUST) has GR-13 take only the
@@ -2447,7 +2492,8 @@ TARGETS = [
     # reads at all is refused by noUnusedLocals, so it is no longer generated.
     (os.path.join(LAYOUT, 'schedule-layout', 'schedule-layout.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_LABEL_SIZES'),
+     + not_stored_block('NOT_STORED_LABEL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEADLINE_MARK_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # The fit's margin stands in the one unit that reads it, fit-zoom.ts
     # (CR-554 15.6.7).
