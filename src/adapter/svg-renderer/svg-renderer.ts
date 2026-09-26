@@ -743,7 +743,7 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_BASELINE_OUTLINE_SIZES: {
+const NOT_STORED_BASELINE_OUTLINE_SIZES: {
   readonly 'S-444': readonly [number, number]
 } = {
   'S-444': [4, 2],

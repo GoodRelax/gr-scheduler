@@ -1069,7 +1069,7 @@ export const NOT_STORED_RESOURCE_ROSTER_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_SEARCH_PANEL_SIZES: {
+const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
 } = {
@@ -1078,7 +1078,7 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
 }
 
 // see T-333, FR-151
-export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
+const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
   readonly 'S-430': number
   readonly 'S-431': number
   readonly 'S-432': number

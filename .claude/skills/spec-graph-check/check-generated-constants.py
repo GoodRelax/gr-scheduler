@@ -311,6 +311,12 @@ def load_generator(root):
     """
     path = os.path.abspath(os.path.join(root, GENERATOR))
     scope = {'__name__': 'generate_entity_types', '__file__': path}
+    # WHY: the generator imports its siblings in tools/ (generate_icon_roster),
+    # which Python finds only when that folder is on the path, as it is when
+    # the generator runs as a script.
+    tools_dir = os.path.dirname(path)
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
     exec(compile(read(path), path, 'exec'), scope)
     written = set(os.path.relpath(target, scope['ROOT']).replace('\\', '/')
                   for target, _build, _sources in scope['TARGETS'])

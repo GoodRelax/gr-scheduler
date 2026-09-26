@@ -2969,7 +2969,6 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ZOOM_STEP',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
-        'NOT_STORED_BASELINE_OUTLINE_SIZES',
         'NOT_STORED_DELAY_MARK_SIZES',
         'NOT_STORED_DEPENDENCY_SIZES',
         'NOT_STORED_DUAL_CURSOR_SIZES',
@@ -3013,8 +3012,6 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ROW_BAND_SIZES',
         'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
         'NOT_STORED_ROW_GRAB_STRIP_SIZES',
-        'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
-        'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
