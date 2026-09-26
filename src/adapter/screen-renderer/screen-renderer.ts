@@ -196,6 +196,8 @@ export interface PropertyControl {
   readonly choices: readonly string[] | null
   readonly choiceValues?: readonly string[]
   readonly colour?: ColourField
+  // WHY: bare swatches beside choiceValues; ColourField brings entrances FR-041's hue field must not have.
+  readonly swatches?: readonly string[]
   readonly searchWords?: readonly string[]
   readonly min: number | null
   readonly max: number | null

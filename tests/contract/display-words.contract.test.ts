@@ -361,6 +361,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // part of the colour field by the part it names (CV-9); neither is a row.
   colourNames: 'spelling',
   colourField: 'part',
+  // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
+  themeHues: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
