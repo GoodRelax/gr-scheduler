@@ -797,6 +797,8 @@ function settingsFields(
 const COLOUR_FORM_OF_COLUMN: Readonly<Record<string, Parameters<typeof swatchOf>[1]>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
+  // see FR-019: a comment box's text takes the name's outline value, as its line does
+  textColor: 'outline',
   color: 'band',
 }
 

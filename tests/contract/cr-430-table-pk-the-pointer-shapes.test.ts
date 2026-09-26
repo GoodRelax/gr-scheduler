@@ -250,8 +250,11 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('table T-269 holds the eight rows PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10', () => {
-    expect(PK_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9', 'PK-10'])
+  // WHY: table T-269 grows (PK-11..PK-15 came with CR-558), so the cases read its rows, not a count.
+  it('table T-269 holds PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 in that order, each row ID once', () => {
+    expect(new Set(PK_ROWS).size, 'a row ID of table T-269 repeats').toBe(PK_ROWS.length)
+    const eight = ['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-7', 'PK-8', 'PK-9', 'PK-10']
+    expect(PK_ROWS.filter((row) => eight.includes(row))).toEqual(eight)
   })
 
   it(`the box arrow and the circle each hold the plan and the actual in one row: ${T_269_WHITE_IS_PLAN}`, () => {
@@ -268,9 +271,13 @@ describe('CR-430 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it('three of the eight take the environment shape, and the five others name an S row', () => {
-    expect(ENVIRONMENT_ROWS).toEqual(['PK-7', 'PK-8', 'PK-10'])
+  it('the image rows are the five PK-1, PK-3, PK-4, PK-5, PK-9, each naming an S row; every other row takes the environment shape', () => {
+    expect(IMAGE_ROWS).toEqual(['PK-1', 'PK-3', 'PK-4', 'PK-5', 'PK-9'])
     for (const row of IMAGE_ROWS) expect(sizeNumbersOf(row).length, `${row}: ${cellOf(row, SIZE)}`).toBeGreaterThan(0)
+    for (const row of ENVIRONMENT_ROWS) {
+      expect(cellOf(row, SIZE), `${row}: ${SIZE}`).toBe('環境のまま')
+      expect(cellOf(row, '形'), `${row}: 形`).toContain('閲覧環境')
+    }
   })
 })
 

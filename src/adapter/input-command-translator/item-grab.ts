@@ -18,7 +18,10 @@ import {
   type ItemRef,
 } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type { BarGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+import {
+  commentAnchorPointOf,
+  type BarGeometry,
+} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   pastedUidsOf,
@@ -98,29 +101,14 @@ export function commandFromGrab(
     return CONSUMED_ELSEWHERE
   }
 
-  // see GR-14, CM-50
-  if (item.kind === 'commentBox' && hit.grab === 'GR-14' && hit.boxPart?.kind === 'anchor') {
-    return commentBoxAnchorWrite(context, release, item.id)
-  }
-
   // see GR-14, CM-54
   if (item.kind === 'highlightBox' && hit.grab === 'GR-14') {
     return highlightBoxRangeWrite(context, press, release, item.id, hit.boxPart ?? { kind: 'body' })
   }
 
-  // see GR-14, CM-51
+  // see GR-14, CM-50, CM-51
   if (item.kind === 'commentBox' && hit.grab === 'GR-14') {
-    const box = boxById(context.document.schedule.commentBoxes, item.id)
-    if (box === undefined) return CONSUMED_ELSEWHERE
-    const stood = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    return changed([
-      {
-        kind: 'setCommentBoxBodyOffsetPx',
-        id: item.id,
-        dx: stood.dx + (release.x - press.at.x),
-        dy: stood.dy + (release.y - press.at.y),
-      },
-    ])
+    return commentBoxMoveWrite(context, press, release, item.id, hit.boxPart?.kind === 'anchor')
   }
 
   if (item.kind !== 'task') return CONSUMED_ELSEWHERE
@@ -139,25 +127,8 @@ export function commandFromGrab(
             },
           ])
     case 'GA-7':
-    case 'GA-8': {
-      const task = taskByUid(context.document.schedule, uid)
-      const start = dayOf(task === null ? null : task.start)
-      const finish = dayOf(task === null ? null : task.finish)
-      const atPointer = pointerDaySerial(context.layout, release.x)
-      if (task === null || start === null || finish === null || atPointer === null) {
-        return CONSUMED_ELSEWHERE
-      }
-      const pulled =
-        grab === 'GA-7'
-          ? Math.round(atPointer - serialOfDay(start))
-          : Math.round(serialOfDay(finish) - atPointer)
-      const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
-      return changed([
-        grab === 'GA-7'
-          ? { kind: 'setTaskFadeInDays', uid, days }
-          : { kind: 'setTaskFadeOutDays', uid, days },
-      ])
-    }
+    case 'GA-8':
+      return fadeEndWrite(context, release, uid, grab)
     case 'GA-1':
     case 'GA-10':
     case 'GA-2':
@@ -371,7 +342,7 @@ function clampedRowShift(
   return shiftWithinRows(rows, held, asked)
 }
 
-// see PE-1, T-308 CY-6
+// see PE-1, CY-6
 /** @purity pure */
 function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
@@ -379,7 +350,7 @@ function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[],
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
-// see T-023a PTD-7, T-308 CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
+// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
 // WHY: one CM-8 carrying where the copies land, so one drag is one undo step (FR-031); the rows are counted on
 // the copies alone -- the boxes CY-4 leaves behind do not hold the drag at an edge.
 /** @purity pure */
@@ -389,7 +360,8 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
-  const rows = drawnRowsOf(context.layout)
+  const atPress = press.layoutRowsAtPress
+  const rows = drawnRowsOf(atPress === undefined ? context.layout : { ...context.layout, rows: atPress })
   const dayCount = dayShift(context, press.at.x, release.x)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
   const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
@@ -442,7 +414,7 @@ interface DraggedSides {
   readonly vertical: 'top' | 'bottom' | null
 }
 
-// see T-246 HB-7, HB-8..HB-11
+// see HB-7, HB-8, HB-9, HB-10, HB-11
 // WHY: a corner moves one side each way; a midpoint moves its one side and keeps the other direction (HB-7).
 /** @purity pure */
 function draggedSidesOf(part: Extract<NonNullable<Hit['boxPart']>, { kind: 'corner' | 'edge' }>): DraggedSides {
@@ -459,7 +431,7 @@ interface HeldRange {
   readonly late: CalendarDay
 }
 
-// see T-246 HB-4, HB-5, HB-6, HB-7
+// see HB-4, HB-5, HB-6, HB-7
 /** @purity pure */
 function grabPointRange(
   held: HeldRange,
@@ -567,18 +539,54 @@ function highlightBoxRangeWrite(
   ])
 }
 
-// see GR-14, CM-50, FR-019, RS-44
-// WHY: a released anchor is placed again, and FR-019 refuses a place with no row by RS-44.
+// see GR-14, CM-50, CM-51, FR-019, RS-44
+// WHY: CM-50 and CM-51 in one bundle, one undo (FR-031): the box stands off its anchor, so CM-50 alone would
+// carry the box along with a moved anchor.
 /** @purity pure */
-function commentBoxAnchorWrite(
+function commentBoxMoveWrite(
   context: InputContext,
+  press: PointerPress,
   release: PointerInput,
   id: string,
+  isAnchor: boolean,
 ): TranslatedInput {
-  if (boxById(context.document.schedule.commentBoxes, id) === undefined) return CONSUMED_ELSEWHERE
-  const anchor = commentAnchorAt(context.layout, release.x, release.y)
+  const drawn = context.geometry.commentBoxes.find((one) => one.id === id)
+  if (drawn === undefined || boxById(context.document.schedule.commentBoxes, id) === undefined) {
+    return CONSUMED_ELSEWHERE
+  }
+  const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
+  const aim = isAnchor ? release : { x: drawn.anchor.x + pull.dx, y: drawn.anchor.y + pull.dy }
+  const anchor = commentAnchorAt(context.layout, aim.x, aim.y)
   if (!('groupId' in anchor)) return anchor
-  return changed([{ kind: 'setCommentBoxAnchor', id, anchor }])
+  const day = dayOf(anchor.date)
+  const at = day === null ? null : commentAnchorPointOf(context.layout, day, anchor.groupId)
+  if (at === null) return nothingToDo('noRowToPutTheAnnotationOn')
+  const left = drawn.body.x + pull.dx
+  const bottom = drawn.body.y + drawn.body.height + pull.dy
+  return changed([
+    { kind: 'setCommentBoxAnchor', id, anchor },
+    { kind: 'setCommentBoxBodyOffsetPx', id, dx: left - at.x, dy: bottom - at.y },
+  ])
+}
+
+// see FR-016, FD-5
+// WHY: compared in days, not pixels -- the table forbids a drag threshold; an unset end released on the day it
+// stood on stays unset instead of turning into an explicit 0, which draws flat.
+/** @purity pure */
+function fadeEndWrite(context: InputContext, release: PointerInput, uid: number, grab: 'GA-7' | 'GA-8'): TranslatedInput {
+  const task = taskByUid(context.document.schedule, uid)
+  const start = dayOf(task === null ? null : task.start)
+  const finish = dayOf(task === null ? null : task.finish)
+  const atPointer = pointerDaySerial(context.layout, release.x)
+  if (task === null || start === null || finish === null || atPointer === null) return CONSUMED_ELSEWHERE
+  const pulled =
+    grab === 'GA-7' ? Math.round(atPointer - serialOfDay(start)) : Math.round(serialOfDay(finish) - atPointer)
+  const days = clampedFadeDays(task, grab, pulled, serialOfDay(finish) - serialOfDay(start))
+  const stood = (grab === 'GA-7' ? task.fadeInDays : task.fadeOutDays) ?? 0
+  if (days === stood) return CONSUMED_ELSEWHERE
+  return changed([
+    grab === 'GA-7' ? { kind: 'setTaskFadeInDays', uid, days } : { kind: 'setTaskFadeOutDays', uid, days },
+  ])
 }
 
 // see FD-6

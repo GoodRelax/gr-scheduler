@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { Assignment, CalendarDay, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
-import { dayOf, taskByUid, textOfDay } from '../../entity/document-model/schedule/schedule'
+import { dayFromSerial, dayOf, serial, taskByUid, textOfDay } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { wbsSubtreeOf, withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
@@ -32,7 +32,7 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
   return remap
 }
 
-// see T-308 CY-5
+// see CY-5
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
 function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
@@ -43,15 +43,12 @@ function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
   return { ...task, start: textOfDay(dayShiftedBy(start, days)), finish: textOfDay(dayShiftedBy(finish, days)) }
 }
 
-// TRAP: repeats dayShifted in input-command-translator.ts; the serial helpers of calendar-day.ts are not
-// published to this layer (table T-064), so change the two together.
 /** @purity pure */
 function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
-  const at = new Date(Date.UTC(day.year, day.month - 1, day.day + days))
-  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
+  return dayFromSerial(serial(day) + days)
 }
 
-// see CM-8, T-223 DU-1
+// see CM-8, DU-1
 // WHY: unstarted on every road that copies: the copy keeps the plan and the links closed inside the subtree.
 /** @purity pure */
 function copiedTask(one: Task, subtree: ReadonlySet<number>, remap: ReadonlyMap<number, number>): Task {
@@ -91,7 +88,6 @@ export function pasteTaskSubtree(
   const visualCopies = schedule.taskVisuals
     .filter((one) => subtree.has(one.taskUid))
     .map((one) => ({ ...one, taskUid: remap.get(one.taskUid) as number }))
-  // see T-308 CY-6
   const memberCopies = schedule.taskGroupMembers
     .filter((one) => subtree.has(one.taskUid))
     .map((one) => ({

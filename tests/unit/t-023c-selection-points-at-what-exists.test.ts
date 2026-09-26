@@ -307,6 +307,12 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           anchorDate: '2026-04-02T00:00:00',
           anchorGroupId: ALPHA,
           bodyOffsetPx: null,
+          // WHY: fig-erd-detail AT-148..AT-152 are columns of the CommentBox, each nullable.
+          strokeColor: null,
+          strokeWidthPx: null,
+          fillColor: null,
+          fillTransparencyPercent: null,
+          textColor: null,
         },
       ],
       highlightBoxes: [
@@ -318,6 +324,10 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           bottomGroupId: ALPHA,
           strokeColor: null,
           cornerRadiusPx: null,
+          // WHY: fig-erd-detail AT-145..AT-147 (null = the T-217 default, FR-019).
+          strokeWidthPx: null,
+          fillColor: null,
+          fillTransparencyPercent: null,
         },
       ],
       taskOrigins: [],
