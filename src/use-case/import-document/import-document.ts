@@ -340,6 +340,7 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
   const document: Document = {
     ...request.current,
     schedule: { ...request.current.schedule, baselineTasks },
+    documentSettings: { ...request.current.documentSettings, baselineVisible: true },
   }
 
   return {
