@@ -224,7 +224,7 @@ export interface DualCursorGeometry {
 }
 
 // see FR-015, T-339
-export interface BaselineOutline {
+interface BaselineOutline {
   readonly taskUid: number
   readonly kind: 'rectangle' | 'diamond'
   readonly box: ScreenRect

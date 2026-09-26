@@ -92,7 +92,7 @@ const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, inco
 
 const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   idle: [{}],
-  // OP-15: "OP-2 のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）" -- the 'baseline' route.
+  // WHY: OP-15 -- the 'baseline' route opens the OP-2 file chooser and reads the chosen file to overlay it (MUST).
   readingDocumentFile: ['chooser', 'drop', 'reopen', 'baseline', 'handed'].map((openRoute) => ({ openRoute })),
   awaitingOpenChoice: [{}],
   awaitingDiscardAnswer: [{}],
@@ -158,7 +158,7 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
 }
 
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
-  // OP-15 (T-290 openRoute): `baseline` is the pre-change-plan entrance when no plan is overlaid.
+  // WHY: OP-15 (T-290 openRoute) -- `baseline` is the pre-change-plan entrance when no plan is overlaid.
   documentOpenAsked: ['chooser', 'drop', 'reopen', 'baseline'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
   documentFileWriteAsked: [{ writeForm: { kind: 'save' } }, { writeForm: { kind: 'export', format: 'MF-1' } }],
@@ -215,7 +215,7 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
   switch (guard.name) {
     case 'isReopenRoute':
       return operation['openRoute'] === 'reopen'
-    // OP-15: "OP-3 の 3 択は問わず、重ねに定めること（MUST）" -- the route IC-4 opened with.
+    // WHY: OP-15 -- the route IC-4 opened with overlays without asking the three choices of OP-3 (MUST).
     case 'isBaselineRoute':
       return operation['openRoute'] === 'baseline'
     case 'isReplaceChoice':
@@ -280,7 +280,7 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
       if (event['type'] === 'openChoiceAnswered') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
       }
-      // OP-15: "OP-3 の 3 択は問わず、重ねに定めること（MUST）" -- a file read on the baseline route overlays.
+      // WHY: OP-15 -- a file read on the baseline route overlays without asking the three choices of OP-3 (MUST).
       if (event['type'] === 'documentFileRead') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }

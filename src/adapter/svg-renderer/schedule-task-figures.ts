@@ -8,12 +8,8 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
-  BaselineOutline,
-  DeadlineGeometry,
   MarkerGeometry,
-  MilestoneLayer,
   Path,
-  PathSegment,
   Point,
   ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
@@ -40,6 +36,10 @@ import {
 
 type Placed = ScheduleLayout['placements'][number]
 type PinnedGroupId = ScheduleLayout['rows'][number]['groupId']
+type BaselineOutline = ScheduleGeometry['baselineOutlines'][number]
+type DeadlineGeometry = NonNullable<ScheduleGeometry['tasks'][number]['deadline']>
+type MilestoneLayer = NonNullable<Extract<BarGeometry, { readonly form: 'outline' }>['layers']>[number]
+type PathSegment = MilestoneLayer['segments'][number]
 
 export interface TaskFiguresInput {
   readonly geometry: ScheduleGeometry

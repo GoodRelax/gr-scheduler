@@ -198,7 +198,7 @@ tests/unit/uf-47-48-history-bytes.test.ts 504
 tests/unit/uf-47-48.test.ts 815
 tests/unit/uf-48-input.test.ts 559
 tests/unit/uf-48-undo-through-the-one-path.test.ts 379
-tests/unit/uf-48-write-moment.test.ts 799
+tests/unit/uf-48-write-moment.test.ts 794
 tests/unit/uf-50.test.ts 326
 tests/unit/uf-51.test.ts 0
 tests/unit/uf-71-confirmation.test.ts 706

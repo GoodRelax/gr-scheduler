@@ -31,7 +31,7 @@ import {
 } from '../schedule-layout/schedule-layout'
 import { displayRatioOf, type ScreenRect } from '../screen-regions/screen-regions'
 import { guidesOf } from './plan-actual-guides'
-import milestoneShapes from './milestone-shapes.json'
+import milestoneShapes from './milestone-shapes.json' with { type: 'json' }
 import {
   point,
   type BarGeometry,

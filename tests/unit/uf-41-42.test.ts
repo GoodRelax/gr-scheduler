@@ -57,7 +57,7 @@ const T_024A_OP2_ROUTES = ['chooser', 'drop'] as const satisfies readonly OpenRo
 
 const T_024A_OP13_ROUTE = 'reopen' as const satisfies OpenRoute
 
-// OP-15: "OP-2 のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）"
+// WHY: OP-15 -- opens the OP-2 file chooser and reads the chosen file to overlay it (MUST).
 const T_024A_OP15_ROUTE = 'baseline' as const satisfies OpenRoute
 
 const IF_3_OPENED_STATES = [
