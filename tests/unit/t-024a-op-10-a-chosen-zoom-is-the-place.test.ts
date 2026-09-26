@@ -203,6 +203,8 @@ const THE_CONDITION = '表示位置が `null`、または指す行が存在し�
 // ===========================================================================
 
 const T_036 = specTable('T-036')
+// see S-53
+const ZOOM_STEP = Number(/\d+(?:\.\d+)?/.exec(specTable('T-201').rows.find((row) => row.id === 'S-53')?.by['既定値'] ?? '')?.[0] ?? '')
 
 const ENTRANCE_COLUMN = ((): string => {
   const found = T_036.headings.find((heading) => heading.includes('入口'))
@@ -515,17 +517,18 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     expect(one.picture().pxPerDay).toBeLessThan(before.pxPerDay)
   })
 
-  it('IC-15: a press of the row-axis zoom-in moves the picture', () => {
-    // ⛔ IC-14 is NOT the mirror of this case; see the block at the head of the
-    // file. The row axis is read on both of the two figures a zoom moves.
+  // WHY: the fit may land inside the shrinking end (ZE-1), where a wider zoom need not move the
+  // picture; the spec fixes the zoom written (a step of S-53 from the fit's zoom), not the picture.
+  it('IC-15: a press of the row-axis zoom-in writes one S-53 step up from the fit zoom, and keeps it', () => {
     const one = boot()
-    const before = one.picture()
+    const scene = one.loop.exportScene() as unknown as { settings: { zoomY: number } } | null
+    if (scene === null) throw new Error('the loop had no scene to export')
+    const fitted = scene.settings.zoomY
     one.send(ALT_PLUS)
-    const after = one.picture()
-    expect(
-      after.rectangleHeight > before.rectangleHeight || after.firstRowHeight > before.firstRowHeight,
-      'a row-axis zoom that moves neither the rectangle height nor the band height moved nothing',
-    ).toBe(true)
+    const chosen = (settingsOf(one.loop.document()) as unknown as { zoomY: number }).zoomY
+    expect(chosen, 'FR-055 / OP-10: the step is taken from the zoom the fit chose').toBeCloseTo(fitted * ZOOM_STEP, 9)
+    one.idle()
+    expect((settingsOf(one.loop.document()) as unknown as { zoomY: number }).zoomY, 'OP-10 (MUST NOT): no later frame redoes the fit').toBe(chosen)
   })
 
   it('IC-10: the fit is still reachable, and moves the picture back after a zoom', () => {

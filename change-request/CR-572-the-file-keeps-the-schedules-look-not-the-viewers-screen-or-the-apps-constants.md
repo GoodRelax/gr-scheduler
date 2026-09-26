@@ -2,6 +2,7 @@
 
 > 起草の状態: 起草した（2026-09-26）。利用者の裁定 `JDG-603`（仕分けの変更要求を起こす）と、本書のために問うた `JDG-620` 〜 `JDG-626`（逐語は 0.1 節）を受けた。⭐ `JDG-626` がモノクロを文書の中身へ戻した（`JDG-621`・`JDG-625` の一部を覆した）。⛔ 仕様・コード・見本はまだ 1 文字も変えていない。
 > 読んだ木: `refactor` 70be9db6 を `git archive` でスクラッチへ写した木で測った（13 節）。起草したワークツリーは別の起点で切られていたので、測った数はどれも `refactor` の先端のものである。⛔ 当てる前に、その時点の `refactor` の先端で測り直すこと。
+> 測り直し（2026-09-26、`CR-570` の着地後の `refactor` b6292bb0）: 16 節の旧の塊はすべて同じ行番号のまま逐語で在った。鍵は 112（内容 26・好み 3・画面だけ 1・定数 82）、`edit-document-settings.ts` の命令は 16 種・書く鍵は 30（`CR-570` の `CM-86` `setLevelZeroTreeState` が 1 つ足した）、書き手はほかに増えていない。3.4 節の数は 2 つを直した（下の注）。数は 2 通りの数え方で突き合わせた。
 > ID の帯: 調整役から `CR-572`・`JDG-620` 〜 `JDG-629`・`DFC-995` 〜 `DFC-997` を受けた。新しい名はどれも仮である（2 節）。
 > ⛔ 当てる順: `CR-570` の後。`CR-570` は `documentSettings` に鍵を 1 つ足し（`JDG-600`。本書は `CR-570` が付ける仮の名で呼ぶ）、`settings.json`・文書スキーマ・`src`・見本を書き換えている最中である。同じファイルを同時に触らない。`CR-570` が足す鍵は「内容」に分ける（3.1 節）。
 > 閉じるもの: `DFC-995`（仮。12 節）—— `S-124` を 1000 → 150 に変えても（`JDG-602`）、その前に保存した `GRS JSON` を開くとツールチップは 1000ms のまま出る。
@@ -152,17 +153,17 @@
 
 ### 3.4 試験（`refactor` 70be9db6 で数えた）
 
-- 定数になる 82 鍵を名で書く所: `tests/` に 1,354 か所、`src/` に 279 か所（生成物を除く、`git grep -c -w <鍵>`）。好みと画面だけの 4 鍵: `tests/` 269・`src/` 47。⭐ 多くは `SETTINGS_DEFAULTS` から設定を組む試験なので、鍵の読み先が変われば試験の組み立ても動く。
+- 定数になる 82 鍵を名で書く所（b6292bb0）: `tests/` に 1,355 か所、`src/` に 281 か所（生成物 4 ファイルを完全なパスで除く、`git grep -c -w <鍵>`）。好みと画面だけの 4 鍵: `tests/` 269・`src/` 57（好み 37・画面だけ 20）。⚠️ 起草の版の 279・47 は数え方の誤りだった —— 生成物をファイル名の末尾（`document-settings.ts`）で除いたので、手書きの `edit-document-settings.ts` まで除いていた。⭐ 多くは `SETTINGS_DEFAULTS` から設定を組む試験なので、鍵の読み先が変われば試験の組み立ても動く。
 - 4 鍵を文書の編集として確かめている試験（取り消し・未保存・刻印）は、新しい規則では偽になる。⇒ 書き直すのは実装の体、新しい規則を書くのは仕様だけの試験の体（8 節）。
 
 ### 3.5 見本・起動テンプレート・骨組み（`JDG-601`: 読み替えず書き直す）
 
 | ファイル | 今の鍵の数 | 新 |
 |---|--:|---|
-| `src/framework/single-html-shell/startup-template.json` | 111 | 25（`CR-570` の 1 を足して 26） |
-| `sample-schedule/No Name.json` | 104 | 同上 |
-| `sample-schedule/Three-Year Product Plan.json` | 104 | 同上 |
-| `docs/guides/schedule-to-grs-json/grs-skeleton.json` | 105 | 同上 |
+| `src/framework/single-html-shell/startup-template.json` | 111（b6292bb0 で 112） | 26 |
+| `sample-schedule/No Name.json` | 104（b6292bb0 で 105） | 同上 |
+| `sample-schedule/Three-Year Product Plan.json` | 104（b6292bb0 で 105） | 同上 |
+| `docs/guides/schedule-to-grs-json/grs-skeleton.json` | 105（b6292bb0 で 106） | 同上 |
 
 ⭐ `sample-large-erp-program.ja.xml` は MSPDI なので `documentSettings` を持たない。触らない。
 
@@ -260,10 +261,10 @@ SEAM (verbatim in every brief of waves 2a..2d and 3)
 
 | 何を | 今 | 後 |
 |---|--:|--:|
-| 文書スキーマの `documentSettings` の鍵 | 111 | 25（`CR-570` の後なら 26） |
-| そのうち画面の操作で書き換わる鍵 | 29 | 25（`CR-570` の後なら 26） |
+| 文書スキーマの `documentSettings` の鍵 | 111（b6292bb0 で 112） | 26 |
+| そのうち画面の操作で書き換わる鍵 | 29（b6292bb0 で 30） | 26 |
 | 表 T-206 の行 | 147 | 150（`S-65`・`S-66`・`S-72` を足す。`S-80` は退かせるので足さない） |
-| 起動テンプレート・見本 2・骨組みの鍵 | 111 / 104 / 104 / 105 | すべて同じ数 |
+| 起動テンプレート・見本 2・骨組みの鍵 | 111 / 104 / 104 / 105（b6292bb0 で 112 / 105 / 105 / 106） | すべて 26 |
 
 ---
 
@@ -319,7 +320,8 @@ git archive refactor docs/spec .claude/skills/spec-graph-check tools change-requ
 #   nested keys by hand: fontScaleSizes = S-121..S-123 (T-215), shapeHeightOf = S-13..S-17 (T-201)
 
 # which keys an in-app command writes: the put({...}) calls of
-#   src/use-case/edit-document/edit-document-settings.ts          -> 29 keys
+#   src/use-case/edit-document/edit-document-settings.ts          -> 29 keys (30 on b6292bb0)
+# generated files are excluded by EXACT path, never by a file-name suffix
 # the settings pane writes nothing: properties-panel.ts settingsFields isEditable: false
 
 # where a key is named, generated files excluded

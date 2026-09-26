@@ -497,7 +497,7 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
     return { x: settings.zoomX, y: settings.zoomY }
   }
   const fitted = fittedNow(context)
-  return { x: fitted.zoomX, y: Math.max(fitted.zoomY, fitted.floorZoomY) }
+  return { x: fitted.zoomX, y: fitted.zoomY }
 }
 
 // see FR-046, IC-44
