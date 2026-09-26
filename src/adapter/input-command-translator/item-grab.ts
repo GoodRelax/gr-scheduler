@@ -360,7 +360,8 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const sources = context.selection.items.flatMap((one) =>
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
-  const rows = drawnRowsOf(context.layout)
+  const atPress = press.layoutRowsAtPress
+  const rows = drawnRowsOf(atPress === undefined ? context.layout : { ...context.layout, rows: atPress })
   const dayCount = dayShift(context, press.at.x, release.x)
   const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
   const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
