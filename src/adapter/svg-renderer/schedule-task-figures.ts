@@ -8,6 +8,7 @@ import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type {
   BarGeometry,
+  BaselineOutline,
   DeadlineGeometry,
   MarkerGeometry,
   Path,
@@ -73,6 +74,11 @@ export interface TaskFigureParts {
   readonly barMaskParts: readonly string[]
   readonly handleParts: readonly string[]
   readonly selectionParts: readonly string[]
+}
+
+export interface BaselineOutlineParts {
+  readonly baselineParts: readonly string[]
+  readonly baselinePartsPinned: readonly string[]
 }
 
 export interface DependencyLinksInput {
@@ -527,6 +533,42 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     handleParts,
     selectionParts,
   }
+}
+
+/** @purity pure */
+function baselineOutlineSvg(outline: BaselineOutline, ink: string): string {
+  const { box } = outline
+  const key = figureKey(`task-${outline.taskUid}-baseline`)
+  if (outline.kind === 'rectangle') {
+    return (
+      `<rect x="${rounded(box.x)}" y="${rounded(box.y)}"` +
+      ` width="${rounded(box.width)}" height="${rounded(box.height)}"${ink}${key}/>`
+    )
+  }
+  const middleX = box.x + box.width / 2
+  const middleY = box.y + box.height / 2
+  const corners = [
+    { x: middleX, y: box.y },
+    { x: box.x + box.width, y: middleY },
+    { x: middleX, y: box.y + box.height },
+    { x: box.x, y: middleY },
+  ]
+  return `<polygon points="${pointsOf(corners)}"${ink}${key}/>`
+}
+
+// see FR-015, T-339, ZO-15
+/** @purity pure */
+export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts {
+  const baselineParts: string[] = []
+  const baselinePartsPinned: string[] = []
+  const ink =
+    ` fill="none" stroke="${input.themed('S-443')}" stroke-width="${rounded(input.settings.planStroke)}"` +
+    ` stroke-dasharray="${rounded(dash[0])} ${rounded(dash[1])}"`
+  for (const outline of input.geometry.baselineOutlines) {
+    if (isCulled(outline.box, input)) continue
+    ;(outline.isPinned ? baselinePartsPinned : baselineParts).push(baselineOutlineSvg(outline, ink))
+  }
+  return { baselineParts, baselinePartsPinned }
 }
 
 // see GD-6

@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 96 | 1145 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 98 | 1182 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 138 | 3109 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 283 | 4528 | 12 | 17 | 9 | 1 |
+| **all** | | | 285 | 4565 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -232,7 +232,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-430-ga-1-to-22-grab-areas.test.ts` | 50 | FR-075 | - | T-206, T-240, T-266, T-268, T-303 | EL-4, EL-9, GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-10, GA-14, GA-15, GA-16, GA-17, GA-18, GA-19, GA-20, GA-21, GA-22, GA-24, LP-7, S-63, S-250, S-251, S-253, S-254, S-256, S-257, S-258, S-268, S-269, S-278, S-284, S-285, S-363, TY-2, TY-6, TY-8 | - | - | - | - |
 | `tests/contract/cr-430-ga-pointer-column.test.ts` | 10 | - | - | T-266, T-269 | PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 | - | - | - | - |
 | `tests/contract/cr-430-ht-1-to-4-hit-order.test.ts` | 21 | FR-110 | - | T-023d, T-266, T-267, T-268, T-273 | GA-1, HT-1, HT-2, HT-3, HT-4, LP-2, S-63, TY-7, TY-9 | - | - | - | - |
-| `tests/contract/cr-430-t-020-the-order-things-are-drawn.test.ts` | 10 | FR-110 | - | T-020 | S-63 | - | - | - | - |
+| `tests/contract/cr-430-t-020-the-order-things-are-drawn.test.ts` | 11 | FR-110 | - | T-020 | S-63, ZO-1, ZO-2, ZO-4, ZO-15 | - | - | - | - |
 | `tests/contract/cr-430-t-273-where-the-labels-stand.test.ts` | 18 | FR-109 | - | T-273 | LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-31, S-32, S-63, S-301, S-303 | - | - | - | - |
 | `tests/contract/cr-430-table-pe-press-and-drag-effects.test.ts` | 29 | FR-107 | - | T-021a, T-270 | PE-0, PE-1, PE-3, PE-6, PE-7, PE-8, PE-10, PE-11, PE-12, PE-13, S-63 | - | - | - | - |
 | `tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts` | 21 | FR-106 | - | T-266, T-269 | GA-2, GA-18, PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10, S-295, S-297 | - | DFC-1024 (flaky) | - | - |
@@ -242,6 +242,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts` | 11 | FR-104 | - | T-274 | PK-10, PP-6 | - | - | - | - |
 | `tests/contract/cr-541-wheel-escape-select-all-and-display-scale.test.ts` | 10 | FR-016, FR-029 | - | - | IN-4, IN-5a, MK-1, SE-1, SE-5, SK-2 | - | - | - | - |
 | `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | - | - | - | - | - |
+| `tests/contract/cr-576-zero-fade-ends-are-flat.contract.test.ts` | 8 | FR-016 | - | T-012a | FD-1, FD-2, FD-4, FD-5, FD-6a, FD-6b, LF-6, S-5, S-43, S-44 | - | - | - | - |
+| `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 28 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339 | BL-1, BL-2, BL-3, BL-4, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
 | `tests/contract/dfc-102-un-14-pinning-is-inside-the-history.test.ts` | 11 | FR-027, FR-031, FR-052, FR-063, FR-098 | - | T-027, T-034, T-067, T-203, T-230 | BT-4, CM-9, CM-68, CM-69, LY-5, PI-8, RD-1, S-94, S-126, UN-14, UN-16, WS-4, WS-7 | - | - | - | - |
 | `tests/contract/dfc-130-pr-1-pr-2-reach-the-document.test.ts` | 8 | FR-006 | - | T-016, T-034, T-036, T-062, T-065, T-067, T-078, T-103, T-218 | BT-4, CP-25, CP-38, FT-1, IF-1, IF-9, PR-1, PR-2, PR-9, PR-12, SK-19, TS-6, U-25, UF-48, UF-71, WS-1, WS-3, WS-6, WS-7 | - | - | - | - |
 | `tests/contract/dfc-152-in-6-the-same-value-writes-nothing.test.ts` | 13 | FR-031 | - | T-016, T-027, T-028, T-036, T-062, T-065, T-103, T-218 | CP-38, FT-1, IF-1, IF-9, IN-5a, IN-6, PR-1, PR-2, SK-19, TS-6, U-25, UF-8, UF-9, UF-71, UN-3 | - | - | - | - |

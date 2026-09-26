@@ -8,6 +8,7 @@ import type { DocumentSettings, DrawnSettings } from '../../document-model/docum
 import {
   dayOf,
   workingCalendarOf,
+  type BaselineTask,
   type CalendarDay,
   type Schedule,
   type Task,
@@ -16,6 +17,7 @@ import {
 } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
 import {
+  thinEndHalfHeightOf,
   xFromDay,
   type RowPlacement,
   type ScheduleLayout,
@@ -36,7 +38,7 @@ import {
 import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
 import { progressLineOf } from './progress-line'
-import { taskGeometryOf } from './task-figures'
+import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 
 export { leaderOf } from './comment-box'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
@@ -185,8 +187,17 @@ export interface DualCursorGeometry {
   readonly bottom: number
 }
 
+// see FR-015, T-339
+export interface BaselineOutline {
+  readonly taskUid: number
+  readonly kind: 'rectangle' | 'diamond'
+  readonly box: ScreenRect
+  readonly isPinned: boolean
+}
+
 export interface ScheduleGeometry {
   readonly tasks: readonly TaskGeometry[]
+  readonly baselineOutlines: readonly BaselineOutline[]
   readonly dependencies: readonly DependencyGeometry[]
   readonly progressLine: Path
   readonly statusLine: { readonly x: number; readonly top: number; readonly bottom: number } | null
@@ -240,6 +251,11 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
     groupOfTask,
     pinnedIds: new Set(inputs.settings.pinnedGroupIds),
   }
+}
+
+/** @purity pure */
+function planSpanWidthOf(layout: ScheduleLayout, x: number, finish: CalendarDay, settings: DrawnSettings): number {
+  return Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
 }
 
 /** @purity pure */
@@ -302,8 +318,7 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
     const row = reading.rowById.get(parent.id)
     if (row !== undefined) {
       const x = xFromDay(layout, start)
-      const width = Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
-      const end = standingEndOf(task.uid, x, width, standingYOf(row, reading))
+      const end = standingEndOf(task.uid, x, planSpanWidthOf(layout, x, finish, settings), standingYOf(row, reading))
       // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
       return { end, far: farEndOf(end, own.id, row.depth + step + 1, reading) }
     }
@@ -349,6 +364,54 @@ function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: Scr
   return out
 }
 
+// see BL-2, XS-5, XS-6
+/** @purity pure */
+function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonly top: number; readonly height: number } {
+  if (!isThinShape(placed.shapeKind)) return { top: placed.y, height: placed.planHeight }
+  const half = thinEndHalfHeightOf(placed.shapeKind, settings)
+  return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
+}
+
+// see BL-1, BL-2
+/** @purity pure */
+function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinned: boolean,
+                           inputs: GeometryInputs): BaselineOutline | null {
+  const start = dayOf(baseline.start)
+  const finish = dayOf(baseline.finish)
+  if (start === null || finish === null) return null
+  const { top, height } = planExtentOf(placed, inputs.settings)
+  const x = xFromDay(inputs.layout, start)
+  const taskUid = baseline.uid
+  if (baseline.milestone === true) {
+    return { taskUid, kind: 'diamond', box: { x: x - height / 2, y: top, width: height, height }, isPinned }
+  }
+  const width = planSpanWidthOf(inputs.layout, x, finish, inputs.settings)
+  return { taskUid, kind: 'rectangle', box: { x, y: top, width, height }, isPinned }
+}
+
+// see FR-015, BL-1, BL-4
+// TRAP: never gate on planVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
+/** @purity pure */
+function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): BaselineOutline[] {
+  if (!inputs.settings.baselineVisible || schedule.baselineTasks.length === 0) return []
+  const placedByUid = new Map<number, TaskPlacement>()
+  for (const placed of inputs.layout.placements) {
+    if (!placedByUid.has(placed.taskUid)) placedByUid.set(placed.taskUid, placed)
+  }
+  const pinnedIds = new Set<string>()
+  for (const row of inputs.layout.rows) {
+    if (row.isPinned === true) pinnedIds.add(row.groupId)
+  }
+  const out: BaselineOutline[] = []
+  for (const baseline of schedule.baselineTasks) {
+    const placed = placedByUid.get(baseline.uid)
+    if (placed === undefined) continue
+    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.groupId), inputs)
+    if (outline !== null) out.push(outline)
+  }
+  return out
+}
+
 // see CP-6, LC-10, LC-11, RV-5
 /** @purity pure */
 export function geometryFromLayout(
@@ -385,6 +448,7 @@ export function geometryFromLayout(
 
   return {
     tasks,
+    baselineOutlines: baselineOutlinesOf(schedule, inputs),
     dependencies: dependenciesOf(schedule, inputs, regions),
     progressLine: progressLineOf(inputs),
     statusLine:
