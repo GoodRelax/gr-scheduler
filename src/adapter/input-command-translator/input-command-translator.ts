@@ -223,7 +223,8 @@ export type InputAction =
   | { readonly kind: 'redoEdit' }
   | { readonly kind: 'copySelection' }
   | { readonly kind: 'pasteClipboard' }
-  | { readonly kind: 'openDocumentFile' }
+  // WHY: absent is the ordinary open (OP-2); 'baseline' is the same chooser opened for an overlay (OP-15).
+  | { readonly kind: 'openDocumentFile'; readonly openRoute?: 'baseline' }
   | { readonly kind: 'saveDocumentFile' }
   | { readonly kind: 'reopenDocumentFile' }
   | { readonly kind: 'copyPictureToClipboard' }
@@ -1029,7 +1030,12 @@ function commandFromEntry(
     case ENTRY.zoomRowIn:
     case ENTRY.zoomRowOut:
       return rowZoomAnswer(context, keyZoomFactor(context, entry === ENTRY.zoomRowIn), null, null)
+    // see OP-15
     case ENTRY.baselineVisible:
+      if (context.document.schedule.baselineTasks.length === 0) {
+        return acted({ kind: 'openDocumentFile', openRoute: 'baseline' })
+      }
+      return commandFromVisibleElementEntry(entry, context)
     case ENTRY.progressLineVisible:
     case ENTRY.progressMarkerVisible:
     case ENTRY.dateGridLinesVisible:
