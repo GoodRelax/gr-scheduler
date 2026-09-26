@@ -504,11 +504,18 @@ test('S-149: the screen paints the Panel Divider line with the colour table T-23
       if (typeof read !== 'function') return null
       const doc = (read as () => unknown).call(api) as {
         schedule?: { project?: { themeHue?: unknown } }
-        documentSettings?: { themePreference?: unknown }
+      }
+      // WHY: S-72 is not in the document (FR-039); a start paints the browser's
+      // colour scheme, light when unread, and this case never presses IC-16.
+      let dark = false
+      try {
+        dark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true
+      } catch {
+        dark = false
       }
       return {
         hue: doc.schedule?.project?.themeHue,
-        preference: doc.documentSettings?.themePreference,
+        preference: dark ? 'dark' : 'light',
       }
     }, AM_3)
 

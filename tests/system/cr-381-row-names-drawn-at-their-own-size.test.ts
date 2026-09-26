@@ -4,6 +4,7 @@ import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { specTable } from '../contract/spec-table'
 import { displayRatioAt } from '../fixtures/display-scale'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg, screenOf } from './live-app'
@@ -86,13 +87,14 @@ async function readRowNameSettings(page: Page): Promise<RowNameSettings> {
   return page.evaluate(() => {
     const api = (window as unknown as { grSchedulerAgentApi?: { readDocument(): unknown } }).grSchedulerAgentApi
     if (api === undefined) throw new Error('the Agent API is not open, so the document cannot be read')
-    const held = api.readDocument() as { documentSettings: RowNameSettings }
-    return {
-      rowTitleFont: held.documentSettings.rowTitleFont,
-      rowTitleTopScale: held.documentSettings.rowTitleTopScale,
-      displayScale: held.documentSettings.displayScale,
-    }
-  })
+    const held = api.readDocument() as { documentSettings: Pick<RowNameSettings, 'displayScale'> }
+    return held.documentSettings.displayScale
+  }).then((displayScale) => ({
+    // WHY: the two sizes are constants of the artifact (CR-572); a file never carries them.
+    rowTitleFont: SETTINGS_CONSTANTS.rowTitleFont,
+    rowTitleTopScale: SETTINGS_CONSTANTS.rowTitleTopScale,
+    displayScale,
+  }))
 }
 
 // see FR-085, T-051

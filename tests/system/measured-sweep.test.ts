@@ -217,12 +217,12 @@ const T023_ENTRANCE = 2
 const T016_COLUMNS = 5
 const T016_INPUT_KIND = 1
 
-/** Columns of table T-109 after the row ID: surface, group, what it opens, source, arming. */
-const T109_COLUMNS = 5
+/** Columns of table T-109 after the row ID: surface, group, what it opens, source, setting, arming. */
+const T109_COLUMNS = 6
 const T109_PLACE = 0
 const T109_PURPOSE = 2
 const T109_SOURCE = 3
-const T109_STANCE = 4
+const T109_STANCE = 5
 
 /** Columns of table T-233 after the row ID: the situation, the manner, the source. */
 const T233_COLUMNS = 3

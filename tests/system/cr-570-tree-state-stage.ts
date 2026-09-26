@@ -4,6 +4,7 @@ import { expect, type Browser, type Page } from '@playwright/test'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { readSettledDrawnSvg, screenOf } from './live-app'
@@ -383,7 +384,7 @@ const TEMPLATE = JSON.parse(
 // see S-87, S-88
 // WHY: threshold(d) = base x ratio^(d - 2) (S-87's remark); below the depth-2 threshold only depth 1
 // is drawn by the zoom, at 1 every depth of this tree is.
-const THRESHOLD_OF_DEPTH_TWO = Number(TEMPLATE.documentSettings['groupLevelOfDetailBase'])
+const THRESHOLD_OF_DEPTH_TWO = SETTINGS_CONSTANTS.groupLevelOfDetailBase
 export const SHALLOW_ZOOM = THRESHOLD_OF_DEPTH_TWO * 0.9
 export const DEEP_ZOOM = 1
 

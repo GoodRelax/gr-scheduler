@@ -1,5 +1,6 @@
 // Use-case test for UC-007 (bring the wanted range into view), table T-334 row VT-1.
 import { expect, test, type Page } from '@playwright/test'
+import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-settings/document-settings'
 import { VIEWPORT, bandAt, dayAxis, enableAgentApi, launch, openByDrop, press, pressRowControl, readDocument, readSample, rowSelector, settle } from './uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
@@ -64,7 +65,8 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
   })
 
   await test.step('UC-007 step 3: the ruler tier follows the width of one day over the font ratio (FR-017, S-8, S-83, S-84, S-85)', async () => {
-    const settings = (await readDocument(page)).documentSettings
+    // WHY: the font floor (S-8) and the tier thresholds (T-205) are constants of the tool, not of the file.
+    const settings = SETTINGS_CONSTANTS
     const seen = new Set<string>()
     for (let i = 0; i < 4; i++) {
       const axis = await dayAxis(page)
