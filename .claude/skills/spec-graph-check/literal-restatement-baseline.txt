@@ -88,9 +88,6 @@ why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subse
 COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys
 why: coincidental: maps three colour columns to the form each is drawn in; the forms are its values, typed against ColourForm, not a list of the forms.
 
-ENTRY | values | help-roster.json $.entries[].glyphs
-why: coincidental: code names for the 64 IC rows the translator dispatches on, of 83 in the roster; a reference by row id, not a copy of the roster.
-
 KEY | values | help-roster.json $.entries[].keys~words
 why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.
 

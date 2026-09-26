@@ -26,8 +26,9 @@
 | 行 ID | 奪い合う出来事 | 段 | 段ごとの状態のキー | 順を決めた行 | 注 |
 | --- | --- | --- | --- | --- | --- |
 | RG-1 | `Esc` | 出ている通知 | `noticeDisplayStateMachine.shown` | `IN-4` ・ `NT-8` | 消すものが無いときは消費しない（`NT-8`） |
+| RG-15 | `Esc` | 焦点がある検索パネル | `searchPanelDisplayStateMachine.shown` と、フレームの値（焦点がパネルの中にある） | `IN-4` ・ `SV-14` | 列の絞り込みが開いていれば、絞り込みだけを閉じる（`SV-14`） |
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
-| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`） |
+| RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` | `IN-4` ・ `FR-070` ・ `HN-2` | 同じ段の中は、問い → 面 → ヘルプの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。最小化したヘルプはこの段に立たない（`HN-2`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグの次に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
@@ -59,11 +60,11 @@
 | `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
 | `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
 | `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
-| `screen/surfaceEntryPressed` | 入力: `IC-22` ・ `SK-13` ・ `IC-19` ・ `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
+| `screen/surfaceEntryPressed` | 入力: `IC-19` ・ `IC-62` ・ `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
-| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` |
-| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` |
+| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。面かパネルかヘルプか） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` |
+| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` |
 | `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
 | `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
 | `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
@@ -81,20 +82,30 @@
 | `screen/displayScaleStepped` | 入力: `IC-104` ・ `IC-105` ・ `SK-22` ・ `SK-23` ・ `SE-1` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/rowZoomEndReached` | 副作用の結果（行の軸のズームが端に当たった）: `ZE-5` | `percent` ／ `end` | `scaleMessageDisplayStateMachine` |
 | `screen/scaleMessageTimeElapsed` | 時間: `S-244` ・ `SE-3` | — | `scaleMessageDisplayStateMachine` |
-| `screen/displayLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `language` | 根 |
+| `screen/screenLanguageChosen` | 入力: `IC-21` ・ `FR-038` | `screenLanguage` | 根 |
+| `screen/helpLanguageChosen` | 入力: `IC-128` ・ `FR-038` | `helpLanguage` | 根 |
 | `screen/themePreferenceChosen` | 入力: `IC-16` ・ `FR-039` | `themePreference` | 根 |
 | `screen/propertyPanelWidthSettled` | 入力（プロパティパネルの境界を離した）: `GR-22` ・ `IN-1` ・ `FR-052` | `propertyPanelWidth` | 根 |
 | `screen/progressMarkerPressed` | 入力（進捗マーカーの押下）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
 | `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |
+| `screen/searchEntryPressed` | 入力: `IC-117` ・ `SK-24` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMinimiseToggled` | 入力: `IC-120` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMaximiseToggled` | 入力: `IC-121` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelClosePressed` | 入力（検索パネルの閉じる入口）: `IC-52` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchHitJumped` | 入力（検索の表の行を押して飛んだ）: `SJ-1` | — | `searchPanelDisplayStateMachine` |
+| `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
+| `screen/helpMinimiseToggled` | 入力: `IC-129` | — | `helpDisplayStateMachine` |
+| `screen/helpMaximiseToggled` | 入力: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 
 ### 根 `screen` の値
 
-運ぶ値: `language` ／ `rememberedActuals` ／ `themePreference` ／ `guideCursorMode` ／ `dualCursor` ／ `propertyPanelWidth`。  
-根拠: `CP-36` ・ `S-99` ・ `PV-4` ・ `S-72` ・ `S-66` ・ `S-65` ・ `S-171`。
+運ぶ値: `screenLanguage` ／ `helpLanguage` ／ `rememberedActuals` ／ `themePreference` ／ `guideCursorMode` ／ `dualCursor` ／ `propertyPanelWidth`。  
+根拠: `CP-36` ・ `S-99` ・ `S-434` ・ `PV-4` ・ `S-72` ・ `S-66` ・ `S-65` ・ `S-171`。
 
 | 出来事 | `screen` |
 | --- | --- |
-| `screen/displayLanguageChosen` | → 自己 / `storeLanguage`（`language` を書き換える） |
+| `screen/screenLanguageChosen` | → 自己 / `storeScreenLanguage`（`screenLanguage` を書き換える） |
+| `screen/helpLanguageChosen` | → 自己 / `writeHelpLanguage`（`helpLanguage` を書き換える。残さない） |
 | `screen/progressMarkerPressed` | → 自己 / `writeProgressStep`（`rememberedActuals` を書き換える） |
 | `screen/themePreferenceChosen` | → 自己 / `storeThemePreference`（`themePreference` を書き換える） |
 | `screen/guideCursorEntryPressed` | → 自己 / `storeGuideCursorMode`（`guideCursorMode` を書き換える） |
@@ -244,7 +255,7 @@ stateDiagram-v2
 | `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |
 
 - `openSurfaceStateMachine.closed` —— 初期。根拠 `S-99g`
-- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-30` ・ `U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`）。根拠 `S-99g` ・ `IC-52`
+- `openSurfaceStateMachine.open` —— 運ぶ値 `surfaceName`（`U-30` ・ `U-49` ・ `U-54` ・ `U-56` ・ `U-60` ・ `U-61` ・ `U-62`。`U-30` は `AI Export Modal` だけを指す —— ヘルプはこの機械で開かない（`FR-036`））。根拠 `S-99g` ・ `IC-52`
 
 表に無い出来事は `openSurfaceStateMachine` を変えない（同じ参照）。
 
@@ -406,6 +417,91 @@ stateDiagram-v2
 - `tooltipDisplayStateMachine.dismissed` —— 根拠 `IN-3` ・ `IN-4`
 
 表に無い出来事は `tooltipDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `searchPanelDisplayStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction TB
+    [*] --> searchPanelDisplayStateMachine_hidden
+    searchPanelDisplayStateMachine_hidden : hidden
+    searchPanelDisplayStateMachine_shown : shown
+    state searchPanelDisplayStateMachine_shown {
+        [*] --> searchPanelDisplayStateMachine_shown_normal
+        searchPanelDisplayStateMachine_shown_normal : normal
+        searchPanelDisplayStateMachine_shown_minimised : minimised
+        searchPanelDisplayStateMachine_shown_maximised : maximised
+        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
+        searchPanelDisplayStateMachine_shown_minimised --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed, searchPanelMinimiseToggled
+        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_maximised : searchEntryPressed
+        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_minimised : searchPanelMinimiseToggled
+        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_minimised : searchPanelMinimiseToggled
+        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_maximised : searchPanelMaximiseToggled
+        searchPanelDisplayStateMachine_shown_minimised --> searchPanelDisplayStateMachine_shown_maximised : searchPanelMaximiseToggled
+        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_normal : searchPanelMaximiseToggled, searchHitJumped
+    }
+    searchPanelDisplayStateMachine_hidden --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
+    searchPanelDisplayStateMachine_shown --> searchPanelDisplayStateMachine_hidden : searchPanelClosePressed, escapePressed
+```
+
+| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| --- | --- | --- | --- | --- |
+| `screen/searchEntryPressed` | → `shown.normal` / `focusSearchWord` | → 自己 / `focusSearchWord` | → `shown.normal` / `focusSearchWord` | → 自己 / `focusSearchWord` |
+| `screen/searchPanelMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
+| `screen/searchPanelMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/searchPanelClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
+| `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isRungSearchPanel`]<br>それ以外 → —（親 `shown` の升） |
+| `screen/searchHitJumped` | — | — | — | → `shown.normal` |
+
+- `searchPanelDisplayStateMachine.hidden` —— 初期。根拠 `S-442`
+- `searchPanelDisplayStateMachine.shown` —— 根拠 `S-442` ・ `FR-151`
+- `searchPanelDisplayStateMachine.shown.normal` —— 初期。親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-9`
+- `searchPanelDisplayStateMachine.shown.minimised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-12` ・ `IC-120`
+- `searchPanelDisplayStateMachine.shown.maximised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-13` ・ `IC-121`
+
+表に無い出来事は `searchPanelDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `helpDisplayStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction TB
+    [*] --> helpDisplayStateMachine_hidden
+    helpDisplayStateMachine_hidden : hidden
+    helpDisplayStateMachine_shown : shown
+    state helpDisplayStateMachine_shown {
+        [*] --> helpDisplayStateMachine_shown_normal
+        helpDisplayStateMachine_shown_normal : normal
+        helpDisplayStateMachine_shown_minimised : minimised
+        helpDisplayStateMachine_shown_maximised : maximised
+        helpDisplayStateMachine_shown_minimised --> helpDisplayStateMachine_shown_normal : helpEntryPressed, helpMinimiseToggled
+        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_minimised : helpMinimiseToggled
+        helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_shown_minimised : helpMinimiseToggled
+        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_maximised : helpMaximiseToggled
+        helpDisplayStateMachine_shown_minimised --> helpDisplayStateMachine_shown_maximised : helpMaximiseToggled
+        helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_shown_normal : helpMaximiseToggled
+    }
+    helpDisplayStateMachine_hidden --> helpDisplayStateMachine_shown_normal : helpEntryPressed
+    helpDisplayStateMachine_shown --> helpDisplayStateMachine_hidden : surfaceCloseAsked
+    helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_hidden : escapePressed
+    helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_hidden : escapePressed
+```
+
+| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| --- | --- | --- | --- | --- |
+| `screen/helpEntryPressed` | → `shown.normal` / `seedHelpLanguage` | — | → `shown.normal` | — |
+| `screen/helpMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
+| `screen/helpMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/surfaceCloseAsked` | — | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） |
+| `screen/escapePressed` | — | → `hidden` [`isRungHelp`]<br>それ以外 → — | — | → `hidden` [`isRungHelp`]<br>それ以外 → — |
+
+- `helpDisplayStateMachine.hidden` —— 初期。根拠 `S-435`
+- `helpDisplayStateMachine.shown` —— 根拠 `S-435` ・ `FR-036`
+- `helpDisplayStateMachine.shown.normal` —— 初期。親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-1`
+- `helpDisplayStateMachine.shown.minimised` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-2` ・ `IC-129`
+- `helpDisplayStateMachine.shown.maximised` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-3` ・ `IC-130`
+
+表に無い出来事は `helpDisplayStateMachine` を変えない（同じ参照）。
 
 ## 通知（`notices`）
 
@@ -596,7 +692,7 @@ stateDiagram-v2
 
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
-| `fileFlow/documentOpenAsked` | 入力（開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`）: `IC-1` ・ `SK-10` ・ `OP-2` ・ `CHN-1` ・ `SK-21` ・ `OP-13` | `openRoute`（`OP-2` ・ `OP-13`。`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）） | `fileOperationStateMachine` |
+| `fileFlow/documentOpenAsked` | 入力（開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`、重ねる予定が無いときの変更前の予定の入口）: `IC-1` ・ `SK-10` ・ `OP-2` ・ `CHN-1` ・ `SK-21` ・ `OP-13` ・ `IC-4` ・ `OP-15` | `openRoute`（`OP-2` ・ `OP-13` ・ `OP-15`。`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）／ `baseline`（重ねる予定が無いときの変更前の予定の入口。`OP-3` を問わずに重ねる）） | `fileOperationStateMachine` |
 | `fileFlow/agentDocumentHanded` | 入力（`Agent API` が文書を渡した（`openRoute` は `handed`））: `AM-8` ・ `FR-022` | — | `fileOperationStateMachine` |
 | `fileFlow/documentFileWriteAsked` | 入力（`Ctrl` ＋ `S`、書き出しの形式を選んだ）: `SK-11` ・ `FR-060` ・ `SK-12` ・ `FR-096` ・ `U-54` | `writeForm`（`FR-060` ・ `FR-096`。保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式） | `fileOperationStateMachine` |
 | `fileFlow/openChoiceAnswered` | 入力（`U-56` の 3 つの入口）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `OP-3` | `openChoice`（`OP-3`。置き換え ／ 合流 ／ 重ね） ／ `question`（`QN-5`。置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
@@ -657,6 +753,7 @@ stateDiagram-v2
     fileOperationStateMachine_writingDocumentFile --> fileOperationStateMachine_writingDocumentFile : documentOpenAsked, documentFileWriteAsked, confirmationAnswered
     fileOperationStateMachine_idle --> fileOperationStateMachine_writingDocumentFile : documentFileWriteAsked
     fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_awaitingDiscardAnswer : documentFileRead
+    fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_importingDocument : documentFileRead
     fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_awaitingOpenChoice : documentFileRead
     fileOperationStateMachine_readingDocumentFile --> fileOperationStateMachine_idle : documentOpenFailed
     fileOperationStateMachine_importingDocument --> fileOperationStateMachine_idle : documentOpenFailed, documentOpenLanded
@@ -676,7 +773,7 @@ stateDiagram-v2
 | `fileFlow/documentOpenAsked` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
 | `fileFlow/agentDocumentHanded` | → `readingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `readDocumentFile`（`openRoute` は `handed`）<br>それ以外 → — | — | — | — | — | — | — |
 | `fileFlow/documentFileWriteAsked` | → `writingDocumentFile` [`confirmationStateMachine.notAsked` にいる] / `writeDocumentFile`<br>→ 自己 [`confirmationStateMachine.questionAsked` にいる] / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） | → 自己 / `raiseNotice`（`RS-27`） |
-| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute`]<br>→ `awaitingOpenChoice` [not `isReopenRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
+| `fileFlow/documentFileRead` | — | → `awaitingDiscardAnswer` [`isReopenRoute`]<br>→ `importingDocument` [`isBaselineRoute`] / `importIncomingDocument`<br>→ `awaitingOpenChoice` [not `isReopenRoute` & not `isBaselineRoute`] / `raiseFlowSurface`（`U-56`） | — | — | — | — | — |
 | `fileFlow/documentOpenFailed` | — | → `idle` | — | — | → `idle` | — | — |
 | `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice`]<br>→ `importingDocument` [not `isReplaceChoice`] / `importIncomingDocument` | — | — | — | — |
 | `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`] / `importIncomingDocument`<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
@@ -688,7 +785,7 @@ stateDiagram-v2
 | `fileFlow/documentFileWriteEnded` | — | — | — | — | — | — | → `idle` |
 
 - `fileOperationStateMachine.idle` —— 初期。根拠 `OP-8` ・ `CS-4`
-- `fileOperationStateMachine.readingDocumentFile` —— 運ぶ値 `openRoute`（`OP-2` ・ `OP-13`）。根拠 `OP-2` ・ `OP-5` ・ `OP-8` ・ `OP-12` ・ `OP-13` ・ `CS-4`
+- `fileOperationStateMachine.readingDocumentFile` —— 運ぶ値 `openRoute`（`OP-2` ・ `OP-13` ・ `OP-15`）。根拠 `OP-2` ・ `OP-5` ・ `OP-8` ・ `OP-12` ・ `OP-13` ・ `CS-4`
 - `fileOperationStateMachine.awaitingOpenChoice` —— 根拠 `OP-3` ・ `U-56` ・ `OP-5` ・ `CS-4`
 - `fileOperationStateMachine.awaitingDiscardAnswer` —— 根拠 `OP-4` ・ `QN-5` ・ `OP-13`
 - `fileOperationStateMachine.importingDocument` —— 根拠 `RD-3` ・ `RD-4` ・ `OP-9` ・ `FR-022`
@@ -1049,6 +1146,7 @@ stateDiagram-v2
 | `rowTree/childRowAddPressed` | 入力（行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した）: `IC-91` ・ `HF-14` ・ `HR-8` ・ `IC-93` ・ `HF-17` | `pressedRowId`（押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない） | 根 ・ `treeStateMachine` |
 | `rowTree/fitPressed` | 入力（全体表示を求めた）: `IC-10` ・ `SK-18` ・ `FR-055` ・ `HF-8` | — | 根 ・ `treeStateMachine` |
 | `rowTree/rowZoomShrinkPressed` | 入力（縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない）: `MK-2` ・ `MK-4` ・ `IC-14` ・ `SK-16c` ・ `ZE-2` | — | `treeStateMachine` |
+| `rowTree/rowRevealAsked` | 入力（検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶ）: `SJ-1` ・ `AM-16` | `revealedRowId`（飛ぶ先の行の id） | 根 ・ `treeStateMachine` |
 
 ### 根 `rowTree` の値
 
@@ -1062,6 +1160,7 @@ stateDiagram-v2
 | `rowTree/topLevelOpenPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
 | `rowTree/childRowAddPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上。1 階層だけ開き、行の値は変えない（`HF-17`））<br>それ以外 → — |
 | `rowTree/fitPressed` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（同上）<br>それ以外 → — |
+| `rowTree/rowRevealAsked` | → 自己 [`isLevelZeroCollapsed`] / `writeLevelZeroAuto`（段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる）<br>それ以外 → — |
 
 **図 F-043 — 行の木の状態遷移**
 
@@ -1081,9 +1180,9 @@ stateDiagram-v2
     treeStateMachine_expanded : expanded
     treeStateMachine_temporarilyExpanded : temporarilyExpanded
     treeStateMachine_hidden : hidden
-    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed
-    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed
-    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed
+    treeStateMachine_auto --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
+    treeStateMachine_collapsed --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
+    treeStateMachine_temporarilyExpanded --> treeStateMachine_expanded : oneLevelOpenPressed, rowRevealAsked
     treeStateMachine_hidden --> treeStateMachine_collapsed : oneLevelOpenPressed, topLevelOpenPressed
     treeStateMachine_auto --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
     treeStateMachine_collapsed --> treeStateMachine_temporarilyExpanded : allBelowOpenPressed, everyRowOpenPressed
@@ -1099,6 +1198,7 @@ stateDiagram-v2
     treeStateMachine_temporarilyExpanded --> treeStateMachine_collapsed : hidePressed, allBelowFoldPressed, everyRowFoldPressed
     treeStateMachine_expanded --> treeStateMachine_auto : fitPressed
     treeStateMachine_temporarilyExpanded --> treeStateMachine_auto : fitPressed, rowZoomShrinkPressed
+    treeStateMachine_hidden --> treeStateMachine_expanded : rowRevealAsked
 ```
 
 | 出来事 | `auto` | `collapsed` | `expanded` | `temporarilyExpanded` | `hidden` |
@@ -1113,6 +1213,7 @@ stateDiagram-v2
 | `rowTree/childRowAddPressed` | — | → `auto` [`isPressedRow`]<br>それ以外 → — | — | — | — |
 | `rowTree/fitPressed` | — | → `auto` | → `auto` | → `auto` | — |
 | `rowTree/rowZoomShrinkPressed` | — | — | — | → `auto` | — |
+| `rowTree/rowRevealAsked` | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — | → `expanded` [`isRevealedRowOrAncestor`]<br>それ以外 → — |
 
 - `treeStateMachine.auto` —— 初期。根拠 `AT-153` ・ `FR-018`
 - `treeStateMachine.collapsed` —— 根拠 `HR-4` ・ `HR-1a`

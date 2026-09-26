@@ -1143,6 +1143,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-110 | `notices-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-111 | `dialogue-field-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-112 | `tooltips-drawing.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-182 | `search-panel-drawing.ts` | 内部 | non-pure |  | ⬜ 未着手 |
 
 ### `dom-svg-surface` —— DomSvgSurface（PI-26）
 

@@ -497,6 +497,156 @@
   },
   {
    "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-118",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-118"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-119",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-119"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-120",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-120"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-121",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-121"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-122",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-122"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-123",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-123"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-124",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-124"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-125",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-125"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-126",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-126"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "Search Panel",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-127",
+   "keys": null,
+   "press": null,
+   "glyphs": [
+    "IC-127"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
    "column": "HC-2",
    "block": "App Header",
    "segment": null,
@@ -747,6 +897,21 @@
    "press": null,
    "glyphs": [
     "IC-10"
+   ],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-2",
+   "block": "App Header",
+   "segment": null,
+   "indent": false,
+   "table": "T-109",
+   "row": "IC-117",
+   "keys": "Ctrl ＋ F",
+   "press": null,
+   "glyphs": [
+    "IC-117"
    ],
    "note": null
   },

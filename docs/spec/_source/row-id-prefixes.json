@@ -91,6 +91,14 @@
    }
   },
   {
+   "prefix": "BL",
+   "words": "Baseline",
+   "owner": "spec",
+   "means": {
+    "ja": "変更前の予定の輪郭を描く規則"
+   }
+  },
+  {
    "prefix": "BO",
    "words": "",
    "owner": "spec",
@@ -512,6 +520,14 @@
    "owner": "spec",
    "means": {
     "ja": "階層の移動の規則の条"
+   }
+  },
+  {
+   "prefix": "HN",
+   "words": "Help miNimised",
+   "owner": "spec",
+   "means": {
+    "ja": "最小化したヘルプと、ほかの入力"
    }
   },
   {
@@ -1117,6 +1133,14 @@
    }
   },
   {
+   "prefix": "SJ",
+   "words": "Search Jump",
+   "owner": "spec",
+   "means": {
+    "ja": "検索の表の行を押したときの飛び方の段"
+   }
+  },
+  {
    "prefix": "SK",
    "words": "Shortcut Key",
    "owner": "spec",
@@ -1149,6 +1173,14 @@
    }
   },
   {
+   "prefix": "SQ",
+   "words": "Search Query",
+   "owner": "spec",
+   "means": {
+    "ja": "検索の表の列"
+   }
+  },
+  {
    "prefix": "SS",
    "words": "Shared Step",
    "owner": "spec",
@@ -1170,6 +1202,14 @@
    "owner": "spec",
    "means": {
     "ja": "構造の単位（コンポーネント・モジュール・ユニット）"
+   }
+  },
+  {
+   "prefix": "SV",
+   "words": "Search View",
+   "owner": "spec",
+   "means": {
+    "ja": "検索パネルの見せ方と振舞いの項目"
    }
   },
   {
@@ -1296,6 +1336,14 @@
    }
   },
   {
+   "prefix": "UZ",
+   "words": "UI Z-Order",
+   "owner": "spec",
+   "means": {
+    "ja": "画面の UI パーツの重ね順（前面から背面へ）の段"
+   }
+  },
+  {
    "prefix": "V",
    "words": "",
    "owner": "spec",
@@ -1333,6 +1381,14 @@
    "owner": "spec",
    "means": {
     "ja": "面ごとの記法"
+   }
+  },
+  {
+   "prefix": "WB",
+   "words": "Window Behaviour",
+   "owner": "spec",
+   "means": {
+    "ja": "ウインドウの状態（通常・最小化・最大化）"
    }
   },
   {

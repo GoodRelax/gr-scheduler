@@ -1311,8 +1311,11 @@ NOT_STORED_TARGETS = {
     # the tooltip's text factor, because the one unit that draws them all is
     # tooltips-drawing.ts, which reads this constant already -- the readout is
     # drawn by the tooltip drawer, and S-334 is stated as S-204's half.
+    # CR-574: S-436 is the gap between an entry's text and its assignment (an
+    # em ratio, FR-036) and S-437 the rule between the help's title row and its
+    # body; both are drawn by the help's own drawing unit beside S-201 .. S-204.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
-                               'S-339', 'S-340'],
+                               'S-339', 'S-340', 'S-436', 'S-437'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-099's Resource Roster (table T-257, CR-406): the text factor RR-1 reads
     # and the rule width RR-5 reads. Not folded into the help line above -- one
@@ -1320,6 +1323,14 @@ NOT_STORED_TARGETS = {
     # three are 1px: the row's own note forbids sharing them.
     'NOT_STORED_RESOURCE_ROSTER_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-571: the search panel's default width and height as ratios of the
+    # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
+    # the roster's, its sibling floating surface. S-423 .. S-428 hold no value
+    # yet (the table says so), so they join a group only when a later change
+    # request gives them one. WARNING: until the code wave imports it, check
+    # 30 reports an exported copy nobody imports.
+    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422'],
+                                      DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
     # points are drawn as. They are drawn in ZO-10 beside the selection frame,
     # bordered at S-174 (FR-016's closing rules of table T-023d), by
@@ -1479,6 +1490,16 @@ NOT_STORED_TARGETS = {
     # wave as the mark (CR-556 section 8).
     'NOT_STORED_DEADLINE_MARK_SIZES': (['S-365', 'S-366', 'S-367'],
                                        DRAWN_INTO_THE_EXPORTED_PICTURE),
+    # CR-588: the dash pattern of the pre-change plan's outline (BL-3 of table
+    # T-339, FR-015) -- a pair, drawn length and gap, not scaled by the zoom.
+    # A NEW CONSTANT: one constant per consuming SUBJECT, and none of the
+    # others is the pre-change outline. FR-080 carries the overlay into an
+    # exported picture. Printed into svg-renderer.ts beside the delay mark and
+    # published for schedule-task-figures.ts, which draws the outline parts
+    # (CR-588 section 5, S-2). WARNING: until the code wave imports it, check
+    # 30 reports an exported copy nobody imports.
+    'NOT_STORED_BASELINE_OUTLINE_SIZES': (['S-444'],
+                                          DRAWN_INTO_THE_EXPORTED_PICTURE),
     'NOT_STORED_REPEAT_TIMES': (['S-172', 'S-173'], TIMED_WHERE_IT_STANDS),
     # ⭐ How long SE-3 of table T-260 keeps the display scale message. ⚠️ Not
     # folded into NOT_STORED_REPEAT_TIMES though both are times counted off
@@ -1697,7 +1718,10 @@ COLOUR_TARGETS = {
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
                          'S-326', 'S-327',
                          # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
-                         'S-364'],
+                         'S-364',
+                         # CR-588: the pre-change plan's outline ink (BL-3 of table T-339,
+                         # FR-015); it inherits S-148 through sameAs.
+                         'S-443'],
 }
 
 COLOUR_NOTE = [
@@ -1896,6 +1920,35 @@ def annotation_cell(cell):
     if isinstance(cell, dict) and 'lit' in cell and cell['lit'].startswith("'"):
         return (cell['lit'], 'string')
     return not_stored_cell(cell)
+
+
+def search_panel_font_sizes_block():
+    """Every row of table T-333, by its row ID (CR-571, FR-151 SV-16).
+
+    The four text sizes the search panel's step (S-429) chooses among. Their
+    names (`searchPanelFontSizes[0]` ..) are not English keys, so
+    SETTINGS_CONSTANTS passes them over; this constant carries them instead.
+    """
+    doc = json.load(io.open(SETTINGS, encoding='utf-8'))
+    block = [b for b in doc['blocks'] if b.get('id') == 'T-333']
+    if not block:
+        raise SystemExit('settings.json holds no table T-333')
+    got = []
+    for row in block[0]['rows']:
+        cell = not_stored_cell(row.get('value'))
+        if cell is None:
+            raise SystemExit('table T-333 row %s holds no machine value, so '
+                             'NOT_STORED_SEARCH_PANEL_FONT_SIZES cannot be generated'
+                             % row['id'])
+        got.append((cell[0], cell[1], row['id']))
+    out = ['// see T-333, FR-151', 'export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {']
+    for _literal, ts, row_id in got:
+        out.append("  readonly '%s': %s" % (row_id, ts))
+    out.append('} = {')
+    for literal, _ts, row_id in got:
+        out.append("  '%s': %s," % (row_id, literal))
+    out.append('}')
+    return '\n'.join(out)
 
 
 def annotation_defaults_block():
@@ -2596,6 +2649,9 @@ TARGETS = [
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
+     # CR-571: the search panel's default size and its four text sizes.
+     + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
+     + search_panel_font_sizes_block() + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTY_FIELD_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CONFIRMATION_RULE_SIZES') + NEWLINE * 2
@@ -2628,6 +2684,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DUMMY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
+     # CR-588: the pre-change plan's outline dash (BL-3 of table T-339).
+     + not_stored_block('NOT_STORED_BASELINE_OUTLINE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RULER_WEEKDAY_SIZES') + NEWLINE * 2
      # ⭐ CR-564: CV-10's lightness floor and ceiling, beside the rest of this
      # unit's not-stored rows.
@@ -2768,6 +2826,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ZOOM_STEP',
     ),
     'src/adapter/svg-renderer/svg-renderer.ts': (
+        'NOT_STORED_BASELINE_OUTLINE_SIZES',
         'NOT_STORED_DELAY_MARK_SIZES',
         'NOT_STORED_DEPENDENCY_SIZES',
         'NOT_STORED_DUAL_CURSOR_SIZES',
@@ -2811,6 +2870,8 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ROW_BAND_SIZES',
         'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
         'NOT_STORED_ROW_GRAB_STRIP_SIZES',
+        'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
+        'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (

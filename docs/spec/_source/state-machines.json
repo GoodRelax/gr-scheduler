@@ -41,6 +41,30 @@
     }
    },
    {
+    "id": "RG-15",
+    "keys": [
+     "Esc"
+    ],
+    "rung": {
+     "ja": "焦点がある検索パネル"
+    },
+    "states": [
+     {
+      "in": "searchPanelDisplayStateMachine.shown"
+     }
+    ],
+    "also": {
+     "ja": "フレームの値（焦点がパネルの中にある）"
+    },
+    "evidence": [
+     "IN-4",
+     "SV-14"
+    ],
+    "note": {
+     "ja": "列の絞り込みが開いていれば、絞り込みだけを閉じる（`SV-14`）"
+    }
+   },
+   {
     "id": "RG-2",
     "keys": [
      "Esc"
@@ -74,14 +98,21 @@
      },
      {
       "in": "openSurfaceStateMachine.open"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.normal"
+     },
+     {
+      "in": "helpDisplayStateMachine.shown.maximised"
      }
     ],
     "evidence": [
      "IN-4",
-     "FR-070"
+     "FR-070",
+     "HN-2"
     ],
     "note": {
-     "ja": "同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）"
+     "ja": "同じ段の中は、問い → 面 → ヘルプの順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。最小化したヘルプはこの段に立たない（`HN-2`）"
     }
    },
    {
@@ -333,7 +364,10 @@
    "root": {
     "carries": [
      {
-      "name": "language"
+      "name": "screenLanguage"
+     },
+     {
+      "name": "helpLanguage"
      },
      {
       "name": "rememberedActuals"
@@ -354,6 +388,7 @@
     "evidence": [
      "CP-36",
      "S-99",
+     "S-434",
      "PV-4",
      "S-72",
      "S-66",
@@ -361,14 +396,24 @@
      "S-171"
     ],
     "transitions": {
-     "displayLanguageChosen": {
-      "effect": "storeLanguage",
+     "screenLanguageChosen": {
+      "effect": "storeScreenLanguage",
       "evidence": [
        "S-99",
        "FR-038"
       ],
       "note": {
-       "ja": "`language` を書き換える"
+       "ja": "`screenLanguage` を書き換える"
+      }
+     },
+     "helpLanguageChosen": {
+      "effect": "writeHelpLanguage",
+      "evidence": [
+       "S-434",
+       "FR-038"
+      ],
+      "note": {
+       "ja": "`helpLanguage` を書き換える。残さない"
       }
      },
      "progressMarkerPressed": {
@@ -479,8 +524,6 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-22",
-       "SK-13",
        "IC-19",
        "IC-62",
        "IC-2",
@@ -549,7 +592,7 @@
       {
        "name": "target",
        "note": {
-        "ja": "閉じる対象。面かパネルか"
+        "ja": "閉じる対象。面かパネルかヘルプか"
        }
       }
      ]
@@ -871,7 +914,7 @@
      "carries": []
     },
     {
-     "key": "displayLanguageChosen",
+     "key": "screenLanguageChosen",
      "source": {
       "kind": "input",
       "rows": [
@@ -881,7 +924,22 @@
      },
      "carries": [
       {
-       "name": "language"
+       "name": "screenLanguage"
+      }
+     ]
+    },
+    {
+     "key": "helpLanguageChosen",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-128",
+       "FR-038"
+      ]
+     },
+     "carries": [
+      {
+       "name": "helpLanguage"
       }
      ]
     },
@@ -959,6 +1017,95 @@
        "EZ-6",
        "FR-037",
        "IN-3"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "searchEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-117",
+       "SK-24"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "searchPanelMinimiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-120"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "searchPanelMaximiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-121"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "searchPanelClosePressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-52"
+      ],
+      "note": {
+       "ja": "検索パネルの閉じる入口"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "searchHitJumped",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SJ-1"
+      ],
+      "note": {
+       "ja": "検索の表の行を押して飛んだ"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "helpEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-22",
+       "SK-13"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "helpMinimiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-129"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "helpMaximiseToggled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-130",
+       "IC-131"
       ]
      },
      "carries": []
@@ -1527,7 +1674,10 @@
           "U-60",
           "U-61",
           "U-62"
-         ]
+         ],
+         "note": {
+          "ja": "`U-30` は `AI Export Modal` だけを指す —— ヘルプはこの機械で開かない（`FR-036`）"
+         }
         }
        ],
        "evidence": [
@@ -2292,6 +2442,338 @@
         "evidence": [
          "IN-3",
          "EZ-2"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "searchPanelDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-442"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-442",
+        "FR-151"
+       ]
+      },
+      {
+       "key": "shown.normal",
+       "parent": "shown",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-442",
+        "SV-9"
+       ]
+      },
+      {
+       "key": "shown.minimised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-442",
+        "SV-12",
+        "IC-120"
+       ]
+      },
+      {
+       "key": "shown.maximised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-442",
+        "SV-13",
+        "IC-121"
+       ]
+      }
+     ],
+     "transitions": {
+      "searchEntryPressed": {
+       "hidden": {
+        "to": "shown.normal",
+        "effect": "focusSearchWord",
+        "evidence": [
+         "SV-2",
+         "IC-117",
+         "SK-24"
+        ]
+       },
+       "shown.normal": {
+        "to": "shown.normal",
+        "effect": "focusSearchWord",
+        "evidence": [
+         "SV-2",
+         "SK-24"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "effect": "focusSearchWord",
+        "evidence": [
+         "SV-2",
+         "SV-12"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.maximised",
+        "effect": "focusSearchWord",
+        "evidence": [
+         "SV-2",
+         "SK-24"
+        ]
+       }
+      },
+      "searchPanelMinimiseToggled": {
+       "shown.normal": {
+        "to": "shown.minimised",
+        "evidence": [
+         "SV-12",
+         "IC-120"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "evidence": [
+         "SV-12",
+         "IC-120"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.minimised",
+        "evidence": [
+         "SV-12",
+         "IC-120"
+        ]
+       }
+      },
+      "searchPanelMaximiseToggled": {
+       "shown.normal": {
+        "to": "shown.maximised",
+        "evidence": [
+         "SV-13",
+         "IC-121"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.maximised",
+        "evidence": [
+         "SV-13",
+         "IC-121"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.normal",
+        "evidence": [
+         "SV-13",
+         "IC-121"
+        ]
+       }
+      },
+      "searchPanelClosePressed": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "SV-14",
+         "IC-52"
+        ]
+       }
+      },
+      "escapePressed": {
+       "shown": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungSearchPanel"
+         }
+        ],
+        "evidence": [
+         "SV-14",
+         "IN-4"
+        ]
+       }
+      },
+      "searchHitJumped": {
+       "shown.maximised": {
+        "to": "shown.normal",
+        "evidence": [
+         "SJ-3",
+         "SV-13"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "helpDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-435"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-435",
+        "FR-036"
+       ]
+      },
+      {
+       "key": "shown.normal",
+       "parent": "shown",
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "S-435",
+        "WB-1"
+       ]
+      },
+      {
+       "key": "shown.minimised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-435",
+        "WB-2",
+        "IC-129"
+       ]
+      },
+      {
+       "key": "shown.maximised",
+       "parent": "shown",
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "S-435",
+        "WB-3",
+        "IC-130"
+       ]
+      }
+     ],
+     "transitions": {
+      "helpEntryPressed": {
+       "hidden": {
+        "to": "shown.normal",
+        "effect": "seedHelpLanguage",
+        "evidence": [
+         "FR-036",
+         "FR-038",
+         "WB-1"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "evidence": [
+         "HN-5"
+        ]
+       }
+      },
+      "helpMinimiseToggled": {
+       "shown.normal": {
+        "to": "shown.minimised",
+        "evidence": [
+         "WB-1",
+         "IC-129"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-2",
+         "WB-5"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.minimised",
+        "evidence": [
+         "WB-3",
+         "IC-129"
+        ]
+       }
+      },
+      "helpMaximiseToggled": {
+       "shown.normal": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-1",
+         "IC-130"
+        ]
+       },
+       "shown.minimised": {
+        "to": "shown.maximised",
+        "evidence": [
+         "WB-2",
+         "IC-130"
+        ]
+       },
+       "shown.maximised": {
+        "to": "shown.normal",
+        "evidence": [
+         "WB-3",
+         "IC-131"
+        ]
+       }
+      },
+      "surfaceCloseAsked": {
+       "shown": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isHelpTarget"
+         }
+        ],
+        "evidence": [
+         "IC-52",
+         "FR-036"
+        ]
+       }
+      },
+      "escapePressed": {
+       "shown.normal": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungHelp"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "S-99g"
+        ]
+       },
+       "shown.maximised": {
+        "to": "hidden",
+        "guard": [
+         {
+          "name": "isRungHelp"
+         }
+        ],
+        "evidence": [
+         "IN-4",
+         "S-99g"
         ]
        }
       }
@@ -3250,10 +3732,12 @@
        "OP-2",
        "CHN-1",
        "SK-21",
-       "OP-13"
+       "OP-13",
+       "IC-4",
+       "OP-15"
       ],
       "note": {
-       "ja": "開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`"
+       "ja": "開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`、重ねる予定が無いときの変更前の予定の入口"
       }
      },
      "carries": [
@@ -3261,10 +3745,11 @@
        "name": "openRoute",
        "rows": [
         "OP-2",
-        "OP-13"
+        "OP-13",
+        "OP-15"
        ],
        "note": {
-        "ja": "`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）"
+        "ja": "`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）／ `baseline`（重ねる予定が無いときの変更前の予定の入口。`OP-3` を問わずに重ねる）"
        }
       }
      ]
@@ -3722,7 +4207,8 @@
          "name": "openRoute",
          "rows": [
           "OP-2",
-          "OP-13"
+          "OP-13",
+          "OP-15"
          ]
         }
        ],
@@ -4001,10 +4487,28 @@
          ]
         },
         {
+         "to": "importingDocument",
+         "guard": [
+          {
+           "name": "isBaselineRoute"
+          }
+         ],
+         "effect": "importIncomingDocument",
+         "evidence": [
+          "OP-15",
+          "OP-9",
+          "RD-3"
+         ]
+        },
+        {
          "to": "awaitingOpenChoice",
          "guard": [
           {
            "name": "isReopenRoute",
+           "not": true
+          },
+          {
+           "name": "isBaselineRoute",
            "not": true
           }
          ],
@@ -5821,6 +6325,21 @@
       "note": {
        "ja": "同上"
       }
+     },
+     "rowRevealAsked": {
+      "guard": [
+       {
+        "name": "isLevelZeroCollapsed"
+       }
+      ],
+      "effect": "writeLevelZeroAuto",
+      "evidence": [
+       "SJ-2",
+       "S-418"
+      ],
+      "note": {
+       "ja": "段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる"
+      }
      }
     }
    },
@@ -6013,6 +6532,27 @@
       }
      },
      "carries": []
+    },
+    {
+     "key": "rowRevealAsked",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SJ-1",
+       "AM-16"
+      ],
+      "note": {
+       "ja": "検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶ"
+      }
+     },
+     "carries": [
+      {
+       "name": "revealedRowId",
+       "note": {
+        "ja": "飛ぶ先の行の id"
+       }
+      }
+     ]
     }
    ],
    "machines": [
@@ -6577,6 +7117,52 @@
          "FR-018",
          "FR-031",
          "ZE-2"
+        ]
+       }
+      },
+      "rowRevealAsked": {
+       "auto": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isRevealedRowOrAncestor"
+         }
+        ],
+        "evidence": [
+         "SJ-2"
+        ]
+       },
+       "collapsed": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isRevealedRowOrAncestor"
+         }
+        ],
+        "evidence": [
+         "SJ-2"
+        ]
+       },
+       "temporarilyExpanded": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isRevealedRowOrAncestor"
+         }
+        ],
+        "evidence": [
+         "SJ-2"
+        ]
+       },
+       "hidden": {
+        "to": "expanded",
+        "guard": [
+         {
+          "name": "isRevealedRowOrAncestor"
+         }
+        ],
+        "evidence": [
+         "SJ-2"
         ]
        }
       }

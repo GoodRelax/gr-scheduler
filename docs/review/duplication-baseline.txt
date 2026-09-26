@@ -1,6 +1,7 @@
 tbl-glossary.md/T:T-109 IC-28 + tbl-glossary.md/T:T-109 IC-29 + tbl-glossary.md/T:T-109 IC-30 + tbl-glossary.md/T:T-109 IC-31 + tbl-glossary.md/T:T-109 IC-32 + tbl-glossary.md/T:T-109 IC-33 + tbl-glossary.md/T:T-109 IC-34 + tbl-glossary.md/T:T-109 IC-83 + tbl-glossary.md/T:T-109 IC-84 + tbl-glossary.md/T:T-109 IC-85 + tbl-glossary.md/T:T-109 IC-86 + tbl-glossary.md/T:T-109 IC-87 + tbl-glossary.md/T:T-109 IC-88 + tbl-glossary.md/T:T-109 IC-89
 tbl-glossary.md/T:T-109 IC-39 + tbl-glossary.md/T:T-109 IC-40 + tbl-glossary.md/T:T-109 IC-42 + tbl-glossary.md/T:T-109 IC-43 + tbl-glossary.md/T:T-109 IC-79 + tbl-glossary.md/T:T-109 IC-80 + tbl-glossary.md/T:T-109 IC-81
-tbl-glossary.md/T:T-109 IC-58 + tbl-glossary.md/T:T-109 IC-77 + tbl-glossary.md/T:T-109 IC-90 + tbl-glossary.md/T:T-109 IC-92
+tbl-glossary.md/T:T-109 IC-58 + tbl-glossary.md/T:T-109 IC-77
+tbl-glossary.md/T:T-109 IC-90 + tbl-glossary.md/T:T-109 IC-92
 tbl-glossary.md/T:T-109 IC-91 + tbl-glossary.md/T:T-109 IC-93
 01-04-requirements.md/T:T-233 RS-28 + 01-04-requirements.md/T:T-233 RS-31 + 01-04-requirements.md/T:T-233 RS-32
 tbl-glossary.md/T:T-109 IC-24 + tbl-glossary.md/T:T-109 IC-25 + tbl-glossary.md/T:T-109 IC-26
@@ -57,3 +58,8 @@ tbl-glossary.md/T:T-108 CM-79 + tbl-glossary.md/T:T-108 CM-83
 tbl-settings.md/T:T-206 S-366 + tbl-settings.md/T:T-206 S-367
 tbl-settings.md/T:T-206 S-247 + tbl-settings.md/T:T-206 S-365
 01-04-requirements.md/T:T-023a PTD-4 + 01-04-requirements.md/T:T-023a PTD-7
+tbl-settings.md/T:T-333 S-431 + tbl-settings.md/T:T-333 S-432 + tbl-settings.md/T:T-333 S-433
+tbl-glossary.md/T:T-109 IC-120 + tbl-glossary.md/T:T-109 IC-121
+tbl-glossary.md/T:T-109 IC-123 + tbl-glossary.md/T:T-109 IC-124
+tbl-glossary.md/T:T-109 IC-125 + tbl-glossary.md/T:T-109 IC-126
+tbl-settings.md/T:T-206 S-242 + tbl-settings.md/T:T-206 S-437

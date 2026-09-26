@@ -59,6 +59,9 @@ TABLE_GROUP = {
     'T-213': ('notStored', '文書には保存しない'),
     'T-214': ('notStored', '文書には保存しない'),
     'T-215': ('notStored', '文書には保存しない'),
+    # CR-571: the search panel's four text sizes (FR-151 SV-16), constants
+    # like T-215's; the step chosen among them (S-429) is a screen value.
+    'T-333': ('notStored', '文書には保存しない'),
     'T-216': ('schedule', '日程データに属する値'),
     'T-209': ('schedule', '本表の値は日程データの群に入る'),
     'T-217': ('schedule', '本表の値は日程データの群に入る'),

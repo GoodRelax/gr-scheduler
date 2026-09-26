@@ -724,6 +724,13 @@ export const NOT_STORED_DELAY_MARK_SIZES: {
 }
 
 // see T-206
+export const NOT_STORED_BASELINE_OUTLINE_SIZES: {
+  readonly 'S-444': readonly [number, number]
+} = {
+  'S-444': [4, 2],
+}
+
+// see T-206
 export const NOT_STORED_RULER_WEEKDAY_SIZES: {
   readonly 'S-219': number
 } = {
@@ -788,6 +795,7 @@ const SCHEDULE_COLOURS: {
   'S-326': { light: '#ffd400', dark: '#e6c229', followsHue: false },
   'S-327': { light: '#16181d', dark: '#16181d', followsHue: false },
   'S-364': { light: '#1f7a3d', dark: '#6fc98d', followsHue: false },
+  'S-443': { light: '#5b6068', dark: '#9aa1ab', followsHue: false },
 }
 
 // see T-294, T-017b

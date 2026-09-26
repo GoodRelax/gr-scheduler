@@ -213,6 +213,7 @@ export type TreeStateEvent =
   | { readonly type: 'childRowAddPressed'; readonly pressedRowId: TreeStateEventCarried['pressedRowId'] }
   | { readonly type: 'fitPressed' }
   | { readonly type: 'rowZoomShrinkPressed' }
+  | { readonly type: 'rowRevealAsked'; readonly revealedRowId: TreeStateEventCarried['revealedRowId'] }
 
 export type TreeStateEffectName =
   | 'writeLevelZeroCollapsed'
@@ -263,6 +264,14 @@ export const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
   {
     state: 'rowTree',
     event: 'fitPressed',
+    guard: 'isLevelZeroCollapsed',
+    to: 'rowTree',
+    effect: 'writeLevelZeroAuto',
+    effectArgument: null,
+  },
+  {
+    state: 'rowTree',
+    event: 'rowRevealAsked',
     guard: 'isLevelZeroCollapsed',
     to: 'rowTree',
     effect: 'writeLevelZeroAuto',
@@ -569,6 +578,38 @@ export const TREE_STATE_TRANSITIONS: readonly TreeStateTransition[] = [
     event: 'rowZoomShrinkPressed',
     guard: null,
     to: 'treeStateMachine.auto',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'treeStateMachine.auto',
+    event: 'rowRevealAsked',
+    guard: 'isRevealedRowOrAncestor',
+    to: 'treeStateMachine.expanded',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'treeStateMachine.collapsed',
+    event: 'rowRevealAsked',
+    guard: 'isRevealedRowOrAncestor',
+    to: 'treeStateMachine.expanded',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'treeStateMachine.temporarilyExpanded',
+    event: 'rowRevealAsked',
+    guard: 'isRevealedRowOrAncestor',
+    to: 'treeStateMachine.expanded',
+    effect: null,
+    effectArgument: null,
+  },
+  {
+    state: 'treeStateMachine.hidden',
+    event: 'rowRevealAsked',
+    guard: 'isRevealedRowOrAncestor',
+    to: 'treeStateMachine.expanded',
     effect: null,
     effectArgument: null,
   },

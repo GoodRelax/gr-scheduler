@@ -72,8 +72,8 @@
     "en": "Baseline"
    },
    "hint": {
-    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする",
-    "en": "Overlay the baseline; press again to hide it"
+    "ja": "変更前の予定を重ねて表示する。もう一度押すと非表示にする。重ねる予定が無いときは、そのファイルを選ぶ",
+    "en": "Overlay the baseline; press again to hide it. With no baseline yet, choose its file"
    }
   },
   {
@@ -129,6 +129,17 @@
    "hint": {
     "ja": "日程の全体が 1 画面に収まる倍率と位置にする",
     "en": "Set the zoom and position that fit the whole schedule on one screen"
+   }
+  },
+  {
+   "rowId": "IC-117",
+   "label": {
+    "ja": "検索",
+    "en": "Search"
+   },
+   "hint": {
+    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
+    "en": "Open the search panel; if it is open, return to its search box"
    }
   },
   {
@@ -277,12 +288,12 @@
   {
    "rowId": "IC-21",
    "label": {
-    "ja": "表示言語",
-    "en": "Language"
+    "ja": "画面の言語",
+    "en": "Screen language"
    },
    "hint": {
-    "ja": "画面とヘルプの表示言語を選ぶ。いまの言語は入口に出る",
-    "en": "Choose the display language for the screen and the help; the current one shows on the entry"
+    "ja": "画面の言語を選ぶ。ヘルプの中は変えない。いまの言語は入口に出る",
+    "en": "Choose the screen language; the help keeps its own. The current one shows on the entry"
    }
   },
   {
@@ -792,6 +803,50 @@
    }
   },
   {
+   "rowId": "IC-128",
+   "label": {
+    "ja": "ヘルプの言語",
+    "en": "Help language"
+   },
+   "hint": {
+    "ja": "ヘルプの中の言語だけを選ぶ。いまの言語は入口に出る",
+    "en": "Choose the language of the help only; the current one shows on the entry"
+   }
+  },
+  {
+   "rowId": "IC-129",
+   "label": {
+    "ja": "最小化",
+    "en": "Minimise"
+   },
+   "hint": {
+    "ja": "ウインドウを最小化する。もう一度押すと戻る",
+    "en": "Minimise the window; press again to restore"
+   }
+  },
+  {
+   "rowId": "IC-130",
+   "label": {
+    "ja": "最大化",
+    "en": "Maximise"
+   },
+   "hint": {
+    "ja": "ウインドウを最大化する",
+    "en": "Maximise the window"
+   }
+  },
+  {
+   "rowId": "IC-131",
+   "label": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
+   },
+   "hint": {
+    "ja": "最大化したウインドウを元のサイズに戻す",
+    "en": "Restore the window to its size"
+   }
+  },
+  {
    "rowId": "IC-58",
    "label": {
     "ja": "すべて開く",
@@ -877,6 +932,116 @@
    "hint": {
     "ja": "すべての行と、載っているタスクを削除する",
     "en": "Delete all rows and the tasks they carry"
+   }
+  },
+  {
+   "rowId": "IC-118",
+   "label": {
+    "ja": "タスク",
+    "en": "Tasks"
+   },
+   "hint": {
+    "ja": "タスクとマイルストーンの表を出す",
+    "en": "Show the table of tasks and milestones"
+   }
+  },
+  {
+   "rowId": "IC-119",
+   "label": {
+    "ja": "コメントボックス",
+    "en": "Comment Boxes"
+   },
+   "hint": {
+    "ja": "コメントボックスの表を出す",
+    "en": "Show the table of comment boxes"
+   }
+  },
+  {
+   "rowId": "IC-120",
+   "label": {
+    "ja": "最小化",
+    "en": "Minimise"
+   },
+   "hint": {
+    "ja": "検索パネルを最小化する。もう一度押すと戻る",
+    "en": "Minimise the search panel; press again to restore it"
+   }
+  },
+  {
+   "rowId": "IC-121",
+   "label": {
+    "ja": "最大化",
+    "en": "Maximise"
+   },
+   "hint": {
+    "ja": "検索パネルを最大化する。もう一度押すと元のサイズに戻る",
+    "en": "Maximise the search panel; press again to restore its size"
+   }
+  },
+  {
+   "rowId": "IC-122",
+   "label": {
+    "ja": "絞り込み",
+    "en": "Filter"
+   },
+   "hint": {
+    "ja": "この列の絞り込みと並べ替えを開く",
+    "en": "Open this column's filter and sort"
+   }
+  },
+  {
+   "rowId": "IC-123",
+   "label": {
+    "ja": "昇順",
+    "en": "Sort Ascending"
+   },
+   "hint": {
+    "ja": "この列で昇順に並べる",
+    "en": "Sort by this column, ascending"
+   }
+  },
+  {
+   "rowId": "IC-124",
+   "label": {
+    "ja": "降順",
+    "en": "Sort Descending"
+   },
+   "hint": {
+    "ja": "この列で降順に並べる",
+    "en": "Sort by this column, descending"
+   }
+  },
+  {
+   "rowId": "IC-125",
+   "label": {
+    "ja": "すべて表示",
+    "en": "Show All"
+   },
+   "hint": {
+    "ja": "値の一覧のすべてを表示に入れる",
+    "en": "Show every value in the list"
+   }
+  },
+  {
+   "rowId": "IC-126",
+   "label": {
+    "ja": "すべて外す",
+    "en": "Clear All"
+   },
+   "hint": {
+    "ja": "値の一覧のすべてを表示から外す",
+    "en": "Hide every value in the list"
+   }
+  },
+  {
+   "rowId": "IC-127",
+   "label": {
+    "ja": "文字の大きさ",
+    "en": "Text size"
+   },
+   "hint": {
+    "ja": "検索パネルの表と入力欄の文字の大きさを変える（12・14・16・20 px を順に巡る）",
+    "en": "Change the text size of the search panel's table and search box (cycles through 12, 14, 16 and 20 px)"
    }
   },
   {
@@ -2120,8 +2285,15 @@
   {
    "rowId": "K-90",
    "label": {
-    "ja": "表示言語（ja / en）。置き場と規則は表 T-206 の S-99",
-    "en": "language"
+    "ja": "画面の言語（ja / en）。置き場と規則は表 T-206 の S-99",
+    "en": "screenLanguage"
+   }
+  },
+  {
+   "rowId": "K-139",
+   "label": {
+    "ja": "ヘルプの言語（ja / en）。置き場と規則は表 T-206 の S-434",
+    "en": "helpLanguage"
    }
   }
  ],
@@ -2203,6 +2375,13 @@
    "heading": {
     "ja": "プロパティパネル",
     "en": "Properties Panel"
+   }
+  },
+  {
+   "name": "Search Panel",
+   "heading": {
+    "ja": "検索パネル",
+    "en": "Search panel"
    }
   }
  ],
@@ -2915,6 +3094,17 @@
    "nextStep": {
     "ja": "編集グループの無い行へコピーしてから編集してください",
     "en": "Copy it into a row with no edit group, then edit it"
+   }
+  },
+  {
+   "rowId": "RS-66",
+   "text": {
+    "ja": "ピン止め行が多くて検索結果を表示できません。",
+    "en": "Too many pinned rows to show the search result."
+   },
+   "nextStep": {
+    "ja": "ピン止めを減らしてください。",
+    "en": "Unpin some rows."
    }
   },
   {
@@ -3851,6 +4041,131 @@
    "text": {
     "ja": "{y}/{m}/{d} ({n} day)",
     "en": "{y}/{m}/{d} ({n} day)"
+   }
+  }
+ ],
+ "searchColumns": [
+  {
+   "rowId": "SQ-1",
+   "text": {
+    "ja": "タスク（マイルストーン）",
+    "en": "Task (Milestone)"
+   }
+  },
+  {
+   "rowId": "SQ-2",
+   "text": {
+    "ja": "担当者名",
+    "en": "Assignees"
+   }
+  },
+  {
+   "rowId": "SQ-3",
+   "text": {
+    "ja": "予定開始",
+    "en": "Planned Start"
+   }
+  },
+  {
+   "rowId": "SQ-4",
+   "text": {
+    "ja": "予定終了",
+    "en": "Planned Finish"
+   }
+  },
+  {
+   "rowId": "SQ-5",
+   "text": {
+    "ja": "状態",
+    "en": "Status"
+   }
+  },
+  {
+   "rowId": "SQ-6",
+   "text": {
+    "ja": "最上位までの階層",
+    "en": "Path from Top"
+   }
+  },
+  {
+   "rowId": "SQ-7",
+   "text": {
+    "ja": "本文",
+    "en": "Body"
+   }
+  },
+  {
+   "rowId": "SQ-8",
+   "text": {
+    "ja": "行タイトル",
+    "en": "Row Title"
+   }
+  },
+  {
+   "rowId": "SQ-9",
+   "text": {
+    "ja": "日付",
+    "en": "Date"
+   }
+  }
+ ],
+ "planActualStates": [
+  {
+   "rowId": "PS-1",
+   "text": {
+    "ja": "未着手",
+    "en": "Not started"
+   }
+  },
+  {
+   "rowId": "PS-2",
+   "text": {
+    "ja": "完了",
+    "en": "Finished"
+   }
+  },
+  {
+   "rowId": "PS-3",
+   "text": {
+    "ja": "中断・再開日未定",
+    "en": "Paused, no resume date"
+   }
+  },
+  {
+   "rowId": "PS-4",
+   "text": {
+    "ja": "中断・再開予定あり",
+    "en": "Paused, resume date set"
+   }
+  },
+  {
+   "rowId": "PS-5",
+   "text": {
+    "ja": "進行中",
+    "en": "In progress"
+   }
+  }
+ ],
+ "searchPanel": [
+  {
+   "part": "blank",
+   "text": {
+    "ja": "（空白）",
+    "en": "(Blanks)"
+   }
+  },
+  {
+   "part": "noName",
+   "text": {
+    "ja": "（名前なし）",
+    "en": "(No name)"
+   }
+  },
+  {
+   "part": "restore",
+   "text": {
+    "ja": "元のサイズに戻す",
+    "en": "Restore"
    }
   }
  ]

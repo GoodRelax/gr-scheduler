@@ -245,6 +245,18 @@ DUAL_CURSOR_READOUT_LINES = ('a', 'b', 'span', 'days', 'oneDay')
 COLOUR_FIELD_PARTS = ('custom', 'light', 'dark', 'sameAsLight', 'sameAsDark',
                       'theme', 'themeHint')
 
+# CR-571: the search panel (FR-151). The column headings are READ from table
+# T-331 and the state words from table T-019a, the move `reasons` makes with
+# table T-233. The three words no table holds as rows -- the value list's
+# blank entry (SV-7), the name of a nameless task (SQ-1) and the label IC-121
+# carries while maximised (SV-13) -- are HELD HERE, the same move as
+# COLOUR_FIELD_PARTS. KEYS, not words.
+SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
+SEARCH_COLUMN_TABLE = 'T-331'
+PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
+PLAN_ACTUAL_STATE_TABLE = 'T-019a'
+SEARCH_PANEL_PARTS = ('blank', 'noName', 'restore')
+
 # The palette colours are keyed by their stored spelling, READ from the key
 # column of table T-294 in settings.json, so a new colour needs no edit here.
 REL_SETTINGS = 'docs/spec/_source/settings.json'
@@ -429,6 +441,13 @@ def roster():
         'colourField': list(COLOUR_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
+        'searchColumns': [row[0] for row in
+                          table_rows(REL_REQUIREMENTS, SEARCH_COLUMN_ROW,
+                                     SEARCH_COLUMN_TABLE)],
+        'planActualStates': [row[0] for row in
+                             table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
+                                        PLAN_ACTUAL_STATE_TABLE)],
+        'searchPanel': list(SEARCH_PANEL_PARTS),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
                                    ASSIGNMENT_TABLE)],
@@ -490,6 +509,9 @@ SHAPE = {
     'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
+    'searchColumns': ('rowId', ('text',)),
+    'planActualStates': ('rowId', ('text',)),
+    'searchPanel': ('part', ('text',)),
 }
 
 
@@ -574,7 +596,8 @@ def build(doc, keys_by_row):
                     'confirmationMarks', 'fileStatus', 'defaultNames',
                     'exportFormats', 'assignments', 'arms', 'weekdays',
                     'colourNames', 'colourField', 'themeHues',
-                    'scaleEcho', 'dualCursorReadout'):
+                    'scaleEcho', 'dualCursorReadout', 'searchColumns',
+                    'planActualStates', 'searchPanel'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

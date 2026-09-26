@@ -125,6 +125,16 @@ export type ScreenValuesKey =
   | 'scaleMessageDisplayStateMachine.shown'
   | 'tooltipDisplayStateMachine.allowed'
   | 'tooltipDisplayStateMachine.dismissed'
+  | 'searchPanelDisplayStateMachine.hidden'
+  | 'searchPanelDisplayStateMachine.shown'
+  | 'searchPanelDisplayStateMachine.shown.normal'
+  | 'searchPanelDisplayStateMachine.shown.minimised'
+  | 'searchPanelDisplayStateMachine.shown.maximised'
+  | 'helpDisplayStateMachine.hidden'
+  | 'helpDisplayStateMachine.shown'
+  | 'helpDisplayStateMachine.shown.normal'
+  | 'helpDisplayStateMachine.shown.minimised'
+  | 'helpDisplayStateMachine.shown.maximised'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -133,6 +143,16 @@ export type PaletteDisplayShownState =
 export type DualCursorModeOnState =
   | { readonly kind: 'placingDate1' }
   | { readonly kind: 'placingDate2' }
+
+export type SearchPanelDisplayShownState =
+  | { readonly kind: 'normal' }
+  | { readonly kind: 'minimised' }
+  | { readonly kind: 'maximised' }
+
+export type HelpDisplayShownState =
+  | { readonly kind: 'normal' }
+  | { readonly kind: 'minimised' }
+  | { readonly kind: 'maximised' }
 
 export type ArmModeState =
   | { readonly kind: 'notArmed' }
@@ -183,8 +203,17 @@ export type TooltipDisplayState =
   | { readonly kind: 'allowed' }
   | { readonly kind: 'dismissed' }
 
+export type SearchPanelDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly child: SearchPanelDisplayShownState }
+
+export type HelpDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown'; readonly child: HelpDisplayShownState }
+
 export interface ScreenValues {
-  readonly language: ScreenValuesStateCarried['language']
+  readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
+  readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
   readonly rememberedActuals: ScreenValuesStateCarried['rememberedActuals']
   readonly themePreference: ScreenValuesStateCarried['themePreference']
   readonly guideCursorMode: ScreenValuesStateCarried['guideCursorMode']
@@ -201,9 +230,11 @@ export interface ScreenValues {
   readonly dualCursorModeState: DualCursorModeState
   readonly scaleMessageDisplayState: ScaleMessageDisplayState
   readonly tooltipDisplayState: TooltipDisplayState
+  readonly searchPanelDisplayState: SearchPanelDisplayState
+  readonly helpDisplayState: HelpDisplayState
 }
 
-export type ScreenValuesAxes = Omit<ScreenValues, 'language' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
+export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
 
 export type ScreenValuesEvent =
   | { readonly type: 'paletteToggled' }
@@ -233,14 +264,24 @@ export type ScreenValuesEvent =
   | { readonly type: 'displayScaleStepped'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'rowZoomEndReached'; readonly percent: ScreenValuesEventCarried['percent']; readonly end: ScreenValuesEventCarried['end'] }
   | { readonly type: 'scaleMessageTimeElapsed' }
-  | { readonly type: 'displayLanguageChosen'; readonly language: ScreenValuesEventCarried['language'] }
+  | { readonly type: 'screenLanguageChosen'; readonly screenLanguage: ScreenValuesEventCarried['screenLanguage'] }
+  | { readonly type: 'helpLanguageChosen'; readonly helpLanguage: ScreenValuesEventCarried['helpLanguage'] }
   | { readonly type: 'themePreferenceChosen'; readonly themePreference: ScreenValuesEventCarried['themePreference'] }
   | { readonly type: 'propertyPanelWidthSettled'; readonly propertyPanelWidth: ScreenValuesEventCarried['propertyPanelWidth'] }
   | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'hintTargetChanged' }
+  | { readonly type: 'searchEntryPressed' }
+  | { readonly type: 'searchPanelMinimiseToggled' }
+  | { readonly type: 'searchPanelMaximiseToggled' }
+  | { readonly type: 'searchPanelClosePressed' }
+  | { readonly type: 'searchHitJumped' }
+  | { readonly type: 'helpEntryPressed' }
+  | { readonly type: 'helpMinimiseToggled' }
+  | { readonly type: 'helpMaximiseToggled' }
 
 export type ScreenValuesEffectName =
-  | 'storeLanguage'
+  | 'storeScreenLanguage'
+  | 'writeHelpLanguage'
   | 'writeProgressStep'
   | 'storeThemePreference'
   | 'storeGuideCursorMode'
@@ -256,13 +297,19 @@ export type ScreenValuesEffectName =
   | 'storeFixedDate2'
   | 'startScaleMessageTimer'
   | 'restartScaleMessageTimer'
+  | 'focusSearchWord'
+  | 'seedHelpLanguage'
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
   readonly 'dualCursorModeStateMachine.on': DualCursorModeOnState
+  readonly 'searchPanelDisplayStateMachine.shown': SearchPanelDisplayShownState
+  readonly 'helpDisplayStateMachine.shown': HelpDisplayShownState
 } = {
   'paletteDisplayStateMachine.shown': { kind: 'expanded' },
   'dualCursorModeStateMachine.on': { kind: 'placingDate1' },
+  'searchPanelDisplayStateMachine.shown': { kind: 'normal' },
+  'helpDisplayStateMachine.shown': { kind: 'normal' },
 }
 
 const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
@@ -277,6 +324,8 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   dualCursorModeState: { kind: 'off' },
   scaleMessageDisplayState: { kind: 'hidden' },
   tooltipDisplayState: { kind: 'allowed' },
+  searchPanelDisplayState: { kind: 'hidden' },
+  helpDisplayState: { kind: 'hidden' },
 }
 // </generated>
 

@@ -70,7 +70,7 @@
     "App Header"
    ],
    "group": "文書",
-   "entryTo": "変更前の予定の重ねを表示する・非表示にする（`S-69`）。<br>⚠️ **ファイルを読む入口ではない** —— 読む入口は `IC-1` 1 つであり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
+   "entryTo": "変更前の予定の重ねを表示する・非表示にする（`S-69`）。<br>⭐ **重ねる予定が無いときは切り替えず、変更前の予定にするファイルを選ばせる**（表 T-024a の `OP-15`） —— 押しても何も描かれない入口にしない。<br>⚠️ **重ねる予定が在るときはファイルを読む入口ではない** —— 読む入口は `IC-1` であり、重ねを選ぶのは 表 T-024a の `OP-3` の第 3 の選択肢である（同 `OP-9`）",
    "authority": "`FR-049`（`FR-015`）",
    "arms": null,
    "armsShape": null
@@ -127,6 +127,17 @@
    "group": "表示",
    "entryTo": "全体を 1 画面に収める",
    "authority": "`FR-055`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-117",
+   "surfaces": [
+    "App Header"
+   ],
+   "group": "表示",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
+   "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
   },
@@ -279,7 +290,7 @@
     "App Header"
    ],
    "group": "補助",
-   "entryTo": "表示言語を選ぶ（`S-99`）。<br>⚠️ **入口を 2 か所に置く唯一の例外である**（`FR-029`）",
+   "entryTo": "画面の言語を選ぶ（`S-99`）。<br>ヘルプの中の言語は変えない —— ヘルプの言語は `IC-128`",
    "authority": "`FR-038`",
    "arms": null,
    "armsShape": null
@@ -743,10 +754,11 @@
     "Resource Roster",
     "Export Chooser",
     "Open Chooser",
-    "Properties Panel"
+    "Properties Panel",
+    "Search Panel"
    ],
    "group": null,
-   "entryTo": "開いている面とプロパティパネルを閉じる",
+   "entryTo": "開いている面とプロパティパネルと検索パネルを閉じる",
    "authority": "表 T-028 の `IN-4`",
    "arms": null,
    "armsShape": null
@@ -792,6 +804,50 @@
    "group": null,
    "entryTo": "マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す",
    "authority": "`FR-036`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-128",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである",
+   "authority": "`FR-038`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-129",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ウインドウを最小化し、同じ入口で戻す（`S-435`）。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-130",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "ウインドウを最大化する（`S-435`）",
+   "authority": "`FR-036` の 表 T-335",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-131",
+   "surfaces": [
+    "Help Modal"
+   ],
+   "group": null,
+   "entryTo": "最大化したウインドウを元のサイズに戻す（`S-435`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く",
+   "authority": "`FR-036` の 表 T-335",
    "arms": null,
    "armsShape": null
   },
@@ -880,6 +936,116 @@
    "group": null,
    "entryTo": "すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）",
    "authority": "`FR-032`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-118",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "タスクとマイルストーンの表を出す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-119",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "コメントボックスの表を出す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-120",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルを最小化し、同じ入口で戻す。<br>⭐ 図形は `IC-75` と同じである",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-121",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルを最大化し、同じ入口で戻す。<br>⭐ 最大化しているあいだの札は「元のサイズに戻す」",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-122",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "列の絞り込みと並べ替えを開く（列の見出しごとに 1 つ）",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-123",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "その列で昇順に並べる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-124",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "その列で降順に並べる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-125",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "値の一覧のすべてを表示に入れる",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-126",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "値の一覧のすべてを表示から外す",
+   "authority": "`FR-151`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-127",
+   "surfaces": [
+    "Search Panel"
+   ],
+   "group": null,
+   "entryTo": "パネルの表と入力欄の字の大きさの段を変える（`S-429`、4 値排他）。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "authority": "`FR-151` の 表 T-330 の `SV-16`",
    "arms": null,
    "armsShape": null
   },
