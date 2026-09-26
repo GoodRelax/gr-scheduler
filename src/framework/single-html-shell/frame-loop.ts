@@ -786,9 +786,13 @@ interface HeldWholes {
 /** @purity pure */
 function measuredAtPress(
   frame: FrameValues,
-): Pick<PointerPress, 'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress'> {
+): Pick<
+  PointerPress,
+  'propertyPanelWidthAtPress' | 'horizontalWholeAtPress' | 'verticalWholeAtPress' | 'layoutRowsAtPress'
+> {
   return {
     propertyPanelWidthAtPress: frame.regions.propertiesPanel.width,
+    layoutRowsAtPress: frame.layout.rows,
     horizontalWholeAtPress: horizontalWholeOf(frame.layout, frame.regions),
     verticalWholeAtPress: verticalWholeOf(frame.layout, frame.regions),
   }
