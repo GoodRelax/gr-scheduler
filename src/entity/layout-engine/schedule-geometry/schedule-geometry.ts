@@ -124,6 +124,12 @@ export interface HighlightGeometry {
   readonly id: string
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
+  // see S-369, S-370, S-371 (T-217): already defaulted and clamped, so the renderer draws them as they stand
+  readonly strokeWidthPx: number
+  readonly fillColor: string
+  readonly fillOpacity: number
+  // see T-246 HB-10, HB-11
+  readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }
 }
 
 // see FR-019, FR-097
