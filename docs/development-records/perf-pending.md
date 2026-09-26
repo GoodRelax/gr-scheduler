@@ -6,6 +6,7 @@
 ⭐ **測って緑なら、その行を消す** —— 消すのは、`measurements/performance-runs.md` に走行の 1 行を足したのと同じ commit である（`PW-4`）。
 ⛔ **赤なら消さない。** 利用者を呼ぶ（`PW-4` の ①）。
 ⚠️ 行を求める機械検査は `CR-573` の 5 節が足す（波 3b）。それまでは、着地させる者が手で足す。
+⭐ 合否は `JDG-726` の同じ量の絵での段 0 との比べである（04 の `PW-3` の ①）。`tests/nfr` の絶対値の門は記録であって合否ではない（`PND-443`）。
 
 ## 一覧
 
@@ -13,6 +14,3 @@
 
 | # | 変更要求 | 着地の sha | 触れた毎フレームの経路のファイル |
 |---|---|---|---|
-| 1 | `CR-570`（行の木の treeState、描く行・全体表示の倍率） | `879e9ff2` | `src/entity/layout-engine/schedule-layout/drawn-rows.ts`・`fit-zoom.ts`・`group-level-of-detail.ts`・`schedule-layout.ts`／`src/adapter/screen-renderer/row-title-panel.ts`・`screen-renderer.ts`／`src/framework/single-html-shell/frame-loop.ts` —— 規則が始まる前の着地だが、段 8 の測り（`main` の早送りの前）で一緒に測る |
-| 2 | `CR-573`（生成器の変更で、読まれない定数の `export` が外れた） | `e873bcc6` | `src/adapter/svg-renderer/svg-renderer.ts` —— 2 つの定数の `export` が外れただけで、描く手順は変わらない。規則どおり測り待ちに載せる |
-| 3 | `DFC-1131`・`DFC-1132`（段 8 の性能の直し。変更要求ではない） | ブランチ `perf-stage8`（合流の sha は調整役が書く） | `src/adapter/svg-renderer/svg-renderer.ts`・`src/framework/single-html-shell/frame-loop.ts` —— 段 8 の赤を直すもの。合流の後の段 8 の測り（`PW-3`）で `CR-570`・`CR-573` と一緒に測る |

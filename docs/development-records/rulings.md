@@ -1013,6 +1013,14 @@
 | JDG-739 | **「ビアカップのアイコンのグリフで、取っ手の部分がつぶれている。 グリフの方の取っ手は1本の線にしろ。」**（2026-09-26。見本の 2 版目の、パレットのグリフの杯を拡大した写真が添えられた。同じ日の次の通「OK、この形でCRを起草しろ。 終わったら司令塔に伝えて、完了宣言しろ。 仕様書や実装の修正はここでは不要。」で形が決まった） | ⭐ 図 F-019 の杯（`IC-89`）の取っ手は 1 本の線 —— 二重線の四角はグリフの大きさでは潰れる。チャートの杯の取っ手は二重線のまま | `change-request/CR-583-milestone-figures-sit-on-the-row-centre-and-seven-pictures-are-redrawn.md` の 5 節（`beerMug`） | 指示 —— `CR-583` が当てる |
 
 
+## 2026-09-26 —— 段 8 の性能の比べ方（JDG-726）
+
+⭐ 段 8 の性能のセッションが、赤の主因（`DFC-1132`）を絵を変えずに直した後、残る差の扱いを案 A〜E の頁（見た目の撮影と実測の数つき。数と測り方は `docs/development-records/measurements/stage8-root-cause-2026-09-26/README.md`）で問うた。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-726 | **「Aで進めろ」**（2026-09-26。案 A〜E の頁を見た後の答え） | ⭐ 絵は今のまま（表示の倍率の既定 100、依存線のハローも今のまま）とする。⭐ `JDG-50`（段 0 より悪くしない）は**同じ量の絵で**比べる —— 段 0 `5c1b915` はその既定のまま、比べるビルドは表示の倍率 175（描く比 0.625 × 1.75 ≒ 1.09。段 0 の 1.0 以上で最も近い段）で、`lm-19` を同じ日に交互に測る。⭐ `main` の早送りの前の合否（`JDG-605`）は、この同じ量での比べとする。⭐ `tests/nfr` の門（`NFR-002`／`NFR-003` の絶対値、60 fps）は今のまま赤であり、段 0 でも赤であった。この問いは `PND-443`（`IF-1` の変更）が持つ。⚠️ 退けた案: ハローをバーの上にも敷く（`FR-009` の MUST NOT を外す）・ハローをやめる（`FR-009` の MUST を外す）—— どちらも 24.2 ms で段 0 に届かない。既定の倍率を戻す（`JDG-169` を戻す）。段 0 の基準を置き直す | `docs/development-rules/04-verification.md` の 5 節の表 `PW` の `PW-3` ・ `tools/probe/examples/lm-19-frame-time-baseline.mjs` の `--display-scale` ・ `docs/development-records/perf-pending.md` ・ `docs/development-records/measurements/performance-runs.md` ・ `PND-443` | 適用済 —— **`docs/development-rules/04-verification.md` の `PW-3`、`tools/probe/examples/lm-19-frame-time-baseline.mjs` の `--display-scale`、`docs/development-records/perf-pending.md` の頭、`docs/development-records/pending-decisions.md` の `PND-443` へ当てた（2026-09-26）**。同じ量での比べの走行の行は `docs/development-records/measurements/performance-runs.md` が持つ |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
