@@ -14,6 +14,9 @@ import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
+const PUBLISHED = unbroken(
+  readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'),
+)
 
 const IN_4_ORDER =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
@@ -72,7 +75,7 @@ const stateKeyExists = (ref: StateRef): boolean => {
 }
 
 const isSpecRow = (id: string): boolean =>
-  [REQUIREMENTS, DESIGN].some((text) => text.includes(`| ${id} |`) || text.includes(`**UID**: ${id}\n`))
+  [REQUIREMENTS, DESIGN, PUBLISHED].some((text) => text.includes(`| ${id} |`) || text.includes(`**UID**: ${id}\n`))
 
 // see IN-4
 const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
@@ -219,7 +222,7 @@ describe(`table T-283, y / n (RG-13) -- NT-7 (MUST): ${NT_7_ORDER}`, () => {
 
 describe(`PI-36 -- ${PI_36_ESCAPE_TARGET}`, () => {
   it('the design still says it, word for word', () => {
-    expect(DESIGN).toContain(PI_36_ESCAPE_TARGET)
+    expect(PUBLISHED).toContain(PI_36_ESCAPE_TARGET)
   })
 })
 

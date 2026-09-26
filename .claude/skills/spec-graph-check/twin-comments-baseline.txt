@@ -1,0 +1,238 @@
+# The registry of copy comments in src/ -- held by check-twin-comments.py
+# (check 71, provisional).
+#
+# One record per comment in src/**/*.ts that claims the code below it is a
+# copy of code elsewhere, or must be kept equal to it ("a copy of X",
+# "repeats X", "change both together", "must spell it the same", ...).
+#
+# A record in this file is a DEBT, not a permission. The copy is still there,
+# and nothing but a comment keeps the two sides equal -- five of the records
+# below name a twin that is gone, moved or renamed ("stale"), and three copies
+# have already drifted from their original. The record says only that the copy
+# was seen and weighed, so that a NEW copy comment cannot hide behind an old
+# one and so that the suite can stop green (05-working-method.md section 1).
+#
+# Paying a debt means DELETING its record here in the same change that folds
+# the copy (publish the original through its component's public entry --
+# a table T-064 row when it is not published yet -- and import it; inside one
+# component, fold it into one file). The check goes red when a record's claim
+# is no longer found, so a paid debt cannot sit here pretending to be owed.
+#
+# This file may only SHRINK without the user's OK. Adding a record is not a
+# way to make the suite green: a new copy comment is a copy found. Fold it, or
+# bring the record here with the user's decision behind it.
+#
+# FORMAT -- one record is three lines:
+#     <sort> | <symbol> :: <first 10 words of the claim>
+#     twin: the original the comment names, as src/<path>.ts#<symbol> when it
+#           can be located, else in words; "stale -- ..." when the comment
+#           names a twin that is gone or renamed
+#     why:  one line, ASCII: where the original lives and what stops folding
+#           it today. Printed on every run, so keep it readable.
+# sort is copy, spec-copy or coupling. The key (after the "|") is never a line
+# number or a file path, so it survives a file being split or moved; a key
+# changes when the declaration the comment sits on is renamed or the first ten
+# words are reworded, and then the record is re-keyed in the same change.
+# "stale" is written by hand; a src/<path>.ts#<symbol> twin that is not stale
+# and cannot be found prints a NOTE on every run (never a failure).
+# Blank lines and lines opening with "#" are ignored.
+
+coupling | textOfBytes :: ignorebom keeps a leading bom for the codecs to drop
+twin: the codecs that drop the BOM (src/adapter/document-codec/document-codec.ts, mspdi-codec.ts)
+why: a contract, not a copy: FileGateway keeps a leading BOM and the codecs drop it (FileGateway->DocumentCodec declared); nothing to fold.
+
+copy | rounded :: rounds as svg renderer ts does change both together
+twin: src/adapter/svg-renderer/svg-renderer.ts#rounded
+why: published by SvgRenderer's entry and ImageExporter->SvgRenderer is declared; nothing stops the fold -- import it.
+
+copy | commandFromDualCursorEntry :: the esc path in frame loop ts writes the same
+twin: src/framework/single-html-shell/frame-loop.ts#CLEAR_DUAL_CURSOR (the Esc effect writeClearDualCursor)
+why: the shell now clears through the screen-values state machine (ESCAPE_DUAL_CURSOR); same clearing in another form, no one symbol to import (SingleHtmlShell->InputCommandTranslator declared).
+
+coupling | hasDraggedPastThreshold :: keep this per axis as rowgrabaxisat reads it a diagonal
+twin: src/adapter/input-command-translator/row-grab.ts#rowGrabAxisAt
+why: one component (InputCommandTranslator): the threshold stays per axis because rowGrabAxisAt reads it so; a shared per-axis helper in the component folds it.
+
+copy | rowAnchorIn.slab :: scrolloffsetof row scroll ts inverts this both must divide by
+twin: src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf
+why: the inverse of the same slab arithmetic; scrollOffsetOf is not published by ScheduleLayout's entry (no T-064 row) though InputCommandTranslator->ScheduleLayout is declared.
+
+copy | taskGroupRankById :: schedule invariants ts holds the same walk under the same
+twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
+why: private in Schedule (no T-064 row); InputCommandTranslator->Schedule is declared, so one row and an import fold it; third site src/use-case/edit-document/task-group-order.ts#rowTreeRankById.
+
+copy | highlightBoxRangeWrite.topAt :: fall back to the first and last layout rows exactly
+twin: src/entity/layout-engine/schedule-geometry/highlight-box.ts#highlightGeometry
+why: the row fallback inline in highlightGeometry, not published by ScheduleGeometry's entry (edge declared); this side compares by compareDay, the twin by compareDays (suspect divergence).
+
+copy | isEveryRowOpenArmed :: row title panel ts arms ic 74 ic 58 and
+twin: src/adapter/screen-renderer/row-title-panel.ts#openArmingOf
+why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer declared; predicates here, a precomputed index there, depth read from different sources (suspect divergence).
+
+copy | hasADrawnChild :: must stay the set row title panel ts builds as
+twin: src/adapter/screen-renderer/row-title-panel.ts#groupIdsWithDrawnChildren
+why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer is declared, so a T-064 row and an import fold it.
+
+copy | namesAPlace :: viewsettings in view place ts writes the same base half
+twin: stale -- names viewSettings; the twin is src/framework/single-html-shell/view-place.ts#storedNamesAPlace
+why: SingleHtmlShell->InputCommandTranslator declared and namesAPlace is not published by the translator's entry; publish it and let view-place import it.
+
+copy | rowPointIn :: rowanchorin and scrolloffsetof measure the same slab change all three
+twin: src/entity/layout-engine/schedule-layout/row-scroll.ts#scrollOffsetOf (and rowAnchorIn in input-command-translator.ts)
+why: the same slab three times; scrollOffsetOf is not published by ScheduleLayout's entry (no T-064 row) though InputCommandTranslator->ScheduleLayout is declared.
+
+copy | treeStatesReset :: cm 72 resettaskgrouptreestates writes the same predicate change both together
+twin: src/use-case/edit-document/task-group-folding.ts#resetTaskGroupTreeStates
+why: not published by EditDocument's entry (edge declared); already diverged -- CM-72 asks the tree-state machine (T-328), this copy hard-codes the reset.
+
+copy | SETTINGS_KEY_BY_ROW :: input command translator ts holds this join reversed visible element
+twin: src/adapter/input-command-translator/input-command-translator.ts#VISIBLE_ELEMENT_BY_ENTRY
+why: the join reversed, private in the translator; the edge runs InputCommandTranslator->ScreenRenderer, so ScreenRenderer can publish the map; the palette map lacks IC-4, IC-8, IC-9.
+
+copy | valueAt :: repeats the private reach walk of clampedsettings change both together
+twin: src/entity/document-model/document-settings/document-settings.ts#reach (inside clampedSettings)
+why: reach is private inside clampedSettings; ScreenRenderer->DocumentSettings is declared, so publishing the walk (T-064 row) folds it.
+
+copy | charUnits :: u 0100 is the boundary schedulelayout s lc 5 uses
+twin: src/entity/layout-engine/schedule-layout/label-width.ts#labelUnits
+why: published by ScheduleLayout's entry and ScreenRenderer->ScheduleLayout is declared; nothing stops the fold -- import it.
+
+copy | isOpenAllBelowOn :: row tree entrances ts arms ic 58 by this same
+twin: src/adapter/input-command-translator/row-tree-entrances.ts#isOpenAllBelowArmed
+why: private in the translator; the edge runs InputCommandTranslator->ScreenRenderer, so the test belongs in ScreenRenderer's entry for the translator to import.
+
+copy | openArmingOf :: row tree entrances ts arms ic 58 ic 74 and
+twin: src/adapter/input-command-translator/row-tree-entrances.ts#isOpenOneLevelArmed (and isOpenAllBelowArmed, isEveryRowOpenArmed)
+why: as isOpenAllBelowOn; depth read from rowDepth + stored settings here, from layout rows + zoomOnScreen there (suspect divergence).
+
+copy | rectHoldsPoint :: a copy of screen regions ts s private rectholdspoint change
+twin: src/entity/layout-engine/screen-regions/screen-regions.ts#rectHoldsPoint
+why: private in ScreenRegions; ScreenRenderer->ScreenRegions is declared, so one T-064 row and an import fold it.
+
+copy | expressionValueOf :: repeats boundvalueof of schedule invariants ts iv 16 change both
+twin: src/entity/document-model/schedule/schedule-invariants.ts#boundValueOf
+why: private in Schedule; the edge runs Schedule->DocumentSettings, so the evaluator belongs here for Schedule to import; already diverged -- invariants count a list as its length (IV-16).
+
+coupling | serial :: date utc maps years 0 to 99 onto 1900 to
+twin: src/entity/document-model/schedule/calendar-day.ts#dayOf
+why: one file: serial and dayOf's round-trip check share the Date.UTC 0-99 mapping; a shared assumption, not a copy.
+
+coupling | settingNumberOf :: a list counts as its length tools generate startup template
+twin: tools/generate_startup_template.py (outside src/)
+why: a Python generator must count a list as its length the same way; no import joins them -- a generated constant or a test would.
+
+copy | charUnits :: repeats labelunits in label width ts change them together
+twin: src/entity/layout-engine/schedule-layout/label-width.ts#labelUnits
+why: published by ScheduleLayout's entry and ScheduleGeometry->ScheduleLayout is declared; nothing stops the fold -- import it.
+
+copy | drawnOverhangOf :: shape cross sections ts lays the tier by the same
+twin: src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#drawnEdgeOverhangOf
+why: exported by its file, not by ScheduleLayout's entry (no T-064 row); ScheduleGeometry->ScheduleLayout is declared.
+
+copy | lineEndHalfHeight :: repeats linebar s xs 5 head height and xs 5
+twin: stale -- names lineBar, the caller; the twin is src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf
+why: thinEndHalfHeightOf is published by ScheduleLayout's entry and ScheduleGeometry->ScheduleLayout is declared; nothing stops the fold.
+
+copy | thinTierMiddle :: shape cross sections ts reserves the same three tiers shapeheightof
+twin: src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#shapeHeightOf (and labelLiftOf)
+why: the same three tiers in another form (middle vs reserved height); shapeHeightOf is not published by ScheduleLayout's entry; edge declared.
+
+copy | dummiesOf.side :: the same box and barof call as a same day
+twin: src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf
+why: one file: the same-day actual milestone box of taskGeometryOf; a local helper folds both.
+
+copy | dummiesOf.width :: schedule layout ts counts the same width into dummyreach dummyinkwidthof
+twin: src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf
+why: published by ScheduleLayout's entry and ScheduleGeometry->ScheduleLayout is declared; nothing stops the fold -- one call.
+
+copy | scrollOffsetOf.below :: rowanchorat in input command translator ts inverts this with the
+twin: stale -- names rowAnchorAt, now a delegate; the twin is src/adapter/input-command-translator/input-command-translator.ts#rowAnchorIn
+why: the inverse; the edge runs InputCommandTranslator->ScheduleLayout, so a slab helper published by ScheduleLayout folds both.
+
+coupling | DIALOGUE_ENTRY :: dom screen surface ts role dialoguefield must spell it the
+twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
+why: the 'Dialogue Field' literal restated; ROLE is published by DomScreenSurface's entry, but no DomInputSource->DomScreenSurface edge is declared.
+
+coupling | TRUE_TEXT :: must match how textofvalue properties panel ts writes a boolean
+twin: src/adapter/screen-renderer/properties-panel.ts#textOfValue
+why: the text of a boolean agreed across two components; textOfValue is private; DomScreenSurface->ScreenRenderer is declared, so a published constant folds it.
+
+copy | TRANSPARENT_PAINT :: change with not drawn in svg renderer ts a mismatch
+twin: src/adapter/svg-renderer/svg-renderer.ts#NOT_DRAWN
+why: the 'none' paint copied; NOT_DRAWN is private and no DomScreenSurface->SvgRenderer edge is declared.
+
+copy | TABLE_ROW_OF_SAVE_FORM :: document codec ts holds a similar private map for decoding
+twin: src/adapter/document-codec/document-codec.ts#ROW_OF_FORMAT
+why: a similar, not equal, map (the codec reads READABLE_FORMATS rows); ROW_OF_FORMAT is private; SingleHtmlShell->DocumentCodec is declared.
+
+spec-copy | EDITED_BY_SCREEN :: not generated a change to ed 1 of table t
+twin: table T-229, row ED-1 (docs/spec)
+why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
+
+coupling | EXPORT_CHOOSER_SURFACE :: also spelled in screen state input ts and open modals
+twin: the 'Export Chooser' literal in src/adapter/input-command-translator/screen-state-input.ts and src/adapter/screen-renderer/open-modals.ts
+why: a surface name restated in three components; SingleHtmlShell->InputCommandTranslator and ->ScreenRenderer are declared, so one published constant folds it.
+
+coupling | FIELD_FOCUS_WITHDRAWING_KEYS :: spelled as dom input source ts delivers them tab moves
+twin: the key names src/framework/dom-input-source/dom-input-source.ts delivers
+why: key names spelled as the input source delivers them; SingleHtmlShell->DomInputSource is declared, and no key constant is published.
+
+spec-copy | NOTICE_MANNER_OF_REASON :: not generated a manner moved in table t 233 must
+twin: table T-233 (docs/spec)
+why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
+
+coupling | OPEN_CHOOSER_SURFACE :: screenstate surface icon roster json and readscreenpartat must spell it
+twin: the 'Open Chooser' literal in src/adapter/screen-renderer/icon-roster.json
+why: today only icon-roster.json and display-words.json spell it; ScreenState.surface and readScreenPartAt, also named, hold no literal (the comment is partly outdated).
+
+coupling | DIALOGUE_FIELD_SURFACE :: dom screen surface ts s role dialoguefield must spell it
+twin: src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE (dialogueField)
+why: ROLE is published by DomScreenSurface's entry and SingleHtmlShell->DomScreenSurface is declared; nothing stops reading ROLE.dialogueField.
+
+coupling | DIFFERENCE_REVIEW_SURFACE :: also spelled in icon roster json open modals ts and
+twin: the 'Difference Review' literal in src/adapter/screen-renderer/icon-roster.json, open-modals.ts and screen-renderer.ts
+why: a surface name restated in two components; SingleHtmlShell->ScreenRenderer is declared, so one published constant folds it.
+
+copy | frameLoop.isBrowserDefaultStopped.level :: keep in step with receiveinput which spends presses commandfrominput cannot
+twin: src/framework/single-html-shell/frame-loop.ts#receiveInput
+why: one file: receiveInput spends presses commandFromInput cannot see; fold inside the component.
+
+copy | storedNamesAPlace :: input command translator ts names the same half of op
+twin: stale -- names input-command-translator.ts; the twin moved to src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace
+why: SingleHtmlShell->InputCommandTranslator is declared and namesAPlace is not published by the translator's entry (no T-064 row).
+
+copy | FieldEntryCreated :: the translator s created again usecase may not read an
+twin: src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject (the created union)
+why: T-061: UseCase may not read an Adapter type; but InputCommandTranslator->AdvanceScreenSession is declared, so the translator can import this type instead.
+
+copy | FileFlowOpenRoute :: the file store s openroute plus the agent api hand
+twin: src/adapter/file-gateway/file-store.ts#OpenRoute
+why: adds 'handed' (the Agent API hand-over); T-061 reason; no AdvanceScreenSession/FileGateway edge is declared.
+
+copy | FileFlowOpenChoice :: importdocument s openchoice and mergemapping again no edge to that
+twin: src/use-case/import-document/import-document.ts#OpenChoice (and MergeMapping)
+why: no AdvanceScreenSession/ImportDocument edge is declared (check 59); MergeMapping is copied with its aliases inlined.
+
+copy | FileFlowCreatedSubject :: the translator s createdsubject again usecase may not read an
+twin: src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject
+why: T-061 reason; InputCommandTranslator->AdvanceScreenSession is declared, so the translator can import this type instead.
+
+copy | GesturePressRow :: the translator s pressrow again usecase may not read an
+twin: src/adapter/input-command-translator/input-command-translator.ts#PressRow
+why: T-061 reason; InputCommandTranslator->AdvanceScreenSession is declared, so the translator can import this type instead.
+
+copy | REPEATING_ENTRIES :: copies of the shell s repeating entries and press changes
+twin: stale -- the shell no longer holds REPEATING_ENTRIES or PRESS_CHANGES_DOCUMENT
+why: the comment outlived its twin (CR-450 wave B); delete the comment and this record together.
+
+coupling | isUndoable :: change together with columnsoutsidehistory a command answering false here must
+twin: src/use-case/apply-document-change/document-change-plan.ts#columnsOutsideHistory
+why: one file: a command answering false must write only the columns listed there; two lists that must agree, not a copy.
+
+copy | rowTreeRankById :: schedule invariants ts and the input translator walk the row
+twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
+why: private in Schedule; EditDocument->Schedule is declared, so one T-064 row and an import fold it; third site input-command-translator.ts#taskGroupRankById.
+
+copy | beginTaskActual.planStart :: the plan start day itself where schedule layout ts and
+twin: src/entity/layout-engine/schedule-geometry/task-figures.ts#dummyFromOf (and schedule-layout.ts#dummyReachOf)
+why: the plan start day as the dummy day at three sites; both twins private; EditDocument->ScheduleLayout is declared, no EditDocument->ScheduleGeometry edge.

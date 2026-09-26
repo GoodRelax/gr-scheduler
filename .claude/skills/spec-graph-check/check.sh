@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 64 mechanical checks for the gr-scheduler specification.
+# All 66 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 47. (Recounted 2026-09-26 when
+# The ranges today are 1 + 4 + 8 + 4 + 49. (Recounted 2026-09-26 at the
+# merge of the provisional checks 70-71 (CR-581) and 74 (test inventory):
+# 46 + 2 + 1. Before that, recounted 2026-09-26 when
 # checks 64-66 went in: the single-number headings were 43, not 42, before
 # them -- check 63 had gone in without a recount. Recounted again when
 # check 74 went in: 46 single-number headings before it.)
@@ -100,7 +102,9 @@
 #          the display words, the MSPDI custom fields, the exchange formats,
 #          the property items, the row-ID prefix table, the state-machine
 #          tables and the region types printed from state-machines.json, and
-#          the component overview and table build.py writes (not its figures).
+#          the component overview and table build.py writes (not its figures),
+#          table T-064 printed from published-entries.json and the public
+#          entry index printed from src/ and that manuscript (CR-581).
 #          ⛔ A suite quoted as the word on the tree has to run everything that
 #          holds the tree to its manuscript, so none of these is left to
 #          `gen:check` alone
@@ -298,6 +302,17 @@
 #          change request landed since perf-pending.md began that touched a
 #          per-frame path of rule 04 section 5 is in perf-pending.md or
 #          measurements/performance-runs.md (PW-2). No baseline: 0
+#   70     check-literal-restatement.py (provisional number, CR-581) : a
+#          module-level value set written by hand in src/ that restates a
+#          generated set (Jaccard >= 0.7, 3+ shared members), unless a
+#          Record / mapped type over the generated union makes drift a
+#          compile error. Held against literal-restatement-baseline.txt,
+#          keyed by name so a file split does not move the key
+#   71     check-twin-comments.py (provisional number, CR-581) : a comment
+#          in src/ that says the code is a copy of code elsewhere. The
+#          registry twin-comments-baseline.txt may only shrink: a new copy
+#          is published and imported instead (table T-064 is one manuscript
+#          entry away since CR-581), not registered
 #   74     tools/generate_test_inventory.py --check : the test inventory
 #          (docs/development-records/test-inventory.md, one row per test
 #          file with the spec rows it names) is what the tests and the
@@ -468,8 +483,8 @@ echo ""
 # --check runs only under `gen:check` can drift while this suite stays green.
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
-# -- so the eighteen below plus those five are the twenty-three `gen:check` runs.
-section "27  the eighteen other generated artifacts still match their manuscripts"
+# -- so the twenty below plus those five are the twenty-five `gen:check` runs.
+section "27  the twenty other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_icon_roster.py --check || failed
@@ -491,6 +506,10 @@ PYTHONIOENCODING=utf-8 python tools/generate_state_machine_types.py --check || f
 PYTHONIOENCODING=utf-8 python docs/spec/_source/row_id_prefixes_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/build.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_comment_rules_card.py --check || failed
+# Table T-064 (CR-581): publishing a name is one manuscript entry, and the
+# index a writer searches before adding a helper is read out of src/.
+PYTHONIOENCODING=utf-8 python docs/spec/_source/published_entries_json_to_md.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_public_entry_index.py --check || failed
 
 echo ""
 section "28  the ledger against what has been SEEN in the app"
@@ -822,6 +841,34 @@ section "66  the performance gate still gates, and per-frame landings wait to be
 # reports the 8 landings of CR-565 / CR-568 / CR-570 that touched per-frame
 # paths, and one CR-568 row in perf-pending.md takes that to 5.
 PYTHONIOENCODING=utf-8 python "$HERE/check-perf-gate.py" || failed
+
+echo ""
+section "70  a hand-written value set in src/ does not restate a generated set"
+# CR-581 (provisional number; the coordinator renumbers at merge). The
+# survey of 2026-09-26 (docs/review/duplicate-survey-2026-09-26.md, method H)
+# found hand sets that restate a generated roster and drift in silence.
+# MEASURED 2026-09-26 on 0ad572f6: 181 module-level hand sets against 869
+# generated sets, 35 at J >= 0.7 -- 19 held (14 restatements, 5
+# coincidental), 16 exempt mechanically (14 Record / mapped types, 2 typed
+# constructions). MEASURED by breaking it on a scratch copy: a planted
+# LINE_WEIGHTS = ['thin', 'medium', 'thick'] reported new 1; moving
+# NoticeReason to another file stayed green; deriving ShapeKind while its
+# record stayed reported the paid debt.
+PYTHONIOENCODING=utf-8 python "$HERE/check-literal-restatement.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-literal-restatement.py" || failed
+
+echo ""
+section "71  the registry of copy comments in src/ does not grow"
+# CR-581 (provisional number). The registry may only shrink without the
+# user's OK: a new copy is published through its public entry and imported.
+# MEASURED 2026-09-26 on 0ad572f6: 50 claims held (36 copy, 2 hand copies of
+# a spec table, 12 couplings), 5 of them naming a twin that moved or is gone.
+# MEASURED by breaking it on a scratch copy of src/: a new "a copy of
+# rectHoldsPoint in screen-regions.ts" reported new 1; deleting a held
+# comment reported the paid debt; moving frame-loop.ts with its lines
+# shifted stayed green. It loads check 55's lexer from check-comment-rules.py.
+PYTHONIOENCODING=utf-8 python "$HERE/check-twin-comments.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-twin-comments.py" || failed
 
 echo ""
 section "74  the test inventory is what the tests and the specification give"

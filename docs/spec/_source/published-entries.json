@@ -1,0 +1,1468 @@
+{
+ "$schema": "./published-entries.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "Table T-064 (the published interface of every component) of Chapter 5.3 of docs/spec/05-07-design.md: the names each component's public entry publishes, and what each one is for (CR-581).",
+  "Generated FROM this file: _assets/tbl-published-entries.md (published_entries_json_to_md.py), and the name column of docs/review/public-entry-index.md (tools/generate_public_entry_index.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/published-entries.schema.json. The generator also refuses a row id or a component written twice, a member name written twice in one row, a note that does not open with a full-width parenthesis, and a text piece that would read as a published name.",
+  "A MEMBER is a name the public entry exports: `name` is the identifier, `note` (optional) is printed right after it and opens with a full-width parenthesis. A TEXT piece publishes no name (check 26b skips it). Pieces are joined by the full-width slash followed by one space; `sepAfter` names the two other joints the table has always printed: \"spaced\" (a space on both sides) and \"bare\" (no space).",
+  "The rules about this table are NOT here -- Chapter 5.3 of docs/spec/05-07-design.md holds them. Check 26b holds every member against the export of its entry, both ways."
+ ],
+ "table": {
+  "id": "T-064",
+  "caption": {
+   "ja": "公開インターフェース"
+  },
+  "columns": {
+   "ja": [
+    "行 ID",
+    "層",
+    "コンポーネント",
+    "公開するメンバ"
+   ]
+  }
+ },
+ "rows": [
+  {
+   "id": "PI-1",
+   "layer": "documentModel",
+   "component": "Schedule",
+   "members": [
+    {
+     "name": "Schedule",
+     "note": {
+      "ja": "（型。<br>12 の鍵は 表 T-052 の `DR-2`）"
+     }
+    },
+    {
+     "name": "DATE_COLUMNS",
+     "note": {
+      "ja": "（表 T-058 の型の欄が日付とする列の全数。<br>`IV-14` が名指さずに指すので、写しではなく生成する）"
+     }
+    },
+    {
+     "name": "scheduleViolations",
+     "note": {
+      "ja": "（不変条件に反する箇所）"
+     }
+    },
+    {
+     "name": "taskByUid",
+     "note": {
+      "ja": "（`uid` で引く。<br>`FR-022` の照合が使う）"
+     }
+    },
+    {
+     "name": "planActualState",
+     "note": {
+      "ja": "（表 T-019a の判別）"
+     }
+    },
+    {
+     "name": "isDelayed",
+     "note": {
+      "ja": "（表 T-021b の 3 条件）"
+     }
+    },
+    {
+     "name": "delayWorkingDays",
+     "note": {
+      "ja": "（表 T-021b の起点と終点）"
+     }
+    },
+    {
+     "name": "workingDaysBetween",
+     "note": {
+      "ja": "（2 つの日付のあいだの稼働日数。<br>暦は `FR-054`）"
+     }
+    },
+    {
+     "name": "calendarDaysBetween",
+     "note": {
+      "ja": "（2 つの日付のあいだの**暦日**数。<br>表 T-012a の `FD-6` がフェードの単位として定め、`IV-12` が同じ数え方に従う）"
+     }
+    },
+    {
+     "name": "dateFromWorkingDays",
+     "note": {
+      "ja": "（起点の日付に稼働日を加えた日）"
+     }
+    },
+    {
+     "name": "nextWorkingDay",
+     "note": {
+      "ja": "（起点の**翌稼働日**。<br>⛔ **`dateFromWorkingDays` の半開区間の終端とは別物である**）"
+     }
+    },
+    {
+     "name": "workingCalendarOf",
+     "note": {
+      "ja": "（文書の暦を解く。<br>順は `FR-054`）"
+     }
+    },
+    {
+     "name": "dayOf",
+     "note": {
+      "ja": "（日付の字面を日にする。<br>規則は `FR-054`）"
+     }
+    },
+    {
+     "name": "textOfDay",
+     "note": {
+      "ja": "（日を日付の字面に戻す）"
+     }
+    },
+    {
+     "name": "compareDays",
+     "note": {
+      "ja": "（2 つの日の前後）"
+     }
+    },
+    {
+     "name": "calendarSpanOf",
+     "note": {
+      "ja": "（2 つの日のあいだの年・月・日と暦日数。<br>向きを持たない。<br>規則は表 T-029a の `DC-3`）"
+     }
+    },
+    {
+     "name": "actualLastDay",
+     "note": {
+      "ja": "（実績の最後の日。<br>完了したタスクでは `actualFinish`、それ以外では `stop` であり、未着手なら無い。<br>`FR-011`）"
+     }
+    },
+    {
+     "name": "actualLengthOf",
+     "note": {
+      "ja": "（実績の長さ。<br>数え方は `FR-011` が持ち、`_assets/fig-erd-detail.md` の `DV-11` がこの長さを読む）"
+     }
+    },
+    {
+     "name": "lastDayForLength",
+     "note": {
+      "ja": "（`actualStart` と長さから実績の最後の日を置く。<br>`FR-011` の、`stop` を持たない取り込みと以前の版の読み）"
+     }
+    },
+    {
+     "name": "isStoredColour",
+     "note": {
+      "ja": "（色の列が取る綴りか。<br>表 T-017b の `CV-1` / `CV-2`）"
+     }
+    },
+    {
+     "name": "customColourOf",
+     "note": {
+      "ja": "（カスタムカラーを明暗の 2 つの側に分ける。<br>`CV-2`）"
+     }
+    },
+    {
+     "name": "customSideOf",
+     "note": {
+      "ja": "（未定義の側を他方で埋めて、描く側の値を返す。<br>`CV-3`）"
+     }
+    },
+    {
+     "name": "customColourChosen",
+     "note": {
+      "ja": "（カスタムカラーを選んだときの新しい綴り。<br>`CV-4`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-2",
+   "layer": "documentModel",
+   "component": "DocumentSettings",
+   "members": [
+    {
+     "name": "DocumentSettings",
+     "note": {
+      "ja": "（型。<br>鍵は 表 T-104、値は `_assets/tbl-settings.md`）"
+     }
+    },
+    {
+     "name": "clampedSettings",
+     "note": {
+      "ja": "（下限・上限に収める）"
+     }
+    },
+    {
+     "text": {
+      "ja": "原稿を刷った 3 つの定数（既定値・単独の下限と上限・他の鍵の式で書かれた既定値）"
+     }
+    },
+    {
+     "name": "DISPLAY_SCALE_STEPS",
+     "note": {
+      "ja": "（表示の倍率の段の並び。<br>並びの正は `_assets/tbl-settings.md` の 表 T-202 の `S-234` の型の欄である。<br>⭐ 公開したのは、`FR-039` が両端で巡らせることを禁じており、端を余りで数える側と段を進める側が同じ 1 本を読まねばならないからである）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-3",
+   "layer": "documentModel",
+   "component": "DocumentStamp",
+   "members": [
+    {
+     "name": "DocumentStamp",
+     "note": {
+      "ja": "（型。<br>3 つは `DR-4`）"
+     }
+    },
+    {
+     "name": "advancedStamp",
+     "note": {
+      "ja": "（版を進める）"
+     }
+    },
+    {
+     "name": "isStampMatched",
+     "note": {
+      "ja": "（照合。<br>表 T-035 の `AG-2`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-4",
+   "layer": "documentModel",
+   "component": "EditHistory",
+   "members": [
+    {
+     "name": "EditHistory",
+     "note": {
+      "ja": "（型）"
+     }
+    },
+    {
+     "name": "historyWithStep",
+     "note": {
+      "ja": "（1 段積む）"
+     }
+    },
+    {
+     "name": "previousStep",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "nextStep"
+    }
+   ]
+  },
+  {
+   "id": "PI-5",
+   "layer": "layoutEngine",
+   "component": "ScheduleLayout",
+   "members": [
+    {
+     "name": "ScheduleLayout",
+     "note": {
+      "ja": "（型）"
+     }
+    },
+    {
+     "name": "layoutFromSchedule",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "dateAtX",
+     "note": {
+      "ja": "（時間軸の対応。<br>`FR-017`）"
+     }
+    },
+    {
+     "name": "timeAxisOf",
+     "note": {
+      "ja": "（行を割り付けずに、時間軸の対応だけを求める。<br>`dateAtX` はこれを読める。<br>表 T-029a の `DC-3` の読み出しが、ポインタの下の日を求めるために読む）"
+     }
+    },
+    {
+     "name": "xFromDay",
+     "note": {
+      "ja": "（その逆向き。<br>日から横の位置を出す）"
+     }
+    },
+    {
+     "name": "tickStrideOf",
+     "note": {
+      "ja": "（目盛の間引き。<br>`LF-1`）"
+     }
+    },
+    {
+     "name": "fitZoom",
+     "note": {
+      "ja": "（`FR-055`）"
+     }
+    },
+    {
+     "name": "taskPlacement",
+     "note": {
+      "ja": "（どこに載るか）"
+     }
+    },
+    {
+     "name": "labelUnits",
+     "note": {
+      "ja": "（`FR-093` の「全角 2・半角 1 で数えた単位数」。<br>⭐ `FR-006` が入力欄の要る幅を同じ数え方で求めるので、両側が同じ 1 本を使う）"
+     }
+    },
+    {
+     "name": "groupDepthLimit",
+     "note": {
+      "ja": "（いまの詳しさの段が描く最も深い段。<br>`FR-018`）"
+     }
+    },
+    {
+     "name": "keptInViewByTreeState",
+     "note": {
+      "ja": "（`expanded` と `temporarilyExpanded` が倍率によらず描かせる行。<br>`FR-018` の 表 T-329 の `TD-6`・`TD-7`。<br>入口の構えと行見出しパネルが、描かれていない子を数えるために読む）"
+     }
+    },
+    {
+     "name": "groupDepthThresholdOf",
+     "note": {
+      "ja": "（その段を描くのに要る倍率。<br>`FR-018`）—— ⭐ **2 つとも 表 T-051 の `HF-14` のために公開した**。<br>同行の定めにより、行を立てる側が、立てる前に落ちるかどうかを問えなければならない。<br>⛔ **式を写して持たせてはならない（MUST NOT）** —— **同じ式が 2 か所にあれば、片方だけが直されて必ず離れる**（1.9）。<br>"
+     }
+    },
+    {
+     "name": "rowPlacesAtZoomY",
+     "note": {
+      "ja": "（その倍率での行の位置。<br>`FR-016` の行の軸の錨）—— ⭐ **`FR-016` が本行に置くことを MUST で定めるために公開した**。<br>**行の軸は `zoomY` に対して線形ではないので**（理由は同要求）、**呼ぶ側は倍率から位置を算で求められない。<br>**⛔ Adapter に自前の割付けをさせないことは、表 T-070 の `MN-6` が既に定めている"
+     }
+    },
+    {
+     "name": "zoomYAtRectangleLabelFont",
+     "note": {
+      "ja": "（与えた字の大きさに、矩形（表 T-201 の `S-13`）の名称ラベルの字が等しくなる `zoomY`。<br>床（`S-8` と `FR-094` の予定の縦幅の床）だけで字が既に与えた大きさ以上になるときは、床が外れて字が大きくなり始める倍率。<br>`FR-016` の行の軸の上限が深さ 1 の行の名前の字を与えて問う）"
+     }
+    },
+    {
+     "name": "NOT_STORED_LABEL_SIZES",
+     "note": {
+      "ja": "（表 T-206 の `S-196` と `S-233` を刷った定数。<br>⭐ 本行が持つ —— 表 T-038 の `OC-10` で名称ラベルのぶんを帯高に数えるのが本コンポーネントであり、`ScheduleGeometry` は本コンポーネントを読むので逆向きには読めない（`LR-3`）。<br>`ScheduleGeometry` は名称ラベルの縦の置き場を求めるために本メンバを読む）"
+     }
+    },
+    {
+     "name": "markerDiameterOf",
+     "note": {
+      "ja": "（進捗マーカーの径。<br>表 T-012 の `SH-3` / `SH-4` はそのタスクの名称ラベルの字の大きさ、ほかは 表 T-201 の `S-22`。<br>規則は `FR-094`）—— ⭐ **公開したのは、`ScheduleGeometry` が同じ径でマーカーを描くためである** —— ⛔ **式を `src/` の 2 か所に置いてはならない（MUST NOT）** —— 片方だけが直されて必ず離れる（1.9）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "LabelReference",
+     "note": {
+      "ja": "（型。<br>札が付く基準 —— その横の位置と幅、「入る」を判ずる幅、名前の字の床。<br>基準をどれに取るかは `01-04-requirements.md` の `FR-109` の 表 T-272 が持つ）"
+     }
+    },
+    {
+     "name": "labelReferenceOf",
+     "note": {
+      "ja": "（その基準を求める）"
+     }
+    },
+    {
+     "name": "LabelLayout",
+     "note": {
+      "ja": "（型。<br>札の配置 —— 「入る」かどうか、進捗マーカーの左端、名前の書き出し。<br>規則は同要求の 表 T-273 が持つ）"
+     }
+    },
+    {
+     "name": "labelLayoutOf",
+     "note": {
+      "ja": "（その配置を求める）"
+     }
+    },
+    {
+     "name": "dummyBandOf",
+     "note": {
+      "ja": "（ダミーを描く帯。<br>幅は 表 T-240 の `DM-3`、マイルストーンは点である）"
+     }
+    },
+    {
+     "name": "outwardStartOf",
+     "note": {
+      "ja": "（基準の外へ札を並べ始める位置。<br>再開日が未定のアイコンに札が届くときは、その掴む箱の右端から並べる —— 表 T-273 の結び）"
+     }
+    },
+    {
+     "name": "assigneeAnchorOf",
+     "note": {
+      "ja": "（担当と進捗の札の右端を合わせる位置。<br>表 T-273 の担当と進捗の段） —— ⭐ **この 7 つを公開したのは、`ScheduleGeometry` が同じ札を描くためである** —— ⛔ 置き場の式を `src/` の 2 か所に置いてはならない（MUST NOT）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "labelledAssigneeUidOf",
+     "note": {
+      "ja": "（担当ラベルが名を出す担当者、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。<br>いなければ `null`）—— ⭐ **`ScreenRenderer` が、プロパティパネルの担当者の欄のどれに焦点を置くか（表 T-225 の `AS-1`）を決めるために公開した** —— 絞りを写して持たせると、`FR-059` の規則が 2 か所になる（1.9）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-6",
+   "layer": "layoutEngine",
+   "component": "ScheduleGeometry",
+   "members": [
+    {
+     "name": "ScheduleGeometry",
+     "note": {
+      "ja": "（型）"
+     }
+    },
+    {
+     "name": "geometryFromLayout"
+    },
+    {
+     "name": "DependencyGeometry",
+     "note": {
+      "ja": "（型。<br>描いた依存線 1 本 —— 結ぶ 2 つの `Task` と種別、経路（`LC-10`、表 T-222）、描いた太さと矢じり。<br>⭐ 太さと矢じりは任せてよい —— 当たりだけを問う呼び手は描く値を持たない）"
+     }
+    },
+    {
+     "name": "HighlightGeometry",
+     "note": {
+      "ja": "（型。<br>描いたハイライトボックス 1 つ —— 囲む矩形と角の丸め（`FR-019`））"
+     }
+    },
+    {
+     "name": "CommentGeometry",
+     "note": {
+      "ja": "（型。<br>描いたコメントボックス 1 つ —— 線先の点、本文の箱、本文の行と字の大きさ（`FR-019` ／ `FR-097`））"
+     }
+    },
+    {
+     "name": "leaderOf",
+     "note": {
+      "ja": "（そのコメントボックスの引出し線。<br>⭐ 公開したのは、線先から本文の箱までの経路を `src/` の 2 か所に置かないためである —— 描く側と、`01-04-requirements.md` の 表 T-023d の `GR-14` の掴み代を問う側が同じ 1 本を読む）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-7",
+   "layer": "layoutEngine",
+   "component": "ItemHitArea",
+   "members": [
+    {
+     "name": "itemAtPointer",
+     "note": {
+      "ja": "（対象は 表 T-023c の `SL-1`。<br>掴み代は `FR-104` の 表 T-266、応える順は `FR-105` の 表 T-267 と 表 T-268）"
+     }
+    },
+    {
+     "name": "itemsInMarquee",
+     "note": {
+      "ja": "（`SL-3`。<br>完全に囲まれたものだけ）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "dependencyEndAtPointer",
+     "note": {
+      "ja": "（`FR-009` の「左半分 / 右半分」を答える。<br>⛔ **構えが依存線のときだけ呼ぶ** —— 同要求が `itemAtPointer` に構えを渡すことを禁じている）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "dependencyStartOfHit",
+     "note": {
+      "ja": "（押したときの当たり（`itemAtPointer` の答え）から、引き出す依存線の起点を答える。<br>当たりがタスクのときだけ、そのタスクに限って `dependencyEndAtPointer` を問うた答えを返し、そうでなければ `null` を返す。<br>⭐ `InputCommandTranslator`（離したときに依存を作る）と `SingleHtmlShell`（引いているあいだ仮の線を描く。<br>`FR-009`）が同じ 1 本を読むために公開した —— 呼ぶ側が同じ断片を写して持つと、片方だけが直されて離れる（1.9）。<br>構えが依存線のときだけ呼ぶことは `dependencyEndAtPointer` と同じである）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "grabSizesOf",
+     "note": {
+      "ja": "（`itemAtPointer` に渡す掴み代の大きさを、`_assets/tbl-settings.md` の 表 T-206 の掴み代の行（`01-04-requirements.md` の `FR-104` の 表 T-266 が読む `S-250` 〜 `S-290` と、`S-137` / `S-230` / `S-291` / `S-292` / `S-293`）から 1 組にして答える。<br>⭐ `SingleHtmlShell` が押したところの当たりを問うときに同じ値を読むために公開した —— 呼ぶ側が値を写して持つと、片方だけが直されて離れる（1.9）。<br>表示の倍率は掛けない（`01-04-requirements.md` の 表 T-252 の `DS-7`））"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "GrabArea",
+     "note": {
+      "ja": "（掴んだ所の型 —— `FR-104` の 表 T-266 と 表 T-023d の行 ID の集合。<br>⭐ `InputCommandTranslator` が離したときの置き方を掴んだ所で選ぶために公開した —— 呼ぶ側が同じ集合を写して持つと、片方だけに行が足されて離れる（1.9））"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "isTaskDrawn",
+     "note": {
+      "ja": "（1 つのタスクの幾何が、表 T-023c の結びの「描かれている」に当たるかを答える —— 予定・実績・実績のダミー（表 T-240）のどれかが在れば真とする。<br>⭐ `InputCommandTranslator` が、描かれていないタスクをクリック（`SL-2`）でも全選択（`SL-5`）でも取らないために公開した）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "selectionWithinDrawn",
+     "note": {
+      "ja": "（選択から、幾何に描かれていないタスクを外した選択を答える。<br>選んだ順序（`SL-7b`）は保ち、外すものが無ければ同じ値を返す。<br>⭐ `SingleHtmlShell` が、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを、その時点で選択から外すために公開した）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "selectionWithinDrawnRows",
+     "note": {
+      "ja": "（`selectionWithinDrawn` の答えに、表 T-023c が名指さない行 —— ピン止めの帯に入りきらない行（`FR-098`）と、段数の安全弁（表 T-014 の `ST-7`）が置かなかった行 —— のタスクを戻した選択を答える。<br>掴んで動かす間の下書きの絵では絞らない。<br>⭐ `SingleHtmlShell` が、フレームごとに組んだ配置と幾何から 1 度だけ刈るために公開した）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-8",
+   "layer": "UseCase",
+   "component": "ApplyDocumentChange",
+   "members": [
+    {
+     "name": "DocumentCommand",
+     "note": {
+      "ja": "（型。<br>**全数は 表 T-108 が持つ**）"
+     }
+    },
+    {
+     "name": "applyDocumentChange",
+     "note": {
+      "ja": "（`non-pure`。<br>命令の列で書き込む）"
+     }
+    },
+    {
+     "name": "replaceDocument",
+     "note": {
+      "ja": "（`non-pure`。<br>`ApplyDocumentChange` の外で組み立てた文書を現在値にする。<br>手順は 表 T-067、呼び手ごとの扱いは 表 T-230）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-9",
+   "layer": "UseCase",
+   "component": "EditDocument",
+   "members": [
+    {
+     "name": "editDocument",
+     "note": {
+      "ja": "（表 T-108 の命令を集約へ振り分ける。<br>表 T-067 の `WS-3` が呼ぶ。<br>集約ごとの割りは 表 T-063 の `UT-2`）"
+     }
+    },
+    {
+     "name": "Refusal",
+     "note": {
+      "ja": "（型。<br>拒んだ理由。<br>表 T-035 の `AG-9a`）"
+     }
+    },
+    {
+     "name": "InvariantRefusal",
+     "note": {
+      "ja": "（型。<br>取り込みの検証（`FR-023`）が拒んだときの `Refusal`。<br>理由の区分を拒んだ行の行 ID とするのは `AG-9a` と、`FR-076` の 表 T-233 の結びである）"
+     }
+    },
+    {
+     "name": "InvariantRow",
+     "note": {
+      "ja": "（型。<br>その理由の区分であり、Chapter 6.1 の 表 T-220 の行 ID）"
+     }
+    },
+    {
+     "name": "SettingsLimits",
+     "note": {
+      "ja": "（型。<br>`editDocument` に渡す下限・上限）"
+     },
+     "sepAfter": "bare"
+    },
+    {
+     "name": "EditReport",
+     "note": {
+      "ja": "（型。<br>受け入れた編集が人に告げるべきこと。<br>`FR-012` が数え直した `Task` の uid を運ぶ）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "treeStateWritesFor",
+     "note": {
+      "ja": "（表 T-328 の出来事 1 つが書き換える行の `treeState` を求める。<br>入口・全体表示・縦を縮める入力が、1 つの束の書き込みとして読む）"
+     }
+    },
+    {
+     "name": "levelZeroWritesFor",
+     "note": {
+      "ja": "（同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める）"
+     }
+    },
+    {
+     "name": "TreeStateEvent",
+     "note": {
+      "ja": "（型。<br>表 T-328 の出来事）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "cycleTaskPlanActualState",
+     "note": {
+      "ja": "（表 T-108 の `CM-15` の効果を求める。<br>押す前の `Task` と、`ScreenState` が覚えている実績を受け取り、置き直した予実と、覚え直す実績を返す。<br>巡りの輪と置く値は `01-04-requirements.md` の `FR-107` の 表 T-270 の結びと 表 T-021a が持つ。<br>⭐ 公開したのは、覚えた実績が `ScreenState` に在り、命令の側だけでは巡りを閉じられないからである）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "confirmationOwedBy",
+     "note": {
+      "ja": "（削除の書き込みの束が 表 T-234 の問い（`QN-1`・`QN-2`・`QN-10`）を負うかを決め、負うなら消える `Task` の名を挙げた問いを返す —— 連鎖は 表 T-050 の `CD-1`・`CD-2`・`CD-6`）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "confirmationOwedByResourceDeletion",
+     "note": {
+      "ja": "（担当者の削除が解く割当があるときの `QN-3` の問い —— `CD-5`）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "DeletionQuestion",
+     "note": {
+      "ja": "（型。<br>その問いの行 ID と挙げる名。<br>告げ方（表 T-037 の `NT-7`）は持たず、問いを立てる `SingleHtmlShell` が添える）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "wbsSubtreesOf",
+     "note": {
+      "ja": "（`Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。<br>⭐ `SingleHtmlShell` が取り込みで一緒に落ちるタスクの名を挙げるために公開した）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-10",
+   "layer": "UseCase",
+   "component": "ImportDocument",
+   "members": [
+    {
+     "name": "importDocument",
+     "note": {
+      "ja": "（合流の選択肢は 表 T-032a）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-11",
+   "layer": "UseCase",
+   "component": "UndoEdit",
+   "members": [
+    {
+     "name": "undoEdit"
+    }
+   ]
+  },
+  {
+   "id": "PI-12",
+   "layer": "UseCase",
+   "component": "RedoEdit",
+   "members": [
+    {
+     "name": "redoEdit"
+    }
+   ]
+  },
+  {
+   "id": "PI-13",
+   "layer": "UseCase",
+   "component": "ValidateImportedDocument",
+   "members": [
+    {
+     "name": "validateImportedDocument",
+     "note": {
+      "ja": "（`FR-023` / `NFR-009`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-14",
+   "layer": "UseCase",
+   "component": "ChooseStartupDocument",
+   "members": [
+    {
+     "name": "chooseStartupDocument",
+     "note": {
+      "ja": "（順は 表 T-034）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-15",
+   "layer": "UseCase",
+   "component": "NotifyChangeWatchers",
+   "members": [
+    {
+     "name": "watchChanges",
+     "note": {
+      "ja": "（`non-pure`）"
+     }
+    },
+    {
+     "name": "unwatchChanges",
+     "note": {
+      "ja": "（`non-pure`）"
+     }
+    },
+    {
+     "name": "notifyChangeWatchers",
+     "note": {
+      "ja": "（`non-pure`）"
+     }
+    },
+    {
+     "name": "emptyChangeWatchers",
+     "note": {
+      "ja": "（空の監視の登録。<br>シェルが持って 3 つの口へ引数で渡す —— `SF-10`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-16",
+   "layer": "UseCase",
+   "component": "PostDialogueMessage",
+   "members": [
+    {
+     "name": "postDialogueMessage",
+     "note": {
+      "ja": "（`non-pure`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-17",
+   "layer": "Adapter",
+   "component": "AgentApiEndpoint",
+   "members": [
+    {
+     "name": "installAgentApi",
+     "note": {
+      "ja": "（`non-pure`。<br>既定で公開しない。<br>`FR-065`）"
+     }
+    },
+    {
+     "name": "SnapshotSource",
+     "note": {
+      "ja": "（表 T-065）。<br>⚠️ 外へ公開する 18 メンバの名前は `_assets/tbl-glossary.md` の 表 T-107 が持つ。<br>本表に書き写さない（MUST NOT）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-18",
+   "layer": "Adapter",
+   "component": "InputCommandTranslator",
+   "members": [
+    {
+     "name": "InputSource",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "PressRow",
+     "note": {
+      "ja": "（型。<br>表 T-023a の行 ID）"
+     }
+    },
+    {
+     "name": "pressRowOf",
+     "note": {
+      "ja": "（押下がどの行で始まったかを答える。<br>呼び手が押下の時に解決して `PointerPress` へ載せる）"
+     }
+    },
+    {
+     "name": "commandFromInput",
+     "note": {
+      "ja": "（割当は 表 T-023 と 表 T-036）"
+     }
+    },
+    {
+     "name": "commandFromFieldCommit",
+     "note": {
+      "ja": "（プロパティパネルで確定した値を 表 T-108 の命令にする。<br>割当は 表 T-016 の「入力の型」の欄と 表 T-104）"
+     }
+    },
+    {
+     "name": "selectionFromInput",
+     "note": {
+      "ja": "（規則は 表 T-023c。<br>取り消しの対象外＝`UN-9`）"
+     }
+    },
+    {
+     "name": "screenEventFromInput",
+     "note": {
+      "ja": "（入力から画面の値の出来事を 1 つ作る。<br>作るものが無ければ `null`。<br>出来事の全数は 表 T-280。<br>`Esc` には作らない —— 段はシェルが決める（表 T-283））"
+     }
+    },
+    {
+     "name": "SpentEntranceSituation",
+     "note": {
+      "ja": "（型。<br>押された入口が何を持たないのかを名乗る。<br>⭐ **場面から 表 T-233 の行への写しは殻が持つ** —— 訳出の側は通知の語彙を知らない）"
+     }
+    },
+    {
+     "name": "rowBandCeilingOf",
+     "note": {
+      "ja": "（`FR-016` の行の軸の上限のうち、いちばん高い行の帯の高さが初めて `Row Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。<br>⭐ 殻が続けざまの刻みのあいだ同じ答えを読むために公開した —— 帯は `zoomY` に対して線形でないので、刻みごとに解くと日程の割付けを繰り返す。<br>⛔ 帯の側の上限を解くのは本メンバ 1 本とし、呼ぶ側が別の区間や止め方で解き直さない —— 同じ上限を 2 か所で解くと、片方だけが直されて答えが離れ、止まる位置が拡大を始めた倍率で変わる（1.9。<br>`FR-016` はその上限が拡大を始めた倍率に依らないことを求める））"
+     }
+    },
+    {
+     "name": "isCombo",
+     "note": {
+      "ja": "（修飾キーの組が求める組と一致するかを答える。<br>`Meta` は `Ctrl` と同じに扱う —— 表 T-023。<br>⭐ 殻が確定の `Enter` を同じ 1 本で判じるために公開した）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-19",
+   "layer": "Adapter",
+   "component": "SvgRenderer",
+   "members": [
+    {
+     "name": "SvgSurface",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "svgFromSchedule",
+     "note": {
+      "ja": "（`FR-080`）"
+     }
+    },
+    {
+     "name": "colourOf",
+     "note": {
+      "ja": "（表 T-236 の行 ID と、いまの色の好みから 1 色を返す。<br>`EP-9` が書き出しに画面と同じ線を引けと定めるので、`ImageExporter` が同じ色を問えなければならない。<br>）"
+     }
+    },
+    {
+     "name": "swatchOf",
+     "note": {
+      "ja": "（色の欄の見本の色。<br>表 T-017b の `CV-9` が、見本を描く値と同じ値で塗ることを定めるので、`ScreenRenderer` が描く側と同じ 1 本を問う）"
+     }
+    },
+    {
+     "name": "GROUP_GRID_LINE_WIDTH_PX",
+     "note": {
+      "ja": "（`Group Grid Lines` の罫の太さ。<br>`EP-9` が、仕切りの線の太さを 1 か所から読むことと、画面と書き出しがその同じ 1 か所を読むことを定めているので、**色と同じ理由でこの数も問えなければならない**。<br>⭐ **描く当の本人が持つ** —— `U-18` を引くのはこのユニットである）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-20",
+   "layer": "Adapter",
+   "component": "DocumentCodec",
+   "members": [
+    {
+     "name": "AppShellSource",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "documentFromJson",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "jsonFromDocument",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "documentFromMspdi",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "mspdiFromDocument",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "exportEmbeddedHtml",
+     "note": {
+      "ja": "（`semi-pure-b`。<br>表 T-024 の `IO-7`）"
+     }
+    },
+    {
+     "name": "formatFromFile",
+     "note": {
+      "ja": "（どちらの形式として読むかを答える。<br>規則は 表 T-024a の `OP-12`）"
+     }
+    },
+    {
+     "name": "extensionOfFormat",
+     "note": {
+      "ja": "（表 T-024 の行 ID から、その形式の拡張子を答える。<br>⭐ 殻が形式の名簿を直に読まないために公開した —— 表 T-248 の `JF-3`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-21",
+   "layer": "Adapter",
+   "component": "ImageExporter",
+   "members": [
+    {
+     "name": "Rasterizer",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "exportSvg",
+     "note": {
+      "ja": "（表 T-076 が「描く」とした UI パーツを組み立てて返す。<br>⛔ 高さの天井に収まらないときは絵を返さず、拒みを返す —— 規則は `FR-025`）"
+     }
+    },
+    {
+     "name": "exportPng",
+     "note": {
+      "ja": "（`semi-pure-b`。<br>失敗も値で返す。<br>表 T-035 の `AG-8`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-22",
+   "layer": "Adapter",
+   "component": "FileGateway",
+   "members": [
+    {
+     "name": "FileStore",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "openDocumentFile",
+     "note": {
+      "ja": "（`semi-pure-b`）"
+     }
+    },
+    {
+     "name": "saveDocumentFile",
+     "note": {
+      "ja": "（`non-pure`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-24",
+   "layer": "Adapter",
+   "component": "ClipboardGateway",
+   "members": [
+    {
+     "name": "Clipboard",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "writeClipboard",
+     "note": {
+      "ja": "（`non-pure`。<br>表 T-024 の `IO-6` と `FR-033`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-25",
+   "layer": "Framework",
+   "component": "SingleHtmlShell",
+   "members": [
+    {
+     "text": {
+      "ja": "**他のコンポーネントから呼ばれるメンバを持たない。<br>** Vite の入口である。<br>`SnapshotSource` と `AppShellSource` の実装を、宣言したコンポーネントへ渡す"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-26",
+   "layer": "Framework",
+   "component": "DomSvgSurface",
+   "members": [
+    {
+     "name": "domSvgSurface",
+     "note": {
+      "ja": "（`SvgSurface` の実装 1 つを返す）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-27",
+   "layer": "Framework",
+   "component": "DomInputSource",
+   "members": [
+    {
+     "name": "domInputSource",
+     "note": {
+      "ja": "（`InputSource` の実装 1 つを返す）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-28",
+   "layer": "Framework",
+   "component": "FileSystemAccessFileStore",
+   "members": [
+    {
+     "name": "fileSystemAccessFileStore",
+     "note": {
+      "ja": "（`FileStore` の実装 1 つを返す）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-30",
+   "layer": "Framework",
+   "component": "BrowserClipboard",
+   "members": [
+    {
+     "name": "browserClipboard",
+     "note": {
+      "ja": "（`Clipboard` の実装 1 つを返す）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-31",
+   "layer": "Framework",
+   "component": "CanvasRasterizer",
+   "members": [
+    {
+     "name": "canvasRasterizer",
+     "note": {
+      "ja": "（`Rasterizer` の実装 1 つを返す）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-32",
+   "layer": "documentModel",
+   "component": "Selection",
+   "members": [
+    {
+     "name": "Selection",
+     "note": {
+      "ja": "（型。<br>順序は 表 T-023c の `SL-7b`）"
+     }
+    },
+    {
+     "name": "selectionWith",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "selectionWithout",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "emptySelection",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "isSelected",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "selectionWithinSchedule",
+     "note": {
+      "ja": "（文書に無くなった対象を外した選択を答える —— `FR-081` の結びの「文書に実在する対象だけを指すこと」。<br>選んだ順序（`SL-7b`）は保ち、外すものが無ければ同じ値を返す。<br>⭐ `SingleHtmlShell` が、書き込みが着地するたびに 1 か所で刈るために公開した —— 消える入口ごとに落とさないことは同じ結びが定める）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-33",
+   "layer": "documentModel",
+   "component": "DialogueLog",
+   "members": [
+    {
+     "name": "DialogueLog",
+     "note": {
+      "ja": "（型。<br>刻印とは別の順序は 表 T-035 の `AG-11`）"
+     }
+    },
+    {
+     "name": "logWithMessage",
+     "note": {
+      "ja": "（1 件積む）"
+     }
+    },
+    {
+     "name": "messagesSince",
+     "note": {
+      "ja": "（`AG-6` の選び方）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-34",
+   "layer": "documentModel",
+   "component": "Document",
+   "members": [
+    {
+     "name": "Document",
+     "note": {
+      "ja": "（型。<br>5 つの鍵は 表 T-052 の `DR-1` 〜 `DR-4`）"
+     }
+    },
+    {
+     "name": "documentViolations",
+     "note": {
+      "ja": "（`DR-1` に反する箇所）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-35",
+   "layer": "layoutEngine",
+   "component": "ScreenRegions",
+   "members": [
+    {
+     "name": "ScreenRect",
+     "note": {
+      "ja": "（型。<br>矩形。<br>左上の座標と幅と高さの数値 4 つを自前で宣言し、**ブラウザの供給する型に触れない**（`LR-6`））"
+     }
+    },
+    {
+     "name": "ScreenRegions",
+     "note": {
+      "ja": "（型。<br>各部の矩形。<br>各部の名は 表 T-103 が持つ）"
+     }
+    },
+    {
+     "name": "regionsFromScreen",
+     "note": {
+      "ja": "（画面の寸法と `DocumentSettings` から各部の矩形を出す）"
+     }
+    },
+    {
+     "name": "regionsAtDisplayScale",
+     "note": {
+      "ja": "（与えた表示の倍率で描いたときの各部の矩形。<br>`Row Area` の縦の置き場と高さは描いた目盛の帯の高さ（`FR-039` の 表 T-252 の `DS-1`）で動くので、倍率を変える側は、変えたあとの `Row Area` を変える前に問える）—— ⭐ **公開したのは、`FR-039` が `Row Area` の縦の中点の指す行を動かさないと定めており、倍率を変える側が変更前の矩形しか持たないからである** —— ⛔ **倍率から矩形を算で求めさせない** —— 組み立ては `regionsFromScreen` が持ち、写すと片方だけが直されて必ず離れる（1.9）"
+     }
+    },
+    {
+     "name": "regionAtPointer",
+     "note": {
+      "ja": "（ポインタがどの領域にあるか）"
+     }
+    },
+    {
+     "name": "displayRatioOf",
+     "note": {
+      "ja": "（表示の倍率から描く比を出す。<br>求め方は `FR-039`）"
+     }
+    },
+    {
+     "name": "drawnSettingsOf",
+     "note": {
+      "ja": "（保存値に描く比を 1 度だけ掛けた設定値を返す。<br>掛ける行は `FR-039` の 表 T-252 が持つ。<br>⛔ **保存値そのものを書き換えない（MUST NOT）** —— 同要求が定めており、描く側はこの 1 本を通って掛ける）"
+     }
+    },
+    {
+     "name": "rowControlLatticeHeightPx",
+     "note": {
+      "ja": "（行の操作子の格子（表 T-051 の `HF-1`）を描いたときに縦に取る高さ。<br>算式は 表 T-221 の `LF-16` が持ち、それを行の帯高の下限にしないことは 表 T-051 の `HF-19` が持つ）—— ⭐ **公開したのは、最後の行の下の余白（`LF-16`）を求める `ScheduleLayout` が同じ 1 本を問うためである** —— ⛔ **算式を `src/` の 2 か所に置かない** —— 片方だけが直されて必ず離れる（1.9）。<br>⚠️ 外形に `S-235` を掛けるのは `drawnSettingsOf` と同じ本コンポーネントであり、表示の倍率は掛けない（`FR-039` の 表 T-252 の `DS-7`）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-36",
+   "layer": "documentModel",
+   "component": "ScreenState",
+   "members": [
+    {
+     "name": "DualCursorSide",
+     "note": {
+      "ja": "（型。<br>`date1` と `date2` のどちらが追従しているか。<br>表 T-029a の `DC-2`。<br>⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない）"
+     }
+    },
+    {
+     "name": "EscapeTarget",
+     "note": {
+      "ja": "（型。<br>`Esc` が消費する段の語。<br>段は 表 T-028 の `IN-4`、並びは 表 T-283）"
+     }
+    },
+    {
+     "name": "EscapeContext",
+     "note": {
+      "ja": "（型。<br>段の判定に要る真偽。<br>呼び手が画面の値とほかの領域から集める）"
+     }
+    },
+    {
+     "name": "escapeTarget",
+     "note": {
+      "ja": "（`EscapeContext` だけから、`Esc` が次に消費する段を答える。<br>消費するものが無ければ `null`）"
+     }
+    },
+    {
+     "name": "RememberedActual",
+     "note": {
+      "ja": "（型。<br>中断から未着手へ戻したときに外した実績（`01-04-requirements.md` の `FR-107` の 表 T-270 の「押下の巡り」）。<br>実績の開始・実績の最後の日・停止日と、取り込んだ原値の実績期間を運ぶ。<br>⛔ **文書には持たない** —— 文書を開いているあいだだけの値であり、閉じれば消える。<br>覚えるのは画面の値の根（表 T-280）である）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-37",
+   "layer": "Adapter",
+   "component": "ScreenRenderer",
+   "members": [
+    {
+     "name": "ScreenSurface",
+     "note": {
+      "ja": "（表 T-065）"
+     }
+    },
+    {
+     "name": "ScreenView",
+     "note": {
+      "ja": "（型。<br>日程表の外側の UI パーツの記述）"
+     }
+    },
+    {
+     "name": "ScreenViewReadings",
+     "note": {
+      "ja": "（型。<br>描き手が根の状態のほかに読む値 —— フレームで取った値（`SF-5`）、文書から導く値（`SF-10`）、まだ根へ移していない領域の値）"
+     }
+    },
+    {
+     "name": "screenViewFromRegions",
+     "note": {
+      "ja": "（根の状態（`PI-39` の `ScreenSession`）と `ScreenViewReadings` から `ScreenView` を作る。<br>根の状態は読むだけである）"
+     }
+    },
+    {
+     "name": "dialogueMessageFromInput",
+     "note": {
+      "ja": "（対話欄で確定した発話。<br>順序の規則は 表 T-035 の `AG-11`）"
+     }
+    },
+    {
+     "name": "dismissKeyOf",
+     "note": {
+      "ja": "（表 T-037 の `NT-8` で人が消した告げを名指す鍵）"
+     }
+    },
+    {
+     "name": "rulerWeekdayWords",
+     "note": {
+      "ja": "（目盛の第 4 段が刷る曜日 7 語。<br>表示言語ごと。<br>`FR-017` ／ `FR-038`）"
+     }
+    },
+    {
+     "name": "DEFAULT_ROW_NAME",
+     "note": {
+      "ja": "（行を既定の名前で立てるときの語。<br>表 T-051 の `HF-14`）—— ⭐ **公開したのは、綴りを `src/` の 2 か所に置かないためである** —— 同行は「既定の名前は表示語として持つこと（MUST）。仕様書が規則として綴りを刷ってはならない（MUST NOT）」と定める。<br>⭐ 内側の層は読まず、値で受け取る（表 T-248 の `JF-4`）"
+     }
+    },
+    {
+     "name": "rowTitleFontPxOf",
+     "note": {
+      "ja": "（行の名前の字の大きさ。<br>深さ 1 は 表 T-201 の `S-36` × `S-38`、ほかは `S-36`。<br>`FR-016` の行の軸の上限が深さ 1 を問う。<br>⭐ 公開したのは、字の式を `src/` の 2 か所に置かないためである —— 行見出しを描く側と、上限を求める側・書き出す側が同じ 1 本を読む）"
+     }
+    },
+    {
+     "name": "FieldEditNotice",
+     "note": {
+      "ja": "（型。<br>入力欄の編集が始まった・終わったことと、その欄の行 —— `IF-9` ・ 表 T-292）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "horizontalWholeOf",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "verticalWholeOf",
+     "note": {
+      "ja": "（つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。<br>⭐ `SingleHtmlShell` が押した時点の全体を覚えるために公開した。<br>覚えた値を読むのは `InputCommandTranslator` である（`FR-051`））"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "HorizontalWhole",
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "VerticalWhole",
+     "note": {
+      "ja": "（型。<br>その全体）"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "scrollExtentOf",
+     "note": {
+      "ja": "（配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。<br>縦の見えている高さはピン止めの帯の下の残り（`FR-098`））"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-38",
+   "layer": "Framework",
+   "component": "DomScreenSurface",
+   "members": [
+    {
+     "text": {
+      "ja": "`ScreenSurface` の実装 1 つ"
+     },
+     "sepAfter": "spaced"
+    },
+    {
+     "name": "pageGroundStyle",
+     "note": {
+      "ja": "（地の色の宣言）"
+     }
+    },
+    {
+     "name": "ScreenTheme",
+     "note": {
+      "ja": "（型） —— ⭐ **地を塗るのはシェルである** —— 本コンポーネントの根は日程の上に重なって敷かれており、そこに地を塗ると日程が隠れる。<br>⛔ `FR-041` は地を塗ることを MUST で求めるので、塗る側が宣言を受け取れなければ満たせない"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PI-39",
+   "layer": "UseCase",
+   "component": "AdvanceScreenSession",
+   "members": [
+    {
+     "name": "ScreenSession",
+     "note": {
+      "ja": "（型。<br>根の状態。<br>領域の合成（`SF-8`）で、いまは画面の値・通知・身振り・ファイル操作と問い・名前付けと入力欄・選択・操作の記録・`Agent API` の 8 領域）"
+     }
+    },
+    {
+     "name": "SessionEvent",
+     "note": {
+      "ja": "（型。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 ・ 表 T-295 ・ 表 T-296 の出来事の定義）"
+     }
+    },
+    {
+     "name": "SessionEffect",
+     "note": {
+      "ja": "（型。<br>副作用の名の全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 ・ 表 T-295 ・ 表 T-296 の状態遷移表の升）"
+     }
+    },
+    {
+     "name": "emptyScreenSession",
+     "note": {
+      "ja": "（初期の状態。<br>表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 ・ 表 T-295 ・ 表 T-296 の状態の一覧の初期）"
+     }
+    },
+    {
+     "name": "advanceScreenSession",
+     "note": {
+      "ja": "（1 段進める。<br>何も変わらないときは受け取った参照を返す —— `SF-3`）"
+     }
+    },
+    {
+     "name": "ScreenValues",
+     "note": {
+      "ja": "（型。<br>画面の値の領域の状態 —— 表 T-280）"
+     }
+    },
+    {
+     "name": "ScreenValuesEvent",
+     "note": {
+      "ja": "（型。<br>画面の値の領域の出来事 —— 表 T-280 の出来事の定義）"
+     }
+    },
+    {
+     "name": "PropertiesSubject",
+     "note": {
+      "ja": "（型。<br>プロパティパネルが出す対象）"
+     }
+    },
+    {
+     "name": "ArmKind",
+     "note": {
+      "ja": "（型。<br>構えの種類 —— 表 T-023b）"
+     }
+    },
+    {
+     "name": "FileOperationState",
+     "note": {
+      "ja": "（型。<br>ファイル操作の状態 —— 表 T-290）"
+     }
+    },
+    {
+     "name": "FileFlowOpenRoute",
+     "note": {
+      "ja": "（型。<br>文書へ至った道 —— 表 T-290 の状態が運ぶ値）"
+     }
+    },
+    {
+     "name": "FileFlowQuestion",
+     "note": {
+      "ja": "（型。<br>立てた問いの中身 —— `NT-7` ・ 表 T-290）"
+     }
+    },
+    {
+     "name": "FileFlowOwedAction",
+     "note": {
+      "ja": "（型。<br>問いの答えを待っている操作 —— 表 T-290）"
+     }
+    },
+    {
+     "name": "FileFlowWriteForm",
+     "note": {
+      "ja": "（型。<br>書く形が保存か書き出しか —— 表 T-290）"
+     }
+    },
+    {
+     "name": "FileFlowSurfaceName",
+     "note": {
+      "ja": "（型。<br>ファイル操作が出す UI パーツの名 —— 表 T-290）"
+     }
+    },
+    {
+     "name": "FileFlowImportAnswer",
+     "note": {
+      "ja": "（型。<br>取り込みが続きに使う答え —— 表 T-290）"
+     }
+    },
+    {
+     "name": "PressedOn",
+     "note": {
+      "ja": "（型。<br>押されたもの。<br>位置は持たない —— 表 T-289 ・ `SF-5`）"
+     }
+    },
+    {
+     "name": "GrabbedRowAxis",
+     "note": {
+      "ja": "（型。<br>掴んだ行を動かす軸 —— 表 T-289）"
+     }
+    },
+    {
+     "name": "StandingNotice",
+     "note": {
+      "ja": "（型。<br>立っている告げ —— 表 T-286）"
+     }
+    }
+   ]
+  }
+ ]
+}

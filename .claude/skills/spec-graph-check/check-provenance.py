@@ -48,6 +48,10 @@ ARTIFACTS = [
     # saying what a place verifies is derived from the T-334 rows, so a hand
     # edit there would disagree with the manuscript twice over.
     ('docs/spec/_assets/tbl-verification.md', 'verification.json'),
+    # Table T-064 of Chapter 5.3 (CR-581). Publishing a name is one entry in
+    # the manuscript, so a hand edit here is the one way to publish a name
+    # that the next `npm run gen` silently takes back.
+    ('docs/spec/_assets/tbl-published-entries.md', 'published-entries.json'),
     ('src/use-case/advance-screen-session/screen-values.ts',
      'state-machines.json'),
     ('src/use-case/advance-screen-session/notice-values.ts',

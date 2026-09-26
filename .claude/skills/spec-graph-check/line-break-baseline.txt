@@ -8,3 +8,4 @@ docs/spec/A-appendix.md 0
 docs/spec/_assets/tbl-settings.md 0
 docs/spec/_assets/tbl-glossary.md 0
 docs/spec/_assets/tbl-property-items.md 0
+docs/spec/_assets/tbl-published-entries.md 0

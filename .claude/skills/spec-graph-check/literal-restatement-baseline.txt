@@ -1,0 +1,98 @@
+# Known restatements of check 70 (provisional) -- hand-written value sets in
+# src/ that repeat a set the tree already holds in generated form. Held by
+# check-literal-restatement.py.
+#
+# A line in this file is a DEBT, not a permission. A "restates" record is a
+# second copy of a generated set: when the manuscript behind the generated
+# set changes, the hand copy does not, and nothing but a reader notices. The
+# line says only that the copy was seen, read, and left standing as a unit of
+# work of its own, so that a NEW copy cannot hide behind an old one and so
+# that the suite can stop green (05-working-method.md section 1).
+# A "coincidental" record is a set that shares enough members with a
+# generated one to be found, and does a different job; it is held here so the
+# check stays quiet about it, and its one line says why it is not a copy.
+#
+# Closing a "restates" record means DELETING its two lines here, in the same
+# change that makes the hand code read the generated set (derive the type
+# from it, key a Record over it, or read the generated file). The check goes
+# red when a line no longer matches a hit, so a debt that was paid cannot sit
+# here pretending to still be owed.
+#
+# ⛔ THIS FILE MAY ONLY SHRINK WITHOUT THE USER'S OK. Adding a line is not a
+# way to make the suite green: a new hit is a new restatement, and the fix is
+# to read the generated set instead of writing it again. A new line --
+# "restates" or "coincidental" -- needs the user's decision behind it.
+#
+# FORMAT -- one record is two lines:
+#     <hand-written name> | <shape> | <generated set it restates>
+#     why: "restates ..." (name the manuscript or table behind the generated
+#          set) or "coincidental: ..." (say in one line what job it does
+#          instead). ASCII; printed on every run, so keep it readable.
+# The key is the NAME of the hand declaration, its shape, and the name of the
+# generated set -- never a file or a line -- so a record survives its file
+# being split or moved. `--list` prints where each one stands today.
+# Blank lines and lines opening with "#" are ignored.
+#
+# Measured 2026-09-26 on the tree of branch p3/cr-581-duplicate-prevention:
+# 19 records, 14 restates and 5 coincidental.
+
+# --- restates (14) ---------------------------------------------------------
+
+AppliesTo | union | property-items.json $.items[].appliesTo
+why: restates the appliesTo column of docs/spec/_source/property-items.json (src/adapter/screen-renderer/property-items.json); derive the union from that file.
+
+ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].rowId
+why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); keyed by Record<string, ...>, so a new arming icon compiles and arms nothing.
+
+ColourForm | union | generated COLOUR_NAME_VALUES.*.* keys
+why: restates the four colour forms of table T-236 (docs/spec/_source/settings.json), printed as PaletteForms in svg-renderer.ts; could be keyof PaletteForms.
+
+FONT_SCALE_STEPS | array | generated DocumentSettings.fontScale union
+why: restates the fontScale values of docs/spec/_source/settings.json (DocumentSettings.fontScale); typed FontScale, so a removed step fails to compile but a new one is never reached.
+
+HELD_BY_OF_OBJECT | keys | property-items.json $.items[].appliesTo
+why: restates the non-Task appliesTo values of docs/spec/_source/property-items.json; Partial<Record> over the hand union AppliesTo guards neither a missing nor a new object.
+
+HELD_BY_ON_A_TASK | keys | property-items.json $.items[appliesTo=Task].rowId
+why: restates the PR rows whose appliesTo is Task in docs/spec/_source/property-items.json; keyed by Record<string, ...>, so a new row is silent.
+
+MEDIA_TYPE_OF_EXTENSION | keys | exchange-formats.json $.formats[].extension
+why: restates the extension column of table T-024 (exchange-formats.json); the media types are not in the table, the extensions are.
+
+NOTICE_MANNER_OF_REASON | keys | display-words.json $.reasons[].rowId
+why: restates the RS rows of table T-233 (docs/spec/_source/display-words.json) and their manners; its own TRAP comment says it is copied by hand.
+
+NoticeReason | union | display-words.json $.reasons[].rowId
+why: restates 54 of the 59 RS rows of table T-233 (docs/spec/_source/display-words.json); a row added to the table is not a reason the shell can raise.
+
+ROOT_KEYS | array | generated GRS_DOCUMENT_SCHEMA.properties keys
+why: restates the root properties of docs/spec/_source/grs-document.schema.json, printed as GRS_DOCUMENT_SCHEMA in grs-json-schema.ts.
+
+ROW_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
+why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region rowTree); Record<string, ...>, so an unknown guard throws only at run time.
+
+ShapeKind | union | generated COLUMN_SHAPES.TaskVisual.shapeKind.choices array
+why: restates TaskVisual.shapeKind of docs/spec/_source/erd.json; MilestoneGlyph two lines above is already derived from TaskVisual, this one is not.
+
+TABLE_ROW_OF_SAVE_FORM | values | display-words.json $.exportFormats[].rowId
+why: restates the out-direction IO rows of table T-024 (display-words.json / export-formats.json); its TRAP comment names a second hand copy in document-codec.ts.
+
+THEME_ROW_OF_FORM | keys | generated COLOUR_NAME_VALUES.*.* keys
+why: restates the colour forms of table T-236 through the hand union ColourForm; becomes compile-guarded once ColourForm is derived.
+
+# --- coincidental (5) ------------------------------------------------------
+
+CALENDAR_CONSUMED | array | mspdi-child-order.json $.parents.Project/Calendars/Calendar.children
+why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subset of the XSD child order (8), not a copy of it.
+
+COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys
+why: coincidental: maps three colour columns to the form each is drawn in; the forms are its values, typed against ColourForm, not a list of the forms.
+
+ENTRY | values | help-roster.json $.entries[].glyphs
+why: coincidental: code names for the 64 IC rows the translator dispatches on, of 83 in the roster; a reference by row id, not a copy of the roster.
+
+KEY | values | help-roster.json $.entries[].keys~words
+why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.
+
+PAINT_ROW | values | generated SCREEN_COLOURS keys
+why: coincidental: names the T-236 row each paint reads (11 of 14, several names to one row); a reference by row id, not a copy of the table.

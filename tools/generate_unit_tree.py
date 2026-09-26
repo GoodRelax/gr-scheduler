@@ -63,13 +63,17 @@ def kebab(name):
 ROW_TABLE = {'CP': 'T-062', 'UF': 'T-075', 'PI': 'T-064', 'IF': 'T-065'}
 
 REL_DESIGN = 'docs/spec/05-07-design.md'
+# Table T-064 is printed from docs/spec/_source/published-entries.json into a
+# document of its own (CR-581); the other three stay in the chapter.
+REL_OF_TABLE = {'T-064': 'docs/spec/_assets/tbl-published-entries.md'}
 
 
 def read_tables():
     rows = {}
     for kind, table_id in ROW_TABLE.items():
         rows[kind] = [row.cells
-                      for row in spec_tables.read(REL_DESIGN, table_id)]
+                      for row in spec_tables.read(
+                          REL_OF_TABLE.get(table_id, REL_DESIGN), table_id)]
     return rows
 
 

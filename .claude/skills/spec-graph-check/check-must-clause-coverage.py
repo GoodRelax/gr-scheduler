@@ -30,7 +30,8 @@ check has no import-time dependency on that one:
 
     01-04-requirements.md, 05-07-design.md, 08-10-test.md, A-appendix.md,
     _assets/tbl-glossary.md, _assets/tbl-settings.md,
-    _assets/tbl-property-items.md, _assets/fig-erd-detail.md,
+    _assets/tbl-property-items.md, _assets/tbl-published-entries.md,
+    _assets/fig-erd-detail.md,
     _assets/fig-erd-overview.md
 
 `docs/spec/_source/*.json` and `*.py` are deliberately excluded: those are
@@ -170,6 +171,7 @@ FILES = (
     os.path.join('_assets', 'tbl-glossary.md'),
     os.path.join('_assets', 'tbl-settings.md'),
     os.path.join('_assets', 'tbl-property-items.md'),
+    os.path.join('_assets', 'tbl-published-entries.md'),
     os.path.join('_assets', 'fig-erd-detail.md'),
     os.path.join('_assets', 'fig-erd-overview.md'),
 )

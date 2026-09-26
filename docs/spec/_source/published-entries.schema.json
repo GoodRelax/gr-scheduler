@@ -1,0 +1,183 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/published-entries.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/published-entries.json, which is the single source of truth for table T-064 of Chapter 5.3 (CR-581).",
+  "Same role as _source/verification.schema.json and _source/property-items.schema.json.",
+  "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a component written twice, a name published twice by one row, a note that would stop check 26b reading its name -- is refused by published_entries_json_to_md.py."
+ ],
+ "title": "The published-entries manuscript",
+ "description": "Table T-064: per component, the names its public entry publishes, in print order.",
+ "type": "object",
+ "required": [
+  "table",
+  "rows"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "prose": {
+   "description": "Printed prose, one string per language (check 23).",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "sepAfter": {
+   "description": "The joint printed between this piece and the next. Omitted means the full-width slash followed by one space; spaced adds a space before it, bare prints the slash alone.",
+   "enum": [
+    "spaced",
+    "bare"
+   ]
+  },
+  "member": {
+   "description": "A name the component's public entry exports. The note is printed right after the back-quoted name.",
+   "type": "object",
+   "required": [
+    "name"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "type": "string",
+     "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$"
+    },
+    "note": {
+     "$ref": "#/$defs/prose"
+    },
+    "sepAfter": {
+     "$ref": "#/$defs/sepAfter"
+    }
+   }
+  },
+  "text": {
+   "description": "A piece of the member cell that publishes no name. Check 26b skips it and counts the skip.",
+   "type": "object",
+   "required": [
+    "text"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "text": {
+     "$ref": "#/$defs/prose"
+    },
+    "sepAfter": {
+     "$ref": "#/$defs/sepAfter"
+    }
+   }
+  }
+ },
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript. JSON carries no comments, so the role declaration goes here -- one line per note, the same shape settings.json uses. Check 21 reads the first of them. Not rendered.",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "table": {
+   "type": "object",
+   "required": [
+    "id",
+    "caption",
+    "columns"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "const": "T-064"
+    },
+    "caption": {
+     "$ref": "#/$defs/prose"
+    },
+    "columns": {
+     "description": "The column headings, one list per language.",
+     "type": "object",
+     "required": [
+      "ja"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "minItems": 4,
+       "maxItems": 4
+      },
+      "en": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "minItems": 4,
+       "maxItems": 4
+      }
+     }
+    }
+   }
+  },
+  "rows": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "layer",
+     "component",
+     "members"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^PI-[0-9]+$"
+     },
+     "layer": {
+      "enum": [
+       "documentModel",
+       "layoutEngine",
+       "UseCase",
+       "Adapter",
+       "Framework"
+      ]
+     },
+     "component": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*$"
+     },
+     "members": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "oneOf": [
+        {
+         "$ref": "#/$defs/member"
+        },
+        {
+         "$ref": "#/$defs/text"
+        }
+       ]
+      }
+     }
+    }
+   }
+  }
+ }
+}
