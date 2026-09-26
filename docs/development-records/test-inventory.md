@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 94 | 1136 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 95 | 1141 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 1 | 31 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
 | `unit` | TS-6 | - | 133 | 3008 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 274 | 4381 | 12 | 17 | 9 | 1 |
+| **all** | | | 275 | 4386 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -290,6 +290,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/if-1-svg-surface.test.ts` | 14 | FR-048, NFR-010, NFR-011 | - | T-060, T-061, T-065, T-077, T-078, T-218 | BO-1, BO-5, CP-19, CP-26, IF-1, LR-6, LY-5, TS-5 | - | - | - | - |
 | `tests/contract/if-3-file-store.test.ts` | 21 | FR-023, FR-060, FR-096 | - | T-003, T-024, T-066, T-227 | CN-5, CP-22, CP-28, CS-4, DI-6, IF-3, NT-7, OP-1, S-113 | - | - | - | - |
 | `tests/contract/if-7-snapshot-source.test.ts` | 14 | FR-024, FR-025, FR-028, FR-052, FR-063, FR-080, NFR-002, NFR-003, NFR-011 | - | T-024, T-035, T-041, T-043, T-060, T-065, T-066, T-068, T-070, T-076, T-077, T-078, T-107, T-204, T-218 | AG-9a, AM-13, AM-14, AM-15, BO-1, CP-17, CP-25, CS-3, IF-6, IF-7, IF-8, IO-3, LY-5, MN-6, PI-9, S-80, S-81, S-95, S-217, TS-5, WY-2 | - | - | - | - |
+| `tests/contract/ix-4-ep-1-the-exported-height-is-whole-and-the-title-stays-inside.test.ts` | 5 | FR-025, FR-080 | - | T-076 | EP-1, IX-4, IX-5, PI-21, S-81, S-217, S-225 | - | - | - | - |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | 2 | - | - | - | - | - | - | - | - |
 | `tests/contract/pnd-318-ga-20-resume-without-stop.test.ts` | 3 | - | - | T-245 | GA-20, GO-10, S-63 | - | - | - | - |
 | `tests/contract/seams.contract.test.ts` | 6 | - | - | T-062, T-065, T-075, T-206 | IF-9, LR-1, LR-5, S-53, S-54, S-55, S-96, S-97, S-98, S-140 | - | - | - | - |

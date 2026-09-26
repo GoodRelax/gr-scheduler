@@ -125,10 +125,10 @@ function appHeaderSvg(
   if (documentTitle === null || documentTitle === '') return ground
   // see FR-051, EP-1
   const chrome = NOT_STORED_CHROME_SCALE['S-235']
-  const fontSizePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome * ratio
+  const titlePx = NOT_STORED_DOCUMENT_TITLE_SIZES['S-225'] * chrome
   const x = (band.x + NOT_STORED_DOCUMENT_TITLE_SIZES['S-226'] * chrome) * ratio
-  const y = (band.y + band.height * settings.labelBaseline) * ratio
-  return ground + textSvg(x, y, fontSizePx, documentTitle, chromeInk(settings, themeHue))
+  const y = (band.y + band.height / 2 + titlePx * settings.labelBaseline) * ratio
+  return ground + textSvg(x, y, titlePx * ratio, documentTitle, chromeInk(settings, themeHue))
 }
 
 // see EP-3
@@ -169,11 +169,12 @@ export function exportSvg(scene: ExportScene): SvgExport {
   const screenWidth = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
   const ratio = settings.exportCanvas.width / screenWidth
   const screenHeight = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
-  const wantedHeight = Math.max(settings.exportCanvas.height, screenHeight * ratio)
-  if (wantedHeight > settings.exportCanvasHeightCap) {
+  // TRAP: ceil the 0.01-rounded height; a raw ceil turns float noise into one more pixel row.
+  const grownHeight = Math.ceil(Number(rounded(screenHeight * ratio)))
+  const height = Math.max(settings.exportCanvas.height, grownHeight)
+  if (height > settings.exportCanvasHeightCap) {
     return { ok: false, fault: { reason: 'tooTall' } }
   }
-  const height = wantedHeight
 
   const titles = screenView.rowTitlePanel.titles
   const panel = regions.rowTitlePanel
