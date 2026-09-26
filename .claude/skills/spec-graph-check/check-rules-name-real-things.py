@@ -26,8 +26,14 @@ may name what no longer exists.
 ⚠️ A new file counts only once it is tracked: `git add` it before running
 this, the same trap check 53 has (rule 04 section 6).
 
+A name that git ignores, or inside which git would ignore a file, counts as
+real: .gitignore declares it local on purpose (the MSPDI XSDs under
+docs/reference/, StrictDoc's docs/spec/output/). It is asked about a file
+inside the name because git reads an existing folder as a folder, and the
+answer for the folder itself then depends on the disk (see ignored()).
+
 WHAT IT DOES NOT SEE. Whether the named thing still does what the rule says
-it does; paths with a wildcard or a placeholder (`*`, `<name>`); names written
+it does; a misspelt name inside an ignored tree (it counts as local); paths with a wildcard or a placeholder (`*`, `<name>`); names written
 without backticks; a bare extension (`.html`); the 08 folder.
 
     python .claude/skills/spec-graph-check/check-rules-name-real-things.py [--self-test]
@@ -56,6 +62,7 @@ PATH_ROOTS = ('tools/', 'docs/', 'src/', 'tests/', '.claude/', 'change-request/'
 FILE_EXT = re.compile(r'\.(py|mjs|js|ts|md|json|txt|sh|bat|jsonl|html|tsv|ya?ml|drawio|svg)$')
 NOT_A_PATH = re.compile(r'[\s*<>{}$|…?]|\.\.\.')
 SECTION = re.compile(r'^section "([^"]*)"', re.M)
+PROBE_CHILD = 'check-77-probe.file'
 
 
 def tracked_files():
@@ -67,14 +74,22 @@ def tracked_files():
 def ignored(paths):
     if not paths:
         return set()
-    # A folder pattern (`docs/spec/output/`) matches only the spelling with
-    # the slash, so every name is asked both ways.
+    # A name counts as deliberately local when git ignores it, or ignores a
+    # FILE inside it. ⛔ Asking about the name alone is decided by the disk:
+    # git reads an existing folder as a folder, and `!docs/reference/**/`
+    # un-ignores folders, so docs/reference/mspdi answered "ignored" in a
+    # worktree (no such folder) and "not ignored" in the root, where the XSDs
+    # are. MEASURED 2026-09-26: green in the worktree, 4 reds in the root.
+    # A file inside the name is never a folder on disk, so the answer is the
+    # same everywhere.
     # ⚠️ Bytes, not text: a text pipe on Windows writes CRLF, and git then
     # reads every name but the last with a carriage return on its end.
-    asked = list(paths) + [p + '/' for p in paths]
+    inside = {p + '/' + PROBE_CHILD: p for p in paths}
+    asked = list(paths) + list(inside)
     run = subprocess.run(['git', 'check-ignore', '--no-index', '--stdin'], cwd=ROOT,
                          input='\n'.join(asked).encode('utf-8'), capture_output=True)
-    return {p.rstrip('/') for p in run.stdout.decode('utf-8').splitlines()}
+    said = set(run.stdout.decode('utf-8').splitlines())
+    return {p for p in paths if p in said} | {inside[c] for c in inside if c in said}
 
 
 def check_numbers():
@@ -160,7 +175,12 @@ def folders_of(files):
 
 
 def self_test(files, dirs, scripts, numbers):
-    clean = 'Run `npm run check` and read 検査 0 and `docs/development-rules/README.md`.\n'
+    # The clean rule also names trees .gitignore keeps local on purpose, so the
+    # test holds the folder-vs-file trap of ignored() whichever way the disk
+    # looks (MEASURED 2026-09-26: green with docs/reference/mspdi present and
+    # with it absent).
+    clean = ('Run `npm run check` and read 検査 0 and `docs/development-rules/README.md`.\n'
+             'The XSDs stay local in `docs/reference/mspdi` and `docs/spec/output/`.\n')
     broken = clean + ('Run `tools/no-such-tool-at-all.py`, then `npm run no-such-script`,\n'
                       'then read 検査 999.\n')
     ok = not problems_in('clean', clean, files, dirs, scripts, numbers)
