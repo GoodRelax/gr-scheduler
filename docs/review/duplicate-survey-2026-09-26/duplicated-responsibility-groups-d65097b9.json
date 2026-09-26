@@ -1,0 +1,6520 @@
+{
+ "tree": "d65097b9",
+ "survey": "duplicated-responsibility survey, 2026-09-26",
+ "methods": {
+  "a": "same or similar name",
+  "b": "token similarity (k=6 shingles)",
+  "b45": "check 45 verbatim run (floor 10)",
+  "c": "same specification id cited",
+  "d": "same generated S row read",
+  "e": "arithmetic / usual-suspect grep",
+  "s": "seed from the CR-579 session",
+  "E": "reading sweep for paraphrases",
+  "G": "inline clones after local-name normalisation",
+  "H": "hand-written literal sets vs generated ones",
+  "I": "line-by-line read of the four split files"
+ },
+ "method_order": [
+  "a",
+  "b",
+  "b45",
+  "c",
+  "d",
+  "e",
+  "s",
+  "E",
+  "G",
+  "H",
+  "I"
+ ],
+ "note": "cr is derived from the member files: 578 frame-loop.ts, 579 input-command-translator.ts, 580 mspdi-codec.ts. blocked_by t064 = the home must publish a name across a component boundary that no T-064 row lists (check 26b goes red otherwise); export = an export keyword inside one component. extends names the known group a row only adds to.",
+ "groups": [
+  {
+   "id": "G01",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "e",
+    "s",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/schedule/calendar-day.ts",
+     "line": 45,
+     "symbol": "serial"
+    },
+    {
+     "file": "src/entity/document-model/schedule/calendar-day.ts",
+     "line": 101,
+     "symbol": "dayFromSerial"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 417,
+     "symbol": "MS_PER_DAY"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 419,
+     "symbol": "serialOfDay"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 425,
+     "symbol": "dayFromSerial"
+    },
+    {
+     "file": "src/adapter/svg-renderer/schedule-grid.ts",
+     "line": 70,
+     "symbol": "serialOf"
+    },
+    {
+     "file": "src/adapter/svg-renderer/schedule-grid.ts",
+     "line": 75,
+     "symbol": "dayOfSerial"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/time-axis.ts",
+     "line": 11,
+     "symbol": "serialOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/time-axis.ts",
+     "line": 60,
+     "symbol": "dateAtX"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "only comment is the 0-99 TRAP calendar-day.ts:42-43; serial/dayFromSerial absent from schedule.ts:40-46",
+   "differs": false,
+   "differ_input": "equal on 12 days and 11 serials incl. NaN, year 50, 275760 (repro-G01.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Home calendar-day.ts: publish serial and dayFromSerial through schedule.ts (new PI-1 members); delete input-command-translator.ts:417-433, schedule-grid.ts:66-77, time-axis.ts:11-15 and the inline copy at :60-61.",
+   "extends": null
+  },
+  {
+   "id": "G02",
+   "found_by": [
+    "a",
+    "s",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1293,
+     "symbol": "compareDay"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1285,
+     "symbol": "dayShift"
+    },
+    {
+     "file": "src/entity/document-model/schedule/calendar-day.ts",
+     "line": 36,
+     "symbol": "compareDays"
+    },
+    {
+     "file": "src/entity/document-model/schedule/calendar-day.ts",
+     "line": 51,
+     "symbol": "calendarDaysBetween"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 965,
+     "symbol": "latestTaskFinish"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "input-command-translator.ts:1292-1295 no comment; compareDays and calendarDaysBetween are published (schedule.ts:40-46)",
+   "differs": true,
+   "differ_input": "{50,1,1} vs {1950,1,1}: compareDays -1900, compareDay 0; {1,1,1} vs {1900,1,1}: -1899 vs +365 (repro-G01.ts) | steps: open a GRS JSON whose documentSettings.importMinDate is 0001-01-01 (kept, import-document.ts:214), type a year-0050 date (checkDay edit-task.ts:180-191 accepts), drag the bar (item-grab.ts:209, :289, :426)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "579+580",
+   "proposal": "Delete compareDay and import compareDays; dayShift's difference becomes calendarDaysBetween(from, to). In CR-580 latestTaskFinish (mspdi-codec.ts:965-977) orders by compareDays instead of its hand key year*10000+month*100+day.",
+   "extends": null
+  },
+  {
+   "id": "G03",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 443,
+     "symbol": "dayAtX"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/time-axis.ts",
+     "line": 71,
+     "symbol": "xFromDay"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "dayAtX delegates to time-axis.ts:56 dateAtX; xFromDay is its inverse",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Leave. The extra pair judge A found here is E01.",
+   "extends": null
+  },
+  {
+   "id": "G04",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "s",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1260,
+     "symbol": "taskGroupRankById"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 132,
+     "symbol": "taskGroupRankById"
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-order.ts",
+     "line": 16,
+     "symbol": "rowTreeRankById"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/drawn-rows.ts",
+     "line": 36,
+     "symbol": "inTreeOrder"
+    },
+    {
+     "file": "src/framework/single-html-shell/view-place.ts",
+     "line": 62,
+     "symbol": "firstRow"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 1005,
+     "symbol": "tasksInWbsOrder"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRAPs input-command-translator.ts:1257 and task-group-order.ts:14 say change all three, no reason; the invariants copy is file-private",
+   "differs": true,
+   "differ_input": "rank copies and inTreeOrder equal on 10 shapes incl. rings; view-place firstRow sorts every row by order: [c(parent r, order 0), r(root, 0), s(root, 1)] -> firstRow c, rank 0 r (repro-G04.ts) | steps: open a GRS JSON whose taskGroups array lists a child before its root with the same order (no invariant orders the array)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "PND-420",
+    "DFC-262"
+   ],
+   "cr": "579+580",
+   "proposal": "Home Schedule: move taskGroupRankById into schedule/ and publish it from schedule.ts (new PI-1 member); the translator, task-group-order.ts, drawn-rows.ts and view-place.ts (rank 0, not the order sort) import it. Not layoutEngine: documentModel may not import it (LR-4). tasksInWbsOrder is the same walk over Tasks.",
+   "extends": null
+  },
+  {
+   "id": "G05",
+   "found_by": [
+    "b",
+    "b45",
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1167,
+     "symbol": "rowGrabDepthOf"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 81,
+     "symbol": "depthOf"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 103,
+     "symbol": "rowDepth"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/drawn-rows.ts",
+     "line": 21,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "input-command-translator.ts:1167-1177 == edit-task-group.ts:81-91 text-identical; row-title-panel.ts:100 TRAP is about ring termination only; E06 added the two capped climbs",
+   "differs": true,
+   "differ_input": "chain depth 6 (maxGroupDepth 5): rowGrabDepthOf 6, rowDepth 5, drawn-rows 6; depth 8: 8 / 5 / 7; ring a<->b: 4 / 5 / 7 (repro-G05.ts) | steps: open a GRS JSON with a row chain deeper than S-125 or a parentId ring (IV-5 / IV-18 are not judged on open, frame-loop.ts:660, DFC-922)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-922"
+   ],
+   "cr": "579",
+   "proposal": "Home Schedule: publish rowDepthOf(byId, row, cap?) from schedule.ts (new PI-1 member) so drawn-rows.ts (layoutEngine) and row-title-panel.ts can import it; edit-document is too far out for drawn-rows (LR-1).",
+   "extends": null
+  },
+  {
+   "id": "G06",
+   "found_by": [
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1182,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-grab.ts",
+     "line": 71,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-grab.ts",
+     "line": 138,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "one idiom new Map(rows.map(o => [o.id, o])) (+6 idiom sites); no semantic difference named (refute overturned NOT-A-DUPLICATE)",
+   "differs": false,
+   "differ_input": "equal (all last-wins)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Absorbed when G05 lands (rowDepthOfGroup, input-command-translator.ts:1180); otherwise leave.",
+   "extends": null
+  },
+  {
+   "id": "G07",
+   "found_by": [
+    "a",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/deletion-confirmations.ts",
+     "line": 48,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-order.ts",
+     "line": 57,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 267,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/item-grab.ts",
+     "line": 542,
+     "symbol": "rowOfTask"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 318,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "item-grab.ts:538-539 TRAP explains reading the document rather than the layout, not the copy",
+   "differs": true,
+   "differ_input": "members [{1,A},{1,B}] -> find answers A, Map answers B (repro-G07-G11-G48.ts) | steps: open a GRS JSON that lists one Task in two rows' members (IV-6 not judged on open, DFC-922) and grab the Task",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-922"
+   ],
+   "cr": "none",
+   "proposal": "Publish rowOfTask(schedule, uid) from schedule.ts (new PI-1 member); the five sites import it.",
+   "extends": null
+  },
+  {
+   "id": "G08",
+   "found_by": [
+    "a",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/row-tree-entrances.ts",
+     "line": 150,
+     "symbol": "isLevelZeroCollapsedIn"
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-tree-entrances.ts",
+     "line": 155,
+     "symbol": "placedRowIdsOf"
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-tree-entrances.ts",
+     "line": 161,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 200,
+     "symbol": "placedRowIdsOf"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 212,
+     "symbol": "openArmingOf"
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-folding.ts",
+     "line": 56,
+     "symbol": "isLevelZeroCollapsed"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRAPs row-tree-entrances.ts:159 and row-title-panel.ts:206-207 say change both, no reason",
+   "differs": true,
+   "differ_input": "placed chain of depth 6, limit 5, ask g4 -> translator true, panel false (repro-G08.ts is a model, not verbatim) | steps: open a GRS JSON with a row chain deeper than S-125 (IV-5 not judged on open). The unplaced-row case is unreachable: the panel asks only placed rows",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-1000",
+    "JDG-591"
+   ],
+   "cr": "none",
+   "proposal": "Home ScheduleLayout: a pure openArmingOf(schedule, settings, placedIds, depthOf) beside keptInViewByTreeState (new PI-5 member); both adapters import it; settle DFC-1000 in the same change.",
+   "extends": null
+  },
+  {
+   "id": "G09",
+   "found_by": [
+    "a",
+    "b45",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 448,
+     "symbol": "scrollingRowsOf"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 557,
+     "symbol": "rowAnchorIn"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 333,
+     "symbol": "rowPointIn"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/row-scroll.ts",
+     "line": 26,
+     "symbol": "scrollOffsetOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/row-scroll.ts",
+     "line": 31,
+     "symbol": "scrolledRows"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRAPs row-scroll.ts:22-23, zoom-and-fit.ts:322, input-command-translator.ts:556 acknowledge the copy, no reason",
+   "differs": true,
+   "differ_input": "rows a y100 h20 / b y124 h60 / c y190 h30: offset 1.5 on a -> rowPointIn 136, scrollOffsetOf 157; unknown id -> null vs 100 (repro-G09.ts) | steps: open a GRS JSON whose scrollGroupOffset is >= 1 (S-176 says [0,1); grs-json-schema.ts:1105 is number only)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Home row-scroll.ts: publish rowSlabAt(rows, index) and a rowPointOf that carries whole rows like scrollOffsetOf (new PI-5 members); zoom-and-fit.ts and rowAnchorIn call it.",
+   "extends": null
+  },
+  {
+   "id": "G10a",
+   "found_by": [
+    "a",
+    "e",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1301,
+     "symbol": "zoomYCeiling"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 82,
+     "symbol": "zoomXCeiling"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "S-36/S-38 row-title font (input-command-translator.ts:1302) vs S-229 visible-day floor (zoom-and-fit.ts:84)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G10b",
+   "found_by": [
+    "a",
+    "e",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1310,
+     "symbol": "rowsAtZoomY"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 619,
+     "symbol": "rowPlacesAtZoomY"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2024,
+     "symbol": "rowBandCeiling"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 220,
+     "symbol": "rowBandCeilingOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "delegates to one solver since JDG-134 (zoom-and-fit.ts:205-208 TRAP)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-628"
+   ],
+   "cr": "578+579",
+   "proposal": "Leave; DFC-628 (second band solver) can be closed.",
+   "extends": null
+  },
+  {
+   "id": "G10c",
+   "found_by": [
+    "a",
+    "e",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 351,
+     "symbol": "zoomWithinBounds"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/fit-zoom.ts",
+     "line": 48,
+     "symbol": "clampedZoom"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 151,
+     "symbol": "clamp"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "only fit-zoom.ts:48 carries the non-finite-bound-is-no-bound rule (DFC-971)",
+   "differs": true,
+   "differ_input": "min NaN, value 5 -> zoomWithinBounds NaN, clampedZoom 5; min 10 max 1 value 5 -> 10 vs 1 (repro-G10.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [
+    "DFC-971"
+   ],
+   "cr": "none",
+   "proposal": "Publish clampedZoom from schedule-layout.ts (new PI-5 member); zoom-and-fit.ts:351 and edit-document-settings.ts:151 call it (EditDocument->ScheduleLayout edge exists). Guard today: bounds are the generated NOT_STORED_ZOOM_BOUNDS (edit-document.ts:298-304; frame-loop.ts:1865, :2000).",
+   "extends": null
+  },
+  {
+   "id": "G11",
+   "found_by": [
+    "a",
+    "d",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 436,
+     "symbol": "hasDraggedPastThreshold"
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-grab.ts",
+     "line": 257,
+     "symbol": "rowGrabAxisAt"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "input-command-translator.ts:434 TRAP gives the rule, not a reason; row-grab.ts:264 WHY covers only the diagonal; frame-loop.ts:1161 reads the settled kind (not a member)",
+   "differs": true,
+   "differ_input": "{x:NaN, y:0} -> hasDraggedPastThreshold false, rowGrabAxisAt 'position'; the {6,6} diagonal difference is intended (row-grab.ts:264) (repro-G07-G11-G48.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [
+    "DFC-688",
+    "DFC-873"
+   ],
+   "cr": "579",
+   "proposal": "rowGrabAxisAt starts with if (!hasDraggedPastThreshold(press, at)) return null (same component). Guard today: browser pointer coordinates are finite (no in-repo guard; pointer from frame-loop.ts:1613).",
+   "extends": null
+  },
+  {
+   "id": "G37a",
+   "found_by": [
+    "e",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 660,
+     "symbol": "nextIssuedUid"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-resource.ts",
+     "line": 35,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-create.ts",
+     "line": 41,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "input-command-translator.ts:657 TRAP explains mark+1, not the copy; edit-document.ts exports none",
+   "differs": false,
+   "differ_input": "equal by construction",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Publish nextIssuedUid from edit-document.ts (new PI-9 member); edit-resource.ts and task-create.ts use it.",
+   "extends": null
+  },
+  {
+   "id": "G37b",
+   "found_by": [
+    "e",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/import-document/import-document.ts",
+     "line": 504,
+     "symbol": "highWaterOf"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 355,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "import-document.ts:502 WHY (the imported mark may be lower) applies to both copies",
+   "differs": true,
+   "differ_input": "200000 rows: mspdi-codec.ts Math.max(...spread) throws RangeError, the loop answers 200000 (repro-G37.ts) | steps: open an MSPDI file of about 200000 rows; decode (document-file-flow.ts:495) runs before the byte/count caps (validate-imported-document.ts:165, :181), so a throw comes instead of the refusal",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "580",
+   "proposal": "Publish one highWaterOf(...schedules) from schedule.ts (new PI-1 member); mspdi-codec.ts and import-document.ts import it.",
+   "extends": null
+  },
+  {
+   "id": "G37c",
+   "found_by": [
+    "e",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2016,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2080,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "each randomUUID mints a different entity's id (frame-loop.ts:2016-2018, copy-and-paste.ts:111, document-file-flow.ts:567)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G37d",
+   "found_by": [
+    "e",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/task-paste.ts",
+     "line": 39,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 288,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "edit-task-group.ts:290 TRAP: sorted, so the same paste mints the same uids -- task-paste.ts:40 does not sort",
+   "differs": true,
+   "differ_input": "schedule.tasks order [5,3], mark 10 -> task paste 5->11, 3->12; row paste 3->11, 5->12 (repro-G37.ts) | steps: open a file whose tasks array is not in uid order, copy the same Tasks as Tasks and as their row, paste both: the copies are numbered differently",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Fold into E34's one copyTasksUnderFreshUids with sorted minting.",
+   "extends": null
+  },
+  {
+   "id": "G43",
+   "found_by": [
+    "b45"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/shortcut-keys.ts",
+     "line": 37,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/wheel-input.ts",
+     "line": 66,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "shortcut-keys.ts:37-41 and wheel-input.ts:66-70 decode the same five combos with the same isCombo arguments (refute overturned NOT-A-DUPLICATE)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One comboOf(event) beside isCombo (input-command-translator.ts:362). Low value.",
+   "extends": null
+  },
+  {
+   "id": "G45",
+   "found_by": [
+    "b45",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/frame-drags.ts",
+     "line": 94,
+     "symbol": "scrollbarFollow"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 792,
+     "symbol": "heldWholeOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "frame-drags.ts:97-98 pans; frame-loop.ts:795-797 returns the press-time whole",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G46",
+   "found_by": [
+    "d",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/frame-drags.ts",
+     "line": 136,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1511,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/screen-frame.ts",
+     "line": 56,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 295,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "S-248: a drag clamp vs a stored width drawn at S-171; S-205: thickness floor vs thumb-length floor. Side finding: screen-frame.ts:56 reads S-205 as a thumb-length floor (spec/code mismatch)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave; record the S-205 reading at screen-frame.ts:56 as a spec/code mismatch.",
+   "extends": null
+  },
+  {
+   "id": "G47",
+   "found_by": [
+    "d",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1865,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1999,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/view-place.ts",
+     "line": 83,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "three sites assemble the same generated constants (NOT_STORED_ZOOM_BOUNDS edit-document.ts:298) into three shapes (refute overturned NOT-A-DUPLICATE)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Optional: one zoomLimits() in view-place.ts (same component).",
+   "extends": null
+  },
+  {
+   "id": "G48",
+   "found_by": [
+    "b",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1326,
+     "symbol": "escapeContextOf"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1080,
+     "symbol": "escapeLevelOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "screen-state.ts:29-30 TRAP justifies only the differing member sets; the six mappings input-command-translator.ts:1328-1335 == frame-loop.ts:1087-1092 have no reason (refute overturned INTENDED)",
+   "differs": false,
+   "differ_input": "6-field core equal; the member sets differ by design (selection only -> translator 'selection', frame-loop null) (repro-G07-G11-G48.ts)",
+   "reachable": null,
+   "ledger": [
+    "DFC-532",
+    "DFC-537"
+   ],
+   "cr": "578+579",
+   "proposal": "frame-loop builds {...escapeContextOf(context), isSelectionStanding: false, isConfirmationStanding, isTooltipStanding}; escapeContextOf is exported by the translator entry but is not a PI-18 member (check 26b).",
+   "extends": null
+  },
+  {
+   "id": "G65",
+   "found_by": [
+    "s",
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 618,
+     "symbol": "TASK_SHAPE_KINDS"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 627,
+     "symbol": "taskShapeKindOf"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 633,
+     "symbol": "TASK_MILESTONE_GLYPHS"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 652,
+     "symbol": "milestoneGlyphOf"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-entities.ts",
+     "line": 425,
+     "symbol": "COLUMN_SHAPES"
+    },
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 71,
+     "symbol": "isVisualChoice"
+    },
+    {
+     "file": "src/use-case/edit-document/task-appearance.ts",
+     "line": 108,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 88,
+     "symbol": "ShapeKind"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "no comment at input-command-translator.ts:618-655; COLUMN_SHAPES already crosses (crossing-names-baseline.txt); tsc guards the Record lists; judge B saw the same pair as G22c",
+   "differs": false,
+   "differ_input": "28 probes, 0 differences (repro-G65.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Delete the two hand lists; taskShapeKindOf / milestoneGlyphOf read COLUMN_SHAPES.TaskVisual choices; schedule-layout.ts:88 ShapeKind derives from the generated type.",
+   "extends": null
+  },
+  {
+   "id": "G66",
+   "found_by": [
+    "a",
+    "s",
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 785,
+     "symbol": "ARMED_BY_ENTRY"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 811,
+     "symbol": "armedByEntry"
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 250,
+     "symbol": "armedEntry"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "input-command-translator.ts:784 TRAP names the misspelling risk only; JF-1 bars the translator from icon-roster.json (05-07-design.md:266)",
+   "differs": false,
+   "differ_input": "97 roster entries, 0 differences (repro-G66.ts)",
+   "reachable": null,
+   "ledger": [
+    "DFC-95"
+   ],
+   "cr": "579",
+   "proposal": "screen-renderer.ts publishes armedByEntry built from icon-roster.json (new PI-37 member); the translator imports it over the existing InputCommandTranslator->ScreenRenderer edge and drops its 22-row table.",
+   "extends": null
+  },
+  {
+   "id": "G12",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "e",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 40,
+     "symbol": "charUnits"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 45,
+     "symbol": "labelUnits"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 52,
+     "symbol": "labelWidthPx"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/comment-box.ts",
+     "line": 20,
+     "symbol": "charUnits"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/comment-box.ts",
+     "line": 25,
+     "symbol": "labelUnits"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/label-width.ts",
+     "line": 10,
+     "symbol": "labelUnits"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/label-width.ts",
+     "line": 18,
+     "symbol": "labelWidth"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/name-label.ts",
+     "line": 17,
+     "symbol": "unitsOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "labelUnits is already PI-5 (05-07-design.md:593) and re-exported at schedule-layout.ts:58; TRAPs row-title-panel.ts:38, comment-box.ts:18 give no reason",
+   "differs": false,
+   "differ_input": "12 edge strings incl. astral, combining, lone surrogate: 0 differ (repro-G12.ts)",
+   "reachable": null,
+   "ledger": [
+    "CR-554"
+   ],
+   "cr": "none",
+   "proposal": "Home label-width.ts: row-title-panel.ts and comment-box.ts import labelUnits / labelWidth from schedule-layout.ts; per-character callers call labelUnits(character). No T-064 change. CR-554 section 15.6.12 row D4 already asks for it.",
+   "extends": null
+  },
+  {
+   "id": "G13a",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 80,
+     "symbol": "escaped"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 59,
+     "symbol": "escaped"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "svg-renderer.ts:59 is exported but PI-19 (05-07-design.md:607) does not list it",
+   "differs": false,
+   "differ_input": "9 strings equal (repro-G13-G14.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Add escaped to PI-19; image-exporter.ts imports it (ImageExporter->SvgRenderer edge exists).",
+   "extends": null
+  },
+  {
+   "id": "G13b",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/mspdi-xml.ts",
+     "line": 244,
+     "symbol": "escapedText"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 59,
+     "symbol": "escaped"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "element-text escaping without the double quote (mspdi-xml.ts:245); its one attribute use is a constant namespace (:262)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G14a",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 69,
+     "symbol": "rounded"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 69,
+     "symbol": "rounded"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "image-exporter.ts:67 TRAP 'rounds as svg-renderer.ts does; change both together', no reason",
+   "differs": false,
+   "differ_input": "14 numbers equal (repro-G13-G14.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Add rounded to PI-19 with escaped.",
+   "extends": null
+  },
+  {
+   "id": "G14b",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 75,
+     "symbol": "ratioText"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "does not round on purpose (image-exporter.ts:73); no twin",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G15",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 98,
+     "symbol": "rectHoldsPoint"
+    },
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 52,
+     "symbol": "rectHoldsPoint"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "tooltips.ts:96 TRAP names only that the original is private (judge C's N1 is this TRAP)",
+   "differs": false,
+   "differ_input": "equal (repro-G15.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish rectHoldsPoint from screen-regions.ts (new PI-35 member); tooltips.ts and schedule-overlays.ts import it.",
+   "extends": null
+  },
+  {
+   "id": "G15x",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/schedule-overlays.ts",
+     "line": 169,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 77,
+     "symbol": "isInsideRect"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 98,
+     "symbol": "rectHoldsPoint"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no reason beside schedule-overlays.ts:169-173 (closed <=) against the half-open rectHoldsPoint; regionAtPointer (screen-regions.ts:199) is half-open. E15 added isInsideRect",
+   "differs": true,
+   "differ_input": "rowArea {300,100,800,500}, point (1100,300): tooltips / screen-regions false, overlays / isInsideRect true (repro-G15.ts) | steps: rest the pointer on the 1-px right or bottom seam of the Row Area: the guide cursor draws (schedule-overlays.ts:167) while the dual-cursor readout answers null (tooltips.ts:214-217)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Pick the half-open convention for rowArea (as regionAtPointer does); schedule-overlays.ts calls the published rectHoldsPoint. isInsideRect stays closed only where a hit test needs it, with the reason written.",
+   "extends": null
+  },
+  {
+   "id": "G16",
+   "found_by": [
+    "a",
+    "b",
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/display-scale-steps.ts",
+     "line": 64,
+     "symbol": "centreOf"
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 97,
+     "symbol": "centreOf"
+    },
+    {
+     "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+     "line": 413,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 311,
+     "symbol": "zoomCentreX"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 317,
+     "symbol": "zoomCentreY"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment beside any; E16 added zoomCentreX/Y",
+   "differs": false,
+   "differ_input": "equal (repro-G25-G42-misc.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Low value. If folded: centreOf beside ScreenRect in screen-regions.ts (new PI-35 member).",
+   "extends": null
+  },
+  {
+   "id": "G17",
+   "found_by": [
+    "d"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 119,
+     "symbol": "selectedLineWidth"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/dependency-route.ts",
+     "line": 205,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "svg-renderer.ts:464 TRAP gates marks, not the width; the export builds geometry with nothingSelected (frame-loop.ts:1799-1805), so the renderer can read link.strokeWidth, which PI-6 already publishes (05-07-design.md:594) (refute overturned INTENDED)",
+   "differs": false,
+   "differ_input": "S-178 formula equal (repro-G17.ts); the link-set part is H04",
+   "reachable": null,
+   "ledger": [
+    "DFC-640"
+   ],
+   "cr": "none",
+   "proposal": "The renderer (schedule-task-figures.ts:573-576) reads DependencyGeometry.strokeWidth instead of recomputing; no T-064 change (DFC-640 plan 1).",
+   "extends": null
+  },
+  {
+   "id": "G18a",
+   "found_by": [
+    "c",
+    "d",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 117,
+     "symbol": "appHeaderSvg"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 137,
+     "symbol": "chromeScaledPx"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/app-header-drawing.ts",
+     "line": 23,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no WHY at image-exporter.ts:117-131; the adapter cannot import the framework copy (LR-1), so the rule moves inward",
+   "differs": false,
+   "differ_input": "ratio 1 / 0.5 / 1.37 identical (repro-G62-G18-G20.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Home screen-regions.ts (owns S-235): publish chromeScaledPx and the title font / inset helpers (new PI-35 members); ImageExporter->ScreenRegions and DomScreenSurface->ScreenRegions edges exist.",
+   "extends": null
+  },
+  {
+   "id": "G18b",
+   "found_by": [
+    "c",
+    "d",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 430,
+     "symbol": "typefaceStyle"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 396,
+     "symbol": "typefaceAttribute"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "same constant, different output syntax (CSS vs SVG attribute)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G18c",
+   "found_by": [
+    "c",
+    "d",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 110,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 396,
+     "symbol": "typefaceAttribute"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the font-family string at image-exporter.ts:110 re-types typefaceAttribute's text",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Add typefaceAttribute to PI-19; image-exporter.ts imports it.",
+   "extends": null
+  },
+  {
+   "id": "G19",
+   "found_by": [
+    "d"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/schedule-grid.ts",
+     "line": 253,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 641,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component (SvgRenderer), no comment",
+   "differs": false,
+   "differ_input": "null / undefined -> 1, 0 -> 0, 6 -> 6",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One weekStartOf(schedule) in svg-renderer.ts; both call it.",
+   "extends": null
+  },
+  {
+   "id": "G20",
+   "found_by": [
+    "a",
+    "d",
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 85,
+     "symbol": "entranceOuterHeightPx"
+    },
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 90,
+     "symbol": "entranceOuterWidthPx"
+    },
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 101,
+     "symbol": "rowControlLatticeHeightPx"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 159,
+     "symbol": "entranceOuterWidthPx"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 168,
+     "symbol": "entranceOuterHeightPx"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/row-title-panel-drawing.ts",
+     "line": 110,
+     "symbol": "rowControlLatticePx"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRAPs screen-regions.ts:83, dom-screen-surface.ts:139 explain S-243 vs S-141, not the copy; E19's width and S-140 parts are not duplicates (01-04-requirements.md:6882; S-140 = 0 on purpose, HF-6)",
+   "differs": false,
+   "differ_input": "width 13.334, height 12.0006 both (repro-G62-G18-G20.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Make entranceOuter{Width,Height}Px(gapRow) public in screen-regions.ts (new PI-35 members; S-141 must join screen-regions' generator group in tools/generate_entity_types.py); DomScreenSurface imports them.",
+   "extends": null
+  },
+  {
+   "id": "G21",
+   "found_by": [
+    "b45",
+    "d"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 472,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 282,
+     "symbol": "dummyInkWidthOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 499,
+     "symbol": "labelTopOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 27,
+     "symbol": "labelLiftOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 274,
+     "symbol": "isThinShape"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 51,
+     "symbol": "laidBelow"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 235,
+     "symbol": "lineEndHalfHeight"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 12,
+     "symbol": "thinEndHalfHeightOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "task-figures.ts:471 TRAP 'change both together'; repeated-expressions-baseline.txt records isThinShape / laidBelow as waiting for a T-064 row",
+   "differs": false,
+   "differ_input": "values equal; the 1-ulp label-top difference (repro-G21.ts) exists only against the proposed fold -- the layout never computes a top (schedule-layout.ts:547) and SVG rounds to 0.01 (svg-renderer.ts:68-70)",
+   "reachable": null,
+   "ledger": [
+    "DFC-602"
+   ],
+   "cr": "none",
+   "proposal": "Add laidBelow, dummyInkWidthOf, thinEndHalfHeightOf, labelLiftOf to PI-5 in one CR; task-figures.ts imports them and deletes isThinShape, lineEndHalfHeight and the inline width.",
+   "extends": null
+  },
+  {
+   "id": "G22a",
+   "found_by": [
+    "a",
+    "c",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 652,
+     "symbol": "milestoneGlyphOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 227,
+     "symbol": "milestoneGlyphOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "the translator parses a name; the layout resolves a Task's stored glyph with its default",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "In CR-579 rename the translator's to milestoneGlyphNamed (same name, different job).",
+   "extends": null
+  },
+  {
+   "id": "G22b",
+   "found_by": [
+    "a",
+    "c",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/screen-state-input.ts",
+     "line": 112,
+     "symbol": "isDrawnAsMilestone"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 220,
+     "symbol": "shapeKindOf"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 170,
+     "symbol": "isMilestone"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "AT-100 (fig-erd-detail.md:403): shapeKind null -> Task.milestone; no invariant ties TaskVisual.shapeKind to Task.milestone",
+   "differs": true,
+   "differ_input": "visual 'milestone' + milestone false: shapeKindOf / isMilestone true, isDrawnAsMilestone fallback false (repro-G22.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Home Schedule: drawnShapeKindOf(task, visual) (new PI-1 member); shapeKindOf, isMilestone, isDrawnAsMilestone call it. Guard today: the GA-18 press hit comes from geometry, so the fallback never runs (screen-state-input.ts:92).",
+   "extends": null
+  },
+  {
+   "id": "G22d",
+   "found_by": [
+    "a",
+    "c",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-layout/name-label.ts",
+     "line": 66,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 175,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "G-1 (01-04-requirements.md:237) makes Task.milestone the truth of 'is a milestone'; ND-1 (01-04-requirements.md:1429) may read it (refute overturned the judge's ACCIDENTAL; needs the ruling Q2). task-plan-actual.ts:175 default is dead: both callers pass around (:479, screen-state-input.ts:98-101)",
+   "differs": true,
+   "differ_input": "visual 'milestone' + milestone false: drawn as a milestone, the ND-1 label prints 'start - finish' beside it (repro-G22.ts) | steps: open a GRS JSON whose TaskVisual.shapeKind is 'milestone' while Task.milestone is false (CM-20 refuses the switch in the app, task-appearance.ts:89-93; the import checks only the enum, grs-json-schema.ts:489)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Q2 decides. If ND-1 means the drawn shape, name-label.ts:66 calls drawnShapeKindOf (G22b) and this row turns ACCIDENTAL; if Task.milestone, write the reason at name-label.ts:66. Either way an import check tying shapeKind to milestone would close the road.",
+   "extends": null
+  },
+  {
+   "id": "G23",
+   "found_by": [
+    "b",
+    "b45",
+    "c",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 555,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 303,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-appearance.ts",
+     "line": 43,
+     "symbol": "fadeSpanOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 201,
+     "symbol": "clampedFade"
+    },
+    {
+     "file": "src/adapter/input-command-translator/item-grab.ts",
+     "line": 500,
+     "symbol": "clampedFadeDays"
+    },
+    {
+     "file": "src/use-case/edit-document/task-appearance.ts",
+     "line": 69,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 307,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "task-appearance.ts:41 TRAP justifies calendar days, not the copy; the FD-6 note (01-04-requirements.md:1326) says the two rules exist so that IV-12 does not refuse what the handle allowed; only tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts guards the copies",
+   "differs": true,
+   "differ_input": "fadeOut 4, span 10, GA-7 pull 8 -> the handle clamps to 8 (FD-6 'fadeIn wins') and emits setTaskFadeInDays 8; setTaskFadeDays refuses (8+4 > 10, IV-12) (repro-G23.ts) | steps: on any document, a Task with fadeOutDays 4 on a 10-day plan: drag the fade-in handle past 6 days (item-grab.ts:149-153 writes fadeIn alone) -> the edit is refused",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "PND-253",
+    "DFC-15"
+   ],
+   "cr": "none",
+   "proposal": "Home Schedule: fadeSpanDays(task) + fadeOverruns(task) for the invariant and both use-case checks, and one FD-6 clampedFadeDays(in, out, span) used by item-grab.ts and (x pxPerDay) schedule-layout.ts (new PI-1 members). The handle then stops at span - fadeOut, as the FD-6 note asks; extend PND-253 from the preview to the release.",
+   "extends": null
+  },
+  {
+   "id": "G24",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 835,
+     "symbol": "labelHitOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 506,
+     "symbol": "labelBoxOf"
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 608,
+     "symbol": "fadeRegionsOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 61,
+     "symbol": "fadeHandlePoints"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/label-placement.ts",
+     "line": 80,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 554,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "labelHitOf reads task.label (item-hit-area.ts:837); fadeRegionsOf reads task.fadeHandles (:613); S-260 is a keep-clear distance at label-placement.ts:109 and a reach at item-hit-area.ts:554",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G25",
+   "found_by": [
+    "a",
+    "b",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/selection-input.ts",
+     "line": 104,
+     "symbol": "marqueeRect"
+    },
+    {
+     "file": "src/framework/single-html-shell/held-press-preview.ts",
+     "line": 66,
+     "symbol": "marqueeRect"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment beside either; the preview's PTD-5 / 0x0 gate (held-press-preview.ts:70-73) sits outside the formula",
+   "differs": false,
+   "differ_input": "forward / backward / 0x0 / NaN equal (repro-G25-G42-misc.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "marqueeOf(from, to) in item-hit-area/marquee.ts beside itemsInMarquee (new PI-7 member); both import it.",
+   "extends": null
+  },
+  {
+   "id": "G41",
+   "found_by": [
+    "e"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 54,
+     "symbol": "settledColour"
+    },
+    {
+     "file": "src/entity/document-model/schedule/stored-colour.ts",
+     "line": 54,
+     "symbol": "customColourChosen"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 203,
+     "symbol": "hexToHsl"
+    },
+    {
+     "file": "src/entity/document-model/schedule/stored-colour.ts",
+     "line": 25,
+     "symbol": "customColourOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "settledColour calls customColourChosen (field-commit.ts:57); hexToHsl converts, customColourOf parses a light/dark pair",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G42",
+   "found_by": [
+    "b",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 239,
+     "symbol": "textOfDateColumn"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 77,
+     "symbol": "dateText"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component (ScreenRenderer), no comment",
+   "differs": false,
+   "differ_input": "5 inputs equal (repro-G25-G42-misc.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Keep textOfDateColumn in one ScreenRenderer file; tooltips.ts imports it.",
+   "extends": null
+  },
+  {
+   "id": "G62",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+     "line": 133,
+     "symbol": "paintOf"
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 338,
+     "symbol": "chosenColourOf"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 106,
+     "symbol": "painted"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "paintOf consumes chosenColourOf's answer; painted builds a CSS var() name",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G62x",
+   "found_by": [
+    "c",
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 139,
+     "symbol": "colourOf"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 411,
+     "symbol": "hued"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 417,
+     "symbol": "themeStyle"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "ScreenTheme has no monochrome (dom-screen-surface.ts:405-408); pageGroundStyle (:436-445) and themeStyle (:417) use hued; FR-041 (01-04-requirements.md:1996) names the ground among what follows monochrome. E26 is the same pair: its H substitution differs only on unreachable input",
+   "differs": true,
+   "differ_input": "hue 359, dark, themeMonochrome on: SVG / export hsl(0 0% 13%), DOM page ground hsl(359 14% 13%) (repro-G62-G18-G20.ts) | steps: turn monochrome on in the App Header (IC-100 / CM-64): the chart's S-146 marks go grey (svg-renderer.ts:642) while the page ground stays tinted; the export header greys S-150 (image-exporter.ts:52-55), the screen does not",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-754",
+    "DFC-910",
+    "JDG-524"
+   ],
+   "cr": "none",
+   "proposal": "Publish one huedColour(written, hue, monochrome) from svg-renderer.ts (new PI-19 member) and re-export it from screen-renderer.ts (ScreenRenderer->SvgRenderer edge exists; DomScreenSurface->SvgRenderer does not); ScreenTheme gains monochrome and hued calls it. S-146 follows FR-041 now; the chrome rows FR-041 does not name wait for Q1.",
+   "extends": null
+  },
+  {
+   "id": "G63",
+   "found_by": [
+    "a",
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-layout/name-label.ts",
+     "line": 63,
+     "symbol": "planDatesOf"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 223,
+     "symbol": "datedPlanOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "planDatesOf formats the M/D label (ND-1..3); datedPlanOf derives dates plus an MSPDI Duration (DV-8, EX-9)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G26a",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 47,
+     "symbol": "entryLabel"
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 49,
+     "symbol": "entryLabel"
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 96,
+     "symbol": "entryLabel"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 81,
+     "symbol": "entryLabel"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "no comment beside any copy; all four inside ScreenRenderer, each with its own WORDS_BY_ROW",
+   "differs": false,
+   "differ_input": "198 inputs, 0 differ (repro-G26.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One entryLabel + WORDS_BY_ROW in a shared ScreenRenderer module (e.g. display-words.ts); the other three import it. No publish.",
+   "extends": null
+  },
+  {
+   "id": "G26b",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/notices.ts",
+     "line": 126,
+     "symbol": "questionText"
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 178,
+     "symbol": "questionTextOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "export",
+   "evidence": "no comment; same component",
+   "differs": true,
+   "differ_input": "row QN-99 or an empty QN-9 cell -> notices answers QN-8's text, open-modals '' (repro-G26.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Export questionText from notices.ts (open-modals.ts:20 already imports './notices'); delete questionTextOf. Guard today: open-modals.ts:325 passes only QN-9, filled in both languages.",
+   "extends": null
+  },
+  {
+   "id": "G26c",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 133,
+     "symbol": "commandItemFor"
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 164,
+     "symbol": "commandItemFor"
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 193,
+     "symbol": "commandItemFor"
+    },
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 151,
+     "symbol": "headerCommands"
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 206,
+     "symbol": "commandsOnSurface"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 67,
+     "symbol": "iconHint"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "header computes enabled / pressed, the palette usable / armed, the modals fix all (DEVIATION DFC-567, open-modals.ts:191)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-567"
+   ],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G27",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 173,
+     "symbol": "heldByOf"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 363,
+     "symbol": "heldOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "entity that holds a property vs the grabbed-row drag state",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G28",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/screen-renderer.ts",
+     "line": 511,
+     "symbol": "displayLanguageOf"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 845,
+     "symbol": "displayLanguageIn"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 23,
+     "symbol": "DisplayLanguage"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "frame-loop.ts:843 WHY explains the fallback, not the copy; displayLanguageOf is exported but not a PI-37 member; the screen-values.ts:23 type can be published (ScreenRenderer->AdvanceScreenSession edge; refute overturned INTENDED for the type)",
+   "differs": false,
+   "differ_input": "null / undefined / ja / en: 0 of 4 differ (repro-G28.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Publish DisplayLanguage from advance-screen-session.ts and displayLanguageOf in PI-37; frame-loop imports it and deletes displayLanguageIn. single-html-shell.ts:300 and browser-stored-values.ts:23 read the browser store (not members).",
+   "extends": null
+  },
+  {
+   "id": "G29a",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 269,
+     "symbol": "openSurfaceNameOf"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 831,
+     "symbol": "openSurfaceNameIn"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "open-modals.ts:267 DEVIATION DFC-703 renames U-60 on purpose",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-703"
+   ],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G29b",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 889,
+     "symbol": "surfaceOpenedBy"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 897,
+     "symbol": "withSurfaceReplaced"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 981,
+     "symbol": "onSurfaceOpened"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 1098,
+     "symbol": "onWatermarkEntryPressed"
+    }
+   ],
+   "verdict": "INTENDED",
+   "blocked_by": null,
+   "evidence": "frame-loop.ts:894 DEVIATION + DFC-705: T-280 has no open x surfaceEntryPressed cell, so the shell hosts the replace (JDG-57, rulings.md:134) (refute overturned ACCIDENTAL)",
+   "differs": false,
+   "differ_input": "24 inputs, 0 differ (repro-G29.ts)",
+   "reachable": null,
+   "ledger": [
+    "DFC-705",
+    "JDG-57"
+   ],
+   "cr": "578",
+   "proposal": "Leave until DFC-705 is fixed; then delete withSurfaceReplaced as DFC-705 says.",
+   "extends": null
+  },
+  {
+   "id": "G29x",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 41,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/field-editing.ts",
+     "line": 312,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 370,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 915,
+     "symbol": "WATERMARK_UNLOCK_SURFACE"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the constant 'U-60' four times, no reason at any; screen-values.ts:915 not exported by advance-screen-session.ts",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "DFC-703"
+   ],
+   "cr": "578",
+   "proposal": "Publish WATERMARK_UNLOCK_SURFACE from advance-screen-session.ts (new PI-39 member); settle together with E43.",
+   "extends": null
+  },
+  {
+   "id": "G30",
+   "found_by": [
+    "a"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 290,
+     "symbol": "isRecordingInteractions"
+    },
+    {
+     "file": "src/framework/single-html-shell/interaction-record.ts",
+     "line": 39,
+     "symbol": "isRecordingInteractionsIn"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "a pipe: frame-loop.ts:1622 fills the reading from the session",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G32a",
+   "found_by": [
+    "b45",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/screen-renderer.ts",
+     "line": 479,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 723,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 143,
+     "symbol": "HeldRow"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 124,
+     "symbol": "RowGrabAxis"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/gesture-values.ts",
+     "line": 12,
+     "symbol": "GrabbedRowAxis"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/row-title-panel-drawing.ts",
+     "line": 184,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "frame-loop.ts:709 already uses ScreenViewReadings; GrabbedRowAxis is PI-39 (advance-screen-session.ts:75)",
+   "differs": false,
+   "differ_input": "type only (text identical)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578+579",
+   "proposal": "frame-loop.ts:723 -> ScreenViewReadings['rowGrabbedAt']; every axis literal -> GrabbedRowAxis (overlaps H19).",
+   "extends": null
+  },
+  {
+   "id": "G32b",
+   "found_by": [
+    "b45",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/selection/selection.ts",
+     "line": 17,
+     "symbol": "ItemRef"
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 29,
+     "symbol": "Item"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "ItemRef keys a link by successorUid+ordinal, Item by predecessorUid+successorUid",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G44",
+   "found_by": [
+    "b45",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1246,
+     "symbol": "entrySettledOnRelease"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1254,
+     "symbol": "answerSettledOnRelease"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1262,
+     "symbol": "surfaceSettledOnRelease"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1270,
+     "symbol": "formatSettledOnRelease"
+    },
+    {
+     "file": "src/adapter/input-command-translator/screen-state-input.ts",
+     "line": 140,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/selection-input.ts",
+     "line": 142,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "four guards at frame-loop.ts:1245-1275, no comment",
+   "differs": false,
+   "differ_input": "25 inputs, 0 differ (repro-G44.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Publish pressedPartOnRelease(input, context) from input-command-translator.ts (home screen-state-input.ts; new PI-18 member); frame-loop reads .entry / .part / .format / .confirmationAnswer off one call.",
+   "extends": null
+  },
+  {
+   "id": "G52",
+   "found_by": [
+    "b"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/advance-screen-session/field-entry-values.ts",
+     "line": 240,
+     "symbol": "combined"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/file-flow-values.ts",
+     "line": 714,
+     "symbol": "combined"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/gesture-values.ts",
+     "line": 297,
+     "symbol": "combined"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 926,
+     "symbol": "moved"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 935,
+     "symbol": "stayed"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/notice-values.ts",
+     "line": 176,
+     "symbol": "withStanding"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/notice-values.ts",
+     "line": 181,
+     "symbol": "withDelivery"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/selection-values.ts",
+     "line": 272,
+     "symbol": "selected"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "the WHYs at field-entry-values.ts:238, file-flow-values.ts:712, gesture-values.ts:295 state SD-3 / SF-3, not a copy reason; session-step.ts:14 already holds unchanged",
+   "differs": true,
+   "differ_input": "patch equal to the current value (language 'ja' + displayLanguageChosen 'ja'): moved returns a new object, combined keeps the reference (repro-G52.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One generic combined<S,E>(values, moves, effects) in session-step.ts; the regions call it. Guard today: the only sender of displayLanguageChosen flips the language (frame-loop.ts:2139-2140).",
+   "extends": null
+  },
+  {
+   "id": "G53a",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1208,
+     "symbol": "isQuestionAskedIn"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/file-flow-values.ts",
+     "line": 681,
+     "symbol": "isQuestionAsked"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "file-flow-values.ts:681 is private; advance-screen-session.ts does not export it",
+   "differs": false,
+   "differ_input": "3 states equal (repro-G53.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Publish isQuestionAsked(session) from advance-screen-session.ts (new PI-39 member).",
+   "extends": null
+  },
+  {
+   "id": "G53b",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 865,
+     "symbol": "isDeliveringNoticesIn"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/notice-values.ts",
+     "line": 221,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/notify-change-watchers/notify-change-watchers.ts",
+     "line": 65,
+     "symbol": "isDeliveringNotices"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 382,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 404,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "two stores of one fact (AG-11 / WS-2); agent-api-members.ts:382 reads the session copy, :404 the watchers flag (judge C's N3)",
+   "differs": true,
+   "differ_input": "right after sendToSession(DOCUMENT_REPLACED) (frame-loop.ts:1382) and before notifyChangeWatchers sets the flag: session true, watchers false (repro-G53.ts, a model)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [
+    "DFC-537"
+   ],
+   "cr": "578",
+   "proposal": "Keep one store: agent-api-members.ts:404 reads snapshot.isDeliveringNotices like :382. Guard today: no synchronous reader between frame-loop.ts:1382 and the flag set.",
+   "extends": null
+  },
+  {
+   "id": "G53c",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1656,
+     "symbol": "ask"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/file-flow-values.ts",
+     "line": 727,
+     "symbol": "asked"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "ask requests a frame (frame-loop.ts:1657-1662); asked builds a ConfirmationState",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G53d",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/field-entry.ts",
+     "line": 62,
+     "symbol": "isEditingFieldIn"
+    },
+    {
+     "file": "src/framework/single-html-shell/field-entry.ts",
+     "line": 161,
+     "symbol": "isEditingField"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/field-entry-values.ts",
+     "line": 265,
+     "symbol": "isEditedField"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "any field vs this row (WHY CR-500 decision 5, field-entry-values.ts:263)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-977"
+   ],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G53e",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2719,
+     "symbol": "fullScreenChanged"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 973,
+     "symbol": "onFullScreenChanged"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "forwarder (frame-loop.ts:2720-2722)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G53x",
+   "found_by": [
+    "a",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 831,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 837,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 850,
+     "symbol": "panelShowingIn"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 858,
+     "symbol": "standingNoticesIn"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1135,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1140,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1148,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1161,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1208,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1213,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1219,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1224,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/field-entry.ts",
+     "line": 51,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/field-entry.ts",
+     "line": 56,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/field-entry.ts",
+     "line": 62,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/interaction-record.ts",
+     "line": 39,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 157,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 158,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 64,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/screen-frame.ts",
+     "line": 78,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/advance-screen-session/notice-values.ts",
+     "line": 194,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "advance-screen-session.ts exports no readers (exports :65-245); the framework and ScreenRenderer each project the session themselves",
+   "differs": false,
+   "differ_input": "one-line projections, equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "One readers module published from advance-screen-session.ts (new PI-39 members); frame-loop, field-entry, interaction-record and the ScreenRenderer inline twins import it. This is CR-578's home question for the session readers (also I03, I05).",
+   "extends": null
+  },
+  {
+   "id": "G54",
+   "found_by": [
+    "a"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/selection/selection.ts",
+     "line": 55,
+     "symbol": "isSelected"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/selection-values.ts",
+     "line": 272,
+     "symbol": "selected"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "membership test vs a reducer that stores a Selection",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G54x",
+   "found_by": [
+    "a",
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/selection/selection.ts",
+     "line": 37,
+     "symbol": "isSameItem"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/selection-values.ts",
+     "line": 241,
+     "symbol": "isSameObject"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 135,
+     "symbol": "sameRow"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "selection.ts is Selection's public entry but isSameItem is not a PI-32 member; E31 is the same pair; the frame-loop pair isSameGrabbedItem / itemKeyOf (frame-loop.ts:1114, :1168) keys Item, not ItemRef (not a member)",
+   "differs": true,
+   "differ_input": "{kind:'task',uid:1} vs {kind:'task',uid:1,taskUid:1}: isSameItem true, isSameObject false (repro-G54.ts); equal on every well-formed ItemRef. Reachability not shown: no producer of an extra-field ItemRef was found",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "isSameSelection uses isSameItem (add it to PI-32); delete isSameObject.",
+   "extends": null
+  },
+  {
+   "id": "G56",
+   "found_by": [
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/schedule-geometry.ts",
+     "line": 196,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/copy-and-paste.ts",
+     "line": 29,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/drawn-selection.ts",
+     "line": 78,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 470,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/item-grab.ts",
+     "line": 532,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment at any site; all may import document-model (inward)",
+   "differs": false,
+   "differ_input": "equal (Set vs array only)",
+   "reachable": null,
+   "ledger": [
+    "DFC-281"
+   ],
+   "cr": "none",
+   "proposal": "Publish selectedTaskUids(selection) from selection.ts (new PI-32 member); the five sites import it.",
+   "extends": null
+  },
+  {
+   "id": "G57a",
+   "found_by": [
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/framework/dom-screen-surface/notices-drawing.ts",
+     "line": 76,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 524,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/notices-drawing.ts",
+     "line": 48,
+     "symbol": "nextStepElement"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 510,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/notices-drawing.ts",
+     "line": 127,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 491,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "open-modals-drawing.ts:510-514 hand-rolls nextStepElement though :435 already imports it",
+   "differs": false,
+   "differ_input": "equal today; would differ if RS-50's nextStep gains the download slot",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "importReportElements calls nextStepElement; one dismissButton(host, attr, value, text) helper.",
+   "extends": null
+  },
+  {
+   "id": "G57b",
+   "found_by": [
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 582,
+     "symbol": "commandEntry"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 82,
+     "symbol": "rosterSelectionEntry"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/row-title-panel-drawing.ts",
+     "line": 410,
+     "symbol": "panelCornerEntryElement"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/row-title-panel-drawing.ts",
+     "line": 241,
+     "symbol": "rowControlElement"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component (DomScreenSurface), no comment",
+   "differs": true,
+   "differ_input": "icon IC-5 labelled 'Undo': commandEntry aria-label 'Undo' + data-enabled / pressed / armed; the other three aria-label 'IC-5' and no state (repro-G57.ts) | steps: any Resource Roster or panel-corner button; not user-visible (no screen-reader support, user ruling 2026-09-17)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One iconButton(host, icon, label, style) in dom-screen-surface.ts; the four call it.",
+   "extends": null
+  },
+  {
+   "id": "G57c",
+   "found_by": [
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 57,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 134,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 152,
+     "symbol": "helpPress"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 59,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "the adapter already hands keys / press (screen-renderer.ts:283-284); the drawing joins them again",
+   "differs": false,
+   "differ_input": "6 inputs equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "The adapter puts one joined assignment on HelpEntry; the drawing drops its join and separator.",
+   "extends": null
+  },
+  {
+   "id": "G64a",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 997,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1005,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1013,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1017,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1022,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1023,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1452,
+     "symbol": "matchWatermarkUnlock"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "forwarders (frame-loop.ts:990-1026)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G64b",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 460,
+     "symbol": "showScreenView"
+    },
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 484,
+     "symbol": "focusPropertyField"
+    },
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 486,
+     "symbol": "readWatermarkUnlockAnswer"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "wraps and forwards",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G64c",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 492,
+     "symbol": "importDocument"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 548,
+     "symbol": "undoEdit"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 560,
+     "symbol": "redoEdit"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 582,
+     "symbol": "exportSvg"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 625,
+     "symbol": "exportPng"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 689,
+     "symbol": "exportEmbeddedHtml"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 753,
+     "symbol": "watchChanges"
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 774,
+     "symbol": "postDialogueMessage"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "each gates then calls the named function (e.g. :608, :698, :755)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G64d",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/watermark-unlock.ts",
+     "line": 47,
+     "symbol": "answerWatermarkUnlock"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 1106,
+     "symbol": "isWatermarkUnlockSurface"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/screen-values.ts",
+     "line": 1111,
+     "symbol": "onWatermarkUnlockAnswered"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "the guard watermark-unlock.ts:48 re-derives screen-values.ts:1106, no comment; matchWatermarkUnlock (:56) only hashes and sends (not a member)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Compare the session before / after the send (the pattern of frame-loop.ts:2719-2722), or publish isWatermarkUnlockSurface.",
+   "extends": null
+  },
+  {
+   "id": "G64f",
+   "found_by": [
+    "a"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 585,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 628,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 600,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 643,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "the picture gate is written twice in one file (judge C's N2): :585-598 vs :628-641 and :600-605 vs :643-648",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Fold into one pictureRefusal(member, snapshot).",
+   "extends": null
+  },
+  {
+   "id": "G33",
+   "found_by": [
+    "b",
+    "b45",
+    "c",
+    "d",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 163,
+     "symbol": "durationOfMinutes"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 170,
+     "symbol": "minutesPerWorkingDay"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 277,
+     "symbol": "durationText"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 270,
+     "symbol": "minutesPerDayOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "bodies character-identical (mspdi-codec.ts:163-174 vs task-plan-actual.ts:270-280); only 'see EX-9 / FR-054, S-128' beside them",
+   "differs": false,
+   "differ_input": "0 differences (repro-G33.ts); both share one latent flaw: Infinity -> 'PTInfinityHNaNM0S'",
+   "reachable": null,
+   "ledger": [
+    "PND-163",
+    "DFC-666"
+   ],
+   "cr": "580",
+   "proposal": "Home Schedule: durationTextOfMinutes(minutes) + minutesPerWorkingDay(project) beside working-calendar.ts, published by schedule.ts (new PI-1 members). Not EditDocument: DocumentCodec->EditDocument is not an edge.",
+   "extends": null
+  },
+  {
+   "id": "G34",
+   "found_by": [
+    "c",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 1157,
+     "symbol": "writtenConstraintOfGrs"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 1152,
+     "symbol": "MUST_START_ON"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 223,
+     "symbol": "datedPlanOf"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 235,
+     "symbol": "pinnedToStart"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 214,
+     "symbol": "MUST_START_ON"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the export-vs-edit split is intended (WHY mspdi-codec.ts:1155, task-plan-actual.ts:232-233); the kernel (MUST_START_ON '2', the Duration formula) has no reason",
+   "differs": true,
+   "differ_input": "start 1900-01-01, finish 2200-01-01: export writes ConstraintType + ConstraintDate, no Duration, and a notice (try/catch :1166-1177); edit throws DaySpanTooWide (datedPlanOf :227 has no catch) (repro-G34.ts) | steps: open a GRS JSON with importMinDate 1900-01-01 (a free string, kept), then edit a Task to span more than 231 years",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-666",
+    "DFC-665",
+    "DFC-553"
+   ],
+   "cr": "580",
+   "proposal": "Publish one startPinOf(task, schedule, within) -> {constraintType, constraintDate, duration} | null and MUST_START_ON from Schedule (new PI-1 members); writtenConstraintOfGrs keeps its sourceFormat gate, DV-8 check and try/catch; pinnedToStart keeps its gate.",
+   "extends": null
+  },
+  {
+   "id": "G34x",
+   "found_by": [
+    "c",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/json-codec.ts",
+     "line": 226,
+     "symbol": "withSourceFormatOfAnOlderDocument"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 342,
+     "symbol": "scheduleFromRoot"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "both call the one mspdiVersionOfCarried (mspdi-codec.ts:242); json-codec.ts:233 only adds the grs branch",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "580",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G35a",
+   "found_by": [
+    "a"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/grs-json-schema.ts",
+     "line": 1193,
+     "symbol": "fault"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-xml.ts",
+     "line": 32,
+     "symbol": "fault"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "JsonFault (grs-json-schema.ts:8) and MspdiFault (mspdi-xml.ts:6) are the same {at, what} with identical builders in one component (refute overturned NOT-A-DUPLICATE in part)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One CodecFault type and fault() inside DocumentCodec.",
+   "extends": null
+  },
+  {
+   "id": "G35b",
+   "found_by": [
+    "a"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/embedded-html-codec.ts",
+     "line": 34,
+     "symbol": "fault"
+    },
+    {
+     "file": "src/adapter/file-gateway/file-gateway.ts",
+     "line": 120,
+     "symbol": "fault"
+    },
+    {
+     "file": "src/framework/file-system-access-file-store/file-system-access-file-store.ts",
+     "line": 113,
+     "symbol": "fault"
+    },
+    {
+     "file": "src/adapter/document-codec/json-codec.ts",
+     "line": 69,
+     "symbol": "refusal"
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 46,
+     "symbol": "refusal"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "one-line literal constructors of different types",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-727"
+   ],
+   "cr": "none",
+   "proposal": "Leave (DFC-727 holds the two ImportRefusal types).",
+   "extends": null
+  },
+  {
+   "id": "G36",
+   "found_by": [
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 67,
+     "symbol": "nestingOf"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 158,
+     "symbol": "dateBreaches"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 394,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 595,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 736,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 92,
+     "symbol": "wbsShapeOf"
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 58,
+     "symbol": "sweepDateColumns"
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 197,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 203,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 221,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 252,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 260,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no reason beside either copy; validate-imported-document.ts:224 explains the S-119 refusal, not the copy; the bounds source differs on purpose (document-file-flow.ts:468-469 TRAP)",
+   "differs": true,
+   "differ_input": "importMinDate 'garbage' + task.start 'nope': the entity reports 'names no day', the use case nothing for the column (it skips the sweep on an unreadable bound, validate-imported-document.ts:234, :242, :279) (repro-G36.ts) | steps: keep a hand-edited GRS JSON whose importMinDate is not a day (a free string, grs-json-schema.ts:939) as the current document, then open a file with an unreadable date: the refusal carries no IV-14 row, so document-file-flow.ts:270 / :291 seeds no IV-14 drop",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-548",
+    "DFC-553"
+   ],
+   "cr": "none",
+   "proposal": "Home schedule-invariants.ts: publish a nesting walk and dateBreaches(row, columns, at, accepted | null) from schedule.ts (new PI-1 members); validate maps Breach to ImportRefusal. Decide first whether an unreadable bound suppresses the per-column 'names no day'.",
+   "extends": null
+  },
+  {
+   "id": "G38",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/mspdi-child-placement.ts",
+     "line": 141,
+     "symbol": "isLeaf"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-child-placement.ts",
+     "line": 108,
+     "symbol": "rankOf"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 288,
+     "symbol": "leaf"
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-order.ts",
+     "line": 58,
+     "symbol": "rankOf"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 267,
+     "symbol": "rowsOf"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 207,
+     "symbol": "rowOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "predicate vs constructor; XML schema rank vs row rank; MSPDI carry holders vs ENTITY_ROWS rows",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "580",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G39",
+   "found_by": [
+    "b",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/document-settings/document-settings.ts",
+     "line": 467,
+     "symbol": "expressionValueOf"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 272,
+     "symbol": "boundValueOf"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 260,
+     "symbol": "settingNumberOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "document-settings.ts:465 TRAP names the copy, no reason",
+   "differs": true,
+   "differ_input": "expression [{key:'pinnedGroupIds'}] with ['a','b'] -> expressionValueOf null, boundValueOf 2; [{key:'sizes.1'}] -> 20 vs null (repro-G39.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish one boundValueOf(expression, settings) from document-settings.ts (new PI-2 member) with settingNumberOf's list-as-length reading (schedule-invariants.ts:258 TRAP). Guard today: no generated SETTINGS_BOUNDS expression names a list key (document-settings.ts:288-400).",
+   "extends": null
+  },
+  {
+   "id": "G40a",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-annotation.ts",
+     "line": 64,
+     "symbol": "withSchedule"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-resource.ts",
+     "line": 26,
+     "symbol": "withSchedule"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 69,
+     "symbol": "withSchedule"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "bodies identical inside EditDocument; the exported one exists (edit-task-group.ts:69)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "edit-annotation.ts and edit-resource.ts import withSchedule from edit-task-group.ts.",
+   "extends": null
+  },
+  {
+   "id": "G40b",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 129,
+     "symbol": "withSchedule"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 69,
+     "symbol": "withSchedule"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "whole-Schedule replace vs Partial merge: a name clash, not a copy",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Rename edit-task.ts:129 (e.g. withWholeSchedule).",
+   "extends": null
+  },
+  {
+   "id": "G40c",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-dependency.ts",
+     "line": 50,
+     "symbol": "withTask"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 143,
+     "symbol": "withTask"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component, no reason; edit-task.ts:145 TRAP (document-change-plan.ts compares references) is not honoured by the copy",
+   "differs": true,
+   "differ_input": "a no-op task: edit-task.ts:143 returns the same document, edit-dependency.ts:50 a new one (repro-G40-G51-G60.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "edit-dependency.ts imports withTask from edit-task.ts. Guard today: every editDependency arm passes a fresh dependencies array (edit-dependency.ts:108-111, :122, :145).",
+   "extends": null
+  },
+  {
+   "id": "G40d",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/redo-edit/redo-edit.ts",
+     "line": 39,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/undo-edit/undo-edit.ts",
+     "line": 46,
+     "symbol": "withDocumentLeftBehind"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "mirror images: undone[0] vs done[last] (redo-edit.ts:37 TRAP)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-543"
+   ],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G40e",
+   "found_by": [
+    "a",
+    "b",
+    "b45",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/task-group-folding.ts",
+     "line": 162,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-look.ts",
+     "line": 15,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-look.ts",
+     "line": 48,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "shared shape only; different fields and rules (CM-85 vs CM-30/31/32)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G49",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/file-gateway/file-gateway.ts",
+     "line": 168,
+     "symbol": "destinationIdentity"
+    },
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 304,
+     "symbol": "projectIdentityFromText"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "file-gateway.ts:170 takes the function as a parameter (caller and callee)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G50a",
+   "found_by": [
+    "c",
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/document-codec.ts",
+     "line": 78,
+     "symbol": "extensionOf"
+    },
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 134,
+     "symbol": "extensionOfForm"
+    },
+    {
+     "file": "src/framework/file-system-access-file-store/file-system-access-file-store.ts",
+     "line": 106,
+     "symbol": "saveFileTypesFor"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "extensionOfForm delegates to the published extensionOfFormat (document-file-flow.ts:135)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G50b",
+   "found_by": [
+    "c",
+    "E",
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/document-codec.ts",
+     "line": 40,
+     "symbol": "ROW_OF_FORMAT"
+    },
+    {
+     "file": "src/adapter/document-codec/document-codec.ts",
+     "line": 50,
+     "symbol": "READABLE_FORMATS"
+    },
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 124,
+     "symbol": "TABLE_ROW_OF_SAVE_FORM"
+    },
+    {
+     "file": "src/adapter/file-gateway/file-gateway.ts",
+     "line": 94,
+     "symbol": "ROUND_TRIP_FORMS"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "document-file-flow.ts:122-123 TRAP names the copy, no reason; ROW_OF_FORMAT private; E35 added ROUND_TRIP_FORMS",
+   "differs": false,
+   "differ_input": "{grsJson, mspdi} in all three",
+   "reachable": null,
+   "ledger": [
+    "DFC-536",
+    "DFC-720"
+   ],
+   "cr": "none",
+   "proposal": "document-codec.ts publishes the round-trip formats and the row binding (new PI-20 members); file-gateway.ts and the shell import them.",
+   "extends": null
+  },
+  {
+   "id": "G51",
+   "found_by": [
+    "b"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 120,
+     "symbol": "wbsSubtreesOf"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 197,
+     "symbol": "wbsSubtreeOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "recorded, undecided (DFC-990); JDG-567 fixed the merged name wbsSubtreesOf; edit-task.ts:196 WHY is sweep vs recursion only",
+   "differs": false,
+   "differ_input": "equal on 7 shapes incl. rings (repro-G40-G51-G60.ts)",
+   "reachable": null,
+   "ledger": [
+    "DFC-990",
+    "JDG-567"
+   ],
+   "cr": "none",
+   "proposal": "edit-task.ts uses wbsSubtreesOf(schedule.tasks, [uid]); task-paste.ts:19 passes all sources at once (closes DFC-990 option 1).",
+   "extends": null
+  },
+  {
+   "id": "G58",
+   "found_by": [
+    "c",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 274,
+     "symbol": "compareAssignees"
+    },
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 297,
+     "symbol": "resourceUidOfName"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "a comparator vs name -> uid resolution (AS-8); they agree by construction",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-54"
+   ],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G59",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/schedule/calendar-day.ts",
+     "line": 78,
+     "symbol": "monthsAfter"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 168,
+     "symbol": "readoutDate"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 175,
+     "symbol": "readoutSpan"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "readoutSpan calls the published calendarSpanOf (tooltips.ts:177)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G60a",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 149,
+     "symbol": "defaultDocumentSettings"
+    },
+    {
+     "file": "src/adapter/document-codec/json-codec.ts",
+     "line": 88,
+     "symbol": "settingDefaultOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "both unflatten SETTINGS_DEFAULTS, no comment",
+   "differs": true,
+   "differ_input": "key 'a.b.c' = 1 -> defaultDocumentSettings {b:{c:1}}, settingDefaultOf {'b.c':1}; keys a=5 and 'a.b'=1 -> {b:1} vs 5 (repro-G40-G51-G60.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [
+    "DFC-981"
+   ],
+   "cr": "none",
+   "proposal": "Publish one nested-defaults builder from document-settings.ts (new PI-2 member); settingDefaultOf(key) = built[key]. Guard today: generated SETTINGS_DEFAULTS keys have at most 2 segments (document-settings.ts:150-280).",
+   "extends": null
+  },
+  {
+   "id": "G60b",
+   "found_by": [
+    "c"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/import-document/import-document.ts",
+     "line": 214,
+     "symbol": "restoredSettings"
+    },
+    {
+     "file": "src/adapter/document-codec/json-codec.ts",
+     "line": 115,
+     "symbol": "readSettingsFaults"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "merge of a file's keys (OP-6) vs sorting schema faults",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "G61",
+   "found_by": [
+    "a",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 164,
+     "symbol": "visualOf"
+    },
+    {
+     "file": "src/use-case/edit-document/task-appearance.ts",
+     "line": 30,
+     "symbol": "withVisual"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "reader vs writer (withVisual reuses blankVisual / sameRow); method G noted properties-panel.ts:451, :494 and field-commit.ts:204 find the visual without the blank default",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "E01",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 517,
+     "symbol": "dayAnchorAt"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 500,
+     "symbol": "unitFraction"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/fit-zoom.ts",
+     "line": 146,
+     "symbol": "fittedLeftEdge"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment beside either; judge A had seen the pair as G03's extra",
+   "differs": true,
+   "differ_input": "pxPerDay 1e-7, originX -1e6, x -999999.999986 -> translator 7.6e-6, fit 0; equal on 72017 other x (repro-G03.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Publish one dayAnchorAtX(axis, x) from time-axis.ts (new PI-5 member); both call it. Guard today: pxPerDay >= 0.5 x 0.02 x 0.3125 = 0.003125 (document-settings.ts:364, edit-document.ts:302).",
+   "extends": null
+  },
+  {
+   "id": "E02",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/schedule/working-calendar.ts",
+     "line": 117,
+     "symbol": "IMPORT_MIN_DAY"
+    },
+    {
+     "file": "src/entity/document-model/schedule/working-calendar.ts",
+     "line": 118,
+     "symbol": "IMPORT_MAX_DAY"
+    },
+    {
+     "file": "src/entity/document-model/document-settings/document-settings.ts",
+     "line": 196,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/document-settings/document-settings.ts",
+     "line": 199,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "working-calendar.ts:117-120 restate the generated defaults as literals and size ACCEPTED_DAY_SPAN from them, while checkDay (edit-task.ts:180-190) reads the document's own S-120",
+   "differs": true,
+   "differ_input": "equal today (literal == default). A document with importMaxDate 2400-12-31: PA-5 1970-01-02..2300-12-31 is accepted by checkDay, then editDocument throws DaySpanTooWide (rf/e02.ts, real code) | steps: open a hand-edited GRS JSON whose importMaxDate is 2400-12-31 (grs-json-schema.ts:930 string only) and set a plan / actual across 330 years",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-553"
+   ],
+   "cr": "none",
+   "proposal": "Build ACCEPTED_DAY_SPAN from the bounds in force, not the defaults: DFC-553 fix 1 (build it from SETTINGS_DEFAULTS) does not close the throw, since a document's S-120 can exceed any default.",
+   "extends": null
+  },
+  {
+   "id": "E03",
+   "found_by": [
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1295,
+     "symbol": "readInstantOfWrite"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dialogue-field-drawing.ts",
+     "line": 16,
+     "symbol": "stampOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "01-04-requirements.md:5777 wants AT-127 / AT-129 spelled alike; no comment on the copy",
+   "differs": true,
+   "differ_input": "ms 253402300800000 -> '+010000-01-01T00:00:00Z' vs '+010000-01-01T00:00Z'; 200000 in-range ms equal (repro-E03.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "578",
+   "proposal": "One pure instantTextOf(ms) in calendar-day.ts, published by schedule.ts (new PI-1 member). Guard today: both read the wall clock (dialogue-field-drawing.ts:73).",
+   "extends": null
+  },
+  {
+   "id": "E04",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/percent-complete.ts",
+     "line": 36,
+     "symbol": "heldActualLength"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 259,
+     "symbol": "textOfActualLength"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 1190,
+     "symbol": "writtenActualDuration"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 741,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/validate-imported-document/validate-imported-document.ts",
+     "line": 262,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment; only mspdi-codec.ts:1197-1206 catches DaySpanTooWide",
+   "differs": true,
+   "differ_input": "with E02's widened bounds, percent-complete.ts:30-40 and the Properties Panel throw where mspdi-codec.ts catches (rf/e02.ts, real code) | steps: as E02",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-682"
+   ],
+   "cr": "580",
+   "proposal": "Publish heldActualLengthOf(within, task): number | null from working-calendar.ts via schedule.ts (new PI-1 member); callers keep their own null fallback.",
+   "extends": null
+  },
+  {
+   "id": "E05",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/row-tree-entrances.ts",
+     "line": 276,
+     "symbol": "isRowUnder"
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-folding.ts",
+     "line": 78,
+     "symbol": "isBelowRow"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "isBelowRow private; task-group-folding.ts:71 WHY explains the step cap, not the copy",
+   "differs": false,
+   "differ_input": "6,301,434 random cases incl. rings: 0 differ (repro-E05.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "isRowBelow(byId, row, ancestorId) in Schedule beside G05's rowDepthOf (new PI-1 member); both import it.",
+   "extends": null
+  },
+  {
+   "id": "E07",
+   "found_by": [
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 1060,
+     "symbol": "taskDepths"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-imported-rows.ts",
+     "line": 24,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-imported-rows.ts",
+     "line": 60,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no comment; sibling of G36 (wbsShapeOf / nestingOf)",
+   "differs": true,
+   "differ_input": "repeated Task UID [1, 2<-1, 1<-2] -> {1:4, 2:4} vs {1:3, 2:2}; a level-3 Task given its level-1 ancestor's UID exports OutlineLevel [1,2] for imported [1,3] (rf/e07.ts, rf/e07b.ts, real code) | steps: open an MSPDI whose Task UIDs repeat: documentFromMspdi and validateImportedDocument accept it; only scheduleViolations sees IV-1, and the open path never reads it (DFC-922)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-922"
+   ],
+   "cr": "580",
+   "proposal": "One wbsDepthOf from schedule-invariants' nestingOf, published by schedule.ts (new PI-1 member); taskDepths and rowsFromTasks read it. The child-before-parent case is unreachable (stack-built import, mspdi-codec.ts:526-532).",
+   "extends": null
+  },
+  {
+   "id": "E08",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 73,
+     "symbol": "rowTitleFontPxOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 317,
+     "symbol": "bandFloorOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "bandFloorOf private; schedule-layout.ts:321-323 TRAPs explain drawn settings, not the copy",
+   "differs": false,
+   "differ_input": "same expression over the same drawn settings",
+   "reachable": null,
+   "ledger": [
+    "DFC-608"
+   ],
+   "cr": "none",
+   "proposal": "schedule-layout.ts publishes rowTitleFontPxOf(depth, stored) = bandFloorOf(depth, drawnSettingsOf(stored)) (new PI-5 member); screen-renderer.ts re-exports it.",
+   "extends": null
+  },
+  {
+   "id": "E09",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/row-grab.ts",
+     "line": 241,
+     "symbol": "drawnRowIndentOf"
+    },
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 171,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 108,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "row-grab.ts:238 TRAP explains drawn vs stored, not the copy; drawnSettingsOf is PI-35",
+   "differs": true,
+   "differ_input": "all 10 displayScale steps equal; displayScale 0 -> 0 vs 16 (repro-E09-E12-E13.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "row-grab.ts reads drawnSettingsOf(settings).rowTitleIndent. Guard today: displayScale is a schema enum, all > 0 (grs-json-schema.ts:847).",
+   "extends": null
+  },
+  {
+   "id": "E10",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 171,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 237,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "01-04-requirements.md:5431 forbids two removal chains (CD-1); both WHYs give the settle reason, not the copy",
+   "differs": false,
+   "differ_input": "equal by reading",
+   "reachable": null,
+   "ledger": [
+    "DFC-990",
+    "DFC-999"
+   ],
+   "cr": "none",
+   "proposal": "One withTasksRemoved(schedule, doomed, defaultRowName) in EditDocument; deleteTaskGroup adds its row / annotation / pin pruning on top.",
+   "extends": null
+  },
+  {
+   "id": "E11",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/task-create.ts",
+     "line": 76,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-naming.ts",
+     "line": 58,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/apply-document-change/document-change-plan.ts",
+     "line": 176,
+     "symbol": "documentHoldingOneRow"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-imported-rows.ts",
+     "line": 33,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "four TaskGroup literals; mspdi-imported-rows.ts:33-43 writes treeState 'auto' literally instead of COLUMN_DEFAULTS.TaskGroup.treeState (schedule-entities.ts:658)",
+   "differs": false,
+   "differ_input": "equal today",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "A newTaskGroup({id, parentId, label, derivedFromTaskUid, order}) factory in Schedule; at minimum mspdi-imported-rows.ts reads COLUMN_DEFAULTS.",
+   "extends": null
+  },
+  {
+   "id": "E12",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/row-tree-entrances.ts",
+     "line": 205,
+     "symbol": "orderPastLastChild"
+    },
+    {
+     "file": "src/use-case/edit-document/task-create.ts",
+     "line": 73,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "row-tree-entrances.ts:206 TRAP explains max+1 vs count, not the copy",
+   "differs": true,
+   "differ_input": "root orders [-5, -3] -> entrance -2, task-create 0 (repro-E09-E12-E13.ts); both land past the last root, so only the stored number differs | steps: open a GRS JSON with negative root orders (AT-55 integer, no minimum) and add a root row",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish orderPastLastChild(schedule, parentId) from Schedule (new PI-1 member); task-create.ts calls it with null.",
+   "extends": null
+  },
+  {
+   "id": "E13",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 399,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-order.ts",
+     "line": 42,
+     "symbol": "compareByStackOrder"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "localeCompare vs code units, no comment (assignee-label.ts:29 WHY argues against localeCompare)",
+   "differs": true,
+   "differ_input": "start '' vs null: task-group-order answers 1 both ways, the layout falls to uid; equal on 10000 reachable pairs (repro-E09-E12-E13.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish compareByStackOrder (ST-2) from schedule-layout.ts (new PI-5 member); the lane sort uses it. Guard today: '' is refused (validate-imported-document.ts:71, edit-task.ts:182).",
+   "extends": null
+  },
+  {
+   "id": "E14",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1031,
+     "symbol": "drawnRowBoxesOf"
+    },
+    {
+     "file": "src/adapter/svg-renderer/schedule-grid.ts",
+     "line": 227,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "identical top / bottom clip, no reason; judge A found it as N2",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "DFC-991",
+    "DFC-539"
+   ],
+   "cr": "578",
+   "proposal": "Per DFC-991: drawnRowBoxesOf moves to ScreenRenderer (new PI-37 member); schedule-grid.ts computes the band from it.",
+   "extends": null
+  },
+  {
+   "id": "E17",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1930,
+     "symbol": "collectPress"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1963,
+     "symbol": "grabAtPointer"
+    },
+    {
+     "file": "src/framework/single-html-shell/pointer-shape.ts",
+     "line": 331,
+     "symbol": "pointerShapeUnder"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "no reason; PTD-2 (01-04-requirements.md:3310) says no hit test while the Dual Cursor follows",
+   "differs": true,
+   "differ_input": "Dual Cursor following + press on a bar: collectPress hit {GA-1 item}, grabAtPointer null (repro-E17-E18.ts) | steps: any document, Dual Cursor following, press a bar; every command reader neutralises it (pressRowOf answers PTD-2 first, input-command-translator.ts:609); frame-loop.ts:1710 still sends pressedOn {kind:'grab'} (unmeasured)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-872",
+    "PND-391"
+   ],
+   "cr": "578",
+   "proposal": "One itemUnderPointer(frame, x, y, on, resolving) in frame-loop applying all three guards; collectPress uses it; pointerShapeUnder takes the guarded hit.",
+   "extends": null
+  },
+  {
+   "id": "E18",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 884,
+     "symbol": "isOnTheChart"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1953,
+     "symbol": "startsNoTextSelection"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "PE-0 split across two layers; JDG-277 (rulings.md:391) sets the range, JDG-278 exempts only the right button",
+   "differs": true,
+   "differ_input": "left down on the canvas margin -> false vs true; middle down on rowArea -> true vs false (repro-E17-E18.ts)",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "578+579",
+   "proposal": "One PE-0 predicate in the translator (press-point rule + scheduleCanvas); delete startsNoTextSelection. Guard today: the only reader takes the OR of both (frame-loop.ts:2672-2673; dom-input-source.ts:205, :255).",
+   "extends": null
+  },
+  {
+   "id": "E20",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 282,
+     "symbol": "namesAPlace"
+    },
+    {
+     "file": "src/framework/single-html-shell/view-place.ts",
+     "line": 28,
+     "symbol": "storedNamesAPlace"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRAPs zoom-and-fit.ts:278-279 and view-place.ts:24-25 say change both, no reason",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "CR-577"
+   ],
+   "cr": "none",
+   "proposal": "Publish storedPlaceIsNamed(schedule, settings) from Schedule or ScheduleLayout (new member). Collides with drafted CR-577, which reserves zoom-and-fit.ts for its wave.",
+   "extends": null
+  },
+  {
+   "id": "E21",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 107,
+     "symbol": "rowAxisReadingOf"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 169,
+     "symbol": "deepestFloorZoomYOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 73,
+     "symbol": "planHeightFloor"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 78,
+     "symbol": "zoomYAtPlanHeightFloor"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/shape-cross-sections.ts",
+     "line": 84,
+     "symbol": "planHeightOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/schedule-layout.ts",
+     "line": 307,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "shape-cross-sections.ts:71 'TRAP: the one spelling of this floor' is violated; schedule-layout.ts:60-64 does not re-export zoomYAtPlanHeightFloor / planHeightOf",
+   "differs": false,
+   "differ_input": "bit-identical (same IEEE operations in the same order)",
+   "reachable": null,
+   "ledger": [
+    "CR-577",
+    "JDG-608",
+    "DFC-1010",
+    "DFC-336"
+   ],
+   "cr": "none",
+   "proposal": "Re-export zoomYAtPlanHeightFloor and an unratioed planHeightAt(settings) from schedule-layout.ts (new PI-5 members). Collides with drafted CR-577 (it rewrites rowAxisReadingOf and deepestFloorZoomYOf).",
+   "extends": null
+  },
+  {
+   "id": "E22",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/display-scale-steps.ts",
+     "line": 70,
+     "symbol": "rowAreaWidthAt"
+    },
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 180,
+     "symbol": "regionsAtDisplayScale"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "both used inside displayScaleWrites (display-scale-steps.ts:79, :94); regionsAtDisplayScale is already imported",
+   "differs": true,
+   "differ_input": "W 800, H 600, scrollbar 16.8, title 333, displayScale 50->67 -> 313.75625 vs 313.75624999999997 (1007 of 10080 cases, max 4.5e-13 px) (repro-E22.ts) | steps: any fractional viewport or scrollbar; the effect is sub-pixel, no user step shows it",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-697"
+   ],
+   "cr": "none",
+   "proposal": "Compute afterRegions first and use afterRegions.rowArea.width; delete rowAreaWidthAt.",
+   "extends": null
+  },
+  {
+   "id": "E23",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/frame-drags.ts",
+     "line": 70,
+     "symbol": "travelInsideHeldWidth"
+    },
+    {
+     "file": "src/adapter/input-command-translator/frame-drags.ts",
+     "line": 80,
+     "symbol": "travelInsideHeldHeight"
+    },
+    {
+     "file": "src/adapter/screen-renderer/screen-frame.ts",
+     "line": 178,
+     "symbol": "visibleHeightOf"
+    },
+    {
+     "file": "src/adapter/screen-renderer/screen-frame.ts",
+     "line": 184,
+     "symbol": "scrollExtentOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "frame-drags.ts:67-68 WHY justifies the held whole, not the copy; visibleHeightOf private",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish visibleHeightOf (or scrollOffsetsOf) from screen-renderer.ts (new PI-37 member); frame-drags reads it.",
+   "extends": null
+  },
+  {
+   "id": "E24",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 456,
+     "symbol": "treeStatesReset"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 469,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-folding.ts",
+     "line": 181,
+     "symbol": "resetTaskGroupTreeStates"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "zoom-and-fit.ts:453 TRAP only says change both; treeStateWritesFor is PI-9 and already imported (zoom-and-fit.ts:17-18)",
+   "differs": false,
+   "differ_input": "equal (generated T-328 rows == the hand rule)",
+   "reachable": null,
+   "ledger": [
+    "CR-577"
+   ],
+   "cr": "none",
+   "proposal": "treeStatesReset applies treeStateWritesFor(schedule, {type:'fitPressed'}); drop the hand predicate and the 'auto' literal. Collides with drafted CR-577 (same file).",
+   "extends": null
+  },
+  {
+   "id": "E25",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/framework/dom-input-source/dom-input-source.ts",
+     "line": 139,
+     "symbol": "pixelsPerUnit"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/open-modals-drawing.ts",
+     "line": 241,
+     "symbol": "wheelUnitPx"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no WHY on either; PND-91 / JDG-300 rule 1 line = 40 px, so the roster (font size) is the wrong side",
+   "differs": true,
+   "differ_input": "deltaMode 1 (line), delta 3, font 16px -> chart 120 px, roster 48 px (repro-E25.ts) | steps: on a host that reports line-mode wheel, Ctrl+Shift+wheel over the Resource Roster (open-modals-drawing.ts:231-238). Caveat: both handlers read deltaX / deltaY before deltaMode, which in current Firefox makes it report pixels (not measured)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "PND-91",
+    "JDG-300"
+   ],
+   "cr": "none",
+   "proposal": "One wheelPixels(deltaMode, delta, lineHeight, pageSize) in an inner pure home (new member) with 1 line = 40 px (JDG-300); both call it.",
+   "extends": null
+  },
+  {
+   "id": "E27",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/row-title-panel.ts",
+     "line": 79,
+     "symbol": "labelCutToFit"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/name-label.ts",
+     "line": 16,
+     "symbol": "truncate"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "truncate private; the only caller passes an integer unit count (name-label.ts:83)",
+   "differs": false,
+   "differ_input": "no live difference: the 94 / 24400 boundary cases appear only under the proposed merge (a hazard of the fix; refute refuted the judge's reachable differ) (repro-E27.ts)",
+   "reachable": null,
+   "ledger": [
+    "DFC-612"
+   ],
+   "cr": "none",
+   "proposal": "Export truncate(text, limitUnits) from schedule-layout.ts (new PI-5 member); labelCutToFit = truncate(text, available / (font x labelCoef)); test the exact-boundary cases when merging.",
+   "extends": null
+  },
+  {
+   "id": "E28",
+   "found_by": [
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-layout/assignee-label.ts",
+     "line": 31,
+     "symbol": "compareLabelled"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 274,
+     "symbol": "compareAssignees"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 282,
+     "symbol": "assigneesOf"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-layout/assignee-label.ts",
+     "line": 38,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 326,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "both WHYs (assignee-label.ts:29, properties-panel.ts:272) justify code-unit order, not the copy; method I added assigneesOf x3",
+   "differs": false,
+   "differ_input": "same total order",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Export compareLabelled (as compareAssigneeNames) and the assignees-of-a-Task reader from schedule-layout.ts (new PI-5 members); properties-panel.ts and field-commit.ts import them.",
+   "extends": null
+  },
+  {
+   "id": "E29",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/grs-json-schema.ts",
+     "line": 1250,
+     "symbol": "stringFaults"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-fade-frames.ts",
+     "line": 48,
+     "symbol": "isAliasUsable"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "mspdi-fade-frames.ts:47 TRAP says why code points; stringFaults has no reason for UTF-16 units; the manuscript schema is draft 2020-12, whose maxLength counts code points (grs-document.schema.json:875; AT-1 '16 characters')",
+   "differs": true,
+   "differ_input": "Project UID of 9 emoji (9 code points, 18 units): MSPDI import ok, save as GRS JSON, reopen -> refused RS-25 'longer than the 16 characters allowed' (rf/e29.ts, real code) | steps: open an MSPDI whose Project UID holds astral characters, save it as GRS JSON, open that file: the app refuses its own file. 20 ASCII characters do the same (import never bounds AT-1)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One lengthInCharacters(text) = [...text].length inside DocumentCodec; stringFaults uses it. Separately, bound AT-1 on MSPDI import.",
+   "extends": null
+  },
+  {
+   "id": "E30",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/apply-document-change/document-change-plan.ts",
+     "line": 143,
+     "symbol": "utf8Length"
+    },
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 653,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "LR-6 (tsconfig.entity.json:12-13) forbids TextEncoder only inside use-case; document-file-flow.ts:653 needs only the length (refute overturned INTENDED). file-gateway.ts:103 needs the bytes (not a member)",
+   "differs": false,
+   "differ_input": "equal incl. lone surrogates (repro-E30.ts)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish utf8Length from apply-document-change.ts (new PI-8 member); document-file-flow.ts uses it (SingleHtmlShell already imports ApplyDocumentChange).",
+   "extends": null
+  },
+  {
+   "id": "E32",
+   "found_by": [
+    "E",
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 81,
+     "symbol": "drawnTaskUids"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1210,
+     "symbol": "chosenDrawnTaskCount"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "same join body, both cite FR-029 / FR-034; both inputs come from drawnRowBoxesOf (frame-loop.ts:761, :1991, :2011); judge A found it as N1",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "DFC-281"
+   ],
+   "cr": "579",
+   "proposal": "Publish tasksOnRows(schedule, groupIds) from Schedule (new PI-1 member); both call it.",
+   "extends": null
+  },
+  {
+   "id": "E33",
+   "found_by": [
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 219,
+     "symbol": "tasksReachedByEachResource"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1156,
+     "symbol": "rosterChoiceOfEntry"
+    },
+    {
+     "file": "src/use-case/edit-document/deletion-confirmations.ts",
+     "line": 64,
+     "symbol": "confirmationOwedByResourceDeletion"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the CD-5 predicate 'some assignment names the resource' three times, no reason",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "DFC-539",
+    "DFC-540"
+   ],
+   "cr": "579",
+   "proposal": "Publish referencedResourceUids(schedule) from Schedule (new PI-1 member); the three read it.",
+   "extends": null
+  },
+  {
+   "id": "E34",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/task-paste.ts",
+     "line": 43,
+     "symbol": "pasteTaskSubtree"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 313,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "EX-12 (01-04-requirements.md:5290): pasted copies are date-edited (MUST), slack MUST NOT be written; task-paste.ts:43-52 calls planDatesEdited, edit-task-group.ts:313-330 does not; mspdi-codec.ts:1139-1144 writes task.carry. G37d is the uid-minting part of the same copy",
+   "differs": true,
+   "differ_input": "row paste keeps carry FreeSlack 0 / TotalSlack -33600 on the copy (uid 1967) and the MSPDI export writes them; task paste drops them (rf/e34.ts, real code) | steps: open sample-schedule/sample-small-website-renewal.en.xml, choose the first row, Ctrl+C, Ctrl+V (copy-and-paste.ts:115), export MSPDI",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "JDG-264",
+    "DFC-685"
+   ],
+   "cr": "none",
+   "proposal": "One copyTasksUnderFreshUids(schedule, uids, within) in EditDocument: sorted minting and planDatesEdited on each copy; both pastes call it, the row paste then remaps members to the new rows.",
+   "extends": null
+  },
+  {
+   "id": "E36",
+   "found_by": [
+    "E",
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/framework/file-system-access-file-store/file-system-access-file-store.ts",
+     "line": 99,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/canvas-rasterizer/canvas-rasterizer.ts",
+     "line": 14,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/browser-clipboard/browser-clipboard.ts",
+     "line": 13,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "'image/png' spelled three times: the same IANA fact (refute overturned NOT-A-DUPLICATE; trivial)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Optional: a media-type column in T-024, or leave.",
+   "extends": null
+  },
+  {
+   "id": "E37",
+   "found_by": [
+    "E",
+    "G",
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 212,
+     "symbol": "newerFormatReasonOf"
+    },
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 259,
+     "symbol": "tellNewerFormat"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "export",
+   "evidence": "same component; the DFC-855 DEVIATION (document-file-flow.ts:265-266) covers isUnreadAsked only",
+   "differs": false,
+   "differ_input": "equal on the startup inputs",
+   "reachable": null,
+   "ledger": [
+    "DFC-855"
+   ],
+   "cr": "none",
+   "proposal": "Export one newerFormatReasonOf(unread, isUnreadAsked) from document-file-flow.ts; single-html-shell.ts imports it with false.",
+   "extends": null
+  },
+  {
+   "id": "E38",
+   "found_by": [
+    "E",
+    "G",
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 735,
+     "symbol": "VISIBLE_ELEMENT_BY_ENTRY"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 760,
+     "symbol": "GUIDE_CURSOR_MODE_BY_ENTRY"
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 97,
+     "symbol": "SETTINGS_KEY_BY_ROW"
+    },
+    {
+     "file": "src/adapter/screen-renderer/command-palette.ts",
+     "line": 115,
+     "symbol": "GUIDE_CURSOR_MODE_BY_ROW"
+    },
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 85,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 27,
+     "symbol": "VisibleElement"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "command-palette.ts:94-95 TRAP 'nothing checks that they agree'; columnsOutsideHistory (document-change-plan.ts:100) is T-027's undo scope (not a member)",
+   "differs": false,
+   "differ_input": "the 8 palette, 3 header and 2 cursor rows match the translator's 11 + 2",
+   "reachable": null,
+   "ledger": [
+    "DFC-128",
+    "DFC-147",
+    "DFC-100"
+   ],
+   "cr": "579",
+   "proposal": "ScreenRenderer (owner of icon-roster.json) exports one IC -> setting-key map and the cursor map (new PI-37 members); the translator reads them.",
+   "extends": null
+  },
+  {
+   "id": "E39",
+   "found_by": [
+    "E",
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 386,
+     "symbol": "KEY"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 665,
+     "symbol": "ENTRY"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 329,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 343,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 337,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-input-source/dom-input-source.ts",
+     "line": 44,
+     "symbol": "ESCAPE_KEY"
+    },
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 29,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "KEY / ENTRY are exported by the translator entry but are not PI-18 members; ScreenRenderer cannot import the translator (the reverse edge exists, LR-3); IconId is a plain string (screen-renderer.ts:44)",
+   "differs": false,
+   "differ_input": "equal ('N' is not in KEY)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578+579",
+   "proposal": "Home ENTRY in ScreenRenderer (icon-roster owner) and re-export it from the translator; frame-loop and dom-input-source import KEY / ENTRY (new PI-18 / PI-37 members); add KEY.n.",
+   "extends": null
+  },
+  {
+   "id": "E40",
+   "found_by": [
+    "E",
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 180,
+     "symbol": "checkDay"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-annotation.ts",
+     "line": 97,
+     "symbol": "anchorRefusals"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-annotation.ts",
+     "line": 109,
+     "symbol": "rangeRefusals"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-dependency.ts",
+     "line": 42,
+     "symbol": "planlessEndRefusals"
+    },
+    {
+     "file": "src/entity/document-model/schedule/schedule-invariants.ts",
+     "line": 158,
+     "symbol": "dateBreaches"
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/dependency-route.ts",
+     "line": 216,
+     "symbol": "hasPlanDates"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no reason for annotations skipping the T-214 range (edit-annotation.ts:97-126 check dayOf only); after an edit nothing re-runs the invariants (frame-loop.ts:660 reads IV-17 only)",
+   "differs": true,
+   "differ_input": "createHighlightBox / createCommentBox dated 2300-01-01 accepted; setTaskDeadline 2300-01-01 refused (IV-14); saved and reopened, validateImportedDocument refuses S-120 on /schedule/highlightBoxes/0 and document-file-flow.ts:546-548 returns false with no notice (rf/e40.ts, real code) | steps: enable the Agent API (IC-20), applyCommands createHighlightBox 2300-01-01 (agent-api-members.ts:462), save, reopen: the file silently will not open",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-182",
+    "DFC-760",
+    "DFC-582"
+   ],
+   "cr": "none",
+   "proposal": "Annotation refusals call checkDay: move it to Schedule beside dateBreaches and publish both (new PI-1 members); hasPlanDates moves there too.",
+   "extends": null
+  },
+  {
+   "id": "E41",
+   "found_by": [
+    "E"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-dependency.ts",
+     "line": 93,
+     "symbol": "milestoneEnd"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 170,
+     "symbol": "isMilestone"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "edit-dependency.ts:93 types a new link from Task.milestone while isMilestone reads the drawn shape first; refute-B would group :93 with G22d (Task.milestone is the truth, G-1), refute-E upheld ACCIDENTAL -- Q2 decides both",
+   "differs": true,
+   "differ_input": "visual 'milestone' + milestone false: drawn as a milestone, a new link takes the pressed edges' type; visual 'rectangle' + milestone true: drawn as a bar, the link is forced to type 1 | steps: as G22d (only an imported document can hold the mismatch, task-appearance.ts:89-92)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "After Q2: call drawnShapeKindOf (G22b) if the link rule means the drawn shape, else write the reason at edit-dependency.ts:93.",
+   "extends": "G22"
+  },
+  {
+   "id": "E42",
+   "found_by": [
+    "E",
+    "G",
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/document-settings/document-settings.ts",
+     "line": 435,
+     "symbol": "DISPLAY_SCALE_STEPS"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 774,
+     "symbol": "FONT_SCALE_STEPS"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-calendar.ts",
+     "line": 27,
+     "symbol": "DAY_TYPES"
+    },
+    {
+     "file": "src/entity/document-model/schedule/working-calendar.ts",
+     "line": 80,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 79,
+     "symbol": "LEVEL_ZERO_TREE_STATES"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 45,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 49,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "a generator gap: tools/generate_entity_types.py emits only the unions (document-settings.ts:42, :57); the only runtime lists are schema enums the inner layers may not read (LR-1)",
+   "differs": false,
+   "differ_input": "equal ([50..200], [S, M, L], day types 1..7)",
+   "reachable": null,
+   "ledger": [
+    "JDG-152"
+   ],
+   "cr": "579",
+   "proposal": "Have tools/generate_entity_types.py emit ordered value lists (DISPLAY_SCALE_STEPS, FONT_SCALES, DAY_TYPES) beside the unions; callers import them.",
+   "extends": null
+  },
+  {
+   "id": "E43",
+   "found_by": [
+    "E",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 668,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/open-modals.ts",
+     "line": 34,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/screen-state-input.ts",
+     "line": 27,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-screen-surface/dom-screen-surface.ts",
+     "line": 71,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "JF-1 bars reading icon-roster.json outside ScreenRenderer, but edges to ScreenRenderer exist, so an exported constant is legal; TRAPs frame-loop.ts:666, :670, :680 only say spell it the same; screen-state-input.ts:26 DEVIATION (DFC-703)",
+   "differs": false,
+   "differ_input": "every spelling matches",
+   "reachable": null,
+   "ledger": [
+    "DFC-703"
+   ],
+   "cr": "578",
+   "proposal": "screen-renderer.ts exports the SURFACE names (new PI-37 member); the three others import them. Settle DFC-703's U-row question first.",
+   "extends": null
+  },
+  {
+   "id": "H01",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/task-create.ts",
+     "line": 29,
+     "symbol": "createTask"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 292,
+     "symbol": "setTaskPlanDates"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "token-identical but the CM id; the IV-12 check (task-plan-actual.ts:303-309) is outside the copy",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "planDatesRefusal(cm, settings, start, finish) in task-plan-actual.ts; both call it.",
+   "extends": null
+  },
+  {
+   "id": "H02",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/edit-document/edit-task-group.ts",
+     "line": 241,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-order.ts",
+     "line": 149,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same arithmetic and message (FR-033 paste vs HM-3a move); only the ids differ",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "depthPastCeiling(byId, target, height, settings) beside depthOf (G05); callers keep their own CM / row ids.",
+   "extends": null
+  },
+  {
+   "id": "H03",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/display-scale-steps.ts",
+     "line": 91,
+     "symbol": "displayScaleWrites"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 371,
+     "symbol": "rowHeldStill"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component; the differing inputs are parameters (zoom-and-fit.ts:383 TRAP)",
+   "differs": false,
+   "differ_input": "equal kernel; the judge's zoomX hypothesis is unproven",
+   "reachable": null,
+   "ledger": [
+    "DFC-697"
+   ],
+   "cr": "none",
+   "proposal": "rowHeldAcross(context, afterSettings, afterRegions, zoomY, centreBefore, centreAfter) in zoom-and-fit.ts; both call it.",
+   "extends": null
+  },
+  {
+   "id": "H04",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 478,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/dependency-route.ts",
+     "line": 135,
+     "symbol": "selectedLinksOf"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "selectedLinksOf is not re-exported by schedule-geometry.ts (:31-32); judge B saw the pair as G17's extra",
+   "differs": true,
+   "differ_input": "two Tasks sharing uid 2: renderer '3>2', geometry '1>2 3>2' (repro-G17.ts); equal on valid documents | steps: inferred, not run -- an MSPDI with a repeated Task UID opens (rf/e07.ts, DFC-922), so IV-1 (schedule-invariants.ts:303-304) does not guard this road",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "DFC-640",
+    "DFC-922"
+   ],
+   "cr": "none",
+   "proposal": "Put the selected links on ScheduleGeometry (geometry already computes them at schedule-geometry.ts:198) or add selectedLinksOf to PI-6; svg-renderer.ts passes the gated selection.",
+   "extends": null
+  },
+  {
+   "id": "H05",
+   "found_by": [
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 382,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 582,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/shortcut-keys.ts",
+     "line": 126,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/selection/selection.ts",
+     "line": 90,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 483,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/dependency-route.ts",
+     "line": 143,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no helper exists; selection.ts is the inner home every caller already imports",
+   "differs": true,
+   "differ_input": "selection.ts:91 tests ordinal < length, the others read undefined: ordinal -1 or 1.5 differ",
+   "reachable": "UNREACHABLE-TODAY",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "linkOf(schedule, ref): Dependency | null from selection.ts (new PI-32 member); refOfLink beside it. Guard today: ordinals come only from findIndex (selection-input.ts:53-56).",
+   "extends": null
+  },
+  {
+   "id": "H06",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/armed-placement.ts",
+     "line": 143,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/item-grab.ts",
+     "line": 421,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/highlight-box.ts",
+     "line": 26,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "item-grab.ts:421 TRAP demands identity with highlightGeometry (a reason to be equal, not to copy); the IV-19 block (schedule-invariants.ts:699-711) is a check, not a member",
+   "differs": false,
+   "differ_input": "equal (item-grab's rows are drawn-y order, input-command-translator.ts:1196)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Export highlightRowsOf(box, layout) from schedule-geometry.ts (new PI-6 member); item-grab uses it; one orderedByRank in the translator for the two writes.",
+   "extends": null
+  },
+  {
+   "id": "H07",
+   "found_by": [
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/document-codec/json-codec.ts",
+     "line": 284,
+     "symbol": "withStopsFromOlderLengths"
+    },
+    {
+     "file": "src/adapter/document-codec/mspdi-codec.ts",
+     "line": 621,
+     "symbol": "withStopsFromActualDurations"
+    },
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 92,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "no WHY for refusing a whole GRS JSON where MSPDI tells a notice; FR-011 (01-04-requirements.md:2759) wants an older GRS JSON read 'with the same reading' as MSPDI; method I added field-commit.ts:92-97",
+   "differs": true,
+   "differ_input": "calendar with no working weekday, task 1 actual length 3 + task 2 length 1: JSON refuses the whole file, MSPDI opens it with task 1 stop null + a notice and task 2 stop 2026-01-05; same with Mon-Fri and length 100000 (repro-H07.ts) | steps: open an older-version GRS JSON whose Task has actualStart + actualDuration (100000, or any under a calendar with no working weekday) and no stop: the whole file is refused (json-codec.ts:198 records the length; :273-279 checks only integrality)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "PND-499"
+   ],
+   "cr": "580",
+   "proposal": "One stopFromActualLength(within, task, days): {stop} | {fault} in DocumentCodec; both codecs call it and tell a notice and keep the rest (the MSPDI behaviour, which FR-011 asks for).",
+   "extends": null
+  },
+  {
+   "id": "H08",
+   "found_by": [
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/document-file-flow.ts",
+     "line": 771,
+     "symbol": "rasteredContent"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2258,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "export",
+   "evidence": "same component (SingleHtmlShell); frame-loop.ts:2256 TRAP explains the PNG road, not the copy; agent-api-members.ts:660-675 answers AM-14 refusals (not a member)",
+   "differs": false,
+   "differ_input": "equal (three outcomes)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Export pngOrNotice(rasterizer, scene, raiseNotice) from document-file-flow.ts; the clipboard arm calls it.",
+   "extends": null
+  },
+  {
+   "id": "H09",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/image-exporter/image-exporter.ts",
+     "line": 169,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 535,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no written reason; both already import ScreenRegions",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "pictureSizeOf(regions) from screen-regions.ts (new PI-35 member); both call it.",
+   "extends": null
+  },
+  {
+   "id": "H10",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 85,
+     "symbol": "boxOfPoints"
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 123,
+     "symbol": "boxOfPath"
+    },
+    {
+     "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+     "line": 110,
+     "symbol": "cornersOfBar"
+    },
+    {
+     "file": "src/entity/layout-engine/item-hit-area/item-hit-area.ts",
+     "line": 208,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "neither bar-extent copy writes why it counts or omits the stroke (item-hit-area.ts:206 WHY is about the end mark)",
+   "differs": true,
+   "differ_input": "boxOfPoints == boxOfPath (20000 paths); bar extent: line bar 10..100 at y 50, stroke 4 -> mask box h 0, hit band h 4 (repro-H10.ts) | steps: a Task drawn as arrow / endpointSpan with a dependency line across it: its halo-mask rect has zero height (schedule-task-figures.ts:384-386, :548-553), so the halo is not masked there (pixel effect not observed)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One boxOfPath and one barExtentOf(bar, withStroke) in ScheduleGeometry (new PI-6 members); decide in the spec whether the mask includes the stroke.",
+   "extends": null
+  },
+  {
+   "id": "H11",
+   "found_by": [
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1017,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/shortcut-keys.ts",
+     "line": 93,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component; the row side already has rowZoomAnswer",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "timeZoomAnswer(context, factor, x, y) beside rowZoomAnswer; the three sites call it.",
+   "extends": null
+  },
+  {
+   "id": "H12",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/svg-renderer/schedule-task-figures.ts",
+     "line": 349,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/task-figures.ts",
+     "line": 524,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no reason on the cull for ignoring actualVisible; the layout keeps actualX whatever the toggle (schedule-layout.ts:551)",
+   "differs": true,
+   "differ_input": "plan 300..400, actual 100..200, actual hidden: cull left 100, drawn left 300 (repro-H12.ts) | steps: turn actualVisible off on a Task whose actual began before its plan and scroll so only the hidden actual's days are in view: the Task stays in the SVG though nothing is drawn (superset, no pixel change)",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "drawnExtentOf(placed, showPlan, showActual) in task-figures.ts (new PI-6 member); the cull uses it.",
+   "extends": null
+  },
+  {
+   "id": "H13",
+   "found_by": [
+    "G",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 994,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/row-grab.ts",
+     "line": 335,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "same component; the strip path has no editInPlace branch on purpose (row-grab.ts:271-275)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "chooseRowOf(press, groupId) in row-grab.ts; input-command-translator.ts calls it.",
+   "extends": null
+  },
+  {
+   "id": "H14",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/view-place.ts",
+     "line": 89,
+     "symbol": "viewSettings"
+    },
+    {
+     "file": "src/adapter/input-command-translator/zoom-and-fit.ts",
+     "line": 534,
+     "symbol": "fitCommand"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "no reason for two stores of one fit; SingleHtmlShell->ScheduleLayout edge exists",
+   "differs": false,
+   "differ_input": "equal on the startup domain (view-place.ts:59)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "placeOfFit(fitted): ViewPlace from fit-zoom.ts (new PI-5 member); both build from it.",
+   "extends": null
+  },
+  {
+   "id": "H15",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/agent-api-endpoint/agent-api-members.ts",
+     "line": 271,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/single-html-shell.ts",
+     "line": 186,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "trivial; both import DocumentCodec",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "faultsText(faults) from document-codec.ts (new PI-20 member).",
+   "extends": null
+  },
+  {
+   "id": "H16",
+   "found_by": [
+    "G"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/held-press-preview.ts",
+     "line": 122,
+     "symbol": "tentativeDependencyOf"
+    },
+    {
+     "file": "src/adapter/input-command-translator/armed-placement.ts",
+     "line": 61,
+     "symbol": "commandFromDependencyDrag"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "the preview must draw to the bare pointer and over its own Task (01-04-requirements.md:2568, WHY held-press-preview.ts:141)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [
+    "DFC-975"
+   ],
+   "cr": "none",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "H17",
+   "found_by": [
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/document/document.ts",
+     "line": 19,
+     "symbol": "ROOT_KEYS"
+    },
+    {
+     "file": "src/adapter/document-codec/grs-json-schema.ts",
+     "line": 684,
+     "symbol": null
+    }
+   ],
+   "verdict": "INTENDED",
+   "blocked_by": null,
+   "evidence": "LR-1 (tools/check_layer_rules.py:9, :200-203) bars document.ts from adapter/document-codec; caveat: the generator could emit ROOT_KEYS into entity",
+   "differs": false,
+   "differ_input": "same five keys",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Type it: as const satisfies readonly (keyof Document)[] with an exhaustiveness check, or let the generator emit ROOT_KEYS into entity. documentViolations has no src caller.",
+   "extends": null
+  },
+  {
+   "id": "H18",
+   "found_by": [
+    "H"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/schedule-geometry/schedule-geometry.ts",
+     "line": 82,
+     "symbol": "DummyGeometry"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 67,
+     "symbol": "ActualGrabHold"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "blocked by a missing EditDocument->ScheduleGeometry edge (components.json), not by a layer rule",
+   "differs": false,
+   "differ_input": "identical five GA rows",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "One generated T-266 union in an inner home both reach (Schedule or ScheduleLayout; new member); both alias it.",
+   "extends": null
+  },
+  {
+   "id": "H19",
+   "found_by": [
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 120,
+     "symbol": "PressRow"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/gesture-values.ts",
+     "line": 10,
+     "symbol": "GesturePressRow"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "gesture-values.ts:9 WHY justifies the use-case copy (UseCase may not read Adapter); the adapter copy is the accidental one; advance-screen-session.ts:75 exports GrabbedRowAxis but not GesturePressRow",
+   "differs": false,
+   "differ_input": "six PTD rows equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Export GesturePressRow from advance-screen-session.ts (new PI-39 member); PressRow = GesturePressRow, RowGrabAxis = GrabbedRowAxis.",
+   "extends": null
+  },
+  {
+   "id": "H20",
+   "found_by": [
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/use-case/import-document/import-document.ts",
+     "line": 26,
+     "symbol": "OpenChoice"
+    },
+    {
+     "file": "src/use-case/advance-screen-session/file-flow-values.ts",
+     "line": 14,
+     "symbol": "FileFlowOpenChoice"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 674,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "file-flow-values.ts:12 WHY cites only the undeclared AdvanceScreenSession->ImportDocument edge; OpenRoute (file-store.ts:7) is not a member (no 'handed' route)",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Declare AdvanceScreenSession->ImportDocument and alias FileFlowOpenChoice = OpenChoice (or the reverse).",
+   "extends": null
+  },
+  {
+   "id": "H21",
+   "found_by": [
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 835,
+     "symbol": "placementAt"
+    },
+    {
+     "file": "src/use-case/edit-document/task-plan-actual.ts",
+     "line": 327,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "inverse directions of T-019; the row union is already one type (edit-task.ts:51-61)",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Optional: move placementAt next to setTaskPlanActualState.",
+   "extends": null
+  },
+  {
+   "id": "H22",
+   "found_by": [
+    "H",
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 440,
+     "symbol": "NoticeReason"
+    },
+    {
+     "file": "src/adapter/screen-renderer/display-words.json",
+     "line": 2701,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "JF-1 keeps display-words.json inside ScreenRenderer, but the SingleHtmlShell->ScreenRenderer edge exists; nothing checks NoticeReason is a subset of the roster",
+   "differs": false,
+   "differ_input": "54 of 59, subset holds",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "screen-renderer.ts exports a generated ReasonRow union (new PI-37 member); NoticeReason = Extract<ReasonRow, ...>.",
+   "extends": null
+  },
+  {
+   "id": "I01",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1629,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2222,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2229,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/edit-history/edit-history.ts",
+     "line": 31,
+     "symbol": "stepCount"
+    },
+    {
+     "file": "src/use-case/apply-document-change/document-change-plan.ts",
+     "line": 361,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "frame-loop reads history.done / undone.length itself; edit-history.ts:31 stepCount has 0 src callers and is not a PI-4 member",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Publish canUndo / canRedo (or stepCount) from edit-history.ts (new PI-4 members); frame-loop and document-change-plan.ts read them.",
+   "extends": null
+  },
+  {
+   "id": "I02",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1523,
+     "symbol": "runFrame"
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1777,
+     "symbol": "exportScene"
+    },
+    {
+     "file": "src/framework/single-html-shell/copy-and-paste.ts",
+     "line": 74,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "TRAPs frame-loop.ts:1531, :1789 explain the differing inputs, nothing the copied pipeline",
+   "differs": null,
+   "differ_input": "may differ: copy-and-paste.ts:74-80 lays out at the stored zoom while the frame is fitted, and the ST-7 lane cap depends on zoomX (schedule-layout.ts:470-497); unproven",
+   "reachable": null,
+   "ledger": [
+    "PND-254"
+   ],
+   "cr": "578",
+   "proposal": "One layoutFrom(document, environment, settings) in SingleHtmlShell; the three call it.",
+   "extends": null
+  },
+  {
+   "id": "I03",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 837,
+     "symbol": "dualCursorFollowingIn"
+    },
+    {
+     "file": "src/adapter/screen-renderer/tooltips.ts",
+     "line": 194,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the adapter tests placingDate2 where the shell tests placingDate1; overlaps G53x",
+   "differs": false,
+   "differ_input": "equal while the child union has two kinds (screen-values.ts:134-135)",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "A published session reader (G53x); both import it.",
+   "extends": null
+  },
+  {
+   "id": "I04",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 850,
+     "symbol": "panelShowingIn"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 854,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/app-header-items.ts",
+     "line": 63,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/screen-frame.ts",
+     "line": 78,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "one-tag reads; frame-loop.ts:850-854 maps the tag to the PanelShowing type",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Leave.",
+   "extends": null
+  },
+  {
+   "id": "I05",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 949,
+     "symbol": "subjectOfChoice"
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 867,
+     "symbol": "isNothingPicked"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "same predicate; outcomes converge because the panel's fallback is the subject the shell stored",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "A published session reader (G53x); both import it.",
+   "extends": null
+  },
+  {
+   "id": "I06",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/layout-engine/screen-regions/screen-regions.ts",
+     "line": 165,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 1867,
+     "symbol": "settingsLimitsOf"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-document-settings.ts",
+     "line": 109,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "edit-document-settings.ts:101 WHY ('the floor would own a second copy') is refuted: EditDocument->ScreenRegions is declared and drawnSettingsOf is PI-35",
+   "differs": true,
+   "differ_input": "canvas 1920, stored title 100 (floor 200), props 1750: CM-67 accepts, drawn Row Area -48 (repro-I.ts) | steps: make the S-79 floor exceed the stored title width (raise rowTitleIndent or maxGroupDepth), then drag the Properties Panel divider left (frame-drags.ts:136 has no upper bound): the pair is stored and the Row Area drawn at <= 0 width (pixels not observed)",
+   "reachable": "REACHABLE",
+   "ledger": [
+    "PND-254"
+   ],
+   "cr": "578",
+   "proposal": "edit-document-settings.ts:109-115 subtracts drawnSettingsOf's floored title width (screen-regions.ts:107-112), not stored x ratio.",
+   "extends": null
+  },
+  {
+   "id": "I07",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2532,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2662,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2544,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/single-html-shell/frame-loop.ts",
+     "line": 2654,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "frame-loop.ts:2652 TRAP 'keep in step' acknowledges, does not justify",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "578",
+   "proposal": "Compute the pre-translator facts once per input in frame-loop; receiveInput and isBrowserDefaultStopped read them.",
+   "extends": null
+  },
+  {
+   "id": "I08",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/shortcut-keys.ts",
+     "line": 44,
+     "symbol": null
+    },
+    {
+     "file": "src/framework/dom-input-source/dom-input-source.ts",
+     "line": 116,
+     "symbol": "isTypedIntoDialogueEntry"
+    },
+    {
+     "file": "src/adapter/input-command-translator/screen-state-input.ts",
+     "line": 126,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 412,
+     "symbol": "isSingleCharacterKey"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the two routes are required by IN-5a (01-04-requirements.md:6916); the key set is not: shortcut-keys.ts:47-52 wants a plain combo, dom-input-source.ts:130-135 rejects only Alt / Meta",
+   "differs": true,
+   "differ_input": "Shift+A, Shift+Delete, Ctrl+Shift+V: the dialogue field takes them, the text entry does not; Shift+Minus / Shift+Equal fall through to SK-16 (shortcut-keys.ts:93) (repro-I.ts) | steps (code path, not live-verified): focus a Properties Panel text field and type '_' or '+' on a US keyboard ('=' on JIS): the time axis zooms and isBrowserDefaultStopped (frame-loop.ts:2673) likely swallows the character",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "579",
+   "proposal": "One text-entry key test published by the translator (isTextEntryKey; new PI-18 member) that follows dom-input-source's reading; shortcut-keys and screen-state-input call it.",
+   "extends": null
+  },
+  {
+   "id": "I09",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1236,
+     "symbol": "alignWrites"
+    },
+    {
+     "file": "src/adapter/input-command-translator/item-grab.ts",
+     "line": 309,
+     "symbol": "bodyMoveWrites"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": null,
+   "evidence": "token-identical block, same component, no reason",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [
+    "DFC-664"
+   ],
+   "cr": "579",
+   "proposal": "planShiftWrites(task, days) in item-grab.ts; alignWrites calls it.",
+   "extends": null
+  },
+  {
+   "id": "I10",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 355,
+     "symbol": "parentCandidates"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-task.ts",
+     "line": 300,
+     "symbol": null
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "the panel offers every Task but itself; CM-18 then refuses descendants (HM-4). PR-15 (tbl-property-items.md:44) sets no candidate rule: a spec gap, not a copy",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Ask the spec for a candidate rule in PR-15; ScreenRenderer->EditDocument is not an edge.",
+   "extends": null
+  },
+  {
+   "id": "I11",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 725,
+     "symbol": "valueAt"
+    },
+    {
+     "file": "src/entity/document-model/document-settings/document-settings.ts",
+     "line": 451,
+     "symbol": "reach"
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "properties-panel.ts:723 TRAP 'repeats the private reach() walk' acknowledges, no reason",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish reach from document-settings.ts (new PI-2 member); valueAt calls it.",
+   "extends": null
+  },
+  {
+   "id": "I12",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 759,
+     "symbol": "LEFT_OUT_NAME_OF_HOLDER"
+    },
+    {
+     "file": "src/use-case/edit-document/edit-annotation.ts",
+     "line": 51,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-appearance.ts",
+     "line": 27,
+     "symbol": null
+    },
+    {
+     "file": "src/use-case/edit-document/task-group-look.ts",
+     "line": 24,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/svg-renderer/svg-renderer.ts",
+     "line": 801,
+     "symbol": null
+    },
+    {
+     "file": "src/entity/document-model/schedule/stored-colour.ts",
+     "line": 8,
+     "symbol": "TRANSPARENT"
+    },
+    {
+     "file": "src/framework/dom-screen-surface/properties-panel-drawing.ts",
+     "line": 325,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "TRANSPARENT re-typed though stored-colour.ts:8 exports it; the box-outline 'no transparent' rule hand-coded at edit-annotation.ts:55-57 though the generated shape (schedule-entities.ts:464) omits it; S-315 (tbl-settings.md:504) 'not offered for rows'",
+   "differs": true,
+   "differ_input": "TaskGroup colour 'black': CM-30 accepts (task-group-look.ts:24), the panel never offers it, the renderer has no band paint (svg-renderer.ts:802-803) so the theme band draws (repro-I.ts) | steps: Agent API setTaskGroupColor 'black', or open a GRS JSON with a TaskGroup color 'black' (schedule-entities.ts:439 lists it): the stored black draws as the theme band and no swatch shows chosen",
+   "reachable": "REACHABLE",
+   "ledger": [],
+   "cr": "none",
+   "proposal": "Publish TRANSPARENT and one allowedColourNames(holder) from Schedule (new PI-1 members); the panel, CM-30 and the renderer read it. Whether CM-30 must refuse 'black' is Q3.",
+   "extends": null
+  },
+  {
+   "id": "I13",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 253,
+     "symbol": "ACTUAL_LENGTH_ITEM"
+    },
+    {
+     "file": "src/adapter/input-command-translator/field-commit.ts",
+     "line": 74,
+     "symbol": "ACTUAL_LENGTH_ITEM"
+    },
+    {
+     "file": "src/adapter/screen-renderer/property-items.json",
+     "line": 53,
+     "symbol": null
+    }
+   ],
+   "verdict": "ACCIDENTAL",
+   "blocked_by": "t064",
+   "evidence": "the WHY comment is copied word for word; JF-1 bars reading property-items.json, not an exported constant",
+   "differs": false,
+   "differ_input": "equal",
+   "reachable": null,
+   "ledger": [],
+   "cr": "none",
+   "proposal": "screen-renderer.ts exports ACTUAL_LENGTH_ITEM (new PI-37 member); field-commit.ts imports it.",
+   "extends": null
+  },
+  {
+   "id": "I14",
+   "found_by": [
+    "I"
+   ],
+   "members": [
+    {
+     "file": "src/entity/document-model/selection/selection.ts",
+     "line": 79,
+     "symbol": "lastPicked"
+    },
+    {
+     "file": "src/adapter/input-command-translator/input-command-translator.ts",
+     "line": 1226,
+     "symbol": null
+    },
+    {
+     "file": "src/adapter/screen-renderer/properties-panel.ts",
+     "line": 564,
+     "symbol": "subjectOf"
+    }
+   ],
+   "verdict": "NOT-A-DUPLICATE",
+   "blocked_by": null,
+   "evidence": "align anchors on the last Task as SL-7b says (01-04-requirements.md:2246); lastPicked is the last item of any kind, used only by the panel subject; selection.ts:77 cites FR-034 though no FR-034 caller uses it",
+   "differs": null,
+   "differ_input": null,
+   "reachable": null,
+   "ledger": [],
+   "cr": "579",
+   "proposal": "Leave; fix the FR-034 citation at selection.ts:77.",
+   "extends": null
+  }
+ ]
+}
