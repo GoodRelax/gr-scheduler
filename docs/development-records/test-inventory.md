@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
-| `unit` | TS-6 | - | 134 | 3005 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 135 | 3006 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 279 | 4421 | 12 | 17 | 9 | 1 |
+| **all** | | | 280 | 4422 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -70,12 +70,12 @@ named either way: 1 of 12.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (134) -- listing only
+## 6. The unit files kept for now (135) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 9 of 134.
+`semi-pure-a` (rule 04 table UO, row UO-1): 9 of 135.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -146,6 +146,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | applyDocumentChange (non-pure), documentFromJson (pure), emptyHistory (pure), stepCount (pure), undoEdit (pure) | - | FR-031, FR-052, FR-063, T-027, T-060, T-108, T-206 |
 | `tests/unit/fr-036-help-item-order-and-size.test.ts` | domScreenSurface (non-pure) | - | FR-029, FR-036, NFR-007, T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 |
 | `tests/unit/fr-038-panel-date-language.test.ts` | domScreenSurface (non-pure) | - | FR-006, FR-023, FR-038, FR-072, T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-216, T-218 |
+| `tests/unit/fr-039-the-theme-starts-from-the-browser.test.ts` | startupThemePreference (semi-pure-b) | - | FR-039 |
 | `tests/unit/fr-043-dummy-drawn.test.ts` | emptySelection (pure), exportSvg (pure), frameLoop (non-pure), geometryFromLayout (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure) | - | FR-011, FR-013, FR-017, FR-025, FR-039, FR-041, FR-043, FR-054, FR-055, FR-080, FR-093, T-020, T-023d, T-041, T-068, T-076, T-077, T-201, T-206, T-218, T-221, T-231, T-240, T-266 |
 | `tests/unit/fr-052-t-023d-picture-while-held.test.ts` | frameLoop (non-pure) | - | FR-027, FR-031, FR-051, FR-052, FR-053, FR-072, FR-075, NFR-010, T-012a, T-023c, T-023d, T-027, T-028, T-031, T-034, T-060, T-062, T-077, T-078, T-108, T-203, T-218, T-220, T-252, T-266 |
 | `tests/unit/fr-053-palette-group-boundary.test.ts` | domScreenSurface (non-pure) | - | FR-023, FR-029, FR-036, FR-038, FR-053, T-006a, T-062, T-064, T-075, T-103, T-109, T-206, T-216, T-218, T-236 |
@@ -416,6 +417,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | 10 | FR-031, FR-052, FR-063 | - | T-027, T-060, T-108, T-206 | CM-9, CM-67, LY-5, S-94, S-95, UN-3, UN-16 | - | - | - | - |
 | `tests/unit/fr-036-help-item-order-and-size.test.ts` | 13 | FR-029, FR-036, NFR-007 | - | T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 | BO-1, CP-38, IC-52, IC-102, IF-9, S-121, S-122, S-123, S-138, S-197, S-201, S-202, S-203, S-205, TS-6, U-30, UF-66, UF-71 | - | - | - | - |
 | `tests/unit/fr-038-panel-date-language.test.ts` | 5 | FR-006, FR-023, FR-038, FR-072 | - | T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-216, T-218 | CP-38, IF-9, PI-38, PR-3, S-72, S-73, S-99, S-186, S-189, TS-6, U-25, UF-64, UF-71, W-4 | - | - | - | - |
+| `tests/unit/fr-039-the-theme-starts-from-the-browser.test.ts` | 1 | FR-039 | - | - | S-72 | - | - | - | - |
 | `tests/unit/fr-043-dummy-drawn.test.ts` | 22 | FR-011, FR-013, FR-017, FR-025, FR-039, FR-041, FR-043, FR-054, FR-055, FR-080, FR-093 | - | T-020, T-023d, T-041, T-068, T-076, T-077, T-201, T-206, T-218, T-221, T-231, T-240, T-266 | BO-1, DM-1, DM-3, EP-5, EP-14, GA-1, GA-5, GA-6, GA-16, GA-17, GA-18, LF-9, LF-10, NS-1, NS-3, PI-19, PM-1, PM-1a, S-1, S-4, S-5, S-6, S-22, S-63, S-77, S-99h, S-129, S-130, S-131, S-180, S-217, S-247, S-257, S-260, TS-6, U-2, U-5, U-52, WY-3, ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5 | - | - | - | - |
 | `tests/unit/fr-052-t-023d-picture-while-held.test.ts` | 46 | FR-027, FR-031, FR-051, FR-052, FR-053, FR-072, FR-075, NFR-010 | - | T-012a, T-023c, T-023d, T-027, T-028, T-031, T-034, T-060, T-062, T-077, T-078, T-108, T-203, T-218, T-220, T-252, T-266 | BO-1, BT-4, CP-25, FD-4, FD-5, FD-6, FT-1, FT-3, GA-1, GA-7, GA-8, GR-19, IF-9, IN-1, IN-1a, IN-4, IV-12, LY-5, MK-13, S-1, S-37, S-75, S-79, S-125, S-134, S-171, SC-3, SK-6, SK-8, SL-2, TS-6, U-50, UF-48, UN-3, UN-16 | - | - | - | - |
 | `tests/unit/fr-053-palette-group-boundary.test.ts` | 5 | FR-023, FR-029, FR-036, FR-038, FR-053 | - | T-006a, T-062, T-064, T-075, T-103, T-109, T-206, T-216, T-218, T-236 | BO-1, CP-38, IF-9, PI-38, S-72, S-73, S-135a, S-143, S-188, S-189, S-192, TS-6, U-26, UF-65, UF-71, W-4 | - | - | - | - |

@@ -118,15 +118,11 @@ function drawnRowTitlePanelWidthPx(settings: DocumentSettings, ratio: number): n
 // see FR-039, T-252
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
 
-const drawnViewOfStored = new WeakMap<DocumentSettings, DrawnSettings>()
-
 // TRAP: the stored values are never rewritten (FR-039 MUST NOT). Each drawing side
 // multiplies the STORED settings once on its way in; none of them scales a scaled value.
 /** @purity pure */
 export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
   if (Object.prototype.hasOwnProperty.call(settings, DRAWN_AT_RATIO)) return settings as DrawnSettings
-  const built = drawnViewOfStored.get(settings)
-  if (built !== undefined) return built
   const ratio = displayRatioOf(settings)
   // WHY: constants last, so a same-named key the input carries never outvotes them.
   const merged: Record<string, unknown> = { ...settings, ...SETTINGS_CONSTANTS }
@@ -140,9 +136,7 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
     merged['rowTitlePanelWidth'] = drawnRowTitlePanelWidthPx(settings, ratio)
   }
   Object.defineProperty(merged, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
-  const drawn = merged as unknown as DrawnSettings
-  drawnViewOfStored.set(settings, drawn)
-  return drawn
+  return merged as unknown as DrawnSettings
 }
 
 /** @purity pure */
