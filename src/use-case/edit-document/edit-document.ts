@@ -20,6 +20,7 @@ export type {
 export { cycleTaskPlanActualState } from './edit-task'
 export type { TaskGroupCommand } from './edit-task-group'
 export { wbsSubtreesOf } from './edit-task-group'
+export { pastedUidsOf } from './task-paste'
 export { levelZeroWritesFor, treeStateWritesFor } from './task-group-folding'
 export type { TreeStateEvent } from './task-group-folding'
 export { confirmationOwedBy, confirmationOwedByResourceDeletion } from './deletion-confirmations'

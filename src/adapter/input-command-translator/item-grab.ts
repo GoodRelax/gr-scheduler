@@ -14,12 +14,17 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import {
   isSelected,
+  selectionOfAll,
   type ItemRef,
 } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import type { BarGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import type { RowPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
+import {
+  pastedUidsOf,
+  wbsSubtreesOf,
+  type DocumentCommand,
+} from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
 import {
   CONSUMED_ELSEWHERE,
@@ -363,9 +368,45 @@ function clampedRowShift(
       if (at >= 0) held.push(at)
     }
   }
+  return shiftWithinRows(rows, held, asked)
+}
+
+// see PE-1, T-308 CY-6
+/** @purity pure */
+function shiftWithinRows(rows: readonly RowPlacement[], held: readonly number[], asked: number): number {
   if (held.length === 0) return 0
   const room = { up: -Math.min(...held), down: rows.length - 1 - Math.max(...held) }
   return Math.min(Math.max(asked, room.up), room.down)
+}
+
+// see T-023a PTD-7, T-308 CY-3, CY-5, CY-6, CY-8, CY-9, CM-8
+// WHY: one CM-8 carrying where the copies land, so one drag is one undo step (FR-031); the rows are counted on
+// the copies alone -- the boxes CY-4 leaves behind do not hold the drag at an edge.
+/** @purity pure */
+export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
+  if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
+  const schedule = context.document.schedule
+  const sources = context.selection.items.flatMap((one) =>
+    one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
+  const copied = [...wbsSubtreesOf(schedule.tasks, sources)]
+  const rows = drawnRowsOf(context.layout)
+  const dayCount = dayShift(context, press.at.x, release.x)
+  const heldRows = copied.flatMap((uid) => rowIndexOfTask(context, rows, uid) ?? [])
+  const crossed = shiftWithinRows(rows, heldRows, drawnRowsCrossed(rows, press.at.y, release.y))
+  if (sources.length === 0 || (dayCount === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
+  const groupIdOf: Record<number, string> = {}
+  for (const uid of copied) {
+    const at = rowIndexOfTask(context, rows, uid)
+    const landed = at === null ? undefined : rows[at + crossed]
+    if (landed !== undefined && landed.groupId !== rowOfTask(context, uid)) groupIdOf[uid] = landed.groupId
+  }
+  const copyUidOf = pastedUidsOf(schedule, sources)
+  const picked = selectionOfAll(sources.flatMap((uid) => {
+    const copy = copyUidOf.get(uid)
+    return copy === undefined ? [] : [{ kind: 'task' as const, uid: copy }]
+  }))
+  const write: DocumentCommand = { kind: 'pasteTaskSubtree', sourceUids: sources, landing: { dayShift: dayCount, groupIdOf } }
+  return acted({ kind: 'changeDocument', writes: [[write]], picked })
 }
 
 // see HB-5
