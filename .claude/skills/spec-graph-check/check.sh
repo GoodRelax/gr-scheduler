@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 66 mechanical checks for the gr-scheduler specification.
+# All 68 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,12 +10,11 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 49. (Recounted 2026-09-26 at the
-# merge of the provisional checks 70-71 (CR-581) and 74 (test inventory):
-# 46 + 2 + 1. Before that, recounted 2026-09-26 when
+# The ranges today are 1 + 4 + 8 + 4 + 51. (Recounted 2026-09-26 at the
+# merge of the provisional checks 70-71 (CR-581), 74 (test inventory) and
+# 76-77 (rules): 46 + 2 + 1 + 2. Before that, recounted 2026-09-26 when
 # checks 64-66 went in: the single-number headings were 43, not 42, before
-# them -- check 63 had gone in without a recount. Recounted again when
-# check 74 went in: 46 single-number headings before it.)
+# them -- check 63 had gone in without a recount.)
 # ⚠️ `26b` is written with ONE space after the number, so a recount that
 # splits the heading on two spaces reads it as no number at all and lands one
 # short. Counted by hand it is one check like any other.
@@ -317,6 +316,15 @@
 #          (docs/development-records/test-inventory.md, one row per test
 #          file with the spec rows it names) is what the tests and the
 #          specification give today. No baseline: stale is red
+#   76     check-handoff-holds-state.py : docs/development-records/handoff.md
+#          keeps a lesson only in its newest dated section, and no heading
+#          of lessons waiting to be lowered. Rule 05 section 1: a lesson left
+#          in the handoff is gone a round later, so the round's end lowers it
+#          into docs/development-rules/. No baseline: 0
+#   77     check-rules-name-real-things.py : every backticked path, every
+#          `npm run` script and every 検査 number that a rule of
+#          docs/development-rules/ names still exists. Check 0 keeps the
+#          links; this keeps the names. No baseline: 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -876,6 +884,28 @@ section "74  the test inventory is what the tests and the specification give"
 # count there stays eighteen. Any edit to a test file, known-red.txt or a spec
 # row a test names makes it stale: run `npm run gen:tests` and commit the file.
 PYTHONIOENCODING=utf-8 python tools/generate_test_inventory.py --check || failed
+
+echo ""
+section "76  the handoff holds state; last round's lessons went down into the rules"
+# ⛔ Rule 05 section 1. MEASURED 2026-09-26 on 0ad572f6: 15 -- 8 lesson lines
+# outside the newest section and 7 headings of lessons "not yet lowered",
+# the oldest from 2026-09-14. The P1 chip of the process-first round lowered
+# them into docs/development-rules/ and cut the handoff from 1,088 lines to
+# about 150. ⭐ --self-test keeps an old lesson and a waiting heading in an
+# in-memory handoff and is red unless it reports both.
+PYTHONIOENCODING=utf-8 python "$HERE/check-handoff-holds-state.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-handoff-holds-state.py" || failed
+
+echo ""
+section "77  a rule names only files, npm scripts and checks that exist"
+# ⛔ The rules' README section 2: a rule that points at nothing teaches the
+# reader to stop reading the rules. MEASURED 2026-09-26 on 0ad572f6: 5 names
+# in 3 files -- check 26 cited for the job of check 0 (README, 07), rule 03's
+# `review-standards.md`, and 07's `development-mode.md` of the framework it
+# was imported from. ⭐ --self-test feeds a rule with a dead path, a dead npm
+# script and a dead check number and is red unless it reports all three.
+PYTHONIOENCODING=utf-8 python "$HERE/check-rules-name-real-things.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-rules-name-real-things.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
