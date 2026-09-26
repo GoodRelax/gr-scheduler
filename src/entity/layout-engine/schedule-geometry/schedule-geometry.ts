@@ -11,17 +11,26 @@ import {
   type CalendarDay,
   type Schedule,
   type Task,
+  type TaskGroup,
   type WorkingCalendar,
 } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
-import { xFromDay, type ScheduleLayout, type TaskPlacement } from '../schedule-layout/schedule-layout'
+import {
+  xFromDay,
+  type RowPlacement,
+  type ScheduleLayout,
+  type TaskPlacement,
+} from '../schedule-layout/schedule-layout'
 import { drawnSettingsOf, type ScreenRect, type ScreenRegions } from '../screen-regions/screen-regions'
 import { commentGeometry } from './comment-box'
 import {
   hasPlanDates,
+  placedEndOf,
   plannedPlacementsOf,
   routedDependency,
   selectedLinksOf,
+  standingEndOf,
+  type LinkEnd,
 } from './dependency-route'
 import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
@@ -106,13 +115,26 @@ export interface TaskGeometry {
   readonly hasPlanDates?: boolean
 }
 
-// see LC-10, T-222
+// see EL-9, GA-24
+export interface ContinuationGeometry {
+  readonly dots: readonly Point[]
+  readonly radius: number
+  readonly farUid: number
+}
+
+// see T-303
+export type Elision = 'EL-3' | 'EL-4' | 'EL-5' | 'EL-6'
+
+// see LC-10, T-222, T-303
 export interface DependencyGeometry {
   readonly predecessorUid: number
   readonly successorUid: number
   readonly linkType: number
   readonly pattern: 'RP-1' | 'RP-2' | 'RP-3' | 'RP-4' | 'RP-5' | 'RP-6' | 'RP-7' | 'RP-8'
   readonly points: Path
+  readonly elision: Elision
+  readonly drawnPoints: Path
+  readonly continuation: ContinuationGeometry | null
   // see S-18, S-178, S-19, GA-19
   // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
@@ -173,6 +195,127 @@ export interface GeometryInputs {
   readonly dummyEndByFrom: Map<string, CalendarDay>
 }
 
+interface EndReading {
+  readonly inputs: GeometryInputs
+  readonly regions: ScreenRegions
+  readonly placedByUid: ReadonlyMap<number, TaskPlacement>
+  readonly rowById: ReadonlyMap<string, RowPlacement>
+  readonly groupById: ReadonlyMap<string, TaskGroup>
+  readonly groupOfTask: ReadonlyMap<number, string>
+  readonly pinnedIds: ReadonlySet<string>
+}
+
+/** @purity pure */
+function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): EndReading {
+  const groupOfTask = new Map<number, string>()
+  for (const member of schedule.taskGroupMembers) {
+    if (!groupOfTask.has(member.taskUid)) groupOfTask.set(member.taskUid, member.groupId)
+  }
+  return {
+    inputs,
+    regions,
+    placedByUid: new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one])),
+    rowById: new Map(inputs.layout.rows.map((row) => [row.groupId, row])),
+    groupById: new Map(schedule.taskGroups.map((group) => [group.id, group])),
+    groupOfTask,
+    pinnedIds: new Set(inputs.settings.pinnedGroupIds),
+  }
+}
+
+/** @purity pure */
+function overlapOf(from: number, to: number, lower: number, upper: number): number {
+  return Math.min(to, upper) - Math.max(from, lower)
+}
+
+// see EL-1, FR-098, LF-14
+/** @purity pure */
+function isSeen(end: LinkEnd, row: RowPlacement | undefined, reading: EndReading): boolean {
+  const area = reading.regions.rowArea
+  const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
+  const isPinned = row?.isPinned === true
+  const top = isPinned ? area.y : bandFloor
+  const bottom = isPinned ? bandFloor : area.y + area.height
+  return overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0 &&
+    overlapOf(end.top, end.bottom, top, bottom) > 0
+}
+
+// see EL-2
+/** @purity pure */
+function standingYOf(row: RowPlacement, reading: EndReading): number {
+  if (row.isPinned !== true) return row.y + row.height
+  let floor = reading.inputs.layout.scrollAreaY ?? reading.regions.rowArea.y
+  for (const one of reading.inputs.layout.rows) {
+    if (one.groupId === row.groupId) break
+    if (one.isPinned !== true) floor = one.y + one.height
+  }
+  return floor
+}
+
+// see EL-2, RT-4a, LC-1
+// WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
+/** @purity pure */
+function lodEndOf(task: Task, reading: EndReading): LinkEnd | null {
+  const { layout, settings } = reading.inputs
+  const start = dayOf(task.start)
+  const finish = dayOf(task.finish)
+  const groupId = reading.groupOfTask.get(task.uid)
+  const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
+  if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
+  if (own.treeState === 'hidden' || reading.rowById.has(own.id) || reading.pinnedIds.has(own.id)) return null
+  let group: TaskGroup = own
+  for (let step = 0; step < settings.maxGroupDepth; step += 1) {
+    const parent: TaskGroup | undefined =
+      group.parentId === null ? undefined : reading.groupById.get(group.parentId)
+    if (parent === undefined || parent.treeState === 'hidden' || parent.treeState === 'collapsed') return null
+    const row = reading.rowById.get(parent.id)
+    if (row !== undefined) {
+      const x = xFromDay(layout, start)
+      const width = Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
+      return standingEndOf(task.uid, x, width, standingYOf(row, reading))
+    }
+    group = parent
+  }
+  return null
+}
+
+/** @purity pure */
+function seenEndOf(uid: number, reading: EndReading): { readonly end: LinkEnd; readonly seen: boolean } | null {
+  const placed = reading.placedByUid.get(uid)
+  if (placed !== undefined) {
+    const end = placedEndOf(placed, reading.inputs.settings)
+    return { end, seen: isSeen(end, reading.rowById.get(placed.groupId), reading) }
+  }
+  const task = reading.inputs.taskByUid.get(uid)
+  const standing = task === undefined ? null : lodEndOf(task, reading)
+  return standing === null ? null : { end: standing, seen: false }
+}
+
+// see T-303
+/** @purity pure */
+function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
+  if (predecessorSeen) return successorSeen ? 'EL-3' : 'EL-4'
+  return successorSeen ? 'EL-5' : 'EL-6'
+}
+
+// see RT-4a, FR-009, T-303
+/** @purity pure */
+function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
+  if (!inputs.settings.dependencyVisible || !inputs.settings.planVisible) return []
+  const reading = readingOf(schedule, inputs, regions)
+  const out: DependencyGeometry[] = []
+  for (const successor of schedule.tasks) {
+    if (successor.dependencies.length === 0) continue
+    const to = seenEndOf(successor.uid, reading)
+    if (to === null) continue
+    for (const link of successor.dependencies) {
+      const from = seenEndOf(link.predecessorUid, reading)
+      if (from === null) continue
+      out.push(routedDependency(inputs, from.end, to.end, link.linkType, elisionOf(from.seen, to.seen)))
+    }
+  }
+  return out
+}
+
 // see CP-6, LC-10, LC-11, RV-5
 /** @purity pure */
 export function geometryFromLayout(
@@ -207,23 +350,9 @@ export function geometryFromLayout(
     if (task !== undefined) tasks.push({ ...taskGeometryOf(inputs, task, placed), hasPlanDates: hasPlanDates(task) })
   }
 
-  const placedByUid = new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one]))
-  const dependencies: DependencyGeometry[] = []
-  // see RT-4a, FR-009
-  if (settings.dependencyVisible && settings.planVisible) {
-    for (const successor of schedule.tasks) {
-      const toDay = placedByUid.get(successor.uid)
-      if (toDay === undefined) continue
-      for (const link of successor.dependencies) {
-        const from = placedByUid.get(link.predecessorUid)
-        if (from !== undefined) dependencies.push(routedDependency(inputs, from, toDay, link.linkType))
-      }
-    }
-  }
-
   return {
     tasks,
-    dependencies,
+    dependencies: dependenciesOf(schedule, inputs, regions),
     progressLine: progressLineOf(inputs),
     statusLine:
       inputs.statusDate === null

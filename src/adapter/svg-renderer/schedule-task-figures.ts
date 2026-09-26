@@ -556,42 +556,66 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
       }
     }
     // TRAP: cull after minting: the <marker> must exist even when the first line is culled.
+    const drawnBox = boxOfPoints(link.drawnPoints)
+    if (drawnBox === null) continue
     if (skipsOffScreen) {
-      let linkTop = Number.POSITIVE_INFINITY
-      let linkBottom = Number.NEGATIVE_INFINITY
-      let linkLeft = Number.POSITIVE_INFINITY
-      let linkRight = Number.NEGATIVE_INFINITY
-      for (const at of link.points) {
-        if (at.y < linkTop) linkTop = at.y
-        if (at.y > linkBottom) linkBottom = at.y
-        if (at.x < linkLeft) linkLeft = at.x
-        if (at.x > linkRight) linkRight = at.x
-      }
-      if (linkBottom < drawnFrom || linkTop > drawnTo) continue
-      if (linkRight < drawnLeftOf || linkLeft > drawnRightOf) continue
+      if (drawnBox.y + drawnBox.height < drawnFrom || drawnBox.y > drawnTo) continue
+      if (drawnBox.x + drawnBox.width < drawnLeftOf || drawnBox.x > drawnRightOf) continue
     }
-    const linkWidth = selectedLineWidth(
-      settings.dependencyWidth,
-      selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
-    )
-    const predecessorPlaced = placedOf.get(link.predecessorUid)
-    const successorPlaced = placedOf.get(link.successorUid)
-    const predecessorPinned =
-      predecessorPlaced !== undefined && pinnedGroupIds.has(predecessorPlaced.groupId)
-    const successorPinned =
-      successorPlaced !== undefined && pinnedGroupIds.has(successorPlaced.groupId)
-    const points = pointsOf(link.points)
+    /** @purity pure */
+    const isPinned = (uid: number): boolean => {
+      const placed = placedOf.get(uid)
+      return placed !== undefined && pinnedGroupIds.has(placed.groupId)
+    }
     const haloMask = barMaskParts.length > 0 ? ` mask="url(#${dependencyHaloMaskId})"` : ''
-    const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
-    ;(predecessorPinned && successorPinned ? depLinkPartsPinned : depLinkParts).push(
-      `<polyline points="${points}" fill="none" stroke="${themed('S-146')}"` +
-        ` stroke-width="${rounded(haloWidth)}"${haloMask}${linkKey}/>` +
-        `<polyline points="${points}" fill="none"` +
-        ` stroke="${themed('S-159')}" stroke-width="${rounded(linkWidth)}"` +
-        ` marker-end="url(#${arrowId})"${linkKey}/>`,
+    ;(isInTheBand(link, isPinned) ? depLinkPartsPinned : depLinkParts).push(
+      dependencyLinkSvg(link, {
+        halo: `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`,
+        colour: themed('S-159'),
+        width: selectedLineWidth(
+          settings.dependencyWidth,
+          selectedLinks.has(`${link.predecessorUid}>${link.successorUid}`),
+        ),
+        arrowId,
+      }),
     )
   }
   return { defsParts, depLinkParts, depLinkPartsPinned }
+}
+
+type DependencyLink = ScheduleGeometry['dependencies'][number]
+
+// see FR-098, T-303
+/** @purity pure */
+function isInTheBand(link: DependencyLink, isPinned: (uid: number) => boolean): boolean {
+  if (link.elision === 'EL-4') return isPinned(link.predecessorUid)
+  if (link.elision === 'EL-5') return isPinned(link.successorUid)
+  return isPinned(link.predecessorUid) && isPinned(link.successorUid)
+}
+
+// see GD-6, EL-9
+/** @purity pure */
+function dependencyLinkSvg(link: DependencyLink, ink: {
+  readonly halo: string
+  readonly colour: string
+  readonly width: number
+  readonly arrowId: string
+}): string {
+  const points = pointsOf(link.drawnPoints)
+  const linkKey = figureKey(`dep-${link.predecessorUid}-${link.successorUid}`)
+  const head = link.head === undefined ? '' : ` marker-end="url(#${ink.arrowId})"`
+  const mark = link.continuation
+  const dots = mark === null ? [] : mark.dots.map(
+    (dot) =>
+      `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}"` +
+      ` r="${rounded(mark.radius)}" fill="${ink.colour}"${linkKey}/>`,
+  )
+  return (
+    `<polyline points="${points}" fill="none" ${ink.halo}${linkKey}/>` +
+    `<polyline points="${points}" fill="none"` +
+    ` stroke="${ink.colour}" stroke-width="${rounded(ink.width)}"${head}${linkKey}/>` +
+    dots.join('')
+  )
 }
 
 // see T-266

@@ -1380,11 +1380,9 @@ NOT_STORED_TARGETS = {
     # not in view. Their subject is the dependency line too, and EL-15 draws
     # them into an exported picture. They are LENGTHS multiplied by the
     # drawing ratio (DS-3 of table T-252), unlike S-224.
-    # WARNING: this constant is printed into svg-renderer.ts only. The
-    # geometry builds the short line and the dots (CR-555 seam S-1), so the
-    # code wave that first reads these rows there prints this constant into
-    # dependency-route.ts as well; printing it there before any reader exists
-    # would be an unused const that noUnusedLocals refuses.
+    # CR-555 wave 1a: printed into svg-renderer.ts (S-224, the halo) AND into
+    # dependency-route.ts (S-360 .. S-362), because the geometry builds the
+    # short line and the dots (seam S-1) and the renderer only draws them.
     'NOT_STORED_DEPENDENCY_SIZES': (['S-224', 'S-360', 'S-361', 'S-362'],
                                     DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
@@ -2617,8 +2615,11 @@ TARGETS = [
     # that pairing until the renderer reads these.
     # It stands in dependency-route.ts, the one unit of ScheduleGeometry that
     # reads it (CR-554 15.6.7).
+    # CR-555: NOT_STORED_DEPENDENCY_SIZES beside it -- this unit draws the
+    # short line (S-360, S-361) and the dots (S-362) of table T-303.
     (os.path.join(LAYOUT, 'schedule-geometry', 'dependency-route.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES'),
+     lambda _erd: not_stored_block('NOT_STORED_SELECTION_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_DEPENDENCY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
     # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and

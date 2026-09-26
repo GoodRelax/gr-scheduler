@@ -295,7 +295,9 @@ def trap_generated_edit(relative, lines, dirty=()):
         # `npm run gen`. A directory counts only when written in backticks.
         parts = other.split('/')
         for depth in range(1, len(parts)):
-            if '`%s`' % '/'.join(parts[:depth]) in declaration:
+            # A directory may be written with its closing slash (`src/`).
+            head = '/'.join(parts[:depth])
+            if '`%s`' % head in declaration or '`%s/`' % head in declaration:
                 return []
     return ['%s  is a generated artifact -- edit its manuscript and rerun '
             '`npm run gen`, or the next run erases this' % relative]
