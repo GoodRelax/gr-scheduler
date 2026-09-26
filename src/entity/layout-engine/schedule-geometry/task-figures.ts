@@ -31,6 +31,7 @@ import {
 } from '../schedule-layout/schedule-layout'
 import { displayRatioOf, type ScreenRect } from '../screen-regions/screen-regions'
 import { guidesOf } from './plan-actual-guides'
+import milestoneShapes from './milestone-shapes.json'
 import {
   point,
   type BarGeometry,
@@ -38,7 +39,10 @@ import {
   type DummyGeometry,
   type GeometryInputs,
   type MarkerGeometry,
+  type MilestoneLayer,
+  type MilestoneLayerRole,
   type Path,
+  type PathSegment,
   type Point,
   type ProgressSymbol,
   type ResumeGeometry,
@@ -126,116 +130,304 @@ function regularCorners(
   return out
 }
 
-const CIRCLE_CORNERS = 24
-
-/** @purity pure */
-function share(centre: Point, half: number, u: number, v: number): Point {
-  return point(centre.x + half * u, centre.y + half * v)
+interface UnitShape {
+  readonly layers: readonly MilestoneLayer[]
+  readonly outline: Path
 }
 
-/** @purity pure */
-function shares(centre: Point, half: number, pairs: readonly (readonly [number, number])[]): Path {
-  return pairs.map(([u, v]) => share(centre, half, u, v))
+interface ShapeSource {
+  readonly role: string
+  readonly d: string
+  readonly rule?: string
 }
 
-const PICTORIAL: Readonly<Record<string, {
-  readonly body: readonly (readonly [number, number])[]
-  readonly marks: readonly (readonly (readonly [number, number])[])[]
-}>> = {
-  file: {
-    body: [[-0.62, -1], [0.24, -1], [0.62, -0.6], [0.62, 1], [-0.62, 1]],
-    marks: [[[0.24, -1], [0.62, -0.6], [0.24, -0.6]]],
-  },
-  box: {
-    body: [[-0.8, -0.45], [0, -0.9], [0.8, -0.45], [0.8, 0.55], [0, 1], [-0.8, 0.55]],
-    marks: [[[-0.8, -0.45], [0, -0.9], [0.8, -0.45], [0, 0]]],
-  },
-  floppyDisk: {
-    body: [[-0.85, -0.85], [0.55, -0.85], [0.85, -0.55], [0.85, 0.85], [-0.85, 0.85]],
-    marks: [
-      [[-0.35, -0.85], [0.25, -0.85], [0.25, -0.3], [-0.35, -0.3]],
-      [[-0.55, 0.2], [0.55, 0.2], [0.55, 0.85], [-0.55, 0.85]],
-    ],
-  },
-  cylinder: {
-    body: [
-      [-0.7, -0.75], [-0.35, -0.95], [0.35, -0.95], [0.7, -0.75],
-      [0.7, 0.75], [0.35, 0.95], [-0.35, 0.95], [-0.7, 0.75],
-    ],
-    marks: [],
-  },
-  person: {
-    body: [
-      [-0.85, 1], [-0.85, 0.45], [-0.6, 0.05], [-0.25, -0.1],
-      [-0.36, -0.3], [-0.36, -0.62], [0, -0.95], [0.36, -0.62],
-      [0.36, -0.3], [0.25, -0.1], [0.6, 0.05], [0.85, 0.45], [0.85, 1],
-    ],
-    marks: [],
-  },
-  smile: {
-    body: [],
-    marks: [
-      [[-0.46, -0.3], [-0.24, -0.3], [-0.24, -0.02], [-0.46, -0.02]],
-      [[0.24, -0.3], [0.46, -0.3], [0.46, -0.02], [0.24, -0.02]],
-      [[-0.52, 0.18], [0, 0.62], [0.52, 0.18], [0.52, 0.38], [0, 0.82], [-0.52, 0.38]],
-    ],
-  },
-  beerMug: {
-    body: [
-      [-0.8, -0.7], [0.3, -0.7], [0.3, -0.35], [0.8, -0.35],
-      [0.8, 0.35], [0.3, 0.35], [0.3, 0.95], [-0.8, 0.95],
-    ],
-    marks: [[[0.44, -0.18], [0.66, -0.18], [0.66, 0.18], [0.44, 0.18]]],
-  },
-}
+// see LF-18
+// WHY: flattened only for the hit and the boxes; fine enough that a pointer never finds a corner.
+const CURVE_STEPS_PER_TURN = 48
+
+const PATH_ARITY: Readonly<Record<string, number>> = { M: 2, L: 2, H: 1, V: 1, Q: 4, A: 7, Z: 0 }
 
 /** @purity pure */
-function milestoneMarks(centre: Point, side: number, glyph: MilestoneGlyph): readonly Path[] {
-  const drawn = PICTORIAL[glyph]
-  if (drawn === undefined) return []
-  return drawn.marks.map((one) => shares(centre, side / 2, one))
-}
-
-/** @purity pure */
-function milestoneOutline(
-  centre: Point,
-  side: number,
-  glyph: MilestoneGlyph,
-  starInnerOfOuter: number,
-): Path {
-  const half = side / 2
-  const drawn = PICTORIAL[glyph]
-  if (drawn !== undefined) {
-    return drawn.body.length === 0
-      ? regularCorners(centre, half, CIRCLE_CORNERS, 0)
-      : shares(centre, half, drawn.body)
-  }
-  switch (glyph) {
-    case 'circle':
-      return regularCorners(centre, half, CIRCLE_CORNERS, 0)
-    case 'hexagon':
-      return regularCorners(centre, half, 6, 0)
-    case 'pentagon':
-      return regularCorners(centre, half, 5, 0)
-    case 'square':
-      return regularCorners(centre, half, 4, 0.125)
-    case 'triangleUp':
-      return regularCorners(centre, half, 3, 0)
-    case 'triangleDown':
-      return regularCorners(centre, half, 3, 0.5)
-    case 'star': {
-      const inner = half * starInnerOfOuter
-      const outer = regularCorners(centre, half, 5, 0)
-      const waist = regularCorners(centre, inner, 5, 0.1)
-      const out: Point[] = []
-      for (let step = 0; step < 5; step += 1) {
-        out.push(outer[step]!, waist[step]!)
-      }
-      return out
-    }
-    case 'diamond':
+function segmentOf(command: string, values: readonly number[], at: Point): PathSegment {
+  const [a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0] = values
+  switch (command) {
+    case 'M':
+      return { command: 'M', to: point(a, b) }
+    case 'H':
+      return { command: 'L', to: point(a, at.y) }
+    case 'V':
+      return { command: 'L', to: point(at.x, a) }
+    case 'Q':
+      return { command: 'Q', control: point(a, b), to: point(c, d) }
+    case 'A':
+      return { command: 'A', radiusX: a, radiusY: b, rotation: c, largeArc: d !== 0, sweep: e !== 0, to: point(f, g) }
+    case 'Z':
+      return { command: 'Z' }
     default:
-      return regularCorners(centre, half, 4, 0)
+      return { command: 'L', to: point(a, b) }
+  }
+}
+
+/** @purity pure */
+function pathSegmentsOf(data: string): readonly PathSegment[] {
+  const tokens = data.match(/[A-Za-z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) ?? []
+  const out: PathSegment[] = []
+  let at = point(0, 0)
+  let start = at
+  let command = ''
+  let index = 0
+  while (index < tokens.length) {
+    if (/[A-Za-z]/.test(tokens[index]!)) {
+      command = tokens[index]!
+      index += 1
+    }
+    const arity = PATH_ARITY[command]
+    const values = tokens.slice(index, index + (arity ?? 0)).map(Number)
+    if (arity === undefined || values.length !== arity || values.some(Number.isNaN)) {
+      throw new Error(`milestone-shapes.json: cannot read "${command}" in "${data}"`)
+    }
+    index += arity
+    const segment = segmentOf(command, values, at)
+    out.push(...(segment.command === 'A' ? quarterArcs(at, segment) : [segment]))
+    if (segment.command === 'Z') {
+      at = start
+      command = ''
+    } else {
+      at = segment.to
+      if (segment.command === 'M') start = at
+      if (segment.command === 'M') command = 'L'
+    }
+  }
+  return out
+}
+
+/** @purity pure */
+function sampled(steps: number, pointAt: (fraction: number) => Point): Point[] {
+  const out: Point[] = []
+  for (let step = 1; step <= steps; step += 1) out.push(pointAt(step / steps))
+  return out
+}
+
+/** @purity pure */
+function quadraticPoints(from: Point, curve: { readonly control: Point; readonly to: Point }): Point[] {
+  return sampled(CURVE_STEPS_PER_TURN / 4, (t) => {
+    const u = 1 - t
+    return point(
+      u * u * from.x + 2 * u * t * curve.control.x + t * t * curve.to.x,
+      u * u * from.y + 2 * u * t * curve.control.y + t * t * curve.to.y,
+    )
+  })
+}
+
+type ArcSegment = Extract<PathSegment, { command: 'A' }>
+
+interface ArcFrame {
+  readonly centre: Point
+  readonly rx: number
+  readonly ry: number
+  readonly cos: number
+  readonly sin: number
+  readonly first: number
+  readonly swept: number
+}
+
+// WHY: the endpoint-to-centre conversion of the SVG arc, so the hit outline follows the drawn curve.
+/** @purity pure */
+function arcFrameOf(from: Point, arc: ArcSegment): ArcFrame {
+  const turn = (arc.rotation * Math.PI) / 180
+  const cos = Math.cos(turn)
+  const sin = Math.sin(turn)
+  const halfX = (from.x - arc.to.x) / 2
+  const halfY = (from.y - arc.to.y) / 2
+  const x1 = cos * halfX + sin * halfY
+  const y1 = -sin * halfX + cos * halfY
+  const grow = Math.max(1, Math.sqrt((x1 * x1) / arc.radiusX ** 2 + (y1 * y1) / arc.radiusY ** 2))
+  const rx = Math.abs(arc.radiusX) * grow
+  const ry = Math.abs(arc.radiusY) * grow
+  const across = rx * rx * y1 * y1 + ry * ry * x1 * x1
+  const reach = Math.sqrt(Math.max(0, (rx * rx * ry * ry - across) / across))
+  const factor = arc.largeArc === arc.sweep ? -reach : reach
+  const cx1 = (factor * rx * y1) / ry
+  const cy1 = (-factor * ry * x1) / rx
+  const first = Math.atan2((y1 - cy1) / ry, (x1 - cx1) / rx)
+  let swept = Math.atan2((-y1 - cy1) / ry, (-x1 - cx1) / rx) - first
+  if (arc.sweep && swept < 0) swept += 2 * Math.PI
+  if (!arc.sweep && swept > 0) swept -= 2 * Math.PI
+  const centre = point(cos * cx1 - sin * cy1 + (from.x + arc.to.x) / 2, sin * cx1 + cos * cy1 + (from.y + arc.to.y) / 2)
+  return { centre, rx, ry, cos, sin, first, swept }
+}
+
+/** @purity pure */
+function onArc(frame: ArcFrame, fraction: number): Point {
+  const angle = frame.first + frame.swept * fraction
+  const ex = frame.rx * Math.cos(angle)
+  const ey = frame.ry * Math.sin(angle)
+  return point(frame.cos * ex - frame.sin * ey + frame.centre.x, frame.sin * ex + frame.cos * ey + frame.centre.y)
+}
+
+/** @purity pure */
+function arcPoints(from: Point, arc: ArcSegment): Point[] {
+  const frame = arcFrameOf(from, arc)
+  const steps = Math.max(1, Math.ceil((Math.abs(frame.swept) * CURVE_STEPS_PER_TURN) / (2 * Math.PI)))
+  return sampled(steps, (fraction) => onArc(frame, fraction))
+}
+
+// TRAP: a half arc bulges once its ends are rounded to the drawn grid (the radius lands under half the chord); quarters never do.
+/** @purity pure */
+function quarterArcs(from: Point, arc: ArcSegment): readonly ArcSegment[] {
+  const frame = arcFrameOf(from, arc)
+  const pieces = Math.max(1, Math.ceil(Math.abs(frame.swept) / (Math.PI / 2) - 1e-9))
+  return sampled(pieces, (fraction) => onArc(frame, fraction)).map((to, index) => ({
+    ...arc,
+    radiusX: frame.rx,
+    radiusY: frame.ry,
+    largeArc: false,
+    to: index === pieces - 1 ? arc.to : to,
+  }))
+}
+
+/** @purity pure */
+function ringsOf(segments: readonly PathSegment[]): Point[][] {
+  const rings: Point[][] = []
+  let ring: Point[] = []
+  let at = point(0, 0)
+  for (const segment of segments) {
+    if (segment.command === 'Z') {
+      at = ring[0] ?? at
+      continue
+    }
+    if (segment.command === 'M') {
+      ring = [segment.to]
+      rings.push(ring)
+    } else if (segment.command === 'Q') {
+      ring.push(...quadraticPoints(at, segment))
+    } else if (segment.command === 'A') {
+      ring.push(...arcPoints(at, segment))
+    } else {
+      ring.push(segment.to)
+    }
+    at = segment.to
+  }
+  return rings
+}
+
+/** @purity pure */
+function oriented(ring: readonly Point[], positive: boolean): Point[] {
+  let twiceArea = 0
+  for (let index = 0, back = ring.length - 1; index < ring.length; back = index, index += 1) {
+    twiceArea += ring[back]!.x * ring[index]!.y - ring[index]!.x * ring[back]!.y
+  }
+  return twiceArea > 0 === positive ? [...ring] : [...ring].reverse()
+}
+
+// see LF-18, HT-1
+// TRAP: each later ring is reached from the first ring's start and walked back, so the bridges cancel under non-zero.
+/** @purity pure */
+function joinedRings(rings: readonly (readonly Point[])[]): Path {
+  const first = rings[0]
+  if (first === undefined) return []
+  const out: Point[] = [...first]
+  for (const ring of rings.slice(1)) out.push(first[0]!, ...ring, ring[0]!)
+  return out
+}
+
+// WHY: bodies stay apart, each painted over the one behind it; a run of lines or dots is one element.
+/** @purity pure */
+function mergedLayers(layers: readonly MilestoneLayer[]): readonly MilestoneLayer[] {
+  const out: MilestoneLayer[] = []
+  for (const layer of layers) {
+    const last = out[out.length - 1]
+    if (last !== undefined && layer.role !== 'body' && last.role === layer.role && last.evenOdd === layer.evenOdd) {
+      out[out.length - 1] = { ...last, segments: [...last.segments, ...layer.segments] }
+    } else {
+      out.push(layer)
+    }
+  }
+  return out
+}
+
+/** @purity pure */
+function isLayerRole(role: string): role is MilestoneLayerRole {
+  return role === 'body' || role === 'inner' || role === 'dot' || role === 'shade'
+}
+
+// see LF-18, F-044
+// TRAP: an even-odd body keeps its first ring and turns the others into holes; a nested island would be lost.
+/** @purity pure */
+function unitShapeOf(source: readonly ShapeSource[]): UnitShape {
+  const layers = mergedLayers(source.map((one) => {
+    if (!isLayerRole(one.role)) throw new Error(`milestone-shapes.json: unknown role "${one.role}"`)
+    return { role: one.role, evenOdd: one.rule === 'evenodd', segments: pathSegmentsOf(one.d) }
+  }))
+  const rings = layers
+    .filter((layer) => layer.role === 'body')
+    .flatMap((layer) => ringsOf(layer.segments).map((ring, index) => oriented(ring, !layer.evenOdd || index === 0)))
+  return { layers, outline: joinedRings(rings) }
+}
+
+const UNIT_SHAPES: ReadonlyMap<string, UnitShape> = new Map(
+  milestoneShapes.shapes.map((shape) => [shape.glyph, unitShapeOf(shape.layers)]),
+)
+
+// see LF-10, S-48
+// WHY: the star alone is built here, not read from F-044: S-48 is a document setting, and F-044 draws its default.
+/** @purity pure */
+function starShapeOf(innerOfOuter: number): UnitShape {
+  const origin = point(0, 0)
+  const outer = regularCorners(origin, 1, 5, 0)
+  const waist = regularCorners(origin, innerOfOuter, 5, 0.1)
+  const corners = outer.flatMap((one, step) => [one, waist[step]!])
+  const ys = corners.map((one) => one.y)
+  const lift = (Math.min(...ys) + Math.max(...ys)) / 2
+  const ring = corners.map((one) => point(one.x, one.y - lift))
+  const segments: PathSegment[] = ring.map((one, index) => ({ command: index === 0 ? 'M' : 'L', to: one }))
+  segments.push({ command: 'Z' })
+  return { layers: [{ role: 'body', evenOdd: false, segments }], outline: ring }
+}
+
+/** @purity pure */
+function shapeOfGlyph(glyph: MilestoneGlyph, starInnerOfOuter: number): UnitShape {
+  if (glyph === 'star') return starShapeOf(starInnerOfOuter)
+  const shape = UNIT_SHAPES.get(glyph) ?? UNIT_SHAPES.get('diamond')
+  if (shape === undefined) throw new Error(`milestone-shapes.json: no shape for "${glyph}"`)
+  return shape
+}
+
+/** @purity pure */
+function placedPoint(one: Point, centre: Point, half: number): Point {
+  return point(centre.x + half * one.x, centre.y + half * one.y)
+}
+
+/** @purity pure */
+function placedSegment(segment: PathSegment, centre: Point, half: number): PathSegment {
+  /** @purity pure */
+  const at = (one: Point): Point => placedPoint(one, centre, half)
+  switch (segment.command) {
+    case 'Z':
+      return segment
+    case 'Q':
+      return { command: 'Q', control: at(segment.control), to: at(segment.to) }
+    case 'A':
+      return { ...segment, radiusX: segment.radiusX * half, radiusY: segment.radiusY * half, to: at(segment.to) }
+    default:
+      return { command: segment.command, to: at(segment.to) }
+  }
+}
+
+// see LF-10, LF-18, DM-4
+/** @purity pure */
+function milestoneBarOf(centre: Point, side: number, glyph: MilestoneGlyph,
+                        starInnerOfOuter: number): BarGeometry {
+  const unit = shapeOfGlyph(glyph, starInnerOfOuter)
+  const half = side / 2
+  return {
+    form: 'outline',
+    points: unit.outline.map((one) => placedPoint(one, centre, half)),
+    layers: unit.layers.map((layer) => ({
+      role: layer.role,
+      evenOdd: layer.evenOdd,
+      segments: layer.segments.map((segment) => placedSegment(segment, centre, half)),
+    })),
   }
 }
 
@@ -301,17 +493,8 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
   const settings = inputs.settings
   const kind = placed.shapeKind
   if (kind === 'milestone') {
-    const glyph = placed.milestoneGlyph
-    return {
-      form: 'outline',
-      points: milestoneOutline(
-        point((x0 + x1) / 2, top + height / 2),
-        height,
-        glyph,
-        settings.starInnerOfOuter,
-      ),
-      marks: milestoneMarks(point((x0 + x1) / 2, top + height / 2), height, glyph),
-    }
+    return milestoneBarOf(point((x0 + x1) / 2, top + height / 2), height, placed.milestoneGlyph,
+                          settings.starInnerOfOuter)
   }
   if (kind === 'arrow' || kind === 'endpointSpan') {
     // TRAP: the tier, never top + height / 2: XS-5 and XS-6 stack the two lines by their own edges.

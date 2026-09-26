@@ -164,15 +164,18 @@ function isOnPolyline(x: number, y: number, points: Path, reach: number): boolea
 
 /** @purity pure */
 function isInsideOutline(x: number, y: number, points: Path): boolean {
-  let inside = false
+  let winding = 0
   for (let index = 0, back = points.length - 1; index < points.length; back = index, index += 1) {
-    const a = points[index]!
-    const b = points[back]!
+    const a = points[back]!
+    const b = points[index]!
     if (distanceToSegment(x, y, a, b) === 0) return true
-    const crosses = (a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x
-    if (crosses) inside = !inside
+    const side = (b.x - a.x) * (y - a.y) - (x - a.x) * (b.y - a.y)
+    if (a.y <= y && b.y > y && side > 0) winding += 1
+    if (a.y > y && b.y <= y && side < 0) winding -= 1
   }
-  return inside
+  // see LF-18, HT-1
+  // WHY: non-zero, not even-odd: a milestone's head over its torso overlaps, and both are drawn ink.
+  return winding !== 0
 }
 
 // see HT-1

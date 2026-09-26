@@ -55,11 +55,35 @@ export interface SpanDot {
   readonly radius: number
 }
 
+// see LF-18, F-044
+export type MilestoneLayerRole = 'body' | 'inner' | 'dot' | 'shade'
+
+export type PathSegment =
+  | { readonly command: 'M' | 'L'; readonly to: Point }
+  | { readonly command: 'Q'; readonly control: Point; readonly to: Point }
+  | {
+      readonly command: 'A'
+      readonly radiusX: number
+      readonly radiusY: number
+      readonly rotation: number
+      readonly largeArc: boolean
+      readonly sweep: boolean
+      readonly to: Point
+    }
+  | { readonly command: 'Z' }
+
+export interface MilestoneLayer {
+  readonly role: MilestoneLayerRole
+  readonly evenOdd: boolean
+  readonly segments: readonly PathSegment[]
+}
+
 export type BarGeometry =
   | {
       readonly form: 'outline'
+      // TRAP: a layered milestone joins its body rings by bridges walked there and back; read it with the non-zero rule.
       readonly points: Path
-      readonly marks?: readonly Path[]
+      readonly layers?: readonly MilestoneLayer[]
     }
   | {
       readonly form: 'line'
