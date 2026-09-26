@@ -68,9 +68,11 @@ export function tooltipElement(
 // WHY: measured once, when shown; a window resized while it stands is not followed (IN-7).
 /** @purity non-pure */
 export function keepTooltipsInside(layer: HTMLElement): void {
+  const tooltips = Array.from(layer.children)
+  if (!tooltips.some((drawn) => anchorRightOf.has(drawn))) return
   const room = layer.getBoundingClientRect()
   const margin = NOT_STORED_HELP_SIZES['S-339']
-  for (const drawn of Array.from(layer.children)) {
+  for (const drawn of tooltips) {
     const anchorRight = anchorRightOf.get(drawn)
     if (anchorRight === undefined) continue
     const size = drawn.getBoundingClientRect()
