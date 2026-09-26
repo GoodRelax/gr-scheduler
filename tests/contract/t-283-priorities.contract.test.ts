@@ -19,7 +19,12 @@ const PUBLISHED = unbroken(
 )
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+  '消費する階層は 出ている通知 → 焦点がある検索パネル → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 の順とすること（MUST）'
+const IN_4_SURFACE_THEN_HELP =
+  '⭐ 開いている面の段では、立っている面が先、通常か最大化のヘルプが後である（`_assets/tbl-settings.md` の `S-99g`） —— 手前のものから閉じる。'
+const IN_4_SEARCH_PANEL_RUNG =
+  '⭐ 焦点がある検索パネル（`FR-151`）の段は、列の絞り込みが開いていれば絞り込みだけを閉じ、次の `Esc` でパネルを閉じる（表 T-330 の `SV-14`）。'
+const SV_14_FILTER_FIRST = '列の絞り込みが開いていれば、`Esc` はまず絞り込みだけを閉じ、次の `Esc` でパネルを閉じる。'
 const IN_4_SELECTION_AFTER_ARM = '⭐ **選択は構えの次に置く** —— ⛔ **構えより前に置いてはならない（MUST NOT）'
 const NT_8_FIRST = '⛔ この消去を、`Enter` と `Esc` のどの階層よりも先に行うこと（MUST）'
 const NT_8_NOTHING_TO_CLEAR = '⛔ 消すものが 1 つも無いときに、この階層で `Enter` や `Esc` を消費してはならない（MUST NOT）'
@@ -87,10 +92,10 @@ const IN_4_WORDS = IN_4_ORDER.replace('消費する階層は ', '')
   .split(' → ')
 
 describe('table T-283 -- the manuscript and the printed table agree', () => {
-  it('the priorities block names table T-283 and holds RG-1..RG-14, RG-14 standing after RG-4', () => {
+  it('the priorities block names table T-283 and holds RG-1..RG-15, RG-15 after RG-1 and RG-14 after RG-4', () => {
     expect(MANUSCRIPT.priorities.table.id).toBe('T-283')
     expect(RUNGS.map((r) => r.id)).toEqual([
-      'RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
+      'RG-1', 'RG-15', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8', 'RG-9', 'RG-10', 'RG-11', 'RG-12', 'RG-13',
     ])
   })
 
@@ -116,14 +121,16 @@ describe('table T-283 -- the manuscript and the printed table agree', () => {
   })
 })
 
-describe(`table T-283, Esc (RG-1..RG-8 and RG-14) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
+describe(`table T-283, Esc (RG-1..RG-8, RG-14 and RG-15) -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
   it('the requirement still says it, word for word', () => {
     expect(REQUIREMENTS).toContain(IN_4_ORDER)
   })
 
   it('the Esc rungs, top to bottom, are the IN-4 rungs one for one', () => {
     expect(rungsOf('Esc').map((r) => r.rung.ja)).toEqual(IN_4_WORDS)
-    expect(rungsOf('Esc').map((r) => r.id)).toEqual(['RG-1', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8'])
+    expect(rungsOf('Esc').map((r) => r.id)).toEqual([
+      'RG-1', 'RG-15', 'RG-2', 'RG-3', 'RG-4', 'RG-14', 'RG-5', 'RG-6', 'RG-7', 'RG-8',
+    ])
   })
 
   it(IN_4_SELECTION_AFTER_ARM, () => {
@@ -134,12 +141,28 @@ describe(`table T-283, Esc (RG-1..RG-8 and RG-14) -- IN-4 (MUST): ${IN_4_ORDER}`
     expect(RUNGS.find((r) => r.id === 'RG-6')?.states).toEqual([{ in: 'selectionStateMachine.objectsSelected' }])
   })
 
-  it('RG-3 holds, inside the one rung, the question, then the surface; the panel is RG-14 after the drag', () => {
+  it(`RG-3 holds, inside the one rung, the question, then the surface, then the help -- ${IN_4_SURFACE_THEN_HELP}`, () => {
+    expect(REQUIREMENTS).toContain(IN_4_SURFACE_THEN_HELP)
     const rg3 = RUNGS.find((r) => r.id === 'RG-3')
     expect(rg3?.states).toEqual([
       { in: 'confirmationStateMachine.questionAsked' },
       { in: 'openSurfaceStateMachine.open' },
+      { in: 'helpDisplayStateMachine.shown.normal' },
+      { in: 'helpDisplayStateMachine.shown.maximised' },
     ])
+  })
+
+  it(`RG-15 is the search panel while it is shown, and cites SV-14 -- ${IN_4_SEARCH_PANEL_RUNG}`, () => {
+    expect(REQUIREMENTS).toContain(IN_4_SEARCH_PANEL_RUNG)
+    expect(REQUIREMENTS).toContain(SV_14_FILTER_FIRST)
+    const rg15 = RUNGS.find((r) => r.id === 'RG-15')
+    expect(rg15?.keys).toEqual(['Esc'])
+    expect(rg15?.states).toEqual([{ in: 'searchPanelDisplayStateMachine.shown' }])
+    expect(rg15?.evidence).toEqual(['IN-4', 'SV-14'])
+    expect(rg15?.note?.ja ?? '').toContain('`SV-14`')
+  })
+
+  it('the properties panel is RG-14, after the drag', () => {
     expect(RUNGS.find((r) => r.id === 'RG-14')?.states).toEqual([
       { machine: 'propertiesPanelContentStateMachine', except: 'hidden' },
     ])
@@ -280,10 +303,18 @@ const on = (...flags: readonly Flag[]): EscapeContext => {
 }
 
 describe(`PI-36 escapeTarget against table T-283 -- IN-4 (MUST): ${IN_4_ORDER}`, () => {
-  it('the ladder covers every rung word, and every Esc row of T-283 in table order', () => {
+  it('the ladder covers every rung word and every flag', () => {
     expect(LADDER.map(([, word]) => word).sort()).toEqual(Object.keys(EVERY_WORD).sort())
-    expect([...new Set(LADDER.map(([id]) => id))]).toEqual(rungsOf('Esc').map((r) => r.id))
     expect(LADDER.map(([, , flag]) => flag).sort()).toEqual(Object.keys(NOTHING_ON).sort())
+  })
+
+  // WHY: RG-15 is an Esc row of T-283, but no clause names its EscapeTarget word or EscapeContext flag;
+  // this case stays red, naming RG-15, until the seam names both (DFC-1280).
+  it('the ladder holds every Esc row of T-283 in table order', () => {
+    expect(
+      [...new Set(LADDER.map(([id]) => id))],
+      'an Esc row of T-283 with no escapeTarget word (RG-15: the seam names none yet)',
+    ).toEqual(rungsOf('Esc').map((r) => r.id))
   })
 
   it('escapeTarget reads the EscapeContext alone: it takes one argument', () => {

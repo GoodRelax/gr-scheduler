@@ -52,6 +52,7 @@ const OTHER_REGIONS = REGIONS.map((r) => r.region).filter((name) => name !== AGE
 const MACHINE = AGENT.machines[0] as RawMachine
 const FIELD = MACHINE.name.replace(/Machine$/, '')
 const PRESS = { type: 'agentApiEntryPressed' }
+const ASKED = { type: 'enablingAskedByDialogueField' }
 const loaded = (isRememberedEnabled: boolean): Loose => ({ type: 'rememberedEnablingLoaded', isRememberedEnabled })
 const AGENT_EFFECTS = ['storeAgentApiEnabling']
 const STORE = { type: 'storeAgentApiEnabling' }
@@ -101,7 +102,8 @@ const SAMPLE: Record<string, unknown> = {
   date: '2026-01-05',
   percent: 100,
   end: 'max',
-  language: 'en',
+  screenLanguage: 'en',
+  helpLanguage: 'en',
   taskUid: 1,
   rememberedActual: null,
   reason: 'RS-27',
@@ -168,11 +170,12 @@ const BASES: readonly (readonly [string, ScreenSession])[] = [
 
 const OWN_EVENTS: readonly (readonly [string, Loose])[] = [
   ['agentApiEntryPressed', PRESS],
+  ['enablingAskedByDialogueField', ASKED],
   ['rememberedEnablingLoaded(true)', loaded(true)],
   ['rememberedEnablingLoaded(false)', loaded(false)],
 ]
 
-describe('T-296 manuscript: agentApiEnablingStateMachine holds two flat states and two events', () => {
+describe('T-296 manuscript: agentApiEnablingStateMachine holds two flat states and three events', () => {
   it('states disabled (initial) and enabled, flat, carrying no values', () => {
     expect(AGENT.machines.map((m) => m.name)).toEqual(['agentApiEnablingStateMachine'])
     expect(MACHINE.states.map((s) => [s.key, s.initial, s.parent, s.carries.length])).toEqual([
@@ -181,9 +184,10 @@ describe('T-296 manuscript: agentApiEnablingStateMachine holds two flat states a
     ])
   })
 
-  it('agentApiEntryPressed carries nothing; rememberedEnablingLoaded carries isRememberedEnabled', () => {
+  it('agentApiEntryPressed and enablingAskedByDialogueField carry nothing; rememberedEnablingLoaded carries isRememberedEnabled', () => {
     expect(AGENT.events.map((e) => [e.key, e.carries.map((c) => c.name)])).toEqual([
       ['agentApiEntryPressed', []],
+      ['enablingAskedByDialogueField', []],
       ['rememberedEnablingLoaded', ['isRememberedEnabled']],
     ])
   })
@@ -194,6 +198,11 @@ describe('T-296 manuscript: agentApiEnablingStateMachine holds two flat states a
       enabled: { to: 'disabled', effect: 'raiseNotice', effectArgument: 'RS-20' },
     })
     expect(MACHINE.transitions['agentApiEntryPressed']?.['disabled']?.effect).toBeUndefined()
+    expect(Object.keys(MACHINE.transitions['enablingAskedByDialogueField'] ?? {})).toEqual(['disabled'])
+    expect(MACHINE.transitions['enablingAskedByDialogueField']?.['disabled']).toMatchObject({
+      to: 'enabled',
+      effect: 'storeAgentApiEnabling',
+    })
     expect(Object.keys(MACHINE.transitions['rememberedEnablingLoaded'] ?? {})).toEqual(['disabled'])
     expect(MACHINE.transitions['rememberedEnablingLoaded']?.['disabled']).toMatchObject({
       to: 'enabled',
@@ -226,6 +235,19 @@ describe('SD-3 (T-296): every cell of the table', () => {
       const result = step(withEnabling('enabled', base), PRESS)
       expect(agentOf(result.state)).toEqual({ [FIELD]: { kind: 'disabled' } })
       expect(effectsOf(result).sort(byType)).toEqual([NOTICE_RS20, STORE].sort(byType))
+    })
+
+    it('disabled x enablingAskedByDialogueField -> enabled / storeAgentApiEnabling (FR-066, IC-18)', () => {
+      const result = step(withEnabling('disabled', base), ASKED)
+      expect(agentOf(result.state)).toEqual({ [FIELD]: { kind: 'enabled' } })
+      expect(effectsOf(result)).toEqual([STORE])
+    })
+
+    it('enabled x enablingAskedByDialogueField: no cell -- the dialogue field entry never disables (FR-066)', () => {
+      const session = withEnabling('enabled', base)
+      const result = step(session, ASKED)
+      expect(result.state).toBe(session)
+      expect(result.effects).toEqual([])
     })
 
     it('disabled x rememberedEnablingLoaded [isRememberedEnabled] -> enabled, no effect', () => {
@@ -364,5 +386,62 @@ describe('FR-066: the enabling is its own value', () => {
     const session = busySession()
     const pressed = step(session, PRESS).state
     for (const other of OTHER_REGIONS) expect(regionsOf(pressed)[other], other).toBe(regionsOf(session)[other])
+  })
+})
+
+// see SD-3, T-296
+function expectedCell(kind: string, event: Loose): { readonly to: string | null; readonly effects: Loose[] } {
+  const type = String(event['type'])
+  const cell = MACHINE.transitions[type]?.[kind]
+  const fires = cell !== undefined && (cell.guard ?? []).every((g) => event[g.name] === true)
+  const effects: Loose[] = []
+  if (fires && cell.effect !== undefined) {
+    effects.push({ type: cell.effect, ...(cell.effectArgument === undefined ? {} : { reason: cell.effectArgument }) })
+  }
+  const rootEffect = AGENT.root.transitions[type]?.effect
+  if (rootEffect !== undefined) effects.push({ type: rootEffect })
+  return { to: fires ? (cell.to ?? kind) : null, effects }
+}
+
+describe('SD-3 (T-296 read from the manuscript): every state x every event of the region', () => {
+  const cases = BASES.flatMap(([name, base]) =>
+    MACHINE.states.flatMap((s) => OWN_EVENTS.map(([label, event]) => [`${name} & ${s.key} x ${label}`, s.key, base, event] as const)),
+  )
+
+  it.each(cases)('%s', (_, kind, base, event) => {
+    const session = withEnabling(kind, base)
+    const result = step(session, event)
+    const expected = expectedCell(kind, event)
+    if (expected.to === null && expected.effects.length === 0) {
+      expect(result.state, 'no cell: the same session reference').toBe(session)
+      return
+    }
+    expect(enablingOf(result.state)).toEqual({ kind: expected.to ?? kind })
+    expect(effectsOf(result).sort(byType)).toEqual([...expected.effects].sort(byType))
+  })
+})
+
+describe('CR-562 (FR-066, IC-18): one press of the dialogue field entry is two events', () => {
+  const press = (session: ScreenSession, isAgentApiEnabled: boolean): { state: ScreenSession; effects: Loose[] } => {
+    const field = step(session, { type: 'dialogueFieldEntryPressed', isAgentApiEnabled })
+    const asked = step(field.state, ASKED)
+    return { state: asked.state, effects: [...effectsOf(field), ...effectsOf(asked)] }
+  }
+  const fieldOf = (session: ScreenSession): unknown =>
+    ((regionsOf(session)['screen'] as Loose)['dialogueFieldDisplayState'] as Loose)['kind']
+
+  it('while disabled, a press shows the field, enables Agent API and stores the enabling', () => {
+    const pressed = press(emptyScreenSession, false)
+    expect(fieldOf(pressed.state)).toBe('shown')
+    expect(enablingOf(pressed.state)).toEqual({ kind: 'enabled' })
+    expect(pressed.effects).toEqual([STORE])
+  })
+
+  it('while enabled, a press that hides the field leaves Agent API enabled and stores nothing', () => {
+    const enabled = withEnabling('enabled')
+    const pressed = press(enabled, true)
+    expect(fieldOf(pressed.state)).toBe('hidden')
+    expect(agentOf(pressed.state)).toBe(agentOf(enabled))
+    expect(pressed.effects).toEqual([])
   })
 })

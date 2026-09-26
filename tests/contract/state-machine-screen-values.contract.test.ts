@@ -218,9 +218,13 @@ const RUNGS = [
   'tooltip',
 ] as const
 
+// WHY: no clause names the `target` word for help (CR-574 adds it to IC-52), so no event
+// sampled here carries it; see isHelpTarget.
+const TARGETS = ['surface', 'panel'] as const
+
 const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   surfaceName: ['U-30'],
-  target: ['surface', 'panel'],
+  target: TARGETS,
   rung: RUNGS,
   subject: [CHOICE, NO_CHOICE],
   date: ['2026-01-05'],
@@ -326,10 +330,21 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return event['rung'] === 'dualCursorMode'
     case 'isRungTooltip':
       return event['rung'] === 'tooltip'
+    // WHY: IN-4 consumes one rung per Esc (surface before help in RG-3), so these words differ
+    // from every word of RUNGS; no clause names them, so the true branch is not asserted (DFC-105).
+    case 'isRungHelp':
+    case 'isRungSearchPanel':
+      if (!(RUNGS as readonly unknown[]).includes(event['rung'])) throw new Error(`unsampled rung ${String(event['rung'])}`)
+      return false
     case 'isSurfaceTarget':
       return event['target'] === 'surface'
     case 'isPanelTarget':
       return event['target'] === 'panel'
+    // WHY: IC-52 on a surface or the panel closes that one only; help is not a surface of
+    // openSurfaceStateMachine (CR-574 3.2), and its word is unnamed as for isRungHelp.
+    case 'isHelpTarget':
+      if (!(TARGETS as readonly unknown[]).includes(event['target'])) throw new Error(`unsampled target ${String(event['target'])}`)
+      return false
     // WHY: req:4194 sends the closing hand to a standing surface, not the panel
     // behind it, so the panel is topmost only while no surface is open.
     case 'isPanelTopmost':
@@ -506,4 +521,185 @@ describe('SD-3 guard isSameArm (armModeState x armEntryPressed): same kind and s
     expectStepMatchesManuscript(session, armEvent('milestoneShapeArmed', 'SH-5b'))
     expect((screenOf(step(session, armEvent('milestoneShapeArmed', 'SH-5b')).state)['armModeState'] as Loose)['glyph']).toBe('SH-5b')
   })
+})
+
+const HELP = 'helpDisplayStateMachine'
+const SEARCH = 'searchPanelDisplayStateMachine'
+const HELP_AXIS = axisAndPath(`${HELP}.hidden`).axis
+const SEARCH_AXIS = axisAndPath(`${SEARCH}.hidden`).axis
+const leavesOf = (machine: string): string[] => leafStates.filter((s) => s.key.startsWith(`${machine}.`)).map((s) => s.key)
+const HELP_LEAVES = leavesOf(HELP)
+const SHOWN_HELP_LEAVES = HELP_LEAVES.filter((k) => k !== `${HELP}.hidden`)
+const SEARCH_LEAVES = leavesOf(SEARCH)
+
+function rawMachine(name: string): RawRegion['machines'][number] {
+  const machine = (RAW_REGION as RawRegion).machines.find((m) => m.name === name)
+  if (machine === undefined) throw new Error(`state-machines.json has no machine ${name}`)
+  return machine
+}
+
+function effectTypesOf(session: ScreenSession, event: Loose): string[] {
+  return step(session, event).effects.map((e) => String((e as unknown as Loose)['type'])).sort()
+}
+
+describe('T-280 manuscript: helpDisplayStateMachine holds the states and cells CR-574 4.8 names', () => {
+  const machine = rawMachine(HELP)
+
+  it('states hidden (initial), shown, shown.normal (initial child), shown.minimised, shown.maximised (S-435, WB-1..WB-3)', () => {
+    expect(machine.states.map((s) => [s.key, s.parent, s.initial])).toEqual([
+      ['hidden', null, true],
+      ['shown', null, false],
+      ['shown.normal', 'shown', true],
+      ['shown.minimised', 'shown', false],
+      ['shown.maximised', 'shown', false],
+    ])
+  })
+
+  it('HN-2: no escapePressed cell stands on shown.minimised or on the parent shown, and RG-3 lists only normal and maximised', () => {
+    expect(Object.keys(machine.transitions['escapePressed'] ?? {}).sort()).toEqual(['shown.maximised', 'shown.normal'])
+    const rungs = (MANUSCRIPT as unknown as { priorities: { rungs: { id: string; states: { in?: string }[] }[] } }).priorities.rungs
+    const rg3 = rungs.find((r) => r.id === 'RG-3')
+    expect(rg3?.states.map((s) => s.in).filter((k) => k?.startsWith(`${HELP}.`) === true)).toEqual([
+      `${HELP}.shown.normal`,
+      `${HELP}.shown.maximised`,
+    ])
+  })
+
+  it('HN-5, FR-036: helpEntryPressed seeds the language only from hidden; shown.minimised goes to shown.normal with no effect', () => {
+    const cells = machine.transitions['helpEntryPressed'] ?? {}
+    expect(Object.keys(cells).sort()).toEqual(['hidden', 'shown.minimised'])
+    expect(cells['hidden']).toMatchObject({ to: 'shown.normal', effect: 'seedHelpLanguage' })
+    expect(cells['shown.minimised']).toMatchObject({ to: 'shown.normal' })
+    expect((cells['shown.minimised'] as RawBranch).effect).toBeUndefined()
+  })
+})
+
+describe('CR-574 4.8 (T-280): helpDisplayStateMachine cells against advanceScreenSession', () => {
+  it('hidden x helpEntryPressed -> shown.normal / seedHelpLanguage (FR-036, FR-038, WB-1)', () => {
+    const session = sessionIn(`${HELP}.hidden`)
+    expectStepMatchesManuscript(session, { type: 'helpEntryPressed' })
+    expect(kindPath(screenOf(step(session, { type: 'helpEntryPressed' }).state)[HELP_AXIS])).toEqual(['shown', 'normal'])
+    expect(effectTypesOf(session, { type: 'helpEntryPressed' })).toEqual(['seedHelpLanguage'])
+  })
+
+  it('HN-5: shown.minimised x helpEntryPressed -> shown.normal, no seedHelpLanguage, helpLanguage kept', () => {
+    const session = sessionIn(`${HELP}.shown.minimised`)
+    const result = step(session, { type: 'helpEntryPressed' })
+    expect(kindPath(screenOf(result.state)[HELP_AXIS])).toEqual(['shown', 'normal'])
+    expect(result.effects).toEqual([])
+    expect(screenOf(result.state)['helpLanguage']).toBe(screenOf(session)['helpLanguage'])
+  })
+
+  it.each([`${HELP}.shown.normal`, `${HELP}.shown.maximised`])('%s x helpEntryPressed: no cell, the same reference', (key) => {
+    const session = sessionIn(key)
+    expect(step(session, { type: 'helpEntryPressed' }).state).toBe(session)
+  })
+
+  it.each(HELP_LEAVES)('seedHelpLanguage fires only on hidden x helpEntryPressed: %s', (key) => {
+    const session = sessionIn(key)
+    for (const type of ['helpEntryPressed', 'helpMinimiseToggled', 'helpMaximiseToggled']) {
+      const seeded = effectTypesOf(session, { type }).filter((t) => t === 'seedHelpLanguage').length
+      expect(seeded, `${key} x ${type}`).toBe(key === `${HELP}.hidden` && type === 'helpEntryPressed' ? 1 : 0)
+    }
+  })
+
+  it.each(HELP_LEAVES)('S-434 root cell: %s x helpLanguageChosen -> writeHelpLanguage only, the help window kept', (key) => {
+    const session = sessionIn(key)
+    const event = { type: 'helpLanguageChosen', helpLanguage: 'en' }
+    expect(effectTypesOf(session, event)).toEqual(['writeHelpLanguage'])
+    expect(screenOf(step(session, event).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+
+  it.each(HELP_LEAVES)('HN-6: %s x screenLanguageChosen -> storeScreenLanguage only, never the help language', (key) => {
+    const session = sessionIn(key)
+    const event = { type: 'screenLanguageChosen', screenLanguage: 'en' }
+    expect(effectTypesOf(session, event)).toEqual(['storeScreenLanguage'])
+    expect(screenOf(step(session, event).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+
+  it.each(RUNGS.map((rung) => [rung] as const))('HN-2: shown.minimised x escapePressed(rung=%s) leaves the help as it is', (rung) => {
+    const session = sessionIn(`${HELP}.shown.minimised`)
+    expectStepMatchesManuscript(session, { type: 'escapePressed', rung })
+    expect(screenOf(step(session, { type: 'escapePressed', rung }).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+})
+
+describe('HN-4 and RG-3 (T-280, T-283): the help and another surface stand together', () => {
+  const raising: readonly (readonly [string, readonly string[], Loose])[] = [
+    ['surfaceEntryPressed', [], { type: 'surfaceEntryPressed', surfaceName: 'U-30' }],
+    ['surfaceRaisedByFlow', [], { type: 'surfaceRaisedByFlow', surfaceName: 'U-56' }],
+    ['watermarkEntryPressed', ['watermarkDisplayStateMachine.shown'], { type: 'watermarkEntryPressed' }],
+  ]
+  const cases = SHOWN_HELP_LEAVES.flatMap((help) =>
+    raising.map(([label, more, event]) => [`${help} x ${label}`, help, more, event] as const),
+  )
+
+  it.each(cases)('HN-4: %s opens the surface and keeps the help', (_, help, more, event) => {
+    const session = sessionIn(help, 'openSurfaceStateMachine.closed', ...more)
+    expectStepMatchesManuscript(session, event)
+    const after = screenOf(step(session, event).state)
+    expect(kindPath(after['openSurfaceState'])).toEqual(['open'])
+    expect(after[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+
+  const standing = [`${HELP}.shown.normal`, `${HELP}.shown.maximised`]
+
+  it.each(standing)('IN-4, RG-3: surface open & %s x escapePressed(rung=surface) closes the surface first, keeps the help', (help) => {
+    const session = sessionIn('openSurfaceStateMachine.open', help)
+    const event = { type: 'escapePressed', rung: 'surface' }
+    expectStepMatchesManuscript(session, event)
+    const after = screenOf(step(session, event).state)
+    expect(kindPath(after['openSurfaceState'])).toEqual(['closed'])
+    expect(after[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+
+  it.each(standing)('IC-52: surface open & %s x surfaceCloseAsked(target=surface) closes the surface only', (help) => {
+    const session = sessionIn('openSurfaceStateMachine.open', help)
+    const event = { type: 'surfaceCloseAsked', target: 'surface' }
+    expectStepMatchesManuscript(session, event)
+    expect(screenOf(step(session, event).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
+  })
+})
+
+describe('CR-571 (T-280, T-330, T-332): searchPanelDisplayStateMachine cells', () => {
+  it.each(SEARCH_LEAVES)('SV-2: %s x searchEntryPressed emits focusSearchWord once', (key) => {
+    const session = sessionIn(key)
+    expectStepMatchesManuscript(session, { type: 'searchEntryPressed' })
+    expect(effectTypesOf(session, { type: 'searchEntryPressed' })).toEqual(['focusSearchWord'])
+    const landed = kindPath(screenOf(step(session, { type: 'searchEntryPressed' }).state)[SEARCH_AXIS])
+    expect(landed).toEqual(key === `${SEARCH}.shown.maximised` ? ['shown', 'maximised'] : ['shown', 'normal'])
+  })
+
+  it.each(SEARCH_LEAVES)('SV-14: %s x searchPanelClosePressed closes a shown panel', (key) => {
+    const session = sessionIn(key)
+    const event = { type: 'searchPanelClosePressed' }
+    expectStepMatchesManuscript(session, event)
+    const result = step(session, event)
+    if (key === `${SEARCH}.hidden`) expect(result.state).toBe(session)
+    else expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['hidden'])
+  })
+
+  it.each(SEARCH_LEAVES)('SJ-3: %s x searchHitJumped restores only a maximised panel', (key) => {
+    const session = sessionIn(key)
+    const event = { type: 'searchHitJumped' }
+    expectStepMatchesManuscript(session, event)
+    const result = step(session, event)
+    if (key === `${SEARCH}.shown.maximised`) expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['shown', 'normal'])
+    else expect(result.state).toBe(session)
+  })
+})
+
+describe('CR-562 (T-280, FR-066, IC-18): the dialogue field entry while Agent API is disabled', () => {
+  const event = { type: 'dialogueFieldEntryPressed', isAgentApiEnabled: false }
+
+  it.each(['dialogueFieldDisplayStateMachine.shown', 'dialogueFieldDisplayStateMachine.hidden'])(
+    '%s x dialogueFieldEntryPressed [not isAgentApiEnabled] -> shown, no notice, no effect',
+    (key) => {
+      const session = sessionIn(key)
+      expectStepMatchesManuscript(session, event)
+      const result = step(session, event)
+      expect(kindPath(screenOf(result.state)['dialogueFieldDisplayState'])).toEqual(['shown'])
+      expect(result.effects).toEqual([])
+    },
+  )
 })
