@@ -610,6 +610,7 @@ export function svgFromSchedule(
     ...defsParts,
     ...groundClipped(drawing, [
       ...zoLayer('ZO-7', grid.bandParts),
+      ...zoLayer('ZO-14', overlays.fillParts),
       ...zoLayer('ZO-1', [...figures.planPartsPinned, scrolling(figures.planParts)]),
       ...zoLayer('ZO-1a', [...figures.guidePartsPinned, scrolling(figures.guideParts)]),
       ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),
