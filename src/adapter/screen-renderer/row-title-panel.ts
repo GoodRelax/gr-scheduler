@@ -7,7 +7,7 @@ import type {
   DocumentSettings,
   DrawnSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { rowNameOf, type Schedule, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   drawnSettingsOf,
@@ -24,7 +24,7 @@ interface PanelIndex extends OpenArming {
   readonly foldedRowCountByGroupId: ReadonlyMap<string, number>
   readonly foldedRowCountAtLevelZero: number
   readonly rootGroups: readonly TaskGroup[]
-  readonly taskNameByUid: ReadonlyMap<number, string | null>
+  readonly schedule: Schedule
 }
 
 type IndexCore = Omit<PanelIndex, keyof OpenArming>
@@ -135,13 +135,6 @@ function expanderOf(group: TaskGroup, index: PanelIndex): RowExpander {
   }
 }
 
-/** @purity pure */
-function rowNameOf(group: TaskGroup, index: PanelIndex): string | null {
-  if (group.label !== null) return group.label
-  if (group.derivedFromTaskUid === null) return null
-  return index.taskNameByUid.get(group.derivedFromTaskUid) ?? null
-}
-
 interface HeldRow {
   readonly depth: number
   readonly atY: number | null
@@ -161,7 +154,8 @@ function rowTitleOf(
 ): RowTitle {
   const depth = held?.depth ?? rowDepth(group, index.groupsById, settings)
   const fontSizePx = rowTitleFontPxOf(depth, settings)
-  const wholeLabel = rowNameOf(group, index)
+  const name = rowNameOf(index.schedule, group.id)
+  const wholeLabel = name === '' ? null : name
   const shownLabel =
     wholeLabel === null
       ? null
@@ -291,12 +285,6 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     groupIdsWithDrawnChildren.add(group.parentId)
   }
 
-  const taskNameByUid = new Map<number, string | null>()
-  for (const task of schedule.tasks) {
-    if (taskNameByUid.has(task.uid)) continue
-    taskNameByUid.set(task.uid, task.name)
-  }
-
   const foldedRowCountByGroupId = new Map<string, number>()
   const subtreeSizeByGroupId = new Map<string, number>()
   const orderedDeepestFirst: TaskGroup[] = []
@@ -343,7 +331,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     foldedRowCountByGroupId,
     foldedRowCountAtLevelZero,
     rootGroups,
-    taskNameByUid,
+    schedule,
   }
 }
 

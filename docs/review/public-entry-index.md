@@ -33,6 +33,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `COLUMN_SHAPES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#COLUMN_SHAPES` | -- | const COLUMN_SHAPES: |
 | `ColumnShape` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ColumnShape` | -- | interface ColumnShape |
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
+| `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
 | `CustomColour` | entry | interface | `src/entity/document-model/schedule/stored-colour.ts#CustomColour` | -- | interface CustomColour |
 | `customColourChosen` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customColourChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
@@ -62,14 +63,18 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
+| `rowNameOf` | entry | function | `src/entity/document-model/schedule/row-names.ts#rowNameOf` | PI-1 | 行の名前を `AT-53` と `AT-54` から導く。 |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |
 | `ScheduleViolation` | entry | interface | `src/entity/document-model/schedule/schedule-invariants.ts#ScheduleViolation` | -- | interface ScheduleViolation |
 | `scheduleViolations` | entry | function | `src/entity/document-model/schedule/schedule-invariants.ts#scheduleViolations` | PI-1 | 不変条件に反する箇所 |
+| `SearchRows` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#SearchRows` | PI-1 | 型。 |
+| `searchRowsOf` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#searchRowsOf` | PI-1 | 語に当たるタスクとコメントボックスの行（`FR-151` の 表 T-330 の `SV-4`、表 T-331）。 |
 | `Task` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Task` | -- | interface Task |
 | `taskByUid` | entry | function | `src/entity/document-model/schedule/schedule.ts#taskByUid` | PI-1 | `uid` で引く。 |
 | `TaskGroup` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskGroup` | -- | interface TaskGroup |
 | `TaskGroupMember` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskGroupMember` | -- | interface TaskGroupMember |
 | `TaskOrigin` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskOrigin` | -- | interface TaskOrigin |
+| `TaskSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#TaskSearchRow` | PI-1 | 型。 |
 | `TaskVisual` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#TaskVisual` | -- | interface TaskVisual |
 | `textOfDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDay` | PI-1 | 日を日付の字面に戻す |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
@@ -78,7 +83,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
 | `dayFromSerial` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#dayFromSerial` | -- | function dayFromSerial(value: number): CalendarDay |
 | `serial` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#serial` | -- | function serial(day: CalendarDay): number |
+| `rowPathOf` | file only | function | `src/entity/document-model/schedule/row-names.ts#rowPathOf` | -- | function rowPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
+| `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
+| `isSearchWordFound` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | -- | function isSearchWordFound(text: string, word: string): boolean |
 | `TRANSPARENT` | file only | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | -- | const TRANSPARENT = 'transparent' |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
@@ -336,6 +344,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `refusedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `reject` | entry | function | `src/use-case/edit-document/edit-document.ts#reject` | -- | function reject( command: string, rule: string, what: string, reasonCategory?: Refusal['reasonCategory'], ): Refusal |
 | `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: string \| null } \| { readonly kind: 'setResourceName'; readonly uid: number; readon... |
+| `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
+| `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
+| `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— 行と祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
 | `TaskCommand` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskCommand` | -- | type TaskCommand = \| |
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
@@ -486,6 +497,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApiWiring` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApiWiring` | -- | interface AgentApiWiring |
 | `AgentChangeReceiver` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentChangeReceiver` | -- | type AgentChangeReceiver = (notice: NotifyChangeWatchers.ChangeNotice) => void |
 | `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // see AM-18, AG-11, AG-9... |
+| `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| (Extract<AgentWriteOutcome, { readonly accepted: true }> & { readonly isScrolled: boolean }) \| Extract<AgentWriteOutcome, { readon... |
 | `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = Document \| { readonly document: Document } \| { readonly text: string } |
 | `AgentRefusal` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusal` | -- | interface AgentRefusal |
 | `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'gestureInFlight' \| 'editingInPlace' \| 'deliveringNotices' \| 'commandRefused' \| 'unknownTask' \| 'notDrawnYet' \| 't... |
@@ -610,7 +622,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `everyRowDeleted` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#everyRowDeleted` | -- | function everyRowDeleted(context: InputContext): TranslatedInput |
 | `rowStoodUp` | file only | function | `src/adapter/input-command-translator/row-tree-entrances.ts#rowStoodUp` | -- | function rowStoodUp( context: InputContext, parentGroupId: string \| null, depth: number, ): TranslatedInput |
 | `commandFromKey` | file only | function | `src/adapter/input-command-translator/shortcut-keys.ts#commandFromKey` | -- | function commandFromKey(input: KeyInput, context: InputContext): TranslatedInput |
-| `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput |
+| `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `rowPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowPointIn` | -- | function rowPointIn( rows: readonly RowPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
@@ -871,6 +883,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `noWorkingWeekdayReason` | file only | function | `src/framework/single-html-shell/frame-loop.ts#noWorkingWeekdayReason` | -- | function noWorkingWeekdayReason(document: Document): StartupNoticeReason \| null |
 | `OPEN_CHOOSER_SURFACE` | file only | const | `src/framework/single-html-shell/frame-loop.ts#OPEN_CHOOSER_SURFACE` | -- | const OPEN_CHOOSER_SURFACE = 'Open Chooser' |
 | `openSurfaceNameIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#openSurfaceNameIn` | -- | function openSurfaceNameIn(session: ScreenSession): string \| null |
+| `paletteCornerInWindow` | file only | function | `src/framework/single-html-shell/frame-loop.ts#paletteCornerInWindow` | -- | function paletteCornerInWindow( corner: { readonly x: number; readonly y: number }, bandSize: { readonly width: number; readonly height: number }, windowSize... |
 | `panelShowingIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#panelShowingIn` | -- | function panelShowingIn(session: ScreenSession): PanelShowing |
 | `PointerFacing` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerFacing` | -- | type PointerFacing = 'start' \| 'end' |
 | `pointerImageOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pointerImageOf` | -- | function pointerImageOf( row: PointerRow, facing: PointerFacing = 'start', |
@@ -1055,6 +1068,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ExportFormatId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#ExportFormatId` | -- | type ExportFormatId = string |
 | `FieldCommit` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldCommit` | -- | interface FieldCommit |
 | `FieldEditNotice` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#FieldEditNotice` | PI-37 | 型。 |
+| `hasRoomBelowPinsIn` | entry | function | `src/adapter/screen-renderer/search-panel.ts#hasRoomBelowPinsIn` | -- | function hasRoomBelowPinsIn(layout: ScheduleLayout, rowArea: ScreenRect, groupId: string \| null): boolean |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | -- | interface HelpModal extends OpenSurface |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
@@ -1062,6 +1076,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
+| `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | -- | function nextSearchPanelTextSizeStep(step: number): number |
 | `Notice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Notice` | -- | interface Notice |
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| AiExportModal \| ResourceRoster \| ExportChooser \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
@@ -1089,6 +1104,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Scrollbar` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Scrollbar` | -- | interface Scrollbar |
 | `ScrollExtent` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScrollExtent` | -- | interface ScrollExtent |
 | `scrollExtentOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#scrollExtentOf` | PI-37 | 配置と各部の矩形と全体から `ScreenViewReadings` のスクロールの範囲を答える。 |
+| `SearchColumnView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchColumnView` | -- | interface SearchColumnView |
+| `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, schedule: Schedule, canvas: ScreenRect, ): SearchPanelView \| null |
+| `SearchPanelShown` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelShown` | -- | type SearchPanelShown = 'normal' \| 'minimised' \| 'maximised' |
+| `SearchPanelView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchPanelView` | -- | interface SearchPanelView |
+| `SearchRowView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId } \| { readonly kind: 'task'; readonly taskUid: number } \| { readonly kind: 'rowTitle'; ... |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
@@ -1153,6 +1173,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
 | `ROW_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROW_GRAB_STRIP_MARK` | -- | const ROW_GRAB_STRIP_MARK = 'data-row-grab' |
 | `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
+| `SCREEN_Z_ORDER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER` | -- | const SCREEN_Z_ORDER: readonly string[] = [ |
+| `SCREEN_Z_ORDER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER_ATTRIBUTE` | -- | const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz' |
 | `ScreenSurfaceWiring` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenSurfaceWiring` | -- | interface ScreenSurfaceWiring |
 | `ScreenTheme` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenTheme` | PI-38 | 型 |
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
@@ -1161,6 +1183,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `themeStyle` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#themeStyle` | -- | function themeStyle(theme: ScreenTheme): string |
 | `appHeaderStyle` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#appHeaderStyle` | -- | function appHeaderStyle(): string |
 | `fillAppHeader` | file only | function | `src/framework/dom-screen-surface/app-header-drawing.ts#fillAppHeader` | -- | function fillAppHeader( host: Document, header: HTMLElement, items: AppHeaderItems, anchors: Map<string, HTMLElement>, ): HTMLElement |
+| `PALETTE_GRAB_BAND_ENTRY` | file only | const | `src/framework/dom-screen-surface/command-palette-drawing.ts#PALETTE_GRAB_BAND_ENTRY` | -- | const PALETTE_GRAB_BAND_ENTRY = 'IC-53' |
 | `paletteElement` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteElement` | -- | function paletteElement( host: Document, palette: CommandPalette, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `paletteGroupRuleStyle` | file only | function | `src/framework/dom-screen-surface/command-palette-drawing.ts#paletteGroupRuleStyle` | -- | function paletteGroupRuleStyle(): string |
 | `dialogueSettlement` | file only | function | `src/framework/dom-screen-surface/dialogue-field-drawing.ts#dialogueSettlement` | -- | function dialogueSettlement( dialogueEntry: HTMLInputElement, readAuthor: () => string, readClockMs: () => number, ) |
@@ -1198,6 +1221,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillScreenFrame` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#fillScreenFrame` | -- | function fillScreenFrame( host: Document, layer: HTMLElement, bandLayer: HTMLElement, frame: ScreenFrame, anchors: Map<string, HTMLElement>, ): void |
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
 | `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'rowTitlePanel' \| 'propertiesPanel', ): ScreenRect \| null |
+| `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): void |
+| `SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE` | -- | const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box' |
+| `SEARCH_JUMP_TASK_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_JUMP_TASK_ATTRIBUTE` | -- | const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task' |
+| `SEARCH_PANEL_GRAB_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_PANEL_GRAB_ATTRIBUTE` | -- | const SEARCH_PANEL_GRAB_ATTRIBUTE = 'data-search-panel-grab' |
+| `SEARCH_WORD_FIELD_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_FIELD_ATTRIBUTE` | -- | const SEARCH_WORD_FIELD_ATTRIBUTE = 'data-search-word' |
+| `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf( view: SearchPanelView, defaultRatio: { readonly width: number; readonly height: number }, ): ScreenRect |
+| `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: SearchPanelView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
+| `searchPanelFontPxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelFontPxOf` | -- | function searchPanelFontPxOf( textSizeStep: number, sizes: { readonly [R in SearchPanelTextSizeRow]: number }, ): number |
+| `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: SearchPanelView, fontPx: number): HTMLElement |
 | `keepTooltipsInside` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#keepTooltipsInside` | -- | function keepTooltipsInside(layer: HTMLElement): void |
 | `showDualCursorReadout` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#showDualCursorReadout` | -- | function showDualCursorReadout( host: Document, layer: HTMLElement, readout: ScreenView['dualCursorReadout'], ): void |
 | `tooltipAnchorTable` | file only | function | `src/framework/dom-screen-surface/tooltips-drawing.ts#tooltipAnchorTable` | -- | function tooltipAnchorTable(root: HTMLElement) |
@@ -1210,6 +1242,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `advanceScreenSession` | entry | function | `src/use-case/advance-screen-session/advance-screen-session.ts#advanceScreenSession` | PI-39 | 1 段進める。 |
 | `ArmKind` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmKind` | PI-39 | 型。 |
 | `emptyScreenSession` | entry | const | `src/use-case/advance-screen-session/advance-screen-session.ts#emptyScreenSession` | PI-39 | 初期の状態。 |
+| `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | -- | const emptySearchPanelSession: SearchPanelSession = |
 | `FileFlowImportAnswer` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowImportAnswer` | PI-39 | 型。 |
 | `FileFlowOpenRoute` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenRoute` | PI-39 | 型。 |
 | `FileFlowOwedAction` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOwedAction` | PI-39 | 型。 |
@@ -1223,6 +1256,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
 | `ScreenValues` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValues` | PI-39 | 型。 |
 | `ScreenValuesEvent` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesEvent` | PI-39 | 型。 |
+| `SEARCH_PANEL_TEXT_SIZE_ROWS` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#SEARCH_PANEL_TEXT_SIZE_ROWS` | -- | const SEARCH_PANEL_TEXT_SIZE_ROWS = ['S-430', 'S-431', 'S-432', 'S-433'] as const |
+| `SearchColumn` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchColumn` | -- | type SearchColumn = 'SQ-1' \| 'SQ-2' \| 'SQ-3' \| 'SQ-4' \| 'SQ-5' \| 'SQ-6' \| 'SQ-7' \| 'SQ-8' \| 'SQ-9' |
+| `SearchColumnFilter` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchColumnFilter` | -- | interface SearchColumnFilter |
+| `SearchPanelSession` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelSession` | -- | interface SearchPanelSession |
+| `SearchPanelTextSizeRow` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelTextSizeRow` | -- | type SearchPanelTextSizeRow = (typeof SEARCH_PANEL_TEXT_SIZE_ROWS)[number] |
+| `SearchSort` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchSort` | -- | interface SearchSort |
+| `SearchTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchTable` | -- | type SearchTable = 'tasks' \| 'commentBoxes' |
 | `SessionEffect` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEffect` | PI-39 | 型。 |
 | `SessionEvent` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEvent` | PI-39 | 型。 |
 | `StandingNotice` | entry | interface | `src/use-case/advance-screen-session/notice-values.ts#StandingNotice` | PI-39 | 型。 |
@@ -1346,4 +1386,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 659 name(s) leave through a public entry (199 of them published by table T-064), 487 more are exported by a file and not by its entry.
+Totals: 685 name(s) leave through a public entry (207 of them published by table T-064), 501 more are exported by a file and not by its entry.

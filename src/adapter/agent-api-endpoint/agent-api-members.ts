@@ -8,8 +8,8 @@ import {
   latestSequence,
   type DialogueMessage,
 } from '../../entity/document-model/dialogue-log/dialogue-log'
+import { searchRowsOf, type SearchRows } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import { taskPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   applyDocumentChange,
   type ChangeAudience,
@@ -18,16 +18,18 @@ import {
   type PlanRefusal,
   type Refusal,
 } from '../../use-case/apply-document-change/apply-document-change'
-import type {
-  InvariantRefusal,
-  InvariantRow,
+import {
+  searchJumpWrites,
+  type InvariantRefusal,
+  type InvariantRow,
 } from '../../use-case/edit-document/edit-document'
 import * as NotifyChangeWatchers from '../../use-case/notify-change-watchers/notify-change-watchers'
 import * as PostDialogueMessage from '../../use-case/post-dialogue-message/post-dialogue-message'
 import * as DocumentCodec from '../document-codec/document-codec'
 import { jsonFromDocument, mspdiFromDocument } from '../document-codec/document-codec'
 import * as ImageExporter from '../image-exporter/image-exporter'
-import type { AgentSnapshot, FrameSnapshot, SnapshotSource } from './snapshot-source'
+import { hasRoomBelowPinsIn } from '../screen-renderer/screen-renderer'
+import type { AgentSnapshot, SnapshotSource } from './snapshot-source'
 
 type DocumentStamp = Document['documentStamp']
 
@@ -84,6 +86,11 @@ export type AgentWriteOutcome =
     }
   | { readonly accepted: false; readonly refusal: AgentRefusal }
 
+// see AM-16, SJ-9
+export type AgentFocusOutcome =
+  | (Extract<AgentWriteOutcome, { readonly accepted: true }> & { readonly isScrolled: boolean })
+  | Extract<AgentWriteOutcome, { readonly accepted: false }>
+
 // see AM-8, FR-022
 export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
 
@@ -114,6 +121,8 @@ export interface AgentApi {
   readSelection(): Selection
   /** @purity semi-pure-b */
   readDialogueMessages(): readonly DialogueMessage[]
+  /** @purity semi-pure-b */
+  readSearchRows(word: string): SearchRows
 
   /** @purity non-pure */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
@@ -137,7 +146,7 @@ export interface AgentApi {
   exportEmbeddedHtml(): Promise<AgentExport<string>>
 
   /** @purity non-pure */
-  focusTask(taskUid: number): AgentWriteOutcome
+  focusTask(taskUid: number): AgentFocusOutcome
 
   /** @purity non-pure */
   watchChanges(receive: AgentChangeReceiver): AgentWatch
@@ -297,21 +306,6 @@ function serialisedDocument(value: object): HandedText {
   }
 }
 
-/** @purity pure */
-function viewThatShowsTask(
-  snapshot: AgentSnapshot,
-  frame: FrameSnapshot,
-  taskUid: number,
-): { readonly scrollDate: string; readonly scrollGroupId: string } | null {
-  const placement = taskPlacement(frame.layout, taskUid)
-  if (placement === null) return null
-  const task = snapshot.document.schedule.tasks.find((held) => held.uid === taskUid)
-  if (task === undefined) return null
-  const day = task.start ?? task.actualStart
-  if (day === null) return null
-  return { scrollDate: day, scrollGroupId: placement.groupId }
-}
-
 // see AG-5
 /** @purity non-pure */
 function writeThroughTheOnePath(
@@ -456,6 +450,11 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     readDialogueMessages(): readonly DialogueMessage[] {
       return frozenCopy(source.readSnapshot().dialogue.messages)
+    },
+
+    /** @purity semi-pure-b */
+    readSearchRows(word: string): SearchRows {
+      return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word))
     },
 
     /** @purity non-pure */
@@ -712,7 +711,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity non-pure */
-    focusTask(taskUid: number): AgentWriteOutcome {
+    focusTask(taskUid: number): AgentFocusOutcome {
       const snapshot = source.readSnapshot()
       const frame = snapshot.frame
       if (frame === null) {
@@ -722,31 +721,22 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
 
-      const view = viewThatShowsTask(snapshot, frame, taskUid)
-      if (view === null) {
+      const schedule = snapshot.document.schedule
+      if (!schedule.tasks.some((held) => held.uid === taskUid)) {
         return {
           accepted: false,
-          refusal: agentRefusal(
-            'AM-16',
-            'unknownTask',
-            snapshot,
-            'no task with this uid was drawn by the last frame, or it carries no date',
-            [],
-          ),
+          refusal: agentRefusal('AM-16', 'unknownTask', snapshot, 'no task carries this uid', []),
         }
       }
 
-      // WHY: WS-1 gets the stamp just read: moving the view changes no schedule the caller read,
+      const groupId = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)?.groupId ?? null
+      const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.rowArea, groupId)
+      const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom)
+      const commands = plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+      // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
       // so a concurrent edit does not refuse it.
-      return writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, [
-        {
-          kind: 'setScrollPosition',
-          scrollDate: view.scrollDate,
-          scrollGroupId: view.scrollGroupId,
-          scrollDayOffset: 0,
-          scrollGroupOffset: 0,
-        },
-      ])
+      const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
+      return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedRows } : written
     },
 
     /** @purity non-pure */

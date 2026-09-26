@@ -11,6 +11,7 @@ export type {
   AgentApiWiring,
   AgentChangeReceiver,
   AgentExport,
+  AgentFocusOutcome,
   AgentImportSource,
   AgentRefusal,
   AgentRefusalReason,

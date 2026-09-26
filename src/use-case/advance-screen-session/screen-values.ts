@@ -39,6 +39,52 @@ interface DualCursorDates {
   readonly date2: string
 }
 
+export type SearchTable = 'tasks' | 'commentBoxes'
+
+// see T-331
+export type SearchColumn = 'SQ-1' | 'SQ-2' | 'SQ-3' | 'SQ-4' | 'SQ-5' | 'SQ-6' | 'SQ-7' | 'SQ-8' | 'SQ-9'
+
+export interface SearchColumnFilter {
+  readonly column: SearchColumn
+  readonly hiddenValues: readonly string[]
+  readonly from: string | null
+  readonly to: string | null
+}
+
+export interface SearchSort {
+  readonly column: SearchColumn
+  readonly direction: 'ascending' | 'descending'
+}
+
+// see S-419, S-420, S-429, SV-7, SV-8
+export interface SearchPanelSession {
+  readonly word: string
+  readonly table: SearchTable
+  readonly filters: readonly SearchColumnFilter[]
+  readonly sort: SearchSort | null
+  readonly at: { readonly x: number; readonly y: number } | null
+  readonly size: { readonly width: number; readonly height: number } | null
+  readonly textSizeStep: number
+}
+
+// see T-333, S-429
+// TRAP: table T-333 top down, by hand; a row added there reaches no step here until it is added.
+export const SEARCH_PANEL_TEXT_SIZE_ROWS = ['S-430', 'S-431', 'S-432', 'S-433'] as const
+
+export type SearchPanelTextSizeRow = (typeof SEARCH_PANEL_TEXT_SIZE_ROWS)[number]
+
+const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-432'
+
+export const emptySearchPanelSession: SearchPanelSession = {
+  word: '',
+  table: 'tasks',
+  filters: [],
+  sort: null,
+  at: null,
+  size: null,
+  textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
+}
+
 export interface ScreenValuesStateCarried {
   readonly screenLanguage: DisplayLanguage | null
   readonly helpLanguage: DisplayLanguage | null
@@ -769,6 +815,59 @@ function onHintTargetChanged(values: ScreenValues): ScreenStep {
   return moved(values, { tooltipDisplayState: { kind: 'allowed' } })
 }
 
+type SearchPanelShownKind = SearchPanelDisplayShownState['kind']
+
+const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
+
+const MINIMISE_TOGGLED_TO: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind } = {
+  normal: 'minimised',
+  minimised: 'normal',
+  maximised: 'minimised',
+}
+
+const MAXIMISE_TOGGLED_TO: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind } = {
+  normal: 'maximised',
+  minimised: 'maximised',
+  maximised: 'normal',
+}
+
+// see T-280, SV-2
+/** @purity pure */
+function onSearchEntryPressed(values: ScreenValues): ScreenStep {
+  const panel = values.searchPanelDisplayState
+  if (panel.kind === 'shown' && panel.child.kind !== 'minimised') return stayed(values, FOCUS_SEARCH_WORD)
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
+  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
+}
+
+// see T-280, SV-12, SV-13
+/** @purity pure */
+function searchPanelToggled(
+  values: ScreenValues,
+  toggledTo: { readonly [K in SearchPanelShownKind]: SearchPanelShownKind },
+): ScreenStep {
+  const panel = values.searchPanelDisplayState
+  if (panel.kind === 'hidden') return unchanged(values)
+  const child = { kind: toggledTo[panel.child.kind] }
+  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
+}
+
+// see T-280, SV-14
+/** @purity pure */
+function onSearchPanelClosePressed(values: ScreenValues): ScreenStep {
+  if (values.searchPanelDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { searchPanelDisplayState: { kind: 'hidden' } })
+}
+
+// see T-280, SJ-3
+/** @purity pure */
+function onSearchHitJumped(values: ScreenValues): ScreenStep {
+  const panel = values.searchPanelDisplayState
+  if (panel.kind === 'hidden' || panel.child.kind !== 'maximised') return unchanged(values)
+  const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
+  return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
+}
+
 // WHY: a table from event type to function, not one switch: thirty cases would cross the
 // function-size band, and the mapped type still refuses a missing event as `never` would.
 const HANDLERS: {
@@ -807,11 +906,11 @@ const HANDLERS: {
   propertyPanelWidthSettled: onPropertyPanelWidthSettled,
   progressMarkerPressed: onProgressMarkerPressed,
   hintTargetChanged: onHintTargetChanged,
-  searchEntryPressed: unchanged,
-  searchPanelMinimiseToggled: unchanged,
-  searchPanelMaximiseToggled: unchanged,
-  searchPanelClosePressed: unchanged,
-  searchHitJumped: unchanged,
+  searchEntryPressed: onSearchEntryPressed,
+  searchPanelMinimiseToggled: (values) => searchPanelToggled(values, MINIMISE_TOGGLED_TO),
+  searchPanelMaximiseToggled: (values) => searchPanelToggled(values, MAXIMISE_TOGGLED_TO),
+  searchPanelClosePressed: onSearchPanelClosePressed,
+  searchHitJumped: onSearchHitJumped,
   helpEntryPressed: unchanged,
   helpMinimiseToggled: unchanged,
   helpMaximiseToggled: unchanged,

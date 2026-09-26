@@ -64,6 +64,15 @@ import { unchanged, type Step } from './session-step'
 
 export type { ArmKind, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
 export type {
+  SearchColumn,
+  SearchColumnFilter,
+  SearchPanelSession,
+  SearchPanelTextSizeRow,
+  SearchSort,
+  SearchTable,
+} from './screen-values'
+export { SEARCH_PANEL_TEXT_SIZE_ROWS, emptySearchPanelSession } from './screen-values'
+export type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,
   FileFlowOwedAction,
