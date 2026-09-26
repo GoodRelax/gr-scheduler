@@ -1557,10 +1557,27 @@ describe('IC-4 / IC-39 / IC-40 / IC-42 / IC-43 -- the boolean entrances flip the
   // hides. FR-039 states the principle these cases turn on for the sibling row
   // S-72: the saved value is the STARTING value -- so what a press flips is what
   // the DOCUMENT holds, never a value the shell began at.
+  //
+  // ⚠️ IC-4 toggles only while a pre-change plan is held. OP-15 of table T-024a:
+  //   「⚠️ 重ねる予定が在るときの `IC-4` は `S-69` を切り替えるだけであり、本行に当たらない」
+  // and 「「重ねる予定が無い」とは、文書の `BaselineTask`（…`ET-18`）が 0 件であること」.
+  // With none held, IC-4 asks for the file instead (FR-015, OP-15) -- that half is
+  // tested elsewhere, so the IC-4 toggle cases stand on a document holding one.
+  const HELD_BASELINE = [{ uid: 1, name: 'One', start: '2026-03-25', finish: '2026-04-03', milestone: false }]
+  const standingToToggle = (entry: string, overrides: Record<string, unknown>): Standing => {
+    if (entry !== 'IC-4') return standing(overrides)
+    const draft = documentWithSettings(overrides) as any
+    const document = { ...draft, schedule: { ...draft.schedule, baselineTasks: HELD_BASELINE } } as unknown as Document
+    const frames = host()
+    const screen = screenPane('ja', 'light')
+    const loop = frameLoop(frames.surface, document, SCREEN, screen.wiring)
+    frames.runAnimationFrames()
+    return { frames, screen, loop }
+  }
   for (const entrance of BOOLEAN_ENTRANCES) {
     for (const from of [false, true]) {
       it(`${entrance.entry} turns ${entrance.key} to ${!from} when the document holds ${from}`, () => {
-        const run = standing({ ...CONTRARY, [entrance.key]: from })
+        const run = standingToToggle(entrance.entry, { ...CONTRARY, [entrance.key]: from })
         expect(settingsOf(run.loop)[entrance.key], 'the premise').toBe(from)
 
         takeEntry(run.loop, run.screen, entrance.part, entrance.entry)

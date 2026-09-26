@@ -57,6 +57,9 @@ const T_024A_OP2_ROUTES = ['chooser', 'drop'] as const satisfies readonly OpenRo
 
 const T_024A_OP13_ROUTE = 'reopen' as const satisfies OpenRoute
 
+// OP-15: "OP-2 のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）"
+const T_024A_OP15_ROUTE = 'baseline' as const satisfies OpenRoute
+
 const IF_3_OPENED_STATES = [
   { kind: 'none' },
   { kind: 'writable', fileName: 'plan-a.json' },
@@ -67,6 +70,7 @@ const EVERY_OPEN_ROUTE: Readonly<Record<OpenRoute, true>> = {
   chooser: true,
   drop: true,
   reopen: true,
+  baseline: true,
 }
 
 const EVERY_STORE_REASON: Readonly<Record<FileStoreFaultReason, true>> = {
@@ -252,10 +256,10 @@ describe('the rosters these cases walk are the ones the tables state', () => {
     expect(T_024_ROWS_THAT_ARE_NOT_FILES).toHaveLength(2)
   })
 
-  it('carries the two routes of OP-2, the third of OP-13, and the four reasons IF-3 tells apart', () => {
+  it('carries the two routes of OP-2, the third of OP-13, the fourth of OP-15, and the four reasons IF-3 tells apart', () => {
     expect(T_024A_OP2_ROUTES).toHaveLength(2)
     expect(Object.keys(EVERY_OPEN_ROUTE).sort()).toEqual(
-      [...T_024A_OP2_ROUTES, T_024A_OP13_ROUTE].sort(),
+      [...T_024A_OP2_ROUTES, T_024A_OP13_ROUTE, T_024A_OP15_ROUTE].sort(),
     )
     expect(storeReasons).toHaveLength(4)
     expect(Object.keys(EVERY_GATEWAY_REASON)).toHaveLength(6)

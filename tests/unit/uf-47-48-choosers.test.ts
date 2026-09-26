@@ -1612,7 +1612,9 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
 
     expect(uidsOf(loop.document())).toEqual([1, 2])
     expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
-    expect((loop.document() as any).documentSettings).toEqual(written)
+    // FR-015 (MUST): 「⭐ 重ねを読み込んだときは、… 表 T-202 の `S-69` を真にすること（MUST）」
+    // -- so the landing turns baselineVisible on and keeps every other value written in the wait.
+    expect((loop.document() as any).documentSettings).toEqual({ ...written, baselineVisible: true })
   })
 })
 

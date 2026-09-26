@@ -92,7 +92,8 @@ const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, inco
 
 const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   idle: [{}],
-  readingDocumentFile: ['chooser', 'drop', 'reopen', 'handed'].map((openRoute) => ({ openRoute })),
+  // OP-15: "OP-2 のファイル選択と同じ画面を開き、選んだファイルを重ねる用途で開くこと（MUST）" -- the 'baseline' route.
+  readingDocumentFile: ['chooser', 'drop', 'reopen', 'baseline', 'handed'].map((openRoute) => ({ openRoute })),
   awaitingOpenChoice: [{}],
   awaitingDiscardAnswer: [{}],
   importingDocument: [{}],
@@ -157,7 +158,8 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
 }
 
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
-  documentOpenAsked: ['chooser', 'drop', 'reopen'].map((openRoute) => ({ openRoute })),
+  // OP-15 (T-290 openRoute): `baseline` is the pre-change-plan entrance when no plan is overlaid.
+  documentOpenAsked: ['chooser', 'drop', 'reopen', 'baseline'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
   documentFileWriteAsked: [{ writeForm: { kind: 'save' } }, { writeForm: { kind: 'export', format: 'MF-1' } }],
   openChoiceAnswered: ['replace', 'merge', 'baseline'].map((openChoice) => ({ openChoice, question: question('QN-5') })),
@@ -213,6 +215,9 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
   switch (guard.name) {
     case 'isReopenRoute':
       return operation['openRoute'] === 'reopen'
+    // OP-15: "OP-3 の 3 択は問わず、重ねに定めること（MUST）" -- the route IC-4 opened with.
+    case 'isBaselineRoute':
+      return operation['openRoute'] === 'baseline'
     case 'isReplaceChoice':
       return event['openChoice'] === 'replace'
     case 'isProceeding':
@@ -274,6 +279,10 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
       }
       if (event['type'] === 'openChoiceAnswered') {
         return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: event['openChoice'] } }
+      }
+      // OP-15: "OP-3 の 3 択は問わず、重ねに定めること（MUST）" -- a file read on the baseline route overlays.
+      if (event['type'] === 'documentFileRead') {
+        return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'baseline' } }
       }
       return { type: 'importIncomingDocument', answer: { kind: 'openChoice', openChoice: 'replace' } }
     case 'discardIncomingDocument':
