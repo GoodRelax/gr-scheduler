@@ -24,7 +24,7 @@
 | 8 | `CR-585`（白黒で画面の罫線・パネルの地・強調色も灰色。仕様の波 W2。画面の主題は `showScreenView` ごとに作る —— コードの持ち場 L3） | `34261746` | `src/adapter/screen-renderer/display-words.json` |
 | 9 | `CR-576`（基準日線を朱色、アイコンの説明、フェード 0 の端。仕様の波 W2 —— 生成器が色と大きさを書き換えた） | `34261746` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts` |
 | 10 | `CR-558`（ハイライトボックスの掴み点・線の太さ・塗り。仕様の波 W3 —— 生成器が表示語と大きさの群を書き換えた。描く手順はコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json`・`src/adapter/svg-renderer/svg-renderer.ts`・`src/entity/layout-engine/item-hit-area/item-hit-area.ts` |
-| 11 | `CR-556`（期限を緑の下向きの矢印で。仕様の波 W3 —— 生成器が色と期限の印の大きさの群を刷った。描く手順はコードの持ち場 L1） | `e4011375` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/task-figures.ts`・`src/entity/layout-engine/schedule-layout/schedule-layout.ts` |
+| 11 | `CR-556`（期限を緑の下向きの矢印で。仕様の波 W3 —— 生成器が色と期限の印の大きさの群を刷った。描く手順はコードの持ち場 L1） | `e4011375` | `src/adapter/screen-renderer/display-words.json`・`src/entity/layout-engine/schedule-geometry/task-figures.ts`・`src/entity/layout-engine/schedule-layout/schedule-layout.ts` ／ コードの波 1a・1b（枝 `lane-l1`、2026-09-27）: `schedule-layout.ts`・`task-figures.ts`・`src/adapter/svg-renderer/schedule-task-figures.ts`・`svg-renderer.ts`（層 `ZO-13`）—— 期限を持つタスクごとに毎フレーム 7 点の多角形を 1 つ足す |
 | 12 | `CR-559`（コメントボックスの引き出し線の端と箱の書式。仕様の波 W3。描く手順はコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json` |
 | 13 | `CR-560`（`Ctrl` で引けば写す。仕様の波 W3。押しの振り分けはコードの持ち場 L2） | `e4011375` | `src/adapter/screen-renderer/display-words.json` |
 | 14 | `CR-575`（画面の層の順の表、パレットは掴めるまま。仕様の波 W4a。層の順はコードの持ち場 L4） | `d2a4e6b0` | `src/adapter/screen-renderer/display-words.json` |

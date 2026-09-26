@@ -50,6 +50,9 @@ const STRAIGHT = T206('S-361') * R
 const DOT = T206('S-362') * R
 const DOT_MARGIN = T206('S-363')
 
+const SL_3_WHOLLY = '矩形に完全に囲まれた対象だけを取ること'
+const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きの印はその依存線の一部である'
+
 const EPS = 1e-6
 // WHY: the SVG prints two decimals.
 const SVG_EPS = 0.006
@@ -1050,6 +1053,39 @@ describe('EL-14 -- elided lines are still drawn objects for selection', () => {
     const marquee = { x: box.x - pad, y: box.y - pad, width: box.width + 2 * pad, height: box.height + 2 * pad }
     expect(taken(itemsInMarquee(scene.geometry, marquee), 1, 2)).toBe(true)
   })
+
+  // WHY: a margin narrower than the gap before the first dot (S-362), so the rectangle holds the whole
+  // WHY: stroke of the short line and its head but stops short of the mark.
+  const SHORT_OF_THE_MARK = DOT * 0.6
+
+  const marqueeRound = (points: readonly Pt[], pad: number): Rect => {
+    const box = boxOf(points)
+    return { x: box.x - pad, y: box.y - pad, width: box.width + 2 * pad, height: box.height + 2 * pad }
+  }
+
+  it.each([
+    ['EL-4', predecessorOnly],
+    ['EL-5', successorOnly],
+  ] as const)(
+    `SL-3 / T-303 (%s): a marquee round the short line but not the mark does not take the line -- ${T_303_MARK_IS_PART_OF_THE_LINE}`,
+    (elision, make) => {
+      const scene = make()
+      const line = lineOf(scene, 1, 2)
+      expect(line.elision, 'premise').toBe(elision)
+      const stroke = [...(line.drawnPoints ?? []), ...(line.head ?? [])]
+      const dots = line.continuation?.dots ?? []
+      expect(stroke.length > 0 && dots.length === 3, 'premise: a short line and a mark are drawn').toBe(true)
+      const lineOnly = marqueeRound(stroke, SHORT_OF_THE_MARK)
+      const inside = (at: Pt): boolean =>
+        at.x >= lineOnly.x && at.x <= lineOnly.x + lineOnly.width && at.y >= lineOnly.y && at.y <= lineOnly.y + lineOnly.height
+      expect(dots.some(inside), 'premise: the rectangle leaves every dot centre out').toBe(false)
+      expect(taken(itemsInMarquee(scene.geometry, lineOnly), 1, 2), `${SL_3_WHOLLY} ${T_303_MARK_IS_PART_OF_THE_LINE}`).toBe(
+        false,
+      )
+      const both = marqueeRound([...stroke, ...dots], SHORT_OF_THE_MARK + DOT)
+      expect(taken(itemsInMarquee(scene.geometry, both), 1, 2), `control: ${SL_3_WHOLLY}`).toBe(true)
+    },
+  )
 
   it('EL-14 / SL-3: an EL-6 line is never taken by a marquee, even one round its whole route', () => {
     const scene = neitherEnd()

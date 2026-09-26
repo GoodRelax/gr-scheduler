@@ -13,6 +13,7 @@ import {
   type ContinuationGeometry,
   type DependencyGeometry,
   type Elision,
+  type FarEndGeometry,
   type GeometryInputs,
   type Path,
   type Point,
@@ -27,6 +28,12 @@ export interface LinkEnd {
   readonly bottom: number
   readonly middle: number
   readonly drawnBottom: number
+}
+
+// see EL-1, EL-2, EL-9
+export interface SightedEnd {
+  readonly end: LinkEnd
+  readonly far: FarEndGeometry
 }
 
 // see EL-9
@@ -240,19 +247,20 @@ function shortLineOf(route: Path, isLevel: boolean, outward: number, run: number
   return [start, bend, point(bend.x, bend.y + rise * NOT_STORED_DEPENDENCY_SIZES['S-360'] * ratio)]
 }
 
-// see EL-9
+// see EL-9, EL-10, EL-11, EL-12
 /** @purity pure */
-function continuationOf(line: Path, farUid: number, ratio: number): ContinuationGeometry {
+function continuationOf(line: Path, farEnd: SightedEnd, ratio: number): ContinuationGeometry {
   const diameter = NOT_STORED_DEPENDENCY_SIZES['S-362'] * ratio
   const tip = line[line.length - 1]
   const along = headingOf(line)
   const dots: Point[] = []
-  if (tip === undefined) return { dots, radius: diameter / 2, farUid }
+  const mark = { radius: diameter / 2, farUid: farEnd.end.taskUid, far: farEnd.far }
+  if (tip === undefined) return { dots, ...mark }
   for (let index = 0; index < CONTINUATION_DOT_COUNT; index += 1) {
     const reach = diameter + diameter / 2 + index * (diameter + diameter)
     dots.push(point(tip.x + along.x * reach, tip.y + along.y * reach))
   }
-  return { dots, radius: diameter / 2, farUid }
+  return { dots, ...mark }
 }
 
 type ElidedParts = Pick<DependencyGeometry, 'drawnPoints' | 'continuation' | 'head'>
@@ -263,8 +271,8 @@ function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, e
   readonly elision: Elision
   readonly exitOutward: number
   readonly entryOutward: number
-  readonly predecessorUid: number
-  readonly successorUid: number
+  readonly predecessor: SightedEnd
+  readonly successor: SightedEnd
 }): ElidedParts {
   const settings = inputs.settings
   const ratio = displayRatioOf(settings)
@@ -275,20 +283,22 @@ function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, e
   if (ends.elision === 'EL-6') return { drawnPoints: [], continuation: null }
   if (ends.elision === 'EL-4') {
     const line = shortLineOf(points, isLevel, ends.exitOutward, settings.dependencyLeadOut, ratio)
-    return { drawnPoints: line, continuation: continuationOf(line, ends.successorUid, ratio) }
+    return { drawnPoints: line, continuation: continuationOf(line, ends.successor, ratio) }
   }
   const backward = shortLineOf([...points].reverse(), isLevel, ends.entryOutward, settings.dependencyLeadIn, ratio)
   const line = [...backward].reverse()
   return {
     drawnPoints: line,
-    continuation: continuationOf(backward, ends.predecessorUid, ratio),
+    continuation: continuationOf(backward, ends.predecessor, ratio),
     head: headOf(line),
   }
 }
 
 /** @purity pure */
-export function routedDependency(inputs: GeometryInputs, from: LinkEnd, to: LinkEnd,
+export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd,
                           linkType: number, elision: Elision): DependencyGeometry {
+  const from = predecessor.end
+  const to = successor.end
   const right = exitsRight(linkType)
   const sign = right ? 1 : -1
   const entryRight = sameSide(linkType) ? right : !right
@@ -316,8 +326,8 @@ export function routedDependency(inputs: GeometryInputs, from: LinkEnd, to: Link
       elision,
       exitOutward: sign,
       entryOutward: entryRight ? 1 : -1,
-      predecessorUid: from.taskUid,
-      successorUid: to.taskUid,
+      predecessor,
+      successor,
     }),
   }
 }

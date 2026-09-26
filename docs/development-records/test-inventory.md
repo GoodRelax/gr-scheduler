@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 96 | 1142 | 3 | 3 | 7 | 1 |
+| `contract` | TS-5 | VT-2 | 96 | 1145 | 3 | 3 | 7 | 1 |
 | `integration` | TS-2 | - | 3 | 68 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 29 | 172 | 0 | 2 | 0 | 0 |
-| `unit` | TS-6 | - | 136 | 3054 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 138 | 3109 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 8 | 11 | 0 | 0 |
-| **all** | | | 281 | 4470 | 12 | 17 | 9 | 1 |
+| **all** | | | 283 | 4528 | 12 | 17 | 9 | 1 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 118 | 102 | FR-010, FR-040, FR-045, FR-079, FR-081, FR-105, FR-130, FR-131, FR-132, FR-133, FR-134, FR-135, FR-136, FR-150, FR-151, FR-152 |
+| FR | 118 | 103 | FR-010, FR-040, FR-079, FR-081, FR-105, FR-130, FR-131, FR-132, FR-133, FR-134, FR-135, FR-136, FR-150, FR-151, FR-152 |
 | NFR | 13 | 8 | NFR-005, NFR-006, NFR-008, NFR-009, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
@@ -70,12 +70,12 @@ named either way: 1 of 12.
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 | `tests/usecase/uc-014-merge-schedules-into-one.test.ts` | UC-014 step 5 / FR-022: after a merge answered with IC-95 no notice tells what was over... | DFC-1021 (via known-red) |
 
-## 6. The unit files kept for now (136) -- listing only
+## 6. The unit files kept for now (138) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 10 of 136.
+`semi-pure-a` (rule 04 table UO, row UO-1): 11 of 138.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -124,6 +124,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-probe-real-app.test.ts` | frameLoop (non-pure) | - | FR-006, FR-051, FR-055, T-016, T-020, T-023d, T-078, T-103, T-206 |
 | `tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts` | frameLoop (non-pure) | - | T-016, T-294 |
 | `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), itemsInMarquee (pure), layoutFromSchedule (pure), regionsFromScreen (pure), selectionWith (pure), selectionWithinDrawn (pure), svgFromSchedule (pure) | yes | FR-009, FR-039, FR-098, FR-108, T-201, T-206, T-236, T-252, T-268, T-303 |
+| `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | commandFromGrab (pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), layoutFromSchedule (pure), regionsFromScreen (pure) | yes | FR-018, T-023, T-027, T-205, T-270, T-303 |
+| `tests/unit/cr-556-the-deadline-arrow.test.ts` | domScreenSurface (non-pure), emptySelection (pure), geometryFromLayout (pure), grabSizesOf (pure), itemAtPointer (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure), taskPlacement (pure), tooltipsFromScreenView (pure) | - | FR-045, FR-094, T-012, T-020, T-028, T-038, T-040, T-076, T-304 |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-024, FR-073, T-036, T-103, T-220, T-233 |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), editTask (pure), editTaskGroup (pure) | yes | FR-058 |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | documentFromJson (pure), documentFromMspdi (pure), mspdiFromDocument (pure) | yes | FR-021 |
@@ -227,14 +229,14 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-429-mr-1-mr-2-ex-10-child-order.test.ts` | 23 | - | - | T-058, T-059 | EX-1, EX-10, MR-1, MR-2 | - | - | - | yes |
 | `tests/contract/cr-429-mr-3-the-first-of-a-repeated-leaf.test.ts` | 12 | FR-021 | - | T-233, T-265 | EX-1, MR-3, NT-5, RS-60 | - | - | - | yes |
 | `tests/contract/cr-429-the-two-schemas.test.ts` | 11 | - | - | - | CN-7, EX-1, EX-10 | - | - | - | yes |
-| `tests/contract/cr-430-ga-1-to-22-grab-areas.test.ts` | 48 | FR-075 | - | T-206, T-240, T-266, T-268 | GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-10, GA-14, GA-15, GA-16, GA-17, GA-18, GA-19, GA-20, GA-21, GA-22, LP-7, S-63, S-250, S-251, S-253, S-254, S-256, S-257, S-258, S-268, S-269, S-278, S-284, S-285, TY-2, TY-6, TY-8 | - | - | - | - |
+| `tests/contract/cr-430-ga-1-to-22-grab-areas.test.ts` | 50 | FR-075 | - | T-206, T-240, T-266, T-268, T-303 | EL-4, EL-9, GA-1, GA-2, GA-3, GA-4, GA-5, GA-6, GA-7, GA-8, GA-9, GA-10, GA-14, GA-15, GA-16, GA-17, GA-18, GA-19, GA-20, GA-21, GA-22, GA-24, LP-7, S-63, S-250, S-251, S-253, S-254, S-256, S-257, S-258, S-268, S-269, S-278, S-284, S-285, S-363, TY-2, TY-6, TY-8 | - | - | - | - |
 | `tests/contract/cr-430-ga-pointer-column.test.ts` | 10 | - | - | T-266, T-269 | PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10 | - | - | - | - |
 | `tests/contract/cr-430-ht-1-to-4-hit-order.test.ts` | 21 | FR-110 | - | T-023d, T-266, T-267, T-268, T-273 | GA-1, HT-1, HT-2, HT-3, HT-4, LP-2, S-63, TY-7, TY-9 | - | - | - | - |
 | `tests/contract/cr-430-t-020-the-order-things-are-drawn.test.ts` | 10 | FR-110 | - | T-020 | S-63 | - | - | - | - |
 | `tests/contract/cr-430-t-273-where-the-labels-stand.test.ts` | 18 | FR-109 | - | T-273 | LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-31, S-32, S-63, S-301, S-303 | - | - | - | - |
 | `tests/contract/cr-430-table-pe-press-and-drag-effects.test.ts` | 29 | FR-107 | - | T-021a, T-270 | PE-0, PE-1, PE-3, PE-6, PE-7, PE-8, PE-10, PE-11, PE-12, PE-13, S-63 | - | - | - | - |
 | `tests/contract/cr-430-table-pk-the-pointer-shapes.test.ts` | 21 | FR-106 | - | T-266, T-269 | GA-2, GA-18, PK-1, PK-3, PK-4, PK-5, PK-7, PK-8, PK-9, PK-10, S-295, S-297 | - | DFC-1024 (flaky) | - | - |
-| `tests/contract/cr-430-ty-1-to-9-type-order.test.ts` | 16 | - | - | T-268, T-273 | LP-2, S-63, TY-1, TY-2, TY-3, TY-4, TY-5, TY-6, TY-7, TY-8, TY-9 | - | - | - | - |
+| `tests/contract/cr-430-ty-1-to-9-type-order.test.ts` | 17 | - | - | T-268, T-273 | LP-2, S-63, TY-1, TY-2, TY-3, TY-4, TY-5, TY-6, TY-7, TY-8, TY-9 | - | - | - | - |
 | `tests/contract/cr-435-every-requirement-names-a-unit.contract.test.ts` | 11 | - | - | T-075, T-277 | - | - | - | - | - |
 | `tests/contract/cr-441-fr-016-the-marker-drag-shows-the-actual-end.test.ts` | 5 | FR-016, FR-106 | - | T-270 | PE-8, S-63 | - | DFC-1024 (flaky) | - | - |
 | `tests/contract/cr-441-t-274-principles-and-rows-both-ways.contract.test.ts` | 11 | FR-104 | - | T-274 | PK-10, PP-6 | - | - | - | - |
@@ -395,7 +397,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts` | 22 | FR-002, FR-013, FR-093, FR-094 | - | T-012a, T-251, T-273, T-297 | FD-5, LC-5, ND-5, OC-1, PM-4, RK-1, RK-2, S-24, S-30, S-63, S-232, S-325, S-326, S-327, S-328, S-329, S-330, S-331 | - | - | - | - |
 | `tests/unit/cr-551-probe-real-app.test.ts` | 9 | FR-006, FR-051, FR-055 | - | T-016, T-020, T-023d, T-078, T-103, T-206 | CV-9, EP-5, FT-1, GR-21, IC-10, IF-9, OP-10, PR-3, PR-10, S-332 | - | - | - | - |
 | `tests/unit/cr-551-row-fields-keys-and-colour-field-settles.test.ts` | 5 | - | - | T-016, T-294 | AT-53, CV-9, IR-1, MK-13 | - | - | - | - |
-| `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | 48 | FR-009, FR-039, FR-098, FR-108 | - | T-201, T-206, T-236, T-252, T-268, T-303 | DS-3, DS-7, EL-1, EL-2, EL-3, EL-4, EL-5, EL-6, EL-7, EL-8, EL-9, EL-13, EL-14, EL-15, GA-24, HT-1, PE-12, RP-1, RP-3, RT-3, RT-4a, RT-6, S-19, S-49, S-159, S-224, S-298, S-299, S-300, S-360, S-361, S-362, S-363, SL-3, SL-5, SL-8, TY-2, TY-5 | - | - | - | - |
+| `tests/unit/cr-555-dependency-lines-are-elided.test.ts` | 49 | FR-009, FR-039, FR-098, FR-108 | - | T-201, T-206, T-236, T-252, T-268, T-303 | DS-3, DS-7, EL-1, EL-2, EL-3, EL-4, EL-5, EL-6, EL-7, EL-8, EL-9, EL-13, EL-14, EL-15, GA-24, HT-1, PE-12, RP-1, RP-3, RT-3, RT-4a, RT-6, S-19, S-49, S-159, S-224, S-298, S-299, S-300, S-360, S-361, S-362, S-363, SL-3, SL-5, SL-8, TY-2, TY-5 | - | - | - | - |
+| `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | 17 | FR-018 | - | T-023, T-027, T-205, T-270, T-303 | CM-65, CM-66, EL-2, EL-10, EL-11, EL-12, MK-13, PE-12, S-78, S-176, UN-8 | - | - | - | - |
+| `tests/unit/cr-556-the-deadline-arrow.test.ts` | 37 | FR-045, FR-094 | - | T-012, T-020, T-028, T-038, T-040, T-076, T-304 | DA-1, DA-2, DA-3, DA-4, DA-5, DA-6, DA-7, EP-5, EZ-6, IN-7, OC-9, S-7, S-146, S-364, S-365, S-366, S-367, SH-5, WY-3, ZO-1, ZO-2, ZO-3, ZO-4, ZO-5, ZO-8, ZO-13 | - | - | - | - |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | 19 | FR-024, FR-073 | - | T-036, T-103, T-220, T-233 | AM-2, OP-6, RS-25, RS-63, RS-64, S-81, S-350 | - | - | - | - |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-row.test.ts` | 19 | FR-058 | - | - | HM-9, IV-6, MR-4, S-125, ST-2 | - | - | - | - |
 | `tests/unit/cr-569-the-project-summary-task-is-carried-not-a-row.test.ts` | 19 | FR-021 | - | - | AT-139, EX-5, IV-2, MR-4 | - | - | - | - |

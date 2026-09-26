@@ -16,6 +16,7 @@ import {
 import {
   NOT_STORED_LABEL_SIZES,
   assigneeAnchorOf,
+  deadlineHeadHalfWidthOf,
   dummyBandOf,
   labelLayoutOf,
   labelReferenceOf,
@@ -33,6 +34,7 @@ import { guidesOf } from './plan-actual-guides'
 import {
   point,
   type BarGeometry,
+  type DeadlineGeometry,
   type DummyGeometry,
   type GeometryInputs,
   type MarkerGeometry,
@@ -389,6 +391,32 @@ function markerOf(inputs: GeometryInputs, task: Task,
   }
 }
 
+// see DA-1, DA-2, DA-3, DA-4, DA-5
+// TRAP: gate on no toggle, unlike markerOf: hiding the plan or the markers must not hide the deadline (DA-1).
+/** @purity pure */
+function deadlineOf(placed: TaskPlacement, settings: DrawnSettings): DeadlineGeometry | null {
+  const x = placed.deadlineX
+  if (x === null) return null
+  const d = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
+  const top = labelTierMiddleOf(placed, settings) - d / 2
+  const tipY = top + d
+  const headY = tipY - d * NOT_STORED_DEADLINE_MARK_SIZES['S-366']
+  const head = deadlineHeadHalfWidthOf(d)
+  const shaft = (d * NOT_STORED_DEADLINE_MARK_SIZES['S-367']) / 2
+  return {
+    outline: [
+      point(x - shaft, top),
+      point(x - shaft, headY),
+      point(x - head, headY),
+      point(x, tipY),
+      point(x + head, headY),
+      point(x + shaft, headY),
+      point(x + shaft, top),
+    ],
+    haloWidth: d * settings.labelHaloOfFont,
+  }
+}
+
 // see LF-13, XS-10, XS-12, S-25
 /** @purity pure */
 function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
@@ -565,7 +593,6 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
 
   const dummies = dummiesOf(inputs, task, placed, actualHeight)
   const marker = markerOf(inputs, task, placed)
-  const outsideLabel = outsideLabelBoxOf(inputs, placed)
   const state = planActualState(task)
   const suspended = state === 'suspendedResumePlanned' || state === 'suspendedResumeUnknown'
 
@@ -594,7 +621,8 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
         ? fadeHandlePoints(placed, planTop)
         : [],
     label: labelBoxOf(inputs, task, placed),
-    assigneeLabel: outsideLabel,
+    assigneeLabel: outsideLabelBoxOf(inputs, placed),
+    deadline: deadlineOf(placed, settings),
   }
 }
 

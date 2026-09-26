@@ -34,6 +34,14 @@ const ROWS = specTable('T-020').rows.map((row) => ({
   rank: numberIn(row.by[RANK] ?? ''),
 }))
 
+const FRONTMOST = '最前面'
+
+const TOP_RANK = ((): number => {
+  const top = specTable('T-020').rows.find((row) => (row.by[RANK] ?? '').includes(FRONTMOST))
+  if (top === undefined) throw new Error(`table T-020 has no row ranked ${FRONTMOST}`)
+  return numberIn(top.by[RANK] ?? '')
+})()
+
 const COMMENT_BOX = {
   id: 'c1',
   leaderShapeKind: 'calloutBox',
@@ -77,6 +85,7 @@ const richScene = (): Scene =>
         resume: day(22),
         resumeValid: true,
         percentComplete: 40,
+        deadline: day(6),
       }),
       taskOf({
         uid: 2,
@@ -136,9 +145,9 @@ const isBackToFront = (order: readonly string[], ranked: readonly { id: string; 
 
 describe('T-020 -- every row of the table is a drawn layer, in the order the table gives', () => {
   it(`premise: ${FR_110_ONE_TABLE_DECIDES}`, () => {
-    expect(ROWS.length, FR_110_ONE_TABLE_DECIDES).toBe(13)
+    expect(ROWS.length, FR_110_ONE_TABLE_DECIDES).toBe(TOP_RANK)
     expect([...ROWS].map((one) => one.rank).sort((a, b) => a - b), FR_110_ONE_TABLE_DECIDES).toEqual(
-      Array.from({ length: 13 }, (_, index) => index + 1),
+      Array.from({ length: TOP_RANK }, (_, index) => index + 1),
     )
   })
 

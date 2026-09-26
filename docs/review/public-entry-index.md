@@ -128,6 +128,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗の札の右端を合わせる位置。 |
 | `dateAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#dateAtX` | PI-5 | 時間軸の対応。 |
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
+| `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | -- | function deadlineHeadHalfWidthOf(markerDiameter: number): number |
 | `dummyBandOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#dummyBandOf` | PI-5 | ダミーを描く帯。 |
 | `dummyInkWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf` | -- | function dummyInkWidthOf(markerDiameter: number): number |
 | `FitToScreen` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#FitToScreen` | -- | interface FitToScreen |
@@ -200,10 +201,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
 | `ContinuationGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ContinuationGeometry` | -- | interface ContinuationGeometry |
+| `DeadlineGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DeadlineGeometry` | -- | interface DeadlineGeometry |
 | `DependencyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DependencyGeometry` | PI-6 | 型。 |
 | `DualCursorGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DualCursorGeometry` | -- | interface DualCursorGeometry |
 | `DummyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DummyGeometry` | -- | interface DummyGeometry |
 | `Elision` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Elision` | -- | type Elision = 'EL-3' \| 'EL-4' \| 'EL-5' \| 'EL-6' |
+| `FarEndGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#FarEndGeometry` | -- | interface FarEndGeometry |
 | `geometryFromLayout` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#geometryFromLayout` | PI-6 | function geometryFromLayout( schedule: Schedule, storedSettings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, selection: Selection, dual... |
 | `GeometryInputs` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#GeometryInputs` | -- | interface GeometryInputs |
 | `HighlightGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#HighlightGeometry` | PI-6 | 型。 |
@@ -223,8 +226,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `LinkEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#LinkEnd` | -- | interface LinkEnd |
 | `placedEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#placedEndOf` | -- | function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
-| `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, from: LinkEnd, to: LinkEnd, linkType: number, elision: Elision): DependencyGeometry |
+| `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd, linkType: number, elision: Elision): DependencyGeometry |
 | `selectedLinksOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | -- | function selectedLinksOf(schedule: Schedule, selection: Selection): ReadonlySet<string> |
+| `SightedEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#SightedEnd` | -- | interface SightedEnd |
 | `standingEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#standingEndOf` | -- | function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd |
 | `DualCursorDates` | file only | interface | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#DualCursorDates` | -- | interface DualCursorDates |
 | `dualCursorGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/dual-cursor.ts#dualCursorGeometry` | -- | function dualCursorGeometry( placed: DualCursorDates \| null, layout: ScheduleLayout, regions: ScreenRegions, ): DualCursorGeometry \| null |
@@ -620,6 +624,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel(input: WheelInput, context: InputContext): TranslatedInput |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
+| `namesAPlace` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace` | -- | function namesAPlace( schedule: Schedule, scrollDate: string \| null, scrollGroupId: string \| null, ): boolean |
 | `rowPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowPointIn` | -- | function rowPointIn( rows: readonly RowPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
 | `rowZoomAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#rowZoomAnswer` | -- | function rowZoomAnswer( context: InputContext, factor: number, pointerX: number \| null, pointerY: number \| null, ): TranslatedInput |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
@@ -1353,4 +1358,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Step` | file only | type | `src/use-case/advance-screen-session/session-step.ts#Step` | -- | type Step<S, E> = { readonly state: S; readonly effects: readonly E[] } |
 | `unchanged` | file only | function | `src/use-case/advance-screen-session/session-step.ts#unchanged` | -- | function unchanged<S, E>(state: S): Step<S, E> |
 
-Totals: 663 name(s) leave through a public entry (199 of them published by table T-064), 490 more are exported by a file and not by its entry.
+Totals: 666 name(s) leave through a public entry (199 of them published by table T-064), 492 more are exported by a file and not by its entry.

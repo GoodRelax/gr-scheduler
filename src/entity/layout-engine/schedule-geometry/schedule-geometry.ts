@@ -31,6 +31,7 @@ import {
   selectedLinksOf,
   standingEndOf,
   type LinkEnd,
+  type SightedEnd,
 } from './dependency-route'
 import { dualCursorGeometry, type DualCursorDates } from './dual-cursor'
 import { highlightGeometry } from './highlight-box'
@@ -96,6 +97,12 @@ export interface DummyGeometry {
   readonly figure?: BarGeometry
 }
 
+// see DA-2, DA-3
+export interface DeadlineGeometry {
+  readonly outline: Path
+  readonly haloWidth: number
+}
+
 export interface TaskGeometry {
   readonly taskUid: number
   readonly shapeKind: TaskPlacement['shapeKind']
@@ -113,6 +120,18 @@ export interface TaskGeometry {
   // see FR-009, RT-4a
   // WHY: optional, read as true when absent: a hand-built geometry may not say.
   readonly hasPlanDates?: boolean
+  // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
+  readonly deadline?: DeadlineGeometry | null
+}
+
+// see EL-1, EL-2, EL-10, EL-11, EL-12
+// WHY: decided here once, where EL-1 and EL-2 are judged, so the double click (EL-10 .. EL-12) never judges them again.
+export interface FarEndGeometry {
+  readonly isAcrossInRowArea: boolean
+  readonly isDownInRowPlace: boolean
+  readonly groupId: string
+  readonly middleX: number
+  readonly undrawnRowDepth: number | null
 }
 
 // see EL-9, GA-24
@@ -120,6 +139,7 @@ export interface ContinuationGeometry {
   readonly dots: readonly Point[]
   readonly radius: number
   readonly farUid: number
+  readonly far: FarEndGeometry
 }
 
 // see T-303
@@ -227,16 +247,28 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
   return Math.min(to, upper) - Math.max(from, lower)
 }
 
-// see EL-1, FR-098, LF-14
+// see EL-1, EL-2, FR-098, LF-14
+// WHY: an EL-2 end stands on a zero-height line, so it is never inside its row's place down.
 /** @purity pure */
-function isSeen(end: LinkEnd, row: RowPlacement | undefined, reading: EndReading): boolean {
+function farEndOf(end: LinkEnd, groupId: string, undrawnRowDepth: number | null, reading: EndReading): FarEndGeometry {
   const area = reading.regions.rowArea
   const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
-  const isPinned = row?.isPinned === true
+  const isPinned = reading.rowById.get(groupId)?.isPinned === true
   const top = isPinned ? area.y : bandFloor
   const bottom = isPinned ? bandFloor : area.y + area.height
-  return overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0 &&
-    overlapOf(end.top, end.bottom, top, bottom) > 0
+  return {
+    isAcrossInRowArea: overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0,
+    isDownInRowPlace: overlapOf(end.top, end.bottom, top, bottom) > 0,
+    groupId,
+    middleX: (end.x + (end.x + end.width)) / 2,
+    undrawnRowDepth,
+  }
+}
+
+// see EL-1
+/** @purity pure */
+function isSeen(far: FarEndGeometry): boolean {
+  return far.isAcrossInRowArea && far.isDownInRowPlace
 }
 
 // see EL-2
@@ -251,10 +283,10 @@ function standingYOf(row: RowPlacement, reading: EndReading): number {
   return floor
 }
 
-// see EL-2, RT-4a, LC-1
+// see EL-2, EL-10, RT-4a, LC-1
 // WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
 /** @purity pure */
-function lodEndOf(task: Task, reading: EndReading): LinkEnd | null {
+function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
   const start = dayOf(task.start)
   const finish = dayOf(task.finish)
@@ -271,7 +303,9 @@ function lodEndOf(task: Task, reading: EndReading): LinkEnd | null {
     if (row !== undefined) {
       const x = xFromDay(layout, start)
       const width = Math.max(xFromDay(layout, finish) - x, settings.minShapeWidth)
-      return standingEndOf(task.uid, x, width, standingYOf(row, reading))
+      const end = standingEndOf(task.uid, x, width, standingYOf(row, reading))
+      // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
+      return { end, far: farEndOf(end, own.id, row.depth + step + 1, reading) }
     }
     group = parent
   }
@@ -279,15 +313,14 @@ function lodEndOf(task: Task, reading: EndReading): LinkEnd | null {
 }
 
 /** @purity pure */
-function seenEndOf(uid: number, reading: EndReading): { readonly end: LinkEnd; readonly seen: boolean } | null {
+function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
   const placed = reading.placedByUid.get(uid)
   if (placed !== undefined) {
     const end = placedEndOf(placed, reading.inputs.settings)
-    return { end, seen: isSeen(end, reading.rowById.get(placed.groupId), reading) }
+    return { end, far: farEndOf(end, placed.groupId, null, reading) }
   }
   const task = reading.inputs.taskByUid.get(uid)
-  const standing = task === undefined ? null : lodEndOf(task, reading)
-  return standing === null ? null : { end: standing, seen: false }
+  return task === undefined ? null : lodEndOf(task, reading)
 }
 
 // see T-303
@@ -305,12 +338,12 @@ function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: Scr
   const out: DependencyGeometry[] = []
   for (const successor of schedule.tasks) {
     if (successor.dependencies.length === 0) continue
-    const to = seenEndOf(successor.uid, reading)
+    const to = sightedEndOf(successor.uid, reading)
     if (to === null) continue
     for (const link of successor.dependencies) {
-      const from = seenEndOf(link.predecessorUid, reading)
+      const from = sightedEndOf(link.predecessorUid, reading)
       if (from === null) continue
-      out.push(routedDependency(inputs, from.end, to.end, link.linkType, elisionOf(from.seen, to.seen)))
+      out.push(routedDependency(inputs, from, to, link.linkType, elisionOf(isSeen(from.far), isSeen(to.far))))
     }
   }
   return out
